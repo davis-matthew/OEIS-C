@@ -9,13 +9,16 @@
  * Formula:   a(n) = (n‑1)*lcm(1…n‑1) + 1 for n >= 3 a(1) = 1, a(2) = 3
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 19, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *L_cache = NULL;      /* lcm(1…i) for i = 0… */
 static size_t L_cache_cap = 0;     /* allocated capacity of L_cache   */
@@ -27,7 +30,7 @@ static void ensure_lcm_cache(idx_t m)
     /* First allocation and initialization of L_cache[0] = 1 (lcm of empty set). */
     if (L_cache == NULL) {
         L_cache_cap = 1;
-        L_cache = (seq_t *)malloc(L_cache_cap * sizeof(seq_t));
+        L_cache = mem_new(seq_t, L_cache_cap);
         if (!L_cache) exit(1);
         L_cache[0] = (seq_t)1;
         L_cache_last = 0;
@@ -37,10 +40,10 @@ static void ensure_lcm_cache(idx_t m)
     if ((size_t)m + 1 > L_cache_cap) {
         size_t new_cap = L_cache_cap ? L_cache_cap * 2 : 2;
         if (new_cap < (size_t)m + 1) new_cap = (size_t)m + 1;
-        seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (!new_arr) exit(1);
         for (size_t i = 0; i < L_cache_cap; ++i) new_arr[i] = L_cache[i];
-        free(L_cache);
+        mem_free(L_cache);
         L_cache = new_arr;
         L_cache_cap = new_cap;
     }

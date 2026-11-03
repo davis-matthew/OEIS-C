@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   check_prop
+ * Validated: full, pass, 27 terms through n = 27 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,33 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/check_prop.h"
+
+static bool check_prop(const int *d)
+{
+    for (int k = 0; k < 5; k++) {
+        int prod = d[k] * d[k + 1];
+        unsigned pd[2];
+        int pd_len;
+        if (prod < 6) {
+            pd[0] = prod;
+            pd_len = 1;
+        } else {
+            pd[0] = prod / 6;
+            pd[1] = prod % 6;
+            pd_len = 2;
+        }
+        bool found = false;
+        for (int start = 0; start <= 6 - pd_len; start++) {
+            bool ok = true;
+            for (int t = 0; t < pd_len; t++) {
+                if (d[start + t] != pd[t]) { ok = false; break; }
+            }
+            if (ok) { found = true; break; }
+        }
+        if (!found) return false;
+    }
+    return true;
+}
 
 static bool next_permutation(int *a, int n)
 {

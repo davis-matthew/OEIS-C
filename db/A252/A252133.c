@@ -11,12 +11,14 @@
  *            a(7)=24031, a(8)=66098, a(9)=181896, a(10)=501355, a(11)=1381325
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 18, u64 n <= 40, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base[12] = {
     (seq_t)0,
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     /* Ensure we have at least 12 entries for the initial values */
     if (cache_len < 12) {
         idx_t new_len = (n + 1) > 12 ? (n + 1) : 12;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return (seq_t)0;
         cache = tmp;
         cache_len = new_len;
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
     /* Expand the array if necessary */
     if (cache_len <= n) {
         idx_t old_len = cache_len;
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) return (seq_t)0;
         cache = tmp;
         cache_len = n + 1;

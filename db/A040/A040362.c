@@ -8,7 +8,8 @@
  *            expansion of sqrt(382); a(0) = floor(sqrt(382)) = 19
  * Range:     u8 n <= 0, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static size_t _period_len = 0;           /* number of periodic coefficients (a1..aL) */
 static seq_t *_period = NULL;            /* array holding the periodic coefficients */
@@ -36,7 +38,7 @@ static void _compute_period(void)
     /* Coefficients are all small; an upper bound on period length is 2*sqrt(382)+1 < 80.
        We start with a modest capacity and resize if necessary. */
     size_t cap = 64;
-    _period = (seq_t *)malloc(cap * sizeof(seq_t));
+    _period = mem_new(seq_t, cap);
     if (!_period) return; /* Allocation failure -> sequence will be incomplete */
 
     const seq_t D = 382;
@@ -57,7 +59,7 @@ static void _compute_period(void)
         /* Store a_next in period array */
         if (pos >= cap) {
             cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(_period, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, _period, cap);
             if (!tmp) {
                 /* Allocation failure: truncate period to current length */
                 _period_len = pos;
@@ -74,7 +76,7 @@ static void _compute_period(void)
     } while (a != two_a0);
 
     /* Reserve only the needed length */
-    seq_t *tmp = (seq_t *)realloc(_period, pos * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _period, pos);
     if (tmp) _period = tmp;
     _period_len = pos;
 }

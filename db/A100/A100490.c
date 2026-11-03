@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         if ((current % 10) != 5) {
             uint64_t cur64 = (uint64_t)current;   /* safe for the values needed */
             /* If the number is composite (not prime) and > 1, count it */
-            if (!is_prime(cur64)) {
+            if (!is_prime_u64(cur64)) {
                 if (count == n) return current;
                 count++;
             }

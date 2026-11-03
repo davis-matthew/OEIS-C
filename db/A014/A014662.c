@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, is_prime, powmod64
+ * Validated: standard, pass, 72 terms through n = 993 (2026-11-01)
+ * Helpers:   factor_u64, is_prime, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
 #include "../utils/factor_u64.h"
-#include "../utils/powmod64.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod_u64.h"
 
 /* Cached list of primes with even order of 2 modulo p */
 static uint64_t *prop = NULL;
@@ -43,7 +44,7 @@ static bool is_even_order(uint64_t p)
     for (size_t i = 0; i < fac_cnt; ++i) {
         uint64_t q = pf[i];
         while (ord % q == 0) {
-            if (powmod64(2, ord / q, p) == 1)
+            if (powmod_u64(2, ord / q, p) == 1)
                 ord /= q;
             else
                 break;

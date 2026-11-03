@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 18, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   cube, dec_digits
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem, num_digits_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,17 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/cube.h"
-#include "../utils/dec_digits.h"
+#include "../utils/num_digits_seq.h"
+#include "../utils/mem.h"
+
+/* cube of an integer k (idx_t fits inside seq_t) */
+static inline seq_t cube(idx_t k)
+{
+    seq_t r = (seq_t)k;
+    r *= r;
+    r *= (seq_t)k;
+    return r;
+}
 
 /* ---------- helper routines ---------- */
 
@@ -52,7 +62,7 @@ static inline seq_t pow10(idx_t k)
 /* leading decimal digit of x (x>0) */
 static inline seq_t leading_digit(seq_t x)
 {
-    idx_t d = dec_digits(x) - 1;
+    idx_t d = num_digits_seq(x) - 1;
     seq_t p = pow10(d);
     return x / p;
 }
@@ -68,10 +78,10 @@ static void ensure_cache(idx_t n)
 {
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache     = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
     } else if (n > cache_cap) {
         while (n > cache_cap) cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     while (cache_len < n) {
@@ -100,7 +110,7 @@ seq_t a(idx_t n)
 
     if (cache_len == 0) { /* initialise the first term */
         cache_cap = 16;
-        cache     = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         cache[0]  = (seq_t)1;      /* a(1) = 1 */
         cache_len = 1;
     }

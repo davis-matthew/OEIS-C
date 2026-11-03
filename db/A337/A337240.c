@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
  * two identical decimal digits (OEIS A337240). */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
 
 /* Return true if x has two or more occurrences of any decimal digit */

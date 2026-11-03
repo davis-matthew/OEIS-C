@@ -7,12 +7,14 @@
  * Formula:   a(n) = 3*a(n-1) + 7*a(n-2), with a(1) = 1, a(2) = 10
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 471 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (buf == NULL) {
         /* At least two elements are needed to start the recurrence. */
         idx_t cap = (n > 2 ? n : 2);
-        buf = (seq_t *)malloc((size_t)(cap + 1) * sizeof(seq_t));
+        buf = mem_new(seq_t, (size_t)(cap + 1));
         if (buf == NULL)
             abort();                  /* Out of memory */
 
@@ -47,8 +49,7 @@ seq_t a(idx_t n)
         if (new_cap < max_cached)
             new_cap = max_cached;
 
-        seq_t *new_buf = (seq_t *)realloc(buf,
-                            (size_t)(new_cap + 1) * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, buf, (size_t)(new_cap + 1));
         if (new_buf == NULL)
             abort();                  /* Out of memory */
         buf = new_buf;

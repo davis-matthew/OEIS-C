@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 393, u32 n <= 1835, u64 n <= 9919,
  *            u128 n <= 9919, big any n
- * Helpers:   none
+ * Validated: standard, pass, 109 terms through n = 8587 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -52,12 +54,12 @@ seq_t a(idx_t n)
     size_t *len_arr = (size_t*)malloc((r + 1) * sizeof(size_t));
 
     /* base rows */
-    poly[0] = (seq_t*)malloc(sizeof(seq_t));
+    poly[0] = mem_new(seq_t, 1);
     poly[0][0] = (seq_t)1;
     len_arr[0] = 1;
 
     if (r >= 1) {
-        poly[1] = (seq_t*)malloc(sizeof(seq_t));
+        poly[1] = mem_new(seq_t, 1);
         poly[1][0] = (seq_t)1;
         len_arr[1] = 1;
     }
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     /* compute rows 2..r */
     for (idx_t cur = 2; cur <= r; ++cur) {
         size_t cur_len = (size_t)cur * (cur - 1) / 2 + 1;
-        seq_t *cur_arr = (seq_t*)calloc(cur_len, sizeof(seq_t));
+        seq_t *cur_arr = mem_new(seq_t, cur_len);
 
         /* add P_{cur-1} */
         size_t len_prev = len_arr[cur - 1];
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
 
     /* free allocated memory */
     for (idx_t i = 0; i <= r; ++i) {
-        free(poly[i]);
+        mem_free(poly[i]);
     }
     free(poly);
     free(len_arr);

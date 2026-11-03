@@ -7,13 +7,14 @@
  * Formula:   a(n) = the greatest twin prime ≤ n (starting at a(3)=3)
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   isPrime
+ * Validated: partial, pass, 72 terms through n = 74 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -21,12 +22,12 @@ seq_t a(idx_t n)
     if (n < 3) return 0;
 
     for (idx_t p = n; ; --p) {
-        if (isPrime(p)) {
+        if (is_prime(p)) {
             bool twin = false;
             /* check p-2 if it is non‑negative */
-            if (p >= 5) twin = twin || isPrime(p - 2);
+            if (p >= 5) twin = twin || is_prime(p - 2);
             /* check p+2 only if addition cannot overflow */
-            if (p <= UINT64_MAX - 2) twin = twin || isPrime(p + 2);
+            if (p <= UINT64_MAX - 2) twin = twin || is_prime(p + 2);
             if (twin) return (seq_t)p;
         }
         /* stop once we reach the smallest possible twin prime */

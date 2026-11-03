@@ -9,13 +9,15 @@
  *            a(6)=62254,a(7)=69151,a(8)=131405,a(9)=1251796
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 13, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*  a(0) is the first term of the sequence.
     The function returns the nth term (n >= 0).  */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     /* Allocate initial cache for the first 10 terms. */
     if (cache == NULL) {
-        cache = (seq_t*)malloc(10 * sizeof(seq_t));
+        cache = mem_new(seq_t, 10);
         for (size_t i = 0; i < 10; ++i) {
             cache[i] = init_vals[i];
         }
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         /* Extend storage if necessary. */
         size_t new_cap = (size_t)n + 1;
         if (new_cap > cap) {
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) { /* allocation failed – aborting. */
                 abort();
             }

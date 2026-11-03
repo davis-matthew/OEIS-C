@@ -11,7 +11,8 @@
  *            Initial values: a(1)=1, a(2)=3, a(3)=4
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>   /* malloc, realloc */
 #include <stdint.h>   /* for uint64_t used by idx_t, seq_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Ensure capacity for requested n */
     if (n > tcap) {
         idx_t newcap = n;
-        seq_t *newtab = (seq_t *)realloc(table, newcap * sizeof(seq_t));
+        seq_t *newtab = mem_resize(seq_t, table, newcap);
         if (!newtab) return (seq_t)0;  /* allocation failure, return 0 */
         table = newtab;
         tcap = newcap;

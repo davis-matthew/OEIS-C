@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 736, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow10_uint64
+ * Validated: standard, pass, 63 terms through n = 822 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/pow10_uint64.h"
+#include "../utils/mem.h"
+
+static uint64_t pow10_uint64(int d)
+{
+    uint64_t r = 1;
+    while (d--) r *= 10;
+    return r;
+}
 
 /* ---------------------------------------------------------- */
 /*  prime sieve:  linear sieve up to 2 000 000                */
@@ -101,7 +109,7 @@ static uint64_t last_candidate = 2;
 static void grow_terms(void)
 {
     size_t new_cap = terms_cap ? terms_cap * 2 : 64;
-    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     terms_cap = new_cap;
 }
 

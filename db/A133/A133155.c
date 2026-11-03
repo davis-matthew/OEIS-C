@@ -10,7 +10,8 @@
  *            (i.e. a(1)=2, a(2)=6, a(3)=14, …)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   build_primes_upto, grow_seq
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,22 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/grow_seq.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* static storage for the prime list */
 static uint64_t *prime_list = NULL;

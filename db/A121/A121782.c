@@ -8,6 +8,7 @@
  * Formula:   a(n) = n^2*(n-1)*(n^2+2)/3
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 54 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

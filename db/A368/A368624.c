@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k = 1..n} (-1)^(n+k) * gcd(2*k, n)
  * Range:     u8 n <= 63, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,6 +8,7 @@
  *            Pell(n)=2*Pell(n−1)+Pell(n−2))
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 47, u128 n <= 96,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 973 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

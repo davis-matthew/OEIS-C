@@ -9,11 +9,13 @@
  * Formula:   a(n) = 1 + Sum_{i=2..9} binomial(n,i)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 51, u64 n <= 576,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 52 terms through n = 9791 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t binom_small(idx_t n, idx_t k)

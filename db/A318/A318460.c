@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   a(n) = Sum_{d|n, d < n/d} (d XOR n/d)
- * Range:     u8 n <= 107, u16 n <= 9794, u32 n <= 9794, u64 n <= 9794,
- *            u128 n <= 9794, big any n
+ * Range:     u8 n <= 107, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 95 terms through n = 9794 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

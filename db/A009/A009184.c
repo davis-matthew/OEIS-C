@@ -7,7 +7,8 @@
  * Formula:   a(n) = coeff of x^n/n! in cosh(x)/exp(sin(x))
  * Range:     i8 n <= 8, i16 n <= 11, i32 n <= 17, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *D = NULL;   /* coefficients of exp(-sin(x)) (scaled by n!) */
 static seq_t *a_arr = NULL;  /* resulting sequence a(n) */
@@ -26,8 +28,8 @@ static void ensure_cap(idx_t new_cap) {
 
     size_t new_len = new_cap + 1;
 
-    seq_t *new_D = (seq_t*)realloc(D, new_len * sizeof(seq_t));
-    seq_t *new_A = (seq_t*)realloc(a_arr, new_len * sizeof(seq_t));
+    seq_t *new_D = mem_resize(seq_t, D, new_len);
+    seq_t *new_A = mem_resize(seq_t, a_arr, new_len);
     if (!new_D || !new_A) abort();            /* allocation failure */
     D = new_D;
     a_arr = new_A;

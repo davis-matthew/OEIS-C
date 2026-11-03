@@ -12,9 +12,10 @@
  *            occurs as a non‑initial term in the process: while x is not a
  *            palindrome: x = (x - rev(x)) mod 2^m count occurrence of x
  *            Palindromic start words are not counted
- * Range:     u8 n <= 767, u16 n <= 9329, u32 n <= 9329, u64 n <= 9329,
- *            u128 n <= 9329, big any n
- * Helpers:   ceil_log2_uint64
+ * Range:     u8 n <= 767, u16 n <= 16382, u32 n <= 16382, u64 n <= 16382,
+ *            u128 n <= 16382, big any n
+ * Validated: standard, pass, 80 terms through n = 9329 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,16 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/ceil_log2_uint64.h"
+#include "../utils/mem.h"
+
+/* compute ceil(log2(t)) for t>0 */
+static inline int ceil_log2_uint64(uint64_t t)
+{
+    int pos = 63 - __builtin_clzll(t);
+    if ((t & (t - 1)) == 0)   /* power of two */
+        return pos;
+    return pos + 1;
+}
 
 static inline uint64_t rev_bits(uint64_t x, unsigned m)
 {
@@ -49,9 +59,9 @@ static void compute_row(unsigned m)
     if (rows[m] != NULL)
         return;                 /* already computed */
     size_t len = (size_t)1ULL << m;
-    seq_t *cnt = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, len);
     if (!cnt) abort();          /* allocation failure */
-    memset(cnt, 0, len * sizeof(seq_t));
+    mem_set(cnt, 0, len * sizeof(seq_t));
     uint64_t mask = len - 1;
 
     for (uint64_t start = 0; start < len; ++start) {

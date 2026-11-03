@@ -9,6 +9,7 @@
  * Formula:   a(n) = A034448(A276086(n))
  * Range:     u8 n <= 14, u16 n <= 58, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t); */
+#include "../utils/is_prime.h"
 
 static uint64_t next_prime(uint64_t n)
 {

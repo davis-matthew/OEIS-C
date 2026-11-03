@@ -7,14 +7,16 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = (largest odd divisor of (n+1)) * (largest power of 2
  *            dividing n)
- * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 9905, u64 n <= 9905,
- *            u128 n <= 9905, big any n
+ * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 85 terms through n = 9905 (2026-11-01)
  * Helpers:   odd_part
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/odd_part.h"
 
 seq_t a(idx_t n)

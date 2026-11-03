@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 78, u64 n <= 191,
  *            u128 n <= 561, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1089 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,6 +43,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build environment.  */
 seq_t a(idx_t n)
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     idx_t target_k = k + 1;
 
     size_t size = (size_t)target_n + 1;
-    seq_t *c = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, size);
     if (!c) return (seq_t)0;     /* memory failure – return 0 (unlikely) */
 
     for (size_t i = 0; i < size; ++i) c[i] = (seq_t)0;
@@ -82,6 +84,6 @@ seq_t a(idx_t n)
 
     seq_t coeff = (seq_t)k * c[target_k];
 
-    free(c);
+    mem_free(c);
     return coeff;
 }

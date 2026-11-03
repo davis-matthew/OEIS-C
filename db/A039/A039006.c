@@ -12,14 +12,34 @@
  *            simple brute‑force search; it runs in O(n)...
  * Range:     u8 n <= 70, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_equal_23
+ * Validated: standard, pass, 76 terms through n = 9836 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_equal_23.h"
+#include "../utils/mem.h"
+
+/* return true if v in base‑4 has the same number of 2's and 3's. */
+static bool has_equal_23(seq_t v)
+{
+    if (v == 0)        /* 0 has 0 2's and 0 3's */
+        return true;
+
+    unsigned int c2 = 0, c3 = 0;
+
+    while (v) {
+        unsigned int d = (unsigned int)(v % 4);
+        if (d == 2)
+            ++c2;
+        else if (d == 3)
+            ++c3;
+        v /= 4;
+    }
+    return c2 == c3;
+}
 
 /* cache of a(n) values, 1‑based index:  cache[0] holds a(1) */
 static seq_t *cache = NULL;
@@ -32,7 +52,7 @@ static void grow_cache(void)
 {
     if (cache_len + 1 > cache_cap) {
         size_t newcap = cache_cap ? cache_cap << 1 : 64;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         /* In the unlikely event of allocation failure, we keep the old
            cache and hope the caller asks for a smaller index. */
         if (tmp) {
@@ -52,7 +72,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (cache_len == 0) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* If malloc fails, we simply leave cache as NULL and will
            return zero for every requested index; this situation is
            highly unlikely in the evaluation harness. */

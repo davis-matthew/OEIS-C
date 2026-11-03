@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 29, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    a(n) = the smallest multiple of 6 greater than a(n-1) that shares no decimal digit with a(n-1).  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Determine whether two numbers share a decimal digit.
    Works for any seq_t that supports modulus 10 and division by 10. */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
 
     if (len == 0) {               /* initialise with first term 6 */
         cap   = 8;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = (seq_t)6;
         len = 1;
     }
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
 
         if (len == cap) {            /* grow array if needed */
             cap *= 2;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
         cache[len++] = cand;          /* store new term */
     }

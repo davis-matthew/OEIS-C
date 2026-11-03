@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 159, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9820 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute Euler's totient for a 64‑bit integer.  Simple trial division
    is sufficient for the values we encounter (k up to a few ten‑thousands). */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     /* initialise storage on first call */
     if (!terms) {
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms_len = 0;
         last_checked = 0;
     }
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
         if (prod_mod4 == 0) {
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)k;
         }

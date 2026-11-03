@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* comparison function for qsort on seq_t values */
 static int seq_cmp(const void *p, const void *q)
@@ -80,7 +83,7 @@ static void ensure_computed(size_t need)
         if (raw_sz + add_cnt > raw_cap) {
             size_t new_cap = raw_cap ? raw_cap * 2 : 16;
             while (new_cap < raw_sz + add_cnt) new_cap *= 2;
-            raw = (seq_t *)realloc(raw, new_cap * sizeof(seq_t));
+            raw = mem_resize(seq_t, raw, new_cap);
             raw_cap = new_cap;
         }
 
@@ -105,7 +108,7 @@ static void ensure_computed(size_t need)
         max_proc_m = new_m;
 
         /* sort raw perimeters so we can compress duplicates */
-        qsort(raw, raw_sz, sizeof(seq_t), seq_cmp);
+        mem_qsort(raw, raw_sz, sizeof(seq_t), seq_cmp);
 
         /* compress into unique list */
         size_t i = 0, k = 0;
@@ -115,7 +118,7 @@ static void ensure_computed(size_t need)
 
             if (k >= perc_cap) {
                 size_t new_cap = perc_cap ? perc_cap * 2 : 16;
-                perc  = (seq_t  *)realloc(perc,  new_cap * sizeof(seq_t));
+                perc  = mem_resize(seq_t, perc, new_cap);
                 cnt   = (size_t *)realloc(cnt,   new_cap * sizeof(size_t));
                 perc_cap = new_cap;
             }

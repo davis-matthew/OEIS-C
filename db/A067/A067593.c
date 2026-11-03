@@ -8,12 +8,14 @@
  *            unlimited copies of each Lucas number)
  * Range:     u8 n <= 22, u16 n <= 83, u32 n <= 459, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp      = NULL;   /* DP array: number of partitions for each n */
 static idx_t dp_len   = 0;      /* allocated length of dp */
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
     /* Prepare the list of Lucas numbers and the DP array */
     ensure_lucas(n);
     if (dp_len <= n) {
-        dp = (seq_t*)realloc(dp, (n + 1) * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, (n + 1));
         dp_len = n + 1;
     }
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   count_octal_fours
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/count_octal_fours.h"
+#include "../utils/mem.h"
+
+/* Helper: count the number of digit 4's in the base‑8 representation of x. */
+static unsigned count_octal_fours(seq_t x)
+{
+    unsigned c = 0;
+    while (x) {
+        if ((x & (seq_t)7) == (seq_t)4) {
+            ++c;
+            if (c > 4)
+                break;
+        }
+        x >>= 3;            /* divide by 8 */
+    }
+    return c;
+}
 
 /* Lazy generation storage */
 static seq_t *cache = NULL;       /* array of found numbers */
@@ -35,12 +51,12 @@ static void build_up_to(idx_t n)
         if (count_octal_fours(next) == 4) {
             if (size >= cap) {
                 size_t new_cap = cap ? cap * 2 : 64;
-                seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_new(seq_t, new_cap);
                 if (!new_cache)
                     return;        /* allocation failure – give up */
                 if (cache) {
-                    memcpy(new_cache, cache, size * sizeof(seq_t));
-                    free(cache);
+                    mem_copy(new_cache, cache, size * sizeof(seq_t));
+                    mem_free(cache);
                 }
                 cache = new_cache;
                 cap   = new_cap;

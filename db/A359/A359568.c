@@ -8,13 +8,15 @@
  * Formula:   a(n) = 2*a(n-1) + 4 - n for n > 2, a(0)=0, a(1)=1, a(2)=3
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 7 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* compute OEIS A359568 */
 seq_t a(idx_t n)
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_len) {
         /* extend cache to hold indices up to n */
         idx_t new_len = n + 1;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
 
         /* initialise base values */
         cache[0] = (seq_t)0;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor(a(n-1)^2 / a(n-2) + 1) with a(0)=14, a(1)=23
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 37, u64 n <= 80, u128 n <= 164,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 962 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

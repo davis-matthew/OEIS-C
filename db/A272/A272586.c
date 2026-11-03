@@ -9,6 +9,7 @@
  * Formula:   a(n) = (11*4^n - 12*2^n - 8)/3 for n > 1, a(0) = 1, a(1) = 5
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 15, u128 n <= 15,
  *            big any n
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

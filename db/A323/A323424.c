@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   collatz_mod
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,16 @@
    graph x → f(x) (mod n), where f(x) = x/2 if x is even, otherwise 3*x+1. */
 
 #include <stdlib.h>
-#include "../utils/collatz_mod.h"
+
+/* Safe modular Collatz step.
+   Uses 128‑bit intermediate to avoid overflow. */
+static idx_t collatz_mod(idx_t x, idx_t mod)
+{
+    if ((x & 1) == 0)               /* even */
+        return x >> 1;
+    unsigned __int128 t = (unsigned __int128)3 * x + 1;
+    return (idx_t)(t % mod);
+}
 
 seq_t a(idx_t n)
 {

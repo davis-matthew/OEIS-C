@@ -8,12 +8,14 @@
  *            a(1)=a(2)=a(3)=a(4)=a(5)=1 (offset 1)
  * Range:     i8 n <= 13, i16 n <= 23, i32 n <= 47, i64 n <= 89, i128 n <= 178,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 895 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for memoisation */
 static seq_t *cache = NULL;   /* array indexed 0..n (0 unused) */
@@ -25,7 +27,7 @@ static void ensure_cache_capacity(idx_t n)
 {
     size_t needed = (size_t)n + 1;
     if (cap < needed) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();            /* out‑of‑memory: terminate */
         cache = tmp;
         cap   = needed;

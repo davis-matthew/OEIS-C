@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} A010060(n-k) * 3^k
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 41, u128 n <= 81,
  *            big any n
- * Helpers:   parity_u64
+ * Validated: standard, pass, 43 terms through n = 983 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,18 @@
 /*       A010060(n) = 0 if popcount(n) is even, 1 otherwise (Thue–Morse) */
 
 #include <stdint.h>
-#include "../utils/parity_u64.h"
+
+/* Compute parity of the 64-bit value: return 1 if number of 1-bits is odd, 0 otherwise */
+static inline unsigned int parity_u64(uint64_t x)
+{
+    x ^= x >> 32;
+    x ^= x >> 16;
+    x ^= x >> 8;
+    x ^= x >> 4;
+    x ^= x >> 2;
+    x ^= x >> 1;
+    return (unsigned int)(x & 1u);
+}
 
 seq_t a(idx_t n)
 {

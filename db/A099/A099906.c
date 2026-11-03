@@ -7,7 +7,8 @@
  * Formula:   a(n) = binomial(2n-1, n-1) mod n^2
  * Range:     u8 n <= 15, u16 n <= 271, u32 n <= 1885, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, mod_pow
+ * Validated: standard, pass, 78 terms through n = 9362 (2026-11-01)
+ * Helpers:   build_primes_upto, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
         unsigned long long exp = exp_num - exp_den1 - exp_den2;
         if (exp == 0) continue;
 
-        seq_t powv = mod_pow((seq_t)p, exp, mod);
+        seq_t powv = powmod((seq_t)p, exp, mod);
         result = (result * powv) % mod;
     }
 

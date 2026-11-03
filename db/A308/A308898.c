@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 7867, u16 n <= 7867, u32 n <= 7867, u64 n <= 7867,
- *            u128 n <= 7867, big any n
- * Helpers:   none
+ * Range:     u8 n <= 15126, u16 n <= 15126, u32 n <= 15126, u64 n <= 15126,
+ *            u128 n <= 15126, big any n
+ * Validated: standard, pass, 118 terms through n = 7867 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    repeatedly applying the morphism to an initial symbol 0. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -28,7 +30,7 @@ static void extend_cache(idx_t n)
 
     /* Ensure the initial word is present */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = 0;
         cache_len = 1;
     }
@@ -47,7 +49,7 @@ static void extend_cache(idx_t n)
         }
 
         /* Allocate space for the next word */
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         idx_t pos = 0;
         for (idx_t i = 0; i < cache_len; ++i) {
             uint8_t s = (uint8_t)cache[i];
@@ -65,7 +67,7 @@ static void extend_cache(idx_t n)
             }
         }
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
     }

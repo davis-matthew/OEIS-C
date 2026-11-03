@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   digit_once
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_once.h"
+#include "../utils/mem.h"
+
+/* test whether digit 'd' occurs exactly once in the decimal representation of x */
+static bool digit_once(seq_t x, int d)
+{
+    int count = 0;
+    while (x) {
+        int dig = (int)(x % 10);
+        if (dig == d) count++;
+        x /= 10;
+    }
+    return count == 1;
+}
 
 /* --------- helpers ------------------------------------------------- */
 
@@ -48,7 +61,7 @@ static void ensure_cache(size_t need)
     if (need <= cache_alloc) return;
     size_t new_alloc = cache_alloc ? cache_alloc : 16;
     while (new_alloc < need) new_alloc <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_alloc);
     /* realloc may fail – in that case the existing cache remains usable */
     if (new_cache) {
         cache = new_cache;

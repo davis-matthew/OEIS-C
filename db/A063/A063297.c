@@ -10,13 +10,15 @@
  *            = 26, a(7) = 31, a(8) = 40
  * Range:     i8 n <= 21, i16 n <= 53, i32 n <= 53, i64 n <= 53, i128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ----- static cache ----------------------------------------------------- */
 static seq_t *cache      = NULL;  /* allocated array of computed terms   */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;      /* allocation failed – give up */
         cache = tmp;
         cache_cap = new_cap;

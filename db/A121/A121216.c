@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 252, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 88 terms through n = 9613 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* static storage for the sequence: seq[0] corresponds to a(1) */
 static size_t seq_len    = 0; /* number of elements stored */
@@ -59,7 +62,7 @@ seq_t a(idx_t n)
     /* lazy initialization */
     if (seq_len == 0) {
         seq_cap = 4;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;   /* a(1) */
         seq[1] = (seq_t)2;   /* a(2) */
         seq_len = 2;
@@ -89,7 +92,7 @@ seq_t a(idx_t n)
         /* append the new term */
         if (seq_len == seq_cap) {
             seq_cap *= 2;
-            seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len] = val;
         ++seq_len;

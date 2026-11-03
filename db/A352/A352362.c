@@ -11,13 +11,29 @@
  *            ascending antidiagonals with decreasing i on each diagonal
  * Range:     u8 n <= 39, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   lucas_value
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/lucas_value.h"
+
+/* Compute the T(n,k) Lucas polynomial value for given n,k. */
+static inline seq_t lucas_value(seq_t n, idx_t k)
+{
+    if (k == 0) return (seq_t)2;
+    if (k == 1) return n;
+    seq_t prev2 = (seq_t)2;   /* T(n,0) */
+    seq_t prev1 = n;          /* T(n,1) */
+    seq_t cur = prev1;
+    for (idx_t t = 2; t <= k; ++t) {
+        cur = n * prev1 + prev2;
+        prev2 = prev1;
+        prev1 = cur;
+    }
+    return cur;
+}
 
 /* Find the diagonal S such that S(S+1)/2 ≤ n < (S+1)(S+2)/2. */
 static inline idx_t find_diag(idx_t n)

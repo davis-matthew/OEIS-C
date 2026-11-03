@@ -7,12 +7,18 @@
  * Formula:   a(n) = (n+1)^22 + n^22
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 1, u64 n <= 6, u128 n <= 54,
  *            big any n
- * Helpers:   pow22
+ * Validated: standard, pass, 26 terms through n = 8874 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow22.h"
+static seq_t pow22(seq_t x) {
+    seq_t result = 1;
+    for (int i = 0; i < 22; ++i)
+        result *= x;
+    return result;
+}
 
 seq_t a(idx_t n) {
     seq_t n1 = (seq_t)n;

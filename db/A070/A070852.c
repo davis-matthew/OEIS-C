@@ -8,14 +8,16 @@
  *            least prime p such that p ≡ 1 (mod 8*n))
  * Range:     u8 n <= 12, u16 n <= 480, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   is_prime_uint64
+ * Validated: standard, pass, 66 terms through n = 4846 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* First candidate >1 that satisfies p ≡ 1 (mod mod). */
     uint64_t p = mod + 1ULL;
     /* Scan upward in steps of mod until a prime is found. */
-    while (!is_prime_uint64(p))
+    while (!is_prime_u64(p))
         p += mod;
     return (seq_t)p;
 }

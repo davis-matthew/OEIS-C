@@ -7,15 +7,27 @@
  * Formula:   a(n) = p_n^11 + 11^p_n (p_n is the n-th prime)
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 7, u128 n <= 12,
  *            big any n
- * Helpers:   _prime_limit_for_idx, big_pow, build_primes_upto
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/_prime_limit_for_idx.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 seq_t a(idx_t n)
 {
@@ -51,8 +63,8 @@ seq_t a(idx_t n)
     seq_t p = (seq_t)prime_cache[(size_t)(n - 1)];
 
     /* (3) Compute p^11 and 11^p. ----------------------------------- */
-    seq_t term_p = big_pow(p, (seq_t)11);
-    seq_t term_11 = big_pow((seq_t)11, p);
+    seq_t term_p = ipow(p, (seq_t)11);
+    seq_t term_11 = ipow((seq_t)11, p);
 
     /* (4) Return the sum. ------------------------------------------ */
     return term_p + term_11;

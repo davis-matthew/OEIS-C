@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Count the number of digits equal to 2 in the base‑3 expansion of x. */
 static int count_twos(seq_t x)
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
                 if (cache_len == 0 || cache_len % 64 == 0)
                 {
                     size_t new_cap = cache_len + 64;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) return 0;   /* allocation failure – return 0 sentinel */
                     cache = tmp;
                 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------------- */
 /*  Static storage for primes and sequence values                            */
@@ -90,7 +92,7 @@ static void grow_seq(seq_t **arr, size_t *cnt, size_t new_len, size_t *cap)
     if (new_len > *cap) {
         size_t new_cap = (*cap > 0) ? *cap : SEQ_INIT_CAP;
         while (new_cap < new_len) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) return;
         *arr = tmp;
         *cap = new_cap;
@@ -107,7 +109,7 @@ static void ensure_seq(size_t N)
     /* allocate or grow sequence array */
     if (!seq) {
         seq_cap = N + 1;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;      /* a(0) */
         seq_max = 0;
     } else if (seq_cap <= N) {

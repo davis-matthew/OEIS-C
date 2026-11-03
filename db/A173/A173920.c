@@ -8,15 +8,17 @@
  * Formula:   a(n) = T(r,k) where r = floor((sqrt(8n+1)-1)/2), k = n -
  *            r*(r+1)/2, and T(r,k) = sum_{i=0}^{L-1} ((r>>i)&1) &
  *            ((k>>(L-1-i))&1) with L = max(1, floor_log2_uint64(r)+1)
- * Range:     u8 n <= 9708, u16 n <= 9708, u32 n <= 9708, u64 n <= 9708,
- *            u128 n <= 9708, big any n
- * Helpers:   floor_log2_uint64
+ * Range:     u8 n <= 51680, u16 n <= 51680, u32 n <= 51680, u64 n <= 51680,
+ *            u128 n <= 51680, big any n
+ * Validated: standard, pass, 121 terms through n = 9708 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 static idx_t tri_count(idx_t r)
 {
@@ -30,7 +32,7 @@ static seq_t tri_convolution(idx_t r, idx_t k)
     if (r == 0)
         L = 1;
     else
-        L = (unsigned)floor_log2_uint64(r) + 1;
+        L = (unsigned)ilog2(r) + 1;
 
     seq_t sum = 0;
     for (idx_t i = 0; i < L; ++i)

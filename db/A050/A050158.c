@@ -8,8 +8,9 @@
  * Formula:   a(n) = T(r,k) = binomial(2*r+1, r+1) - binomial(2*r+1, r-k-1)
  *            where r = floor((sqrt(8*n+1)-1)/2) (row), k = n - r*(r+1)/2
  *            (column)
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 42, u64 n <= 42, u128 n <= 42,
+ * Range:     u8 n <= 15, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 /*  Compute the OEIS A050158 sequence (flattened triangle).  */
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

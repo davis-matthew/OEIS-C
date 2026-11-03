@@ -12,6 +12,7 @@
  *            non‑negative multiple of col, otherwise 0
  * Range:     u8 n <= 1600, u16 n <= 1600, u32 n <= 1600, u64 n <= 1600,
  *            u128 n <= 1600, big any n
+ * Validated: standard, pass, 110 terms through n = 1489 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

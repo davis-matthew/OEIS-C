@@ -7,8 +7,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = Dedekind ψ of the odd part of n a(n) = ψ(A000265(n)),
  *            multiplicative: a(2^e)=1, a(p^e)= (p+1)*p^(e-1) for odd primes p
- * Range:     u8 n <= 164, u16 n <= 9844, u32 n <= 9844, u64 n <= 9844,
- *            u128 n <= 9844, big any n
+ * Range:     u8 n <= 164, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 101 terms through n = 9844 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

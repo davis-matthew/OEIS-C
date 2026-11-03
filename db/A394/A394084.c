@@ -13,7 +13,8 @@
  *            gpf(k)=gpf(S)
  * Range:     u8 n <= 72, u16 n <= 4368, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 82 terms through n = 9682 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------------*
  *  Internal state for memoisation
@@ -50,12 +52,12 @@ static void ensure_seq_cap(size_t need)
     size_t newcap = seq_cap ? seq_cap * 2 : 16;
     while (newcap < need) newcap <<= 1;
 
-    seq_t *newseq = (seq_t*)malloc(newcap * sizeof(seq_t));
+    seq_t *newseq = mem_new(seq_t, newcap);
     if (!newseq) exit(1);
 
     if (seq) {
-        memcpy(newseq, seq, seq_len * sizeof(seq_t));
-        free(seq);
+        mem_copy(newseq, seq, seq_len * sizeof(seq_t));
+        mem_free(seq);
     }
     seq = newseq;
     seq_cap = newcap;
@@ -136,7 +138,7 @@ seq_t a(idx_t n)
 
     while (seq_len < target_n)
     {
-        uint64_t target = gpf(sum_gpf);      /* required gpf for next term */
+        uint64_t target = largest_prime_factor(sum_gpf);      /* required gpf for next term */
 
         /* Ensure we can store next_multiple for this prime */
         ensure_prime_cap((size_t)target);
@@ -146,7 +148,7 @@ seq_t a(idx_t n)
         while (true)
         {
             ensure_used_cap(cand);
-            if (!used[cand] && gpf(cand) == target)
+            if (!used[cand] && largest_prime_factor(cand) == target)
                 break;                       /* found the smallest unused */
             cand += target;                  /* jump to next multiple of prime */
         }

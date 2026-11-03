@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 133, u16 n <= 2756, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 82 terms through n = 9363 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* OEIS A078453: Numbers in which all the digits are pairwise coprime.
    a(1) = 0, a(2) = 1, a(3) = 2, …   */
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Return true iff all decimal digits of x are pairwise coprime.

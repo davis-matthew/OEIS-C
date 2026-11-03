@@ -9,7 +9,8 @@
  *            single-digit deletion yields an odious number (odd popcount)
  * Range:     u8 n <= 27, u16 n <= 928, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper: popcount of a seq_t value */
 static unsigned int popcount_seq(seq_t v)
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
             if (seen == cap)
             {
                 size_t newcap = (cap ? cap * 2 : 16);
-                seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, newcap);
                 if (!tmp)
                     exit(1);          /* out of memory */
                 terms = tmp;

@@ -12,7 +12,8 @@
  *            lowest terms and its denominator is returned. For n < 3 t...
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 28, u64 n <= 48, u128 n <= 100,
  *            big any n
- * Helpers:   gcd, local_gcd_int
+ * Validated: standard, pass, 48 terms through n = 950 (2026-11-01)
+ * Helpers:   gcd, gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdbool.h>
 /* gcd for seq_t values */
 #include "../utils/gcd.h"
-#include "../utils/local_gcd_int.h"
+#include "../utils/gcd_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
     /* First pass: compute the least common multiple L of all denominators q = n-d */
     seq_t L = 1;
     for (d = 1; d <= half; ++d) {
-        if (local_gcd_int((int)d, (int)n) != 1)
+        if (gcd_i32((int)d, (int)n) != 1)
             continue;
         idx_t q = n - d;                /* q > n/2 */
         seq_t qseq = (seq_t)q;
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
     /* Second pass: compute the numerator N of the sum in terms of L */
     seq_t N = 0;
     for (d = 1; d <= half; ++d) {
-        if (local_gcd_int((int)d, (int)n) != 1)
+        if (gcd_i32((int)d, (int)n) != 1)
             continue;
         idx_t q = n - d;
         seq_t factor = L / (seq_t)q;    /* exact division: q | L */

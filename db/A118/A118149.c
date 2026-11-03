@@ -8,12 +8,14 @@
  * Formula:   a(1)=1; for n>1, a(n)=reverse(a(n-1))+52
  * Range:     u8 n <= 9, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Reverse the decimal digits of a value of type seq_t */
 static seq_t reverse_digits(seq_t val) {
@@ -38,11 +40,11 @@ seq_t a(idx_t n) {
         /* ensure capacity */
         if (len == cap) {
             size_t newcap = cap ? cap * 2 : 16;
-            seq_t *newarr = (seq_t *)malloc(newcap * sizeof(seq_t));
+            seq_t *newarr = mem_new(seq_t, newcap);
             if (!newarr) return 0;  /* allocation failure: undefined behavior */
             if (cache) {
                 for (idx_t i = 0; i < len; ++i) newarr[i] = cache[i];
-                free(cache);
+                mem_free(cache);
             }
             cache = newarr;
             cap = newcap;

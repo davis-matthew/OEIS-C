@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;
 static seq_t *p2 = NULL;
@@ -31,9 +33,9 @@ static void ensure_capacity(idx_t n) {
     if (n < CAP) return;
     size_t new_cap = (n + 1) * 2;
     if (new_cap < 16) new_cap = 16;
-    A  = (seq_t *)realloc(A,  new_cap * sizeof(seq_t));
-    p2 = (seq_t *)realloc(p2, new_cap * sizeof(seq_t));
-    p3 = (seq_t *)realloc(p3, new_cap * sizeof(seq_t));
+    A  = mem_resize(seq_t, A, new_cap);
+    p2 = mem_resize(seq_t, p2, new_cap);
+    p3 = mem_resize(seq_t, p3, new_cap);
     CAP = new_cap;
 }
 
@@ -52,9 +54,9 @@ seq_t a(idx_t n) {
     /* one‑time initialisation */
     if (CAP == 0) {
         CAP = 16;
-        A  = (seq_t *)malloc(CAP * sizeof(seq_t));
-        p2 = (seq_t *)malloc(CAP * sizeof(seq_t));
-        p3 = (seq_t *)malloc(CAP * sizeof(seq_t));
+        A  = mem_new(seq_t, CAP);
+        p2 = mem_new(seq_t, CAP);
+        p3 = mem_new(seq_t, CAP);
         A[0]  = 1;
         p2[0] = 1;
         p3[0] = 1;

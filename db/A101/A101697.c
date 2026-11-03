@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* factorial values 0! … 9! as seq_t constants (seq_t is defined by the build) */
 static const seq_t fact[10] = {
@@ -55,7 +57,7 @@ static void compute_phi(uint32_t **phi, uint32_t *size, size_t limit)
     for (size_t i = 2; i <= limit; ++i) (*phi)[i] = (uint32_t)i;
 
     /* store primes seen so far */
-    uint32_t primes[3000000];
+    static uint32_t primes[3000000];   /* static: 12 MB on the stack overflowed it */
     uint32_t pcnt = 0;
 
     for (size_t i = 2; i <= limit; ++i) {
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
 
     if (!inited) {
         compute_phi(&phi, &phi_size, 1000000);
-        res = (seq_t *)malloc(cap * sizeof(seq_t));
+        res = mem_new(seq_t, cap);
         if (!res) exit(EXIT_FAILURE);
         res[0] = (seq_t)1;          /* a(1) = 1 */
         cnt = 1;
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
         if (phi_val == digit_val) {
             if (cnt == cap) {             /* grow result array */
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(res, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, res, cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 res = tmp;
             }

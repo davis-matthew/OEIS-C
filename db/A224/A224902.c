@@ -7,7 +7,8 @@
  * Formula:   a(n) = exp( Sum_{k>=1} (sigma(2*k^4) - sigma(k^4)) * x^k / k )
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,11 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build environment.
    The following utilities are required. */
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* --- Smallest prime factor table ---------------------------------------- */
 static uint32_t *spf = NULL;      /* spf[i] = smallest prime factor of i   */
@@ -69,15 +71,15 @@ static seq_t compute_c_k(idx_t k)
 
         /* term for sigma(k^4) for prime p : (p^(4e+1) - 1)/(p-1) */
         idx_t exp = 4 * e + 1;
-        seq_t term = (seq_pow((seq_t)p, exp) - (seq_t)1) / ((seq_t)p - (seq_t)1);
+        seq_t term = (ipow_idx((seq_t)p, exp) - (seq_t)1) / ((seq_t)p - (seq_t)1);
         sigma *= term;
     }
 
     /* sigma(2*k^4) = sigma * (2^(4e2+2)-1)/(2^(4e2+1)-1)   */
     idx_t exp_num = 4 * e2 + 2;
     idx_t exp_den = 4 * e2 + 1;
-    seq_t num = seq_pow((seq_t)2, exp_num) - (seq_t)1;
-    seq_t den = seq_pow((seq_t)2, exp_den) - (seq_t)1;
+    seq_t num = ipow_idx((seq_t)2, exp_num) - (seq_t)1;
+    seq_t den = ipow_idx((seq_t)2, exp_den) - (seq_t)1;
     seq_t sigma2 = sigma * num / den;
 
     return sigma2 - sigma;
@@ -100,8 +102,8 @@ seq_t a(idx_t n)
     /* Ensure cache size */
     if ((size_t)(n + 1) > cache_cap) {
         size_t new_cap = (size_t)(n + 1);
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-        c_cache = (seq_t *)realloc(c_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        c_cache = mem_resize(seq_t, c_cache, new_cap);
         cache_cap = new_cap;
     }
 

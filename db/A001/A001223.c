@@ -6,8 +6,9 @@
  * Keywords:  nonn, nice, easy, hear, changed
  * Formula:   a(n) = prime(n+1) - prime(n); primes from a sieve of
  *            Eratosthenes that doubles its limit as needed
- * Range:     u8 n <= 9733, u16 n <= 9733, u32 n <= 9733, u64 n <= 9733,
- *            u128 n <= 9733, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 113 terms through n = 9733 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

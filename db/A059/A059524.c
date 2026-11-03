@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  * a(10)=11941503498, a(11)=120064335342, a(12)=1207171430452,
  * a(13)=12137349489598 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int coeff[14] = {
     17,  -90,   230,  -272,  -75,   623,  -632,   65,
@@ -43,7 +45,7 @@ static void ensure(size_t n)
 {
     if (memo == NULL) {
         memo_cap = (n < 16 ? 16 : n + 1);
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         if (!memo) exit(1);
         for (size_t i = 0; i < 14; ++i) memo[i] = init[i];
         memo_len = 14;
@@ -52,8 +54,8 @@ static void ensure(size_t n)
     while (memo_len <= n) {
         if (memo_len >= memo_cap) {
             memo_cap = memo_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(memo, memo_cap * sizeof(seq_t));
-            if (!tmp) { free(memo); exit(1); }
+            seq_t *tmp = mem_resize(seq_t, memo, memo_cap);
+            if (!tmp) { mem_free(memo); exit(1); }
             memo = tmp;
         }
         /* Compute a[memo_len] from the recurrence. */

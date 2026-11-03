@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 20, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
    T(n,k) = 2^(k^2 + n*(n-k)),
    a(m) is the flattening of T(n,k) by rows, offset 0. */
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* integer square‑root: floor(sqrt(x)) for 0 <= x < 2^64. */

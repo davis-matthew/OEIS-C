@@ -9,12 +9,14 @@
  *            derivable from the generating function)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 159 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*---------------------------------------------------------------------------*/
 /*  Cached storage of already computed terms                               */
@@ -45,7 +47,7 @@ static void ensure_cache(idx_t n)
         /* allocate initial capacity (at least 16) */
         size_t cap = 16;
         while (cap <= (size_t)n + 6) cap <<= 1;  /* ensure room for the needed indices */
-        cache = (seq_t *)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();                     /* out of memory */
 
         /* copy the six seed values */
@@ -61,7 +63,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         while (new_cap <= (size_t)n + 1)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

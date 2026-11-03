@@ -8,12 +8,14 @@
  *            Offset: -1 (a(-1) is the first term)
  * Range:     i8 n <= 10, i16 n <= 31, i32 n <= 98, i64 n <= 310,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Binomial coefficients for (1 - x)^6 */
 static const seq_t BINOM6[7] = {1, 6, 15, 20, 15, 6, 1};
@@ -28,11 +30,11 @@ seq_t a(idx_t n)
     if (len == 0) len = 1;   /* for n = -1 */
 
     /* Allocate space for series A, B, C, DBC, Q */
-    seq_t *A = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *B = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *C = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *DBC = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *Q = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, len);
+    seq_t *B = mem_new(seq_t, len);
+    seq_t *C = mem_new(seq_t, len);
+    seq_t *DBC = mem_new(seq_t, len);
+    seq_t *Q = mem_new(seq_t, len);
 
     /* ------------   A = Π(1 - x^k)   -------------- */
     A[0] = 1;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     size_t max_k = (len - 1) / 4;                 /* largest k with 4k < len */
     for (size_t k = 1; k <= max_k; ++k) {
         /* Temporary newC will hold the updated polynomial after multiplying by (1 - x^(4k))^6 */
-        seq_t *newC = (seq_t *)calloc(len, sizeof(seq_t));
+        seq_t *newC = mem_new(seq_t, len);
         /* First add the existing polynomial (coef 1 at degree 0) */
         for (size_t i = 0; i < len; ++i) newC[i] = C[i];
 
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         }
         /* Replace C by newC */
         for (size_t i = 0; i < len; ++i) C[i] = newC[i];
-        free(newC);
+        mem_free(newC);
     }
 
     /* ------------   DBC = B * C   ----------------- */
@@ -100,11 +102,11 @@ seq_t a(idx_t n)
     seq_t result = Q[(size_t)n + 1];
 
     /* Free memory */
-    free(A);
-    free(B);
-    free(C);
-    free(DBC);
-    free(Q);
+    mem_free(A);
+    mem_free(B);
+    mem_free(C);
+    mem_free(DBC);
+    mem_free(Q);
 
     return result;
 }

@@ -11,6 +11,7 @@
  *            index 1 + ∑_{k=1}^{r-1} k!
  * Range:     u8 n <= 220, u16 n <= 5913, u32 n <= 5913, u64 n <= 5913,
  *            u128 n <= 5913, big any n
+ * Validated: standard, pass, 89 terms through n = 5143 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

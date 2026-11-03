@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 39, i16 n <= 91, i32 n <= 91, i64 n <= 91, i128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 92 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Helper: compute linear start index of row r  (0‑based)              */
@@ -68,12 +70,12 @@ seq_t a(idx_t n)
     /* -------------------------------------------------------------- */
     /* We keep two previous polynomials: prev = C_{k-2}, cur = C_{k-1}  */
     size_t deg = (size_t)r;                     /* highest degree seen so far */
-    seq_t *prev = (seq_t *)calloc(deg + 1, sizeof(seq_t));
-    seq_t *cur  = (seq_t *)calloc(deg + 1, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(deg + 1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, deg + 1);
+    seq_t *cur  = mem_new(seq_t, deg + 1);
+    seq_t *next = mem_new(seq_t, deg + 1);
 
     if (!prev || !cur || !next) {
-        free(prev); free(cur); free(next);
+        mem_free(prev); mem_free(cur); mem_free(next);
         return 0;
     }
 
@@ -113,9 +115,9 @@ seq_t a(idx_t n)
     /* 3. Form convolution Q = C * C  (degree 2*r)                     */
     /* -------------------------------------------------------------- */
     size_t qlen = 2 * (size_t)r + 1;
-    seq_t *Q = (seq_t *)calloc(qlen, sizeof(seq_t));
+    seq_t *Q = mem_new(seq_t, qlen);
     if (!Q) {
-        free(prev); free(cur); free(next);
+        mem_free(prev); mem_free(cur); mem_free(next);
         return 0;
     }
 
@@ -143,7 +145,7 @@ seq_t a(idx_t n)
     /* -------------------------------------------------------------- */
     /* 5. Clean up & return                                         */
     /* -------------------------------------------------------------- */
-    free(prev); free(cur); free(next);
-    free(Q);
+    mem_free(prev); mem_free(cur); mem_free(next);
+    mem_free(Q);
     return coeff;
 }

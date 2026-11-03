@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 21, u32 n <= 41, u64 n <= 82, u128 n <= 163,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 875 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Möbius value table --------------------------------- */
 static int8_t *mu_cache = NULL;     /* mu_cache[i] = mu(i)   */
@@ -92,7 +94,7 @@ ensure_a_size(idx_t n)
     if ((size_t)n + 1 > a_cap) {
         size_t new_cap = a_cap > 0 ? (a_cap << 1) : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) return;
         a_cache = tmp;
         a_cap   = new_cap;

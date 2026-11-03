@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* external integer types supplied by the build */
 extern seq_t a(idx_t);
@@ -36,7 +38,7 @@ static void init_up_to(idx_t limit)
 
     /* free previous prefix storage */
     if (prefix != NULL) {
-        free(prefix);
+        mem_free(prefix);
         prefix = NULL;
     }
 
@@ -68,7 +70,7 @@ static void init_up_to(idx_t limit)
     }
 
     /* 3. Build prefix of qualifying composite numbers. */
-    prefix = (seq_t*)malloc(sz * sizeof(seq_t));
+    prefix = mem_new(seq_t, sz);
     if (prefix == NULL) {
         free(is_prime);
         free(div_small);

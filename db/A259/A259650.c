@@ -7,12 +7,14 @@
  * Formula:   a(n) = largest prime factor of n*(3*n-1)/2
  * Range:     u8 n <= 85, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 80 terms through n = 939 (2026-11-01)
  * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)

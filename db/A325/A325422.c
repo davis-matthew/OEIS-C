@@ -11,15 +11,47 @@
  *            3*x+1 as covered, and collecting those images in t...
  * Range:     u8 n <= 99, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   extend_covered, extend_seq
+ * Validated: standard, pass, 76 terms through n = 9405 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/extend_covered.h"
-#include "../utils/extend_seq.h"
+#include "../utils/mem.h"
+
+/* extend a boolean array to hold indices up to `need` (inclusive) */
+static void extend_covered(idx_t need, bool **arr, size_t *cap)
+{
+    if (need < *cap)
+        return;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 64;
+    if (new_cap <= (size_t)need)
+        new_cap = (size_t)need + 1;
+    bool *tmp = (bool *)realloc(*arr, new_cap * sizeof(bool));
+    if (!tmp)
+        exit(EXIT_FAILURE);
+    for (size_t i = *cap; i < new_cap; ++i)
+        tmp[i] = false;
+    *arr = tmp;
+    *cap = new_cap;
+}
+
+/* extend a seq_t array to hold at least `need` elements */
+static void extend_seq(idx_t need, seq_t **arr, size_t *cap)
+{
+    if (need < *cap)
+        return;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 64;
+    if (new_cap <= (size_t)need)
+        new_cap = (size_t)need + 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp)
+        exit(EXIT_FAILURE);
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* the sequence function requested */
 seq_t a(idx_t n)

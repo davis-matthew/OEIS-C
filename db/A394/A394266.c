@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache for memoized values */
 static seq_t *cache = NULL;
@@ -36,12 +38,12 @@ static void ensure_capacity(idx_t n)
     if (needed <= capacity)
         return;
     /* allocate new buffer and copy existing data */
-    seq_t *buf = (seq_t*)calloc(needed, sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, needed);
     if (!buf)
         exit(EXIT_FAILURE);
     if (cache) {
-        memcpy(buf, cache, (size_t)(computed_max + 1u) * sizeof(seq_t));
-        free(cache);
+        mem_copy(buf, cache, (size_t)(computed_max + 1u) * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = buf;
     capacity = needed;

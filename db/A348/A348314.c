@@ -7,12 +7,14 @@
  * Formula:   a(0) = 0; a(n) = n * (a(n-1) + 4^(n-1)) for n >= 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Static cache and state                                            */
@@ -36,7 +38,7 @@ static void ensure_up_to(idx_t n)
         new_capacity <<= 1;
 
     /* Use a cast so the code works in C++.  In C the cast is optional. */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_capacity);
     if (new_cache == NULL)                  /* out of memory */
         abort();
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   eq_zero_six
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/eq_zero_six.h"
+#include "../utils/mem.h"
+
+/* Test whether a number has equal non‑zero counts of 0‑digits and
+   6‑digits in base 11. */
+static bool eq_zero_six(seq_t x)
+{
+    seq_t t = x;
+    unsigned int cnt0 = 0, cnt6 = 0;
+    while (t > 0) {
+        int d = (int)(t % (seq_t)11);
+        if (d == 0)      cnt0++;
+        else if (d == 6) cnt6++;
+        t = t / (seq_t)11;
+    }
+    return (cnt0 > 0) && (cnt0 == cnt6);
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -35,7 +51,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (!cache) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;    /* allocation failure */
     }
 
@@ -44,7 +60,7 @@ seq_t a(idx_t n)
         if (eq_zero_six(next)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return 0;   /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   cmps128
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/cmps128.h"
+#include "../utils/mem.h"
+
+/* comparison for qsort on unsigned __int128 values */
+static int cmps128(const void *a, const void *b)
+{
+    unsigned __int128 x = *(const unsigned __int128 *)a;
+    unsigned __int128 y = *(const unsigned __int128 *)b;
+    return (x < y) ? -1 : (x > y) ? 1 : 0;
+}
 
 /* static cache */
 static seq_t *cached_seq = NULL;   /* array of sequence values            */
@@ -84,7 +93,7 @@ static void ensure_n_terms(idx_t n)
 
         if (cached_cap < tcnt + 1) {
             cached_cap = tcnt + 1;
-            cached_seq = (seq_t *)realloc(cached_seq, cached_cap * sizeof(seq_t));
+            cached_seq = mem_resize(seq_t, cached_seq, cached_cap);
             if (!cached_seq) { free(tmp); return; }
         }
         size_t pos = 0;

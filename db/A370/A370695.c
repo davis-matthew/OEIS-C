@@ -11,13 +11,15 @@
  *            exact arithmetic; intermediate results may exceed...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Note: seq_t and idx_t are defined by the building system.
    idx_t is an unsigned integer type big enough to index the array.
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = cap ? cap * 2 : 4;
         while (new_cap < (size_t)(n + 1))
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)                /* allocation failure – abort silently */
             return;
         cache = tmp;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..n-1} T(n,k) * T(n,k+1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 26, u128 n <= 51,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 429 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,7 +23,7 @@
 #  define FREE_SEQ(p)     delete [] (p)
 #else
 #  define ALLOC_SEQ(n)    ((seq_t *)malloc((n)*sizeof(seq_t)))
-#  define FREE_SEQ(p)     free((void*)(p))
+#  define FREE_SEQ(p)     free((p))
 #endif
 
 seq_t a(idx_t n)

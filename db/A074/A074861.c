@@ -9,13 +9,15 @@
  *            where R(x) is the decimal reverse of x
  * Range:     u8 n <= 9, u16 n <= 13, u32 n <= 28, u64 n <= 61, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Reverse a decimal number. Works for any seq_t that supports
    the usual integer operators. */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         idx_t new_size = cache_size == 0 ? 4 : cache_size;
         while (new_size <= n)
             new_size <<= 1;                /* grow exponentially */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) {
             /* Allocation failed: return 0 as a sentinel. */
             return 0;

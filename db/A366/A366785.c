@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(A001222(n), A061395(n))
- * Range:     u8 n <= 3328, u16 n <= 9640, u32 n <= 9640, u64 n <= 9640,
- *            u128 n <= 9640, big any n
- * Helpers:   count_prime_factors, gcd, largest_prime_factor, prime_pi
+ * Range:     u8 n <= 3328, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9640 (2026-11-01)
+ * Helpers:   bigomega_seq, gcd, largest_prime_factor, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,11 @@
 /* A001222(n) - number of prime factors of n (with multiplicity) */
 /* A061395(n) - index of the greatest prime factor of n (1‑based) */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/bigomega_seq.h"
 #include "../utils/gcd.h"
-#include "../utils/count_prime_factors.h"
 #include "../utils/largest_prime_factor.h"
 #include "../utils/prime_pi.h"
 
@@ -30,7 +34,7 @@ seq_t a(idx_t n)
     }
 
     /* Number of prime factors (with multiplicity) */
-    seq_t omega = count_prime_factors((seq_t)n);
+    seq_t omega = bigomega_seq((seq_t)n);
 
     /* Largest prime factor of n */
     uint64_t lp = largest_prime_factor(n);

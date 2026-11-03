@@ -10,14 +10,31 @@
  *            terms: a(1)=4, a(2)=10, a(3)=23, …
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 30, u64 n <= 63, u128 n <= 129,
  *            big any n
- * Helpers:   resize_seq
+ * Validated: standard, pass, 46 terms through n = 174 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/resize_seq.h"
+#include "../utils/mem.h"
+
+/* Helper: resize a sequence array.  *p is the pointer to the array,
+   *cap is its current capacity (number of elements), and new_cap is
+   the desired capacity.  Extra elements are zero‑initialised. */
+static void resize_seq(seq_t **p, size_t *cap, size_t new_cap)
+{
+    if (new_cap <= *cap)
+        return;
+    seq_t *np = mem_resize(seq_t, *p, new_cap);
+    if (!np)
+        abort();
+    *p = np;
+    if (*cap < new_cap)
+        mem_set((*p) + *cap, 0, (new_cap - *cap) * sizeof(seq_t));
+    *cap = new_cap;
+}
 
 /* Static state */
 static seq_t *cache     = NULL;
@@ -53,7 +70,7 @@ seq_t a(idx_t n)
         size_t new_cap      = 3 * len + 1;
 
         resize_seq(&dp_next, &dp_next_cap, new_cap);
-        memset(dp_next, 0, new_cap * sizeof(seq_t));
+        mem_set(dp_next, 0, new_cap * sizeof(seq_t));
 
         for (size_t s = 0; s <= max_sum_prev; ++s) {
             seq_t ways = dp_cur[s];

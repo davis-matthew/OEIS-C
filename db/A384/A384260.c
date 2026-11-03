@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 9689 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  *   (period 2^22-1)
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t MOD  = 16777213;   /* 2^24-3 */
 static const seq_t MULT = 3373;
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* initialise cache with space for at least index 1 */
         capacity = 2;
-        cache = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        cache = mem_new(seq_t, capacity);
         if (!cache) __builtin_trap();          /* abort on allocation failure */
         cache[1] = (seq_t)1;                   /* a(1) = 1 */
         max_index = 1;
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
         if (n + 1 > capacity) {
             size_t new_cap = capacity;
             while (n + 1 > new_cap) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) __builtin_trap();
             cache = tmp;
             capacity = new_cap;

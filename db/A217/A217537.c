@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 23, u16 n <= 56, u32 n <= 57, u64 n <= 57, u128 n <= 57,
+ * Range:     u8 n <= 23, u16 n <= 45, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    a(n) is the nth element of the flattened triangle (n≥1). */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Global cache for triangle rows.  triangle[i] points to an array of i+1
    values T(i,0..i).  max_row records the last fully computed row index. */
@@ -37,7 +39,7 @@ static void ensure_rows(idx_t up_to)
     for (idx_t i = 0; i <= up_to; ++i) {
         if (triangle[i] != NULL)
             continue;                /* row already built */
-        triangle[i] = (seq_t *)calloc((size_t)(i + 1), sizeof(seq_t));
+        triangle[i] = mem_new(seq_t, (size_t)(i + 1));
         for (idx_t k = 0; k <= i; ++k) {
             seq_t v = 0;
             if (i == 0 && k == 0) {

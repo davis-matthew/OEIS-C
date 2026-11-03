@@ -7,14 +7,15 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = sigma(n) / gcd(sigma(n), usigma(n))
- * Range:     u8 n <= 22, u16 n <= 812, u32 n <= 9752, u64 n <= 9752,
- *            u128 n <= 9752, big any n
- * Helpers:   seq_pow_local
+ * Range:     u8 n <= 22, u16 n <= 812, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 114 terms through n = 9752 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow_local.h"
+#include "../utils/ipow_idx.h"
 
 static seq_t gcd_seq_local(seq_t a, seq_t b) {
     while (b) {
@@ -40,9 +41,9 @@ seq_t a(idx_t n) {
             ++e;
         }
         seq_t p = 2;
-        seq_t sigma_part = (seq_pow_local(p, e + 1) - 1) / (p - 1);
+        seq_t sigma_part = (ipow_idx(p, e + 1) - 1) / (p - 1);
         sigma *= sigma_part;
-        usigma *= 1 + seq_pow_local(p, e);
+        usigma *= 1 + ipow_idx(p, e);
     }
 
     /* odd factors */
@@ -54,16 +55,16 @@ seq_t a(idx_t n) {
                 ++e;
             }
             seq_t pseq = (seq_t)p;
-            seq_t sigma_part = (seq_pow_local(pseq, e + 1) - 1) / (pseq - 1);
+            seq_t sigma_part = (ipow_idx(pseq, e + 1) - 1) / (pseq - 1);
             sigma *= sigma_part;
-            usigma *= 1 + seq_pow_local(pseq, e);
+            usigma *= 1 + ipow_idx(pseq, e);
         }
     }
 
     /* remaining prime factor > sqrt(original n) */
     if (temp > 1) {
         seq_t pseq = (seq_t)temp;
-        seq_t sigma_part = (seq_pow_local(pseq, 2) - 1) / (pseq - 1);
+        seq_t sigma_part = (ipow_idx(pseq, 2) - 1) / (pseq - 1);
         sigma *= sigma_part;
         usigma *= 1 + pseq;
     }

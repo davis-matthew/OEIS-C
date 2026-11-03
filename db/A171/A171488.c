@@ -9,15 +9,17 @@
  *            - row*(row+1)/2 and T(r,k) = (k+1) * Σ_{j=0}^{r-k} binom(2*j+k,
  *            j) * (-1)^j * 3^{r-j-k} * binom(r+1, j+k+1) / (r+1) The division
  *            is exact
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 14, u16 n <= 45, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* We use the binomial coefficient routine from ../utils/binom.h */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static idx_t compute_row(idx_t n)
 {
@@ -49,8 +51,8 @@ seq_t a(idx_t n)
     seq_t neg_sum = 0;   /* sum of terms with odd j  (sign -) */
 
     for (idx_t j = 0; j <= r - k; ++j) {
-        seq_t bin1 = binom(2 * j + k, j);
-        seq_t bin2 = binom(r + 1, j + k + 1);
+        seq_t bin1 = binomial(2 * j + k, j);
+        seq_t bin2 = binomial(r + 1, j + k + 1);
         seq_t pow3 = pow3_u64(r - j - k);
         seq_t term = bin1 * pow3 * bin2;
         if ((j & 1) == 0)

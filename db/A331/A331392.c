@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{m=1}^{⌊n/2⌋} m * A045690(m) * 2^{n-2m}
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /*   2^{i} is pre‑computed in pow2_arr[i]                            */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------  power of two  ------------------------------------- */
 static seq_t *pow2_arr  = NULL;   /* pow2_arr[i] = 2^i */
@@ -26,7 +28,7 @@ static size_t pow2_cap  = 0;       /* number of initialized entries */
 static void ensure_pow2(size_t need)
 {
     if (pow2_cap == 0) {
-        pow2_arr = (seq_t*)malloc(sizeof(seq_t));
+        pow2_arr = mem_new(seq_t, 1);
         pow2_arr[0] = (seq_t)1;
         pow2_cap   = 1;
     }
@@ -34,7 +36,7 @@ static void ensure_pow2(size_t need)
         return;
 
     size_t new_cap = need + 1;
-    pow2_arr = (seq_t*)realloc(pow2_arr, new_cap * sizeof(seq_t));
+    pow2_arr = mem_resize(seq_t, pow2_arr, new_cap);
     for (size_t i = pow2_cap; i < new_cap; ++i)
         pow2_arr[i] = pow2_arr[i - 1] * (seq_t)2;
     pow2_cap = new_cap;
@@ -48,7 +50,7 @@ static size_t u_cap     = 0;       /* number of initialized entries */
 static void ensure_u(size_t need)
 {
     if (u_cap == 0) {
-        u_arr = (seq_t*)malloc(sizeof(seq_t));
+        u_arr = mem_new(seq_t, 1);
         u_arr[0] = (seq_t)0;          /* unused, but safe */
         u_cap   = 1;
     }
@@ -56,7 +58,7 @@ static void ensure_u(size_t need)
         return;
 
     size_t new_cap = need + 1;
-    u_arr = (seq_t*)realloc(u_arr, new_cap * sizeof(seq_t));
+    u_arr = mem_resize(seq_t, u_arr, new_cap);
 
     for (size_t m = u_cap; m < new_cap; ++m) {
         if (m == 0) {
@@ -89,7 +91,7 @@ static size_t a_cap     = 0;       /* number of initialized entries */
 static void ensure_a(size_t need)
 {
     if (a_cap == 0) {
-        a_arr = (seq_t*)malloc(sizeof(seq_t));
+        a_arr = mem_new(seq_t, 1);
         a_arr[0] = (seq_t)0;
         a_cap   = 1;
     }
@@ -97,7 +99,7 @@ static void ensure_a(size_t need)
         return;
 
     size_t new_cap = need + 1;
-    a_arr = (seq_t*)realloc(a_arr, new_cap * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, new_cap);
 
     for (size_t n = a_cap; n < new_cap; ++n) {
         if (n == 0) {

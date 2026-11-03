@@ -5,76 +5,77 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = floor( Σ_{d|n} 1/σ(d) ) where σ is the sum of divisors
- * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 4959, u64 n <= 8676,
- *            u128 n <= 8676, big any n
- * Helpers:   factor_u64, seq_gcd, seq_pow
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 103 terms through n = 8676 (2026-11-03)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+/* A266227: floor(Sum_{d|n} 1/sigma(d)). The sum is small, so it is added in
+ * long double; only when it lies within 1e-9 of an integer is it recomputed
+ * exactly, as a reduced 128-bit fraction. (The original summed fractions in
+ * seq_t, whose denominators overflow at 64 bits.) */
+
 #include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
-
+#include <stdlib.h>
+#include <math.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_gcd.h"
-#include "../utils/seq_pow.h"
 
-/* Recursive helper that enumerates all divisors of n.
-   curr_sigma holds σ(d) for the divisor constructed so far. */
-static void dfs(const uint64_t *primes,
-                const uint64_t *exps,
-                size_t        idx,
-                size_t        cnt,
-                seq_t         curr_sigma,
-                seq_t        *sum_num,
-                seq_t        *sum_den)
+typedef unsigned __int128 u128;
+
+static u128 gcd128(u128 a, u128 b)
 {
-    if (idx == cnt) {                 /* reached a divisor – add 1/σ(d) */
-        seq_t num = (*sum_num) * curr_sigma + (*sum_den);
-        seq_t den = (*sum_den) * curr_sigma;
-        seq_t g   = seq_gcd(num, den);
-        if (g != 1) {                 /* reduce the fraction */
-            num /= g;
-            den /= g;
-        }
-        *sum_num = num;
-        *sum_den = den;
-        return;
-    }
+    while (b) { u128 t = a % b; a = b; b = t; }
+    return a;
+}
 
-    uint64_t p   = primes[idx];
-    uint64_t emax = exps[idx];
+static uint64_t pr[64], ex[64];
+static size_t np;
 
-    /* Pre‑compute σ(p^e) for e = 0 … emax (emax < 64 for 64‑bit n) */
-    seq_t sigma_table[64];
-    sigma_table[0] = 1;
-    for (uint64_t e = 1; e <= emax; ++e) {
-        seq_t powp = seq_pow((seq_t)p, (idx_t)(e + 1));
-        sigma_table[e] = (powp - 1) / ((seq_t)p - 1);
+/* every divisor's sigma, by its prime powers: calls f(sigma(d)) */
+static void each(size_t i, uint64_t s, void (*f)(uint64_t))
+{
+    if (i == np) { f(s); return; }
+    uint64_t pe = 1, sig = 1;               /* p^e, sigma(p^e) */
+    for (uint64_t e = 0; e <= ex[i]; ++e) {
+        each(i + 1, s * sig, f);
+        pe *= pr[i];
+        sig += pe;
     }
+}
 
-    for (uint64_t e = 0; e <= emax; ++e) {
-        dfs(primes, exps, idx + 1, cnt,
-            curr_sigma * sigma_table[e], sum_num, sum_den);
-    }
+static long double fsum;
+static void add_float(uint64_t s) { fsum += 1.0L / (long double)s; }
+
+static u128 qn, qd;
+static int exact_ok;
+static void add_exact(uint64_t s)
+{
+    u128 g = gcd128(qd, s);
+    u128 l = qd / g;                        /* new denominator l * s */
+    if (l > (~(u128)0) / s) { exact_ok = 0; return; }
+    qn = qn * (s / g) + l;
+    qd = l * s;
+    g = gcd128(qn, qd);
+    qn /= g;
+    qd /= g;
 }
 
 seq_t a(idx_t n)
 {
-    if (n == 0) return 0;           /* defined only for n ≥ 1 */
-
-    uint64_t primes[64];
-    uint64_t exps[64];
-    size_t   cnt = 0;
-
-    /* factor_u64 expects uint64_t arguments; cast n accordingly */
-    factor_u64((uint64_t)n, primes, exps, &cnt);
-
-    seq_t sum_num = 0;
-    seq_t sum_den = 1;
-
-    dfs(primes, exps, 0, cnt, 1, &sum_num, &sum_den);
-
-    return sum_num / sum_den;        /* floor of the rational sum */
+    if (n < 1) return (seq_t)0;
+    np = 0;
+    factor_u64((uint64_t)n, pr, ex, &np);
+    fsum = 0;
+    each(0, 1, add_float);
+    long double fl = floorl(fsum);
+    if (fsum - fl > 1e-9L && fsum - fl < 1 - 1e-9L) return (seq_t)(uint64_t)fl;
+    qn = 0;
+    qd = 1;
+    exact_ok = 1;
+    each(0, 1, add_exact);
+    if (!exact_ok) return (seq_t)(uint64_t)floorl(fsum + 1e-12L);
+    return (seq_t)(uint64_t)(qn / qd);
 }

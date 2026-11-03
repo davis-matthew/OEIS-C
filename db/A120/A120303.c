@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2, if n == 2; otherwise the largest prime < 2*n
  * Range:     u8 n <= 128, u16 n <= 800, u32 n <= 800, u64 n <= 800,
  *            u128 n <= 800, big any n
+ * Validated: standard, pass, 82 terms through n = 700 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* This follows from the OEIS comment that for n>2 the largest prime less than 2*n
    equals the largest prime factor of the Catalan number C_n. */
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

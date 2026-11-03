@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   lpf_uint64
+ * Validated: standard, pass, 77 terms through n = 950 (2026-11-03)
+ * Helpers:   largest_prime_factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
  */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/lpf_uint64.h"
+#include "../utils/largest_prime_factor_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,16 +44,16 @@ seq_t a(idx_t n)
     static idx_t next_k = 3;
 
     while (seq_size < n) {
-        seq_t lp_prev = lpf_uint64((uint64_t)(next_k - 1));
-        seq_t lp_cur  = lpf_uint64((uint64_t)next_k);
-        seq_t lp_next = lpf_uint64((uint64_t)(next_k + 1));
+        seq_t lp_prev = largest_prime_factor_u64((uint64_t)(next_k - 1));
+        seq_t lp_cur  = largest_prime_factor_u64((uint64_t)next_k);
+        seq_t lp_next = largest_prime_factor_u64((uint64_t)(next_k + 1));
 
         if (lp_prev < lp_cur && lp_cur > lp_next) {
             /* Append to cache */
             if (seq_size == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
-                if (!tmp) { free(seq_arr); exit(1); }
+                seq_t *tmp = mem_resize(seq_t, seq_arr, seq_cap);
+                if (!tmp) { mem_free(seq_arr); exit(1); }
                 seq_arr = tmp;
             }
             seq_arr[seq_size++] = (seq_t)next_k;

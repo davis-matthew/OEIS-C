@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 14,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array, gcd
+ * Validated: standard, pass, 30 terms through n = 295 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,22 @@
    Recurrence: n^2*(3n-1)*a(n) = 3*(9n-5)*(9n-8)*(9n-1)*a(n-1)
    Initial value: a(0) = 1   (offset 0)
 */
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;   /* cached sequence values */
 static idx_t  cache_len = 0;  /* number of cached elements */

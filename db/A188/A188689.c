@@ -12,7 +12,8 @@
  *            in each column (rows k–2, k–1, k) – diagonal do...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   rows_allowed
+ * Validated: standard, pass, 38 terms through n = 188 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,42 @@
    ------------------------------------------------------------- */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/rows_allowed.h"
+
+/* Compute whether three consecutive rows (prev2, prev1, cur) are allowed
+   with respect to vertical, diagonal, and anti‑diagonal constraints. */
+static inline bool rows_allowed(uint8_t prev2, uint8_t prev1, uint8_t cur)
+{
+    /* check vertical 0-1-0 in each column */
+    for (int c = 0; c < 3; ++c) {
+        if (!((prev2 & (1u << c))     /* prev2 bit c */
+              && (cur & (1u << c))     /* cur bit c */
+              && !(prev1 & (1u << c)))) { /* prev1 bit c is 1? no */}
+        /* Actually we check pattern 0 1 0:
+           prev2 == 0, prev1 == 1, cur == 0
+           So if prev2_bit==0 && prev1_bit==1 && cur_bit==0 → forbidden */
+        if (((prev2 & (1u << c)) == 0) &&
+            ((prev1 & (1u << c)) != 0) &&
+            ((cur   & (1u << c)) == 0)) {
+            return false;
+        }
+    }
+
+    /* diagonal down‑right 0 1 0: prev2 col1, prev1 col2, cur col3 */
+    if (((prev2 & 1u) == 0) &&
+        ((prev1 & 2u) != 0) &&
+        ((cur   & 4u) == 0)) {
+        return false;
+    }
+
+    /* anti‑diagonal down‑left 0 1 0: prev2 col3, prev1 col2, cur col1 */
+    if (((prev2 & 4u) == 0) &&
+        ((prev1 & 2u) != 0) &&
+        ((cur   & 1u) == 0)) {
+        return false;
+    }
+
+    return true;
+}
 
 static const bool row_allowed[8] = {
     /* 000 */ true,

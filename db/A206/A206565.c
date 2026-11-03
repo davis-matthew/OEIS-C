@@ -7,12 +7,14 @@
  * Formula:   a(0) = 1; a(1) = 37; a(n) = 37*a(n-1) - a(n-2) for n ≥ 2
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 471 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate space for indices 0 and 1 */
         size_t initial_size = 2 * sizeof(seq_t);
-        cache = (seq_t *)malloc(initial_size);
+        cache = mem_new(seq_t, (initial_size) / sizeof(seq_t));
         if (cache == NULL) abort(); /* memory allocation failed */
 
         cache[0] = (seq_t)1;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (n > max_computed) {
         /* Allocate new larger array */
         size_t new_size_bytes = (size_t)(n + 1) * sizeof(seq_t);
-        seq_t *tmp = (seq_t *)realloc(cache, new_size_bytes);
+        seq_t *tmp = mem_resize(seq_t, cache, (new_size_bytes) / sizeof(seq_t));
         if (tmp == NULL) abort(); /* allocation failure */
         cache = tmp;
 

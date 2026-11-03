@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 84 terms through n = 83 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"   /* seq_t binom(idx_t N, idx_t K); */
+#include <sys/types.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,7 +52,7 @@ seq_t a(idx_t n)
         row_start = (idx_t *)malloc(rows_cap * sizeof(idx_t));
 
         /* Row 0 */
-        seq_t *row0 = (seq_t *)malloc(sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
         row0[0] = 1;
         rows[0] = row0;
         row_start[0] = 0;
@@ -77,7 +80,7 @@ seq_t a(idx_t n)
         /* Compute new row */
         idx_t r = rows_count;
         size_t sz = r / 2 + 1;
-        seq_t *curr = (seq_t *)malloc(sz * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, sz);
 
         for (size_t k = 0; k < sz; ++k) {
             if (k == 0) {
@@ -108,7 +111,7 @@ seq_t a(idx_t n)
                 idx_t B = ((r - 3) / 2) - (k - 1);
 
                 /* N and B are non‑negative and B ≤ N for valid positions */
-                seq_t sub = binom(N, B);
+                seq_t sub = binomial(N, B);
                 val -= sub;
             }
 

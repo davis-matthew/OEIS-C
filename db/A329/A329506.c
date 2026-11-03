@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 + 3*I[n≥1] + 4*I[n≥2] - 2*I[n≥4]
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

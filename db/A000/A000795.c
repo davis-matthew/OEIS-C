@@ -8,14 +8,16 @@
  * Formula:   a(n) = 1 - Sum_{k=1..n} (-1)^k * binomial(2n, 2k) * a(n-k)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 19,
  *            big any n
- * Helpers:   a000707_binom
+ * Validated: standard, pass, 33 terms through n = 98 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a000707_binom.h"
-
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -26,12 +28,12 @@ seq_t a(idx_t n) {
     // Expand memo if necessary
     if (n >= memo_size) {
         idx_t new_size = (n + 1) * 2;
-        seq_t *new_memo = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_size);
         if (memo != NULL) {
             for (idx_t i = 0; i < memo_size; i++) {
                 new_memo[i] = memo[i];
             }
-            free(memo);
+            mem_free(memo);
         }
         // Zero out new memory
         for (idx_t i = memo_size; i < new_size; i++) {
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     // Compute a(n) using the recurrence
     seq_t result = 1;
     for (idx_t k = 1; k <= n; k++) {
-        seq_t binom = a000707_binom(2*n, 2*k);
+        seq_t binom = binomial(2*n, 2*k);
         seq_t prev = a(n - k);
         
         if (k % 2 == 1) {

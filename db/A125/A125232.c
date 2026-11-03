@@ -12,6 +12,7 @@
  *            worst * case O(r) with r≈√(2n). For n≤10 000 the l...
  * Range:     u8 n <= 30, u16 n <= 141, u32 n <= 542, u64 n <= 2173,
  *            u128 n <= 8446, big any n
+ * Validated: standard, pass, 82 terms through n = 9801 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,12 +8,14 @@
  *            multiplicity)
  * Range:     u8 n <= 83, u16 n <= 482, u32 n <= 5075, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9042 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp_cache = NULL;
 static idx_t  dp_capacity = 0;
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
        using the standard coin‑change dynamic program */
     if (n >= dp_capacity) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(dp_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp_cache, new_cap);
         if (!tmp) exit(1);              /* memory exhausted */
         dp_cache = tmp;
 

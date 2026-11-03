@@ -8,13 +8,15 @@
  *            binomial(n,k)*a(k)*a(n-k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 240 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Allocate or grow cache to hold indices up to n. */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = ((size_t)n + 1) * 2;   /* grow factor 2 to reduce reallocs */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                     /* out of memory */
         cache = tmp;
         cache_cap = new_cap;

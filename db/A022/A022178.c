@@ -9,12 +9,13 @@
  *            read row‑wise, left to right, top to bottom
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 22, u64 n <= 47, u128 n <= 81,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 49 terms through n = 1278 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +37,8 @@ seq_t a(idx_t n)
 
     seq_t res = (seq_t)1;
     for (idx_t i = (idx_t)1; i <= kk; ++i) {
-        seq_t num = pow_int((seq_t)14, r + 1 - i) - (seq_t)1;
-        seq_t den = pow_int((seq_t)14, i) - (seq_t)1;
+        seq_t num = ipow_idx((seq_t)14, r + 1 - i) - (seq_t)1;
+        seq_t den = ipow_idx((seq_t)14, i) - (seq_t)1;
         res = res * num / den;
     }
     return res;

@@ -10,7 +10,8 @@
  *            parts ≤ k
  * Range:     u8 n <= 29, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Compute the number of palindromic partitions of n whose greatest part
    occurs exactly twice, as defined in OEIS A238779. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* handle offset: a(1)=0 is defined by the sequence. */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
 
     idx_t maxM = n / 2;
     idx_t smax = (n >= 2) ? (n - 2) / 2 : 0;   /* maximum s needed          */
-    seq_t *p = (seq_t *)malloc((smax + 1) * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (smax + 1));
     if (!p) return (seq_t)0;                    /* allocation failed */
 
     /* init p[0]=1; p[>0]=0  – partitions of 0 with parts ≤ 0 is 1  */
@@ -52,6 +54,6 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(p);
+    mem_free(p);
     return answer;
 }

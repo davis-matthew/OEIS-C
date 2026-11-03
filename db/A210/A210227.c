@@ -11,12 +11,14 @@
  *            sequence a(n) lists the coefficients row by row
  * Range:     u8 n <= 25, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,12 +37,12 @@ seq_t a(idx_t n)
     for (idx_t m = 1; m <= r; ++m)
     {
         size_curr = m;
-        u_curr = (seq_t *)malloc(size_curr * sizeof(seq_t));
-        v_curr = (seq_t *)malloc(size_curr * sizeof(seq_t));
+        u_curr = mem_new(seq_t, size_curr);
+        v_curr = mem_new(seq_t, size_curr);
         if (!u_curr || !v_curr)
         {
-            free(u_prev); free(v_prev);
-            free(u_curr); free(v_curr);
+            mem_free(u_prev); mem_free(v_prev);
+            mem_free(u_curr); mem_free(v_curr);
             return (seq_t)0;   /* allocation failure */
         }
 
@@ -71,8 +73,8 @@ seq_t a(idx_t n)
         }
 
         /* Dispose of the previous row. */
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = u_curr;
         v_prev = v_curr;
         size_prev = size_curr;
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
 
     seq_t result = u_prev[offset];
 
-    free(u_prev);
-    free(v_prev);
+    mem_free(u_prev);
+    mem_free(v_prev);
     return result;
 }

@@ -10,12 +10,14 @@
  *            for all 0 ≤ k ≤ 10000, so round(k*Pi) = floor((k*355 + 56)/113)
  * Range:     i8 none, i16 n <= 18, i32 n <= 35, i64 n <= 70, i128 n <= 135,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* Store the values of round(k*Pi) for k = 0 … n. */
     size_t len = (size_t)(n + 1);
-    seq_t *v = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *v = mem_new(seq_t, len);
     if (!v)
         return (seq_t)0;   /* allocation failed – unlikely test case */
 
@@ -42,6 +44,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = v[0];
-    free(v);
+    mem_free(v);
     return result;
 }

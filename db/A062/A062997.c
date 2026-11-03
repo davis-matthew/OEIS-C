@@ -12,7 +12,8 @@
  *            processed efficiently
  * Range:     u8 n <= 81, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   good_digit_product_sum
+ * Validated: standard, pass, 74 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/good_digit_product_sum.h"
+#include "../utils/mem.h"
+
+static bool good_digit_product_sum(uint64_t x)
+{
+    uint64_t sum = 0;
+    uint64_t prod = 1;
+    while (x > 0) {
+        uint8_t d = x % 10;
+        sum += d;
+        if (d == 0)
+            prod = 0;
+        else
+            prod *= d;
+        x /= 10;
+    }
+    return sum > prod;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +50,7 @@ seq_t a(idx_t n)
     /* initialize cache on first call */
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* extend cache until reaching desired index n */
@@ -45,7 +62,7 @@ seq_t a(idx_t n)
         /* store it */
         if ((size_t)cache_len >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = (seq_t)current;
         ++current;

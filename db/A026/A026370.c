@@ -11,7 +11,8 @@
  *            not yet occurred. Offset: 1
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build environment. */
 seq_t a(idx_t n)
@@ -39,8 +41,8 @@ seq_t a(idx_t n)
         /* Allocate small initial buffers */
         seq_cap   = 128;
         sched_cap = seq_cap;
-        seq       = (seq_t *)calloc(seq_cap, sizeof(seq_t));
-        sched     = (seq_t *)calloc(sched_cap, sizeof(seq_t));
+        seq       = mem_new(seq_t, seq_cap);
+        sched     = mem_new(seq_t, sched_cap);
 
         cnt_cap   = 1024;
         cnt       = (size_t *)calloc(cnt_cap, sizeof(size_t));
@@ -54,8 +56,8 @@ seq_t a(idx_t n)
         idx_t target = (idx_t)1 + 2*1 + 1;      /* 4 */
         if (target >= sched_cap) {
             size_t new_cap = target + 128;
-            sched = (seq_t *)realloc(sched, new_cap * sizeof(seq_t));
-            memset(sched + sched_cap, 0, (new_cap - sched_cap) * sizeof(seq_t));
+            sched = mem_resize(seq_t, sched, new_cap);
+            mem_set(sched + sched_cap, 0, (new_cap - sched_cap) * sizeof(seq_t));
             sched_cap = new_cap;
         }
         sched[target] = 1;
@@ -71,9 +73,9 @@ seq_t a(idx_t n)
         /* Ensure seq and sched arrays large enough */
         if ((size_t)idx >= seq_cap) {
             size_t new_cap = seq_cap * 2 + 128;
-            seq   = (seq_t *)realloc(seq,   new_cap * sizeof(seq_t));
-            sched = (seq_t *)realloc(sched, new_cap * sizeof(seq_t));
-            memset(sched + sched_cap, 0, (new_cap - sched_cap) * sizeof(seq_t));
+            seq   = mem_resize(seq_t, seq, new_cap);
+            sched = mem_resize(seq_t, sched, new_cap);
+            mem_set(sched + sched_cap, 0, (new_cap - sched_cap) * sizeof(seq_t));
             seq_cap   = new_cap;
             sched_cap = new_cap;
         }
@@ -103,8 +105,8 @@ seq_t a(idx_t n)
             idx_t target = (idx_t)val + 2*idx + 1;
             if (target >= sched_cap) {
                 size_t new_cap = target + 128 + (sched_cap >> 1);
-                sched = (seq_t *)realloc(sched, new_cap * sizeof(seq_t));
-                memset(sched + sched_cap, 0, (new_cap - sched_cap) * sizeof(seq_t));
+                sched = mem_resize(seq_t, sched, new_cap);
+                mem_set(sched + sched_cap, 0, (new_cap - sched_cap) * sizeof(seq_t));
                 sched_cap = new_cap;
             }
             if (sched[target] == 0)                 /* avoid overwriting */

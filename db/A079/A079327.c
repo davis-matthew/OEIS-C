@@ -9,15 +9,17 @@
  *            (mod n) for all 0 < b < n
  * Range:     u8 n <= 368, u16 n <= 1024, u32 n <= 1024, u64 n <= 1024,
  *            u128 n <= 1024, big any n
- * Helpers:   gcd, is_prime, pow_uint
+ * Validated: standard, pass, 115 terms through n = 931 (2026-11-01)
+ * Helpers:   gcd, ipow_u64_idx, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/is_prime.h"
 
 /* Return lcm of two seq_t values (a / gcd(a,b) * b). */
 static seq_t lcm_seq(seq_t a, seq_t b)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             else if (exp == 2)
                 lam = (seq_t)2;                       /* λ(4) = 2 */
             else /* exp >= 3 */
-                lam = pow_uint((uint64_t)2, exp - (idx_t)2);  /* λ(2^e) = 2^{e-2} */
+                lam = ipow_u64_idx((uint64_t)2, exp - (idx_t)2);  /* λ(2^e) = 2^{e-2} */
 
             lambda_total = lcm_seq(lambda_total, lam);
             if (exp > max_exp)
@@ -69,8 +71,8 @@ seq_t a(idx_t n)
                 temp /= p;
                 ++exp;
             }
-            seq_t p_pow_e       = pow_uint(p, exp);
-            seq_t p_pow_e_minus = pow_uint(p, exp - (idx_t)1);
+            seq_t p_pow_e       = ipow_u64_idx(p, exp);
+            seq_t p_pow_e_minus = ipow_u64_idx(p, exp - (idx_t)1);
             seq_t lam = p_pow_e - p_pow_e_minus;   /* λ(p^e) = p^{e-1}(p-1) */
 
             lambda_total = lcm_seq(lambda_total, lam);

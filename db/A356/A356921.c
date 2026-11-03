@@ -10,7 +10,8 @@
  *            rotation. Each necklace of length L contributes L bits
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   db_generate
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/db_generate.h"
+
+/*    Generates all binary necklaces of length n in lexicographic
+    order of the minimal rotation.  Bits are written sequentially
+    to 'out', and 'pos' is the next free position in that buffer. */
+static void db_generate(int t, int p, int n, int *a, char *out, size_t *pos)
+{
+    if (t > n) {
+        if (n % p == 0) {
+            for (int i = 1; i <= n; ++i)
+                out[(*pos)++] = (char)a[i];
+        }
+    } else {
+        a[t] = a[t - p];
+        db_generate(t + 1, p, n, a, out, pos);
+        for (int j = a[t - p] + 1; j < 2; ++j) {
+            a[t] = j;
+            db_generate(t + 1, t, n, a, out, pos);
+        }
+    }
+}
 
 /* maximum length of necklaces generated; enough for n up to ≈ 2·10⁶ bits */
 #define MAX_LEN 20

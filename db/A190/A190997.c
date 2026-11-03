@@ -9,12 +9,13 @@
  *            divisors contain the digit 0)
  * Range:     u8 n <= 11, u16 n <= 35, u32 n <= 143, u64 n <= 575,
  *            u128 n <= 3863, big any n
- * Helpers:   _digit_product
+ * Validated: standard, pass, 73 terms through n = 9000 (2026-11-01)
+ * Helpers:   digit_product_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_digit_product.h"
+#include "../utils/digit_product_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -29,12 +30,12 @@ seq_t a(idx_t n)
             continue;
         }
         /* process divisor d */
-        result *= _digit_product(d);
+        result *= digit_product_idx(d);
 
         /* process the paired divisor n/d if distinct */
         idx_t e = n / d;
         if (e != d) {
-            result *= _digit_product(e);
+            result *= digit_product_idx(e);
         }
     }
     return result;

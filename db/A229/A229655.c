@@ -9,9 +9,10 @@
  *            2*a(n+1) + a(n) a(5*n+3) = a(n+3) - 3*a(n+2) + 3*a(n+1) - a(n)
  *            a(5*n+4) = a(n+4) - 4*a(n+3) + 6*a(n+2) - 4*a(n+1) + a(n)
  *            Initial values: a(0)=0, a(1)=0, a(2)=0, a(3)=0, a(4)=1
- * Range:     i8 n <= 158, i16 n <= 7808, i32 n <= 9205, i64 n <= 9205,
- *            i128 n <= 9205, big any n
- * Helpers:   none
+ * Range:     i8 n <= 158, i16 n <= 7808, i32 n <= 15625, i64 n <= 15625,
+ *            i128 n <= 15625, big any n
+ * Validated: standard, pass, 89 terms through n = 9205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #if defined(__cplusplus)
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* cache for already computed terms */
 static seq_t *cache = NULL;          /* pointer to the array */
@@ -32,7 +34,7 @@ static inline void init_entry(seq_t *p, size_t i)
 {
 #if defined(__cplusplus)
     /* placement new constructs a default object */
-    new (p + i) seq_t();
+    *(p + i) = (seq_t)0;
 #else
     *p = 0;
 #endif
@@ -44,12 +46,12 @@ static void ensure_capacity(size_t new_cap)
     if (new_cap <= capacity)
         return;                                 /* nothing to do */
     if (!cache) {                               /* first time allocation */
-        cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
         if (!cache) abort();
         capacity = new_cap;
         len = 0;
     } else {
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         capacity = new_cap;

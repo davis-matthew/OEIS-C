@@ -9,7 +9,8 @@
  *            prime divisors (counted with multiplicity) is odd
  * Range:     u8 n <= 16, u16 n <= 30, u32 n <= 57, u64 n <= 112,
  *            u128 n <= 222, big any n
- * Helpers:   bigomega, ensure_capacity_char
+ * Validated: standard, pass, 63 terms through n = 4740 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,18 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/bigomega.h"   /* defines seq_t bigomega(idx_t) */
-#include "../utils/ensure_capacity_char.h"
+#include "../utils/bigomega.h"
+#include "../utils/mem.h"
+
+/* generic capacity grow for unsigned char arrays */
+static void ensure_capacity_char(unsigned char **arr, size_t *cap, size_t needed)
+{
+    if (*cap >= needed) return;
+    size_t new_cap = *cap ? *cap : 1;
+    while (new_cap < needed) new_cap <<= 1;
+    *arr = (unsigned char *)realloc(*arr, new_cap * sizeof(unsigned char));
+    *cap = new_cap;
+}
 
 /* generic capacity grow for seq_t arrays */
 static void ensure_capacity_seq(seq_t **arr, size_t *cap, size_t needed)
@@ -26,7 +37,7 @@ static void ensure_capacity_seq(seq_t **arr, size_t *cap, size_t needed)
     if (*cap >= needed) return;
     size_t new_cap = *cap ? *cap : 1;
     while (new_cap < needed) new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 

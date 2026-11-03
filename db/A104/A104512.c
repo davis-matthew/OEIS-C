@@ -7,8 +7,9 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = the smallest a>0 such that n = k*a + k*(k‑1)/2 for some
  *            integer k>1; a(n) = 0 if no such representation exists
- * Range:     u8 n <= 519, u16 n <= 9362, u32 n <= 9362, u64 n <= 9362,
- *            u128 n <= 9362, big any n
+ * Range:     u8 n <= 519, u16 n <= 16416, u32 n <= 16416, u64 n <= 16416,
+ *            u128 n <= 16416, big any n
+ * Validated: standard, pass, 109 terms through n = 9362 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

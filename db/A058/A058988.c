@@ -13,14 +13,16 @@
  *            Sequence A058988
  * Range:     u8 n <= 34, u16 n <= 1762, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, gcd
+ * Validated: standard, pass, 87 terms through n = 9432 (2026-11-01)
+ * Helpers:   gcd, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n) {
     /* Handle the theoretical offset; a(0) is undefined but return 0. */
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
         ++step;
         seq_t prod = p * q;                    /* product of numerator and denominator */
         uint64_t sum = (uint64_t)(p + q);      /* p+q must fit in 64-bit for divisor count */
-        uint64_t d = divisor_count_u64(sum);   /* number of divisors of p+q */
+        uint64_t d = num_divisors(sum);   /* number of divisors of p+q */
 
         /* If the product is divisible by d, an integer is reached. */
         if (prod % (seq_t)d == 0) {

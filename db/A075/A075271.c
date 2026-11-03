@@ -8,13 +8,16 @@
  * Formula:   a(0) = 1; for n ≥ 1, Σ_{k=0}^n C(n,k)*a(k) = 2^{n+1}·a(n‑1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 31 terms through n = 50 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow2.h"          /* seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *tbl = NULL;      /* memoised values */
@@ -24,13 +27,13 @@ seq_t a(idx_t n) {
     /* Allocate table if needed */
     if (tbl == NULL) {
         cap = (size_t)(n + 1);
-        tbl = (seq_t*)malloc(cap * sizeof(seq_t));
+        tbl = mem_new(seq_t, cap);
         if (!tbl) return (seq_t)0;   /* allocation failed */
         tbl[0] = (seq_t)1;           /* a(0) */
         last = 0;
     } else if ((size_t)(n + 1) > cap) {
         cap = (size_t)(n + 1);
-        tbl = (seq_t*)realloc(tbl, cap * sizeof(seq_t));
+        tbl = mem_resize(seq_t, tbl, cap);
         if (!tbl) return (seq_t)0;
     }
 

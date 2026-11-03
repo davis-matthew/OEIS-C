@@ -11,17 +11,63 @@
  *            rotations; G(n,1) = A000179(n))
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 14, u64 n <= 22, u128 n <= 35,
  *            big any n
- * Helpers:   a2484_big, a2484_big_G, a2484_isbig, a2484_tot
+ * Validated: standard, pass, 36 terms through n = 183 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
-#include "../utils/a2484_big.h"
-#include "../utils/a2484_big_G.h"
-#include "../utils/a2484_isbig.h"
-#include "../utils/a2484_tot.h"
+#include "../utils/totient_u64.h"
+
+/* arbitrary-precision path */
+static seq_t a2484_big_G(idx_t d, idx_t m)
+{
+    seq_t P = 0, N = 0, b1 = 1, b2 = 1;
+    idx_t k;
+    for (k = 0; k <= d; k++) {
+        idx_t j = d - k;
+        seq_t r;
+        if (k > 0) {
+            P *= (j + 1) * m;
+            N *= (j + 1) * m;
+        }
+        r = b1;
+        if (k > 0) r += b2;
+        if (k & 1) N += r; else P += r;
+        if (k < d) {
+            b1 = b1 * (2 * d - 2 * k);
+            b1 = b1 * (2 * d - 2 * k - 1);
+            b1 = b1 / ((k + 1) * (2 * d - k));
+        }
+        if (k >= 1 && k < d) {
+            idx_t jj = k - 1, N2 = 2 * d - 2;
+            b2 = b2 * (N2 - 2 * jj);
+            b2 = b2 * (N2 - 2 * jj - 1);
+            b2 = b2 / ((jj + 1) * (N2 - jj));
+        }
+    }
+    return P - N;
+}
+
+static seq_t a2484_big(idx_t n)
+{
+    seq_t S = 0;
+    idx_t d;
+    for (d = 1; d <= n; d++) {
+        if (n % d != 0) continue;
+        S += a2484_big_G(d, n / d) * (idx_t)totient_u64(n / d);
+    }
+    return S / n;
+}
+
+static int a2484_isbig(void)
+{
+    seq_t z = 0;
+    z -= 1;
+    return !(z > 0);
+}
 
 #define A2484_L 8
 
@@ -124,7 +170,7 @@ static seq_t a2484_fixed(idx_t n)
     for (d = 1; d <= n; d++) {
         if (n % d != 0) continue;
         a2484_fixed_G(d, n / d, G);
-        a2484_lmul(G, a2484_tot(n / d));
+        a2484_lmul(G, totient_u64(n / d));
         a2484_ladd(S, G);
     }
     a2484_ldiv(S, n);

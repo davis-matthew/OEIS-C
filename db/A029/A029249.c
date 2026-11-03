@@ -8,6 +8,7 @@
  *            floor((4*n^3+6*n^2+8*n+6)/11)
  * Range:     u8 n <= 1, u16 n <= 40, u32 n <= 341, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 78 terms through n = 946 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

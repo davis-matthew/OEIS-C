@@ -11,15 +11,16 @@
  *            T(n,k)=2*n-popcnt(n-k)-popcnt(k). * The index n is 0‑based and
  *            the triangle is read row by row. * This implementation works for
  *            all build configurations where * idx_t is an un...
- * Range:     u8 n <= 8384, u16 n <= 8876, u32 n <= 8876, u64 n <= 8876,
- *            u128 n <= 8876, big any n
- * Helpers:   popcnt_u64
+ * Range:     u8 n <= 8384, u16 n <= 20300, u32 n <= 20300, u64 n <= 20300,
+ *            u128 n <= 20300, big any n
+ * Validated: standard, pass, 107 terms through n = 8876 (2026-11-01)
+ * Helpers:   popcount_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>         /* for uint64_t if needed */
-#include "../utils/popcnt_u64.h"
+#include "../utils/popcount_u64.h"
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -37,8 +38,8 @@ seq_t a(idx_t n)
     idx_t k = n - prev;
 
     /* Compute the value using the defining formula */
-    unsigned int w1 = popcnt_u64(r - k);
-    unsigned int w2 = popcnt_u64(k);
+    unsigned int w1 = popcount_u64(r - k);
+    unsigned int w2 = popcount_u64(k);
     idx_t val = 2 * r - w1 - w2;
 
     return (seq_t)val;

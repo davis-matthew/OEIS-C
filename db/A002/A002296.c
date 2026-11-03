@@ -9,7 +9,8 @@
  *            formula
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 33,
  *            big any n
- * Helpers:   a002296_leg
+ * Validated: standard, pass, 36 terms through n = 90 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/a002296_leg.h"
+
+static uint64_t a002296_leg(uint64_t m, uint64_t p) {
+    uint64_t s = 0;
+    while (m) {
+        m /= p;
+        s += m;
+    }
+    return s;
+}
 
 seq_t a(idx_t n) {
     seq_t r = (seq_t)1;

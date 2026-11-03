@@ -12,6 +12,7 @@
  *            = 1 if k==1 1 if (k & ~r) == 0 // Pascal(n,k) odd 0 o...
  * Range:     u8 n <= 1325, u16 n <= 1325, u32 n <= 1325, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 121 terms through n = 1296 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

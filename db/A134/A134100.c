@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 4821, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   trial_uint64
+ * Validated: standard, pass, 69 terms through n = 9674 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/trial_uint64.h"
+#include "../utils/mem.h"
+
+static bool trial_uint64(uint64_t n, const uint64_t *primes, size_t count)
+{
+    if (n < 2) return false;
+    if (n == 2 || n == 3) return true;
+    if ((n & 1) == 0) return false;
+    for (size_t i = 0; i < count; ++i) {
+        uint64_t p = primes[i];
+        if (p * p > n) break;
+        if (n % p == 0) return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -44,7 +58,7 @@ seq_t a(idx_t n)
     }
     if (!special) {
         sp_cap = 4;
-        special = (seq_t *)malloc(sp_cap * sizeof(seq_t));
+        special = mem_new(seq_t, sp_cap);
     }
 
     /* Generate terms until we have at least n of them */
@@ -65,7 +79,7 @@ seq_t a(idx_t n)
         if (good) {
             if (sp_cnt == sp_cap) {
                 sp_cap = sp_cap * 2;
-                special = (seq_t *)realloc(special, sp_cap * sizeof(seq_t));
+                special = mem_resize(seq_t, special, sp_cap);
             }
             special[sp_cnt++] = (seq_t)cur;
         }

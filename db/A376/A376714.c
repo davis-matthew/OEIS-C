@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum of squares of decimal digits of the n-th prime
  * Range:     u8 n <= 668, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 80 terms through n = 9899 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

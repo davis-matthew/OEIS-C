@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 92, u32 n <= 821, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 937 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* -----  Depth‑first enumeration for small n  ---------------- */
@@ -76,7 +78,7 @@ static void ensure_cache(idx_t n)
     }
 
     size_t new_capacity = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
     if (!tmp) abort();                 /* allocation failed */
 
     cache = tmp;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 0 for n ≤ 2; a(n) = 3 * n! for n > 2
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with 0!, 1!, 2! */
     if (max_cached == 0) {
-        fact = (seq_t *)malloc(3 * sizeof(seq_t));
+        fact = mem_new(seq_t, 3);
         if (!fact) exit(1);          /* out of memory */
         fact[0] = (seq_t)1;          /* 0! = 1 */
         fact[1] = (seq_t)1;          /* 1! = 1 */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* extend cache to at least (n + 1) factorials */
     if (n + 1 > max_cached) {
         size_t new_cap = (size_t)(n + 1);
-        fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_cap);
         if (!fact) exit(1);          /* out of memory */
         for (idx_t i = max_cached; i <= n; ++i) {
             fact[i] = fact[i - 1] * (seq_t)i;

@@ -10,16 +10,21 @@
  *            digitsum(k) == s. Then sort each decade's terms
  * Range:     u8 n <= 20, u16 n <= 237, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a1102_cmp, a1102_ds, a1102_isqrt
+ * Validated: standard, pass, 64 terms through n = 9688 (2026-11-01)
+ * Helpers:   digit_sum_u64_to_u32, isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a1102_cmp.h"
-#include "../utils/a1102_ds.h"
-#include "../utils/a1102_isqrt.h"
+#include "../utils/digit_sum_u64_to_u32.h"
+#include "../utils/isqrt_u64.h"
+
+static int a1102_cmp(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
 
 static uint64_t *a1102_terms = NULL;
 static size_t a1102_cnt = 0, a1102_cap = 0;
@@ -41,7 +46,7 @@ static void a1102_decade(int D) {
     size_t start = a1102_cnt;
     unsigned s;
     for (s = 1; s <= (unsigned)(9 * D); s++) {
-        uint64_t m = a1102_isqrt((lo - 1) / s);
+        uint64_t m = isqrt_u64((lo - 1) / s);
         while (m > 0 && s * m * m >= lo) m--;
         while (s * m * m < lo) m++;
         for (;;) {
@@ -49,7 +54,7 @@ static void a1102_decade(int D) {
             if (m2 > (hi - 1) / s) break;
             uint64_t k = s * m2;
             if (k >= hi) break;
-            if (a1102_ds(k) == s) a1102_push(k);
+            if (digit_sum_u64_to_u32(k) == s) a1102_push(k);
             m++;
         }
     }

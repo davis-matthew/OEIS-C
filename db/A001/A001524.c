@@ -9,13 +9,18 @@
  *            * (1-q^m))
  * Range:     u8 n <= 15, u16 n <= 39, u32 n <= 111, u64 n <= 355,
  *            u128 n <= 1230, big any n
- * Helpers:   zalloc_arr
+ * Validated: standard, pass, 62 terms through n = 9768 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/zalloc_arr.h"
+#include "../utils/mem.h"
+
+static seq_t *zalloc_arr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;

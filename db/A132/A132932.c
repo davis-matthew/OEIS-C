@@ -7,7 +7,8 @@
  * Formula:   concatenation of the first n composite numbers
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   digits, is_prime, pow10
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   is_prime, mem, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/pow10.h"
-#include "../utils/digits.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* cache of composite numbers ------------------------------------------------*/
 static uint64_t *composites   = NULL;
@@ -66,7 +77,7 @@ static void ensure_values_size(size_t need)
     if (values_cap == 0) values_cap = 128;
     while (values_cap < need)
         values_cap <<= 1;
-    values = (seq_t*)realloc(values, values_cap * sizeof(seq_t));
+    values = mem_resize(seq_t, values, values_cap);
 }
 
 /* ---------------------------------------------------------------------------*/
@@ -86,7 +97,7 @@ extern seq_t a(idx_t n)
             if (i == 0) {
                 values[i] = (seq_t)comp;                   /* first term is 4 */
             } else {
-                int d = digits(comp);                      /* digits of current composite */
+                int d = num_digits_idx(comp);                      /* digits of current composite */
                 seq_t extend = pow10(d);                   /* 10^d in seq_t */
                 values[i] = values[i-1] * extend + (seq_t)comp;
             }

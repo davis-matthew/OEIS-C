@@ -9,8 +9,9 @@
  * Formula:   a(n) = 1 if A003415(n) is a multiple of A001414(n), otherwise 0
  *            (A003415 = arithmetic derivative, A001414 = sum of prime factors
  *            with multiplicity). Special case: a(1) = 1
- * Range:     u8 n <= 1648, u16 n <= 9694, u32 n <= 9694, u64 n <= 9694,
- *            u128 n <= 9694, big any n
+ * Range:     u8 n <= 1648, u16 n <= 99999, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 141 terms through n = 9694 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
 
 static uint64_t *primes = NULL;   /* array of primes */

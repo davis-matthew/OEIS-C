@@ -9,6 +9,7 @@
  *            A(x)=1/∑_{k≥0} C(2k+1,k+1)·x^k/k!
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 23, i128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   sum_squarefree_products
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,20 @@
 /* Sequence A333752: sum of squarefree divisors of n that are <= sqrt(n) */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sum_squarefree_products.h"
+
+/* Recursively sum the square‑free products not exceeding the limit */
+static seq_t sum_squarefree_products(uint64_t *primes, int pos, int count, seq_t prod, idx_t limit)
+{
+    seq_t total = 0;
+    for (int i = pos; i < count; ++i) {
+        seq_t new_prod = prod * (seq_t)primes[i];
+        /* Skip if the product would overflow the (integer) limit */
+        if (new_prod > (seq_t)limit) continue;
+        total += new_prod;
+        total += sum_squarefree_products(primes, i + 1, count, new_prod, limit);
+    }
+    return total;
+}
 
 /* Integer square‑root: floor(sqrt(n)) */
 static idx_t int_sqrt_u64(idx_t n)

@@ -9,8 +9,9 @@
  * Formula:   a(n) = digit n of the fixed point of the morphism d →
  *            reverse(d²) (beginning with digit 7). This sequence starts
  *            1,6,3,9,1,8,1,4,6,1,6,1,6,3,1,6,3,1,6,3,9,1,6,3,…
- * Range:     u8 n <= 9562, u16 n <= 9562, u32 n <= 9562, u64 n <= 9562,
- *            u128 n <= 9562, big any n
+ * Range:     u8 n <= 25000, u16 n <= 25000, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 103 terms through n = 9562 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

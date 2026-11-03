@@ -8,7 +8,8 @@
  *            a(j)^{n/j} Derived from Σ_{j|n} (-1)^{(n/j)-1} · a(j)^{n/j} = 1
  * Range:     i8 n <= 15, i16 n <= 23, i32 n <= 47, i64 n <= 49, i128 n <= 49,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static unsigned char *seq_cached = NULL;
@@ -27,7 +29,7 @@ static void ensure_seq_cache(idx_t n)
 {
     if ((size_t)n >= seq_cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_cached = (unsigned char *)realloc(seq_cached, new_cap * sizeof(unsigned char));
         for (size_t i = seq_cache_cap; i < new_cap; ++i) seq_cached[i] = 0;
         seq_cache_cap = new_cap;
@@ -52,7 +54,7 @@ static seq_t a_of(idx_t n)
                 if (d1 < n) {
                     idx_t m1 = n / d1;   /* exponent */
                     seq_t val1 = a_of(d1);
-                    seq_t pow1 = big_pow(val1, (seq_t)m1);
+                    seq_t pow1 = ipow(val1, (seq_t)m1);
                     if ((m1 & 1) == 0) pow1 = -pow1;   /* (-1)^{m-1} */
                     sum += pow1;
                 }
@@ -61,7 +63,7 @@ static seq_t a_of(idx_t n)
                 if (d2 != d1 && d2 < n) {
                     idx_t m2 = i;        /* n / d2 equals i */
                     seq_t val2 = a_of(d2);
-                    seq_t pow2 = big_pow(val2, (seq_t)m2);
+                    seq_t pow2 = ipow(val2, (seq_t)m2);
                     if ((m2 & 1) == 0) pow2 = -pow2;
                     sum += pow2;
                 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   row_valid
+ * Validated: standard, pass, 32 terms through n = 178 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,39 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/row_valid.h"
+
+/* check whether a row is valid when its neighbours are given.  If a
+   neighbour row does not exist the corresponding flag is false and
+   that side is ignored. */
+static bool
+row_valid(const uint8_t row[3], const uint8_t prev[3], const uint8_t next[3],
+          bool has_prev, bool has_next)
+{
+    for (int c = 0; c < 3; ++c) {
+        int v = row[c];
+        int neigh = 0, great = 0;
+
+        /* horizontal */
+        if (c > 0) { neigh++; if (row[c-1] > v) great++; }
+        if (c < 2) { neigh++; if (row[c+1] > v) great++; }
+
+        /* diagonal and antidiagonal from prev row */
+        if (has_prev) {
+            if (c > 0) { neigh++; if (prev[c-1] > v) great++; }
+            if (c < 2) { neigh++; if (prev[c+1] > v) great++; }
+        }
+
+        /* diagonal and antidiagonal from next row */
+        if (has_next) {
+            if (c > 0) { neigh++; if (next[c-1] > v) great++; }
+            if (c < 2) { neigh++; if (next[c+1] > v) great++; }
+        }
+
+        if (great * 2 > neigh)   /* a strict majority > than v ? */
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

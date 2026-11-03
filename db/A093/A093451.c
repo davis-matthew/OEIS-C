@@ -10,7 +10,8 @@
  *            ∏_{k=(n−1)n/2+1}^{n(n+1)/2} k (block of n consecutive integers)
  * Range:     u8 n <= 288, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   clear_bit
+ * Validated: standard, pass, 88 terms through n = 8198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/clear_bit.h"
+#include "../utils/mem.h"
+
+static inline void clear_bit(uint8_t *b, uint32_t p) {
+    b[p >> 3] &= ~(1u << (p & 7));
+}
 
 /* Adjust these constants if the maximum n is known to be larger. */
 #define MAX_N 10000
@@ -93,7 +98,7 @@ static void init(void) {
     if (!block_primes) exit(1);
 
     /* Memoisation table for a(n) */
-    memo = (seq_t*)malloc((MAX_N + 1) * sizeof(seq_t));
+    memo = mem_new(seq_t, (MAX_N + 1));
     if (!memo) exit(1);
 }
 

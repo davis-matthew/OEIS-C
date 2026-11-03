@@ -11,7 +11,8 @@
  *            a(8)=990486784, a(9)=16699002692
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* 1‑based array of computed terms   */
 static idx_t cache_size = 0;         /* number of allocated slots         */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     if (!initialized) {
         /* Allocate at least n+1 slots (0 unused) and fill the first 9 values. */
         idx_t sz = (n >= 9) ? (n + 1) : 10;
-        cache = (seq_t*)malloc(sz * sizeof(seq_t));
+        cache = mem_new(seq_t, sz);
         cache[0] = 0;
         cache[1] = 2;
         cache[2] = 49;
@@ -50,7 +52,7 @@ static void ensure_cache(idx_t n)
 
     size_t new_size = n + 1;
     if (new_size < cache_size * 2) new_size = cache_size * 2;
-    cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     cache_size = new_size;
 }
 

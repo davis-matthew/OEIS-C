@@ -11,14 +11,15 @@
  *            (see OEIS A153216)
  * Range:     u8 n <= 37, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 66 terms through n = 67 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -42,5 +43,5 @@ seq_t a(idx_t n)
         pw *= m;
     }
 
-    return pow_int((seq_t)m, exp);          /* m^exp as seq_t */
+    return ipow_idx((seq_t)m, exp);          /* m^exp as seq_t */
 }

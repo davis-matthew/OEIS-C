@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 23, u64 n <= 47, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void ensure_capacity(size_t needed, seq_t **buffer, size_t *cap)
 {
@@ -36,7 +38,7 @@ static void ensure_capacity(size_t needed, seq_t **buffer, size_t *cap)
     while (newcap <= needed)
         newcap <<= 1;
     /* cast of malloc/realloc results is required for C++ */
-    seq_t *newbuf = (seq_t *)realloc(*buffer, newcap * sizeof(seq_t));
+    seq_t *newbuf = mem_resize(seq_t, *buffer, newcap);
     if (!newbuf)
         abort();
     *buffer = newbuf;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     /* initialise the first four values on the first call */
     if (size == 0)
     {
-        buffer = (seq_t *)malloc(8 * sizeof(seq_t));
+        buffer = mem_new(seq_t, 8);
         if (!buffer)
             abort();
         buffer[0] = (seq_t)10;

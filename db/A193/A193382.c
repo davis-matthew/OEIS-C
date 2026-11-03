@@ -12,13 +12,15 @@
  *            sequence is a_n = (c_n - c_{n-1} + δ_{n,0} + δ_{n,1}) /...
  * Range:     i8 n <= 16, i16 n <= 35, i32 n <= 51, i64 n <= 51, i128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     idx_t maxCatIndex = n / 4;       /* need C_{maxCatIndex-1} for g_{4*maxCatIndex} (if maxCatIndex>0) */
     if (catSize == 0) {
         /* initialise C_0 = 1 */
-        cat = (seq_t*)malloc(sizeof(seq_t));
+        cat = mem_new(seq_t, 1);
         if (!cat) return 0;         /* out of memory – caller will check */
         cat[0] = (seq_t)1;
         catSize = 1;
@@ -47,41 +49,36 @@ seq_t a(idx_t n)
         seq_t num = prev * (seq_t)(2 * (2 * k - 1));
         seq_t den = (seq_t)(k + 1);
         seq_t next = num / den;
-        cat = (seq_t*)realloc(cat, (catSize + 1) * sizeof(seq_t));
+        cat = mem_resize(seq_t, cat, (catSize + 1));
         cat[catSize] = next;
         ++catSize;
     }
 
     /* ----------  ensure c[0..n] are computed ---------- */
     if (n >= cSize) {
-        /* initialise base cases if needed */
-        if (cSize == 0) {
-            c = (seq_t*)malloc(2 * sizeof(seq_t)); /* at least size 2 for c0 and c1 */
-            if (!c) return 0;
+        /* grow to hold c[0..n], never below the two base cases (a(0) used
+           to shrink the array to one entry and lose c[1]) */
+        idx_t old = cSize;
+        idx_t want = n + 1 < 2 ? 2 : n + 1;
+        seq_t *t = mem_resize(seq_t, c, want);
+        if (!t) return 0;
+        c = t;
+        if (old == 0) {
             c[0] = (seq_t)1;                /* from recurrence */
             c[1] = (seq_t)2;                /* c1 = 2*c0 - 2*c-1 + g1 = 2*1 + 0 */
-            cSize = 2;
+            old = 2;
         }
-        /* extend the array to hold up to n */
-        c = (seq_t*)realloc(c, (n + 1) * sizeof(seq_t));
-        cSize = n + 1;
-        /* compute new entries from the first missing index */
-        for (idx_t i = (cSize > 2 ? cSize - 1 : 2); i <= n; ++i) {
+        /* compute the new entries, from the first missing index */
+        for (idx_t i = old; i <= n; ++i) {
             seq_t g = (seq_t)0;
-            if (i == 0) {
-                g = (seq_t)1;
-            } else if (i % 4 == 0) {
-                idx_t k = i / 4;                    /* k ≥ 1 */
-                seq_t catPrev = cat[k - 1];
-                /* sign = (-1)^(k-1) */
-                seq_t sign = (k % 2 == 0) ? (seq_t)-1 : (seq_t)1;
-                g = catPrev * (seq_t)2;
-                if (sign < 0) g = -g;
+            if (i % 4 == 0) {
+                idx_t k = i / 4;                    /* k >= 1 */
+                g = cat[k - 1] * (seq_t)2;
+                if (k % 2 == 0) g = -g;             /* sign (-1)^(k-1) */
             }
-            seq_t prev1 = c[i - 1];
-            seq_t prev2 = c[i - 2];
-            c[i] = (seq_t)2 * prev1 - (seq_t)2 * prev2 + g;
+            c[i] = (seq_t)2 * c[i - 1] - (seq_t)2 * c[i - 2] + g;
         }
+        cSize = want;
     }
 
     /* ----------  compute a(n) from c[n] and c[n-1] ---------- */

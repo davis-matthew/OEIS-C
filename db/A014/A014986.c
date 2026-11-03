@@ -7,7 +7,8 @@
  * Formula:   a(n) = (1 - (-5)^n) / 6
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 14, i64 n <= 28, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (n > cache_len)
     {
         idx_t new_len = n;
-        void *tmp_ptr = realloc(cache, (new_len + 1) * sizeof(seq_t));
+        void *tmp_ptr = mem_resize(seq_t, cache, (new_len + 1));
         if (tmp_ptr == NULL) /* allocation failure – return 0 */
             return 0;
         cache = (seq_t *)tmp_ptr;

@@ -8,12 +8,14 @@
  *            a(2)=0, a(3)=0, a(4)=1
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         cap = 64;
         while (cap < 5) cap <<= 1;
 
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL)
             exit(EXIT_FAILURE);          /* allocation failed */
 
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         while (newCap <= n)
             newCap <<= 1;                  /* double until big enough */
 
-        seq_t *tmp = (seq_t *)realloc(cache, newCap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newCap);
         if (tmp == NULL)
             exit(EXIT_FAILURE);          /* allocation failed */
 

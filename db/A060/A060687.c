@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, grow_seq_array, int_sqrt
+ * Validated: standard, pass, 73 terms through n = 8521 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,22 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../utils/build_primes_upto.h"   /* build_primes_upto() */
-#include "../utils/grow_seq_array.h"     /* grow_seq_array() */
-#include "../utils/int_sqrt.h"          /* int_sqrt() */
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 /* Internal test: does k have exactly one prime squared? */
 static bool single_square_prime(uint64_t k)
@@ -36,7 +50,7 @@ static bool single_square_prime(uint64_t k)
     static uint64_t primes_lim = 0;   /* largest prime included in primes[] */
 
     /* Ensure we have primes up to sqrt(k) */
-    uint64_t lim = (uint64_t)int_sqrt(k) + 1;
+    uint64_t lim = (uint64_t)isqrt(k) + 1;
     if (lim > primes_lim) {
         build_primes_upto(lim, &primes, &primes_cnt);
         primes_lim = lim;

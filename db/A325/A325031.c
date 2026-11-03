@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 #define INITIAL_PRIME_LIMIT 2000000ULL   /* primes used for index look‑ups */
 #define INITIAL_CACHE_CAP   128           /* initial cache size */
@@ -68,7 +70,7 @@ static void ensure_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : INITIAL_CACHE_CAP;
     while (new_cap < needed)
         new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

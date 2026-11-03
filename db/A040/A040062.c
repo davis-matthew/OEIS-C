@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 63 terms through n = 970 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,14 +48,14 @@ seq_t a(idx_t n)
         if (!in_seq) {  /* candidate % 3 == 1 */
             unsigned int exp = (unsigned int)((candidate - 1) / 3);
             seq_t mod = (seq_t)candidate;
-            seq_t r = mod_pow((seq_t)12, exp, mod);
+            seq_t r = powmod((seq_t)12, exp, mod);
             in_seq = (r == (seq_t)1);
         }
 
         if (in_seq) {
             if (seq_len == seq_cap) {              /* grow cache if necessary */
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)candidate;
         }

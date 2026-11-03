@@ -8,12 +8,14 @@
  *            The function memoizes values so calls in any order are fast
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 878 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* for malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Initialise cache if not yet done. */
     if (cache == NULL) {
         cap = 2;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) { /* allocation failed – fall back to direct compute */
             seq_t a0 = 1, a1 = 5, an;
             for (idx_t i = 2; i <= n; ++i) {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Recursively grow the cache if necessary. */
     if ((size_t)n >= cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) { /* allocation failed – fall back to direct compute */
             seq_t a0 = 1, a1 = 5, an;
             for (idx_t i = 2; i <= n; ++i) {

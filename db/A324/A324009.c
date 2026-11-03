@@ -11,14 +11,16 @@
  *            a(w,h) = binomial(2w+2h-4, 2w-2) + ((2w+2h-5)/2) *
  *            binomial(2w+2h-6, 2w-3) - 2*(w+h-3) * binomial(w+h-2, w-1) *
  *            binomi...
- * Range:     u8 n <= 12, u16 n <= 40, u32 n <= 55, u64 n <= 55, u128 n <= 55,
+ * Range:     u8 n <= 17, u16 n <= 48, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

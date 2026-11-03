@@ -8,20 +8,23 @@
  * Formula:   a(n) = 2^(n+1) + 15
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the n‑th term of OEIS A168144.  The sequence starts with
  * a(1) = 19 and follows a(n) = 2^(n+1) + 15 for all n ≥ 1.  */
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     /* exponent is n+1 (idx_t addition).  seq_pow handles large
      * intermediate values efficiently by repeated squaring. */
-    seq_t value = seq_pow((seq_t)2, n + (idx_t)1);
+    seq_t value = ipow_idx((seq_t)2, n + (idx_t)1);
     value += (seq_t)15;
     return value;
 }

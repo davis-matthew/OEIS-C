@@ -9,6 +9,7 @@
  *            6*n^2 - 18*n + 36 if n is odd
  * Range:     u8 n <= 8, u16 n <= 106, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
+ * Validated: standard, pass, 61 terms through n = 196 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

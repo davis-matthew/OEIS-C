@@ -13,12 +13,24 @@
  *            Pell(k)=2*Pell(k-1)+Pell(k-2))
  * Range:     u8 n <= 42, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   pell_at
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pell_at.h"
+static seq_t pell_at(idx_t k) {
+    if (k == 0) return 0;
+    if (k == 1) return 1;
+    seq_t p0 = 0;
+    seq_t p1 = 1;
+    for (idx_t i = 2; i <= k; ++i) {
+        seq_t pk = (p1 << 1) + p0;  /* 2*Pell(i-1) + Pell(i-2) */
+        p0 = p1;
+        p1 = pk;
+    }
+    return p1;
+}
 
 seq_t a(idx_t n)
 {

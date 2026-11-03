@@ -11,14 +11,40 @@
  *            by multiplying by 3^(-1) mod 2^w, which st...
  * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 25, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   grow_zero, seq_is_fixed_width
+ * Validated: partial, pass, 28 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/grow_zero.h"
-#include "../utils/seq_is_fixed_width.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static seq_t *bb = 0, *s2 = 0, *s3 = 0;
 static idx_t cap = 0, have = 0;

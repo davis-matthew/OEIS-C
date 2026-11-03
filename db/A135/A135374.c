@@ -9,19 +9,21 @@
  *            suppressed (OEIS A135374)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     /* 1) Compute 2^n and subtract 1  */
-    seq_t m = seq_pow((seq_t)2, n) - (seq_t)1;
+    seq_t m = ipow_idx((seq_t)2, n) - (seq_t)1;
 
     /* 2) Extract decimal digits of m (in reverse order)  */
     uint8_t digits[4000];

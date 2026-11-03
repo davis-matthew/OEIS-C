@@ -12,12 +12,14 @@
  *            implementation memoises the sequence up to the largest n re...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_values[9] = {
     (seq_t)5,      (seq_t)19,      (seq_t)127,
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* Allocate or grow the cache as needed. */
     if (cache == NULL || cached_len < n) {
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) return 0;          /* allocation failure – return 0 as a safe sentinel */
         cache = tmp;
 

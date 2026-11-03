@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 41, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeGeneric, next_prime, xmalloc
+ * Validated: standard, pass, 56 terms through n = 942 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,37 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/xmalloc.h"
-#include "../utils/isPrimeGeneric.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <limits.h>
+#include <math.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* Allocate and reallocate helper that works in C and C++ */
+static void *xmalloc(size_t size) { return malloc(size); }
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +67,7 @@ seq_t a(idx_t n)
 
     /* initialise cache once */
     if (terms == NULL) {
-        terms = (seq_t *)xmalloc(CACHE_CAP * sizeof(*terms));
+        terms = mem_new(seq_t, CACHE_CAP);
     }
 
     if (n == 0) {                /* OEIS offset 1: undefined for n = 0 */

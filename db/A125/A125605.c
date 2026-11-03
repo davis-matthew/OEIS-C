@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 156, u16 n <= 415, u32 n <= 2039, u64 n <= 5150,
  *            u128 n <= 5150, big any n
- * Helpers:   alloc_seq_array, gcd
+ * Validated: standard, pass, 109 terms through n = 5113 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,16 @@
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/gcd.h"
-#include "../utils/alloc_seq_array.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* ---- Helper: triangular number (row start index) ---- */
 static idx_t triangular(idx_t r)

@@ -9,7 +9,8 @@
  *            n <= 21, a(n) = 11*10^(n-1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 /* Note: pow10 is provided by ../utils/pow10.h. */
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,9 +42,9 @@ seq_t a(idx_t n)
     {
         /* Allocate a larger array. */
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (cache && cache_size)
-            memcpy(new_cache, cache, (size_t)cache_size * sizeof(seq_t));
+            mem_copy(new_cache, cache, (size_t)cache_size * sizeof(seq_t));
 
         /* Compute new values. */
         for (idx_t i = cache_size; i <= n; ++i)
@@ -51,7 +63,7 @@ seq_t a(idx_t n)
 
         /* Replace the old cache. */
         if (cache)
-            free(cache);
+            mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

@@ -11,7 +11,8 @@
  *            ω(m) is the number of distinct prime divisors of m
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   count_distinct_primes_u64
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,25 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/count_distinct_primes_u64.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------ */
+static inline int count_distinct_primes_u64(uint64_t n)
+{
+    int cnt = 0;
+    if (n % 2 == 0) {
+        ++cnt;
+        while (n % 2 == 0) n /= 2;
+    }
+    for (uint64_t p = 3; p * p <= n; p += 2) {
+        if (n % p == 0) {
+            ++cnt;
+            while (n % p == 0) n /= p;
+        }
+    }
+    if (n > 1) ++cnt;
+    return cnt;
+}
 
 /* ------------------------------------------------------------ */
 /*  Small prime factor count for 64‑bit unsigned integers       */
@@ -41,7 +60,7 @@ static void ensure_seq_cap(idx_t n)
     if (seq_cap >= (size_t)n) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     while (new_cap < (size_t)n) new_cap <<= 1;
-    seq_vals = (seq_t *)realloc(seq_vals, (new_cap + 1) * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, (new_cap + 1));
     seq_cap = new_cap;
 }
 

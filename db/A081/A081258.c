@@ -12,7 +12,8 @@
  *            (in any order) runs quickly
  * Range:     u8 n <= 33, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 70 terms through n = 9979 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Check whether a given k satisfies the condition */
 static bool k_is_ok(uint64_t k)
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         /* Grow cache if necessary.  */
         if (cache_len == cache_capacity) {
             cache_capacity = cache_capacity ? cache_capacity * 2 : 32;
-            cache = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_capacity);
         }
         cache[cache_len++] = (seq_t)k;
 

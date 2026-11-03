@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 28, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *S_arr = NULL;
 static seq_t *U_arr = NULL;
@@ -42,8 +44,8 @@ static void ensure_capacity(idx_t need)
     if (S_arr == NULL) {
         /* arbitrary initial capacity */
         S_cap = U_cap = (need < 16 ? 16 : need + 1);
-        S_arr = (seq_t *)malloc(S_cap * sizeof(seq_t));
-        U_arr = (seq_t *)malloc(U_cap * sizeof(seq_t));
+        S_arr = mem_new(seq_t, S_cap);
+        U_arr = mem_new(seq_t, U_cap);
         if (!S_arr || !U_arr) return;   /* ignore allocation failure */
         /* initialise first two terms */
         S_arr[0] = 2;
@@ -56,7 +58,7 @@ static void ensure_capacity(idx_t need)
     if (need > S_cap - 1) {
         idx_t new_cap = S_cap * 2;
         if (new_cap <= need) new_cap = need + 1;
-        seq_t *tmp = (seq_t *)realloc(S_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, S_arr, new_cap);
         if (tmp) {
             S_arr = tmp;
             S_cap = new_cap;
@@ -65,7 +67,7 @@ static void ensure_capacity(idx_t need)
     if (need > U_cap - 1) {
         idx_t new_cap = U_cap * 2;
         if (new_cap <= need) new_cap = need + 1;
-        seq_t *tmp = (seq_t *)realloc(U_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, U_arr, new_cap);
         if (tmp) {
             U_arr = tmp;
             U_cap = new_cap;

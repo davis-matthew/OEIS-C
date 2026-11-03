@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   has_adj_34_43
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,22 @@
 /* Search for numbers k whose base–7 representation contains the
    adjacent digits 3 and 4 (either 34 or 43) but k + 1 does not. */
 #include <stdbool.h>
-#include "../utils/has_adj_34_43.h"
+
+static bool has_adj_34_43(idx_t v)
+{
+    if (v < 7) return false;                /* at least two base‑7 digits are needed */
+    idx_t low = v % 7;
+    v /= 7;
+    while (v > 0)
+    {
+        idx_t high = v % 7;
+        if ((low == 3 && high == 4) || (low == 4 && high == 3))
+            return true;                   /* found adjacent 3·4 or 4·3 */
+        low = high;
+        v /= 7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

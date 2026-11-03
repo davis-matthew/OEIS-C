@@ -10,7 +10,8 @@
  *            (big-integer cubic, single real root)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 19, u64 n <= 37, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static uint32_t *A5485_C[4];
 static uint32_t *A5485_v, *A5485_w;
@@ -136,7 +138,7 @@ seq_t a(idx_t n)
     if (A5485_L == 0) a5485_init();
     while (A5485_npq <= n) a5485_next_quotient();
 
-    A5485_q = (seq_t *)realloc(A5485_q, (size_t)(n + 1) * sizeof(seq_t));
+    A5485_q = mem_resize(seq_t, A5485_q, (size_t)(n + 1));
     for (k = A5485_nq; k <= n; k++) {
         seq_t p1 = (k >= 1) ? A5485_q[k - 1] : (seq_t)0;
         seq_t p2 = (k >= 2) ? A5485_q[k - 2] : (k == 1 ? (seq_t)0 : (seq_t)1);

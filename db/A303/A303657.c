@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   digit_counts
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+#include "../utils/mem.h"
 
 /* Static cache of computed terms and a list of used numbers */
 static seq_t *cache = NULL;
@@ -31,7 +34,7 @@ static void ensure_cache_cap(size_t need) {
     if (need > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 4;
         if (new_cap < need) new_cap = need;
-        seq_t *new_ptr = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         if (!new_ptr) abort();
         cache = new_ptr;
         cache_cap = new_cap;
@@ -43,7 +46,7 @@ static void ensure_used_cap(size_t need) {
     if (need > used_cap) {
         size_t new_cap = used_cap ? used_cap << 1 : 4;
         if (new_cap < need) new_cap = need;
-        seq_t *new_ptr = (seq_t*)realloc(used, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, used, new_cap);
         if (!new_ptr) abort();
         used = new_ptr;
         used_cap = new_cap;
@@ -76,11 +79,11 @@ seq_t a(idx_t n) {
     /* Initialize storage if needed */
     if (!cache) {
         cache_cap = 8;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     if (!used) {
         used_cap = 8;
-        used = (seq_t*)malloc(used_cap * sizeof(seq_t));
+        used = mem_new(seq_t, used_cap);
     }
 
     /* Ensure base terms are present */

@@ -10,7 +10,8 @@
  *            the complement of a
  * Range:     u8 n <= 85, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9853 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache variables */
 static seq_t *a_vals = NULL;           /* array of a(0..a_len-1)          */
@@ -41,7 +43,7 @@ static void ensure_a_capacity(size_t need)
     if (need <= a_cap) return;
     size_t new_cap = a_cap ? a_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
     if (!tmp) exit(1);
     a_vals = tmp;
     a_cap   = new_cap;
@@ -53,7 +55,7 @@ static void ensure_c_capacity(size_t need)
     if (need <= c_cap) return;
     size_t new_cap = c_cap ? c_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(c_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, c_vals, new_cap);
     if (!tmp) exit(1);
     c_vals = tmp;
     c_cap   = new_cap;

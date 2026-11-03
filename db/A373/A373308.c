@@ -7,15 +7,17 @@
  * Formula:   a(n) = coefficient of A(x) where A(x) = Product_{m>=0}(1 -
  *            x^(2^m))^3 Recurrence: a(0)=1; for n>=0 a(n) = Σ_{k=0..3} p[k] *
  *            a((n-k)/2) if (n-k) is even where p = {1, -3, 3, -1}
- * Range:     i8 n <= 30, i16 n <= 1022, i32 n <= 8590, i64 n <= 8590,
- *            i128 n <= 8590, big any n
- * Helpers:   none
+ * Range:     i8 n <= 30, i16 n <= 1022, i32 n <= 16400, i64 n <= 16400,
+ *            i128 n <= 16400, big any n
+ * Validated: standard, pass, 80 terms through n = 8590 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (idx + 1 > cached_len) {
         if (cached_len == 0) {
             size_t init_cap = 1;
-            cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, init_cap);
             cache[0] = (seq_t)1;        /* a(0) = 1 */
             cached_len = 1;
         }
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
             size_t new_cap = cached_len * 2;
             if (new_cap < idx + 1)
                 new_cap = idx + 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
         }
 

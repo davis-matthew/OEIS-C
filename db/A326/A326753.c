@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   find_set
+ * Validated: standard, pass, 103 terms through n = 9619 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/find_set.h"
+
+/* Union‑find helper functions */
+static int find_set(int *parent, int v) {
+    while (parent[v] != v) {
+        parent[v] = parent[parent[v]];
+        v = parent[v];
+    }
+    return v;
+}
 
 static void union_set(int *parent, int *rank, int a, int b) {
     int ra = find_set(parent, a);

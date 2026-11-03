@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = n mod 3 + n mod 9 + ... + n mod 3^k, where 3^k <= n <
  *            3^(k+1) (OEIS A049803)
- * Range:     u8 n <= 398, u16 n <= 9290, u32 n <= 9290, u64 n <= 9290,
- *            u128 n <= 9290, big any n
+ * Range:     u8 n <= 398, u16 n <= 32000, u32 n <= 32000, u64 n <= 32000,
+ *            u128 n <= 32000, big any n
+ * Validated: standard, pass, 88 terms through n = 9290 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

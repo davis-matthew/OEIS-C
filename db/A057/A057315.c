@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 192, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
          d = [-2, 2, -3, 4, -4, 4, -4, 4, -4, 4, -4, 4, -4, 3, -2, 2, -1].
    The first 18 terms are supplied explicitly: a(0) … a(17). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[18] = {
     (seq_t)1,  (seq_t)4,  (seq_t)9,  (seq_t)17, (seq_t)29, (seq_t)45,
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Initialize the cache on first use. */
     if (cache == NULL) {
         cache_len = 18;
-        cache = (seq_t *)malloc((size_t)cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_len);
         if (!cache) exit(EXIT_FAILURE);
         for (idx_t i = 0; i < 18; ++i) cache[i] = init[i];
     }
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     /* Grow the cache if needed and compute missing terms. */
     if (n >= cache_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         for (idx_t i = cache_len; i <= n; ++i) {

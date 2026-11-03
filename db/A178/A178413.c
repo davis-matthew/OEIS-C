@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 199, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_product
+ * Validated: standard, pass, 64 terms through n = 988 (2026-11-03)
+ * Helpers:   digit_product, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../utils/digit_product.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;         /* cached sequence values          */
 static size_t cache_len = 0;        /* number of values currently cached */
@@ -33,12 +35,12 @@ static seq_t next_candidate = 0;    /* next integer to test            */
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-    seq_t *tmp = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp)
         abort();                    /* allocation failure – terminate    */
     if (cache) {
-        memcpy(tmp, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = tmp;
     cache_cap = new_cap;

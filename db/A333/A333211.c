@@ -12,12 +12,14 @@
  *            exists. (This is OEIS A333211.)
  * Range:     u8 n <= 113, u16 n <= 5359, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 8896 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* sequence, 1‑indexed (cache[0] unused) */
 static idx_t  cache_size = 0;        /* largest computed index */
@@ -29,7 +31,7 @@ static void ensure_capacity(idx_t n)
     if (n <= cache_cap) return;
     size_t new_cap = (size_t)n;
     /* cast the void* returned by realloc to seq_t* */
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
     if (!new_cache) exit(EXIT_FAILURE);
     /* initialise newly allocated slots to zero */
     for (size_t i = cache_cap + 1; i <= new_cap; ++i) new_cache[i] = 0;

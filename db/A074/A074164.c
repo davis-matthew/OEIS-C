@@ -9,12 +9,14 @@
  *            reversal of k
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   reverse_decimal
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reverse_decimal.h"
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     for (;; ++k)
     {
-        seq_t rk = reverse_decimal(k);
+        seq_t rk = reverse_digits(k);
         if (rk > sn * k) return k;
     }
 }

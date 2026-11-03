@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|n} d * rad(d)
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 7840, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 70 terms through n = 9837 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
    a(p^e) = (p^(e+2)-1)/(p-1) - p
    and then a(n) = Π a(p_i^e_i) over all prime factors of n. */
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static seq_t a_prime_power(uint64_t p, uint64_t e)

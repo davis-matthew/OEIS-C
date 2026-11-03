@@ -8,12 +8,14 @@
  *            2, a(4) = 3 (all other n ≥ 5 use the formula)
  * Range:     u8 n <= 151, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 74 terms through n = 9713 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t d = 1; d <= n / d; ++d) {
         if (n % d == 0) {
-            seq_t phi_d   = phi(d);
-            seq_t phi_nd  = phi(n / d);
+            seq_t phi_d   = totient(d);
+            seq_t phi_nd  = totient(n / d);
             seq_t prod    = phi_d * phi_nd;
             /* each divisor pair {d, n/d} contributes the same product twice
                except when d == n/d (perfect square case) */

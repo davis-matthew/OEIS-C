@@ -8,7 +8,8 @@
  *            integer dividing n!)
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 23, u64 n <= 32, u128 n <= 54,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 46 terms through n = 985 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/pow_seq.h"   /* provides seq_t pow_seq(seq_t, int) */
+#include "../utils/ipow_i32.h"
 
 /* ---------- prime sieve (cached between calls) ---------- */
 static uint32_t *prime_list = NULL;  /* array of primes */
@@ -84,7 +85,7 @@ seq_t a(idx_t n)
 
         /* Compute p^{exp_power}.  exp_power is a multiple of 5, so
            exp_power = 5 * floor(v_p(n!)/5).  Use pow_seq for the power. */
-        seq_t term = pow_seq((seq_t)p, (int)exp_power);
+        seq_t term = ipow_i32((seq_t)p, (int)exp_power);
         answer = answer * term;
     }
 

@@ -9,11 +9,13 @@
  *            k)
  * Range:     u8 n <= 15, u16 n <= 27, u32 n <= 49, u64 n <= 91, u128 n <= 177,
  *            big any n
+ * Validated: standard, pass, 58 terms through n = 499 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Return the number of nonempty subsets of {1,2,…,n} in which exactly

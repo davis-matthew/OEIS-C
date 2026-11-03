@@ -9,7 +9,8 @@
  *            none exists
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ugcd
+ * Validated: standard, pass, 121 terms through n = 9646 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/ugcd.h"
+#include <string.h>
+#include "../utils/gcd_u64.h"
 
 /* Prime sieve up to 1 000 000 – enough for n up to ≈10⁶ (our limits) */
 #define PRIME_SIEVE_LIMIT 1000000
@@ -132,7 +134,7 @@ seq_t a(idx_t n)
     /* find the smallest prime < n that is primitive */
     for (size_t i = 0; i < prime_cnt && primes[i] < N; ++i) {
         uint32_t g = primes[i];
-        if (ugcd((uint64_t)g, N) != 1) continue;   /* not coprime */
+        if (gcd_u64((uint64_t)g, N) != 1) continue;   /* not coprime */
         bool primitive = true;
         for (size_t j = 0; j < phi_fc; ++j) {
             uint64_t exp = phi / phi_factors[j];

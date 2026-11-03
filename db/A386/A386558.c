@@ -10,14 +10,16 @@
  *            index n, let d be the unique integer for which d*(d+1)/2 ≤ n <
  *            (d+1)*(d+2)/2 (1) Then i = n - d*(d+1)/2 and j = d - i. The
  *            wanted term is a(n) = A(i,j) (with A(0,j)=1 an...
- * Range:     u8 n <= 17, u16 n <= 40, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 23, u16 n <= 49, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Utility function: binomial is provided in utils. */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

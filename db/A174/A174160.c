@@ -10,7 +10,8 @@
  *            starts at a(1) = 1, offset 1
  * Range:     i8 n <= 12, i16 n <= 31, i32 n <= 47, i64 n <= 47, i128 n <= 47,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t **eulerian_cache = NULL;  /* eulerian_cache[n][k] = <n,k> for 0<=k<n */
 static idx_t   eulerian_rows   = 0;    /* highest n that has been cached */
@@ -37,7 +39,7 @@ static void ensure_eulerian(idx_t upto)
     for (idx_t n = eulerian_rows + 1; n <= upto; ++n)
     {
         /* allocate row of size n (indices 0 .. n-1) */
-        seq_t *row = (seq_t *)calloc((size_t)n, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)n);
         if (row == NULL)
             return; /* out of memory */
 

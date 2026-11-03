@@ -13,15 +13,18 @@
  *            such k incrementally
  * Range:     u8 n <= 9, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   gcd, rad
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   gcd, mem, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/rad.h"
+#include "../utils/radical.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -57,7 +60,7 @@ seq_t a(idx_t n)
             uint64_t prod = (uint64_t)x * y;
             prod *= (uint64_t)last_k;   /* prod <= about 8e12 */
 
-            uint64_t N = (uint64_t)rad((idx_t)prod);
+            uint64_t N = (uint64_t)radical((idx_t)prod);
 
             /* Search for a duplicate N in the list seen so far */
             for (size_t i = 0; i < seen_used; ++i)
@@ -87,7 +90,7 @@ seq_t a(idx_t n)
             if (terms_used == terms_cap)
             {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, new_cap);
                 terms_cap = new_cap;
             }
             terms[terms_used++] = (seq_t)last_k;

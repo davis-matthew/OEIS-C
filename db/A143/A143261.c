@@ -7,13 +7,15 @@
  * Formula:   a(n) = reverse_binary( Gray( binomial(r, j) ) ), where r =
  *            floor((sqrt(8*n+1)-1)/2), j = n - r*(r+1)/2. Gray(x) = x ^ (x >>
  *            1)
- * Range:     u8 n <= 39, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
+ * Range:     u8 n <= 69, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t reverse_bits(seq_t x)

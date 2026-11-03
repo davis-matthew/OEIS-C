@@ -7,6 +7,7 @@
  * Formula:   a(n) = smallest b ≥ 0 such that 6*n+1 = p + 2*b² with p prime
  * Range:     u8 n <= 23, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 254, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   POPCOUNTLL
+ * Validated: standard, pass, 87 terms through n = 7682 (2026-11-03)
+ * Helpers:   mem, popcount
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,13 +32,14 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../utils/POPCOUNTLL.h"
+#include "../utils/popcount.h"
 
 #if defined(__GNUC__) && !defined(__clang__)
-#  define POPCOUNTLL __builtin_popcountll
+#  define popcount __builtin_popcountll
 #else
 
 #endif
+#include "../utils/mem.h"
 
 /* constants ---------------------------------------------------------------- */
 #define MAX_N 10000          /* maximum n that will be queried */
@@ -55,7 +57,7 @@ static void init_cache(void)
     const size_t words  = (degree + 64) / 64;      /* round up */
 
     /* allocate space for coefficients */
-    cache = (seq_t*)calloc(MAX_N + 1, sizeof(seq_t));
+    cache = mem_new(seq_t, MAX_N + 1);
     uint64_t *cur  = (uint64_t*)calloc(words, sizeof(uint64_t));
     uint64_t *next = (uint64_t*)calloc(words, sizeof(uint64_t));
     uint64_t *sh1  = (uint64_t*)calloc(words, sizeof(uint64_t));
@@ -98,11 +100,11 @@ static void init_cache(void)
         size_t rem_bits   = bits % 64;
         seq_t count = 0;
         for (size_t i = 0; i < full_words; ++i) {
-            count += POPCOUNTLL(next[i]);
+            count += popcount(next[i]);
         }
         if (rem_bits) {
             uint64_t mask = ((uint64_t)1 << rem_bits) - 1;
-            count += POPCOUNTLL(next[full_words] & mask);
+            count += popcount(next[full_words] & mask);
         }
 
         /* store square of the count */

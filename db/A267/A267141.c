@@ -7,6 +7,7 @@
  * Formula:   a(n) = 6*n!/10! (for n ≥ 10)
  * Range:     u8 n <= 11, u16 n <= 13, u32 n <= 17, u64 n <= 24, u128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 26 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

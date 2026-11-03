@@ -10,7 +10,8 @@
  *            not
  * Range:     u8 n <= 7, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has22_base6
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has22_base6.h"
+#include "../utils/mem.h"
+
+static bool has22_base6(seq_t x)
+{
+    seq_t prev = 0;
+    bool first = true;
+    while (x > (seq_t)0) {
+        seq_t rem = x % (seq_t)6;
+        if (!first && rem == (seq_t)2 && prev == (seq_t)2)
+            return true;
+        first = false;
+        prev = rem;
+        x = x / (seq_t)6;
+    }
+    return false;
+}
 
 static seq_t *terms = NULL;
 static size_t terms_cap = 0;
@@ -32,7 +48,7 @@ static void ensure_terms(idx_t n)
         if (has22_base6(cand) && !has22_base6(cand + (seq_t)1)) {
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 128;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) {
                     exit(1);
                 }

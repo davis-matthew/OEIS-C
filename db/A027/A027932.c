@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..4} binomial(n-k, 9-2*k) for n ≥ 5
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 52, u64 n <= 577,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 46 terms through n = 899 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

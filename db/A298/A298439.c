@@ -11,7 +11,8 @@
  *            dynamic programming * over row patterns
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 61, u128 n <= 121,
  *            big any n
- * Helpers:   rowIsValid
+ * Validated: standard, pass, 48 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,57 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/rowIsValid.h"
+
+static inline bool rowIsValid(bool prev_present, int prev,
+                              int cur,
+                              bool next_present, int next)
+{
+    /* allowed neighbor counts for a cell */
+    static const bool allowed[9] = {
+        true,  /* 0 */
+        false, /* 1 */
+        false, /* 2 */
+        true,  /* 3 */
+        true,  /* 4 */
+        true,  /* 5 */
+        true,  /* 6 */
+        false, /* 7 */
+        false  /* 8 */
+    };
+
+    for (int col = 0; col < 3; ++col) {
+        int val = (cur >> col) & 1;
+        int count = 0;
+
+        /* up-left  */
+        if (prev_present && col > 0)
+            if (((prev >> (col - 1)) & 1) == val) ++count;
+        /* up  */
+        if (prev_present)
+            if (((prev >> col) & 1) == val) ++count;
+        /* up-right  */
+        if (prev_present && col < 2)
+            if (((prev >> (col + 1)) & 1) == val) ++count;
+        /* left  */
+        if (col > 0)
+            if (((cur >> (col - 1)) & 1) == val) ++count;
+        /* right  */
+        if (col < 2)
+            if (((cur >> (col + 1)) & 1) == val) ++count;
+        /* down-left  */
+        if (next_present && col > 0)
+            if (((next >> (col - 1)) & 1) == val) ++count;
+        /* down  */
+        if (next_present)
+            if (((next >> col) & 1) == val) ++count;
+        /* down-right  */
+        if (next_present && col < 2)
+            if (((next >> (col + 1)) & 1) == val) ++count;
+
+        if (!allowed[count]) return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

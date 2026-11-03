@@ -11,7 +11,8 @@
  *            30, 30}
  * Range:     u8 none, u16 n <= 15, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* comparison routine for qsort */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
             cache[count++] = prod * factor;
         }
         /* sort the list */
-        qsort(cache, count, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(cache, count, sizeof(seq_t), cmp_seq_t);
         ready = 1;
     }
     if (n < 1 || n > 26) return 0;

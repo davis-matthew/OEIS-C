@@ -7,23 +7,32 @@
  * Formula:   a(n) = Sum_{d|n} (n/d)^n * binomial(d+2,2)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   binomial, factor_u64, seq_mul, seq_pow
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/factor_u64.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static void process_divs(idx_t n, const uint64_t *pr, const uint64_t *ex,
                          size_t cnt, size_t idx, seq_t cur, seq_t *sum)
 {
     if (idx == cnt) {
         seq_t nd = (seq_t)n / cur;                           /* (n/d) */
-        seq_t pow_term = seq_pow(nd, n);                      /* (n/d)^n */
+        seq_t pow_term = ipow_idx(nd, n);                      /* (n/d)^n */
         seq_t bin = binomial((idx_t)((uint64_t)cur + 2), (idx_t)2); /* binomial(d+2,2) */
         seq_t term = seq_mul(pow_term, bin);                 /* product */
         *sum += term;

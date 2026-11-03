@@ -8,7 +8,8 @@
  *            with m>1, k>1 (OEIS A057897)
  * Range:     u8 n <= 5, u16 n <= 337, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 8927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Comparison routine for qsort – works for integral seq_t or a
    class that supports operator<. */
@@ -41,7 +43,7 @@ static void push_value(seq_t **bufptr, size_t *size, size_t *cap, seq_t val)
 {
     if (*size >= *cap) {
         size_t newcap = (*cap == 0) ? 8 : (*cap << 1);
-        seq_t *newbuf = (seq_t *)realloc(*bufptr, newcap * sizeof(seq_t));
+        seq_t *newbuf = mem_resize(seq_t, *bufptr, newcap);
         if (!newbuf) exit(EXIT_FAILURE);  /* out of memory */
         *bufptr = newbuf;
         *cap    = newcap;
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
 
         /* Sort and deduplicate the array. */
         if (vs > 1) {
-            qsort(values, vs, sizeof(seq_t), cmp_seq);
+            mem_qsort(values, vs, sizeof(seq_t), cmp_seq);
             size_t uniq = 1;
             for (size_t i = 1; i < vs; ++i) {
                 if (values[i] != values[uniq - 1])

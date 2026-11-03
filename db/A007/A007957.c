@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 216, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains_odd_digit
+ * Validated: standard, pass, 92 terms through n = 9752 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,17 @@
 /* Search: n-th positive integer containing at least one odd digit */
 
 #include <stdbool.h>
-#include "../utils/contains_odd_digit.h"
+
+static bool contains_odd_digit(seq_t num) {
+    while (num > 0) {
+        seq_t digit = num % 10;
+        if (digit & 1) {
+            return true;
+        }
+        num /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     seq_t num = 0;

@@ -8,15 +8,37 @@
  *            with the digit 8. The terms are ordered by increasing exponent
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 2, u128 n <= 3,
  *            big any n
- * Helpers:   has_leading_8, power_of_8
+ * Validated: standard, pass, 21 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/has_leading_8.h"
-#include "../utils/power_of_8.h"
+
+/* Test whether 8^k has leading decimal digit 8.
+   Uses the fact that leading digit 8 occurs iff
+          log10(8) ≤ frac(k·log10(8)) < log10(9).          */
+static inline bool has_leading_8(idx_t k)
+{
+    static const long double log10_8 = log10l(8.0L);
+    static const long double log10_9 = log10l(9.0L);
+    static const long double eps = 1e-15L; /* guard against floating error */
+
+    long double x = ((long double)k) * log10_8;
+    long double f = x - floorl(x);          /* fractional part */
+
+    return (f + eps >= log10_8) && (f < log10_9);
+}
+
+/* Return the value of 8^k as seq_t.  Works for both fixed-size and
+   arbitrary-precision builds because the shift operator is defined
+   for seq_t. */
+static inline seq_t power_of_8(idx_t k)
+{
+    return ((seq_t)1) << (3 * k);   /* 8^k = 2^(3k) */
+}
 
 #define MAX_N 20000          /* large enough for n up to about 10000 */
 

@@ -12,12 +12,14 @@
  *            values (n=1..19): a(1)=81, a(2)=476, a(3)=2766, a(4)=15728,...
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 23, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t INIT[20] = {
     0ULL,                     /* 0 unused */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* First call: initialise the cache with the 19 known terms. */
     if (cache == NULL) {
         idx_t alloc = (n >= 20) ? n : 20;          /* at least 19 entries */
-        cache = (seq_t *)malloc((alloc + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (alloc + 1));
         if (cache == NULL)
             return 0;                             /* allocation failure */
         for (idx_t i = 0; i < 20; ++i)
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
        the cache and compute missing terms. */
     if (n > cache_len) {
         idx_t new_len = n;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_len + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_len + 1));
         if (tmp == NULL)
             return 0;                                 /* allocation failure */
         cache = tmp;

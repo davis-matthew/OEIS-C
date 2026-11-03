@@ -10,7 +10,8 @@
  *            n*(n+1)/2 (triangular numbers)
  * Range:     i8 n <= 11, i16 n <= 23, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   divisor_sum
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/divisor_sum.h"
+#include "../utils/mem.h"
+
+static seq_t divisor_sum(idx_t n)
+{
+    /* this helper is kept for clarity but not used in the final
+       implementation, as the divisor loop is already present in
+       ensure_capacity. */
+    return 0;
+}
 
 static size_t g_max_n = 0;
 static seq_t   *g_u   = NULL;   /* triangular numbers */
@@ -35,9 +44,9 @@ ensure_capacity(idx_t n)
         return;
 
     size_t new_cap = (size_t)n + 1;
-    g_u   = (seq_t*)realloc(g_u,   new_cap * sizeof(seq_t));
-    g_v   = (seq_t*)realloc(g_v,   new_cap * sizeof(seq_t));
-    g_a   = (seq_t*)realloc(g_a,   new_cap * sizeof(seq_t));
+    g_u   = mem_resize(seq_t, g_u, new_cap);
+    g_v   = mem_resize(seq_t, g_v, new_cap);
+    g_a   = mem_resize(seq_t, g_a, new_cap);
     g_spf = (idx_t*)realloc(g_spf, new_cap * sizeof(idx_t));
 
     /* initialise new entries (0 is fine) */

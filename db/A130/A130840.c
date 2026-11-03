@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor((16 + 2^(n-1) - 8*(n-1) + 8*(n-1)^2)/16) (offset 1)
  * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 36, u64 n <= 68, u128 n <= 132,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 932 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

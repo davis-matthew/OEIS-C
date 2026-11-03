@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  64‑bit Miller–Rabin primality test (deterministic)                  */
@@ -129,7 +131,7 @@ static void seq_ensure(idx_t need)
     if (need < seq_cap) return;
     idx_t newcap = seq_cap ? seq_cap << 1 : 16;
     while (newcap <= need) newcap <<= 1;
-    seq = (seq_t *)realloc(seq, sizeof(seq_t) * newcap);
+    seq = mem_resize(seq_t, seq, newcap);
     seq_cap = newcap;
 }
 

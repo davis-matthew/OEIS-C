@@ -8,6 +8,7 @@
  *            that smallest_prime_factor(n) ≤ p ≤ largest_prime_factor(n)
  * Range:     u8 n <= 21, u16 n <= 33, u32 n <= 57, u64 n <= 105,
  *            u128 n <= 205, big any n
+ * Validated: standard, pass, 71 terms through n = 790 (2026-11-01)
  * Helpers:   build_primes_upto, factorize
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,8 +20,8 @@
 #include <stdbool.h>
 
 /* Utilities used by the function. */
-#include "../utils/factorize.h"          /* size_t factorize(uint64_t, uint64_t[], int[]); */
-#include "../utils/build_primes_upto.h"  /* void build_primes_upto(idx_t, uint64_t**, size_t*); */
+#include "../utils/build_primes_upto.h"
+#include "../utils/factorize.h"
 
 /* Cached list of all primes up to the largest limit requested so far. */
 static uint64_t *prime_cache   = NULL;

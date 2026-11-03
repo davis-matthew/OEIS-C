@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1868 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* period of the sequence */
 #define PERIOD 1938
@@ -103,8 +105,8 @@ static void poly_div_exact(const seq_t *num, size_t len_num,
                            seq_t *quot)
 {
     /* work on a copy of num */
-    seq_t *work = (seq_t *)malloc(len_num * sizeof(seq_t));
-    memcpy(work, num, len_num * sizeof(seq_t));
+    seq_t *work = mem_new(seq_t, len_num);
+    mem_copy(work, num, len_num * sizeof(seq_t));
 
     signed long long deg_num = (long long)len_num - 1;
     signed long long deg_den = (long long)len_den - 1;
@@ -117,7 +119,7 @@ static void poly_div_exact(const seq_t *num, size_t len_num,
             work[i - deg_den + j] -= coeff * den[j];
         }
     }
-    free(work);
+    mem_free(work);
     /* lower part of quot remains zero because quot is calloced by caller */
 }
 
@@ -157,7 +159,7 @@ static const seq_t *compute_phi1938_coeffs(void)
         polys[i].d = divs[i];
         /* start with x^d – 1 */
         polys[i].len = (size_t)polys[i].d + 1;
-        polys[i].coeff = (seq_t *)calloc(polys[i].len, sizeof(seq_t));
+        polys[i].coeff = mem_new(seq_t, polys[i].len);
         polys[i].coeff[0] = -1;
         polys[i].coeff[polys[i].len - 1] = 1;
     }
@@ -169,11 +171,11 @@ static const seq_t *compute_phi1938_coeffs(void)
         for (size_t j = 0; j < i; ++j) {
             if (polys[i].d % polys[j].d == 0) {
                 size_t len_new = polys[i].len - polys[j].len + 1;
-                seq_t *quot = (seq_t *)calloc(len_new, sizeof(seq_t));
+                seq_t *quot = mem_new(seq_t, len_new);
                 poly_div_exact(polys[i].coeff, polys[i].len,
                                polys[j].coeff, polys[j].len,
                                quot);
-                free(polys[i].coeff);
+                mem_free(polys[i].coeff);
                 polys[i].coeff = quot;
                 polys[i].len = len_new;
             }
@@ -192,7 +194,7 @@ static const seq_t *compute_phi1938_coeffs(void)
     /* free all other polynomials */
     for (size_t i = 0; i < divcnt; ++i) {
         if (polys[i].coeff != phi_coeff)
-            free(polys[i].coeff);
+            mem_free(polys[i].coeff);
     }
 
     /* phi_coeff now holds the coefficients of Φ_1938(x) */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--------------------------------------------------------------------
  * Integer square root: floor(sqrt(x))
@@ -78,7 +80,7 @@ static void ensure_r_up_to(idx_t limit)
         return;
 
     size_t new_size = (size_t)(limit + 1);
-    seq_t *new_r = (seq_t *)realloc(r_cache, new_size * sizeof(seq_t));
+    seq_t *new_r = mem_resize(seq_t, r_cache, new_size);
     if (!new_r)
         abort();                    /* memory exhausted */
 

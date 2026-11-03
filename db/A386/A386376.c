@@ -10,15 +10,17 @@
  *            has no squared prime factor}
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   is_squarefree, rad
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   is_squarefree, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Needed utilities */
 #include <stdbool.h>
-#include "../utils/rad.h"
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/radical.h"
 
 /* Compute A386376(n) */
 seq_t a(idx_t n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* iterate until cur becomes squarefree */
     while (!is_squarefree(cur)) {
         /* rad is defined for idx_t (uint64_t); cur must fit in it */
-        seq_t r = rad((idx_t)cur);   /* distinct prime product of cur */
+        seq_t r = radical((idx_t)cur);   /* distinct prime product of cur */
         cur += r;                    /* b(n,k+1) = cur + rad(cur) */
         ++k;
     }

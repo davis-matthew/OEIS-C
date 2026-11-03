@@ -9,13 +9,15 @@
  *            {n*log(2)}, where {x} denotes the fractional part of x
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const uint64_t LOG2_NUM = 12789489753008720204ULL;   /* floor(ln(2) * 2^64) */
 
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (n > current_max) {
         size_t new_size = (size_t)n;
         fract  = (uint64_t *)realloc(fract,  new_size * sizeof(uint64_t));
-        result = (seq_t  *)realloc(result, new_size * sizeof(seq_t));
+        result = mem_resize(seq_t, result, new_size);
 
         for (idx_t i = current_max + 1; i <= n; ++i) {
             /* compute scaled fractional part of i*log(2) */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 107, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 79 terms through n = 8985 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 #define CACHE_CAP 20000   /* sufficient for n up to ~10 000 */
 
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* generate terms until we have at least n of them */
     while (cache_len < n) {
         seq_t k = next_k;
-        unsigned L = bitlen_seq_t(k);   /* number of bits in k */
+        unsigned L = bit_length(k);   /* number of bits in k */
         unsigned zeros = 0;
 
         /* count zeros among the L bits */

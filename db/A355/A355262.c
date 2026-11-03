@@ -7,8 +7,9 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) is the n‑th element read by ascending antidiagonals from
  *            the Fuss‑Catalan array A(n,k) = binomial(k*n + 1, k)/(k*n + 1)
- * Range:     u8 n <= 23, u16 n <= 49, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 30, u16 n <= 59, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 /* See OEIS A355262. */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

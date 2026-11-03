@@ -8,12 +8,14 @@
  *            a(3)=1, a(4)=3, a(5)=2, a(6)=4, a(7)=4, a(8)=4, a(9)=5
  * Range:     u8 n <= 459, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_values[10] = {0, 1, 1, 1, 3, 2, 4, 4, 4, 5};
 
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
        larger than needed but keeps allocation distances small. */
     if (cache == NULL) {
         cache_size = (n + 1 >= 10) ? n + 1 : 10;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) abort();
 
         /* Initialise indices 0..9.  For indices beyond n, the
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         idx_t new_size = (n + 1) * 2;   /* double to amortise future growth */
         if (new_size < 10) new_size = 10;
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) abort();
         cache = tmp;
         cache_size = new_size;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    The recurrence guarantees the periodicity of period 611. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int init_done = 0;
 
@@ -57,12 +59,12 @@ static void extend_cache(idx_t n) {
 
     /* allocate or grow the cache */
     if (a_cache == NULL) {
-        a_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        a_cache = mem_new(seq_t, (n + 1));
         if (a_cache == NULL) return;      /* allocation failure – unlikely */
         a_cache[0] = 1;                    /* a(0) = 1 */
         a_cache_len = 0;
     } else if (n > a_cache_len) {
-        a_cache = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (n + 1));
         if (a_cache == NULL) return;      /* allocation failure – unlikely */
     }
 

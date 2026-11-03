@@ -12,18 +12,19 @@
  *            the complete-quotient denominator d becomes 1
  * Range:     u8 n <= 30, u16 n <= 93, u32 n <= 198, u64 n <= 525,
  *            u128 n <= 1725, big any n
- * Helpers:   isqrt_u64_local
+ * Validated: standard, pass, 83 terms through n = 9694 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isqrt_u64_local.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n_idx) {
     uint64_t n = (uint64_t)n_idx;
-    uint64_t a0 = isqrt_u64_local(n);
+    uint64_t a0 = isqrt_u64(n);
     uint64_t m = 0, d = 1, ak = a0;
     seq_t p_prev, p, p_next;
 

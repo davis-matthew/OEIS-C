@@ -11,7 +11,8 @@
  *            using the Chinese Remainder Theorem
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   mod_inverse_int64
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
+ * Helpers:   modinv_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 /*---  Required headers ----------------------------------------------------*/
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_inverse_int64.h"
+#include "../utils/modinv_i64.h"
 
 /*---  Prime table – incremental generation -------------------------------*/
 static uint32_t *prime_tbl = NULL;   /* array of primes, 1‑based indexing omitted */
@@ -91,7 +92,7 @@ seq_t a(idx_t n)
         uint64_t mod_q = pow_q;                 /* modulus for this congruence */
 
         /* Inverse of p modulo mod_q.  p and mod_q are coprime. */
-        uint64_t r = (uint64_t)mod_inverse_int64(
+        uint64_t r = (uint64_t)modinv_i64(
                         (int64_t)(p % mod_q), (int64_t)mod_q);
 
         /* CRT combination:
@@ -101,7 +102,7 @@ seq_t a(idx_t n)
         uint64_t diff    = ((uint64_t)r + mod_q - k_mod_q) % mod_q;
 
         uint64_t M_mod_q = (uint64_t)(M % mod_q);
-        uint64_t inv_M   = (uint64_t)mod_inverse_int64(
+        uint64_t inv_M   = (uint64_t)modinv_i64(
                             (int64_t)M_mod_q, (int64_t)mod_q);
 
         uint64_t t = (uint64_t)(( (__int128)diff * inv_M ) % mod_q);

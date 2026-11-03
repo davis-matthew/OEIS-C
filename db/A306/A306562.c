@@ -11,8 +11,9 @@
  *            and the sign s_k is +1 for odd‑numbered blocks and –1 for
  *            even‑numbered blocks. The first block (size 1) contains k = 1
  *            and is a “+” block
- * Range:     i8 n <= 35, i16 n <= 1324, i32 n <= 9279, i64 n <= 9279,
- *            i128 n <= 9279, big any n
+ * Range:     i8 n <= 35, i16 n <= 1324, i32 n <= 10011, i64 n <= 10011,
+ *            i128 n <= 10011, big any n
+ * Validated: standard, pass, 74 terms through n = 9279 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

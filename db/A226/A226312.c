@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum_{k=0..n} k*binomial(n,k)^2*binomial(2*k,k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 39,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 154 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,6 @@
 #include <type_traits>
 #include "../utils/binomial.h"
 #else
-#include "../utils/binomial.h"
 #endif
 
 seq_t a(idx_t n) {

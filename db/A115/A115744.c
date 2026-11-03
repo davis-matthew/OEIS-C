@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 26, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   floor_sqrt, is_palindrome
+ * Validated: standard, pass, 57 terms through n = 77 (2026-11-01)
+ * Helpers:   ipow_i32, is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,26 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_palindrome_base.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Pre‑computed list of palindromes (excluding 0) up to 6 decimal digits. */
 static seq_t pal_list[2000];
@@ -85,7 +104,7 @@ seq_t a(idx_t n)
             if (p <= 1) continue;                     /* skip 1 */
             if (T % p == 0) {
                 seq_t q = T / p;
-                if (q > (seq_t)1 && is_palindrome(q, 10)) {
+                if (q > (seq_t)1 && is_palindrome_base(q, 10)) {
                     ++found;
                     if (found == n) return T;
                     break;                            /* no more p needed */

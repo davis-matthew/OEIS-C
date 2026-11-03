@@ -8,13 +8,14 @@
  *            == 1 (mod 6), else 0
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   a000037_isqrt
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a000037_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     seq_t cnt = 0;
@@ -22,7 +23,7 @@ seq_t a(idx_t n) {
     if (n % 6 != 1) return cnt;
     for (y = 0; 3 * y * y <= n; y++) {
         uint64_t r = n - 3 * y * y;
-        uint64_t x = a000037_isqrt(r);
+        uint64_t x = isqrt_u64(r);
         if (x * x == r) {
             /* x != 0 since n is not divisible by 3 */
             cnt += (y == 0) ? 2 : 4;

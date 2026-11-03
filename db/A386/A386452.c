@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: triangular number t(k) = (k+1)*k/2, computed in seq_t */
 static inline seq_t triangular(idx_t k)
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (cache_len <= (size_t)n)
     {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * ((size_t)n + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, ((size_t)n + 1));
         if (tmp == NULL) /* allocation failure – abort */
         {
             /* In a contest setting you might abort or return 0 */

@@ -7,9 +7,10 @@
  * Keywords:  nonn, mult, look
  * Formula:   a(n) = ∏_{p^e‖n} (odd_part(p−1))^e, where odd_part(k) is
  *            A000265(k)
- * Range:     u8 n <= 522, u16 n <= 9537, u32 n <= 9537, u64 n <= 9537,
- *            u128 n <= 9537, big any n
- * Helpers:   odd_part, seq_pow
+ * Range:     u8 n <= 522, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9537 (2026-11-01)
+ * Helpers:   ipow_idx, odd_part
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/odd_part.h"
-#include "../utils/seq_pow.h"
 
 /* Computes the n-th term of OEIS A336466.  The sequence is defined as
    fully multiplicative with a(p) = odd_part(p−1) for every prime p. */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
             }
             /* a(p) = odd_part(p−1) */
             seq_t odd = odd_part((seq_t)p - (seq_t)1);
-            seq_t powi = seq_pow(odd, exp);
+            seq_t powi = ipow_idx(odd, exp);
             result *= powi;
         }
     }

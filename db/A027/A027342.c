@@ -7,13 +7,15 @@
  * Formula:   a(n) = p(n) - p(n-8), where p is the partition function
  * Range:     u8 n <= 16, u16 n <= 44, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for partition numbers p(0)…p(n).
    p_cache[i] holds p(i).  The cache is grown on request. */
@@ -27,14 +29,14 @@ static void ensure_partition(idx_t n)
     /* First allocation */
     if (p_cache == NULL) {
         p_cap   = n + 1;                     /* allocate at least up to n */
-        p_cache = (seq_t *)malloc(p_cap * sizeof(seq_t));
+        p_cache = mem_new(seq_t, p_cap);
         if (!p_cache) exit(1);              /* abort on OOM */
         p_cache[0] = (seq_t)1;              /* p(0) = 1 */
         p_max = 0;
     }
     /* Grow the array if needed */
     else if (n + 1 > p_cap) {
-        seq_t *tmp = (seq_t *)realloc(p_cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, p_cache, (n + 1));
         if (!tmp) exit(1);
         p_cache = tmp;
         p_cap   = n + 1;

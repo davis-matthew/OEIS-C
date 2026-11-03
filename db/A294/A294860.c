@@ -13,7 +13,8 @@
  *            memoises all previously computed values
  * Range:     u8 n <= 26, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* storage for the a‑sequence */
 static seq_t *a_seq = NULL;
@@ -43,7 +45,7 @@ static void ensure_a_cap(size_t needed)
     if (needed <= a_cap) return;
     size_t new_cap = (a_cap > 0) ? a_cap * 2 : 8;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_seq, new_cap);
     if (!tmp) abort();
     a_seq = tmp;
     a_cap = new_cap;
@@ -55,7 +57,7 @@ static void ensure_b_cap(size_t needed)
     if (needed <= b_cap) return;
     size_t new_cap = (b_cap > 0) ? b_cap * 2 : 8;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(b_seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, b_seq, new_cap);
     if (!tmp) abort();
     b_seq = tmp;
     b_cap = new_cap;
@@ -102,7 +104,7 @@ static void init_data(void)
 
     /* a sequence – start with 1 and 2 */
     a_cap = 8;
-    a_seq = (seq_t *)calloc(a_cap, sizeof(seq_t));
+    a_seq = mem_new(seq_t, a_cap);
     if (!a_seq) abort();
     a_seq[0] = (seq_t)1;
     a_seq[1] = (seq_t)2;
@@ -110,7 +112,7 @@ static void init_data(void)
 
     /* b sequence – start with 3 */
     b_cap = 8;
-    b_seq = (seq_t *)calloc(b_cap, sizeof(seq_t));
+    b_seq = mem_new(seq_t, b_cap);
     if (!b_seq) abort();
     b_seq[0] = (seq_t)3;
     b_len = 1;

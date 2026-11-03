@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of partitions of n into divisors > 1 of n
  * Range:     u8 n <= 35, u16 n <= 119, u32 n <= 335, u64 n <= 1079,
  *            u128 n <= 5039, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 8175 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External types idx_t and seq_t are defined by the build system */
 
@@ -50,12 +52,12 @@ seq_t a(idx_t n)
        2. Unbounded‑knapsack DP: count partitions using
           the collected parts.
        --------------------------------------------- */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) {
         free(parts);
         return (seq_t)0;                /* allocation failure */
     }
-    memset(dp, 0, (size_t)(n + 1) * sizeof(seq_t));
+    mem_set(dp, 0, (size_t)(n + 1) * sizeof(seq_t));
     dp[0] = (seq_t)1;                   /* empty partition */
 
     for (size_t k = 0; k < part_cnt; ++k) {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 
     /* Clean up allocated memory */
     free(parts);
-    free(dp);
+    mem_free(dp);
 
     return result;
 }

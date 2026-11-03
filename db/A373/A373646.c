@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 680, u32 n <= 1020, u64 n <= 1020,
  *            u128 n <= 1020, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define LIMIT 9500000ULL          /* > 8 541 224, sufficient for known terms */
 
@@ -149,7 +151,7 @@ static void precompute(void)
     }
 
     /* build table of numbers NOT representable */
-    table = (seq_t*)malloc((size_t)LIMIT * sizeof(seq_t));
+    table = mem_new(seq_t, (size_t)LIMIT);
     if (!table) abort();
 
     for (idx_t x = 1; x <= LIMIT; ++x) {
@@ -160,10 +162,10 @@ static void precompute(void)
 
     /* shrink table to actual size */
     if (table_len > 0) {
-        seq_t *tmp = (seq_t*)realloc(table, table_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, table, table_len);
         if (tmp) table = tmp;
     } else {
-        free(table);
+        mem_free(table);
         table = NULL;
     }
 

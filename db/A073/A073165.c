@@ -9,6 +9,7 @@
  *            where T(r,k)=∏_{1≤i≤j≤k} (n+i+j-1)/(i+j-1) with n=r−k
  * Range:     u8 n <= 30, u16 n <= 59, u32 n <= 111, u64 n <= 220,
  *            u128 n <= 422, big any n
+ * Validated: standard, pass, 82 terms through n = 9544 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

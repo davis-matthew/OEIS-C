@@ -8,13 +8,15 @@
  * Formula:   a(n) = 3*a(n-1) - a(n-2) - 2*a(n-3); a(0)=3, a(1)=10, a(2)=26
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 28, u64 n <= 60, u128 n <= 124,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised cache of already computed terms.  */
 static seq_t *cache = NULL;
@@ -28,10 +30,10 @@ static void ensure_cache_size(idx_t n) {
 
     if (cache == NULL) {
         cache_cap = needed > 16 ? needed : 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (needed > cache_cap) {
         while (cache_cap < needed) cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     for (size_t i = cache_size; i < needed; ++i) {

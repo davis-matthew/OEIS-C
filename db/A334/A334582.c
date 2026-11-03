@@ -7,12 +7,14 @@
  * Formula:   a(n) = denominator( Σ_{k=1..n} (-1)^(k+1) / k^3 )
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Return the denominator of the alternating sum of 1/k^3 up to n */

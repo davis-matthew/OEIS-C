@@ -7,14 +7,15 @@
  * Formula:   a(n) = D(A000961(n+1),6) = q^30*(q^6-1)*Prod_{i=1..5}(q^(2i)-1),
  *            q = A000961(n+1)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 2, big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 static bool is_prime_power(uint64_t x) {
     if (x < 2) return false;
@@ -42,8 +43,8 @@ static uint64_t nth_prime_power(idx_t n) {
 seq_t a(idx_t n) {
     seq_t q = (seq_t)nth_prime_power(n);
     seq_t q2 = q * q;
-    seq_t r = seq_pow(q, 30);
-    r *= seq_pow(q, 6) - 1;
+    seq_t r = ipow_idx(q, 30);
+    r *= ipow_idx(q, 6) - 1;
     seq_t t = 1;
     for (int i = 1; i <= 5; i++) {
         t *= q2;

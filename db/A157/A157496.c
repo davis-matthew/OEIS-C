@@ -10,19 +10,21 @@
  *            occurrence of m. The sequence starts with 22, 33, 44,
  * Range:     u8 n <= 33, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static bool property(uint64_t n)
 {
     if (n <= 1) return false;                /* 1 is not composite */
-    if (is_prime_small((seq_t)n)) return false;   /* skip primes */
+    if (is_prime_seq((seq_t)n)) return false;   /* skip primes */
 
     uint64_t sum = 0;
     int maxd = 0;
@@ -46,7 +48,7 @@ static void grow_terms(size_t needed)
     if (term_cap >= needed) return;
     size_t new_cap = term_cap ? term_cap : 4;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
     if (!new_terms) abort();   /* fail fast */
     terms = new_terms;
     term_cap = new_cap;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + 9*a(n-2) - a(n-3), a(0)=0, a(1)=0, a(2)=4
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for computed terms.  The array is reallocated as needed.
  * `computed` holds the index of the next term that has not yet been
@@ -28,7 +30,7 @@ static void ensure_capacity(idx_t n)
     if (cap <= n) {
         size_t new_cap = cap ? cap * 2 : 4;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, arr, new_cap);
         if (!tmp) { /* memory exhausted – abort for safety */ abort(); }
         arr = tmp;
         cap = new_cap;

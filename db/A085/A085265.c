@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   is_squarefree64
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   is_squarefree_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,7 @@
  */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_squarefree64.h"
+#include "../utils/is_squarefree_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +49,7 @@ seq_t a(idx_t n)
         bool found = false;
         for (unsigned long long b = 1; b <= lastPossibleB; ++b) {
             unsigned long long a_part = cand - b * b;
-            if (a_part >= 1 && is_squarefree64(a_part)) {
+            if (a_part >= 1 && is_squarefree_u64(a_part)) {
                 ++count;
                 found = true;
                 break;

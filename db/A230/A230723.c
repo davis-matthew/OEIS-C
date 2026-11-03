@@ -10,6 +10,7 @@
  *            n == 1 (mod 3), C = 0 otherwise
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 71, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 53 terms through n = 980 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

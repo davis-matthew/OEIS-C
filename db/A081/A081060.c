@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Product(abs(p-q): p, q distinct prime factors of n)
- * Range:     u8 n <= 113, u16 n <= 869, u32 n <= 8234, u64 n <= 8234,
- *            u128 n <= 8234, big any n
+ * Range:     u8 n <= 113, u16 n <= 869, u32 n <= 14189, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 109 terms through n = 8234 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

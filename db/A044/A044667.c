@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has_38_base9
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,24 @@
    unsigned integers and for arbitrary‑precision builds. */
 
 #include <stdbool.h>
-#include "../utils/has_38_base9.h"
+
+/* Return true if the base‑9 representation of x contains the
+   consecutive digits 3 and 8 (in that order). */
+static bool has_38_base9(seq_t x)
+{
+    /* Need at least two digits to contain "38" */
+    if (x < 8) return false;
+
+    seq_t prev = x % 9;          /* least significant digit */
+    x /= 9;
+    while (x) {
+        seq_t cur = x % 9;
+        if (cur == 3 && prev == 8) return true;
+        prev = cur;
+        x /= 9;
+    }
+    return false;
+}
 
 /* Return the nth element of sequence A044667 (n≥1). */
 seq_t a(idx_t n)

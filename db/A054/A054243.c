@@ -8,6 +8,7 @@
  * Formula:   a(n) = 2^floor(n - log2(n) - 1) (a(0) = 1)
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 37, u64 n <= 70, u128 n <= 135,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 951 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

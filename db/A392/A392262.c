@@ -11,12 +11,15 @@
  *            integers, testing the above conditions
  * Range:     u8 n <= 57, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_power_of_two, is_squarefree
+ * Validated: standard, pass, 73 terms through n = 9393 (2026-11-01)
+ * Helpers:   is_pow2, is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_power_of_two.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/is_pow2.h"
 #include "../utils/is_squarefree.h"
 
 seq_t a(idx_t n)
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
             continue;
 
         /* Powers of two (≥4) always qualify. */
-        if (is_power_of_two(cand)) {
+        if (is_pow2(cand)) {
             count++;
             continue;
         }

@@ -8,12 +8,14 @@
  * Formula:   a(n) = A000041(n) - ceil(n/2) (for n > 0; a(0)=0)
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *partition_cache = NULL;   /* cached partition numbers: p[0..N] */
 static idx_t   cache_size     = 0;      /* number of elements currently stored */
@@ -25,8 +27,7 @@ static void ensure_partition_cache(idx_t n)
 
     idx_t new_size = n + 1;
     /* realloc returns void*; cast explicitly for C++ compatibility */
-    partition_cache = (seq_t *)realloc(partition_cache,
-                                       new_size * sizeof(seq_t));
+    partition_cache = mem_resize(seq_t, partition_cache, new_size);
     if (cache_size == 0) {
         partition_cache[0] = (seq_t)1;              /* p(0) = 1 */
         cache_size = 1;

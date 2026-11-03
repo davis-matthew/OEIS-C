@@ -9,19 +9,21 @@
  *            binomial coefficient
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 60, u128 n <= 118,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 498 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* undefined, return 0 */
 
     /* Allocate array a[0..n] (index 0 unused). */
-    seq_t *a_seq = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *a_seq = mem_new(seq_t, (size_t)(n + 1));
     if (!a_seq) return 0;          /* allocation failed */
 
     /* Initial term */
@@ -50,6 +52,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_seq[n];
-    free(a_seq);
+    mem_free(a_seq);
     return result;
 }

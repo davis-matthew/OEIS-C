@@ -10,7 +10,8 @@
  *            a(4)=a(3,1), …
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 21, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   linidx_to_rc
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/linidx_to_rc.h"
+#include "../utils/mem.h"
+
+/* Convert linear index n (1‑based) to (row, col) in the triangle */
+static void linidx_to_rc(idx_t n, idx_t *row, idx_t *col)
+{
+    idx_t r = 1;
+    idx_t cum = 1;                /* cumulative terms up to row r */
+    while (cum < n) {
+        ++r;
+        cum += r;                 /* cum = r*(r+1)/2 */
+    }
+    *row = r;
+    *col = n - (r * (r - 1) / 2);
+}
 
 /* static cache of the triangle, one row per pointer (1‑based indexing) */
 static seq_t **tri = NULL;     /* tri[r] points to row r array */
@@ -35,7 +49,7 @@ static void ensure_rows(idx_t rows_needed)
 
     for (idx_t r = rows_alloced + 1; r <= rows_needed; ++r) {
         /* allocate row r (ignore index 0) */
-        tri[r] = (seq_t *)calloc(r + 1, sizeof(seq_t));
+        tri[r] = mem_new(seq_t, r + 1);
 
         if (r == 1) {             /* base case */
             tri[1][1] = 1;

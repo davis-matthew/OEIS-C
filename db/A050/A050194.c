@@ -9,13 +9,15 @@
  *            else d = 0. * Initial values: a(1) = 1, a(2) = 1
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* 1‑based array that holds the sequence */
 static seq_t *seq = NULL;
@@ -39,7 +41,7 @@ static void ensure_cap(idx_t needed)
         newcap <<= 1;
 
     /* realloc and cast the result of malloc (required for C++) */
-    seq_t *tmp = (seq_t *)realloc(seq, (newcap + 1) * sizeof(seq_t)); /* +1 for 1‑based indexing */
+    seq_t *tmp = mem_resize(seq_t, seq, (newcap + 1)); /* +1 for 1‑based indexing */
     seq = tmp;
     cap = newcap;
 }

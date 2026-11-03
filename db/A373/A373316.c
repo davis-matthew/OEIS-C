@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 95, u32 n <= 208, u64 n <= 208,
  *            u128 n <= 208, big any n
- * Helpers:   factor_u64, sigma_of
+ * Validated: standard, pass, 59 terms through n = 206 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,10 +35,45 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/sigma_of.h"
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Helper: ensure a dynamic array has capacity at least `need` */
+#ifdef __cplusplus
+template <class T>
+static void ensure_cap(size_t need, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (need > *cap) {
+        size_t new_cap = (*cap == 0) ? 1 : (*cap << 1);
+        if (new_cap < need) new_cap = need;
+        *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        *cap = new_cap;
+    }
+}
+#else
 static void ensure_cap(size_t need, size_t *cap, void **ptr, size_t elem_size)
 {
     if (need > *cap) {
@@ -47,6 +83,7 @@ static void ensure_cap(size_t need, size_t *cap, void **ptr, size_t elem_size)
         *cap = new_cap;
     }
 }
+#endif
 
 /* Recursive divisor test: set *ok to false if any proper divisor
  * of `k` is abundant. */
@@ -106,7 +143,7 @@ seq_t a(idx_t n)
                 /* Check upper bound overflow is not a concern here. */
                 if (is_primitive_abundant(candidate)) {
                     /* Append k to cache. */
-                    ensure_cap(seq_len + 1, &seq_cap, (void **)&seq, sizeof(seq_t));
+                    ensure_cap(seq_len + 1, &seq_cap, OEISC_VPP(&seq), sizeof(seq_t));
                     seq[seq_len++] = (seq_t)last_checked;
                     break;
                 }

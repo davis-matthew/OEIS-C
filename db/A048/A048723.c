@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 81, u32 n <= 197, u64 n <= 472,
  *            u128 n <= 1191, big any n
- * Helpers:   carryless_mult, carryless_pow
+ * Validated: standard, pass, 82 terms through n = 9875 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,32 @@
    (no‑carry) multiplication and (x,y) are the Cantor pairing coordinates
    of n (row index, column index). */
 #include <stdint.h>
-#include "../utils/carryless_mult.h"
-#include "../utils/carryless_pow.h"
+
+/* Carry‑less (no‑carry) multiplication: a ⊗ b. */
+static inline seq_t carryless_mult(seq_t a, seq_t b)
+{
+    seq_t res = 0;
+    while (a) {
+        if (a & 1)
+            res ^= b;
+        a >>= 1;
+        b <<= 1;
+    }
+    return res;
+}
+
+/* Carry‑less exponentiation: base ^ exp. */
+static seq_t carryless_pow(seq_t base, seq_t exp)
+{
+    seq_t result = 1;
+    while (exp) {
+        if (exp & 1)
+            result = carryless_mult(result, base);
+        base = carryless_mult(base, base);
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* Integer square root for unsigned 128‑bit values. */
 static inline idx_t isqrt_u128(unsigned __int128 v)

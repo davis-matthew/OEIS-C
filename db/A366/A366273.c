@@ -8,7 +8,8 @@
  *            (4*k+1)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* ------------------------------------------------------------------ */
 #include <stddef.h>   /* size_t   */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Helper:  binomial( n , k ) using a multiplicative method.       */
@@ -48,11 +50,11 @@ static void ensure_cache(idx_t mincap, seq_t **cache, size_t *cap)
 {
     if (*cache == NULL) {
         *cap = mincap < 64 ? 64 : (size_t)mincap;
-        *cache = (seq_t *)malloc(*cap * sizeof(seq_t));
+        *cache = mem_new(seq_t, (*cap * sizeof(seq_t)) / sizeof(seq_t));
     } else if (mincap > *cap) {
         size_t newcap = *cap;
         while (newcap < mincap) newcap *= 2;
-        *cache = (seq_t *)realloc(*cache, newcap * sizeof(seq_t));
+        *cache = mem_resize(seq_t, *cache, newcap);
         *cap = newcap;
     }
 }

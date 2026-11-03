@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n‑th term of A294973.  seq_t and idx_t are defined by the
    build system and may be integer types or an arbitrary‑precision class. */
@@ -44,9 +46,9 @@ seq_t a(idx_t n)
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
         /* realloc may return NULL; cast explicitly for C++ compatibility */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp && new_cap > 0) {            /* allocation failure */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             capacity = 0;
             count = 0;

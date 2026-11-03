@@ -7,7 +7,8 @@
  * Formula:   numbers m such that bigomega(m) = 2 * omega(m)
  * Range:     u8 n <= 26, u16 n <= 3576, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   bigomega, count_distinct_primes, ensure_capacity
+ * Validated: standard, pass, 71 terms through n = 4749 (2026-11-01)
+ * Helpers:   bigomega, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/bigomega.h"
-#include "../utils/count_distinct_primes.h"
-#include "../utils/ensure_capacity.h"
+#include "../utils/omega.h"
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
 
 /* The sequence is generated lazily: we store the terms in a static array
    and extend it as needed. Subsequent calls reuse the cache, so the
@@ -51,7 +63,7 @@ seq_t a(idx_t n)
         /* Scan forward until we have enough terms. */
         while (seq_len < n) {
             seq_t bo = bigomega(cur);                      /* total prime multiplicity */
-            int   ol = count_distinct_primes(cur);         /* distinct primes */
+            int   ol = omega(cur);         /* distinct primes */
             if (bo == (seq_t)(ol * 2U))
                 append_term((seq_t)cur);
             cur++;

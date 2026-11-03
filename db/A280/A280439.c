@@ -13,7 +13,8 @@
  *            seq_t
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 37, u64 n <= 82, u128 n <= 173,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static const seq_t base_values[8] = {0, 20, 120, 236, 386, 574, 834, 1211};
 
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is allocated and contains the first 7 terms.  */
     if (cache_max < 7) {
         size_t cap = (size_t)(n + 1);
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();          /* abort on allocation failure */
         for (idx_t i = 1; i <= 7; ++i) cache[i] = base_values[(size_t)i];
         cache_max = 7;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     if (n > cache_max) {
         size_t new_cap = (size_t)(n + 1);
         if (new_cap > (size_t)(cache_max + 1)) {
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
         }

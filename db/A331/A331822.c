@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 53, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   negabinary_niven
+ * Validated: standard, pass, 63 terms through n = 9940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/negabinary_niven.h"
+#include "../utils/mem.h"
+
+/* Return true if n is a negabinary-Niven number.  */
+static bool negabinary_niven(seq_t n)
+{
+    /* Count ones in base -2 representation. */
+    int popcnt = 0;
+    int64_t val = (int64_t)n;          /* n is positive.       */
+    while (val != 0) {
+        int r = val & 1;               /* remainder 0 or 1.   */
+        if (r) popcnt++;               /* count a 1.          */
+        val = -(val - r) / 2;          /* next higher digit.  */
+    }
+    /* popcnt is >=1 for n>0.  Check divisibility. */
+    return (n % popcnt) == 0;
+}
 
 /* Grow buf to at least new_cap elements.  */
 static void ensure_capacity(seq_t **buf, size_t *cap, size_t new_cap)
@@ -38,7 +54,7 @@ static void ensure_capacity(seq_t **buf, size_t *cap, size_t new_cap)
     if (*cap < new_cap) {
         size_t new_size = (*cap == 0) ? 2 : (*cap << 1);
         if (new_size < new_cap) new_size = new_cap;
-        seq_t *tmp = (seq_t *)realloc(*buf, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *buf, new_size);
         *buf = tmp;
         *cap = new_size;
     }

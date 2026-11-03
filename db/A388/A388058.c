@@ -9,12 +9,14 @@
  *            i, n + j) (i, j = 0..3)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 8, u128 n <= 16,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 31 terms through n = 406 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static const int perm[24][4] = {
     {0,1,2,3},
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         idx_t row = 2*n + i;
         for (idx_t j = 0; j < 4; ++j) {
             idx_t col = n + j;
-            M[i][j] = binom(row, col);
+            M[i][j] = binomial(row, col);
         }
     }
 

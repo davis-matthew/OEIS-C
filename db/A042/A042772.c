@@ -8,6 +8,7 @@
  *            p_0=30 and a_k are the continued‑fraction * coefficients of √917
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 64,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 194 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

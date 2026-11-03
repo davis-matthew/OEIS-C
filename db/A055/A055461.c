@@ -10,8 +10,9 @@
  *            in the r‑th row * of the triangle T(n,k) = (n – k)² ). * Thus
  *            a(n) is the n‑th element when the rows of the triangle are read
  *            * left‑to‑right and top‑to‑bottom
- * Range:     u8 n <= 120, u16 n <= 8680, u32 n <= 8680, u64 n <= 8680,
- *            u128 n <= 8680, big any n
+ * Range:     u8 n <= 120, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 8680 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

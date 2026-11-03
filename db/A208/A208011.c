@@ -12,7 +12,8 @@
  *            be the set of 6‑bit masks that contain no horizontal...
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 39, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Lookup tables for valid row masks and for subsets of those masks.   */
@@ -87,13 +89,13 @@ static void extend_to(size_t need)
     /* initialise storage for DP arrays if not yet */
     if (dp_size < mask_cnt) {
         dp_size = mask_cnt;
-        dp_cur  = (seq_t *)malloc(dp_size * sizeof(seq_t));
-        dp_next = (seq_t *)malloc(dp_size * sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, dp_size);
+        dp_next = mem_new(seq_t, dp_size);
     }
 
     /* initialise length 0 */
     if (chains_total == NULL) {
-        chains_total = (seq_t *)malloc(sizeof(seq_t));
+        chains_total = mem_new(seq_t, 1);
         chains_total[0] = (seq_t)1; /* empty sequence */
         chains_len = 0;
     }
@@ -103,7 +105,7 @@ static void extend_to(size_t need)
         for (size_t i = 0; i < mask_cnt; ++i) dp_cur[i] = (seq_t)1;
         seq_t sum = (seq_t)0;
         for (size_t i = 0; i < mask_cnt; ++i) sum += dp_cur[i];
-        chains_total = (seq_t *)realloc(chains_total, (chains_len + 2) * sizeof(seq_t));
+        chains_total = mem_resize(seq_t, chains_total, (chains_len + 2));
         chains_total[1] = sum;
         ++chains_len;
     }
@@ -129,8 +131,7 @@ static void extend_to(size_t need)
         for (size_t i = 0; i < mask_cnt; ++i) sum += dp_next[i];
 
         /* store total */
-        chains_total = (seq_t *)realloc(chains_total,
-                                       (chains_len + 2) * sizeof(seq_t));
+        chains_total = mem_resize(seq_t, chains_total, (chains_len + 2));
         chains_total[next_len] = sum;
 
         /* swap dp_cur and dp_next */

@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy, look, nice
  * Formula:   a(n) = mex{ a(i) XOR a(n-i) : 1 <= i < n/2 }, a(0) = a(1) = a(2)
  *            = 0 (computed iteratively by mex over all unequal splits)
- * Range:     u8 n <= 9904, u16 n <= 9904, u32 n <= 9904, u64 n <= 9904,
- *            u128 n <= 9904, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9904 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

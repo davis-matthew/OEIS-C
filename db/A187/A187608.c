@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 37, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    a(1) = 0, a(2) = 0, a(3) = 0, a(4) = 28, a(5) = 144,
    a(6) = 340, a(7) = 675, a(8) = 1120. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     /* initialise cache with first 8 terms */
     if (cache == NULL) {
         capacity = 8;
-        cache = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        cache = mem_new(seq_t, capacity);
         if (!cache) return 0;           /* in case malloc fails */
         cache[0] = 0;   /* a(1) */
         cache[1] = 0;   /* a(2) */
@@ -50,7 +52,7 @@ seq_t a(idx_t n) {
     while (capacity < (size_t)n) {
         size_t new_capacity = capacity ? capacity * 2 : 8;
         if (new_capacity < (size_t)n) new_capacity = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_capacity);
+        seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
         if (!tmp) return 0; /* allocation failure */
         cache = tmp;
         capacity = new_capacity;

@@ -11,7 +11,8 @@
  *            keep a staircase of (max gpf, k) records
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   a3033_nth_prime
+ * Validated: partial, pass, 36 terms through n = 38 (2026-11-01)
+ * Helpers:   nth_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a3033_nth_prime.h"
+#include "../utils/nth_prime.h"
 
 #define A3033_LIM 67108864u   /* numbers 1..LIM are sieved */
 #define A3033_SEG 65536u
@@ -106,7 +107,7 @@ static void a3033_build(void) {
 
 seq_t a(idx_t n) {
     if (!a3033_built) a3033_build();
-    uint64_t p = a3033_nth_prime(n);
+    uint64_t p = nth_prime(n);
     for (size_t i = 0; i < a3033_fn; i++) {
         if ((uint64_t)a3033_fm[i] <= p) return (seq_t)a3033_fk[i];
     }

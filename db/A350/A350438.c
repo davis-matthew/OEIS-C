@@ -12,12 +12,14 @@
  *            2→5, 3→5, 4→4, 5→5, 6→6, 7→4, 8→7, 9→6. po...
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Segment costs for digits 0–9 (7 uses 4 segments) */
@@ -34,14 +36,14 @@ seq_t a(idx_t n) {
 
     /* Allocate or grow the arrays if necessary */
     if (g == NULL) {
-        g = (seq_t *)calloc(needed + 1, sizeof(seq_t));
-        pos = (seq_t *)calloc(needed + 1, sizeof(seq_t));
+        g = mem_new(seq_t, needed + 1);
+        pos = mem_new(seq_t, needed + 1);
         if (!g || !pos) return 0;       /* out of memory – unlikely in the test suite */
         g[0] = 1;                        /* one empty string */
         pos[0] = 0;                      /* no integer uses 0 segments */
     } else if (max_computed < needed) {
-        g = (seq_t *)realloc(g, (needed + 1) * sizeof(seq_t));
-        pos = (seq_t *)realloc(pos, (needed + 1) * sizeof(seq_t));
+        g = mem_resize(seq_t, g, (needed + 1));
+        pos = mem_resize(seq_t, pos, (needed + 1));
         if (!g || !pos) return 0;
         for (size_t i = max_computed + 1; i <= needed; ++i) {
             g[i] = 0;

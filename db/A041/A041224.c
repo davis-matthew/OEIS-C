@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 20, u64 n <= 44, u128 n <= 87,
  *            big any n
- * Helpers:   period_index
+ * Validated: standard, pass, 40 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/period_index.h"
+#include "../utils/mem.h"
+
+static inline size_t period_index(size_t i)
+{
+    /* i >= 1 when called */
+    return (i - 1) & 15;   /* modulo 16, using bitmask for speed */
+}
 
 /* Utility: multiply two seq_t values with natural unsigned overflow. */
 static inline seq_t mul_seq(seq_t x, seq_t y) { return x * y; }
@@ -58,7 +65,7 @@ static void ensure_cache(idx_t n)
         if (needed > cap) {
             size_t new_cap = (cap == 0 ? 16 : cap * 2);
             while (new_cap < needed) new_cap *= 2;
-            seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
             cache = new_arr;
             cap = new_cap;
         }

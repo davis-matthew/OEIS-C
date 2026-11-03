@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of ordered sums of 5 nonprime numbers
  * Range:     u8 n <= 22, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* a(n) is defined for n >= 5. For n < 5, a(n) = 0. */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* cache for computed values up to max_n */
 static idx_t max_n_cached = 0;   /* largest n for which cache is valid */
@@ -26,9 +28,9 @@ static void recompute_cache(idx_t n)
     size_t N = (size_t)n + 1;
 
     /* Allocate temporary DP arrays. */
-    seq_t *dp_prev = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *dp_curr = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *pref    = (seq_t *)calloc(N, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, N);
+    seq_t *dp_curr = mem_new(seq_t, N);
+    seq_t *pref    = mem_new(seq_t, N);
 
     if (!dp_prev || !dp_curr || !pref) {
         /* Allocation failure – leave cache untouched. */
@@ -43,7 +45,7 @@ static void recompute_cache(idx_t n)
     size_t sieve_size = prime_limit + 1;
     uint8_t *is_prime = (uint8_t *)calloc(sieve_size, sizeof(uint8_t));
     if (!is_prime) {
-        free(dp_prev); free(dp_curr); free(pref);
+        mem_free(dp_prev); mem_free(dp_curr); mem_free(pref);
         return;
     }
     for (size_t i = 2; i < sieve_size; ++i) is_prime[i] = 1;
@@ -61,7 +63,7 @@ static void recompute_cache(idx_t n)
     }
     uint64_t *primes = (uint64_t *)malloc(primes_cnt * sizeof(uint64_t));
     if (!primes) {
-        free(dp_prev); free(dp_curr); free(pref); free(is_prime);
+        mem_free(dp_prev); mem_free(dp_curr); mem_free(pref); free(is_prime);
         return;
     }
     size_t pc = 0;
@@ -101,20 +103,20 @@ static void recompute_cache(idx_t n)
     }
 
     /* Allocate new cache */
-    seq_t *new_cache = (seq_t *)calloc(N, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, N);
     if (new_cache) {
         for (size_t i = 0; i < N; ++i) {
             /* For n < 5 all terms are zero automatically. */
             new_cache[i] = dp_prev[i];
         }
         /* Replace old cache */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         max_n_cached = n;
     }
 
     /* Clean up */
-    free(dp_prev); free(dp_curr); free(pref);
+    mem_free(dp_prev); mem_free(dp_curr); mem_free(pref);
     free(is_prime); free(primes);
 }
 

@@ -9,14 +9,35 @@
  *            of n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   dfs_count
+ * Validated: standard, pass, 118 terms through n = 9985 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/dfs_count.h"
+
+/* Recursively count divisors not exceeding the limit. */
+static void dfs_count(size_t idx,
+                      uint64_t current,
+                      const uint64_t *primes,
+                      const uint8_t *exp,
+                      size_t cnt,
+                      uint64_t limit,
+                      uint64_t *res) {
+    if (idx == cnt) {
+        if (current <= limit)
+            (*res)++;
+        return;
+    }
+    uint64_t p = primes[idx];
+    uint64_t val = current;
+    for (uint8_t e = 0; e <= exp[idx]; ++e) {
+        dfs_count(idx + 1, val, primes, exp, cnt, limit, res);
+        val *= p;
+    }
+}
 
 seq_t a(idx_t n) {
     /* Factorisation of n (trial division is sufficient for n ≤ 10000). */

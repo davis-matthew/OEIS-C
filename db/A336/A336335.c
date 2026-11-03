@@ -11,7 +11,8 @@
  *            square * spiral
  * Range:     u8 n <= 4, u16 n <= 31, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   coord_index
+ * Validated: standard, pass, 57 terms through n = 927 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,42 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/coord_index.h"
+
+/* ---------- ConvertA 2D coordinates to spiral index ---------- */
+static seq_t coord_index(long long x, long long y)
+{
+    if (x == 0 && y == 0) return (seq_t)1;   /* origin */
+
+    uint64_t ax = (x >= 0) ? (uint64_t)x : (uint64_t)(-x);
+    uint64_t ay = (y >= 0) ? (uint64_t)y : (uint64_t)(-y);
+    uint64_t r  = (ax > ay) ? ax : ay;        /* layer radius */
+
+    /* start index of layer r */
+    seq_t start = ((seq_t)(2 * r - 1) * (seq_t)(2 * r - 1)) + 1;
+    seq_t offset;
+
+    if ((x == (long long)r) &&
+        (y >= -(long long)r + 1) && (y <= (long long)r)) {
+        /* right edge */
+        offset = (seq_t)(y + (long long)r - 1);
+    } else if ((y == (long long)r) &&
+               (x >= -(long long)r) && (x < (long long)r)) {
+        /* top edge */
+        offset = (seq_t)(2 * r + (r - 1 - x));
+    } else if ((x == -(long long)r) &&
+               (y >= -(long long)r) && (y < (long long)r)) {
+        /* left edge */
+        offset = (seq_t)(4 * r + (r - 1 - y));
+    } else if ((y == -(long long)r) &&
+               (x > -(long long)r) && (x <= (long long)r)) {
+        /* bottom edge */
+        offset = (seq_t)(6 * r + (x + (long long)r - 1));
+    } else {
+        return (seq_t)-1; /* should not happen for integer lattice points */
+    }
+
+    return start + offset;
+}
 
 /* ---------- Helper: integer square root (uint64_t) ---------- */
 static uint64_t isqrt_u64(uint64_t n)

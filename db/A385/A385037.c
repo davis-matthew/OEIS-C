@@ -8,6 +8,7 @@
  * Formula:   a(1) = 1; a(n) = (936 * a(n-1) + 1399) mod 6655
  * Range:     u8 n <= 1, u16 n <= 6655, u32 n <= 6655, u64 n <= 6655,
  *            u128 n <= 6655, big any n
+ * Validated: standard, pass, 61 terms through n = 5562 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

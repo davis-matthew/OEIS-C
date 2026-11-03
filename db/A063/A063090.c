@@ -10,12 +10,14 @@
  *            recurrence is O(n) and memoized
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 19, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Start with capacity for indices 0..1 (i.e. size 2). */
         cap = 2;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;      /* out‑of‑memory: best‑effort fallback */
         cache[0] = 0;              /* unused */
         cache[1] = (seq_t)1;       /* a(1) = 1 */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cap ? cap * 2 : 8;
         while (new_cap <= n + 1)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* realloc failed – return a reasonable value (fallback) */
             return 0;

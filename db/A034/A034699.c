@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, nice
  * Formula:   a(n) = largest prime power factor of n
- * Range:     u8 n <= 255, u16 n <= 9600, u32 n <= 9600, u64 n <= 9600,
- *            u128 n <= 9600, big any n
- * Helpers:   build_primes_upto, floor_isqrt_u64
+ * Range:     u8 n <= 255, u16 n <= 65535, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 95 terms through n = 9600 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/floor_isqrt_u64.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
 
 /* Static storage for the prime list */
 static uint64_t *prime_list   = NULL;
@@ -31,7 +33,7 @@ static idx_t    prime_limit   = 0;
 static void
 _ensure_primes(idx_t n)
 {
-    idx_t needed = floor_isqrt_u64(n) + 1;   /* +1 to handle perfect squares */
+    idx_t needed = isqrt(n) + 1;   /* +1 to handle perfect squares */
 
     if (needed > prime_limit) {
         size_t  new_cnt = 0;

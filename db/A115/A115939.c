@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   digit_counts, digit_len
+ * Validated: full, pass, 82 terms through n = 82 (2026-11-03)
+ * Helpers:   digit_counts, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,11 @@
    (0–9) exactly once. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +44,7 @@ seq_t a(idx_t n)
         /* triangular number : T = k*(k+1)/2  (performed in seq_t) */
         seq_t T = ((seq_t)k * ((seq_t)(k + 1))) / 2;
 
-        if (digit_len(T) == 10) {
+        if (num_digits(T) == 10) {
             unsigned char cnt[10] = {0};
             digit_counts(T, cnt);
 
@@ -53,7 +57,7 @@ seq_t a(idx_t n)
                 /* enlarge cache if necessary */
                 if (results_count == results_cap) {
                     size_t new_cap = results_cap == 0 ? 16 : results_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, results, new_cap);
                     if (!tmp)   /* allocation failure: abort gracefully */
                         return 0;
                     results = tmp;

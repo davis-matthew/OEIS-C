@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   digit_sum, is_prime
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   digit_sum, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/is_prime.h"
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Cached sequence of primes satisfying the digit–sum condition. */
 static seq_t *cache      = NULL;   /* array of stored terms      */
@@ -36,12 +39,12 @@ ensure_cache_capacity(size_t need)
     size_t newcap = cache_cap ? (cache_cap << 1) : 16;
     while (newcap < need)
         newcap <<= 1;
-    seq_t *newptr = (seq_t *)malloc(newcap * sizeof(seq_t));
+    seq_t *newptr = mem_new(seq_t, newcap);
     if (!newptr)
         return;  /* allocation failure – unlikely for required sizes   */
     if (cache) {
-        memcpy(newptr, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(newptr, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = newptr;
     cache_cap = newcap;

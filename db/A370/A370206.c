@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 22, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* static helpers for heap management                                      */
@@ -154,7 +156,7 @@ static void init_heap(void)
             est++;
         }
     }
-    heap = (Candidate *)malloc(est * sizeof(Candidate));
+    heap = mem_new(Candidate, est);
     heap_sz = 0;
 
     /* precompute powers of 2 */
@@ -194,7 +196,7 @@ static void extend_memo(size_t needed)
     if (memo_cap >= needed) return;
     size_t newcap = memo_cap == 0 ? 128 : memo_cap * 2;
     if (newcap < needed) newcap = needed;
-    seq_t *newmem = (seq_t *)realloc(memo, newcap * sizeof(seq_t));
+    seq_t *newmem = mem_resize(seq_t, memo, newcap);
     memo = newmem;
     memo_cap = newcap;
 }

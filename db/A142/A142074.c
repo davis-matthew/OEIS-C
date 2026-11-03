@@ -8,7 +8,8 @@
  *            prime(2n-1), where prime(k) denotes the k‑th prime (prime_1 = 2)
  * Range:     u8 n <= 5, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for primes. */
 static seq_t *prime_arr = NULL;
@@ -32,7 +34,7 @@ static seq_t get_prime_at(idx_t k) {
     /* Ensure memory for primes. */
     if (prime_cap == 0) {
         prime_cap = 64;
-        prime_arr = (seq_t *)malloc(prime_cap * sizeof(seq_t));
+        prime_arr = mem_new(seq_t, prime_cap);
     }
 
     /* Generate primes until we have at least k. */
@@ -49,7 +51,7 @@ static seq_t get_prime_at(idx_t k) {
         if (is_prime) {
             if (prime_cnt == prime_cap) {
                 prime_cap <<= 1;
-                prime_arr = (seq_t *)realloc(prime_arr, prime_cap * sizeof(seq_t));
+                prime_arr = mem_resize(seq_t, prime_arr, prime_cap);
             }
             prime_arr[prime_cnt++] = candidate;
         }

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   expand_seq
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,21 @@
 
 #include <stdlib.h>   /* malloc, realloc, calloc, exit */
 #include <stdint.h>
-#include "../utils/expand_seq.h"
+#include "../utils/mem.h"
+
+/* Expand an array to at least 'needed' elements after the last used one. */
+static void expand_seq(seq_t **arr, size_t *cap, size_t needed)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) exit(1);
+    /* zero the newly allocated tail */
+    for (size_t i = *cap; i < new_cap; ++i) tmp[i] = 0;
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* forward declarations of helper utilities that may be provided */
 static void expand_seq(seq_t **arr, size_t *cap, size_t needed);
@@ -86,9 +101,9 @@ static void init_sequences(void)
 {
     if (A != NULL) return;              /* already initialized */
 
-    a_cap = 4;  A = (seq_t *)calloc(a_cap, sizeof(seq_t));
-    b_cap = 4;  B = (seq_t *)calloc(b_cap, sizeof(seq_t));
-    conv_cap = 1; C = (seq_t *)calloc(conv_cap, sizeof(seq_t));
+    a_cap = 4;  A = mem_new(seq_t, a_cap);
+    b_cap = 4;  B = mem_new(seq_t, b_cap);
+    conv_cap = 1; C = mem_new(seq_t, conv_cap);
 
     A[0] = (seq_t)1;
     A[1] = (seq_t)2;

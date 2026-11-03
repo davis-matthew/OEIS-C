@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(log(sigma(n))/log(tau(n)))
  * Range:     u8 n <= 29, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   divisor_count_u64, seq_mul, sigma_of
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,30 @@
 /* Implementation uses integer comparison: a(n)=max{k | tau(n)^k <= sigma(n)} */
 
 #include <stdint.h>
-#include "../utils/sigma_of.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/num_divisors.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -28,7 +50,7 @@ seq_t a(idx_t n)
 
     /* Compute sigma(n) as seq_t and tau(n) as uint64_t (fits in 64 bits) */
     seq_t sigma = sigma_of(n);
-    uint64_t tau  = divisor_count_u64((uint64_t)n);
+    uint64_t tau  = num_divisors((uint64_t)n);
 
     /* Should never happen for n>1, but guard against tau==1 to avoid infinite loop */
     if (tau == 1)

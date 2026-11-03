@@ -12,7 +12,8 @@
  *            flattened 2‑D array. The table is expanded when needed and a...
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 19, u64 n <= 43, u128 n <= 103,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 52 terms through n = 1282 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/big_pow.h"    /* seq_t big_pow(seq_t base, seq_t exp); */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *S_table = NULL;          /* flattened 2‑D table S_3[n][k] */
 static idx_t S_cap_n = 0;              /* largest stored n index (inclusive) */
@@ -43,11 +46,11 @@ static void ensure_S_capacity(idx_t n, idx_t k)
         size_t new_cols = new_cap_k + 1;
         size_t new_size = new_rows * new_cols;
 
-        seq_t *new_table = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *new_table = mem_new(seq_t, new_size);
         if (!new_table) return;           /* allocation failure → leave old table */
 
         /* initialise all entries to zero */
-        memset(new_table, 0, new_size * sizeof(seq_t));
+        mem_set(new_table, 0, new_size * sizeof(seq_t));
 
         /* copy old data */
         if (S_table)
@@ -57,7 +60,7 @@ static void ensure_S_capacity(idx_t n, idx_t k)
                 for (idx_t j = 0; j <= S_cap_k; ++j)
                     new_table[i * new_cols + j] =
                         S_table[i * old_cols + j];
-            free(S_table);
+            mem_free(S_table);
         }
 
         S_table = new_table;
@@ -89,7 +92,7 @@ static seq_t S_3_value(idx_t n, idx_t k)
         seq_t cube = base * base * base;
         seq_t pow_val = cube - 1;
 
-        seq_t power = big_pow(pow_val, (seq_t)(n - i));
+        seq_t power = ipow(pow_val, (seq_t)(n - i));
         seq_t term  = bin * power * S_3_value(i, k);
 
         if (((n - i - 1) & 1ULL) != 0)   /* sign = -1 */

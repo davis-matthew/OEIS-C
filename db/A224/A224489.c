@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 19, u32 n <= 2225, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrimeGeneric
+ * Validated: standard, pass, 100 terms through n = 9086 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,29 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>          /* for sqrt, but only on double values */
-#include "../utils/isPrimeGeneric.h"
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* ------------------------------------------------------------------
  *  Prime storage and sieve helpers
@@ -57,7 +80,7 @@ static void ensure_primes_for(idx_t n)
     /* free previous data (if any) */
     free(prime_array);
     prime_array = NULL;
-    free((void *)NULL);  /* nothing to free for flag array, we allocate anew */
+    free(NULL);  /* nothing to free for flag array, we allocate anew */
 
     /* allocate sieve flag array of size new_limit+1 */
     uint8_t *flags = (uint8_t *)malloc((size_t)(new_limit + 1));

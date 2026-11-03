@@ -7,6 +7,7 @@
  * Formula:   a(n) = 55837783597462913 + (n-1)*13858932213216090
  * Range:     u8 none, u16 none, u32 none, u64 n <= 13, u128 n <= 13,
  *            big any n
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

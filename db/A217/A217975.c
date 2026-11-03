@@ -7,12 +7,14 @@
  * Formula:   a(n) = 6*a(n-2) - a(n-4) with a(1)=2, a(2)=4, a(3)=8, a(4)=22
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 25, u64 n <= 50, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the nth term of OEIS sequence A217975.
    The sequence satisfies the recurrence:
@@ -31,12 +33,12 @@ seq_t a(idx_t n)
     /* Ensure cache can hold n */
     if (cache == NULL) {
         /* Allocate space for indices 0..n */
-        cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1));
         if (!cache) abort();   /* allocation failure */
         cache[0] = 0; /* unused */
     } else if (n > cache_size) {
         /* Grow the cache */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!tmp) abort();   /* allocation failure */
         cache = tmp;
     }

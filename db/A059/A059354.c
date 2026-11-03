@@ -12,7 +12,8 @@
  *            standard integer type utilities are used
  * Range:     u8 none, u16 n <= 29, u32 n <= 107, u64 n <= 107, u128 n <= 107,
  *            big any n
- * Helpers:   isPrime, mod_pow
+ * Validated: standard, pass, 50 terms through n = 104 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isPrime.h"   /* bool isPrime(idx_t x); */
-#include "../utils/mod_pow.h"   /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* local 64‑bit gcd (different name from the library) */
 static inline uint64_t gcd64_uint64(uint64_t a, uint64_t b)
@@ -46,7 +49,7 @@ seq_t a(idx_t n)      /* idx_t is an unsigned 64‑bit type, seq_t is the value 
 
     while (cache_sz < n) {
         /* find the next prime */
-        while (!isPrime(cand))
+        while (!is_prime(cand))
             cand += 2;                      /* skip even numbers */
 
         uint64_t p = cand;                  /* current prime candidate */
@@ -60,14 +63,14 @@ seq_t a(idx_t n)      /* idx_t is an unsigned 64‑bit type, seq_t is the value 
         uint64_t e27 = (p - 1ULL) / g27;
 
         /* test the two power‑residue conditions */
-        seq_t pow9  = mod_pow((seq_t)2ULL, e9, (seq_t)p);
-        seq_t pow27 = mod_pow((seq_t)2ULL, e27, (seq_t)p);
+        seq_t pow9  = powmod((seq_t)2ULL, e9, (seq_t)p);
+        seq_t pow27 = powmod((seq_t)2ULL, e27, (seq_t)p);
 
         if (pow9 == (seq_t)1ULL && pow27 != (seq_t)1ULL) {
             /* store the prime in the cache */
             if (cache_sz == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 8;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_sz++] = (seq_t)p;
         }

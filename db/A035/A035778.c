@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^(2n) in ((1+x)/(1-x))^41
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 9, u128 n <= 34,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 29 terms through n = 9659 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
  * arbitrary-precision integers.  The sum uses only + and * (and subtraction)
  * so it works for all supported seq_t types.
  */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t i = 0; i <= max_i; ++i) {
         idx_t k = two_n - i;
-        seq_t t1 = binom(41, i);
-        seq_t t2 = binom(40 + k, k);
+        seq_t t1 = binomial(41, i);
+        seq_t t2 = binomial(40 + k, k);
         sum += t1 * t2;
     }
     return sum;

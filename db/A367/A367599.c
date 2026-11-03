@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,8 @@
      a(n) = 6 * 3^(2n-7)   for all n ≥ 4
    (3^k computed via pow3(k), seq_t is arbitrary-precision integer).
 */
-#include "../utils/pow3.h"   /* provides seq_t pow3(idx_t exp) */
+#include <stdint.h>
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {

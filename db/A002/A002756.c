@@ -12,14 +12,23 @@
  *            partition numbers, from Euler's pentagonal...
  * Range:     u8 n <= 2, u16 n <= 14, u32 n <= 58, u64 n <= 243,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_zero_arr
+ * Validated: standard, pass, 48 terms through n = 815 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_zero_arr.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero_arr(idx_t len)
+{
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    idx_t i;
+    for (i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *g_T = 0;
 static idx_t g_len = 0;
@@ -88,11 +97,11 @@ static void build(idx_t N)
     for (j = 0; j < 8; j++) g_t[j] = 0;
     gen_parts(7, 7);
 
-    if (g_T) free(g_T);
+    if (g_T) mem_free(g_T);
     g_T = g_acc;
     g_len = L;
-    free(g_P);
-    free(g_tmp);
+    mem_free(g_P);
+    mem_free(g_tmp);
     g_P = 0;
     g_tmp = 0;
     g_acc = 0;

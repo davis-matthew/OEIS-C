@@ -7,13 +7,15 @@
  * Formula:   a(1) = 1; a(n+1) = -∑_{d|n} a(n/d) * a(d)
  * Range:     i8 n <= 9, i16 n <= 17, i32 n <= 33, i64 n <= 65, i128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 2513 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute OEIS sequence A325303 */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (cap <= (size_t)n) {
         size_t newcap = (cap == 0) ? 2 : (cap << 1);
         if (newcap <= (size_t)n) newcap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();          /* out of memory */
         cache = tmp;
         cap   = newcap;

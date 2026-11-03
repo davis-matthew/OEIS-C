@@ -7,17 +7,19 @@
  * Keywords:  nonn
  * Formula:   a(n) = p^e where p is the smallest odd prime factor of n; a(n) =
  *            1 if n is a power of two
- * Range:     u8 n <= 256, u16 n <= 9874, u32 n <= 9874, u64 n <= 9874,
- *            u128 n <= 9874, big any n
- * Helpers:   _smallest_prime_factor, pow_uint
+ * Range:     u8 n <= 256, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 109 terms through n = 9874 (2026-11-01)
+ * Helpers:   ipow_u64_idx, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Find the smallest odd prime factor of the reduced number */
-    uint64_t p = _smallest_prime_factor(temp);
+    uint64_t p = smallest_prime_factor(temp);
 
     /* Compute the exponent of p in the original n */
     idx_t exp = 0;
@@ -47,5 +49,5 @@ seq_t a(idx_t n)
     }
 
     /* Return p^exp */
-    return pow_uint(p, exp);
+    return ipow_u64_idx(p, exp);
 }

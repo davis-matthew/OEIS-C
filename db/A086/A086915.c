@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 67, u64 n <= 173,
  *            u128 n <= 499, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 58 terms through n = 4790 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static seq_t term_T(idx_t r, idx_t k)
 {
@@ -37,7 +38,7 @@ static seq_t term_T(idx_t r, idx_t k)
         res *= (seq_t)i;
 
     /* multiply by binomial(r-1,k-1) */
-    res *= binom(r - 1, k - 1);
+    res *= binomial(r - 1, k - 1);
 
     return res;
 }

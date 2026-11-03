@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 192, u16 n <= 5150, u32 n <= 5150, u64 n <= 5150,
  *            u128 n <= 5150, big any n
- * Helpers:   build_primes_upto, mod_pow
+ * Validated: standard, pass, 107 terms through n = 5044 (2026-11-01)
+ * Helpers:   build_primes_upto, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,9 @@
 #include <stdlib.h>
 
 /* Helpers from utils */
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/powmod.h"
 
 static bool primes_initialized = false;
 static uint64_t *primes = NULL;
@@ -59,7 +61,7 @@ static seq_t binom_mod(idx_t m, idx_t k)
         idx_t p = (idx_t)primes[idx];
         idx_t e = exp_factorial(m, p) - exp_factorial(k, p) - exp_factorial(m - k, p);
         if (e == 0) continue;
-        seq_t pp = mod_pow((seq_t)p, (idx_t)e, mod);
+        seq_t pp = powmod((seq_t)p, (idx_t)e, mod);
         res = (res * pp) % mod;
     }
     return res;

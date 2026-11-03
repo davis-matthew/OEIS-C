@@ -7,13 +7,15 @@
  * Formula:   a(n) = 8 for n = 1; * if n is prime: * return n if n ≤ 7, * else
  *            8; * if n is even composite: return 2; * if n is odd composite:
  *            return the smallest prime factor of n
- * Range:     u8 n <= 9684, u16 n <= 9684, u32 n <= 9684, u64 n <= 9684,
- *            u128 n <= 9684, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9684 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

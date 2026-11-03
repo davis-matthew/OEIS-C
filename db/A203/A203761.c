@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 10, u32 n <= 12, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,19 @@
 #include <stdint.h>   /* uint64_t */
 
 /* helpers for dynamic seq_t arrays (present in the build) */
-#include "../utils/alloc_seq_array.h"   /* seq_t *alloc_seq_array(size_t)   */
-#include "../utils/free_seq_array.h"    /* void free_seq_array(seq_t*)      */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache      = NULL;   /* stores a(1)...a(cache_len)      */
 static size_t cache_cap  = 0;      /* allocated array capacity        */

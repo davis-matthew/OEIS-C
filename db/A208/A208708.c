@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Transition matrix: T[a][b] == 1 iff a 7‑bit pattern a can be followed
    by a 7‑bit pattern b respecting the local constraint. */
@@ -63,9 +65,9 @@ static void init_matrix(void)
 static void init_globals(void)
 {
     if (!a_cache) {
-        a_cache = (seq_t*)malloc((MAX_N + 1) * sizeof(seq_t));
-        prev_vec = (seq_t*)malloc(128 * sizeof(seq_t));
-        next_vec = (seq_t*)malloc(128 * sizeof(seq_t));
+        a_cache = mem_new(seq_t, (MAX_N + 1));
+        prev_vec = mem_new(seq_t, 128);
+        next_vec = mem_new(seq_t, 128);
         /* first row: first bit (column 0) must be 0, others free */
         for (int a = 0; a < 128; ++a)
             prev_vec[a] = (a & 1) ? 0 : 1;

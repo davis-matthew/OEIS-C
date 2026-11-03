@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 32 terms through n = 75 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* cache: a(n) values already computed */
 static seq_t *cache = NULL;
@@ -32,13 +35,13 @@ static void ensure_cache(idx_t n)
         return;
 
     idx_t new_cap = n + 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr)
         abort(); /* allocation failure */
 
     if (cache) {
-        memcpy(new_arr, cache, cache_cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_arr, cache, cache_cap * sizeof(seq_t));
+        mem_free(cache);
     }
 
     cache = new_arr;

@@ -9,15 +9,17 @@
  *            n, we may use an arbitrary number of parts of size d; the order
  *            of parts does not matter. The number of such partitions is
  *            computed by the classic coin‑change DP with coin...
- * Range:     u8 n <= 122, u16 n <= 1022, u32 n <= 9975, u64 n <= 9975,
- *            u128 n <= 9975, big any n
- * Helpers:   none
+ * Range:     u8 n <= 122, u16 n <= 1022, u32 n <= 10233, u64 n <= 15000,
+ *            u128 n <= 15000, big any n
+ * Validated: standard, pass, 114 terms through n = 9975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     }
 
     /* DP array: ways[i] = number of partitions of i */
-    seq_t *ways = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *ways = mem_new(seq_t, (n + 1));
     if (!ways) return 0;          /* allocation failed, return 0 as a fallback */
 
     ways[0] = (seq_t)1;
@@ -49,6 +51,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = ways[n];
-    free(ways);
+    mem_free(ways);
     return result;
 }

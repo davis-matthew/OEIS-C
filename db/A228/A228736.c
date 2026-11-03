@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 33, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 113 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* -----------------------------------------------------------------------
    Constants
@@ -221,8 +223,8 @@ static void build_automaton(void)
     /* ------------------------------------------------------------
        Allocate DP tables
        ------------------------------------------------------------ */
-    DP_Cur  = (seq_t *)malloc(StateCnt * sizeof(seq_t));
-    DP_Next = (seq_t *)malloc(StateCnt * sizeof(seq_t));
+    DP_Cur  = mem_new(seq_t, StateCnt);
+    DP_Next = mem_new(seq_t, StateCnt);
     for (size_t i = 0; i < StateCnt; ++i) DP_Cur[i] = 0;
     DP_Cur[0] = 1; /* empty word (length 0) transitions from start state */
 
@@ -230,7 +232,7 @@ static void build_automaton(void)
        Cache for initial values
        ------------------------------------------------------------ */
     CacheCap = 256;
-    Cache = (seq_t *)malloc(CacheCap * sizeof(seq_t));
+    Cache = mem_new(seq_t, CacheCap);
 }
 
 /* -----------------------------------------------------------------------
@@ -271,7 +273,7 @@ seq_t a(idx_t n)
         /* store in cache */
         if (CacheSize == CacheCap) {
             CacheCap *= 2;
-            Cache = (seq_t *)realloc(Cache, CacheCap * sizeof(seq_t));
+            Cache = mem_resize(seq_t, Cache, CacheCap);
         }
         Cache[CacheSize] = total;
         CacheSize++;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count_u64, ensure_capacity
+ * Validated: standard, pass, 75 terms through n = 942 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,42 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/divisor_count_u64.h"   /* returns divisor count for uint64_t */
-#include "../utils/ensure_capacity.h"    /* expands a dynamic array */
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 seq_t a(idx_t n)
 {
@@ -39,17 +74,17 @@ seq_t a(idx_t n)
         uint64_t m = next++;
 
         /* compute d(m) */
-        uint64_t d_m = divisor_count_u64(m);
+        uint64_t d_m = num_divisors(m);
 
         /* require m > d(m) so that m - d(m) > 0 (unsigned wrap avoided) */
         if (m > d_m)
         {
             uint64_t m_minus = m - d_m;
             /* test the defining property */
-            if (divisor_count_u64(m_minus) == d_m)
+            if (num_divisors(m_minus) == d_m)
             {
                 /* ensure space for another term */
-                ensure_capacity(sz + 1, &cap, (void **)&vals, sizeof(seq_t));
+                ensure_capacity(sz + 1, &cap, OEISC_VPP(&vals), sizeof(seq_t));
                 vals[sz++] = (seq_t)m;
             }
         }

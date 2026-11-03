@@ -8,12 +8,14 @@
  * Formula:   a(n) = A000045(n) * A004091(n)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 47, u128 n <= 92,
  *            big any n
- * Helpers:   reverse_decimal
+ * Validated: standard, pass, 47 terms through n = 980 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reverse_decimal.h"
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
 
 static seq_t fib_of(idx_t n)
 {
@@ -32,6 +34,6 @@ static seq_t fib_of(idx_t n)
 seq_t a(idx_t n)
 {
     seq_t f  = fib_of(n);
-    seq_t rf = reverse_decimal(f);
+    seq_t rf = reverse_digits(f);
     return f * rf;
 }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = Product_{d|n} gcd(tau(d), sigma(d))
  * Range:     u8 n <= 18, u16 n <= 59, u32 n <= 359, u64 n <= 839,
  *            u128 n <= 4619, big any n
+ * Validated: standard, pass, 87 terms through n = 9632 (2026-11-01)
  * Helpers:   build_primes_upto, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/gcd.h"
 

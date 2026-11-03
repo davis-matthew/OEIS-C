@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1)^2 - 2^n, with a(-1) = 0 (so a(0) = -1)
  * Range:     i8 n <= 4, i16 n <= 5, i32 n <= 7, i64 n <= 8, i128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the OEIS sequence A168319.
  *  seq_t: integer type of the build (possibly arbitrary‑precision).
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* initialise cache for the first term a(0) = -1 */
     if (cache_len == 0) {
-        cache = (seq_t *)realloc(cache, sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, 1);
         if (!cache) return (seq_t)0;        /* allocation failure fall‑back */
         cache[0]   = (seq_t)-1;             /* a(0) */
         cache_len  = 1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* extend cache up to index n */
     idx_t new_len = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) return (seq_t)0;              /* allocation failure fall‑back */
     cache = tmp;
 

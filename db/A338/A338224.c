@@ -12,6 +12,7 @@
  *            prime(rank(pᵉ)), where rank(pᵉ) is the position of pᵉ among a...
  * Range:     u8 n <= 94, u16 n <= 7919, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 80 terms through n = 9766 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

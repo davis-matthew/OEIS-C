@@ -10,13 +10,15 @@
  *            with a,b,c,d ≥ 1
  * Range:     u8 n <= 23, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* helper: floor sqrt for 64‑bit unsigned */
 static inline uint64_t isqrt_u64(uint64_t n)
@@ -89,9 +91,9 @@ seq_t a(idx_t n)
             /* build term list from intersection */
             size_t new_len = 0;
             /* free previous array if present */
-            if (terms) free(terms);
+            if (terms) mem_free(terms);
             /* estimate size: at most new_limit/2 terms (conservative) */
-            terms = (seq_t*)malloc(sizeof(seq_t) * (new_limit / 2 + 1));
+            terms = mem_new(seq_t, (new_limit / 2 + 1));
             if (!terms) {
                 free(rep1);
                 free(rep2);

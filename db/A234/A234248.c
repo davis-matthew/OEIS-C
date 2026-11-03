@@ -10,6 +10,7 @@
  *            number) with g(i)=0 for i≤0. Offset: 3 (a(3)=3)
  * Range:     u8 n <= 11, u16 n <= 49, u32 n <= 798, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 9147 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

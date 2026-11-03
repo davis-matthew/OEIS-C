@@ -11,12 +11,13 @@
  *            an alphabet of size n whose minimal run length equals exactly 9
  * Range:     u8 n <= 17, u16 n <= 28, u32 n <= 47, u64 n <= 80, u128 n <= 143,
  *            big any n
- * Helpers:   comb_idx
+ * Validated: standard, pass, 54 terms through n = 172 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/comb_idx.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n < 9) return 0;          /* below the sequence offset */
@@ -30,7 +31,7 @@ seq_t a(idx_t n) {
         for (idx_t r = 1; r <= max_r; ++r) {
             idx_t N = n - step * r + r - 1;
             idx_t K = r - 1;
-            seq_t bin = comb_idx(N, K);
+            seq_t bin = binomial(N, K);
             sum += pow * bin;
             pow *= (seq_t)(n - 1);
         }

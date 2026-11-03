@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h>   /* for size_t if needed */
+#include "../utils/mem.h"
 
 /*  static cache for the sequence values ; a(1) is stored at index 0 */
 static seq_t *seq_cache = NULL;    /* 1‑based indices -> 0‑based in array */
@@ -51,8 +53,7 @@ seq_t a(idx_t n)
     /* ensure the cache can hold a(n) (1‑based into 0‑based array) */
     if ((size_t)n > cache_size) {
         size_t old_sz = cache_size;
-        seq_t *new_cache = (seq_t *)realloc(seq_cache,
-                                            (size_t)n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, seq_cache, (size_t)n);
         if (!new_cache)                 /* allocation failed */
             abort();
         seq_cache = new_cache;

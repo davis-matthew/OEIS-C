@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor((5*n-4)/3)
  * Range:     u8 n <= 154, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(1)=0, a(2)=2, a(3)=3, a(4)=5, a(n)=a(n-1)+a(n-3)-a(n-4) for n>4 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (n == 4) return (seq_t)5;
 
     /* Allocate a minimal array to store computed values */
-    seq_t *arr = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (size_t)(n + 1));
     if (!arr) return (seq_t)0;  /* fallback for out‑of‑memory */
 
     /* Initialise the known values */
@@ -41,6 +43,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

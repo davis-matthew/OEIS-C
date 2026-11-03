@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 76, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_dn
+ * Validated: standard, pass, 55 terms through n = 9521 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compute_dn.h"
+#include "../utils/mem.h"
+
+/* ----------  compute d(m,n)  ---------- */
+static seq_t compute_dn(uint64_t m, uint64_t n)
+{
+    seq_t mm = (seq_t)m;
+    seq_t nn = (seq_t)n;
+    seq_t a  = (((seq_t)4 * mm * mm + (seq_t)1) * nn + mm);
+    seq_t d  = a * a + (seq_t)4 * mm * nn + (seq_t)1;
+    return d;
+}
 
 struct Node {
     seq_t val;      /* value d(m,n) */
@@ -46,10 +57,10 @@ static void push_node(struct Node node)
 {
     if (heap_cap == 0) {
         heap_cap = 64;
-        heap = (struct Node *)malloc(heap_cap * sizeof(struct Node));
+        heap = mem_new(struct Node, heap_cap);
     } else if (heap_size == heap_cap) {
         heap_cap <<= 1;
-        heap = (struct Node *)realloc(heap, heap_cap * sizeof(struct Node));
+        heap = mem_resize(struct Node, heap, heap_cap);
     }
 
     size_t i = heap_size++;
@@ -97,7 +108,7 @@ seq_t a(idx_t n)
     /* Initialise heap with m = 1 */
     if (heap == NULL) {
         heap_cap = 64;
-        heap = (struct Node *)malloc(heap_cap * sizeof(struct Node));
+        heap = mem_new(struct Node, heap_cap);
         seq_t val = compute_dn(1, 1);
         heap[0].val = val;
         heap[0].m   = 1;
@@ -117,10 +128,10 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap) {
                 if (cache_cap == 0) {
                     cache_cap = 64;
-                    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+                    cache = mem_new(seq_t, cache_cap);
                 } else {
                     cache_cap <<= 1;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
             }
             cache[cache_len++] = top.val;

@@ -12,12 +12,14 @@
  *            arithmetic only
  * Range:     u8 n <= 127, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 7999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const unsigned __int128 R_NUM = 1718281828459045235ULL; /* floor(r*1e18)   */
 static const unsigned __int128 R_DEN = 1000000000000000000ULL; /* 1e18            */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
 
@@ -56,14 +58,14 @@ seq_t a(idx_t n)
         if (cache_len == 0) {             /* row 0 */
             if (cache_len + 1 > cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[0] = (seq_t)1;
             cache_len = 1;
         } else if (cache_len == 1) {      /* row 1 */
             if (cache_len + 1 > cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[1] = (seq_t)2;
             cache_len = 2;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
             size_t needed = cache_len + row_len * 2;
             if (needed > cache_cap) {
                 cache_cap = (cache_cap > needed) ? cache_cap << 1 : needed << 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             for (size_t i = 0; i < row_len; ++i) {
                 seq_t x = cache[row_start + i];

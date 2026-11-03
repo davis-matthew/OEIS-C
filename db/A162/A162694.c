@@ -11,12 +11,14 @@
  *            (1‑indexed)
  * Range:     u8 none, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* sorted values  */
 static size_t cache_len = 0;    /* number of values in cache */
@@ -25,7 +27,7 @@ static void build_cache(void)
 {
     const idx_t K_MAX = 35;
     size_t count = 0;
-    seq_t *tmp = (seq_t *)malloc(K_MAX * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, K_MAX);
     if (!tmp) return;  /* allocation failure – return empty cache */
 
     for (idx_t k = 1; k < 36; ++k) {

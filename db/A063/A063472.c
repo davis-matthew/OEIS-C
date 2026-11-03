@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 30, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- 64‑bit deterministic Miller–Rabin primality test ---------- */
 static inline uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t mod)
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {      /* initialise on first call  */
         cap   = 128;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* generate primes until we have at least n of them     */
@@ -112,7 +114,7 @@ seq_t a(idx_t n)
         if (is_prime(cand)) {
             if (sz == cap) {                  /* grow cache  */
                 cap <<= 1;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[sz++] = (seq_t)cand;        /* store prime */
         }

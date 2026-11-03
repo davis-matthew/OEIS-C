@@ -7,17 +7,18 @@
  * Formula:   a(n) = n*(n-1)*(2^(n-3) - 1)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 25, u64 n <= 55, u128 n <= 117,
  *            big any n
- * Helpers:   a000272_ipow
+ * Validated: standard, pass, 44 terms through n = 900 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000272_ipow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n < 4) return 0;
     
     seq_t base = (seq_t)n * (seq_t)(n - 1);
-    seq_t power = a000272_ipow((seq_t)2, n - 3);
+    seq_t power = ipow_idx((seq_t)2, n - 3);
     return base * (power - 1);
 }

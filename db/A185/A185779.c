@@ -8,13 +8,15 @@
  * Formula:   a(n) = value of T(i,j) where (i,j) are the antidiagonal
  *            coordinates of the 1‑based index n. T(n,k) = C(n+k+4, n+2) -
  *            (k+3)*(k+4)/2 - (k+2)*n*(k*n+n+3*k+7)/4 (for n,k ≥ 1)
- * Range:     u8 n <= 4, u16 n <= 59, u32 n <= 448, u64 n <= 1275,
+ * Range:     u8 n <= 17, u16 n <= 96, u32 n <= 449, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 95 terms through n = 1188 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

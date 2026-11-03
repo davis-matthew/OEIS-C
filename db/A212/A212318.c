@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 74, u64 n <= 255, u128 n <= 806,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 878 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,6 +39,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const int period[16] = {
     2, 5, 2, -7,
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache for a(0) */
     if (cache == NULL) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache == NULL) return (seq_t)0;
         cache[0] = (seq_t)1;
         cache_sz = 1;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         size_t new_sz = (size_t)n + 1;
 
         /* Reallocate cache */
-        seq_t *new_cache = (seq_t*)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_sz);
         if (new_cache == NULL) return (seq_t)0;
         cache = new_cache;
 

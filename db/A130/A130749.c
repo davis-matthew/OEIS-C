@@ -10,7 +10,8 @@
  *            N(i,k) = binom(i,k) * binom(i,k-1) / i (Narayana numbers)
  * Range:     u8 n <= 23, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom_direct
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 /* Note: indices start at 0, and the triangle is flattened row‑by‑row. */
 
 #include <stdint.h>
-#include "../utils/binom_direct.h"
+#include "../utils/binomial.h"
 
 /* Return the a(n) value for the A130749 sequence. */
 seq_t a(idx_t n)
@@ -44,9 +45,9 @@ seq_t a(idx_t n)
     /* Compute T(r,c) = sum_{i=c}^{r} binom(r,i) * N(i,c). */
     seq_t sum = (seq_t)0;
     for (idx_t i = c; i <= r; ++i) {
-        seq_t bin_nr_i = binom_direct(r, i);
-        seq_t bin_ic   = binom_direct(i, c);
-        seq_t bin_ic1  = binom_direct(i, c - (idx_t)1);
+        seq_t bin_nr_i = binomial(r, i);
+        seq_t bin_ic   = binomial(i, c);
+        seq_t bin_ic1  = binomial(i, c - (idx_t)1);
         seq_t prod     = bin_ic * bin_ic1;
         seq_t N_ic     = prod / (seq_t)i;      /* exact division */
         sum += bin_nr_i * N_ic;

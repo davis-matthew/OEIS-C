@@ -9,14 +9,18 @@
  *            1, where sfn(n) is the n‑th squarefree number
  * Range:     u8 n <= 157, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, is_squarefree
+ * Validated: standard, pass, 85 terms through n = 944 (2026-11-03)
+ * Helpers:   gcd, is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/is_squarefree.h"
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 /* cache of squarefree numbers */
 static seq_t *sfn_cache  = NULL;
@@ -34,7 +38,7 @@ static void _ensure_sfn(idx_t target)
     if (need > sfn_cap) {
         size_t new_cap = sfn_cap ? sfn_cap * 2 : 128;
         if (new_cap < need) new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(sfn_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, sfn_cache, new_cap);
         sfn_cache = tmp;
         sfn_cap   = new_cap;
     }

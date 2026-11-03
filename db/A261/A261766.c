@@ -8,7 +8,8 @@
  * Formula:   a(n) = (n-1)! + n! for n>=2, a(0)=1, a(1)=0
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    and the n‑length chains. There are (n-1)! cycles and n! chains.
    For n=1 no such orbits exist, and a(0)=1 is given. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of factorials up to the maximum n seen so far   */
 static seq_t *fact_cache = NULL;   /* fact_cache[i] = i!          */
@@ -29,11 +31,20 @@ static void ensure_factorial_cache(idx_t n)
 {
     if (fact_cache == NULL) {
         /* allocate initial cache for 0! */
-        fact_cache = (seq_t *)malloc(sizeof(seq_t));
+        fact_cache = mem_new(seq_t, 1);
         fact_size = 1;
         fact_cache[0] = (seq_t)1;  /* 0! = 1 */
     }
-    /* extend the cache if necessary */
+    /* extend the cache if necessary (it never grew past one entry) */
+    static size_t fact_cap = 1;
+    if ((size_t)n + 1 > fact_cap) {
+        size_t c = fact_cap;
+        while (c < (size_t)n + 1) c *= 2;
+        seq_t *t = mem_resize(seq_t, fact_cache, c);
+        if (!t) abort();
+        fact_cache = t;
+        fact_cap = c;
+    }
     while (fact_size <= (size_t)n) {
         /* next factorial */
         fact_cache[fact_size] = fact_cache[fact_size - 1] * ((seq_t)fact_size);

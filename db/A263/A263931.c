@@ -7,11 +7,15 @@
  * Formula:   a(n) = binomial(2*n, n) / Product_{p prime, n < p <= 2*n} p
  * Range:     u8 n <= 12, u16 n <= 19, u32 n <= 46, u64 n <= 103,
  *            u128 n <= 197, big any n
+ * Validated: standard, pass, 57 terms through n = 5086 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include <stdlib.h>
 

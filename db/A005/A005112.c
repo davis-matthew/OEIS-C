@@ -7,8 +7,9 @@
  * Formula:   sieve search. Class 1-: p-1 has no prime factor > 3 (2 and 3 are
  *            class 1-). Otherwise class(p) = 1 + max class(q) over primes q >
  *            3 dividing p-1. a(n) = n-th prime of class 4-
- * Range:     u8 n <= 4, u16 n <= 2075, u32 n <= 9233, u64 n <= 9233,
- *            u128 n <= 9233, big any n
+ * Range:     u8 n <= 4, u16 n <= 2075, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 63 terms through n = 9233 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,11 @@
 /* Sequence A321105: for n>0, a(n) is the unique k≡11 (mod 13) with k³≡5 (mod 13ⁿ);
    a(0)=0.  Hensel lifting is used to compute successive approximations. */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +36,7 @@ seq_t a(idx_t n)
         seq_t m_next = m * (seq_t)13;
 
         /* k³ modulo 13ⁱ⁺¹ */
-        seq_t k3 = mod_pow(k, (idx_t)3, m_next);
+        seq_t k3 = powmod(k, (idx_t)3, m_next);
 
         /* (k³ – 5) modulo m_next, guaranteed to be < m_next */
         seq_t diff = k3 + m_next - (seq_t)5;

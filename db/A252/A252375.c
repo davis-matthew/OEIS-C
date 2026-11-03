@@ -11,22 +11,24 @@
  *            prime factors of n, respectively
  * Range:     u8 n <= 513, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, gpf
+ * Validated: standard, pass, 109 terms through n = 9770 (2026-11-01)
+ * Helpers:   largest_prime_factor, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/gpf.h"
+#include <stddef.h>
+#include "../utils/largest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
     if (n == 1) return (seq_t)2;
 
     uint64_t nn = (uint64_t)n;
-    seq_t spf = (seq_t)_smallest_prime_factor(nn);
-    seq_t gpf_val = (seq_t)gpf(nn);
+    seq_t spf = (seq_t)smallest_prime_factor(nn);
+    seq_t gpf_val = (seq_t)largest_prime_factor(nn);
 
     for (seq_t r = 2; ; ++r) {
         seq_t power = 1;

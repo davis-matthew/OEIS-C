@@ -7,8 +7,9 @@
  * Formula:   a(n) = # of odd unitary divisors d of n with sqrt(n) < d <
  *            sqrt(2n) (which equals the number of primitive Pythagorean
  *            triangles with perimeter 2n)
- * Range:     u8 n <= 9705, u16 n <= 9705, u32 n <= 9705, u64 n <= 9705,
- *            u128 n <= 9705, big any n
+ * Range:     u8 n <= 158730, u16 n <= 158730, u32 n <= 158730,
+ *            u64 n <= 158730, u128 n <= 158730, big any n
+ * Validated: standard, pass, 121 terms through n = 9705 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

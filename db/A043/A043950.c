@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   has34_oct
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
    value is found.  The helper function detects either "34" or "43" as
    consecutive digits in octal. */
 #include <stdbool.h>
-#include "../utils/has34_oct.h"
+
+/* Return true if x contains the pattern 3 and 4 adjacent in either
+   order in base‑8. */
+static bool has34_oct(seq_t x)
+{
+    int prev = -1;                     /* digit processed most recently   */
+    while (x != (seq_t)0) {
+        int cur = (int)(x % (seq_t)8);  /* least‑significant base‑8 digit */
+        if ((cur == 3 && prev == 4) || (cur == 4 && prev == 3))
+            return true;
+        prev = cur;
+        x = x / (seq_t)8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

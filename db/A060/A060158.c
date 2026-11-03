@@ -7,14 +7,28 @@
  * Formula:   a(n) = 2*n - 7 + (6-n)*2^(n-1) - 3^n + 4^(n-1)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   pow2, pow3, pow4
+ * Validated: standard, pass, 43 terms through n = 184 (2026-11-01)
+ * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
-#include "../utils/pow4.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 /* Computes the n-th term of OEIS sequence A060158.
  * a(0) = 0, a(1) = 0, a(2) = 0, a(3) = 0, a(4) = 0

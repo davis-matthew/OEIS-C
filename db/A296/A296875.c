@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_more_peaks
+ * Validated: standard, pass, 72 terms through n = 9859 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,33 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has_more_peaks.h"
+
+static bool has_more_peaks(seq_t x)
+{
+    /* Count peaks and pits in the base‑7 representation of x.
+       Returns true if pits < peaks. */
+    if (x < (seq_t)49)  /* fewer than 3 digits → no interior indexes */
+        return false;
+
+    uint8_t digits[128];   /* enough for any reasonably sized x */
+    size_t dlen = 0;
+    seq_t t = x;
+    while (t > 0) {
+        digits[dlen++] = (uint8_t)(t % 7);
+        t /= 7;
+    }
+    if (dlen <= 2) return false;
+
+    int peaks = 0, pits = 0;
+    for (size_t i = 1; i + 1 < dlen; ++i) {
+        uint8_t left  = digits[i - 1];
+        uint8_t cur   = digits[i];
+        uint8_t right = digits[i + 1];
+        if (left < cur && cur > right) peaks++;
+        else if (left > cur && cur < right) pits++;
+    }
+    return pits < peaks;
+}
 
 /* Maintain a small cache of the first ~20000 terms.
    Since n ≤ 10000 in the tests this is sufficient. */

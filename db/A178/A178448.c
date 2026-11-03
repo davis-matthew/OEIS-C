@@ -9,15 +9,18 @@
  *            e>=3 (a(n) = product over prime powers in n of a(p^e))
  * Range:     i8 n <= 2, i16 n <= 9, i32 n <= 73, i64 n <= 6169,
  *            i128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_int
+ * Validated: standard, pass, 51 terms through n = 9785 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     /* Handle the offset; a(1) = 1 */
@@ -52,7 +55,7 @@ seq_t a(idx_t n) {
         uint64_t p = primes[i];
         uint64_t e = exps[i];
         if (e >= 3) return 0;
-        seq_t p5 = pow_int((seq_t)p, 5);            /* p^5 */
+        seq_t p5 = ipow_idx((seq_t)p, 5);            /* p^5 */
         seq_t factor = (e == 1) ? -(1 + p5) : p5;
         acc *= factor;
     }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k=1}^{20} (1 - x^{2k})/(1 - x)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 16, u64 n <= 85, u128 n <= 400,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 401 terms through n = 400 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *coeff_cache = NULL;          /* size 401 */
 static bool coeff_init = false;
@@ -27,14 +29,14 @@ static const idx_t MAX_N = 400;
 static void init_coefficients(void) {
     if (coeff_init) return;
     coeff_init = true;
-    coeff_cache = (seq_t *)calloc(MAX_N + 1, sizeof(seq_t));
+    coeff_cache = mem_new(seq_t, MAX_N + 1);
     if (!coeff_cache) return; /* allocation failed – fallback to zero */
     coeff_cache[0] = 1;        /* start with polynomial 1 */
     /* Convolve sequentially with 1 + x + … + x^{2k-1} for k = 1..20 */
     for (idx_t k = 1; k <= 20; ++k) {
-        seq_t *next = (seq_t *)calloc(MAX_N + 1, sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, MAX_N + 1);
         if (!next) { /* allocation failed – keep current coefficients */
-            free(coeff_cache);
+            mem_free(coeff_cache);
             coeff_cache = NULL;
             coeff_init = false;
             return;
@@ -47,7 +49,7 @@ static void init_coefficients(void) {
             }
             next[j] = sum;
         }
-        free(coeff_cache);
+        mem_free(coeff_cache);
         coeff_cache = next;
     }
 }

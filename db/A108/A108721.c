@@ -12,7 +12,8 @@
  *            = 111
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 25, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (n > seq_cap) {
         size_t newcap = seq_cap ? seq_cap * 2 : 16;
         if (newcap < (size_t)n) newcap = n;
-        seq_t *newarr = (seq_t *)realloc(seq_arr, newcap * sizeof(seq_t));
+        seq_t *newarr = mem_resize(seq_t, seq_arr, newcap);
         seq_arr = newarr;
         seq_cap = newcap;
     }
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         while (tmp != 0) {
             if (len == rev_cap) {
                 size_t newcap = rev_cap ? rev_cap * 2 : 16;
-                rev = (seq_t *)realloc(rev, newcap * sizeof(seq_t));
+                rev = mem_resize(seq_t, rev, newcap);
                 rev_cap = newcap;
             }
             rev[len++] = tmp % 10;
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
 
         /* 2. Build an array of digits in most‑significant‑first order. */
         if (len > ms_cap) {
-            ms = (seq_t *)realloc(ms, len * sizeof(seq_t));
+            ms = mem_resize(seq_t, ms, len);
             ms_cap = len;
         }
         for (size_t j = 0; j < len; ++j)
@@ -83,8 +85,8 @@ seq_t a(idx_t n)
 
         /* 3. Ensure prefix and suffix buffers are large enough. */
         if (len > pref_cap) {
-            prefix_arr = (seq_t *)realloc(prefix_arr, len * sizeof(seq_t));
-            suffix_arr = (seq_t *)realloc(suffix_arr, len * sizeof(seq_t));
+            prefix_arr = mem_resize(seq_t, prefix_arr, len);
+            suffix_arr = mem_resize(seq_t, suffix_arr, len);
             pref_cap = len;
         }
 

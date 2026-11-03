@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Compare two seq_t values for qsort. Works for all supported seq_t types. */
@@ -103,7 +105,7 @@ static void build_sequence(void)
     /* 2. Enumerate n, compute its arithmetic derivative, collect
        semiprime derivatives that fit into seq_t. */
     size_t capacity = 100000;
-    seq_t *vals = (seq_t *)malloc(capacity * sizeof(seq_t));
+    seq_t *vals = mem_new(seq_t, capacity);
     size_t val_cnt = 0;
 
     seq_t max_val = (seq_t)~0;          /* maximum value that seq_t can hold */
@@ -128,14 +130,14 @@ static void build_sequence(void)
         if (is_semiprime(val, primes, primes_cnt)) {
             if (val_cnt == capacity) {
                 capacity <<= 1;
-                vals = (seq_t *)realloc(vals, capacity * sizeof(seq_t));
+                vals = mem_resize(seq_t, vals, capacity);
             }
             vals[val_cnt++] = val;
         }
     }
 
     /* 3. Sort and deduplicate the collected values. */
-    qsort(vals, val_cnt, sizeof(seq_t), seq_compare);
+    mem_qsort(vals, val_cnt, sizeof(seq_t), seq_compare);
 
     size_t uniq = 0;
     for (size_t i = 0; i < val_cnt; ++i) {
@@ -144,7 +146,7 @@ static void build_sequence(void)
         }
     }
 
-    seq = (seq_t *)realloc(vals, uniq * sizeof(seq_t));
+    seq = mem_resize(seq_t, vals, uniq);
     seq_len = (idx_t)uniq;
 
     /* Clean up temporary arrays. */

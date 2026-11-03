@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, fini, full
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
+ * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   calc_phi, sigma_of
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,23 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sigma_of.h"
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static seq_t *terms = NULL;     /* array of found terms */
 static size_t terms_len = 0;    /* number of terms stored */
@@ -39,19 +55,19 @@ static void init_terms(void)
 
     terms_len = 0;
     size_t cap = 8;                  /* initial capacity */
-    terms = (seq_t *)malloc(cap * sizeof(seq_t));
+    terms = mem_new(seq_t, cap);
     if (terms == NULL) return;       /* allocation failed; leave empty */    
 
     for (idx_t k = 2; k <= LIMIT; ++k) {
         seq_t sigma_k = sigma_of(k);
-        seq_t phi_k   = calc_phi(k);
+        seq_t phi_k   = totient_seq(k);
 
         /* phi_k * phi_k fits in seq_t for k <= LIMIT */
         if (sigma_k > phi_k * phi_k) {
             if (terms_len >= cap) {
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(terms, cap * sizeof(seq_t));
-                if (tmp == NULL) { free(terms); terms = NULL; return; }
+                seq_t *tmp = mem_resize(seq_t, terms, cap);
+                if (tmp == NULL) { mem_free(terms); terms = NULL; return; }
                 terms = tmp;
             }
             terms[terms_len++] = (seq_t)k;

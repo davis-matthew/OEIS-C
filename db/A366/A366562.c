@@ -9,13 +9,50 @@
  *            factors of n. For even n the value is 0
  * Range:     i8 n <= 74, i16 n <= 74, i32 n <= 74, i64 n <= 74, i128 n <= 74,
  *            big any n
- * Helpers:   phi_and_omega
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi_and_omega.h"
+
+/* Return the totient of n and the number of distinct prime factors.
+   The function is written to work with any seq_t that supports
+   normal arithmetic and signed values. */
+static void phi_and_omega(idx_t n, seq_t *phi_out, int *omega_out)
+{
+    idx_t tmp = n;
+    seq_t phi = n;
+    int omega = 0;
+
+    /* handle factor 2 */
+    if ((tmp & 1ULL) == 0) {
+        omega++;
+        phi -= phi / 2;
+        while ((tmp & 1ULL) == 0)
+            tmp >>= 1;
+    }
+
+    /* odd factors up to sqrt(tmp) */
+    for (idx_t p = 3; p * p <= tmp; p += 2) {
+        if (tmp % p == 0) {
+            omega++;
+            phi -= phi / p;
+            while (tmp % p == 0)
+                tmp /= p;
+        }
+    }
+
+    /* remaining prime factor > sqrt(tmp) */
+    if (tmp > 1) {
+        omega++;
+        phi -= phi / tmp;
+    }
+
+    *phi_out   = phi;
+    *omega_out = omega;
+}
 
 seq_t a(idx_t n)
 {

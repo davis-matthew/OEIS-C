@@ -10,14 +10,38 @@
  *            ((a(n)/p)+1)*p where p = largest_prime_divisor(a(n))
  * Range:     u8 n <= 30, u16 n <= 510, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   largest_prime_divisor
+ * Validated: standard, pass, 73 terms through n = 9689 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/largest_prime_divisor.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Return the largest prime divisor of m (m >= 2). */
+static uint64_t largest_prime_divisor(uint64_t m)
+{
+    uint64_t largest = 0;
+    /* factor 2 */
+    while ((m & 1ULL) == 0) {
+        largest = 2;
+        m >>= 1;
+    }
+    /* odd factors */
+    for (uint64_t f = 3; f <= m / f; f += 2) {
+        if (m % f == 0) {
+            largest = f;
+            while (m % f == 0)
+                m /= f;
+        }
+    }
+    if (m > 1)            /* remaining m is prime */
+        largest = m;
+    return largest;
+}
 
 /* Compute a(n).  The function memoises values so
  * that any order of calls up to a certain maximum works
@@ -34,10 +58,10 @@ seq_t a(idx_t n)
 
     /* Allocate or grow cache to hold up to n entries */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * n);
+        cache = mem_new(seq_t, n);
         if (cache == NULL) exit(1);
     } else if (n > max_cached) {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * n);
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (tmp == NULL) exit(1);
         cache = tmp;
     }

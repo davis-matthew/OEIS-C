@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 37 terms through n = 198 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static uint64_t *prime_list = NULL;   /* array of primes up to current limit */
 static size_t   prime_cnt   = 0;       /* number of primes */
@@ -97,7 +98,7 @@ static seq_t compute_term(idx_t n) {
 
         idx_t exp = e1 > e2 ? e1 - e2 : 0;
         if (exp > 0) {
-            seq_t pow_val = big_pow((seq_t)p, (seq_t)exp);
+            seq_t pow_val = ipow((seq_t)p, (seq_t)exp);
             result *= pow_val;
         }
     }
@@ -118,7 +119,7 @@ static seq_t compute_term(idx_t n) {
 
         idx_t exp = e1 > e2 ? e1 - e2 : 0;
         if (exp > 0) {
-            seq_t pow_val = big_pow((seq_t)p, (seq_t)exp);
+            seq_t pow_val = ipow((seq_t)p, (seq_t)exp);
             result *= pow_val;
         }
     }

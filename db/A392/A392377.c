@@ -10,7 +10,8 @@
  * Formula:   a(n) = odd k such that v2(k^2-1) ≤ max{v2(p-1) | p | k}
  * Range:     u8 n <= 9, u16 n <= 6020, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 69 terms through n = 9498 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* for factor_u64 */
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Compute the exponent of 2 in the factorization of x (x > 0). */
 static int v2_uint64(uint64_t x)
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
                 /* Extend the cache array if necessary. */
                 if (cache_len >= cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) abort();      /* allocation failed */
                     cache = tmp;
                     cache_cap = new_cap;

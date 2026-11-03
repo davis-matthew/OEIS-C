@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 634, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factorial_base_digit_sum
+ * Validated: standard, pass, 116 terms through n = 9580 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
    of x.  a(n)=0 iff n is a factorial number. */
 
 #include <stdbool.h>
-#include "../utils/factorial_base_digit_sum.h"
+
+static inline seq_t factorial_base_digit_sum(seq_t x)
+{
+    seq_t sum = 0;
+    idx_t  i   = 1;
+    while (x > 0) {
+        seq_t mod = x % (seq_t)(i + 1);
+        sum += mod;
+        x = x / (seq_t)(i + 1);
+        ++i;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

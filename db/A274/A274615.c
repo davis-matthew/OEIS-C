@@ -9,6 +9,7 @@
  *            {-1,4,5,2,0,8,3,6,7,12,13,10,11,9,17,14}
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

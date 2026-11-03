@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   add_digit_counts, grow_seq_array, pow10
+ * Validated: standard, pass, 37 terms through n = 758 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,39 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/grow_seq_array.h"
-#include "../utils/pow10.h"
-#include "../utils/add_digit_counts.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+static void add_digit_counts(seq_t val, seq_t freq[10])
+{
+    while (val > 0) {
+        uint8_t d = (uint8_t)(val % 10);
+        ++freq[d];
+        val /= 10;
+    }
+}
 
 static void append_count_digit(seq_t *res, seq_t count, uint8_t digit)
 {

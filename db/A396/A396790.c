@@ -9,8 +9,9 @@
  * Formula:   a(n) = least hypotenuse z of a primitive Pythagorean triple
  *            whose legs are multiples of prime(n) and prime(k), read row-wise
  *            from the triangle T(n,k). See OEIS A396790
- * Range:     u8 n <= 28, u16 n <= 1540, u32 n <= 9719, u64 n <= 9719,
- *            u128 n <= 9719, big any n
+ * Range:     u8 n <= 28, u16 n <= 1540, u32 n <= 10012, u64 n <= 10012,
+ *            u128 n <= 10012, big any n
+ * Validated: standard, pass, 71 terms through n = 9719 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

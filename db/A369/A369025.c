@@ -11,14 +11,16 @@
  *            corresponding row r and column c, then evaluates the closed form
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* Integer sqrt for unsigned 128‑bit values, result fits in uint64_t. */
 static inline idx_t isqrt_u128(unsigned __int128 v)
@@ -50,10 +52,10 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Compute the terms of the formula */
-    seq_t bin = binom(r, c - 1);                           /* binomial(r, c-1) */
+    seq_t bin = binomial(r, c - 1);                           /* binomial(r, c-1) */
     seq_t pow1 = (c == 1) ? (seq_t)1 :
-                 big_pow((seq_t)(c - 1), (seq_t)(c - 1)); /* (k-1)^(k-1) */
-    seq_t pow2 = big_pow((seq_t)(r - c + 1), (seq_t)(r - c)); /* (n-k+1)^(n-k) */
+                 ipow((seq_t)(c - 1), (seq_t)(c - 1)); /* (k-1)^(k-1) */
+    seq_t pow2 = ipow((seq_t)(r - c + 1), (seq_t)(r - c)); /* (n-k+1)^(n-k) */
 
     seq_t result = bin * pow1 * (seq_t)c * pow2 / (seq_t)2;
     return result;

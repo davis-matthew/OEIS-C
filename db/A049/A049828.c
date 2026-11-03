@@ -10,15 +10,29 @@
  *            (r-1)*r/2 < n ≤ r*(r+1)/2 and k = n - (r-1)*r/2 T(r,k) is the
  *            sum of the remainders produced by the Euclidean algorithm
  *            applied to the pair (r, k)
- * Range:     u8 n <= 8859, u16 n <= 8859, u32 n <= 8859, u64 n <= 8859,
- *            u128 n <= 8859, big any n
- * Helpers:   sum_remainders
+ * Range:     u8 n <= 10011, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 107 terms through n = 8859 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sum_remainders.h"
+
+static seq_t sum_remainders(idx_t n, idx_t k)
+{
+    seq_t sum = 0;
+    seq_t a = n;
+    seq_t b = k;
+    while (b) {
+        seq_t r = a % b;
+        sum += r;
+        a = b;
+        b = r;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

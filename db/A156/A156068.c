@@ -13,7 +13,8 @@
  *            digit‑disjointness constraint
  * Range:     u8 n <= 16, u16 n <= 24, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Build a 10‑digit bitmask for a number. */
 static uint16_t digit_mask(seq_t x)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if (seq_arr == NULL) {
         seq_cap = (size_t)n + 1;
         if (seq_cap < 6) seq_cap = 6; /* must hold indices 1..5 */
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         if (seq_arr == NULL) return (seq_t)0; /* safety, unlikely to happen */
         seq_arr[1] = (seq_t)1;
         seq_arr[2] = (seq_t)2;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     /* Increase capacity if required */
     if ((size_t)n + 1 > seq_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
         if (tmp != NULL) {
             seq_arr = tmp;
             seq_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 1165, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 8621 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    there is no divisor d with 8 <= d <= floor(sqrt(k)).  a(n) (n>=1) is the
    n-th such k. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         if (ok) {
             if (len == cap) {
                 size_t new_cap = cap ? cap * 2 : 16;
-                seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, new_cap);
                 cap = new_cap;
             }
             seq[len++] = k;

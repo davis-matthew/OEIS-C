@@ -15,12 +15,14 @@
  *            processing n is returned as a(n). The stack and previousl...
  * Range:     u8 n <= 295, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 7563 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *stack = NULL;        /* dynamic stack of values */
 static size_t stack_cap = 0;       /* capacity of stack */
@@ -34,7 +36,7 @@ static idx_t seq_len = 0;          /* number of values already computed */
 static void push_stack(seq_t val) {
     if (stack_size == stack_cap) {
         size_t new_cap = stack_cap ? stack_cap * 2 : 4;
-        seq_t *tmp = (seq_t *)realloc(stack, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, stack, new_cap);
         if (!tmp) abort();
         stack = tmp;
         stack_cap = new_cap;
@@ -78,7 +80,7 @@ seq_t a(idx_t n) {
             seq_t top = stack[stack_size - 1];
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
                 if (!tmp) abort();
                 seq_vals = tmp;
                 seq_cap = new_cap;

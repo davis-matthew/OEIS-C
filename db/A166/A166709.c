@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 381, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   first_n_primes
+ * Validated: standard, pass, 71 terms through n = 992 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,36 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/first_n_primes.h"
+
+/* ------------------------------------------------------------------ */
+static idx_t *first_n_primes(idx_t n)
+{
+    /* Rough upper bound for the n‑th prime (valid for n ≤ 10000). */
+    idx_t limit = (n < 6) ? 15 : (n * 20 + 100);
+
+    /* Simple sieve of Eratosthenes */
+    uint8_t *sieve = (uint8_t *)malloc((size_t)(limit + 1));
+    if (!sieve) return NULL;
+    for (idx_t i = 0; i <= limit; ++i) sieve[i] = 1;
+    sieve[0] = sieve[1] = 0;
+    for (idx_t p = 2; (idx_t)(p * p) <= limit; ++p)
+        if (sieve[p])
+            for (idx_t m = p * p; m <= limit; m += p) sieve[m] = 0;
+
+    /* Collect primes */
+    idx_t *pr = (idx_t *)malloc((size_t)n * sizeof(idx_t));
+    if (!pr) { free(sieve); return NULL; }
+    idx_t count = 0;
+    for (idx_t i = 2; i <= limit && count < n; ++i)
+        if (sieve[i]) pr[count++] = i;
+
+    free(sieve);
+    if (count < n) {
+        free(pr);
+        return NULL;  /* shouldn't happen for the chosen limit */
+    }
+    return pr;
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper: generate the first n primes, returning a newly allocated   */

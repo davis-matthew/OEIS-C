@@ -8,7 +8,8 @@
  *            or 0 if none exists
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 1000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 8414 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed powers of 10 up to 10^6. */
 static const idx_t POW10[7] = {1ULL, 10ULL, 100ULL, 1000ULL, 10000ULL, 100000ULL, 1000000ULL};
@@ -46,7 +48,7 @@ static void build_min_cube(int m)
     idx_t mod = POW10[m];
     size_t sz = (size_t)mod;
 
-    seq_t *arr = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, sz);
     if (!arr) return;                      /* allocation failure – unlikely */
     for (size_t i = 0; i < sz; ++i) arr[i] = 0;
 

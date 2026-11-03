@@ -13,14 +13,60 @@
  *            factors n, counts coprime numbers up to a va...
  * Range:     u8 n <= 59, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_coprime_upto, factor_distinct_primes
+ * Validated: standard, pass, 79 terms through n = 9871 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_coprime_upto.h"
-#include "../utils/factor_distinct_primes.h"
+
+/* Count coprime integers m (1 ≤ m ≤ t) with respect to n, given the
+   distinct prime factors of n in array 'pr' of length 'cnt'. */
+static uint64_t count_coprime_upto(uint64_t t,
+                                   const uint64_t *pr,
+                                   int cnt)
+{
+    if (t == 0) return 0;
+    uint64_t not_coprime = 0;
+    int subsets = 1 << cnt;
+    for (int mask = 1; mask < subsets; ++mask) {
+        uint64_t prod = 1;
+        int bits = 0;
+        for (int i = 0; i < cnt; ++i) {
+            if (mask & (1 << i)) {
+                prod *= pr[i];
+                ++bits;
+                if (prod > t) break;
+            }
+        }
+        if (prod > t) continue;
+        uint64_t term = t / prod;
+        if (bits & 1) not_coprime += term;
+        else          not_coprime -= term;
+    }
+    return t - not_coprime;
+}
+
+/* Factor n into its distinct prime factors (max 6 for n ≤ 10000).
+   The function returns the number of distinct primes, and stores
+   them in the array 'pr'. */
+static int factor_distinct_primes(uint64_t n, uint64_t *pr)
+{
+    int cnt = 0;
+    if (n % 2 == 0) {
+        pr[cnt++] = 2;
+        while (n % 2 == 0) n /= 2;
+    }
+    for (uint64_t p = 3; p * p <= n; p += 2) {
+        if (n % p == 0) {
+            pr[cnt++] = p;
+            while (n % p == 0) n /= p;
+        }
+    }
+    if (n > 1) pr[cnt++] = n;
+    return cnt;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

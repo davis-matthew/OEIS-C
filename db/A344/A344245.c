@@ -7,7 +7,8 @@
  * Formula:   a(n) = #partitions of n into 5 semiprime parts (unordered)
  * Range:     u8 n <= 99, u16 n <= 460, u32 n <= 9160, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9641 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Assume seq_t and idx_t are provided by the build environment. */
 static seq_t *cache = NULL;      /* stores a(i) for i<=max_n */
@@ -72,7 +74,7 @@ static void recompute(idx_t new_n) {
 
     /* DP for partitions into exactly 5 parts */
     size_t stride = new_n + 1;
-    seq_t *dp = (seq_t*)calloc(6 * stride, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, 6 * stride);
     if (!dp) exit(1);
     dp[0 * stride + 0] = (seq_t)1;  /* 1 way to make 0 with 0 parts */
 
@@ -89,9 +91,9 @@ static void recompute(idx_t new_n) {
 
     /* extend cache */
     if (cache_len <= new_n) {
-        seq_t *new_cache = (seq_t*)realloc(cache, (new_n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (new_n + 1));
         if (!new_cache) exit(1);
-        memset(new_cache + cache_len, 0, (new_n + 1 - cache_len) * sizeof(seq_t));
+        mem_set(new_cache + cache_len, 0, (new_n + 1 - cache_len) * sizeof(seq_t));
         cache = new_cache;
         cache_len = new_n + 1;
     }
@@ -102,7 +104,7 @@ static void recompute(idx_t new_n) {
 
     /* cleanup */
     free(sems);
-    free(dp);
+    mem_free(dp);
 
     max_n = new_n;
 }

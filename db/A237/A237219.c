@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 9, u64 n <= 21, u128 n <= 44,
  *            big any n
- * Helpers:   compute_E
+ * Validated: standard, pass, 34 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,30 @@
  */
 
 #include <stdint.h>   /* for uint16_t */
-#include "../utils/compute_E.h"
+
+/* --------------------------------------------------------------------- */
+static unsigned char compute_E(uint8_t r1, uint8_t r2)
+{
+    /* decode individual digits (little‑endian: low two bits are first column) */
+    int a = r1 & 3;         /* row 1, column 1 */
+    int b = (r1 >> 2) & 3;  /* row 1, column 2 */
+    int c = r2 & 3;         /* row 2, column 1 */
+    int d = (r2 >> 2) & 3;  /* row 2, column 2 */
+
+    int v[4] = {a, b, c, d};
+
+    /* sort v in ascending order – 4 values, simple bubble sort */
+    for (int p = 0; p < 4; ++p)
+        for (int q = p + 1; q < 4; ++q)
+            if (v[p] > v[q]) {
+                int t = v[p];
+                v[p] = v[q];
+                v[q] = t;
+            }
+
+    /* v[3] = max, v[1] = lower median, v[2] = upper median */
+    return (unsigned char)(v[3] + v[1] - v[2]);   /* 0 ≤ value ≤ 3 */
+}
 
 /* --------------------------------------------------------------------- */
 /* value of a 2×2 block, coded by two rows of length 2 (values 0‑3)      */

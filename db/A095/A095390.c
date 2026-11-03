@@ -11,16 +11,27 @@
  *            fixed limit, counts the twin primes in each b...
  * Range:     u8 n <= 7, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   build_residues
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/build_residues.h"
+
+/* Instead of hard‑coding the residues, we build them at run time. */
+static void build_residues(int *buf, size_t *len)
+{
+    size_t i = 0;
+    for (int r = 1; r <= 210; ++r)
+        if ((r & 1) && (r % 3) && (r % 5) && (r % 7))
+            buf[i++] = r;
+    *len = i;
+}
 
 #ifndef MAX_X
 /* maximum 210‑wide block examined (chosen large enough to cover

@@ -7,7 +7,8 @@
  * Formula:   a(n) = ((3^p - 3)/p) mod p where p is the nth prime
  * Range:     u8 n <= 66, u16 n <= 6762, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   powmod64, sieve_first_n_primes
+ * Validated: standard, pass, 84 terms through n = 9886 (2026-11-01)
+ * Helpers:   powmod_u64, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/powmod64.h"
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/powmod_u64.h"
 #include "../utils/sieve_first_n_primes.h"
 
 seq_t a(idx_t n)
@@ -37,7 +41,7 @@ seq_t a(idx_t n)
 
     /* Compute 3^p modulo p^2 */
     uint64_t mod = p * p;                      /* p^2 fits in 64 bits */
-    uint64_t pow_mod = powmod64(3, p, mod);
+    uint64_t pow_mod = powmod_u64(3, p, mod);
 
     /* Compute (3^p - 3) modulo p^2; the result is divisible by p */
     uint64_t diff = (pow_mod >= 3) ? (pow_mod - 3) : (pow_mod + mod - 3);

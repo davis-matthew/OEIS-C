@@ -11,14 +11,36 @@
  *            (a(m)=0 for m<0) This holds for every n ≥ 0
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   mul_small, numerator
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mul_small.h"
-#include "../utils/numerator.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+static inline seq_t numerator(idx_t n)
+{
+    if (n == 0 || n == 36)
+        return (seq_t)1;
+    if (n >= 1 && n <= 35)
+        return (seq_t)2;
+    return (seq_t)0;
+}
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -31,7 +53,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap <= (size_t)n)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();     /* memory allocation failed */
     cache = tmp;
     cache_cap = new_cap;

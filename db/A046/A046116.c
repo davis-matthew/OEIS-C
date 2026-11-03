@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- integer square root (uint64_t) ---------- */
 static uint64_t isqrt_u64(uint64_t n)
@@ -133,10 +135,10 @@ static void grow_cache(size_t needed)
     if (needed <= seq_state.cap) return;
     size_t new_cap = seq_state.cap == 0 ? 16 : seq_state.cap * 2;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (seq_state.cache) {
-        memcpy(new_cache, seq_state.cache, seq_state.len * sizeof(seq_t));
-        free(seq_state.cache);
+        mem_copy(new_cache, seq_state.cache, seq_state.len * sizeof(seq_t));
+        mem_free(seq_state.cache);
     }
     seq_state.cache = new_cache;
     seq_state.cap   = new_cap;

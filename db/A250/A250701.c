@@ -13,13 +13,15 @@
  *            64‑state DP
  * Range:     u8 none, u16 n <= 3, u32 n <= 12, u64 n <= 39, u128 n <= 102,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 175 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define STATE_COUNT 64
 
@@ -66,12 +68,12 @@ seq_t a(idx_t n)
     }
 
     // DP arrays
-    seq_t *cur = (seq_t *)malloc(sizeof(seq_t) * STATE_COUNT);
-    seq_t *next = (seq_t *)malloc(sizeof(seq_t) * STATE_COUNT);
+    seq_t *cur = mem_new(seq_t, STATE_COUNT);
+    seq_t *next = mem_new(seq_t, STATE_COUNT);
     if (!cur || !next) {
         // allocation failure: return 0
-        if (cur) free(cur);
-        if (next) free(next);
+        if (cur) mem_free(cur);
+        if (next) mem_free(next);
         return 0;
     }
 
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
     for (int s = 0; s < STATE_COUNT; ++s)
         ans += cur[s];
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return ans;
 }

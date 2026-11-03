@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 83, u32 n <= 3381, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9392 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached values a(0)…a(max_computed-1) */
 static idx_t cache_len = 0;      /* number of stored terms */
@@ -33,8 +35,8 @@ static void compute_up_to(idx_t upto)
     if (cache_len > upto) return;               /* already available */
 
     /* allocate temporary arrays of the required size */
-    seq_t *tmp1 = (seq_t *)malloc((upto + 1) * sizeof(seq_t));
-    seq_t *tmp2 = (seq_t *)malloc((upto + 1) * sizeof(seq_t));
+    seq_t *tmp1 = mem_new(seq_t, (upto + 1));
+    seq_t *tmp2 = mem_new(seq_t, (upto + 1));
     if (!tmp1 || !tmp2) abort();
 
     /* initialise tmp1: coefficient of q^0 = 1, others 0 */
@@ -58,12 +60,12 @@ static void compute_up_to(idx_t upto)
     }
 
     /* free old cache, if any, and replace with the new results */
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = tmp1;                    /* tmp1 now holds the final array */
     cache_len = upto + 1;
 
     /* tmp2 is no longer needed */
-    free(tmp2);
+    mem_free(tmp2);
 }
 
 /* the required external function */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 541, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_cube_root_u64, is_prime
+ * Validated: standard, pass, 63 terms through n = 9051 (2026-11-03)
+ * Helpers:   icbrt_u64, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t) */
-#include "../utils/floor_cube_root_u64.h"
+#include "../utils/icbrt_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static uint64_t next_prime_u64(uint64_t start)
 {
@@ -41,7 +43,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap << 1 : 4;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();
     cache = tmp;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n) {
         uint64_t p = next_prime_u64(prev_prime + 1);
         uint64_t gap = p - prev_prime;
-        uint64_t r = floor_cube_root_u64(gap);
+        uint64_t r = icbrt_u64(gap);
         if ((__int128)r * r * r == gap) {
             grow_cache(cache_len + 1);
             cache[cache_len++] = (seq_t)p;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 18, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 /* Standard library for memory allocation */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     const idx_t maxSum = 2 * (n - 1);        /* largest antidiagonal s */
 
     /* Allocate 4 antidiagonals, each of length N */
-    seq_t *dp = (seq_t *)malloc((size_t)4 * N * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)4 * N);
     if (!dp)
         return 0;                            /* allocation failure unlikely */
 
@@ -86,6 +88,6 @@ seq_t a(idx_t n)
 
     /* The desired value is located at a = n-1 on the last antidiagonal */
     seq_t result = dp[(maxSum & 3) * N + (N - 1)];
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -10,12 +10,14 @@
  *            the standard library realloc/alloc for storage
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 317 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *CACHE = NULL;   /* Store previously computed terms */
@@ -32,9 +34,9 @@ static void ensure_cache(idx_t n)
     if (new_cap < 16) new_cap = 16;
 
     if (CACHE == NULL) {
-        CACHE = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        CACHE = mem_new(seq_t, new_cap);
     } else {
-        CACHE = (seq_t *)realloc(CACHE, new_cap * sizeof(seq_t));
+        CACHE = mem_resize(seq_t, CACHE, new_cap);
     }
     CACHE_CAP = new_cap;
 }

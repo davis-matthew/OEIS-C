@@ -8,7 +8,8 @@
  *            perfect power
  * Range:     u8 n <= 64, u16 n <= 1976, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_perfect_power_seq
+ * Validated: standard, pass, 85 terms through n = 9856 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,30 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_perfect_power_seq.h"
+
+/* Return true iff x (x >= 2) is a perfect power.
+   1 is treated as a perfect power for the purpose of the
+   check, but the caller will allow divisor 1 separately. */
+static bool is_perfect_power_seq(seq_t x)
+{
+    if (x < (seq_t)2) return true;       /* 1 is considered a perfect power */
+
+    for (uint64_t base = 2; ; ++base) {
+        seq_t base_seq = (seq_t)base;
+        seq_t cur = base_seq * base_seq;   /* base^2 */
+
+        /* if base^2 > x, no larger base will work */
+        if (cur > x) break;
+
+        /* try higher exponents for this base */
+        for (;;) {
+            if (cur == x) return true;
+            cur *= base_seq;               /* base^k  -> base^(k+1) */
+            if (cur > x) break;
+        }
+    }
+    return false;
+}
 
 /* Recursively generate all divisors from the prime factorization
    and keep track of the maximum divisor that is either 1 or not a

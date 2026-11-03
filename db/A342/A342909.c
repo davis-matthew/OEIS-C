@@ -12,7 +12,8 @@
  *            n-1.)
  * Range:     u8 n <= 302, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* allocate arrays of size N+2 (indices 0..N+1 are safe) */
-    seq_t *seq = (seq_t *)calloc(N + 2, sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, N + 2);
     size_t *freq = (size_t *)calloc(N + 2, sizeof(size_t));
     uint32_t *bit = (uint32_t *)calloc(N + 3, sizeof(uint32_t)); /* BIT uses 1‑based indices */
 
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[N];
-    free(seq);
+    mem_free(seq);
     free(freq);
     free(bit);
     return result;

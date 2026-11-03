@@ -8,7 +8,8 @@
  * Formula:   a(n) = popcount(n-1) mod 2 XOR FibWordBit(n-1)
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   parity_popcount
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/parity_popcount.h"
+
+/* Helper: compute parity of popcount of an unsigned 64‑bit integer. */
+static int parity_popcount(idx_t x)
+{
+    /* XOR bits pairwise to reduce to single parity bit. */
+    x ^= x >> 32;
+    x ^= x >> 16;
+    x ^= x >> 8;
+    x ^= x >> 4;
+    x ^= x >> 2;
+    x ^= x >> 1;
+    return (int)(x & 1);
+}
 
 /* Static cache of Fibonacci word lengths (Wk = length of the Fibonacci word
    at rank k).  The longest needed length grows with n; this cache allows

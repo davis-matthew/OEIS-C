@@ -7,11 +7,13 @@
  * Formula:   a(n) = (n+1)*binomial(n+1, 9)
  * Range:     u8 n <= 9, u16 n <= 13, u32 n <= 35, u64 n <= 306,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 44 terms through n = 982 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t

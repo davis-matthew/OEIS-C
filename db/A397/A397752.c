@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 23, u32 n <= 40, u64 n <= 74, u128 n <= 143,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _init[13] =
     {0, 0, 1, 1, 2, 2, 4, 6, 11, 18, 34, 59, 112};
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* The recurrence uses terms up to n‑12, so a simple dynamic array
        of size n+1 is enough for the expected n ≤ 10000. */
     size_t N = (size_t)n;
-    seq_t *dp = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (N + 1));
     if (!dp) abort();          /* allocation failure */
 
     /* initialise seeds 1..13 */
@@ -56,6 +58,6 @@ seq_t a(idx_t n)
                 - dp[i - 12];
 
     seq_t result = dp[N];
-    free(dp);
+    mem_free(dp);
     return result;
 }

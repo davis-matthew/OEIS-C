@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 187, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 60 terms through n = 925 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Static cache of computed terms */
 static seq_t *cache   = NULL;
@@ -29,7 +31,7 @@ static uint64_t current_k = 1;
 /* Grow the cache array when it runs out of space */
 static void grow_cache(void) {
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     cache     = tmp;
     cache_cap = new_cap;
@@ -41,14 +43,14 @@ static void ensure_n(idx_t n) {
 
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(EXIT_FAILURE);
     }
 
     /* Search for further primes of the form 22 + 37*k. */
     while (cache_len < n) {
         uint64_t candidate = 22 + 37 * current_k;
-        if (is_prime_small(candidate)) {
+        if (is_prime_seq(candidate)) {
             if (cache_len == cache_cap) grow_cache();
             cache[cache_len++] = (seq_t)candidate;
         }

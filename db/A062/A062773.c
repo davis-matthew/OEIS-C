@@ -7,17 +7,28 @@
  * Formula:   a(n) = pi( nextprime( prime(n)^2 ) )
  * Range:     u8 n <= 6, u16 n <= 85, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, compute_pi, next_prime
+ * Validated: standard, pass, 63 terms through n = 981 (2026-11-01)
+ * Helpers:   build_primes_upto, next_prime, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_prime_limit_for_idx.h"
-#include "../utils/next_prime.h"
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <math.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/next_prime.h"
+#include "../utils/prime_pi.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 seq_t a(idx_t n)
 {
@@ -56,5 +67,5 @@ seq_t a(idx_t n)
     uint64_t q = next_prime(sq64);
 
     /* pi(q) is the index of q */
-    return compute_pi(q);
+    return prime_pi(q);
 }

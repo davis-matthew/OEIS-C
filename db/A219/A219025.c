@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = count of primes p < n such that 6n-p and 6n+p are prime
- * Range:     u8 n <= 8819, u16 n <= 8819, u32 n <= 8819, u64 n <= 8819,
- *            u128 n <= 8819, big any n
+ * Range:     u8 n <= 10009, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 116 terms through n = 8819 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            prime
  * Range:     u8 none, u16 n <= 36, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_seq, num_digits
+ * Validated: standard, pass, 51 terms through n = 901 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdbool.h>
 
 #include "../utils/is_prime_seq.h"
-#include "../utils/num_digits.h"
+#include "../utils/num_digits_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;  /* value for indices < 1 is irrelevant */
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
         ++next_q;          /* advance for next search */
 
         /* compute 35 * 10^len(q) + q */
-        int d = num_digits(q);
+        int d = num_digits_u64(q);
         bool cand_is_prime = false;
         seq_t candidate;
 
@@ -73,8 +75,8 @@ seq_t a(idx_t n) {
         if (cand_is_prime) {
             if (cache_used == cache_cap) {
                 idx_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-                if (!tmp) { free(cache); return 0; } /* allocation failure */
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+                if (!tmp) { mem_free(cache); return 0; } /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;
             }

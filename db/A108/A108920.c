@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of divisors d of 2*n^2 such that d < n
  * Range:     u8 n <= 15, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   count_divisors_less
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,23 @@
 /* This follows from the equivalence n+k | n^2+k^2 ⇔ n+k | 2n^2 and k>n ⇔ d=n+k>2n. */
 
 #include <stdint.h>
-#include "../utils/count_divisors_less.h"
+
+/* Recursively count the divisors of 2*n^2 that are strictly less than n.
+   primes[], exps[] hold the prime factorisation of 2*n^2. */
+static void count_divisors_less(const idx_t *primes, const idx_t *exps,
+                                int pcnt, int pos, seq_t cur, idx_t n,
+                                seq_t *cntLess)
+{
+    if (pos == pcnt) {
+        if (cur < n) (*cntLess)++;
+        return;
+    }
+    seq_t val = cur;
+    for (idx_t e = 0; e <= exps[pos]; ++e) {
+        count_divisors_less(primes, exps, pcnt, pos + 1, val, n, cntLess);
+        val *= primes[pos];
+    }
+}
 
 seq_t a(idx_t n)
 {

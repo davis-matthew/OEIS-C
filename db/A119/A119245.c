@@ -7,15 +7,17 @@
  * Keywords:  nonn, tabf
  * Formula:   a(n) is the n-th element of the triangle T(n,k) =
  *            (4*k+1)*C(2*n+1,n-2*k)/(2*n+1) read row-wise
- * Range:     u8 n <= 5, u16 n <= 19, u32 n <= 48, u64 n <= 48, u128 n <= 48,
+ * Range:     u8 n <= 8, u16 n <= 24, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* cumulative number of terms before row r */
 static inline idx_t cum_before(idx_t r)
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
 
     /* computing T(r,k) */
     /* binomial(2*r+1, r-2*k) */
-    seq_t bin = binom((idx_t)(2 * r + 1), (idx_t)(r - 2 * k));
+    seq_t bin = binomial((idx_t)(2 * r + 1), (idx_t)(r - 2 * k));
 
     /* multiplier (4*k + 1) */
     seq_t mult = ((seq_t)4 * (seq_t)k) + (seq_t)1;

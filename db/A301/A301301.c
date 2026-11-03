@@ -10,12 +10,14 @@
  *            b(n)=0 for n≥18. a(0)=1, a(1)=4, ... are produced automatically
  * Range:     u8 n <= 59, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Signed coefficients of the numerator –P(x) for n = 0..17 */
 static const int16_t B[18] = {
@@ -51,7 +53,7 @@ static void ensure_cache(idx_t n)
 
     /* Allocate new storage */
     size_t new_len = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache) abort();
     cache = new_cache;
 

@@ -9,16 +9,32 @@
  *            = 0 for k >= 3 * p == 3: a(3) = 2 * a(9) = -3 * a(3^k) = 0 for k
  *            >= 3 * p >= 5: a(p) = -1 * a(p^k) = 0 for k >= 2 * The sequence
  *            is multiplicative: a(mn) = a(m)·a(n) f...
- * Range:     i8 n <= 9692, i16 n <= 9692, i32 n <= 9692, i64 n <= 9692,
- *            i128 n <= 9692, big any n
- * Helpers:   compute_prime_power_value
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 9692 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_prime_power_value.h"
+
+static seq_t compute_prime_power_value(seq_t p, idx_t exp) {
+    if (p == (seq_t)2) {
+        if (exp == 1) return (seq_t)1;
+        if (exp == 2) return (seq_t)-2;
+        return (seq_t)0;
+    }
+    if (p == (seq_t)3) {
+        if (exp == 1) return (seq_t)2;
+        if (exp == 2) return (seq_t)-3;
+        return (seq_t)0;
+    }
+    /* p >= 5 */
+    if (exp == 1) return (seq_t)-1;
+    return (seq_t)0;
+}
 
 seq_t a(idx_t n) {
     if (n == (idx_t)1) return (seq_t)1;

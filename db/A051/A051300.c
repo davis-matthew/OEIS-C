@@ -7,12 +7,14 @@
  * Formula:   a(1) = 1, a(n) = a(n-1) + rotate(a(n-1), 1 digit right)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 25, u64 n <= 50, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Count decimal digits of a number (at least one digit) */
 static int digit_len_seq_t(seq_t x)
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     /* Initial allocation */
     if (cache == NULL) {
         cache_alloc = 2; /* indices 0 and 1 */
-        cache = (seq_t *)calloc(cache_alloc, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_alloc);
         cache[1] = 1;    /* a(1) */
     }
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         size_t new_alloc = cache_alloc;
         while (new_alloc <= idx)
             new_alloc <<= 1;
-        cache = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_alloc);
         /* newly grown slots are zero-initialised automatically (`realloc` may not) */
         cache_alloc = new_alloc;
     }

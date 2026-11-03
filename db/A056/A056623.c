@@ -9,8 +9,9 @@
  *            f = e if e is even * f = e - 3 if e is odd and > 1 * (i.e.
  *            a(p^e) = p^e for even e, a(p) = 1, a(p^e) = p^(e-3) for odd e >
  *            1)
- * Range:     u8 n <= 255, u16 n <= 9579, u32 n <= 9579, u64 n <= 9579,
- *            u128 n <= 9579, big any n
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 115 terms through n = 9579 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

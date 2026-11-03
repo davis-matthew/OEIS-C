@@ -7,13 +7,15 @@
  * Formula:   a(n) = (-1)^((n-2)*(n-1)/2) * 2^((n-1)^2) * n^(n-3)
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 5, i64 n <= 7, i128 n <= 10,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -25,11 +27,11 @@ seq_t a(idx_t n)
     /* Compute 2^((n-1)^2) */
     idx_t n_minus1 = n - 1;
     seq_t exp2 = (seq_t)n_minus1 * (seq_t)n_minus1;   /* (n-1)^2 */
-    seq_t pow2 = big_pow((seq_t)2, exp2);
+    seq_t pow2 = ipow((seq_t)2, exp2);
 
     /* Compute n^(n-3) */
     seq_t expn = (seq_t)(n - 3);                       /* n-3 */
-    seq_t pown = big_pow((seq_t)n, expn);
+    seq_t pown = ipow((seq_t)n, expn);
 
     /* Multiply the two parts */
     seq_t result = pow2 * pown;

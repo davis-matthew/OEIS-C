@@ -8,15 +8,46 @@
  *            concatenation of the counts and the corresponding digits
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 16, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   pow10, pow2, seq_to_str
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>                 /* size_t */
-#include "../utils/pow2.h"         /* seq_t pow2(idx_t exp); */
-#include "../utils/seq_to_str.h"   /* void seq_to_str(seq_t v, char *buf, size_t *len); */
-#include "../utils/pow10.h"        /* seq_t pow10(idx_t exp); */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/pow2.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static char digit_buf[4000];   /* large enough for 2^10000 -> 3011 digits + safety */
 static size_t digit_len;

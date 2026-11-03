@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 17, i16 n <= 49, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,14 @@
 #include <stdbool.h>
 
 /* ---------- utilities from the build  ---------- */
-#include "../utils/seq_pow.h"  /* seq_pow(seq_t base, idx_t exp) */
-#include "../utils/seq_mul.h"  /* seq_mul(seq_t a, seq_t b)    */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* ---------- prime table up to 20000 ---------- */
 #define MAX_PRIME 20000
@@ -91,7 +98,7 @@ seq_t a(idx_t n)
                 - fac_prime_exp((int)((r + k) >> 1), p)
                 - fac_prime_exp((int)k, p);
         if (e > 0) {
-            seq_t p_pow = seq_pow((seq_t)p, (idx_t)e);
+            seq_t p_pow = ipow_idx((seq_t)p, (idx_t)e);
             res = seq_mul(res, p_pow);
         }
     }

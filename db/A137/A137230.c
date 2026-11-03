@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega, is_prime
+ * Validated: standard, pass, 77 terms through n = 9765 (2026-11-03)
+ * Helpers:   bigomega, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x) */
-#include "../utils/bigomega.h"   /* seq_t bigomega(idx_t n) */
+#include "../utils/bigomega.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* static storage for memoization ------------------------------------ */
 static seq_t *term_cache = NULL;   /* array of cached terms */
@@ -36,7 +38,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = term_cap ? term_cap * 2 : 64;
     while (new_cap < needed)
         new_cap <<= 1;
-    term_cache = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    term_cache = mem_resize(seq_t, term_cache, new_cap);
     term_cap   = new_cap;
 }
 

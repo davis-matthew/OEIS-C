@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 21, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 /* Compile with a build that defines seq_t and idx_t. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values */
 static seq_t *cache = NULL;       /* array of a(n) values */
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
     while (cache_cap <= n) cache_cap <<= 1;
 
     /* Reallocate */
-    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
     cache = tmp;
 
     /* Compute missing terms */

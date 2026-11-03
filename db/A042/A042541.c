@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Period of the continued fraction for sqrt(799).  Computed once. */
 static int *period = NULL;         /* a_1 … a_P */
@@ -79,7 +81,7 @@ static void ensure_denoms(idx_t n)
     /* Allocate the array on first use */
     if (denoms_cap == 0) {
         denoms_cap = 4;
-        denoms = (seq_t *)malloc(denoms_cap * sizeof(seq_t));
+        denoms = mem_new(seq_t, denoms_cap);
     }
 
     if (denoms_len > n)
@@ -107,7 +109,7 @@ static void ensure_denoms(idx_t n)
         /* grow array if needed */
         if (denoms_len == denoms_cap) {
             denoms_cap *= 2;
-            denoms = (seq_t *)realloc(denoms, denoms_cap * sizeof(seq_t));
+            denoms = mem_resize(seq_t, denoms, denoms_cap);
         }
 
         denoms[denoms_len++] = q;

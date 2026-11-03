@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
  * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,7 +17,9 @@
    a(n) = max{ p_{k+1} - p_k | p_k < (n+1)^2 } */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/sieve_primes.h"   /* provides void sieve_primes(idx_t, idx_t**, size_t*) */
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/sieve_primes.h"
 
 static idx_t *prime_cache = NULL;   /* primes already sieved up to cache_limit */
 static size_t prime_cnt  = 0;

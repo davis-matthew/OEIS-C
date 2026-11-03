@@ -12,14 +12,33 @@
  *            included)
  * Range:     u8 n <= 12, u16 n <= 27, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   include_plus_one, pow2
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/include_plus_one.h"
+
+static bool include_plus_one(idx_t k)
+{
+    /* 2^k+1 is included in the sequence if it is composite or k==1. */
+    if (k == 1) return true;                  /* 3 is always part of the sequence */
+
+    /* If k is odd and >1, 2^k+1 is clearly composite (divisible by 3). */
+    if (k & 1U) return true;
+
+    /* If k is even but not a power of two, 2^k+1 has an odd divisor k' dividing k,
+       hence 2^k+1 is composite. */
+    if ((k & (k - 1U)) != 0U) return true;
+
+    /* k is a power of two.  2^k+1 is a Fermat number.  It is prime only for
+       k = 2, 4, 8, 16.  All other powers of two are known to be composite. */
+    if (k == 2U || k == 4U || k == 8U || k == 16U) return false;
+
+    return true;
+}
 
 seq_t a(idx_t n)
 {

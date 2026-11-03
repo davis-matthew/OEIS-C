@@ -7,13 +7,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = (1/(n+1)) * Sum_{k=0..floor(n/3)} binomial(n+k,k) *
  *            binomial(2*k,n-3*k)
- * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 28, u64 n <= 51, u128 n <= 95,
+ * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 28, u64 n <= 51, u128 n <= 95,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 964 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #if defined(__cplusplus)
 #include <type_traits>

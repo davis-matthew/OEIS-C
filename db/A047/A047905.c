@@ -8,12 +8,14 @@
  *            a(n) * n if n is odd
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 21, u64 n <= 33, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of computed values, 1‑based */
 static idx_t cache_size = 0;         /* largest index for which cache[i] is valid */
@@ -27,13 +29,13 @@ static void ensure_up_to(idx_t max_n)
     /* Allocate or grow the cache */
     if (cache == NULL) {
         /* first allocation: at least one element (index 1) */
-        cache = (seq_t *)malloc(sizeof(seq_t) * (max_n + 1));
+        cache = mem_new(seq_t, (max_n + 1));
         if (cache == NULL)
             return;                 /* allocation failure: silently give up */
         cache[1] = (seq_t)1;        /* a(1) = 1 */
         cache_size = 1;
     } else if (max_n > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (max_n + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (max_n + 1));
         if (tmp == NULL)
             return;                 /* reallocation failure: silently give up */
         cache = tmp;

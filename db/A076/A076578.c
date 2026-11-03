@@ -11,13 +11,14 @@
  *            single factor 2 after division), and returns the * nth...
  * Range:     u8 n <= 3, u16 n <= 100, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cnt_omega_uint64
+ * Validated: standard, pass, 60 terms through n = 9720 (2026-11-01)
+ * Helpers:   bigomega_u64_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/cnt_omega_uint64.h"
+#include "../utils/bigomega_u64_to_u64.h"
 
 /* Return the triangular number T_m as a seq_t without using division. */
 static seq_t triangular(uint64_t m)
@@ -39,8 +40,8 @@ seq_t a(idx_t n)
     while (1)
     {
         /* Ω(T_m) = Ω(m) + Ω(m+1) - 1 (exactly one factor 2 is removed) */
-        uint64_t omega_m   = cnt_omega_uint64(m);
-        uint64_t omega_mp  = cnt_omega_uint64(m + 1);
+        uint64_t omega_m   = bigomega_u64_to_u64(m);
+        uint64_t omega_mp  = bigomega_u64_to_u64(m + 1);
         if (omega_m + omega_mp - 1 == 4)
         {
             ++count;

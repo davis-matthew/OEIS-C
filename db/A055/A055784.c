@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth prime q such that q = 10*p + 9 where p is prime
  * Range:     u8 n <= 7, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* declares bool is_prime(uint64_t); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)   /* 1-based index */
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)   /* 1-based index */
                         /* Ensure enough space in cache */
                         if (cache_len >= cache_cap) {
                             size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                             if (!tmp) abort();   /* out of memory */
                             cache = tmp;
                             cache_cap = new_cap;

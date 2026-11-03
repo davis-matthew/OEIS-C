@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t digit5[10] = {
     0, 1, 32, 243, 1024, 3125, 7776, 16807, 32768, 59049
@@ -41,7 +43,7 @@ static void compute_solutions(void)
 
     /* start with a small capacity, it will grow as needed */
     solcap = 16;
-    solutions = (seq_t*)malloc(sizeof(seq_t) * solcap);
+    solutions = mem_new(seq_t, solcap);
 
     seq_t sum;
     for (idx_t num = 0; num <= upper; ++num) {
@@ -58,7 +60,7 @@ static void compute_solutions(void)
         if (sum == (seq_t)num) {
             if (solcnt == solcap) {
                 solcap <<= 1;
-                solutions = (seq_t*)realloc(solutions, sizeof(seq_t) * solcap);
+                solutions = mem_resize(seq_t, solutions, solcap);
             }
             solutions[solcnt++] = (seq_t)num;
         }

@@ -8,12 +8,14 @@
  *            first kind)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 287 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached array for elementary symmetric sums e[0..n+1] :
    e[r] holds the unsigned elementary symmetric sum of degree r
@@ -30,12 +32,12 @@ seq_t a(idx_t n)
     size_t needed = (size_t)n + 2;
 
     if (e_cap < needed) {
-        seq_t *tmp = (seq_t *)malloc(needed * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, needed);
         if (!tmp) {
             /* allocation failure – return 0 as a safe fallback */
             return (seq_t)0;
         }
-        free(e_cache);
+        mem_free(e_cache);
         e_cache = tmp;
         e_cap   = needed;
     }

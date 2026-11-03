@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"   /* seq_t mod_pow(seq_t, uint64_t, seq_t); */
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* --------------------------------------------------------------------- */
 /*  Prime cache: all primes found so far, and the primes in A002313      */
@@ -134,7 +136,7 @@ static uint64_t primitive_root(uint64_t p)
         bool ok = true;
         for (size_t i = 0; i < fcnt; ++i) {
             uint64_t exp = (p - 1) / factors[i];
-            seq_t  res  = mod_pow((seq_t)g, exp, (seq_t)p);
+            seq_t  res  = powmod((seq_t)g, exp, (seq_t)p);
             if (res == 1) { ok = false; break; }
         }
         if (ok) return g;
@@ -147,7 +149,7 @@ static uint64_t sqrt_minus_one(uint64_t p)
     if (p == 2) return 1;      /* Not used for 2 but harmless */
 
     uint64_t g = primitive_root(p);
-    seq_t  tmp = mod_pow((seq_t)g, (p - 1) / 4, (seq_t)p);
+    seq_t  tmp = powmod((seq_t)g, (p - 1) / 4, (seq_t)p);
     uint64_t t = (uint64_t)tmp;          /* t < p < 2⁶⁴ */
     if (t > p - t) t = p - t;            /* choose the minimal positive solution */
     return t;

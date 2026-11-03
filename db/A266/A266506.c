@@ -8,13 +8,15 @@
  *            a(3)=1, a(4)=1, a(5)=3, a(6)=3, a(7)=5
  * Range:     i8 n <= 22, i16 n <= 48, i32 n <= 98, i64 n <= 198,
  *            i128 n <= 400, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence based memoized evaluation */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     size_t required = (size_t)n + 1;
     if (cap < required) {
         size_t newcap = required;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         cache = tmp;
         cap   = newcap;
     }

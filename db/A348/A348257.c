@@ -9,19 +9,22 @@
  * Formula:   a(n) = binomial(n,2) * ( 2^(n-3) - 1 )
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 26, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 30 terms through n = 33 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     /* The sequence is defined for n >= 4. For smaller n we return 0. */
     if (n < 4) return 0;
     seq_t bin = binomial(n, 2);          /* n*(n-1)/2 */
-    seq_t pow2 = pow_uint(2, n - 3);     /* 2^(n-3) */
+    seq_t pow2 = ipow_u64_idx(2, n - 3);     /* 2^(n-3) */
     pow2 -= 1;                           /* 2^(n-3) - 1 */
     return bin * pow2;                   /* binomial(n,2) * (2^(n-3) - 1) */
 }

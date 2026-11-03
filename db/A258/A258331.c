@@ -7,6 +7,7 @@
  * Formula:   a(n) = sigma_3(n^3) = ∏_{p^e‖n} (1 + p^3 + p^6 + … + p^(9e))
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 11, u64 n <= 137,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 38 terms through n = 7006 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

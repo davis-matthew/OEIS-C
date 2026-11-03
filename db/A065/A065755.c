@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
    The sequence a(n) is the triangle read row by row */
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 #define MAX_DEG 400   /* enough for n up to about 10 000 (row < 71) */
 
@@ -59,7 +60,7 @@ seq_t a(idx_t n)
             seq_t sum = 0;
             /* sum_{r=k}^{prevDeg} cur[r] * binom(r,k) */
             for (idx_t r = k; r <= (idx_t)prevDeg; ++r)
-                sum += cur[r] * binom((idx_t)r, (idx_t)k);
+                sum += cur[r] * binomial((idx_t)r, (idx_t)k);
             /* subtract the term from B(X,i-1) itself */
             sum -= cur[k];
             diff[k] = sum;

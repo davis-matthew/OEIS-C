@@ -8,7 +8,8 @@
  *            primes, counted with multiplicity)
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   grow_limit
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/grow_limit.h"
+#include "../utils/mem.h"
+
+/* Grow the sieve upper bound. */
+static void grow_limit(uint64_t *limit) {
+    if (*limit < 4) *limit = 4;
+    else *limit <<= 1;              /* multiply by 2, safe for small limits */
+}
 
 /* Return the n-th term of A176540. */
 seq_t a(idx_t n) {
@@ -78,7 +85,7 @@ seq_t a(idx_t n) {
         }
 
         /* Grow the storage for semiprimes. */
-        seq_t *new_semis = (seq_t *)realloc(semis, (semis_cnt + new_in_this_pass) * sizeof(seq_t));
+        seq_t *new_semis = mem_resize(seq_t, semis, (semis_cnt + new_in_this_pass));
         if (!new_semis) { free(fc); free(primes); free(spf); return (seq_t)0; }
         semis = new_semis;
 

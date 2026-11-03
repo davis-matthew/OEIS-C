@@ -7,14 +7,16 @@
  * Formula:   a(n) = (n+1)^2 * binomial(2*n+2, n-1) / 2
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses the utility function binom(a,b) defined in ../utils/binom.h */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Compute binomial(2*n+2, n-1) */
     idx_t upper = 2 * n + 2;
     idx_t lower = n - 1;
-    seq_t bin = binom(upper, lower);
+    seq_t bin = binomial(upper, lower);
 
     /* (n+1)^2 * bin / 2 */
     seq_t t = (seq_t)(n + 1);

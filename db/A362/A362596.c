@@ -10,7 +10,8 @@
  *            values a(0)=1, a(1)=1, a(2)=3, a(3)=13
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 478 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL; /* array of cached terms */
 static idx_t  cache_len = 0;     /* allocated length */
@@ -33,13 +35,13 @@ static void ensure_cache(idx_t n)
     size_t new_len = cache_len ? cache_len * 2 : 4;
     while (new_len <= (size_t)n) new_len *= 2;
 
-    seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache) abort();
 
     for (idx_t i = 0; i < cache_used; ++i) new_cache[i] = a_cache[i];
     for (idx_t i = cache_used; i < new_len; ++i) new_cache[i] = 0;
 
-    free(a_cache);
+    mem_free(a_cache);
     a_cache = new_cache;
     cache_len = new_len;
 }

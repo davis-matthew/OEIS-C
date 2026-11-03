@@ -9,6 +9,7 @@
  *            p = pi(n), s = floor(sqrt(n))
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 48, u64 n <= 109,
  *            u128 n <= 288, big any n
+ * Validated: standard, pass, 56 terms through n = 9641 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

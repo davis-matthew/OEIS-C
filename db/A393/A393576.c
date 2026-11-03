@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 672, u32 n <= 7277, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 101 terms through n = 9338 (2026-11-02)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* 7‑smooth numbers are generated in increasing order and the gcd
  * of each successive pair is returned.
 
@@ -32,6 +34,7 @@
 #ifdef __cplusplus
 #include <new>          /* new/delete */
 #endif
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* static storage for the 7‑smooth numbers */

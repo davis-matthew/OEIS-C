@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 127, u64 n <= 416,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static idx_t max_precomp_N = 0;
 static seq_t *partitions = NULL;              /* p(n) */
@@ -45,13 +47,13 @@ static void rebuild_tables(idx_t N) {
     /* free previous pk_arr */
     if (pk_arr) {
         for (idx_t k = 0; k <= max_k_comp; ++k)
-            free(pk_arr[k]);
+            mem_free(pk_arr[k]);
         free(pk_arr);
     }
 
     /* allocate and initialize partitions array */
-    partitions = (seq_t *)realloc(partitions, (N + 1) * sizeof(seq_t));
-    memset(partitions, 0, (N + 1) * sizeof(seq_t));
+    partitions = mem_resize(seq_t, partitions, (N + 1));
+    mem_set(partitions, 0, (N + 1) * sizeof(seq_t));
     partitions[0] = 1;
     for (idx_t part = 1; part <= N; ++part) {
         for (idx_t sum = part; sum <= N; ++sum) {
@@ -66,8 +68,8 @@ static void rebuild_tables(idx_t N) {
     max_k_comp = kmax;
 
     for (idx_t k = 0; k <= kmax; ++k) {
-        pk_arr[k] = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-        memset(pk_arr[k], 0, (N + 1) * sizeof(seq_t));
+        pk_arr[k] = mem_new(seq_t, (N + 1));
+        mem_set(pk_arr[k], 0, (N + 1) * sizeof(seq_t));
         pk_arr[k][0] = 1;          /* empty partition */
         if (k == 0) continue;      /* p_0(m>0)=0 */
 

@@ -13,14 +13,25 @@
  *            memoises all computed terms, so calls may a...
  * Range:     i8 n <= 63, i16 n <= 63, i32 n <= 63, i64 n <= 63, i128 n <= 63,
  *            big any n
- * Helpers:   floor_div_seq
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_div_seq.h"
+#include "../utils/mem.h"
+
+/* Floor division of a seq_t numerator by a positive idx_t denominator
+   (handles negative numerators correctly).                 */
+static inline seq_t floor_div_seq(seq_t num, idx_t den)
+{
+    seq_t q = num / (seq_t)den;
+    if (num < 0 && (num % (seq_t)den) != 0)
+        q -= 1;
+    return q;
+}
 
 /* ---------- local helpers ---------------------------------- */
 
@@ -32,7 +43,7 @@ static void ensure_capacity(seq_t **buf, size_t *cap, size_t new_len)
         size_t new_cap = (*cap == 0) ? 2 : (*cap << 1);
         if (new_cap < new_len)
             new_cap = new_len;
-        *buf = (seq_t *)realloc(*buf, new_cap * sizeof(seq_t));
+        *buf = mem_resize(seq_t, *buf, new_cap);
         if (*buf == NULL)
             exit(EXIT_FAILURE); /* allocation error */
         *cap = new_cap;

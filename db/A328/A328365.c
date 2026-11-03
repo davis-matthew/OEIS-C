@@ -11,16 +11,22 @@
  *            Each row n lists the partitions in decreasing order of the
  *            number of parts; within each partition the parts appear in
  *            increasing order
- * Range:     u8 n <= 1362, u16 n <= 8719, u32 n <= 8719, u64 n <= 8719,
- *            u128 n <= 8719, big any n
- * Helpers:   max_parts_with_sum
+ * Range:     u8 n <= 1362, u16 n <= 10350, u32 n <= 10350, u64 n <= 10350,
+ *            u128 n <= 10350, big any n
+ * Validated: standard, pass, 115 terms through n = 8719 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/max_parts_with_sum.h"
+
+static idx_t max_parts_with_sum(idx_t n) {
+    idx_t k = 0;
+    while ((k + 1) * (k + 2) / 2 <= n) ++k;
+    return k;
+}
 
 seq_t a(idx_t n) {
     idx_t target = n;

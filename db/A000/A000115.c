@@ -7,6 +7,7 @@
  * Formula:   a(n) = round((n+4)^2/20) = floor(((n+4)^2 + 10)/20)
  * Range:     u8 n <= 67, u16 n <= 1140, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 82 terms through n = 9968 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

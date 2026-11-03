@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 14, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   alloc_seq_array, bad_horizontal, bad_vertical
+ * Validated: standard, pass, 38 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,27 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/bad_horizontal.h"
-#include "../utils/bad_vertical.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Test whether a 3‑bit horizontal window is forbidden (000 or 101). */
+static inline bool bad_horizontal(uint8_t pat)
+{
+    return pat == 0x0 || pat == 0x5; /* 0b000 or 0b101 */
+}
+
+/* Test whether a vertical triple (rows i, j, k) violates a forbidden
+   vertical pattern in a specific column (bits 0..5). */
+static inline bool bad_vertical(uint8_t b1, uint8_t b2, uint8_t b3)
+{
+    uint8_t pat = (b1 << 2) | (b2 << 1) | b3;
+    return pat == 0x3 || pat == 0x6; /* 011 or 110 */
+}
 
 /* Check that a 6‑bit row does not contain any forbidden horizontal window. */
 static inline bool allowed_row(uint8_t r)
@@ -102,7 +121,7 @@ static void allocate_cache(idx_t n)
     if (cache == NULL || (size_t)n > cache_cap) {
         size_t new_cap = (size_t)n;
         /* realloc returns void*, cast explicitly for C++ */
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }
@@ -134,7 +153,7 @@ static void compute_to(idx_t n)
     /* DP for rows 3..n. */
     for (idx_t row = max_n_done + 1; row <= n; ++row) {
         /* zero next DP array */
-        memset(dp_nxt, 0, state_cnt * sizeof(seq_t));
+        mem_set(dp_nxt, 0, state_cnt * sizeof(seq_t));
 
         /* transition from each current state */
         for (size_t s = 0; s < state_cnt; ++s) {

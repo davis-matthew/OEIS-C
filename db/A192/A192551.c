@@ -8,12 +8,14 @@
  *            number of the first kind (absolute value)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,12 +29,12 @@ seq_t a(idx_t n)
 
     /*--- initialise base cases ------------------------------------------*/
     if (st_row == NULL) {
-        st_row = (seq_t *)malloc(1 * sizeof(seq_t));   /* row for n = 0 */
+        st_row = mem_new(seq_t, 1);   /* row for n = 0 */
         st_row[0] = 1;                                 /* s(0,0) = 1 */
         st_len = 1;
     }
     if (fact == NULL) {
-        fact = (seq_t *)malloc(1 * sizeof(seq_t));   /* 0! */
+        fact = mem_new(seq_t, 1);   /* 0! */
         fact[0] = 1;
         fact_len = 1;
     }
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /*--- extend factorial array up to n ---------------------------------*/
     if (fact_len <= n) {
         size_t new_fact_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(fact, new_fact_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, new_fact_len);
         if (!tmp) return (seq_t)0;   /* allocation failure → return 0 */
         fact = tmp;
         for (idx_t i = fact_len; i <= n; ++i) {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     while (cur_n < n + 1) {
         /* compute row for cur_n + 1  (size cur_n + 2) */
         size_t new_len = cur_n + 2;
-        seq_t *new_row = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
         if (!new_row) return (seq_t)0;   /* allocation failure */
 
         new_row[0] = 0;                     /* s(n+1,0) = 0 for n+1 > 0 */
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         }
         new_row[cur_n + 1] = 1;              /* s(n+1,n+1) = 1 */
 
-        free(st_row);
+        mem_free(st_row);
         st_row = new_row;
         st_len = new_len;
         ++cur_n;

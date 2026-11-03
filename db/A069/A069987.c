@@ -7,7 +7,8 @@
  * Formula:   a(n) = A049533(n)^2 + 1
  * Range:     u8 n <= 14, u16 n <= 228, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- primes up to a fixed bound --------------------------------- */
 static unsigned long long *primes = NULL;
@@ -84,7 +86,7 @@ static void ensure_cache(size_t n)
     if (cache_len >= n) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < n) new_cap *= 2;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) return; /* allocation failed – leave cache unchanged */
     cache     = new_cache;
     cache_cap = new_cap;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 25, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   isqrt_seq
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,25 @@
    y+1 ≥ 3, both x and y are perfect squares. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isqrt_seq.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Integer square root (floor) of a non‑negative seq_t value. */
+static seq_t isqrt_seq(seq_t v)
+{
+    seq_t lo = 0, hi = v;
+    while (lo <= hi) {
+        seq_t mid = lo + ((hi - lo) >> 1);
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
 
 static seq_t *terms = NULL;
 static size_t terms_len = 0;
@@ -57,7 +76,7 @@ static inline bool ok_term(seq_t n) {
 static void ensure_terms_size(void) {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *new_ptr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, terms, new_cap);
         terms = new_ptr;
         terms_cap = new_cap;
     }

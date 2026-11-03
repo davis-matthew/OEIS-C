@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
    and 2p-6n-3 is also prime.  Return -1 if no such prime exists. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -27,10 +29,10 @@ seq_t a(idx_t n)
     while (true) {
         uint64_t p = pow2 + n6 + 3ULL;   /* candidate prime 2^k + 6n + 3 */
 
-        if (is_prime(p)) {
+        if (is_prime_u64(p)) {
             /* 2p - 6n - 3 = 2^(k+1) + 6n + 3 must also be prime */
             uint64_t q = (p << 1) - n6 - 3ULL;
-            if (is_prime(q))
+            if (is_prime_u64(q))
                 return (seq_t)p;
         }
 

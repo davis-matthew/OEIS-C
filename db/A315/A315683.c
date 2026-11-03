@@ -13,13 +13,15 @@
  *            calls
  * Range:     u8 n <= 47, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[11] = {
     (seq_t)1,  (seq_t)6,  (seq_t)12, (seq_t)17, (seq_t)22,
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     idx_t needed = n + 1;
     if (needed > cache_size) {
         seq_t *old = cache;
-        cache = (seq_t *)realloc(old, (size_t)needed * sizeof(seq_t));
+        cache = mem_resize(seq_t, old, (size_t)needed);
         if (!cache) abort();               /* allocation failure */
         /* initialise new slots from previous size up to needed-1 */
         for (idx_t i = cache_size; i < needed; ++i) {

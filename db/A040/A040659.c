@@ -9,12 +9,14 @@
  *            standard continued‑fraction algorithm for sqrt(D)
  * Range:     u8 n <= 0, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 84 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t D = (seq_t)686;
 
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
         /* Start with a reasonable capacity. */
         size_t cap = 64;
-        period = (seq_t*)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         if (!period) abort();
 
         size_t len = 0;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
             /* Grow the array if needed. */
             if (len >= cap) {
                 cap <<= 1;
-                period = (seq_t*)realloc(period, cap * sizeof(seq_t));
+                period = mem_resize(seq_t, period, cap);
                 if (!period) abort();
             }
 

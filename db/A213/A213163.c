@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 23, u64 n <= 45, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n) = 7*a(n-1) - 17*a(n-2) + 17*a(n-3) - 7*a(n-4) + a(n-5)  (n ≥ 9) */
 #include <stdlib.h>
 #include <string.h>   /* for memcpy */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first five values when first called */
     if (cache_len == 0) {
         cache_cap = 9;                 /* indices 0..8, we store up to 8 initially */
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* values for indices 0..3 are irrelevant */
         cache[4] = (seq_t)1;           /* a(4) */
         cache[5] = (seq_t)7;           /* a(5) */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     /* enlarge cache to contain indices up to n */
     if (n + 1 > cache_cap) {
         size_t new_cap = n + 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

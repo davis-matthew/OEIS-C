@@ -8,7 +8,8 @@
  * Formula:   a(n) = (p_n - 1) * φ(p_n - 1) where p_n is the n‑th prime
  * Range:     u8 n <= 9, u16 n <= 75, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 61 terms through n = 979 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -72,6 +73,6 @@ seq_t a(idx_t n)
     uint64_t p = primes[n - 1];
     uint64_t m = p - 1;                 /* m = p - 1 */
 
-    seq_t phi_m = phi(m);               /* φ(m) */
+    seq_t phi_m = totient(m);               /* φ(m) */
     return (seq_t)m * phi_m;
 }

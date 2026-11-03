@@ -13,13 +13,26 @@
  *            second kind)
  * Range:     u8 n <= 31, u16 n <= 71, u32 n <= 163, u64 n <= 423,
  *            u128 n <= 1113, big any n
- * Helpers:   chebyshev_s
+ * Validated: standard, pass, 82 terms through n = 9991 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/chebyshev_s.h"
+
+static inline seq_t chebyshev_s(idx_t k, seq_t x) {
+    if (k == 0) return (seq_t)1;
+    if (k == 1) return x;
+    seq_t prev2 = 1;
+    seq_t prev1 = x;
+    for (idx_t i = 2; i <= k; ++i) {
+        seq_t cur = prev1 * x - prev2;
+        prev2 = prev1;
+        prev1 = cur;
+    }
+    return prev1;
+}
 
 static inline idx_t triangular_index(idx_t n) {
     /* Find the largest s such that s*(s+1)/2 <= n.  */

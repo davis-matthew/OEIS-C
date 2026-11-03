@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2*a(n-2) - a(n-6)
  * Range:     u8 n <= 23, u16 n <= 45, u32 n <= 91, u64 n <= 183,
  *            u128 n <= 369, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Initial values: a(1)=a(2)=a(3)=1, a(4)=2, a(5)=2, a(6)=4          */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cache of computed terms, index 0 unused   */
 static idx_t  seq_cache_top = 0;  /* highest n for which seq_cache[n] is valid */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache with the first six terms if this is the first call. */
     if (!seq_cache) {
-        seq_cache = (seq_t *)calloc(7, sizeof(seq_t));   /* indices 0..6 : 0 unused */
+        seq_cache = mem_new(seq_t, 7);   /* indices 0..6 : 0 unused */
         if (!seq_cache) return (seq_t)0;  /* allocation failure */
 
         seq_cache[1] = (seq_t)1;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if (n <= seq_cache_top) return seq_cache[n];
 
     /* Grow the cache to contain up to index n, computing new values via recurrence. */
-    seq_t *new_cache = (seq_t *)realloc(seq_cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, (n + 1));
     if (!new_cache) return (seq_t)0;  /* allocation failure */
 
     seq_cache = new_cache;

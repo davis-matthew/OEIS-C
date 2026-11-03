@@ -10,13 +10,15 @@
  *            calls may appear in any order
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,12 +38,12 @@ seq_t a(idx_t n)
         {
             size_t newcap = cap ? cap * 2 : 16;
             while (newcap < needed) newcap <<= 1;
-            seq_t *newcache = (seq_t *)malloc(newcap * sizeof(seq_t));
+            seq_t *newcache = mem_new(seq_t, newcap);
             if (newcache == NULL) return (seq_t)0;   /* allocation failed */
             if (cache)
             {
-                memcpy(newcache, cache, len * sizeof(seq_t));
-                free(cache);
+                mem_copy(newcache, cache, len * sizeof(seq_t));
+                mem_free(cache);
             }
             cache = newcache;
             cap   = newcap;

@@ -13,14 +13,31 @@
  *            followed by (L/2+1) times '0'. All produced...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   append_run
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/append_run.h"
+
+static inline void append_run(seq_t *res, idx_t L)
+{
+    if (L == 0) return;           /* no run – never happens */
+    if (L & 1) {                  /* odd length  -> star tree      */
+        *res = (*res) * 10 + 1;   /* leading '1'                  */
+        for (idx_t i = 0; i < L - 1; ++i) {
+            *res = (*res) * 10 + 1;   /* '1' of the leaf            */
+            *res = (*res) * 10 + 0;   /* '0' of the leaf            */
+        }
+        *res = (*res) * 10 + 0;   /* closing '0' of the root    */
+    } else {                      /* even length -> chain tree   */
+        idx_t m = L / 2 + 1;      /* number of nodes in the chain */
+        for (idx_t i = 0; i < m; ++i) *res = (*res) * 10 + 1;
+        for (idx_t i = 0; i < m; ++i) *res = (*res) * 10 + 0;
+    }
+}
 
 seq_t a(idx_t n)
 {

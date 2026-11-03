@@ -10,7 +10,8 @@
  *            efficient
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
     if (n >= cap) {
         idx_t old_cap = cap;
         size_t new_cap = (size_t)n + 1;   /* capacity needed for n */
-        seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) return (seq_t)0;        /* allocation failure → 0 */
         if (cache) {
-            memcpy(tmp, cache, old_cap * sizeof(seq_t));
-            free(cache);
+            mem_copy(tmp, cache, old_cap * sizeof(seq_t));
+            mem_free(cache);
         }
         /* initialise newly available entries to 0 */
         for (idx_t i = old_cap; i < new_cap; ++i) tmp[i] = 0;

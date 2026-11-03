@@ -9,15 +9,41 @@
  *            the Ulam spiral (n itself excluded)
  * Range:     u8 n <= 102, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
- * Helpers:   is_prime, xy_to_idx
+ * Validated: partial, pass, 102 terms through n = 102 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"            /* is_prime(idx_t) */
-#include "../utils/xy_to_idx.h"
+#include "../utils/is_prime.h"
+
+/* Convert cartesian coordinates (x, y) back to spiral index. */
+static idx_t xy_to_idx(long long x, long long y)
+{
+    if (x == 0 && y == 0) return 1;
+
+    long long ax = (x > 0) ? x : -x;
+    long long ay = (y > 0) ? y : -y;
+    long long rl = (ax > ay) ? ax : ay;
+    idx_t r = (idx_t)rl;
+
+    unsigned __int128 tmp = (unsigned __int128)(2 * r - 1) * (2 * r - 1);
+    idx_t low = (idx_t)(tmp + 1);
+
+    idx_t k;
+    if (x == rl && y >= -rl + 1 && y <= rl) {
+        k = (idx_t)(y + rl - 1);
+    } else if (y == rl && x >= -rl && x <= rl - 1) {
+        k = (idx_t)(2 * r + (rl - 1 - x));
+    } else if (x == -rl && y >= -rl && y <= rl - 1) {
+        k = (idx_t)(4 * r + (rl - 1 - y));
+    } else {
+        k = (idx_t)(6 * r + (x + rl - 1));
+    }
+    return low + k;
+}
 
 /* Integer square root of a 64‑bit unsigned integer.
  * Return floor(sqrt(x)). Uses binary search and __int128 for safety. */

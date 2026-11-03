@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *list   = NULL;   /* numbers with exactly two representations   */
 static size_t list_len = 0;    /* number of elements in list                 */
@@ -68,14 +70,14 @@ static void init_sequence(void)
 
     /* collect numbers with exactly two representations */
     list_cap = 64;
-    list = (seq_t *)malloc(list_cap * sizeof(seq_t));
+    list = mem_new(seq_t, list_cap);
     list_len = 0;
 
     for (idx_t n = 1; n <= MAX_N; ++n) {
         if (dp[7][n] == 2) {
             if (list_len == list_cap) {
                 list_cap <<= 1;
-                list = (seq_t *)realloc(list, list_cap * sizeof(seq_t));
+                list = mem_resize(seq_t, list, list_cap);
             }
             list[list_len++] = (seq_t)n;
         }

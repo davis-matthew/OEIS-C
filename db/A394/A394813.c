@@ -10,12 +10,14 @@
  *            T(n-1,k-1) + (n-k+1) * Σ_{j=1..n-k} ( j * T(j+k-2, k-1) )
  * Range:     u8 n <= 12, u16 n <= 31, u32 n <= 61, u64 n <= 162,
  *            u128 n <= 395, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9337 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types are provided by the build environment:
    typedef uint64_t idx_t;          // unsigned 64‑bit index
@@ -54,7 +56,7 @@ static void ensure_rows(idx_t up_to)
     /* Compute each new row. */
     for (idx_t n = current_max_row + 1; n <= up_to; ++n) {
         /* Allocate space for this row (indices 0..n). */
-        triangle[n] = (seq_t *)calloc(n + 1, sizeof(seq_t));
+        triangle[n] = mem_new(seq_t, n + 1);
         if (triangle[n] == NULL)
             exit(EXIT_FAILURE);
         /* Base cases */

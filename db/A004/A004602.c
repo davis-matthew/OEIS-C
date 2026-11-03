@@ -9,8 +9,8 @@
  *            4*atan(1/239)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a004602_add, a004602_atan, a004602_div, a004602_iszero,
- *            a004602_sub
+ * Validated: standard, pass, 115 terms through n = 8595 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +18,60 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a004602_add.h"
-#include "../utils/a004602_atan.h"
-#include "../utils/a004602_div.h"
-#include "../utils/a004602_iszero.h"
-#include "../utils/a004602_sub.h"
+
+static void a004602_add(uint32_t *s, const uint32_t *q, size_t L) {
+    uint64_t c = 0;
+    size_t i = L + 1;
+    while (i-- > 0) {
+        uint64_t v = (uint64_t)s[i] + q[i] + c;
+        s[i] = (uint32_t)v;
+        c = v >> 32;
+    }
+}
+
+static void a004602_div(uint32_t *x, size_t L, uint32_t d) {
+    uint64_t r = 0;
+    size_t i;
+    for (i = 0; i <= L; i++) {
+        uint64_t v = (r << 32) | x[i];
+        x[i] = (uint32_t)(v / d);
+        r = v % d;
+    }
+}
+
+static int a004602_iszero(const uint32_t *x, size_t L) {
+    size_t i;
+    for (i = 0; i <= L; i++)
+        if (x[i]) return 0;
+    return 1;
+}
+
+static void a004602_sub(uint32_t *s, const uint32_t *q, size_t L) {
+    int64_t b = 0;
+    size_t i = L + 1;
+    while (i-- > 0) {
+        int64_t v = (int64_t)s[i] - (int64_t)q[i] - b;
+        if (v < 0) { v += ((int64_t)1 << 32); b = 1; } else b = 0;
+        s[i] = (uint32_t)v;
+    }
+}
+
+/* s += sign * num * atan(1/m) */
+static void a004602_atan(uint32_t *s, uint32_t *t, uint32_t *q, size_t L,
+                         uint32_t num, uint32_t m, int positive) {
+    uint32_t k = 0;
+    memset(t, 0, (L + 1) * sizeof(uint32_t));
+    t[0] = num;
+    a004602_div(t, L, m);
+    while (!a004602_iszero(t, L)) {
+        memcpy(q, t, (L + 1) * sizeof(uint32_t));
+        a004602_div(q, L, 2 * k + 1);
+        if (((k & 1) == 0) == (positive != 0)) a004602_add(s, q, L);
+        else a004602_sub(s, q, L);
+        a004602_div(t, L, m * m);
+        k++;
+    }
+}
 
 static unsigned char *a004602_dig = NULL;
 static idx_t a004602_have = 0;

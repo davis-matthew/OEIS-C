@@ -10,12 +10,14 @@
  *            sequence A077844 (Duplicate of A077827)
  * Range:     i8 n <= 4, i16 n <= 9, i32 n <= 14, i64 n <= 14, i128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached values of a(n) */
 static size_t cache_len = 0;  /* current allocated size (number of elements) */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* ensure we have room for indices up to n (inclusive) */
     if (n >= cache_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) {
             /* allocation failure: fall back to minimal computation (should not happen for n <= 10000) */
             /* As a safety, compute iteratively without caching */

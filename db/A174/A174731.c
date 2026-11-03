@@ -10,12 +10,15 @@
  *            k=1…2; …)
  * Range:     i8 n <= 11, i16 n <= 30, i32 n <= 95, i64 n <= 310,
  *            i128 n <= 1100, big any n
+ * Validated: standard, pass, 61 terms through n = 4909 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

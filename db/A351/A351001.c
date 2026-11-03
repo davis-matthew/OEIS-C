@@ -11,7 +11,8 @@
  *            gcd(a(n-2)+a(n-1), a(n))>1
  * Range:     u8 n <= 58, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* ------------------- state ------------------- */
 static seq_t *seq = NULL;          /* permutation values */
@@ -54,11 +56,11 @@ static void ensure_sequence_capacity(idx_t n)
 {
     if (seq_cap == 0) {
         seq_cap = 8;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     }
     while ((size_t)n >= seq_cap) {
         seq_cap <<= 1;
-        seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
 
     if (seq_len == 0) {          /* a(0) */

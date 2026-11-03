@@ -12,12 +12,14 @@
  *            a(6)=659, a(7)=1177, a(8)=2119, a(9)=3805, a(10)=6857
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 31, u64 n <= 67, u128 n <= 138,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Ensure cache has space up to n */
     if (n + 1 > cache_cap) {
         /* Allocate enough space; use casting because realloc returns void* */
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) return 0;              /* allocation failure */
         cache = new_cache;
         cache_cap = n + 1;

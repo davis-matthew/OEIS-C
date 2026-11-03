@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 3366, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9290 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- static state ---------- */
 static const idx_t LIMIT = 20000000;          /* sieve upper bound (covers 12*k+1) */
@@ -46,14 +48,14 @@ static void init_sequence(void)
     /* --- collect qualifying k values --- */
     idx_t max_k = (LIMIT - 1) / 12;           /* largest k with 12*k+1 <= LIMIT */
     valid_k_cap = max_k / 10 + 10;            /* initial capacity estimate           */
-    valid_k = (seq_t *)malloc(valid_k_cap * sizeof(seq_t));
+    valid_k = mem_new(seq_t, valid_k_cap);
     if (!valid_k) abort();
 
     for (idx_t k = 1; k <= max_k; ++k) {
         if (is_prime[12 * k - 1] && is_prime[12 * k + 1]) {
             if (valid_k_used == valid_k_cap) {
                 valid_k_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(valid_k, valid_k_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, valid_k, valid_k_cap);
                 if (!tmp) abort();
                 valid_k = tmp;
             }

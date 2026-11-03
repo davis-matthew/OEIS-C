@@ -9,7 +9,8 @@
  *            search
  * Range:     u8 n <= 16, u16 n <= 1105, u32 n <= 1880, u64 n <= 1880,
  *            u128 n <= 1880, big any n
- * Helpers:   min_digit_is_three
+ * Validated: standard, pass, 69 terms through n = 1802 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,27 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/min_digit_is_three.h"
+#include "../utils/mem.h"
+
+/* return true if the decimal representation of x has minimum digit 3 */
+static bool min_digit_is_three(unsigned long long x)
+{
+    unsigned int min_digit = 9;
+    bool has_three = false;
+
+    while (x > 0)
+    {
+        unsigned int d = (unsigned int)(x % 10ULL);
+        if (d < min_digit)
+            min_digit = d;
+        if (d == 3)
+            has_three = true;
+        if (min_digit < 3)                 /* a smaller digit found */
+            return false;
+        x /= 10ULL;
+    }
+    return has_three;
+}
 
 /* Returns the n‑th member of the sequence, 1‑based indexing. */
 seq_t a(idx_t n)
@@ -39,7 +60,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (tmp == NULL)
                     abort(); /* out of memory */
                 cache = tmp;

@@ -10,8 +10,9 @@
  * Formula:   a(n) = second non‑zero quotient of carryless polynomial division
  *            (n*k)/k over odd k > 1, where k is the smallest odd integer > 1
  *            that yields an exact carryless division
- * Range:     u8 n <= 21, u16 n <= 1821, u32 n <= 9452, u64 n <= 9452,
- *            u128 n <= 9452, big any n
+ * Range:     u8 n <= 21, u16 n <= 1821, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 95 terms through n = 9452 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

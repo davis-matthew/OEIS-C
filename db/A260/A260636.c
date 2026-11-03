@@ -7,14 +7,17 @@
  * Formula:   a(n) = binomial(3n, n) mod n (offset 1)
  * Range:     u8 n <= 273, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 97 terms through n = 9271 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -58,7 +61,7 @@ seq_t a(idx_t n)
             continue;
 
         seq_t base = (seq_t)(p % (idx_t)n);
-        seq_t pow_term = mod_pow(base, (uint64_t)e, (seq_t)n);
+        seq_t pow_term = powmod(base, (uint64_t)e, (seq_t)n);
         result = (result * pow_term) % (seq_t)n;
     }
 

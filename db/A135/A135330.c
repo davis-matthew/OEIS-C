@@ -8,8 +8,9 @@
  * Formula:   a(n) = value of the triangle T(row,k) for the index n. T(n,k) is
  *            given by: T(n,k) = 1/(n+1) * Σ_{j=k}^{⌊n/3⌋} (-1)^{j-k} (3j+1) *
  *            C(j,k) * C(2n-3j, n)
- * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 44, u64 n <= 44, u128 n <= 44,
+ * Range:     u8 n <= 8, u16 n <= 21, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

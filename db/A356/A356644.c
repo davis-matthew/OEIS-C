@@ -7,7 +7,8 @@
  * Formula:   a(n) = 4^n + 2*n - Lucas(2*n) - 2*n*Fib(2*n) - 1
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   fib, pow_uint
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,19 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/fib.h"
-#include "../utils/pow_uint.h"
+#include <stdbool.h>
+#include "../utils/ipow_u64_idx.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n)
 {
@@ -25,7 +37,7 @@ seq_t a(idx_t n)
         return 0;                      /* offset starts at 1 */
 
     /* 4^n */
-    seq_t pow4 = pow_uint(4, n);
+    seq_t pow4 = ipow_u64_idx(4, n);
 
     /* Fibonacci terms */
     idx_t two_n      = n * (idx_t)2;

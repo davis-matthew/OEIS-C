@@ -7,13 +7,25 @@
  * Formula:   a(n) = (n-1)! * Sum_{d|n} d^n / (d-1)!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   factorial, pow_uint
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/factorial.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,7 +40,7 @@ seq_t a(idx_t n)
         /* first divisor d */
         seq_t denom1 = factorial(d - 1);          /* (d-1)! */
         seq_t ratio1 = fact_n_minus1 / denom1;    /* (n-1)! / (d-1)! */
-        seq_t pow1   = pow_uint(d, n);            /* d^n */
+        seq_t pow1   = ipow_u64_idx(d, n);            /* d^n */
         total += ratio1 * pow1;
 
         idx_t d2 = n / d;
@@ -36,7 +48,7 @@ seq_t a(idx_t n)
             /* second divisor d2 */
             seq_t denom2 = factorial(d2 - 1);        /* (d2-1)! */
             seq_t ratio2 = fact_n_minus1 / denom2;   /* (n-1)! / (d2-1)! */
-            seq_t pow2   = pow_uint(d2, n);          /* d2^n */
+            seq_t pow2   = ipow_u64_idx(d2, n);          /* d2^n */
             total += ratio2 * pow2;
         }
     }

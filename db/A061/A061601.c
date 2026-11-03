@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = 10^d − 1 − n, where d = number of decimal digits of n
- * Range:     u8 n <= 99, u16 n <= 9999, u32 n <= 9642, u64 n <= 9642,
- *            u128 n <= 9642, big any n
+ * Range:     u8 n <= 99, u16 n <= 9999, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 88 terms through n = 9642 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

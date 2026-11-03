@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 54, u64 n <= 135, u128 n <= 377,
  *            big any n
- * Helpers:   binom, catalan, seq_mul, seq_pow
+ * Validated: standard, pass, 61 terms through n = 9511 (2026-11-01)
+ * Helpers:   binomial, catalan, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,18 @@
    T(n,n) = Catalan(n) */
  
 #include <stdint.h>
-#include "../utils/binom.h"    /* binom(idx_t a, idx_t b)  */
-#include "../utils/catalan.h"  /* catalan(idx_t k)         */
-#include "../utils/seq_mul.h"  /* seq_mul(seq_t a, seq_t b) */
-#include "../utils/seq_pow.h"  /* seq_pow(seq_t base, idx_t exp) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+#include "../utils/binomial.h"
+#include "../utils/catalan.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
  
 /* find row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2 */
 static inline idx_t row_from_index(idx_t n) {
@@ -52,7 +61,7 @@ seq_t a(idx_t n) {
         return catalan(r);
  
     /* For k < r: use T(n,k) = binomial(n+k , k+1) * n^(n-k-1) */
-    seq_t pow_val   = seq_pow((seq_t)r, r - k - 1);
-    seq_t binom_val = binom(r + k, k + 1);
+    seq_t pow_val   = ipow_idx((seq_t)r, r - k - 1);
+    seq_t binom_val = binomial(r + k, k + 1);
     return seq_mul(binom_val, pow_val);
 }

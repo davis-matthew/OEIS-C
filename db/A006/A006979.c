@@ -11,6 +11,7 @@
  *            ((1-x-x^2-x^3-x^4)*(1-x-x^2-x^3-x^4-x^5))
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 34, u64 n <= 67, u128 n <= 132,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 3296 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

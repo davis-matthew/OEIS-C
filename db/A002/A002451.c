@@ -8,6 +8,7 @@
  *            (c(n) = (4^(n+1)-1)/3, the expansion of 1/((1-x)*(1-4*x)))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 40,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 779 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

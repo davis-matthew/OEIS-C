@@ -10,7 +10,8 @@
  *            (2+3*k)*T(n-1,k) + 3*T(n-1,k-1)
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 58, u64 n <= 175,
  *            u128 n <= 503, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 1270 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    column k = n - r(r+1)/2.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,11 +38,11 @@ seq_t a(idx_t n)
 
     /* arrays for the current and previous row, of length k+1 */
     size_t len = (size_t)(k + 1);
-    seq_t *prev = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *cur  = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, len);
+    seq_t *cur  = mem_new(seq_t, len);
     if (!prev || !cur) {
-        free(prev);
-        free(cur);
+        mem_free(prev);
+        mem_free(cur);
         return (seq_t)0;          /* memory allocation failure */
     }
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = prev[k];
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return result;
 }

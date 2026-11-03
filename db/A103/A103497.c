@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 545, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 8872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external linkage as required */
 seq_t a(idx_t n)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp_cache = mem_resize(seq_t, cache, new_size);
         unsigned char *tmp_seen = (unsigned char *)realloc(seen, new_size * sizeof(unsigned char));
         if (!tmp_cache || !tmp_seen) { /* allocation failure – fall back to no cache */
             cache = NULL;

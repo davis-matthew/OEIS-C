@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static helper to grow a cache array to hold indices 0..n */
 static void ensure_capacity(idx_t n, seq_t **cache, size_t *cap)
@@ -29,7 +31,7 @@ static void ensure_capacity(idx_t n, seq_t **cache, size_t *cap)
     size_t needed = (size_t)n + 1;
     if (*cap <= needed) {
         size_t new_cap = needed;
-        seq_t *tmp = (seq_t*)realloc(*cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *cache, new_cap);
         if (!tmp) exit(1);              /* abort on allocation failure */
         *cache = tmp;
         for (size_t i = *cap; i < new_cap; ++i)

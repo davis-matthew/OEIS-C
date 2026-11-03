@@ -11,13 +11,15 @@
  *            here
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for computed terms: index 0 is unused, a[1] is the first term. */
 static seq_t *seq_cache = NULL;   /* array of a[1..] */
@@ -32,9 +34,9 @@ static void ensure_cache(idx_t n)
     if ((size_t)n + 1 > cache_cap) {              /* need at least n+1 slots */
         size_t new_cap = (size_t)n + 1;
         if (cache_cap == 0) {                     /* first allocation */
-            seq_cache = (seq_t*)calloc(new_cap, sizeof(seq_t));
+            seq_cache = mem_new(seq_t, new_cap);
         } else {
-            seq_cache = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         }
         cache_cap = new_cap;
     }

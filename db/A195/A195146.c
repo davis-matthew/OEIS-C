@@ -7,6 +7,7 @@
  * Formula:   a(n) = (8*n^2 + 3*(-1)^n - 3)/2
  * Range:     u8 n <= 7, u16 n <= 127, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 63 terms through n = 8706 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

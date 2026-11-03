@@ -9,14 +9,16 @@
  *            binom(n−⌊(n+1)/3⌋, m)
  * Range:     u8 n <= 19, u16 n <= 34, u32 n <= 61, u64 n <= 118,
  *            u128 n <= 229, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 59 terms through n = 5653 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Counting nonempty subsets of {1,…,n} in which exactly 4/5 of the elements are ≤ floor((n+1)/3). */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
 
     for (idx_t m = 1; 4 * m <= t && m <= L; ++m)
     {
-        seq_t small = binom(t, 4 * m);   /* choose 4m elements from the first t */
-        seq_t large = binom(L, m);       /* choose m elements from the rest */
+        seq_t small = binomial(t, 4 * m);   /* choose 4m elements from the first t */
+        seq_t large = binomial(L, m);       /* choose m elements from the rest */
         total += small * large;
     }
 

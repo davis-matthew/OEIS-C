@@ -11,14 +11,17 @@
  *            incrementally
  * Range:     u8 n <= 66, u16 n <= 5138, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 76 terms through n = 9769 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Dynamic cache of the sequence */
 static seq_t *seq      = NULL;
@@ -34,7 +37,7 @@ static void grow_seq(size_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) /* out of memory – abort */
         abort();
     seq = tmp;

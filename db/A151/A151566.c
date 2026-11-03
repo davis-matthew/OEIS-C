@@ -8,7 +8,8 @@
  *            2^{popcount(n)}
  * Range:     u8 n <= 47, u16 n <= 1535, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Helper: compute Σ_{k=0}^{m-1} 2^{popcount(k)} on demand, memoised. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache of partial sums g[m] = Σ_{k=0}^{m-1} 2^{popcount(k)} */
 static seq_t *g_cache   = NULL;   /* array of g values */
@@ -33,12 +35,12 @@ static void ensure_g(idx_t upto)
 
     if (g_cache == NULL) {
         /* first allocation */
-        g_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        g_cache = mem_new(seq_t, new_cap);
         if (!g_cache) abort();                /* allocation failure */
         g_cache[0] = 0;                       /* g(0) = 0 */
     } else if (new_cap > (size_t)g_last + 1) {
         /* grow the array */
-        g_cache = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+        g_cache = mem_resize(seq_t, g_cache, new_cap);
         if (!g_cache) abort();
     }
 

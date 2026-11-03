@@ -10,7 +10,8 @@
  *            x^(t*(t+1)/2) / ((1-x^t)^5 * product_{i=1..t} (1-x^i))
  * Range:     u8 n <= 6, u16 n <= 22, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    added to the final coefficients with the appropriate sign. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of already computed values */
@@ -38,9 +40,9 @@ seq_t a(idx_t n) {
     idx_t size = N + 1;
 
     /* allocate temporary arrays */
-    seq_t *a_seq = (seq_t*)malloc(size * sizeof(seq_t));
-    seq_t *part  = (seq_t*)malloc(size * sizeof(seq_t));
-    seq_t *conv  = (seq_t*)malloc(size * sizeof(seq_t));
+    seq_t *a_seq = mem_new(seq_t, size);
+    seq_t *part  = mem_new(seq_t, size);
+    seq_t *conv  = mem_new(seq_t, size);
 
     /* initialise */
     for (idx_t i = 0; i < size; ++i) {
@@ -86,15 +88,15 @@ seq_t a(idx_t n) {
 
     /* free old cache */
     if (val != NULL)
-        free(val);
+        mem_free(val);
 
     /* use the newly computed array as cache */
     val = a_seq;
     val_size = size;
 
     /* part and conv can be freed */
-    free(part);
-    free(conv);
+    mem_free(part);
+    mem_free(conv);
 
     return val[n];
 }

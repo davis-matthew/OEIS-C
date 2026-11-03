@@ -7,7 +7,8 @@
  * Formula:   a(n) = Π_{k=1}^{n+1} k^{2k-n-3} (numerator of that fraction)
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: standard, pass, 31 terms through n = 69 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,13 @@
 #include <string.h>
 #include <stddef.h>
 
-#include "../utils/big_pow.h"   /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/seq_mul.h"   /* seq_t seq_mul(seq_t a, seq_t b); */
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Smallest Prime Factor table (spf[i] == smallest prime factor of i; spf[0]=spf[1]=0) */
 static idx_t *spf      = NULL;
@@ -86,7 +92,7 @@ seq_t a(idx_t n) {
     seq_t result = (seq_t)1;
     for (idx_t p = 2; p <= max_base; ++p) {
         if (spf[p] == p && expos[p] > 0) {
-            seq_t pw = big_pow((seq_t)p, (seq_t)expos[p]);
+            seq_t pw = ipow((seq_t)p, (seq_t)expos[p]);
             result = seq_mul(result, pw);
         }
     }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th integer k such that floor(k^(3/2)) is cubefree
  * Range:     u8 n <= 3, u16 n <= 20, u32 n <= 720, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_cube_root, floor_sqrt, seq_pow
+ * Validated: standard, pass, 84 terms through n = 8585 (2026-11-03)
+ * Helpers:   ipow_i32, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,47 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/floor_cube_root.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *seq_cache = NULL;       /* cached a(i) values */
 static size_t seq_len   = 0;  /* number of cached values */
@@ -34,7 +73,7 @@ static bool is_cubefree(seq_t x)
     idx_t bound = (idx_t)croot;   /* safe: croot is small for our range */
     for (idx_t p = 2; p <= bound; ++p)
     {
-        seq_t p3 = seq_pow((seq_t)p, 3);   /* p^3 */
+        seq_t p3 = ipow_idx((seq_t)p, 3);   /* p^3 */
         if (x % p3 == 0)
             return false;
     }
@@ -50,7 +89,7 @@ static void ensure_capacity(size_t new_cap)
         seq_cap = 16;
     while (seq_cap < new_cap)
         seq_cap *= 2;
-    seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
 }
 
 /* Return the nth term of the sequence (1‑based). */
@@ -63,7 +102,7 @@ seq_t a(idx_t n)
     while (seq_len < (size_t)n)
     {
         /* Compute floor(k^(3/2)) = floor(sqrt(k^3)). */
-        seq_t k3  = seq_pow((seq_t)next_k, 3);         /* k^3 */
+        seq_t k3  = ipow_idx((seq_t)next_k, 3);         /* k^3 */
         seq_t b   = floor_sqrt(k3);                    /* floor(sqrt(k^3)) */
 
         if (is_cubefree(b))

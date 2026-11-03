@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 30, u128 n <= 62,
  *            big any n
- * Helpers:   is_allowed_triple
+ * Validated: standard, pass, 38 terms through n = 191 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,24 @@
    or antidiagonally.  Initial terms: a(1)=8, a(2)=64.
    The function computes the count by dynamic programming on 2‑row states. */
 #include <stdint.h>
-#include "../utils/is_allowed_triple.h"
+
+static inline int is_allowed_triple(int p, int q, int r)
+{
+    /* vertical pattern 0 0 1 in any column */
+    for (int c = 0; c < 3; ++c) {
+        int bp = (p >> c) & 1;
+        int bq = (q >> c) & 1;
+        int br = (r >> c) & 1;
+        if (bp == 0 && bq == 0 && br == 1)
+            return 0;
+    }
+    /* antidiagonal pattern 0 0 1 across columns 2→1→0 */
+    if ( ((p >> 2) & 1) == 0 &&
+         ((q >> 1) & 1) == 0 &&
+         ((r >> 0) & 1) == 1 )
+        return 0;
+    return 1;
+}
 
 seq_t a(idx_t n)
 {

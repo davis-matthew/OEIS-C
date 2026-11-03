@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   build_primes_upto, is_prime_small
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/is_prime_small.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -59,11 +60,11 @@ seq_t a(idx_t n)
         uint64_t q = S - p;
         if (q < 2)                 /* must be prime ≥ 2 */
             continue;
-        if (!is_prime_small(q))
+        if (!is_prime_seq(q))
             continue;
 
         /* Check additional prime condition */
-        if (is_prime_small(p + 6) || is_prime_small(q + 6))
+        if (is_prime_seq(p + 6) || is_prime_seq(q + 6))
             ++count;
     }
 

@@ -9,18 +9,31 @@
  * Keywords:  sign, mult
  * Formula:   a(n) = ∏_{p^e‖n} f(p,e) where f(2,e) = -2, f(p,e) =
  *            prevprime(p)^e – nextprime(p)·prevprime(p)^(e−1) (p>2)
- * Range:     i8 n <= 209, i16 n <= 9550, i32 n <= 9550, i64 n <= 9550,
- *            i128 n <= 9550, big any n
- * Helpers:   factor_u64, next_prime, prev_prime
+ * Range:     i8 n <= 209, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 94 terms through n = 9550 (2026-11-01)
+ * Helpers:   factor_u64, is_prime, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The helpers below are provided by the build environment. */
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/prev_prime.h"  /* idx_t prev_prime(idx_t n); */
-#include "../utils/next_prime.h"  /* idx_t next_prime(idx_t n); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/next_prime.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 /* Compute base^exp where base is seq_t and exp is idx_t */
 static seq_t power_seq(seq_t base, idx_t exp)

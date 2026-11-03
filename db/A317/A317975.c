@@ -9,7 +9,8 @@
  *            a(0)=0, a(1)=1, a(2)=1, a(3)=0
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 23, u64 n <= 44, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Ensure the cache array holds indices 0..n, reallocating as needed.
    The cast is required for C++ compatibility. */
@@ -28,7 +30,7 @@ static void ensure_capacity(idx_t n, seq_t **cache_ptr, size_t *cap_ptr)
         while (new_cap < needed)
             new_cap <<= 1;
         /* Cast to seq_t* for C++ and C compatibility */
-        seq_t *tmp = (seq_t *)realloc(*cache_ptr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *cache_ptr, new_cap);
         if (!tmp)
             abort();                 /* allocation failed */
         *cache_ptr = tmp;

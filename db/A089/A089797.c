@@ -10,6 +10,7 @@
  *            ≥ 3 (here m = ⌊n/2⌋ for even n, m = (n-1)/2 for odd n)
  * Range:     u8 n <= 18, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 18 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

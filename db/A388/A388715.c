@@ -9,7 +9,8 @@
  *            the i‑th prime)
  * Range:     u8 n <= 89, u16 n <= 7196, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 78 terms through n = 9009 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Return the n-th element of A388715.  n ≥ 1.  Caches previously
    computed terms so that arbitrary order of calls is efficient. */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Initialize on first call */
     if (len == 0) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;          /* out of memory */
         cache[0] = 1;                  /* a(1) = 1 */
         len = 1;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
                 /* Grow the cache if necessary */
                 if (len >= cap) {
                     cap <<= 1;               /* double capacity */
-                    seq_t *new_cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    seq_t *new_cache = mem_resize(seq_t, cache, cap);
                     if (!new_cache) return 0;/* out of memory */
                     cache = new_cache;
                 }

@@ -11,12 +11,15 @@
  *            sequence
  * Range:     u8 n <= 8, u16 n <= 26, u32 n <= 26, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -38,5 +41,5 @@ seq_t a(idx_t n)
     seq_t exponent = (seq_t)n - (seq_t)k;
 
     /* Return 3^(3^k - k) using the provided big_pow routine. */
-    return big_pow((seq_t)3, exponent);
+    return ipow((seq_t)3, exponent);
 }

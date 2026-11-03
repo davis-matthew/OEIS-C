@@ -9,13 +9,15 @@
  *            a(3)=6, a(4)=21, a(5)=73
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 20, u64 n <= 41, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>   /* for malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *cache     = NULL;  /* array of computed terms  */
 static size_t cache_cap = 0;     /* current capacity of the array */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         size_t cap = 16;
         if (cap < 6) cap = 6;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();                  /* fatal error */
         for (size_t i = 0; i < 6; ++i) cache[i] = init[i];
         cache_len = 6;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         if (new_cap < 16) new_cap = 16;
         while ((size_t)n >= new_cap) new_cap <<= 1;   /* double until enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                           /* fatal error */
         cache     = tmp;
         cache_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, is_prime, mod_pow
+ * Validated: standard, pass, 72 terms through n = 915 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime.h"
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* --- static cache for generated terms ---------------------------------- */
 static seq_t *cache = NULL;          /* stored terms */
@@ -38,7 +41,7 @@ static void ensure_cache_capacity(void)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* In an OEIS build this never happens for the tested range. */
             exit(1);
@@ -80,7 +83,7 @@ seq_t a(idx_t n)
             for (size_t i = 0; i < pf_cnt && good; ++i) {
                 uint64_t q = pf[i];
                 idx_t exp = (idx_t)((next_candidate - 1) / q);
-                seq_t r = mod_pow((seq_t)51, exp, (seq_t)next_candidate);
+                seq_t r = powmod((seq_t)51, exp, (seq_t)next_candidate);
                 if (r == (seq_t)1)   /* not a primitive root */
                     good = false;
             }

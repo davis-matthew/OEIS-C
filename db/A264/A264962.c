@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- small prime test ---------- */
 static bool is_prime_small(uint64_t n)
@@ -62,11 +64,11 @@ static void ensure_cache(idx_t n_needed)
     if (cache_size >= n_needed) return;
     if (cache_cap == 0) {
         cache_cap = 64;
-        seq_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
     }
     while (cache_cap < n_needed) {
         size_t new_cap = cache_cap * 2;
-        seq_t *new_arr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_arr) {
             /* fatal: memory allocation failed */
             exit(1);
@@ -85,7 +87,7 @@ static void init_sequence(void)
 
     cache_size = 1;
     cache_cap  = 64;
-    seq_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, cache_cap);
     seq_cache[0] = (seq_t)4;                 /* a(1) = 4 */
 
     k = 2;
@@ -157,7 +159,7 @@ seq_t a(idx_t n)
         /* Ensure capacity for next insertion */
         if (cache_size > cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *new_arr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *new_arr = mem_resize(seq_t, seq_cache, new_cap);
             if (!new_arr) exit(1);
             seq_cache = new_arr;
             cache_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = largest prime p such that 2*prime(n) - p is prime
  * Range:     u8 n <= 31, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   estimate_upper_prime, isPrime
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,16 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/isPrime.h"    /* bool isPrime(idx_t x); */
-#include "../utils/estimate_upper_prime.h"
+#include "../utils/is_prime.h"
+
+/* Estimate an upper bound for the nth prime (Rosser's theorem). */
+static inline idx_t estimate_upper_prime(idx_t n)
+{
+    if (n < 6) return 15;
+    double dn = (double)n;
+    double upper = dn * (log(dn) + log(log(dn))) + 3.0;
+    return (idx_t)(upper + 1.0);
+}
 
 static idx_t    max_n_needed = 0;     /* greatest n processed so far   */
 static idx_t    *primes = NULL;      /* array of primes found          */
@@ -91,9 +100,9 @@ seq_t a(idx_t n)
     /* Search downward for the largest prime p ≤ target-2
        such that target - p is also prime. */
     for (seq_t p = target - 2; p >= 2; --p) {
-        if (isPrime((idx_t)p)) {
+        if (is_prime((idx_t)p)) {
             seq_t q = target - p;
-            if (q >= 2 && isPrime((idx_t)q)) {
+            if (q >= 2 && is_prime((idx_t)q)) {
                 return p;                     /* found the largest p */
             }
         }

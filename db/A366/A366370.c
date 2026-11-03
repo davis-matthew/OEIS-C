@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 8282, u16 n <= 8282, u32 n <= 8282, u64 n <= 8282,
- *            u128 n <= 8282, big any n
- * Helpers:   _v2_uint64
+ * Range:     u8 n <= 22155, u16 n <= 22155, u32 n <= 22155, u64 n <= 22155,
+ *            u128 n <= 22155, big any n
+ * Validated: standard, pass, 121 terms through n = 8282 (2026-11-01)
+ * Helpers:   ctz_idx_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,7 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_v2_uint64.h"
+#include "../utils/ctz_idx_to_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -45,11 +46,11 @@ seq_t a(idx_t n)
 
     if ((j & 1ULL) == 0) {                /* even column: j = 2k */
         idx_t k = j >> 1;                 /* k = j/2 */
-        seq_t v = _v2_uint64(k);
+        seq_t v = ctz_idx_to_seq(k);
         return (seq_t)i + v;
     } else {                               /* odd column: j = 2k+1 */
         idx_t k = (j - 1) >> 1;           /* k = (j-1)/2 */
-        seq_t v = _v2_uint64(k);
+        seq_t v = ctz_idx_to_seq(k);
         return (seq_t)1 + v;
     }
 }

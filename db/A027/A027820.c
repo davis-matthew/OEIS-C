@@ -7,12 +7,14 @@
  * Formula:   a(n) = C(n+1,3)*C(n+6,6)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 27, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 28 terms through n = 29 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +22,7 @@ seq_t a(idx_t n)
         /* Sequence is defined for n ≥ 2. */
         return 0;
     }
-    seq_t c1 = binom(n + 1, 3);
-    seq_t c2 = binom(n + 6, 6);
+    seq_t c1 = binomial(n + 1, 3);
+    seq_t c2 = binomial(n + 6, 6);
     return c1 * c2;
 }

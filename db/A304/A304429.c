@@ -10,8 +10,9 @@
  *            by: T(n,k)=0 for k>floor(n/2); T(n,0)=1; for k>0,
  *            T(n,k)=∑_{j=0..n-2k}
  *            (-1)^{n-j}·2^{3k-n+j-1}·C(3k+j,3k)·C(k-1,n-2k-j)
- * Range:     u8 n <= 21, u16 n <= 51, u32 n <= 63, u64 n <= 63, u128 n <= 63,
+ * Range:     u8 n <= 21, u16 n <= 59, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

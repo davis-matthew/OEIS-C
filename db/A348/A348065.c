@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n,k) * Stirling1(k,4) * (n-k)!
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 13, i64 n <= 21, i128 n <= 24,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 21 terms through n = 24 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
    the utils library and performs the sum in O(n) time per call. */
 
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* provides binomial(idx_t, idx_t) -> seq_t */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static idx_t max_prepared = 0;
 static seq_t *fact   = NULL;
@@ -36,12 +38,12 @@ static void prepare(idx_t n)
 
     /* Allocate or grow arrays to hold indices 0 .. n. */
     size_t sz = n + 1;
-    fact = (seq_t *)realloc(fact, sz * sizeof(seq_t));
-    s0   = (seq_t *)realloc(s0,   sz * sizeof(seq_t));
-    s1   = (seq_t *)realloc(s1,   sz * sizeof(seq_t));
-    s2   = (seq_t *)realloc(s2,   sz * sizeof(seq_t));
-    s3   = (seq_t *)realloc(s3,   sz * sizeof(seq_t));
-    s4   = (seq_t *)realloc(s4,   sz * sizeof(seq_t));
+    fact = mem_resize(seq_t, fact, sz);
+    s0   = mem_resize(seq_t, s0, sz);
+    s1   = mem_resize(seq_t, s1, sz);
+    s2   = mem_resize(seq_t, s2, sz);
+    s3   = mem_resize(seq_t, s3, sz);
+    s4   = mem_resize(seq_t, s4, sz);
 
     if (max_prepared == 0) {
         /* Base case n = 0 */

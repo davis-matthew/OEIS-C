@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 18, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 1782 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: integer square root for 64‑bit unsigned integers */
 static uint64_t isqrt_u64(uint64_t n)
@@ -107,7 +109,7 @@ static void cache_at_least(size_t need)
             /* Store last_semiprime in cache. */
             if (term_len == term_cap) {
                 term_cap = term_cap ? term_cap * 2 : 16;
-                term_cache = (seq_t *)realloc(term_cache, term_cap * sizeof(seq_t));
+                term_cache = mem_resize(seq_t, term_cache, term_cap);
             }
             term_cache[term_len++] = (seq_t)last_semiprime;
         }

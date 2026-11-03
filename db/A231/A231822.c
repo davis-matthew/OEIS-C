@@ -12,7 +12,8 @@
  *            a(5)=2992, a(6)=20382
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamic cache of computed terms */
 static size_t cache_len = 0;         /* current allocated size (max index + 1) */
@@ -31,12 +33,11 @@ static void ensure_cache_size(idx_t need)
 {
     if ((idx_t)(cache_len) > need) return;
     size_t old_len = cache_len;
-    seq_t *new_cache = (seq_t *)realloc(cache, (need + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (need + 1));
     if (!new_cache) abort();          /* abort on allocation failure */
     /* zero any newly allocated slots */
     if (need >= old_len) {
-        memset(new_cache + old_len, 0,
-               ((size_t)(need + 1) - old_len) * sizeof(seq_t));
+        mem_set(new_cache + old_len, 0, ((size_t)(need + 1) - old_len) * sizeof(seq_t));
     }
     cache = new_cache;
     cache_len = need + 1;

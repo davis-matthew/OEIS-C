@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 2*floor(n*Phi^2) - n - 2, Phi = (1+sqrt5)/2
- * Range:     u8 n <= 61, u16 n <= 9879, u32 n <= 9879, u64 n <= 9879,
- *            u128 n <= 9879, big any n
+ * Range:     u8 n <= 61, u16 n <= 15471, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 74 terms through n = 9879 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

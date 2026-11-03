@@ -10,6 +10,7 @@
  *            -44*a(n-11) +39*a(n-12) +3*a(n-13) -a(n-14) offset: 1 (a(1)=42)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 45,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 208 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

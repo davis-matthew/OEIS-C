@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k = 1..n} gcd(3*k, n)
  * Range:     u8 n <= 35, u16 n <= 1889, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   dfs_sum_gcd, factor_u64
+ * Validated: standard, pass, 86 terms through n = 9874 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,34 @@
    exponents, count). The header is provided by the build system. */
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/dfs_sum_gcd.h"
+
+/* Recursive routine that walks all divisors d of N and accumulates
+   (N/d)*phi(d), where phi(d) is the Euler totient of d. */
+static void dfs_sum_gcd(size_t i, seq_t div, seq_t phi, size_t cnt,
+                        uint64_t *pr, uint64_t *ex, seq_t NN, seq_t *sum)
+{
+    if (i == cnt) {
+        /* Contribution of the divisor 'div'. */
+        *sum += (NN / div) * phi;
+        return;
+    }
+    uint64_t p = pr[i];
+    uint64_t e = ex[i];
+    seq_t pow = 1;
+    for (uint64_t exp = 0; exp <= e; ++exp) {
+        seq_t new_div = div * pow;
+        seq_t new_phi = phi;
+        if (exp > 0) {
+            /* phi(p^exp) = p^(exp-1)*(p-1) */
+            new_phi = new_phi * (pow / p) * (seq_t)(p - 1);
+        }
+        dfs_sum_gcd(i + 1, new_div, new_phi, cnt, pr, ex, NN, sum);
+        pow *= (seq_t)p;
+    }
+}
 
 /* Computes S(N) = Sum_{k=1..N} gcd(k, N) */
 static seq_t sum_gcd(idx_t N)

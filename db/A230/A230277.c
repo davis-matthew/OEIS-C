@@ -12,16 +12,36 @@
  *            5 (mod 6) = 2 * ( p - 8y^2 ) otherwise a...
  * Range:     i8 n <= 72, i16 n <= 2500, i32 n <= 2500, i64 n <= 2500,
  *            i128 n <= 2500, big any n
- * Helpers:   build_primes_upto, floor_sqrt, pow_seq
+ * Validated: standard, pass, 89 terms through n = 2449 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_seq.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Compute a(p) for a prime p ≡ 1 or 5 (mod 8) */
 static seq_t a_prime(uint64_t p)
@@ -87,7 +107,7 @@ seq_t a(idx_t n)
                 return 0;
             } else if (p % 8 == 3 || p % 8 == 7) {
                 if (e % 2 == 0) {
-                    prime_val = pow_seq((seq_t)p, (idx_t)e);
+                    prime_val = ipow_i32((seq_t)p, (idx_t)e);
                 } else {
                     return 0;
                 }

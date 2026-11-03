@@ -11,14 +11,51 @@
  *            * a(4)=12609, a(5)=34111, a(6)=78273
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 57, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   ensure_capacity
+ * Validated: standard, pass, 42 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>          /* for size_t */
 #include <stdint.h>          /* for uint64_t */
-#include "../utils/ensure_capacity.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 #undef WARN_UNUSED_RESULT
 #define WARN_UNUSED_RESULT
@@ -33,7 +70,7 @@ seq_t a(idx_t n) {
     /* we need at least indices 0..max(n,6) in the cache */
     idx_t needed = (n + 1 > 7) ? (n + 1) : 7;
     size_t old_cap = cache_cap;
-    ensure_capacity(needed, &cache_cap, (void **)&cache, sizeof(seq_t));
+    ensure_capacity(needed, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
     /* zero new entries */
     for (size_t i = old_cap; i < cache_cap; ++i) cache[i] = 0;
 

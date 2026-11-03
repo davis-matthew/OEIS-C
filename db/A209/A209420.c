@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 82, u32 n <= 261, u64 n <= 922,
  *            u128 n <= 1225, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 865 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cache of triangle rows: rows[1] contains row 1, rows[2] contains row 2, etc. */
 static seq_t **rows = NULL;
@@ -59,7 +61,7 @@ static void ensure_rows(idx_t r)
     /* Compute missing rows. */
     for (idx_t i = max_row + 1; i <= r; ++i) {
         /* Allocate storage for this row. */
-        seq_t *row = (seq_t*)calloc((size_t)i, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)i);
         if (!row) exit(1);
         rows[i] = row;
 

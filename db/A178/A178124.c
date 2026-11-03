@@ -9,14 +9,25 @@
  *            (x-n)*P(n-1,x)-(2n-3)*P(n-2,x), with P(0,x)=1, P(1,x)=x-1
  * Range:     i8 n <= 22, i16 n <= 45, i32 n <= 50, i64 n <= 50, i128 n <= 50,
  *            big any n
- * Helpers:   free_row
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/free_row.h"
+
+/* Free a row allocated by alloc_row.  Handles C and C++ */
+static void free_row(seq_t *p)
+{
+    if (!p) return;
+#ifdef __cplusplus
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 /* Allocate a temporary row of seq_t's.  Handles C and C++ */
 static seq_t *alloc_row(size_t len)

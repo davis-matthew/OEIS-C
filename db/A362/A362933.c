@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, look
  * Formula:   a(n) = (A132188(n) - A362931(n)) / 2
- * Range:     i8 n <= 48, i16 n <= 6458, i32 n <= 9988, i64 n <= 9988,
- *            i128 n <= 9988, big any n
- * Helpers:   coprime_upto
+ * Range:     i8 n <= 48, i16 n <= 6458, i32 n <= 65536, i64 n <= 65536,
+ *            i128 n <= 65536, big any n
+ * Validated: standard, pass, 96 terms through n = 9988 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,30 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/coprime_upto.h"
+
+/* --- Count integers ≤ t that are coprime to s, given the prime factors of s --- */
+static seq_t coprime_upto(idx_t t, idx_t s, const int *pf, size_t pc)
+{
+    if (t == 0)
+        return 0;
+    seq_t cnt = t;
+    size_t mask_lim = (size_t)1 << pc;
+    for (size_t mask = 1; mask < mask_lim; ++mask) {
+        idx_t prod = 1;
+        size_t bits = 0;
+        for (size_t i = 0; i < pc; ++i)
+            if (mask & ((size_t)1 << i)) {
+                prod *= pf[i];
+                ++bits;
+            }
+        seq_t term = t / prod;
+        if (bits & 1)
+            cnt -= term;
+        else
+            cnt += term;
+    }
+    return cnt;
+}
 
 /* --- Static data for the Möbius function and primes --- */
 static idx_t max_n = 0;          /* highest index processed so far   */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 133, u16 n <= 133, u32 n <= 133, u64 n <= 133,
  *            u128 n <= 133, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 133 terms through n = 133 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
                 if (out == n) return (seq_t)0;
             }
         } else {
-            idx_t msb = floor_log2_uint64(m);
+            idx_t msb = ilog2(m);
             for (idx_t i = msb; ; --i) {
                 idx_t bit = (m >> i) & 1;
                 if (bit == 0) {

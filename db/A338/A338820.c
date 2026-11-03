@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{i=1..n-1} (prime(i)^2 mod prime(n))
  * Range:     u8 n <= 13, u16 n <= 154, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 71 terms through n = 9710 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 
 static uint64_t *prime_cache   = NULL; /* array of primes, 0‑indexed          */
 static idx_t     prime_count   = 0;     /* number of primes stored            */
@@ -47,7 +49,7 @@ static void ensure_primes(idx_t n)
         cand++;
 
     while (prime_count < n) {
-        if (is_prime_small((seq_t)cand)) {
+        if (is_prime_seq((seq_t)cand)) {
             if (prime_count >= prime_cap) {
                 prime_cap <<= 1;
                 uint64_t *tmp = (uint64_t*)realloc(prime_cache, prime_cap * sizeof(uint64_t));

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4864, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 8118 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Computation via 0‑1 BFS on the congruence classes modulo n. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* external linkage is required */
 seq_t a(idx_t n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     idx_t m = n;
 
     /* distance (minimal popcount) to each remainder 0 … n-1 */
-    seq_t *dist = (seq_t *)malloc(m * sizeof(seq_t));
+    seq_t *dist = mem_new(seq_t, m);
     if (!dist) return 0;          /* allocation failed – return 0 as a safe value */
 
     for (idx_t i = 0; i < m; ++i) dist[i] = (seq_t)(m + 1);   /* infinity */
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dist[0];
-    free(dist);
+    mem_free(dist);
     free(dq);
     return result;
 }

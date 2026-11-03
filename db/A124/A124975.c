@@ -10,7 +10,8 @@
  *            t(m,k)); a(n)=t(m,n) read by antidiagonals (offset 1)
  * Range:     u8 n <= 22, u16 n <= 29, u32 n <= 37, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 seq_t a(idx_t n);
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Internal static table holding t(m,n).  table[i][j] is valid
    for 1 ≤ i,j ≤ cur_d+1.  table is NULL until first use. */
@@ -35,7 +37,7 @@ static void ensure_table(idx_t d_target)
         idx_t new_dim = d_target + 1;
         table = (seq_t **)calloc((size_t)(new_dim + 1), sizeof(seq_t *));
         for (idx_t i = 1; i <= new_dim; ++i) {
-            table[i] = (seq_t *)calloc((size_t)(new_dim + 1), sizeof(seq_t));
+            table[i] = mem_new(seq_t, (size_t)(new_dim + 1));
         }
 
         /* Compute all cells in this first block. */
@@ -68,12 +70,12 @@ static void ensure_table(idx_t d_target)
 
     /* Create new rows as necessary. */
     for (idx_t i = old_dim + 1; i <= new_dim; ++i) {
-        table[i] = (seq_t *)calloc((size_t)(new_dim + 1), sizeof(seq_t));
+        table[i] = mem_new(seq_t, (size_t)(new_dim + 1));
     }
 
     /* Enlarge existing rows and zero the new entries. */
     for (idx_t i = 1; i <= old_dim; ++i) {
-        seq_t *row = (seq_t *)realloc(table[i], (size_t)(new_dim + 1) * sizeof(seq_t));
+        seq_t *row = mem_resize(seq_t, table[i], (size_t)(new_dim + 1));
         table[i] = row;
         for (idx_t j = old_dim + 1; j <= new_dim; ++j) {
             row[j] = 0;

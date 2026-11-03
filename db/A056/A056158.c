@@ -7,7 +7,8 @@
  * Formula:   a(n) = -(n-3)*a(n-1) - 2*(n-1) with a(3) = -4
  * Range:     i8 n <= 8, i16 n <= 11, i32 n <= 15, i64 n <= 23, i128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Implements an iterative memoised recurrence that computes terms for any n ≥ 3. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Initialise the cache once, with indices 0..3.  Indices 0-2 are unused. */
     if (!cache) {
         cache_cap = 8;                /* initial capacity */
-        cache = (seq_t *)calloc((size_t)cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         if (!cache) exit(1);
         cache[3] = -(seq_t)4;         /* a(3) = -4 */
         cache_size = 4;               /* indices 0..3 are set */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cache_cap * 2;
         while (new_cap <= n) new_cap *= 2;
 
-        seq_t *tmp = (seq_t *)realloc((void *)cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_cap = new_cap;

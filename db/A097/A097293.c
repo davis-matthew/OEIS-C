@@ -9,8 +9,9 @@
  *            (ascending) and, within equal sums, by lexicographic order of
  *            (i, j, k). The sequence consists of the individual numbers i, j
  *            and k from each triple (too see a(1)=1, a(2)=2, a(3)=3,...
- * Range:     u8 n <= 9439, u16 n <= 9439, u32 n <= 9439, u64 n <= 9439,
- *            u128 n <= 9439, big any n
+ * Range:     u8 n <= 10092, u16 n <= 10092, u32 n <= 10092, u64 n <= 10092,
+ *            u128 n <= 10092, big any n
+ * Validated: standard, pass, 121 terms through n = 9439 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

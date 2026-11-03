@@ -12,12 +12,14 @@
  *            simple re...
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* precompute 2^{r(r-1)/2} for r = 0..n */
-    seq_t *pow2 = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *pow2 = mem_new(seq_t, (n + 1));
     pow2[0] = (seq_t)1;
     for (idx_t r = 1; r <= n; ++r) {
         seq_t factor = ((seq_t)1) << (r - 1);   /* 2^{r-1} */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     }
 
     /* precompute binomial coefficients C(n,s) for s = 0..n */
-    seq_t *binom = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *binom = mem_new(seq_t, (n + 1));
     binom[0] = (seq_t)1;
     for (idx_t s = 1; s <= n; ++s) {
         binom[s] = binom[s - 1] * (seq_t)(n - s + 1) / (seq_t)s;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
 
     seq_t result = sum_even - sum_odd;
 
-    free(pow2);
-    free(binom);
+    mem_free(pow2);
+    mem_free(binom);
     return result;
 }

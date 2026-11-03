@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(10*n-9)
  * Range:     u8 n <= 6, u16 n <= 655, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache of found primes, zero‑based index */
 static seq_t *prime_list   = NULL;
@@ -47,7 +49,7 @@ static void ensure_primes_up_to(idx_t target)
             if (prime_count >= prime_cap)
             {
                 prime_cap = prime_cap ? prime_cap * 2 : 16;
-                prime_list = (seq_t *)realloc(prime_list, prime_cap * sizeof(seq_t));
+                prime_list = mem_resize(seq_t, prime_list, prime_cap);
             }
             prime_list[prime_count++] = (seq_t)next_prime;
         }

@@ -13,13 +13,15 @@
  *            definition of OEIS A108435
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 static seq_t compute_T(idx_t r, idx_t k)
@@ -32,7 +34,7 @@ static seq_t compute_T(idx_t r, idx_t k)
     seq_t den = (seq_t)(r - k);           /* denominator, r > k here */
 
     /* initial term */
-    seq_t term = (seq_t)3 * pow2(k) * binom(r - 1, k);
+    seq_t term = (seq_t)3 * pow2(k) * binomial(r - 1, k);
 
     if (k <= r - 2) {
         idx_t maxj = r - k - 2;
@@ -40,8 +42,8 @@ static seq_t compute_T(idx_t r, idx_t k)
             seq_t p = pow2(r - 1 - j);                    /* 2^{r-1-j} */
             seq_t coeff = (seq_t)5 * r - (seq_t)2 * k + j + 1;  /* 5r-2k+j+1 */
             p *= coeff;                                   /* 2^{r-1-j}*(5r-2k+j+1) */
-            p *= binom(r - 1, j);                         /* *C(r-1, j) */
-            p *= binom(2 * r - k - 1, r + j);             /* *C(2r-k-1, r+j) */
+            p *= binomial(r - 1, j);                         /* *C(r-1, j) */
+            p *= binomial(2 * r - k - 1, r + j);             /* *C(2r-k-1, r+j) */
             p /= (r + j + 1);                             /* / (r+j+1) */
             term += p;
         }

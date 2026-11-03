@@ -8,13 +8,15 @@
  *            ) (OEIS A217145)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* ensure factorial array contains 0! … n! */
     if (fact_cap <= n) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, new_cap);
         if (!tmp && new_cap > 0) return 0;   /* allocation failed */
         fact = tmp;
         for (size_t i = fact_cap; i <= n; ++i) {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* ensure sequence array contains 0 … n */
     if (seq_cap <= n) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp && new_cap > 0) return 0;   /* allocation failed */
         seq = tmp;
         for (size_t i = seq_cap; i <= n; ++i) {

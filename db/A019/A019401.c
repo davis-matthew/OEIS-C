@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, mod_pow, next_prime
+ * Validated: standard, pass, 72 terms through n = 924 (2026-11-01)
+ * Helpers:   build_primes_upto, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
-#include "../utils/next_prime.h"
+#include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
 
 static const idx_t SMALL_PRIME_LIMIT = 100000;
 static uint64_t *small_primes = NULL;
@@ -46,12 +48,12 @@ static bool is_primitive_root_78(uint64_t p)
     for (size_t i = 0; i < small_cnt && small_primes[i] * small_primes[i] <= m; ++i) {
         uint64_t q = small_primes[i];
         if (m % q == 0) {
-            if (mod_pow((seq_t)78u, phi / q, (seq_t)p) == (seq_t)1) return false;
+            if (powmod((seq_t)78u, phi / q, (seq_t)p) == (seq_t)1) return false;
             while (m % q == 0) m /= q;
         }
     }
     if (m > 1) {
-        if (mod_pow((seq_t)78u, phi / m, (seq_t)p) == (seq_t)1) return false;
+        if (powmod((seq_t)78u, phi / m, (seq_t)p) == (seq_t)1) return false;
     }
     return true;
 }

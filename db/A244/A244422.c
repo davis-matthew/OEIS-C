@@ -11,7 +11,8 @@
  *            for k > r−k (trailing columns are zero)
  * Range:     i8 n <= 46, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   _gcd_seq
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/_gcd_seq.h"
+#include "../utils/gcd.h"
 
 /* --------- helper: gcd for seq_t --------- */
 
@@ -32,10 +33,10 @@ static seq_t _binomial(idx_t n, idx_t k)
     for (idx_t i = 1; i <= k; ++i) {
         seq_t num = (seq_t)(n - k + i); /* numerator part   */
         seq_t den = (seq_t)i;           /* denominator part */
-        seq_t g1  = _gcd_seq(num, den);
+        seq_t g1  = gcd(num, den);
         num /= g1;
         den /= g1;
-        seq_t g2  = _gcd_seq(res, den);
+        seq_t g2  = gcd(res, den);
         res /= g2;
         den /= g2;
         res = res * num;                /* remaining division exact */

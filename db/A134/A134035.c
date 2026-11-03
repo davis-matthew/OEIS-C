@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    The implementation uses a static cache and lazy evaluation.            */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial terms (a(1) … a(7)) */
 static const seq_t init[7] = { (seq_t)2, (seq_t)4, (seq_t)8,
@@ -46,7 +48,7 @@ static void ensure_cache_capacity(idx_t n)
     while (new_cap < needed) new_cap <<= 1;
 
     /* Use an explicit cast so the code compiles in both C and C++   */
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (new_cache == NULL) abort();              /* allocation failed   */
 
     cache = new_cache;

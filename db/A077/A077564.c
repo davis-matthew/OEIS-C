@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 143, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   alloc_seq_array, build_signature, build_spf, free_seq_array
+ * Validated: standard, pass, 79 terms through n = 197 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,10 +26,67 @@
 #include <stdio.h>
 
 /* external utilities available from the harness */
+#include <stddef.h>
 #include "../utils/build_spf.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/build_signature.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* build a canonical string representation of the sorted list of
+   exponents of the prime factorisation of m.
+   spf contains the smallest prime factor of each integer ≤ n. */
+static void build_signature(idx_t m, idx_t *spf, size_t spf_cnt,
+                            char *buf, size_t buf_len)
+{
+    if (m == 1) {                /* 1 has an empty signature */
+        buf[0] = '\0';
+        return;
+    }
+
+    int exps[32];
+    int ecnt = 0;
+    idx_t x = m;
+
+    /* factorisation using SPF table */
+    while (x > 1) {
+        idx_t p = spf[x];
+        int cnt = 0;
+        while (x % p == 0) {
+            x /= p;
+            ++cnt;
+        }
+        exps[ecnt++] = cnt;
+    }
+
+    /* sort exponents ascending */
+    for (int i = 1; i < ecnt; ++i) {
+        int j = i;
+        while (j > 0 && exps[j - 1] > exps[j]) {
+            int t = exps[j];
+            exps[j] = exps[j - 1];
+            exps[j - 1] = t;
+            --j;
+        }
+    }
+
+    /* encode the sorted exponents into a string "1-2-1" etc. */
+    char *p = buf;
+    for (int i = 0; i < ecnt; ++i) {
+        int written = snprintf(p, buf_len - (size_t)(p - buf),
+                               i == 0 ? "%d" : "-%d", exps[i]);
+        if (written < 0) break;   /* error, abort (should not happen) */
+        p += written;
+    }
+    *p = '\0';
+}
 
 /* maximum length required for a signature string
    (number of prime exponents is ≤ log₂(n) ≤ 14 for n ≤ 10⁴) */

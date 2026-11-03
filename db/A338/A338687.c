@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq
+ * Validated: standard, pass, 116 terms through n = 9951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,15 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq.h"
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *z_counts = NULL;   /* counts of floor(z^2/7) values   */
 static idx_t  z_counts_max = 0;  /* maximum n for which z_counts is valid */
@@ -37,7 +46,7 @@ ensure_z_counts(idx_t n)
 
     /* free any previous allocation */
     if (z_counts)
-        free(z_counts);
+        mem_free(z_counts);
 
     /* allocate a fresh zero‑initialised array of length n+1 */
     z_counts = alloc_seq((size_t)n + 1);

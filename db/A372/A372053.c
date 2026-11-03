@@ -6,9 +6,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, tabf, easy
  * Formula:   not stated
- * Range:     u8 n <= 2997, u16 n <= 9942, u32 n <= 9942, u64 n <= 9942,
- *            u128 n <= 9942, big any n
- * Helpers:   dfs_emit
+ * Range:     u8 n <= 2997, u16 n <= 19795, u32 n <= 19795, u64 n <= 19795,
+ *            u128 n <= 19795, big any n
+ * Validated: standard, pass, 139 terms through n = 9942 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,34 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/dfs_emit.h"
+
+/* Recursively walk factorizations of rem, with minimum allowed
+   factor min_f.  vec holds the current factor chain (length len).
+   Upon reaching a terminal factor (rem==1) each element of the
+   chain is emitted in order.  If offset reaches zero, the current
+   factor is written to *res and the recursion unwinds. */
+static bool dfs_emit(idx_t rem, idx_t min_f, seq_t *vec, size_t len,
+                     idx_t *off, seq_t *res)
+{
+    if (rem == (idx_t)1) {
+        for (size_t i = 0; i < len; ++i) {
+            if (*off == (idx_t)0) {
+                *res = vec[i];
+                return true;
+            }
+            (*off)--;
+        }
+        return false;
+    }
+    for (idx_t f = min_f; f <= rem; ++f) {
+        if (rem % f == (idx_t)0) {
+            vec[len] = (seq_t)f;
+            if (dfs_emit(rem / f, f, vec, len + 1, off, res))
+                return true;
+        }
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

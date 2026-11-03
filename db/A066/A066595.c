@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 32, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Miller–Rabin for 64‑bit integers -------------------------------------- */
 static uint64_t mulmod64(uint64_t a, uint64_t b, uint64_t m) {
@@ -132,7 +134,7 @@ static void ensure_seql_cap(size_t need) {
     if (need <= seql_cap) return;
     size_t new_cap = seql_cap ? seql_cap * 2 : 8;
     while (new_cap < need) new_cap <<= 1;
-    seql = (seq_t *)realloc(seql, new_cap * sizeof(seq_t));
+    seql = mem_resize(seq_t, seql, new_cap);
     seql_cap = new_cap;
 }
 

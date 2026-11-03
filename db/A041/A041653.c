@@ -11,12 +11,14 @@
  *            a(15) = 635539, a(16) = 730186, a(17) = 2095911, a...
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 24, u64 n <= 49, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[20] = {
     1, 1, 2, 5, 7, 47, 54, 155, 209, 364,
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         cache_cap  = 20000;                 /* enough for n up to ~10 000 */
         cache_size = 20;                   /* we already know 20 terms */
-        cache = (seq_t*)malloc(sizeof(seq_t) * (cache_cap + 1));
+        cache = mem_new(seq_t, (cache_cap + 1));
         if (!cache) return 0; /* out of memory – return zero as sentinel */
         for (idx_t i = 0; i < 20; ++i)
             cache[i] = init_vals[i];
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* Grow the cache if we need more room. */
     if (n >= cache_cap + 1) {
         idx_t new_cap = n * 2 + 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, sizeof(seq_t) * (new_cap + 1));
+        seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
         if (!new_cache) return 0;
         cache = new_cache;
         cache_cap = new_cap;

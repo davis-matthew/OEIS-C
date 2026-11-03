@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 11,
  *            big any n
- * Helpers:   estimate_upper, rev_uint32
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,27 @@
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/estimate_upper.h"
-#include "../utils/rev_uint32.h"
+
+/* estimate an upper bound for the n‑th prime:
+   for n >= 6 : n*(log n + log log n) + 3                 */
+static size_t estimate_upper(size_t n)
+{
+    if (n < 6) return 15;                 /* first few primes known */
+    double nn = (double)n;
+    double est = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)est;
+}
+
+/* reverse the decimal digits of a 32‑bit unsigned integer */
+static inline uint32_t rev_uint32(uint32_t x)
+{
+    uint32_t r = 0;
+    while (x > 0) {
+        r = r * 10 + (x % 10);
+        x /= 10;
+    }
+    return r;
+}
 
 /* ---------- prime generation ---------- */
 static bool *sieve_mask  = NULL;   /* sieve flag array   */

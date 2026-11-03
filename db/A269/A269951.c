@@ -11,7 +11,8 @@
  *            with S1 the unsigned Stirling numbers of the first kind
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t **stirling = NULL;          /* S1[j][k] stored for j up to stirling_rows-1 */
 static idx_t   stirling_rows = 0;
@@ -42,7 +44,7 @@ static void ensure_stirling(idx_t n)
     /* Allocate arrays for new rows and initialize to zero */
     for (idx_t j = stirling_rows; j <= n; ++j)
     {
-        stirling[j] = (seq_t *)calloc(j + 1, sizeof(seq_t));
+        stirling[j] = mem_new(seq_t, j + 1);
         if (!stirling[j])
             exit(1);
     }
@@ -101,13 +103,13 @@ static void compute_row(idx_t r)
 
     if (r == 0)
     {
-        T_cache[0] = (seq_t *)malloc(sizeof(seq_t));
+        T_cache[0] = mem_new(seq_t, 1);
         T_cache[0][0] = (seq_t)1;
         T_computed[0] = true;
         return;
     }
 
-    T_cache[r] = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    T_cache[r] = mem_new(seq_t, (r + 1));
     for (idx_t k = 0; k <= r; ++k)
     {
         seq_t sum = 0;

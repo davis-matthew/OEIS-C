@@ -12,23 +12,35 @@
  *            memoisation; it works correctly for any n ≥ 1 * without assu...
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   grow_bool
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/grow_bool.h"
+#include "../utils/mem.h"
+
+/* ---------- helper to grow a bool byte array (1‑based) ---------- */
+static void grow_bool(size_t need, unsigned char **arr, size_t *cap)
+{
+    if (need <= *cap) return;
+    size_t nc = need + (need >> 1) + ((size_t)1024);
+    *arr = (unsigned char *)realloc(*arr, nc);
+    if (!*arr) exit(1);
+    memset(*arr + *cap, 0, nc - *cap);
+    *cap = nc;
+}
 
 /* ---------- helper to grow a seq_t array (1‑based) ---------- */
 static void grow_seq(size_t need, seq_t **arr, size_t *cap)
 {
     if (need <= *cap) return;
     size_t nc = need + (need >> 1) + ((size_t)1024);
-    *arr = (seq_t *)realloc(*arr, nc * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, nc);
     if (!*arr) exit(1);
-    memset(*arr + *cap, 0, (nc - *cap) * sizeof(seq_t));
+    mem_set(*arr + *cap, 0, (nc - *cap) * sizeof(seq_t));
     *cap = nc;
 }
 

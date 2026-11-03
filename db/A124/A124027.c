@@ -14,7 +14,8 @@
  *            first coefficient of p(0,x)
  * Range:     u8 n <= 51, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         else             len = (size_t)k - 1;   /* for k ≥ 4 */
 
         /* allocate and zero the coefficient array */
-        seq_t *coeff = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *coeff = mem_new(seq_t, len);
         for (size_t i = 0; i < len; ++i) coeff[i] = 0;
 
         /* base cases */
@@ -92,10 +94,10 @@ seq_t a(idx_t n)
         /* append to flattened sequence */
         if (flat_len + len > flat_cap) {
             size_t new_cap = flat_cap ? flat_cap * 2 : 128;
-            flat = (seq_t*)realloc(flat, new_cap * sizeof(seq_t));
+            flat = mem_resize(seq_t, flat, new_cap);
             flat_cap = new_cap;
         }
-        memcpy(flat + flat_len, coeff, len * sizeof(seq_t));
+        mem_copy(flat + flat_len, coeff, len * sizeof(seq_t));
         flat_len += len;
     }
 

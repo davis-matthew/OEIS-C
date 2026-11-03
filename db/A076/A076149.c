@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache of computed terms */
 static seq_t *cache = NULL;         /* array of a(i) values, index 1 … n */
@@ -34,9 +36,9 @@ static void ensure_cache(idx_t n)
     /* realloc is required in C++ and safe in C.  The cast is needed
        for the C++ compiler.  We allocate n+1 elements: indices 0 … n;
        index 0 is unused. */
-    seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
     if (tmp == NULL) {
-        free(cache);
+        mem_free(cache);
         exit(EXIT_FAILURE);  /* out of memory */
     }
     cache      = tmp;

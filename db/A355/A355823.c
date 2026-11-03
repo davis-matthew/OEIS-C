@@ -7,14 +7,16 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = 1 if all exponents in the prime factorization of n are *
  *            powers of 2, otherwise 0. (OEIS A355823)
- * Range:     u8 n <= 9969, u16 n <= 9969, u32 n <= 9969, u64 n <= 9969,
- *            u128 n <= 9969, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 144 terms through n = 9969 (2026-11-01)
  * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
 
 /* static state: smallest prime factor table up to current limit */

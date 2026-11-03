@@ -8,14 +8,16 @@
  * Formula:   a(n) = 2^n*Sum_{k=1..floor(n/3)} n!/(6*(n - 3*k)!*k!^3)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binom, pow_uint
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,13 +29,13 @@ seq_t a(idx_t n)
 
     for (idx_t k = 1; k <= maxk; ++k)
     {
-        seq_t term = binom(n, 3 * k);
-        term = term * binom(3 * k, k);
-        term = term * binom(2 * k, k);
+        seq_t term = binomial(n, 3 * k);
+        term = term * binomial(3 * k, k);
+        term = term * binomial(2 * k, k);
         term = term / 6;            /* exact division */
         sum = sum + term;
     }
 
-    seq_t pow2 = pow_uint(2, n);
+    seq_t pow2 = ipow_u64_idx(2, n);
     return sum * pow2;
 }

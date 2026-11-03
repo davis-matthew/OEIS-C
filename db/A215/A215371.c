@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 70 terms through n = 988 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Test whether a prime candidate matches the required residues */
 static inline bool allowed_residue(idx_t p)
@@ -43,7 +45,7 @@ static idx_t next_candidate = 2ULL; /* candidate to test */
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp && new_cap > 0) { /* allocation failed – keep old pointer */
         return;
     }
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
 
         /* Search for the next prime satisfying the residue condition. */
         for (; ; ++next_candidate) {
-            if (is_prime_small((uint64_t)next_candidate) &&
+            if (is_prime_seq((uint64_t)next_candidate) &&
                 allowed_residue(next_candidate)) {
                 /* Store the prime. */
                 cache[cache_len++] = (seq_t)next_candidate;

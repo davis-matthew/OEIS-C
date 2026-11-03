@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   estimate_B
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,17 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/estimate_B.h"
+#include "../utils/mem.h"
+
+/* Estimate a bound B such that the number of representable integers
+   up to B is comfortably larger than n.  The bound is very conservative
+   and grows like n^(2/3). */
+static size_t estimate_B(idx_t n)
+{
+    if (n < 10) return 10;
+    double Bf = pow((double)n, 2.0 / 3.0);          /* n ~ k*B^{3/2} => B ~ n^{2/3} */
+    return (size_t)(Bf * 3.0 + 20);                  /* safety factor    */
+}
 
 static seq_t *seq_vals   = NULL;   /* sorted array of representable numbers */
 static size_t  seq_len   = 0;      /* number of elements stored */
@@ -90,14 +101,14 @@ static void generate_up_to_B(size_t B)
     size_t new_len = 0;
     for (size_t i = 0; i <= B; ++i) if (present[i]) ++new_len;
 
-    seq_t *new_arr = (seq_t*)malloc(new_len * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_len);
     if (!new_arr) exit(EXIT_FAILURE);
 
     size_t idx = 0;
     for (size_t i = 0; i <= B; ++i) if (present[i]) new_arr[idx++] = (seq_t)i;
     free(present);
 
-    free(seq_vals);          /* discard old data */
+    mem_free(seq_vals);          /* discard old data */
     seq_vals = new_arr;
     seq_len  = new_len;
 }

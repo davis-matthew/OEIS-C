@@ -8,7 +8,8 @@
  *            a(n-k)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 20,
  *            big any n
- * Helpers:   comb_seq_t
+ * Validated: standard, pass, 30 terms through n = 196 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/comb_seq_t.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
             fac[i] = fac[i - 1] * (seq_t)i;
         }
         for (idx_t k = 1; k <= 21; ++k) {
-            c[k] = fac[k - 1] * comb_seq_t(21, k);
+            c[k] = fac[k - 1] * binomial(21, k);
         }
     }
 
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {          /* first call */
         cache_cap = 64;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 1;
         cache_size = 1;
     }
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {        /* grow cache */
         size_t new_cap = cache_cap;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return 0;          /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             seq_t sum = 0;
             idx_t kmax = (i < 21) ? i : 21;
             for (idx_t k = 1; k <= kmax; ++k) {
-                seq_t bin = comb_seq_t(i - 1, k - 1);
+                seq_t bin = binomial(i - 1, k - 1);
                 seq_t term = c[k] * bin;
                 term = term * cache[i - k];
                 sum += term;

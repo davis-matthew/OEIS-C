@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, look
  * Formula:   not stated
- * Range:     u8 n <= 14, u16 n <= 171, u32 n <= 2734, u64 n <= 7277,
- *            u128 n <= 7277, big any n
- * Helpers:   none
+ * Range:     u8 n <= 14, u16 n <= 171, u32 n <= 2734, u64 n <= 14352,
+ *            u128 n <= 14352, big any n
+ * Validated: standard, pass, 81 terms through n = 7277 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>  /* for malloc, realloc, abort, size_t */
 #include <stdint.h>  /* for uint64_t */
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* (1) Digit sets for each residue class modulo 6. */
@@ -45,7 +47,7 @@ static void heap_ensure(size_t needed)
     if (heap_cap < needed) {
         size_t new_cap = (heap_cap == 0) ? 16 : heap_cap << 1;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *p = (seq_t *)realloc(heap_vals, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, heap_vals, new_cap);
         if (!p) abort();              /* out of memory */
         heap_vals = p;
         heap_cap  = new_cap;
@@ -113,7 +115,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap < (size_t)n) {
         size_t new_cap = (cache_cap == 0) ? 128 : cache_cap << 1;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, new_cap);
         if (!p) abort();
         cache    = p;
         cache_cap = new_cap;

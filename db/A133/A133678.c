@@ -7,13 +7,27 @@
  * Formula:   a(n) = 6*a(n-1)+42*a(n-2), a(0)=1, a(1)=6, a(2)=72
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 20,
  *            big any n
- * Helpers:   mul_small
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* Recursive sequence computation with memoisation.  The function
  * works for any integer type returned as seq_t and for any
@@ -37,14 +51,14 @@ seq_t a(idx_t n)
         /* Reserve space for indices 0 … n.  Minimum size 3 for the
          * initial values. */
         capacity = (n + 1) > 3 ? (n + 1) : 3;
-        cache = (seq_t *)malloc((size_t)capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)capacity);
         if (!cache) return (seq_t)0;           /* allocation failure */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)6;
         cache[2] = (seq_t)72;
     } else if (n + 1 > capacity) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!tmp) return (seq_t)0;           /* allocation failure */
         cache = tmp;
         capacity = new_cap;

@@ -10,7 +10,8 @@
  *            9*p + d. Big numbers kept as uint32 limb arrays
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_big
+ * Validated: standard, pass, 118 terms through n = 9982 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/cmp_big.h"
+
+static int cmp_big(const uint32_t *x, size_t xl, const uint32_t *y, size_t yl) {
+    if (xl != yl) return xl < yl ? -1 : 1;
+    while (xl > 0) {
+        xl--;
+        if (x[xl] != y[xl]) return x[xl] < y[xl] ? -1 : 1;
+    }
+    return 0;
+}
 
 static uint32_t *R = 0, *P = 0, *T = 0;
 static size_t rl = 0, pl = 0, tl = 0, cap = 0;

@@ -8,7 +8,8 @@
  *            2242‑th cyclotomic polynomial
  * Range:     i8 n <= 3000, i16 n <= 3000, i32 n <= 3000, i64 n <= 3000,
  *            i128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 2636 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Polynomial abstraction ------------------------------------------- */
 typedef struct {
@@ -34,7 +36,7 @@ static poly_t poly_create(size_t len)
         p.c = NULL;
         return p;
     }
-    p.c = (seq_t*)calloc(len, sizeof(seq_t));
+    p.c = mem_new(seq_t, len);
     return p;
 }
 
@@ -42,7 +44,7 @@ static poly_t poly_create(size_t len)
 static void poly_destroy(poly_t *p)
 {
     if (p->c) {
-        free(p->c);
+        mem_free(p->c);
         p->c = NULL;
     }
     p->len = 0;
@@ -70,7 +72,7 @@ static poly_t poly_div(const poly_t *num, const poly_t *den)
     size_t qlen = degA - degB + 1;
     poly_t Q = poly_create(qlen);
     /* Work on a mutable copy of the numerator */
-    seq_t *A = (seq_t*)calloc(num->len, sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, num->len);
     for (size_t i = 0; i < num->len; ++i) A[i] = num->c[i];
     for (int i = (int)degA; i >= (int)degB; --i) {
         seq_t factor = A[i];
@@ -81,7 +83,7 @@ static poly_t poly_div(const poly_t *num, const poly_t *den)
             }
         }
     }
-    free(A);
+    mem_free(A);
     return Q;
 }
 

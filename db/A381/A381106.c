@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(n) = 0 for n < 4. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static tables of Stirling numbers of the first kind for k = 3.   */
 static seq_t *stirling3   = NULL;      /* stirling3[k] = |S1(k,3)|          */
@@ -48,7 +50,7 @@ static void compute_stirling3_up_to(idx_t up_to)
     if ((size_t)(up_to + 1) > stirling3_cap) {
         size_t new_cap = (stirling3_cap == 0) ? 16 : stirling3_cap * 2;
         while (new_cap < (size_t)(up_to + 1)) new_cap <<= 1;
-        stirling3 = (seq_t *)realloc(stirling3, new_cap * sizeof(seq_t));
+        stirling3 = mem_resize(seq_t, stirling3, new_cap);
         stirling3_cap = new_cap;
     }
 
@@ -103,7 +105,7 @@ static void compute_seq_up_to(idx_t up_to)
     if ((size_t)(up_to + 1) > seq_cache_cap) {
         size_t new_cap = (seq_cache_cap == 0) ? 16 : seq_cache_cap * 2;
         while (new_cap < (size_t)(up_to + 1)) new_cap <<= 1;
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_cache_cap = new_cap;
     }
 
@@ -143,7 +145,7 @@ seq_t a(idx_t n)
     /* First‑time initialisation of the cache. */
     if (seq_cache == NULL) {
         size_t init_cap = 16;
-        seq_cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, init_cap);
         seq_cache_cap = init_cap;
         seq_cache[0] = 0;
         last_seq = 0;

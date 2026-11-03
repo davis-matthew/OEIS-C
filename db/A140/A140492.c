@@ -9,13 +9,15 @@
  *            a(n-1) + third_non_divisor(a(n-1)) for 2 ≤ n ≤ 24
  * Range:     u8 n <= 52, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t, NULL */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static inline seq_t third_non_divisor(seq_t x)
 {
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n, seq_t **arr, size_t *cap)
     if (*cap <= (size_t)n) {
         size_t new_cap = (*cap == 0) ? 32 : (*cap * 2);
         while (new_cap <= (size_t)n) new_cap *= 2;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         if (*arr == NULL) abort();
         *cap = new_cap;
     }

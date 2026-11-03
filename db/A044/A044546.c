@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   contains36
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,24 @@
     (uint8_t … unsigned __int128, arbitrary‑precision) and any idx_t
     (uint64_t or equivalent). */
 #include <stdbool.h>
-#include "../utils/contains36.h"
+
+static bool contains36(seq_t x)
+{
+    if (x == 0)          /* 0 does not contain "36" */
+        return false;
+
+    unsigned prev = (unsigned)(x % 7);   /* least significant digit */
+    x /= 7;
+
+    while (x > 0) {
+        unsigned curr = (unsigned)(x % 7);   /* next higher digit */
+        if (curr == 3 && prev == 6)
+            return true;
+        prev = curr;
+        x /= 7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

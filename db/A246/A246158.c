@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 19, u16 n <= 521, u32 n <= 9703, u64 n <= 9703,
- *            u128 n <= 9703, big any n
- * Helpers:   bitlen_seq_t
+ * Range:     u8 n <= 19, u16 n <= 521, u32 n <= 13846, u64 n <= 13846,
+ *            u128 n <= 13846, big any n
+ * Validated: standard, pass, 84 terms through n = 9703 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* ---------- popcount (Hamming weight) for seq_t ---------- */
 static unsigned popcount_seq(seq_t x)
@@ -40,8 +43,8 @@ static unsigned popcount_seq(seq_t x)
 static seq_t poly_mod(seq_t a, seq_t mod, unsigned deg_mod)
 {
     seq_t r = a;
-    while (r && ((unsigned)(bitlen_seq_t(r) - 1) >= deg_mod)) {
-        unsigned shift = (unsigned)(bitlen_seq_t(r) - 1) - deg_mod;
+    while (r && ((unsigned)(bit_length(r) - 1) >= deg_mod)) {
+        unsigned shift = (unsigned)(bit_length(r) - 1) - deg_mod;
         r ^= mod << shift;
     }
     return r;
@@ -51,7 +54,7 @@ static seq_t poly_mod(seq_t a, seq_t mod, unsigned deg_mod)
 static seq_t poly_gcd(seq_t a, seq_t b)
 {
     while (b) {
-        unsigned deg_b = (unsigned)(bitlen_seq_t(b) - 1);
+        unsigned deg_b = (unsigned)(bit_length(b) - 1);
         seq_t r = poly_mod(a, b, deg_b);
         a = b;
         b = r;
@@ -80,7 +83,7 @@ static bool is_irreducible(seq_t p)
 {
     if (p == (seq_t)0) return false;                 /* zero polynomial */
 
-    unsigned deg = (unsigned)(bitlen_seq_t(p) - 1);
+    unsigned deg = (unsigned)(bit_length(p) - 1);
     if (deg <= 1) return true;                      /* degree 0 or 1 */
 
     /* Check for roots at 0 and 1 ------------------------------------ */
@@ -107,7 +110,7 @@ static bool is_odious_reducible(seq_t n)
     /* odd number of 1-bits (odious) */
     if (popcount_seq(n) % 2 == 0) return false;
 
-    unsigned deg = (unsigned)(bitlen_seq_t(n) - 1);
+    unsigned deg = (unsigned)(bit_length(n) - 1);
     if (deg <= 1) return false;           /* cannot be reducible */
 
     return !is_irreducible(n);            /* reducible over GF(2) */
@@ -126,7 +129,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;             /* allocation failure */
     }
 
@@ -137,9 +140,9 @@ seq_t a(idx_t n)
             /* ensure capacity */
             if (cache_cnt >= cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
-                    free(cache);
+                    mem_free(cache);
                     cache = NULL;
                     cache_cap = 0;
                     return (seq_t)0;

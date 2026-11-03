@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n == 1 or n is a prime power p^e such that p % 4 ==
  *            1 (any e) or (p % 4 == 3 && e % 2 == 0). Otherwise 0
- * Range:     u8 n <= 8848, u16 n <= 8848, u32 n <= 8848, u64 n <= 8848,
- *            u128 n <= 8848, big any n
+ * Range:     u8 n <= 65539, u16 n <= 65539, u32 n <= 65539, u64 n <= 65539,
+ *            u128 n <= 65539, big any n
+ * Validated: standard, pass, 141 terms through n = 8848 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

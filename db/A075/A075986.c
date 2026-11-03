@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------
  *  Local static state
@@ -55,7 +57,7 @@ static void ensure_a_cache_cap(size_t needed)
     a_cap = a_cap ? a_cap * 2 : 16;
     while (a_cap < needed)
         a_cap *= 2;
-    a_cache = (seq_t *)realloc(a_cache, a_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, a_cap);
 }
 
 /* -------------------------------------------------------------------
@@ -126,7 +128,7 @@ static void ensure_a_cache(size_t n)
     /* Allocate cache on first use */
     if (a_cache == NULL) {
         a_cap = 16;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = (seq_t)1;   /* a(0) = 1 */
         a_len    = 1;
         a_prev   = (seq_t)1;

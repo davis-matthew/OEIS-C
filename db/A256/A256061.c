@@ -11,9 +11,10 @@
  *            (k-i)^n * Catalan(n). The triangle is traversed row‑major with
  *            rows (n,k) for 0 ≤ k ≤ n. For n=0 the triangle consists of the
  *            single entry T(0,0)=1
- * Range:     u8 n <= 10, u16 n <= 23, u32 n <= 50, u64 n <= 126,
+ * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 50, u64 n <= 126,
  *            u128 n <= 315, big any n
- * Helpers:   big_pow, binomial, index_to_row_k
+ * Validated: standard, pass, 61 terms through n = 8972 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,27 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/big_pow.h"    /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/index_to_row_k.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+
+/* Convert a linear index to (row, k) in the triangle. */
+static void index_to_row_k(idx_t idx, idx_t *row, idx_t *k)
+{
+    /* Find the largest row such that row*(row+1)/2 <= idx. */
+    idx_t lo = 0, hi = idx + 1;   /* hi is always larger */
+    while (lo + 1 < hi) {
+        idx_t mid = (lo + hi) >> 1;
+        /* Beware of overflow: mid*(mid+1)/2 fits in 128‑bit; cast to 128. */
+        __uint128_t t = (__uint128_t)mid * (mid + 1) / 2;
+        if (t <= idx)
+            lo = mid;
+        else
+            hi = mid;
+    }
+    *row = lo;
+    *k   = idx - (__uint128_t)lo * (lo + 1) / 2;
+}
 
 /* Compute Catalan(n) = C(2n,n)/(n+1) using the provided binomial. */
 static seq_t catalan(idx_t n)
@@ -52,7 +71,7 @@ static seq_t triangle_T(idx_t n, idx_t k)
         } else if ((k == i) && n > 0) {
             base_pow = 0;                 /* base 0, exponent >0 */
         } else {
-            base_pow = big_pow((seq_t)(k - i), (seq_t)n);
+            base_pow = ipow((seq_t)(k - i), (seq_t)n);
         }
 
         /* term = C(k,i) * base_pow * Catalan(n) */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   has_four_six_base8
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,24 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/has_four_six_base8.h"
+#include "../utils/mem.h"
+
+/* test whether a number has exactly four digits equal to 6 in base 8 */
+static inline bool has_four_six_base8(seq_t x)
+{
+    unsigned count = 0;
+    while (x)
+    {
+        if ((x % 8) == 6)
+        {
+            ++count;
+            if (count > 4)
+                return false;
+        }
+        x /= 8;
+    }
+    return count == 4;
+}
 
 /* cache for already found numbers */
 static seq_t *cache      = NULL;
@@ -32,7 +50,7 @@ static void ensure_cache_capacity(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 128;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp && new_cap > 0)
         abort();                      /* allocation failed */
     cache        = tmp;

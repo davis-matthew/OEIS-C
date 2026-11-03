@@ -9,27 +9,28 @@
  *            4*7^n + 10^n + 10
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 37 terms through n = 955 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     seq_t res = 0;
     seq_t t;
 
-    t = pow_int((seq_t)2, n);  res += (seq_t)9 * t;
-    t = pow_int((seq_t)4, n);  res += (seq_t)7 * t;
-    t = pow_int((seq_t)8, n);  res += (seq_t)3 * t;
-    t = pow_int((seq_t)3, n);  res += (seq_t)8 * t;
-    t = pow_int((seq_t)9, n);  res += (seq_t)2 * t;
-    t = pow_int((seq_t)5, n);  res += (seq_t)6 * t;
-    t = pow_int((seq_t)6, n);  res += (seq_t)5 * t;
-    t = pow_int((seq_t)7, n);  res += (seq_t)4 * t;
-    t = pow_int((seq_t)10, n); res += t + (seq_t)10;
+    t = ipow_idx((seq_t)2, n);  res += (seq_t)9 * t;
+    t = ipow_idx((seq_t)4, n);  res += (seq_t)7 * t;
+    t = ipow_idx((seq_t)8, n);  res += (seq_t)3 * t;
+    t = ipow_idx((seq_t)3, n);  res += (seq_t)8 * t;
+    t = ipow_idx((seq_t)9, n);  res += (seq_t)2 * t;
+    t = ipow_idx((seq_t)5, n);  res += (seq_t)6 * t;
+    t = ipow_idx((seq_t)6, n);  res += (seq_t)5 * t;
+    t = ipow_idx((seq_t)7, n);  res += (seq_t)4 * t;
+    t = ipow_idx((seq_t)10, n); res += t + (seq_t)10;
 
     return res;
 }

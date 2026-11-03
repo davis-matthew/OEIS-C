@@ -10,14 +10,25 @@
  *            multiplicative partition function A001055
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   parity_f
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/parity_f.h"
+#include "../utils/mem.h"
+
+static int parity_f(idx_t n, idx_t min_factor) {
+    int res = 1;                      /* trivial factorisation n */
+    for (idx_t d = min_factor; d * d <= n; ++d) {
+        if (n % d == 0) {
+            res ^= parity_f(n / d, d);
+        }
+    }
+    return res;
+}
 
 /* Storage for terms already found */
 static seq_t *terms_buf = NULL;
@@ -31,7 +42,7 @@ static void ensure_terms(idx_t required) {
         if (parity_f(next_candidate, 2) == 1) {
             if (terms_count == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(terms_buf, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms_buf, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 terms_buf = tmp;
                 terms_cap = new_cap;

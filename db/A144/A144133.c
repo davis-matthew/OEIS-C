@@ -9,13 +9,15 @@
  *            k>=2)
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 9, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *p_cache   = NULL;   /* Pell numbers */
 static size_t p_cache_size = 0;   /* number of elements stored */
@@ -29,7 +31,7 @@ static void ensure_p_cache(idx_t k)
     while (new_cap <= (size_t)k) new_cap <<= 1;
 
     seq_t *old = p_cache;
-    p_cache = (seq_t*)realloc(p_cache, new_cap * sizeof(seq_t));
+    p_cache = mem_resize(seq_t, p_cache, new_cap);
     if (old == NULL && p_cache == NULL) return; /* allocation failed */
 
     if (p_cache_size == 0) {
@@ -61,7 +63,7 @@ static void ensure_a_cache(idx_t n)
     while (new_cap <= (size_t)n + 1) new_cap <<= 1;
 
     seq_t *old = a_cache;
-    a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     if (old == NULL && a_cache == NULL) return; /* allocation failed */
 
     size_t start = a_cache_size;

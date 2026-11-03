@@ -7,6 +7,7 @@
  * Formula:   a(n) = numerator of (1/9 - 1/n^2)
  * Range:     i8 n <= 3, i16 n <= 122, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 81 terms through n = 687 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* For all n >= -3.  a(0) is defined as -1 at the pole.  */
 /* Uses the provided gcd helper from "../utils/gcd.h". */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

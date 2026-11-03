@@ -10,13 +10,15 @@
  *            anti‑diagonal index) * r = n - (s-1)(s-2)/2 + 1 (position inside
  *            that diagonal) * a(n) = T(r, s-r) = C(s, r+1), the array read by
  *            descending * antidiagonals of the triangle T(n,k)=C(n+k,n+1)
- * Range:     u8 n <= 23, u16 n <= 157, u32 n <= 571, u64 n <= 1275,
+ * Range:     u8 n <= 47, u16 n <= 159, u32 n <= 576, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 82 terms through n = 1181 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Return the n‑th term of A325000, 1‑based indexing. */

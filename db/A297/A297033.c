@@ -10,14 +10,33 @@
  *            with a single base‑5 digit yields 0
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   base5_digits
+ * Validated: standard, pass, 102 terms through n = 8667 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/base5_digits.h"
+
+static void base5_digits(idx_t n, uint8_t *buf, size_t *len)
+{
+    /* Convert n to base‑5 digits in normal order (most‑significant first) */
+    if (n == 0) {          /* n will never be 0 for this sequence, but keep safety */
+        *len = 1;
+        buf[0] = 0;
+        return;
+    }
+    uint8_t tmp[64];            /* enough for uint64_t */
+    size_t p = 0;
+    while (n > 0) {
+        tmp[p++] = n % 5;
+        n /= 5;
+    }
+    *len = p;
+    for (size_t i = 0; i < p; ++i)
+        buf[i] = tmp[p - 1 - i];
+}
 
 seq_t a(idx_t n)
 {

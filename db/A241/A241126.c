@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Constants for the number of possible row patterns (3^3=27). */
 #define ROWS 27
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
     /* DP arrays: dp[up][mid][flag] where flag is 0 (no 1 yet) or 1 (1 seen). */
     static seq_t dp[ROWS+1][ROWS+1][2];
     static seq_t ndp[ROWS+1][ROWS+1][2];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initial state: only the first row has been placed. */
     for (int r = 0; r < ROWS; ++r) {
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
 
     /* Process remaining rows */
     for (idx_t row = 2; row <= n; ++row) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (int up = 0; up <= ROWS; ++up) {
             for (int mid = 0; mid <= ROWS; ++mid) {
                 for (int f = 0; f < 2; ++f) {
@@ -137,7 +139,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* Final validation of the last row */

@@ -10,7 +10,8 @@
  *            decimal representation of a(n)-1 does not
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has_22
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_22.h"
+#include "../utils/mem.h"
+
+/* Return true iff x contains the substring "22" in its decimal representation. */
+static bool has_22(seq_t x)
+{
+    int prev = -1;
+    while (x > 0)
+    {
+        int d = (int)(x % 10);
+        if (prev == 2 && d == 2)
+            return true;
+        prev = d;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -44,7 +60,7 @@ seq_t a(idx_t n)
             if (cache_size == cache_cap)
             {
                 size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)        /* allocation failed */
                     return 0;
                 cache = tmp;

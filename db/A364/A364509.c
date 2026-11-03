@@ -13,7 +13,8 @@
  *            decreasing from d downwards
  * Range:     u8 n <= 8, u16 n <= 22, u32 n <= 38, u64 n <= 70, u128 n <= 142,
  *            big any n
- * Helpers:   _floor_isqrt_u64, add_fact_exp
+ * Validated: standard, pass, 61 terms through n = 3043 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,27 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/add_fact_exp.h"
+#include "../utils/isqrt.h"
+
+/* Accumulate factorial exponents of prime p in m! */
+static void add_fact_exp(idx_t m, int sign,
+                         const int *primes, int primes_cnt,
+                         int *exps)
+{
+    for (int pi = 0; pi < primes_cnt; ++pi)
+    {
+        int p = primes[pi];
+        if ((idx_t)p > m) break;
+        idx_t v = m;
+        int e = 0;
+        while (v)
+        {
+            v /= p;
+            e += (int)v;
+        }
+        exps[pi] += sign * e;
+    }
+}
 
 #define PRIME_LIMIT 50000
 #define MAX_PRIMES 6000
@@ -71,7 +91,7 @@ static seq_t pow_seq_small(seq_t base, unsigned int exp)
 seq_t a(idx_t idx)
 {
     /* Locate diagonal d */
-    idx_t s = _floor_isqrt_u64(8 * idx + 1);
+    idx_t s = isqrt(8 * idx + 1);
     idx_t d = (s - 1) >> 1;           /* (s-1)/2 */
     idx_t prev = d * (d + 1) / 2;
     idx_t i = idx - prev;             /* offset inside diagonal */

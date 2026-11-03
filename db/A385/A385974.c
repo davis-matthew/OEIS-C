@@ -8,13 +8,15 @@
  * Formula:   a(n) = \sum_{q\ge 2}\phi(q)\cdot[\,\phi(q)\le n\,]
  * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9015 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  a(1)=1, a(2)=7, a(3)=7, a(4)=23, … */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Max denominator that can appear for n <= 10000
    (safety factor 200000 is more than enough) */
@@ -43,9 +45,9 @@ static void ensure_phi()
 /* Rebuilds cache for requested n */
 static void rebuild_cache(idx_t n)
 {
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     /* allocate n+1 elements (a(0) unused but simplifies indices) */
-    cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    cache = mem_new(seq_t, (n + 1));
     if (!cache) { cache_len = 0; return; }       /* allocation failed */
     for (idx_t i = 0; i <= n; ++i) cache[i] = 0;
 

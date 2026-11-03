@@ -6,23 +6,24 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} A003415(d) * A003961(n/d)
- * Range:     u8 n <= 23, u16 n <= 575, u32 n <= 8953, u64 n <= 8953,
- *            u128 n <= 8953, big any n
- * Helpers:   big_pow, is_prime_small
+ * Range:     u8 n <= 23, u16 n <= 575, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 93 terms through n = 8953 (2026-11-01)
+ * Helpers:   ipow, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/ipow.h"
+#include "../utils/is_prime_seq.h"
 
 /* Return the next prime larger than p (p ≥ 2).  */
 static idx_t next_prime_small_direct(idx_t p)
 {
     for (idx_t q = p + 1; ; ++q) {
-        if (is_prime_small(q))
+        if (is_prime_seq(q))
             return q;
     }
 }
@@ -68,12 +69,12 @@ static seq_t prime_shift(idx_t n)
                 ++exp;
             }
             idx_t nextp = next_prime_small_direct(p);
-            prod *= big_pow((seq_t)nextp, (seq_t)exp);
+            prod *= ipow((seq_t)nextp, (seq_t)exp);
         }
     }
     if (temp > 1) {               /* remaining large prime factor */
         idx_t nextp = next_prime_small_direct(temp);
-        prod *= big_pow((seq_t)nextp, (seq_t)1);
+        prod *= ipow((seq_t)nextp, (seq_t)1);
     }
     return prod;
 }

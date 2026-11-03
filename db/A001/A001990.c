@@ -12,7 +12,8 @@
  *            for all odd primes q <= p_n, where p_n is the n-th odd prime
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   a1990_isprime, a1990_mulmod, a1990_need, a1990_powmod
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a1990_isprime.h"
-#include "../utils/a1990_mulmod.h"
-#include "../utils/a1990_need.h"
-#include "../utils/a1990_powmod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+
+/* need QR iff Legendre(-2,q) = -1, i.e. q == 5,7 (mod 8) */
+static int a1990_need(uint32_t q) { return (q % 8 == 5 || q % 8 == 7) ? 1 : 0; }
 
 static uint32_t *a1990_pr = 0;
 static size_t a1990_npr = 0;
@@ -84,7 +87,7 @@ static bool a1990_ok(uint64_t c, size_t i) {
   {
     uint64_t r = c % q, l;
     if (r == 0) return false;
-    l = a1990_powmod(r, (q - 1) / 2, q);
+    l = powmod_u64(r, (q - 1) / 2, q);
     return (l == 1) == (a1990_need(q) == 1);
   }
 }
@@ -137,7 +140,7 @@ seq_t a(idx_t n) {
       bool good = true;
       if (c < lo) continue;
       for (i = w; i < np && good; i++) good = a1990_ok(c, i);
-      if (good && a1990_isprime(c)) {
+      if (good && is_prime_u64(c)) {
         if (n < A1990_CACHE) a1990_cache[n] = c;
         return (seq_t)c;
       }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 255, u32 n <= 255, u64 n <= 255,
  *            u128 n <= 255, big any n
- * Helpers:   _is_mersenne
+ * Validated: standard, pass, 75 terms through n = 251 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/_is_mersenne.h"
+
+static bool _is_mersenne(idx_t n)
+{
+    idx_t m = n + 1;
+    return m && ((m & (m - 1)) == 0);
+}
 
 static bool _is_prime(idx_t n)
 {

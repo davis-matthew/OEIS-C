@@ -8,14 +8,16 @@
  * Formula:   a(n) = value of the matrix f(i,j) read by antidiagonals where
  *            f(i,j) = 1 + gcd(f(i-1,j), f(i,j-1)), and f(1,*) = f(*,1) = 1.
  *            Indexing starts at 1
- * Range:     u8 n <= 9082, u16 n <= 9082, u32 n <= 9082, u64 n <= 9082,
- *            u128 n <= 9082, big any n
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 107 terms through n = 9082 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 #define MAX_DIM 200   /* sufficient for n up to about 10^4 */

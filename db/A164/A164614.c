@@ -12,7 +12,8 @@
  *            * The function below memoises computed values...
  * Range:     i8 n <= 12, i16 n <= 39, i32 n <= 126, i64 n <= 429,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* period‑12 sequence g(k) */
 static const int G12[12] =
@@ -39,33 +41,33 @@ ensure_capacity(idx_t n)
 {
     if (a_mem == NULL) {
         mem_cap = (size_t)n + 1;
-        a_mem = (seq_t *)malloc(mem_cap * sizeof(seq_t));
-        s_mem = (seq_t *)malloc(mem_cap * sizeof(seq_t));
+        a_mem = mem_new(seq_t, mem_cap);
+        s_mem = mem_new(seq_t, mem_cap);
         if (a_mem == NULL || s_mem == NULL) { /* allocation failed */
-            free(a_mem); free(s_mem);
+            mem_free(a_mem); mem_free(s_mem);
             a_mem = s_mem = NULL;
             mem_cap = 0;
             return;
         }
         /* initialise */
         a_mem[0] = (seq_t)1;   /* a(0)=1 */
-        memset(a_mem + 1, 0, mem_cap - 1);
-        memset(s_mem, 0, mem_cap * sizeof(seq_t));
+        mem_set(a_mem + 1, 0, mem_cap - 1);
+        mem_set(s_mem, 0, mem_cap * sizeof(seq_t));
     }
 
     if (mem_cap <= (size_t)n) {
         /* grow until big enough */
         size_t new_cap = mem_cap ? mem_cap * 2 : 16;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *tmp_a = (seq_t *)realloc(a_mem, new_cap * sizeof(seq_t));
-        seq_t *tmp_s = (seq_t *)realloc(s_mem, new_cap * sizeof(seq_t));
+        seq_t *tmp_a = mem_resize(seq_t, a_mem, new_cap);
+        seq_t *tmp_s = mem_resize(seq_t, s_mem, new_cap);
         if (tmp_a == NULL || tmp_s == NULL) { /* realloc failed */
             return;
         }
         a_mem = tmp_a; s_mem = tmp_s;
         /* zero the new part */
-        memset(a_mem + mem_cap, 0, (new_cap - mem_cap) * sizeof(seq_t));
-        memset(s_mem + mem_cap, 0, (new_cap - mem_cap) * sizeof(seq_t));
+        mem_set(a_mem + mem_cap, 0, (new_cap - mem_cap) * sizeof(seq_t));
+        mem_set(s_mem + mem_cap, 0, (new_cap - mem_cap) * sizeof(seq_t));
         mem_cap = new_cap;
     }
 }

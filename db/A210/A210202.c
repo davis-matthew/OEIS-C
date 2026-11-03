@@ -12,12 +12,14 @@
  *            The sequence a is the triangle of coefficients of v(n...
  * Range:     u8 n <= 23, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for the rows of u and v polynomials. */
 static idx_t  max_row   = 0;     /* highest row built so far */
@@ -44,8 +46,8 @@ static void ensure_rows(idx_t up_to)
     if (max_row == 0) {
         /* Build row 1 */
         extend_cap(1);
-        u_rows[0] = (seq_t *)calloc(1, sizeof(seq_t));
-        v_rows[0] = (seq_t *)calloc(1, sizeof(seq_t));
+        u_rows[0] = mem_new(seq_t, 1);
+        v_rows[0] = mem_new(seq_t, 1);
         u_rows[0][0] = (seq_t)1;
         v_rows[0][0] = (seq_t)1;
         max_row = 1;
@@ -63,8 +65,8 @@ static void ensure_rows(idx_t up_to)
         idx_t v_size = r;                          /* v(r) size  */
 
         /* Allocate new rows */
-        seq_t *u_new = (seq_t *)calloc(u_size, sizeof(seq_t));
-        seq_t *v_new = (seq_t *)calloc(v_size, sizeof(seq_t));
+        seq_t *u_new = mem_new(seq_t, u_size);
+        seq_t *v_new = mem_new(seq_t, v_size);
 
         if (r == 1) {
             u_new[0] = (seq_t)1;

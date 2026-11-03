@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 156, u16 n <= 156, u32 n <= 156, u64 n <= 156,
  *            u128 n <= 156, big any n
- * Helpers:   none
+ * Validated: partial, pass, 156 terms through n = 156 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    This function returns the nth term (1-indexed). */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* initialise with the starting symbol '1' */
     if (cachesize == 0) {
         cachecap   = 1;
-        cache      = (seq_t *)malloc(cachecap * sizeof(seq_t));
+        cache      = mem_new(seq_t, cachecap);
         if (!cache) abort();
         cache[0]    = (seq_t)1;
         cachesize   = 1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     while (cachesize < n) {
         size_t oldlen = cachesize;
         size_t newcap = oldlen * 4 + 1;  /* maximum possible new length + safety */
-        seq_t *newarr = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *newarr = mem_new(seq_t, newcap);
         if (!newarr) abort();
 
         size_t newlen = 0;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cache);
+        mem_free(cache);
         cache      = newarr;
         cachesize  = newlen;
         cachecap   = newcap;

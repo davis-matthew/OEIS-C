@@ -8,7 +8,8 @@
  *            p) has no solution
  * Range:     u8 n <= 11, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 61 terms through n = 935 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* External linkage, as required. */
 seq_t a(idx_t n) {
@@ -44,14 +47,14 @@ seq_t a(idx_t n) {
 
         /* Compute 17^((p-1)/5) mod p. */
         uint64_t exp = (last_prime - 1) / 5;
-        seq_t val = mod_pow((seq_t)17, exp, (seq_t)last_prime);
+        seq_t val = powmod((seq_t)17, exp, (seq_t)last_prime);
 
         /* If the result is not 1, p is part of the sequence. */
         if (val != (seq_t)1) {
             /* Grow the sequence cache if necessary. */
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)last_prime;
         }

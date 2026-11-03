@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 39, u64 n <= 82, u128 n <= 166,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,13 +30,14 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Ensure the cache has space for at least 'needed' elements. */
 static void ensure_capacity(idx_t needed, size_t *cap, seq_t **ptr) {
     if (needed <= *cap) return;
     size_t new_cap = *cap ? *cap : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
     if (!tmp) abort();
     *ptr = tmp;
     *cap = new_cap;

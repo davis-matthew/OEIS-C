@@ -13,6 +13,7 @@
  *            the term a(n) equals A(i,j) with i = k, j = s-k
  * Range:     u8 n <= 22, u16 n <= 48, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
 /* Note:  binomial() and gcd() are provided by the utils library. */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

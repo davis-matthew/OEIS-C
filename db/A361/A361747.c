@@ -12,7 +12,8 @@
  *            representations
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   compute_digits, has_shared_trit
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,41 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/compute_digits.h"
-#include "../utils/has_shared_trit.h"
+#include "../utils/mem.h"
+
+/* helper: compute the balanced‑ternary digits of n (least significant first) */
+static size_t compute_digits(seq_t n, signed char *buf)
+{
+    size_t idx = 0;
+    seq_t x = n;
+    while (x != 0) {
+        seq_t div = x / 3;
+        int  r   = (int)(x % 3);
+        x = div;
+        if (r == 2) {          /* remainder 2 corresponds to digit -1 */
+            r = -1;
+            x = x + 1;
+        }
+        buf[idx++] = (signed char)r;
+    }
+    if (idx == 0) {            /* handle zero explicitly */
+        buf[0] = 0;
+        idx = 1;
+    }
+    return idx;
+}
+
+/* helper: true if a and b share an identical trit at the same position */
+static bool has_shared_trit(seq_t a, seq_t b,
+                            const signed char *a_digits, size_t a_len)
+{
+    signed char b_digits[128];
+    size_t b_len = compute_digits(b, b_digits);
+    size_t min_len = a_len < b_len ? a_len : b_len;
+    for (size_t i = 0; i < min_len; ++i)
+        if (a_digits[i] == b_digits[i]) return true;
+    return false;
+}
 
 /* ensure unsigned index array can hold up to max_idx */
 static void ensure_used_capacity(uint64_t max_idx, uint16_t **used, size_t *used_cap)
@@ -42,7 +76,7 @@ static void ensure_cache_capacity(size_t n, seq_t **cache, size_t *cache_cap)
     if (n < *cache_cap) return;
     size_t new_cap = (*cache_cap == 0) ? 8 : *cache_cap * 2;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, *cache, new_cap);
     if (new_arr == NULL) abort();
     *cache = new_arr;
     *cache_cap = new_cap;

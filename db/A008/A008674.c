@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 183, u32 n <= 3129, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 8893 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +20,13 @@
  * call order or n ≥ 0.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate table for 0 … n */
     size_t needed = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(needed * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, needed);
     if (!dp) return 0;                     /* out of memory → 0 (non‑negative) */
 
     /* initialise to 0, then base case */
@@ -40,6 +42,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = dp[n];
-    free(dp);
+    mem_free(dp);
     return res;
 }

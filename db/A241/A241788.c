@@ -9,7 +9,8 @@
  *            exactly five distinct digits
  * Range:     u8 none, u16 n <= 55, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_exactly_five_distinct_digits
+ * Validated: standard, pass, 53 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,25 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has_exactly_five_distinct_digits.h"
+#include "../utils/mem.h"
+
+/* Return true iff x has exactly five distinct decimal digits. */
+static bool has_exactly_five_distinct_digits(seq_t x)
+{
+    unsigned mask = 0;
+    while (x > (seq_t)0) {
+        unsigned d = (unsigned)(x % (seq_t)10);
+        mask |= 1u << d;
+        x = x / (seq_t)10;
+    }
+    /* Count set bits in mask. */
+    unsigned bits = 0;
+    while (mask) {
+        bits += mask & 1u;
+        mask >>= 1;
+    }
+    return bits == 5;
+}
 
 /* Cache for found terms. */
 static seq_t *cache     = NULL;
@@ -37,7 +56,7 @@ seq_t a(idx_t n)
         if (has_exactly_five_distinct_digits(t)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 cache     = tmp;
                 cache_cap = new_cap;

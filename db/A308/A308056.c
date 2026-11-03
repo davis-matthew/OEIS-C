@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd_int
+ * Validated: standard, pass, 85 terms through n = 9879 (2026-11-02)
+ * Helpers:   factor_u64, gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,11 +25,12 @@
 #include <stdint.h>   /* uint64_t */
 
 /* Factorization routine */
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr,
-                                      uint64_t *ex, size_t *cnt); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd_i32.h"
 
 /* Integer gcd routine */
-#include "../utils/gcd_int.h"   /* int gcd_int(int a, int b); */
 
 /* Compute a(n) */
 seq_t a(idx_t n)
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         for (int i = 1; i <= e; ++i)
         {
             power *= p;            /* p^i */
-            if (gcd_int(i, e) == 1)
+            if (gcd_i32(i, e) == 1)
                 sum += power;
         }
 

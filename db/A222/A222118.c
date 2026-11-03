@@ -8,7 +8,8 @@
  * Formula:   a(n) = A006577(n) - A221956(n) + 1
  * Range:     u8 n <= 26, u16 n <= 9188, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_to_str
+ * Validated: standard, pass, 103 terms through n = 9189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,27 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/seq_to_str.h"
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* ---------- Hash table for visited sequence terms ---------- */
 
@@ -55,7 +76,7 @@ static void hash_rehash(size_t new_cap) {
     uint8_t *old_used = hash_used;
     size_t old_cap = hash_cap;
 
-    hash_keys = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    hash_keys = mem_new(seq_t, new_cap);
     hash_used = (uint8_t *)calloc(new_cap, 1);
     hash_cap = new_cap;
     hash_used_count = 0;
@@ -72,7 +93,7 @@ static void hash_rehash(size_t new_cap) {
         }
     }
 
-    free(old_keys);
+    mem_free(old_keys);
     free(old_used);
 }
 
@@ -107,7 +128,7 @@ seq_t a(idx_t n) {
     if (n > memo_len) {
         size_t new_cap = memo_cap ? memo_cap : 16;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        memo = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, new_cap);
         memo_cap = new_cap;
 
         /* Compute a(i) for all new i */

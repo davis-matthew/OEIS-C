@@ -9,9 +9,10 @@
  *            compositions of n, as defined in OEIS A185700. The function uses
  *            the recurrence described in the OEIS entry, memoising results
  *            for efficiency
- * Range:     u8 n <= 31, u16 n <= 104, u32 n <= 104, u64 n <= 104,
+ * Range:     u8 n <= 58, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   binom, is_prime, triangular
+ * Validated: partial, pass, 104 terms through n = 104 (2026-11-03)
+ * Helpers:   binomial, is_prime, mem, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,10 @@
 #include <stdbool.h>
 #include <string.h>                    /* memset */
 
-#include "../utils/binom.h"           /* binom(idx_t a, idx_t b) -> seq_t */
-#include "../utils/triangular.h"      /* triangular(idx_t r) -> idx_t */
-#include "../utils/is_prime.h"        /* is_prime(idx_t n) -> bool */
+#include "../utils/binomial.h"
+#include "../utils/is_prime.h"
+#include "../utils/triangular.h"
+#include "../utils/mem.h"
 
 /* --------- helper: gcd for idx_t ------------------------------------- */
 static idx_t gcd_idx_t(idx_t a, idx_t b) {
@@ -45,10 +47,10 @@ static bool ensure_capacity(idx_t n) {
     if (n <= A_max) return true;
 
     size_t new_cap = (size_t)(n + 1);
-    seq_t *tmp_c = (seq_t *)realloc(A_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp_c = mem_resize(seq_t, A_cache, new_cap);
     if (!tmp_c) return false;
     bool *tmp_u = (bool *)realloc(A_used, new_cap * sizeof(bool));
-    if (!tmp_u) { free(tmp_c); return false; }
+    if (!tmp_u) { mem_free(tmp_c); return false; }
 
     /* initialise newly allocated slots */
     memset(tmp_u + A_max + 1, 0,
@@ -88,12 +90,12 @@ static seq_t a_internal(idx_t n) {
 
     /* if k is prime */
     if (is_prime(k)) {
-        seq_t b = binom(k, j);
+        seq_t b = binomial(k, j);
         return b / (seq_t)k;          /* division exact by OEIS definition */
     }
 
     /* composite k */
-    seq_t bin = binom(k, j);
+    seq_t bin = binomial(k, j);
     idx_t g = gcd_idx_t(k, j);
     seq_t sumDiv = 0;
 

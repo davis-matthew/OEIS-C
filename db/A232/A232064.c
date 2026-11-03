@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------- constants ------------------------------------ */
 #define COLS          7
@@ -176,8 +178,8 @@ static void init(void)
 
     /* allocate DP arrays and helper lists */
     size_t total_states = pattern_cnt * REQ_MAX;
-    dp   = (seq_t*)calloc(total_states, sizeof(seq_t));
-    ndp  = (seq_t*)calloc(total_states, sizeof(seq_t));
+    dp   = mem_new(seq_t, total_states);
+    ndp  = mem_new(seq_t, total_states);
     act  = (int*)malloc(total_states * sizeof(int));
     next = (int*)malloc(total_states * sizeof(int));
 }

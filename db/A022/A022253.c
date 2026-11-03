@@ -8,21 +8,24 @@
  *            coefficient [n,2]_{q=9})
  * Range:     u8 none, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 22,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 30 terms through n = 165 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     if (n < 2) return 0;               /* Undefined for indices below the offset */
 
     /* Compute the two factors 9^n-1 and 9^(n-1)-1 */
-    seq_t pow_n   = big_pow((seq_t)9, (seq_t)n);
-    seq_t pow_n_1 = big_pow((seq_t)9, (seq_t)(n - 1));
+    seq_t pow_n   = ipow((seq_t)9, (seq_t)n);
+    seq_t pow_n_1 = ipow((seq_t)9, (seq_t)(n - 1));
 
     seq_t a_coef = pow_n   - (seq_t)1;
     seq_t b_coef = pow_n_1 - (seq_t)1;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{i=5..n} binomial(i-3,2) * binomial(2*i-6,i-5) / (i-4)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 22 terms through n = 26 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,12 +32,12 @@ seq_t a(idx_t n)
 
     /* Ensure array is large enough to hold index n. */
     if (cache_size <= n) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!tmp)                     /* allocation failure */
             return 0;
         /* Zero‑initialize the newly allocated portion. */
         if (cache_size < n + 1)
-            memset(tmp + cache_size, 0, (size_t)(n + 1 - cache_size) * sizeof(seq_t));
+            mem_set(tmp + cache_size, 0, (size_t)(n + 1 - cache_size) * sizeof(seq_t));
         cache = tmp;
         cache_size = n + 1;
     }

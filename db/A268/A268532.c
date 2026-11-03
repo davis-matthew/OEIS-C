@@ -12,6 +12,7 @@
  *            the length k, the inversion sum m, and ranks the permuta...
  * Range:     u8 n <= 7, u16 n <= 153, u32 n <= 5913, u64 n <= 5913,
  *            u128 n <= 5913, big any n
+ * Validated: standard, pass, 55 terms through n = 5884 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

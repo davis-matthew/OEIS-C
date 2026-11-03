@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..n-1} (1 + k^5) * a(k) * a(n-1-k), a(0)=1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for computed values */
 static seq_t *cache      = NULL;
@@ -27,7 +29,7 @@ static void ensure_capacity(idx_t n)
     if (need <= cache_cap)
         return;
 
-    seq_t *new_cache  = (seq_t*)realloc(cache,  need * sizeof(seq_t));
+    seq_t *new_cache  = mem_resize(seq_t, cache, need);
     bool  *new_comp   = (bool*)realloc(computed, need * sizeof(bool));
     if (!new_cache || !new_comp) {
         /* abort on allocation failure – the judge expects a defined exit path */

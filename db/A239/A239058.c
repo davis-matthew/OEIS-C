@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 3561, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, grow_seq
+ * Validated: standard, pass, 84 terms through n = 7150 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
 /* A239058: Numbers whose every divisor appears as a decimal substring of the number. */
 /* 
    The function a(idx_t n) returns the n‑th term (n ≥ 1).  It builds the
@@ -24,8 +26,22 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/grow_seq.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static bool divisor_is_substring(uint64_t divisor, const char *s)
 {

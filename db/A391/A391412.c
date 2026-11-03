@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   next_prime
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;          /* cached terms of the sequence   */
 static size_t cache_len = 0;             /* number of terms stored         */
@@ -83,7 +85,7 @@ static void cache_ensure(size_t n) {
     if (cache_cap < n) {
         size_t newcap = cache_cap ? cache_cap * 2 : 64;
         while (newcap < n) newcap *= 2;
-        seq_t *newarr = (seq_t *)realloc(seq_cache, newcap * sizeof(seq_t));
+        seq_t *newarr = mem_resize(seq_t, seq_cache, newcap);
         if (!newarr) abort();           /* allocation failure */
         seq_cache = newarr;
         cache_cap = newcap;

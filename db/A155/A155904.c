@@ -7,54 +7,32 @@
  * Keywords:  nice, nonn
  * Formula:   a(n) = number of representations of 2n-1 as p + 2^x + 5·2^y
  *            where p is an odd prime and x,y are positive integers
- * Range:     u8 n <= 64, u16 n <= 8982, u32 n <= 8982, u64 n <= 8982,
- *            u128 n <= 8982, big any n
- * Helpers:   none
+ * Range:     u8 n <= 50000, u16 n <= 50000, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 104 terms through n = 8982 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include <stdbool.h>
+/* A155904: the number of ways to write 2n - 1 as p + 2^x + 5 2^y with p an odd
+ * prime and x, y >= 1, with the exact 64-bit primality test (the original's
+ * prime table stopped at 20000, i.e. n = 10000). */
+
 #include <stdint.h>
+#include "../utils/is_prime_u64.h"
 
-#define MAX_M 20000          /* maximum value of 2n-1 for n<=10000 */
-
-static bool prime_tbl[MAX_M + 1];
-static bool tbl_inited = false;
-
-static void init_prime_tbl(void) {
-    if (tbl_inited) return;
-    tbl_inited = true;
-    for (idx_t i = 0; i <= MAX_M; ++i) prime_tbl[i] = true;
-    prime_tbl[0] = prime_tbl[1] = false;
-    for (idx_t i = 2; i * i <= MAX_M; ++i) {
-        if (!prime_tbl[i]) continue;
-        for (idx_t j = i * i; j <= MAX_M; j += i) prime_tbl[j] = false;
-    }
-}
-
-seq_t a(idx_t n) {
-    init_prime_tbl();
-
-    seq_t count = 0;
-    seq_t M = (seq_t)(2 * n - 1);        /* 2n-1 */
-
-    for (idx_t x = 1; ; ++x) {
-        seq_t pow2x = (seq_t)1 << x;
-        if (pow2x >= M) break;   /* 2^x must be strictly less than M */
-        seq_t diff = M - pow2x;
-        for (idx_t y = 1; ; ++y) {
-            seq_t pow2y = (seq_t)1 << y;
-            seq_t term5 = (seq_t)5 * pow2y;
-            if (term5 > diff) break;
-            seq_t val = diff - term5;
-            if (val <= 1) continue;          /* p must be >1 */
-            if ((val & 1) == 0) continue;    /* p must be odd */
-            idx_t p = (idx_t)val;
-            /* val fits into idx_t because M <= MAX_M < 2^16 */
-            if (p <= MAX_M && prime_tbl[p]) ++count;
+seq_t a(idx_t n)
+{
+    if (n < 1) return (seq_t)0;
+    const uint64_t M = 2 * (uint64_t)n - 1;
+    uint64_t count = 0;
+    for (unsigned x = 1; x < 63 && (UINT64_C(1) << x) < M; ++x) {
+        const uint64_t d = M - (UINT64_C(1) << x);
+        for (unsigned y = 1; y < 61 && 5 * (UINT64_C(1) << y) <= d; ++y) {
+            uint64_t p = d - 5 * (UINT64_C(1) << y);
+            if (p > 2 && (p & 1) && is_prime_u64(p)) ++count;
         }
     }
-
     return (seq_t)count;
 }

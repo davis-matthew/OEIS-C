@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   lpf, rad
+ * Validated: standard, pass, 72 terms through n = 9944 (2026-11-01)
+ * Helpers:   radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/rad.h"   /* seq_t rad(idx_t m); */
-#include "../utils/lpf.h"   /* idx_t lpf(idx_t n); */
+#include "../utils/radical.h"
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 #if defined(__cplusplus)
 #include <vector>
 #endif
@@ -39,7 +48,7 @@ seq_t a(idx_t n)
         while (values.size() < (size_t)n) {
             seq_t k_val = (seq_t)next_k;
             idx_t lpf_val = lpf(next_k);
-            seq_t rad_val = rad((idx_t)k_val);
+            seq_t rad_val = radical((idx_t)k_val);
             if (rad_val * (seq_t)lpf_val == k_val) {
                 values.push_back(k_val);
             }
@@ -58,7 +67,7 @@ seq_t a(idx_t n)
     while (values_len < (size_t)n) {
         seq_t k_val = (seq_t)next_k;
         idx_t lpf_val = lpf(next_k);
-        seq_t rad_val = rad((idx_t)k_val);
+        seq_t rad_val = radical((idx_t)k_val);
         if (rad_val * (seq_t)lpf_val == k_val) {
             if (values_len >= values_cap) {
                 values_cap *= 2;

@@ -10,13 +10,15 @@
  *            a(1)=1,a(2)=8,a(3)=17,a(4)=39,a(5)=151,a(6)=385,a(7)=1026,a(8)=3272
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 42, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Ensure that cache can hold indices 0..required (inclusive) */
 static void ensure_capacity(idx_t required, seq_t **arr, size_t *cap)
@@ -29,7 +31,7 @@ static void ensure_capacity(idx_t required, seq_t **arr, size_t *cap)
         size_t new_cap = (*cap > 0) ? *cap : 1;
         while (new_cap <= required)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap + 1));
         *arr = tmp;
         *cap = new_cap;
     }

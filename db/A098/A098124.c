@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
  *  The implementation uses the binom routine from "../utils/binom.h".
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include <stdint.h>
 
 /* number of compositions of n into k parts each ≤ M (k ≥ 1)  */
@@ -44,14 +46,14 @@ static seq_t comp_leq(idx_t k, idx_t M, idx_t n)
 
     for (idx_t j = 0; j <= jmax; ++j)
     {
-        seq_t term = binom(k, j);
+        seq_t term = binomial(k, j);
 
         /* remaining sum after subtracting j parts that exceed M by at least 1 */
         idx_t t = n - j * M - 1;          /* = n – j*M – 1 */
         if (t < k - 1)                    /* binom would be zero otherwise */
             break;
 
-        term *= binom(t, k - 1);
+        term *= binomial(t, k - 1);
 
         if (j & 1)
             total -= term;

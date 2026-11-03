@@ -13,13 +13,15 @@
  *            Stirling1(n, k) denotes the unsigned Stirling nu...
  * Range:     u8 n <= 17, u16 n <= 31, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build environment.  */
 
@@ -35,8 +37,8 @@ static void compute_tables(void)
     stride = maxM + 1;
     const size_t dim = (maxM + 1) * stride;
 
-    stirl = (seq_t *)malloc(dim * sizeof(seq_t));
-    Tmat  = (seq_t *)malloc(dim * sizeof(seq_t));
+    stirl = mem_new(seq_t, dim);
+    Tmat  = mem_new(seq_t, dim);
     if (!stirl || !Tmat) {                          /* simple error handling */
         exit(1);
     }

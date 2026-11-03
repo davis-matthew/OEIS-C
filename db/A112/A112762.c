@@ -7,13 +7,15 @@
  * Formula:   a(n) = exponent of 5 in the nth 5‑smooth number (2¹ᶦ·3ʲ·5ᵏ)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9110 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         hcap = 8;
         h = (unsigned __int128 *)malloc(hcap * sizeof(*h));
         ecap = 8;
-        e = (seq_t *)malloc(ecap * sizeof(*e));
+        e = mem_new(seq_t, ecap);
         h[0] = (unsigned __int128)1;
         e[0] = 0;
         hsize = esize = 1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
         unsigned __int128 *newh = (unsigned __int128 *)realloc(h, newcap * sizeof(*h));
         h = newh; hcap = newcap;
-        seq_t *newe = (seq_t *)realloc(e, newcap * sizeof(*e));
+        seq_t *newe = mem_resize(seq_t, e, newcap);
         e = newe; ecap = newcap;
     }
 

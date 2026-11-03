@@ -11,6 +11,7 @@
  *            m_(k+1)) / d_(k+1)) p_k = a_k * p_(k-1) + p_(k-2) The fun...
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 20, u64 n <= 42, u128 n <= 87,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 174 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

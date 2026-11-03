@@ -7,15 +7,27 @@
  * Formula:   a(n) = 10^(n+1) * (n / gcd(n, 10^(n+1)))
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   pow10, pow2, pow_int
+ * Validated: standard, pass, 31 terms through n = 981 (2026-11-01)
+ * Helpers:   ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(n) is the smallest number ending in n+1 zeros that is divisible by n */
-#include "../utils/pow10.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/pow2.h"
-#include "../utils/pow_int.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -46,7 +58,7 @@ seq_t a(idx_t n)
     /* t = n / (2^g2 * 5^g5)  (missing prime factors of n) */
     seq_t t = (seq_t)n;
     if (g2) t /= pow2(g2);            /* divide by 2^g2 */
-    if (g5) t /= pow_int(5, g5);      /* divide by 5^g5 */
+    if (g5) t /= ipow_idx(5, g5);      /* divide by 5^g5 */
 
     /* Result: 10^(n+1) * t */
     return ten_pow * t;

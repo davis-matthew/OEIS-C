@@ -8,6 +8,7 @@
  *            (q^(2i) - 1) / gcd(2, q-1), i.e. q runs over the prime powers 2,
  *            3, 4, 5, 7, 8, 9,
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
+ * Validated: standard, pass, 10 terms through n = 10 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

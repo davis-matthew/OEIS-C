@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 28, u64 n <= 68, u128 n <= 147,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 43 terms through n = 206 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <stdlib.h>
 
 /* Forward declaration of helper functions supplied by the build framework */
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Constants */
 #define ROW_TOKENS 64          /* 4^3 possible 3‑cell rows (0..3) */
@@ -101,8 +103,8 @@ static void compute_masks(void)
 static void init_dp_buffers(void)
 {
     if (!dp_cur) {
-        dp_cur  = (seq_t*)calloc(STATE_SIZE, sizeof(seq_t));
-        dp_next = (seq_t*)calloc(STATE_SIZE, sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, STATE_SIZE);
+        dp_next = mem_new(seq_t, STATE_SIZE);
     }
 }
 

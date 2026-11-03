@@ -13,7 +13,8 @@
  *            coefficients are obtained by the closed‑form expression fr...
  * Range:     i8 n <= 19, i16 n <= 58, i32 n <= 213, i64 n <= 762,
  *            i128 n <= 2499, big any n
- * Helpers:   _floor_isqrt_u64, binom_n_k, pow2
+ * Validated: standard, pass, 80 terms through n = 2194 (2026-11-01)
+ * Helpers:   binomial, isqrt, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/binom_n_k.h"
+#include "../utils/binomial.h"
+#include "../utils/isqrt.h"
 #include "../utils/pow2.h"
-#include "../utils/_floor_isqrt_u64.h"
 
 static seq_t coeff_T_even(idx_t m, idx_t k)
 {
@@ -34,7 +35,7 @@ static seq_t coeff_T_even(idx_t m, idx_t k)
     idx_t j = (m - k) >> 1U;      /* j = (m - k)/2 */
 
     /* binom(m-j, j) */
-    seq_t bin = binom_n_k(m - j, j);
+    seq_t bin = binomial(m - j, j);
 
     /* c = bin * m / (m - j) */
     seq_t c = bin * (seq_t)m;
@@ -62,7 +63,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Determine row r and column k in the concatenated triangle. */
-    idx_t r = _floor_isqrt_u64(n);        /* floor(sqrt(n)) */
+    idx_t r = isqrt(n);        /* floor(sqrt(n)) */
     idx_t k = n - r * r;                  /* offset within row r */
 
     /* Compute coefficient of x^k in T_{2r}(x). */

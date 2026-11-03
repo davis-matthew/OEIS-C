@@ -8,13 +8,15 @@
  *            follow a computable pattern
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_COMPUTE 20001
 static seq_t memo[MAX_COMPUTE];
@@ -23,7 +25,7 @@ static int initialized = 0;
 void init_sequence() {
     if (initialized) return;
     initialized = 1;
-    memset(memo, 0, sizeof(memo));
+    mem_set(memo, 0, sizeof(memo));
     
     /* Initialize known values */
     memo[2] = 2; memo[3] = 4; memo[4] = 8; memo[5] = 16; memo[6] = 30;

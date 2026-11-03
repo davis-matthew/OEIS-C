@@ -11,7 +11,8 @@
  *            deduplicated. L is doubled until there are at...
  * Range:     u8 n <= 3, u16 n <= 26, u32 n <= 3649, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   q2650_cmp, q2650_f, q2650_isprime, q2650_mulmod, q2650_powmod
+ * Validated: standard, pass, 53 terms through n = 9424 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,19 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/q2650_cmp.h"
-#include "../utils/q2650_f.h"
-#include "../utils/q2650_isprime.h"
-#include "../utils/q2650_mulmod.h"
-#include "../utils/q2650_powmod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+
+static int q2650_cmp(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
+
+static unsigned __int128 q2650_f(uint64_t x, uint64_t y) {
+    unsigned __int128 X = x, Y = y;
+    return (X * X * X * X * X + Y * Y * Y * Y * Y) / (X + Y);
+}
 
 static uint64_t *q2650_list = NULL;
 static size_t q2650_cnt = 0;
@@ -37,7 +46,7 @@ static void q2650_build(uint64_t L) {
         for (x = y + 1;; x++) {
             unsigned __int128 fv = q2650_f(x, y);
             if (fv > L) break;
-            if (q2650_isprime((uint64_t)fv)) {
+            if (is_prime_u64((uint64_t)fv)) {
                 if (cnt == cap) {
                     cap *= 2;
                     v = (uint64_t *)realloc(v, cap * sizeof(uint64_t));

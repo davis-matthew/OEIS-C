@@ -9,13 +9,15 @@
  *            (including 1)
  * Range:     u8 n <= 24, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 seq_t a(idx_t n)
 {
     static seq_t *pcomp = NULL;
@@ -30,14 +32,14 @@ seq_t a(idx_t n)
     if (pcomp_limit < n) {
         /* Allocate & initialize new arrays */
         size_t new_limit = (size_t)n;
-        seq_t *new_pcomp = (seq_t *)calloc(new_limit + 1, sizeof(seq_t));
+        seq_t *new_pcomp = mem_new(seq_t, new_limit + 1);
         if (!new_pcomp) return 0;
         new_pcomp[0] = 1;
 
         /* Sieve of Eratosthenes to find primes up to n */
         bool *isPrime = (bool *)malloc((new_limit + 1) * sizeof(bool));
         if (!isPrime) {
-            free(new_pcomp);
+            mem_free(new_pcomp);
             return 0;
         }
         for (size_t i = 0; i <= new_limit; ++i) isPrime[i] = true;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         idx_t *new_primes = (idx_t *)malloc(pc * sizeof(idx_t));
         if (!new_primes) {
             free(isPrime);
-            free(new_pcomp);
+            mem_free(new_pcomp);
             return 0;
         }
         for (size_t i = 2, k = 0; i <= new_limit; ++i) {
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
         }
 
         free(isPrime);
-        free(pcomp);
+        mem_free(pcomp);
         pcomp = new_pcomp;
         pcomp_limit = n;
     }

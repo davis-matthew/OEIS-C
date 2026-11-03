@@ -11,7 +11,8 @@
  *            OEIS (a(2)) is 2. * Method: generate a sufficien...
  * Range:     u8 n <= 33, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* n >= 2.  The required number of survivor terms is n-1. */
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
 
         while (1) {
             /* Allocate array for the first 'limit' even numbers */
-            evens = (seq_t *)calloc(limit, sizeof(seq_t));
+            evens = mem_new(seq_t, limit);
             if (!evens) abort();              /* allocation failure */
 
             for (size_t i = 1; i <= limit; ++i) {
@@ -63,17 +65,16 @@ seq_t a(idx_t n) {
             if (evens_len >= required) {
                 /* We have enough terms.  Shrink the array to the
                  * required size and store in the cache. */
-                seq_t *new_cache = (seq_t *)realloc(evens,
-                                                    required * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, evens, required);
                 if (!new_cache) new_cache = evens;   /* realloc may fail */
-                free(cache);
+                mem_free(cache);
                 cache = new_cache;
                 cache_len = required;
                 break;
             }
 
             /* Not enough terms – free and try again with a larger limit */
-            free(evens);
+            mem_free(evens);
             limit *= 2;
         }
     }

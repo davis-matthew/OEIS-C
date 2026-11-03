@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime sieve shared state ---------------------------------- */
 static uint8_t *is_prime = NULL;   /* 0 = composite, 1 = prime              */
@@ -109,7 +111,7 @@ static inline void ensure_seq_capacity(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(sequence, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, sequence, new_cap);
     if (!tmp) abort();
     sequence = tmp;
     seq_cap   = new_cap;
@@ -124,7 +126,7 @@ seq_t a(idx_t n)
     /* Initialise the sequence storage and prime sieve on first call. */
     if (seq_len == 0) {
         seq_cap = 128;
-        seq_t *tmp = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, seq_cap);
         if (!tmp) abort();
         sequence = tmp;
         init_sieve(200);          /* small start for early values        */

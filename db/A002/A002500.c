@@ -11,7 +11,8 @@
  *            cycle types
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   inv128, sg
+ * Validated: standard, pass, 31 terms through n = 50 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/inv128.h"
-#include "../utils/sg.h"
+#include "../utils/gcd_idx.h"
+
+static unsigned __int128 inv128(unsigned __int128 z) {
+    unsigned __int128 x = z;
+    int i;
+    for (i = 0; i < 7; i++) x *= (unsigned __int128)2 - z * x;
+    return x;
+}
 
 static idx_t *cs_tab = 0;
 static idx_t cs_len = 0;
@@ -104,7 +111,7 @@ static void rec(idx_t rem, idx_t maxp, idx_t k, idx_t c, uint64_t z, seq_t zs) {
         idx_t csp = cself(p);
         for (i = 0; i < k; i++) {
             idx_t q = g_p[i], qg = (q % 2 == 0) ? 2 : 1, qp = q / qg;
-            cross += g_m[i] * (p * q / (pp * qp) * sg(pp, qp));
+            cross += g_m[i] * (p * q / (pp * qp) * gcd_idx(pp, qp));
         }
         for (m = 1; m * p <= rem; m++) {
             cc += csp + (m - 1) * p * pg + cross;

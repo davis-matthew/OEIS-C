@@ -8,7 +8,8 @@
  *            b(n) * 2147001325 + 715136305
  * Range:     u8 none, u16 n <= 35, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const uint32_t MULT   = 2147001325U; /* 2147001325 */
 static const uint32_t ADD    = 715136305U;  /* 715136305 */
@@ -32,7 +34,7 @@ static void ensure_capacity(size_t needed)
     if (needed <= cap) return;
     size_t new_cap = cap ? cap << 1 : 16;
     if (new_cap < needed) new_cap = needed;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cap   = new_cap;
 }
 

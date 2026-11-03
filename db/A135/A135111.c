@@ -11,14 +11,27 @@
  *            calls efficiently
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum_base2
+ * Validated: standard, pass, 68 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/digit_sum_base2.h"
+#include "../utils/mem.h"
+
+static uint64_t digit_sum_base2(seq_t x)
+{
+    uint64_t s = 0;
+    while (x != 0)
+    {
+        if ((x & 1) != 0)
+            ++s;
+        x >>= 1;
+    }
+    return s;
+}
 
 static uint64_t digit_sum_base3(seq_t x)
 {
@@ -44,7 +57,7 @@ seq_t a(idx_t n)
     if (computed + 1 > cap)
     {
         size_t newcap = cap == 0 ? 4 : cap << 1;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cap   = newcap;
     }
 
@@ -67,7 +80,7 @@ seq_t a(idx_t n)
             if (computed + 1 > cap)
             {
                 size_t newcap = cap == 0 ? 4 : cap << 1;
-                cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, newcap);
                 cap   = newcap;
             }
         }

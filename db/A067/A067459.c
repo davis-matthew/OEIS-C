@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n-1} (n^2 mod k^2)
  * Range:     u8 n <= 12, u16 n <= 78, u32 n <= 3215, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 63 terms through n = 9905 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

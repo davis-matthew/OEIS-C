@@ -8,7 +8,8 @@
  * Formula:   Height of n in Recamán's sequence (A064288)
  * Range:     u8 n <= 3, u16 n <= 18, u32 n <= 1354, u64 n <= 1354,
  *            u128 n <= 1354, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 1328 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Small hash map for (seq_t → seq_t) pairs ---------- */
 
@@ -66,8 +68,8 @@ static void hash_rehash(HashMap *m, size_t new_cap)
     unsigned char *old_used = m->used;
     size_t old_cap = m->capacity;
 
-    m->keys   = (seq_t *)malloc(new_cap * sizeof(seq_t));
-    m->vals   = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    m->keys   = mem_new(seq_t, new_cap);
+    m->vals   = mem_new(seq_t, new_cap);
     m->used   = (unsigned char *)calloc(new_cap, 1);
     m->capacity = new_cap;
     m->size = 0;
@@ -86,8 +88,8 @@ static void hash_rehash(HashMap *m, size_t new_cap)
         }
     }
 
-    free(old_keys);
-    free(old_vals);
+    mem_free(old_keys);
+    mem_free(old_vals);
     free(old_used);
 }
 
@@ -104,8 +106,8 @@ static void hash_insert(HashMap *m, seq_t key, seq_t val)
 {
     if (m->size == 0) { /* uninitialised */
         m->capacity = 16;
-        m->keys = (seq_t *)malloc(m->capacity * sizeof(seq_t));
-        m->vals = (seq_t *)malloc(m->capacity * sizeof(seq_t));
+        m->keys = mem_new(seq_t, (m->capacity * sizeof(seq_t)) / sizeof(seq_t));
+        m->vals = mem_new(seq_t, (m->capacity * sizeof(seq_t)) / sizeof(seq_t));
         m->used = (unsigned char *)calloc(m->capacity, 1);
     }
     hash_ensure_capacity(m);

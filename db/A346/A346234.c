@@ -8,8 +8,9 @@
  * Formula:   a(n) = 0 if n has a squared prime factor; otherwise * a(n) =
  *            (-1)^k * ∏_{p|n} nextprime(p), where k = number of distinct
  *            primes
- * Range:     i8 n <= 41, i16 n <= 4829, i32 n <= 9840, i64 n <= 9840,
- *            i128 n <= 9840, big any n
+ * Range:     i8 n <= 41, i16 n <= 4829, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 98 terms through n = 9840 (2026-11-01)
  * Helpers:   factor_u64, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/next_prime.h"
 

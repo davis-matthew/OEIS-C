@@ -9,7 +9,8 @@
  *            n!
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 19, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The build supplies these typedefs:
  *   seq_t : arbitrary‑precision signed integer or native int
@@ -37,10 +39,10 @@ static void ensure_size(idx_t n)
 
     /* Allocate or extend arrays. */
     size_t new_sz = (size_t)n + 1;
-    b      = (seq_t*)realloc(b,      new_sz * sizeof(seq_t));
-    Ysq    = (seq_t*)realloc(Ysq,    new_sz * sizeof(seq_t));
-    U_fact = (seq_t*)realloc(U_fact, new_sz * sizeof(seq_t));
-    fact   = (seq_t*)realloc(fact,   new_sz * sizeof(seq_t));
+    b      = mem_resize(seq_t, b, new_sz);
+    Ysq    = mem_resize(seq_t, Ysq, new_sz);
+    U_fact = mem_resize(seq_t, U_fact, new_sz);
+    fact   = mem_resize(seq_t, fact, new_sz);
 
     /* Base definitions for n == 0. */
     if (cache_n == 0) {

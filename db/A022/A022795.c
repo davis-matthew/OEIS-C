@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 + Sum_{k=1..n-1} ceil(pi*k) (pi = 3.141592653589793…)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 46, u128 n <= 46,
  *            big any n
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

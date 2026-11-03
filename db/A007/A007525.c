@@ -9,7 +9,8 @@
  *            2^(32F)*log(2), then the digits of 2^(32F)/L by long division
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   a7525_add, a7525_cmp, a7525_divsmall, a7525_iszero, a7525_sub
+ * Validated: standard, pass, 121 terms through n = 4752 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,11 +18,55 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a7525_add.h"
-#include "../utils/a7525_cmp.h"
-#include "../utils/a7525_divsmall.h"
-#include "../utils/a7525_iszero.h"
-#include "../utils/a7525_sub.h"
+
+static void a7525_add(uint32_t *a, const uint32_t *b, size_t N)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < N; i++) {
+        uint64_t s = (uint64_t)a[i] + b[i] + c;
+        a[i] = (uint32_t)s;
+        c = s >> 32;
+    }
+}
+
+static int a7525_cmp(const uint32_t *a, const uint32_t *b, size_t N)
+{
+    size_t i = N;
+    while (i-- > 0) {
+        if (a[i] != b[i]) return a[i] > b[i] ? 1 : -1;
+    }
+    return 0;
+}
+
+static void a7525_divsmall(uint32_t *a, size_t N, uint32_t d)
+{
+    uint64_t rem = 0;
+    size_t i = N;
+    while (i-- > 0) {
+        uint64_t cur = (rem << 32) | a[i];
+        a[i] = (uint32_t)(cur / d);
+        rem = cur % d;
+    }
+}
+
+static int a7525_iszero(const uint32_t *a, size_t N)
+{
+    size_t i;
+    for (i = 0; i < N; i++) if (a[i]) return 0;
+    return 1;
+}
+
+static void a7525_sub(uint32_t *a, const uint32_t *b, size_t N)
+{
+    int64_t br = 0;
+    size_t i;
+    for (i = 0; i < N; i++) {
+        int64_t s = (int64_t)a[i] - (int64_t)b[i] - br;
+        if (s < 0) { s += ((int64_t)1 << 32); br = 1; } else br = 0;
+        a[i] = (uint32_t)s;
+    }
+}
 
 static unsigned char *a7525_dig = NULL;
 static idx_t a7525_have = 0;

@@ -11,6 +11,7 @@
  *            left‑middle‑1, * right‑middle+1, left‑middle‑2, ri...
  * Range:     u8 n <= 271, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 88 terms through n = 4404 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

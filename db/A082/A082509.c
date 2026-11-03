@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_seq, append_u64, is_pow2
+ * Validated: standard, pass, 103 terms through n = 9197 (2026-11-03)
+ * Helpers:   is_pow2_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,34 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/append_seq.h"
-#include "../utils/append_u64.h"
-#include "../utils/is_pow2.h"
+#include "../utils/is_pow2_u64.h"
+#include "../utils/mem.h"
+
+/* Grow an array of seq_t elements. */
+static void append_seq (seq_t **arr, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+        if (!tmp) abort();
+        *arr = tmp;
+        *cap = new_cap;
+    }
+    (*arr)[(*len)++] = val;
+}
+
+/* Grow an array of uint64_t elements. */
+static void append_u64 (uint64_t **arr, size_t *len, size_t *cap, uint64_t val)
+{
+    if (*len == *cap) {
+        size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(uint64_t));
+        if (!tmp) abort();
+        *arr = tmp;
+        *cap = new_cap;
+    }
+    (*arr)[(*len)++] = val;
+}
 
 /* Cached data between calls. */
 static uint64_t *prime_list   = NULL;
@@ -61,7 +87,7 @@ seq_t a (idx_t n)
         /* Record the difference to the previous prime, if any. */
         if (prime_len >= 2) {
             uint64_t diff = p - prime_list[prime_len - 2];
-            if (!is_pow2(diff))
+            if (!is_pow2_u64(diff))
                 append_seq(&diff_list, &diff_len, &diff_cap, (seq_t)diff);
         }
 

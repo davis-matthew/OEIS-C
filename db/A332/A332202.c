@@ -8,6 +8,7 @@
  *            So for even n>0: a(n)=2+v3(n/2); for odd n>0: a(n)=1; for n==0:0
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
+ * Validated: partial, pass, 100 terms through n = 99 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

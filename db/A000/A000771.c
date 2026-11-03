@@ -8,6 +8,7 @@
  *            = 1, S2(0,k) = 0 for k > 0
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 16, u64 n <= 27, u128 n <= 49,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 197 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

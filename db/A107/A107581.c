@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>     /* for size_t */
+#include "../utils/mem.h"
 
 /* ---------- prime sieve (once) ---------- */
 static uint32_t *primes = NULL;          /* array of primes */
@@ -73,7 +75,7 @@ static void ensure_seq_cap(idx_t min_needed)
     if (seq_cap >= min_needed) return;
     idx_t new_cap = seq_cap ? seq_cap * 2 : 32;
     while (new_cap < min_needed) new_cap *= 2;
-    seq_vals = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, new_cap);
     seq_cap = new_cap;
 }
 

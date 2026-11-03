@@ -7,12 +7,14 @@
  * Formula:   a(n) = nth term of { (2*k+1)*2^e : k+e is odd }
  * Range:     u8 n <= 128, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 8024 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         if (((k + e) & 1ULL) == 1ULL) {
             if (cnt >= cap) {
                 cap = (cap == 0) ? 16 : cap << 1;
-                vals = (seq_t *)realloc(vals, cap * sizeof(seq_t));
+                vals = mem_resize(seq_t, vals, cap);
             }
             vals[cnt++] = (seq_t)last_scanned;
         }

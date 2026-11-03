@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 30, i16 n <= 56, i32 n <= 56, i64 n <= 56, i128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The generated series for 1/((1−x^2)(1−x^4)(1−x^6)(1−x^8)) */
 static seq_t *c = NULL;      /* length = c_len   */
@@ -56,15 +58,15 @@ static void recompute_cd(size_t need)
         return;
 
     /* Allocate new arrays */
-    seq_t *c_new = (seq_t *)malloc((need + 1) * sizeof(seq_t));
-    seq_t *d_new = (seq_t *)malloc((need + 1) * sizeof(seq_t));
+    seq_t *c_new = mem_new(seq_t, (need + 1));
+    seq_t *d_new = mem_new(seq_t, (need + 1));
     if (!c_new || !d_new) {
         /* out of memory : abort */
         exit(1);
     }
 
     /* Compute c : 1/((1−x^2)(1−x^4)(1−x^6)(1−x^8)) */
-    memset(c_new, 0, (need + 1) * sizeof(seq_t));
+    mem_set(c_new, 0, (need + 1) * sizeof(seq_t));
     c_new[0] = (seq_t)1;
     const int parts[4] = {2, 4, 6, 8};
     for (int p = 0; p < 4; ++p) {
@@ -77,7 +79,7 @@ static void recompute_cd(size_t need)
     /* Compute d : 1/∏_{odd}(1+x^odd)  by successive multiplication
      * of 1/(1+x^odd):  new[i] = old[i] – new[i–odd].
      */
-    memset(d_new, 0, (need + 1) * sizeof(seq_t));
+    mem_set(d_new, 0, (need + 1) * sizeof(seq_t));
     d_new[0] = (seq_t)1;          /* start with 1 */
     for (size_t odd = 1; odd <= need; odd += 2) {
         for (size_t i = odd; i <= need; ++i) {
@@ -86,8 +88,8 @@ static void recompute_cd(size_t need)
     }
 
     /* Free old arrays */
-    free(c);
-    free(d);
+    mem_free(c);
+    mem_free(d);
 
     c = c_new;
     d = d_new;
@@ -108,9 +110,9 @@ static void ensure_a_len(idx_t n)
 
     /* Step 2: allocate new a_arr */
     size_t new_len = (size_t)n + 1;
-    seq_t *a_new = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *a_new = mem_new(seq_t, new_len);
     if (!a_new) exit(1);
-    memset(a_new, 0, new_len * sizeof(seq_t));
+    mem_set(a_new, 0, new_len * sizeof(seq_t));
 
     /* Step 3: convolution c * d shifted by 16 */
     for (size_t i = 0; i < c_len; ++i) {
@@ -123,7 +125,7 @@ static void ensure_a_len(idx_t n)
     }
 
     /* Step 4: store result */
-    free(a_arr);
+    mem_free(a_arr);
     a_arr = a_new;
     a_len = new_len;
 }

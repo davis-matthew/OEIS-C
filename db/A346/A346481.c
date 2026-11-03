@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = lcm{d | n-1, d+1 prime} / lcm{d : d+1 prime, d | n-1, d+1
  *            | n}
- * Range:     u8 n <= 318, u16 n <= 8841, u32 n <= 8841, u64 n <= 8841,
- *            u128 n <= 8841, big any n
- * Helpers:   big_pow, build_primes_upto, is_prime, seq_mul
+ * Range:     u8 n <= 318, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 8841 (2026-11-02)
+ * Helpers:   build_primes_upto, ipow, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,14 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../utils/is_prime.h"
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_mul.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/is_prime.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static uint64_t *prime_list = NULL;   /* primes up to LIMIT */
 static size_t    prime_cnt  = 0;
@@ -85,14 +90,14 @@ seq_t a(idx_t n)
     static size_t exp_size = 0;
 
     if (exp_size < prime_cnt) {
-        free((void*)ex_all);
-        free((void*)ex_sub);
+        free(ex_all);
+        free(ex_sub);
         ex_all = (int*)calloc(prime_cnt, sizeof(int));
         ex_sub = (int*)calloc(prime_cnt, sizeof(int));
         exp_size = prime_cnt;
     } else {
-        memset((void*)ex_all, 0, prime_cnt * sizeof(int));
-        memset((void*)ex_sub, 0, prime_cnt * sizeof(int));
+        memset(ex_all, 0, prime_cnt * sizeof(int));
+        memset(ex_sub, 0, prime_cnt * sizeof(int));
     }
 
     /* process all divisors of n-1 */
@@ -119,7 +124,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < prime_cnt; ++i) {
         int diff = ex_all[i] - ex_sub[i];
         if (diff > 0) {
-            seq_t power = big_pow((seq_t)prime_list[i], (seq_t)diff);
+            seq_t power = ipow((seq_t)prime_list[i], (seq_t)diff);
             result = seq_mul(result, power);
         }
     }

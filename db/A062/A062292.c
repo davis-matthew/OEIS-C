@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 34, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   hash_func
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/hash_func.h"
+#include "../utils/mem.h"
+
+/* simple 64‑bit hash; for arbitrary‑precision values the cast is OK
+ * because seq_t is expected to support conversion to unsigned long long   */
+static size_t hash_func(seq_t key, size_t mod)
+{
+    unsigned long long k = (unsigned long long)key;
+    /* Knuth's multiplicative hash */
+    k ^= k >> 33;
+    k *= 0xff51afd7ed558ccdULL;
+    k ^= k >> 33;
+    k *= 0xc4ceb9fe1a85ec53ULL;
+    k ^= k >> 33;
+    return (size_t)k & (mod - 1);      /* mod is power of two            */
+}
 
 /* ------- Hash table for sums (open addressing, linear probing) ------- */
 static seq_t *hash_table = NULL;  /* array of keys, 0 denotes empty slot   */
@@ -30,14 +45,14 @@ static size_t hash_cnt   = 0;      /* number of stored keys                */
 static void init_hash(void)
 {
     hash_cap   = 64; /* initial size, power of two */
-    hash_table = (seq_t *)calloc(hash_cap, sizeof(seq_t));
+    hash_table = mem_new(seq_t, hash_cap);
 }
 
 /* rehash into a larger table (double the capacity) */
 static void resize_hash(void)
 {
     size_t new_cap = hash_cap << 1;
-    seq_t *new_tbl = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_tbl = mem_new(seq_t, new_cap);
 
     for (size_t i = 0; i < hash_cap; ++i) {
         seq_t k = hash_table[i];
@@ -49,7 +64,7 @@ static void resize_hash(void)
         }
     }
 
-    free(hash_table);
+    mem_free(hash_table);
     hash_table = new_tbl;
     hash_cap   = new_cap;
 }
@@ -90,14 +105,14 @@ static size_t cube_cap = 0;
 static void init_cubes(void)
 {
     cube_cap = 8;
-    cubes = (seq_t *)calloc(cube_cap, sizeof(seq_t));
+    cubes = mem_new(seq_t, cube_cap);
 }
 
 static void cubes_append(seq_t v)
 {
     if (cube_cnt == cube_cap) {
         cube_cap = (cube_cap == 0) ? 8 : cube_cap << 1;
-        cubes = (seq_t *)realloc(cubes, cube_cap * sizeof(seq_t));
+        cubes = mem_resize(seq_t, cubes, cube_cap);
     }
     cubes[cube_cnt++] = v;
 }

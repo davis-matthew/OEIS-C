@@ -9,12 +9,14 @@
  *            c[i] * binom(n+6-i, 6) with c = [1, 14, 31, 14, 1]
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (int i = 0; i < 5; ++i) {
         idx_t N = n + 6ULL - i;          /* n + 6 - i  (unsigned addition) */
-        seq_t term = binom(N, 6);        /* binomial coefficient (n+6-i choose 6) */
+        seq_t term = binomial(N, 6);        /* binomial coefficient (n+6-i choose 6) */
         result += (seq_t)coeff[i] * term;/* multiply by small coefficient and add */
     }
     return result;

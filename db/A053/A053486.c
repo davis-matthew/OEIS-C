@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 19, u128 n <= 33,
  *            big any n
- * Helpers:   cast_ptr
+ * Validated: standard, pass, 37 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,17 @@
 */
 
 #include <stdlib.h>
-#include "../utils/cast_ptr.h"
+#include "../utils/mem.h"
+
+/* Helper to cast a void* to seq_t* in a way that is valid in both C and C++ */
+static seq_t *cast_ptr(void *ptr)
+{
+#ifdef __cplusplus
+    return reinterpret_cast<seq_t *>(ptr);
+#else
+    return (seq_t *)ptr;
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +46,7 @@ seq_t a(idx_t n)
     /* initialize cache on first call */
     if (cache == NULL) {
         cache_capacity = 2;                                /* need indices 0 and 1 */
-        cache = cast_ptr( calloc( cache_capacity, sizeof(seq_t) ) );
+        cache = mem_new(seq_t, cache_capacity);
         if (!cache) return (seq_t)0;                       /* allocation failure */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)4;
@@ -51,7 +62,7 @@ seq_t a(idx_t n)
         idx_t new_capacity = cache_capacity;
         while (new_capacity <= n)
             new_capacity <<= 1;                           /* double until big enough */
-        seq_t *tmp = cast_ptr( realloc( cache, new_capacity * sizeof(seq_t) ) );
+        seq_t *tmp = cast_ptr( mem_resize(seq_t, cache, new_capacity) );
         if (!tmp) return (seq_t)0;                       /* allocation failure */
         cache          = tmp;
         cache_capacity = new_capacity;

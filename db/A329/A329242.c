@@ -9,6 +9,7 @@
  * Formula:   a(n) = Pi(8,3)(n)+Pi(8,5)(n)+Pi(8,7)(n)-3*Pi(8,1)(n)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 9566 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
 
 /* static cache of primes up to the largest n requested so far */

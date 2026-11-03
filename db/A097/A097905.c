@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,10 @@
 /* of r! for all primes p not dividing c, using Legendre's formula.  A simple prime list is maintained */
 /* to support the calculation.  The implementation works for any seq_t/idx_t defined in the build environment. */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/ipow.h"
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -94,7 +98,7 @@ seq_t a(idx_t n)
             t /= p;
             exp += t;
         }
-        seq_t pow_val = big_pow((seq_t)p, (seq_t)exp);
+        seq_t pow_val = ipow((seq_t)p, (seq_t)exp);
         result *= pow_val;
     }
 

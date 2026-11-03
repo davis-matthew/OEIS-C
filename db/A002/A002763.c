@@ -10,21 +10,23 @@
  *            (Q(k) = 0 for k < 0). p(n) uses Euler's pentagonal recurrence
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 78, u64 n <= 300, u128 n <= 300,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 287 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *g_p = NULL;
 static seq_t *g_q = NULL;
 static idx_t g_len = 0;
 
 static void build(idx_t len) {
-    seq_t *p = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *s = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *q = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, len);
+    seq_t *s = mem_new(seq_t, len);
+    seq_t *q = mem_new(seq_t, len);
     idx_t m, k;
     for (m = 0; m < len; m++) { p[m] = 0; s[m] = 0; q[m] = 0; }
     p[0] = 1;
@@ -59,9 +61,9 @@ static void build(idx_t len) {
         q[m] = s[m];
         if (m >= 2) q[m] += q[m - 2];
     }
-    free(s);
-    if (g_p) free(g_p);
-    if (g_q) free(g_q);
+    mem_free(s);
+    if (g_p) mem_free(g_p);
+    if (g_q) mem_free(g_q);
     g_p = p;
     g_q = q;
     g_len = len;

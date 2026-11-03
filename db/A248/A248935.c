@@ -9,6 +9,7 @@
  *            n<1281 or beyond the number
  * Range:     u8 n <= 2561, u16 n <= 2561, u32 n <= 2561, u64 n <= 2561,
  *            u128 n <= 2561, big any n
+ * Validated: full, pass, 1281 terms through n = 2561 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

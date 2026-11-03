@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   seq_to_dec_string
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,35 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_to_dec_string.h"
+
+/* Convert a seq_t value to a decimal string.  The buffer must be
+   large enough to hold the result.  */
+static void seq_to_dec_string(seq_t val, char *buf, size_t buflen)
+{
+    seq_t v = val;
+    if (v == 0) {
+        if (buflen >= 2) {
+            buf[0] = '0';
+            buf[1] = '\0';
+        }
+        return;
+    }
+    size_t pos = 0;
+    /* Extract digits in reverse order. */
+    while (v != 0 && pos + 1 < buflen) {
+        seq_t d = v % 10;
+        v = v / 10;
+        buf[pos++] = (char)('0' + (int)d);
+    }
+    /* Null‑terminate and reverse the string. */
+    if (pos >= buflen) pos = buflen - 1;
+    buf[pos] = '\0';
+    for (size_t i = 0; i < pos / 2; ++i) {
+        char tmp = buf[i];
+        buf[i] = buf[pos - 1 - i];
+        buf[pos - 1 - i] = tmp;
+    }
+}
 
 seq_t a(idx_t n)
 {

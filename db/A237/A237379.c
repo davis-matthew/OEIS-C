@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 18, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    a(10)=333806884096, a(11)=2808515986304 */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache to store computed values. */
 static seq_t *cache = NULL;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* Lazy allocate a reasonable initial cache size. */
     if (!cache) {
         cache_cap = 20000;                     /* plenty for n up to ~10⁴ */
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;          /* allocation failure */
     }
 
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap * 2;
             if (new_cap <= cache_len) new_cap = cache_len + 1;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return (seq_t)0;       /* allocation failure */
             cache = tmp;
             cache_cap = new_cap;

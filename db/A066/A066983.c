@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + a(n-2) + (-1)^n (a(1) = a(2) = 1)
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 48, u64 n <= 94, u128 n <= 186,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 248 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (n > max_n)
     {
         idx_t new_cap = n + 1;       /* allocate indices 0..n; ignore 0        */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;           /* allocation failed – just abort         */
         cache = tmp;
 

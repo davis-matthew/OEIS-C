@@ -8,12 +8,14 @@
  *            n>2, with a(0)=1, a(1)=3, a(2)=9
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoisation cache */
 static size_t cache_len = 0;         /* number of allocated slots */
@@ -30,14 +32,14 @@ seq_t a(idx_t n)
     size_t old_len = cache_len;
 
     if (cache == NULL) {
-        cache = (seq_t*)malloc(required * sizeof(seq_t));
+        cache = mem_new(seq_t, required);
         if (!cache) abort();
         cache[0] = 1;
         cache[1] = 3;
         cache[2] = 9;
         cache_len = required;
     } else if (required > cache_len) {
-        seq_t *tmp = (seq_t*)realloc(cache, required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, required);
         if (!tmp) abort();
         cache = tmp;
         cache_len = required;

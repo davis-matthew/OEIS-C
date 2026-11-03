@@ -8,15 +8,17 @@
  *            Sum_{d|n} d^3 * phi(d)
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 256, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, factor_u64
+ * Validated: standard, pass, 53 terms through n = 9814 (2026-11-02)
+ * Helpers:   factor_u64, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *primes,
-                                   uint64_t *exps, size_t *cnt)           */
-#include "../utils/calc_phi.h"    /* calc_phi(seq_t m)                      */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/totient_seq.h"
 
 static void dfs_divisor_sum(uint64_t idx, uint64_t cur,
                             const uint64_t *primes, const uint64_t *exps,
@@ -25,7 +27,7 @@ static void dfs_divisor_sum(uint64_t idx, uint64_t cur,
     if (idx == cnt) {
         seq_t d = (seq_t)cur;
         seq_t term = d * d * d;          /* d^3 */
-        term = term * calc_phi(d);       /* d^3 * phi(d) */
+        term = term * totient_seq(d);       /* d^3 * phi(d) */
         *accum += term;
         return;
     }

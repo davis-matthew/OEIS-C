@@ -11,13 +11,23 @@
  *            2*(-1)^m*3^(2m+1). Then a(n) = f_{2n-1}, with a(1) = 6
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 12,
  *            big any n
- * Helpers:   a306_alloc0
+ * Validated: standard, pass, 29 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a306_alloc0.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *a306_alloc0(idx_t len)
+{
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *F = NULL;   /* F[i] = f_{2i+1} */
 static idx_t cnt = 0;

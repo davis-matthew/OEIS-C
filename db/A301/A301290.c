@@ -10,7 +10,8 @@
  *            a(9)=122
  * Range:     u8 n <= 13, u16 n <= 221, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[10] = {
     1, 5, 10, 16, 28, 42, 57, 75, 96, 122
@@ -31,7 +33,7 @@ static idx_t cache_len = 0;
 static void init_cache(void)
 {
     if (cache_len == 0) {
-        memcpy(cache, init_vals, sizeof(init_vals));
+        mem_copy(cache, init_vals, sizeof(init_vals));
         cache_len = 10;
     }
 }

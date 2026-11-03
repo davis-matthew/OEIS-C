@@ -12,13 +12,15 @@
  *            numbers of the second kind
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
 
     /* Allocate arrays for Stirling numbers and factorials. */
     idx_t cap = n + 1;
-    seq_t *S   = (seq_t *)malloc(sizeof(seq_t) * (size_t)cap);
-    seq_t *fac = (seq_t *)malloc(sizeof(seq_t) * (size_t)cap);
+    seq_t *S   = mem_new(seq_t, (size_t)cap);
+    seq_t *fac = mem_new(seq_t, (size_t)cap);
     if (!S || !fac) {
-        free(S);
-        free(fac);
+        mem_free(S);
+        mem_free(fac);
         return 0;
     }
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(S);
-    free(fac);
+    mem_free(S);
+    mem_free(fac);
     return sum;
 }

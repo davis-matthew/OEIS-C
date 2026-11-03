@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 29, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    is simply the triangle read by rows.  The routine
    caches computed rows so that repeated calls are cheap. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     while (cache_len <= n) {
         idx_t r = rows_done;                  /* next row index to generate */
         size_t row_size = (size_t)r + 1;      /* number of elements in the new row */
-        seq_t *row = (seq_t *)malloc(row_size * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, row_size);
         if (!row) return 0;                   /* out of memory protection */
         for (size_t k = 0; k < row_size; ++k) row[k] = 0;
 
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         if (cache_cap < needed) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
             while (new_cap < needed) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return 0; /* out of memory protection */
             cache = tmp;
             cache_cap = new_cap;
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
         cache_len += row_size;
         rows_done++;                        /* one more row completed */
 
-        free(row);
+        mem_free(row);
     }
 
     /* Now the cache contains the desired term */

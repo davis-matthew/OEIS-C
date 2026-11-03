@@ -9,7 +9,8 @@
  *            (prime(j+1)+prime(j+2))/2, k > j, and n | (s(k)-s(j))
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- Precomputation of primes ------------------------------------ */
 
@@ -72,10 +74,10 @@ seq_t a(idx_t n)
     }
 
     /* Allocate remainder tracking arrays */
-    seq_t *earliest = (seq_t*)malloc((size_t)n * sizeof(seq_t));
+    seq_t *earliest = mem_new(seq_t, (size_t)n);
     bool   *seen    = (bool*)malloc((size_t)n * sizeof(bool));
     if (!earliest || !seen) {
-        if (earliest) free(earliest);
+        if (earliest) mem_free(earliest);
         if (seen)    free(seen);
         return (seq_t)0;
     }
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
         /* Ensure we have enough primes: j+1 must be < prime_cnt */
         if (j + 1U >= prime_cnt) {
             /* In practice this never happens for the required limits */
-            free(earliest);
+            mem_free(earliest);
             free(seen);
             return (seq_t)0;
         }
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
             earliest[rem] = s;
         } else {
             seq_t diff = s - earliest[rem];
-            free(earliest);
+            mem_free(earliest);
             free(seen);
             return diff;
         }

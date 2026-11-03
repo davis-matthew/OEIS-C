@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 41, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int coeff_N[14] = {
     0,          /* k = 0  */
@@ -53,7 +55,7 @@ static const int coeff_N[14] = {
 seq_t a(idx_t n)
 {
     /* Allocate array 0 … n */
-    seq_t *a_val = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *a_val = mem_new(seq_t, (n + 1));
     if (!a_val) return (seq_t)0;   /* out‑of‑memory guard */
 
     a_val[0] = (seq_t)0;           /* unused but simplifies recurrence */
@@ -76,6 +78,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_val[n];
-    free(a_val);
+    mem_free(a_val);
     return result;
 }

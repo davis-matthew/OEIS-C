@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   has12
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
-#include "../utils/has12.h"
+#include "../utils/mem.h"
+
+static inline int has12(seq_t x)
+{
+    /* Return true if base‑4 digits of x contain the pattern 1,2 (1 higher, 2 lower). */
+    seq_t prev = 4;                 /* sentinel (not a valid base‑4 digit) */
+    while (x > 0)
+    {
+        seq_t d = x % 4;
+        if (prev == 2 && d == 1)   /* found 1 followed by 2 (higher‑order digit 1) */
+            return 1;
+        prev = d;
+        x /= 4;
+    }
+    return 0;
+}
 
 static inline int qualifies(seq_t n)
 {
@@ -43,7 +59,7 @@ seq_t a(idx_t n)
     {
         size_t new_cap = cap ? cap * 2 : 16;
         if (new_cap < n) new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();                  /* allocation failure */
         cache = tmp;

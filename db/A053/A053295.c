@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 34, u64 n <= 80, u128 n <= 173,
+ * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 34, u64 n <= 80, u128 n <= 173,
  *            big any n
- * Helpers:   binomial, seq_realloc
+ * Validated: standard, pass, 44 terms through n = 985 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,20 @@
    type chosen by the build system.
 */
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_realloc.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {

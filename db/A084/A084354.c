@@ -8,7 +8,8 @@
  *            decimal digits of p, plus 1, is also prime
  * Range:     u8 n <= 20, u16 n <= 2630, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, prod_nonzero_digits
+ * Validated: standard, pass, 70 terms through n = 8964 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/prod_nonzero_digits.h"
+
+/* product of the non‑zero decimal digits of x */
+static seq_t prod_nonzero_digits(seq_t x)
+{
+    seq_t prod = (seq_t)1;
+    while (x > (seq_t)0) {
+        seq_t d = x % (seq_t)10;
+        if (d != (seq_t)0)
+            prod *= d;
+        x /= (seq_t)10;
+    }
+    return prod;
+}
 
 /* static storage */
 static seq_t *terms = NULL;

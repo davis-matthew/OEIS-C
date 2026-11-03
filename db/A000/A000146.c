@@ -11,7 +11,8 @@
  *            primes and recombined exactly by CRT (Garner)
  * Range:     i8 n <= 9, i16 n <= 11, i32 n <= 15, i64 n <= 21, i128 n <= 31,
  *            big any n
- * Helpers:   a146_bitlen
+ * Validated: standard, pass, 40 terms through n = 307 (2026-11-01)
+ * Helpers:   bit_length_u64_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a146_bitlen.h"
+#include "../utils/bit_length_u64_to_u64.h"
 
 typedef unsigned __int128 a146_u128;
 
@@ -190,10 +191,10 @@ seq_t a(idx_t n)
 
     /* bound: log2|B(2n)| < 2 + log2((2n)!) - 5n, L >= log2((2n)!) */
     for (k = 2; k <= m; k++) {
-        if (acc > UINT64_MAX / k) { L += a146_bitlen(acc); acc = 1; }
+        if (acc > UINT64_MAX / k) { L += bit_length_u64_to_u64(acc); acc = 1; }
         acc *= k;
     }
-    L += a146_bitlen(acc);
+    L += bit_length_u64_to_u64(acc);
     T = (L + 2 > 5 * (uint64_t)n ? L + 2 - 5 * (uint64_t)n : 0) + 72;
     K = (size_t)(T / 61 + 1);
     a146_need(K);

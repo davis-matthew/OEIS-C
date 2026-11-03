@@ -11,13 +11,15 @@
  *            of Φ_114(x): * Φ_114(x) = 1 + x + 0x² – x³ – x⁴ +...
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const int coeff[37] = {
     1,  1,  0, -1, -1,  0,  1,  1,  0, -1, -1,  0,  1,  1,  0,
@@ -28,7 +30,7 @@ static const int coeff[37] = {
 /* Allocate an array of seq_t of given size. */
 static seq_t *alloc_seq_arr(size_t n)
 {
-    return (seq_t *)malloc(n * sizeof(seq_t));
+    return mem_new(seq_t, n);
 }
 
 seq_t a(idx_t n)

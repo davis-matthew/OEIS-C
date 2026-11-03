@@ -9,12 +9,14 @@
  *            {1,12,67,232,562,1024,562,232,67,12,1}
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 20, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = 0; i < 11; ++i) {
         if (n >= i) {
-            seq_t term = binom(n - i + 9, 9);
+            seq_t term = binomial(n - i + 9, 9);
             result += (seq_t)coeff[i] * term;
         }
     }

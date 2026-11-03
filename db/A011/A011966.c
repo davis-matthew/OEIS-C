@@ -7,12 +7,14 @@
  * Formula:   a(n) = Bell(n+3) – 3·Bell(n+2) + 3·Bell(n+1) – Bell(n)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 12, u64 n <= 22, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *bell   = NULL;   /* array of already‑computed Bell numbers      */
 static size_t bell_cap = 0;    /* current capacity of the bell array         */
@@ -21,7 +23,7 @@ static idx_t  bell_len = 0;    /* number of Bell numbers that are filled     */
 static void _grow_bell_array(size_t new_cap)
 {
     if (bell_cap >= new_cap) return;
-    seq_t *new_bell = (seq_t*)realloc(bell, new_cap * sizeof(seq_t));
+    seq_t *new_bell = mem_resize(seq_t, bell, new_cap);
     if (!new_bell) abort();
     bell = new_bell;
     bell_cap = new_cap;
@@ -33,7 +35,7 @@ static void _ensure_bell(idx_t N)
 
     if (bell_len == 0) {
         bell_cap = 1;
-        bell = (seq_t*)malloc(bell_cap * sizeof(seq_t));
+        bell = mem_new(seq_t, bell_cap);
         if (!bell) abort();
         bell[0] = (seq_t)1;          /* B₀ = 1 */
         bell_len = 1;

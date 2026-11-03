@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 651, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isqrt_size_t
+ * Validated: standard, pass, 105 terms through n = 7907 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isqrt_size_t.h"
+#include "../utils/isqrt_u64.h"
 
 static uint32_t *spf = NULL;      /* smallest prime factor array */
 static size_t   spf_size = 0;     /* current allocated size */
@@ -31,7 +32,7 @@ static void init_spf(size_t limit)
     size_t new_size = limit + 1;
     uint32_t *new_spf = (uint32_t *)malloc(new_size * sizeof(uint32_t));
     for (size_t i = 0; i < new_size; ++i) new_spf[i] = (uint32_t)i;
-    size_t sq = isqrt_size_t(limit);
+    size_t sq = isqrt_u64(limit);
     for (size_t i = 2; i <= sq; ++i)
         if (new_spf[i] == (uint32_t)i)
             for (size_t j = i * i; j <= limit; j += i)

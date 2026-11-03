@@ -8,7 +8,8 @@
  *            n-2*k)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binom_multiply
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* OEIS sequence A370244 */
 
 #include <stdbool.h>
-#include "../utils/binom_multiply.h"
+#include "../utils/binomial.h"
 
 /* auxiliary: compute binomial(N,K) multiplicatively with arbitrary-precision seq_t */
 
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
     seq_t C3 = 1;              /* binomial(3*n,0) = 1 */
 
     /* B = binomial(2*n-1, n) – the k = 0 term of the second binomial */
-    seq_t B = binom_multiply(2*n - 1, n);
+    seq_t B = binomial(2*n - 1, n);
 
     /* r and m are the parameters of the current second binomial:
        B = binomial(m, r) with m = 2*n - 1 - 2*k, r = n - 2*k */

@@ -12,14 +12,27 @@
  *            long as the running sum does not exceed e
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   max_distinct_comp
+ * Validated: standard, pass, 103 terms through n = 9304 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/max_distinct_comp.h"
+
+static seq_t max_distinct_comp(int e)
+{
+    seq_t cnt = 0;
+    seq_t sum = 0;
+    seq_t next = 2;
+    while (sum + next <= (seq_t)e) {
+        sum += next;
+        cnt++;
+        next++;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

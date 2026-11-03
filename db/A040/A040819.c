@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    periodic part of its continued fraction expansion for a quadratic irrational. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         /* Build the periodic part */
         // Allocate an initial small buffer; will grow if needed
         size_t cap = 16;
-        period = (seq_t *)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         if (!period)
             return 0;  // memory failure fallback
 
@@ -54,9 +56,9 @@ seq_t a(idx_t n)
             /* store the period term (a_next corresponds to a(n) for n>=1) */
             if (pos == cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(period, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, period, cap);
                 if (!tmp) {
-                    free(period);
+                    mem_free(period);
                     return 0;  // memory failure fallback
                 }
                 period = tmp;

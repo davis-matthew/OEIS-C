@@ -9,7 +9,8 @@
  *            earlier terms, form a 3‑term arithmetic progression
  * Range:     u8 n <= 39, u16 n <= 987, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   two_mul_minus
+ * Validated: standard, pass, 86 terms through n = 1884 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/two_mul_minus.h"
+#include "../utils/mem.h"
+
+/*  Wrap 2×a – b in an intermediate type that is large enough to avoid
+    overflow for the supported integer sizes.  The result fits in `seq_t`. */
+static inline seq_t two_mul_minus(seq_t a, seq_t b)
+{
+#if defined(__SIZEOF_INT128__)
+    return (seq_t)(((__uint128_t)a << 1) - (__uint128_t)b);
+#else
+    /* Fallback – for small built‑in types this will still work if the
+       value stays within limits.  It may overflow for unbounded types, */
+    return (seq_t)(((a << 1) - b));
+#endif
+}
 
 /* Keeps the sequence values in increasing order. */
 static seq_t *seq = NULL;
@@ -38,7 +52,7 @@ static inline void ensure_seq_cap(size_t need)
     if (need <= seq_cap) return;
     size_t newcap = seq_cap ? seq_cap << 1 : 8;
     while (newcap < need) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, newcap);
     if (!tmp) abort();
     seq = tmp;
     seq_cap = newcap;

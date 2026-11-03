@@ -11,7 +11,8 @@
  *            order
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   is_prime_small, seq_realloc
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/is_prime_seq.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static uint64_t pow10[20] = {0U};
 
@@ -58,7 +70,7 @@ static unsigned count_digit_replacements(uint64_t p) {
             if (pos == len-1 && nd == 0) continue;
             int delta = (int)nd - (int)old_d;
             uint64_t new_val = p + (uint64_t)delta * factor;
-            if (is_prime_small((seq_t)new_val)) ++cnt;
+            if (is_prime_seq((seq_t)new_val)) ++cnt;
         }
     }
     return cnt;

@@ -11,12 +11,14 @@
  *            function * given in the OEIS entry. The implementation s...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,13 +35,13 @@ seq_t a(idx_t n)
     {
         idx_t new_size = n;
         idx_t old_size = cache_size;
-        seq_t *new_cache = (seq_t*)malloc(sizeof(seq_t) * (new_size + 1));
+        seq_t *new_cache = mem_new(seq_t, (new_size + 1));
         if (cache != NULL)
         {
             /* copy existing values */
             for (idx_t i = 0; i <= old_size; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         else
             /* initialise all entries to 0 implicitly by malloc */

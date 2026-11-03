@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow, binom, factorial
+ * Validated: standard, pass, 37 terms through n = 275 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,9 +31,20 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/factorial.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* generous maximum for n (problem limits about 10000) */
 #define MAX_N 20000
@@ -71,7 +83,7 @@ static void ensure_capacity(idx_t n) {
         }
         seq_t sum = 0;
         for (idx_t k = 3; k <= r; k += 3) {
-            seq_t temp = binom(r - 1, k - 1);      /* choose the other k-1 elements of the cycle */
+            seq_t temp = binomial(r - 1, k - 1);      /* choose the other k-1 elements of the cycle */
             temp = temp * fact_tbl[k - 1];        /* arrange them into a cycle of length k */
             temp = temp * p[r - k];               /* remaining elements */
             sum = sum + temp;
@@ -98,13 +110,13 @@ seq_t a(idx_t n) {
     seq_t total = 0;
     /* iterate over possible numbers of cycle nodes: r = 3,6,...,n */
     for (idx_t r = 3; r <= n; r += 3) {
-        seq_t comb = binom(n, r);         /* choose the r nodes that will be on cycles      */
+        seq_t comb = binomial(n, r);         /* choose the r nodes that will be on cycles      */
         seq_t term = comb * p[r];         /* add factor that counts permutations of the cycle nodes */
 
         if (r < n) {
             /* multiply by r and by n^(n-r-1) */
             term = term * (seq_t)r;
-            seq_t pow_val = big_pow((seq_t)n, (seq_t)(n - r - 1));
+            seq_t pow_val = ipow((seq_t)n, (seq_t)(n - r - 1));
             term = term * pow_val;
         }
         /* r == n : n^(n-r-1) = n^(-1) and r * n^(n-r-1) = 1; term already correct */

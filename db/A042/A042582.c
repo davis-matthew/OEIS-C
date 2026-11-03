@@ -10,6 +10,7 @@
  *            fraction partial quotients of sqrt(820)
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 23, u64 n <= 46, u128 n <= 93,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 197 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

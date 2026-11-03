@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const int SIEVE_BOUND = 5000000;          /* safe upper limit */
 static uint8_t *is_prime   = NULL;
@@ -63,7 +65,7 @@ init_sequence(void)
 
     /* Prepare qualification array */
     qual_cap = 1024;
-    qual_primes = (seq_t *)malloc(qual_cap * sizeof(seq_t));
+    qual_primes = mem_new(seq_t, qual_cap);
     qual_size   = 0;
     last_k      = 0;
     initialized = true;
@@ -74,7 +76,7 @@ push_qual(seq_t v)
 {
     if (qual_size == qual_cap) {
         qual_cap <<= 1;
-        qual_primes = (seq_t *)realloc(qual_primes, qual_cap * sizeof(seq_t));
+        qual_primes = mem_resize(seq_t, qual_primes, qual_cap);
     }
     qual_primes[qual_size++] = v;
 }

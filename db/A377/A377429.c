@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    malloc()/realloc() and the minimal set of standard headers. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached value table: a_cache[i] holds a(i).  The capacity is
    increased as needed. */
@@ -47,12 +49,12 @@ seq_t a(idx_t n)
     if (a_cache == NULL) {
         /* Start with capacity for n = 0 only. */
         a_cap = 1;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = (seq_t)1;         /* a(0) = 1 */
 
         /* Stirling row for n = 0: S1(0,0) = 1. */
         stir_cap   = 1;
-        stirling   = (seq_t *)malloc(stir_cap * sizeof(seq_t));
+        stirling   = mem_new(seq_t, stir_cap);
         stirling[0] = (seq_t)1;          /* S1(0,0) = 1 */
         stir_size   = 1;
 
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     if (n >= a_cap) {
         size_t new_cap = a_cap * 2;
         if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (tmp == NULL) { return (seq_t)0; } /* allocation failure – unlikely */
         a_cache = tmp;
         a_cap   = new_cap;
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     if (n + 1 > stir_cap) {
         size_t new_cap = stir_cap * 2;
         if (new_cap <= (size_t)(n + 1)) new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(stirling, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, stirling, new_cap);
         if (tmp == NULL) { return (seq_t)0; } /* allocation failure – unlikely */
         stirling = tmp;
         stir_cap = new_cap;

@@ -8,13 +8,15 @@
  * Formula:   a(n) = Sum_{k=1..n} phi(k)*phi(k+1)*phi(k+2)
  * Range:     u8 n <= 6, u16 n <= 32, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static idx_t max_computed = 0;
 static seq_t *phi_arr = NULL;
@@ -30,8 +32,8 @@ static void recompute_upto(idx_t n)
     idx_t limit = n + 2;
     size_t sz = (size_t)(limit + 1);   /* indices 0..limit */
 
-    seq_t *new_phi = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *new_cum = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *new_phi = mem_new(seq_t, sz);
+    seq_t *new_cum = mem_new(seq_t, sz);
     unsigned char *new_comp = (unsigned char *)malloc(sz);
 
     /* initialise phi[i] = i and composite flags to 0 */
@@ -58,8 +60,8 @@ static void recompute_upto(idx_t n)
     }
 
     /* free old buffers */
-    free(phi_arr);
-    free(cum_arr);
+    mem_free(phi_arr);
+    mem_free(cum_arr);
     free(is_comp);
 
     /* store new buffers */

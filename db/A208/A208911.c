@@ -13,13 +13,15 @@
  *            <...
  * Range:     u8 n <= 25, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Build the triangle lazily; store all rows computed so far. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t max_row = 0;            /* largest row already computed   */
 static seq_t **u_rows = NULL;       /* u coefficients, one array per row */
@@ -43,10 +45,10 @@ seq_t a(idx_t n)
     /* Compute all rows up to r if necessary */
     for (idx_t i = max_row + 1; i <= r; ++i) {
         /* Allocate arrays for new row */
-        seq_t *u_new = (seq_t *)malloc(sizeof(seq_t) * i);
-        seq_t *v_new = (seq_t *)malloc(sizeof(seq_t) * i);
+        seq_t *u_new = mem_new(seq_t, i);
+        seq_t *v_new = mem_new(seq_t, i);
         if (!u_new || !v_new) {          /* allocation failure – abort */
-            free(u_new); free(v_new);
+            mem_free(u_new); mem_free(v_new);
             return 0;
         }
 

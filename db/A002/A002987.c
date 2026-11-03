@@ -11,7 +11,8 @@
  *            (Garner's mixed radix)
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 25, u64 n <= 47, u128 n <= 89,
  *            big any n
- * Helpers:   A_inv
+ * Validated: standard, pass, 46 terms through n = 192 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/A_inv.h"
+
+static long long A_inv(long long a, long long m)
+{
+    long long r0, r1, s0 = 1, s1 = 0, q, t;
+    if (m == 1) return 0;
+    r0 = ((a % m) + m) % m; r1 = m;
+    while (r1) {
+        q = r0 / r1;
+        t = r0 - q * r1; r0 = r1; r1 = t;
+        t = s0 - q * s1; s0 = s1; s1 = t;
+    }
+    return ((s0 % m) + m) % m;
+}
 
 static uint32_t **A_dig = NULL;   /* mixed-radix digits t_0..t_{c-1} */
 static uint32_t **A_rad = NULL;   /* radices q_0..q_{c-1} (last unused) */

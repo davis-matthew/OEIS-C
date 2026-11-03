@@ -10,6 +10,7 @@
  *            no such m exists
  * Range:     u8 n <= 6, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-01)
  * Helpers:   digit_product
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -29,6 +30,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/digit_product.h"
 
 /* Return the n-th term of OEIS A073909 */

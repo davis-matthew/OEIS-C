@@ -8,12 +8,14 @@
  *            integer solutions of a + 2*b + 3*c = m
  * Range:     u8 n <= 28, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *Tarr = NULL;   /* Cache for T(m), m >= 0 */
 static idx_t Tsize = 0;      /* Current size of Tarr (number of stored entries) */
@@ -23,7 +25,7 @@ static void ensure_T(idx_t m)
 {
     if (Tsize > m) return;               /* Already have needed range */
     size_t newsize = (size_t)m + 1;
-    seq_t *newarr = (seq_t *)realloc(Tarr, newsize * sizeof(seq_t));
+    seq_t *newarr = mem_resize(seq_t, Tarr, newsize);
     if (!newarr) abort();                /* Allocation failure */
     /* Compute T values from current size up to newsize-1 */
     for (idx_t k = Tsize; k < newsize; ++k) {

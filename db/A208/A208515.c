@@ -12,12 +12,14 @@
  *            at index T(r-1)+1 where T(k)=k*(k+1)/2
  * Range:     u8 n <= 62, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **v_rows = NULL;      /* v_rows[r] points to row r coefficients (1‑based) */
 static idx_t  max_prepared = 0;    /* largest row computed so far */
@@ -37,7 +39,7 @@ static void ensure_rows(idx_t up_to)
     /* initialise the base rows if needed */
     if (max_prepared == 0) {
         /* row 1: v(1,x)=1 */
-        v_rows[1] = (seq_t*)malloc(sizeof(seq_t));
+        v_rows[1] = mem_new(seq_t, 1);
         if (!v_rows[1])
             abort();
         v_rows[1][0] = (seq_t)1;
@@ -45,7 +47,7 @@ static void ensure_rows(idx_t up_to)
     }
     if (up_to >= 2 && max_prepared < 2) {
         /* row 2: v(2,x)=x+1 -> coefficients [1,2] */
-        v_rows[2] = (seq_t*)malloc(sizeof(seq_t) * 2);
+        v_rows[2] = mem_new(seq_t, 2);
         if (!v_rows[2])
             abort();
         v_rows[2][0] = (seq_t)1;   /* constant term */
@@ -58,7 +60,7 @@ static void ensure_rows(idx_t up_to)
         seq_t *prev1 = v_rows[n - 1];    /* v(n-1,x)  length n-1 */
         seq_t *prev2 = v_rows[n - 2];    /* v(n-2,x)  length n-2 */
 
-        seq_t *cur = (seq_t*)malloc(sizeof(seq_t) * n);
+        seq_t *cur = mem_new(seq_t, n);
         if (!cur)
             abort();
 

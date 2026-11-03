@@ -10,6 +10,7 @@
  * Formula:   a(1)=0, a(2)=2, a(3)=1; For n≥4, a(n) = (n%2==0) ? (1-n) : n
  * Range:     i8 n <= 128, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 68 terms through n = 8928 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

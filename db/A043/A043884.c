@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   has13pair
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,22 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has13pair.h"
+#include "../utils/mem.h"
+
+/* Return true if base‑4 representation of k contains the pattern
+ * "13" or "31". */
+static bool has13pair(idx_t k)
+{
+    int prev = -1;        /* less significant digit seen so far */
+    while (k > 0) {
+        int cur = (int)(k % 4);
+        if ((prev == 3 && cur == 1) || (prev == 1 && cur == 3))
+            return true;
+        prev = cur;
+        k /= 4;
+    }
+    return false;
+}
 
 /* a(n) for n >= 1 */
 seq_t a(idx_t n)
@@ -40,7 +56,7 @@ seq_t a(idx_t n)
     /* grow cache array on first use */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* find terms until we have at least n of them */
@@ -49,7 +65,7 @@ seq_t a(idx_t n)
         if (has13pair(next_k) && !has13pair(next_k + 1)) {
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 cache = tmp;
             }
             cache[cache_len++] = (seq_t)next_k;

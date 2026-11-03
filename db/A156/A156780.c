@@ -9,16 +9,26 @@
  *            number of primes ≤ n
  * Range:     u8 n <= 16, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   build_primes_upto, seq_alloc_array, seq_free
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 seq_t a(idx_t n)
 {

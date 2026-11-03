@@ -9,12 +9,15 @@
  *            12087*n^3 + 937*n^4 - 33*n^5 + n^6) for n>6
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 23, u64 n <= 49, u128 n <= 106,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 47 terms through n = 957 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
         uint64_t shift = 15 - (uint64_t)n;   /* shift <= 8 for n>=7 */
         return poly_div9 >> shift;
     } else {
-        seq_t pow2 = big_pow((seq_t)2, (seq_t)(n - 15));
+        seq_t pow2 = ipow((seq_t)2, (seq_t)(n - 15));
         return poly_div9 * pow2;
     }
 }

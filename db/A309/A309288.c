@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k>1} (-1)^k * a(floor(n/k))
  * Range:     i8 n <= 1023, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9413 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;
 static bool *visited  = NULL;
@@ -27,7 +29,7 @@ static seq_t a_internal(idx_t n)
     /* Resize cache and visited arrays if needed */
     if (n >= cap) {
         idx_t new_cap = n + 1;
-        cache    = (seq_t *)realloc(cache,    new_cap * sizeof(seq_t));
+        cache    = mem_resize(seq_t, cache, new_cap);
         visited  = (bool *)realloc(visited,  new_cap * sizeof(bool));
         /* Initialise new entries as unvisited */
         for (idx_t i = cap; i < new_cap; ++i)

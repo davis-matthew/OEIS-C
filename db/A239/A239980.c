@@ -14,12 +14,14 @@
  *            a(11)=5668, * a(12)=12907, a(13)=30446
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 27, u64 n <= 53, u128 n <= 107,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ *
  *  Memoised linear‑recurrence evaluator for A239980.
@@ -53,7 +55,7 @@ static seq_t term(idx_t n) {
     if (n >= cap) {
         idx_t new_cap = (n >= 64) ? (n + 1) : 64;  /* at least 64 slots */
         if (new_cap < cap) new_cap = cap * 2;      /* or double */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0; /* Out‑of‑memory fallback */
         cache = tmp;
         cap = new_cap;

@@ -11,12 +11,14 @@
  *            a(n-4) - 8*a(n-5) - a(n-6) + a(n-7)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached values of the sequence */
 static size_t cache_len = 0;     /* number of values stored (cache_len == current # of terms) */
@@ -26,7 +28,7 @@ static void init_cache(void)
 {
     if (cache_len >= 7)
         return;
-    cache = (seq_t *)realloc(cache, 7 * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, 7);
     if (!cache)
         abort();
     cache[0] = (seq_t)1;
@@ -46,7 +48,7 @@ static void ensure_cache(idx_t n)
         return;
 
     size_t new_len = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp)
         abort();
     cache = tmp;

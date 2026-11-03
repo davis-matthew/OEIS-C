@@ -9,7 +9,8 @@
  *            gcd(k,i))
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 15, u64 n <= 20, u128 n <= 23,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -78,7 +79,7 @@ seq_t a(idx_t n)
         seq_t exp = (seq_t)exp128;
         if (exp == (seq_t)0) continue;
 
-        seq_t term = big_pow((seq_t)p, exp);       /* p^exp */
+        seq_t term = ipow((seq_t)p, exp);       /* p^exp */
         result *= term;
     }
 

@@ -10,7 +10,8 @@
  *            sequence and coprime with the number of divisors of n
  * Range:     u8 n <= 138, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 84 terms through n = 977 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Static state for memoisation */
 static idx_t   max_computed = 0;        /* highest n computed so far   */
@@ -49,7 +52,7 @@ static void grow_perm (size_t n)
     if (perm_cap >= n) return;
     size_t new_cap = perm_cap ? perm_cap : 16;
     while (new_cap < n) new_cap <<= 1;
-    seq_t *new_perm = (seq_t *)realloc (perm, new_cap * sizeof (seq_t));
+    seq_t *new_perm = mem_resize(seq_t, perm, new_cap);
     if (!new_perm) abort ();
     perm      = new_perm;
     perm_cap  = new_cap;

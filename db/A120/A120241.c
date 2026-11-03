@@ -10,7 +10,8 @@
  *            of the positive integers
  * Range:     u8 n <= 191, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   fenwick_init
+ * Validated: standard, pass, 88 terms through n = 6874 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/fenwick_init.h"
+
+/* Fenwick tree for counts of unused numbers (initially 1 for each index) */
+static inline void fenwick_init(unsigned *bit, unsigned n)
+{
+    for (unsigned i = 1; i <= n; ++i)
+        bit[i] = i & -i; /* sum of ones in that range */
+}
 
 /* Helper: return floor(log2(x)) for x >= 1 */
 static inline unsigned floor_log2_u64(uint64_t x)

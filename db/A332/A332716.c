@@ -12,13 +12,15 @@
  *            f[k-2] + … + f[k-n] (terms with negative index are 0)....
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *buf = NULL;               /* ring buffer for last n values   */
 static size_t buf_cap = 0;              /* current capacity of buf         */
@@ -28,8 +30,8 @@ static size_t buf_cap = 0;              /* current capacity of buf         */
 static void ensure_buf(idx_t n)
 {
     if ((size_t)n > buf_cap) {
-        free(buf);
-        buf = (seq_t *)calloc((size_t)n, sizeof(seq_t));
+        mem_free(buf);
+        buf = mem_new(seq_t, (size_t)n);
         buf_cap = n;
     }
 }

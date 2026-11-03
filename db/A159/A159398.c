@@ -12,7 +12,8 @@
  *            interior cells
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 9, u128 n <= 22,
  *            big any n
- * Helpers:   binom_large, ways
+ * Validated: standard, pass, 20 terms through n = 22 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,30 @@
    counted.  All arithmetic uses the generic integer type `seq_t`
    and the index type `idx_t`.                                                */
 #include <stdint.h>
-#include "../utils/binom_large.h"
-#include "../utils/ways.h"
+#include "../utils/binomial.h"
+
+static seq_t ways(idx_t cnt, idx_t sum)
+{
+    seq_t total = (seq_t)0;
+    for (idx_t c16 = (idx_t)0; c16 <= sum / (idx_t)16; ++c16) {
+        idx_t rem1 = sum - (c16 * (idx_t)16);
+        for (idx_t c9 = (idx_t)0; c9 <= rem1 / (idx_t)9; ++c9) {
+            idx_t rem2 = rem1 - (c9 * (idx_t)9);
+            for (idx_t c4 = (idx_t)0; c4 <= rem2 / (idx_t)4; ++c4) {
+                idx_t c1 = rem2 - (c4 * (idx_t)4);
+                idx_t total_nonzero = c16 + c9 + c4 + c1;
+                if (total_nonzero > cnt) continue;
+                idx_t c0 = cnt - total_nonzero;
+                seq_t val = binomial(cnt, c1);
+                val = val * binomial(cnt - c1, c4);
+                val = val * binomial(cnt - c1 - c4, c9);
+                val = val * binomial(cnt - c1 - c4 - c9, c16);
+                total = total + val;
+            }
+        }
+    }
+    return total;
+}
 
 seq_t a(idx_t n)
 {

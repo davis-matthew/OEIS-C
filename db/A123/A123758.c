@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *coeff = NULL;      /* cached coefficients */
 static idx_t coeff_size = 0;     /* number of entries stored (coeff_size = max_n+1) */
@@ -30,7 +32,7 @@ static idx_t coeff_size = 0;     /* number of entries stored (coeff_size = max_n
 /* recompute all coefficients up to n (inclusive) */
 static void recompute_coeff(idx_t n)
 {
-    seq_t *newcoeff = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *newcoeff = mem_new(seq_t, (n + 1));
     if (!newcoeff)
         exit(EXIT_FAILURE);   /* cannot allocate */
 
@@ -58,7 +60,7 @@ static void recompute_coeff(idx_t n)
     }
 
     /* replace old array */
-    free(coeff);
+    mem_free(coeff);
     coeff      = newcoeff;
     coeff_size = n + 1;
 }

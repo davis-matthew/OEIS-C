@@ -8,14 +8,14 @@
  *            changes
  * Range:     u8 n <= 3, u16 n <= 109, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 62 terms through n = 998 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t counts[5] = {0};
@@ -24,7 +24,7 @@ seq_t a(idx_t n) {
     uint64_t candidate = 2;
     
     while (1) {
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             int residue = candidate % 5;
             counts[residue]++;
             

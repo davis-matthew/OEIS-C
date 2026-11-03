@@ -10,14 +10,29 @@
  *            k+1
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_adjacent48or84
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_adjacent48or84.h"
+#include "../utils/mem.h"
+
+/* Check whether a number contains "48" or "84" as adjacent digits. */
+static bool has_adjacent48or84(seq_t x)
+{
+    seq_t prev = 10; /* sentinel larger than any decimal digit */
+    while (x > 0) {
+        seq_t d = x % 10;
+        if ((prev == 4 && d == 8) || (prev == 8 && d == 4))
+            return true;
+        prev = d;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Dynamic cache of produced terms. */
 static seq_t *cache = NULL;
@@ -29,7 +44,7 @@ static void push_cache(seq_t val)
 {
     if (cache_len == cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort(); /* allocation failure */
         cache = new_cache;
         cache_cap = new_cap;

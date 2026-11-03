@@ -10,12 +10,14 @@
  *            even, else 0
  * Range:     i8 n <= 12, i16 n <= 22, i32 n <= 42, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types idx_t and seq_t are provided by the build environment. */
 
@@ -33,7 +35,7 @@ ensure_b_capacity(idx_t need)
     if (need <= b_cap) return;
     size_t new_cap = (b_cap == 0) ? 8 : b_cap * 2;
     while (new_cap < need) new_cap *= 2;
-    b = (seq_t *)realloc(b, sizeof(seq_t) * (new_cap + 1));
+    b = mem_resize(seq_t, b, (new_cap + 1));
     b_cap = new_cap;
 }
 

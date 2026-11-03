@@ -9,12 +9,14 @@
  *            a(6)=8
  * Range:     u8 n <= 12, u16 n <= 22, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoized dynamic programming for A094188.  The cache stores a(i)
    for i from 0 up to the largest index requested so far.  Indices
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first 7 entries (indices 0..6). */
     if (cache_len == 0) {
         cache_len = 7;
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL) return 0;          /* allocation failed */
 
         cache[0] = 0;  cache[1] = 0;          /* unused, but defined */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (n >= cache_len) {
         idx_t old_len = cache_len;
         cache_len = n + 1;
-        cache = (seq_t*)realloc(cache, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_len);
         if (cache == NULL) return 0;          /* allocation failed */
 
         /* Compute missing terms using the recurrence. */

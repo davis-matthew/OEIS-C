@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 107, u16 n <= 107, u32 n <= 107, u64 n <= 107,
  *            u128 n <= 107, big any n
- * Helpers:   int_cube_root
+ * Validated: partial, pass, 108 terms through n = 107 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,14 +18,31 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/int_cube_root.h"
+#include <stdint.h>
+#include <limits.h>
+#include "../utils/mem.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {
     const int MAX_PARTS = 5;
     /* allocate DP array: (n+1) sums × (MAX_PARTS+1) part counts */
     size_t dp_size = (size_t)(n + 1) * (MAX_PARTS + 1);
-    seq_t *dp = (seq_t*)malloc(dp_size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) return 0;  /* allocation failed: return 0 */
 
     /* initialise to zero and set base case */
@@ -48,6 +66,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n * (MAX_PARTS + 1) + MAX_PARTS];
-    free(dp);
+    mem_free(dp);
     return result;
 }

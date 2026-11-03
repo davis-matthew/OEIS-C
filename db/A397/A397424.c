@@ -7,12 +7,17 @@
  * Formula:   a(n) = Sum_{d|n} 2^(n-d) (mod n)
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +28,7 @@ seq_t a(idx_t n)
     for (idx_t d = 1; d * d <= n; ++d) {
         if (n % d == 0) {
             /* divisor d */
-            seq_t term = mod_pow((seq_t)2, (uint64_t)(n - d), mod);
+            seq_t term = powmod((seq_t)2, (uint64_t)(n - d), mod);
             seq_t diff = mod - term;
             if (sum >= diff)
                 sum -= diff;
@@ -33,7 +38,7 @@ seq_t a(idx_t n)
             /* complementary divisor n/d */
             idx_t d2 = n / d;
             if (d2 != d) {
-                term = mod_pow((seq_t)2, (uint64_t)(n - d2), mod);
+                term = powmod((seq_t)2, (uint64_t)(n - d2), mod);
                 diff = mod - term;
                 if (sum >= diff)
                     sum -= diff;

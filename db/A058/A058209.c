@@ -9,6 +9,7 @@
  * Formula:   a(n) = floor(exp(gamma) * n * log(log n)) - sigma(n) (n >= 2)
  * Range:     i8 n <= 82, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 88 terms through n = 9630 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

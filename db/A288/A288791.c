@@ -7,6 +7,7 @@
  * Formula:   a(n) = Bell(n+1) - Sum_{j=0..8} binomial(n,j) * Bell(n-j)
  * Range:     u8 n <= 10, u16 n <= 13, u32 n <= 18, u64 n <= 27, u128 n <= 44,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 430 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

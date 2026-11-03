@@ -7,6 +7,7 @@
  * Formula:   a(n) = S(11,n) - Stirling numbers of the second kind for n=11
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

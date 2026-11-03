@@ -9,8 +9,9 @@
  *            T(r,k) = k * (2 - 2*k + r) row‑wise. For n ≥ 1, let r be the row
  *            containing the n‑th element and k the column (1‑based) within
  *            that row. Then a(n) = T(r,k)
- * Range:     u8 n <= 493, u16 n <= 9922, u32 n <= 9922, u64 n <= 9922,
- *            u128 n <= 9922, big any n
+ * Range:     u8 n <= 493, u16 n <= 10100, u32 n <= 10100, u64 n <= 10100,
+ *            u128 n <= 10100, big any n
+ * Validated: standard, pass, 88 terms through n = 9922 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            (-1)^(n-k+1)*A010051(n-k)*a(k)
  * Range:     i8 n <= 24, i16 n <= 55, i32 n <= 122, i64 n <= 254,
  *            i128 n <= 513, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static bool *is_prime_arr = NULL;
@@ -65,16 +67,16 @@ static void ensure_capacity(idx_t n) {
     idx_t new_cap = (memo_cap == 0) ? 100 : memo_cap * 2;
     while (new_cap <= n) new_cap *= 2;
     
-    seq_t *new_memo = (seq_t *)malloc((new_cap + 1) * sizeof(seq_t));
+    seq_t *new_memo = mem_new(seq_t, (new_cap + 1));
     bool *new_computed = (bool *)malloc((new_cap + 1) * sizeof(bool));
     
-    memset(new_memo, 0, (new_cap + 1) * sizeof(seq_t));
+    mem_set(new_memo, 0, (new_cap + 1) * sizeof(seq_t));
     memset(new_computed, 0, (new_cap + 1) * sizeof(bool));
     
     if (memo != NULL) {
-        memcpy(new_memo, memo, (memo_cap + 1) * sizeof(seq_t));
+        mem_copy(new_memo, memo, (memo_cap + 1) * sizeof(seq_t));
         memcpy(new_computed, computed, (memo_cap + 1) * sizeof(bool));
-        free(memo);
+        mem_free(memo);
         free(computed);
     }
     

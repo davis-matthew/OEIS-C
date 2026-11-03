@@ -7,6 +7,7 @@
  * Formula:   a(n) = prime_pi((6*n+1)^2) + 1
  * Range:     u8 n <= 6, u16 n <= 150, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 62 terms through n = 973 (2026-11-01)
  * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* Compute the index (1‑based) of the smallest prime greater than (6n+1)^2. */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/prime_pi.h"
 
 /* seq_t and idx_t are defined by the build environment. */

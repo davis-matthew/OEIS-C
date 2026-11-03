@@ -11,12 +11,14 @@
  *            A006369 starting at 14
  * Range:     u8 n <= 24, u16 n <= 89, u32 n <= 202, u64 n <= 793,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 882 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached sequence values */
 static size_t cache_len = 0;     /* number of values stored */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (cache_len == 0) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)14;        /* a(0) = 14 */
         cache_len = 1;
     }
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap ? cache_cap * 2 : 1;
             while (new_cap <= idx)
                 new_cap *= 2;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 

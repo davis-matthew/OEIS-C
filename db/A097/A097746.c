@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   compute_partition, pent
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,33 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/compute_partition.h"
-#include "../utils/pent.h"
+#include "../utils/mem.h"
+
+/* Helper: compute generalized pentagonal numbers p.g.p. */
+static inline idx_t pent(const idx_t k)
+{
+    return k * (3 * k - 1) / 2;
+}
+
+/* Compute the partition number p[n] using Euler's recurrence with a
+   signed 128‑bit accumulator to avoid overflow.  The array `parts`
+   contains values for 0 .. n-1.  */
+static seq_t compute_partition(idx_t n, seq_t *parts)
+{
+    __int128 sum = 0;
+    for (idx_t k = 1; ; ++k) {
+        idx_t p1 = pent(k);
+        if (p1 > n) break;
+        if (k & 1) sum += (__int128)parts[n - p1];
+        else       sum -= (__int128)parts[n - p1];
+
+        idx_t p2 = k * (3 * k + 1) / 2;
+        if (p2 > n) continue;
+        if (k & 1) sum += (__int128)parts[n - p2];
+        else       sum -= (__int128)parts[n - p2];
+    }
+    return (seq_t)sum;
+}
 
 /* global state for memoisation */
 static size_t rep_cap = 0;          /* size of representable array  (indices 0..rep_cap-1) */
@@ -58,7 +84,7 @@ seq_t a(idx_t n)
 
         /* Compute partition numbers up to the first p[k] > new_limit+1 */
         size_t parts_cap = 128;   /* start with small capacity */
-        seq_t *parts = (seq_t *)malloc(parts_cap * sizeof(seq_t));
+        seq_t *parts = mem_new(seq_t, parts_cap);
         if (!parts) { /* allocation failed */
             return 0;
         }
@@ -69,8 +95,8 @@ seq_t a(idx_t n)
             /* Expand parts array if necessary */
             if ((size_t)n_part >= parts_cap) {
                 parts_cap *= 2;
-                parts = (seq_t *)realloc(parts, parts_cap * sizeof(seq_t));
-                if (!parts) { free(parts); return 0; }
+                parts = mem_resize(seq_t, parts, parts_cap);
+                if (!parts) { mem_free(parts); return 0; }
             }
 
             seq_t val = compute_partition(n_part, parts);
@@ -95,8 +121,8 @@ seq_t a(idx_t n)
         if (comp_len + (new_limit - comp_last_limit) > comp_cap) {
             /* grow enough to hold all new entries */
             comp_cap = (comp_len + (new_limit - comp_last_limit)) * 2;
-            comp = (seq_t *)realloc(comp, comp_cap * sizeof(seq_t));
-            if (!comp) { free(parts); return 0; }
+            comp = mem_resize(seq_t, comp, comp_cap);
+            if (!comp) { mem_free(parts); return 0; }
         }
         for (size_t v = comp_last_limit + 1; v <= new_limit; ++v) {
             if (!rep[v]) {
@@ -105,7 +131,7 @@ seq_t a(idx_t n)
         }
 
         comp_last_limit = new_limit;
-        free(parts);
+        mem_free(parts);
     }
 
     return comp[n - 1];

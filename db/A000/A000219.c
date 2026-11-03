@@ -9,7 +9,8 @@
  *            (Euler transform, additions only)
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 47, u64 n <= 121, u128 n <= 320,
  *            big any n
- * Helpers:   alloc_series, fixed_mode, sigma2
+ * Validated: standard, pass, 57 terms through n = 5684 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,36 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_series.h"
-#include "../utils/fixed_mode.h"
-#include "../utils/sigma2.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_series(size_t sz)
+{
+    seq_t *p = mem_new(seq_t, sz);
+    size_t i;
+    for (i = 0; i < sz; i++) p[i] = 0;
+    return p;
+}
+
+static int fixed_mode(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x = x * 2;
+    return x == 0;
+}
+
+static uint64_t sigma2(uint64_t k)
+{
+    uint64_t s = 0, d;
+    for (d = 1; d * d <= k; d++) {
+        if (k % d == 0) {
+            uint64_t e = k / d;
+            s += d * d;
+            if (e != d) s += e * e;
+        }
+    }
+    return s;
+}
 
 #define FIX_N 400
 

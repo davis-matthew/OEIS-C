@@ -8,9 +8,10 @@
  * Formula:   a(n) = smallest palindromic prime that contains the n-th
  *            palindrome of A002113 as its central digits (single or multiple
  *            digits). If such a prime does not exist, return 0
- * Range:     u8 n <= 1, u16 n <= 20, u32 n <= 775, u64 n <= 9964,
- *            u128 n <= 9964, big any n
- * Helpers:   digit_len, is_prime_small, seq_pow
+ * Range:     u8 n <= 1, u16 n <= 20, u32 n <= 775, u64 n <= 11000,
+ *            u128 n <= 11000, big any n
+ * Validated: standard, pass, 61 terms through n = 9964 (2026-11-01)
+ * Helpers:   ipow_idx, is_prime_seq, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 /* Required utilities. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/digit_len.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/num_digits.h"
 
 /* Pre‑computed powers of ten up to 10^19.  These fit in uint64_t and may
    be safely converted to seq_t. */
@@ -85,7 +87,7 @@ static seq_t nth_palindrome(idx_t n) {
 /* Main sequence function. */
 seq_t a(idx_t n) {
     seq_t centre = nth_palindrome(n);
-    int centre_len = digit_len(centre);
+    int centre_len = num_digits(centre);
 
     /* Even‑length centre (except 11) cannot yield a prime palindrome.
        11 itself is prime. */
@@ -95,7 +97,7 @@ seq_t a(idx_t n) {
     }
 
     /* The centre itself may already be prime. */
-    if (is_prime_small(centre)) return centre;
+    if (is_prime_seq(centre)) return centre;
 
     /* Search for increasing prefix lengths.  6 is enough for n ≤ 10000. */
     for (int k = 1; k <= 6; ++k) {
@@ -110,7 +112,7 @@ seq_t a(idx_t n) {
             unsigned __int128 cand128 = part1 + part2 + rev;
             seq_t cand = (seq_t)cand128;
 
-            if (is_prime_small(cand)) return cand;
+            if (is_prime_seq(cand)) return cand;
         }
     }
     return 0; /* no prime found within the searched bounds */

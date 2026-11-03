@@ -12,14 +12,15 @@
  *            size 1. The value is the concatenation of the...
  * Range:     u8 n <= 14, u16 n <= 62, u32 n <= 511, u64 n <= 511,
  *            u128 n <= 511, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 79 terms through n = 457 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/floor_log2_uint64.h"
+#include "../utils/ilog2.h"
 
 /* number of decimal digits of a positive integer x (x≤ULLONG_MAX) */
 static inline int num_digits(uint64_t x)
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
     parts[0] = 1U;
 
     /* number of bits below the highest set bit */
-    idx_t bits = floor_log2_uint64(n);
+    idx_t bits = ilog2(n);
 
     for (idx_t pos = 0; pos < bits; ++pos) {
         if ((n >> pos) & 1ULL) {

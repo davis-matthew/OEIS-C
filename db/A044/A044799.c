@@ -11,7 +11,8 @@
  *            in order and selecting those that satisfy the property
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains86
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/contains86.h"
+#include "../utils/mem.h"
+
+static bool contains86(seq_t x)
+{
+    if (x < (seq_t)10)
+        return false;
+    while (x >= (seq_t)10)
+    {
+        if (x % (seq_t)100 == (seq_t)86)
+            return true;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 static void ensure_cap(size_t needed)
 {
@@ -33,8 +47,8 @@ static void ensure_cap(size_t needed)
     while (new_cap < needed)
         new_cap *= 2;
 
-    seq_t *tmp = stand_arr ? (seq_t*)realloc(stand_arr, new_cap * sizeof(seq_t))
-                           : (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = stand_arr ? mem_resize(seq_t, stand_arr, new_cap)
+                           : mem_new(seq_t, new_cap);
     stand_arr = tmp;
     stand_cap = new_cap;
 
@@ -61,12 +75,12 @@ seq_t a(idx_t n)
         if (cache == NULL)
         {
             cap = 8;
-            cache = (seq_t*)malloc(cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cap);
         }
         else if (len == cap)
         {
             cap *= 2;
-            cache = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
 
         /* Generate terms until we have at least n of them. */

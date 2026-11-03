@@ -10,7 +10,8 @@
  *            a(13) = 3905, a(14) = 6343, a(15) = 10248
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 58, u128 n <= 116,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Local copy of the first 16 terms, as 64‑bit constants.  These will
    be cast to seq_t when the cache is initialised. */
@@ -43,7 +45,7 @@ static void ensure_cache_capacity(idx_t needed)
     while (new_cap <= (size_t)needed + 1)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache && new_cap > 0)
         exit(EXIT_FAILURE);     /* out of memory */
     cache      = new_cache;

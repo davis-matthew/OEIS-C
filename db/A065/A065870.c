@@ -11,7 +11,8 @@
  *            only) it keeps data in std::vector to avoid undefined beha...
  * Range:     i8 n <= 26, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   seq_cmp
+ * Validated: standard, pass, 96 terms through n = 961 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <math.h>
-#include "../utils/seq_cmp.h"      /* comparator for qsort (C version) */
+#include <stdint.h>
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 #if defined(__cplusplus)
 #include <vector>

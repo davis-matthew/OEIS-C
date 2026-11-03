@@ -11,7 +11,8 @@
  *            single-square case
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Allocate DP array of size n+1.  Use size_t for allocation to avoid
        overflow for the very small n values considered. */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (dp == NULL)
         return (seq_t)0;  /* allocation failure */
 
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         dp[i] = (seq_t)0;
 
     /* Count partitions into distinct squares (any number of parts). */
-    idx_t max_k = _floor_isqrt_u64(n);
+    idx_t max_k = isqrt(n);
     for (idx_t k = 1; k <= max_k; ++k) {
         idx_t sq = k * k;
         for (idx_t i = n; i >= sq; --i) {
@@ -46,10 +48,10 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
 
     /* Subtract the single-square partition if n itself is a perfect square. */
-    idx_t sqroot = _floor_isqrt_u64(n);
+    idx_t sqroot = isqrt(n);
     if (sqroot * sqroot == n)
         result -= (seq_t)1;
 

@@ -8,12 +8,15 @@
  * Formula:   a(n) = Sum_{r=0..n/2} binomial(n-r,r)_{mod 2} * 2^(floor(n/2)-r)
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 63, u64 n <= 127,
  *            u128 n <= 255, big any n
- * Helpers:   pw2
+ * Validated: standard, pass, 59 terms through n = 963 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pw2.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     seq_t result = 0;
@@ -22,7 +25,7 @@ seq_t a(idx_t n) {
     for (idx_t r = 0; r <= half_n; r++) {
         idx_t n_minus_r = n - r;
         if ((n_minus_r & r) == r) {
-            result = result + pw2(half_n - r);
+            result = result + pow2(half_n - r);
         }
     }
     

@@ -6,16 +6,50 @@
  * Keywords:  nonn
  * Formula:   a(n) = |{d | d divides n and σ(d) < 2·d}|, where σ(d) is the sum
  *            of the divisors of d
- * Range:     u8 n <= 8944, u16 n <= 8944, u32 n <= 8944, u64 n <= 8944,
- *            u128 n <= 8944, big any n
- * Helpers:   dfs_deficient
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 8944 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/dfs_deficient.h"
+
+/* ------------------------------------------------------------------
+   Recursively enumerate all divisors of the original number.
+   For each divisor d we maintain its value (cur) and σ(d) (sigma).
+   If σ(d) < 2·d we increment the result counter.
+   ------------------------------------------------------------------ */
+static void dfs_deficient(const uint64_t *pr, const uint64_t *exp,
+                          int idx, int total_cnt,
+                          uint64_t cur, unsigned __int128 sigma,
+                          seq_t *total)
+{
+    if (idx == total_cnt)          /* a divisor is complete           */
+    {
+        if (sigma < (unsigned __int128)cur * 2)
+            (*total)++;
+        return;
+    }
+
+    uint64_t p = pr[idx];
+    uint64_t e = exp[idx];
+
+    unsigned __int128 power = 1;      /* p^k                     */
+    unsigned __int128 sigma_pk = 1;   /* σ(p^k) = 1+…+p^k       */
+
+    for (uint64_t k = 0; k <= e; ++k)
+    {
+        dfs_deficient(pr, exp, idx + 1, total_cnt,
+                      cur * power, sigma * sigma_pk, total);
+
+        /* advance to the next exponent of p */
+        power *= p;           /* now p^(k+1)              */
+        sigma_pk += power;    /* σ(p^(k+1)) = σ(p^k)+p^(k+1) */
+    }
+}
 
 /* ------------------------------------------------------------------
    Simple trial division factorisation for 64‑bit numbers.

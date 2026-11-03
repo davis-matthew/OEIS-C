@@ -8,16 +8,18 @@
  *            otherwise 0. For odd n this reduces to testing whether n^2 - 2
  *            is prime. The is_prime(uint64_t) routine is supplied by the
  *            build environment
- * Range:     u8 n <= 15, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 71 terms through n = 871 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* Odd n: n^2 is odd, so the only representation uses 2 + (n^2 - 2). */
     seq_t m = nsq - (seq_t)2;
-    if (is_prime((uint64_t)m))
+    if (is_prime_u64((uint64_t)m))
         return nsq;
 
     return (seq_t)0;

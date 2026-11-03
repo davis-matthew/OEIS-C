@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of primes <= the n-th prime power
  * Range:     u8 n <= 283, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9713 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* forward declarations of static helpers */
 static void recompute(idx_t limit);
@@ -40,8 +42,8 @@ static void recompute(idx_t limit)
     /* free previous allocations */
     free(primes);  primes = NULL; primes_len = 0;
     free(spf);     spf = NULL;
-    free(pi_vals); pi_vals = NULL;
-    free(a_cache); a_cache = NULL;    a_cache_len = 0;
+    mem_free(pi_vals); pi_vals = NULL;
+    mem_free(a_cache); a_cache = NULL;    a_cache_len = 0;
 
     /* ---- compute small prime factors via linear sieve ---- */
     spf = (uint32_t *)malloc((limit + 1) * sizeof(uint32_t));
@@ -70,7 +72,7 @@ static void recompute(idx_t limit)
     }
 
     /* ---- prefix prime counts ---- */
-    pi_vals = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    pi_vals = mem_new(seq_t, (limit + 1));
     if (!pi_vals) exit(1);
     pi_vals[0] = 0;
     pi_vals[1] = 0;
@@ -82,7 +84,7 @@ static void recompute(idx_t limit)
 
     /* ---- compute a_cache: number of primes <= each prime power ---- */
     size_t estimate = limit / 2 + 10;                /* rough upper bound */
-    a_cache = (seq_t *)malloc(estimate * sizeof(seq_t));
+    a_cache = mem_new(seq_t, estimate);
     if (!a_cache) exit(1);
 
     for (size_t x = 2; x <= (size_t)limit; ++x) {
@@ -92,14 +94,14 @@ static void recompute(idx_t limit)
         if (temp == 1) {                                /* prime power */
             if (a_cache_len == estimate) {
                 estimate *= 2;
-                a_cache = (seq_t *)realloc(a_cache, estimate * sizeof(seq_t));
+                a_cache = mem_resize(seq_t, a_cache, estimate);
             }
             a_cache[a_cache_len++] = pi_vals[x];
         }
     }
 
     /* shrink to the actual size */
-    a_cache = (seq_t *)realloc(a_cache, a_cache_len * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, a_cache_len);
 
     sieve_limit = limit;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
              - 12*a(n-6) + 8*a(n-7) - 4*a(n-8) - 4*a(n-9)
              + 8*a(n-10) - 8*a(n-11)           */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoisation */
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         size_t init_cap = 64;
         if (n + 1 > init_cap) init_cap = (size_t)n + 1;
-        cache = (seq_t*)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (!cache) return (seq_t)0;   /* unlikely, but safe */
         for (size_t i = 0; i < 12; ++i) cache[i] = seed[i];
         cache_len = 12;
@@ -52,10 +54,10 @@ seq_t a(idx_t n) {
     if (cache_cap <= (size_t)n) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) return (seq_t)0;   /* allocation failure */
         for (size_t i = 0; i < cache_len; ++i) tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = tmp;
         cache_cap = new_cap;
     }

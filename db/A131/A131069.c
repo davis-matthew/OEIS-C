@@ -9,7 +9,8 @@
  *            integers a,b with a+b=n and sumdigits(a)^sumdigits(b)=n
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   compare_seq_t, seq_mul, seq_to_str
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,41 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
-#include "../utils/seq_to_str.h"
-#include "../utils/seq_mul.h"
-#include "../utils/compare_seq_t.h"   /* provides compare_seq_t() */
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static int compare_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 /* --- DP routine ----------------------------------------------------- */
 
@@ -117,7 +149,7 @@ static Heap heap = {NULL, 0, 0};
 static void heap_init(void)
 {
     heap.cap = 1024;
-    heap.data = (Node *)malloc(heap.cap * sizeof(Node));
+    heap.data = mem_new(Node, heap.cap);
     heap.size = 0;
 
     const unsigned MAX_BASE = 32768; /* adequate for 10 000 terms */
@@ -129,7 +161,7 @@ static void heap_init(void)
         /* push */
         if (heap.size == heap.cap) {
             heap.cap *= 2;
-            heap.data = (Node *)realloc(heap.data, heap.cap * sizeof(Node));
+            heap.data = mem_resize(Node, heap.data, heap.cap);
         }
         heap.data[heap.size++] = n;
         size_t i = heap.size - 1;
@@ -166,7 +198,7 @@ static void heap_push(Node n)
 {
     if (heap.size == heap.cap) {
         heap.cap *= 2;
-        heap.data = (Node *)realloc(heap.data, heap.cap * sizeof(Node));
+        heap.data = mem_resize(Node, heap.data, heap.cap);
     }
     heap.data[heap.size++] = n;
     size_t i = heap.size - 1;
@@ -194,7 +226,7 @@ static void generate_up_to(idx_t target)
         /* skip duplicate values */
         if (cache_len == 0 || compare_seq_t(&nval, &cache[cache_len - 1]) != 0) {
             if (exists_pair(nval, s, t)) {
-                seq_t *tmp = (seq_t *)realloc(cache, (cache_len + 1) * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, (cache_len + 1));
                 if (!tmp) exit(1);
                 cache = tmp;
                 cache[cache_len++] = nval;
@@ -215,7 +247,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;
     /* lazily initialise */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) exit(1);
         cache[0] = (seq_t)1;     /* a(1) = 1 */
         cache_len = 1;

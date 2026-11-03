@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, is_prime, mod_pow
+ * Validated: standard, pass, 66 terms through n = 941 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,15 @@
         (-2)^{(p-1)/gcd(p-1,48)} ≡ 1 (mod p).
    For p = 2 the congruence holds trivially. */
 
-#include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
-#include "../utils/is_prime.h"
+#include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/gcd.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
 
 /* dynamic array of found terms */
 static seq_t *terms = NULL;
@@ -33,7 +39,7 @@ static idx_t next_candidate = 2;        /* next number to test for primality */
 static void grow_terms(void)
 {
     size_t new_cap = terms_cap ? terms_cap * 2 : 64;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp)
         abort();                         /* allocation failure */
     terms = tmp;
@@ -74,7 +80,7 @@ static void ensure_terms(idx_t n)
         seq_t base = p - (seq_t)2;
 
         /* check if base^exp ≡ 1 (mod p) */
-        seq_t res = mod_pow(base, exp, p);
+        seq_t res = powmod(base, exp, p);
         if (res == (seq_t)1)
         {
             if (terms_cnt == terms_cap)

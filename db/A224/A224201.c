@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 5, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system; do not define them here. */
 
@@ -114,13 +116,13 @@ static void init_sequence(void)
     }
 
     /* 4. Allocate DP arrays */
-    dp_cur  = (seq_t *)malloc(R * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(R * sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, R);
+    dp_next = mem_new(seq_t, R);
     for (idx_t i = 0; i < R; ++i) dp_cur[i] = 1;   /* length‑1 arrays */
 
     /* 5. Allocate result array */
     a_cap = 256;
-    a_vals = (seq_t *)malloc(a_cap * sizeof(seq_t));
+    a_vals = mem_new(seq_t, a_cap);
     a_vals[0] = 0;   /* unused, offset is 1 */
 
     /* 6. Compute a(1) */
@@ -140,7 +142,7 @@ seq_t a(idx_t n)
     /* Expand a_vals array if necessary */
     while (n + 1 > a_cap) {
         a_cap = a_cap ? a_cap * 2 : 1;
-        a_vals = (seq_t *)realloc(a_vals, a_cap * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, a_cap);
     }
 
     /* Compute terms from computed_n+1 up to n */

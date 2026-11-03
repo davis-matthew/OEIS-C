@@ -8,7 +8,8 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 2 * n * (n + 1) * (2 * n + 1) * (8 * n * (n + 1) + 1)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 41, u64 n <= 3565,
- *            u128 n <= 9532, big any n
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 43 terms through n = 9532 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

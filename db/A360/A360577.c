@@ -9,12 +9,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence for A360577 (from the OEIS entry):
    a(n) = 3*a(n-1) + b(n-1) + c(n-1)
@@ -45,7 +47,7 @@ ensure_capacity(idx_t n)
     size_t new_cap = cap > 0 ? cap << 1 : 1;
     while (new_cap <= (size_t)n) new_cap <<= 1;
 
-    State *tmp = (State *)realloc(states, new_cap * sizeof(*states));
+    State *tmp = mem_resize(State, states, new_cap);
     if (!tmp) abort();      /* allocation failure */
     states = tmp;
     cap = new_cap;

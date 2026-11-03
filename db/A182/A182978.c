@@ -12,14 +12,38 @@
  *            O(n^2) time and memory }, * suitable for n u...
  * Range:     u8 n <= 11, u16 n <= 33, u32 n <= 107, u64 n <= 371,
  *            u128 n <= 1000, big any n
- * Helpers:   add_contributions
+ * Validated: standard, pass, 56 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/add_contributions.h"
+#include "../utils/mem.h"
+
+/* add contributions of part value v to the array 'ans'
+ * using current partition counts stored in 'dp'.
+ * dp holds partitions that use only part sizes < v (forward) or > v (reverse).
+ * Arrays are of length N+1.                           */
+static void add_contributions(idx_t N, idx_t v, seq_t *dp, seq_t *ans)
+{
+    for (idx_t r = 0; r < v; ++r) {
+        idx_t max_q = (N - r) / v;
+        seq_t U = 0;   /* Σ_{u=0}^{q-1} dp[r + u*v]            */
+        seq_t V = 0;   /* Σ_{u=0}^{q-1} u * dp[r + u*v]          */
+        for (idx_t q = 0; q <= max_q; ++q) {
+            idx_t n = r + q * v;
+            if (q > 0) {
+                seq_t dp_val = dp[n - v];
+                U += dp_val;
+                V += (seq_t)(q - 1) * dp_val;
+                seq_t add = (seq_t)q * U - V;   /* S_q = q*U - V          */
+                ans[n] += add;
+            }
+        }
+    }
+}
 
 /* ------------------------------------------------------------ */
 /*                static caching infrastructure                */
@@ -39,11 +63,11 @@ static idx_t cachedSize = 0;    /* size of cachedA (max computed n) */
 static void recompute_up_to(idx_t N)
 {
     /* allocate temporary arrays */
-    seq_t *dp_le     = (seq_t*)calloc(N + 1, sizeof(seq_t));   /* partitions ≤ current part */
-    seq_t *dp_ge     = (seq_t*)calloc(N + 1, sizeof(seq_t));   /* partitions ≥ current part (reverse) */
-    seq_t *sum_large = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *sum_small = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *sum_all_equal = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp_le     = mem_new(seq_t, N + 1);   /* partitions ≤ current part */
+    seq_t *dp_ge     = mem_new(seq_t, N + 1);   /* partitions ≥ current part (reverse) */
+    seq_t *sum_large = mem_new(seq_t, N + 1);
+    seq_t *sum_small = mem_new(seq_t, N + 1);
+    seq_t *sum_all_equal = mem_new(seq_t, N + 1);
 
     /* ------------- Partitions with parts ≤ current (forward DP) ------------- */
     dp_le[0] = 1;   /* empty partition */
@@ -83,7 +107,7 @@ static void recompute_up_to(idx_t N)
     }
 
     /* ------------- Assemble final sequence a(n) ------------- */
-    seq_t *newA = (seq_t*)realloc(cachedA, (N + 1) * sizeof(seq_t));
+    seq_t *newA = mem_resize(seq_t, cachedA, (N + 1));
     if (!newA) { /* allocation failure – abort gracefully */
         exit(EXIT_FAILURE);
     }
@@ -95,11 +119,11 @@ static void recompute_up_to(idx_t N)
     }
 
     /* free temporary arrays */
-    free(dp_le);
-    free(dp_ge);
-    free(sum_large);
-    free(sum_small);
-    free(sum_all_equal);
+    mem_free(dp_le);
+    mem_free(dp_ge);
+    mem_free(sum_large);
+    mem_free(sum_small);
+    mem_free(sum_all_equal);
 }
 
 /* ------------------------------------------------------------ */

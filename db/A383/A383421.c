@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9347 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* External linkage required by the harness */
 seq_t a(idx_t n);
@@ -67,7 +69,7 @@ ensure_seq_capacity(idx_t needed)
     if (needed <= seq_cap) return;
     idx_t new_cap = seq_cap ? seq_cap : 256;
     while (new_cap <= needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc((void *)seq_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
     if (!tmp) abort();
     seq_vals = tmp;
     seq_cap  = new_cap;
@@ -103,7 +105,7 @@ ensure_value(const seq_t val)
     /* create new entry */
     if (infos_used == infos_cap) {
         size_t new_cap = infos_cap ? infos_cap * 2 : 256;
-        ValueInfo *tmp = (ValueInfo *)realloc((void *)infos, new_cap * sizeof(ValueInfo));
+        ValueInfo *tmp = mem_resize(ValueInfo, infos, new_cap);
         if (!tmp) abort();
         /* initialise new slots */
         for (size_t i = infos_used; i < new_cap; ++i) {
@@ -150,7 +152,7 @@ a(idx_t n)
     /* Initialise on first call */
     if (current_max == 0) {
         seq_cap = 256;
-        seq_vals = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
         if (!seq_vals) abort();
 
         dist_cap = 256;
@@ -158,7 +160,7 @@ a(idx_t n)
         if (!dist_counts) abort();
 
         infos_cap = 256;
-        infos = (ValueInfo *)calloc(infos_cap, sizeof(ValueInfo));
+        infos = mem_new(ValueInfo, infos_cap);
         if (!infos) abort();
         infos_used = 0;
         single_occurrence = 0;

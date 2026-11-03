@@ -9,9 +9,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 31, u64 n <= 63, u128 n <= 172,
+ * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 31, u64 n <= 63, u128 n <= 172,
  *            big any n
- * Helpers:   binom, term_count
+ * Validated: standard, pass, 50 terms through n = 5420 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,8 +36,16 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
-#include "../utils/term_count.h"
+#include "../utils/binomial.h"
+
+/* Helper: number of terms up to row p (inclusive) */
+static inline idx_t term_count(idx_t p)
+{
+    /* returns (7*p^2 - 5*p)/2 */
+    unsigned __int128 val = (unsigned __int128)7 * p * p - (unsigned __int128)5 * p;
+    val /= 2;
+    return (idx_t)val;
+}
 
 /* Helper: exponentiation of seq_t values (base^exp) */
 static inline seq_t pow_seq_t(seq_t base, idx_t exp)
@@ -85,11 +94,11 @@ seq_t a(idx_t n)
 
         /* first term: C(i-1, 2k-2) * C(i-2k+8, i-2k+1)^(p-1) */
         if (i >= 1 && (i - 1) >= 2 * k - 2) {
-            t1 = binom(i - 1, 2 * k - 2);
+            t1 = binomial(i - 1, 2 * k - 2);
             idx_t n1 = i - 2 * k + 8;
             idx_t r1 = i - 2 * k + 1;
             if (n1 >= r1 && r1 >= 0) {
-                seq_t base1 = binom(n1, r1);
+                seq_t base1 = binomial(n1, r1);
                 seq_t pow1  = pow_seq_t(base1, p - 1);
                 t1 *= pow1;
             }
@@ -97,11 +106,11 @@ seq_t a(idx_t n)
 
         /* second term: C(i-1, 2k-1) * C(i-2k+7, i-2k)^(p-1) */
         if (i >= 1 && (i - 1) >= 2 * k - 1) {
-            t2 = binom(i - 1, 2 * k - 1);
+            t2 = binomial(i - 1, 2 * k - 1);
             idx_t n2 = i - 2 * k + 7;
             idx_t r2 = i - 2 * k;
             if (n2 >= r2 && r2 >= 0) {
-                seq_t base2 = binom(n2, r2);
+                seq_t base2 = binomial(n2, r2);
                 seq_t pow2  = pow_seq_t(base2, p - 1);
                 t2 *= pow2;
             }

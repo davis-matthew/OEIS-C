@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 22,
  *            big any n
- * Helpers:   horiz_mask
+ * Validated: standard, pass, 32 terms through n = 72 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,20 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/horiz_mask.h"
+
+/* ---------- helper to compute horizontal neighbourhood for a row ---------- */
+static uint8_t horiz_mask(uint8_t row)
+{
+    uint8_t hm = 0;
+    for (int j = 0; j < 6; ++j) {
+        if ((row >> j) & 1) {
+            hm |= (1 << j);
+            if (j > 0)        hm |= (1 << (j - 1));
+            if (j < 5)        hm |= (1 << (j + 1));
+        }
+    }
+    return hm;
+}
 
 static const uint8_t ALL_MASK = 0x3F; /* 6 bits */
 

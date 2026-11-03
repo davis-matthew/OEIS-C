@@ -10,12 +10,14 @@
  *            read by anti‑diagonals downward
  * Range:     u8 n <= 38, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,9 +31,9 @@ seq_t a(idx_t n)
     size_t sz = (size_t)stride;
 
     /* Allocate two rows for dynamic programming. */
-    seq_t *prev = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc(sz * sizeof(seq_t));
-    if (!prev || !curr) { free(prev); free(curr); return 0; }
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *curr = mem_new(seq_t, sz);
+    if (!prev || !curr) { mem_free(prev); mem_free(curr); return 0; }
 
     /* Initialise row 0: T(0,k) = 0^k. */
     for (idx_t k = 0; k < stride; ++k)
@@ -44,8 +46,8 @@ seq_t a(idx_t n)
 
     if (offset == 0) {                    /* i = 0 */
         seq_t res = prev[s];
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return res;
     }
 
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         curr = tmp;
     }
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

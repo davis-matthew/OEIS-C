@@ -9,12 +9,14 @@
  *            from 0..i)
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
  * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>           /* for uint64_t */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow3.h"
 

@@ -10,7 +10,8 @@
  *            by dynamic programming on row patterns
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -58,12 +60,12 @@ seq_t a(idx_t n)
     }
 
     /* Allocate DP arrays for current and next row counts. */
-    seq_t *cur  = (seq_t *)malloc(state_count * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc(state_count * sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, state_count);
+    seq_t *next = mem_new(seq_t, state_count);
     if (!cur || !next) {
         /* Memory allocation failed: return 0 as a safe fallback. */
-        free(cur);
-        free(next);
+        mem_free(cur);
+        mem_free(next);
         return (seq_t)0;
     }
 
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
     for (int i = 0; i < state_count; ++i)
         result = result + cur[i];
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

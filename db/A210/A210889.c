@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 322, u32 n <= 322, u64 n <= 322, u128 n <= 322,
  *            big any n
- * Helpers:   is_palindrome_num
+ * Validated: full, pass, 322 terms through n = 322 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,17 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome_num.h"
+
+static inline bool is_palindrome_num(int n)
+{
+    int t = n;
+    int rev = 0;
+    while (t > 0) {
+        rev = rev * 10 + t % 10;
+        t /= 10;
+    }
+    return rev == n;
+}
 
 static inline bool is_leap_year(idx_t y)
 {

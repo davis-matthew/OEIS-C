@@ -11,14 +11,15 @@
  *            prime
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 #define MAX_SUBS 2100   /* > 64*65/2 = 2080, maximum number of substrings for 64‑bit n */
 
@@ -71,7 +72,7 @@ seq_t a(idx_t n)
             seen[seen_count++] = val;
 
             /* Check whether both val and its binary reversal are prime. */
-            if (!is_prime_small(val))
+            if (!is_prime_seq(val))
                 continue;
 
             /* Compute the reversal of the binary digits of val. */
@@ -82,7 +83,7 @@ seq_t a(idx_t n)
                 t >>= 1;
             }
 
-            if (is_prime_small(rev))
+            if (is_prime_seq(rev))
                 count = count + 1;
         }
     }

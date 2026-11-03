@@ -8,6 +8,7 @@
  * Formula:   a(2*n) = 2*(n^2 + 2*n); a(2*n-1) = (2*n)!/n!
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 28, u128 n <= 48,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 690 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

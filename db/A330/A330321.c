@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{i=1..n} tau(i)*tau(i+1)/2
  * Range:     u8 n <= 37, u16 n <= 2639, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 4939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static caches for divisor counts (tau) and cumulative sums (cum) */
 static idx_t       max_prepared = 0;            /* largest n prepared */
@@ -40,11 +42,11 @@ ensure_capacity(idx_t n)
 
     /* Reallocate tau and cum */
     uint64_t *new_tau = (uint64_t *)realloc(tau, new_cap * sizeof(uint64_t));
-    seq_t    *new_cum = (seq_t *)realloc(cum, new_cap * sizeof(seq_t));
+    seq_t    *new_cum = mem_resize(seq_t, cum, new_cap);
     if (!new_tau || !new_cum) {
         /* Allocation failure: keep previous state and abort. */
         if (new_tau) free(new_tau);
-        if (new_cum) free(new_cum);
+        if (new_cum) mem_free(new_cum);
         return;
     }
     tau = new_tau;

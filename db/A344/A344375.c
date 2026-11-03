@@ -11,7 +11,8 @@
  *            are cached
  * Range:     u8 n <= 48, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 79 terms through n = 9988 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -37,13 +39,13 @@ static inline bool is_valid(seq_t x) {
     if (len < 2) return false;               /* need at least two digits */
 
     for (size_t d = 1; d < len; d++) {
-        seq_t pow10_d  = pow_uint(10, d);     /* 10^d  */
+        seq_t pow10_d  = ipow_u64_idx(10, d);     /* 10^d  */
         seq_t a = x / pow10_d;
         seq_t b = x % pow10_d;
 
         /* b must have exactly d digits (no leading zeros). */
         if (d > 1) {
-            seq_t lower_bound = pow_uint(10, d - 1);
+            seq_t lower_bound = ipow_u64_idx(10, d - 1);
             if (b < lower_bound) continue;
         }
         if (b == 0) continue;                /* avoid division by zero */
@@ -68,7 +70,7 @@ seq_t a(idx_t n) {
         /* Resize cache if necessary. */
         if (cache_size == cache_cap) {
             size_t new_cap = cache_cap == 0 ? 64 : cache_cap * 2;
-            seq_t *new_mem = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_mem = mem_resize(seq_t, cache, new_cap);
             if (!new_mem) abort();  /* critical failure */
             cache = new_mem;
             cache_cap = new_cap;

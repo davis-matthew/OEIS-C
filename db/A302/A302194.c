@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 19, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 423 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Assume seq_t and idx_t are provided by the build environment. */
 extern idx_t _floor_isqrt_u64(idx_t n);
@@ -36,7 +38,7 @@ extern size_t _prime_limit_for_idx(idx_t n);
 /* Utility: allocate an array of seq_t of given size.  The caller
  * must free it with free(). */
 static seq_t* alloc_seq_array(size_t n) {
-    return (seq_t*)malloc(n * sizeof(seq_t));
+    return mem_new(seq_t, n);
 }
 
 /* ------------------------------------------------------------ */
@@ -76,7 +78,7 @@ static idx_t a_cache_max = 0;     /* highest index computed so far */
 static void ensure_cache_size(size_t size) {
     if (a_cache_size >= size)
         return;
-    a_cache = (seq_t*)realloc(a_cache, size * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, size);
     a_cache_size = size;
 }
 

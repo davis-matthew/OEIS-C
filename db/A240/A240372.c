@@ -13,7 +13,8 @@
  *            northwest of it) mod 4
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static uint16_t trans[4096][64];
 static unsigned char trans_len[4096];
@@ -100,13 +102,13 @@ seq_t a(idx_t n)
     static int new_active_count = 0;
 
     /* Reset state for each call. */
-    memset(counts, 0, sizeof(counts));
+    mem_set(counts, 0, sizeof(counts));
     counts[0] = 1;                 /* starting state before any rows */
     active[0] = 0;
     active_count = 1;
 
     for (idx_t step = 0; step < n; ++step) {
-        memset(new_counts, 0, sizeof(new_counts));
+        mem_set(new_counts, 0, sizeof(new_counts));
         memset(visited, 0, sizeof(visited));
         new_active_count = 0;
 
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
         }
 
         /* Prepare for next iteration. */
-        memcpy(counts, new_counts, sizeof(counts));
+        mem_copy(counts, new_counts, sizeof(counts));
         memcpy(active, new_active, new_active_count * sizeof(int));
         active_count = new_active_count;
     }

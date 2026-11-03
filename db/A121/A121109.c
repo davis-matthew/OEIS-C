@@ -9,11 +9,14 @@
  *            for n ≥ 2 until the value becomes 0
  * Range:     u8 none, u16 none, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-02)
  * Helpers:   digit_product
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_product.h"
 
 seq_t a(idx_t n) {

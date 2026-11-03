@@ -13,12 +13,14 @@
  *            a(4)=8667, a(5)=31942, a(6)=111916, a(7)=376415, a(8)=122814...
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[17] = {
     0ULL,                 /* index 0 unused */
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n)
     size_t needed = (size_t)n + 2;   /* at least n+1 indices + dummy 0 */
     if (cache_capacity < needed) {
         size_t new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_capacity = new_cap;

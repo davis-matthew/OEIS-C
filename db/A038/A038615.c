@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, base
  * Formula:   not stated
- * Range:     u8 n <= 36, u16 n <= 3632, u32 n <= 9679, u64 n <= 9679,
- *            u128 n <= 9679, big any n
- * Helpers:   digit7_in, is_prime
+ * Range:     u8 n <= 36, u16 n <= 3632, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 72 terms through n = 9679 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,17 @@
    efficient. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"          /* provides bool is_prime(idx_t) */
-#include "../utils/digit7_in.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+static inline bool digit7_in(uint64_t v)
+{
+    while (v > 0) {
+        if ((v % 10) == 7) return true;
+        v /= 10;
+    }
+    return false;
+}
 
 static seq_t  *prime_cache      = NULL; /* array of found primes   */
 static size_t prime_cache_len   = 0;    /* number of primes stored*/
@@ -32,7 +42,7 @@ seq_t a(idx_t n)
     /* Initialize on first call. */
     if (!cache_initialized) {
         prime_cache_cap = 16;
-        prime_cache = (seq_t*)malloc(prime_cache_cap * sizeof(seq_t));
+        prime_cache = mem_new(seq_t, prime_cache_cap);
         prime_cache_len = 0;
         next_candidate = 2;
         cache_initialized = true;
@@ -48,8 +58,7 @@ seq_t a(idx_t n)
                     /* Store the prime. */
                     if (prime_cache_len == prime_cache_cap) {
                         prime_cache_cap <<= 1;
-                        prime_cache = (seq_t*)realloc(prime_cache,
-                                                      prime_cache_cap * sizeof(seq_t));
+                        prime_cache = mem_resize(seq_t, prime_cache, prime_cache_cap);
                     }
                     prime_cache[prime_cache_len++] = (seq_t)cand;
                     /* Next search should begin two numbers higher

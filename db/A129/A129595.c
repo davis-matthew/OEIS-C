@@ -9,8 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 283, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   add_partitions, anticlique_coords, big_pow, exps_to_partition,
- *            seq_mul, seq_one
+ * Validated: standard, pass, 88 terms through n = 1214 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,12 +22,79 @@
 #include <stdint.h>
 #include <math.h>
 
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_one.h"
-#include "../utils/add_partitions.h"
-#include "../utils/anticlique_coords.h"
-#include "../utils/exps_to_partition.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+/* ----------------------------------------------------------------------
+ * Add two partitions element‑wise, starting from the largest parts.
+ * ---------------------------------------------------------------------- */
+static void add_partitions(const int A[], int La,
+                           const int B[], int Lb,
+                           int res[], int *reslen)
+{
+    int maxlen = La > Lb ? La : Lb;
+    if (maxlen == 0) { *reslen = 0; return; }
+
+    int temp[maxlen];
+    for (int k = 0; k < maxlen; ++k) {
+        int a = (La - 1 - k >= 0) ? A[La - 1 - k] : 0;
+        int b = (Lb - 1 - k >= 0) ? B[Lb - 1 - k] : 0;
+        temp[k] = a + b;                /* from largest to smallest */
+    }
+    /* reverse to ascending order */
+    for (int k = 0; k < maxlen; ++k)
+        res[k] = temp[maxlen - 1 - k];
+    *reslen = maxlen;
+}
+
+/* ----------------------------------------------------------------------
+ * Map the n-th term (1‑based) to the pair (i,j) on the anti‑diagonal.
+ * ---------------------------------------------------------------------- */
+static void anticlique_coords(idx_t n, idx_t *i, idx_t *j)
+{
+    /* Solve t such that t(t+1)/2 >= n.  Use double to get a rough estimate,
+       then adjust. */
+    double t0 = (sqrt(8.0 * (double)n + 1.0) - 1.0) / 2.0;
+    idx_t t = (idx_t)t0;
+    /* Correct any mis‑rounding */
+    while ((__uint128_t)t * (t + 1) / 2 < n) ++t;
+    while (t > 0 && (__uint128_t)(t - 1) * t / 2 >= n) --t;
+
+    idx_t prev = (__uint128_t)(t - 1) * t / 2;   /* T_{t-1} */
+    idx_t r     = n - prev;                      /* 1‑based offset on this diagonal */
+    *i = t - r + 1;                              /* i decreases from t to 1 */
+    *j = r;                                      /* j increases from 1 to t */
+}
+
+/* ----------------------------------------------------------------------
+ * Convert exponent tuple to the ascending integer partition as defined in
+ * the OEIS description.
+ * ---------------------------------------------------------------------- */
+static void exps_to_partition(const int exps[], int len,
+                              int parts[], int *partslen)
+{
+    if (len == 0) { *partslen = 0; return; }
+    if (len == 1) {
+        parts[0] = exps[0];
+        *partslen = 1;
+        return;
+    }
+    int L = len;
+    parts[0] = exps[0] + 1;
+    for (int i = 1; i < L - 1; ++i)
+        parts[i] = parts[i-1] + exps[i];
+    parts[L-1] = parts[L-2] + exps[L-1] - 1;
+    *partslen = L;
+}
 
 /* primes up to 199 – plenty for indices <= 10 000 (max i or j <= 141). */
 static const int PRIMES[46] = {
@@ -80,7 +147,7 @@ static seq_t partition_to_int(const int parts[], int len)
 
     seq_t res = seq_one();
     for (int i = 0; i < k; ++i) {
-        seq_t p = big_pow((seq_t)PRIMES[i], (seq_t)exps[i]);
+        seq_t p = ipow((seq_t)PRIMES[i], (seq_t)exps[i]);
         res = seq_mul(res, p);
     }
     return res;

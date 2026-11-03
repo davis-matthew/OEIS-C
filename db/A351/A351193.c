@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{p|n, p prime} p^5
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 88, u64 n <= 7150,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 56 terms through n = 9907 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

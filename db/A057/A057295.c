@@ -7,7 +7,8 @@
  * Formula:   a(n) = n-th integer m such that m | 10^m + 9^m + 1
  * Range:     u8 n <= 9, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   mod_pow, seq_realloc
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,20 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
-#include "../utils/seq_realloc.h"
+#include <string.h>
+#include "../utils/powmod.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n) {
     /* static cache of already found terms */
@@ -29,8 +42,8 @@ seq_t a(idx_t n) {
         idx_t m = last_checked;
         seq_t mod = (seq_t)m;
         /* compute 10^m mod m and 9^m mod m */
-        seq_t r10 = mod_pow((seq_t)10, (uint64_t)m, mod);
-        seq_t r9  = mod_pow((seq_t)9,  (uint64_t)m, mod);
+        seq_t r10 = powmod((seq_t)10, (uint64_t)m, mod);
+        seq_t r9  = powmod((seq_t)9,  (uint64_t)m, mod);
 
         /* (r10 + r9 + 1) % mod without overflow */
         seq_t sum = r10 + r9;

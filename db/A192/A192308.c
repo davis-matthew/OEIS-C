@@ -10,13 +10,15 @@
  *            computed terms and supports arbitrary calling order
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array of terms; index 0 is unused */
 static idx_t cache_len = 0;   /* highest index computed (>=5 after init) */
@@ -28,7 +30,7 @@ static void compute_up_to(idx_t up_to)
     size_t needed_size = (up_to >= 5 ? (size_t)up_to + 1 : 6);
 
     if (cache == NULL) {
-        cache = (seq_t *)malloc(needed_size * sizeof(seq_t));
+        cache = mem_new(seq_t, needed_size);
         if (cache == NULL) return;      /* allocation failed – caller will fail */
 
         /* Set initial terms – they are valid for all n ≥ 1 */
@@ -53,7 +55,7 @@ static void compute_up_to(idx_t up_to)
     else if (up_to > cache_len) {
         /* Grow the array to hold indices up to 'up_to' */
         size_t new_size = (size_t)up_to + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) return;                /* realloc failed – abort */
         cache = tmp;
 

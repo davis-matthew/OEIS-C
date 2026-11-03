@@ -11,7 +11,8 @@
  *            before update) * Q_n = sum_{k=1}^{n-1} co...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 335 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ensure the dynamic array has at least 'needed' elements */
 static void ensure_capacity(seq_t **arr, size_t *cap, size_t needed)
@@ -27,10 +29,10 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t new_cap = (*cap) ? (*cap) * 2 : 4;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();
         if (new_cap > *cap)
-            memset(tmp + *cap, 0, (new_cap - *cap) * sizeof(seq_t));
+            mem_set(tmp + *cap, 0, (new_cap - *cap) * sizeof(seq_t));
         *arr = tmp;
         *cap = new_cap;
     }
@@ -48,14 +50,14 @@ seq_t a(idx_t n)
     /* initialisation */
     if (a_seq == NULL) {
         a_cap = 4;
-        a_seq = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_seq = mem_new(seq_t, a_cap);
         if (!a_seq) abort();
-        memset(a_seq, 0, a_cap * sizeof(seq_t));
+        mem_set(a_seq, 0, a_cap * sizeof(seq_t));
 
         conv2_cap = 4;
-        conv2 = (seq_t *)malloc(conv2_cap * sizeof(seq_t));
+        conv2 = mem_new(seq_t, conv2_cap);
         if (!conv2) abort();
-        memset(conv2, 0, conv2_cap * sizeof(seq_t));
+        mem_set(conv2, 0, conv2_cap * sizeof(seq_t));
 
         a_seq[0] = (seq_t)1;
         conv2[0] = (seq_t)1;     /* a0 * a0 */

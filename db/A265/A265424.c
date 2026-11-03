@@ -7,6 +7,7 @@
  * Formula:   a(n) = ((-1)^n - 1)/2 + 25*floor(3*n/2) - 50*floor(n/4)
  * Range:     u8 n <= 9, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

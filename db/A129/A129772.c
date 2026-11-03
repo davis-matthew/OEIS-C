@@ -9,13 +9,15 @@
  *            a(2n) - 2 * a(n-1)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -28,14 +30,13 @@ grow_cache(idx_t n)
     idx_t new_size = cache_size ? cache_size * 2 : 1;
     if (new_size < n + 1)
         new_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp)
         exit(1);
     if (!cache) {
-        memset(tmp, 0, new_size * sizeof(seq_t));
+        mem_set(tmp, 0, new_size * sizeof(seq_t));
     } else if (new_size > cache_size) {
-        memset(tmp + cache_size, 0,
-               (new_size - cache_size) * sizeof(seq_t));
+        mem_set(tmp + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
     }
     cache = tmp;
     cache_size = new_size;

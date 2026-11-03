@@ -8,7 +8,8 @@
  * Formula:   a(n) = n * Sum_{i=1..floor((n-1)/2)} mu(i)^2 * mu(n-i)^2
  * Range:     u8 n <= 31, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     if (n > max_n) {
         idx_t new_cap = n + 1;
-        seq_t *new_sf = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        seq_t *new_sf = mem_new(seq_t, new_cap);
         if (!new_sf)
             return (seq_t)0;  /* allocation failure – unlikely here */
 
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
                 new_sf[j] = 0;
         }
 
-        free(sf);
+        mem_free(sf);
         sf = new_sf;
         max_n = n;
     }

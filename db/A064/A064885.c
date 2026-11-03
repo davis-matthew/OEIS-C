@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   einstein_value
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,22 @@
 
 /* Include required standard headers */
 #include <stdint.h>
-#include "../utils/einstein_value.h"
+
+/* Helper: recursively compute a(r,m) in seq_t */
+static seq_t einstein_value(idx_t r, idx_t m)
+{
+    /* Base row */
+    if (r == 1) {
+        return (m == 0) ? (seq_t)3 : (seq_t)2;
+    }
+
+    /* Even index */
+    if ((m & 1) == 0) {
+        return einstein_value(r - 1, m >> 1);
+    }
+    /* Odd index */
+    return einstein_value(r - 1, (m >> 1)) + einstein_value(r - 1, (m >> 1) + 1);
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

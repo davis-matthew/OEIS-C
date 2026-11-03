@@ -10,12 +10,15 @@
  *            n^75)/120
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 1, u128 n <= 3,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 21 terms through n = 29 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,13 +26,13 @@ seq_t a(idx_t n)
     seq_t sn = (seq_t)n;
 
     /* Compute the required powers */
-    seq_t n17 = big_pow(sn, (seq_t)17);
-    seq_t n19 = big_pow(sn, (seq_t)19);
-    seq_t n23 = big_pow(sn, (seq_t)23);
-    seq_t n27 = big_pow(sn, (seq_t)27);
-    seq_t n31 = big_pow(sn, (seq_t)31);
-    seq_t n61 = big_pow(sn, (seq_t)61);
-    seq_t n75 = big_pow(sn, (seq_t)75);
+    seq_t n17 = ipow(sn, (seq_t)17);
+    seq_t n19 = ipow(sn, (seq_t)19);
+    seq_t n23 = ipow(sn, (seq_t)23);
+    seq_t n27 = ipow(sn, (seq_t)27);
+    seq_t n31 = ipow(sn, (seq_t)31);
+    seq_t n61 = ipow(sn, (seq_t)61);
+    seq_t n75 = ipow(sn, (seq_t)75);
 
     /* Assemble the numerator */
     seq_t num = (seq_t)24 * n17

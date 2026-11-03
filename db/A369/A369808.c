@@ -9,12 +9,14 @@
  *            all t needed, where t = 7*n-5
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 30, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *comp = NULL;   /* computed values for t = 0 .. max_t */
 static idx_t comp_size = 0;  /* current number of stored entries */
@@ -27,7 +29,7 @@ static void ensure_comp(idx_t t)
         return;
 
     idx_t new_size = t + 1;
-    seq_t *new_comp = (seq_t*)realloc(comp, new_size * sizeof(seq_t));
+    seq_t *new_comp = mem_resize(seq_t, comp, new_size);
     if (!new_comp)
         exit(EXIT_FAILURE);
     comp = new_comp;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
 
     /* Initialise the table once. */
     if (!comp) {
-        comp = (seq_t*)malloc(sizeof(seq_t));
+        comp = mem_new(seq_t, 1);
         if (!comp)
             exit(EXIT_FAILURE);
         comp[0] = (seq_t)1;

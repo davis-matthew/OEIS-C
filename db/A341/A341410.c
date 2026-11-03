@@ -7,13 +7,17 @@
  * Formula:   a(n) = (1^n + 2^n + 3^n + 4^n) mod n
  * Range:     u8 n <= 277, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 90 terms through n = 8509 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -21,10 +25,10 @@ seq_t a(idx_t n)
     seq_t mod = (seq_t)n;
     seq_t sum = 0;
 
-    sum = (sum + mod_pow((seq_t)1, n, mod)) % mod;
-    sum = (sum + mod_pow((seq_t)2, n, mod)) % mod;
-    sum = (sum + mod_pow((seq_t)3, n, mod)) % mod;
-    sum = (sum + mod_pow((seq_t)4, n, mod)) % mod;
+    sum = (sum + powmod((seq_t)1, n, mod)) % mod;
+    sum = (sum + powmod((seq_t)2, n, mod)) % mod;
+    sum = (sum + powmod((seq_t)3, n, mod)) % mod;
+    sum = (sum + powmod((seq_t)4, n, mod)) % mod;
 
     return sum;
 }

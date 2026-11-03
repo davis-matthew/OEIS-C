@@ -6,8 +6,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = parity of sum_{d|n} d * sigma(d) * = 1 iff every odd
  *            prime exponent in n is 0 or 1 mod 4, * otherwise 0
- * Range:     u8 n <= 9551, u16 n <= 9551, u32 n <= 9551, u64 n <= 9551,
- *            u128 n <= 9551, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 137 terms through n = 9551 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,7 +11,8 @@
  *            increases from 0 to s)
  * Range:     u8 n <= 22, u16 n <= 37, u32 n <= 56, u64 n <= 92, u128 n <= 138,
  *            big any n
- * Helpers:   q_factorial
+ * Validated: standard, pass, 71 terms through n = 1391 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,30 @@
 /*  Includes common headers.  */
 #include <stdint.h>
 #include <math.h>
-#include "../utils/q_factorial.h"
+
+/*  Return the q‑factorial number T(row,col).  */
+static seq_t q_factorial(idx_t row, idx_t col)
+{
+    if (row == 0 || col == 0)          /* T(0,q) = T(n,0) = 1 */
+        return (seq_t)1;
+
+    if (col == 1) {                    /* T(n,1) = n!  (ordinary factorial) */
+        seq_t res = 1;
+        for (idx_t i = 2; i <= row; ++i)
+            res *= (seq_t)i;
+        return res;
+    }
+
+    /* General case: product of A_k with A_k = (q^k−1)/(q−1) and
+       recurrence A_k = A_{k−1}*q + 1  (A_1 = 1).  */
+    seq_t res   = 1;
+    seq_t factor = 1;   /* = A_1 */
+    for (idx_t k = 1; k <= row; ++k) {
+        res *= factor;
+        factor = factor * (seq_t)col + (seq_t)1;
+    }
+    return res;
+}
 
 /*  Main sequence function.  */
 seq_t a(idx_t n)

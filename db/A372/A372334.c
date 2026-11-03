@@ -7,14 +7,17 @@
  * Formula:   a(n) = Sum_{k=1..n} (3*k)^(k-1) * binomial(n, k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 13, u128 n <= 22,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 34 terms through n = 321 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* Compute A372334: the expansion of e.g.f. -exp(x) * LambertW(-3*x)/3. */
 seq_t a(idx_t n)
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     seq_t total = 0;
     for (idx_t k = 1; k <= n; ++k) {
         /* (3*k)^(k-1) */
-        seq_t pow_term = big_pow((seq_t)(3 * k), k - 1);
+        seq_t pow_term = ipow((seq_t)(3 * k), k - 1);
         /* binomial coefficient C(n, k) */
         seq_t bin_coef = binomial(n, k);
         /* add the term to the running sum */

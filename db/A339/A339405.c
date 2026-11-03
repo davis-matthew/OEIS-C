@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Number of partitions of n into an odd number of parts that are not multiples of 3. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,8 +27,8 @@ seq_t a(idx_t n)
 
     /* Initialize the arrays once. */
     if (even == NULL) {
-        even = (seq_t *)calloc(1, sizeof(seq_t));
-        odd  = (seq_t *)calloc(1, sizeof(seq_t));
+        even = mem_new(seq_t, 1);
+        odd  = mem_new(seq_t, 1);
         if (!even || !odd) abort();            /* allocation failed */
         even[0] = 1;                            /* empty partition: 0 parts (even) */
         max_n   = 0;
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
     /* Recompute up to n if we haven't reached it yet. */
     if (n > max_n) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp_even = (seq_t *)realloc(even, new_size * sizeof(seq_t));
-        seq_t *tmp_odd  = (seq_t *)realloc(odd,  new_size * sizeof(seq_t));
+        seq_t *tmp_even = mem_resize(seq_t, even, new_size);
+        seq_t *tmp_odd  = mem_resize(seq_t, odd, new_size);
         if (!tmp_even || !tmp_odd) abort();     /* allocation failed */
         even = tmp_even;
         odd  = tmp_odd;

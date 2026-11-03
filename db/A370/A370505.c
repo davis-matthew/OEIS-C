@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 52, u32 n <= 115, u64 n <= 251,
  *            u128 n <= 661, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 9571 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,8 @@
  * `seq_t binom(idx_t a, idx_t b)` routine.
  */
 
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static /* compute A248686(n,k) for k≥1 */
 seq_t multinomial(idx_t n, idx_t k)
@@ -45,7 +47,7 @@ seq_t multinomial(idx_t n, idx_t k)
         idx_t len = (j <= m) ? q + 1 : q;
         pref += len;
         if (j > 1) {
-            result *= binom(pref, len);
+            result *= binomial(pref, len);
         }
     }
     return result;

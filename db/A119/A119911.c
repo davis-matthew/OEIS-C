@@ -9,7 +9,8 @@
  *            Sequence A119911
  * Range:     u8 n <= 112, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_alloc_array, seq_free_array
+ * Validated: standard, pass, 75 terms through n = 9327 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,16 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
+#include <math.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* ---------- Helpers ---------- */
 
@@ -94,7 +103,7 @@ static void push_value(seq_t value)
         size_t new_cap = (seq_cap == 0) ? 32 : seq_cap * 2;
         seq_t *new_arr = (seq_t *)seq_alloc_array(new_cap);
         if (seq_cache) {
-            memcpy(new_arr, seq_cache, seq_len * sizeof(seq_t));
+            mem_copy(new_arr, seq_cache, seq_len * sizeof(seq_t));
             seq_free_array(seq_cache);
         }
         seq_cache = new_arr;

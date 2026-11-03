@@ -10,7 +10,8 @@
  *            memoises results
  * Range:     u8 none, u16 n <= 4, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array of found terms            */
 static size_t len   = 0;        /* number of terms stored          */
@@ -33,14 +36,14 @@ static void ensure_cache_cap(size_t needed)
     size_t newcap = cap ? cap * 2 : 16;
     while (newcap < needed)
         newcap *= 2;
-    seq_t *newmem = (seq_t *)malloc(newcap * sizeof(seq_t));
+    seq_t *newmem = mem_new(seq_t, newcap);
     if (!newmem) {
         /* Out of memory – abort program. */
         abort();
     }
     if (cache) {
-        memcpy(newmem, cache, len * sizeof(seq_t));
-        free(cache);
+        mem_copy(newmem, cache, len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = newmem;
     cap   = newcap;

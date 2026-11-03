@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl, easy
  * Formula:   not stated
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 50, u64 n <= 50, u128 n <= 50,
+ * Range:     u8 n <= 12, u16 n <= 41, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   binom_i
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,14 +22,14 @@
  */
 
 #include <stdint.h>   /* for uint64_t if needed; seq_t/idx_t are predeclared */
-#include "../utils/binom_i.h"
+#include "../utils/binomial.h"
 
 /* Triangle entry T(k,j).  */
 static inline seq_t
 triangle_term(idx_t k, idx_t j)
 {
-    seq_t bin1 = binom_i((idx_t)(2 * j), j);
-    seq_t bin2 = binom_i((idx_t)(2 * k - 2 * j), k - j);
+    seq_t bin1 = binomial((idx_t)(2 * j), j);
+    seq_t bin2 = binomial((idx_t)(2 * k - 2 * j), k - j);
     seq_t num   = bin1 * bin2;
     num = num * (seq_t)(2 * j + 1);
     return num / (seq_t)(k + 1);

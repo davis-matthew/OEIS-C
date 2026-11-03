@@ -10,7 +10,8 @@
  *            ignored)
  * Range:     u8 n <= 33, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* external integer types provided by the build system */
 extern seq_t a(idx_t n);
@@ -100,10 +102,10 @@ static idx_t  stride = 0;          /* stride = cache_n + 1 */
 static void recompute(idx_t N)
 {
     if (N <= cache_n) return;
-    free(dpbuf);
+    mem_free(dpbuf);
     stride = N + 1;
     size_t total = (size_t)stride * 7;            /* parts 0..6 */
-    dpbuf = (seq_t *)calloc(total, sizeof(seq_t));
+    dpbuf = mem_new(seq_t, total);
     if (!dpbuf) exit(1);                       /* fatal */
     dpbuf[0] = 1;                               /* 0 sum with 0 parts */
 

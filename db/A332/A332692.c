@@ -8,6 +8,7 @@
  *            Σ_{k=0}^n binom(n,k) * (-x)^k / k! )
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 9, i64 n <= 15, i128 n <= 26,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 298 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

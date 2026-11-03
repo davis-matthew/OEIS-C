@@ -7,15 +7,27 @@
  * Formula:   a(n) = Sum_{k=0..n} (2*n-k)!/(2*n-2*k+1)! * Stirling1(n,k)
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 10, i64 n <= 17, i128 n <= 19,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Global storage for sequence values and Stirling numbers */
 static seq_t *a_cache = NULL;          /* a_cache[i] = a(i) */

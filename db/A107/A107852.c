@@ -7,14 +7,16 @@
  * Formula:   a(n) = a(n-2) + 2*a(n-3) - a(n-4) + a(n-6) + 2*a(n-7) for n > 6
  *            Initial values: a(0)=0, a(1)=1, a(2)=2, a(3)=3, a(4)=6, a(5)=7,
  *            a(6)=10
- * Range:     u8 n <= 13, u16 n <= 26, u32 n <= 39, u64 n <= 39, u128 n <= 39,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 13, u16 n <= 26, u32 n <= 53, u64 n <= 106,
+ *            u128 n <= 211, big any n
+ * Validated: standard, pass, 56 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* allocate and initialise on first call */
     if (dp == NULL) {
         dp_size = 7;
-        dp = (seq_t*)malloc(dp_size * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_size);
         for (size_t i = 0; i < 7; ++i) dp[i] = init[i];
         computed = 6;                /* values up to index 6 are known */
     }
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* enlarge array to hold up to index n */
     size_t new_size = (size_t)n + 1;
     if (new_size > dp_size) {
-        dp = (seq_t*)realloc(dp, new_size * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, new_size);
         dp_size = new_size;
     }
 

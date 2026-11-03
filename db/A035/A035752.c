@@ -7,12 +7,14 @@
  * Formula:   a(n) = [x^(2n)] ((1+x)/(1-x))^15
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 6, u64 n <= 34, u128 n <= 813,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 36 terms through n = 9542 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -27,13 +29,13 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= kmax; ++k)
     {
         /* binom(15, k) */
-        seq_t c1 = binom(15, k);
+        seq_t c1 = binomial(15, k);
 
         /* remaining exponent */
         idx_t rem = twice - k;
 
         /* binom(14 + rem, rem) */
-        seq_t c2 = binom(14 + rem, rem);
+        seq_t c2 = binomial(14 + rem, rem);
 
         result += c1 * c2;
     }

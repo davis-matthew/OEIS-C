@@ -12,7 +12,8 @@
  *            62. (Computed by brute‑force search.)
  * Range:     u8 none, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static int is_target(seq_t k)
 {
@@ -62,10 +82,10 @@ seq_t a(idx_t n)
         if (sz >= cap) {
             size_t newcap = cap ? cap * 2 : 64;
             while (newcap <= sz + 1) newcap <<= 1;
-            seq_t *tmp = (seq_t *)malloc(newcap * sizeof(seq_t));
+            seq_t *tmp = mem_new(seq_t, newcap);
             if (cache) {
-                memcpy(tmp, cache, sz * sizeof(seq_t));
-                free(cache);
+                mem_copy(tmp, cache, sz * sizeof(seq_t));
+                mem_free(cache);
             }
             cache = tmp;
             cap = newcap;

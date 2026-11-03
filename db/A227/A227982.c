@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 741, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 1959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ----------  Cumulative divisor‑sum sieve  ---------- */
 
@@ -31,7 +33,7 @@ static void extend_sigma(idx_t required)
     idx_t new_limit = sigma_limit > 0 ? sigma_limit * 2 : 1;
     while (new_limit < required) new_limit *= 2;
 
-    seq_t *new_arr = (seq_t *)malloc(sizeof(seq_t) * (new_limit + 1));
+    seq_t *new_arr = mem_new(seq_t, (new_limit + 1));
     if (!new_arr) exit(1);
 
     new_arr[0] = (seq_t)0;
@@ -44,7 +46,7 @@ static void extend_sigma(idx_t required)
         }
     }
 
-    free(sigma_cache);
+    mem_free(sigma_cache);
     sigma_cache = new_arr;
     sigma_limit = new_limit;
 }
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         if (sn > sp + sc) {                    /* inequality holds */
             if (seq_count == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
                 if (!tmp) exit(1);
                 seq_arr = tmp;
                 seq_cap = new_cap;

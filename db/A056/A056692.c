@@ -5,16 +5,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = #{ k | k divides n and gcd(k-1, n) = 1 }
- * Range:     u8 n <= 691, u16 n <= 9643, u32 n <= 9643, u64 n <= 9643,
- *            u128 n <= 9643, big any n
+ * Range:     u8 n <= 691, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9643 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/gcd.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 /* Recursively generate all divisors of n.
  * pos    : index of the current prime factor

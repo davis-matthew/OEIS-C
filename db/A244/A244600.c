@@ -8,7 +8,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k>0, k mod 7 ≠ 0} (1 - x^k)
  * Range:     i8 n <= 90, i16 n <= 272, i32 n <= 888, i64 n <= 3079,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9389 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    seq_t capable of holding the values. */
 
 #include <stdlib.h>   /* calloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* allocate array of coefficients [0..n] */
     size_t len = (size_t)(n + 1);
-    seq_t *coef = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *coef = mem_new(seq_t, len);
     if (!coef) return (seq_t)0;           /* memory allocation failure */
 
     coef[0] = (seq_t)1;                   /* empty product gives 1 */
@@ -49,6 +51,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coef[n];
-    free(coef);
+    mem_free(coef);
     return result;
 }

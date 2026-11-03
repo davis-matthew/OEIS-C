@@ -8,13 +8,14 @@
  *            prod_{i=1..n-10} (2n+10+i)/i
  * Range:     u8 n <= 11, u16 n <= 13, u32 n <= 18, u64 n <= 29, u128 n <= 52,
  *            big any n
- * Helpers:   a004328_gcd
+ * Validated: standard, pass, 37 terms through n = 919 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a004328_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     idx_t k = n - 10;
@@ -24,7 +25,7 @@ seq_t a(idx_t n) {
     for (i = 1; i <= k; i++) {
         seq_t num = (seq_t)(base + i);
         seq_t den = (seq_t)i;
-        seq_t g = a004328_gcd(r, den);
+        seq_t g = gcd(r, den);
         r /= g;
         den /= g;
         num /= den;

@@ -9,7 +9,8 @@
  *            {m+1,…,2m–2} summing to n–3m+1
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* DP array of size n+1 (maximum possible T). */
     size_t dp_len = (size_t)n + 1;
-    seq_t *dp = (seq_t *)calloc(dp_len, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_len);
     if (!dp) return 0;  /* unlikely, but safe */
 
     seq_t result = 0;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         idx_t T = n - base;           /* required sum of interior parts */
 
         /* reset dp[0..T] */
-        memset(dp, 0, (size_t)(T + 1) * sizeof(seq_t));
+        mem_set(dp, 0, (size_t)(T + 1) * sizeof(seq_t));
         dp[0] = 1;
 
         if (m >= 3)                    /* interior numbers exist */
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
         result += dp[T];
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

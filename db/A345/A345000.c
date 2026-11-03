@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, easy, look
  * Formula:   a(n) = gcd(A003415(n), A003415(A276086(n)))
- * Range:     u8 n <= 386, u16 n <= 6876, u32 n <= 6876, u64 n <= 6876,
- *            u128 n <= 6876, big any n
- * Helpers:   deriv_uint, gcd, powmod_seq
+ * Range:     u8 n <= 386, u16 n <= 54687, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 122 terms through n = 6876 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,38 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/deriv_uint.h"
-#include "../utils/powmod_seq.h"
+
+/* ----------------------------------------------------------------
+ * Arithmetic derivative for a 64‑bit unsigned integer.
+ * ---------------------------------------------------------------*/
+static seq_t deriv_uint(uint64_t n)
+{
+    if (n <= 1) return 0;
+    seq_t res = 0;
+    uint64_t tmp = n;
+    for (uint64_t p = 2; p * p <= tmp; ++p) {
+        if (tmp % p == 0) {
+            uint64_t e = 0;
+            while (tmp % p == 0) { ++e; tmp /= p; }
+            res += (seq_t)e * ((seq_t)n / (seq_t)p);
+        }
+    }
+    if (tmp > 1) res += (seq_t)(n / tmp);   /* remaining prime factor */
+    return res;
+}
+
+/* Modular exponentiation: base^exp mod mod */
+static seq_t powmod_seq(seq_t base, idx_t exp, seq_t mod)
+{
+    if (mod == 0) return 0;              /* should never happen for our data   */
+    seq_t res = 1 % mod;
+    while (exp) {
+        if (exp & 1) res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return res;
+}
 
 /* ----------------------------------------------------------------
  * Prime handling for primorial base representation.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 4480, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 75 terms through n = 8716 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     if (!terms) {
         capacity = 64;
-        terms = (seq_t *)malloc(capacity * sizeof(seq_t));
+        terms = mem_new(seq_t, capacity);
     }
 
     /* ----------------------------------------------------------------
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         /* ---- store the term ---------------------------------------- */
         if (size == capacity) {
             capacity <<= 1;
-            terms = (seq_t *)realloc(terms, capacity * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, capacity);
         }
         terms[size++] = (seq_t)cand;
     }

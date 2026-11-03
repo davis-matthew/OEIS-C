@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 8718, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_uint32
+ * Validated: standard, pass, 82 terms through n = 9902 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_uint32.h"
+#include "../utils/mem.h"
+
+/* number of divisors of a small unsigned integer (≤ 64) */
+static unsigned divisor_count_uint32(unsigned n)
+{
+    unsigned cnt = 1;
+    for (unsigned p = 2; p * p <= n; ++p) {
+        if (n % p == 0) {
+            unsigned exp = 0;
+            while (n % p == 0) {
+                n /= p;
+                exp++;
+            }
+            cnt *= (exp + 1);
+        }
+    }
+    if (n > 1) cnt *= 2;
+    return cnt;
+}
 
 /* fast exponentiation for seq_t; exponent fits in idx_t (usually tiny) */
 static seq_t pow_seq_uint64(seq_t base, idx_t exp)
@@ -121,7 +140,7 @@ static void grow_terms(size_t min_cap)
     if (terms_cap >= min_cap) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 4;
     while (new_cap < min_cap) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp && new_cap > 0) exit(1);
     terms = tmp;
     terms_cap = new_cap;

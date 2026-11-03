@@ -7,15 +7,16 @@
  * Formula:   a(n) = Sum_{d|n} phi(d)^(n+d+1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow, phi
+ * Validated: standard, pass, 31 terms through n = 217 (2026-11-01)
+ * Helpers:   ipow, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/phi.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -31,17 +32,17 @@ seq_t a(idx_t n)
         {
             /* divisor i */
             idx_t d1 = i;
-            seq_t phi_d1 = phi(d1);
+            seq_t phi_d1 = totient(d1);
             seq_t exp1   = (seq_t)n + (seq_t)d1 + (seq_t)1;
-            sum += big_pow(phi_d1, exp1);
+            sum += ipow(phi_d1, exp1);
 
             /* complementary divisor n/i, if distinct */
             idx_t d2 = n / i;
             if (d2 != d1)
             {
-                seq_t phi_d2 = phi(d2);
+                seq_t phi_d2 = totient(d2);
                 seq_t exp2   = (seq_t)n + (seq_t)d2 + (seq_t)1;
-                sum += big_pow(phi_d2, exp2);
+                sum += ipow(phi_d2, exp2);
             }
         }
     }

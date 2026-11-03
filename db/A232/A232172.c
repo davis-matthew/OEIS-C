@@ -7,13 +7,15 @@
  * Formula:   a(n) = Σ_{i=1..n} i'' (second arithmetic derivative summed)
  * Range:     u8 n <= 23, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,10 +30,10 @@ seq_t a(idx_t n)
 
     /* Allocate smallest‑prime‑factor array and derivative array. */
     idx_t *spf = (idx_t *)malloc((limit + 1) * sizeof(idx_t));
-    seq_t *D   = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *D   = mem_new(seq_t, (limit + 1));
     if (!spf || !D) {
         free(spf);
-        free(D);
+        mem_free(D);
         return (seq_t)0;   /* out of memory – return 0, caller can decide */
     }
 
@@ -65,6 +67,6 @@ seq_t a(idx_t n)
     }
 
     free(spf);
-    free(D);
+    mem_free(D);
     return sum;
 }

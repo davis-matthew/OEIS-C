@@ -8,6 +8,7 @@
  * Formula:   a(n) = (n-3)*n^4*(n+3)*(n^2-3)^6
  * Range:     i8 n <= 0, i16 n <= 3, i32 n <= 3, i64 n <= 11, i128 n <= 133,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 9407 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

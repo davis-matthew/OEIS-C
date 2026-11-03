@@ -9,14 +9,17 @@
  *            antidiagonals
  * Range:     u8 n <= 10, u16 n <= 23, u32 n <= 57, u64 n <= 124,
  *            u128 n <= 239, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 71 terms through n = 1250 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* row = position in diagonal + 1, col = diagonal index - position */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;              /* offset is 1, so n=0 is unused */
@@ -40,7 +43,7 @@ seq_t a(idx_t n) {
     /* Compute ((2^(row+1)+1)^(col-1)+1)/2 */
     seq_t power_of_two = ((seq_t)1 << (row + 1));   /* 2^(row+1) */
     seq_t base = power_of_two + (seq_t)1;           /* 2^(row+1)+1 */
-    seq_t power = big_pow(base, (seq_t)(col - 1));
+    seq_t power = ipow(base, (seq_t)(col - 1));
     seq_t result = (power + (seq_t)1) / (seq_t)2;
 
     return result;

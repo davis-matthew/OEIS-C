@@ -11,6 +11,7 @@
  *            a[n] is the sum of parts over all such compositions...
  * Range:     u8 n <= 19, u16 n <= 42, u32 n <= 92, u64 n <= 194,
  *            u128 n <= 401, big any n
+ * Validated: standard, pass, 71 terms through n = 9518 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

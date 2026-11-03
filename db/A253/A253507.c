@@ -13,13 +13,15 @@
  *            a(13)=79936
  * Range:     u8 none, u16 n <= 12, u32 n <= 210, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Base values stored as unsigned long long to avoid problems with
    arbitrary‑precision seq_t types in C. */
@@ -37,7 +39,7 @@ static void ensure_capacity(idx_t n)
 {
     if ((size_t)n <= cache_cap) return;
     size_t new_cap = (size_t)n;
-    seq_t *p = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, (new_cap + 1));
     if (!p) abort();               /* allocation failed */
     cache = p;
     cache_cap = new_cap;

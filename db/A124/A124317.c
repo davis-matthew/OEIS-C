@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 4023, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 4949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>   /* malloc, free */
 #include <stdbool.h>  /* bool type */
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static bool initialized = false;
@@ -67,7 +69,7 @@ static void precompute(void)
         omega[i] = (unsigned char)(1 + omega[i / spf[i]]);
 
     /* ----- step 3: list 3‑almost primes ----- */
-    three_almost = (seq_t*)malloc(MAX_3ALMOST * sizeof(seq_t));
+    three_almost = mem_new(seq_t, MAX_3ALMOST);
     if (!three_almost) { free(omega); free(primes); free(spf); return; }
     three_len = 0;
     for (idx_t i = 2; i <= LIMIT && three_len < MAX_3ALMOST; ++i)
@@ -75,7 +77,7 @@ static void precompute(void)
             three_almost[three_len++] = (seq_t)i;
 
     /* ----- step 4: list semiprimes ----- */
-    semiprimes = (seq_t*)malloc(MAX_SEMI * sizeof(seq_t));
+    semiprimes = mem_new(seq_t, MAX_SEMI);
     if (!semiprimes) { free(omega); free(primes); free(spf); return; }
     semi_len = 0;
     for (idx_t i = 2; i <= LIMIT && semi_len < MAX_SEMI; ++i)

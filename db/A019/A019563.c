@@ -8,6 +8,7 @@
  *            1001, 3003, 3003, 1001, 91, 1}
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 26, u64 n <= 1083,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 38 terms through n = 8877 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

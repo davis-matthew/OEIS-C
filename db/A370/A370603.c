@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{d|n} 1/((d-1)! * (n/d)!^(d-1))
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
    simple factorial cache.  Works for any size of seq_t. */
 #include <stdlib.h>                /* malloc, realloc, free */
 #include <stdbool.h>               /* bool type */
-#include "../utils/pow_seq.h"      /* pow_seq(base, exp) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     /* Grow cache if needed */
     if (n > fact_max) {
         /* Allocate or reallocate */
-        seq_t *new_fact = (seq_t *)realloc(fact, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_fact = mem_resize(seq_t, fact, (size_t)(n + 1));
         if (!new_fact) {
             /* On allocation failure return 0 (undefined sequence value) */
             return (seq_t)0;
@@ -57,7 +60,7 @@ seq_t a(idx_t n)
         idx_t d = i;
         idx_t q = n / d;
         seq_t denom = fact[d - 1];
-        denom = denom * pow_seq(fact[q], (int)(d - 1));
+        denom = denom * ipow_i32(fact[q], (int)(d - 1));
         sum += fact_n / denom;
 
         /* second divisor d = n/i, skip if equal to first */
@@ -66,7 +69,7 @@ seq_t a(idx_t n)
             continue;
         idx_t q2 = n / d2;
         seq_t denom2 = fact[d2 - 1];
-        denom2 = denom2 * pow_seq(fact[q2], (int)(d2 - 1));
+        denom2 = denom2 * ipow_i32(fact[q2], (int)(d2 - 1));
         sum += fact_n / denom2;
     }
 

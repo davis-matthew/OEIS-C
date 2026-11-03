@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*(7*n^2 - 1)/6
  * Range:     u8 n <= 3, u16 n <= 21, u32 n <= 1059, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 55 terms through n = 4798 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

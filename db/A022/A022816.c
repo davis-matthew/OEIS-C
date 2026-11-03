@@ -8,13 +8,14 @@
  * Formula:   a(n) = n*(n+1)*(n^3+24*n^2+81*n-46)/120
  * Range:     u8 n <= 2, u16 n <= 19, u32 n <= 215, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 50 terms through n = 9807 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd.h"   /* provides seq_t gcd(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

@@ -7,14 +7,17 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree
+ * Validated: standard, pass, 73 terms through n = 9532 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Search for odd k such that k, k+2, k+4, k+6 are squarefree. */
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of discovered terms */
@@ -37,7 +40,7 @@ seq_t a(idx_t n) {
                 /* store the found term */
                 if (cache_len == cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) abort(); /* allocation failed */
                     cache = tmp;
                     cache_cap = new_cap;

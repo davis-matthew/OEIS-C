@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   intersection_diameter_polygon, intersection_polygon_polygon
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,59 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/intersection_diameter_polygon.h"
-#include "../utils/intersection_polygon_polygon.h"
+
+static seq_t intersection_diameter_polygon(idx_t n, idx_t d_other)
+{
+    /* n is even because the other divisor 2 must divide n */
+    idx_t s = n / d_other;
+    idx_t n_half = n / 2;
+    seq_t cnt = 0;
+
+    for (idx_t k = 0; k < d_other; ++k) {
+        idx_t c = k * s;
+        idx_t d = c + s;
+        if (d >= n) d -= n;
+
+        if (c == 0 || c == n_half || d == 0 || d == n_half)
+            continue;
+
+        bool left_c = (c > 0 && c < n_half);
+        bool left_d = (d > 0 && d < n_half);
+        if (left_c ^ left_d)
+            ++cnt;
+    }
+    return cnt;
+}
+
+static seq_t intersection_polygon_polygon(idx_t n, idx_t d1, idx_t d2)
+{
+    idx_t s1 = n / d1;
+    idx_t s2 = n / d2;
+    seq_t cnt = 0;
+
+    for (idx_t k = 0; k < d1; ++k) {
+        idx_t a = k * s1;
+        idx_t b = a + s1;
+        if (b >= n) b -= n;
+
+        for (idx_t m = 0; m < d2; ++m) {
+            idx_t c = m * s2;
+            idx_t d = c + s2;
+            if (d >= n) d -= n;
+
+            if (a == c || a == d || b == c || b == d)
+                continue;
+
+            idx_t rel_c = (c >= a) ? (c - a) : (n - (a - c));
+            idx_t rel_d = (d >= a) ? (d - a) : (n - (a - d));
+            bool in_c = rel_c > 0 && rel_c < s1;
+            bool in_d = rel_d > 0 && rel_d < s1;
+            if (in_c ^ in_d)
+                ++cnt;
+        }
+    }
+    return cnt;
+}
 
 static int cmp_uint64(const void *p1, const void *p2)
 {

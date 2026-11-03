@@ -9,7 +9,8 @@
  * Formula:   a(n) = 2^( 4*n – popcount(n) ) (n ≥ 0)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 479 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static inline uint64_t popcount_uint64(uint64_t x) {
     /* Built‑in/popcount loop fallback (compiler may provide __builtin_popcountll) */
@@ -45,5 +46,5 @@ seq_t a(idx_t n)
 
     /* For seq_t that cannot hold the result directly, or exponent too large,
        compute 2^e via the big integer routine. */
-    return big_pow((seq_t)2, (seq_t)e);
+    return ipow((seq_t)2, (seq_t)e);
 }

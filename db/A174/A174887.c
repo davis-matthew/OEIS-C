@@ -7,6 +7,7 @@
  * Formula:   numbers m such that sum of cubes of digits > m
  * Range:     u8 n <= 182, u16 n <= 565, u32 n <= 565, u64 n <= 565,
  *            u128 n <= 565, big any n
+ * Validated: full, pass, 565 terms through n = 565 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

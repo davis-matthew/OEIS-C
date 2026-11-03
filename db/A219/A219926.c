@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 466 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define HEIGHT   7
 #define MAX_KEY  823543   /* 7^7 */
@@ -161,8 +163,8 @@ static void build_graph(void) {
 seq_t a(idx_t n) {
     if (!built) build_graph();
 
-    seq_t *dp  = (seq_t *)calloc(state_cnt, sizeof(seq_t));
-    seq_t *ndp = (seq_t *)calloc(state_cnt, sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, state_cnt);
+    seq_t *ndp = mem_new(seq_t, state_cnt);
     dp[zero_state_index] = 1;
 
     for (idx_t col = 0; col < n; ++col) {
@@ -184,7 +186,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t answer = dp[zero_state_index];
-    free(dp);
-    free(ndp);
+    mem_free(dp);
+    mem_free(ndp);
     return answer;
 }

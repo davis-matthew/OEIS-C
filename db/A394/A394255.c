@@ -9,14 +9,15 @@
  *            (those whose prime exponents are powers of 2)
  * Range:     u8 n <= 137, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 84 terms through n = 9230 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
         seq_t term = 1;
         for (idx_t bit = 0; (e >> bit) > 0; ++bit) {
             if (e & (1ULL << bit)) {
-                seq_t pp = big_pow((seq_t)2, (seq_t)(1ULL << bit));
+                seq_t pp = ipow((seq_t)2, (seq_t)(1ULL << bit));
                 term += pp;
             }
         }
@@ -52,7 +53,7 @@ seq_t a(idx_t n)
             seq_t term = 1;
             for (idx_t bit = 0; (e >> bit) > 0; ++bit) {
                 if (e & (1ULL << bit)) {
-                    seq_t pp = big_pow((seq_t)p, (seq_t)(1ULL << bit));
+                    seq_t pp = ipow((seq_t)p, (seq_t)(1ULL << bit));
                     term += pp;
                 }
             }
@@ -62,7 +63,7 @@ seq_t a(idx_t n)
 
     /* remaining prime factor, if any */
     if (m > 1) {
-        seq_t term = 1 + big_pow((seq_t)m, (seq_t)1);
+        seq_t term = 1 + ipow((seq_t)m, (seq_t)1);
         result *= term;
     }
 

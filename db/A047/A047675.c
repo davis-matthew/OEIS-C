@@ -10,13 +10,33 @@
  *            anti‑diagonals (a(1)=a(1,1), a(2)=a(2,1), a(3)=a(1,2), …)
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 23, u64 n <= 30, u128 n <= 39,
  *            big any n
- * Helpers:   ij_from_n
+ * Validated: standard, pass, 48 terms through n = 69 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#ifdef __cplusplus
+#include <vector>
+#endif
 #include <stdlib.h>
-#include "../utils/ij_from_n.h"
+
+/* Convert a 1‑based index n into the coordinates (i,j) of the
+   corresponding a(i,j) in the anti‑diagonal enumeration. */
+static void ij_from_n(idx_t n, idx_t *i, idx_t *j)
+{
+    if (n < 1) { *i = 0; *j = 0; return; }
+
+    /* Find smallest S with (S-1)*S/2 ≥ n. */
+    idx_t S = 2;
+    while (((S - 1) * S) / 2 < n)
+        ++S;
+
+    idx_t prev   = ((S - 2) * (S - 1)) / 2;     /* total up to S-1 */
+    idx_t offset = n - prev;                   /* position inside the S‑diagonal */
+    *i = S - offset;                           /* i decreases along the diagonal */
+    *j = S - *i;
+}
 
 #ifndef __cplusplus
 /* In pure C we cannot rely on placement new, so we use malloc for

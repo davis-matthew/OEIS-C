@@ -7,14 +7,16 @@
  * Formula:   let r be the row index such that r*(r+1)/2 ≤ n < (r+1)*(r+2)/2.
  *            Let t = n – r*(r+1)/2 (position inside the row, 0 ≤ t ≤ r) Let k
  *            = r – t. Then a(n) = w(r,k) = 2·C(k+3,3) + C(k+2,2)·(r−k)
- * Range:     u8 n <= 27, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
+ * Range:     u8 n <= 35, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     idx_t k = r - t;
 
     /* compute the term */
-    seq_t bin1 = binom(k + 3, 3); /*  C(k+3,3)  */
-    seq_t bin2 = binom(k + 2, 2); /*  C(k+2,2)  */
+    seq_t bin1 = binomial(k + 3, 3); /*  C(k+3,3)  */
+    seq_t bin2 = binomial(k + 2, 2); /*  C(k+2,2)  */
 
     seq_t term = (seq_t)2 * bin1 + bin2 * (seq_t)t;
     return term;

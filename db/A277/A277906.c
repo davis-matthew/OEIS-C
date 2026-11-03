@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = least number with the same prime signature as φ(n)
- * Range:     u8 n <= 125, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, cmp_desc_int, factor_u64, pow_seq, sieve_primes
+ * Validated: standard, pass, 100 terms through n = 9363 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32, sieve_primes, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,11 +18,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/calc_phi.h"
-#include "../utils/sieve_primes.h"
 #include "../utils/factor_u64.h"
-#include "../utils/pow_seq.h"
-#include "../utils/cmp_desc_int.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/sieve_primes.h"
+#include "../utils/totient_seq.h"
+
+/* comparator for descending order of exponents */
+static int cmp_desc_int(const void *p, const void *q)
+{
+    int a = *(const int *)p;
+    int b = *(const int *)q;
+    if (a < b) return 1;
+    if (a > b) return -1;
+    return 0;
+}
 
 /* static cache for primes */
 static uint64_t *prime_list = NULL;
@@ -41,7 +51,7 @@ seq_t a(idx_t n)
     }
 
     /* compute φ(n) */
-    seq_t phi_val = calc_phi((seq_t)n);
+    seq_t phi_val = totient_seq((seq_t)n);
     uint64_t phi = (uint64_t)phi_val;          /* φ(n) fits in 64‑bit for n ≤ 10000 */
 
     /* factor φ(n) using the uint64_t helper */
@@ -70,7 +80,7 @@ seq_t a(idx_t n)
     seq_t result = (seq_t)1;
     for (size_t i = 0; i < fac_cnt; ++i) {
         seq_t p = (seq_t)prime_list[i];          /* cast to seq_t */
-        result = result * pow_seq(p, exps[i]);   /* multiply by p^exp */
+        result = result * ipow_i32(p, exps[i]);   /* multiply by p^exp */
     }
 
     return result;

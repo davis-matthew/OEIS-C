@@ -8,12 +8,14 @@
  *            a(0)=1, a(1)=21, a(2)=286, a(3)=3234
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 799 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of computed terms      */
 static idx_t  computed = 3;          /* highest index computed so far */
@@ -24,7 +26,7 @@ static void ensure_capacity(idx_t n)
     if (!cache) {
         /* allocate at least enough for the first four values */
         capacity = (n < 4) ? 4 : (size_t)(n + 1);
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)21;
         cache[2] = (seq_t)286;
@@ -33,7 +35,7 @@ static void ensure_capacity(idx_t n)
     } else if ((size_t)(n + 1) > capacity) {
         size_t newcap = capacity;
         while ((size_t)(n + 1) > newcap) newcap <<= 1;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         capacity = newcap;
     }
 }

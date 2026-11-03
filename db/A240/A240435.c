@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 10,
  *            big any n
- * Helpers:   digit_sum, gcd, is_prime
+ * Validated: standard, pass, 28 terms through n = 40 (2026-11-03)
+ * Helpers:   digit_sum, gcd, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/digit_sum.h"
-#include "../utils/is_prime.h"
 #include "../utils/gcd.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Allocate cache on first call */
     if (!terms) {
         terms_cap = 16;
-        terms    = (seq_t *)calloc(terms_cap, sizeof(seq_t));
+        terms    = mem_new(seq_t, terms_cap);
     }
 
     /* Return a cached value if already computed */
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         if (is_prime((idx_t)sum)) {
             if (terms_len >= terms_cap) {
                 terms_cap <<= 1;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = cat;
         }

@@ -9,7 +9,8 @@
  *            n into distinct primes
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   shift_or
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,30 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/shift_or.h"
+
+/* ------------------------------------------------------------------ */
+static void shift_or(const uint64_t *src, int shift,
+                     uint64_t *dest, int words, int max_bits) {
+    int big = shift >> 6;
+    int small = shift & 63;
+    if (small == 0) {
+        for (int i = 0; i < words; ++i) {
+            uint64_t val = 0;
+            if (i >= big) val = src[i - big];
+            dest[i] |= val;
+        }
+    } else {
+        for (int i = 0; i < words; ++i) {
+            uint64_t val = 0;
+            if (i >= big) val = src[i - big] << small;
+            if (i >= big + 1) val |= src[i - big - 1] >> (64 - small);
+            dest[i] |= val;
+        }
+    }
+    /* Zero bits beyond max_bits in the last word */
+    int last_bits = max_bits & 63;
+    if (last_bits) dest[words - 1] &= ((1ULL << last_bits) - 1);
+}
 
 /* ------------------------------------------------------------------ */
 /*  Helper: shift a bitset left by shift bits and OR into dest        */

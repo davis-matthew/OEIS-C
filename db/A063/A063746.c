@@ -10,15 +10,17 @@
  *            For each n the corresponding row r and offset k are found by
  *            solving ∑_{j=0}^{r-1} (j²+1) ≤ n < ∑_{j=0}^{r} (j²+1); then a(n)
  *            equals the number of partitions of k that fit...
- * Range:     u8 n <= 168, u16 n <= 717, u32 n <= 3084, u64 n <= 8840,
- *            u128 n <= 8840, big any n
- * Helpers:   none
+ * Range:     u8 n <= 168, u16 n <= 717, u32 n <= 3084, u64 n <= 10447,
+ *            u128 n <= 10447, big any n
+ * Validated: standard, pass, 104 terms through n = 8840 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------
    Caching of pre‑computed rows.  rows[r] points to an array of
@@ -52,7 +54,7 @@ static void ensure_row(idx_t r)
 
     /* Special case r == 0 */
     if (r == 0) {
-        seq_t *coeff = (seq_t*)malloc(sizeof(seq_t));
+        seq_t *coeff = mem_new(seq_t, 1);
         if (!coeff) exit(EXIT_FAILURE);
         coeff[0] = 1;
         rows[r] = coeff;
@@ -65,7 +67,7 @@ static void ensure_row(idx_t r)
 
     /* Allocate DP table: dp[sum * (maxparts+1) + parts] */
     size_t dp_len = (size_t)(maxsum + 1) * (size_t)(maxparts + 1);
-    seq_t *dp = (seq_t*)calloc(dp_len, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_len);
     if (!dp) exit(EXIT_FAILURE);
     dp[0] = 1;   /* dp[0][0] = 1 */
 
@@ -80,7 +82,7 @@ static void ensure_row(idx_t r)
     }
 
     /* Aggregate over all allowed part counts to get the final coefficient. */
-    seq_t *coeff = (seq_t*)malloc((size_t)(maxsum + 1) * sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (size_t)(maxsum + 1));
     if (!coeff) exit(EXIT_FAILURE);
     for (idx_t sum = 0; sum <= maxsum; ++sum) {
         seq_t val = 0;
@@ -90,7 +92,7 @@ static void ensure_row(idx_t r)
         coeff[sum] = val;
     }
 
-    free(dp);
+    mem_free(dp);
     rows[r] = coeff;
     row_sizes[r] = (idx_t)(maxsum + 1);
 }

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 35, u64 n <= 81, u128 n <= 173,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    its complement b(n) on demand and caches the results. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----- static storage for the computed terms ----- */
 static seq_t *a_vals = NULL;       /* a[0] … a[a_len-1] */
@@ -59,11 +61,11 @@ static void ensure_cache(idx_t n)
     /* ---- allocate/expand storage as needed ---- */
     if (!a_vals) {
         a_cap = 4;
-        a_vals = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
     }
     if (!b_vals) {
         b_cap = 4;
-        b_vals = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_vals = mem_new(seq_t, b_cap);
     }
 
     /* ---- store the initial a-values if missing ---- */
@@ -80,7 +82,7 @@ static void ensure_cache(idx_t n)
     while (b_len <= n) {
         seq_t next = get_next_b();
         if (b_len == b_cap)
-            b_vals = (seq_t *)realloc(b_vals, (b_cap = b_cap ? b_cap * 2U : 4U) * sizeof(seq_t));
+            b_vals = mem_resize(seq_t, b_vals, (b_cap = b_cap ? b_cap * 2U : 4U));
         b_vals[b_len++] = next;
     }
 
@@ -90,7 +92,7 @@ static void ensure_cache(idx_t n)
         seq_t prod = b_vals[i-2] * b_vals[i-1] * b_vals[i];
         seq_t ai   = a_vals[i-1] + a_vals[i-2] + prod;
         if (a_len == a_cap)
-            a_vals = (seq_t *)realloc(a_vals, (a_cap = a_cap ? a_cap * 2U : 4U) * sizeof(seq_t));
+            a_vals = mem_resize(seq_t, a_vals, (a_cap = a_cap ? a_cap * 2U : 4U));
         a_vals[a_len++] = ai;
     }
 }

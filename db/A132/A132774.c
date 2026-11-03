@@ -7,8 +7,9 @@
  * Formula:   Let k be the smallest integer with k(k+1)/2 >= n. Then a(n) =
  *            2*k-1 if n = k(k+1)/2; = 2*(k-1) if n = k(k+1)/2 - 1; = 0
  *            otherwise. (k >= 1)
- * Range:     u8 n <= 8383, u16 n <= 8941, u32 n <= 8941, u64 n <= 8941,
- *            u128 n <= 8941, big any n
+ * Range:     u8 n <= 8383, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 8941 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

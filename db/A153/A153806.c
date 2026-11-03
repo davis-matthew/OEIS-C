@@ -8,9 +8,10 @@
  *            the same upside down using digits 0,1,6,8,9) and contains
  *            exactly one zero digit. The function generates values by
  *            recursively enumerating all such numbers in increasing order
- * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 341, u64 n <= 8473,
- *            u128 n <= 8473, big any n
- * Helpers:   none
+ * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 341, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 47 terms through n = 8473 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* needed headers for memory allocation and size_t */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* mapping pairs for strobogrammatic digits */
 static const int pair_digits[5][2] = {
@@ -38,7 +40,7 @@ static idx_t last_gen_length = 0;
 static void add_to_cache(seq_t val) {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

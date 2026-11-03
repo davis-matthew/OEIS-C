@@ -12,14 +12,46 @@
  *            of n until an antipalindrome is found
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_antipalindrome
+ * Validated: standard, pass, 87 terms through n = 9882 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_antipalindrome.h"
+
+/* Test whether x is a binary antipalindrome. */
+static bool is_antipalindrome(seq_t x)
+{
+    if (x == 0)
+        return false;
+
+    /* Compute bit length of x. */
+    idx_t len = 0;
+    seq_t tmp = x;
+    while (tmp)
+    {
+        tmp >>= 1;
+        ++len;
+    }
+
+    /* Length must be even. */
+    if (len & 1)
+        return false;
+
+    idx_t L = len >> 1;
+    for (idx_t i = 0; i < L; ++i)
+    {
+        seq_t low  = (x >> i) & (seq_t)1;
+        seq_t high = (x >> (2 * L - 1 - i)) & (seq_t)1;
+        /* Bits must be opposite; XOR should be 1. */
+        if ((low ^ high) != (seq_t)1)
+            return false;
+    }
+
+    return true;
+}
 
 seq_t a(idx_t n)
 {

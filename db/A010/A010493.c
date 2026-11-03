@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, cons
  * Formula:   not stated
- * Range:     u8 n <= 9776, u16 n <= 9776, u32 n <= 9776, u64 n <= 9776,
- *            u128 n <= 9776, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 9776 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define BASE 1000000000U            /* 10^9 base for big integers */
 
@@ -156,7 +158,7 @@ static void ensure_digit_capacity(size_t needed) {
     if (DIGITS_CAP >= needed) return;
     size_t newcap = (DIGITS_CAP > 0) ? DIGITS_CAP * 2 : 8;
     while (newcap < needed) newcap *= 2;
-    seq_t *newptr = (seq_t*)realloc(DIGITS, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, DIGITS, newcap);
     if (!newptr) abort();
     DIGITS = newptr;
     DIGITS_CAP = newcap;

@@ -7,13 +7,16 @@
  * Formula:   primes p such that 7p+12 and 12p+7 are primes
  * Range:     u8 n <= 19, u16 n <= 642, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_uint64
+ * Validated: standard, pass, 67 terms through n = 9126 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -24,10 +27,10 @@ seq_t a(idx_t n)
     uint64_t cand = 2;                  /* first possible prime */
 
     while (1) {
-        if (is_prime_uint64(cand)) {    /* cand is prime */
+        if (is_prime_u64(cand)) {    /* cand is prime */
             /* check the two linear combinations */
-            if (is_prime_uint64(7ULL * cand + 12ULL) &&
-                is_prime_uint64(12ULL * cand + 7ULL))
+            if (is_prime_u64(7ULL * cand + 12ULL) &&
+                is_prime_u64(12ULL * cand + 7ULL))
             {
                 ++found;
                 if (found == n)

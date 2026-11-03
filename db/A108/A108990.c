@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 26, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   addmul
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/addmul.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static inline void addmul(seq_t *acc, seq_t a, seq_t b)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 prod = (unsigned __int128)a * (unsigned __int128)b;
+        unsigned __int128 sum  = (unsigned __int128)(*acc) + prod;
+        *acc = (seq_t)sum;
+    } else {
+        *acc += a * b;
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /* Static state:  pointers to completed rows and their capacities.     */
@@ -72,7 +85,7 @@ static void ensure_rows(idx_t r)
     /* compute new rows from rows_size up to r */
     for (idx_t cur = rows_size; cur <= r; ++cur) {
         size_t len = (size_t)(cur + 1);          /* number of coefficients in this row */
-        seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) abort();
         rows[cur] = row;
 
@@ -82,7 +95,7 @@ static void ensure_rows(idx_t r)
         }
 
         /* base polynomial: B(x) = 1 + x·R_{cur‑1}(x) */
-        seq_t *base = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *base = mem_new(seq_t, len);
         if (!base) abort();
         base[0] = (seq_t)1;
         seq_t *prev = rows[cur - 1];
@@ -90,12 +103,12 @@ static void ensure_rows(idx_t r)
             base[j] = prev[j - 1];            /* shift by one place */
 
         /* poly = B(x)⁰   (initialised to 1) */
-        seq_t *poly = (seq_t*)calloc(len, sizeof(seq_t));
+        seq_t *poly = mem_new(seq_t, len);
         if (!poly) abort();
         poly[0] = (seq_t)1;
 
         /* tmp will hold the intermediate product of poly * base */
-        seq_t *tmp = (seq_t*)calloc(len, sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, len);
         if (!tmp) abort();
 
         /* multiply poly by base cur times to obtain B(x)^cur */
@@ -120,9 +133,9 @@ static void ensure_rows(idx_t r)
         for (idx_t i = 0; i <= cur; ++i)
             row[i] = poly[i];
 
-        free(base);
-        free(poly);
-        free(tmp);
+        mem_free(base);
+        mem_free(poly);
+        mem_free(tmp);
     }
 
     rows_size = r + 1;                    /* rows[0..r] now ready */

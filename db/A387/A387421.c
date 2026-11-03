@@ -12,7 +12,8 @@
  *            prime powers pᵉ with e ≥ 2 in the factorization of k
  * Range:     u8 n <= 17, u16 n <= 1432, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 96 terms through n = 9280 (2026-11-03)
+ * Helpers:   factor_u64, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 /* Dynamic array of terms discovered so far. */
 static seq_t *terms = NULL;
@@ -34,7 +36,7 @@ static void ensure_terms_capacity(size_t needed) {
     if (terms_cap >= needed) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     terms_cap = new_cap;
 }
 
@@ -53,7 +55,7 @@ static bool qualifies(uint64_t k) {
         uint64_t e = exps[i];
 
         /* σ(pᵉ) = (p^(e+1) – 1) / (p – 1) */
-        seq_t num = pow_uint(p, e + 1);
+        seq_t num = ipow_u64_idx(p, e + 1);
         num -= (seq_t)1;
         seq_t den = (seq_t)(p - 1);
         seq_t sigma_i = num / den;
@@ -61,7 +63,7 @@ static bool qualifies(uint64_t k) {
 
         /* Multiply by pᵉ if e ≥ 2 – this contributes to A057521(k). */
         if (e >= 2) {
-            powerful *= pow_uint(p, e);
+            powerful *= ipow_u64_idx(p, e);
         }
     }
 

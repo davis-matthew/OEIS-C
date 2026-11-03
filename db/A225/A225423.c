@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 731, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* ------------- 64‑bit deterministic Miller–Rabin ------------- */
@@ -152,7 +154,7 @@ static void grow_seq_arr(seq_t **arr, size_t *cap, size_t need) {
     size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
     while (new_cap < need)
         new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 
@@ -171,7 +173,7 @@ seq_t a(idx_t n) {
     if (prime_list == NULL) {
         sieve_primes_upto(sieve_limit, &prime_list, &prime_cnt);
         found_cap = 16;
-        found_primes = (seq_t *)malloc(found_cap * sizeof(seq_t));
+        found_primes = mem_new(seq_t, found_cap);
     }
 
     /* keep generating until we have at least n values */

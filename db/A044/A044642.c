@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has11_base9
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has11_base9.h"
+#include "../utils/mem.h"
+
+/* Check whether the base‑9 representation of x contains the substring "11". */
+static bool has11_base9(idx_t x)
+{
+    if (x < 9) return false;          /* single digit cannot contain "11" */
+    idx_t prev = x % 9;
+    x /= 9;
+    while (x > 0) {
+        idx_t d = x % 9;
+        if (d == 1 && prev == 1) return true;
+        prev = d;
+        x /= 9;
+    }
+    return false;
+}
 
 /* Cache of already found sequence values. */
 static seq_t *cache        = NULL;
@@ -33,7 +49,7 @@ static void ensure_cache_capacity(void)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

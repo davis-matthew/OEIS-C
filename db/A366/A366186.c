@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Test whether k satisfies D₃(k)=1. */
 static bool is_special(idx_t k)
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on first call. */
     if (terms == NULL) {
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms_len = 0;
         last_checked = 1;
     }
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
         if (is_special(last_checked)) {
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)last_checked;
         }

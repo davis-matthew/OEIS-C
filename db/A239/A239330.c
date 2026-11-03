@@ -12,6 +12,7 @@
  *            cache of primes up to the largest argument required for...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 96 terms through n = 9191 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,8 +23,8 @@
 #include <stdlib.h>
 
 /* Utility functions provided by the algorithm framework */
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
-#include "../utils/is_prime.h"           /* is_prime */
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
 
 /* ---------- static cache data ---------------------------------------- */
 static idx_t        primes_limit = 0;      /* highest limit for which primes were built */

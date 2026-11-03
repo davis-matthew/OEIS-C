@@ -9,13 +9,14 @@
  *            (equivalently, a(1)=4, a(2)=6, a(k+2)=2*a(k) for k≥1)
  * Range:     u8 n <= 12, u16 n <= 28, u32 n <= 60, u64 n <= 124,
  *            u128 n <= 252, big any n
- * Helpers:   power_two
+ * Validated: standard, pass, 59 terms through n = 972 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/power_two.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -23,9 +24,9 @@ seq_t a(idx_t n)
        required. */
     if ((n & 1) != 0) {                 /* odd index */
         idx_t e = (n + 3) >> 1;         /* (n+3)/2 */
-        return power_two(e);
+        return pow2(e);
     } else {                            /* even index */
         idx_t e = n >> 1;               /* n/2 */
-        return (seq_t)3 * power_two(e);
+        return (seq_t)3 * pow2(e);
     }
 }

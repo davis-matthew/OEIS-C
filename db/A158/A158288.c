@@ -10,7 +10,8 @@
  *            array of such primes
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 7843 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- integer square root (floor) ---------------------------------------- */
 static idx_t _isqrt_u64(idx_t n)
@@ -67,7 +69,7 @@ static void _grow_sieve(idx_t limit)
         }
     }
 
-    seq_t *new_prefix = (seq_t *)calloc(prefix_size, sizeof(seq_t));
+    seq_t *new_prefix = mem_new(seq_t, prefix_size);
     if (!new_prefix) {
         free(new_is_prime);
         return;                               /* memory error – ignore */
@@ -83,7 +85,7 @@ static void _grow_sieve(idx_t limit)
     new_prefix[1] = 0;
 
     free(is_prime);
-    free(twin_prefix);
+    mem_free(twin_prefix);
 
     is_prime = new_is_prime;
     twin_prefix = new_prefix;

@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = (4*n+1)*(4*n+2)*(4*n+3)/6
- * Range:     u8 n <= 2, u16 n <= 17, u32 n <= 736, u64 n <= 9915,
- *            u128 n <= 9915, big any n
+ * Range:     u8 n <= 2, u16 n <= 17, u32 n <= 736, u64 n <= 19999,
+ *            u128 n <= 19999, big any n
+ * Validated: standard, pass, 53 terms through n = 9915 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

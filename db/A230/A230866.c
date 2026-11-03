@@ -10,13 +10,26 @@
  *            non‑negative integer n
  * Range:     u8 n <= 420, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_digits_base5
+ * Validated: standard, pass, 119 terms through n = 8399 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sum_digits_base5.h"
+
+/* Return the sum of the base‑5 digits of x.  Works for any
+   seq_t that supports basic arithmetic and modulus with int. */
+static inline seq_t sum_digits_base5(seq_t x)
+{
+    seq_t s = 0;
+    do
+    {
+        s += x % 5;
+        x /= 5;
+    } while (x);
+    return s;
+}
 
 seq_t a(idx_t n)
 {

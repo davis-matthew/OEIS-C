@@ -11,8 +11,9 @@
  *            unsigned 64‑bit integers). The function uses a lazy memoisation
  *            cache which grows as needed. It works with any seq_t that
  *            supports the usual arithmetic operators
- * Range:     u8 n <= 270, u16 n <= 9046, u32 n <= 9046, u64 n <= 9046,
- *            u128 n <= 9046, big any n
+ * Range:     u8 n <= 270, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 87 terms through n = 9046 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

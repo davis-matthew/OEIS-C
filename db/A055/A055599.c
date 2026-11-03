@@ -9,14 +9,16 @@
  *            the (n‑th) entry in the triangle read row by row: T(n,k) =
  *            sum_{i=0..n} (-1)^i * C(n,i) * sum_{j=0..n} (-1)^j * C(n,j) *
  *            C((n−j)*n, k)
- * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 51, u64 n <= 51, u128 n <= 51,
+ * Range:     u8 n <= 22, u16 n <= 41, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Computes a(m,n,k) from the OEIS definition. */

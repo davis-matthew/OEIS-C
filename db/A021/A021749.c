@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    For n >= 1, a(n) = digit at position n+1 in the decimal expansion. */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of digits: cache[0] = integer part (0),
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     /* First call: initialise cache with integer part */
     if (cache == NULL) {
         cap    = 1;
-        cache  = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        cache  = mem_resize(seq_t, NULL, cap);
         cache[0] = 0;          /* integer part of 1/745 */
         last    = 0;
     }
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     /* Need digits up to index n+1 (so cache must contain n+2 elements) */
     if ((size_t)n + 2 > cap) {
         size_t new_cap = (size_t)n + 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap   = new_cap;
     }
 

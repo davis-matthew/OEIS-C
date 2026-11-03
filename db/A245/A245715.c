@@ -8,14 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 1818, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 135 terms through n = 9487 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Search for the least k>0 such that n - k! is prime, or 0 if none exists. */
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
         if (fact >= (seq_t)n)    /* k! >= n → no larger k can satisfy n - k! > 0 */
             break;
         seq_t m = (seq_t)n - fact;
-        if (is_prime_small(m))
+        if (is_prime_seq(m))
             return (seq_t)k;
     }
     return 0;                    /* no suitable k found */

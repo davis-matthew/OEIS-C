@@ -13,12 +13,14 @@
  *            43a(n‑4) + 384a(n‑5) * +1030a(n‑6) +276a(n‑7)...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 23, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
     };
     /* Make sure cache is allocated and initialized up to 16 */
     if (!cache || cache_size < 17) {
-        if (cache) free(cache);
-        cache = (seq_t *)malloc(sizeof(seq_t) * 17);
+        if (cache) mem_free(cache);
+        cache = mem_new(seq_t, 17);
         for (idx_t i = 1; i <= 16; ++i)
             cache[i] = base_vals[i];
         cache_size = 17;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary */
     if (n >= cache_size) {
         idx_t new_size = n + 1;   /* 1‑based */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) {
             /* Allocation failed; fallback to computing only needed term */
             /* This should not happen for normal inputs. */

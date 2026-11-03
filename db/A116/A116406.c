@@ -8,16 +8,52 @@
  *            if n-1 is odd, a(n) = 2*a(n-1) + binomial(n-2, (n)/2); if n-1 is
  *            even, a(n) = 2*a(n-1) - binomial(n-2, (n-1)/2); with
  *            a(0)=a(1)=1. Implemented with memoisation
- * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 32, u64 n <= 33, u128 n <= 33,
+ * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   binomial, ensure_capacity
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* for binomial(idx_t n, idx_t k) */
-#include "../utils/ensure_capacity.h" /* for ensure_capacity(size_t, size_t*, void**, size_t) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -27,7 +63,7 @@ seq_t a(idx_t n) {
 
     /* initialise cache for indices 0,1 */
     if (!init) {
-        ensure_capacity(2, &cap, (void **)&cache, sizeof(seq_t));
+        ensure_capacity(2, &cap, OEISC_VPP(&cache), sizeof(seq_t));
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
         last_computed = 1;
@@ -36,7 +72,7 @@ seq_t a(idx_t n) {
 
     /* extend cache up to n if needed */
     if (n > last_computed) {
-        ensure_capacity((size_t)n + 1, &cap, (void **)&cache, sizeof(seq_t));
+        ensure_capacity((size_t)n + 1, &cap, OEISC_VPP(&cache), sizeof(seq_t));
         for (idx_t i = (idx_t)last_computed + 1; i <= n; ++i) {
             /* compute a(i) from a(i-1) */
             if ((i - 1) & 1) { /* i-1 is odd => n = i-1 is odd */

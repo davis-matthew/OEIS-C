@@ -7,6 +7,7 @@
  * Formula:   a(n) = number of partitions of n into 9 nonzero squares
  * Range:     u8 n <= 262, u16 n <= 1912, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 111 terms through n = 9887 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

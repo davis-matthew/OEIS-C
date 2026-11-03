@@ -9,12 +9,14 @@
  *            C((n−m)/2 – 1, m – 1) with a(0) = 1
  * Range:     u8 n <= 13, u16 n <= 22, u32 n <= 39, u64 n <= 73, u128 n <= 140,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 3128 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"   /* include to get type definitions */
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 static /* compute gcd of two seq_t values */ seq_t seq_gcd(seq_t a, seq_t b) {
     while (b) {

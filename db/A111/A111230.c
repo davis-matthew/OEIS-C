@@ -7,7 +7,8 @@
  * Formula:   a(n) = k such that 5*k + 14 is prime
  * Range:     u8 n <= 50, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;  // offset is 1; return 0 for out‑of‑range
@@ -29,7 +32,7 @@ seq_t a(idx_t n) {
         if (cap < n) {
             idx_t new_cap = cap ? cap * 2 : 16;
             if (new_cap < n) new_cap = n;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return 0;          /* allocation failure */
             cache = tmp;
             cap   = new_cap;
@@ -42,7 +45,7 @@ seq_t a(idx_t n) {
 
         for (seq_t k = start_k; size < n; ++k) {
             uint64_t pk = 5ULL * (uint64_t)k + 14ULL;
-            if (is_prime(pk)) {
+            if (is_prime_u64(pk)) {
                 cache[size++] = k;
             }
         }

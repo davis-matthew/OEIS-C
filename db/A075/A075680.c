@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 1781, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 4645 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    reduce the odd number 2n‑1 to 1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for a(n).  All indices are 1‑based. */
 static seq_t *cache_steps = NULL;       /* a(n) values  */
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n)
     if (new_cap < n + 1)
         new_cap = n + 1;
 
-    cache_steps = (seq_t *)realloc(cache_steps, new_cap * sizeof(seq_t));
+    cache_steps = mem_resize(seq_t, cache_steps, new_cap);
     cache_known = (unsigned char *)realloc(cache_known,
                                            new_cap * sizeof(unsigned char));
     for (idx_t i = cache_cap; i < new_cap; ++i)

@@ -12,12 +12,14 @@
  *            (n+k-1)*T(n-1,k) + (n-1)*T(n-2,k)
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,9 +45,9 @@ seq_t a(idx_t n)
     idx_t kp = off;      /* the k argument for T */
 
     /* dynamic programming for T(np, kp) */
-    seq_t *row_nm2 = (seq_t*)malloc((kp + 1) * sizeof(seq_t));
-    seq_t *row_nm1 = (seq_t*)malloc((kp + 1) * sizeof(seq_t));
-    seq_t *row_n   = (seq_t*)malloc((kp + 1) * sizeof(seq_t));
+    seq_t *row_nm2 = mem_new(seq_t, (kp + 1));
+    seq_t *row_nm1 = mem_new(seq_t, (kp + 1));
+    seq_t *row_n   = mem_new(seq_t, (kp + 1));
 
     /* T(0,k) = 1 */
     for(idx_t k = 0; k <= kp; ++k)
@@ -57,12 +59,12 @@ seq_t a(idx_t n)
 
     if(np == 0) {
         seq_t res = row_nm2[kp];
-        free(row_nm2); free(row_nm1); free(row_n);
+        mem_free(row_nm2); mem_free(row_nm1); mem_free(row_n);
         return res;
     }
     if(np == 1) {
         seq_t res = row_nm1[kp];
-        free(row_nm2); free(row_nm1); free(row_n);
+        mem_free(row_nm2); mem_free(row_nm1); mem_free(row_n);
         return res;
     }
 
@@ -81,6 +83,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = row_nm1[kp];
-    free(row_nm2); free(row_nm1); free(row_n);
+    mem_free(row_nm2); mem_free(row_nm1); mem_free(row_n);
     return res;
 }

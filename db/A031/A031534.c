@@ -12,7 +12,8 @@
  *            search
  * Range:     u8 none, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root of a 64‑bit unsigned integer */
 static uint64_t floor_sqrt_u64(uint64_t n)
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
         if (qualifies(k)) {
             if (len >= cap) {
                 cap = cap ? cap * 2 : 8;
-                list = (seq_t *)realloc(list, cap * sizeof(seq_t));
+                list = mem_resize(seq_t, list, cap);
             }
             list[len++] = (seq_t)k;
         }

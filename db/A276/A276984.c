@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∑_{1 ≤ i < n, i ∤ n} i²
  * Range:     u8 n <= 10, u16 n <= 58, u32 n <= 2344, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 8194 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

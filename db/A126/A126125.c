@@ -12,12 +12,14 @@
  *            floor((sqrt(8*n+1)-1)/2) * c = n - r*(r+1)/2 * * T...
  * Range:     u8 n <= 27, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Computes B(n,k) = binomial(n, floor((n+1-(-1)^(n+k)*(k+1))/2)) */

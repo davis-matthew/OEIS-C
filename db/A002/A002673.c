@@ -10,17 +10,54 @@
  *            G = Product_{5 <= p <= k, p prime} p^min(v_p(9^n - 1), v_p(k!))
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 22, u128 n <= 23,
  *            big any n
- * Helpers:   gsum, inv2w, is_fixed_type, pmod9
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gsum.h"
-#include "../utils/inv2w.h"
-#include "../utils/is_fixed_type.h"
-#include "../utils/pmod9.h"
+
+static seq_t gsum(seq_t r, idx_t j) {
+    /* Sum_{i<j} r^i */
+    seq_t g = 0, p = 1;
+    int top = 63;
+    if (j == 0) return 0;
+    while (!((j >> top) & 1)) top--;
+    for (int b = top; b >= 0; b--) {
+        g = g * (p + 1);
+        p = p * p;
+        if ((j >> b) & 1) {
+            g = g + p;
+            p = p * r;
+        }
+    }
+    return g;
+}
+
+static seq_t inv2w(idx_t p) {
+    seq_t x = (seq_t)p;
+    seq_t inv = x;
+    for (int i = 0; i < 8; i++) inv = inv * (2 - x * inv);
+    return inv;
+}
+
+static int is_fixed_type(void) {
+    seq_t x = 1;
+    for (int i = 0; i < 140; i++) x = x * 2;
+    return x == 0;
+}
+
+static uint64_t pmod9(idx_t e, uint64_t q) {
+    unsigned __int128 r = 1 % q, b = 9 % q;
+    while (e) {
+        if (e & 1) r = (r * b) % q;
+        b = (b * b) % q;
+        e >>= 1;
+    }
+    return (uint64_t)r;
+}
 
 seq_t a(idx_t n) {
     idx_t k = 2 * n + 1;

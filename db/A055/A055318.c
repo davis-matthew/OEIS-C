@@ -10,6 +10,7 @@
  *            4147200 = 2^11 * 3^4 * 5^2 while multiplying the numerator terms
  * Range:     u8 n <= 7, u16 n <= 8, u32 n <= 11, u64 n <= 17, u128 n <= 30,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 198 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

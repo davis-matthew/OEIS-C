@@ -7,7 +7,8 @@
  * Formula:   a(n) = (8n)!/(n!^8)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 1, u64 n <= 3, u128 n <= 6,
  *            big any n
- * Helpers:   build_primes_upto, pow_uint
+ * Validated: standard, pass, 25 terms through n = 100 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         }
         idx_t exp = e_num - 8*e_den;
         if (exp > 0)
-            result *= pow_uint(p, exp);
+            result *= ipow_u64_idx(p, exp);
     }
 
     return result;

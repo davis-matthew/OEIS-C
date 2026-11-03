@@ -12,13 +12,14 @@
  *            g q = den / g a(n) = q. (q is reduced de...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 5 terms through n = 4 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
         seq_t den = q * ((seq_t)2 * (t1 + t2)); /* q * 2(p³ + q³) */
 
         /* Reduce the fraction. */
-        seq_t g = seq_gcd(num, den);
+        seq_t g = gcd(num, den);
         if (g != (seq_t)1)
         {
             num /= g;

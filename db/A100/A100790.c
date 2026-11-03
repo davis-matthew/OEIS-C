@@ -7,6 +7,7 @@
  * Formula:   a(n) = (1/24)(n+1)(6n^4 + 9n^3 + 23n^2 + 46n + 24)
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

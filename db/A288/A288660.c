@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 14, u32 n <= 66, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_cube_root, pow10
+ * Validated: standard, pass, 82 terms through n = 9663 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,37 @@
    This function finds the nth positive integer m such that m³ has an even
    number of decimal digits by scanning ranges of m where m³ lies between
    10^(k-1) and 10^k-1 for even values of k. */
-#include "../utils/floor_cube_root.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

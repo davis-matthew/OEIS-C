@@ -9,6 +9,7 @@
  *            (mod 241), a(n) is defined to be 0
  * Range:     u8 n <= 240, u16 n <= 240, u32 n <= 240, u64 n <= 240,
  *            u128 n <= 240, big any n
+ * Validated: full, pass, 240 terms through n = 240 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

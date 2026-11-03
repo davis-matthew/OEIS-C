@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 385, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9707 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------*/
 /*   Deterministic Miller‑Rabin for 64‑bit primes              */
@@ -106,7 +108,7 @@ static void expand_table(idx_t need)
             if (seq_len == seq_cap)
             {
                 seq_cap = seq_cap ? seq_cap * 2 : 64;
-                seq_t *tmp = (seq_t*)realloc(seq_buf, seq_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_buf, seq_cap);
                 if (!tmp) return;          /* allocation failure – give up */
                 seq_buf = tmp;
             }

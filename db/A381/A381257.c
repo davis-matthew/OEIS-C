@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"   /* Provides mod_pow(seq_t base, idx_t exp, seq_t mod) */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* dynamic array of found k values */
 static size_t cache_len = 0;   /* number of filled entries in cache */
@@ -37,13 +41,13 @@ seq_t a(idx_t n)
     /* Grow the cache until it contains at least n elements. */
     while (cache_len < n) {
         seq_t mod = (seq_t)6 * (seq_t)next_k + (seq_t)1;    /* 6*k+1 */
-        seq_t pow = mod_pow((seq_t)6, next_k, mod);         /* 6^k mod (6*k+1) */
+        seq_t pow = powmod((seq_t)6, next_k, mod);         /* 6^k mod (6*k+1) */
         seq_t one = (seq_t)1;
         seq_t mod_minus_one = mod - one;
 
         if (pow == mod_minus_one) {                         /* condition satisfied */
             /* realloc with explicit cast to avoid C++ conversion error */
-            cache = (seq_t *)realloc(cache, (cache_len + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (cache_len + 1));
             if (!cache) abort();                            /* allocation failed */
             cache[cache_len] = (seq_t)next_k;
             cache_len++;

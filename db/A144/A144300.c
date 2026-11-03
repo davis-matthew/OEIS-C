@@ -7,12 +7,14 @@
  * Formula:   a(n) = A000041(n) - A000005(n) (Partitions – Divisor counts)
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 127, u64 n <= 416,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for partitions and divisor counts */
 static idx_t part_max = 0, part_cap = 0;
@@ -26,7 +28,7 @@ static void ensure_partitions(idx_t n)
     if (n <= part_max) return;                 /* already have up to n */
 
     /* allocate new storage */
-    seq_t *new_part = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *new_part = mem_new(seq_t, n + 1);
     if (!new_part) return;                     /* allocation failure */
 
     new_part[0] = 1;                           /* p(0) = 1 */
@@ -39,7 +41,7 @@ static void ensure_partitions(idx_t n)
     }
 
     /* replace old array */
-    free(partitions);
+    mem_free(partitions);
     partitions = new_part;
     part_max   = n;
 }
@@ -48,7 +50,7 @@ static void ensure_divisors(idx_t n)
 {
     if (n <= div_max) return;                 /* already computed */
 
-    seq_t *new_div = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *new_div = mem_new(seq_t, n + 1);
     if (!new_div) return;                     /* allocation failure */
 
     /* sieve-like computation of divisor counts */
@@ -59,7 +61,7 @@ static void ensure_divisors(idx_t n)
     }
 
     /* replace old array */
-    free(divcnt);
+    mem_free(divcnt);
     divcnt = new_div;
     div_max = n;
 }

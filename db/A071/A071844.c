@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   rev_uint
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem, reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/rev_uint.h"
+#include "../utils/reverse_digits_u64.h"
+#include "../utils/mem.h"
 
 /* --- Prime sieve --------------------------------------------------------- */
 #define SIEVE_LIMIT 1000000U   /* primes up to 1,000,000 (≈78498 primes) */
@@ -102,7 +104,7 @@ static void grow_cache(idx_t need)
     idx_t new_capacity = cache_capacity ? cache_capacity * 2 : 256;
     while (new_capacity < need)
         new_capacity <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_capacity);
     if (!new_cache)
         abort();
     cache = new_cache;
@@ -114,7 +116,7 @@ static void init_cache(void)
     if (cache != NULL)
         return;
     cache_capacity = 256;
-    cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_capacity);
     if (!cache)
         abort();
     cache[0] = (seq_t)1;   /* a(1) = 1 */
@@ -131,7 +133,7 @@ seq_t a(idx_t n)
     while (cache_size < n) {
         uint64_t k          = next_candidate;
         uint64_t gpf_k      = largest_prime_factor(k);
-        uint64_t rev_gpf_k  = rev_uint(gpf_k);
+        uint64_t rev_gpf_k  = reverse_digits_u64(gpf_k);
         uint64_t gpf_kplus  = largest_prime_factor(k + 1);
         if (rev_gpf_k == gpf_kplus) {
             grow_cache(cache_size + 2);   /* ensure space for new term */

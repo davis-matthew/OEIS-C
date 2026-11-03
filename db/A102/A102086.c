@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external integer types supplied by the build */
 seq_t a(idx_t n);
@@ -45,7 +47,7 @@ static void ensure_rows(idx_t target_row)
 
     /* allocate memory for each new row */
     for (idx_t r = rows_allocated; r <= target_row; ++r) {
-        tri[r] = (seq_t*)malloc(sizeof(seq_t) * (r + 1));
+        tri[r] = mem_new(seq_t, (r + 1));
         if (!tri[r])
             return;  /* crash on OOM – acceptable for test harness */
     }

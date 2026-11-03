@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 33, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   legendre_exp
+ * Validated: standard, pass, 55 terms through n = 9694 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/legendre_exp.h"
+#include "../utils/mem.h"
+
+/* Legendre exponent for prime p in n! -------------------------------- */
+static inline int legendre_exp(idx_t n, uint32_t p)
+{
+    int exp = 0;
+    uint64_t pp = p;
+    while (pp <= n) {
+        exp += n / pp;
+        if (pp > n / p) break;   /* avoid overflow */
+        pp *= p;
+    }
+    return exp;
+}
 
 /* ------------------------------------------------------------------ */
 /* Prime precomputation ------------------------------------------------ */
@@ -92,7 +106,7 @@ static void make_terms_upto(size_t need)
     /* ensure capacity for terms */
     if (terms_cap == 0) {
         terms_cap = 16;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     while (terms_len < need) {
@@ -102,7 +116,7 @@ static void make_terms_upto(size_t need)
                 /* store value */
                 if (terms_len == terms_cap) {
                     terms_cap *= 2;
-                    terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                 }
                 terms[terms_len++] = (seq_t)next_k;
                 break;

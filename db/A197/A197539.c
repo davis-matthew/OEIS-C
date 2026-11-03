@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 34, u64 n <= 68, u128 n <= 137,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
           + 3*a(n-7) - 2*a(n-8)   (n>=9)   */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     {
         /* initialise up to n = 8 */
         memo_cap = 9;                         /* indices 0..8 */
-        memo     = (seq_t *)realloc(memo, memo_cap * sizeof(seq_t));
+        memo     = mem_resize(seq_t, memo, memo_cap);
         if (!memo) abort();
 
         memo[0] = (seq_t)0;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     {
         size_t new_cap = memo_cap;
         while (nn >= new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (!tmp) abort();
         memo = tmp;
         memo_cap = new_cap;

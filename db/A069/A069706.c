@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1350, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   swap_first_last
+ * Validated: standard, pass, 74 terms through n = 9734 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,30 @@
    digits swapped yield another prime; Miller–Rabin is used for primality. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/swap_first_last.h"
+#include "../utils/mem.h"
+
+/* Return the decimal number obtained by swapping the first and last digits.
+   Single‑digit numbers are unchanged. */
+static uint64_t swap_first_last(uint64_t n)
+{
+    if (n < 10)
+        return n;
+    uint64_t first = n;
+    while (first >= 10)
+        first /= 10;          /* first digit          */
+    uint64_t last  = n % 10;  /* last digit           */
+
+    /* 10^(len-1) */
+    uint64_t pow10 = 1;
+    uint64_t tmp   = n;
+    while (tmp >= 10) {
+        tmp /= 10;
+        pow10 *= 10;
+    }
+    /* middle part: all digits except first and last */
+    uint64_t middle = (n % pow10) / 10;
+    return last * pow10 + middle * 10 + first;
+}
 
 /* Deterministic Miller‑Rabin for 64‑bit integers.
    Witnesses {2, 325, 9375, 28178, 450775, 9780504, 1795265022}
@@ -91,8 +115,7 @@ static void push_special(seq_t v)
 {
     if ((size_t)special_len == special_cap) {
         size_t new_cap = special_cap ? special_cap << 1 : 8;
-        seq_t *tmp = (seq_t *)realloc(special_list,
-                                      new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, special_list, new_cap);
         if (!tmp)
             abort();
         special_list = tmp;

@@ -9,6 +9,7 @@
  *            binomial(n-k, k)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 13, u64 n <= 32, u128 n <= 76,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 917 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,9 @@
 
 /* This uses the utility functions pow2 and binomial. */
 #include <stdbool.h>
-#include "../utils/pow2.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

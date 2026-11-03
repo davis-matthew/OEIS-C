@@ -8,13 +8,15 @@
  *            a(1)=23, a(2)=370
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         if (n + 1 > cacheSize) {
             cacheSize = n + 1;
         }
-        cache = (seq_t *)malloc(sizeof(seq_t) * cacheSize);
+        cache = mem_new(seq_t, cacheSize);
         if (!cache) return (seq_t)0; /* allocation failure: fall back to zero */
 
         /* Initialize known first values. */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         /* Grow the cache to accommodate the requested index. */
         idx_t newSize = cacheSize;
         while (newSize <= n) newSize <<= 1;  /* double until large enough */
-        seq_t *newCache = (seq_t *)realloc(cache, sizeof(seq_t) * newSize);
+        seq_t *newCache = mem_resize(seq_t, cache, newSize);
         if (!newCache) return (seq_t)0;      /* allocation failure? */
         cache = newCache;
         /* Initialise newly allocated part to zero. */

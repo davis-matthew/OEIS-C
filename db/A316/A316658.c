@@ -10,8 +10,9 @@
  * Formula:   a(n) = Imaginary part of \sum_{k\ge 0} [d_k>0]\, (2+i)^k\,
  *            i^{\,d_k-1}, where d_k are the base‑5 digits of n (least
  *            significant first)
- * Range:     i8 n <= 9500, i16 n <= 9500, i32 n <= 9500, i64 n <= 9500,
- *            i128 n <= 9500, big any n
+ * Range:     i8 n <= 15624, i16 n <= 15624, i32 n <= 15624, i64 n <= 15624,
+ *            i128 n <= 15624, big any n
+ * Validated: standard, pass, 97 terms through n = 9500 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

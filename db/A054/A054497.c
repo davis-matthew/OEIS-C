@@ -12,13 +12,15 @@
  *            a(3)=105, a(4)=300, a(5)=756, * a(6)=1732, a(7)=3676, a(...
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 55, u64 n <= 715,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 880 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
      * calls we increase the allocation if needed. */
     if (cache == NULL) {
         cache_size   = (n > 12 ? n + 1 : 13);
-        cache        = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache        = mem_new(seq_t, cache_size);
         if (cache == NULL) exit(1);          /* OOM condition */
         for (idx_t i = 0; i < 13; ++i)
             cache[i] = init[i];
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     } else if (cache_size <= n) {
         /* Need more space */
         idx_t new_size = n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         if (cache == NULL) exit(1);          /* OOM condition */
         cache_size = new_size;
     }

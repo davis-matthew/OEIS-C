@@ -12,6 +12,7 @@
  *            thousands,hundreds,tens,units digits of n
  * Range:     u8 n <= 187, u16 n <= 3999, u32 n <= 3999, u64 n <= 3999,
  *            u128 n <= 3999, big any n
+ * Validated: full, pass, 3999 terms through n = 3999 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

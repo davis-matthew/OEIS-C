@@ -12,17 +12,50 @@
  *            (w=6), 17 (...
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   a005953_mulP, a005953_mulT, alloc_zero, release
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/a005953_mulP.h"
-#include "../utils/a005953_mulT.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+/* s *= Sum_{m>=0} q^(2m(m+1)), truncated to len terms, in place */
+static void a005953_mulP(seq_t *s, idx_t len)
+{
+    idx_t i, m;
+    for (i = len; i-- > 0;) {
+        seq_t acc = s[i];
+        for (m = 1; 2 * m * (m + 1) <= i; m++)
+            acc += s[i - 2 * m * (m + 1)];
+        s[i] = acc;
+    }
+}
+
+/* s *= th3(q^2) = 1 + 2*Sum q^(2k^2), truncated to len terms, in place */
+static void a005953_mulT(seq_t *s, idx_t len)
+{
+    idx_t i, k;
+    for (i = len; i-- > 0;) {
+        seq_t acc = s[i];
+        for (k = 1; 2 * k * k <= i; k++)
+            acc += 2 * s[i - 2 * k * k];
+        s[i] = acc;
+    }
+}
 
 static seq_t *a005953_cache = NULL;
 static idx_t a005953_len = 0;

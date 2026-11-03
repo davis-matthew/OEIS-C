@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   insert8_digits
+ * Validated: standard, pass, 70 terms through n = 891 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,27 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/insert8_digits.h"
+#include "../utils/mem.h"
+
+/* Transform x by inserting '8' between consecutive decimal digits.
+   The result is returned as an unsigned 64‑bit integer. */
+static inline uint64_t insert8_digits(idx_t x)
+{
+    uint8_t dig[32];
+    size_t len = 0;
+    while (x > 0) {
+        dig[len++] = (uint8_t)(x % 10);
+        x /= 10;
+    }
+
+    /* x has at least two digits when this function is called. */
+    uint64_t res = dig[len - 1];
+    for (size_t i = len - 2; ; --i) {
+        res = res * 100ULL + 80ULL + dig[i];
+        if (i == 0) break;
+    }
+    return res;
+}
 
 /* Compute m^2 mod mod using 128‑bit multiplication to avoid overflow */
 static inline uint64_t mod_mul(uint64_t a, uint64_t b, uint64_t mod)
@@ -89,7 +110,7 @@ seq_t a(idx_t n)
     /* lazy initialization of the cache */
     if (!cache) {
         cache_cap = 32;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Extend the cache until it contains at least n terms. */
@@ -98,7 +119,7 @@ seq_t a(idx_t n)
         if (is_prime_uint64(transformed)) {
             if (cache_len >= cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)next_candidate;
         }

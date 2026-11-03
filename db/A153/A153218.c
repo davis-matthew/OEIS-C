@@ -7,6 +7,7 @@
  * Formula:   a(n) = the n-th nonnegative integer k such that 6k + 7 is prime
  * Range:     u8 n <= 116, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 83 terms through n = 980 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

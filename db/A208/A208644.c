@@ -11,6 +11,7 @@
  *            maximum * product among them is returned. a(1)=1
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
  * Helpers:   build_primes_upto, build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,8 +22,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/build_spf.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/build_spf.h"
 
 static uint64_t *spf = NULL;         /* smallest prime factor array */
 static size_t spf_size = 0;          /* spf array size = spf_size elements */

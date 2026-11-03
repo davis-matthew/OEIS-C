@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 18, u64 n <= 40, u128 n <= 72,
  *            big any n
- * Helpers:   e_factorial, local_pow
+ * Validated: standard, pass, 45 terms through n = 888 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/e_factorial.h"
-#include "../utils/local_pow.h"
+#include "../utils/ipow_idx.h"
+
+/* exponent of prime p in n!  (Legendre's formula) */
+static inline idx_t e_factorial(idx_t n, uint32_t p)
+{
+    idx_t exp = 0;
+    while (n) {
+        n /= p;
+        exp += n;
+    }
+    return exp;
+}
 
 /* global prime cache */
 static uint32_t *g_primes   = NULL;   /* pointer to array of primes */
@@ -105,7 +116,7 @@ seq_t a(idx_t n)
         /* add remaining power of p to the result */
         if (e_den > e_num) {
             idx_t diff = e_den - e_num;
-            ans *= local_pow((seq_t)p, diff);
+            ans *= ipow_idx((seq_t)p, diff);
         }
     }
 

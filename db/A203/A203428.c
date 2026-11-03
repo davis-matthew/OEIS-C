@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 4, i64 n <= 6, i128 n <= 8,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 25 terms through n = 33 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
  * This follows from the closed form
  * a(n) = (-3)^(n(n-1)/2) * (n!)^(n-1) / BarnesG(n+1). */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +29,8 @@ seq_t a(idx_t n)
 
     seq_t res = 1;
     for (idx_t i = 1; i <= n - 1; ++i) {
-        seq_t pow_neg3 = big_pow((seq_t)-3, (seq_t)i);
-        seq_t pow_ip1 = big_pow((seq_t)(i + 1), (seq_t)i);
+        seq_t pow_neg3 = ipow((seq_t)-3, (seq_t)i);
+        seq_t pow_ip1 = ipow((seq_t)(i + 1), (seq_t)i);
         res *= pow_neg3;
         res *= pow_ip1;
     }

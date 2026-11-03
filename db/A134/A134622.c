@@ -10,7 +10,8 @@
  *            increasing order
  * Range:     u8 none, u16 none, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* forward declaration of the required types */
 extern seq_t a(idx_t n);
@@ -60,7 +62,7 @@ static void heap_push(struct HeapNode *h, size_t *sz,
 {
     if (*sz == heap_cap) {
         heap_cap = (heap_cap == 0) ? 16 : heap_cap * 2;
-        heap = (struct HeapNode *)realloc(heap, heap_cap * sizeof(struct HeapNode));
+        heap = mem_resize(struct HeapNode, heap, heap_cap);
     }
     size_t i = (*sz)++;
     h[i].qidx = qidx;
@@ -151,7 +153,7 @@ static void init_primes_and_twin(void)
     heap_cap = twin_sz;
     heap_sz = 0;
     if (twin_sz > 0) {
-        heap = (struct HeapNode *)malloc(heap_cap * sizeof(struct HeapNode));
+        heap = mem_new(struct HeapNode, heap_cap);
         for (size_t i = 0; i < twin_sz; ++i) {
             seq_t prod = (seq_t)primes[0] * (seq_t)twin_low[i];
             heap_push(heap, &heap_sz, i, 0, prod);
@@ -174,7 +176,7 @@ seq_t a(idx_t n)
 
         if (cache_sz == cache_cap) {
             cache_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_sz++] = prod;
 

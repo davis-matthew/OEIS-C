@@ -8,6 +8,7 @@
  *            a(n+1) = 13*a(n) - 288*n*a(n-1) for n≥1
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 6, i64 n <= 12, i128 n <= 22,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 410 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

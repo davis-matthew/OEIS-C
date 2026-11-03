@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 7659, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9461 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*--- constants ----------------------------------------------------------*/
 #define LIMIT     2000000UL    /* search upper bound */
@@ -60,7 +62,7 @@ static void init(void)
     sp         = (uint32_t*)malloc((LIMIT+1) * sizeof(uint32_t));
     prime_pref = (uint32_t*)malloc((LIMIT+1) * sizeof(uint32_t));
     primes     = (uint32_t*)malloc((LIMIT+1) * sizeof(uint32_t));
-    res        = (seq_t*)calloc(MAX_N+1, sizeof(seq_t));  /* 0 .. MAX_N */
+    res        = mem_new(seq_t, MAX_N+1);  /* 0 .. MAX_N */
 
     /* initialise small numbers */
     phi[0] = 0;  phi[1] = 1;

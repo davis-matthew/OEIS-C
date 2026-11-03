@@ -12,13 +12,15 @@
  *            195, a(7) = 451, a(8) = 1046, a(9) = 2453, a(10) = 5810,...
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 50, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* a(idx_t n) returns the n-th term of A298216 (n≥1). */
 seq_t
@@ -46,8 +48,7 @@ a(idx_t n)
 
     /* Allocate or enlarge the cache if required. */
     if (cache == NULL || cache_size < needed) {
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      (size_t)needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)needed);
         if (tmp == NULL)            /* allocation failed – abort gracefully */
             return (seq_t)0;
         cache = tmp;

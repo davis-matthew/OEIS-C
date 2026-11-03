@@ -7,11 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
+#include <string.h>
 /* Computation: decimal digits of sqrt(29)/5 via digit‑by‑digit
    sqrt extraction (base 10) and division by 5.  The sequence
    a(1) is the integer part (1), a(2) the first decimal digit,

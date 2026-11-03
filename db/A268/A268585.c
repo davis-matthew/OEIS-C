@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   build_primes_upto, floor_sqrt, is_prime
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_i32, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,11 +28,30 @@
 #include <stdbool.h>
 
 /* prime list builder and primality tests */
-#include "../utils/build_primes_upto.h" /* build_primes_upto(idx_t, uint64_t **, size_t *) */
-#include "../utils/is_prime.h"           /* is_prime(idx_t) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* integer square root in the seq_t type */
-#include "../utils/floor_sqrt.h"         /* floor_sqrt(seq_t) */
 
 seq_t a(idx_t n)
 {
@@ -94,8 +114,7 @@ seq_t a(idx_t n)
                 /* accept this number */
                 if (cache_sz == cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-                    seq_t *new_mem = (seq_t *)realloc(cache,
-                                                       new_cap * sizeof(seq_t));
+                    seq_t *new_mem = mem_resize(seq_t, cache, new_cap);
                     if (!new_mem)
                         abort();           /* allocation failed */
                     cache      = new_mem;

@@ -9,15 +9,46 @@
  *            contains no 0s and exactly four 3s
  * Range:     u8 n <= 1, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   comb_capped, mul_capped, pow2_capped
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/comb_capped.h"
-#include "../utils/mul_capped.h"
-#include "../utils/pow2_capped.h"
+
+/* C(n,k) capped at cap (returns cap+1 if the exact value would exceed cap). */
+static inline idx_t comb_capped(idx_t n, idx_t k, idx_t cap) {
+    if (k > n) return 0;
+    if (k > n - k) k = n - k;
+    unsigned __int128 res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        unsigned __int128 numerator = res * (n - k + i);
+        unsigned __int128 denominator = i;
+        res = numerator / denominator;
+        if (res > cap) return cap + 1;
+    }
+    return (idx_t)res;
+}
+
+/* Multiply a and b capped at cap (returns cap+1 if the product would exceed cap). */
+static inline idx_t mul_capped(idx_t a, idx_t b, idx_t cap) {
+    if (a == 0 || b == 0) return 0;
+    if (a > cap / b) return cap + 1;
+    return a * b;
+}
+
+/* 2^e capped at cap (returns cap+1 if the exact value would exceed cap). */
+static inline idx_t pow2_capped(idx_t e, idx_t cap) {
+    if (e == 0) return (cap >= 1) ? 1 : cap + 1;
+    if (e >= 64) return cap + 1;
+    unsigned __int128 res = 1;
+    for (idx_t i = 0; i < e; ++i) {
+        res <<= 1;
+        if (res > cap) return cap + 1;
+    }
+    return (idx_t)res;
+}
 
 /* Main sequence generator. */
 seq_t a(idx_t n) {

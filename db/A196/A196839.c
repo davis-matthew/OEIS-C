@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   binom_divisible_by_prime
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,23 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binom_divisible_by_prime.h"
+
+/* Determine whether binomial(n,m) is divisible by a prime p.
+   Uses Kummer's theorem: the exponent of p in C(n,m) equals the
+   number of carries when adding m and n-m in base p. */
+static int binom_divisible_by_prime(idx_t n, idx_t m, int p)
+{
+    idx_t a = m;
+    idx_t b = n - m;
+    while (a || b) {
+        int ai = a % p;
+        int bi = b % p;
+        if (ai + bi >= p) return 1;   /* a carry occurs */
+        a /= p;
+        b /= p;
+    }
+    return 0;
+}
 
 /* ------------------------------------------------------------ */
 /* Small list of primes up to 199 (needed for all possible r ≤ 140).

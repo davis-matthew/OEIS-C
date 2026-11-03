@@ -7,7 +7,8 @@
  * Formula:   a(n) = n!*Sum_{m=1..floor((n+1)/2)} 1/(m*binomial(n-m,m-1))
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   factorial, gcd
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/factorial.h"
 #include "../utils/gcd.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 static inline seq_t mul_seq_t(seq_t x, seq_t y) { return x * y; }
 

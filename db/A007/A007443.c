@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n} binomial(n-1,k-1)*prime(k)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 27, u64 n <= 58, u128 n <= 120,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 2978 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

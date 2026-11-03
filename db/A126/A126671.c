@@ -12,14 +12,14 @@
  *            Σ_{i=1}^{min(k‑1,r‑1)} C(r‑1‑i, k‑1‑i) / (r‑i)
  * Range:     u8 n <= 18, u16 n <= 39, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-
+#include "../utils/binomial.h"
 
 static seq_t fact_cache[200];
 static idx_t fact_cnt = 0;
@@ -60,7 +60,7 @@ seq_t a(idx_t N)
     seq_t sum = (seq_t)0;
     for (idx_t i = 1; i <= lim; ++i) {
         seq_t term = F / (seq_t)(n + 1 - i);               /* (n)!/(n+1-i) */
-        seq_t bin  = binom((idx_t)(n - i), (idx_t)(k - 1 - i));
+        seq_t bin  = binomial((idx_t)(n - i), (idx_t)(k - 1 - i));
         sum = sum + term * bin;
     }
     return sum;

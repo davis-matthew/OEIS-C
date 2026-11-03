@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   highest_exponent
+ * Validated: standard, pass, 88 terms through n = 9088 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,41 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/highest_exponent.h"
+#include "../utils/mem.h"
+
+/* Return the highest exponent in the prime factorization of n (n>=1).*/
+static unsigned int highest_exponent(idx_t n)
+{
+    if (n <= 1) return 0;
+    unsigned int max_exp = 0;
+    idx_t t = n;
+
+    /* factor 2 */
+    unsigned int exp = 0;
+    while ((t & 1ULL) == 0) {
+        ++exp;
+        t >>= 1;
+    }
+    if (exp > max_exp) max_exp = exp;
+
+    /* odd factors up to sqrt(t) */
+    idx_t d = 3;
+    while (d * d <= t) {
+        if (t % d == 0) {
+            exp = 0;
+            while (t % d == 0) {
+                ++exp;
+                t /= d;
+            }
+            if (exp > max_exp) max_exp = exp;
+        }
+        d += 2;
+    }
+    if (t > 1) {                /* remaining prime factor */
+        if (max_exp < 1) max_exp = 1;
+    }
+    return max_exp;
+}
 
 /* ---------- static state ---------- */
 static seq_t *sequence = NULL;      /* array of computed terms            */
@@ -53,7 +88,7 @@ static void ensure_seq_cap(idx_t n)
     if (seq_cap >= (size_t)n) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 1;
     while (new_cap < (size_t)n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(sequence, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, sequence, new_cap);
     if (!tmp) abort();
     sequence = tmp;
     seq_cap = new_cap;

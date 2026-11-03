@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 261, u32 n <= 877, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 1174 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     if (cached == NULL || h > cached_row) {
         /* Recompute the triangle up to the required row h. */
         if (cached) {
-            free(cached);
+            mem_free(cached);
             cached = NULL;
         }
 
@@ -62,11 +64,11 @@ seq_t a(idx_t n)
         size_t dim   = (size_t)maxh + 1;         /* array dimension */
         size_t arrlen = dim * dim;               /* number of elements */
 
-        cached = (seq_t*)malloc(arrlen * sizeof(seq_t));
+        cached = mem_new(seq_t, arrlen);
         if (cached == NULL) return (seq_t)0;     /* memory failure */
 
         /* initialise all entries to 0 */
-        memset(cached, 0, arrlen * sizeof(seq_t));
+        mem_set(cached, 0, arrlen * sizeof(seq_t));
 
         /* base rows */
         cached[0 * dim + 0] = 1;

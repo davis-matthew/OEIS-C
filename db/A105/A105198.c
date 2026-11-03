@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*(n+1)/2 mod 4
  * Range:     u8 n <= 8191, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
+ * Validated: standard, pass, 121 terms through n = 7683 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,12 +9,14 @@
  *            a(9)=4248, a(10)=60336, a(11)=336528
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 37, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         idx_t new_cap = n + 1;
         if (new_cap < 12) new_cap = 12;          /* ensure space for the 12 constants */
 
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap   = new_cap;
 
         /* Initialise the first 12 entries (if they are newly allocated). */

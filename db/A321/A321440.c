@@ -10,12 +10,14 @@
  *            triples (i,j,t) where i <= j and t >= 1
  * Range:     u8 n <= 3428, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9287 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* calloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* recompute up to n if needed */
     if (n >= dp_size) {
-        seq_t *new_dp = (seq_t *)calloc((size_t)(n + 1U), sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (size_t)(n + 1U));
         if (!new_dp) {
             /* allocation failure – abort (no error handling required by spec) */
             abort();
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         }
 
         /* replace old cache */
-        free(dp);
+        mem_free(dp);
         dp = new_dp;
         dp_size = n + 1U;
     }

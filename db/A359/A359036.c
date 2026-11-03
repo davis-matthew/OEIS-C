@@ -9,9 +9,10 @@
  * Formula:   The permutation a(n) maps each n to the least unused k≠n with
  *            the same number of divisors d(k)=d(n). The mapping pairs
  *            consecutive numbers with equal divisor count in increasing order
- * Range:     u8 n <= 63, u16 n <= 4095, u32 n <= 9803, u64 n <= 9803,
- *            u128 n <= 9803, big any n
- * Helpers:   make_seq_t
+ * Range:     u8 n <= 63, u16 n <= 4095, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 84 terms through n = 9803 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/make_seq_t.h"
+#include "../utils/mem.h"
+
+/* helper to convert an idx_t to seq_t (works for builtin types and
+   integer‑like big integer classes) */
+static inline seq_t make_seq_t(idx_t x) { return (seq_t)x; }
 
 /* internal storage */
 static bool initialized = false;
@@ -33,14 +38,14 @@ static uint32_t *first_unpaired = NULL; /* pending element per divisor count */
 static void init_up_to(idx_t limit)
 {
     /* free old tables if they exist */
-    free(perm);
+    mem_free(perm);
     free(dcount);
     free(first_unpaired);
 
     /* allocate new tables */
     size_t sz = (size_t)limit + 1;
     dcount          = (uint32_t *)calloc(sz, sizeof(uint32_t));
-    perm            = (seq_t *)calloc(sz, sizeof(seq_t));
+    perm            = mem_new(seq_t, sz);
     first_unpaired  = (uint32_t *)calloc(sz, sizeof(uint32_t));
 
     /* compute divisor counts: d(n) = number of positive divisors of n */

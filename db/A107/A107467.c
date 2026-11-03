@@ -10,13 +10,15 @@
  *            a(5)=5, a(6)=8, a(7)=23
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 24, u64 n <= 43, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static const seq_t init_values[8] = {
     (seq_t)0, (seq_t)1, (seq_t)1, (seq_t)2,
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (!dp) {
         idx_t needed = n + 1;
         if (needed < 8) needed = 8;
-        dp = (seq_t *)malloc((size_t)needed * sizeof(seq_t));
+        dp = mem_new(seq_t, (size_t)needed);
         if (!dp) abort();
         for (idx_t i = 0; i < 8; ++i)
             dp[i] = init_values[i];
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     } else if (dp_size <= n) {
         idx_t new_size = (dp_size > 0) ? dp_size * 2 : 8;
         while (new_size <= n) new_size *= 2;
-        seq_t *tmp = (seq_t *)realloc(dp, (size_t)new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (size_t)new_size);
         if (!tmp) abort();
         dp = tmp;
         dp_size = new_size;

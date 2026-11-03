@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1, i16 n <= 9, i32 n <= 91, i64 n <= 186, i128 n <= 380,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 911 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *Num = NULL;         /* floor((k+1)*√2)  , k≥0 */
 static seq_t *Den = NULL;         /* floor((k+1)*√3)  , k≥0 */
@@ -57,7 +59,7 @@ static void ensure_capacity(idx_t n, seq_t **arr, idx_t *cap)
     if (n < *cap) return;
     idx_t new_cap = (*cap == 0) ? 16 : *cap;
     while (n >= new_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) abort();
     *arr = tmp;
     *cap = new_cap;
@@ -92,11 +94,11 @@ static void compute_until(idx_t n)
 
     if (CacheCap == 0) {
         CacheCap = 16;
-        Cache = (seq_t *)malloc(CacheCap * sizeof(seq_t));
+        Cache = mem_new(seq_t, CacheCap);
         if (!Cache) abort();
     }
     while (n >= CacheCap) CacheCap <<= 1;
-    Cache = (seq_t *)realloc(Cache, CacheCap * sizeof(seq_t));
+    Cache = mem_resize(seq_t, Cache, CacheCap);
     if (!Cache) abort();
 
     for (idx_t i = CacheSize; i <= n; ++i) {

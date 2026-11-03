@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   has_adj_12_or_21
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adj_12_or_21.h"
+#include "../utils/mem.h"
+
+/* Return true iff n (in base 5) contains the substring "12" or "21". */
+static bool has_adj_12_or_21(seq_t n)
+{
+    int prev = (int)(n % (seq_t)5);       /* least significant digit */
+    n /= (seq_t)5;
+    while (n > 0) {
+        int curr = (int)(n % (seq_t)5);   /* next more significant digit */
+        if ((curr == 1 && prev == 2) || (curr == 2 && prev == 1))
+            return true;                 /* found juxtaposed 1 and 2 */
+        prev = curr;
+        n /= (seq_t)5;
+    }
+    return false;
+}
 
 /* Dynamic cache of found sequence elements */
 static seq_t *cache      = NULL;
@@ -34,11 +50,11 @@ static void grow_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t cap = cache_cap ? cache_cap : 16;
     while (cap < needed) cap <<= 1;
-    seq_t *new_arr = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, cap);
     if (!new_arr) exit(1);              /* abort on allocation failure */
     if (cache) {
         for (size_t i = 0; i < cache_len; ++i) new_arr[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache     = new_arr;
     cache_cap = cap;

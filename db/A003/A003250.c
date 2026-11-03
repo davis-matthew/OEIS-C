@@ -9,7 +9,8 @@
  *            A003231(k) = floor(k*phi) + 2k and A001950(m) = floor(m*phi) + m
  * Range:     u8 n <= 50, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   a3250_fphi, a3250_isqrt
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/a3250_fphi.h"
-#include "../utils/a3250_isqrt.h"
+#include "../utils/isqrt_u64.h"
+
+/* floor(k*phi) = floor((k + sqrt(5k^2))/2) */
+static uint64_t a3250_fphi(uint64_t k) {
+    return (k + isqrt_u64(5 * k * k)) / 2;
+}
 
 static uint64_t *a3250_cache = NULL;
 static idx_t a3250_len = 0, a3250_cap = 0;

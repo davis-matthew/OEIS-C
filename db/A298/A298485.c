@@ -12,6 +12,7 @@
  *            T(1,0)=2, T(1,1)=-1, T(n,k)=T(n-1,k-1)+T(n-1,k)
  * Range:     i8 n <= 57, i16 n <= 196, i32 n <= 644, i64 n <= 2374,
  *            i128 n <= 8838, big any n
+ * Validated: standard, pass, 94 terms through n = 9774 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

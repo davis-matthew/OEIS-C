@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 400 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    (equivalent to a(n) = S(n,227)+S(n-1,227) or generating function (1+x)/(1-227x+x^2)) */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* External types provided by the build */
 seq_t a(idx_t n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (cache_len < 2) {
         size_t needed = 2;
         if (cache_size < needed) {
-            seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, needed);
             cache = tmp;
             cache_size = needed;
         }
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         new_size <<= 1;      /* double until we can hold index n */
     }
     if (new_size > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         cache = tmp;
         cache_size = new_size;
     }

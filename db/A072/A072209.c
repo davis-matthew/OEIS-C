@@ -8,7 +8,8 @@
  * Formula:   a(n) = φ(φ(A033948(n))) (primitive‑root indicator)
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9294 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* choose a sieve limit that covers the expected range of n */
 /* For n up to about 10 000 this is more than enough */
@@ -34,15 +36,15 @@ static void init_sequence(void)
     if (initialized) return;
 
     /* allocate tables */
-    phi_arr = (seq_t *)malloc((MAX_LIMIT + 1) * sizeof(seq_t));
+    phi_arr = mem_new(seq_t, (MAX_LIMIT + 1));
     if (!phi_arr) return;   /* out of memory */
 
     /* spf array to aid the sieve (not strictly needed for φ but useful) */
     uint32_t *spf = (uint32_t *)malloc((MAX_LIMIT + 1) * sizeof(uint32_t));
-    if (!spf) { free(phi_arr); return; }
+    if (!spf) { mem_free(phi_arr); return; }
 
     uint32_t *primes = (uint32_t *)malloc((MAX_LIMIT / 10) * sizeof(uint32_t));
-    if (!primes) { free(phi_arr); free(spf); return; }
+    if (!primes) { mem_free(phi_arr); free(spf); return; }
     size_t primes_cnt = 0;
 
     spf[0] = spf[1] = 0;
@@ -71,7 +73,7 @@ static void init_sequence(void)
 
     /* mark all numbers that admit a primitive root */
     uint8_t *present = (uint8_t *)calloc((MAX_LIMIT + 1), sizeof(uint8_t));
-    if (!present) { free(phi_arr); free(spf); free(primes); return; }
+    if (!present) { mem_free(phi_arr); free(spf); free(primes); return; }
 
     /* special cases */
     if (MAX_LIMIT >= 1) present[1] = 1;
@@ -97,7 +99,7 @@ static void init_sequence(void)
     /* collect into the list in increasing order */
     prim_roots = (idx_t *)malloc((MAX_LIMIT + 1) * sizeof(idx_t));
     if (!prim_roots) {
-        free(phi_arr); free(spf); free(primes); free(present);
+        mem_free(phi_arr); free(spf); free(primes); free(present);
         return;
     }
 

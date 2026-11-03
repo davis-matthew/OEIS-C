@@ -12,13 +12,15 @@
  *            read consecutively
  * Range:     u8 n <= 46, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
     idx_t floor_k_over_2 = half;
 
     /* Binomial coefficients for the definition. */
-    seq_t left  = binom(r,          ceil_k_over_2);
-    seq_t right = binom(r - 1,      floor_k_over_2);
+    seq_t left  = binomial(r,          ceil_k_over_2);
+    seq_t right = binomial(r - 1,      floor_k_over_2);
 
     return left * right;
 }

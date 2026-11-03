@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 102, u32 n <= 250, u64 n <= 777,
  *            u128 n <= 2625, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 8357 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------------*
  * Common integer‑sqrt routine (floor) for unsigned 64‑bit values. *
@@ -60,7 +62,7 @@ static void rebuild_table(size_t s)
     size_t new_dim = s + 1;                /* number of rows/cols    */
     size_t cap     = new_dim * new_dim;    /* total number of cells  */
 
-    seq_t *new_tbl = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *new_tbl = mem_new(seq_t, cap);
     if (!new_tbl)
         exit(1);                          /* allocation failure     */
 
@@ -86,7 +88,7 @@ static void rebuild_table(size_t s)
     }
 
     /* replace the old table */
-    free(A_tbl);
+    mem_free(A_tbl);
     A_tbl  = new_tbl;
     A_dim  = new_dim;
 }

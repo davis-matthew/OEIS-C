@@ -10,14 +10,54 @@
  *            perfect square.)
  * Range:     u8 n <= 365, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _is_exponentially_odd_and_rad
+ * Validated: standard, pass, 103 terms through n = 9512 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/_is_exponentially_odd_and_rad.h"
+#include "../utils/mem.h"
+
+/* Helper: trial division factorisation that is safe for all seq_t sizes.   */
+static bool _is_exponentially_odd_and_rad(idx_t x, seq_t *rad_out)
+{
+    seq_t rad = 1;                        /* product of distinct primes */
+    bool all_odd = true;
+    idx_t m = x;
+
+    /* handle factor 2 separately */
+    int exp = 0;
+    while ((m & 1) == 0) {                /* m % 2 == 0 */
+        m >>= 1;
+        exp++;
+    }
+    if (exp) {
+        rad *= (seq_t)2;
+        if ((exp & 1) == 0) all_odd = false;
+    }
+
+    /* odd primes */
+    for (idx_t p = 3; p * p <= m; p += 2) {
+        if (m % p != 0) continue;
+        exp = 0;
+        while (m % p == 0) {
+            m /= p;
+            exp++;
+        }
+        rad *= (seq_t)p;
+        if ((exp & 1) == 0) all_odd = false;
+    }
+
+    /* remaining prime factor > sqrt(original x) */
+    if (m > 1) {
+        rad *= (seq_t)m;  /* exponent 1 (odd) */
+    }
+
+    if (rad_out) *rad_out = rad;
+    return all_odd;
+}
 
 /* Cache of already computed a(n) values. */
 static seq_t *_a_cache = NULL;
@@ -30,7 +70,7 @@ static void _ensure_cache_size(size_t need)
     if (_a_cache_size >= need) return;
     size_t new_cap = (_a_cache_size == 0 ? 32 : _a_cache_size * 2);
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(_a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _a_cache, new_cap);
     if (!tmp) abort();
     _a_cache = tmp;
 }

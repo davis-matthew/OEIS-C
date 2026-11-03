@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 7, u128 n <= 14,
  *            big any n
- * Helpers:   seq_gcd, seq_mul
+ * Validated: standard, pass, 30 terms through n = 379 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,16 @@
  */
 
 #include <stdlib.h>
-#include "../utils/seq_gcd.h"   /* seq_gcd */
-#include "../utils/seq_mul.h"   /* seq_mul */
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* cache for previously computed terms */
 static seq_t *cache = NULL;      /* allocated array of seq_t */
@@ -45,7 +54,7 @@ static void grow_cache(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
         if (new_cap < (size_t)needed)
             new_cap = (size_t)needed;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();               /* allocation failed */
         cache = tmp;
@@ -87,46 +96,46 @@ seq_t a(idx_t n)
         seq_t f3 = (seq_t)(6 * i + sign);
 
         /* cancel common factors between prev and the denominator */
-        seq_t g = seq_gcd(prev, den);
+        seq_t g = gcd(prev, den);
         if (g != (seq_t)1) {
             prev /= g;
             den /= g;
         }
 
         /* process factor f1 */
-        g = seq_gcd(f1, den);
+        g = gcd(f1, den);
         if (g != (seq_t)1) {
             f1 /= g;
             den /= g;
         }
         prev = seq_mul(prev, f1);           /* multiply safely */
-        g = seq_gcd(prev, den);
+        g = gcd(prev, den);
         if (g != (seq_t)1) {
             prev /= g;
             den /= g;
         }
 
         /* process factor f2 */
-        g = seq_gcd(f2, den);
+        g = gcd(f2, den);
         if (g != (seq_t)1) {
             f2 /= g;
             den /= g;
         }
         prev = seq_mul(prev, f2);
-        g = seq_gcd(prev, den);
+        g = gcd(prev, den);
         if (g != (seq_t)1) {
             prev /= g;
             den /= g;
         }
 
         /* process factor f3 */
-        g = seq_gcd(f3, den);
+        g = gcd(f3, den);
         if (g != (seq_t)1) {
             f3 /= g;
             den /= g;
         }
         prev = seq_mul(prev, f3);
-        g = seq_gcd(prev, den);
+        g = gcd(prev, den);
         if (g != (seq_t)1) {
             prev /= g;
             den /= g;

@@ -10,13 +10,15 @@
  *            coefficient of the triangle of polynomials u(n,x)
  * Range:     u8 n <= 45, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* external types supplied by the build system */
 extern idx_t _floor_isqrt_u64(idx_t n);
@@ -68,8 +70,8 @@ static void ensure_rows_up_to(idx_t needed_r)
         size_t next_len = (size_t)next_r;           /* number of coeffs */
 
         /* allocate new row arrays */
-        seq_t *u_new = (seq_t*)malloc(next_len * sizeof(seq_t));
-        seq_t *v_new = (seq_t*)malloc(next_len * sizeof(seq_t));
+        seq_t *u_new = mem_new(seq_t, next_len);
+        seq_t *v_new = mem_new(seq_t, next_len);
         if (!u_new || !v_new) abort();            /* allocation failure */
 
         if (max_row == 0) {                       /* first row (r=1) */
@@ -97,7 +99,7 @@ static void ensure_rows_up_to(idx_t needed_r)
         u_rows[next_r] = u_new;
 
         /* free the old v (no longer needed) */
-        free(prev_v);
+        mem_free(prev_v);
 
         /* prepare for next iteration */
         prev_u = u_new;

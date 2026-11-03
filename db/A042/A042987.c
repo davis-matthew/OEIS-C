@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 4928, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9411 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- static storage for caching ---------- */
 static seq_t *qual_cache = NULL;   /* primes with residue != 1 (mod 8)   */
@@ -39,7 +41,7 @@ static void grow_qual_cap(size_t min_cap)
     if (qual_cap < min_cap) {
         size_t new_cap = qual_cap ? qual_cap * 2 : 16;
         if (new_cap < min_cap) new_cap = min_cap;
-        qual_cache = (seq_t *)realloc(qual_cache, new_cap * sizeof(seq_t));
+        qual_cache = mem_resize(seq_t, qual_cache, new_cap);
         qual_cap   = new_cap;
     }
 }

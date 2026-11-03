@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 92, u16 n <= 617, u32 n <= 1024, u64 n <= 1024,
  *            u128 n <= 1024, big any n
- * Helpers:   build_len
+ * Validated: full, pass, 1024 terms through n = 1024 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
    contains 1024 terms; for n>1024 this function returns 0. */
 
 #include <stdlib.h>
-#include "../utils/build_len.h"
+#include "../utils/mem.h"
+
+/* Recursive helper that builds all numbers of a given length L. */
+static void build_len(int L, int pos, int start, seq_t val, size_t *idx, seq_t *cache)
+{
+    if (pos == L) {
+        (*idx)++;
+        cache[*idx] = val;
+        return;
+    }
+    int max_digit = 10 - (L - pos - 1);          /* digits left to place */
+    for (int d = start; d <= max_digit; ++d) {
+        build_len(L, pos + 1, d + 1, val * 11 + (seq_t)d, idx, cache);
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -26,7 +41,7 @@ seq_t a(idx_t n)
 
     if (!cache) { /* first call – build the whole sequence */
         cache_size = 1024 + 1;               /* index 0 unused */
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;
 
         size_t idx = 0;

@@ -8,28 +8,31 @@
  *            p^4 * (p^(4e) - p^(4⌊(e-1)/2⌋)) / (p^4 - 1)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 251, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 54 terms through n = 9787 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* Compute the contribution of a single prime power p^e */
 static seq_t prime_power_term(seq_t p, unsigned e)
 {
     /* p^4 */
-    seq_t p4 = seq_pow(p, 4U);
+    seq_t p4 = ipow_idx(p, 4U);
 
     /* exponents for the numerator terms */
     idx_t exp_full = 4U * (idx_t)(e);                     /* 4e */
     idx_t exp_half = 4U * (idx_t)((e - 1U) / 2U);         /* 4⌊(e-1)/2⌋ */
 
     /* numerator and denominator of the fraction */
-    seq_t num = seq_pow(p, exp_full) - seq_pow(p, exp_half);
+    seq_t num = ipow_idx(p, exp_full) - ipow_idx(p, exp_half);
     seq_t den = p4 - 1U;
 
     /* division is exact; avoid overflow by dividing first */

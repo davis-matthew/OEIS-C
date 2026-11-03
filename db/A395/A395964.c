@@ -9,14 +9,34 @@
  *            Fibonacci word (fixed point of 0->01, 1->0)
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   thue_morse_transform
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/thue_morse_transform.h"
+#include "../utils/mem.h"
+
+/* Thue-Morse transform of a binary word of length len.  */
+static inline void thue_morse_transform(const uint8_t *in, uint8_t *out, idx_t len)
+{
+    if (len == 0)
+        return;
+    out[0] = 0;          /* base: T(w)(0) = 0 */
+    idx_t zcnt = 1;       /* zeros seen so far (after i=0) */
+    idx_t ocnt = 0;       /* ones seen so far */
+    for (idx_t i = 1; i < len; ++i) {
+        if (in[i] == 0) {
+            out[i] = out[zcnt];
+            ++zcnt;
+        } else {
+            out[i] = 1 - out[ocnt];
+            ++ocnt;
+        }
+    }
+}
 
 /* static cache for all computed terms */
 static seq_t *cache = NULL;
@@ -29,7 +49,7 @@ static void ensure_cache(idx_t needed_len)
         return;
 
     /* free old cache if any */
-    free(cache);
+    mem_free(cache);
 
     /* ---------- generate Fibonacci word prefix (at least needed_len) ---------- */
     uint8_t *cur = (uint8_t*)malloc(1);
@@ -72,7 +92,7 @@ static void ensure_cache(idx_t needed_len)
     thue_morse_transform(w1, w2, needed_len);
 
     /* ---------- store results in cache ---------- */
-    cache = (seq_t*)malloc(needed_len * sizeof(seq_t));
+    cache = mem_new(seq_t, needed_len);
     for (idx_t i = 0; i < needed_len; ++i)
         cache[i] = (seq_t)w2[i];
 

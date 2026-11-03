@@ -12,12 +12,14 @@
  *            4239
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 26, u64 n <= 52, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[] = {1, 2, 5, 12, 27, 65, 146, 346, 788, 1845, 4239};
 static const idx_t init_len = sizeof(init)/sizeof(init[0]);
@@ -38,14 +40,14 @@ seq_t a(idx_t n) {
         if (cap < n + 1) {
             while (cap < n + 1) cap *= 2;
         }
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();
         for (idx_t i = 0; i < init_len; ++i) cache[i] = init[i];
         computed = init_len - 1;   /* 10 */
     } else if (cap < n + 1) {
         idx_t newcap = cap ? cap * 2 : 16;
         while (newcap < n + 1) newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();
         cache = tmp;
         cap = newcap;

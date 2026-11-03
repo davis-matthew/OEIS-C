@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* static caches for Fibonacci numbers and primes */
 static seq_t *fib_cache = NULL;      /* fib_cache[i] = Fib(i) */
@@ -36,7 +38,7 @@ static void ensure_fib(size_t idx)
     if (fib_cap > idx) return;
 
     size_t new_cap = idx + 1;
-    seq_t *buf = (seq_t*)realloc(fib_cache, new_cap * sizeof(seq_t));
+    seq_t *buf = mem_resize(seq_t, fib_cache, new_cap);
     if (!buf) exit(EXIT_FAILURE);
     fib_cache = buf;
 

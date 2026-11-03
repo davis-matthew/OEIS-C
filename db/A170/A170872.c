@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   msb_pow2
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/msb_pow2.h"
+#include "../utils/mem.h"
+
+/* largest power of two ≤ x (x≥0) */
+static inline idx_t msb_pow2(idx_t x)
+{
+    if (x == 0) return 0;
+    idx_t p = 1;
+    while ((p << 1) <= x) p <<= 1;
+    return p;
+}
 
 static seq_t *cache      = NULL;   /* memoised values */
 static size_t  cache_cap = 0;      /* current capacity of cache */
@@ -28,12 +38,12 @@ static size_t  cache_cap = 0;      /* current capacity of cache */
 /* grow cache to at least new_cap elements */
 static void grow_cache(size_t new_cap)
 {
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (cache != NULL) {
         for (size_t i = 0; i < cache_cap; ++i) {
             tmp[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
     }
     cache      = tmp;
     cache_cap  = new_cap;

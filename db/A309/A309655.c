@@ -13,7 +13,8 @@
  *            minimal non‑negative difference for all n
  * Range:     u8 n <= 9, u16 n <= 556, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 80 terms through n = 9036 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static uint64_t *primes   = NULL;  /* primes[0..p_len-1]               */
 static seq_t   *prefix   = NULL;   /* prefix[i] = sum of first i primes (prefix[0] = 0) */
@@ -33,7 +35,7 @@ static void grow(void)
     size_t new_cap = cap ? cap << 1 : 4;
 
     uint64_t *new_primes = (uint64_t *)realloc(primes, new_cap * sizeof(uint64_t));
-    seq_t   *new_prefix = (seq_t *)realloc(prefix, (new_cap + 1) * sizeof(seq_t));
+    seq_t   *new_prefix = mem_resize(seq_t, prefix, (new_cap + 1));
     if (!new_primes || !new_prefix) abort();
 
     primes  = new_primes;

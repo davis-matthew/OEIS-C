@@ -9,7 +9,8 @@
  *            solely of the primes 2,3,5,7 (smooth numbers)
  * Range:     u8 n <= 35, u16 n <= 399, u32 n <= 5259, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9079 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    amortised O(1) per term. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static state: generated smooth numbers and indices for primes 2,3,5,7 */
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     /* Initialise on first call */
     if (smooth_len == 0) {
         smooth_cap = 1;
-        smooth = (seq_t *)malloc(smooth_cap * sizeof(seq_t));
+        smooth = mem_new(seq_t, smooth_cap);
         if (!smooth) exit(1);            /* out of memory */
         smooth[0] = 1;                    /* 1 is the first smooth number */
         smooth_len = 1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
         if (smooth_len >= smooth_cap) {
             size_t new_cap = smooth_cap * 2;
             if (new_cap == 0) new_cap = 4;
-            smooth = (seq_t *)realloc(smooth, new_cap * sizeof(seq_t));
+            smooth = mem_resize(seq_t, smooth, new_cap);
             if (!smooth) exit(1);
             smooth_cap = new_cap;
         }

@@ -11,20 +11,40 @@
  *            (N(eps) = -1), else h+/2
  * Range:     u8 n <= 3001, u16 n <= 3001, u32 n <= 3001, u64 n <= 3001,
  *            u128 n <= 3001, big any n
- * Helpers:   is_fund_disc, isqrt_ll, nth_fund_disc, squarefree_ll
+ * Validated: standard, pass, 121 terms through n = 2893 (2026-11-01)
+ * Helpers:   is_squarefree_i64, isqrt_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_fund_disc.h"
-#include "../utils/isqrt_ll.h"
-#include "../utils/nth_fund_disc.h"
-#include "../utils/squarefree_ll.h"
+#include <stdint.h>
+#include "../utils/is_squarefree_i64.h"
+#include "../utils/isqrt_i64.h"
+
+static bool is_fund_disc(long long d) {
+    if (d % 4 == 1) return is_squarefree_i64(d);
+    if (d % 4 == 0) {
+        long long m = d / 4;
+        if (m % 4 == 2 || m % 4 == 3) return is_squarefree_i64(m);
+    }
+    return false;
+}
+
+static long long nth_fund_disc(idx_t n) {
+    /* A003658(1) = 1 */
+    long long d = 1;
+    idx_t cnt = 1;
+    while (cnt < n) {
+        d++;
+        if (is_fund_disc(d)) cnt++;
+    }
+    return d;
+}
 
 static long long class_number(long long D) {
-    long long s = isqrt_ll(D);
+    long long s = isqrt_i64(D);
     long long cap = 64, N = 0, b, A, i;
     long long *fa = (long long *)malloc(sizeof(long long) * cap);
     long long *fb = (long long *)malloc(sizeof(long long) * cap);

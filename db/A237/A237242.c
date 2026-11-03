@@ -12,13 +12,15 @@
  *            recurrence directly
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 28, u128 n <= 58,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 37 terms through n = 210 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     seq_t base = init[baseIdx - 1];        /* 0‑based array index */
 
     /* Compute 352^t (using the helper function). */
-    seq_t pow352 = seq_pow((seq_t)352, t);
+    seq_t pow352 = ipow_idx((seq_t)352, t);
 
     /* Final value: base * 352^t. */
     return pow352 * base;

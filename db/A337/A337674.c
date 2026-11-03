@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Factorize a uint64_t into distinct primes and their exponents.
    The buffers `primes` and `exps` must be large enough to hold the
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         if (k == 1) {
             if (len + 1 > cap) {
                 cap = cap ? cap * 2 : 8;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = (seq_t)1;
             continue;
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
         if (ok) {
             if (len + 1 > cap) {
                 cap = cap ? cap * 2 : 8;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = (seq_t)k;
         }

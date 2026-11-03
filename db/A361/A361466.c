@@ -10,7 +10,8 @@
  * Formula:   a(n) = 1 if A017665(A003961(n)) is a power of 2, else 0
  * Range:     u8 n <= 31, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, is_power_of_two, next_prime
+ * Validated: standard, pass, 136 terms through n = 9387 (2026-11-01)
+ * Helpers:   gcd, is_pow2, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,9 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-#include "../utils/next_prime.h"
 #include "../utils/gcd.h"
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
+#include "../utils/next_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -92,5 +93,5 @@ seq_t a(idx_t n)
     seq_t g = gcd(m_seq, sigma_seq);
     seq_t num = sigma_seq / g;
 
-    return (seq_t)(is_power_of_two(num) ? 1 : 0);
+    return (seq_t)(is_pow2(num) ? 1 : 0);
 }

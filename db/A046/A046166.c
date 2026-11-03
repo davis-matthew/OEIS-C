@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 9, u64 n <= 15, u128 n <= 27,
  *            big any n
- * Helpers:   mul_small, pow_uint
+ * Validated: standard, pass, 36 terms through n = 99 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
-#include "../utils/mul_small.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* cache for integer types (≤ 8 bytes) */
 static seq_t *cache = NULL;
@@ -34,7 +49,7 @@ static void ensure_int_cache(idx_t n)
     /* enlarge cache array if necessary */
     if (n >= cache_cap) {
         size_t new_cap = (size_t)n + 1;   /* allocate indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                /* unrecoverable */
         cache = tmp;
         cache_cap = new_cap;
@@ -43,12 +58,12 @@ static void ensure_int_cache(idx_t n)
     /* compute initial values a(1)..a(6) if not already done */
     idx_t end = n < 6 ? n : 6;
     for (idx_t i = cache_len + 1; i <= end; ++i) {
-        seq_t p26 = pow_uint(26, i);
-        seq_t p27 = pow_uint(27, i);
-        seq_t p28 = pow_uint(28, i);
-        seq_t p29 = pow_uint(29, i);
-        seq_t p30 = pow_uint(30, i);
-        seq_t p31 = pow_uint(31, i);
+        seq_t p26 = ipow_u64_idx(26, i);
+        seq_t p27 = ipow_u64_idx(27, i);
+        seq_t p28 = ipow_u64_idx(28, i);
+        seq_t p29 = ipow_u64_idx(29, i);
+        seq_t p30 = ipow_u64_idx(30, i);
+        seq_t p31 = ipow_u64_idx(31, i);
 
         seq_t val = p31;
         val -= mul_small(p30, 5);
@@ -78,12 +93,12 @@ static void ensure_int_cache(idx_t n)
 /* compute the term directly for arbitrary‑precision types */
 static seq_t compute_big(idx_t n)
 {
-    seq_t p26 = pow_uint(26, n);
-    seq_t p27 = pow_uint(27, n);
-    seq_t p28 = pow_uint(28, n);
-    seq_t p29 = pow_uint(29, n);
-    seq_t p30 = pow_uint(30, n);
-    seq_t p31 = pow_uint(31, n);
+    seq_t p26 = ipow_u64_idx(26, n);
+    seq_t p27 = ipow_u64_idx(27, n);
+    seq_t p28 = ipow_u64_idx(28, n);
+    seq_t p29 = ipow_u64_idx(29, n);
+    seq_t p30 = ipow_u64_idx(30, n);
+    seq_t p31 = ipow_u64_idx(31, n);
 
     seq_t val = p31;
     val -= mul_small(p30, 5);

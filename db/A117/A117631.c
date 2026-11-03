@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   gpf, next_prime
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/gpf.h"          /* uint64_t gpf(uint64_t x);          */
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t s); */
+#include <stdbool.h>
+#include "../utils/largest_prime_factor.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -32,7 +35,7 @@ static void ensure_capacity(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 4;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();   /* bail out if allocation fails */
     cache = tmp;
     cache_cap = new_cap;
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
                 uint64_t p1     = next_prime(prev);
                 uint64_t p2     = next_prime(p1);
                 uint64_t sum    = (uint64_t)prev + p1 + p2;
-                val = gpf(sum);  /* largest prime factor of the sum */
+                val = largest_prime_factor(sum);  /* largest prime factor of the sum */
             }
             cache[i - 1] = (seq_t)val;
         }

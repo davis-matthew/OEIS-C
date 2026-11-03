@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 + Sum_{i=1..n} (-1)^i * Product_{j=1..i} floor(n/j)
  * Range:     i8 n <= 9, i16 n <= 15, i32 n <= 30, i64 n <= 59, i128 n <= 115,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 856 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

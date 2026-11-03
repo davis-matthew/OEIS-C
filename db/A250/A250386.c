@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 20, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Precomputation flags and cache                                           */
@@ -118,7 +120,7 @@ static void _a250386_ensure_upto(idx_t target_n)
     /* extend DP from current length to target_n + 3 */
     for (idx_t len = _a250386_computed_len + 1; len <= target_n + 3; ++len) {
         /* reset next array */
-        memset(dp_nxt, 0, sizeof(_a250386_dp_nxt));
+        mem_set(dp_nxt, 0, sizeof(_a250386_dp_nxt));
 
         /* transition from current to next */
         for (idx_t state = 0; state < 512; ++state) {

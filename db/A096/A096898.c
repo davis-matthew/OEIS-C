@@ -9,13 +9,15 @@
  *            with mn = 2n.)
  * Range:     u8 n <= 7, u16 n <= 36, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   gcd64
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd64.h"
+#include <stdbool.h>
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
         if (m == k)                 /* not primitive (m=n) */
             continue;
-        if (gcd64(m, k) != 1)       /* not coprime */
+        if (gcd_u64(m, k) != 1)       /* not coprime */
             continue;
         if ((m & 1ULL) == (k & 1ULL)) /* same parity */
             continue;

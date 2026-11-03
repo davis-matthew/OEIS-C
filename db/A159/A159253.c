@@ -12,7 +12,8 @@
  *            using the prime‑factor decomposition of n and requires...
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, ensure_capacity
+ * Validated: standard, pass, 72 terms through n = 9768 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,43 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/ensure_capacity.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 /* Computes a(n) for n >= 1 using lazy evaluation and memoisation. */
 seq_t a(idx_t n)
@@ -106,11 +142,11 @@ seq_t a(idx_t n)
 
         /* --- Store the new term ------------------------------------- */
         ensure_capacity(max_computed + 1, &seq_cap,
-                        (void **)&seq_cache, sizeof(seq_t));
+                        OEISC_VPP(&seq_cache), sizeof(seq_t));
         seq_cache[max_computed] = val;
 
         ensure_capacity(used_size + 1, &used_cap,
-                        (void **)&used_numbers, sizeof(seq_t));
+                        OEISC_VPP(&used_numbers), sizeof(seq_t));
         used_numbers[used_size] = val;
 
         ++used_size;

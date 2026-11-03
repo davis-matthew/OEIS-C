@@ -7,14 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = coefficient of x^n in G(x) = x * (1 + x) / (1 - x) *
  *            ∏_{k≥1} (1 + x^(2^k-1) + 2 * x^(2^k))
- * Range:     u8 n <= 25, u16 n <= 431, u32 n <= 9654, u64 n <= 9654,
- *            u128 n <= 9654, big any n
- * Helpers:   none
+ * Range:     u8 n <= 25, u16 n <= 431, u32 n <= 16387, u64 n <= 16387,
+ *            u128 n <= 16387, big any n
+ * Validated: standard, pass, 67 terms through n = 9654 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,14 +27,14 @@ seq_t a(idx_t n)
     size_t sz = (size_t)degree + 1;
 
     /* Allocate the current coefficient array, zero‑initialized. */
-    seq_t *coeff = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, sz);
     if (!coeff) return 0;          /* allocation failure → zero */
     coeff[0] = 1;                  /* start with H(x) = 1 */
 
     /* Multiply by (1 + x) / (1 - x)  → 1 + 2x + 2x² + … */
     {
-        seq_t *next = (seq_t *)calloc(sz, sizeof(seq_t));
-        if (!next) { free(coeff); return 0; }
+        seq_t *next = mem_new(seq_t, sz);
+        if (!next) { mem_free(coeff); return 0; }
 
         seq_t pref = 0;             /* sum coeff[0 … i‑1] */
         for (size_t i = 0; i < sz; ++i) {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
             next[i] = c + add;
             pref += c;
         }
-        free(coeff);
+        mem_free(coeff);
         coeff = next;
     }
 
@@ -54,8 +56,8 @@ seq_t a(idx_t n)
         size_t s1 = p - 1;   /* x^(2^k-1) exponent   */
         size_t s2 = p;       /* x^(2^k)   exponent   */
 
-        seq_t *next = (seq_t *)calloc(sz, sizeof(seq_t));
-        if (!next) { free(coeff); return 0; }
+        seq_t *next = mem_new(seq_t, sz);
+        if (!next) { mem_free(coeff); return 0; }
 
         for (size_t i = 0; i < sz; ++i) {
             seq_t val = coeff[i];
@@ -70,11 +72,11 @@ seq_t a(idx_t n)
             /* multiply by 2*x^s2 (coefficient 2) */
             if (i + s2 < sz) next[i + s2] += val * (seq_t)2;
         }
-        free(coeff);
+        mem_free(coeff);
         coeff = next;
     }
 
     seq_t result = coeff[degree];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

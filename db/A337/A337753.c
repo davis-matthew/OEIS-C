@@ -8,7 +8,8 @@
  * Formula:   a(n) = 6*a(n-1)-6*a(n-2)+5*a(n-3), a(1)=2, a(2)=8, a(3)=41
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* includes required for size_t, malloc, free */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper to allocate or grow a static cache of seq_t values. */
 static seq_t *cache = NULL;           /* array holding a(1) ... a(m) */
@@ -38,7 +40,7 @@ ensure_cache(size_t needed)
 #ifdef seq_alloc_new_array
     seq_t *new_arr = seq_alloc_new_array(new_cap);
 #else
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
 #endif
 
     /* copy existing values */
@@ -50,7 +52,7 @@ ensure_cache(size_t needed)
 #ifdef free_seq_array
         free_seq_array(cache);
 #else
-        free(cache);
+        mem_free(cache);
 #endif
     }
 

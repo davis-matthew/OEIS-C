@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 14, i32 n <= 29, i64 n <= 33, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * Recurrence: a(0)=1, a(1)=0, a(2)=3; for n>=3: a(n) = 1 - a(n-1) + 2*a(n-2) - a(n-3)
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
 
     /* Initialize base values */
     if (cache_len == 0) {
-        cache = (seq_t*)malloc(3 * sizeof(seq_t));
+        cache = mem_new(seq_t, 3);
         /* Fallback for empty allocation is not handled – the test harness
            ensures sufficient memory. */
         cache[0] = (seq_t)1;
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     /* Grow the cache if needed */
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         /* Assume realloc succeeds – the harness guarantees enough memory. */
         cache = tmp;
         for (idx_t i = cache_len; i <= n; ++i) {

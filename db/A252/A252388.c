@@ -12,7 +12,8 @@
  *            a(14) = 18249; For n > 14: a(n) = 4*a(n-3) - 4*a(n-6) + a(n-9)
  * Range:     u8 none, u16 n <= 18, u32 n <= 52, u64 n <= 121, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* Note: this implementation assumes that the empirical recurrence holds for all n ≥ 1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoisation buffer: cache[0] = a(1)          */
 static idx_t cache_size = 0;     /* number of terms currently stored (n ≥ 1).      */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     if (n <= cache_size) return;               /* nothing to do                      */
 
     /* Reallocate the buffer to hold 'n' terms.   */
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
     if (!tmp) exit(1);                         /* fatal error: allocation failure   */
     cache = tmp;
 

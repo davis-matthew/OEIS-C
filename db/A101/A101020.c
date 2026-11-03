@@ -9,13 +9,22 @@
  *            ⌊(√(8n+1)−1)/2⌋, m = n – r(r+1)/2
  * Range:     u8 n <= 16, u16 n <= 39, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   pow2_local
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow2_local.h"
+
+/* Power of two: 2^m. */
+static seq_t pow2_local(idx_t m)
+{
+    seq_t p = (seq_t)1;
+    for (idx_t i = 0; i < m; ++i)
+        p *= (seq_t)2;
+    return p;
+}
 
 /* Greatest–common divisor for the seq_t type. */
 static seq_t gcd_seq_local(seq_t a, seq_t b)

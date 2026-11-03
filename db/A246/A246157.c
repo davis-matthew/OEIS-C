@@ -10,9 +10,10 @@
  *            reducible over GF(2), is odd and odious). This implementation *
  *            computes terms on demand by scanning integers and testing the *
  *            three conditions using polynomial arithmetic over GF(2)
- * Range:     u8 n <= 24, u16 n <= 9726, u32 n <= 9726, u64 n <= 9726,
- *            u128 n <= 9726, big any n
- * Helpers:   none
+ * Range:     u8 n <= 24, u16 n <= 11665, u32 n <= 11665, u64 n <= 11665,
+ *            u128 n <= 11665, big any n
+ * Validated: standard, pass, 74 terms through n = 9726 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Polynomial arithmetic over GF(2) for 64‑bit monic polynomials. */
 
@@ -121,7 +123,7 @@ seq_t a(idx_t n)
     /* Lazy allocation of the result array. */
     if (seq == NULL) {
         cap = 16;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
     }
 
     while (len < n) {
@@ -136,7 +138,7 @@ seq_t a(idx_t n)
         /* Store the qualifying number. */
         if (len == cap) {
             cap <<= 1;
-            seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, cap);
         }
         seq[len++] = (seq_t)x;
     }

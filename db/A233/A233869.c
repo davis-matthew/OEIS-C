@@ -13,7 +13,8 @@
  *            0..63. (2) Precompute for every pair of rows...
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 23, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 
@@ -77,7 +79,7 @@ static void grow_cache(size_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap <= n) new_cap *= 2;
 
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) {
         /* Allocation failed – abort.  In a real system you may handle
            this differently, but for the purposes of this exercise
@@ -86,7 +88,7 @@ static void grow_cache(size_t n)
     }
     if (cache) {
         for (size_t i = 0; i < cache_cap; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

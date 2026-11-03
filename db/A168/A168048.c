@@ -10,13 +10,15 @@
  *            included)
  * Range:     u8 n <= 34, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
         /* ---- Extend Pi cache ---- */
         if (need + 1 > pi_size) {
             size_t new_pi_size = need + 1;
-            seq_t *new_pi = (seq_t *)realloc(pi_cache, new_pi_size * sizeof(seq_t));
+            seq_t *new_pi = mem_resize(seq_t, pi_cache, new_pi_size);
             if (!new_pi) abort();
             pi_cache = new_pi;
 
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
 
         /* ---- Extend a(n) cache ---- */
         size_t new_cache_size = need;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cache_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cache_size);
         if (!new_cache) abort();
         cache = new_cache;
 

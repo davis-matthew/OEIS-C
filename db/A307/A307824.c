@@ -11,7 +11,8 @@
  *            sequences for each starting prime index c
  * Range:     u8 n <= 21, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- Prime generation utilities ---------------------------------------------- */
 
@@ -86,7 +88,7 @@ static void heap_grow(void)
 {
     if (heap_cap == 0) heap_cap = 8;
     else heap_cap <<= 1;
-    heap = (HeapNode *)realloc(heap, heap_cap * sizeof(HeapNode));
+    heap = mem_resize(HeapNode, heap, heap_cap);
 }
 
 static void heap_push(HeapNode n)
@@ -132,7 +134,7 @@ static void cache_grow(size_t min_cap)
     if (cache_cap >= min_cap) return;
     if (cache_cap == 0) cache_cap = 8;
     while (cache_cap < min_cap) cache_cap <<= 1;
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 }
 
 /* ------------------------------------------------------------------------ */

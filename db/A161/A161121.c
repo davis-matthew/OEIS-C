@@ -11,6 +11,7 @@
  *            The linear index n is converted to row r and column k
  * Range:     u8 n <= 14, u16 n <= 28, u32 n <= 64, u64 n <= 167,
  *            u128 n <= 457, big any n
+ * Validated: standard, pass, 70 terms through n = 9943 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

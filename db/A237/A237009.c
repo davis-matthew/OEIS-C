@@ -12,13 +12,19 @@
  *            E(a,b,p) = max(0, min(3, a, 3−p) − max(0, a−3, −p) +...
  * Range:     u8 none, u16 n <= 5, u32 n <= 14, u64 n <= 30, u128 n <= 62,
  *            big any n
- * Helpers:   min_int
+ * Validated: standard, pass, 38 terms through n = 202 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/min_int.h"
+
+static inline int min_int(int a, int b, int c)
+{
+    int m = a < b ? a : b;
+    return m < c ? m : c;
+}
 
 static inline int max_int(int a, int b, int c)
 {

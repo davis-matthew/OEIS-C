@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define PRIME_LIMIT 50000   /* enough to cover first 10 000 terms */
 
@@ -67,7 +69,7 @@ static void ensure_cache_capacity(idx_t needed)
     if (cache_cap >= needed) return;
     if (cache_cap == 0) cache_cap = 16;
     while (cache_cap < needed) cache_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, cache_cap);
     if (!new_cache) abort();      /* out of memory */
     cache = new_cache;
 }

@@ -10,7 +10,8 @@
  *            a(1)=4; b(0)=1, b(1)=2, b(2)=5
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 39, u64 n <= 85, u128 n <= 177,
  *            big any n
- * Helpers:   seq_exists
+ * Validated: standard, pass, 51 terms through n = 930 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/seq_exists.h"
+#include "../utils/mem.h"
+
+/*  Binary search: does val exist in sorted array arr[0..len-1]?  */
+static bool seq_exists(const seq_t *arr, size_t len, seq_t val) {
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = lo + (hi - lo) / 2;
+        if (arr[mid] == val) return true;
+        if (arr[mid] < val) lo = mid + 1;
+        else hi = mid;
+    }
+    return false;
+}
 
 /*  Static state.  */
 static seq_t *a_arr     = NULL;   /* array of a-values   */
@@ -33,7 +46,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t min_cap) {
     if (*cap >= min_cap) return;
     size_t new_cap = *cap ? (*cap << 1) : 8;
     if (new_cap < min_cap) new_cap = min_cap;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 

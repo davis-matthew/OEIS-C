@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 9, u16 n <= 662, u32 n <= 9473, u64 n <= 9473,
- *            u128 n <= 9473, big any n
- * Helpers:   min_coins
+ * Range:     u8 n <= 9, u16 n <= 662, u32 n <= 10007, u64 n <= 10007,
+ *            u128 n <= 10007, big any n
+ * Validated: standard, pass, 65 terms through n = 9473 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
  */
 
 #include <stdint.h>
-#include "../utils/min_coins.h"
+
+/* Greedy coin change: minimal number of coins for value v.  */
+static seq_t min_coins(seq_t v)
+{
+    seq_t cnt = 0;
+    cnt += v / 100;  v %= 100;
+    cnt += v / 50;   v %= 50;
+    cnt += v / 25;   v %= 25;
+    cnt += v / 10;   v %= 10;
+    cnt += v / 5;    v %= 5;
+    cnt += v;        /* each remaining dollar is one 1¢ coin */
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

@@ -11,7 +11,8 @@
  *            a representation by a two‑pointer search over cubes
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   icbrt_u128, pow3_u128
+ * Validated: standard, pass, 117 terms through n = 9399 (2026-11-01)
+ * Helpers:   icbrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/icbrt_u128.h"
-#include "../utils/pow3_u128.h"
+
+/* 3rd power, result in 128 bits. */
+static inline unsigned __int128 pow3_u128(unsigned long long a)
+{
+    return (unsigned __int128)a * a * a;
+}
 
 /* 6th power, result in 128 bits. */
 static inline unsigned __int128 pow6_u128(unsigned long long a)

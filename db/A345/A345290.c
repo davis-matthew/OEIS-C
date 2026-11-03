@@ -11,6 +11,7 @@
  *            expansion of n with Fib(-k-2) yields this closed form
  * Range:     i8 n <= 647, i16 n <= 8191, i32 n <= 8191, i64 n <= 8191,
  *            i128 n <= 8191, big any n
+ * Validated: standard, pass, 85 terms through n = 7782 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Hamming distance between the nth and (n+1)th semiprime
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   hamming
+ * Validated: standard, pass, 121 terms through n = 9868 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/hamming.h"
+
+/* ----------------------------------------------------------- */
+static inline uint32_t hamming(uint64_t a, uint64_t b)
+{
+    uint64_t v = a ^ b;
+    uint32_t cnt = 0;
+    while (v) { cnt++; v &= v - 1; }
+    return cnt;
+}
 
 /* ----------------------------------------------------------- */
 /*  Static state                                            */

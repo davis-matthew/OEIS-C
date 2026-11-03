@@ -7,7 +7,8 @@
  * Formula:   a(n+1) = a(n)^3 + 3*a(n), a(1) = 14
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Computes the n‑th term of OEIS sequence A145188.
    idx_t and seq_t are supplied by the build system.
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (n > cache_len) {
         /* allocate/re‑allocate enough space (index 0 unused) */
         size_t new_len = (size_t)(n + 1);   /* n ≤ 10000, always fits in size_t */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();                 /* allocation failure → terminate */
         cache = tmp;
 

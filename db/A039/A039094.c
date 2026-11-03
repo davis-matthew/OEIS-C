@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 126, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq_array, equal_2_6, free_seq_array
+ * Validated: standard, pass, 85 terms through n = 9814 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,39 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/equal_2_6.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* Return true if x has the same number of 2's and 6's in its base‑9 expansion. */
+static bool equal_2_6(seq_t x)
+{
+    unsigned count2 = 0, count6 = 0;
+    seq_t v = x;
+
+    /* 0 has zero 2's and zero 6's – this is the first term of the sequence. */
+    if (v == (seq_t)0)
+        return true;
+
+    while (v != (seq_t)0) {
+        seq_t d = v % (seq_t)9;
+        if (d == (seq_t)2)
+            ++count2;
+        else if (d == (seq_t)6)
+            ++count6;
+        v /= (seq_t)9;
+    }
+    return count2 == count6;
+}
 
 /* Static cache of found terms. */
 static seq_t *cache      = NULL;

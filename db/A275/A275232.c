@@ -13,7 +13,8 @@
  *            a(9)=561446064338
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   mul_small
+ * Validated: standard, pass, 32 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* helper for casting the pointer returned by realloc in C++ */
 #ifdef __cplusplus
@@ -52,7 +66,7 @@ static void ensure_cache(idx_t n)
     /* enlarge array if necessary */
     size_t new_sz = (size_t)(n + 1);     /* need indices 0 .. n */
     if (new_sz > cache_size) {
-        void *tmp = realloc(seq_cache, new_sz * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, seq_cache, new_sz);
         if (!tmp) abort();             /* allocation failure */
         seq_cache = CAST_TO_SEQ_T(tmp);
         cache_size = new_sz;

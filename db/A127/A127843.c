@@ -7,12 +7,14 @@
  * Formula:   a(1)=1, a(2)=...=a(9)=0, a(n)=a(n-9)+a(n-8) for n>9
  * Range:     u8 n <= 101, u16 n <= 169, u32 n <= 306, u64 n <= 579,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Allocate or grow cache array if needed */
     if (n > cap) {
         idx_t new_cap = n;
-        seq_t *new_cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
         if (!new_cache)
             return 0;                /* allocation failure: return 0 */
         cache = new_cache;

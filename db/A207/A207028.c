@@ -10,7 +10,8 @@
  *            is by a transfer‑matrix DP on pairs of columns
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 22, u64 n <= 57, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* helpers defined outside the main function ---------------------------------------------------- */
 static inline bool column_ok(int col) {          /* no vertical 001 or 101 in this 5‑bit column */
@@ -108,13 +110,13 @@ seq_t a(idx_t n) {
         }
 
         /* initialise DP tables (length 2) */
-        dp_cur = (seq_t *)malloc(num_states * sizeof(seq_t));
-        dp_next = (seq_t *)malloc(num_states * sizeof(seq_t));
+        dp_cur = mem_new(seq_t, num_states);
+        dp_next = mem_new(seq_t, num_states);
         for (int i = 0; i < num_states; ++i) dp_cur[i] = 1;   /* one way for each pair */
         dp_ready = true;
 
         /* initialise cache for n=1 and n=2 */
-        seq_t *c0 = (seq_t *)malloc(3 * sizeof(seq_t)); /* indices 0,1,2 */
+        seq_t *c0 = mem_new(seq_t, 3); /* indices 0,1,2 */
         cache = c0;
         cache_capacity = 2;
         cache[1] = (seq_t)num_cols;
@@ -127,9 +129,9 @@ seq_t a(idx_t n) {
     if (n > max_cache) {
         /* enlarge cache if necessary */
         if (cache_capacity < n) {
-            seq_t *newc = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+            seq_t *newc = mem_new(seq_t, (n + 1));
             for (idx_t i = 1; i <= max_cache; ++i) newc[i] = cache[i];
-            free(cache);
+            mem_free(cache);
             cache = newc;
             cache_capacity = n;
         }

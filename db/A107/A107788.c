@@ -8,7 +8,8 @@
  *            ≥ 0)
  * Range:     u8 n <= 5, u16 n <= 18, u32 n <= 60, u64 n <= 218, u128 n <= 829,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 9852 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    sequences 8 * a(i) and 11 * a(i). */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* 0‑based table holding the sequence values (a(1) == table[0]) */
@@ -34,10 +36,10 @@ seq_t a(idx_t n) {
         /* Allocate or extend the table.  Use casted malloc/realloc for C++0x. */
         if (cap == 0) {
             cap = 64;
-            table = (seq_t *)malloc(sizeof(seq_t) * cap);
+            table = mem_new(seq_t, cap);
         } else {
             while (cap < n) cap <<= 1;
-            table = (seq_t *)realloc(table, sizeof(seq_t) * cap);
+            table = mem_resize(seq_t, table, cap);
         }
 
         /* Initialise with the first term if the table was empty. */

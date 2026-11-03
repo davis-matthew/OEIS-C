@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const idx_t weights[7] = {7, 6, 5, 4, 3, 2, 1};
 
@@ -43,14 +45,14 @@ ensure_arrays(idx_t max_size)
     if (cached_cap > max_size)
         return;
     /* Allocate new larger arrays. */
-    seq_t *new_cnt = (seq_t *)malloc((max_size + 1) * sizeof(seq_t));
-    seq_t *new_sum = (seq_t *)malloc((max_size + 1) * sizeof(seq_t));
+    seq_t *new_cnt = mem_new(seq_t, (max_size + 1));
+    seq_t *new_sum = mem_new(seq_t, (max_size + 1));
     if (!new_cnt || !new_sum)
         abort();                  /* allocation failure */
 
     /* Free old arrays if they exist. */
-    if (cnt_arr) free(cnt_arr);
-    if (sum_arr) free(sum_arr);
+    if (cnt_arr) mem_free(cnt_arr);
+    if (sum_arr) mem_free(sum_arr);
 
     cnt_arr = new_cnt;
     sum_arr = new_sum;

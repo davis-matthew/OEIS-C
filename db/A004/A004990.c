@@ -7,12 +7,22 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 11, i64 n <= 22, i128 n <= 42,
  *            big any n
- * Helpers:   a004990_gcd
+ * Validated: standard, pass, 37 terms through n = 965 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a004990_gcd.h"
+static long long a004990_gcd(long long x, long long y) {
+    if (x < 0) x = -x;
+    if (y < 0) y = -y;
+    while (y != 0) {
+        long long t = x % y;
+        x = y;
+        y = t;
+    }
+    return x;
+}
 /* Recurrence: n*a(n) = 3*(3*n-4)*a(n-1), a(0) = 1 */
 
 seq_t a(idx_t n) {

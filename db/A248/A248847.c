@@ -11,9 +11,10 @@
  *            (C(k,c) is binomial(k,c)). The index n is converted to row m and
  *            position k by m = smallest positive integer with 5*m*(m+1)/2 ≥ n
  *            k = n - 5*(m-1)*m/2 (1 ≤ k ≤ 5m)
- * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 47, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 20, u16 n <= 25, u32 n <= 47, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdbool.h>
 
 /* Utility for binomial coefficients */
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Global cache of computed rows.
    rows[m] points to an array of length 5*m+1 holding T(m,k) for k=0..5m. */
@@ -45,7 +47,7 @@ static void compute_rows_up_to(idx_t m)
 
     /* Row 0: only 0 balls can be distributed among 0 bins. */
     if (!rows[0]) {
-        rows[0] = (seq_t *)(malloc(sizeof(seq_t)));
+        rows[0] = (seq_t *)(mem_new(seq_t, 1));
         if (!rows[0]) abort();
         rows[0][0] = (seq_t)1;
     }
@@ -56,7 +58,7 @@ static void compute_rows_up_to(idx_t m)
 
         idx_t kmax = 5 * (idx_t)cur;
         size_t cur_size = (size_t)kmax + 1;
-        seq_t *cur_row = (seq_t *)calloc(cur_size, sizeof(seq_t));
+        seq_t *cur_row = mem_new(seq_t, cur_size);
         if (!cur_row) abort();
 
         seq_t *prev_row = rows[cur - 1];
@@ -70,7 +72,7 @@ static void compute_rows_up_to(idx_t m)
                 if (rem > prev_kmax) continue;
                 seq_t pr = prev_row[rem];
                 if (!pr) continue;
-                seq_t bin = binom((idx_t)k, (idx_t)c);
+                seq_t bin = binomial((idx_t)k, (idx_t)c);
                 sum += pr * bin;
             }
             cur_row[k] = sum;

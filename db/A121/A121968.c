@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 72, u32 n <= 2952, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 4607 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(n) = 2*a(n-1) - a(n-2) + n,  a(1)=1, a(2)=2
    (equivalently a(n) = C(n+1,3) + n^2 + 1) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array of computed terms, index 0 unused */
 static idx_t  cache_len = 0;    /* number of allocated slots (cache[0..cache_len-1]) */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_len = 3;                          /* indices 0,1,2 needed */
-        cache = (seq_t *)malloc((size_t)cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_len);
         if (cache == NULL) exit(1);             /* allocation failure */
         cache[0] = 0;                            /* unused */
         cache[1] = 1;                            /* a(1) */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* grow the cache if necessary */
     if ((idx_t)n + 1 > cache_len) {
         size_t new_len = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (new_cache == NULL) exit(1);
         /* initialise any newly allocated slots to zero */
         for (size_t i = cache_len; i < new_len; ++i) new_cache[i] = (seq_t)0;

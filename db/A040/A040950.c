@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    and then the period 2,1,30,1,2,62 repeats. */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         const idx_t D = 982;
         idx_t m  = 0;
         idx_t d  = 1;
-        idx_t a_cur = int_sqrt(D);       /* floor(√982)  */
+        idx_t a_cur = isqrt(D);       /* floor(√982)  */
         a0 = a_cur;
 
         /* compute the period */

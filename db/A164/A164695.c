@@ -11,13 +11,15 @@
  *            (n==7 ? 1 : 0)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Ensure you have a proper definition of seq_t and idx_t in the build. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache on first request or when we need more space. */
     if (cache == NULL) {
         cache_len = (n + 1 > 8) ? (n + 1) : 8;   /* at least 0..7 will be stored */
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         /* initialise entries to zero (not strictly needed) */
         for (idx_t i = 0; i < cache_len; ++i) cache[i] = (seq_t)0;
         /* copy known initial terms */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         computed = 7;
     } else if (n + 1 > cache_len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL) return (seq_t)0;   /* allocation failure */
         cache = tmp;
         /* zero new slots */

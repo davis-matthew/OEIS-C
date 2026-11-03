@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>    /* memcpy, memset */
+#include "../utils/mem.h"
 
 /* check if a 1 in "row" has at most two neighbours among
    horizontal (left/right) and the four diagonals from the
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
     }
 
     for (idx_t step = 3; step <= n; ++step) {
-        memset(nxt, 0, sizeof(nxt));
+        mem_set(nxt, 0, sizeof(nxt));
         for (uint32_t idx = 0; idx < 1024; ++idx) {
             seq_t cur = dp[idx];
             if (cur == 0) continue;
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, nxt, sizeof(dp));
+        mem_copy(dp, nxt, sizeof(dp));
     }
 
     /* final validation of the last row */

@@ -9,14 +9,22 @@
  *            = Sum_{d|m} d*A000041(d)*A000203(m/d)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 34, u64 n <= 80, u128 n <= 187,
  *            big any n
- * Helpers:   zalloc_n
+ * Validated: standard, pass, 48 terms through n = 466 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/zalloc_n.h"
+#include "../utils/mem.h"
+
+static seq_t *zalloc_n(idx_t len) {
+    seq_t *r = mem_new(seq_t, (size_t)len);
+    mem_set(r, 0, (size_t)len * sizeof(seq_t));
+    for (idx_t i = 0; i < len; i++) r[i] = 0;
+    return r;
+}
 
 static int W_bits = -1;          /* 0 = arbitrary precision, else width in bits */
 static seq_t *memo = NULL;       /* a(0..done) */
@@ -37,15 +45,15 @@ static void ensure(idx_t N) {
     seq_t *nm = zalloc_n(nc);
     if (memo) {
         for (idx_t i = 0; i <= done; i++) nm[i] = memo[i];
-        free(memo);
+        mem_free(memo);
     } else {
         nm[0] = 1;
         done = 0;
     }
     memo = nm;
-    if (pp) free(pp);
-    if (sg) free(sg);
-    if (gg) free(gg);
+    if (pp) mem_free(pp);
+    if (sg) mem_free(sg);
+    if (gg) mem_free(gg);
     pp = zalloc_n(nc);
     sg = zalloc_n(nc);
     gg = zalloc_n(nc);

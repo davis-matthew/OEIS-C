@@ -8,14 +8,29 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_45
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_45.h"
+
+/* Return true if x, written in base 7, contains the adjacent digit pair
+   4,5 (i.e. ...4,5...). */
+static bool has_45(idx_t x)
+{
+    int prev = -1;
+    while (x != 0) {
+        int d = (int)(x % 7);
+        if (prev == 5 && d == 4)
+            return true;
+        prev = d;
+        x /= 7;
+    }
+    return false;
+}
 
 /* Sequence A044171: numbers whose base‑7 representation contains the
    substring “45” but the preceding integer does not.  This function

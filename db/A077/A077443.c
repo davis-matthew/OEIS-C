@@ -9,12 +9,14 @@
  *            2*y^2 = 7
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 50, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *table = NULL;    /* 1‑based storage of computed terms */
 static size_t cap = 0;         /* allocated size of table */
@@ -31,7 +33,7 @@ static void ensure_cap(idx_t n)
     while (needed > newcap)
         newcap <<= 1;
 
-    seq_t *newtab = (seq_t *)realloc(table, newcap * sizeof(seq_t));
+    seq_t *newtab = mem_resize(seq_t, table, newcap);
     if (!newtab)
         abort();   /* out of memory */
 

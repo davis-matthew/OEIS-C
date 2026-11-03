@@ -7,6 +7,7 @@
  * Formula:   a(n) = minimal 5‑rough number with exactly n divisors
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 16, u64 n <= 28, u128 n <= 31,
  *            big any n
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "../utils/build_primes.h"
 
 #define MAX_N 10000

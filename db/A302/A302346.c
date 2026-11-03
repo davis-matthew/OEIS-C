@@ -11,20 +11,22 @@
  *            2^(k*(r-k)), with GL(m,2) = ∏_{i=0}^{m-1} (2^m – 2^i)
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 20, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 /* Compute |GL(m,2)| = ∏_{i=0}^{m-1} (2^m – 2^i). */
 static seq_t gl_value(idx_t m)
 {
     seq_t prod = 1;
-    seq_t two_m = pow_uint(2, m);
+    seq_t two_m = ipow_u64_idx(2, m);
     for (idx_t i = 0; i < m; ++i) {
-        seq_t term = two_m - pow_uint(2, i);
+        seq_t term = two_m - ipow_u64_idx(2, i);
         prod = prod * term;
     }
     return prod;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     seq_t val1 = gl_value(k);
     seq_t val2 = gl_value(r - k);
     idx_t  exp  = k * (r - k);
-    seq_t pow_term = pow_uint(2, exp);
+    seq_t pow_term = ipow_u64_idx(2, exp);
 
     return val1 * val2 * pow_term;
 }

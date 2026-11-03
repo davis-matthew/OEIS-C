@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   removeZeros
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/removeZeros.h"
+#include "../utils/mem.h"
+
+/* removes all decimal zeros from x (e.g., 10304 → 134) */
+static seq_t removeZeros(seq_t x)
+{
+    seq_t res = 0;
+    seq_t pow = 1;
+    while (x > 0) {
+        seq_t d = x % 10;
+        x /= 10;
+        if (d != 0) {
+            res += d * pow;
+            pow *= 10;
+        }
+    }
+    return res;
+}
 
 /* seq_t and idx_t are defined elsewhere by the build system. */
 
@@ -59,7 +76,7 @@ static void ensure_rows(idx_t r)
     if (triangle_len == 0) {
         triangle_len = 1;
         triangle = (seq_t **) malloc(sizeof(seq_t *));
-        triangle[0] = (seq_t *) malloc(sizeof(seq_t));
+        triangle[0] = mem_new(seq_t, 1);
         triangle[0][0] = 1;
         max_computed_row = 0;
     }
@@ -76,7 +93,7 @@ static void ensure_rows(idx_t r)
 
     /* compute all missing rows one by one */
     for (idx_t row = max_computed_row + 1; row <= r; ++row) {
-        triangle[row] = (seq_t *) malloc((row + 1) * sizeof(seq_t));
+        triangle[row] = mem_new(seq_t, (row + 1));
 
         /* left and right edges are 1 */
         triangle[row][0] = 1;

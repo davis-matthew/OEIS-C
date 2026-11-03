@@ -8,14 +8,16 @@
  *            (k! * (n-2k)!)
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 7, i64 n <= 13, i128 n <= 24,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 33 terms through n = 438 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     idx_t half = n / 2;          /* floor(n/2) */
 
     /* term for k = 0 : 3^n */
-    seq_t pow3 = seq_pow((seq_t)3, n);   /* 3^n as seq_t */
+    seq_t pow3 = ipow_idx((seq_t)3, n);   /* 3^n as seq_t */
     seq_t pow64 = (seq_t)1;              /* 64^0 = 1 */
     seq_t B = (seq_t)1;                  /* binomial factor n! / (0! * n!) = 1 */
     seq_t sum = B * pow3 * pow64;        /* first term */

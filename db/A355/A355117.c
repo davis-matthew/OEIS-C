@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stddef.h>             /* size_t */
 #include <stdlib.h>             /* malloc, realloc, abort */
 
-#include "../utils/pow_uint.h"  /* seq_t pow_uint(uint64_t base, idx_t exp) */
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache[0] unused; cache[1] = a(1) */
 static idx_t cache_len = 0;      /* size of allocated cache (>= 1 if set) */
@@ -32,8 +35,7 @@ seq_t a(idx_t n)
     /* Grow the cache to contain indices up to n */
     if (cache_len <= n) {
         size_t needed = (size_t)n + 1;          /* indices 0..n inclusive */
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (tmp == NULL)
             abort();                            /* allocation failed */
         cache = tmp;
@@ -59,11 +61,11 @@ seq_t a(idx_t n)
                 idx_t q = m / d;                /* paired divisor */
 
                 /* contribution from divisor d */
-                seq_t pow1 = pow_uint(4, q - 1);
+                seq_t pow1 = ipow_u64_idx(4, q - 1);
                 sum += cache[d] * pow1;
 
                 if (q != d) {                  /* contribution from q, if distinct */
-                    seq_t pow2 = pow_uint(4, d - 1);
+                    seq_t pow2 = ipow_u64_idx(4, d - 1);
                     sum += cache[q] * pow2;
                 }
             }

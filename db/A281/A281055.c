@@ -14,7 +14,8 @@
  *            a(4)=10570, a(5)=32370, a(6)=87995, a(7)=221212, a...
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 20, u64 n <= 56, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static inline seq_t mul_by_int(seq_t a, unsigned int m)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(EXIT_FAILURE);
         for (size_t i = 1; i <= 24 && i < cache_cap; ++i)
             cache[i] = init_values[i];
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     if (need > cache_cap) {
         size_t new_cap = cache_cap;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         cache_cap = new_cap;

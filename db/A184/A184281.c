@@ -8,13 +8,14 @@
  *            lcm(n/gcd(n,i), 4/gcd(4,j)) )
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 31 terms through n = 94 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 /* GCD for unsigned 64‑bit values */
 static inline idx_t _gcd_u64(idx_t a, idx_t b)
@@ -49,7 +50,7 @@ seq_t a(idx_t n)
         {
             idx_t L = _lcm_u64(rows, divb[j]);   /*  lcm( rows , 4/gcd(4,j) ) */
             idx_t cycles = total_cells / L;      /* number of orbits of this shift */
-            seq_t val = pow_seq(three, (int)cycles);
+            seq_t val = ipow_i32(three, (int)cycles);
             sum += val;
         }
     }

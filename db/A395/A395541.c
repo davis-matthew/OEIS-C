@@ -9,7 +9,8 @@
  *            and r^k has exactly k base-n digits
  * Range:     u8 n <= 4, u16 n <= 35, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   digits_and_product
+ * Validated: partial, pass, 64 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,27 @@
 /* Search r and k up to a reasonable bound and keep the maximum. */
 
 #include <stdint.h>
-#include "../utils/digits_and_product.h"
+
+/* Count the number of digits of val in base, and compute
+   the product of non‑zero digits.  Returns the digit count
+   and stores the product in *prod. */
+static int digits_and_product(seq_t val, seq_t base, seq_t *prod)
+{
+    int count = 0;
+    seq_t p = 1;
+    seq_t temp = val;
+
+    while (temp > 0)
+    {
+        seq_t digit = temp % base;
+        if (digit != 0)
+            p *= digit;
+        temp /= base;
+        count++;
+    }
+    *prod = p;
+    return count;
+}
 
 /* Compute a(n) for n >= 2. */
 seq_t a(idx_t n)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    if r == 1: a(n) = 2*a((n-1)/3) + a((n-4)/3)    (empty terms for negative arguments)
    if r == 2: a(n) = a((n-2)/3)  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoisation */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
 
     if (cache == NULL) {          /* initialise cache with a(0) = 1 */
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache == NULL) abort();
         cache[0] = (seq_t)1;
     }
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     if (n >= cache_len) {
         idx_t old_len = cache_len;
         cache_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)cache_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)cache_len);
         if (tmp == NULL) abort();
         cache = tmp;
 

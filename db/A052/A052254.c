@@ -7,12 +7,14 @@
  * Formula:   a(n) = (10*n + 7)*binomial(n+6, 6)/7
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 42, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 41 terms through n = 969 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 25, u128 n <= 25,
+ * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
    a(n) = Σ_{d|n} catalan(d) * catalan(n/d)                      */
 
 #include <stdlib.h>
+#include <stddef.h>
 #include "../utils/catalan.h"
 
 /* Integer square root of n: floor(sqrt(n)) */

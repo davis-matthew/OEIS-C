@@ -7,7 +7,8 @@
  * Formula:   a(0)=1, a(1)=0; a(2^i + j)=a(j)+a(j+1) for 0<=j<2^i
  * Range:     u8 n <= 2039, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   none
+ * Validated: standard, pass, 119 terms through n = 7990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoisation storage */
 static idx_t cache_cap = 0;
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
         while (new_cap <= n)
             new_cap <<= 1;
 
-        seq_t *new_cache   = (seq_t*)realloc(cache,  new_cap * sizeof(seq_t));
+        seq_t *new_cache   = mem_resize(seq_t, cache, new_cap);
         unsigned char *new_done = (unsigned char*)realloc(done,  new_cap * sizeof(unsigned char));
         cache = new_cache;
         done  = new_done;

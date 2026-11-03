@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{j=prime(n)}^{exp(n)} (2 - j*(-1)^j)
  * Range:     u8 n <= 11, u16 n <= 26, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   alt_sum_u64
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/alt_sum_u64.h"
+
+/* Helper: alternating sum s(n) = Σ_{j=1}^n j*(-1)^j
+ * Closed form:
+ *    if n even  →  n/2
+ *    if n odd   → -(n+1)/2
+ */
+static inline long long alt_sum_u64(idx_t n)
+{
+    if ((n & 1ULL) == 0)          /* n even */
+        return (long long)(n / 2);
+    else                          /* n odd  */
+        return -(long long)((n + 1) / 2);
+}
 
 /* First 49 primes (A000040).  Indexed 0…48, so prime(n) = primes[n-1]. */
 static const idx_t primes[] = {

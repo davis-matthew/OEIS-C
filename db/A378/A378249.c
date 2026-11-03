@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 30, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: standard, pass, 73 terms through n = 9566 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,9 @@
 #include <stdbool.h>
 
 /* Utility functions provided by the harness */
-#include "../utils/big_pow.h"         /* seq_t big_pow(seq_t base, seq_t exp) */
-#include "../utils/build_primes_upto.h"/* build_primes_upto(idx_t limit, uint64_t **p, size_t *cnt) */
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
 
 /* Return the floor of the e‑th root of n :  the largest integer r with r^e ≤ n.
    Uses binary search with big_pow. */
@@ -35,7 +37,7 @@ static seq_t floor_root(seq_t n, idx_t e)
     seq_t high = n;          /* n itself is an upper bound */
     while (low <= high) {
         seq_t mid = (low + high) / 2;
-        seq_t pw  = big_pow(mid, (seq_t)e);
+        seq_t pw  = ipow(mid, (seq_t)e);
         if (pw <= n) {
             low = mid + 1;
         } else {
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
         seq_t base = root + 1;
 
         /* Compute base^exp */
-        seq_t cand = big_pow(base, (seq_t)exp);
+        seq_t cand = ipow(base, (seq_t)exp);
 
         /* Keep the smallest candidate that is > p */
         if (cand > p && (first || cand < best)) {

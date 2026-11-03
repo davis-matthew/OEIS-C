@@ -7,13 +7,15 @@
  * Formula:   a(n+2) = 302*a(n+1) - a(n), a(1)=1, a(2)=301
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Memoised recurrence implementation                                   */
@@ -32,7 +34,7 @@ static void a_ensure_cap(idx_t n)
     size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 4;
     while (new_cap < (size_t)n)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, (new_cap + 1));
     a_cache = tmp;
     a_cache_cap = new_cap;
 }

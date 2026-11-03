@@ -11,12 +11,14 @@
  *            algorithm * runs in O(n²) time with O(n) memory
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 35, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,11 +28,11 @@ seq_t a(idx_t n)
        Allocate arrays of size n+3 to safely access indices up to n+1
        and the suffix sums. */
     const size_t sz = (size_t)n + 3;
-    seq_t *cur  = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *nxt  = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *s0   = (seq_t*)calloc(sz, sizeof(seq_t)); /* suffix sums for residues 0 */
-    seq_t *s1   = (seq_t*)calloc(sz, sizeof(seq_t)); /* suffix sums for residues 1 */
-    seq_t *s2   = (seq_t*)calloc(sz, sizeof(seq_t)); /* suffix sums for residues 2 */
+    seq_t *cur  = mem_new(seq_t, sz);
+    seq_t *nxt  = mem_new(seq_t, sz);
+    seq_t *s0   = mem_new(seq_t, sz); /* suffix sums for residues 0 */
+    seq_t *s1   = mem_new(seq_t, sz); /* suffix sums for residues 1 */
+    seq_t *s2   = mem_new(seq_t, sz); /* suffix sums for residues 2 */
 
     if (!cur || !nxt || !s0 || !s1 || !s2) {
         /* Allocation failure: return zero as a safe fallback. */
@@ -82,11 +84,11 @@ seq_t a(idx_t n)
     }
 
     /* Clean up temporary arrays. */
-    free(cur);
-    free(nxt);
-    free(s0);
-    free(s1);
-    free(s2);
+    mem_free(cur);
+    mem_free(nxt);
+    mem_free(s0);
+    mem_free(s1);
+    mem_free(s2);
 
     return total;
 }

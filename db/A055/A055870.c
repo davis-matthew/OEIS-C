@@ -9,13 +9,26 @@
  *            Fib(r+1-i) / Fib(i)
  * Range:     i8 n <= 30, i16 n <= 58, i32 n <= 110, i64 n <= 217,
  *            i128 n <= 416, big any n
- * Helpers:   fib, gcd
+ * Validated: standard, pass, 82 terms through n = 1229 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/fib.h"
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static inline idx_t triangular(idx_t r)
 {

@@ -7,8 +7,9 @@
  * Keywords:  nonn, tabl
  * Formula:   not stated
  * Range:     u8 n <= 142, u16 n <= 446, u32 n <= 1456, u64 n <= 5399,
- *            u128 n <= 9482, big any n
- * Helpers:   none
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 9482 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* extern linkage */
 seq_t a(idx_t n)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 
     /* initialise with row 0 (1) */
     if (!initialized) {
-        row_ptr[0] = (seq_t*)malloc(sizeof(seq_t));
+        row_ptr[0] = mem_new(seq_t, 1);
         if (!row_ptr[0]) return (seq_t)0;     /* allocation failure */
         row_ptr[0][0] = (seq_t)1;
         row_size[0] = 1;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         size_t len = r + 1;                   /* row length */
 
         /* allocate new row */
-        seq_t *new_row = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, len);
         if (!new_row) return (seq_t)0;        /* allocation failure */
 
         for (size_t k = 0; k < len; ++k) {
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
         }
 
         /* free the row 3 places older than the new one */
-        free(row_ptr[r % 3]);
+        mem_free(row_ptr[r % 3]);
 
         /* store the new row */
         row_ptr[r % 3] = new_row;

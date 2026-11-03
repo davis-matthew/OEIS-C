@@ -7,14 +7,16 @@
  * Formula:   a(n) = n + rev(n-1)
  * Range:     u8 n <= 102, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   rev
+ * Validated: standard, pass, 80 terms through n = 985 (2026-11-01)
+ * Helpers:   reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* rev is decimal digit reversal of an unsigned integer */
 
-#include "../utils/rev.h"
+#include <stdbool.h>
+#include "../utils/reverse_digits_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* compute reverse of n-1 */
-    idx_t rev_val = rev(n - 1u);
+    idx_t rev_val = reverse_digits_idx(n - 1u);
 
     /* add to n, casting to seq_t for full integer precision */
     return (seq_t)n + (seq_t)rev_val;

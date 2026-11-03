@@ -7,12 +7,14 @@
  * Formula:   a(n) = binom(n+3,4) * 4^4 (OEIS A120054)
  * Range:     u8 none, u16 n <= 7, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -20,6 +22,6 @@ seq_t a(idx_t n)
     if (n == 0)
         return 0;
 
-    seq_t comb = binom(n + 3, 4);   /* C(n+3, 4) */
+    seq_t comb = binomial(n + 3, 4);   /* C(n+3, 4) */
     return comb * (seq_t)256;       /* 4^4 = 256 */
 }

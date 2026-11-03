@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   digit_len, pow10, rev_decimal
+ * Validated: standard, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   num_digits, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,21 @@
    read left‑to‑right, and revX its reverse (right‑to‑left).
    Then a(n) = X + revX.
    Update X and revX by appending a(n).  */
-#include "../utils/pow10.h"
-#include "../utils/rev_decimal.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+#include "../utils/reverse_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,12 +52,12 @@ seq_t a(idx_t n)
         if (i == n)
             return cur;
 
-        int d_X    = digit_len(X);      /* digits of old X       */
-        int d_cur  = digit_len(cur);    /* digits of cur         */
+        int d_X    = num_digits(X);      /* digits of old X       */
+        int d_cur  = num_digits(cur);    /* digits of cur         */
 
         seq_t pow10_X   = pow10((idx_t)d_X);
         seq_t pow10_cur = pow10((idx_t)d_cur);
-        seq_t rev_cur   = rev_decimal(cur);
+        seq_t rev_cur   = reverse_digits(cur);
 
         X    = X * pow10_cur + cur;
         revX = rev_cur * pow10_X + revX;

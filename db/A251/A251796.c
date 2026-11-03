@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 10, u128 n <= 21,
  *            big any n
- * Helpers:   init_adjacency
+ * Validated: standard, pass, 28 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,33 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>   /* for memset */
-#include "../utils/init_adjacency.h"
+#include "../utils/mem.h"
+
+static void init_adjacency(unsigned char adj[256][256])
+{
+    for (int v = 0; v < 256; ++v)
+    {
+        uint8_t a0 = (v      ) & 3;
+        uint8_t a1 = (v >> 2)  & 3;
+        uint8_t a2 = (v >> 4)  & 3;
+        uint8_t a3 = (v >> 6)  & 3;
+        for (int w = 0; w < 256; ++w)
+        {
+            uint8_t b0 = (w      ) & 3;
+            uint8_t b1 = (w >> 2)  & 3;
+            uint8_t b2 = (w >> 4)  & 3;
+            uint8_t b3 = (w >> 6)  & 3;
+
+            bool ok = true;
+            /* j = 0,1,2 */
+            if ( ((uint16_t)b1 + a1) < ((uint16_t)b0 + a0) ) ok = false;
+            else if ( ((uint16_t)b2 + a2) < ((uint16_t)b1 + a1) ) ok = false;
+            else if ( ((uint16_t)b3 + a3) < ((uint16_t)b2 + a2) ) ok = false;
+
+            adj[v][w] = ok ? 1 : 0;
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +66,7 @@ seq_t a(idx_t n)
         init_adjacency(adj);
         for (int i = 0; i < 256; ++i)
             dp_cur[i] = (seq_t)1;  /* one way to have a single row equal to i */
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         initialized = true;
     }
 

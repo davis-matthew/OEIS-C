@@ -10,14 +10,16 @@
  *            read by antidiagonals
  * Range:     u8 n <= 12, u16 n <= 30, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   big_pow, pow_uint
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   ipow, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     /* Find the diagonal index k such that k*(k+1)/2 ≥ n  */
@@ -40,8 +42,8 @@ seq_t a(idx_t n) {
     idx_t c = offset + 1;          /* 1 ≤ c ≤ k     */
 
     /* Compute (2^r - 1)^c */
-    seq_t base = pow_uint(2, r);   /* 2^r   */
+    seq_t base = ipow_u64_idx(2, r);   /* 2^r   */
     base = base - 1;               /* 2^r-1 */
     seq_t exp = c;                 /* exponent */
-    return big_pow(base, exp);
+    return ipow(base, exp);
 }

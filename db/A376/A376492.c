@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Σ_{k=0..⌊n/2⌋} (2k+1)^{k‑1} * binomial(k, n‑2k)/k!
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   binomial, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,10 @@
 /* Uses the provided binomial() and pow_uint() from the utils bundle. */
 
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* uint64_t binomial(idx_t n, idx_t k)   */
-#include "../utils/pow_uint.h"   /* seq_t pow_uint(uint64_t base, idx_t exp) */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +34,8 @@ seq_t a(idx_t n)
     if (n + 1 > fact_cap) {
         idx_t old_cap = fact_cap;
         fact_cap = n + 1;
-        fact = (fact == NULL) ? (seq_t*)malloc(fact_cap * sizeof(seq_t))
-                               : (seq_t*)realloc(fact, fact_cap * sizeof(seq_t));
+        fact = (fact == NULL) ? mem_new(seq_t, fact_cap)
+                               : mem_resize(seq_t, fact, fact_cap);
         if (fact == NULL)          /* allocation failed – return 0 as sentinel */
             return (seq_t)0;
 
@@ -58,7 +61,7 @@ seq_t a(idx_t n)
         if (k == 0)                           /* (2*0+1)^(−1) = 1 by convention */
             pw = (seq_t)1;
         else
-            pw = pow_uint((uint64_t)(2 * k + 1), k - 1);
+            pw = ipow_u64_idx((uint64_t)(2 * k + 1), k - 1);
 
         /* term = (n! / k!) * c * pw */
         seq_t term = fact[n];

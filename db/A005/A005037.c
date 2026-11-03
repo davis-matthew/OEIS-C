@@ -12,7 +12,8 @@
  *            quotients are built from prime exponents (Legendre's for...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 23, u128 n <= 43,
  *            big any n
- * Helpers:   fact_quot, leg_exp, seq_is_fixed_width, spow_seq
+ * Validated: standard, pass, 37 terms through n = 195 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,37 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/fact_quot.h"
-#include "../utils/leg_exp.h"
-#include "../utils/spow_seq.h"
+#include "../utils/ipow_idx.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static idx_t leg_exp(idx_t N, idx_t p) {
+    idx_t s = 0;
+    while (N) { N /= p; s += N; }
+    return s;
+}
+
+/* product over primes p <= lim of p^(v(A!) - v(B!) - v(C!) + extra*[p==5]) */
+static seq_t fact_quot(const char *comp, idx_t lim, idx_t A, idx_t B, idx_t C, idx_t extra5) {
+    seq_t r = 1;
+    for (idx_t p = 2; p <= lim; p++) {
+        if (comp[p]) continue;
+        idx_t e = leg_exp(A, p) + (p == 5 ? extra5 : 0);
+        idx_t d = leg_exp(B, p) + leg_exp(C, p);
+        if (e > d) r *= ipow_idx((seq_t)p, e - d);
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     idx_t m = n - 1;

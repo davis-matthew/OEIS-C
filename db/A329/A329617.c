@@ -9,8 +9,9 @@
  * Formula:   a(n) = product of distinct exponents of prime factors of
  *            A108951(n), where A108951 is fully multiplicative with
  *            A108951(p_k) = primorial(p_k) = ∏_{i=1..k} p_i
- * Range:     u8 n <= 9093, u16 n <= 9093, u32 n <= 9093, u64 n <= 9093,
- *            u128 n <= 9093, big any n
+ * Range:     u8 n <= 10289, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9093 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
 
 /* Product of distinct suffix sums of exponents of n. */
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

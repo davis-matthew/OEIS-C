@@ -8,7 +8,8 @@
  *            prime
  * Range:     u8 n <= 50, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- deterministic Miller–Rabin for 64‑bit integers ---------- */
 static inline uint64_t mod_mul(uint64_t a, uint64_t b, uint64_t mod)
@@ -89,7 +91,7 @@ static void ensure_capacity(size_t min_cap)
     if (terms_cap >= min_cap) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_t *new_arr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);   /* allocation failed */
     terms = new_arr;
     terms_cap = new_cap;

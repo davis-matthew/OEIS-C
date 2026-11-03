@@ -9,8 +9,9 @@
  *            n, k = n - (r-1)*r/2 (the column in row r), and phi(m) is
  *            Euler's totient function. a(1) = 1, a(2) = 1, a(3) = 2, a(4) =
  *            2, a(5) = 0, etc
- * Range:     u8 n <= 9525, u16 n <= 9525, u32 n <= 9525, u64 n <= 9525,
- *            u128 n <= 9525, big any n
+ * Range:     u8 n <= 10011, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 9525 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

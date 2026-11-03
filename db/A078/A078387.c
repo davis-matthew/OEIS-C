@@ -9,7 +9,8 @@
  *            be written as a positive square plus a positive cube)
  * Range:     i8 n <= 35, i16 n <= 2179, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   mobius
+ * Validated: standard, pass, 113 terms through n = 9880 (2026-11-03)
+ * Helpers:   mem, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/mobius.h"
+#include "../utils/mem.h"
 
 static seq_t *sums = NULL;            /* sorted list of distinct i² + j³ */
 static size_t sums_len = 0;           /* number of elements stored */
@@ -48,7 +50,7 @@ static void build_sums(idx_t limit)
             ++cnt;
 
     /* Allocate space for the sums. */
-    seq_t *new_vals = (seq_t *)malloc(cnt * sizeof(seq_t));
+    seq_t *new_vals = mem_new(seq_t, cnt);
     if (!new_vals) {
         free(seen);
         return;
@@ -61,7 +63,7 @@ static void build_sums(idx_t limit)
             new_vals[pos++] = (seq_t)x;
 
     /* Replace old array. */
-    free(sums);
+    mem_free(sums);
     sums = new_vals;
     sums_len = cnt;
 

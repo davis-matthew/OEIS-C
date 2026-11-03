@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 296, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The function declared with external linkage */
 seq_t a(idx_t n)
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
     /* limit up to which we must compute */
     const idx_t limit = n;
     /* Allocate and zero‑initialize the cache for a(1) … a(limit) */
-    seq_t *cache = (seq_t *)calloc((size_t)(limit + 1), sizeof(seq_t));
+    seq_t *cache = mem_new(seq_t, (size_t)(limit + 1));
     if (!cache) return 0;               /* memory failure */
     /* Temporary array used for the unbounded knapsack for each k */
-    seq_t *cur   = (seq_t *)calloc((size_t)(limit + 1), sizeof(seq_t));
-    if (!cur) { free(cache); return 0; }
+    seq_t *cur   = mem_new(seq_t, (size_t)(limit + 1));
+    if (!cur) { mem_free(cache); return 0; }
 
     /* Pre‑allocate a weight array large enough for all possible k
        (k ≤ √(2 limit) ≤ 200 for limit ≤ 100 000, far larger than needed) */
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
 
         /* Unbounded knapsack: cur[s] = number of ways to obtain sum s
            using the current list of weights (each with infinite multiplicity) */
-        memset(cur, 0, (size_t)(limit + 1) * sizeof(seq_t));
+        mem_set(cur, 0, (size_t)(limit + 1) * sizeof(seq_t));
         cur[0] = 1;                       /* empty combination */
         for (size_t wi = 0; wi < wcnt; ++wi) {
             idx_t wt = w[wi];
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = cache[limit];
-    free(cur);
-    free(cache);
+    mem_free(cur);
+    mem_free(cache);
     return result;
 }

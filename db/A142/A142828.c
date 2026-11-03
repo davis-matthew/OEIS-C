@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 102, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_generic
+ * Validated: standard, pass, 55 terms through n = 962 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_generic.h"
+#include <stdint.h>
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,17 +35,17 @@ seq_t a(idx_t n)
     if (!initialized) {
         cache_cap        = 16;
         cache_size       = 0;
-        cache            = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache            = mem_new(seq_t, cache_cap);
         next_candidate   = 457ULL;      /* 30 + 61*7 */
         initialized      = true;
     }
 
     /* Grow the cache until it contains at least n terms. */
     while (cache_size < n) {
-        if (is_prime_generic(next_candidate)) {
+        if (is_prime(next_candidate)) {
             if (cache_size == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = (seq_t)next_candidate;
         }

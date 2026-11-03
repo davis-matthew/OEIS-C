@@ -12,12 +12,14 @@
  *            rows, so a(1)=1, a(2)=3, a(3)=5, …
  * Range:     u8 n <= 135, u16 n <= 7260, u32 n <= 7260, u64 n <= 7260,
  *            u128 n <= 7260, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 7111 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute greatest common divisor of two seq_t values.  */
 static inline seq_t gcd_seq_t(seq_t a, seq_t b)
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         /* Generate missing rows.                                 */
         while (rows_count < (size_t)row) {
             idx_t r = (idx_t)(rows_count + 1);  /* row number (1‑based) */
-            seq_t *row_arr = (seq_t *)malloc(r * sizeof(seq_t));
+            seq_t *row_arr = mem_new(seq_t, r);
             if (!row_arr)
                 abort();
 

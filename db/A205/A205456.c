@@ -8,14 +8,16 @@
  * Formula:   a(n) = C(max(i,j), min(i,j)) where (i,j) are the coordinates
  *            obtained by reading the symmetric matrix C(max(i,j),min(i,j)) by
  *            anti‑diagonals starting at (1,1)
- * Range:     u8 n <= 58, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
+ * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static inline idx_t tri(idx_t k)

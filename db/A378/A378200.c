@@ -11,13 +11,37 @@
  *            n)*(-1)^(k + n) + 2)/2 along antidiagonals with constant n+k
  * Range:     u8 n <= 233, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   T_array
+ * Validated: standard, pass, 82 terms through n = 8718 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/T_array.h"
+
+static seq_t T_array(idx_t n, idx_t k) {
+    /* Compute T(n,k) using the closed form. */
+    int64_t N = (int64_t)n;
+    int64_t K = (int64_t)k;
+
+    int64_t s1 = K + N - 1;
+    int64_t term = s1 * s1;
+
+    int sign_n  = (n & 1) == 0 ? 1 : -1;
+    int sign_k  = (k & 1) == 0 ? 1 : -1;
+    int sign_kn = ((n + k) & 1) == 0 ? 1 : -1;
+
+    int64_t diff1 = K - N + 1;        /* k - n + 1 */
+    int64_t diff2 = 1 - K - N;        /* 1 - k - n */
+
+    term += sign_n  * diff1;
+    term += sign_k  * diff2;
+    term += sign_kn * diff2;
+
+    term += 2;   /* add the constant 2 */
+
+    return (seq_t)(term / 2);
+}
 
 seq_t a(idx_t n) {
     if (n < 1)

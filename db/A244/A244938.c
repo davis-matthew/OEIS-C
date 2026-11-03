@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  * The algorithm runs in O(n·√n) time and O(n) memory.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* integer square root: floor(sqrt(n)) */
 static idx_t isqrt(idx_t n)
@@ -47,12 +49,12 @@ seq_t a(idx_t n)
 
     /* maximum possible sum: 6 per position */
     idx_t max_sum = 6 * n;
-    seq_t *dp_cur  = (seq_t *)calloc(max_sum + 1, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(max_sum + 1, sizeof(seq_t));
+    seq_t *dp_cur  = mem_new(seq_t, max_sum + 1);
+    seq_t *dp_next = mem_new(seq_t, max_sum + 1);
     if (!dp_cur || !dp_next) {
         /* allocation failure: return 0 gracefully */
-        free(dp_cur);
-        free(dp_next);
+        mem_free(dp_cur);
+        mem_free(dp_next);
         return 0;
     }
 
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
     for (idx_t s = prevL; s <= prevR; ++s)
         total += dp_cur[s];
 
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     return total;
 }

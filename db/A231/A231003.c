@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* initial 22 terms (index 0 unused) */
 static const seq_t init_vals[22] = {
@@ -46,14 +48,14 @@ static bool grow_cache(idx_t required)
     idx_t new_cap = required + 1;                    /* include index 0 */
     if (new_cap < 64) new_cap = 64;                  /* minimum size */
 
-    seq_t *new_cache = (seq_t *)malloc((size_t)new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)new_cap);
     if (!new_cache) return false;                    /* allocation failed */
 
     /* copy existing contents (works for trivial and non‑trivial types) */
     for (idx_t i = 0; i < cache_cap; ++i)
         new_cache[i] = cache[i];
 
-    free(cache);
+    mem_free(cache);
     cache      = new_cache;
     cache_cap  = new_cap;
     return true;

@@ -8,7 +8,8 @@
  * Formula:   a(n) = number of k (1 ≤ k ≤ n-1) such that a(k) AND a(n-k) == 0
  * Range:     u8 n <= 1317, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9473 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(1) = 0; for n > 1, a(n) = Σ_{k=1}^{n-1} [ (a(k)&a(n-k)) == 0 ] */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : 2;
         while (new_cap < n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(seq, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, (new_cap + 1));
         if (!tmp) abort();               /* allocation failed: terminate */
         seq = tmp;
         cache_cap = new_cap;

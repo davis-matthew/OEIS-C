@@ -7,14 +7,15 @@
  * Formula:   a(n) = least k>n such that decimal expansion of k^3 ends in n^3
  * Range:     u8 n <= 5, u16 n <= 22, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   unsigned_digit_count
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-01)
+ * Helpers:   num_digits_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/unsigned_digit_count.h"
+#include "../utils/num_digits_u64_to_u32.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
     unsigned __int128 n3 = (unsigned __int128)n64 * n64 * n64;
 
     /* Determine number of digits of n^3. */
-    unsigned d = unsigned_digit_count((uint64_t)n3);
+    unsigned d = num_digits_u64_to_u32((uint64_t)n3);
 
     /* Compute modulus M = 10^d (fits in 64 bit for the intended range). */
     uint64_t M = 1;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 32, u32 n <= 113, u64 n <= 424,
  *            u128 n <= 1641, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 9475 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Computed by iteratively merging multiples of 4 and 6 to generate
    an increasing list of such numbers. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     if (length == 0) {
         capacity = 16;
-        seq = (seq_t *)realloc(seq, capacity * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, capacity);
         seq[0] = (seq_t)1;
         length = 1;
     }
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     while ((size_t)idx >= length) {
         if (length >= capacity) {
             capacity *= 2;
-            seq = (seq_t *)realloc(seq, capacity * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, capacity);
         }
 
         seq_t val4 = seq[i4] * ((seq_t)4);

@@ -9,11 +9,13 @@
  *            (16*k^3+316*k^2+1852*k+3003) / (13*3*11)
  * Range:     u8 n <= 0, u16 n <= 9, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

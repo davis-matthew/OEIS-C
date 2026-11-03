@@ -13,7 +13,8 @@
  *            reconciling the coefficients by Chinese remainder th...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----------  modular arithmetic helpers  ---------- */
 static long long mod_pow(long long a, long long e, long long mod)
@@ -113,7 +115,7 @@ static void seq_cache_push(seq_t val)
 {
     if (seq_cache_len >= seq_cache_cap) {
         seq_cache_cap = seq_cache_cap ? seq_cache_cap * 2 : 16;
-        seq_cache = (seq_t*)realloc(seq_cache, seq_cache_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cache_cap);
     }
     seq_cache[seq_cache_len++] = val;
 }
@@ -130,8 +132,8 @@ static void init_sequence(void)
     const int dy[5] = { -1,  1, 0, 1,-1 };
     const int dz[5] = {  0, -1, 1, 1, 0 };
 
-    seq_t *cur = (seq_t*)calloc(S, sizeof(seq_t));
-    seq_t *nxt = (seq_t*)calloc(S, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, S);
+    seq_t *nxt = mem_new(seq_t, S);
 
     /* start from origin */
     cur[0] = (seq_t)1;
@@ -139,7 +141,7 @@ static void init_sequence(void)
 
     for (int step = 1; step <= N0; ++step) {
         /* zero nxt (calloc already zero, but we reuse array) */
-        memset(nxt, 0, S * sizeof(seq_t));
+        mem_set(nxt, 0, S * sizeof(seq_t));
 
         for (size_t i = 0; i < S; ++i) {
             if (cur[i] == 0) continue;
@@ -174,8 +176,8 @@ static void init_sequence(void)
         cur = nxt;
         nxt = tmp;
     }
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
 
     /* ----------  derive linear recurrence  ---------- */
     const long long p1 = 1000000007LL;      /* two large primes */

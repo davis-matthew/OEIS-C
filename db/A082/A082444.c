@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 612, u64 n <= 4796,
  *            u128 n <= 4796, big any n
- * Helpers:   modpow_u64
+ * Validated: standard, pass, 48 terms through n = 4796 (2026-11-03)
+ * Helpers:   mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/modpow_u64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- small utilities ---------- */
 
@@ -59,7 +61,7 @@ static inline bool is_prime_u64(uint64_t n)
         uint64_t a = bases[i];
         if (a >= n)
             break;
-        uint64_t x = modpow_u64(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1 || x == n - 1)
             continue;
         bool comp = true;
@@ -90,7 +92,7 @@ static void ensure_pal_cap(size_t need)
     size_t new_cap = pal_cap ? pal_cap * 2 : 16;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(pal_list, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pal_list, new_cap);
     pal_list = tmp;
     pal_cap = new_cap;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 60 terms through n = 73 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Prime sieve (static, built once)                                    */
@@ -58,7 +60,7 @@ static void build_primes(void)
     free(is_comp);
 
     /* Allocate period cache for each prime */
-    PRIME_PERIOD = (seq_t *)calloc(PRIME_CNT, sizeof(seq_t));
+    PRIME_PERIOD = mem_new(seq_t, PRIME_CNT);
     if (!PRIME_PERIOD) exit(1);
 }
 
@@ -299,7 +301,7 @@ seq_t a(idx_t n)
         if (period == target) {
             if (SEQ_LEN == SEQ_CAP) {
                 size_t newcap = SEQ_CAP ? SEQ_CAP * 2 : 16;
-                SEQ = (seq_t *)realloc(SEQ, newcap * sizeof(seq_t));
+                SEQ = mem_resize(seq_t, SEQ, newcap);
                 SEQ_CAP = newcap;
             }
             SEQ[SEQ_LEN++] = (seq_t)NEXT_K;

@@ -7,7 +7,8 @@
  * Formula:   Numbers k such that Fib(k) == -21 (mod k)
  * Range:     u8 n <= 9, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   mod_mul
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_mul.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* fast‑doubling Fibonacci modulo */
 static void fib_pair_u64(idx_t n, uint64_t mod, uint64_t *fn, uint64_t *fn1)
@@ -29,8 +31,8 @@ static void fib_pair_u64(idx_t n, uint64_t mod, uint64_t *fn, uint64_t *fn1)
     fib_pair_u64(n >> 1, mod, &a, &b);          /* a = F_k, b = F_{k+1} */
     uint64_t two_b = (b << 1) % mod;             /* 2*b mod mod */
     uint64_t temp  = (two_b + mod - a % mod) % mod; /* (2*b - a) mod mod */
-    uint64_t c = mod_mul(a, temp, mod);              /* F_{2k} */
-    uint64_t d = (mod_mul(a, a, mod) + mod_mul(b, b, mod)) % mod; /* F_{2k+1} */
+    uint64_t c = mulmod(a, temp, mod);              /* F_{2k} */
+    uint64_t d = (mulmod(a, a, mod) + mulmod(b, b, mod)) % mod; /* F_{2k+1} */
     if ((n & 1) == 0) {
         *fn  = c;
         *fn1 = d;
@@ -57,7 +59,7 @@ static void grow_cache(void)
 {
     if (cache_cap == cache_size) {
         size_t new_cap = (cache_cap == 0) ? 4 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

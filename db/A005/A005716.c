@@ -9,6 +9,7 @@
  *            = 0 for k > 0; a(n) = T(n,8)
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 57, u64 n <= 960,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 48 terms through n = 975 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

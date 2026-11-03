@@ -8,11 +8,13 @@
  *            odd: a(n) = 3 * 2^((n-1)/2) if n is even: a(n) = 2^(n/2 + 2)
  * Range:     u8 n <= 11, u16 n <= 27, u32 n <= 59, u64 n <= 100,
  *            u128 n <= 100, big any n
+ * Validated: standard, pass, 57 terms through n = 100 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

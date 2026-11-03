@@ -7,13 +7,18 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} k^(n-k) * Catalan(k) / (n-k)!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow, catalan
+ * Validated: standard, pass, 35 terms through n = 351 (2026-11-01)
+ * Helpers:   catalan, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +33,7 @@ seq_t a(idx_t n)
         falling *= (seq_t)(n - k + 1);
 
         /* k^(n-k) using big integer exponentiation */
-        seq_t kpow = big_pow((seq_t)k, (seq_t)(n - k));
+        seq_t kpow = ipow((seq_t)k, (seq_t)(n - k));
 
         /* Catalan(k) */
         seq_t cat = catalan(k);

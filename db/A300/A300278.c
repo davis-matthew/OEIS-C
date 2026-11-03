@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{d|n} μ(n/d) * A022629(d)
  * Range:     u8 n <= 10, u16 n <= 24, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* external linkage as requested */
 seq_t a(idx_t n);
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
         return;                     /* already prepared */
 
     /* Allocate new arrays (cast for C++) */
-    seq_t *new_b  = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *new_b  = mem_new(seq_t, (size_t)(n + 1));
     int   *new_mu = (int   *)calloc((size_t)(n + 1), sizeof(int));
     int   *lp     = (int   *)calloc((size_t)(n + 1), sizeof(int));
     uint32_t *pr  = (uint32_t *)malloc((size_t)(n + 1) * sizeof(uint32_t));
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n)
 
     if (!new_b || !new_mu || !lp || !pr) {
         /* allocation failed – keep old cache unchanged */
-        free(new_b); free(new_mu); free(lp); free(pr);
+        mem_free(new_b); free(new_mu); free(lp); free(pr);
         return;
     }
 
@@ -74,7 +76,7 @@ static void ensure_cache(idx_t n)
     }
 
     /* Free old cache */
-    free(b_arr);
+    mem_free(b_arr);
     free(mu_arr);
     free(lp);
     free(pr);

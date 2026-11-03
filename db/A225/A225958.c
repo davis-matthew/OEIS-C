@@ -9,7 +9,8 @@
  *            divisors
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 17, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Auxiliary small‑power routine (works for any seq_t). */
 static inline seq_t
@@ -105,11 +107,11 @@ ensure_computed(idx_t n)
 
     /* Resize or initialise f_vals. */
     if (f_vals == NULL) {
-        f_vals = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+        f_vals = mem_new(seq_t, (size_t)(n + 1));
         if (!f_vals) exit(1);
         f_cap = n + 1;
     } else if (f_cap <= n) {
-        seq_t *tmp = (seq_t*)realloc(f_vals, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, f_vals, (size_t)(n + 1));
         if (!tmp) exit(1);
         f_vals = tmp;
         f_cap  = n + 1;
@@ -117,11 +119,11 @@ ensure_computed(idx_t n)
 
     /* Resize or initialise a_vals. */
     if (a_vals == NULL) {
-        a_vals = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+        a_vals = mem_new(seq_t, (size_t)(n + 1));
         if (!a_vals) exit(1);
         a_cap = n + 1;
     } else if (a_cap <= n) {
-        seq_t *tmp = (seq_t*)realloc(a_vals, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, (size_t)(n + 1));
         if (!tmp) exit(1);
         a_vals = tmp;
         a_cap  = n + 1;

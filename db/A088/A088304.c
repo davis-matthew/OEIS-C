@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 47, u64 n <= 99, u128 n <= 206,
  *            big any n
- * Helpers:   is_prime_inline
+ * Validated: standard, pass, 54 terms through n = 1000 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
  *   else                     → a(n) = a(n-1) * n.  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_inline.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Static cache: cache[i] holds a(i) for i ≥ 1 (cache[0] unused).  */
 static seq_t *cache = NULL;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache on first call.  */
     if (cache == NULL) {
-        cache = (seq_t*)calloc(2, sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache) return 0;          /* allocation failed */
         cache[1] = 1;                  /* a(1) = 1 */
         cache_size = 1;
@@ -42,12 +44,12 @@ seq_t a(idx_t n)
 
     /* Grow cache and compute missing terms up to n.  */
     if (n > cache_size) {
-        seq_t *tmp = (seq_t*)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!tmp) return 0;            /* allocation failed */
         cache = tmp;
         for (idx_t i = cache_size + 1; i <= n; ++i) {
             seq_t prev = cache[i - 1];
-            if (is_prime_inline(i)) {
+            if (is_prime(i)) {
                 cache[i] = prev;               /* prime → unchanged */
             } else {
                 if (prev % (seq_t)i == 0) {     /* divisible → divide */

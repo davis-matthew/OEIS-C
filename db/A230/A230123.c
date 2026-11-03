@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   count_prime_factors
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   bigomega_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stddef.h>      /* size_t, idx_t is provided by the build */
 #include <stdlib.h>      /* malloc, realloc, calloc */
 #include <string.h>      /* memset */
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
+#include "../utils/mem.h"
 
 static seq_t* cache = NULL;      /* memoization table */
 static size_t cache_capacity = 0;
@@ -31,7 +34,7 @@ static void ensure_capacity(idx_t n)
 {
     if (cache == NULL) {
         cache_capacity = 1;
-        cache = (seq_t*)calloc(cache_capacity, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         return;
     }
     if ((size_t)n + 1 <= cache_capacity) return;
@@ -39,12 +42,11 @@ static void ensure_capacity(idx_t n)
     size_t new_capacity = cache_capacity;
     while ((size_t)n + 1 > new_capacity) new_capacity <<= 1;
 
-    seq_t* new_cache = (seq_t*)realloc(cache, new_capacity * sizeof(seq_t));
+    seq_t* new_cache = mem_resize(seq_t, cache, new_capacity);
     if (new_cache != cache) {
         /* realloc may have moved the block; the new part is not initialized */
     }
-    memset(new_cache + cache_capacity, 0,
-           (new_capacity - cache_capacity) * sizeof(seq_t));
+    mem_set(new_cache + cache_capacity, 0, (new_capacity - cache_capacity) * sizeof(seq_t));
     cache = new_cache;
     cache_capacity = new_capacity;
 }
@@ -56,7 +58,7 @@ static seq_t brute_min(idx_t n)
     seq_t m = 0;
     while (1) {
         seq_t candidate = m * (seq_t)11 + (seq_t)1;
-        if (count_prime_factors(candidate) == n) return candidate;
+        if (bigomega_seq(candidate) == n) return candidate;
         ++m;
     }
 }

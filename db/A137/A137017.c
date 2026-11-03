@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *vals = NULL;          /* array of discovered terms   */
 static size_t valcap = 0;           /* allocated capacity          */
@@ -44,7 +46,7 @@ static void gen_rec(idx_t len, idx_t pos, seq_t cur) {
         if (allowed_digits(cur) && allowed_digits(cur * cur)) {
             if (valcnt == valcap) {
                 valcap = (valcap == 0) ? 64 : valcap * 2;
-                vals = (seq_t *)realloc(vals, valcap * sizeof(seq_t));
+                vals = mem_resize(seq_t, vals, valcap);
             }
             vals[valcnt++] = cur;
         }

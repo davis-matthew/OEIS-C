@@ -10,15 +10,17 @@
  *            standard greedy method, keeping track of the maximum denominator
  *            * reached. This implementation works for seq_t types of any size
  *            * (uint8_t, uint16_t, uint32_t, uint64_t, unsi...
- * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 51, u64 n <= 51, u128 n <= 51,
+ * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 69, u64 n <= 209, u128 n <= 209,
  *            big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 67 terms through n = 4929 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_seq.h"
+#include <stdbool.h>
+#include "../utils/gcd.h"
 
 /* Euclidean GCD for the seq_t type.  Works for built‑in integral
  * types, as well as any arbitrary‑precision integer class that
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
          * that appear in the verified range of the sequence. */
         seq_t new_num = num * d - den;
         seq_t new_den = den * d;
-        seq_t g = gcd_seq(new_num, new_den);
+        seq_t g = gcd(new_num, new_den);
         num = new_num / g;
         den = new_den / g;
     }

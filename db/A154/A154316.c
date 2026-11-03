@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   digit_sum, grow_seq, next_prime
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   digit_sum, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,25 @@
 /* a(n) = the n-th prime p such that |sum_digits(p) - sum_digits(n)| < 2 */
 
 #include <stdlib.h>                 /* for size_t, malloc, realloc */
-#include "../utils/grow_seq.h"      /* grow_seq */
-#include "../utils/digit_sum.h"     /* digit_sum */
-#include "../utils/next_prime.h"    /* next_prime */
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/digit_sum.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 seq_t a(idx_t n)
 {

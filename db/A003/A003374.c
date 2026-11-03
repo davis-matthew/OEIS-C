@@ -9,14 +9,19 @@
  *            L until at least n terms exist
  * Range:     u8 n <= 2, u16 n <= 100, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   A3374_cmp
+ * Validated: standard, pass, 60 terms through n = 9236 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/A3374_cmp.h"
+
+static int A3374_cmp(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
 
 static uint64_t *A3374_vals = NULL;
 static size_t A3374_cnt = 0, A3374_cap = 0;

@@ -12,12 +12,14 @@
  *            antidiagonal sums of the triangular array T
  * Range:     u8 n <= 18, u16 n <= 32, u32 n <= 66, u64 n <= 128,
  *            u128 n <= 258, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 5986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* 1‑based sequence stored 0‑indexed */
 static idx_t max_computed = 0;      /* largest n that has been computed */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* Ensure the cache is initialized with the first 10 terms. */
     if (max_computed == 0) {
         const size_t init_cap = 10;
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (!cache) return (seq_t)0;      /* memory error – abort gracefully */
         cache[0] = 1;  cache[1] = 1;  cache[2] = 3;  cache[3] = 2;
         cache[4] = 5;  cache[5] = 3;  cache[6] = 9;  cache[7] = 6;
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
     size_t cap = max_computed;
     if (cap < needed) {
         cap = needed;
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
         if (!cache) return (seq_t)0;      /* memory error – abort gracefully */
     }
 

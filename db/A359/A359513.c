@@ -9,15 +9,17 @@
  *            Fibonacci numbers * (with a single type of 1). Computed via
  *            dynamic programming that counts * unordered partitions using the
  *            Fibonacci part set up to n
- * Range:     u8 n <= 9626, u16 n <= 9626, u32 n <= 9626, u64 n <= 9626,
- *            u128 n <= 9626, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 104 terms through n = 9626 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Allocate DP table: dp[k][s] = number of partitions of s using exactly k parts */
     seq_t **dp = (seq_t **)malloc(5 * sizeof(seq_t *));
     for (int k = 0; k < 5; ++k) {
-        dp[k] = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        dp[k] = mem_new(seq_t, (size_t)(n + 1));
     }
     dp[0][0] = (seq_t)1;          /* one way to partition 0 with 0 parts */
 
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
 
     /* Free DP table */
     for (int k = 0; k < 5; ++k) {
-        free(dp[k]);
+        mem_free(dp[k]);
     }
     free(dp);
 

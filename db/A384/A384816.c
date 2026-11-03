@@ -8,15 +8,18 @@
  *            primes <= p
  * Range:     u8 n <= 16, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   compute_pi, factor_u64
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (size_t i = 0; i < cnt; ++i) {
         idx_t p = primes[i];
-        seq_t pi = compute_pi(p);          /* pi(p) */
+        seq_t pi = prime_pi(p);          /* pi(p) */
         seq_t pi2 = pi * pi;               /* pi(p)^2 */
         seq_t cube = pi2 * pi;              /* pi(p)^3 */
         sum += cube;

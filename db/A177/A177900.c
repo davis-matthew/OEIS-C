@@ -11,7 +11,8 @@
  *            exists
  * Range:     u8 n <= 16, u16 n <= 375, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9898 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state -------------------------------------------------------- */
 
@@ -65,7 +67,7 @@ static void init_once(void)
             primes_arr[idx++] = (uint64_t)i;
 
     /* 2. Allocate mapping array (prime → minimal k) */
-    first_k_of_prime = (seq_t*)calloc(PRIME_LIMIT + 1, sizeof(seq_t));
+    first_k_of_prime = mem_new(seq_t, PRIME_LIMIT + 1);
     if (!first_k_of_prime)
         return;
 

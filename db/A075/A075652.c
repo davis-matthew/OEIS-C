@@ -14,7 +14,8 @@
  *            rows on demand and keeps a dynamic bitset of used...
  * Range:     u8 n <= 90, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   row_of
+ * Validated: standard, pass, 83 terms through n = 5011 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/row_of.h"
+#include "../utils/mem.h"
+
+/* Fast inverse triangular number: returns r such that T(r‑1) < n ≤ T(r). */
+static idx_t row_of(idx_t n)
+{
+    idx_t lo = 1, hi = n;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo) / 2;
+        unsigned __int128 t = (unsigned __int128)mid * (mid + 1) / 2;
+        if (t >= n)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    return lo;
+}
 
 /* Dynamic bitset for used integers (1‑based indexing). */
 static uint64_t *used_bits = NULL;
@@ -107,7 +123,7 @@ static void ensure_rows(idx_t target_row)
         /* Store the row start. */
         if (rows_size == rows_cap) {
             size_t new_cap = rows_cap ? (rows_cap << 1) : 16;
-            seq_t *new_arr = (seq_t *)realloc(row_start, new_cap * sizeof(seq_t));
+            seq_t *new_arr = mem_resize(seq_t, row_start, new_cap);
             if (!new_arr)
                 abort();
             row_start = new_arr;

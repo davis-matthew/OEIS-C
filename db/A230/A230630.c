@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = floor(log2(n)) mod 3; equivalently, a(1)=0; for n>1, a(n)
  *            = (1 + a(floor(n/2))) mod 3
- * Range:     u8 n <= 9627, u16 n <= 9627, u32 n <= 9627, u64 n <= 9627,
- *            u128 n <= 9627, big any n
+ * Range:     u8 n <= 32768, u16 n <= 32768, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 121 terms through n = 9627 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

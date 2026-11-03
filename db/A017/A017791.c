@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(75,n)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 7, u64 n <= 23, u128 n <= 75,
  *            big any n
+ * Validated: full, pass, 76 terms through n = 75 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

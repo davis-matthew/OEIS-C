@@ -11,13 +11,15 @@
  *            Σ_{r=0}^{n-1} (−1)^r * binom(n−1,r) * ( D_{n−r} + D_{n...
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* cache for derangement numbers D_k */
 static seq_t *D_cache = NULL;
@@ -35,7 +37,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t needed)
     if (*cap >= needed) return;
     size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *p = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, *arr, new_cap);
     if (!p) abort();               /* allocation failed */
     *arr = p;
     *cap = new_cap;

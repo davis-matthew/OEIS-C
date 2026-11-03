@@ -11,7 +11,8 @@
  *            values: a(1)=1, a(2)=a(3)=3
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"
-
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 static seq_t *values = NULL;
 static seq_t *sums   = NULL;
@@ -35,15 +37,15 @@ static void ensure_capacity(size_t needed)
         while (new_cap < needed)
             new_cap <<= 1;
 
-        values = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
-        sums   = (seq_t *)realloc(sums,   new_cap * sizeof(seq_t));
+        values = mem_resize(seq_t, values, new_cap);
+        sums   = mem_resize(seq_t, sums, new_cap);
         capacity = new_cap;
     }
 }
 
 static idx_t compute_p(idx_t v) /* v = n-1, v >= 3 */
 {
-    idx_t p = floor_log2_uint64(v);      /* floor(log2(v)) */
+    idx_t p = ilog2(v);      /* floor(log2(v)) */
     if ((idx_t)1 << p == v)              /* v is an exact power of two */
         p = (p > 0) ? p - 1 : 0;
     return p;

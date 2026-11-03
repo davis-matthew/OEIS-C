@@ -7,12 +7,14 @@
  * Formula:   a(n) = numerator of the partial sum ∑_{k=1..n} 1/(2^k − 1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Euclidean algorithm for seq_t (works for built‑in and user‑defined types) */
 static seq_t gcd_seq_t(seq_t a, seq_t b)
@@ -46,14 +48,14 @@ seq_t a(idx_t n)
 
         if (num == NULL || den == NULL)
         {
-            num = (seq_t*)realloc(num, cap * sizeof(seq_t));
-            den = (seq_t*)realloc(den, cap * sizeof(seq_t));
+            num = mem_resize(seq_t, num, cap);
+            den = mem_resize(seq_t, den, cap);
         }
         else
         {
-            seq_t *tmp = (seq_t*)realloc(num, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, num, cap);
             if (tmp) num = tmp;
-            tmp = (seq_t*)realloc(den, cap * sizeof(seq_t));
+            tmp = mem_resize(seq_t, den, cap);
             if (tmp) den = tmp;
         }
 

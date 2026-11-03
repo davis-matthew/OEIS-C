@@ -11,9 +11,10 @@
  * Formula:   a(n) = T(r,k) where r(r+1)/2 ≤ n < (r+1)(r+2)/2, and T(n,k)
  *            satisfies the recurrence T(0,0)=1, T(n,k)=T(n-1,k)+T(n-1,k-1)
  *            for n,k≥1, T(n,0)=Catalan(n)-∑_{j=1}^{n}T(n,j)
- * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 68, u64 n <= 68, u128 n <= 68,
+ * Range:     u8 n <= 35, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   catalan
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
    "../utils/catalan.h". */
 
 #include <stdlib.h>
+#include <stddef.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static data to store already generated entries and the
@@ -41,7 +44,7 @@ seq_t a(idx_t n) {
         idx_t cur_len = r + 1;        /* length of new row */
 
         /* Allocate array for the new row. */
-        seq_t *cur = (seq_t *)malloc(cur_len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, cur_len);
         if (!cur) {
             /* Out of memory - abort. */
             abort();
@@ -63,7 +66,7 @@ seq_t a(idx_t n) {
         if (data_len + cur_len > data_cap) {
             size_t new_cap = data_cap ? data_cap * 2 : 16;
             while (new_cap < data_len + cur_len) new_cap *= 2;
-            seq_t *new_data = (seq_t *)realloc(data, new_cap * sizeof(seq_t));
+            seq_t *new_data = mem_resize(seq_t, data, new_cap);
             if (!new_data) abort();
             data = new_data;
             data_cap = new_cap;
@@ -76,7 +79,7 @@ seq_t a(idx_t n) {
         data_len += cur_len;
 
         /* Prepare for the next row.  The previous row is no longer needed. */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = cur;
         prev_len = cur_len;
         ++next_row;

@@ -11,14 +11,22 @@
  *            encountered
  * Range:     u8 n <= 525, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_3smooth
+ * Validated: standard, pass, 103 terms through n = 9789 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_3smooth.h"
+
+/* Test whether a value consists only of the prime factors 2 and 3. */
+static bool is_3smooth(seq_t x)
+{
+    while (x % 2 == 0) x /= 2;
+    while (x % 3 == 0) x /= 3;
+    return x == 1;
+}
 
 /* Integer totient for 64‑bit values.  The range of n guarantees that
    all intermediate values are ≤ 2⁶⁴ − 1, so a 64‑bit implementation

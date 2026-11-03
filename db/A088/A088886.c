@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   mod_mul
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
    If no such k exists, return 0.  The algorithm builds the
    concatenation modulo n backwards from n‑1 to 0. */
 #include <stdint.h>
-#include "../utils/mod_mul.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/mulmod.h"
 
 /* Count decimal digits of a non‑negative integer. Handles 0 → 1 digit. */
 static inline int digits_of(idx_t x)
@@ -40,7 +43,7 @@ static inline uint64_t pow10_mod(uint64_t e, uint64_t mod)
 {
     uint64_t r = 1 % mod;
     for (uint64_t i = 0; i < e; ++i) {
-        r = mod_mul(r, 10ULL, mod);
+        r = mulmod(r, 10ULL, mod);
     }
     return r;
 }
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
         int ds = digits_of(s);
         uint64_t pow10_ds = pow10_mod((uint64_t)ds, n);
 
-        uint64_t tmp_mul = mod_mul((s % n), pow10_curr, n);
+        uint64_t tmp_mul = mulmod((s % n), pow10_curr, n);
 
         /* tmp_mul + mod modulo n, avoiding 128‑bit arithmetic */
         uint64_t new_mod;
@@ -66,7 +69,7 @@ seq_t a(idx_t n)
             new_mod = tmp_mul + mod;
 
         mod = new_mod;
-        pow10_curr = mod_mul(pow10_curr, pow10_ds, n);
+        pow10_curr = mulmod(pow10_curr, pow10_ds, n);
 
         if (new_mod == 0)
             return (seq_t)(n - s);  /* k = n - s */

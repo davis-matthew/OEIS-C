@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} 2^{(n-k)(n-1)} * G(n,k,2)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,14 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == (idx_t)0) return (seq_t)1;
 
     /* pre‑compute powers of two up to 2^n (they are small, at most 2^10000) */
     size_t len = (size_t)(n + 1);
-    seq_t *pow2 = (seq_t *)malloc(sizeof(seq_t) * len);
+    seq_t *pow2 = mem_new(seq_t, len);
     pow2[0] = (seq_t)1;
     for (idx_t i = 1; i <= n; ++i)
         pow2[i] = pow2[i - 1] << 1;              /* 2^i */
@@ -55,6 +57,6 @@ seq_t a(idx_t n) {
         sum += term;
     }
 
-    free(pow2);
+    mem_free(pow2);
     return sum;
 }

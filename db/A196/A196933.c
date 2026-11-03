@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 163, u32 n <= 475, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* It memoises computed values up to the largest requested n. */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 /* External types defined by the build system */
 typedef uint64_t idx_t;   /* index type */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* First call: allocate the table for the requested n.              */
     /* --------------------------------------------------------------- */
     if (dp == NULL) {
-        dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        dp = mem_new(seq_t, (size_t)(n + 1));
         if (dp == NULL) return (seq_t)0;  /* allocation error */
 
         /* initialise all entries to 0 */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     /* Need to extend the table to accommodate a larger n.            */
     /* Allocate a new array, compute from scratch, free the old array. */
     /* --------------------------------------------------------------- */
-    seq_t *new_dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, (size_t)(n + 1));
     if (new_dp == NULL) return (seq_t)0;  /* allocation error */
 
     for (size_t i = 0; i <= n; ++i)
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
     }
 
     /* free the old array if it was allocated */
-    free(dp);
+    mem_free(dp);
 
     dp            = new_dp;
     max_computed  = n;

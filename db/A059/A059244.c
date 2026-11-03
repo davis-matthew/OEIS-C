@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 349, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 59 terms through n = 848 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../utils/next_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0, cache_cap = 0;
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
         {
             uint64_t e = (last_checked - 1) / 19;
             seq_t mod = (seq_t)last_checked;
-            seq_t r   = mod_pow((seq_t)2, e, mod);
+            seq_t r   = powmod((seq_t)2, e, mod);
 
             if (r != (seq_t)1)   /* no 19th‑power solution */
             {
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
                 {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 4;
                     if (new_cap < cache_len + 1) new_cap = cache_len + 1;
-                    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) abort();   /* allocation failed */
                     cache = tmp;
                     cache_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   is_squarefree
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 typedef struct { seq_t sum; idx_t i; idx_t j; } Node;
 
@@ -75,7 +77,7 @@ static Node heap_pop(Node *h, size_t *sz)
 seq_t a(idx_t n)
 {
     /* pre‑compute cubes */
-    seq_t *cube = (seq_t*)malloc((MAX_I + 1) * sizeof(seq_t));
+    seq_t *cube = mem_new(seq_t, (MAX_I + 1));
     for (idx_t i = 1; i <= MAX_I; ++i) {
         seq_t ii = (seq_t)i;
         cube[i] = ii * ii * ii;
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
 
     /* allocate and initialise heap with (i,i) pairs */
     size_t heap_cap = MAX_I + 5;
-    Node *heap = (Node*)malloc(heap_cap * sizeof(Node));
+    Node *heap = mem_new(Node, heap_cap);
     size_t heap_sz = 0;
     for (idx_t i = 1; i <= MAX_I; ++i) {
         Node nd;
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
         heap_push(heap, &heap_sz, &nxt);
     }
 
-    free(heap);
-    free(cube);
+    mem_free(heap);
+    mem_free(cube);
     return answer;
 }

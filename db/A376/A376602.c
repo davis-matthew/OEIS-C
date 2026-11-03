@@ -12,7 +12,8 @@
  *            gap between C_{i-1} and C_i. No closed known for...
  * Range:     u8 n <= 166, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 81 terms through n = 8780 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* External types defined by the build environment */
 extern seq_t a(idx_t n);
@@ -66,8 +68,7 @@ seq_t a(idx_t n)
                                 /* grow cache if necessary */
                                 if (cache_used >= cache_cap) {
                                         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                                        seq_t *tmp = (seq_t *)realloc(cache,
-                                                                   new_cap * sizeof(seq_t));
+                                        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                                         if (!tmp) {
                                                 abort();   /* allocation failure */
                                         }

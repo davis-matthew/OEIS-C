@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   popcnt_uint32
+ * Validated: standard, pass, 73 terms through n = 9875 (2026-11-03)
+ * Helpers:   mem, popcount_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/popcnt_uint32.h"
+#include "../utils/popcount_u32.h"
+#include "../utils/mem.h"
 
 /* ----------------- static state ------------------- */
 static const size_t PRIME_LIMIT = 3000000;    /* sieve size, > max k needed */
@@ -99,11 +101,11 @@ static inline void grow_terms(void)
 {
     if (terms_cap == 0) {
         terms_cap = 128;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) abort();
     } else if (terms_len == terms_cap) {
         terms_cap <<= 1;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
         if (!terms) abort();
     }
 }
@@ -137,7 +139,7 @@ seq_t a(idx_t n)
             }
             uint32_t old_e = prime_exp[i];
             uint32_t new_e = old_e + cnt;
-            int delta = popcnt_uint32(new_e) - popcnt_uint32(old_e);
+            int delta = popcount_u32(new_e) - popcount_u32(old_e);
             S_next += delta;
             prime_exp[i] = new_e;
         }
@@ -149,7 +151,7 @@ seq_t a(idx_t n)
             if (idx == primes_cap) abort(); /* out of range */
             uint32_t old_e = prime_exp[idx];
             uint32_t new_e = old_e + 1;
-            int delta = popcnt_uint32(new_e) - popcnt_uint32(old_e);
+            int delta = popcount_u32(new_e) - popcount_u32(old_e);
             S_next += delta;
             prime_exp[idx] = new_e;
         }

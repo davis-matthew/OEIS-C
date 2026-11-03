@@ -9,12 +9,14 @@
  *            a(n)=3*a(n-1)-2*a(n-2)+a(n-3) for n≥7
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 26, u64 n <= 52, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Allocate or grow the cache to hold indices up to n. */
 static void ensure_cache(idx_t n, seq_t **cache, size_t *alloc)
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n, seq_t **cache, size_t *alloc)
     size_t newsize = (*alloc) ? (*alloc) : 1;
     while (newsize < needed) newsize <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(*cache, newsize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *cache, newsize);
     if (!tmp) exit(1);                /* Out of memory: abort */
     *cache = tmp;
     *alloc = newsize;

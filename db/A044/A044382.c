@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains_50
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,32 @@
    n contains the substring "50" whereas that of n-1 does not.  */
 
 #include <stdbool.h>
-#include "../utils/contains_50.h"
+
+/* Return true if decimal digits of x contain the pair 5 followed by 0.  */
+static bool contains_50(seq_t x)
+{
+    /* Numbers less than 10 cannot contain "50".  */
+    if (x < 10)
+        return false;
+
+    seq_t last = x % 10;
+    x /= 10;
+    seq_t second_last = x % 10;
+
+    /* Scan overlapping pairs of digits.  */
+    while (true) {
+        if (second_last == 5 && last == 0)
+            return true;
+
+        if (x < 10)      /* no more pairs to check */
+            break;
+
+        last = second_last;
+        x /= 10;
+        second_last = x % 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,14 +9,18 @@
  *            where A002426(k) is the k-th central trinomial coefficient
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 28 terms through n = 47 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static seq_t central_trinomial(idx_t k)
 {
@@ -37,7 +41,7 @@ seq_t a(idx_t n)
     seq_t exp_n = (seq_t)n;
     for (idx_t k = 0; k <= n; ++k) {
         seq_t c = central_trinomial(k);
-        seq_t term = big_pow(c, exp_n);
+        seq_t term = ipow(c, exp_n);
         term = term * binomial(n, k);
         if (((n - k) & 1) != 0) {
             total -= term;

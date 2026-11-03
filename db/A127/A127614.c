@@ -10,12 +10,14 @@
  *            order)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 22, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline idx_t gcd_idx_t(idx_t a, idx_t b)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* Allocate array big enough to hold all totatives (worst-case n). */
     size_t cap = (size_t)n;
-    seq_t *arr = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, cap);
     if (!arr) return (seq_t)0;     /* allocation failed */
 
     /* Collect coprime numbers ≤ n in ascending order. */
@@ -55,6 +57,6 @@ seq_t a(idx_t n)
         den = new_den;
     }
 
-    free(arr);
+    mem_free(arr);
     return num;
 }

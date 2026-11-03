@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   mul_M0, mul_M1, mul_M2, seq_realloc_array
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,10 +30,36 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_M0.h"
-#include "../utils/mul_M1.h"
-#include "../utils/mul_M2.h"
-#include "../utils/seq_realloc_array.h"
+#include "../utils/mem.h"
+
+/* Multiplication by the three fixed matrices. */
+static inline void mul_M0(seq_t *dst, const seq_t *src)
+{
+    dst[0] = 2 * src[0] + 2 * src[1];
+    dst[1] = src[0] + src[2];
+    dst[2] = 2 * src[1] + 2 * src[2];
+}
+
+static inline void mul_M1(seq_t *dst, const seq_t *src)
+{
+    dst[0] = src[0] + src[2];
+    dst[1] = 2 * src[0] + 2 * src[1];
+    dst[2] = 2 * src[1] + 2 * src[2];
+}
+
+static inline void mul_M2(seq_t *dst, const seq_t *src)
+{
+    dst[0] = 2 * src[0] + 2 * src[1];
+    dst[1] = 2 * src[1] + 2 * src[2];
+    dst[2] = src[0] + src[2];
+}
+
+/* For C builds use the standard malloc/realloc. */
+static seq_t *seq_realloc_array(seq_t *old, idx_t old_cap, idx_t new_cap)
+{
+    (void)old_cap; /* unused in C */
+    return mem_resize(seq_t, old, new_cap);
+}
 
 #ifdef __cplusplus
 

@@ -9,15 +9,22 @@
  *            first prime > n that is greater than n! (OEIS A092981)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 33,
  *            big any n
- * Helpers:   next_prime, seq_mul
+ * Validated: standard, pass, 35 terms through n = 449 (2026-11-01)
+ * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/next_prime.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {

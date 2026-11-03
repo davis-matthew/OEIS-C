@@ -9,7 +9,8 @@
  *            between consecutive primes)
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t *primes   = NULL;           /* list of discovered primes            */
 static size_t  primes_cap = 0, primes_len = 0;
@@ -43,7 +45,7 @@ static void grow_primes(void) {
 static void grow_gap_list(void) {
     if (gap_len >= gap_cap) {
         size_t new_cap = gap_cap ? gap_cap * 2 : 32;
-        seq_t *g = (seq_t *)realloc(gap_list, new_cap * sizeof(seq_t));
+        seq_t *g = mem_resize(seq_t, gap_list, new_cap);
         if (!g) exit(1);
         gap_list = g;
         gap_cap = new_cap;
@@ -52,7 +54,7 @@ static void grow_gap_list(void) {
 static void grow_seen(void) {
     if (seen_len >= seen_cap) {
         size_t new_cap = seen_cap ? seen_cap * 2 : 32;
-        seq_t *s = (seq_t *)realloc(seen, new_cap * sizeof(seq_t));
+        seq_t *s = mem_resize(seq_t, seen, new_cap);
         if (!s) exit(1);
         seen = s;
         seen_cap = new_cap;

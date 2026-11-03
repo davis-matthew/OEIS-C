@@ -7,7 +7,8 @@
  * Formula:   Numbers having exactly one digit equal to 6 in base 10
  * Range:     u8 n <= 41, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   pow9_cap
+ * Validated: standard, pass, 66 terms through n = 1808 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow9_cap.h"
+
+/* Helper: compute 9^exp but stop at limit (to avoid overflow). */
+static inline idx_t pow9_cap(idx_t exp, idx_t limit)
+{
+    idx_t res = 1;
+    for (idx_t i = 0; i < exp; ++i) {
+        if (res > limit / 9) return limit;
+        res *= 9;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

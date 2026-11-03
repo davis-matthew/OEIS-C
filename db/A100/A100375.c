@@ -8,14 +8,16 @@
  * Formula:   a(n) = (p_{n+1} - p_n) / 2^{v2(p_{n+1} - p_n)}
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_uint64
+ * Validated: standard, pass, 121 terms through n = 943 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* ensure we have primes[n] and primes[n-1] (0‑based) */
     while (primes_count <= (size_t)n) {
         uint64_t candidate = next_candidate;
-        while (!is_prime_uint64(candidate))
+        while (!is_prime_u64(candidate))
             candidate += 2;
 
         if (primes_count >= primes_capacity) {

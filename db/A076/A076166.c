@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 5870, u64 n <= 5870,
  *            u128 n <= 5870, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 5607 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ----- cache of sequence values ---------------------------------------- */
 static seq_t *cache = NULL;      /* array of found primes          */
@@ -63,7 +65,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, new_cap);
     if (!p)
         abort();
     cache = p;

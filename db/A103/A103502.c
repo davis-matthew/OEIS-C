@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor( Σ_{p prime ≤ n} (n mod p) / p )
  * Range:     u8 none, u16 none, u32 n <= 103, u64 n <= 103, u128 n <= 103,
  *            big any n
+ * Validated: partial, pass, 103 terms through n = 103 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

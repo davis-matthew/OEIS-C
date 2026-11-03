@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2000, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   _pi_le, build_primes_upto, is_prime
+ * Validated: standard, pass, 96 terms through n = 1837 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
 #include "../utils/build_primes_upto.h"
-#include "../utils/_pi_le.h"
+#include "../utils/is_prime.h"
+
+/* Binary search: returns number of primes ≤ val */
+static size_t _pi_le(const uint64_t *arr, size_t n, idx_t val) {
+    size_t lo = 0, hi = n;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] <= (uint64_t)val)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo;
+}
 
 static idx_t _max_limit = 0;
 static uint64_t *_primes = NULL;

@@ -11,15 +11,18 @@
  *            (row increasing downwards)
  * Range:     u8 n <= 31, u16 n <= 49, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 static inline idx_t int_sqrt_u128(__uint128_t val)
 {
@@ -49,7 +52,7 @@ seq_t a(idx_t n)
     for (idx_t s = 0; s <= i; ++s)
     {
         idx_t exp = s * (i - s);           /* j*(n-j) in the formula */
-        seq_t term = big_pow((seq_t)col, (seq_t)exp) * binomial(i, s);
+        seq_t term = ipow((seq_t)col, (seq_t)exp) * binomial(i, s);
         sum += term;                       /* seq_t addition is exact */
     }
     return sum;

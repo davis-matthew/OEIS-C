@@ -12,13 +12,15 @@
  *            memoises values and builds the factorial (n-2)! incrementally
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!cache) {
         cache_cap = 64;                     /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 0;                       /* unused (offset 1) */
         cache[1] = (seq_t)1;                /* a(1) */
         cache[2] = (seq_t)2;                /* a(2) */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if (cache_cap <= (size_t)n) {
         size_t new_cap = cache_cap * 2;
         if (new_cap <= (size_t)n) new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort(); /* allocation failure */
         cache = new_cache;
         cache_cap = new_cap;

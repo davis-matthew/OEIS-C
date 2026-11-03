@@ -7,18 +7,20 @@
  * Formula:   a(n+1) = a(n) + sum_{k=0}^{n} C(n,k) * a(k) * 6^(n-k), a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
         
     if (n == 0) return 1;
     
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     dp[0] = 1;
     
     for (idx_t m = 0; m < n; m++) {
@@ -44,6 +46,6 @@ seq_t a(idx_t n) {
     }
     
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

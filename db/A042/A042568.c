@@ -11,12 +11,14 @@
  *            results for arbitrary (unordered) calls
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 14, u64 n <= 29, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root for a 64‑bit unsigned integer. */
 static inline idx_t int_sqrt(idx_t x)
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
     /* Initial allocation and seed with the first 12 terms. */
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();   /* allocation failure */
         for (size_t i = 0; i < 12; ++i)
             cache[i] = init[i];
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap << 1 : 64;
         while ((idx_t)new_cap <= n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

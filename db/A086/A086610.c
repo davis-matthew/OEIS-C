@@ -12,7 +12,8 @@
  *            T(n,k)=∑_{a=0}^{n-1}∑_{b=0}^{k-1} T(a,b)·T(n-1-a,k-1-b) (k>0)
  * Range:     i8 n <= 24, i16 n <= 62, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined externally. */
 seq_t a(idx_t n)
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         row_count = (size_t)r + 1;
         rows = (seq_t**)realloc(rows, row_count * sizeof(seq_t*));
         for (size_t i = old; i < row_count; ++i) {
-            rows[i] = (seq_t*)calloc(i + 1, sizeof(seq_t));
+            rows[i] = mem_new(seq_t, i + 1);
             for (size_t k = 0; k <= i; ++k) {
                 seq_t val = 0;
 

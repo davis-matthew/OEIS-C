@@ -6,8 +6,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = maximum length of a run of equal consecutive digits in
  *            the base‑9 representation of n
- * Range:     u8 n <= 9943, u16 n <= 9943, u32 n <= 9943, u64 n <= 9943,
- *            u128 n <= 9943, big any n
+ * Range:     u8 n <= 66430, u16 n <= 66430, u32 n <= 66430, u64 n <= 66430,
+ *            u128 n <= 66430, big any n
+ * Validated: standard, pass, 106 terms through n = 9943 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

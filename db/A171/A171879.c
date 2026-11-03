@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 12, u32 n <= 13, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,10 @@
 
 #include <stdlib.h>   /* malloc, realloc, abort */
 #include <stddef.h>   /* size_t */
-#include "../utils/big_pow.h"   /* big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* Cache for computed terms */
 static size_t cache_cap = 0;   /* Allocated capacity */
@@ -41,7 +45,7 @@ static void ensure_cache(idx_t n) {
     size_t new_cap = needed * 2;
     if (new_cap < needed)   /* guard against overflow */
         new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();             /* allocation failure */
     cache     = tmp;
@@ -86,7 +90,7 @@ seq_t a(idx_t n) {
         if (base == 0 && exp == 0)
             pow_term = (seq_t)1;              /* 0^0 = 1 */
         else
-            pow_term = big_pow(base, exp);
+            pow_term = ipow(base, exp);
         seq_t term3 = part3_left * pow_term;
 
         cache[i] = term1 + term2 + term3;

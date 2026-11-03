@@ -8,6 +8,7 @@
  * Formula:   a(n) = 128*n - 16 for 1 ≤ n ≤ 17; 0 otherwise
  * Range:     u8 n <= 2, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
+ * Validated: full, pass, 17 terms through n = 17 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

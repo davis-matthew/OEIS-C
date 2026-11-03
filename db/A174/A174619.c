@@ -9,12 +9,14 @@
  *            offset 1)
  * Range:     u8 n <= 25, u16 n <= 48, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* holds a[1] … a[cached_n] (a[0] unused) */
 static idx_t cached_n = 0;       /* highest index currently stored */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with the first 8 terms */
     if (cache == NULL) {
-        cache = (seq_t*)calloc(9, sizeof(seq_t));   /* indices 0 … 8 */
+        cache = mem_new(seq_t, 9);   /* indices 0 … 8 */
         cache[1] = 1;
         cache[2] = 1;
         cache[3] = 1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* grow the table to n */
-    cache = (seq_t*)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (size_t)(n + 1));
 
     /* compute new terms using the recurrence */
     for (idx_t i = cached_n + 1; i <= n; ++i) {

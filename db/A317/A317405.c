@@ -8,14 +8,23 @@
  *            a(n)=8*a(n-1)-18*a(n-2)+8*a(n-3)-a(n-4) for n>4
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 65,
  *            big any n
- * Helpers:   alloc_seq
+ * Validated: standard, pass, 41 terms through n = 893 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/alloc_seq.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
 
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *cache = NULL;      /* memoisation buffer */
 static idx_t  cache_size = 0;    /* allocated buffer length */

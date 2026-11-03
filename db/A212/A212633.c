@@ -11,14 +11,16 @@
  *            * * T(r,k) satisfies * T(r,k) = T(r‑1,k‑1) + T(r‑2,k‑1) +
  *            T(r‑3,k‑1) for r≥4 and all k, * * initial rows are * T(1...
  * Range:     u8 n <= 72, u16 n <= 222, u32 n <= 803, u64 n <= 2971,
- *            u128 n <= 8787, big any n
- * Helpers:   none
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 8787 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Find the smallest r such that r*(r+1)/2 ≥ idx.  idx is 1‑based. */
 static inline idx_t find_row(idx_t idx)
@@ -71,7 +73,7 @@ static void ensure_rows(idx_t target_row)
     /* Compute rows from (max_row+1) up through target_row. */
     for (idx_t r = max_row + 1; r <= target_row; ++r) {
         /* row r has indices 0..r ; we ignore 0 for simplicity */
-        rows[r] = (seq_t*)calloc((size_t)r + 1, sizeof(seq_t));
+        rows[r] = mem_new(seq_t, (size_t)r + 1);
         if (!rows[r]) abort();
 
         if (r == 1) {

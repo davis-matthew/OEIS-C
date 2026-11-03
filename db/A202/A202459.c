@@ -13,13 +13,15 @@
  *            a(9)=810265
  * Range:     u8 none, u16 n <= 4, u32 n <= 39, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[9] = {
     2197ULL, 5854ULL, 14586ULL, 33468ULL, 71088ULL,
@@ -41,14 +43,14 @@ seq_t a(idx_t n)
     /* Initialise cache with the first nine terms */
     if (!cache) {
         cache_size = 9;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (idx_t i = 0; i < cache_size; ++i)
             cache[i] = init_vals[i];
     }
 
     /* Extend cache up to n and compute missing values */
     if (n > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) /* allocation failed, return 0 to indicate error */
             return 0;
         cache = tmp;

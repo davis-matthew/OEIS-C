@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
 
     /* initialise if first call */
     if (f == NULL) {
-        f = (seq_t *)malloc(sizeof(seq_t));
-        g = (seq_t *)malloc(sizeof(seq_t));
+        f = mem_new(seq_t, 1);
+        g = mem_new(seq_t, 1);
         f[0] = 1;
         g[0] = 1;
         max_n = 0;
@@ -47,8 +49,8 @@ seq_t a(idx_t n)
     /* grow arrays if a larger n is requested */
     if (n > max_n) {
         idx_t new_size = n + 1;
-        f = (seq_t *)realloc(f, new_size * sizeof(seq_t));
-        g = (seq_t *)realloc(g, new_size * sizeof(seq_t));
+        f = mem_resize(seq_t, f, new_size);
+        g = mem_resize(seq_t, g, new_size);
 
         /* compute new values up to n */
         for (idx_t i = max_n + 1; i <= n; ++i) {

@@ -9,13 +9,15 @@
  *            a(1)=a(2)=a(3)=1
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 117, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 48 terms through n = 941 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Use the helper that computes binomial coefficients. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
         return 1;
 
     /* Compute 24 * C(n+1,5). */
-    seq_t term1 = 24 * binom(n + 1, 5);
+    seq_t term1 = 24 * binomial(n + 1, 5);
 
     /* Compute n * (n^2 - n + 6) using seq_t arithmetic. */
     seq_t nseq = (seq_t)n;

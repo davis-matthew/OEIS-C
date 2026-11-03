@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   prime_pi
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/prime_pi.h"   /* provides prime_pi */
+#include "../utils/prime_pi.h"
+#include "../utils/mem.h"
 
 static uint64_t *prime_list = NULL;
 static size_t    prime_cnt  = 0;
@@ -130,7 +132,7 @@ seq_t a(idx_t n)
         if (valid_candidate(next_num)) {
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-                seq_t *tmp = (seq_t *)realloc(seq_terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_terms, new_cap);
                 if (!tmp) abort();
                 seq_terms = tmp;
                 seq_cap = new_cap;

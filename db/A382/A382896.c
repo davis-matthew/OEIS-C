@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 317, u32 n <= 7523, u64 n <= 7523,
  *            u128 n <= 7523, big any n
- * Helpers:   digit_sum, factor_u64
+ * Validated: standard, pass, 60 terms through n = 7125 (2026-11-03)
+ * Helpers:   digit_sum, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"
 #include "../utils/digit_sum.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Find the next Smith sphenic number greater than any found so far. */
 static uint64_t _find_next_smith_sphenic(void)
@@ -60,10 +62,10 @@ seq_t a(idx_t n)
     while (cache_size < (size_t)n) {
         if (cache_cap == 0) {
             cache_cap = 256;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         } else if (cache_size == cache_cap) {
             cache_cap <<= 1;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_size++] = (seq_t)_find_next_smith_sphenic();
     }

@@ -8,13 +8,22 @@
  *            digit 6
  * Range:     u8 none, u16 n <= 11, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow9_uint64
+ * Validated: standard, pass, 47 terms through n = 9585 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow9_uint64.h"
+
+/* power 9^e using 128‑bit intermediate */
+static uint64_t pow9_uint64(uint64_t e) {
+    __int128 res = 1;
+    for (uint64_t i = 0; i < e; ++i) {
+        res *= 9;
+    }
+    return (uint64_t)res;
+}
 
 /* binomial coefficient C(n,k) using 128‑bit intermediate */
 static uint64_t binomial_uint64(uint64_t n, uint64_t k) {

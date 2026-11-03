@@ -9,6 +9,7 @@
  *            into seq_t
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 12, u64 n <= 131,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 41 terms through n = 9691 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

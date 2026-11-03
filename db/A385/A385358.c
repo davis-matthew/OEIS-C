@@ -8,12 +8,14 @@
  * Formula:   a(1) = 1; a(n) = (741 * a(n-1) + 66037) mod 312500 (n > 1)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 8687 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n);
 
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* initialize cache on first call */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(PERIOD * sizeof(seq_t));
+        cache = mem_new(seq_t, PERIOD);
         if (cache == NULL) return 0;            /* handle allocation failure */
         cache[0] = (seq_t)1;                    /* a(1) */
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    using a C‑style cast which is accepted by both C11 and C++17. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         size_t new_len = required;
 
         /* allocate or grow the array (C and C++ compatible cast) */
-        seq_t *new_mem = (seq_t *)realloc(memo, new_len * sizeof(seq_t));
+        seq_t *new_mem = mem_resize(seq_t, memo, new_len);
         if (!new_mem) return 0;          /* allocation failure – unlikely */
 
         memo = new_mem;

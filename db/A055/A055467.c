@@ -10,14 +10,53 @@
  *            sigma the sum of divisors, and d the number of divisors
  * Range:     u8 n <= 6, u16 n <= 786, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_props
+ * Validated: standard, pass, 62 terms through n = 9270 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/factor_props.h"
+#include "../utils/mem.h"
+
+/* helper to factor k and compute phi, sigma, d in one pass.
+   All arithmetic is performed in seq_t, using only the
+   required operators. */
+static void factor_props(uint64_t k, seq_t *phi_out, seq_t *sigma_out, seq_t *d_out)
+{
+    seq_t phi = 1, sigma = 1, d = 1;
+    uint64_t temp = k;
+
+    for (uint64_t p = 2; p * p <= temp; ++p) {
+        if (temp % p == 0) {
+            size_t e = 0;
+            seq_t p_pow = 1;
+            while (temp % p == 0) {
+                temp /= p;
+                ++e;
+                p_pow *= (seq_t)p;
+            }
+            /* phi factor: p^{e-1} * (p-1)  */
+            seq_t phi_factor = (p_pow / (seq_t)p) * ((seq_t)p - 1);
+            /* sigma factor: (p^{e+1} - 1) / (p-1)  */
+            seq_t sigma_factor = ((p_pow * (seq_t)p) - 1) / ((seq_t)p - 1);
+
+            phi *= phi_factor;
+            sigma *= sigma_factor;
+            d *= (seq_t)(e + 1);
+        }
+    }
+    if (temp > 1) {            /* remaining prime factor */
+        seq_t p = (seq_t)temp;
+        phi *= (p - 1);
+        sigma *= (p + 1);
+        d *= 2;
+    }
+    *phi_out   = phi;
+    *sigma_out = sigma;
+    *d_out     = d;
+}
 
 static seq_t *cache = NULL;      /* stored sequence values */
 static size_t cache_len   = 0;   /* number of values cached   */
@@ -28,7 +67,7 @@ static idx_t  next_k      = 1;   /* next integer to test      */
 static void ensure_cache(void) {
     if (cache_len + 1 > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* terminate on allocation failure */
         cache = tmp;
         cache_cap = new_cap;

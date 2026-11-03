@@ -9,7 +9,8 @@
  *            composite number (4,6,8,9,10,12,…)
  * Range:     u8 n <= 11, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 47 terms through n = 48 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* static cache of composite numbers (1‑based list) */
 static seq_t *comp = NULL;
@@ -37,11 +39,11 @@ static void ensure_composites(idx_t need)
         size_t new_cap = comp_cap ? comp_cap * 2 : 256;
         if (new_cap < (size_t)need)
             new_cap = (size_t)need;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) abort();                 /* allocation failure */
         if (comp) {
-            memcpy(tmp, comp, comp_size * sizeof(seq_t));
-            free(comp);
+            mem_copy(tmp, comp, comp_size * sizeof(seq_t));
+            mem_free(comp);
         }
         comp = tmp;
         comp_cap = new_cap;
@@ -52,7 +54,7 @@ static void ensure_composites(idx_t need)
     idx_t cand = last_comp + 1;
 
     while (comp_size < (size_t)need) {
-        if (cand > 1 && !is_prime_small(cand)) {
+        if (cand > 1 && !is_prime_seq(cand)) {
             comp[comp_size++] = (seq_t)cand;
         }
         cand++;

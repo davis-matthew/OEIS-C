@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 165, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Function prototype expected by the build system */
 seq_t a(idx_t n);
@@ -43,7 +45,7 @@ ensure_capacity(seq_t **arr, size_t *len, size_t *cap, size_t need)
     if (need > *cap) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
         while (new_cap < need) new_cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -101,12 +103,12 @@ seq_t a(idx_t n)
     /* One‑time initialisation of the static arrays. */
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
     if (!pow4) {
         pow4_cap = 16;
-        pow4 = (seq_t *)malloc(pow4_cap * sizeof(seq_t));
+        pow4 = mem_new(seq_t, pow4_cap);
         /* initialise k = 1 → 1⁴ = 1 */
         pow4[0] = (seq_t)1;
         pow4_len = 1;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 36, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   cmp_seq_t, pow_seq, seq_mul
+ * Validated: standard, pass, 54 terms through n = 9678 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,26 @@
    The implementation recursively explores all exponent partitions of n
    and keeps the minimal resulting k. */
 #include <stdint.h>
-#include "../utils/pow_seq.h"
-#include "../utils/seq_mul.h"
-#include "../utils/cmp_seq_t.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_i32.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 static const uint64_t primes[64] = {
     2ULL, 3ULL, 5ULL, 7ULL, 11ULL, 13ULL, 17ULL, 19ULL,
@@ -53,7 +71,7 @@ static void rec(idx_t rem, idx_t max_factor, unsigned int depth,
     idx_t limit = rem < max_factor ? rem : max_factor;
     for (idx_t f = limit; f >= 2; --f) {
         if (rem % f == 0) {
-            seq_t pw  = pow_seq((seq_t)primes[depth], (int)f);
+            seq_t pw  = ipow_i32((seq_t)primes[depth], (int)f);
             seq_t prod = seq_mul(cur, pw);
             if (*best != 0 && cmp_seq_t(&prod, best) >= 0) {
                 continue; /* prune */

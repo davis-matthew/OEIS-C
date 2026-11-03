@@ -9,7 +9,8 @@
  *            decimal digits
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 98, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_digits
+ * Validated: standard, pass, 47 terms through n = 9833 (2026-11-03)
+ * Helpers:   get_digits, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/get_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *cubes = NULL;           /* array of found cubes  */
 static size_t nfound = 0;             /* how many stored          */
@@ -30,7 +33,7 @@ static void ensure_capacity(size_t need)
     if (capacity >= need) return;
     size_t newcap = capacity ? capacity * 2 : 64;
     while (newcap < need) newcap <<= 1;
-    seq_t *newp = (seq_t *)realloc(cubes, newcap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cubes, newcap);
     if (!newp) abort();
     cubes = newp;
     capacity = newcap;

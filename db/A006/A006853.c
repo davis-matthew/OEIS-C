@@ -12,7 +12,8 @@
  *            complem...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   mulmod_s, powmod_s
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
+ * Helpers:   mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/mulmod_s.h"
-#include "../utils/powmod_s.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 #define MAXP 4
 
@@ -41,10 +42,10 @@ static bool mr_isprime(uint64_t n) {
     }
     while ((d & 1) == 0) { d >>= 1; s++; }
     for (i = 0; i < 12; i++) {
-        uint64_t x = powmod_s(bases[i], d, n);
+        uint64_t x = powmod_u64(bases[i], d, n);
         if (x == 1 || x == n - 1) continue;
         for (r = 1; r < s; r++) {
-            x = mulmod_s(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) break;
         }
         if (r == s) return false;
@@ -116,10 +117,10 @@ seq_t a(idx_t n) {
         G_pinv[q] = (uint64_t)0 - inv;
         rm = (uint64_t)(((unsigned __int128)1 << 64) % p);
         G_one[q] = rm;
-        G_r2[q] = mulmod_s(rm, rm, p);
+        G_r2[q] = mulmod(rm, rm, p);
         G_inv[q][0] = 0;
         for (i = 1; i <= 64; i++)
-            G_inv[q][i] = mmul(powmod_s((uint64_t)i, p - 2, p), G_r2[q], q);
+            G_inv[q][i] = mmul(powmod_u64((uint64_t)i, p - 2, p), G_r2[q], q);
         G_acc[q] = 0;
         W[q] = G_one[q];
     }
@@ -134,9 +135,9 @@ seq_t a(idx_t n) {
         for (j = 0; j < q; j++) {
             uint64_t p = G_p[q];
             uint64_t dj = dig[j] % p;
-            uint64_t invpj = powmod_s(G_p[j] % p, p - 2, p);
+            uint64_t invpj = powmod_u64(G_p[j] % p, p - 2, p);
             r = (r >= dj) ? r - dj : r + p - dj;
-            r = mulmod_s(r, invpj, p);
+            r = mulmod(r, invpj, p);
         }
         dig[q] = r;
     }

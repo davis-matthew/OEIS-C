@@ -12,12 +12,14 @@
  *            element
  * Range:     u8 n <= 58, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **TR = NULL;
 static size_t nrows = 0;      /* greatest row computed so far */
@@ -42,7 +44,7 @@ static void ensure_rows(size_t up_to)
 
     /* build rows up to 'up_to' */
     for (size_t r = nrows + 1; r <= up_to; ++r) {
-        seq_t *row = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (r + 1));
         row[0] = (seq_t)0;      /* T(r,0)=0 for r>0 */
         row[r] = (seq_t)r;      /* T(r,r)=r */
 

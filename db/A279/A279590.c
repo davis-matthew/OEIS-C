@@ -9,13 +9,15 @@
  *            e − 1 and floor denotes the integer part
  * Range:     i8 n <= 15, i16 n <= 31, i32 n <= 65, i64 n <= 138,
  *            i128 n <= 277, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ----------  static storage  ---------- */
 static seq_t *A = NULL;          /* cache of a(0)…a(max_cached)      */
@@ -39,8 +41,8 @@ static void ensure_cache(idx_t n)
     idx_t old_cap = cap;
     idx_t new_cap = (n + 2 < 64 ? 64 : (n + 2) * 2);
 
-    seq_t *tmpA = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-    seq_t *tmpC = (seq_t *)realloc(C, new_cap * sizeof(seq_t));
+    seq_t *tmpA = mem_resize(seq_t, A, new_cap);
+    seq_t *tmpC = mem_resize(seq_t, C, new_cap);
     if (!tmpA || !tmpC) {
         /* Allocation failure – terminate program safely. */
         exit(EXIT_FAILURE);

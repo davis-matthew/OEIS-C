@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/2⌋} C(n+2k,2k)*C(n,2k)*C(2k,k)^2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 33,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 37 terms through n = 761 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* provides binomial(idx_t n, idx_t k) returning seq_t */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* External types supplied by the build */
 typedef uint64_t idx_t;   /* index type is always unsigned */
@@ -28,7 +30,7 @@ static idx_t cache_cap = 0;
 static void ensure_cache(idx_t n) {
     if (n < cache_cap) return;
     size_t new_cap = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     /* initialise new elements to zero */
     for (idx_t i = cache_cap; i < new_cap; ++i) tmp[i] = 0;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 39, u64 n <= 85, u128 n <= 177,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    (a) and (b) are increasing complementary sequences. */
 
 #include <stdlib.h>   /* malloc, realloc, bsearch */
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *p1, const void *p2)
 {
@@ -42,8 +44,8 @@ seq_t a(idx_t n)
     /* --- Initialization --- */
     if (a_arr == NULL) {
         cap = 16;
-        a_arr = (seq_t *)malloc(cap * sizeof(seq_t));
-        b_arr = (seq_t *)malloc(cap * sizeof(seq_t));
+        a_arr = mem_new(seq_t, cap);
+        b_arr = mem_new(seq_t, cap);
         if (a_arr == NULL || b_arr == NULL) return (seq_t)0;
 
         /* initial a values */
@@ -67,8 +69,8 @@ seq_t a(idx_t n)
     /* --- Ensure capacity --- */
     while (n >= cap) {
         idx_t new_cap = cap * 2;
-        seq_t *na = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
-        seq_t *nb = (seq_t *)realloc(b_arr, new_cap * sizeof(seq_t));
+        seq_t *na = mem_resize(seq_t, a_arr, new_cap);
+        seq_t *nb = mem_resize(seq_t, b_arr, new_cap);
         if (na == NULL || nb == NULL) return (seq_t)0;
         a_arr = na;
         b_arr = nb;

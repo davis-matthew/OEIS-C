@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime storage ---------- */
 static uint64_t *primes = NULL;   /* primes[0] = 2 */
@@ -81,7 +83,7 @@ static void grow_excl(void)
 {
     if (excl_cnt == excl_cap) {
         size_t new_cap = excl_cap ? excl_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(excl, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, excl, new_cap);
         excl = tmp;
         excl_cap = new_cap;
     }
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
     }
     if (!excl) {
         excl_cap = 16;
-        excl = (seq_t *)malloc(excl_cap * sizeof(seq_t));
+        excl = mem_new(seq_t, excl_cap);
         excl_cnt = 0;
         next_k = 1;
     }

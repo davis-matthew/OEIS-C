@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has20_base4
+ * Validated: standard, pass, 64 terms through n = 953 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
  * not. */
 
 #include <stdbool.h>
-#include "../utils/has20_base4.h"
+
+/* Return true if x (in base 4) contains the adjacent digits 2,0
+ * (with 2 more significant than 0).  Digits are examined from least-
+ * significant to most‑significant; the test is therefore
+ * curr==2 && prev==0. */
+static bool has20_base4(seq_t x)
+{
+    if (x == 0) return false;
+
+    seq_t prev = x & 3;     /* least significant digit */
+    x >>= 2;
+    while (x != 0) {
+        seq_t curr = x & 3; /* next more significant digit */
+        if (curr == 2 && prev == 0) return true;
+        prev = curr;
+        x >>= 2;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -10,6 +10,7 @@
  *            sum of divisors of k and tau(k) = number of divisors of k
  * Range:     u8 n <= 15, u16 n <= 35, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

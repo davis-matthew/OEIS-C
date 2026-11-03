@@ -8,8 +8,9 @@
  * Formula:   a(n) = 1 if the sum of the exponents of 2 and 3 in n is even,
  *            otherwise 0. More formally, if n = 2^i * 3^j * k where
  *            gcd(k,6)=1, then a(n) = [ (i + j) mod 2 == 0 ]
- * Range:     u8 n <= 8876, u16 n <= 8876, u32 n <= 8876, u64 n <= 8876,
- *            u128 n <= 8876, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 8876 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

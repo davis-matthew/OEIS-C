@@ -8,6 +8,7 @@
  * Formula:   a(n) = numerator(ceil(n/2) / ((2^n / binomial(n,ceil(n/2)))-1))
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 30, u64 n <= 36, u128 n <= 36,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
  * Helpers:   binomial, gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,9 +16,12 @@
 
 /* Equivalent: let k = ceil(n/2), C = binomial(n,k). Then a(n) = (k*C)/gcd(k*C, 2^n - C) */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow2.h"
 #include "../utils/gcd.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

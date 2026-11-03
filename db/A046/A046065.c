@@ -7,12 +7,15 @@
  * Formula:   a(n) = n^(n+2) - (n+2)^n
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 8, i64 n <= 14, i128 n <= 25,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 305 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +24,7 @@ seq_t a(idx_t n)
        the test harness only checks results that fit in seq_t. */
     seq_t nn   = (seq_t)n;
     seq_t n2   = (seq_t)(n + 2);
-    seq_t term1 = big_pow(nn, n2);   /* n^(n+2) */
-    seq_t term2 = big_pow(n2, nn);   /* (n+2)^n */
+    seq_t term1 = ipow(nn, n2);   /* n^(n+2) */
+    seq_t term2 = ipow(n2, nn);   /* (n+2)^n */
     return term1 - term2;
 }

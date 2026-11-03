@@ -9,6 +9,7 @@
  * Formula:   a(n) = 2^BigO(n) * 3^omega(n)
  * Range:     u8 n <= 47, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 89 terms through n = 9518 (2026-11-01)
  * Helpers:   factor_u64, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"

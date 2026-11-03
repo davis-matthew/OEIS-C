@@ -15,14 +15,16 @@
  *            * printing gigantic numbers
  * Range:     i8 none, i16 n <= 2, i32 n <= 2, i64 n <= 5, i128 n <= 23,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 31 terms through n = 1379 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -63,5 +65,5 @@ seq_t a(idx_t n)
     }
 
     /* Return n^kmax (exact integer, using arbitrary-precision routine). */
-    return seq_pow((seq_t)n, kmax);
+    return ipow_idx((seq_t)n, kmax);
 }

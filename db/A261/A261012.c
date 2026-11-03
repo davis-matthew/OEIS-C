@@ -8,6 +8,7 @@
  * Formula:   a(n) = -1 if n < 0, 0 if n == 0, 1 if n > 0
  * Range:     i8 n <= 104, i16 n <= 104, i32 n <= 104, i64 n <= 104,
  *            i128 n <= 104, big any n
+ * Validated: partial, pass, 106 terms through n = 104 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

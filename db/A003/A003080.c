@@ -11,14 +11,21 @@
  *            a(k-1) is final before p(k-1) is needed
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 37, u128 n <= 70,
  *            big any n
- * Helpers:   a3080_gcd, alloc_zero
+ * Validated: standard, pass, 45 terms through n = 965 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/a3080_gcd.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *a3080_memo = 0;
 static idx_t a3080_len = 0;
@@ -46,7 +53,7 @@ static void a3080_build(idx_t N) {
         for (i = 1; i <= J; i++) {
             seq_t t = c + (seq_t)(i - 1);
             unsigned long long r = (unsigned long long)(B[i - 1] % (seq_t)i);
-            unsigned long long g = a3080_gcd(r, (unsigned long long)i);
+            unsigned long long g = gcd_u64(r, (unsigned long long)i);
             if (g == 0) g = (unsigned long long)i;
             B[i] = (B[i - 1] / (seq_t)g) * (t / (seq_t)((unsigned long long)i / g));
         }
@@ -58,9 +65,9 @@ static void a3080_build(idx_t N) {
         }
     }
     av[N] = f[N];
-    free(f);
-    free(B);
-    if (a3080_memo) free(a3080_memo);
+    mem_free(f);
+    mem_free(B);
+    if (a3080_memo) mem_free(a3080_memo);
     a3080_memo = av;
     a3080_len = N + 1;
 }

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, nice, changed
  * Formula:   not stated
- * Range:     u8 n <= 60, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Range:     u8 n <= 60, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 76 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, realloc, free */
 #include <stdbool.h>  /* for bool */
+#include "../utils/mem.h"
 
 /* Constants --------------------------------------------------- */
 #define MAX_LIMIT 60000          /* maximum k to sieve, safe for 16‑bit seq_t */
@@ -51,7 +53,7 @@ static void init_sequence(void)
 
     /* 2. Allocate storage for the nondeficient numbers. */
     nondef_capacity = INITIAL_CAPACITY;
-    nondef = (seq_t*)malloc(nondef_capacity * sizeof(seq_t));
+    nondef = mem_new(seq_t, nondef_capacity);
     if (!nondef) {
         free(sigma);
         return; /* out of memory */
@@ -63,7 +65,7 @@ static void init_sequence(void)
         if (sigma[(size_t)k] >= 2 * (uint32_t)k) {
             if (nondef_size == nondef_capacity) {
                 nondef_capacity *= 2;
-                seq_t *tmp = (seq_t*)realloc(nondef, nondef_capacity * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, nondef, nondef_capacity);
                 if (!tmp) { /* allocation failed, keep old array */
                     break;
                 }

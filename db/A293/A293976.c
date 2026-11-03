@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 139, u32 n <= 1039, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_alloc, seq_realloc
+ * Validated: standard, pass, 71 terms through n = 8643 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,27 @@
    The function computes a(n) for any n ≥ 0 using memoised recursion. */
 
 #include <stdlib.h>                 /* malloc, realloc */
-#include "../utils/seq_alloc.h"      /* seq_alloc, seq_realloc for arbitrary‑size arrays */
-#include "../utils/seq_realloc.h"   /* seq_realloc */
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Static cache for memoisation */
 static seq_t *cache = NULL;   /* array of computed values */

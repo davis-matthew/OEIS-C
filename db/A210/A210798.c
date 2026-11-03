@@ -11,13 +11,15 @@
  *            v(n,x)=(x+2)*u(n-1,x)+(x-1)*v(n-1,x)+1
  * Range:     u8 n <= 41, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes a(n), the nth term of the flattened triangle. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,15 +35,15 @@ seq_t a(idx_t n)
     idx_t idx_in_row = n - before_row - 1;       /* 0‑based column index */
 
     /* Allocate arrays for u and v of the previous row. */
-    seq_t *u_prev = (seq_t *)malloc(sizeof(seq_t) * 1);
-    seq_t *v_prev = (seq_t *)malloc(sizeof(seq_t) * 1);
+    seq_t *u_prev = mem_new(seq_t, 1);
+    seq_t *v_prev = mem_new(seq_t, 1);
     u_prev[0] = 1;
     v_prev[0] = 1;
 
     for (idx_t k = 2; k <= r; ++k) {
         /* Create new arrays for the next row (length k). */
-        seq_t *u_new = (seq_t *)calloc(k, sizeof(seq_t));
-        seq_t *v_new = (seq_t *)calloc(k, sizeof(seq_t));
+        seq_t *u_new = mem_new(seq_t, k);
+        seq_t *v_new = mem_new(seq_t, k);
 
         for (idx_t i = 0; i < k; ++i) {
             /* u(k) = u(k-1) + x * v(k-1) */
@@ -62,8 +64,8 @@ seq_t a(idx_t n)
         }
 
         /* Free previous row arrays and move to the new row. */
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = u_new;
         v_prev = v_new;
     }
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     /* Extract the requested coefficient. */
     seq_t result = v_prev[idx_in_row];
 
-    free(u_prev);
-    free(v_prev);
+    mem_free(u_prev);
+    mem_free(v_prev);
     return result;
 }

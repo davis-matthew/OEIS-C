@@ -8,7 +8,8 @@
  * Formula:   a(n) = numerator((n+1) / binomial(2(n+1), n+1))
  * Range:     u8 n <= 254, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exp_binom2N_N, gcd
+ * Validated: standard, pass, 95 terms through n = 9506 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/exp_binom2N_N.h"
+
+/* Helper: exponent of prime p in binomial(2N,N) via Legendre's formula */
+static idx_t exp_binom2N_N(idx_t N, idx_t p)
+{
+    idx_t exp2N = 0, expN = 0;
+
+    /* exponent in (2N)! */
+    for (idx_t q = p; q <= 2ULL * N; q *= p)
+        exp2N += (2ULL * N) / q;
+
+    /* exponent in N! */
+    for (idx_t q = p; q <= N; q *= p)
+        expN += N / q;
+
+    return exp2N - 2ULL * expN;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

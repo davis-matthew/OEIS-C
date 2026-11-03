@@ -8,14 +8,17 @@
  *            cubefree)
  * Range:     u8 n <= 24, u16 n <= 397, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 71 terms through n = 9780 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
 
     /* Allocate minimal cache if it does not exist yet. */
     if (cache_cap == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;
         cache_cap = 1;
         cache[0] = (seq_t)0;        /* a(0) = 0 for the recurrence */
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache array if needed. */
     if (cache_cap < n + 1) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!tmp) return (seq_t)0;
         cache = tmp;
         cache_cap = n + 1;

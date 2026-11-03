@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  tabl, nonn, changed
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 120, u32 n <= 9955, u64 n <= 9955,
- *            u128 n <= 9955, big any n
- * Helpers:   none
+ * Range:     u8 none, u16 n <= 120, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 84 terms through n = 9955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Configuration constants                                   */
@@ -79,7 +81,7 @@ static void init_precompute(void)
     rows    = (seq_t **)malloc((MAX_ROW + 1) * sizeof(seq_t *));
     for (idx_t i = 0; i <= MAX_ROW; ++i) {
         row_cnt[i] = 0;
-        rows[i]    = (seq_t *)calloc(COL_MAX, sizeof(seq_t));
+        rows[i]    = mem_new(seq_t, COL_MAX);
     }
 
     /* 1. Smallest prime factor sieve (linear) */

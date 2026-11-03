@@ -9,6 +9,7 @@
  * Formula:   a(n) = prime(n+1)-prime(n)+(2*prime(n)+3)*(prime(n)+1)
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

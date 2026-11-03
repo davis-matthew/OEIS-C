@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 84, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static inline bool bit_is_set(const uint8_t *bits, idx_t i)
 {
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         }
 
         /* 2. collect the sequence terms (lower n of adjacent pairs) */
-        seq = (seq_t *)malloc(MAX_TERMS * sizeof(seq_t));
+        seq = mem_new(seq_t, MAX_TERMS);
         if (!seq) abort();
 
         bool prev_good = false;

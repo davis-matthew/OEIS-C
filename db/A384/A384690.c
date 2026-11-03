@@ -12,14 +12,15 @@
  *            downwards
  * Range:     u8 n <= 18, u16 n <= 25, u32 n <= 52, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   _power
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_power.h"
+#include "../utils/ipow_idx.h"
 
  /*------------------ auxiliary arithmetic ----------------------------*/
 
@@ -90,7 +91,7 @@ static void _ensure_d(idx_t d)
             } else {
                 seq_t sum = (seq_t)0;
                 for (idx_t j = 1; j <= n; ++j) {
-                    seq_t term = _power((seq_t)(n + j + k), j - 1);
+                    seq_t term = ipow_idx((seq_t)(n + j + k), j - 1);
                     term = term * _binomial(n, j);
                     term = term * A[n - j][j];
                     sum += term;

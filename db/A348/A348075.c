@@ -13,13 +13,15 @@
  *            f(n,k): f(0,k) = 1 f(n,k) = Σ_{i=k}^{n} C(n‑1,i‑1) ·...
  * Range:     u8 n <= 22, u16 n <= 46, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t binom(idx_t N, idx_t K, seq_t *fact)
 {
@@ -34,7 +36,7 @@ static seq_t compute_f(idx_t n, idx_t k, seq_t *fact)
     if (k > n)
         return (seq_t)0;
     /* dynamic array for f[0..n] */
-    seq_t *f = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (n + 1));
     f[0] = 1;
     for (idx_t curr = 1; curr <= n; ++curr) {
         if (curr < k) {
@@ -52,7 +54,7 @@ static seq_t compute_f(idx_t n, idx_t k, seq_t *fact)
         f[curr] = sum;
     }
     seq_t result = f[n];
-    free(f);
+    mem_free(f);
     return result;
 }
 
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* factorials up to r */
-    seq_t *fact = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (r + 1));
     fact[0] = 1;
     for (idx_t i = 1; i <= r; ++i)
         fact[i] = fact[i - 1] * (seq_t)i;
@@ -91,6 +93,6 @@ seq_t a(idx_t n)
     else
         fk1 = compute_f(r, k_col + 1, fact);
 
-    free(fact);
+    mem_free(fact);
     return fk - fk1;
 }

@@ -9,7 +9,8 @@
  *            2a(n) + 1
  * Range:     u8 n <= 510, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9457 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static bool *computed = NULL;
@@ -26,13 +28,13 @@ static void ensure_memo(idx_t n) {
     if (n >= memo_len) {
         idx_t new_len = memo_len == 0 ? 1 : memo_len * 2;
         while (new_len <= n) new_len *= 2;
-        seq_t *new_memo = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_len);
         bool *new_computed = (bool *)malloc(new_len * sizeof(bool));
         memset(new_computed, false, new_len * sizeof(bool));
         if (memo != NULL) {
-            memcpy(new_memo, memo, memo_len * sizeof(seq_t));
+            mem_copy(new_memo, memo, memo_len * sizeof(seq_t));
             memcpy(new_computed, computed, memo_len * sizeof(bool));
-            free(memo);
+            mem_free(memo);
             free(computed);
         }
         memo = new_memo;

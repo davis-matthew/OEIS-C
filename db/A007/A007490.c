@@ -9,7 +9,8 @@
  *            terms are needed
  * Range:     u8 n <= 9, u16 n <= 765, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 65 terms through n = 9856 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 static uint64_t *terms = NULL;
 static idx_t nterms = 0;
@@ -40,7 +41,7 @@ static void build(uint64_t L) {
     }
     for (s = 2; s <= L; s++) {
         if ((mark[s >> 6] >> (s & 63)) & 1) {
-            if (is_prime(s)) {
+            if (is_prime_u64(s)) {
                 if (cnt == cap) {
                     cap *= 2;
                     t = (uint64_t *)realloc(t, cap * sizeof(uint64_t));

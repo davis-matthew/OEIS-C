@@ -8,9 +8,10 @@
  * Formula:   a(n) = sum of all squares of the part k in all partitions of n,
  *            * where the flattened index n enumerates the triangle read by
  *            rows
- * Range:     u8 n <= 57, u16 n <= 439, u32 n <= 4567, u64 n <= 9747,
- *            u128 n <= 9747, big any n
- * Helpers:   seq_alloc_new_array, seq_free_array
+ * Range:     u8 n <= 57, u16 n <= 439, u32 n <= 4567, u64 n <= 20100,
+ *            u128 n <= 20100, big any n
+ * Validated: standard, pass, 82 terms through n = 9747 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,14 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* Cached partition numbers p[0..N] (unrestricted partitions) */
 static seq_t *partitions = NULL;   /* partitions[i] = p(i) */

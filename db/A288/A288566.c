@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{p≤n} 2^(π(p)-1) * ⌊n/p⌋ (partial sums of A087207)
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 130, u64 n <= 310,
  *            u128 n <= 718, big any n
+ * Validated: standard, pass, 72 terms through n = 9622 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

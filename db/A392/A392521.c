@@ -8,8 +8,9 @@
  * Formula:   a(n) is obtained by dropping the leading 1 of the binary
  *            expansion of n, taking the remaining bits (call them x),
  *            right‑rotating x by 1 bit, and XORing x with that rotation
- * Range:     u8 n <= 512, u16 n <= 9913, u32 n <= 9913, u64 n <= 9913,
- *            u128 n <= 9913, big any n
+ * Range:     u8 n <= 512, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 143 terms through n = 9913 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

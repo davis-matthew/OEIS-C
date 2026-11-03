@@ -10,12 +10,14 @@
  *            implemented iteratively with a growable cache
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 56, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* realloc, abort */
+#include "../utils/mem.h"
 
 /* Coefficients of the denominator polynomial D(x) = (1‑x)^2(1‑x²)^2(1‑x³)^2(1‑x⁴)^2.
    d[0] is 1; d[1]..d[20] are the remaining coefficients. */
@@ -39,7 +41,7 @@ static idx_t  a_len  = 0;
 static void extend_to(idx_t N)
 {
     /* Allocate or reallocate storage. */
-    seq_t *tmp = (seq_t *)realloc(a_arr, (N + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_arr, (N + 1));
     if (!tmp) abort();      /* allocation failed */
     a_arr = tmp;
 

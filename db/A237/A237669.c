@@ -8,6 +8,7 @@
  *            parts
  * Range:     u8 n <= 18, u16 n <= 300, u32 n <= 300, u64 n <= 300,
  *            u128 n <= 300, big any n
+ * Validated: standard, pass, 67 terms through n = 299 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-
 
 static uint64_t *primes = NULL;        /* array of primes */
 static size_t   prime_cnt  = 0;        /* number of primes stored */

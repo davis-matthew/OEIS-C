@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n^2+21*n+100)*2^(n-2) - 24
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 23, u64 n <= 53, u128 n <= 116,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 1991 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

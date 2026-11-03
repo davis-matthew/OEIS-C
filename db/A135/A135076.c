@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define PRIME_LIMIT 200000   /* Safe upper bound for digit sums up to e≈20000     */
 
@@ -62,7 +64,7 @@ static void ensure_cache_cap(size_t need)
     if (cache_cap >= need) return;
     if (!cache_cap) cache_cap = 16;
     while (cache_cap < need) cache_cap <<= 1;
-    cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 }
 
 /* Ensure digits array has capacity for 'need' digits. */

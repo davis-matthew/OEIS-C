@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 51, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 68 terms through n = 69 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
    The sequence starts with a(2)=1, a(3)=0, a(4)=2, ...           */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -65,8 +66,8 @@ seq_t a(idx_t n)
     if (k < r - 1) return 0;
 
     /* Evaluate the multinomial formula for T(r,k)                       */
-    seq_t binom1 = binom(k - 2, r - 3);             /* binom(k-2 , r-3) */
-    seq_t binom2 = binom(3 * r - 5, 2 * r - k - 4);/* binom(3r-5 , 2r-k-4)*/
+    seq_t binom1 = binomial(k - 2, r - 3);             /* binom(k-2 , r-3) */
+    seq_t binom2 = binomial(3 * r - 5, 2 * r - k - 4);/* binom(3r-5 , 2r-k-4)*/
     seq_t num = 2 * binom1 * binom2;                /* numerator      */
     seq_t den = r - 2;                               /* denominator   */
     return num / den;

@@ -10,7 +10,8 @@
  *            collects the remaining even numbers
  * Range:     u8 n <= 46, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   make_prime_flag, seq_alloc, seq_free_array
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,37 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_free_array.h"
-#include "../utils/make_prime_flag.h"
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+/* Helper: allocate a boolean array and initialise it to true.
+   The cast is needed for C++ compliance. */
+static bool *make_prime_flag(idx_t limit)
+{
+    bool *flag = (bool *)malloc((size_t)(limit + 1) * sizeof(bool));
+    if (!flag) return NULL;
+    for (size_t i = 0; i <= (size_t)limit; ++i) flag[i] = true;
+    flag[0] = flag[1] = false;
+    for (idx_t i = 2; i * i <= limit; ++i) {
+        if (flag[i]) {
+            for (idx_t j = i * i; j <= limit; j += i) flag[j] = false;
+        }
+    }
+    return flag;
+}
 
 /* Recompute the entire sequence for primes up to 'limit'.
    The resulting sequence is stored in *seq_ptr, its length in *len_ptr,

@@ -11,7 +11,8 @@
  *            neighbours and the upper‑left cell is 0
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ROWLEN   7                     /* number of columns */
 #define PATTERN_COUNT ((size_t)1 << ROWLEN)   /* 128 */
@@ -142,12 +144,12 @@ static void init_globals(void)
     }
 
     /* allocate DP arrays */
-    dp_cur  = (seq_t *)malloc(STATECOUNT * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(STATECOUNT * sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, STATECOUNT);
+    dp_next = mem_new(seq_t, STATECOUNT);
 
     /* zero initialize DP arrays */
-    memset(dp_cur, 0, STATECOUNT * sizeof(seq_t));
-    memset(dp_next, 0, STATECOUNT * sizeof(seq_t));
+    mem_set(dp_cur, 0, STATECOUNT * sizeof(seq_t));
+    mem_set(dp_next, 0, STATECOUNT * sizeof(seq_t));
 }
 
 /* ------------------------------------------------------------------ */
@@ -156,12 +158,12 @@ static void ensure_cache(idx_t n)
 {
     if (n + 1 <= cache_size) return;   /* already large enough */
     size_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (cache_size > 0)
-        memcpy(new_cache, a_cache, cache_size * sizeof(seq_t));
+        mem_copy(new_cache, a_cache, cache_size * sizeof(seq_t));
     for (size_t i = cache_size; i < new_size; ++i)
         new_cache[i] = 0;
-    free(a_cache);
+    mem_free(a_cache);
     a_cache = new_cache;
     cache_size = new_size;
 }
@@ -197,7 +199,7 @@ static void compute_up_to(idx_t n)
     /* ---- proceed for rows 2 .. n ---- */
     for (idx_t cur = computed_n + 1; cur <= n; ++cur) {
         /* clear dp_next */
-        memset(dp_next, 0, STATECOUNT * sizeof(seq_t));
+        mem_set(dp_next, 0, STATECOUNT * sizeof(seq_t));
 
         /* transitions: for every current state, distribute counts to next states */
         for (size_t st = 0; st < STATECOUNT; ++st) {

@@ -11,16 +11,33 @@
  *            largest nontrivial divisor of n (or n-1 if n is prime). The
  *            function builds the sequence lazily, caching all computed terms
  *            so that subsequent calls reuse earlier work
- * Range:     u8 n <= 2463, u16 n <= 8949, u32 n <= 8949, u64 n <= 8949,
- *            u128 n <= 8949, big any n
- * Helpers:   f_func
+ * Range:     u8 n <= 2463, u16 n <= 12386, u32 n <= 12386, u64 n <= 12386,
+ *            u128 n <= 12386, big any n
+ * Validated: standard, pass, 111 terms through n = 8949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/f_func.h"
+#include "../utils/mem.h"
+
+/* compute f(n) for the given definition */
+static inline seq_t f_func(seq_t n) {
+    if (n <= 1)
+        return n;                      /* for completion; n==1 appears in recursion */
+
+    idx_t v = (idx_t)n;                /* safe because n <= 64‑bit for this use */
+    for (idx_t i = 2; (unsigned __int128)i * i <= v; ++i) {
+        if (v % i == 0) {              /* i is the smallest prime factor */
+            seq_t div = (seq_t)(v / i);   /* largest proper divisor = n / i */
+            return n - div;             /* n - largest proper divisor */
+        }
+    }
+    /* n is prime */
+    return n - 1;
+}
 
 /* external function requested by the problem description */
 seq_t a(idx_t n) {
@@ -40,7 +57,7 @@ seq_t a(idx_t n) {
             /* grow array if necessary */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 64 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
                     /* allocation failure – abort */
                     exit(1);

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 47, u16 n <= 2519, u32 n <= 9399, u64 n <= 9399,
- *            u128 n <= 9399, big any n
- * Helpers:   none
+ * Range:     u8 n <= 47, u16 n <= 2519, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 100 terms through n = 9399 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* First 20 primes are enough for exponents up to 20 (2^20 > 1e6).  */
 /* The exponent of a prime in n (e ≥ 1) yields prime[e] (1‑based). */
@@ -78,14 +80,13 @@ static void ensure_cache(idx_t n)
     idx_t new_cap = n + 1;
     seq_t *new_ptr;
     if (a_cache) {
-        new_ptr = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        new_ptr = mem_resize(seq_t, a_cache, new_cap);
         if (!new_ptr) exit(1);
-        memset(new_ptr + a_cache_cap, 0,
-               (new_cap - a_cache_cap) * sizeof(seq_t));
+        mem_set(new_ptr + a_cache_cap, 0, (new_cap - a_cache_cap) * sizeof(seq_t));
     } else {
-        new_ptr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        new_ptr = mem_new(seq_t, new_cap);
         if (!new_ptr) exit(1);
-        memset(new_ptr, 0, new_cap * sizeof(seq_t));
+        mem_set(new_ptr, 0, new_cap * sizeof(seq_t));
     }
     a_cache = new_ptr;
     a_cache_cap = new_cap;

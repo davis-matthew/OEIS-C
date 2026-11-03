@@ -8,7 +8,8 @@
  *            (equivalently, partitions of n whose largest part is squarefree)
  * Range:     u8 n <= 18, u16 n <= 46, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   is_squarefree
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
 
     idx_t N = n;
     /* Allocate arrays of size N+1.  calloc initializes to zero.  */
-    seq_t *dp  = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *res = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, N + 1);
+    seq_t *res = mem_new(seq_t, N + 1);
 
     /* dp[0] = 1  – there is one way to partition 0 with any bound.        */
     dp[0] = (seq_t)1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     }
 
     seq_t answer = res[N];
-    free(dp);
-    free(res);
+    mem_free(dp);
+    mem_free(res);
     return answer;
 }

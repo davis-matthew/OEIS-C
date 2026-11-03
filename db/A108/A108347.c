@@ -9,12 +9,29 @@
  *            generator for primes 3,5,7
  * Range:     u8 n <= 23, u16 n <= 115, u32 n <= 711, u64 n <= 4927,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_seq_cap
+ * Validated: standard, pass, 69 terms through n = 9947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/ensure_seq_cap.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* Ensure capacity of a dynamic array of seq_t objects. */
+static void ensure_seq_cap(seq_t **arr, size_t *cap, size_t req)
+{
+    if (req <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+    while (new_cap < req) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) exit(EXIT_FAILURE);
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 static seq_t *smooth = NULL;           /* array of generated terms                */
 static size_t smooth_cap = 0;          /* allocated capacity                       */

@@ -9,6 +9,7 @@
  *            b(k) = b(0) * floor(b(k-1)) (k ≥ 1)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 32, u64 n <= 256, u128 n <= 2048,
  *            big any n
+ * Validated: standard, pass, 57 terms through n = 9480 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

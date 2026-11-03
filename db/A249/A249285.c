@@ -12,13 +12,15 @@
  *            a(7)=237480, a(8)=770416
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 15, u64 n <= 34, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of computed terms */
 static idx_t  cached_until = 0;  /* highest n already computed (1‑based) */
@@ -41,7 +43,7 @@ static void ensure_cap(size_t need)
     if (cached_cap < need) {
         size_t new_cap = cached_cap ? cached_cap << 1 : 8;
         while (new_cap < need) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         /* In a stress test we could abort here, but it is safe to assume success. */
         cached_cap = new_cap;
     }

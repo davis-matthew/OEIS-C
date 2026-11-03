@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 122, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   hash_seq
+ * Validated: standard, pass, 76 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
    the form a(i)*a(j)+2 for any 1 ≤ i < j < n.  Initial values 2, 3. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/hash_seq.h"
+#include "../utils/mem.h"
+
+/* It is safe to cast seq_t to uint64_t for hashing because the sequence
+   values are always non‑negative and we only need a hash. */
+static size_t hash_seq(const seq_t *x)
+{
+    return (size_t)(((uint64_t)(*x)) * 11400714819323198485ULL);
+}
 
 /* ---- Hash set for previous terms --------------------------------------- */
 static seq_t *hashset = NULL;
@@ -29,7 +37,7 @@ static void set_rehash(void)
     size_t old_cap = set_cap;
     seq_t *old_set = hashset;
     set_cap = (old_cap > 0) ? old_cap << 1 : 8;
-    hashset = (seq_t *)calloc(set_cap, sizeof(seq_t));
+    hashset = mem_new(seq_t, set_cap);
     set_len = 0;
     for (size_t i = 0; i < old_cap; ++i) {
         if (old_set[i]) {
@@ -39,7 +47,7 @@ static void set_rehash(void)
             ++set_len;
         }
     }
-    free(old_set);
+    mem_free(old_set);
 }
 
 static bool contains_seq(const seq_t *x)
@@ -57,7 +65,7 @@ static void add_seq_set(const seq_t *x)
 {
     if (!hashset) {
         set_cap = 8;
-        hashset = (seq_t *)calloc(set_cap, sizeof(seq_t));
+        hashset = mem_new(seq_t, set_cap);
     }
     if (set_len * 2 >= set_cap) set_rehash();
     size_t h = hash_seq(x) & (set_cap - 1);
@@ -75,7 +83,7 @@ static void seq_append(const seq_t *val)
 {
     if (seq_len == seq_cap) {
         seq_cap = (seq_cap > 0) ? seq_cap << 1 : 8;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
     seq[seq_len++] = *val;
     add_seq_set(val);
@@ -91,7 +99,7 @@ static void init(void)
 
     /* initial terms 2, 3 */
     seq_cap = 8;
-    seq = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     seq_len = 2;
     seq[0] = (seq_t)2;
     seq[1] = (seq_t)3;

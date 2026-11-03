@@ -12,13 +12,26 @@
  *            Offset 0 (a(0) = 1)
  * Range:     u8 n <= 18, u16 n <= 40, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial, index_in_triangle
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/index_in_triangle.h"
+
+static inline void index_in_triangle(idx_t n, idx_t *row, idx_t *col)
+{
+    idx_t r = 0;
+    idx_t sum = 0;                         /* elements before this row */
+    while (n >= sum + (r + 1)) {
+        sum += r + 1;
+        ++r;
+    }
+    *row = r;
+    *col = n - sum;
+}
 
 static inline seq_t triangle_value(idx_t r, idx_t k)
 {

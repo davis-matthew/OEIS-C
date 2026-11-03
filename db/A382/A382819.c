@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy, changed
  * Formula:   a(n) = binomial(floor(n/3)+3,3) + binomial(floor((n-1)/3)+3,3) *
  *            + binomial(floor((n-2)/3)+3,3) - n
- * Range:     u8 n <= 14, u16 n <= 147, u32 n <= 5269, u64 n <= 10000,
- *            u128 n <= 10000, big any n
+ * Range:     u8 n <= 14, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
+ *            big any n
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

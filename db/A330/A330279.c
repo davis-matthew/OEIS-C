@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 9743, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, gcd
+ * Validated: standard, pass, 70 terms through n = 9815 (2026-11-03)
+ * Helpers:   build_primes_upto, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,9 @@
 #include <stdbool.h>
 
 /* Utilities provided by the Build system */
-#include "../utils/gcd.h"                /* seq_t gcd(seq_t a, seq_t b) */
-#include "../utils/build_primes_upto.h"  /* void build_primes_upto(idx_t limit, uint64_t **out, size_t *cnt) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static uint64_t *prime_list = NULL;      /* list of primes up to the limit */
 static size_t     prime_cnt   = 0;        /* number of primes in the list */
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
             if (cache_len >= cache_cap)
             {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) /* allocation failure; abort */
                     exit(EXIT_FAILURE);
                 cache = tmp;

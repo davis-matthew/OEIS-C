@@ -8,13 +8,15 @@
  *            (p(0)=1)
  * Range:     u8 n <= 18, u16 n <= 48, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cache of p(i) for i = 0 .. part_cap-1 */
 static seq_t *partitions = NULL;
@@ -32,20 +34,19 @@ static void ensure_partitions(idx_t n)
 
     if (part_cap == 0) {
         /* First allocation */
-        partitions = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        partitions = mem_new(seq_t, new_cap);
         if (!partitions)
             return;   /* allocation failure – caller will handle zero */
 
 #ifdef __cplusplus
         /* Construct first element p(0) = 1 */
-        new (partitions) seq_t(1);
+        *(partitions) = (seq_t)(1);
 #else
         partitions[0] = (seq_t)1;
 #endif
     } else {
         /* Grow the array */
-        seq_t *tmp = (seq_t *)realloc(partitions,
-                                      (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, partitions, (size_t)new_cap);
         if (!tmp)
             return;   /* allocation failure */
 
@@ -54,7 +55,7 @@ static void ensure_partitions(idx_t n)
 #ifdef __cplusplus
         /* Construct any new elements (initially zero). */
         for (idx_t i = old_cap; i < new_cap; ++i)
-            new (partitions + i) seq_t(0);
+            *(partitions + i) = (seq_t)(0);
 #endif
     }
 

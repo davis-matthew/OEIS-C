@@ -9,6 +9,7 @@
  *            T(r,c) by antidiagonals starting with (r,c) = (1,1)
  * Range:     u8 n <= 24, u16 n <= 131, u32 n <= 523, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 95 terms through n = 1256 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

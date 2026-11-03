@@ -7,6 +7,7 @@
  * Formula:   To get a(n), write n as Sum b_j*2^j, then a(n) = Sum b_j*2^(2j)
  * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 1023, u64 n <= 1023,
  *            u128 n <= 1023, big any n
+ * Validated: standard, pass, 68 terms through n = 1003 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

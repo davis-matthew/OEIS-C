@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Cache for already found terms. */
 static seq_t *cache = NULL;
@@ -33,7 +36,7 @@ static size_t cache_len = 0;
    starting with 1. */
 static bool can_become_pal_one_removal(seq_t x)
 {
-    unsigned len = bitlen_seq_t(x);
+    unsigned len = bit_length(x);
     if (len <= 1)
         return false;                         /* single bit cannot be modified */
 
@@ -106,7 +109,7 @@ static void ensure_cache(idx_t n)
             /* Grow cache if necessary */
             if (cache_len + 1 > cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 16;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = candidate;
         }

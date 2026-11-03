@@ -7,6 +7,7 @@
  * Formula:   a(n) = -10 + 5*2^(n+1) - 7*n - 2*n^2
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 28, u64 n <= 60, u128 n <= 124,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 994 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

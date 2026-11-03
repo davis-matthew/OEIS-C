@@ -8,15 +8,17 @@
  *            coefficient)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     idx_t exp = 3 * n;          /* exponent 3*n for the power */
     for (idx_t k = 0; k <= n; ++k)
     {
-        seq_t term = seq_pow((seq_t)k, exp);      /* k^(3*n) */
+        seq_t term = ipow_idx((seq_t)k, exp);      /* k^(3*n) */
         term = term * binomial(n, k);             /* multiply by C(n,k) */
         sum += term;                              /* accumulate */
     }

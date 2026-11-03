@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 20, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 350 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 extern seq_t seq_pow(seq_t a, idx_t e); /* not used but keeps file self‑contained */
@@ -43,9 +45,9 @@ static void ensure_capacity(idx_t n)
         return;
 
     size_t new_cap = (size_t)(n + 1) * 2;
-    seq_t *newA = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-    seq_t *newC = (seq_t *)realloc(C, new_cap * sizeof(seq_t));
-    seq_t *newF = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+    seq_t *newA = mem_resize(seq_t, A, new_cap);
+    seq_t *newC = mem_resize(seq_t, C, new_cap);
+    seq_t *newF = mem_resize(seq_t, fact, new_cap);
     if (!newA || !newC || !newF) {
         abort();
     }

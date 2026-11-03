@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* External function definition required by the build */
 extern seq_t a(idx_t n)
@@ -57,7 +59,7 @@ extern seq_t a(idx_t n)
         /* enlarge cache: double size until sufficient, at least n */
         idx_t new_len = cache_len ? cache_len << 1 : 16;
         if (new_len < n) new_len = n;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) {
             assert(0 && "Memory allocation failed");
         }

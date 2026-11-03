@@ -15,13 +15,15 @@
  *            The function memoises computed values in a static...
  * Range:     u8 none, u16 n <= 10, u32 n <= 26, u64 n <= 58, u128 n <= 122,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoisation array, allocated on first use */
 static size_t cache_size = 0; /* number of terms currently stored */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* initialise the cache with the first 15 known terms on first call */
     if (cache == NULL) {
         cache_size = 15;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) exit(1); /* allocation failure */
 
         for (size_t i = 0; i < cache_size; ++i)
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     /* extend the cache if the requested index is beyond the current size */
     if ((size_t)n > cache_size) {
         size_t new_size = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) exit(1);          /* allocation failure */
         cache = tmp;
 

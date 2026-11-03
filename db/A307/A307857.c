@@ -9,7 +9,8 @@
  *            nonprime integers ≤ k (A005171)
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static bool *is_prime_tbl = NULL;        /* 1 if prime, 0 if nonprime (except 0,1) */
 static seq_t *prefix_nonprime = NULL;    /* prefix_nonprime[k] = c(k) */
@@ -31,7 +33,7 @@ static void ensure_sieve(idx_t n)
 
     /* Allocate new tables */
     bool *tbl   = (bool *)malloc((size_t)(n + 1) * sizeof(bool));
-    seq_t *pref = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *pref = mem_new(seq_t, (size_t)(n + 1));
     if (!tbl || !pref) return;   /* allocation failed – caller gets 0 */
 
     /* Initialise: assume all are prime initially */
@@ -55,7 +57,7 @@ static void ensure_sieve(idx_t n)
 
     /* Free previous tables */
     free(is_prime_tbl);
-    free(prefix_nonprime);
+    mem_free(prefix_nonprime);
 
     /* Save new tables */
     is_prime_tbl = tbl;

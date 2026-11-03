@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of decimal digit 5's in 5^n
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (counts == NULL) {
         /* allocate for n=0 */
         counts_cap = 1;
-        counts = (seq_t*)malloc(counts_cap * sizeof(seq_t));
+        counts = mem_new(seq_t, counts_cap);
         if (!counts) return (seq_t)0; /* allocation failure handled conservatively */
         counts[0] = (seq_t)0;                 /* a(0) = 0 */
         computed_max = 0;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         size_t new_cap = counts_cap == 0 ? 1 : counts_cap;
         while ((size_t)n + 1 > new_cap)
             new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(counts, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, counts, new_cap);
         if (!tmp) return (seq_t)0; /* allocation failure */
         counts = tmp;
         counts_cap = new_cap;

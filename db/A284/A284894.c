@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9687 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The function prototype is supplied by the build.  It must not
    be declared static.  The types seq_t and idx_t are provided
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
         /* compute initial positions array */
         pos_cap = 1;
-        pos_arr = (seq_t *)malloc(pos_cap * sizeof(seq_t));
+        pos_arr = mem_new(seq_t, pos_cap);
         pos_len = 1;
         pos_arr[0] = 1;                         /* position of the
                                                    first (and only)
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
                 if (pos_len == pos_cap)
                 {
                     size_t new_cap = pos_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(pos_arr, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, pos_arr, new_cap);
                     /* errno is ignored – assume allocation succeeds */
                     pos_arr = tmp;
                     pos_cap = new_cap;

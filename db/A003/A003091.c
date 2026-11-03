@@ -7,13 +7,20 @@
  * Formula:   a(n) = floor( 2^binomial(n,2) / n! )
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 11, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   a003091_is_big
+ * Validated: standard, pass, 35 terms through n = 80 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a003091_is_big.h"
+
+static int a003091_is_big(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x *= 2;
+    return x != 0;
+}
 
 seq_t a(idx_t n) {
     idx_t E = n * (n - 1) / 2;

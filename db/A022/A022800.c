@@ -11,13 +11,53 @@
  *            listed in OEIS A022800
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   fib, nth_non_fib
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/fib.h"
-#include "../utils/nth_non_fib.h"
+#include <stdbool.h>
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
+
+/* Return the n‑th element of the sequence of numbers that are either
+   1 or not Fibonacci numbers.  The sequence begins with
+   1, 4, 6, 7, 8, …  (1 is included once; Fibonacci numbers >1 are skipped). */
+static seq_t nth_non_fib(idx_t n)
+{
+    seq_t next_i = 1;   /* current integer being examined (1 is the first term) */
+    seq_t count  = 1;   /* how many qualifying numbers have been seen */
+    seq_t f_prev = 1;   /* F(k‑1)  */
+    seq_t f_curr = 1;   /* F(k)    */
+
+    while (count < n) {
+        /* Move to the next integer. */
+        next_i++;
+
+        /* Advance Fibonacci numbers until f_curr >= next_i. */
+        while (f_curr < next_i) {
+            seq_t next_f = f_prev + f_curr;
+            f_prev = f_curr;
+            f_curr = next_f;
+        }
+
+        /* Count this integer if it is not a Fibonacci number greater than 1. */
+        if (!(next_i > 1 && f_curr == next_i)) {
+            count++;
+        }
+    }
+    return next_i;
+}
 
 /* External function required by the framework. */
 seq_t a(idx_t n)

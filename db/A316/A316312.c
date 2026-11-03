@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 42, u32 n <= 119, u64 n <= 119,
  *            u128 n <= 119, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 118 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Return the digit sum of an idx_t number as a seq_t value. */
 static inline seq_t digit_sum_idx(idx_t x)
@@ -37,7 +39,7 @@ static void append_term(seq_t **arr, size_t *cnt, size_t *cap, seq_t val)
 {
     if (*cnt >= *cap) {
         size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();                 /* allocation failure */
         *arr = tmp;
         *cap = new_cap;

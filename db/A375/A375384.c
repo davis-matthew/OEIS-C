@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 17, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define PRIME_SIEVE_LIMIT 5000000  /* enough for k up to about 2e6 */
 
@@ -132,7 +134,7 @@ static void grow_cache(size_t need)
     if (seq_cache_cap >= need) return;
     size_t new_cap = seq_cache_cap > 0 ? seq_cache_cap : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) exit(1);
     seq_cache = tmp;
     seq_cache_cap = new_cap;

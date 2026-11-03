@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static state shared by all calls */
 static seq_t *seq = NULL;          /* 1‑indexed array of terms               */
@@ -32,7 +34,7 @@ static void grow_seq(size_t need)
     if (seq_cap >= need) return;
     size_t newcap = seq_cap ? seq_cap * 2 : 16;
     while (newcap < need) newcap <<= 1;
-    seq_t *newptr = (seq_t *)realloc(seq, (newcap + 1) * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, seq, (newcap + 1));
     if (!newptr) abort();               /* out of memory, terminate */
     seq = newptr;
     seq_cap = newcap;

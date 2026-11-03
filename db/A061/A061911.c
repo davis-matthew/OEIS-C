@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root of an unsigned long long value.  */
 static inline unsigned long long isqrt_uint64(unsigned long long x)
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
             if (cache_count == cache_len) {
                 idx_t new_len = cache_len ? cache_len * 2 : 8;
                 while (new_len <= cache_count) new_len <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_len);
                 if (!tmp) return (seq_t)0;    /* allocation failure */
                 cache = tmp;
                 cache_len = new_len;

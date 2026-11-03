@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
 /*  Sequence A014133: sum of a square and a triangular number
     a(n) = n-th smallest integer that can be expressed as
     x^2 + y(y+1)/2 (with x,y ≥ 0). */
@@ -24,6 +26,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Caches the sequence values in increasing order  */
 static seq_t *cached = NULL;          /* array of cached sequence values */
@@ -64,7 +67,7 @@ static void recompute_cache(size_t limit)
     }
 
     /* Allocate space for the new cache and fill it        */
-    seq_t *new_cache = (seq_t*)malloc(new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache) {
         perror("malloc");
         free(mark);
@@ -79,7 +82,7 @@ static void recompute_cache(size_t limit)
     }
 
     free(mark);
-    free(cached);
+    mem_free(cached);
     cached = new_cache;
     cached_len = new_len;
     limit_current = idx_limit;

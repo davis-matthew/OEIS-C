@@ -8,7 +8,8 @@
  * Formula:   a(n) = partition(prime(n))
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 31, u64 n <= 80, u128 n <= 231,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 487 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---- Prime generation ---- */
 #define PRIME_SIEVE_LIMIT 200000 /* enough for n up to about 10000 */
@@ -78,7 +80,7 @@ static void compute_partitions_upto(idx_t max_k)
         return;
 
     /* Allocate / expand the array */
-    seq_t *new_p = (seq_t *)realloc(p_value, (max_k + 1) * sizeof(seq_t));
+    seq_t *new_p = mem_resize(seq_t, p_value, (max_k + 1));
     if (!new_p)
         return; // allocation failed, leave function
     p_value = new_p;

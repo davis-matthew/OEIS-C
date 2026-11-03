@@ -7,14 +7,34 @@
  * Formula:   a(n) = ((s-1)/2) if (n+1)+8*(n+1) is a perfect square s² with s
  *            odd, else 0. In other words, a(n) is the row number + 1 if n+1
  *            is a triangular number; otherwise 0
- * Range:     u8 n <= 6, u16 n <= 637, u32 n <= 9476, u64 n <= 9476,
- *            u128 n <= 9476, big any n
- * Helpers:   floor_sqrt
+ * Range:     u8 n <= 6, u16 n <= 637, u32 n <= 65340, u64 n <= 65340,
+ *            u128 n <= 65340, big any n
+ * Validated: standard, pass, 136 terms through n = 9476 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_sqrt.h"   /* seq_t floor_sqrt(seq_t x); */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {

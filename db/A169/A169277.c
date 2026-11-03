@@ -11,13 +11,15 @@
  *            otherwise
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache = NULL;
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
     if (new_size > cache_size * 2 + 16)
         new_size = cache_size * 2 + 16;   /* exponential growth for efficiency */
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {
         /* allocation failed; terminate to avoid undefined behaviour */
         abort();
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
     cache = new_cache;
 
     /* initialize new entries to 0 */
-    memset(cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
+    mem_set(cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
 
     /* compute missing terms */
     for (idx_t i = cache_size; i <= (idx_t)new_size - 1; ++i) {

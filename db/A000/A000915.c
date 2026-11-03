@@ -8,12 +8,24 @@
  *            24*C(n+7,8) + 58*C(n+6,8) + 22*C(n+5,8) + C(n+4,8)
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 31, u64 n <= 536, u128 n <= 1000,
  *            big any n
- * Helpers:   a000915_c8
+ * Validated: standard, pass, 44 terms through n = 998 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000915_c8.h"
+static seq_t a000915_c8(idx_t m) {
+    idx_t k, i;
+    seq_t r;
+    if (m < 8) return (seq_t)0;
+    k = m - 8 < 8 ? m - 8 : 8;
+    r = (seq_t)1;
+    for (i = 0; i < k; i++) {
+        r = r * (seq_t)(m - i);
+        r = r / (seq_t)(i + 1);
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     seq_t r = (seq_t)24 * a000915_c8(n + 7);

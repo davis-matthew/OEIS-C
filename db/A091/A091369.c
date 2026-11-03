@@ -7,13 +7,16 @@
  * Formula:   a(n) = Sum_{i=1..n} phi(i) * ceil(n/i)
  * Range:     u8 n <= 18, u16 n <= 285, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 68 terms through n = 9100 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 static seq_t *phi_cache = NULL;
 static idx_t phi_cap   = 0;
@@ -24,12 +27,12 @@ static void ensure_phi(idx_t n)
     if (n <= phi_cap) return;
 
     idx_t   new_cap = n;
-    seq_t * new_arr = (seq_t *)realloc(phi_cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t * new_arr = mem_resize(seq_t, phi_cache, (new_cap + 1));
     if (!new_arr) return;        /* in practice the build will not run out of memory */
 
     /* compute new entries */
     for (idx_t i = phi_cap + 1; i <= new_cap; ++i)
-        new_arr[i] = phi(i);      /* phi takes idx_t and returns seq_t */
+        new_arr[i] = totient(i);      /* phi takes idx_t and returns seq_t */
 
     phi_cache = new_arr;
     phi_cap   = new_cap;

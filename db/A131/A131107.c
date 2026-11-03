@@ -12,7 +12,8 @@
  *            independently with equal probability
  * Range:     u8 n <= 31, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   gcd, pow_int
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 /* Return the denominator of the reduced fraction for the
    pair (N,K) found at position n in the antidiagonal order. */
@@ -51,8 +52,8 @@ seq_t a(idx_t n)
 
     /* Compute the reduced fraction k * (n-1)^(k-1) / n^(k-1). */
     idx_t exp = (K == 0) ? 0 : K - 1;                 /* K ≥ 1 always */
-    seq_t pow_N_minus1 = pow_int((seq_t)(N - 1), exp);
-    seq_t pow_N        = pow_int((seq_t)N, exp);
+    seq_t pow_N_minus1 = ipow_idx((seq_t)(N - 1), exp);
+    seq_t pow_N        = ipow_idx((seq_t)N, exp);
     seq_t numerator    = (seq_t)K * pow_N_minus1;     /* K * (N-1)^(K-1) */
     seq_t denominator  = pow_N;                       /* N^(K-1) */
 

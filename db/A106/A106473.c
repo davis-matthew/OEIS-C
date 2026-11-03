@@ -7,12 +7,15 @@
  * Formula:   a(n) = sum{k=0..n, GCD(n-k+1, k+1)*10^k}
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_uint64.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
         idx_t b_val = k + (idx_t)1;
 
         /* gcd of the two parts, using 64‑bit routine */
-        idx_t g = gcd_uint64(a_val, b_val);
+        idx_t g = gcd_u64(a_val, b_val);
 
         /* current term = g * 10^k */
         seq_t term = (seq_t)g * pow10;

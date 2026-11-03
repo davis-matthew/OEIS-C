@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   digital_root_uint32
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,12 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/digital_root_uint32.h"
+
+/* Digital root of a 32‑bit unsigned integer. */
+static inline uint32_t digital_root_uint32(uint32_t n)
+{
+    return 1 + ((n - 1) % 9);
+}
 
 static uint32_t *primes = NULL;
 static size_t prime_count = 0;

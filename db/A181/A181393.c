@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 16, u128 n <= 21,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static seq_t *primes = NULL;     /* 1‑based array: primes[i] = P_i   */
 static idx_t primes_used = 0;    /* highest i for which primes[i] exists */
@@ -39,7 +46,7 @@ static void ensure_primes(idx_t k)
     while (new_cap < (size_t)(k + 1))
         new_cap *= 2;
 
-    seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, primes, new_cap);
     if (!tmp) abort();               /* OOM – the problem statement assumes enough memory */
     primes = tmp;
 

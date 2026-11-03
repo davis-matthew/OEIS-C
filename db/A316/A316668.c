@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 252, u16 n <= 9828, u32 n <= 9828, u64 n <= 9828,
- *            u128 n <= 9828, big any n
- * Helpers:   triangular_seq, triangular_u64
+ * Range:     u8 n <= 252, u16 n <= 65533, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 83 terms through n = 9828 (2026-11-03)
+ * Helpers:   mem, triangular, triangular_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,17 +18,18 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/triangular_seq.h"
-#include "../utils/triangular_u64.h"
+#include "../utils/triangular.h"
+#include "../utils/triangular_idx.h"
+#include "../utils/mem.h"
 
 /* Convert a board number to its coordinates (r,c), 1‑based */
 static inline void number_to_coord(seq_t n, idx_t *r, idx_t *c)
 {
     idx_t val = (idx_t)n;               /* assume val fits in idx_t */
     idx_t d = 0;
-    while (triangular_u64(d + 1) < val)
+    while (triangular(d + 1) < val)
         ++d;
-    idx_t t = triangular_u64(d);
+    idx_t t = triangular(d);
     *r = val - t;
     *c = d + 2 - *r;
 }
@@ -37,39 +39,30 @@ static seq_t      *seq_data   = NULL;
 static size_t     seq_cap    = 0;
 static size_t     seq_len    = 0;
 
-static seq_t      *visited_keys = NULL; /* hash table keys  */
-static bool       *visited_seen = NULL; /* occupancy flag   */
-static const size_t visited_cap  = 65537; /* prime > 2^16     */
-static size_t     visited_cnt = 0;
+/* the squares visited, by number, in a byte array that grows (this was a
+   hash table of a fixed 65537 slots, which looped for ever once full) */
+static unsigned char *visited = NULL;
+static size_t visited_cap = 0;
 
-/* hash: simple modulo */
-static inline size_t hash_seq(seq_t k)
-{
-    return (size_t)k % visited_cap;
-}
-
-/* insert key into hash table */
 static void visited_insert(seq_t k)
 {
-    size_t h = hash_seq(k);
-    while (visited_seen[h]) {
-        if (visited_keys[h] == k) return;
-        h = (h + 1) % visited_cap;
+    size_t i = (size_t)k;
+    if (i >= visited_cap) {
+        size_t c = visited_cap ? visited_cap : 1024;
+        while (c <= i) c *= 2;
+        unsigned char *t = (unsigned char *)realloc(visited, c);
+        if (!t) abort();
+        for (size_t j = visited_cap; j < c; ++j) t[j] = 0;
+        visited = t;
+        visited_cap = c;
     }
-    visited_seen[h] = true;
-    visited_keys[h] = k;
-    ++visited_cnt;
+    visited[i] = 1;
 }
 
-/* containment test */
 static inline bool visited_contains(seq_t k)
 {
-    size_t h = hash_seq(k);
-    while (visited_seen[h]) {
-        if (visited_keys[h] == k) return true;
-        h = (h + 1) % visited_cap;
-    }
-    return false;
+    size_t i = (size_t)k;
+    return i < visited_cap && visited[i];
 }
 
 /* initialize static state exactly once */
@@ -79,12 +72,9 @@ static void init_state(void)
     if (done) return;
 
     seq_cap = 128;
-    seq_data = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_data = mem_new(seq_t, seq_cap);
     seq_len = 0;
 
-    visited_keys = (seq_t *)malloc(visited_cap * sizeof(seq_t));
-    visited_seen = (bool *)calloc(visited_cap, sizeof(bool));
-    visited_cnt = 0;
 
     /* start with square 1 */
     seq_t one = 1;
@@ -121,7 +111,7 @@ seq_t a(idx_t n)
             idx_t nr = (idx_t)nr_i;
             idx_t nc = (idx_t)nc_i;
             idx_t diag = nr + nc - 2;
-            seq_t cand = triangular_seq(diag) + (seq_t)nr;
+            seq_t cand = triangular_idx(diag) + (seq_t)nr;
 
             if (!visited_contains(cand)) {
                 if (!found || cand < best) {
@@ -136,7 +126,7 @@ seq_t a(idx_t n)
 
         if (seq_len == seq_cap) {
             seq_cap *= 2;
-            seq_data = (seq_t *)realloc(seq_data, seq_cap * sizeof(seq_t));
+            seq_data = mem_resize(seq_t, seq_data, seq_cap);
         }
         seq_data[seq_len++] = best;
         visited_insert(best);

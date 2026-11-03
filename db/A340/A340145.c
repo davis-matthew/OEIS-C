@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 116, i16 n <= 8191, i32 n <= 8191, i64 n <= 8191,
  *            i128 n <= 8191, big any n
- * Helpers:   factor_u64, gcd, int_sqrt
+ * Validated: standard, pass, 99 terms through n = 7892 (2026-11-03)
+ * Helpers:   factor_u64, gcd, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/gcd.h"
 #include "../utils/factor_u64.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/gcd.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* Compute b(n) = φ(n) / ∏_{p|n} gcd(p‑1, n‑1)   (n ≥ 1) */
 static seq_t b_from_n(idx_t n)
@@ -63,8 +65,8 @@ static void ensure_cache_size(idx_t n)
 
     size_t old_cap = cache_cap;
     size_t new_cap  = ((size_t)n + 2) * 2;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-    b_cache = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
+    b_cache = mem_resize(seq_t, b_cache, new_cap);
     cache_cap = new_cap;
 
     for (size_t i = old_cap; i < new_cap; ++i) {
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
 
         /* Dirichlet inverse recurrence */
         seq_t sum = 0;
-        size_t lim = (size_t)int_sqrt(i);
+        size_t lim = (size_t)isqrt(i);
         for (size_t d = 1; d <= lim; ++d) {
             if (i % d != 0) continue;
             size_t e = (size_t)(i / d);

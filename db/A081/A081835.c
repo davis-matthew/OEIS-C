@@ -9,7 +9,8 @@
  *            sequence a(n) = a(n-1) + 4 otherwise. (Offset 1)
  * Range:     u8 n <= 61, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 1975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (cache_size == 0) {
         /* Allocate at least one term. */
         cache_capacity = 128;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (!cache) return (seq_t)-1;            /* allocation failure */
         cache[0] = (seq_t)1;                    /* a(1) = 1 */
         cache_size = 1;
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         /* Store new term. */
         if (cache_size >= cache_capacity) {
             idx_t new_cap = cache_capacity ? cache_capacity << 1 : 128;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return (seq_t)-1;
             cache = tmp;
             cache_capacity = new_cap;

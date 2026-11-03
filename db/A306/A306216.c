@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4091, i16 n <= 8193, i32 n <= 8193, i64 n <= 8193,
  *            i128 n <= 8193, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 6910 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    current sequence with its first differences. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Initialise the sequence on the first call. */
     if (seq == NULL) {
         cap = 8;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         seq[0] = 1;
         seq[1] = 1;
         sz = 2;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         /* Expand the allocated buffer if necessary. */
         if (needed > cap) {
             size_t new_cap = (cap > needed) ? cap * 2 : needed;
-            seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
             cap = new_cap;
         }
 

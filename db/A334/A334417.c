@@ -12,7 +12,8 @@
  *            condition, and returns the nth resulting quotient
  * Range:     u8 n <= 27, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   digit_sum, is_palindrome
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   digit_sum, is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
         /* d will be small (<= 9 * number_of_digits(m)), so cast to idx_t safely */
         if (m % (idx_t)d == 0) {
             seq_t q = (seq_t)(m / (idx_t)d);  /* quotient */
-            if (is_palindrome(q, 10)) {
+            if (is_palindrome_base(q, 10)) {
                 ++count;
                 if (count == n) return q;
             }

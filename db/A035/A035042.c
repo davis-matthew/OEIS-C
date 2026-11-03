@@ -5,16 +5,19 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = 2^n - Σ_{k=0}^{9} C(n,k)
- * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 32, u64 n <= 64, u128 n <= 128,
+ * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 982 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Use the utilities that provide the necessary functions. */
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 /* Compute OEIS sequence A035042. */
 seq_t a(idx_t n)

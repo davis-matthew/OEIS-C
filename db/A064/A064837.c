@@ -7,6 +7,7 @@
  * Formula:   a(n) = ((6*n^4 + 30*n^3 - 20*n^2 + 14)*n)/30 + (n mod 2)
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 114, u64 n <= 500, u128 n <= 500,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 486 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

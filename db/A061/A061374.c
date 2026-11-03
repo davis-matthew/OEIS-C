@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   big_pow, digit_frequencies
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   digit_frequencies, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
 #include <stdbool.h>
 
 /* Utility functions for digit frequency and large powers. */
+#include <stdint.h>
 #include "../utils/digit_frequencies.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Static cache for the sequence values. */
 static seq_t *seq_cache   = NULL;   /* array of found elements */
@@ -57,7 +60,7 @@ static seq_t cube_seq_t(seq_t k)
 #endif
     }
     /* Otherwise seq_t is an arbitrary‑precision type.  Use big_pow. */
-    return big_pow(k, (seq_t)3);
+    return ipow(k, (seq_t)3);
 }
 
 /* Public entry point – the n‑th term of the sequence. */
@@ -78,8 +81,7 @@ seq_t a(idx_t n)
             /* Store the qualifying number. */
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq_cache = (seq_t *)realloc(seq_cache,
-                                             seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_len++] = k;
         }

@@ -9,18 +9,21 @@
  * Formula:   a(n) = Sum_{d|n} A003961(n/d) * A055615(d) For multiplicative
  *            computation: a(p^e) = nextprime(p)^e - p * nextprime(p)^(e-1)
  *            and a(n) = ∏_{p^e‖n} a(p^e) (product over prime powers)
- * Range:     u8 n <= 127, u16 n <= 4095, u32 n <= 9929, u64 n <= 9929,
- *            u128 n <= 9929, big any n
- * Helpers:   big_pow, factor_u64, next_prime
+ * Range:     u8 n <= 127, u16 n <= 4095, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 110 terms through n = 9929 (2026-11-01)
+ * Helpers:   factor_u64, ipow, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/next_prime.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/next_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -40,8 +43,8 @@ seq_t a(idx_t n)
         /* compute nextprime(p) */
         uint64_t np = next_prime(p);  /* returns the smallest prime > p */
 
-        seq_t np_pow_e      = big_pow((seq_t)np, (seq_t)e);
-        seq_t np_pow_e_minus= big_pow((seq_t)np, (seq_t)(e - 1));
+        seq_t np_pow_e      = ipow((seq_t)np, (seq_t)e);
+        seq_t np_pow_e_minus= ipow((seq_t)np, (seq_t)(e - 1));
         seq_t term = np_pow_e - (seq_t)p * np_pow_e_minus;
 
         result *= term;

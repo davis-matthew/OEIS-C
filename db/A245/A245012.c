@@ -11,14 +11,15 @@
  *            F(s, r) = s^r - 2*(s-1)^r + (s-2)^r (leaf ass...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -50,13 +51,13 @@ seq_t a(idx_t n)
         }
         else if (s == 2)
         {
-            if (leaves >= 2) f = pow_uint(2, leaves) - 2;
+            if (leaves >= 2) f = ipow_u64_idx(2, leaves) - 2;
         }
         else /* s >= 3 */
         {
-            seq_t p1 = pow_uint(s, leaves);
-            seq_t p2 = pow_uint(s - 1, leaves);
-            seq_t p3 = pow_uint(s - 2, leaves);
+            seq_t p1 = ipow_u64_idx(s, leaves);
+            seq_t p2 = ipow_u64_idx(s - 1, leaves);
+            seq_t p3 = ipow_u64_idx(s - 2, leaves);
             f = p1 - (p2 + p2) + p3;      /* s^r - 2*(s-1)^r + (s-2)^r */
         }
 

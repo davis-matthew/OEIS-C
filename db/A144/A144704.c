@@ -7,18 +7,20 @@
  * Formula:   a(n) = 4^n*(1-2*n)
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 13, i64 n <= 28, i128 n <= 60,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 36 terms through n = 920 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
     /* 1 - 2*n computed in seq_t to avoid overflow on intermediate */
     seq_t two_n  = ((seq_t)2) * (seq_t)n;
-    seq_t pow4   = pow_seq((seq_t)4, (int)n);
+    seq_t pow4   = ipow_i32((seq_t)4, (int)n);
     seq_t result = pow4 * ( ((seq_t)1) - two_n );
     return result;
 }

@@ -10,7 +10,8 @@
  *            2·p^k (p odd prime)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   calc_phi, factor_u64
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   factor_u64, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     uint64_t n64 = (uint64_t)n;
 
     /* compute φ(n) using the provided utility */
-    seq_t phi_n = calc_phi((seq_t)n64);
+    seq_t phi_n = totient_seq((seq_t)n64);
 
     /* factor n to decide if a primitive root exists */
     uint64_t primes[64], exponents[64];
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
     }
 
     /* φ(φ(n)) */
-    seq_t phi_phi = calc_phi(phi_n);
+    seq_t phi_phi = totient_seq(phi_n);
 
     /* a(n) = φ(n) – φ(φ(n)) */
     return phi_n - phi_phi;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = ((12^(n-1) + 10)/11) * a(n-1), a(1) = 1, a(2) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * and for any order of calls. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache: 1‑based indexing of already computed terms */
 static seq_t   *cache      = NULL;   /* array of a(i) */
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = (size_t)n + 1U;
         if (new_cap < 8U)
             new_cap = 8U;
-        cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        cache = mem_new(seq_t, new_cap);
         if (cache == NULL)
             abort();                      /* allocation failure – wrap up */
 
@@ -53,7 +55,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = cache_cap * 2U;
         if (new_cap < (size_t)n + 1U)
             new_cap = (size_t)n + 1U;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)
             abort();
         cache   = tmp;

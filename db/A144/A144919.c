@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 15, i16 n <= 55, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    values.  No external libraries are used.  */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- global state for primes and the sequence values ---- */
 static idx_t   *primes          = NULL;  /* all primes discovered */
@@ -52,7 +54,7 @@ static void add_prime(idx_t p)
 static void grow_seq(void)
 {
     size_t new_cap = seq_cap ? seq_cap * 2 : 64;
-    seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
     if (!tmp) abort();
     seq_vals = tmp;
     seq_cap = new_cap;

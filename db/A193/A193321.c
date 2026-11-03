@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 226 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,17 +25,18 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>   /* for abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate arrays for the coefficients of R_m(x) (coeff),
        a temporary buffer (temp) and the target sequence (seq). */
-    seq_t *seq  = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *coeff = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *temp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *seq  = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *coeff = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *temp = mem_new(seq_t, (size_t)(n + 1));
 
     if (!seq || !coeff || !temp) {
-        free(seq); free(coeff); free(temp);
+        mem_free(seq); mem_free(coeff); mem_free(temp);
         abort();
     }
 
@@ -68,8 +70,8 @@ seq_t a(idx_t n)
     }
 
     seq_t ans = seq[n];
-    free(seq);
-    free(coeff);
-    free(temp);
+    mem_free(seq);
+    mem_free(coeff);
+    mem_free(temp);
     return ans;
 }

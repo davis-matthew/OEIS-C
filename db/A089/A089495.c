@@ -7,6 +7,7 @@
  * Formula:   a(n) = mu(prime(n)+1)
  * Range:     i8 n <= 118, i16 n <= 118, i32 n <= 118, i64 n <= 118,
  *            i128 n <= 118, big any n
+ * Validated: partial, pass, 118 terms through n = 118 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

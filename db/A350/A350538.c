@@ -8,13 +8,28 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 98, u32 n <= 9998, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   all_even_digits
+ * Validated: standard, pass, 75 terms through n = 9944 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/all_even_digits.h"
+
+/* Test whether all decimal digits of x are even. */
+static inline bool all_even_digits(seq_t x)
+{
+    if (x == 0)           /* 0 is considered to have only even digits */
+        return true;
+
+    while (x != 0) {
+        seq_t dig   = x % 10;     /* least significant decimal digit   */
+        if ((dig % 2) != 0)       /* odd digit found                    */
+            return false;
+        x /= 10;                  /* move to next digit                  */
+    }
+    return true;
+}
 
 /* Computes the smallest proper multiple of n that contains only even
    decimal digits (search). */

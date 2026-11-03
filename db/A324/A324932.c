@@ -8,7 +8,8 @@
  * Formula:   a(n) = n / gcd(n, ∏_{p^e∥n} index(p)^e)
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, factor_u64, gcd, int_sqrt
+ * Validated: standard, pass, 85 terms through n = 8746 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, gcd, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,11 @@
 /*  include necessary helper headers  */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gcd.h"
-#include "../utils/factor_u64.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/isqrt.h"
 
 static uint64_t *primes = NULL;      /* array of primes */
 static size_t primes_cnt = 0;        /* number of primes stored */

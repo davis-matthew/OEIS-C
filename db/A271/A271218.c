@@ -9,12 +9,14 @@
  *            a(n-5); Initial values: a(0)=1, a(1)=0, a(2)=1, a(3)=3, a(4)=12
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* dynamic cache of computed terms */
 static size_t cache_cap = 0;  /* allocated capacity */
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n)
     /* First time: allocate at least the first 5 terms */
     if (cache_size == 0) {
         cache_cap = (n < 4 ? 5 : n + 1);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[0] = (seq_t)1;   /* a(0) */
         cache[1] = (seq_t)0;   /* a(1) */
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap < (size_t)n + 1) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

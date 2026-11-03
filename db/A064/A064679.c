@@ -8,14 +8,24 @@
  *            exp(-π/2)
  * Range:     u8 n <= 132, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   compute_C
+ * Validated: standard, pass, 82 terms through n = 1630 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdint.h>
-#include "../utils/compute_C.h"
+
+/* Compute the constant beta/(beta-1) once */
+static long double
+compute_C(void)
+{
+    /* high‑precision constants */
+    const long double pi = acosl(-1.0L);
+    const long double beta = 10.0L * expl(-pi / 2.0L);
+    return beta / (beta - 1.0L);
+}
 
 /* Global static value for C to avoid recomputation */
 static long double C_val = 0.0L;

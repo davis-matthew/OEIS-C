@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   divisor_counts_upto
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,16 @@
 /* Compute a(n) = number of 3‑element subsets of {1,…,n} whose sum has more than 4 divisors. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/divisor_counts_upto.h"
+
+/* Helper to compute divisor counts up to limit (inclusive) */
+static void divisor_counts_upto(idx_t limit, idx_t *out)
+{
+    for (idx_t i = 1; i <= limit; ++i) {
+        for (idx_t j = i; j <= limit; j += i) {
+            ++out[j];
+        }
+    }
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

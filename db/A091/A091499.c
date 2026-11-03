@@ -11,7 +11,8 @@
  *            m(m+1)/2 <= n}
  * Range:     u8 n <= 181, u16 n <= 579, u32 n <= 1652, u64 n <= 1652,
  *            u128 n <= 1652, big any n
- * Helpers:   none
+ * Validated: standard, pass, 112 terms through n = 1575 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- internal storage ---------- */
 static seq_t *data = NULL;          /* flattened triangle values */
@@ -38,7 +40,7 @@ static void ensure_data_cap(size_t need)
     if (need <= data_cap) return;
     size_t new_cap = data_cap ? data_cap * 3 / 2 : 64;
     while (new_cap < need) new_cap <<= 1;
-    data = (seq_t *)realloc(data, new_cap * sizeof(seq_t));
+    data = mem_resize(seq_t, data, new_cap);
     data_cap = new_cap;
 }
 

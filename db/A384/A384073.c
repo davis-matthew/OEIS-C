@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth integer k such that d(k)^d(k) ≡ d(k) (mod k)
  * Range:     u8 n <= 14, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   divisor_count_u64, ensure_capacity, mod_pow
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   num_divisors, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,23 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/mod_pow.h"
-#include "../utils/ensure_capacity.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/num_divisors.h"
+#include "../utils/powmod.h"
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,10 +52,10 @@ seq_t a(idx_t n)
         while (1)
         {
             /* divisor count of candidate */
-            uint64_t d = divisor_count_u64(cand);
+            uint64_t d = num_divisors(cand);
 
             /* d^d mod cand, all in seq_t to keep values in range */
-            seq_t pow = mod_pow((seq_t)d, (uint64_t)d, (seq_t)cand);
+            seq_t pow = powmod((seq_t)d, (uint64_t)d, (seq_t)cand);
 
             if ((seq_t)d == pow)      /* condition satisfied */
             {

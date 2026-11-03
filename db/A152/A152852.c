@@ -11,7 +11,8 @@
  *            digits 1…9 of length 1–9. The sequence has exactly forty terms
  * Range:     u8 none, u16 none, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global state --------------------------------------------- */
 static seq_t *all_numbers   = NULL;   /* array of all valid numbers */
@@ -34,7 +36,7 @@ static inline void add_number(seq_t num)
 {
     if (all_len >= all_cap) {
         size_t new_cap = (all_cap == 0) ? 256 : all_cap * 2;
-        seq_t *tmp = (seq_t*)realloc(all_numbers, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, all_numbers, new_cap);
         if (!tmp) return;          /* silently ignore out‑of‑memory */
         all_numbers = tmp;
         all_cap = new_cap;
@@ -88,7 +90,7 @@ static void init_cache(void)
 
     /* Sorting to obtain increasing order */
     if (all_len > 0)
-        qsort(all_numbers, all_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(all_numbers, all_len, sizeof(seq_t), cmp_seq_t);
 
     /* Store the first 40 terms in the cache */
     term_count = (all_len < 40) ? all_len : 40;
@@ -96,7 +98,7 @@ static void init_cache(void)
         cache[i + 1] = all_numbers[i];
 
     /* Reclaim temporary storage */
-    free(all_numbers);
+    mem_free(all_numbers);
     all_numbers = NULL;
     all_cap = 0;
     all_len = 0;

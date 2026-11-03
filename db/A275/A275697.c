@@ -9,12 +9,15 @@
  *            next prime after p
  * Range:     u8 n <= 33, u16 n <= 2648, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 71 terms through n = 9805 (2026-11-01)
  * Helpers:   gcd, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Utility prototypes required by the build. */
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
 #include "../utils/next_prime.h"
 

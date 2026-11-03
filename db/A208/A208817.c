@@ -12,7 +12,8 @@
  *            – 1, k – 1). * * Ref(n) is the total cont...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   binom_small_uint, ways_sum_k
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,37 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/binom_small_uint.h"
-#include "../utils/ways_sum_k.h"
+
+/* Small binomial: C(N,K) with K ≤ 10 000                                       */
+static seq_t binom_small_uint(uint64_t N, uint32_t K)
+{
+    if (K > N) return 0;
+    if (K > N - K) K = N - K;
+    seq_t res = 1;
+    for (uint32_t i = 1; i <= K; ++i) {
+        res = res * (seq_t)(N - K + i);
+        res = res / (seq_t)i;          /* exact integer division */
+    }
+    return res;
+}
+
+/* Number of k‑tuples from [–n,n] with sum = s                                */
+static seq_t ways_sum_k(idx_t k, int s, idx_t n)
+{
+    if (k == 0) return (s == 0) ? 1 : 0;
+
+    int64_t Sprime = (int64_t)s + (int64_t)k * (int64_t)n;
+    seq_t total = 0;
+
+    for (uint32_t j = 0; j <= (uint32_t)k; ++j) {
+        int64_t val = Sprime - (int64_t)j * (2 * (int64_t)n + 1);
+        if (val < 0) break;
+        seq_t term = binom_small_uint(k, j) *
+                     binom_small_uint((uint64_t)val + k - 1, k - 1);
+        if (j & 1) total -= term; else total += term;
+    }
+    return total;
+}
 
 /* -------------------------------------------------------------------------- */
 

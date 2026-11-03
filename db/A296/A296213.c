@@ -5,17 +5,52 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 29, u16 n <= 7253, u32 n <= 9893, u64 n <= 9893,
- *            u128 n <= 9893, big any n
- * Helpers:   calc_phi, floor_sqrt, sigma_of
+ * Range:     u8 n <= 29, u16 n <= 7253, u32 n <= 65593, u64 n <= 65593,
+ *            u128 n <= 65593, big any n
+ * Validated: standard, pass, 139 terms through n = 9893 (2026-11-01)
+ * Helpers:   ipow_i32, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Check whether 1+phi(n) and 1+sigma(n) are perfect squares. */
-#include "../utils/calc_phi.h"
-#include "../utils/sigma_of.h"
-#include "../utils/floor_sqrt.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/totient_seq.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -23,7 +58,7 @@ seq_t a(idx_t n)
     seq_t k = (seq_t)n;
 
     /* Euler totient and sum-of-divisors of n */
-    seq_t phi   = calc_phi(k);
+    seq_t phi   = totient_seq(k);
     seq_t sigma = sigma_of(n);
 
     /* Add 1 to each */

@@ -11,6 +11,7 @@
  *            coordinates
  * Range:     u8 n <= 1, u16 n <= 23, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 111 terms through n = 1205 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

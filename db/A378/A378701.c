@@ -8,7 +8,8 @@
  *            4*a(n-1)+a(n-2)-12*a(n-3)-15*a(n-4)+24*a(n-5)+49*a(n-6)+6*a(n-7)-73*a(n-8)-76*a(n-9)+5*a(n-10)+80*a(n-11)+72*a(n-12)+14*a(n-13)-30*a(n-14)-34*a(n-15)-19*a(n-16)-6*a(n-17)-a(n-18)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 21, u64 n <= 45, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 2148 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Initial values a(1)..a(18) as given. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Ensure cache has at least 18 computed terms. */
     if (cache_len < 18) {
         size_t cap = (n > 18) ? n : 18;
-        seq_t *tmp = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, cap);
         if (!tmp) abort();
         for (idx_t i = 0; i < 18; ++i) {
             tmp[i] = init[i];
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary. */
     if (n > cache_len) {
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
     }

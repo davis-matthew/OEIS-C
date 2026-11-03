@@ -9,14 +9,17 @@
  *            that shares a prime factor with the previous term
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 73 terms through n = 74 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     /* Initialise arrays if this is the first call. */
     if (perm_cap == 0) {
         perm_cap = 8;
-        perm = (seq_t *)malloc(perm_cap * sizeof(seq_t));
+        perm = mem_new(seq_t, perm_cap);
     }
     if (pos_cap == 0) {
         pos_cap = 2048;          /* initial capacity large enough for small n */
@@ -91,7 +94,7 @@ seq_t a(idx_t n)
         /* Append the new term, expanding the permutation array if required. */
         if (perm_len == perm_cap) {
             perm_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(perm, perm_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, perm, perm_cap);
             perm = tmp;
         }
         perm[perm_len++] = next;

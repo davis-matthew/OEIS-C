@@ -10,7 +10,8 @@
  *            (3*(n-k)+5)·T(n-1,k-1), with T(n,0) = 5·T(n-1,0)
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 38, u64 n <= 110, u128 n <= 334,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 1182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* static storage for the computed rows of the triangle                     */
 static seq_t **row_vals   = NULL;  /* pointers to rows, row_vals[r][k]    */
@@ -35,7 +37,7 @@ static void ensure_rows_upto(idx_t r)
         if (row_vals == NULL)
             return;                               /* allocation failure  */
         /* row 0 */
-        row_vals[0] = (seq_t*)malloc(sizeof(seq_t));
+        row_vals[0] = mem_new(seq_t, 1);
         if (row_vals[0] == NULL)
             return;                               /* allocation failure  */
         row_vals[0][0]   = (seq_t)1;
@@ -48,7 +50,7 @@ static void ensure_rows_upto(idx_t r)
         idx_t      next   = max_row + 1;    /* row index to compute   */
         idx_t      len    = next + 1;       /* number of entries     */
         seq_t     *prev   = row_vals[max_row];
-        seq_t     *cur    = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t     *cur    = mem_new(seq_t, len);
         if (cur == NULL)
             return;                         /* allocation failure    */
 
@@ -76,7 +78,7 @@ static void ensure_rows_upto(idx_t r)
             rows_cap = next + 1;
             seq_t **tmp = (seq_t**)realloc(row_vals, rows_cap * sizeof(seq_t*));
             if (tmp == NULL) {
-                free(cur);
+                mem_free(cur);
                 return;                     /* reallocation failure*/
             }
             row_vals = tmp;

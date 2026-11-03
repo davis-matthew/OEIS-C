@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
    that satisfy the divisibility condition. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -27,13 +30,13 @@ seq_t a(idx_t n)
     for (idx_t m = 1; /* infinite */ ; ++m) {
         seq_t sum = 0;
         /* Accumulate k^m mod m for k = 3..9 (k small). */
-        sum += mod_pow((seq_t)3, m, (seq_t)m);
-        sum += mod_pow((seq_t)4, m, (seq_t)m);
-        sum += mod_pow((seq_t)5, m, (seq_t)m);
-        sum += mod_pow((seq_t)6, m, (seq_t)m);
-        sum += mod_pow((seq_t)7, m, (seq_t)m);
-        sum += mod_pow((seq_t)8, m, (seq_t)m);
-        sum += mod_pow((seq_t)9, m, (seq_t)m);
+        sum += powmod((seq_t)3, m, (seq_t)m);
+        sum += powmod((seq_t)4, m, (seq_t)m);
+        sum += powmod((seq_t)5, m, (seq_t)m);
+        sum += powmod((seq_t)6, m, (seq_t)m);
+        sum += powmod((seq_t)7, m, (seq_t)m);
+        sum += powmod((seq_t)8, m, (seq_t)m);
+        sum += powmod((seq_t)9, m, (seq_t)m);
 
         if ((sum % (seq_t)m) == (seq_t)0) {
             ++count;

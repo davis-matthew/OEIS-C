@@ -9,14 +9,27 @@
  *            where D(p) is the largest decimal digit of p
  * Range:     u8 n <= 5, u16 n <= 206, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   largest_digit_uint64
+ * Validated: standard, pass, 60 terms through n = 802 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/largest_digit_uint64.h"
+#include "../utils/mem.h"
+
+/* Return the largest decimal digit of a positive integer (x ≥ 1). */
+static inline int largest_digit_uint64(uint64_t x)
+{
+    int d = 0;
+    while (x > 0) {
+        int dig = (int)(x % 10);
+        if (dig > d) d = dig;
+        x /= 10;
+    }
+    return d;
+}
 
 /* Multiply two 64‑bit unsigned numbers modulo mod (using 128‑bit). */
 static inline uint64_t mulmod_uint64(uint64_t a, uint64_t b, uint64_t mod)
@@ -77,7 +90,7 @@ static void init_terms(void)
 {
     if (terms != NULL) return;
     terms_cap = 1024;
-    terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
 }
 
 /* ---------- main sequence function ---------- */
@@ -100,7 +113,7 @@ seq_t a(idx_t n)
             /* Store p (not q) as a sequence term. */
             if (terms_cnt >= terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_cnt++] = (seq_t)p;
         }

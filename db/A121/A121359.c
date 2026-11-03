@@ -8,13 +8,14 @@
  *            tetrahedral number n*(n+1)*(n+2)/6)
  * Range:     u8 n <= 10, u16 n <= 72, u32 n <= 3142, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 89 terms through n = 9946 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +49,7 @@ seq_t a(idx_t n)
     /* The value of tetra for n ≤ 10 000 comfortably fits in 64 bits,
        so we can safely cast it for use with the provided gpf helper. */
     uint64_t t64 = (uint64_t)tetra;
-    uint64_t gpf_val = gpf(t64);
+    uint64_t gpf_val = largest_prime_factor(t64);
 
     return (seq_t)gpf_val;
 }

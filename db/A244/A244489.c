@@ -9,7 +9,8 @@
  * Formula:   T(n,k) = Σ_{j=k..n} C(n,j) * S₂(j,k) * B(n-j)
  * Range:     u8 n <= 16, u16 n <= 37, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for Stirling numbers S₂(i,j) (0 ≤ i ≤ r, 0 ≤ j ≤ i) */
     size_t sz = (size_t)(r + 1);
-    seq_t *S2 = (seq_t *)calloc(sz * sz, sizeof(seq_t));
+    seq_t *S2 = mem_new(seq_t, sz * sz);
     if (!S2) return 0;
     S2[0] = 1;                         /* S₂(0,0) = 1 */
 
@@ -54,9 +56,9 @@ seq_t a(idx_t n)
     }
 
     /* Allocate array for Bell numbers  B(0..r)  */
-    seq_t *Bell = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *Bell = mem_new(seq_t, sz);
     if (!Bell) {
-        free(S2);
+        mem_free(S2);
         return 0;
     }
     Bell[0] = 1;                       /* B₀ = 1 */
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         result += term;
     }
 
-    free(S2);
-    free(Bell);
+    mem_free(S2);
+    mem_free(Bell);
     return result;
 }

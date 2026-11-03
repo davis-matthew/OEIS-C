@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 8085 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Function to compute gcd of two seq_t values. */
 static seq_t gcd_seq_t(seq_t a, seq_t b)
@@ -62,7 +64,7 @@ static void ensure_cache(idx_t n)
 {
     if (n <= cache_size) return;
     idx_t new_size = n * 2 + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     bool *new_computed = (bool *)realloc(computed, new_size * sizeof(bool));
     if (!new_cache || !new_computed) {
         /* Allocation failed – terminate. */

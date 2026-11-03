@@ -8,12 +8,15 @@
  *            if n=2k
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   pw2
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pw2.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     idx_t k;
@@ -21,7 +24,7 @@ seq_t a(idx_t n) {
     
     if (n % 2 == 1) {
         k = (n + 1) / 2;
-        val = pw2(3 * k + 3);
+        val = pow2(3 * k + 3);
         if (k % 2 == 0) {
             return (val + 1) / 9;
         } else {
@@ -29,7 +32,7 @@ seq_t a(idx_t n) {
         }
     } else {
         k = n / 2;
-        val = pw2(3 * k + 5);
+        val = pow2(3 * k + 5);
         if (k % 2 == 0) {
             return (val - 5) / 9;
         } else {

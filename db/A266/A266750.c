@@ -11,12 +11,14 @@
  *            1/((1-t^10)*(1-t)*(1-t^3)*(1-t^5)*(1-t^7)*(1-t^9)*(1-t^11)*(1-t^13)*(1-t^15)*(1-t^17)*(1-t^19))
  * Range:     u8 n <= 27, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ extern seq_t a(idx_t n)
     if (n >= cache_size) {
         /* Allocate (or grow) the cache to accommodate n */
         idx_t new_size = n + 1;          /* we need indices 0..n inclusive */
-        seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_size);
         if (!tmp) {                      /* allocation failed – return 0 as a safe fallback */
             return (seq_t)0;
         }

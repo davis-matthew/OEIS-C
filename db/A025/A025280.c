@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 939, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 8529 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Dynamic programming table and current maximal index computed. */
 static seq_t *dp = NULL;
@@ -44,7 +46,7 @@ static void _ensure_dp(idx_t n)
         return;
 
     /* Allocate/extend the table. */
-    seq_t *new_dp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp, (n + 1));
     if (!new_dp)
         exit(EXIT_FAILURE);
     dp = new_dp;

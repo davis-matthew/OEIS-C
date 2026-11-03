@@ -5,16 +5,27 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = least k>0 such that prime(n+k) == k (mod prime(n))
- * Range:     u8 n <= 12, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
- *            big any n
- * Helpers:   estimate_prime_upper_bound
+ * Range:     u8 n <= 12, u16 n <= 1499, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 85 terms through n = 9912 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/estimate_prime_upper_bound.h"
+#include <stdbool.h>
+#include <math.h>
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 /* static storage for sieve data */
 static uint8_t  *isComposite = NULL;  /* 0 = prime, 1 = composite */

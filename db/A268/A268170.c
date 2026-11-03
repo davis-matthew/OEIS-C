@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for the sequences */
 static seq_t *A = NULL;          /* a(n) values   */
@@ -43,8 +45,8 @@ static void ensure_capacity(idx_t n)
     while (new_cap < need)
         new_cap <<= 1;           /* double until enough */
 
-    A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-    B = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
+    A = mem_resize(seq_t, A, new_cap);
+    B = mem_resize(seq_t, B, new_cap);
     capacity = new_cap;
 }
 
@@ -53,8 +55,8 @@ static void init_cache(void)
 {
     if (!A) {
         capacity = 1;
-        A = (seq_t *)calloc(1, sizeof(seq_t));
-        B = (seq_t *)calloc(1, sizeof(seq_t));
+        A = mem_new(seq_t, 1);
+        B = mem_new(seq_t, 1);
         A[0] = (seq_t)1;
         B[0] = (seq_t)1;
         computed = 1;   /* we have values for indices 0 .. computed-1 */

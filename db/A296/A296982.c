@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 11, i64 n <= 18, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,10 +38,10 @@ seq_t a(idx_t n)
     if (max_n == 0 && a_cache == NULL)
     {
         /* allocate minimal size (1 element) */
-        s_prev  = (seq_t *)malloc(sizeof(seq_t));
-        s_cur   = (seq_t *)malloc(sizeof(seq_t));
-        fact    = (seq_t *)malloc(sizeof(seq_t));
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        s_prev  = mem_new(seq_t, 1);
+        s_cur   = mem_new(seq_t, 1);
+        fact    = mem_new(seq_t, 1);
+        a_cache = mem_new(seq_t, 1);
         if (!s_prev || !s_cur || !fact || !a_cache)
             return (seq_t)0;  /* out of memory */
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     /* enlarge factorial array if necessary */
     if (n + 1 > fact_cap)
     {
-        fact = (seq_t *)realloc(fact, (n + 1) * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, (n + 1));
         if (!fact)
             return (seq_t)0; /* allocation failed */
         for (idx_t i = fact_cap; i <= n; ++i)
@@ -77,8 +79,8 @@ seq_t a(idx_t n)
     /* enlarge s arrays if necessary */
     if (n + 1 > s_cap)
     {
-        s_prev = (seq_t *)realloc(s_prev, (n + 1) * sizeof(seq_t));
-        s_cur  = (seq_t *)realloc(s_cur,  (n + 1) * sizeof(seq_t));
+        s_prev = mem_resize(seq_t, s_prev, (n + 1));
+        s_cur  = mem_resize(seq_t, s_cur, (n + 1));
         if (!s_prev || !s_cur)
             return (seq_t)0; /* allocation failed */
         s_cap = n + 1;
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
     /* enlarge cache for a(n) */
     if (n + 1 > a_cap)
     {
-        a_cache = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (n + 1));
         if (!a_cache)
             return (seq_t)0; /* allocation failed */
         a_cap = n + 1;

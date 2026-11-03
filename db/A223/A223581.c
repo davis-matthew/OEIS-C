@@ -8,13 +8,15 @@
  *            65536 a(3) = 10240000 a(4) = 1331200000
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 8, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 27 terms through n = 195 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -33,6 +35,6 @@ seq_t a(idx_t n)
         return (seq_t)1331200000;
 
     /* For n > 4 use the closed form a(n) = a(4) * 130^(n-4) */
-    seq_t pow = big_pow((seq_t)130, (seq_t)(n - 4));
+    seq_t pow = ipow((seq_t)130, (seq_t)(n - 4));
     return (seq_t)1331200000 * pow;
 }

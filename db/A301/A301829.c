@@ -10,7 +10,8 @@
  *            1 not allowed)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   alloc_cache, free_cache
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,19 @@
 #include <string.h>
 
 /* helpers */
-#include "../utils/alloc_cache.h"   /* seq_t *alloc_cache(idx_t n); */
-#include "../utils/free_cache.h"    /* void free_cache(seq_t *p); */
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *f_cache = NULL;          /* cached f values, index 0..n */
 static idx_t f_cache_cap = 0;          /* current allocated capacity */
@@ -34,11 +46,11 @@ static void ensure_factor_cache(idx_t n)
     size_t new_cap = (size_t)n + 1;    /* index n must be accessible */
     seq_t *new_cache = alloc_cache(new_cap);
     if (f_cache != NULL) {
-        memcpy(new_cache, f_cache, f_cache_cap * sizeof(seq_t));
+        mem_copy(new_cache, f_cache, f_cache_cap * sizeof(seq_t));
         free_cache(f_cache);
     }
     /* zero-initialize new part */
-    memset(new_cache + f_cache_cap, 0, (new_cap - f_cache_cap) * sizeof(seq_t));
+    mem_set(new_cache + f_cache_cap, 0, (new_cap - f_cache_cap) * sizeof(seq_t));
     f_cache = new_cache;
     f_cache_cap = new_cap;
 }

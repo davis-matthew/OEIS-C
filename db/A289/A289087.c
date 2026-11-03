@@ -11,7 +11,8 @@
  *            function returns the imaginary part A289087(n)
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 14, i64 n <= 21, i128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declarations for seq_t arithmetic provided by the build. */
 extern seq_t binomial(idx_t n, idx_t k);  /* Not used directly but kept for reference. */
@@ -38,8 +40,8 @@ static void ensure_capacity(idx_t need)
     size_t new_cap = cache_cap ? cache_cap : 2;
     while ((size_t)need + 1 > new_cap)
         new_cap <<= 1;
-    seq_t *new_real = (seq_t *)realloc(real_cache, new_cap * sizeof(seq_t));
-    seq_t *new_imag = (seq_t *)realloc(imag_cache, new_cap * sizeof(seq_t));
+    seq_t *new_real = mem_resize(seq_t, real_cache, new_cap);
+    seq_t *new_imag = mem_resize(seq_t, imag_cache, new_cap);
     if (!new_real || !new_imag) {
         /* Allocation failed; abort to avoid undefined behaviour. */
         abort();

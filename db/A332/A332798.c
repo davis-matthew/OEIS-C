@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 621, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _spf19_ok
+ * Validated: standard, pass, 61 terms through n = 8949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_spf19_ok.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether x is not divisible by any prime < 19 */
+static int _spf19_ok(uint64_t x)
+{
+    return (x % 2 == 0) ? 0 :
+           (x % 3 == 0) ? 0 :
+           (x % 5 == 0) ? 0 :
+           (x % 7 == 0) ? 0 :
+           (x % 11 == 0) ? 0 :
+           (x % 13 == 0) ? 0 :
+           (x % 17 == 0) ? 0 : 1;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -41,7 +54,7 @@ seq_t a(idx_t n)
         /* Make sure we have space for a new term */
         if (cache_sz >= cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 64 : cache_cap << 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return (seq_t)0;  /* allocation failure */
             cache = tmp;
             cache_cap = new_cap;

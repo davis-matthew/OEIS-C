@@ -10,14 +10,55 @@
  *            |x‑y| + |y‑z| = 2*m‑2‑k}|
  * Range:     u8 n <= 215, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_T_row
+ * Validated: standard, pass, 97 terms through n = 9942 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compute_T_row.h"
+
+/* --- count T(n,k) for a given row n and column k --- */
+static seq_t compute_T_row(idx_t n, idx_t k)
+{
+    seq_t total = 0;
+    idx_t s = 2 * n - 2 - k;            /* target |x‑y| + |y‑z| */
+
+    for (idx_t y = 1; y <= n; ++y)
+    {
+        idx_t y_minus1 = y - 1;
+        idx_t n_minus_y = n - y;
+
+        for (idx_t a = 0; a <= s; ++a)
+        {
+            /* count of x with distance a from y */
+            idx_t fa_cnt = 0;
+            if (a == 0)
+                fa_cnt = 1;
+            else
+            {
+                if (a <= y_minus1) ++fa_cnt;
+                if (a <= n_minus_y) ++fa_cnt;
+            }
+            seq_t fa = (seq_t)fa_cnt;
+
+            idx_t b = s - a;              /* distance for z */
+            idx_t fb_cnt = 0;
+            if (b == 0)
+                fb_cnt = 1;
+            else
+            {
+                if (b <= y_minus1) ++fb_cnt;
+                if (b <= n_minus_y) ++fb_cnt;
+            }
+            seq_t fb = (seq_t)fb_cnt;
+
+            total += fa * fb;
+        }
+    }
+    return total;
+}
 
 /* --- utility: floor square root for uint64_t --- */
 static idx_t floor_sqrt_u64(idx_t v)

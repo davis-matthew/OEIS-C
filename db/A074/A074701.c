@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
  * This follows from the fact that the sequence consists of 1, 3 and all powers of 5.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* undefined for offset 1, but return 0 */
@@ -30,5 +33,5 @@ seq_t a(idx_t n) {
     /* Compute 5^(n-2) using big exponentiation */
     seq_t base = (seq_t)5;
     seq_t exp  = (seq_t)(n - 2);
-    return big_pow(base, exp);
+    return ipow(base, exp);
 }

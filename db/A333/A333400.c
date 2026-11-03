@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 161, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    and that does not create a duplicate partial sum. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Ensure arrays have capacity for 'need' elements.
    Arrays are of type seq_t, which may be built‑in or a user defined
@@ -30,7 +32,7 @@ static void ensure_capacity(size_t need, seq_t **arr, size_t *cap)
     if (*cap < need) {
         size_t newcap = (*cap) ? (*cap) << 1 : 4;
         if (newcap < need) newcap = need;
-        *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }

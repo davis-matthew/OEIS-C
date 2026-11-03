@@ -7,11 +7,13 @@
  * Formula:   a(n) = 75*(2^n - 1) - 4*n^3 - 18*n^2 - 52*n
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 25, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

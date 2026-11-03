@@ -8,7 +8,8 @@
  * Formula:   a(1)=1, a(2)=4, a(3)=14, a(n)=4*a(n-1)-2*a(n-2)-a(n-3) (n>3)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 37, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* The function memoises computed terms so that calls in arbitrary order run in O(n) time. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         if (cache_len == 0)
         {
             cache_cap = 4;                      /* minimal capacity from a(1)..a(3) */
-            cache = (seq_t *)malloc((cache_cap + 1) * sizeof(seq_t)); /* +1 because we use 1‑based indexing */
+            cache = mem_new(seq_t, (cache_cap + 1)); /* +1 because we use 1‑based indexing */
             if (!cache) return (seq_t)0;        /* allocation failure, return 0 */
 
             /* initial values */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
             {
                 /* double capacity */
                 size_t new_cap = cache_cap * 2 + 1;
-                seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
                 if (!tmp) return (seq_t)0;
                 cache = tmp;
                 cache_cap = new_cap;

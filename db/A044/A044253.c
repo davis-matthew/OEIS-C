@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* OEIS A044253 */
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Sufficient size to cache many terms; grows automatically if needed. */
 #define CACHE_INIT_SIZE 2000          /* initial capacity */
@@ -53,13 +55,13 @@ static void ensure_cache(size_t desired)
     size_t new_cap = cap ? cap * 2 : CACHE_INIT_SIZE;
     if (new_cap < desired)
         new_cap = desired;
-    seq_t *new_ptr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_new(seq_t, new_cap);
     if (!new_ptr)
         return;                   /* memory error – will continue with existing cache */
     if (cache) {
         for (size_t i = 0; i < cnt; ++i)
             new_ptr[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_ptr;
     cap = new_cap;

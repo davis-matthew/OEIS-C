@@ -10,7 +10,8 @@
  *            pair (p prime)
  * Range:     u8 none, u16 n <= 2, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   digits, is_prime, pow10
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   is_prime, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,18 @@
 #include <stdbool.h>
 
 /*  Utility functions supplied by the build system  */
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x);  */
-#include "../utils/digits.h"    /* int digits(idx_t x);     */
-#include "../utils/pow10.h"     /* seq_t pow10(idx_t exp); */
+#include "../utils/is_prime.h"
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /*  Static cache of lesser primes of twin prime pairs  */
 static idx_t *twin_less = NULL;   /* array of p such that (p, p+2) are twin primes */
@@ -83,8 +93,8 @@ seq_t a(idx_t n)
     idx_t avg = p + 1;              /* average (non‑prime)   */
 
     /* Number of decimal digits of avg and q */
-    int d_avg = digits(avg);
-    int d_q   = digits(q);
+    int d_avg = num_digits_idx(avg);
+    int d_q   = num_digits_idx(q);
 
     /* Compute powers of 10 for concatenation */
     seq_t pow_pq = pow10((idx_t)(d_avg + d_q));

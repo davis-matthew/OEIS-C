@@ -14,13 +14,15 @@
  *            (3n-3)*m(n-2)) / (n+2) (n ≥ 2) * Row sums of the t...
  * Range:     u8 n <= 56, u16 n <= 134, u32 n <= 376, u64 n <= 1174,
  *            u128 n <= 1274, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 1233 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- integer utilities ---------- */
 
@@ -53,8 +55,8 @@ static void ensure_motzkin(idx_t up_to)
 
     /* resize arrays */
     size_t newcap = (size_t)(up_to + 1);
-    motzkin = (seq_t *)realloc(motzkin, newcap * sizeof(seq_t));
-    pref    = (seq_t *)realloc(pref,    newcap * sizeof(seq_t));
+    motzkin = mem_resize(seq_t, motzkin, newcap);
+    pref    = mem_resize(seq_t, pref, newcap);
     if (!motzkin || !pref) abort();
 
     /* initialise from scratch if necessary */

@@ -11,6 +11,7 @@
  *            C(k,j)); otherwise e(k) = 0. a(n) = least k with A004788(k) = n
  * Range:     u8 n <= 54, u16 n <= 250, u32 n <= 250, u64 n <= 250,
  *            u128 n <= 250, big any n
+ * Validated: standard, pass, 77 terms through n = 241 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

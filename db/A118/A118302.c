@@ -10,12 +10,14 @@
  *            dynamic programming tracking the parity of the largest part
  * Range:     u8 n <= 33, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The build supplies integer types seq_t (value) and idx_t (index). */
 
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
     /* Compute the table up to the requested n if needed. */
     if (n > max_n) {
         /* Allocate new tables of size n+1. */
-        seq_t *new_even = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-        seq_t *new_odd  = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_even = mem_new(seq_t, (n + 1));
+        seq_t *new_odd  = mem_new(seq_t, (n + 1));
 
         /* Initialize to zero. */
         for (idx_t i = 0; i <= n; ++i) {
@@ -58,8 +60,8 @@ seq_t a(idx_t n)
         }
 
         /* Free old tables, keep the new ones. */
-        if (even_parts) free(even_parts);
-        if (odd_parts)  free(odd_parts);
+        if (even_parts) mem_free(even_parts);
+        if (odd_parts)  mem_free(odd_parts);
         even_parts = new_even;
         odd_parts  = new_odd;
         max_n = n;

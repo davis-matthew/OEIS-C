@@ -8,8 +8,9 @@
  * Keywords:  frac, nonn, tabl
  * Formula:   a(n) enumerates the denominators T(n, k) =
  *            (n+k)/gcd(binomial(n+k, n), n+k) row‑by‑row (offset 0)
- * Range:     u8 n <= 9328, u16 n <= 9328, u32 n <= 9328, u64 n <= 9328,
- *            u128 n <= 9328, big any n
+ * Range:     u8 n <= 10009, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 9328 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

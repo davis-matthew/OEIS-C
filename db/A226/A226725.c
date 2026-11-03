@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n+1)/2 if n is odd; a(n) = n*(n/2+1) if n is even
  * Range:     u8 n <= 21, u16 n <= 361, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 75 terms through n = 1974 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

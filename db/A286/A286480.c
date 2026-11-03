@@ -11,7 +11,8 @@
  *            3*A286479(n))
  * Range:     u8 n <= 7, u16 n <= 347, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, factor_u64
+ * Validated: standard, pass, 96 terms through n = 8817 (2026-11-01)
+ * Helpers:   factor_u64, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,9 @@
 #include <stdbool.h>
 
 /* Utility functions supplied by the harness */
-#include "../utils/divisor_count_u64.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/num_divisors.h"
 
 /* Small primes used for the canonical prime signature */
 static const uint64_t MIN_PRIMES[] = {
@@ -73,7 +75,7 @@ static seq_t prime_signature(uint64_t m)
 seq_t a(idx_t n)
 {
     /* Number of divisors of n */
-    uint64_t d = divisor_count_u64((uint64_t)n);
+    uint64_t d = num_divisors((uint64_t)n);
 
     /* Compute n + d(n) (safe for all indices in the tests) */
     uint64_t n_plus_d = (uint64_t)((unsigned __int128)n + d);

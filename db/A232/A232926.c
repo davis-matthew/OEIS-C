@@ -10,7 +10,8 @@
  *            Computed by dynamic programming on column states
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 14, u128 n <= 30,
  *            big any n
- * Helpers:   ok_pair
+ * Validated: standard, pass, 31 terms through n = 203 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/ok_pair.h"
+
+static inline bool ok_pair(uint8_t x, uint8_t y)
+{
+    /* returns true if x and y are NOT complementary 0↔2 or 1↔1            */
+    return !((x == 0 && y == 2) || (x == 2 && y == 0) || (x == 1 && y == 1));
+}
 
 #define STATES 2187                     /* 3^7 possible column states */
 #define MAX_CACHE 20000                 /* cache depth sufficient for all tests */

@@ -11,7 +11,8 @@
  *            when a larger value of n is requested. All arithmetic u...
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   upper_bound_for_n
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/upper_bound_for_n.h"
+
+/* Compute floor((7*n+1)^2 / 49) without overflow. */
+static inline uint64_t upper_bound_for_n(uint64_t n)
+{
+    uint64_t t = 7ull * n + 1ull;
+    return (t * t) / 49ull;
+}
 
 /* Global data retained between calls. */
 static uint8_t  *sieve_flag   = NULL;   /* 1 = prime, 0 = composite */

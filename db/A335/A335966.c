@@ -12,14 +12,16 @@
  *            implementation runs in O(n) time and uses O(n) auxiliary memory
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   _tz
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-02)
+ * Helpers:   ctz
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_tz.h"
+#include "../utils/ctz.h"
 
 seq_t a(idx_t n)
 {
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
     }
 
     /* 2‑adic valuations */
-    const idx_t v2a = _tz(a_val);
-    const idx_t v2m = _tz(m);
+    const idx_t v2a = ctz(a_val);
+    const idx_t v2m = ctz(m);
 
     /* Target sum for parity condition */
     const int target_sum = 3 * S[a_val] + 2 * (int)v2a + (int)v2m - 1;

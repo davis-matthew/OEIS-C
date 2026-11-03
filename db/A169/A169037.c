@@ -12,12 +12,14 @@
  *            (t^24+2t^23+…+2t+1)/(253t^24–22t^23–…–22t–1). The code memoi...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise cache with a(0) */
     if (cache == NULL) {
         cache_size = 4;  /* start with a small capacity */
-        cache     = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_size);
         cache[0]   = 1;   /* a(0) = 1 */
         max_computed = 0;
     }
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (cache_size <= n) {
         size_t new_size = cache_size * 2;
         if (new_size <= n) new_size = n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         cache_size = new_size;
     }
 

@@ -11,6 +11,7 @@
  *            2*x^5*(24*x^2-29*x+8) / ((x-1)^2*(2*x-1)^2*(3*x-1)*(4*x-1)))
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 898 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

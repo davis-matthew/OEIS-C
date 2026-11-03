@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 346, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 71 terms through n = 2712 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stddef.h>   /* size_t, NULL */
 #include <stdlib.h>   /* malloc, realloc, abort */
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Memoised sequence terms.  terms[i] holds a(i+1). */
 static seq_t  *terms      = NULL;
@@ -36,7 +38,7 @@ static void grow_terms(size_t need)
     size_t new_cap = terms_cap;
     if (new_cap == 0) new_cap = 16;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) abort();
     terms = tmp;
     terms_cap = new_cap;
@@ -47,11 +49,11 @@ static void ensure_terms(idx_t n)
 {
     while (terms_len < (size_t)n) {
         /* Find the next prime candidate. */
-        while (!is_prime_small(next_candidate)) ++next_candidate;
+        while (!is_prime_seq(next_candidate)) ++next_candidate;
 
         /* Test the property 8*p-9 prime. */
         seq_t qp = ((seq_t)next_candidate) * (seq_t)8 - (seq_t)9;
-        if (is_prime_small(qp)) {
+        if (is_prime_seq(qp)) {
             if (terms_len == terms_cap) grow_terms(terms_len + 1);
             terms[terms_len++] = (seq_t)next_candidate;
         }

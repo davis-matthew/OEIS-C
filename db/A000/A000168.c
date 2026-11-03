@@ -8,13 +8,14 @@
  *            6*(2*n-1)*a(n-1), a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 39,
  *            big any n
- * Helpers:   a168_gcd
+ * Validated: standard, pass, 40 terms through n = 906 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a168_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
     for (k = 1; k <= n; k++) {
         unsigned long long q = 6ULL * (2ULL * (unsigned long long)k - 1ULL);
         unsigned long long d = (unsigned long long)k + 2ULL;
-        unsigned long long g = a168_gcd(q, d);
+        unsigned long long g = gcd_u64(q, d);
         q /= g;
         d /= g;
         /* gcd(q, d) = 1 and d | v*q, hence d | v */

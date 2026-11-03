@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 2619, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_cmp, seq_to_base3
+ * Validated: standard, pass, 81 terms through n = 9343 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,28 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_cmp.h"
-#include "../utils/seq_to_base3.h"
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
+
+/* ---------- digit conversion for an arbitrary sequence number ---------- */
+static void seq_to_base3(seq_t n, uint8_t *digits, int *len)
+{
+    if (n == (seq_t)0) { *len = 1; digits[0] = 0; return; }
+    int l = 0;
+    while (n != (seq_t)0) {
+        digits[l++] = (uint8_t)(n % 3);
+        n /= 3;
+    }
+    *len = l;
+}
 
 typedef struct {
     uint8_t len;            /* number of base‑3 digits */
@@ -172,7 +193,7 @@ static void init(void)
     }
 
     /* initialise heap with pairs (i,i) */
-    _heap = (struct HeapNode*)malloc((_prime_cnt + 1) * sizeof(struct HeapNode));
+    _heap = mem_new(struct HeapNode, (_prime_cnt + 1));
     _heap_sz = _prime_cnt;
     for (size_t i = 0; i < _prime_cnt; ++i) {
         _heap[i+1].i = i;
@@ -195,7 +216,7 @@ seq_t a(idx_t n)
     if ((size_t)n > _cache_cap) {
         size_t new_cap = _cache_cap ? _cache_cap * 2 : 128;
         if (new_cap < (size_t)n) new_cap = n;
-        _cache = (seq_t*)realloc(_cache, new_cap * sizeof(seq_t));
+        _cache = mem_resize(seq_t, _cache, new_cap);
         _cache_cap = new_cap;
     }
 

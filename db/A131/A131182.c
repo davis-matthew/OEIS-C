@@ -10,6 +10,7 @@
  *            upwards antidiagonals (n decreasing, k increasing)
  * Range:     u8 n <= 22, u16 n <= 46, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

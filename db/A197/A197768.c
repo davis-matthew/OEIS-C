@@ -7,13 +7,15 @@
  * Formula:   a(n) = ceil((8*n + 1/n)^n) = ceil((8*n^2+1)^n / n^n)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 12,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 30 terms through n = 240 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
         return (seq_t)res;
     } else {
         /* For arbitrary‑precision builds, rely on the supplied big_pow. */
-        seq_t num = big_pow(C, n);
-        seq_t den = big_pow(NN, n);
+        seq_t num = ipow(C, n);
+        seq_t den = ipow(NN, n);
         seq_t res = (num + den - 1) / den;
         return res;
     }

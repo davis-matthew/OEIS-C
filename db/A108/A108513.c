@@ -6,9 +6,10 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) is the nth smallest integer of the form 2^i*5^j*7^k
  *            (i,j,k>=0)
- * Range:     u8 n <= 33, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 33, u16 n <= 174, u32 n <= 1099, u64 n <= 7705,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 74 terms through n = 9878 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         /* grow buffer if needed */
         if (size + 1 > cap) {
             size_t newcap = (cap == 0) ? 16 : cap << 1;
-            seq_t *tmp = (seq_t *)realloc(buf, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, buf, newcap);
             if (!tmp) abort();            /* allocation failed */
             buf = tmp;
             cap = newcap;

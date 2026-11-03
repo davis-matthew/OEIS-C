@@ -8,6 +8,7 @@
  * Formula:   a(n) = A173557(sigma(n)) = product_{p|sigma(n)} (p-1)
  * Range:     u8 n <= 16, u16 n <= 2601, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 111 terms through n = 9341 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
 #include <stddef.h>   /* for size_t */
 
 /* Helper functions ----------------------------------------------------------*/
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Function -----------------------------------------------------------------*/

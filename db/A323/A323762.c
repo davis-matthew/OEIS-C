@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 6625, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   add_exp
+ * Validated: standard, pass, 71 terms through n = 8928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,31 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/add_exp.h"
+#include "../utils/mem.h"
+
+/* helper: add a prime exponent to numerator or denominator */
+static inline void add_exp(uint64_t prime, uint64_t val,
+                          uint64_t *prime_list,
+                          uint64_t *num_exp, uint64_t *den_exp,
+                          size_t *pcount, bool is_num)
+{
+    for (size_t i = 0; i < *pcount; ++i) {
+        if (prime_list[i] == prime) {
+            if (is_num) num_exp[i] += val;
+            else        den_exp[i] += val;
+            return;
+        }
+    }
+    prime_list[*pcount] = prime;
+    if (is_num) {
+        num_exp[*pcount] = val;
+        den_exp[*pcount] = 0;
+    } else {
+        num_exp[*pcount] = 0;
+        den_exp[*pcount] = val;
+    }
+    (*pcount)++;
+}
 
 /* recursive divisor enumeration */
 static void dfs_rec(size_t idx, uint64_t tau_cur, uint64_t *curr_exp,
@@ -135,10 +160,10 @@ seq_t a(idx_t n)
         if (valid_m((uint64_t)last_checked)) {
             if (seq == NULL) {
                 seq_cap = 64;
-                seq = (seq_t *)malloc(sizeof(seq_t) * seq_cap);
+                seq = mem_new(seq_t, seq_cap);
             } else if ((size_t)seq_len >= seq_cap) {
                 seq_cap *= 2;
-                seq = (seq_t *)realloc(seq, sizeof(seq_t) * seq_cap);
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)last_checked;
         }

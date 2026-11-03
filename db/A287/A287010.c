@@ -7,8 +7,9 @@
  * Formula:   a(n) = ⌊∑_{i=1}^{r} log(p_i) / log(p_k)⌋, where r is the row
  *            containing the n‑th flattened term and k is the term’s position
  *            in that row (1‑based)
- * Range:     u8 n <= 946, u16 n <= 9525, u32 n <= 9525, u64 n <= 9525,
- *            u128 n <= 9525, big any n
+ * Range:     u8 n <= 946, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 9525 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

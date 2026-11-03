@@ -7,13 +7,30 @@
  * Formula:   a(n) = Sum_{k=0..n} k!*Fibonacci(k+1)*Stirling2(n,k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   stirling2_row
+ * Validated: standard, pass, 36 terms through n = 395 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/stirling2_row.h"
+#include "../utils/mem.h"
+
+static seq_t *stirling2_row(idx_t n) {
+    seq_t *prev = mem_new(seq_t, n + 1);
+    prev[0] = 1;
+    
+    for (idx_t i = 1; i <= n; i++) {
+        seq_t *curr = mem_new(seq_t, n + 1);
+        for (idx_t j = 1; j <= i; j++) {
+            curr[j] = (seq_t)j * prev[j] + prev[j - 1];
+        }
+        mem_free(prev);
+        prev = curr;
+    }
+    
+    return prev;
+}
 
 seq_t a(idx_t n) {
     seq_t *S = stirling2_row(n);
@@ -31,6 +48,6 @@ seq_t a(idx_t n) {
         fib_curr = fib_next;
     }
     
-    free(S);
+    mem_free(S);
     return result;
 }

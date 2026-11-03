@@ -8,12 +8,14 @@
  * Formula:   a(n) = \sum_{k=1}^{n} phi(\lfloor n/k\rfloor)
  * Range:     u8 n <= 78, u16 n <= 9718, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 81 terms through n = 9330 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
         idx_t v     = n / i;            /* floor(n/k) */
         idx_t last  = n / v;            /* last k giving this v */
         seq_t cnt   = (seq_t)(last - i + 1);
-        sum += calc_phi((seq_t)v) * cnt;
+        sum += totient_seq((seq_t)v) * cnt;
         i = last + 1;
     }
     return sum;

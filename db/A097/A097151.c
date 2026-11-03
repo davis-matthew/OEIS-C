@@ -12,7 +12,8 @@
  *            * * Algorithm: * 1. Maintain a static table `cum[k]` = to...
  * Range:     i8 n <= 112, i16 n <= 112, i32 n <= 112, i64 n <= 112,
  *            i128 n <= 112, big any n
- * Helpers:   balanced_digit_at, balanced_length
+ * Validated: partial, pass, 112 terms through n = 112 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,40 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/balanced_digit_at.h"
-#include "../utils/balanced_length.h"
+
+/* Helper: the `pos`‑th least significant digit (1‑based) of the balanced
+ * representation of `x`. */
+static inline seq_t balanced_digit_at(idx_t x, idx_t pos) {
+    if (x == 0)          /* only one digit, 0 */
+        return (pos == 1) ? (seq_t)0 : (seq_t)0;  /* pos always 1 here */
+
+    idx_t i = 0;
+    while (i < pos) {
+        int r = (int)(x % 10);
+        if (r > 4)
+            r -= 10;
+        x = (x - r) / 10;
+        i++;
+        if (i == pos)
+            return (seq_t)r;
+    }
+    return (seq_t)0;   /* unreachable but keeps compiler happy */
+}
+
+/* Helper: number of digits in the balanced representation of `x`. */
+static inline idx_t balanced_length(idx_t x) {
+    if (x == 0)
+        return 1;
+    idx_t len = 0;
+    while (x != 0) {
+        int r = (int)(x % 10);          /* 0 <= r <= 9   */
+        if (r > 4)
+            r -= 10;                    /* –5 … 4        */
+        len++;
+        x = (x - r) / 10;
+    }
+    return len;
+}
 
 /* Main sequence function.  Static state keeps the cumulative digit counts
  * between calls so that each `n` is answered in amortised O(1) time. */

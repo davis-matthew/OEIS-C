@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has14_base9
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,24 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has14_base9.h"
+
+/* test whether base‑9 representation of x contains an adjacent
+   1–4 or 4–1 pair */
+static bool has14_base9(seq_t x)
+{
+    if (x < (seq_t)9) return false;            /* fewer than two digits */
+    seq_t last = x % (seq_t)9;                 /* least significant digit */
+    x     /= (seq_t)9;
+    while (x > (seq_t)0) {
+        seq_t d = x % (seq_t)9;                /* next more significant digit */
+        if ((d == (seq_t)1 && last == (seq_t)4) ||
+            (d == (seq_t)4 && last == (seq_t)1))
+            return true;
+        last = d;
+        x    /= (seq_t)9;
+    }
+    return false;
+}
 
 /* external function required by the build */
 seq_t a(idx_t n)

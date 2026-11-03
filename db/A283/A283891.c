@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 9647, u32 n <= 9647, u64 n <= 9647,
- *            u128 n <= 9647, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1, u16 n <= 31430, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 57 terms through n = 9647 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* cache for computed values (1‑based).  index 0 is unused but kept for
    allocation simplicity. */
@@ -53,7 +55,7 @@ static void ensure_cache(idx_t n)
     /* grow the cache array if required */
     size_t new_cap = (size_t)n + 1;   /* index 0 reserved */
     if (new_cap > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* out of memory */
         cache = tmp;
         cache_cap = new_cap;

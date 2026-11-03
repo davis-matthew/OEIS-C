@@ -9,14 +9,43 @@
  *            three 3's. Sequence is enumerated in increasing order
  * Range:     u8 n <= 2, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   enum_len_rec
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/enum_len_rec.h"
+
+/*--- Recursive enumeration of all length-L strings with exactly 3 threes
+   (digits 1..4, no zero).  The strings are generated in lexicographic order,
+   which corresponds to numeric order in base 5.  When the target position
+   is reached the resulting value is stored in *result.  Returned value
+   is TRUE when found. */
+static bool enum_len_rec(idx_t depth, idx_t len, idx_t remaining_3,
+                         seq_t value, idx_t target, idx_t *seen, seq_t *result) {
+    if (*seen > target) return true;   /* already passed target */
+    if (depth == len) {
+        if (remaining_3 == 0) {
+            if (*seen == target) {
+                *result = value;
+                return true;
+            }
+            ++(*seen);
+        }
+        return false;
+    }
+    /* iterate over digits 1..4 in ascending order */
+    for (int d = 1; d <= 4; ++d) {
+        if (d == 3 && remaining_3 == 0) continue;
+        if (enum_len_rec(depth + 1, len, remaining_3 - (d == 3),
+                         value * 5 + d, target, seen, result)) {
+            return true;
+        }
+    }
+    return false;
+}
 
 /*--- Helper: binomial coefficient C(n,k) for small n (idx_t is unsigned) */
 static idx_t comb(idx_t n, idx_t k) {

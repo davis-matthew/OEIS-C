@@ -13,7 +13,8 @@
  *            14, with a(1)=7, a(2)=49, a(3)=336, a(4)=2279, * a...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache storage (1‑based) */
 static seq_t *cache = NULL;
@@ -51,7 +53,7 @@ static void ensure_cache_alloc(idx_t n)
     if (cache_alloc > (size_t)n) return;
 
     size_t new_alloc = (size_t)(n + 1);           /* include index 0 */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_alloc);
     if (!new_cache) {
         /* Allocation failed: terminate the program (no alternative). */
         exit(EXIT_FAILURE);
@@ -59,8 +61,7 @@ static void ensure_cache_alloc(idx_t n)
     cache = new_cache;
     /* Zero‑initialize the new part of the array. */
     if (cache_alloc < new_alloc) {
-        memset((void *)(cache + cache_alloc), 0,
-               (new_alloc - cache_alloc) * sizeof(seq_t));
+        mem_set((cache + cache_alloc), 0, (new_alloc - cache_alloc) * sizeof(seq_t));
     }
     cache_alloc = new_alloc;
 }

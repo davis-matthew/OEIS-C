@@ -10,7 +10,8 @@
  *            d(d) * S(k,d) S(m,k) are Stirling numbers of the second kind
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 19,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static idx_t cap      = 0;      /* maximum index currently computed          */
 static seq_t *g_arr   = NULL;   /* g_k   for k <= cap                       */
@@ -35,11 +37,11 @@ static void ensure_cap(idx_t n)
     idx_t new_cap = n;
 
     /* resize arrays */
-    g_arr   = (seq_t*)realloc(g_arr,   (new_cap + 1) * sizeof(seq_t));
-    a_arr   = (seq_t*)realloc(a_arr,   (new_cap + 1) * sizeof(seq_t));
-    fac_arr = (seq_t*)realloc(fac_arr, (new_cap + 1) * sizeof(seq_t));
+    g_arr   = mem_resize(seq_t, g_arr, (new_cap + 1));
+    a_arr   = mem_resize(seq_t, a_arr, (new_cap + 1));
+    fac_arr = mem_resize(seq_t, fac_arr, (new_cap + 1));
     divcnt  = (idx_t*)realloc(divcnt,  (new_cap + 1) * sizeof(idx_t));
-    S_arr   = (seq_t*)realloc(S_arr,   (new_cap + 1) * sizeof(seq_t));
+    S_arr   = mem_resize(seq_t, S_arr, (new_cap + 1));
 
     /* initialize newly allocated part */
     if (old_cap == 0) {

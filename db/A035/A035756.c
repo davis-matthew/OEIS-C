@@ -8,14 +8,26 @@
  *            Σ_{k=0}^{min(19,2n)} C(19,k) * C(18+2n-k,18)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 5, u64 n <= 21, u128 n <= 251,
  *            big any n
- * Helpers:   binom_large18
+ * Validated: standard, pass, 35 terms through n = 9757 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binom_large18.h"
+
+/* compute binom(N,18) where N >= 18, N is given as seq_t */
+static seq_t binom_large18(seq_t N)
+{
+    seq_t res = 1;
+    /* N - 18 + i = N - (18 - i) */
+    for (int i = 1; i <= 18; ++i) {
+        seq_t term = N - (seq_t)(18 - i);
+        res = (res * term) / (seq_t)i;
+    }
+    return res;
+}
 
 static const unsigned small_binom19[20] = {
     1, 19, 171, 969, 3876, 11628, 27132, 50388, 75582, 92378,

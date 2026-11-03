@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 151, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_palindrome
+ * Validated: standard, pass, 61 terms through n = 9152 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/build_palindrome.h"
+#include "../utils/mem.h"
+
+/* ---------- Palindrome construction ---------- */
+static uint64_t build_palindrome(uint32_t half, uint32_t len)
+{
+    uint64_t pal = half;
+    uint32_t r = (len & 1) ? half / 10 : half;
+    while (r > 0) {
+        pal = pal * 10 + (r % 10);
+        r /= 10;
+    }
+    return pal;
+}
 
 /* Powers of ten up to 10^19 – enough for the required palindrome lengths. */
 static const uint64_t pow10[20] = {
@@ -94,7 +107,7 @@ static void cache_append(seq_t val)
 {
     if (pal_abund_len == pal_abund_cap) {
         size_t new_cap = (pal_abund_cap == 0) ? 16 : pal_abund_cap << 1;
-        seq_t *tmp = (seq_t *)realloc(pal_abund_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pal_abund_cache, new_cap);
         if (!tmp) return;               /* allocation failure – unlikely */
         pal_abund_cache = tmp;
         pal_abund_cap = new_cap;

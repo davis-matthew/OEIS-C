@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 58, u32 n <= 156, u64 n <= 466,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 942 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* cache of computed values */
 static bool *computed = NULL;         /* flags for whether cache[i] is valid */
@@ -33,10 +35,10 @@ static void ensure_cache_capacity(idx_t n)
         return;
     size_t new_cap = (size_t)n + 1;
     if (cache == NULL) {
-        cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
         computed = (bool *)malloc(new_cap * sizeof(bool));
     } else {
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         computed = (bool *)realloc(computed, new_cap * sizeof(bool));
     }
     for (size_t i = cache_cap; i < new_cap; ++i)
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* Allocate DP array of size n+1 */
-    seq_t *dp = (seq_t *)malloc(((size_t)n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, ((size_t)n + 1));
     if (dp == NULL)   /* allocation failure: return 0 */
         return (seq_t)0;
 
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
 
     cache[n] = result;
     computed[n] = true;

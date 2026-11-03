@@ -7,18 +7,21 @@
  * Formula:   a(n) = omega(n) * 2^(omega(n)-1)
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   count_distinct_primes, pow2
+ * Validated: standard, pass, 101 terms through n = 4832 (2026-11-01)
+ * Helpers:   omega, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/omega.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
     /* Count distinct prime factors of n (omega(n)) */
-    int w_int = count_distinct_primes((uint64_t)n);
+    int w_int = omega((uint64_t)n);
     if (w_int == 0)
         return 0;    /* Handling n = 1 */
 

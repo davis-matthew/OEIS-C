@@ -7,14 +7,23 @@
  * Formula:   a(n) = ∏_{k=2..n} (k^2 - k)^k
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"   /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/seq_mul.h"   /* seq_t seq_mul(seq_t a, seq_t b); */
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -25,13 +34,13 @@ seq_t a(idx_t n)
     /* --------- ensure cache can hold index n -------------------- */
     if (cache_len <= n) {
         idx_t new_len = n + 1;                         /* indices 0..n */
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) return (seq_t)0;                /* allocation failure */
         /* copy existing data */
         for (idx_t i = 0; i < cache_len; ++i) new_cache[i] = cache[i];
         /* initialise new slots to zero */
         for (idx_t i = cache_len; i < new_len; ++i) new_cache[i] = (seq_t)0;
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
     }
@@ -51,7 +60,7 @@ seq_t a(idx_t n)
         if (cache[i] != (seq_t)0) continue;           /* already computed */
         seq_t prev   = cache[i-1];
         seq_t base   = (seq_t)i * (seq_t)(i-1);        /* k*(k-1) */
-        seq_t term   = big_pow(base, (seq_t)i);         /* (k^2-k)^k */
+        seq_t term   = ipow(base, (seq_t)i);         /* (k^2-k)^k */
         cache[i] = seq_mul(prev, term);                /* a(i) = a(i-1)*term */
     }
 

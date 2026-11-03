@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 19,
  *            big any n
- * Helpers:   make_repunits
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/make_repunits.h"
+
+/* Build a repunit with a given number of digits.  */
+static seq_t make_repunits(idx_t len)
+{
+    seq_t rep = 0;
+    for (idx_t i = 0; i < len; ++i) {
+        rep = rep * 10 + (seq_t)1;
+    }
+    return rep;
+}
 
 /* List of known repunit primes' lengths (up to >10 000).  */
 static const idx_t repunit_prime_lengths[] = {

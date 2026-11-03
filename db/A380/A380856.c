@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, look, base
  * Formula:   not stated
- * Range:     u8 n <= 255, u16 n <= 9345, u32 n <= 9345, u64 n <= 9345,
- *            u128 n <= 9345, big any n
- * Helpers:   preorder_rec
+ * Range:     u8 n <= 255, u16 n <= 32768, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 85 terms through n = 9345 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,14 @@
    only possible in the last row), then read the bits in pre‑order
    traversal.  The resulting bits form the output binary number. */
 #include <stdint.h>
-#include "../utils/preorder_rec.h"
+
+static void preorder_rec(idx_t i, int L, idx_t n, seq_t *res) {
+    if (i >= (idx_t)L) return;               /* node does not exist */
+    seq_t bit = (seq_t)((n >> (L - 1 - i)) & 1);
+    *res = (*res << 1) | bit;                /* append bit to result */
+    preorder_rec(2 * i + 1, L, n, res);      /* left child   */
+    preorder_rec(2 * i + 2, L, n, res);      /* right child  */
+}
 
 static int bitlen(idx_t n) {
     /* Number of bits needed to represent n (at least 1 for n==0) */

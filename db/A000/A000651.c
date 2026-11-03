@@ -11,15 +11,32 @@
  *            is built from the two before it: D_s[k] =...
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 41,
  *            big any n
- * Helpers:   a306_alloc0, a306_grow
+ * Validated: standard, pass, 38 terms through n = 537 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a306_alloc0.h"
-#include "../utils/a306_grow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *a306_alloc0(idx_t len)
+{
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *a306_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = a306_alloc0(newlen);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *A = NULL;   /* A[0..m] computed */
 static seq_t *Dc = NULL;  /* D_m */

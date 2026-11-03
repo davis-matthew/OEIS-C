@@ -8,7 +8,8 @@
  *            prime
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cand_is_prime
+ * Validated: standard, pass, 121 terms through n = 9632 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/cand_is_prime.h"
+
+/* Internal helper: test whether a candidate is prime using the list of
+   already‑found primes. */
+static bool cand_is_prime(uint64_t cand, uint64_t *primes, size_t count)
+{
+    for (size_t i = 0; i < count; ++i) {
+        uint64_t p = primes[i];
+        if (p * p > cand)
+            break;
+        if (cand % p == 0)
+            return false;
+    }
+    return true;
+}
 
 /* Global state for prime generation.  Primes themselves are stored as
    uint64_t, which is large enough for the values we need.  The array

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;          /* array of pointers to each row */
 static size_t  tri_cap   = 0;            /* allocated capacity for triangle */
@@ -52,7 +54,7 @@ static void grow_sums(size_t len)
     if (len <= sum_cap) return;
     size_t new_cap = sum_cap ? sum_cap << 1 : 4;
     while (new_cap < len) new_cap <<= 1;
-    row_sums = (seq_t*)realloc(row_sums, new_cap * sizeof(seq_t));
+    row_sums = mem_resize(seq_t, row_sums, new_cap);
     sum_cap = new_cap;
 }
 
@@ -66,13 +68,13 @@ static void ensure_rows(idx_t idx)
         grow_sums(i + 1);
 
         if (i == 0) {                 /* first row */
-            triangle[0] = (seq_t*)malloc(sizeof(seq_t));
+            triangle[0] = mem_new(seq_t, 1);
             triangle[0][0] = (seq_t)1;
             row_sums[0] = (seq_t)1;
         } else {
             size_t prev_len = i;                     /* previous row length = i */
             seq_t *prev   = triangle[i - 1];
-            seq_t *curr   = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+            seq_t *curr   = mem_new(seq_t, (i + 1));
             seq_t row_sum = (seq_t)0;
 
             /* m = 0 */

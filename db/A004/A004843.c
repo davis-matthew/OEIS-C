@@ -8,14 +8,19 @@
  *            a bound, sort, dedupe; a(n) is the n-th smallest
  * Range:     u8 n <= 13, u16 n <= 176, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   A004843_cmp
+ * Validated: standard, pass, 65 terms through n = 9976 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/A004843_cmp.h"
+
+static int A004843_cmp(const void *pa, const void *pb) {
+    uint64_t x = *(const uint64_t *)pa, y = *(const uint64_t *)pb;
+    return (x < y) ? -1 : (x > y ? 1 : 0);
+}
 
 static uint64_t *A004843_tab = NULL;
 static size_t A004843_len = 0;

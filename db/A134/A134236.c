@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   count_dp
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,37 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/count_dp.h"
+
+/* Recursive DP that counts completions from state (r0,r1,r2).
+   k is the total count of each digit in the whole string. */
+static idx_t count_dp(int r0, int r1, int r2, int k, idx_t *dp) {
+    int stride = k + 1;
+    int idx = r0 * stride * stride + r1 * stride + r2;
+    if (dp[idx] != (idx_t)-1) return dp[idx];
+    if (r0 == 0 && r1 == 0 && r2 == 0) return dp[idx] = 1;
+
+    int used0 = k - r0;
+    int used1 = k - r1;
+    int used2 = k - r2;
+    idx_t sum = 0;
+
+    if (r0 > 0) {
+        int n0 = used0 + 1, n1 = used1, n2 = used2;
+        if (n2 >= n1 && n1 >= n0)
+            sum += count_dp(r0 - 1, r1, r2, k, dp);
+    }
+    if (r1 > 0) {
+        int n0 = used0, n1 = used1 + 1, n2 = used2;
+        if (n2 >= n1 && n1 >= n0)
+            sum += count_dp(r0, r1 - 1, r2, k, dp);
+    }
+    if (r2 > 0) {
+        int n0 = used0, n1 = used1, n2 = used2 + 1;
+        if (n2 >= n1 && n1 >= n0)
+            sum += count_dp(r0, r1, r2 - 1, k, dp);
+    }
+    return dp[idx] = sum;
+}
 
 /* a(n) returns the n-th term of sequence A134236 (1‑based). */
 seq_t a(idx_t n) {

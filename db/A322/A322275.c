@@ -11,9 +11,10 @@
  *            b(n) is the n‐th integer coprime to 120120 * The sequence is
  *            periodic with period φ(120120)=23040. * This implementation
  *            precomputes b(n) and evaluates a(n) once per residue * an...
- * Range:     u8 n <= 49, u16 n <= 9658, u32 n <= 9658, u64 n <= 9658,
- *            u128 n <= 9658, big any n
- * Helpers:   gcd_u64, modpow_int
+ * Range:     u8 n <= 49, u16 n <= 12569, u32 n <= 23040, u64 n <= 23040,
+ *            u128 n <= 23040, big any n
+ * Validated: full, pass, 23040 terms through n = 23040 (2026-11-03)
+ * Helpers:   gcd_u64, mem, powmod_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd_u64.h"
-#include "../utils/modpow_int.h"
+#include "../utils/powmod_i32.h"
+#include "../utils/mem.h"
 
 /* gcd for 64 bit unsigned integers */
 
@@ -44,7 +46,7 @@ static void init_primes(void)
     /* count primes >13 */
     size_t cnt = 0;
     for (int i = 17; i <= LIM; ++i) if (is_prime[i]) ++cnt;
-    prime_list = (seq_t *)malloc(cnt * sizeof(seq_t));
+    prime_list = mem_new(seq_t, cnt);
     if (!prime_list) exit(EXIT_FAILURE);
     size_t idx = 0;
     for (int i = 17; i <= LIM; ++i) if (is_prime[i]) prime_list[idx++] = (seq_t)i;
@@ -64,7 +66,7 @@ static void init_legendre_res(void)
         for (int r = 0; r < q; ++r) {
             if (r == 0) legendre_res[idx][r] = 0;
             else {
-                int val = modpow_int(r, (q - 1) / 2, q);
+                int val = powmod_i32(r, (q - 1) / 2, q);
                 legendre_res[idx][r] = (val == 1) ? 1 : -1;
             }
         }
@@ -85,8 +87,8 @@ static void init_sequence(void)
     for (uint64_t i = 1; i <= MOD; ++i)
         if (gcd_u64(i, MOD) == 1) ++cnt;
     period = cnt; /* φ(120120) = 23040 */
-    b_list = (seq_t *)malloc(period * sizeof(seq_t));
-    f_list = (seq_t *)malloc(period * sizeof(seq_t));
+    b_list = mem_new(seq_t, period);
+    f_list = mem_new(seq_t, period);
     if (!b_list || !f_list) exit(EXIT_FAILURE);
 
     size_t pos = 0;

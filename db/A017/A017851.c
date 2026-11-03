@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 60, u32 n <= 110, u64 n <= 212,
  *            u128 n <= 414, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 878 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* static data attached to the function                                 */
@@ -39,13 +41,13 @@ static void ensure_capacity(idx_t n) {
     size_t wanted = (size_t)n + 1;         /* need indices 0..n inclusive   */
     if (cap >= wanted) return;            /* already big enough             */
 
-    seq_t *new_cache = (seq_t *)realloc(cache, wanted * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, wanted);
     if (!new_cache)                       /* allocation failed – leave old   */
         return;
 
     /* initialise newly added slots to zero */
     if (cap < wanted)
-        memset((void *)(new_cache + cap), 0, (wanted - cap) * sizeof(seq_t));
+        mem_set((new_cache + cap), 0, (wanted - cap) * sizeof(seq_t));
 
     cache = new_cache;
     cap   = wanted;

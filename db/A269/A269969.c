@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 686, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>   /* uint64_t */
 #include <stdlib.h>   /* malloc, calloc, realloc */
 #include <stdbool.h>  /* bool */
+#include "../utils/mem.h"
 
 typedef seq_t seq_t;
 typedef idx_t idx_t;
@@ -50,7 +52,7 @@ static void ht_init(void)
     if (ht_tbl) return;
     ht_cap  = 1U << 20;             /* 1,048,576 entries – ample for n≈10 000 */
     ht_mask = ht_cap - 1;
-    ht_tbl = (ht_entry_t *)calloc(ht_cap, sizeof(ht_entry_t));
+    ht_tbl = mem_new(ht_entry_t, ht_cap);
 }
 
 /* Simple hash based on lower 64‑bits of abs value plus sign */

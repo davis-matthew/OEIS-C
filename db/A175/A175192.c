@@ -10,8 +10,9 @@
  *            values that appear. For each call n ≥ 1 it guarantees that σ(m)
  *            is computed for all m up to n‑1, then returns whether n has been
  *            seen
- * Range:     u8 n <= 517, u16 n <= 9976, u32 n <= 9976, u64 n <= 9976,
- *            u128 n <= 9976, big any n
+ * Range:     u8 n <= 517, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9976 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

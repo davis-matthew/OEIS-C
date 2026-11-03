@@ -8,7 +8,8 @@
  * Formula:   a(n) = #{ k : 0 ≤ k < n and {k*sqrt(5)} < {n*sqrt(5)} }
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 128‑bit integer square root (binary search) */
 static __uint128_t isqrt128(__uint128_t x)
@@ -70,7 +72,7 @@ static int cmp_idx(const void *p1, const void *p2)
 /* Initialisation – executed once */
 static void init(void)
 {
-    cache   = (seq_t*)   malloc((PRE_MAX_N + 1) * sizeof(seq_t));
+    cache   = mem_new(seq_t, (PRE_MAX_N + 1));
     val     = (uint64_t*)malloc((PRE_MAX_N + 1) * sizeof(uint64_t));
     rank_arr= (idx_t*)   malloc((PRE_MAX_N + 1) * sizeof(idx_t));
     bit     = (int*)     calloc(PRE_MAX_N + 2, sizeof(int));

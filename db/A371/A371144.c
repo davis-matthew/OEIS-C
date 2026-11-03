@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 908, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digits, modinv64
+ * Validated: standard, pass, 86 terms through n = 9606 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,25 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/digits.h"
-#include "../utils/modinv64.h"
+#include "../utils/num_digits_idx.h"
+
+/* Modular inverse of a modulo m (gcd(a,m)=1) using 128‑bit intermediate */
+static inline uint64_t modinv64(uint64_t a, uint64_t m) {
+    __int128 t = 0, newt = 1;
+    __int128 r = m, newr = a;
+    while (newr != 0) {
+        uint64_t q = r / newr;
+        __int128 tmp = newt;
+        newt = t - (__int128)q * newt;
+        t = tmp;
+        tmp = newr;
+        newr = r - (__int128)q * newr;
+        r = tmp;
+    }
+    if (r > 1) return 0;            /* no inverse */
+    if (t < 0) t += m;
+    return (uint64_t)t;
+}
 
 /* 10^e for 0 ≤ e ≤ 20 (fits in uint64_t) */
 static inline uint64_t pow10_u64(unsigned int e) {
@@ -42,12 +60,12 @@ seq_t a(idx_t n)
 {
     uint64_t n64 = (uint64_t)n;
     uint64_t n1  = n64 + 1ULL;
-    int len_n1 = digits(n1);
+    int len_n1 = num_digits_idx(n1);
 
     uint64_t power   = pow10_u64((unsigned int)len_n1);        /* 10^digits(n+1) */
     uint64_t B       = n64 * power + n1;                      /* concat(n, n+1) */
-    uint64_t amax    = n1 * pow10_u64((unsigned int)digits(n64)) + n64;  /* concat(n+1, n) */
-    int max_k = (int)digits(amax);                            /* maximal digits of a */
+    uint64_t amax    = n1 * pow10_u64((unsigned int)num_digits_idx(n64)) + n64;  /* concat(n+1, n) */
+    int max_k = (int)num_digits_idx(amax);                            /* maximal digits of a */
 
     uint64_t best = 0;
     bool found = false;

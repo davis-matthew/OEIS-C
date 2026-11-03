@@ -7,15 +7,17 @@
  * Formula:   a(n) = 1 + sum over all unordered sets {d1,…,dk} (k ≥ 2) of
  *            distinct factors d_i ≥ 2 with product n, of (k! × ∏ a(d_i))
  *            (recurrence)
- * Range:     u8 n <= 23, u16 n <= 11, u32 n <= 5, u64 n <= 80, u128 n <= 80,
+ * Range:     u8 n <= 71, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* maximum number of distinct factors needed for n ≤ 10000 (safe upper bound) */
 #define MAX_K 15
@@ -67,8 +69,9 @@ seq_t a(idx_t n)
         idx_t new_size = n + 1;
         seq_t *new_cache = NULL;
 
-        new_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        new_cache = mem_resize(seq_t, a_cache, new_size);
         if (!new_cache) return 0;   /* allocation failed: return 0 */
+        a_cache = new_cache;        /* dfs_factors reads a_cache (it read the old, freed array) */
 
         /* compute values for new indices */
         for (idx_t i = a_cache_size; i < new_size; ++i) {

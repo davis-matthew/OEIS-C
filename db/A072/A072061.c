@@ -11,13 +11,15 @@
  *            cache of computed terms
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Ensure that the used array can hold index 'v'.  It grows
    geometrically when needed. */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* --- Initialization on first call --- */
     if (seq_len == 0) {
         seq_len = 1;
-        seq = (seq_t *)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         if (!seq) abort();
         seq[0] = (seq_t)1;          /* a(1) = 1 */
 
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
             }
 
             /* Append the value to the cache */
-            seq = (seq_t *)realloc(seq, (seq_len + 1) * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, (seq_len + 1));
             if (!seq) abort();
             seq[seq_len] = val;
             ++seq_len;

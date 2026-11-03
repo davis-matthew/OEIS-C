@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of k with 0 ≤ k < n such that {k·e} < {n·e}
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 6, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Scaling constants for a rational approximation of e (no floating‑point). */
 #define SCALE_E 1000000000000000000ULL          /* 1e18  */
@@ -61,24 +63,24 @@ static void init_cache(size_t limit)
         return;                       /* already large enough */
 
     /* free previous cache */
-    free(a_cache);
+    mem_free(a_cache);
 
     /* allocate new arrays for computation */
-    a_cache = (seq_t *)malloc(limit * sizeof(seq_t));
+    a_cache = mem_new(seq_t, limit);
     if (!a_cache)
         return;                       /* allocation failed */
 
-    seq_t *rem = (seq_t *)malloc(limit * sizeof(seq_t));
+    seq_t *rem = mem_new(seq_t, limit);
     if (!rem) {
-        free(a_cache);
+        mem_free(a_cache);
         a_cache = NULL;
         return;
     }
 
     size_t *idx_arr = (size_t *)malloc(limit * sizeof(size_t));
     if (!idx_arr) {
-        free(rem);
-        free(a_cache);
+        mem_free(rem);
+        mem_free(a_cache);
         a_cache = NULL;
         return;
     }
@@ -97,11 +99,11 @@ static void init_cache(size_t limit)
     rem_global = NULL;        /* no longer needed after sort */
 
     /* Fenwick tree over indices for counting processed elements */
-    seq_t *bit = (seq_t *)calloc(limit + 1, sizeof(seq_t));
+    seq_t *bit = mem_new(seq_t, limit + 1);
     if (!bit) {
         free(idx_arr);
-        free(rem);
-        free(a_cache);
+        mem_free(rem);
+        mem_free(a_cache);
         a_cache = NULL;
         return;
     }
@@ -117,9 +119,9 @@ static void init_cache(size_t limit)
     }
 
     /* free temporary arrays */
-    free(bit);
+    mem_free(bit);
     free(idx_arr);
-    free(rem);
+    mem_free(rem);
 
     cache_limit = limit;
 }

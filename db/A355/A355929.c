@@ -8,17 +8,34 @@
  * Formula:   a(n) = squarefree_part(sigma(n)) - squarefree_part(n) where
  *            squarefree_part(x) = x divided by the largest square dividing x
  *            (i.e. product of the primes of x to odd exponents)
- * Range:     i8 n <= 59, i16 n <= 9645, i32 n <= 9645, i64 n <= 9645,
- *            i128 n <= 9645, big any n
- * Helpers:   factor_u64, sigma_of
+ * Range:     i8 n <= 59, i16 n <= 11519, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 92 terms through n = 9645 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/sigma_of.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static seq_t squarefree_part_uint64(uint64_t n)
 {

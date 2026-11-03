@@ -7,14 +7,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n is odd and has an even number of distinct prime
  *            factors, otherwise 0
- * Range:     u8 n <= 9906, u16 n <= 9906, u32 n <= 9906, u64 n <= 9906,
- *            u128 n <= 9906, big any n
- * Helpers:   count_distinct_primes
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 137 terms through n = 9906 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_distinct_primes.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/omega.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
     if ((n & 1) == 0) return 0;
 
     /* count the distinct prime factors of n */
-    int distinct = count_distinct_primes((uint64_t)n);
+    int distinct = omega((uint64_t)n);
 
     /* return 1 if the count is even, else 0 */
     return (distinct % 2 == 0) ? 1 : 0;

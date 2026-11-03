@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3942, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9820 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: simple sieve up to 'limit'.
    The caller must free the returned array. */
@@ -109,7 +111,7 @@ static void rebuild_tables(idx_t new_limit)
     for (idx_t v = 2; v <= new_limit; ++v)
         if (new_rep[(size_t)v] == 2) ++new_seq_len;
 
-    seq_t *new_seq = (seq_t *)malloc(new_seq_len * sizeof(seq_t));
+    seq_t *new_seq = mem_new(seq_t, new_seq_len);
     if (!new_seq) {
         free(pr);
         free(new_rep);
@@ -122,7 +124,7 @@ static void rebuild_tables(idx_t new_limit)
     /* Replace global tables */
     free(prime_cache);
     if (rep_cache) free(rep_cache);
-    free(seq_cache);
+    mem_free(seq_cache);
 
     prime_cache   = pr;
     prime_cache_cnt = pc;

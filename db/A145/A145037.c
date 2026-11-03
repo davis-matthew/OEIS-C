@@ -8,8 +8,9 @@
  * Formula:   a(n) = Sum_{i=1..k} (2*b[i] - 1) where b[i] are the bits of n (0
  *            or 1) and k is the number of bits in the binary expansion of n.
  *            For n = 0 this sum is empty and a(0) = 0
- * Range:     i8 n <= 9721, i16 n <= 9721, i32 n <= 9721, i64 n <= 9721,
- *            i128 n <= 9721, big any n
+ * Range:     i8 n <= 16384, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 107 terms through n = 9721 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

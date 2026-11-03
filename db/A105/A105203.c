@@ -10,14 +10,29 @@
  *            The word can be produced iteratively; to get a single term we
  *            recursively trace the preimage symbol. If the position in the
  *            current expansion is 0 or 2 the symbol equals t...
- * Range:     u8 n <= 9503, u16 n <= 9503, u32 n <= 9503, u64 n <= 9503,
- *            u128 n <= 9503, big any n
- * Helpers:   a_morph
+ * Range:     u8 n <= 19682, u16 n <= 19682, u32 n <= 19682, u64 n <= 19682,
+ *            u128 n <= 19682, big any n
+ * Validated: standard, pass, 121 terms through n = 9503 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a_morph.h"
+static seq_t a_morph(idx_t n) {
+    if (n == 0)
+        return (seq_t)1;          /* base symbol */
+
+    idx_t parent = n / 3;
+    idx_t r = n % 3;
+    seq_t parent_sym = a_morph(parent);
+
+    if (r == 0 || r == 2)
+        return parent_sym;        /* same as parent */
+
+    /* r == 1 : middle symbol in the expansion */
+    /* cycle: 1 → 2 → 3 → 1, which can be written as (s % 3) + 1 */
+    return (seq_t)((parent_sym % 3) + 1);
+}
 
 seq_t a(idx_t n) {
     return a_morph(n);

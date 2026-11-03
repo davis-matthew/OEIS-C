@@ -12,7 +12,8 @@
  *            imprimitive). The function precomputes the sequence...
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   gcd64
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 static bool *prim = NULL;
 static bool *impr = NULL;
@@ -46,7 +48,7 @@ static void precompute_sequence(void) {
             uint64_t val = x * x + x * y + 2 * y * y;
             if (val > B) break;
             if (val == 0) continue;     /* skip 0 */
-            uint64_t g = gcd64(x, y);
+            uint64_t g = gcd_u64(x, y);
             if (g == 0) continue;       /* should not happen */
             if (g == 1)
                 prim[val] = 1;
@@ -63,7 +65,7 @@ static void precompute_sequence(void) {
         if (prim[i] ^ impr[i]) {          /* exactly one type of representation */
             if (terms_len == cap) {
                 cap = (cap == 0) ? 1024 : cap * 2;
-                seq_t *tmp = (seq_t*)realloc(terms, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, cap);
                 if (!tmp) exit(1);
                 terms = tmp;
             }

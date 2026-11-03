@@ -8,12 +8,14 @@
  * Formula:   a(0) = 1, a(n) = a(n-1) * (length of binary representation of n)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
 
     /* Ensure cache[0]=1 is initialized */
     if (cache_len == 0) {
-        cache = (seq_t*)realloc(cache, sizeof(seq_t) * 1);
+        cache = mem_resize(seq_t, cache, 1);
         cache[0] = (seq_t)1;
         cache_len = 1;
     }
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* Extend cache to size n+1 */
-    seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * (n + 1));
+    seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
     if (!tmp) {
         /* allocation failure: in a real build, handle error appropriately */
         return (seq_t)0;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* helper: primality test by trial division using already-found primes */
 static bool is_prime_candidate(uint64_t x, const uint64_t *primes, size_t prime_cnt)
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     /* grow a_cache if needed */
     if (a_cache == NULL) {
         a_cap = INIT_CAP;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
     }
 
     /* grow primes array if needed */
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
                 /* store the first prime of the quintet */
                 if (a_count >= a_cap) {
                     a_cap *= GROW_FACTOR;
-                    a_cache = (seq_t *)realloc(a_cache, a_cap * sizeof(seq_t));
+                    a_cache = mem_resize(seq_t, a_cache, a_cap);
                 }
                 a_cache[a_count++] = (seq_t)primes[prime_cnt-5];
             }

@@ -13,7 +13,8 @@
  *            ≤...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache for computed terms */
 static seq_t *cache   = NULL;   /* pointer to array of seq_t */
@@ -33,11 +35,11 @@ static void ensure_capacity(size_t needed)
     if (cache_cap >= needed) return;
     size_t newcap = cache_cap > 0 ? cache_cap : 16;
     while (newcap < needed) newcap <<= 1;
-    seq_t *newbuf = (seq_t*)malloc(newcap * sizeof(seq_t));
+    seq_t *newbuf = mem_new(seq_t, newcap);
     if (!newbuf) { abort(); }
     if (cache) {
         for (size_t i = 0; i < cache_len; ++i) newbuf[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = newbuf;
     cache_cap = newcap;

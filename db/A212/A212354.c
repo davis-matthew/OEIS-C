@@ -10,7 +10,8 @@
  *            (mod p) where p is the nth prime ≡ 1 (mod 4)
  * Range:     u8 n <= 24, u16 n <= 3315, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 70 terms through n = 9540 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Modular multiplication that works for seq_t up to 64 bits.  If the
@@ -63,7 +66,7 @@ static void ensure_primes_capacity(size_t need)
     if (primes_cap >= need) return;
     size_t new_cap = primes_cap ? primes_cap * 2 : 8;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(primes_1mod4, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, primes_1mod4, new_cap);
     if (!tmp) abort();
     primes_1mod4 = tmp;
     primes_cap   = new_cap;
@@ -129,7 +132,7 @@ static seq_t primitive_root(seq_t p)
         bool ok = true;
         for (size_t i = 0; i < cf && ok; ++i) {
             seq_t exp = (p - 1) / factors[i];
-            seq_t r   = mod_pow(g, (uint64_t)exp, p);
+            seq_t r   = powmod(g, (uint64_t)exp, p);
             if (r == 1) ok = false;
         }
         if (ok) return g;
@@ -152,7 +155,7 @@ seq_t a(idx_t n)
 
     /* r = g^((p-1)/4) ≡ √‑1 (mod p) */
     seq_t exp_r = (p - 1) / 4;
-    seq_t r = mod_pow(g, (uint64_t)exp_r, p);
+    seq_t r = powmod(g, (uint64_t)exp_r, p);
 
     /* Compute the two roots: x = (-1 ± r)/2 (mod p) */
     seq_t diff1 = r - 1;                 /* r − 1  (0 ≤ diff1 < p) */

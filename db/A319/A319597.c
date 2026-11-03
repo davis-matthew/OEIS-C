@@ -8,7 +8,8 @@
  * Formula:   a(n) = p_n^2 + p_n - 1, where p_n is the n‑th prime
  * Range:     u8 n <= 6, u16 n <= 54, u32 n <= 6542, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, prime_limit_for_idx
+ * Validated: standard, pass, 59 terms through n = 9946 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,23 @@
 /* Compute the n‑th prime on demand, caching the sieve for speed. */
 
 #include <stdlib.h>
-#include "../utils/prime_limit_for_idx.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
+
+/* utility – estimate an upper bound for the n-th prime (Rosser–Schoenfeld) */
+static idx_t prime_limit_for_idx(idx_t n)
+{
+    if (n < 6)
+        return 12;                               /* prime(6)=13 */
+    double dn   = (double)n;
+    double lgn  = log(dn);
+    double lgln = log(lgn);
+    /* p_n < n(ln n + ln ln n) for n ≥ 6, add a safety margin */
+    double limit = dn * (lgn + lgln) + 3.0;
+    return (idx_t)limit;
+}
 
 seq_t a(idx_t n)
 {

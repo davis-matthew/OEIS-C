@@ -9,8 +9,9 @@
  * Keywords:  base, nonn
  * Formula:   a(n) = bitwise XNOR of n and its binary reverse. For n = 0, a(0)
  *            = 0
- * Range:     u8 n <= 256, u16 n <= 8706, u32 n <= 8706, u64 n <= 8706,
- *            u128 n <= 8706, big any n
+ * Range:     u8 n <= 256, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 93 terms through n = 8706 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

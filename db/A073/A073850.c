@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{i=0..n} first_digit_base4(i)
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   first_digit_base4
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,15 @@
 /* first_digit_base4 gives the most significant digit of i in base 4.
    It is 0 for i = 0 and 1–3 for positive integers. */
 #include <stdint.h>
-#include "../utils/first_digit_base4.h"
+
+static inline int first_digit_base4(idx_t x)
+{
+    if (x == 0)
+        return 0;
+    while (x >= 4)
+        x /= 4;
+    return (int)x;               /* x is now 1, 2, or 3 */
+}
 
 seq_t a(idx_t n)
 {

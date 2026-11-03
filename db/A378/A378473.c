@@ -8,6 +8,7 @@
  * Formula:   a(n) = (1/48)*(n^24 + 3*n^16 + 16*n^12 + 8*n^8 + 12*n^6 + 8*n^4)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 7, u128 n <= 13,
  *            big any n
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

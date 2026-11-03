@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 80 terms through n = 9529 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         idx_t m = next;
 
         /* Count all divisors of m */
-        idx_t d = divisor_count_u64((uint64_t)m);
+        idx_t d = num_divisors((uint64_t)m);
         idx_t proper = d - 1;      /* number of proper divisors */
 
         /* Check the defining property */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
             /* Ensure there is space in the cache */
             if (len == cap) {
                 size_t newcap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) abort();          /* allocation failure */
                 cache = tmp;
                 cap = newcap;

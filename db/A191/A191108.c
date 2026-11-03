@@ -9,7 +9,8 @@
  *            x→3x+2; a(1)=1
  * Range:     u8 n <= 9, u16 n <= 511, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <new>        /* new, delete */
 #include <algorithm>  /* std::copy, std::min */
 #endif
+#include "../utils/mem.h"
 
 /* Static state to memoize the sequence */
 static seq_t *sequence = NULL;          /* stored terms, ascending order   */
@@ -124,7 +126,7 @@ static bool seen_insert(seq_t val)
     if (already) return false;
     ensure_seen_cap(seen_len + 1);
     if (pos < seen_len)
-        memmove(&seen[pos + 1], &seen[pos], (seen_len - pos) * sizeof(seq_t));
+        mem_move(&seen[pos + 1], &seen[pos], (seen_len - pos) * sizeof(seq_t));
     seen[pos] = val;
     ++seen_len;
     return true;

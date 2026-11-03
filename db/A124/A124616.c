@@ -8,12 +8,14 @@
  *            * ((1 - x)^5 (1 - x^2)^4 (1 - x^3)^5 (1 - x^4)^3)
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache of the reciprocal of the denominator polynomial (1 - x)^5
  * (1 - x^2)^4 (1 - x^3)^5 (1 - x^4)^3  */
@@ -29,8 +31,8 @@ static void recompute(idx_t N)
     size_t size = (size_t)N + 1;
 
     /* Allocate or grow arrays */
-    den_inv = (seq_t *)realloc(den_inv, size * sizeof(seq_t));
-    coeff   = (seq_t *)realloc(coeff,   size * sizeof(seq_t));
+    den_inv = mem_resize(seq_t, den_inv, size);
+    coeff   = mem_resize(seq_t, coeff, size);
 
     /* ---- 1. Compute 1/D(x)  ---- */
     for (size_t i = 0; i < size; ++i)

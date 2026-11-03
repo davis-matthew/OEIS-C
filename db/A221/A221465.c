@@ -8,6 +8,7 @@
  * Formula:   a(n) = n^5 + 3*n^4 + n^3
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 83, u64 n <= 136, u128 n <= 136,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 135 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

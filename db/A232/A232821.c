@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   alloc_seq_array, big_pow, free_seq_array
+ * Validated: standard, pass, 35 terms through n = 99 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,9 +34,21 @@
  */
 
 #include <stddef.h>                 /* for size_t */
-#include "../utils/big_pow.h"        /* big_pow(seq_t base, seq_t exp)         */
-#include "../utils/alloc_seq_array.h" /* alloc_seq_array(size_t n)              */
-#include "../utils/free_seq_array.h"  /* free_seq_array(seq_t *p)               */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n) {
     /* Static cache */
@@ -87,7 +100,7 @@ seq_t a(idx_t n) {
 
         /* Compute new terms and cumulative sums */
         for (idx_t i = max_done + 1; i <= n; ++i) {
-            seq_t t = big_pow((seq_t)i, (seq_t)(i - 1));
+            seq_t t = ipow((seq_t)i, (seq_t)(i - 1));
             terms[i] = t;
             sums[i]  = sums[i - 1] + t;
         }

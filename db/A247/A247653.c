@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 128, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_cmp_desc
+ * Validated: standard, pass, 81 terms through n = 9316 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,18 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_cmp_desc.h"
+#include "../utils/mem.h"
+
+static int seq_cmp_desc(const void *a, const void *b)
+{
+    seq_t aa = *(const seq_t *)a;
+    seq_t bb = *(const seq_t *)b;
+    if (aa < bb) return 1;
+    if (aa > bb) return -1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -52,7 +63,7 @@ seq_t a(idx_t n)
     }
 
     if (nf > 1)
-        qsort(factors, nf, sizeof(seq_t), seq_cmp_desc); /* descending */
+        mem_qsort(factors, nf, sizeof(seq_t), seq_cmp_desc); /* descending */
 
     /* initialize t factors to 1 */
     seq_t parts[64] = {0};

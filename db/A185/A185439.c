@@ -7,7 +7,8 @@
  * Formula:   a(n) = A006567(n+1) – A006567(n)
  * Range:     u8 n <= 19, u16 n <= 4277, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, rev
+ * Validated: standard, pass, 103 terms through n = 9465 (2026-11-03)
+ * Helpers:   is_prime, mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,14 +18,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/rev.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
 
 static inline void grow_arr(seq_t **arr, size_t *cap, size_t need)
 {
     if (*cap < need) {
         size_t newcap = (*cap == 0) ? 4 : (*cap << 1);
         while (newcap < need) newcap <<= 1;
-        seq_t *nptr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        seq_t *nptr = mem_resize(seq_t, *arr, newcap);
         if (!nptr) exit(1);              /* allocation failed */
         *arr   = nptr;
         *cap   = newcap;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         }
 
         if (is_prime(curr)) {
-            idx_t r = rev(curr);
+            idx_t r = reverse_digits_idx(curr);
             if (r != curr && is_prime(r)) {
                 if (!first) {
                     /* gap between this emirp and the previous one */

@@ -13,12 +13,14 @@
  *            integer with r*(r+1)/2 <= n < (r+1)*(r+2)/2 a...
  * Range:     i8 n <= 29, i16 n <= 55, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,10 +46,10 @@ seq_t a(idx_t n)
 
     size_t need = (size_t)c + 1;                  /* columns 0..c inclusive */
     if (need > buf_cap) {
-        free(buf1);
-        free(buf2);
-        buf1 = (seq_t *)malloc(need * sizeof(seq_t));
-        buf2 = (seq_t *)malloc(need * sizeof(seq_t));
+        mem_free(buf1);
+        mem_free(buf2);
+        buf1 = mem_new(seq_t, need);
+        buf2 = mem_new(seq_t, need);
         buf_cap = need;
     }
 

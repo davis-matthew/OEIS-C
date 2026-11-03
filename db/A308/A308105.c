@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 5478, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_pow, is_resistant
+ * Validated: standard, pass, 84 terms through n = 9644 (2026-11-03)
+ * Helpers:   ipow_i32_to_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,29 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_pow.h"
-#include "../utils/is_resistant.h"
+#include "../utils/ipow_i32_to_seq.h"
+#include "../utils/mem.h"
+
+/* Test whether a number m satisfies m > sum of k-th powers of its digits,
+   where k is the number of decimal digits of m. */
+static bool is_resistant(seq_t m) {
+    /* Count digits (k). */
+    int k = 0;
+    seq_t t = m;
+    while (t > 0) {
+        t /= 10;
+        ++k;
+    }
+    /* Compute the sum of digit^k. */
+    seq_t sum = 0;
+    t = m;
+    while (t > 0) {
+        int digit = (int)(t % 10);
+        sum += ipow_i32_to_seq(digit, k);
+        t /= 10;
+    }
+    return m > sum;
+}
 
 /* Cache of already computed terms.  The cache is expanded on demand.
    The last number examined is stored in last_checked; searching
@@ -40,7 +62,7 @@ seq_t a(idx_t n) {
 
     if (cache == NULL) {    /* initialise cache */
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_cnt < n) {
@@ -50,7 +72,7 @@ seq_t a(idx_t n) {
         if (is_resistant(candidate)) {
             if (cache_cnt == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (tmp == NULL) abort(); /* allocation failed */
                 cache = tmp;
                 cache_cap = new_cap;

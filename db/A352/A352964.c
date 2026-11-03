@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 80, u16 n <= 9736, u32 n <= 9736, u64 n <= 9736,
- *            u128 n <= 9736, big any n
- * Helpers:   none
+ * Range:     u8 n <= 80, u16 n <= 10945, u32 n <= 10945, u64 n <= 10945,
+ *            u128 n <= 10945, big any n
+ * Validated: standard, pass, 97 terms through n = 9736 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache   = NULL;   /* a(n) values */
 static size_t seq_cap     = 0;      /* capacity of seq_cache */
@@ -35,7 +37,7 @@ static void ensure_fib(idx_t n)
 {
     if (fib_cap == 0) {
         fib_cap = 8;
-        fib_cache = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, fib_cap);
         if (!fib_cache) abort();
         fib_cache[0] = (seq_t)0;
         fib_cache[1] = (seq_t)1;
@@ -47,7 +49,7 @@ static void ensure_fib(idx_t n)
     while ((idx_t)fib_cache[fib_size - 1] <= n) {
         if (fib_size >= fib_cap) {
             fib_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(fib_cache, fib_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fib_cache, fib_cap);
             if (!tmp) abort();
             fib_cache = tmp;
         }
@@ -79,7 +81,7 @@ static void ensure_seq(idx_t n)
     if ((size_t)n + 1 > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap : 16;
         while ((size_t)n + 1 > new_cap) new_cap <<= 1;
-        seq_t *new_seq = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_seq = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_seq) abort();
         seq_cache = new_seq;
         seq_cap = new_cap;
@@ -88,7 +90,7 @@ static void ensure_seq(idx_t n)
     /* Initialize base cases if not already done */
     if (seq_last < 1) {
         if (seq_cap < 2) {          /* unlikely, but guard */
-            seq_t *new_seq = (seq_t *)realloc(seq_cache, 2 * sizeof(seq_t));
+            seq_t *new_seq = mem_resize(seq_t, seq_cache, 2);
             if (!new_seq) abort();
             seq_cache = new_seq;
             seq_cap = 2;

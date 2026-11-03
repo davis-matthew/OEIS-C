@@ -9,7 +9,8 @@
  *            1/(n+1)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 1, u64 n <= 3, u128 n <= 7,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 25 terms through n = 161 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 /* This implementation enumerates all valid carry chains that represent such
    compositions and counts the corresponding ordered arrangements.  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Compute the number of compositions for a given carry chain. */
 static void process_chain(const idx_t *chain, idx_t len, seq_t *acc, idx_t B, seq_t total_terms)
@@ -30,7 +32,7 @@ static void process_chain(const idx_t *chain, idx_t len, seq_t *acc, idx_t B, se
     {
         seq_t a_k = (seq_t)B * chain[i] - prev;
         if (a_k > remaining) return;            /* invalid cascade */
-        ways *= binom((idx_t)remaining, (idx_t)a_k);
+        ways *= binomial((idx_t)remaining, (idx_t)a_k);
         remaining -= a_k;
         prev = chain[i];
     }

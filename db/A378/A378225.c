@@ -7,8 +7,9 @@
  * Formula:   a(1)=1; for n>1, a(n)=0 if n is not square‑free, otherwise
  *            a(n)=2·(-1)^Ω(n), where Ω(n) is the total number of prime
  *            factors of n
- * Range:     i8 n <= 9698, i16 n <= 9698, i32 n <= 9698, i64 n <= 9698,
- *            i128 n <= 9698, big any n
+ * Range:     i8 n <= 20000, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 113 terms through n = 9698 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

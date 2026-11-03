@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   count_ones_in_octal
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_ones_in_octal.h"
+#include "../utils/mem.h"
+
+static inline int count_ones_in_octal(uint64_t x)
+{
+    int cnt = 0;
+    while (x && cnt <= 3) {
+        if ((x % 8) == 1) {
+            ++cnt;
+        }
+        x /= 8;
+    }
+    return cnt;
+}
 
 static seq_t *seq_cache = NULL;
 static size_t seq_cap   = 0;
@@ -36,7 +49,7 @@ seq_t a(idx_t n)
         /* Ensure the array has enough space */
         if (seq_len == seq_cap) {
             size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             if (!tmp) { /* allocation failed, return 0 as a safe error value */
                 return (seq_t)0;
             }

@@ -9,6 +9,7 @@
  *            returns a(n) for 1 ≤ n ≤ 19; for n > 19 it returns 0
  * Range:     u8 n <= 19, u16 n <= 19, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
+ * Validated: full, pass, 19 terms through n = 19 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,12 +8,14 @@
  *            a(2)=1, a(3)=2 (Recurrence applies for n>=4)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 21, u64 n <= 41, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 863 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;         /* 1‑based indexing: cache[1]..cache[n] */
 static idx_t  cache_size = 0;       /* highest index currently stored */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
     if (new_size < 4) new_size = 4;       /* need room for the first three terms */
 
     /* Allocate / grow the cache.  Cast required for C++ compatibility. */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) exit(EXIT_FAILURE);  /* memory exhausted */
 
     /* On the first allocation, initialise the base values. */

@@ -9,7 +9,8 @@
  *            Eulerian(Ceil((n+6)/2), d) * Eulerian(Floor((n+6)/2), 5-d)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 17, u128 n <= 40,
  *            big any n
- * Helpers:   euler
+ * Validated: standard, pass, 32 terms through n = 98 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,31 @@
    descents (i.e., inversions of consecutive elements). */
 
 #include <stdbool.h>
-#include "../utils/euler.h"
+
+/* Compute Eulerian number A(n,k) for n>=1, 0<=k<=n-1.
+   We only need k<=5, so we keep a small table. */
+static seq_t
+euler(idx_t n, unsigned k)
+{
+    if (n == 0) return (k == 0) ? 1 : 0;   /* not used for n>=1 */
+    seq_t cur[6] = {0};
+    cur[0] = 1;                      /* A(1,0) = 1 */
+    for (idx_t i = 2; i <= n; ++i)
+    {
+        seq_t next[6] = {0};
+        unsigned upper = (i - 1 < 5 ? i - 1 : 5);
+        for (unsigned j = 0; j <= upper; ++j)
+        {
+            seq_t val = 0;
+            if (j > 0) val += (seq_t)(i - j) * cur[j - 1];
+            if (j <= i - 2) val += (seq_t)(j + 1) * cur[j];
+            next[j] = val;
+        }
+        for (unsigned j = 0; j < 6; ++j) cur[j] = next[j];
+    }
+    if (k > n - 1) return 0;
+    return cur[k];
+}
 
 static seq_t
 binom(idx_t n, idx_t k)

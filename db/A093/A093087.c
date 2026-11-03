@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9856 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * 1,3,4,7,1,1,8,2,9,1,0,1,1,1,0,1,1,2,2,1,1,2,3,4,…            */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state */
 static seq_t *seq     = NULL;   /* digits array (1‑based logic but 0‑based indexing) */
@@ -41,7 +43,7 @@ static void init_sequence(void)
 {
     if (init) return;
     cap = 2;
-    seq = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq = mem_new(seq_t, cap);
     if (!seq) abort();
     seq[0] = 1;                    /* a(1) */
     seq[1] = 3;                    /* a(2) */
@@ -68,7 +70,7 @@ static void ensure_capacity(idx_t needed)
     if ((size_t)needed <= cap) return;
     size_t ncap = cap > 0 ? cap : 2;
     while (ncap < (size_t)needed) ncap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, ncap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, ncap);
     if (!tmp) abort();
     seq = tmp;
     cap = ncap;

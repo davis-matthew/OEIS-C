@@ -13,7 +13,8 @@
  *            proper refinement, * and keeping the numb...
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Constants and global storage ---------- */
 #define MAX_SIEVE 200000            /* enough for N up to about 10000th term */
@@ -142,7 +144,7 @@ static void generate_up_to(size_t limit)
         /* Append m to the list */
         if (values_cnt == values_cap) {
             size_t new_cap = values_cap ? values_cap * 2 : INITIAL_CAP;
-            seq_t *tmp = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, values, new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             values = tmp;
             values_cap = new_cap;
@@ -160,7 +162,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         initialized = true;
         sieve();
-        values = (seq_t *)malloc(INITIAL_CAP * sizeof(seq_t));
+        values = mem_new(seq_t, INITIAL_CAP);
         if (!values) exit(EXIT_FAILURE);
         values_cap = INITIAL_CAP;
         values_cnt = 0;

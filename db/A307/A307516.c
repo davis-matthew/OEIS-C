@@ -9,7 +9,8 @@
  *            whose max prime index minus min prime index > 1
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   build_primes_upto, build_spf
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   build_primes_upto, build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_spf.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* -------------  static data  --------------------------------- */
 
@@ -78,7 +80,7 @@ ensure_cache_capacity(size_t must)
     if (cache_cap >= must) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < must) new_cap <<= 1;
-    term_cache = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    term_cache = mem_resize(seq_t, term_cache, new_cap);
     cache_cap = new_cap;
 }
 

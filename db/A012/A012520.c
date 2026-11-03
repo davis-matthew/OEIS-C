@@ -8,13 +8,15 @@
  *            A012520)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 20, i128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------  global arrays  ----------------- */
 static seq_t *a_cache    = NULL;   /* a(n) values                */
@@ -36,7 +38,7 @@ static void ensure_pow2(size_t idx)
         size_t new_cap = pow2_cap ? pow2_cap * 2 : 1;
         while (new_cap <= idx) new_cap <<= 1;
         seq_t *old = pow2;
-        seq_t *new_arr = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (old)
         {
             for (size_t i = 0; i < pow2_cap; ++i) new_arr[i] = old[i];
@@ -49,7 +51,7 @@ static void ensure_pow2(size_t idx)
             else
                 new_arr[i] = new_arr[i-1] * (seq_t)2;
         }
-        free(old);
+        mem_free(old);
         pow2 = new_arr;
         pow2_cap = new_cap;
     }
@@ -63,7 +65,7 @@ static void ensure_pow4(size_t idx)
         size_t new_cap = pow4_cap ? pow4_cap * 2 : 1;
         while (new_cap <= idx) new_cap <<= 1;
         seq_t *old = pow4;
-        seq_t *new_arr = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (old)
         {
             for (size_t i = 0; i < pow4_cap; ++i) new_arr[i] = old[i];
@@ -76,7 +78,7 @@ static void ensure_pow4(size_t idx)
             else
                 new_arr[i] = new_arr[i-1] * (seq_t)4;
         }
-        free(old);
+        mem_free(old);
         pow4 = new_arr;
         pow4_cap = new_cap;
     }
@@ -90,12 +92,12 @@ static void ensure_cache(size_t n)
         size_t new_cap = a_cap ? a_cap << 1 : 16;
         while (new_cap <= n) new_cap <<= 1;
         seq_t *old = a_cache;
-        seq_t *new_arr = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (old)
         {
             for (size_t i = 0; i < a_cap; ++i) new_arr[i] = old[i];
         }
-        free(old);
+        mem_free(old);
         a_cache = new_arr;
         a_cap = new_cap;
     }
@@ -108,14 +110,14 @@ static void compute_up_to(idx_t n)
     if (a_cache == NULL)          /* first time initialisation */
     {
         a_cap       = 16;
-        a_cache     = (seq_t *)calloc(a_cap, sizeof(seq_t));
+        a_cache     = mem_new(seq_t, a_cap);
         a_cache[0] = (seq_t)0;
         a_cache[1] = (seq_t)1;
         pow2_cap    = 1;
-        pow2        = (seq_t *)calloc(pow2_cap, sizeof(seq_t));
+        pow2        = mem_new(seq_t, pow2_cap);
         pow2[0] = (seq_t)1;
         pow4_cap    = 1;
-        pow4        = (seq_t *)calloc(pow4_cap, sizeof(seq_t));
+        pow4        = mem_new(seq_t, pow4_cap);
         pow4[0] = (seq_t)1;
     }
 

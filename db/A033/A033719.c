@@ -8,13 +8,14 @@
  * Formula:   a(n) = number of integer pairs (x, y) with x^2 + 7*y^2 = n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   fast_isqrt_u64
+ * Validated: standard, pass, 120 terms through n = 9730 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fast_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 /* Fast integer square‑root for 0 ≤ n < 2^64 */
 
@@ -22,13 +23,13 @@
 seq_t a(idx_t n)
 {
     seq_t sum = 0;
-    idx_t ymax = fast_isqrt_u64(n / 7u);   /* maximum |y| for which 7*y^2 ≤ n */
+    idx_t ymax = isqrt(n / 7u);   /* maximum |y| for which 7*y^2 ≤ n */
 
     for (idx_t y = 0; y <= ymax; ++y) {
         unsigned __int128 prod128 = (unsigned __int128)7 * y * y;
         if (prod128 > n) break;                   /* safety guard */
         idx_t t = n - (idx_t)prod128;
-        idx_t s = fast_isqrt_u64(t);
+        idx_t s = isqrt(t);
         if ((unsigned __int128)s * s == t) {       /* t is a perfect square */
             seq_t cntx = (s == 0) ? 1 : 2;
             seq_t cnty = (y == 0) ? 1 : 2;

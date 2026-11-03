@@ -10,12 +10,14 @@
  *            A140944)
  * Range:     i8 n <= 27, i16 n <= 149, i32 n <= 557, i64 n <= 1325,
  *            i128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1262 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* integer square root of a 64‑bit unsigned integer */

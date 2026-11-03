@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,13 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 seq_t a(idx_t n)
 {
     /* Fast path for trivial palindromes */
     seq_t n_val = (seq_t)n;
-    if (is_palindrome(n_val, 9))
+    if (is_palindrome_base(n_val, 9))
         return n_val;
 
     /* Convert n to base‑9 digits (most significant first). */

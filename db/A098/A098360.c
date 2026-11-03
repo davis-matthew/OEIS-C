@@ -8,8 +8,9 @@
  *            reading the multiplication table of the positive cube numbers
  *            {k^3} along the antidiagonals. The index (i,j) is found by
  *            locating the nth term in the nth antidiagonal of the table
- * Range:     u8 n <= 11, u16 n <= 71, u32 n <= 3196, u64 n <= 8910,
- *            u128 n <= 8910, big any n
+ * Range:     u8 n <= 11, u16 n <= 71, u32 n <= 3196, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 64 terms through n = 8910 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

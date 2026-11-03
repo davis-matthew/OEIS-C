@@ -11,12 +11,14 @@
  * Formula:   a(n) = n * a(n‑1) + 1 for n >= 4, a(3) = 0
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* array of computed values */
 static idx_t  a_alloc = 0;      /* allocated size of a_cache   */
@@ -27,7 +29,7 @@ static void a_ensure(idx_t n)
 {
     if (a_cache == NULL) {
         a_alloc = 8;
-        a_cache = (seq_t*)malloc(a_alloc * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_alloc);
         if (!a_cache) exit(1);
         for (idx_t i = 0; i < a_alloc; ++i)
             a_cache[i] = (seq_t)0;
@@ -40,7 +42,7 @@ static void a_ensure(idx_t n)
     if (new_alloc < n + 2)
         new_alloc = n + 2;
 
-    seq_t *tmp = (seq_t*)realloc(a_cache, new_alloc * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_alloc);
     if (!tmp) exit(1);
 
     for (idx_t i = a_alloc; i < new_alloc; ++i)

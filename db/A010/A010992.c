@@ -7,11 +7,13 @@
  * Formula:   a(n) = binomial(n,39) = Π_{i=1}^{39} (n-39+i)/i
  * Range:     u8 n <= 40, u16 n <= 42, u32 n <= 48, u64 n <= 68, u128 n <= 169,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 904 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

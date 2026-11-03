@@ -11,12 +11,14 @@
  *            terms so that * calls may be in arbitrary order
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>               /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;           /* a[0] … a[lenA-1]   */
 static seq_t *B = NULL;           /* b[0] … b[lenB-1]   */
@@ -34,7 +36,7 @@ static void ensure_capacity(size_t *cap, seq_t **ptr, size_t needed)
     if (*cap < needed) {
         size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
         if (new_cap < needed) new_cap = needed;
-        *ptr = (seq_t*)realloc(*ptr, new_cap * sizeof(seq_t));
+        *ptr = mem_resize(seq_t, *ptr, new_cap);
         *cap = new_cap;
     }
 }

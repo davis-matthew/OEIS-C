@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Static tables for the two complementary sequences                */
@@ -74,7 +76,7 @@ static void generate_b_to(idx_t idx)
 
         if (b_len >= b_cap) {
             b_cap = b_cap ? b_cap * 2 : 8;
-            seq_t *tmp = (seq_t *)realloc(b_arr, b_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, b_arr, b_cap);
             if (!tmp)
                 abort();
             b_arr = tmp;
@@ -99,8 +101,8 @@ static void initialized(void)
     if (a_len != 0)
         return;
 
-    a_cap = 8; a_arr = (seq_t *)malloc(a_cap * sizeof(seq_t));
-    b_cap = 8; b_arr = (seq_t *)malloc(b_cap * sizeof(seq_t));
+    a_cap = 8; a_arr = mem_new(seq_t, a_cap);
+    b_cap = 8; b_arr = mem_new(seq_t, b_cap);
 
     a_arr[0] = (seq_t)1;
     a_arr[1] = (seq_t)2;
@@ -131,7 +133,7 @@ static void ensure_a_to(idx_t n)
 
         if (a_len >= a_cap) {
             a_cap = a_cap ? a_cap * 2 : 8;
-            seq_t *tmp = (seq_t *)realloc(a_arr, a_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_arr, a_cap);
             if (!tmp)
                 abort();
             a_arr = tmp;

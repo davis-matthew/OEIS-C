@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 64 terms through n = 999 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,12 @@
    algorithm is O(n) for the n‑th term.  */
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle trivial request */
@@ -39,7 +44,7 @@ seq_t a(idx_t n) {
     /* Grow cache if needed */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
         last_checked = 1;
     }
@@ -60,14 +65,14 @@ seq_t a(idx_t n) {
             /* Need 13^((p-1)/5) ≡ 1 mod p */
             idx_t exp = (last_checked - 1) / 5;
             seq_t mod = (seq_t)last_checked;
-            if (mod_pow((seq_t)13, (uint64_t)exp, mod) != (seq_t)1)
+            if (powmod((seq_t)13, (uint64_t)exp, mod) != (seq_t)1)
                 continue;   /* not a solution */
         }
 
         /* Accept this prime */
         if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = (seq_t)last_checked;
     }

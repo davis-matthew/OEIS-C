@@ -11,7 +11,8 @@
  *            found terms
  * Range:     u8 n <= 8, u16 n <= 46, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   calc_phi, factor_u64, gcd, pow_uint
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx, mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,11 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"         /* gcd(seq_t a, seq_t b) */
-#include "../utils/calc_phi.h"    /* seq_t calc_phi(seq_t m) */
-#include "../utils/pow_uint.h"    /* seq_t pow_uint(uint64_t base, idx_t exp) */
-#include "../utils/factor_u64.h"  /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 static seq_t lambda_of(seq_t n)
 {
@@ -38,7 +40,7 @@ static seq_t lambda_of(seq_t n)
         seq_t lambda2;
         if (e2 == 1)                lambda2 = 1;
         else if (e2 == 2)           lambda2 = 2;
-        else                        lambda2 = pow_uint(2, e2 - 2);
+        else                        lambda2 = ipow_u64_idx(2, e2 - 2);
         seq_t g = gcd(l, lambda2);
         l = l / g * lambda2;
     }
@@ -56,8 +58,8 @@ static seq_t lambda_of(seq_t n)
     for (size_t i = 0; i < pp; ++i) {
         prime = primes[i];
         exp   = exps[i];
-        seq_t pow_pe = pow_uint(prime, exp);            /* prime^exp */
-        seq_t lambda_p = calc_phi(pow_pe);              /* λ(prime^exp) = φ(prime^exp) */
+        seq_t pow_pe = ipow_u64_idx(prime, exp);            /* prime^exp */
+        seq_t lambda_p = totient_seq(pow_pe);              /* λ(prime^exp) = φ(prime^exp) */
         seq_t g = gcd(l, lambda_p);
         l = l / g * lambda_p;
     }
@@ -70,7 +72,7 @@ static void ensure_capacity(size_t needed, seq_t **cache, size_t *cap)
     if (*cap >= needed) return;
     size_t newcap = *cap ? *cap * 2 : 128;
     while (newcap < needed) newcap <<= 1;
-    *cache = (seq_t *)realloc(*cache, newcap * sizeof(seq_t));
+    *cache = mem_resize(seq_t, *cache, newcap);
     *cap   = newcap;
 }
 
@@ -99,16 +101,16 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < cnt; ++i) {
             uint64_t p = primes[i];
             uint64_t e = exps[i];
-            seq_t term = (pow_uint(p, e + 1) - 1) / ((seq_t)p - 1);
+            seq_t term = (ipow_u64_idx(p, e + 1) - 1) / ((seq_t)p - 1);
             sigma_odd *= term;
         }
 
         /* Sum of odd and even divisors */
         seq_t sum_odd  = sigma_odd;
-        seq_t sum_even = sigma_odd * (pow_uint(2, e2 + 1) - 2);
+        seq_t sum_even = sigma_odd * (ipow_u64_idx(2, e2 + 1) - 2);
 
         seq_t lambda_even = lambda_of(sum_even);
-        seq_t phi_odd     = calc_phi(sum_odd);
+        seq_t phi_odd     = totient_seq(sum_odd);
 
         if (lambda_even == phi_odd) {
             ensure_capacity(cache_len + 1, &cache, &cache_cap);

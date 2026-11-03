@@ -11,6 +11,7 @@
  *            s(1+2j)=i^j, s(2+2j)=i^j*(1+i) (j≥0). In particular a(9k)=3·a(k)
  * Range:     i8 n <= 6560, i16 n <= 6560, i32 n <= 6560, i64 n <= 6560,
  *            i128 n <= 6560, big any n
+ * Validated: standard, pass, 91 terms through n = 6316 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

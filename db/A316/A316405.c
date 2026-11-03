@@ -10,13 +10,15 @@
  *            and 2^{j‑1} + ½·C(j, j/2) for even j
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 28, u64 n <= 57, u128 n <= 118,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External integer types: defined by the build system.
    Do not redefine them here. */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* width = n + 1, dp size = 5 * width (for 0..4 words) */
     const idx_t width = n + 1u;
     const size_t dp_size = 5ul * (size_t)width;
-    seq_t *dp = (seq_t *)calloc(dp_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) return (seq_t)0;                /* allocation failure */
 
     dp[0] = (seq_t)1;                       /* dp[0][0] = 1 */
@@ -103,6 +105,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[4u * width + n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

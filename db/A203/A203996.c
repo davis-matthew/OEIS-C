@@ -9,14 +9,15 @@
  *            on the antidiagonal of index n (enumeration by increasing i+j)
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   floor_sqrt_idx_t
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/floor_sqrt_idx_t.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
     /* Find the diagonal s such that C(s-1) < n <= C(s), where
        C(k) = k*(k-1)/2.  Use a lower bound derived from the quadratic. */
     idx_t disc      = 1 + 8 * n;
-    idx_t sqrt_disc = floor_sqrt_idx_t(disc);
+    idx_t sqrt_disc = isqrt(disc);
     idx_t s = (1 + sqrt_disc) / 2;                /* lower bound of s */
     while (s * (s - 1) / 2 < n) s++;              /* adjust upwards if needed */
 

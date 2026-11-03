@@ -10,8 +10,9 @@
  *            primorial base; a divisor is coprime to A276086(n) iff it
  *            contains no prime factor that appears with a non‑zero digit in
  *            that expansion
- * Range:     u8 n <= 9322, u16 n <= 9322, u32 n <= 9322, u64 n <= 9322,
- *            u128 n <= 9322, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9322 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,8 +22,9 @@
 #include <stdlib.h>
 
 /* utility headers */
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
-#include "../utils/factor_u64.h"          /* factor_u64 */
+#include <stdint.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)
 {

@@ -10,14 +10,19 @@
  *            exactly as 2^i*7^j in seq_t
  * Range:     u8 n <= 17, u16 n <= 56, u32 n <= 204, u64 n <= 773,
  *            u128 n <= 3005, big any n
- * Helpers:   A_lg
+ * Validated: standard, pass, 65 terms through n = 9649 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/A_lg.h"
+
+static long double A_lg(unsigned i, unsigned j) {
+    return (long double)i * 0.69314718055994530941723212145818L
+         + (long double)j * 1.94591014905531330510535274344318L;
+}
 
 static unsigned *A_e2 = NULL, *A_e7 = NULL;
 static idx_t A_len = 0, A_cap = 0, A_p2 = 0, A_p7 = 0;

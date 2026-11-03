@@ -9,13 +9,15 @@
  *            its base‑4 representation is congruent to 1 modulo 6
  * Range:     u8 n <= 12, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *seq = NULL;     /* cached terms */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* allocate initial storage if necessary */
     if (cap == 0) {
         cap = 64;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
     }
 
     /* extend the cache until we have at least n terms */
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
         if (runs % 6 == 1) {
             if (sz >= cap) {
                 cap *= 2;
-                seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
             }
             seq[sz++] = next;
         }

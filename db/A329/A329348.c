@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = least significant nonzero digit of the primorial base
  *            expansion of A108951(n)
- * Range:     u8 n <= 3112, u16 n <= 9985, u32 n <= 9985, u64 n <= 9985,
- *            u128 n <= 9985, big any n
+ * Range:     u8 n <= 3112, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9985 (2026-11-03)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,21 +18,37 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 static uint64_t *g_primes = NULL;
 static size_t     g_prime_cnt = 0;
-static int        g_prime_index[20001] = {0};
+static uint64_t   g_limit = 0;
 
-static void init_primes(void)
+/* the primes up to at least 2n + 100 (so past the next prime after any
+   p <= n), rebuilt as n grows; this was a fixed table to 20000 */
+static void init_primes(uint64_t n)
 {
-    if (g_primes != NULL) return;          /* already initialized */
-    /* build primes up to an upper bound large enough for n <= 10000 */
-    size_t limit = 20000;
+    if (g_primes != NULL && g_limit >= 2 * n + 100) return;
+    uint64_t limit = g_limit ? g_limit : 20000;
+    while (limit < 2 * n + 100) limit *= 2;
+    free(g_primes);
+    g_primes = NULL;
     build_primes_upto(limit, &g_primes, &g_prime_cnt);
-    for (size_t i = 0; i < g_prime_cnt; ++i)
-        g_prime_index[(int)g_primes[i]] = (int)i;
+    if (!g_primes) abort();
+    g_limit = limit;
+}
+
+/* 0-based index of the prime p in g_primes */
+static int prime_index(uint64_t p)
+{
+    size_t lo = 0, hi = g_prime_cnt;
+    while (lo < hi) {
+        size_t mid = (lo + hi) / 2;
+        if (g_primes[mid] < p) lo = mid + 1; else hi = mid;
+    }
+    return (int)lo;
 }
 
 static uint64_t mod_pow_uint64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -57,7 +74,7 @@ seq_t a(idx_t n)
 {
     if (n == 1) return (seq_t)1;          /* special case, A108951(1) = 1 */
 
-    init_primes();
+    init_primes((uint64_t)n);
 
     /* factor n */
     uint64_t pf[16], exp[16];
@@ -78,7 +95,7 @@ seq_t a(idx_t n)
         uint64_t m_mod = 1 % pkprime;
         for (size_t i = 0; i < cnt; ++i) {
             uint64_t prime_val = pf[i];
-            int idx = g_prime_index[(int)prime_val];
+            int idx = prime_index(prime_val);
             /* primorial of this prime modulo pkprime */
             uint64_t prim_mod = 1 % pkprime;
             for (int j = 0; j <= idx; ++j) {

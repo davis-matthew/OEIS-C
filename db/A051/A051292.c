@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 49, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #if defined(__SIZEOF_INT128__)
 typedef __int128 int128_t;
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_size) return;           /* already big enough */
     idx_t new_size = cache_size ? cache_size * 2 : 5;
     if (new_size <= n) new_size = n + 1;   /* at least n+1 */
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) return;                     /* allocation failure ignored */
     cache = tmp;
     cache_size = new_size;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!cache) {
         cache_size = 5;                    /* Need indices 0..4          */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return (seq_t)0;      /* failure, return 0          */
         cache[0] = (seq_t)2;
         cache[1] = (seq_t)1;

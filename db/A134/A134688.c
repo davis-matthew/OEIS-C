@@ -8,15 +8,41 @@
  * Formula:   a(n) = nth digit of the concatenation of σ(1),σ(2),σ(3),…
  * Range:     u8 n <= 288, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, pow10, sigma_of
+ * Validated: standard, pass, 94 terms through n = 7737 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/sigma_of.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static idx_t *cum_digits = NULL;
 static size_t cum_cap   = 0;
@@ -27,7 +53,7 @@ static void ensure_digits(idx_t target) {
     while (cum_len == 0 || cum_digits[cum_len - 1] < target) {
         idx_t k = (idx_t)cum_len + 1;            /* next n value          */
         seq_t s = sigma_of(k);                  /* σ(k)                  */
-        idx_t d = (idx_t)digit_len(s);          /* number of digits in σ(k) */
+        idx_t d = (idx_t)num_digits(s);          /* number of digits in σ(k) */
 
         idx_t new_cum = (cum_len == 0) ? d
                            : cum_digits[cum_len - 1] + d;
@@ -56,7 +82,7 @@ seq_t a(idx_t n) {
     idx_t offset   = n - prev_cum - 1;           /* zero‑based within σ(k) */
 
     seq_t s = sigma_of(k);                       /* recompute σ(k)        */
-    idx_t len = (idx_t)digit_len(s);             /* digits of σ(k)         */
+    idx_t len = (idx_t)num_digits(s);             /* digits of σ(k)         */
 
     idx_t exp = len - 1 - offset;                /* power for 10^exp       */
     seq_t pow10_e = pow10(exp);                  /* 10^exp                 */

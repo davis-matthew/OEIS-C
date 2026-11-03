@@ -8,12 +8,14 @@
  *            binomial(j,n-3*j-k) * * |Stirling1(j,k)|/j!
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,9 +28,9 @@ seq_t a(idx_t n)
     /* max j to consider */
     idx_t Jmax = n / 3;
     /* allocate working arrays */
-    seq_t *prev = (seq_t*)calloc(Jmax + 2, sizeof(seq_t));
-    seq_t *curr = (seq_t*)calloc(Jmax + 2, sizeof(seq_t));
-    seq_t *binom = (seq_t*)calloc(Jmax + 1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, Jmax + 2);
+    seq_t *curr = mem_new(seq_t, Jmax + 2);
+    seq_t *binom = mem_new(seq_t, Jmax + 1);
     if (!prev || !curr || !binom) {
         return (seq_t)0;   /* allocation failure – return zero */
     }
@@ -74,9 +76,9 @@ seq_t a(idx_t n)
     }
 
     /* free allocated memory */
-    free(prev);
-    free(curr);
-    free(binom);
+    mem_free(prev);
+    mem_free(curr);
+    mem_free(binom);
 
     return sum;
 }

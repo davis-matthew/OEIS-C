@@ -8,14 +8,16 @@
  *            is the number of distinct prime factors of k
  * Range:     u8 n <= 28, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 71 terms through n = 940 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;                /* a(0) is undefined */
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     seq_t sum = 0;
     for (size_t k = 1; k <= N; ++k) {
         /* term = 4^{ω(k)} */
-        seq_t term = big_pow((seq_t)4, (seq_t)omega[k]);
+        seq_t term = ipow((seq_t)4, (seq_t)omega[k]);
         sum += term;
     }
 

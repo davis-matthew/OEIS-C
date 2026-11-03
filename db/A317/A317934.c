@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, frac, mult
  * Formula:   a(n) = 2^( sum_{p^e∥n} (e - popcount(e)) )
- * Range:     u8 n <= 1023, u16 n <= 9225, u32 n <= 9225, u64 n <= 9225,
- *            u128 n <= 9225, big any n
+ * Range:     u8 n <= 1023, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9225 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

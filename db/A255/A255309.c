@@ -8,14 +8,16 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 1 + a(log_2(n)) if n is a power of 2 except 1, 0
  *            otherwise; a(0)=0, a(1)=0
- * Range:     u8 n <= 8888, u16 n <= 8888, u32 n <= 8888, u64 n <= 8888,
- *            u128 n <= 8888, big any n
- * Helpers:   bitlen_seq_t
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 145 terms through n = 8888 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     seq_t cur   = (seq_t)n;
     while (cur > 1 && (cur & (cur - 1)) == 0) {
         ++count;
-        unsigned long len = bitlen_seq_t(cur);
+        unsigned long len = bit_length(cur);
         cur = (seq_t)(len - 1);
     }
     return count;

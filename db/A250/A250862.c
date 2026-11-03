@@ -12,14 +12,58 @@
  *            inequality
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 12, u128 n <= 63,
  *            big any n
- * Helpers:   count_pairs_m
+ * Validated: standard, pass, 29 terms through n = 94 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_pairs_m.h"
+
+/* Count G(m): number of pairs (u[1..m], v[1..m]) of weakly increasing
+   sequences over {0,1,2,3} with u[i] <= v[i] for all i. */
+static seq_t count_pairs_m(idx_t m)
+{
+    /* dp[u][v] – number of ways for the current position to end with
+       values (u, v), where 0 <= u <= v <= 3. */
+    seq_t dp[4][4] = {0};
+    seq_t ndp[4][4];
+
+    /* First position – any pair u <= v contributes one way. */
+    for (int u = 0; u < 4; ++u)
+        for (int v = u; v < 4; ++v)
+            dp[u][v] = 1;
+
+    /* For subsequent positions, extend all previous pairs. */
+    for (idx_t pos = 2; pos <= m; ++pos) {
+        /* clear next step array */
+        for (int i = 0; i < 4; ++i)
+            for (int j = 0; j < 4; ++j)
+                ndp[i][j] = 0;
+
+        for (int u = 0; u < 4; ++u)
+            for (int v = u; v < 4; ++v) {
+                seq_t val = dp[u][v];
+                if (!val) continue;
+                for (int up = u; up < 4; ++up)
+                    for (int vp = (up > v ? up : v); vp < 4; ++vp)
+                        ndp[up][vp] += val;
+            }
+
+        /* copy back */
+        for (int i = 0; i < 4; ++i)
+            for (int j = 0; j < 4; ++j)
+                dp[i][j] = ndp[i][j];
+    }
+
+    /* Sum all possible final states. */
+    seq_t sum = 0;
+    for (int u = 0; u < 4; ++u)
+        for (int v = u; v < 4; ++v)
+            sum += dp[u][v];
+    return sum;
+}
 
 /* Compute binomial coefficient C(k,3) for k >= 3.  k is given as idx_t
    and the result is returned as seq_t. */

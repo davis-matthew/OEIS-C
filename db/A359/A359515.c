@@ -12,7 +12,8 @@
  *            are generated lazily up to the * required index. The...
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static storage for Fibonacci numbers up to the current limit */
 static idx_t   *fibs      = NULL;   /* Fibonacci numbers ≤ current limit */
@@ -89,12 +91,12 @@ expand_dp_if_needed(idx_t limit)
 
     for (int k = 0; k < 4; ++k) {
         if (dp[k] == NULL) {
-            dp[k] = (seq_t *)calloc(new_cap, sizeof(seq_t));
+            dp[k] = mem_new(seq_t, new_cap);
         } else {
-            seq_t *tmp = (seq_t *)realloc(dp[k], new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, dp[k], new_cap);
             if (tmp == NULL) exit(EXIT_FAILURE);
             /* zero the newly allocated part */
-            memset(tmp + dp_cap, 0, (new_cap - dp_cap) * sizeof(seq_t));
+            mem_set(tmp + dp_cap, 0, (new_cap - dp_cap) * sizeof(seq_t));
             dp[k] = tmp;
         }
     }

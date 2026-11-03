@@ -7,12 +7,14 @@
  * Formula:   a(0) = 1, a(1) = 2, a(n) = a(n-1) - 4*a(n-2) for n ≥ 2
  * Range:     i8 n <= 7, i16 n <= 14, i32 n <= 30, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 /* static cache to allow out‑of‑order calls */
 static seq_t *cache = NULL;
@@ -30,10 +32,10 @@ seq_t a(idx_t n)
     if (cache_cap < idx + 1) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap <= idx) new_cap *= 2;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) return 0;             /* allocation failure fallback */
         for (size_t i = 0; i < cache_cap; ++i) tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = tmp;
         cache_cap = new_cap;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 116, u32 n <= 421, u64 n <= 421,
  *            u128 n <= 421, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 377 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  * C++17. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Neighbor tables for the directed graph of admissible octal digits.
  * Each entry contains the list of digits that can follow the key digit
@@ -110,7 +112,7 @@ static void build_sequence(idx_t need)
     }
 
     /* ---- 2. Allocate cache for all terms up to this length ---- */
-    seq_t *temp = (seq_t *)malloc((size_t)cumulative * sizeof(seq_t));
+    seq_t *temp = mem_new(seq_t, (size_t)cumulative);
     size_t pos = 0;
 
     /* ---- 3. Generate all numbers for lengths 1..length ---- */
@@ -130,10 +132,10 @@ static void build_sequence(idx_t need)
     }
 
     /* ---- 4. Sort the terms. ---- */
-    qsort(temp, (size_t)cumulative, sizeof(seq_t), cmp_seq);
+    mem_qsort(temp, (size_t)cumulative, sizeof(seq_t), cmp_seq);
 
     /* ---- 5. Replace old cache. ---- */
-    free(seq_cache);
+    mem_free(seq_cache);
     seq_cache      = temp;
     seq_cache_len  = cumulative;
 }

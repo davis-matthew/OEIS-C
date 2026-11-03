@@ -7,12 +7,14 @@
  * Formula:   a(n) = -2*(a(n-1)+a(n-2)); a(0)=1, a(1)=-3
  * Range:     i8 n <= 12, i16 n <= 28, i32 n <= 60, i64 n <= 124,
  *            i128 n <= 252, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached values up to cache_size-1 */
 static idx_t cache_size = 0;  /* number of valid entries in cache */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
 
     /* Allocate or grow the cache */
     idx_t new_size = n + 1;
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     if (!cache) /* allocation failure – abort early */
         exit(EXIT_FAILURE);
 

@@ -7,15 +7,17 @@
  * Formula:   a(n) = Product_{p ≤ n, p prime} (1 - p)^{⌊n/p⌋}
  * Range:     i8 n <= 8, i16 n <= 12, i32 n <= 18, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;          /* undefined for n=0; return 1 to avoid UB */
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
         if (exp == 0) continue;
 
         seq_t base = (seq_t)1 - p;          /* base = 1 - p  (negative) */
-        seq_t pow  = big_pow(base, exp);
+        seq_t pow  = ipow(base, exp);
         result = result * pow;              /* multiply into running product */
     }
 

@@ -10,14 +10,57 @@
  *            10617929280)/5040 for n >= 6; a(1)=a(2)=a(3)=a(4)=0, a(5)=242
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 6, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   count_kings_5, dfs5
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_kings_5.h"
-#include "../utils/dfs5.h"
+
+/* Recursive helper for the 5×5 board DFS */
+static void dfs5(int pos, int placed, uint32_t blocked,
+                 uint32_t *attack, unsigned long long *total)
+{
+    if (placed == 7) {
+        ++(*total);
+        return;
+    }
+    if (pos >= 25) return;
+
+    for (int i = pos; i < 25; ++i) {
+        if (!(blocked & (1u << i))) {
+            dfs5(i + 1, placed + 1, blocked | attack[i], attack, total);
+        }
+    }
+}
+
+/* Count the 7‑king arrangements on a 5×5 board (unenforced time). */
+static seq_t count_kings_5(void)
+{
+    uint32_t attack[25];
+    for (int r = 0; r < 5; ++r) {
+        for (int c = 0; c < 5; ++c) {
+            int idx = r * 5 + c;
+            uint32_t mask = 0;
+            for (int dr = -1; dr <= 1; ++dr) {
+                int rr = r + dr;
+                if (rr < 0 || rr >= 5) continue;
+                for (int dc = -1; dc <= 1; ++dc) {
+                    int cc = c + dc;
+                    if (cc < 0 || cc >= 5) continue;
+                    int p = rr * 5 + cc;
+                    mask |= (1u << p);
+                }
+            }
+            attack[idx] = mask;
+        }
+    }
+
+    unsigned long long total = 0;
+    dfs5(0, 0, 0, attack, &total);
+    return (seq_t)total;
+}
 
 /* forward declaration for the DFS helper used to count the 5×5 board */
 static void dfs5(int pos, int placed, uint32_t blocked,

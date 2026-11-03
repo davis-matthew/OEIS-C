@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1427, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9345 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    iterations. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     if (len0 == NULL) {
         /* initialise small tables */
         cap = 4;
-        len0 = (seq_t *)malloc(cap * sizeof(seq_t));
-        len1 = (seq_t *)malloc(cap * sizeof(seq_t));
+        len0 = mem_new(seq_t, cap);
+        len1 = mem_new(seq_t, cap);
         if (!len0 || !len1) return (seq_t)0; /* allocation failure */
         len0[0] = 1;
         len1[0] = 1;
@@ -47,8 +49,8 @@ seq_t a(idx_t n)
     while (len0[depth] < (seq_t)n) {
         if (depth + 1 >= cap) {
             cap <<= 1;
-            len0 = (seq_t *)realloc(len0, cap * sizeof(seq_t));
-            len1 = (seq_t *)realloc(len1, cap * sizeof(seq_t));
+            len0 = mem_resize(seq_t, len0, cap);
+            len1 = mem_resize(seq_t, len1, cap);
             if (!len0 || !len1) return (seq_t)0;
         }
         /* recurrence for lengths:
@@ -64,8 +66,8 @@ seq_t a(idx_t n)
     if ((depth & 1) == 0) {
         if (depth + 1 >= cap) {
             cap <<= 1;
-            len0 = (seq_t *)realloc(len0, cap * sizeof(seq_t));
-            len1 = (seq_t *)realloc(len1, cap * sizeof(seq_t));
+            len0 = mem_resize(seq_t, len0, cap);
+            len1 = mem_resize(seq_t, len1, cap);
             if (!len0 || !len1) return (seq_t)0;
         }
         len0[depth + 1] = len1[depth];

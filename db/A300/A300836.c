@@ -8,8 +8,9 @@
  * Formula:   a(n) = Σ_{d|n, d<n} A007895(d) where A007895(d) = the number of
  *            1‑digits in the Zeckendorf representation of d. OEIS offset: 1
  *            (a(1)=0)
- * Range:     u8 n <= 9479, u16 n <= 9479, u32 n <= 9479, u64 n <= 9479,
- *            u128 n <= 9479, big any n
+ * Range:     u8 n <= 15119, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9479 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

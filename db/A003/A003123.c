@@ -13,7 +13,8 @@
  *            the...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 35,
  *            big any n
- * Helpers:   a3123_big, a3123_is_fixed
+ * Validated: standard, pass, 36 terms through n = 492 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,57 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/a3123_big.h"
-#include "../utils/a3123_is_fixed.h"
+#include "../utils/mem.h"
+
+/* exact arbitrary precision: Miller recurrence for F^(-m) with sign-magnitude */
+static seq_t a3123_big(idx_t n) {
+  idx_t m = n + 4, i, j;
+  seq_t *cat = mem_new(seq_t, n + 3);
+  seq_t *c = mem_new(seq_t, n + 1);
+  seq_t *pm = mem_new(seq_t, n + 1);
+  bool *pneg = (bool *)calloc(n + 1, sizeof(bool));
+  seq_t tp = 0, tn = 0, e = 1, res;
+
+  cat[0] = 1;
+  for (i = 0; i + 1 < n + 3; i++)
+    cat[i + 1] = cat[i] * (seq_t)(2 * (2 * i + 1)) / (seq_t)(i + 2);
+  for (i = 0; i <= n; i++) c[i] = cat[i] * cat[i];
+
+  pm[0] = 1;
+  pneg[0] = false;
+  for (j = 1; j <= n; j++) {
+    seq_t sp = 0, sn = 0;
+    for (i = 1; i <= j; i++) {
+      seq_t term = c[i] * pm[j - i] * (seq_t)((m - 1) * i + j);
+      if (pneg[j - i]) sn += term; else sp += term;
+    }
+    /* p_j = -(sp - sn) / j */
+    if (sp >= sn) {
+      pm[j] = (sp - sn) / (seq_t)j;
+      pneg[j] = (pm[j] != 0);
+    } else {
+      pm[j] = (sn - sp) / (seq_t)j;
+      pneg[j] = false;
+    }
+  }
+
+  for (j = 0; j <= n; j++) {
+    seq_t term = e * cat[j + 2] * (seq_t)(j + 4) * pm[n - j];
+    if (pneg[n - j]) tn += term; else tp += term;
+    e = e * (seq_t)((2 * j + 4) * (2 * j + 5)) / (seq_t)((j + 1) * (j + 5));
+  }
+  res = (tp - tn) / (seq_t)m;
+
+  mem_free(cat); mem_free(c); mem_free(pm); free(pneg);
+  return res;
+}
+
+static int a3123_is_fixed(void) {
+  seq_t x = 1;
+  int i;
+  for (i = 0; i < 140; i++) x = x + x;
+  return x == 0;
+}
 
 typedef unsigned __int128 a3123_u128;
 

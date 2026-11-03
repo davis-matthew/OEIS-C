@@ -12,6 +12,7 @@
  *            unique diagonal sum s such that * (s‑1)*s/2 ≥ m....
  * Range:     u8 n <= 1327, u16 n <= 1327, u32 n <= 1327, u64 n <= 1327,
  *            u128 n <= 1327, big any n
+ * Validated: standard, pass, 121 terms through n = 1183 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global static state for memoization */
 static seq_t *seq_cache = NULL;   /* flattened coefficients of v(x) */
@@ -44,7 +46,7 @@ static void ensure_seq_cap(size_t need)
     if (seq_cap >= need) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap = new_cap;
 }
 
@@ -55,8 +57,8 @@ static void generate_next_row(void)
     size_t new_row = current_row + 1;   /* 1‑based index of new row */
     size_t len = new_row;              /* number of coefficients in this row */
 
-    seq_t *u_next = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *v_next = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *u_next = mem_new(seq_t, len);
+    seq_t *v_next = mem_new(seq_t, len);
 
     if (new_row == 1) {
         /* Base case: u(1)=v(1)=1 */
@@ -87,8 +89,8 @@ static void generate_next_row(void)
     }
 
     /* Free the previous row data */
-    free(u_prev);
-    free(v_prev);
+    mem_free(u_prev);
+    mem_free(v_prev);
 
     /* Store the new row for the next iteration */
     u_prev = u_next;

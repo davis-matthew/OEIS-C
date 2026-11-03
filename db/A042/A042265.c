@@ -9,12 +9,14 @@
  *            1,1,2,3,20,23,43,66,3343,3409,6752,10161,67718,77879,145597,223476
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 23, u64 n <= 45, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 174 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         size_t new_size = target + 1;
         if (cache == NULL) {
             /* First allocation: zero‑initialize the whole array */
-            cache = (seq_t*)calloc(new_size, sizeof(seq_t));
+            cache = mem_new(seq_t, new_size);
             if (!cache)
                 return (seq_t)0;           /* allocation failed – return 0 */
             cache_size = new_size;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             last_computed = 15;
         } else {
             /* Resize the array, leaving previous values intact */
-            cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_size);
             if (!cache)
                 return (seq_t)0;
             cache_size = new_size;

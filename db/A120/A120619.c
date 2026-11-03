@@ -12,7 +12,8 @@
  *            maintaining a Fenwick tree of unused numbers
  * Range:     u8 n <= 206, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9372 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- Fenwick tree for k‑th unused integer ----- */
 static unsigned *fenwick = NULL;      /* 1‑based */
@@ -93,7 +95,7 @@ static void ensure_a_capacity(size_t min_cap)
     size_t new_cap = a_cap ? a_cap : 8;
     while (new_cap < min_cap)
         new_cap <<= 1;
-    a_seq = (seq_t*)realloc(a_seq, new_cap * sizeof(seq_t));
+    a_seq = mem_resize(seq_t, a_seq, new_cap);
     if (!a_seq)
         exit(1);
     a_cap = new_cap;
@@ -107,7 +109,7 @@ static void ensure_b_capacity(size_t min_cap)
     size_t new_cap = b_cap ? b_cap : 8;
     while (new_cap < min_cap)
         new_cap <<= 1;
-    b_seq = (seq_t*)realloc(b_seq, new_cap * sizeof(seq_t));
+    b_seq = mem_resize(seq_t, b_seq, new_cap);
     if (!b_seq)
         exit(1);
     b_cap = new_cap;
@@ -171,7 +173,7 @@ seq_t a(idx_t n)
     if (!a_seq)
     {
         a_cap = 8;
-        a_seq = (seq_t*)calloc(a_cap, sizeof(seq_t));
+        a_seq = mem_new(seq_t, a_cap);
         if (!a_seq)
             exit(1);
     }

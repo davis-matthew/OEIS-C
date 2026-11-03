@@ -10,12 +10,14 @@
  *            - 45 b_{k-4} + 26 b_{k-5} - 8 b_{k-6} + b_{k-7} (k ≥ 7)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 23, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 3) return 0;            /* offset is 3 */
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     /* initialize cache on first use */
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;       /* allocation failed */
         /* initial values b_0 … b_6 from the OEIS list */
         cache[0] = (seq_t)1;
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
     if (need >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap <= need) new_cap = need + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;          /* allocation failed */
         cache = tmp;
         cache_cap = new_cap;

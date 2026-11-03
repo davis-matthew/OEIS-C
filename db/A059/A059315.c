@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, gcd, mod_pow
+ * Validated: standard, pass, 72 terms through n = 954 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
+#include "../utils/powmod.h"
 
 /* ------------------------------------------------------------------ */
 /*  Static state -- a fixed size cache of sequence values              */
@@ -52,7 +54,7 @@ static bool has_solution(uint64_t p)
     seq_t g    = gcd((seq_t)28, (seq_t)(p - 1));
     uint64_t d = (uint64_t)g;                 /* exponent divisor            */
     seq_t exp  = (seq_t)((p - 1) / d);        /* exponent for power test     */
-    seq_t res  = mod_pow(base, (uint64_t)exp, mod);
+    seq_t res  = powmod(base, (uint64_t)exp, mod);
     return res == (seq_t)1;
 }
 

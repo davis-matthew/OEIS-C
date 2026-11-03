@@ -8,12 +8,14 @@
  *            into parts ≤ 9 (p(k)=0 for k<0)
  * Range:     u8 n <= 17, u16 n <= 53, u32 n <= 265, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 863 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *p = NULL;
@@ -23,9 +25,9 @@ seq_t a(idx_t n) {
        otherwise the bound is just n. */
     idx_t maxN = n;
     if (cap <= maxN) {
-        seq_t *new_arr = (seq_t*)malloc((size_t)(maxN + 1) * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, (size_t)(maxN + 1));
         if (!new_arr) return 0; /* out of memory: return 0 */
-        if (p) free(p);
+        if (p) mem_free(p);
         p = new_arr;
         cap = maxN + 1;
 

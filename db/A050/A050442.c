@@ -11,13 +11,22 @@
  *            (2n^3+n)/3 - (2/3)(2⎣(n+1)/2⎦^3+⎣(n+1)/2⎦) + (1-(-1)^n)/2)
  * Range:     u8 n <= 7, u16 n <= 51, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sum_sq
+ * Validated: standard, pass, 58 terms through n = 963 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sum_sq.h"
+
+static seq_t sum_sq(idx_t k) {
+    // sum of squares 1^2 + 2^2 + ... + k^2 = k(k+1)(2k+1)/6
+    seq_t kk = (seq_t)k;
+    seq_t a = kk;
+    seq_t b = kk + 1;
+    seq_t c = 2 * kk + 1;
+    return a * b * c / 6;
+}
 
 seq_t a(idx_t n) {
     // n >= 1

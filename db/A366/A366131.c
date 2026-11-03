@@ -9,13 +9,15 @@
  *            a(1)=0, a(2)=2, a(3)=2
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_cap = 0;
@@ -27,7 +29,7 @@ static void ensure_capacity(idx_t needed)
     if (needed <= cache_cap)
         return;
     /* Allocate more memory (at least needed elements) */
-    seq_t *new_cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, needed);
     cache = new_cache;
     cache_cap = needed;
 }

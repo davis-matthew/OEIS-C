@@ -8,7 +8,8 @@
  *            {3,5,6,9,10,…}
  * Range:     u8 n <= 44, u16 n <= 107, u32 n <= 297, u64 n <= 933,
  *            u128 n <= 3199, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Sequence A147785: Number of partitions of n into parts divisible by 3 or 5 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* If the cache is too small, grow it to size n+1 and recompute all values. */
     if (n + 1 > dp_len) {
         /* Allocate or reallocate */
-        seq_t *new_dp = (seq_t *)realloc(dp, sizeof(seq_t) * (n + 1));
+        seq_t *new_dp = mem_resize(seq_t, dp, (n + 1));
         if (!new_dp && (n + 1) > 0) {
             /* Allocation failed – return 0 as a graceful failure. */
             return (seq_t)0;

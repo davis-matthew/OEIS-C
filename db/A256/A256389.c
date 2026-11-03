@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ Global data */
 #define LIMIT 10000000U   /* Sieve bound – enough for n up to ~10 000 */
@@ -49,7 +51,7 @@ static void ensure_seq_capacity(idx_t need)
     if ((size_t)need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 128;
     while (new_cap < (size_t)need) new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap = new_cap;
 }
 
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
     static bool initialized = false;
     if (!initialized) {
         build_sieve();
-        seq_cache = (seq_t *)malloc(128 * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, 128);
         seq_cap   = 128;
         seq_len   = 0;
         initialized = true;

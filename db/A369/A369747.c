@@ -7,15 +7,18 @@
  * Formula:   a(n) = Sum_{p|n, p prime} pi(n/p)
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   compute_pi, factor_u64
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     {
         idx_t divisor = (idx_t)primes[i];
         /* pi(n/divisor) */
-        sum += compute_pi(n / divisor);
+        sum += prime_pi(n / divisor);
     }
     return sum;
 }

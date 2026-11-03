@@ -8,6 +8,7 @@
  *            1) = 20*m^2 + 14*m + 4 a(3*m + 2) = 20*m^2 + 26*m + 10
  * Range:     u8 n <= 10, u16 n <= 171, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 64 terms through n = 985 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   a(0)=2, a(1)=5, a(2)=9, a(n)=3*a(n-1)-3*a(n-2)+2*a(n-3) for n>2
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 62, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 942 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cached values for memoisation across calls */
 static seq_t *cache = NULL;
@@ -28,11 +30,11 @@ static void ensure_capacity(idx_t need)
     /* double size until we reach needed capacity */
     idx_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap <= need) new_cap *= 2;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) abort(); /* allocation failed – nothing sane can be done */
     if (cache) {
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache     = new_cache;
     cache_cap = new_cap;

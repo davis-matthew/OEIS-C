@@ -12,7 +12,8 @@
  *            concatena...
  * Range:     i8 n <= 39, i16 n <= 67, i32 n <= 67, i64 n <= 67, i128 n <= 67,
  *            big any n
- * Helpers:   binary_search_row, pow_seqt
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,26 @@
 #include <math.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binary_search_row.h"
-#include "../utils/pow_seqt.h"
+#include "../utils/ipow_idx.h"
+
+/* Find the row r (0‑based) that contains linear index n */
+static idx_t binary_search_row(idx_t n)
+{
+    idx_t lo = 0, hi = 1;
+    /* Grow hi until the total terms up to hi exceed n */
+    while ( ((unsigned __int128)hi * (hi + 1) / 2) <= n )
+        hi <<= 1;
+
+    while (lo < hi) {
+        idx_t mid = lo + ((hi - lo) >> 1);
+        unsigned __int128 terms = (unsigned __int128)mid * (mid + 1) / 2;
+        if (terms <= n)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Helper: integer square root for unsigned __int128 */
 static unsigned long long isqrt128(__uint128_t x)
@@ -68,7 +87,7 @@ seq_t a(idx_t n)
     seq_t base   = (seq_t)(k - 1);              /* k-1 */
     idx_t exp    = r - k - 1;                   /* n-k-1 */
 
-    seq_t power = pow_seqt(base, exp);
+    seq_t power = ipow_idx(base, exp);
 
     /* Sign: (-1)^(n+k) */
     seq_t sign = ((r + k) & 1) ? -1 : 1;

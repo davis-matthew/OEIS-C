@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl, easy, nice
  * Formula:   not stated
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 230, u64 n <= 702,
+ * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 230, u64 n <= 702,
  *            u128 n <= 2484, big any n
- * Helpers:   binom, sqrt_uint128
+ * Validated: standard, pass, 94 terms through n = 9316 (2026-11-01)
+ * Helpers:   binomial, isqrt_u128_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,14 +29,14 @@
 */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/sqrt_uint128.h"
+#include "../utils/binomial.h"
+#include "../utils/isqrt_u128_to_idx.h"
 
 /* Main function requested: compute a(n) of A065600. */
 seq_t a(idx_t n) {
     /* Find row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2. */
     __uint128_t val = (__uint128_t)8 * n + 1;
-    idx_t s = sqrt_uint128(val);           /* floor sqrt(8n+1) */
+    idx_t s = isqrt_u128_to_idx(val);           /* floor sqrt(8n+1) */
     idx_t r = (s - 1) / 2;                 /* row number */
 
     /* Compute start index of the row. */
@@ -45,8 +46,8 @@ seq_t a(idx_t n) {
     /* Now compute T(r,k) by the closed form formula. */
     seq_t sum = 0;
     for (idx_t i = 0; i <= r - k; ++i) {
-        seq_t comb1 = binom(k + i, i);
-        seq_t comb2 = binom((idx_t)(2 * r - k - i), r);
+        seq_t comb1 = binomial(k + i, i);
+        seq_t comb2 = binomial((idx_t)(2 * r - k - i), r);
         seq_t term = (seq_t)(k + i + 1) * comb1 * comb2;
         if (i & 1) sum -= term;
         else       sum += term;

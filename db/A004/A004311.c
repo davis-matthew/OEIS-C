@@ -8,12 +8,13 @@
  *            (2n-i+1)/i with gcd reduction
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 18, u64 n <= 34, u128 n <= 66,
  *            big any n
- * Helpers:   a004311_gcd
+ * Validated: standard, pass, 40 terms through n = 964 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a004311_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
     for (idx_t i = 1; i <= k; i++) {
         seq_t m = (seq_t)(2 * n - i + 1);
         seq_t d = (seq_t)i;
-        seq_t g = a004311_gcd(result, d);
+        seq_t g = gcd(result, d);
         result /= g;
         d /= g;
         m /= d;

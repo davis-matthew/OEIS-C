@@ -10,7 +10,8 @@
  *            that prime. The sequence is the list of such indices k
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 /* Memory helpers that work in both C and C++.  They allocate/​free
    arrays of seq_t elements, taking care of constructors in C++. */
@@ -63,7 +64,7 @@ static void ensure_primes_at_least(size_t count)
     {
         uint64_t cand = last_checked + 1;
         bool isprime = true;
-        uint64_t lim = (uint64_t)int_sqrt(cand);
+        uint64_t lim = (uint64_t)isqrt(cand);
         for (size_t i = 0; i < prime_cnt && primes[i] <= lim; ++i)
         {
             if (cand % primes[i] == 0) { isprime = false; break; }

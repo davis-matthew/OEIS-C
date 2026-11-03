@@ -9,13 +9,15 @@
  *            OEIS (n-1)!*Sum ... formula)
  * Range:     i8 n <= 7, i16 n <= 12, i32 n <= 18, i64 n <= 28, i128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *A_cache = NULL;
 static idx_t A_len = 0;
@@ -25,11 +27,11 @@ static void ensure_cap(idx_t need) {
     if (need <= A_cap) return;
     idx_t nc = A_cap ? A_cap : 64;
     while (nc < need) nc *= 2;
-    seq_t *nb = (seq_t *)malloc(nc * sizeof(seq_t));
-    memset((void *)nb, 0, nc * sizeof(seq_t));
+    seq_t *nb = mem_new(seq_t, nc);
+    mem_set(nb, 0, nc * sizeof(seq_t));
     if (A_cache != NULL) {
-        memcpy((void *)nb, (void *)A_cache, A_len * sizeof(seq_t));
-        free(A_cache);
+        mem_copy(nb, A_cache, A_len * sizeof(seq_t));
+        mem_free(A_cache);
     }
     A_cache = nb;
     A_cap = nc;

@@ -11,7 +11,8 @@
  *            384)
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 817 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>   /* for uint64_t etc. */
+#include "../utils/mem.h"
 
 #define MAX_DIV 16   /* number of divisors of 952 = 2^3·7·17 */
 
@@ -33,7 +35,7 @@ static Poly *poly_new(idx_t deg)
 {
     Poly *p = (Poly *)malloc(sizeof(Poly));
     p->deg = deg;
-    p->coeff = (seq_t *)calloc((size_t)(deg + 1), sizeof(seq_t));
+    p->coeff = mem_new(seq_t, (size_t)(deg + 1));
     return p;
 }
 
@@ -41,7 +43,7 @@ static Poly *poly_new(idx_t deg)
 static void poly_free(Poly *p)
 {
     if (!p) return;
-    free(p->coeff);
+    mem_free(p->coeff);
     free(p);
 }
 
@@ -63,10 +65,10 @@ static Poly *poly_div(const Poly *num, const Poly *den)
 {
     idx_t degq = num->deg - den->deg;
     /* Temporary copy of numerator coefficients. */
-    seq_t *tmp = (seq_t *)calloc((size_t)(num->deg + 1), sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, (size_t)(num->deg + 1));
     for (idx_t i = 0; i <= num->deg; ++i) tmp[i] = num->coeff[i];
 
-    seq_t *quot = (seq_t *)calloc((size_t)(degq + 1), sizeof(seq_t));
+    seq_t *quot = mem_new(seq_t, (size_t)(degq + 1));
 
     for (idx_t i = num->deg; i >= den->deg; --i) {
         seq_t coeff = tmp[i];          /* leading coefficient at this point */
@@ -82,8 +84,8 @@ static Poly *poly_div(const Poly *num, const Poly *den)
     Poly *q = poly_new(degq);
     for (idx_t i = 0; i <= degq; ++i) q->coeff[i] = quot[i];
 
-    free(tmp);
-    free(quot);
+    mem_free(tmp);
+    mem_free(quot);
     return q;
 }
 
@@ -206,7 +208,7 @@ seq_t a(idx_t n)
     if (n == 0) return 1;
 
     /* Allocate array for a[0..n]. */
-    seq_t *aseq = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *aseq = mem_new(seq_t, (size_t)(n + 1));
     aseq[0] = 1;
 
     for (idx_t i = 1; i <= n; ++i) {
@@ -219,6 +221,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = aseq[n];
-    free(aseq);
+    mem_free(aseq);
     return result;
 }

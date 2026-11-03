@@ -7,19 +7,22 @@
  * Formula:   a(n) = 2*a(n-1) - 2*a(n-2), a(0)=1, a(1)=5
  * Range:     i8 n <= 9, i16 n <= 25, i32 n <= 57, i64 n <= 121, i128 n <= 249,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 57 terms through n = 998 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     idx_t k = n / 4;          /* exponent for (-4) */
     idx_t r = n % 4;          /* determines the coefficient */
 
-    seq_t power = seq_pow((seq_t)-4, k);  /* (-4)^k in seq_t */
+    seq_t power = ipow_idx((seq_t)-4, k);  /* (-4)^k in seq_t */
 
     switch (r)
     {

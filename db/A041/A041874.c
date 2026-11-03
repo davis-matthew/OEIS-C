@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 29, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined in the build environment. */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Initialize on first call. */
     if (!initialized) {
         capacity = 64;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         /* a(0) = floor(sqrt(459)) = 21. */
         cache[0] = (seq_t)21;
         len = 1;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         while (len <= (size_t)n) {
             if (len >= capacity) {
                 capacity *= 2;
-                cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, capacity);
             }
 
             /* Continued‑fraction recurrence: compute next m, d, a. */

@@ -10,12 +10,14 @@
  *            a(2)=49, a(3)=292, a(4)=1723, a(5)=10327, a(6)=61996
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_values[7] = { 0,
     7ULL,    /* a(1) */
@@ -38,7 +40,7 @@ static void ensure_capacity(idx_t n)
     idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < n)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
     cache = new_cache;
     cache_cap = new_cap;
     /* Newly allocated entries are zeroed by realloc, which is okay because

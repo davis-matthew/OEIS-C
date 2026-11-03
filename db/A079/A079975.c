@@ -10,13 +10,15 @@
  *            compositions of n into {1,2,3,5}
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) using memoisation and the recurrence. */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise for the first call: compute a[0..3] */
     if (dp == NULL) {
         dp_size = 4;
-        dp = (seq_t *)malloc(dp_size * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_size);
         /* safety check – abort on allocation failure */
         if (dp == NULL) abort();
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         while (new_size <= n)
             new_size <<= 1;          /* double until big enough */
 
-        seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_size);
         if (tmp == NULL) abort();
         dp = tmp;
         dp_size = new_size;

@@ -9,9 +9,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of proper divisors d of n such that
  *            sigma(A003961(d)) >= 2 * sigma(d)
- * Range:     u8 n <= 33, u16 n <= 4595, u32 n <= 8603, u64 n <= 8603,
- *            u128 n <= 8603, big any n
- * Helpers:   factor_u64, is_prime_small
+ * Range:     u8 n <= 33, u16 n <= 4595, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8603 (2026-11-01)
+ * Helpers:   factor_u64, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,14 +21,16 @@
    the inequality by factoring each divisor. */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* Return the next prime after p (p is prime). */
 static uint64_t next_prime_of_prime(uint64_t p)
 {
     uint64_t cand = p + 1;
-    while (!is_prime_small((seq_t)cand))
+    while (!is_prime_seq((seq_t)cand))
         ++cand;
     return cand;
 }

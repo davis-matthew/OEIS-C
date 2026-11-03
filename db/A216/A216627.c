@@ -8,14 +8,16 @@
  * Formula:   a(n) = T(row, col) with T(n,k) = Σ_{c|n, d|k} lcm(c,d). Row and
  *            column are determined by the triangular index: n lies in row r
  *            where r*(r+1)/2 ≥ n and r*(r-1)/2 < n
- * Range:     u8 n <= 75, u16 n <= 9867, u32 n <= 9151, u64 n <= 9151,
- *            u128 n <= 9151, big any n
+ * Range:     u8 n <= 75, u16 n <= 9867, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 80 terms through n = 9151 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

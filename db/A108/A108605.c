@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2*p where p and p+2 are twin primes
  * Range:     u8 n <= 10, u16 n <= 505, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   generate_twin_primes
+ * Validated: standard, pass, 64 terms through n = 9702 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,47 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/generate_twin_primes.h"
+#include "../utils/mem.h"
+
+/* Generate twin primes up to 'lim', storing 2*p in *arr and count in *cnt. */
+static void generate_twin_primes(idx_t lim, seq_t **arr, size_t *cnt)
+{
+    /* Allocate and initialise the prime sieve. */
+    uint8_t *is_prime = (uint8_t *)malloc((size_t)lim + 1);
+    if (!is_prime) abort();
+    memset(is_prime, 1, (size_t)lim + 1);
+    is_prime[0] = is_prime[1] = 0;
+    for (idx_t i = 2; i * i <= lim; ++i) {
+        if (is_prime[i]) {
+            for (idx_t j = i * i; j <= lim; j += i)
+                is_prime[j] = 0;
+        }
+    }
+
+    /* Count the twin primes to allocate the result array. */
+    size_t tmp_cnt = 0;
+    for (idx_t p = 2; p + 2 <= lim; ++p) {
+        if (is_prime[p] && is_prime[p + 2]) {
+            ++tmp_cnt;
+        }
+    }
+
+    *arr = mem_new(seq_t, tmp_cnt);
+    if (!*arr) abort();
+    *cnt = tmp_cnt;
+
+    /* Store the doubled smaller prime of each twin pair. */
+    size_t pos = 0;
+    for (idx_t p = 2; p + 2 <= lim; ++p) {
+        if (is_prime[p] && is_prime[p + 2]) {
+            seq_t val = (seq_t)p;
+            val <<= 1;                /* multiply by 2 */
+            (*arr)[pos++] = val;
+        }
+    }
+
+    free(is_prime);
+}
 
 /* Initial sieve limit that covers most queries up to about n=10000. */
 static const idx_t INITIAL_LIMIT = 2000000;
@@ -39,7 +80,7 @@ static void ensure_n(idx_t n)
         seq_t *new_arr = NULL;
         size_t new_cnt = 0;
         generate_twin_primes(sieve_limit, &new_arr, &new_cnt);
-        free(twin_vals);                          /* free old storage */
+        mem_free(twin_vals);                          /* free old storage */
         twin_vals = new_arr;
         twin_cnt  = new_cnt;
     }

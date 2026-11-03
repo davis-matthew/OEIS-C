@@ -13,12 +13,14 @@
  *            a(1)=6, a(2)=41, a(3)=285, a(4)=1989, a(5)=13901
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of OEIS A122371.  The function uses a
    static cache and computes terms only once, so subsequent
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     {
         /* Allocate or reallocate the cache.  The cast is required
            for C11 and C++17 compatibility. */
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp && needed > 0)
             return (seq_t)0;          /* allocation failed – unlikely */
         cache = tmp;

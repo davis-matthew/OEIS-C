@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 64, i16 n <= 64, i32 n <= 64, i64 n <= 64, i128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static void init_pk(void);
 
@@ -58,7 +60,7 @@ static void init_pk(void) {
 /* recompute the cache up to and including value n */
 static void recompute_up_to(size_t n) {
     /* allocate new cache */
-    seq_t *new_cache = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, n + 1);
     if (!new_cache) abort();
 
     /* initial value a(0)=1 */
@@ -76,7 +78,7 @@ static void recompute_up_to(size_t n) {
     }
 
     /* free old cache */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = n + 1;
 }

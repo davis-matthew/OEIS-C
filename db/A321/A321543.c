@@ -10,12 +10,15 @@
  *            The function uses seq_pow from the utils library
  * Range:     i8 n <= 4, i16 n <= 16, i32 n <= 1802, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 71 terms through n = 9780 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -39,14 +42,14 @@ seq_t a(idx_t n)
             if (p == (idx_t)2)
             {
                 /* a(2^e) = 2 - (2^(2e+2) - 1) / 3 */
-                seq_t pow_val = seq_pow((seq_t)2, (idx_t)(2 * e + 2));
+                seq_t pow_val = ipow_idx((seq_t)2, (idx_t)(2 * e + 2));
                 seq_t num = pow_val - (seq_t)1;
                 factor = (seq_t)2 - num / (seq_t)3;
             }
             else
             {
                 /* a(p^e) = (p^(2e+2) - 1) / (p^2 - 1) */
-                seq_t pow_val = seq_pow((seq_t)p, (idx_t)(2 * e + 2));
+                seq_t pow_val = ipow_idx((seq_t)p, (idx_t)(2 * e + 2));
                 seq_t num = pow_val - (seq_t)1;
                 seq_t denom = (seq_t)p * (seq_t)p - (seq_t)1;
                 factor = num / denom;
@@ -64,13 +67,13 @@ seq_t a(idx_t n)
         if (p == (idx_t)2)
         {
             /* exponent e = 1 for the remaining factor 2 */
-            seq_t pow_val = seq_pow((seq_t)2, (idx_t)4);  /* 2^(2*1+2) */
+            seq_t pow_val = ipow_idx((seq_t)2, (idx_t)4);  /* 2^(2*1+2) */
             seq_t num = pow_val - (seq_t)1;
             factor = (seq_t)2 - num / (seq_t)3;
         }
         else
         {
-            seq_t pow_val = seq_pow((seq_t)p, (idx_t)4);  /* p^(2*1+2) */
+            seq_t pow_val = ipow_idx((seq_t)p, (idx_t)4);  /* p^(2*1+2) */
             seq_t num = pow_val - (seq_t)1;
             seq_t denom = (seq_t)p * (seq_t)p - (seq_t)1;
             factor = num / denom;

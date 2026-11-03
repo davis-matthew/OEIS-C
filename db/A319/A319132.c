@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult, easy
  * Formula:   a(n) = \prod_{p^e||n} ((p+1)*e + 1)
- * Range:     u8 n <= 65, u16 n <= 9613, u32 n <= 9613, u64 n <= 9613,
- *            u128 n <= 9613, big any n
+ * Range:     u8 n <= 65, u16 n <= 11129, u32 n <= 16000, u64 n <= 16000,
+ *            u128 n <= 16000, big any n
+ * Validated: standard, pass, 86 terms through n = 9613 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

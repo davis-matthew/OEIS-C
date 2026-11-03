@@ -9,12 +9,14 @@
  * Formula:   a(0)=1; for n≥1, a(n)=2‑n+Σ_{k=0}^{n‑1} a(k)·a(n‑1‑k)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 /* seq_t and idx_t are provided by the build system */
 
 static seq_t *cache = NULL;      /* dynamic array of computed terms */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
     idx_t new_len = n + 1;              /* indices 0..n inclusive */
 
     /* Allocate or grow the array.  realloc(NULL, sz) behaves like malloc. */
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (tmp == NULL) abort();           /* allocation failure */
     cache = tmp;
     cache_len = new_len;

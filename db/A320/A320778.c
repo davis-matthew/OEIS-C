@@ -11,12 +11,14 @@
  *            a(n) for all n ≥ 0 using dynamic memoisation
  * Range:     i8 n <= 10, i16 n <= 23, i32 n <= 43, i64 n <= 43, i128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache_a = NULL;     /* a[0..max]  */
 static seq_t *cache_S = NULL;    /* S[n] = Σ_{d|n} d*a(d) */
@@ -27,19 +29,19 @@ static idx_t  max_computed = 0;
 static void grow_caches(idx_t new_max)
 {
     /* Allocate new arrays */
-    seq_t *new_a   = (seq_t *)calloc(new_max + 1, sizeof(seq_t));
-    seq_t *new_S   = (seq_t *)calloc(new_max + 1, sizeof(seq_t));
-    seq_t *new_phi = (seq_t *)calloc(new_max + 1, sizeof(seq_t));
+    seq_t *new_a   = mem_new(seq_t, new_max + 1);
+    seq_t *new_S   = mem_new(seq_t, new_max + 1);
+    seq_t *new_phi = mem_new(seq_t, new_max + 1);
 
     /* Copy old data */
-    if (cache_a)    memcpy(new_a,   cache_a,   (max_computed + 1) * sizeof(seq_t));
-    if (cache_S)    memcpy(new_S,   cache_S,   (max_computed + 1) * sizeof(seq_t));
-    if (cache_phi)  memcpy(new_phi, cache_phi, (max_computed + 1) * sizeof(seq_t));
+    if (cache_a)    mem_copy(new_a, cache_a, (max_computed + 1) * sizeof(seq_t));
+    if (cache_S)    mem_copy(new_S, cache_S, (max_computed + 1) * sizeof(seq_t));
+    if (cache_phi)  mem_copy(new_phi, cache_phi, (max_computed + 1) * sizeof(seq_t));
 
     /* Free old arrays */
-    free(cache_a);
-    free(cache_S);
-    free(cache_phi);
+    mem_free(cache_a);
+    mem_free(cache_S);
+    mem_free(cache_phi);
 
     /* Replace with new */
     cache_a   = new_a;

@@ -11,14 +11,15 @@
  *            immediately by the decimal digits of n
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   digit_count
+ * Validated: partial, pass, 68 terms through n = 69 (2026-11-01)
+ * Helpers:   num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdint.h>
-#include "../utils/digit_count.h"
+#include "../utils/num_digits0.h"
 
 static long double pow10i[25];   /* 10^i for i up to 24 */
 
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
     if (!pow10i[0]) init_pow10();       /* lazy static init */
 
     /* number of digits in n */
-    uint64_t k = digit_count((uint64_t)n);
+    uint64_t k = num_digits0((uint64_t)n);
 
     /* iterate over m until condition satisfied */
     for (uint64_t m = 2; ; ++m) {       /* m=1 never works, so start at 2 */

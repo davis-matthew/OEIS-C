@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   has1and2
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has1and2.h"
+#include "../utils/mem.h"
+
+/* Return true iff x (base‑10) contains both digits 1 and 2 when written
+ * in base‑3.  x is expected to be a square of a positive integer. */
+static bool has1and2(seq_t x)
+{
+    bool has1 = false, has2 = false;
+    while (x > 0) {
+        uint8_t digit = (uint8_t)(x % 3);
+        if (digit == 1)
+            has1 = true;
+        else if (digit == 2)
+            has2 = true;
+        if (has1 && has2)
+            return true;
+        x /= 3;
+    }
+    return has1 && has2;
+}
 
 static bool has1and2(seq_t x);
 
@@ -46,7 +65,7 @@ seq_t a(idx_t n)
         if (has1and2(sq)) {
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, new_cap);
                 if (!tmp) abort();  /* out of memory */
                 seq = tmp;
                 seq_cap = new_cap;

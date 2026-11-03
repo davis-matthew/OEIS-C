@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 122, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   largest_prime_factor
+ * Validated: standard, pass, 118 terms through n = 8663 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,8 @@
 /* ------------------------------------------------------------------ */
 /* External helper prototypes required by the build interface.        */
 /* ------------------------------------------------------------------ */
-#include "../utils/largest_prime_factor.h"   /* uint64_t largest_prime_factor(uint64_t m) */
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Static data for caching EKG terms, largest prime factors and prime  */
@@ -136,8 +138,8 @@ static void ensure_cache(idx_t need)
     if (!initialized) {
         /* initial allocation */
         ekg_cap = 1024;
-        ekg_cache = (seq_t*)malloc(ekg_cap * sizeof(seq_t));
-        lpf_cache = (seq_t*)malloc(ekg_cap * sizeof(seq_t));
+        ekg_cache = mem_new(seq_t, ekg_cap);
+        lpf_cache = mem_new(seq_t, ekg_cap);
         if (!ekg_cache || !lpf_cache) exit(EXIT_FAILURE);
 
         ekg_cache[0] = (seq_t)1;
@@ -162,8 +164,8 @@ static void ensure_cache(idx_t need)
     if (ekg_len + (size_t)(need - ekg_len) > ekg_cap) {
         size_t new_cap = ekg_cap;
         while (new_cap < ekg_len + (size_t)(need - ekg_len)) new_cap *= 2;
-        ekg_cache = (seq_t*)realloc(ekg_cache, new_cap * sizeof(seq_t));
-        lpf_cache = (seq_t*)realloc(lpf_cache, new_cap * sizeof(seq_t));
+        ekg_cache = mem_resize(seq_t, ekg_cache, new_cap);
+        lpf_cache = mem_resize(seq_t, lpf_cache, new_cap);
         if (!ekg_cache || !lpf_cache) exit(EXIT_FAILURE);
         ekg_cap = new_cap;
     }

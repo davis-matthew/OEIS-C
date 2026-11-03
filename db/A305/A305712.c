@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   contiguous_digits
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,14 +27,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/contiguous_digits.h"
+#include "../utils/mem.h"
+
+/* Test whether digit set of x is an initial interval {0,...,k}. */
+static bool contiguous_digits(seq_t x) {
+    if (x == 0) return true;            /* 0 only has digit 0 */
+    unsigned mask = 0;
+    unsigned maxd  = 0;
+    seq_t t = x;
+    while (t > 0) {
+        unsigned d = (unsigned)(t % 10);
+        mask |= 1u << d;
+        if (d > maxd) maxd = d;
+        t /= 10;
+    }
+    return mask == ((1u << (maxd + 1)) - 1);
+}
 
 /* Ensure a dynamic array has at least 'need' elements. */
 static void grow_seq(seq_t **ptr, size_t *cap, size_t need) {
     if (*cap < need) {
         size_t newcap = (*cap) ? (*cap) * 2 : 16;
         while (newcap < need) newcap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(*ptr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *ptr, newcap);
         if (!tmp) exit(EXIT_FAILURE);
         *ptr  = tmp;
         *cap  = newcap;

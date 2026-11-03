@@ -13,7 +13,8 @@
  *            second rule only when n > 1
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #ifndef UINT64_MAX
 # define UINT64_MAX 0xFFFFFFFFFFFFFFFFULL
 #endif
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* dynamic arrays for the sequence and the used flag array      */
@@ -45,10 +47,10 @@ static void ensure_seq_cap(idx_t need)
     if (need < (idx_t)a_cap) return;
     size_t new_cap = a_cap ? a_cap * 2 : 64;
     while (new_cap <= (size_t)need) new_cap *= 2;
-    seq_t *newp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, a_vals, new_cap);
     if (!newp) abort();
     if (new_cap > a_cap) {
-        memset(newp + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
+        mem_set(newp + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
     }
     a_vals = newp;
     a_cap = new_cap;

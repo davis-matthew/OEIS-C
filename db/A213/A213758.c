@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 27, u64 n <= 59, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    initial values: a(1)=1, a(2)=9, a(3)=40, a(4)=130, a(5)=355
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* First call: allocate initial capacity for the five known terms. */
     if (cache == NULL) {
         cache_capacity = 8;           /* start a bit larger than 5 */
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (cache == NULL) return (seq_t)0; /* out of memory */
 
         /* initialise first 5 known terms */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         size_t new_capacity = cache_capacity;
         while (new_capacity < needed)
             new_capacity *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
         if (tmp == NULL) return (seq_t)0; /* out of memory */
         cache = tmp;
         cache_capacity = new_capacity;

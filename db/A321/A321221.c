@@ -11,7 +11,8 @@
  *            The nth term is returned
  * Range:     u8 n <= 2, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The external types seq_t and idx_t are supplied by the build. */
 
@@ -39,7 +41,7 @@ static void ensure_seq_capacity(size_t needed)
 {
     if (seq_cap >= needed) return;
     while (seq_cap < needed) seq_cap = seq_cap ? seq_cap * 2 : 64;
-    seq_values = (seq_t *)realloc(seq_values, seq_cap * sizeof(seq_t));
+    seq_values = mem_resize(seq_t, seq_values, seq_cap);
     if (!seq_values) exit(EXIT_FAILURE);
 }
 

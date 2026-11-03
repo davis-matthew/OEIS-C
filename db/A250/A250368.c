@@ -11,7 +11,8 @@
  *            minimum of the remaining four terms
  * Range:     u8 none, u16 n <= 2, u32 n <= 13, u64 n <= 34, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define STATE_BITS 12                     /* 4^6 = 4096 states   */
 #define STATE_SIZE (1U << STATE_BITS)
@@ -113,7 +115,7 @@ static void ensure_length(idx_t L)
         }
 
         /* zero next buffer */
-        memset(dp_nxt_ptr, 0, STATE_SIZE * sizeof(seq_t));
+        mem_set(dp_nxt_ptr, 0, STATE_SIZE * sizeof(seq_t));
 
         /* extend each state by one new digit */
         for (uint32_t s = 0; s < STATE_SIZE; ++s) {

@@ -12,17 +12,19 @@
  *            begins with 1 and follows the greedy construction des...
  * Range:     u8 n <= 249, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 109 terms through n = 9663 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)0;          /* safety for invalid offset */
-    seq_t *seq = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (size_t)(n + 1));
     if (!seq) return (seq_t)0;            /* allocation failed */
     seq[1] = (seq_t)1;
     idx_t pos = 2;                        /* next free index in seq */
@@ -49,6 +51,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 8, u128 n <= 10,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,19 @@
    a(n+1) = (1/n) * Σ_{k=1..n} ( Σ_{d|k}(-1)^{k/d+1} * d^k * a(d) ) * a(n-k+1)   */
 
 #include <stdlib.h>
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static inline seq_t pow_uint(uint64_t base, idx_t exp) {
+    seq_t result = 1;
+    seq_t b = (seq_t)base;
+    while (exp) {
+        if (exp & 1) result *= b;
+        b *= b;
+        exp >>= 1;
+    }
+    return result;
+}
 
 static seq_t *cache_a = NULL;   /* stores a[1..] */
 static seq_t *cache_S = NULL;   /* stores S[1..] where S(k)=Σ_{d|k}(-1)^{k/d+1} d^k a(d) */
@@ -27,8 +40,8 @@ static void ensure_cache_a(idx_t n)
 {
     if (cache_cap >= (size_t)n + 1) return;
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_a = (seq_t *)realloc(cache_a, new_cap * sizeof(seq_t));
-    seq_t *new_S = (seq_t *)realloc(cache_S, new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, cache_a, new_cap);
+    seq_t *new_S = mem_resize(seq_t, cache_S, new_cap);
     if (!new_a || !new_S) return;                     /* unlikely in tests */
     for (size_t i = cache_cap; i < new_cap; ++i) {
         new_a[i] = (seq_t)0;

@@ -10,14 +10,24 @@
  *            a(n-1)
  * Range:     u8 n <= 21, u16 n <= 52, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seen
+ * Validated: standard, pass, 71 terms through n = 9941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seen.h"
+#include "../utils/mem.h"
+
+/* test whether val already appears among the first seq_size terms */
+static bool seen(const seq_t *cache, idx_t sz, seq_t val)
+{
+    for (idx_t i = 0; i < sz; ++i)
+        if (cache[i] == val)
+            return true;
+    return false;
+}
 
 /* dynamic cache of computed terms (0‑based index: a(1) at cache[0]) */
 static seq_t *seq_cache = NULL;
@@ -32,7 +42,7 @@ static void ensure_capacity(idx_t need)
     idx_t new_cap = seq_cap ? seq_cap * 2 : 4;
     if (new_cap < need)
         new_cap = need;
-    seq_t *new_ptr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_ptr)          /* allocation failure – abort */
         abort();
     seq_cache = new_ptr;
@@ -47,7 +57,7 @@ seq_t a(idx_t n)
 
     /* initialise cache on first call */
     if (!seq_cache) {
-        seq_cache = (seq_t *)malloc(sizeof(seq_t));
+        seq_cache = mem_new(seq_t, 1);
         if (!seq_cache)      /* allocation failure – abort */
             abort();
         seq_cache[0] = 1;    /* a(1) = 1 */

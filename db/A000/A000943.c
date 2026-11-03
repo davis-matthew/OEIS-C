@@ -12,13 +12,14 @@
  *            m-gons (m odd >= 3) whose vertices carry pos...
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   a943_phi
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a943_phi.h"
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
     for (d = 1; d <= N; d += 2) {
         if (N % d != 0) continue;
         uint64_t e = N / d - 1;
-        uint64_t ph = a943_phi(d);
+        uint64_t ph = totient_u64(d);
         seq_t q = 0;
         uint64_t r = 1;
         for (i = 0; i < e; i++) {

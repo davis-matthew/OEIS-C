@@ -10,7 +10,8 @@
  *            taken over all k such that n ≥ (k+1)(k+6)/2
  * Range:     u8 n <= 24, u16 n <= 45, u32 n <= 95, u64 n <= 223,
  *            u128 n <= 570, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
  
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (n > maxN || new_cols > cols) {
         /* Allocate new tables large enough for this n and k_max. */
         size_t rows = (size_t)(n + 1);   /* row index = sum m ≤ n */
-        seq_t *newP = (seq_t *)calloc(rows * new_cols, sizeof(seq_t));
+        seq_t *newP = mem_new(seq_t, rows * new_cols);
         if (!newP) return (seq_t)0;     /* allocation failure */
         /* Base case: p_0(0) = 1 */
         for (size_t j = 0; j < new_cols; ++j)
@@ -54,14 +56,14 @@ seq_t a(idx_t n)
             }
         }
         /* Build factorial table up to (k_max + 1)! */
-        seq_t *newFact = (seq_t *)calloc(new_cols + 1, sizeof(seq_t));
-        if (!newFact) { free(newP); return (seq_t)0; }
+        seq_t *newFact = mem_new(seq_t, new_cols + 1);
+        if (!newFact) { mem_free(newP); return (seq_t)0; }
         newFact[0] = (seq_t)1;
         for (int i = 1; i <= (int)k_max + 1; ++i)
             newFact[i] = newFact[i - 1] * (seq_t)i;
         /* Free old tables. */
-        if (P) free(P);
-        if (fact) free(fact);
+        if (P) mem_free(P);
+        if (fact) mem_free(fact);
         /* Store new tables. */
         P = newP;
         fact = newFact;

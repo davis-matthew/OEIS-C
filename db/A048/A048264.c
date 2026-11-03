@@ -8,13 +8,15 @@
  *            distinct primes ≡5 (mod 6)
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *nonrep = NULL;
 static size_t nonrep_len = 0;
@@ -66,7 +68,7 @@ static void build_nonrep(void)
         return;
     }
 
-    nonrep = (seq_t *)malloc(count * sizeof(seq_t));
+    nonrep = mem_new(seq_t, count);
     if (!nonrep) {
         free(is_prime);
         return; /* allocation failure */

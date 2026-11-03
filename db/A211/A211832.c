@@ -12,7 +12,8 @@
  *            length, last value equals 5 or not, and seen-5 flag)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #if defined(__cplusplus)
 #include <type_traits>
@@ -40,21 +42,21 @@ seq_t a(idx_t n) {
     size_t m = (size_t)n + 5;          /* array length */
     size_t sz = (m + 1) * 8;           /* number of DP states */
 
-    Big *cur = (Big *)malloc(sz * sizeof(Big));
-    Big *nxt = (Big *)malloc(sz * sizeof(Big));
+    Big *cur = mem_new(Big, sz);
+    Big *nxt = mem_new(Big, sz);
     if (!cur || !nxt) {
         /* allocation failed */
         return (seq_t)0;
     }
 
-    memset(cur, 0, sz * sizeof(Big));
-    memset(nxt, 0, sz * sizeof(Big));
+    mem_set(cur, 0, sz * sizeof(Big));
+    mem_set(nxt, 0, sz * sizeof(Big));
 
     /* initial state: first element is 0 */
     cur[idx(0, 1, 0, 0)] = 1;
 
     for (size_t pos = 1; pos < m; ++pos) {
-        memset(nxt, 0, sz * sizeof(Big));
+        mem_set(nxt, 0, sz * sizeof(Big));
         size_t max_limit = pos;          /* current max can be at most pos-1 */
         for (size_t maxv = 0; maxv < max_limit; ++maxv) {
             for (int run = 1; run <= 2; ++run) {
@@ -106,8 +108,8 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
 
     return (seq_t)result;
 }

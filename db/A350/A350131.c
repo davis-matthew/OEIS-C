@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = Σ seg[d] over the decimal digits d of n, where seg =
  *            {6,3,4,4,4,5,5,3,7,5} for digits 0–9
- * Range:     u8 n <= 9199, u16 n <= 9199, u32 n <= 9199, u64 n <= 9199,
- *            u128 n <= 9199, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 96 terms through n = 9199 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 33, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* External linkage required by the framework. */
 seq_t a(idx_t n)
@@ -47,9 +49,9 @@ seq_t a(idx_t n)
 
         /* Allocate or reallocate arrays */
         /* a_cache, luc_cache, odd_cache may be NULL on first call */
-        a_cache   = (seq_t *)realloc(a_cache,   new_size * sizeof(seq_t));
-        luc_cache = (seq_t *)realloc(luc_cache, new_size * sizeof(seq_t));
-        odd_cache = (seq_t *)realloc(odd_cache, new_size * sizeof(seq_t));
+        a_cache   = mem_resize(seq_t, a_cache, new_size);
+        luc_cache = mem_resize(seq_t, luc_cache, new_size);
+        odd_cache = mem_resize(seq_t, odd_cache, new_size);
 
         /* Initialise new entries for odd divisor sums */
         for (size_t i = cache_size; i < new_size; ++i)

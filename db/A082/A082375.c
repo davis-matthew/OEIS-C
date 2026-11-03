@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 245, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   C_of_r
+ * Validated: standard, pass, 109 terms through n = 968 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
    a closed form, so the routine runs in O(r) ≈ O(√n) time. */
 
 #include <stdint.h>
-#include "../utils/C_of_r.h"
+
+static inline seq_t C_of_r(idx_t r)
+{
+    /* Total elements in rows 0..r inclusive.
+       Formula depends on parity of r. */
+    if (r & 1U) {                        /* r = 2*m+1 (odd) */
+        idx_t m = (r - 1U) >> 1;
+        seq_t mm = (seq_t)m;
+        return mm * mm + (seq_t)3 * mm + (seq_t)2;
+    } else {                              /* r = 2*m (even) */
+        idx_t m = r >> 1;
+        seq_t mm = (seq_t)m;
+        return mm * mm + (seq_t)2 * mm + (seq_t)1;
+    }
+}
 
 seq_t a(idx_t n)
 {

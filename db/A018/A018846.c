@@ -8,14 +8,29 @@
  * Formula:   a(n) is the nth strobogrammatic number (OEIS A018846)
  * Range:     u8 n <= 20, u16 n <= 206, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   strob_partner
+ * Validated: standard, pass, 70 terms through n = 9834 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/strob_partner.h"
+
+/* mapping of a digit to its upside‑down counterpart; zero maps to zero */
+static inline unsigned char strob_partner(unsigned char d)
+{
+    switch (d) {
+        case 0: return 0;
+        case 1: return 1;
+        case 2: return 2;
+        case 5: return 5;
+        case 6: return 9;
+        case 8: return 8;
+        case 9: return 6;
+        default: return 0;           /* unreachable */
+    }
+}
 
 /* compute a(n) for n >= 1 */
 seq_t a(idx_t n)

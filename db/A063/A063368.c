@@ -11,13 +11,15 @@
  *            a(11) = 2902, a(12) = 3230, a(13) = 3562
  * Range:     i8 n <= 2, i16 n <= 39, i32 n <= 39, i64 n <= 39, i128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;               /* array storing a(2),a(3),... */
 static idx_t  max_sc  = 1;                  /* highest n stored in cache */
@@ -32,7 +34,7 @@ static void init_cache(void) {
         3230, 3562
     };
     size_t need_cap = 12;                  /* store indices 2..13 -> 12 elements */
-    cache = (seq_t *)malloc(need_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, need_cap);
     sc_cap = need_cap;
     for (idx_t i = 2; i <= 13; ++i) {
         cache[(size_t)(i-2)] = base[i-2];
@@ -50,7 +52,7 @@ static void ensure_cache(idx_t n) {
     /* enlarge cache if necessary */
     size_t needed_cap = (size_t)n - 1;          /* n-1 elements for indices 2..n */
     if (needed_cap > sc_cap) {
-        cache = (seq_t *)realloc(cache, needed_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, needed_cap);
         sc_cap = needed_cap;
     }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   sum_step
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,25 @@
  */
 
 #include <stdint.h>
-#include "../utils/sum_step.h"
+
+static seq_t sum_step(idx_t step, idx_t N)
+{
+    /* Sum_{d = step, 2·step, … ≤ N} d * ⌊N/d⌋  */
+    seq_t total = 0;
+    idx_t limit = N / step;
+    idx_t i = 1;
+    while (i <= limit) {
+        idx_t v = N / (step * i);
+        /* Next i where floor(N/(step*i)) changes.  */
+        idx_t j = N / (step * v) + 1;
+        if (j > limit) j = limit + 1;
+        idx_t cnt = j - i;
+        seq_t sum_k = ((seq_t)i + (seq_t)(j - 1)) * (seq_t)cnt / 2;
+        total += sum_k * (seq_t)step * (seq_t)v;
+        i = j;
+    }
+    return total;
+}
 
 seq_t a(idx_t n)
 {

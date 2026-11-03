@@ -11,9 +11,10 @@
  *            number of prime factors), * counted with multiplicity. * The
  *            function builds the sequence lazily using a sieve of * smallest
  *            prime factors and a growing cache
- * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 140, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 89 terms through n = 7484 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static uint32_t *g_spf = NULL;          /* smallest prime factor array   */
 static size_t   g_spf_limit = 0;        /* current maximum index of spf  */
@@ -88,7 +90,7 @@ static void ensure_cache_capacity(size_t needed)
     if (needed <= g_cache_cap) return;
     size_t new_cap = g_cache_cap ? g_cache_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_cache = (seq_t*)realloc(g_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, g_cache, new_cap);
     if (!new_cache) abort();
     g_cache   = new_cache;
     g_cache_cap = new_cap;

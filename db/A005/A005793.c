@@ -8,13 +8,29 @@
  *            0, z >= x+y (direct search)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a000037_isqrt
+ * Validated: standard, pass, 120 terms through n = 9416 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a000037_isqrt.h"
+
+static uint64_t a000037_isqrt(uint64_t x)
+{
+    uint64_t r = 0, bit = (uint64_t)1 << 62;
+    while (bit > x) bit >>= 2;
+    while (bit != 0) {
+        if (x >= r + bit) {
+            x -= r + bit;
+            r = (r >> 1) + bit;
+        } else {
+            r >>= 1;
+        }
+        bit >>= 2;
+    }
+    return r;
+}
 
 static uint64_t isqrt_u64(uint64_t v) {
     uint64_t r = a000037_isqrt(v);

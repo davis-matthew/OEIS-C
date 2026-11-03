@@ -9,18 +9,20 @@
  * Formula:   a(n) = 1 if gcd(n, A003415(n)) == gcd(n, A276086(n)), otherwise
  *            0 where A003415 is the arithmetic derivative and A276086 is the
  *            primorial base exp-function
- * Range:     u8 n <= 48, u16 n <= 86, u32 n <= 7897, u64 n <= 9951,
- *            u128 n <= 9951, big any n
- * Helpers:   factor_u64, gcd, pow_uint
+ * Range:     u8 n <= 48, u16 n <= 86, u32 n <= 7897, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 145 terms through n = 9951 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/gcd.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Some small primes – enough for all n that fit in the tests. */
 static const uint64_t SMALL_PRIMES[20] = {2,3,5,7,11,13,17,19,23,29,
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         temp /= base;                                    /* remaining value */
 
         /* multiply by prime^digit */
-        prod *= pow_uint(SMALL_PRIMES[p_index], (idx_t)digit);
+        prod *= ipow_u64_idx(SMALL_PRIMES[p_index], (idx_t)digit);
         ++p_index;
     }
 

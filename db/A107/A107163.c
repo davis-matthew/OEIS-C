@@ -11,7 +11,8 @@
  *            once; subsequent calls use the stored table
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9706 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Parameters */
@@ -57,10 +59,10 @@ static void add_prime_vec(seq_t p)
 {
     if (prime_vec_cap == 0) {
         prime_vec_cap = 128;
-        prime_vec = (seq_t *)malloc(prime_vec_cap * sizeof(seq_t));
+        prime_vec = mem_new(seq_t, prime_vec_cap);
     } else if (prime_vec_len == prime_vec_cap) {
         prime_vec_cap <<= 1;
-        prime_vec = (seq_t *)realloc(prime_vec, prime_vec_cap * sizeof(seq_t));
+        prime_vec = mem_resize(seq_t, prime_vec, prime_vec_cap);
     }
     prime_vec[prime_vec_len++] = p;
 }
@@ -99,7 +101,7 @@ static void init_sequence(void)
     }
 
     /* ----- Sort the resulting list to ensure ascending order ----- */
-    qsort(prime_vec, prime_vec_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(prime_vec, prime_vec_len, sizeof(seq_t), cmp_seq);
 
     /* ----- Remove any accidental duplicates (should not occur) ----- */
     idx_t uniq = 0;

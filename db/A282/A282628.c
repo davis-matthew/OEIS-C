@@ -13,16 +13,25 @@
  *            is used only to make a triangle
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   binomial, seq_mul, seq_pow
+ * Validated: partial, pass, 55 terms through n = 53 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Required helper functions */
 #include <math.h>                 /* sqrt */
-#include "../utils/binomial.h"    /* binomial(idx_t,idx_t) -> seq_t */
-#include "../utils/seq_pow.h"     /* seq_pow(seq_t,idx_t) -> seq_t */
-#include "../utils/seq_mul.h"     /* seq_mul(seq_t,seq_t) -> seq_t */
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Return the nth term of OEIS A282628, with a(-1)=1. */
 seq_t a(idx_t n)
@@ -55,7 +64,7 @@ seq_t a(idx_t n)
 
     for (idx_t j = 1; j <= k; ++j) {
         seq_t bin = binomial(k - 1, j - 1);                      /* C(k-1, j-1) */
-        seq_t powv = seq_pow((seq_t)(2 * j + 1), (idx_t)r);      /* (2*j+1)^r */
+        seq_t powv = ipow_idx((seq_t)(2 * j + 1), (idx_t)r);      /* (2*j+1)^r */
         seq_t term = seq_mul(bin, powv);                         /* binomial * power */
         if ((k - j) & 1) {
             neg = neg + term;

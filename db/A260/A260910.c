@@ -10,6 +10,7 @@
  *            coprime to r
  * Range:     i8 n <= 34, i16 n <= 4079, i32 n <= 7875, i64 n <= 7875,
  *            i128 n <= 7875, big any n
+ * Validated: standard, pass, 75 terms through n = 7588 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,13 +10,15 @@
  *            divisors of k (OEIS A000005)
  * Range:     u8 n <= 26, u16 n <= 26, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;        /* array of computed a(i) values, 0‑based index */
 static idx_t a_cache_size = 0;      /* current allocated size of a_cache */
@@ -58,7 +60,7 @@ static void extend_cache(idx_t n)
     idx_t new_size = n;                /* we store a(1)..a(n) */
     if (a_cache_size < new_size)
     {
-        a_cache = (seq_t *)realloc(a_cache, (size_t)new_size * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (size_t)new_size);
         a_cache_size = new_size;
     }
 

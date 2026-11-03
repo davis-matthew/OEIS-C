@@ -9,7 +9,8 @@
  *            a(n-1))
  * Range:     u8 n <= 49, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   _radical
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,28 @@
 /* Compile‑time safety: no variable named 'new', matched C/C++ syntax. */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/_radical.h"
+#include "../utils/mem.h"
+
+/* Return the product of distinct prime factors of v (its radical).  If
+   v == 1 the result is 1.  The algorithm uses trial division up to sqrt(v). */
+static seq_t _radical(seq_t v)
+{
+    seq_t result = (seq_t)1;
+    seq_t tmp     = v;
+
+    for (uint64_t d = 2; tmp / (seq_t)d >= (seq_t)d; ++d)
+    {
+        if (tmp % (seq_t)d == (seq_t)0)
+        {
+            result *= (seq_t)d;          /* include each prime once */
+            while (tmp % (seq_t)d == (seq_t)0)
+                tmp /= (seq_t)d;         /* remove all powers of d */
+        }
+    }
+    if (tmp > (seq_t)1)
+        result *= tmp;
+    return result;
+}
 
 /* ---- Auxiliary ---------------------------------------------------- */
 
@@ -44,7 +66,7 @@ static void _ensure_capacity(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();                      /* allocation failure */
 

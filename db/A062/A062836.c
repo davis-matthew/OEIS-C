@@ -8,13 +8,15 @@
  *            p(k) is the k‑th prime
  * Range:     u8 n <= 5, u16 n <= 24, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static state for primes and cumulative sums. */
 static int initialized = 0;
@@ -44,13 +46,13 @@ static void init_primes(void)
     for (idx_t i = 2; i <= LIMIT; ++i) if (is_prime[i]) ++prime_count;
 
     prime_list  = (idx_t*)malloc((size_t)(prime_count + 1) * sizeof(idx_t));
-    cum_sum     = (seq_t*)malloc((size_t)(prime_count + 1) * sizeof(seq_t));
-    cum_sq_sum  = (seq_t*)malloc((size_t)(prime_count + 1) * sizeof(seq_t));
+    cum_sum     = mem_new(seq_t, (size_t)(prime_count + 1));
+    cum_sq_sum  = mem_new(seq_t, (size_t)(prime_count + 1));
     if (!prime_list || !cum_sum || !cum_sq_sum) {
         free(is_prime);
         if (prime_list)  free(prime_list);
-        if (cum_sum)     free(cum_sum);
-        if (cum_sq_sum)  free(cum_sq_sum);
+        if (cum_sum)     mem_free(cum_sum);
+        if (cum_sq_sum)  mem_free(cum_sq_sum);
         return;
     }
 

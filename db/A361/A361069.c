@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (-3*k+1)^(k-1) * binomial(n-1,n-k)/k!
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 8, i64 n <= 13, i128 n <= 22,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 34 terms through n = 338 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,10 @@
 /* (the term k=0 is zero because binomial(n-1,n)=0 for n>=1) */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
         seq_t base = (seq_t)(-3 * (long long)k + 1);
 
         /* exponent = k-1 */
-        seq_t basePow = big_pow(base, (seq_t)(k - 1));
+        seq_t basePow = ipow(base, (seq_t)(k - 1));
 
         /* binomial(n-1, k-1) */
         seq_t bin = binomial(n - 1, k - 1);

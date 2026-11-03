@@ -8,15 +8,18 @@
  * Formula:   a(n) = pi(m) + pi(k) - pi(m+k), * where (m,k) are derived from
  *            the index n by reading the * triangle T(n,k)=pi(n)+pi(k)-pi(n+k)
  *            row by row as * described in OEIS A212211
- * Range:     u8 n <= 9877, u16 n <= 9877, u32 n <= 9877, u64 n <= 9877,
- *            u128 n <= 9877, big any n
- * Helpers:   compute_pi
+ * Range:     u8 n <= 11176, u16 n <= 11176, u32 n <= 11176, u64 n <= 11176,
+ *            u128 n <= 11176, big any n
+ * Validated: standard, pass, 94 terms through n = 9877 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 /* Return the nth term of OEIS sequence A212211.
  * The sequence is defined for n >= 2; values for lower n
@@ -43,9 +46,9 @@ seq_t a(idx_t n)
     idx_t k = position + 1;
 
     /* Compute pi(n) using the provided utility. */
-    seq_t pi_m    = compute_pi(m);
-    seq_t pi_k    = compute_pi(k);
-    seq_t pi_sum  = compute_pi(m + k);
+    seq_t pi_m    = prime_pi(m);
+    seq_t pi_k    = prime_pi(k);
+    seq_t pi_sum  = prime_pi(m + k);
 
     /* Result of the triangle entry. */
     seq_t result = pi_m + pi_k - pi_sum;

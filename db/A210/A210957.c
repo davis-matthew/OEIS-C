@@ -12,7 +12,8 @@
  *            first prime p * ≤ k with (2k – p) prime. * If n is...
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t max_k_computed = 1;          /* greatest k for which data exist  */
 static seq_t *P_arr = NULL;              /* P_arr[k] = p_k  */
@@ -54,19 +56,19 @@ static void ensure_max_k(idx_t kmax)
         if (is_prime[i]) prime_list[prime_cnt++] = i;
 
     /* 3. Allocate/reallocate P_arr and Q_arr up to kmax            */
-    seq_t *P_new = (seq_t*)malloc((kmax + 1) * sizeof(seq_t));
-    seq_t *Q_new = (seq_t*)malloc((kmax + 1) * sizeof(seq_t));
+    seq_t *P_new = mem_new(seq_t, (kmax + 1));
+    seq_t *Q_new = mem_new(seq_t, (kmax + 1));
     if (!P_new || !Q_new) { /* out of memory */
         free(is_prime); free(prime_list);
-        free(P_arr); free(Q_arr);
+        mem_free(P_arr); mem_free(Q_arr);
         return;
     }
 
     /* copy previous data if any */
     if (P_arr) {
-        memcpy(P_new, P_arr, (max_k_computed + 1) * sizeof(seq_t));
-        memcpy(Q_new, Q_arr, (max_k_computed + 1) * sizeof(seq_t));
-        free(P_arr); free(Q_arr);
+        mem_copy(P_new, P_arr, (max_k_computed + 1) * sizeof(seq_t));
+        mem_copy(Q_new, Q_arr, (max_k_computed + 1) * sizeof(seq_t));
+        mem_free(P_arr); mem_free(Q_arr);
     } else {
         P_new[0] = 0; P_new[1] = 0;
         Q_new[0] = 0; Q_new[1] = 0;

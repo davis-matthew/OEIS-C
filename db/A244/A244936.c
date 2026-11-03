@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static inline idx_t floor_sqrt(idx_t n)
 {
@@ -48,11 +50,11 @@ seq_t a(idx_t n)
     size_t sz   = 2 * (size_t)max_d + 1;
     size_t offset = (size_t)max_d;
 
-    seq_t *dp_prev = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, sz);
+    seq_t *dp_next = mem_new(seq_t, sz);
     if (!dp_prev || !dp_next) {
-        free(dp_prev);
-        free(dp_next);
+        mem_free(dp_prev);
+        mem_free(dp_next);
         return 0;
     }
 
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < sz; ++i)
         total += dp_prev[i];
 
-    free(dp_prev);
-    free(dp_next);
+    mem_free(dp_prev);
+    mem_free(dp_next);
     return total;
 }

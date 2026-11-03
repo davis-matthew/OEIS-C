@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains_digit_two
+ * Validated: standard, pass, 71 terms through n = 9760 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
  */
 
 #include <stdbool.h>
-#include "../utils/contains_digit_two.h"
+
+/* Helper: return true if the decimal representation of x contains a
+   digit 2.  Works for any seq_t that supports % and /= by 10. */
+static bool contains_digit_two(seq_t x)
+{
+    if (x == 0) return false;          /* 0 has no digit 2 */
+    while (x != 0) {
+        if ((x % 10) == 2) return true;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Returns the n-th term (1‑indexed).  If n==0 the function returns 0
    (undefined in the OEIS sequence but harmless for external callers). */

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 66*a(n-1) - a(n-2), a(1)=0, a(2)=8
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 12, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialise the cache for the first time */
     if (cache == NULL) {
         cache_size = 2;
-        cache = (seq_t*)malloc((cache_size + 1) * sizeof(seq_t)); /* index 0 unused */
+        cache = mem_new(seq_t, (cache_size + 1)); /* index 0 unused */
         if (cache == NULL) return 0;   /* out of memory, unlikely in tests */
         cache[0] = 0;
         cache[1] = 0;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* grow the cache if needed */
     if (n > cache_size) {
         idx_t new_size = n;
-        seq_t *tmp = (seq_t*)realloc(cache, (new_size + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_size + 1));
         if (tmp == NULL) return 0;     /* realloc failed, unlikely */
         cache = tmp;
         /* compute missing terms */

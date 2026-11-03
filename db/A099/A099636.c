@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = gcd( sum of distinct prime factors of n, product of
  *            distinct prime factors of n )
- * Range:     u8 n <= 256, u16 n <= 8920, u32 n <= 8920, u64 n <= 8920,
- *            u128 n <= 8920, big any n
+ * Range:     u8 n <= 256, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 109 terms through n = 8920 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

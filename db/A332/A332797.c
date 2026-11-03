@@ -7,13 +7,15 @@
  * Formula:   a(n) = 23*A166063(n)
  * Range:     u8 n <= 1, u16 n <= 484, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 8014 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Primes smaller than 23 */
 static const idx_t primes[] = {2, 3, 5, 7, 11, 13, 17, 19};
@@ -31,7 +33,7 @@ static void grow_terms(idx_t need)
     if ((idx_t)terms_cap >= need) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
     while ((idx_t)new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) exit(1);                 /* abort on allocation failure */
     terms = tmp;
     terms_cap = new_cap;

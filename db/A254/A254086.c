@@ -14,21 +14,34 @@
  *            t...
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 33,
  *            big any n
- * Helpers:   compute_diff
+ * Validated: standard, pass, 31 terms through n = 203 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_diff.h"
+
+/* compute diff pair for rows a,b,c (each 0..15).  d0: subblock starting at col 0,
+ * d1: subblock starting at col 1.  Values are in {-1,0,1}. */
+static inline void
+compute_diff (int a, int b, int c, int *d0, int *d1)
+{
+    int diag0  = ((a & 1) | ((b >> 1) & 1) | ((c >> 2) & 1));
+    int anti0  = ((c & 1) | ((b >> 1) & 1) | ((a >> 2) & 1));
+    int diag1  = (((a >> 1) & 1) | ((b >> 2) & 1) | ((c >> 3) & 1));
+    int anti1  = (((c >> 1) & 1) | ((b >> 2) & 1) | ((a >> 3) & 1));
+    *d0 = (diag0 ? 1 : 0) - (anti0 ? 1 : 0);
+    *d1 = (diag1 ? 1 : 0) - (anti1 ? 1 : 0);
+}
 
 #ifdef __cplusplus
 #define ALLOCATE_SEQ_ARRAY(n)  new seq_t[(n)]()
 #define FREE_SEQ_ARRAY(p)      delete[] (p)
 #else
 #define ALLOCATE_SEQ_ARRAY(n)  ((seq_t*)calloc((n), sizeof(seq_t)))
-#define FREE_SEQ_ARRAY(p)      free((void*)(p))
+#define FREE_SEQ_ARRAY(p)      free((p))
 #endif
 
 seq_t a (idx_t n)

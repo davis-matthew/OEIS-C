@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 71, u32 n <= 965, u64 n <= 1374,
  *            u128 n <= 1374, big any n
- * Helpers:   seq_from_str
+ * Validated: standard, pass, 75 terms through n = 1370 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,18 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_from_str.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 /* cache of already-found terms */
 static seq_t *seq      = NULL;
@@ -33,7 +45,7 @@ static void ensure_capacity(void)
 {
     if (seq_len >= seq_cap) {
         size_t new_cap = (seq_cap > 0) ? seq_cap * 2 : 4;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }

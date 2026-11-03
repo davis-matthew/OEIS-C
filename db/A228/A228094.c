@@ -9,8 +9,9 @@
  * Formula:   d(n,k) = sum_{k|n} φ(n/k) + reflection contribution * a(n) is
  *            the flattened triangle where row N (N>=3) contains * the values
  *            d(N,1), d(N,2), …, d(N,N)
- * Range:     u8 n <= 9441, u16 n <= 9441, u32 n <= 9441, u64 n <= 9441,
- *            u128 n <= 9441, big any n
+ * Range:     u8 n <= 11627, u16 n <= 11627, u32 n <= 11627, u64 n <= 11627,
+ *            u128 n <= 11627, big any n
+ * Validated: standard, pass, 104 terms through n = 9441 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

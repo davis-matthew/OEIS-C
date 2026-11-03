@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 53,
  *            big any n
- * Helpers:   row_satisfied
+ * Validated: standard, pass, 38 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,40 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/row_satisfied.h"
+
+/* Utility to check if a single row satisfies
+ * the adjacency condition given the rows above and below.
+ * above/below < 0 indicates a missing row (border). */
+static bool row_satisfied(int above, int cur, int below)
+{
+    for (int c = 0; c < 6; ++c) {
+        int cur_val = (cur >> c) & 1;
+        int count   = 0;
+
+        /* Above neighbours */
+        if (above >= 0) {
+            if (c > 0   && ((above >> (c - 1)) & 1) == cur_val) ++count;
+            if (          ((above >>   c)       & 1) == cur_val) ++count;
+            if (c < 5   && ((above >> (c + 1)) & 1) == cur_val) ++count;
+        }
+
+        /* Same‑row neighbours */
+        if (c > 0   && ((cur   >> (c - 1)) & 1) == cur_val) ++count;
+        if (c < 5   && ((cur   >> (c + 1)) & 1) == cur_val) ++count;
+
+        /* Below neighbours */
+        if (below >= 0) {
+            if (c > 0   && ((below >> (c - 1)) & 1) == cur_val) ++count;
+            if (          ((below >>   c)       & 1) == cur_val) ++count;
+            if (c < 5   && ((below >> (c + 1)) & 1) == cur_val) ++count;
+        }
+
+        /* Valid if count is 2,3,5,or 6 */
+        if (count != 2 && count != 3 && count != 5 && count != 6)
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,14 +9,16 @@
  *            and the prime‑factorization)
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   int_sqrt, is_prime
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
+ * Helpers:   is_prime, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 /* Count unordered factorizations of n with each factor >= min_factor.
  * The first count (cnt = 1) corresponds to the partition [n] itself. */
@@ -24,7 +26,7 @@ static seq_t
 count_factors(uint64_t n, uint64_t min_factor)
 {
     seq_t cnt = 1;                           /* [n] itself */
-    uint64_t limit = int_sqrt(n);            /* floor(sqrt(n)) */
+    uint64_t limit = isqrt(n);            /* floor(sqrt(n)) */
     for (uint64_t d = min_factor; d <= limit; ++d) {
         if (n % d == 0) {
             cnt += count_factors(n / d, d);   /* recurse with the remainder */

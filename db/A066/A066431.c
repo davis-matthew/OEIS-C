@@ -7,6 +7,7 @@
  * Formula:   a(n) = 9^n mod n^9
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 143, u128 n <= 500,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 499 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

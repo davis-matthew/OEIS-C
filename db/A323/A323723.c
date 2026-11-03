@@ -7,6 +7,7 @@
  * Formula:   a(n) = (-2 - (-1)^n*(-2 + n) + n + 2*n^3)/4
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 2046, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 9338 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

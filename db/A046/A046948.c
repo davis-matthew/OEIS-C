@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Sum of cubes of divisors of k. */
 static seq_t sigma3(idx_t k)
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         /* Allocate space for index 0 (sum = 0) */
-        S = (seq_t *)malloc(sizeof(seq_t));
+        S = mem_new(seq_t, 1);
         if (!S) abort();      /* insufficient memory? */
         S[0] = (seq_t)0;
         S_size = 1;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     /* Ensure the cache covers indices up to n */
     if ((idx_t)(n + 1) > S_size) {
         idx_t old_size = S_size;
-        seq_t *tmp = (seq_t *)realloc(S, sizeof(seq_t) * (n + 1));
+        seq_t *tmp = mem_resize(seq_t, S, (n + 1));
         if (!tmp) abort();
         S = tmp;
         for (idx_t i = old_size; i <= n; ++i) {

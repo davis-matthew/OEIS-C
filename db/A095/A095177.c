@@ -7,12 +7,14 @@
  * Formula:   a(n) = (n+5)*a(n-1) - (n-1)*a(n-2), a(0)=1, a(1)=6
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -24,18 +26,18 @@ seq_t a(idx_t n)
     /* Ensure base values are present */
     if (cache == NULL) {
         cache_size = 2;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = (seq_t)1;          /* a(0) */
         cache[1] = (seq_t)6;          /* a(1) */
     } else if (cache_size == 1) {
-        cache = (seq_t*)realloc(cache, 2 * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, 2);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)6;
         cache_size = 2;
     } else if (cache_size == 0) {
         /* should never happen, but just in case */
         cache_size = 2;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)6;
     }
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Extend cache to accommodate index n */
     idx_t old_size = cache_size;
     cache_size = n + 1;
-    cache = (seq_t*)realloc(cache, cache_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_size);
 
     /* Compute missing terms using the recurrence */
     for (idx_t i = old_size; i <= n; ++i) {

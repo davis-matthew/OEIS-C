@@ -12,11 +12,15 @@
  *            the identity: * Σ a(n) x^n = ∏_{k≥1} (1 - x...
  * Range:     i8 n <= 24, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 97 terms through n = 958 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#ifdef __cplusplus
+#include <vector>
+#endif
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>

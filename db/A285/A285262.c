@@ -11,24 +11,26 @@
  *            result is returned as a seq_t (unsigned integer of...
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 48, u64 n <= 124, u128 n <= 330,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate two work arrays for dp and dp next */
     size_t sz = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
+    seq_t *next = mem_new(seq_t, sz);
     if (!dp || !next) return 0; /* allocation failure */
 
     /* initialize dp[0] = 1, others 0 */
-    memset(dp, 0, sz * sizeof(seq_t));
+    mem_set(dp, 0, sz * sizeof(seq_t));
     dp[0] = 1;
 
     for (idx_t k = 1; k <= n; ++k) {
@@ -37,9 +39,9 @@ seq_t a(idx_t n)
            each with choices 0,1,2,3. */
         idx_t mmax = n / k;
         size_t fsz = (size_t)mmax + 1;
-        seq_t *f = (seq_t *)malloc(fsz * sizeof(seq_t));
-        if (!f) { free(dp); free(next); return 0; }
-        memset(f, 0, fsz * sizeof(seq_t));
+        seq_t *f = mem_new(seq_t, fsz);
+        if (!f) { mem_free(dp); mem_free(next); return 0; }
+        mem_set(f, 0, fsz * sizeof(seq_t));
         f[0] = 1;
 
         /* iterative DP over the k variables */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         }
 
         /* convolution of current dp with f, shifted by multiples of k */
-        memset(next, 0, sz * sizeof(seq_t));
+        mem_set(next, 0, sz * sizeof(seq_t));
         for (idx_t exp = 0; exp <= n; ++exp) {
             seq_t val = dp[exp];
             if (!val) continue;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(f);
+        mem_free(f);
         /* swap dp and next for next iteration */
         seq_t *tmp = dp;
         dp = next;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

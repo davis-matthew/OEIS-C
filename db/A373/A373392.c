@@ -8,13 +8,15 @@
  *            values: a(0)=1, a(1)=0, a(2)=0, a(3)=1, a(4)=-2
  * Range:     i8 n <= 9, i16 n <= 16, i32 n <= 28, i64 n <= 33, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence */
 static seq_t *cache = NULL;   /* pointer to allocated array */
@@ -27,8 +29,8 @@ static size_t size  = 0;      /* number of elements currently stored */
 static void init_cache(void)
 {
     static const seq_t init[5] = { 1, 0, 0, 1, -2 };
-    cache = (seq_t *)malloc(5 * sizeof(seq_t));
-    memcpy(cache, init, 5 * sizeof(seq_t));
+    cache = mem_new(seq_t, 5);
+    mem_copy(cache, init, 5 * sizeof(seq_t));
     cap  = 5;
     size = 5;
 }
@@ -44,7 +46,7 @@ static void grow_cache(idx_t n)
     /* double capacity until it is enough */
     size_t newcap = cap > 0 ? cap : 16;
     while (newcap < needed) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (tmp == NULL) abort();           /* out of memory */
     cache = tmp;
     cap   = newcap;

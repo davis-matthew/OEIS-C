@@ -8,7 +8,8 @@
  * Formula:   a(n) = least k such that k!/n is prime, 0 if none
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _legendre
+ * Validated: standard, pass, 115 terms through n = 8054 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_legendre.h"
+
+/* ------------------------------------------------------------------ */
+static idx_t _legendre(idx_t k, idx_t p)
+{
+    idx_t e = 0;
+    while (k) {
+        k /= p;
+        e += k;
+    }
+    return e;
+}
 
 /* ------------------------------------------------------------------ */
 /* Small sieve of primes up to 20000 (enough for n up to 10000).      */

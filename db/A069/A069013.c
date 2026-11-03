@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 891 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------------------
  *  Cache for computed terms.
@@ -33,14 +35,13 @@ static void a_ensure_cache(idx_t new_n)
 
     /* allocate a little extra for future growth */
     size_t new_size = (size_t)new_n + 10;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
     if (!tmp) {                /* allocation failed – abort execution */
         exit(1);
     }
     /* zero‑initialize any newly added slots (only safe for trivial types) */
     if (new_size > a_cache_alloc)
-        memset(tmp + a_cache_alloc, 0,
-               (new_size - a_cache_alloc) * sizeof(seq_t));
+        mem_set(tmp + a_cache_alloc, 0, (new_size - a_cache_alloc) * sizeof(seq_t));
 
     a_cache      = tmp;
     a_cache_alloc = new_size;

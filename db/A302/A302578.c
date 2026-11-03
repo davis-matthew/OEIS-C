@@ -6,9 +6,10 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = the nth positive integer N (n≥1) such that N %
  *            digit_sum(N) is a substring of N; a(1) = 10
- * Range:     u8 n <= 116, u16 n <= 8307, u32 n <= 8307, u64 n <= 8307,
- *            u128 n <= 8307, big any n
- * Helpers:   digit_sum, seq_to_str
+ * Range:     u8 n <= 116, u16 n <= 21323, u32 n <= 33333, u64 n <= 33333,
+ *            u128 n <= 33333, big any n
+ * Validated: standard, pass, 85 terms through n = 8307 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,27 @@
 #include <string.h>
 #include <stddef.h>
 #include "../utils/digit_sum.h"
-#include "../utils/seq_to_str.h"
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* Return true iff N has the required property. */
 static bool has_property(seq_t N)
@@ -56,7 +77,7 @@ static void ensure_cache_size(size_t needed)
     size_t new_cap = seq_cap == 0 ? 64 : seq_cap << 1;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap    = new_cap;
 }
 

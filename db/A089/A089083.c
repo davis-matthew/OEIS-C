@@ -8,8 +8,9 @@
  * Formula:   a(n) = ( floor(k * r / 2) * ceil(k * r / 2) )^2, where r is the
  *            row number (1‑based) and k is the column (1‑based) such that the
  *            linear index n lies in row r and column k
- * Range:     u8 n <= 5, u16 n <= 20, u32 n <= 275, u64 n <= 9640,
- *            u128 n <= 9640, big any n
+ * Range:     u8 n <= 5, u16 n <= 20, u32 n <= 275, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 61 terms through n = 9640 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

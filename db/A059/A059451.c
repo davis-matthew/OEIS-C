@@ -12,13 +12,24 @@
  *            to have one zero bit
  * Range:     u8 n <= 1278, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   odd_zero_parity
+ * Validated: standard, pass, 111 terms through n = 9171 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/odd_zero_parity.h"
+
+static inline bool odd_zero_parity(idx_t x)
+{
+    if (x == 0)
+        return true;                 /* 0 has one zero bit → odd */
+    unsigned long long ux = (unsigned long long)x;
+    unsigned int bits = 64 - __builtin_clzll(ux);      /* bit length */
+    unsigned int ones = __builtin_popcountll(ux);     /* number of 1‑bits */
+    /* zeros = bits - ones; odd iff parity of that is odd */
+    return ((bits - ones) & 1u) != 0;
+}
 
 seq_t a(idx_t n)
 {

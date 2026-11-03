@@ -9,15 +9,32 @@
  *            pair (row,col) by n = 1 + 2 + … + (row-1) + col, 1 ≤ col ≤ row
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   _triangle_row, big_pow
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/_triangle_row.h"
+#include "../utils/ipow.h"
+
+/* Find the smallest r such that r*(r+1)/2 ≥ N.
+   N is 1‑based. */
+static inline idx_t _triangle_row(idx_t N)
+{
+    idx_t lo = 1, hi = N;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo) / 2;
+        /* use 128‑bit to avoid overflow for large N */
+        __int128 t = (__int128)mid * (mid + 1) / 2;
+        if (t >= (__int128)N)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    return lo;
+}
 
 /* Return the nth term of the sequence. */
 extern seq_t a(idx_t n)
@@ -32,7 +49,7 @@ extern seq_t a(idx_t n)
     idx_t col = n - (idx_t)prev_sum;
 
     /* Compute n^(m-1) * (n+1)^(n-m) */
-    seq_t part1 = big_pow((seq_t)r, (seq_t)(col - 1));
-    seq_t part2 = big_pow((seq_t)(r + 1), (seq_t)(r - col));
+    seq_t part1 = ipow((seq_t)r, (seq_t)(col - 1));
+    seq_t part2 = ipow((seq_t)(r + 1), (seq_t)(r - col));
     return part1 * part2;
 }

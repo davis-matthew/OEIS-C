@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   compute_K
+ * Validated: standard, pass, 34 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,37 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/compute_K.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------- */
+static int compute_K(const uint8_t a[4], const uint8_t b[4])
+{
+    /* block 0-1 */
+    int sum0 = a[0] + a[1] + b[0] + b[1];
+    int m0 = a[0];
+    if (a[1] < m0) m0 = a[1];
+    if (b[0] < m0) m0 = b[0];
+    if (b[1] < m0) m0 = b[1];
+    int f0 = sum0 - 2 * m0;
+
+    /* block 1-2 */
+    int sum1 = a[1] + a[2] + b[1] + b[2];
+    int m1 = a[1];
+    if (a[2] < m1) m1 = a[2];
+    if (b[1] < m1) m1 = b[1];
+    if (b[2] < m1) m1 = b[2];
+    if (f0 != sum1 - 2 * m1) return -1;
+
+    /* block 2-3 */
+    int sum2 = a[2] + a[3] + b[2] + b[3];
+    int m2 = a[2];
+    if (a[3] < m2) m2 = a[3];
+    if (b[2] < m2) m2 = b[2];
+    if (b[3] < m2) m2 = b[3];
+    if (f0 != sum2 - 2 * m2) return -1;
+
+    return f0;          /* 0 .. 12 */
+}
 
 typedef struct {
     uint16_t u, v;
@@ -110,7 +141,7 @@ static void ensure_cache(idx_t n)
 {
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[0] = (seq_t)0;   /* dummy, a(0) */
         cache_size = 1;
@@ -157,7 +188,7 @@ static void ensure_cache(idx_t n)
         /* append to cache */
         if (cache_size == cache_cap) {
             cache_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             if (!tmp) abort();
             cache = tmp;
         }

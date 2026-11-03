@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2^A031142(n)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 13, u128 n <= 19,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -85,5 +86,5 @@ seq_t a(idx_t n)
     }
 
     /* compute a(n) = 2^exponent */
-    return pow_uint(2ULL, exponents[n - 1]);
+    return ipow_u64_idx(2ULL, exponents[n - 1]);
 }

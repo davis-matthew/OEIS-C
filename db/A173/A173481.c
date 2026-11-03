@@ -7,7 +7,8 @@
  * Formula:   a(n) = lcm(n, 10^n) = n * 2^(n - v2(n)) * 5^(n - v5(n))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   _pow_by_squaring
+ * Validated: standard, pass, 36 terms through n = 994 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
    factorisation of n. */
 
 #include <stdint.h>
-#include "../utils/_pow_by_squaring.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
 
     /* Compute n * 2^(n-v2) * 5^(n-v5) using fast exponentiation. */
     seq_t result = (seq_t)n;
-    result *= _pow_by_squaring((seq_t)2, n - v2);
-    result *= _pow_by_squaring((seq_t)5, n - v5);
+    result *= ipow_idx((seq_t)2, n - v2);
+    result *= ipow_idx((seq_t)5, n - v5);
     return result;
 }

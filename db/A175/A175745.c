@@ -11,7 +11,8 @@
  *            threshold, employing a pre‑computed prime table up t...
  * Range:     u8 none, u16 none, u32 none, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   floor_sqrt, ipow_uint
+ * Validated: standard, pass, 44 terms through n = 982 (2026-11-01)
+ * Helpers:   ipow_i32, ipow_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,26 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <limits.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/ipow_uint.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/ipow_u32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* --------------------------------------------------------------------- */
 /* Small integer power (used for exponents 4, 6, 34).                      */
@@ -91,14 +110,14 @@ static size_t count_leq(seq_t t) {
 
     /* 1. Numbers of the form p^34 */
     for (size_t i = 0; i < prime_cnt; ++i) {
-        seq_t p34 = ipow_uint((seq_t)primes[i], 34);
+        seq_t p34 = ipow_u32((seq_t)primes[i], 34);
         if (p34 > t) break;
         ++count;
     }
 
     /* 2. Numbers of the form p^6 * q^4   (p < q) */
     for (size_t i = 0; i < prime_cnt; ++i) {
-        seq_t p6 = ipow_uint((seq_t)primes[i], 6);
+        seq_t p6 = ipow_u32((seq_t)primes[i], 6);
         if (p6 > t) break;
 
         seq_t div = t / p6;
@@ -113,7 +132,7 @@ static size_t count_leq(seq_t t) {
 
     /* 3. Numbers of the form p^4 * q^6   (p < q) */
     for (size_t j = 0; j < prime_cnt; ++j) {
-        seq_t q6 = ipow_uint((seq_t)primes[j], 6);
+        seq_t q6 = ipow_u32((seq_t)primes[j], 6);
         if (q6 > t) break;
 
         seq_t div = t / q6;

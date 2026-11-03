@@ -7,6 +7,7 @@
  * Formula:   a(n) = 194*a(n-1) - a(n-2) - 72, a(1)=1, a(2)=117
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 14,
  *            big any n
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

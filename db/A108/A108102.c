@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *seq     = NULL;   /* cache of found terms */
 static size_t seq_sz  = 0;
@@ -36,10 +39,10 @@ static void ensure_capacity(size_t min_cap)
     if (seq_cap >= min_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < min_cap) new_cap *= 2;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (seq) {
         for (size_t i = 0; i < seq_sz; ++i) new_arr[i] = seq[i];
-        free(seq);
+        mem_free(seq);
     }
     seq = new_arr;
     seq_cap = new_cap;
@@ -60,7 +63,7 @@ static void generate_to(idx_t n)
         uint64_t N = 1117ULL * pow10 + k_next;
 
         /* Check primality (the function is provided by the build). */
-        if (is_prime(N)) {
+        if (is_prime_u64(N)) {
             ensure_capacity(seq_sz + 1);
             seq[seq_sz++] = (seq_t)k_next;
         }

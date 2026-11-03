@@ -12,12 +12,14 @@
  *            a(3)=98, a(4)=270, a(5)=676, a(6)=1588, a(7)=3604, a(8)=7960
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 26, u64 n <= 59, u128 n <= 127,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache[n] holds a(n), 1‑based index */
 static idx_t   computed_max = 0;     /* largest n for which cache[n] is valid */
@@ -26,10 +28,10 @@ static size_t  cache_alloc = 0;      /* currently allocated size */
 /* Initialize the cache with the first 8 terms (index 0 unused) */
 static void init_cache(void) {
     if (cache != NULL) {
-        free(cache);
+        mem_free(cache);
     }
     /* Allocate space for indices 0..8 (9 entries) */
-    cache = (seq_t *)malloc(9 * sizeof(seq_t));
+    cache = mem_new(seq_t, 9);
     if (cache == NULL) return; /* Allocation failed: caller will fail gracefully */
 
     cache_alloc = 9;
@@ -62,9 +64,9 @@ seq_t a(idx_t n) {
     /* Grow the cache if necessary */
     if ((size_t)(n + 1) > cache_alloc) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) {
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_alloc = 0;
             return (seq_t)0; /* Allocation failed */

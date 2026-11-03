@@ -6,17 +6,38 @@
  * Keywords:  nonn
  * Formula:   a(n) = sum of odd indexed divisors of n (i.e. a(n) = σ(n) –
  *            sum_of_even_indexed_divisors(n))
- * Range:     u8 n <= 195, u16 n <= 9572, u32 n <= 9572, u64 n <= 9572,
- *            u128 n <= 9572, big any n
- * Helpers:   build_primes, gen_divs
+ * Range:     u8 n <= 195, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 96 terms through n = 9572 (2026-11-01)
+ * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/gen_divs.h"
+
+/* Recursive generation of all divisors from the prime factorisation. */
+static void gen_divs(size_t idx,
+                     uint64_t cur,
+                     const uint64_t *p,
+                     const int *e,
+                     size_t cnt,
+                     uint64_t *divs,
+                     size_t *divcnt)
+{
+    if (idx == cnt) {
+        divs[(*divcnt)++] = cur;
+        return;
+    }
+    uint64_t val = 1;
+    for (int i = 0; i <= e[idx]; ++i) {
+        gen_divs(idx + 1, cur * val, p, e, cnt, divs, divcnt);
+        val *= p[idx];
+    }
+}
 
 static int cmp_u64(const void *a, const void *b)
 {

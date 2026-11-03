@@ -13,7 +13,8 @@
  *            a(n) is obtained by concatenating the rows t...
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     /* Compute elementary symmetric sums e[0..r] for the set
        a_i = 2*r - i + 1. */
-    seq_t *e = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+    seq_t *e = mem_new(seq_t, (r + 1));
     if (!e) return (seq_t)0;          /* allocation failure fallback */
     for (uint64_t i = 0; i <= r; ++i) e[i] = 0;
     e[0] = 1;                         /* e_0 = 1 */
@@ -53,6 +55,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = e[m] + e[r - m];
-    free(e);
+    mem_free(e);
     return result;
 }

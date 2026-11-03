@@ -10,12 +10,14 @@
  *            or k>n). The sequence a(n) is the triangle read by rows
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,15 +51,15 @@ seq_t a(idx_t n)
     /* Dynamic construction for rows 3..r.  Keep only two previous rows:
        prev2 = row (current-2), prev1 = row (current-1).  */
     /* Initialize prev2 as row 1: [1,1] */
-    seq_t *prev2 = (seq_t *)malloc(sizeof(seq_t) * 2);
+    seq_t *prev2 = mem_new(seq_t, 2);
     if (!prev2) return (seq_t)0; /* allocation failure (unlikely) */
     prev2[0] = (seq_t)1;
     prev2[1] = (seq_t)1;
 
     /* Initialize prev1 as row 2: [0,1,1] */
-    seq_t *prev1 = (seq_t *)malloc(sizeof(seq_t) * 3);
+    seq_t *prev1 = mem_new(seq_t, 3);
     if (!prev1) {
-        free(prev2);
+        mem_free(prev2);
         return (seq_t)0;
     }
     prev1[0] = (seq_t)0;
@@ -66,11 +68,11 @@ seq_t a(idx_t n)
 
     /* Compute rows 3 .. r */
     for (idx_t row = 3; row <= r; ++row) {
-        seq_t *cur = (seq_t *)malloc(sizeof(seq_t) * (row + 1));
+        seq_t *cur = mem_new(seq_t, (row + 1));
         if (!cur) {
             /* clean up and exit on allocation failure */
-            free(prev1);
-            free(prev2);
+            mem_free(prev1);
+            mem_free(prev2);
             return (seq_t)0;
         }
         for (idx_t k = 0; k <= row; ++k) {
@@ -78,13 +80,13 @@ seq_t a(idx_t n)
             seq_t b = (k <= row - 2) ? prev2[k] : (seq_t)0;
             cur[k] = a + b;
         }
-        free(prev2);
+        mem_free(prev2);
         prev2 = prev1;
         prev1 = cur;
     }
 
     seq_t result = prev1[col];
-    free(prev1);
-    free(prev2);
+    mem_free(prev1);
+    mem_free(prev2);
     return result;
 }

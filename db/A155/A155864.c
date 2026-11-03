@@ -10,13 +10,15 @@
  *            r*(r-1)*binomial(r-2, k-1)
  * Range:     u8 n <= 30, u16 n <= 96, u32 n <= 417, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   binom_n_k
+ * Validated: standard, pass, 82 terms through n = 1304 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_n_k.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 
 static idx_t locate_row(idx_t n)
 {
@@ -45,6 +47,6 @@ seq_t a(idx_t n)
     }
 
     seq_t prod1 = (seq_t)r * (seq_t)(r - 1);          /* r*(r-1) */
-    seq_t binom = binom_n_k(r - 2, k - 1);             /* binomial(r-2, k-1) */
+    seq_t binom = binomial(r - 2, k - 1);             /* binomial(r-2, k-1) */
     return prod1 * binom;
 }

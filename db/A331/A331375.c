@@ -10,7 +10,8 @@
  *            concatenation of all integers from 0 to n)
  * Range:     i8 n <= 1111, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 9557 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    cache of values so calls in any order are answered. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialize on first call */
     if (cache == NULL) {
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         /* digit counts for the initial concatenation "0" */
         freq[0] = (seq_t)1;
         freq[1] = freq[2] = freq[3] = freq[4] = freq[5] = 0;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     if (n > current) {
         /* reallocate to hold indices up to n */
         cache_len = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_len);
+        cache = mem_resize(seq_t, cache, cache_len);
 
         for (idx_t k = current + 1; k <= n; ++k) {
             /* count digits of k */

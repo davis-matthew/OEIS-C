@@ -12,12 +12,14 @@
  *            arbitrary‑precision integers)
  * Range:     u8 n <= 9, u16 n <= 10, u32 n <= 12, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* first time: allocate space for indices 0..4 and set base values */
     if (!initialized) {
         alloc_size = 5;                  /* need indices 0..4 inclusive   */
-        cache = (seq_t *)malloc(sizeof(seq_t) * alloc_size);
+        cache = mem_new(seq_t, alloc_size);
         if (!cache) return (seq_t)0;     /* allocation failure (unlikely) */
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)2;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary (retain existing values) */
     if (n >= alloc_size) {
         idx_t new_size = n + 1;          /* need space up to index n    */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0;       /* allocation failure            */
         cache = tmp;
         alloc_size = new_size;

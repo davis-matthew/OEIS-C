@@ -9,6 +9,7 @@
  *            binomial(n,8k)
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 17, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /* We use the identity (4k)!/k!^4 = binomial(4k,k)*binomial(3k,k)*binomial(2k,k) */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

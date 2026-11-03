@@ -10,7 +10,8 @@
  *            string length
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 175, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _binomial_ull, _count_strings_k, _gcd_ull
+ * Validated: standard, pass, 46 terms through n = 9477 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,49 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/_binomial_ull.h"
-#include "../utils/_count_strings_k.h"
-#include "../utils/_gcd_ull.h"
+#include "../utils/gcd_u64.h"
+
+/* binomial coefficient C(n,k) for 64‑bit unsigned integers (returns exact value). */
+static unsigned long long _binomial_ull(idx_t n, idx_t k) {
+    if (k > n) return 0;
+    if (k > n - k) k = n - k;
+    unsigned long long res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        unsigned long long num = n - k + i;
+        unsigned long long den = i;
+
+        unsigned long long g = gcd_u64(num, den);
+        num /= g;
+        den /= g;
+
+        g = gcd_u64(res, den);
+        res /= g;
+        den /= g;
+
+        /* after reductions den should be 1; but keep defensive check */
+        if (den != 1) {
+            g = gcd_u64(num, den);
+            num /= g;
+            den /= g;
+        }
+
+        res *= num;
+    }
+    return res;
+}
+
+/* total number of binary words of length 2*k that satisfy the
+ * abelian‑square condition and begin with 1. */
+static unsigned long long _count_strings_k(idx_t k) {
+    unsigned long long total = 0;
+    idx_t start = (idx_t)1 << (k - 1);
+    idx_t end   = (idx_t)1 << k;
+    for (idx_t u = start; u < end; ++u) {
+        idx_t ones = __builtin_popcountll(u);
+        total += _binomial_ull(k, ones);
+    }
+    return total;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n) {

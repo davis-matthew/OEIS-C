@@ -12,13 +12,15 @@
  *            * distinct integer roots, as defined in A248348
  * Range:     u8 n <= 6, u16 n <= 23, u32 n <= 86, u64 n <= 328,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system. */
 static seq_t *dp = NULL;
@@ -28,12 +30,12 @@ seq_t a(idx_t n)
 {
     /* Allocate or resize the DP array if necessary. */
     if (n + 1 > dp_size) {
-        if (dp) free(dp);
-        dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        if (dp) mem_free(dp);
+        dp = mem_new(seq_t, (size_t)(n + 1));
         dp_size = n + 1;
     } else {
         /* Zero the relevant part of the array. */
-        memset(dp, 0, sizeof(seq_t) * (size_t)(n + 1));
+        mem_set(dp, 0, sizeof(seq_t) * (size_t)(n + 1));
     }
 
     /* Initial condition: start with the empty subset (sum 0). */

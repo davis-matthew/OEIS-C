@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 175, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 58 terms through n = 961 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 #include <stdlib.h>     /* malloc, realloc */
 #include <stddef.h>     /* size_t */
-#include "../utils/is_prime_small.h"   /* is_prime_small(seq_t) */
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Return the n-th term (n ≥ 1) of sequence A142922 */
 seq_t a(idx_t n)
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
         size_t new_cap = (cache_cap == 0) ? 16 : (size_t)cache_cap * 2;
         if (new_cap < (size_t)n)
             new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)   /* allocation failed – should never happen  */
             return (seq_t)0;
         cache      = tmp;
@@ -51,7 +54,7 @@ seq_t a(idx_t n)
 
     /* Find successive primes until the desired index is reached */
     while (cache_size < n) {
-        if (is_prime_small(candidate))
+        if (is_prime_seq(candidate))
             cache[cache_size++] = candidate;
         candidate += (seq_t)63;   /* next number ≡ 59 (mod 63) */
     }

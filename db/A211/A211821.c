@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,13 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#endif
 
 static seq_t *seq      = NULL;  /* generated sequence */
 static size_t seq_len  = 0;     /* number of values stored      */
@@ -30,6 +38,18 @@ static uint64_t *prime_vals = NULL;  /* primes ≡ 1 (mod 9)   */
 static size_t   prime_cnt  = 0;      /* number of such primes  */
 static idx_t   *prime_idx  = NULL;  /* current index in seq per prime */
 
+#ifdef __cplusplus
+template <class T>
+static void grow_array(T **ptr, size_t *cap, size_t needed, size_t elem_size) /* elem_size: sizeof(T) */
+{
+    if (*cap < needed) {
+        size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
+        if (new_cap < needed) new_cap = needed;
+        *ptr = mem_resize(T, *ptr, new_cap);
+        *cap = new_cap;
+    }
+}
+#else
 static void grow_array(void **ptr, size_t *cap, size_t needed, size_t elem_size)
 {
     if (*cap < needed) {
@@ -39,6 +59,7 @@ static void grow_array(void **ptr, size_t *cap, size_t needed, size_t elem_size)
         *cap = new_cap;
     }
 }
+#endif
 
 /* Sieve of Eratosthenes up to LIMIT, collecting primes ≡ 1 (mod 9). */
 #define SIEVE_LIMIT 5000000  /* large enough to generate at least 10000 terms */
@@ -87,7 +108,7 @@ seq_t a(idx_t n)
 
         /* sequence storage */
         seq_cap = 16;
-        seq     = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq     = mem_new(seq_t, seq_cap);
         seq[0]  = (seq_t)1;
         seq_len = 1;
 
@@ -108,7 +129,7 @@ seq_t a(idx_t n)
         }
 
         /* append to sequence */
-        grow_array((void**)&seq, &seq_cap, seq_len + 1, sizeof(seq_t));
+        grow_array(OEISC_VPP(&seq), &seq_cap, seq_len + 1, sizeof(seq_t));
         seq[seq_len++] = next_val;
 
         /* advance indices for all primes that produced this candidate */

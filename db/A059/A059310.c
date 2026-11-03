@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes, gcd_uint64, mod_pow
+ * Validated: standard, pass, 70 terms through n = 959 (2026-11-01)
+ * Helpers:   build_primes, gcd_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/mod_pow.h"      /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/build_primes.h" /* void build_primes(idx_t limit, idx_t **out, size_t *cnt); */
-#include "../utils/gcd_uint64.h"
+#include <string.h>
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/powmod.h"
 
 static idx_t *primes        = NULL;   /* array of primes up to current sieve_limit */
 static size_t prime_count   = 0;
@@ -52,10 +55,10 @@ static void rebuild_satisfying(void)
         if (p < 7)          /* first term is 7 */
             continue;
 
-        uint64_t g   = gcd_uint64(21ULL, (uint64_t)p - 1ULL);
+        uint64_t g   = gcd_u64(21ULL, (uint64_t)p - 1ULL);
         uint64_t exp = ((uint64_t)p - 1ULL) / g;
 
-        seq_t r = mod_pow((seq_t)2, exp, (seq_t)p);
+        seq_t r = powmod((seq_t)2, exp, (seq_t)p);
         if (r != (seq_t)1) {
             if (sat_count == sat_cap) {
                 sat_cap = sat_cap ? sat_cap * 2 : 8;

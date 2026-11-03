@@ -9,15 +9,16 @@
  * Formula:   a(n) = number of reduced primitive forms (A,B,C) with B^2 - 4AC
  *            = -4n, i.e. |B| <= A <= C, B >= 0 if |B| == A or A == C,
  *            gcd(A,B,C) = 1 (search over A, B)
- * Range:     u8 n <= 9381, u16 n <= 9381, u32 n <= 9381, u64 n <= 9381,
- *            u128 n <= 9381, big any n
- * Helpers:   gcd_ull
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 116 terms through n = 9381 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_ull.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
             C = num / (4ULL * A);
             if (C < A) continue;
             if (B < 0 && (absB == A || A == C)) continue;
-            if (gcd_ull(gcd_ull(A, absB), C) != 1) continue;
+            if (gcd_u64(gcd_u64(A, absB), C) != 1) continue;
             count++;
         }
     }

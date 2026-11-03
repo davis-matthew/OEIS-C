@@ -9,13 +9,15 @@
  * Formula:   u(0)=0; u(3*n)= -u(n); u(3*n+1)= u(n)-2; u(3*n+2)= u(n)-1
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the OEIS sequence A256184 by memoising the recurrence.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* initialise cache[0] if this is the first call.  */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache == NULL) abort();           /* memory allocation failed */
         cache[0] = 0;                          /* u(0) = 0 */
         cache_size = 1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     idx_t old_size = cache_size;
     size_t new_size   = (size_t)(n + 1);
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (tmp == NULL) abort();                /* memory allocation failed */
     cache = tmp;
     cache_size = new_size;

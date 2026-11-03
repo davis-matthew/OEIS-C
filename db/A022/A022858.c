@@ -9,12 +9,14 @@
  *            A022858) Initial values: a(1)=1, a(2)=1
  * Range:     u8 n <= 11, u16 n <= 21, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* one‑time allocation and initialisation */
     if (!cache) {
         cache_size = 4;                  /* enough for indices 0…3 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;            /* allocation failed – silently give 0 */
         cache[0] = 0;                    /* unused */
         cache[1] = (seq_t)1;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         size_t new_size = cache_size ? cache_size * 2 : 4;
         while (new_size <= (size_t)(n + 1))
             new_size *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;              /* allocation failed */
         cache = tmp;
         cache_size = new_size;

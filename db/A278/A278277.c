@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 29,
  *            big any n
- * Helpers:   check_row
+ * Validated: standard, pass, 32 terms through n = 191 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,47 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/check_row.h"
+
+static inline bool
+check_row(int prev, int curr, int next, bool has_above, bool has_below)
+{
+    for (int j = 0; j < 5; ++j) {
+        int val = (curr >> j) & 1;
+        bool eq  = false;
+        bool neq = false;
+
+        if (has_above) {
+            if (j > 0) {
+                int nval = (prev >> (j - 1)) & 1;
+                if (nval == val) eq = true; else neq = true;
+            }
+            int nval = (prev >> j) & 1;
+            if (nval == val) eq = true; else neq = true;
+            if (j < 4) {
+                int nval = (prev >> (j + 1)) & 1;
+                if (nval == val) eq = true; else neq = true;
+            }
+        }
+
+        if (j > 0) {
+            int nval = (curr >> (j - 1)) & 1;
+            if (nval == val) eq = true; else neq = true;
+        }
+        if (j < 4) {
+            int nval = (curr >> (j + 1)) & 1;
+            if (nval == val) eq = true; else neq = true;
+        }
+
+        if (has_below) {
+            int nval = (next >> j) & 1;
+            if (nval == val) eq = true; else neq = true;
+        }
+
+        if (!(eq && neq))
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

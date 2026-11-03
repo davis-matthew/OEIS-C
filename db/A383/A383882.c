@@ -7,7 +7,8 @@
  * Formula:   a(n) = Stirling2(5*n,4*n)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* a(n) = [x^n] Product_{k=1..4*n} 1/(1 - k*x) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
     const idx_t K = 4 * n;           /* column index (k)*/
 
     /* Allocate arrays for two DP rows; each of size K+1 */
-    seq_t *prev = (seq_t *)calloc((size_t)(K + 1), sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc((size_t)(K + 1), sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(K + 1));
+    seq_t *curr = mem_new(seq_t, (size_t)(K + 1));
     if (!prev || !curr) {          /* safe exit on allocation failure */
         return (seq_t)0;
     }
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
 
     seq_t result = prev[K];          /* S(5n,4n) */
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

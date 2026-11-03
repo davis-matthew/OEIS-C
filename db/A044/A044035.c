@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   contains_67_or_76
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/contains_67_or_76.h"
+#include "../utils/mem.h"
+
+/* Test whether a 64‑bit integer contains the substring "67" or "76". */
+static bool contains_67_or_76(uint64_t x)
+{
+    uint8_t prev = 10;          /* sentinel value outside [0,9]      */
+    while (x > 0) {
+        uint8_t d = (uint8_t)(x % 10ULL);
+        if (prev <= 9) {
+            if ((prev == 6 && d == 7) || (prev == 7 && d == 6))
+                return true;
+        }
+        prev = d;
+        x /= 10ULL;
+    }
+    return false;
+}
 
 /* Static state */
 static seq_t *cache       = NULL;   /* dynamic array of terms          */
@@ -40,14 +57,14 @@ static void grow_cache(idx_t n)
 
     idx_t new_cap = n;
     size_t bytes = (size_t)new_cap * sizeof(seq_t);
-    seq_t *new_cache = (seq_t *)malloc(bytes);
+    seq_t *new_cache = mem_new(seq_t, (bytes) / sizeof(seq_t));
     if (new_cache == NULL)
         abort();
 
     if (cache != NULL && found > 0)
-        memcpy(new_cache, cache, (size_t)found * sizeof(seq_t));
+        mem_copy(new_cache, cache, (size_t)found * sizeof(seq_t));
 
-    free(cache);
+    mem_free(cache);
     cache       = new_cache;
     cache_cap   = new_cap;
 }

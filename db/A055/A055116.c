@@ -9,6 +9,7 @@
  *            replaced by (6-d) % 6
  * Range:     u8 n <= 215, u16 n <= 7775, u32 n <= 7775, u64 n <= 7775,
  *            u128 n <= 7775, big any n
+ * Validated: standard, pass, 79 terms through n = 7717 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

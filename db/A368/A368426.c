@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 5080, u64 n <= 5080,
  *            u128 n <= 5080, big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 4863 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forward declaration of the sequence function */
 seq_t a(idx_t n);
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
     /* grow cache storage if necessary */
     if (cache_len == 0) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             abort();
     }
@@ -137,8 +139,7 @@ seq_t a(idx_t n)
         if (is_sphenic((uint64_t)val)) {
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                             cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp)
                     abort();
                 cache = tmp;

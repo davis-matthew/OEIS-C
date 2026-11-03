@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 23, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 527 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    a(n) = Σ_{k=0}^{n-2} binomial(n-2,k) * 3^k * a(n-k-2)   for n ≥ 2   */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of A351049.  Values are stored in a
    static cache, so the function may be called in any order.      */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Ensure cache is large enough for term n.  Allocate one more element
        to allow writing up to a[n] (n is inclusive).                     */
     if (cache_cap < (size_t)(n + 1)) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp)               /* allocation failure – return 0 (undefined) */
             return (seq_t)0;
         cache     = tmp;

@@ -8,14 +8,17 @@
  * Formula:   a(n) = T(row, k) where * row = floor((sqrt(8*n+1)-1)/2) * k = n
  *            - row*(row+1)/2 * T(n,k) = C(n,k) * C(2k,k) / (k+1) = C(n,k) *
  *            Catalan(k)
- * Range:     u8 n <= 26, u16 n <= 72, u32 n <= 183, u64 n <= 583,
+ * Range:     u8 n <= 31, u16 n <= 72, u32 n <= 183, u64 n <= 583,
  *            u128 n <= 1935, big any n
+ * Validated: standard, pass, 78 terms through n = 7637 (2026-11-01)
  * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
 

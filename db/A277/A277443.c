@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 39, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,14 +19,14 @@
    read by antidiagonals (1,1),(1,2),(2,1),(1,3),(2,2),(3,1), … */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 /* helper: exponentiation with possibly negative base */
 static seq_t power_signed(int64_t baseSigned, idx_t exp)
 {
     bool neg = (baseSigned < 0);
     int64_t absv = neg ? -baseSigned : baseSigned;
-    seq_t powpos = pow_seq((seq_t)absv, (int)exp);
+    seq_t powpos = ipow_i32((seq_t)absv, (int)exp);
     if (exp & 1 && neg) {
         /* assume seq_t supports signed negation – works for
            arbitrary‑precision or native signed types */
@@ -52,7 +53,7 @@ seq_t a(idx_t n)
 
     /* term1 = (i^2-3i+3)^j */
     v = (__int128)i * i - 3 * (__int128)i + 3;
-    seq_t term1 = pow_seq((seq_t)v, (int)j);
+    seq_t term1 = ipow_i32((seq_t)v, (int)j);
 
     /* term2 = (i-1) * ((3-i)^j + (1-i)^j) */
     seq_t term2 = 0;

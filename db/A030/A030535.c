@@ -10,7 +10,8 @@
  *            x)^8 * (1 - x^2)^8)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 16, u64 n <= 85, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Includes needed for dynamic allocation and basic types */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------------  Global data  --------------- */
 
@@ -59,7 +61,7 @@ static void ensure_y(idx_t n)
 {
     if (!y_cache) {
         y_cap = 16;
-        y_cache = (seq_t *)malloc(y_cap * sizeof(seq_t));
+        y_cache = mem_new(seq_t, y_cap);
         if (!y_cache) abort();                /* allocation failure */
         y_cache[0] = (seq_t)1;                /* y[0] = 1 */
         y_max = 0;
@@ -72,7 +74,7 @@ static void ensure_y(idx_t n)
     if (need_cap > y_cap) {
         size_t new_cap = y_cap;
         while (new_cap < need_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(y_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, y_cache, new_cap);
         if (!tmp) abort();
         y_cache = tmp;
         y_cap = new_cap;

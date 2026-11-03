@@ -7,6 +7,7 @@
  * Formula:   a(n) = digit of (69^2)*10^6 + 69^3 at position n‑9 (n>=10)
  * Range:     u8 n <= 19, u16 n <= 19, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
+ * Validated: full, pass, 10 terms through n = 19 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

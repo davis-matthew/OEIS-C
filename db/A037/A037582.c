@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stddef.h>  /* size_t */
 #include <stdlib.h>  /* realloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,8 +41,8 @@ seq_t a(idx_t n)
             size_t newcap = needed;
             if (newcap < 2 * cap) newcap = 2 * cap; /* growth factor 2 */
             if (newcap < needed)       newcap = needed;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
-            if (!tmp) { free(cache); cache = NULL; cap = 0; max_nc = 0; return (seq_t)0; }
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
+            if (!tmp) { mem_free(cache); cache = NULL; cap = 0; max_nc = 0; return (seq_t)0; }
             cache = tmp;
             cap   = newcap;
         }

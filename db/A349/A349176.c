@@ -10,9 +10,10 @@
  * Formula:   a(n) = the nth odd integer k such that gcd(k, A003961(k)) =
  *            gcd(σ(k), A003961(k)) > 1, where A003961 is fully multiplicative
  *            with a(p) = next prime after p
- * Range:     u8 none, u16 n <= 38, u32 n <= 8050, u64 n <= 8050,
- *            u128 n <= 8050, big any n
- * Helpers:   factor_u64, gcd, grow_seq, next_prime, seq_mul, sigma_of
+ * Range:     u8 none, u16 n <= 38, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 70 terms through n = 8050 (2026-11-03)
+ * Helpers:   factor_u64, gcd, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +21,45 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"               /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/sigma_of.h"          /* seq_t sigma_of(idx_t n); */
-#include "../utils/factor_u64.h"        /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/next_prime.h"        /* uint64_t next_prime(uint64_t start); */
-#include "../utils/seq_mul.h"           /* seq_t seq_mul(seq_t a, seq_t b); */
-#include "../utils/grow_seq.h"          /* void grow_seq(seq_t **arr, size_t *cap, size_t need); */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static seq_t *cache = NULL;     /* cached values a(1), a(2), ... */
 static size_t cache_len = 0;   /* number of cached values */

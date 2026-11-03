@@ -8,7 +8,8 @@
  * Formula:   a(0)=1; for n>0, a(n)=sum_{k=0}^{n-1} a(floor(k/5)) * a(n-1-k)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoised values */
 static size_t cache_cap = 0;     /* current allocated capacity */
@@ -28,13 +30,13 @@ static void ensure_cache(idx_t n) {
         size_t old_cap = cache_cap;
         seq_t *tmp;
 #ifdef __cplusplus
-        tmp = reinterpret_cast<seq_t*>(realloc(cache, new_cap * sizeof(seq_t)));
+        tmp = reinterpret_cast<seq_t*>(mem_resize(seq_t, cache, new_cap));
 #else
         tmp = realloc(cache, new_cap * sizeof(seq_t));
 #endif
         if (!tmp) abort();
         /* Zero the new portion of the array */
-        memset(tmp + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
+        mem_set(tmp + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
         cache = tmp;
         cache_cap = new_cap;
     }

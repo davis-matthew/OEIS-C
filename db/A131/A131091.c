@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t * _cache = NULL;          /* array of computed a(n) values */
 static idx_t   _cache_capacity = 0;    /* capacity of _cache (count of slots) */
@@ -28,9 +30,9 @@ static idx_t   _last_filled = 0;       /* highest index that has been computed *
 static bool    _initialized = false;   /* true after the first base initialization */
 
 #if defined(__cplusplus)
-#define RELOC(ptr, sz) reinterpret_cast<seq_t*>(realloc(ptr, sz))
+#define RELOC(ptr, sz) mem_resize(seq_t, ptr, (sz) / sizeof(seq_t))
 #else
-#define RELOC(ptr, sz) ((seq_t*)realloc(ptr, sz))
+#define RELOC(ptr, sz) (mem_resize(seq_t, ptr, (sz) / sizeof(seq_t)))
 #endif
 
 seq_t a(idx_t n)

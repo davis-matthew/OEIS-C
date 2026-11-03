@@ -12,15 +12,44 @@
  *            alloc_seq_array / free_seq_array
  * Range:     u8 n <= 881, u16 n <= 3442, u32 n <= 3442, u64 n <= 3442,
  *            u128 n <= 3442, big any n
- * Helpers:   alloc_seq_array, days_in_month, free_seq_array
+ * Validated: standard, pass, 102 terms through n = 3047 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/days_in_month.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+static int days_in_month(int year, int month)
+{
+    switch (month)
+    {
+        case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+            return 31;
+        case 4: case 6: case 9: case 11:
+            return 30;
+        case 2:
+            /* Gregorian leap‑year rule */
+            return 28 + (((year % 4) == 0) &&
+                         (((year % 100) != 0) || ((year % 400) == 0)));
+        default:
+            return 30;   /* unreachable, defensive */
+    }
+}
 
 seq_t a(idx_t n)
 {

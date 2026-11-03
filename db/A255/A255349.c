@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 1583, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt, merge_factors
+ * Validated: standard, pass, 74 terms through n = 9330 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,47 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/merge_factors.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Merge two sorted factor lists */
+static void merge_factors(const uint64_t p1[], const int e1[], size_t c1,
+                          const uint64_t p2[], const int e2[], size_t c2,
+                          uint64_t mp[], int me[], size_t *mc)
+{
+    size_t i = 0, j = 0, k = 0;
+    while (i < c1 && j < c2)
+    {
+        if (p1[i] == p2[j])
+        { mp[k] = p1[i]; me[k] = e1[i] + e2[j]; ++i; ++j; }
+        else if (p1[i] < p2[j])
+        { mp[k] = p1[i]; me[k] = e1[i]; ++i; }
+        else
+        { mp[k] = p2[j]; me[k] = e2[j]; ++j; }
+        ++k;
+    }
+    while (i < c1) { mp[k] = p1[i]; me[k] = e1[i]; ++i; ++k; }
+    while (j < c2) { mp[k] = p2[j]; me[k] = e2[j]; ++j; ++k; }
+    *mc = k;
+}
 
 /* ---------- Prime sieve for factorisation ---------- */
 static uint32_t *spf = NULL;   /* smallest prime factor table */
@@ -159,7 +199,7 @@ static void ensure_terms(uint64_t n)
             if (terms_len + 1 > terms_cap)
             {
                 terms_cap = terms_cap ? terms_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                 if (!tmp) abort();
                 terms = tmp;
             }
@@ -178,7 +218,7 @@ seq_t a(idx_t n)
     if (!init)
     {
         terms_cap = 64;
-        terms = (seq_t *)calloc(terms_cap, sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) abort();
         build_spf(2000000);    /* reasonable starting bound */
         init = true;

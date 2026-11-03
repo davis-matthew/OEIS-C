@@ -8,13 +8,14 @@
  *            r(r+1)/2. Edge entries (k=0 or k=r) are 1
  * Range:     u8 n <= 55, u16 n <= 171, u32 n <= 595, u64 n <= 1274,
  *            u128 n <= 1274, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 82 terms through n = 1161 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +33,8 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* compute 2^(k-1) and 2^(r-k-1) using the provided pow_uint helper */
-    seq_t a_val = pow_uint(2ull, k - 1);
-    seq_t b_val = pow_uint(2ull, r - k - 1);
+    seq_t a_val = ipow_u64_idx(2ull, k - 1);
+    seq_t b_val = ipow_u64_idx(2ull, r - k - 1);
 
     return a_val * b_val + (seq_t)1;
 }

@@ -10,13 +10,15 @@
  *            L0=2, L1=1, Lk = L_{k-1} + L_{k-2})
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  State for memoisation and for the list of Lucas numbers           */
@@ -40,7 +42,7 @@ static void ensure_cache_size(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1); /* out of memory; abort */
     cache = tmp;
 

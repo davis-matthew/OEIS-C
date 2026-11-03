@@ -8,23 +8,25 @@
  *            / ∏_{k=1}^{m+5} (1–q^k))
  * Range:     u8 n <= 12, u16 n <= 38, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static idx_t cache_max = 0;
 
 static void recompute(idx_t nmax)
 {
-    seq_t *dp = (seq_t *)malloc((nmax + 1) * sizeof(seq_t));
-    seq_t *a_arr = (seq_t *)malloc((nmax + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (nmax + 1));
+    seq_t *a_arr = mem_new(seq_t, (nmax + 1));
     if (!dp || !a_arr) {
-        free(dp);
-        free(a_arr);
+        mem_free(dp);
+        mem_free(a_arr);
         return;
     }
 
@@ -50,11 +52,11 @@ static void recompute(idx_t nmax)
         }
     }
 
-    free(a_cache);
+    mem_free(a_cache);
     a_cache = a_arr;
     cache_max = nmax;
 
-    free(dp);
+    mem_free(dp);
 }
 
 seq_t a(idx_t n)

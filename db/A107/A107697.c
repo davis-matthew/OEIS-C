@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 2, u16 n <= 21, u32 n <= 35, u64 n <= 35, u128 n <= 35,
+ * Range:     u8 n <= 2, u16 n <= 21, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   digit_product, is_prime_uint64
+ * Validated: standard, pass, 51 terms through n = 86 (2026-11-03)
+ * Helpers:   digit_product_seq, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_uint64.h"
-#include "../utils/digit_product.h"
+#include <limits.h>
+#include "../utils/digit_product_seq.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
     /* Grow the cache until it contains at least n primes. */
     while (primes_sz < (size_t)n)
     {
-        if (is_prime_uint64(next_candidate))
+        if (is_prime_u64(next_candidate))
         {
-            if (digit_product((seq_t)next_candidate) == 12)
+            if (digit_product_seq((seq_t)next_candidate) == 12)
             {
                 if (primes_sz == primes_cap)
                 {

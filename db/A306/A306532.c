@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 17, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 #define MAX_PRIME_SIEVE 200000   /* should cover all k up to the required range */
 
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
         if (k1 % s == (seq_t)0) {               /* condition satisfied */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 16 : cache_cap << 1;
-                seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) abort();       /* allocation failure */
                 cache = new_cache;
                 cache_cap = new_cap;

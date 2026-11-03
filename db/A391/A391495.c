@@ -9,7 +9,8 @@
  *            (k+1)*Pell(k+2)) * binomial(4*n, n-k) for n > 0, a(0) = 1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Pre‑compute Pell numbers up to Pell(n+2) */
-    seq_t *pell = (seq_t *)malloc((size_t)(n + 3) * sizeof(seq_t));
+    seq_t *pell = mem_new(seq_t, (size_t)(n + 3));
     if (!pell)
         return (seq_t)0;                     /* memory failure */
 
@@ -61,6 +63,6 @@ seq_t a(idx_t n)
     __uint128_t denom  = ( __uint128_t)2 * n;
     seq_t result = (seq_t)(sum / denom);
 
-    free(pell);
+    mem_free(pell);
     return result;
 }

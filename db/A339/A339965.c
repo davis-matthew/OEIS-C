@@ -5,13 +5,15 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, frac, easy
  * Formula:   a(n) = sigma(n) / gcd(sigma(n), n+1)
- * Range:     u8 n <= 107, u16 n <= 9919, u32 n <= 9919, u64 n <= 9919,
- *            u128 n <= 9919, big any n
+ * Range:     u8 n <= 107, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 102 terms through n = 9919 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 #include <stdint.h>
 

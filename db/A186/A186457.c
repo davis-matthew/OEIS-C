@@ -11,12 +11,14 @@
  *            a(5)=449, a(6)=673, a(7)=945, a(8)=1493, a(9)=2201, a(10)=3473
  * Range:     u8 n <= 3, u16 n <= 17, u32 n <= 43, u64 n <= 97, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #if defined(__SIZEOF_INT128__) && __SIZEOF_INT128__ == 16
     typedef unsigned __int128 u128_t;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Initialise cache with first 10 terms (indices 0..10) */
     if (cache == NULL) {
         cap = 11;                              /* 0 .. 10 inclusive */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;                  /* allocation failed */
 
         cache[0] = 0;                          /* unused placeholder */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if (n >= cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                     /* allocation failed */
         cache = tmp;
         cap = new_cap;

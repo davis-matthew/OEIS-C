@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   div_poly
+ * Validated: standard, pass, 97 terms through n = 1950 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,27 @@
    coefficient of xⁿ in the power‐series expansion of 1/Φ₁₄₄₃(x). */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/div_poly.h"
+
+/* polynomial long division: numerator / denominator  (both raw arrays).
+   The leading coefficient of the denominator is 1.  Result is stored
+   in 'res' and also in 'numerator' (lower terms are destroyed). */
+static void div_poly(seq_t *numer, int degN, seq_t *denom, int degD,
+                     seq_t *res)
+{
+    /* copy denominator leading coefficient (must be 1) */
+    seq_t ld = denom[degD];
+    (void)ld; /* to silence unused warning if ld==1 */
+
+    for (int d = degN - degD; d >= 0; --d) {
+        res[d] = numer[d + degD];                /* coefficient of x^d */
+        seq_t coeff = res[d];
+        /* subtract coeff * denom(x) * x^d from numerator */
+        for (int i = 0; i <= degD; ++i) {
+            numer[d + i] -= coeff * denom[i];
+        }
+    }
+    /* (lower terms of numerator are 0 after division) */
+}
 
 /* 1443 = 3·13·37  ->  φ(1443) = 864  */
 #define NUF 1496   /* numerator maximum degree (sum of 3,13,37,1443) */

@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(3n) = a(3n-1) = 3*n^2, a(3n-2) = 3*n^2 - 3*n + 1
- * Range:     u8 n <= 27, u16 n <= 442, u32 n <= 9975, u64 n <= 9975,
- *            u128 n <= 9975, big any n
+ * Range:     u8 n <= 27, u16 n <= 442, u32 n <= 90000, u64 n <= 90000,
+ *            u128 n <= 90000, big any n
+ * Validated: standard, pass, 74 terms through n = 9975 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

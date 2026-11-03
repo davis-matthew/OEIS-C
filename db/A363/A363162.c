@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 163, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 93 terms through n = 9821 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
    that has the same number of distinct prime divisors as a(n-2)+a(n-1). */
 
 #include <stdlib.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Storage for computed terms */
 static seq_t *seq      = NULL;   /* evaluated terms   */
@@ -40,7 +44,7 @@ static void ensure_seq_cap(idx_t need)
     if (seq_cap >= need) return;
     idx_t new_cap = seq_cap ? seq_cap : 8;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) abort();
     seq = tmp;
     seq_cap = new_cap;
@@ -104,7 +108,7 @@ seq_t a(idx_t n)
         /* Compute the target number of distinct prime divisors */
         /* The sum must fit in 64 bits for the helper; grow as needed. */
         uint64_t sum = (uint64_t)seq[i - 1] + (uint64_t)seq[i - 2];
-        int target_omega = count_distinct_primes(sum);
+        int target_omega = omega(sum);
         if (target_omega < 0) target_omega = 0;   /* safety */
 
         ensure_next_start_cap((idx_t)target_omega);
@@ -114,7 +118,7 @@ seq_t a(idx_t n)
         for (;; ++cand)
         {
             ensure_used_cap(cand);
-            if (!used[cand] && count_distinct_primes((uint64_t)cand) == target_omega)
+            if (!used[cand] && omega((uint64_t)cand) == target_omega)
             {
                 seq[i] = (seq_t)cand;
                 used[cand] = 1;

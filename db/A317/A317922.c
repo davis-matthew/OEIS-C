@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 5620, u16 n <= 9034, u32 n <= 9034, u64 n <= 9034,
- *            u128 n <= 9034, big any n
- * Helpers:   none
+ * Range:     u8 n <= 5620, u16 n <= 50000, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 99 terms through n = 9034 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Persistent cache for computed a(n) values */
 static seq_t *cache = NULL;   /* 1‑based array: cache[1] = a(1), etc. */
@@ -43,12 +45,12 @@ static void ensure_cache(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap <= (size_t)n)
         new_cap <<= 1;          /* double until enough */
-    seq_t *new_cache = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         abort();                /* allocation failed */
     if (cache) {
-        memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

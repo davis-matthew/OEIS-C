@@ -9,7 +9,8 @@
  *            powers (including 1)
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   safe_mul_uint64
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/safe_mul_uint64.h"
+#include "../utils/mem.h"
+
+/* Helper: multiply two uint64_t with overflow check */
+static inline uint64_t safe_mul_uint64(uint64_t a, uint64_t b, uint64_t limit) {
+    if (a == 0 || b == 0) return 0;
+    if (a > limit / b) return limit + 1;  /* indicates overflow beyond limit */
+    return a * b;
+}
 
 seq_t a(idx_t n) {
     /* static cache for prime powers */
@@ -75,7 +83,7 @@ seq_t a(idx_t n) {
     /* DP table: dp[k][s] for k=0..4, sum s=0..n */
     size_t dp_rows = 5;
     size_t dp_cols = (size_t)n + 1;
-    seq_t *dp = (seq_t*)calloc(dp_rows * dp_cols, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_rows * dp_cols);
     if (!dp) return 0;  /* out of memory */
 
     /* Helper to index dp */
@@ -104,6 +112,6 @@ seq_t a(idx_t n) {
     result += DP(3, n);
     result += DP(4, n);
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

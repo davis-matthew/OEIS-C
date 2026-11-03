@@ -12,7 +12,8 @@
  *            external utilities are needed
  * Range:     u8 n <= 66, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 8942 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system. */
 static seq_t *a_arr   = NULL;   /* storage for a(n) values (0‑based: a_arr[0] = a(1)) */
@@ -38,7 +40,7 @@ static void ensure_a_capacity(idx_t n)
     size_t new_cap = a_cap ? a_cap * 2 : 1;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, a_arr, new_cap);
     if (!new_arr)
         exit(EXIT_FAILURE);
     a_arr = new_arr;

@@ -9,7 +9,8 @@
  *            and d1+d2 prime
  * Range:     u8 n <= 85, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Simple sieve to generate primes up to a fixed limit once */
 #define PRIME_LIMIT 40000
@@ -85,7 +87,7 @@ static seq_t *divisors_of(uint64_t m, size_t *out_cnt)
 
     /* Generate divisors */
     size_t max_divs = 64;            /* ample for m <= 2*10^4 */
-    seq_t *divs = (seq_t *)malloc(sizeof(seq_t) * max_divs);
+    seq_t *divs = mem_new(seq_t, max_divs);
     size_t dcnt = 1;
     divs[0] = (seq_t)1;
 
@@ -124,6 +126,6 @@ seq_t a(idx_t n)
             }
         }
     }
-    free(divs);
+    mem_free(divs);
     return result;
 }

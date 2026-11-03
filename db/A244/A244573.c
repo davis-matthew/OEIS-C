@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 101, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum, ensure_capacity, is_palindrome
+ * Validated: standard, pass, 68 terms through n = 1000 (2026-11-03)
+ * Helpers:   digit_sum, is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,44 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/ensure_capacity.h"
+#include <stdlib.h>
 #include "../utils/digit_sum.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 static seq_t *cache = NULL;          /* memoised terms */
 static size_t cache_cap = 0;        /* current allocation size */
@@ -37,7 +73,7 @@ static bool good_n(seq_t k)
         seq_t t  = k * 10 + d;          /* 10*k + d */
         seq_t ds = digit_sum(t);        /* digsum(10*k + d) */
         seq_t m  = t - ds;              /* the candidate palindrome */
-        if (!is_palindrome(m, 10))
+        if (!is_palindrome_base(m, 10))
             return false;
     }
     return true;
@@ -58,7 +94,7 @@ static void generate_up_to(size_t n)
                 if (cache_len + 1 > new_cap)
                     new_cap = cache_len + 1;
                 ensure_capacity(new_cap, &cache_cap,
-                                 (void **)&cache, sizeof(seq_t));
+                                 OEISC_VPP(&cache), sizeof(seq_t));
             }
             cache[cache_len++] = cand;        /* store term                */
         }

@@ -8,7 +8,8 @@
  * Formula:   a(n) = smallest number > n having at least as many divisors as n
  * Range:     u8 n <= 239, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9327 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static seq_t *div_counts = NULL;
@@ -33,7 +35,7 @@ ensure_div_limit(idx_t needed)
     if (new_limit < div_limit * 2) new_limit = div_limit * 2;
 
     /* Reallocate array. */
-    seq_t *new_arr = (seq_t *)realloc(div_counts, (new_limit + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, div_counts, (new_limit + 1));
     if (!new_arr) return; /* In case of allocation failure, leave unchanged. */
     div_counts = new_arr;
     div_limit = new_limit;

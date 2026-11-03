@@ -10,12 +10,14 @@
  *            a(2)=11, a(3)=17, a(4)=23
  * Range:     u8 n <= 45, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Persistent cache for computed values */
 static seq_t *cache = NULL;
@@ -35,7 +37,7 @@ ensure_cache(idx_t n)
     /* Allocate and initialise the cache if it hasn't been already. */
     if (cache == NULL) {
         cache_size = 5;
-        cache = (seq_t *)calloc(cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = 1;  /* a(0) */
         cache[1] = 6;  /* a(1) */
         cache[2] = 11; /* a(2) */
@@ -49,7 +51,7 @@ ensure_cache(idx_t n)
         size_t new_size = cache_size * 2;
         if (new_size < (size_t)(n + 1))
             new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) {
             /* In a real-world scenario we would handle the allocation
                failure; for this problem we assume it never fails. */

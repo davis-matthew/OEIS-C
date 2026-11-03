@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   period_intersection_empty
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/period_intersection_empty.h"
+#include "../utils/mem.h"
+
+/* ---------- intersection test ---------- */
+static bool period_intersection_empty(const idx_t *p1, size_t l1,
+                                      const idx_t *p2, size_t l2)
+{
+    for (size_t i = 0; i < l1; ++i) {
+        idx_t v = p1[i];
+        for (size_t j = 0; j < l2; ++j)
+            if (v == p2[j]) return false;
+    }
+    return true;
+}
 
 /* ---------- integer square root for idx_t (uint64_t) ---------- */
 static idx_t isqrt_u64(idx_t n)
@@ -89,7 +102,7 @@ static void ensure_seq_cap(size_t n)
     if (seq_cap >= n) return;
     size_t new_cap = seq_cap ? seq_cap : 16;
     while (new_cap < n) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp && new_cap > 0) exit(1);
     if (tmp != seq) seq = tmp;
     seq_cap = new_cap;

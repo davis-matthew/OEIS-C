@@ -7,16 +7,19 @@
  * Formula:   a(0) = 0, a(1) = -1, a(n) = (-3)^(n-2) for n >= 2
  * Range:     i8 n <= 6, i16 n <= 11, i32 n <= 21, i64 n <= 41, i128 n <= 82,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 44 terms through n = 945 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)0;
     if (n == 1) return (seq_t)-1;
-    return big_pow((seq_t)-3, (seq_t)(n - 2));
+    return ipow((seq_t)-3, (seq_t)(n - 2));
 }

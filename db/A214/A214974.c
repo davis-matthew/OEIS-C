@@ -11,7 +11,8 @@
  *            offset 1
  * Range:     u8 n <= 59, u16 n <= 8000, u32 n <= 8000, u64 n <= 8000,
  *            u128 n <= 8000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 7936 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * compares the greedy representation lengths.  Results are memoized
  * so that calls are O(1) after the first pass up to the desired n. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- Fibonacci (Zeckendorf) helpers ---------------------------------------------------- */
 static seq_t *fib_arr = NULL;
@@ -30,7 +32,7 @@ static void ensure_fib_cap(size_t needed)
     if (fib_cap < needed) {
         fib_cap = fib_cap ? fib_cap * 2 : 4;
         if (fib_cap < needed) fib_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(fib_arr, fib_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fib_arr, fib_cap);
         if (!tmp) exit(1);
         fib_arr = tmp;
     }
@@ -75,7 +77,7 @@ static void ensure_luc_raw_cap(size_t needed)
     if (luc_raw_cap < needed) {
         luc_raw_cap = luc_raw_cap ? luc_raw_cap * 2 : 4;
         if (luc_raw_cap < needed) luc_raw_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(luc_raw, luc_raw_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, luc_raw, luc_raw_cap);
         if (!tmp) exit(1);
         luc_raw = tmp;
     }
@@ -86,7 +88,7 @@ static void ensure_luc_sorted_cap(size_t needed)
     if (luc_sorted_cap < needed) {
         luc_sorted_cap = luc_sorted_cap ? luc_sorted_cap * 2 : 4;
         if (luc_sorted_cap < needed) luc_sorted_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(luc_sorted, luc_sorted_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, luc_sorted, luc_sorted_cap);
         if (!tmp) exit(1);
         luc_sorted = tmp;
     }
@@ -148,7 +150,7 @@ static void seq_push(seq_t val)
 {
     if (seq_len >= seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_vals, seq_cap);
         if (!tmp) exit(1);
         seq_vals = tmp;
     }

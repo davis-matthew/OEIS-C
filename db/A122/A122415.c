@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 107, u16 n <= 107, u32 n <= 107, u64 n <= 107,
  *            u128 n <= 107, big any n
+ * Validated: partial, pass, 105 terms through n = 107 (2026-11-01)
  * Helpers:   gcd, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* OEIS A122415 – Triangle T(n,k) with gcd(n,k) prime */
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 #include "../utils/is_prime.h"
 

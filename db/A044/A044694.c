@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has68_base9
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,21 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has68_base9.h"
+#include "../utils/mem.h"
+
+/* Check whether x in base 9 contains the substring "68".  */
+static bool has68_base9(seq_t x)
+{
+    unsigned char prev = 255;          /* “none” value */
+    while (x > 0) {
+        unsigned char cur = (unsigned char)(x % 9);
+        if (prev == 8 && cur == 6)    /* we saw ...6,8 in normal order */
+            return true;
+        prev = cur;
+        x /= 9;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +51,7 @@ seq_t a(idx_t n)
     /* Expand the cache as needed. */
     if (cache == NULL) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) exit(1);
     }
 
@@ -48,7 +63,7 @@ seq_t a(idx_t n)
         if (has68_base9(last_checked) && !has68_base9(last_checked + 1)) {
             if ((size_t)count + 1 > cap) {
                 size_t newcap = cap * 2;
-                seq_t *newp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *newp = mem_resize(seq_t, cache, newcap);
                 if (!newp) exit(1);
                 cache = newp;
                 cap = newcap;

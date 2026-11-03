@@ -10,6 +10,7 @@
  *            A033627(r) is 2 for r = 1, and 3*r – 2 for r > 1
  * Range:     u8 n <= 7310, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 108 terms through n = 9903 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

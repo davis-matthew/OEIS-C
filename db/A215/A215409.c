@@ -7,6 +7,7 @@
  * Formula:   a(n) = 3 for n = 0,1,2; 2 for n = 3; 1 for n = 4; 0 otherwise
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
+ * Validated: full, pass, 6 terms through n = 5 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

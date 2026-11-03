@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   compute_pi_prime, gcd_u64
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compute_pi_prime.h"
 #include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
+
+/* Pisano period for a prime p.  Works for all primes ≤ 2^32. */
+static uint64_t compute_pi_prime(idx_t p) {
+    if (p == 2) return 3ULL;
+    uint64_t a = 0, b = 1, c;
+    for (uint64_t k = 1;; ++k) {
+        c = (a + b) % p;
+        a = b;
+        b = c;
+        if (a == 0 && b == 1) return k;
+    }
+}
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -91,10 +104,10 @@ static inline bool leads_to_24(idx_t x) {
 static void ensure_cache(void) {
     if (!cache) {
         cache_size = 64;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
     } else if (cache_count == cache_size) {
         cache_size *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * cache_size);
+        seq_t *tmp = mem_resize(seq_t, cache, cache_size);
         cache = tmp;
     }
 }

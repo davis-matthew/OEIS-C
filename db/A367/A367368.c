@@ -9,8 +9,9 @@
  *            divisors and σ(n) is the sum of divisors. The implementation
  *            precomputes primes up to the required limit using a simple sieve
  *            and factors each n to obtain τ(n) and σ(n)
- * Range:     u8 n <= 24, u16 n <= 364, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
+ * Range:     u8 n <= 24, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ *            big any n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

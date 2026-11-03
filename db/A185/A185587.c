@@ -10,9 +10,10 @@
  *            successive generations of a Rule 18 cellular automaton started
  *            from a single 1. The program simulates the automaton
  *            generation‑by‑generation, records the gaps, and memoises them
- * Range:     u8 n <= 6305, u16 n <= 9920, u32 n <= 9920, u64 n <= 9920,
- *            u128 n <= 9920, big any n
- * Helpers:   none
+ * Range:     u8 n <= 6305, u16 n <= 154474, u32 n <= 154474, u64 n <= 154474,
+ *            u128 n <= 154474, big any n
+ * Validated: standard, pass, 144 terms through n = 9920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static void grow_seq(seq_t **arr, size_t *cap, size_t needed)
 {
     if (*cap < needed) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         *arr = tmp;
         *cap = new_cap;

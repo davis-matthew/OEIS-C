@@ -8,6 +8,7 @@
  *            to the n‑th element of the mirrored triangle (offset 2)
  * Range:     u8 n <= 132, u16 n <= 4951, u32 n <= 4951, u64 n <= 4951,
  *            u128 n <= 4951, big any n
+ * Validated: standard, pass, 90 terms through n = 4191 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

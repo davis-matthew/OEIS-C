@@ -10,7 +10,8 @@
  *            modulo 3
  * Range:     u8 n <= 91, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static storage for computed terms and auxiliary tables */
 static seq_t  *seq = NULL;       /* array of sequence terms */
@@ -75,7 +77,7 @@ static void extend_seq(idx_t n)
 {
     if (seq_len == 0) {          /* first call – initialise */
         seq_len = 1;
-        seq = (seq_t*)calloc(1, sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         seq[0] = (seq_t)1;       /* a(1) = 1 */
         build_spf(20);           /* small initial spf table */
     }
@@ -85,7 +87,7 @@ static void extend_seq(idx_t n)
     /* Grow the term array if needed */
     size_t capacity = seq_len * 2;
     if (capacity < (size_t)n) capacity = (size_t)n;
-    seq = (seq_t*)realloc(seq, capacity * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, capacity);
 
     seq_t last_term = seq[seq_len - 1];
     seq_t cand = last_term + 1;

@@ -10,12 +10,14 @@
  *            9k-4
  * Range:     u8 n <= 20, u16 n <= 57, u32 n <= 175, u64 n <= 588,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Grow or shrink the array if needed */
     if (dp == NULL || n > dp_max) {
         if (n > dp_max) dp_max = n;
-        seq_t *tmp = (seq_t*)realloc(dp, (dp_max + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (dp_max + 1));
         if (tmp == NULL) return 0;   /* out of memory – caller will not crash */
         dp = tmp;
     }

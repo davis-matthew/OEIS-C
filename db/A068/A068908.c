@@ -9,12 +9,14 @@
  *            (mod 5), where the sum is over positive k and k(3k±1)/2 ≤ n
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *part_mod5 = NULL;   /* cache of p(n) mod 5 */
 static idx_t  max_n_done = 0;     /* highest n for which cache is filled */
@@ -24,7 +26,7 @@ static void init_cache(void)
 {
     if (!part_mod5)
     {
-        part_mod5 = (seq_t *)malloc(sizeof(seq_t));
+        part_mod5 = mem_new(seq_t, 1);
         if (!part_mod5) exit(EXIT_FAILURE);
         part_mod5[0] = (seq_t)1;   /* p(0) = 1 */
         max_n_done = 0;
@@ -39,7 +41,7 @@ static void compute_up_to(idx_t n)
     if (n <= max_n_done) return;
 
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(part_mod5, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, part_mod5, new_size);
     if (!tmp) exit(EXIT_FAILURE);
     part_mod5 = tmp;
 

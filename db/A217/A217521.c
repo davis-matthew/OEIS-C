@@ -9,7 +9,8 @@
  *            max_{k<k0} 4^k with 4^k ≡ r ), where k0 = ⌈log₄ n⌉
  * Range:     u8 n <= 28, u16 n <= 128, u32 n <= 128, u64 n <= 128,
  *            u128 n <= 128, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 128 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Compute the OEIS sequence A217521 */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,12 +27,12 @@ seq_t a(idx_t n)
 
     size_t sz = (size_t)n;
 
-    seq_t *maxP = (seq_t*)calloc(sz, sizeof(seq_t));    /* largest 4^k < n for each residue */
+    seq_t *maxP = mem_new(seq_t, sz);    /* largest 4^k < n for each residue */
     bool *seen  = (bool*)calloc(sz, sizeof(bool));     /* residue occurs for some large k   */
     bool *vis   = (bool*)calloc(sz, sizeof(bool));     /* visited during later cycle       */
 
     if (!maxP || !seen || !vis) {
-        free(maxP); free(seen); free(vis);
+        mem_free(maxP); free(seen); free(vis);
         return 0;
     }
 
@@ -68,6 +70,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(maxP); free(seen); free(vis);
+    mem_free(maxP); free(seen); free(vis);
     return result;
 }

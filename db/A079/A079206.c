@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 17, u32 n <= 194, u64 n <= 200, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 200 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The build supplies the typedefs:
        typedef uint64_t idx_t;
@@ -85,7 +87,7 @@ static void build_sequence(void) {
     generate((seq_t)0, 0);
 
     /* Sort the array in increasing order. */
-    qsort(SEQ, SEQ_LEN, sizeof(seq_t), compare_seq);
+    mem_qsort(SEQ, SEQ_LEN, sizeof(seq_t), compare_seq);
 
     SEQ_INITIALIZED = true;
 }

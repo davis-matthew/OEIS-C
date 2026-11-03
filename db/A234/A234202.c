@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 12, u64 n <= 26, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int val0[216], val1[216], val2[216];
 static int *adj[216];
@@ -97,7 +99,7 @@ static void ensure_dp(size_t n) {
     if (dp_cap <= n) {
         size_t new_cap = dp_cap ? dp_cap * 2 : 4;
         if (new_cap < n + 1) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_cap);
         dp = tmp;
         dp_cap = new_cap;
     }
@@ -113,7 +115,7 @@ seq_t a(idx_t n) {
         cur_vec[0] = (seq_t)1;
         for (int i = 1; i < 216; ++i) cur_vec[i] = (seq_t)1;
         cur_len = 0;
-        dp = (seq_t *)malloc(sizeof(seq_t));
+        dp = mem_new(seq_t, 1);
         dp_cap = 1;
         dp[0] = (seq_t)0;
     }

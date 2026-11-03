@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort used on seq_t values. Works for both C and C++. */
 static int cmp_seq(const void *p1, const void *p2)
@@ -54,7 +56,7 @@ static void init_divisors(void)
     }
 
     /* idx should now be 84 */
-    qsort(divisors, 84, sizeof(seq_t), cmp_seq);
+    mem_qsort(divisors, 84, sizeof(seq_t), cmp_seq);
     divisors_initialized = true;
 }
 

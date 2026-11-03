@@ -8,13 +8,15 @@
  * Formula:   a(n) = ∑_{i+j≥m+1} d_i · d_j (d_1<…<d_m are the divisors of n)
  * Range:     u8 n <= 9, u16 n <= 107, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9373 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort, compares seq_t values */
 static int cmp_seq(const void *a, const void *b)
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     }
 
     /* sort the divisors */
-    qsort(divs, m, sizeof(seq_t), cmp_seq);
+    mem_qsort(divs, m, sizeof(seq_t), cmp_seq);
 
     /* prefix sums of divisors */
     seq_t pref[MAX_DIV + 1];

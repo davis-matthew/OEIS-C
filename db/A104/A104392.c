@@ -8,13 +8,25 @@
  *            ascending order without duplicates
  * Range:     u8 none, u16 none, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   seq_compare
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_compare.h"
+#include "../utils/mem.h"
+
+static int seq_compare(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+
+    /* For unsigned or big-integer types the usual ordering works. */
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,8 +48,8 @@ seq_t a(idx_t n)
         idx_t pos = 0;
 
         /* Allocate arrays for pentatope numbers (1‑based) and raw sums. */
-        seq_t *pent = (seq_t *)malloc((MAX_I + 1) * sizeof(seq_t));
-        seq_t *sums = (seq_t *)malloc(pair_count * sizeof(seq_t));
+        seq_t *pent = mem_new(seq_t, (MAX_I + 1));
+        seq_t *sums = mem_new(seq_t, pair_count);
 
         /* Compute pentatope numbers:
            P(i) = i*(i+1)*(i+2)*(i+3)/24
@@ -58,7 +70,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the sums. */
-        qsort(sums, pair_count, sizeof(seq_t), seq_compare);
+        mem_qsort(sums, pair_count, sizeof(seq_t), seq_compare);
 
         /* Deduplicate in place: overwrite the array with unique values. */
         idx_t uniq = 0;
@@ -71,11 +83,11 @@ seq_t a(idx_t n)
         }
 
         /* Resize to the exact number of unique terms. */
-        terms = (seq_t *)realloc(sums, uniq * sizeof(seq_t));
+        terms = mem_resize(seq_t, sums, uniq);
         terms_size = uniq;
 
         /* The pent array is no longer needed. */
-        free(pent);
+        mem_free(pent);
 
         initialized = 1;
     }

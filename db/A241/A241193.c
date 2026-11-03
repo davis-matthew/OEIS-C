@@ -11,6 +11,7 @@
  *            -18*(2*n-5)*(3*n-8)*(3*n-7)*a(n-3)] /((2*n-1)*(n-1)²)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    them for all calls.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pow18_cache = NULL;   /* array of 18^i values */
 static size_t cache_cap   = 0;      /* allocated size of the array   */
@@ -30,7 +32,7 @@ static void ensure_pow18(idx_t n)
     /* initialize cache if not done yet */
     if (!pow18_cache) {
         cache_cap = 1;
-        pow18_cache = (seq_t *)malloc(sizeof(seq_t));
+        pow18_cache = mem_new(seq_t, 1);
         if (!pow18_cache) abort();
         pow18_cache[0] = 1;          /* 18^0 */
         cache_max = 0;
@@ -41,7 +43,7 @@ static void ensure_pow18(idx_t n)
         /* grow the allocated array if needed */
         if (cache_max + 1 >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap << 1 : 1;
-            seq_t *tmp = (seq_t *)realloc(pow18_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, pow18_cache, new_cap);
             if (!tmp) abort();
             pow18_cache = tmp;
             cache_cap = new_cap;

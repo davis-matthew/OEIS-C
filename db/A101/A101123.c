@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9, u16 n <= 825, u32 n <= 1000, u64 n <= 1000,
+ * Range:     u8 n <= 9, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isprime_big
+ * Validated: standard, pass, 73 terms through n = 981 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
    The function returns the nth such k (with a(1) = 0). */
 
 #include <stdbool.h>
-#include "../utils/isprime_big.h"
+#include <stdint.h>
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     while (true)
     {
         seq_t candidate = k * 7 + 11;
-        if (isprime_big(candidate))
+        if (is_prime_seq(candidate))
         {
             ++found;
             if (found == n)

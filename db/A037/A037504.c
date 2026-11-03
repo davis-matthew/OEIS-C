@@ -9,6 +9,7 @@
  *            periodic sequence 1,2,0 (k=0,1,2,3,…)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 81,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 998 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,12 +7,15 @@
  * Formula:   a(n) = n^6 * Product_{p|n, p prime} (1 + 1/p^6)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 40, u64 n <= 1621,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 46 terms through n = 9799 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
 
 /* Simple exponentiation for seq_t: base^exp */

@@ -11,7 +11,8 @@
  *            of length 25
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   popcount32
+ * Validated: full, pass, 26 terms through n = 25 (2026-11-02)
+ * Helpers:   popcount_u32_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/popcount32.h"
+#include "../utils/popcount_u32_to_u32.h"
 
 /* Count of reachable configurations for each weight (0…25).  The array
  * is zero-initialised at file scope and populated once. */
@@ -87,7 +88,7 @@ static void init_distribution(void)
         for (int b = 0; b < rank; ++b)
             if (code & ((size_t)1 << b))
                 state ^= basis_vec[b];
-        unsigned w = popcount32(state);
+        unsigned w = popcount_u32_to_u32(state);
         weight_counts[w] = weight_counts[w] + (seq_t)1;
     }
 

@@ -11,12 +11,14 @@
  *            expansion, where k = 4 is the number of allo...
  * Range:     u8 n <= 79, u16 n <= 578, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache to allow arbitrary order of calls */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     if (n >= cache_size) {
         /* new cache size is n+1 to accommodate index n */
         cache_size = n + 1;
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
 
         /* initialise the array for recomputation */
         for (idx_t i = 0; i < cache_size; ++i)

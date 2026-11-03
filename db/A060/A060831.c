@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} number_of_odd_divisors(k)
  * Range:     u8 n <= 94, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stddef.h>   /* size_t */
 #include <string.h>   /* memset */
+#include "../utils/mem.h"
 
 static seq_t   *a_cache  = NULL;   /* cumulative sums */
 static uint64_t *oddcnt  = NULL;   /* odd divisor counts */
@@ -30,7 +32,7 @@ static void extend(idx_t n)
 
     /* reallocate storage */
     oddcnt = (uint64_t *)realloc(oddcnt, new_sz * sizeof(uint64_t));
-    a_cache = (seq_t *)realloc(a_cache, new_sz * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_sz);
 
     /* initialise odd divisor counts */
     memset(oddcnt, 0, new_sz * sizeof(uint64_t));

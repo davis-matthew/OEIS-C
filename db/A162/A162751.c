@@ -10,6 +10,7 @@
  * Formula:   a(1)=a(2)=1; for i>=2, a(2i-1)=2*a(i-1), a(2i)=2*a(i-1)+1
  * Range:     u8 n <= 510, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 91 terms through n = 9497 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

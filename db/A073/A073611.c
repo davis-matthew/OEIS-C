@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 250, u32 n <= 250, u64 n <= 250,
  *            u128 n <= 250, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 247 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 typedef struct { double re, im; } Complex;
 
@@ -131,7 +133,7 @@ seq_t a(idx_t n)
     if (n >= cache_len) {                  // need more values
         size_t target = (size_t)n;
         size_t new_len = target + 1;
-        seq_t *new_cache = (seq_t *)calloc(new_len, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) return 0;          // allocation failure
 
         // initial limit guess, roughly linear in n
@@ -147,7 +149,7 @@ seq_t a(idx_t n)
             limit <<= 1;                    // increase range and try again
         }
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
     }

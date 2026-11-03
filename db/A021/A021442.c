@@ -8,6 +8,7 @@
  *            1/438 (for n ≥ 1: a(n) = {0,2,2,8,3,1,0,5}[(n−1) mod 8] )
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

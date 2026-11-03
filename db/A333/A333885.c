@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{m=1..n} Sum_{d|m, d<m} (tau(d)-1)
  * Range:     u8 n <= 59, u16 n <= 2879, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 77 terms through n = 9439 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

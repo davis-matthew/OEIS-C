@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains49
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/contains49.h"
+#include "../utils/mem.h"
+
+/* -------------------------------------------------------------------- */
+static bool contains49(seq_t x)
+{
+    /* Handle zero explicitly – it never contains "49". */
+    if (x == 0)
+        return false;
+
+    int prev = -1;
+    while (x != 0)
+    {
+        int d = (int)(x % 10);   /* last decimal digit */
+        x /= 10;
+        if (d == 4 && prev == 9) /* digits 4 followed by 9 from right to left */
+            return true;
+        prev = d;
+    }
+    return false;
+}
 
 /* -------------------------------------------------------------------- */
 /* Helper: test whether a number contains the substring "49" in its    */
@@ -46,7 +66,7 @@ static void grow_cache(size_t needed)
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < needed)
             new_cap = needed;
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         if (!new_ptr)
             abort(); /* unrecoverable allocation failure */
         cache = new_ptr;

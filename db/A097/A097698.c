@@ -8,7 +8,8 @@
  *            both prime (offset 1)
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Deterministic Miller–Rabin primality test for 64‑bit integers. */
 static bool isPrimeUint64(uint64_t n)
@@ -72,10 +74,10 @@ static void cache_push(uint64_t k)
 {
     if (term_cache_cap == 0) {
         term_cache_cap = 16;
-        term_cache = (seq_t*)malloc(sizeof(seq_t) * term_cache_cap);
+        term_cache = mem_new(seq_t, term_cache_cap);
     } else if (term_cache_size == term_cache_cap) {
         term_cache_cap *= 2;
-        term_cache = (seq_t*)realloc(term_cache, sizeof(seq_t) * term_cache_cap);
+        term_cache = mem_resize(seq_t, term_cache, term_cache_cap);
     }
     term_cache[term_cache_size++] = (seq_t)k;
 }

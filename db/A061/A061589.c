@@ -10,12 +10,14 @@
  *            of a(n‑1); a(1) = 11. This recurrence produces A061589
  * Range:     u8 n <= 12, u16 n <= 16, u32 n <= 20, u64 n <= 23, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
                         /* store the numeric value 11 */
                         if (cache_cap == 0) {
                                 cache_cap = 1;
-                                values = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+                                values = mem_new(seq_t, cache_cap);
                         }
                         values[cache_len++] = 11;
                 } else {                       /* compute next term       */
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
                         /* grow the values array if needed */
                         if (cache_len == cache_cap) {
                                 size_t new_cap_vals = (cache_cap == 0) ? 1 : cache_cap * 2;
-                                seq_t *tmp = (seq_t*)realloc(values, new_cap_vals * sizeof(seq_t));
+                                seq_t *tmp = mem_resize(seq_t, values, new_cap_vals);
                                 values = tmp;
                                 cache_cap = new_cap_vals;
                         }

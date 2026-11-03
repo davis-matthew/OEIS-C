@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy, nice
  * Formula:   a(n) = sum of divisors of (2*n + 1) (OEIS A008438)
- * Range:     u8 n <= 81, u16 n <= 9484, u32 n <= 9484, u64 n <= 9484,
- *            u128 n <= 9484, big any n
+ * Range:     u8 n <= 81, u16 n <= 15591, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 78 terms through n = 9484 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

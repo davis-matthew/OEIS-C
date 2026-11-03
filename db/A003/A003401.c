@@ -12,6 +12,7 @@
  *            d/2^(L-1)
  * Range:     u8 n <= 36, u16 n <= 136, u32 n <= 528, u64 n <= 1552,
  *            u128 n <= 3600, big any n
+ * Validated: standard, pass, 76 terms through n = 9592 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

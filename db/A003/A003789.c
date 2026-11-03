@@ -7,6 +7,7 @@
  * Formula:   a(n) = 5^(n(n+1)/2) * ∏(k=2 to n+1)(5^k - 1)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 6,
  *            big any n
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

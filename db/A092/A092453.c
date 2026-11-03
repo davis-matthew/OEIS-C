@@ -8,13 +8,24 @@
  *            divisible by 4
  * Range:     u8 n <= 97, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   contains_digit4
+ * Validated: standard, pass, 78 terms through n = 968 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/contains_digit4.h"
+
+/* Return true if x contains the decimal digit 4. */
+static bool contains_digit4(seq_t x)
+{
+    while (x != 0) {
+        if ((x % 10) == 4)
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

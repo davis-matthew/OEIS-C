@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute a(n) */
 seq_t a(idx_t n)
@@ -48,11 +50,11 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* allocate two temporary rows of size r+1 */
-    seq_t *prev = (seq_t *)calloc(r + 1, sizeof(seq_t));
-    seq_t *cur  = (seq_t *)calloc(r + 1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, r + 1);
+    seq_t *cur  = mem_new(seq_t, r + 1);
     if (!prev || !cur) {       /* allocation failed – abort */
-        free(prev);
-        free(cur);
+        mem_free(prev);
+        mem_free(cur);
         return (seq_t)0;
     }
 
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = prev[k];        /* a(n) */
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return result;
 }

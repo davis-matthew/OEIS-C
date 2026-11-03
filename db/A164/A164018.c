@@ -10,6 +10,7 @@
  *            (smallest 1‑digit Fibonacci number F(0) = 0)
  * Range:     u8 n <= 106, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 9881 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,10 +23,10 @@ seq_t a(idx_t n)
     if (n == 1) return (seq_t)0;          /* smallest 1‑digit Fibonacci is F(0) = 0 */
 
     /* Pre‑computed constants using long double */
-    static const long double sqrt5  = sqrtl(5.0L);
-    static const long double phi    = (1.0L + sqrt5) / 2.0L;
-    static const long double log10_phi = logl(10.0L) / logl(phi);          /* ln(10)/ln(phi) */
-    static const long double offset    = logl(5.0L) / (2.0L * logl(phi));  /* ln(5)/(2*ln(phi)) */
+    const long double sqrt5  = sqrtl(5.0L);
+    const long double phi    = (1.0L + sqrt5) / 2.0L;
+    const long double log10_phi = logl(10.0L) / logl(phi);          /* ln(10)/ln(phi) */
+    const long double offset    = logl(5.0L) / (2.0L * logl(phi));  /* ln(5)/(2*ln(phi)) */
 
     idx_t half = n / 2;
     long double val = (long double)half * log10_phi + offset;

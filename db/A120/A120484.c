@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(n) * (number of partitions of prime(n) into primes)
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   build_primes_upto, seq_alloc_new_array, seq_free_array
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <string.h>
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static uint64_t *prime_list     = NULL;
 static size_t    prime_count    = 0;

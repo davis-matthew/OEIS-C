@@ -12,12 +12,14 @@
  *            x*u(n-1,x) + v(n-1,x) + 1 The triangle formed by the co...
  * Range:     u8 n <= 61, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **U_rows = NULL;   /* coefficients of u(n,x) */
 static seq_t **V_rows = NULL;   /* coefficients of v(n,x) */
@@ -37,8 +39,8 @@ static void ensure_rows(idx_t up_to)
         V_rows = (seq_t**)realloc(V_rows, new_cap * sizeof(seq_t*));
 
         /* Allocate space for the current row.  Index 0 is unused. */
-        U_rows[r] = (seq_t*)malloc((r + 1) * sizeof(seq_t));
-        V_rows[r] = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+        U_rows[r] = mem_new(seq_t, (r + 1));
+        V_rows[r] = mem_new(seq_t, (r + 1));
 
         if (r == 1)
         {

@@ -10,12 +10,13 @@
  *            sequence a(n) is the triangle read by rows
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 10, u64 n <= 15, u128 n <= 24,
  *            big any n
- * Helpers:   _pow_seq_t
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_pow_seq_t.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
     idx_t exp      = diff * diff;        /* exponent fits in idx_t for all practical n */
 
     seq_t base = (seq_t)base_int;
-    seq_t result = _pow_seq_t(base, exp);
+    seq_t result = ipow_idx(base, exp);
 
     return result;
 }

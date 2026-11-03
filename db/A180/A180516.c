@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 49, u64 n <= 97, u128 n <= 193,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation (indices 1..cache_cap-1, index 0 unused) */
 static seq_t *cache = NULL;   /* pointer to cached values */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* Allocate enough for indices 1..max(4,n) + dummy 0 */
         cache_cap = (size_t)(n > 4 ? n + 1 : 5);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
 
         /* Dummy index 0 */
@@ -57,7 +59,7 @@ static void ensure_cache(idx_t n)
     size_t needed_cap = (size_t)n + 1;
     if (needed_cap <= cache_cap) return;   /* already computed */
 
-    seq_t *tmp = (seq_t *)realloc(cache, needed_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, needed_cap);
     if (!tmp) abort();
     cache = tmp;
 

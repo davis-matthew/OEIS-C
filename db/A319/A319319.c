@@ -11,7 +11,8 @@
  *            testing each integer in increasing order
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Prime sieve and lookup ------------------------------------- */
@@ -137,7 +139,7 @@ static void generate_sequence(idx_t n)
         if (seq_len >= (size_t)n) return;
     } else {
         seq_cap = 64;
-        seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
         if (!seq_vals) exit(1);
     }
 
@@ -154,7 +156,7 @@ static void generate_sequence(idx_t n)
         if (candidate == 1) {          /* empty partition */
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq_vals = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+                seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
                 if (!seq_vals) exit(1);
             }
             seq_vals[seq_len++] = (seq_t)1;
@@ -196,7 +198,7 @@ static void generate_sequence(idx_t n)
         if (indices_unique(idxs, ki, seen_gcds, test_id)) {
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq_vals = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+                seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
                 if (!seq_vals) exit(1);
             }
             seq_vals[seq_len++] = (seq_t)candidate;

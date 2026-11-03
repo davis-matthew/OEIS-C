@@ -11,15 +11,17 @@
  *            of r in which the difference between * any two parts is at least
  *            k. * * The function precomputes T(r,k) on demand for all rows up
  *            to the largest * r needed. The recurren...
- * Range:     u8 n <= 152, u16 n <= 989, u32 n <= 8255, u64 n <= 9591,
- *            u128 n <= 9591, big any n
- * Helpers:   none
+ * Range:     u8 n <= 152, u16 n <= 989, u32 n <= 8255, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 9591 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t * *T_table      = NULL;   /* triangle storage, rows [0..] */
 static size_t   T_rows_alloc = 0;      /* number of rows allocated */
@@ -38,9 +40,9 @@ static void init_memo(size_t sz)
 {
     if (g_memo_cap < sz)
     {
-        if (g_memo) free(g_memo);
+        if (g_memo) mem_free(g_memo);
         if (g_vis) free(g_vis);
-        g_memo = (seq_t*)malloc(sz * sizeof(seq_t));
+        g_memo = mem_new(seq_t, sz);
         g_vis  = (unsigned char*)malloc(sz * sizeof(unsigned char));
         g_memo_cap = sz;
     }
@@ -91,7 +93,7 @@ static void ensure_rows_allocated(size_t needed)
     T_table = new_table;
     for (size_t i = T_rows_alloc; i < new_rows; ++i)
     {
-        T_table[i] = (seq_t*)calloc(i + 1, sizeof(seq_t));  /* zero init */
+        T_table[i] = mem_new(seq_t, i + 1);  /* zero init */
     }
     T_rows_alloc = new_rows;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   push_seq_array
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/push_seq_array.h"
+#include "../utils/mem.h"
+
+/* Append a value into a dynamic seq_t array.  */
+static void push_seq_array(seq_t **arr, size_t *cap, size_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
+        if (!tmp) abort();
+        *arr = tmp;
+        *cap = newcap;
+    }
+    (*arr)[*size] = val;
+    ++*size;
+}
 
 /* Main OEIS sequence function. */
 seq_t a(idx_t n)

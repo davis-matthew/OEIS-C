@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    The function uses lazy caching, so calls may be in any order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Use an intermediate signed type wide enough for 64‑bit seq_t.
    Prefer __int128 if the compiler supports it; fall back to long long. */
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL) {
         /* allocate for the first four terms */
-        cache = (seq_t*)malloc(4 * sizeof(seq_t));
+        cache = mem_new(seq_t, 4);
         if (cache == NULL) return; /* allocation failed – caller should handle */
         cache[0] = init_vals[0];
         cache[1] = init_vals[1];
@@ -53,7 +55,7 @@ static void ensure_cache(idx_t n)
 
     /* enlarge cache to hold up to n */
     size_t newsize = (size_t)(n + 1);
-    seq_t *tmp = (seq_t*)realloc(cache, newsize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newsize);
     if (tmp == NULL) return; /* allocation failed – caller should handle */
     cache = tmp;
 

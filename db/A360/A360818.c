@@ -8,15 +8,19 @@
  *            the convention that a(0)=1)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k) */
-#include "../utils/big_pow.h"    /* seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* cached values of a(n) */
 static idx_t cache_size = 0;    /* number of cached entries (highest index+1) */
@@ -36,7 +40,7 @@ seq_t a(idx_t n) {
     } else {
         idx_t kmax = n >> 1; /* floor(n/2) */
         for (idx_t k = 1; k <= kmax; ++k) {
-            seq_t pk   = big_pow((seq_t)k, (seq_t)n);                    /* k^n */
+            seq_t pk   = ipow((seq_t)k, (seq_t)n);                    /* k^n */
             seq_t comb = binomial(n - k - 1, n - 2 * k);                /* binomial(n-k-1, n-2k) */
             result += pk * comb;                                         /* k^n * binomial(...) */
         }
@@ -45,7 +49,7 @@ seq_t a(idx_t n) {
     /* Extend the cache to hold up to index n */
     if (cache == NULL || n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_size);
         if (tmp == NULL) {
             /* Allocation failed: fall back to returning result without caching */
             return result;

@@ -8,12 +8,14 @@
  *            binomial(n-k,n-2*k)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -22,8 +24,8 @@ seq_t a(idx_t n)
     idx_t max_k = n >> 1;        /* floor(n/2) */
 
     for (idx_t k = 0; k <= max_k; ++k) {
-        seq_t term1 = binom(two_n, k);                /* binomial(2*n,k)  */
-        seq_t term2 = binom(n - k, n - (k << 1));     /* binomial(n-k,n-2*k) */
+        seq_t term1 = binomial(two_n, k);                /* binomial(2*n,k)  */
+        seq_t term2 = binomial(n - k, n - (k << 1));     /* binomial(n-k,n-2*k) */
         result += term1 * term2;
     }
     return result;

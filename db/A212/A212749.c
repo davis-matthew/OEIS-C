@@ -12,12 +12,14 @@
  *            a(5)=1116, a(6)=2056, a(7)=3512
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache */
 static seq_t *cache = NULL;
@@ -29,13 +31,13 @@ static void ensure_capacity(size_t needed)
 {
     if (cache_cap >= needed)
         return;
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * needed);
+    seq_t *new_cache = mem_new(seq_t, needed);
     if (!new_cache)
         return; /* allocation failure – in production code abort or handle */
     if (cache) {
         for (size_t i = 0; i < cache_cap; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = needed;

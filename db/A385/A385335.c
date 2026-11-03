@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look, easy
  * Formula:   a(n) = (1741 * a(n-1) + 2731) mod 12960, a(1) = 1
- * Range:     u8 n <= 1, u16 n <= 9712, u32 n <= 9712, u64 n <= 9712,
- *            u128 n <= 9712, big any n
+ * Range:     u8 n <= 1, u16 n <= 12960, u32 n <= 12960, u64 n <= 12960,
+ *            u128 n <= 12960, big any n
+ * Validated: standard, pass, 58 terms through n = 9712 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

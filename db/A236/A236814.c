@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define ROWS   81          /* 3^4 possible rows (0..2)^4 */
 #define MAXC   5           /* constants {0,1,2,3,4} (4 actually used) */
@@ -128,7 +130,7 @@ static void precompute(void)
 
     /* totals array: totals[0] unused, totals[1] will be computed */
     totals_size = 1;
-    totals = (seq_t *)malloc(totals_size * sizeof(seq_t));
+    totals = mem_new(seq_t, totals_size);
     totals[0] = 0;
 
     precomputed = true;
@@ -176,7 +178,7 @@ seq_t a(idx_t n)
         /* resize totals array if needed */
         if (totals_size <= step) {
             size_t new_size = step + 1;
-            seq_t *new_ptr = (seq_t *)realloc(totals, new_size * sizeof(seq_t));
+            seq_t *new_ptr = mem_resize(seq_t, totals, new_size);
             for (size_t i = totals_size; i < new_size; ++i)
                 new_ptr[i] = 0;
             totals = new_ptr;

@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 18, u64 n <= 30, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  * supported in O(1) time after the first pass.
  */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
     /* allocate cache for initial 13 terms on first call */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(13u * sizeof(seq_t));
+        cache = mem_new(seq_t, 13u);
         if (cache == NULL) return 0;          /* out of memory (unlikely) */
         for (idx_t i = 0; i < 13u; ++i)
             cache[i] = init[i];
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     /* extend cache if needed */
     if (n > max_computed) {
         idx_t new_size = n;
-        seq_t *p = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, new_size);
         if (p == NULL) return 0;               /* out of memory (unlikely) */
         cache = p;
 

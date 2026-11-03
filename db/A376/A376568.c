@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(0) = 1, a(1) = 6 */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Memoised recursive computation */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the two known terms */
     if (cache_sz < 2) {
         cache_sz = 2;
-        cache    = (seq_t *)realloc(cache, cache_sz * sizeof(seq_t));
+        cache    = mem_resize(seq_t, cache, cache_sz);
         if (cache == NULL)
             exit(EXIT_FAILURE);
         cache[0] = (seq_t)1;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 
     /* Expand the cache to include n */
     idx_t new_sz = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_sz);
     if (new_cache == NULL)
         exit(EXIT_FAILURE);
     cache = new_cache;

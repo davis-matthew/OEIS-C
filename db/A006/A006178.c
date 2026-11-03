@@ -9,7 +9,8 @@
  *            (3n)!/(6*(n!)^3) = binomial(3n,n)*binomial(2n,n)/6
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 17,
  *            big any n
- * Helpers:   big_g, big_pow, grow_zero, seq_is_big, u128_to_seq
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,11 +18,49 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/seq_is_big.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/grow_zero.h"
-#include "../utils/big_g.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static seq_t big_g(idx_t n)
+{
+    seq_t c3 = 1, c2 = 1;
+    idx_t i;
+    for (i = 0; i < n; i++) c3 = c3 * (seq_t)(3 * n - i) / (seq_t)(i + 1);
+    for (i = 0; i < n; i++) c2 = c2 * (seq_t)(2 * n - i) / (seq_t)(i + 1);
+    return c3 * c2 / 6;
+}
 
 typedef unsigned __int128 u128;
 
@@ -36,7 +75,7 @@ static seq_t big_a(idx_t n)
     seq_t s = big_g(n);
     idx_t d;
     for (d = 1; d < n; d++)
-        if (n % d == 0) s -= (seq_t)d * big_pow(big_a(d), n / d);
+        if (n % d == 0) s -= (seq_t)d * ipow_idx(big_a(d), n / d);
     s /= (seq_t)n;
     bm[n] = s;
     bh[n] = true;

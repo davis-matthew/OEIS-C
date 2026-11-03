@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 13, u32 n <= 2785, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 68 terms through n = 9627 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* Search: a(n) are the integers k such that digit_sum(k*k)-1 == digit_sum((k+1)*(k+1)) */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
         if (digit_sum(k2) - (seq_t)1 == digit_sum(kp12)) {
             if (sz == cap) {                 /* grow cache if needed       */
                 size_t newcap = cap ? cap << 1 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, newcap);
                 if (!tmp) abort();           /* out of memory              */
                 terms = tmp;
                 cap   = newcap;

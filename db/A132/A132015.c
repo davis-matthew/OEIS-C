@@ -9,7 +9,8 @@
  *            for all pairs of parts u < v we have u^2 < v
  * Range:     u8 n <= 1264, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9025 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static helper performing a depth‑first search of admissible parts */
 static void
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     /* Recompute the table if we need a larger size */
     if (dp_cap < target + 1) {
         /* Reallocate array to the new size and zero it */
-        seq_t *tmp = (seq_t *)realloc(dp, (target + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (target + 1));
         if (!tmp)
             return (seq_t)0;        /* allocation failed */
         dp = tmp;

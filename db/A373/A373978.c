@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n == 1 or (n % 4 == 1 and n is not prime), otherwise
  *            0
- * Range:     u8 n <= 9944, u16 n <= 9944, u32 n <= 9944, u64 n <= 9944,
- *            u128 n <= 9944, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 9944 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

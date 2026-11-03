@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 863 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Recurrence (from the rational generating function):
    a(n) = 6*a(n-2) + 13*a(n-3) + 3*a(n-4) - 18*a(n-5) - 13*a(n-6)
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
     /* first call: allocate cache and fill it with initial values */
     if (!initialized) {
         cache_cap  = 12;
-        cache      = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache      = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         for (size_t i = 0; i < 12; ++i)
             cache[i] = init[i];
@@ -53,7 +55,7 @@ seq_t a(idx_t n) {
     /* grow cache if it does not already hold a[n] */
     if ((size_t)(n + 1) > cache_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache     = tmp;
         cache_cap = new_cap;

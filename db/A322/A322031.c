@@ -9,7 +9,8 @@
  *            q^((2t+1)^2))^3 * (∑_{t≥0} q^((2t+1)^2))
  * Range:     i8 n <= 5, i16 n <= 41, i32 n <= 41, i64 n <= 41, i128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- internal cache ----------------------------------------------------- */
 static bool          initialized = false;
@@ -63,7 +65,7 @@ static void recompute(idx_t new_max_n)
     }
 
     /* compute coefficients of f^3 */
-    seq_t *new_coefs = (seq_t *)calloc((size_t)Nmax + 1, sizeof(seq_t));
+    seq_t *new_coefs = mem_new(seq_t, (size_t)Nmax + 1);
     if (!new_coefs)
         abort();
     for (size_t a = 0; a < odd_count; ++a) {
@@ -85,11 +87,11 @@ static void recompute(idx_t new_max_n)
             }
         }
     }
-    free(coefs);
+    mem_free(coefs);
     coefs = new_coefs;
 
     /* compute a(k) for k ≤ new_max_n */
-    seq_t *new_results = (seq_t *)calloc((size_t)new_max_n + 1, sizeof(seq_t));
+    seq_t *new_results = mem_new(seq_t, (size_t)new_max_n + 1);
     if (!new_results)
         abort();
     for (idx_t n = 0; n <= new_max_n; ++n) {
@@ -103,7 +105,7 @@ static void recompute(idx_t new_max_n)
         }
         new_results[(size_t)n] = sum;
     }
-    free(results);
+    mem_free(results);
     results = new_results;
 
     free(odd_squares);

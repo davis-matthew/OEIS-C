@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Helper: check whether a prime p has a qualifying residue modulo 19 */
 static inline bool good_residue(uint32_t p) {
@@ -67,7 +69,7 @@ static void init_sequence(void) {
 
     /* Prepare dynamic array for qualifying primes */
     qual_cap = LIMIT / 20;               /* rough initial capacity (~2.5% of numbers) */
-    qual_primes = (seq_t *)malloc(qual_cap * sizeof(seq_t));
+    qual_primes = mem_new(seq_t, qual_cap);
     if (!qual_primes) abort();
 
     /* Check the prime 2 */
@@ -82,7 +84,7 @@ static void init_sequence(void) {
         if (good_residue(p)) {
             if (qual_count == qual_cap) {
                 qual_cap *= 2;
-                qual_primes = (seq_t *)realloc(qual_primes, qual_cap * sizeof(seq_t));
+                qual_primes = mem_resize(seq_t, qual_primes, qual_cap);
                 if (!qual_primes) abort();
             }
             qual_primes[qual_count++] = (seq_t)p;
@@ -106,7 +108,7 @@ seq_t a(idx_t n) {
         uint32_t new_limit = 5000000U;
         while ((size_t)n > qual_count) {
             new_limit *= 2;
-            free(qual_primes);
+            mem_free(qual_primes);
             qual_primes = NULL;
             qual_count = 0;
             qual_cap = 0;

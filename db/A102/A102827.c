@@ -11,13 +11,15 @@
  *            equals floor(x / 10)
  * Range:     u8 n <= 60, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache state */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     if (!initialized) {
         /* first term a(0)=1 */
         cap = 1;
-        terms = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, NULL, cap);
         terms[0] = 1;
         size = 1;
         for (int d = 0; d < 10; ++d) counts[d] = 0;
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     /* grow cache if needed */
     if (n >= cap) {
         size_t new_cap = (n + 1);
-        terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         if (!terms) abort();        /* allocation failure */
         cap = new_cap;
     }

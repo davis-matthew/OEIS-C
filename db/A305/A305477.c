@@ -10,12 +10,14 @@
  *            a(9)=419
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 36, u64 n <= 73, u128 n <= 148,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* allocate an array to hold values up to n */
     size_t sz = (size_t)(n + 1);
-    seq_t *arr = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, sz);
     if (!arr)
         abort();
 
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     arr[0] = init_vals[0];
     if (n <= init_limit) {
         seq_t res = init_vals[n];
-        free(arr);
+        mem_free(arr);
         return res;
     }
     for (idx_t i = 1; i <= init_limit; ++i)
@@ -52,6 +54,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

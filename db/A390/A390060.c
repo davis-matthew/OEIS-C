@@ -8,7 +8,8 @@
  *            binomial(2*(n-2k),k) / (n-2k)!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 23,
  *            big any n
- * Helpers:   _binom_local, _pow_local
+ * Validated: standard, pass, 35 terms through n = 295 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_binom_local.h"
-#include "../utils/_pow_local.h"
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +31,8 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= n / 2; ++k) {
         if (m == 0) break;                /* term vanishes for m==0 */
 
-        seq_t power = _pow_local((seq_t)(2 * m + 1), m - 1);
-        seq_t b = _binom_local(2 * m, k);
+        seq_t power = ipow_idx((seq_t)(2 * m + 1), m - 1);
+        seq_t b = binomial(2 * m, k);
         seq_t term = ratio * b;
         term = term * power;
         sum = sum + term;

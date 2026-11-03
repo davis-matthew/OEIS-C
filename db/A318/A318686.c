@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 43, i16 n <= 91, i32 n <= 91, i64 n <= 91, i128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 92 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: T(0,0)=1; T(n,k)=T(n-1,k)-2*T(n-1,k-2)+T(n-1,k-3) for 0≤k≤3n.
    a(n) is the n‑th element of the concatenation of the rows of T. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find the row r such that the flat index n belongs to row r. */
@@ -29,13 +31,13 @@ seq_t a(idx_t n) {
     }
 
     /* Allocate the first row (row 0). */
-    seq_t *prev = (seq_t*)malloc(sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, 1);
     prev[0] = 1;                         /* T(0,0) = 1 */
 
     /* If we need only row 0, return the result. */
     if (r == 0) {
         seq_t ans = prev[0];
-        free(prev);
+        mem_free(prev);
         return ans;
     }
 
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     for (idx_t row = 1; row <= r; ++row) {
         idx_t prevLen = 3 * (row - 1) + 1;
         idx_t len     = 3 * row + 1;
-        seq_t *curr = (seq_t*)malloc(sizeof(seq_t) * len);
+        seq_t *curr = mem_new(seq_t, len);
 
         for (idx_t k = 0; k < len; ++k) {
             seq_t a1 = 0, a2 = 0, a3 = 0;
@@ -52,13 +54,13 @@ seq_t a(idx_t n) {
             if (k >= 3 && (k - 3) < prevLen) a3 = prev[k - 3];
             curr[k] = a1 - 2 * a2 + a3;      /* recurrence */
         }
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 
     /* Extract the element at the flat index n. */
     idx_t offset = n - cum;
     seq_t result = prev[offset];
-    free(prev);
+    mem_free(prev);
     return result;
 }

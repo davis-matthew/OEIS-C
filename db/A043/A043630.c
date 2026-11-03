@@ -8,14 +8,33 @@
  *            exactly 8 runs (a run is a maximal block of equal digits)
  * Range:     u8 none, u16 none, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   run_count_oct
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/run_count_oct.h"
+#include "../utils/mem.h"
+
+/* Count the number of runs in the base-8 representation of x (x > 0). */
+static int run_count_oct(seq_t x) {
+    int runs = 1;
+    seq_t prev_digit = x % (seq_t)8;
+    seq_t tmp = x / (seq_t)8;
+    if (tmp == (seq_t)0)
+        return 1;
+    while (tmp != (seq_t)0) {
+        seq_t digit = tmp % (seq_t)8;
+        if (digit != prev_digit) {
+            ++runs;
+            prev_digit = digit;
+        }
+        tmp /= (seq_t)8;
+    }
+    return runs;
+}
 
 /* Dynamic cache of already found terms. */
 static seq_t *cache = NULL;      /* pointer to cache array */
@@ -27,7 +46,7 @@ static seq_t last_checked = (seq_t)0; /* largest integer examined so far */
 static void cache_append(seq_t val) {
     if (cache_len == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 64 : (cache_cap << 1);
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         if (!new_ptr) {
             /* In case of allocation failure, abort. */
             abort();

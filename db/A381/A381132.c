@@ -9,16 +9,19 @@
  *            of n (p_k is the base prime); a(1) = 0
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, compute_pi
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include <stddef.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/compute_pi.h"
+#include "../utils/isqrt.h"
+#include "../utils/prime_pi.h"
 
 /* cache of primes up to the current limit */
 static uint64_t *g_primes = NULL;
@@ -47,7 +50,7 @@ static uint64_t min_prime_base(idx_t n)
     uint64_t best_prime = 0;
     int found_factor = 0;
 
-    idx_t sqrt_n = _floor_isqrt_u64(n);
+    idx_t sqrt_n = isqrt(n);
     if (sqrt_n < 2) sqrt_n = 2;
     ensure_primes(sqrt_n);
 
@@ -79,5 +82,5 @@ static uint64_t min_prime_base(idx_t n)
 seq_t a(idx_t n)
 {
     uint64_t p = min_prime_base(n);
-    return compute_pi((idx_t)p);
+    return prime_pi((idx_t)p);
 }

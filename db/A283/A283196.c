@@ -13,14 +13,20 @@
  *            enough for n ≤ 10 000
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   uabs_ll
+ * Validated: standard, pass, 96 terms through n = 9987 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/uabs_ll.h"
+
+/* absolute value of a signed 64‑bit integer, returned as unsigned */
+static inline unsigned long long uabs_ll(long long x)
+{
+    return x < 0 ? (unsigned long long)(-x) : (unsigned long long)x;
+}
 
 /* integer square root (floor) for 64‑bit unsigned values */
 static inline unsigned long long isqrt_u64(unsigned long long n)

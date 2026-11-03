@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 822, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   estimate_limit
+ * Validated: standard, pass, 62 terms through n = 9665 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/estimate_limit.h"
+
+/* ------------------------------------------------------------------ */
+static uint64_t estimate_limit(idx_t n)
+{
+    if (n < 6) return 200;                /* small safety band            */
+    double nn     = (double)n;
+    double ln     = log(nn);
+    double lnln   = log(ln);
+    double pn     = nn * (ln + lnln);     /* upper bound for n-th prime  */
+    double bound  = pn * 24.0/5.0 + 100.0; /* density factor + safety     */
+    return (uint64_t)bound;
+}
 
 static uint64_t *special      = NULL;  /* primes of the form 3x^2+10y^2 */
 static size_t   special_cap   = 0;

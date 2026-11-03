@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 16, u16 n <= 1153, u32 n <= 9396, u64 n <= 9396,
- *            u128 n <= 9396, big any n
- * Helpers:   none
+ * Range:     u8 n <= 16, u16 n <= 1153, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 91 terms through n = 9396 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----- Static storage -------------------------------------------- */
 static seq_t *terms = NULL;      /* sequence terms, 0‑based index */
@@ -43,7 +45,7 @@ static void grow_terms(size_t need) {
     if (need <= terms_cap) return;
     size_t new_cap = terms_cap ? terms_cap : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
     if (!new_terms) abort();
     terms = new_terms;
     terms_cap = new_cap;

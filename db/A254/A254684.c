@@ -11,14 +11,17 @@
  *            a(5)=197400
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 14, u64 n <= 102, u128 n <= 1000,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 37 terms through n = 830 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* Memoization cache */
 static seq_t *cache = NULL;
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap : 4;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort(); /* allocation failure */
         cache = new_cache;
         cache_cap = new_cap;
@@ -55,7 +58,7 @@ seq_t a(idx_t n)
             val = init[i];
         } else {
             /* n^7 part */
-            seq_t n_pow7 = seq_pow((seq_t)idx, 7);
+            seq_t n_pow7 = ipow_idx((seq_t)idx, 7);
 
             /* Positive and negative parts of the recurrence to avoid underflow */
             seq_t pos = 5 * cache[i - 1] + 10 * cache[i - 3] + cache[i - 5];

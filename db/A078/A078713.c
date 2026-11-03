@@ -8,14 +8,17 @@
  *            the positive divisors of n
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 71 terms through n = 967 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64 */
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *div_array = NULL;   /* reusable buffer for divisors   */
 static size_t div_cap   = 0;
@@ -26,7 +29,7 @@ static void ensure_div_cap(size_t need)
 {
     if (need > div_cap) {
         size_t new_cap = need * 2 + 16;
-        seq_t *tmp = (seq_t *)realloc(div_array, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, div_array, new_cap);
         if (!tmp) {
             /* allocation failure – terminate the program (undefined
                sequence value for the current call). */
@@ -85,7 +88,7 @@ seq_t a(idx_t n)
     gen_divs_rec(0, pf_cnt, primes, exps, (seq_t)1);
 
     /* sort divisors in ascending order */
-    qsort(div_array, div_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(div_array, div_len, sizeof(seq_t), cmp_seq);
 
     /* compute sum of squares of successive gaps */
     seq_t sum = (seq_t)0;

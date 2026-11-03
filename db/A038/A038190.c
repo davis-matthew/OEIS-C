@@ -11,13 +11,27 @@
  *            D→1201. The digit values are 0,1,2
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   _letter_at
+ * Validated: partial, pass, 108 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_letter_at.h"
+
+/* Return the letter at position idx in the infinite word over {A,B,C,D}. */
+static int _letter_at(idx_t idx) {
+    if (idx == 0) return 0;                /* A */
+    int parent = _letter_at(idx >> 1);     /* idx / 2 */
+    int even = (idx & 1) == 0;
+    switch (parent) {
+        case 0: return even ? 0 : 1;       /* A → AB */
+        case 1: return even ? 0 : 3;       /* B → AD */
+        case 2: return even ? 2 : 1;       /* C → CB */
+        case 3: return even ? 2 : 3;       /* D → CD */
+        default: return 0;                 /* unreachable */
+    }
+}
 
 static const int _digit_map[4][4] = {
     {2, 2, 0, 1},   /* A */

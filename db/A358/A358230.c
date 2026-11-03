@@ -12,9 +12,10 @@
  *            prime_signature(n)) where v₂ and v₃ are the 2‑adic and 3‑adic
  *            valuations and prime_signature(n) is the multiset of exponents
  *            of all prime factors >3
- * Range:     u8 n <= 8919, u16 n <= 8919, u32 n <= 8919, u64 n <= 8919,
- *            u128 n <= 8919, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10239, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 8919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------------- internal data structures ------------------- */
 
@@ -127,7 +129,7 @@ static void ensure_capacity(size_t need)
     while (new_cap < need)
         new_cap <<= 1;
 
-    seq_arr     = (seq_t*)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_arr     = mem_resize(seq_t, seq_arr, new_cap);
     triple_arr  = (Triple*)realloc(triple_arr, new_cap * sizeof(Triple));
     seq_cap   = new_cap;
 }

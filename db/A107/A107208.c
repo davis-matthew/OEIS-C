@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 543, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_sqrt, is_prime
+ * Validated: standard, pass, 59 terms through n = 9829 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* bool is_prime(uint64_t n); */
-#include "../utils/int_sqrt.h"   /* idx_t int_sqrt(idx_t x); */
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* ---------- global static state ----------------------------------- */
 static seq_t *s_values = NULL;     /* table of found primes */
@@ -35,14 +37,14 @@ static uint64_t s_next = 2;        /* next integer to test          */
 /* ---------- helper functions --------------------------------------- */
 static bool has_representation(uint64_t p)
 {
-    const idx_t ymax = int_sqrt((idx_t)(p / 23));
+    const idx_t ymax = isqrt((idx_t)(p / 23));
     for (idx_t y = 0; y <= ymax; ++y) {
         unsigned __int128 prod = (unsigned __int128)23 * y * y;
         if (prod > p) break;
         uint64_t rem = p - (uint64_t)prod;
         if (rem & 3) continue;              /* rem % 4 != 0 */
         idx_t t   = (idx_t)(rem >> 2);       /* (p - 23y²) / 4 */
-        idx_t sx  = int_sqrt(t);
+        idx_t sx  = isqrt(t);
         if ((uint64_t)sx * (uint64_t)sx == t)
             return true;
     }
@@ -59,7 +61,7 @@ static void extend_until(idx_t n)
         size_t new_cap = s_cap ? s_cap : 64;
         while (s_sz + (size_t)n > new_cap)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(s_values, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, s_values, new_cap);
         if (!tmp) abort();
         s_values = tmp;
         s_cap    = new_cap;
@@ -68,7 +70,7 @@ static void extend_until(idx_t n)
     /* search for additional primes */
     while (s_sz < (size_t)n) {
         if (s_next < 2) s_next = 2;
-        if (is_prime(s_next) && has_representation(s_next))
+        if (is_prime_u64(s_next) && has_representation(s_next))
             s_values[s_sz++] = (seq_t)s_next;
         ++s_next;
     }
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
 {
     if (s_values == NULL) {              /* first call – initialise */
         s_cap = 64;
-        s_values = (seq_t *)malloc(s_cap * sizeof(seq_t));
+        s_values = mem_new(seq_t, s_cap);
         if (!s_values) abort();
     }
 

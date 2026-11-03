@@ -8,14 +8,27 @@
  * Formula:   a(n) = Sum_{d|n} binomial(A000005(n/d), d) * d!
  * Range:     u8 n <= 47, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   binomial, divisor_count_u64, factorial
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-01)
+ * Helpers:   binomial, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/factorial.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n) {
     /* a(0) = 1 by definition */
@@ -30,14 +43,14 @@ seq_t a(idx_t n) {
         if (n % d == 0) {
             /* first divisor d */
             idx_t m1 = n / d;
-            seq_t tau1 = divisor_count_u64(m1);
+            seq_t tau1 = num_divisors(m1);
             sum += binomial((idx_t)tau1, d) * factorial(d);
 
             /* second divisor n/d if different */
             idx_t d2 = n / d;
             if (d2 != d) {
                 idx_t m2 = n / d2;
-                seq_t tau2 = divisor_count_u64(m2);
+                seq_t tau2 = num_divisors(m2);
                 sum += binomial((idx_t)tau2, d2) * factorial(d2);
             }
         }

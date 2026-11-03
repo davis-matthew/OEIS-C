@@ -8,7 +8,8 @@
  * Formula:   a(n) = #{ d | n : d < rad(n) }
  * Range:     u8 n <= 2048, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _gen_div, factor_u64
+ * Validated: standard, pass, 118 terms through n = 9376 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,26 @@
 /* Number of divisors of n that are less than the squarefree kernel of n. */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/_gen_div.h"
+
+static void _gen_div(size_t idx, seq_t cur, const uint64_t *primes,
+                     const uint64_t *exps, size_t cnt, seq_t rad,
+                     seq_t *out)
+{
+    if (idx == cnt) {
+        if (cur < rad) (*out)++;
+        return;
+    }
+    seq_t p = (seq_t)primes[idx];
+    seq_t mult = cur;
+    for (uint64_t e = 0; e <= exps[idx]; e++) {
+        _gen_div(idx + 1, mult, primes, exps, cnt, rad, out);
+        mult *= p;
+    }
+}
 
 seq_t a(idx_t n)
 {

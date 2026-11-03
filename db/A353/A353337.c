@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9179, u16 n <= 9179, u32 n <= 9179, u64 n <= 9179,
- *            u128 n <= 9179, big any n
- * Helpers:   build_spf
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9179 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stdbool.h>
 
 /* Helper: smallest‑prime‑factor sieve */
+#include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* Global state for on‑the‑fly computation */
 static idx_t  max_precomp = 0;      /* highest n that has been precomputed */
@@ -63,7 +66,7 @@ static void ensure_cache_size(idx_t n)
     if (n < cache_size) return;
 
     idx_t new_sz = n + 1;
-    seq_t *new_val  = (seq_t *)realloc(cache_val,  new_sz * sizeof(seq_t));
+    seq_t *new_val  = mem_resize(seq_t, cache_val, new_sz);
     unsigned char *new_flg = (unsigned char *)realloc(cache_flag, new_sz * sizeof(unsigned char));
 
     if (!new_val || !new_flg) abort();

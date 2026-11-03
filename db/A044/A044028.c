@@ -10,14 +10,29 @@
  *            Computed by brute‑force search with memoisation
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_adjacent47_uint64
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent47_uint64.h"
+#include "../utils/mem.h"
+
+/* check whether a decimal integer contains the adjacent pattern
+   4 and 7 (either 47 or 74) */
+static bool has_adjacent47_uint64(uint64_t x) {
+    uint8_t prev = 10;          /* sentinel value */
+    while (x > 0) {
+        uint8_t d = (uint8_t)(x % 10);
+        if ((prev == 4 && d == 7) || (prev == 7 && d == 4))
+            return true;
+        prev = d;
+        x /= 10;
+    }
+    return false;
+}
 
 /* check the property for a candidate k */
 static bool satisfies(uint64_t k) {
@@ -37,12 +52,12 @@ static void ensure_cache_capacity(size_t need) {
     size_t new_capacity = cache_capacity ? cache_capacity * 2 : 16;
     while (new_capacity < need)
         new_capacity <<= 1;
-    seq_t *new_mem = (seq_t *)malloc(new_capacity * sizeof(seq_t));
+    seq_t *new_mem = mem_new(seq_t, new_capacity);
     if (!new_mem) abort(); /* memory allocation failed */
     if (cache) {
         for (size_t i = 0; i < cache_size; ++i)
             new_mem[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_mem;
     cache_capacity = new_capacity;

@@ -8,14 +8,35 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 2500, u64 n <= 2500, u128 n <= 2500,
  *            big any n
- * Helpers:   tri_has_property
+ * Validated: standard, pass, 48 terms through n = 2045 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/tri_has_property.h"
+#include "../utils/mem.h"
+
+/* Check whether a triangular number has exactly six distinct decimal digits. */
+static bool tri_has_property(seq_t tri)
+{
+    uint16_t mask = 0;                 /* 10 bits for digits 0–9 */
+    seq_t t = tri;
+    if (t == 0) return false;          /* T_0 = 0 has no digits */
+    while (t > 0) {
+        uint16_t d = (uint16_t)(t % 10);
+        mask |= (1U << d);
+        t /= 10;
+    }
+    /* Count set bits in mask. */
+    int bits = 0;
+    while (mask) {
+        bits++;
+        mask &= mask - 1;
+    }
+    return bits == 6;
+}
 
 /* The sequence: a(n) = the n‑th triangular number that uses
    exactly six distinct decimal digits.  Triangular numbers T_k
@@ -42,7 +63,7 @@ seq_t a(idx_t n)
     /* Allocate cache on first use. */
     if (!cache) {
         capacity = 64;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
     }
 
     /* Generate triangular numbers one by one until we have the nth term. */
@@ -52,7 +73,7 @@ seq_t a(idx_t n)
             /* Store if we found a new qualifying term. */
             if (terms_found == capacity) {
                 capacity *= 2;
-                cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, capacity);
             }
             cache[terms_found++] = tri;
             if (terms_found >= n)

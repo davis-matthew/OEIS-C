@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   ceil_log_pow
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ceil_log_pow.h"
+#include "../utils/mem.h"
+
+/* Helper: compute ceil(log_base(n)) as the smallest m such that
+   base^m >= n using only integer arithmetic. */
+static unsigned int ceil_log_pow(unsigned int base, unsigned int n) {
+    unsigned int m = 0;
+    unsigned long long p = 1;      /* use 64‑bit temporary to avoid overflow */
+    while (p < n) {
+        p *= base;
+        ++m;
+    }
+    return m;
+}
 
 seq_t a(idx_t n) {
     /* Static storage for the sorted sequence */
@@ -38,7 +51,7 @@ seq_t a(idx_t n) {
         /* Total possible candidates */
         const size_t max_candidates = (size_t)(max_a + 1) * (size_t)(max_b);
 
-        seq = (seq_t *)malloc(max_candidates * sizeof(seq_t));
+        seq = mem_new(seq_t, max_candidates);
         if (!seq) return 0;          /* allocation failure */
 
         /* Pre‑compute powers of 3 */

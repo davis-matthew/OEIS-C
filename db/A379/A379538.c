@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   minimal_x_for_m
+ * Validated: partial, pass, 66 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,25 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/minimal_x_for_m.h"
+
+/* Find the minimal x ≥ 1 such that x*(x+1)/2 ≥ m.  Used to locate
+   the antidiagonal containing the index.  */
+static inline idx_t minimal_x_for_m(idx_t m)
+{
+    idx_t low = 1, high = 1;
+    /* Double until we exceed m. */
+    while ((unsigned __int128)high * (high + 1) / 2 < m)
+        high <<= 1;
+    /* Binary search in [low,high]. */
+    while (low < high) {
+        idx_t mid = (low + high) >> 1;
+        if ((unsigned __int128)mid * (mid + 1) / 2 >= m)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 /* Count digits of a non‑negative integer x in base b. */
 static inline unsigned int digits_u64(uint64_t x, seq_t base)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1247, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count5smooth
+ * Validated: standard, pass, 64 terms through n = 9696 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,34 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/count5smooth.h"
+#include "../utils/mem.h"
+
+/* count5smooth(n) returns the number of divisors of n that contain only
+   the primes 2, 3 and 5 as prime factors.  The formula is
+   (v2(n)+1)*(v3(n)+1)*(v5(n)+1) where v2, v3, v5 are
+   the exponents of 2, 3 and 5 in the prime factorisation of n. */
+static seq_t count5smooth(idx_t n)
+{
+    idx_t   t    = n;
+    idx_t   exp2 = 0, exp3 = 0, exp5 = 0;
+
+    while ((t & 1u) == 0) {           /* divide by 2 */
+        t >>= 1;
+        ++exp2;
+    }
+    while (t % 3u == 0) {             /* divide by 3 */
+        t /= 3u;
+        ++exp3;
+    }
+    while (t % 5u == 0) {             /* divide by 5 */
+        t /= 5u;
+        ++exp5;
+    }
+
+    return ((seq_t)(exp2 + 1) *
+            (seq_t)(exp3 + 1)) *
+           (seq_t)(exp5 + 1);
+}
 
 /* --------------------------------------------------------------------- */
 /* Storage for the discovered run start indices. */
@@ -39,11 +67,11 @@ static void grow_starts(size_t need)
     while (starts_len + need > new_cap)
         new_cap <<= 1;
 
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (starts) {
         for (size_t i = 0; i < starts_len; ++i)
             new_arr[i] = starts[i];
-        free(starts);
+        mem_free(starts);
     }
     starts     = new_arr;
     starts_cap = new_cap;

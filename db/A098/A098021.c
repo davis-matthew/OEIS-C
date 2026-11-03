@@ -8,12 +8,14 @@
  * Formula:   a(n) = 3*n + 2*floor(n*sqrt(2))
  * Range:     u8 n <= 11, u16 n <= 366, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt_seq
+ * Validated: standard, pass, 72 terms through n = 8492 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_sqrt_seq.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     seq_t tn = (seq_t)n;               /* cast index to seq_t */
     seq_t m  = (seq_t)2 * tn * tn;     /* m = 2*n*n  */
-    seq_t f  = floor_sqrt_seq(m);      /* f = floor(sqrt(2)*n) */
+    seq_t f  = isqrt_seq(m);      /* f = floor(sqrt(2)*n) */
     seq_t res = (seq_t)3 * tn + (seq_t)2 * f; /* a(n) = 3*n + 2*f */
     return res;
 }

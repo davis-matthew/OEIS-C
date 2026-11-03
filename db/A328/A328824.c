@@ -8,7 +8,8 @@
  *            a(1)=1, a(2)=1, a(3)=1
  * Range:     i8 n <= 9, i16 n <= 18, i32 n <= 33, i64 n <= 66, i128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 943 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    seq_t type (fixed‑width or arbitrary‑precision) and handles
    calls in any order. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise the first four values on the first call */
     if (buf == NULL) {
         cap = 4;
-        buf = (seq_t*)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         if (!buf) return 0;      /* allocation failed – return 0 */
         buf[0] = 0;
         buf[1] = 1;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         while (cap <= n) {
             idx_t new_cap = cap ? (cap << 1) : 16;
             if (new_cap <= n) new_cap = n + 1;
-            buf = (seq_t*)realloc(buf, new_cap * sizeof(seq_t));
+            buf = mem_resize(seq_t, buf, new_cap);
             if (!buf) return 0;  /* allocation failed – return 0 */
             cap = new_cap;
         }

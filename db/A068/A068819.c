@@ -9,14 +9,26 @@
  *            the product (n+1)...(n+k) divides n!
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   exponent_in_factorial
+ * Validated: standard, pass, 37 terms through n = 192 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/exponent_in_factorial.h"
+
+/* prime exponent in n! using Legendre's formula */
+static int exponent_in_factorial(uint64_t n, int p) {
+    int cnt = 0;
+    uint64_t power = p;
+    while (power <= n) {
+        cnt += (int)(n / power);
+        if (power > n / p) break;   /* prevent overflow */
+        power *= (uint64_t)p;
+    }
+    return cnt;
+}
 
 #ifdef _MSC_VER
 /* For the MSVC compiler use the usual type definitions */

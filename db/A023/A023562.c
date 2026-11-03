@@ -9,7 +9,8 @@
  *            a(n)=a(n‑1)+2·Σ_{k=1}^{n‑1}A023531(k)+A023531(n)
  * Range:     u8 n <= 33, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   is_8n9_square
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <math.h>
-#include "../utils/is_8n9_square.h"
+#include "../utils/mem.h"
+
+/* Check whether 8*n+9 is a perfect square.  */
+static inline bool
+is_8n9_square (idx_t n)
+{
+    __int128 t = (__int128)8 * n + 9;   /* 8n+9 fits in 128 bits.  */
+    long double d = sqrt ( (long double) t );
+    uint64_t m = (uint64_t) d;
+    if ( (__int128)m * m > t )
+        while ( (__int128)m * m > t ) --m;
+    else
+        while ( (__int128)(m + 1) * (m + 1) <= t ) ++m;
+    return ( (__int128)m * m == t );
+}
 
 /* Cached sequence data.  */
 static seq_t *cached  = NULL;        /* array of a(n), index 1..seq_len.  */
@@ -38,7 +53,7 @@ ensure_up_to (idx_t need)
     /* Allocate or grow the cache.  */
     if (cached == NULL) {
         seq_cap = 16;
-        cached = (seq_t*)malloc ( (seq_cap + 1) * sizeof (seq_t) );
+        cached = mem_new(seq_t, (seq_cap + 1));
         cached[0] = 0;             /* unused dummy to make indices 1.. */
         seq_len = 0;
         cum_cnt = 0;
@@ -47,7 +62,7 @@ ensure_up_to (idx_t need)
     else if (need > seq_cap) {
         while (seq_cap < need)
             seq_cap <<= 1;
-        cached = (seq_t*)realloc (cached, (seq_cap + 1) * sizeof (seq_t));
+        cached = mem_resize(seq_t, cached, (seq_cap + 1));
     }
 
     for (idx_t i = seq_len + 1; i <= need; ++i) {

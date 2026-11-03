@@ -9,6 +9,7 @@
  *            reproduces the listed sequence exactly
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 17, i128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            = (1+sqrt(5))/2. This implements A184793
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   is_in_beatty
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
 #include <stdint.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/is_in_beatty.h"
+#include "../utils/mem.h"
+
+/* Test whether a given prime p belongs to the Beatty sequence floor(k*φ). */
+static bool
+is_in_beatty(uint32_t p)
+{
+    static double phi = (1.0 + sqrt(5.0)) / 2.0;
+    uint32_t k = (uint32_t)(p / phi);
+    uint32_t val1 = (uint32_t)(k * phi);
+    if (val1 == p) return true;
+    uint32_t val2 = (uint32_t)((k + 1) * phi);
+    return val2 == p;
+}
 
 static seq_t *seq_cache = NULL;          /* cache of a(n) values */
 static idx_t cache_len   = 0;            /* number of terms cached */
@@ -75,7 +88,7 @@ ensure_cache(idx_t n)
         if (is_in_beatty(p)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 128;
-                seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 seq_cache = tmp;
                 cache_cap = new_cap;

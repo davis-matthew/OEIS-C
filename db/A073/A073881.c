@@ -8,7 +8,8 @@
  * Formula:   a(n) = p_{2 * pi(n)} (the 2*π(n)-th prime), with a(1)=1
  * Range:     u8 n <= 106, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   upper_bound_prime_index
+ * Validated: standard, pass, 78 terms through n = 9858 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/upper_bound_prime_index.h"
+
+/* returns an upper bound for the k-th prime (k >= 1)   */
+static size_t upper_bound_prime_index(size_t k)
+{
+    if (k < 6) return 15;
+    double kk = (double)k;
+    double ub = kk * (log(kk) + log(log(kk))) + 3.0; /* +3 safety margin */
+    return (size_t)ub + 10;
+}
 
 /* static state */
 static unsigned char *is_composite = NULL;   /* 0 = prime, 1 = composite */

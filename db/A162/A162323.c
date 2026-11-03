@@ -11,7 +11,8 @@
  *            divisors of n as substrings
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   factor_u64, is_substring, prime_to_bin
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,39 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/is_substring.h"
-#include "../utils/prime_to_bin.h"
+
+/* Return true if pattern p[0..pl-1] occurs as a substring of
+   s[0..sl-1].  Both inputs are treated as raw char arrays of digits. */
+static bool is_substring(const char *p, int pl, const char *s, int sl)
+{
+    if (pl > sl) return false;
+    for (int i = 0; i + pl <= sl; ++i) {
+        if (memcmp(s + i, p, pl) == 0) return true;
+    }
+    return false;
+}
+
+/* Convert a prime number into a binary string (most significant bit first).
+   buf must have room for at least 64 chars.  len will be the length of the
+   resulting string. */
+static void prime_to_bin(uint64_t p, char *buf, int *len)
+{
+    char tmp[64];
+    int t = 0;
+    while (p) {
+        tmp[t++] = (p & 1) ? '1' : '0';
+        p >>= 1;
+    }
+    if (t == 0) {          /* never happens for valid primes */
+        tmp[t++] = '0';
+    }
+    for (int i = 0; i < t; ++i) {
+        buf[i] = tmp[t - 1 - i];
+    }
+    *len = t;
+}
 
 /* Depth‑first search for the shortest superstring that contains all
    patterns.  The arguments are the same as in the original

@@ -7,7 +7,8 @@
  * Formula:   a(n) = (n‑th nonnegative nonprime) – (n‑1)
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Static cache for nonprime numbers. */
 static idx_t  _cache_next_i   = 0;      /* next integer to test          */
@@ -31,7 +33,7 @@ _cache_ensure_cap(size_t needed)
     size_t new_cap = _cache_cap ? _cache_cap * 2 : 16;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *new_mem = (seq_t *)realloc(_cache_mem, new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, _cache_mem, new_cap);
     if (!new_mem)
         abort();      /* No memory – terminate */
     _cache_mem = new_mem;

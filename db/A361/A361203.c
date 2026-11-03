@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*(n - 9*floor((n-1)/9)) for n > 0, a(0) = 0
  * Range:     u8 n <= 34, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

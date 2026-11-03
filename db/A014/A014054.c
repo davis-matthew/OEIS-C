@@ -11,14 +11,28 @@
  *            computed once
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   multiply_polynomials
+ * Validated: standard, pass, 97 terms through n = 950 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/multiply_polynomials.h"
+
+/* Multiply two polynomials a(x) and b(x).
+   degA and degB are the degrees of the respective polynomials.
+   The result is stored in res[0..degA+degB]. */
+static void multiply_polynomials(const seq_t *a, size_t degA,
+                                 const seq_t *b, size_t degB,
+                                 seq_t *res)
+{
+    size_t degR = degA + degB;
+    for (size_t i = 0; i <= degR; ++i) res[i] = 0;
+    for (size_t i = 0; i <= degA; ++i)
+        for (size_t j = 0; j <= degB; ++j)
+            res[i + j] += a[i] * b[j];
+}
 
 /* Return the nth term of the sequence. */
 seq_t a(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 12, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Small helper: 10^exp, exp fits in 64‑bit and result fits in seq_t */
 static inline seq_t pow10_small(idx_t exp)
@@ -76,7 +78,7 @@ static void ensure_cap(size_t need)
     if (cache_cap < need) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < need) new_cap = need;
-        seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, new_cap);
         if (!p) abort();           /* out of memory */
         cache = p;
         cache_cap = new_cap;

@@ -9,12 +9,14 @@
  *            (a(0),...,a(6)) = (0,2,7,14,24,37,53)
  * Range:     u8 n <= 13, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array holding computed values   */
 static idx_t  capacity = 0;      /* allocated size of cache         */
@@ -25,11 +27,11 @@ static void grow_cache_size(idx_t new_len)
     if (capacity > new_len) return;
     idx_t new_cap = capacity ? capacity : 8;
     while (new_cap <= new_len) new_cap <<= 1;          /* double until large enough */
-    seq_t *tmp = (seq_t*)malloc((size_t)new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, (size_t)new_cap);
     if (!tmp) exit(1);                                  /* abort on OOM */
     if (cache) {
         for (idx_t i = 0; i < length; ++i) tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache    = tmp;
     capacity = new_cap;

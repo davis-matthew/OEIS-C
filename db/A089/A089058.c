@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 830, u16 n <= 9979, u32 n <= 9979, u64 n <= 9979,
- *            u128 n <= 9979, big any n
- * Helpers:   count_div_rec
+ * Range:     u8 n <= 830, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 74 terms through n = 9979 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,37 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/count_div_rec.h"
+
+/* Recursive divisor counter.
+   current  – product of chosen prime powers so far
+   idx      – current prime index
+   pc       – total number of distinct primes in x
+   primes   – array of prime bases
+   exps     – array of exponents in x
+   limit    – highest divisor allowed (x/2) as seq_t                  */
+static unsigned count_div_rec(seq_t current, unsigned idx, unsigned pc,
+                              const unsigned *primes, const unsigned *exps,
+                              seq_t limit)
+{
+    if (idx == pc)                       /* finished building a divisor   */
+        return (current <= limit) ? 1u : 0u;
+
+    unsigned total = 0u;
+    seq_t ppow = 1;                      /* prime^k for current k        */
+    unsigned maxk = 2 * exps[idx];
+    for (unsigned k = 0; k <= maxk; ++k) {
+        seq_t newcurrent = current * ppow;
+        if (newcurrent > limit) break;   /* further k will only grow   */
+        total += count_div_rec(newcurrent, idx + 1, pc,
+                               primes, exps, limit);
+
+        /* prepare next power, guarding against overflow (seq_t may be 64‑bit) */
+        if (k == maxk) break;
+        if (ppow > limit / (seq_t)primes[idx]) break;
+        ppow *= (seq_t)primes[idx];
+    }
+    return total;
+}
 
 static unsigned *spf = NULL;          /* smallest prime factor array */
 static idx_t spf_limit = 0;           /* current size of spf array */

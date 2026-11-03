@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 5, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: standard, pass, 30 terms through n = 206 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
    Initial values: a(1)=870, a(2)=17142, a(3)=463878, a(4)=13899222, a(5)=431954406, a(6)=13703317686, a(7)=440473683078, a(8)=14283616280598, a(9)=465930004254822, a(10)=15258594360495222, a(11)=501007066854539526, a(12)=16478709230048972886, a(13)=542620670913354491622 */
 
 #include <stdbool.h>
-#include "../utils/seq_from_str.h"
+#include <stdlib.h>
+#include <string.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 seq_t a(idx_t n)
 {

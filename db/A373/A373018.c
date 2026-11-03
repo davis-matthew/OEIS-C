@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   ensure_uint8_cap
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/ensure_uint8_cap.h"
+
+static void ensure_uint8_cap(uint8_t **arr, size_t *len, size_t *cap, size_t need) {
+    if (need > *cap) {
+        size_t newcap = (*cap ? *cap * 2 : 16);
+        while (newcap < need) newcap *= 2;
+        *arr = (uint8_t*)realloc(*arr, newcap * sizeof(uint8_t));
+        *cap = newcap;
+    }
+}
 
 #define BIG_BASE 1000000000u   /* base for big‑integer limbs */
 

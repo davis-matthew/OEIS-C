@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 43, u32 n <= 140, u64 n <= 490,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 796 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 #ifdef __cplusplus
 #include <type_traits>
 using bigint_t = std::conditional_t<
@@ -44,7 +46,7 @@ static idx_t max_n = 0;          /* largest n for which arrays are valid */
 static void recompute(idx_t needed)
 {
     size_t sz = (size_t)needed + 1;
-    seq_t *newA = (seq_t *)realloc(A, sz * sizeof(seq_t));
+    seq_t *newA = mem_resize(seq_t, A, sz);
     long long *newD = (long long *)realloc(D, sz * sizeof(long long));
     if (!newA || !newD) abort();          /* memory allocation failed */
 

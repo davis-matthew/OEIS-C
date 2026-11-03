@@ -8,7 +8,8 @@
  *            order (Hamming-style), a(1) = 1
  * Range:     u8 n <= 6, u16 n <= 19, u32 n <= 64, u64 n <= 232, u128 n <= 886,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 9288 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *seq = NULL;
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
 
     if (seq == NULL) {
         seq_cap = 1024;
-        seq = (seq_t *)malloc((size_t)(seq_cap + 1) * sizeof(seq_t));
+        seq = mem_new(seq_t, (size_t)(seq_cap + 1));
         for (idx_t k = 0; k <= seq_cap; k++) seq[k] = 0;
         seq[1] = 1;
         seq_len = 1;
@@ -38,10 +40,10 @@ seq_t a(idx_t n) {
     if (n > seq_cap) {
         idx_t newcap = seq_cap;
         while (newcap < n) newcap *= 2;
-        seq_t *tmp = (seq_t *)malloc((size_t)(newcap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, (size_t)(newcap + 1));
         for (idx_t k = 0; k <= newcap; k++) tmp[k] = 0;
         for (idx_t k = 0; k <= seq_len; k++) tmp[k] = seq[k];
-        free(seq);
+        mem_free(seq);
         seq = tmp;
         seq_cap = newcap;
     }

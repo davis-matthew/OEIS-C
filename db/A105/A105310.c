@@ -8,6 +8,7 @@
  *            a(22)=1122, a(23)=111222333, a(24)=1111222233334444, ...)
  * Range:     u8 n <= 21, u16 n <= 22, u32 n <= 23, u64 n <= 24, u128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 7 terms through n = 27 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

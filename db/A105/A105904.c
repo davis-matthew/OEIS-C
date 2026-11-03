@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   modmul_uint64
+ * Validated: standard, pass, 72 terms through n = 931 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/modmul_uint64.h"
+#include "../utils/mulmod.h"
 
 /* modular exponentiation: base^exp mod mod */
 static uint64_t modpow_uint64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -33,8 +34,8 @@ static uint64_t modpow_uint64(uint64_t base, uint64_t exp, uint64_t mod)
     while (exp)
     {
         if (exp & 1ULL)
-            result = modmul_uint64(result, base, mod);
-        base = modmul_uint64(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1ULL;
     }
     return result;

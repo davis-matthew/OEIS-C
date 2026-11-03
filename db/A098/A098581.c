@@ -7,7 +7,8 @@
  * Formula:   a(0)=1, a(1)=3, a(2)=7, a(3)=7, a(n)=a(n-1)+8*a(n-4) (n>=4)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   cast_ptr
+ * Validated: standard, pass, 48 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
    pointer appropriately for C and for C++ builds. */
 
 #include <stdlib.h>
-#include "../utils/cast_ptr.h"
+#include "../utils/mem.h"
+
+/* Helper to cast a void* to seq_t* in a way that is valid in both C and C++ */
+static seq_t *cast_ptr(void *ptr)
+{
+#ifdef __cplusplus
+    return reinterpret_cast<seq_t *>(ptr);
+#else
+    return (seq_t *)ptr;
+#endif
+}
 
 static seq_t *cache = NULL;      /* dynamic array of previously computed terms */
 static idx_t cache_len = 0;      /* number of elements currently stored */
@@ -29,7 +40,7 @@ static int ensure_size(idx_t new_len)
         return 1;                /* already large enough */
 
     /* Allocate a larger array */
-    void *tmp_raw = realloc(cache, new_len * sizeof(seq_t));
+    void *tmp_raw = mem_resize(seq_t, cache, new_len);
     if (!tmp_raw)
         return 0;                /* allocation failed */
 

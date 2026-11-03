@@ -10,7 +10,8 @@
  *            a(n)=21*∑_{i=n-44}^{n-1} a(i)-231*a(n-45);
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Generated from the rational G.F. of A170464. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of previously computed terms */
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     if (cache_len <= (size_t)n) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
         while (new_cap <= (size_t)n + 1) new_cap *= 2;
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         if (!new_ptr) exit(1);            /* allocation failed */
         cache    = new_ptr;
         cache_cap= new_cap;

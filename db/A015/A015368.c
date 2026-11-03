@@ -7,14 +7,16 @@
  * Formula:   a(n) = Product_{i=1..8} ((-11)^(n-i+1)-1)/((-11)^i-1)
  * Range:     u8 none, u16 none, u32 n <= 9, u64 n <= 10, u128 n <= 12,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 23 terms through n = 79 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     seq_t prod = 1;
 
     /* numerator power starts at 11^n */
-    seq_t pown = big_pow((seq_t)11, (seq_t)n);
+    seq_t pown = ipow((seq_t)11, (seq_t)n);
 
     for (idx_t i = 1; i <= k; ++i) {
         /* absolute numerator factor for exponent e = n-i+1 */

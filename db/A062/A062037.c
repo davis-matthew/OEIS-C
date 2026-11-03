@@ -11,13 +11,15 @@
  *            the ones that satisfy it. * Results are memoised s...
  * Range:     u8 none, u16 n <= 244, u32 n <= 500, u64 n <= 500, u128 n <= 500,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 492 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: true if num satisfies P = 6 * S */
 static bool satisfies(idx_t num)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if (cache_sz >= capacity)
     {
         capacity = capacity < 128 ? 128 : capacity * 2;
-        cache    = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+        cache    = mem_resize(seq_t, cache, capacity);
     }
 
     /* generate terms until we have at least n of them */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
             if (cache_sz >= capacity)      /* ensure space for new term */
             {
                 capacity *= 2;
-                cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, capacity);
             }
             cache[cache_sz++] = next;
         }

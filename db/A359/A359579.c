@@ -10,16 +10,17 @@
  *            else 1. For each odd prime factor p_i: if p_i + 1 is not a power
  *            of two → a(n) = 0; else if e_i is odd → s = –s. a(n) = s.
  *            (Equivalently, for each odd prime p, a(p^e) = (–1)^e...
- * Range:     i8 n <= 126, i16 n <= 9850, i32 n <= 9850, i64 n <= 9850,
- *            i128 n <= 9850, big any n
- * Helpers:   is_power_of_two
+ * Range:     i8 n <= 126, i16 n <= 107163, i32 n <= 107163, i64 n <= 107163,
+ *            i128 n <= 107163, big any n
+ * Validated: standard, pass, 143 terms through n = 9850 (2026-11-01)
+ * Helpers:   is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
                 ++exp;
             }
             /* p is prime */
-            if (!is_power_of_two((seq_t)p + 1)) return 0;
+            if (!is_pow2((seq_t)p + 1)) return 0;
             if (exp & 1) result = -result;   /* flip sign for odd exponent */
         }
     }
@@ -54,7 +55,7 @@ seq_t a(idx_t n)
     /* Handle a final prime factor > sqrt(n), if any */
     if (temp > 1) {
         /* temp is prime */
-        if (!is_power_of_two((seq_t)temp + 1)) return 0;
+        if (!is_pow2((seq_t)temp + 1)) return 0;
         result = -result;   /* exponent is 1 */
     }
 

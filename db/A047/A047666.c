@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   alloc_seq_array, idx_uv, seq_free_array
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,24 @@
    The sequence a(n) is obtained by reading the square array along
    anti‑diagonals (OEIS offset 1). */
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/seq_free_array.h"
-#include "../utils/idx_uv.h"
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+static inline idx_t idx_uv(idx_t i, idx_t j, idx_t max)
+{
+    return i * (max + 1) + j;
+}
 
 static seq_t *A = NULL;      /* table stored row‑major, 1‑based indices */
 static idx_t   A_max = 0;     /* maximum dimension stored */

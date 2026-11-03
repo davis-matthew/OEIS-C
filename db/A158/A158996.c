@@ -9,15 +9,32 @@
  *            else 2, * a(n) = (P(n)/d) · 10^n
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   is_prime, pow10, seq_mul
+ * Validated: standard, pass, 34 terms through n = 245 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/seq_mul.h"
-#include "../utils/pow10.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,13 +9,15 @@
  *            192)*(n-4)^(n-4)
  * Range:     u8 none, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 17 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     seq_t tnm4 = (tn - 4);        /* n-4 */
 
     /* Compute the two powers */
-    seq_t pow1 = big_pow(tnp1, (seq_t)(n - 1));        /* (n+1)^(n-1) */
-    seq_t pow2 = big_pow(tnm4, (seq_t)(n - 4));        /* (n-4)^(n-4) */
+    seq_t pow1 = ipow(tnp1, (seq_t)(n - 1));        /* (n+1)^(n-1) */
+    seq_t pow2 = ipow(tnm4, (seq_t)(n - 4));        /* (n-4)^(n-4) */
 
     /* Polynomial part: 118*n^3 - 531*n^2 + 659*n - 192 */
     seq_t poly = 118 * tn * tn * tn

@@ -8,12 +8,14 @@
  *            periodic Pascal array T(i,j)=C(i, j mod (i+1))
  * Range:     u8 n <= 123, u16 n <= 384, u32 n <= 1338, u64 n <= 4875,
  *            u128 n <= 9869, big any n
+ * Validated: standard, pass, 94 terms through n = 9588 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Safe binomial coefficient using only integer arithmetic.

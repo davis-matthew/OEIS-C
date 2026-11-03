@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*(n+1)*(n^2+n+22)/24
  * Range:     u8 n <= 7, u16 n <= 34, u32 n <= 566, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 59 terms through n = 891 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,8 @@
    arbitrary precision).  No memoization is required because
    the computation is O(1). */
 
-#include "../utils/gcd.h"  /* provides seq_t gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

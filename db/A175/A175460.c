@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the reverse function for seq_t. */
 static inline seq_t reverse_seq(seq_t x)
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
             if (seq_len == seq_cap)   /* grow the cache if needed */
             {
                 size_t new_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
                 if (!tmp)           /* allocation failed */
                     return 0;
                 seq_cache = tmp;

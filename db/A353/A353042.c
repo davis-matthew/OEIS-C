@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n-1,k-1) * 2^(k*(k-1)) (a(0)=1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 11,
  *            big any n
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the terms of OEIS sequence A353042. */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

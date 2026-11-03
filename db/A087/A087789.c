@@ -9,23 +9,25 @@
  *            (greatest prime factor). a(1) = 1. For n > 1 equals A071830(n)
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   largest_prime_factor_uint64
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   largest_prime_factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/largest_prime_factor_uint64.h"   /* provides seq_t largest_prime_factor_uint64(uint64_t) */
+#include <stdbool.h>
+#include "../utils/largest_prime_factor_u64.h"
 
 seq_t a(idx_t n)
 {
     if (n <= 1)
         return 1;
 
-    uint64_t gpf_n = (uint64_t)largest_prime_factor_uint64((uint64_t)n);
+    uint64_t gpf_n = (uint64_t)largest_prime_factor_u64((uint64_t)n);
 
     for (uint64_t m = n + 1; ; ++m) {
-        uint64_t gpf_m = (uint64_t)largest_prime_factor_uint64(m);
+        uint64_t gpf_m = (uint64_t)largest_prime_factor_u64(m);
         if (gpf_m == gpf_n)
             return (seq_t)m;
     }

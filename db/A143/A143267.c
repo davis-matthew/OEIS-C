@@ -9,13 +9,14 @@
  *            T(n,k) = φ(n)·k read by rows
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   _phi_idx
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_phi_idx.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t N)
 {
@@ -37,6 +38,6 @@ seq_t a(idx_t N)
     unsigned __int128 prev_tri = (unsigned __int128)(r - 1) * r / 2;
     idx_t k = (idx_t)(N - prev_tri);                   /* position within row r */
 
-    seq_t phi_r = _phi_idx(r);
+    seq_t phi_r = totient(r);
     return phi_r * (seq_t)k;
 }

@@ -11,13 +11,15 @@
  *            c_{n-10}; d_0 = 1, for n ≥ 1: d_n = (n ≥ 5 ?...
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 28, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached coefficient arrays. */
 static seq_t *c_seq = NULL;   /* coefficients of (1 - z - z^2)^-5   */
@@ -35,8 +37,8 @@ static void ensure_len(idx_t upto)
     if (cap < new_len) {
         size_t new_cap = cap ? cap << 1 : 4;
         while (new_cap < new_len) new_cap <<= 1;
-        c_seq = (seq_t *)realloc(c_seq, new_cap * sizeof(seq_t));
-        d_seq = (seq_t *)realloc(d_seq, new_cap * sizeof(seq_t));
+        c_seq = mem_resize(seq_t, c_seq, new_cap);
+        d_seq = mem_resize(seq_t, d_seq, new_cap);
         cap = new_cap;
     }
 

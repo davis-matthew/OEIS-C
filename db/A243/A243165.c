@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   value128
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,12 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/value128.h"
+
+/* ---------- value for given (y,u) --------------------------------------- */
+static inline __uint128_t value128(idx_t y, idx_t u)
+{
+    return ( __uint128_t )2 * u * u - ( __uint128_t )5 * y * y;
+}
 
 /* ---------- integer square‑root for uint64_t -------------------------------- */
 static inline idx_t isqrt_u64(idx_t v)

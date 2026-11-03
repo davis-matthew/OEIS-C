@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   add_present
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,26 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/add_present.h"
+
+/* Resizable bit array for membership testing.  The bit at index i
+   is set when the integer i has appeared in P, Q or R.  */
+static void add_present(seq_t val, uint8_t **present, size_t *size)
+{
+    size_t idx = (size_t)val;          /* val is assumed to fit into size_t */
+    if (idx >= *size) {
+        size_t newsize = (*size > 0 ? *size : 64);
+        while (newsize <= idx)
+            newsize <<= 1;
+        uint8_t *tmp = (uint8_t *)realloc(*present, newsize);
+        if (!tmp)
+            exit(EXIT_FAILURE);
+        for (size_t i = *size; i < newsize; ++i)
+            tmp[i] = 0;
+        *present = tmp;
+        *size    = newsize;
+    }
+    (*present)[idx] = 1;
+}
 
 seq_t a(idx_t n)
 {

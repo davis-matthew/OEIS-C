@@ -9,6 +9,7 @@
  *            and for k≥2: k*A_k = (2k-1)A_{k-1} + (3k-3)A_{k-2}
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 9, u128 n <= 13,
  *            big any n
+ * Validated: standard, pass, 31 terms through n = 65 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

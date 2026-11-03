@@ -8,7 +8,8 @@
  *            (0,1,4,6,8,9)
  * Range:     u8 n <= 35, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_smallest_digit_nonprime
+ * Validated: standard, pass, 70 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_smallest_digit_nonprime.h"
+#include "../utils/mem.h"
+
+/* Return true if the smallest decimal digit of x is nonprime. */
+static inline bool is_smallest_digit_nonprime(seq_t x)
+{
+    uint8_t min = 9;
+    seq_t t = x;
+    while (t > 0) {
+        uint8_t d = (uint8_t)(t % 10);
+        if (d < min) min = d;
+        t /= 10;
+    }
+    return (min == 0) || (min == 1) || (min == 4) || (min == 6) || (min == 8) || (min == 9);
+}
 
 /*
  * a(n) returns the n-th prime whose smallest decimal digit is nonprime.
@@ -39,7 +53,7 @@ seq_t a(idx_t n)
     /* Expand cache capacity lazily */
     if (cache == NULL) {
         cache_cap = 256;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_size = 0;
     }
 
@@ -76,7 +90,7 @@ seq_t a(idx_t n)
             if (is_smallest_digit_nonprime((seq_t)candidate)) {
                 if (cache_size >= cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_size++] = (seq_t)candidate;
             }

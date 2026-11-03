@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 150, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   unitary_sigma_and_divisor_count
+ * Validated: standard, pass, 80 terms through n = 9318 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,46 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/unitary_sigma_and_divisor_count.h"
+#include "../utils/mem.h"
+
+/*  unitary_sigma_and_divisor_count
+ *  Count the number of distinct prime factors (cnt), compute
+ *  ud = 2^cnt  (unitary divisor count) and usig = Π(1 + p^e)
+ *  for the unitary divisor sum.  */
+static void unitary_sigma_and_divisor_count(uint64_t n,
+                                            seq_t *ud,
+                                            seq_t *usig,
+                                            idx_t *cnt)
+{
+    seq_t sum = 1;   /* product of (1 + p^e) */
+    seq_t divcnt = 1;/* product of 2 for each distinct prime */
+    uint64_t temp = n;
+    *cnt = 0;
+
+    /* use trail division to factor */
+    for (uint64_t p = 2; p * p <= temp; ++p) {
+        if (temp % p == 0) {
+            ++(*cnt);
+            divcnt <<= 1;           /* multiply by 2 for each distinct prime */
+
+            seq_t pw = 1;
+            while (temp % p == 0) {
+                temp /= p;
+                pw *= p;                 /* p^e */
+            }
+            sum *= (1 + pw);            /* unitary divisor sum factor */
+        }
+    }
+
+    if (temp > 1) {                 /* remaining prime factor */
+        ++(*cnt);
+        divcnt <<= 1;
+        sum *= (1 + temp);
+    }
+
+    *ud    = divcnt;
+    *usig  = sum;
+}
 
 /* forward declaration of helper from utils if available */
 void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt);
@@ -44,7 +84,7 @@ static void add_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *new_arr = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
         if (!new_arr) exit(EXIT_FAILURE);
         terms = new_arr;
         terms_cap = new_cap;
@@ -90,7 +130,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (!terms) {
         terms_cap = 16;
-        terms     = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms     = mem_new(seq_t, terms_cap);
         if (!terms) exit(EXIT_FAILURE);
         terms_len   = 1;
         terms[0]    = 1;       /* k = 1 always satisfies the condition */

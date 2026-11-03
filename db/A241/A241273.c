@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
     integer additions, well within the 2‑second limit. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,13 +39,13 @@ seq_t a(idx_t n)
     {
         /* free previous cache */
         if (cache != NULL)
-            free(cache);
+            mem_free(cache);
 
         cache_size = n + 1;
-        cache = (seq_t *)calloc(cache_size, sizeof(seq_t));   /* zero‑initialised */
+        cache = mem_new(seq_t, cache_size);   /* zero‑initialised */
 
         /* temporary array for subset‑sum DP */
-        seq_t *dp = (seq_t *)calloc(cache_size, sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, cache_size);
 
         /* Build all values up to n */
         idx_t max_m = n / 7;                     /* 7m must not exceed n */
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(dp);
+        mem_free(dp);
     }
 
     return cache[n];

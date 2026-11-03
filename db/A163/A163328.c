@@ -14,13 +14,30 @@
  *            digits of x and y with the least‑significant digit...
  * Range:     u8 n <= 89, u16 n <= 3320, u32 n <= 3320, u64 n <= 3320,
  *            u128 n <= 3320, big any n
- * Helpers:   interleave_xy
+ * Validated: standard, pass, 87 terms through n = 3111 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/interleave_xy.h"
+
+static seq_t interleave_xy(idx_t x, idx_t y)
+{
+    seq_t res = 0;
+    seq_t pow = 1;
+    while (x > 0 || y > 0) {
+        seq_t digit_x = (seq_t)(x % 3);
+        res += digit_x * pow;
+        pow *= 3;
+        seq_t digit_y = (seq_t)(y % 3);
+        res += digit_y * pow;
+        pow *= 3;
+        x /= 3;
+        y /= 3;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

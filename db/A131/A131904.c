@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Helper: divisor count for a 64‑bit integer                            */
@@ -70,7 +72,7 @@ static void ensure_cache_size(size_t target)
     /* initialize min_for_d table if needed */
     if (min_for_d == NULL) {
         min_cap   = 1024;
-        min_for_d = (seq_t *)calloc(min_cap, sizeof(seq_t));
+        min_for_d = mem_new(seq_t, min_cap);
         if (!min_for_d)
             exit(EXIT_FAILURE);
     }
@@ -78,7 +80,7 @@ static void ensure_cache_size(size_t target)
     /* grow the sequence cache as needed */
     if (seq_cap < target) {
         seq_cap = target < 1024 ? 1024 : target;
-        seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
         if (!seq_cache)
             exit(EXIT_FAILURE);
     }
@@ -92,7 +94,7 @@ static void ensure_cache_size(size_t target)
         if (idx >= min_cap) {
             size_t old_cap = min_cap;
             min_cap = idx + 1024;
-            seq_t *tmp = (seq_t *)realloc(min_for_d, min_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, min_for_d, min_cap);
             if (!tmp)
                 exit(EXIT_FAILURE);
             min_for_d = tmp;

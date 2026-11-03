@@ -11,7 +11,8 @@
  *            column the last value and whether a decreasing s...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 41, u128 n <= 210,
  *            big any n
- * Helpers:   is_row_unimodal
+ * Validated: standard, pass, 34 terms through n = 204 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_row_unimodal.h"
+
+/* Helper: return true iff a 4‑vector is unimodal. */
+static bool is_row_unimodal(const uint8_t r[4]) {
+    for (int peak = 0; peak < 4; ++peak) {
+        bool ok = true;
+        for (int i = 0; i < peak; ++i) {
+            if (r[i] > r[i+1]) { ok = false; break; }
+        }
+        if (!ok) continue;
+        for (int i = peak; i < 3; ++i) {
+            if (r[i] < r[i+1]) { ok = false; break; }
+        }
+        if (ok) return true;
+    }
+    return false;
+}
 
 /* State encoding: for each column (0..3) we store a 3‐bit code
    value*2 + dec, where dec is 0 before the decreasing part

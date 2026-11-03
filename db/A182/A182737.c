@@ -8,7 +8,8 @@
  * Formula:   a(n) = (2n+1) * (p(2n+1) – p(2n))
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 52, u64 n <= 182, u128 n <= 671,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* where p(m) is the partition number of m (number of partitions of m). */
 
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* 20001 = 2 * 10000 + 1   (maximum n requested by the tests) */
 #define MAX_N 20002
@@ -64,7 +66,7 @@ seq_t a(idx_t n) {
         /* This branch is unlikely for the judge data, but keeps the function correct. */
 
         /* Allocate a dynamic array to hold partition numbers up to M. */
-        seq_t *P_dyn = (seq_t *)malloc((M + 1) * sizeof(seq_t));
+        seq_t *P_dyn = mem_new(seq_t, (M + 1));
         if (!P_dyn) abort();
         P_dyn[0] = 1;
         for (idx_t i = 1; i <= M; ++i) {
@@ -85,7 +87,7 @@ seq_t a(idx_t n) {
         }
         seq_t diff = P_dyn[M] - P_dyn[M - 1];
         seq_t result = ((seq_t)M) * diff;
-        free(P_dyn);
+        mem_free(P_dyn);
         return result;
     }
 

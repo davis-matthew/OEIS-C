@@ -12,12 +12,14 @@
  *            initial values g(0)=1,g(1)=2,g(2)=5,g(3)=12,g(4)=26,g(5)=56...
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed initial values of g(n) for 0≤n≤5. */
 static const seq_t g_init[6] = { 1, 2, 5, 12, 26, 56 };
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (g_arr == NULL) {
         g_cap = (size_t)(n + 1);
         if (g_cap < 6) g_cap = 6;
-        g_arr = (seq_t*)malloc(g_cap * sizeof(seq_t));
+        g_arr = mem_new(seq_t, g_cap);
         if (!g_arr) return (seq_t)0;   /* allocation failure */
         /* initialise the first six values */
         for (idx_t i = 0; i < 6; ++i)
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     } else if ((size_t)n >= g_cap) {
         size_t new_cap = (size_t)(n + 1);
         if (new_cap < 6) new_cap = 6;
-        seq_t *tmp = (seq_t*)realloc(g_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, g_arr, new_cap);
         if (!tmp) return (seq_t)0;   /* allocation failure */
         /* initialise any new indices up to 5 if needed */
         if (g_cap < 6) {

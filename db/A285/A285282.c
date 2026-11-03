@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * static array. */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cached_values = NULL;
 static size_t cached_len = 0;
@@ -27,7 +29,7 @@ static size_t cached_len = 0;
 static void build_cache(void)
 {
     const idx_t LIMIT = 500;
-    seq_t *buf = (seq_t *)malloc(sizeof(seq_t) * LIMIT);
+    seq_t *buf = mem_new(seq_t, LIMIT);
     size_t count = 0;
 
     for (idx_t i = 1; i <= LIMIT; ++i) {

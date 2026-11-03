@@ -10,13 +10,31 @@
  *            the definition * of OEIS sequence A078788
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   smallest_odd_prime_factor
+ * Validated: partial, pass, 88 terms through n = 89 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/smallest_odd_prime_factor.h"
+
+static inline uint64_t smallest_odd_prime_factor(uint64_t v)
+{
+    if (v <= 2)              /* 1 or 2 → no odd prime divisor */
+        return 0;
+    /* Remove all factors of 2 */
+    while ((v & 1ULL) == 0)  /* v % 2 == 0 */
+        v >>= 1;             /* v /= 2 */
+    if (v == 1)              /* only factor 2 remained */
+        return 0;
+
+    /* Find the smallest odd divisor of the remaining odd part */
+    for (uint64_t d = 3; d * d <= v; d += 2) {
+        if (v % d == 0)
+            return d;        /* first odd divisor found is the smallest odd prime factor */
+    }
+    return v;                /* v itself is prime and odd */
+}
 
 seq_t a(idx_t n)
 {

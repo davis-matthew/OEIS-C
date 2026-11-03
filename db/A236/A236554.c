@@ -8,6 +8,7 @@
  * Formula:   a(1)=8, a(2)=64; for n ≥ 3: a(n) = 4^(n+1) + 32
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

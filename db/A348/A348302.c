@@ -11,7 +11,8 @@
  *            forbidden.)
  * Range:     u8 n <= 47, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   allowed_sum
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/allowed_sum.h"
+#include "../utils/mem.h"
+
+/* allowed_sum returns true iff the sum of two adjacent digits is not a palindrome.
+   With non‑zero digits, the only forbidden sums are 2…9 and 11.  All others are
+   allowed. */
+static inline bool allowed_sum(int a, int b)
+{
+    int s = a + b;
+    return s == 10 || (s >= 12 && s <= 18);
+}
 
 /* Static storage for the generated sequence and meta‑information. */
 static seq_t *seq_arr  = NULL;   /* array of terms */
@@ -35,7 +45,7 @@ static void ensure_len(idx_t need)
 
     if (seq_cap == 0) {
         seq_cap = 16;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
     }
 
     while (seq_len < need) {
@@ -117,7 +127,7 @@ static void ensure_len(idx_t need)
             /* Accept the candidate */
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+                seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
             }
             seq_arr[seq_len] = cand;
             seq_len++;

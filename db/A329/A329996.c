@@ -7,6 +7,7 @@
  * Formula:   a(n) = ⌊n · x³⌋, where 1/x³ + 1/3ˣ = 1 (x ≈ 1.12177497)
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

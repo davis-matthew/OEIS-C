@@ -10,13 +10,15 @@
  *            values so that * any call order is handled efficiently
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 14, u64 n <= 20, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         if (cache == NULL) {
             /* Allocate space for indices 0..2 only once.           */
             cache_size = 3;
-            cache      = (seq_t*)malloc(cache_size * sizeof(seq_t));
+            cache      = mem_new(seq_t, cache_size);
             cache[0] = cache[1] = cache[2] = (seq_t)1;
             max_n = 2;
         }
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
        indices 0..2 and leaves pow2 ready for i=3.                     */
     if (cache == NULL) {
         cache_size = 3;
-        cache      = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache      = mem_new(seq_t, cache_size);
         cache[0] = cache[1] = cache[2] = (seq_t)1;
         max_n     = 2;            /* values 0,1,2 are known     */
     }
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* Grow the cache if we need to reach a larger n         */
     if ((size_t)n + 1 > cache_size) {
         cache_size = (size_t)n + 1;
-        cache      = (seq_t*)realloc(cache, cache_size * sizeof(seq_t));
+        cache      = mem_resize(seq_t, cache, cache_size);
     }
 
     /* Compute values from max_n+1 up to n, updating pow2          */

@@ -8,15 +8,26 @@
  * Formula:   a(n) concatenates, row by row, the bases b (2 ≤ b ≤ row+1) for
  *            which n written in base b contains the digit b‑1. The sequence
  *            is flattened row-wise
- * Range:     u8 n <= 1896, u16 n <= 9684, u32 n <= 9684, u64 n <= 9684,
- *            u128 n <= 9684, big any n
- * Helpers:   contains_digit_b_minus_1
+ * Range:     u8 n <= 1896, u16 n <= 10027, u32 n <= 10027, u64 n <= 10027,
+ *            u128 n <= 10027, big any n
+ * Validated: standard, pass, 102 terms through n = 9684 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/contains_digit_b_minus_1.h"
+
+/* Test whether a number n (row index) written in base b contains digit b-1.*/
+static bool contains_digit_b_minus_1(idx_t n, idx_t b)
+{
+    while (n) {
+        if ((n % b) == (b - 1u))
+            return true;
+        n /= b;
+    }
+    return false;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

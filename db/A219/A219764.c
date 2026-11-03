@@ -11,7 +11,8 @@
  *            condition. This works for any seq_t (8/16/32/64/128-bit *...
  * Range:     u8 n <= 81, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 76 terms through n = 9356 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Return true if the binary expansion of x has curling number 1,
  * i.e. its last l bits are never equal to the preceding l bits for any
@@ -29,7 +31,7 @@ static bool is_curling_one(seq_t x)
     if (x == (seq_t)0)
         return true;                 /* "0" has length 1 */
 
-    unsigned len = bitlen_seq_t(x);   /* number of bits */
+    unsigned len = bit_length(x);   /* number of bits */
     if (len <= 1)
         return true;                  /* single‑bit strings cannot repeat */
 
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* Allocate initial capacity if needed */
     if (capacity == 0) {
         capacity = 64;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache)
             abort();
     }
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
             /* Grow cache if full */
             if (count == capacity) {
                 size_t new_cap = capacity * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     abort();
                 cache = tmp;

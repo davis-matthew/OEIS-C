@@ -12,12 +12,14 @@
  *            left/right, vertical neighbours are up/down. The rule...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>  /* for memset */
+#include "../utils/mem.h"
 
 #define ROWS_COUNT 16          /* number of rows satisfying horizontal rules */
 #define COLS      3
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
     idx_t remaining = rows - 2;   /* number of transitions after the first two rows */
 
     /* initialise dp with all top‑bottom edge pairs that differ in every column */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     for (int i = 0; i < R; ++i) {
         for (int j = 0; j < R; ++j) {
             if (agree_col[i][j]) dp[i][j] = (seq_t)1;
@@ -117,7 +119,7 @@ seq_t a(idx_t n)
 
     /* iterate over remaining rows */
     for (idx_t step = 0; step < remaining; ++step) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         for (int p = 0; p < R; ++p) {
             for (int m = 0; m < R; ++m) {
@@ -132,9 +134,9 @@ seq_t a(idx_t n)
         }
 
         /* rotate buffers */
-        memcpy(tmp, dp, sizeof(tmp));
-        memcpy(dp, dp_next, sizeof(dp));
-        memcpy(dp_next, tmp, sizeof(tmp));
+        mem_copy(tmp, dp, sizeof(tmp));
+        mem_copy(dp, dp_next, sizeof(dp));
+        mem_copy(dp_next, tmp, sizeof(tmp));
     }
 
     /* sum up all valid bottom‑edge states */

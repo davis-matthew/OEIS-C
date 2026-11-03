@@ -9,12 +9,13 @@
  *            whose cube is a base‑6 palindrome.)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
 
     /* usual pattern of 6^k + 1 terms */
     if (n <= 13)
-        return pow_int((seq_t)6, n - 2) + (seq_t)1;
+        return ipow_idx((seq_t)6, n - 2) + (seq_t)1;
     else
-        return pow_int((seq_t)6, n - 3) + (seq_t)1;
+        return ipow_idx((seq_t)6, n - 3) + (seq_t)1;
 }

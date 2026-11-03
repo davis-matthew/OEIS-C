@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   build_primes_upto, pow_uint
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdbool.h>
 
 /* Utilities required from the build */
-#include "../utils/pow_uint.h"
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
         }
 
         idxs[i]    = idx;
-        weights[i] = pow_uint(p, exps[i]);  /* p^e */
+        weights[i] = ipow_u64_idx(p, exps[i]);  /* p^e */
     }
 
     /* 4. DP over the indices (sorted ascending automatically). */

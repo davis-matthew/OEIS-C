@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 27, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* Return true iff n (>1) is a perfect power: n = b^e for some e >= 2. */
 static bool is_perfect_power(uint64_t n)
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     for (i = 0; i < 2; ++i) {
         bases[i] = 2;
         while (is_perfect_power(bases[i])) ++bases[i];
-        cur[i] = seq_pow((seq_t)bases[i], exps[i]);
+        cur[i] = ipow_idx((seq_t)bases[i], exps[i]);
     }
 
     seq_t result = 0;
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         do {
             ++bases[min_idx];
         } while (is_perfect_power(bases[min_idx]));
-        cur[min_idx] = seq_pow((seq_t)bases[min_idx], exps[min_idx]);
+        cur[min_idx] = ipow_idx((seq_t)bases[min_idx], exps[min_idx]);
     }
 
     return result;

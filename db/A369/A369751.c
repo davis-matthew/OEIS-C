@@ -8,15 +8,24 @@
  *            a(1)=-3, a(2)=3
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 21, i128 n <= 22,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_free
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <string.h>   /* memcpy */
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 seq_t a(idx_t n)
 {
@@ -46,7 +55,7 @@ seq_t a(idx_t n)
     if (need > cap) {
         seq_t *tmp = seq_alloc_new_array(need);
         if (!tmp) return 0;       /* allocation failure – return zero */
-        memcpy(tmp, cache, len * sizeof(seq_t));
+        mem_copy(tmp, cache, len * sizeof(seq_t));
         seq_free(cache);
         cache = tmp;
         cap   = need;

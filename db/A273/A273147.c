@@ -11,12 +11,14 @@
  *            a(6)=77
  * Range:     i8 n <= 9, i16 n <= 127, i32 n <= 127, i64 n <= 127,
  *            i128 n <= 127, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 117 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,13 +36,13 @@ seq_t a(idx_t n)
     /* Ensure the cache is allocated and big enough */
     if (!cache) {
         cache_size = (size_t)(n + 1);
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) exit(1);       /* out of memory */
         for (idx_t i = 0; i < 7; ++i)
             cache[i] = base[i];
         /* next_compute is already 7 */
     } else if ((size_t)(n + 1) > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) exit(1);         /* out of memory */
         cache = tmp;
         cache_size = (size_t)(n + 1);

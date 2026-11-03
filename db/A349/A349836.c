@@ -7,13 +7,17 @@
  * Formula:   a(n) = Σ_{k=0..n} k^(2*n-k) (OEIS A349836)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 23,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 295 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Recursive computation of natural numbers.
    Memoises all needed values so that calls are O(max(n)). */
@@ -28,8 +32,8 @@ seq_t a(idx_t n) {
     if (n >= cache_size) {
         size_t new_size = (size_t)(n + 1);
         new_size = new_size * 2;      /* over‑allocate to reduce reallocs */
-        T = (seq_t *)realloc(T, new_size * sizeof(seq_t));
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        T = mem_resize(seq_t, T, new_size);
+        cache = mem_resize(seq_t, cache, new_size);
         cache_size = (idx_t)new_size;
     }
 
@@ -52,7 +56,7 @@ seq_t a(idx_t n) {
         }
 
         /* Add the new term for k == i : i^i */
-        T[i] = big_pow((seq_t)i, (seq_t)i);
+        T[i] = ipow((seq_t)i, (seq_t)i);
         sum += T[i];
 
         /* Store the result */

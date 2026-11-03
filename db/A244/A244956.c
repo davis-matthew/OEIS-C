@@ -11,13 +11,15 @@
  *            any seq_t type (fixed or arbitrary‑precision)
  * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 283, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         return (seq_t)0;          /* allocation failure */
 
     /* Store the number corresponding to each remainder */
-    seq_t *value = (seq_t *)calloc(N, sizeof(seq_t));
+    seq_t *value = mem_new(seq_t, N);
     if (!value) {
         free(visited);
         return (seq_t)0;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     size_t *queue = (size_t *)malloc(N * sizeof(size_t));
     if (!queue) {
         free(visited);
-        free(value);
+        mem_free(value);
         return (seq_t)0;
     }
 
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
                 if (r2 == 0) {                      /* solution found */
                     seq_t result = new_val;
                     free(visited);
-                    free(value);
+                    mem_free(value);
                     free(queue);
                     return result;
                 }
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
 
     /* The algorithm must always find a solution, but return 0 on failure. */
     free(visited);
-    free(value);
+    mem_free(value);
     free(queue);
     return (seq_t)0;
 }

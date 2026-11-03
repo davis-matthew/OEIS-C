@@ -10,7 +10,8 @@
  *            value a(n) is the count of distinct solutions
  * Range:     u8 n <= 23, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   build_divs_rec
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_divs_rec.h"
+
+/* recursively build all divisors of B² from the prime factorisation of B.
+   The divisor array 'divs' must be large enough (≥ 200000 entries).
+   div_cnt will contain the number of divisors generated. */
+static void build_divs_rec(const uint32_t *fp, const int *fe,
+                           size_t fc, size_t idx, uint64_t cur,
+                           uint64_t *divs, size_t *div_cnt)
+{
+    if (idx == fc) {
+        divs[(*div_cnt)++] = cur;
+        return;
+    }
+    uint32_t p = fp[idx];
+    int e = fe[idx] * 2;   /* exponent doubles for B² */
+    uint64_t val = 1;
+    for (int k = 0; k <= e; ++k) {
+        build_divs_rec(fp, fe, fc, idx + 1, cur * val, divs, div_cnt);
+        val *= p;
+    }
+}
 
 /* prime sieve up to 15000 (enough for sqrt(2·max(n)·max(y)) ≤ 15000 when n ≤ 10000) */
 static uint32_t sprimes[2000];

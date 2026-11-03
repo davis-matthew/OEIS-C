@@ -7,14 +7,16 @@
  * Formula:   a(n) = 2^(2n-1) * binom(4n+2, 2n+1) * binom(2n, n)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 14,
  *            big any n
- * Helpers:   binom, pow_uint
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -25,11 +27,11 @@ seq_t a(idx_t n)
 
     /* Compute 2^(2n-1) */
     idx_t exponent = 2 * n - 1;            /* 2n-1 >= 1 for n>=1 */
-    seq_t power_of_two = pow_uint(2, exponent);
+    seq_t power_of_two = ipow_u64_idx(2, exponent);
 
     /* Compute the two binomial coefficients */
-    seq_t c1 = binom(4 * n + 2, 2 * n + 1);   /* C(4n+2 , 2n+1) */
-    seq_t c2 = binom(2 * n,     n );           /* C(2n   ,  n   ) */
+    seq_t c1 = binomial(4 * n + 2, 2 * n + 1);   /* C(4n+2 , 2n+1) */
+    seq_t c2 = binomial(2 * n,     n );           /* C(2n   ,  n   ) */
 
     /* Multiply the factors */
     return power_of_two * c1 * c2;

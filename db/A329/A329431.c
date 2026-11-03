@@ -10,13 +10,15 @@
  *            coefficients of p(n,x) by rows
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 36, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 struct poly {
     size_t len;   /* number of coefficients (degree + 1) */
@@ -36,7 +38,7 @@ ensure_polys(idx_t up_to_row)
     /* --- init row 0 (constant 1) ------------------------------------- */
     if (poly_count == 0) {
         polys[0].len = 1;
-        polys[0].coeff = (seq_t *)malloc(sizeof(seq_t));
+        polys[0].coeff = mem_new(seq_t, 1);
         polys[0].coeff[0] = (seq_t)1;
         poly_count = 1;
         cum_starts[0] = 0;          /* start of row 0   */
@@ -46,7 +48,7 @@ ensure_polys(idx_t up_to_row)
     /* --- init row 1 (coefficients 2,1) --------------------------------- */
     if (poly_count == 1) {
         polys[1].len = 2;
-        polys[1].coeff = (seq_t *)malloc(sizeof(seq_t) * 2);
+        polys[1].coeff = mem_new(seq_t, 2);
         polys[1].coeff[0] = (seq_t)2;   /* constant term  */
         polys[1].coeff[1] = (seq_t)1;   /* coefficient of x */
         poly_count = 2;
@@ -60,7 +62,7 @@ ensure_polys(idx_t up_to_row)
 
         /* degree doubles; new length = 2*prev_len - 1 */
         size_t   new_len  = 2 * prev_len - 1;
-        seq_t   *new_coeff = (seq_t *)calloc(new_len, sizeof(seq_t));
+        seq_t   *new_coeff = mem_new(seq_t, new_len);
 
         /* convolution: (prev * prev) */
         for (size_t i = 0; i < prev_len; ++i) {

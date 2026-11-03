@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 33, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 50 terms through n = 474 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +38,8 @@ seq_t a(idx_t n)
     idx_t zeroOff  = n;          /* index representing difference 0 */
 
     /* DP tables: 8 states (each 3‑bit suffix) × stride differences */
-    seq_t *cur = (seq_t *)calloc(8 * stride, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(8 * stride, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, 8 * stride);
+    seq_t *nxt = mem_new(seq_t, 8 * stride);
     if (!cur || !nxt)
         return (seq_t)0;   /* unlikely for realistic n */
 
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
         int nextDiff = curDiff + 1;
 
         /* Clear the next table */
-        memset(nxt, 0, 8 * stride * sizeof(seq_t));
+        mem_set(nxt, 0, 8 * stride * sizeof(seq_t));
 
         /* Process all states and all possible differences */
         for (idx_t s = 0; s < 8; ++s) {
@@ -94,7 +97,7 @@ seq_t a(idx_t n)
     for (idx_t s = 0; s < 8; ++s)
         result += cur[s * stride + zeroOff];
 
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return result;
 }

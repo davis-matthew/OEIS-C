@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor(7*n^2/48)
  * Range:     u8 n <= 41, u16 n <= 670, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 81 terms through n = 964 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

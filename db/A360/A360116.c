@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 iff for every prime factor p of n, the 2‑adic valuation
  *            of p‑1 is less than or equal to that of n‑1; otherwise a(n) = 0
- * Range:     u8 n <= 9846, u16 n <= 9846, u32 n <= 9846, u64 n <= 9846,
- *            u128 n <= 9846, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 136 terms through n = 9846 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

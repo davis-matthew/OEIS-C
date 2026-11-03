@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_special_prime_power
+ * Validated: standard, pass, 77 terms through n = 9455 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/has_special_prime_power.h"
+#include "../utils/mem.h"
+
+/* Tests whether k contains a prime power p^e with e>1 and e≠p.  */
+static bool has_special_prime_power(idx_t k, const idx_t *spf)
+{
+    while (k > 1)
+    {
+        idx_t p = spf[k];
+        idx_t e = 0;
+        while (k % p == 0) { k /= p; ++e; }
+        if (e > 1 && e != p) return true;
+    }
+    return false;
+}
 
 /* Smallest prime factor sieve for the numbers 0 .. limit. */
 static void compute_spf(idx_t limit, idx_t **out)
@@ -85,7 +99,7 @@ seq_t a(idx_t n)
             if (seq_len == seq_cap)
             {
                 seq_cap = seq_cap ? seq_cap * 2 : 4;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
                 if (!seq) exit(1);
             }
             seq[seq_len++] = (seq_t)next;

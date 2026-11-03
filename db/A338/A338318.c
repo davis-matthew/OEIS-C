@@ -10,7 +10,8 @@
  *            factorisation with pairwise gcd checks
  * Range:     u8 n <= 32, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --- configuration ------------------------------------------------------ */
 #define SIEVE_LIMIT      10000000U   /* 10 million, ample for n up to ~10k */
@@ -81,7 +83,7 @@ static void grow_cache(size_t required) {
     if (required <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < required) new_cap *= 2;
-    seq_t *new_arr = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) exit(1);
     cache = new_arr;
     cache_cap = new_cap;

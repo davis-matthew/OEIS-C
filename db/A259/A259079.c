@@ -9,13 +9,15 @@
  *            Initial terms: a(1)=280, a(2)=373212840, a(3)=497012764340408
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 24 terms through n = 150 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t capacity = 0;
@@ -28,9 +30,9 @@ static void ensure_capacity(idx_t needed)
     while (newcap < (size_t)needed) newcap *= 2;
 
     if (cache == NULL)
-        cache = (seq_t *)malloc(newcap * sizeof(seq_t));
+        cache = mem_new(seq_t, newcap);
     else
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
 
     if (cache == NULL) abort();   /* allocation failure */
     capacity = newcap;

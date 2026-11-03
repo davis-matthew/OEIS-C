@@ -9,7 +9,8 @@
  *            = 1
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 50, u64 n <= 108,
  *            u128 n <= 228, big any n
- * Helpers:   a001028_z
+ * Validated: standard, pass, 54 terms through n = 6206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a001028_z.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *a001028_z(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *cache = 0;
 static idx_t cache_len = 0;

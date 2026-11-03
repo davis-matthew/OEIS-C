@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *sum_cache = NULL;    /* cache of a(n) values */
 static size_t cache_len = 0;       /* largest n for which sum_cache[n] is computed */
@@ -44,7 +46,7 @@ static void ensure_cache(size_t n)
     /* First time: initialise base cases. */
     if (cache_len == 0) {
         /* Allocate for n=0 */
-        sum_cache = (seq_t*)malloc(sizeof(seq_t));
+        sum_cache = mem_new(seq_t, 1);
         if (!sum_cache) { /* allocation should succeed in the test harness */
             abort();
         }
@@ -60,7 +62,7 @@ static void ensure_cache(size_t n)
             return;
         }
 
-        sum_cache = (seq_t*)realloc(sum_cache, sizeof(seq_t) * 2);
+        sum_cache = mem_resize(seq_t, sum_cache, 2);
         if (!sum_cache) abort();
         /* sum of dp_prev */
         seq_t total = 0;
@@ -93,7 +95,7 @@ static void ensure_cache(size_t n)
         /* Resize cache if needed */
         if (cache_len + 1 >= (size_t)(1<<30)) ; /* never reached in tests */
         else {
-            seq_t *tmp = (seq_t*)realloc(sum_cache, sizeof(seq_t) * (cache_len + 2));
+            seq_t *tmp = mem_resize(seq_t, sum_cache, (cache_len + 2));
             if (!tmp) abort();
             sum_cache = tmp;
         }

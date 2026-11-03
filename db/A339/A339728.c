@@ -10,7 +10,8 @@
  *            3*V_{k-1} - V_{k-2}
  * Range:     u8 n <= 7, u16 n <= 160, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, jacobi_symbol, mul64
+ * Validated: standard, pass, 63 terms through n = 978 (2026-11-03)
+ * Helpers:   is_prime, mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,32 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/jacobi_symbol.h"
-#include "../utils/mul64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /* Compute V(n) modulo m for the Lucas sequence with a = 3, b = 1. */
 static seq_t V_mod(uint64_t m, uint64_t n)
@@ -38,23 +63,23 @@ static seq_t V_mod(uint64_t m, uint64_t n)
     while (e) {
         if (e & 1) {
             struct Mat t;
-            t.a00 = (mul64(res.a00, base.a00, m) + mul64(res.a01, base.a10, m)) % m;
-            t.a01 = (mul64(res.a00, base.a01, m) + mul64(res.a01, base.a11, m)) % m;
-            t.a10 = (mul64(res.a10, base.a00, m) + mul64(res.a11, base.a10, m)) % m;
-            t.a11 = (mul64(res.a10, base.a01, m) + mul64(res.a11, base.a11, m)) % m;
+            t.a00 = (mulmod(res.a00, base.a00, m) + mulmod(res.a01, base.a10, m)) % m;
+            t.a01 = (mulmod(res.a00, base.a01, m) + mulmod(res.a01, base.a11, m)) % m;
+            t.a10 = (mulmod(res.a10, base.a00, m) + mulmod(res.a11, base.a10, m)) % m;
+            t.a11 = (mulmod(res.a10, base.a01, m) + mulmod(res.a11, base.a11, m)) % m;
             res = t;
         }
         struct Mat t;
-        t.a00 = (mul64(base.a00, base.a00, m) + mul64(base.a01, base.a10, m)) % m;
-        t.a01 = (mul64(base.a00, base.a01, m) + mul64(base.a01, base.a11, m)) % m;
-        t.a10 = (mul64(base.a10, base.a00, m) + mul64(base.a11, base.a10, m)) % m;
-        t.a11 = (mul64(base.a10, base.a01, m) + mul64(base.a11, base.a11, m)) % m;
+        t.a00 = (mulmod(base.a00, base.a00, m) + mulmod(base.a01, base.a10, m)) % m;
+        t.a01 = (mulmod(base.a00, base.a01, m) + mulmod(base.a01, base.a11, m)) % m;
+        t.a10 = (mulmod(base.a10, base.a00, m) + mulmod(base.a11, base.a10, m)) % m;
+        t.a11 = (mulmod(base.a10, base.a01, m) + mulmod(base.a11, base.a11, m)) % m;
         base = t;
         e >>= 1;
     }
 
     /* V(n) = res*a1 + res*a0  with a1=3, a0=2 */
-    uint64_t v1 = (mul64(res.a10, 3 % m, m) + mul64(res.a11, 2 % m, m)) % m;
+    uint64_t v1 = (mulmod(res.a10, 3 % m, m) + mulmod(res.a11, 2 % m, m)) % m;
     return (seq_t)v1;
 }
 
@@ -69,10 +94,10 @@ static void cache_append(seq_t val)
 {
     if (cache_cap == 0) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (cache_len == cache_cap) {
         cache_cap *= 2;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_len++] = val;
 }

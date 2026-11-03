@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   divisor_count_u64, spiral_number_from_coords
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,32 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/spiral_number_from_coords.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static seq_t spiral_number_from_coords(int64_t x, int64_t y)
+{
+    if (x == 0 && y == 0)
+        return (seq_t)1;
+    uint64_t ax = x >= 0 ? (uint64_t)x : (uint64_t)(-x);
+    uint64_t ay = y >= 0 ? (uint64_t)y : (uint64_t)(-y);
+    uint64_t r = ax > ay ? ax : ay;
+    uint64_t t = 2 * r;
+    uint64_t m = (2 * r + 1) * (2 * r + 1);
+    uint64_t offset;
+
+    if (y == -(int64_t)r) {                /* bottom side */
+        offset = (uint64_t)r - (uint64_t)x;
+    } else if (x == -(int64_t)r) {          /* left side */
+        offset = t + (uint64_t)(y + (int64_t)r);
+    } else if (y == (int64_t)r) {           /* top side */
+        offset = 2 * t + (uint64_t)(r + x);
+    } else {                                /* right side */
+        offset = 3 * t + (uint64_t)(r - y);
+    }
+    return (seq_t)(m - offset);
+}
 
 /* ------------------------------------------------------------------ */
 /*  Helper: integer square root for uint64_t                           */
@@ -115,7 +140,7 @@ static size_t seq_cap  = 0;
 static void grow_seq_arr(void)
 {
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-    seq_t *na = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *na = mem_resize(seq_t, seq_arr, new_cap);
     if (!na)
         exit(1);
     seq_arr = na;
@@ -133,7 +158,7 @@ seq_t a(idx_t n)
     /* Initialise on first call */
     if (seq_len == 0) {
         seq_cap = 16;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         if (!seq_arr)
             exit(1);
         seq_arr[0] = (seq_t)1;   /* a(1) = 1 */
@@ -178,7 +203,7 @@ seq_t a(idx_t n)
                         continue;
                 }
                 if (divcnt[candIdx] == 0) {
-                    divcnt[candIdx] = (uint16_t)divisor_count_u64((uint64_t)cand);
+                    divcnt[candIdx] = (uint16_t)num_divisors((uint64_t)cand);
                 }
                 if (divcnt[candIdx] == curDiv)
                     continue;
@@ -209,7 +234,7 @@ seq_t a(idx_t n)
                         continue;
                 }
                 if (divcnt[candIdx] == 0) {
-                    divcnt[candIdx] = (uint16_t)divisor_count_u64((uint64_t)cand);
+                    divcnt[candIdx] = (uint16_t)num_divisors((uint64_t)cand);
                 }
                 if (divcnt[candIdx] == curDiv)
                     continue;
@@ -240,7 +265,7 @@ seq_t a(idx_t n)
                         continue;
                 }
                 if (divcnt[candIdx] == 0) {
-                    divcnt[candIdx] = (uint16_t)divisor_count_u64((uint64_t)cand);
+                    divcnt[candIdx] = (uint16_t)num_divisors((uint64_t)cand);
                 }
                 if (divcnt[candIdx] == curDiv)
                     continue;
@@ -271,7 +296,7 @@ seq_t a(idx_t n)
                         continue;
                 }
                 if (divcnt[candIdx] == 0) {
-                    divcnt[candIdx] = (uint16_t)divisor_count_u64((uint64_t)cand);
+                    divcnt[candIdx] = (uint16_t)num_divisors((uint64_t)cand);
                 }
                 if (divcnt[candIdx] == curDiv)
                     continue;

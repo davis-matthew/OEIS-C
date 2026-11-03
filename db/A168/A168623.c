@@ -8,14 +8,16 @@
  * Formula:   a(n) = binomial(r,c) * ( (c==0||c==r)?1:9 ), where r and c are
  *            the row and column of the flat index n in the triangle read by
  *            rows
- * Range:     u8 n <= 30, u16 n <= 141, u32 n <= 541, u64 n <= 1325,
+ * Range:     u8 n <= 30, u16 n <= 141, u32 n <= 542, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1285 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

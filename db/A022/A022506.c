@@ -12,7 +12,8 @@
  *            the digit
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   digit_len, get_digits, pow10
+ * Validated: standard, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   get_digits, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,21 @@
 /* Included utilities for digit handling and power of ten */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/digit_len.h"
+#include <stddef.h>
+#include <stdbool.h>
 #include "../utils/get_digits.h"
-#include "../utils/pow10.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Build next term by describing the current term from the right. */
 static seq_t describe_right(seq_t x)
@@ -32,7 +45,7 @@ static seq_t describe_right(seq_t x)
     static size_t  digit_buf_cap = 0;
 
     /* Estimate required buffer size: number of digits of x plus one. */
-    size_t est_len = digit_len(x) + 1;
+    size_t est_len = num_digits(x) + 1;
     if (digit_buf_cap < est_len) {
         /* Cast required for C++ compatibility. */
         uint8_t *tmp = (uint8_t *)realloc(digit_buf, est_len * sizeof(uint8_t));
@@ -59,7 +72,7 @@ static seq_t describe_right(seq_t x)
         seq_t freq  = (seq_t)count;                     /* frequency */
         seq_t group = freq * ((seq_t)10) + (seq_t)curr; /* concatenate */
 
-        int group_len   = digit_len(freq) + 1;           /* digits in group */
+        int group_len   = num_digits(freq) + 1;           /* digits in group */
         seq_t pow10d    = pow10((idx_t)group_len);      /* 10^group_len   */
 
         result = result * pow10d + group;               /* append group   */
@@ -76,7 +89,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache for a(0)=0. */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;            /* out‑of‑memory fallback */
         cache[0] = (seq_t)0;
         cache_len = 1;
@@ -91,7 +104,7 @@ seq_t a(idx_t n)
         seq_t next  = describe_right(prev);
 
         /* Resize cache. */
-        seq_t *tmp = (seq_t *)realloc(cache, (i + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (i + 1));
         if (!tmp) return (seq_t)0;            /* out‑of‑memory fallback */
         cache = tmp;
 

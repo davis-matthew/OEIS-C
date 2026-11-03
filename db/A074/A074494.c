@@ -8,6 +8,7 @@
  * Formula:   a(n) = 3*n * 2^(n-2) - 1 for n > 1, a(1) = 2
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 27, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

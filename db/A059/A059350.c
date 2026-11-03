@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_uint64
+ * Validated: standard, pass, 71 terms through n = 950 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* Euclid's algorithm for 64‑bit unsigned integers. */
 
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
             continue;
 
         /* Check whether 2 is a 38‑th power residue modulo p. */
-        uint64_t g   = gcd_uint64(38ULL, p - 1);
+        uint64_t g   = gcd_u64(38ULL, p - 1);
         uint64_t exp = (p - 1) / g;
         seq_t residue = mod_pow_seq((seq_t)2, exp, (seq_t)p);
 
@@ -112,8 +114,7 @@ seq_t a(idx_t n)
             /* Append to our cache. */
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 16;
-                cache = (seq_t *)realloc(cache,
-                                         cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)p;
         }

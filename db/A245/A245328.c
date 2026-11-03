@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, frac
  * Formula:   not stated
- * Range:     u8 n <= 4095, u16 n <= 9500, u32 n <= 9500, u64 n <= 9500,
- *            u128 n <= 9500, big any n
- * Helpers:   none
+ * Range:     u8 n <= 4095, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 116 terms through n = 9500 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Ptrs to cached numerator and denominator arrays.
  * The arrays are grown lazily when a larger index is requested.
@@ -50,8 +52,8 @@ static void ensure_capacity(idx_t n)
         new_cap = n + 1;
 
     /* Allocate new larger arrays */
-    seq_t *tmp_num = (seq_t*)malloc(new_cap * sizeof(seq_t));
-    seq_t *tmp_den = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp_num = mem_new(seq_t, new_cap);
+    seq_t *tmp_den = mem_new(seq_t, new_cap);
 
     if (!tmp_num || !tmp_den) {
         /* Allocation failed – abort on a build that expects a valid result */
@@ -59,10 +61,10 @@ static void ensure_capacity(idx_t n)
     }
 
     if (num) {
-        memcpy(tmp_num, num, cache_cap * sizeof(seq_t));
-        memcpy(tmp_den, den, cache_cap * sizeof(seq_t));
-        free(num);
-        free(den);
+        mem_copy(tmp_num, num, cache_cap * sizeof(seq_t));
+        mem_copy(tmp_den, den, cache_cap * sizeof(seq_t));
+        mem_free(num);
+        mem_free(den);
     }
 
     /* Zero‑initialize the new slots. */

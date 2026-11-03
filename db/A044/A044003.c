@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 1298, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_adjacent_08
+ * Validated: standard, pass, 57 terms through n = 8808 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/has_adjacent_08.h"
+#include "../utils/mem.h"
+
+static inline int has_adjacent_08(idx_t n)
+{
+    /* Check whether decimal representation of n has adjacent 0 and 8
+       (in either order). */
+    while (n >= 10) {
+        uint8_t low  = (uint8_t)(n % 10);
+        uint8_t high = (uint8_t)((n / 10) % 10);
+        if (((low == 0) && (high == 8)) || ((low == 8) && (high == 0)))
+            return 1;
+        n /= 10;
+    }
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +54,7 @@ seq_t a(idx_t n)
             /* Ensure sufficient capacity. */
             if (len == cap) {
                 cap = cap ? (cap * 2) : 8;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = (seq_t)next;
         }

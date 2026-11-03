@@ -8,7 +8,8 @@
  *            r(k) is the k‑th nonprime integer (1,4,6,8,9,10,…)
  * Range:     i8 n <= 5, i16 n <= 12, i32 n <= 24, i64 n <= 48, i128 n <= 98,
  *            big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 45 terms through n = 963 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* memoised values of a(n) (0‑based: a(1) is stored at a[0]) */
 static seq_t *a_cache = NULL;
@@ -36,7 +38,7 @@ static void grow_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need) new_cap <<= 1;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     cache_cap = new_cap;
 }
 

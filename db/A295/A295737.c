@@ -9,12 +9,14 @@
  *            a(0)=1, a(1)=-1, a(2)=-1, a(3)=2
  * Range:     i8 n <= 10, i16 n <= 20, i32 n <= 43, i64 n <= 89, i128 n <= 182,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 1850 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External function to compute the nth term of OEIS sequence A295737 */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* This function may be called multiple times with arbitrary n. */
     if (!cache) {
         size_t init_cap = (n < 4 ? 4 : n + 1);
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         cache_cap = init_cap;
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)-1;
@@ -42,10 +44,10 @@ seq_t a(idx_t n)
         if (n >= cache_cap) {
             size_t new_cap = cache_cap * 2;
             if (new_cap <= n) new_cap = n + 1;
-            seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, new_cap);
             for (idx_t i = 0; i <= max_computed; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
             cache = new_cache;
             cache_cap = new_cap;
         }

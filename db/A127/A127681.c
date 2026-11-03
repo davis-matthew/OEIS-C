@@ -7,7 +7,8 @@
  * Formula:   a(0) = 1, a(n+1) = Σ_{k=0}^n a(n-k) * a(⌈k/2⌉)
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 29, u64 n <= 58, u128 n <= 115,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 2485 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* The function is memoised for arbitrary‑precision or fixed‑width
    integer types.  No external helper functions are used. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state for the memoised cache */
 static seq_t *cache = NULL;          /* pointer to stored a(n) values      */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t max_n)
     if (capacity <= max_n) {
         idx_t old_cap = capacity;
         idx_t new_cap = max_n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) exit(1);            /* allocation failed            */
         cache   = tmp;
         capacity = new_cap;

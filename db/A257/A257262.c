@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 9361, u32 n <= 9361, u64 n <= 9361,
  *            u128 n <= 9361, big any n
- * Helpers:   good_factorial_rep
+ * Validated: standard, pass, 90 terms through n = 9314 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/good_factorial_rep.h"
+#include "../utils/mem.h"
+
+/* Return true if x in factorial base has at least one '1' digit
+   and no '2' digits. */
+static bool good_factorial_rep(seq_t x)
+{
+    seq_t r = x;
+    bool has_one = false;
+    idx_t k = 1;                     /* position counter (1‑based) */
+
+    while (r > 0)
+    {
+        seq_t base = (seq_t)(k + 1);  /* base for this position */
+        seq_t digit = r % base;
+        if (digit == (seq_t)2)       /* digit 2 must not appear */
+            return false;
+        if (digit == (seq_t)1)       /* record presence of 1 */
+            has_one = true;
+        r /= base;
+        ++k;
+    }
+    return has_one;                  /* needs at least one 1 */
+}
 
 /* Ensure the dynamic array has space for at least 'need' elements. */
 static void ensure_capacity(size_t need, size_t *cap, seq_t **array)
@@ -32,7 +55,7 @@ static void ensure_capacity(size_t need, size_t *cap, seq_t **array)
     size_t newcap = (*cap) ? (*cap << 1) : 8;
     while (newcap < need)
         newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*array, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *array, newcap);
     if (!tmp)
         abort();                      /* allocation failure */
     *array = tmp;

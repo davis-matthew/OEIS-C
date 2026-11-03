@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   mul_mod64
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mul_mod64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 static const idx_t PRIMES_LIMIT = 2000000;   /* large enough for n≈10000 */
 
@@ -59,8 +61,8 @@ static uint64_t powmod64(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t res = 1 % mod;
     base %= mod;
     while (exp) {
-        if (exp & 1) res = mul_mod64(res, base, mod);
-        base = mul_mod64(base, base, mod);
+        if (exp & 1) res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return res;
@@ -86,7 +88,7 @@ static bool is_prime_uint64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         build_primes();
         seq_cap = 32;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;
         seq_len = 1;
         prime_used = (bool*)calloc(prime_cnt, sizeof(bool));
@@ -164,7 +166,7 @@ seq_t a(idx_t n)
 
         if (seq_len == seq_cap) {
             seq_cap <<= 1;
-            seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = chosen;
     }

@@ -8,13 +8,16 @@
  * Formula:   a(n) = Sum_{k=1..n} (-1)^(n-k) * k * mu(k)^2
  * Range:     i8 n <= 36, i16 n <= 572, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   mobius
+ * Validated: standard, pass, 79 terms through n = 9695 (2026-11-03)
+ * Helpers:   mem, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/mobius.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     if (n > len)
     {
         /* Allocate or grow the array to hold n terms */
-        term = (seq_t *)realloc(term, (size_t)n * sizeof(seq_t));
+        term = mem_resize(seq_t, term, (size_t)n);
 
         /* Compute new terms using the recurrence
            a(n) = -a(n-1) + f(n), where f(n) = n if n is squarefree,

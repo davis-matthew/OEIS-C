@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Prime generation – builds enough primes for the given n            */
@@ -87,7 +89,7 @@ static void ensure_cache_size(size_t needed)
     if (cache_cap >= needed)
         return;
 
-    seq_t *tmp = (seq_t *)realloc(a_cache, needed * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, needed);
     if (!tmp) return;               /* OOM – unlikely in tests */
     a_cache = tmp;
     cache_cap = needed;

@@ -12,7 +12,8 @@
  *            for which the sum is an integer
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 19, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   factor_u64, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/factor_u64.h"   /* factor_u64() */
-#include "../utils/big_pow.h"      /* big_pow() */
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache of computed a(n) values   */
 static size_t cache_size = 0;    /* number of terms stored          */
@@ -31,7 +33,7 @@ static size_t cache_cap = 0;     /* allocated capacity              */
 static void ensure_cache_cap(size_t new_cap) {
     if (new_cap <= cache_cap) return;
     size_t cap = new_cap > 8 ? new_cap : 8;
-    seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cap);
     if (!tmp) abort();               /* memory failure */
     cache = tmp;
     cache_cap = cap;
@@ -69,12 +71,12 @@ seq_t a(idx_t n) {
                 seq_t e  = (seq_t)exps[i];
 
                 /* p^{2e} + 1 */
-                seq_t p2e = big_pow(p, (seq_t)(2 * exps[i]));
+                seq_t p2e = ipow(p, (seq_t)(2 * exps[i]));
                 seq_t term = p2e + 1;
                 numerator *= term;
 
                 /* p^e  */
-                seq_t pe = big_pow(p, e);
+                seq_t pe = ipow(p, e);
                 denominator *= pe;
             }
 

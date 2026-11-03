@@ -12,7 +12,8 @@
  *            -65824*a(n-13) -9889*a(n-14) +5080*a(n-15) -400*a(n-16) for n>17
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Function prototype supplied by the build */
 extern seq_t a(idx_t n);
@@ -111,7 +113,7 @@ static void init_cache(idx_t nmax)
     if (cache_size >= nmax) return;
 
     /* Extend cache array */
-    seq_t *tmp = (seq_t *)realloc(cache, (nmax + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (nmax + 1));
     if (!tmp) abort();                 /* out of memory */
     cache = tmp;
     /* ensure new entries are zero-initialized */

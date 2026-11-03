@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *qual_primes = NULL;      /* array of qualifying primes */
 static idx_t qual_count   = 0;          /* number of primes currently stored */
@@ -65,7 +67,7 @@ static void generate_upto(idx_t limit) {
     for (idx_t i = 2; i <= limit; ++i)
         if (!composite[i]) ++total_primes;
 
-    seq_t *temp = (seq_t *)malloc(sizeof(seq_t) * total_primes);
+    seq_t *temp = mem_new(seq_t, total_primes);
     if (!temp) exit(1);
 
     /* filter primes that contain 2 or 3 */
@@ -77,7 +79,7 @@ static void generate_upto(idx_t limit) {
     }
 
     /* replace old cache */
-    free(qual_primes);
+    mem_free(qual_primes);
     qual_primes = temp;
     qual_count = pos;
     current_limit = limit;

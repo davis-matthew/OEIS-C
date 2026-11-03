@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   digit_product, is_palindrome
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   digit_product, is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/digit_product.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 /* Test whether a positive integer has no zero digit and its digit
    product is a palindrome. */
@@ -32,7 +34,7 @@ static bool is_good(idx_t x)
     seq_t prod = digit_product((seq_t)x);
     if (prod == 0)
         return false;
-    return is_palindrome(prod, 10);
+    return is_palindrome_base(prod, 10);
 }
 
 seq_t a(idx_t n)
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         {
             /* grow cache */
             size_t new_len = cache_len + 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_len);
             if (!tmp)
                 return 0; /* allocation failure */
             cache = tmp;

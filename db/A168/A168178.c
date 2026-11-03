@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^3*(n^2 + 1)/2
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 97, u64 n <= 595, u128 n <= 595,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 526 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

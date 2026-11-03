@@ -8,12 +8,14 @@
  *            b(n)=b(n-2)+b(n-3)+b(n-4)
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 29, u64 n <= 58, u128 n <= 116,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 892 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     idx_t need_len = n + 2;
     if (need_len > b_len) {
         /* Allocate or grow the array. */
-        seq_t *tmp = (seq_t *)realloc(b, need_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, b, need_len);
         if (!tmp)                 /* allocation failed; return 0 */
             return (seq_t)0;
         b = tmp;

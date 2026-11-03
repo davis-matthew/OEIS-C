@@ -9,13 +9,14 @@
  *            with two pointers
  * Range:     u8 n <= 3, u16 n <= 25, u32 n <= 1008, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a605_isqrt
+ * Validated: standard, pass, 54 terms through n = 9986 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a605_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t N = (uint64_t)n;
@@ -24,7 +25,7 @@ seq_t a(idx_t n) {
     uint64_t x;
     for (x = 0; x <= N; x++) {
         uint64_t R = N2 - x * x;
-        uint64_t z = a605_isqrt(R);
+        uint64_t z = isqrt_u64(R);
         uint64_t c = 2 * z + 1;
         uint64_t y;
         for (y = 1; y * y <= R; y++) {

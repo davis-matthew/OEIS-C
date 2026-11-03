@@ -8,9 +8,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = the n-th number whose Zeckendorf representation (using
  *            Fibonacci numbers 1,2,3,5,8,13,...) has an even number of 1's
- * Range:     u8 n <= 128, u16 n <= 8764, u32 n <= 8764, u64 n <= 8764,
- *            u128 n <= 8764, big any n
- * Helpers:   none
+ * Range:     u8 n <= 128, u16 n <= 10002, u32 n <= 10002, u64 n <= 10002,
+ *            u128 n <= 10002, big any n
+ * Validated: standard, pass, 80 terms through n = 8764 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Local helpers for Fibonacci numbers used in Zeckendorf
    representation.  The array grows as needed. */
@@ -31,7 +33,7 @@ static void init_fib_array(void)
 {
     if (fib_cnt) return;
     fib_cap = 4;
-    fib = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+    fib = mem_new(seq_t, fib_cap);
     fib[0] = (seq_t)1;
     fib[1] = (seq_t)2;
     fib_cnt = 2;
@@ -53,7 +55,7 @@ static void extend_fib_until(seq_t limit)
 
         if (fib_cnt == fib_cap) {
             fib_cap = fib_cap ? fib_cap * 2 : 4;
-            fib = (seq_t *)realloc(fib, fib_cap * sizeof(seq_t));
+            fib = mem_resize(seq_t, fib, fib_cap);
         }
         fib[fib_cnt++] = (seq_t)next;
     }
@@ -98,7 +100,7 @@ static void ensure_cache_size(idx_t need)
         if (has_even_zeckendorf_parity(candidate)) {
             if (cache_sz == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 8;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_sz++] = candidate;
         }

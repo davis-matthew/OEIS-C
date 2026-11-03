@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 522, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_uint64, lcm_uint64
+ * Validated: standard, pass, 107 terms through n = 9995 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/gcd_uint64.h"
-#include "../utils/lcm_uint64.h"
+#include <stdlib.h>
+#include "../utils/gcd_u64.h"
+
+static uint64_t lcm_uint64(uint64_t a, uint64_t b)
+{
+    return a / gcd_u64(a, b) * b;
+}
 
 #define PRIME_LIMIT 100000   /* sufficient for factoring n ≤ 10 000 */
 

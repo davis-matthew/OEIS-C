@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 513, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 824 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Upper bound for n that will be queried (the offset is 2). */
 #define NMAX 100000          /* safe for n up to about 10 000 */
@@ -54,7 +56,7 @@ static void precompute(void)
     if (initialized) return;
 
     build_spf();
-    best = (seq_t *)calloc(NMAX + 1, sizeof(seq_t));
+    best = mem_new(seq_t, NMAX + 1);
 
     for (size_t x = 2; x <= XMAX; ++x) {
         size_t temp = x;

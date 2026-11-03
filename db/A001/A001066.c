@@ -11,15 +11,27 @@
  *            growing bound, sorting and deduplicating
  * Range:     u8 n <= 55, u16 n <= 1036, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a001066_cmp, a001066_push
+ * Validated: standard, pass, 78 terms through n = 9918 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a001066_cmp.h"
-#include "../utils/a001066_push.h"
+
+static int a001066_cmp(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p;
+    uint64_t y = *(const uint64_t *)q;
+    if (x < y) return -1;
+    if (x > y) return 1;
+    return 0;
+}
+
+static void a001066_push(uint64_t *v, size_t *cnt, uint64_t d, uint64_t limit) {
+    if (d <= limit) v[(*cnt)++] = d;
+    if (2 * d <= limit) v[(*cnt)++] = 2 * d;
+}
 
 seq_t a(idx_t n) {
     static const uint64_t excep[5] = {14, 52, 78, 133, 248};

@@ -8,12 +8,14 @@
  *            T(j,k-1), k>1, T(n,0) = (-1)^n * n!
  * Range:     i8 n <= 5, i16 n <= 6, i32 n <= 10, i64 n <= 17, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The following function is called for arbitrary n >= 0.
    It uses static arrays to memoise the values of T(n,k)
@@ -34,14 +36,14 @@ seq_t a(idx_t n)
         idx_t new_cap = n + 1;
 
         /* reallocate all arrays to new_cap */
-        T0 = (seq_t *)realloc(T0, sizeof(seq_t) * new_cap);
-        T1 = (seq_t *)realloc(T1, sizeof(seq_t) * new_cap);
-        T2 = (seq_t *)realloc(T2, sizeof(seq_t) * new_cap);
-        T3 = (seq_t *)realloc(T3, sizeof(seq_t) * new_cap);
-        T4 = (seq_t *)realloc(T4, sizeof(seq_t) * new_cap);
-        T5 = (seq_t *)realloc(T5, sizeof(seq_t) * new_cap);
-        S_prev = (seq_t *)realloc(S_prev, sizeof(seq_t) * new_cap);
-        S_curr = (seq_t *)realloc(S_curr, sizeof(seq_t) * new_cap);
+        T0 = mem_resize(seq_t, T0, new_cap);
+        T1 = mem_resize(seq_t, T1, new_cap);
+        T2 = mem_resize(seq_t, T2, new_cap);
+        T3 = mem_resize(seq_t, T3, new_cap);
+        T4 = mem_resize(seq_t, T4, new_cap);
+        T5 = mem_resize(seq_t, T5, new_cap);
+        S_prev = mem_resize(seq_t, S_prev, new_cap);
+        S_curr = mem_resize(seq_t, S_curr, new_cap);
 
         /* zero‑initialize new slots */
         if (old_cap < new_cap) {

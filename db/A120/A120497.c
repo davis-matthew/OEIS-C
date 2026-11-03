@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the required function. */
 seq_t a(idx_t n);
@@ -67,7 +69,7 @@ static void precompute(uint64_t limit)
 {
     /* free old data */
     free(lp);   free(cnt);   free(divcnt);
-    free(seq);
+    mem_free(seq);
 
     /* allocate new data */
     lp = (uint64_t*)malloc((limit + 1) * sizeof(uint64_t));
@@ -110,7 +112,7 @@ static void precompute(uint64_t limit)
     }
 
     /* Build the sequence list */
-    seq = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
+    seq = mem_new(seq_t, (limit + 1));
     if (!seq) exit(EXIT_FAILURE);
     seq_len = 0;
     for (uint64_t i = 1; i <= limit; ++i) {

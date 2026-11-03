@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* constants -------------------------------------------------------------- */
 #define MAX_N_GLOBAL 20000     /* largest index we pre‑compute                */
@@ -71,7 +73,7 @@ static void precompute(void)
     }
 
     /* build a(n) table: a[n] = max{ j | ways[j] <= n }                    */
-    A_table = (seq_t*)malloc((MAX_N_GLOBAL + 1) * sizeof(seq_t));
+    A_table = mem_new(seq_t, (MAX_N_GLOBAL + 1));
     uint32_t running_max = 0;
     for (size_t n = 0; n <= (size_t)MAX_N_GLOBAL; ++n) {
         if (last_index[n] > running_max)

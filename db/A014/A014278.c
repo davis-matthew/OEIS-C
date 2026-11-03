@@ -9,12 +9,14 @@
  *            - x^p)^(-a(p)) (implicit definition)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 23, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Public interface -------------------------------------------------------- */
 seq_t a(idx_t n)
@@ -28,9 +30,9 @@ seq_t a(idx_t n)
     /* ---------- Initial allocation ------------------------------------- */
     if (max_n == 0) {
         max_n = 0;
-        at     = (seq_t*)malloc(sizeof(seq_t));      /* a[0] */
-        bt     = (seq_t*)malloc(sizeof(seq_t));      /* b[0] */
-        sigma  = (seq_t*)malloc(sizeof(seq_t));      /* sigma[0] */
+        at     = mem_new(seq_t, 1);      /* a[0] */
+        bt     = mem_new(seq_t, 1);      /* b[0] */
+        sigma  = mem_new(seq_t, 1);      /* sigma[0] */
 
         at[0]     = (seq_t)0;
         bt[0]     = (seq_t)1;      /* b(0) = 1  */
@@ -45,9 +47,9 @@ seq_t a(idx_t n)
         idx_t new_max = n;
 
         /* Reallocate to new size (new_max + 1) */
-        at =     (seq_t*)realloc(at,     (size_t)(new_max + 1) * sizeof(seq_t));
-        bt =     (seq_t*)realloc(bt,     (size_t)(new_max + 1) * sizeof(seq_t));
-        sigma =  (seq_t*)realloc(sigma,  (size_t)(new_max + 1) * sizeof(seq_t));
+        at =     mem_resize(seq_t, at, (size_t)(new_max + 1));
+        bt =     mem_resize(seq_t, bt, (size_t)(new_max + 1));
+        sigma =  mem_resize(seq_t, sigma, (size_t)(new_max + 1));
 
         /* Initialise new slots */
         for (idx_t i = old_max + 1; i <= new_max; ++i) {

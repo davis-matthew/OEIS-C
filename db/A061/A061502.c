@@ -12,12 +12,14 @@
  *            calls is supported
  * Range:     u8 n <= 19, u16 n <= 901, u32 n <= 1024, u64 n <= 1024,
  *            u128 n <= 1024, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 1019 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
         /* Allocate new arrays using malloc – seq_t is either an
            unsigned integer type or a typedef of a POD integer type,
            so raw allocation is safe.  No constructor is needed. */
-        seq_t *new_tau  = (seq_t *)malloc((new_n + 1) * sizeof(seq_t));
-        seq_t *new_pref = (seq_t *)malloc((new_n + 1) * sizeof(seq_t));
+        seq_t *new_tau  = mem_new(seq_t, (new_n + 1));
+        seq_t *new_pref = mem_new(seq_t, (new_n + 1));
         if (!new_tau || !new_pref) {
             /* allocation failed – abort */
             exit(EXIT_FAILURE);

@@ -9,12 +9,14 @@
  *            uses only unsigned Stirling numbers of the first kind
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 237 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function a(idx_t n) is specified to have external linkage.  */
 seq_t a(idx_t n)
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
     /* Initial allocation and base case a(0) = 1 */
     if (stirling == NULL) {
         /* Allocate space for at least one element (n = 0) */
-        stirling = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
-        values   = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+        stirling = mem_new(seq_t, (n + 1));
+        values   = mem_new(seq_t, (n + 1));
         if (stirling == NULL || values == NULL) {
             /* In a real code base we should handle allocation failure.
                Here we simply return 0, which will be caught by tests. */
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
     /* Extend the cache if necessary */
     if (n > max_n) {
         /* Resize arrays to hold entries up to n */
-        stirling = (seq_t *)realloc(stirling, sizeof(seq_t) * (n + 1));
-        values   = (seq_t *)realloc(values,   sizeof(seq_t) * (n + 1));
+        stirling = mem_resize(seq_t, stirling, (n + 1));
+        values   = mem_resize(seq_t, values, (n + 1));
         if (stirling == NULL || values == NULL) {
             return (seq_t)0;    /* Allocation failure */
         }

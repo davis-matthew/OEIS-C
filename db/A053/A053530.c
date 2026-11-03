@@ -8,13 +8,15 @@
  *            a(n-s-1), where w(2)=1 and w(k)=k for k>2
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 23, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* No additional headers besides those available in C99/C++11. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function below computes the OEIS sequence A053530.  It uses a
    static cache so that calls with arbitrary n are answered in O(n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : 64;
         if (new_cap < n + 1) new_cap = n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

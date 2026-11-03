@@ -9,18 +9,20 @@
  * Formula:   a(n) = 1 + Σ_{k=0..n} C(n,⌊k/2⌋) * (2*k - n)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 27, u64 n <= 58, u128 n <= 121,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* maximum value of ⌊k/2⌋ needed is ⌊n/2⌋ */
     idx_t max_r = n / 2;
-    seq_t *C = (seq_t*)malloc((max_r + 1) * sizeof(seq_t));
+    seq_t *C = mem_new(seq_t, (max_r + 1));
     if (!C) return 0; /* unlikely, but guard against OOM */
 
     /* compute binomial coefficients C(n,r) for 0 <= r <= max_r */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(C);
+    mem_free(C);
     /* pos should be >= neg; the final value is (pos - neg) + 1 */
     return pos - neg + 1;
 }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = n·(n+1)/2
  * Range:     u8 n <= 224, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gen_representable
+ * Validated: standard, pass, 86 terms through n = 9457 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,23 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gen_representable.h"
+
+/* recursive generation of representable sums */
+static void gen_representable(int idx, unsigned long long sum,
+                              unsigned long long *farr, int k,
+                              unsigned long long limit, bool *rep_arr)
+{
+    if (idx == k) {
+        if (sum <= limit)
+            rep_arr[sum] = true;
+        return;
+    }
+    /* without using current factorial */
+    gen_representable(idx + 1, sum, farr, k, limit, rep_arr);
+    /* with current factorial if it fits */
+    if (sum + farr[idx] <= limit)
+        gen_representable(idx + 1, sum + farr[idx], farr, k, limit, rep_arr);
+}
 
 /* limits */
 #define REP_LIMIT 2000000ULL   /* enough for the first 10000 terms */

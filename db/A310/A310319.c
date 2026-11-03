@@ -11,12 +11,14 @@
  *            a(6)=27, a(7)=24, a(8)=27, a(9)=39, a(10)=42 (OEIS A310319)
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[11] = {
     1,  /* a(0) */
@@ -43,7 +45,7 @@ static void ensure_capacity(idx_t needed)
     if (required <= cap) return;
     size_t new_cap = cap ? cap << 1 : required;
     if (new_cap < required) new_cap = required;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();                 /* allocation failed */
     cache = new_cache;
     cap   = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   has_adj_pair
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
    digits 0 and 1, but whose predecessor does not). */
 
 #include <stdbool.h>
-#include "../utils/has_adj_pair.h"
+
+static inline bool has_adj_pair(seq_t x) {
+    seq_t last = (seq_t)3;          /* sentinel > any base‑3 digit */
+    while (x > (seq_t)0) {
+        seq_t d = x % (seq_t)3;
+        if (last <= (seq_t)2) {
+            if ((last == (seq_t)0 && d == (seq_t)1) ||
+                (last == (seq_t)1 && d == (seq_t)0)) {
+                return true;
+            }
+        }
+        last = d;
+        x = x / (seq_t)3;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     if (n < (idx_t)1) return (seq_t)0;        /* undefined for n<1 */

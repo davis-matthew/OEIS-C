@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 73 terms through n = 935 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,10 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +33,7 @@ seq_t a(idx_t n)
 
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0; /* allocation failed */
     }
 
@@ -39,14 +43,14 @@ seq_t a(idx_t n)
         seq_t cand_seq = (seq_t)cand;
 
         /* compute 2^cand (mod cand_seq) */
-        seq_t r = mod_pow((seq_t)2, cand, cand_seq);
+        seq_t r = powmod((seq_t)2, cand, cand_seq);
         seq_t target = ((seq_t)16 % cand_seq);
 
         if (r == target) {  /* cand satisfies the congruence */
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
-                if (!tmp) { free(cache); cache = NULL; return 0; }
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
+                if (!tmp) { mem_free(cache); cache = NULL; return 0; }
                 cache = tmp;
             }
             cache[cache_len++] = cand_seq;

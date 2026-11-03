@@ -12,13 +12,15 @@
  *            + 56*3^(n-2) - 3 offset: 4 (so a(4) is the first term)
  * Range:     u8 none, u16 none, u32 n <= 5, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 12 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>          /* for bool, if needed */
-#include "../utils/big_pow.h" /* big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -29,11 +31,11 @@ seq_t a(idx_t n)
     seq_t exp = (seq_t)(n - 2);
 
     /* pre‑compute the powers */
-    seq_t p63 = big_pow((seq_t)63, exp);
-    seq_t p31 = big_pow((seq_t)31, exp);
-    seq_t p15 = big_pow((seq_t)15, exp);
-    seq_t p7  = big_pow((seq_t)7 , exp);
-    seq_t p3  = big_pow((seq_t)3 , exp);
+    seq_t p63 = ipow((seq_t)63, exp);
+    seq_t p31 = ipow((seq_t)31, exp);
+    seq_t p15 = ipow((seq_t)15, exp);
+    seq_t p7  = ipow((seq_t)7 , exp);
+    seq_t p3  = ipow((seq_t)3 , exp);
 
     /* compute the positive part */
     seq_t pos = (seq_t)465 * p63;

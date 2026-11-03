@@ -8,18 +8,19 @@
  *            Product_{k=1..n} (36 - 6/k))
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   a004994_gcd
+ * Validated: standard, pass, 31 terms through n = 633 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a004994_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     seq_t result = 1;
     for (idx_t i = 1; i <= n; i++) {
         seq_t si = (seq_t)i;
-        seq_t g = a004994_gcd(result, si);
+        seq_t g = gcd(result, si);
         if (g == 0) g = 1;
         seq_t rest = si / g;               /* rest divides 6*(6i-1) */
         if (rest == 0) rest = 1;

@@ -11,11 +11,13 @@
  *            (n^5+46*n^4+875*n^3+7118*n^2+23880*n+20160)/(8!/3!)
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

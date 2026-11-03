@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 28, u32 n <= 45, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t *keys;   /* keys (0 means empty) */
@@ -44,16 +46,16 @@ typedef struct {
 /* Create a new hash table with given capacity (must be power of two). */
 static void htable_init(HashTable *t, size_t cap) {
     t->cap = cap;
-    t->keys = (seq_t *)calloc(cap, sizeof(seq_t));
-    t->vals = (seq_t *)calloc(cap, sizeof(seq_t));
+    t->keys = mem_new(seq_t, cap);
+    t->vals = mem_new(seq_t, cap);
     t->inds = (size_t *)malloc(cap * sizeof(size_t));
     t->filled = 0;
 }
 
 /* Free memory owned by the table. */
 static void htable_free(HashTable *t) {
-    free(t->keys);
-    free(t->vals);
+    mem_free(t->keys);
+    mem_free(t->vals);
     free(t->inds);
 }
 

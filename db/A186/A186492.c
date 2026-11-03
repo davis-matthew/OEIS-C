@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 30, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Find the row r such that r*(r+1)/2 ≤ n < (r+1)*(r+2)/2.
    For the problem constraints r is small, so a simple loop suffices. */
@@ -42,10 +44,10 @@ seq_t a(idx_t n)
     uint64_t col  = N - start;             /* column index in this row */
 
     /* Allocate two rows of size row+1. */
-    seq_t *prev = (seq_t *)malloc((row + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((row + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (row + 1));
+    seq_t *curr = mem_new(seq_t, (row + 1));
     if (!prev || !curr) {
-        free(prev); free(curr);
+        mem_free(prev); mem_free(curr);
         return (seq_t)0; /* memory allocation failure */
     }
 
@@ -79,8 +81,8 @@ seq_t a(idx_t n)
     seq_t result = prev[col];
 
     /* Clean up. */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
 
     return result;
 }

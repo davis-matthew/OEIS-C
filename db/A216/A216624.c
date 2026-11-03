@@ -10,8 +10,9 @@
  *            gcd(c,d). Index n * (1‑based) is mapped to coordinates (i,j) by:
  *            * find smallest d such that d*(d+1)/2 >= n; * let k = n -
  *            (d-1)*d/2; // 1 ≤ k ≤ d * i = k; j = d - k + 1....
- * Range:     u8 n <= 2508, u16 n <= 9803, u32 n <= 9803, u64 n <= 9803,
- *            u128 n <= 9803, big any n
+ * Range:     u8 n <= 2508, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 9803 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,7 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"     /* gcd(seq_t, seq_t) */
+#include "../utils/gcd.h"
 
 /* Maximum number of divisors we will store for a single number.
    For n <= 10^9 this is more than sufficient (max ~1000). */

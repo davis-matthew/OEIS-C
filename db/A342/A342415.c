@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = phi(n) / gcd(phi(n), A003415(n))
- * Range:     u8 n <= 256, u16 n <= 9441, u32 n <= 9441, u64 n <= 9441,
- *            u128 n <= 9441, big any n
- * Helpers:   count_distinct_primes, factor_u64, gcd, phi
+ * Range:     u8 n <= 256, u16 n <= 12500, u32 n <= 12500, u64 n <= 12500,
+ *            u128 n <= 12500, big any n
+ * Validated: standard, pass, 109 terms through n = 9441 (2026-11-01)
+ * Helpers:   factor_u64, gcd, omega, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,12 @@
 /* A003415(n) is the arithmetic derivative of n             */
 
 #include <stdlib.h>
-#include "../utils/gcd.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/count_distinct_primes.h"
-#include "../utils/phi.h"
+#include "../utils/gcd.h"
+#include "../utils/omega.h"
+#include "../utils/totient.h"
 
 /* Compute the arithmetic derivative of n */
 static seq_t arithmetic_derivative(idx_t n)
@@ -27,7 +30,7 @@ static seq_t arithmetic_derivative(idx_t n)
     if (n <= 1) return 0;          /* derivative of 0 or 1 is defined as 0 */
 
     /* Determine number of distinct prime factors to size allocation */
-    size_t cnt = count_distinct_primes(n);
+    size_t cnt = omega(n);
     if (cnt == 0) return 0;       /* for n=1, but already handled */
 
     /* Allocate arrays for primes and exponents */
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
 {
     if (n == 0) return 0;                  /* undefined; return 0 as a fallback */
 
-    seq_t phi_val = phi(n);
+    seq_t phi_val = totient(n);
     seq_t deriv = arithmetic_derivative(n);
     seq_t g = gcd(phi_val, deriv);
     return phi_val / g;

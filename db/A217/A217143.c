@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} Bell(k)^2
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for Bell numbers and cumulative sums of squares */
 static seq_t *bell   = NULL;            /* Bell(k)            */
@@ -39,7 +41,7 @@ static idx_t  computed = (idx_t)-1;
 static void grow_seq_arr(seq_t **arr, idx_t *cap, idx_t min_cap)
 {
     if (min_cap > *cap) {
-        seq_t *tmp = (seq_t *)realloc(*arr, (size_t)min_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, (size_t)min_cap);
         if (!tmp) exit(EXIT_FAILURE);
         *arr = tmp;
         *cap = min_cap;
@@ -51,8 +53,8 @@ static void grow_stirling_arr(idx_t n)
 {
     if (n + 1 > S_cap) {
         idx_t old_cap = S_cap;
-        seq_t *tmp1 = (seq_t *)realloc(S_prev, (size_t)(n + 1) * sizeof(seq_t));
-        seq_t *tmp2 = (seq_t *)realloc(S_curr, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp1 = mem_resize(seq_t, S_prev, (size_t)(n + 1));
+        seq_t *tmp2 = mem_resize(seq_t, S_curr, (size_t)(n + 1));
         if (!tmp1 || !tmp2) exit(EXIT_FAILURE);
         /* zero‑initialize new slots */
         for (idx_t i = old_cap; i <= n; ++i) {

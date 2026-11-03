@@ -7,12 +7,14 @@
  * Formula:   a(n) = sum_{k=0..floor(n/2)} phi(n-2k+1)
  * Range:     u8 n <= 33, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External helper: φ(n) for n ≤ value of the local array.
    The array is filled by our own sieve and indexed as phi[n]. */
@@ -23,8 +25,8 @@ static idx_t phi_max = 0;
 static void recompute_phi(idx_t size)
 {
     /* Allocate fresh storage.  Previous data, if any, is discarded. */
-    free(phi);
-    phi = (seq_t *)malloc((size + 1) * sizeof(seq_t));
+    mem_free(phi);
+    phi = mem_new(seq_t, (size + 1));
     if (!phi)
         return;   /* allocation failure – never expected for small sizes */
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Helper: integer square root (floor of sqrt(n)) for small n */
 static uint64_t int_sqrt_uint64(uint64_t n)
@@ -44,15 +46,15 @@ static void cf_ensure_capacity(size_t need)
     size_t new_cap = cf_cache_cap == 0 ? 8 : cf_cache_cap * 2;
     if (new_cap < need)
         new_cap = need;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) {
         /* In a real implementation we would handle memory errors.
            For this problem we assume allocation succeeds. */
         return;
     }
     if (cf_cache) {
-        memcpy(new_cache, cf_cache, cf_cache_len * sizeof(seq_t));
-        free(cf_cache);
+        mem_copy(new_cache, cf_cache, cf_cache_len * sizeof(seq_t));
+        mem_free(cf_cache);
     }
     cf_cache = new_cache;
     cf_cache_cap = new_cap;

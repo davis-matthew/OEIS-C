@@ -11,6 +11,7 @@
  *            n*(8*k + 6) r = 5 : a(n) = n*(8*k + 8)*(k + 2)*(4*k +...
  * Range:     u8 n <= 11, u16 n <= 32, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
+ * Validated: standard, pass, 69 terms through n = 199 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

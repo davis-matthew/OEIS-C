@@ -11,7 +11,8 @@
  *            found. Indexed as in OEIS: a(1) = 8647
  * Range:     u8 none, u16 n <= 29, u32 n <= 1914, u64 n <= 1914,
  *            u128 n <= 1914, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 57 terms through n = 1808 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mul_mod64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
 
 /* multiply modulo 2^64 – used only for 64‑bit prime testing */
 
@@ -27,8 +29,8 @@ static inline uint64_t mod_pow64(uint64_t base, uint64_t exp, uint64_t mod)
 {
     uint64_t res = 1;
     while (exp) {
-        if (exp & 1) res = mul_mod64(res, base, mod);
-        base = mul_mod64(base, base, mod);
+        if (exp & 1) res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return res;
@@ -65,7 +67,7 @@ static bool is_prime_uint64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;

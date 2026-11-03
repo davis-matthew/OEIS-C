@@ -9,7 +9,8 @@
  *            k is neither squarefree nor a prime power
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, build_primes_upto
+ * Validated: standard, pass, 103 terms through n = 9418 (2026-11-01)
+ * Helpers:   build_primes_upto, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/smallest_prime_factor.h"
 
 static uint64_t *primes = NULL;      /* array of primes up to current limit   */
 static size_t    prime_cnt = 0;      /* number of primes in the array         */
@@ -84,7 +86,7 @@ a(idx_t n)
 
     for (uint64_t m = p_low + 1; m < p_high; ++m) {
         /* Skip primes; they are squarefree and prime powers. */
-        if (_smallest_prime_factor(m) == m)
+        if (smallest_prime_factor(m) == m)
             continue;
 
         uint64_t t       = m;
@@ -92,7 +94,7 @@ a(idx_t n)
         size_t   distinct  = 0;
 
         while (t > 1) {
-            uint64_t p = _smallest_prime_factor(t);
+            uint64_t p = smallest_prime_factor(t);
             int exp   = 0;
             while (t % p == 0) {
                 t /= p;

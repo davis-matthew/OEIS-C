@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 3684, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9588 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* popcount for 64‑bit values */
 static inline unsigned int popcount_u64(uint64_t x)
@@ -60,7 +62,7 @@ static void extend_prime_list(size_t new_cap)
 /* Ensure that odious_cache has at least new_cap slots. */
 static void extend_cache(size_t new_cap)
 {
-    seq_t *tmp = (seq_t *)realloc(odious_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, odious_cache, new_cap);
     if (!tmp) exit(1);          /* allocation failed */
     odious_cache = tmp;
     cache_cap = new_cap;

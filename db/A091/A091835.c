@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(n)!!
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 136 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root for uint64_t, used for trial division. */
 static inline idx_t int_isqrt(idx_t x)
@@ -48,7 +50,7 @@ static void ensure_n(idx_t n)
     if (!tmp_p) abort();
     primes = tmp_p;
 
-    seq_t   *tmp_v  = (seq_t*)realloc(dvalues, cap * sizeof(seq_t));
+    seq_t   *tmp_v  = mem_resize(seq_t, dvalues, cap);
     if (!tmp_v) abort();
     dvalues = tmp_v;
 

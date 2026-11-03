@@ -8,14 +8,16 @@
  * Formula:   a(n) = #{k | 1 ≤ k ≤ n, is_palindrome(n·k)}
  * Range:     u8 n <= 15, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   is_pal_integ
+ * Validated: partial, pass, 104 terms through n = 104 (2026-11-03)
+ * Helpers:   is_palindrome, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_pal_integ.h"
+#include "../utils/is_palindrome.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -25,7 +27,7 @@ static void extend_cache(idx_t n) {
     if (n + 1 <= cache_size) return;
     size_t new_size = cache_size ? cache_size * 2 : 16;
     while (new_size <= (size_t) n) new_size *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     cache = new_cache;
     cache_size = new_size;
 }
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
         seq_t count = 0;
         for (idx_t k = 1; k <= i; ++k) {
             seq_t prod = (seq_t)i * (seq_t)k;
-            if (is_pal_integ(prod)) ++count;
+            if (is_palindrome(prod)) ++count;
         }
         cache[i] = count;
     }

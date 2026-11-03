@@ -12,7 +12,8 @@
  *            (1‑x²)³(1‑x³)⁴(1‑x⁴)⁴(1‑x⁵)²(1‑x⁶)
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int D_coeff[49] = {0};  /* denominator coefficients, D_coeff[0] == 1 */
 static int D_deg = 0;
@@ -51,7 +53,7 @@ static int binom_small(int n, int k)
 /*------------------------------------------------------------------*/
 static void compute_denominator(void)
 {
-    int cur[50] = {0};
+    int cur[1024] = {0};
     int cur_deg = 0;
     cur[0] = 1;                        /* start with 1 */
 
@@ -61,7 +63,7 @@ static void compute_denominator(void)
     for (int f = 0; f < 5; ++f) {
         int k = factors[f][0];
         int m = factors[f][1];
-        int f_arr[50] = {0};
+        int f_arr[1024] = {0};
         int f_deg = m * k;
         for (int i = 0; i <= m; ++i) {
             int coeff = binom_small(m, i);
@@ -69,7 +71,7 @@ static void compute_denominator(void)
             f_arr[i * k] = coeff;
         }
 
-        int tmp[50] = {0};
+        int tmp[1024] = {0};
         for (int i = 0; i <= cur_deg; ++i) {
             if (cur[i] == 0) continue;
             for (int j = 0; j <= f_deg; ++j) {
@@ -142,7 +144,7 @@ static void ensure_cache(idx_t n)
 
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     if (new_cap < needed) new_cap = needed;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) exit(1);    /* allocation failure */
     cache = new_ptr;
     cache_cap = new_cap;

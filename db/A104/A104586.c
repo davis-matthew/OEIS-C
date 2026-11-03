@@ -11,16 +11,38 @@
  *            sequence: * A104584(i) = P(i) if i is odd * = P(i) +...
  * Range:     u8 n <= 36, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   A104584, A104585, pentagonal
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/A104584.h"
-#include "../utils/A104585.h"
-#include "../utils/pentagonal.h"
+
+static seq_t pentagonal(idx_t n)
+{
+    unsigned __int128 t = (unsigned __int128)n;
+    unsigned __int128 val = t * ((unsigned __int128)3 * t - 1);
+    val /= 2;
+    return (seq_t)val;
+}
+
+static seq_t A104584(idx_t n)
+{
+    seq_t p = pentagonal(n);
+    if ((n & 1) == 0) /* even n */
+        p += (seq_t)n;
+    return p;
+}
+
+static seq_t A104585(idx_t n)
+{
+    seq_t p = pentagonal(n);
+    if ((n & 1) == 1) /* odd n */
+        p += (seq_t)n;
+    return p;
+}
 
 seq_t a(idx_t n)
 {

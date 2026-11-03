@@ -7,14 +7,18 @@
  * Formula:   a(n) = gcd(λ(n), n-1) (λ is Carmichael’s function)
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd, pow_uint
+ * Validated: standard, pass, 96 terms through n = 9682 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -39,9 +43,9 @@ seq_t a(idx_t n)
         if (p == 2) {                    /* special rule for 2^k */
             if (e == 1) lam_p = 1;
             else if (e == 2) lam_p = 2;
-            else lam_p = pow_uint(2, e - 2); /* 2^(e-2) */
+            else lam_p = ipow_u64_idx(2, e - 2); /* 2^(e-2) */
         } else {                         /* odd prime powers */
-            seq_t p_pow = pow_uint(p, e - 1);            /* p^(e-1) */
+            seq_t p_pow = ipow_u64_idx(p, e - 1);            /* p^(e-1) */
             lam_p = p_pow * (seq_t)(p - 1);              /* φ(p^e) */
         }
 

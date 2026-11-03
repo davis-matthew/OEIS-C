@@ -9,13 +9,30 @@
  *            (k+1)
  * Range:     u8 n <= 9, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   reinterpret_base
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for basic integer types */
-#include "../utils/reinterpret_base.h"
+
+/* reinterpret 'x' written in base 'base' as a number in base 'base+1' */
+static seq_t reinterpret_base(seq_t x, idx_t base)
+{
+    seq_t base_seq  = (seq_t)base;
+    seq_t new_base  = base_seq + 1;
+    seq_t result    = 0;
+    seq_t pow       = 1;
+
+    while (x > 0) {
+        seq_t digit = x % base_seq;
+        x          = x / base_seq;
+        result += digit * pow;
+        pow    *= new_base;
+    }
+    return result;
+}
 
 /* public sequence function */
 seq_t a(idx_t n)

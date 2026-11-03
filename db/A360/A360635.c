@@ -11,12 +11,14 @@
  *            p(k+1) – p(k). It lazily expands the cached tables as needed
  * Range:     u8 n <= 66, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for partitions and differences */
 static seq_t *p       = NULL;   /* p[0..]  partition numbers */
@@ -42,7 +44,7 @@ static void ensure_partitions(idx_t up_to)
         size_t new_cap = (p_cap == 0) ? (size_t)(up_to + 1) : (size_t)(p_cap * 2);
         if (new_cap < (size_t)(up_to + 1))
             new_cap = up_to + 1;
-        seq_t *tmp = (seq_t *)realloc(p, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, p, new_cap);
         if (!tmp)
             abort();                       /* unrecoverable */
         for (idx_t i = p_cap; i < (idx_t) new_cap; ++i)
@@ -98,7 +100,7 @@ static void ensure_diffs(idx_t up_to)
         size_t new_cap = (d_cap == 0) ? (size_t)(up_to + 1) : (size_t)(d_cap * 2);
         if (new_cap < (size_t)(up_to + 1))
             new_cap = up_to + 1;
-        seq_t *tmp = (seq_t *)realloc(d, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, d, new_cap);
         if (!tmp)
             abort();
         /* newly allocated slots are already zeroed by realloc */

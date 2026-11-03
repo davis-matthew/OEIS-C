@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 8, u64 n <= 10, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * a(n) = (a(n-1) * a(n-2) + a(n-1) * a(n-1)) / a(n-3)   for n > 3 */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Make sure we have a small initial allocation. */
     if (cache_cap < 4) {
         idx_t new_cap = 4;          /* allocate for indices 0..3 */
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;  /* allocation failure handled gracefully */
         cache = tmp;
         cache_cap = new_cap;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary to include index n. */
     if (n >= cache_cap) {
         idx_t new_cap = n + 1;      /* to use 1‑based indexing */
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;
         cache = tmp;
         cache_cap = new_cap;

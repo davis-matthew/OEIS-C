@@ -9,7 +9,8 @@
  *            binomial(n,2*k) * a(n-2*k) Initial term: a(0) = 1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build; do not define them. */
 extern seq_t binomial(idx_t n, idx_t k);   /* provided helper */
@@ -34,12 +36,12 @@ seq_t a(idx_t n)
 
     /* Initialise caches on first call. */
     if (a_len == 0) {
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         a_cache[0] = 1;      /* a(0) = 1 */
         a_len = 1;
     }
     if (pow4_len == 0) {
-        pow4 = (seq_t *)malloc(sizeof(seq_t));
+        pow4 = mem_new(seq_t, 1);
         pow4[0] = 1;         /* 4^0 = 1 */
         pow4_len = 1;
     }
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         if (pow4_len < needed_pow4) {
             size_t new_len = pow4_len;
             while (new_len < needed_pow4) new_len <<= 1;
-            pow4 = (seq_t *)realloc(pow4, new_len * sizeof(seq_t));
+            pow4 = mem_resize(seq_t, pow4, new_len);
             for (size_t i = pow4_len; i < new_len; ++i)
                 pow4[i] = pow4[i - 1] * 4;
             pow4_len = new_len;
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
         }
 
         /* Store the computed term. */
-        a_cache = (seq_t *)realloc(a_cache, (a_len + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (a_len + 1));
         a_cache[a_len] = val;
         ++a_len;
     }

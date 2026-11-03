@@ -9,7 +9,8 @@
  * Formula:   a(3) = 0, a(n) = n * a(n-1) + (n-1) * floor((n-1)/2) for n >= 4
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * Uses memoization so that any order of calls is handled efficiently.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,12 +34,12 @@ seq_t a(idx_t n)
     /* ensure room for n */
     if (n + 1 > size) {
         size = n + 1;
-        dp = (seq_t *)realloc(dp, size * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, size);
     }
 
     /* expand table initialization if not done */
     if (dp == NULL) {
-        dp = (seq_t *)malloc(size * sizeof(seq_t));
+        dp = mem_new(seq_t, size);
         dp[3] = 0;                    /* a(3) = 0 */
     }
 

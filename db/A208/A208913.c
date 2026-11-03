@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  * native integer type provided by the build. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Tables of coefficients: u_tbl[row][col], v_tbl[row][col]   (row≥1, col<row) */
 static seq_t **u_tbl = NULL;
@@ -47,8 +49,8 @@ static void ensure_rows(idx_t row)
 
     /* Initialise the first row, if it has not been done yet */
     if (max_row == 0) {
-        u_tbl[1] = (seq_t *)calloc(1, sizeof(seq_t));
-        v_tbl[1] = (seq_t *)calloc(1, sizeof(seq_t));
+        u_tbl[1] = mem_new(seq_t, 1);
+        v_tbl[1] = mem_new(seq_t, 1);
         u_tbl[1][0] = (seq_t)1;
         v_tbl[1][0] = (seq_t)1;
         max_row = 1;
@@ -60,8 +62,8 @@ static void ensure_rows(idx_t row)
         seq_t *v_prev = v_tbl[r - 1];
         idx_t len_cur = r;                     /* number of coefficients in row r */
 
-        seq_t *u_cur = (seq_t *)calloc(len_cur, sizeof(seq_t));
-        seq_t *v_cur = (seq_t *)calloc(len_cur, sizeof(seq_t));
+        seq_t *u_cur = mem_new(seq_t, len_cur);
+        seq_t *v_cur = mem_new(seq_t, len_cur);
 
         /* Constant term (k = 0) */
         u_cur[0] = u_prev[0];

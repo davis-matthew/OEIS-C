@@ -9,12 +9,14 @@
  *            (triangular partitions of n of order 6, A276235)
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 45, u64 n <= 216,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,13 +30,13 @@ seq_t a(idx_t n)
 
     /* allocate new cache large enough for maximum n needed */
     if (cache != NULL)
-        free(cache);
-    cache = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        mem_free(cache);
+    cache = mem_new(seq_t, (size_t)(n + 1));
     if (!cache) return (seq_t)0;   /* out of memory */
 
     /* temporary DP arrays */
-    seq_t *dp   = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *dp2  = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *dp2  = mem_new(seq_t, (size_t)(n + 1));
     if (!dp || !dp2) return (seq_t)0;
 
     /* initial condition: only 0 can be represented with no parts */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         idx_t max_t = n / k;
 
         /* pre‑compute binomial coefficients binom(t+m-1, m-1) */
-        seq_t *coeff = (seq_t *)calloc((size_t)(max_t + 1), sizeof(seq_t));
+        seq_t *coeff = mem_new(seq_t, (size_t)(max_t + 1));
         if (!coeff) return (seq_t)0;
         coeff[0] = 1;
         for (idx_t t = 1; t <= max_t; ++t) {
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
         dp = dp2;
         dp2 = tmp;
 
-        free(coeff);
+        mem_free(coeff);
     }
 
     /* copy result to cache for future queries */
@@ -84,8 +86,8 @@ seq_t a(idx_t n)
         cache[i] = dp[i];
 
     /* free temporary arrays */
-    free(dp);
-    free(dp2);
+    mem_free(dp);
+    mem_free(dp2);
 
     cache_max = n;
     return cache[n];

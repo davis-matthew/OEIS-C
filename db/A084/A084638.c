@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2 * 2^(n-1) - (1 + C(n,2) + C(n,4) + C(n,6)) (n ≥ 0)
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 1000 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

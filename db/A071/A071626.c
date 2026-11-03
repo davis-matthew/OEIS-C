@@ -9,13 +9,15 @@
  *            * floor(n/p) for primes p ≤ n)
  * Range:     u8 n <= 3541, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 108 terms through n = 9799 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The build supplies the types idx_t (typically uint64_t) and seq_t
  * (unsigned of suitable width).  Do not redeclare them. */
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         build_primes_up_to(n);
 
         size_t new_size = (size_t)n + 1;
-        seq_cache = (seq_t *)realloc(seq_cache, new_size * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_size);
         if (!seq_cache) exit(EXIT_FAILURE);
 
         /* compute missing entries */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Generator for OEIS A043592: numbers whose base-3 representation has exactly 12 runs. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function below computes the n-th number in sequence A043592.  It
  * lazily builds the sequence by enumerating all base‑3 strings with
@@ -32,7 +34,7 @@ static unsigned lastL = 11;          /* highest length processed (init to 11) */
 static void cache_push(seq_t val) {
     if (cache_size == cache_cap) {
         size_t new_cap = (cache_cap) ? cache_cap * 2 : 128;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) { abort(); }
         cache = tmp;
         cache_cap = new_cap;

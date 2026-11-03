@@ -8,19 +8,21 @@
  *            A000073)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 44, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 930 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Returns the n-th term of A115390 (binomial transform of the tribonacci sequence). */
 seq_t a(idx_t n) {
     /* Allocate space for tribonacci values up to n */
     size_t len = (size_t)n + 1;
-    seq_t *T = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *T = mem_new(seq_t, len);
     if (!T) return 0; /* fallback on allocation failure */
 
     /* base tribonacci values: T(0)=0, T(1)=0, T(2)=1 */
@@ -42,6 +44,6 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(T);
+    mem_free(T);
     return result;
 }

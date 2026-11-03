@@ -7,11 +7,13 @@
  * Formula:   a(1) = 0; a(2) = 10; a(n) = 98*a(n-1) - a(n-2) for n>2
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 20,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 463 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
 #ifdef __cplusplus

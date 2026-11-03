@@ -10,13 +10,27 @@
  *            transfer-matrix exponentiation over a 64×64 adjacency matrix
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   vecmul
+ * Validated: standard, pass, 31 terms through n = 192 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/vecmul.h"
+
+/* Multiply a row vector by a 64×64 matrix: v_out = v_in × M */
+static void vecmul(seq_t v_out[64], const seq_t v_in[64], const seq_t M[64][64])
+{
+    seq_t tmp[64];
+    for (idx_t j = 0; j < 64; ++j) tmp[j] = 0;
+    for (idx_t i = 0; i < 64; ++i) {
+        if (v_in[i] == 0) continue;
+        for (idx_t j = 0; j < 64; ++j) {
+            tmp[j] += v_in[i] * M[i][j];
+        }
+    }
+    for (idx_t j = 0; j < 64; ++j) v_out[j] = tmp[j];
+}
 
 static seq_t A_mat[64][64];          /* adjacency matrix (once per program) */
 static bool A_initialized = false;   /* flag to build A_mat only once */

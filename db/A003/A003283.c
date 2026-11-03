@@ -12,8 +12,8 @@
  *            recurrence, then a(n) = L(n)/g...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   z3283_addf, z3283_am, z3283_bl, z3283_divP, z3283_m, z3283_mod,
- *            z3283_ms, z3283_sb, z3283_trim
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   bit_length_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,15 +21,78 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/z3283_addf.h"
-#include "../utils/z3283_am.h"
-#include "../utils/z3283_bl.h"
-#include "../utils/z3283_divP.h"
-#include "../utils/z3283_m.h"
-#include "../utils/z3283_mod.h"
-#include "../utils/z3283_ms.h"
-#include "../utils/z3283_sb.h"
-#include "../utils/z3283_trim.h"
+#include "../utils/bit_length_u64.h"
+
+static void z3283_addf(uint64_t x, const uint32_t *spf, uint64_t *vL) {
+    while (x > 1) {
+        uint64_t p = spf[x];
+        vL[p]++;
+        x /= p;
+    }
+}
+
+static void z3283_am(uint64_t *d, const uint64_t *s, size_t L, uint64_t m) {
+    unsigned __int128 c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        c += (unsigned __int128)s[i] * m + d[i];
+        d[i] = (uint64_t)c;
+        c >>= 64;
+    }
+}
+
+static size_t z3283_trim(const uint64_t *w, size_t len) {
+    while (len > 0 && w[len - 1] == 0) len--;
+    return len;
+}
+
+static size_t z3283_divP(uint64_t *w, size_t len, uint64_t P) {
+    unsigned __int128 r = 0;
+    size_t i = len;
+    while (i > 0) {
+        unsigned __int128 cur;
+        i--;
+        cur = (r << 64) | w[i];
+        w[i] = (uint64_t)(cur / P);
+        r = cur % P;
+    }
+    return z3283_trim(w, len);
+}
+
+static uint64_t z3283_m(uint64_t k) {
+    return 8 * (k + 1) * (2 * k + 1) * (2 * k + 3);
+}
+
+static uint64_t z3283_mod(const uint64_t *w, size_t len, uint64_t P) {
+    unsigned __int128 r = 0;
+    size_t i = len;
+    while (i > 0) {
+        i--;
+        r = ((r << 64) | w[i]) % P;
+    }
+    return (uint64_t)r;
+}
+
+static void z3283_ms(uint64_t *d, const uint64_t *s, size_t L, uint64_t m) {
+    unsigned __int128 c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        c += (unsigned __int128)s[i] * m;
+        d[i] = (uint64_t)c;
+        c >>= 64;
+    }
+}
+
+static void z3283_sb(uint64_t *d, const uint64_t *s, size_t L) {
+    uint64_t br = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t x = d[i], y = s[i];
+        uint64_t r = x - y - br;
+        br = (x < y || (x == y && br)) ? 1 : 0;
+        d[i] = r;
+    }
+}
 
 static uint64_t *z3283_E[3];
 static size_t z3283_len[3];
@@ -84,9 +147,9 @@ static void z3283_step(void) {
     uint64_t cb = 24 * n * n * n;
     uint64_t cc = n >= 2 ? 2 * n * (n - 1) * (2 * n - 1) : 0;
     uint64_t m2 = n >= 2 ? z3283_m(n - 2) : 0;
-    uint64_t t1 = (uint64_t)z3283_bl(ca) + z3283_B[2];
-    uint64_t t2 = (uint64_t)z3283_bl(m1) + z3283_bl(cb) + z3283_B[1];
-    uint64_t t3 = (uint64_t)z3283_bl(m1) + z3283_bl(cc) + z3283_bl(m2) + z3283_B[0];
+    uint64_t t1 = (uint64_t)bit_length_u64(ca) + z3283_B[2];
+    uint64_t t2 = (uint64_t)bit_length_u64(m1) + bit_length_u64(cb) + z3283_B[1];
+    uint64_t t3 = (uint64_t)bit_length_u64(m1) + bit_length_u64(cc) + bit_length_u64(m2) + z3283_B[0];
     uint64_t nb = t1;
     size_t L;
     int i;

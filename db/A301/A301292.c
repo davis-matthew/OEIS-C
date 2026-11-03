@@ -8,6 +8,7 @@
  *            2 (mod 4), δ(n) = –1 for n ≡ 0 or 3 (mod 4)
  * Range:     u8 n <= 10, u16 n <= 170, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 66 terms through n = 898 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

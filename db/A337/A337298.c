@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{i|n, k|n, i<=k, gcd(i,k)=1} (i+k)
  * Range:     u8 n <= 59, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static int cmp_idx(const void *p1, const void *p2) {

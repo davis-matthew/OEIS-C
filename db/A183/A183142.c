@@ -7,19 +7,21 @@
  * Formula:   a(n) = floor(2*n/(3+sqrt(3)))
  * Range:     u8 n <= 6, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* integer square root: floor(sqrt(x)) for any unsigned seq_t */
 static seq_t isqrt_seq(seq_t x)
 {
     if (x < 2) return x;
-    size_t bl = bitlen_seq_t(x);          /* number of bits needed for x   */
+    size_t bl = bit_length(x);          /* number of bits needed for x   */
     size_t bitpos = bl & ~ (size_t)1;     /* largest even bit position <= bl-1 */
     seq_t bit = ((seq_t)1) << bitpos;     /* highest power of 4 <= x        */
     seq_t res = 0;

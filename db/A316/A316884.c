@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   num_from_coord
+ * Validated: standard, pass, 78 terms through n = 9941 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/num_from_coord.h"
+
+/* convert (x,y) coordinates to spiral number (for 64‑bit values) */
+static uint64_t num_from_coord(int64_t x, int64_t y) {
+    int64_t ax = x >= 0 ? x : -x;
+    int64_t ay = y >= 0 ? y : -y;
+    int64_t r = ax > ay ? ax : ay;
+    if (r == 0) return 1;
+    uint64_t side = 2 * r;
+    uint64_t max_num = (2 * r + 1);
+    max_num = max_num * max_num;
+    uint64_t t;
+    if (y == -r && x > -r) {          /* bottom side */
+        t = (uint64_t)(r - x);
+    } else if (x == -r) {              /* left side */
+        t = side + (uint64_t)(y + r);
+    } else if (y == r && x < r) {      /* top side */
+        t = 2 * side + (uint64_t)(x + r);
+    } else {                           /* right side */
+        t = 3 * side + (uint64_t)(r - y);
+    }
+    return max_num - t;
+}
 
 /* integer square root for 64‑bit unsigned values */
 static idx_t isqrt_u64(idx_t n) {

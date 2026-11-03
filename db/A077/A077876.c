@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 13, i16 n <= 31, i32 n <= 45, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    denominator 1-2x+3x^2-2x^3:  a(n)=2*a(n-1)-3*a(n-2)+2*a(n-3)
    for n>=3, with a(0)=1, a(1)=2, a(2)=1. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for memoisation.  We grow it as needed. */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     if (cap < required) {
         size_t newcap = cap ? cap * 2 : 16;
         if (newcap < required) newcap = required;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();      /* cannot happen in typical use */
         cache = tmp;
         cap = newcap;

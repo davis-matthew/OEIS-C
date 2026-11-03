@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 7733, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   check_candidate
+ * Validated: standard, pass, 86 terms through n = 9652 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,23 @@
    The function enumerates integers in increasing order and collects those where the most
    significant digit equals the maximum digit in the number. */
 #include <stdlib.h>
-#include "../utils/check_candidate.h"
+#include "../utils/mem.h"
+
+/* helper: test if a given number satisfies the property */
+static inline int check_candidate(idx_t v)
+{
+    if (v == 0) return 1;          /* 0 has largest digit 0 and leading digit 0 */
+    idx_t temp = v;
+    idx_t maxd = 0;
+    while (temp > 0) {
+        idx_t d = temp % 10;
+        if (d > maxd) maxd = d;
+        temp /= 10;
+    }
+    temp = v;
+    while (temp >= 10) temp /= 10; /* obtain leading digit */
+    return maxd == temp;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +48,7 @@ seq_t a(idx_t n)
         /* grow the cache if necessary */
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) { /* allocation failure – abort */
                 abort();
             }

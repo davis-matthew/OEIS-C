@@ -9,12 +9,14 @@
  *            a(3)=36
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 29, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;    /* array of computed terms */
 static size_t cache_len  = 0;       /* current allocated length      */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
     /* initialise first four terms */
     if (cache == NULL) {
         size_t init = 4;                     /* we need at least 4 slots   */
-        cache = (seq_t *)malloc(sizeof(seq_t) * init);
+        cache = mem_new(seq_t, init);
         if (!cache) return;                  /* allocation failure unlikely */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)2;
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n + 1 > cache_len) {
         size_t new_len = cache_len;
         while ((size_t)n + 1 > new_len) new_len <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp) cache = tmp;
         cache_len = new_len;
     }

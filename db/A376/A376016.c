@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} d^(n/d) * binomial(n/d,d)
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 44, u64 n <= 98, u128 n <= 212,
  *            big any n
- * Helpers:   big_pow, binomial, factor_u64
+ * Validated: standard, pass, 57 terms through n = 4774 (2026-11-01)
+ * Helpers:   binomial, factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         if (nd < d)
             continue; /* binomial(nd,d) == 0 for nd < d */
 
-        seq_t pow_term = big_pow((seq_t)d, (seq_t)nd);
+        seq_t pow_term = ipow((seq_t)d, (seq_t)nd);
         seq_t bin_term = binomial((idx_t)nd, (idx_t)d);
         seq_t term     = pow_term * bin_term;
 

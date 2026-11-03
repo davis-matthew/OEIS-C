@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 7, u64 n <= 44, u128 n <= 1000,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 36 terms through n = 978 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
  * The implementation uses the provided binom() helper to compute
  * small binomial coefficients exactly.
  */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Sequence terms a(n) for n >= 0 */
 seq_t a(idx_t n)
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i < 15; ++i) {
         if (n >= i) {
             idx_t top   = n - i + 13;   /* n-i+13 >= 13 because n>=i */
-            seq_t bin   = binom(top, 13);
+            seq_t bin   = binomial(top, 13);
             sum += coeffs[i] * bin;
         }
     }

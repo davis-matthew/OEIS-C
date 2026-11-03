@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = A276085(n) mod bigomega(n), where A276085 is additive
  *            with a(p) = p#/p (p# = product of all primes ≤ p)
- * Range:     u8 n <= 9179, u16 n <= 9179, u32 n <= 9179, u64 n <= 9179,
- *            u128 n <= 9179, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9179 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static uint64_t *primes = NULL;         /* list of primes (up to the highest limit requested) */

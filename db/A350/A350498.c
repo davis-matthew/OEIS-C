@@ -10,13 +10,36 @@
  *            N(k)=N(k-1)+N(k-3)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   narayana_cow
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/narayana_cow.h"
+
+/* Compute the k-th Narayana's Cows number */
+static seq_t narayana_cow(idx_t k)
+{
+    if (k == 0)
+        return (seq_t)0;
+    if (k == 1 || k == 2)
+        return (seq_t)1;
+    if (k == 3)
+        return (seq_t)2;
+
+    seq_t a = (seq_t)1;  /* N(k-3) */
+    seq_t b = (seq_t)1;  /* N(k-2) */
+    seq_t c = (seq_t)2;  /* N(k-1) */
+
+    for (idx_t i = 4; i <= k; ++i) {
+        seq_t next = c + a;          /* N(i) = N(i-1) + N(i-3) */
+        a = b;
+        b = c;
+        c = next;
+    }
+    return c;
+}
 
 seq_t a(idx_t n)
 {

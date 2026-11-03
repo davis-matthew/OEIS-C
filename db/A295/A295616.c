@@ -12,12 +12,14 @@
  *            sequences
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------------  static storage  ----------------- */
 static seq_t *a_seq = NULL;   /* a(0..a_size-1)           */
@@ -33,7 +35,7 @@ static void ensure_a(idx_t n)
     if (n < a_cap) return;
     idx_t new_cap = a_cap ? a_cap * 2 : 8;
     while (new_cap <= n) new_cap *= 2;
-    a_seq = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
+    a_seq = mem_resize(seq_t, a_seq, new_cap);
     a_cap = new_cap;
 }
 
@@ -43,7 +45,7 @@ static void ensure_b(idx_t n)
     if (n < b_cap) return;
     idx_t new_cap = b_cap ? b_cap * 2 : 8;
     while (new_cap <= n) new_cap *= 2;
-    b_seq = (seq_t *)realloc(b_seq, new_cap * sizeof(seq_t));
+    b_seq = mem_resize(seq_t, b_seq, new_cap);
     b_cap = new_cap;
 }
 

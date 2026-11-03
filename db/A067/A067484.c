@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 24 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /*
  * Compute the n-th term of OEIS A067484 – powers of 6 having leading
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (!initialized) {
         terms_cap = 16;
-        terms = (seq_t *)malloc(sizeof(seq_t) * terms_cap);
+        terms = mem_new(seq_t, terms_cap);
 
         cur_k   = 1;
         cur_val = (seq_t)6;          /* 6^1 */
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
             /* store the term */
             if (terms_cnt == terms_cap) {
                 terms_cap <<= 1;
-                terms = (seq_t *)realloc(terms, sizeof(seq_t) * terms_cap);
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_cnt++] = cur_val;
         }

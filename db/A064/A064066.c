@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 98 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    generate terms a(n+1)..a(2n-1) with a(n+k)=a(n)+a(k) for 0 ≤ k < n. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;      /* array of computed terms */
 static idx_t  seq_len = 0;     /* number of terms currently stored */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise storage on first call */
     if (seq_len == 0) {
         seq_cap = 4;                    /* arbitrary small start capacity */
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) return 0;             /* out of memory, return zero */
         seq[0] = (seq_t)1;
         seq[1] = (seq_t)1;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
             if (new_cap == 0) new_cap = 4;
             while (new_cap < (size_t)new_len_needed)
                 new_cap <<= 1;
-            seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
             seq_cap = new_cap;
         }
 

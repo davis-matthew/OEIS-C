@@ -11,15 +11,24 @@
  *            count of even digits
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binom64, pow5_u64
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom64.h"
-#include "../utils/pow5_u64.h"
+#include "../utils/binomial_idx.h"
+
+/* compute 5^exp for 0≤exp≤63, fits in 64‑bit */
+static idx_t pow5_u64(idx_t exp)
+{
+    idx_t res = 1;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= 5;
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,7 +50,7 @@ seq_t a(idx_t n)
             idx_t m = L - 2;        /* interior positions */
             if (reqOdd > m) continue;
 
-            idx_t group_cnt = binom64(m, reqOdd) * pow5_u64(m);
+            idx_t group_cnt = binomial_idx(m, reqOdd) * pow5_u64(m);
 
             if (rem > group_cnt) {
                 rem -= group_cnt;
@@ -63,7 +72,7 @@ seq_t a(idx_t n)
                     idx_t remaining = positions - pos - 1;
                     if (odd_left - p > remaining) continue;
 
-                    idx_t ways = binom64(remaining, odd_left - p)
+                    idx_t ways = binomial_idx(remaining, odd_left - p)
                                  * pow5_u64(remaining);
 
                     if (ways <= offset) {

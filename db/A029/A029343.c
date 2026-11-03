@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    4, 5, 9, 12.  The function constructs a memoised table up to the
    largest argument requested.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,9 +28,9 @@ seq_t a(idx_t n)
     /* If we need values beyond what we've already computed, rebuild */
     if (n > computed_upto || cache == NULL) {
         size_t new_cap = (size_t)(n + 1);   /* 0 … n inclusive   */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {      /* allocation failed – for safety return 0 */
-            if (cache) free(cache);
+            if (cache) mem_free(cache);
             cache = NULL;
             computed_upto = 0;
             return (seq_t)0;

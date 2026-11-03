@@ -8,6 +8,7 @@
  *            positive cubes
  * Range:     u8 n <= 27, u16 n <= 2788, u32 n <= 2788, u64 n <= 2788,
  *            u128 n <= 2788, big any n
+ * Validated: full, pass, 2788 terms through n = 2788 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 196, u32 n <= 644, u64 n <= 2310,
  *            u128 n <= 5150, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 4682 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    (rows start at n = 0).                                         */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline idx_t isqrt_u64(idx_t x)
 {
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
 
         for (size_t rr = cached_cnt; rr <= target_row; ++rr) {
             size_t len = rr + 1;
-            seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, len);
             if (!row) return (seq_t)0;           /* allocation failure */
 
             row[0] = (seq_t)1;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 97, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 1647 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n) = 3*n - count{ a(k) ≤ n-1 , 1 ≤ k < n }   for n > 1   (1‑based indices)
    This recurrence follows directly from the definition of the sequence. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap ? (size_t)cap << 1 : 1;
         while (new_cap < (size_t)n)
             new_cap <<= 1;
-        seq = (seq_t *)realloc(seq, sizeof(seq_t) * (new_cap + 1));
+        seq = mem_resize(seq_t, seq, (new_cap + 1));
         cap = (idx_t)new_cap;
     }
 

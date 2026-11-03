@@ -8,9 +8,10 @@
  * Formula:   a(n) = coefficient of x^n in * φ(−x^36) + x·f(−x^24) +
  *            x^4·f(−x^12,−x^60), * which equals * ∑_{k∈ℤ} (−1)^{k(k+1)/2}
  *            x^{9k²} * + ∑_{k∈ℤ} (−1)^{k(k−1)/2} x^{1+9k²−6k}
- * Range:     i8 n <= 9942, i16 n <= 9942, i32 n <= 9942, i64 n <= 9942,
- *            i128 n <= 9942, big any n
- * Helpers:   alloc_cache
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9942 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/alloc_cache.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *seq = NULL;
 static idx_t seq_cap = 0;

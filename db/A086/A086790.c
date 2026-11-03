@@ -8,6 +8,7 @@
  *            (n-1)²)) Offset: 1 (so a(1) corresponds to m = 0)
  * Range:     u8 n <= 4, u16 n <= 26, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 76 terms through n = 880 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

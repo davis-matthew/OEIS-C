@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 2664, u16 n <= 9627, u32 n <= 9627, u64 n <= 9627,
- *            u128 n <= 9627, big any n
- * Helpers:   build_primes, phi, pow_uint
+ * Range:     u8 n <= 2664, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9627 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,82 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "../utils/build_primes.h"   /* void build_primes(idx_t limit, idx_t **out, size_t *cnt); */
-#include "../utils/phi.h"            /* seq_t phi(idx_t n); */
-#include "../utils/pow_uint.h"       /* seq_t pow_uint(uint64_t base, idx_t exp); */
+#include <stddef.h>
+
+/* Build all primes up to `limit` (inclusive) using a simple sieve.  */
+static void build_primes(idx_t limit, idx_t **out, size_t *cnt)
+{
+    if (limit < 2) {                       /* no primes */
+        *out = NULL;
+        *cnt = 0;
+        return;
+    }
+
+    unsigned char *mark = (unsigned char *)calloc((size_t)(limit + 1), 1);
+    if (!mark) {                           /* allocation failure */
+        *out = NULL;
+        *cnt = 0;
+        return;
+    }
+
+    size_t cap = limit / 10 + 1;            /* initial capacity guess  */
+    idx_t *pr  = (idx_t *)malloc(cap * sizeof(idx_t));
+    size_t pc  = 0;
+
+    for (idx_t i = 2; i <= limit; ++i) {
+        if (!mark[i]) {
+            /* grow array if necessary */
+            if (pc == cap) {
+                cap <<= 1;
+                idx_t *tmp = (idx_t *)realloc(pr, cap * sizeof(idx_t));
+                if (!tmp) {               /* allocation failure */
+                    free(mark);
+                    free(pr);
+                    *out = NULL;
+                    *cnt = 0;
+                    return;
+                }
+                pr = tmp;
+            }
+            pr[pc++] = i;
+
+            /* mark multiples of i */
+            if (i <= limit / i) {
+                for (idx_t j = i * i; j <= limit; j += i)
+                    mark[j] = 1;
+            }
+        }
+    }
+    free(mark);
+
+    *out = pr;
+    *cnt = pc;
+}
+
+static seq_t phi(idx_t m)
+{
+    seq_t result = (seq_t)m;
+    idx_t d = 2;
+    for (; d * d <= m; ++d) {
+        if (m % d == 0) {
+            while (m % d == 0) m /= d;
+            result -= result / (seq_t)d;
+        }
+    }
+    if (m > 1) result -= result / (seq_t)m;
+    return result;
+}
+
+static inline seq_t pow_uint(uint64_t base, idx_t exp) {
+    seq_t result = 1;
+    seq_t b = (seq_t)base;
+    while (exp) {
+        if (exp & 1) result *= b;
+        b *= b;
+        exp >>= 1;
+    }
+    return result;
+}
 
 static bool initialized = false;
 static idx_t *prime_list = NULL;

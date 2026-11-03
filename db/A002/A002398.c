@@ -10,14 +10,27 @@
  *            by n!*lcm(1..n+1))
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   a002398_is_prime_power
+ * Validated: standard, pass, 36 terms through n = 98 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a002398_is_prime_power.h"
+
+static int a002398_is_prime_power(long long m, long long *p)
+{
+    long long d = 2;
+    while (d * d <= m && m % d != 0)
+        d++;
+    if (d * d > m)
+        d = m;
+    *p = d;
+    while (m % d == 0)
+        m /= d;
+    return m == 1;
+}
 
 #define A002398_MAXN 20000
 

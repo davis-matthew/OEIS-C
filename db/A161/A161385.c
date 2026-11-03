@@ -8,12 +8,20 @@
  *            with the n-th run having length n^2
  * Range:     u8 n <= 13, u16 n <= 3333, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   squaresum
+ * Validated: standard, pass, 115 terms through n = 9824 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/squaresum.h"
+static seq_t squaresum(idx_t r)
+{
+    seq_t rr = r;
+    seq_t prod = rr * (rr + 1);            // rr*(rr+1)
+    prod *= (2 * rr + 1);                  // rr*(rr+1)*(2*rr+1)
+    prod /= 6;                             // divide by 6
+    return prod;
+}
 
 seq_t a(idx_t n)
 {

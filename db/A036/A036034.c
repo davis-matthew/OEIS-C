@@ -12,16 +12,36 @@
  *            24k, 24k+11, or 24k-11, using a one‑dimensional DP
  * Range:     u8 n <= 23, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   alloc_seq_array, forbidden_part, free_seq_array
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/forbidden_part.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* Test whether a part size is forbidden. */
+static inline bool forbidden_part(idx_t p)
+{
+    if (p % 4 == 2)               /* 4k+2 */
+        return true;
+    idx_t r = p % 24;             /* 24k, 24k+11, 24k-11 (=24k+13) */
+    return r == 0 || r == 11 || r == 13;
+}
 
 static seq_t *dp = NULL;      /* DP table for cumulative results */
 static idx_t dp_size = 0;     /* allocated capacity for dp */

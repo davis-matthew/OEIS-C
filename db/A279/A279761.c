@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} 1/(1 - x^k)^(k*(2*k^2+1)/3)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 17, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    fits in seq_t.  For arbitrary‑precision builds the correctness is guaranteed. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,13 +37,13 @@ seq_t a(idx_t n)
 
     if (need > max) {
         /* Reallocate cache for required size */
-        seq_t *A_new = (seq_t *)calloc(need, sizeof(seq_t));
+        seq_t *A_new = mem_new(seq_t, need);
         if (!A_new) return 0;   /* out of memory – caller should handle */
 
         /* Temporary array t[k] = Σ_{d|k} d * b(d) for 1≤k<need */
-        seq_t *t = (seq_t *)calloc(need, sizeof(seq_t));
+        seq_t *t = mem_new(seq_t, need);
         if (!t) {
-            free(A_new);
+            mem_free(A_new);
             return 0;
         }
 
@@ -65,8 +67,8 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache */
-        free(A);
-        free(t);
+        mem_free(A);
+        mem_free(t);
         A = A_new;
         max = need;
     }

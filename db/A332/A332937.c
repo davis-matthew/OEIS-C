@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = gcd( floor(n φ), floor( floor(n φ) φ ))
- * Range:     u8 n <= 2, u16 n <= 35, u32 n <= 6057, u64 n <= 9378,
- *            u128 n <= 9378, big any n
- * Helpers:   floor_sqrt, gcd
+ * Range:     u8 n <= 2, u16 n <= 35, u32 n <= 6057, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 124 terms through n = 9378 (2026-11-01)
+ * Helpers:   gcd, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
    The gcd of these two terms is the desired a(n). */
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,6 +8,7 @@
  * Formula:   a(n) = round(n*sqrt(n)+1 - prime(n))
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
 
 /* Integer square root of a 128-bit integer: floor(sqrt(x)). */

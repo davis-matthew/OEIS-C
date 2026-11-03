@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 353, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* cache of computed values */
 static idx_t max_cached = 0;      /* largest n that has been computed */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (!dp || n > max_cached) {
         /* Reallocate to size n+1.  Use realloc to preserve existing data
            in case we grow from a smaller size. */
-        seq_t *tmp = (seq_t *)realloc(dp, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (size_t)(n + 1));
         if (!tmp) {
             /* Allocation failed – fall back to previous cache. */
             return (dp && max_cached <= n) ? dp[n] : (seq_t)0;

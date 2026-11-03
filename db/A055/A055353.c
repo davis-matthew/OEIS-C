@@ -9,12 +9,20 @@
  *            (3*n^2-13*n+8) / 8294400 , n >= 7
  * Range:     u8 none, u16 n <= 7, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   cancel_from_result
+ * Validated: standard, pass, 29 terms through n = 247 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/cancel_from_result.h"
+/* Helper to cancel prime factors of 2, 3 and 5 from the running result,
+   using the remaining exponent counters.                     */
+static void cancel_from_result(seq_t *res, unsigned *e2, unsigned *e3, unsigned *e5)
+{
+    while (*e2 > 0 && *res % 2 == 0) { *res /= 2; (*e2)--; }
+    while (*e3 > 0 && *res % 3 == 0) { *res /= 3; (*e3)--; }
+    while (*e5 > 0 && *res % 5 == 0) { *res /= 5; (*e5)--; }
+}
 /* Helper to divide out prime factors of 2, 3 and 5 from a number,
    decreasing the remaining exponent counters.                */
 static seq_t reduce_factor(seq_t f, unsigned *e2, unsigned *e3, unsigned *e5)

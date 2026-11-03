@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*n*n!
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 19, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 246 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 /* static array to cache factorials */
 static seq_t *fac = NULL;
 static size_t fac_cap = 0;
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
             /* initial allocation */
             fac_cap = 16;
             fac_used = 1;
-            fac = (seq_t *)malloc(fac_cap * sizeof(seq_t));
+            fac = mem_new(seq_t, fac_cap);
             fac[0] = (seq_t)1;            /* 0! = 1 */
         }
         size_t new_used = n + 1;
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
             /* grow array */
             size_t new_cap = fac_cap * 2;
             if (new_cap < new_used) new_cap = new_used;
-            fac = (seq_t *)realloc(fac, new_cap * sizeof(seq_t));
+            fac = mem_resize(seq_t, fac, new_cap);
             fac_cap = new_cap;
         }
         /* compute missing factorials */

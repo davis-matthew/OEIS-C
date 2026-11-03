@@ -11,13 +11,15 @@
  *            expansion of n (ignoring leading zeros)
  * Range:     u8 n <= 255, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 83 terms through n = 8082 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     seq_t x = (seq_t)n;
 
     /* Find the index of the most significant set bit (0‑based). */
-    unsigned msb = bitlen_seq_t(x) - 1;
+    unsigned msb = bit_length(x) - 1;
 
     /* Scan from msb down to 1 looking for the first “01” pattern
        and swap it to “10”. */

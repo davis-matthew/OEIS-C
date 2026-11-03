@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, tabf
  * Formula:   not stated
- * Range:     u8 n <= 627, u16 n <= 9888, u32 n <= 9888, u64 n <= 9888,
- *            u128 n <= 9888, big any n
- * Helpers:   int_sqrt64
+ * Range:     u8 n <= 627, u16 n <= 10954, u32 n <= 10954, u64 n <= 10954,
+ *            u128 n <= 10954, big any n
+ * Validated: standard, pass, 95 terms through n = 9888 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,14 +28,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/int_sqrt64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t N)
 {
     idx_t count = 0;                     /* how many terms have been output so far */
     for (idx_t num = 1; ; ++num)         /* iterate over rows (n = 1, 2, …) */
     {
-        idx_t limit = int_sqrt64(num);
+        idx_t limit = isqrt(num);
         size_t cap = (size_t)limit + 1;
         idx_t *large = (idx_t *)malloc(cap * sizeof(idx_t));
         if (!large) return (seq_t)0;     /* allocation failure – should never happen */

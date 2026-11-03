@@ -7,8 +7,9 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = number of perfect divisors of n = d(gcd of its prime
  *            exponents)
- * Range:     u8 n <= 9101, u16 n <= 9101, u32 n <= 9101, u64 n <= 9101,
- *            u128 n <= 9101, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 120 terms through n = 9101 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Euclidean GCD for uint64_t. */

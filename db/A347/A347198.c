@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9860 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state shared by all calls to a() */
 static seq_t *bits = NULL;          /* sequence bits (0 or 1) */
@@ -57,7 +59,7 @@ static void ensure_sequence(idx_t target)
     /* first call: initialise sequence with a(0)=0 */
     if (bits == NULL) {
         bits_cap = 16;
-        bits = (seq_t *)malloc(bits_cap * sizeof(seq_t));
+        bits = mem_new(seq_t, bits_cap);
         if (!bits) abort();
         bits[0] = (seq_t)0;
         bits_len = 1;
@@ -103,7 +105,7 @@ static void ensure_sequence(idx_t target)
             if (needed > bits_cap) {
                 size_t new_cap = bits_cap ? bits_cap : 1;
                 while (new_cap < needed) new_cap <<= 1;
-                seq_t *new_bits = (seq_t *)realloc(bits, new_cap * sizeof(seq_t));
+                seq_t *new_bits = mem_resize(seq_t, bits, new_cap);
                 if (!new_bits) abort();
                 bits = new_bits;
                 bits_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 130, u32 n <= 512, u64 n <= 512,
  *            u128 n <= 512, big any n
- * Helpers:   none
+ * Validated: full, pass, 512 terms through n = 512 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    sorting the digits by their Spanish names and then sorting 
    the resulting numbers numerically. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort to work with any seq_t type */
 static int compare_seq(const void *p1, const void *p2)
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         }
 
         /* sort the resulting numbers numerically */
-        qsort(cache, limit, sizeof(seq_t), compare_seq);
+        mem_qsort(cache, limit, sizeof(seq_t), compare_seq);
     }
 
     /* offset 1: a(1) = 0 */

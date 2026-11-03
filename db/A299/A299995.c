@@ -12,13 +12,15 @@
  *            tables only when a larger n is * requested
  * Range:     u8 n <= 22, u16 n <= 44, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*----- Static tables for memoisation -----------------------------------*/
 static idx_t          max_n      = 0;      /* largest n processed so far       */
@@ -107,13 +109,13 @@ seq_t a(idx_t n)
     /* Rebuild tables if the request exceeds the current maximum n. */
     if (n > max_n) {
         if (dp) {                    /* free the old DP array */
-            free(dp);
+            mem_free(dp);
             dp = NULL;
         }
         build_fib_words(n);          /* this frees old word data */
 
         max_n = n;
-        dp = (seq_t *)malloc(sizeof(seq_t) * (max_n + 1));
+        dp = mem_new(seq_t, (max_n + 1));
         dp[0] = (seq_t)1;           /* one way to factor the empty prefix */
 
         /* initialise the rest to zero */

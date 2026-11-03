@@ -9,9 +9,10 @@
  * Formula:   a(1)=1, a(2)=2; for n>2, a(n) is the least integer >a(n‑1) whose
  *            decimal representation is uniquely the concatenation of the
  *            decimal representations of two distinct earlier terms
- * Range:     u8 n <= 8, u16 n <= 28, u32 n <= 586, u64 n <= 9208,
- *            u128 n <= 9208, big any n
- * Helpers:   none
+ * Range:     u8 n <= 8, u16 n <= 28, u32 n <= 586, u64 n <= 15616,
+ *            u128 n <= 15616, big any n
+ * Validated: standard, pass, 56 terms through n = 9208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global cache of the sequence.  */
 static seq_t *SEQ = NULL;
@@ -54,7 +56,7 @@ static void seq_add(seq_t v)
 {
     if (SEQ_SIZE >= SEQ_CAP) {
         SEQ_CAP = SEQ_CAP ? SEQ_CAP * 2 : 16;
-        SEQ = (seq_t *)realloc(SEQ, SEQ_CAP * sizeof(seq_t));
+        SEQ = mem_resize(seq_t, SEQ, SEQ_CAP);
     }
     SEQ[SEQ_SIZE++] = v;
 }
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (SEQ_SIZE == 0) {
         SEQ_CAP = 16;
-        SEQ = (seq_t *)malloc(SEQ_CAP * sizeof(seq_t));
+        SEQ = mem_new(seq_t, SEQ_CAP);
         seq_add((seq_t)1);
         seq_add((seq_t)2);
     }

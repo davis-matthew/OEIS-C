@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 15, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_counts, digit_len
+ * Validated: standard, pass, 72 terms through n = 911 (2026-11-03)
+ * Helpers:   digit_counts, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------------
  *  Hash table for keys representing the digit multiset of a number.
@@ -108,7 +111,7 @@ static void ensure_triangles_up_to(int limit_len)
         hash_set_insert(digit_key(tri));
         ++step;
         tri = tri + step;          /* next triangular number */
-        tri_len = digit_len(tri);
+        tri_len = num_digits(tri);
     }
     max_processed_len = limit_len;
 }
@@ -135,14 +138,14 @@ seq_t a(idx_t n)
         seq_t k = next_k++;
         seq_t ksq = k * k;
 
-        int len = digit_len(ksq);
+        int len = num_digits(ksq);
         ensure_triangles_up_to(len);
 
         if (hash_set_contains(digit_key(ksq))) {
             /* grow the table if needed */
             if (seq_len == seq_cap) {
                 seq_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = k;
         }

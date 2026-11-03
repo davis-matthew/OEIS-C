@@ -7,13 +7,16 @@
  * Formula:   a(n) = 1 iff 6*n-1 and 6*n+1 are both prime, else 0
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   is_prime_uint64
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -22,5 +25,5 @@ seq_t a(idx_t n)
     }
     uint64_t p1 = 6 * n - 1;
     uint64_t p2 = 6 * n + 1;
-    return (seq_t)(is_prime_uint64(p1) && is_prime_uint64(p2));
+    return (seq_t)(is_prime_u64(p1) && is_prime_u64(p2));
 }

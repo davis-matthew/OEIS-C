@@ -9,14 +9,30 @@
  *            builds the sequence lazily and memoises it
  * Range:     u8 n <= 33, u16 n <= 3376, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   is_prime, push_seq
+ * Validated: standard, pass, 71 terms through n = 4937 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime.h"   /* bool is_prime(uint64_t n); */
-#include "../utils/push_seq.h"   /* void push_seq(seq_t **arr, idx_t *cap,
-                                   idx_t *size, seq_t val); */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 seq_t a(idx_t n)
 {
@@ -55,7 +71,7 @@ seq_t a(idx_t n)
         uint64_t p = (uint64_t)tmp;
 
         /* test primality */
-        if (is_prime(p))
+        if (is_prime_u64(p))
         {
             seq_t val = 4ULL * last_j;  /* n = 4*j */
             push_seq(&cache, &cap, &size, val);

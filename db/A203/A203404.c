@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 14, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define ROWS 42
 #define STATES (ROWS * ROWS)
@@ -88,8 +90,8 @@ static bool dp_inited = false;
 static void init_dp_arrays(void)
 {
     if (dp_inited) return;
-    dp_cur  = (seq_t*)malloc(sizeof(seq_t) * STATES);
-    dp_next = (seq_t*)malloc(sizeof(seq_t) * STATES);
+    dp_cur  = mem_new(seq_t, STATES);
+    dp_next = mem_new(seq_t, STATES);
     dp_inited = true;
 }
 

@@ -7,9 +7,10 @@
  * Formula:   search -- enumerate x^3 + y^3 (1 <= x <= y) window by window in
  *            increasing value order; a(n) is the n-th value hit by two or
  *            more pairs
- * Range:     u8 none, u16 n <= 9, u32 n <= 3134, u64 n <= 9157,
- *            u128 n <= 9157, big any n
- * Helpers:   a1235_cmp
+ * Range:     u8 none, u16 n <= 9, u32 n <= 3134, u64 n <= 30000,
+ *            u128 n <= 30000, big any n
+ * Validated: standard, pass, 51 terms through n = 9157 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a1235_cmp.h"
+
+static int a1235_cmp(const void *p, const void *q) {
+	uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+	return x < y ? -1 : (x > y ? 1 : 0);
+}
 
 #define A1235_HB 20
 #define A1235_HSIZE ((size_t)1 << A1235_HB)

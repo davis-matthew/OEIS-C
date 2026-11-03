@@ -9,7 +9,8 @@
  *            the OEIS entry
  * Range:     u8 n <= 8191, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   ensure_cache, floor_log2_uint64
+ * Validated: standard, pass, 102 terms through n = 7969 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,37 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/ensure_cache.h"
-#include "../utils/floor_log2_uint64.h"
+#include <stdlib.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
 
 static seq_t *cache_ptr   = NULL; /* cache of computed values a(0..cache_max) */
 static size_t cache_cap   = 0;    /* capacity of cache_ptr */
@@ -40,7 +70,7 @@ seq_t a(idx_t n)
     /* extend cache up to index n */
     ensure_cache(n, &cache_ptr, &cache_cap);
     for (idx_t i = cache_max + 1; i <= n; ++i) {
-        idx_t bitlen = floor_log2_uint64(i);  /* highest set bit position */
+        idx_t bitlen = ilog2(i);  /* highest set bit position */
         seq_t best = 0;
         for (idx_t s = 0; s <= bitlen; ++s) {
             if ((((i >> s) & (idx_t)1) == 0)) {    /* zero bit at position s */

@@ -9,7 +9,8 @@
  *            A018252(n) is the n‑th non‑prime integer (starting with 1)
  * Range:     u8 n <= 33, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ----------  integer square root (floor) for uint64_t  ---------- */
 static uint64_t isqrt_u64(uint64_t n)
@@ -128,8 +130,7 @@ static void extend_cache_to(size_t need)
             seq_t val = eval_a_for(last_checked);
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 32;
-                seq_t *tmp = (seq_t *)realloc(a_cache,
-                                              new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
                 if (!tmp) abort();
                 a_cache = tmp;
                 cache_cap = new_cap;

@@ -12,13 +12,29 @@
  *            2)*(i + j - 1)/2 + i Conversely, from n we reco...
  * Range:     u8 n <= 10, u16 n <= 253, u32 n <= 253, u64 n <= 253,
  *            u128 n <= 253, big any n
- * Helpers:   get_s
+ * Validated: standard, pass, 64 terms through n = 246 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/get_s.h"
+
+static inline idx_t get_s(idx_t n)
+/* smallest s such that n ≤ (s-1)*s/2 */
+{
+    if (n == 0) return 0;
+    idx_t low = 2, high = n + 1;               /* s is never larger than n+1 */
+    while (low < high) {
+        idx_t mid = (low + high) >> 1;
+        __int128 val = (__int128)(mid - 1) * mid / 2;
+        if (val >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 static inline idx_t isqrt_u64(idx_t n)
 /* floor(sqrt(n)) for unsigned 64‑bit n */

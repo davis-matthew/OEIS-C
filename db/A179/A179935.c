@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool is_square_int(int v)
 {
@@ -45,10 +47,10 @@ static void ensure_capacity(size_t needed, seq_t **p, size_t *cap)
     if (needed <= *cap) return;
     size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *newp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, new_cap);
     if (*p) {
-        memcpy(newp, *p, (*cap) * sizeof(seq_t));
-        free(*p);
+        mem_copy(newp, *p, (*cap) * sizeof(seq_t));
+        mem_free(*p);
     }
     *p    = newp;
     *cap  = new_cap;

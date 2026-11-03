@@ -9,7 +9,8 @@
  * Formula:   a(n) = antidiagonal traversal of Wieferich bases A(n,k)
  * Range:     u8 n <= 52, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 63 terms through n = 64 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n) {
     /* offset is 2; a(2) is the first term */
@@ -46,7 +49,7 @@ seq_t a(idx_t n) {
     seq_t mod = (seq_t)row * (seq_t)row;    /* n^2 */
 
     while (true) {
-        if (mod_pow(base, row - 1, mod) == 1) {
+        if (powmod(base, row - 1, mod) == 1) {
             count++;
             if (count == col) return base;
         }

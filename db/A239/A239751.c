@@ -9,7 +9,8 @@
  *            number_of_nonzero_decimal_digits(n)
  * Range:     u8 n <= 9, u16 n <= 200, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   count_nonzero_decimal_digits
+ * Validated: standard, pass, 69 terms through n = 179 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/count_nonzero_decimal_digits.h"
+#include "../utils/mem.h"
+
+/* count the number of non‑zero decimal digits of x */
+static unsigned count_nonzero_decimal_digits(uint64_t x)
+{
+    unsigned cnt = 0;
+    if (x == 0) return 0;
+    while (x) {
+        unsigned d = x % 10;
+        if (d != 0) ++cnt;
+        x /= 10;
+    }
+    return cnt;
+}
 
 /* popcount of a 64‑bit integer using only bitwise ops */
 static unsigned popcount_uint64(uint64_t x)
@@ -44,7 +58,7 @@ seq_t a(idx_t n)
     /* initial allocation if needed */
     if (cache == NULL) {
         cache_cap = (size_t)n > 10 ? (size_t)n : 10;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
     }
 
@@ -52,7 +66,7 @@ seq_t a(idx_t n)
     while (n > cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap < cache_cap) new_cap = cache_cap + 10;  /* overflow guard */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

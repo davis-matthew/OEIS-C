@@ -12,7 +12,8 @@
  *            blocks [1,2,…,k(k+1)/2] for k = 1,2,3,
  * Range:     u8 n <= 69, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   tetrahedral
+ * Validated: standard, pass, 82 terms through n = 967 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,12 @@
 /* External linkage function required by the build system. */
 
 #include <stdint.h>
-#include "../utils/tetrahedral.h"
+
+static inline idx_t tetrahedral(idx_t k)
+{
+    /* P(k) = k(k+1)(k+2)/6  –  the cumulative length of the first k blocks */
+    return (k * (k + 1) * (k + 2)) / 6;
+}
 
 seq_t a(idx_t n)
 {

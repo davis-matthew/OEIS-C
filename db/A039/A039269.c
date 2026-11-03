@@ -9,13 +9,15 @@
  *            and 9's
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return 1 iff x's base‑12 representation contains an equal number of 8's and 9's. */
 static int balanced_in_base12(uint64_t x)
@@ -41,7 +43,7 @@ static void grow_cache(size_t needed)
 {
     if (needed <= cache_cap) return;
     size_t new_cap = needed + 10; /* a small buffer to reduce realloc calls */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();            /* out of memory – terminate */
     cache = tmp;
     cache_cap = new_cap;

@@ -6,9 +6,10 @@
  * Offset:    3    (a(3) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 433, u16 n <= 9323, u32 n <= 9323, u64 n <= 9323,
- *            u128 n <= 9323, big any n
- * Helpers:   is_palindrome
+ * Range:     u8 n <= 433, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 84 terms through n = 9323 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 static idx_t max_n_cached = 0;
 static bool *pal_bool = NULL;
@@ -56,7 +57,7 @@ static void ensure_pal_up_to(idx_t limit)
 
     /* Compute palindromes from max_n_cached+1 up to limit */
     for (idx_t i = max_n_cached + 1; i <= limit; ++i) {
-        bool ispal = is_palindrome((seq_t)i, 10);
+        bool ispal = is_palindrome_base((seq_t)i, 10);
         pal_bool[(size_t)i] = ispal;
         if (ispal) {
             if (pal_count == pal_list_cap) {

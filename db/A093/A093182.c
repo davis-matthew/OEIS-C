@@ -12,7 +12,8 @@
  *            once, then scans them recording each equality...
  * Range:     u8 none, u16 n <= 12, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Bit‑set helpers for odd numbers only */
 #define BIT_INDEX(i)   ((i) >> 3)
@@ -57,7 +59,7 @@ static void precompute(void) {
 
     /* Prepare cache */
     cache_cap = 20000;   /* sufficient for >10 000 terms (≈19 000 will be found) */
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) exit(EXIT_FAILURE);
 
     /* Scan odd numbers, recording equal counts */
@@ -75,7 +77,7 @@ static void precompute(void) {
             if (c1 == c3) {
                 if (cache_len >= cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                     if (!cache) exit(EXIT_FAILURE);
                 }
                 cache[cache_len++] = c1;   /* record the common count */

@@ -10,13 +10,15 @@
  *            starting at a(0) = 1
  * Range:     u8 n <= 58, u16 n <= 179, u32 n <= 644, u64 n <= 1274,
  *            u128 n <= 1274, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 1243 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Ensure idx_t and seq_t are defined by the build. */
 seq_t a(idx_t n)
@@ -37,11 +39,11 @@ seq_t a(idx_t n)
 
     /* Allocate temporary rows.  Size r+1 is enough for all rows up to r. */
     size_t sz = (size_t)r + 1;
-    seq_t *prev = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *curr = mem_new(seq_t, sz);
     if (!prev || !curr) {
         /* On allocation failure, return 0 (should not happen). */
-        free(prev); free(curr);
+        mem_free(prev); mem_free(curr);
         return (seq_t)0;
     }
 
@@ -67,8 +69,8 @@ seq_t a(idx_t n)
 
     seq_t result = prev[k];
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
 
     return result;
 }

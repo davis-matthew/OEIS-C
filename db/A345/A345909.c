@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 4707, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 8417 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    composition in standard order has alternating sum 1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline int alt_sum_is_one(idx_t k) {
     long long S = 0;
@@ -56,7 +58,7 @@ seq_t a(idx_t n) {
         if (alt_sum_is_one(last_k)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 cache = new_cache;
                 cache_cap = new_cap;
             }

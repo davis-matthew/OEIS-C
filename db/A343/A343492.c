@@ -7,14 +7,29 @@
  * Formula:   a(n) = Sum_{d|n} phi(n/d) * 5^(d-1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   phi, power5
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi.h"
-#include "../utils/power5.h"
+#include <stdbool.h>
+#include "../utils/totient.h"
+
+static inline seq_t power5(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     if (n == (idx_t)0) return (seq_t)0;   /* undefined for n=0, return 0 */
@@ -25,12 +40,12 @@ seq_t a(idx_t n) {
             idx_t d1 = d;
             idx_t d2 = n / d;
             /* term for divisor d1 */
-            seq_t phi1 = phi(d2);                       /* phi(n/d1) */
+            seq_t phi1 = totient(d2);                       /* phi(n/d1) */
             seq_t pow1 = power5(d1 - (idx_t)1);         /* 5^(d1-1) */
             total += phi1 * pow1;
             /* if d1 != d2 add the paired divisor */
             if (d1 != d2) {
-                seq_t phi2 = phi(d1);                   /* phi(n/d2) */
+                seq_t phi2 = totient(d1);                   /* phi(n/d2) */
                 seq_t pow2 = power5(d2 - (idx_t)1);     /* 5^(d2-1) */
                 total += phi2 * pow2;
             }

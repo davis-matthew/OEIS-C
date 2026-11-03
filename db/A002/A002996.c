@@ -9,22 +9,43 @@
  *            binomial(2m,m)/(m+1)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 36, u128 n <= 69,
  *            big any n
- * Helpers:   a2996_is_fixed, a2996_mu
+ * Validated: standard, pass, 45 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a2996_is_fixed.h"
-#include "../utils/a2996_mu.h"
+#include "../utils/mem.h"
+
+static int a2996_is_fixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x = (seq_t)(x + x);
+    return x == 0;
+}
+
+static int a2996_mu(uint64_t m) {
+    int r = 1;
+    uint64_t p;
+    for (p = 2; p * p <= m; p++) {
+        if (m % p == 0) {
+            m /= p;
+            if (m % p == 0) return 0;
+            r = -r;
+        }
+    }
+    if (m > 1) r = -r;
+    return r;
+}
 
 seq_t a(idx_t n) {
     seq_t pos = 0, neg = 0;
     idx_t m;
     if (a2996_is_fixed()) {
         /* exact modulo 2^w: Catalan by convolution (no division) */
-        seq_t *C = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *C = mem_new(seq_t, (size_t)(n + 1));
         C[0] = 1;
         for (m = 1; m <= n; m++) {
             seq_t s = 0;
@@ -43,7 +64,7 @@ seq_t a(idx_t n) {
                 else if (mu == -1) neg = (seq_t)(neg + C[m]);
             }
         }
-        free(C);
+        mem_free(C);
         return (seq_t)(pos - neg);
     } else {
         seq_t C = 1;

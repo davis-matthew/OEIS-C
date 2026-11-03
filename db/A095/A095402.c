@@ -10,14 +10,15 @@
  *            seq_t types
  * Range:     u8 n <= 400, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _digit_sum
+ * Validated: standard, pass, 106 terms through n = 9643 (2026-11-01)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include standard integer type definitions */
 #include <stdint.h>
-#include "../utils/_digit_sum.h"
+#include "../utils/digit_sum.h"
 
 /* Required entry point */
 seq_t a(idx_t n)
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Handle factor 2 separately to keep the loop odd */
     if ((m & 1ULL) == 0) {
-        sum += _digit_sum((seq_t)2);
+        sum += digit_sum((seq_t)2);
         while ((m & 1ULL) == 0)
             m >>= 1;                     /* divide by 2 */
     }
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
     /* Trial division by odd numbers up to sqrt(m) */
     for (uint64_t f = 3; f * f <= m; f += 2) {
         if (m % f == 0) {
-            sum += _digit_sum((seq_t)f);
+            sum += digit_sum((seq_t)f);
             while (m % f == 0)
                 m /= f;
         }
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
 
     /* If remainder > 1, it's a prime factor > sqrt(original n) */
     if (m > 1)
-        sum += _digit_sum((seq_t)m);
+        sum += digit_sum((seq_t)m);
 
     return sum;
 }

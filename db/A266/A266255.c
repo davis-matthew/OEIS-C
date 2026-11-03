@@ -9,11 +9,13 @@
  * Formula:   a(0)=1; a(odd n)=2*4^n-4; a(even n>0)=3
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 979 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {

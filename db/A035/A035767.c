@@ -7,7 +7,8 @@
  * Formula:   a(n) = [x^(2n)] ((1+x)/(1-x))^30
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 11, u128 n <= 60,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 32 terms through n = 9659 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 /* Computes the central coefficient of the expansion of ((1+x)/(1-x))^30 */
 /* by summing the product of two binomial coefficients. */
 #include <stdint.h>
-#include "../utils/binom.h"   /* binom(idx_t a, idx_t b) is available */
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -28,12 +29,12 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i <= max_i; ++i)
     {
         /* C(30, i) from (1+x)^30 */
-        seq_t c1 = binom(30, i);
+        seq_t c1 = binomial(30, i);
 
         /* Remaining exponent for (1-x)^(-30) term. */
         idx_t m = k - i;               /* 0 <= m <= k */
         /* C(29 + m, m) from the negative binomial expansion. */
-        seq_t c2 = binom(29 + m, m);
+        seq_t c2 = binomial(29 + m, m);
 
         sum += c1 * c2;
     }

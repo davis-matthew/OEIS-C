@@ -8,6 +8,7 @@
  *            -a(n-1) + 2*a(n-2) for n ≥ 2
  * Range:     i8 n <= 8, i16 n <= 16, i32 n <= 32, i64 n <= 64, i128 n <= 128,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 963 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

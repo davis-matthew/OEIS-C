@@ -11,13 +11,15 @@
  *            m*d(m-1)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 14, i64 n <= 22, i128 n <= 35,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 38 terms through n = 448 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *A_memo = NULL;   /* a(0..A_len-1) */
 static idx_t A_len = 0;
@@ -32,11 +34,11 @@ static void ensure_b(idx_t len) {
     if (len > B_cap) {
         idx_t nc = B_cap ? B_cap : 16;
         while (nc < len) nc *= 2;
-        seq_t *nb = (seq_t *)malloc(nc * sizeof(seq_t));
-        seq_t *nd = (seq_t *)malloc(nc * sizeof(seq_t));
+        seq_t *nb = mem_new(seq_t, nc);
+        seq_t *nd = mem_new(seq_t, nc);
         for (idx_t i = 0; i < B_len; i++) { nb[i] = B_memo[i]; nd[i] = D_memo[i]; }
         for (idx_t i = B_len; i < nc; i++) { nb[i] = 0; nd[i] = 0; }
-        free(B_memo); free(D_memo);
+        mem_free(B_memo); mem_free(D_memo);
         B_memo = nb; D_memo = nd; B_cap = nc;
     }
     if (B_len == 0) {
@@ -57,10 +59,10 @@ static void ensure_a(idx_t len) {
     if (len > A_cap) {
         idx_t nc = A_cap ? A_cap : 16;
         while (nc < len) nc *= 2;
-        seq_t *na = (seq_t *)malloc(nc * sizeof(seq_t));
+        seq_t *na = mem_new(seq_t, nc);
         for (idx_t i = 0; i < A_len; i++) na[i] = A_memo[i];
         for (idx_t i = A_len; i < nc; i++) na[i] = 0;
-        free(A_memo);
+        mem_free(A_memo);
         A_memo = na; A_cap = nc;
     }
     ensure_b(len + 1);
@@ -73,7 +75,7 @@ static void ensure_a(idx_t len) {
         seq_t s = 0;
         for (idx_t k = 0; k <= n; k++) {
             seq_t t = B_memo[k + 1];
-            if (t != 0) s += binom(n, k) * t * A_memo[n - k];
+            if (t != 0) s += binomial(n, k) * t * A_memo[n - k];
         }
         A_memo[n + 1] = s;
         A_len++;

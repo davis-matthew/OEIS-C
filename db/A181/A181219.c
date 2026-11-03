@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 26, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 337 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper: test whether three consecutive columns (with real columns)
    contain a line of three 1's.   prev==8 means dummy column (no check). */
@@ -77,7 +79,7 @@ grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 32;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) /* allocation failure – abort */
         exit(1);
     cache = new_arr;
@@ -90,8 +92,8 @@ init_dp(void)
 {
     if (dp_prev)
         return; /* already done */
-    dp_prev = (seq_t *)calloc(STATES, sizeof(seq_t));
-    dp_next = (seq_t *)calloc(STATES, sizeof(seq_t));
+    dp_prev = mem_new(seq_t, STATES);
+    dp_next = mem_new(seq_t, STATES);
     if (!dp_prev || !dp_next) exit(1);
 }
 

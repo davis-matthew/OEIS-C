@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 112, u16 n <= 1051, u32 n <= 1051, u64 n <= 1051,
  *            u128 n <= 1051, big any n
- * Helpers:   coord_to_index
+ * Validated: standard, pass, 97 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,37 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/coord_to_index.h"
+#include "../utils/mem.h"
+
+/* Convert planar coordinates (x,y) to spiral index.
+   Coordinates are 0‑based with the starting square at (0,0) -> 1. */
+static seq_t coord_to_index(int x, int y)
+{
+    if (x == 0 && y == 0) return 1;
+
+    int ax = x < 0 ? -x : x;
+    int ay = y < 0 ? -y : y;
+    int r  = ax > ay ? ax : ay;          /* ring radius */
+
+    /* Number of elements in all smaller rings = (2r-1)² */
+    seq_t start = (seq_t)(2 * r - 1) * (seq_t)(2 * r - 1) + 1;
+
+    seq_t offset;
+    if (x == r && y >= -r + 1) {
+        /* Right side, moving up */
+        offset = (seq_t)(y + r - 1);
+    } else if (y == r && x <= r - 1 && x >= -r) {
+        /* Top side, moving left */
+        offset = (seq_t)(2 * r - 1) + (seq_t)(r - x);
+    } else if (x == -r && y <= r - 1 && y >= -r) {
+        /* Left side, moving down */
+        offset = (seq_t)(4 * r - 1) + (seq_t)(r - y);
+    } else {
+        /* Bottom side, moving right */
+        offset = (seq_t)(6 * r - 1) + (seq_t)(x + r);
+    }
+    return start + offset;
+}
 
 static seq_t *cache = NULL;      /* memoised values a(1)..a(n) */
 static size_t cache_cap = 0;     /* allocated cache capacity */
@@ -50,7 +81,7 @@ static void ensure_cache_cap(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 1;
     while (new_cap < need) new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -96,7 +127,7 @@ seq_t a(idx_t n)
 
     /* Initialize simulation on first call */
     if (!initialized) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache_cap = 1;
         cache_len = 1;
         cache[0] = 1;                /* a(1) = 1 */

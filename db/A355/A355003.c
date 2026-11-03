@@ -7,16 +7,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(A003415(n), A277791(n))
- * Range:     u8 n <= 332, u16 n <= 9601, u32 n <= 9601, u64 n <= 9601,
- *            u128 n <= 9601, big any n
+ * Range:     u8 n <= 332, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9601 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return (seq_t)1;  /* derivative 0, denom 1 → gcd 1 */

@@ -8,13 +8,15 @@
  *            {11,33,99}, b is a power of 2, c is a power of 5
  * Range:     u8 n <= 11, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
 
     /* Generate the first "cap" humble numbers (powers of 2 and 5). */
     size_t cap = (size_t)n + 5;     /* a few extra to be safe */
-    seq_t *hum = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *hum = mem_new(seq_t, cap);
     if (!hum) return 0;            /* allocation failure – unlikely */
 
     hum[0] = 1;
@@ -64,6 +66,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(hum);
+    mem_free(hum);
     return result;
 }

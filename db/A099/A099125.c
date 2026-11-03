@@ -8,18 +8,20 @@
  * Formula:   a(n) = binomial(binomial(n + 6, n) + n - 1, n)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   binom, gcd
+ * Validated: standard, pass, 29 terms through n = 99 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
     /* first binomial: C(n+6,6) */
-    seq_t m = binom(n + 6, (idx_t)6);
+    seq_t m = binomial(n + 6, (idx_t)6);
 
     /* X = m + n - 1 */
     seq_t X = m + (seq_t)n - (seq_t)1;

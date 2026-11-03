@@ -8,6 +8,7 @@
  * Formula:   a(n) = (2*n + 1) * C(n)^3 (C(n) = n-th Catalan number)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 24,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 435 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 
 /* The function uses the provided helper: seq_t catalan(idx_t k); */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)

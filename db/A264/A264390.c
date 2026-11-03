@@ -11,13 +11,15 @@
  *            divisors of x. The function caches partia...
  * Range:     u8 n <= 4, u16 n <= 29, u32 n <= 150, u64 n <= 150,
  *            u128 n <= 150, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 141 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static int   spf[10001];                /* smallest prime factor */
 static uint32_t primes[1229];           /* π(10000) ≈ 1229 */
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
     init_sieve(10000);
     /* allocate cache if necessary */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((10001) * sizeof(seq_t));
+        cache = mem_new(seq_t, (10001));
         if (!cache) return (seq_t)0;
         cache[0] = 0;
         cache_size = 1;
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cache_size) {
         size_t old = cache_size;
         cache_size = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
         if (!cache) return (seq_t)0;
         /* compute values from old to n */
         for (idx_t k = (idx_t)old; k <= n; ++k) {

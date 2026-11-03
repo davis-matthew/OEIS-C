@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn, mult
  * Formula:   a(n) = (4^(v_2(n)+1)-1)/3
- * Range:     u8 n <= 7, u16 n <= 255, u32 n <= 9195, u64 n <= 9195,
- *            u128 n <= 9195, big any n
+ * Range:     u8 n <= 7, u16 n <= 255, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 112 terms through n = 9195 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

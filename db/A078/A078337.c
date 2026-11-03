@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 259, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome, make_palindrome, pow10
+ * Validated: standard, pass, 70 terms through n = 9114 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,32 @@
 /* required headers */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/pow10.h"
-#include "../utils/is_palindrome.h"
-#include "../utils/make_palindrome.h"
+#include <stdint.h>
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* ------------------------------------------------------------ */
+static seq_t make_palindrome(seq_t prefix, bool odd)
+{
+    seq_t pal = prefix;
+    seq_t rev = prefix;
+    if (odd) rev /= 10;          /* drop the middle digit for odd length */
+    while (rev > 0) {
+        pal = pal * 10 + (rev % 10);
+        rev /= 10;
+    }
+    return pal;
+}
 
 /* ------------------------------------------------------------ */
 /* integer square root for seq_t (avoids overflow for 64‑bit)   */
@@ -59,7 +83,7 @@ static void ensure_cap_seq(seq_t **arr, size_t *cap, size_t needed)
     if (needed > *cap) {
         size_t newcap = (*cap == 0) ? 4 : (*cap << 1);
         while (newcap < needed) newcap <<= 1;
-        *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }
@@ -78,7 +102,7 @@ static bool is_product_of_two_palindromes(seq_t P, seq_t *palList, size_t palSiz
         if (a > limit) break;
         if (P % a == 0) {
             seq_t b = P / a;
-            if (b > 1 && is_palindrome(b, 10)) return true;
+            if (b > 1 && is_palindrome_base(b, 10)) return true;
         }
     }
     return false;

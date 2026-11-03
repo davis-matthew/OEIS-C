@@ -7,12 +7,17 @@
  * Formula:   a(n) = Legendre symbol (n,257)
  * Range:     i8 n <= 0, i16 n <= 257, i32 n <= 257, i64 n <= 257,
  *            i128 n <= 257, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 98 terms through n = 225 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +27,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Euler's criterion: (n|p) = n^((p-1)/2) mod p,  p=257, (p-1)/2 = 128 */
-    seq_t r = mod_pow((seq_t)n_mod, (uint64_t)128, (seq_t)257);
+    seq_t r = powmod((seq_t)n_mod, (uint64_t)128, (seq_t)257);
 
     /* In modulo 257: residue yields 1, non‑residue yields 256 (= -1). */
     return r == (seq_t)1 ? (seq_t)1 : (seq_t)-1;

@@ -11,6 +11,7 @@
  * Formula:   a(n) = C(3^n + n - 1, n) (OEIS A060336)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
+ * Validated: standard, pass, 26 terms through n = 47 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

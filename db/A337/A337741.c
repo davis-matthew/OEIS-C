@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: full, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/digit_sum.h"   /* provides seq_t digit_sum(seq_t) */
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* Test if the (positive) integer v is a Niven number. */
 static bool is_niven(idx_t v)
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache if needed. */
     if (terms == NULL) {
         terms_cap = 64;
-        terms = (seq_t *)malloc(sizeof(seq_t) * terms_cap);
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) return (seq_t)0;       /* allocation failure */
     }
 
@@ -82,8 +84,8 @@ seq_t a(idx_t n)
                 /* Ensure enough capacity. */
                 if (terms_len >= terms_cap) {
                     terms_cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(terms, sizeof(seq_t) * terms_cap);
-                    if (!tmp) { free(terms); terms = NULL; return (seq_t)0; }
+                    seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
+                    if (!tmp) { mem_free(terms); terms = NULL; return (seq_t)0; }
                     terms = tmp;
                 }
                 terms[terms_len++] = (seq_t)candidate;

@@ -8,7 +8,8 @@
  * Formula:   a(n) = #{(j,k) | j≤k, j|2n, k|2n, j+k|2n} (OEIS A175393)
  * Range:     u8 n <= 63, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 111 terms through n = 9806 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 /* Factorization helper for unsigned 64‑bit integers.  */
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Compute all divisors of a 64‑bit number m and store them in the
    array `divs`.  `cnt` will contain the number of divisors.
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         dcnt *= (exps[i] + 1);
 
     /* Allocate array for all divisors.  */
-    seq_t *divs = (seq_t *)malloc(dcnt * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, dcnt);
     if (!divs)
         return (seq_t)0;   /* Minimal error handling */
 
@@ -92,6 +94,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(divs);
+    mem_free(divs);
     return count;
 }

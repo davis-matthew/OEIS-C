@@ -8,12 +8,14 @@
  *            a(2)=123
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,10 +28,10 @@ seq_t a(idx_t n)
         idx_t new_len = n + 1;
 
         /* Allocate a larger buffer and copy old values */
-        seq_t *tmp = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_len);
         if (cache) {
             for (idx_t i = 0; i < old_len; ++i) tmp[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = tmp;
         cache_len = new_len;

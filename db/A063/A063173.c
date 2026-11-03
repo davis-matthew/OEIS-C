@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   ensure_cap
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,17 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/ensure_cap.h"
+
+/* dynamic array helper for uint64_t */
+static void ensure_cap(uint64_t **arr, size_t *cap, size_t need) {
+    if (*cap >= need) return;
+    size_t newcap = (*cap == 0) ? 4 : *cap * 2;
+    while (newcap < need) newcap <<= 1;
+    uint64_t *tmp = (uint64_t *)realloc(*arr, newcap * sizeof(uint64_t));
+    if (!tmp) abort();               /* out of memory */
+    *arr = tmp;
+    *cap = newcap;
+}
 
 /* storage for primes and composites */
 static uint64_t *primes = NULL;

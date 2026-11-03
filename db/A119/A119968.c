@@ -5,15 +5,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = ∑_{k≥0, 2^k‑1 ≤ n} binom(n, 2^k‑1)
- * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 30, u64 n <= 33, u128 n <= 33,
+ * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +23,7 @@ seq_t a(idx_t n)
     while (m - 1 <= n)
     {
         idx_t k = m - 1;               /* k = 2^k - 1 */
-        sum += binom(n, k);
+        sum += binomial(n, k);
         m <<= 1;                       /* next power of two */
     }
     return sum;

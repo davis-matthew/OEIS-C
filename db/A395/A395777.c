@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 246, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 86 terms through n = 9006 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,17 +32,17 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static seq_t
 _factor_prime(uint64_t p, int e)
 {
     /* 2 and 3: direct powers */
     if (p == 2ull || p == 3ull)
-        return big_pow((seq_t)p, (seq_t)e);
+        return ipow((seq_t)p, (seq_t)e);
 
     /* General prime */
-    seq_t val = big_pow((seq_t)p, (seq_t)(e - 1));
+    seq_t val = ipow((seq_t)p, (seq_t)(e - 1));
     uint64_t mod = p % 24ull;
 
     /* Residue classes decide whether to use (p‑1) or (p+1). */

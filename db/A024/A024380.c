@@ -9,6 +9,7 @@
  *            n*(n+1)*(n+2)*(n+3)*(240*n^4+1920*n^3+4760*n^2+3072*n-1217)/360
  * Range:     u8 none, u16 none, u32 n <= 6, u64 n <= 22, u128 n <= 22,
  *            big any n
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

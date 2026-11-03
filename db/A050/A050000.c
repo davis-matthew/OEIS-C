@@ -10,7 +10,8 @@
  *            This implements the MD(3,2) sequence A050000
  * Range:     u8 n <= 30, u16 n <= 779, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 8419 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (seq_len == 0) {
         /* Allocate room for the first term. */
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;
         seq_len = 1;
 
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         /* Ensure capacity for the new term. */
         if (seq_len >= seq_cap) {
             size_t new_cap = seq_cap * 2;
-            seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
             seq_cap = new_cap;
         }
         seq[seq_len] = new_val;

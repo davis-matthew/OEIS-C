@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   Additive with a(p^e) = p^3 if p ≡ 1 (mod 3), 0 otherwise
- * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 1626, u64 n <= 9204,
- *            u128 n <= 9204, big any n
+ * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 1626, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 95 terms through n = 9204 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

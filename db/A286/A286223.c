@@ -9,12 +9,14 @@
  *            even number of prime divisors (counted with multiplicity)
  * Range:     u8 n <= 73, u16 n <= 184, u32 n <= 534, u64 n <= 1717,
  *            u128 n <= 5973, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9803 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;           /* dp[sum] = number of valid partitions of sum   */
 static size_t dp_cap = 0;          /* current capacity of dp                        */
@@ -28,7 +30,7 @@ static idx_t max_n_processed = 0;  /* largest n for which dp has been computed  
 #define RESIZE_ARRAY(ptr, current_cap, new_cap, type)             \
     do {                                                         \
         if ((current_cap) < (new_cap)) {                         \
-            type *tmp = (type *)realloc((ptr), (new_cap) * sizeof(type)); \
+            type *tmp = mem_resize(type, (ptr), (new_cap)); \
             if (!tmp) abort();                                   \
             (ptr) = tmp;                                         \
             (current_cap) = (new_cap);                           \
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Handle the trivial case a(0) = 1 */
     if (n == 0) {
         if (dp_cap < 1) {
-            dp = (seq_t *)realloc(dp, sizeof(seq_t));
+            dp = mem_resize(seq_t, dp, 1);
             if (!dp) abort();
             dp_cap = 1;
         }

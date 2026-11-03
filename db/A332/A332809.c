@@ -8,8 +8,9 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = number of distinct integers encountered on all paths from
  *            n to 1 using the map k → k - k/p for any prime factor p of k
- * Range:     u8 n <= 6148, u16 n <= 8990, u32 n <= 8990, u64 n <= 8990,
- *            u128 n <= 8990, big any n
+ * Range:     u8 n <= 6148, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 104 terms through n = 8990 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

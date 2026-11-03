@@ -10,7 +10,8 @@
  *            majority of its horizontal and antidiagonal neighbors
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define NULLCOL 32          /* 0..31 are normal 5‑bit column patterns, 32 denotes missing left column */
 #define COLPAT 32           /* 5 bits -> 32 possible column patterns */
@@ -92,13 +94,13 @@ seq_t a(idx_t n)
     }
 
     /* Initialise for the first column: left neighbour missing */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     for (int p = 0; p < COLPAT; ++p)
         dp[NULLCOL][p] = (seq_t)1;
 
     /* Process columns 2..n */
     for (idx_t col_idx = 2; col_idx <= n; ++col_idx) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (int prev = 0; prev <= NULLCOL; ++prev) {
             for (int curr = 0; curr < COLPAT; ++curr) {
                 seq_t ways = dp[prev][curr];
@@ -112,7 +114,7 @@ seq_t a(idx_t n)
         }
         /* swap dp and ndp by copying */
         for (int i = 0; i <= NULLCOL; ++i)
-            memcpy(dp[i], ndp[i], sizeof(seq_t) * COLPAT);
+            mem_copy(dp[i], ndp[i], sizeof(seq_t) * COLPAT);
     }
 
     /* Final column: no right neighbour */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,8 +47,8 @@ seq_t a(idx_t n)
     idx_t j = n - prev_rows;
 
     /* Allocate the first row. */
-    seq_t *u_prev = (seq_t *)malloc(sizeof(seq_t));
-    seq_t *v_prev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *u_prev = mem_new(seq_t, 1);
+    seq_t *v_prev = mem_new(seq_t, 1);
     if (!u_prev || !v_prev) return (seq_t)0;  /* allocation failure */
 
     u_prev[0] = 1;
@@ -57,10 +59,10 @@ seq_t a(idx_t n)
         size_t cur_size  = (size_t)cur;
         size_t prev_size = (size_t)(cur - 1);
 
-        seq_t *u_cur = (seq_t *)malloc(cur_size * sizeof(seq_t));
-        seq_t *v_cur = (seq_t *)malloc(cur_size * sizeof(seq_t));
+        seq_t *u_cur = mem_new(seq_t, cur_size);
+        seq_t *v_cur = mem_new(seq_t, cur_size);
         if (!u_cur || !v_cur) {
-            free(u_prev); free(v_prev);
+            mem_free(u_prev); mem_free(v_prev);
             return (seq_t)0;   /* allocation failure */
         }
 
@@ -82,8 +84,8 @@ seq_t a(idx_t n)
                          + ((idx == 0) ? 1 : 0);
         }
 
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = u_cur;
         v_prev = v_cur;
     }
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
     /* Extract the requested coefficient. */
     seq_t result = v_prev[(size_t)(j - 1)];
 
-    free(u_prev);
-    free(v_prev);
+    mem_free(u_prev);
+    mem_free(v_prev);
     return result;
 }

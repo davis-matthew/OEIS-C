@@ -11,7 +11,8 @@
  *            such a divisor
  * Range:     u8 n <= 12, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Parameters ------------------------------------------------------- */
@@ -77,7 +79,7 @@ static void add_seen_big(seq_t p)
 {
     if (seen_big_len == seen_big_cap) {
         size_t new_cap = seen_big_cap ? seen_big_cap * 2 : 16;
-        seen_big = (seq_t*)realloc(seen_big, new_cap * sizeof(seq_t));
+        seen_big = mem_resize(seq_t, seen_big, new_cap);
         seen_big_cap = new_cap;
     }
     seen_big[seen_big_len++] = p;
@@ -116,7 +118,7 @@ static void init_seq(void)
     if (seq_arr != NULL) return; /* already done */
 
     seq_cap = 8;
-    seq_arr = (seq_t*)calloc(seq_cap, sizeof(seq_t));
+    seq_arr = mem_new(seq_t, seq_cap);
     seq_arr[1] = (seq_t)2;   /* a(1) = 2 */
     seq_len = 1;
 }
@@ -128,7 +130,7 @@ static void ensure_seq_capacity(size_t n)
     if (n + 1 > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 8;
         while (new_cap < n + 1) new_cap <<= 1;
-        seq_arr = (seq_t*)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, new_cap);
         seq_cap = new_cap;
     }
 }

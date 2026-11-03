@@ -11,7 +11,8 @@
  *            minimal
  * Range:     u8 n <= 46, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* find the index of the most significant set bit in x (-1 if x == 0) */
 static inline int highest_bit(seq_t x) {
@@ -65,10 +67,10 @@ seq_t a(idx_t n) {
     }
 
     /* dynamic programming: dp[s] = minimal mask achieving sum s */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     bool *reach = (bool *)calloc((size_t)(n + 1), sizeof(bool));
     if (!dp || !reach) {          /* allocation failure */
-        free(dp);
+        mem_free(dp);
         free(reach);
         return 0;
     }
@@ -96,7 +98,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t bestMask = dp[n];
-    free(dp);
+    mem_free(dp);
     free(reach);
 
     return count_runs(bestMask);

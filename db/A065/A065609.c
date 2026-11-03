@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 85, u16 n <= 8907, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 78 terms through n = 9656 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"   /* provides bitlen_seq_t */
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 #define SEQ_T_BITS (sizeof(seq_t) * 8)
 
@@ -28,7 +31,7 @@
 /* Test whether m is the maximum among all its cyclic right rotations. */
 static bool is_max_rotation(seq_t m)
 {
-    unsigned L = bitlen_seq_t(m);        /* number of bits in m (L ≥ 1) */
+    unsigned L = bit_length(m);        /* number of bits in m (L ≥ 1) */
     if (L == 1)
         return true;                    /* single–bit numbers are always maximal */
 
@@ -68,7 +71,7 @@ seq_t a(idx_t n)
             /* Ensure the array has enough space. */
             if (terms_size == terms_cap) {
                 size_t newcap = (terms_cap == 0) ? 16 : terms_cap * 2;
-                seq_t *newptr = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                seq_t *newptr = mem_resize(seq_t, terms, newcap);
                 if (!newptr) {
                     /* Allocation failure – abort (safe for the exercise). */
                     abort();

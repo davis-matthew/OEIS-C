@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1136, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_sub27
+ * Validated: standard, pass, 65 terms through n = 9920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_sub27.h"
+#include "../utils/mem.h"
+
+/* Test whether the base‑8 representation of x contains the substring 27.
+   We examine the digits from least‑significant to most‑significant,
+   keeping the previous digit so we can detect the pattern 27. */
+static bool has_sub27(seq_t x)
+{
+    if (x == 0) return false;                 /* base‑8 "0" has no 27 */
+
+    bool have_prev = false;
+    seq_t prev = 0;
+    while (x > 0) {
+        seq_t rem = x % 8;                    /* current digit (0…7) */
+        if (have_prev && prev == 7 && rem == 2) return true;
+        have_prev = true;
+        prev = rem;
+        x = x / 8;
+    }
+    return false;
+}
 
 /* Static cache of the first terms found. */
 static seq_t *cache = NULL;          /* allocated array of seq_t */
@@ -34,7 +54,7 @@ static void grow_cache(size_t min_cap)
     if (min_cap <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < min_cap) new_cap *= 2;
-    seq_t *new_mem = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, cache, new_cap);
     cache = new_mem;
     cache_cap = new_cap;
 }

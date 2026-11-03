@@ -11,13 +11,16 @@
  *            P(n,j)=n*(n-1)*...*(n-j+1). For n<j the term is 0
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Use the provided big_pow and binom utilities.  */
-#include "../utils/big_pow.h"   /* big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
             perm *= (seq_t)(n - t);
 
         /* power (5-j)^(n-j) */
-        seq_t pow_val = big_pow((seq_t)(5 - j), (seq_t)(n - j));
+        seq_t pow_val = ipow((seq_t)(5 - j), (seq_t)(n - j));
 
         /* term = C(5,j) * perm * pow_val */
         seq_t term = comb[j] * perm;

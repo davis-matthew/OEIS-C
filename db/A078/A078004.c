@@ -8,12 +8,14 @@
  *            a(2) = 0
  * Range:     i8 n <= 10, i16 n <= 22, i32 n <= 42, i64 n <= 85, i128 n <= 169,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Initialise cache with first three terms if needed. */
     if (cache_len == 0) {
         cache_len = 3;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return 0;  /* out of memory; undefined behaviour in test harness */
         cache[0] = 1;
         cache[1] = 1;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         seq_t val = 2 * cache[i-1] - 2 * cache[i-2] - cache[i-3];
         if (i == cache_len) {
             size_t new_len = (size_t)(i + 1);
-            seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_len);
             if (!tmp) return 0;  /* out of memory */
             cache = tmp;
             cache_len = new_len;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   has_adjacent_equal_parts
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,35 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/has_adjacent_equal_parts.h"
+#include "../utils/mem.h"
+
+/* Test whether the k-th composition (written in standard order)
+ * contains adjacent equal parts. */
+static bool has_adjacent_equal_parts(idx_t k)
+{
+    idx_t i = 1;          /* positions start at 1 in the reversed bit string */
+    idx_t prev_pos = 0;   /* previous position of a 1 (start with 0) */
+    idx_t prev_diff = 0;  /* difference between current and previous 1 */
+    bool first = true;    /* flag for the first 1 encountered */
+    idx_t temp = k;
+
+    while (temp > 0) {
+        if (temp & 1) {            /* bit is set → 1 in reversed binary */
+            idx_t cur_pos = i;
+            idx_t diff = cur_pos - prev_pos;
+            if (!first) {
+                if (diff == prev_diff) return true;  /* adjacent equal parts found */
+            } else {
+                first = false;
+            }
+            prev_diff = diff;
+            prev_pos = cur_pos;
+        }
+        temp >>= 1;
+        i++;
+    }
+    return false;
+}
 
 /* The a(n) function as required.  It memoises results up to the
  * largest n requested so far and continues enumeration from the
@@ -40,7 +69,7 @@ seq_t a(idx_t n)
         /* Ensure enough capacity for new elements. */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap == 0 ? 8 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cache_cap = new_cap;
         }

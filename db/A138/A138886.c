@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static seq_t *cache = NULL;
@@ -35,7 +37,7 @@ static void ensure_cache_up_to(idx_t n)
     if (cache_size == 0) {
         /* initial capacity */
         cache_capacity = 64;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (!cache) abort();
     }
     while (cache_size < (size_t)n) {
@@ -52,7 +54,7 @@ static void ensure_cache_up_to(idx_t n)
         /* grow the cache if necessary */
         if (cache_size == cache_capacity) {
             cache_capacity *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cache_capacity);
             if (!tmp) abort();
             cache = tmp;
         }

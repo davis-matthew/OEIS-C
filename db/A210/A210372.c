@@ -11,14 +11,31 @@
  *            determinant
  * Range:     u8 n <= 4, u16 n <= 20, u32 n <= 340, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi_table_build
+ * Validated: standard, pass, 47 terms through n = 9919 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/phi_table_build.h"
+
+/* Helper: compute Euler’s totient for all numbers ≤ n */
+static uint32_t *phi_table_build(idx_t n)
+{
+    idx_t sz = n + 1;
+    uint32_t *phi = (uint32_t *)malloc((sz + 1) * sizeof(uint32_t));
+    if (!phi) abort();
+    for (idx_t i = 0; i <= sz; ++i)          /* initialize φ(i)=i */
+        phi[i] = (uint32_t)i;
+    for (idx_t p = 2; p <= n; ++p) {
+        if (phi[p] == (uint32_t)p) {         /* p is prime */
+            for (idx_t k = p; k <= n; k += p)
+                phi[k] = (uint32_t)(phi[k] / p * (p - 1));
+        }
+    }
+    return phi;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

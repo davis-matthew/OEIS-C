@@ -10,12 +10,14 @@
  *            floor(log2(n-2)). Initial values: a(1)=1, a(2)=1, a(3)=4
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: floor(log2(v)) for non‑zero v */
 static inline idx_t floor_log2_uint64(idx_t v) {
@@ -33,8 +35,8 @@ static void ensure_capacity(idx_t n) {
     if ((size_t)n <= cap) return;
     size_t new_cap = cap ? cap * 2 : 8;
     while ((size_t)n > new_cap) new_cap <<= 1;
-    seq  = (seq_t *)realloc(seq,  (new_cap + 1) * sizeof(seq_t));
-    pref = (seq_t *)realloc(pref, (new_cap + 1) * sizeof(seq_t));
+    seq  = mem_resize(seq_t, seq, (new_cap + 1));
+    pref = mem_resize(seq_t, pref, (new_cap + 1));
     if (pref) pref[0] = (seq_t)0;  /* prefix sum before first term */
     cap = new_cap;
 }

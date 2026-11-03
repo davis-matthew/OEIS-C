@@ -7,17 +7,18 @@
  * Formula:   a(n) = 7^n + 8^n + 9^n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   power_of
+ * Validated: standard, pass, 35 terms through n = 296 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/power_of.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
-    seq_t p7 = power_of(7, n);
-    seq_t p8 = power_of(8, n);
-    seq_t p9 = power_of(9, n);
+    seq_t p7 = ipow_idx(7, n);
+    seq_t p8 = ipow_idx(8, n);
+    seq_t p9 = ipow_idx(9, n);
     return p7 + p8 + p9;
 }

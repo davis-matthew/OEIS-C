@@ -7,12 +7,14 @@
  * Formula:   a(n) = n! * sum_{k=0..n} k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 234 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static memoization tables */
@@ -23,9 +25,9 @@ seq_t a(idx_t n) {
     /* initial allocation for index 0 */
     if (fact == NULL) {
         cap = 1;
-        fact = (seq_t *)malloc(cap * sizeof(seq_t));
-        sum  = (seq_t *)malloc(cap * sizeof(seq_t));
-        val  = (seq_t *)malloc(cap * sizeof(seq_t));
+        fact = mem_new(seq_t, cap);
+        sum  = mem_new(seq_t, cap);
+        val  = mem_new(seq_t, cap);
         fact[0] = (seq_t)1;
         sum[0]  = (seq_t)1;
         val[0]  = fact[0] * sum[0];
@@ -38,9 +40,9 @@ seq_t a(idx_t n) {
         if ((size_t)i >= cap) {
             size_t new_cap = cap > 0 ? cap * 2 : 1;
             while (new_cap <= (size_t)i) new_cap *= 2;
-            fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
-            sum  = (seq_t *)realloc(sum,  new_cap * sizeof(seq_t));
-            val  = (seq_t *)realloc(val,  new_cap * sizeof(seq_t));
+            fact = mem_resize(seq_t, fact, new_cap);
+            sum  = mem_resize(seq_t, sum, new_cap);
+            val  = mem_resize(seq_t, val, new_cap);
             cap  = new_cap;
         }
 

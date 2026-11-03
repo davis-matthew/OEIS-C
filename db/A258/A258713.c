@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 841, u32 n <= 845, u64 n <= 845,
  *            u128 n <= 845, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 842 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* -------- FFT utilities -------- */
 typedef struct { double re; double im; } complex_t;
@@ -105,7 +107,7 @@ static void precompute(void)
         if (g >= 0) {
             if ((size_t)g >= best_len) {
                 size_t new_len = (size_t)g + 1;
-                seq_t *cnt = (seq_t *)realloc(best_counts, new_len * sizeof(seq_t));
+                seq_t *cnt = mem_resize(seq_t, best_counts, new_len);
                 unsigned char *used = (unsigned char *)realloc(best_used, new_len * sizeof(unsigned char));
                 for (size_t i = best_len; i < new_len; ++i) { cnt[i] = (seq_t)0; used[i] = 0; }
                 best_counts = cnt; best_used = used; best_len = new_len;

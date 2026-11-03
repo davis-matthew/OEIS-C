@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,8 +21,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"          /* factor_u64 */
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
+#include <stdint.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 /* Comparison function for qsort: descending order of parts. */
 static int cmp_desc(const void *p1, const void *p2)

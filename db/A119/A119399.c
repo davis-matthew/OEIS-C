@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} ((n!/k!)^2 * binomial(n-1,k-1))
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Compiles under C11 and C++17; seq_t and idx_t are provided by the build.   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed values.  */
 static seq_t *cache = NULL;      /* array of a(i) for 0 <= i < cache_size */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
 
     /* Allocate or grow the cache.  */
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {
         /* In a real program we would handle allocation failure.
          * For the purposes of the kata we simply abort. */

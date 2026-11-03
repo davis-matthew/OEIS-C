@@ -9,7 +9,8 @@
  *            x^4*(2-12*x+24*x^2-8*x^3-41*x^4+57*x^5-16*x^6)/((1-x)*(1-3*x+x^2)*(1-2*x)^6)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 21, u64 n <= 44, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* recurrence coefficients derived from the denominator */
 static const int32_t pos_lags[4] = {2, 4, 6, 8};
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 {
     /* allocate array of size n+1 */
     size_t N = (size_t)n + 1;
-    seq_t *seq = (seq_t*) calloc(N, sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, N);
     if (!seq) return 0;            /* safety */
 
     /* iterate and compute values */
@@ -85,6 +87,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

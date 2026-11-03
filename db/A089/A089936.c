@@ -11,13 +11,15 @@
  *            explanation
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
  
 #define ROWS       5
 #define STATES    (1 << ROWS)
@@ -65,7 +67,7 @@ init_tables(void)
  
     /* answers array initial allocation */
     ans_alloc = 16;
-    answers = (seq_t*)malloc((size_t)ans_alloc * sizeof(seq_t));
+    answers = mem_new(seq_t, (size_t)ans_alloc);
     if (answers == NULL) abort();
     answers[0] = (seq_t)0;          /* dummy entry for 1‑based indexing */
  
@@ -81,7 +83,7 @@ ensure_answers_size(idx_t n)
     size_t newsize = ans_alloc * 2;
     if (newsize < (size_t)n + 1)
         newsize = (size_t)n + 1;
-    seq_t *newptr = (seq_t*)realloc(answers, newsize * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, answers, newsize);
     if (newptr == NULL) abort();
     answers = newptr;
     ans_alloc = newsize;

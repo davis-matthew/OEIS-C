@@ -9,13 +9,15 @@
  *            a(2)=1, a(3)=2; a(n) defined for n >= 1
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 26, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The function memoises results in a dynamically grown array. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage is required.  seq_t and idx_t are typedefed by the build. */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
        required to reduce the number of reallocations. */
     if (n >= allocated) {
         idx_t new_cap = (n + 1) * 2;            /* double size to amortise reallocs */
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) { /* allocation failure: return 0 or abort */
             return (seq_t)0;
         }
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
             for (idx_t i = 0; i < allocated; ++i) {
                 tmp[i] = cache[i];
             }
-            free(cache);
+            mem_free(cache);
         }
         cache = tmp;
         allocated = new_cap;

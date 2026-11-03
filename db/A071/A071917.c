@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 45, u16 n <= 946, u32 n <= 8675, u64 n <= 8675,
- *            u128 n <= 8675, big any n
- * Helpers:   none
+ * Range:     u8 n <= 45, u16 n <= 946, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 76 terms through n = 8675 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>   /* malloc, calloc, realloc, free, NULL */
 #include <stdint.h>   /* uint8_t, uint32_t */
 #include <stdbool.h>  /* bool */
+#include "../utils/mem.h"
 
 static idx_t    sieve_limit   = 0;    /* maximum n for which pi table is valid */
 static uint32_t *pi_prefix  = NULL;   /* pi_prefix[i] = pi(i)  (0 <= i <= sieve_limit) */
@@ -68,7 +70,7 @@ static void extend_cache(idx_t max_n)
     if (max_n <= cache_limit) return;
 
     size_t new_sz = (size_t)(max_n + 1);
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_sz * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_sz);
     if (!new_cache) return;          /* memory failure – abort silently */
     a_cache = new_cache;
 

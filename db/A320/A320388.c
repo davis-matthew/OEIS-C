@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 305, u32 n <= 1663, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 1891 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* 
    Compute OEIS A320388: number of partitions of n into distinct parts
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
 
         /* Allocate DP array for coin-change: dp[s] is the number of ways
            to write s using the allowed denominations. */
-        seq_t *dp = (seq_t *)calloc((size_t)R + 1, sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, (size_t)R + 1);
         if (!dp)
             return total;   /* allocation failure; unlikely in test harness */
 
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
         total += dp[R];
 
         /* Clean up. */
-        free(dp);
+        mem_free(dp);
     }
 
     return total;

@@ -7,11 +7,13 @@
  * Formula:   a(n) = sum_{k=1..n} (prime(k) mod 3)
  * Range:     u8 n <= 169, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 86 terms through n = 953 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Implements OEIS A120326.  Up to n ≈ 10⁴ we can pre‑compute 20 000 primes
    (the 20 000th prime is 224737, so 20 000 primes are well within the
    limit 200000).  The function keeps static arrays of primes and their

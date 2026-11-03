@@ -8,14 +8,17 @@
  *            · 3^j, computed as i·2^(i‑1)·3^j + j·2^i·3^(j‑1)
  * Range:     u8 n <= 19, u16 n <= 69, u32 n <= 279, u64 n <= 1153,
  *            u128 n <= 4808, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 66 terms through n = 9947 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* Static state for generating 3‑smooth numbers */
 static seq_t   *smooth_val = NULL;   /* power 2^i · 3^j */
@@ -33,7 +36,7 @@ ensure_terms(idx_t n)
     if (smooth_val == NULL) {
         /* initial allocation */
         capacity = 128;
-        smooth_val = (seq_t*)malloc(capacity * sizeof(seq_t));
+        smooth_val = mem_new(seq_t, capacity);
         smooth_i   = (idx_t*)  malloc(capacity * sizeof(idx_t));
         smooth_j   = (idx_t*)  malloc(capacity * sizeof(idx_t));
 
@@ -73,8 +76,7 @@ ensure_terms(idx_t n)
         /* grow storage if necessary */
         if (size == capacity) {
             capacity <<= 1;
-            smooth_val = (seq_t*)realloc(smooth_val,
-                                         capacity * sizeof(seq_t));
+            smooth_val = mem_resize(seq_t, smooth_val, capacity);
             smooth_i   = (idx_t*)realloc(smooth_i,
                                          capacity * sizeof(idx_t));
             smooth_j   = (idx_t*)realloc(smooth_j,
@@ -103,14 +105,14 @@ seq_t a(idx_t n)
     seq_t result = (seq_t)0;
 
     if (i > 0) {
-        seq_t pow2_i_minus1 = seq_pow((seq_t)2, i - 1);
-        seq_t pow3_j        = seq_pow((seq_t)3, j);
+        seq_t pow2_i_minus1 = ipow_idx((seq_t)2, i - 1);
+        seq_t pow3_j        = ipow_idx((seq_t)3, j);
         result += (seq_t)i * pow2_i_minus1 * pow3_j;
     }
 
     if (j > 0) {
-        seq_t pow2_i        = seq_pow((seq_t)2, i);
-        seq_t pow3_j_minus1 = seq_pow((seq_t)3, j - 1);
+        seq_t pow2_i        = ipow_idx((seq_t)2, i);
+        seq_t pow3_j_minus1 = ipow_idx((seq_t)3, j - 1);
         result += (seq_t)j * pow2_i * pow3_j_minus1;
     }
 

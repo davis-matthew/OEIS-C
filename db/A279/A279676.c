@@ -10,6 +10,7 @@
  *            (1‑x)(1‑x³)/(1+2x+2x²))
  * Range:     i8 n <= 12, i16 n <= 28, i32 n <= 60, i64 n <= 124,
  *            i128 n <= 252, big any n
+ * Validated: standard, pass, 58 terms through n = 989 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

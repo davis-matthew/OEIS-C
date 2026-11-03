@@ -9,7 +9,8 @@
  *            all primes less than p_n
  * Range:     u8 n <= 9, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global state for prime sieve and prefix sums. */
 static size_t sieve_limit   = 0;
@@ -36,7 +38,7 @@ static void ensure_sieve(size_t limit)
 
     free(sieve_is_prime);
     free(prime_list);
-    free(prime_prefix);
+    mem_free(prime_prefix);
 
     sieve_is_prime = (bool *)malloc((limit + 1u) * sizeof(bool));
     if (!sieve_is_prime)
@@ -61,7 +63,7 @@ static void ensure_sieve(size_t limit)
     prime_count = cnt;
 
     prime_list   = (uint64_t *)malloc(cnt * sizeof(uint64_t));
-    prime_prefix = (seq_t   *)malloc(cnt * sizeof(seq_t));
+    prime_prefix = mem_new(seq_t, cnt);
     if (!prime_list || !prime_prefix) {
         free(sieve_is_prime);
         sieve_is_prime = NULL;

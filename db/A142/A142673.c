@@ -7,12 +7,14 @@
  * Formula:   a(n) = the nth prime that is congruent to 13 modulo 57
  * Range:     u8 n <= 3, u16 n <= 181, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 58 terms through n = 992 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n) {

@@ -12,13 +12,15 @@
  *            Σ_{k=0}^n dp[k] · D_{n-k}, where D_m is the numbe...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The function signature that must be provided */
 seq_t a(idx_t n)
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate two arrays of size n+1 for dp and derangements */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *D  = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
+    seq_t *D  = mem_new(seq_t, (n + 1));
     if (!dp || !D) {
-        free(dp);
-        free(D);
+        mem_free(dp);
+        mem_free(D);
         return (seq_t)0;          /* Allocation failure propagates */
     }
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         result += dp[k] * D[n - k];
     }
 
-    free(dp);
-    free(D);
+    mem_free(dp);
+    mem_free(D);
     return result;
 }

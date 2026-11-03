@@ -10,7 +10,8 @@
  *            their sums
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9613 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- dynamic array for seq_t values ---------- */
 typedef struct {
@@ -33,7 +35,7 @@ static void ensure_capacity(SeqArray *a, size_t need) {
     size_t new_cap = a->capacity ? a->capacity : 64;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *new_data = (seq_t *)realloc(a->data, new_cap * sizeof(seq_t));
+    seq_t *new_data = mem_resize(seq_t, a->data, new_cap);
     a->data = new_data;
     a->capacity = new_cap;
 }
@@ -89,7 +91,7 @@ seq_t a(idx_t n) {
         dfs_rec(1, 14, 0, powers, M, &all);
 
         /* sort and deduplicate */
-        qsort(all.data, all.size, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(all.data, all.size, sizeof(seq_t), cmp_seq_t);
         size_t uniq = 0;
         for (size_t i = 0; i < all.size; ++i) {
             if (i == 0 || all.data[i] != all.data[i - 1]) {

@@ -9,13 +9,24 @@
  *            a(m-1-j), with c(0) = 2, c(j) = 9^j for j >= 1, a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   A_grow
+ * Validated: standard, pass, 35 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/A_grow.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *a3581_B = NULL;    /* a(0..cnt-1) */
 static seq_t *a3581_row = NULL;  /* binomial(cnt-1, j), j = 0..cnt-1 */

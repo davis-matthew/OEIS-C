@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 99, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_count
+ * Validated: standard, pass, 75 terms through n = 7969 (2026-11-03)
+ * Helpers:   mem, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/digit_count.h"    /* digit_count(uint64_t) -> digit count */
+#include <math.h>
+#include "../utils/num_digits0.h"
+#include "../utils/mem.h"
 
 /* ---------- Globals for caching ---------- */
 static seq_t *seq_cache = NULL;   /* a_cache[1] == a(1) */
@@ -46,7 +49,7 @@ static void grow_seq_cache(size_t needed_cap)
     if (needed_cap <= seq_cache_cap) return;
     size_t new_cap = seq_cache_cap ? seq_cache_cap << 1 : 16;
     while (new_cap < needed_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);   /* allocation failed */
     seq_cache = tmp;
     seq_cache_cap = new_cap;
@@ -57,7 +60,7 @@ static void grow_used_cache(size_t needed_cap)
     if (needed_cap <= used_cap) return;
     size_t new_cap = used_cap ? used_cap << 1 : 16;
     while (new_cap < needed_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(used_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, used_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     used_cache = tmp;
     used_cap = new_cap;
@@ -121,7 +124,7 @@ static seq_t compute_term(idx_t k)
     /* concatenate (k+1) and k */
     seq_t nk   = (seq_t)k;
     seq_t nk1  = nk + 1;
-    unsigned d = (unsigned)digit_count((uint64_t)k);
+    unsigned d = (unsigned)num_digits0((uint64_t)k);
     seq_t pow10 = 1;
     for (unsigned i = 0; i < d; ++i) pow10 *= 10;
     seq_t x = nk1 * pow10 + nk;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 105, i16 n <= 325, i32 n <= 1083, i64 n <= 3841,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9478 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -46,6 +47,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*----------------------------------------------------------------------
  *  Cache of previously computed coefficients
@@ -69,9 +71,9 @@ static void precompute(idx_t nmax)
 {
     /* Allocate array a[0..nmax] and initialise to 0 */
     size_t cap = (size_t)(nmax + 1);
-    seq_t *a = (seq_t *)calloc(cap, sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, cap);
     if (!a) { /* out of memory – abort quietly */
-        if (seq_cache) free(seq_cache);
+        if (seq_cache) mem_free(seq_cache);
         seq_cache = NULL;
         cache_cap = 0;
         return;
@@ -89,9 +91,9 @@ static void precompute(idx_t nmax)
 
     /* P_0(q) = 1, shift = 0 */
     size_t prev_size = (size_t)(nmax + 1);
-    seq_t *Pprev = (seq_t *)calloc(prev_size, sizeof(seq_t));
+    seq_t *Pprev = mem_new(seq_t, prev_size);
     if (!Pprev) {
-        free(a);
+        mem_free(a);
         return;
     }
     Pprev[0] = (seq_t)1;                /* coefficient of q^0 in P_0 */
@@ -103,10 +105,10 @@ static void precompute(idx_t nmax)
         idx_t deg   = nmax - shift;         /* max degree needed for P_m */
         size_t size = (size_t)(deg + 1);
 
-        seq_t *Q = (seq_t *)calloc(size, sizeof(seq_t));
+        seq_t *Q = mem_new(seq_t, size);
         if (!Q) {
-            free(a);
-            free(Pprev);
+            mem_free(a);
+            mem_free(Pprev);
             return;
         }
 
@@ -136,15 +138,15 @@ static void precompute(idx_t nmax)
         }
 
         /* Prepare for next iteration */
-        free(Pprev);
+        mem_free(Pprev);
         Pprev     = Q;
         prev_size = size;
     }
 
-    free(Pprev);  /* release the last Pprev buffer */
+    mem_free(Pprev);  /* release the last Pprev buffer */
 
     /* Replace old cache with the newly computed array */
-    if (seq_cache) free(seq_cache);
+    if (seq_cache) mem_free(seq_cache);
     seq_cache = a;
     cache_cap = (idx_t)cap;
 }

@@ -8,9 +8,10 @@
  * Formula:   a(n) = the n-th prime p such that in the binary expansion of p
  *            the number of 0‑bits is exactly one more than the number of
  *            1‑bits
- * Range:     u8 n <= 4, u16 n <= 400, u32 n <= 9742, u64 n <= 9742,
- *            u128 n <= 9742, big any n
- * Helpers:   bitlen_64, popcount_64
+ * Range:     u8 n <= 4, u16 n <= 400, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 59 terms through n = 9742 (2026-11-01)
+ * Helpers:   popcount_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,13 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bitlen_64.h"
-#include "../utils/popcount_64.h"
+#include "../utils/popcount_u64.h"
+
+/* Return the length (number of bits) of a 64‑bit integer */
+static unsigned int bitlen_64(uint64_t x)
+{
+    return 64 - __builtin_clzll(x);
+}
 
 /* 64‑bit deterministic Miller–Rabin primality test */
 static bool is_prime_64(uint64_t n)
@@ -55,7 +61,7 @@ static bool is_prime_64(uint64_t n)
 static bool satisfies_property(uint64_t x)
 {
     if (x < 2) return false;
-    unsigned int ones = popcount_64(x);
+    unsigned int ones = popcount_u64(x);
     unsigned int bits = bitlen_64(x);
     unsigned int zeros = bits - ones;
     return zeros == ones + 1;

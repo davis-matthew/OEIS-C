@@ -11,7 +11,8 @@
  *            last term of that period, the central term equals 25
  * Range:     u8 none, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root (floor) for unsigned 64‑bit numbers. */
 static inline uint32_t isqrt_u64(idx_t n)
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary. */
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 64;
-        seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, new_cap);
         cache = p;
         cache_cap = new_cap;
     }

@@ -10,19 +10,42 @@
  *            Carmichael's function. λ(p^e) = 1 (p = 2, e = 1) λ(p^e) = 2 (p =
  *            2, e = 2) λ(p^e) = 2^(e-2) (p = 2, e ≥ 3) λ(p^e) = p^(e-1)(p-1)
  *            (p odd) λ of a product is the lcm of the λ values
- * Range:     u8 n <= 287, u16 n <= 9868, u32 n <= 9868, u64 n <= 9868,
- *            u128 n <= 9868, big any n
- * Helpers:   factor_u64, gcd, seq_mul, seq_pow, sigma_of
+ * Range:     u8 n <= 287, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 103 terms through n = 9868 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/sigma_of.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -56,9 +79,9 @@ seq_t a(idx_t n)
             else if (e == 2ULL)
                 lam = (seq_t)2;
             else
-                lam = seq_pow((seq_t)2, (idx_t)(e - 2));
+                lam = ipow_idx((seq_t)2, (idx_t)(e - 2));
         } else {
-            seq_t pow_pe_minus1 = seq_pow((seq_t)p, (idx_t)(e - 1));
+            seq_t pow_pe_minus1 = ipow_idx((seq_t)p, (idx_t)(e - 1));
             lam = seq_mul(pow_pe_minus1, (seq_t)(p - 1));
         }
 

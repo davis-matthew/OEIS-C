@@ -11,7 +11,8 @@
  *            divisors minus the number of even divisors of m_n
  * Range:     i8 n <= 3000, i16 n <= 3000, i32 n <= 3000, i64 n <= 3000,
  *            i128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 2946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         if (composites_size == composites_cap) {
             size_t new_cap = composites_cap ? composites_cap * 2 : 16;
             uint64_t *tmpc = (uint64_t *)realloc(composites, new_cap * sizeof(uint64_t));
-            seq_t *tmpd = (seq_t *)realloc(diffs, new_cap * sizeof(seq_t));
+            seq_t *tmpd = mem_resize(seq_t, diffs, new_cap);
             if (!tmpc || !tmpd) return (seq_t)0;
             composites = tmpc;
             diffs = tmpd;

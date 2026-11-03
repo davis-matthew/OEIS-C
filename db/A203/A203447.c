@@ -14,7 +14,8 @@
  *            a(5)=4200, a(6)=13777, a(7)=42112, a(8)=120522, a(9)=32...
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 20, u64 n <= 52, u128 n <= 116,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Hard‑coded initial terms (index 0 unused). */
 static const unsigned long long _a0_17_ull[18] = {
@@ -45,7 +47,7 @@ static void grow_cache(size_t min_cap)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < min_cap) new_cap = min_cap;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();       /* graceful out-of-memory handling */
 
     cache = new_cache;
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     if (!cache_init) {
         /* Allocate space for indices 0..17 (index 0 unused). */
         cache_cap = 18;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
 
         for (size_t i = 1; i <= 17; ++i) {

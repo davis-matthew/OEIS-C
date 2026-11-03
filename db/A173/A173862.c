@@ -7,11 +7,13 @@
  * Formula:   a(n) = 2^floor((n-1)/3)
  * Range:     u8 n <= 24, u16 n <= 48, u32 n <= 96, u64 n <= 192,
  *            u128 n <= 384, big any n
+ * Validated: standard, pass, 69 terms through n = 939 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

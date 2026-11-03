@@ -7,7 +7,8 @@
  * Formula:   Primes p such that x^4 ≡ 20 (mod p) has no solution
  * Range:     u8 n <= 34, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 62 terms through n = 863 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
 
 static uint64_t *good = NULL;
 static size_t good_cap = 0, good_sz = 0;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             else
                 exp = (candidate - 1) / 2;
 
-            r = mod_pow((seq_t)20, exp, (seq_t)candidate);
+            r = powmod((seq_t)20, exp, (seq_t)candidate);
             if (r != (seq_t)1) {
                 grow_array(good_sz + 1, &good_cap, (void **)&good, sizeof(uint64_t));
                 good[good_sz++] = candidate;

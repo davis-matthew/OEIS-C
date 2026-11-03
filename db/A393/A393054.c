@@ -10,8 +10,9 @@
  *            Implementation: for each n factorise n, compute * tau(n) = total
  *            number of divisors * tau_coprime = number of divisors of n
  *            coprime to A276086(n) * a(n) = tau(n) - tau_coprim...
- * Range:     u8 n <= 9424, u16 n <= 9424, u32 n <= 9424, u64 n <= 9424,
- *            u128 n <= 9424, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9424 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

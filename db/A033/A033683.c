@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, mult, easy
  * Formula:   a(n) = 1 if n is an odd square not divisible by 3, otherwise 0
- * Range:     u8 n <= 8974, u16 n <= 8974, u32 n <= 8974, u64 n <= 8974,
- *            u128 n <= 8974, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8974 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

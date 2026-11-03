@@ -12,7 +12,8 @@
  *            results up to the largest n requested, so any order...
  * Range:     u8 none, u16 n <= 3, u32 n <= 11, u64 n <= 27, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_V 72      /* maximum permanent value */
 #define ROWS 49       /* 0..6 × 0..6 rows */
@@ -80,7 +82,7 @@ static void init_globals(void)
 
     /* allocate answer cache, index 0 unused */
     ans_size = 2;                    /* will store ans[0] and ans[1] after first step */
-    ans = (seq_t *)malloc(ans_size * sizeof(seq_t));
+    ans = mem_new(seq_t, ans_size);
     if (!ans) abort();               /* fatal error if allocation fails */
     ans[0] = (seq_t)0;
     ans[1] = (seq_t)0;               /* will be computed lazily */
@@ -95,7 +97,7 @@ static void ensure_ans(idx_t n)
     if (n + 1 >= ans_size)
     {
         size_t new_size = (size_t)n + 2;
-        seq_t *new_ans = (seq_t *)realloc(ans, new_size * sizeof(seq_t));
+        seq_t *new_ans = mem_resize(seq_t, ans, new_size);
         if (!new_ans) abort();
         ans = new_ans;
         for (size_t i = ans_size; i < new_size; ++i)

@@ -10,13 +10,21 @@
  *            antidiagonals; f(m,l) = (m+1)*ceil(m/(l-1)) – 1 * (OEIS A296307)
  * Range:     u8 n <= 120, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   triangular_term_count
+ * Validated: standard, pass, 92 terms through n = 906 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/triangular_term_count.h"
+
+static idx_t triangular_term_count(idx_t s)
+/* returns T(s) = total number of terms with index sum ≤ s
+   for s ≥ 3  (T(s) = (s-2)(s-1)/2) */
+{
+    /* use 128‑bit intermediates to avoid overflow */
+    return (idx_t)((( (__int128)(s-2) * (s-1) ) >> 1));
+}
 
 /*--- support functions ----------------------------------------------------*/
 

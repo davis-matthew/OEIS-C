@@ -12,14 +12,33 @@
  *            by additions only
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 20, u64 n <= 36, u128 n <= 69,
  *            big any n
- * Helpers:   a958_big, a958_is_big
+ * Validated: standard, pass, 44 terms through n = 953 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a958_big.h"
-#include "../utils/a958_is_big.h"
+
+static seq_t a958_big(idx_t n) {
+    seq_t c = 1;     /* Catalan C(k) */
+    seq_t g = 1;     /* G(k) = A000957(k+1) */
+    seq_t gprev = 1;
+    idx_t k;
+    for (k = 1; k <= n; k++) {
+        c = c * (seq_t)(2 * (2 * k - 1)) / (seq_t)(k + 1);
+        gprev = g;
+        g = (c - gprev) / 2;
+    }
+    return gprev + g; /* G(n-1) + G(n) */
+}
+
+static int a958_is_big(void) {
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 200; i++) t = t * 2;
+    return t != 0;
+}
 
 #define A958_MAXN 200
 static seq_t a958_prev[A958_MAXN + 3];

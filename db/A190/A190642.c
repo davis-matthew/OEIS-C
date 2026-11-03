@@ -8,12 +8,17 @@
  *            2
  * Range:     u8 n <= 8, u16 n <= 80, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   base3_decimal
+ * Validated: standard, pass, 97 terms through n = 9986 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/base3_decimal.h"
+static seq_t base3_decimal(idx_t n)
+{
+    if (n == 0) return (seq_t)0;
+    return base3_decimal(n / 3) * (seq_t)10 + (seq_t)(n % 3);
+}
 /* Recurrence: none; the decimal integer is computed recursively from the
  * base‑3 representation of n. */
 

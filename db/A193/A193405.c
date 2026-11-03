@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAXN 800000u            /* upper bound of Matula numbers to examine */
 
@@ -72,7 +74,7 @@ static void init(void)
     seq_len  = 0;
 
     /* pre-allocate sequence buffer, one slot per n is safe */
-    seq_vals = (seq_t *)malloc(MAXN * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, MAXN);
 
     /* iterate all Matula numbers */
     for (n = 2; n <= MAXN; ++n) {

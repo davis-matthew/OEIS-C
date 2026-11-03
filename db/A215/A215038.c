@@ -9,13 +9,40 @@
  *            F(1)=1 are Fibonacci numbers
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   fib_pair_fast
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fib_pair_fast.h"
+
+/*         fn1 – F(n+1) (seq_t *)                          */
+static void fib_pair_fast(idx_t n, seq_t *fn, seq_t *fn1)
+{
+    seq_t a = 0;   /* F(0)   */
+    seq_t b = 1;   /* F(1)   */
+
+    /* Process bits of n from most significant to least   */
+    for (int i = 63; i >= 0; --i) {
+        /* Compute c = F(2k)  = a*(2*b - a)   */
+        /* Compute d = F(2k+1)= a*a + b*b       */
+        seq_t t1 = a * (((seq_t)2 * b) - a);      /* 2*b - a is non‑negative (a <= b) */
+        seq_t t2 = a * a + b * b;
+
+        if (((n >> i) & 1ULL) == 0) {
+            /* k -> 2k   */
+            a = t1;
+            b = t2;
+        } else {
+            /* k -> 2k+1 */
+            a = t2;
+            b = t1 + t2;
+        }
+    }
+    *fn  = a;
+    *fn1 = b;
+}
 
 /* Fast‑doubling algorithm to compute F(n) and F(n+1)   */
 /* Input:  n – index (idx_t)                               */

@@ -10,15 +10,17 @@
  *            (2i)^m
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   binomial, pow_simple
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Offset: 1  (a(1) is the first defined term) */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_simple.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     for (idx_t i = 1; i <= j; ++i) {
         idx_t k = j - i;                     /* exponent of (−1)  */
         seq_t bin = binomial(m + 1, k);       /* C(m+1, k)        */
-        seq_t pw = pow_simple((seq_t)(2 * i), m); /* (2i)^m           */
+        seq_t pw = ipow_idx((seq_t)(2 * i), m); /* (2i)^m           */
         seq_t term = bin * pw;                /* term of the sum   */
 
         if ((k & 1) == 0) {

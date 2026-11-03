@@ -9,7 +9,8 @@
  *            characters). Formula in OEIS notation: a(n)=A007208(A000040(n))
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   utf8_len
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,26 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/utf8_len.h"
+
+/* ---------- UTF‑8 code‑point counter ------------------------------------ */
+static size_t utf8_len(const char *s)
+{
+    size_t n = 0;
+    for (const unsigned char *p = (const unsigned char *)s; *p; ) {
+        if (*p < 0x80) {             /* ASCII */
+            ++n; ++p;
+        } else if ((*p & 0xE0) == 0xC0) { /* 2‑byte */
+            ++n; p += 2;
+        } else if ((*p & 0xF0) == 0xE0) { /* 3‑byte */
+            ++n; p += 3;
+        } else if ((*p & 0xF8) == 0xF0) { /* 4‑byte */
+            ++n; p += 4;
+        } else {                      /* malformed – skip */
+            ++p;
+        }
+    }
+    return n;
+}
 
 /* ---------- German number words --------------------------------------- */
 static const char * const short_word[20] = {

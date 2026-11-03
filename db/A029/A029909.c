@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 437, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 8612 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Configuration                                                    */
@@ -124,7 +126,7 @@ init(void)
     }
 
     /* --- Allocate and fill non‑prime list -------------------------- */
-    nonprimes = (seq_t *)malloc(nonprimes_est * sizeof(seq_t));
+    nonprimes = mem_new(seq_t, nonprimes_est);
     nonprimes_cnt = 0;
     /* 1 is considered non‑prime */
     nonprimes[nonprimes_cnt++] = (seq_t)1;

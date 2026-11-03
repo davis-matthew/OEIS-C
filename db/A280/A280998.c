@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   not stated
- * Range:     u8 n <= 148, u16 n <= 9743, u32 n <= 9743, u64 n <= 9743,
- *            u128 n <= 9743, big any n
- * Helpers:   none
+ * Range:     u8 n <= 148, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 79 terms through n = 9743 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache */
     if (!cache) {
         cache_capacity = 64;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_capacity);
+        cache = mem_new(seq_t, cache_capacity);
         if (!cache) abort();   /* critical failure */
     }
 
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     while (cache_size < n) {
         if (cache_size == cache_capacity) {
             size_t new_cap = cache_capacity * 2;
-            seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();  /* critical failure */
             cache = tmp;
             cache_capacity = new_cap;

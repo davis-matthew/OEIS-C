@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in 1 / sqrt((1 - x^2 - x^5)^2 - 4*x^7)
  * Range:     u8 n <= 17, u16 n <= 31, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* the specification.                                                           */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for values computed up to the largest n seen so far */
 static seq_t *a_cache = NULL;
@@ -30,8 +32,8 @@ ensure_cache(idx_t n)
 {
     if (n + 1 > cache_size) {
         idx_t new_cap = n + 1;
-        seq_t *new_a = (seq_t *)malloc((size_t)new_cap * sizeof(seq_t));
-        seq_t *new_s = (seq_t *)malloc((size_t)new_cap * sizeof(seq_t));
+        seq_t *new_a = mem_new(seq_t, (size_t)new_cap);
+        seq_t *new_s = mem_new(seq_t, (size_t)new_cap);
         if (!new_a || !new_s) {
             /* out of memory – terminate */
             abort();
@@ -42,8 +44,8 @@ ensure_cache(idx_t n)
             new_s[i] = s_cache[i];
         }
         /* free old arrays */
-        free(a_cache);
-        free(s_cache);
+        mem_free(a_cache);
+        mem_free(s_cache);
         a_cache = new_a;
         s_cache = new_s;
 

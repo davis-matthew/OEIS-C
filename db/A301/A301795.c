@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 41, u64 n <= 87, u128 n <= 180,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,9 +31,9 @@ seq_t a(idx_t n)
     /* initialize base values at first call */
     if (tbl == NULL) {
         tbl_sz = 7;                     /* indices 0..6 */
-        tbl = (seq_t *)malloc(tbl_sz * sizeof(seq_t));
+        tbl = mem_new(seq_t, tbl_sz);
         if (!tbl) abort();
-        memset(tbl, 0, tbl_sz * sizeof(seq_t));
+        mem_set(tbl, 0, tbl_sz * sizeof(seq_t));
         tbl[1] = 32;
         tbl[2] = 233;
         tbl[3] = 96;
@@ -51,10 +53,10 @@ seq_t a(idx_t n)
     /* extend table if necessary */
     if (n >= tbl_sz) {
         size_t new_sz = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(tbl, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, tbl, new_sz);
         if (!tmp) abort();
         tbl = tmp;
-        memset(tbl + tbl_sz, 0, (new_sz - tbl_sz) * sizeof(seq_t));
+        mem_set(tbl + tbl_sz, 0, (new_sz - tbl_sz) * sizeof(seq_t));
         tbl_sz = new_sz;
     }
 

@@ -11,7 +11,8 @@
  *            (Garner)
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 8, u128 n <= 43,
  *            big any n
- * Helpers:   isprime32
+ * Validated: standard, pass, 29 terms through n = 9744 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/isprime32.h"
+#include "../utils/is_prime_u64.h"
 
 #define NTT_SHIFT 22
 #define MAXP 64
@@ -43,7 +44,7 @@ static void init_primes(void) {
     if (npr) return;
     for (uint32_t c = (1u << (31 - NTT_SHIFT)) - 1; c >= 1 && npr < MAXP; c--) {
         uint64_t p = ((uint64_t)c << NTT_SHIFT) + 1;
-        if (p >= (1ull << 31) || !isprime32(p)) continue;
+        if (p >= (1ull << 31) || !is_prime_u64(p)) continue;
         uint64_t fac[16];
         int nf = 0;
         fac[nf++] = 2;

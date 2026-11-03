@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 35, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   binom, pow3
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
          T(n,k) = Σ_{a=0}^{n-2k}  binom(k+a, k) * 3^a * binom(k-2 + (n-2k-a), k-2)   (n ≥ 2k)  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow3.h"
-#include "../utils/binom.h"
 
 seq_t a(idx_t n)
 {
@@ -53,9 +55,9 @@ seq_t a(idx_t n)
     seq_t total = 0;
 
     for (idx_t a = 0; a <= s; ++a) {
-        seq_t term = binom(k + a, k) *
+        seq_t term = binomial(k + a, k) *
                      pow3(a) *
-                     binom(k - 2 + (s - a), k - 2);
+                     binomial(k - 2 + (s - a), k - 2);
         total += term;
     }
     return total;

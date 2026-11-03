@@ -8,7 +8,8 @@
  * Formula:   a(n) = largest k such that A002110(k-1) <= n
  * Range:     u8 n <= 571, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9758 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- helper: generate successive primes ---------- */
 static uint64_t primes_buf[64];
@@ -66,12 +68,12 @@ static void ensure_primorial_capacity(size_t needed) {
     size_t new_cap = primorial_cap ? primorial_cap * 2 : 8;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr)
         exit(EXIT_FAILURE);
     if (primorials) {
-        memcpy(new_arr, primorials, primorial_count * sizeof(seq_t));
-        free(primorials);
+        mem_copy(new_arr, primorials, primorial_count * sizeof(seq_t));
+        mem_free(primorials);
     }
     primorials = new_arr;
     primorial_cap = new_cap;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of partitions of n into simple parts (A002110)
  * Range:     u8 n <= 63, u16 n <= 471, u32 n <= 8603, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9813 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Include common utilities if needed */
 /* #include "../utils/...h"  (none required for this implementation) */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     }
 
     /* Allocate dp array of size n+1 */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return 0;  /* allocation failed */
 
     for (idx_t i = 0; i <= n; ++i) dp[i] = 0;
@@ -52,6 +54,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

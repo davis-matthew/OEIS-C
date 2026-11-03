@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Utility to compute the largest prime factor of an unsigned 64‑bit integer. */
 static inline uint64_t _lpf_uint64(uint64_t n)
@@ -62,13 +64,13 @@ seq_t a(idx_t n)
         /* Allocate or expand the cache when needed. */
         if (cache_cap <= (size_t)found) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_new(seq_t, new_cap);
             if (!tmp)
                 return 0; /* In a real build, handle allocation failure. */
             if (cache) {
                 for (size_t i = 0; i < (size_t)found; ++i)
                     tmp[i] = cache[i];
-                free(cache);
+                mem_free(cache);
             }
             cache = tmp;
             cache_cap = new_cap;

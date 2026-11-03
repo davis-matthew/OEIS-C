@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k>=0} (-1)^k * binomial(n, 5*k+2)
  * Range:     i8 n <= 10, i16 n <= 19, i32 n <= 34, i64 n <= 35, i128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cached values up to seq_len-1 */
 static idx_t seq_len   = 0;        /* number of computed entries */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* Allocate cache on first use and initialize first five terms */
     if (!seq_cache) {
-        seq_cache = (seq_t *)malloc(5 * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, 5);
         seq_cache[0] = 0;
         seq_cache[1] = 0;
         seq_cache[2] = 1;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* Extend the cache up to n if necessary */
     if (n >= seq_len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_len);
         if (!tmp) {
             /* Allocation failed; abort with a reasonable error code */
             return 0;

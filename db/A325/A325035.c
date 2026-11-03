@@ -9,7 +9,8 @@
  *            index of 2*n+1, with a(0)=1
  * Range:     u8 n <= 6845, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9859 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*  Static tables for prime data, built only once and expanded as needed. */
 static idx_t *prime_list  = NULL;   // ascending list of primes
@@ -51,12 +53,12 @@ static void ensure_primes_upto(idx_t LIMIT)
     /* Free old tables. */
     free(prime_list);
     free(prime_index);
-    free(k_sum);
+    mem_free(k_sum);
 
     /* Allocate new tables. */
     prime_list  = (idx_t*)malloc(count * sizeof(idx_t));
     prime_index = (idx_t*)calloc(LIMIT + 1, sizeof(idx_t));  /* 0 means “not a prime” */
-    k_sum       = (seq_t*)calloc(count + 1, sizeof(seq_t));  /* 1‑based */
+    k_sum       = mem_new(seq_t, count + 1);  /* 1‑based */
 
     if (!prime_list || !prime_index || !k_sum) exit(EXIT_FAILURE);
 

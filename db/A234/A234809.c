@@ -9,14 +9,16 @@
  *            prime}|
  * Range:     u8 n <= 307, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, phi
+ * Validated: standard, pass, 116 terms through n = 9878 (2026-11-01)
+ * Helpers:   is_prime, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/phi.h"
+#include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 1; k < n; ++k) {
         /* Compute phi(n-k) */
-        seq_t phi_val = phi((idx_t)(n - k));
+        seq_t phi_val = totient((idx_t)(n - k));
 
         /* p = k + phi(n-k) */
         seq_t p = (seq_t)k + phi_val;

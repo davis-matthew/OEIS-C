@@ -10,14 +10,31 @@
  *            representation of k‑1 does not
  * Range:     u8 n <= 14, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has_35_or_53
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_35_or_53.h"
+#include "../utils/mem.h"
+
+/* Return true if a base‑6 representation of n contains the
+   consecutive digits 3 and 5 or 5 and 3. */
+static bool has_35_or_53(seq_t n) {
+    bool has_prev = false;
+    seq_t prev_digit = 0;
+    while (n > 0) {
+        seq_t d = n % 6;
+        if (has_prev && ((prev_digit == 3 && d == 5) || (prev_digit == 5 && d == 3)))
+            return true;
+        prev_digit = d;
+        has_prev = true;
+        n /= 6;
+    }
+    return false;
+}
 
 /* Cache for previously computed terms */
 static seq_t *cache = NULL;
@@ -27,7 +44,7 @@ static size_t cache_cap  = 0;
 /* Grow the cache when needed. */
 static void grow_cache(void) {
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     cache = new_cache;
     cache_cap = new_cap;
 }

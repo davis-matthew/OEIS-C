@@ -7,6 +7,7 @@
  * Formula:   a(n) = a(n-1)^3 + a(n-2), a(0) = 0, a(1) = 1
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 6, u128 n <= 7,
  *            big any n
+ * Validated: standard, pass, 11 terms through n = 10 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,12 +11,14 @@
  *            a(11)=251786, a(12)=485354
  * Range:     u8 none, u16 n <= 8, u32 n <= 25, u64 n <= 59, u128 n <= 127,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[12] = {
     294ULL, 722ULL, 1372ULL, 2660ULL, 5034ULL, 9752ULL,
@@ -31,7 +33,7 @@ static void extend_cache(idx_t n)
 {
     if (cached >= n) return;
     idx_t new_size = n;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) { /* allocation failed – abort */
         abort();
     }

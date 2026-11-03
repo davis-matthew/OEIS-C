@@ -8,11 +8,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 717, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 82 terms through n = 9601 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
+#include "../utils/mem.h"
 /* Recurrence: a(n) is the least unused positive integer x such that
    gcd( sum_{i=1}^n a(i), n+1 ) = 1.  a(1)=1. */
 #include <stddef.h>
@@ -20,6 +23,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Static cache for computed sequence values and bookkeeping. */
 static seq_t *seq      = NULL;   /* array of terms */
@@ -33,6 +44,25 @@ static seq_t total_sum = 0;      /* running sum of terms */
 
 /* Ensure an array has capacity for at least `needed` elements.
    The newly allocated part is zero‑initialised. */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap > 0) ? (*cap << 1) : 8;
+    while (new_cap < needed) new_cap <<= 1;
+    T *p = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!p) { /* allocation failed; abort */ abort(); }
+    /* Initialise the new part to zero. */
+    if (new_cap > *cap) {
+        size_t offset = *cap * elem_size;
+        size_t len    = (new_cap - *cap) * elem_size;
+        mem_set((char *)p + offset, 0, len);
+    }
+    *ptr = p;
+    *cap = new_cap;
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (needed <= *cap) return;
@@ -49,6 +79,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
     *ptr = p;
     *cap = new_cap;
 }
+#endif
 
 seq_t a(idx_t n)
 {
@@ -63,7 +94,7 @@ seq_t a(idx_t n)
             if (candidate >= used_cap) {
                 /* Grow the used flag array to include this candidate. */
                 ensure_capacity((size_t)candidate + 1, &used_cap,
-                                (void **)&used, sizeof(bool));
+                                OEISC_VPP(&used), sizeof(bool));
             }
 
             if (!used[(size_t)candidate] &&
@@ -76,7 +107,7 @@ seq_t a(idx_t n)
         /* Store the new term. */
         if (seq_len >= seq_cap) {
             ensure_capacity(seq_len + 1, &seq_cap,
-                            (void **)&seq, sizeof(seq_t));
+                            OEISC_VPP(&seq), sizeof(seq_t));
         }
         seq[seq_len++] = (seq_t)candidate;
 

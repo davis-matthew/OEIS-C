@@ -12,16 +12,39 @@
  *            result does not fit into seq_t the function...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 10, u64 n <= 18, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow, compute_k_small, mod_pow
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
-#include "../utils/big_pow.h"
-#include "../utils/compute_k_small.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+#include "../utils/powmod.h"
+
+/* Helper that computes (m^n + 1) / n for small seq_t types
+   using a 128‑bit intermediate.  It returns 0 if an overflow
+   that would overflow seq_t occurs. */
+static seq_t compute_k_small(idx_t n, seq_t m)
+{
+    unsigned __int128 res = 1;
+    unsigned __int128 um  = (unsigned __int128)m;
+    for (idx_t i = 0; i < n; ++i) {
+        if (res > ((unsigned __int128)-1) / um) /* would overflow 128 bits */
+            return (seq_t)0;
+        res *= um;
+    }
+    unsigned __int128 k128 = (res + 1) / n;
+
+    /* check if k fits in seq_t */
+    seq_t max_seq = (seq_t)-1;  /* maximum value of seq_t */
+    if (k128 > (unsigned __int128)max_seq)
+        return (seq_t)0;
+    return (seq_t)k128;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,14 +54,14 @@ seq_t a(idx_t n)
 
     /* Search for the smallest m with m^n ≡ -1 (mod n) */
     for (idx_t m = 1; m < n; ++m) {
-        if (mod_pow((seq_t)m, (uint64_t)n, (seq_t)n) == (seq_t)n - 1) {
+        if (powmod((seq_t)m, (uint64_t)n, (seq_t)n) == (seq_t)n - 1) {
             /* Found a suitable m; compute the corresponding k */
             if (sizeof(seq_t) <= sizeof(unsigned long long)) {
                 /* Built‑in integer type: use 128‑bit intermediate */
                 return compute_k_small(n, (seq_t)m);
             } else {
                 /* Arbitrary‑precision seq_t: use big_pow */
-                seq_t mpow = big_pow((seq_t)m, (seq_t)n);
+                seq_t mpow = ipow((seq_t)m, (seq_t)n);
                 seq_t k    = (mpow + 1) / (seq_t)n;
                 return k;
             }

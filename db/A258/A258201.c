@@ -10,13 +10,22 @@
  *            terminates at the fixed points 0 or 1
  * Range:     i8 n <= 10, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   floor_tan
+ * Validated: standard, pass, 96 terms through n = 8526 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/floor_tan.h"
+
+/* Compute floor(tan(x)) for integer x.  x is signed. */
+static inline seq_t floor_tan(long long x)
+{
+    long double t = tanl((long double)x);
+    long double f = floorl(t);
+    long long val = (long long)f;          /* safe for the range needed */
+    return (seq_t)val;
+}
 
 /* Main sequence function required by the build. */
 seq_t a(idx_t n)

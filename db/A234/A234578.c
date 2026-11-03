@@ -8,16 +8,45 @@
  * Formula:   a(n) is the n‑th digit (0‑based) in the concatenation of strings
  *            S[i] = 0 followed by the reverse of the ternary representation
  *            of i
- * Range:     u8 n <= 7868, u16 n <= 7868, u32 n <= 7868, u64 n <= 7868,
- *            u128 n <= 7868, big any n
- * Helpers:   cumulative_length128, sum_floor_u64
+ * Range:     u8 n <= 10003, u16 n <= 10003, u32 n <= 10003, u64 n <= 10003,
+ *            u128 n <= 10003, big any n
+ * Validated: standard, pass, 121 terms through n = 7868 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/cumulative_length128.h"
-#include "../utils/sum_floor_u64.h"
+
+/* Compute Σ_{i=1}^m ⌊log_3(i)⌋ using 3‑power ranges. */
+static idx_t sum_floor_u64(idx_t m)
+{
+    idx_t total = 0;
+    idx_t pow   = 1;   /* 3^k */
+    idx_t k     = 0;
+    while (pow <= m) {
+        idx_t upper;
+        if (pow > m / 3)                 /* next power would exceed m */
+            upper = m;
+        else
+            upper = pow * 3 - 1;
+        idx_t cnt = upper - pow + 1;
+        total += cnt * k;
+
+        if (pow > m / 3)                 /* no more ranges */
+            break;
+        pow *= 3;
+        ++k;
+    }
+    return total;
+}
+
+/* Cumulative length up to index m: Σ_{i=0}^m (1 + digits_3(i))  */
+static unsigned __int128 cumulative_length128(idx_t m)
+{
+    idx_t sum_floor = sum_floor_u64(m);
+    return (unsigned __int128)m * 2 + 2 + sum_floor;
+}
 
 /* Number of ternary digits of n (n ≥ 0).  */
 static int digits_base3(idx_t n)

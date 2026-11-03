@@ -12,12 +12,14 @@
  *            a(1)=0, a(2)=1, a(3)=1, a(4)=2, …
  * Range:     u8 n <= 25, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>    /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* When a larger n is requested, rebuild the table from scratch up to n. */
     if (n > premax) {
         size_t sz = (size_t)n + 1;          /* length needed for indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(dp, sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, sz);
         if (!tmp) return 0;                /* allocation failed – unlikely */
         dp = tmp;
 

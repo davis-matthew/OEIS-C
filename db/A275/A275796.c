@@ -10,13 +10,15 @@
  *            derived from the OEIS entry for A275796
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 /* The sequence cache and its metadata (static internal linkage). */
 static seq_t *cache = NULL;    /* array of computed a(n) values */
@@ -34,10 +36,10 @@ static void grow_cache(size_t needed)
 
     if (cache == NULL) {
         /* first allocation */
-        cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
     } else {
         /* resize */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
     }
     cache_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   a(n) is the n‑th divisor of 154 in ascending order (offset 1)
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* comparison helper for qsort */
 static int cmp_seqt(const void *p1, const void *p2)
@@ -45,7 +47,7 @@ static void init_divisors(void)
         divisors[idx++] = prod;
     }
     /* sort the divisors into ascending order */
-    qsort(divisors, 8, sizeof(seq_t), cmp_seqt);
+    mem_qsort(divisors, 8, sizeof(seq_t), cmp_seqt);
 }
 
 /* sequence function */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_spf, int_cube_root, is_prime
+ * Validated: standard, pass, 72 terms through n = 981 (2026-11-01)
+ * Helpers:   build_spf, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <limits.h>
 #include "../utils/build_spf.h"
-#include "../utils/int_cube_root.h"
 #include "../utils/is_prime.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 static uint64_t *term_buffer = NULL;   /* buffer holding the terms (uint64_t) */
 static size_t   buf_len    = 0;        /* number of terms stored currently */

@@ -13,13 +13,15 @@
  *            ro...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 22, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 171 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static unsigned char transition[32][32][32];
 static unsigned char final_valid[32][32];
@@ -80,13 +82,13 @@ seq_t a(idx_t n) {
 
     static seq_t dp_prev[32][32];
     static seq_t dp_curr[32][32];
-    memset(dp_prev, 0, sizeof(dp_prev));
+    mem_set(dp_prev, 0, sizeof(dp_prev));
     /* First row with virtual row 0 */
     for (int r = 0; r < 32; ++r)
         dp_prev[r][0] = (seq_t)1;
 
     for (idx_t row = 2; row <= n; ++row) {
-        memset(dp_curr, 0, sizeof(dp_curr));
+        mem_set(dp_curr, 0, sizeof(dp_curr));
         for (int prev = 0; prev < 32; ++prev) {
             for (int curr = 0; curr < 32; ++curr) {
                 seq_t val = dp_prev[curr][prev];
@@ -99,7 +101,7 @@ seq_t a(idx_t n) {
                 }
             }
         }
-        memcpy(dp_prev, dp_curr, sizeof(dp_prev));
+        mem_copy(dp_prev, dp_curr, sizeof(dp_prev));
     }
 
     seq_t ans = 0;

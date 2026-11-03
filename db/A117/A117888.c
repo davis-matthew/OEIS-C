@@ -12,15 +12,26 @@
  *            prime divisors of n
  * Range:     u8 n <= 65, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   _div2, _rad
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   radical_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_div2.h"
-#include "../utils/_rad.h"
+#include "../utils/radical_u64.h"
+
+/* Helper: compute the exponent of 2 in x and return the odd part */
+static void _div2(uint64_t x, uint64_t *t, uint64_t *odd_part) {
+    uint64_t exp = 0;
+    while ((x & 1ULL) == 0 && x > 0) {
+        exp++;
+        x >>= 1;
+    }
+    *t = exp;
+    *odd_part = x;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;           /* undefined for offset 0, keep safe */
@@ -28,7 +39,7 @@ seq_t a(idx_t n) {
     uint64_t t, odd_part;
     _div2((uint64_t)n, &t, &odd_part);
 
-    seq_t rad = _rad((uint64_t)n);
+    seq_t rad = radical_u64((uint64_t)n);
 
     if (t & 1ULL) {                 /* t odd */
         return rad * (seq_t)4;

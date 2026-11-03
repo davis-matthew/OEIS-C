@@ -9,18 +9,21 @@
  * Formula:   a(0)=1, a(1)=5, a(n)=4*4^n-4*2^n-12 for n>1
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
     if (n == 1) return (seq_t)5;
-    seq_t pow4p = seq_pow((seq_t)4, n + 1);   /* 4^(n+1) */
-    seq_t pow2p = seq_pow((seq_t)2, n + 2);   /* 2^(n+2) */
+    seq_t pow4p = ipow_idx((seq_t)4, n + 1);   /* 4^(n+1) */
+    seq_t pow2p = ipow_idx((seq_t)2, n + 2);   /* 2^(n+2) */
     seq_t result = pow4p - pow2p - (seq_t)12;
     return result;
 }

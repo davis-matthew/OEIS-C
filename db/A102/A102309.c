@@ -7,13 +7,28 @@
  * Formula:   a(n) = Sum_{d divides n} μ(d) * binomial(n/d, 2)
  * Range:     u8 n <= 23, u16 n <= 365, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mobius_uint64
+ * Validated: standard, pass, 75 terms through n = 9493 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mobius_uint64.h"
+
+static int mobius_uint64(uint64_t n) {
+    int mu = 1;
+    uint64_t temp = n;
+    for (uint64_t p = 2; p * p <= temp; ++p) {
+        if (temp % p == 0) {
+            temp /= p;
+            if (temp % p == 0) return 0;          /* squared prime factor */
+            mu = -mu;
+            while (temp % p == 0) temp /= p;
+        }
+    }
+    if (temp > 1) mu = -mu;                       /* last prime factor */
+    return mu;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 10*a(n-1) + a(n-2), a(0) = 2, a(1) = 10
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 915 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *buf = NULL;
@@ -28,9 +30,9 @@ seq_t a(idx_t n) {
     if (new_sz > sz) {
         /* Allocate or resize the buffer */
         if (buf == NULL)
-            buf = (seq_t *)malloc(new_sz * sizeof(seq_t));
+            buf = mem_new(seq_t, new_sz);
         else
-            buf = (seq_t *)realloc(buf, new_sz * sizeof(seq_t));
+            buf = mem_resize(seq_t, buf, new_sz);
 
         if (buf == NULL) /* allocation failure – abort */
             exit(1);

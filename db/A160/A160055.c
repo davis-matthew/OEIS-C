@@ -9,12 +9,14 @@
  *            6*a(n-3) - a(n-6) for n > 6. (OEIS A160055)
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 32, u64 n <= 70, u128 n <= 145,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 912 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough for index n.  reallocate if needed. */
     if (n > last) {
         size_t new_size = (size_t)(n + 1);          /* indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) abort();                  /* out of memory */
         cache = tmp;
 

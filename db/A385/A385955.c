@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>   /* for malloc, realloc, abort */
 #include <stdint.h>   /* for uint64_t */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* memoisation array, grows lazily   */
 static size_t cap = 0;             /* current capacity of `cache` */
@@ -40,7 +42,7 @@ static void ensure_cap(idx_t n)
 {
     size_t new_cap = (size_t)n + 1;
     if (new_cap > cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* out of memory – abort the test harness */
             abort();

@@ -8,12 +8,14 @@
  *            a(n)=2*a(n-1)+a(n-2)-a(n-3)-a(n-4) for n>3 (OEIS A077864)
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 28, u64 n <= 57, u128 n <= 115,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* Initialise the first four terms once */
     if (cache_len == 0) {
-        cache = (seq_t *)realloc(cache, 4 * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, 4);
         cache[0] = 1;
         cache[1] = 2;
         cache[2] = 5;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache to accommodate n */
     size_t new_len = (size_t)n + 1;
-    cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
 
     /* Compute any new terms using the recurrence */
     for (idx_t i = cache_len; i <= n; ++i) {

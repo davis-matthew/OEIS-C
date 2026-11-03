@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   factor_u64, mul_mod64, next_prime
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   factor_u64, mem, mulmod, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"      /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/next_prime.h"     /* uint64_t next_prime(uint64_t start); */
-#include "../utils/mul_mod64.h"      /* uint64_t mul_mod64(uint64_t a, uint64_t b, uint64_t mod); */
+#include <stddef.h>
+#include "../utils/factor_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static seq_t * _cache       = NULL;  /* cache of found terms */
 static size_t _cache_len     = 0;     /* number of terms stored */
@@ -38,7 +41,7 @@ static void _ensure_cache_cap(size_t need)
     if (_cache_cap >= need) return;
     size_t new_cap = _cache_cap ? _cache_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
     if (!tmp) abort();           /* out of memory */
     _cache = tmp;
     _cache_cap = new_cap;
@@ -74,11 +77,11 @@ static bool _is_valid_odd(idx_t cand)
             uint64_t term = 1 % q;              /* p^i mod q, i starts at 0 */
 
             for (uint64_t t = 1; t <= e; ++t) {
-                term = mul_mod64(term, p, q);   /* term = p^t mod q */
+                term = mulmod(term, p, q);   /* term = p^t mod q */
                 sum += term;
                 if (sum >= q) sum -= q;
             }
-            prod = mul_mod64(prod, sum, q);
+            prod = mulmod(prod, sum, q);
             if (prod == 0) break;               /* early exit */
         }
         if (prod == 0) return false;            /* q divides σ(k) */

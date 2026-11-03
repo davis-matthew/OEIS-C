@@ -7,7 +7,8 @@
  * Formula:   a(n) = ((6*n+2)*2^(n-1) + (-1)^(n-1) - 3)/6
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 59, u128 n <= 122,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 45 terms through n = 894 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
    a(n)=2*a(n-1)+{ 2^(n-1)+1  if n is odd
                   2^(n-1)   if n is even } */
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
     /* Grow cache if needed. */
     if (n + 1U > cap) {
         size_t new_cap = n + 1U;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) { /* allocation failure – abort */ abort(); }
         cache = tmp;
         /* Initialise new entries to zero. */

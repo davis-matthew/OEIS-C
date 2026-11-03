@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(n)^prime(n+2)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 8,
  *            big any n
- * Helpers:   _prime_limit_for_idx, big_pow, build_primes_upto
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_prime_limit_for_idx.h"
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* seq_t and idx_t are supplied by the build system. */
 
@@ -59,5 +68,5 @@ seq_t a(idx_t n)
     const seq_t p1 = (seq_t)primes[n - 1];   /* prime(n)   */
     const seq_t p2 = (seq_t)primes[n + 1];   /* prime(n+2) */
 
-    return big_pow(p1, p2);
+    return ipow(p1, p2);
 }

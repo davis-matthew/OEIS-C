@@ -8,7 +8,8 @@
  *            the form p^45 or p^22·q, where p,q are distinct primes
  * Range:     u8 none, u16 none, u32 n <= 8, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   big_pow, build_primes_upto, seq_mul
+ * Validated: standard, pass, 40 terms through n = 960 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,15 @@
 #include <limits.h>
 
 /* Utility functions supplied by the build system */
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_mul.h"   /* seq_mul(a,b) for arbitrary precision */
-#include "../utils/big_pow.h"   /* big_pow(base,exp) for arbitrary precision */
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 typedef uint64_t idx_t;    /* index type (unsigned 64‑bit) */
 
@@ -58,12 +65,12 @@ static inline void heap_init(Heap *h, size_t cap)
 {
     h->cap = cap;
     h->sz  = 0;
-    h->data = (Node *)calloc(cap, sizeof(Node));   /* 1‑based index usage */
+    h->data = mem_new(Node, cap);   /* 1‑based index usage */
 }
 
 static inline void heap_free(Heap *h)
 {
-    free(h->data);
+    mem_free(h->data);
 }
 
 static inline void swap(Node *a, Node *b)
@@ -75,7 +82,7 @@ static inline void heap_push(Heap *h, Node n)
 {
     if (h->sz == h->cap) {                    /* grow if needed */
         h->cap = h->cap ? h->cap * 2 : 16;
-        h->data = (Node *)realloc(h->data, h->cap * sizeof(Node));
+        h->data = mem_resize(Node, h->data, (h->cap * sizeof(Node)) / sizeof(Node));
     }
     h->data[++h->sz] = n;
     size_t i = h->sz;
@@ -148,7 +155,7 @@ seq_t a(idx_t n)
                 }
             }
         } else {
-            seq_t val45 = big_pow((seq_t)p, (seq_t)45);
+            seq_t val45 = ipow((seq_t)p, (seq_t)45);
             heap_push(&heap, (Node){val45, i, NO_Q});
         }
 
@@ -171,7 +178,7 @@ seq_t a(idx_t n)
                     valq = (seq_t)0;       /* overflow on p^22 – skip */
                 }
             } else {
-                seq_t p22 = big_pow((seq_t)p, (seq_t)22);
+                seq_t p22 = ipow((seq_t)p, (seq_t)22);
                 valq = seq_mul(p22, (seq_t)primes[q_idx]);
             }
             if (valq != 0) {
@@ -207,7 +214,7 @@ seq_t a(idx_t n)
                         newval = (seq_t)0;
                     }
                 } else {
-                    seq_t p22 = big_pow((seq_t)primes[cur.p_idx], (seq_t)22);
+                    seq_t p22 = ipow((seq_t)primes[cur.p_idx], (seq_t)22);
                     newval = seq_mul(p22, (seq_t)primes[next_q]);
                 }
                 if (newval != 0) {

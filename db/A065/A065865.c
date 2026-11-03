@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_u64_local
+ * Validated: standard, pass, 118 terms through n = 998 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime_u64_local.h"
+#include "../utils/is_prime_u64.h"
 
 /* A065865: a(n) = least k such that both n*k-1 and n*k+1 are composite. */
 
 static inline bool is_composite(uint64_t x)
 {
-    return (x > 1) && !is_prime_u64_local(x);
+    return (x > 1) && !is_prime_u64(x);
 }
 
 seq_t a(idx_t n)

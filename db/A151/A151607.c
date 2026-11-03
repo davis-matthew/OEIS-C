@@ -9,6 +9,7 @@
  * Formula:   a(n) = n * (3*7^n - 36*n) for n > 1, a(1) = 0
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 43,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 474 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

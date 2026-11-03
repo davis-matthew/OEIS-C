@@ -9,8 +9,9 @@
  *            integer cubic P(x) = c3 x^3 + c2 x^2 + c1 x + c0 whose only real
  *            root is the current complete quotient x_n. Start with P(x) = x^3
  *            - 5. a(n) = floor(x_n) is the largest t with P...
- * Range:     u8 n <= 17, u16 n <= 9641, u32 n <= 9641, u64 n <= 9641,
- *            u128 n <= 9641, big any n
+ * Range:     u8 n <= 17, u16 n <= 19999, u32 n <= 19999, u64 n <= 19999,
+ *            u128 n <= 19999, big any n
+ * Validated: standard, pass, 97 terms through n = 9641 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

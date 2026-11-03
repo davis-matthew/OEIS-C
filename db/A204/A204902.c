@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/next_prime.h" /* provides uint64_t next_prime(uint64_t start) */
+#include "../utils/next_prime.h"
 
 seq_t a(idx_t n)
 {

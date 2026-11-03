@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 22, u64 n <= 46, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Retain a cache of computed terms so that calls are fast and can be
  * in any order.  The cache grows only as needed. */
@@ -40,7 +42,7 @@ ensure_cap(size_t need)
     if (seq_cap < need) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 1;
         if (new_cap < need) new_cap = need;
-        seq_t *new_cache = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_cache) abort();            /* out of memory */
         seq_cache = new_cache;
         seq_cap   = new_cap;

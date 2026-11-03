@@ -11,10 +11,13 @@
  *            * A147610(k), A147610(2k+1) = A147610(k+1)
  * Range:     u8 n <= 11, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,10 +29,10 @@ seq_t a(idx_t n)
     if (max_k < 2) max_k = 2;          /* ensure at least indices 0..2 */
 
     /* allocate arrays: A[0..max_k], prefix[0..max_k] */
-    seq_t *A      = (seq_t *)malloc((max_k + 1) * sizeof(seq_t));
-    seq_t *prefix = (seq_t *)malloc((max_k + 1) * sizeof(seq_t));
+    seq_t *A      = mem_new(seq_t, (max_k + 1));
+    seq_t *prefix = mem_new(seq_t, (max_k + 1));
     if (!A || !prefix) {              /* safety on failure */
-        free(A); free(prefix);
+        mem_free(A); mem_free(prefix);
         return (seq_t)0;
     }
 
@@ -66,7 +69,7 @@ seq_t a(idx_t n)
         result = (seq_t)9 + (seq_t)4 * prefix[m] + (seq_t)28 * prefix[m - 1];
     }
 
-    free(A);
-    free(prefix);
+    mem_free(A);
+    mem_free(prefix);
     return result;
 }

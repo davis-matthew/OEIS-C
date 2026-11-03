@@ -9,13 +9,34 @@
  *            F(4), ... (the second '1' is the first term)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 25, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   seq_to_str
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>                /* for size_t */
-#include "../utils/seq_to_str.h"
+#include <stdbool.h>
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 seq_t a(idx_t n)
 {

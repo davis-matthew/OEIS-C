@@ -7,13 +7,15 @@
  * Formula:   a(n) = 11*a(n-1) - 128*(n-1)*a(n-2); a(0)=1, a(1)=11
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 7, i64 n <= 13, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 448 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;
@@ -23,15 +25,15 @@ seq_t a(idx_t n)
     /* Allocate (or reallocate) memo table up to n */
     if (memo == NULL || memo_len <= n) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_len);
         if (tmp == NULL) {
             /* Memory allocation failed; abort gracefully */
             abort();
         }
         /* Copy existing values if any */
         if (memo != NULL) {
-            memcpy(tmp, memo, memo_len * sizeof(seq_t));
-            free(memo);
+            mem_copy(tmp, memo, memo_len * sizeof(seq_t));
+            mem_free(memo);
         }
         /* Initialize base cases */
         if (new_len > 0)     tmp[0] = (seq_t)1;

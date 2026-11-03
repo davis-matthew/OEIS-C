@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2 * ∏_{i=1..n} p_i (p_i = i‑th prime)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 332 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cache of primes */
 static uint64_t *prime_buf = NULL;    /* array of primes */
@@ -80,7 +82,7 @@ ensure_cache(idx_t n)
     {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < (size_t)n) new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache_buf, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache_buf, new_cap);
         if (!tmp) abort();
         cache_buf = tmp;
         cache_cap = new_cap;

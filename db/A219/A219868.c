@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 41,
  *            big any n
- * Helpers:   rec_expand
+ * Validated: standard, pass, 38 terms through n = 500 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,51 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/rec_expand.h"
+#include "../utils/mem.h"
+
+/* Recursive generator that explores all ways to fill the current column.
+ * m0, m1, m2 are the occupancy masks of column 0 (current), 1, and 2.
+ * tmp collects the raw next states (before deduplication).
+ * len accumulates the number of collected states. */
+static void rec_expand(unsigned m0, unsigned m1, unsigned m2,
+                       unsigned *tmp, size_t *len)
+{
+    int r;
+    for (r = 0; r < 5; ++r)
+        if (!(m0 & (1u << r))) break;
+
+    if (r == 5) { /* current column fully filled */
+        unsigned to = (m1 << 10) | (m2 << 5); /* column 3 mask is always 0 */
+        tmp[(*len)++] = to;
+        return;
+    }
+
+    /* place a vertical domino (size 2x1) */
+    if (r + 1 < 5 && !(m0 & (1u << (r + 1)))) {
+        rec_expand(m0 | (1u << r) | (1u << (r + 1)),
+                   m1, m2, tmp, len);
+    }
+
+    /* place a vertical tromino (size 3x1) */
+    if (r + 2 < 5 &&
+        !(m0 & (1u << (r + 1))) &&
+        !(m0 & (1u << (r + 2)))) {
+        rec_expand(m0 | (1u << r) | (1u << (r + 1)) | (1u << (r + 2)),
+                   m1, m2, tmp, len);
+    }
+
+    /* place a horizontal domino (size 1x2) spanning columns 0 and 1 */
+    if (!(m1 & (1u << r))) {
+        rec_expand(m0 | (1u << r),
+                   m1 | (1u << r), m2, tmp, len);
+    }
+
+    /* place a horizontal tromino (size 1x3) spanning columns 0,1,2 */
+    if (!(m1 & (1u << r)) && !(m2 & (1u << r))) {
+        rec_expand(m0 | (1u << r),
+                   m1 | (1u << r), m2 | (1u << r), tmp, len);
+    }
+}
 
 /* transition entry: destination state and multiplicity of the transition */
 typedef struct {
@@ -67,7 +112,7 @@ static void generate_transitions(unsigned s)
 
     /* collapse duplicates, counting multiplicities */
     size_t uniq = 0;
-    Trans *list = (Trans *)malloc(tmp_len * sizeof(Trans));
+    Trans *list = mem_new(Trans, tmp_len);
     for (size_t i = 0; i < tmp_len; ) {
         unsigned val = tmp[i];
         size_t j = i + 1;
@@ -127,8 +172,8 @@ seq_t a(idx_t n)
     static seq_t *dp_next = NULL;
 
     if (dp_cur == NULL) {
-        dp_cur  = (seq_t *)malloc(NUM_STATES * sizeof(seq_t));
-        dp_next = (seq_t *)malloc(NUM_STATES * sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, NUM_STATES);
+        dp_next = mem_new(seq_t, NUM_STATES);
     }
 
     /* transition tables: created on first use */

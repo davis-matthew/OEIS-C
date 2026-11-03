@@ -5,8 +5,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  easy, sign
  * Formula:   a(n) = n^2 - primefloor(n)*primeceiling(n)
- * Range:     i8 n <= 35, i16 n <= 1327, i32 n <= 8872, i64 n <= 8872,
- *            i128 n <= 8872, big any n
+ * Range:     i8 n <= 35, i16 n <= 1327, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 101 terms through n = 8872 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

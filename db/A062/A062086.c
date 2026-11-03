@@ -10,7 +10,8 @@
  *            for square‑freeness
  * Range:     u8 n <= 43, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   init_primes
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/init_primes.h"
+
+/* static helper that builds primes up to a limit (used for square‑free tests) */
+static void init_primes(int *primes, int *cnt)
+{
+    const int LIMIT = 100000;              /* sufficient for n up to ~10000 */
+    bool *is_prime = (bool *)malloc((LIMIT + 1) * sizeof(bool));
+    for (int i = 2; i <= LIMIT; ++i) is_prime[i] = true;
+
+    for (int i = 2; i * i <= LIMIT; ++i) {
+        if (is_prime[i]) {
+            for (int j = i * i; j <= LIMIT; j += i) is_prime[j] = false;
+        }
+    }
+
+    *cnt = 0;
+    for (int i = 2; i <= LIMIT; ++i) {
+        if (is_prime[i]) primes[(*cnt)++] = i;
+    }
+    free(is_prime);
+}
 
 /* static helper that checks whether val is squarefree using the precomputed primes */
 static bool is_squarefree(const seq_t val, const int *primes, int primes_cnt)

@@ -9,12 +9,14 @@
  *            a(2)=1, a(3)=3
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 24, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         /* first time */
         capacity = n + 1;
         if (capacity < 4) capacity = 4;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) return 0;      /* allocation failed */
         cache[1] = (seq_t)2;
         cache[2] = (seq_t)1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         /* need more space */
         size_t new_capacity = n + 1;
         if (new_capacity < capacity * 2) new_capacity = capacity * 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_capacity);
         if (!new_cache) return 0;  /* allocation failed */
         cache = new_cache;
         capacity = new_capacity;

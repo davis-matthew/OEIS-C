@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 185, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 94 terms through n = 9797 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <string.h>
 
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static bool *is_rep      = NULL;   /* is_rep[i] == true  ⇔  i is representable */
 static size_t rep_limit  = 0;       /* maximum index of is_rep */
@@ -67,7 +69,7 @@ seq_t a(idx_t n) {
     }
     if (!cache) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
 
@@ -79,7 +81,7 @@ seq_t a(idx_t n) {
         cache[cache_len++] = (seq_t)search_val;
         if (cache_len == cache_cap) {
             cache_cap <<= 1;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         ++search_val;
     }

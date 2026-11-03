@@ -11,6 +11,7 @@
  *            denominator of the Bernoulli number B_m)
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 90, u64 n <= 270,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 66 terms through n = 955 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
 
 static idx_t *prime_list = NULL;   /* primes up to the current limit */

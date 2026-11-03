@@ -9,7 +9,8 @@
  *            rev(m)| is a palindrome in base 10
  * Range:     u8 n <= 39, u16 n <= 3675, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome, rev
+ * Validated: standard, pass, 77 terms through n = 8861 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/rev.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,14 +36,14 @@ seq_t a(idx_t n)
     /* extend the cache until it contains at least n terms   */
     while (cache_len < n) {
         idx_t m = last_checked++;          /* candidate integer       */
-        idx_t rev_m = rev(m);              /* its decimal reverse     */
+        idx_t rev_m = reverse_digits_idx(m);              /* its decimal reverse     */
         idx_t diff = (rev_m >= m) ? rev_m - m : m - rev_m;
 
-        if (is_palindrome((seq_t)diff, 10)) {
+        if (is_palindrome_base((seq_t)diff, 10)) {
             /* append m to cache, resizing if necessary */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 4 : cache_cap * 2;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) return (seq_t)0; /* allocation failure → fallback */
                 cache = new_cache;
                 cache_cap = new_cap;

@@ -11,7 +11,8 @@
  *            the current difference between the two substring counts
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 34, u64 n <= 66, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 492 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
     seq_t *dp_cur[8];
     seq_t *dp_next[8];
     for (int s = 0; s < 8; ++s) {
-        dp_cur[s]  = (seq_t *)calloc(size, sizeof(seq_t));
-        dp_next[s] = (seq_t *)calloc(size, sizeof(seq_t));
+        dp_cur[s]  = mem_new(seq_t, size);
+        dp_next[s] = mem_new(seq_t, size);
     }
     /* Initial state: empty string, suffix 000, diff = 0 */
     dp_cur[0][shift] = 1;
@@ -59,8 +61,7 @@ seq_t a(idx_t n)
 
         /* Clear the next state tables within the used range */
         for (int s = 0; s < 8; ++s) {
-            memset(dp_next[s] + next_min, 0,
-                   (size_t)next_len * sizeof(seq_t));
+            mem_set(dp_next[s] + next_min, 0, (size_t)next_len * sizeof(seq_t));
         }
 
         /* Transition */
@@ -96,8 +97,8 @@ seq_t a(idx_t n)
 
     /* Free allocated memory */
     for (int s = 0; s < 8; ++s) {
-        free(dp_cur[s]);
-        free(dp_next[s]);
+        mem_free(dp_cur[s]);
+        mem_free(dp_next[s]);
     }
     return result;
 }

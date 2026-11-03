@@ -8,6 +8,7 @@
  *            (4/27)*((n+2) mod 3) * + (2/63)*(((n+7) mod 9)-((n+6) mod 9)))
  * Range:     u8 none, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

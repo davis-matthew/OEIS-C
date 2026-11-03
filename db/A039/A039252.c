@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   matches_base12
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,27 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/matches_base12.h"
+#include "../utils/mem.h"
+
+/* Return true iff x has equal numbers of 4’s and 10’s in base‑12. */
+static bool matches_base12(seq_t x)
+{
+    /* 0 has zero 4's and zero 10's, so it matches. */
+    if (x == 0)
+        return true;
+
+    int d4 = 0, d10 = 0;
+    seq_t y = x;
+    while (y != 0) {
+        int d = (int)(y % 12);
+        if (d == 4)
+            d4++;
+        else if (d == 10)
+            d10++;
+        y /= 12;
+    }
+    return d4 == d10;
+}
 
 /* Return the n-th (1‑based) element of A039252.  */
 seq_t a(idx_t n)
@@ -31,7 +52,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold at least one more element. */
     if (cache_len == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-        void *tmp = realloc(cache, new_cap * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             return 0;                      /* allocation failure */
         cache = (seq_t *)tmp;
@@ -45,7 +66,7 @@ seq_t a(idx_t n)
             /* If we just filled the array, guarantee room for next run. */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                void *tmp = realloc(cache, new_cap * sizeof(seq_t));
+                void *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     return 0;
                 cache = (seq_t *)tmp;

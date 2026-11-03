@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 54, u64 n <= 110,
  *            u128 n <= 218, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 61 terms through n = 5626 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
  *
  * The computation uses seq_pow from "../utils/seq_pow.h".
  */
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 #include <stdint.h>
 
 seq_t a(idx_t n)
@@ -35,9 +38,9 @@ seq_t a(idx_t n)
     idx_t r = (n + 3) / 4;
 
     /* compute the four base values */
-    seq_t v1 = seq_pow((seq_t)2, (idx_t)(2 * r - 1)); /* 2^(2r-1) */
-    seq_t v2 = seq_pow((seq_t)5, r);                  /* 5^r      */
-    seq_t v3 = seq_pow((seq_t)2, (idx_t)(2 * r));     /* 2^(2r)   */
+    seq_t v1 = ipow_idx((seq_t)2, (idx_t)(2 * r - 1)); /* 2^(2r-1) */
+    seq_t v2 = ipow_idx((seq_t)5, r);                  /* 5^r      */
+    seq_t v3 = ipow_idx((seq_t)2, (idx_t)(2 * r));     /* 2^(2r)   */
     seq_t v4 = v2 * (seq_t)2;                         /* 2·5^r    */
 
     /* store in small array and sort ascending */

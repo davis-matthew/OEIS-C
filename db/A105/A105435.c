@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 1011, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 68 terms through n = 9872 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>            /* for memset */
-#include "../utils/is_prime.h"  /* provides bool is_prime(uint64_t) */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* The following list contains the first few primes; used for a quick
    divisibility filter that skips most composite candidates before the
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
         if (!maybe_prime) continue;
 
         /* Check that p is actually prime.  */
-        if (!is_prime(p)) continue;
+        if (!is_prime_u64(p)) continue;
 
         /* Compute 10^digits(p). */
         uint64_t power10 = 1, t = p;
@@ -67,12 +70,12 @@ seq_t a(idx_t n)
 
         /* Concatenated number 1*10^digits(p) + p.  */
         uint64_t concat = power10 + p;
-        if (!is_prime(concat)) continue;   /* concatenated number not prime */
+        if (!is_prime_u64(concat)) continue;   /* concatenated number not prime */
 
         /* Store the qualifying prime. */
         if (seq_len == seq_cap) {
             seq_cap = seq_cap ? seq_cap * 2 : 16;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
             if (!seq) abort();             /* allocation failure            */
         }
         seq[seq_len++] = (seq_t)p;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum_{d | 5n-3, d ≡ 2 (mod 5)} d
  * Range:     u8 n <= 44, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

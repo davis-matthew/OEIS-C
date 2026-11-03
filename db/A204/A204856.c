@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 28, u32 n <= 55, u64 n <= 114,
  *            u128 n <= 233, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 6039 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,15 +23,16 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate coefficient arrays a[0..n] and dp[0..n] */
-    seq_t *a_arr = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *dp    = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *dp    = mem_new(seq_t, (size_t)(n + 1));
     if (!a_arr || !dp) {
-        free(a_arr);
-        free(dp);
+        mem_free(a_arr);
+        mem_free(dp);
         return (seq_t)0;          /* allocation failed – undefined */
     }
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_arr[n];
-    free(dp);
-    free(a_arr);
+    mem_free(dp);
+    mem_free(a_arr);
     return result;
 }

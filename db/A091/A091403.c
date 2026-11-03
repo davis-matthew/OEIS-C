@@ -8,7 +8,8 @@
  *            integers n with genus of Γ₀(n) equal to 1
  * Range:     u8 n <= 12, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, recur_divisors
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-02)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,40 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/recur_divisors.h"
+#include "../utils/isqrt.h"
+
+/*  Recursive enumeration of all divisors of N from its factorisation.
+    cur_exp holds the current exponent choice for each prime.
+    sum receives Σ φ(gcd(d,N/d)) over all divisors d.  */
+static void recur_divisors(const idx_t *p,
+                           const uint8_t *e,
+                           size_t cnt,
+                           uint8_t *cur_exp,
+                           seq_t *sum,
+                           size_t depth)
+{
+    if (depth == cnt) {
+        seq_t phi = 1;
+        for (size_t j = 0; j < cnt; ++j) {
+            uint8_t a = cur_exp[j];
+            uint8_t b = e[j] - a;
+            uint8_t ge = a < b ? a : b;
+            if (ge > 0) {
+                seq_t pw = 1;
+                for (uint8_t k = 0; k < ge - 1; ++k)
+                    pw *= (seq_t)p[j];
+                seq_t term = pw * (seq_t)(p[j] - 1);
+                phi *= term;
+            }
+        }
+        *sum += phi;
+        return;
+    }
+    for (uint8_t exp = 0; exp <= e[depth]; ++exp) {
+        cur_exp[depth] = exp;
+        recur_divisors(p, e, cnt, cur_exp, sum, depth + 1);
+    }
+}
 
 /*  Prime table (uint64_t) used for factorisation.  */
 static idx_t *prime_list = NULL;
@@ -49,7 +82,7 @@ static bool genus_is_one(idx_t N)
     size_t fac_cnt = 0;
 
     idx_t tmp = N;
-    idx_t sq = _floor_isqrt_u64(tmp);
+    idx_t sq = isqrt(tmp);
     ensure_primes_upto(sq);
     for (size_t i = 0; i < prime_cnt && prime_list[i] <= sq; ++i) {
         idx_t p = prime_list[i];
@@ -62,7 +95,7 @@ static bool genus_is_one(idx_t N)
             fac_p[fac_cnt] = p;
             fac_e[fac_cnt] = e;
             ++fac_cnt;
-            sq = _floor_isqrt_u64(tmp);
+            sq = isqrt(tmp);
         }
     }
     if (tmp > 1) {          /* remaining prime factor > sqrt(original N) */

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 5^(n^2)+3^(n^2)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 25 terms through n = 29 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -20,8 +22,8 @@ seq_t a(idx_t n)
     idx_t exp = n * n;
 
     /* compute 5^exp and 3^exp using the provided big–power routine */
-    seq_t pow5 = pow_uint(5, exp);
-    seq_t pow3 = pow_uint(3, exp);
+    seq_t pow5 = ipow_u64_idx(5, exp);
+    seq_t pow3 = ipow_u64_idx(3, exp);
 
     /* sum the two terms */
     return pow5 + pow3;

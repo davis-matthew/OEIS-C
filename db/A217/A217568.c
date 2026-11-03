@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   apply_map, compare_squares
+ * Validated: full, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,25 @@
    (length 72) and a(n) is the n‑th element of this list. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/apply_map.h"
-#include "../utils/compare_squares.h"
+#include "../utils/mem.h"
+
+/* Local helper to apply a permutation map. */
+static void apply_map(seq_t dst[9], const seq_t src[9], const int map[9]) {
+    for (int i = 0; i < 9; ++i) {
+        dst[i] = src[map[i]];
+    }
+}
+
+/* Comparator for qsort to lexicographically order square rows. */
+static int compare_squares(const void *p1, const void *p2) {
+    const seq_t (*a)[9] = (const seq_t (*)[9])p1;
+    const seq_t (*b)[9] = (const seq_t (*)[9])p2;
+    for (int i = 0; i < 9; ++i) {
+        if ((*a)[i] < (*b)[i]) return -1;
+        if ((*a)[i] > (*b)[i]) return 1;
+    }
+    return 0;
+}
 
 seq_t a(idx_t n) {
     static seq_t squares[8][9];
@@ -71,7 +89,7 @@ seq_t a(idx_t n) {
         }
 
         /* Sort the unique squares lexicographically. */
-        qsort(squares, square_count, sizeof squares[0], compare_squares);
+        mem_qsort(squares, square_count, sizeof squares[0], compare_squares);
         initialized = true;
     }
 

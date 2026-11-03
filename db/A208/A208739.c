@@ -7,13 +7,16 @@
  * Formula:   a(n) = 2^n - p(n) (where p(n) is the partition number of n)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Global storage for partition numbers */
 static seq_t *partitions = NULL;   /* array of p(0)..p(m) */
@@ -30,9 +33,9 @@ static void ensure_partitions(idx_t n)
     while (new_cap <= (size_t)n) new_cap <<= 1;
 
     if (partitions == NULL) {
-        partitions = (seq_t *)realloc(NULL, new_cap * sizeof(seq_t));
+        partitions = mem_resize(seq_t, NULL, new_cap);
     } else {
-        partitions = (seq_t *)realloc(partitions, new_cap * sizeof(seq_t));
+        partitions = mem_resize(seq_t, partitions, new_cap);
     }
     part_cap = new_cap;
 

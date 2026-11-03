@@ -9,7 +9,8 @@
  *            that lie in the first quadrant (Re(d) > 0, Im(d) >= 0)
  * Range:     u8 n <= 39, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _floor_isqrt_u64, factor_u64
+ * Validated: standard, pass, 79 terms through n = 991 (2026-11-01)
+ * Helpers:   factor_u64, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#include "../utils/factor_u64.h"          /* factor_u64 */
-#include "../utils/_floor_isqrt_u64.h"    /* _floor_isqrt_u64 */
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/isqrt.h"
 
 /* recursive generator for divisors of n^2 */
 static void
@@ -63,14 +65,14 @@ seq_t a(idx_t n)
 
     for (size_t di = 0; di < divs_sz; ++di) {
         idx_t N = divs[di];                    /* N = r^2 + s^2 */
-        idx_t rmax = _floor_isqrt_u64(N);      /* floor sqrt */
+        idx_t rmax = isqrt(N);      /* floor sqrt */
 
         for (idx_t r = 1; r <= rmax; ++r) {    /* r >= 1 as required */
             idx_t s2 = N - r * r;
             if (s2 == 0) {                     /* s = 0 case */
                 /* s = 0, always satisfies square check */
             } else {
-                idx_t s = _floor_isqrt_u64(s2);
+                idx_t s = isqrt(s2);
                 if (s * s != s2) continue;     /* not a perfect square */
                 /* check divisibility conditions */
                 if ((n * r) % N != 0) continue;

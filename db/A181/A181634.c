@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   a_max_val
+ * Validated: partial, pass, 85 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,15 @@
    returns the value a(n) for any n ≥ 2. */
 
 #include <stdint.h>   /* for uint64_t in case idx_t == uint64_t */
-#include "../utils/a_max_val.h"
+
+static inline idx_t a_max_val(idx_t r)
+{
+    idx_t r_mod = r % 3;
+    idx_t r0    = (r_mod + r_mod) % 3;
+    idx_t diff   = r - r0;
+    idx_t rem    = diff % 3;            /* 0,1,2 */
+    return r - rem;
+}
 
 static inline idx_t count_pairs(idx_t r)
 {

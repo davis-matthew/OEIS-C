@@ -9,7 +9,8 @@
  *            is ≡ 1 (mod 8)
  * Range:     u8 n <= 25, u16 n <= 4651, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 70 terms through n = 9906 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/build_primes_upto.h"   /* declares build_primes_upto */
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Prime table (once per process)                                    */
@@ -81,7 +83,7 @@ static void append_seq(seq_t val)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_t *new_arr = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, seq, seq_cap);
         seq = new_arr;
     }
     seq[seq_len++] = val;

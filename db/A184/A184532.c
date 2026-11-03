@@ -9,13 +9,15 @@
  *            )) where h = 1 .. 3n^2+3n. Offset starts at 1
  * Range:     u8 n <= 162, u16 n <= 162, u32 n <= 162, u64 n <= 162,
  *            u128 n <= 162, big any n
- * Helpers:   cube_idx
+ * Validated: partial, pass, 162 terms through n = 162 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/cube_idx.h"
+
+static inline idx_t cube_idx(idx_t x) { return x * x * x; }
 
 /* Small helper: integer cube root via binary search (floor).  */
 static inline idx_t int_cuberoot(idx_t v) {

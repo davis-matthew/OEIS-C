@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   has_adjacent_01
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,26 @@
    by testing each integer and counting the qualifying ones until the n‑th
    such number is found. */
 #include <stdbool.h>
-#include "../utils/has_adjacent_01.h"
+
+/* true if 0 and 1 occur next to each other in the base‑4 digits of x */
+static inline bool has_adjacent_01(idx_t x)
+{
+    if (x <= 1)                 /* less than two digits → impossible */
+        return false;
+
+    idx_t prev = x % 4;          /* least significant digit   */
+    x /= 4;
+
+    while (x > 0) {
+        idx_t curr = x % 4;      /* next digit (more significant) */
+        if ((prev == 0 && curr == 1) ||
+            (prev == 1 && curr == 0))
+            return true;
+        prev = curr;
+        x /= 4;
+    }
+    return false;
+}
 
 /* Public sequence function.  It works for any seq_t that can be
    constructed from a uint64_t value (int, unsigned types or an

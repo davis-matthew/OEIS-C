@@ -11,12 +11,14 @@
  *            1049105, a(6) = 18561659, a(7) = 334918459, a(8) = 5997328339
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 7, i64 n <= 15, i128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 152 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of computed terms */
 static size_t cache_len = 0;         /* number of valid entries in cache */
@@ -32,7 +34,7 @@ static void ensure_cache_cap(idx_t n)
     size_t new_cap = cache_cap > 0 ? cache_cap : 1;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

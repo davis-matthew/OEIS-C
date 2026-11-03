@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Global state for memoisation */
 static seq_t *seq_arr = NULL;      /* flattened terms of the triangle */
@@ -53,7 +55,7 @@ static void grow_seq_array(size_t need)
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
         while (new_cap < seq_len + need)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
         seq_arr = tmp;
         seq_cap = new_cap;
     }
@@ -63,7 +65,7 @@ static void grow_seq_array(size_t need)
 static void init_first_row(void)
 {
     row_prev_len = 3;
-    row_prev = (seq_t *)malloc(row_prev_len * sizeof(seq_t));
+    row_prev = mem_new(seq_t, row_prev_len);
     row_prev[0] = 1;
     row_prev[1] = 0;
     row_prev[2] = 0;
@@ -87,7 +89,7 @@ static void ensure_seq_upto(idx_t n)
             idx_t next_row = current_row + 1;
             size_t next_len = (size_t)(next_row + 3);   /* length = n + 3 */
 
-            seq_t *row_next = (seq_t *)malloc(next_len * sizeof(seq_t));
+            seq_t *row_next = mem_new(seq_t, next_len);
 
             /* k = 0 */
             row_next[0] = 1;
@@ -112,7 +114,7 @@ static void ensure_seq_upto(idx_t n)
                 seq_arr[seq_len++] = row_next[i];
 
             /* Prepare for next iteration */
-            free(row_prev);
+            mem_free(row_prev);
             row_prev = row_next;
             row_prev_len = next_len;
             current_row = next_row;

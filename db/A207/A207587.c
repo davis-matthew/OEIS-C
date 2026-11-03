@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 17, u64 n <= 39, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  seq_t and idx_t are defined by the build system.  */
 
@@ -108,7 +110,7 @@ static void init(void)
 
     /*  Allocate memo array and store a(1) and a(2).  */
     memo_len = 3;                           /* entries for 0,1,2 (0 ignored) */
-    memo = (seq_t*)malloc(sizeof(seq_t) * memo_len);
+    memo = mem_new(seq_t, memo_len);
     if (!memo) abort();
 
     memo[1] = (seq_t)allowed_cnt;                    /* a(1) */
@@ -183,7 +185,7 @@ seq_t a(idx_t n)
         if (cur >= memo_len) {
             idx_t old_len = memo_len;
             memo_len = cur + 1;
-            seq_t *tmp = (seq_t*)realloc(memo, sizeof(seq_t) * memo_len);
+            seq_t *tmp = mem_resize(seq_t, memo, memo_len);
             if (!tmp) abort();
             memo = tmp;
         }

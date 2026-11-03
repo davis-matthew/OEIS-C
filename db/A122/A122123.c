@@ -8,6 +8,7 @@
  *            primes)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 14,
  *            big any n
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
  * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_spf.h"   /* build_spf */
+#include "../utils/build_spf.h"
 
 /* static state: SPF table and its current size (max index it covers) */
 static idx_t *spf_table = NULL;

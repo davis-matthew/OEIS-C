@@ -13,20 +13,22 @@
  *            implementation evalu...
  * Range:     u8 n <= 12, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 57 terms through n = 58 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static seq_t compute_T(idx_t n, idx_t k)
 {
     seq_t sum = 0;
     for (idx_t j = 0; j <= k; ++j) {
-        seq_t bj    = binom(k, j);
-        seq_t bjk   = binom(n - k, j);
+        seq_t bj    = binomial(k, j);
+        seq_t bjk   = binomial(n - k, j);
         seq_t term  = bj * bjk;
         term = term * (n - 1 - j);
         sum += term;

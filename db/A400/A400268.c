@@ -8,7 +8,8 @@
  * Formula:   OEIS A400268 – the concatenation of x, y and x^y
  * Range:     u8 none, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   digit_len
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------- */
 /* Helper: overflow‑safe multiplication and addition for seq_t      */
@@ -91,12 +93,12 @@ static void heap_init(size_t cap)
 {
     heap_cap = cap;
     heap_sz = 0;
-    heap = (Node*)malloc(cap * sizeof(Node));
+    heap = mem_new(Node, cap);
 }
 
 static void heap_free(void)
 {
-    free(heap);
+    mem_free(heap);
     heap = NULL;
     heap_sz = heap_cap = 0;
 }
@@ -105,7 +107,7 @@ static void heap_push(Node n)
 {
     if (heap_sz == heap_cap) {
         heap_cap = (heap_cap > 0) ? heap_cap * 2 : 64;
-        heap = (Node*)realloc(heap, heap_cap * sizeof(Node));
+        heap = mem_resize(Node, heap, heap_cap);
     }
     size_t i = heap_sz++;
     while (i > 0) {
@@ -195,8 +197,8 @@ seq_t a(idx_t n)
             continue;
         }
 
-        int q = digit_len((seq_t)y_next);
-        int r = digit_len(pow_xy_next);
+        int q = num_digits((seq_t)y_next);
+        int r = num_digits(pow_xy_next);
 
         if (q + r > MAX_POW10 || r > MAX_POW10 ||
             pow10_arr[q + r] == 0 || pow10_arr[r] == 0) {

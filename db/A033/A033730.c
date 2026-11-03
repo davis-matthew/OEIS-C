@@ -8,7 +8,8 @@
  *            + 2∑_{k≥1} q^(k²)
  * Range:     u8 n <= 29, u16 n <= 404, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 8555 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Divisors of 18. */
 static const idx_t divisors[] = {1ULL, 2ULL, 3ULL, 6ULL, 9ULL, 18ULL};
@@ -37,11 +39,11 @@ seq_t a(idx_t n)
     size_t sz = (size_t)new_size;
 
     /* Allocate two temporary arrays for the convolution. */
-    seq_t *dp1 = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *dp2 = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp1 = mem_new(seq_t, sz);
+    seq_t *dp2 = mem_new(seq_t, sz);
     if (!dp1 || !dp2) {
-        free(dp1);
-        free(dp2);
+        mem_free(dp1);
+        mem_free(dp2);
         return 0;
     }
 
@@ -82,23 +84,23 @@ seq_t a(idx_t n)
         /* First time: use dp1 as the cache. */
         cache = dp1;
         cache_size = new_size;
-        free(dp2);                 /* dp2 is unused now. */
+        mem_free(dp2);                 /* dp2 is unused now. */
         return cache[n];
     }
 
     if (cache_size < new_size) {
         /* Grow the cache, discarding the old one. */
-        free(cache);
+        mem_free(cache);
         cache = dp1;
         cache_size = new_size;
-        free(dp2);
+        mem_free(dp2);
         return cache[n];
     }
 
     /* Cache is large enough. Copy the newly computed values. */
     for (size_t i = 0; i < sz; ++i)
         cache[i] = dp1[i];
-    free(dp1);
-    free(dp2);
+    mem_free(dp1);
+    mem_free(dp2);
     return cache[n];
 }

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9891 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Dynamic array storing the sequence and a helper to check membership   */
@@ -40,7 +42,7 @@ static void seq_ensure(idx_t needed)
     if (SeqCap <= (size_t)needed) {
         size_t new_cap = SeqCap ? SeqCap * 2 : 16;
         while (new_cap <= (size_t)needed) new_cap <<= 1;
-        Seq = (seq_t *)realloc(Seq, new_cap * sizeof(seq_t));
+        Seq = mem_resize(seq_t, Seq, new_cap);
         SeqCap = new_cap;
     }
 }

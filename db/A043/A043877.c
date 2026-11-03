@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_adjacent_01or10
+ * Validated: standard, pass, 65 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_adjacent_01or10.h"
+#include "../utils/mem.h"
+
+/* Return true if n has an adjacent 0‑1 or 1‑0 pair in base‑3. */
+static bool has_adjacent_01or10(seq_t n)
+{
+    if (n < 2)
+        return false;          /* only one digit – no adjacency possible */
+    seq_t prev = n % 3;
+    n /= 3;
+    while (n > 0) {
+        seq_t cur = n % 3;
+        if ((prev == 0 && cur == 1) || (prev == 1 && cur == 0))
+            return true;
+        prev = cur;
+        n /= 3;
+    }
+    return false;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -40,7 +58,7 @@ seq_t a(idx_t n)
                 /* Store the term */
                 if (cache_len >= cache_cap) {
                     cache_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                    seq_t *tmp = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                     if (!tmp) /* allocation failed – abort */
                         abort();
                     cache = tmp;

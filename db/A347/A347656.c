@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into at most 5 squarefree parts
  * Range:     u8 n <= 33, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* cast to size_t for array indexing */
@@ -23,15 +25,15 @@ seq_t a(idx_t n) {
     /* Allocate DP table: 6 rows (0..5 parts) each with N+1 columns */
     seq_t *dp[6];
     for (int p = 0; p < 6; ++p) {
-        dp[p] = (seq_t*)calloc(N + 1, sizeof(seq_t));
+        dp[p] = mem_new(seq_t, N + 1);
         if (!dp[p]) return (seq_t)0; /* out of memory */
     }
     dp[0][0] = 1; /* one way to make sum 0 with 0 parts */
 
     /* Determine squarefree numbers up to N using sieve of squares */
-    seq_t *sqfree = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *sqfree = mem_new(seq_t, N + 1);
     if (!sqfree) { /* free dp before returning */
-        for (int p = 0; p < 6; ++p) free(dp[p]);
+        for (int p = 0; p < 6; ++p) mem_free(dp[p]);
         return (seq_t)0;
     }
     for (size_t i = 1; i <= N; ++i) sqfree[i] = 1;            /* assume true */
@@ -55,8 +57,8 @@ seq_t a(idx_t n) {
     for (int part = 0; part <= 5; ++part) ans += dp[part][N];
 
     /* Free memory */
-    for (int p = 0; p < 6; ++p) free(dp[p]);
-    free(sqfree);
+    for (int p = 0; p < 6; ++p) mem_free(dp[p]);
+    mem_free(sqfree);
 
     return ans;
 }

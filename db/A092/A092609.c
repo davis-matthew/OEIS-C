@@ -7,7 +7,8 @@
  * Formula:   a(n) = product of the first n primes that end in 1 (1‑mod‑10)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 18,
  *            big any n
- * Helpers:   seq_alloc_new_array
+ * Validated: standard, pass, 29 terms through n = 284 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_alloc_new_array.h"
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 /* Static state */
 static size_t max_limit   = 0;          /* highest limit used in a sieve */
@@ -33,7 +39,7 @@ static void rebuild_primes(size_t limit)
     /* free previous allocations */
     free(primes);
     free(primes1);
-    free(prod_arr);
+    mem_free(prod_arr);
     primes  = NULL;
     primes1 = NULL;
     prod_arr = NULL;

@@ -9,7 +9,8 @@
  *            of Pi/4, computed with base-10^9 fixed-point arithmetic
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pd_iszero
+ * Validated: standard, pass, 121 terms through n = 977 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/pd_iszero.h"
+
+static int pd_iszero(const uint32_t *x, long long len)
+{
+    long long i;
+    for (i = 0; i < len; i++) if (x[i]) return 0;
+    return 1;
+}
 
 #define BASE 1000000000ULL
 

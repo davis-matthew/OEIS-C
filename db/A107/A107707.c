@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 17, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 17, u16 n <= 3104, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 8748 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Deterministic Miller–Rabin primality test for 64‑bit integers */
 static bool isPrime_uint64(uint64_t n)
@@ -91,7 +93,7 @@ static void push_term(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 8 : seq_cap * 2;
-        seq_t *new_arr = (seq_t*)realloc(seq_array, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, seq_array, new_cap);
         if (!new_arr) exit(EXIT_FAILURE);
         seq_array = new_arr;
         seq_cap = new_cap;

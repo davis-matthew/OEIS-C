@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 822, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_uint64, isqrt_uint64
+ * Validated: standard, pass, 62 terms through n = 8680 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
 #include <stdlib.h>
 
 /* Utility functions provided by the build environment */
-#include "../utils/is_prime_uint64.h"   /* bool is_prime_uint64(uint64_t) */
-#include "../utils/isqrt_uint64.h"     /* uint64_t isqrt_uint64(uint64_t) */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
 
 /* Storage for found primes of the required form */
 static seq_t *prime_list = NULL;
@@ -39,7 +42,7 @@ static void ensure_prime_capacity(size_t needed)
     size_t new_cap = prime_cap ? prime_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(prime_list, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_list, new_cap);
     prime_list = tmp;
     prime_cap = new_cap;
 }
@@ -54,13 +57,13 @@ static void add_prime(uint64_t val)
 /* Test whether a prime p has the representation 2*x^2 + 39*y^2 */
 static bool has_representation(uint64_t p)
 {
-    uint64_t max_y = isqrt_uint64(p / 39);
+    uint64_t max_y = isqrt_u64(p / 39);
     for (uint64_t y = 0; y <= max_y; ++y) {
         uint64_t rem = p - 39 * y * y;   /* safe: 39*y*y <= p */
         if (rem & 1)  /* must be even to be 2*x^2 */
             continue;
         uint64_t half = rem >> 1;
-        uint64_t s = isqrt_uint64(half);
+        uint64_t s = isqrt_u64(half);
         if (s * s == half)
             return true;
     }
@@ -79,7 +82,7 @@ seq_t a(idx_t n)
     /* Generate primes until we reach n terms */
     for (;;) {
         ++last_checked;
-        if (!is_prime_uint64(last_checked))
+        if (!is_prime_u64(last_checked))
             continue;
         if (has_representation(last_checked)) {
             add_prime(last_checked);

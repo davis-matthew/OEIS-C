@@ -9,13 +9,15 @@
  *            substrings 0001, 1011, or 1100
  * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 52, u64 n <= 106,
  *            u128 n <= 215, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 499 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct {
     int next[2];
@@ -91,11 +93,11 @@ seq_t a(idx_t n) {
     }
 
     /* DP arrays */
-    seq_t *dp = (seq_t *)calloc(nodeCnt, sizeof(seq_t));
-    seq_t *ndp = (seq_t *)calloc(nodeCnt, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, nodeCnt);
+    seq_t *ndp = mem_new(seq_t, nodeCnt);
     if (!dp || !ndp) {
-        free(dp);
-        free(ndp);
+        mem_free(dp);
+        mem_free(ndp);
         return 0;                       /* allocation failure handler */
     }
     dp[0] = 1;                          /* start at the root */
@@ -122,7 +124,7 @@ seq_t a(idx_t n) {
         if (!nodes[s].out) ans += dp[s];
     }
 
-    free(dp);
-    free(ndp);
+    mem_free(dp);
+    mem_free(ndp);
     return ans;
 }

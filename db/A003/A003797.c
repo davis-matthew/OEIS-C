@@ -8,24 +8,25 @@
  *            / (6 * gcd(n+1, 6))
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 5,
  *            big any n
- * Helpers:   a000248_pow
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000248_pow.h"
-
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     seq_t result = 1;
     
     // Compute 7^(n(n+1)/2)
     idx_t exponent = n * (n + 1) / 2;
-    result = a000248_pow((seq_t)7, exponent);
+    result = ipow_idx((seq_t)7, exponent);
     
     // Compute product(j=1 to n+1) (7^j - 1)
     for (idx_t j = 1; j <= n + 1; j++) {
-        seq_t power = a000248_pow((seq_t)7, j);
+        seq_t power = ipow_idx((seq_t)7, j);
         result *= (power - 1);
     }
     

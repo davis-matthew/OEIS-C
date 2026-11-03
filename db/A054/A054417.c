@@ -10,7 +10,8 @@
  *            order
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #ifndef NULL
 # define NULL ((void*)0)
 #endif
+#include "../utils/mem.h"
 
 /* Helper: multiply a seq_t value by a small unsigned long long
    constant.  In C++ the implementation uses __int128 for
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     if (n >= cap) {
         idx_t new_cap = (cap == 0) ? 4 : cap;
         while (n >= new_cap) new_cap <<= 1;   /* grow by factor 2 */
-        seq_t *tmp = (seq_t *)realloc(tbl, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, tbl, (new_cap + 1));
         if (tmp == NULL) exit(EXIT_FAILURE);
         tbl = tmp;
         cap = new_cap;

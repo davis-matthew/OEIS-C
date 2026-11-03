@@ -6,8 +6,9 @@
  * Keywords:  nonn, nice, mult
  * Formula:   a(n) = Sum_{d|n} phi(d)*mu(n/d) Multiplicative with a(p) = p-2
  *            and a(p^e) = (p-1)^2*p^(e-2) for e > 1
- * Range:     u8 n <= 262, u16 n <= 8202, u32 n <= 8202, u64 n <= 8202,
- *            u128 n <= 8202, big any n
+ * Range:     u8 n <= 262, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 8202 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

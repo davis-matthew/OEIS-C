@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache  = NULL;
 static seq_t *s2_cache = NULL;
@@ -45,11 +47,11 @@ ensure_size(idx_t need)
     while ((size_t)need + 1 > new_cap)
         new_cap <<= 1;
 
-    seq_t *new_a   = (seq_t *)realloc(a_cache,   new_cap * sizeof(seq_t));
-    seq_t *new_s2  = (seq_t *)realloc(s2_cache,  new_cap * sizeof(seq_t));
-    seq_t *new_s3  = (seq_t *)realloc(s3_cache,  new_cap * sizeof(seq_t));
-    seq_t *new_s4  = (seq_t *)realloc(s4_cache,  new_cap * sizeof(seq_t));
-    seq_t *new_s5  = (seq_t *)realloc(s5_cache,  new_cap * sizeof(seq_t));
+    seq_t *new_a   = mem_resize(seq_t, a_cache, new_cap);
+    seq_t *new_s2  = mem_resize(seq_t, s2_cache, new_cap);
+    seq_t *new_s3  = mem_resize(seq_t, s3_cache, new_cap);
+    seq_t *new_s4  = mem_resize(seq_t, s4_cache, new_cap);
+    seq_t *new_s5  = mem_resize(seq_t, s5_cache, new_cap);
     /* zero the newly allocated portion */
     for (size_t i = cap; i < new_cap; ++i) {
         new_a[i]   = 0;

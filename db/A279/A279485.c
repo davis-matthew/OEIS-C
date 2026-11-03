@@ -5,20 +5,22 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} (1 - x^{k^4})
- * Range:     i8 n <= 9268, i16 n <= 9268, i32 n <= 9268, i64 n <= 9268,
- *            i128 n <= 9268, big any n
- * Helpers:   none
+ * Range:     i8 n <= 100000, i16 n <= 100000, i32 n <= 100000,
+ *            i64 n <= 100000, i128 n <= 100000, big any n
+ * Validated: standard, pass, 102 terms through n = 9268 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate DP array of size n+1 and zero it. */
     idx_t sz = n + 1;
-    seq_t *dp = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) return (seq_t)0;   /* fallback in case of OOM */
 
     /* dp[0] = 1 – empty sum, zero elements (even size) */
@@ -39,6 +41,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

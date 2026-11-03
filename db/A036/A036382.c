@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9679 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,11 +38,12 @@
 
 #ifndef ALLOC_RELOC
 #ifdef __cplusplus
-#define ALLOC_RELOC(ptr, size, type) reinterpret_cast<type*>(realloc(ptr, size))
+#define ALLOC_RELOC(ptr, size, type) mem_resize(type, ptr, (size) / sizeof(type))
 #else
-#define ALLOC_RELOC(ptr, size, type) ((type*)realloc(ptr, size))
+#define ALLOC_RELOC(ptr, size, type) (mem_resize(type, ptr, (size) / sizeof(type)))
 #endif
 #endif
+#include "../utils/mem.h"
 
 /* ceil(log2(x)) for unsigned 64‑bit values */
 static unsigned ceil_log2_u64(uint64_t x)

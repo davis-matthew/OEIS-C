@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 229, u16 n <= 8604, u32 n <= 8604, u64 n <= 8604,
- *            u128 n <= 8604, big any n
- * Helpers:   none
+ * Range:     u8 n <= 229, u16 n <= 10942, u32 n <= 75022, u64 n <= 75022,
+ *            u128 n <= 75022, big any n
+ * Validated: standard, pass, 103 terms through n = 8604 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Assumes seq_t and idx_t are defined by the build (see requirements). */
 
@@ -49,13 +51,13 @@ static void compute_rows_upto(size_t r_target) {
 
     for (size_t r = rows_computed; r <= r_target; ++r) {
         if (r == 0) {
-            rows[0] = (seq_t *)malloc(sizeof(seq_t));
+            rows[0] = mem_new(seq_t, 1);
             rows[0][0] = 0;
             row_sizes[0] = 1;
         } else {
             size_t prev_sz = row_sizes[r - 1];
             size_t target_sz = (size_t)fib[r + 2];   /* |S_r| = Fib(r+2) */
-            seq_t *curr = (seq_t *)malloc(target_sz * sizeof(seq_t));
+            seq_t *curr = mem_new(seq_t, target_sz);
 
             size_t i = 0, j = 0, k = 0;
             seq_t last = 0;

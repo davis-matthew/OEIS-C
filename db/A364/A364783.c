@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 8, u128 n <= 68,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 30 terms through n = 8258 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
  */
 
 #include <stdint.h>            /* for uint64_t */
-#include "../utils/seq_pow.h"  /* seq_pow(seq_t, idx_t) */
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* Compute a(n) for n >= 1 */
 seq_t a(idx_t n)
@@ -41,10 +43,10 @@ seq_t a(idx_t n)
             ++k;
         }
         seq_t p = (seq_t)2;
-        seq_t part = seq_pow(p, 21 * k - 12);
+        seq_t part = ipow_idx(p, 21 * k - 12);
         seq_t p2 = p * p - 1;
-        seq_t p4 = seq_pow(p, 4) - 1;
-        seq_t p6 = seq_pow(p, 6) - 1;
+        seq_t p4 = ipow_idx(p, 4) - 1;
+        seq_t p6 = ipow_idx(p, 6) - 1;
         result *= part;
         result *= p2;
         result *= p4;
@@ -60,10 +62,10 @@ seq_t a(idx_t n)
                 ++k;
             }
             seq_t p = (seq_t)d;
-            seq_t part = seq_pow(p, 21 * k - 12);
+            seq_t part = ipow_idx(p, 21 * k - 12);
             seq_t p2 = p * p - 1;
-            seq_t p4 = seq_pow(p, 4) - 1;
-            seq_t p6 = seq_pow(p, 6) - 1;
+            seq_t p4 = ipow_idx(p, 4) - 1;
+            seq_t p6 = ipow_idx(p, 6) - 1;
             result *= part;
             result *= p2;
             result *= p4;
@@ -74,10 +76,10 @@ seq_t a(idx_t n)
     /* If a prime factor larger than sqrt(m) remains */
     if (m > 1) {
         seq_t p = (seq_t)m;     /* remaining prime (k = 1) */
-        seq_t part = seq_pow(p, 21 - 12); /* 21*1 - 12 = 9 */
+        seq_t part = ipow_idx(p, 21 - 12); /* 21*1 - 12 = 9 */
         seq_t p2 = p * p - 1;
-        seq_t p4 = seq_pow(p, 4) - 1;
-        seq_t p6 = seq_pow(p,
+        seq_t p4 = ipow_idx(p, 4) - 1;
+        seq_t p6 = ipow_idx(p,
                             6) - 1;
         result *= part;
         result *= p2;

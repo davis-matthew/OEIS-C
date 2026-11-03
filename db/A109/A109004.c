@@ -9,14 +9,17 @@
  *            s*(s+1)/2 ≤ n < (s+1)*(s+2)/2. offset = n - s*(s+1)/2; n_val = s
  *            - offset; m_val = offset. The sequence is the table of gcd(n,m)
  *            read by antidiagonals
- * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
- *            u128 n <= 104, big any n
- * Helpers:   my_gcd
+ * Range:     u8 n <= 10010, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 121 terms through n = 9752 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/my_gcd.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/gcd.h"
 /* Simple Euclidean GCD for any seq_t type. */
 
 seq_t a(idx_t n)
@@ -50,5 +53,5 @@ seq_t a(idx_t n)
     /* gcd(0,0) is defined as 0 in this sequence. */
     if (n_val == 0 && m_val == 0) return (seq_t)0;
 
-    return my_gcd((seq_t)n_val, (seq_t)m_val);
+    return gcd((seq_t)n_val, (seq_t)m_val);
 }

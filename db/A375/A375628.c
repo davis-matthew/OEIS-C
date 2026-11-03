@@ -7,13 +7,15 @@
  * Formula:   a(n) = n! * Σ_{k=0..⌊n/3⌋} ((n-3k+2)^k / k!)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Local exponentiation by squaring; works for any seq_t type. */
 static seq_t pow_seq(seq_t base, idx_t exp)
@@ -42,9 +44,9 @@ static void ensure_factorial(idx_t n)
 
     seq_t *new_cache;
     if (!fact_cache)
-        new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        new_cache = mem_new(seq_t, new_len);
     else
-        new_cache = (seq_t *)realloc(fact_cache, new_len * sizeof(seq_t));
+        new_cache = mem_resize(seq_t, fact_cache, new_len);
 
     if (!new_cache)
         abort();                       /* Allocation failed – abort. */

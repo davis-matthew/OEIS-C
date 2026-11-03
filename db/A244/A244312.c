@@ -16,12 +16,14 @@
  *            f...
  * Range:     u8 n <= 24, u16 n <= 49, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Compute additional rows until we have at least n flattened terms */
     while (cache_len < (size_t)n) {
         idx_t    row = prev_len + 1;       /* next row number to compute */
-        seq_t   *new_row = (seq_t *)malloc((row + 1) * sizeof(seq_t));
+        seq_t   *new_row = mem_new(seq_t, (row + 1));
         if (!new_row) return 0;           /* allocation failure – return 0 */
 
         new_row[0] = 0;                   /* unused, simplifies access */
@@ -62,8 +64,8 @@ seq_t a(idx_t n)
         if (needed > cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 1;
             while (new_cap < needed) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-            if (!tmp) { free(new_row); return 0; }
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+            if (!tmp) { mem_free(new_row); return 0; }
             cache      = tmp;
             cache_cap  = new_cap;
         }
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         for (idx_t k = 1; k <= row; ++k)
             cache[cache_len++] = new_row[k];
 
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = new_row;
         prev_len = row;
     }

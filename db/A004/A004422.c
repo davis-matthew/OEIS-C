@@ -12,16 +12,49 @@
  *            1
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 8, i64 n <= 23, i128 n <= 69,
  *            big any n
- * Helpers:   a004422_mul, release, seq_is_fixed_width, zalloc_s
+ * Validated: standard, pass, 34 terms through n = 8407 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/zalloc_s.h"
-#include "../utils/release.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/a004422_mul.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *zalloc_s(idx_t n)
+{
+    seq_t *p = mem_new(seq_t, (size_t)n);
+    idx_t i;
+    for (i = 0; i < n; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static void a004422_mul(const seq_t *x, const seq_t *y, seq_t *z, idx_t n) {
+    for (idx_t i = 0; i <= n; i++) {
+        seq_t s = 0;
+        for (idx_t j = 0; j <= i; j++) s += x[j] * y[i - j];
+        z[i] = s;
+    }
+}
 
 seq_t a(idx_t n) {
     seq_t ans;

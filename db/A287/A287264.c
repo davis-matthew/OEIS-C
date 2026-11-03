@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = nth position of the character 0 in the fixed * point of
  *            the morphism sigma: 0->0202, 1->110, 2->11
- * Range:     u8 n <= 92, u16 n <= 9985, u32 n <= 9985, u64 n <= 9985,
- *            u128 n <= 9985, big any n
+ * Range:     u8 n <= 92, u16 n <= 12224, u32 n <= 12224, u64 n <= 12224,
+ *            u128 n <= 12224, big any n
+ * Validated: standard, pass, 75 terms through n = 9985 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,8 +11,9 @@
  *            (1+√5)/2 h(m) is obtained from the Beatty sequence of ⌊kφ²⌋. The
  *            array A_{φ²} is generated via the identity φ² = φ + 1, giving
  *            ⌊kφ²⌋ = ⌊kφ⌋ + k. ⌊kφ⌋ is computed with intege...
- * Range:     u8 n <= 219, u16 n <= 9789, u32 n <= 9789, u64 n <= 9789,
- *            u128 n <= 9789, big any n
+ * Range:     u8 n <= 219, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 82 terms through n = 9789 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

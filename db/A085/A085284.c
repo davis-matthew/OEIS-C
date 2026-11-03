@@ -7,12 +7,14 @@
  * Formula:   a(n) = C(n+3,3)*n^3/4
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +22,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Compute binomial part C(n+3,3) */
-    seq_t res = binom(n + 3, 3);
+    seq_t res = binomial(n + 3, 3);
 
     /* Multiply by n^3, using seq_t arithmetic */
     seq_t nn = (seq_t)n;

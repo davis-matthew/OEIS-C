@@ -9,13 +9,14 @@
  *            whose reverse is also prime
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   reverse_number
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
+ * Helpers:   reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/reverse_number.h"
+#include "../utils/reverse_digits_u64.h"
 
 static bool is_prime(uint64_t n) {
     if (n < 2) return false;
@@ -29,7 +30,7 @@ static bool is_prime(uint64_t n) {
 
 static seq_t count_emirps(uint64_t current, int remaining_digits, uint16_t used_digits) {
     if (remaining_digits == 0) {
-        if (is_prime(current) && is_prime(reverse_number(current))) return 1;
+        if (is_prime(current) && is_prime(reverse_digits_u64(current))) return 1;
         return 0;
     }
     

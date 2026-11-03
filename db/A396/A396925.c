@@ -11,7 +11,8 @@
  *            condition
  * Range:     u8 n <= 17, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   calc_phi
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 /* Helper: returns true if k has a divisor d with d^2 < k and φ(d)=φ(k/d). */
 static bool has_condition(seq_t k)
@@ -29,7 +31,7 @@ static bool has_condition(seq_t k)
         if ((k % (seq_t)d) == 0) {      /* d divides k */
             seq_t d_seq = (seq_t)d;
             seq_t e_seq = k / d_seq;
-            if (calc_phi(d_seq) == calc_phi(e_seq))
+            if (totient_seq(d_seq) == totient_seq(e_seq))
                 return true;
         }
     }
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
             /* grow cache if necessary */
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = 2 * (cache_cap + 1);
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

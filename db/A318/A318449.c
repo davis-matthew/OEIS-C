@@ -10,16 +10,19 @@
  *            the definition by computing f(n) recursively and caching * the
  *            results. The sequence a(n) is the numerator of f(n) after
  *            reducing the * fraction to lowest terms. * * Note: v2(...
- * Range:     u8 n <= 2186, u16 n <= 9453, u32 n <= 9453, u64 n <= 9453,
- *            u128 n <= 9453, big any n
- * Helpers:   pow2
+ * Range:     u8 n <= 2186, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9453 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Cached values of f(n) in numerator form and corresponding
    denominator exponent (i.e., f(n) = a[n] / 2⁽ᵉ[n]⁾). */
@@ -40,7 +43,7 @@ static void ensure_cache(idx_t n)
         return;
 
     /* Grow the arrays. */
-    a_cache = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, (n + 1));
     e_cache = (idx_t *)realloc(e_cache, (n + 1) * sizeof(idx_t));
 
     /* Compute f(i) for all i > cache_max up to n. */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 19, u64 n <= 34, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 873 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,12 +38,13 @@
  * and idx_t. */
 
 #include <stdlib.h>   /* calloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate tables */
-    seq_t *dp   = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *tmp  = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, (size_t)n + 1);
+    seq_t *tmp  = mem_new(seq_t, (size_t)n + 1);
     if (dp == NULL || tmp == NULL) {
         /* allocation failed – abort (not expected in tests) */
         return (seq_t)0;
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
             tmp[d] += val;
 
             /* D step, deficit increases by 2 (allowed only if d <= h-1) */
-            if (d <= h - 1) {
+            if (d + 1 <= h) {
                 tmp[d + 2] += val;
             }
         }
@@ -91,8 +93,8 @@ seq_t a(idx_t n)
     seq_t result = dp[n];
 
     /* Free allocated memory */
-    free(dp);
-    free(tmp);
+    mem_free(dp);
+    mem_free(tmp);
 
     return result;
 }

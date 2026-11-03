@@ -9,6 +9,7 @@
  *            a(n)=n/2+1 if n is even
  * Range:     u8 n <= 509, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 102 terms through n = 4763 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

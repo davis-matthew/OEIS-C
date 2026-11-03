@@ -9,13 +9,15 @@
  *            for k < 0 (gives a(0) = 1, a(1) = 1, a(2) = 2, ...)
  * Range:     u8 n <= 22, u16 n <= 109, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *a001401_dp = NULL;
 static idx_t a001401_len = 0;
@@ -29,9 +31,9 @@ seq_t a(idx_t n) {
     if (n >= a001401_len) {
         idx_t newlen = n + 1;
         idx_t i;
-        seq_t *nd = (seq_t *)malloc((size_t)newlen * sizeof(seq_t));
+        seq_t *nd = mem_new(seq_t, (size_t)newlen);
         for (i = 0; i < a001401_len; i++) nd[i] = a001401_dp[i];
-        free(a001401_dp);
+        mem_free(a001401_dp);
         a001401_dp = nd;
         for (i = a001401_len; i < newlen; i++) {
             seq_t pos = 1;

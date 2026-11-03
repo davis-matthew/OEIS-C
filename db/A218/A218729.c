@@ -8,13 +8,15 @@
  *            27*a(n-1) - 26*a(n-2)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 665 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoized values */
 static size_t cap   = 0;      /* number of elements currently cached */
@@ -28,11 +30,11 @@ seq_t a(idx_t n)
     /* If we need more space, allocate a new array and copy old values */
     if (cache == NULL || (size_t)n >= cap) {
         size_t new_cap = (size_t)n + 1;                      /* need n+1 slots */
-        seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (tmp == NULL) exit(1);                           /* allocation failed */
         if (cache != NULL) {
-            memcpy(tmp, cache, cap * sizeof(seq_t));        /* copy what we have */
-            free(cache);                                    /* drop old block */
+            mem_copy(tmp, cache, cap * sizeof(seq_t));        /* copy what we have */
+            mem_free(cache);                                    /* drop old block */
         }
 
         /* Initialize base values if they were not pre‑filled */

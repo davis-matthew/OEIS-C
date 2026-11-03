@@ -13,13 +13,28 @@
  *            antidiagonals (diagonal d = i + j–1). The internal helper...
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   T_of_row
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for uint64_t used in idx_t */
-#include "../utils/T_of_row.h"
+
+static seq_t T_of_row(idx_t m, idx_t k)
+{
+    /* Find the smallest k such that the first k elements of the row
+       have at least (original) k positions.  The multiplicity of
+       integer x in row m equals floor(x/m)+1. */
+    idx_t remaining = k;
+    for (idx_t val = 0; ; ++val)
+    {
+        idx_t mult = (val / m) + 1;   /* multiplicity of 'val' */
+        if (remaining <= mult)
+            return (seq_t)val;
+        remaining -= mult;
+    }
+}
 
 seq_t a(idx_t n)
 {

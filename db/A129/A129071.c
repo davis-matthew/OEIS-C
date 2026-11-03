@@ -8,14 +8,22 @@
  *            (1‑indexed)
  * Range:     u8 n <= 13, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   estimate_upper_bound
+ * Validated: standard, pass, 66 terms through n = 846 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/estimate_upper_bound.h"
+
+/* Generate an upper bound for the n‑th prime using Rosser's theorem */
+static idx_t estimate_upper_bound(idx_t n) {
+    if (n < 6) return 15;          /* first 5 primes are < 15 */
+    double dn = (double)n;
+    double est = dn * (log(dn) + log(log(dn))) + 3.0;
+    return (idx_t)(est + 1.0);
+}
 
 /* Static cache for primes */
 static uint64_t *primes = NULL;   /* array of primes */

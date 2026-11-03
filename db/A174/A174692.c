@@ -8,13 +8,26 @@
  * Formula:   T(n,k) = n! * Eulerian(n+1, k)^2 - (n! - 1)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 29, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   factorial
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/factorial.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t idx)
 {
@@ -35,12 +48,12 @@ seq_t a(idx_t idx)
     } else {
         /* Use two rolling rows of Eulerian numbers */
         size_t size = (size_t)(r + 1); /* max length needed */
-        seq_t *prev = (seq_t *)malloc(size * sizeof(seq_t));
-        seq_t *curr = (seq_t *)malloc(size * sizeof(seq_t));
+        seq_t *prev = mem_new(seq_t, size);
+        seq_t *curr = mem_new(seq_t, size);
         if (!prev || !curr) {
             /* Fallback in pathological OOM case */
-            if (prev) free(prev);
-            if (curr) free(curr);
+            if (prev) mem_free(prev);
+            if (curr) mem_free(curr);
             return (seq_t)0;
         }
 
@@ -62,8 +75,8 @@ seq_t a(idx_t idx)
         }
 
         euler = prev[(size_t)k];
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
     }
 
     /* Compute the triangle value */

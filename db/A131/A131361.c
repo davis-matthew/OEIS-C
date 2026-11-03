@@ -8,13 +8,15 @@
  *            digits appearing in the decimal representation of n. a(0) = 1
  * Range:     u8 n <= 101, u16 n <= 212, u32 n <= 1233, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 114 terms through n = 9736 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 
     /* Dynamic programming: ways[i] = number of partitions of i. */
     size_t len = (size_t)n + 1;
-    seq_t *ways = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *ways = mem_new(seq_t, len);
     if (!ways) {
         free(coins);
         return (seq_t)0;
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = ways[n];
-    free(ways);
+    mem_free(ways);
     free(coins);
     return result;
 }

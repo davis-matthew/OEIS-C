@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 24, u32 n <= 29, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   digit_len, mod_pow
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem, num_digits, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,9 +30,10 @@ seq_t a(idx_t n);
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/digit_len.h"   /* seq_t digit_len(seq_t x);  */
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base,
-                                   uint64_t exp, seq_t mod); */
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* ---------- cache for computed terms ---------- */
 static seq_t *seq_cache      = NULL;   /* array of a(1)...a(k) */
@@ -52,7 +54,7 @@ static void ensure_cache_capacity(size_t needed)
     size_t new_cap = seq_capacity ? seq_capacity * 2 : 1;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();            /* OOM – terminate */
     seq_cache = tmp;
     seq_capacity = new_cap;
@@ -64,7 +66,7 @@ static void init_cache(void)
     if (seq_cache) return;        /* already initialized */
 
     seq_capacity = 1;
-    seq_cache = (seq_t *)malloc(sizeof(seq_t));
+    seq_cache = mem_new(seq_t, 1);
     if (!seq_cache) abort();
     seq_size = 1;
     seq_cache[0] = (seq_t)1;      /* a(1) = 1 */
@@ -100,8 +102,8 @@ static seq_t next_term(seq_t prev)
            (prev * 10^d + candidate) % (prev + candidate) == prev,
            where d = digit_len(candidate). */
         seq_t mod = prev + candidate;
-        unsigned d = digit_len(candidate);
-        seq_t pow10 = mod_pow((seq_t)10, (uint64_t)d, mod);
+        unsigned d = num_digits(candidate);
+        seq_t pow10 = powmod((seq_t)10, (uint64_t)d, mod);
         seq_t lhs = (prev * pow10 + candidate) % mod;
 
         if (lhs == prev)

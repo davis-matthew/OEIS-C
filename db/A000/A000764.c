@@ -10,13 +10,22 @@
  *            binomial(n,k)*Bell(k)*A000111(n-k)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 37,
  *            big any n
- * Helpers:   grow_copy
+ * Validated: standard, pass, 40 terms through n = 443 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/grow_copy.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_copy(seq_t *old, idx_t oldlen, idx_t newcap) {
+    seq_t *p = mem_new(seq_t, (size_t)newcap);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *A_ = 0;   /* computed terms */
 static seq_t *BR = 0;   /* current Bell-triangle row */

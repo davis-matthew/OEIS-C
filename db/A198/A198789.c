@@ -9,8 +9,9 @@
  *            decode the term index n into antidiagonal coordinates (i,j) of
  *            the infinite array T(i,j) defined by T(1,k) = 1; T(i,k) =
  *            ((T(i-1,k) + k - 1) mod i) + 1 for i > 1. Then return T(i,j)
- * Range:     u8 n <= 9094, u16 n <= 9094, u32 n <= 9094, u64 n <= 9094,
- *            u128 n <= 9094, big any n
+ * Range:     u8 n <= 10011, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 107 terms through n = 9094 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

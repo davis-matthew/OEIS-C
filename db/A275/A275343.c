@@ -13,14 +13,27 @@
  *            the last digit e=0..9. Each subsequence is * n...
  * Range:     u8 none, u16 none, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 #define SUBCNT 90
 
@@ -43,7 +56,7 @@ seq_t a(idx_t n)
                 const_e[idx] = (seq_t)e;
                 seq_t m = (seq_t)(d*d*d + e*e*e);   /* m = d^3 + e^3  */
                 const_m[idx] = m;
-                const_s[idx] = (unsigned)digit_len(m); /* number of digits of m */
+                const_s[idx] = (unsigned)num_digits(m); /* number of digits of m */
                 ++idx;
             }
         }

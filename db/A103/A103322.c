@@ -9,12 +9,14 @@
  *            a(5)=22
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 36, u64 n <= 72, u128 n <= 145,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *vals = NULL;   /* cached values */
 static idx_t vals_size = 0;  /* number of elements currently cached */
@@ -26,9 +28,9 @@ static void ensure_vals(idx_t n)
 
     idx_t new_size = n + 1;                       /* number of elements needed */
     if (vals == NULL)                            /* first allocation */
-        vals = (seq_t *)malloc(new_size * sizeof(seq_t));
+        vals = mem_new(seq_t, new_size);
     else
-        vals = (seq_t *)realloc(vals, new_size * sizeof(seq_t));
+        vals = mem_resize(seq_t, vals, new_size);
 
     if (vals == NULL) /* out of memory */
         exit(EXIT_FAILURE);

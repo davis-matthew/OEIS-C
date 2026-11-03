@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 40, u64 n <= 86, u128 n <= 178,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence A022400: Fibonacci variant
    a(0) = 1, a(1) = 30, a(n) = a(n-1) + a(n-2) for n >= 2.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of computed values – external linkage */
 static seq_t *cache = NULL;   /* pointer to array of seq_t values          */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* At least two slots are needed for the seed values. */
     if (cache_cap < 2) {
         idx_t init_cap = (n + 1 > 2 ? n + 1 : 2);   /* ensure capacity up to n */
-        seq_t *tmp = (seq_t *)realloc(cache, init_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, init_cap);
         cache = tmp;                                         /* may be NULL (error) */
         cache_cap = init_cap;
         cache[0] = (seq_t)1;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Grow the cache if the requested index is beyond the current capacity. */
     if (n + 1 > cache_cap) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;                                         /* may be NULL (error) */
         cache_cap = new_cap;
     }

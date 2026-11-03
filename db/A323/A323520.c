@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   build_primes_upto, cmp_seq_t, seq_pow
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,21 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
-#include "../utils/seq_pow.h"            /* seq_pow */
-#include "../utils/cmp_seq_t.h"          /* cmp_seq_t */
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 typedef struct {
     seq_t  val;          /* current value of this stream */
@@ -49,11 +62,11 @@ static size_t  heap_cap  = 0;
 static void grow_seq_arr(seq_t **arr, size_t *cap, size_t need)
 {
     if (!*cap) {
-        *arr = (seq_t*)malloc(need * sizeof(seq_t));
+        *arr = mem_new(seq_t, need);
         if (!*arr) abort();
         *cap = need;
     } else if (need > *cap) {
-        seq_t *tmp = (seq_t*)realloc(*arr, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, need);
         if (!tmp) abort();
         *arr = tmp;
         *cap = need;
@@ -103,7 +116,7 @@ static void heap_heapify_down(size_t i)
 static void heap_init(size_t cap)
 {
     heap_cap = cap;
-    heap = (node_t*)malloc(cap * sizeof(node_t));
+    heap = mem_new(node_t, cap);
     if (!heap) abort();
     heap_size = 0;
 }
@@ -173,7 +186,7 @@ seq_t a(idx_t n)
         /* compute next power for this prime */
         cur.k += 1;
         idx_t exp = cur.k * cur.k;            /* k^2 */
-        cur.val = seq_pow((seq_t)primes[cur.prime_index], exp);
+        cur.val = ipow_idx((seq_t)primes[cur.prime_index], exp);
         heap_push(cur);
     }
 

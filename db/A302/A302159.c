@@ -13,12 +13,14 @@
  *            156, a(7) = 361, a(8) = 865, a(9) = 1970, a(10)...
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 26, u64 n <= 52, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t known[20] = {
     (seq_t)0,          /* unused index 0 */
@@ -54,9 +56,9 @@ seq_t a(idx_t n) {
         size_t newcap = n + 1;
         if (newcap < 20) newcap = 20;          /* at least capacity for initial terms */
         if (bufcap == 0) {
-            buf = (seq_t *)malloc(sizeof(seq_t) * newcap);
+            buf = mem_new(seq_t, newcap);
         } else {
-            buf = (seq_t *)realloc(buf, sizeof(seq_t) * newcap);
+            buf = mem_resize(seq_t, buf, newcap);
         }
         bufcap = newcap;
     }

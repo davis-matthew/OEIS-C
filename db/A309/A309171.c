@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{d|n} Stirling2(n, d)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 11, u128 n <= 19,
  *            big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_smallest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* Compute a(n) = \prod_{d | n} S(n, d) where S(n,d) is the Stirling
    number of the second kind.  The computation runs in O(n^2) time and
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     uint64_t tmp = nn;
     while (tmp > 1) {
-        uint64_t p = _smallest_prime_factor(tmp);
+        uint64_t p = smallest_prime_factor(tmp);
         size_t exp = 0;
         while (tmp % p == 0) {
             tmp /= p;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     }
 
     /* ---------- compute Stirling numbers row n using one array ---------- */
-    seq_t *s = (seq_t *)malloc((nn + 2) * sizeof(seq_t));
+    seq_t *s = mem_new(seq_t, (nn + 2));
     for (size_t i = 0; i <= nn + 1; ++i) s[i] = 0;
     s[0] = 1;                 /* S(0,0) = 1 */
 
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
 
     /* ---------- clean up ---------- */
     free(divs);
-    free(s);
+    mem_free(s);
 
     return product;
 }

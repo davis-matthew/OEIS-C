@@ -8,12 +8,15 @@
  * Formula:   a(n) = sum of coreful infinitary divisors of n
  * Range:     u8 n <= 16, u16 n <= 2472, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 84 terms through n = 9250 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 #include <stdint.h>
 
 /* Return a(p^e) for a prime power.  */
@@ -32,9 +35,9 @@ static seq_t prime_power_a(uint64_t p, uint64_t e)
         if (e & bit)
         {
             /* numerator = p^(2^(k+1)) - 1 */
-            seq_t num = seq_pow((seq_t)p, (idx_t)(1ULL << (k + 1))) - (seq_t)1;
+            seq_t num = ipow_idx((seq_t)p, (idx_t)(1ULL << (k + 1))) - (seq_t)1;
             /* denominator = p^(2^k) - 1 */
-            seq_t den = seq_pow((seq_t)p, (idx_t)(1ULL << k)) - (seq_t)1;
+            seq_t den = ipow_idx((seq_t)p, (idx_t)(1ULL << k)) - (seq_t)1;
             prod *= num / den;
         }
         k++;

@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = n - (product of lengths of 1‑runs in binary
  *            representation of n)
- * Range:     u8 n <= 256, u16 n <= 9279, u32 n <= 9279, u64 n <= 9279,
- *            u128 n <= 9279, big any n
+ * Range:     u8 n <= 256, u16 n <= 10923, u32 n <= 10923, u64 n <= 10923,
+ *            u128 n <= 10923, big any n
+ * Validated: standard, pass, 108 terms through n = 9279 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

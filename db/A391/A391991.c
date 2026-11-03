@@ -8,15 +8,19 @@
  * Formula:   a(n) = digits(binomial(r, k)) where r is the unique integer with
  *            r·(r+1)/2 ≤ n < (r+1)·(r+2)/2 and k = n - r·(r+1)/2. Digits are
  *            counted in decimal
- * Range:     u8 n <= 39, u16 n <= 104, u32 n <= 104, u64 n <= 104,
+ * Range:     u8 n <= 69, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   binomial, digit_len
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   binomial, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
 
 /* Find r such that r*(r+1)/2 ≤ n < (r+1)*(r+2)/2 */
 static idx_t _row_of(idx_t n)
@@ -48,5 +52,5 @@ seq_t a(idx_t n)
 
     /* Compute binomial(r,k) and return its digit count */
     seq_t c = binomial(r, k);
-    return digit_len(c);
+    return num_digits(c);
 }

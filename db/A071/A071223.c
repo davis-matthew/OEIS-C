@@ -12,12 +12,14 @@
  *            term (0‑based) of the triangular array read row by row
  * Range:     u8 n <= 14, u16 n <= 34, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     /* Allocate space for the values of the current row (1..k). */
     size_t sz = (size_t)k + 1;      /* indices 0..k, we ignore 0 */
-    seq_t *row = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, sz);
     if (!row)
         return 0;                   /* unlikely in tests */
 
@@ -73,6 +75,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = row[k];
-    free(row);
+    mem_free(row);
     return result;
 }

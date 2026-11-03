@@ -9,11 +9,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   equal_strings
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /*  Compute A067861: a(n) is the n-th prime p that can be written as
  *  the concatenation of three numbers n1 n2 n3 (no leading zeros for
  *  non‑zero parts) with n1 – n2 = n3.
@@ -26,7 +28,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/equal_strings.h"
+
+static bool equal_strings(const char *a, int la,
+                          const char *b, int lb)
+{
+    if (la != lb) return false;
+    for (int i = 0; i < la; ++i)
+        if (a[i] != b[i]) return false;
+    return true;
+}
 
 /* ---------- 64‑bit Miller–Rabin primality test ---------- */
 static uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t mod)

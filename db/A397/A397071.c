@@ -8,6 +8,7 @@
  * Formula:   a(n) = n^2 + 6*n + 3 + 2*Sum_{k=1..n} floor(n/k)
  * Range:     u8 n <= 11, u16 n <= 247, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 9936 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

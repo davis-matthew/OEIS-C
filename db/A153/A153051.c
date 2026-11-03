@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 153, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   not_prime
+ * Validated: standard, pass, 81 terms through n = 933 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,18 @@
 /* The function returns a(n) for n ≥ 1 (offset 1). */
 
 #include <stdbool.h>
-#include "../utils/not_prime.h"
+
+/* Small primality test for the small values encountered (≤ ≈ 2·10⁴). */
+static bool not_prime(seq_t v)
+{
+    if (v < 2) return true;          /* 0,1 are not prime */
+    if (v % 2 == 0) return v != 2;   /* even numbers > 2 are composite */
+
+    for (seq_t i = 3; i * i <= v; i += 2) {
+        if (v % i == 0) return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

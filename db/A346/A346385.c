@@ -11,14 +11,18 @@
  *            1‑dimensional arrays
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Assumes the utilities described by the build are available */
 #include <stdlib.h>
-#include "../utils/big_pow.h"      /* seq_t big_pow(seq_t, seq_t) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,25 +32,25 @@ seq_t a(idx_t n)
     }
 
     /* Allocate two rows of length n+1 each */
-    seq_t *prev = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (n + 1));
+    seq_t *curr = mem_new(seq_t, (n + 1));
     if (!prev || !curr) {
         /* In the unlikely event of allocation failure, return 0 */
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;
     }
 
     /* Initialise row 0: f(0,j) = j^j, with 0^0 = 1 */
     prev[0] = (seq_t)1;
     for (idx_t j = 1; j <= n; ++j) {
-        prev[j] = big_pow((seq_t)j, (seq_t)j);    /* j^j */
+        prev[j] = ipow((seq_t)j, (seq_t)j);    /* j^j */
     }
 
     /* Iterate over rows 1 .. n */
     for (idx_t i = 1; i <= n; ++i) {
         /* First column: f(i,0) = i^i */
-        curr[0] = big_pow((seq_t)i, (seq_t)i);
+        curr[0] = ipow((seq_t)i, (seq_t)i);
 
         /* Remaining columns */
         for (idx_t j = 1; j <= n; ++j) {
@@ -63,8 +67,8 @@ seq_t a(idx_t n)
     seq_t result = prev[n];
 
     /* Clean up */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
 
     return result;
 }

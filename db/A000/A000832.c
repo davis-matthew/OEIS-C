@@ -12,8 +12,8 @@
  *            over conjugacy classes (rational canonical forms:...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   a832_addsh, a832_divs, a832_g, a832_muls, a832_pdeg, a832_pmod,
- *            a832_shr, a832_tot_fn
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64, ilog2_u64, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,14 +21,65 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a832_addsh.h"
-#include "../utils/a832_divs.h"
-#include "../utils/a832_g.h"
-#include "../utils/a832_muls.h"
-#include "../utils/a832_pdeg.h"
-#include "../utils/a832_pmod.h"
-#include "../utils/a832_shr.h"
-#include "../utils/a832_tot_fn.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ilog2_u64.h"
+#include "../utils/totient_u64.h"
+
+static void a832_addsh(uint32_t *T, size_t L, const uint32_t *s, size_t Ls, uint64_t sh)
+{
+    size_t w = (size_t)(sh >> 5), i;
+    unsigned b = (unsigned)(sh & 31);
+    uint64_t carry = 0;
+    for (i = 0; i + w < L; i++) {
+        uint32_t piece = 0;
+        if (i > Ls && carry == 0) break;
+        if (i < Ls) piece = s[i] << b;
+        if (b && i >= 1 && i - 1 < Ls) piece |= s[i - 1] >> (32 - b);
+        {
+            uint64_t sum = (uint64_t)T[i + w] + piece + carry;
+            T[i + w] = (uint32_t)sum;
+            carry = sum >> 32;
+        }
+    }
+}
+
+static void a832_divs(uint32_t *x, size_t L, uint32_t d)
+{
+    uint64_t rem = 0; size_t i;
+    for (i = L; i-- > 0;) {
+        uint64_t cur = (rem << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        rem = cur % d;
+    }
+}
+
+static void a832_muls(uint32_t *x, size_t L, uint32_t m)
+{
+    uint64_t carry = 0; size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t cur = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)cur;
+        carry = cur >> 32;
+    }
+}
+
+static uint64_t a832_pmod(uint64_t a, uint64_t f)
+{
+    int df = ilog2_u64(f), da;
+    while ((da = ilog2_u64(a)) >= df) a ^= f << (da - df);
+    return a;
+}
+
+static void a832_shr(uint32_t *x, size_t L, uint64_t s)
+{
+    size_t w = (size_t)(s >> 5), i;
+    unsigned b = (unsigned)(s & 31);
+    for (i = 0; i < L; i++) {
+        uint64_t lo = (i + w < L) ? x[i + w] : 0;
+        uint64_t hi = (i + w + 1 < L) ? x[i + w + 1] : 0;
+        x[i] = (uint32_t)(((hi << 32) | lo) >> b);
+    }
+}
 
 static int a832_n, a832_ni, a832_cap;
 static uint64_t *a832_poly = 0, *a832_ord = 0;
@@ -61,8 +112,8 @@ static uint64_t a832_cyc(uint64_t M)
     uint64_t d;
     for (d = 1; d * d <= M; d++)
         if (M % d == 0) {
-            s += (unsigned __int128)a832_tot_fn(M / d) << a832_F(d);
-            if (d * d != M) s += (unsigned __int128)a832_tot_fn(d) << a832_F(M / d);
+            s += (unsigned __int128)totient_u64(M / d) << a832_F(d);
+            if (d * d != M) s += (unsigned __int128)totient_u64(d) << a832_F(M / d);
         }
     return (uint64_t)(s / M);
 }
@@ -77,7 +128,7 @@ static void a832_eval(void)
         uint64_t p2 = 1, x;
         while (p2 < (uint64_t)m) p2 <<= 1;
         x = a832_ord[a832_cf[c]] * p2;
-        P = P / a832_g(P, x) * x;
+        P = P / gcd_u64(P, x) * x;
     }
     Po = P;
     while (!(Po & 1)) Po >>= 1;

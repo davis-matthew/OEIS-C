@@ -10,14 +10,17 @@
  *            p(n‑1)} and p(k) is the k‑th prime
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 20, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 38 terms through n = 41 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Global static data                                           */
@@ -73,8 +76,8 @@ ensure_arr_capacity(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap *= 2;
 
-    e2_arr = (seq_t *)realloc(e2_arr, (new_cap + 1) * sizeof(seq_t));
-    e4_arr = (seq_t *)realloc(e4_arr, (new_cap + 1) * sizeof(seq_t));
+    e2_arr = mem_resize(seq_t, e2_arr, (new_cap + 1));
+    e4_arr = mem_resize(seq_t, e4_arr, (new_cap + 1));
     arr_cap = new_cap;
 }
 

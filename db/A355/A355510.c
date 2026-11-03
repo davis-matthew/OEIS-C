@@ -9,13 +9,16 @@
  *            with a(0) = 0. For n ≥ 7 this simplifies to a(n) = 6^7 * 7^{n-7}
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static const unsigned long long POW7[8] = {
     1ULL,                 /* 7^0 */
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
     }
 
     /* n >= 7 */
-    seq_t pow_val = pow_uint(7, n - 7);
+    seq_t pow_val = ipow_u64_idx(7, n - 7);
     seq_t result = (seq_t)279936 * pow_val;  /* 6^7 = 279936 */
     return result;
 }

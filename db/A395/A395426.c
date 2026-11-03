@@ -10,12 +10,15 @@
  *            such that r*(r+1)/2 >= n * and k = n - r*(r-1)/2 (1‑based)
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 20, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Find row r and column k for the n‑th element of the triangle. */
@@ -35,10 +38,10 @@ seq_t a(idx_t n) {
     seq_t e4 = (seq_t)(r - 1) * (seq_t)(k - 1);
 
     /* Power of two values (big_pow handles arbitrary‑precision if needed). */
-    seq_t t1 = big_pow((seq_t)2, e1);
-    seq_t t2 = big_pow((seq_t)2, e2);
-    seq_t t3 = big_pow((seq_t)2, e3);
-    seq_t t4 = big_pow((seq_t)2, e4);
+    seq_t t1 = ipow((seq_t)2, e1);
+    seq_t t2 = ipow((seq_t)2, e2);
+    seq_t t3 = ipow((seq_t)2, e3);
+    seq_t t4 = ipow((seq_t)2, e4);
 
     /* Final computation according to the formula. */
     seq_t result = t1 - t2;

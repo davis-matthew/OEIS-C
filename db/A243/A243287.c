@@ -12,7 +12,8 @@
  *            and a(n) = 2*a(k)
  * Range:     u8 n <= 28, u16 n <= 173, u32 n <= 1134, u64 n <= 7940,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of seq_t and idx_t are provided by the build. */
 static seq_t *a_cache = NULL;
@@ -69,7 +71,7 @@ static void ensure_a_computed_up_to(idx_t n)
     if (a_cache_size <= (size_t)n) {
         size_t new_cap = a_cache_size == 0 ? 16 : a_cache_size * 2;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) exit(1);          /* allocation failed */
         a_cache = tmp;
         a_cache_size = new_cap;

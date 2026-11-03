@@ -10,12 +10,14 @@
  *            a(7)=2910
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 835 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialize cache with the first 8 terms */
     if (seq_len == 0) {
         seq_len = 8;
-        seq = (seq_t*)malloc(seq_len * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_len);
         if (!seq) return 0;  /* allocation failure – unlikely for n≤10000 */
 
         seq[0] = (seq_t)1;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* grow the cache if necessary */
     if (n >= seq_len) {
         idx_t new_len = n + 1;
-        seq = (seq_t*)realloc(seq, new_len * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_len);
         if (!seq) return 0;  /* allocation failure – unlikely for n≤10000 */
 
         /* compute missing terms using the recurrence */

@@ -11,11 +11,13 @@
  *            s(s+1)/2 <= n < (s+1)(s+2)/2, and inside that an...
  * Range:     u8 n <= 31, u16 n <= 60, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>

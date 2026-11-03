@@ -9,15 +9,35 @@
  *            (3*2^n + floor(√5*2^n) + 1) / 2
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 62, u128 n <= 112,
  *            big any n
- * Helpers:   floor_sqrt, pow2
+ * Validated: standard, pass, 49 terms through n = 901 (2026-11-01)
+ * Helpers:   ipow_i32, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/pow2.h"       /* pow2(exp) -> seq_t 2^exp   */
-#include "../utils/floor_sqrt.h" /* floor_sqrt(x) -> floor(√x) */
+#include <stdbool.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/pow2.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Integer square root of a 128‑bit unsigned value.
    Returns ⌊√x⌋.  This helper is used only for the 64‑bit build. */

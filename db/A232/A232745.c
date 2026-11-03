@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 93, u16 n <= 9707, u32 n <= 9707, u64 n <= 9707,
- *            u128 n <= 9707, big any n
- * Helpers:   none
+ * Range:     u8 n <= 93, u16 n <= 14833, u32 n <= 14833, u64 n <= 14833,
+ *            u128 n <= 14833, big any n
+ * Validated: standard, pass, 76 terms through n = 9707 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    The function generates terms on demand, memoising the result
    in a static array to handle arbitrary call order. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* initialise the array on first use */
     if (seq == NULL) {
         cap = 128;
-        seq = (seq_t*)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -54,7 +56,7 @@ seq_t a(idx_t n) {
         if ((e & 1u) == 0) {
             if (seq_len >= cap) {        /* grow the array when needed */
                 cap *= 2;
-                seq = (seq_t*)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
             }
             seq[seq_len++] = (seq_t)k;
         }

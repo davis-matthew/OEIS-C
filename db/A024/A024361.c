@@ -6,13 +6,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = 2^(ω(n)-1) if n ≠ 2 (mod 4) and n > 1, else 0 where ω(n)
  *            is the number of distinct prime factors of n
- * Range:     u8 n <= 9899, u16 n <= 9899, u32 n <= 9899, u64 n <= 9899,
- *            u128 n <= 9899, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9899 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

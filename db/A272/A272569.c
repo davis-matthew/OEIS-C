@@ -12,7 +12,8 @@
  *            arbi...
  * Range:     u8 n <= 36, u16 n <= 76, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 92 terms through n = 9918 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,27 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *cache  = NULL;      /* cached values, index 0 unused          */
 static unsigned char *flags = NULL;/* 1 if cache[n] is valid, 0 otherwise      */
@@ -36,8 +57,7 @@ static void ensure_capacity(idx_t n)
     while (new_cap < (size_t)n + 1)
         new_cap <<= 1;               /* grow geometrically */
 
-    seq_t *new_cache = (seq_t *)realloc(cache,
-                                        (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
     unsigned char *new_flags = (unsigned char *)realloc(flags,
                                                         (new_cap + 1) * sizeof(unsigned char));
     if (!new_cache || !new_flags)
@@ -45,9 +65,7 @@ static void ensure_capacity(idx_t n)
 
     /* initialise new entries to zero/false */
     if (new_cap >= cache_cap) {
-        memset(new_cache + cache_cap + 1,
-               0,
-               (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(new_cache + cache_cap + 1, 0, (new_cap - cache_cap) * sizeof(seq_t));
         memset(new_flags + cache_cap + 1,
                0,
                (new_cap - cache_cap) * sizeof(unsigned char));

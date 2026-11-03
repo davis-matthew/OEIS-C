@@ -8,7 +8,8 @@
  * Formula:   a(0) = 1; a(n) = –Sum_{k=1..n} λ(k+1) * a(n‑k) (λ = Liouville)
  * Range:     u8 n <= 14, u16 n <= 28, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------------- */
 /* Cache for the sequence values                                             */
@@ -79,10 +81,10 @@ static void compute_sieve(size_t up_to)
 static void ensure_cache(idx_t need_len)
 {
     if (a_cache == NULL) {
-        a_cache = (seq_t*)malloc((need_len + 1) * sizeof(seq_t));
+        a_cache = mem_new(seq_t, (need_len + 1));
         a_cache_len = 0;
     } else if (a_cache_len <= (size_t)need_len) {
-        a_cache = (seq_t*)realloc(a_cache, (need_len + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (need_len + 1));
         a_cache_len = 0;            /* reset because we recomputed all */
     }
 

@@ -13,13 +13,15 @@
  *            623583, 728627, 634343, 140773, 47959, 155943, 26...
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 9124 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* 1‑based cache array: cache[0] is unused. */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ ensure_cache(size_t n)
 {
     if (n >= cache_cap) {
         size_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();   /* out of memory */
         cache = new_cache;
         cache_cap = new_cap;

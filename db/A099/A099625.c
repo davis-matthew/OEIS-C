@@ -7,7 +7,8 @@
  * Formula:   a(n) = 6*a(n-1) - 11*a(n-2) + 4*a(n-3) + 4*a(n-4)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 48, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Initial values: a(0)=0, a(1)=0, a(2)=1, a(3)=6 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Ensure we have at least four entries initialized */
     if (cacheSize == 0) {
         cacheSize = 4;
-        cache = (seq_t *)malloc(cacheSize * sizeof(seq_t));
+        cache = mem_new(seq_t, cacheSize);
         if (cache == NULL)
             return (seq_t)0;          /* out of memory – fail safely */
 
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Expand the cache if needed */
     if (n + (idx_t)1 > cacheSize) {
         idx_t newSize = n + (idx_t)1;
-        seq_t *tmp = (seq_t *)realloc(cache, newSize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newSize);
         if (tmp == NULL)
             return (seq_t)0;          /* out of memory – fail safely */
         cache = tmp;

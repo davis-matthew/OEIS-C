@@ -13,13 +13,15 @@
  *            a(12)=36, a(13)=39, a(14)=41
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed initial values (a(0) … a(14)). */
 static const seq_t base_vals[15] = {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         if (new_cap <= idx)
             new_cap = idx + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();                 /* allocation failure – give up */
         cache      = tmp;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 #ifdef __cplusplus
         /* In C++ construct the newly allocated objects. */
         for (size_t i = cache_len; i < cache_cap; ++i)
-            new (cache + i) seq_t();
+            *(cache + i) = (seq_t)0;
 #endif
     }
 

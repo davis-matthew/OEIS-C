@@ -9,12 +9,14 @@
  *            generating function (1+x^2)/(1-4x+7x^2-4x^3+x^4).)
  * Range:     i8 n <= 5, i16 n <= 14, i32 n <= 28, i64 n <= 28, i128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialise cache with first four terms */
     if (sz == 0) {
         cap = 8;                          /* initial capacity */
-        term = (seq_t*)malloc(cap * sizeof(seq_t));
+        term = mem_new(seq_t, cap);
         /* Safety check for out‑of‑memory is omitted because the function is
            only used in controlled testing environments. */
         term[0] = 1;                 /* a(0) */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         if (sz >= cap) {
             cap *= 2;
             /* realloc may change the pointer; we ignore failure checks for brevity */
-            term = (seq_t*)realloc(term, cap * sizeof(seq_t));
+            term = mem_resize(seq_t, term, cap);
         }
 
         /* recurrence: a(k) = 4*a(k-1) - 7*a(k-2) + 4*a(k-3) - a(k-4) */

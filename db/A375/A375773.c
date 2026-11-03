@@ -9,13 +9,15 @@
  *            recurrence and dynamic arrays
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* external types defined by the build */
 extern seq_t a(idx_t n);
@@ -34,12 +36,12 @@ static void init_cache(void)
     if (a_cache) return;               /* already initialised */
     /* initialise a_cache[0] = 1 */
     a_cap = 1;
-    a_cache = (seq_t *)malloc(sizeof(seq_t) * a_cap);
+    a_cache = mem_new(seq_t, a_cap);
     a_cache[0] = (seq_t)1;
 
     /* initialise S5_cache[0] = 0 (S(0,5)=0) */
     S5_cap = 1;
-    S5_cache = (seq_t *)malloc(sizeof(seq_t) * S5_cap);
+    S5_cache = mem_new(seq_t, S5_cap);
     S5_cache[0] = (seq_t)0;
 
     /* S_prev holds S(k-1, m) for m=0..5; initialise for k=0 */
@@ -52,9 +54,9 @@ static void expand_cache(idx_t n)
 {
     if (n < a_cap) return;            /* already computed */
     size_t new_cap = (size_t)(n + 1);
-    a_cache = (seq_t *)realloc(a_cache, sizeof(seq_t) * new_cap);
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_cap = new_cap;
-    S5_cache = (seq_t *)realloc(S5_cache, sizeof(seq_t) * new_cap);
+    S5_cache = mem_resize(seq_t, S5_cache, new_cap);
     S5_cap = new_cap;
 
     /* compute values for k = last_k+1 .. n */

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   encode_qr
+ * Validated: standard, pass, 102 terms through n = 9073 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/encode_qr.h"
+#include "../utils/mem.h"
+
+/* Packed 64‑bit key for (q,r) */
+static inline uint64_t encode_qr(int32_t q, int32_t r)
+{
+    return ((uint64_t)(uint32_t)q << 32) | (uint32_t)r;
+}
 
 /* Axial coordinates: q (x axis), r (y axis) */
 static const int32_t DIR_Q[6] = {  1,  1,  0, -1, -1,  0};  /* E, NE, NW, W, SW, SE */
@@ -111,10 +118,10 @@ static int visited_contains(const walk_state *s, uint64_t key)
 static void grow_terms(walk_state *s)
 {
     size_t new_cap = s->terms_cap ? s->terms_cap * 2 : 8;
-    seq_t *new_arr = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) abort();
     for (size_t i = 0; i < s->terms_size; ++i) new_arr[i] = s->terms[i];
-    free(s->terms);
+    mem_free(s->terms);
     s->terms = new_arr;
     s->terms_cap = new_cap;
 }

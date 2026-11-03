@@ -11,15 +11,37 @@
  *            pod(n))
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   big_pow, factor_u64, floor_sqrt, gcd
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"          /* seq_t gcd(seq_t a, seq_t b) */
-#include "../utils/floor_sqrt.h"   /* seq_t floor_sqrt(seq_t x) */
-#include "../utils/big_pow.h"      /* seq_t big_pow(seq_t base, seq_t exp) */
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +61,7 @@ seq_t a(idx_t n)
         tau *= (e + (seq_t)1);
 
         /* sigma term: (p^(e+1)-1)/(p-1) */
-        seq_t numer = big_pow(p, e + (seq_t)1) - (seq_t)1;
+        seq_t numer = ipow(p, e + (seq_t)1) - (seq_t)1;
         seq_t denom = p - (seq_t)1;
         seq_t term = numer / denom;
         sigma *= term;
@@ -48,7 +70,7 @@ seq_t a(idx_t n)
     /* ---- Compute pod(n) ---- */
     seq_t pod;
     seq_t pow_exp = tau >> 1;                 /* floor(tau/2) */
-    pod = big_pow((seq_t)n, pow_exp);        /* n^floor(tau/2) */
+    pod = ipow((seq_t)n, pow_exp);        /* n^floor(tau/2) */
 
     if (tau & (seq_t)1) {                    /* tau odd -> multiply by sqrt(n) */
         seq_t sqrt_n = floor_sqrt((seq_t)n);

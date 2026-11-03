@@ -9,14 +9,22 @@
  *            A158300(k>0)=2^(2*floor((k+1)/2)-1)
  * Range:     u8 n <= 30, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   A158300
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/A158300.h"
+
+/* ---- helper: A158300(k) ---- */
+static seq_t A158300(idx_t k)
+{
+    if (k == 0)   return (seq_t)1;
+    idx_t exp = 2 * ((k + 1) >> 1) - 1;
+    return (seq_t)1 << exp;
+}
 
 /* ---- helper: floor integer square root of a 64‑bit value ---- */
 static idx_t floor_sqrt_u64(idx_t x)

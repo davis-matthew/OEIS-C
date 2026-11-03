@@ -8,12 +8,15 @@
  * Formula:   a(n) = product_{p^e || n} (p^{2^{ceil(log2(e))}} + 1)
  * Range:     u8 n <= 31, u16 n <= 511, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 82 terms through n = 9606 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n <= 1) return 1;          /* a(1) = 1 */
@@ -28,13 +31,13 @@ seq_t a(idx_t n) {
             }
             idx_t power = 1;
             while (power < e) power <<= 1;   /* smallest 2^k >= e */
-            seq_t term = big_pow((seq_t)p, (seq_t)power);
+            seq_t term = ipow((seq_t)p, (seq_t)power);
             term += 1;
             result *= term;
         }
     }
     if (tmp > 1) {                /* remaining prime factor */
-        seq_t term = big_pow((seq_t)tmp, 1);
+        seq_t term = ipow((seq_t)tmp, 1);
         term += 1;
         result *= term;
     }

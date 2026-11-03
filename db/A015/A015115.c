@@ -9,7 +9,8 @@
  *            cyclotomic polynomial
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1930 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------------- simple polynomial structure ----------------- */
 struct Poly {
@@ -33,14 +35,14 @@ static struct Poly *poly_create(int deg)
     struct Poly *p = (struct Poly *)malloc(sizeof(struct Poly));
     if (!p) return NULL;
     p->deg = deg;
-    p->c   = (seq_t *)calloc((size_t)deg + 1, sizeof(seq_t));
+    p->c   = mem_new(seq_t, (size_t)deg + 1);
     return p;
 }
 
 static void poly_free(struct Poly *p)
 {
     if (!p) return;
-    free(p->c);
+    mem_free(p->c);
     free(p);
 }
 
@@ -65,7 +67,7 @@ static struct Poly *poly_div_exact(const struct Poly *A, const struct Poly *B)
     int m = B->deg;
     int qdeg = n - m;
     struct Poly *Q = poly_create(qdeg);
-    seq_t *R = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *R = mem_new(seq_t, (size_t)n + 1);
     for (int i = 0; i <= n; ++i) R[i] = A->c[i];
 
     for (int k = n; k >= m; --k) {
@@ -77,7 +79,7 @@ static struct Poly *poly_div_exact(const struct Poly *A, const struct Poly *B)
             }
         }
     }
-    free(R);
+    mem_free(R);
     return Q;
 }
 

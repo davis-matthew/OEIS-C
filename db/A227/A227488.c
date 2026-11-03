@@ -9,12 +9,15 @@
  * Formula:   a(n) = -13612 + 2^n*(72*n + 45270) + 4^n*(12960*n - 31680)
  * Range:     u8 none, u16 n <= 1, u32 n <= 7, u64 n <= 22, u128 n <= 54,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 995 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -22,8 +25,8 @@ seq_t a(idx_t n)
     if (n < 1)
         return 0;
 
-    seq_t two_pow  = big_pow((seq_t)2, (seq_t)n);
-    seq_t four_pow = big_pow((seq_t)4, (seq_t)n);
+    seq_t two_pow  = ipow((seq_t)2, (seq_t)n);
+    seq_t four_pow = ipow((seq_t)4, (seq_t)n);
 
     /* Positive contributions. */
     seq_t pos = two_pow  * (((seq_t)72 * n) + 45270);

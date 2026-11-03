@@ -9,7 +9,8 @@
  *            an even number of parts)
  * Range:     u8 n <= 19, u16 n <= 47, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *part_even = NULL;    /* A027187(n) for 0 <= n <= cap-1 */
 static int    *mu_arr    = NULL;    /* Möbius values for the same range */
@@ -35,14 +37,14 @@ static void ensure_capacity(idx_t n)
     mu_arr = new_mu;
 
     /* Resize partition-even array */
-    seq_t *new_even = (seq_t *)realloc(part_even, new_cap * sizeof(seq_t));
+    seq_t *new_even = mem_resize(seq_t, part_even, new_cap);
     if (!new_even) { abort(); }
     part_even = new_even;
 
     /* Zero-initialize the new cells (POD types only, but zero is a valid value for our purposes) */
     if (old_cap < new_cap) {
-        memset((void *)(mu_arr + old_cap), 0, (new_cap - old_cap) * sizeof(int));
-        memset((void *)(part_even + old_cap), 0, (new_cap - old_cap) * sizeof(seq_t));
+        memset((mu_arr + old_cap), 0, (new_cap - old_cap) * sizeof(int));
+        mem_set((part_even + old_cap), 0, (new_cap - old_cap) * sizeof(seq_t));
     }
 
     /* ----------------------- Möbius function ----------------------- */
@@ -79,8 +81,8 @@ static void ensure_capacity(idx_t n)
 
     /* -------------------- Partitions into an even number of parts -------------------- */
     /* Dynamically compute A027187 for all n < new_cap using a two‑array DP. */
-    seq_t *even = (seq_t *)calloc(new_cap, sizeof(seq_t));
-    seq_t *odd  = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *even = mem_new(seq_t, new_cap);
+    seq_t *odd  = mem_new(seq_t, new_cap);
     if (!even || !odd) { abort(); }
 
     even[0] = (seq_t)1; /* empty partition has even number (0) of parts */
@@ -98,8 +100,8 @@ static void ensure_capacity(idx_t n)
         part_even[i] = even[i];
     }
 
-    free(even);
-    free(odd);
+    mem_free(even);
+    mem_free(odd);
 
     /* Update capacity */
     cap = new_cap;

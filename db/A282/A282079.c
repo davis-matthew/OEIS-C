@@ -9,14 +9,16 @@
  *            2 where D(n,N) = coefficient of x^n in (1−x)^⌈N/2⌉ (1+x)^⌊N/2⌋
  *            and is evaluated as the alternating sum D = Σ (-1)^a C(⌈N/2⌉,a)
  *            C(⌊N/2⌋, n−a) (0 ≤ a ≤ n)
- * Range:     u8 n <= 14, u16 n <= 256, u32 n <= 1000, u64 n <= 1000,
+ * Range:     u8 n <= 21, u16 n <= 428, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 73 terms through n = 975 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

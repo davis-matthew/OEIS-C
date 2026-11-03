@@ -10,14 +10,16 @@
  *            Σ_{t=0..i} (j‑1)^(i‑t) · binomial(j*i+1, t) * with the square
  *            array read by diagonals downwards. * (For j == 0, T(i,0) = 1 if
  *            i == 0, otherwise 0.)
- * Range:     u8 n <= 23, u16 n <= 49, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 23, u16 n <= 50, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t pow_int(seq_t base, idx_t exp)

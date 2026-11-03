@@ -9,7 +9,8 @@
  *            of the 1/4‑Pascal triangle (by row), excluding 1's
  * Range:     u8 n <= 12, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper structure for a rational number with denominator a power of two. */
 typedef struct {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     /* Row 2 (the special second row). */
     const idx_t r_start = 2;
     size_t prev_len = r_start + 1;        /* 3 elements */
-    rat_t *prev = (rat_t *)malloc(prev_len * sizeof(rat_t));
+    rat_t *prev = mem_new(rat_t, prev_len);
     if (!prev) return 0;                  /* unlikely: out of memory */
 
     prev[0].num = 1;  prev[0].exp = 0;
@@ -80,8 +82,8 @@ seq_t a(idx_t n)
     /* Generate rows starting from r = 3 until we have collected target terms. */
     for (idx_t r = 3; ; ++r) {
         size_t len = r + 1;               /* number of elements in this row */
-        rat_t *curr = (rat_t *)malloc(len * sizeof(rat_t));
-        if (!curr) { free(prev); return 0; }  /* allocation failure */
+        rat_t *curr = mem_new(rat_t, len);
+        if (!curr) { mem_free(prev); return 0; }  /* allocation failure */
 
         /* Edges are always 1. */
         curr[0].num = 1; curr[0].exp = 0;
@@ -100,19 +102,19 @@ seq_t a(idx_t n)
                 ++count;
                 if (count == target) {
                     answer = curr[i].num;
-                    free(curr);
-                    free(prev);
+                    mem_free(curr);
+                    mem_free(prev);
                     return answer;
                 }
             }
         }
 
         /* Prepare for the next iteration. */
-        free(prev);
+        mem_free(prev);
         prev = curr;   /* curr becomes the previous row for next round */
     }
 
     /* Should never reach here. */
-    free(prev);
+    mem_free(prev);
     return answer;
 }

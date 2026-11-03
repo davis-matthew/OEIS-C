@@ -8,7 +8,8 @@
  *            binomial(2*n+1,n-2*k)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute binomial coefficient nCk using an incremental product / division
    method that keeps intermediate values exact (works for any seq_t). */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough */
     size_t need = (size_t)n + 1;
     if (need > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = need;

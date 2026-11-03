@@ -8,13 +8,20 @@
  *            of decimal palindromes, starting with 0
  * Range:     u8 n <= 1098, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow10_idx
+ * Validated: standard, pass, 90 terms through n = 9763 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow10_idx.h"
+
+/* powers of 10 for idx_t and for seq_t */
+static inline idx_t pow10_idx(int exp) {
+    idx_t v = 1;
+    while (exp--) v *= 10;
+    return v;
+}
 
 static inline seq_t pow10_seq_t(int exp) {
     seq_t v = 1;

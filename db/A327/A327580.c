@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4950, i16 n <= 4950, i32 n <= 4950, i64 n <= 4950,
  *            i128 n <= 4950, big any n
- * Helpers:   triangular_count
+ * Validated: standard, pass, 107 terms through n = 4927 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,7 @@
  */
 
 #include <stdint.h>
-#include "../utils/triangular_count.h"
+#include "../utils/triangular.h"
 
 /* Determine the row r such that triangular_count(r-1) < n <= triangular_count(r) */
 static inline idx_t row_of(idx_t n)
@@ -40,7 +41,7 @@ static inline idx_t row_of(idx_t n)
     while (low < high)
     {
         idx_t mid = low + (high - low) / 2;
-        if (triangular_count(mid) >= n)
+        if (triangular(mid) >= n)
             high = mid;
         else
             low = mid + 1;
@@ -71,7 +72,7 @@ seq_t a(idx_t n)
         return 0;
 
     idx_t r = row_of(n);               /* row containing the n‑th element */
-    idx_t prev = triangular_count(r - 1);
+    idx_t prev = triangular(r - 1);
     idx_t c = n - prev;                /* column within the row */
 
     return triangle_entry(r, c);

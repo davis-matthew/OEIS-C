@@ -13,12 +13,14 @@
  *            325940, 475630
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 83, u64 n <= 209, u128 n <= 209,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------
    Memoized linear‑recurrence implementation
@@ -35,7 +37,7 @@ grow_cache(idx_t n)
 {
     if (cache_size <= n) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         /* realloc may return NULL only when size is zero; we
            avoid that by always allocating at least 14.         */
         cache = tmp;
@@ -51,7 +53,7 @@ init_cache(void)
     if (cache_size == 0) {
         /* We need room for 0…13 indices (14 slots). */
         size_t init_size = 14;
-        cache = (seq_t *)malloc(init_size * sizeof(seq_t));
+        cache = mem_new(seq_t, init_size);
         cache_size = init_size;
         /* Zero all entries first. */
         for (idx_t i = 0; i < init_size; ++i)

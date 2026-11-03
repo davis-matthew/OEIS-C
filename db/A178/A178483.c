@@ -12,7 +12,8 @@
  *            representation with the least significant digit (exponent of...
  * Range:     u8 n <= 28, u16 n <= 158, u32 n <= 1532, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 86 terms through n = 9316 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static const uint64_t small_primes[] = {
     2ULL, 3ULL, 5ULL, 7ULL, 11ULL, 13ULL, 17ULL, 19ULL, 23ULL,
@@ -67,7 +68,7 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i < block; ++i) {
         exp = (idx_t)(offset % block);
         offset /= block;
-        product *= pow_uint(small_primes[i], exp);
+        product *= ipow_u64_idx(small_primes[i], exp);
     }
     return product;
 }

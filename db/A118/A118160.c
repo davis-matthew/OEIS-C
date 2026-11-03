@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(1)=1; for n>1, a(n) = rev(a(n-1)) + 48   (decimal digits reversed) */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Reverse the decimal digits of x. */
 static seq_t reverse_digits(seq_t x)
@@ -43,14 +45,14 @@ static void ensure_cache(size_t need)
     size_t new_cap = cache_cap > 0 ? cache_cap * 2 : 1;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)  /* out of memory: leave cache unchanged */
         return;
     if (cache)
     {
         for (size_t i = 0; i < cache_len; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache      = new_cache;
     cache_cap  = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of static helpers */
 static void init_static(void);
@@ -57,7 +59,7 @@ static void grow_rows_if_needed(idx_t needed) {
 static void grow_cache_if_needed(size_t needed) {
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 32;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     cache = new_cache;
     cache_cap = new_cap;
 }
@@ -68,7 +70,7 @@ static void compute_row(idx_t r) {
     size_t len = (size_t)(r + 1);                 /* row length */
     seq_t *prev  = rows[r - 1];                   /* length r */
     seq_t *prev2 = rows[r - 2];                   /* length r-1 */
-    seq_t *cur   = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *cur   = mem_new(seq_t, len);
 
     for (size_t k = 0; k < len; ++k) {
         seq_t a = (k <= r-1)          ? prev[k]   : 0;
@@ -95,19 +97,19 @@ static void init_static(void) {
     rows = (seq_t**)malloc(rows_cap * sizeof(seq_t*));
 
     /* row 0 : [0] */
-    seq_t *row0 = (seq_t*)malloc(sizeof(seq_t));
+    seq_t *row0 = mem_new(seq_t, 1);
     row0[0] = 0;
     rows[0] = row0;
 
     /* row 1 : [0,1] */
-    seq_t *row1 = (seq_t*)malloc(2 * sizeof(seq_t));
+    seq_t *row1 = mem_new(seq_t, 2);
     row1[0] = 0;
     row1[1] = 1;
     rows[1] = row1;
 
     /* Cached values for indices 0,1,2 */
     cache_cap = 32;
-    cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache_size = 0;
     cache[cache_size++] = row0[0];      /* a(0) */
     cache[cache_size++] = row1[0];      /* a(1) */

@@ -9,7 +9,8 @@
  *            p = the n-th Proth prime
  * Range:     u8 n <= 9, u16 n <= 84, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
- * Helpers:   ensure_capacity, mod_pow, next_prime
+ * Validated: partial, pass, 92 terms through n = 92 (2026-11-01)
+ * Helpers:   next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,21 @@
 #include <stdbool.h>
 
 /* Utility headers – the build supplies these implementation files. */
+#include <string.h>
 #include "../utils/next_prime.h"
-#include "../utils/mod_pow.h"
-#include "../utils/ensure_capacity.h"
+#include "../utils/powmod.h"
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
 
 /* Helper: count trailing zeros of a 64‑bit integer. */
 static inline unsigned tz_uint64(uint64_t v)
@@ -81,7 +94,7 @@ static void ensure_a_up_to(idx_t n)
         } else {
             uint64_t exp = (p - 1) >> 1;    /* exponent (p-1)/2 */
             for (uint64_t b = 2; ; ++b) {
-                seq_t power = mod_pow((seq_t)b, exp, (seq_t)p);
+                seq_t power = powmod((seq_t)b, exp, (seq_t)p);
                 if (power == (seq_t)p - 1) {
                     val = (seq_t)b;
                     break;

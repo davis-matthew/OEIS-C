@@ -11,13 +11,15 @@
  *            that |p(i)-i| <= 1. Rook polynomials: R_n(x) = (1...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     size_t L = (size_t)n + 2;
     seq_t *buf[4];
     for (int k = 0; k < 4; k++) {
-        buf[k] = (seq_t *)malloc(L * sizeof(seq_t));
+        buf[k] = mem_new(seq_t, L);
         for (size_t i = 0; i < L; i++)
             buf[k][i] = 0;
     }
@@ -63,6 +65,6 @@ seq_t a(idx_t n)
         f *= (seq_t)(n - j + 1);
     }
     for (int k = 0; k < 4; k++)
-        free(buf[k]);
+        mem_free(buf[k]);
     return pos - neg;
 }

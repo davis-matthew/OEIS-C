@@ -7,12 +7,16 @@
  * Formula:   a(n) = 5*p^5 - 3*p^3 - 2*p^2 where p = A000040(n)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 18, u64 n <= 688, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 991 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 seq_t a(idx_t n)

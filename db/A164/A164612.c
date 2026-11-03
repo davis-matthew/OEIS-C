@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 18, i16 n <= 81, i32 n <= 423, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 105 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,6 +42,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const int b_arr[37] = {
     0,  4,-6, 3,-2, 4,-5, 4,-2, 2,-6, 4,-2,
@@ -64,8 +66,8 @@ static void ensure_size(size_t needed)
     if (needed < sz) return;
     size_t new_sz = sz ? sz * 2 : 4;
     if (new_sz <= needed) new_sz = needed + 1;
-    aA    = (seq_t*)realloc(aA,    new_sz * sizeof(seq_t));
-    sigma = (seq_t*)realloc(sigma, new_sz * sizeof(seq_t));
+    aA    = mem_resize(seq_t, aA, new_sz);
+    sigma = mem_resize(seq_t, sigma, new_sz);
     if (sz == 0) {
         /* initialise first element aA[0] = 1 */
         aA[0] = (seq_t)1;

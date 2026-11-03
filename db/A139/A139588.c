@@ -10,7 +10,8 @@
  *            Fibonacci number
  * Range:     u8 n <= 49, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   make_fib_table
+ * Validated: standard, pass, 72 terms through n = 874 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/make_fib_table.h"
+#include "../utils/mem.h"
+
+/* Helper to compute Fibonacci‐arity table up to a given maximum */
+static bool *make_fib_table(uint32_t max_val)
+{
+    bool *isFib = (bool*)calloc((size_t)max_val + 1, sizeof(bool));
+    if (!isFib) abort();
+    uint64_t a = 1, b = 1;
+    while (a <= max_val) {
+        isFib[(size_t)a] = true;
+        uint64_t c = a + b;
+        a = b;
+        b = c;
+    }
+    return isFib;
+}
 
 #define SIEVE_LIMIT 2000000
 
@@ -84,7 +100,7 @@ static void init(void)
 
     /* Allocate candidates array (estimate size as N/8). */
     size_t est = N / 8;
-    candidates = (seq_t*)malloc(est * sizeof(seq_t));
+    candidates = mem_new(seq_t, est);
     if (!candidates) abort();
 
     /* Gather sequence elements. */
@@ -98,7 +114,7 @@ static void init(void)
         if (isComposite && isFib[tau[i]]) {
             if (cand_len == est) {   /* grow array if needed */
                 est *= 2;
-                candidates = (seq_t*)realloc(candidates, est * sizeof(seq_t));
+                candidates = mem_resize(seq_t, candidates, est);
                 if (!candidates) abort();
             }
             candidates[cand_len++] = (seq_t)i;

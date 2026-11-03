@@ -8,6 +8,7 @@
  * Formula:   a(n) = decimal digit (n‑687) of 2^2281 − 1 (for n ≥ 687)
  * Range:     u8 n <= 1373, u16 n <= 1373, u32 n <= 1373, u64 n <= 1373,
  *            u128 n <= 1373, big any n
+ * Validated: full, pass, 687 terms through n = 1373 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

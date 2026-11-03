@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 98, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 78 terms through n = 9904 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
    requested term.  For performance it uses a sieve of primes up to a fixed
    limit and counts distinct prime factors. */
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static uint64_t *primes = NULL;          /* list of small primes */
 static size_t   prime_cnt = 0;           /* number of primes in the list */
@@ -64,7 +68,7 @@ static void grow_cache(size_t new_cap)
     size_t cap = cache_cap ? cache_cap * 2 : 16;
     while (cap < new_cap)
         cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cap);
     cache = tmp;
     cache_cap = cap;
 }

@@ -10,15 +10,46 @@
  *            number with maximum part size p). The sequence is multiplicative
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, part_leq
+ * Validated: standard, pass, 103 terms through n = 9405 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/part_leq.h"
+
+/* Return the number of partitions of e into parts ≤ p.
+   Computed on the fly to avoid pre‑computation tables that may not fit
+   into seq_t for small builds. */
+static inline seq_t part_leq(uint64_t e, uint64_t p)
+{
+    if (e == 0)
+        return 1;
+    if (p == 0)
+        return 0;
+
+    size_t E = (size_t)e;
+    size_t P = (size_t)p;
+    if (P > E)
+        P = E;
+
+    seq_t dp[65];
+    /* initialize array */
+    for (size_t i = 0; i <= E; ++i)
+        dp[i] = 0;
+    dp[0] = 1;
+
+    for (size_t j = 1; j <= P; ++j) {
+        for (size_t k = j; k <= E; ++k) {
+            dp[k] = dp[k] + dp[k - j];
+        }
+    }
+    return dp[E];
+}
 
 /* Main OEIS sequence function. */
 extern seq_t a(idx_t n)

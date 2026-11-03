@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   count_factors
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,23 @@
  */
 
 #include <stdlib.h>
-#include "../utils/count_factors.h"
+#include "../utils/mem.h"
+
+static seq_t count_factors(idx_t rem, idx_t min_factor)
+{
+    seq_t total = 0;
+    /* enumerate divisors d >= min_factor, only up to sqrt(rem) */
+    for (idx_t d = min_factor; d * d <= rem; ++d) {
+        if (rem % d == 0) {
+            total += count_factors(rem / d, d + 1);
+        }
+    }
+    /* count the factorisation where the remaining number itself is used */
+    if (min_factor <= rem) {
+        total += 1;
+    }
+    return total;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +54,7 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         /* grow cache to include entries up to n */
         size_t new_cap = (size_t)n + 1;           /* indices 0..n inclusive */
-        seq_t *tmp = (seq_t *)realloc(sum_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, sum_cache, new_cap);
         if (!tmp && new_cap > 0) return 0;        /* allocation failure */
         sum_cache = tmp;
         if (cache_cap == 0) {

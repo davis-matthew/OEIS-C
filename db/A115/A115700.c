@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 18, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   floor_sqrt, is_palindrome, reverse_decimal
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   ipow_i32, is_palindrome_base, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,28 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/reverse_decimal.h"   /* seq_t reverse_decimal(seq_t x); */
-#include "../utils/floor_sqrt.h"       /* seq_t floor_sqrt(seq_t x);    */
-#include "../utils/is_palindrome.h"    /* bool is_palindrome(seq_t x, idx_t base); */
+#include "../utils/ipow_i32.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Utility to grow a dynamic array. */
 static void grow_array(seq_t **arr, size_t *cap, size_t needed)
@@ -31,7 +51,7 @@ static void grow_array(seq_t **arr, size_t *cap, size_t needed)
     if (*cap >= needed) return;
     size_t new_cap = (*cap ? *cap << 1 : 16);
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     *arr = tmp;
     *cap = new_cap;
@@ -56,7 +76,7 @@ static seq_t next_root      = 1;      /* next integer whose square to test */
 static void ensure_pal_up_to(seq_t max_val)
 {
     while (pal_next <= max_val) {
-        if (is_palindrome(pal_next, 10)) {
+        if (is_palindrome_base(pal_next, 10)) {
             grow_array(&pal_arr, &pal_cap, pal_cnt + 1);
             pal_arr[pal_cnt++] = pal_next;
         }
@@ -69,7 +89,7 @@ static void ensure_pal_up_to(seq_t max_val)
 /* ------------------------------------------------------------ */
 static bool is_good_square(seq_t sq)
 {
-    seq_t rev = reverse_decimal(sq);
+    seq_t rev = reverse_digits(sq);
     if (rev < 4) return false;   /* smallest product of two palindromes >1 is 2*2=4 */
 
     seq_t sqrt_rev = floor_sqrt(rev);
@@ -79,7 +99,7 @@ static bool is_good_square(seq_t sq)
         seq_t p = pal_arr[i];
         if (rev % p != 0) continue;
         seq_t q = rev / p;
-        if (q > 1 && is_palindrome(q, 10))
+        if (q > 1 && is_palindrome_base(q, 10))
             return true;
     }
     return false;
@@ -96,7 +116,7 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n) {
         if (cache_len >= cache_cap) {
             size_t new_cap = (cache_cap ? cache_cap << 1 : 16);
-            seq_t *tmp = (seq_t*)realloc(cached_vals, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cached_vals, new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             cached_vals = tmp;
             cache_cap = new_cap;

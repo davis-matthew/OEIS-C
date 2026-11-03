@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 146, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 131 terms through n = 4986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Integer square root for 64‑bit values.  Uses 128‑bit arithmetic to
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
         /* Store a valid complement number. */
         if (comps_len == comps_cap) {
             comps_cap = comps_cap ? comps_cap * 2 : 64;
-            comps = (seq_t *)realloc(comps, comps_cap * sizeof(seq_t));
+            comps = mem_resize(seq_t, comps, comps_cap);
         }
         comps[comps_len++] = (seq_t)curr_x;
         ++curr_x;

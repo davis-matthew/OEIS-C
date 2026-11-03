@@ -6,14 +6,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of twin prime pairs (p, p+2) with p ≤ n (OEIS
  *            A071538)
- * Range:     u8 n <= 9308, u16 n <= 9308, u32 n <= 9308, u64 n <= 9308,
- *            u128 n <= 9308, big any n
- * Helpers:   none
+ * Range:     u8 n <= 13756, u16 n <= 99998, u32 n <= 99998, u64 n <= 99998,
+ *            u128 n <= 99998, big any n
+ * Validated: standard, pass, 112 terms through n = 9308 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *twin_counts = NULL;   /* prefix counts of twins up to the last computed limit */
@@ -43,7 +45,7 @@ static void recompute_up_to(idx_t limit)
     }
 
     /* build prefix array of twin counts: twin_counts[i] = #pairs with smaller member ≤ i */
-    seq_t *new_counts = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *new_counts = mem_new(seq_t, (limit + 1));
     if (!new_counts) {
         free(is_prime);
         return;                      /* memory error – leave old cache untouched */
@@ -56,7 +58,7 @@ static void recompute_up_to(idx_t limit)
     }
 
     /* replace old cache */
-    if (twin_counts) free(twin_counts);
+    if (twin_counts) mem_free(twin_counts);
     twin_counts = new_counts;
     computed_limit = limit;
 

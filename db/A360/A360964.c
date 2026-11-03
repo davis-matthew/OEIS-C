@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, tabl
  * Formula:   not stated
- * Range:     u8 n <= 9995, u16 n <= 9995, u32 n <= 9995, u64 n <= 9995,
- *            u128 n <= 9995, big any n
- * Helpers:   digit_len_u64
+ * Range:     u8 n <= 10011, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 107 terms through n = 9995 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,18 @@
    and k = n – (r−1)r/2 – 1                (the column within that row)   */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_len_u64.h"
+
+/* helper: number of digits of x in base b (b >= 2, x >= 0) */
+static int digit_len_u64(uint64_t x, uint64_t b)
+{
+    if (x == 0) return 0;
+    int len = 0;
+    while (x > 0) {
+        ++len;
+        x /= b;
+    }
+    return len;
+}
 
 static inline uint64_t floor_isqrt_u64(idx_t n)
 {

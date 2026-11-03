@@ -9,15 +9,16 @@
  *            (r+1)(r+2)/2, k = n – r(r+1)/2, and T(r,k) =
  *            binom(r+1,(r+k)/2+1) if r–k is even, = binom(r, (r+k+1)/2)
  *            otherwise
- * Range:     u8 n <= 35, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 54, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -44,9 +45,9 @@ seq_t a(idx_t n)
     /* Compute T(r,k) using binomial coefficients */
     if (((r - k) & 1U) == 0) {           /* r - k even */
         idx_t choose = (r + k) / 2 + 1;
-        return binom(r + 1, choose);
+        return binomial(r + 1, choose);
     } else {                              /* r - k odd */
         idx_t choose = (r + k + 1) / 2;
-        return binom(r, choose);
+        return binomial(r, choose);
     }
 }

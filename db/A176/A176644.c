@@ -9,13 +9,15 @@
  *            rows with offset 0
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 38, u128 n <= 59,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 52 terms through n = 846 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* Helper: integer sqrt using binary search (works for all uint64_t). */
 static inline uint64_t isqrt_uint64(uint64_t v)
@@ -68,5 +70,5 @@ seq_t a(idx_t n)
     idx_t e = (idx_t)e128;
 
     /* Compute 40^e.  (seq_pow handles big integers when required.) */
-    return seq_pow((seq_t)40, e);
+    return ipow_idx((seq_t)40, e);
 }

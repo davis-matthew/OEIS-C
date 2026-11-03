@@ -7,13 +7,16 @@
  * Formula:   a(n) = binomial(n,76) for n >= 76 (0 otherwise)
  * Range:     u8 n <= 77, u16 n <= 78, u32 n <= 83, u64 n <= 94, u128 n <= 133,
  *            big any n
- * Helpers:   _gcd_idx
+ * Validated: standard, pass, 32 terms through n = 9016 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_gcd_idx.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/gcd_idx.h"
 
 /* Euclidean GCD for idx_t (uint64_t) */
 
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
         for (idx_t j = 0; j < k && numer[i] > 1; ++j)
         {
             if (denom[j] == 1) continue;
-            idx_t g = _gcd_idx(numer[i], denom[j]);
+            idx_t g = gcd_idx(numer[i], denom[j]);
             if (g > 1)
             {
                 numer[i] /= g;

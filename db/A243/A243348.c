@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A005117(n) - n (nth square‑free number minus n)
- * Range:     u8 n <= 39, u16 n <= 8641, u32 n <= 8641, u64 n <= 8641,
- *            u128 n <= 8641, big any n
- * Helpers:   floor_sqrt
+ * Range:     u8 n <= 39, u16 n <= 8641, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 89 terms through n = 8641 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,26 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"   /* provides floor_sqrt(seq_t) */
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* --------------------------------------------------------------------- */
 /* Static cache structures                                              */
@@ -90,7 +110,7 @@ seq_t a(idx_t n)
     if (sf_cap == 0)
     {
         sf_cap = 64;
-        sf = (seq_t*)calloc(sf_cap, sizeof(seq_t));
+        sf = mem_new(seq_t, sf_cap);
     }
 
     while (sf_cnt < n)
@@ -115,7 +135,7 @@ seq_t a(idx_t n)
         if (sf_cnt == sf_cap)
         {
             sf_cap = sf_cap ? sf_cap * 2 : 64;
-            sf = (seq_t*)realloc(sf, sf_cap * sizeof(seq_t));
+            sf = mem_resize(seq_t, sf, sf_cap);
         }
         sf[sf_cnt++] = cand;
     }

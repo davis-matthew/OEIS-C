@@ -9,12 +9,14 @@
  *            generating function.)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 888 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, exit */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached values of a(n)             */
 static size_t cache_cap = 0;     /* allocated capacity in cache        */
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n)
     while (new_cap <= (size_t)n + 1)
         new_cap <<= 1;
 
-    seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
     if (!new_buf) exit(1);              /* out of memory */
 
     /* Initialization on first run */

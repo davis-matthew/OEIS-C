@@ -8,19 +8,23 @@
  * Formula:   count of digit '7' in the decimal expansion of n^3
  * Range:     u8 n <= 6, u16 n <= 41, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   digit_counts, seq_pow
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-01)
+ * Helpers:   digit_counts, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     /* Compute n^3 */
-    seq_t cube = seq_pow((seq_t)n, 3);
+    seq_t cube = ipow_idx((seq_t)n, 3);
 
     /* Count digits of cube */
     unsigned char cnt[10] = {0};

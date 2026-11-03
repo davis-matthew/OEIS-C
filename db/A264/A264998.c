@@ -7,9 +7,10 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = number of partitions of n into distinct parts taken from
  *            the set {1, 2} ∪ {3^a * 5^b : a,b ≥ 0}
- * Range:     u8 n <= 917, u16 n <= 9961, u32 n <= 9961, u64 n <= 9961,
- *            u128 n <= 9961, big any n
- * Helpers:   none
+ * Range:     u8 n <= 917, u16 n <= 12044, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 104 terms through n = 9961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- helper: dynamic array of idx_t --------------------------------- */
 static void append_idx(size_t *len, size_t *cap, idx_t **arr, idx_t val) {
@@ -58,7 +60,7 @@ seq_t a(idx_t n) {
     qsort(parts, parts_len, sizeof(idx_t), cmp_idx_t);
 
     /* DP array: dp[i] = number of partitions of i into distinct parts */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) { free(parts); return (seq_t)0; }
 
     dp[0] = (seq_t)1;
@@ -72,7 +74,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     free(parts);
     return result;
 }

@@ -11,7 +11,8 @@
  *            A107286(m) is the smallest prime factor of m)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Simple trial‑division primality test.  Works for 64‑bit and
    arbitrary-precision seq_t values. */
@@ -53,7 +55,7 @@ static void ensure_cache_up_to(idx_t n)
     /* Initialise cache for the first two terms if not already done. */
     if (cache_len == 0)
     {
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache) exit(1);
         cache[0] = 0;
         cache[1] = 1;
@@ -63,7 +65,7 @@ static void ensure_cache_up_to(idx_t n)
     /* Grow and compute new terms if necessary. */
     if (n + 1 > cache_len)
     {
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) exit(1);
         cache = new_cache;
 

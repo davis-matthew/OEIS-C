@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A000120(3*n) mod 2
- * Range:     u8 n <= 9277, u16 n <= 9277, u32 n <= 9277, u64 n <= 9277,
- *            u128 n <= 9277, big any n
+ * Range:     u8 n <= 21846, u16 n <= 21846, u32 n <= 21846, u64 n <= 21846,
+ *            u128 n <= 21846, big any n
+ * Validated: standard, pass, 117 terms through n = 9277 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

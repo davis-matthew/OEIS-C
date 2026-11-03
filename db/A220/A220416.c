@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 27, u64 n <= 65, u128 n <= 170,
  *            big any n
- * Helpers:   big_pow, u128_sqrt_floor
+ * Validated: standard, pass, 52 terms through n = 375 (2026-11-01)
+ * Helpers:   ipow, isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,15 +24,16 @@
  */
 #include <stdint.h>
 #include <math.h>
-#include "../utils/big_pow.h"
-#include "../utils/u128_sqrt_floor.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/isqrt_u128.h"
 
 seq_t a(idx_t n)
 {
     /* n >= 1 is assumed, behaviour for n<1 is undefined */
     /* Compute S = minimal integer such that S*(S-1)/2 >= n */
     unsigned __int128 sq = (unsigned __int128)1 + (unsigned __int128)8 * n;
-    unsigned __int128 t   = u128_sqrt_floor(sq);          /* floor sqrt(1+8n) */
+    unsigned __int128 t   = isqrt_u128(sq);          /* floor sqrt(1+8n) */
     unsigned __int128 S   = (unsigned __int128)1 + t;     /* 1 + floor sqrt */
     S /= 2; /* floor((1+t)/2) */
     /* Fix S to be the minimal satisfying the inequality */
@@ -45,5 +47,5 @@ seq_t a(idx_t n)
 
     /* Evaluate ((i+j-1)*(i+j-2)/2 + i)^i  in seq_t */
     seq_t base = ((seq_t)(i + j - 1) * (seq_t)(i + j - 2) / 2) + (seq_t)i;
-    return big_pow(base, (seq_t)i);
+    return ipow(base, (seq_t)i);
 }

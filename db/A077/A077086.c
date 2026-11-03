@@ -7,7 +7,8 @@
  * Formula:   a(n) = sigma(n+1) mod sigma(n) (OEIS A077086)
  * Range:     u8 n <= 162, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _isqrt_u64, _sigma_of
+ * Validated: standard, pass, 90 terms through n = 9605 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/_isqrt_u64.h"
-#include "../utils/_sigma_of.h"
+#include "../utils/isqrt.h"
+
+/* ---------- compute sigma (sum of divisors) for n >= 1 ---------- */
+static seq_t _sigma_of(idx_t n)
+{
+    seq_t sum = 0;
+    idx_t root = isqrt(n);
+    for (idx_t d = 1; d <= root; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t q = n / d;
+            if (q != d)
+                sum += (seq_t)q;
+        }
+    }
+    return sum;
+}
 
 /* ---------- public sequence function -------------------------------- */
 seq_t a(idx_t n)

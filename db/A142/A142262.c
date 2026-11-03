@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 158, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 58 terms through n = 926 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>              /* for bool used by helpers */
-#include "../utils/build_primes.h"/* provides void build_primes(idx_t limit, idx_t **out, size_t *cnt); */
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/build_primes.h"
 
 seq_t a(idx_t n)
 {

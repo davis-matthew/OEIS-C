@@ -11,7 +11,8 @@
  *            is even, and after the last descending block if...
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 3, i64 n <= 4, i128 n <= 6,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_from_str.h"
+#include <stdbool.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 static unsigned digits_of_uint64(uint64_t v)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 219, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has10and01
+ * Validated: standard, pass, 86 terms through n = 9310 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has10and01.h"
+
+/* Returns true if x contains the bit strings "10" and "01". */
+static bool has10and01(uint64_t x)
+{
+    bool has10 = false, has01 = false;
+    int prev = x & 1;
+    x >>= 1;
+    while (x) {
+        int curr = x & 1;
+        if (prev == 1 && curr == 0) has10 = true;
+        if (prev == 0 && curr == 1) has01 = true;
+        if (has10 && has01) return true;
+        prev = curr;
+        x >>= 1;
+    }
+    return false;
+}
 
 /* External function required by the framework. */
 seq_t a(idx_t n)

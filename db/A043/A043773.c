@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   good_runs
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
    counts the runs.  No memoisation or external helpers are required. */
 
 #include <stdbool.h>
-#include "../utils/good_runs.h"
+
+/* Count base‑3 runs of x.  Return true if runs ≡ 0 mod 3. */
+static bool good_runs(seq_t x)
+{
+    int runs   = 0;
+    int prev   = -1;          /* value of the previous base‑3 digit */
+    seq_t t    = x;
+
+    while (t > 0) {
+        int d = (int)(t % 3);   /* current digit (0,1,2) */
+        if (d != prev) {
+            ++runs;
+            prev = d;
+        }
+        t /= 3;
+    }
+    return (runs % 3) == 0;
+}
 
 /* Main sequence function.  It scans integers from 1 upwards until the
    n‑th qualifying number is found.  This runs in O(n) time with a

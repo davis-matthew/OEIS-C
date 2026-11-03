@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 40, u16 n <= 1006, u32 n <= 9935, u64 n <= 9935,
- *            u128 n <= 9935, big any n
- * Helpers:   none
+ * Range:     u8 n <= 40, u16 n <= 1006, u32 n <= 54388, u64 n <= 54388,
+ *            u128 n <= 54388, big any n
+ * Validated: standard, pass, 94 terms through n = 9935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    of all previous odd terms. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap ? cap * 2 : 8;
         while (new_cap < need_size)
             new_cap *= 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap   = new_cap;
     }
 

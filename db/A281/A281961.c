@@ -10,6 +10,7 @@
  *            a(n)=0 for all n > -17
  * Range:     u8 none, u16 none, u32 n <= -17, u64 n <= -17, u128 n <= -17,
  *            big any n
+ * Validated: partial, pass, 7 terms through n = -17 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

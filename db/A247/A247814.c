@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 17, u32 n <= 1019, u64 n <= 1020,
  *            u128 n <= 1020, big any n
- * Helpers:   none
+ * Validated: full, pass, 1020 terms through n = 1020 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    6,5,1,9,4,2,8).  The remaining numbers are sorted numerically.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compare two seq_t values for qsort. */
 static int cmp_seq_t(const void *a, const void *b)
@@ -65,7 +67,7 @@ static void build_sequence(void)
     }
 
     /* pos should now be 1020. */
-    qsort(values, pos, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(values, pos, sizeof(seq_t), cmp_seq_t);
     built = 1;
 }
 

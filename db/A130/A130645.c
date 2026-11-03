@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 29, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
      a(5)=1541, a(6)=7644
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache to allow out‑of‑order queries */
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
     /* first call: allocate cache and fill the first six terms */
     if (cache == NULL) {
         cache_cap = 64;                      /* start with some capacity */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         for (size_t i = 0; i < 6; ++i) cache[i] = init[i];
         cache_len = 6;
     }
@@ -51,9 +53,9 @@ seq_t a(idx_t n) {
     if ((size_t)n > cache_cap) {
         size_t new_cap = cache_cap;
         while ((size_t)n > new_cap) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         for (size_t i = 0; i < cache_len; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

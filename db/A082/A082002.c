@@ -11,7 +11,8 @@
  *            constraints
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   ensure_used_cap, gcd
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/ensure_used_cap.h"
+#include "../utils/mem.h"
+
+/* Expand the used‑number bitset so that it can index at least `val`. */
+static void ensure_used_cap(size_t *cap, uint8_t **used, uint64_t val)
+{
+    if ((size_t)val < *cap) return;
+    size_t new_cap = (*cap > 0) ? *cap : 1;
+    while ((size_t)val >= new_cap) new_cap <<= 1;
+    uint8_t *tmp = (uint8_t *)realloc(*used, new_cap);
+    if (!tmp) return;                     /* allocation failure handled by caller */
+    memset(tmp + *cap, 0, (new_cap - *cap));
+    *used = tmp;
+    *cap = new_cap;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +48,7 @@ seq_t a(idx_t n)
 
     /* Allocate a square table large enough for all diagonal cells.   */
     size_t size = (dim + 2) * (dim + 2);          /* +2 for safety   */
-    seq_t *table = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *table = mem_new(seq_t, size);
     if (!table) return (seq_t)0;                  /* allocation failure */
 
     /* Short macro for 2‑D indexing.                           */
@@ -45,7 +59,7 @@ seq_t a(idx_t n)
     /* Bitset of numbers that are already used.                 */
     size_t used_cap = 2;
     uint8_t *used = (uint8_t *)calloc(used_cap, sizeof(uint8_t));
-    if (!used) { free(table); return (seq_t)0; }
+    if (!used) { mem_free(table); return (seq_t)0; }
     used[1] = 1;                                   /* 1 is considered used */
 
     size_t count = 1;   /* number of terms produced so far */
@@ -88,7 +102,7 @@ seq_t a(idx_t n)
                 used[cand] = 1;
                 if (++count == (size_t)n) {
                     seq_t result = val;
-                    free(table);
+                    mem_free(table);
                     free(used);
                     return result;
                 }
@@ -128,7 +142,7 @@ seq_t a(idx_t n)
                 used[cand] = 1;
                 if (++count == (size_t)n) {
                     seq_t result = val;
-                    free(table);
+                    mem_free(table);
                     free(used);
                     return result;
                 }
@@ -139,7 +153,7 @@ seq_t a(idx_t n)
 
     /* Fallback: the needed term has not been produced (should not happen). */
     seq_t result = table[IDX(1,1)];
-    free(table);
+    mem_free(table);
     free(used);
     return result;
 

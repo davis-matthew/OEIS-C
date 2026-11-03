@@ -10,12 +10,14 @@
  *            parts ≤ i
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const idx_t _parts[4] = {1, 4, 7, 11};
 
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Allocate/resize the DP array for the requested n. */
     if (dp == NULL || allocated_n < n) {
-        seq_t *tmp = (seq_t *)realloc(dp, (size_t)(n + (idx_t)1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (size_t)(n + (idx_t)1));
         if (!tmp) return (seq_t)0;           /* allocation failure */
         dp = tmp;
         allocated_n = n;

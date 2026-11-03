@@ -9,13 +9,15 @@
  *            a(3)=352
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 19, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache[0] holds a(1) */
 static seq_t *cache = NULL;
@@ -32,12 +34,12 @@ static void ensure_cache(idx_t n)
        each time for amortised linear growth. */
     if (cache == NULL) {
         cache_cap = (size_t)n;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if ((size_t)n > cache_cap) {
         size_t newcap = cache_cap * 2;
         if (newcap < (size_t)n)
             newcap = (size_t)n;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cache_cap = newcap;
     }
 

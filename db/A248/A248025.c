@@ -12,20 +12,50 @@
  *            leading digit matches the required digital root
  * Range:     u8 n <= 97, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _digit_len, _digital_root, _next_with_digit, _pow10
+ * Validated: standard, pass, 90 terms through n = 9871 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_digit_len.h"
-#include "../utils/_digital_root.h"
-#include "../utils/_next_with_digit.h"
-#include "../utils/_pow10.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Digital root of a positive number v (returns 1..9) */
+static inline int _digital_root(seq_t v)
+{
+    int r = (int)(v % 9);
+    return r ? r : 9;
+}
+
+/* Compute 10^e for non‑negative integer e */
+static inline seq_t _pow10(int e)
+{
+    seq_t r = 1;
+    while (e--) r *= 10;
+    return r;
+}
+
+/* Compute the next unused integer starting with digit 'd' after 'cur', where cur already has leading digit d */
+static seq_t _next_with_digit(int d, seq_t cur)
+{
+    seq_t nxt = cur + 1;
+    int digits = num_digits(cur);
+    int k = digits - 1;           /* current power of 10 = 10^k */
+    seq_t pow10k = _pow10(k);
+
+    /* If nxt still has leading digit d, we can use it */
+    if ((nxt / pow10k) == d) return nxt;
+
+    /* Otherwise, advance to the next magnitude (d * 10^(k+1)) */
+    seq_t pow10k1 = pow10k * 10;  /* 10^(k+1) */
+    return (seq_t)d * pow10k1;
+}
 
 /* Forward declarations of static helpers */
-static inline int _digit_len(seq_t);
+static inline int num_digits(seq_t);
 static inline seq_t _pow10(int);
 static seq_t _next_with_digit(int d, seq_t cur);
 static inline int _digital_root(seq_t v);
@@ -42,7 +72,7 @@ static void _ensure_capacity(size_t need)
     if (need <= g_cap) return;
     size_t new_cap = g_cap ? g_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(g_seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, g_seq, new_cap);
     if (!tmp) abort();          /* allocation failure */
     g_seq = tmp;
     g_cap = new_cap;

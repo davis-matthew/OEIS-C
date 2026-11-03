@@ -9,6 +9,7 @@
  *            if p % 4 == 1, -p if p % 4 == 3. Example: a(6) = 13, a(8) = -19
  * Range:     i8 n <= 31, i16 n <= 3512, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 68 terms through n = 8267 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

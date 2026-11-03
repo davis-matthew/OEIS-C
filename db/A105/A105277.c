@@ -10,12 +10,14 @@
  *            values a(0)=0, a(1)=1, a(2)=5, a(3)=29
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache to store computed terms */
 static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ static void extend_cache(idx_t upto)
 
     /* allocate enough space */
     idx_t new_size = upto + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) return;          /* allocation failed – give up */
     cache = new_cache;
 

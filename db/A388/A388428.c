@@ -8,20 +8,22 @@
  *            3*binomial(n,3)+n
  * Range:     u8 n <= 8, u16 n <= 52, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     if ((n & 1ULL) == 0) {
         /* n is even */
-        return binom(n, 2) + 1;
+        return binomial(n, 2) + 1;
     } else {
         /* n is odd */
-        return (seq_t)3 * binom(n, 3) + n;
+        return (seq_t)3 * binomial(n, 3) + n;
     }
 }

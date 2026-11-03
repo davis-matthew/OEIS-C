@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 35, u32 n <= 1023, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_by_length, rot_map
+ * Validated: standard, pass, 59 terms through n = 8729 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,37 @@
    (using only digits 0, 1, 6 and 9) in increasing numerical order. */
 
 #include <stdint.h>
-#include "../utils/count_by_length.h"
-#include "../utils/rot_map.h"
+
+/* Count how many numbers of a given length are valid. */
+static idx_t
+count_by_length(idx_t len)
+{
+    if (len == 1)           /* 0 and 1 */
+        return 2;
+
+    idx_t k = len / 2;      /* number of free digit positions (half the length) */
+
+    /* Compute 4^(k-1) */
+    idx_t pow4 = 1;
+    for (idx_t i = 1; i < k; ++i)
+        pow4 *= 4;
+
+    if (len % 2 == 0)       /* even length: leading digit has 3 options (1,6,9) */
+        return 3 * pow4;
+    else                    /* odd length: middle digit has 2 options (0,1) */
+        return 6 * pow4;    /* 3 * 2 * 4^(k-1) */
+}
+
+/* Map a digit after a 180° rotation. */
+static uint8_t
+rot_map(uint8_t d)
+{
+    switch (d) {
+        case 6: return 9;
+        case 9: return 6;
+        default: return d;          /* 0 → 0, 1 → 1 */
+    }
+}
 
 /* Main sequence function */
 seq_t

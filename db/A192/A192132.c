@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 + Σ_{k=0..⌊(n‑1)/3⌋} binomial(n‑1,k) *
  *            binomial(3*(n‑1)‑3*k+3,(n‑1)‑3*k) / (n‑k) (a(0)=1)
- * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 22,
+ * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* external helper provided by the build environment */
 extern seq_t binomial(idx_t n, idx_t k);
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL) {
         cache_size = (n < 16) ? 16 : n + 1;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) abort();
         /* initialise to zero */
         for (idx_t i = 0; i < cache_size; ++i) cache[i] = 0;
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
     } else if (n + 1 > cache_size) {
         idx_t new_size = cache_size * 2;
         if (new_size < n + 1) new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) abort();
         /* zero‑initialise the newly allocated part */
         for (idx_t i = cache_size; i < new_size; ++i) tmp[i] = 0;

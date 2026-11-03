@@ -10,7 +10,8 @@
  *            well below the limits for n up to about 10 000
  * Range:     u8 n <= 27, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  * requested, the cache is extended until it contains at least that
  * many primes. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external integer types supplied by the build */
 extern seq_t a(idx_t n);      /* function to be defined below */
@@ -40,7 +42,7 @@ static void ensure_primes(idx_t needed_index)
     if (prime_cap < prime_count + 10) {
         size_t new_cap = prime_cap ? prime_cap << 1 : 32;
         if (new_cap < prime_count + 10) new_cap = prime_count + 10;
-        seq_t *tmp = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
         if (!tmp) { /* allocation failure – abort */
             abort();
         }

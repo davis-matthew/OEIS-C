@@ -8,14 +8,31 @@
  *            ordered n‑tuples of non‑negative integers whose cubes sum to n
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 28, u64 n <= 53, u128 n <= 103,
  *            big any n
- * Helpers:   binom, int_cube_root
+ * Validated: standard, pass, 51 terms through n = 474 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/int_cube_root.h"
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <limits.h>
+#include "../utils/binomial.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 /* Recursive enumeration of solutions to Σ m_k·k^3 = n,
    where k ≥ 2.  For each solution we multiply the multinomial
@@ -34,7 +51,7 @@ static void dfs_rec(idx_t idx, idx_t rem_sum, idx_t rem_pos,
 
         seq_t val = accum;
         if (m1 > 0)
-            val *= binom(rem_pos, m1);    /* choose positions for 1's */
+            val *= binomial(rem_pos, m1);    /* choose positions for 1's */
 
         *total += val;                    /* zeros get the remaining slots automatically */
         return;
@@ -48,7 +65,7 @@ static void dfs_rec(idx_t idx, idx_t rem_sum, idx_t rem_pos,
     for (idx_t m = 0; m <= m_limit; ++m) {
         seq_t new_acc = accum;
         if (m > 0)
-            new_acc *= binom(rem_pos, m);          /* choose positions for this cube */
+            new_acc *= binomial(rem_pos, m);          /* choose positions for this cube */
 
         dfs_rec(idx + 1,
                 rem_sum - m * c,

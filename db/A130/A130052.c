@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 8920, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 9820 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- data structures ----------------------------------------------------- */
 
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
            n <= 10000 are produced.  It can be increased if necessary. */
         const uint32_t MAX_A = 60000;
 
-        heap = (node_t *) malloc((MAX_A + 1) * sizeof(node_t));
+        heap = mem_new(node_t, (MAX_A + 1));
         heap_size = 0;
 
         for (uint32_t a = 1; a <= MAX_A; ++a)
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
         }
 
         seq_cap = 16;
-        seq = (seq_t *) malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
 
         initialized = true;
     }
@@ -132,7 +134,7 @@ seq_t a(idx_t n)
             if (seq_len >= seq_cap)
             {
                 seq_cap = seq_cap * 2;
-                seq = (seq_t *) realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = s;
         }

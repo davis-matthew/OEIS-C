@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime numbers of the form 19x^2 + 8xy + 19y^2
  * Range:     u8 n <= 3, u16 n <= 418, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9497 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* residues modulo 1380 for which the quadratic form represents a prime */
 static const uint16_t residues[] = {19u,79u,91u,199u,319u,379u,451u,511u,
@@ -60,7 +62,7 @@ static void rebuild(idx_t new_limit)
     }
 
     /* allocate rep_primes array */
-    seq_t *new_rep = (seq_t*)malloc(needed * sizeof(seq_t));
+    seq_t *new_rep = mem_new(seq_t, needed);
     if (!new_rep) { free(s); abort(); }
 
     size_t k = 0;
@@ -70,7 +72,7 @@ static void rebuild(idx_t new_limit)
     }
 
     /* Replace old data */
-    free(rep_primes);
+    mem_free(rep_primes);
     rep_primes = new_rep;
     rep_count  = k;
 

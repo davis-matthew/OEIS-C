@@ -8,7 +8,8 @@
  * Formula:   a(n) = A022559(4*n) - A022559(2*n) - A022559(n+2) - A022559(n-2)
  * Range:     u8 n <= 344, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 7441 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for primes and prefix sums of Ω */
 static idx_t    cache_limit = 0;     /* maximum index for which cache is valid */
@@ -33,10 +35,10 @@ static void ensure_cache(idx_t limit)
     /* Allocate new arrays (cast for C++). */
     uint32_t *new_spf   = (uint32_t*)malloc((limit + 1) * sizeof(uint32_t));
     uint8_t  *new_omega = (uint8_t*)malloc((limit + 1) * sizeof(uint8_t));
-    seq_t    *new_A022  = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
+    seq_t    *new_A022  = mem_new(seq_t, (limit + 1));
 
     if (!new_spf || !new_omega || !new_A022) {
-        free(new_spf); free(new_omega); free(new_A022);
+        free(new_spf); free(new_omega); mem_free(new_A022);
         abort();
     }
 
@@ -69,7 +71,7 @@ static void ensure_cache(idx_t limit)
     }
 
     /* Replace old cache with new. */
-    free(spf);  free(omega);  free(A022);
+    free(spf);  free(omega);  mem_free(A022);
     spf   = new_spf;
     omega = new_omega;
     A022  = new_A022;

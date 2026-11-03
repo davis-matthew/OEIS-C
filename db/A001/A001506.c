@@ -12,14 +12,27 @@
  *            the network g.f. of rooted nonseparable maps (Brown-Tutte par...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 38,
  *            big any n
- * Helpers:   a1506_inv, a1506_mul
+ * Validated: standard, pass, 37 terms through n = 188 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a1506_inv.h"
-#include "../utils/a1506_mul.h"
+
+static seq_t a1506_mul(seq_t x, seq_t y)
+{
+    return (seq_t)(x * 1u * y);
+}
+
+static seq_t a1506_inv(seq_t x)
+{
+    seq_t y = x;
+    int i;
+    for (i = 0; i < 8; i++)
+        y = a1506_mul(y, (seq_t)(2 - a1506_mul(x, y)));
+    return y;
+}
 
 typedef struct { seq_t v; int e; } a1506_t;
 

@@ -11,7 +11,8 @@
  *            further examples exist) and * testing each rotati...
  * Range:     u8 n <= 8, u16 n <= 28, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort over seq_t */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -54,7 +56,7 @@ static void ensure_cache_size(size_t needed)
     if (needed <= ccap) return;
     size_t newcap = ccap ? ccap * 2 : 16;
     while (newcap < needed) newcap *= 2;
-    cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newcap);
     ccap = newcap;
 }
 
@@ -109,7 +111,7 @@ static void build_sequence(void)
     }
 
     /* sort the cache into ascending order */
-    if (clen > 1) qsort(cache, clen, sizeof(seq_t), cmp_seq_t);
+    if (clen > 1) mem_qsort(cache, clen, sizeof(seq_t), cmp_seq_t);
 }
 
 /* sequence function required by the test harness */

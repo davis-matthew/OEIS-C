@@ -11,7 +11,8 @@
  *            first use and returns the n‑th term
  * Range:     u8 n <= 43, u16 n <= 62, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   ascending_digits, is_prime
+ * Validated: full, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,24 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* provides: bool is_prime(idx_t); */
-#include "../utils/ascending_digits.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Return true iff the decimal digits of x are strictly ascending
+   left‑to‑right.  Works for any seq_t. */
+static bool ascending_digits(seq_t x)
+{
+    int prev = 10;                 /* one more than any decimal digit */
+    while (x > 0)
+    {
+        int d = (int)(x % 10);
+        if (d >= prev)            /* not strictly ascending */
+            return false;
+        prev = d;
+        x /= 10;
+    }
+    return true;
+}
 
 /* Build the full list of terms up to the last known value
    134 689 (the sequence is finite).  The array is allocated
@@ -37,7 +54,7 @@ static void init_sequence(seq_t **seq_ptr, size_t *len_ptr)
 
     /* Storage for the resulting sequence; 63 terms, but give more space. */
     size_t cap  = 128;
-    seq_t *arr  = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *arr  = mem_new(seq_t, cap);
     size_t cnt  = 0;
 
     for (idx_t m = 1; m <= LIMIT; ++m)
@@ -64,7 +81,7 @@ static void init_sequence(seq_t **seq_ptr, size_t *len_ptr)
             if (cnt == cap)       /* grow the array if needed */
             {
                 cap <<= 1;
-                arr = (seq_t *)realloc(arr, cap * sizeof(seq_t));
+                arr = mem_resize(seq_t, arr, cap);
             }
             arr[cnt++] = (seq_t)m;
         }

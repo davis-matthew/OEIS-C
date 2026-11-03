@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 19, u32 n <= 33, u64 n <= 61, u128 n <= 115,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 719 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,16 +45,16 @@ seq_t a(idx_t n)
     /* Ensure storage for indices 0 … n */
     if ((idx_t)(n + 1) > cap) {
         idx_t new_cap = n + 1;
-        seq_t *tmpA = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-        seq_t *tmpB = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
-        seq_t *tmpC = (seq_t *)realloc(C, new_cap * sizeof(seq_t));
-        seq_t *tmpD = (seq_t *)realloc(D, new_cap * sizeof(seq_t));
+        seq_t *tmpA = mem_resize(seq_t, A, new_cap);
+        seq_t *tmpB = mem_resize(seq_t, B, new_cap);
+        seq_t *tmpC = mem_resize(seq_t, C, new_cap);
+        seq_t *tmpD = mem_resize(seq_t, D, new_cap);
         if (!tmpA || !tmpB || !tmpC || !tmpD) abort();
         if (cap < new_cap) {
-            memset(tmpA + cap, 0, (new_cap - cap) * sizeof(seq_t));
-            memset(tmpB + cap, 0, (new_cap - cap) * sizeof(seq_t));
-            memset(tmpC + cap, 0, (new_cap - cap) * sizeof(seq_t));
-            memset(tmpD + cap, 0, (new_cap - cap) * sizeof(seq_t));
+            mem_set(tmpA + cap, 0, (new_cap - cap) * sizeof(seq_t));
+            mem_set(tmpB + cap, 0, (new_cap - cap) * sizeof(seq_t));
+            mem_set(tmpC + cap, 0, (new_cap - cap) * sizeof(seq_t));
+            mem_set(tmpD + cap, 0, (new_cap - cap) * sizeof(seq_t));
         }
         A = tmpA; B = tmpB; C = tmpC; D = tmpD;
         cap = new_cap;

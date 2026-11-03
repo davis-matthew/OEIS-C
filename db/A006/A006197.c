@@ -9,13 +9,24 @@
  *            Sum_{i>=1} (floor(2n/p^i) - 2*floor(n/p^i)) (Legendre/Kummer)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   vp_central
+ * Validated: standard, pass, 87 terms through n = 9958 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/vp_central.h"
+
+static uint64_t vp_central(uint64_t n, uint64_t p) {
+    uint64_t v = 0;
+    uint64_t q = p;
+    while (q <= 2 * n) {
+        v += (2 * n) / q - 2 * (n / q);
+        if (q > (2 * n) / p) break;
+        q *= p;
+    }
+    return v;
+}
 
 seq_t a(idx_t n) {
     uint64_t k;

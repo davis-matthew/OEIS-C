@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 981, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 64 terms through n = 9874 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mul_mod64.h"
+#include <stddef.h>
+#include <string.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ---------- Modular arithmetic helpers ---------- */
 
@@ -31,8 +35,8 @@ static uint64_t pow_mod64(uint64_t base, uint64_t exp, uint64_t mod)
     while (exp)
     {
         if (exp & 1)
-            res = mul_mod64(res, base, mod);
-        base = mul_mod64(base, base, mod);
+            res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return res;
@@ -76,7 +80,7 @@ static bool is_prime_uint64(uint64_t n)
         bool cont = false;
         for (int r = 1; r < s; ++r)
         {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1)
             {
                 cont = true;
@@ -140,7 +144,7 @@ seq_t a(idx_t n)
     if (terms == NULL)
     {
         terms_cap = 128;
-        terms = (seq_t*)malloc((size_t)terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, (size_t)terms_cap);
     }
     if (terms == NULL)   /* allocation failed – just return 0 */
         return (seq_t)0;
@@ -159,8 +163,7 @@ seq_t a(idx_t n)
         if (terms_cnt >= terms_cap)
         {
             terms_cap <<= 1;                    /* double capacity */
-            seq_t *tmp = (seq_t*)realloc(terms,
-                                         (size_t)terms_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, (size_t)terms_cap);
             if (tmp == NULL)
                 return (seq_t)0;                /* realloc failure */
             terms = tmp;

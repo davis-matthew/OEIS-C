@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 
 #include <stdlib.h>   /* malloc, realloc, calloc, free */
 #include <stdint.h>   /* uint64_t */
+#include "../utils/mem.h"
 
 /* Static storage for the sequence and the set of distinct sums */
 static seq_t  *g_vals      = NULL;   /* sequence values */
@@ -48,7 +50,7 @@ ensure_vals(idx_t n)
     if (g_vals_cap <= (size_t)n) {
         size_t new_cap = g_vals_cap ? g_vals_cap : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc((void *)g_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, g_vals, new_cap);
         if (!tmp) exit(1);
         g_vals = tmp;
         g_vals_cap = new_cap;
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
     /* Lazy initialization: set a(0) = 1 and prepare structures */
     if (!g_vals) {
         g_vals_cap   = 1;
-        g_vals       = (seq_t *)calloc(g_vals_cap, sizeof(seq_t));
+        g_vals       = mem_new(seq_t, g_vals_cap);
         g_vals[0]    = (seq_t)1;          /* a(0) = 1 */
         g_computed   = 1;                  /* next index to compute */
         g_bits_cap   = 0;

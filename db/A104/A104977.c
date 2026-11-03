@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 13, i16 n <= 26, i32 n <= 53, i64 n <= 106,
  *            i128 n <= 212, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 5158 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
         a(0) = 1
         a(n) = - Σ_{k≥1 : (2^k‑1) ≤ n} a(n - (2^k‑1)),   for n ≥ 1    */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         idx_t newcap = cap ? cap << 1 : 8;
         while (newcap < n + 1)
             newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(buf, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, newcap);
         if (!tmp) abort();          /* out of memory */
         buf = tmp;
         cap = newcap;

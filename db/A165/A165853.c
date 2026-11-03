@@ -7,18 +7,22 @@
  * Formula:   a(n) = 32^bigomega(n)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 127, u64 n <= 8191,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, bigomega
+ * Validated: standard, pass, 59 terms through n = 8512 (2026-11-01)
+ * Helpers:   bigomega, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* bigomega counts prime factors with multiplicity */
     seq_t omega = bigomega(n);
     /* Compute 32^omega accurately in seq_t */
-    return big_pow((seq_t)32, omega);
+    return ipow((seq_t)32, omega);
 }

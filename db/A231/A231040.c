@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define TOTAL_COLS   81          /* 3^4 column colourings */
 #define NONE_INDEX   81          /* sentinel for "no column" */
@@ -115,8 +117,8 @@ static void init_once(void)
     }
 
     /* Allocate DP arrays */
-    dp_curr = (seq_t *)calloc(TOTAL_STATES, sizeof(seq_t));
-    dp_next = (seq_t *)calloc(TOTAL_STATES, sizeof(seq_t));
+    dp_curr = mem_new(seq_t, TOTAL_STATES);
+    dp_next = mem_new(seq_t, TOTAL_STATES);
 
     /* Build adjacency data -------------------------------------------------- */
     edge_start = (uint32_t *)malloc((TOTAL_STATES + 1) * sizeof(uint32_t));

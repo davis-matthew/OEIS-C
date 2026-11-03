@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{k=1..n} k·F(k+1) (F(0)=0, F(1)=1)
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 37, u64 n <= 81, u128 n <= 172,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 1748 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

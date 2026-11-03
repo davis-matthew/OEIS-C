@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n^5 + 145*n^4 + 905*n^3 + 155*n^2 + 594*n + 120)/120
  * Range:     u8 n <= 2, u16 n <= 13, u32 n <= 196, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 53 terms through n = 939 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

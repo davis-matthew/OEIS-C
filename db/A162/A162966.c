@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache of previously computed sequence values */
 static seq_t *seq  = NULL;   /* array of terms */
@@ -40,7 +42,7 @@ static void seq_grow(size_t need)
     if (seq_cap >= need) return;
     size_t new_cap = seq_cap ? seq_cap*2 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 

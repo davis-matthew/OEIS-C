@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 3, u16 n <= 2453, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 67 terms through n = 9282 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache of found numbers. */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_capacity(size_t need)
     if (new_cap < need)
         new_cap = need;
 
-    seq_t *new_ptr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_new(seq_t, new_cap);
     if (!new_ptr)
         abort();          /* allocation failure */
 
@@ -41,7 +43,7 @@ static void ensure_capacity(size_t need)
         new_ptr[i] = cache[i];
 
     if (cache)
-        free(cache);
+        mem_free(cache);
 
     cache = new_ptr;
     cache_cap = new_cap;

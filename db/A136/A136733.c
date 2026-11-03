@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* triangular number */
 static inline idx_t triangular(idx_t x)
@@ -60,7 +62,7 @@ static void ensure_row_capacity(idx_t n, idx_t k)
         size_t needed = k + 1;
         if (cur == 0) cur = 1;
         while (cur < needed) cur <<= 1;   /* double until enough */
-        memo[(size_t)n] = (seq_t *)realloc(memo[(size_t)n], cur * sizeof(seq_t));
+        memo[(size_t)n] = mem_resize(seq_t, memo[(size_t)n], cur);
         /* initialise new entries to 0 (sentinel for “not computed”) */
         for (size_t j = col_cap[(size_t)n]; j < cur; ++j)
             memo[(size_t)n][j] = (seq_t)0;

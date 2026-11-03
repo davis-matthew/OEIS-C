@@ -9,8 +9,9 @@
  * Formula:   a(n) = number of representations of n as a sum of * distinct
  *            elements of the generalized Fibonacci sequence * 5, 3, 8, 11,
  *            19, 30, … (a(0)=5, a(1)=3, a(k)=a(k-1)+a(k-2))
- * Range:     u8 n <= 1200, u16 n <= 8700, u32 n <= 8700, u64 n <= 8700,
- *            u128 n <= 8700, big any n
+ * Range:     u8 n <= 1200, u16 n <= 15737, u32 n <= 15737, u64 n <= 15737,
+ *            u128 n <= 15737, big any n
+ * Validated: standard, pass, 117 terms through n = 8700 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

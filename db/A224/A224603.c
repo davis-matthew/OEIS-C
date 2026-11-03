@@ -10,13 +10,15 @@
  *            a(3)=782, a(4)=906, a(5)=1202, a(6)=1609, a(7)=2091, a(8)=2817
  * Range:     u8 none, u16 n <= 16, u32 n <= 46, u64 n <= 104, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* first 8 terms of the sequence */
 static const seq_t init8[8] = {
@@ -37,11 +39,11 @@ seq_t a(idx_t n)
     if ((idx_t)n > cap) {
         size_t new_cap = (size_t)n * 2;
         if (new_cap < 10) new_cap = 10;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) return 0;               /* allocation failure */
         if (cache) {
-            memcpy(new_cache, cache, cap * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cap * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
         cap   = new_cap;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
 
     /* Initialise the first eight values if not already done */
     if (computed < 8) {
-        memcpy(cache, init8, 8 * sizeof(seq_t));
+        mem_copy(cache, init8, 8 * sizeof(seq_t));
         computed = 8;
     }
 

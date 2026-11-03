@@ -9,11 +9,13 @@
  *            the OEIS offset)
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 22, u64 n <= 53, u128 n <= 116,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 3140 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

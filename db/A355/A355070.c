@@ -9,15 +9,18 @@
  *            binomial(n-1, k) * a(n-k)
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 6, i64 n <= 8, i128 n <= 12,
  *            big any n
- * Helpers:   binomial, pow3
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   binomial, mem, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) */
-#include "../utils/pow3.h"       /* pow3(idx_t exp) */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow3.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
         /* initial allocation (at least up to index 1) */
         if (required < 2)
             required = 2;
-        cache = (seq_t*)malloc(required * sizeof(seq_t));
+        cache = mem_new(seq_t, required);
         if (!cache)
             return 0;              /* allocation failure (unlikely in tests) */
         cache[0] = 0;
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
         cache_cap = required;
         cache_to  = 1;
     } else if (required > cache_cap) {
-        seq_t *tmp = (seq_t*)realloc(cache, required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, required);
         if (!tmp)
             return 0;              /* allocation failure */
         cache = tmp;

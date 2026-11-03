@@ -9,7 +9,8 @@
  *            prime < sqrt(n) (OEIS A157941)
  * Range:     u8 n <= 31, u16 n <= 515, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 72 terms through n = 989 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Node for the min‑heap: one prime window */
 typedef struct Node {
@@ -85,7 +87,7 @@ static uint64_t last_prime = 0;
 static void add_next_prime(void) {
     uint64_t p = (last_prime == 0) ? 2 : next_prime(last_prime);
     uint64_t q = next_prime(p);     /* first prime > p */
-    Node *node = (Node*)malloc(sizeof(Node));
+    Node *node = mem_new(Node, 1);
     if (!node) abort();
     node->prime = p;
     node->next_prime = q;
@@ -109,7 +111,7 @@ seq_t a(idx_t n) {
         /* ensure seq has room for the new term */
         if (seq_len >= seq_cap) {
             size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-            seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             if (!tmp) abort();
             seq = tmp;
             seq_cap = new_cap;

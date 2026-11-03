@@ -8,7 +8,8 @@
  * Formula:   a(n) = A000040(A092620(n))
  * Range:     u8 n <= 27, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   build_primes_upto, is_single_prime_digit
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,24 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/is_single_prime_digit.h"
+
+/* helper: is the decimal representation of x containing exactly one prime digit? */
+static int is_single_prime_digit(uint64_t x)
+{
+    int cnt = 0;
+    while (x > 0) {
+        uint64_t d = x % 10;
+        if (d == 2 || d == 3 || d == 5 || d == 7) {
+            ++cnt;
+            if (cnt > 1)
+                return 0;
+        }
+        x /= 10;
+    }
+    return cnt == 1;
+}
 
 /* cache for the sequence of numbers that contain a single prime digit */
 static uint64_t *k_cache = NULL;          /* k_cache[i] = A092620(i+1) */

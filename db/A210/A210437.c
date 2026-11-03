@@ -7,20 +7,23 @@
  * Formula:   a(n) = gpf(reverse(n)) where reverse(n) is the decimal reversal
  *            of n and gpf(x) is the greatest prime factor of x (with gpf(1) =
  *            1)
- * Range:     u8 n <= 103, u16 n <= 9872, u32 n <= 9872, u64 n <= 9872,
- *            u128 n <= 9872, big any n
- * Helpers:   largest_prime_factor, rev
+ * Range:     u8 n <= 103, u16 n <= 10006, u32 n <= 12000, u64 n <= 12000,
+ *            u128 n <= 12000, big any n
+ * Validated: standard, pass, 91 terms through n = 9872 (2026-11-01)
+ * Helpers:   largest_prime_factor, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/rev.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/largest_prime_factor.h"
+#include "../utils/reverse_digits_idx.h"
 
 seq_t a(idx_t n)
 {
     /* n is >= 1 */
-    idx_t rev_n = rev(n);                 /* decimal reversal of n */
+    idx_t rev_n = reverse_digits_idx(n);                 /* decimal reversal of n */
     uint64_t rev_val = (uint64_t) rev_n;   /* cast to 64‑bit integer for the helper */
     uint64_t gpf_val = largest_prime_factor(rev_val);
     return (seq_t) gpf_val;

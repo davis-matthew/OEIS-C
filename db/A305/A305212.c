@@ -11,7 +11,8 @@
  *            function a(idx_t n) returns the sequence value *...
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   compute_B_prime_power
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,48 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/compute_B_prime_power.h"
+#include "../utils/mem.h"
+
+/* Compute B(m) for a prime power m by brute force enumeration of
+ * cubic residues and their pairwise sums.  The result is at most m and
+ * therefore fits in idx_t. */
+static seq_t compute_B_prime_power(idx_t m)
+{
+    if (m == 1)
+        return (seq_t)1; /* R(1) = {0} */
+
+    idx_t *cubes = (idx_t *)malloc(m * sizeof(idx_t));
+    if (!cubes)
+        exit(EXIT_FAILURE);
+    for (idx_t i = 0; i < m; ++i) {
+        idx_t x = i;
+        idx_t t = (x * x) % m;
+        t = (t * x) % m; /* x^3 mod m */
+        cubes[i] = t;
+    }
+
+    uint8_t *reach = (uint8_t *)calloc(m, 1);
+    if (!reach)
+        exit(EXIT_FAILURE);
+
+    seq_t cnt = 0;
+    for (idx_t i = 0; i < m; ++i) {
+        idx_t a = cubes[i];
+        for (idx_t j = 0; j < m; ++j) {
+            idx_t s = a + cubes[j];
+            if (s >= m)
+                s -= m;
+            if (!reach[s]) {
+                reach[s] = 1;
+                ++cnt;
+            }
+        }
+    }
+
+    free(cubes);
+    free(reach);
+    return cnt;
+}
 
 /* Global cache of B(p^e) values indexed by the modulus m.  B_prime_power[m]
  * stores the number of representable residues modulo m, if it has been
@@ -42,7 +84,7 @@ static void ensure_size(idx_t limit)
     if ((size_t)(limit + 1) <= B_size)
         return;
     size_t new_size = (size_t)(limit + 1);
-    seq_t *new_B = (seq_t *)realloc(B_prime_power, new_size * sizeof(seq_t));
+    seq_t *new_B = mem_resize(seq_t, B_prime_power, new_size);
     if (!new_B)
         exit(EXIT_FAILURE);
     if (B_prime_power) { /* existing entries are now in new_B */
@@ -50,7 +92,7 @@ static void ensure_size(idx_t limit)
     } else {
         B_prime_power = new_B;
     }
-    memset(B_prime_power + B_size, 0, (new_size - B_size) * sizeof(seq_t));
+    mem_set(B_prime_power + B_size, 0, (new_size - B_size) * sizeof(seq_t));
     B_size = new_size;
 }
 

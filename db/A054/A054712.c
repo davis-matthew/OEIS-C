@@ -8,13 +8,17 @@
  *            modulo n)
  * Range:     u8 n <= 199, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   f_mod12
+ * Validated: standard, pass, 105 terms through n = 8128 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/f_mod12.h"
+
+static seq_t f_mod12(seq_t x, seq_t mod) {
+    return (x * ((seq_t)12)) % mod;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;           /* undefined, but guard against */

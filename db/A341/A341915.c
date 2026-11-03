@@ -10,19 +10,22 @@
  *            first)
  * Range:     u8 n <= 255, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: standard, pass, 83 terms through n = 7855 (2026-11-01)
+ * Helpers:   ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
-#include "../utils/floor_log2_uint64.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;
 
-    idx_t msb = floor_log2_uint64(n);
+    idx_t msb = ilog2(n);
     seq_t result = (seq_t)0;
     idx_t cumulative = 0;
     idx_t run_len = 0;

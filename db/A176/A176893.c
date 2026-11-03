@@ -9,12 +9,14 @@
  *            of ones in binary expansion of n)
  * Range:     u8 n <= 38, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
 
     /* compute 2^zeros and 3^ones using utilities that work for both
        primitive and arbitrary‑precision seq_t types */
-    seq_t p2 = pow_uint(2u, zeros);
-    seq_t p3 = pow_uint(3u, ones);
+    seq_t p2 = ipow_u64_idx(2u, zeros);
+    seq_t p3 = ipow_u64_idx(3u, ones);
 
     return p2 * p3;
 }

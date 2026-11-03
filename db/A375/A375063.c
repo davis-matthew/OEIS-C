@@ -10,12 +10,14 @@
  *            with a small constant factor, suitable for n up to about 10⁴
  * Range:     i8 n <= 29, i16 n <= 58, i32 n <= 58, i64 n <= 58, i128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
     static idx_t size = 0;
 
     if (n + 1 > size) {
-        free(coef);
-        coef = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        mem_free(coef);
+        coef = mem_new(seq_t, (n + 1));
         if (!coef) return 0;          /* allocation failure – unlikely on test system */
         size = n + 1;
     }

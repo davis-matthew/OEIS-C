@@ -10,7 +10,8 @@
  *            Computed by dynamic programming
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <math.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t compute_T(idx_t n, idx_t m)
 {
@@ -35,7 +37,7 @@ static seq_t compute_T(idx_t n, idx_t m)
     enum { MAX_M = 200 };
     if (m > MAX_M) {
         /* Fallback dynamic allocation for the unlikely event of a larger m */
-        seq_t *dp = (seq_t*)malloc((size_t)m * sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, (size_t)m);
         if (!dp) return 0;          /* allocation failed */
         for (idx_t i = 0; i < m; ++i) dp[i] = 0;
         dp[0] = 1;
@@ -50,7 +52,7 @@ static seq_t compute_T(idx_t n, idx_t m)
         seq_t pow6 = 1;
         for (idx_t i = 0; i < n; ++i) pow6 *= 6;
         seq_t result = pow6 - f;
-        free(dp);
+        mem_free(dp);
         return result;
     }
 

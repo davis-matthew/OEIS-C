@@ -9,14 +9,29 @@
  *            Σ_{j=0..k} 2^(k-j) * binomial(r,j) * binomial(k,j) * j!
  * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial, factorial, pow2
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <stddef.h>
 #include "../utils/binomial.h"
-#include "../utils/factorial.h"
+#include "../utils/pow2.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 #include <stdint.h>
 #include <stddef.h>
 

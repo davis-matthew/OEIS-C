@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    previously computed values. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values.  They are stored in the order of
    increasing index; seq_len holds the number of elements
@@ -41,7 +43,7 @@ static void grow_seq(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) abort();
     seq     = tmp;
     seq_cap = new_cap;
@@ -52,7 +54,7 @@ static void grow_sq(size_t needed)
     if (needed <= sq_cap) return;
     size_t new_cap = sq_cap ? sq_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(sq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, sq, new_cap);
     if (!tmp) abort();
     sq     = tmp;
     sq_cap = new_cap;

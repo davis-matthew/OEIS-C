@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
    and (i,j) is obtained by row–major numbering of the triangle.
 */
 
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
             seq_t term_den = i_seq * k_seq * l_seq;
 
             /* Common denominator of current sum and term */
-            seq_t g = seq_gcd(den, term_den);
+            seq_t g = gcd(den, term_den);
             seq_t den_div_g = den / g;              /* den/g  */
             seq_t l_den     = den_div_g * term_den; /* lcm(den, term_den) */
 
@@ -55,7 +56,7 @@ seq_t a(idx_t n)
             seq_t new_den = l_den;
 
             /* Reduce the resulting fraction */
-            seq_t g2 = seq_gcd(new_num, new_den);
+            seq_t g2 = gcd(new_num, new_den);
             if (g2 != 1) {
                 new_num = new_num / g2;
                 new_den = new_den / g2;

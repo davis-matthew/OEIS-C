@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   triangulars
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,25 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/triangulars.h"
+#include "../utils/mem.h"
+
+/* ---------- Helper: generate triangular numbers <= limit -------------
+   Returns a dynamically allocated array of triangular numbers and
+   the count in *cnt.  The caller must free the array. */
+static uint64_t *triangulars(idx_t limit, size_t *cnt)
+{
+    /* Number of triangular numbers T_k <= limit satisfies k(k+1)/2 <= limit.
+       Solve k^2 + k - 2*limit <= 0 => k ≈ (-1 + sqrt(1+8*limit))/2. */
+    idx_t kmax = (idx_t)((-1 + (idx_t)((1 + 8 * limit) * 0.5)) / 2);
+    *cnt = kmax + 1; /* include T_0 = 0 */
+
+    uint64_t *tri = (uint64_t*)malloc((*cnt) * sizeof(uint64_t));
+    if (!tri) return NULL;
+    for (idx_t k = 0; k <= kmax; ++k)
+        tri[k] = (uint64_t)((k * (k + 1)) / 2);
+
+    return tri;
+}
 
 /* External function required by the test harness. */
 seq_t a(idx_t n);
@@ -110,14 +129,14 @@ static void build_terms(idx_t need)
 
         /* Gather sequence terms up to UB */
         size_t new_cap = 100000;
-        seq_t *new_terms = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_terms = mem_new(seq_t, new_cap);
         if (!new_terms) { free(primes); free(tris); free(cnt); free(is_tri); break; }
         size_t new_cnt = 0;
         for (idx_t x = 2; x <= UB; ++x) {
             if (!is_tri[x] && cnt[x] == 1) {
                 if (new_cnt >= new_cap) {
                     new_cap *= 2;
-                    seq_t *tmp = (seq_t*)realloc(new_terms, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, new_terms, new_cap);
                     if (!tmp) break; /* allocation failure */
                     new_terms = tmp;
                 }
@@ -134,18 +153,18 @@ static void build_terms(idx_t need)
         if (new_cnt == 0) {
             /* No new terms found; increase UB and try again */
             UB *= 2;
-            free(new_terms);
+            mem_free(new_terms);
             continue;
         }
 
         /* Replace stored terms if we found more */
         if (new_cnt > terms_cnt) {
-            free(terms);
+            mem_free(terms);
             terms = new_terms;
             terms_cnt = new_cnt;
             high = UB;
         } else {
-            free(new_terms);
+            mem_free(new_terms);
         }
 
         /* If we now have enough terms, stop */

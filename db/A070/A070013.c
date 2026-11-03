@@ -11,14 +11,61 @@
  *            count_distinct_prime_factors()
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bigomega, count_distinct_prime_factors
+ * Validated: standard, pass, 121 terms through n = 977 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/bigomega.h"
-#include "../utils/count_distinct_prime_factors.h"
+#include <stdlib.h>
+
+static seq_t bigomega(idx_t n)
+{
+    /* Count prime factors of n with multiplicity. */
+    if (n <= 1)
+        return 0;
+
+    seq_t count = 0;
+
+    /* Count factors of 2. */
+    while ((n & 1) == 0) {
+        n >>= 1;
+        ++count;
+    }
+
+    /* Test odd divisors up to sqrt(n). */
+    for (idx_t p = 3; p * p <= n; p += 2) {
+        while (n % p == 0) {
+            n /= p;
+            ++count;
+        }
+    }
+
+    /* If n > 1 now, it is a prime factor > sqrt(original n). */
+    if (n > 1)
+        ++count;
+
+    return count;
+}
+
+static int count_distinct_prime_factors(uint64_t n)
+{
+    int cnt = 0;
+    if (n < 2) return 0;
+    if (n % 2 == 0) {
+        cnt++;
+        while (n % 2 == 0) n /= 2;
+    }
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            cnt++;
+            while (n % p == 0) n /= p;
+        }
+    }
+    if (n > 1) cnt++;
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

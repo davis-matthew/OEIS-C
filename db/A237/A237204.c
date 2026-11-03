@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 11, u64 n <= 24, u128 n <= 51,
  *            big any n
- * Helpers:   value_for_states
+ * Validated: standard, pass, 35 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,25 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/value_for_states.h"
+
+/* Compute the value of the expression for states i and j.  States are
+   encoded as i = a*4 + b (a,b ∈ {0..3}).  */
+static int value_for_states(int i, int j)
+{
+    int a = i / 4, b = i % 4;
+    int c = j / 4, d = j % 4;
+    int v[4] = {a, b, c, d};
+
+    /* small sorting network for 4 elements */
+    if (v[0] > v[1]) { int t = v[0]; v[0] = v[1]; v[1] = t; }
+    if (v[2] > v[3]) { int t = v[2]; v[2] = v[3]; v[3] = t; }
+    if (v[0] > v[2]) { int t = v[0]; v[0] = v[2]; v[2] = t; }
+    if (v[1] > v[3]) { int t = v[1]; v[1] = v[3]; v[3] = t; }
+    if (v[1] > v[2]) { int t = v[1]; v[1] = v[2]; v[2] = t; }
+
+    /* v[0] <= v[1] <= v[2] <= v[3] */
+    return v[2] + v[1] - v[0];
+}
 
 static bool ADJ[7][16][16] = {0};
 static bool ADJ_READY = false;

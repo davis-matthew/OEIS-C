@@ -11,12 +11,14 @@
  *            listing rows left to right
  * Range:     u8 n <= 30, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t tetrahedral(idx_t n)
 {
@@ -42,13 +44,13 @@ seq_t a(idx_t n)
     if (r == 1) return 1;               /* trivial first row */
 
     /* Build the triangle row by row up to row r. */
-    seq_t *prev = (seq_t *)malloc((r - 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (r - 1));
     if (!prev) exit(1);                 /* allocation failure */
     prev[0] = 1;                        /* row 1 */
 
     for (idx_t cur = 2; cur <= r; ++cur) {
-        seq_t *currow = (seq_t *)malloc(cur * sizeof(seq_t));
-        if (!currow) { free(prev); exit(1); }
+        seq_t *currow = mem_new(seq_t, cur);
+        if (!currow) { mem_free(prev); exit(1); }
 
         /* Borders of the current row. */
         currow[0] = tetrahedral(cur);
@@ -59,11 +61,11 @@ seq_t a(idx_t n)
             currow[k] = prev[k - 1] + prev[k];
         }
 
-        free(prev);
+        mem_free(prev);
         prev = currow;
     }
 
     seq_t result = prev[pos];
-    free(prev);
+    mem_free(prev);
     return result;
 }

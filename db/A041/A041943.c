@@ -8,13 +8,15 @@
  *            a(0) … a(19) given below
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial 20 terms of the sequence. */
 static const seq_t init_vals[20] = {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         cache_sz = (size_t)n + 1;
         if (cache_sz < 20)
             cache_sz = 20;          /* at least room for the seeds */
-        cache = (seq_t*)malloc(cache_sz * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_sz);
         if (!cache)
             return 0;              /* out of memory – caller should not crash */
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         cache_max = 19;
     } else if ((size_t)n + 1 > cache_sz) {
         cache_sz = (size_t)n + 1;
-        cache = (seq_t*)realloc(cache, cache_sz * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_sz);
         if (!cache)
             return 0;              /* out of memory */
     }

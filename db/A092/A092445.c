@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   isPrime
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,7 @@
  */
 
 #include <stdbool.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -40,10 +41,10 @@ seq_t a(idx_t n)
         seq_t p = (seq_t)val;
 
         /* The four numbers of the quadruple */
-        if (!isPrime(val))            continue;
-        if (!isPrime(val + 6ULL))     continue;
-        if (!isPrime(val + 12ULL))    continue;
-        if (!isPrime(val + 18ULL))    continue;
+        if (!is_prime(val))            continue;
+        if (!is_prime(val + 6ULL))     continue;
+        if (!is_prime(val + 12ULL))    continue;
+        if (!is_prime(val + 18ULL))    continue;
 
         ++count;
         if (count == n)

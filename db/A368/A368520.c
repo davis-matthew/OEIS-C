@@ -10,7 +10,8 @@
  *            The sequence is read row‑wise: 1, 2 2 2, 3 4 7 2 2, …
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Standard headers */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* helper – integer square root (floor) for unsigned 64‑bit values      */
@@ -57,7 +59,7 @@ static size_t rows_cap = 0;      /* highest row index that has been computed    
 static void build_row(idx_t r)
 {
     size_t len = 2 * r - 1;
-    seq_t *row = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, len);
     rows[r] = row;
 
     for (idx_t x = 1; x <= r; ++x)

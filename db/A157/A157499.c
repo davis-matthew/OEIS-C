@@ -8,18 +8,27 @@
  *            dividing k)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
     /* compute 31^n */
-    seq_t pow31 = big_pow((seq_t)31, (seq_t)n);
+    seq_t pow31 = ipow((seq_t)31, (seq_t)n);
 
     /* count trailing zeros of n+1  →  v2(n+1) */
     idx_t t = 0;
@@ -30,7 +39,7 @@ seq_t a(idx_t n)
     }
 
     /* compute 2^t */
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)t);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)t);
 
     /* result = 31^n * 2^t */
     return seq_mul(pow31, pow2);

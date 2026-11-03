@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 881 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* State ------------------------------------------------------------- */
@@ -119,7 +121,7 @@ static void append_value(seq_t v)
 {
     if (state.vals_size == state.vals_cap) {
         state.vals_cap <<= 1;
-        state.vals = (seq_t*)realloc(state.vals, state.vals_cap * sizeof(seq_t));
+        state.vals = mem_resize(seq_t, state.vals, state.vals_cap);
         if (!state.vals) exit(EXIT_FAILURE);
     }
     state.vals[state.vals_size++] = v;
@@ -136,7 +138,7 @@ static void ensure_initialized(void)
         init_primes();
 
         /* Allocate heap and initialize first sums (k = 1). */
-        state.heap = (struct heap_node*)malloc(state.prime_cnt * sizeof(struct heap_node));
+        state.heap = mem_new(struct heap_node, state.prime_cnt);
         if (!state.heap) exit(EXIT_FAILURE);
         for (size_t i = 0; i < state.prime_cnt; ++i) {
             state.heap[i].p   = state.primes[i];
@@ -146,7 +148,7 @@ static void ensure_initialized(void)
 
         /* Prepare the value array. */
         state.vals_cap = 1024;
-        state.vals = (seq_t*)malloc(state.vals_cap * sizeof(seq_t));
+        state.vals = mem_new(seq_t, state.vals_cap);
         if (!state.vals) exit(EXIT_FAILURE);
         state.vals_size = 0;
         state.last_val  = 0;

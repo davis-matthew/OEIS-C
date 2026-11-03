@@ -10,12 +10,14 @@
  *            a(4) = 801, a(5) = 2297, a(6) = 5699, a(7) = 12657
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 63, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* cache[0] holds a(1) */
 static size_t  cache_capacity = 0;    /* allocated array size (in seq_t) */
@@ -27,12 +29,12 @@ static void ensure_cache(idx_t n)
 
     /* Allocate or grow the cache if necessary */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * (size_t)n);
+        cache = mem_new(seq_t, (size_t)n);
         if (cache == NULL) abort();
         cache_capacity = (size_t)n;
     } else if ((size_t)n > cache_capacity) {
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();
         cache = tmp;
         cache_capacity = new_cap;

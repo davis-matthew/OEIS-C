@@ -9,12 +9,14 @@
  *            that is not equal to a(i)+a(i+1) for any i < n-1
  * Range:     u8 n <= 171, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9557 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *terms   = NULL;   /* stored terms a(1), a(2), ... */
 static size_t  terms_cap = 0;
@@ -31,9 +33,9 @@ seq_t a(idx_t n)
     /* On first call, initialise storage with the first two terms. */
     if (!terms) {
         terms_cap = 16;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         sums_cap = 16;
-        sums = (seq_t*)malloc(sums_cap * sizeof(seq_t));
+        sums = mem_new(seq_t, sums_cap);
 
         terms[0] = (seq_t)1;   /* a(1) */
         terms[1] = (seq_t)1;   /* a(2) */
@@ -66,14 +68,14 @@ seq_t a(idx_t n)
         /* Ensure capacity for the new term. */
         if (terms_len >= terms_cap) {
             terms_cap = terms_cap * 2;
-            terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, terms_cap);
         }
         terms[terms_len++] = candidate;
 
         /* Append the new consecutive‑sum to the sums array. */
         if (sums_len >= sums_cap) {
             sums_cap = sums_cap * 2;
-            sums = (seq_t*)realloc(sums, sums_cap * sizeof(seq_t));
+            sums = mem_resize(seq_t, sums, sums_cap);
         }
         sums[sums_len++] = terms[terms_len-2] + terms[terms_len-1];
     }

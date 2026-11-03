@@ -7,16 +7,23 @@
  * Formula:   a(n) = 2^(2n) * ∏{p odd prime | (p-1) divides n} p
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 27, u128 n <= 59,
  *            big any n
- * Helpers:   build_primes_upto, pow2, seq_mul
+ * Validated: standard, pass, 38 terms through n = 231 (2026-11-01)
+ * Helpers:   build_primes_upto, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_mul.h"
+#include "../utils/pow2.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static uint64_t *primes = NULL;
 static size_t primes_cnt = 0;

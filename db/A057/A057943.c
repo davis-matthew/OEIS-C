@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 3026, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_pal32
+ * Validated: standard, pass, 66 terms through n = 9431 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_pal32.h"
+#include "../utils/mem.h"
+
+/*  Helper: check if a 32‑bit integer is a palindrome in base 10.     */
+static int is_pal32(uint32_t n)
+{
+    char buf[10];
+    int i = 0;
+    do {
+        buf[i++] = (char)('0' + (n % 10));
+        n /= 10;
+    } while (n);
+    for (int j = 0; j < i / 2; ++j)
+        if (buf[j] != buf[i - 1 - j])
+            return 0;
+    return 1;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Helper: modular exponentiation (base^exp mod mod).  64‑bit only.  */
@@ -93,7 +109,7 @@ static void cache_push(seq_t val)
 {
     if (cache_size == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 32;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
     cache[cache_size++] = val;

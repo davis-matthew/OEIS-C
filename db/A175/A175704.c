@@ -8,7 +8,8 @@
  *            is the sum of the distinct primes dividing k
  * Range:     u8 n <= 14, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,19 +17,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Ensure n >= 1 */
     if (n < 1) return (seq_t)0;
     /* Allocate array for A008472 values, 1-indexed */
-    seq_t *f = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (n + 1));
     if (!f) return (seq_t)0;  /* In practice, the system will handle allocation failures. */
     /* Initialize to 0 */
     for (idx_t i = 1; i <= n; ++i) f[i] = 0;
     /* Very small primality sieve */
     unsigned char *is_prime = (unsigned char *)malloc((n + 1) * sizeof(unsigned char));
-    if (!is_prime) { free(f); return (seq_t)0; }
+    if (!is_prime) { mem_free(f); return (seq_t)0; }
     for (idx_t i = 0; i <= n; ++i) is_prime[i] = 1;
     is_prime[0] = is_prime[1] = 0;
     for (idx_t p = 2; p * p <= n; ++p)
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= n; ++k)
         sum += f[k] * f[n + 1 - k];
     /* Clean up */
-    free(f);
+    mem_free(f);
     free(is_prime);
     return sum;
 }

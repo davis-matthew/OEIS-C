@@ -11,12 +11,14 @@
  *            O(n) time and uses DP over the modulo sums
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 70, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,13 +28,13 @@ seq_t a(idx_t n)
     const size_t len = (size_t)m;   /* number of possible sums (0..m‑1) */
 
     /* DP arrays */
-    seq_t *dp_cur   = (seq_t*)calloc(len,   sizeof(seq_t));
-    seq_t *dp_next  = (seq_t*)calloc(len,   sizeof(seq_t));
-    seq_t *start    = (seq_t*)calloc(len+1, sizeof(seq_t)); /* prefix increments */
-    seq_t *end      = (seq_t*)calloc(len+1, sizeof(seq_t)); /* prefix decrements */
+    seq_t *dp_cur   = mem_new(seq_t, len);
+    seq_t *dp_next  = mem_new(seq_t, len);
+    seq_t *start    = mem_new(seq_t, len+1); /* prefix increments */
+    seq_t *end      = mem_new(seq_t, len+1); /* prefix decrements */
 
     if (!dp_cur || !dp_next || !start || !end) {
-        free(dp_cur); free(dp_next); free(start); free(end);
+        mem_free(dp_cur); mem_free(dp_next); mem_free(start); mem_free(end);
         return 0;
     }
 
@@ -89,10 +91,10 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < len; ++i) result += dp_cur[i];
 
     /* clean up */
-    free(dp_cur);
-    free(dp_next);
-    free(start);
-    free(end);
+    mem_free(dp_cur);
+    mem_free(dp_next);
+    mem_free(start);
+    mem_free(end);
 
     return result;
 }

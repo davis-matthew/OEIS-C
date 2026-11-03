@@ -8,12 +8,14 @@
  *            (-1)^(n+1)*a(n-3)
  * Range:     i8 n <= 48, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* we need at least three entries for the base values */
         cache_capacity = (n > 2) ? (n + 1) : 3;
-        cache = (seq_t *)realloc(NULL, cache_capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_capacity);
         if (cache == NULL) abort();
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)0;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (n >= cache_capacity) {
         idx_t new_capacity = cache_capacity ? cache_capacity * 2 : 3;
         if (new_capacity <= n) new_capacity = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
         if (tmp == NULL) abort();
         cache = tmp;
         cache_capacity = new_capacity;

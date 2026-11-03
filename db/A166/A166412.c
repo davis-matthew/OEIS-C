@@ -12,12 +12,14 @@
  *            same recurrence with the appropriate +2 constant, whi...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 450 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* First time: allocate storage up to n and copy known values */
     if (!initialized) {
         size_t need = (size_t)(n > 10 ? n : 10) + 1;
-        cache = (seq_t *)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
         for (idx_t i = 0; i < 11; ++i)
             cache[i] = init[i];
         max_cached = 10;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary and compute new terms */
     if (n > max_cached) {
         size_t newsize = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         cache = tmp;
 
         for (idx_t k = max_cached + 1; k <= n; ++k) {

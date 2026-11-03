@@ -11,13 +11,15 @@
  *            all n ≥ 0
  * Range:     u8 n <= 22, u16 n <= 39, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Integer square root of a 128‑bit value ---------- */
 static idx_t isqrt_uint128(unsigned __int128 x)
@@ -53,7 +55,7 @@ static void ensure_stirling(idx_t up_to)
         S[i] = NULL;
 
     for (idx_t n = max_row + 1; n <= up_to; ++n) {
-        seq_t *row = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (n + 1));
         if (row == NULL)
             abort();
 

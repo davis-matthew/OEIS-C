@@ -10,13 +10,15 @@
  *            a(n)=3*a(n-2)-a(n-4) for n≥4 (odd n produce 0)
  * Range:     u8 n <= 11, u16 n <= 21, u32 n <= 45, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         new_cap = 4;
 
     if (new_cap > capacity) {
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         capacity = new_cap;
     }
 

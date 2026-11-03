@@ -7,6 +7,7 @@
  * Formula:   a(n) = nth prime congruent to 25 (mod 37)
  * Range:     u8 n <= 1, u16 n <= 186, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 58 terms through n = 858 (2026-11-01)
  * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,9 @@
    in the desired residue class is found. */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
 
 seq_t a(idx_t n)

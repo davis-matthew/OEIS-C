@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{i=1..⌊n/2⌋} i*(n-i) if (n-i) is even
  * Range:     u8 n <= 18, u16 n <= 115, u32 n <= 4687, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 67 terms through n = 8124 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

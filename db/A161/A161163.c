@@ -10,7 +10,8 @@
  *            prime has no twin partners)
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for computed data ------------------------------------------- */
 static seq_t *indices = NULL;    /* array of odd indices of isolated primes   */
@@ -34,7 +36,7 @@ static void recompute_up_to(idx_t new_limit)
     /* free old data if any */
     if (prime_flag) free(prime_flag);
     if (prime_list) free(prime_list);
-    if (indices)    free(indices);
+    if (indices)    mem_free(indices);
 
     /* allocate sieve array (include a few extra slots for p+2 checks)  */
     size_t sieve_size = (size_t)new_limit + 3;          /* indices 0 .. new_limit+2   */
@@ -78,7 +80,7 @@ static void recompute_up_to(idx_t new_limit)
     }
 
     /* Allocate indices array */
-    indices = (seq_t*)malloc(needed * sizeof(seq_t));
+    indices = mem_new(seq_t, needed);
     if (!indices) return; /* guard */
     idx = 1;
     size_t out = 0;

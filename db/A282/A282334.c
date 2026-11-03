@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   compute_viol_map
+ * Validated: standard, pass, 32 terms through n = 205 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,33 @@
  * more than four king‑move neighbors; all other 1's have at most four
  * king‑move neighbors. */
 #include <stdbool.h>
-#include "../utils/compute_viol_map.h"
+
+static void compute_viol_map(int viol_map[16][16][16]) {
+    for (int a = 0; a < 16; ++a) {
+        for (int b = 0; b < 16; ++b) {
+            for (int c = 0; c < 16; ++c) {
+                int v = 0;
+                for (int j = 0; j < 4; ++j) {
+                    if ((b & (1 << j)) == 0) continue;          /* cell is 0 */
+                    int cnt = 0;
+                    /* above row */
+                    if (j > 0) cnt += (a >> (j - 1)) & 1;
+                    cnt += (a >> j) & 1;
+                    if (j < 3) cnt += (a >> (j + 1)) & 1;
+                    /* below row */
+                    if (j > 0) cnt += (c >> (j - 1)) & 1;
+                    cnt += (c >> j) & 1;
+                    if (j < 3) cnt += (c >> (j + 1)) & 1;
+                    /* same row horizontal neighbors */
+                    if (j > 0) cnt += (b >> (j - 1)) & 1;
+                    if (j < 3) cnt += (b >> (j + 1)) & 1;
+                    if (cnt > 4) ++v;
+                }
+                viol_map[a][b][c] = v;
+            }
+        }
+    }
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;              /* offset starts at 1 */

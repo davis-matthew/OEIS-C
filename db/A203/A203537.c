@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define STATE_PAT 27
 #define STATE_MASK 64
@@ -171,8 +173,8 @@ seq_t a(idx_t n)
     if (n == 0) return 0;
     if (n == 1) return 0;  /* No array of size 1×3 satisfies the condition */
 
-    seq_t *dp = (seq_t *)calloc(STATE_CNT, sizeof(seq_t));
-    seq_t *dp2 = (seq_t *)calloc(STATE_CNT, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, STATE_CNT);
+    seq_t *dp2 = mem_new(seq_t, STATE_CNT);
 
     /* Initialize first row */
     for (int p = 0; p < STATE_PAT; ++p) {
@@ -184,7 +186,7 @@ seq_t a(idx_t n)
 
     /* Iterate rows 2..n */
     for (idx_t row = 2; row <= n; ++row) {
-        memset(dp2, 0, STATE_CNT * sizeof(seq_t));
+        mem_set(dp2, 0, STATE_CNT * sizeof(seq_t));
         for (int old_state = 0; old_state < STATE_CNT; ++old_state) {
             seq_t val = dp[old_state];
             if (val == 0) continue;
@@ -211,7 +213,7 @@ seq_t a(idx_t n)
         result += dp[state];
     }
 
-    free(dp);
-    free(dp2);
+    mem_free(dp);
+    mem_free(dp2);
     return result;
 }

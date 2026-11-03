@@ -7,13 +7,16 @@
  * Formula:   a(n) = Sum_{i=0..n} lcm(1..i) (partial sums of A003418)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 43, u128 n <= 88,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 46 terms through n = 1787 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/gcd.h"   /* gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------
  * Static cache of LCM values and their partial sums.
@@ -41,12 +44,12 @@ ensure_capacity(idx_t n)
 
     if (partial_sum == NULL || lcm_up_to == NULL) {
         /* First allocation */
-        new_partial = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        new_lcm     = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        new_partial = mem_new(seq_t, new_cap);
+        new_lcm     = mem_new(seq_t, new_cap);
     } else {
         /* Grow existing arrays */
-        new_partial = (seq_t *)realloc(partial_sum, new_cap * sizeof(seq_t));
-        new_lcm     = (seq_t *)realloc(lcm_up_to,   new_cap * sizeof(seq_t));
+        new_partial = mem_resize(seq_t, partial_sum, new_cap);
+        new_lcm     = mem_resize(seq_t, lcm_up_to, new_cap);
     }
 
     /* On a realloc failure the program aborts – acceptable for OEIS

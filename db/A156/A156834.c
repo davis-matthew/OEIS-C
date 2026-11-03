@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} phi(d) * binomial(d + n/d - 2, d - 1)
  * Range:     u8 n <= 19, u16 n <= 69, u32 n <= 265, u64 n <= 1022,
  *            u128 n <= 4031, big any n
- * Helpers:   binomial, phi
+ * Validated: standard, pass, 67 terms through n = 9502 (2026-11-01)
+ * Helpers:   binomial, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 #include <stdlib.h>
 
 /* Assume the following headers provide the needed utility functions. */
-#include "../utils/phi.h"
 #include "../utils/binomial.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
             idx_t d2 = n / d;
 
             /* Compute term for divisor d1 */
-            seq_t phi1 = phi(d1);
+            seq_t phi1 = totient(d1);
             idx_t n_over_d1 = n / d1;
             idx_t binom_numerator = d1 + n_over_d1 - 2;
             idx_t binom_denominator = d1 - 1;
@@ -39,7 +40,7 @@ seq_t a(idx_t n)
 
             /* If d2 is different, compute term for divisor d2 */
             if (d2 != d1) {
-                seq_t phi2 = phi(d2);
+                seq_t phi2 = totient(d2);
                 idx_t n_over_d2 = n / d2; /* which equals d1 */
                 idx_t binom_num2 = d2 + n_over_d2 - 2;
                 idx_t binom_den2 = d2 - 1;

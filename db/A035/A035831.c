@@ -9,15 +9,16 @@
  *            · binom(n+45, 91)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t a, idx_t b)  */
-#include "../utils/pow2.h"    /* provides seq_t pow2(idx_t exp)      */
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
 
     if (!init) {
         for (idx_t k = 0; k <= 92; ++k) {
-            comb92[k] = binom(92, k);
+            comb92[k] = binomial(92, k);
             pow2k[k]   = pow2(k);
         }
         pow2_92    = pow2(92);
@@ -43,11 +44,11 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= 92; ++k) {
         if (k > n) break;          /* binom(n‑1, k‑1) would be 0          */
         seq_t c1 = comb92[k];
-        seq_t c2 = binom(n - 1, k - 1);
+        seq_t c2 = binomial(n - 1, k - 1);
         /* c2 may be 0; multiplication will then contribute 0   */
         sum += c1 * c2 * pow2k[k];
     }
 
-    seq_t second = pow2_92 * binom(n + 45, 91);
+    seq_t second = pow2_92 * binomial(n + 45, 91);
     return sum + second;
 }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{m odd ≤ n} binom(n, m) * 3 * (m-1)! * a(n-m)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

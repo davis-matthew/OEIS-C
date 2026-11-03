@@ -7,6 +7,7 @@
  * Formula:   a(n) = A004086(A005408(n))
  * Range:     u8 n <= 50, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

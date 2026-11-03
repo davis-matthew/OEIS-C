@@ -10,6 +10,7 @@
  *            incrementally and returns the required sum
  * Range:     u8 n <= 11, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 69 terms through n = 902 (2026-11-01)
  * Helpers:   is_prime, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,8 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t n) */
-#include "../utils/next_prime.h"/* idx_t next_prime(idx_t n) */
+#include "../utils/is_prime.h"
+#include "../utils/next_prime.h"
 
 seq_t a(idx_t n)
 {

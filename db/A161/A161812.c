@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 24, u32 n <= 668, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compare_seq_t, next_prime, pow_uint
+ * Validated: standard, pass, 60 terms through n = 9366 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,18 @@
 #include <stdlib.h>
 
 /* utilities provided by the framework */
-#include "../utils/compare_seq_t.h"
+#include "../utils/ipow_u64_idx.h"
 #include "../utils/next_prime.h"
-#include "../utils/pow_uint.h"
+#include "../utils/mem.h"
+
+static int compare_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 /* --------------------------------------------------------------------- */
 /* Static data used by the generator                                    */
@@ -48,7 +58,7 @@ static void grow_cache(void)
 {
     if (cache_cap == 0) cache_cap = 16;
     else cache_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
     if (!tmp) exit(EXIT_FAILURE);
     cache = tmp;
 }
@@ -96,7 +106,7 @@ static void dfs(size_t pi, int last_exp, seq_t prod,
 
     for (int exp = 1; exp <= last_exp; ++exp)
     {
-        seq_t pow_val = pow_uint(prime, (idx_t)exp);
+        seq_t pow_val = ipow_u64_idx(prime, (idx_t)exp);
         seq_t new_prod = prod * pow_val;
         if (new_prod > max_limit) break;          /* further exponents only increase */
 
@@ -125,7 +135,7 @@ static void generate_up_to(seq_t limit)
     dfs(0, 64, (seq_t)1, false, 0);
 
     if (cache_size > 0)
-        qsort(cache, cache_size, sizeof(seq_t), compare_seq_t);
+        mem_qsort(cache, cache_size, sizeof(seq_t), compare_seq_t);
 
     /* Remove duplicates */
     size_t uniq = 0;

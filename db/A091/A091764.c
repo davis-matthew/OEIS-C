@@ -10,15 +10,17 @@
  *            binom(2r, r) * binom(r, k) * (-1)^{k-1} / (2k-1) for k ≥ 1 Here
  *            n is the linear index, r = floor((sqrt(8n+1)-1)/2), k = n -
  *            r*(r+1)/2
- * Range:     i8 n <= 9, i16 n <= 35, i32 n <= 43, i64 n <= 43, i128 n <= 43,
+ * Range:     i8 n <= 10, i16 n <= 36, i32 n <= 43, i64 n <= 43, i128 n <= 43,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     /* find the row r and column k corresponding to index n */
@@ -32,12 +34,12 @@ seq_t a(idx_t n) {
     idx_t before = r * (r + 1) / 2;
     idx_t k = n - before;          /* column number */
 
-    seq_t central = binom(2 * r, r);     /* binom(2r,r) */
+    seq_t central = binomial(2 * r, r);     /* binom(2r,r) */
 
     if (k == 0)
         return central;                 /* first element of the row */
 
-    seq_t bin = binom(r, k);            /* binom(r,k) */
+    seq_t bin = binomial(r, k);            /* binom(r,k) */
     idx_t denom = 2 * k - 1;            /* odd positive integer */
 
     /* use 128‑bit arithmetic to avoid overflow for 64‑bit builds   */

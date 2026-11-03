@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|6} phi(6/d) * (n*d)! / (d!^n * n * 6), a(0) = 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 8,
  *            big any n
+ * Validated: standard, pass, 27 terms through n = 40 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
    finally divided by n*6. This guarantees exact integer division. */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

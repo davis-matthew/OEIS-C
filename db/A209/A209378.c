@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 19, u64 n <= 39, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  *     a(7)=8612, a(8)=33716.                                            */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamically built table */
 static idx_t   cache_size = 0;       /* number of stored values   */
@@ -35,7 +37,7 @@ grow_cache(idx_t needed)
     idx_t new_cap = cache_cap ? cache_cap << 1 : 8;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         cache_cap  = 8;
         cache_size = 8;
-        cache = (seq_t *)malloc((size_t)cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         /* initial values a(1)..a(8) */
         cache[0] = (seq_t)32;
         cache[1] = (seq_t)80;

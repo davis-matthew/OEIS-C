@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 4741, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, is_prime, is_prime_small
+ * Validated: standard, pass, 75 terms through n = 8309 (2026-11-01)
+ * Helpers:   is_prime, is_prime_seq, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"          /* is_prime(idx_t) */
-#include "../utils/is_prime_small.h"    /* is_prime_small(seq_t) */
-#include "../utils/_smallest_prime_factor.h" /* _smallest_prime_factor(uint64_t) */
+#include <stddef.h>
+#include "../utils/is_prime.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         else
         {
             /* Check if k is a pure prime power p^e (e >= 2). */
-            uint64_t spf = _smallest_prime_factor(k);
+            uint64_t spf = smallest_prime_factor(k);
             uint64_t tmp = k;
             unsigned e = 0;
             while (tmp % spf == 0)
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
             {
                 /* For k = p^e, tau(k^(k-1)) = e*(k-1)+1. */
                 seq_t val = (seq_t)e * ((seq_t)k - 1) + 1;
-                ok = is_prime_small(val);
+                ok = is_prime_seq(val);
             }
         }
 

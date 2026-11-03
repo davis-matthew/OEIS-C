@@ -10,15 +10,38 @@
  *            rows in a 5‑column grid
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   fully_valid_mask, hor_valid_mask
+ * Validated: standard, pass, 34 terms through n = 206 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/fully_valid_mask.h"
-#include "../utils/hor_valid_mask.h"
+
+static inline bool fully_valid_mask(uint8_t prev0, uint8_t prev1, uint8_t m) {
+    for (int j = 0; j < 5; ++j) {
+        if (m & (1u << j)) {
+            bool horiz = false;
+            if (j >= 2) {
+                if (!(m & (1u << (j - 1))) && !(m & (1u << (j - 2)))) horiz = true;
+            }
+            bool vert = ((prev0 & (1u << j)) == 0) && ((prev1 & (1u << j)) == 0);
+            if (!horiz && !vert) return false;
+        }
+    }
+    return true;
+}
+
+static inline bool hor_valid_mask(uint8_t m) {
+    for (int j = 0; j < 5; ++j) {
+        if (m & (1u << j)) {
+            if (j < 2) return false;                            /* need two left zeros */
+            if ((m & (1u << (j - 1))) || (m & (1u << (j - 2)))) return false;
+        }
+    }
+    return true;
+}
 
 /* Main function required by the build system. */
 seq_t a(idx_t n) {

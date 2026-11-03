@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 3421, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 71 terms through n = 9581 (2026-11-03)
+ * Helpers:   mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;      /* sequence values a(n)    */
 static size_t terms_len = 0;     /* number of terms stored  */
@@ -41,7 +44,7 @@ static void ensure_terms_cap(size_t need)
     size_t newcap = (terms_cap == 0) ? 64 : terms_cap * 2;
     while (newcap < need)
         newcap *= 2;
-    seq_t *newptr = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, terms, newcap);
     if (!newptr)
         abort();
     terms = newptr;
@@ -83,13 +86,13 @@ static bool is_semiprime_uint64(uint64_t x)
 {
     if (x < 4)            /* 2 and 3 are not semiprime */
         return false;
-    uint64_t p = _smallest_prime_factor(x);
+    uint64_t p = smallest_prime_factor(x);
     if (p == 0 || p == x)
         return false;       /* 1 or prime */
     uint64_t q = x / p;
     if (q == 1)
         return false;
-    uint64_t qpf = _smallest_prime_factor(q);
+    uint64_t qpf = smallest_prime_factor(q);
     return (qpf == q);      /* q is prime */
 }
 

@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   number of odd‑length factorizations of n into factors > 1 with
  *            the same mean as the median
- * Range:     u8 n <= 9683, u16 n <= 9683, u32 n <= 9683, u64 n <= 9683,
- *            u128 n <= 9683, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9683 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

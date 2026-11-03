@@ -14,13 +14,15 @@
  *            m we obtain b = (m-1)/2. The algorithm ke...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 500 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- small helper to grow a seq_t array ---- */
 static void grow_seq_arr(seq_t **arr, size_t *cap, size_t needed)
@@ -28,7 +30,7 @@ static void grow_seq_arr(seq_t **arr, size_t *cap, size_t needed)
     if (*cap >= needed) return;
     size_t new_cap = (*cap) ? (*cap) : 4;
     while (new_cap < needed) new_cap <<= 1;
-    *arr = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 

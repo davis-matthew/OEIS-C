@@ -14,13 +14,15 @@
  *            a(9)=358016, a(10...
  * Range:     u8 none, u16 n <= 6, u32 n <= 19, u64 n <= 40, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 106 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>    /* malloc, free */
 #include <stdint.h>    /* uint64_t */
+#include "../utils/mem.h"
 
 static seq_t *seq_array = NULL;
 static size_t seq_cap = 0;   /* allocated capacity */
@@ -49,10 +51,10 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap <= (size_t)n)  /* allocate at least n+1 */
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (seq_array) {
-        memcpy(new_arr, seq_array, seq_len * sizeof(seq_t));
-        free(seq_array);
+        mem_copy(new_arr, seq_array, seq_len * sizeof(seq_t));
+        mem_free(seq_array);
     }
     seq_array = new_arr;
     seq_cap = new_cap;

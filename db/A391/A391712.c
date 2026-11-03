@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 48,
  *            big any n
- * Helpers:   bigomega, fib
+ * Validated: standard, pass, 40 terms through n = 995 (2026-11-01)
+ * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/fib.h"        /* seq_t fib(idx_t n); */
-#include "../utils/bigomega.h"   /* seq_t bigomega(idx_t n); */
+#include <stdbool.h>
+#include "../utils/bigomega.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static idx_t *indices = NULL;   /* cached qualifying indices   */
 static size_t indices_len = 0;  /* number of indices cached   */

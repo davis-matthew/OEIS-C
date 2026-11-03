@@ -7,13 +7,16 @@
  * Keywords:  nonn, base
  * Formula:   a(0)=1000004999700144385; a(n+1)=a(n)+rev(a(n))
  * Range:     u8 none, u16 none, u32 none, u64 n <= 2, u128 n <= 54, big any n
- * Helpers:   reverse
+ * Validated: standard, pass, 27 terms through n = 257 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/reverse.h"
+#include <stddef.h>
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 const seq_t START = 1000004999700144385ULL;
 
@@ -25,7 +28,7 @@ seq_t a(idx_t n) {
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 64;  /* initial capacity */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return 0;  /* out of memory, unlikely in tests */
         cache[0] = START;
         cache_len = 1;
@@ -34,13 +37,13 @@ seq_t a(idx_t n) {
     /* grow cache to at least n+1 entries */
     while (cache_len <= n) {
         seq_t prev = cache[cache_len - 1];
-        seq_t rev  = reverse(prev);
+        seq_t rev  = reverse_digits(prev);
         seq_t next = prev + rev;
 
         /* ensure capacity */
         if (cache_len == cache_cap) {
             cache_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             if (tmp == NULL) return 0;  /* out of memory */
             cache = tmp;
         }

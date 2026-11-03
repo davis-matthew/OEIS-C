@@ -7,12 +7,14 @@
  * Formula:   a(n) = 1 + Sum_{k=1..n} 3^(k-1) * (k-1)! * C(n,k) * a(n-k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Ensure that *p has capacity for at least n+1 elements */
 static void
@@ -21,7 +23,7 @@ ensure_capacity(idx_t n, seq_t **p, size_t *cap)
     size_t new_cap = (size_t)n + 1;
     if (*cap >= new_cap)
         return;
-    seq_t *tmp = (seq_t *)realloc(*p, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *p, new_cap);
     if (!tmp) abort();
     *p = tmp;
     *cap = new_cap;

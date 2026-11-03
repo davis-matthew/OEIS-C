@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains17
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/contains17.h"
+#include "../utils/mem.h"
+
+static int contains17(seq_t x)
+{
+    if (x == 0) return 0;
+    seq_t t = x;
+    while (t >= 10) {
+        int low  = (int)(t % 10);   /* least significant digit */
+        t /= 10;
+        int high = (int)(t % 10);   /* next digit */
+        if (low == 7 && high == 1) return 1;
+    }
+    return 0;
+}
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -30,7 +44,7 @@ static void ensure_cap(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     cache = new_arr;
     cache_cap = new_cap;
 }

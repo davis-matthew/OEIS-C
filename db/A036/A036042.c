@@ -8,13 +8,15 @@
  *            the number of integer partitions of i
  * Range:     u8 n <= 97, u16 n <= 9295, u32 n <= 9295, u64 n <= 9295,
  *            u128 n <= 9295, big any n
- * Helpers:   none
+ * Validated: standard, pass, 114 terms through n = 8463 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static arrays to memoize partition numbers and cumulative sums */
 static seq_t *part = NULL;   /* partition numbers p(k)  */
@@ -30,8 +32,8 @@ ensure_capacity(size_t needed)
     size_t new_cap = capacity ? capacity * 2 : 8;
     while (new_cap < needed)
         new_cap *= 2;
-    part = (seq_t *)realloc(part, new_cap * sizeof(seq_t));
-    cuml = (seq_t *)realloc(cuml, new_cap * sizeof(seq_t));
+    part = mem_resize(seq_t, part, new_cap);
+    cuml = mem_resize(seq_t, cuml, new_cap);
     capacity = new_cap;
 }
 

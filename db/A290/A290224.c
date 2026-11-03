@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/digit_sum.h"   /* digit_sum(seq_t) */
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* Apply one step of the transformation. */
 static seq_t step(seq_t x)
@@ -62,7 +64,7 @@ static void ensure_terms(idx_t n)
             if (fsize == fcap)
             {
                 size_t newcap = fcap == 0 ? 1 : fcap << 1;
-                seq_t *tmp = (seq_t *)realloc(found, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, found, newcap);
                 if (!tmp)
                     return;                /* allocation failed – abort */
                 found = tmp;

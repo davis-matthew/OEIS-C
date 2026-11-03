@@ -8,13 +8,27 @@
  * Formula:   a(n) = SumOfDigits(n)^2 - SumOfDigits(n^2)
  * Range:     u8 n <= 88, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum_square
+ * Validated: standard, pass, 86 terms through n = 9402 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digit_sum_square.h"
+
+/* Sum of decimal digits of (n * n).  The product is held in a
+   __int128 to avoid overflow when idx_t or seq_t is 64‑bit. */
+static inline seq_t digit_sum_square(idx_t n)
+{
+    unsigned __int128 sq = (unsigned __int128)n * n;   /* exact square */
+    seq_t sum = 0;
+    while (sq > 0)
+    {
+        sum += (seq_t)(sq % 10);
+        sq /= 10;
+    }
+    return sum;
+}
 
 /* Sum of decimal digits of a uint64_t.  */
 static inline seq_t digit_sum_uint64(idx_t n)

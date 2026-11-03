@@ -7,7 +7,8 @@
  * Formula:   a(n) = A065091(n) – A071904(n) (odd prime → nth odd composite)
  * Range:     i8 n <= 75, i16 n <= 76, i32 n <= 76, i64 n <= 76, i128 n <= 76,
  *            big any n
- * Helpers:   ensure_array_seqt, ensure_array_uint32
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ensure_array_seqt.h"
-#include "../utils/ensure_array_uint32.h"
+#include "../utils/mem.h"
+
+static void ensure_array_seqt(seq_t **arr, size_t *cnt, size_t *cap)
+{
+    if (*cnt == *cap) {
+        *cap = (*cap == 0) ? 1024 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, (*cap));
+    }
+}
+
+/* ------------- helpers for growing arrays --------------------- */
+static void ensure_array_uint32(uint32_t **arr, size_t *cnt, size_t *cap)
+{
+    if (*cnt == *cap) {
+        *cap = (*cap == 0) ? 1024 : (*cap << 1);
+        *arr = (uint32_t*)realloc(*arr, (*cap) * sizeof(uint32_t));
+    }
+}
 
 /* ------------- static tables ------------------------------------ */
 static uint32_t *odd_primes      = NULL;   /* odd primes 3,5,7,...            */

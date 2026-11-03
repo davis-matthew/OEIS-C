@@ -9,12 +9,14 @@
  * Formula:   a(n) = 2 * floor((n+1)/2)! * floor(n/2)!
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 25, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 484 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;
 static size_t fact_cache_len = 0;
@@ -24,7 +26,7 @@ static void ensure_fact(idx_t up_to)
 {
     if (fact_cache == NULL) {
         size_t new_len = (size_t)up_to + 1;
-        fact_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        fact_cache = mem_new(seq_t, new_len);
         if (!fact_cache) return;                /* allocation failed – give up */
         fact_cache[0] = (seq_t)1;
         for (idx_t i = 1; i <= up_to; ++i)
@@ -34,7 +36,7 @@ static void ensure_fact(idx_t up_to)
     }
     if (fact_cache_len <= (size_t)up_to) {
         size_t new_len = (size_t)up_to + 1;
-        seq_t *ptr = (seq_t *)realloc(fact_cache, new_len * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, fact_cache, new_len);
         if (!ptr) return;                      /* allocation failed – give up */
         fact_cache = ptr;
         for (idx_t i = fact_cache_len; i <= up_to; ++i)

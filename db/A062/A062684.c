@@ -8,11 +8,13 @@
  *            Σ_{i=0}^k C(k,i) b_i = n – 2^k } (b_i ≥ 0)
  * Range:     u8 n <= 22, u16 n <= 100, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
+ * Validated: standard, pass, 67 terms through n = 188 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
 #ifdef __cplusplus

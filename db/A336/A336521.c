@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 40, u32 n <= 98, u64 n <= 223,
  *            u128 n <= 585, big any n
- * Helpers:   binom_fn
+ * Validated: standard, pass, 82 terms through n = 9860 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,7 +39,7 @@
  *    beyond the natural wrap‑around of unsigned arithmetic.
  */
 #include <stddef.h>  /* for size_t */
-#include "../utils/binom_fn.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -57,8 +58,8 @@ seq_t a(idx_t n)
     seq_t pow2 = (seq_t)2;   /* 2^1 for j=1 */
 
     for (idx_t j = 1; j <= r; ++j) {
-        seq_t bn = binom_fn(r, j);            /* C(r,j)   */
-        seq_t ak = binom_fn(k * r - 1, j - 1);/* C(k*r-1, j-1) */
+        seq_t bn = binomial(r, j);            /* C(r,j)   */
+        seq_t ak = binomial(k * r - 1, j - 1);/* C(k*r-1, j-1) */
         sum += pow2 * bn * ak;
         pow2 <<= 1;   /* prepare 2^(j+1) for next loop */
     }

@@ -12,13 +12,16 @@
  *            (-1)^(t+k) * 2^k * binomial(t, k)
  * Range:     i8 n <= 32, i16 n <= 112, i32 n <= 394, i64 n <= 1411,
  *            i128 n <= 5150, big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 107 terms through n = 4810 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     idx_t t   = (r + k) / 2;
-    seq_t bin   = binom(t, k);          /* binomial coefficient */
+    seq_t bin   = binomial(t, k);          /* binomial coefficient */
     seq_t powv  = pow2(k);              /* 2^k */
     seq_t res   = bin * powv;           /* absolute value */
 

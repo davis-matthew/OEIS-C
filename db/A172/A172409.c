@@ -8,7 +8,8 @@
  *            offset 1. This implements A172409
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
         /* Grow cache if necessary. */
         if (len >= cap) {
             size_t new_cap = cap ? cap * 2 : 128;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();     /* allocation failure – terminate */
             cache = tmp;
             cap   = new_cap;

@@ -11,13 +11,15 @@
  *            a(5)=365
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* external integer types, defined by the build system */
 extern seq_t a(idx_t n);
@@ -32,7 +34,7 @@ static void init_cache(void)
     if (A_len != 0) return;
 
     const size_t init_cap = 6;
-    A = (seq_t *)malloc(init_cap * sizeof(seq_t));
+    A = mem_new(seq_t, init_cap);
     if (!A) abort();
 
     A[0] = (seq_t)0;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (n >= A_len) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, new_cap);
         if (!tmp) abort();
         A = tmp;
 

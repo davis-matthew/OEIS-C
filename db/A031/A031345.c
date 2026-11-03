@@ -7,6 +7,7 @@
  * Formula:   a(n) = base13( prime(n) )
  * Range:     u8 n <= 39, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* Convert the n‑th prime (in decimal) to base‑13 interpretation. */
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 /* Public sequence function.

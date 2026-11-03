@@ -10,13 +10,15 @@
  *            implementation searches linearly using modular arithmetic
  * Range:     i8 n <= 33, i16 n <= 2241, i32 n <= 5000, i64 n <= 5000,
  *            i128 n <= 5000, big any n
- * Helpers:   digits
+ * Validated: standard, pass, 92 terms through n = 4723 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digits.h"
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
 
 /* fast modular exponentiation of 10^e (mod mod). */
 static inline uint64_t pow10mod(uint64_t e, uint64_t mod) {
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     uint64_t pow10_len = 1 % m;     /* 10^len (mod m), len = digits already used */
 
     for (idx_t k = 1; ; ++k) {
-        unsigned int d = digits(k);                /* number of decimal digits of k */
+        unsigned int d = num_digits_idx(k);                /* number of decimal digits of k */
         uint64_t pow10_d = pow10mod(d, m);         /* 10^d (mod m) */
 
         /* Update the concatenation modulo m: s = (k * 10^len + s) mod m. */

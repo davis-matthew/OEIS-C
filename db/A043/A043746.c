@@ -9,7 +9,8 @@
  *            a number of runs congruent to 0 (mod 8)
  * Range:     u8 n <= 1, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached values */
 static size_t cache_len = 0;         /* number of cached values */
@@ -28,7 +30,7 @@ static void grow_cache_to(size_t target)
     if (cache_cap < target) {
         size_t new_cap = cache_cap == 0 ? 256 : cache_cap * 2;
         if (new_cap < target) new_cap = target;
-        seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, new_cap);
         cache = newp;
         cache_cap = new_cap;
     }

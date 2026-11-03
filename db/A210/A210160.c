@@ -12,7 +12,8 @@
  *            order)
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 8, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_N 20000   /* safety limit larger than 10 000 */
 
@@ -116,8 +118,8 @@ static void ensure(idx_t n)
 
     if (!state_initialized) {
         /* Initialise DP after the first row. */
-        memset(dp, 0, sizeof(dp));
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(dp, 0, sizeof(dp));
+        mem_set(ndp, 0, sizeof(ndp));
 
         for (int curr = 0; curr < 256; ++curr) {
             if ((curr & 3) != 0) continue;          /* first cell must be 0 */
@@ -139,7 +141,7 @@ static void ensure(idx_t n)
     /* Extend DP until we have answers up to n */
     while (rows_processed - 1 < n) {
         /* Clear ndp */
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
 
         /* Transition from each state */
         for (int prev = 0; prev < 256; ++prev) {
@@ -157,7 +159,7 @@ static void ensure(idx_t n)
         }
 
         /* Update dp to the next row state */
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
         ++rows_processed;
 
         /* Compute total for this n = rows_processed-1 */

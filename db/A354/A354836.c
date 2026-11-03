@@ -12,6 +12,7 @@
  *            r+k if r-k and r+k are odd primes, else 0
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
+ * Validated: partial, pass, 91 terms through n = 93 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

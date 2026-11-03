@@ -6,14 +6,25 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n is a dodecahedral number, 0 otherwise. A
  *            dodecahedral number is m(3m-1)(3m-2)/2 for some integer m ≥ 0
- * Range:     u8 n <= 623, u16 n <= 8787, u32 n <= 8787, u64 n <= 8787,
- *            u128 n <= 8787, big any n
- * Helpers:   dodeca_value
+ * Range:     u8 n <= 623, u16 n <= 105994, u32 n <= 105995, u64 n <= 105995,
+ *            u128 n <= 105995, big any n
+ * Validated: standard, pass, 101 terms through n = 8787 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/dodeca_value.h"
+static seq_t dodeca_value(idx_t m)
+{
+    /* Compute f(m) = m(3m-1)(3m-2)/2 = (9m^3 - 9m^2 + 2m)/2 */
+    seq_t mm = (seq_t)m;
+    seq_t m2 = mm * mm;
+    seq_t m3 = m2 * mm;
+    seq_t term1 = (seq_t)9 * m3; /* 9m^3 */
+    seq_t term2 = (seq_t)9 * m2; /* 9m^2 */
+    seq_t term3 = (seq_t)2 * mm; /* 2m */
+    return (term1 - term2 + term3) / (seq_t)2;
+}
 
 seq_t a(idx_t n)
 {

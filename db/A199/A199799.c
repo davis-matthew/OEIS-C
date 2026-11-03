@@ -7,7 +7,8 @@
  * Formula:   a(n) = n‑th integer coprime to 111111
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 78 terms through n = 9960 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
         cache_len = phi;
 
         /* Allocate array for totatives */
-        cache = (seq_t *)malloc((size_t)cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_len);
         if (cache == NULL) return (seq_t)0;  /* allocation failed */
 
         idx_t idx = 0;

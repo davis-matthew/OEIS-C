@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 42, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   recompute_cache
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,40 @@
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, free */
-#include "../utils/recompute_cache.h"
+#include "../utils/mem.h"
+
+/* Recompute the triangular table up to diagonal and store in *cache_ptr.
+ * The table width is chosen as 3*d+1 to avoid out‑of‑bounds during the
+ * recurrence.  Old contents are freed. */
+static void recompute_cache(idx_t new_s, seq_t **cache_ptr, size_t *width_ptr)
+{
+    size_t rows  = (size_t)new_s + 1;        /* 0 … new_s */
+    size_t width = (size_t)(3 * new_s + 1);  /* columns 0 … 3*d */
+    size_t total = rows * width;
+
+    seq_t *data = mem_new(seq_t, total);
+    if (!data) abort();
+
+    /* Row 0: all ones */
+    for (size_t col = 0; col < width; ++col)
+        data[0 * width + col] = 1;
+
+    /* Subsequent rows */
+    for (idx_t r = 1; r <= new_s; ++r) {
+        for (size_t k = 0; k + 2 < width; ++k) {
+            seq_t a1 = data[(r - 1) * width + k];
+            seq_t a2 = data[(r - 1) * width + k + 1];
+            seq_t a3 = data[(r - 1) * width + k + 2];
+            data[r * width + k] = -a1 + (seq_t)(k + 1) * a2 + a3;
+        }
+    }
+
+    static seq_t *old = NULL;
+    mem_free(old);
+    old = data;
+    *cache_ptr = old;
+    *width_ptr = width;
+}
 
 /* Find the diagonal index d such that d*(d+1)/2 <= n < (d+1)*(d+2)/2 */
 static idx_t find_diagonal(idx_t n)

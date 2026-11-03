@@ -8,14 +8,35 @@
  *            positive integer expressible as the sum of 10 positive cubes
  * Range:     u8 n <= 161, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   generate_sums
+ * Validated: standard, pass, 77 terms through n = 9673 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/generate_sums.h"
+
+static void generate_sums(int depth, int current_sum, int min_val, bool *reachable) {
+    if (depth == 10) {
+        if (current_sum <= 374) {
+            reachable[current_sum] = true;
+        }
+        return;
+    }
+    
+    int remaining = 10 - depth;
+    if (current_sum + remaining * 1 > 374) return;
+    
+    for (int v = min_val; v <= 7; v++) {
+        int cube = v * v * v;
+        int new_sum = current_sum + cube;
+        
+        if (new_sum > 374) break;
+        
+        generate_sums(depth + 1, new_sum, v, reachable);
+    }
+}
 
 seq_t a(idx_t n) {
     static bool computed = false;

@@ -8,7 +8,8 @@
  *            k) * binomial(2k, k) (k ≥ 0)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 35 terms through n = 295 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *T_cache = NULL;   /* cache of T(k) values */
 static idx_t  T_len   = 0;      /* number of values stored (0 … T_len‑1) */
@@ -32,7 +34,7 @@ static void ensure_T(idx_t n)
     if (needed > T_cap) {
         size_t new_cap = T_cap ? T_cap * 2 : 4;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(T_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, T_cache, new_cap);
         if (!tmp) return;             /* allocation failed – ignore (as per build policy) */
         T_cache = tmp;
         T_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 70 terms through n = 72 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,13 +18,14 @@
    each part not prime).  Computed by a simple O(n²) search. */
 
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 static inline bool is_prime_local(idx_t x) {
     if (x < 2) return false;
     if (x == 2 || x == 3) return true;
     if (x % 2 == 0 || x % 3 == 0) return false;
-    idx_t r = int_sqrt(x);
+    idx_t r = isqrt(x);
     for (idx_t d = 5; d <= r; d += 6) {
         if (x % d == 0 || x % (d + 2) == 0) return false;
     }

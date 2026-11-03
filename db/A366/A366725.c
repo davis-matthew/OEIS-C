@@ -8,13 +8,17 @@
  *            A366725)
  * Range:     u8 n <= 1620, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   prime_pi, spf
+ * Validated: standard, pass, 116 terms through n = 9367 (2026-11-01)
+ * Helpers:   prime_pi, smallest_prime_factor_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/spf.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/prime_pi.h"
+#include "../utils/smallest_prime_factor_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +31,7 @@ seq_t a(idx_t n)
 
     while (temp > 1)
     {
-        uint64_t p = spf(temp);          /* smallest prime factor */
+        uint64_t p = smallest_prime_factor_idx(temp);          /* smallest prime factor */
         if (p != last_p)                 /* distinct prime factor */
         {
             seq_t idx = prime_pi(p);     /* prime index of p */

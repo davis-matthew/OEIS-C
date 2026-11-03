@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 668, u32 n <= 4911, u64 n <= 4911,
  *            u128 n <= 4911, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 60 terms through n = 3963 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Keep a cache of the sequence values seen so far. */
 static seq_t *seq_terms = NULL;
@@ -36,7 +38,7 @@ static void grow_terms(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_terms = (seq_t *)realloc(seq_terms, new_cap * sizeof(seq_t));
+    seq_terms = mem_resize(seq_t, seq_terms, new_cap);
     seq_cap   = new_cap;
 }
 

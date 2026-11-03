@@ -7,7 +7,8 @@
  * Formula:   a(n) = (prime(n) - 1)! + 1 (offset = 1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The integer types seq_t and idx_t are provided by the build. */
 
@@ -39,7 +41,7 @@ static void grow_terms(size_t need)
     size_t newcap = terms_cap ? terms_cap << 1 : 4;
     while (newcap < need)
         newcap <<= 1;
-    terms = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, newcap);
     terms_cap = newcap;
 }
 

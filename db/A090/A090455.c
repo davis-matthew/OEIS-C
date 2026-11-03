@@ -8,7 +8,8 @@
  * Formula:   a(n) = popcount(n) – popcount(n‑th prime)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   popcount_ull
+ * Validated: standard, pass, 90 terms through n = 9645 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/popcount_ull.h"
+
+/* Return the popcount of a 64‑bit value as seq_t */
+static seq_t popcount_ull(uint64_t x)
+{
+    return (seq_t)__builtin_popcountll(x);
+}
 
 /* Static storage for primes to support repeated calls */
 static uint64_t *prime_list = NULL;

@@ -13,7 +13,8 @@
  *            memoized
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,13 +24,14 @@
 
 #if defined(__cplusplus)
 /* C++: use reinterpret_cast for void* → seq_t* conversion */
-#define ALLOC(n) reinterpret_cast<seq_t*>(malloc((n)))
-#define REALLOC(p, n) reinterpret_cast<seq_t*>(realloc((p), (n)))
+#define ALLOC(n) mem_new(seq_t, ((n)) / sizeof(seq_t))
+#define REALLOC(p, n) mem_resize(seq_t, (p), ((n)) / sizeof(seq_t))
 #else
 /* C: simple cast is sufficient */
-#define ALLOC(n) ((seq_t*)malloc((n)))
-#define REALLOC(p, n) ((seq_t*)realloc((p), (n)))
+#define ALLOC(n) (mem_new(seq_t, ((n)) / sizeof(seq_t)))
+#define REALLOC(p, n) (mem_resize(seq_t, (p), ((n)) / sizeof(seq_t)))
 #endif
+#include "../utils/mem.h"
 
 /* Base terms for indices 0 … 12 */
 static const seq_t base[13] = {

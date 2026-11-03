@@ -8,8 +8,9 @@
  * Formula:   a(n) = maximal digit in the primorial base representation of n
  *            (digits are bounded by the next prime – 1). Compute by greedy
  *            base conversion
- * Range:     u8 n <= 919, u16 n <= 8651, u32 n <= 8651, u64 n <= 8651,
- *            u128 n <= 8651, big any n
+ * Range:     u8 n <= 919, u16 n <= 30030, u32 n <= 30030, u64 n <= 30030,
+ *            u128 n <= 30030, big any n
+ * Validated: standard, pass, 122 terms through n = 8651 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

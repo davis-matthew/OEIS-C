@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 270, u16 n <= 9794, u32 n <= 9794, u64 n <= 9794,
- *            u128 n <= 9794, big any n
- * Helpers:   none
+ * Range:     u8 n <= 270, u16 n <= 66373, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 129 terms through n = 9794 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static tables for primality and SG‑prime prefix */
 static bool *is_prime = NULL;
@@ -36,7 +38,7 @@ ensure_sieve(idx_t n)
 
     /* allocate new tables */
     bool *new_prime = (bool *)malloc((size_t)(need + 1) * sizeof(bool));
-    seq_t *new_pref = (seq_t *)malloc((size_t)(need + 1) * sizeof(seq_t));
+    seq_t *new_pref = mem_new(seq_t, (size_t)(need + 1));
     if (!new_prime || !new_pref) abort();
 
     /* initialise primality */
@@ -67,7 +69,7 @@ ensure_sieve(idx_t n)
 
     /* replace old tables */
     free(is_prime);
-    free(sg_prefix);
+    mem_free(sg_prefix);
     is_prime = new_prime;
     sg_prefix = new_pref;
     sieve_limit = need;

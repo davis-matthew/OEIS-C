@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 4868 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,12 +24,13 @@
    needed to have visited all n positions. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* n >= 1 by definition of the offset. */
     /* allocate array holding visit counts per position */
-    seq_t *vis = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *vis = mem_new(seq_t, (size_t)n);
     if (vis == NULL) {
         return 0; /* allocation failed – return 0 as sentinel */
     }
@@ -69,6 +71,6 @@ seq_t a(idx_t n)
         pos = next;
     }
 
-    free(vis);
+    mem_free(vis);
     return steps;
 }

@@ -12,6 +12,7 @@
  *            s² - 24T_n·k = 1. Here we solve it by a simp...
  * Range:     u8 n <= 30, u16 n <= 447, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 78 terms through n = 9585 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

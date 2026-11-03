@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   build_rows_and_transitions
+ * Validated: standard, pass, 31 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/build_rows_and_transitions.h"
+#include "../utils/mem.h"
+
+static void build_rows_and_transitions(void)
+{
+    /* Will be called once from a() */
+}
 
 /* seq_t and idx_t are defined by the build system.  */
 /* This file defines only the requested function.  */
@@ -64,14 +70,14 @@ seq_t a(idx_t n)
             ++rid;
         }
         /* allocate dp arrays */
-        dp = (seq_t*)malloc(STATE_CNT * sizeof(seq_t));
-        dp_next = (seq_t*)malloc(STATE_CNT * sizeof(seq_t));
-        memset(dp, 0, STATE_CNT * sizeof(seq_t));
-        memset(dp_next, 0, STATE_CNT * sizeof(seq_t));
+        dp = mem_new(seq_t, STATE_CNT);
+        dp_next = mem_new(seq_t, STATE_CNT);
+        mem_set(dp, 0, STATE_CNT * sizeof(seq_t));
+        mem_set(dp_next, 0, STATE_CNT * sizeof(seq_t));
 
         /* cache for a(1) and a(2) */
         cache_len = 2 + 1;   /* index 0 unused */
-        cache = (seq_t*)calloc(cache_len, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[1] = (seq_t)25;
         cache[2] = (seq_t)625;
         max_comp = 2;
@@ -95,7 +101,7 @@ seq_t a(idx_t n)
         }
 
         /* reset dp_next for new length cur */
-        memset(dp_next, 0, STATE_CNT * sizeof(seq_t));
+        mem_set(dp_next, 0, STATE_CNT * sizeof(seq_t));
 
         for (size_t s = 0; s < STATE_CNT; ++s) {
             seq_t val = dp[s];
@@ -131,8 +137,8 @@ seq_t a(idx_t n)
         /* cache the result */
         if (cur >= cache_len) {
             size_t new_len = (size_t)cur + 1;
-            cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
-            memset(cache + cache_len, 0, (new_len - cache_len) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_len);
+            mem_set(cache + cache_len, 0, (new_len - cache_len) * sizeof(seq_t));
             cache_len = new_len;
         }
         cache[cur] = total;

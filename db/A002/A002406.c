@@ -12,17 +12,30 @@
  *            Adams-M...
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 8, i64 n <= 14, i128 n <= 26,
  *            big any n
- * Helpers:   a002406_ppbase
+ * Validated: standard, pass, 36 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a002406_ppbase.h"
+#include "../utils/mem.h"
+
+/* returns p if m = p^e (e >= 1), else 0 */
+static idx_t a002406_ppbase(idx_t m) {
+    idx_t p = 0, d;
+    if (m < 2) return 0;
+    for (d = 2; d * d <= m; d++) {
+        if (m % d == 0) { p = d; break; }
+    }
+    if (p == 0) return m;
+    while (m % p == 0) m /= p;
+    return (m == 1) ? p : 0;
+}
 
 seq_t a(idx_t n) {
     idx_t len, j, k, i, m;
-    seq_t *c = (seq_t *)malloc((size_t)(n + 2) * sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (size_t)(n + 2));
     seq_t L, S;
 
     /* build polynomial Prod_{j=0..n+1, j != n} (u + j - 1) */
@@ -52,7 +65,7 @@ seq_t a(idx_t n) {
     for (i = 0; i < len; i++) {
         S += c[i] * (L / ((seq_t)i + 1));
     }
-    free(c);
+    mem_free(c);
 
     S = S * ((seq_t)n + 1);
     if (n & 1) S = -S;

@@ -11,7 +11,8 @@
  *            a(3)=38, a(4)=136, a(5)=488, a(6)=1744, a(7)=6208, a(8)=22202
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 34, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,16 +43,16 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate space for at least 8 values, plus the requested n */
         size_t initial_cap = (size_t)(n > 8 ? n : 8);
-        cache = (seq_t *)malloc(initial_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, initial_cap);
         if (!cache) return (seq_t)0;          /* allocation failure */
 
         /* Store initial values in the cache */
-        memcpy(cache, init, 8 * sizeof(seq_t));
+        mem_copy(cache, init, 8 * sizeof(seq_t));
         cached_n = 8;
     } else if (n > cached_n) {
         /* Grow the cache to hold up to n */
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;           /* allocation failure */
         cache = tmp;
     }

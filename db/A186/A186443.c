@@ -9,13 +9,15 @@
  *            sequence A186443 is thus defined by this simple recurrence
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         size_t new_cap = (n + 1) * 2;   /* double capacity for amortised O(1) */
         if (new_cap < seq_cap * 2) new_cap = seq_cap * 2;
         if (new_cap == 0) new_cap = n + 1;      /* first allocation */
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 

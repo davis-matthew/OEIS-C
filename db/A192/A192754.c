@@ -8,6 +8,7 @@
  * Formula:   a(n) = 8*Fibonacci(n) + 3*Lucas(n) - 5 (n ≥ 0)
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 42, u64 n <= 88, u128 n <= 180,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 998 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

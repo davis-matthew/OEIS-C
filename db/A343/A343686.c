@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* a(0)=1, a(1)=4, a(2)=33, ... (see OEIS entry for further terms) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* a(idx_t n) returns the n-th term of the sequence */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t newcap = (cap == 0) ? 1 : cap;
         while (newcap <= (size_t)n) newcap <<= 1;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cap   = newcap;
     }
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if (n > 0 && fact_cnt < n) {
         size_t newcnt = (fact_cnt == 0) ? 1 : fact_cnt;
         while (newcnt < n) newcnt <<= 1;
-        fact = (seq_t *)realloc(fact, newcnt * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, newcnt);
 
         /* Initialise factorials from previously stored point */
         if (fact_cnt == 0) {

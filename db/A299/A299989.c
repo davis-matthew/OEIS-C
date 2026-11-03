@@ -13,7 +13,8 @@
  *            definition: * T(0,0)=0, T(0,1)=1 * T(n,k) = T(n-1,k-2...
  * Range:     u8 n <= 21, u16 n <= 58, u32 n <= 162, u64 n <= 564,
  *            u128 n <= 2010, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9808 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;  /* triangle[r][k] */
 static idx_t triangle_rows = 0;  /* number of rows currently cached */
@@ -35,7 +37,7 @@ static void ensure_triangle(idx_t r)
     triangle = (seq_t **)realloc(triangle, (size_t)(r + 1) * sizeof(seq_t *));
     for (idx_t i = triangle_rows; i <= r; ++i) {
         size_t len   = 2 * i + 2;            /* number of coefficients in row i */
-        seq_t *row   = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row   = mem_new(seq_t, len);
         for (size_t k = 0; k < len; ++k)
             row[k] = 0;
 

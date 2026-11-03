@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   modmul_seq
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   mulmod_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/modmul_seq.h"
+#include "../utils/mulmod_seq.h"
 
 /* Return true iff n has the required property: ∃s>0 with n(s)%n==0. */
 static bool has_property(seq_t n)
@@ -50,12 +51,12 @@ static bool has_property(seq_t n)
     seq_t pow10 = (seq_t)(10 % n);   /* 10^(1) mod n */
     for (idx_t s = 1; s <= n; ++s) {
         /* Update to 10^(s+1) mod n */
-        pow10 = modmul_seq(pow10, (seq_t)10, n);
+        pow10 = mulmod_seq(pow10, (seq_t)10, n);
 
         /* Compute n(s) modulo n by processing digits from left to right */
         seq_t val = (seq_t)0;
         for (unsigned int i = 0; i < len; ++i) {
-            val = modmul_seq(val, pow10, n);
+            val = mulmod_seq(val, pow10, n);
             val += (seq_t)digits[i];
             if (val >= n) val -= n;       /* equivalent to val% n */
         }

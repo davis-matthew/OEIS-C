@@ -12,6 +12,7 @@
  *            (e≥2)
  * Range:     i8 n <= 2562, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 91 terms through n = 9388 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,7 +24,7 @@
 
 #ifndef __cplusplus
 #define ALLOC_SEQ(n) ((seq_t*)malloc(sizeof(seq_t)*(n)))
-#define FREE_SEQ(p) free((void*)(p))
+#define FREE_SEQ(p) free((p))
 #else
 #define ALLOC_SEQ(n) new seq_t[(n)]
 #define FREE_SEQ(p) delete[](p)

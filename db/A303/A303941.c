@@ -13,7 +13,8 @@
  *            successive rows up to r using the recurrence
  * Range:     i8 n <= 8, i16 n <= 25, i32 n <= 48, i64 n <= 48, i128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(n)) for unsigned 64‑bit n. */
 static idx_t floor_sqrt_u64(idx_t n) {
@@ -67,7 +69,7 @@ seq_t a(idx_t n) {
 
     for (idx_t i = 0; i <= r; ++i) {
         size_t len = i / 2 + 1;
-        seq_t *cur = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, len);
         if (!cur)
             return (seq_t)0;           /* safety: memory allocation failed */
 
@@ -85,7 +87,7 @@ seq_t a(idx_t n) {
         }
 
         /* Shift rows for next iteration */
-        free(row_prev2);
+        mem_free(row_prev2);
         row_prev2 = row_prev1;
         len_prev2 = len_prev1;
         row_prev1 = cur;
@@ -93,6 +95,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = row_prev1[k];
-    free(row_prev1);
+    mem_free(row_prev1);
     return result;
 }

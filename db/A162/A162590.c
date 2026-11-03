@@ -8,14 +8,16 @@
  * Formula:   a(n) = 0 if (r-i) is even, otherwise C(r,i) where r =
  *            floor((sqrt(1+8*n)-1)/2) is the row index and i = n - r*(r+1)/2
  *            is the column index in that row
- * Range:     u8 n <= 48, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
+ * Range:     u8 n <= 69, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 75, u64 n <= 975,
  *            u128 n <= 9999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 9293 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Denominator coefficients D[0..24] (D[0] = 1).  Only D[1]..D[24] are used in
    the recurrence. */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     /* Lazy allocation and initialization. */
     if (cap == 0) {
         cap   = 1;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = 0;   /* a(0) = 0 */
         len    = 1;
     }
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t new_cap = cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap   = new_cap;
     }
 

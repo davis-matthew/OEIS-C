@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 23, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * a(n) is the triangle read row‑wise starting at n = 3.  */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **table = NULL;    /* table[r] -> array of T(r,k), k = 0 … r   */
 static size_t table_cap      = 0; /* capacity of the table array            */
@@ -43,7 +45,7 @@ static void ensure_row(size_t r)
         /* allocate space for row 'cur' (indices 0 … cur) */
         seq_t *row;
 #ifdef __cplusplus
-        row = (seq_t*)malloc((cur + 1) * sizeof(seq_t));
+        row = mem_new(seq_t, (cur + 1));
 #else
         row = malloc((cur + 1) * sizeof(seq_t));
 #endif

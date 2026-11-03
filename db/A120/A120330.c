@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   ensure_cap_u64
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ensure_cap_u64.h"
+#include "../utils/mem.h"
+
+static void ensure_cap_u64(uint64_t **buf, size_t *len, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t newcap = (*cap == 0) ? 128 : *cap * 2;
+        while (newcap < need) newcap *= 2;
+        *buf = (uint64_t*)realloc(*buf, newcap * sizeof(uint64_t));
+        *cap = newcap;
+    }
+}
 
 static seq_t *seq = NULL;          /* cache of sequence terms          */
 static size_t seq_len = 0;         /* number of stored terms           */
@@ -37,7 +48,7 @@ static void ensure_cap(seq_t **buf, size_t *len, size_t *cap, size_t need)
     if (*cap < need) {
         size_t newcap = (*cap == 0) ? 128 : *cap * 2;
         while (newcap < need) newcap *= 2;
-        *buf = (seq_t*)realloc(*buf, newcap * sizeof(seq_t));
+        *buf = mem_resize(seq_t, *buf, newcap);
         *cap = newcap;
     }
 }

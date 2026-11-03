@@ -10,14 +10,31 @@
  *            all 2×3 row pairs
  * Range:     u8 none, u16 n <= 3, u32 n <= 10, u64 n <= 22, u128 n <= 47,
  *            big any n
- * Helpers:   subblock_stat
+ * Validated: standard, pass, 34 terms through n = 193 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/subblock_stat.h"
+
+/* Statistic of a 2×2 subblock: lower median + upper median – minimum. */
+static inline int subblock_stat(int tl,int tr,int bl,int br)
+{
+    int x[4] = {tl,tr,bl,br};
+    for (int p=1;p<4;++p){
+        int k=p;
+        while(k>0 && x[k-1]>x[k]){
+            int t=x[k];
+            x[k]=x[k-1];
+            x[k-1]=t;
+            --k;
+        }
+    }
+    return x[1]+x[2]-x[0];
+}
 
 static const int rows[27][3] = {
     {0,0,0},{0,0,1},{0,0,2},

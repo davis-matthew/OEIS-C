@@ -12,14 +12,16 @@
  *            m(m+1)/2 - 1 and a(n) = S(m,k)
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"    /* provides binomial(idx_t a, idx_t b) */
-#include "../utils/seq_pow.h"     /* provides seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     idx_t k = n - m * (m + 1) / 2 - 1;
 
     /* 4^k */
-    seq_t pow4k = seq_pow((seq_t)4, k);
+    seq_t pow4k = ipow_idx((seq_t)4, k);
 
     /* Binomial coefficient C(m,k) */
     seq_t bin = binomial(m, k);

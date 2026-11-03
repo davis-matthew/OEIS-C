@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 28, u128 n <= 28,
+ * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   catalan
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/catalan.h"   /* provides catalan(idx_t) */
+#include <stddef.h>
+#include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 static seq_t *cat_cache = NULL;   /* cached Catalan numbers          */
 static size_t   cat_cap   = 0;     /* allocated size for cat_cache    */
@@ -43,7 +46,7 @@ static void ensure_cat(idx_t n)
     if (cat_cap < need) {
         idx_t new_cap = cat_cap ? cat_cap * 2 : 16;
         while (new_cap < need) new_cap <<= 1;
-        cat_cache = (seq_t *)realloc(cat_cache, new_cap * sizeof(seq_t));
+        cat_cache = mem_resize(seq_t, cat_cache, new_cap);
         cat_cap = new_cap;
     }
 
@@ -67,7 +70,7 @@ static void ensure_a(idx_t n)
     if (a_cap < need) {
         idx_t new_cap = a_cap ? a_cap * 2 : 16;
         while (new_cap < need) new_cap <<= 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cap = new_cap;
     }
 

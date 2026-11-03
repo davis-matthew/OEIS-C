@@ -8,6 +8,7 @@
  * Formula:   a(n) = n^2 * (7 + 2*n^2 + 3*n^4) / 12
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /*               = 1*C(n,1) + 19*C(n,2) + 141*C(n,3) + 394*C(n,4)
  *                 + 450*C(n,5) + 180*C(n,6)                 */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t binom_small(idx_t n, idx_t k)

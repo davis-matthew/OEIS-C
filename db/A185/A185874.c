@@ -10,6 +10,7 @@
  *            n + k increasing, starting from s = 2
  * Range:     u8 n <= 8, u16 n <= 315, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 121 terms through n = 1275 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,7 +12,8 @@
  *            patterns are those with an even number of odd-length cycles...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 11, u64 n <= 15, u128 n <= 20,
  *            big any n
- * Helpers:   gcd_ll
+ * Validated: standard, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   gcd_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/gcd_ll.h"
+#include <stdbool.h>
+#include "../utils/gcd_i64.h"
 
 typedef struct { uint32_t *d; int len, cap; } bn_t;
 
@@ -128,7 +130,7 @@ static void rec(int rem, int maxk, long long N, int E, int O, int m1, int m2, in
     for (k = (maxk < rem ? maxk : rem); k >= 1; k--) {
         long long gs = 0;
         int j, m;
-        for (j = 0; j < depth; j++) gs += (long long)stM[j] * gcd_ll(k, stK[j]);
+        for (j = 0; j < depth; j++) gs += (long long)stM[j] * gcd_i64(k, stK[j]);
         bn_copy(&lv[lvl + 1], &lv[lvl]);
         for (m = 1; m * k <= rem; m++) {
             long long nN;

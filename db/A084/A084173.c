@@ -7,17 +7,20 @@
  * Formula:   a(n) = 2^(n+1) - (2*n+1)/2 - (-1)^n/2
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 47 terms through n = 893 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Compute 2^(n+1) using the big‑integer power helper. */
-    seq_t power = big_pow((seq_t)2, (seq_t)(n + 1));
+    seq_t power = ipow((seq_t)2, (seq_t)(n + 1));
 
     /* Compute the small subtraction term:
        (2*n + 1 + (-1)^n) / 2

@@ -10,13 +10,15 @@
  *            3k+1). * The sequence is read row‑by‑row; for a given n ≥ 1: * -
  *            determine row r such that the cumulative number of terms before
  *            * row r is less than n and including row r is...
- * Range:     u8 n <= 14, u16 n <= 48, u32 n <= 50, u64 n <= 50, u128 n <= 50,
+ * Range:     u8 n <= 22, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

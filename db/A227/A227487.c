@@ -9,12 +9,14 @@
  *            -6011+2^n*(-111166-5960*n+7000*n^2)+4^n*(151432-35200*n+40000*n^2)
  * Range:     u8 none, u16 n <= 0, u32 n <= 5, u64 n <= 19, u128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

@@ -8,8 +8,9 @@
  * Formula:   a(n) = T(r,k) where r and k satisfy n-3 = (r-3)(r-2)/2 + (k-1)
  *            (with r >= 3, 1 <= k <= r-2) and T(r,k) = 4 * binomial(r+1, k+3)
  *            * binomial(r+1, k-1) / (r+1)
- * Range:     u8 n <= 12, u16 n <= 42, u32 n <= 51, u64 n <= 51, u128 n <= 51,
+ * Range:     u8 n <= 14, u16 n <= 42, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
+ * Validated: partial, pass, 49 terms through n = 51 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

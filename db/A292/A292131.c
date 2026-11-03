@@ -12,6 +12,7 @@
  *            truncated to the first i factors because high...
  * Range:     i8 n <= 83, i16 n <= 312, i32 n <= 1357, i64 n <= 6859,
  *            i128 n <= 9869, big any n
+ * Validated: standard, pass, 89 terms through n = 9427 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

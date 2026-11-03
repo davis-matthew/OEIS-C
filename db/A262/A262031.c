@@ -12,13 +12,16 @@
  *            in lowest terms. The implementation caches intermedi...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *num_cache = NULL;   /* numerator of s(k) for each k */
 static seq_t *den_cache = NULL;   /* denominator of s(k) for each k */
@@ -32,8 +35,8 @@ static void ensure_cache(idx_t n)
     size_t new_size = (n + 1) * 2;                       /* exponential growth */
     if (new_size == 0) new_size = 1;                     /* for n == UINT64_MAX */
 
-    seq_t *new_num = (seq_t*)realloc(num_cache, new_size * sizeof(seq_t));
-    seq_t *new_den = (seq_t*)realloc(den_cache, new_size * sizeof(seq_t));
+    seq_t *new_num = mem_resize(seq_t, num_cache, new_size);
+    seq_t *new_den = mem_resize(seq_t, den_cache, new_size);
     if (!new_num || !new_den) {
         /* allocation failed; terminate as the sequence cannot be produced */
         exit(1);

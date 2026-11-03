@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  *        0, 5, or 20 modulo 25 (i.e. 25k, 25k+5, 25k-5). */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static table holding partition counts up to the highest n
  * computed during this process. */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         return dp[n];
 
     /* Allocate a new table large enough for the new maximum. */
-    seq_t *new_dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, (n + 1));
     if (new_dp == NULL) {
         /* Out of memory – abort in a predictable way. */
         abort();
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     }
 
     /* Replace the old table by the new one. */
-    free(dp);
+    mem_free(dp);
     dp = new_dp;
     current_max_n = n;
 

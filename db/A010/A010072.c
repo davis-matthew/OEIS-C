@@ -7,7 +7,8 @@
  * Formula:   a(n+1) = a(n) + sum of the digits of a(n) in base 9
  * Range:     u8 n <= 29, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence A010072 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of the sequence where a(0)=1 and
    a(n+1) = a(n) + sum of the base‑9 digits of a(n).  The
@@ -35,12 +37,12 @@ seq_t a(idx_t n)
 
     /* Allocate or grow the cache as needed */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(target_size * sizeof(seq_t));
+        cache = mem_new(seq_t, target_size);
         if (!cache) return (seq_t)0;          /* out of memory – unlikely in tests */
         alloc_size = target_size;
         cache_size  = 0;
     } else if (target_size > alloc_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, target_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, target_size);
         if (!tmp) return (seq_t)0;            /* realloc failed */
         cache   = tmp;
         alloc_size = target_size;

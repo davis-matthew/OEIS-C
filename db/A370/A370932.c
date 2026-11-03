@@ -8,8 +8,9 @@
  * Keywords:  nonn, look, base
  * Formula:   a(n) = Σ_{i>=0} ( ( Σ_{j>=0} (-1)^j * t_{i+j} ) mod 3 ) * 3^i
  *            where t_i are the base‑3 digits of n (t_0 least significant)
- * Range:     u8 n <= 242, u16 n <= 9959, u32 n <= 9959, u64 n <= 9959,
- *            u128 n <= 9959, big any n
+ * Range:     u8 n <= 242, u16 n <= 19682, u32 n <= 19682, u64 n <= 19682,
+ *            u128 n <= 19682, big any n
+ * Validated: standard, pass, 84 terms through n = 9959 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

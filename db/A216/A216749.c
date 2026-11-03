@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, mod_pow, next_prime
+ * Validated: standard, pass, 76 terms through n = 985 (2026-11-03)
+ * Helpers:   gcd, mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,12 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
 #include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static idx_t processed_index = 0;          /* number of primes already tested */
 static idx_t seed_prime = 3;                /* last prime tested (starting before 5) */
@@ -45,7 +49,7 @@ static void ensure_result_capacity(size_t need)
     size_t new_cap = result_cap ? result_cap << 1 : 16;
     if (new_cap < need)
         new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(result_list, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, result_list, new_cap);
     if (!tmp) {
         /* Allocation failure – abort the program. */
         exit(1);
@@ -83,7 +87,7 @@ seq_t a(idx_t n)
         seq_t exp = m1 / g;
         seq_t base = p - 2;   /* -2 modulo p */
 
-        seq_t r = mod_pow(base, (uint64_t)exp, p);
+        seq_t r = powmod(base, (uint64_t)exp, p);
         if (r != 1) {
             append_result(p);
         }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{p|n, p prime} p^10
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 88, u128 n <= 7150,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 9269 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

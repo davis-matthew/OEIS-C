@@ -8,15 +8,29 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 7284, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, largest_digit
+ * Validated: standard, pass, 73 terms through n = 9932 (2026-11-01)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Search: return the nth integer (1‑indexed) whose largest digit equals its digital root. */
 
-#include "../utils/largest_digit.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+
+/* Helper to obtain the largest decimal digit of a seq_t value. */
+static inline seq_t largest_digit(seq_t v)
+{
+    seq_t dmax = 0;
+    while (v != 0) {
+        seq_t d = v % 10;
+        if (d > dmax) dmax = d;
+        v /= 10;
+    }
+    return dmax;
+}
 
 /* Compute the digital root of x.  For x == 0 this returns 0; otherwise it
    repeatedly sums the digits until a single decimal digit remains.  */

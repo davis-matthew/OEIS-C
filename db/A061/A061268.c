@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   digit_sum_prod
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/digit_sum_prod.h"
+#include "../utils/mem.h"
+
+/* Compute the digit sum and product of an unsigned __int128 number.
+   The product may be 0 if the original number is 0. */
+static inline void digit_sum_prod(unsigned __int128 n,
+                                  unsigned __int128 *sum,
+                                  unsigned __int128 *prod)
+{
+    *sum = 0;
+    *prod = 1;
+    if (n == 0) { *sum = 0; *prod = 0; return; }
+    while (n > 0)
+    {
+        unsigned int d = (unsigned int)(n % 10);
+        *sum += d;
+        *prod *= d;
+        n /= 10;
+    }
+}
 
 /* Integer square root for unsigned __int128.
    Returns floor(sqrt(x)). */
@@ -73,9 +92,9 @@ seq_t a(idx_t n)
         if (size == cap)
         {
             cap = (cap == 0 ? 16 : cap * 2);
-            seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cap);
             if (!tmp) { /* allocation failed – abort gracefully */
-                free(cache);
+                mem_free(cache);
                 size = 0;
                 cap = 0;
                 return (seq_t)0;

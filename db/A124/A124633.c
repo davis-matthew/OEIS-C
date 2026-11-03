@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   mul_small
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 /          ((1-x)^2·(1-x^2)^3·(1-x^3)^3·(1-x^4)) */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* Numerator coefficients: P[n] = coeff of x^n in numerator  (degree 12) */
 static const int P[13] = {
@@ -77,7 +91,7 @@ static void ensure_cache(idx_t needed)
 
     if (cache_cap < (size_t)(needed + 1)) {
         size_t new_cap = (needed + 1) * 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;
@@ -114,7 +128,7 @@ seq_t a(idx_t n)
 {
     if (cache == NULL) {
         cache_cap = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();
         cache[0] = (seq_t)P[0];   /* a(0) = 1 */
         max_computed = 0;

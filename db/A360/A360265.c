@@ -10,13 +10,15 @@
  *            k(k+1)/2 ≥ n, then a(n) = k + a(k(k+1)/2 – n)
  * Range:     u8 n <= 70, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9518 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* stored values a(i) */
 static bool *computed = NULL;   /* computed[i] == true if a(i) is stored */
@@ -27,14 +29,14 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold index n */
     if ((size_t)n > cap) {
         size_t new_cap = (size_t)n + 1;              /* array size */
-        seq_t *new_cache   = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache   = mem_new(seq_t, new_cap);
         bool *new_computed = (bool  *)malloc(new_cap * sizeof(bool));
         if (cache) {
             for (size_t i = 0; i <= cap; ++i) {
                 new_cache[i]   = cache[i];
                 new_computed[i] = computed[i];
             }
-            free(cache);
+            mem_free(cache);
             free(computed);
         }
         /* initialise the new slots */

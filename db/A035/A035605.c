@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{i=0}^{min(n,11)} binom(n,i) * binom(n+10-i, 11-i)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 18, u64 n <= 138, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 999 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

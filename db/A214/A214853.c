@@ -8,7 +8,8 @@
  *            its binary representation (0 itself counts as having one 0)
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   one_zero_binary
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,26 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/one_zero_binary.h"
+#include "../utils/mem.h"
+
+/* Helper to test whether a binary representation of x contains exactly one 0 */
+static inline bool one_zero_binary(seq_t x)
+{
+    if (x == 0)
+        return true;               /* 0 is represented as a single 0 */
+
+    unsigned zeros = 0;
+    seq_t y = x;
+    /* Count zeros up to the most significant set bit */
+    while (y != 0) {
+        if ((y & 1) == 0)
+            ++zeros;
+        if (zeros > 1)
+            return false;           /* early exit */
+        y >>= 1;
+    }
+    return zeros == 1;
+}
 
 /* Forward declaration of the fib function provided by the kernel */
 extern seq_t fib(idx_t n);
@@ -42,7 +62,7 @@ static void append_term(seq_t val)
     if (terms_len == terms_cap) {
         /* double capacity on growth */
         size_t new_cap = terms_cap ? terms_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();                 /* insufficient memory */
         terms      = tmp;
         terms_cap  = new_cap;

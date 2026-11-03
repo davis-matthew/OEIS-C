@@ -11,17 +11,43 @@
  *            division-free product A(x) = x*Prod_{k>=1} (1-x^k)^(-b(k...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 30, u128 n <= 56,
  *            big any n
- * Helpers:   alloc_zero, gcd_v, grow_zero, seq_is_big
+ * Validated: standard, pass, 42 terms through n = 1192 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/grow_zero.h"
-#include "../utils/seq_is_big.h"
-#include "../utils/gcd_v.h"
+#include <string.h>
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
 
 /* ---------- arbitrary precision path ---------- */
 static seq_t *bA = NULL, *bB = NULL, *bS = NULL, *bC = NULL;
@@ -82,7 +108,7 @@ static void fixed_init(void) {
         idx_t jmax = N / k;
         seq_t mval = 1;
         for (idx_t i = 1; i <= jmax; i++) {
-            seq_t g = gcd_v(mval, (seq_t)i);
+            seq_t g = gcd(mval, (seq_t)i);
             mval = (mval / g) * ((bk + (seq_t)(i - 1)) / ((seq_t)i / g));
             bin[i] = mval;
         }
@@ -92,9 +118,9 @@ static void fixed_init(void) {
             P[t] += add;
         }
     }
-    free(P);
-    free(B);
-    free(bin);
+    mem_free(P);
+    mem_free(B);
+    mem_free(bin);
 }
 
 seq_t a(idx_t n) {

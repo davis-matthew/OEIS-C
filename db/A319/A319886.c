@@ -12,6 +12,7 @@
  *            378, a(11) = 258, a(12) = -930, a(13) = -915 Thi...
  * Range:     i8 n <= 8, i16 n <= 41, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 57 terms through n = 964 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

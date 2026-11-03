@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true if the 128‑bit unsigned value v has no consecutive equal
    decimal digits. 0 is accepted. */
@@ -41,7 +43,7 @@ static void ensure_cache_cap(size_t need, seq_t **cache, size_t *cap)
     if (*cap < need) {
         size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
         if (new_cap < need) new_cap = need;
-        *cache = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+        *cache = mem_resize(seq_t, *cache, new_cap);
         *cap = new_cap;
     }
 }

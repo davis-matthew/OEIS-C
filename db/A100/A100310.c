@@ -6,15 +6,16 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = Sum_{k=0..n} (binomial(n,k) mod 2) * 7^k Simplified: a(n)
  *            = ∏_{i: bit i of n set} (1 + 7^(2^i))
- * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 19, u128 n <= 19,
+ * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 36 terms through n = 971 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
     while (m) {
         if (m & 1ULL) {
             /* Compute 7^(2^bit) */
-            seq_t p = pow_seq((seq_t)7, ((idx_t)1 << bit));
+            seq_t p = ipow_idx((seq_t)7, ((idx_t)1 << bit));
             result *= (seq_t)1 + p;
         }
         m >>= 1;

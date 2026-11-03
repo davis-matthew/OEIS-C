@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has24oct
+ * Validated: standard, pass, 57 terms through n = 826 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
    the substring "24" but n-1 does not. */
 
 #include <stdbool.h>
-#include "../utils/has24oct.h"
+
+/* Check whether a non‑negative integer x has the consecutive octal digits 2 and 4. */
+static bool has24oct(seq_t x)
+{
+    if (x == 0) return false;
+    int prev = -1;
+    while (x > 0) {
+        int cur = (int)(x % 8);   /* least‑significant octal digit */
+        if (prev == 4 && cur == 2) /* pattern 2 (more significant), 4 (less significant) */
+            return true;
+        prev = cur;
+        x /= 8;
+    }
+    return false;
+}
 
 /* Return the nth term of A044207 (offset 1). */
 seq_t a(idx_t n)

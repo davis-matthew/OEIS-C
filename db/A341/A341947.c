@@ -11,7 +11,8 @@
  *            value in seq_t. (Storing primes up to n lazily and...
  * Range:     u8 n <= 127, u16 n <= 1613, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -72,10 +74,10 @@ seq_t a(idx_t n)
        ------------------------------------------------------------ */
     seq_t *dp[5];
     for (int k = 0; k <= 4; ++k) {
-        dp[k] = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        dp[k] = mem_new(seq_t, (size_t)(n + 1));
         if (!dp[k]) {
             for (int t = 0; t < k; ++t)
-                free(dp[t]);
+                mem_free(dp[t]);
             return (seq_t)0;
         }
     }
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
 
     /* free DP memory */
     for (int k = 0; k <= 4; ++k)
-        free(dp[k]);
+        mem_free(dp[k]);
 
     return result;
 }

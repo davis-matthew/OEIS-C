@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_vals   = NULL; /* cached values a(n)   */
 static size_t   a_cap   = 0;    /* allocated size for a_vals   */
@@ -34,7 +36,7 @@ static void ensure_a_size(idx_t n)
 {
     if (a_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_ptr = (seq_t*)realloc(a_vals, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, a_vals, new_cap);
         if (!new_ptr) exit(EXIT_FAILURE);
         a_vals = new_ptr;
         a_cap  = new_cap;
@@ -46,7 +48,7 @@ static void ensure_t_size(idx_t n)
 {
     if (t_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_ptr = (seq_t*)realloc(t_vals, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, t_vals, new_cap);
         if (!new_ptr) exit(EXIT_FAILURE);
 
         /* If this is the first allocation, or we are expanding */

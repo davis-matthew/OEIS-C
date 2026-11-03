@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 27, u64 n <= 58, u128 n <= 121,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 473 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     static idx_t pow2_len = 0;
 
     if (pow2_len == 0) {
-        pow2 = (seq_t*)malloc(sizeof(seq_t));
+        pow2 = mem_new(seq_t, 1);
         pow2[0] = (seq_t)1;      /* 2^0 */
         pow2_len = 1;
     }
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     while (pow2_len <= e) {
         seq_t next = pow2[pow2_len - 1];   /* previous power of two */
         next = next << 1;                  /* multiply by 2 */
-        pow2 = (seq_t*)realloc(pow2, (pow2_len + 1) * sizeof(seq_t));
+        pow2 = mem_resize(seq_t, pow2, (pow2_len + 1));
         pow2[pow2_len] = next;
         pow2_len++;
     }

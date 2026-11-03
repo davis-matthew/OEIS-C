@@ -7,11 +7,13 @@
  * Formula:   a(n) = Sum_{k = 1..n} (n/gcd(k, n))^4
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 88, u64 n <= 7150,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 49 terms through n = 9422 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

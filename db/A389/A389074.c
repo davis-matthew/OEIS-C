@@ -8,8 +8,9 @@
  * Keywords:  nonn, frac
  * Formula:   a(n) = numerator of ( Π_{p^e‖n} (1+p^e) ) / ( Π_{p‖n} (1+p) )
  *            after full cancellation
- * Range:     u8 n <= 255, u16 n <= 9843, u32 n <= 9843, u64 n <= 9843,
- *            u128 n <= 9843, big any n
+ * Range:     u8 n <= 255, u16 n <= 65535, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 9843 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

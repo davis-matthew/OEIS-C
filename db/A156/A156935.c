@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 11, i64 n <= 19, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
           + 17296*a(n-5) - 33460*a(n-6) + 45984*a(n-7) - 44663*a(n-8)
           + 29976*a(n-9) - 13230*a(n-10) + 3456*a(n-11) - 405*a(n-12). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first 12 terms if not already done. */
     if (cache == NULL) {
         cache_size = 12;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (size_t i = 0; i < cache_size; ++i)
             cache[i] = init[i];
     }
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
             sum += coeff[j] * cache[cache_size - 1 - j];
         }
         /* Grow the cache array. */
-        seq_t *tmp = (seq_t *)realloc(cache, (cache_size + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (cache_size + 1));
         if (tmp == NULL) {  /* allocation failure – abort */
             /* In a real library we should handle this properly. */
             return 0;

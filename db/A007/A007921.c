@@ -9,20 +9,21 @@
  *            conjecturally always differences of primes)
  * Range:     u8 n <= 74, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a007921_isprime
+ * Validated: standard, pass, 70 terms through n = 9349 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/a007921_isprime.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     idx_t count = 0;
     uint64_t k = 1;
     for (;;) {
-        if (!a007921_isprime(k + 2)) {
+        if (!is_prime_u64(k + 2)) {
             count++;
             if (count == n) break;
         }

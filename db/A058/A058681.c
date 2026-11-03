@@ -9,7 +9,8 @@
  *            sum_{k=0..m} C(m,k)*B(k)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 41,
  *            big any n
- * Helpers:   binomial, pow2
+ * Validated: standard, pass, 41 terms through n = 99 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *bell = NULL;       /* array of Bell numbers B[0..] */
 static size_t bell_len = 0;      /* number of computed B values (next free index) */
@@ -30,7 +33,7 @@ static void ensure_bell_capacity(size_t needed)
     if (needed <= bell_cap) return;
     size_t newcap = bell_cap ? bell_cap << 1 : 8;
     while (newcap < needed) newcap <<= 1;
-    seq_t *newptr = (seq_t*)realloc(bell, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, bell, newcap);
     assert(newptr); /* abort on allocation failure */
     bell = newptr;
     bell_cap = newcap;
@@ -42,7 +45,7 @@ static void compute_bell_up_to(idx_t idx)
     if (idx < (idx_t)bell_len) return;            /* already computed */
     if (bell == NULL) {                           /* first time */
         bell_cap = 8;
-        bell = (seq_t*)malloc(bell_cap * sizeof(seq_t));
+        bell = mem_new(seq_t, bell_cap);
         assert(bell);
         bell_len = 0;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  * requested, making repeated calls with arbitrary ordering efficient.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static size_t _cache_size = 0;    /* number of terms already in cache */
 static size_t _cache_cap  = 0;    /* allocated capacity of the cache          */
@@ -43,13 +45,13 @@ _ensure(idx_t n)
     /* grow the cache if needed */
     if (_cache_cap == 0) {
         _cache_cap = 1;
-        _p_cache = (seq_t*)malloc(sizeof(seq_t) * _cache_cap);
-        _q_cache = (seq_t*)malloc(sizeof(seq_t) * _cache_cap);
+        _p_cache = mem_new(seq_t, _cache_cap);
+        _q_cache = mem_new(seq_t, _cache_cap);
     }
     while (_cache_cap < (size_t)n) {
         size_t new_cap = _cache_cap * 2;
-        _p_cache = (seq_t*)realloc(_p_cache, sizeof(seq_t) * new_cap);
-        _q_cache = (seq_t*)realloc(_q_cache, sizeof(seq_t) * new_cap);
+        _p_cache = mem_resize(seq_t, _p_cache, new_cap);
+        _q_cache = mem_resize(seq_t, _q_cache, new_cap);
         _cache_cap = new_cap;
     }
 

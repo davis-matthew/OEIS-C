@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 692, u16 n <= 704, u32 n <= 704, u64 n <= 704,
  *            u128 n <= 704, big any n
- * Helpers:   max_index
+ * Validated: standard, pass, 84 terms through n = 613 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/max_index.h"
+
+/* binary search for largest index k such that g_log[..][k] < n. */
+static size_t max_index(const double *log_arr, size_t cnt, double n)
+{
+    size_t lo = 1, hi = cnt, best = 0;
+    while (lo <= hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (log_arr[mid] < n - 1e-12) {
+            best = mid;
+            lo = mid + 1;
+        } else {
+            if (mid == 0) break;
+            hi = mid - 1;
+        }
+    }
+    return best;
+}
 
 static uint32_t *g_primes_all = NULL;    /* primes in ascending order */
 static size_t    g_prime_cnt   = 0;       /* total number of primes */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 3737, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom_exponent
+ * Validated: standard, pass, 63 terms through n = 9933 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/binom_exponent.h"
+
+/* Exponent of prime p in the central binomial coefficient C(2k,k). */
+static idx_t binom_exponent(idx_t k, idx_t p)
+{
+    idx_t v = 0;
+    idx_t power = p;
+    idx_t twok = 2 * k;
+    while (power <= twok) {
+        v += twok / power - 2 * (k / power);
+        if (power > twok / p) break;          /* avoid overflow */
+        power *= p;
+    }
+    return v;
+}
 
 #define MAX_PRIME 2000000               /* upper bound for pre‑computed primes */
 static bool is_composite[MAX_PRIME + 1];

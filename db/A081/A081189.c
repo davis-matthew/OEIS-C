@@ -7,12 +7,14 @@
  * Formula:   a(n) = 14*a(n-1) - 48*a(n-2), a(0)=1, a(1)=7
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* dynamically resized memoisation table */
 static idx_t cache_size = 0;    /* number of elements currently stored in cache */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         /* new size: at least 2, otherwise n+1 */
         idx_t new_size = n + 1;
         if (new_size < 2) new_size = 2;
-        cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         /* initialise new slots */
         for (idx_t i = cache_size; i < new_size; ++i) {
             if (i == 0) {

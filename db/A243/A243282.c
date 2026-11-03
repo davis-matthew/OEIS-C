@@ -8,7 +8,8 @@
  *            | k (k ≥ 2)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   largest_prime_divisor
+ * Validated: standard, pass, 97 terms through n = 943 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/largest_prime_divisor.h"
+#include "../utils/mem.h"
+
+/* Return the largest prime divisor of m (m >= 2). */
+static uint64_t largest_prime_divisor(uint64_t m)
+{
+    uint64_t largest = 0;
+    /* factor 2 */
+    while ((m & 1ULL) == 0) {
+        largest = 2;
+        m >>= 1;
+    }
+    /* odd factors */
+    for (uint64_t f = 3; f <= m / f; f += 2) {
+        if (m % f == 0) {
+            largest = f;
+            while (m % f == 0)
+                m /= f;
+        }
+    }
+    if (m > 1)            /* remaining m is prime */
+        largest = m;
+    return largest;
+}
 
 seq_t a(idx_t n) {
     /* static cache of partial sums */
@@ -29,7 +52,7 @@ seq_t a(idx_t n) {
     /* initialise cache on first call */
     if (!cum) {
         capacity = 2;                 /* at least indices 0 .. 1 */
-        cum = (seq_t*)calloc(capacity, sizeof(seq_t));
+        cum = mem_new(seq_t, capacity);
         if (!cum) return 0;           /* allocation failure → 0 (not expected) */
         cum[0] = 0;                   /* not used but keeps indices aligned */
         cum[1] = 0;                   /* a(1) = 0 */
@@ -39,7 +62,7 @@ seq_t a(idx_t n) {
     /* extend capacity if necessary */
     if (n >= capacity) {
         while (capacity <= n) capacity <<= 1;  /* double until enough */
-        seq_t *tmp = (seq_t*)realloc(cum, capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cum, capacity);
         if (!tmp) return 0;               /* allocation failure → 0 (not expected) */
         cum = tmp;
     }

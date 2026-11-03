@@ -8,14 +8,16 @@
  * Formula:   a(n) = numerator of Σ_{d=1}^{n-1} 6^(n-d) / d
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     seq_t den = 1;
 
     /* start with 6^(n-1) */
-    seq_t pow = big_pow((seq_t)6, (seq_t)(n - 1));
+    seq_t pow = ipow((seq_t)6, (seq_t)(n - 1));
 
     for (idx_t d = 1; d <= n - 1; ++d)
     {

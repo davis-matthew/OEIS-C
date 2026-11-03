@@ -9,12 +9,14 @@
  *            2, a(2) = 2, a(3) = 1
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 46, u64 n <= 92, u128 n <= 185,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 1961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function returns the n‑th term of OEIS A295691.
    It uses a growing static cache so that any order of
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* initial cache with the first four terms */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(4 * sizeof(seq_t));
+        cache = mem_new(seq_t, 4);
         if (cache == NULL) abort();          /* allocation failure */
 
         cache[0] = 2;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     }
 
     /* grow the cache to accommodate indices up to n */
-    cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (n + 1));
     if (cache == NULL) abort();              /* allocation failure */
 
     /* compute and store new terms using the recurrence */

@@ -9,7 +9,8 @@
  * Formula:   a(n) = 3*a(n-1) + a(n-2) + a(n-3) with a(1)=0, a(2)=2, a(3)=6
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 37, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,13 +33,13 @@ seq_t a(idx_t n)
     if (cache_size < n)
     {
         size_t new_size = (size_t)n;
-        seq_t *tmp = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_size);
         if (!tmp)
             exit(1);   /* allocation failed */
 
         /* copy existing terms */
         if (cache)
-            memcpy(tmp, cache, (size_t)cache_size * sizeof(seq_t));
+            mem_copy(tmp, cache, (size_t)cache_size * sizeof(seq_t));
 
         /* compute missing terms */
         for (idx_t i = cache_size; i < n; ++i)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         }
 
         /* free old cache */
-        free(cache);
+        mem_free(cache);
         cache = tmp;
         cache_size = n;
     }

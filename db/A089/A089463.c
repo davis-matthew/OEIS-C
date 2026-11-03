@@ -12,13 +12,17 @@
  *            OEIS entry A089463
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 54, u64 n <= 135, u128 n <= 377,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 62 terms through n = 1205 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +43,7 @@ seq_t a(idx_t n)
     seq_t bin   = binomial(r, c);
     seq_t base  = (seq_t)(r - c + 3);
     seq_t exp   = (seq_t)(r - c - 1);        /* >= 0 because c < r */
-    seq_t pow_  = big_pow(base, exp);
+    seq_t pow_  = ipow(base, exp);
     seq_t result = (seq_t)3 * pow_;
     result *= bin;
     return result;

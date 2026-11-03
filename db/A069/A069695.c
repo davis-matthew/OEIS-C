@@ -10,7 +10,8 @@
  *            T(0)=0
  * Range:     u8 n <= 16, u16 n <= 18, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   interior_all_threes
+ * Validated: full, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,35 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/interior_all_threes.h"
+#include "../utils/mem.h"
+
+/* Check that all internal digits of x are 3.  Numbers with
+   fewer than three digits are accepted automatically. */
+static bool interior_all_threes(seq_t x)
+{
+    if (x == 0)
+        return true;
+
+    /* Temporary buffer holds the decimal digits (least significant first). */
+    uint8_t buf[40];          /* enough for 128‑bit numbers. */
+    size_t len = 0;
+    seq_t tmp = x;
+    while (tmp != 0) {
+        buf[len++] = (uint8_t)(tmp % 10);
+        tmp /= 10;
+    }
+
+    /* If fewer than 3 digits, the number is acceptable. */
+    if (len < 3)
+        return true;
+
+    /* Check interior digits: indices 1 .. len-2. */
+    for (size_t i = 1; i + 1 < len; ++i)
+        if (buf[i] != 3)
+            return false;
+
+    return true;
+}
 
 /* Cached sequence of accepted triangular numbers. */
 static seq_t *cache      = NULL;
@@ -29,7 +58,7 @@ static void cache_append(seq_t val)
 {
     if (cache_sz >= cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
-        seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
         if (!new_arr)
             abort();   /* fatal allocation failure */
         cache = new_arr;

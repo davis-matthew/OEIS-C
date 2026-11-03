@@ -11,13 +11,15 @@
  *            the OEIS definition of A015993
  * Range:     u8 none, u16 none, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline seq_t rev(seq_t x)
 {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             /* grow array if needed */
             if (memo_len == memo_cap) {
                 size_t new_cap = memo_cap ? memo_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, memo, new_cap);
                 if (!tmp) abort();          /* out of memory */
                 memo = tmp;
                 memo_cap = new_cap;

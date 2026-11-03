@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow, seq_cmp, seq_from_str, seq_realloc
+ * Validated: standard, pass, 62 terms through n = 983 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,11 +21,41 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t) */
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t, uint64_t, seq_t) */
-#include "../utils/seq_realloc.h"/* seq_t *seq_realloc(seq_t*, size_t, size_t) */
-#include "../utils/seq_cmp.h"     /* int seq_cmp(const void*, const void*) */
-#include "../utils/seq_from_str.h"/* seq_t seq_from_str(const char*) */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 /* --- Cached sequence storage -------------------------------------------- */
 
@@ -87,7 +118,7 @@ a(idx_t n)
 
             /* Legendre symbol (71|cand) = 1  <=>  71^((cand-1)/2) ≡ 1 (mod cand). */
             uint64_t exp = (cand - 1) / 2;
-            seq_t leg = mod_pow(71ULL, exp, cand);
+            seq_t leg = powmod(71ULL, exp, cand);
 
             /* Compare result with 1. */
             seq_t one = seq_from_str("1");

@@ -12,7 +12,8 @@
  *            semiprime
  * Range:     u8 n <= 36, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------ dynamic arrays utilities ------------- */
 static void ensure_cap(idx_t *cap, seq_t **arr, idx_t need)
@@ -27,8 +29,7 @@ static void ensure_cap(idx_t *cap, seq_t **arr, idx_t need)
     if (*cap < need) {
         idx_t newcap = (*cap == 0) ? 8 : (*cap << 1);
         while (newcap < need) newcap <<= 1;
-        *arr = (seq_t*)realloc(*arr,
-                               (size_t)newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, (size_t)newcap);
         *cap = newcap;
     }
 }

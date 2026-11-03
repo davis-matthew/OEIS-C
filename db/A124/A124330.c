@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 91, u16 n <= 9294, u32 n <= 9294, u64 n <= 9294,
- *            u128 n <= 9294, big any n
- * Helpers:   factor_and_phi, seq_gcd
+ * Range:     u8 n <= 91, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 107 terms through n = 9294 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,34 @@
    feasible with a small performance penalty. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_gcd.h"
-#include "../utils/factor_and_phi.h"
+#include "../utils/gcd.h"
+
+/* Helper: trial division factorisation of n into prime powers.
+   Computes d(n) and φ(n).  All intermediate results fit in seq_t. */
+static void
+factor_and_phi(idx_t n, seq_t *d_out, seq_t *phi_out)
+{
+    seq_t d     = (seq_t)1;
+    seq_t phi   = (seq_t)n;
+    uint64_t tmp = n;
+    for (uint64_t p = 2; p <= tmp / p; ++p) {
+        if (tmp % p == 0) {
+            uint64_t exp = 0;
+            while (tmp % p == 0) {
+                tmp /= p;
+                ++exp;
+            }
+            d     = d * (seq_t)(exp + 1);
+            phi   = (phi / (seq_t)p) * (seq_t)(p - 1);
+        }
+    }
+    if (tmp > 1) {                     /* remaining prime factor */
+        d     = d * (seq_t)2;
+        phi   = (phi / (seq_t)tmp) * (seq_t)(tmp - 1);
+    }
+    *d_out   = d;
+    *phi_out = phi;
+}
 
 seq_t a(idx_t n)
 {
@@ -43,7 +70,7 @@ seq_t a(idx_t n)
     idx_t count = 0;
     seq_t ans   = (seq_t)0;
     for (idx_t i = 1; i <= n; ++i) {
-        if (seq_gcd((seq_t)i, (seq_t)n) == (seq_t)1) {
+        if (gcd((seq_t)i, (seq_t)n) == (seq_t)1) {
             ++count;
             if (count == k) {
                 ans = (seq_t)i;

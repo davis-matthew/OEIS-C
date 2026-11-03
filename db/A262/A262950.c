@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 129, u32 n <= 390, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static storage for partition numbers up to the largest n-1 computed so far. */
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     /* Ensure the table is large enough and recompute if we have not yet seen this m. */
     if (m >= dp_size) {
         /* Allocate a new array of size m+1. */
-        seq_t *tmp = (seq_t *)realloc(dp, (m + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (m + 1));
         if (tmp == NULL) return 0;          /* allocation failed */
         dp = tmp;
         dp_size = m + 1;

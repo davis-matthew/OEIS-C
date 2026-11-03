@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 27, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,9 @@
         c = n - r*(r+1)/2.
  */
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,12 +44,12 @@ seq_t a(idx_t n)
     }
 
     /* Allocate and build rows up to r. */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t) * 1);
+    seq_t *prev = mem_new(seq_t, 1);
     prev[0] = 1;              /* row 0 */
 
     for (idx_t cur_row = 1; cur_row <= r; ++cur_row) {
         size_t cur_len = (size_t)cur_row + 1;
-        seq_t *cur = (seq_t *)malloc(cur_len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, cur_len);
 
         for (idx_t j = 0; j <= cur_row; ++j) {
             if (j == cur_row) {
@@ -66,12 +69,12 @@ seq_t a(idx_t n)
             }
         }
 
-        free(prev);
+        mem_free(prev);
         prev = cur;
     }
 
     /* prev now points to row r. */
     seq_t result = prev[c];
-    free(prev);
+    mem_free(prev);
     return result;
 }

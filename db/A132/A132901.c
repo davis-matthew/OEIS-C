@@ -7,7 +7,8 @@
  * Formula:   a(n) = concat(p_{n}, p_{n+1}, …, p_{n+10})
  * Range:     u8 none, u16 none, u32 none, u64 n <= 2, u128 n <= 163,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 25 terms through n = 8458 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Cache of prime numbers. */
 static uint64_t *prime_cache = NULL;
@@ -86,7 +97,7 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i < 11; ++i) {
         uint64_t p64 = prime_cache[start + i];
         seq_t   p   = (seq_t)p64;
-        seq_t   mult = pow10((idx_t)digit_len(p));
+        seq_t   mult = pow10((idx_t)num_digits(p));
         value = value * mult + p;
     }
 

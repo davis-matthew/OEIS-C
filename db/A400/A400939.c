@@ -10,12 +10,14 @@
  *            a(n-1)/2 has not appeared before; otherwise a(n) = a(n-1) + n
  * Range:     u8 n <= 69, u16 n <= 8972, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9602 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* computed a(k) values */
 static size_t  cache_cap = 0;   /* allocated capacity of cache */
@@ -33,12 +35,12 @@ static void ensure_cache(idx_t n)
     /* initial allocation if necessary */
     if (cache_len == 0) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 1;
         cache[0] = (seq_t)1;                     /* a(1) */
 
         visited_cap = 16;
-        visited = (seq_t*)malloc(sizeof(seq_t) * visited_cap);
+        visited = mem_new(seq_t, visited_cap);
         visited_len = 1;
         visited[0] = cache[0];
     }
@@ -69,14 +71,14 @@ static void ensure_cache(idx_t n)
         /* grow cache if necessary */
         if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t*)realloc(cache, sizeof(seq_t) * cache_cap);
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = next;
 
         /* grow visited array if necessary */
         if (visited_len >= visited_cap) {
             visited_cap *= 2;
-            visited = (seq_t*)realloc(visited, sizeof(seq_t) * visited_cap);
+            visited = mem_resize(seq_t, visited, visited_cap);
         }
         visited[visited_len++] = next;
     }

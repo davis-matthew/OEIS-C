@@ -9,6 +9,7 @@
  *            where a(p^e) is given by the formulas listed in the OEIS entry
  * Range:     u8 n <= 256, u16 n <= 7548, u32 n <= 7548, u64 n <= 7548,
  *            u128 n <= 7548, big any n
+ * Validated: standard, pass, 100 terms through n = 7174 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,9 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/factor_u64.h"   /* Externally provided prime factorisation */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 /* Small binary exponentiation for seq_t */
 static seq_t pow_seq(seq_t base, idx_t exp)

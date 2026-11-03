@@ -7,6 +7,7 @@
  * Formula:   a(n) = L(n)^5 where L(n) is the n-th Lucas number
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 36,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 933 (2026-11-01)
  * Helpers:   lucas
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

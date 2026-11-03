@@ -7,6 +7,7 @@
  * Formula:   a(n) = ((n+1)/2)^2 if n is odd, else (n^2 + n)/2
  * Range:     u8 n <= 23, u16 n <= 361, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
+ * Validated: standard, pass, 71 terms through n = 9896 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

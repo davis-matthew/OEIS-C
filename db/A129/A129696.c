@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 44, u64 n <= 90, u128 n <= 183,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the function to be implemented */
 seq_t a(idx_t n);
@@ -42,7 +44,7 @@ static void ensure_cache_cap(idx_t needed)
     idx_t new_cap = (cache_cap == 0) ? 8 : cache_cap << 1;
     while (new_cap <= needed) new_cap <<= 1;
 
-    seq_t *new_ptr = (seq_t *)malloc(sizeof(seq_t) * (size_t)new_cap);
+    seq_t *new_ptr = mem_new(seq_t, (size_t)new_cap);
     if (!new_ptr) {
         /* In an actual project we would handle the error. */
         exit(1);
@@ -50,8 +52,8 @@ static void ensure_cache_cap(idx_t needed)
 
     if (cache) {
         /* Copy the old values to the new block */
-        memcpy(new_ptr, cache, sizeof(seq_t) * (size_t)cache_cap);
-        free(cache);
+        mem_copy(new_ptr, cache, sizeof(seq_t) * (size_t)cache_cap);
+        mem_free(cache);
     }
 
     cache      = new_ptr;
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* Allocate enough space (at least 3 elements for a(1), a(2)) */
         idx_t init_cap = (n >= 2) ? (n + 1) : 3;
-        cache = (seq_t *)malloc(sizeof(seq_t) * (size_t)init_cap);
+        cache = mem_new(seq_t, (size_t)init_cap);
         if (!cache) exit(1);
         cache_cap = init_cap;
 

@@ -10,15 +10,24 @@
  *            Prod_{k>=1} (1 - x^k)^(-2*A000151(k)), A000151(1) = 1
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 17, u64 n <= 31, u128 n <= 57,
  *            big any n
- * Helpers:   alloc_series, g_gcd
+ * Validated: standard, pass, 45 terms through n = 493 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_series.h"
-#include "../utils/g_gcd.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_series(size_t sz)
+{
+    seq_t *p = mem_new(seq_t, sz);
+    size_t i;
+    for (i = 0; i < sz; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *S_ = 0;
 static idx_t cap_ = 0;
@@ -43,7 +52,7 @@ static void build(idx_t N)
         seq_t r = 1;
         /* B[j] = C(c + j - 1, j) */
         for (j = 1; j <= jm; j++) {
-            unsigned long long g = g_gcd((unsigned long long)(r % j), (unsigned long long)j);
+            unsigned long long g = gcd_u64((unsigned long long)(r % j), (unsigned long long)j);
             r = (r / g) * ((c + (j - 1)) / (seq_t)(j / g));
             B[j] = r;
         }

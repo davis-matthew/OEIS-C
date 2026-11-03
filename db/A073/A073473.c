@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, fini, full
  * Formula:   not stated
- * Range:     u8 n <= 2, u16 n <= 9, u32 none, u64 n <= 9, u128 n <= 9,
+ * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 2, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   is_prime_small, sort_seq_seq
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,12 +17,22 @@
 /* Search: find the unique set of 9 primes (including 1) that form a 3×3 magic square with constant 111 */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/sort_seq_seq.h"
+#include "../utils/is_prime_seq.h"
+
+static void sort_seq_seq(seq_t *arr, size_t len)
+{
+    for (size_t i = 0; i + 1 < len; ++i)
+        for (size_t j = i + 1; j < len; ++j)
+            if (arr[i] > arr[j]) {
+                seq_t t = arr[i];
+                arr[i] = arr[j];
+                arr[j] = t;
+            }
+}
 
 static inline bool is_prime_or_one(seq_t x)
 {
-    return x == 1 ? true : is_prime_small((idx_t)x);
+    return x == 1 ? true : is_prime_seq((idx_t)x);
 }
 
 seq_t a(idx_t n)

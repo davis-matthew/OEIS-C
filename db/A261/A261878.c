@@ -10,6 +10,7 @@
  *            exactly by brute force
  * Range:     u8 n <= 23, u16 n <= 362, u32 n <= 1200, u64 n <= 1200,
  *            u128 n <= 1200, big any n
+ * Validated: standard, pass, 76 terms through n = 1104 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

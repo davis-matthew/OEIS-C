@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = Prod(if n>d^2 then 1 else 1-a(d) : d<n and n mod d = 0);
  *            a(1)=0
- * Range:     u8 n <= 33, u16 n <= 9990, u32 n <= 9990, u64 n <= 9990,
- *            u128 n <= 9990, big any n
- * Helpers:   none
+ * Range:     u8 n <= 33, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values: cache[n] holds a(n) after first computation, known[n] indicates it has been computed. */
 static seq_t *cache = NULL;
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
     while (new_size < needed)
         new_size <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     bool  *new_known = (bool  *)realloc(known, new_size * sizeof(bool));
     if (!new_cache || !new_known)
         exit(1);   /* Allocation failure – terminate promptly */

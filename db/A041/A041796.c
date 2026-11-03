@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 17, u64 n <= 37, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state */
 static size_t cache_len = 0;                /* number of terms currently stored */
@@ -75,7 +77,7 @@ static void ensure_cache(size_t needed)
         return;
 
     size_t new_cap = needed;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         return;                            /* allocation failed – not expected */
 
@@ -83,7 +85,7 @@ static void ensure_cache(size_t needed)
     if (cache != NULL) {
         for (size_t i = 0; i < cache_len; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     cache = new_cache;

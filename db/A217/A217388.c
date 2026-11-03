@@ -11,7 +11,8 @@
  *            = t(n) - a(n-1) (n ≥ 1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    from 0 up to the largest n requested.                          */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *t_cache = NULL;   /* cache of ordered Bell numbers */
 static seq_t *a_cache = NULL;   /* cache of a(n) values          */
@@ -37,8 +39,8 @@ static void ensure_cache_capacity(idx_t capacity)
     size_t new_cap = cache_cap ? cache_cap * 2 : 1;
     while (new_cap < (size_t)capacity)
         new_cap *= 2;
-    t_cache = (seq_t *)realloc(t_cache, new_cap * sizeof(seq_t));
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    t_cache = mem_resize(seq_t, t_cache, new_cap);
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     cache_cap = new_cap;
 }
 

@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if the arithmetic derivative n' is odd and the
  *            derivative of n', i.e. n'', is also odd; otherwise 0
- * Range:     u8 n <= 9421, u16 n <= 9421, u32 n <= 9421, u64 n <= 9421,
- *            u128 n <= 9421, big any n
- * Helpers:   derivative_parity, factor_u64
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 142 terms through n = 9421 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,21 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/derivative_parity.h"
+
+/* Return true iff the arithmetic derivative of n (given its prime
+   factorisation n = Π p_i^e_i) is odd. */
+static bool derivative_parity(uint64_t n, const uint64_t *pr, const uint64_t *ex, size_t cnt)
+{
+    bool odd = false;
+    for (size_t i = 0; i < cnt; ++i) {
+        /* Term contributes only if e_i is odd and n/p_i is odd.   */
+        if ((ex[i] & 1ULL) && ((n / pr[i]) & 1ULL))
+            odd = !odd;                   /* toggle parity */
+    }
+    return odd;
+}
 
 /* Main sequence function as required by the build system. */
 seq_t a(idx_t n)

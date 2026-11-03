@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, frac
  * Formula:   a(n) = denominator of A034448(n)/A048250(n)
- * Range:     u8 n <= 549, u16 n <= 8293, u32 n <= 8293, u64 n <= 8293,
- *            u128 n <= 8293, big any n
- * Helpers:   factor_u64, pow_uint, seq_gcd
+ * Range:     u8 n <= 549, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8293 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,11 @@
 /* a(n) = (∏_{p|n} (1 + p)) / gcd(∏_{p|n} (1 + p), ∏_{p^e‖n} (1 + p^e)) */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     /* Handle n = 0 (out of range) just in case */
@@ -40,7 +43,7 @@ seq_t a(idx_t n) {
         uint64_t p = primes[i];
         uint64_t e = exps[i];
 
-        seq_t termN = pow_uint(p, e) + (seq_t)1;   /* 1 + p^e */
+        seq_t termN = ipow_u64_idx(p, e) + (seq_t)1;   /* 1 + p^e */
         seq_t termD = (seq_t)p + (seq_t)1;         /* 1 + p */
 
         N = N * termN;
@@ -48,7 +51,7 @@ seq_t a(idx_t n) {
     }
 
     /* Reduce the fraction: cancel common factors */
-    seq_t g = seq_gcd(N, D);
+    seq_t g = gcd(N, D);
     seq_t result = D / g;   /* D/g is already reduced */
 
     return result;

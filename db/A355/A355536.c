@@ -13,7 +13,8 @@
  *            indices (with multiplicity) and form the * dif...
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- static storage for primes and flattened differences ---------- */
 static uint32_t *primes      = NULL;   /* list of discovered prime values   */
@@ -52,7 +54,7 @@ static void ensure_diff_cap(size_t need)
     if (diff_cap < need) {
         size_t newcap = diff_cap ? diff_cap * 2 : 64;
         while (newcap < need) newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(diff_seq, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, diff_seq, newcap);
         if (!tmp) exit(1);
         diff_seq = tmp;
         diff_cap = newcap;

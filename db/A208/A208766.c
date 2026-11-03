@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   get
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,13 @@
 
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stddef.h>   /* size_t */
-#include "../utils/get.h"
+#include "../utils/mem.h"
+
+/* fetch value from a row or 0 if out of bounds */
+static inline seq_t get(const seq_t *row, size_t len, size_t k)
+{
+    return (row && k < len) ? row[k] : 0;
+}
 
 /* static cache of computed rows */
 static seq_t **tri_rows = NULL;   /* index r (≥1) → pointer to array of r values */
@@ -50,7 +57,7 @@ static void ensure_rows(size_t target)
         }
 
         /* allocate the row array */
-        seq_t *row = (seq_t*)malloc(r * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, r);
         if (!row) exit(1);
 
         if (r == 1) {                /* base row 1  : [1]          */

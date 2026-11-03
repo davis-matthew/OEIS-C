@@ -11,13 +11,25 @@
  *            nondecreasing and whose column sums satisfy col1 ≤ col2
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 62, u128 n <= 125,
  *            big any n
- * Helpers:   binom_half
+ * Validated: standard, pass, 47 terms through n = 198 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_half.h"
+
+/* Compute C(k, k/2) with k even.  Return type seq_t.               */
+static seq_t binom_half(idx_t k)
+{
+    idx_t m = k >> 1;          /* m = k/2                                    */
+    seq_t res = 1;
+    for (idx_t i = 1; i <= m; ++i)
+    {
+        res = res * (seq_t)(m + i) / (seq_t)i;
+    }
+    return res;
+}
 
 /*--------------------------------------------------------------------
    seq_t a(idx_t n)

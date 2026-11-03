@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static state --------------------------------------------------------- */
 static seq_t *fib_cache = NULL;    /* array of unique Fibonacci numbers */
@@ -68,7 +70,7 @@ static void init(void)
 
     /* Allocate and copy into the static cache. */
     fib_len = cnt;
-    fib_cache = (seq_t *)malloc(fib_len * sizeof(seq_t));
+    fib_cache = mem_new(seq_t, fib_len);
     if (!fib_cache) exit(1);
     for (size_t i = 0; i < fib_len; ++i) fib_cache[i] = tmp[i];
 }
@@ -107,7 +109,7 @@ static void ensure_cache(idx_t n)
             /* Grow the cache if necessary. */
             if (term_len == term_cap) {
                 size_t new_cap = term_cap ? term_cap * 2 : 64;
-                seq_t *new_buf = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+                seq_t *new_buf = mem_resize(seq_t, term_cache, new_cap);
                 if (!new_buf) exit(1);
                 term_cache = new_buf;
                 term_cap   = new_cap;

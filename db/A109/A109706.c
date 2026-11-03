@@ -8,7 +8,8 @@
  *            7)
  * Range:     u8 n <= 138, u16 n <= 332, u32 n <= 930, u64 n <= 2950,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 107 terms through n = 9291 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,28 @@
 /* The routine keeps a static table that can be extended on demand. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stdlib.h>
+
+/* Allocate an array of seq_t, compatible with C and C++ */
+static inline seq_t *alloc_seq_array(size_t cap)
+{
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t *)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+/* Free an array of seq_t, compatible with C and C++ */
+static inline void free_seq_array(seq_t *ptr)
+{
+#ifdef __cplusplus
+    delete [] ptr;
+#else
+    free(ptr);
+#endif
+}
 
 static seq_t *dp   = NULL;   /* dp[i] = a(i) for 0 ≤ i < dpsz */
 static idx_t  dpsz = 0;      /* current table size */

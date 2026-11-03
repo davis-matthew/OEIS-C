@@ -8,13 +8,15 @@
  * Formula:   a(n) = number of elements of order n in Alt(12)
  * Range:     u8 none, u16 n <= 1, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper: Euclidean gcd for seq_t */
 static seq_t gcd_seq_t(seq_t a, seq_t b) {
@@ -79,7 +81,7 @@ seq_t a(idx_t n) {
     const int LIM = 27721;            /* covers all possible orders */
 
     if (!initialized) {
-        table = (seq_t*)malloc(sizeof(seq_t)*LIM);
+        table = mem_new(seq_t, LIM);
         for (int i = 0; i < LIM; ++i) table[i] = 0;
 
         /* factorials up to 12! */

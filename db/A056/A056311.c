@@ -9,7 +9,8 @@
  *            4*3^n + 6*2^n - 4) / 24
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 38 terms through n = 931 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,15 +18,16 @@
 /*  Requires the helper power function:
    seq_t big_pow(seq_t base, seq_t exp);  (see utils/big_pow.h)  */
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 /* Stirling numbers of the second kind for k = 4 */
 static seq_t stirling_n4(idx_t n)
 {
     /* Compute 4^n , 3^n , 2^n  */
-    seq_t p4 = big_pow((seq_t)4, (seq_t)n);
-    seq_t p3 = big_pow((seq_t)3, (seq_t)n);
-    seq_t p2 = big_pow((seq_t)2, (seq_t)n);
+    seq_t p4 = ipow((seq_t)4, (seq_t)n);
+    seq_t p3 = ipow((seq_t)3, (seq_t)n);
+    seq_t p2 = ipow((seq_t)2, (seq_t)n);
 
     /* numerator: 4^n - 4*3^n + 6*2^n - 4 */
     seq_t num = p4 - (seq_t)4 * p3 + (seq_t)6 * p2 - (seq_t)4;

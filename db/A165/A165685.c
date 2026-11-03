@@ -10,8 +10,9 @@
  *            (((n+5) mod 6) - ((n+3) mod 6))*n/216 + (n mod 3)/6 + (3*((n+3)
  *            mod 6) - 5*((n+2) mod 6) + 7*((n+1) mod 6) - 5*(n mod 6))/36 );
  *            (The indicator [n=3] adds 1 iff n equals 3.)
- * Range:     u8 n <= 117, u16 n <= 811, u32 n <= 9751, u64 n <= 9751,
- *            u128 n <= 9751, big any n
+ * Range:     u8 n <= 117, u16 n <= 811, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 102 terms through n = 9751 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

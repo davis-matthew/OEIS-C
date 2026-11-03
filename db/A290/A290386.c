@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 27, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   _digits_mask
+ * Validated: full, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
    with no repeated digits, and with no digit common with a(n-1). */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_digits_mask.h"
+#include "../utils/mem.h"
+
+/* Compute a bit mask of the digits of x (bits 1..9). No check for repeated digits. */
+static unsigned int _digits_mask(seq_t x)
+{
+    unsigned int mask = 0;
+    seq_t num = x;
+    while (num > 0) {
+        int d = (int)(num % 10);
+        num /= 10;
+        mask |= 1u << d;
+    }
+    return mask;
+}
 
 /* Return the n-th term of A290386.  Cached terms are stored in a static array. */
 seq_t a(idx_t n)
@@ -33,7 +47,7 @@ seq_t a(idx_t n)
         /* Grow the cache if necessary. */
         if (len == cap) {
             size_t new_cap = (cap == 0) ? 8 : cap * 2;
-            seq_t *newptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *newptr = mem_resize(seq_t, cache, new_cap);
             if (!newptr) exit(1);   /* allocation failed */
             cache = newptr;
             cap   = new_cap;

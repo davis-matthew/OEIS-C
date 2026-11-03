@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 11, u32 n <= 207, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(1)=16, a(2)=256, a(3)=704, a(4)=1936, a(5)=3696,
    a(6)=7056, a(7)=11424, a(8)=18496, a(9)=27200. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t BASE[9] = {
     16, 256, 704, 1936, 3696, 7056, 11424, 18496, 27200
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL || n > cache_size) {
         idx_t new_size = n + 1;     /* index 1..n used */
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;        /* allocation failure fallback */
         cache = tmp;
         if (cache_size < 9) {

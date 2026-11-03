@@ -10,7 +10,8 @@
  *            so that a(n) is the n‑th element of that sequence (1‑based)
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- static data structures for memoisation ---------- */
 static seq_t *found = NULL;          /* found terms */
@@ -37,7 +39,7 @@ static void heap_push(seq_t val)
 {
     if (heap_size == heap_cap) {
         size_t newcap = heap_cap ? heap_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(heap, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, heap, newcap);
         if (!tmp) abort();
         heap = tmp;
         heap_cap = newcap;
@@ -96,7 +98,7 @@ static void grow_found(void)
 {
     if (found_size == found_cap) {
         size_t newcap = found_cap ? found_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(found, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, found, newcap);
         if (!tmp) abort();
         found = tmp;
         found_cap = newcap;
@@ -111,12 +113,12 @@ seq_t a(idx_t n)
     /* initialise static structures on first call */
     if (!found) {
         found_cap = 16;
-        found = (seq_t *)malloc(found_cap * sizeof(seq_t));
+        found = mem_new(seq_t, found_cap);
         if (!found) abort();
     }
     if (!heap) {
         heap_cap = 16;
-        heap = (seq_t *)malloc(heap_cap * sizeof(seq_t));
+        heap = mem_new(seq_t, heap_cap);
         if (!heap) abort();
     }
     if (heap_size == 0) {

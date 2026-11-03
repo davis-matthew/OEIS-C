@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 44, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   part_allowed
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/part_allowed.h"
+#include "../utils/mem.h"
+
+/* Parts are allowed iff they are not congruent to 0,10,13 mod 23. */
+static inline bool part_allowed(idx_t p)
+{
+    idx_t r = p % 23U;
+    return r != 0U && r != 10U && r != 13U;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,14 +43,14 @@ seq_t a(idx_t n)
 
     /* Grow or rebuild the DP table when a larger n is requested. */
     if (n + 1 > dp_cap) {
-        free(dp);
-        dp = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+        mem_free(dp);
+        dp = mem_new(seq_t, (size_t)(n + 1));
         if (!dp) return 0;        /* allocation failure */
         dp_cap = n + 1;
     }
 
     /* Recompute the table from scratch for the current n. */
-    memset(dp, 0, (size_t)(dp_cap) * sizeof(seq_t));
+    mem_set(dp, 0, (size_t)(dp_cap) * sizeof(seq_t));
     dp[0] = 1;
 
     for (idx_t p = 1; p <= n; ++p) {

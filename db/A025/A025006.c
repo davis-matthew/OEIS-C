@@ -7,7 +7,8 @@
  * Formula:   a(1)=7; a(n+1)=the a(n)-th nonprime (nonprimes begin with 1)
  * Range:     u8 n <= 11, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --- small primes up to 65536 (enough for sqrt of the needed range) --- */
 static uint32_t _small_primes[7000];
@@ -53,7 +55,7 @@ static void _ensure_cache_capacity(size_t needed)
     if (needed <= _cache_cap) return;
     size_t new_cap = _cache_cap ? _cache_cap << 1 : 4;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
     if (!tmp) abort();
     _cache = tmp;
     _cache_cap = new_cap;

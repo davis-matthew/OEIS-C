@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"    /* provides: bool is_prime(uint64_t n) */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     /* Allocate initial storage if needed. */
     if (terms == NULL) {
         terms_cap = 1024;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (terms == NULL) return 0; /* allocation failure */
     }
 
@@ -45,17 +48,17 @@ seq_t a(idx_t n)
         uint64_t cand = (uint64_t)last_checked;
 
         /* Check if cand is prime. */
-        if (!is_prime(cand)) continue;
+        if (!is_prime_u64(cand)) continue;
 
         /* Check the two derived numbers.  Use uint64_t to avoid overflow. */
         uint64_t a1 = 7ULL * cand + 6ULL;
         uint64_t a2 = 6ULL * cand + 7ULL;
-        if (!is_prime(a1) || !is_prime(a2)) continue;
+        if (!is_prime_u64(a1) || !is_prime_u64(a2)) continue;
 
         /* Found a valid prime; store it. */
         if (terms_size == terms_cap) {
             terms_cap <<= 1; /* double capacity */
-            seq_t *tmp = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
             if (tmp == NULL) return 0; /* allocation failure */
             terms = tmp;
         }

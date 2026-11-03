@@ -7,7 +7,8 @@
  * Formula:   numbers whose cube is palindromic in base 8
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   pow_int, terms_up_to
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,13 @@
 /*  - for k=1,2,3,… produce 8^k + 1,  */
 /*  - if k is even also produce 8^k + 8^(k/2) + 1.  */
 #include <stdbool.h>
-#include "../utils/pow_int.h"
-#include "../utils/terms_up_to.h"
+#include "../utils/ipow_idx.h"
+
+/* cumulative terms up to and including k (excluding the first 3) */
+static inline idx_t terms_up_to(idx_t k)
+{
+    return k + k/2; /* floor division */
+}
 
 seq_t a(idx_t n)
 {
@@ -41,12 +47,12 @@ seq_t a(idx_t n)
     idx_t prev = terms_up_to(k - 1);
     idx_t offset = m - prev; /* 1 for the base term, 2 for the extra term */
 
-    seq_t val = pow_int((seq_t)8, k);
+    seq_t val = ipow_idx((seq_t)8, k);
 
     if (offset == 1) {
         val += (seq_t)1;
     } else {
-        val += pow_int((seq_t)8, k/2);
+        val += ipow_idx((seq_t)8, k/2);
         val += (seq_t)1;
     }
 

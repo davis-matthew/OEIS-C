@@ -13,7 +13,8 @@
  *            = 383074904, a(13) = 0, a(14) = 1155912...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 27, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;        /* memoized sequence values (1‑based) */
 static size_t memo_cap = 0;       /* highest index that is stored */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (memo_cap == 0) {
         /* Allocate up to index 14, which are the initial values */
         memo_cap = 14;
-        memo = (seq_t *)malloc(sizeof(seq_t) * (memo_cap + 1)); /* index 0 unused */
+        memo = mem_new(seq_t, (memo_cap + 1)); /* index 0 unused */
         if (!memo) return 0;               /* out of memory – return 0 */
         /* initialise base terms */
         memo[0] = 0;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* Expand the cache to accommodate at least n */
     size_t new_cap = n;
     if (new_cap < memo_cap + 64) new_cap = memo_cap + 64; /* grow in chunks */
-    seq_t *tmp = (seq_t *)realloc(memo, sizeof(seq_t) * (new_cap + 1));
+    seq_t *tmp = mem_resize(seq_t, memo, (new_cap + 1));
     if (!tmp) return 0;               /* allocation failure */
     memo = tmp;
 

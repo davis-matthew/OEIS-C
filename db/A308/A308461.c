@@ -8,12 +8,14 @@
  *            n} a(n-t) * (n-1)!/(n-t)!
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,14 +29,14 @@ seq_t a(idx_t n)
 
     /* initialise static arrays on first call */
     if (a_cap == 0) {
-        a_cache   = (seq_t*)realloc(a_cache, sizeof(seq_t));
+        a_cache   = mem_resize(seq_t, a_cache, 1);
         a_cap = 1;
         a_cache[0] = (seq_t)1;          /* a(0) = 1           */
         computed = 0;
     }
 
     if (fact_cap == 0) {
-        fact_cache = (seq_t*)realloc(fact_cache, sizeof(seq_t));
+        fact_cache = mem_resize(seq_t, fact_cache, 1);
         fact_cap = 1;
         fact_cache[0] = (seq_t)1;       /* 0! = 1 */
     }
@@ -42,13 +44,13 @@ seq_t a(idx_t n)
     /* enlarge caches if necessary */
     if ((size_t)n + 1 > a_cap) {
         size_t new_cap = (size_t)n + 1;
-        a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cap   = new_cap;
     }
 
     if ((size_t)n + 1 > fact_cap) {
         size_t new_cap = (size_t)n + 1;
-        fact_cache = (seq_t*)realloc(fact_cache, new_cap * sizeof(seq_t));
+        fact_cache = mem_resize(seq_t, fact_cache, new_cap);
         for (size_t i = fact_cap; i < new_cap; ++i) {
             if (i == 0) fact_cache[0] = (seq_t)1;
             else fact_cache[i] = fact_cache[i-1] * (seq_t)i;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 70 terms through n = 9400 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* table of computed terms */
 static seq_t *terms = NULL;      /* array of sequence values */
@@ -36,7 +39,7 @@ static void grow_terms(idx_t new_cap)
 {
     if (new_cap <= terms_cap)
         return;
-    seq_t *tmp = (seq_t *)realloc(terms, (size_t)new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, (size_t)new_cap);
     if (!tmp && new_cap != 0)
         abort();  /* out‑of‑memory */
     terms = tmp;

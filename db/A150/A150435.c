@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MOD1 1000000007U
 #define MOD2 1000000009U
@@ -331,18 +333,18 @@ static void init_sequence(void)
     int L = (int)rec_len;                 /* number of initial terms needed */
     int dimL = L + 1;
     size_t totL = (size_t)dimL * dimL * dimL;
-    seq_t *curE = (seq_t *)calloc(totL, sizeof(seq_t));
-    seq_t *nextE = (seq_t *)calloc(totL, sizeof(seq_t));
+    seq_t *curE = mem_new(seq_t, totL);
+    seq_t *nextE = mem_new(seq_t, totL);
     curE[0] = 1;                /* a(0) = 1 */
     values = NULL;
     values_cap = 0;
     /* we allocate at least L terms initially */
-    seq_t *vals_init = (seq_t *)malloc(L * sizeof(seq_t));
+    seq_t *vals_init = mem_new(seq_t, L);
     vals_init[0] = 1;
     int stepk;
     for (stepk = 0; stepk < L - 1; ++stepk)
     {
-        memset(nextE, 0, totL * sizeof(seq_t));
+        mem_set(nextE, 0, totL * sizeof(seq_t));
         seq_t sum = 0;
         int maxc = stepk;  /* x,y,z <= stepk in current layer */
         int x, y, z;
@@ -405,8 +407,8 @@ static void init_sequence(void)
     /* values_cap now equals rec_len; number of stored elements is rec_len */
     /* the next index to compute will be rec_len */
 
-    free(curE);
-    free(nextE);
+    mem_free(curE);
+    mem_free(nextE);
 }
 
 /* ---------- the required external function ---------- */
@@ -422,7 +424,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= values_cap)
     {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, values, new_cap);
         if (!tmp) abort();          /* out of memory */
         values = tmp;
         values_cap = new_cap;

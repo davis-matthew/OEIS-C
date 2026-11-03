@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 27, u64 n <= 51, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Global memoisation array */
 static seq_t *seq      = NULL;   /* storage for a(0)…a(m) */
@@ -40,17 +42,17 @@ ensure_capacity(idx_t n)
     if (new_cap <= n + 1)
         new_cap = n + 1;
 
-    seq_t *new_seq = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_new(seq_t, new_cap);
     if (new_seq == NULL)
         abort();                       /* OOM – terminate */
 
     if (seq != NULL) {
-        memcpy(new_seq, seq, seq_cap * sizeof(seq_t));
-        free(seq);
+        mem_copy(new_seq, seq, seq_cap * sizeof(seq_t));
+        mem_free(seq);
     }
 
     /* zero‑initialise the freshly allocated portion */
-    memset((void *)(new_seq + seq_cap), 0, (new_cap - seq_cap) * sizeof(seq_t));
+    mem_set((new_seq + seq_cap), 0, (new_cap - seq_cap) * sizeof(seq_t));
 
     seq       = new_seq;
     seq_cap   = new_cap;

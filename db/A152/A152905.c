@@ -9,8 +9,9 @@
  *            row r has 2·(r+1) elements and the first element of row r is
  *            item r·(r+1). The pair index within the row is k = (n – r·(r+1))
  *            / 2. (binomial is supplied by the utils library.)
- * Range:     u8 n <= 79, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
+ * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"     /* provides seq_t binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 /* Find the row r containing index n.  r satisfies
    r*(r+1) ≤ n < (r+1)*(r+2).  */

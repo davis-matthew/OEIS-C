@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   digit_count_uint, seq_from_str
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   num_digits_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/seq_from_str.h"   /* for seq_from_str() */
-#include "../utils/digit_count_uint.h"
+#include <string.h>
+#include "../utils/num_digits_u32.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +50,7 @@ seq_t a(idx_t n)
     unsigned int last_d = 0;
     for (idx_t i = 1; i <= p; ++i) {
         unsigned int odd = (unsigned int)((i << 1) - 1);
-        unsigned int d = digit_count_uint(odd);
+        unsigned int d = num_digits_u32(odd);
         sum_forward += d;
         last_d = d;                 /* store digits of the middle element */
     }

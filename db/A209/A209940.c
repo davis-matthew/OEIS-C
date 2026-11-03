@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 39, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 74 terms through n = 881 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     /* m = 2n+1 is always odd */
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     if (temp % 3 == 0) {
         uint8_t e = 0;
         do { temp /= 3; ++e; } while (temp % 3 == 0);
-        seq_t pow_neg3 = seq_pow((seq_t)-3, (idx_t)(e + 1));
+        seq_t pow_neg3 = ipow_idx((seq_t)-3, (idx_t)(e + 1));
         seq_t contrib = (1 - pow_neg3) / 4;
         result *= contrib;
     }

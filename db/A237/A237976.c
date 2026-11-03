@@ -9,7 +9,8 @@
  *            of parts
  * Range:     u8 n <= 30, u16 n <= 79, u32 n <= 237, u64 n <= 791,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 864 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* compute maximal k such that k*(k-1)/2 <= n */
@@ -30,9 +32,9 @@ seq_t a(idx_t n) {
 
     /* allocate arrays */
     size_t sz = (size_t)(n + 1);
-    seq_t *dp_atmost = (seq_t*)calloc(sz, sizeof(seq_t));     /* partitions with parts <= current k */
-    seq_t *prev_exact = (seq_t*)calloc(sz, sizeof(seq_t));    /* p_exact(n, k-1) */
-    seq_t *curr_exact = (seq_t*)calloc(sz, sizeof(seq_t));    /* p_exact(n, k) */
+    seq_t *dp_atmost = mem_new(seq_t, sz);     /* partitions with parts <= current k */
+    seq_t *prev_exact = mem_new(seq_t, sz);    /* p_exact(n, k-1) */
+    seq_t *curr_exact = mem_new(seq_t, sz);    /* p_exact(n, k) */
 
     if (!dp_atmost || !prev_exact || !curr_exact) { /* allocation failure */
         /* In a real system you would handle this error. */
@@ -73,9 +75,9 @@ seq_t a(idx_t n) {
         curr_exact = tmp;
     }
 
-    free(dp_atmost);
-    free(prev_exact);
-    free(curr_exact);
+    mem_free(dp_atmost);
+    mem_free(prev_exact);
+    mem_free(curr_exact);
 
     return result;
 }

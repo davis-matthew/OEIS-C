@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = binomial(composite(n+1), composite(n))
- * Range:     u8 n <= 8, u16 n <= 292, u32 n <= 10000, u64 n <= 10000,
+ * Range:     u8 n <= 12, u16 n <= 292, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 9101 (2026-11-01)
  * Helpers:   binomial, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -32,8 +33,8 @@
 #include <stddef.h>              /* for size_t */
 
 /* utilities from the provided library */
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x);               */
-#include "../utils/binomial.h"  /* seq_t binomial(idx_t n, idx_t k);    */
+#include "../utils/binomial.h"
+#include "../utils/is_prime.h"
 
 static idx_t *composites = NULL;   /* array of composite numbers */
 static size_t comps_len   = 0;     /* how many composites stored   */

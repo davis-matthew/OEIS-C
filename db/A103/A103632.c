@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + a(n-4), a(0)=1, a(1)=0, a(2)=1, a(3)=1
  * Range:     u8 n <= 19, u16 n <= 36, u32 n <= 71, u64 n <= 140,
  *            u128 n <= 277, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Memoized reference implementation. */
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
         if (buf_len < 4)               /* ensure space for the four base values */
             new_len = need > 4 ? need : 4;
 
-        seq_t *tmp = (seq_t *)realloc(buf, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_len);
         if (!tmp) return (seq_t)0;     /* allocation failure – unlikely for the test range */
 
         buf = tmp;

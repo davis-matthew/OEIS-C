@@ -9,7 +9,8 @@
  *            3 (mod 4) and the following prime ≡ 1 (mod 4)
  * Range:     u8 n <= 18, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   is_prime_uint64
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* array of computed terms   */
 static idx_t  a_cache_len = 0;         /* number of terms stored   */
@@ -29,7 +32,7 @@ static void cache_append(seq_t value)
 {
     if (a_cache_len == a_cache_alloc) {
         size_t new_alloc = a_cache_alloc ? a_cache_alloc << 1 : 16;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_alloc);
         if (!tmp) abort();      /* allocation failure */
         a_cache      = tmp;
         a_cache_alloc = new_alloc;
@@ -44,7 +47,7 @@ static void ensure_cache(idx_t n)
         uint64_t curr = 0;
         /* Find the next prime after next_prime. */
         for (uint64_t cand = next_prime + 1; ; ++cand) {
-            if (is_prime_uint64(cand)) { curr = cand; break; }
+            if (is_prime_u64(cand)) { curr = cand; break; }
         }
         /* Check if pair (next_prime, curr) satisfies the condition. */
         if ((next_prime & 3ULL) == 3ULL && (curr & 3ULL) == 1ULL) {

@@ -11,13 +11,37 @@
  *            square
  * Range:     u8 n <= 12, u16 n <= 183, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   odd_exponent
+ * Validated: standard, pass, 65 terms through n = 9734 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/odd_exponent.h"
+
+/* Test whether all prime exponents in x are odd. */
+static inline bool odd_exponent(seq_t x)
+{
+    seq_t t = x;
+    seq_t p = 2;
+    while (p * p <= t)
+    {
+        if (t % p == 0)
+        {
+            unsigned int exp = 0;
+            while (t % p == 0)
+            {
+                t /= p;
+                exp++;
+            }
+            if ((exp & 1) == 0)   /* even exponent found */
+                return false;
+        }
+        ++p;
+    }
+    /* Remaining factor t > 1 has exponent 1 (odd). */
+    return true;
+}
 
 seq_t a(idx_t n)
 {

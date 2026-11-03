@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* Compute the gcd of two uint64_t values. */
 static uint64_t gcd_u64(uint64_t a, uint64_t b)
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
     while (true)
     {
         /* r = (2^n + 1) mod candidate */
-        seq_t r = (mod_pow((seq_t)2, N, (seq_t)candidate) + (seq_t)1) % (seq_t)candidate;
+        seq_t r = (powmod((seq_t)2, N, (seq_t)candidate) + (seq_t)1) % (seq_t)candidate;
         uint64_t rem = (uint64_t)r;
 
         /* Check coprimality. */

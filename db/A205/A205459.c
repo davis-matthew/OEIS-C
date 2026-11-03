@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 8, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   block_count, ensure_results_cap
+ * Validated: standard, pass, 33 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,39 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/block_count.h"
-#include "../utils/ensure_results_cap.h"
+#include "../utils/mem.h"
+
+/* Count clockwise edge increases in the 2×2 block whose top row = a
+ * and bottom row = b.  Each of a,b is encoded as (x0<<2 | x1),
+ * where x0,x1∈{0,1,2,3}. */
+static inline int block_count(int a, int b)
+{
+    int a0 = a >> 2, a1 = a & 3;
+    int b0 = b >> 2, b1 = b & 3;
+    int cnt = 0;
+    if (a1 > a0) cnt++;      /* top-left → top-right      */
+    if (b1 > a1) cnt++;      /* top-right → bottom-right  */
+    if (b0 > b1) cnt++;      /* bottom-right → bottom-left*/
+    if (a0 > b0) cnt++;      /* bottom-left → top-left    */
+    return cnt;
+}
+
+/* Ensure a dynamic array 'res' can hold indices up to 'n' (inclusive). */
+static inline void ensure_results_cap(idx_t *res_cap, seq_t **res, idx_t n)
+{
+    if (*res_cap < n + 1) {
+        size_t new_cap = (*res_cap ? *res_cap * 2 : 16);
+        while (new_cap < (size_t)(n + 1))
+            new_cap *= 2;
+        seq_t *tmp = mem_new(seq_t, new_cap);
+        if (*res) {
+            mem_copy(tmp, *res, *res_cap * sizeof(seq_t));
+            mem_free(*res);
+        }
+        *res = tmp;
+        *res_cap = new_cap;
+    }
+}
 
 /* Main function asked for. */
 seq_t a(idx_t n)
@@ -49,8 +81,8 @@ seq_t a(idx_t n)
 
     /* Allocate DP arrays on first use. */
     if (dp_prev == NULL) {
-        dp_prev = (seq_t *)calloc(16 * 5, sizeof(seq_t));
-        dp_cur  = (seq_t *)calloc(16 * 5, sizeof(seq_t));
+        dp_prev = mem_new(seq_t, 16 * 5);
+        dp_cur  = mem_new(seq_t, 16 * 5);
         dp_rows = 0;
     }
 
@@ -70,7 +102,7 @@ seq_t a(idx_t n)
         } else {
             /* Transition from dp_prev (dp_rows rows) to dp_cur
              * (dp_rows+1 rows).  Reset dp_cur to zero. */
-            memset(dp_cur, 0, 16 * 5 * sizeof(seq_t));
+            mem_set(dp_cur, 0, 16 * 5 * sizeof(seq_t));
 
             for (int P = 0; P < 16; ++P) {
                 for (int c_prev = 0; c_prev <= 4; ++c_prev) {

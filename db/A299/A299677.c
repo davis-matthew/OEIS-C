@@ -12,13 +12,15 @@
  *            +49*a(n-14) -8*a(n-15) +20*a(n-16)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 38, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* allocate space for indices 0..18 (19 elements) */
         cap = 19;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) return 0;   /* out of memory – unlikely in judge */
         /* initialise all to zero */
         for (size_t i = 0; i < cap; i++) cache[i] = 0;
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t newcap = n + 1;
         if (newcap < cap * 2) newcap = cap * 2;   /* simple growth factor */
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL) return 0; /* memory failure – unlikely in judge */
         cache = tmp;
         /* initialise new part to zero (not strictly needed) */

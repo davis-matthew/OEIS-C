@@ -13,7 +13,8 @@
  *            generate...
  * Range:     i8 n <= 29, i16 n <= 179, i32 n <= 1259, i64 n <= 7559,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 9442 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------------
  * Helper: integer floor square root.
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     idx_t limit = isqrt_u64(n);
     /* Allocate at most 2*limit + 2 elements for safety. */
     size_t max_div = (size_t)(2 * limit + 2);
-    seq_t *divs = (seq_t *)malloc(max_div * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, max_div);
     if (!divs)
         return 0;  /* allocation failure */
 
@@ -95,6 +97,6 @@ seq_t a(idx_t n)
         sum += divs[cnt - step - 2];
     }
 
-    free(divs);
+    mem_free(divs);
     return sum;
 }

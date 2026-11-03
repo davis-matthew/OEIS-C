@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..n} (3*n-k)!/(3*n-2*k+1)! * |Stirling1(n,k)|
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 9, i64 n <= 14, i128 n <= 22,
  *            big any n
- * Helpers:   binom, resize_array, seq_malloc
+ * Validated: standard, pass, 35 terms through n = 78 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,9 +31,45 @@
 #include <string.h>   /* for memcpy */
 
 /* The following helpers are provided by the build system. */
-#include "../utils/binom.h"
-#include "../utils/seq_malloc.h"
-#include "../utils/resize_array.h"
+#include <stdlib.h>
+#include <sys/types.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+/* dynamic array helpers -------------------------------------------------- */
+static seq_t *resize_array(seq_t *old, idx_t old_size, idx_t new_size)
+{
+    seq_t *new_arr;
+#ifdef __cplusplus
+    new_arr = new seq_t[new_size]();        /* value–init for C++ objects   */
+#else
+    new_arr = (seq_t *)calloc(new_size, sizeof(seq_t));   /* zero for C */
+#endif
+    /* copy old data */
+    idx_t i;
+    for (i = 0; i < old_size && i < new_size; ++i)
+        new_arr[i] = old[i];
+
+    /* free old storage */
+    if (old) {
+#ifdef __cplusplus
+        delete[] old;
+#else
+        free(old);
+#endif
+    }
+    return new_arr;
+}
 
 /* Static storage for memoisation */
 static seq_t *a_vals = NULL;          /* array of computed a(n) values */

@@ -10,7 +10,8 @@
  *            (OEIS A054810)
  * Range:     u8 none, u16 n <= 171, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 1957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define SEG_SIZE (1 << 15)   /* 32768   segment size for the sieve   */
 
@@ -104,7 +106,7 @@ static void ensure_cache(idx_t n)
                     if (g1 > g2 && g2 > g3 && g3 > g4) {
                         if (cache_len == cache_cap) {
                             cache_cap = cache_cap ? cache_cap * 2 : 64;
-                            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                            cache = mem_resize(seq_t, cache, cache_cap);
                             if (!cache) { free(small_primes); abort(); }
                         }
                         cache[cache_len++] = (seq_t)last5[2]; /* third prime of the tuple */

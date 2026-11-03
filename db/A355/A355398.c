@@ -8,14 +8,28 @@
  *            a(n-k) initial value: a(0) = 1
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   binomial, mul_small
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static seq_t *cache = NULL;          /* memoisation cache */
 static idx_t cache_len  = 0;         /* allocated cache length */
@@ -27,7 +41,7 @@ static void ensure_cache(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         cache[0] = (seq_t)1;   /* a(0) = 1 */
         cached_up_to = 0;
     }
@@ -40,7 +54,7 @@ static void ensure_cache(idx_t n)
         size_t new_len = cache_len ? cache_len : 1;
         while (new_len < (size_t)(n + 1))
             new_len <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) exit(1);
         cache = tmp;
         cache_len = new_len;

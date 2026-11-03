@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 7, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 59 terms through n = 957 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *terms    = NULL;   /* memoised output terms */
 static size_t terms_sz = 0;      /* number of terms stored     */
@@ -31,7 +34,7 @@ static void append_term(seq_t val)
 {
     if (terms_sz == terms_cap) {
         size_t new_cap = (terms_cap == 0) ? 8 : terms_cap * 2;
-        seq_t *ptr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, terms, new_cap);
         if (!ptr) abort();          /* allocation failed */
         terms = ptr;
         terms_cap = new_cap;
@@ -65,7 +68,7 @@ seq_t a(idx_t n)
     /* generate terms until we have at least n of them */
     while (terms_sz < (size_t)n) {
         seq_t k = next_k++;
-        seq_t cube = big_pow(k, (seq_t)3);
+        seq_t cube = ipow(k, (seq_t)3);
         if (distinct_digits(cube) == 9)
             append_term(k);
     }

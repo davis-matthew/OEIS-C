@@ -9,13 +9,15 @@
  *            the value s(n) for n >= 1 (OEIS A189660)
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* NULL, size_t */
 #include <stdlib.h>   /* realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* need room for indices 0 and 1 at least */
         cache_size = 2;
-        cache = (seq_t *)malloc((cache_size + 1) * sizeof(seq_t));  /* +1 to be safe */
+        cache = mem_new(seq_t, (cache_size + 1));  /* +1 to be safe */
         if (!cache) return (seq_t)0;  /* allocation failed, return 0 as safe fallback */
 
         cache[0] = (seq_t)0;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         size_t new_size = cache_size * 2;
         if ((size_t)n > new_size)
             new_size = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_size + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_size + 1));
         if (!tmp) return (seq_t)0;  /* allocation failed */
         cache = tmp;
         cache_size = new_size;

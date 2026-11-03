@@ -12,14 +12,70 @@
  *            remainder. * This function memoises the results, so re...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 10, u128 n <= 11,
  *            big any n
- * Helpers:   ensure_capacity, floor_sqrt, gcd
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   gcd, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/ensure_capacity.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 /* Return a(n) */
 seq_t a(idx_t n)
@@ -32,7 +88,7 @@ seq_t a(idx_t n)
 
     /* Initialise for a(0) */
     if (size == 0) {
-        ensure_capacity(1, &cap, (void **)&denoms, sizeof(seq_t));
+        ensure_capacity(1, &cap, OEISC_VPP(&denoms), sizeof(seq_t));
         r_num = 1;
         r_den = 1;
         denoms[0] = r_den;   /* a(0) = 1 */
@@ -42,7 +98,7 @@ seq_t a(idx_t n)
     /* Compute up to n if necessary */
     if (n >= size) {
         /* Ensure the array can hold n+1 entries */
-        ensure_capacity((size_t)n + 1, &cap, (void **)&denoms, sizeof(seq_t));
+        ensure_capacity((size_t)n + 1, &cap, OEISC_VPP(&denoms), sizeof(seq_t));
 
         for (idx_t i = size; i <= n; ++i) {
             /* Find smallest integer m >= 2 such that 1/m^2 < r_num/r_den

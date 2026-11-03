@@ -10,13 +10,15 @@
  *            coin‑change DP for the restricted odd parts
  * Range:     u8 n <= 43, u16 n <= 128, u32 n <= 418, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Cache previous results.  */
@@ -27,13 +29,13 @@ seq_t a(idx_t n) {
     if (N >= cache_cap) {
         /* Allocate cache large enough for indices 0..N. */
         size_t new_cap = N + 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) { /* memory allocation failed – return 0 */ return (seq_t)0; }
         cache = new_cache;
 
         /* Allocate temporary array for DP counting partitions into odd parts
            with an increasing bound on the largest odd part. */
-        seq_t *dp = (seq_t*)calloc(new_cap, sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, new_cap);
         if (!dp) { /* memory allocation failed – return 0 */ return (seq_t)0; }
 
         /* Initially only part 1 is allowed.  */
@@ -62,7 +64,7 @@ seq_t a(idx_t n) {
                 dp[i] += dp[i - p];
         }
 
-        free(dp);
+        mem_free(dp);
         cache_cap = new_cap;
     }
     return cache[n];

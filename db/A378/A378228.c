@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, mult
  * Formula:   not stated
- * Range:     i8 none, i16 n <= 77, i32 n <= 8876, i64 n <= 8876,
- *            i128 n <= 8876, big any n
- * Helpers:   none
+ * Range:     i8 none, i16 n <= 77, i32 n <= 14069, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 74 terms through n = 8876 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* limits; covers all n ≤ 10000 plain; increase if needed */
 #define MAX_N      20000          /* maximum n pre‑computed */
@@ -103,7 +105,7 @@ static void init(void)
         }
         pi->max_exp = exp;
 
-        pi->gpow = (seq_t *)calloc((size_t)exp + 1, sizeof(seq_t));
+        pi->gpow = mem_new(seq_t, (size_t)exp + 1);
         pi->gpow[0] = (seq_t)1;
     }
 
@@ -116,7 +118,7 @@ static void init(void)
         if (n_next == 0) n_next = p + 2;  /* fallback, unlikely for this range */
 
         int maxe = pi->max_exp;
-        seq_t *f_vals = (seq_t *)calloc((size_t)maxe + 1, sizeof(seq_t));
+        seq_t *f_vals = mem_new(seq_t, (size_t)maxe + 1);
 
         seq_t p_pow_val = 1;           /* p^e   */
         seq_t n_pow_val = 1;           /* n_next^e   */
@@ -137,12 +139,12 @@ static void init(void)
                 sum += f_vals[k2] * pi->gpow[e - k2];
             pi->gpow[e] = -sum;
         }
-        free(f_vals);
+        mem_free(f_vals);
     }
 
     /* ---------------------------------------------------------------- */
     /* 5. Pre‑compute the full Dirichlet inverse array g_arr[1..MAX_N]   */
-    g_arr = (seq_t *)calloc((size_t)MAX_N + 1, sizeof(seq_t));
+    g_arr = mem_new(seq_t, (size_t)MAX_N + 1);
     g_arr[1] = (seq_t)1;
     for (uint32_t n = 2; n <= MAX_N; ++n) {
         seq_t res = 1;

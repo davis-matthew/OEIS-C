@@ -9,7 +9,8 @@
  *            king‑move neighboring 1s
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 7, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   is_valid_triple
+ * Validated: standard, pass, 32 terms through n = 202 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,38 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/is_valid_triple.h"
+
+/* Helper: test whether a triple of rows (prev2, prev1, curr) satisfies
+   the adjacency rule for all 1s in prev1. */
+static inline bool is_valid_triple(unsigned int prev2, unsigned int prev1,
+                                   unsigned int curr)
+{
+    for (int j = 0; j < 6; ++j) {
+        if (prev1 & (1u << j)) {
+            unsigned int cnt = 0;
+            /* left neighbor */
+            if (j > 0) {
+                if (prev1 & (1u << (j - 1))) ++cnt;
+                if (prev2 & (1u << (j - 1))) ++cnt;
+                if (curr  & (1u << (j - 1))) ++cnt;
+            }
+            /* right neighbor */
+            if (j < 5) {
+                if (prev1 & (1u << (j + 1))) ++cnt;
+                if (prev2 & (1u << (j + 1))) ++cnt;
+                if (curr  & (1u << (j + 1))) ++cnt;
+            }
+            /* up neighbor */
+            if (prev2 & (1u << j)) ++cnt;
+            /* down neighbor */
+            if (curr  & (1u << j)) ++cnt;
+
+            if (!(cnt == 2 || cnt == 3 || cnt == 5))
+                return false;
+        }
+    }
+    return true;
+}
 
 /* Precomputed transition masks: mask[prev2][prev1] has bit k set
    iff adding row k after prev2, prev1 is allowed. */

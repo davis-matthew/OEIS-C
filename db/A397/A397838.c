@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{k=1..n} ∏_{m=1..⌊n/k⌋} (n + 1 – m*k)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow, build_spf
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   build_spf, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,10 @@
 /* The implementation uses divisor‑counts to factorise the product efficiently. */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_spf.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -58,7 +61,7 @@ seq_t a(idx_t n)
     seq_t result = 1;
     for (idx_t p = 2; p <= n; ++p) {
         if (prime_exp[p]) {
-            seq_t term = big_pow((seq_t)p, (seq_t)prime_exp[p]);
+            seq_t term = ipow((seq_t)p, (seq_t)prime_exp[p]);
             result *= term;
         }
     }

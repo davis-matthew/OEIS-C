@@ -11,15 +11,17 @@
  *            (a(1)=0)
  * Range:     u8 n <= 372, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, phi, rad
+ * Validated: standard, pass, 93 terms through n = 9478 (2026-11-01)
+ * Helpers:   is_prime, radical, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/phi.h"
-#include "../utils/rad.h"
+#include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/radical.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -27,14 +29,14 @@ seq_t a(idx_t n)
 
     /* Odd prime case: number of primitive roots modulo n = φ(n-1) */
     if ((n & 1U) && is_prime(n))
-        return phi(n - 1);
+        return totient(n - 1);
 
     /* Composite case: count k < n having at least one but not all prime
        factors of n.  k not coprime to n: (n-1) - φ(n)
        Subtract those divisible by all prime factors: floor((n-1)/rad(n)). */
     seq_t nn_minus1 = (seq_t)n - 1;
-    seq_t phi_n     = phi(n);
-    seq_t rad_n     = rad(n);
+    seq_t phi_n     = totient(n);
+    seq_t rad_n     = radical(n);
     seq_t div_all   = nn_minus1 / rad_n;           /* multiples of rad(n) below n */
 
     return nn_minus1 - phi_n - div_all;

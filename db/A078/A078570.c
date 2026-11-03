@@ -10,7 +10,8 @@
  *            pair (p, p+2) is (p+1). Thus a(n) = ω(p+1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9915 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void init_sequence(void);
 
@@ -69,7 +71,7 @@ static void init_sequence(void)
     /* Scan twin primes and compute omega(p+1) */
     /* We store omega values in an array of seq_t. */
     size_t twin_capacity = prime_cnt / 10;  /* rough estimate */
-    omega = (seq_t*)malloc(twin_capacity * sizeof(seq_t));
+    omega = mem_new(seq_t, twin_capacity);
     omega_len = 0;
     for (size_t i = 0; i + 1 < prime_cnt; ++i) {
         if (primes[i+1] == primes[i] + 2) {
@@ -77,7 +79,7 @@ static void init_sequence(void)
             seq_t val = omega_of(p + 1);
             if (omega_len == twin_capacity) {
                 twin_capacity *= 2;
-                omega = (seq_t*)realloc(omega, twin_capacity * sizeof(seq_t));
+                omega = mem_resize(seq_t, omega, twin_capacity);
             }
             omega[omega_len++] = val;
         }

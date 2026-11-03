@@ -12,13 +12,15 @@
  *            whenever the required bound grows
  * Range:     u8 n <= 15, u16 n <= 40, u32 n <= 121, u64 n <= 400,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *partitions = NULL;      /* memoised partition numbers */
 static size_t partition_cap = 0;      /* current allocated size */
@@ -30,7 +32,7 @@ static void compute_partitions_upto(idx_t N)
         return;                  /* already have everything needed */
 
     size_t new_cap = (size_t)N + 1;
-    seq_t *tmp = (seq_t *)realloc(partitions, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, partitions, new_cap);
     if (!tmp)
         abort();                  /* out of memory */
     partitions = tmp;

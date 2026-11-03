@@ -10,7 +10,8 @@
  *            A006257(k) = 2k – 2^{⌊log₂(k)⌋+1}, with a(1)=1, a(2)=2
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static caches for computed values and prefix sums.  Index 0 is unused
    for a_cache but is stored as 0 in pref_cache to simplify sums. */
@@ -42,8 +44,8 @@ static void ensure_capacity(idx_t n)
 {
     if (n + 1 <= cache_cap) return;          /* we already have space */
     idx_t new_cap = n + 1;                    /* indices 0 .. n */
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-    pref_cache = (seq_t *)realloc(pref_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
+    pref_cache = mem_resize(seq_t, pref_cache, new_cap);
     if (!a_cache || !pref_cache) abort();
     cache_cap = new_cap;
 }

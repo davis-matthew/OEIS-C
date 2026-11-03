@@ -10,15 +10,50 @@
  *            n: a(n+1)=σ(n)-n
  * Range:     u8 n <= 3, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_sqrt, sigma_of
+ * Validated: standard, pass, 75 terms through n = 982 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sigma_of.h"
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static inline bool is_deficient(seq_t x) {
     seq_t sig = sigma_of((idx_t)x);
@@ -45,7 +80,7 @@ static void ensure_capacity(size_t needed, seq_t **cache, size_t *cap) {
     if (*cap >= needed) return;
     size_t new_cap = (*cap == 0) ? 8 : *cap << 1;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(*cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *cache, new_cap);
     if (!tmp) abort();   /* allocation failure */
     *cache = tmp;
     *cap   = new_cap;

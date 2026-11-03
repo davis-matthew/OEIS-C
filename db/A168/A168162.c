@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache for computed terms */
 static seq_t *seq_arr = NULL;   /* array of sequence terms */
@@ -49,7 +51,7 @@ static void recompute_sequence(idx_t limit)
     }
 
     /* free previous cache */
-    free(seq_arr);
+    mem_free(seq_arr);
     seq_arr = NULL;
     seq_cap = 0;
     seq_len = 0;
@@ -62,7 +64,7 @@ static void recompute_sequence(idx_t limit)
         if (sum >= (seq_t)v) {
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap * 2 + 10;
-                seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+                seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
                 if (!seq_arr) abort();
             }
             seq_arr[seq_len++] = (seq_t)v;

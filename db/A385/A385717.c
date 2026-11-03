@@ -8,14 +8,23 @@
  * Formula:   a(n) = a(n-1)+a(n-2)+a(n-3), with a(1)=4, a(2)=13, a(3)=42
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   alloc_seq
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Computes term a(n) of OEIS sequence A385717.
  * The function caches results so that calls in any order are fast.
@@ -40,7 +49,7 @@ seq_t a(idx_t n)
         if (cache) {
             for (idx_t i = 1; i <= max_computed; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
 
         cache = new_cache;

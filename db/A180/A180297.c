@@ -11,6 +11,7 @@
  *            f(n-7) – f(n-8) (k is the upper bound)
  * Range:     u8 none, u16 n <= 9, u32 n <= 44, u64 n <= 59, u128 n <= 59,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 59 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 37, u64 n <= 125, u128 n <= 474,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: standard, pass, 52 terms through n = 9224 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,11 @@
    where i is the row index, j = n - i(i+1)/2. */
 
 /* These utilities provide binomial coefficients and integer powers. */
+#include <stdint.h>
+#include <stdlib.h>
+#include <math.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 #include <math.h>
 #include <stdint.h>
 
@@ -36,6 +40,6 @@ seq_t a(idx_t n)
     idx_t j = n - start;          /* column index in the row */
 
     seq_t bin = binomial(i, j);   /* C(i,j) */
-    seq_t mult = pow_uint(11, i); /* 11^i */
+    seq_t mult = ipow_u64_idx(11, i); /* 11^i */
     return bin * mult;
 }

@@ -10,7 +10,8 @@
  *            search)
  * Range:     u8 n <= 18, u16 n <= 9373, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, is_prime
+ * Validated: standard, pass, 69 terms through n = 9251 (2026-11-03)
+ * Helpers:   is_prime, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"                /* bool is_prime(idx_t x); */
-#include "../utils/divisor_count_u64.h"      /* idx_t divisor_count_u64(uint64_t n); */
+#include "../utils/is_prime.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* Check the defining property of a candidate number. */
 static bool has_property(uint64_t x)
@@ -30,7 +32,7 @@ static bool has_property(uint64_t x)
         return false;
 
     /* Number of ALL divisors of x. */
-    idx_t tau = divisor_count_u64(x);
+    idx_t tau = num_divisors(x);
 
     /* Proper divisors count of x. */
     idx_t prop1 = tau - 1;
@@ -38,7 +40,7 @@ static bool has_property(uint64_t x)
         return false;                     /* should not occur for composites */
 
     /* Proper divisors count of that count. */
-    idx_t tau_prop1 = divisor_count_u64(prop1);
+    idx_t tau_prop1 = num_divisors(prop1);
     idx_t prop2 = tau_prop1 - 1;
     if (prop2 <= 1)
         return false;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         while (new_cap < (size_t)n)
             new_cap <<= 1;
         if (new_cap > terms_cap) {
-            seq_t *tmp = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, new_cap);
             if (!tmp)
                 exit(1);                /* allocation failed */
             terms = tmp;

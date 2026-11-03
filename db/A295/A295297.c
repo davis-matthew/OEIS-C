@@ -7,16 +7,35 @@
  * Formula:   a(n) = (popcount(n) + sigma(n)) mod 2 where sigma(n) is the sum
  *            of the positive divisors of n (A000203). The parity of sigma(n)
  *            is 1 iff the odd part of n is a perfect square
- * Range:     u8 n <= 64, u16 n <= 9204, u32 n <= 9204, u64 n <= 9204,
- *            u128 n <= 9204, big any n
- * Helpers:   floor_sqrt
+ * Range:     u8 n <= 64, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9204 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* external linkage as required */
 seq_t a(idx_t n)

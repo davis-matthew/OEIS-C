@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{d|n} d * Sum_{p|d} (1 + 1/p) (OEIS A180253)
- * Range:     u8 n <= 41, u16 n <= 4199, u32 n <= 9703, u64 n <= 9703,
- *            u128 n <= 9703, big any n
+ * Range:     u8 n <= 41, u16 n <= 4199, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 80 terms through n = 9703 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Recursive helper that enumerates all divisors of n.

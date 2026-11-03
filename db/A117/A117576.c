@@ -8,12 +8,14 @@
  *            a(1)=0, a(2)=-1
  * Range:     i8 n <= 15, i16 n <= 31, i32 n <= 43, i64 n <= 43, i128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoisation buffer          */
 static idx_t cache_size = 0;     /* allocated size (in seq_t)   */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         size_t init_size = 3;
         if ((size_t)(n + 1) > init_size)
             init_size = (size_t)(n + 1);
-        cache = (seq_t*)malloc(init_size * sizeof(seq_t));
+        cache = mem_new(seq_t, init_size);
         if (cache == NULL) abort();
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)0;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Extend the cache if the requested index exceeds the current size */
     if ((size_t)(n + 1) > cache_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) abort();
         cache = tmp;
         cache_size = (idx_t)new_size;

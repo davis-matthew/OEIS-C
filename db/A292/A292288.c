@@ -12,17 +12,56 @@
  *            algorithm: * - If the base n is prime, a(n) = n +...
  * Range:     u8 n <= 110, u16 n <= 120, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
- * Helpers:   gcd64, is_prime_uint, remove_digit, to_base
+ * Validated: standard, pass, 81 terms through n = 116 (2026-11-03)
+ * Helpers:   gcd_u64, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd64.h"
-#include "../utils/is_prime_uint.h"
-#include "../utils/remove_digit.h"
-#include "../utils/to_base.h"
+#include <stdbool.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/is_prime_u64.h"
+
+/* Remove the digit at index idx (0 = most significant)
+ * from the digits array (length len) in base "base"
+ * and return the resulting integer value. */
+static uint64_t remove_digit(const uint32_t *digits, int len,
+                             int idx, uint32_t base)
+{
+    uint64_t result = 0;
+    for (int i = 0; i < len; ++i) {
+        if (i == idx) continue;
+        result = result * base + digits[i];
+    }
+    return result;
+}
+
+/* Convert value to base‑b, store most significant digit first.
+ * digits buffer must be large enough (at least 64 elements).
+ * Returns the number of digits written through *len. */
+static void to_base(uint64_t value, uint32_t base,
+                    uint32_t *digits, int *len)
+{
+    int pos = 0;
+    if (value == 0) {
+        digits[0] = 0;
+        *len = 1;
+        return;
+    }
+    while (value > 0) {
+        digits[pos++] = (uint32_t)(value % base);
+        value /= base;
+    }
+    /* reverse to get most significant first */
+    for (int i = 0; i < pos / 2; ++i) {
+        uint32_t tmp = digits[i];
+        digits[i] = digits[pos - 1 - i];
+        digits[pos - 1 - i] = tmp;
+    }
+    *len = pos;
+}
 
 /* Greatest common divisor for 64‑bit unsigned integers */
 
@@ -32,7 +71,7 @@ seq_t a(idx_t n)
     if (base <= 1) return (seq_t)0;   /* undefined for bases < 2 */
 
     /* Prime bases have the closed form a(n) = n + 1 */
-    if (is_prime_uint(base)) return (seq_t)(base + 1);
+    if (is_prime_u64(base)) return (seq_t)(base + 1);
 
     /* Search for the minimal denominator */
     const int MAX_DIGITS = 64;          /* enough for bases up to 10^4 */
@@ -52,7 +91,7 @@ seq_t a(idx_t n)
             uint64_t d_prime = remove_digit(d_digits, d_len, pos, (uint32_t)base);
             if (d_prime == 0) continue;   /* leading zero would give zero denom */
 
-            uint64_t g = gcd64(d, d_prime);
+            uint64_t g = gcd_u64(d, d_prime);
             if (g <= 1) continue;        /* no suitable n' exists */
 
             uint64_t d1 = d / g;          /* d  = g * d1 */

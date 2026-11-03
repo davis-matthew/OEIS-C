@@ -10,12 +10,14 @@
  *            returned for all indices n; for n > φ(341)=300 the value is 0
  * Range:     i8 n <= 300, i16 n <= 300, i32 n <= 300, i64 n <= 300,
  *            i128 n <= 300, big any n
- * Helpers:   none
+ * Validated: full, pass, 301 terms through n = 300 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,12 +26,12 @@ seq_t a(idx_t n)
     static const idx_t DEG = 300;
     if (coeff == NULL) {
         /* Allocate storage. */
-        coeff = (seq_t*)malloc((DEG + 1) * sizeof(seq_t));
+        coeff = mem_new(seq_t, (DEG + 1));
         for (idx_t i = 0; i <= DEG; ++i) coeff[i] = 0;
 
         /* Build numerator N(x) = (x^341 – 1)(x – 1). */
         const idx_t MAXN = 342;           /* Highest exponent of numerator. */
-        seq_t *N = (seq_t*)malloc((MAXN + 1) * sizeof(seq_t));
+        seq_t *N = mem_new(seq_t, (MAXN + 1));
         for (idx_t i = 0; i <= MAXN; ++i) N[i] = 0;
 
         /* A(x) = x^341 – 1 */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
         /* Build denominator D(x) = (x^31 – 1)(x^11 – 1). */
         const idx_t MAXD = 42;           /* Highest exponent of denominator. */
-        seq_t *D = (seq_t*)malloc((MAXD + 1) * sizeof(seq_t));
+        seq_t *D = mem_new(seq_t, (MAXD + 1));
         for (idx_t i = 0; i <= MAXD; ++i) D[i] = 0;
 
         /* (x^31 – 1)(x^11 – 1) = (x^31 – 1)·(x^11 – 1)   */
@@ -88,8 +90,8 @@ seq_t a(idx_t n)
         }
 
         /* Free temporary arrays */
-        free(D);
-        free(N);
+        mem_free(D);
+        mem_free(N);
 
         /* All coefficients are now stored in coeff[0..300] */
     }

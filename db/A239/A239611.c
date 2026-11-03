@@ -9,7 +9,8 @@
  *            1, n)
  * Range:     u8 n <= 11, u16 n <= 95, u32 n <= 2101, u64 n <= 2101,
  *            u128 n <= 2101, big any n
- * Helpers:   _gcd64
+ * Validated: standard, pass, 63 terms through n = 2063 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_gcd64.h"
+#include <math.h>
+#include "../utils/gcd_u64.h"
 
 /* Euclidean gcd for 64‑bit unsigned numbers */
 
@@ -44,9 +46,9 @@ seq_t a(idx_t n)
         return (seq_t)0;
     }
     for (uint64_t r = 0; r < N; ++r) {
-        g[r] = _gcd64(r, N);
+        g[r] = gcd_u64(r, N);
         uint64_t r1 = (r + N - 1) % N;     /* (r-1) mod N */
-        d[r] = _gcd64(r1, N);              /* gcd((r-1) mod N, N) */
+        d[r] = gcd_u64(r1, N);              /* gcd((r-1) mod N, N) */
     }
 
     /* main double loop */

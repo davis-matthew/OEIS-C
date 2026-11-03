@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 2403, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_more_zero_digits
+ * Validated: standard, pass, 61 terms through n = 9806 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has_more_zero_digits.h"
+#include "../utils/mem.h"
+
+/*  Return true iff n has strictly more 0‑digits than any other digit. */
+static bool
+has_more_zero_digits(idx_t n)
+{
+    unsigned char cnt[10] = {0};
+    if (n == 0) {
+        cnt[0] = 1;
+    } else {
+        idx_t x = n;
+        while (x > 0) {
+            unsigned d = (unsigned)(x % 10);
+            cnt[d]++;
+            x /= 10;
+        }
+    }
+    unsigned char zeros = cnt[0];
+    for (int d = 1; d < 10; d++)
+        if (zeros <= cnt[d])
+            return false;
+    return true;
+}
 
 /* Ensure the dynamic array has space for at least "need" elements. */
 static void
@@ -29,7 +52,7 @@ ensure_capacity(seq_t **arr, size_t *cap, size_t need)
         size_t newcap = (*cap) ? *cap * 2 : 16;
         while (newcap < need)
             newcap *= 2;
-        *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }

@@ -12,12 +12,14 @@
  *            a(0)) if n < 45 * a(45) = 1 + 45 * (a(44)+ … + a(...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n);
 
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;          /* a(0) = 1 */
 
     /* Allocate an array to hold all terms up to n */
-    seq_t *arr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (n + 1));
     if (!arr) return (seq_t)0;            /* allocation failed → return 0 */
 
     arr[0] = (seq_t)1;                    /* a(0) */
@@ -55,6 +57,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

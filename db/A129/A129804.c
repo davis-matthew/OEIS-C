@@ -9,7 +9,8 @@
  *            3*a(2*n) - a(2*n-1) - a(n-1) (n>0)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache storage for computed terms */
 static seq_t *cache = NULL;      /* pointer to array of a(n) */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     idx_t new_size = n + 1;                         /* new required size   */
     seq_t *tmp;
 #ifdef __cplusplus
-    tmp = static_cast<seq_t*>(realloc(cache, new_size * sizeof(seq_t)));
+    tmp = mem_resize(seq_t, cache, new_size);
 #else
     tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
 #endif

@@ -10,9 +10,10 @@
  *            where T(n,k) counts binary strings of length n whose smallest
  *            missing binary substring is k (0 ≤ k < 2ⁿ). The row lengths are
  *            2ⁿ, so a is produced row‑by‑row
- * Range:     u8 n <= 1027, u16 n <= 9676, u32 n <= 9676, u64 n <= 9676,
- *            u128 n <= 9676, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1027, u16 n <= 65534, u32 n <= 65534, u64 n <= 65534,
+ *            u128 n <= 65534, big any n
+ * Validated: standard, pass, 101 terms through n = 9676 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define MAX_ROW 15                /* enough for n up to ≈ 2¹⁵‑1 ( > 10000 index ) */
 #define MAX_BITS (1 << MAX_ROW)   /* 32768 */
@@ -38,7 +40,7 @@ static void append_row(int r)
 /* r is the row number (1‑based); row size = 1 << r */
 {
     unsigned long long row_size = 1ULL << r;
-    seq_t *cnt = (seq_t *)calloc(row_size, sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, row_size);
     if (!cnt) return;              /* allocation failure – silently abort */
 
     unsigned long long all_ones = row_size - 1;
@@ -69,8 +71,8 @@ static void append_row(int r)
     if (seq_len + row_size > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 1024;
         while (seq_len + row_size > new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
-        if (!tmp) { free(cnt); return; }
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
+        if (!tmp) { mem_free(cnt); return; }
         seq = tmp;
         seq_cap = new_cap;
     }
@@ -78,7 +80,7 @@ static void append_row(int r)
     /* copy new row into the global sequence */
     for (unsigned long long i = 0; i < row_size; ++i) seq[seq_len++] = cnt[i];
 
-    free(cnt);
+    mem_free(cnt);
     last_row = r;
 }
 

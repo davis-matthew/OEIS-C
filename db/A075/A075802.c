@@ -9,12 +9,15 @@
  *            the prime exponents is at least 2
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 121 terms through n = 9993 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd64.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     if (n <= 1) return (seq_t)1;          /* 1 is treated as a perfect power */
@@ -42,7 +45,7 @@ seq_t a(idx_t n) {
                 ++exp;
             }
             if (g == 0) g = exp;
-            else g = gcd64(g, exp);
+            else g = gcd_u64(g, exp);
             if (g == 1) return (seq_t)0;
         }
     }
@@ -50,7 +53,7 @@ seq_t a(idx_t n) {
     /* remaining prime factor, if any */
     if (tmp > 1) {                        /* exponent 1 */
         if (g == 0) g = 1;
-        else g = gcd64(g, 1);
+        else g = gcd_u64(g, 1);
         if (g == 1) return (seq_t)0;
     }
 

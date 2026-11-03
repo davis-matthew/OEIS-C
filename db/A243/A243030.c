@@ -13,13 +13,15 @@
  *            a(8)=457676, a(9)=2549156, a(10)=14430921, a(11)=82566...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* coefficients of the 12‑term linear recurrence */
 static const int coef[12] = {
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
 
     /* allocate or enlarge cache as needed */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(12 * sizeof(seq_t));
+        cache = mem_new(seq_t, 12);
         if (cache == NULL)
             return (seq_t)0;
         for (idx_t i = 0; i < 12; ++i)
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
     }
 
     if (cache_n < n) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)n);
         if (new_cache == NULL)
             return (seq_t)0;
         cache = new_cache;

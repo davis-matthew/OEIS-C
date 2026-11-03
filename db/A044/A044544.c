@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_34
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,28 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_34.h"
+#include "../utils/mem.h"
+
+/* true if x in base 7 contains the digraph 34 (least significant to most). */
+static bool has_34(seq_t x)
+{
+    bool found = false;
+    bool prev_is_4 = false;
+    int  first_digit = 1;
+
+    while (x > 0) {
+        int curr = (int)(x % 7);
+        if (!first_digit) {
+            if (prev_is_4 && curr == 3) { found = true; break; }
+            prev_is_4 = (curr == 4);
+        } else {
+            prev_is_4 = (curr == 4);
+            first_digit = 0;
+        }
+        x /= 7;
+    }
+    return found;
+}
 
 static seq_t *cache     = NULL;  /* stored terms */
 static idx_t cache_len  = 0;     /* number of stored terms */
@@ -36,8 +58,7 @@ seq_t a(idx_t n)
             /* grow array if necessary */
             if (cache_len == cache_cap) {
                 idx_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *new_cache = (seq_t *)realloc(cache,
-                                                     new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) abort();
                 cache = new_cache;
                 cache_cap = new_cap;

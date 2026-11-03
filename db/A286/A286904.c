@@ -9,6 +9,7 @@
  *            floor((k+1)*sqrt(2)) + 3k + 2
  * Range:     u8 n <= 22, u16 n <= 395, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 77 terms through n = 9856 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

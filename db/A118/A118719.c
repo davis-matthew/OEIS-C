@@ -7,6 +7,7 @@
  * Formula:   a(1) = 0, for n ≥ 2, a(n) = (floor(3*n/2) - 2)^3
  * Range:     u8 n <= 5, u16 n <= 28, u32 n <= 1085, u64 n <= 3000,
  *            u128 n <= 3000, big any n
+ * Validated: standard, pass, 57 terms through n = 2811 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

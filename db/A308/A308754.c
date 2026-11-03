@@ -9,7 +9,8 @@
  *            a(n-1)
  * Range:     u8 n <= 811, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 84 terms through n = 9979 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>      /* for size_t */
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* initialize cache on first call */
     if (cacheSize == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0; /* out of memory: return 0 (unlikely for typical usage) */
         cache[0] = 0;
         cacheSize = 1;         /* cache[0] valid */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* extend cache if n is beyond what we've already computed */
     if (n >= cacheSize) {
         idx_t newSize = n + 1;                     /* need indices 0 .. n inclusive */
-        seq_t *tmp = (seq_t *)realloc(cache, newSize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newSize);
         if (!tmp) return 0; /* out of memory: return 0 */
         cache = tmp;
 

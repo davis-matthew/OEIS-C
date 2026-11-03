@@ -7,13 +7,15 @@
  * Formula:   a(1) = 1; for n ≥ 2, a(n) = a(n‑1) * (10*n – 2)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 319 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This implements OEIS sequence A035277.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;    /* safety, although n is assumed ≥ 1 */
 
     if (size == 0) {          /* initialise the cache */
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;
         cache[0] = 1;           /* a(1) = 1 */
         size = 1;
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     if (size < n) {           /* extend cache up to n */
         size_t new_size = n;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;   /* allocation failed, return 0 as error sentinel */
         cache = tmp;
 

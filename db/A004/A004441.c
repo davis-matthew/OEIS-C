@@ -8,14 +8,32 @@
  *            distinct nonzero squares); for n > 120, a(n) = 4*a(n-35)
  * Range:     u8 n <= 96, u16 n <= 236, u32 n <= 516, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_sum_of_4_distinct_squares
+ * Validated: standard, pass, 73 terms through n = 992 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_sum_of_4_distinct_squares.h"
+
+static bool is_sum_of_4_distinct_squares(unsigned long long m) {
+    unsigned long long a, b, c;
+    for (a = 1; 4 * a * a < m; a++) {
+        unsigned long long a2 = a * a;
+        for (b = a + 1; a2 + 3 * b * b < m; b++) {
+            unsigned long long b2 = b * b;
+            for (c = b + 1; a2 + b2 + 2 * c * c < m; c++) {
+                unsigned long long c2 = c * c;
+                unsigned long long d2 = m - a2 - b2 - c2;
+                unsigned long long d = c + 1;
+                while (d * d < d2) d++;
+                if (d * d == d2) return true;
+            }
+        }
+    }
+    return false;
+}
 
 static unsigned long long base_terms[120];
 static int base_ready = 0;

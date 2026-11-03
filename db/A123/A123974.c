@@ -12,13 +12,15 @@
  *            P_k(x) are listed in ascending order of powers...
  * Range:     i8 n <= 22, i16 n <= 37, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* compute a(n) */
 seq_t a(idx_t n)
@@ -54,11 +56,11 @@ seq_t a(idx_t n)
     while (polys_len <= r) {
         if (polys_len == 0) {
             /* P_0(x) = 1  -> coefficients: [1] */
-            polys[0] = (seq_t*)malloc(sizeof(seq_t) * 1);
+            polys[0] = mem_new(seq_t, 1);
             polys[0][0] = (seq_t)1;
         } else if (polys_len == 1) {
             /* P_1(x) = x - 1  -> coefficients: [-1, 1] */
-            polys[1] = (seq_t*)malloc(sizeof(seq_t) * 2);
+            polys[1] = mem_new(seq_t, 2);
             polys[1][0] = (seq_t)-1;
             polys[1][1] = (seq_t)1;
         } else {
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
             idx_t i = polys_len;   /* index of polynomial to compute */
             const seq_t *prev  = polys[i - 1];
             const seq_t *prev2 = polys[i - 2];
-            seq_t *cur = (seq_t*)calloc((size_t)(i + 1), sizeof(seq_t));
+            seq_t *cur = mem_new(seq_t, (size_t)(i + 1));
             /* (x - F_i) * P_{i-1} */
             for (idx_t j = 0; j < i; ++j) {
                 cur[j + 1] = prev[j];                  /* x * prev[j]   */

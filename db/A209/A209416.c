@@ -12,13 +12,15 @@
  *            out‑of‑range indices are treated as 0. The sequence a(n) is...
  * Range:     u8 n <= 40, u16 n <= 127, u32 n <= 419, u64 n <= 1225,
  *            u128 n <= 1225, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 1151 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #if defined(__SIZEOF_INT128__)
 typedef unsigned __int128 bigint_t;   /* use 128‑bit arithmetic if available   */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         triangle = (seq_t **)realloc(triangle, new_rows * sizeof(seq_t *));
         for (size_t i = rows_allocated; i < new_rows; ++i) {
             size_t row_len = i + 1;                     /* row number (1‑based)   */
-            seq_t *row = (seq_t *)calloc(row_len + 1, sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, row_len + 1);
             if (!row) exit(EXIT_FAILURE);               /* simple error handling  */
             triangle[i] = row;
 

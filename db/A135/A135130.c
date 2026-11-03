@@ -14,7 +14,8 @@
  *            following implementation generates the sequence by...
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Global data for prime table */
@@ -155,7 +157,7 @@ seq_t a(idx_t n)
     while (term_count < n) {
         if (is_valid(cur_candidate)) {
             /* Grow array if necessary */
-            seq_t *new_terms = (seq_t *)realloc(terms, (term_count + 1) * sizeof(seq_t));
+            seq_t *new_terms = mem_resize(seq_t, terms, (term_count + 1));
             if (!new_terms) { abort(); }
             terms = new_terms;
             terms[term_count++] = (seq_t)cur_candidate;

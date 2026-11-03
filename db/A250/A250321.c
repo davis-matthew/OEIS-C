@@ -13,7 +13,8 @@
  *            previously computed terms so that any call order is hand...
  * Range:     u8 n <= 5, u16 n <= 39, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL;   /* cached values, index 0 corresponds to a(1) */
 static idx_t a_cache_sz = 0;      /* current cache capacity (number of entries) */
@@ -31,11 +33,11 @@ static void ensure_cache(idx_t n)
 {
     if (n <= a_cache_sz) return;
     idx_t new_sz = n + 16;                /* extra room to avoid frequent reallocs */
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_sz);
+    seq_t *new_cache = mem_new(seq_t, new_sz);
     if (!new_cache) return;               /* out of memory – caller will see 0 */
     if (a_cache) {
-        memcpy(new_cache, a_cache, sizeof(seq_t) * a_cache_sz);
-        free(a_cache);
+        mem_copy(new_cache, a_cache, sizeof(seq_t) * a_cache_sz);
+        mem_free(a_cache);
     }
     a_cache = new_cache;
     a_cache_sz = new_sz;

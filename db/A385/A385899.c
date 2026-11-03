@@ -10,13 +10,16 @@
  *            indexing of the rows)
  * Range:     i8 n <= 8, i16 n <= 18, i32 n <= 41, i64 n <= 113, i128 n <= 292,
  *            big any n
- * Helpers:   big_pow, binom, pow2
+ * Validated: standard, pass, 61 terms through n = 9629 (2026-11-01)
+ * Helpers:   binomial, ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
@@ -31,8 +34,8 @@ seq_t a(idx_t n) {
     idx_t c = n - prev;
 
     /* Compute the triangle entry. */
-    seq_t bin  = binom(r, c);                      /* C(r,c) */
-    seq_t powk = big_pow((seq_t)c, (seq_t)r);      /* c^r */
+    seq_t bin  = binomial(r, c);                      /* C(r,c) */
+    seq_t powk = ipow((seq_t)c, (seq_t)r);      /* c^r */
     seq_t pow2c = pow2(c);                          /* 2^c */
 
     seq_t term = bin;

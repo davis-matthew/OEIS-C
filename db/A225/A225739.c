@@ -12,7 +12,8 @@
  *            3^2=9. The function * merges the two families...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow10.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Static cache of computed terms.  The array is grown lazily on demand. */
 static seq_t *cache = NULL;
@@ -34,7 +45,7 @@ static void push_cache(seq_t value)
 {
     if (cache_len == cache_cap) {
         cache_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_len++] = value;
 }
@@ -44,7 +55,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first three terms. */
     if (cache == NULL) {
         cache_cap   = 64;
-        cache       = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_cap);
         cache_len   = 0;
         push_cache((seq_t)1);   /* 1^2 = 1 */
         push_cache((seq_t)4);   /* (10^0+1)^2 = 4 */

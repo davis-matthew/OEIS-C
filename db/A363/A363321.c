@@ -11,7 +11,8 @@
  *            |F_n| equally spaced fractions between 0 and 1
  * Range:     u8 n <= 28, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   farey_size, phi_table
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,42 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/farey_size.h"
-#include "../utils/phi_table.h"
+
+/* --------------------------------------------------------------- */
+static void phi_table(idx_t n, uint32_t **phi_out)
+{
+    size_t N = (size_t)n + 1;
+    uint32_t *phi = (uint32_t*)realloc(*phi_out, N * sizeof(uint32_t));
+    if (!phi) exit(1);
+    *phi_out = phi;
+
+    /* initialise phi[i] = i */
+    for (size_t i = 0; i < N; ++i) phi[i] = (uint32_t)i;
+
+    /* sieve */
+    for (size_t i = 2; i < N; ++i) {
+        if (phi[i] == (uint32_t)i) {           /* i is prime */
+            for (size_t j = i; j < N; j += i) {
+                phi[j] = (uint32_t)(phi[j] / i * (i - 1));
+            }
+        }
+    }
+}
+
+/* --------------------------------------------------------------- */
+static seq_t farey_size(idx_t n)
+{
+    uint32_t *phi_buf = NULL;
+    phi_table(n, &phi_buf);
+
+    seq_t sum = 0;
+    for (size_t i = 1; i <= (size_t)n; ++i) {
+        sum += (seq_t)phi_buf[i];
+    }
+
+    free(phi_buf);
+    return sum + (seq_t)1;   /* |F_n| */
+}
 
 /* --------------------------------------------------------------- */
 /*  Sieve for Euler's totient function up to the needed n.        */

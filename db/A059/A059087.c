@@ -8,9 +8,10 @@
  * Formula:   a(n) = T(r, m) = Σ_{i=0..r} s(r,i) * binomial(2^i-1, m) where r
  *            = ⌊log₂(n+1)⌋ and m = n - (2^r-1). s(r,i) are the signed
  *            Stirling numbers of the first kind
- * Range:     u8 n <= 17, u16 n <= 34, u32 n <= 45, u64 n <= 45, u128 n <= 45,
+ * Range:     u8 n <= 17, u16 n <= 35, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   _index_to_row_col, binom
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,21 @@
 /* Uses the utility function seq_t binom(idx_t n, idx_t k). */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/_index_to_row_col.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+
+/* convert flat index n to triangle coordinates (r,m) */
+static void _index_to_row_col(idx_t n, idx_t *r, idx_t *m)
+{
+    /* r = floor(log₂(n+1)) */
+    idx_t t = n + 1;
+    idx_t rr = 0;
+    while (( (idx_t)1 << (rr + 1) ) <= t) {
+        ++rr;
+    }
+    *r = rr;
+    *m = n - ( ((idx_t)1 << rr) - 1 );
+}
 
 #define MAX_R 65   /* enough for any n that fits in uint64_t */
 
@@ -66,7 +80,7 @@ seq_t a(idx_t n)
         /* top of the binomial coefficient: 2^i - 1 */
         idx_t top = ((idx_t)1 << i) - 1;
 
-        seq_t bin = binom(top, m);            /* binomial coefficient */
+        seq_t bin = binomial(top, m);            /* binomial coefficient */
         seq_t abs_s = (seq_t)(s > 0 ? s : -s);/* absolute Stirling value */
 
         seq_t term = bin * abs_s;             /* product, fits if result fits */

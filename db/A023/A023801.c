@@ -8,7 +8,8 @@
  *            different
  * Range:     u8 n <= 143, u16 n <= 1631, u32 n <= 1631, u64 n <= 1631,
  *            u128 n <= 1631, big any n
- * Helpers:   distinct_base6
+ * Validated: full, pass, 1631 terms through n = 1631 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/distinct_base6.h"
+#include "../utils/mem.h"
+
+static bool distinct_base6(seq_t v)
+{
+    unsigned mask = 0;
+    if (v == 0)  /* a(1) = 0 is allowed */
+        return true;
+    while (v > 0) {
+        unsigned digit = (unsigned)(v % 6);
+        if (mask & (1u << digit))
+            return false;                /* duplicate digit */
+        mask |= (1u << digit);
+        v /= 6;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +45,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 1631;                /* upper bound known from combinatorics */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL)
             return 0;                    /* memory error – return 0 as safe fallback */
         size_t count = 0;

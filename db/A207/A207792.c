@@ -9,6 +9,7 @@
  * Formula:   a(n) = a(n-1) + 61*a(n-2) + 83*a(n-3) + 272*a(n-4) + 336*a(n-5)
  * Range:     u8 none, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 38,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 209 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

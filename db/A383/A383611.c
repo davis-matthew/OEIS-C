@@ -10,20 +10,49 @@
  *            recursively without floating point
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   binomial, gcd
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*__include necessary utils__*/
-#include "../utils/binomial.h"
-#include "../utils/gcd.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
+
+/* Greatest common divisor for seq_t values. */
+static seq_t gcd(seq_t a, seq_t b)
+{
+    while (b != 0) {
+        seq_t t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
 #include <stdlib.h>
 /* dynamic array grow helper */
 static void grow_array(seq_t **arr, size_t *cap, size_t needed)
 {
     if (needed <= *cap) return;
-    seq_t *tmp = (seq_t *)realloc(*arr, needed * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, needed);
     if (tmp == NULL) {
         exit(EXIT_FAILURE);
     }

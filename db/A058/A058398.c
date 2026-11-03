@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 343, u16 n <= 1815, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   none
+ * Validated: standard, pass, 114 terms through n = 9797 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build environment. */
 
@@ -43,7 +45,7 @@ static void init_partition_table(void)
     size_t i, m;
     p_table = (seq_t**)malloc((MAX_ROW + 1) * sizeof(seq_t*));
     for (i = 0; i <= MAX_ROW; ++i) {
-        p_table[i] = (seq_t*)calloc((MAX_ROW + 1), sizeof(seq_t));
+        p_table[i] = mem_new(seq_t, (MAX_ROW + 1));
     }
 
     /* p(0,m) = 1 for all m */
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
         size_t i, m;
         seq_t **new_table = (seq_t**)malloc((new_max + 1) * sizeof(seq_t*));
         for (i = 0; i <= new_max; ++i) {
-            new_table[i] = (seq_t*)calloc((new_max + 1), sizeof(seq_t));
+            new_table[i] = mem_new(seq_t, (new_max + 1));
         }
         for (m = 0; m <= new_max; ++m) {
             new_table[0][m] = (seq_t)1;
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
             }
         }
         /* Free old table */
-        for (i = 0; i <= MAX_ROW; ++i) free(p_table[i]);
+        for (i = 0; i <= MAX_ROW; ++i) mem_free(p_table[i]);
         free(p_table);
         p_table = new_table;
     }

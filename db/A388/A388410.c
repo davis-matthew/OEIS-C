@@ -7,13 +7,16 @@
  * Formula:   a(n) = Sum_{k=0..n} 3^(n-k) * binomial(n,k) * binomial(n+3,k)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 44,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 922 (2026-11-01)
  * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow3.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   a(n) = A171896(n) - A000720(n)
  * Range:     i8 n <= 74, i16 n <= 74, i32 n <= 74, i64 n <= 74, i128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------- static state ----------------------------------------- */
 static idx_t  max_precomputed = 0;   /* largest n that has been processed   */
@@ -38,7 +40,7 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = (size_t)(n + 1);
 
     /* Resize the Van Eck array.                                         */
-    v_seq = (seq_t *)realloc(v_seq, new_cap * sizeof(seq_t));
+    v_seq = mem_resize(seq_t, v_seq, new_cap);
     if (!v_seq) exit(1);
 
     /* Resize the array that records last occurrences of values.        */

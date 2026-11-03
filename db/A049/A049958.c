@@ -9,13 +9,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Recurrence:
    a(1) = 1, a(2) = 2, a(3) = 3
@@ -36,8 +38,8 @@ seq_t a(idx_t n) {
         size_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap < needed) new_cap <<= 1;
 
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-        pref_cache = (seq_t *)realloc(pref_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        pref_cache = mem_resize(seq_t, pref_cache, new_cap);
 
         if (cache_cap == 0) {
             /* initialise first prefix entry */

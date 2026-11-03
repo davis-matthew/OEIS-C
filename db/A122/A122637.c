@@ -7,6 +7,7 @@
  * Formula:   a(n) = prime(n)_n
  * Range:     u8 n <= 25, u16 n <= 109, u32 n <= 894, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 70 terms through n = 876 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global containers – created on demand and grown when necessary. */
 static seq_t *odd_positions = NULL;   /* positions of odd sums, 1‑based */
@@ -36,7 +38,7 @@ static void build_up_to(idx_t limit)
 {
     /* free previous data */
     if (visited) free(visited);
-    if (odd_positions) free(odd_positions);
+    if (odd_positions) mem_free(odd_positions);
     visited = NULL;
     odd_positions = NULL;
     odd_positions_cap = 0;
@@ -57,7 +59,7 @@ static void build_up_to(idx_t limit)
 
     /* collect odd positions */
     odd_positions_cap = 1024;
-    odd_positions = (seq_t*)malloc(odd_positions_cap * sizeof(seq_t));
+    odd_positions = mem_new(seq_t, odd_positions_cap);
     if (!odd_positions) exit(EXIT_FAILURE);
     odd_positions_len = 0;
 
@@ -68,8 +70,7 @@ static void build_up_to(idx_t limit)
             if (sum & 1) {   /* odd sum */
                 if (odd_positions_len == odd_positions_cap) {
                     odd_positions_cap <<= 1;
-                    seq_t *tmp = (seq_t*)realloc(odd_positions,
-                                                odd_positions_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, odd_positions, odd_positions_cap);
                     if (!tmp) exit(EXIT_FAILURE);
                     odd_positions = tmp;
                 }

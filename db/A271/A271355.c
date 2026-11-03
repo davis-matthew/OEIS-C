@@ -11,13 +11,15 @@
  *            – 1))
  * Range:     u8 n <= 78, u16 n <= 300, u32 n <= 1128, u64 n <= 4371,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9883 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*----------------------------------------------------------------------
   Index of square root for an unsigned 64‑bit integer.
@@ -49,9 +51,9 @@ static void ensure_lucas(idx_t upto)
         return;                           /* already have enough      */
 
     seq_t *old = lucas_cache;
-    lucas_cache = (seq_t *)realloc(old, sizeof(seq_t) * (upto + 1));
+    lucas_cache = mem_resize(seq_t, old, (upto + 1));
     if (!lucas_cache) {                 /* allocation failed         */
-        free(old);
+        mem_free(old);
         abort();
     }
 

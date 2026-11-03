@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 60, u128 n <= 123,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    Initial values: a(0)=0, a(1)=0, a(2)=0, a(3)=2, a(4)=8
    The function caches computed values for arbitrary order calls. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoisation */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* initialise cache with known initial terms */
         cache_size = 5;                    /* indices 0..4 */
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         cache[0] = 0;
         cache[1] = 0;
         cache[2] = 0;
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     if ((idx_t)n + 1 > cache_size) {
         idx_t i;
         idx_t new_size = (idx_t)n + 1;
-        cache = (seq_t*)realloc(cache, sizeof(seq_t) * new_size);
+        cache = mem_resize(seq_t, cache, new_size);
         /* compute missing entries */
         for (i = cache_size; i <= n; ++i) {
             if (i <= 4) {

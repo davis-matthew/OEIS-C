@@ -9,13 +9,15 @@
  *            values: a(1)=56, a(2)=1243, a(3)=27380, a(4)=603766
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache to store computed values. */
 static seq_t *cache = NULL;      /* array of a(i) with cache[0] = a(1) */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     /* Initialize cache with 4 known terms if it's the first call */
     if (cache_len == 0) {
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort(); /* abort on allocation failure */
         cache[0] = (seq_t)56;
         cache[1] = (seq_t)1243;
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t n)
     while (cache_len < n) {
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cache_cap = new_cap;

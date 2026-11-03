@@ -11,14 +11,25 @@
  *            a(n) = ∏_{j=1}^{n} pj^{expA(pj) – expF(pj)}, whe...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   legendre_idx
+ * Validated: standard, pass, 28 terms through n = 36 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/legendre_idx.h"
+
+/* Legendre exponent of prime p in n! */
+static idx_t legendre_idx(idx_t n, idx_t p)
+{
+    idx_t cnt = 0;
+    while (n) {
+        n /= p;
+        cnt += n;
+    }
+    return cnt;
+}
 
 #ifndef MAX_PRIME_LIMIT
 #  define MAX_PRIME_LIMIT 200000   /* enough for the 10 000th prime (≈104 729) */

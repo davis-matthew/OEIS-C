@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   a(1) = 1; for n > 1, a(n) = Σ_{p|n, p prime} a(n - n/p)
- * Range:     u8 n <= 153, u16 n <= 1644, u32 n <= 8989, u64 n <= 8989,
- *            u128 n <= 8989, big any n
- * Helpers:   none
+ * Range:     u8 n <= 153, u16 n <= 1644, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 96 terms through n = 8989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache: cache[n] holds a(n).  cache[0] is unused. */
 static seq_t *cache = NULL;
@@ -34,7 +36,7 @@ ensure_cache(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap <= (size_t)n) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
     if (!tmp) abort();          /* out of memory */
     cache = tmp;
 

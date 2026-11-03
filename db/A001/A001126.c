@@ -9,7 +9,8 @@
  *            factored with an SPF sieve
  * Range:     u8 n <= 3, u16 n <= 466, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prim_root, pmod_pow
+ * Validated: standard, pass, 60 terms through n = 967 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prim_root.h"
-#include "../utils/pmod_pow.h"
+#include "../utils/powmod_u64.h"
+
+static bool is_prim_root(uint64_t g, uint64_t p, const uint64_t *fac, int nf) {
+    int i;
+    if (g % p == 0) return false;
+    for (i = 0; i < nf; i++)
+        if (powmod_u64(g, (p - 1) / fac[i], p) == 1) return false;
+    return true;
+}
 
 static uint32_t *spf_tab = NULL;
 static uint64_t spf_lim = 0;

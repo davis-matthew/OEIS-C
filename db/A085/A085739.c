@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 30, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- internal state ---------- */
 static uint64_t *prime_cache = NULL;   /* array of primes             */
@@ -51,8 +53,7 @@ static void ensure_sum_cap(size_t needed)
     if (sum_cap < needed) {
         size_t new_cap = sum_cap ? sum_cap * 2 : 32;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(sum_cache,
-                                      new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, sum_cache, new_cap);
         if (!tmp) abort();
         sum_cache = tmp;
         sum_cap   = new_cap;

@@ -9,7 +9,8 @@
  *            dividing n }
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_squarefree_small
+ * Validated: standard, pass, 103 terms through n = 9252 (2026-11-01)
+ * Helpers:   factor_u64, is_squarefree_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/is_squarefree_small.h"
+#include "../utils/is_squarefree_u64.h"
 
 /* Public sequence function -------------------------------------------------- */
 seq_t a(idx_t n)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         uint64_t b = a_exp;
 
         /* Find the largest square‑free integer ≤ a_exp. */
-        while (!is_squarefree_small(b))
+        while (!is_squarefree_u64(b))
             --b;
 
         if (b > maxexp)

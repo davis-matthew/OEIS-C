@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   bit_off, byte_idx, is_palindrome
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,9 +31,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"   /* boolean function bool is_palindrome(seq_t, idx_t) */
-#include "../utils/bit_off.h"
-#include "../utils/byte_idx.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
+
+/* bit/8        */
+static inline size_t bit_off(idx_t bit) { return (size_t)bit & 7; }
+
+/* ------------------------------------------------------------------ */
+static inline size_t byte_idx(idx_t bit) { return (size_t)bit >> 3; }
 
 static seq_t *vals = NULL;
 static size_t vals_cap = 0;          /* number of seq_t slots allocated   */
@@ -90,7 +96,7 @@ static void ensure_vals_cap(idx_t n)
     if (required <= vals_cap) return;
     size_t new_cap = vals_cap? vals_cap * 2 : 64;
     while (new_cap < required) new_cap <<= 1;
-    seq_t *new_vals = (seq_t*)realloc(vals, new_cap * sizeof(seq_t));
+    seq_t *new_vals = mem_resize(seq_t, vals, new_cap);
     if (!new_vals) abort();                   /* allocation failure */
     vals     = new_vals;
     vals_cap = new_cap;
@@ -111,7 +117,7 @@ seq_t a(idx_t n)
             while (1) {
                 if (!is_used((idx_t)cand)) {
                     seq_t sum = (seq_t)i + cand;
-                    if (is_palindrome(sum, 10)) break;   /* found a valid term */
+                    if (is_palindrome_base(sum, 10)) break;   /* found a valid term */
                 }
                 ++cand;
             }

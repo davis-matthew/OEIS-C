@@ -13,6 +13,7 @@
  *            a(n) = general - 1
  * Range:     u8 n <= 44, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,6 +23,7 @@
    entry, avoiding any dynamic allocation or recursion. */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

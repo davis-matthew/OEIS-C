@@ -11,12 +11,18 @@
  *            4) and 10(1100)^infinity for n == 3 (mod 4). Equiva...
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   a007873_digit
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a007873_digit.h"
+static int a007873_digit(idx_t n, idx_t i) {
+    if (n % 4 == 1) return (i % 2 == 0) ? 1 : 0;
+    if (i == 0) return 1;
+    if (i == 1) return 0;
+    return ((i - 2) % 4 < 2) ? 1 : 0;
+}
 
 seq_t a(idx_t n) {
     seq_t j = 1;

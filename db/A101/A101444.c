@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 3367, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 7606, big any n
- * Helpers:   mul_mod64, pow_mod64
+ * Validated: standard, pass, 69 terms through n = 9923 (2026-11-03)
+ * Helpers:   mem, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mul_mod64.h"
-#include "../utils/pow_mod64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* deterministic bases for 64‑bit numbers */
 static const uint64_t mr_bases[] = {2ULL, 325ULL, 9375ULL, 28178ULL,
@@ -45,11 +47,11 @@ static inline int is_prime_uint64(uint64_t n)
     for (size_t i = 0; i < sizeof(mr_bases)/sizeof(mr_bases[0]); ++i) {
         uint64_t a = mr_bases[i] % n;
         if (a <= 1) continue;
-        uint64_t x = pow_mod64(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1 || x == n-1) continue;
         int composite = 1;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { composite = 0; break; }
         }
         if (composite) return 0;
@@ -73,11 +75,11 @@ seq_t a(idx_t n)
     /* Expand cache capacity if necessary */
     if (cache_cnt == cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : 8;
-        seq_t *new_arr = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (new_arr == NULL) abort();              /* OOM */
         if (cache != NULL) {
-            memcpy(new_arr, cache, sizeof(seq_t) * cache_cnt);
-            free(cache);
+            mem_copy(new_arr, cache, sizeof(seq_t) * cache_cnt);
+            mem_free(cache);
         }
         cache     = new_arr;
         cache_cap = new_cap;

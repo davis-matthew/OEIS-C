@@ -8,17 +8,18 @@
  * Formula:   a(n) = n*(n+1)/2 - (m*(m+1)*(2*m+1))/3, where m = floor(sqrt(n))
  * Range:     i8 n <= 18, i16 n <= 266, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 81 terms through n = 925 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
-    idx_t m = int_sqrt(n);
+    idx_t m = isqrt(n);
     seq_t sn = (seq_t)n;
     seq_t sm = (seq_t)m;
     seq_t sum_n = sn * (sn + 1) / 2;

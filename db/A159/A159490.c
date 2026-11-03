@@ -7,7 +7,8 @@
  * Formula:   a(n) = 12^n * product_{p prime, p>3, (p-1)|n} p
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: standard, pass, 33 terms through n = 844 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 
 #include <stdint.h>
 
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
 
 /* Return the denominator of Bernoulli(n, 1/12).  */
 seq_t a(idx_t n)
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute 12^n in arbitrary precision.  */
-    seq_t result = big_pow((seq_t)12, (seq_t)n);
+    seq_t result = ipow((seq_t)12, (seq_t)n);
 
     /* Multiply by each prime p>3 such that (p-1) | n.  */
     for (size_t i = 0; i < prime_cnt; ++i) {

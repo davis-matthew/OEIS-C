@@ -7,17 +7,19 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} 1/(1 - 3*k*x^k)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 38, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate space for coefficients up to n */
-    seq_t *coef = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *coef = mem_new(seq_t, (n + 1));
     if (!coef) return (seq_t)0;          /* allocation failure – unlikely in tests */
 
     /* initialize all coefficients to zero, except a(0)=1 */
@@ -36,6 +38,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coef[n];
-    free(coef);
+    mem_free(coef);
     return result;
 }

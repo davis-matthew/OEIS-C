@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *lookup = NULL;      /* cache of generated terms      */
 static idx_t   sz    = 0;         /* number of cached terms        */
@@ -50,7 +52,7 @@ static void ensure_cache(idx_t n)
     if (!lookup)        /* first call – allocate initial storage */
     {
         cap = 64;
-        lookup = (seq_t *)malloc(cap * sizeof(seq_t));
+        lookup = mem_new(seq_t, cap);
         if (!lookup) abort();
         sz    = 0;
         probe = 0;
@@ -66,7 +68,7 @@ static void ensure_cache(idx_t n)
                 if (sz == cap)   /* grow array if full */
                 {
                     cap *= 2;
-                    lookup = (seq_t *)realloc(lookup, cap * sizeof(seq_t));
+                    lookup = mem_resize(seq_t, lookup, cap);
                     if (!lookup) abort();
                 }
                 lookup[sz++] = x;

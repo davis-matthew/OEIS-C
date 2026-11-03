@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..n} (-3*n+1)^(k-1) * Stirling2(n,k)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 8, i64 n <= 13, i128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;     /* a(n) values, indexed by n */
 static seq_t *stir   = NULL;     /* current row of Stirling numbers S(n,k) */
@@ -31,13 +33,13 @@ static void grow_array(seq_t **arr, size_t *cap_ptr, size_t needed)
 
     /* In C++ the cast is required because calloc/realloc return void*.
        In C it is still legal to cast explicitly. */
-    tmp = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    tmp = mem_new(seq_t, new_cap);
     if (!tmp) return;               /* allocation failure – let the caller fail */
 
     if (*arr) {
         /* Preserve existing values */
         for (size_t i = 0; i < *cap_ptr; ++i) tmp[i] = (*arr)[i];
-        free(*arr);
+        mem_free(*arr);
     }
     *arr = tmp;
     *cap_ptr = new_cap;

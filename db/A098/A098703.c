@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 41, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 910 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    as needed.  It works for both C11 and C++17 builds.               */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute the nth term of A098703 */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* initialise cache for the three seed values */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(3 * sizeof(seq_t));
+        cache = mem_new(seq_t, 3);
         if (cache == NULL)  /* allocation failure – unlikely but safe */
             return 0;
         cache[0] = 0;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         size_t new_size = cache_size * 2;
         if (new_size < (size_t)(n + 1))
             new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL)   /* allocation failure – unlikely but safe */
             return 0;
         cache = tmp;

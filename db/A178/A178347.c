@@ -11,7 +11,8 @@
  *            floor( (sqrt(8n+1)-1)/2 ), m = n - r*(r+1)/2
  * Range:     u8 n <= 11, u16 n <= 30, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t **eulerian_cache = NULL;   /* array of pointers to rows of Eulerian numbers */
 static idx_t  eulerian_rows  = 0;       /* number of rows currently stored (highest n + 1) */
@@ -38,7 +40,7 @@ ensure_eulerian(idx_t n)
 
     /* Compute missing rows */
     for (idx_t i = eulerian_rows; i <= n; ++i) {
-        seq_t *row = (seq_t *)calloc(i + 1, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, i + 1);
         if (!row) abort();
 
         if (i == 0) {

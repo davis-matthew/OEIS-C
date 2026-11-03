@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 74, u32 n <= 123, u64 n <= 123,
  *            u128 n <= 123, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 117 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdlib.h>   /* realloc */
 #include <stdbool.h>  /* bool, true, false */
 #include <stdint.h>   /* for uint8_t etc */
+#include "../utils/mem.h"
 
 /* memoised sequence buffer */
 static seq_t *g_seq = NULL;
@@ -43,7 +45,7 @@ static void append_value(seq_t v)
 {
     if (g_len == g_cap) {
         size_t newcap = g_cap ? g_cap * 2 : 128;
-        seq_t *tmp = (seq_t *)realloc(g_seq, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, g_seq, newcap);
         if (!tmp) return;                 /* silently abort on memory failure */
         g_seq = tmp;
         g_cap = newcap;

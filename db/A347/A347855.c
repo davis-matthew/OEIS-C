@@ -11,7 +11,8 @@
  *            (n-2) * (2n-3) Initial values: a(0)=1, a(1)=9, a(2)=189
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 /* Cache for previously computed values */
 static seq_t *cache = NULL;
@@ -29,7 +31,7 @@ static idx_t cache_cap = 0;
 static void ensure_capacity(idx_t n)
 {
     if (n + 1 > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         cache = tmp;
         /* initialise new elements to zero */
         for (idx_t i = cache_cap; i <= n; ++i)

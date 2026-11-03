@@ -7,12 +7,15 @@
  * Formula:   a(n) = Σ_{j=0..n} (-1)^{n-j} · binomial(n,j) · j^n · 2^j
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 35 terms through n = 355 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"      /* provides binomial() but we compute it locally */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include <stdbool.h>             /* for bool if needed */
 
 /* Utility: binary exponentiation for seq_t */
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
 
     seq_t sum_pos = (seq_t)0, sum_neg = (seq_t)0;
 
-    seq_t binom = (seq_t)1;   /* binomial(n,0) */
+    seq_t binomial = (seq_t)1;   /* binomial(n,0) */
     seq_t pow2 = (seq_t)1;    /* 2^0 */
 
     for (idx_t j = 0; j <= n; ++j)
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
         seq_t powj = pow_ui((seq_t)j, n);   /* j^n */
 
         /* term = binomial(n,j) * j^n * 2^j */
-        seq_t term = binom * powj * pow2;
+        seq_t term = binomial * powj * pow2;
 
         /* sign = (-1)^(n-j) */
         if (((n - j) & 1ULL) == 0)
@@ -57,7 +60,7 @@ seq_t a(idx_t n)
             break;                 /* avoid extra update after last iteration */
 
         /* Update binomial coefficient for next j: binom(n,j+1) */
-        binom = binom * (seq_t)(n - j) / (seq_t)(j + 1);
+        binomial = binomial * (seq_t)(n - j) / (seq_t)(j + 1);
 
         /* Update power of 2: 2^{j+1} */
         pow2 <<= 1;

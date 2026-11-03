@@ -7,12 +7,14 @@
  * Formula:   a(0)=1, a(1)=1; a(n)=2^n + n - 2*a(n-1) (n≥2)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* external types supplied by the build */
 extern seq_t a(idx_t n);   /* declare to avoid implicit definition */
@@ -36,7 +38,7 @@ static void ensure_cache_capacity(size_t need)
     if (new_cap < need)
         new_cap = need;
 
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr)          /* allocation failed; aborting is acceptable */
         return;
 

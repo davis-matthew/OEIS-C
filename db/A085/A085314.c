@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 256, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ul_gcd64
+ * Validated: standard, pass, 91 terms through n = 972 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
    The overall term a(n) is the product of these contributions. */
 
 #include <stdint.h>
-#include "../utils/ul_gcd64.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;              /* n=0 not used, safety */
@@ -61,7 +62,7 @@ seq_t a(idx_t n) {
             phi *= (seq_t)(p - 1);
             phi64 *= (uint64_t)(p - 1);
 
-            uint64_t g = ul_gcd64((uint64_t)11, phi64);   /* gcd(11, φ) */
+            uint64_t g = gcd_u64((uint64_t)11, phi64);   /* gcd(11, φ) */
             seq_t contrib = (seq_t)1 + phi / (seq_t)g;
             result *= contrib;
         }
@@ -72,7 +73,7 @@ seq_t a(idx_t n) {
         idx_t p = m;                       /* exponent e = 1 */
         seq_t phi = (seq_t)(p - 1);
         uint64_t phi64 = (uint64_t)(p - 1);
-        uint64_t g = ul_gcd64((uint64_t)11, phi64);
+        uint64_t g = gcd_u64((uint64_t)11, phi64);
         seq_t contrib = (seq_t)1 + phi / (seq_t)g;
         result *= contrib;
     }

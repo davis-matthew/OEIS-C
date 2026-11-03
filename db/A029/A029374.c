@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    The function is O(n) in time and O(n) in memory, and works for
    any of the predefined integer or arbitrary‑precision types. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for the DP table. Use (seq_t *)cast to satisfy
        both C and C++ compiler rules. */
-    seq_t *dp = (seq_t *)calloc((n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return (seq_t)0;        /* allocation failure – unlikely */
 
     dp[0] = (seq_t)1;                 /* only one way to make sum 0 */
@@ -40,6 +42,6 @@ seq_t a(idx_t n)
     }
 
     seq_t ans = dp[n];
-    free(dp);
+    mem_free(dp);
     return ans;
 }

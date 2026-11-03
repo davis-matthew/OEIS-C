@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 8, i16 n <= 17, i32 n <= 31, i64 n <= 36, i128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(n) = -a(n-1) + a(n-2) - 2*a(n-3) + 8*a(n-4) + 32*a(n-5);
    Initial values: a(0)=1, a(1)=1, a(2)=0, a(3)=-1, a(4)=7 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static idx_t size = 0;
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
 
     if (n >= size) {
         idx_t newsize = (n + 1 > 16 ? n + 1 : 16);
-        seq_t *new_cache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, newsize);
         if (!new_cache) abort();  /* allocation failed */
         cache = new_cache;
 

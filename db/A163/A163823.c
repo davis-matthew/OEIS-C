@@ -8,7 +8,8 @@
  *            a,b>=1, gcd(a,b)=1, (a+1)(b+1)=2k } (ordered)
  * Range:     u8 n <= 59, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Compute A163822 for a given n (n >= 2) */
 static seq_t A163822(idx_t n)
@@ -57,12 +59,12 @@ seq_t a(idx_t n)
     if (!a_cache)
     {
         a_cache_cap = 64;
-        a_cache = (seq_t*)malloc(a_cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_cap);
     }
     while (a_cache_cap < n)
     {
         a_cache_cap *= 2;
-        a_cache = (seq_t*)realloc(a_cache, a_cache_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, a_cache_cap);
     }
 
     /* compute values up to n if not already computed */

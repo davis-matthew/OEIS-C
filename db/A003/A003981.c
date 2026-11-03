@@ -8,14 +8,15 @@
  *            Fibonacci(pi(p)+2)
  * Range:     u8 n <= 36, u16 n <= 82, u32 n <= 198, u64 n <= 478,
  *            u128 n <= 1102, big any n
- * Helpers:   check_prime
+ * Validated: standard, pass, 78 terms through n = 9421 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/check_prime.h"
+#include "../utils/is_prime_u64.h"
 
 static uint64_t prime_count_cache[64];
 static uint64_t prime_cache_keys[64];
@@ -28,7 +29,7 @@ static uint64_t prime_count(uint64_t p) {
     
     uint64_t count = 0;
     for (uint64_t i = 2; i <= p; i++) {
-        if (check_prime(i)) count++;
+        if (is_prime_u64(i)) count++;
     }
     
     if (prime_cache_size < 64) {

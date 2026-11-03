@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   equal_3_5
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,24 @@
 /*  Standard headers used             */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/equal_3_5.h"
+#include "../utils/mem.h"
+
+/*  Helper: test whether x has equal
+   non‑zero counts of 3 and 5.          */
+static bool equal_3_5(seq_t x)
+{
+    unsigned cnt3 = 0;
+    unsigned cnt5 = 0;
+    seq_t y = x;
+    if (y == 0) return false;
+    while (y > 0) {
+        unsigned d = (unsigned)(y % (seq_t)10);
+        if (d == 3) ++cnt3;
+        else if (d == 5) ++cnt5;
+        y /= (seq_t)10;
+    }
+    return cnt3 > 0 && cnt3 == cnt5;
+}
 
 /*------------------------------------*/
 /*  State for memoisation             */
@@ -41,7 +59,7 @@ static void grow_cache(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     /* In the test harness an allocation failure is not expected. */
     cache = tmp;
     cache_cap = new_cap;

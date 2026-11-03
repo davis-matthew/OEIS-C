@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..n} 2^(n-k) * binomial(5*n+1,k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,10 @@
    T_0 = 2^n,
    T_k = T_{k-1} * (5n+1-k+1) / (k*2). */
 
-#include "../utils/pow2.h"   /* pow2(idx_t)          */
-#include "../utils/gcd.h"    /* gcd(seq_t, seq_t)   */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/pow2.h"
 
 /* Helper for safe multiplication.
    In C++ we use constexpr and type traits;

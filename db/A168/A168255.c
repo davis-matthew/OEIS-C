@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 111 terms through n = 909 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *cum = NULL;        /* cumulative sums of T_k = k‑th nonprime */
 static size_t cum_count = 0;      /* number of cumulative sums stored */
@@ -42,7 +44,7 @@ static void ensure_cum_capacity(void)
 {
     if (cum_count >= cum_cap) {
         size_t new_cap = cum_cap ? cum_cap * 2 : 256;
-        seq_t *tmp = (seq_t *)realloc(cum, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cum, new_cap);
         if (!tmp) exit(1);                /* memory allocation failed */
         cum = tmp;
         cum_cap = new_cap;

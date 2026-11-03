@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Return the number of bits required to represent a non‑zero seq_t. */
 static inline size_t bitlen_seq_t(seq_t x)
@@ -66,7 +68,7 @@ static uint64_t next_candidate = 3;    /* 3 is the first odd prime */
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         /* In a real program we would handle allocation failure, but we
            assume the build environment provides ample memory. */
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
 {
     while (cache_len < n) {
         /* Test candidate for primality and the interior‑pair property. */
-        if (is_prime_small(next_candidate) &&
+        if (is_prime_seq(next_candidate) &&
             has_single_inner_match((seq_t)next_candidate))
         {
             if (cache_len == cache_cap)

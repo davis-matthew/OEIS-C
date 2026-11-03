@@ -9,8 +9,9 @@
  *            digits. This implementation uses the logarithmic approximation
  *            of the digit count and a small correction loop to ensure
  *            correctness for all n ≥ 1
- * Range:     u8 n <= 53, u16 n <= 9781, u32 n <= 9781, u64 n <= 9781,
- *            u128 n <= 9781, big any n
+ * Range:     u8 n <= 53, u16 n <= 13696, u32 n <= 20899, u64 n <= 20899,
+ *            u128 n <= 20899, big any n
+ * Validated: standard, pass, 66 terms through n = 9781 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

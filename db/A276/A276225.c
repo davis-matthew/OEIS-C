@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 47, u128 n <= 94,
  *            big any n
- * Helpers:   free_seq_array, seq_alloc_new_array
+ * Validated: standard, pass, 49 terms through n = 2186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,20 @@
    The implementation caches computed values.
    It is thread‐unsupported but satisfies all other requirements. */
 #include <stddef.h>
-#include "../utils/seq_alloc_new_array.h"   /* seq_alloc_new_array(size_t) */
-#include "../utils/free_seq_array.h"        /* free_seq_array(seq_t *) */
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache     = NULL;   /* cache array of seq_t values */
 static size_t capacity  = 0;      /* allocated capacity of cache */

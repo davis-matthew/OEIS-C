@@ -13,7 +13,8 @@
  *            recurrence is not given in OEIS but is known to be...
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 21, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define ALPHA                7               /* size of alphabet */
 #define STATES               (ALPHA*ALPHA*ALPHA*ALPHA)   /* 7⁴ = 2401 */
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
     /* ensure enough space for memoised results */
     if (!a_values || n + 1 > a_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(a_values, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_values, new_cap);
         a_values = tmp;
         a_cap = new_cap;
     }
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
     for (idx_t len = current_len + 1; len <= n + 4; ++len) {
         int dp_next = 1 - dp_curr;
         /* clear next buffer */
-        memset(dp[dp_next], 0, sizeof(dp[dp_next]));
+        mem_set(dp[dp_next], 0, sizeof(dp[dp_next]));
 
         /* transition */
         for (size_t s = 0; s < STATES; ++s) {

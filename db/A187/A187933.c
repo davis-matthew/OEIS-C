@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 26, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 */
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static uint8_t sum_ab[16][16][3];
 static uint8_t satlower[16][16][16];
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
     /* DP arrays: dp[a][b][pm] where pm are pending bits of row a */
     static seq_t dp[16][16][8];
     static seq_t ndp[16][16][8];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* initialise all first two rows with all pending bits set (111) */
     for (int r0 = 0; r0 < 16; ++r0)
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
     /* we will have total (n+2) rows; already have first two,
        add rows 2 .. n+1 (n steps) */
     for (idx_t step = 2; step <= n + 1; ++step) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (int a = 0; a < 16; ++a) {
             for (int b = 0; b < 16; ++b) {
                 for (int pm = 0; pm < 8; ++pm) {
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* sum over final states where the last processed row has no pending bits */

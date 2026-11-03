@@ -10,13 +10,31 @@
  *            9 = 0 : a(n) = (C(n,9) + 2·C(n/3,3) – 3·(n/9)) / n
  * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   _binom3, _binom9
+ * Validated: partial, pass, 34 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_binom3.h"
-#include "../utils/_binom9.h"
+static seq_t _binom3(idx_t n) {
+    if (n < 3) return 0;
+    seq_t r = 1;
+    for (idx_t i = 1; i <= 3; ++i) {
+        unsigned __int128 tmp = (unsigned __int128)r * (n - 3 + i);
+        r = (seq_t)(tmp / i);
+    }
+    return r;
+}
+
+static seq_t _binom9(idx_t n) {
+    if (n < 9) return 0;
+    seq_t r = 1;
+    for (idx_t i = 1; i <= 9; ++i) {
+        unsigned __int128 tmp = (unsigned __int128)r * (n - 9 + i);
+        r = (seq_t)(tmp / i);
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     if (n < 10) return 0;   /* below the OEIS offset */

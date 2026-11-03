@@ -13,7 +13,8 @@
  *            27):...
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /* #include <stdio.h>  /* for debugging only, not used in final build */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;            /* memoized sequence values */
 static size_t cache_size = 0;          /* allocated array length   */
@@ -87,11 +89,11 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL) {
         cache_size = 64;
-        cache = (seq_t*)calloc(cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
     }
     while (cache_size <= (size_t)n) {
         cache_size <<= 1;
-        cache = (seq_t*)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
     }
 
     for (idx_t m = cache_max + 1; m <= n; ++m) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 979, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime, push_idx, rotate_first_digit
+ * Validated: standard, pass, 70 terms through n = 7984 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,30 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/isPrime.h"   /* provides bool isPrime(idx_t) */
-#include "../utils/push_idx.h"
-#include "../utils/rotate_first_digit.h"
+#include "../utils/is_prime.h"
+
+/* dynamic array of idx_t (used for primes and special primes) */
+static void push_idx(idx_t **arr, size_t *len, size_t *cap, idx_t val) {
+    if (*len == *cap) {
+        *cap = (*cap ? *cap * 2 : 16);
+        *arr = (idx_t*)realloc(*arr, *cap * sizeof(idx_t));
+    }
+    (*arr)[(*len)++] = val;
+}
+
+/* rotate the first decimal digit of x to the end */
+static idx_t rotate_first_digit(idx_t x) {
+    if (x < 10) return x;            /* single‑digit numbers stay unchanged */
+
+    idx_t power = 1;
+    idx_t tmp   = x;
+    while (tmp >= 10) {              /* find 10^(d‑1) */
+        power *= 10;
+        tmp   /= 10;
+    }
+    idx_t leading = x / power;       /* first digit          */
+    return (x % power) * 10 + leading;
+}
 
 /* rebuild the prime list and the list of special primes up to 'limit' */
 static void rebuild(idx_t limit,
@@ -48,7 +70,7 @@ static void rebuild(idx_t limit,
     for (size_t i = 0; i < *p_len; ++i) {
         idx_t p = (*primes)[i];
         idx_t r = rotate_first_digit(p);
-        if (isPrime(r))
+        if (is_prime(r))
             push_idx(special, s_len, s_cap, p);
     }
 }

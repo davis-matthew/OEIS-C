@@ -7,13 +7,22 @@
  * Formula:   a(n) = 4*a(n-1) - 2*a(n-2), a(0) = 1, a(1) = 2
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 72,
  *            big any n
- * Helpers:   grow_arr
+ * Validated: standard, pass, 41 terms through n = 905 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/grow_arr.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_arr(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *r = mem_new(seq_t, newlen);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) r[i] = old[i];
+    if (old) mem_free(old);
+    return r;
+}
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;

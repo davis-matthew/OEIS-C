@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 65, u64 n <= 171, u128 n <= 171,
  *            big any n
- * Helpers:   diagonal_idx, digits_of, pow10
+ * Validated: standard, pass, 71 terms through n = 166 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,38 @@
    helper functions `digits_of` and `pow10` for digit counts and powers
    of ten. */
 #include <stdint.h>
-#include "../utils/digits_of.h"
-#include "../utils/pow10.h"
-#include "../utils/diagonal_idx.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Return the diagonal number d such that n ≤ d*(d+1)/2 */
+static idx_t diagonal_idx(idx_t n)
+{
+    idx_t low = 1, high = 1;
+    /* grow high until it satisfies the condition */
+    while ((unsigned __int128)high * (high + 1) / 2 < n)
+        high <<= 1;
+    /* binary search */
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        unsigned __int128 prod = (unsigned __int128)mid * (mid + 1) / 2;
+        if (prod >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -50,7 +80,7 @@ seq_t a(idx_t n)
 
     seq_t result = 0;
     for (int k = len - 1; k >= 0; --k) {
-        idx_t dlen = (idx_t)digits_of((uint64_t)digit_storage[k]);
+        idx_t dlen = (idx_t)num_digits_idx((uint64_t)digit_storage[k]);
         seq_t pow = pow10(dlen);
         result = result * pow + digit_storage[k];
     }

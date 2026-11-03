@@ -12,13 +12,14 @@
  *            antidiagonal index (n+k–1). For example: * a(0)...
  * Range:     u8 n <= 89, u16 n <= 323, u32 n <= 1174, u64 n <= 4463,
  *            u128 n <= 9869, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 94 terms through n = 9779 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static idx_t isqrt_u64(idx_t x)
 {
@@ -74,7 +75,7 @@ seq_t a(idx_t n)
     for (idx_t j = 1u; j <= maxJ; ++j) {
         idx_t rest = row - col * j;           /* n – k*j  */
         if (rest > j) continue;              /* binomial(j,rest) = 0 for rest > j */
-        seq_t bin = binom(j, rest);           /* uses utilities */
+        seq_t bin = binomial(j, rest);           /* uses utilities */
         if (bin == 0u) continue;
         seq_t term = ((seq_t)row * bin) / j;  /* division is exact by definition */
         result += term;

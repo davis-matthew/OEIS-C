@@ -9,7 +9,8 @@
  *            φ(x) = k is odd
  * Range:     u8 n <= 29, u16 n <= 4348, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 8772 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define LIMIT 3000000
 
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
 
         /* Collect k with odd pre‑image counts */
         terms_cap = 128;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) { free(phi); free(cnt); return 0; }
 
         for (size_t k = 1; k <= LIMIT; ++k)
@@ -68,8 +70,8 @@ seq_t a(idx_t n)
                 if (terms_len == terms_cap)
                 {
                     terms_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
-                    if (!tmp) { free(phi); free(cnt); free(terms); return 0; }
+                    seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
+                    if (!tmp) { free(phi); free(cnt); mem_free(terms); return 0; }
                     terms = tmp;
                 }
                 terms[terms_len++] = (seq_t)k;

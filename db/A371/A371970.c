@@ -8,14 +8,26 @@
  * Formula:   a(n) = the nth positive integer k such that popcount(3ᵏ) is even
  * Range:     u8 n <= 122, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   parity_uint32
+ * Validated: standard, pass, 81 terms through n = 9874 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/parity_uint32.h"
+#include "../utils/mem.h"
+
+/*--------- Parity of popcount for a 32‑bit word ---------------------*/
+static inline int parity_uint32(uint32_t x) {
+#if defined(__GNUC__) || defined(__clang__)
+    return __builtin_popcount(x) & 1;
+#else
+    int p = 0;
+    while (x) { p ^= x & 1; x >>= 1; }
+    return p;
+#endif
+}
 
 /*--------- Big integer helpers for multiplying by 3 -----------------*/
 struct BigInt {
@@ -74,7 +86,7 @@ static void cache_ensure(size_t needed) {
         size_t newcap = cache_cap ? cache_cap * 2 : 8;
         while (newcap < needed)
             newcap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         cache = tmp;
         cache_cap = newcap;
     }

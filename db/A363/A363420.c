@@ -15,7 +15,8 @@
  *            The implementation constructs the sequenc...
  * Range:     u8 n <= 59, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*--- helper functions --------------------------------------------------*/
 static bool has_zero_digit(seq_t x)
@@ -63,7 +65,7 @@ static void grow_seq(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(sequence, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, sequence, new_cap);
     if (!tmp) abort();
     sequence = tmp;
     seq_cap   = new_cap;

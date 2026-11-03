@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   binom, gcd
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,15 +29,16 @@
 
 #include <stddef.h>          /* for size_t */
 #include <stdbool.h>         /* for bool */
-#include "../utils/binom.h"  /* seq_t binom(idx_t a, idx_t b) */
-#include "../utils/gcd.h"    /* seq_t gcd(seq_t a, seq_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 static seq_t compute_T(idx_t r, idx_t g, idx_t b, idx_t s)
 {
     /* binomial factors */
-    seq_t A = binom(r + g, b - 1);          /* C(r+g,b-1)   */
-    seq_t B = binom(g + b, r);              /* C(g+b,r)     */
-    seq_t C = binom(r + b, g);              /* C(r+b,g)     */
+    seq_t A = binomial(r + g, b - 1);          /* C(r+g,b-1)   */
+    seq_t B = binomial(g + b, r);              /* C(g+b,r)     */
+    seq_t C = binomial(r + b, g);              /* C(r+b,g)     */
 
     /* numerator factors: A, B, C, s */
     seq_t numerators[4] = {A, B, C, (seq_t)s};

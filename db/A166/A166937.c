@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Return true if the longest palindromic substring of binary x starts with 1. */
 static bool longest_start_one(seq_t x)
 {
     if (x == 0) return true;          /* not used, but safe */
-    idx_t L = bitlen_seq_t(x);
+    idx_t L = bit_length(x);
     /* extract bits into an array */
     unsigned char *bits = (unsigned char *)malloc((size_t)L);
     if (!bits) return true;           /* fallback, should not happen */
@@ -87,10 +90,10 @@ seq_t a(idx_t n)
             /* store candidate */
             if (size == cap) {
                 size_t newcap = (cap == 0) ? 16 : cap * 2;
-                seq_t *newarr = (seq_t *)malloc(newcap * sizeof(seq_t));
+                seq_t *newarr = mem_new(seq_t, newcap);
                 if (!newarr) return 0; /* allocation failed */
-                memcpy(newarr, cache, size * sizeof(seq_t));
-                free(cache);
+                mem_copy(newarr, cache, size * sizeof(seq_t));
+                mem_free(cache);
                 cache = newarr;
                 cap = newcap;
             }

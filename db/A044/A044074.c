@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 3976, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_substring_31
+ * Validated: standard, pass, 71 terms through n = 9679 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,32 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has_substring_31.h"
+
+/* Detect whether the base‑4 representation of x contains the substring 3,1 */
+static inline bool has_substring_31(seq_t x)
+{
+    /* x == 0 can never contain the pattern */
+    if (x == 0)
+        return false;
+
+    /* Since seq_t can be arbitrary precision or a small integer type,
+     * we use a fixed maximum number of base‑4 digits for the stack array.
+     * This is more than enough for all values that fit in seq_t. */
+    int digits[128];
+    int len = 0;
+
+    while (x != 0) {
+        digits[len++] = (int)(x % 4);
+        x = x / 4;
+    }
+
+    /* Scan most significant to least significant digit */
+    for (int i = len - 1; i >= 1; --i)
+        if (digits[i] == 3 && digits[i - 1] == 1)
+            return true;
+
+    return false;
+}
 
 /* Maximum number of terms the static cache can hold.  This comfortably
  * exceeds the number of terms that will be requested in typical tests. */

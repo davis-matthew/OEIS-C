@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = the nth integer k such that 23*k + 11 is prime
- * Range:     u8 n <= 4, u16 n <= 1899, u32 n <= 9862, u64 n <= 9862,
- *            u128 n <= 9862, big any n
- * Helpers:   is_prime_seq
+ * Range:     u8 n <= 4, u16 n <= 1899, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 72 terms through n = 9862 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 
 #include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Return the n-th term (1‑based) of A102768: numbers k for which 23*k+11 is prime. */
 seq_t a(idx_t n)
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (cap < n) {
         idx_t new_cap = (cap == 0) ? 16 : cap * 2;
         if (new_cap < n) new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;          /* out of memory – unlikely in the test range */
         cache = tmp;
         cap = new_cap;

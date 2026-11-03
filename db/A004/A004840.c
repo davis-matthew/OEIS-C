@@ -8,13 +8,15 @@
  *            nonzero 4th powers
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cached_sequence = NULL;
 static idx_t cached_len = 0;
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
             if (min_parts[i] <= 11) cached_len++;
         }
         
-        cached_sequence = (seq_t *)malloc((size_t)cached_len * sizeof(seq_t));
+        cached_sequence = mem_new(seq_t, (size_t)cached_len);
         idx_t idx = 0;
         for (idx_t i = 0; i < limit; i++) {
             if (min_parts[i] <= 11) {

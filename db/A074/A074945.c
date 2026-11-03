@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 520, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ugcd
+ * Validated: standard, pass, 95 terms through n = 9877 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
    gcd(n,k) = floor(n/k).  Brute‑force search over k.  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ugcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 1; k <= n; ++k) {
         unsigned long long q = un / k;                /* floor(n/k)          */
-        unsigned long long g = ugcd(un, (unsigned long long)k);
+        unsigned long long g = gcd_u64(un, (unsigned long long)k);
         if (g == q) ++count;
     }
     return count;

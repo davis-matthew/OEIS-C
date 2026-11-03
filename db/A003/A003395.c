@@ -9,14 +9,20 @@
  *            L until n terms exist
  * Range:     u8 n <= 1, u16 n <= 22, u32 n <= 6756, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   A3395_cmp64
+ * Validated: standard, pass, 55 terms through n = 9670 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/A3395_cmp64.h"
+
+static int A3395_cmp64(const void *p, const void *q)
+{
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
 
 static uint64_t *A3395_T = NULL;
 static size_t A3395_n = 0, A3395_cap = 0;

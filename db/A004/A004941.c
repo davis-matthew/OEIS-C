@@ -8,21 +8,45 @@
  *            floor((isqrt(320*n^2) + 1)/2)
  * Range:     u8 n <= 14, u16 n <= 3652, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a004941_isqrt128, a004941_isqrt_seq, u128_to_seq
+ * Validated: standard, pass, 60 terms through n = 9141 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/a004941_isqrt128.h"
-#include "../utils/a004941_isqrt_seq.h"
+#include <stdlib.h>
+#include "../utils/isqrt_u128.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static seq_t a004941_isqrt_seq(seq_t x, seq_t guess) {
+    /* Newton iteration from above; guess must be >= sqrt(x) */
+    seq_t r = guess;
+    if (r == 0) return r;
+    for (;;) {
+        seq_t t = (r + x / r) / 2;
+        if (t >= r) break;
+        r = t;
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;
     if (n < ((uint64_t)1 << 58)) {
         unsigned __int128 N = (unsigned __int128)n;
-        unsigned __int128 s = a004941_isqrt128((unsigned __int128)320 * N * N);
+        unsigned __int128 s = isqrt_u128((unsigned __int128)320 * N * N);
         return u128_to_seq((unsigned __int128)9 * N + (s + 1) / 2);
     } else {
         seq_t N = (seq_t)n;

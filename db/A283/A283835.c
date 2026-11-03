@@ -10,7 +10,8 @@
  *            consecutive 1's
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 35, u64 n <= 69, u128 n <= 137,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Sequence value type (integer or arbitrary‑precision) */
 seq_t a(idx_t n)
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
 
     /* First time: initialise DP for length 1   */
     if (computed_up_to == 0) {
-        memset(prev_state, 0, sizeof(prev_state));
+        mem_set(prev_state, 0, sizeof(prev_state));
         prev_state[0][0] = (seq_t)1;      /* string "0" only */
         cache[1] = (seq_t)0;              /* cannot end with 1 at length 1 */
         computed_up_to = 1;
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
 
     /* Extend DP from the last computed length up to n */
     for (idx_t len = computed_up_to + 1; len <= n; ++len) {
-        memset(cur_state, 0, sizeof(cur_state));
+        mem_set(cur_state, 0, sizeof(cur_state));
 
         for (int bit = 0; bit < 2; ++bit) {
             for (int run = 0; run < 4; ++run) {
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
         cache[len] = total;
 
         /* prepare for next iteration */
-        memcpy(prev_state, cur_state, sizeof(prev_state));
+        mem_copy(prev_state, cur_state, sizeof(prev_state));
     }
 
     computed_up_to = n;

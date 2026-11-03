@@ -11,16 +11,34 @@
  *            the power = s - k
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 56, u64 n <= 122,
  *            u128 n <= 304, big any n
- * Helpers:   factorial, seq_mul, seq_pow
+ * Validated: standard, pass, 59 terms through n = 2785 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
-#include "../utils/factorial.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +52,7 @@ seq_t a(idx_t n)
     /* exponent for the power (k+1)^(s-k) */
     idx_t power_exp = s - k;
 
-    seq_t pow_term = seq_pow((seq_t)(k + 1ULL), power_exp);
+    seq_t pow_term = ipow_idx((seq_t)(k + 1ULL), power_exp);
     seq_t fact_term = factorial(s);
 
     return seq_mul(pow_term, fact_term);

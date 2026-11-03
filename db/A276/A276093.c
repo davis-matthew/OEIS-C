@@ -10,6 +10,7 @@
  *            by * repeatedly dividing by successive primes
  * Range:     u8 n <= 255, u16 n <= 2310, u32 n <= 2310, u64 n <= 2310,
  *            u128 n <= 2310, big any n
+ * Validated: standard, pass, 108 terms through n = 2027 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

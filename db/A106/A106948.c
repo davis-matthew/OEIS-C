@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 421, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   my_int_sqrt
+ * Validated: standard, pass, 57 terms through n = 8420 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/my_int_sqrt.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* 64‑bit deterministic Miller–Rabin primality test */
 static bool is_prime64(uint64_t n){
@@ -70,7 +72,7 @@ seq_t a(idx_t n){
 
     if(primes==NULL){
         prime_cap=256;
-        primes=(seq_t*)malloc(prime_cap*sizeof(seq_t));
+        primes=mem_new(seq_t, prime_cap);
         if(!primes) abort();
     }
 
@@ -79,7 +81,7 @@ seq_t a(idx_t n){
         idx_t new_bound = (max_val==0) ? 1000 : max_val*2 + 1000;
 
         /* generate values of the quadratic form in (max_val, new_bound] */
-        idx_t y_max = my_int_sqrt(new_bound/18);
+        idx_t y_max = isqrt(new_bound/18);
         for(idx_t y=0; y<=y_max; ++y){
             __uint128_t ypart = (__uint128_t)18*y*y;
             idx_t x=0;
@@ -93,7 +95,7 @@ seq_t a(idx_t n){
                     seq_t val = (seq_t)val64;
                     if(prime_size>=prime_cap){
                         prime_cap*=2;
-                        seq_t *tmp=(seq_t*)realloc(primes,prime_cap*sizeof(seq_t));
+                        seq_t *tmp=mem_resize(seq_t, primes, prime_cap);
                         if(!tmp) abort();
                         primes=tmp;
                     }
@@ -104,7 +106,7 @@ seq_t a(idx_t n){
         max_val = new_bound;
 
         /* sort and deduplicate the list of primes found so far */
-        if(prime_size>1) qsort(primes,prime_size,sizeof(seq_t),cmp_seq);
+        if(prime_size>1) mem_qsort(primes, prime_size, sizeof(seq_t), cmp_seq);
         size_t uniq=0;
         for(size_t i=0;i<prime_size;i++){
             if(uniq==0 || cmp_seq(&primes[uniq-1],&primes[i])!=0){

@@ -12,7 +12,8 @@
  *            partitions of n into at most k parts
  * Range:     u8 n <= 16, u16 n <= 54, u32 n <= 177, u64 n <= 616,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 67 terms through n = 974 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Partition table: p_k(n) stored row‑wise as [n][k].  The table is
    rebuilt (without zeroing garbage) whenever a larger n or k is
@@ -41,7 +44,7 @@ static void ensure_partition_table(idx_t Nmax, idx_t Kmax)
 
     /* free old table */
     if (part_table) {
-        free(part_table);
+        mem_free(part_table);
         part_table = NULL;
     }
 
@@ -49,7 +52,7 @@ static void ensure_partition_table(idx_t Nmax, idx_t Kmax)
     part_Kmax = Kmax;
 
     size_t total = (size_t)(part_Nmax + 1) * (part_Kmax + 1);
-    part_table = (seq_t *)calloc(total, sizeof(seq_t));
+    part_table = mem_new(seq_t, total);
     if (!part_table)
         abort();                      /* out of memory */
 
@@ -90,7 +93,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
 
     for (idx_t w = 1; w <= w_max; ++w) {
-        seq_t bin_w2 = binom(w, 2);                 /* C(w,2) */
+        seq_t bin_w2 = binomial(w, 2);                 /* C(w,2) */
 
         /* upper bound for h */
         idx_t h_max = 0;
@@ -101,7 +104,7 @@ seq_t a(idx_t n)
 
         idx_t h_min = w + 1;
         for (idx_t h = h_min; h <= h_max; ++h) {
-            seq_t bin_hex = binom(h, w + 1);        /* C(h,w+1) */
+            seq_t bin_hex = binomial(h, w + 1);        /* C(h,w+1) */
             idx_t rem = n - w * h - (idx_t)bin_w2;  /* remaining sum >= 0 */
             seq_t part_val = partitions_at_most_k(rem, w - 1);
             result += bin_hex * part_val;

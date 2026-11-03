@@ -12,7 +12,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -54,31 +56,31 @@ seq_t a(idx_t n)
     seq_t *row_curr    = NULL; /* row r         */
 
     /* Row 0 */
-    row_prevprev = (seq_t *)malloc(sizeof(seq_t));
+    row_prevprev = mem_new(seq_t, 1);
     row_prevprev[0] = 1;
 
     if (r == 0) {
         seq_t res = row_prevprev[0];
-        free(row_prevprev);
+        mem_free(row_prevprev);
         return res;
     }
 
     /* Row 1 */
     idx_t idx_row = 1;
-    row_prev = (seq_t *)malloc((idx_row + 1) * sizeof(seq_t));
+    row_prev = mem_new(seq_t, (idx_row + 1));
     row_prev[0] = 1;
     row_prev[1] = 2;
     if (r == 1) {
         seq_t res = row_prev[k];
-        free(row_curr);
-        free(row_prev);
-        free(row_prevprev);
+        mem_free(row_curr);
+        mem_free(row_prev);
+        mem_free(row_prevprev);
         return res;
     }
 
     /* Compute subsequent rows */
     for (idx_row = 2; idx_row <= r; ++idx_row) {
-        row_curr = (seq_t *)malloc((idx_row + 1) * sizeof(seq_t));
+        row_curr = mem_new(seq_t, (idx_row + 1));
         row_curr[0] = 1;
 
         bool even_n = (idx_row % 2 == 0);
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
         }
 
         /* Rotate rows: prevprev <- prev, prev <- curr */
-        free(row_prevprev);
+        mem_free(row_prevprev);
         row_prevprev = row_prev;
         row_prev     = row_curr;
     }
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
     /* After loop row_prev points to row r */
     seq_t result = row_prev[k];
 
-    free(row_prev);
-    free(row_prevprev);
+    mem_free(row_prev);
+    mem_free(row_prevprev);
     return result;
 }

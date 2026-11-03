@@ -12,13 +12,15 @@
  *            algorithm is O(n²) in time and O(n) in memory
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static data for memoization and incremental computation */
@@ -31,11 +33,11 @@ seq_t a(idx_t n) {
     /* Ensure a_vals large enough and base case a(0)=1 */
     if (a_len == 0) {
         a_len = 1;
-        a_vals = (seq_t *)malloc(a_len * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_len);
         a_vals[0] = (seq_t)1;
     }
     if (n >= a_len) {
-        a_vals = (seq_t *)realloc(a_vals, (n + 1) * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, (n + 1));
         for (idx_t i = a_len; i <= n; ++i)
             a_vals[i] = (seq_t)0;
         a_len = n + 1;
@@ -48,16 +50,16 @@ seq_t a(idx_t n) {
         rows_len = (size_t)(n + 1);
         for (int i = 0; i < 5; ++i) {
             if (rows[i] == NULL)
-                rows[i] = (seq_t *)malloc(rows_len * sizeof(seq_t));
+                rows[i] = mem_new(seq_t, rows_len);
             else
-                rows[i] = (seq_t *)realloc(rows[i], rows_len * sizeof(seq_t));
+                rows[i] = mem_resize(seq_t, rows[i], rows_len);
         }
     }
 
     /* Initialise base row (x=0) if it hasn't been done yet */
     if (max_n == 0) {
         for (int i = 0; i < 5; ++i)
-            memset(rows[i], 0, rows_len * sizeof(seq_t));
+            mem_set(rows[i], 0, rows_len * sizeof(seq_t));
         rows[0][0] = (seq_t)1;
     }
 

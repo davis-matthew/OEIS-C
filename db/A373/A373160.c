@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 32, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 51 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
  *              ∑_{k≥0} cos(k·π/3) / n^k
  * Derived closed‑form:  a(n) = (2n(n^2−n+1)) / gcd( (2n−1)n^2 , 2n(n^2−n+1) )
  */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

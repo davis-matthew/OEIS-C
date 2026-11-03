@@ -9,12 +9,14 @@
  *            terms: a(1)=1, a(2)=4, a(3)=9, a(4)=21, a(5)=49
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 26, u64 n <= 52, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache to memoize computed terms */
 static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t size)
         return;              /* already large enough */
 
     /* Allocate or grow the cache */
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * size);
+    seq_t *new_cache = mem_resize(seq_t, cache, size);
     /* realloc returns NULL only on out‑of‑memory; for competition we ignore that */
     cache = new_cache;
     cache_len = size;

@@ -14,13 +14,15 @@
  *            a(5)=243432, a(6)=1242930, a(7)=...
  * Range:     u8 none, u16 n <= 4, u32 n <= 10, u64 n <= 24, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t init_terms[16] = {
     (seq_t)360, (seq_t)1812, (seq_t)9318, (seq_t)47106, (seq_t)243432,
@@ -41,15 +43,15 @@ seq_t a(idx_t n)
 
     /* initialize cache with known terms once */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(16 * sizeof(seq_t));
-        memcpy(cache, init_terms, 16 * sizeof(seq_t));
+        cache = mem_new(seq_t, 16);
+        mem_copy(cache, init_terms, 16 * sizeof(seq_t));
         cache_size = 16;
     }
 
     /* extend cache if necessary */
     if (n > cache_size) {
         /* allocate space for n terms */
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) return (seq_t)0; /* allocation failed */
         cache = tmp;
 

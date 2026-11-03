@@ -14,19 +14,22 @@
  *            below computes a(n) for any n ≥ 1. It uses the supp...
  * Range:     u8 n <= 28, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* ----- helpers -------------------------------------------------------- */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Compute 2^exp (exp is an idx_t). */
 static seq_t pow2exp(idx_t exp)
 {
-    return big_pow((seq_t)2, (seq_t)exp);
+    return ipow((seq_t)2, (seq_t)exp);
 }
 
 /* Return the value of the array entry A(row, col). */

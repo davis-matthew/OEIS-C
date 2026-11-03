@@ -9,14 +9,31 @@
  *            polynomial over GF(2)[X]
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   deg64, poly_gcd
+ * Validated: partial, pass, 100 terms through n = 99 (2026-11-01)
+ * Helpers:   ilog2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/deg64.h"
-#include "../utils/poly_gcd.h"
+#include "../utils/ilog2_u64.h"
+
+/* polynomial GCD over GF(2) (bitwise operations only) */
+static uint64_t poly_gcd(uint64_t a, uint64_t b) {
+    while (b) {
+        /* remainder of a divided by b */
+        int da = ilog2_u64(a);
+        int db = ilog2_u64(b);
+        while (da >= db) {
+            a ^= b << (da - db);
+            da = ilog2_u64(a);
+        }
+        uint64_t t = a;
+        a = b;
+        b = t;
+    }
+    return a;
+}
 
 /* given polynomials a,b and modulus f, compute a * b mod f */
 static uint64_t poly_mul_mod(uint64_t a, uint64_t b, uint64_t f, int deg_f) {
@@ -26,13 +43,13 @@ static uint64_t poly_mul_mod(uint64_t a, uint64_t b, uint64_t f, int deg_f) {
         b >>= 1;
         a <<= 1;
         /* reduce a if its degree exceeds deg_f */
-        while (deg64(a) > deg_f) {
-            a ^= f << (deg64(a) - deg_f);
+        while (ilog2_u64(a) > deg_f) {
+            a ^= f << (ilog2_u64(a) - deg_f);
         }
     }
     /* final reduction of product */
-    while (deg64(prod) > deg_f) {
-        prod ^= f << (deg64(prod) - deg_f);
+    while (ilog2_u64(prod) > deg_f) {
+        prod ^= f << (ilog2_u64(prod) - deg_f);
     }
     return prod;
 }
@@ -40,7 +57,7 @@ static uint64_t poly_mul_mod(uint64_t a, uint64_t b, uint64_t f, int deg_f) {
 /* test whether polynomial represented by f (bits 0..deg_f) is irreducible over GF(2) */
 static int is_irreducible_uint64(uint64_t f) {
     if (f == 0 || f == 1) return 0;      /* constants are not irreducible */
-    int deg_f = deg64(f);
+    int deg_f = ilog2_u64(f);
     if (deg_f == 0) return 0;           /* polynomial 1 */
 
     uint64_t x = 2ULL;                  /* polynomial X */

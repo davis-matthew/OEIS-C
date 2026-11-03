@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 378, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   prod_minus_one
+ * Validated: standard, pass, 80 terms through n = 964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,13 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/prod_minus_one.h"
+#include "../utils/mem.h"
+
+/* compute a*b-1 (overflow wraps around, acceptable for ordering) */
+static inline seq_t prod_minus_one(seq_t a, seq_t b)
+{
+    return a * b - (seq_t)1;
+}
 
 /* node in the min‑heap, storing value of a[i]*a[j]-1 and the left
    index i (with j stored separately in jptr[i]). */
@@ -40,7 +47,7 @@ static void heap_push(Node n)
 {
     if (heap_size >= heap_cap) {
         heap_cap = heap_cap ? heap_cap << 1 : 4;
-        heap = (Node *)realloc(heap, heap_cap * sizeof(Node));
+        heap = mem_resize(Node, heap, heap_cap);
     }
     size_t pos = heap_size++;
     while (pos > 0) {
@@ -85,7 +92,7 @@ static void ensure_seq_cap(size_t need)
     if (seq_cap >= need) return;
     size_t newcap = seq_cap ? seq_cap << 1 : 4;
     while (newcap < need) newcap <<= 1;
-    seq  = (seq_t *)realloc(seq,  newcap * sizeof(seq_t));
+    seq  = mem_resize(seq_t, seq, newcap);
     jptr = (idx_t *)realloc(jptr, newcap * sizeof(idx_t));
     seq_cap = newcap;
 }
@@ -100,7 +107,7 @@ seq_t a(idx_t n)
         /* initialise sequence array with the two seeds */
         seq_cap  = 4;
         seq_size = 2;
-        seq   = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+        seq   = mem_new(seq_t, seq_cap);
         jptr  = (idx_t *)calloc(seq_cap, sizeof(idx_t));
 
         seq[0] = (seq_t)2;   /* a(1) */
@@ -112,7 +119,7 @@ seq_t a(idx_t n)
         /* initialise heap with self‑pair candidates */
         heap_cap  = 4;
         heap_size = 0;
-        heap = (Node *)calloc(heap_cap, sizeof(Node));
+        heap = mem_new(Node, heap_cap);
         heap_push((Node){ .val = prod_minus_one(seq[0], seq[0]), .i = 0 });
         heap_push((Node){ .val = prod_minus_one(seq[1], seq[1]), .i = 1 });
     }

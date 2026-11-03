@@ -10,14 +10,17 @@
  *            row‑by‑row: (0,0),(1,0),(1,1),(2,0),(2,1),(2,2),
  * Range:     u8 n <= 69, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   _floor_isqrt_u64, build_primes
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   build_primes, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/build_primes.h"
-#include "../utils/_floor_isqrt_u64.h"   /* if named the same; adjust as needed */
+#include "../utils/isqrt.h"
 
 /* Compute exponent of prime p in n! */
 static idx_t vp_factorial(idx_t n, idx_t p) {
@@ -31,7 +34,7 @@ static idx_t vp_factorial(idx_t n, idx_t p) {
 
 seq_t a(idx_t n) {
     /* find row r such that r(r+1)/2 <= n < (r+1)(r+2)/2 */
-    idx_t r = (_floor_isqrt_u64(8 * n + 1) - 1) / 2;
+    idx_t r = (isqrt(8 * n + 1) - 1) / 2;
     idx_t k = n - r * (r + 1) / 2;
 
     /* C(r,k) = 1 for k == 0 or k == r */

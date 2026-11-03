@@ -9,13 +9,21 @@
  *            that starts with 3
  * Range:     u8 n <= 2, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   pal_count_len
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pal_count_len.h"
+
+static idx_t pal_count_len(idx_t len)
+{
+    idx_t half = (len + (idx_t)1) / (idx_t)2;
+    idx_t cnt  = (idx_t)1;
+    for (idx_t i = (idx_t)0; i < half - (idx_t)1; ++i) cnt *= (idx_t)10;
+    return cnt;
+}
 
 static seq_t reverse_digits(seq_t x)
 {

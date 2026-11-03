@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 117, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 890 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached prime values in the required residue class. */
 static seq_t *cache = NULL;        /* array storing primes ≡44 (mod 61) */
@@ -35,7 +37,7 @@ static idx_t last_checked = 1;
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap == 0 ? 64 : cache_cap * 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) { /* allocation failure – abort */ abort(); }
     cache = tmp;
     cache_cap = new_cap;

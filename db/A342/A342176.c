@@ -7,7 +7,8 @@
  * Formula:   a(n) = (2^3^5^...^prime(n)) mod n
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   build_primes_upto, calc_phi, mod_pow
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   build_primes_upto, powmod, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/mod_pow.h"
-#include "../utils/calc_phi.h"
+#include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/powmod.h"
+#include "../utils/totient_seq.h"
 
 static uint64_t *prime_list = NULL;   /* 0‑based array of primes      */
 static size_t   prime_cnt   = 0;      /* number of primes currently  */
@@ -62,14 +64,14 @@ static void tower_rec(idx_t idx, seq_t mod, seq_t *res, bool *larg)
         return;
     }
 
-    seq_t phi_mod = calc_phi(mod);
+    seq_t phi_mod = totient_seq(mod);
     seq_t child_val;
     bool child_larg;
     tower_rec(idx + 1, phi_mod, &child_val, &child_larg);
 
     seq_t exponent = child_val + (child_larg ? phi_mod : (seq_t)0);
     /* exponent fits in uint64_t because exponent < 2*phi_mod ≤ 2*mod ≤ 2*n */
-    *res = mod_pow((seq_t)prime_list[idx - 1], (uint64_t)exponent, mod);
+    *res = powmod((seq_t)prime_list[idx - 1], (uint64_t)exponent, mod);
 
     /* For mod ≥ 2 the tower is always ≥ mod, so set larg to true.
        This guarantees that at a higher level the exponent will be

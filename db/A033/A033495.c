@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 39, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * until enough new records have been found. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,10 +55,8 @@ seq_t a(idx_t n)
         if (sum > max_sum) {
             if (rec_len >= rec_cap) {          /* grow arrays if needed */
                 size_t new_cap = rec_cap ? rec_cap * 2 : 4;
-                rec_numbers = (seq_t*)realloc(rec_numbers,
-                                               new_cap * sizeof(seq_t));
-                rec_sums    = (seq_t*)realloc(rec_sums,
-                                               new_cap * sizeof(seq_t));
+                rec_numbers = mem_resize(seq_t, rec_numbers, new_cap);
+                rec_sums    = mem_resize(seq_t, rec_sums, new_cap);
                 rec_cap = new_cap;
             }
             rec_numbers[rec_len] = next_start;

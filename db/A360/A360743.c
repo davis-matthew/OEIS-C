@@ -12,21 +12,24 @@
  *            * a(n) = (n+1) * A_n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 13, u128 n <= 20,
  *            big any n
- * Helpers:   binom, pow2, seq_pow
+ * Validated: standard, pass, 34 terms through n = 101 (2026-11-01)
+ * Helpers:   binomial, ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 #include "../utils/pow2.h"
-#include "../utils/seq_pow.h"
 
 seq_t a(idx_t n)
 {
     seq_t sum = 0;
     for (idx_t k = 0; k <= n; ++k) {
-        seq_t bin = binom(n, k);
+        seq_t bin = binomial(n, k);
         seq_t base = pow2(k) - 1;
         idx_t exp = n - k;
         seq_t pow_val;
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
         } else if (k == 0) {          /* base == 0 */
             pow_val = 0;
         } else {
-            pow_val = seq_pow(base, exp);
+            pow_val = ipow_idx(base, exp);
         }
         sum += bin * pow_val;
     }

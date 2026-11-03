@@ -10,7 +10,8 @@
  *            equals popcount(n)
  * Range:     u8 n <= 47, u16 n <= 128, u32 n <= 512, u64 n <= 1536,
  *            u128 n <= 5631, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9304 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* external types */
 extern seq_t a(idx_t n);
@@ -39,7 +41,7 @@ static void recompute_up_to(idx_t new_max_n)
     /* free old tables if any */
     if (dp != NULL) {
         for (size_t w = 0; w < dp_w_count; ++w) {
-            free(dp[w]);
+            mem_free(dp[w]);
         }
         free(dp);
     }
@@ -56,7 +58,7 @@ static void recompute_up_to(idx_t new_max_n)
 
     /* allocate and init DP arrays for each popcount w */
     for (size_t w = 0; w < dp_w_count; ++w) {
-        dp[w] = (seq_t *)calloc(new_max_n + 1, sizeof(seq_t));
+        dp[w] = mem_new(seq_t, new_max_n + 1);
         if (!dp[w]) abort();
         dp[w][0] = 1;                  /* empty partition */
     }

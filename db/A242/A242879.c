@@ -13,7 +13,8 @@
  *            numbers up to the n‑th prime * using a simple sieve and tests...
  * Range:     u8 n <= 59, u16 n <= 7976, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small, sieve_primes
+ * Validated: standard, pass, 96 terms through n = 9789 (2026-11-01)
+ * Helpers:   is_prime_seq, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include "../utils/is_prime_seq.h"
 #include "../utils/sieve_primes.h"
-#include "../utils/is_prime_small.h"
 
 static idx_t *prime_list = NULL;   /* 0‑based array of primes: prime_list[0] = 2 */
 static size_t prime_count = 0;     /* number of primes stored */
@@ -88,13 +90,13 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k < n; ++k) {
         idx_t pk = prime_list[k - 1];          /* prime(k) */
         uint64_t invk = modinv_uint64((uint64_t)k, (uint64_t)pk);
-        if (invk < 2 || !is_prime_small(invk))
+        if (invk < 2 || !is_prime_seq(invk))
             continue;
 
         idx_t nk = n - k;
         idx_t pnk = prime_list[nk - 1];        /* prime(n-k) */
         uint64_t invnk = modinv_uint64((uint64_t)nk, (uint64_t)pnk);
-        if (invnk < 2 || !is_prime_small(invnk))
+        if (invnk < 2 || !is_prime_seq(invnk))
             continue;
 
         /* Both conditions satisfied: return this least k. */

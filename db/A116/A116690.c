@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{k=1}^{8} C(n,k)
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 62, u64 n <= 966,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 50 terms through n = 993 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

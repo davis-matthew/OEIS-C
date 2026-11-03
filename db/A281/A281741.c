@@ -12,7 +12,8 @@
  *            1,0,5,0,21,0,85,8,321,28,1365,128,5141,448,21845,2176,81941,8128,348245,34560,1316181,115328,5591317,558144
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
- * Helpers:   seq_realloc
+ * Validated: standard, pass, 51 terms through n = 126 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 /* This implementation memoizes values and expands the cache only as needed. */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache       = NULL;   /* dynamic array of computed a(n) */
 static size_t cache_cap   = 0;      /* allocated capacity (elements)   */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 39, u32 n <= 108, u64 n <= 300,
  *            u128 n <= 895, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 8235 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    The product is 1 when no such k exists.  a(1) = 1, a(2) = 1 … */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         while (new_cap < n)
             new_cap <<= 1;
         /* cast realloc result to seq_t* for C++ compatibility */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)                     /* allocation failure – return 0 */
             return (seq_t)0;
         cache = tmp;

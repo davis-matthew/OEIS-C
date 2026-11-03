@@ -10,6 +10,7 @@
  * Formula:   a(n) = (1/18)*(1 - (-1)^(n mod 3) + 3*n + 7*n^2 + 5*n^3 + n^4)
  * Range:     u8 n <= 2, u16 n <= 14, u32 n <= 294, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 57 terms through n = 888 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

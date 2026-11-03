@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 62, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_log2_custom
+ * Validated: standard, pass, 56 terms through n = 938 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
    a(n) = 10 * a(floor((n-1)/2)) + 4   for even n. */
 
 #include <stdint.h>
-#include "../utils/floor_log2_custom.h"
+
+static inline uint64_t floor_log2_custom(idx_t v)
+{
+    /* Find floor(log2(v)) for v >= 1 */
+    uint64_t d = 0;
+    while (v > 1)
+    {
+        v >>= 1;
+        ++d;
+    }
+    return d;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,14 +8,28 @@
  *            contains no repeated digits
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   distinct_base4
+ * Validated: full, pass, 49 terms through n = 49 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/distinct_base4.h"
+
+/* Test whether all digits of v in base‑4 are distinct. */
+static bool distinct_base4(seq_t v)
+{
+    bool seen[4] = { false, false, false, false };
+    if (v == 0) return true;
+    while (v > 0) {
+        unsigned d = (unsigned)(v % 4);
+        if (seen[d]) return false;
+        seen[d] = true;
+        v /= 4;
+    }
+    return true;
+}
 
 /*
  * Build the sequence once.  The maximum value in the sequence is

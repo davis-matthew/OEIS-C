@@ -10,7 +10,8 @@
  *            a(k) is squarefree for all k≤n
  * Range:     u8 n <= 14, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   is_squarefree
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_squarefree.h"   /* bool is_squarefree(seq_t x); */
+#include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* dynamic array of cached terms          */
 static size_t  cache_cap = 0;     /* allocated capacity (number of slots)  */
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = cache_cap ? cache_cap : 2;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp)
             abort();                   /* allocation failed */
         seq_cache = tmp;

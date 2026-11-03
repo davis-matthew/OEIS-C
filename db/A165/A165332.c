@@ -8,9 +8,10 @@
  *            fixed point under the iteration x → sum of cubes of the decimal
  *            digits of x. The fixed points are the numbers 0, 1, 153, 370,
  *            371, and 407
- * Range:     i8 n <= 4, i16 n <= 57, i32 n <= 57, i64 n <= 57, i128 n <= 57,
+ * Range:     i8 n <= 3, i16 n <= 57, i32 n <= 57, i64 n <= 57, i128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t sum_of_cubes(seq_t x)
 {
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         if (reaches_fixed((seq_t)tested, visited, stamp)) {
             /* Append the new term to the cache. */
             size_t new_len = cache_len + 1;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_len);
             if (!new_cache) abort(); /* allocation failed */
             cache = new_cache;
             cache[cache_len] = (seq_t)tested;

@@ -9,8 +9,9 @@
  * Keywords:  nonn, base
  * Formula:   a(0) = 0; For n > 0, let p = 2^⌊log₂n⌋. If n = p, a(n) = n + a(n
  *            – 1); else (n = p + r, 1 ≤ r < p), a(n) = p + a(n – p – 1)
- * Range:     u8 n <= 255, u16 n <= 9546, u32 n <= 9546, u64 n <= 9546,
- *            u128 n <= 9546, big any n
+ * Range:     u8 n <= 255, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 100 terms through n = 9546 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

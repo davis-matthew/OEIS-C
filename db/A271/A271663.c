@@ -8,6 +8,7 @@
  * Formula:   a(n) = binomial(n+5,5) + 3*binomial(n+4,5) + 2*binomial(n+3,5)
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 151, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 53 terms through n = 949 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /*  Using the supplied binomial helper (fast for small k). */
 
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

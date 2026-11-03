@@ -7,8 +7,9 @@
  * Keywords:  cofr, sign
  * Formula:   a(n) = -2 if n is odd, otherwise A006519(n/2) where A006519(k)
  *            is the largest power of 2 dividing k
- * Range:     i8 n <= 255, i16 n <= 9962, i32 n <= 9962, i64 n <= 9962,
- *            i128 n <= 9962, big any n
+ * Range:     i8 n <= 255, i16 n <= 65535, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 118 terms through n = 9962 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

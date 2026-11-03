@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{k=0..n} |Stirling1(n,k)| * Catalan(k)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #if defined(__cplusplus)
 #  include <new>
 #endif
+#include "../utils/mem.h"
 
 static seq_t *a_vals   = NULL;   /* a(n) values                    */
 static seq_t *cat_vals = NULL;   /* Catalan numbers Cat(k)         */
@@ -30,7 +32,7 @@ static idx_t  max_n    = (idx_t)-1;  /* largest n computed so far     */
 #if defined(__cplusplus)
 static inline void construct_seq_at(seq_t *arr, idx_t i)
 {
-    new (&arr[i]) seq_t();
+    *(&arr[i]) = (seq_t)0;
 }
 #endif
 
@@ -40,10 +42,10 @@ static void ensure_cache(idx_t n)
     /* First allocation (for n = 0) */
     if (a_vals == NULL) {
         size_t sz = (size_t)1;
-        a_vals   = (seq_t*)malloc(sz * sizeof(seq_t));
-        cat_vals = (seq_t*)malloc(sz * sizeof(seq_t));
-        prev_row = (seq_t*)malloc(sz * sizeof(seq_t));
-        curr_row = (seq_t*)malloc(sz * sizeof(seq_t));
+        a_vals   = mem_new(seq_t, sz);
+        cat_vals = mem_new(seq_t, sz);
+        prev_row = mem_new(seq_t, sz);
+        curr_row = mem_new(seq_t, sz);
 
 #if defined(__cplusplus)
         construct_seq_at(a_vals,   0);
@@ -65,10 +67,10 @@ static void ensure_cache(idx_t n)
     size_t old_size = (size_t)(max_n + 1);
     size_t new_size = (size_t)(n + 1);
 
-    a_vals   = (seq_t*)realloc(a_vals,   new_size * sizeof(seq_t));
-    cat_vals = (seq_t*)realloc(cat_vals, new_size * sizeof(seq_t));
-    prev_row = (seq_t*)realloc(prev_row, new_size * sizeof(seq_t));
-    curr_row = (seq_t*)realloc(curr_row, new_size * sizeof(seq_t));
+    a_vals   = mem_resize(seq_t, a_vals, new_size);
+    cat_vals = mem_resize(seq_t, cat_vals, new_size);
+    prev_row = mem_resize(seq_t, prev_row, new_size);
+    curr_row = mem_resize(seq_t, curr_row, new_size);
 
 #if defined(__cplusplus)
     for (idx_t i = old_size; i <= n; ++i) {

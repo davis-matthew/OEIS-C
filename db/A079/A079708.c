@@ -10,7 +10,8 @@
  *            numerical order
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 15, u64 n <= 16, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow, build_primes_upto, cmp_seq_t
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/cmp_seq_t.h"
-#include "../utils/big_pow.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* ---- global state ----------------------------------------------------- */
 static seq_t *cache = NULL;               /* memoised a(n) values */
@@ -80,7 +91,7 @@ static void heap_heapify_down(size_t idx) {
 static void heap_push(struct HeapNode node) {
     if (heap_size == heap_cap) {
         heap_cap = heap_cap ? heap_cap << 1 : 16;
-        heap = (struct HeapNode *)realloc(heap, heap_cap * sizeof(struct HeapNode));
+        heap = mem_resize(struct HeapNode, heap, heap_cap);
         if (!heap) abort();
     }
     heap[heap_size++] = node;
@@ -102,7 +113,7 @@ static void meta_init(void) {
     build_primes_upto(PRIME_LIM, &prime_array, &prime_count);
 
     heap_cap = prime_count;
-    heap     = (struct HeapNode *)malloc(heap_cap * sizeof(struct HeapNode));
+    heap     = mem_new(struct HeapNode, heap_cap);
     heap_size = 0;
     for (size_t i = 0; i < prime_count; ++i) {
         struct HeapNode node;
@@ -113,7 +124,7 @@ static void meta_init(void) {
     }
 
     meta_cap   = 256;
-    meta_list  = (seq_t *)malloc(meta_cap * sizeof(seq_t));
+    meta_list  = mem_new(seq_t, meta_cap);
     meta_count = 0;
 }
 
@@ -125,13 +136,13 @@ static void ensure_metaprime(idx_t idx_needed) {
 
         if (meta_count == meta_cap) {
             meta_cap <<= 1;
-            meta_list = (seq_t *)realloc(meta_list, meta_cap * sizeof(seq_t));
+            meta_list = mem_resize(seq_t, meta_list, meta_cap);
             if (!meta_list) abort();
         }
         meta_list[meta_count++] = node.val;
 
         node.exp <<= 1;                                 /* next power */
-        node.val = big_pow((seq_t)node.prime,
+        node.val = ipow((seq_t)node.prime,
                            (seq_t)node.exp);
         heap_push(node);
     }
@@ -155,7 +166,7 @@ static seq_t A052330(seq_t x) {
 /* ---- main sequence function ------------------------------------------ */
 seq_t a(idx_t n) {
     if (cache == NULL) {                      /* first call */
-        cache     = (seq_t *)malloc(sizeof(seq_t));
+        cache     = mem_new(seq_t, 1);
         if (!cache) abort();
         cache_cap = 1;
         cache[0]  = 0;
@@ -165,7 +176,7 @@ seq_t a(idx_t n) {
 
     if (n >= cache_cap) {                    /* grow cache if needed */
         size_t new_cap = n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) abort();
         cache_cap = new_cap;
     }

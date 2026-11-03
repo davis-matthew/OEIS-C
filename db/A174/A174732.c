@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 17, i32 n <= 59, i64 n <= 217, i128 n <= 757,
  *            big any n
- * Helpers:   binom, pow3
+ * Validated: standard, pass, 61 terms through n = 4377 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
  *   a(n) = T(r,k,3)   (read triangle by rows)
  */
 #include <stdbool.h>           /* for bool if needed */
-#include "../utils/pow3.h"     /* seq_t pow3(idx_t exp);             */
-#include "../utils/binom.h"   /* seq_t binom(idx_t n, idx_t k);    */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
     seq_t one_minus_p = one - p;        /* 1 - 3^r */
 
     /* Binomial factors */
-    seq_t bin1 = binom(r - 1, k - 1);
-    seq_t bin2 = binom(r,     k - 1);
+    seq_t bin1 = binomial(r - 1, k - 1);
+    seq_t bin2 = binomial(r,     k - 1);
 
     /* (1/k)*binom(r-1,k-1)*binom(r,k-1) */
     seq_t prod = bin1 * bin2 / (seq_t)k;

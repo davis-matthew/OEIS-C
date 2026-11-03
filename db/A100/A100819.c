@@ -7,7 +7,8 @@
  * Formula:   A100819 – composite numbers whose prime factors are twin primes
  * Range:     u8 none, u16 none, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_SIEVE 2000000
 
@@ -92,11 +94,11 @@ static void ensure_cache(idx_t n) {
     /* Grow buffers as needed */
     if (results_cap < n) {
         results_cap = n + 64;
-        results = (seq_t *)realloc(results, results_cap * sizeof(seq_t));
+        results = mem_resize(seq_t, results, results_cap);
     }
     if (humbles_cap < (humbles_len + 128)) {
         humbles_cap = humbles_len + 128;
-        humbles = (seq_t *)realloc(humbles, humbles_cap * sizeof(seq_t));
+        humbles = mem_resize(seq_t, humbles, humbles_cap);
     }
     if (prime_idx == NULL) {                     /* allocate once */
         prime_idx = (size_t *)calloc(twin_count, sizeof(size_t));
@@ -161,12 +163,12 @@ static void init_once(void) {
     init_sieve();
 
     humbles_cap = 64;
-    humbles = (seq_t *)malloc(humbles_cap * sizeof(seq_t));
+    humbles = mem_new(seq_t, humbles_cap);
     humbles[0] = 1;
     humbles_len = 1;
 
     results_cap = 64;
-    results = (seq_t *)malloc(results_cap * sizeof(seq_t));
+    results = mem_new(seq_t, results_cap);
 
     /* prime_idx will be lazily allocated in ensure_cache */
     initialized = true;

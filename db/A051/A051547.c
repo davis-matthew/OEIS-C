@@ -8,13 +8,16 @@
  * Formula:   a(n) = lcm{phi(1), phi(2), …, phi(n)} (offset 1)
  * Range:     u8 n <= 18, u16 n <= 46, u32 n <= 82, u64 n <= 172,
  *            u128 n <= 316, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 65 terms through n = 9454 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
         phi = new_phi;
 
         /* 2) Resize lcm_arr to hold values up to n. */
-        seq_t *new_lcm = (seq_t*)realloc(lcm_arr, (n + 1) * sizeof(seq_t));
+        seq_t *new_lcm = mem_resize(seq_t, lcm_arr, (n + 1));
         if (!new_lcm) return 0;      /* allocation failure */
         lcm_arr = new_lcm;
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   iterated_even
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,44 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/iterated_even.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/*--- iterate the digital sum until a single digit remains and test parity ---*/
+static bool iterated_even(seq_t x)
+{
+    while (x >= 10) {
+        seq_t sum = 0;
+        seq_t y = x;
+        while (y) {
+            sum += y % 10;
+            y /= 10;
+        }
+        x = sum;
+    }
+    return (x & 1) == 0;
+}
 
 /*--- helper: ensure that the allocated buffer has at least min_cap elements ---*/
+#ifdef __cplusplus
+template <class T>
+static void ensure_cap(T **ptr, size_t *capp, size_t min_cap, size_t elem_sz)
+{
+    if (*capp < min_cap) {
+        size_t new_cap = (*capp) ? (*capp) * 2 : 4;
+        if (new_cap < min_cap) new_cap = min_cap;
+        *ptr = mem_resize(T, *ptr, (new_cap * elem_sz) / sizeof(T));
+        *capp = new_cap;
+    }
+}
+#else
 static void ensure_cap(void **ptr, size_t *capp, size_t min_cap, size_t elem_sz)
 {
     if (*capp < min_cap) {
@@ -35,6 +71,7 @@ static void ensure_cap(void **ptr, size_t *capp, size_t min_cap, size_t elem_sz)
         *capp = new_cap;
     }
 }
+#endif
 
 /*--- main sequence function ---*/
 seq_t a(idx_t n)
@@ -77,12 +114,12 @@ seq_t a(idx_t n)
         }
 
         /* store the new prime */
-        ensure_cap((void **)&primes, &primes_cap, primes_cnt + 1, sizeof(seq_t));
+        ensure_cap(OEISC_VPP(&primes), &primes_cap, primes_cnt + 1, sizeof(seq_t));
         primes[primes_cnt++] = candidate;
 
         /* if it satisfies the parity test, keep it in the result cache */
         if (iterated_even(candidate)) {
-            ensure_cap((void **)&seq, &seq_cap, seq_len + 1, sizeof(seq_t));
+            ensure_cap(OEISC_VPP(&seq), &seq_cap, seq_len + 1, sizeof(seq_t));
             seq[seq_len++] = candidate;
         }
     }

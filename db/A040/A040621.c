@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a_n of the simple continued fraction expansion of √647. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* initial term a(0) = floor(sqrt(647)) */
 static const seq_t _sqrt647_a0 = 25;
@@ -39,7 +41,7 @@ static void _sqrt647_init(void)
 
     /* growable array for period coefficients */
     size_t cap = 16;
-    _sqrt647_period = (seq_t*)malloc(cap * sizeof(seq_t));
+    _sqrt647_period = mem_new(seq_t, cap);
     size_t len = 0;
 
     while (1) {
@@ -51,7 +53,7 @@ static void _sqrt647_init(void)
         /* store the coefficient (cast to seq_t) */
         if (len == cap) {
             cap <<= 1;
-            _sqrt647_period = (seq_t*)realloc(_sqrt647_period, cap * sizeof(seq_t));
+            _sqrt647_period = mem_resize(seq_t, _sqrt647_period, cap);
         }
         _sqrt647_period[len++] = (seq_t)a_next;
 

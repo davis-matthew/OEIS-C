@@ -12,14 +12,28 @@
  *            x^k), we let B(n) be the coefficient of Q(x)P(...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 27, u128 n <= 49,
  *            big any n
- * Helpers:   mul_small
+ * Validated: standard, pass, 42 terms through n = 1180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static const int Q_coeff[6] = {1, -21, 169, -651, 1198, -840};
 static const int L_coeff[7] = {1, -21, 170, -669, 1314, -1157, 309};
@@ -39,7 +53,7 @@ static void ensure_size(idx_t n)
 {
     size_t need = (size_t)n + 1;
     if (A_cap < need) {
-        A = (seq_t *)realloc(A, need * sizeof(seq_t));
+        A = mem_resize(seq_t, A, need);
         if (!A) abort();
         for (size_t i = A_cap; i < need; ++i) A[i] = 0;
         A_cap = need;

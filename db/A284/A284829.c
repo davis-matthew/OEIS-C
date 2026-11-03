@@ -9,7 +9,8 @@
  *            squarefree parts (A284829)
  * Range:     u8 n <= 13, u16 n <= 41, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static workspace ----------------------------------------------------------- */
 static seq_t *dp = NULL;          /* partitions using parts >= current part   */
@@ -32,13 +34,13 @@ static void ensure_size(idx_t n)
     if (n <= max_n) return;          /* already big enough */
 
     /* free old arrays */
-    free(dp);
-    free(ans);
+    mem_free(dp);
+    mem_free(ans);
     free(sqfree);
 
     /* allocate new arrays (size_t conversion safe for n up to 64‑bit) */
-    dp   = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
-    ans  = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
+    dp   = mem_new(seq_t, (size_t)n + 1);
+    ans  = mem_new(seq_t, (size_t)n + 1);
     if (!dp || !ans) abort();        /* allocation failure */
 
     /* build list of squarefree numbers up to n */

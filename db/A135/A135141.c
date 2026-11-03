@@ -9,7 +9,8 @@
  *            c_n is n‑th composite number
  * Range:     u8 n <= 59, u16 n <= 493, u32 n <= 6928, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9705 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static size_t _cache_limit = 0;
 static bool * _is_prime = NULL;
@@ -28,7 +30,7 @@ static seq_t * _a_cache = NULL;
 static void _build_sieve(size_t limit) {
     _is_prime = (bool*)malloc((limit + 1) * sizeof(bool));
     _prime_pi = (idx_t*)malloc((limit + 1) * sizeof(idx_t));
-    _a_cache   = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
+    _a_cache   = mem_new(seq_t, (limit + 1));
     if (!_is_prime || !_prime_pi || !_a_cache) return;
     for (size_t i = 0; i <= limit; ++i) _is_prime[i] = true;
     _is_prime[0] = _is_prime[1] = false;
@@ -61,7 +63,7 @@ static void _ensure_limit(idx_t n) {
     /* extend arrays by rebuilding up to new_limit */
     free(_is_prime);
     free(_prime_pi);
-    free(_a_cache);
+    mem_free(_a_cache);
     _build_sieve(new_limit);
 }
 

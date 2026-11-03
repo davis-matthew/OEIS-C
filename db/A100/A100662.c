@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth prime of the form k^3 + (k+1)^2, k ≥ 1
  * Range:     u8 n <= 4, u16 n <= 20, u32 n <= 303, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 54 terms through n = 995 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
  * values needed up to n ≈ 10 000, which is well within 64‑bit. */
 
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
         uint64_t val = (uint64_t)val128;
 
         /* Test primality */
-        if (is_prime(val)) {
+        if (is_prime_u64(val)) {
             ++count;
             if (count == n) {
                 return (seq_t)val;   /* cast to the required return type */

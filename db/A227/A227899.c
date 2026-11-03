@@ -9,6 +9,7 @@
  *            + (n-p)^2 is prime
  * Range:     u8 n <= 15, u16 n <= 316, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 116 terms through n = 9652 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/is_prime.h"
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 97, u16 n <= 2185, u32 n <= 2185, u64 n <= 2185,
  *            u128 n <= 2185, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 2168 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* forward declaration of seq_t and idx_t (provided by the build) */
 typedef seq_t seq_t;
@@ -150,7 +152,7 @@ static void _ensure_cache(idx_t n)
             /* grow the cache array if needed */
             if (_seq_size == _seq_cap) {
                 size_t new_cap = (_seq_cap == 0) ? 2 : (_seq_cap * 2);
-                seq_t *tmp = (seq_t *)realloc(_seq_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, _seq_cache, new_cap);
                 if (!tmp) exit(1);
                 _seq_cache = tmp;
                 _seq_cap = new_cap;
@@ -168,7 +170,7 @@ seq_t a(idx_t n)
     if (_seq_cache == NULL) {
         /* first cache entry: dummy 0 at index 0, 1 at index 1 */
         _seq_cap = 2;
-        _seq_cache = (seq_t *)malloc(_seq_cap * sizeof(seq_t));
+        _seq_cache = mem_new(seq_t, _seq_cap);
         if (!_seq_cache) exit(1);
         _seq_cache[0] = 0;
         _seq_cache[1] = (seq_t)1;

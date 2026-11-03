@@ -7,13 +7,16 @@
  * Formula:   a(n) = prime of the form 13*k^2 + 3*k + 1 (nth such prime)
  * Range:     u8 n <= 3, u16 n <= 34, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 54 terms through n = 998 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_cache = NULL;
 static idx_t cache_len = 0;
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
             /* Grow the cache if necessary */
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(prime_cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime_cache, cache_cap);
                 if (!tmp) abort();              /* out of memory */
                 prime_cache = tmp;
             }

@@ -12,12 +12,14 @@
  *            this is easily under the time limit
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global table of Delannoy numbers modulo 5. */
 static seq_t **delannoy = NULL;   /* square table of size dim x dim */
@@ -32,7 +34,7 @@ static void rebuild_table(size_t new_dim)
 
     /* Allocate rows; they are zero-initialised for safety. */
     for (size_t i = 0; i < new_dim; ++i) {
-        new_tbl[i] = (seq_t *)calloc(new_dim, sizeof(seq_t));
+        new_tbl[i] = mem_new(seq_t, new_dim);
         if (!new_tbl[i]) exit(1);
     }
 
@@ -57,7 +59,7 @@ static void rebuild_table(size_t new_dim)
     /* Free the old table, if any. */
     if (delannoy) {
         for (size_t i = 0; i < dim; ++i) {
-            free(delannoy[i]);
+            mem_free(delannoy[i]);
         }
         free(delannoy);
     }

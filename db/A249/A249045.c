@@ -8,8 +8,9 @@
  *            be * written as m + sum_of_digits(m)) and is divisible by 3. The
  *            function * generates terms on demand and memoises them
  * Range:     u8 n <= 10, u16 n <= 2138, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 8117, big any n
- * Helpers:   none
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 8406 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *self_terms = NULL;  /* memoised self‑numbers (multiples of 3) */
 static size_t  self_cap   = 0;     /* capacity of self_terms */
@@ -64,10 +66,10 @@ static void ensure_terms(size_t n)
     /* grow memoisation array if needed */
     if (self_cap == 0) {
         self_cap = 128;
-        self_terms = (seq_t *)malloc(self_cap * sizeof(seq_t));
+        self_terms = mem_new(seq_t, self_cap);
     } else if (self_cnt == self_cap) {
         self_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(self_terms, self_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, self_terms, self_cap);
         if (!tmp) abort();
         self_terms = tmp;
     }
@@ -79,6 +81,12 @@ static void ensure_terms(size_t n)
         while (!(candidate % 3 == 0) || !is_self(candidate))
             candidate++;
 
+        if (self_cnt >= self_cap) {                 /* grow before storing */
+            self_cap = self_cap ? 2 * self_cap : 16;
+            seq_t *grown_ = mem_resize(seq_t, self_terms, self_cap);
+            if (!grown_) abort();
+            self_terms = grown_;
+        }
         self_terms[self_cnt++] = (seq_t)candidate;
         candidate += 3;                  /* jump to next multiple of 3 */
     }

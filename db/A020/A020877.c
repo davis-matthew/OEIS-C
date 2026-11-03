@@ -8,13 +8,15 @@
  *            (offset 2): a(2)=10, a(3)=34, a(4)=106, a(5)=344
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 37, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* dynamic cache for computed terms */
 static seq_t *cache = NULL;
@@ -26,7 +28,7 @@ static void init_cache(void)
 {
     if (!cache) {
         cache_cap = 6;                      /* indices 0 .. 5 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             return;                        /* out of memory – caller will see 0 */
 
@@ -47,7 +49,7 @@ static void ensure_capacity(idx_t n)
     if ((size_t)n + 1 <= cache_cap)
         return;
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)                /* out of memory – keep old cache */
         return;
     cache = new_cache;

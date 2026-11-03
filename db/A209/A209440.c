@@ -9,13 +9,15 @@
  *            memoization; relies on binomial(idx_t,idx_t) from utils
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 35 terms through n = 337 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* enlarge cache if it is not large enough */
     if ((size_t)(n + 1) > cache_sz) {
         size_t new_sz = (size_t)(n + 1);
-        seq_t *new_mem = (seq_t *)malloc(new_sz * sizeof(seq_t));
+        seq_t *new_mem = mem_new(seq_t, new_sz);
         if (new_mem == NULL)
             return 0;   /* allocation failure */
         /* copy existing values */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         /* initialize new slots to zero (will be overwritten) */
         for (size_t i = cache_sz; i < new_sz; ++i)
             new_mem[i] = 0;
-        free(cache);
+        mem_free(cache);
         cache = new_mem;
         cache_sz = new_sz;
     }

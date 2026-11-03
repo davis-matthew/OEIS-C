@@ -7,7 +7,8 @@
  * Formula:   a(n) = exponent of 2 in n-th number of the form 2^i * 9^j
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 9462 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* initialise storage */
     if (sz == 0) {
         cap = 16;
-        e2   = (seq_t*)       malloc(cap * sizeof(seq_t));
+        e2   = mem_new(seq_t, cap);
         e3   = (uint32_t*)    malloc(cap * sizeof(uint32_t));
         logv = (long double*)malloc(cap * sizeof(long double));
 
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
         /* store the new term */
         if (sz == cap) {
             cap = cap ? cap * 2 : 16;
-            e2   = (seq_t*)       realloc(e2,   cap * sizeof(seq_t));
+            e2   = mem_resize(seq_t, e2, cap);
             e3   = (uint32_t*)    realloc(e3,   cap * sizeof(uint32_t));
             logv = (long double*)realloc(logv, cap * sizeof(long double));
         }

@@ -11,12 +11,14 @@
  *            * p(x,n)=x^(n‑1)*p(x,n‑1)+x^(n‑2)*p(x,n‑2), n≥2
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         row_len = (size_t *)malloc(sizeof(size_t) * 1);
         cum_len = (idx_t *)malloc(sizeof(idx_t) * 1);
 
-        rows[0] = (seq_t *)malloc(sizeof(seq_t) * 1);   /* p(x,0) = 0 */
+        rows[0] = mem_new(seq_t, 1);   /* p(x,0) = 0 */
         rows[0][0] = 0;
         row_len[0] = 1;
         cum_len[0] = 1;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     while (cum_len[max_row] <= n) {
         idx_t r = max_row + 1;
         size_t L = (size_t)(r * (r - 1ULL) / 2ULL + 1);   /* length of this row   */
-        seq_t *row = (seq_t *)malloc(L * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, L);
 
         if (r == 1) {                /* p(x,1) = 1 */
             row[0] = 1;

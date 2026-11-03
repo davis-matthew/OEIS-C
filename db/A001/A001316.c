@@ -8,8 +8,9 @@
  * Keywords:  nonn, easy, nice
  * Formula:   a(n) = 2^A000120(n), where A000120(n) is the number of 1-bits in
  *            n
- * Range:     u8 n <= 254, u16 n <= 9217, u32 n <= 9217, u64 n <= 9217,
- *            u128 n <= 9217, big any n
+ * Range:     u8 n <= 254, u16 n <= 50000, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 104 terms through n = 9217 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

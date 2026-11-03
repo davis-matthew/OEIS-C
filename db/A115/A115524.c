@@ -9,15 +9,19 @@
  *            defined by: T(n,k) = (-1)^n * ( 1 if n==k -1 if n==2k+2
  *            -(1+(-1)^k)/2 if n==k+1 ) where all other entries are 0. The
  *            flattening is row-wise: first row n=0, then row n=1, then n=2, …
- * Range:     i8 n <= 9038, i16 n <= 9038, i32 n <= 9038, i64 n <= 9038,
- *            i128 n <= 9038, big any n
- * Helpers:   parity_sign
+ * Range:     i8 n <= 22154, i16 n <= 22154, i32 n <= 22154, i64 n <= 22154,
+ *            i128 n <= 22154, big any n
+ * Validated: standard, pass, 137 terms through n = 9038 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/parity_sign.h"
+
+static inline int parity_sign(idx_t r) {
+    return (r & 1) ? -1 : 1; /* (-1)^r */
+}
 
 seq_t a(idx_t n) {
     /* binary search for the row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2 */

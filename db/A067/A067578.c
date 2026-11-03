@@ -8,12 +8,14 @@
  * Formula:   a(n) = Product_{i=1..n} phi(i) * Sum_{i=1..n} 1/phi(i)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 24, u128 n <= 25,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 2; k <= n; ++k)
     {
-        seq_t phi_k = phi(k);    /* φ(k) */
+        seq_t phi_k = totient(k);    /* φ(k) */
         val   = phi_k * val + prod;   /* a(k) = φ(k) * a(k-1) + prod_{k-1} */
         prod  = prod * phi_k;          /* Π_{i=1}^{k} φ(i) */
     }

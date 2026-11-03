@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 354, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 65 terms through n = 7619 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,18 +32,18 @@ seq_t a(idx_t n)
         /* enlarge storage if necessary */
         if (size + 1 > cap) {
             idx_t newcap = (cap == 0) ? 32 : cap * 2;
-            seq_t *tmp = (seq_t *)realloc(list, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, list, newcap);
             list = tmp;
             cap  = newcap;
         }
 
         /* find the next acceptable prime */
         for (;;) {
-            if (is_prime(cur)) {
+            if (is_prime_u64(cur)) {
                 unsigned __int128 t = (unsigned __int128)cur;
                 uint64_t a1 = (uint64_t)(t * 7 + 2);
                 uint64_t a2 = (uint64_t)(t * 2 + 7);
-                if (is_prime(a1) && is_prime(a2)) {
+                if (is_prime_u64(a1) && is_prime_u64(a2)) {
                     list[size++] = (seq_t)cur;
                     cur += 2;   /* move to the next odd number */
                     break;

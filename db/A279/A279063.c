@@ -12,6 +12,7 @@
  *            with determinant in range. From this total it sub...
  * Range:     u8 n <= 5, u16 n <= 28, u32 n <= 150, u64 n <= 150,
  *            u128 n <= 150, big any n
+ * Validated: standard, pass, 55 terms through n = 144 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -5,14 +5,29 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 1 if phi(n)+sigma(n) == 2 (mod 4), otherwise 0
- * Range:     u8 n <= 8647, u16 n <= 9955, u32 n <= 9955, u64 n <= 9955,
- *            u128 n <= 9955, big any n
- * Helpers:   phi
+ * Range:     u8 n <= 8647, u16 n <= 65539, u32 n <= 65539, u64 n <= 65539,
+ *            u128 n <= 65539, big any n
+ * Validated: standard, pass, 143 terms through n = 9955 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+
+static seq_t phi(idx_t m)
+{
+    seq_t result = (seq_t)m;
+    idx_t d = 2;
+    for (; d * d <= m; ++d) {
+        if (m % d == 0) {
+            while (m % d == 0) m /= d;
+            result -= result / (seq_t)d;
+        }
+    }
+    if (m > 1) result -= result / (seq_t)m;
+    return result;
+}
 #include <stdint.h>
 
 /* Compute the sum of the positive divisors of n.

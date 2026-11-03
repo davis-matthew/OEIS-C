@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   build_spf
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 /* helper that builds an array of smallest prime factors (spf[0] unused);
    spf[i] = 0 or the smallest prime dividing i (for primes spf[i] = 0). */
+#include <stdint.h>
 #include "../utils/build_spf.h"
 
 /* static state for memoisation */
@@ -48,7 +51,7 @@ static void push_term(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);   /* abort on OOM          */
         cache = tmp;
         cache_cap = new_cap;

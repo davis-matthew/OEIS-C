@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 816, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_cube_root, floor_sqrt, is_prime, rad
+ * Validated: standard, pass, 82 terms through n = 9955 (2026-11-01)
+ * Helpers:   ipow_i32, is_prime, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,10 +32,47 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "../utils/rad.h"
-#include "../utils/floor_cube_root.h"
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 #include "../utils/is_prime.h"
+#include "../utils/radical.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Helper: count powerful numbers up to x (inclusive). */
 static seq_t count_powerful(seq_t x)
@@ -73,7 +111,7 @@ static seq_t count_powerful(seq_t x)
 /* Sequence function a(n) for OEIS A348018 */
 seq_t a(idx_t n)
 {
-    seq_t rad_n = rad(n);                 /* rad(n) : product of distinct primes of n */
+    seq_t rad_n = radical(n);                 /* rad(n) : product of distinct primes of n */
     seq_t m     = (seq_t)n * rad_n;       /* m = n * rad(n) */
     return count_powerful(m);             /* rank of m among powerful numbers */
 }

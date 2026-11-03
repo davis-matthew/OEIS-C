@@ -10,14 +10,34 @@
  *            of k-1 * does not
  * Range:     u8 n <= 5, u16 n <= 1065, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has17_oct
+ * Validated: standard, pass, 64 terms through n = 8709 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has17_oct.h"
+#include "../utils/mem.h"
+
+/* Helper: does the octal representation of x contain the substring "17"? */
+static bool has17_oct(seq_t x)
+{
+    if (x == 0) return false;
+    seq_t t = x;
+    unsigned int prev = 255;               /* sentinel value, not a digit */
+
+    while (t != 0) {
+        unsigned int d = (unsigned int)(t % 8);
+        /* Detect pattern most‑significant 1 followed by least‑significant 7
+         * by reading digits from least significant to most significant.
+         * Thus we look for a digit 1 after seeing a digit 7. */
+        if (d == 1 && prev == 7) return true;
+        prev = d;
+        t = t / 8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,8 +58,7 @@ seq_t a(idx_t n)
                 /* store the term */
                 if (cache_len == cache_cap) {
                     size_t new_cap = cache_cap ? 2 * cache_cap : 4;
-                    seq_t *tmp = (seq_t *)realloc(cache,
-                                                  new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) exit(1);
                     cache = tmp;
                     cache_cap = new_cap;

@@ -10,12 +10,15 @@
  *            where pi(x) is the prime-counting function
  * Range:     u8 n <= 7, u16 n <= 50, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +29,8 @@ seq_t a(idx_t n)
 
     /* Count primes <= R-1 minus primes <= L.
        Since R >= 2, R-1 is at least 1. */
-    seq_t cnt_right = compute_pi((idx_t)(R - 1));
-    seq_t cnt_left  = compute_pi((idx_t)L);
+    seq_t cnt_right = prime_pi((idx_t)(R - 1));
+    seq_t cnt_left  = prime_pi((idx_t)L);
 
     return cnt_right - cnt_left;
 }

@@ -8,6 +8,7 @@
  *            239), if n ≡ 0 (mod 239) we return 0)
  * Range:     u8 n <= 238, u16 n <= 238, u32 n <= 238, u64 n <= 238,
  *            u128 n <= 238, big any n
+ * Validated: full, pass, 238 terms through n = 238 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

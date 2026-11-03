@@ -9,7 +9,8 @@
  *            (including 1)
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   int_cmp
+ * Validated: partial, pass, 67 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>   /* for uint8_t, etc. */
-#include "../utils/int_cmp.h"
+#include "../utils/mem.h"
+
+/* Compare integers for qsort */
+static int int_cmp(const void *a, const void *b)
+{
+    int va = *(const int *)a;
+    int vb = *(const int *)b;
+    return (va > vb) - (va < vb);
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -112,10 +121,10 @@ seq_t a(idx_t n)
         return 0;
     }
     for (int k = 0; k <= 4; ++k) {
-        dp[k] = (seq_t *)calloc(N + 1, sizeof(seq_t));
+        dp[k] = mem_new(seq_t, N + 1);
         if (!dp[k]) {
             for (int j = 0; j < k; ++j)
-                free(dp[j]);
+                mem_free(dp[j]);
             free(dp);
             free(powers);
             return 0;
@@ -143,7 +152,7 @@ seq_t a(idx_t n)
        4. Clean up
        ------------------------------------------------------------ */
     for (int k = 0; k <= 4; ++k)
-        free(dp[k]);
+        mem_free(dp[k]);
     free(dp);
     free(powers);
 

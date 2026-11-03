@@ -9,7 +9,8 @@
  *            numbers with the same divisor count equals n
  * Range:     u8 n <= 78, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9875 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of helper to extend prime table */
 static void extend_primes_upto(idx_t limit);
@@ -164,7 +166,7 @@ seq_t a(idx_t n)
     if (n + 1 > best_len)
     {
         size_t new_len = (size_t)(n + 1);
-        seq_t *new_best = (seq_t*)realloc(best, new_len * sizeof(seq_t));
+        seq_t *new_best = mem_resize(seq_t, best, new_len);
         if (!new_best)
             return 0;               /* allocation failure – unlikely */
         for (size_t i = best_len; i < new_len; ++i)

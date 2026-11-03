@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 8416, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_equal_nonzero_zero_and_six
+ * Validated: standard, pass, 67 terms through n = 8629 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,19 @@
  */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/has_equal_nonzero_zero_and_six.h"
+#include "../utils/mem.h"
+
+static inline int has_equal_nonzero_zero_and_six(seq_t x)
+{
+    int cnt0 = 0, cnt6 = 0;
+    while (x != 0) {
+        unsigned int d = (unsigned int)(x % 8);
+        if (d == 0) ++cnt0;
+        else if (d == 6) ++cnt6;
+        x /= 8;
+    }
+    return (cnt0 == cnt6) && (cnt0 > 0);
+}
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -44,7 +57,7 @@ seq_t a(idx_t n)
             size_t new_cap = cap ? cap * 2 : 8;
             while (new_cap < sz + (n - sz))
                 new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();                /* out of memory */
             cache = tmp;
             cap   = new_cap;

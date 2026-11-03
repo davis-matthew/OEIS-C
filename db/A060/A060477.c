@@ -8,7 +8,8 @@
  * Formula:   a(n) = (1/n) * Σ_{d|n} μ(d) * (2^{n/d} + 1)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   big_pow, mu_of
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,29 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mu_of.h"
-#include "../utils/big_pow.h"
+#include <stddef.h>
+#include "../utils/ipow.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +53,7 @@ seq_t a(idx_t n)
             /* First divisor d = i */
             idx_t d1 = i;
             idx_t div1 = n / d1;                 /* n/d1 */
-            seq_t pow1 = big_pow((seq_t)2, (seq_t)div1);
+            seq_t pow1 = ipow((seq_t)2, (seq_t)div1);
             int mu1 = mu_of(d1);
             if (mu1 == 1) sum_pos += pow1;
             else if (mu1 == -1) sum_neg += pow1;
@@ -40,7 +62,7 @@ seq_t a(idx_t n)
             idx_t d2 = n / i;
             if (d2 != d1) {
                 idx_t div2 = n / d2;             /* n/d2 = i */
-                seq_t pow2 = big_pow((seq_t)2, (seq_t)div2);
+                seq_t pow2 = ipow((seq_t)2, (seq_t)div2);
                 int mu2 = mu_of(d2);
                 if (mu2 == 1) sum_pos += pow2;
                 else if (mu2 == -1) sum_neg += pow2;

@@ -12,7 +12,8 @@
  *            a(n)=64*a(n-1)-960*a(n-2)+4096*a(n-3) for n>4
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     {
         /* allocate at least 4 slots for the known initial terms */
         cap = (n < 4 ? 4 : n);
-        cache = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cap);
         cache[0] = (seq_t)3;
         cache[1] = (seq_t)36;
         cache[2] = (seq_t)1440;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cap ? cap : 4;
         while (new_cap < n)
             new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 

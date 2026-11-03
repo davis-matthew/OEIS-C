@@ -11,13 +11,16 @@
  *            This implements the triangular array * given by A193722
  * Range:     u8 n <= 18, u16 n <= 60, u32 n <= 181, u64 n <= 617,
  *            u128 n <= 2257, big any n
- * Helpers:   binomial, pow_uint
+ * Validated: standard, pass, 71 terms through n = 5231 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -59,7 +62,7 @@ seq_t a(idx_t n)
     seq_t bin1 = binomial(r - 1, k);        /* C(r-1, k) */
     seq_t bin2 = binomial(r, k);            /* C(r, k)   */
     seq_t sum  = bin1 + bin2 + bin2;         /* bin1 + 2*bin2 */
-    seq_t pow3 = pow_uint(3, k - 1);
+    seq_t pow3 = ipow_u64_idx(3, k - 1);
 
     return pow3 * sum;
 }

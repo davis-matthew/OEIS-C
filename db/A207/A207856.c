@@ -12,7 +12,8 @@
  *            a(n) for all n
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* global state for the DP */
 static bool initialized = false;
@@ -50,14 +52,14 @@ static void ensure_cache_size(idx_t n)
 
     size_t new_cap = n + 1;                     /* need indices 0..n inclusive */
     if (cache == NULL) {
-        cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
         if (!cache) return;                    /* allocation failed */
-        memset(cache, 0, new_cap * sizeof(seq_t));
+        mem_set(cache, 0, new_cap * sizeof(seq_t));
     } else {
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;                     /* allocation failed */
         /* zero the newly added part */
-        memset(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache = tmp;
     }
     cache_cap = new_cap;

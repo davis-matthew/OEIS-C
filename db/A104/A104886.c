@@ -11,7 +11,8 @@
  *            primes (Goldbach partitions)
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   compute_spf, is_prime
+ * Validated: partial, pass, 96 terms through n = 97 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,26 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_spf.h"
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+static uint16_t *compute_spf(idx_t limit)
+{
+    uint16_t *spf = (uint16_t*)calloc((size_t)limit + 1, sizeof(uint16_t));
+    if (!spf) return NULL;
+    for (idx_t i = 2; i <= limit; ++i) {
+        if (!spf[i]) {
+            spf[i] = (uint16_t)i;
+            if (i * i <= limit) {
+                for (uint64_t j = (uint64_t)i * i; j <= limit; j += i) {
+                    if (!spf[j]) spf[j] = (uint16_t)i;
+                }
+            }
+        }
+    }
+    return spf;
+}
 
 /* Maximum index we support.  Must be >= the maximum n we want to answer. */
 #define MAX_S 21000
@@ -56,7 +75,7 @@ static inline bool is_two_odd_prime_product(idx_t m, uint16_t *spf_tbl)
         if (!(spq == 0 || spq == q)) return false;
     } else {
         /* q > LIMIT – use is_prime for safety (very unlikely). */
-        if (!is_prime((uint64_t)q)) return false;
+        if (!is_prime_u64((uint64_t)q)) return false;
     }
 
     return true;    /* m = p*q with distinct odd primes */
@@ -69,13 +88,13 @@ static void init(void)
     if (ready) return;
 
     /* Allocate counter array (value type seq_t may be an arbitrary‑precision type). */
-    cnt = (seq_t *)calloc(MAX_S + 1, sizeof(seq_t));
+    cnt = mem_new(seq_t, MAX_S + 1);
     if (!cnt) return;   /* allocation failed – silently abort */
 
     /* Compute smallest prime factors up to LIMIT. */
     spf = compute_spf(LIMIT);
     if (!spf) {
-        free(cnt);
+        mem_free(cnt);
         cnt = NULL;
         return;
     }
@@ -83,7 +102,7 @@ static void init(void)
     /* Sieve for divisor sums (including the number itself). */
     uint32_t *sum = (uint32_t *)calloc(LIMIT + 1, sizeof(uint32_t));
     if (!sum) {
-        free(cnt);
+        mem_free(cnt);
         free(spf);
         cnt = NULL;
         spf = NULL;

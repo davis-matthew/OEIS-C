@@ -7,6 +7,7 @@
  * Formula:   a(n) = Product_{i=1..10} ((-2)^(n-i+1)-1)/((-2)^i-1)
  * Range:     u8 n <= 10, u16 n <= 11, u32 n <= 13, u64 n <= 16, u128 n <= 22,
  *            big any n
+ * Validated: standard, pass, 28 terms through n = 192 (2026-11-01)
  * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
    Requires the utilities gcd.h and pow2.h. */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
 #include "../utils/pow2.h"
 

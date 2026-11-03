@@ -7,13 +7,15 @@
  * Formula:   a(n) = A000110(n)*A006882(n) (Bell number × double factorial)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cached values */
 static seq_t *bell   = NULL;   /* Bell numbers B(n) */
@@ -32,11 +34,11 @@ static void ensure_cache(idx_t n)
 
         /* Allocate or reallocate memory. Cast from void* to seq_t*. */
         if (!bell || !dblfact) {
-            bell    = (seq_t *)calloc(new_cap, sizeof(seq_t));
-            dblfact = (seq_t *)calloc(new_cap, sizeof(seq_t));
+            bell    = mem_new(seq_t, new_cap);
+            dblfact = mem_new(seq_t, new_cap);
         } else {
-            bell    = (seq_t *)realloc(bell,    new_cap * sizeof(seq_t));
-            dblfact = (seq_t *)realloc(dblfact, new_cap * sizeof(seq_t));
+            bell    = mem_resize(seq_t, bell, new_cap);
+            dblfact = mem_resize(seq_t, dblfact, new_cap);
             /* Zero any newly allocated slots. */
             size_t i;
             for (i = cache_cap; i < new_cap; ++i)
@@ -45,8 +47,8 @@ static void ensure_cache(idx_t n)
 
         /* Set zeros for existing slots that were not initialized yet. */
         if (cache_cap < new_cap) {
-            memset(bell + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
-            memset(dblfact + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+            mem_set(bell + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+            mem_set(dblfact + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         }
         cache_cap = new_cap;
     }

@@ -11,14 +11,15 @@
  *            the OEIS comments. Cubes use decimal digit arrays, s...
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 31, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   pal_u64
+ * Validated: standard, pass, 45 terms through n = 87 (2026-11-01)
+ * Helpers:   is_palindrome_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pal_u64.h"
+#include "../utils/is_palindrome_u64.h"
 
 #define LMAX 64
 
@@ -55,7 +56,7 @@ seq_t a(idx_t n) {
     idx_t count = 0;
     uint64_t m;
     for (m = 0; m < 1000000ULL; m++) {
-        if (pal_u64(m * m * m)) {
+        if (is_palindrome_u64(m * m * m)) {
             count++;
             if (count == n) return (seq_t)m;
         }

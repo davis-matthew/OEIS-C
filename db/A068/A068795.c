@@ -12,7 +12,8 @@
  *            the greatest prime factor of n
  * Range:     u8 n <= 27, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   big_pow, bigomega, largest_prime_factor
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   bigomega, ipow, largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,11 @@
 */
 
 #include <stdint.h>
-#include "../utils/largest_prime_factor.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/bigomega.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -40,5 +43,5 @@ seq_t a(idx_t n)
     seq_t omega = bigomega(n);
 
     /* Compute gpf^omega using arbitrary precision power routine. */
-    return big_pow((seq_t)gpf, omega);
+    return ipow((seq_t)gpf, omega);
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   odd_one_parity
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/odd_one_parity.h"
+#include "../utils/mem.h"
+
+/* return 1 if x has an odd number of 1 digits in base 5, else 0 */
+static int odd_one_parity(idx_t x) {
+    int p = 0;
+    while (x) {
+        if ((x % 5) == 1) p ^= 1;
+        x /= 5;
+    }
+    return p;
+}
 
 /* cache for already computed values */
 static seq_t *cache = NULL;
@@ -29,7 +40,7 @@ static void grow_cache(size_t needed) {
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                /* out of memory */
     cache = tmp;
     cache_cap = new_cap;

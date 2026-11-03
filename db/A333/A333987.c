@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   best_difference_for_k
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,38 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/best_difference_for_k.h"
+
+/* --------------------------------------------------------------
+   Compute the minimal positive difference b(k)
+   -------------------------------------------------------------- */
+static double best_difference_for_k(idx_t k)
+{
+    double sqrt_k = sqrt((double)k);
+    double best_sum = -1.0;           /* maximum sqrt(x)+sqrt(y) found   */
+    unsigned x_start = 0U;             /* allow x=0 for first few k       */
+
+    for (unsigned x = x_start; x < (unsigned)k - 1U; ++x) {
+        double sqrt_x = sqrt((double)x);
+        double min_sum = sqrt_x + sqrt((double)(x + 1));
+        if (min_sum >= sqrt_k) break;  /* any larger x cannot satisfy */
+
+        double diff_x = sqrt_k - sqrt_x;
+        if (diff_x <= 0.0) break;      /* no valid y for this x           */
+
+        double y_max_d = diff_x * diff_x - 1e-12;
+        if (y_max_d < 0.0) continue;
+        unsigned y_max = (unsigned)floor(y_max_d);
+
+        if (y_max > (unsigned)k - 1U) y_max = (unsigned)k - 1U;
+        if (y_max <= x) continue;      /* need distinct and y > x */
+
+        double sum = sqrt_x + sqrt((double)y_max);
+        if (sum > best_sum) best_sum = sum;
+    }
+
+    if (best_sum < 0.0) return HUGE_VALF;   /* no admissible pair */
+    return sqrt_k - best_sum;               /* minimal positive difference */
+}
 
 /*  Function prototype required by the build system.  */
 seq_t a(idx_t n);

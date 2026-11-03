@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 8, i16 n <= 13, i32 n <= 22, i64 n <= 28, i128 n <= 28,
  *            big any n
- * Helpers:   exp_in_number, seq_pow
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,19 @@
 #include <stdint.h>    /* for uint32_t */
 #include <stddef.h>    /* for size_t */
 #include <stdbool.h>   /* for bool */
-#include "../utils/seq_pow.h"   /* seq_pow(seq_t, idx_t) */
-#include "../utils/exp_in_number.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+
+/* exponent of prime p in a positive integer x */
+static inline idx_t exp_in_number(idx_t x, uint32_t p)
+{
+    idx_t e = 0;
+    while (x % p == 0) {
+        x /= p;
+        ++e;
+    }
+    return e;
+}
 
 /* maximum 2n‑2 needed for n up to 10 000 */
 #define MAX_PRIME 20000
@@ -79,7 +91,7 @@ seq_t a(idx_t n)
         /* exponent that survives in the reduced numerator */
         if (eC > eD) {
             idx_t e = eC - eD;
-            seq_t power = seq_pow((seq_t)p, e);
+            seq_t power = ipow_idx((seq_t)p, e);
             result *= power;
         }
     }

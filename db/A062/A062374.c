@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 41, u16 n <= 9894, u32 n <= 9894, u64 n <= 9894,
- *            u128 n <= 9894, big any n
- * Helpers:   factor_u64, gcd, phi
+ * Range:     u8 n <= 41, u16 n <= 11582, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 70 terms through n = 9894 (2026-11-01)
+ * Helpers:   factor_u64, gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/phi.h"          /* seq_t phi(idx_t m);            */
-#include "../utils/gcd.h"          /* seq_t gcd(seq_t a, seq_t b);   */
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, ...); */
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/totient.h"
 
 /* Maximum number of terms we are prepared to cache (sufficient for n≈10000). */
 #define MAX_CACHED_TERMS 20000
@@ -81,7 +82,7 @@ seq_t a(idx_t n)
     while (cache_len < n) {
         ++search_limit;             /* next integer to test */
 
-        seq_t phi_val   = phi((idx_t)search_limit);
+        seq_t phi_val   = totient((idx_t)search_limit);
         seq_t lambda_val= lambda_u64(search_limit);
 
         if (phi_val == 4 * lambda_val) {

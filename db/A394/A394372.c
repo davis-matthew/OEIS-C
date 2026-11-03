@@ -9,7 +9,8 @@
  *            a(3) = 3
  * Range:     u8 n <= 11, u16 n <= 47, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 
 #include <stdlib.h>        /* malloc, free */
 #include <stddef.h>        /* size_t */
-#include "../utils/gcd.h"  /* seq_t gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     if (cap <= (size_t)n) {
         size_t needed = (size_t)n + 1;           /* indices 0 .. n */
         if (needed < 4) needed = 4;              /* minimum needed slots */
-        seq_t *new_cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, needed);
         if (!new_cache) {
             /* Allocation failed; the sequence cannot be computed. */
             return 0;
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
         if (cache) {
             for (size_t i = 1; i < cap; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cap   = needed;

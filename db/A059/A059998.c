@@ -10,7 +10,8 @@
  *            representation of n as the sum of three primes p ≤ q ≤ r
  * Range:     u8 n <= 1622, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 1995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime infrastructure ---------- */
 static unsigned char *prime_flag = NULL;   /* 1 if prime, 0 otherwise          */
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
     /* Extend cache if necessary */
     if ((size_t)n > cache_capacity) {
         size_t new_cap = (size_t)n;
-        seq_t *new_val = (seq_t *)realloc(cache_val, (new_cap + 1) * sizeof(seq_t));
+        seq_t *new_val = mem_resize(seq_t, cache_val, (new_cap + 1));
         unsigned char *new_comp = (unsigned char *)realloc(cache_comp, (new_cap + 1) * sizeof(unsigned char));
         if (!new_val || !new_comp) exit(EXIT_FAILURE);
         for (size_t i = cache_capacity + 1; i <= new_cap; ++i) new_comp[i] = 0;

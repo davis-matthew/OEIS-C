@@ -10,13 +10,15 @@
  *            a(n) in the square spiral
  * Range:     u8 n <= 21, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define GRID_SIZE 405               /* sufficient for n ≤ 10000      */
 #define GRID_OFFSET (GRID_SIZE/2)    /* center of the grid             */
@@ -47,11 +49,11 @@ seq_t a(idx_t n) {
     /* Initialise data structures on first call. */
     if (!initialized) {
         seq_cap = 64;
-        seq_vals   = (seq_t*)malloc((seq_cap + 1) * sizeof(seq_t));
+        seq_vals   = mem_new(seq_t, (seq_cap + 1));
         coord_x    = (int*)malloc((seq_cap + 1) * sizeof(int));
         coord_y    = (int*)malloc((seq_cap + 1) * sizeof(int));
 
-        grid_vals  = (seq_t*)malloc(GRID_SIZE * GRID_SIZE * sizeof(seq_t));
+        grid_vals  = mem_new(seq_t, GRID_SIZE * GRID_SIZE);
         grid_flag  = (uint8_t*)calloc(GRID_SIZE * GRID_SIZE, sizeof(uint8_t));
 
         seq_vals[1] = (seq_t)0;
@@ -75,7 +77,7 @@ seq_t a(idx_t n) {
         if (new_cap < (size_t)n + 1) {
             new_cap = (size_t)n + 1;
         }
-        seq_vals   = (seq_t*)realloc(seq_vals,   (new_cap + 1) * sizeof(seq_t));
+        seq_vals   = mem_resize(seq_t, seq_vals, (new_cap + 1));
         coord_x    = (int*)realloc(coord_x,    (new_cap + 1) * sizeof(int));
         coord_y    = (int*)realloc(coord_y,    (new_cap + 1) * sizeof(int));
         seq_cap = new_cap;

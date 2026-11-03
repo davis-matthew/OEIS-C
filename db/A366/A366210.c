@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   median_is_four
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,66 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/median_is_four.h"
+#include "../utils/mem.h"
+
+/* Return true if the median of the decimal digits of x equals 4. */
+static bool median_is_four(seq_t x)
+{
+    /* Count decimal digits. */
+    unsigned char cnt[10] = {0};
+    seq_t tmp = x;
+
+    if (tmp == 0)                          /* never used for positive x */
+    {
+        cnt[0] = 1;
+    }
+    else
+    {
+        while (tmp > 0)
+        {
+            int d = (int)(tmp % (seq_t)10);
+            cnt[d] += 1;
+            tmp /= (seq_t)10;
+        }
+    }
+
+    /* Total number of digits. */
+    int total = 0;
+    for (int d = 0; d < 10; ++d)
+        total += cnt[d];
+
+    if (total & 1)                              /* odd number of digits */
+    {
+        int k = (total + 1) / 2;                /* median position (1‑based) */
+        int cum = 0;
+        for (int d = 0; d < 10; ++d)
+        {
+            cum += cnt[d];
+            if (cum >= k)
+                return d == 4;
+        }
+    }
+    else                                          /* even number of digits */
+    {
+        int k1 = total / 2;
+        int k2 = k1 + 1;
+        int cum = 0, a = 0, b = 0;
+
+        for (int d = 0; d < 10; ++d)
+        {
+            cum += cnt[d];
+            if (cum >= k1) { a = d; break; }
+        }
+        cum = 0;
+        for (int d = 0; d < 10; ++d)
+        {
+            cum += cnt[d];
+            if (cum >= k2) { b = d; break; }
+        }
+        return (a + b) == 8;                    /* average 4 ⇔ sum 8 */
+    }
+    return false;
+}
 
 /* Cache for already computed terms. */
 static seq_t *cache             = NULL;   /* array of terms */
@@ -40,7 +100,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Generate terms until we reach the requested index. */
@@ -52,7 +112,7 @@ seq_t a(idx_t n)
         if (cache_len == cache_cap)          /* grow cache */
         {
             cache_cap <<= 1;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
     }
 

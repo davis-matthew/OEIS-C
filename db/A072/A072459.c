@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_LIMIT 4000000  /* upper bound for precomputation */
 
@@ -41,7 +43,7 @@ static bool sieve_done = false;
 static void build_sieve(void)
 {
     if (sieve_done) return;
-    phi = (seq_t *)calloc(MAX_LIMIT + 1, sizeof(seq_t));
+    phi = mem_new(seq_t, MAX_LIMIT + 1);
     is_totient = (unsigned char *)calloc(MAX_LIMIT + 1, sizeof(unsigned char));
     spf = (uint32_t *)calloc(MAX_LIMIT + 1, sizeof(uint32_t));
     if (!phi || !is_totient || !spf) return;  /* allocation failed */

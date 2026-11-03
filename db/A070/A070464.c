@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^2 mod 42
  * Range:     u8 n <= 1400, u16 n <= 1400, u32 n <= 1400, u64 n <= 1400,
  *            u128 n <= 1400, big any n
+ * Validated: standard, pass, 92 terms through n = 1370 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

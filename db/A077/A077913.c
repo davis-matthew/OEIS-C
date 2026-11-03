@@ -8,7 +8,8 @@
  *            a(n-3) + a(n-4)
  * Range:     i8 n <= 19, i16 n <= 39, i32 n <= 77, i64 n <= 157,
  *            i128 n <= 314, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    types. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache to allow repeated calls in any order */
 static seq_t *cache = NULL;
@@ -38,7 +40,7 @@ ensure_cache(idx_t n)
         new_size = cache_size * 2;
 
     /* realloc must be cast to the correct pointer type for C++ */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {
         /* allocation failure: abort */
         abort();

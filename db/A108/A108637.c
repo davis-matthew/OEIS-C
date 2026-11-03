@@ -10,15 +10,55 @@
  *            digits (1,3,5,7,9)
  * Range:     i8 n <= 15, i16 n <= 21, i32 n <= 21, i64 n <= 21, i128 n <= 21,
  *            big any n
- * Helpers:   is_semiprime, odd_digits_only
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_semiprime.h"
-#include "../utils/odd_digits_only.h"
+#include "../utils/mem.h"
+
+/* helper: test whether x is a semiprime (product of exactly two prime factors,
+   counting multiplicity). */
+static bool is_semiprime(idx_t x)
+{
+    idx_t temp = x;
+    idx_t factor_count = 0;
+
+    /* Since x is odd, no need to test factor 2. */
+    for (idx_t p = 3; p * p <= temp; p += 2)
+    {
+        if (temp % p == 0)
+        {
+            while (temp % p == 0)
+            {
+                ++factor_count;
+                if (factor_count > 2)
+                    return false;      /* too many factors */
+                temp /= p;
+            }
+        }
+    }
+    if (temp > 1)
+        ++factor_count;                 /* remaining prime factor */
+
+    return factor_count == 2;
+}
+
+/* helper: test if all decimal digits of x are odd */
+static bool odd_digits_only(idx_t x)
+{
+    while (x > 0)
+    {
+        int d = (int)(x % 10);
+        if ((d & 1) == 0)            /* even digit found */
+            return false;
+        x /= 10;
+    }
+    return true;
+}
 
 static seq_t *cache = NULL;        /* array holding found terms             */
 static size_t cache_cap = 0;       /* current sized of cache                */
@@ -31,7 +71,7 @@ static void cache_append(seq_t value)
     if (cache_count == cache_cap)
     {
         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         if (!new_ptr)               /* allocation failure */
             return;                 /* silently ignore beyond memory limits */
         cache = new_ptr;

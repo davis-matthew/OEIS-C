@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,27 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Number of initial terms that we precompute by search. */
 #define PRECOMP_N 30
@@ -81,7 +102,7 @@ static void ensure_cache_capacity(idx_t n)
     if ((idx_t)cache_len >= n + 1)
         return;
     size_t new_len = (size_t)(n + 1) * 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) {
         /* In the unlikely event of allocation failure, abort. */
         abort();
@@ -105,7 +126,7 @@ seq_t a(idx_t n)
     /* Allocate the cache on first use. */
     if (cache == NULL) {
         const size_t init_size = 64;
-        cache = (seq_t *)malloc((init_size + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (init_size + 1));
         if (!cache) abort();
         cache_len = init_size + 1;
         for (idx_t i = 1; i <= PRECOMP_N; ++i)

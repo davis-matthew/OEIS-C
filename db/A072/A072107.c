@@ -7,14 +7,17 @@
  * Formula:   a(n) = Sum_{k=1..n} A014963(k)
  * Range:     u8 n <= 40, u16 n <= 918, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 74 terms through n = 9636 (2026-11-03)
+ * Helpers:   mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* cache[0] unused, cache[i] = a(i) for i>=1 */
 static seq_t *cache = NULL;
@@ -29,7 +32,7 @@ static seq_t spf_value(idx_t k)
     if (k == 1)
         return (seq_t)1;
 
-    uint64_t spf_u = _smallest_prime_factor((uint64_t)k);
+    uint64_t spf_u = smallest_prime_factor((uint64_t)k);
     if (spf_u == 0)
         return (seq_t)1;
 
@@ -53,7 +56,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < n + 1)
             new_cap = n + 1;
-        seq_t *p = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *p = mem_resize(seq_t, cache, new_cap);
         if (!p)
             exit(1);           /* allocation failure */
         cache = p;

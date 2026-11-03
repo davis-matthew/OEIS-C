@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* a(n) = m(n, 0) where m(0, d) = 0; for n > 0, m(n, d) = min_{1<=r<=n} {(r+d)*n + m(r-1, d) + m(n-r, r+d)}. Memoized recursion. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct {
     idx_t n;
@@ -53,7 +55,7 @@ static seq_t m_impl(idx_t n, idx_t d) {
     
     if (memo_size >= memo_cap) {
         memo_cap = memo_cap == 0 ? 16 : memo_cap * 2;
-        memo = (MemoEntry *)realloc(memo, memo_cap * sizeof(MemoEntry));
+        memo = mem_resize(MemoEntry, memo, memo_cap);
     }
     memo[memo_size].n = n;
     memo[memo_size].d = d;

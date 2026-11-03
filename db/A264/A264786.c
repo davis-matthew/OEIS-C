@@ -9,15 +9,16 @@
  *            divisors of n sorted in increasing order
  * Range:     u8 n <= 17, u16 n <= 47, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
-
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static int cmp_uint64(const void *a, const void *b)
 {
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
     for (size_t idx = 0; idx < cnt; ++idx) {
         seq_t d   = (seq_t)divs[idx];
         seq_t exp = (seq_t)(cnt - idx);     /* largest divisor gets exponent 1 */
-        result += big_pow(d, exp);
+        result += ipow(d, exp);
     }
 
     return result;

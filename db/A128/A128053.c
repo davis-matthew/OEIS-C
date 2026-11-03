@@ -10,6 +10,7 @@
  *            Fibonacci sequence (F(0)=0,F(1)=1)
  * Range:     i8 n <= 10, i16 n <= 20, i32 n <= 34, i64 n <= 34, i128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
  * Helpers:   fib_pair
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

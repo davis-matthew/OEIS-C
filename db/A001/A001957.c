@@ -8,17 +8,18 @@
  *            - m)/6) with m = 3n+1, where floor(m*sqrt(13)) = isqrt(13*m^2)
  * Range:     u8 n <= 196, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a1957_isqrt128
+ * Validated: standard, pass, 84 terms through n = 9964 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a1957_isqrt128.h"
+#include "../utils/isqrt_u128.h"
 
 seq_t a(idx_t n) {
     unsigned __int128 m = (unsigned __int128)3 * n + 1;
-    unsigned __int128 s = a1957_isqrt128(13 * m * m);
+    unsigned __int128 s = isqrt_u128(13 * m * m);
     uint64_t k = (uint64_t)((s - m) / 6);
     return (seq_t)k;
 }

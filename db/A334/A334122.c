@@ -7,7 +7,8 @@
  * Formula:   a(n) = (sum of all primes ≤ n) mod n
  * Range:     u8 n <= 42, u16 n <= 1527, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9559 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper function: trial division primality test using known primes */
 static bool is_prime_uint64(uint64_t m,
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     {
         prime_cap = 16;
         primes = (uint64_t *)malloc(prime_cap * sizeof(uint64_t));
-        cum    = (seq_t  *)malloc(prime_cap * sizeof(seq_t));
+        cum    = mem_new(seq_t, prime_cap);
     }
 
     /* Extend state up to n if necessary */
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
                 {
                     prime_cap *= 2;
                     primes = (uint64_t *)realloc(primes, prime_cap * sizeof(uint64_t));
-                    cum    = (seq_t  *)realloc(cum,    prime_cap * sizeof(seq_t));
+                    cum    = mem_resize(seq_t, cum, prime_cap);
                 }
                 primes[prime_len] = (uint64_t)m;
                 /* Compute cumulative sum for this prime */

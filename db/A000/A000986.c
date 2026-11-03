@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 434 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    with a(0) = 1, a(1) = 0, a(2) = 1, a(3) = 4 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *dp = NULL;
@@ -26,13 +28,13 @@ seq_t a(idx_t n) {
     // Expand dp array if needed
     if (n >= dp_size) {
         idx_t new_size = n + 1000;
-        seq_t *new_dp = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, new_size);
         
         if (dp != NULL) {
             for (idx_t i = 0; i < dp_size; i++) {
                 new_dp[i] = dp[i];
             }
-            free(dp);
+            mem_free(dp);
         } else {
             // First allocation, initialize base cases
             new_dp[0] = 1;

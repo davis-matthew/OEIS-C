@@ -10,12 +10,14 @@
  *            anti‑diagonal number d)
  * Range:     u8 n <= 29, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 #include <stdint.h>
 
 seq_t a(idx_t n)
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     idx_t k_val = pos;            /* m in A(n-m, m) */
     idx_t exp   = n_val + 1;      /* (n-m)+1 */
 
-    seq_t term1 = pow_uint((uint64_t)(k_val + 1), exp);
-    seq_t term2 = pow_uint((uint64_t)k_val, exp);
+    seq_t term1 = ipow_u64_idx((uint64_t)(k_val + 1), exp);
+    seq_t term2 = ipow_u64_idx((uint64_t)k_val, exp);
     return term1 - term2;
 }

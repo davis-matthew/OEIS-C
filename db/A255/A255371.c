@@ -12,14 +12,26 @@
  *            the OEIS entry)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   pow10
+ * Validated: standard, pass, 37 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t *cache   = NULL;   /* cached a(n) values   */
 static seq_t *sumd    = NULL;   /* prefix sums Σ_{i=0}^n a(i) */
@@ -36,8 +48,8 @@ static void ensure_cache(idx_t n)
     size_t newcap = cache_cap ? cache_cap * 2 : 8;
     while (newcap < needed) newcap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
-    seq_t *new_sumd  = (seq_t *)realloc(sumd,  newcap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, newcap);
+    seq_t *new_sumd  = mem_resize(seq_t, sumd, newcap);
     if (!new_cache || !new_sumd) exit(EXIT_FAILURE);
 
     cache = new_cache;

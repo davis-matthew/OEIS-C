@@ -7,16 +7,17 @@
  * Formula:   a(n) = binomial(2 + 2^n, 3)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 43,
  *            big any n
- * Helpers:   mul_pow2
+ * Validated: standard, pass, 39 terms through n = 973 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mul_pow2.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
-    seq_t k = mul_pow2(n);  /* k = 2^n       */
+    seq_t k = pow2(n);  /* k = 2^n       */
     k += 2;                 /* k = 2 + 2^n   */
 
     /* Values for the three consecutive integers k, k-1, k-2. */

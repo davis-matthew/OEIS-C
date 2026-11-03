@@ -9,12 +9,14 @@
  *            C(a,b) is the binomial coefficient
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 19, u64 n <= 37, u128 n <= 75,
  *            big any n
- * Helpers:   binom, pow3
+ * Validated: standard, pass, 39 terms through n = 993 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n)
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     /* Sequence defined for n ≥ 5; behavior for lower n is irrelevant. */
     if (n < 5) return 0;
 
-    seq_t C = binom(n - 1, 3);           /* C = (n-1 choose 3) */
+    seq_t C = binomial(n - 1, 3);           /* C = (n-1 choose 3) */
 
     if (n & 1) {                         /* odd n */
         seq_t pow_val = pow3(n - 4);     /* 3^(n-4) */

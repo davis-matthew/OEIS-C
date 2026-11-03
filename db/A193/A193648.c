@@ -12,6 +12,7 @@
  *            T(n,k)=2*T(n-1,k)+2*(k-1)*T(n-2,k)+T(n-3,k)
  * Range:     u8 n <= 26, u16 n <= 74, u32 n <= 224, u64 n <= 656,
  *            u128 n <= 1939, big any n
+ * Validated: standard, pass, 78 terms through n = 9921 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

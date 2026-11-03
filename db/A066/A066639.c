@@ -8,12 +8,14 @@
  *            number of k a(n) = p(ceil(n/2)) - 1 for odd n
  * Range:     u8 n <= 32, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the helper that ensures the
    partition table is filled up to a given index. */
@@ -35,7 +37,7 @@ static void ensure_partitions(idx_t max_k)
     if (allocated < needed) {
         size_t new_cap = allocated ? allocated * 2 : 1;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(partitions, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, partitions, new_cap);
         if (!tmp) abort();
         partitions = tmp;
         allocated = new_cap;

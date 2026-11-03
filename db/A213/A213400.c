@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    initial values: a(0)=0,a(1)=0,a(2)=0,a(3)=2,a(4)=6,a(5)=19,a(6)=29,a(7)=52,a(8)=81,a(9)=116 */
 
 #include <stdlib.h>       /* malloc, free, realloc */
+#include "../utils/mem.h"
 
 static const seq_t initial[10] = {0,0,0,2,6,19,29,52,81,116};
 
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
     if (!cache) {
         /* First allocation with space for 0..9 */
         cache_size = 10;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return;          /* allocation failure – will return 0 */
         for (size_t i = 0; i < 10; ++i) cache[i] = initial[i];
         last_computed = 9;
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
 
     size_t required = (size_t)n + 1;
     if (cache_size < required) {
-        seq_t *tmp = (seq_t*)realloc(cache, required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, required);
         if (!tmp) return;              /* keep old cache on failure */
         cache = tmp;
         cache_size = required;

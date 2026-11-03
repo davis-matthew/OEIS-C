@@ -7,13 +7,16 @@
  * Formula:   a(n) = Sum_{k=0..n} C(n,k) * C((n-1)*k, n-k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t a, idx_t b); */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
     if (n >= cached_size) {
         idx_t new_size = n + 1;
         /* reallocate to accommodate new_size entries */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) {
             /* Allocation failure – return zero for safety */
             return (seq_t)0;
@@ -36,11 +39,11 @@ seq_t a(idx_t n)
             seq_t sum = 0;
             for (idx_t k = 0; k <= i; ++k) {
                 /* first binomial C(i,k) */
-                seq_t c1 = binom(i, k);
+                seq_t c1 = binomial(i, k);
                 /* second binomial C((i-1)*k, i-k) */
                 idx_t t = (i - 1) * k;
                 idx_t r = i - k;
-                seq_t c2 = binom(t, r);
+                seq_t c2 = binomial(t, r);
                 /* multiply and add to sum */
                 sum += c1 * c2;
             }

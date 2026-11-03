@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 172, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 83 terms through n = 9353 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_smallest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
 
 /* Determine whether k is in the sequence. */
 static bool in_seq(uint64_t k)
@@ -33,7 +34,7 @@ static bool in_seq(uint64_t k)
     int parity = 0;                   /* parity of sum of (e/2) over even exponents */
 
     while (n > 1) {
-        uint64_t p = _smallest_prime_factor(n);
+        uint64_t p = smallest_prime_factor(n);
         int e = 0;
         while (n % p == 0) {
             n /= p;

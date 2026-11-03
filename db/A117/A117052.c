@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 50, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   enneagonal
+ * Validated: standard, pass, 58 terms through n = 9618 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/enneagonal.h"
+
+/* --- Helper: compute the k‑th enneagonal number ------------------------- */
+static inline seq_t enneagonal(idx_t k)
+{
+    seq_t kk = (seq_t)k;
+    return (kk * ((seq_t)7 * kk - (seq_t)5)) / (seq_t)2;
+}
 
 /* --- Helper: product of decimal digits ------------------------------------ */
 static inline seq_t digit_product(seq_t x)

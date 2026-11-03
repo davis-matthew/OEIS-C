@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,8 +49,8 @@ seq_t a(idx_t n)
         /* allocate space for the zeroth element */
         val_cap  = 1;
         conv_cap = 1;
-        values   = (seq_t *)malloc(val_cap * sizeof(seq_t));
-        bconv    = (seq_t *)malloc(conv_cap * sizeof(seq_t));
+        values   = mem_new(seq_t, val_cap);
+        bconv    = mem_new(seq_t, conv_cap);
         if (!values || !bconv) {
             /* out of memory – return 0 as a safe default */
             return (seq_t)0;
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         /* enlarge arrays if necessary */
         size_t new_val_cap = (size_t)(n + 1);
         if (new_val_cap > val_cap) {
-            seq_t *tmp = (seq_t *)realloc(values, new_val_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, values, new_val_cap);
             if (!tmp) return (seq_t)0;           /* allocation failed */
             /* zero the newly allocated slots */
             for (size_t i = val_cap; i < new_val_cap; ++i)
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
 
         size_t new_conv_cap = (size_t)(n + 1);
         if (new_conv_cap > conv_cap) {
-            seq_t *tmp = (seq_t *)realloc(bconv, new_conv_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, bconv, new_conv_cap);
             if (!tmp) return (seq_t)0;
             for (size_t i = conv_cap; i < new_conv_cap; ++i)
                 tmp[i] = (seq_t)0;

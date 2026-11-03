@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} (-1)^(n-d) * Stirling1(n,d)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 449 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  seq_t and idx_t are provided by the build environment.  */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Initialise the first (empty) Stirling row (n = 0) before any work.  */
     if (!prev) {
-        prev       = (seq_t*)malloc(sizeof(seq_t));
+        prev       = mem_new(seq_t, 1);
         prev[0]    = (seq_t)1;        /* c(0,0) = 1 */
         prev_size  = 1;
     }
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Compute successive rows up to n. */
     for (idx_t cur_n = max_computed + 1; cur_n <= n; ++cur_n) {
         /* Allocate space for the new Stirling row (indices 0 … cur_n). */
-        seq_t *cur = (seq_t*)malloc(((size_t)cur_n + 1) * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, ((size_t)cur_n + 1));
         if (!cur)
             return (seq_t)0;          /* allocation failure: return zero */
 
@@ -70,12 +72,12 @@ seq_t a(idx_t n)
         /* Store the computed a(cur_n) value. */
         if (cache_len <= (size_t)cur_n) {
             cache_len = (size_t)cur_n + 1;
-            cache = (seq_t*)realloc(cache, cache_len * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_len);
         }
         cache[(size_t)cur_n] = sum;
 
         /* Prepare for the next iteration: free old previous row and store the new one. */
-        free(prev);
+        mem_free(prev);
         prev       = cur;
         prev_size  = (size_t)cur_n + 1;
     }

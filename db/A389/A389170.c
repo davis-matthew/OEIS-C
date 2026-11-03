@@ -9,8 +9,9 @@
  * Formula:   a(n) = A057723(n) - A048146(n) A057723(n) = product over primes
  *            p^e || n of p*(p^e-1)/(p-1) A048146(n) = sum of all non‑unitary
  *            divisors of n
- * Range:     u8 n <= 22, u16 n <= 1123, u32 n <= 9762, u64 n <= 9762,
- *            u128 n <= 9762, big any n
+ * Range:     u8 n <= 22, u16 n <= 1123, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 97 terms through n = 9762 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

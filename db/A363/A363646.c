@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} (n/d)^n * (d+1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
  * loop that runs in O(√n).  This is fast enough for n ≤ 10 000.
  */
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
             {
                 idx_t d = i;
                 seq_t base = (seq_t)(n / d);
-                seq_t power = big_pow(base, (seq_t)n);
+                seq_t power = ipow(base, (seq_t)n);
                 seq_t term = power * ((seq_t)(d + 1));
                 sum += term;
             }
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
             {
                 idx_t d = n / i;
                 seq_t base = (seq_t)(n / d);
-                seq_t power = big_pow(base, (seq_t)n);
+                seq_t power = ipow(base, (seq_t)n);
                 seq_t term = power * ((seq_t)(d + 1));
                 sum += term;
             }

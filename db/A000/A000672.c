@@ -12,13 +12,15 @@
  *            3*B(x)*B(x^2) + 2*B(x^3))/6 = ( Sum_{i=0..m} B(i)*B(m+1-i)...
  * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 33, u64 n <= 59, u128 n <= 110,
  *            big any n
- * Helpers:   tri_plus
+ * Validated: standard, pass, 52 terms through n = 187 (2026-11-03)
+ * Helpers:   mem, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/tri_plus.h"
+#include "../utils/triangular_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *Bt = NULL;
 static idx_t Blen = 0;
@@ -50,10 +52,10 @@ static void ensure_B(idx_t N) {
     if (N < Blen) return;
     if (N + 1 > Bcap) {
         idx_t nc = (N + 1) * 2;
-        seq_t *nb = (seq_t *)malloc(nc * sizeof(seq_t));
+        seq_t *nb = mem_new(seq_t, nc);
         for (k = 0; k < Blen; k++) nb[k] = Bt[k];
         for (k = Blen; k < nc; k++) nb[k] = 0;
-        free(Bt);
+        mem_free(Bt);
         Bt = nb;
         Bcap = nc;
     }
@@ -66,7 +68,7 @@ static void ensure_B(idx_t N) {
         seq_t s = 0;
         idx_t i;
         for (i = 0; 2 * i < m; i++) s += Bt[i] * Bt[m - i];
-        if (m % 2 == 0) s += tri_plus(Bt[m / 2]);
+        if (m % 2 == 0) s += triangular_seq(Bt[m / 2]);
         Bt[k] = s;
     }
     Blen = N + 1;

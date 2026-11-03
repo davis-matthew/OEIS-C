@@ -9,7 +9,8 @@
  *            representations as a sum of six nonnegative squares
  * Range:     u8 n <= 41, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  The constants below are chosen to guarantee that
     all counts up to 10000 are found while keeping the run time
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         /* Allocate the cache array.  Use calloc so that all
            elements start with the value 0.  The cast is needed
            for the C++ build where seq_t may be a class type. */
-        cache = (seq_t*)calloc((size_t)LIMIT_N + 1, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)LIMIT_N + 1);
         if (!cache) return 0;          /* allocation failure */
 
         /* dp[p][s] – number of ways to obtain s with exactly p squares.  */

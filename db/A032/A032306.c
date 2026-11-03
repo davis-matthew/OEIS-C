@@ -10,13 +10,15 @@
  *            parts k_1,...,k_m} (a(k_1)*a(k_2)*...*a(k_m))
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 24, u64 n <= 44, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 496 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,12 +26,12 @@ seq_t a(idx_t n)
         return (seq_t)0;           /* undefined for n==0, return 0 */
 
     /* allocate temporary arrays */
-    seq_t *dp   = (seq_t *)calloc((size_t)n,     sizeof(seq_t));
-    seq_t *tree = (seq_t *)calloc((size_t)(n + 1),sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, (size_t)n);
+    seq_t *tree = mem_new(seq_t, (size_t)(n + 1));
     if (!dp || !tree) {
         /* allocation failure – return 0 as a safe fallback */
-        free(dp);
-        free(tree);
+        mem_free(dp);
+        mem_free(tree);
         return (seq_t)0;
     }
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     seq_t result = tree[n];
 
     /* clean up and return */
-    free(dp);
-    free(tree);
+    mem_free(dp);
+    mem_free(tree);
     return result;
 }

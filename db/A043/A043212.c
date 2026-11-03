@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has58
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has58.h"
+#include "../utils/mem.h"
+
+/* Return true if the base‑9 representation of x contains any
+   adjacent pair (5,8) or (8,5). */
+static bool has58(seq_t x)
+{
+    seq_t prev = 10;                 /* sentinel > 8 */
+    while (x > 0) {
+        seq_t d = x % (seq_t)9;     /* least‑significant digit */
+        if ((d == (seq_t)5 && prev == (seq_t)8) ||
+            (d == (seq_t)8 && prev == (seq_t)5))
+            return true;
+        prev = d;
+        x /= (seq_t)9;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +54,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 128;
         while (new_cap < (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)                     /* allocation failed */
             return (seq_t)0;
         cache = tmp;

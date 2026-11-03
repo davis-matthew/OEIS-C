@@ -7,14 +7,19 @@
  * Formula:   a(n) = ∏_{d|n} d!
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 15, u128 n <= 21,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Need the factorization helper */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- factorial cache ---------- */
 static seq_t *fact_cache = NULL;   /* fact_cache[i] = i!  */
@@ -26,7 +31,7 @@ static void ensure_fact(idx_t n)
         return;
 
     size_t new_size = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!fact_cache) {
         new_cache[0] = (seq_t)1;
     } else {
@@ -37,7 +42,7 @@ static void ensure_fact(idx_t n)
         new_cache[i] = new_cache[i - 1] * (seq_t)i;
 
     if (fact_cache)
-        free(fact_cache);
+        mem_free(fact_cache);
     fact_cache = new_cache;
     fact_cache_n = n;
 }
@@ -52,11 +57,11 @@ static void ensure_a_cache(idx_t n)
         return;
 
     size_t new_size = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (a_cache) {
         for (idx_t i = 0; i <= a_cache_n; ++i)
             new_cache[i] = a_cache[i];
-        free(a_cache);
+        mem_free(a_cache);
     }
     /* uninitialized entries are fine; we will set them upon first use */
     a_cache = new_cache;

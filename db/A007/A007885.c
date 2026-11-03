@@ -9,14 +9,14 @@
  *            is a primitive root modulo p
  * Range:     u8 n <= 37, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-
+#include "../utils/is_prime_u64.h"
 
 static bool is_primitive_root(uint64_t g, uint64_t p) {
     uint64_t order = p - 1;
@@ -82,7 +82,7 @@ seq_t a(idx_t n) {
         
         if (candidate == 4) {
             in_sequence = true;
-        } else if (is_prime(candidate)) {
+        } else if (is_prime_u64(candidate)) {
             if (is_primitive_root(2, candidate) || 
                 is_primitive_root(candidate - 2, candidate)) {
                 in_sequence = true;

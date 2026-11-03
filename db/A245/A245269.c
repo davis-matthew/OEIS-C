@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=0..n, k cubefree} binomial(n,k)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 127,
  *            big any n
- * Helpers:   binom_next, build_spf
+ * Validated: standard, pass, 50 terms through n = 951 (2026-11-01)
+ * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,26 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_spf.h"
-#include "../utils/binom_next.h"
+
+/* Compute binomial(n,k) from binomial(n,k-1) safely.
+   For 64‑bit seq_t we use a 128‑bit intermediate to avoid overflow.
+   For larger seq_t (≥128 bits) we rely on seq_t arithmetic itself. */
+static inline seq_t
+binom_next(seq_t prev, idx_t n, idx_t k)
+{
+#if defined(__SIZEOF_INT128__)
+    if (sizeof(seq_t) <= 8) {            /* seq_t is 64‑bit */
+        unsigned __int128 prod = (unsigned __int128)prev * (n - k + 1);
+        return (seq_t)(prod / k);
+    } else
+#endif
+    {
+        seq_t prod = prev * (seq_t)(n - k + 1);
+        return prod / (seq_t)k;
+    }
+}
 
 /* Cached smallest prime factors up to the largest n requested so far */
 static idx_t *SPF = NULL;

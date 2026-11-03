@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 96 terms through n = 9778 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 /* Computation: a(n) = number of iterations of x -> gpf(6*x+1)
    from n until the value 13 or 47 is reached; a(13)=a(47)=0. */
 
-#include "../utils/gpf.h"
+#include <stdint.h>
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     while (x != 13ULL && x != 47ULL)
     {
         uint64_t val = 6ULL * x + 1ULL;  /* compute 6*x+1 (fits in 64 bits for test range) */
-        x = gpf(val);                    /* largest prime factor */
+        x = largest_prime_factor(val);                    /* largest prime factor */
         steps = steps + 1;               /* increment step counter */
     }
     return steps;

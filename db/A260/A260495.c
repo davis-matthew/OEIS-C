@@ -11,13 +11,15 @@
  *            base values for n=1..19 are hard‑coded)
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 29, u64 n <= 64, u128 n <= 135,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*----------------------------------------------------------*/
 /*  Memoised linear recurrence for A260495                   */
@@ -34,7 +36,7 @@ static void init_cache(void)
 
     /* Allocate space for indices 0..19 (20 elements, index 0 unused). */
     cache_capacity = 20;
-    cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_capacity);
     if (cache == NULL)                /* allocation failure – will crash later */
         return;
 
@@ -70,7 +72,7 @@ static void ensure_capacity(size_t new_cap)
     if (cache_capacity >= new_cap)
         return;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp != NULL) {
         cache = tmp;
         cache_capacity = new_cap;

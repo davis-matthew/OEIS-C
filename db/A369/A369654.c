@@ -7,6 +7,7 @@
  * Formula:   a(n) = 18*floor((n-1)/8) + {0,4,5,10,11,13,16,17}[(n-1)%8]
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

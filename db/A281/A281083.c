@@ -7,8 +7,9 @@
  * Formula:   a(n) = number of partitions of n into distinct centered
  *            pentagonal numbers (generating function ∏_{k≥0}
  *            (1+x^{5*k*(k+1)/2+1}) )
- * Range:     u8 n <= 1786, u16 n <= 6390, u32 n <= 9582, u64 n <= 9582,
- *            u128 n <= 9582, big any n
+ * Range:     u8 n <= 1786, u16 n <= 6390, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 122 terms through n = 9582 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

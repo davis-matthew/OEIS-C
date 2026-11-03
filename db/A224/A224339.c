@@ -10,14 +10,15 @@
  *            – 1) for odd prime p
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 68 terms through n = 932 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
         ++e;
     }
     if (e > 0) {
-        result *= (pow_seq((seq_t)2, (idx_t)(2 * e + 1)) - (seq_t)3);
+        result *= (ipow_i32((seq_t)2, (idx_t)(2 * e + 1)) - (seq_t)3);
     }
 
     /* odd factors */
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
                 m /= p;
                 ++ee;
             }
-            seq_t num = pow_seq((seq_t)p, (idx_t)(2 * ee + 1)) - (seq_t)1;
+            seq_t num = ipow_i32((seq_t)p, (idx_t)(2 * ee + 1)) - (seq_t)1;
             seq_t den = (seq_t)(p - 1);
             result *= num / den;
         }
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
 
     /* remaining prime factor, if any */
     if (m > 1) {
-        seq_t num = pow_seq((seq_t)m, (idx_t)3) - (seq_t)1; /* exponent 2*1+1 = 3 */
+        seq_t num = ipow_i32((seq_t)m, (idx_t)3) - (seq_t)1; /* exponent 2*1+1 = 3 */
         seq_t den = (seq_t)(m - 1);
         result *= num / den;
     }

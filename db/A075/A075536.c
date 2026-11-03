@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 36, u64 n <= 72, u128 n <= 146,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 683 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    The function caches computed values for repeated calls.
 */
 #include <stdlib.h>  /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoization */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     /* one-time initialization */
     if (!initialized) {
         cache_len = 16;                      /* initial capacity */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return 0;                /* memory allocation failed; fall back to 0 */
         /* predefined first six terms */
         cache[0] = (seq_t)0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
     if (n >= cache_len) {
         idx_t new_len = cache_len ? cache_len << 1 : 16;
         while (new_len <= n) new_len <<= 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        cache = mem_resize(seq_t, cache, new_len);
         if (!cache) return 0;                /* memory allocation failed; fall back to 0 */
         cache_len = new_len;
     }

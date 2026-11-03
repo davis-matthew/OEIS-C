@@ -7,12 +7,15 @@
  * Formula:   a(n) = (8*n + 5)^6 OEIS A017130: a(n) = (8*n + 5)^6, Offset: 0
  * Range:     u8 none, u16 n <= 0, u32 n <= 4, u64 n <= 202, u128 n <= 10000,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 31 terms through n = 9536 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,5 +24,5 @@ seq_t a(idx_t n)
 
     /* Raise to the 6th power using the provided big integer power
        routine which works for any seq_t size. */
-    return big_pow(base, 6);
+    return ipow(base, 6);
 }

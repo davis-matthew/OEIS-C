@@ -7,13 +7,16 @@
  * Formula:   a(n) = n^n written backwards
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   pow_uint, reverse_digits
+ * Validated: standard, pass, 34 terms through n = 191 (2026-11-01)
+ * Helpers:   ipow_u64_idx, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/ipow_u64_idx.h"
 #include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)
@@ -32,13 +35,13 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i < v5; ++i) m /= 5;
 
     /* Base value: m^n */
-    seq_t val = pow_uint((uint64_t)m, n);
+    seq_t val = ipow_u64_idx((uint64_t)m, n);
 
     /* Multiply by the remaining power of 2 or 5 after removing trailing zeros */
     if (v2 != v5) {
         idx_t diff = n * ( (v2 > v5) ? (v2 - v5) : (v5 - v2) );
         uint64_t base = (v2 > v5) ? 2 : 5;
-        seq_t mult = pow_uint(base, diff);
+        seq_t mult = ipow_u64_idx(base, diff);
         val *= mult;
     }
 

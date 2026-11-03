@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 579, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Simple open-addressing hash table mapping a seq_t value to its frequency */
 typedef struct {
@@ -48,15 +50,15 @@ static void map_init(Map *m)
     m->cap   = 1 << 15;  /* 32768 slots – more than enough for n ≤ 10⁴ */
     m->mask  = m->cap - 1;
     m->size  = 0;
-    m->keys  = (seq_t*)calloc(m->cap, sizeof(seq_t));
-    m->counts = (seq_t*)calloc(m->cap, sizeof(seq_t));
+    m->keys  = mem_new(seq_t, m->cap);
+    m->counts = mem_new(seq_t, m->cap);
 }
 
 /* Double table size when more than half full */
 static void map_rehash(Map *m, size_t new_cap)
 {
-    seq_t *new_keys   = (seq_t*)calloc(new_cap, sizeof(seq_t));
-    seq_t *new_counts = (seq_t*)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_keys   = mem_new(seq_t, new_cap);
+    seq_t *new_counts = mem_new(seq_t, new_cap);
     size_t new_mask   = new_cap - 1;
 
     for (size_t i = 0; i < m->cap; ++i) {
@@ -67,8 +69,8 @@ static void map_rehash(Map *m, size_t new_cap)
             new_counts[h] = m->counts[i];
         }
     }
-    free(m->keys);
-    free(m->counts);
+    mem_free(m->keys);
+    mem_free(m->counts);
     m->keys   = new_keys;
     m->counts = new_counts;
     m->cap    = new_cap;
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
 
     if (!init_done) {
         list_cap  = 128;
-        list      = (seq_t*)calloc(list_cap, sizeof(seq_t));
+        list      = mem_new(seq_t, list_cap);
         list[0]   = (seq_t)1;            /* first term is 1 */
         list_len  = 1;
 
@@ -130,7 +132,7 @@ seq_t a(idx_t n)
         map_increment(&map, (seq_t)1);    /* initial frequency of 1 */
 
         kv_cap = 1024;
-        kv_buf = (KV*)calloc(kv_cap, sizeof(KV));
+        kv_buf = mem_new(KV, kv_cap);
 
         init_done = true;
     }
@@ -140,7 +142,7 @@ seq_t a(idx_t n)
         /* Ensure temporary buffer is large enough for all distinct keys. */
         if (map.size > kv_cap) {
             kv_cap = map.size * 2;
-            kv_buf = (KV*)realloc(kv_buf, kv_cap * sizeof(KV));
+            kv_buf = mem_resize(KV, kv_buf, kv_cap);
         }
 
         /* Build snapshot of distinct values in L1. */
@@ -154,13 +156,13 @@ seq_t a(idx_t n)
         }
 
         /* Sort by key ascending. */
-        qsort(kv_buf, kv_len, sizeof(KV), cmp_KV);
+        mem_qsort(kv_buf, kv_len, sizeof(KV), cmp_KV);
 
         /* Ensure list buffer has enough space for the new terms. */
         if (list_len + kv_len > list_cap) {
             size_t new_cap = list_cap;
             while (new_cap < list_len + kv_len) new_cap <<= 1;
-            list = (seq_t*)realloc(list, new_cap * sizeof(seq_t));
+            list = mem_resize(seq_t, list, new_cap);
             list_cap = new_cap;
         }
 

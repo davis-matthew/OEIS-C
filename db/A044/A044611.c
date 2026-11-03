@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has53
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has53.h"
+#include "../utils/mem.h"
+
+/* Helper: return true if x (in base 8) contains the substring 53. */
+static bool has53(seq_t x)
+{
+    seq_t prev = 0;
+    while (x > 0) {
+        seq_t cur = x % 8;
+        if (prev == 3 && cur == 5) return true;
+        prev = cur;
+        x = x / 8;
+    }
+    return false;
+}
 
 /* External linkage: returns the nth term (1‑based). */
 seq_t a(idx_t n)
@@ -34,7 +48,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* initial allocation */
         cache_cap = 64;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -44,7 +58,7 @@ seq_t a(idx_t n)
         if (has53(cand) && !has53(cand + 1)) {
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = cand;
         }

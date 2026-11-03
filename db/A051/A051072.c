@@ -7,7 +7,8 @@
  * Formula:   primes p such that x^6 = -2 has a solution mod p
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd64, has_solution, is_prime64, mulmod64, next_prime, powmod64
+ * Validated: standard, pass, 73 terms through n = 965 (2026-11-03)
+ * Helpers:   gcd_u64, is_prime_u64, mulmod, next_prime, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,21 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
-#include "../utils/has_solution.h"
-#include "../utils/is_prime64.h"
-#include "../utils/mulmod64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
 #include "../utils/next_prime.h"
-#include "../utils/powmod64.h"
+#include "../utils/powmod_u64.h"
+
+/* Computes whether x^6 ≡ -2 (mod p) has a solution for a prime p.
+   The condition is equivalent to (p-2)^((p-1)/gcd(6,p-1)) ≡ 1 (mod p). */
+static bool has_solution(uint64_t p)
+{
+    if (p == 2)                 return true;   /* 0^6 ≡ -2 (mod 2) */
+    uint64_t d   = gcd_u64(6ULL, p - 1);
+    uint64_t exp = (p - 1) / d;
+    return powmod_u64(p - 2, exp, p) == 1;
+}
 
 /* ---------- helper functions --------------------------------- */
 

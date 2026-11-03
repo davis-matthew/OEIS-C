@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Structure for sorting by sigma, then tau, then n. */
 typedef struct {
@@ -86,7 +88,7 @@ static void precompute(void)
     seq_t *qual = NULL;
     size_t qual_cap = 1024;
     size_t qual_len = 0;
-    qual = (seq_t*)malloc(qual_cap * sizeof(seq_t));
+    qual = mem_new(seq_t, qual_cap);
     if (!qual) abort();
 
     for (idx_t i = 0; i < LIMIT; ) {
@@ -103,7 +105,7 @@ static void precompute(void)
 
             if (qual_len == qual_cap) {
                 qual_cap <<= 1;
-                seq_t *tmp = (seq_t*)realloc(qual, qual_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, qual, qual_cap);
                 if (!tmp) abort();
                 qual = tmp;
             }
@@ -115,12 +117,12 @@ static void precompute(void)
     free(trips);
 
     /* Store results in static array. */
-    seq = (seq_t*)malloc(qual_len * sizeof(seq_t));
+    seq = mem_new(seq_t, qual_len);
     if (!seq) abort();
     for (size_t i = 0; i < qual_len; ++i)
         seq[i] = qual[i];
 
-    free(qual);
+    mem_free(qual);
     seq_len = (idx_t)qual_len;
 }
 

@@ -10,17 +10,30 @@
  *            with rows indexed from n = 0. * The sequence a(n) is the
  *            flattening of the triangle: * n = 0 → T(0,0) * n = 1 → T(1,0) *
  *            n = 2 → T(1,1) * n = 3 → T(2,0) * n = 4 → T(2,1) *
- * Range:     u8 n <= 32, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
+ * Range:     u8 n <= 39, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   binomial, start_index
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/start_index.h"
+
+static seq_t start_index(idx_t r)
+{
+    /* Start index of row r:
+     *   row 0 has 1 element at index 0,
+     *   for r ≥ 1 the row length is r,
+     *   total before row r = 1 + (r‑1)r/2.
+     */
+    if (r == 0)
+        return (seq_t)0;
+    return (seq_t)1 + ((seq_t)(r - 1) * (seq_t)r) / (seq_t)2;
+}
 
 /* C(n,k) for n ≥ 0, k ≥ 0, returning 0 when k > n.
  * Uses the supplied utilities/binomial.h which works on idx_t.

@@ -12,6 +12,7 @@
  *            to the current maximum requested n, extracts the * sem...
  * Range:     u8 n <= 825, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 137 terms through n = 9829 (2026-11-01)
  * Helpers:   build_spf, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,8 +20,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_spf.h"   /* build_spf(limit, &spf) */
-#include "../utils/is_prime.h"    /* is_prime(x) */
+#include <stdint.h>
+#include "../utils/build_spf.h"
+#include "../utils/is_prime.h"
 
 /* Static state shared by all calls */
 static idx_t      *spf          = NULL;   /* smallest prime factor array, size = max_n_sieved+1 */

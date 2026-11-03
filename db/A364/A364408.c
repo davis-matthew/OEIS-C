@@ -6,15 +6,17 @@
  * Keywords:  sign
  * Formula:   a(n) = (-1)^(n-1) * (1/n) * Sum_{k=0..n} binom(n,k) *
  *            binom(n+4*k-2,n-1)
- * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 9, i64 n <= 17, i128 n <= 19,
+ * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 9, i64 n <= 17, i128 n <= 19,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 #if defined(__SIZEOF_INT128__)
     typedef __int128 int128_t;
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= n; ++k)
     {
         /* Convert binomial values to the wide type before multiplying. */
-        int128_t t1 = (int128_t)binom(n, k);
-        int128_t t2 = (int128_t)binom(n + 4 * k - 2, n - 1);
+        int128_t t1 = (int128_t)binomial(n, k);
+        int128_t t2 = (int128_t)binomial(n + 4 * k - 2, n - 1);
         sum += t1 * t2;
     }
 

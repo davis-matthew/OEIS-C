@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 44,
  *            big any n
- * Helpers:   init_viol_table, neigh_violations
+ * Validated: standard, pass, 36 terms through n = 202 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,40 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/init_viol_table.h"
-#include "../utils/neigh_violations.h"
+
+static int neigh_violations(int l, int m, int r)
+{
+    /* Count for each 1 in column m the number of 1‑valued neighbors
+       among its horizontal, diagonal, and antidiagonal cells. */
+    int tot = 0;
+    for (int row = 0; row < 3; ++row) {
+        if ((m >> row) & 1) {          /* cell is 1 */
+            int n = 0;
+            /* horizontal neighbors */
+            if ((l >> row) & 1) n++;  /* left */
+            if ((r >> row) & 1) n++;  /* right */
+
+            /* diagonal neighbors (left side) */
+            if (row > 0 && (l >> (row - 1)) & 1) n++;    /* left‑up */
+            if (row < 2 && (l >> (row + 1)) & 1) n++;    /* left‑down */
+
+            /* antidiagonal neighbors (right side) */
+            if (row > 0 && (r >> (row - 1)) & 1) n++;    /* right‑up */
+            if (row < 2 && (r >> (row + 1)) & 1) n++;    /* right‑down */
+
+            if (n > 3) tot++;           /* violation of this 1 */
+        }
+    }
+    return tot;
+}
+
+static void init_viol_table(int table[8][8][8])
+{
+    for (int l = 0; l < 8; ++l)
+        for (int m = 0; m < 8; ++m)
+            for (int r = 0; r < 8; ++r)
+                table[l][m][r] = neigh_violations(l, m, r);
+}
 
 seq_t a(idx_t n)
 {

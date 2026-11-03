@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Helpers: dynamic arrays for seq_t values                              */
@@ -40,11 +42,11 @@ static void ensure_seq_cap(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *newp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, new_cap);
     if (!newp) return; /* allocation failure – caller will see zero */
     if (seq) {
-        memcpy(newp, seq, seq_len * sizeof(seq_t));
-        free(seq);
+        mem_copy(newp, seq, seq_len * sizeof(seq_t));
+        mem_free(seq);
     }
     seq = newp;
     seq_cap = new_cap;
@@ -62,11 +64,11 @@ static void ensure_pell_cap(size_t needed)
     if (needed <= pell_cap) return;
     size_t new_cap = pell_cap ? pell_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *newp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, new_cap);
     if (!newp) return;
     if (pell) {
-        memcpy(newp, pell, pell_len * sizeof(seq_t));
-        free(pell);
+        mem_copy(newp, pell, pell_len * sizeof(seq_t));
+        mem_free(pell);
     }
     pell = newp;
     pell_cap = new_cap;

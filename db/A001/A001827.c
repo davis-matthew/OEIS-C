@@ -9,12 +9,13 @@
  *            2^(pq+qr+rs), summing over p+s by the binomial theorem)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 19,
  *            big any n
- * Helpers:   a001827_pw
+ * Validated: standard, pass, 33 terms through n = 98 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a001827_pw.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     seq_t sum = 0;
@@ -28,7 +29,7 @@ seq_t a(idx_t n) {
         for (idx_t r = 0; r <= m; r++) {
             seq_t t = cnq * cmr;
             t *= p2qr;
-            t *= a001827_pw(p2q + p2r, m - r);
+            t *= ipow_idx(p2q + p2r, m - r);
             sum += t;
             if (r < m) {
                 cmr = cmr * (seq_t)(m - r) / (seq_t)(r + 1);

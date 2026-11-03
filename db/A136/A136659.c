@@ -7,13 +7,16 @@
  * Formula:   a(n) = (1/48)*(n+8)*(n+1)*(n+3)!
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +26,7 @@ seq_t a(idx_t n)
 
     /* Ensure cache[0] == 1 (a(0)) */
     if (cache_limit == 0) {
-        cache = (seq_t *)realloc(cache, sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, 1);
         if (!cache) return (seq_t)0;    /* allocation failure – not expected */
         cache[0] = (seq_t)1;
         cache_limit = 1;
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     if (n < cache_limit) return cache[n];
 
     /* Grow cache to size n+1 */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) return (seq_t)0;   /* allocation failure – not expected */
     cache = new_cache;
 

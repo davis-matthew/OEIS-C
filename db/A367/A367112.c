@@ -10,14 +10,31 @@
  *            order
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
 
 static seq_t *pow2_vals = NULL;   /* pow2_vals[i] = 2^i */
 static size_t pow2_cap = 0;
@@ -33,7 +50,7 @@ static size_t a_len = 0;          /* how many a-values are currently stored */
 static void ensure_pow2(idx_t n) {
     size_t new_cap = (size_t)n + 1;
     if (pow2_cap < new_cap) {
-        seq_t *tmp = (seq_t*)realloc(pow2_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow2_vals, new_cap);
         if (!tmp) abort();
         pow2_vals = tmp;
         size_t start = pow2_cap;
@@ -51,7 +68,7 @@ static void ensure_pow2(idx_t n) {
 static void ensure_c(idx_t needed_k) {
     size_t new_cap = (size_t)needed_k + 1;
     if (c_cap < new_cap) {
-        seq_t *tmp = (seq_t*)realloc(c_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, c_vals, new_cap);
         if (!tmp) abort();
         c_vals = tmp;
         size_t start = c_cap;
@@ -76,7 +93,7 @@ static void ensure_a(idx_t n) {
 
         size_t new_cap = (size_t)n + 1;
         if (a_cap < new_cap) {
-            seq_t *tmp = (seq_t*)realloc(a_vals, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
             if (!tmp) abort();
             a_vals = tmp;
             a_cap = new_cap;

@@ -8,13 +8,15 @@
  * Formula:   a(n) = Sum_{k=1..n} omega(floor(n/k))
  * Range:     u8 n <= 419, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute the omega (distinct prime factor count) array */
-    seq_t* omega = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t* omega = mem_new(seq_t, (size_t)n + 1);
     if (!omega) { free(spf); return (seq_t)0; }
     omega[0] = omega[1] = (seq_t)0;
     for (idx_t i = 2; i <= n; ++i) {
@@ -56,6 +58,6 @@ seq_t a(idx_t n)
     }
 
     free(spf);
-    free(omega);
+    mem_free(omega);
     return result;
 }

@@ -12,12 +12,14 @@
  *            5,10,…,5k
  * Range:     u8 n <= 68, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
             idx_t maxT = n - base;     /* size of the DP array needed */
 
             if (dp_capacity < (size_t)(maxT + 1)) {
-                free(dp);
-                dp = (seq_t *)malloc((maxT + 1) * sizeof(seq_t));
+                mem_free(dp);
+                dp = mem_new(seq_t, (maxT + 1));
                 dp_capacity = maxT + 1;
             }
 

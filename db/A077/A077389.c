@@ -10,7 +10,8 @@
  *            window whose sum is divisible by n gives the desired average
  * Range:     u8 n <= 4, u16 n <= 226, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 922 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Prime storage */
 static uint32_t *prime_buf = NULL;
@@ -61,7 +63,7 @@ static void ans_ensure(size_t n)
     if (n < ans_cnt) return;
     if (n >= ans_cap) {
         ans_cap = (ans_cap == 0) ? 64 : ans_cap * 2;
-        ans_buf = (seq_t*)realloc(ans_buf, ans_cap * sizeof(seq_t));
+        ans_buf = mem_resize(seq_t, ans_buf, ans_cap);
     }
     for (; ans_cnt <= n; ++ans_cnt)
         ans_buf[ans_cnt] = (seq_t)-1;   /* mark as uncomputed */

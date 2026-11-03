@@ -9,7 +9,8 @@
  *            count)
  * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 25, u64 n <= 34, u128 n <= 52,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 52 terms through n = 472 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 #define MAX_NK   20000        /* maximum value of n*k (≈141*141) */
 #define MAX_PRIMES 2500       /* ample space for primes up to MAX_NK */
@@ -121,7 +124,7 @@ static seq_t compute_T(idx_t n, idx_t k)
     for (int pi = 0; pi < prime_cnt; ++pi) {
         int e = exp[pi];
         if (e > 0)
-            val = val * seq_pow((seq_t)primes[pi], (idx_t)e);
+            val = val * ipow_idx((seq_t)primes[pi], (idx_t)e);
     }
     return val;
 }
@@ -138,7 +141,7 @@ static void ensure_cache_size(size_t need)
     size_t new_cap = cache_cap ? cache_cap : 8;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     cache = new_cache;
     cache_cap = new_cap;
 }

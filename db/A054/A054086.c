@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   grow_used
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,24 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/grow_used.h"
+#include "../utils/mem.h"
+
+/* ensure realloc / calloc casts are explicit for C++ */
+static void grow_used(size_t need, unsigned char **used, size_t *used_cap)
+{
+    if (*used_cap >= need)
+        return;
+    size_t new_cap = *used_cap ? *used_cap : 16;
+    while (new_cap < need)
+        new_cap *= 2;
+    unsigned char *new_used = (unsigned char *)realloc(*used, new_cap);
+    if (!new_used)
+        exit(1);
+    /* zero the new part of the array */
+    memset(new_used + *used_cap, 0, new_cap - *used_cap);
+    *used = new_used;
+    *used_cap = new_cap;
+}
 
 static void grow_cache(size_t need, seq_t **cache, size_t *cache_cap)
 {
@@ -34,7 +52,7 @@ static void grow_cache(size_t need, seq_t **cache, size_t *cache_cap)
     size_t new_cap = *cache_cap ? *cache_cap : 32;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, *cache, new_cap);
     if (!new_cache)
         exit(1);
     *cache = new_cache;
@@ -59,7 +77,7 @@ seq_t a(idx_t n)
     /* initialise static structures on first call */
     if (!seq) {
         seq_cap = 32;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) exit(1);
         seq[0] = 1;                  /* a(1) = 1 */
         seq_len = 1;

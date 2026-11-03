@@ -11,11 +11,13 @@
  *            sum_{b=0}^{row} C(row,b) * C(b*(row-b),col) (OEIS A228890)
  * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

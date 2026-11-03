@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 11, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 53 terms through n = 9944 (2026-11-01)
  * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
 
 #define MAX_TERMS 20000   /* enough for n ≤ 10000 */

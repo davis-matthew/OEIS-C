@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{k=0..n} binomial(3*n+7*k+2,k) *
  *            binomial(3*n+6*k+3,n-k) / (n+2*k+1)
- * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 25,
+ * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 25,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 636 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* Offset: 0; a(0) = 1 */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

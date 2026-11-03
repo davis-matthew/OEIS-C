@@ -8,15 +8,36 @@
  *            v5(binomial(2*n,n))) = 20^n / gcd(binomial(2*n,n), 20^n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   pow2, power5, seq_mul
+ * Validated: standard, pass, 38 terms through n = 695 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/pow2.h"
-#include "../utils/power5.h"
-#include "../utils/seq_mul.h"
+
+static inline seq_t power5(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* count the exponent of prime p in n! */
 static inline idx_t v_factorial(idx_t n, idx_t p)

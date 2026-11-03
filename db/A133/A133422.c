@@ -11,13 +11,15 @@
  *            reached
  * Range:     u8 n <= 30, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *path = NULL;      /* buffer of visited values in current run   */
 static size_t path_cap = 0;     /* capacity of the buffer                   */
@@ -29,7 +31,7 @@ static void ensure_path_cap(size_t needed)
     if (path_cap < needed) {
         size_t new_cap = path_cap ? (path_cap << 1) : 32;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(path, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, path, new_cap);
         if (!tmp) abort();          /* out‑of‑memory abort */
         path = tmp;
         path_cap = new_cap;

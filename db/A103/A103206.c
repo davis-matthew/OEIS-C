@@ -10,7 +10,8 @@
  *            concatenates the two numbers
  * Range:     u8 none, u16 n <= 14, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow10_digits
+ * Validated: standard, pass, 43 terms through n = 949 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow10_digits.h"
+
+/* Convert an unsigned integer to a power of 10 (10^digits). */
+static seq_t pow10_digits(uint32_t x)
+{
+    seq_t p = 10;
+    while (x >= 10) {
+        x /= 10;
+        p *= 10;
+    }
+    return p;
+}
 
 static const uint32_t SIEVE_LIMIT = 20000000;   /* safe bound for >10k such primes */
 

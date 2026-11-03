@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 12, u32 n <= 27, u64 n <= 58, u128 n <= 119,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- static data ---------- */
 static const seq_t init_values[24] = {
@@ -51,7 +53,7 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = cache_size ? cache_size * 2 : 24;
     while (new_cap < (size_t)n)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_size = new_cap;
 }
@@ -61,7 +63,7 @@ static void init_cache(void)
     if (cache)
         return;
     cache_size = 24;
-    cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_size);
     for (size_t i = 0; i < 24; ++i)
         cache[i] = init_values[i];
     cache_max = 24;

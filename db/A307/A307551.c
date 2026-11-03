@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   sqr_mod
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,12 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sqr_mod.h"
+
+/* Fast modular square: (x*x) mod m. */
+static inline seq_t sqr_mod(seq_t x, seq_t m)
+{
+    return (seq_t)((x * x) % m);
+}
 
 /* Find the n-th prime (1‑based). */
 static idx_t nth_prime(idx_t n)

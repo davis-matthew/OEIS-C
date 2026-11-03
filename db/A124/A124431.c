@@ -9,6 +9,7 @@
  *            binomial(floor((n+k+1)/2), k) (OEIS A124431)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 68,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 965 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

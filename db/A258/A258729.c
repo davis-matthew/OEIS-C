@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 17, u64 n <= 45, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define STATES (1 << 14)   /* 4^7 = 16384 */
 
@@ -61,8 +63,8 @@ static void init_state(void)
         }
     }
 
-    dp_cur  = (seq_t*)malloc(sizeof(seq_t) * STATES);
-    dp_next = (seq_t*)malloc(sizeof(seq_t) * STATES);
+    dp_cur  = mem_new(seq_t, STATES);
+    dp_next = mem_new(seq_t, STATES);
     for (int s = 0; s < STATES; ++s)
         dp_cur[s] = 1;             /* one sequence of length 7 for each state */
 }
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
 
     if ((idx_t)cache_len <= n) {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         /* initialise newly allocated part to zero */
         for (size_t i = cache_len; i < new_len; ++i) tmp[i] = 0;
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
 
     /* Extend DP to compute a(current_n+1) … a(n) */
     for (idx_t step = current_n + 1; step <= n; ++step) {
-        memset(dp_next, 0, sizeof(seq_t) * STATES);
+        mem_set(dp_next, 0, sizeof(seq_t) * STATES);
 
         for (int s = 0; s < STATES; ++s) {
             seq_t val = dp_cur[s];

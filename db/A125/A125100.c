@@ -11,14 +11,27 @@
  *            k=r.)
  * Range:     u8 n <= 31, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   binomial, fib
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fib.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* Find the row containing the n-th element (0‑based). */
 static idx_t _row_of_index(idx_t n)

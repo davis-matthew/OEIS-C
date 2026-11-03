@@ -9,7 +9,8 @@
  *            τ(k+3) (search)
  * Range:     u8 n <= 26, u16 n <= 3920, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, seq_free, seq_malloc
+ * Validated: standard, pass, 70 terms through n = 8862 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,13 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/seq_free.h"
-#include "../utils/seq_malloc.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+static void seq_free(seq_t *p) { mem_free(p); }
+
+/* In pure C build, use malloc/free. */
+static seq_t *seq_malloc(size_t n) { return mem_new(seq_t, n); }
 
 #if defined(__cplusplus)
     
@@ -61,10 +66,10 @@ seq_t a(idx_t n)
     while (terms_size < (size_t)n)
     {
         uint64_t k   = next_k;
-        uint64_t d0  = divisor_count_u64(k);
-        uint64_t d1  = divisor_count_u64(k + 1);
-        uint64_t d2  = divisor_count_u64(k + 2);
-        uint64_t d3  = divisor_count_u64(k + 3);
+        uint64_t d0  = num_divisors(k);
+        uint64_t d1  = num_divisors(k + 1);
+        uint64_t d2  = num_divisors(k + 2);
+        uint64_t d3  = num_divisors(k + 3);
 
         if (d0 <= d1 && d1 <= d2 && d2 <= d3)
         {

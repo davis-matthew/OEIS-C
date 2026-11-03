@@ -11,7 +11,8 @@
  *            are actually tested
  * Range:     u8 n <= 59, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_pseudoperfect, subset_sum_hits
+ * Validated: standard, pass, 78 terms through n = 7982 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,43 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_pseudoperfect.h"
-#include "../utils/subset_sum_hits.h"
+
+static bool subset_sum_hits(uint64_t k, const uint64_t *divs, size_t nd) {
+    size_t words = (size_t)(k / 64) + 1;
+    uint64_t *bs = (uint64_t *)calloc(words, sizeof(uint64_t));
+    bool res;
+    size_t j;
+    if (!bs) return false;
+    bs[0] = 1;
+    for (j = 0; j < nd; j++) {
+        uint64_t d = divs[j];
+        size_t w = (size_t)(d / 64);
+        unsigned b = (unsigned)(d % 64);
+        size_t i = words;
+        while (i-- > w) {
+            uint64_t v = bs[i - w] << b;
+            if (b && i - w >= 1) v |= bs[i - w - 1] >> (64 - b);
+            bs[i] |= v;
+        }
+        if ((bs[k / 64] >> (k % 64)) & 1) break;
+    }
+    res = ((bs[k / 64] >> (k % 64)) & 1) != 0;
+    free(bs);
+    return res;
+}
+
+static bool is_pseudoperfect(uint64_t k) {
+    uint64_t divs[4096];
+    size_t nd = 0;
+    uint64_t d;
+    for (d = 1; d * d <= k; d++) {
+        if (k % d == 0) {
+            if (d < k && nd < 4096) divs[nd++] = d;
+            if (d != k / d && k / d < k && nd < 4096) divs[nd++] = k / d;
+        }
+    }
+    return subset_sum_hits(k, divs, nd);
+}
 
 static uint64_t *terms = NULL;
 static idx_t nterms = 0;

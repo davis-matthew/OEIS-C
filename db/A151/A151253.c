@@ -10,12 +10,14 @@
  *            ((k-2d+1)/(k-d+1)) * binom(k,d) * 3^{k-d}
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,9 +31,9 @@ seq_t a(idx_t n)
     {
         idx_t new_size = n + 1;                /* indices 0..n inclusive */
         /* reallocate arrays */
-        cache_a = (seq_t *)realloc(cache_a, new_size * sizeof(seq_t));
-        cache_b = (seq_t *)realloc(cache_b, new_size * sizeof(seq_t));
-        pow3   = (seq_t *)realloc(pow3,   new_size * sizeof(seq_t));
+        cache_a = mem_resize(seq_t, cache_a, new_size);
+        cache_b = mem_resize(seq_t, cache_b, new_size);
+        pow3   = mem_resize(seq_t, pow3, new_size);
 
         /* compute 3^i for i = 0 .. new_size-1 */
         pow3[0] = 1;

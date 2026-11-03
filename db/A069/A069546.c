@@ -8,12 +8,15 @@
  *            (p^(e+1)*(p^(e+1)-1) - (p-1)*(e+1))/(p-1)^2
  * Range:     u8 n <= 9, u16 n <= 95, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 62 terms through n = 9385 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* fast exponentiation: base^exp  (exp is 0‑based, returns seq_t) */

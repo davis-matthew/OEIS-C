@@ -11,22 +11,24 @@
  *            by using the recurrence f_k(n+1) = f_k(n) * (...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate arrays for odd double factorials and result terms */
     size_t sz = (size_t)n + 1;
-    seq_t *odf = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *res = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *odf = mem_new(seq_t, sz);
+    seq_t *res = mem_new(seq_t, sz);
     if (!odf || !res) {
-        free(odf);
-        free(res);
+        mem_free(odf);
+        mem_free(res);
         return (seq_t)0;
     }
 
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     }
 
     seq_t answer = res[n];
-    free(res);
-    free(odf);
+    mem_free(res);
+    mem_free(odf);
     return answer;
 }

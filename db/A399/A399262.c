@@ -10,8 +10,9 @@
  *            (0‑based position inside the row). Let m = r/2. If r is odd:
  *            a(n) = r^2 - m + pos. If r is even: if pos < m : a(n) = r^2 - m
  *            + pos; else : a(n) = r^2 + (pos - m + 1);
- * Range:     u8 n <= 128, u16 n <= 9295, u32 n <= 9295, u64 n <= 9295,
- *            u128 n <= 9295, big any n
+ * Range:     u8 n <= 128, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 71 terms through n = 9295 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,13 +11,15 @@
  *            of u(n,x) row‑wise
  * Range:     u8 n <= 24, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
             u_rows = (seq_t**)malloc(sizeof(seq_t*) * 2);
             rows_cap = 2;
         }
-        seq_t *row1 = (seq_t*)malloc(sizeof(seq_t) * 1);
+        seq_t *row1 = mem_new(seq_t, 1);
         row1[0] = (seq_t)1;
         u_rows[1] = row1;
 
-        seq_t *v1 = (seq_t*)malloc(sizeof(seq_t) * 1);
+        seq_t *v1 = mem_new(seq_t, 1);
         v1[0] = (seq_t)1;
         v_row = v1;
         max_row = 1;
@@ -61,8 +63,8 @@ seq_t a(idx_t n)
         }
 
         seq_t *u_prev = u_rows[cur - 1];
-        seq_t *new_u = (seq_t*)malloc(sizeof(seq_t) * new_len);
-        seq_t *new_v = (seq_t*)malloc(sizeof(seq_t) * new_len);
+        seq_t *new_u = mem_new(seq_t, new_len);
+        seq_t *new_v = mem_new(seq_t, new_len);
 
         for (idx_t k = 0; k < new_len; ++k) {
             /* terms from v_prev for (x+1)*v_prev */
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
         }
 
         /* free old v_row and store new row */
-        free(v_row);
+        mem_free(v_row);
         v_row = new_v;
         u_rows[cur] = new_u;
         max_row = cur;

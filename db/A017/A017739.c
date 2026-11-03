@@ -7,11 +7,13 @@
  * Formula:   a(n) = binomial(n,75) for n ≥ 75
  * Range:     u8 n <= 76, u16 n <= 77, u32 n <= 82, u64 n <= 93, u128 n <= 133,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 8569 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

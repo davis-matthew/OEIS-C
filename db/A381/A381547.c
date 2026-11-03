@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 121, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 9742 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---- Global state ---- */
 static uint32_t *sigma = NULL;          /* sum of divisors for each odd number */
@@ -40,7 +42,7 @@ static void free_arrays(void)
     free(sigma);
     free(parity);
     free(abundant);
-    free(terms);
+    mem_free(terms);
     sigma   = NULL;
     parity  = NULL;
     abundant = NULL;
@@ -105,7 +107,7 @@ static void recompute(uint64_t new_limit)
 
     /* ---------- Collect terms ---------- */
     terms_cap = (size_t)odd_cnt; /* maximum possible */
-    terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     if (!terms) abort();
 
     terms_cnt = 0;
@@ -113,8 +115,7 @@ static void recompute(uint64_t new_limit)
         if (parity[(odd - 1) >> 1]) {
             if (terms_cnt >= terms_cap) {           /* unlikely but safe */
                 terms_cap = terms_cap * 2 + 16;
-                terms = (seq_t*)realloc(terms,
-                                        terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
                 if (!terms) abort();
             }
             terms[terms_cnt++] = (seq_t)odd;

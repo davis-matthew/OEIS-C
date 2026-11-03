@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_seq_t, floor_cube_root, floor_sqrt
+ * Validated: standard, pass, 57 terms through n = 9827 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,56 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/floor_cube_root.h"
-#include "../utils/cmp_seq_t.h"
+#include <stddef.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 static seq_t *terms = NULL;           /* array of found terms */
 static size_t terms_len = 0;          /* number of terms stored */
@@ -54,14 +102,14 @@ static void recompute_up_to(idx_t limit)
     }
 
     if (pair_cnt == 0) {
-        free(terms);
+        mem_free(terms);
         terms = NULL;
         terms_len = terms_cap = 0;
         current_limit = limit;
         return;
     }
 
-    seq_t *sums = (seq_t *)malloc(pair_cnt * sizeof(seq_t));
+    seq_t *sums = mem_new(seq_t, pair_cnt);
     size_t idx = 0;
     for (idx_t a = 1; a <= a_max; ++a) {
         seq_t a2 = (seq_t)a * a;
@@ -72,7 +120,7 @@ static void recompute_up_to(idx_t limit)
     }
 
     /* Sort all generated sums. */
-    qsort(sums, pair_cnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(sums, pair_cnt, sizeof(seq_t), cmp_seq_t);
 
     /* Extract values that occur at least twice. */
     seq_t *new_terms = NULL;
@@ -84,15 +132,15 @@ static void recompute_up_to(idx_t limit)
         if ((size_t)(j - idx) >= 2) {
             if (new_len == new_cap) {
                 new_cap = new_cap ? new_cap * 2 : 4;
-                new_terms = (seq_t *)realloc(new_terms, new_cap * sizeof(seq_t));
+                new_terms = mem_resize(seq_t, new_terms, new_cap);
             }
             new_terms[new_len++] = sums[idx];
         }
         idx = j;
     }
 
-    free(sums);
-    free(terms);
+    mem_free(sums);
+    mem_free(terms);
     terms = new_terms;
     terms_len = new_len;
     terms_cap = new_cap;

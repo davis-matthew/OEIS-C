@@ -9,7 +9,8 @@
  *            ((floor(k/2)+2)!)^2
  * Range:     u8 none, u16 n <= 511, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9135 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Maximum limit for prime sieve; sufficient for n up to about 10 000. */
 #define SIEVE_LIMIT 5000000
@@ -65,7 +67,7 @@ static void seq_append(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 8;
-        seq_values = (seq_t *)realloc(seq_values, new_cap * sizeof(seq_t));
+        seq_values = mem_resize(seq_t, seq_values, new_cap);
         seq_cap = new_cap;
     }
     seq_values[seq_len++] = val;

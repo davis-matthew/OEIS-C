@@ -10,15 +10,16 @@
  *            exponent of 2 in x)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   pow2, tz_u64
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   ctz, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/ctz.h"
 #include "../utils/pow2.h"
-#include "../utils/tz_u64.h"
 
 static inline idx_t popcount_u64(idx_t x)
 {
@@ -36,8 +37,8 @@ seq_t a(idx_t n)
     idx_t k = n;
     idx_t exp = 4 * k + 7;
     exp -= popcount_u64(k + 1) + popcount_u64(k + 2);
-    exp -= 2 * tz_u64(k + 1);
-    exp -= tz_u64(k + 2);
+    exp -= 2 * ctz(k + 1);
+    exp -= ctz(k + 2);
     exp += popcount_u64(2 * k);
     return pow2(exp);
 }

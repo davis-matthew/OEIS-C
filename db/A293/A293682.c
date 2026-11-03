@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/build_primes_upto.h"  /* declares build_primes_upto */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
 
 static uint64_t *primes = NULL;        /* array of all primes up to limit */
 static size_t prime_cnt = 0;           /* number of primes stored          */

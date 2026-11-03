@@ -10,13 +10,15 @@
  *            implementation memoises previously computed values
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 21, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h> /* for realloc */
 #include <stdint.h> /* for uint64_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* memoisation state */
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
         size_t new_cap = (cap > 1 ? cap << 1 : 1);
         while (new_cap <= (size_t)n) new_cap <<= 1;
 
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         if (!seq) exit(1);
 
         if (cap == 0) { /* initialisation */

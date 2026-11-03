@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(sqrt(2^(n-2)-1)), a(0) = a(1) = 0
  * Range:     u8 n <= 18, u16 n <= 34, u32 n <= 66, u64 n <= 130,
  *            u128 n <= 130, big any n
- * Helpers:   _isqrt_big, pow2
+ * Validated: standard, pass, 64 terms through n = 421 (2026-11-01)
+ * Helpers:   isqrt_seq, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
  * splitting the computation into cases that handle small exponents
  * with built‑in shifts and larger exponents with big‑int operations
  * or 128‑bit intermediates.                                         */
+#include <stdbool.h>
+#include "../utils/isqrt_seq.h"
 #include "../utils/pow2.h"
-#include "../utils/_isqrt_big.h"
 
 seq_t a(idx_t n)
 {
@@ -60,5 +62,5 @@ seq_t a(idx_t n)
 
     /* Big‑int path or 64‑bit with exponent > 127: use arbitrary‑precision sqrt */
     seq_t v = ((seq_t)1 << m) - 1;
-    return _isqrt_big(v);
+    return isqrt_seq(v);
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   big_pow, int_sqrt
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-01)
+ * Helpers:   ipow, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,9 @@
 
 /* Dependencies */
 #include <stdint.h>
-#include "../utils/big_pow.h"        /* big_pow(seq_t base, seq_t exp) */
-#include "../utils/int_sqrt.h"       /* int_sqrt(idx_t n) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     /* Find diagonal d such that d(d+1)/2 ≤ n < (d+1)(d+2)/2. */
     idx_t eight_n = n * (idx_t)8;
-    idx_t s = int_sqrt(eight_n + (idx_t)1);   /* floor( sqrt(1+8n) ) */
+    idx_t s = isqrt(eight_n + (idx_t)1);   /* floor( sqrt(1+8n) ) */
     idx_t d = (s - (idx_t)1) / (idx_t)2;
 
     /* Offsets to reach the beginning of diagonal d. */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     seq_t exp  = (seq_t)(i - (idx_t)1);       /* exponent i-1 */
 
     /* Compute (k+1)^(i-1) and multiply by (k+3). */
-    seq_t pow_val = big_pow(base, exp);
+    seq_t pow_val = ipow(base, exp);
     seq_t res = pow_val * ((seq_t)(k + (idx_t)3));
     return res;
 }

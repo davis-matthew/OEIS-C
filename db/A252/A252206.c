@@ -10,7 +10,8 @@
  *            15) with initial values a(1) … a(15) given in the OEIS entry
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 20, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache: 1‑based index, cache_len is the largest computed index */
 static seq_t *cache = NULL;
@@ -41,7 +43,7 @@ static void ensure_capacity(size_t n)
     if (cache == NULL) {
         /* Allocate space for indices 0..15 (0 unused). */
         size_t cap = 16;
-        cache = (seq_t *)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();
 
         /* initialise known values (a(1) … a(15)) */
@@ -69,7 +71,7 @@ static void ensure_capacity(size_t n)
         size_t new_cap = cache_len ? cache_len * 2 : 32;
         while (new_cap <= n) new_cap <<= 1;
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
     }

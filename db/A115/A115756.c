@@ -10,8 +10,9 @@
  *            smallest integer with r*(r+1)/2 >= n, c = n - (r-1)*r/2. The
  *            triangle entry a(r,c) counts the number of terms among the first
  *            r-1 terms of A115757 that are coprime to c
- * Range:     u8 n <= 1092, u16 n <= 9906, u32 n <= 9906, u64 n <= 9906,
- *            u128 n <= 9906, big any n
+ * Range:     u8 n <= 1092, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 113 terms through n = 9906 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

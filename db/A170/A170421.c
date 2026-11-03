@@ -8,12 +8,15 @@
  * Formula:   a(n) = 1 (n = 0) a(n) = 28 * 27^(n-1) (n >= 1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"   /* provides seq_pow, seq_mul for arbitrary‑precision builds */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -21,6 +24,6 @@ seq_t a(idx_t n)
         return (seq_t)1;                 /* a(0) = 1 */
 
     /* Compute 27^(n-1) and multiply by 28 */
-    seq_t pow = seq_pow((seq_t)27, n - 1);
+    seq_t pow = ipow_idx((seq_t)27, n - 1);
     return 28 * pow;                     /* works for builtin and arbitrary‑precision seq_t */
 }

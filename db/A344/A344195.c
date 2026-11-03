@@ -8,15 +8,17 @@
  * Formula:   a(n) = sum_{d|n} phi(n/d) * tau(d)^(n/d)
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   big_pow, calc_phi, divisor_count_u64
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   ipow, num_divisors, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/calc_phi.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/num_divisors.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -34,17 +36,17 @@ seq_t a(idx_t n)
         idx_t d2 = n / d;             /* complementary divisor */
 
         /* divisor d1 */
-        seq_t phi1 = calc_phi((seq_t)(n / d1));
-        seq_t tau1 = (seq_t)divisor_count_u64(d1);
-        seq_t pow1 = big_pow(tau1, (seq_t)(n / d1));
+        seq_t phi1 = totient_seq((seq_t)(n / d1));
+        seq_t tau1 = (seq_t)num_divisors(d1);
+        seq_t pow1 = ipow(tau1, (seq_t)(n / d1));
         sum += phi1 * pow1;
 
         /* complementary divisor d2, if distinct */
         if (d1 != d2)
         {
-            seq_t phi2 = calc_phi((seq_t)(n / d2));
-            seq_t tau2 = (seq_t)divisor_count_u64(d2);
-            seq_t pow2 = big_pow(tau2, (seq_t)(n / d2));
+            seq_t phi2 = totient_seq((seq_t)(n / d2));
+            seq_t tau2 = (seq_t)num_divisors(d2);
+            seq_t pow2 = ipow(tau2, (seq_t)(n / d2));
             sum += phi2 * pow2;
         }
     }

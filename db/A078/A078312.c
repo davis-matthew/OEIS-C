@@ -9,13 +9,14 @@
  *            product of the distinct prime factors of n
  * Range:     u8 n <= 25, u16 n <= 313, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   local_rad
+ * Validated: standard, pass, 78 terms through n = 8988 (2026-11-01)
+ * Helpers:   radical_u64_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/local_rad.h"
+#include "../utils/radical_u64_to_u64.h"
 
 /* Greatest prime factor of a 64‑bit integer. */
 static inline uint64_t gpf_uint64(uint64_t x)
@@ -38,7 +39,7 @@ static inline uint64_t gpf_uint64(uint64_t x)
 
 seq_t a(idx_t n)
 {
-    uint64_t rad_n = local_rad((uint64_t)n);
+    uint64_t rad_n = radical_u64_to_u64((uint64_t)n);
 
     /* Compute m = n * rad(n) + 1 safely in 128‑bit, then cast to 64‑bit. */
     unsigned __int128 prod = (unsigned __int128)n * rad_n + 1;

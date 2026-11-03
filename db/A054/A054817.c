@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 18, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------  Function required by the build system  -------------- */
 seq_t a(idx_t n)
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
 
         /* ---- 3.  Scan all consecutive sextets --------------------- */
         terms_cap = 1024;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) { free(isComposite); free(primes); return 0; }
         terms_cnt = 0;
 
@@ -93,8 +95,8 @@ seq_t a(idx_t n)
                 if (terms_cnt == terms_cap)
                 {
                     terms_cap <<= 1;
-                    seq_t *tmp = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
-                    if (!tmp) { free(isComposite); free(primes); free(terms); return 0; }
+                    seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
+                    if (!tmp) { free(isComposite); free(primes); mem_free(terms); return 0; }
                     terms = tmp;
                 }
                 /* store the 5th prime of this sextet */

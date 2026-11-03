@@ -13,7 +13,8 @@
  *            = 1
  * Range:     i8 n <= 11, i16 n <= 28, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----- integer square root (floor) for 64‑bit values ----- */
 static idx_t int_sqrt_u64(idx_t x)
@@ -49,7 +51,7 @@ static void ensure_fact(idx_t n)
     if (FACT_SIZE > n) return;
     idx_t new_size = FACT_SIZE == 0 ? 1 : FACT_SIZE;
     while (new_size <= n) new_size <<= 1;
-    seq_t *tmp = (seq_t *)realloc(FACT, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, FACT, new_size);
     if (!tmp) exit(EXIT_FAILURE);
     for (idx_t i = FACT_SIZE; i < new_size; ++i) {
         if (i == 0) tmp[i] = (seq_t)1;

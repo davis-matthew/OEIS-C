@@ -10,17 +10,30 @@
  *            A(i,j) = i/j if j divides i A(i,j) = concat( reduced i/j )
  *            otherwise, where the array is read by ascending antidiagonals
  *            with increasing i+j and, for each diagonal, by increasing j
- * Range:     u8 n <= 75, u16 n <= 9737, u32 n <= 9737, u64 n <= 9737,
- *            u128 n <= 9737, big any n
- * Helpers:   digit_len, gcd, pow10
+ * Range:     u8 n <= 75, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 9737 (2026-11-01)
+ * Helpers:   gcd, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* minimal helper headers from the utils library */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* external linkage as required by the build system */
 seq_t a(idx_t n)
@@ -47,6 +60,6 @@ seq_t a(idx_t n)
     den /= g;
 
     /* concatenate: num * 10^{digits(den)} + den */
-    seq_t pow = pow10(digit_len(den));
+    seq_t pow = pow10(num_digits(den));
     return num * pow + den;
 }

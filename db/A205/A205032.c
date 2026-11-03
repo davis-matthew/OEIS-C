@@ -9,8 +9,9 @@
  * Formula:   a(n) = (s(k)-s(j))/n, where s(m) = m(m+1) is an oblong number;
  *            the pair (k,j) is the first (smallest indices) pair with n |
  *            (s(k)-s(j))
- * Range:     u8 n <= 2544, u16 n <= 9196, u32 n <= 9196, u64 n <= 9196,
- *            u128 n <= 9196, big any n
+ * Range:     u8 n <= 2544, u16 n <= 14025, u32 n <= 14025, u64 n <= 14025,
+ *            u128 n <= 14025, big any n
+ * Validated: standard, pass, 121 terms through n = 9196 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

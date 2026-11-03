@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 70 terms through n = 9824 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* static state */
 static seq_t *even_sqf = NULL;   /* array of even squarefree numbers */
@@ -64,7 +66,7 @@ static void recompute_sieve(uint64_t limit)
 
     /* --- collect even squarefree numbers --------------------------- */
     size_t capacity = (size_t)(limit / 5) + 10;   /* overestimate for safety */
-    seq_t *new_arr = (seq_t *)calloc(capacity, sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, capacity);
     if (!new_arr) exit(1);
     size_t l = 0;
 
@@ -72,7 +74,7 @@ static void recompute_sieve(uint64_t limit)
         if (!non_sqf[(size_t)i] && ((i & 1ULL) == 0ULL)) {
             if (l >= capacity) {
                 capacity *= 2;
-                new_arr = (seq_t *)realloc(new_arr, capacity * sizeof(seq_t));
+                new_arr = mem_resize(seq_t, new_arr, capacity);
                 if (!new_arr) exit(1);
             }
             new_arr[l++] = (seq_t)i;
@@ -81,7 +83,7 @@ static void recompute_sieve(uint64_t limit)
     free(non_sqf);
 
     /* --- replace old array ---------------------------------------- */
-    free(even_sqf);
+    mem_free(even_sqf);
     even_sqf = new_arr;
     even_len = l;
     even_cap = capacity;

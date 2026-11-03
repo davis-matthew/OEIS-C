@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A003415(A350389(n))
- * Range:     u8 n <= 87, u16 n <= 8577, u32 n <= 8577, u64 n <= 8577,
- *            u128 n <= 8577, big any n
- * Helpers:   factor_u64, seq_pow
+ * Range:     u8 n <= 87, u16 n <= 13823, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 109 terms through n = 8577 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     seq_t d = 1;
     for (size_t i = 0; i < cnt; ++i) {
         if ((exps[i] & 1) == 1)            /* exponent is odd */
-            d *= seq_pow((seq_t)primes[i], (idx_t)exps[i]);
+            d *= ipow_idx((seq_t)primes[i], (idx_t)exps[i]);
     }
 
     if (d == 1)   /* the derivative of 1 is 0 */

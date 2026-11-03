@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 25, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   div10, mod10
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/div10.h"
-#include "../utils/mod10.h"
+#include "../utils/mem.h"
+
+static inline seq_t div10(seq_t x) { return x / (seq_t)10; }
+
+/* --------------------------------------------------------------------
+   Helpers for digit arithmetic that work for every seq_t definition
+   (uint8/16/32/64 or arbitrary‑precision integer class).          */
+static inline seq_t mod10(seq_t x) { return x % (seq_t)10; }
 
 /* --------------------------------------------------------------------
    Precomputation: adjacency lists for digits where concatenation is prime
@@ -247,7 +254,7 @@ static void init_once(void)
     init_prime_and_adjacency();
 
     size_t init_cap = 10240;           /* safety margin */
-    cache = (seq_t*)malloc(init_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, init_cap);
     computed = (unsigned char*)malloc(init_cap * sizeof(unsigned char));
     for (size_t i = 0; i < init_cap; ++i) computed[i] = 0;
 
@@ -267,7 +274,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_size) {
         size_t new_cap = cache_size ? cache_size : 1;
         while ((size_t)n >= new_cap) new_cap *= 2;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         computed = (unsigned char*)realloc(computed, new_cap * sizeof(unsigned char));
         for (size_t i = cache_size; i < new_cap; ++i) computed[i] = 0;
         cache_size = new_cap;

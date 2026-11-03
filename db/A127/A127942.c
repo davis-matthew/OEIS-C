@@ -12,7 +12,8 @@
  *            header "../utils/gcd.h". No * additional util...
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 8, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>   /* for size_t */
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *b_num = NULL;   /* numerator of b(k) */
 static seq_t *b_den = NULL;   /* denominator of b(k) */
@@ -33,8 +36,8 @@ ensure_cache(idx_t n)
 {
     if ((idx_t)cache_size <= n) {
         size_t new_size = (size_t)(n + 1);          /* indices 0..n inclusive */
-        b_num = (seq_t *)realloc(b_num, new_size * sizeof(seq_t));
-        b_den = (seq_t *)realloc(b_den, new_size * sizeof(seq_t));
+        b_num = mem_resize(seq_t, b_num, new_size);
+        b_den = mem_resize(seq_t, b_den, new_size);
         /* Newly allocated elements are uninitialised – they will be
            written when needed.  */
         cache_size = new_size;

@@ -10,7 +10,8 @@
  *            string ends with c copies of some block)
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   curling_number_uint64
+ * Validated: standard, pass, 77 terms through n = 9528 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,36 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/curling_number_uint64.h"
+#include "../utils/mem.h"
+
+/* Compute the curling number of a positive 64‑bit integer */
+static int curling_number_uint64(uint64_t x)
+{
+    if (x == 0) return 0;
+    int bits[64];
+    int L = 0;
+    uint64_t t = x;
+    while (t) { t >>= 1; L++; }
+    /* store bits from MSB to LSB */
+    for (int i = 0; i < L; ++i)
+        bits[i] = (int)((x >> (L - 1 - i)) & 1ULL);
+    int maxc = 1;                     /* at least one repetition */
+    for (int len = 1; len <= L; ++len) {    /* block length */
+        int repeat = 1;
+        int start = L - len;           /* start of last block */
+        while (start - len >= 0) {
+            bool ok = true;
+            for (int k = 0; k < len; ++k) {
+                if (bits[start - len + k] != bits[start + k]) { ok = false; break; }
+            }
+            if (!ok) break;
+            repeat++;
+            start -= len;
+        }
+        if (repeat > maxc) maxc = repeat;
+    }
+    return maxc;
+}
 
 /* Dynamic cache for the sequence */
 static seq_t *cache = NULL;
@@ -29,7 +59,7 @@ static void grow_cache(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 1;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

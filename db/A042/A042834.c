@@ -10,13 +10,15 @@
  *            periodic continued‑fraction partial quotients of sqrt(948).)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 33, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper to compute the period of the continued fraction for sqrt(948).
    It is stored in static arrays so subsequent calls reuse the result. */
@@ -29,7 +31,7 @@ static void init_period(seq_t **period_ptr, size_t *period_len_ptr)
     const uint64_t a0 = 30;          /* floor(sqrt(948)) */
 
     /* Temporary storage during construction */
-    seq_t *parts = (seq_t *)malloc(64 * sizeof(seq_t));
+    seq_t *parts = mem_new(seq_t, 64);
     size_t len = 0;
     int64_t m = 0;
     int64_t d = 1;
@@ -43,7 +45,7 @@ static void init_period(seq_t **period_ptr, size_t *period_len_ptr)
         a = (a0 + m) / d;
         parts[len++] = (seq_t)a;
         if (len == 64) {                /* grow if necessary */
-            parts = (seq_t *)realloc(parts, (len + 64) * sizeof(seq_t));
+            parts = mem_resize(seq_t, parts, (len + 64));
         }
     } while (a != 2 * a0);
 

@@ -7,13 +7,14 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} 2^(n-k) * (n-k-2)^k / k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
         factN *= (seq_t)i;
 
     /* 2^n */
-    seq_t pow2 = pow_uint(2ULL, n);
+    seq_t pow2 = ipow_u64_idx(2ULL, n);
 
     seq_t factDiv = factN;   /* n! / k!  (starts with k=0) */
     seq_t sum = 0;
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
                                             : -(uint64_t)base_int;
 
         /* (n-k-2)^k */
-        seq_t base_pow = pow_uint(abs_base, k);
+        seq_t base_pow = ipow_u64_idx(abs_base, k);
 
         /* term = (n! / k!) * 2^(n-k) * abs_base^k */
         seq_t term = factDiv * pow2;

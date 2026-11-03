@@ -8,7 +8,8 @@
  *            π(d)
  * Range:     u8 n <= 38, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,10 +28,10 @@ seq_t a(idx_t n)
 
     /* Allocate arrays: isPrime (bool) and pi(k) (seq_t) */
     bool *isPrime = (bool *)malloc((size_t)(n + 1) * sizeof(bool));
-    seq_t *pi_arr = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *pi_arr = mem_new(seq_t, (size_t)(n + 1));
     if (!isPrime || !pi_arr) {
         free(isPrime);
-        free(pi_arr);
+        mem_free(pi_arr);
         return 0;
     }
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
 
     /* Free allocated memory */
     free(isPrime);
-    free(pi_arr);
+    mem_free(pi_arr);
 
     /* Result: Σ_{k≤n} π(k) – Σ_{d|n} π(d) */
     return totalSum - divSum;

@@ -9,9 +9,10 @@
  *            generates the arithmetic progression q = 1 (mod 2*p) using a
  *            min‑heap to keep the next candidate p*q for each p sorted. It
  *            caches results so repeated calls are O(1) after the...
- * Range:     u8 none, u16 none, u32 none, u64 n <= 1000, u128 n <= 1000,
+ * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   build_primes_upto, is_prime_big
+ * Validated: standard, pass, 70 terms through n = 979 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,63 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_big.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
+#include "../utils/is_prime_u64.h"
+
+/* Miller–Rabin primality test for seq_t (supports 8/16/32/64/128/ arbitrary-precision) */
+/* n fits in uint64_t (n >= 0 here) */
+static bool is_prime_big_fits_u64(seq_t v)
+{
+    if (sizeof(seq_t) <= 8) return true;
+    return !((seq_t)UINT64_MAX < v);
+}
+
+static bool is_prime_big(seq_t n) {
+    if (n < 2) return false;
+    /* exact in 64 bits when n fits: the seq_t products below overflow at
+       u64/i64 once n passes 2^32, and are slow under big */
+    if (is_prime_big_fits_u64(n)) return is_prime_u64((uint64_t)n);
+    if (n == 2 || n == 3) return true;
+    if ((n & 1) == 0) return false;
+
+    /* write n-1 as d * 2^s with d odd */
+    seq_t d = n - 1;
+    unsigned s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        s++;
+    }
+
+    /* deterministic bases covering 128‑bit values */
+    static const int base_list[] = {2,3,5,7,11,13,17,19,23,29,31,37};
+    const int num_bases = sizeof(base_list)/sizeof(base_list[0]);
+
+    for (int i = 0; i < num_bases; i++) {
+        seq_t a = (seq_t)base_list[i];
+        if (a >= n) continue;
+
+        /* compute a^d mod n */
+        seq_t x = 1;
+        seq_t pow = a % n;
+        seq_t exp = d;
+        while (exp > 0) {
+            if (exp & 1) x = (x * pow) % n;
+            pow = (pow * pow) % n;
+            exp >>= 1;
+        }
+
+        if (x == 1 || x == n-1) continue;
+
+        bool cont = false;
+        for (unsigned r = 1; r < s; r++) {
+            x = (x * x) % n;
+            if (x == n-1) { cont = true; break; }
+        }
+        if (!cont) return false;
+    }
+    return true;
+}
 
 /* Node kept in the min‑heap */
 typedef struct {
@@ -85,7 +141,7 @@ static void ensure_initialized(idx_t n)
     build_primes_upto(limit, &prime_array, &prime_cnt);
 
     heap_cap = prime_cnt;
-    heap = (Node*)malloc(heap_cap * sizeof(Node));
+    heap = mem_new(Node, heap_cap);
     heap_size = 0;
 
     /* Initialise the heap with the first eligible q for each prime p. */
@@ -99,7 +155,7 @@ static void ensure_initialized(idx_t n)
     }
 
     cache_cap = 8;
-    cached = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cached = mem_new(seq_t, cache_cap);
     cache_size = 0;
 
     initialized = true;
@@ -118,7 +174,7 @@ static void generate_up_to(idx_t n)
         /* Store it in the cache. */
         if (cache_size == cache_cap) {
             cache_cap = cache_cap ? cache_cap * 2 : 8;
-            cached = (seq_t*)realloc(cached, cache_cap * sizeof(seq_t));
+            cached = mem_resize(seq_t, cached, cache_cap);
         }
         cached[cache_size++] = top.prod;
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   gcd_any
+ * Validated: standard, pass, 30 terms through n = 49 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
  * type.  The routine works for all supported seq_t types (unsigned integer
  * types up to 128 bits or an arbitrary‑precision integer class).
  */
-#include "../utils/gcd_any.h"   /* provides gcd_any(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -45,12 +46,12 @@ seq_t a(idx_t n)
         seq_t den = (seq_t)i;         /* denominator term */
 
         /* cancel common factors between numerator and den */
-        seq_t g1 = gcd_any(num, den);
+        seq_t g1 = gcd(num, den);
         num /= g1;
         den /= g1;
 
         /* cancel remaining common factors between res and den */
-        seq_t g2 = gcd_any(res, den);
+        seq_t g2 = gcd(res, den);
         res /= g2;
         den /= g2;   /* den should now be 1 */
 

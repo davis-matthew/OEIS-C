@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
- *            big any n
- * Helpers:   is_prime_uint64, isprime_big
+ * Range:     u8 n <= 5, u16 n <= 68, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 58 terms through n = 945 (2026-11-03)
+ * Helpers:   is_prime_seq, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"   /* for is_prime_uint64() */
-#include "../utils/isprime_big.h"      /* for isprime_big() */
+#include "../utils/is_prime_seq.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* dynamic array of primes, 0‑based: primes[0] = 2 */
 static uint64_t *prime_list = NULL;
@@ -45,7 +47,7 @@ static void ensure_primes(idx_t limit)
 
         /* find the next prime */
         for (;;) {
-            if (is_prime_uint64(cand)) {
+            if (is_prime_u64(cand)) {
                 if (prime_count >= prime_cap) {
                     prime_cap = prime_cap ? prime_cap * 2 : 32;
                     void *tmp = realloc(prime_list, prime_cap * sizeof(uint64_t));
@@ -70,7 +72,7 @@ static void seq_append(seq_t v)
 {
     if (seq_count >= seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 16;
-        void *tmp = realloc(seq, seq_cap * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, seq, seq_cap);
         if (!tmp) abort();
         seq = (seq_t *)tmp;
     }
@@ -100,11 +102,11 @@ seq_t a(idx_t n)
 
         for (;;) {
             /* p is guaranteed to be odd; find next prime if needed */
-            while (!is_prime_uint64(p))
+            while (!is_prime_u64(p))
                 p += 2;
 
             seq_t val = (prod + (seq_t)p) / 2;
-            if (isprime_big(val)) {
+            if (is_prime_seq(val)) {
                 /* a valid term found */
                 last_p = p;
                 seq_append(val);

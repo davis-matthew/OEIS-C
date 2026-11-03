@@ -10,13 +10,15 @@
  *            function computes this by incremental search and caching
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Test whether a base‑11 number has equal counts of digits 4 and 10 */
 static bool good(seq_t x)
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     while (cache_size < (size_t)n) {
         if (cache_cap <= cache_size) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)      /* allocation failed – return 0 as safe fallback */
                 return 0;
             cache = tmp;

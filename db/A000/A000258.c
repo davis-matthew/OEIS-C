@@ -9,12 +9,14 @@
  *            Bell (Aitken) triangle
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 466 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a258_cache = 0;
 static idx_t a258_have = 0; /* number of cached terms */
@@ -22,9 +24,9 @@ static idx_t a258_have = 0; /* number of cached terms */
 static void a258_build(idx_t N)
 {
     idx_t r, j, k, m;
-    seq_t *bell = (seq_t *)calloc((size_t)N + 2, sizeof(seq_t));
-    seq_t *t = (seq_t *)calloc((size_t)N + 2, sizeof(seq_t));
-    seq_t *res = (seq_t *)calloc((size_t)N + 2, sizeof(seq_t));
+    seq_t *bell = mem_new(seq_t, (size_t)N + 2);
+    seq_t *t = mem_new(seq_t, (size_t)N + 2);
+    seq_t *res = mem_new(seq_t, (size_t)N + 2);
 
     /* Bell triangle, in place: row r has r+1 entries, Bell(r) = first entry */
     t[0] = 1;
@@ -47,9 +49,9 @@ static void a258_build(idx_t N)
             bell[k] = bell[k] * k + bell[k + 1];
     }
 
-    free(bell);
-    free(t);
-    if (a258_cache) free(a258_cache);
+    mem_free(bell);
+    mem_free(t);
+    if (a258_cache) mem_free(a258_cache);
     a258_cache = res;
     a258_have = N + 1;
 }

@@ -8,12 +8,14 @@
  * Formula:   a(0)=1, a(1)=1, a(2n)=a(n), a(2n+1)=a(n)+a(n-1) (for n≥1)
  * Range:     u8 n <= 7158, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9046 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -23,7 +25,7 @@ static void ensure_cache(idx_t n) {
     if (n + 1 <= cache_size)
         return;
     size_t new_size = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {
         /* Allocation failed – abort gracefully */
         exit(1);

@@ -7,20 +7,22 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 13, u32 n <= 22, u64 n <= 44, u128 n <= 89,
  *            big any n
- * Helpers:   sqrt_floor
+ * Validated: standard, pass, 46 terms through n = 200 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Denominators of continued fraction convergents to sqrt(524). */
-#include "../utils/sqrt_floor.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
 
 /* Computes a(n) = denominator of the (n‑th) convergent of sqrt(524).
    a(0) = 1, a(1) = 1, a(2) = 9, ...  (see OEIS A042003). */
 seq_t a(idx_t n)
 {
     const seq_t S = (seq_t)524;
-    const seq_t a0 = sqrt_floor(S);          /* floor(sqrt(524)) = 22 */
+    const seq_t a0 = isqrt_seq(S);          /* floor(sqrt(524)) = 22 */
 
     if (n == 0) return (seq_t)1;             /* q0 = 1 */
 

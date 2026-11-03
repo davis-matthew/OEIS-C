@@ -9,13 +9,15 @@
  *            = 8, a(3) = 116
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 14, u64 n <= 27, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 866 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #if defined(__cplusplus)
 #   include <type_traits>
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
     /* Allocate or grow the table when needed */
     if (dp == NULL) {
         cap = 16;
-        dp = (seq_t*)malloc(sizeof(seq_t) * cap);
+        dp = mem_new(seq_t, cap);
         if (!dp) return 0;                /* out‑of‑memory: return 0 as fallback */
         dp[0] = 0; dp[1] = 4; dp[2] = 8; dp[3] = 116;
         computed = 4;
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
     if ((size_t)n + 1 > cap) {
         size_t newcap = cap * 2;
         if (newcap < (size_t)n + 1) newcap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(dp, sizeof(seq_t) * newcap);
+        seq_t *tmp = mem_resize(seq_t, dp, newcap);
         if (!tmp) return 0;                /* out‑of‑memory: return 0 as fallback */
         dp = tmp;
         cap = newcap;

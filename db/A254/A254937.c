@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 74, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   enlarge_seq_t, enlarge_uint32, floor_sqrt, is_prime_small
+ * Validated: standard, pass, 90 terms through n = 995 (2026-11-03)
+ * Helpers:   ipow_i32, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,51 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/enlarge_seq_t.h"
-#include "../utils/enlarge_uint32.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* enlarge an array of seq_t ------------------------------------------------ */
+static void enlarge_seq_t(seq_t **arr, size_t *cap, size_t needed)
+{
+    if (*cap >= needed) return;
+    size_t new_cap = (*cap) ? (*cap << 1) : 16;
+    while (new_cap < needed) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *cap = new_cap;
+}
+
+/* enlarge an array of uint32_t ------------------------------------------ */
+static void enlarge_uint32(uint32_t **arr, size_t *cap, size_t needed)
+{
+    if (*cap >= needed) return;
+    size_t new_cap = (*cap) ? (*cap << 1) : 16;
+    while (new_cap < needed) new_cap <<= 1;
+    uint32_t *tmp = (uint32_t *)realloc(*arr, new_cap * sizeof(uint32_t));
+    if (!tmp) abort();
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* static state ------------------------------------------------------------ */
 static bool initialized = false;
@@ -63,7 +105,7 @@ static void ensure_primes(size_t need)
     while (gp_cnt < need) {
         /* find next prime ≡ 1 (mod 8) */
         uint32_t cand = (last_checked / 8 + 1) * 8 + 1;   /* next 1 mod 8 */
-        while (!is_prime_small((seq_t)cand)) cand += 8;
+        while (!is_prime_seq((seq_t)cand)) cand += 8;
         enlarge_uint32(&good_primes, &gp_cap, gp_cnt + 1);
         good_primes[gp_cnt++] = cand;
         last_checked = cand;

@@ -11,7 +11,8 @@
  *            difference of the two substring counts
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 33, u64 n <= 65, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 500 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
     idx_t maxDiff = 2 * steps + 1;       /* range of possible differences
                                            [-steps, steps] */
     size_t size = 16 * maxDiff;          /* 16 states for last 4 bits */
-    seq_t *cur  = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, size);
+    seq_t *next = mem_new(seq_t, size);
     if (!cur || !next) return 0;        /* allocation failure */
 
     idx_t offset = steps;                /* index of difference == 0 */
@@ -75,14 +77,14 @@ seq_t a(idx_t n)
         seq_t *tmp = cur;
         cur = next;
         next = tmp;
-        memset(next, 0, size * sizeof(seq_t));
+        mem_set(next, 0, size * sizeof(seq_t));
     }
 
     /* sum the counts that end with difference zero */
     seq_t result = 0;
     for (int s = 0; s < 16; ++s) result += cur[s * maxDiff + offset];
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

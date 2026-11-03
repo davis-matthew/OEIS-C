@@ -9,12 +9,14 @@
  *            values: a(1) = a(2) = 1
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 10, u64 n <= 12, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;      /* array of a(n) values (0‑based)         */
 static seq_t *P = NULL;      /* prefix sums: P[i] = a(1)+...+a(i+1)    */
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
     /* ensure base cases are stored */
     if (sz == 0) {
         cap = 4;
-        A = (seq_t *)realloc(A, cap * sizeof(seq_t));
-        P = (seq_t *)realloc(P, cap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, cap);
+        P = mem_resize(seq_t, P, cap);
         if (!A || !P) return 0; /* allocation failure */
 
         A[0] = 1; P[0] = 1;          /* a(1) = 1 */
@@ -55,8 +57,8 @@ seq_t a(idx_t n)
         /* ensure capacity */
         if (sz == cap) {
             size_t newcap = cap * 2;
-            seq_t *tmpA = (seq_t *)realloc(A, newcap * sizeof(seq_t));
-            seq_t *tmpP = (seq_t *)realloc(P, newcap * sizeof(seq_t));
+            seq_t *tmpA = mem_resize(seq_t, A, newcap);
+            seq_t *tmpP = mem_resize(seq_t, P, newcap);
             if (!tmpA || !tmpP) return 0; /* allocation failure */
             A = tmpA; P = tmpP; cap = newcap;
         }

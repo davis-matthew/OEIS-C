@@ -13,7 +13,8 @@
  *            n are answered efficiently. It works for any...
  * Range:     u8 n <= 136, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_antimutinous_np
+ * Validated: standard, pass, 80 terms through n = 9699 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,47 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_antimutinous_np.h"
+#include "../utils/mem.h"
+
+/* Helper: test if m (uint64_t) is an antimutinous non‑prime‑power number. */
+static bool is_antimutinous_np(uint64_t m)
+{
+    if (m < 6)  /* smallest covered term is 6 */
+        return false;
+
+    uint64_t x = m;
+    uint64_t largest_prime = 0;
+    uint64_t power_of_largest = 1;
+
+    for (uint64_t p = 2; p * p <= x; ++p) {
+        if (x % p == 0) {
+            uint64_t prod = 1;
+            while (x % p == 0) {
+                x /= p;
+                prod *= p;
+            }
+            if (p > largest_prime) {
+                largest_prime = p;
+                power_of_largest = prod;
+            }
+        }
+    }
+    if (x > 1) {            /* remaining factor > sqrt(original m) */
+        if (x > largest_prime) {
+            largest_prime = x;
+            power_of_largest = x;   /* exponent 1 */
+        } else if (x == largest_prime) {
+            /* should not happen, already processed above */
+        }
+    }
+
+    /* If after removing the largest prime power nothing remains, m is a prime power. */
+    uint64_t remaining = m / power_of_largest;
+    if (remaining == 1)
+        return false;       /* prime power, excluded */
+
+    return remaining < largest_prime;
+}
 
 /* Cache for computed terms. */
 static seq_t *cache = NULL;
@@ -38,7 +79,7 @@ static void ensure_cache_up_to(idx_t n)
     /* Extend cache capacity as needed. */
     if (cache_cap == 0) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_size < n) {
@@ -48,7 +89,7 @@ static void ensure_cache_up_to(idx_t n)
         /* store current candidate */
         if (cache_size >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_size++] = (seq_t)next_candidate;
         ++next_candidate;

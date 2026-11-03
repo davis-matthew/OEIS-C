@@ -11,7 +11,8 @@
  *            multinomial(n+(k-1)j; n-j, j^k)
  * Range:     u8 n <= 22, u16 n <= 29, u32 n <= 47, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
     All other operations are performed on the arbitrary-precision type seq_t.
 */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /*  Compute the multinomial term for given n,k,l:
         N = n + (k-1)*l
@@ -28,13 +30,13 @@
 */
 static seq_t multinomial_term(idx_t n, idx_t k, idx_t l)
 {
-    seq_t term = binom(n + (k-1)*l, n - l);   /* C(N, n-l)               */
+    seq_t term = binomial(n + (k-1)*l, n - l);   /* C(N, n-l)               */
 
     /* Multiply by the product of binomials for the k identical groups of size l */
     idx_t remaining = k * l;
     for (idx_t t = 0; t < k; ++t)
     {
-        term *= binom(remaining, l);
+        term *= binomial(remaining, l);
         remaining -= l;
     }
     return term;

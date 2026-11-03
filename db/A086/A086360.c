@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = primorial(n) mod 9
- * Range:     u8 n <= 9891, u16 n <= 9891, u32 n <= 9891, u64 n <= 9891,
- *            u128 n <= 9891, big any n
- * Helpers:   none
+ * Range:     u8 n <= 19683, u16 n <= 19683, u32 n <= 19683, u64 n <= 19683,
+ *            u128 n <= 19683, big any n
+ * Validated: standard, pass, 104 terms through n = 9891 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* initial allocation */
         values_cap = 8;
-        values = (seq_t*)malloc(values_cap * sizeof(seq_t));
+        values = mem_new(seq_t, values_cap);
         if (!values) abort();
         values[0] = (seq_t)1;  /* a(0) = 1 (empty product) */
         values_size = 1;
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
         /* store the new sequence value */
         if (values_size == values_cap) {
             idx_t new_cap = (values_cap ? values_cap * 2 : 8);
-            seq_t *tmp = (seq_t*)realloc(values, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, values, new_cap);
             if (!tmp) abort();
             values = tmp;
             values_cap = new_cap;

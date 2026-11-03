@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 10, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h> /* for abs */
+#include "../utils/mem.h"
 
 #define NUM_STATES 1512  /* 7 * 6^3 */
 
@@ -122,8 +124,8 @@ seq_t a(idx_t n)
     static seq_t *dp[2];
     static bool dp_allocated = false;
     if (!dp_allocated) {
-        dp[0] = (seq_t *)malloc(NUM_STATES * sizeof(seq_t));
-        dp[1] = (seq_t *)malloc(NUM_STATES * sizeof(seq_t));
+        dp[0] = mem_new(seq_t, NUM_STATES);
+        dp[1] = mem_new(seq_t, NUM_STATES);
         dp_allocated = true;
     }
 

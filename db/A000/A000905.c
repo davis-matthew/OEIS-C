@@ -8,13 +8,28 @@
  *            a(1) = 2
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 8, u128 n <= 9,
  *            big any n
- * Helpers:   hb_binom
+ * Validated: standard, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/hb_binom.h"
+
+static seq_t hb_binom(seq_t x, idx_t j)
+{
+    if (x < (seq_t)j)
+        return (seq_t)0;
+    if (j == 2) {
+        if (x % 2 == 0)
+            return (x / 2) * (x - 1);
+        return x * ((x - 1) / 2);
+    }
+    seq_t r = (seq_t)1;
+    for (idx_t i = 0; i < j; i++)
+        r = r * (x - (seq_t)i) / ((seq_t)i + 1);
+    return r;
+}
 
 #define HAM_MAX 64
 

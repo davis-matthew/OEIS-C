@@ -7,6 +7,7 @@
  * Formula:   a(n) = phi(tau(phi(n)))
  * Range:     u8 n <= 340, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 106 terms through n = 983 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Compute φ(m) where m is an idx_t (≤ 2^64−1).  Returns a seq_t. */

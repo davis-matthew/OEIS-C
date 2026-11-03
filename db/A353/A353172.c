@@ -12,13 +12,15 @@
  *            upward until the equalities of Omega hold. Results are...
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         }
 
         /* Allocate and compute Omega values */
-        seq_t *new_omega = (seq_t *)malloc((new_max + 1) * sizeof(seq_t));
+        seq_t *new_omega = mem_new(seq_t, (new_max + 1));
         if (!new_omega) { free(new_spf); abort(); }
         new_omega[0] = 0;          /* unused */
         new_omega[1] = 0;          /* Omega(1) = 0 */
@@ -59,13 +61,13 @@ seq_t a(idx_t n)
 
         /* Replace old tables */
         free(spf);
-        free(omega);
+        mem_free(omega);
         spf   = new_spf;
         omega = new_omega;
         current_max = new_max;
 
         /* Resize answer cache */
-        seq_t *new_ans = (seq_t *)realloc(answers, new_max * sizeof(seq_t));
+        seq_t *new_ans = mem_resize(seq_t, answers, new_max);
         if (!new_ans) abort();
         answers = new_ans;
         for (size_t i = old_max; i < (size_t)new_max; ++i)

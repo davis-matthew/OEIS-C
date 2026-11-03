@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n + 3)^2 * n / 2 + 1 (offset 0)
  * Range:     u8 n <= 4, u16 n <= 38, u32 n <= 1926, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 9912 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

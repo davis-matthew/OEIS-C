@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(1)=0; a(2k)=k + a(k); a(2k+1)=6k+4 + a(6k+4)
- * Range:     u8 n <= 6, u16 n <= 26, u32 n <= 9465, u64 n <= 9465,
- *            u128 n <= 9465, big any n
+ * Range:     u8 n <= 6, u16 n <= 26, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 75 terms through n = 9465 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

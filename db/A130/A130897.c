@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 2887, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exponent_is_squarefree
+ * Validated: standard, pass, 59 terms through n = 9550 (2026-11-01)
+ * Helpers:   is_squarefree_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/exponent_is_squarefree.h"
+#include "../utils/is_squarefree_u32.h"
 
 /* ------------------------------------------------------------ */
 /* Prime table – generated once on first use (to factor numbers). */
@@ -62,7 +63,7 @@ static bool is_non_esquarefree(uint64_t val)
                 tmp /= p;
                 ++exp;
             }
-            if (!exponent_is_squarefree(exp))
+            if (!is_squarefree_u32(exp))
                 return true; /* found a non-squarefree exponent */
         }
     }

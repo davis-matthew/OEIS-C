@@ -8,7 +8,8 @@
  *            ∑_{i+j+k=n-1} a(i)*a(j)*a(k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 400 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #if defined(__cplusplus)
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 /* Multiply two seq_t values safely. Use 128‑bit intermediate if available and
    seq_t is an integral type; otherwise rely on the type's operator*. */
@@ -72,8 +74,8 @@ seq_t a(idx_t n)
     /* Ensure that values up to n are computed. */
     if (n >= seq_len) {
         idx_t new_len = n + 1;
-        a_vals      = (seq_t*)realloc(a_vals,      new_len * sizeof(seq_t));
-        conv2_vals  = (seq_t*)realloc(conv2_vals,  new_len * sizeof(seq_t));
+        a_vals      = mem_resize(seq_t, a_vals, new_len);
+        conv2_vals  = mem_resize(seq_t, conv2_vals, new_len);
 
         /* Zero‑initialize newly allocated slots. */
         for (idx_t i = seq_len; i < new_len; ++i) {

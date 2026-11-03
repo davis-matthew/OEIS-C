@@ -8,13 +8,15 @@
  * Formula:   a(n) = Product_{k=0..n-1} (2*k + n*(n-1) + 1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build environment.  */
 static seq_t *cache = NULL;          /* cached values a(1)..a(cached_n)   */
@@ -29,13 +31,13 @@ seq_t a(idx_t n)
     if (cache == NULL || cached_n < n) {
         size_t new_size = (size_t)(n + 1);
         if (cache == NULL) {
-            cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+            cache = mem_new(seq_t, new_size);
             if (cache == NULL) {
                 /* allocation failure: return 0 as a safe default */
                 return (seq_t)0;
             }
         } else {
-            seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_size);
             if (tmp == NULL) {
                 /* reallocation failure: keep old cache */
                 return (seq_t)0;

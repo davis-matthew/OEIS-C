@@ -11,7 +11,8 @@
  *            DP state space is (n+1)×(k+1)
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 26, u64 n <= 50, u128 n <= 96,
  *            big any n
- * Helpers:   max_part
+ * Validated: standard, pass, 49 terms through n = 2248 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <math.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/max_part.h"
+#include "../utils/mem.h"
+
+/* Helper to compute the maximum part size that can appear in a composition of n */
+static idx_t max_part(idx_t n)
+{
+    /* Initial approximation using the quadratic formula */
+    double d = sqrt((double)(1 + 8.0 * (double)n));
+    idx_t k = (idx_t)((d - 1.0) / 2.0);
+
+    /* Correct possible rounding errors */
+    if ((k + 1) * (k + 2) / 2 <= n)
+        ++k;
+    while (k * (k + 1) / 2 > n)
+        --k;
+    return k;
+}
 
 /*  seq_t and idx_t are supplied by the build system.  */
 
@@ -36,7 +52,7 @@ seq_t a(idx_t n)
     size_t cells = ((size_t)(n + 1)) * msize;   /* total number of DP entries */
 
     /* Allocate DP table and zero‑initialize it */
-    seq_t *dp = (seq_t *)calloc(cells, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, cells);
     if (!dp)
         return (seq_t)0;                      /* allocation failed */
 
@@ -78,6 +94,6 @@ seq_t a(idx_t n)
         result += dp[IDX(n, m)];
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -10,7 +10,8 @@
  *            via memoised recurrence
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 29, u64 n <= 62, u128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #else
 #define CAST_TO_SEQ_T_PTR(p) reinterpret_cast<seq_t*>(p)
 #endif
+#include "../utils/mem.h"
 
 /* Static cache: index n is stored in cache[n] (unused cache[0]) */
 static seq_t *cache      = NULL;   /* array of values */
@@ -39,7 +41,7 @@ static void ensure_capacity(idx_t n)
     while (new_cap < (size_t)n)
         new_cap <<= 1;
 
-    seq_t *tmp = CAST_TO_SEQ_T_PTR(realloc(cache, (new_cap + 1) * sizeof(seq_t)));
+    seq_t *tmp = CAST_TO_SEQ_T_PTR(mem_resize(seq_t, cache, (new_cap + 1)));
     if (!tmp)
         abort();              /* out of memory */
 
@@ -55,7 +57,7 @@ static void init_cache(void)
 
     /* allocate space up to index 8 initially (0..8) */
     cap = 8;
-    cache = CAST_TO_SEQ_T_PTR(malloc((cap + 1) * sizeof(seq_t)));
+    cache = CAST_TO_SEQ_T_PTR(mem_new(seq_t, (cap + 1)));
     if (!cache)
         abort();
 

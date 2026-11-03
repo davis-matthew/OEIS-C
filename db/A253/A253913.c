@@ -8,7 +8,8 @@
  *            0, k > 1, with duplicates removed and the sequence sorted
  * Range:     u8 n <= 13, u16 n <= 57, u32 n <= 1814, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   less_seq
+ * Validated: standard, pass, 73 terms through n = 9112 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/less_seq.h"
+#include "../utils/mem.h"
+
+/* ---------- heap utilities ---------- */
+static inline bool less_seq(seq_t a, seq_t b) { return a < b; }
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -81,7 +85,7 @@ static void heap_ensure_cap(size_t needed)
     if (heap.capacity < needed) {
         size_t new_cap = heap.capacity ? heap.capacity << 1 : 8;
         while (new_cap < needed) new_cap <<= 1;
-        struct Node *new_data = (struct Node *)realloc(heap.data, new_cap * sizeof(struct Node));
+        struct Node *new_data = mem_resize(struct Node, heap.data, new_cap);
         if (!new_data) abort();
         heap.data = new_data;
         heap.capacity = new_cap;
@@ -112,7 +116,7 @@ static void cache_ensure(size_t bound)
     if (cache_cap < bound) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 64;
         while (new_cap < bound) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();
         cache = new_cache;
         cache_cap = new_cap;

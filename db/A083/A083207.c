@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_uint64, gen_divs_helper, generate_divisors
+ * Validated: standard, pass, 73 terms through n = 9683 (2026-11-03)
+ * Helpers:   factor_uint64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,43 @@
 
 /* Prime factorisation helper – available in the harness */
 #include "../utils/factor_uint64.h"
-#include "../utils/gen_divs_helper.h"
-#include "../utils/generate_divisors.h"
+#include "../utils/mem.h"
+
+/* ----------  generate all divisors of n  ---------- */
+static void gen_divs_helper(int idx,
+                            uint64_t cur,
+                            const uint64_t *fac,
+                            const int *exp,
+                            int cnt,
+                            uint64_t *arr,
+                            size_t *pos)
+{
+    if (idx == cnt) {
+        arr[(*pos)++] = cur;
+        return;
+    }
+    uint64_t val = cur;
+    for (int e = 0; e <= exp[idx]; ++e) {
+        gen_divs_helper(idx + 1, val, fac, exp, cnt, arr, pos);
+        val *= fac[idx];
+    }
+}
+
+static void generate_divisors(uint64_t n,
+                              const uint64_t *fac,
+                              const int *exp,
+                              int cnt,
+                              uint64_t **arr,
+                              size_t *size)
+{
+    int tau = 1;
+    for (int i = 0; i < cnt; ++i) tau *= (exp[i] + 1);
+
+    *arr = (uint64_t *)calloc(tau, sizeof(uint64_t));
+    if (!*arr) abort();
+    *size = 0;
+    gen_divs_helper(0, 1ULL, fac, exp, cnt, *arr, size);
+}
 
 /* ----------  check whether n is a Zumkeller number  ---------- */
 static bool is_zumkeller(uint64_t n)
@@ -112,7 +148,7 @@ seq_t a(idx_t n)
         if (is_zumkeller(last_checked)) {
             if (seq_len == seq_cap) {
                 seq_cap = (seq_cap == 0) ? 16 : seq_cap << 1;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
                 if (!seq) abort();
             }
             seq[seq_len++] = (seq_t)last_checked;

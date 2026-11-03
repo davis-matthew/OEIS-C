@@ -10,12 +10,14 @@
  *            initial terms: a(1)=3, a(2)=7, a(3)=35, a(4)=176
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External function that returns the n-th term of OEIS sequence A266049,
    indexed with offset 1.  It memoises computed values so that repeated
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
        and is allocated.  This is done only on the very first call. */
     if (cache == NULL) {
         cache_len = 4;                     /* we will compute up to index 4 */
-        cache = (seq_t *)malloc((cache_len + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_len + 1));
         if (cache == NULL) {               /* allocation failure – return zero */
             return (seq_t)0;
         }
@@ -62,8 +64,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache to accommodate the new needed indices. */
     idx_t new_len = n;
-    seq_t *new_cache = (seq_t *)realloc(cache,
-                                         (new_len + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_len + 1));
     if (new_cache == NULL) {                 /* reallocation failure */
         return (seq_t)0;
     }

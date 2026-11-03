@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 635, u16 n <= 9325, u32 n <= 9325, u64 n <= 9325,
- *            u128 n <= 9325, big any n
- * Helpers:   generate_fib_like
+ * Range:     u8 n <= 635, u16 n <= 14140, u32 n <= 14140, u64 n <= 14140,
+ *            u128 n <= 14140, big any n
+ * Validated: standard, pass, 117 terms through n = 9325 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
    using a standard subset‑sum dynamic programming algorithm. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/generate_fib_like.h"
+#include "../utils/mem.h"
+
+/* Helper: generate all fib‑like numbers ≤ seq_n.
+   The sequence is defined by F0=3, F1=7, Fn=Fn-1+Fn-2. */
+static size_t generate_fib_like(seq_t seq_n, seq_t *buf, size_t bufcap)
+{
+    size_t k = 0;
+    if (seq_n >= (seq_t)3) buf[k++] = (seq_t)3;
+    if (seq_n >= (seq_t)7) buf[k++] = (seq_t)7;
+    while (k >= 2 && k < bufcap) {
+        seq_t nxt = buf[k - 1] + buf[k - 2];
+        if (nxt > seq_n) break;
+        buf[k++] = nxt;
+    }
+    return k;                /* number of values produced */
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +49,7 @@ seq_t a(idx_t n)
     size_t fibcnt = generate_fib_like(seq_n, fib, sizeof fib / sizeof fib[0]);
 
     /* Allocate dynamic programming array with zero initialization. */
-    seq_t *ways = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *ways = mem_new(seq_t, (size_t)n + 1);
     if (!ways) return (seq_t)0;            /* allocation failure → 0 */
     ways[0] = (seq_t)1;                    /* empty subset sums to 0 */
 
@@ -48,6 +64,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = ways[(size_t)n];
-    free(ways);
+    mem_free(ways);
     return result;
 }

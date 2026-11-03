@@ -7,13 +7,15 @@
  * Formula:   a(n) = n! mod p(n), where p(n) is the partition function
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   mul_seq_by_uint
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem, mulmod_idx_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mul_seq_by_uint.h"
+#include "../utils/mulmod_idx_to_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (p_cache == NULL)
     {
         cache_cap = 16;
-        p_cache  = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        p_cache  = mem_new(seq_t, cache_cap);
         if (!p_cache) return 0;           /* allocation failure */
     }
 
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     {
         size_t new_cap = cache_cap;
         while ((size_t)n >= new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(p_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, p_cache, new_cap);
         if (!tmp) return 0;
         p_cache = tmp;
         cache_cap = new_cap;
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
     if (mod == 0) return 0;                 /* should not happen */
     seq_t fact = (seq_t)1 % mod;
     for (idx_t i = 2; i <= n; ++i)
-        fact = mul_seq_by_uint(fact, i, mod);
+        fact = mulmod_idx_to_seq(fact, i, mod);
 
     return fact;
 }

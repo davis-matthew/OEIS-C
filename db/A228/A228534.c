@@ -12,7 +12,8 @@
  *            a(n) is the row‑by‑row flattening of that array
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 56, u64 n <= 154,
  *            u128 n <= 436, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 61 terms through n = 3683 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Forward declaration of helper function computing T(n,k) */
 static seq_t triangular_T(idx_t n, idx_t k);
@@ -46,7 +48,7 @@ static seq_t triangular_T(idx_t n, idx_t k)
     /* Allocate array for Stirling numbers c(s,j) up to current k.
        cur[j] holds c(current_s, j). */
     size_t sz = (size_t)k + 1;
-    seq_t *cur = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, sz);
     if (!cur) return (seq_t)0;           /* safety, should not happen */
 
     cur[0] = (seq_t)1;                  /* c(0,0) = 1 */
@@ -58,7 +60,7 @@ static seq_t triangular_T(idx_t n, idx_t k)
         if (s >= k) {
             /* term = C(n,s) * c(s,k) * s^(n-s) */
             seq_t c_sk = cur[k];              /* c(s,k) */
-            seq_t pow_s = big_pow((seq_t)s, (seq_t)(n - s));
+            seq_t pow_s = ipow((seq_t)s, (seq_t)(n - s));
             seq_t term  = binom * c_sk;
             term       *= pow_s;
             sum        += term;
@@ -78,6 +80,6 @@ static seq_t triangular_T(idx_t n, idx_t k)
         binom = binom * (seq_t)(n - s) / (seq_t)(s + 1);
     }
 
-    free(cur);
+    mem_free(cur);
     return sum;
 }

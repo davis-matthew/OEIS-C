@@ -10,12 +10,14 @@
  *            b(n)=b(n‑b(n‑1))+b(n‑b(n‑2)) for n>2
  * Range:     u8 n <= 232, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9625 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 /* static cache for the Hofstadter Q‑sequence */
 static seq_t *b_cache = NULL;      /* array holding b(1), b(2), … */
@@ -28,13 +30,13 @@ static void ensure_b(idx_t up_to)
     /* allocate or expand the cache first */
     if (b_cache == NULL) {
         b_cap = (size_t)(up_to + 1);
-        b_cache = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_cache = mem_new(seq_t, b_cap);
         if (b_cache == NULL) return;   /* allocation failed – caller will abort */
         b_max = 0;
     }
     if ((size_t)up_to + 1 > b_cap) {   /* need more space */
         b_cap = (size_t)(up_to + 1);
-        b_cache = (seq_t *)realloc(b_cache, b_cap * sizeof(seq_t));
+        b_cache = mem_resize(seq_t, b_cache, b_cap);
         if (b_cache == NULL) return;   /* allocation failed – caller will abort */
     }
 

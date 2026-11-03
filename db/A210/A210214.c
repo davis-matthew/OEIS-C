@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    the appropriate coefficient.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,10 +40,10 @@ seq_t a(idx_t n)
     idx_t maxlen = r;
 
     /* Allocate two pairs of arrays: current and previous rows. */
-    seq_t *U_prev = (seq_t *)malloc(maxlen * sizeof(seq_t));
-    seq_t *V_prev = (seq_t *)malloc(maxlen * sizeof(seq_t));
-    seq_t *U_curr = (seq_t *)malloc(maxlen * sizeof(seq_t));
-    seq_t *V_curr = (seq_t *)malloc(maxlen * sizeof(seq_t));
+    seq_t *U_prev = mem_new(seq_t, maxlen);
+    seq_t *V_prev = mem_new(seq_t, maxlen);
+    seq_t *U_curr = mem_new(seq_t, maxlen);
+    seq_t *V_curr = mem_new(seq_t, maxlen);
 
     if (!U_prev || !V_prev || !U_curr || !V_curr) {
         /* Allocation failed – the caller must handle this. */
@@ -88,10 +90,10 @@ seq_t a(idx_t n)
     seq_t result = V_prev[col0];
 
     /* Free all allocated memory. */
-    free(U_prev);
-    free(V_prev);
-    free(U_curr);
-    free(V_curr);
+    mem_free(U_prev);
+    mem_free(V_prev);
+    mem_free(U_curr);
+    mem_free(V_curr);
 
     return result;
 }

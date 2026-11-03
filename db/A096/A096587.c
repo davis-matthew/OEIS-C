@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 256, u32 n <= 732, u64 n <= 2503,
  *            u128 n <= 9028, big any n
- * Helpers:   get_val
+ * Validated: standard, pass, 103 terms through n = 9977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,7 +39,14 @@
  */
 
 #include <stdlib.h>
-#include "../utils/get_val.h"
+#include "../utils/mem.h"
+
+static seq_t get_val(const seq_t **tri, idx_t r, idx_t c)
+{
+    if (r < 0 || c < 0)          return 0;
+    if (c > 2 * r)               return 0;
+    return tri[r][c];
+}
 
 static idx_t isqrt(idx_t n)
 {
@@ -78,7 +86,7 @@ seq_t a(idx_t n)
         /* build new rows */
         for (idx_t r = max_row; r < new_rows; ++r) {
             size_t len = 2 * r + 1;
-            seq_t *row_vec = (seq_t *)calloc(len, sizeof(seq_t));
+            seq_t *row_vec = mem_new(seq_t, len);
             if (!row_vec) return 0;    /* allocation failure */
 
             if (r == 0) {

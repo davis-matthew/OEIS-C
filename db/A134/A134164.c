@@ -7,7 +7,8 @@
  * Formula:   a(n) = 8*(6*n^2-37*n+60)*n^(n-7)*(2*n-7)!/(n-4)!
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 12, u128 n <= 18,
  *            big any n
- * Helpers:   bigint_pow
+ * Validated: standard, pass, 31 terms through n = 99 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 #ifndef OEIS_A134164_H
 #define OEIS_A134164_H
 #include <stdint.h>
-#include "../utils/bigint_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n < 4) return 0;          /* undefined for n < 4 */
@@ -35,11 +36,11 @@ seq_t a(idx_t n) {
 
     if (n < 7) {
         /* divide by n^(7-n) to handle negative exponent */
-        seq_t div = bigint_pow(nseq, 7 - n);
+        seq_t div = ipow_idx(nseq, 7 - n);
         result /= div;
     } else {
         /* multiply by n^(n-7) for positive exponent */
-        seq_t powpart = bigint_pow(nseq, n - 7);
+        seq_t powpart = ipow_idx(nseq, n - 7);
         result *= powpart;
     }
 

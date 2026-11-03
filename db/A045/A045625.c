@@ -8,7 +8,8 @@
  * Formula:   a(n) = ( Σ_{d|n} μ(d)·2^{n/d} + Σ_{d|n} μ(d)·2^{⌈n/(2d)⌉} ) / 2
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* external types supplied by the build */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for pre‑computed values   */
 static int   *mu       = NULL;    /* Möbius function up to current size   */
@@ -70,7 +72,7 @@ static void ensure_precomputed(idx_t n)
     /* --- powers of two ------------------------------------------ */
     if ((size_t)(n + 1) > pow2_size) {
         size_t newsize = (size_t)(n + 1);
-        seq_t *newpow2 = (seq_t *)realloc(pow2, newsize * sizeof(seq_t));
+        seq_t *newpow2 = mem_resize(seq_t, pow2, newsize);
         if (!newpow2) exit(1);
 
         /* if this is the first allocation initialise from scratch */
@@ -91,7 +93,7 @@ static void ensure_precomputed(idx_t n)
     /* --- memoization cache -------------------------------------- */
     if ((size_t)(n + 1) > cache_size) {
         size_t newsize = (size_t)(n + 1);
-        seq_t *newcache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *newcache = mem_resize(seq_t, cache, newsize);
         if (!newcache) exit(1);
 
         /* initialise newly added positions to 0 */

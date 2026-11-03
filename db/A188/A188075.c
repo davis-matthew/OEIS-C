@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 11, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* ---------- Integer square‑root for arbitrary seq_t ---------- */
 static seq_t
@@ -45,7 +47,7 @@ isqrt_seq(seq_t x)
     if (x <= 0)
         return 0;
 
-    unsigned bl = bitlen_seq_t(x);   /* number of bits in x */
+    unsigned bl = bit_length(x);   /* number of bits in x */
     int shift = (bl / 2) + 1;        /* high bit of the trial root   */
     seq_t  bit   = (seq_t)1 << shift;
     seq_t  root  = 0;
@@ -86,7 +88,7 @@ grow_cache(size_t newcap)
     while (newsize < newcap)
         newsize <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newsize);
     cache = tmp;
     cap   = newsize;
 }

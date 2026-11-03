@@ -7,8 +7,9 @@
  * Formula:   a(n) = floor(10^(n-1) * 4^(1/5)) mod 10; 4^(1/5) = 4*y^4 where y
  *            = 4^(-1/5) is computed in fixed-point base 10^9 by the Newton
  *            iteration y <- y + y*(1 - 4*y^5)/5
- * Range:     u8 n <= 9563, u16 n <= 9563, u32 n <= 9563, u64 n <= 9563,
- *            u128 n <= 9563, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 9563 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

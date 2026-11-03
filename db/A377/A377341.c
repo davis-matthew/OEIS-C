@@ -12,15 +12,75 @@
  *            432 * 10^(2k) (= (12*sqrt(3))^2 * 10^(2k)) whi...
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   add_small, mul_small_to, sub_big
+ * Validated: partial, pass, 90 terms through n = 91 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/add_small.h"
-#include "../utils/mul_small_to.h"
-#include "../utils/sub_big.h"
+
+/* Add a small non‑negative integer v (v<200) to a little‑endian
+   decimal number a (lenA digits).  */
+static void add_small(unsigned char *a, size_t *lenA, unsigned int v)
+{
+    unsigned int carry = v;
+    size_t i = 0;
+    while (carry) {
+        if (i < *lenA) {
+            unsigned int sum = a[i] + carry;
+            a[i] = sum % 10;
+            carry = sum / 10;
+        } else {
+            a[i] = carry % 10;
+            carry /= 10;
+        }
+        ++i;
+    }
+    if (i > *lenA) *lenA = i;
+}
+
+/* Multiply a little‑endian decimal number a (lenA digits) by a small
+   integer mult and write the result into out.  */
+static void mul_small_to(const unsigned char *a, size_t lenA,
+                         unsigned int mult,
+                         unsigned char *out, size_t *lenOut)
+{
+    unsigned long long carry = 0;
+    size_t i;
+    for (i = 0; i < lenA; ++i) {
+        unsigned long long prod = (unsigned long long)a[i] * mult + carry;
+        out[i] = prod % 10;
+        carry = prod / 10;
+    }
+    while (carry) {
+        out[i++] = carry % 10;
+        carry /= 10;
+    }
+    *lenOut = i;
+}
+
+/* Subtract b (lenB digits) from a (lenA digits).  Assumes a>=b.  */
+static void sub_big(unsigned char *a, size_t *lenA,
+                    const unsigned char *b, size_t lenB)
+{
+    int borrow = 0;
+    size_t i;
+    for (i = 0; i < *lenA; ++i) {
+        int ai = a[i];
+        int bi = (i < lenB) ? b[i] : 0;
+        int diff = ai - borrow - bi;
+        if (diff < 0) {
+            diff += 10;
+            borrow = 1;
+        } else {
+            borrow = 0;
+        }
+        a[i] = diff;
+    }
+    /* Trim leading zeros (most significant digits).  */
+    while (*lenA > 1 && a[*lenA - 1] == 0) --(*lenA);
+}
 
 /* Max number of decimal digits that may be needed in intermediate
    calculations.  10 000 digits of the sequence require at most

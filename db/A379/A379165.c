@@ -11,7 +11,8 @@
  *            (gcd(k,a(n-1))>1 && gcd(k,a(n-2))>1)
  * Range:     u8 n <= 253, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 106 terms through n = 9802 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* forward declarations of helpers */
 static void grow_seq(size_t min_cap);
@@ -41,7 +43,7 @@ static void grow_seq(size_t min_cap) {
     size_t new_cap = seq_cap ? seq_cap : 1;
     while (new_cap < min_cap)
         new_cap *= 2;
-    seq_t *new_seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_resize(seq_t, seq, new_cap);
     if (!new_seq)
         abort();
     if (new_seq != seq)

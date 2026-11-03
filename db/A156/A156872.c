@@ -9,6 +9,7 @@
  *            a(11)=0, and a(n)=a(n+12) for all n≥0
  * Range:     i8 n <= 59, i16 n <= 59, i32 n <= 59, i64 n <= 59, i128 n <= 59,
  *            big any n
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

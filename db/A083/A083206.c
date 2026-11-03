@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 0 if sigma(n) is odd; otherwise a(n) = (number of subsets
  *            of divisors of n summing to sigma(n)/2) / 2
- * Range:     u8 n <= 179, u16 n <= 719, u32 n <= 2519, u64 n <= 9240,
+ * Range:     u8 n <= 179, u16 n <= 719, u32 n <= 2519, u64 n <= 15119,
  *            u128 n <= 9240, big any n
+ * Validated: standard, pass, 120 terms through n = 9240 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 1608, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _is_prime
+ * Validated: standard, pass, 76 terms through n = 9991 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,12 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: test whether a 64‑bit integer is prime.
    The implementation is provided by the ``utils/_is_prime.h`` header. */
-#include "../utils/_is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 /* Note: ``seq_t`` is an unsigned integer type; ``idx_t`` is an unsigned 64‑bit type. */
 
@@ -76,12 +79,12 @@ seq_t a(idx_t n)
 
         /* if cand + σ(cand) is prime, store the candidate */
         seq_t cand_plus_sigma = cand + sigma;
-        if (_is_prime((uint64_t)cand_plus_sigma))
+        if (is_prime_u64((uint64_t)cand_plus_sigma))
         {
             if (terms_len == terms_cap)
             {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 8;
-                terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, new_cap);
                 terms_cap = new_cap;
             }
             terms[terms_len++] = cand;
@@ -90,7 +93,7 @@ seq_t a(idx_t n)
         /* If the candidate itself is prime, add it to the prime list
            for future factorisations.  This keeps the prime list
            up‑to‑date without an explicit sieve.   */
-        if (_is_prime((uint64_t)cand))
+        if (is_prime_u64((uint64_t)cand))
         {
             if (primes_len == primes_cap)
             {

@@ -8,14 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _is_two_digit_prime
+ * Validated: standard, pass, 86 terms through n = 998 (2026-11-01)
+ * Helpers:   is_prime_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/_is_two_digit_prime.h"
+#include "../utils/is_prime_i32.h"
 
 /* Implementation of OEIS sequence A073035.
  *
@@ -45,7 +46,7 @@ static idx_t  _candidate = 2;               /* next integer to test     */
 /* forward declarations */
 static bool   _is_prime_candidate(idx_t n);
 static void   _generate_next_prime(void);
-static bool   _is_two_digit_prime(int x);
+static bool   is_prime_i32(int x);
 
 /* test whether n is prime using the primes already found */
 static bool _is_prime_candidate(idx_t n)
@@ -97,7 +98,7 @@ static void _process_prime(idx_t p)
         int d = digits[i];
         if (_prev_digit >= 0) {
             int val = _prev_digit * 10 + d;
-            if (_is_two_digit_prime(val)) {
+            if (is_prime_i32(val)) {
                 _add_term((seq_t)val);
             }
         }

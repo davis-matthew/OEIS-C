@@ -8,7 +8,8 @@
  *            Σ_{k≥1}(−1)^{k−1}·x^{k(3k+1)/2}/(1−x^k)
  * Range:     u8 n <= 14, u16 n <= 36, u32 n <= 112, u64 n <= 378,
  *            u128 n <= 1368, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9150 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;
 
     /* Allocate array for partition numbers p[0..n] */
-    seq_t *p = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)(n + 1));
     if (!p) return (seq_t)0;   /* allocation failure – unlikely in tests */
 
     /* Base case: p(0) = 1 */
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
     }
 
     /* Free temporary array */
-    free(p);
+    mem_free(p);
 
     /* Final result: pos - neg  (pos ≥ neg) */
     seq_t result = pos - neg;

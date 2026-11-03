@@ -8,7 +8,8 @@
  * Formula:   a(n) = Π_{p^e∥n} p^(9e−6)*(p^3−1)*(p^2−1)*(p−1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 12, u64 n <= 138, u128 n <= 1000,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 36 terms through n = 984 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 /* Multiplicative definition: a(p^e) = p^(9e−6)*(p^3−1)*(p^2−1)*(p−1) */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
         uint64_t exp = 9 * e - 6;
 
         /* compute term = p^(9e−6) * (p^3 − 1) * (p^2 − 1) * (p − 1) */
-        seq_t term = big_pow((seq_t)p, (seq_t)exp);
+        seq_t term = ipow((seq_t)p, (seq_t)exp);
 
         seq_t p2 = (seq_t)p * (seq_t)p;          
         seq_t p3 = p2 * (seq_t)p;                    

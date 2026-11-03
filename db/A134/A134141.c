@@ -9,7 +9,8 @@
  *            enumerated row by row (row 1 first, then row 2 left to right, …)
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,13 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t **triangle = NULL;   /* triangle[i][m], 1 ≤ m ≤ i */
 static idx_t max_row = 0;

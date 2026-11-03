@@ -9,12 +9,14 @@
  *            a(1)=1 (τ(m) = number of divisors of m)
  * Range:     u8 n <= 73, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9276 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- internal helpers ---------------------------------------------- */
 static seq_t *cache = NULL;        /* memoised a(n) values                    */
@@ -26,9 +28,9 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL || cache_cap <= n)
     {
-        seq_t *new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
         for (idx_t i = 0; i <= n; ++i) new_cache[i] = 0;
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = n;
     }

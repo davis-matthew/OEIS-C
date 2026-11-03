@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = number of divisors d of n such that d < ln(n) (floor)
- * Range:     u8 n <= 9623, u16 n <= 9623, u32 n <= 9623, u64 n <= 9623,
- *            u128 n <= 9623, big any n
- * Helpers:   count_divs_uint64
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9623 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,34 @@
 #include <stddef.h>
 #include <math.h>
 #include <stdint.h>
-#include "../utils/count_divs_uint64.h"
+
+/* Helper: recursively count divisors <= threshold.
+   cur   – current partial divisor value (uint64_t).
+   idx   – current index in the factor arrays.
+   pc    – total number of distinct prime factors.
+   pf    – array of prime factors.
+   exp   – array of exponents.
+   th    – threshold value (uint64_t).
+   cnt   – pointer to the running count (seq_t). */
+static void count_divs_uint64(uint64_t cur, size_t idx, size_t pc,
+                              const uint64_t *pf, const int *exp,
+                              uint64_t th, seq_t *cnt)
+{
+    if (idx == pc) {
+        if (cur <= th) (*cnt)++;
+        return;
+    }
+    uint64_t p = pf[idx];
+    int e = exp[idx];
+    uint64_t val = cur;
+    for (int k = 0; k <= e; ++k) {
+        if (val <= th)
+            count_divs_uint64(val, idx + 1, pc, pf, exp, th, cnt);
+        if (k == e) break;
+        if (val > th / p) break;  /* next multiplication would exceed threshold */
+        val *= p;
+    }
+}
 
 /* Helper: factor n into prime powers.
    pf   – array to store prime factors (uint64_t).

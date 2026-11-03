@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 20, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,11 +44,11 @@ seq_t a(idx_t n)
     idx_t offset = n - r * (r + 1) / 2;
 
     /* allocate arrays for coefficients and powers of two */
-    seq_t *A = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *pow2 = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (r + 1));
+    seq_t *pow2 = mem_new(seq_t, (r + 1));
     if (!A || !pow2) {
-        free(A);
-        free(pow2);
+        mem_free(A);
+        mem_free(pow2);
         return 0; /* allocation failed */
     }
 
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = A[offset];
-    free(A);
-    free(pow2);
+    mem_free(A);
+    mem_free(pow2);
     return result;
 }

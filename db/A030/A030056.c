@@ -7,13 +7,14 @@
  * Formula:   a(n) = binomial(2*n+1, n-6) (offset 6)
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 18, u64 n <= 34, u128 n <= 65,
  *            big any n
- * Helpers:   _seq_gcd
+ * Validated: standard, pass, 36 terms through n = 456 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_seq_gcd.h"
+#include "../utils/gcd.h"
 
 /* Euclidean GCD for seq_t.  Allowed operations: %, /, *, +, -, comparisons. */
 
@@ -30,11 +31,11 @@ seq_t a(idx_t n) {
         seq_t num = m - k + i;  /* numerator term */
         seq_t den = i;          /* denominator term */
 
-        seq_t g = _seq_gcd(num, den);
+        seq_t g = gcd(num, den);
         num /= g;               /* remove common factors from num and den */
         den /= g;
 
-        g = _seq_gcd(result, den);
+        g = gcd(result, den);
         result /= g;           /* remove remaining common factors from result and den */
         den /= g;              /* now den should be 1 */
 

@@ -7,11 +7,13 @@
  * Formula:   a(n) = number of digit '4's in the decimal expansion of 2^n
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 117 terms through n = 986 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
 #ifdef __cplusplus

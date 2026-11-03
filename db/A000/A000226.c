@@ -12,15 +12,25 @@
  *            size triples s1<=s2<=s3: r1*r2*r3, C(r+1,2)*r...
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 26, u64 n <= 47, u128 n <= 89,
  *            big any n
- * Helpers:   a226_mc2, a226_mc3
+ * Validated: standard, pass, 46 terms through n = 981 (2026-11-01)
+ * Helpers:   triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a226_mc2.h"
-#include "../utils/a226_mc3.h"
+#include "../utils/triangular_seq.h"
+
+static seq_t a226_mc3(seq_t r)
+{
+    seq_t x = r, y = r + 1, z = r + 2;
+    if (x % 3 == 0) x /= 3;
+    else if (y % 3 == 0) y /= 3;
+    else z /= 3;
+    if (x % 2 == 0) x /= 2; else y /= 2;
+    return x * y * z;
+}
 
 #define A226_MAXN 10010
 
@@ -103,9 +113,9 @@ seq_t a(idx_t n)
             if (s1 == s2 && s2 == s3)
                 total += a226_mc3(A226_R[s1]);
             else if (s1 == s2)
-                total += a226_mc2(A226_R[s1]) * A226_R[s3];
+                total += triangular_seq(A226_R[s1]) * A226_R[s3];
             else if (s2 == s3)
-                total += A226_R[s1] * a226_mc2(A226_R[s2]);
+                total += A226_R[s1] * triangular_seq(A226_R[s2]);
             else
                 total += A226_R[s1] * A226_R[s2] * A226_R[s3];
         }

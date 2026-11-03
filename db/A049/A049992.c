@@ -9,8 +9,9 @@
  *            length k ≥ 3 with positive integers, nondecreasing (d ≥ 0), and
  *            sum = n. Equivalent counting: for each k ≥ 3, count d ≥ 0 such
  *            that n – d*k*(k-1)/2 > 0 and (n – d*k*(k-1)/2) is divisible by k
- * Range:     u8 n <= 43, u16 n <= 3057, u32 n <= 9949, u64 n <= 9949,
- *            u128 n <= 9949, big any n
+ * Range:     u8 n <= 43, u16 n <= 3057, u32 n <= 12580, u64 n <= 12580,
+ *            u128 n <= 12580, big any n
+ * Validated: standard, pass, 103 terms through n = 9949 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

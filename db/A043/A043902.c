@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has13_adjacent
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
    the straightforward brute‑force method.  It works for any
    seq_t type (including arbitrary precision) and for any n >= 1. */
 #include <stdbool.h>
-#include "../utils/has13_adjacent.h"
+
+static inline bool has13_adjacent(seq_t x)
+{
+    int prev = -1;            /* digit to the right (less significant) */
+    while (x > 0) {
+        int d = (int)(x % (seq_t)6);
+        if ((prev == 1 && d == 3) || (prev == 3 && d == 1))
+            return true;
+        prev = d;
+        x = x / (seq_t)6;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

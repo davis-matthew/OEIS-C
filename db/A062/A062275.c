@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 39, u32 n <= 95, u64 n <= 217,
  *            u128 n <= 543, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 77 terms through n = 4760 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,7 @@
  ********************************************************************/
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"   /* provides seq_t pow_uint(uint64_t base, idx_t exp); */
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     /* find diagonal s such that (s+1)(s+2)/2 > n */
@@ -50,7 +51,7 @@ seq_t a(idx_t n) {
     idx_t k_val = kidx;
 
     /* compute n_val^k_val * k_val^n_val */
-    seq_t pow1 = pow_uint((uint64_t)n_val, k_val);
-    seq_t pow2 = pow_uint((uint64_t)k_val, n_val);
+    seq_t pow1 = ipow_u64_idx((uint64_t)n_val, k_val);
+    seq_t pow2 = ipow_u64_idx((uint64_t)k_val, n_val);
     return pow1 * pow2;
 }

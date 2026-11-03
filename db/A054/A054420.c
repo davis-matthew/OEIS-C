@@ -8,12 +8,14 @@
  *            a(2)=3, a(3)=13 The sequence is defined for n ≥ 1
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static size_t _cache_len = 0;        /* number of terms already stored (a(1)...a(_cache_len)) */
 static size_t _cache_cap = 0;        /* allocated capacity for the cache array */
@@ -31,7 +33,7 @@ static void _ensure_cache(idx_t n)
         size_t new_cap = _cache_cap ? _cache_cap * 2 : 4;
         if (new_cap < needed)
             new_cap = needed;
-        _cache = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+        _cache = mem_resize(seq_t, _cache, new_cap);
         _cache_cap = new_cap;
     }
 

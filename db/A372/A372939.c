@@ -8,15 +8,40 @@
  * Formula:   a(n) = Sum_{d|n} mu(n/d) * d^n * tau(d)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow, divisor_count_u64, factor_u64, mu_of
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   factor_u64, ipow, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/mu_of.h"
+#include "../utils/ipow.h"
+#include "../utils/num_divisors.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 seq_t a(idx_t n) {
     /* factor n */
@@ -52,8 +77,8 @@ seq_t a(idx_t n) {
         idx_t d_idx = (idx_t)d;
         int mu = mu_of(n / d_idx);
         if (mu == 0) continue;
-        seq_t d_pow = big_pow(d, n_seq);
-        seq_t tau_d = (seq_t)divisor_count_u64((uint64_t)d_idx);
+        seq_t d_pow = ipow(d, n_seq);
+        seq_t tau_d = (seq_t)num_divisors((uint64_t)d_idx);
         seq_t term = d_pow * tau_d;
         if (mu == 1) {
             pos += term;

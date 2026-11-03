@@ -9,12 +9,15 @@
  *            r(r+1)/2 and r = ⌊(√(1+8n) – 1)/2⌋
  * Range:     u8 n <= 53, u16 n <= 169, u32 n <= 593, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 82 terms through n = 983 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Helper to compute 2^e (large exponent) */
+#include <stdbool.h>
+#include <math.h>
 #include "../utils/pow2.h"
 /*  Math functions for the square‑root */
 #include <math.h>

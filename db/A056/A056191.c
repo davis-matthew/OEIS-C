@@ -11,8 +11,9 @@
  *            divide n to an odd exponent e ≥ 3. Equivalently, a(n) =
  *            ∏_{p^e∥n, e odd and e≥3} p^3. For every prime factor p^e of n,
  *            if e is even or e = 1 then the factor contributes 1
- * Range:     u8 n <= 342, u16 n <= 8377, u32 n <= 8377, u64 n <= 8377,
- *            u128 n <= 8377, big any n
+ * Range:     u8 n <= 342, u16 n <= 19683, u32 n <= 19683, u64 n <= 19683,
+ *            u128 n <= 19683, big any n
+ * Validated: standard, pass, 119 terms through n = 8377 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

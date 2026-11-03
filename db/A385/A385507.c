@@ -8,6 +8,7 @@
  * Formula:   a(n) = v(1 + F(2*n - 1)), with F(x) = (3*x + 1)/2^v(3*x + 1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 96 terms through n = 9125 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

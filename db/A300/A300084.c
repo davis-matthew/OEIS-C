@@ -13,7 +13,8 @@
  *            values: a(1)=3, a(2)=4, a(3)=1, a(4)=4, a(5)=10, a(6)=6,...
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 39, u64 n <= 75, u128 n <= 148,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t base[22] = {                      /* 1‑indexed */
     0ULL,                                           /* dummy a(0) */
@@ -49,14 +51,14 @@ static void grow_cache(size_t need)
     size_t new_cap = cache_cap ? cache_cap : 32;
     while (new_cap < need) new_cap <<= 1;
 
-    seq_t *newp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, new_cap);
     if (!newp) exit(1);                /* memory exhaustion */
 
     if (cache) {
         size_t i;
         for (i = 0; i < cache_size; ++i)
             newp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = newp;
     cache_cap = new_cap;

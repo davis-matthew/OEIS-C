@@ -10,18 +10,20 @@
  *            conjectured closed form
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   pow2, v2_scalar
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   ctz, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ctz.h"
 #include "../utils/pow2.h"
-#include "../utils/v2_scalar.h"
 
 seq_t a(idx_t n) {
     /* Compute t = v₂(n) */
-    idx_t t = v2_scalar(n);
+    idx_t t = ctz(n);
 
     /* 2^t as idx_t */
     idx_t two_to_t = ((idx_t)1) << t;

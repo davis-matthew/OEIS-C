@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy, fini, full
  * Formula:   not stated
- * Range:     u8 n <= 2201, u16 n <= 8891, u32 n <= 8891, u64 n <= 8891,
- *            u128 n <= 8891, big any n
- * Helpers:   int_to_roman, roman_char_value
+ * Range:     u8 n <= 2201, u16 n <= 30000, u32 n <= 30000, u64 n <= 30000,
+ *            u128 n <= 30000, big any n
+ * Validated: full, pass, 30000 terms through n = 30000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,46 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/int_to_roman.h"
-#include "../utils/roman_char_value.h"
+#include "../utils/mem.h"
+
+/* Convert an integer (1 .. 3999) to Roman numeral string.
+ * The caller supplies a buffer large enough (20 bytes is safe).
+ * The string is null terminated.
+ */
+static void int_to_roman(unsigned int n, char *buf)
+{
+    static const int    val[]  = {1000, 900, 500, 400,
+                                 100,   90,  50,  40,
+                                  10,    9,   5,   4, 1};
+    static const char *sym[]  = {"M","CM","D","CD",
+                                 "C","XC","L","XL",
+                                 "X","IX","V","IV","I"};
+    int i = 0;
+    char *p = buf;
+    for (; i < 13 && n > 0; ++i) {
+        while (n >= val[i]) {
+            *p++ = sym[i][0];
+            if (sym[i][1]) *p++ = sym[i][1];   /* e.g. 'C','M' for CM */
+            n -= val[i];
+        }
+    }
+    *p = '\0';
+}
+
+static seq_t roman_char_value(char c)
+{
+    /* Map Roman symbols to their numeric values */
+    switch (c) {
+        case 'I': return (seq_t)1;
+        case 'V': return (seq_t)5;
+        case 'X': return (seq_t)10;
+        case 'L': return (seq_t)50;
+        case 'C': return (seq_t)100;
+        case 'D': return (seq_t)500;
+        case 'M': return (seq_t)1000;
+        default : return (seq_t)0;   /* safety: should not happen */
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +81,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* Precompute the entire sequence (up to 3999). */
         capacity = 32768;                 /* large enough initial cap */
-        values   = (seq_t *)malloc(capacity * sizeof(seq_t));
+        values   = mem_new(seq_t, capacity);
         len      = 0;
 
         char roman[32];
@@ -52,7 +91,7 @@ seq_t a(idx_t n)
                 seq_t v = roman_char_value(*p);
                 if (len == capacity) {
                     capacity *= 2;
-                    values = (seq_t *)realloc(values, capacity * sizeof(seq_t));
+                    values = mem_resize(seq_t, values, capacity);
                 }
                 values[len++] = v;
             }

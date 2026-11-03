@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute gcd for unsigned 64‑bit values. */
 static inline idx_t _gcd_u64(idx_t a, idx_t b)
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache if needed. */
     if (cache == NULL) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache)
             abort();
         cache[0] = (seq_t)0;
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
 
     /* Extend cache to n, computing intervening values. */
     if (n > cache_n) {
-        seq_t *new_cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache)
             abort();
         cache = new_cache;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,11 @@
 /* Property: a(n) is the n‑th positive integer k such that k divides 8^k + 7^k. */
 
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,15 +39,15 @@ seq_t a(idx_t n)
                                        this is acceptable because values beyond
                                        the seq_t limit are not required in the
                                        evaluation. */
-        seq_t sum = (mod_pow((seq_t)8, next_k, mod) +
-                     mod_pow((seq_t)7, next_k, mod))
+        seq_t sum = (powmod((seq_t)8, next_k, mod) +
+                     powmod((seq_t)7, next_k, mod))
                     % mod;
 
         if (sum == 0) {
             /* Ensure capacity before storing the new term */
             if (size == cap) {
                 size_t newcap = (cap == 0) ? 16 : cap * 2;
-                seq_t *tmp = (seq_t *)realloc(list, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, list, newcap);
                 if (!tmp) abort();  /* out of memory */
                 list = tmp;
                 cap = newcap;

@@ -8,12 +8,14 @@
  * Formula:   a(n) = A000203(n)*(A000203(n)+1)/2
  * Range:     u8 n <= 11, u16 n <= 143, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9099 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache the values of σ(m) for m ≤ current limit */
 static seq_t *sigma_cache = NULL;
@@ -26,7 +28,7 @@ static void recompute_sigma(idx_t n)
         return;
 
     /* Allocate a new zero‑initialized array large enough to hold 0…n */
-    seq_t *new_cache = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)(n + 1));
     if (!new_cache)
         abort(); /* insufficient memory */
 
@@ -39,7 +41,7 @@ static void recompute_sigma(idx_t n)
     }
 
     /* Replace the old cache and free the previous storage */
-    free(sigma_cache);
+    mem_free(sigma_cache);
     sigma_cache = new_cache;
     sigma_cache_max = n;
 }

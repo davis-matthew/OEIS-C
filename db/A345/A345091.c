@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = n + (n-2)*phi(n)/2 (for n >= 2), a(1) = 1
- * Range:     u8 n <= 28, u16 n <= 366, u32 n <= 9970, u64 n <= 9970,
- *            u128 n <= 9970, big any n
+ * Range:     u8 n <= 28, u16 n <= 366, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 74 terms through n = 9970 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

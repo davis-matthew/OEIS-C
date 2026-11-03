@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(A014612(n)/n)
  * Range:     u8 n <= 60, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
                 if (new_size == new_cap)
                 {
                     new_cap = new_cap ? new_cap * 2 : 4;
-                    new_list = (seq_t *)realloc(new_list, new_cap * sizeof(seq_t));
+                    new_list = mem_resize(seq_t, new_list, new_cap);
                     if (!new_list) { free(spf); free(omega); return 0; }
                 }
                 new_list[new_size++] = (seq_t)i;
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         free(omega);
 
         /* Replace the old list with the new one */
-        free(three_almost);
+        mem_free(three_almost);
         three_almost = new_list;
         three_size   = new_size;
         three_cap    = new_cap;

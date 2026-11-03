@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1/(n+1) * Σ_{k=0..⌊n/2⌋} binomial(2*(n+1),k) *
  *            binomial(k, n-2*k)
- * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 19, u64 n <= 38, u128 n <= 72,
+ * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 38, u128 n <= 72,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 998 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
    employed to avoid intermediate overflow. For larger seq_t types
    (arbitrary‑precision) the sum is performed in seq_t directly. */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

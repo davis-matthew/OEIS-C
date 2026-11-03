@@ -9,7 +9,8 @@
  *            of letters
  * Range:     u8 n <= 41, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   isCompositeLen
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isCompositeLen.h"
+#include "../utils/mem.h"
+
+/* check whether x (>1) is composite (not prime) */
+static bool isCompositeLen(int x)
+{
+    if (x <= 1) return false;
+    if (x % 2 == 0) return x != 2;
+    for (int d = 3; d * d <= x; d += 2)
+        if (x % d == 0) return true;
+    return false;
+}
 
 /* letter counts for numbers 0..19 */
 static const int len_below20[20] =
@@ -100,7 +111,7 @@ seq_t a(idx_t n)
             if (prime_len == prime_cap)
             {
                 prime_cap = prime_cap ? prime_cap * 2 : 16;
-                primes = (seq_t *)realloc(primes, prime_cap * sizeof(seq_t));
+                primes = mem_resize(seq_t, primes, prime_cap);
             }
             primes[prime_len++] = cur_seq;
 
@@ -111,7 +122,7 @@ seq_t a(idx_t n)
                 if (res_len == res_cap)
                 {
                     res_cap = res_cap ? res_cap * 2 : 32;
-                    results = (seq_t *)realloc(results, res_cap * sizeof(seq_t));
+                    results = mem_resize(seq_t, results, res_cap);
                 }
                 results[res_len++] = cur_seq;
             }

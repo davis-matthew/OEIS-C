@@ -10,13 +10,15 @@
  *            a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static storage for memoization */
 static seq_t *dp       = NULL;   /* A000009[0..max_n]                 */
@@ -31,12 +33,12 @@ static void ensure_arrays(idx_t need)
 
     /* Allocate fresh arrays big enough for indices 0 … need */
     size_t len = (size_t)need + 1;
-    seq_t *new_dp   = (seq_t*)malloc(len * sizeof(seq_t));
-    seq_t *new_prod = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *new_dp   = mem_new(seq_t, len);
+    seq_t *new_prod = mem_new(seq_t, len);
 
     /* Initialize with zeros */
-    memset(new_dp,   0, len * sizeof(seq_t));
-    memset(new_prod, 0, len * sizeof(seq_t));
+    mem_set(new_dp, 0, len * sizeof(seq_t));
+    mem_set(new_prod, 0, len * sizeof(seq_t));
 
     /* Compute A000009 (partitions into distinct parts) */
     new_dp[0] = (seq_t)1;            /* one partition of 0 */
@@ -66,8 +68,8 @@ static void ensure_arrays(idx_t need)
     }
 
     /* Replace old arrays */
-    free(dp);
-    free(prod_arr);
+    mem_free(dp);
+    mem_free(prod_arr);
     dp = new_dp;
     prod_arr = new_prod;
     max_computed = need;

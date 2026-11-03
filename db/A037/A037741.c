@@ -10,6 +10,7 @@
  *            = 8*a(k‑1) + d_k for k ≥ 1, where d_k = {2,1,3,0}[ (k-1) mod 4 ]
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 18, u128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

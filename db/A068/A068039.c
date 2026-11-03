@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of subsets of {1,…,n} whose sum ≡ 0 (mod 18)
  * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* First call – initialise */
     if (!initialized) {
         seq_cap = 1;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         dp[0] = (seq_t)1;                /* empty set */
         for (int i = 1; i < 18; ++i) dp[i] = (seq_t)0;
         seq[0] = dp[0];                  /* a(0) */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         if (need > seq_cap) {
             size_t new_cap = seq_cap ? seq_cap : 1;
             while (new_cap < need) new_cap <<= 1;
-            seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
             seq_cap = new_cap;
         }
 

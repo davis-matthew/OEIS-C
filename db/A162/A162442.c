@@ -7,15 +7,24 @@
  * Formula:   a(n) = denom((1/(n-1))*(2*n-1)*binomial(2*n-2,n-1)/4^(n-1))
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binomial, gcd, pow2, seq_mul
+ * Validated: partial, pass, 22 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial, gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
 #include "../utils/gcd.h"
 #include "../utils/pow2.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {

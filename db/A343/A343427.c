@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 5, i64 n <= 7, i128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    supplied by the build.  No external libraries are required. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised cache of computed values */
 static seq_t *cache      = NULL;
@@ -30,9 +32,9 @@ static idx_t  cache_max  = 0;
 static void build_cache(idx_t max_n)
 {
     /* Allocate arrays for the three polynomials used in the recurrence */
-    seq_t *a_kp1 = (seq_t*)calloc((size_t)max_n + 1, sizeof(seq_t)); /* A_{k+1} */
-    seq_t *a_kp2 = (seq_t*)calloc((size_t)max_n + 1, sizeof(seq_t)); /* A_{k+2} */
-    seq_t *a_cur = (seq_t*)calloc((size_t)max_n + 1, sizeof(seq_t)); /* new A_k */
+    seq_t *a_kp1 = mem_new(seq_t, (size_t)max_n + 1); /* A_{k+1} */
+    seq_t *a_kp2 = mem_new(seq_t, (size_t)max_n + 1); /* A_{k+2} */
+    seq_t *a_cur = mem_new(seq_t, (size_t)max_n + 1); /* new A_k */
 
     if (!a_kp1 || !a_kp2 || !a_cur) {
         /* Memory allocation failed – in the OEIS test harness this should
@@ -71,8 +73,8 @@ static void build_cache(idx_t max_n)
 
     /* Now a_kp1 holds A_1 and a_kp2 holds A_2.  Compute the power‑series
        coefficients a[0..max_n] from A_1 / A_2.  */
-    seq_t *new_cache = (seq_t*)calloc((size_t)max_n + 1, sizeof(seq_t));
-    if (!new_cache) { free(a_kp1); free(a_kp2); exit(1); }
+    seq_t *new_cache = mem_new(seq_t, (size_t)max_n + 1);
+    if (!new_cache) { mem_free(a_kp1); mem_free(a_kp2); exit(1); }
 
     new_cache[0] = 1;  /* a(0) = 1 */
 
@@ -85,14 +87,14 @@ static void build_cache(idx_t max_n)
     }
 
     /* Replace old cache */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_max = max_n;
 
     /* Clean up polynomial arrays */
-    free(a_kp1);
-    free(a_kp2);
-    free(a_cur);
+    mem_free(a_kp1);
+    mem_free(a_kp2);
+    mem_free(a_cur);
 }
 
 seq_t a(idx_t n)

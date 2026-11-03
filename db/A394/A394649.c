@@ -10,12 +10,14 @@
  *            enumeration of the offset‑sum array
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fib_word = NULL;
 static size_t fib_len = 0;
@@ -31,7 +33,7 @@ static void ensure_fib_len(idx_t len)
     /* First word is just "0". */
     if (fib_len == 0) {
         fib_len = 1;
-        fib_word = (seq_t *)malloc(fib_len * sizeof(seq_t));
+        fib_word = mem_new(seq_t, fib_len);
         fib_word[0] = 0;
     }
 
@@ -41,7 +43,7 @@ static void ensure_fib_len(idx_t len)
         for (size_t i = 0; i < fib_len; ++i)
             new_len += (fib_word[i] == 0) ? 2 : 1;
 
-        seq_t *tmp = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_len);
         size_t pos = 0;
         for (size_t i = 0; i < fib_len; ++i) {
             if (fib_word[i] == 0) {
@@ -52,7 +54,7 @@ static void ensure_fib_len(idx_t len)
             }
         }
 
-        free(fib_word);
+        mem_free(fib_word);
         fib_word = tmp;
         fib_len = new_len;
     }

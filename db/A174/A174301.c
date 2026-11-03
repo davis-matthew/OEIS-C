@@ -10,14 +10,27 @@
  *            and k = n – r(r+1)/2
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 179, u64 n <= 611,
  *            u128 n <= 2243, big any n
- * Helpers:   binomial, pow4
+ * Validated: standard, pass, 82 terms through n = 5105 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow4.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 #if defined(__SIZEOF_INT128__)
 typedef unsigned __int128 u128;

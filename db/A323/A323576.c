@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 362, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, mul_mod64, next_prime
+ * Validated: standard, pass, 62 terms through n = 9938 (2026-11-03)
+ * Helpers:   factor_u64, mem, mulmod, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"
+#include <stddef.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mul_mod64.h"
+#include "../utils/mulmod.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* 64‑bit modular exponentiation (multiplication handled safely). */
 static uint64_t powmod64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -29,8 +32,8 @@ static uint64_t powmod64(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t b = base % mod;
     while (exp)
     {
-        if (exp & 1) result = mul_mod64(b, result, mod);
-        b = mul_mod64(b, b, mod);
+        if (exp & 1) result = mulmod(b, result, mod);
+        b = mulmod(b, b, mod);
         exp >>= 1;
     }
     return result;
@@ -82,7 +85,7 @@ seq_t a(idx_t n)
         if (count >= cap)
         {
             size_t new_cap = cap ? cap * 2 : 8;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();           /* out of memory */
             cache = tmp;
             cap   = new_cap;

@@ -10,15 +10,17 @@
  *            the provided φ, gcd, and is_prime utilities
  * Range:     u8 n <= 33, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, is_prime, phi
+ * Validated: standard, pass, 71 terms through n = 9573 (2026-11-01)
+ * Helpers:   gcd, is_prime, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/phi.h"
 #include "../utils/is_prime.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t index)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t index)
             continue;
 
         seq_t n_seq = (seq_t)n;
-        seq_t phi_n = phi(n);              /* φ(n) */
+        seq_t phi_n = totient(n);              /* φ(n) */
         seq_t g = gcd(n_seq, phi_n);       /* gcd(n, φ(n)) */
 
         if (g == (seq_t)1)

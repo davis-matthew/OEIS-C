@@ -7,6 +7,7 @@
  * Formula:   a(n) = (32*n^4 -336*n^3 +1702*n^2 -4701*n +5844) / 3 (n>=9)
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 144, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 47 terms through n = 943 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

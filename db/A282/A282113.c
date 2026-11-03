@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 4240, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   fulcrum_ok
+ * Validated: standard, pass, 70 terms through n = 9983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,7 +38,40 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/fulcrum_ok.h"
+#include "../utils/mem.h"
+
+/* Check whether a given number satisfies the fulcrum property. */
+static bool fulcrum_ok(seq_t n)
+{
+    uint8_t digits[64];
+    int k = 0;
+    seq_t tmp = n;
+
+    /* Extract base-8 digits (LSD first). */
+    while (tmp > 0) {
+        digits[k++] = (uint8_t)(tmp % 8);
+        tmp /= 8;
+    }
+    if (k < 3)                 /* need at least three digits */
+        return false;
+
+    /* Test all possible fulcrum positions j. */
+    for (int j = 2; j <= k - 1; ++j) {
+        seq_t left  = 0;
+        seq_t right = 0;
+        /* Sum on the left side of the fulcrum. */
+        for (int i = 1; i < j; ++i)
+            left += (seq_t)(j - i) * (seq_t)digits[i - 1];
+
+        /* Sum on the right side of the fulcrum. */
+        for (int i = j + 1; i <= k; ++i)
+            right += (seq_t)(i - j) * (seq_t)digits[i - 1];
+
+        if (left == right)
+            return true;
+    }
+    return false;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -55,7 +89,7 @@ seq_t a(idx_t n)
     /* Ensure the cache has some storage. */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Generate further terms until we have at least n. */
@@ -66,8 +100,7 @@ seq_t a(idx_t n)
             /* Grow cache if needed.  */
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;                /* double */
-                cache = (seq_t *)realloc(cache,
-                    cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = candidate;    /* store term          */
         }

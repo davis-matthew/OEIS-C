@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n,k) * 2^(n-k) * k^n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 static seq_t *pow2_cache = NULL;      /* 2^i  for i = 0..max_precalc */
 static size_t pow2_max = 0;           /* highest index computed */
@@ -30,7 +32,7 @@ static void ensure_pow2(idx_t n)
     size_t sn = (size_t)n;
     if (pow2_cache == NULL) {
         size_t sz = sn + 1;
-        pow2_cache = (seq_t*)malloc(sz * sizeof(seq_t));
+        pow2_cache = mem_new(seq_t, sz);
         if (!pow2_cache) abort();
         pow2_cache[0] = (seq_t)1;
         for (size_t i = 1; i <= sn; ++i)
@@ -39,7 +41,7 @@ static void ensure_pow2(idx_t n)
     } else if (sn > pow2_max) {
         size_t old = pow2_max;
         size_t sz = sn + 1;
-        seq_t *tmp = (seq_t*)realloc(pow2_cache, sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow2_cache, sz);
         if (!tmp) abort();
         pow2_cache = tmp;
         for (size_t i = old + 1; i <= sn; ++i)
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     size_t sn = (size_t)n;
     /* initialise cache on first use */
     if (a_cache == NULL) {
-        a_cache = (seq_t*)malloc(sizeof(seq_t));   /* size 1 for a(0) */
+        a_cache = mem_new(seq_t, 1);   /* size 1 for a(0) */
         if (!a_cache) abort();
         a_cache[0] = (seq_t)1;
         a_max = 0;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
 
     /* extend cache to hold all values up to sn */
     size_t new_sz = sn + 1;
-    seq_t *tmp = (seq_t*)realloc(a_cache, new_sz * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_sz);
     if (!tmp) abort();
     a_cache = tmp;
 
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
             /* term = binom * 2^(i-k) * k^i */
             seq_t term = binom;
             term *= pow2_cache[i - k];
-            seq_t kpwr = pow_seq((seq_t)k, (int)i);
+            seq_t kpwr = ipow_i32((seq_t)k, (int)i);
             term *= kpwr;
             sum += term;
 

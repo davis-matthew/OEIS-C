@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 2034, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_04
+ * Validated: standard, pass, 66 terms through n = 9602 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
    contains the digraph 04 but the base‑6 representation of k‑1 does not. */
 
 #include <stdbool.h>
-#include "../utils/has_04.h"
+
+/* Return true iff the base‑6 representation of x contains the digraph
+   "04".  Digits are examined from least–significant to most‑significant. */
+static bool has_04(seq_t x)
+{
+    seq_t prev = (seq_t)6;          /* sentinel value (6 > any base‑6 digit) */
+    while (x > (seq_t)0) {
+        seq_t d = x % (seq_t)6;     /* least‑significant digit */
+        if (prev == (seq_t)4 && d == (seq_t)0)
+            return true;            /* digraph found */
+        prev = d;
+        x /= (seq_t)6;
+    }
+    return false;
+}
 
 /* Sequence a(n),  n ≥ 1. */
 seq_t a(idx_t n)

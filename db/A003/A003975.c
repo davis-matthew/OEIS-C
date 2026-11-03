@@ -8,14 +8,15 @@
  *            (nextPrime(p)+1)/2
  * Range:     u8 n <= 107, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_check, next_prime_func
+ * Validated: standard, pass, 85 terms through n = 9673 (2026-11-03)
+ * Helpers:   is_prime_u64, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime_check.h"
-#include "../utils/next_prime_func.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/next_prime.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return 1;
@@ -31,7 +32,7 @@ seq_t a(idx_t n) {
                 temp /= p;
             }
             
-            uint64_t next_p = next_prime_func(p);
+            uint64_t next_p = next_prime(p);
             seq_t q = (seq_t)(((uint64_t)next_p + 1) / 2);
             
             seq_t factor = 1;
@@ -47,7 +48,7 @@ seq_t a(idx_t n) {
     
     if (temp > 1) {
         uint64_t p = temp;
-        uint64_t next_p = next_prime_func(p);
+        uint64_t next_p = next_prime(p);
         seq_t q = (seq_t)(((uint64_t)next_p + 1) / 2);
         seq_t factor = q + 1;
         result *= factor;

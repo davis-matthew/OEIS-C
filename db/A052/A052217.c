@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 220, u64 n <= 1520,
  *            u128 n <= 10000, big any n
- * Helpers:   remaining_compositions
+ * Validated: standard, pass, 55 terms through n = 9658 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,17 @@
  * without exhaustive searching. */
 
 #include <stdint.h>
-#include "../utils/remaining_compositions.h"
+
+static inline idx_t remaining_compositions(idx_t remSum, idx_t remPos) {
+    /* Count the number of weak compositions of 'remSum' into
+     * 'remPos' parts (each part can be 0..9, but remSum ≤ 3 so
+     * the 9‑limit is never binding).  remPos may be zero. */
+    if (remPos == 0) return (remSum == 0) ? 1 : 0;
+    if (remSum == 0) return 1;                 /* C(remPos-1, remPos-1) */
+    if (remSum == 1) return remPos;            /* C(remPos, remPos-1)    */
+    /* remSum == 2 */
+    return (remPos + 1) * remPos / 2;          /* C(remPos+1, remPos-1) */
+}
 
 seq_t a(idx_t n) {
     /* Find the minimal length L such that f(L) >= n,

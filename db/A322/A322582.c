@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = n - product_{p^e∥n} (p-1)^e (fully multiplicative
  *            A003958)
- * Range:     u8 n <= 271, u16 n <= 9866, u32 n <= 9866, u64 n <= 9866,
- *            u128 n <= 9866, big any n
+ * Range:     u8 n <= 271, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 105 terms through n = 9866 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

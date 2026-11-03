@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of prime exponents in the prime factorization of n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 121 terms through n = 9514 (2026-11-01)
+ * Helpers:   is_prime_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 /* a(p^e) = 1 if e is prime, otherwise 0; a(n) = sum of a(p^e) over all prime factors p of n */
 
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"  // provided helper
+#include "../utils/is_prime_i32.h"
 
 seq_t a(idx_t n) {
     seq_t count = 0;
@@ -30,7 +31,7 @@ seq_t a(idx_t n) {
             temp /= p;
             exp++;
         }
-        if (exp > 0 && is_prime_small((int)exp)) {
+        if (exp > 0 && is_prime_i32((int)exp)) {
             count++;
         }
         if (p == 2) {

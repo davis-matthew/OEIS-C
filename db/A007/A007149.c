@@ -11,15 +11,16 @@
  *            pruned), K raised until the sum is nonzero mod 2^K
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   a7149_gcd, a7149_popc
+ * Validated: standard, pass, 98 terms through n = 97 (2026-11-01)
+ * Helpers:   gcd_i32, popcount_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a7149_gcd.h"
-#include "../utils/a7149_popc.h"
+#include "../utils/gcd_i32.h"
+#include "../utils/popcount_i32.h"
 
 #define A7149_MAXW 64
 #define A7149_INF ((long long)1 << 50)
@@ -147,7 +148,7 @@ static int a7149_compute(int n)
     a7149_mult = (int *)malloc(sizeof(int) * (size_t)N1);
     for (i = 0; i <= n; i++)
         for (k = 0; k <= n; k++)
-            a7149_gt[i * N1 + k] = a7149_gcd(i, k);
+            a7149_gt[i * N1 + k] = gcd_i32(i, k);
     a7149_v2t[0] = 0;
     a7149_V2N = 0;
     for (i = 1; i <= n; i++) {
@@ -165,7 +166,7 @@ static int a7149_compute(int n)
                 long long g;
                 if (prev >= A7149_INF) continue;
                 g = (long long)m * (k / 2) + (long long)m * (m - 1) / 2 * k
-                    - (long long)m * a7149_v2t[k] - (m - a7149_popc(m));
+                    - (long long)m * a7149_v2t[k] - (m - popcount_i32(m));
                 if (g + prev < best) best = g + prev;
             }
             a7149_L[(long long)i * N1 + k] = best;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL;   /* cache of computed a(n) values            */
 static seq_t *fac_cache = NULL;   /* factorials m! for m ≤ current limit      */
@@ -45,13 +47,13 @@ static void ensure_size(idx_t n)
 
     /* reallocate arrays to new_cap */
     if (cache_cap == 0) {
-        a_cache   = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        fac_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        c_cache   = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        a_cache   = mem_new(seq_t, new_cap);
+        fac_cache = mem_new(seq_t, new_cap);
+        c_cache   = mem_new(seq_t, new_cap);
     } else {
-        a_cache   = (seq_t *)realloc(a_cache,   new_cap * sizeof(seq_t));
-        fac_cache = (seq_t *)realloc(fac_cache, new_cap * sizeof(seq_t));
-        c_cache   = (seq_t *)realloc(c_cache,   new_cap * sizeof(seq_t));
+        a_cache   = mem_resize(seq_t, a_cache, new_cap);
+        fac_cache = mem_resize(seq_t, fac_cache, new_cap);
+        c_cache   = mem_resize(seq_t, c_cache, new_cap);
     }
 
     /* initialise new factorials and c-values */

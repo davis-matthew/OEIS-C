@@ -8,7 +8,8 @@
  *            dividing n is prime
  * Range:     u8 n <= 80, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 1830 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;
 static size_t terms_size = 0;
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
     /* initialise storage for sequence values if first call */
     if (terms == NULL) {
         terms_cap = 4;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms_size = 0;
     }
 
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
         if (diff > 1 && isPrimeUint64(diff)) {
             if (terms_size == terms_cap) {
                 terms_cap = terms_cap ? terms_cap * 2 : 4;
-                terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_size++] = (seq_t)candidate;
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 451, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 69 terms through n = 4411 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,7 +43,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* adjacency: for a last digit a, _edges[a][k] (k < _deg[a])
  * gives a digit b such that 10*a + b is a (2‑digit) prime.      */
@@ -57,7 +59,7 @@ static void _build_adjacency(void)
         _deg[a] = 0;
         for (int b = 0; b < 10; ++b) {
             int nb = a * 10 + b;
-            if (nb >= 10 && isPrimeTrial((seq_t)nb)) {
+            if (nb >= 10 && is_prime_seq((seq_t)nb)) {
                 _edges[a][_deg[a]++] = (uint8_t)b;
             }
         }
@@ -75,7 +77,7 @@ static void _push_term(seq_t v)
 {
     if (_terms_sz >= _terms_cap) {
         size_t newcap = _terms_cap ? _terms_cap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(_terms, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _terms, newcap);
         if (!tmp) exit(1);
         _terms = tmp;
         _terms_cap = newcap;

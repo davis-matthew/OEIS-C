@@ -8,12 +8,14 @@
  *            \sum_{k=1}^n 1/k in lowest terms
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* realloc, NULL */
+#include "../utils/mem.h"
 
 static seq_t gcd_seq_local(seq_t a, seq_t b)
 {
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
 
     /* Allocate or grow the arrays to size n */
     if (n > computed) {
-        seq_t *new_hn = (seq_t *)realloc(hn, n * sizeof(seq_t));
-        seq_t *new_hd = (seq_t *)realloc(hd, n * sizeof(seq_t));
+        seq_t *new_hn = mem_resize(seq_t, hn, n);
+        seq_t *new_hd = mem_resize(seq_t, hd, n);
         if (!new_hn || !new_hd)   /* allocation failure – return 0 sentinel */
             return 0;
         hn = new_hn;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of undirected n‑cycles in the octahedral graph
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   canonical_key
+ * Validated: full, pass, 4 terms through n = 6 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,30 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/canonical_key.h"
+
+static uint64_t canonical_key(const int *perm, int n)
+{
+    uint64_t best = UINT64_MAX;
+    /* forward direction */
+    for (int shift = 0; shift < n; ++shift) {
+        uint64_t key = 0;
+        for (int j = 0; j < n; ++j) {
+            int v = perm[(shift + j) % n];
+            key = (key << 3) | (uint64_t)v;   /* use 3 bits per vertex (0..5) */
+        }
+        if (key < best) best = key;
+    }
+    /* reverse direction */
+    for (int shift = 0; shift < n; ++shift) {
+        uint64_t key = 0;
+        for (int j = 0; j < n; ++j) {
+            int v = perm[(shift - j + n) % n];
+            key = (key << 3) | (uint64_t)v;
+        }
+        if (key < best) best = key;
+    }
+    return best;
+}
 
 static const int opp[6] = {5, 4, 3, 2, 1, 0};
 

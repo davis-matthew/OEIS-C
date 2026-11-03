@@ -9,18 +9,20 @@
  *            the (n+1)-step formula, scaled by n!*lcm(1..n+1))
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   a002399_g
+ * Validated: standard, pass, 35 terms through n = 96 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a002399_g.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t m = n + 1, k, j;
-    seq_t *c = (seq_t *)calloc((size_t)(n + 2), sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (size_t)(n + 2));
     seq_t sum = 0, L = 1, res;
     uint64_t L64 = 1;
     int small = (m <= 42);
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     }
 
     if (small) {
-        for (k = 2; k <= m; k++) L64 = L64 / a002399_g(L64, k) * k;
+        for (k = 2; k <= m; k++) L64 = L64 / gcd_u64(L64, k) * k;
     } else {
         idx_t p;
         for (p = 2; p <= m; p++) {
@@ -56,6 +58,6 @@ seq_t a(idx_t n) {
         sum += c[k] * w;
     }
     res = (seq_t)n * sum;
-    free(c);
+    mem_free(c);
     return res;
 }

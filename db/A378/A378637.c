@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 96 terms through n = 9090 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/phi.h"          /* provides seq_t phi(idx_t m); */
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 static seq_t *phi_cache = NULL;   /* indices 0..cache_cap are stored, unused 0 */
 static idx_t  cache_cap  = 0;     /* current maximum index cached */
@@ -34,12 +36,12 @@ ensure_phi_upto(idx_t up)
         return;
 
     size_t new_cap = up + 1;
-    seq_t *new_cache = (seq_t *)realloc(phi_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, phi_cache, new_cap);
     if (!new_cache)
         exit(1);                 /* memory allocation failure */
 
     for (idx_t i = cache_cap + 1; i <= up; ++i)
-        new_cache[i] = phi((idx_t)i);
+        new_cache[i] = totient((idx_t)i);
 
     phi_cache = new_cache;
     cache_cap  = up;

@@ -8,6 +8,7 @@
  * Formula:   a(n) = 1 if n is a triangular number, otherwise -1
  * Range:     i8 n <= 20, i16 n <= 465, i32 n <= 465, i64 n <= 465,
  *            i128 n <= 465, big any n
+ * Validated: standard, pass, 89 terms through n = 429 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

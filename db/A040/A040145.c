@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 60 terms through n = 945 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 #define CACHE_CAP 200000   /* large enough for n up to about 1e5 */
 
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
             else
                 div = 1;                 /* should not happen for odd primes */
             uint64_t exp = (p - 1) / div;
-            seq_t res = mod_pow((seq_t)19, exp, (seq_t)p);
+            seq_t res = powmod((seq_t)19, exp, (seq_t)p);
             ok = (res == (seq_t)1);
         }
 

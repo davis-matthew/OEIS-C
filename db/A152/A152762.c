@@ -7,15 +7,17 @@
  * Formula:   a(n) = sigma(Catalan(n)) - Catalan(n) (proper divisor sum)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 19, u64 n <= 35, u128 n <= 67,
  *            big any n
- * Helpers:   build_primes_upto, pow_uint
+ * Validated: standard, pass, 42 terms through n = 1660 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     /* Special cases n=0,1 where Catalan=1, sigma(1)=1 => result 0 */
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
         idx_t e_c = e_bin - exp_n1;
         if (e_c == 0) continue; /* trivial prime factor */
 
-        seq_t epow = pow_uint(p, e_c);
+        seq_t epow = ipow_u64_idx(p, e_c);
         cat *= epow;
 
         /* Sigma term: (p^{e+1}-1)/(p-1) */

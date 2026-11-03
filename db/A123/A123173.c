@@ -9,7 +9,8 @@
  *            semiprime for every n >= -3
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 100, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*--- global tables -------------------------------------------------------*/
 #define OFFSET (-3)
@@ -43,7 +45,7 @@ static void grow_ans(size_t req)
     if (req < ans_cap) return;
     size_t new_cap = ans_cap ? ans_cap : 16;
     while (new_cap <= req) new_cap <<= 1;
-    seq_t  *p   = (seq_t  *)realloc(ans,    new_cap * sizeof(seq_t));
+    seq_t  *p   = mem_resize(seq_t, ans, new_cap);
     bool   *ps  = (bool   *)realloc(ans_set, new_cap * sizeof(bool));
     if (!p || !ps) exit(1);
     /* initialise new slots */

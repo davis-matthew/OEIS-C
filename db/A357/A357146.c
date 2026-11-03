@@ -7,12 +7,15 @@
  * Formula:   a(n) = n! * sum_{k=0..⌊n/2⌋} (n-2k)^(2k)/(n-2k)!
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
 
         /* Prepare for next k (n-2(k+1) = j-2) */
         j -= 2;                                 /* new n-2(k+1)  */
-        pow = big_pow((seq_t)j, (seq_t)(2 * (k + 1))); /* new power   */
+        pow = ipow((seq_t)j, (seq_t)(2 * (k + 1))); /* new power   */
     }
 
     return sum;

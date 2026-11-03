@@ -8,6 +8,7 @@
  * Formula:   a(n) = 171*a(n-1) - a(n-2), a(0) = 1, a(1) = 172
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 17,
  *            big any n
+ * Validated: standard, pass, 28 terms through n = 430 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

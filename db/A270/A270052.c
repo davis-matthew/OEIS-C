@@ -8,7 +8,8 @@
  * Formula:   a(1)=5, a(2)=240, a(3)=5400; for n>3: a(n)=26*a(n-1)-169*a(n-2)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Memoization table for the sequence */
 static seq_t *memo = NULL;
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
     while (new_cap < needed)
         new_cap <<= 1;   /* double each time */
 
-    seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, memo, new_cap);
     if (!tmp)
         abort(); /* allocation failure */
 

@@ -10,14 +10,18 @@
  *            Σ_{k≥0} 4^k x^{k^2}, * // where A(x)=∑_{n≥0} a(n)x^n with a(0)=1
  * Range:     i8 n <= 6, i16 n <= 11, i32 n <= 20, i64 n <= 31, i128 n <= 31,
  *            big any n
- * Helpers:   _floor_isqrt_u64, big_pow
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   ipow, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +30,7 @@ seq_t a(idx_t n)
 
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();          /* out of memory */
         cache = tmp;
 
@@ -44,9 +48,9 @@ seq_t a(idx_t n)
 
             /* f(k): 4^t if k = t^2, else 0 */
             seq_t f = (seq_t)0;
-            idx_t r = _floor_isqrt_u64(k);
+            idx_t r = isqrt(k);
             if (r * r == k) {
-                f = big_pow((seq_t)4, (seq_t)r);
+                f = ipow((seq_t)4, (seq_t)r);
             }
 
             cache[k] = (f - sum) / (seq_t)2;

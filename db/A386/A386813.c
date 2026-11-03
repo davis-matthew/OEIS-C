@@ -9,7 +9,8 @@
  *            24 Σ_{k≥1} σ₁(k) qᵏ, E₄ = 1 + 240 Σ_{k≥1} σ₃(k) qᵏ
  * Range:     i8 n <= 0, i16 n <= 2, i32 n <= 6, i64 n <= 18, i128 n <= 18,
  *            big any n
- * Helpers:   alloc_zero
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,13 @@
    and recomputed only when a larger index is requested. */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
+#include "../utils/mem.h"
+
+/* Allocate and zero an array of length len. */
+static seq_t *alloc_zero(size_t len)
+{
+    return mem_new(seq_t, len);
+}
 
 static idx_t current_cap = 0;
 static seq_t *sigma1_arr = NULL;
@@ -41,10 +48,10 @@ static void recompute(idx_t new_cap)
     size_t sz2 = (size_t)(doubleN + 1);
 
     /* Free previously allocated memory. */
-    free(sigma1_arr); free(sigma3_arr);
-    free(a2_arr); free(a4_arr);
-    free(a2pow3_arr); free(a4pow2_arr);
-    free(res_arr);
+    mem_free(sigma1_arr); mem_free(sigma3_arr);
+    mem_free(a2_arr); mem_free(a4_arr);
+    mem_free(a2pow3_arr); mem_free(a4pow2_arr);
+    mem_free(res_arr);
 
     /* Allocate fresh arrays. */
     sigma1_arr  = alloc_zero(sz1);
@@ -90,7 +97,7 @@ static void recompute(idx_t new_cap)
             a2pow3_arr[i + j] += c2[i] * a2_arr[j];
         }
     }
-    free(c2);
+    mem_free(c2);
 
     /* a₄² = a₄ * a₄   (single convolution, limited to N). */
     for (idx_t i = 0; i <= N; ++i) {

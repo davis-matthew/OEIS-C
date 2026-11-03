@@ -8,12 +8,15 @@
  *            121·3^(n‑4) + (3^(n‑4) – 1)/2
  * Range:     i8 n <= 4, i16 n <= 9, i32 n <= 14, i64 n <= 14, i128 n <= 14,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
     /* recurrence a(n) = 3·a(n‑1) + 1 for n ≥ 5 */
     /* closed‑form implementation using big_pow */
     idx_t e = n - 4;                   /* exponent for 3^(n‑4) */
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)e);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)e);
     seq_t term = pow3 * (seq_t)121 + (pow3 - (seq_t)1) / (seq_t)2;
     return term;
 }

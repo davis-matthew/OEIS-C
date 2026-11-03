@@ -8,13 +8,15 @@
  *            a(2)=70; a(n)=13*a(n-1)-39*a(n-2)+27*a(n-3)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Compute A051405 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *vals = NULL;   /* memoised values */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* Ensure the buffer is initialised and contains the first three terms */
     if (len < 3) {
         idx_t need = 3;
-        vals = (seq_t *)realloc(vals, sizeof(seq_t) * need);
+        vals = mem_resize(seq_t, vals, need);
         vals[0] = (seq_t)2;
         vals[1] = (seq_t)10;
         vals[2] = (seq_t)70;
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
 
     /* Grow the buffer and compute missing terms using the recurrence */
     idx_t newlen = n + 1;
-    vals = (seq_t *)realloc(vals, sizeof(seq_t) * newlen);
+    vals = mem_resize(seq_t, vals, newlen);
     for (idx_t i = len; i < newlen; ++i) {
         vals[i] = (seq_t)13 * vals[i-1]
                 - (seq_t)39 * vals[i-2]

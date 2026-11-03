@@ -7,7 +7,8 @@
  * Formula:   a(n) = A008578(A008578(n)) (noncomposite numbers of order 2)
  * Range:     u8 n <= 17, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Prime cache (1‑based indices) */
 static seq_t *primes   = NULL;   /* array of primes              */
@@ -58,7 +60,7 @@ generate_primes_up_to(idx_t limit)
         if (!is_cmp[i]) ++cnt;
 
     /* Allocate array of primes. */
-    seq_t *new_pr = (seq_t *)malloc(cnt * sizeof(seq_t));
+    seq_t *new_pr = mem_new(seq_t, cnt);
     if (!new_pr) { free(is_cmp); return; }
 
     /* Copy primes into array. */
@@ -69,7 +71,7 @@ generate_primes_up_to(idx_t limit)
     free(is_cmp);
 
     /* Replace old cache. */
-    if (primes) free(primes);
+    if (primes) mem_free(primes);
     primes     = new_pr;
     prime_cnt  = cnt;
     prime_limit = limit;

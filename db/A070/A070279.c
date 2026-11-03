@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 3632, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 70 terms through n = 8192 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;        /* cached terms of the sequence   */
 static size_t  terms_len = 0;      /* number of cached terms         */
@@ -32,11 +35,11 @@ static idx_t   k_next   = 1;        /* next multiple index (n = 9*k)  */
 static void grow_terms(void)
 {
     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) abort();            /* out of memory */
     if (terms) {
-        memcpy(new_arr, terms, terms_len * sizeof(seq_t));
-        free(terms);
+        mem_copy(new_arr, terms, terms_len * sizeof(seq_t));
+        mem_free(terms);
     }
     terms     = new_arr;
     terms_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 747, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9340 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>   /* for bool */
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Sum of prime factors with multiplicity for a 64‑bit integer            */
@@ -68,7 +70,7 @@ static void ensure_cache_size(idx_t n)
 {
     if (cache_size > n) return;
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) exit(1);          /* allocation failed */
     /* zero new elements */
     for (idx_t i = cache_size; i < new_size; ++i) new_cache[i] = 0;

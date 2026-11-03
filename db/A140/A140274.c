@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 177, u16 n <= 200, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   digit_len_idx_t, pow10_mod_len
+ * Validated: standard, pass, 95 terms through n = 188 (2026-11-03)
+ * Helpers:   mem, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/digit_len_idx_t.h"
-#include "../utils/pow10_mod_len.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/mem.h"
+
+/* 10^len modulo mod (mod is non‑zero) */
+static idx_t pow10_mod_len(idx_t len, idx_t mod)
+{
+    idx_t r = 1 % mod;
+    for (int i = 0; i < len; ++i)
+        r = (r * 10) % mod;
+    return r;
+}
 
 /* -------------------- helpers -------------------- */
 
@@ -40,7 +50,7 @@ static void ensure_capacity(idx_t n)
     if (n <= cap) return;
     size_t new_cap = cap ? cap * 2 : 16;
     while (new_cap < (size_t)n) new_cap *= 2;
-    a_vals   = (seq_t *)realloc(a_vals,   (new_cap + 1) * sizeof(seq_t));
+    a_vals   = mem_resize(seq_t, a_vals, (new_cap + 1));
     len_vals = (uint16_t *)realloc(len_vals, (new_cap + 1) * sizeof(uint16_t));
     cap = new_cap;
 }
@@ -77,7 +87,7 @@ seq_t a(idx_t n)
             /* find least m >= 0 such that (rem * 10^len(m) + m) % k == 1 */
             idx_t m = 0;
             while (1) {
-                int len_m = digit_len_idx_t(m);
+                int len_m = num_digits_idx(m);
                 idx_t pow10_m = pow10_mod_len((idx_t)len_m, k);
                 idx_t val = (rem * pow10_m + (m % k)) % k;
                 if (val == 1) break;
@@ -85,7 +95,7 @@ seq_t a(idx_t n)
             }
 
             a_vals[k]   = (seq_t)m;
-            len_vals[k] = (uint16_t)digit_len_idx_t(m);
+            len_vals[k] = (uint16_t)num_digits_idx(m);
         }
 
         computed_n = n;

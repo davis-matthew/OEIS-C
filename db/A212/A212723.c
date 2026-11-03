@@ -10,12 +10,14 @@
  *            3‑tuples
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 25, u64 n <= 54, u128 n <= 113,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------
    State machine for the last three elements of a sequence.
@@ -83,13 +85,13 @@ static void extend_cache(idx_t n)
     /* Allocate or grow the cache array if necessary. */
     if (a_vals_used == 0) {
         a_vals_cap = 64;
-        a_vals = (seq_t *)malloc((a_vals_cap + 1) * sizeof(seq_t));
+        a_vals = mem_new(seq_t, (a_vals_cap + 1));
         if (!a_vals) abort();
     }
     if ((size_t)n >= a_vals_cap) {
         while ((size_t)n >= a_vals_cap)
             a_vals_cap <<= 1;
-        a_vals = (seq_t *)realloc(a_vals, (a_vals_cap + 1) * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, (a_vals_cap + 1));
         if (!a_vals) abort();
     }
 

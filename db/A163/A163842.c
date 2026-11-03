@@ -11,15 +11,25 @@
  *            the swinging factorial of i (A056040)
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 89, u64 n <= 377,
  *            u128 n <= 1274, big any n
- * Helpers:   binom, seq_alloc
+ * Validated: standard, pass, 52 terms through n = 1266 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 static inline idx_t _triangle_row(idx_t N) {
     /* Find maximum r such that r*(r+1)/2 <= N */

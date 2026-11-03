@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 33, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   row_for_m
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,39 @@
  *  e_k += e_{k-1}*x for every element x of the set.
  */
 #include <stdlib.h>
-#include "../utils/row_for_m.h"
+#include "../utils/mem.h"
+
+/* ---- helper: compute a single row of the triangle ---- */
+static seq_t *row_for_m(idx_t m)
+{
+    if (m == 0) {
+        seq_t *r = mem_new(seq_t, 1);
+        r[0] = 1;
+        return r;
+    }
+    if (m == 1) {
+        seq_t *r = mem_new(seq_t, 2);
+        r[0] = 1; r[1] = 1;
+        return r;
+    }
+    if (m == 2) {
+        seq_t *r = mem_new(seq_t, 3);
+        r[0] = 1; r[1] = 3; r[2] = 2;
+        return r;
+    }
+
+    /* m >= 3: build the row by adding each element of the set */
+    seq_t *row = mem_new(seq_t, (size_t)(m + 1));
+    row[0] = 1;
+    /* iterate through all numbers from 1 to m+2, skipping 3 and 4 */
+    for (idx_t num = 1; num <= m + 2; ++num) {
+        if (num == 3 || num == 4) continue;
+        for (idx_t i = m; i >= 1; --i) {
+            row[i] = row[i] + row[i - 1] * (seq_t)num;
+        }
+    }
+    return row;
+}
 
 /* ---- helper: largest m with m*(m+1)/2 <= n ---- */
 static idx_t triangular_inverse(idx_t n)
@@ -49,6 +82,6 @@ seq_t a(idx_t n)
     idx_t k = n - m * (m + 1) / 2;   /* k = n - T_m  */
     seq_t *row = row_for_m(m);       /* row of length m+1  */
     seq_t ans  = row[k];
-    free(row);
+    mem_free(row);
     return ans;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 61 terms through n = 965 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x)          */
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base, idx_t exp, seq_t mod) */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* static cache of computed terms */
 static seq_t *cache   = NULL;   /* pointer to the cache array */
@@ -34,7 +37,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = cache_cap == 0 ? 16 : cache_cap << 1;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     /* If realloc fails, the program will abort, as required by the build. */
     cache = tmp;
     cache_cap = new_cap;
@@ -74,7 +77,7 @@ seq_t a(idx_t n)
             ok = true;            /* 0^2 ≡ 0 (mod 41) */
         } else {
             /* Use Euler’s criterion: 41^((p‑1)/2) ≡ 1 (mod p) */
-            seq_t test = mod_pow((seq_t)41,
+            seq_t test = powmod((seq_t)41,
                                  (candidate - 1) / 2,
                                  (seq_t)candidate);
             ok = test == (seq_t)1;

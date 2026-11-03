@@ -12,12 +12,14 @@
  *            ≥ 1: * a(n) = –( Σ_{j=1..n} a(n‑j) * σ_j...
  * Range:     i8 n <= 4, i16 n <= 114, i32 n <= 2500, i64 n <= 2500,
  *            i128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 2461 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external linkage – the build system supplies these types */
 static idx_t _max_cached     = 0;
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
         size_t alloc_size = (size_t)new_size + 1;
 
         /* allocate zero‑initialised storage (explicit cast for C++ ) */
-        seq_t *new_coeff = (seq_t*)calloc(alloc_size, sizeof(seq_t));
-        seq_t *new_sigma = (seq_t*)calloc(alloc_size, sizeof(seq_t));
+        seq_t *new_coeff = mem_new(seq_t, alloc_size);
+        seq_t *new_sigma = mem_new(seq_t, alloc_size);
 
         /* Compute σ_j = Σ_{d|j} d * e_d  for j = 1..new_size */
         for (idx_t d = 1; d <= new_size; ++d) {
@@ -61,8 +63,8 @@ seq_t a(idx_t n)
         }
 
         /* replace old cached data (free may handle NULL) */
-        free(_coeff_cache);
-        free(_sigma_cache);
+        mem_free(_coeff_cache);
+        mem_free(_sigma_cache);
         _coeff_cache = new_coeff;
         _sigma_cache = new_sigma;
         _max_cached  = new_size;

@@ -11,13 +11,15 @@
  *            with 2^(j‑1) ≥ n
  * Range:     u8 n <= 27, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define MAX_J 65
 
@@ -93,8 +95,8 @@ static void precompute_j(int j) {
     idx_t total = (j == 1) ? 1 : ((idx_t)1 << (j - 1));
 
     /* allocate prefix array and temporary storage for partition keys */
-    seq_t *arr  = (seq_t *)malloc((size_t)total * sizeof(seq_t));
-    seq_t *seen = (seq_t *)malloc((size_t)total * sizeof(seq_t));
+    seq_t *arr  = mem_new(seq_t, (size_t)total);
+    seq_t *seen = mem_new(seq_t, (size_t)total);
 
     ctx_t ctx;
     ctx.j          = j;
@@ -107,7 +109,7 @@ static void precompute_j(int j) {
 
     rec(&ctx, j);
 
-    free(seen);
+    mem_free(seen);
     prefix[j] = arr;
     computed[j] = 1;
 }

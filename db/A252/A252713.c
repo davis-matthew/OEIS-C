@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 20, u32 n <= 45, u64 n <= 93, u128 n <= 189,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  *                 a(6)=154, a(7)=220, a(8)=306, a(9)=478
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Memoization cache */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     /* Ensure the cache can hold index n */
     if ((size_t)n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) abort();        /* Allocation failure */
         /* Copy old values */
         for (size_t i = 0; i < cache_size; ++i) new_cache[i] = cache[i];
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
             if (i <= 9) new_cache[i] = base_vals[i];
             else new_cache[i] = (seq_t)0; /* placeholder, will be computed later */
         }
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

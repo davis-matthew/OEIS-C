@@ -10,13 +10,16 @@
  *            a_{k+1} * g_{m-k})
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 17, i128 n <= 18,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>           /* malloc, realloc */
-#include "../utils/binom.h"   /* binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache_a = NULL;      /* a(n) values, indexed by n */
 static seq_t *cache_g = NULL;      /* g(n) e.g.f. coefficients */
@@ -33,23 +36,23 @@ static void ensure_cache(idx_t n)
 
     /* grow cache_a */
     if (cache_a == NULL) {
-        cache_a = (seq_t *)malloc(new_size * sizeof(seq_t));
+        cache_a = mem_new(seq_t, new_size);
     } else {
-        cache_a = (seq_t *)realloc(cache_a, new_size * sizeof(seq_t));
+        cache_a = mem_resize(seq_t, cache_a, new_size);
     }
 
     /* grow cache_g */
     if (cache_g == NULL) {
-        cache_g = (seq_t *)malloc(new_size * sizeof(seq_t));
+        cache_g = mem_new(seq_t, new_size);
     } else {
-        cache_g = (seq_t *)realloc(cache_g, new_size * sizeof(seq_t));
+        cache_g = mem_resize(seq_t, cache_g, new_size);
     }
 
     /* grow cache_fact */
     if (cache_fact == NULL) {
-        cache_fact = (seq_t *)malloc(new_size * sizeof(seq_t));
+        cache_fact = mem_new(seq_t, new_size);
     } else {
-        cache_fact = (seq_t *)realloc(cache_fact, new_size * sizeof(seq_t));
+        cache_fact = mem_resize(seq_t, cache_fact, new_size);
     }
 
     /* initialise new entries */
@@ -89,16 +92,16 @@ seq_t a(idx_t n)
     for (idx_t m = a_comp_max; m < n; ++m) {
         /* we compute a_{m+1} for m = current to n-1 */
         seq_t tmp = cache_g[m+1];
-        seq_t binom = (seq_t)1;          /* binom(m,0) */
+        seq_t binomial = (seq_t)1;          /* binom(m,0) */
         for (idx_t k = 0; k <= m-1; ++k) {
-            seq_t sub = binom;
+            seq_t sub = binomial;
             sub *= cache_a[k+1];
             sub *= cache_g[m-k];
             tmp -= sub;
 
             /* update binom to binom(m, k+1) */
-            binom = binom * (seq_t)(m - k);
-            binom = binom / (seq_t)(k + 1);
+            binomial = binomial * (seq_t)(m - k);
+            binomial = binomial / (seq_t)(k + 1);
         }
         cache_a[m+1] = tmp;
     }

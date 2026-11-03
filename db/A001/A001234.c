@@ -7,6 +7,7 @@
  * Formula:   a(n) = unsigned Stirling number of the first kind s(n,7)
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 14, u64 n <= 21, u128 n <= 34,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 98 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,7 +12,8 @@
  *            C(k‑1, t‑1) · c_t · (k‑t)^{k‑t}
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* cached arrays for powers and connected counts */
 static seq_t *pow_arr = NULL;
@@ -34,8 +36,8 @@ static void precompute(idx_t N)
     if (N <= cached_n) return;
 
     size_t new_size = N + 1;
-    pow_arr = (seq_t *)realloc(pow_arr, new_size * sizeof(seq_t));
-    c_arr  = (seq_t *)realloc(c_arr,  new_size * sizeof(seq_t));
+    pow_arr = mem_resize(seq_t, pow_arr, new_size);
+    c_arr  = mem_resize(seq_t, c_arr, new_size);
 
     /* ensure base cases */
     pow_arr[0] = (seq_t)1;
@@ -46,7 +48,7 @@ static void precompute(idx_t N)
     /* compute from last cached+1 up to N */
     for (idx_t i = (idx_t)(cached_n + 1); i <= N; ++i) {
         /* i^i */
-        pow_arr[i] = big_pow((seq_t)i, (seq_t)i);
+        pow_arr[i] = ipow((seq_t)i, (seq_t)i);
 
         if (i == 1) {            /* base case already set */
             c_arr[1] = (seq_t)1;

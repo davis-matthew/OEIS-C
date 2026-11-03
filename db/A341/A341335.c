@@ -12,6 +12,7 @@
  *            Example: a(2)=3, a(3)=2, a(4)=7
  * Range:     u8 n <= 255, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
+ * Validated: standard, pass, 83 terms through n = 8008 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

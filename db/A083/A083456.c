@@ -11,13 +11,14 @@
  *            further calculation
  * Range:     u8 n <= 3, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
         for (idx_t i = 0; i < n; ++i)
             val *= k;           /* Compute k^n in arbitrary precision */
         val += 1;               /* Add 1 to obtain k^n + 1 */
-        if (is_palindrome(val, (idx_t)10))
+        if (is_palindrome_base(val, (idx_t)10))
             return (seq_t)k;
     }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 21, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool row_ok[16];
 static int  valid_rows[16];
@@ -95,12 +97,12 @@ seq_t a(idx_t n)
     }
 
     /* Allocate DP arrays */
-    seq_t *dp     = (seq_t *)malloc(4096 * sizeof(seq_t));
-    seq_t *nextdp = (seq_t *)malloc(4096 * sizeof(seq_t));
+    seq_t *dp     = mem_new(seq_t, 4096);
+    seq_t *nextdp = mem_new(seq_t, 4096);
     if (!dp || !nextdp) return 0;   /* allocation failure; unlikely */
 
-    memset(dp, 0, 4096 * sizeof(seq_t));
-    memset(nextdp, 0, 4096 * sizeof(seq_t));
+    mem_set(dp, 0, 4096 * sizeof(seq_t));
+    mem_set(nextdp, 0, 4096 * sizeof(seq_t));
 
     /* Initialise with all valid pairs of first two rows */
     for (int i = 0; i < valid_cnt; ++i) {
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
     /* Process remaining rows (m-2 of them) */
     idx_t remaining = m - 2;
     for (idx_t step = 0; step < remaining; ++step) {
-        memset(nextdp, 0, 4096 * sizeof(seq_t));
+        mem_set(nextdp, 0, 4096 * sizeof(seq_t));
         for (int s = 0; s < 4096; ++s) {
             seq_t cnt = dp[s];
             if (cnt == 0) continue;
@@ -146,7 +148,7 @@ seq_t a(idx_t n)
         result += dp[s];
     }
 
-    free(dp);
-    free(nextdp);
+    mem_free(dp);
+    mem_free(nextdp);
     return result;
 }

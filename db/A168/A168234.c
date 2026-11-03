@@ -9,13 +9,20 @@
  *            Block k contains 2*k^2 terms all equal to that value
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   prefix_block
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/prefix_block.h"
+
+/* cumulative number of terms up to block k: S(k) = k*(k+1)*(2k+1)/3 */
+static inline idx_t prefix_block(idx_t k)
+{
+    __uint128_t kk = k;
+    return (idx_t)((kk * (kk + 1) * (2 * kk + 1)) / 3);
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  *            binomial(n,2k+1) * a(n-2k-1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Required headers for memory allocation */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache = NULL;
@@ -32,14 +34,14 @@ static void ensure_cache_size(idx_t n)
     if ((size_t)n + 1 > new_cap)
         new_cap = (size_t)n + 1;
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)                 /* Allocation failed – leave cache unchanged */
         return;
 
     if (cache) {
         for (size_t i = 0; i < cache_cap; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     cache      = new_cache;

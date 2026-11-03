@@ -10,13 +10,15 @@
  *            *, ^) to build n from ones
  * Range:     u8 n <= 879, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9404 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return 0;
@@ -27,8 +29,8 @@ seq_t a(idx_t n) {
     
     if (memo == NULL) {
         memo_size = n < 1024 ? 1024 : n * 2;
-        memo = (seq_t *)malloc(memo_size * sizeof(seq_t));
-        memset(memo, 0, memo_size * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_size);
+        mem_set(memo, 0, memo_size * sizeof(seq_t));
         memo[1] = 0;
         memo_computed = 1;
     } else if (n >= memo_size) {
@@ -36,11 +38,11 @@ seq_t a(idx_t n) {
         memo_size = memo_size * 2;
         while (n >= memo_size) memo_size *= 2;
         
-        seq_t *new_memo = (seq_t *)malloc(memo_size * sizeof(seq_t));
-        memcpy(new_memo, memo, old_size * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, memo_size);
+        mem_copy(new_memo, memo, old_size * sizeof(seq_t));
         memset((char *)new_memo + old_size * sizeof(seq_t), 0,
                (memo_size - old_size) * sizeof(seq_t));
-        free(memo);
+        mem_free(memo);
         memo = new_memo;
     }
     

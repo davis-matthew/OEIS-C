@@ -9,13 +9,15 @@
  *            5040*S(n,7) where S(n,k) are Stirling numbers of the second kind
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         initialized = true;
 
         /* allocate storage for a(0) */
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = (seq_t)0;
         max_cached = 0;
 
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
     /* grow cache array if necessary */
     if (n > max_cached) {
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
     }
 
     /* compute a(i) for i = max_cached+1 ... n using the recurrence

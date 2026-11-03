@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   _gcd_idx, grow_seq_array
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   gcd_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,20 @@
 #include <stdbool.h>
 
 /* Include the helper that grows arrays of seq_t (works for both C and C++). */
-#include "../utils/grow_seq_array.h"
-#include "../utils/_gcd_idx.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 /* Recursive search for a factorization of N = k - 1 into factors >= 2. */
 static bool _dfs(idx_t k, idx_t rem, idx_t start, idx_t sum_m, idx_t gcd_m) {
@@ -37,7 +50,7 @@ static bool _dfs(idx_t k, idx_t rem, idx_t start, idx_t sum_m, idx_t gcd_m) {
             idx_t m = f - 1;
             idx_t new_sum = sum_m + m;
             if (new_sum > k) continue;
-            idx_t new_gcd = _gcd_idx(gcd_m, m);
+            idx_t new_gcd = gcd_idx(gcd_m, m);
             if (_dfs(k, rem / f, f, new_sum, new_gcd)) return true;
         }
     }
@@ -48,7 +61,7 @@ static bool _dfs(idx_t k, idx_t rem, idx_t start, idx_t sum_m, idx_t gcd_m) {
         idx_t m = f - 1;
         idx_t new_sum = sum_m + m;
         if (new_sum <= k) {
-            idx_t new_gcd = _gcd_idx(gcd_m, m);
+            idx_t new_gcd = gcd_idx(gcd_m, m);
             if ((k >= new_sum) && ((k - new_sum) % new_gcd == 0)) return true;
         }
     }

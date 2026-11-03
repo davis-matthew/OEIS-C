@@ -10,14 +10,16 @@
  *            antidiagonal enumeration of the GF(2)[X] division table. * For
  *            integers r,c the value is the quotient r/c computed in GF(2)[X]
  *            * (polynomial division), or 0 when c does not divide r
- * Range:     u8 n <= 9778, u16 n <= 9778, u32 n <= 9778, u64 n <= 9778,
- *            u128 n <= 9778, big any n
- * Helpers:   bitlen_seq_t
+ * Range:     u8 n <= 10440, u16 n <= 10440, u32 n <= 10440, u64 n <= 10440,
+ *            u128 n <= 10440, big any n
+ * Validated: standard, pass, 136 terms through n = 9778 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* polynomial division in GF(2)[X] of R by C.
  * Returns the quotient if divisible, otherwise 0. */
@@ -32,8 +34,8 @@ static seq_t poly_div_gf2(seq_t R, seq_t C)
 
     while (remainder != 0)
     {
-        idx_t deg_r = bitlen_seq_t(remainder) - 1;
-        idx_t deg_c = bitlen_seq_t(C) - 1;
+        idx_t deg_r = bit_length(remainder) - 1;
+        idx_t deg_c = bit_length(C) - 1;
 
         if (deg_r < deg_c)
             break;

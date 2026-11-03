@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2 * Σ_{k=0..n} ((2*k+1)!/(k+2)!) * |Stirling1(n,k)|
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static caches for computed terms and helper arrays. */
 static seq_t *a_cache  = NULL;       /* a(0..max_n)   */
@@ -31,7 +33,7 @@ static void ensure_cache_capacity(size_t size)
 {
     if (cache_cap < size) {
         size_t new_cap = size;
-        a_cache = (seq_t *)realloc(a_cache, sizeof(seq_t) * new_cap);
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         cache_cap = new_cap;
     }
 }
@@ -40,7 +42,7 @@ static void ensure_t_capacity(size_t size)
 {
     if (t_cap < size) {
         size_t new_cap = size;
-        t_cache = (seq_t *)realloc(t_cache, sizeof(seq_t) * new_cap);
+        t_cache = mem_resize(seq_t, t_cache, new_cap);
         t_cap = new_cap;
     }
 }
@@ -49,8 +51,8 @@ static void ensure_sp_capacity(size_t size)
 {
     if (sp_cap < size) {
         size_t new_cap = size;
-        s_prev = (seq_t *)realloc(s_prev, sizeof(seq_t) * new_cap);
-        s_curr = (seq_t *)realloc(s_curr, sizeof(seq_t) * new_cap);
+        s_prev = mem_resize(seq_t, s_prev, new_cap);
+        s_curr = mem_resize(seq_t, s_curr, new_cap);
         sp_cap = new_cap;
     }
 }
@@ -61,16 +63,16 @@ seq_t a(idx_t n)
     /* Initialise caches on first call. */
     if (a_cache == NULL) {
         cache_cap = 1;
-        a_cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        a_cache = mem_new(seq_t, cache_cap);
         a_cache[0] = (seq_t)1;               /* a(0) */
 
         t_cap = 1;
-        t_cache = (seq_t *)malloc(sizeof(seq_t) * t_cap);
+        t_cache = mem_new(seq_t, t_cap);
         t_cache[0] = (seq_t)1;               /* t_0 = 1 */
 
         sp_cap = 1;
-        s_prev = (seq_t *)malloc(sizeof(seq_t) * sp_cap);
-        s_curr = (seq_t *)malloc(sizeof(seq_t) * sp_cap);
+        s_prev = mem_new(seq_t, sp_cap);
+        s_curr = mem_new(seq_t, sp_cap);
         s_prev[0] = (seq_t)1;               /* Stirling(0,0) = 1 */
 
         max_n = 0;

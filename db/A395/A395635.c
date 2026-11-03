@@ -10,15 +10,17 @@
  *            a value of type seq_t
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   gcd, tau_from_idx
+ * Validated: partial, pass, 78 terms through n = 87 (2026-11-01)
+ * Helpers:   gcd, num_divisors_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/tau_from_idx.h"
+#include "../utils/num_divisors_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
         seq_t d = gcd((seq_t)x, (seq_t)r);
         if (d > (seq_t)1) {
-            result += tau_from_idx(r);
+            result += num_divisors_idx(r);
         }
     }
     return result;

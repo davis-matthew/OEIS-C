@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   sqrt_floor
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/sqrt_floor.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *cf = NULL;          /* coefficients: cf[0] = a(0) */
 static size_t cf_len = 0;         /* total stored coefficients (a(0)+period) */
@@ -27,7 +30,7 @@ static bool initialized = false;
 static void init_cf(void)
 {
     const idx_t D = 796;
-    seq_t a0 = sqrt_floor((seq_t)D);  /* a(0) = floor(sqrt(796)) */
+    seq_t a0 = isqrt_seq((seq_t)D);  /* a(0) = floor(sqrt(796)) */
 
     seq_t m   = 0;          /* m_0 */
     seq_t d   = 1;          /* d_0 */
@@ -35,7 +38,7 @@ static void init_cf(void)
 
     /* Allocate initial array with some capacity.  It will grow if needed. */
     size_t cap = 32;
-    cf = (seq_t *)malloc(cap * sizeof(seq_t));
+    cf = mem_new(seq_t, cap);
     cf[0] = a0;
     cf_len = 1;
 
@@ -49,7 +52,7 @@ static void init_cf(void)
         if (cf_len == cap)
         {
             cap <<= 1;
-            cf = (seq_t *)realloc(cf, cap * sizeof(seq_t));
+            cf = mem_resize(seq_t, cf, cap);
         }
         cf[cf_len++] = a_next;
 

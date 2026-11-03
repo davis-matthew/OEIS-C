@@ -8,14 +8,25 @@
  * Formula:   a(n) = maximum frequency of a letter in the US English name of n
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   add_counts_of_word
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/add_counts_of_word.h"
+
+/* add letter counts of a word (ignoring non‑letters) to counts[26] */
+static void add_counts_of_word(const char *word, int counts[26]) {
+    for (const char *p = word; *p; ++p) {
+        char c = *p;
+        if (c >= 'A' && c <= 'Z')
+            c += 'a' - 'A';
+        if (c >= 'a' && c <= 'z')
+            counts[c - 'a']++;
+    }
+}
 
 /* mapping for numbers 0–19 */
 static const char * const units[] = {

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 676*n^2 - 26
  * Range:     u8 none, u16 n <= 9, u32 n <= 2520, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 51 terms through n = 9245 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

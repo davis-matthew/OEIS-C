@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 29, u128 n <= 61,
  *            big any n
- * Helpers:   is_valid_middle
+ * Validated: standard, pass, 37 terms through n = 196 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,28 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/is_valid_middle.h"
+
+static inline bool is_valid_middle(uint8_t Lbits, bool left_present,
+                                   uint8_t Mbits, uint8_t Rbits, bool right_present)
+{
+    for (int i = 0; i < 6; ++i) {
+        unsigned count = 0;
+        unsigned m = (Mbits >> i) & 1u;
+        /* horizontal neighbours */
+        if (left_present  && (((Lbits >> i) & 1u) == m)) ++count;
+        if (right_present && (((Rbits >> i) & 1u) == m)) ++count;
+        /* left diagonal neighbours */
+        if (left_present && i > 0     && (((Lbits >> (i-1)) & 1u) == m)) ++count;
+        if (left_present && i < 5     && (((Lbits >> (i+1)) & 1u) == m)) ++count;
+        /* right diagonal neighbours */
+        if (right_present && i > 0     && (((Rbits >> (i-1)) & 1u) == m)) ++count;
+        if (right_present && i < 5     && (((Rbits >> (i+1)) & 1u) == m)) ++count;
+        /* disallow 3,4,6 same‑value neighbours */
+        if (count == 3 || count == 4 || count == 6)
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

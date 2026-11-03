@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n‑th prime p such that p ≡ 56 (mod 57)
  * Range:     u8 n <= 2, u16 n <= 176, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 58 terms through n = 966 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* (OEIS A142700, offset = 1)                                   */
 
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
         if (cap <= sz)
         {
             size_t newcap = cap ? cap << 1 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp)
                 return 0;            /* allocation failed */
             cache = tmp;
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
         seq_t cand = (seq_t)57 * k + (seq_t)56;
 
         /* Test primality */
-        if (cand >= 2 && is_prime_small(cand))
+        if (cand >= 2 && is_prime_seq(cand))
         {
             cache[sz++] = cand;
         }

@@ -7,9 +7,10 @@
  * Formula:   a(n) = numerator( (Sum_{d|n} sigma(d)) / sigma(n) ) a(n) =
  *            A007429(n) / gcd( A000203(n), A007429(n) ) where A007429(n) =
  *            Sum_{d|n} sigma(d) and A000203(n) = sigma(n)
- * Range:     u8 n <= 47, u16 n <= 8447, u32 n <= 9837, u64 n <= 9837,
- *            u128 n <= 9837, big any n
- * Helpers:   gcd, ipow_idx, sigma_of
+ * Range:     u8 n <= 47, u16 n <= 8447, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 82 terms through n = 9837 (2026-11-01)
+ * Helpers:   gcd, ipow_idx_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,15 +22,30 @@
    the provided sigma_of and gcd utilities. */
 
 #include <stdint.h>
-#include "../utils/sigma_of.h"
+#include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/ipow_idx.h"
+#include "../utils/ipow_idx_to_idx.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Helper: computes Σ_{j=0}^{e} sigma(p^j) for a prime power. */
 static seq_t sum_sigma_prime_pow(idx_t p, idx_t e) {
     seq_t sum = 0;
     for (idx_t j = 0; j <= e; ++j) {
-        idx_t val = ipow_idx(p, j); /* p^j */
+        idx_t val = ipow_idx_to_idx(p, j); /* p^j */
         sum += sigma_of(val);
     }
     return sum;

@@ -9,12 +9,23 @@
  *            start(n) = 1 + (n-2)(n-1)/2. Thus a(1)=1, a(2)=12, a(3)=234, …
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   pow10
+ * Validated: standard, pass, 30 terms through n = 194 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
+#include <stdint.h>
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static inline int digit_count_seq(seq_t x)
 {

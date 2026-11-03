@@ -6,17 +6,31 @@
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = the n‑th positive integer x such that count_digit(x,4) >
  *            max_{d≠4} count_digit(x,d)
- * Range:     u8 n <= 4, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
- *            big any n
- * Helpers:   alloc_cache, digit_counts, free_cache
+ * Range:     u8 n <= 4, u16 n <= 4807, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 65 terms through n = 9888 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
-#include "../utils/alloc_cache.h"
-#include "../utils/free_cache.h"
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache      = NULL;     /* cached terms */
 static size_t cache_cap  = 0;        /* array capacity   */

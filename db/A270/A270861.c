@@ -10,12 +10,14 @@
  *            Sum_{k=1..n} ((n+1)^2-k+(n+1-k)*z^n)*z^{k-1}/k, read by rows
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static inline idx_t find_row(idx_t n)

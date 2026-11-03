@@ -11,7 +11,8 @@
  *            2^N/C(2N,N). It is computed from the prime fac...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 33,
  *            big any n
- * Helpers:   a006750_vbinom, a006750_vp
+ * Validated: standard, pass, 32 terms through n = 189 (2026-11-01)
+ * Helpers:   valuation_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a006750_vbinom.h"
-#include "../utils/a006750_vp.h"
+#include "../utils/valuation_u64.h"
+
+static long long a006750_vbinom(uint64_t N, uint64_t p)
+{
+    /* exponent of p in C(2N, N) */
+    long long e = 0;
+    uint64_t q = p;
+    while (q <= 2 * N) {
+        e += (long long)((2 * N) / q - 2 * (N / q));
+        if (q > (2 * N) / p) break;
+        q *= p;
+    }
+    return e;
+}
 
 static unsigned char *a006750_comp = NULL;
 static uint64_t a006750_lim = 0;
@@ -55,9 +68,9 @@ seq_t a(idx_t n)
 
     for (p = 2; p <= L; p++) {
         if (a006750_comp[p]) continue;
-        e = a006750_vp(44, p) + a006750_vp(m - 1, p) + a006750_vp(m, p)
+        e = valuation_u64(44, p) + valuation_u64(m - 1, p) + valuation_u64(m, p)
           + a006750_vbinom(N, p)
-          - a006750_vp(2 * m + 3, p) - a006750_vp(2 * m + 5, p) - a006750_vp(2 * m + 7, p);
+          - valuation_u64(2 * m + 3, p) - valuation_u64(2 * m + 5, p) - valuation_u64(2 * m + 7, p);
         if (p == 2) e -= s;
         if (e > 0) {
             for (k = 0; k < e; k++) num *= (seq_t)p;

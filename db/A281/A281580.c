@@ -7,11 +7,13 @@
  * Formula:   a(n) = binomial(9*n, n-9)
  * Range:     u8 n <= 10, u16 n <= 11, u32 n <= 14, u64 n <= 21, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 25 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static inline seq_t binom_mult(idx_t N, idx_t K)

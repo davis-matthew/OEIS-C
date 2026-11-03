@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Divisors of 970, sorted ascending. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Array to hold the divisors of 970 (8 divisors). */
 static seq_t divisors[8];
@@ -101,7 +103,7 @@ static void init_divisors(void)
     gen_rec(0, primes, exps, pcnt, (seq_t)1, divisors, &pos);
 
     /* Sort them in ascending order. */
-    qsort(divisors, total, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(divisors, total, sizeof(seq_t), cmp_seq_t);
 
     initialized = 1;
 }

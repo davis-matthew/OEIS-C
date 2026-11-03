@@ -8,8 +8,9 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = number of iterations of x -> x + d(x) (d = number of
  *            divisors), until the result is even, with at least one iteration
- * Range:     u8 n <= 554, u16 n <= 9886, u32 n <= 9886, u64 n <= 9886,
- *            u128 n <= 9886, big any n
+ * Range:     u8 n <= 554, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 109 terms through n = 9886 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

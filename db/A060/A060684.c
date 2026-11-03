@@ -8,7 +8,8 @@
  * Formula:   a(n) = smallest difference between consecutive divisors of 2n+1
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, int_sqrt
+ * Validated: standard, pass, 96 terms through n = 8135 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <limits.h>
 
 #include "../utils/build_primes_upto.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 /* Static cache of primes up to the current maximum limit. */
 static uint64_t *prime_list   = NULL;
@@ -79,7 +80,7 @@ a(idx_t n)
     uint64_t m = (uint64_t)n * 2ULL + 1ULL;      /* 2n+1 */
 
     /* Find primes up to sqrt(m). */
-    idx_t sqrt_m = int_sqrt(m);
+    idx_t sqrt_m = isqrt(m);
     ensure_primes(sqrt_m);
 
     /* Factor m. */

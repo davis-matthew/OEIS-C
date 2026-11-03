@@ -10,13 +10,28 @@
  *            digits are ignored)
  * Range:     u8 n <= 54, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   has_equal_ones_and_threes
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/has_equal_ones_and_threes.h"
+#include "../utils/mem.h"
+
+/* Test whether a number satisfies the condition: equal positive counts of 1s and 3s. */
+static int has_equal_ones_and_threes(seq_t value)
+{
+    seq_t tmp = value;
+    unsigned long count1 = 0U, count3 = 0U;
+    while (tmp) {
+        unsigned int digit = (unsigned int)(tmp % 4);
+        if (digit == 1U) ++count1;
+        else if (digit == 3U) ++count3;
+        tmp /= 4;
+    }
+    return (count1 == count3 && count1 > 0U);
+}
 
 /* Global cache for computed terms and the next number to examine. */
 static seq_t *cache = NULL;
@@ -30,7 +45,7 @@ static void ensure_cache_cap(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2U : 8U;
     while (new_cap < needed) new_cap *= 2U;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) exit(1);               /* abort on allocation failure */
     cache = new_arr;
     cache_cap = new_cap;
@@ -45,7 +60,7 @@ seq_t a(idx_t n)
     if (!cache) {
         cache_cap   = 8U;
         cache_len   = 0U;
-        cache       = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_cap);
         next_candidate = (seq_t)1;
     }
 

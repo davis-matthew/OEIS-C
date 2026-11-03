@@ -11,12 +11,21 @@
  *            all other n the integer division n/2 is sufficien...
  * Range:     u8 n <= 161, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_log3_idx
+ * Validated: standard, pass, 77 terms through n = 979 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log3_idx.h"
+static idx_t floor_log3_idx(idx_t x)
+{
+    idx_t e = 0;
+    while (x >= 3) {
+        x /= 3;
+        ++e;
+    }
+    return e;
+}
 
 seq_t a(idx_t n)
 {

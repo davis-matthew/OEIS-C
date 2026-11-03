@@ -10,7 +10,8 @@
  *            simulated with an internal big integer
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bn_shl
+ * Validated: standard, pass, 105 terms through n = 9185 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/bn_shl.h"
+
+static void bn_shl(uint32_t *a, size_t L, int k) {
+    uint32_t carry = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint32_t v = a[i];
+        a[i] = (v << k) | carry;
+        carry = v >> (32 - k);
+    }
+}
 
 static size_t bn_trim(const uint32_t *d, size_t n) {
     while (n > 0 && d[n - 1] == 0) n--;

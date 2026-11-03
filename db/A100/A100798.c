@@ -9,8 +9,9 @@
  * Formula:   a(n) = the smallest integer m that can be placed at position n,
  *            where each integer m appears exactly m times, and two successive
  *            occurrences of m are separated by at least m other terms
- * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
- *            big any n
+ * Range:     u8 n <= 9878, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 100 terms through n = 9350 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

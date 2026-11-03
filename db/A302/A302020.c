@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 27, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   alloc_seq, free_seq
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,22 @@
 /* Note: Requires the utility headers provided in the build. */
 #include <stddef.h>
 #include <string.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* ----- internal state ----- */
 static seq_t *c_arr = NULL;                /* coefficients of ∏(1+x^k+x^{2k}+x^{3k}) */
@@ -66,7 +81,7 @@ static void compute_c_upto(idx_t N)
     }
 
     /* copy the result into c_arr */
-    memcpy(c_arr, dp_prev, ((size_t)N + 1) * sizeof(seq_t));
+    mem_copy(c_arr, dp_prev, ((size_t)N + 1) * sizeof(seq_t));
 
     /* free temporary arrays */
     free_seq(dp_prev);
@@ -83,8 +98,8 @@ static void ensure_capacity(idx_t N)
     seq_t *new_a = alloc_seq(new_cap);
 
     /* copy existing contents if any */
-    if (c_arr) memcpy(new_c, c_arr, arr_cap * sizeof(seq_t));
-    if (a_arr) memcpy(new_a, a_arr, arr_cap * sizeof(seq_t));
+    if (c_arr) mem_copy(new_c, c_arr, arr_cap * sizeof(seq_t));
+    if (a_arr) mem_copy(new_a, a_arr, arr_cap * sizeof(seq_t));
 
     /* replace old arrays */
     if (c_arr) free_seq(c_arr);

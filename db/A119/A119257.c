@@ -11,8 +11,9 @@
  *            For n > 1: * if n is prime → a(n) = n; * else let p be the
  *            largest prime < n and q be the smallest prime > n. * The
  *            composite run is [p+1, q-1]; a(n) = p+1 + (q-1 - n)
- * Range:     u8 n <= 251, u16 n <= 9474, u32 n <= 9474, u64 n <= 9474,
- *            u128 n <= 9474, big any n
+ * Range:     u8 n <= 251, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 88 terms through n = 9474 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

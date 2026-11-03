@@ -7,6 +7,7 @@
  * Formula:   a(n) = n + sum of prime indices of n
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
  * Helpers:   factor_u64, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/sieve_primes.h"   /* provides sieve_primes */
-#include "../utils/factor_u64.h"     /* provides factor_u64 */
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/sieve_primes.h"
 
 /* Global cache of primes for the thread of execution. */
 static idx_t *primes = NULL;        /* array of prime values */

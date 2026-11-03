@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 19, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   internal_digits9
+ * Validated: full, pass, 19 terms through n = 19 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,28 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/internal_digits9.h"
+
+/* Return true iff every internal decimal digit of x is 9.
+   Internal digits are the digits except the first (most
+   significant) and last (least significant). */
+static bool internal_digits9(seq_t x)
+{
+    /* Remove the last digit. */
+    seq_t temp = x / 10;
+    if (temp < 10)            /* no internal digits */
+        return true;
+
+    /* Repeatedly test the last digit of temp (which is
+       the next internal digit).  Stop when only the
+       most significant digit remains. */
+    while (temp >= 10) {
+        seq_t d = temp % 10;
+        if (d != 9)
+            return false;
+        temp /= 10;
+    }
+    return true;
+}
 
 #define MAX_K   20000          /* enough to capture all known terms */
 #define MAX_TERMS 200          /* storage for the (rare) terms */

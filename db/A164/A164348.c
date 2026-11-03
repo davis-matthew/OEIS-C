@@ -10,7 +10,8 @@
  *            numerator term of the generating function
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 583 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Compute the nth term of OEIS sequence A164348. */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper array with the first six terms (offset 0). */
 static const seq_t init[6] = {
@@ -42,9 +44,9 @@ ensure_cache(size_t need)
     /* Allocate a new buffer of the requested size. */
     seq_t *tmp = NULL;
     if (cache == NULL) {
-        tmp = (seq_t *)malloc(need * sizeof(seq_t));
+        tmp = mem_new(seq_t, need);
     } else {
-        tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        tmp = mem_resize(seq_t, cache, need);
     }
     if (tmp == NULL) {
         /* In a real program we would handle the error; here we just

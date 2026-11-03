@@ -8,20 +8,21 @@
  *            palindrome
  * Range:     u8 n <= 104, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 121 terms through n = 9796 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 seq_t a(idx_t n)
 {
     if (n <= 3) return 0;
     seq_t count = 0;
     for (idx_t b = 2; b <= n - 2; ++b)
-        if (is_palindrome((seq_t)n, b))
+        if (is_palindrome_base((seq_t)n, b))
             ++count;
     return count;
 }

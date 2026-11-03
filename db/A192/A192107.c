@@ -7,12 +7,14 @@
  * Formula:   a(n) = 55*a(n-1) - 250*a(n-2), a(1)=25, a(2)=1375
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* dynamic cache of computed values */
 static idx_t a_cache_size = 0;  /* allocated capacity of the cache      */
@@ -28,13 +30,13 @@ seq_t a(idx_t n)
         size_t new_size = a_cache_size == 0 ? 3 : a_cache_size;
         while (new_size < needed) new_size <<= 1;   /* grow to power of two */
 
-        seq_t *new_arr = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        seq_t *new_arr = mem_new(seq_t, new_size);
         if (a_cache) {
             /* copy only the part that has been computed */
             for (idx_t i = 0; i <= a_last; ++i) {
                 new_arr[i] = a_cache[i];
             }
-            free(a_cache);
+            mem_free(a_cache);
         }
         a_cache = new_arr;
         a_cache_size = new_size;

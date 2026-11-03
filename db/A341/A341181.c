@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1649, u32 n <= 5001, u64 n <= 5001,
  *            u128 n <= 5001, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 62 terms through n = 4839 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for terms that have already been found. */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     /* Allocate cache on first call. */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Keep searching until we have at least n terms cached. */
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
                 /* Ensure capacity for the new term. */
                 if (cache_size == cache_cap) {
                     cache_cap <<= 1;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_size++] = cur;
                 /* Next search should start after the term we just found. */

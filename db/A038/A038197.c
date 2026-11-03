@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 33, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
      if n≡0 (mod 3) : a(n) = a(n-1)+a(n-6)
    Implements a cache to allow random‑order calls. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache array for computed values */
 static idx_t cache_size = 0;  /* number of entries currently computed (cache_size==0 => none) */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
             /* grow until we can store n */
             while (new_cap <= (size_t)n) new_cap <<= 1;
         }
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         /* initialise new entries to 0 (not strictly necessary) */
         for (size_t i = cache_size; i < new_cap; ++i) cache[i] = 0;
         cache_size = new_cap;

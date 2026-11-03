@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 72 terms through n = 924 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* Helper that uses the library digit_sum but treats 0 as having digit sum 1. */
 static seq_t digit_sum_zero(seq_t x)
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
     /* initialise cache with a(0) = 0 on first call */
     if (cache == NULL) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return 0;         /* allocation failure */
         cache[0] = (seq_t)0;
         cache_max = 0;
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
     /* grow the cache if needed */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return 0;           /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

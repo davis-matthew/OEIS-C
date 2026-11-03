@@ -9,13 +9,16 @@
  * Formula:   a(n) = 2^(n-1) * (n*(n+1)/2)! / (1!*2!*...*n!)
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 5, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Compute the n-th term of OEIS sequence A064382.
    a(1) = 1, a(2) = 6, ... as defined in the OEIS entry. */
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
     }
 
     /* Multiply by 2^(n-1). */
-    seq_t pow2 = pow_uint(2, n - 1);
+    seq_t pow2 = ipow_u64_idx(2, n - 1);
     result *= pow2;
 
     return result;

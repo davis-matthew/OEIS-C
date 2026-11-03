@@ -7,14 +7,32 @@
  * Formula:   a(n) = a(n-1)^4 / a(n-2), a(0)=1, a(1)=2
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   big_pow, seq_alloc_new_array, seq_realloc
+ * Validated: partial, pass, 6 terms through n = 5 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_realloc.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+    /* one allocation scheme for every width (the C++ branch here used
+       new[]/delete[] on memory from mem_new) */
+    (void)old_cap;
+    seq_t *p = mem_resize(seq_t, old, new_cap ? new_cap : 1);
+    if (!p) abort();
+    return p;
+}
 #include <stddef.h>
 
 static seq_t *exp_cache   = NULL;   /* store exponents e_n */
@@ -60,7 +78,7 @@ seq_t a(idx_t n)
         seq_t e_prev2  = exp_cache[i - 2];
         seq_t e        = e_prev * (seq_t)4 - e_prev2;   /* e_n = 4*e_{n-1} - e_{n-2} */
         exp_cache[i]   = e;
-        seq_cache[i]   = big_pow((seq_t)2, e);          /* a_n = 2^e_n */
+        seq_cache[i]   = ipow((seq_t)2, e);          /* a_n = 2^e_n */
     }
     exp_size = seq_size = needed;
     return seq_cache[n];

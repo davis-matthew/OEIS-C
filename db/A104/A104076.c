@@ -9,16 +9,27 @@
  * Formula:   a(n) = GCD of the sums of consecutive sorted divisors of n
  *            (k(1)+k(2), k(2)+k(3), … , k(j-1)+k(j)), where k(i) are the
  *            divisors of n sorted by size. The sequence starts at a(2)
- * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
- *            big any n
- * Helpers:   cmp_seq
+ * Range:     u8 n <= 255, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 112 terms through n = 897 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/cmp_seq.h"
+#include "../utils/mem.h"
+
+/* Comparator for qsort on seq_t values. */
+static int cmp_seq(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 /* Euclidean algorithm for the GCD of two seq_t values. */
 static seq_t seq_gcd(seq_t a, seq_t b)
@@ -59,7 +70,7 @@ seq_t a(idx_t n)
 
     /* Sort the collected divisors. */
     if (count > 1) {
-        qsort(divs, (size_t)count, sizeof(seq_t), cmp_seq);
+        mem_qsort(divs, (size_t)count, sizeof(seq_t), cmp_seq);
     }
 
     /* Compute the GCD of sums of adjacent divisors. */

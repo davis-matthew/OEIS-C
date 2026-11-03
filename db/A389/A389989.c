@@ -7,11 +7,14 @@
  * Formula:   a(n) = 3^n - 2^n - 2*n - 1 (for n>1), a(0)=a(1)=0
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 981 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
 

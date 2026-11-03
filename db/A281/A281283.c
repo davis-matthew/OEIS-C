@@ -14,12 +14,14 @@
  *            a(17)=213542, a(18)=453977, a(19)=864935, a(20)=1826264, a(21...
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 121 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[24] = {
     (seq_t)1,  (seq_t)3,  (seq_t)6,  (seq_t)13, (seq_t)27,
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first 24 terms on first call */
     if (cache == NULL) {
         cache_size = 24;
-        cache = (seq_t *)calloc(cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) { /* allocation failed, return 0 as safe fallback */
             return (seq_t)0;
         }
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     /* Extend cache if the requested index is beyond current capacity */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) { /* reallocation failed */
             return (seq_t)0;
         }

@@ -9,13 +9,15 @@
  *            sigma(x) eventually leads to n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9854 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,11 +33,11 @@ seq_t a(idx_t n)
 
         /* grow or allocate arrays */
         sigma = (uint32_t *)realloc(sigma, sz * sizeof(uint32_t));
-        cnt   = (seq_t *)realloc(cnt,   sz * sizeof(seq_t));
+        cnt   = mem_resize(seq_t, cnt, sz);
 
         /* initialise to zero */
         memset(sigma, 0, sz * sizeof(uint32_t));
-        memset(cnt,   0, sz * sizeof(seq_t));
+        mem_set(cnt, 0, sz * sizeof(seq_t));
 
         /* divisor sum σ(m) for all m <= n */
         for (idx_t i = 1; i <= n; ++i) {

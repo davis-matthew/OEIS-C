@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1059, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 59 terms through n = 9392 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>      /* malloc, realloc, free */
 #include <stdbool.h>     /* bool */
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* Cache the already found terms.  The cache is grown only when
    necessary.  Cur_val stores the last tested integer (starts
@@ -42,7 +44,7 @@ static void ensure_cache_capacity(idx_t n)
     size_t new_cap = 32;          /* initial capacity */
     while (new_cap < (size_t)n)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)                    /* allocation failure – abort */
         exit(EXIT_FAILURE);
     cache = tmp;

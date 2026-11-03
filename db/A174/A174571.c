@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(4n)=n, a(4n+1)=4, a(4n+2)=1, a(4n+3)=4
- * Range:     u8 n <= 1023, u16 n <= 9320, u32 n <= 9320, u64 n <= 9320,
- *            u128 n <= 9320, big any n
+ * Range:     u8 n <= 1023, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 100 terms through n = 9320 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

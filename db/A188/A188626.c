@@ -7,12 +7,21 @@
  * Formula:   a(n) = n + (n-1)*2^(n-2)
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 60, u128 n <= 123,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: standard, pass, 45 terms through n = 976 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Compute 2^exp in seq_t using binary exponentiation. */
 static seq_t pow2_exp(idx_t exp)

@@ -8,12 +8,14 @@
  *            \binom(n+3i-j-1,\;4i-1)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         seq_t bi   = (seq_t)1;                       /* \binom(i,0) */
         idx_t k_top = n + 3 * i - 1;                 /* top of binomial for j=0 */
         idx_t c      = 4 * i - 1;                    /* bottom of binomial */
-        seq_t bk     = binom(k_top, c);              /* \binom(k_top,c) */
+        seq_t bk     = binomial(k_top, c);              /* \binom(k_top,c) */
 
         for (idx_t j = 0; j <= i; ++j)
         {

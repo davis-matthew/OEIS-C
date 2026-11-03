@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp   = NULL;   /* dp[s] = # of triples j,k,l with 7j+9k+10l = s */
 static seq_t *pref = NULL;   /* pref[s] = # of triples with 7j+9k+10l ≤ s   */
@@ -33,8 +35,8 @@ static void recompute_up_to(idx_t n)
         return;  /* already computed up to this n */
 
     /* Allocate new arrays */
-    dp   = (seq_t *)realloc(dp,   new_size * sizeof(seq_t));
-    pref = (seq_t *)realloc(pref, new_size * sizeof(seq_t));
+    dp   = mem_resize(seq_t, dp, new_size);
+    pref = mem_resize(seq_t, pref, new_size);
     if (!dp || !pref) {
         /* In a production environment we should handle out‑of‑memory,
            but for the purposes of this function we simply abort. */

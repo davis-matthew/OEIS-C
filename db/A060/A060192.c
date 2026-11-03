@@ -9,12 +9,14 @@
  *            stores the required terms
  * Range:     u8 n <= 26, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *terms    = NULL;
 static size_t terms_len = 0, terms_cap = 0;
@@ -49,7 +51,7 @@ static void ensure_terms(idx_t n)
             if ((prime_index & 3) == 2 || (prime_index & 3) == 3) {
                 if (terms_len == terms_cap) {
                     terms_cap = terms_cap ? terms_cap << 1 : 4;
-                    terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                 }
                 terms[terms_len++] = (seq_t)candidate;
             }

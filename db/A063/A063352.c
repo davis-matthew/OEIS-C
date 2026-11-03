@@ -11,12 +11,14 @@
  *            2041, a(11) = 2301, a(12) = 2561, a(13) = 2819
  * Range:     i8 n <= 2, i16 n <= 41, i32 n <= 41, i64 n <= 41, i128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* base values for indices 0 … 13 */
 static const seq_t base[14] = {
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     /* Ensure we have room for all indices up to n. */
     if (n + 1 > cache_len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) {
             /* Allocation failed – return zero (should not happen). */
             return (seq_t)0;

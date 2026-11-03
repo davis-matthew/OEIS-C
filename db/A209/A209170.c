@@ -12,12 +12,14 @@
  *            v(n,x)=(x+1)*u(n-1,x)+(x+1)*v(n-1,x)+1
  * Range:     u8 n <= 22, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,16 +37,16 @@ seq_t a(idx_t n)
     idx_t k = n - (r * (r - 1)) / 2;  /* 1‑based column in row r */
 
     /* Allocate arrays for row 1 */
-    seq_t *prev_u = (seq_t *)malloc(sizeof(seq_t));
-    seq_t *prev_v = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *prev_u = mem_new(seq_t, 1);
+    seq_t *prev_v = mem_new(seq_t, 1);
     prev_u[0] = (seq_t)1;
     prev_v[0] = (seq_t)1;
 
     /* Build rows up to r */
     for (idx_t row = 2; row <= r; ++row) {
         idx_t new_len = row;
-        seq_t *cur_u = (seq_t *)malloc(new_len * sizeof(seq_t));
-        seq_t *cur_v = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *cur_u = mem_new(seq_t, new_len);
+        seq_t *cur_v = mem_new(seq_t, new_len);
 
         for (idx_t i = 0; i < new_len; ++i) {
             /* indices from previous row */
@@ -59,8 +61,8 @@ seq_t a(idx_t n)
                        + ((i == 0) ? (seq_t)1 : (seq_t)0);
         }
 
-        free(prev_u);
-        free(prev_v);
+        mem_free(prev_u);
+        mem_free(prev_v);
         prev_u = cur_u;
         prev_v = cur_v;
     }
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     /* Retrieve the requested coefficient (0‑based index k-1) */
     seq_t result = prev_u[k - 1];
 
-    free(prev_u);
-    free(prev_v);
+    mem_free(prev_u);
+    mem_free(prev_v);
     return result;
 }

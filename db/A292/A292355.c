@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = -(1+(-1)^n)/2 + (1/n) * Σ_{d|n} ( φ(n/d) - μ(n/d) ) *
  *            C(3d-1, d-1)
- * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 23, u64 n <= 53, u128 n <= 101,
+ * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 53, u128 n <= 101,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 892 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static uint32_t primes[20000];

@@ -8,12 +8,14 @@
  *            a(1)=1, a(2)=2, a(3)=7, a(4)=26
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 35, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>      /* malloc, free */
+#include "../utils/mem.h"
 
 /* Static cache for already-computed terms */
 static seq_t *cache = NULL;    /* 1‑indexed array: cache[1] contains a(1) */
@@ -29,14 +31,14 @@ static void ensure_capacity(idx_t cap)
     idx_t new_cap = cache_cap > 0 ? cache_cap * 2 : 8;
     while (new_cap < cap) new_cap *= 2;
 
-    seq_t *new_arr = (seq_t *)malloc((size_t)(new_cap + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, (size_t)(new_cap + 1));
     if (!new_arr) return;             /* out of memory; caller will see error  */
 
     /* copy existing data */
     for (idx_t i = 1; i <= cache_len; ++i) new_arr[i] = cache[i];
 
     /* free old buffer */
-    free(cache);
+    mem_free(cache);
 
     cache     = new_arr;
     cache_cap = new_cap;

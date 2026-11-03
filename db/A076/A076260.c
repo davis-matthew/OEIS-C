@@ -7,14 +7,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 0 if n is squarefree; otherwise A067535(n)-A070321(n)
- * Range:     u8 n <= 1072, u16 n <= 9821, u32 n <= 9821, u64 n <= 9821,
- *            u128 n <= 9821, big any n
+ * Range:     u8 n <= 1072, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9821 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
 
 /* seq_t and idx_t are defined by the build */

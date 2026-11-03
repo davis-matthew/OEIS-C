@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 110, u16 n <= 110, u32 n <= 110, u64 n <= 110,
  *            u128 n <= 110, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: partial, pass, 105 terms through n = 110 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 /* Constant to be square‑rooted */
 static const uint64_t N_CONST = 71216963807ULL;
@@ -136,7 +137,7 @@ seq_t a(idx_t n)
     /* Initialise once */
     if (!init_done) {
         /* Integer part of sqrt */
-        uint64_t sqrt_int = _floor_isqrt_u64(N_CONST);
+        uint64_t sqrt_int = isqrt(N_CONST);
 
         /* Remainder after integer part */
         uint64_t rem_u = N_CONST - sqrt_int * sqrt_int;

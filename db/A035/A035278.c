@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-1) * (10*n - 1); a(1) = 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 309 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes OEIS A035278: One ninth of deca-factorial numbers. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ extern seq_t a(idx_t n)
     if (!cache) {
         /* Allocate for indices 0..n */
         cache_len = n + 1;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return 0; /* malloc failure; caller must handle */
         cache[0] = 0;        /* unused */
         if (n >= 1) {
@@ -38,7 +40,7 @@ extern seq_t a(idx_t n)
         /* Extend the cache to hold up to n */
         size_t old_len = cache_len;
         cache_len = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, cache_len);
         if (!new_cache) return 0; /* realloc failure */
         cache = new_cache;
         /* Compute values from old_len to n inclusive */

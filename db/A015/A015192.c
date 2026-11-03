@@ -7,12 +7,14 @@
  * Formula:   a(n) = Σ_{k=0..n} [n choose k]_{q=-23}
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 5, i64 n <= 7, i128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ∑ [n choose k]_q is computed with the recurrence
  * [m choose k] = [m-1 choose k] + q^(m-k) * [m-1 choose k-1], 
@@ -28,9 +30,9 @@ seq_t a(idx_t n)
 
     /* First call – allocate minimal storage (size 1) */
     if (!a_cache) {
-        a_cache   = (seq_t*)malloc(sizeof(seq_t));
-        prev_row  = (seq_t*)malloc(sizeof(seq_t));
-        curr_row  = (seq_t*)malloc(sizeof(seq_t));
+        a_cache   = mem_new(seq_t, 1);
+        prev_row  = mem_new(seq_t, 1);
+        curr_row  = mem_new(seq_t, 1);
         a_cache[0]   = (seq_t)1;   /* a(0) = 1 */
         prev_row[0]  = (seq_t)1;   /* [0 choose 0] = 1 */
         max_cached   = 0;
@@ -42,9 +44,9 @@ seq_t a(idx_t n)
 
     /* Grow the caches to hold all needed indices up to n */
     idx_t new_size = n + 1;
-    a_cache  = (seq_t*)realloc(a_cache,  new_size * sizeof(seq_t));
-    prev_row = (seq_t*)realloc(prev_row, new_size * sizeof(seq_t));
-    curr_row = (seq_t*)realloc(curr_row, new_size * sizeof(seq_t));
+    a_cache  = mem_resize(seq_t, a_cache, new_size);
+    prev_row = mem_resize(seq_t, prev_row, new_size);
+    curr_row = mem_resize(seq_t, curr_row, new_size);
 
     const seq_t Q = (seq_t)-23;   /* fixed q value */
 

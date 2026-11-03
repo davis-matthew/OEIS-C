@@ -9,12 +9,14 @@
  *            first term)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 3150 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) for n ≥ 1 in O( √n ) time.
    Uses a cached array of powers of two to avoid recomputing them. */
@@ -36,14 +38,14 @@ seq_t a(idx_t n)
     idx_t needed = n;                      /* indices 0 … needed-1 are required      */
     if (pow2_size <= needed) {
         idx_t new_size = needed + 1;       /* allocate 0 … needed */
-        seq_t *tmp = (seq_t *)realloc(pow2, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, pow2, new_size);
         if (!tmp) return (seq_t)0;        /* allocation failure – return 0           */
         /* initialise the new entries                     */
         for (idx_t i = pow2_size; i < new_size; ++i) {
             if (i == 0) {
                 tmp[i] = (seq_t)1;
             } else {
-                /* pow2[i] = pow2[i-1] * 2 */
+                /* tmp[i] = tmp[i-1] * 2 */
                 tmp[i] = tmp[i-1] * (seq_t)2;
             }
         }

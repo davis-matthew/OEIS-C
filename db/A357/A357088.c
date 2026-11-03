@@ -8,7 +8,8 @@
  *            / (2^k * k!) (OEIS A357088)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow, pow2
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   ipow, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* ---------- Internal state ---------- */
 static seq_t *a_cache     = NULL;   /* a[0..] values, 0 if not computed */
@@ -38,8 +40,8 @@ static void ensure_a_capacity(idx_t needed)
     if ((size_t)needed < a_len) return;
     size_t new_len = ((size_t)needed + 1) * 2;
     seq_t *tmp = NULL;
-    if (a_cache) tmp = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
-    else          tmp = (seq_t *)malloc(new_len * sizeof(seq_t));
+    if (a_cache) tmp = mem_resize(seq_t, a_cache, new_len);
+    else          tmp = mem_new(seq_t, new_len);
     if (!tmp) abort();
     for (size_t i = a_len; i < new_len; ++i) tmp[i] = 0;
     a_cache = tmp;
@@ -51,8 +53,8 @@ static void ensure_fact_capacity(idx_t needed)
     if ((size_t)needed < fact_len) return;
     size_t new_len = ((size_t)needed + 1) * 2;
     seq_t *tmp = NULL;
-    if (fact_cache) tmp = (seq_t *)realloc(fact_cache, new_len * sizeof(seq_t));
-    else            tmp = (seq_t *)malloc(new_len * sizeof(seq_t));
+    if (fact_cache) tmp = mem_resize(seq_t, fact_cache, new_len);
+    else            tmp = mem_new(seq_t, new_len);
     if (!tmp) abort();
     for (size_t i = fact_len; i < new_len; ++i) tmp[i] = 0;
     fact_cache = tmp;
@@ -71,12 +73,12 @@ static void ensure_stir_capacity(idx_t needed)
     if ((size_t)needed < stir_len) return;
     size_t new_len = ((size_t)needed + 1) * 2;
     seq_t *tmp0 = NULL, *tmp1 = NULL;
-    if (stir_prev) tmp0 = (seq_t *)realloc(stir_prev, new_len * sizeof(seq_t));
-    else           tmp0 = (seq_t *)malloc(new_len * sizeof(seq_t));
+    if (stir_prev) tmp0 = mem_resize(seq_t, stir_prev, new_len);
+    else           tmp0 = mem_new(seq_t, new_len);
     if (!tmp0) abort();
 
-    if (stir_curr) tmp1 = (seq_t *)realloc(stir_curr, new_len * sizeof(seq_t));
-    else           tmp1 = (seq_t *)malloc(new_len * sizeof(seq_t));
+    if (stir_curr) tmp1 = mem_resize(seq_t, stir_curr, new_len);
+    else           tmp1 = mem_new(seq_t, new_len);
     if (!tmp1) abort();
 
     for (size_t i = stir_len; i < new_len; ++i) {
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
         /* initialise factorial cache once */
         if (fact_cache == NULL) {
             fact_len = 1;
-            fact_cache = (seq_t *)malloc(fact_len * sizeof(seq_t));
+            fact_cache = mem_new(seq_t, fact_len);
             if (!fact_cache) abort();
             fact_cache[0] = 1;
             fact_max = 0;
@@ -113,8 +115,8 @@ seq_t a(idx_t n)
         /* initialise Stirling arrays once */
         if (stir_prev == NULL) {
             stir_len = 1;
-            stir_prev = (seq_t *)malloc(stir_len * sizeof(seq_t));
-            stir_curr = (seq_t *)malloc(stir_len * sizeof(seq_t));
+            stir_prev = mem_new(seq_t, stir_len);
+            stir_curr = mem_new(seq_t, stir_len);
             if (!stir_prev || !stir_curr) abort();
             stir_prev[0] = 1;   /* S(0,0)=1 */
         }
@@ -139,7 +141,7 @@ seq_t a(idx_t n)
             for (size_t k = 1; k <= maxk; ++k) {
                 seq_t fact_2k   = fact_cache[2*k];
                 seq_t base      = (seq_t)(i - k + 1);
-                seq_t power     = big_pow(base, (seq_t)(k-1));
+                seq_t power     = ipow(base, (seq_t)(k-1));
                 seq_t stir_val  = stir_curr[2*k];
 
                 unsigned __int128 numer   = (unsigned __int128)fact_2k

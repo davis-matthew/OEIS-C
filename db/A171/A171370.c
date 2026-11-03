@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 53, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
    and works for all n ≥ 0. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The build supplies seq_t and idx_t definitions. */
 seq_t a(idx_t n)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)1;
 
     /* Allocate temporary array to memoize a(k) up to n */
-    seq_t *array = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *array = mem_new(seq_t, (n + 1));
     if (!array) return (seq_t)0; /* Allocation failure falls back to 0 */
 
     array[0] = (seq_t)1;         /* a(0) */
@@ -53,6 +55,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = array[n];
-    free(array);
+    mem_free(array);
     return result;
 }

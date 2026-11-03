@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
+#include "../utils/mem.h"
 
 /* memoisation storage */
 static seq_t *cached = NULL;      /* array of found k's */
@@ -37,7 +39,7 @@ static idx_t next_k = 1;          /* next k to test */
 static void grow_cache(void)
 {
     size_t newcap = cap ? cap * 2 : 64;
-    seq_t *tmp = (seq_t *)realloc(cached, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cached, newcap);
     if (!tmp) abort();                /* allocation failed */
     cached = tmp;
     cap = newcap;
@@ -52,8 +54,8 @@ seq_t a(idx_t n)
         idx_t k2 = k * k;                         /* k² */
 
         /* counts of primes in the two open intervals */
-        seq_t left  = compute_pi(k2 - 1) - compute_pi(k2 - k);
-        seq_t right = compute_pi(k2 + k - 1) - compute_pi(k2);
+        seq_t left  = prime_pi(k2 - 1) - prime_pi(k2 - k);
+        seq_t right = prime_pi(k2 + k - 1) - prime_pi(k2);
 
         if (left == right) {                      /* k satisfies the condition */
             if (len == cap) grow_cache();

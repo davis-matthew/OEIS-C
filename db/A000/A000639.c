@@ -9,15 +9,31 @@
  *            3*B(x)*B(x^2) + 2*B(x^3))/6 is the g.f. of A000598
  * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 29, u64 n <= 52, u128 n <= 95,
  *            big any n
- * Helpers:   a639_grow, a639_growp
+ * Validated: standard, pass, 50 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a639_grow.h"
-#include "../utils/a639_growp.h"
+#include "../utils/mem.h"
+
+static seq_t *a639_grow(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, newlen);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+static uint64_t *a639_growp(uint64_t *old, idx_t oldlen, idx_t newlen) {
+    uint64_t *p = (uint64_t *)calloc(newlen, sizeof(uint64_t));
+    idx_t i;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) free(old);
+    return p;
+}
 
 #define A639_P 1000000007ULL
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 16, i64 n <= 27, i128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 557 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
                 a(n+1) = -∑_{k=0..n} binomial(n+2, k+2) * a(k)   (n ≥ 0)
 */
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache of computed terms */
 static idx_t cache_len = 0;   /* number of cached terms */
@@ -26,10 +28,10 @@ static void extend_cache(idx_t n)
 {
     if (cache_len > n) return;              /* already big enough */
     idx_t new_len = n + 1;
-    seq_t *new_cache = (seq_t*)malloc(new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     for (idx_t i = 0; i < cache_len; ++i)   /* copy old values */
         new_cache[i] = cache[i];
-    if (cache != NULL) free(cache);         /* free old memory */
+    if (cache != NULL) mem_free(cache);         /* free old memory */
     cache = new_cache;
     cache_len = new_len;
 }

@@ -12,13 +12,15 @@
  *            of the recurrence: p_t(s) = p_t(s-t) + p_{t-1}(s-1). Com...
  * Range:     u8 n <= 20, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,14 +29,14 @@ seq_t a(idx_t n)
 
     /* Allocate three rows of size n+1 each. */
     seq_t *row[3];
-    row[0] = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    row[1] = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-    row[2] = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    row[0] = mem_new(seq_t, (size_t)(n + 1));
+    row[1] = mem_new(seq_t, (size_t)(n + 1));
+    row[2] = mem_new(seq_t, (size_t)(n + 1));
 
     if (!row[0] || !row[1] || !row[2]) {
         /* In case of allocation failure, free any allocated memory
            and return 0. This should never happen for normal inputs. */
-        free(row[0]); free(row[1]); free(row[2]);
+        mem_free(row[0]); mem_free(row[1]); mem_free(row[2]);
         return (seq_t)0;
     }
 
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     }
 
     /* Free the allocated rows */
-    free(row[0]); free(row[1]); free(row[2]);
+    mem_free(row[0]); mem_free(row[1]); mem_free(row[2]);
 
     return result;
 }

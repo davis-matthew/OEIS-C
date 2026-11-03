@@ -10,12 +10,14 @@
  *            (n+1-i)*(2*n+2-i)*phi(i); a(1)=5, a(2)=27
  * Range:     u8 n <= 3, u16 n <= 18, u32 n <= 310, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 53 terms through n = 959 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -27,14 +29,14 @@ seq_t a(idx_t n)
     seq_t sum2 = 0;
 
     for (idx_t i = 2; i <= half; ++i) {
-        seq_t phi_i = phi(i);
+        seq_t phi_i = totient(i);
         seq_t term = (seq_t)(n + 1 - i) * (seq_t)i;
         term *= phi_i;
         sum1 += term;
     }
 
     for (idx_t i = half + 1; i <= n; ++i) {
-        seq_t phi_i = phi(i);
+        seq_t phi_i = totient(i);
         seq_t term = (seq_t)(n + 1 - i) *
                      (((seq_t)2 * (seq_t)n) + 2 - (seq_t)i);
         term *= phi_i;

@@ -5,15 +5,19 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, sign
  * Formula:   a(n) = mu(n) * Catalan(n)
- * Range:     i8 n <= 4, i16 n <= 9, i32 n <= 16, i64 n <= 36, i128 n <= 68,
+ * Range:     i8 n <= 5, i16 n <= 10, i32 n <= 20, i64 n <= 36, i128 n <= 68,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 169 (2026-11-01)
  * Helpers:   catalan, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mobius.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/catalan.h"
+#include "../utils/mobius.h"
 
 seq_t a(idx_t n)
 {

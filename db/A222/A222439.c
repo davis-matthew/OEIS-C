@@ -8,12 +8,14 @@
  * Formula:   a(1)=9, a(2)=147. a(n)=18*a(n-1)-27*a(n-2) for n≥3
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     /* initialise cache with first two terms if not already done */
     if (cache_len < 2) {
         cache_len = 2;
-        cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_len);
         cache[0] = (seq_t)9;
         cache[1] = (seq_t)147;
     }
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
 
     /* extend cache up to the required term */
     if (target > cache_len) {
-        seq_t *new_cache = (seq_t *)realloc(cache, target * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, target);
         if (!new_cache) return (seq_t)0;   /* allocation failed */
         cache = new_cache;
         for (size_t i = cache_len; i < target; ++i) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 121, i16 n <= 122, i32 n <= 122, i64 n <= 122,
  *            i128 n <= 122, big any n
- * Helpers:   none
+ * Validated: partial, pass, 123 terms through n = 122 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;       /* DP table: dp[s] = minimal # of terms for sum s */
 static idx_t cached_max = 0;   /* largest n for which dp has been built */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Re‑build DP when we need a larger n than we have already computed. */
     if (dp == NULL || n > cached_max) {
         size_t size = (size_t)(n + 1);
-        seq_t *new_dp = (seq_t *)realloc(dp, size * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, size);
         if (new_dp == NULL) {
             return (seq_t)-1;   /* memory allocation failed */
         }

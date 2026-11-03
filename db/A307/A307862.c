@@ -7,12 +7,13 @@
  * Formula:   a(n) = Σ_{k=0..⌊n/2⌋} (-n)^k * binomial(n,k) * binomial(n-k,k)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 12, i64 n <= 20, i128 n <= 37,
  *            big any n
- * Helpers:   binomial_nk
+ * Validated: standard, pass, 39 terms through n = 468 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial_nk.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +25,8 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= k_max; ++k) {
         seq_t term = power;
-        term = term * binomial_nk(n, k);
-        term = term * binomial_nk(n - k, k);
+        term = term * binomial(n, k);
+        term = term * binomial(n - k, k);
         sum += term;
 
         power = power * neg_n;             /* prepare power for next k */

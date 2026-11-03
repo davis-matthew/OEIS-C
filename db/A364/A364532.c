@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include "../utils/prime_pi.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Prime sieve (up to 1 000 000) for factorisation and prime index lookup. */
@@ -79,7 +82,7 @@ static inline uint64_t prime_index(uint64_t p)
     if (p <= SIEVE_LIMIT) {
         return binary_search_prime((uint32_t)p);
     } else {
-        seq_t pi = compute_pi((idx_t)p);
+        seq_t pi = prime_pi((idx_t)p);
         return (uint64_t)pi;
     }
 }
@@ -190,7 +193,7 @@ seq_t a(idx_t n)
         if (satisfies((seq_t)candidate)) {
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                sequence = (seq_t*)realloc(sequence, seq_cap * sizeof(seq_t));
+                sequence = mem_resize(seq_t, sequence, seq_cap);
             }
             sequence[seq_len++] = (seq_t)candidate;
         }

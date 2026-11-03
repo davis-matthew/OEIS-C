@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* dp[i] – minimal number of prime powers summing to i */
 static seq_t *dp = NULL;
@@ -99,7 +101,7 @@ static void extend_dp(idx_t new_max)
 
     /* Resize dp array. */
     size_t new_size = (size_t)new_max + 1;
-    seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, new_size);
     if (!tmp) exit(EXIT_FAILURE);
     dp = tmp;
 

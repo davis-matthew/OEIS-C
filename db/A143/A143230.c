@@ -9,12 +9,14 @@
  *            row). Here φ(m) is Euler’s totient function
  * Range:     u8 n <= 152, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 94 terms through n = 4740 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     idx_t k = n - (cumulative - r); /* cumulative - r = (r-1)r/2  */
 
     /* Compute φ(r) * φ(k). */
-    seq_t phir = phi(r);
-    seq_t phik = phi(k);
+    seq_t phir = totient(r);
+    seq_t phik = totient(k);
     return phir * phik;
 }

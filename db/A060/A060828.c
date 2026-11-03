@@ -7,6 +7,7 @@
  * Formula:   a(n) = 3 ^ ( floor(n/3) + floor(n/9) + floor(n/27) + … )
  * Range:     u8 n <= 14, u16 n <= 26, u32 n <= 44, u64 n <= 83, u128 n <= 164,
  *            big any n
+ * Validated: standard, pass, 56 terms through n = 195 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

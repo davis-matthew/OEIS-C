@@ -9,6 +9,7 @@
  *            and T_m = m(m+1)/2. Here σ(k) is the sum of divisors of k
  * Range:     u8 n <= 5885, u16 n <= 7875, u32 n <= 7875, u64 n <= 7875,
  *            u128 n <= 7875, big any n
+ * Validated: standard, pass, 94 terms through n = 7480 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

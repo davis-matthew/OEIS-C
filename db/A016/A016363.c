@@ -8,7 +8,8 @@
  *            Φ_238(x)
  * Range:     i8 n <= 96, i16 n <= 96, i32 n <= 96, i64 n <= 96, i128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 97 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         const idx_t neg_m[4] = {119, 34, 14, 1};
 
         /* start with polynomial 1 */
-        seq_t *poly = (seq_t*)malloc(sizeof(seq_t));
+        seq_t *poly = mem_new(seq_t, 1);
         poly[0] = 1;
         idx_t deg = 0;
 
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         for (int i = 0; i < 4; ++i) {
             idx_t m = pos_m[i];
             idx_t new_deg = deg + m;
-            seq_t *new_poly = (seq_t*)calloc(new_deg + 1, sizeof(seq_t));
+            seq_t *new_poly = mem_new(seq_t, new_deg + 1);
 
             for (idx_t j = 0; j <= new_deg; ++j) {
                 seq_t val = 0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
                 if (j <= deg)                     val -= poly[j];
                 new_poly[j] = val;
             }
-            free(poly);
+            mem_free(poly);
             poly = new_poly;
             deg  = new_deg;
         }
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         for (int i = 0; i < 4; ++i) {
             idx_t m = neg_m[i];
             if (m > deg) { /* should never happen for 238 */ }
-            seq_t *quot = (seq_t*)calloc(deg - m + 1, sizeof(seq_t));
+            seq_t *quot = mem_new(seq_t, deg - m + 1);
 
             for (int64_t j = (int64_t)deg; j >= (int64_t)m; --j) {
                 seq_t qcoeff = poly[(idx_t)j];
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
                 }
             }
             deg -= m;
-            free(poly);
+            mem_free(poly);
             poly = quot;
         }
 

@@ -9,14 +9,27 @@
  *            Sum_{j>=1, j^2<=n} (n + 4*j^2) * a(n-j^2)
  * Range:     i8 n <= 2, i16 n <= 6, i32 n <= 20, i64 n <= 63, i128 n <= 212,
  *            big any n
- * Helpers:   grow_zero
+ * Validated: standard, pass, 40 terms through n = 9499 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/grow_zero.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 static seq_t *h = NULL;
 static idx_t h_len = 0;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   has_43
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,30 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_43.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether the base‑5 representation of x contains ...4 3... */
+static bool has_43(seq_t x)
+{
+    const seq_t five  = (seq_t)5;
+    const seq_t four  = (seq_t)4;
+    const seq_t three = (seq_t)3;
+    seq_t prev = (seq_t)0;
+    bool first = true;
+    seq_t cur;
+
+    while (x > (seq_t)0) {
+        cur = x % five;
+        x  = x / five;
+        if (!first) {
+            if (cur == four && prev == three)
+                return true;
+        }
+        prev = cur;
+        first = false;
+    }
+    return false;
+}
 
 /* Cache for the generated terms */
 static seq_t *cache      = NULL;
@@ -37,8 +61,7 @@ static void generate_until(size_t needed)
             /* Ensure capacity */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *new_ptr = (seq_t *)realloc(cache,
-                                                  new_cap * sizeof(seq_t));
+                seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
                 if (!new_ptr) abort();   /* allocation failure */
                 cache = new_ptr;
                 cache_cap = new_cap;

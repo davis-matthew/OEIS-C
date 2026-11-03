@@ -5,150 +5,154 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, cons
  * Formula:   not stated
- * Range:     u8 n <= 9320, u16 n <= 9320, u32 n <= 9320, u64 n <= 9320,
- *            u128 n <= 9320, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 9320 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* Algorithm: digit‐by‐digit extraction of the decimal expansion of √71.
-   Computes a(1)=8 and a(n) the n‑th decimal digit for n≥2. */
+/* A010523: the decimal digits of sqrt(71), a(1) being the first.
+ *
+ * Digit-by-digit square root in base 10^9 limbs that grow as needed (the
+ * original had a fixed number of limbs and overran it near 18000 digits):
+ * with p the root so far and r = 71 10^(2j) - p^2, each step sets r = 100 r and
+ * takes the largest d with (20 p + d) d <= r. d is estimated from the leading
+ * limbs and corrected, so a digit costs time linear in the length. The state
+ * is kept, so asking for more digits continues where the last call stopped. */
+
 #include <stdint.h>
-#include <string.h>
+#include <stdlib.h>
 
-#define BASE 1000000000U      /* 1e9, safe for multiplication by 100 */
-#define MAX_WORDS 2000       /* enough for ~18000 decimal digits */
+#define K 71
+#define OFF 1                         /* index of the first digit */
 
-/* Simple arbitrary‑precision integer using base 10^9. Only operations
-   required by the digit extraction algorithm are implemented. */
-typedef struct {
-    int len;              /* number of used words (least significant first) */
-    uint32_t d[MAX_WORDS];
-} BigInt;
+typedef struct { uint32_t *d; size_t len, cap; } num;   /* little-endian base 10^9 */
 
-/* initialise to zero */
-static void bi_zero(BigInt *x) {
-    x->len = 0;
-    memset(x->d, 0, sizeof(x->d));
+static void reserve(num *x, size_t n)
+{
+    if (n <= x->cap) return;
+    size_t c = x->cap ? x->cap : 16;
+    while (c < n) c *= 2;
+    uint32_t *t = (uint32_t *)realloc(x->d, c * sizeof *t);
+    if (!t) abort();
+    x->d = t;
+    x->cap = c;
 }
 
-/* initialise to small unsigned integer */
-static void bi_from_uint(BigInt *x, uint32_t v) {
-    if (v == 0) { bi_zero(x); return; }
-    x->len = 1;
-    x->d[0] = v;
+static void trim(num *x)
+{
+    while (x->len && x->d[x->len - 1] == 0) --x->len;
 }
 
-/* copy a into b */
-static void bi_copy(BigInt *b, const BigInt *a) {
-    b->len = a->len;
-    memcpy(b->d, a->d, a->len * sizeof(uint32_t));
-}
-
-/* compare a and b: return -1 if a<b, 0 if a==b, 1 if a>b */
-static int bi_cmp(const BigInt *a, const BigInt *b) {
-    if (a->len != b->len) return a->len < b->len ? -1 : 1;
-    for (int i = a->len - 1; i >= 0; --i) {
-        if (a->d[i] != b->d[i]) return a->d[i] < b->d[i] ? -1 : 1;
+static void mul_small_add(num *x, uint32_t m, uint32_t add)    /* x = x m + add */
+{
+    uint64_t c = add;
+    for (size_t i = 0; i < x->len; ++i) {
+        c += (uint64_t)x->d[i] * m;
+        x->d[i] = (uint32_t)(c % 1000000000u);
+        c /= 1000000000u;
     }
+    while (c) {
+        reserve(x, x->len + 1);
+        x->d[x->len++] = (uint32_t)(c % 1000000000u);
+        c /= 1000000000u;
+    }
+    trim(x);
+}
+
+static int cmp(const num *x, const num *y)
+{
+    if (x->len != y->len) return x->len < y->len ? -1 : 1;
+    for (size_t i = x->len; i-- > 0;)
+        if (x->d[i] != y->d[i]) return x->d[i] < y->d[i] ? -1 : 1;
     return 0;
 }
 
-/* a += small v (0 ≤ v < BASE) */
-static void bi_add_small(BigInt *a, uint32_t v) {
-    uint64_t sum = (uint64_t)a->d[0] + v;
-    a->d[0] = (uint32_t)(sum % BASE);
-    uint32_t carry = (uint32_t)(sum / BASE);
-    int i = 1;
-    while (carry && i < a->len) {
-        uint64_t s = (uint64_t)a->d[i] + carry;
-        a->d[i] = (uint32_t)(s % BASE);
-        carry = (uint32_t)(s / BASE);
-        ++i;
+static void sub(num *x, const num *y)                         /* x -= y, x >= y */
+{
+    int64_t b = 0;
+    for (size_t i = 0; i < x->len; ++i) {
+        int64_t v = (int64_t)x->d[i] - (i < y->len ? y->d[i] : 0) - b;
+        b = v < 0;
+        x->d[i] = (uint32_t)(b ? v + 1000000000 : v);
     }
-    if (carry) {
-        a->d[i++] = carry;
-        a->len = i;
-    }
+    trim(x);
 }
 
-/* a *= small v (0 ≤ v < BASE) */
-static void bi_mul_small(BigInt *a, uint32_t v) {
-    if (v == 0) { bi_zero(a); return; }
-    uint64_t carry = 0;
-    for (int i = 0; i < a->len; ++i) {
-        uint64_t prod = (uint64_t)a->d[i] * v + carry;
-        a->d[i] = (uint32_t)(prod % BASE);
-        carry = prod / BASE;
-    }
-    while (carry) {
-        a->d[a->len++] = (uint32_t)(carry % BASE);
-        carry /= BASE;
-    }
+static double lead(const num *x, size_t len)  /* x / 10^(9 (len - 3)), roughly */
+{
+    double v = 0;
+    for (size_t i = len; i-- > 0 && i + 3 >= len;) v = v * 1e9 + (i < x->len ? x->d[i] : 0);
+    return v;
 }
 
-/* b = a - b; assumes a ≥ b */
-static void bi_sub(BigInt *a, const BigInt *b) {
-    int64_t borrow = 0;
-    for (int i = 0; i < a->len; ++i) {
-        int64_t diff = (int64_t)a->d[i] - (i < b->len ? b->d[i] : 0) - borrow;
-        if (diff < 0) {
-            diff += BASE;
-            borrow = 1;
-        } else {
-            borrow = 0;
+static num P, Rm, T;                        /* root, remainder, scratch */
+static unsigned char *digits = NULL;
+static size_t ndig = 0, dcap = 0;
+
+static void next_digit(void)
+{
+    mul_small_add(&Rm, 100, 0);
+    /* estimate d = r / (20 p) from the leading limbs, then correct */
+    size_t L = Rm.len > P.len + 1 ? Rm.len : P.len + 1;
+    double est = P.len ? lead(&Rm, L) / (20.0 * lead(&P, L)) : 9.0;
+    int d = est >= 9.0 ? 9 : est <= 0 ? 0 : (int)est;
+    for (;; --d) {
+        /* T = (20 p + d) d */
+        reserve(&T, P.len + 2);
+        T.len = P.len;
+        for (size_t i = 0; i < P.len; ++i) T.d[i] = P.d[i];
+        mul_small_add(&T, 20, (uint32_t)d);
+        mul_small_add(&T, (uint32_t)d, 0);
+        if (cmp(&T, &Rm) <= 0 || d == 0) break;
+    }
+    for (;;) {                               /* the estimate may also be low */
+        num U = {0, 0, 0};
+        reserve(&U, P.len + 2);
+        U.len = P.len;
+        for (size_t i = 0; i < P.len; ++i) U.d[i] = P.d[i];
+        mul_small_add(&U, 20, (uint32_t)(d + 1));
+        mul_small_add(&U, (uint32_t)(d + 1), 0);
+        int up = d < 9 && cmp(&U, &Rm) <= 0;
+        if (up) {
+            reserve(&T, U.len);
+            T.len = U.len;
+            for (size_t i = 0; i < U.len; ++i) T.d[i] = U.d[i];
+            ++d;
         }
-        a->d[i] = (uint32_t)diff;
+        free(U.d);
+        if (!up) break;
     }
-    /* trim leading zeros */
-    while (a->len > 0 && a->d[a->len - 1] == 0) --a->len;
+    sub(&Rm, &T);
+    mul_small_add(&P, 10, (uint32_t)d);
+    if (ndig == dcap) {
+        dcap = dcap ? 2 * dcap : 1024;
+        unsigned char *t = (unsigned char *)realloc(digits, dcap);
+        if (!t) abort();
+        digits = t;
+    }
+    digits[ndig++] = (unsigned char)d;
 }
 
-/* main sequence function */
 seq_t a(idx_t n)
 {
-    if (n == 1) return (seq_t)8;          /* first digit */
-
-    /* current root (P) and remainder (R) as big integers */
-    BigInt p, r, c, t, temp, prod;
-    bi_from_uint(&p, 8);                    /* P = 8 */
-    bi_from_uint(&r, 7);                    /* R = 71 - 8^2 = 7 */
-
-    uint32_t digit = 0;
-
-    for (idx_t i = 2; i <= n; ++i) {
-        /* c = R * 100 */
-        bi_copy(&c, &r);
-        bi_mul_small(&c, 100);
-
-        /* t = P * 20 */
-        bi_copy(&t, &p);
-        bi_mul_small(&t, 20);
-
-        /* find largest d such that (t + d) * d <= c */
-        for (uint32_t d = 9; ; --d) {
-            bi_copy(&temp, &t);           /* temp = t */
-            bi_add_small(&temp, d);       /* temp += d */
-            bi_copy(&prod, &temp);        /* prod = temp */
-            bi_mul_small(&prod, d);       /* prod *= d */
-
-            if (bi_cmp(&prod, &c) <= 0) {
-                digit = d;
-                break;
-            }
-            if (d == 0) break;            /* should never happen */
-        }
-
-        /* update P = P * 10 + digit */
-        bi_mul_small(&p, 10);
-        bi_add_small(&p, digit);
-
-        /* update R = c - prod */
-        bi_copy(&r, &c);
-        bi_sub(&r, &prod);
-
-        if (i == n) return (seq_t)digit;
+    if (n < OFF) return (seq_t)0;
+    if (ndig == 0) {                         /* the integer part: K < 100, one digit */
+        unsigned s = 0;
+        while ((s + 1) * (s + 1) <= K) ++s;
+        reserve(&P, 1);
+        P.d[0] = s;
+        P.len = s ? 1 : 0;
+        reserve(&Rm, 1);
+        Rm.d[0] = K - s * s;
+        Rm.len = Rm.d[0] ? 1 : 0;
+        reserve(&T, 1);
+        digits = (unsigned char *)malloc(dcap = 1024);
+        if (!digits) abort();
+        digits[ndig++] = (unsigned char)s;
     }
-    return (seq_t)0;   /* unreachable, but keeps the compiler happy */
+    while (ndig <= (size_t)(n - OFF)) next_digit();
+    return (seq_t)digits[n - OFF];
 }

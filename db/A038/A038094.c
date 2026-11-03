@@ -8,19 +8,22 @@
  * Formula:   a(n) = n*binomial(n-1,2)*2^binomial(n-1,2)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 29 terms through n = 76 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
     if (n < 3) return 0;                 /* behaviour below offset not required */
 
-    seq_t bin = binom(n - 1, 2);          /* bin = (n-1 choose 2) */
+    seq_t bin = binomial(n - 1, 2);          /* bin = (n-1 choose 2) */
     idx_t exp = (idx_t)bin;               /* exponent fits in idx_t for n ≤ 10000 */
     seq_t pow_two = pow2(exp);            /* 2^exp */
 

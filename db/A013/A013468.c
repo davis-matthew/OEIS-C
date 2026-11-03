@@ -9,28 +9,36 @@
  *            where c(k)=0 if k%4==0, -1 if k odd, -2 if k≡2 (mod 4)
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 16, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   c_val
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/c_val.h"
+#include "../utils/mem.h"
+
+static inline int c_val(idx_t k) {
+    /* k ≥ 1 */
+    if ((k & 3ULL) == 0) return 0;          /* k % 4 == 0 */
+    if (k & 1ULL)   return -1;             /* k odd */
+    return -2;                              /* k % 4 == 2 */
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
 
 seq_t a(idx_t n) {
     if (cache_len == 0) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;
         cache[0] = (seq_t)1;
         cache_len = 1;
     }
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return (seq_t)0;
         cache = tmp;
         for (idx_t i = cache_len; i < new_len; ++i) {

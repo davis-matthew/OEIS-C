@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1924, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 9390 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static size_t sieve_limit = 0;          /* highest value that has been sieved     */
 static uint8_t *sieve = NULL;           /* 1 = prime, 0 = composite               */
@@ -71,7 +73,7 @@ static void ensure_sieve(idx_t limit)
     }
 
     /* Build/extend prefix array of prime counts */
-    seq_t *new_pi = (seq_t *)realloc(pi_prefix, sizeof(seq_t) * (new_lim + 1));
+    seq_t *new_pi = mem_resize(seq_t, pi_prefix, (new_lim + 1));
     if (new_pi == NULL)
         abort();
     pi_prefix = new_pi;

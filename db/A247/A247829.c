@@ -9,6 +9,7 @@
  *            (2*k-1)*(2*k+3), offset 0
  * Range:     i8 n <= 18, i16 n <= 273, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 72 terms through n = 985 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

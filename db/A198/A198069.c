@@ -9,6 +9,7 @@
  *            < r + 2^r and k = n - ((r-1)+2^(r-1))
  * Range:     u8 n <= 263, u16 n <= 8204, u32 n <= 8204, u64 n <= 8204,
  *            u128 n <= 8204, big any n
+ * Validated: standard, pass, 101 terms through n = 7875 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

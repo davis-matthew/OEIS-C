@@ -9,13 +9,21 @@
  *            no such m exists
  * Range:     u8 n <= 268, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod_seq, pow5_mod
+ * Validated: standard, pass, 106 terms through n = 8071 (2026-11-01)
+ * Helpers:   mulmod_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mul_mod_seq.h"
-#include "../utils/pow5_mod.h"
+#include "../utils/mulmod_seq.h"
+
+/* Helper: compute m^5 mod n */
+static inline seq_t pow5_mod(seq_t m, seq_t n)
+{
+    seq_t m2  = mulmod_seq(m, m, n);       /* m^2 */
+    seq_t m4  = mulmod_seq(m2, m2, n);     /* m^4 */
+    return mulmod_seq(m4, m, n);           /* m^5 */
+}
 
 seq_t a(idx_t n)
 {

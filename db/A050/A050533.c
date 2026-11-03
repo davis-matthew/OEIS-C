@@ -8,6 +8,7 @@
  * Formula:   a(n) = (1/3)*n*(5 + 6*n + 4*n^2) (OEIS A050533)
  * Range:     u8 n <= 3, u16 n <= 24, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 58 terms through n = 597 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

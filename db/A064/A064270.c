@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th prime of the form prime(k) - k (OEIS A064270)
  * Range:     u8 n <= 15, u16 n <= 702, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 794 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*---------------------------------------------------------------------*/
 /*  Static data structures                                            */
@@ -93,8 +95,7 @@ static void ensure_sequence_upto(idx_t n)
         if (val >= 2 && val <= SIEVE_LIMIT && is_prime_sieve[val]) {
             if (seq_array_len >= seq_array_capacity) {
                 seq_array_capacity = seq_array_capacity ? seq_array_capacity * 2 : 16;
-                seq_array = (seq_t*)realloc(seq_array,
-                                            seq_array_capacity * sizeof(seq_t));
+                seq_array = mem_resize(seq_t, seq_array, seq_array_capacity);
                 if (!seq_array) exit(1);
             }
             seq_array[seq_array_len++] = (seq_t)val;

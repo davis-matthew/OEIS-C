@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{i=1..⌊(n+1)/2⌋} (2*i-1) * prime(n+2-i)
  * Range:     u8 n <= 7, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached list of primes (0‑based index: primes[0] == 2). */
 static seq_t *prime_cache = NULL;
@@ -33,7 +35,7 @@ static void ensure_primes(idx_t needed)
     /* First prime is 2. Allocate space if necessary. */
     if (prime_cnt == 0) {
         prime_cap = 16;
-        prime_cache = (seq_t *)malloc(prime_cap * sizeof(seq_t));
+        prime_cache = mem_new(seq_t, prime_cap);
         prime_cache[0] = (seq_t)2;
         prime_cnt = 1;
         next_candidate = 3;
@@ -60,7 +62,7 @@ static void ensure_primes(idx_t needed)
         if (is_prime) {
             if (prime_cnt >= prime_cap) {
                 prime_cap *= 2;
-                prime_cache = (seq_t *)realloc(prime_cache, prime_cap * sizeof(seq_t));
+                prime_cache = mem_resize(seq_t, prime_cache, prime_cap);
             }
             prime_cache[prime_cnt++] = cand_seq;
         }

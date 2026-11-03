@@ -10,13 +10,15 @@
  *            a(7)=34, a(8)=59, a(9)=100, a(10)=174
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 40, u64 n <= 80, u128 n <= 160,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for computed terms. cache[0] is unused. */
 static seq_t *cache = NULL;
@@ -32,11 +34,11 @@ static void ensure_cache(idx_t n) {
     if (needed > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap : 16;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) exit(1);            /* Out of memory */
         if (cache) {
             for (size_t i = 0; i < cache_cap; ++i) new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = new_cap;

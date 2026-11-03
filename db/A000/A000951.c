@@ -10,13 +10,22 @@
  *            f_{j-1}(k-1) * f_j(m-k); a(n) = f_4(n)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   grow_arr_local
+ * Validated: standard, pass, 35 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/grow_arr_local.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_arr_local(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, newlen);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *F[5];
 static seq_t *row;      /* row[j] = C(done-1, j) */

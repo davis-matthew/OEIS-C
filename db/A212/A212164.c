@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 6195, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9900 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Smallest prime factor table (up to a fixed limit).  The limit is
    chosen to be comfortably above the 10‑thousandth term of the
@@ -56,7 +58,7 @@ static void ensure_cache_space(size_t need)
 {
     if (cache_cap >= need) return;
     size_t new_cap = need < 4 ? 4 : need * 2;
-    seq_t *new_cache = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, term_cache, new_cap);
     if (!new_cache) exit(EXIT_FAILURE);
     term_cache = new_cache;
     cache_cap = new_cap;

@@ -8,13 +8,14 @@
  *            C(2k-2,k-1)*(4k-2)/k, C(0,0) = 1
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   a006134_gcd
+ * Validated: standard, pass, 43 terms through n = 922 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a006134_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     seq_t c = 1;      /* C(2k,k) */
@@ -22,7 +23,7 @@ seq_t a(idx_t n) {
     for (idx_t k = 1; k <= n; k++) {
         /* c = c * (4k-2) / k, done without exceeding the new value */
         uint64_t r = (uint64_t)(c % (seq_t)k);
-        uint64_t g = a006134_gcd(k, r);   /* gcd(c, k) */
+        uint64_t g = gcd_u64(k, r);   /* gcd(c, k) */
         uint64_t kk = k / g;              /* coprime to c/g, so divides 4k-2 */
         uint64_t m = (4 * (uint64_t)k - 2) / kk;
         c = (c / (seq_t)g) * (seq_t)m;

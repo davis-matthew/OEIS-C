@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_divs_le
+ * Validated: standard, pass, 103 terms through n = 988 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,24 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/count_divs_le.h"
+
+/*=== Count divisors of n that are ≤ maxP --------------------------------*/
+static seq_t count_divs_le(const uint64_t *p, const uint8_t *e,
+                           size_t pcnt, size_t idx, uint64_t prod,
+                           uint64_t maxP)
+{
+    if (idx == pcnt) return 1;       /* one divisor reached */
+
+    seq_t res = 0;
+    uint64_t cur = prod;
+    for (uint8_t k = 0; k <= e[idx]; ++k) {
+        if (cur > maxP) break;
+        res += count_divs_le(p, e, pcnt, idx + 1, cur, maxP);
+        if (k == e[idx]) break;
+        cur *= p[idx];
+    }
+    return res;
+}
 
 /*=== Integer square‑root for uint64_t -----------------------------------*/
 static idx_t isqrt_u64(uint64_t x)

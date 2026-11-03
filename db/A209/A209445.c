@@ -10,14 +10,37 @@
  *            divisors of n
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 50, u128 n <= 101,
  *            big any n
- * Helpers:   odd_div_count
+ * Validated: standard, pass, 47 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/odd_div_count.h"
+#include "../utils/mem.h"
+
+/* Count odd divisors of n (including 1). */
+static inline seq_t odd_div_count(idx_t n)
+{
+    if (n == 0) return 0;
+    idx_t m = n;
+    while ((m & 1) == 0) m >>= 1;          /* remove factor 2 */
+    seq_t cnt = 1;
+    if (m == 1) return 1;
+    for (idx_t p = 3; p * p <= m; p += 2) {
+        if (m % p == 0) {
+            int e = 0;
+            while (m % p == 0) {
+                m /= p;
+                ++e;
+            }
+            cnt *= (seq_t)(e + 1);
+        }
+    }
+    if (m > 1) cnt *= 2;   /* remaining odd prime */
+    return cnt;
+}
 
 static seq_t *pell_cache = NULL;   /* Pell numbers */
 static idx_t pell_len = 0;          /* number of entries stored (indices 0 .. pell_len-1) */
@@ -31,7 +54,7 @@ static void ensure_pell(idx_t n)
     if (pell_len <= n) {
         size_t new_len = (pell_len == 0) ? 2 : pell_len * 2;
         if (new_len <= n) new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(pell_cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pell_cache, new_len);
         if (!tmp) exit(EXIT_FAILURE);
         pell_cache = tmp;
         if (pell_len == 0) {
@@ -52,7 +75,7 @@ static void ensure_odd(idx_t n)
     if (odd_len <= n) {
         size_t new_len = (odd_len == 0) ? 1 : odd_len * 2;
         if (new_len <= n) new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(odd_cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, odd_cache, new_len);
         if (!tmp) exit(EXIT_FAILURE);
         odd_cache = tmp;
         if (odd_len == 0) {

@@ -10,12 +10,13 @@
  *            11*C(n+2,2) - 22*C(n+1,1) + 6*C(n,0)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 22, u64 n <= 136, u128 n <= 1000,
  *            big any n
- * Helpers:   binom128_l
+ * Validated: standard, pass, 42 terms through n = 972 (2026-11-01)
+ * Helpers:   binomial_idx_to_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom128_l.h"
+#include "../utils/binomial_idx_to_u128.h"
 
 seq_t a(idx_t n)
 {
@@ -23,17 +24,17 @@ seq_t a(idx_t n)
 
     unsigned __int128 total = 0;
 
-    total +=  binom128_l(n + 14, 14);
-    total -= 12 * binom128_l(n + 10, 10);
-    total += 24 * binom128_l(n + 8,  8);
-    total +=  4 * binom128_l(n + 7,  7);
-    total -= 18 * binom128_l(n + 6,  6);
-    total +=  6 * binom128_l(n + 5,  5);
-    total -= 36 * binom128_l(n + 4,  4);
-    total += 36 * binom128_l(n + 3,  3);
-    total += 11 * binom128_l(n + 2,  2);
-    total -= 22 * binom128_l(n + 1,  1);
-    total +=  6 * binom128_l(n,      0);   /* C(n,0) = 1 */
+    total +=  binomial_idx_to_u128(n + 14, 14);
+    total -= 12 * binomial_idx_to_u128(n + 10, 10);
+    total += 24 * binomial_idx_to_u128(n + 8,  8);
+    total +=  4 * binomial_idx_to_u128(n + 7,  7);
+    total -= 18 * binomial_idx_to_u128(n + 6,  6);
+    total +=  6 * binomial_idx_to_u128(n + 5,  5);
+    total -= 36 * binomial_idx_to_u128(n + 4,  4);
+    total += 36 * binomial_idx_to_u128(n + 3,  3);
+    total += 11 * binomial_idx_to_u128(n + 2,  2);
+    total -= 22 * binomial_idx_to_u128(n + 1,  1);
+    total +=  6 * binomial_idx_to_u128(n,      0);   /* C(n,0) = 1 */
 
     return (seq_t)total;                    /* safe cast for n where result fits */
 }

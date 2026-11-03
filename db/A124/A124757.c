@@ -9,8 +9,9 @@
  *            is, * a(n) = (Σ_{k ≥ 0, bit k of n = 1} (k+1)) - (⌊log₂ n⌋ + 1)
  *            for n > 0, * a(0) = 0. * This implements the definition from
  *            OEIS A124757
- * Range:     u8 n <= 9672, u16 n <= 9672, u32 n <= 9672, u64 n <= 9672,
- *            u128 n <= 9672, big any n
+ * Range:     u8 n <= 16383, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 111 terms through n = 9672 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 251, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 4997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <limits.h>   /* for UINT64_MAX */
+#include "../utils/mem.h"
 
 /* Helper: convert index n into its antidiagonal coordinates (i,j).
    Returns 1‑based i and j. */
@@ -63,7 +65,7 @@ static void compute_upto(idx_t limit)
 
     idx_t new_cap = limit + 1;                 /* allow indices 1..limit */
 
-    values = (seq_t*)realloc(values, new_cap * sizeof(seq_t));
+    values = mem_resize(seq_t, values, new_cap);
     rows   = (idx_t*)realloc(rows,   new_cap * sizeof(idx_t));
     cols   = (idx_t*)realloc(cols,   new_cap * sizeof(idx_t));
     if (!values || !rows || !cols)

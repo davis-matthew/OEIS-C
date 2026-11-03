@@ -8,13 +8,15 @@
  *            (prime(j)-prime(i)) )
  * Range:     u8 n <= 6, u16 n <= 35, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* One‑indexed storage for primes, their prefix sums, and the cumulative sum S[n] */
 static uint64_t *primes   = NULL;   /* primes[1] = 2, primes[2] = 3, ... */
@@ -32,8 +34,8 @@ static void ensure_capacity(size_t needed)
     while (newcap < needed) newcap *= 2;
 
     primes = (uint64_t *)realloc(primes, newcap * sizeof(uint64_t));
-    prefix = (seq_t *)realloc(prefix, newcap * sizeof(seq_t));
-    sums   = (seq_t *)realloc(sums,   newcap * sizeof(seq_t));
+    prefix = mem_resize(seq_t, prefix, newcap);
+    sums   = mem_resize(seq_t, sums, newcap);
     array_cap = newcap;
 
     /* Initialise the zero index after each reallocation. */

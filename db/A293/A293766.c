@@ -10,13 +10,15 @@
  *            integer not already used by a and b so far
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration */
 static bool contains_a(seq_t, idx_t);
@@ -33,8 +35,8 @@ static void ensure_capacity(idx_t n)
     if (n < allocated) return;
     idx_t new_cap = allocated ? allocated : 4;
     while (new_cap <= n) new_cap <<= 1;
-    a_vals = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
-    b_vals = (seq_t *)realloc(b_vals, new_cap * sizeof(seq_t));
+    a_vals = mem_resize(seq_t, a_vals, new_cap);
+    b_vals = mem_resize(seq_t, b_vals, new_cap);
     allocated = new_cap;
 }
 

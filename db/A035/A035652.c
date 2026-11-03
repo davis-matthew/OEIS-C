@@ -12,13 +12,15 @@
  *            parts ≡0 (mod 7), * P2(n) = partitions of n using o...
  * Range:     u8 n <= 66, u16 n <= 161, u32 n <= 459, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 865 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp_total = NULL;   /* partitions with parts ≡0 or 2 mod 7 */
 static seq_t *dp_7     = NULL;   /* partitions with parts ≡0 mod 7 only   */
@@ -34,14 +36,14 @@ static void recompute(size_t max_n)
     size_t i, j, part;
 
     /* free previous tables if they exist */
-    if (dp_total) free(dp_total);
-    if (dp_7)     free(dp_7);
-    if (dp_2)     free(dp_2);
+    if (dp_total) mem_free(dp_total);
+    if (dp_7)     mem_free(dp_7);
+    if (dp_2)     mem_free(dp_2);
 
     /* allocate new tables; use malloc so that they are zero‑initialized */
-    dp_total = (seq_t*)calloc(max_n + 1, sizeof(seq_t));
-    dp_7     = (seq_t*)calloc(max_n + 1, sizeof(seq_t));
-    dp_2     = (seq_t*)calloc(max_n + 1, sizeof(seq_t));
+    dp_total = mem_new(seq_t, max_n + 1);
+    dp_7     = mem_new(seq_t, max_n + 1);
+    dp_2     = mem_new(seq_t, max_n + 1);
     if (!dp_total || !dp_7 || !dp_2) { /* memory failure */
         exit(1);
     }

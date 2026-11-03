@@ -10,20 +10,22 @@
  *            the third digit, if present, is different)
  * Range:     u8 n <= 1, u16 n <= 23, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void grow_array(seq_t **arr, size_t *cap, size_t needed)
 {
     if (*cap < needed) {
         size_t new_cap = *cap ? (*cap << 1) : 16;
         if (new_cap < needed) new_cap = needed;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

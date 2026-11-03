@@ -12,7 +12,8 @@
  *            Initial values for n=1..20 are encoded in the static array below
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 26, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* Computes the OEIS sequence A244696. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Initial 20 terms (a(1) .. a(20)). */
@@ -57,14 +59,14 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* Initially load first 20 terms into cache. */
         cache_len = 20;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_len);
-        memcpy(cache, init, sizeof(init));
+        cache = mem_new(seq_t, cache_len);
+        mem_copy(cache, init, sizeof(init));
     }
 
     /* Grow cache if we need to compute beyond current size. */
     if (n > cache_len) {
         idx_t new_len = n;
-        seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return 0;            /* Out‑of‑memory: return zero. */
         cache = tmp;
         cache_len = new_len;

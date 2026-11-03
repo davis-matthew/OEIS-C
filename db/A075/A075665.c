@@ -7,6 +7,7 @@
  * Formula:   a(n) = (15*n^9 + 90*n^7 + 123*n^5 + 20*n^3 - 8*n)/240
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 15, u64 n <= 188,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 41 terms through n = 8411 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,13 +11,15 @@
  *            single number uses the * French naming rules up to the thou...
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const bool consonant_end[100] = {
     /*  0  1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
         last_checked = 0;
     }
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
         if (ends_in_consonant(last_checked)) {
             if (cache_len == cache_cap) {     /* grow the cache */
                 cache_cap *= 2;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)last_checked;
         }

@@ -8,13 +8,15 @@
  * Formula:   a(n) = Σ_{i=0}^{12} coeffs[i] · C(11 + n − i, 11)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*   where coeffs are the coefficients of (1 + 4x + x²)⁶           */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     for (i = 0; i < 13; ++i) {
         if (n < i) continue;                     /* skip terms beyond n   */
-        seq_t bin   = binom(11 + n - i, 11);     /* C(11 + n − i, 11)    */
+        seq_t bin   = binomial(11 + n - i, 11);     /* C(11 + n − i, 11)    */
         result += (seq_t)coeffs[i] * bin;         /* accumulate contribution */
     }
 

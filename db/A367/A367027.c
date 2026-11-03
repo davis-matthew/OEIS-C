@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 18, i64 n <= 33, i128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 1219 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cached_seq = NULL;
 static size_t cached_size = 0; /* number of elements actually stored */
@@ -49,7 +51,7 @@ static inline seq_t compute_a(idx_t n)
         size_t new_cap = cached_cap ? cached_cap : 8;
         while ((size_t)n + 1 > new_cap)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cached_seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cached_seq, new_cap);
         if (!tmp) /* allocation failure – unlikely in tests */
             return 0;
         cached_seq = tmp;
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
 {
     if (cached_seq == NULL) {
         cached_cap = 8;
-        cached_seq = (seq_t *)malloc(cached_cap * sizeof(seq_t));
+        cached_seq = mem_new(seq_t, cached_cap);
         if (!cached_seq)
             return 0;                 /* allocation failed – unlikely */
         cached_seq[0] = (seq_t)1;

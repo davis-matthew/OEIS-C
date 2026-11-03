@@ -7,12 +7,14 @@
  * Formula:   a(n) = 11*a(n-1) + 6*a(n-2), a(0) = 0, a(1) = 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 860 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -25,13 +27,13 @@ static void ensure_cache(idx_t n)
 
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
     }
 
     while (cache_cap <= n) {
         cache_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (!tmp) abort();
         cache = tmp;
     }

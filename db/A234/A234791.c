@@ -11,14 +11,44 @@
  *            increases ≤ the number of counter‑clockwise edge increases
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 8, u128 n <= 18,
  *            big any n
- * Helpers:   init_graph
+ * Validated: standard, pass, 27 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/init_graph.h"
+
+static void init_graph(uint16_t neighbors[256][256], uint16_t *neigh_cnt,
+                       unsigned char row[256][4])
+{
+    /* encode all 256 possible rows (4 digits in base 4) */
+    for (int s = 0; s < 256; ++s) {
+        for (int k = 0; k < 4; ++k)
+            row[s][k] = (s >> (k * 2)) & 3;
+        neigh_cnt[s] = 0;
+    }
+
+    /* pre‑compute compatibility graph */
+    for (uint16_t i = 0; i < 256; ++i) {
+        for (uint16_t j = 0; j < 256; ++j) {
+            bool ok = true;
+            for (int col = 0; col < 3 && ok; ++col) {
+                unsigned a = row[i][col];
+                unsigned b = row[i][col + 1];
+                unsigned c = row[j][col];
+                unsigned d = row[j][col + 1];
+                int cw  = (a < b) + (b < d) + (d < c) + (c < a);
+                int ccw = (a < c) + (c < d) + (d < b) + (b < a);
+                if (cw > ccw) ok = false;
+            }
+            if (ok) {
+                neighbors[i][neigh_cnt[i]++] = j;
+            }
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

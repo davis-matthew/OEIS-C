@@ -11,7 +11,8 @@
  *            the values row by row: * row 1: 3,1 * row 2: 3...
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Helper wrappers are not needed, but the following %product% type
  * seq_t and idx_t are supplied by the build environment.
@@ -43,7 +45,7 @@ static void ensure_precomputed(idx_t target)
         len += 1;
 
         /* allocate memory for this row */
-        seq_t *newRow = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *newRow = mem_new(seq_t, len);
         assert(newRow != NULL);
 
         if (r == 1) {

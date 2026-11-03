@@ -9,13 +9,25 @@
  *            if popcount(n) is odd, except F(2)=0
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   parity_of
+ * Validated: standard, pass, 91 terms through n = 8969 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/parity_of.h"
+
+/* Return 1 if the number of 1-bits of x is odd, otherwise 0.
+   The value 2 is handled specially by the caller (F(2) = 0). */
+static inline unsigned parity_of(uint64_t x) {
+    x ^= x >> 32;
+    x ^= x >> 16;
+    x ^= x >> 8;
+    x ^= x >> 4;
+    x ^= x >> 2;
+    x ^= x >> 1;
+    return (unsigned)(x & 1U);
+}
 
 seq_t a(idx_t n) {
     uint64_t N = (uint64_t)n;

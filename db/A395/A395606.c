@@ -10,12 +10,14 @@
  *            involutions in the n‑th iterated wreath product of S3
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 2, u128 n <= 3,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 7 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
     if (n >= (idx_t)cap) {           /* compute missing terms */
         size_t newcap = (size_t)n + 1;
         /* grow caches with proper cast for C++ */
-        A = (seq_t *)realloc(A, newcap * sizeof(seq_t));
-        W = (seq_t *)realloc(W, newcap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, newcap);
+        W = mem_resize(seq_t, W, newcap);
         if (cap == 0) {                     /* init n = 0 */
             A[0] = (seq_t)4;
             W[0] = (seq_t)6;

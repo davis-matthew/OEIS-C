@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* maximum n for which the cache is kept; the sequence is required only
    up to about 10000 in the test harness.  The static array is large
@@ -78,8 +80,8 @@ seq_t a(idx_t n)
         /*  Clear next arrays. If we are extending from length 0, we need to
            initialise the first step specially.                               */
         /* ------------------------------------------------------------------ */
-        memset(next1, 0, sizeof(next1));
-        memset(next2, 0, sizeof(next2));
+        mem_set(next1, 0, sizeof(next1));
+        mem_set(next2, 0, sizeof(next2));
 
         size_t cur_len = cache_len - 1;   /* length represented by cur* arrays */
 

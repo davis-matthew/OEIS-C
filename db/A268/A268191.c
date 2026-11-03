@@ -14,12 +14,14 @@
  *            s...
  * Range:     u8 n <= 12, u16 n <= 34, u32 n <= 108, u64 n <= 372,
  *            u128 n <= 1357, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 1841 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for partitions into parts <= current j.
        p[s] holds P_j(s) for current j.         */
-    seq_t *p = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)(n + 1));
     if (!p) return (seq_t)0;   /* allocation failure */
 
     /* Initially j = 0: only one partition of 0, none of the others */
@@ -56,6 +58,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(p);
+    mem_free(p);
     return result;
 }

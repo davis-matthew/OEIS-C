@@ -7,6 +7,7 @@
  * Formula:   a(n) = J_2(n)/24
  * Range:     u8 n <= 15, u16 n <= 414, u32 n <= 785, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 84 terms through n = 4992 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

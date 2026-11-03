@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 48, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
+ * Range:     u8 n <= 53, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   binom_n_k, pow2, triangular
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-01)
+ * Helpers:   binomial, pow2, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
    Row 0 is [1].  a(n) is the linearized, mirrored version of this
    array (rows reversed). */
 #include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/binom_n_k.h"
 #include "../utils/triangular.h"
 
 /* Return the n‑th triangular number t_n = n*(n+1)/2.  */
@@ -45,5 +48,5 @@ seq_t a(idx_t n)
     if (k == r)        /* last element of row r */
         return pow2((idx_t)(r - 1));
     else                /* 0 ≤ k < r : binomial coefficient */
-        return binom_n_k((idx_t)(r - 1), k);
+        return binomial((idx_t)(r - 1), k);
 }

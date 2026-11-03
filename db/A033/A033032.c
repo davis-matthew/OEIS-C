@@ -11,6 +11,7 @@
  *            this offset in base‑3 with exactly L digits,...
  * Range:     u8 n <= 39, u16 n <= 1335, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 68 terms through n = 9972 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

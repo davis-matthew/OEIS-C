@@ -12,7 +12,8 @@
  *            row‑wise (row 0: T(0,0), row 1: T(1,0),T(1,1), …)
  * Range:     i8 n <= 101, i16 n <= 101, i32 n <= 101, i64 n <= 101,
  *            i128 n <= 101, big any n
- * Helpers:   none
+ * Validated: partial, pass, 102 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,10 +23,11 @@
 #include <stdbool.h>
 
 #ifdef __cplusplus
-#define ALLOC(T, N) reinterpret_cast<T*>(malloc((N) * sizeof(T)))
+#define ALLOC(T, N) mem_new(T, (N))
 #else
-#define ALLOC(T, N) (T*)malloc((N) * sizeof(T))
+#define ALLOC(T, N) mem_new(T, (N))
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Determine row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2 */
@@ -42,8 +44,8 @@ seq_t a(idx_t n) {
     seq_t *prev = ALLOC(seq_t, sz);
     seq_t *curr = ALLOC(seq_t, sz);
     if (!prev || !curr) {       /* allocation failed – return 0 as safe default */
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;
     }
 
@@ -70,7 +72,7 @@ seq_t a(idx_t n) {
 
     seq_t result = prev[c];
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

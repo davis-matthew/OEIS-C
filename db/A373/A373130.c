@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 209, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   power128
+ * Validated: standard, pass, 52 terms through n = 8724 (2026-11-01)
+ * Helpers:   ipow_u128_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
    a(p^e) = (p^(4e+2)*(p^2+p+1) - p^(3e)*(p^3+p^2+p+1) + p) / (p^4-1). */
 
 #include <stdint.h>
-#include "../utils/power128.h"
+#include "../utils/ipow_u128_idx.h"
 
 /* Compute a(p^e) for a prime p and exponent e ≥ 1.  All arithmetic is
    performed in 128‑bit to avoid overflow of intermediate terms. */
@@ -31,8 +32,8 @@ static seq_t a_prime_power(idx_t p, idx_t e)
     unsigned __int128 p4 = p2 * p2;       /* p^4   */
 
     /* p^(4e+2) and p^(3e) using 128‑bit */
-    unsigned __int128 pow4e2 = power128(pp, 4 * e + 2);
-    unsigned __int128 pow3e  = power128(pp, 3 * e);
+    unsigned __int128 pow4e2 = ipow_u128_idx(pp, 4 * e + 2);
+    unsigned __int128 pow3e  = ipow_u128_idx(pp, 3 * e);
 
     /* numerator = p^(4e+2)*(p^2+p+1) - p^(3e)*(p^3+p^2+p+1) + p */
     unsigned __int128 term1 = pow4e2 * (p2 + pp + (unsigned __int128)1);

@@ -9,7 +9,8 @@
  *            binom(6,i) * 6^{(m-i)/2} (only when m-i is even)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* maximum N we support for caching and precomputation (sequence is used up to ~10000) */
 #define MAX_N 10000
@@ -79,14 +81,14 @@ static void ensure_pow6(size_t exp)
     if (pow6 == NULL) {
         /* initialise with one element 6^0 = 1 */
         pow6_cap = 1;
-        pow6 = (seq_t *)malloc(pow6_cap * sizeof(seq_t));
+        pow6 = mem_new(seq_t, pow6_cap);
         pow6[0] = (seq_t)1;
         pow6_size = 1;
     }
     while (pow6_size <= exp) {
         if (pow6_size >= pow6_cap) {
             pow6_cap <<= 1;
-            pow6 = (seq_t *)realloc(pow6, pow6_cap * sizeof(seq_t));
+            pow6 = mem_resize(seq_t, pow6, pow6_cap);
         }
         pow6[pow6_size] = pow6[pow6_size - 1] * (seq_t)6;
         pow6_size++;

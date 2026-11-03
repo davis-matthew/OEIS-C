@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth nonnegative integer whose digit sum is divisible by 7
  * Range:     u8 n <= 35, u16 n <= 9364, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 80 terms through n = 8681 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* Return the n‑th term (n ≥ 1) of A273159. */
 seq_t a(idx_t n)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Lazy allocation of the cache */
     if (cache == NULL) {
         cache_cap = 1024;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL)
             return 0;   /* allocation failure – unlikely in tests */
         cache_n = 0;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         /* Ensure enough room in the cache */
         if (cache_n == cache_cap) {
             cache_cap <<= 1;  /* double capacity */
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
             if (cache == NULL)
                 return 0;   /* allocation failure */
         }

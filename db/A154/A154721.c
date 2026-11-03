@@ -11,14 +11,15 @@
  *            the linearized triangle A154721
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, is_prime
+ * Validated: standard, pass, 97 terms through n = 9583 (2026-11-01)
+ * Helpers:   is_prime, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t idx)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t idx)
         return 0;
 
     /* Find the row r: smallest r such that r^2 >= idx */
-    idx_t r = _floor_isqrt_u64(idx - 1) + 1;
+    idx_t r = isqrt(idx - 1) + 1;
     idx_t prev_sq = (r - 1) * (r - 1);
     idx_t pos = idx - prev_sq;          /* 1‑based position in the row */
 

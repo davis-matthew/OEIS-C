@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 16, u32 n <= 2505, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 51 terms through n = 9845 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 /* Recursive enumeration of all numbers of a given length whose digits are
    {7,8,9} and that contain at least one 7.  When a prime is found the
@@ -35,7 +37,7 @@ static void enumerate(uint64_t val,
 {
     if (*found) return;
     if (pos == len) {
-        if (has7 && is_prime(val)) {
+        if (has7 && is_prime_u64(val)) {
             ++(*cnt);
             if (*cnt == target) {
                 *result = (seq_t)val;

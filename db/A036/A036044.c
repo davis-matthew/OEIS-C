@@ -8,13 +8,23 @@
  *            complementing each bit and reversing the resulting bit string
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reverse_k_bits
+ * Validated: standard, pass, 91 terms through n = 8874 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/reverse_k_bits.h"
+
+static inline seq_t reverse_k_bits(seq_t v, int k)
+{
+    seq_t r = 0;
+    while (k-- > 0) {
+        r = (r << 1) | (v & 1ULL);
+        v >>= 1;
+    }
+    return r;
+}
 
 static inline int bitlen_uint64(uint64_t x)
 {

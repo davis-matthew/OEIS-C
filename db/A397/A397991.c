@@ -10,8 +10,9 @@
  *            k*n/(k-1)⌋ * (k ≥ 2) along ascending antidiagonals. For a given
  *            index i, let * s be the smallest integer such that (s-1)*s/2 >
  *            i. Then * offset = i - (s-2)*(s-1)/2 * k =...
- * Range:     u8 n <= 8255, u16 n <= 9697, u32 n <= 9697, u64 n <= 9697,
- *            u128 n <= 9697, big any n
+ * Range:     u8 n <= 8255, u16 n <= 11324, u32 n <= 11324, u64 n <= 11324,
+ *            u128 n <= 11324, big any n
+ * Validated: standard, pass, 107 terms through n = 9697 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

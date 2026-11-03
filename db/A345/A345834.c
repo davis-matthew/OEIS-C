@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4554, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9915 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Choose a base large enough to generate at least 10 000 terms.
  * B = 30 gives 8·30⁴ = 6 480 000 as maximum sum and about 1.6 × 10⁷
@@ -91,7 +93,7 @@ static void build_sequence(void)
     }
 
     /* allocate array for the terms */
-    seq_t *terms = (seq_t*)calloc(terms_needed, sizeof(seq_t));
+    seq_t *terms = mem_new(seq_t, terms_needed);
     if (!terms) abort();
 
     /* fill the array with the qualifying sums */

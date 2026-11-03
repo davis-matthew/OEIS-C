@@ -8,6 +8,7 @@
  * Formula:   a(n) = numerator of the sum_{k=0}^{⌊n/2⌋} 2/(2k)!
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 13, u64 n <= 20, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

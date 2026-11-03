@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   period_lucas
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,23 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/period_lucas.h"
+
+static seq_t period_lucas(idx_t n, idx_t k) {
+    /* period of Lucas recurrence modulo n, n>=2, 0<=k<n */
+    seq_t prev = 0;
+    seq_t curr = 1 % n;
+    if (n == 1)               /* handled outside, but keep safe */
+        return 1;
+    for (idx_t l = 1; ; ++l) {   /* l = current index of curr (>=1) */
+        /* next = k*curr - prev (mod n) */
+        seq_t next = ((seq_t)k * curr) % n;
+        next = (next + n - (prev % n)) % n;
+        prev = curr;
+        curr = next;
+        if (prev == 0 && curr == 1)   /* cycle detected */
+            return l;
+    }
+}
 
 seq_t a(idx_t n) {
     /* find row r such that r*(r+1)/2 >= n */

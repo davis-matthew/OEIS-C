@@ -10,14 +10,17 @@
  *            a(3)=T(3,2), a(4)=T(3,3), a(5)=T(4,2), …
  * Range:     u8 n <= 13, u16 n <= 26, u32 n <= 72, u64 n <= 182,
  *            u128 n <= 484, big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 61 terms through n = 9444 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
     {
         /* (k-i-1)^nprime */
         seq_t base = (seq_t)(kprime - i - 1);
-        seq_t pw   = big_pow(base, (seq_t)nprime);
+        seq_t pw   = ipow(base, (seq_t)nprime);
 
         /* binomial coefficient C(kprime, i) */
         seq_t comb = binomial(kprime, i);

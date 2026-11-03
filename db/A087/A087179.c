@@ -8,8 +8,9 @@
  * Formula:   a(n) is the power tower of the exponents of n in its prime *
  *            factorisation: a(n) = ((x1^x2)^x3)^x4^... (a(1)=0) * where n = Π
  *            p_i^x_i with p_1 < p_2 < …
- * Range:     u8 n <= 1295, u16 n <= 9474, u32 n <= 9474, u64 n <= 9474,
- *            u128 n <= 9474, big any n
+ * Range:     u8 n <= 1295, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 136 terms through n = 9474 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

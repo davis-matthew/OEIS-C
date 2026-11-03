@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 704, u32 n <= 2196, u64 n <= 7501,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 113 terms through n = 9878 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* The function uses a simple generating‑function recurrence.
    For each m the polynomial `P_m(q) = Prod_{k=1}^m (1+q^{2k-1})`
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Allocate / extend the cache if necessary */
     if (n + 1 > cached_max) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)new_size);
         if (!new_cache) { /* Allocation failed – abort silently */
             return 0;
         }
@@ -42,9 +44,9 @@ seq_t a(idx_t n)
         }
 
         /* coefficient array for the current product P_m */
-        seq_t *coeff = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+        seq_t *coeff = mem_new(seq_t, (size_t)new_size);
         if (!coeff) {
-            free(new_cache);
+            mem_free(new_cache);
             return 0;
         }
         for (idx_t i = 0; i < new_size; ++i) {
@@ -78,8 +80,8 @@ seq_t a(idx_t n)
         }
 
         /* Clean up previous cache and replace it */
-        free(coeff);
-        free(cache);
+        mem_free(coeff);
+        mem_free(cache);
         cache = new_cache;
         cached_max = new_size;
     }

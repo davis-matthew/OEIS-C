@@ -8,7 +8,8 @@
  * Formula:   a(n) = sum_{i=1}^{n} prime_i - sum_{i=1}^{n} composite_i
  * Range:     i8 n <= 15, i16 n <= 55, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t      _max_n          = 0;
 static uint32_t   *_primes        = NULL;
@@ -48,7 +50,7 @@ static void _grow_primes(size_t needed)
     while (new_cap < needed) new_cap *= 2;
     _primes = (uint32_t*)realloc(_primes, new_cap * sizeof(uint32_t));
     _primes_cap = new_cap;
-    _prime_sums = (seq_t*)realloc(_prime_sums, new_cap * sizeof(seq_t));
+    _prime_sums = mem_resize(seq_t, _prime_sums, new_cap);
     _prime_sums_cap = new_cap;
 }
 
@@ -59,7 +61,7 @@ static void _grow_comps(size_t needed)
     while (new_cap < needed) new_cap *= 2;
     _comps = (uint32_t*)realloc(_comps, new_cap * sizeof(uint32_t));
     _comps_cap = new_cap;
-    _comp_sums = (seq_t*)realloc(_comp_sums, new_cap * sizeof(seq_t));
+    _comp_sums = mem_resize(seq_t, _comp_sums, new_cap);
     _comp_sums_cap = new_cap;
 }
 

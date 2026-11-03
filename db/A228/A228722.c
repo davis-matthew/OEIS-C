@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_digits_msb
+ * Validated: standard, pass, 83 terms through n = 9690 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,28 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/get_digits_msb.h"
+
+/* Retrieve the decimal digits of num in most‑significant‑first order.
+   The buffer must have at least 20 elements (enough for 64‑bit numbers). */
+static void get_digits_msb(idx_t num, uint8_t *buf, size_t *len)
+{
+    if (num == 0) {          /* special case for zero */
+        buf[0] = 0;
+        *len = 1;
+        return;
+    }
+
+    uint8_t tmp[20];
+    size_t cnt = 0;
+    while (num > 0) {
+        tmp[cnt++] = (uint8_t)(num % 10);
+        num /= 10;
+    }
+    for (size_t i = 0; i < cnt; ++i) {
+        buf[i] = tmp[cnt - 1 - i];
+    }
+    *len = cnt;
+}
 
 /* Recursive search for the largest alternating‑parity number of the same
    length as the array 'nd'.  nd[0] is the most significant digit. */

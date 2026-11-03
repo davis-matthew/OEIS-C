@@ -10,18 +10,19 @@
  *            for x>0
  * Range:     u8 n <= 3469, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 95 terms through n = 9383 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* Determine the row index r (≥1) such that r(r-1)/2 < n ≤ r(r+1)/2 */
     idx_t t   = 8 * n + 1;
-    idx_t sr  = _floor_isqrt_u64(t);
+    idx_t sr  = isqrt(t);
     idx_t r   = (sr - 1) / 2;     /* floor of (sqrt(8n+1)-1)/2 */
     if (r * (r + 1) / 2 < n)
         r++;                     /* adjust to the ceil value */

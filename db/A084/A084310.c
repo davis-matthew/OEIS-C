@@ -7,6 +7,7 @@
  * Formula:   a(n) = gcd(prime(n)+1, n)
  * Range:     u8 n <= 56, u16 n <= 8409, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 116 terms through n = 9422 (2026-11-01)
  * Helpers:   gcd, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,9 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/gcd.h"
 #include "../utils/sieve_primes.h"
 

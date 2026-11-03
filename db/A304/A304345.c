@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper constants */
 #define COLS 6
@@ -151,11 +153,11 @@ seq_t a(idx_t n)
     }
 
     /* Allocate DP arrays */
-    seq_t *dp_curr = (seq_t *)malloc(STATE_CNT * sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)malloc(STATE_CNT * sizeof(seq_t));
+    seq_t *dp_curr = mem_new(seq_t, STATE_CNT);
+    seq_t *dp_next = mem_new(seq_t, STATE_CNT);
     if (!dp_curr || !dp_next) return 0; /* allocation failure */
 
-    memset(dp_curr, 0, STATE_CNT * sizeof(seq_t));
+    mem_set(dp_curr, 0, STATE_CNT * sizeof(seq_t));
 
     /* Initialise with the first two rows (row 0 and row 1) */
     for (int p0 = 0; p0 < ROW_PAT; ++p0) {
@@ -171,7 +173,7 @@ seq_t a(idx_t n)
 
     /* Process remaining rows */
     for (idx_t r = 2; r < n; ++r) {
-        memset(dp_next, 0, STATE_CNT * sizeof(seq_t));
+        mem_set(dp_next, 0, STATE_CNT * sizeof(seq_t));
         for (int idx = 0; idx < STATE_CNT; ++idx) {
             seq_t val = dp_curr[idx];
             if (!val) continue;
@@ -197,7 +199,7 @@ seq_t a(idx_t n)
         if (last_valid[idx]) ans += dp_curr[idx];
     }
 
-    free(dp_curr);
-    free(dp_next);
+    mem_free(dp_curr);
+    mem_free(dp_next);
     return ans;
 }

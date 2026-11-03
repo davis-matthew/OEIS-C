@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of partitions of n into parts 3, 7, 9, and 11
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         /* ensure the array is large enough for indices 0..n */
         idx_t new_capacity = n + 1;
         if (new_capacity > capacity) {
-            seq_t *tmp = (seq_t *)realloc(dp, sizeof(seq_t) * new_capacity);
+            seq_t *tmp = mem_resize(seq_t, dp, new_capacity);
             if (tmp == NULL) { /* allocation error – return 0 as safe default */
                 return 0;
             }

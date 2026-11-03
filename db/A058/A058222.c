@@ -8,12 +8,14 @@
  *            has children k+1, k+2, … , 2k, read across rows
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for the sequence */
 static seq_t *tree_cache = NULL;   /* array storing the values */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (tree_cache == NULL) {
         tree_cap = 64;
-        tree_cache = (seq_t *)malloc(tree_cap * sizeof(seq_t));
+        tree_cache = mem_new(seq_t, tree_cap);
         if (tree_cache == NULL) return 0;   /* allocation failure */
         tree_cache[0] = (seq_t)1;           /* root node */
         tree_len = 1;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         for (seq_t child = parent + (seq_t)1; child <= max_child; ++child) {
             if (tree_len == tree_cap) {            /* grow the array */
                 tree_cap *= 2;
-                seq_t *new_cache = (seq_t *)realloc(tree_cache, tree_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, tree_cache, tree_cap);
                 if (new_cache == NULL) return 0;  /* allocation failure */
                 tree_cache = new_cache;
             }

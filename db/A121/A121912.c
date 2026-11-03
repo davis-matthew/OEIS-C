@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 6669, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 79 terms through n = 9901 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;   /* array of found terms */
 static size_t  terms_cap = 0;
@@ -30,7 +33,7 @@ static idx_t   tested   = 0;  /* largest k that has been tested */
 static void add_term(idx_t k) {
     if (terms_cnt == terms_cap) {
         size_t new_cap = (terms_cap == 0) ? 16 : terms_cap * 2;
-        seq_t *new_arr = (seq_t *) realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
         if (!new_arr) exit(EXIT_FAILURE); /* failed to allocate */
         terms = new_arr;
         terms_cap = new_cap;
@@ -43,7 +46,7 @@ static bool good_k(idx_t k) {
     /* Base 10 as seq_t */
     const seq_t TEN = (seq_t)10;
     /* Compute 10^k mod k */
-    seq_t mod_res = mod_pow(TEN, (uint64_t)k, (seq_t)k);
+    seq_t mod_res = powmod(TEN, (uint64_t)k, (seq_t)k);
     /* Compute 10 mod k */
     seq_t ten_mod = (seq_t)10 % (seq_t)k;
     return mod_res == ten_mod;

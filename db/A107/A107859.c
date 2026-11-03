@@ -15,14 +15,29 @@
  *            contains the digit d. The sequence is memoised so th...
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   contains_digit
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains_digit.h"
+#include "../utils/mem.h"
+
+static bool contains_digit(seq_t val, int digit)
+{
+    if (val == 0)
+        return digit == 0;
+    seq_t tmp = val;
+    while (tmp > 0)
+    {
+        if ((int)(tmp % 10) == digit)
+            return true;
+        tmp = tmp / 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,8 +52,8 @@ seq_t a(idx_t n)
     if (terms == NULL)
     {
         term_cap = 8;
-        terms = (seq_t *)malloc(sizeof(seq_t) * term_cap);
-        used = (seq_t *)malloc(sizeof(seq_t) * term_cap);
+        terms = mem_new(seq_t, term_cap);
+        used = mem_new(seq_t, term_cap);
         cc_cap = 32;
         cc = (uint8_t *)malloc(cc_cap);
 
@@ -62,8 +77,8 @@ seq_t a(idx_t n)
         if (term_cnt == term_cap)
         {
             term_cap *= 2;
-            terms = (seq_t *)realloc(terms, sizeof(seq_t) * term_cap);
-            used  = (seq_t *)realloc(used,  sizeof(seq_t) * term_cap);
+            terms = mem_resize(seq_t, terms, term_cap);
+            used  = mem_resize(seq_t, used, term_cap);
         }
 
         /* compute d = |cc[term_cnt-1] – cc[term_cnt-2]|  (1‑based) */

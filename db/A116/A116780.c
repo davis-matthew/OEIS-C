@@ -10,12 +10,14 @@
  *            a(5)=74, a(6)=249
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 20, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build. */
 static const seq_t init[7] = {0, 1, 2, 6, 21, 74, 249};
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary */
     if (cache_size < n + 1) {
         idx_t new_size = n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         cache_size = new_size;
     }
 

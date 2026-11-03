@@ -8,11 +8,14 @@
  * Formula:   a(n) = 3^(n-1)*(2*n-6) + 2^(n-1)*(-n^2+n+6) - n - 1
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 37, u128 n <= 77,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 1910 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
 

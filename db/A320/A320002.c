@@ -9,7 +9,8 @@
  *            3 or 4 (Lagrange's theorem)
  * Range:     u8 n <= 16, u16 n <= 31, u32 n <= 62, u64 n <= 121,
  *            u128 n <= 121, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 116 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The build provides typedefs for idx_t and seq_t */
                                      
@@ -62,7 +64,7 @@ static void ensure_a_pre(idx_t n)
     /* The sequence depends on A002828, so ensure the square cache first. */
     ensure_square_pre(n);
 
-    seq_t *tmp = (seq_t *)realloc(a_cache, needed * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, needed);
     if (!tmp) return;          /* allocation failed – leave cache as is */
     a_cache = tmp;
 

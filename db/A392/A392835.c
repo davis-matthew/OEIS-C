@@ -8,6 +8,7 @@
  * Formula:   a(n) = #{(i,j) | 1≤i,j≤n and gcd(i+j,i*j)=gcd(i,j)}
  * Range:     u8 n <= 16, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

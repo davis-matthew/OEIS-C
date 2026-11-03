@@ -7,6 +7,7 @@
  * Formula:   a(n) = Fibonacci(3*floor((n+1)/2) + (-1)^n)
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 31, u64 n <= 61, u128 n <= 123,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 445 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,6 +9,7 @@
  *            n-2*k)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 32, u128 n <= 61,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 428 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t binom_safe(idx_t a, idx_t b)

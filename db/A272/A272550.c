@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 1951, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 68 terms through n = 8974 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,10 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;      /* cached terms */
 static size_t terms_len = 0;     /* number of terms already generated */
@@ -37,13 +41,13 @@ ensure_cache_size(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *new_terms = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_new(seq_t, new_cap);
     if (!new_terms)
         abort(); /* memory allocation failed */
 
     if (terms) {
-        memcpy(new_terms, terms, terms_len * sizeof(seq_t));
-        free(terms);
+        mem_copy(new_terms, terms, terms_len * sizeof(seq_t));
+        mem_free(terms);
     }
 
     terms     = new_terms;

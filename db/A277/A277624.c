@@ -8,8 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 1128, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, is_prime, seq_alloc,
- *            seq_realloc
+ * Validated: standard, pass, 71 terms through n = 9793 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,11 +22,30 @@
 #include <stdlib.h>
 
 /* external helpers */
-#include "../utils/is_prime.h"                 /* bool is_prime(idx_t n); */
-#include "../utils/_floor_isqrt_u64.h"         /* idx_t _floor_isqrt_u64(idx_t n); */
-#include "../utils/build_primes_upto.h"        /* void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
-#include "../utils/seq_alloc.h"                /* seq_t* seq_alloc(size_t cap); */
-#include "../utils/seq_realloc.h"              /* seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap); */
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
+#include "../utils/isqrt.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* static data for prime list and terms cache */
 static uint64_t *prime_list   = NULL;   /* primes up to prime_limit */
@@ -69,7 +88,7 @@ static bool has_dominant_prime_factor(uint64_t n)
     if (is_prime(n)) return false;           /* must be composite */
 
     /* ensure prime list covers sqrt(n) for factorization */
-    idx_t sqrt_n = _floor_isqrt_u64(n);
+    idx_t sqrt_n = isqrt(n);
     ensure_prime_limit(sqrt_n + 1);
 
     uint64_t temp    = n;
@@ -86,7 +105,7 @@ static bool has_dominant_prime_factor(uint64_t n)
     if (temp > 1) largest = temp;           /* remaining prime factor */
 
     /* dominant condition: floor(sqrt(largest)) > n / largest */
-    seq_t p_sqrt = (seq_t)_floor_isqrt_u64(largest);
+    seq_t p_sqrt = (seq_t)isqrt(largest);
     seq_t lhs    = p_sqrt * (seq_t)largest;
     seq_t rhs    = (seq_t)n;
     return lhs > rhs;

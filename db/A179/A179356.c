@@ -9,13 +9,15 @@
  *            13‑column sliding window described above
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 314 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>     /* for size_t, idx_t, seq_t */
 #include <string.h>     /* for memset, memcpy */
+#include "../utils/mem.h"
 
 #define MASK_BITS 13
 #define NUM_MASKS (1 << MASK_BITS)
@@ -34,12 +36,12 @@ seq_t a(idx_t n)
             init_mask |= 1 << t;           /* mark out‑of‑range columns as used */
     }
 
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     dp[init_mask] = 1;
 
     for (idx_t row = 1; row <= n; ++row) {
         /* zero the next DP array */
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
 
         for (int mask = 0; mask < NUM_MASKS; ++mask) {
             seq_t ways = dp[mask];
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         }
 
         /* copy newdp into dp for the next iteration */
-        memcpy(dp, newdp, sizeof(dp));
+        mem_copy(dp, newdp, sizeof(dp));
     }
 
     return dp[ALLONES];   /* all columns must be used */

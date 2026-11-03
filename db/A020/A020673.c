@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   _floor_isqrt_u64, cmp_seq_t, free_seq, grow_seq
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,38 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/grow_seq.h"
-#include "../utils/free_seq.h"
-#include "../utils/cmp_seq_t.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 static seq_t *cache = NULL;
 static idx_t cached_len = 0;
@@ -38,8 +67,8 @@ seq_t a(idx_t n)
         seq_t B = (seq_t)n * 10 + 100;          /* initial bound */
         while (1) {
             /* Limits for x and y so that x^2+10y^2 ≤ B */
-            idx_t x_max = (idx_t)_floor_isqrt_u64((uint64_t)B);
-            idx_t y_max = (idx_t)_floor_isqrt_u64((uint64_t)(B / 10));
+            idx_t x_max = (idx_t)isqrt((uint64_t)B);
+            idx_t y_max = (idx_t)isqrt((uint64_t)(B / 10));
             size_t cap = (size_t)(x_max + 1) * (size_t)(y_max + 1);
 
             /* Temporary array for raw values */
@@ -58,8 +87,7 @@ seq_t a(idx_t n)
             }
 
             /* Sort and remove duplicates */
-            qsort(tmp, cnt, sizeof(seq_t),
-                  (int (*)(const void*,const void*))cmp_seq_t);
+            mem_qsort(tmp, cnt, sizeof(seq_t), (int (*)(const void*,const void*))cmp_seq_t);
             size_t uniq = 0;
             for (size_t i = 0; i < cnt; ++i) {
                 if (i == 0 || tmp[i] != tmp[i-1]) {

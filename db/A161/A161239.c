@@ -12,14 +12,17 @@
  *            each Catalan value c (unique values only): * 1....
  * Range:     u8 n <= 165, u16 n <= 636, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_one
+ * Validated: standard, pass, 114 terms through n = 976 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_one.h"
+#include <stdlib.h>
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 #define MAX_N 10000
 

@@ -9,12 +9,14 @@
  *            a(0)=0, a(1)=1, a(2)=3, a(3)=6, a(4)=16, a(5)=43
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the nth term of OEIS A375823.
    Uses memoised recurrence and static cache for speed. */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (max_computed == (idx_t)-1) {
         /* need at least 6 slots for the base cases a(0)..a(5) */
         cap = 6;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;       /* allocation failure – return 0 */
 
         cache[0] = (seq_t)0;
@@ -50,9 +52,9 @@ seq_t a(idx_t n)
         size_t new_cap = cap * 2;
         if (new_cap < (size_t)(n + 1))
             new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {            /* realloc failed – return 0 */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cap = 0;
             max_computed = (idx_t)-1;

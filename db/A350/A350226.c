@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8191, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 7721 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*---  Thue–Morse lookup  --------------------------------------------------*/
 
@@ -93,14 +95,14 @@ static void ensure_a_cache(idx_t n)
         return;  /* already computed */
 
     /* Allocate new buffer */
-    seq_t *new_arr = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, (size_t)(n + 1));
 
     /* Copy existing values, if any */
     if (a_cache != NULL)
     {
         for (size_t i = 0; i < a_cache_size; ++i)
             new_arr[i] = a_cache[i];
-        free(a_cache);
+        mem_free(a_cache);
     }
 
     /* Compute missing values */

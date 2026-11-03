@@ -12,7 +12,8 @@
  *            in increasing numeric order, flattening the pairs s...
  * Range:     u8 n <= 576, u16 n <= 576, u32 n <= 576, u64 n <= 576,
  *            u128 n <= 576, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 565 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 typedef uint64_t idx_t; /* as supplied by build */
 
@@ -138,7 +140,7 @@ static void generate_primes(size_t limit)
 static void cache_init(void)
 {
     cache_cap = 256;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) exit(1);
     cache_len = 0;
 }
@@ -148,7 +150,7 @@ static void cache_grow(void)
 {
     if (cache_len < cache_cap) return;
     cache_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
     if (!tmp) exit(1);
     cache = tmp;
 }

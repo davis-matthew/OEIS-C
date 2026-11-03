@@ -8,13 +8,15 @@
  *            a(2)=3, a(3)=11, a(4)=31 (offset 1)
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t if needed */
 #include <stdint.h>   /* for uint64_t */
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ extern seq_t a(idx_t n)
         static idx_t dyn_size = 0;
         if (dyn_cache == NULL || n + 1 > dyn_size) {
             idx_t new_size = (n + 1) * 2;
-            seq_t *tmp = (seq_t *)realloc(dyn_cache, new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, dyn_cache, new_size);
             if (!tmp) { /* allocation failed; return 0 as a fallback */
                 return 0;
             }

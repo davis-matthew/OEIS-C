@@ -10,14 +10,29 @@
  *            a(1) the second, and so on
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   next_odd_collatz_uint64
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_odd_collatz_uint64.h"
+#include "../utils/mem.h"
+
+/* Compute the next odd value in the reduced Collatz sequence.
+   Uses 64‑bit arithmetic; the values encountered for 27 remain
+   far below 2^64, so the cast to uint64_t is safe for all
+   supported seq_t sizes. */
+static inline uint64_t next_odd_collatz_uint64(uint64_t n)
+{
+    /* 3n+1 followed by repeated divisions by 2 until the result is odd. */
+    uint64_t m = 3 * n + 1;          /* 3n+1 */
+    m >>= 1;                         /* divide by 2 once */
+    while ((m & 1) == 0)             /* strip all trailing zeros */
+        m >>= 1;
+    return m;
+}
 
 /* Compute floor(log2(x)).  x>0.  Uses only shifts and comparisons,
    compatible with all allowed integer operations. */
@@ -48,9 +63,9 @@ seq_t a(idx_t n)
 
         /* Grow cache array. */
         if (cache_size == 0)
-            cache = (seq_t *)malloc(sizeof(seq_t));
+            cache = mem_new(seq_t, 1);
         else
-            cache = (seq_t *)realloc(cache, (cache_size + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (cache_size + 1));
 
         cache[cache_size] = val;
         cache_size++;

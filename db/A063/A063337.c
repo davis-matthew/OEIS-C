@@ -8,6 +8,7 @@
  * Formula:   a(n) = 72*n - 155 for n > 2; a(2) = -1
  * Range:     i8 n <= 3, i16 n <= 43, i32 n <= 43, i64 n <= 43, i128 n <= 43,
  *            big any n
+ * Validated: partial, pass, 42 terms through n = 43 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 115, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_good_64
+ * Validated: standard, pass, 79 terms through n = 8537 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,42 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_good_64.h"
+
+/* Local helper: check whether a 64‑bit integer satisfies the property. */
+static bool is_good_64(uint64_t n)
+{
+    if (n == 1) return true;                 /* 1 is always a term */
+
+    /* Count exponent of 2. */
+    uint64_t e2 = 0;
+    while ((n & 1ULL) == 0) {
+        e2++;
+        n >>= 1;
+    }
+    if (e2 == 0) return false;               /* odd numbers >1 are not good */
+
+    /* Now examine the odd part. */
+    uint64_t max_odd_exp = 0;
+    uint64_t x = n;                          /* odd part after shifting */
+
+    for (uint64_t i = 3; i <= x / i; i += 2) {
+        if (x % i == 0) {
+            uint64_t cnt = 0;
+            while (x % i == 0) {
+                x /= i;
+                cnt++;
+            }
+            if (cnt > max_odd_exp) max_odd_exp = cnt;
+            if (max_odd_exp > e2) return false;    /* early exit */
+        }
+    }
+    if (x > 1) {                             /* remaining prime factor */
+        if (max_odd_exp < 1) max_odd_exp = 1;
+        if (max_odd_exp > e2) return false;
+    }
+
+    return max_odd_exp <= e2;
+}
 
 /* Main function requested by the build. */
 seq_t a(idx_t n)

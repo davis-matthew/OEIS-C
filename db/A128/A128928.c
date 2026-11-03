@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   is_prime, next_prime
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 /* Utilities that are provided by the build system. */
 #include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* static cache of already discovered terms */
 static seq_t *cache = NULL;
@@ -38,7 +40,7 @@ static void ensure_cache_cap(size_t needed)
     if (needed <= cache_cap)
         return;
     size_t new_cap = needed * 2 + 16;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     /* If realloc fails we simply keep the old cache; the program
        will keep retrying until memory is available or the caller
        has reached the end of the sequence. */

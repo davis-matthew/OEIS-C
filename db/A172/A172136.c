@@ -9,13 +9,23 @@
  *            (n ≥ 8). * For n < 8 compute by brute force enumeration
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 15, u64 n <= 136, u128 n <= 1000,
  *            big any n
- * Helpers:   knights_attack
+ * Validated: standard, pass, 42 terms through n = 986 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/knights_attack.h"
+
+/* Two squares attack each other if a knight move separates them */
+static bool knights_attack(idx_t a, idx_t b, idx_t n)
+{
+    idx_t r1 = a / n, c1 = a % n;
+    idx_t r2 = b / n, c2 = b % n;
+    idx_t dr = r1 > r2 ? r1 - r2 : r2 - r1;
+    idx_t dc = c1 > c2 ? c1 - c2 : c2 - c1;
+    return (dr == 1 && dc == 2) || (dr == 2 && dc == 1);
+}
 
 /*   a(n)   Number of ways to place 5 non‑attacking knights on an n×n board */
 seq_t a(idx_t n)

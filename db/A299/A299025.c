@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 29, u64 n <= 101, u128 n <= 356,
  *            big any n
- * Helpers:   nth_hamming, pow5_u64
+ * Validated: standard, pass, 56 terms through n = 9139 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,63 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/nth_hamming.h"
-#include "../utils/pow5_u64.h"
+#include "../utils/mem.h"
+
+/*  A003592(n): generate the n‑th 2^i 5^j number using the standard
+ *  two‑pointer method.  The array is cached statically and grown only
+ *  as needed.  The function is safe to be called with n in any order. */
+static seq_t nth_hamming(idx_t n)
+{
+    static seq_t  *arr   = NULL;
+    static size_t arr_cap = 0;
+    static size_t arr_sz  = 0;
+    static idx_t  idx2   = 0;
+    static idx_t  idx5   = 0;
+
+    if (arr == NULL) {
+        arr_cap = 16;
+        arr     = mem_new(seq_t, arr_cap);
+        arr[0]  = 1;
+        arr_sz  = 1;
+    }
+
+    while (arr_sz < n) {
+        if (arr_sz == arr_cap) {
+            size_t new_cap = arr_cap * 2;
+            seq_t *tmp     = mem_resize(seq_t, arr, new_cap);
+            if (!tmp) exit(1);          /* memory allocation failure   */
+            arr     = tmp;
+            arr_cap = new_cap;
+        }
+
+        seq_t next2 = arr[idx2] * 2;
+        seq_t next5 = arr[idx5] * 5;
+
+        seq_t next;
+        if (next2 < next5) {
+            next = next2;
+            ++idx2;
+        } else if (next5 < next2) {
+            next = next5;
+            ++idx5;
+        } else { /* equal */
+            next = next2;   /* or next5 */
+            ++idx2;
+            ++idx5;
+        }
+
+        arr[arr_sz++] = next;
+    }
+
+    return arr[n - 1];
+}
+
+/* helper: integer power of 5 */
+static seq_t pow5_u64(idx_t e) {
+    seq_t r = 1;
+    for (idx_t i = 0; i < e; ++i) r *= 5;
+    return r;
+}
 
 /* helper: integer power of 2 */
 static seq_t pow2_u64(idx_t e) {

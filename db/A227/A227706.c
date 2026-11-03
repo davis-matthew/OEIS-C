@@ -8,11 +8,13 @@
  * Formula:   a(n) = 4^n*(5184*n^2 - 10368*n + 18696) - 2^n*19314 + 1095
  * Range:     u8 none, u16 n <= 1, u32 n <= 7, u64 n <= 18, u128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {

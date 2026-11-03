@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   factorial, offset_row
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,21 @@
    the flattened triangle (0‑based) and m is the column index in that row. */
 
 #include <stdbool.h>
-#include "../utils/offset_row.h"    /* seq_t offset_row(idx_t r) */
-#include "../utils/factorial.h"     /* seq_t factorial(idx_t n) */
+#include <stdint.h>
+#include <stdlib.h>
+#include <math.h>
+#include "../utils/triangular.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,15 +41,15 @@ seq_t a(idx_t n)
     idx_t r = 0;
     seq_t n_seq = (seq_t)n;
     for (;;) {
-        seq_t cur_start   = offset_row(r);
-        seq_t next_start  = offset_row(r + 1);
+        seq_t cur_start   = triangular(r);
+        seq_t next_start  = triangular(r + 1);
         if (n_seq < next_start)
             break;
         r++;
     }
 
     /* Column index within the row. */
-    seq_t row_start = offset_row(r);
+    seq_t row_start = triangular(r);
     seq_t m_seq     = n_seq - row_start;
     idx_t m = (idx_t)m_seq;
 

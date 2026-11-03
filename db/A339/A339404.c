@@ -12,23 +12,25 @@
  *            an even number of parts. dp_odd[s] – same but with an...
  * Range:     u8 n <= 25, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     size_t N = (size_t)n;            /* array size */
     /* Allocate arrays for even and odd part counts */
-    seq_t *dp_even = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *dp_odd  = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp_even = mem_new(seq_t, (N + 1));
+    seq_t *dp_odd  = mem_new(seq_t, (N + 1));
     if (!dp_even || !dp_odd) {
         /* In an OOM situation, return 0 */
-        free(dp_even);
-        free(dp_odd);
+        mem_free(dp_even);
+        mem_free(dp_odd);
         return 0;
     }
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp_even[N];
 
-    free(dp_even);
-    free(dp_odd);
+    mem_free(dp_even);
+    mem_free(dp_odd);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   a(n) = ceiling((∑_{k=1..n} prime(k)) / prime(n))
  * Range:     u8 n <= 13, u16 n <= 166, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 845 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for primes and their cumulative sums */
 static idx_t *primes = NULL;          /* array of primes (idx_t) */
@@ -66,7 +68,7 @@ static void append_next_prime(void)
     /* Grow cumsums array if necessary */
     if (primes_cnt == cumsums_cap) {
         size_t new_cap = cumsums_cap ? cumsums_cap << 1 : 4ull;
-        cumsums = (seq_t *)realloc(cumsums, new_cap * sizeof(seq_t));
+        cumsums = mem_resize(seq_t, cumsums, new_cap);
         cumsums_cap = new_cap;
     }
     cumsums[primes_cnt] = new_sum;

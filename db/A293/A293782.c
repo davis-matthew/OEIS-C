@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   pair_bit
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
    bits of n (bit 0 → (1,2), bit 1 → (1,3), …, bit 11 → (4,3)). */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pair_bit.h"
+
+/* Map an ordered pair (a,b) to its 0‑based bit index (0..11). */
+static int pair_bit(int a, int b)
+{
+    /* (1,2),(1,3),(1,4),(2,3),(2,4),(3,4) → bits 0..5   */
+    if (a==1 && b==2) return 0;
+    if (a==1 && b==3) return 1;
+    if (a==1 && b==4) return 2;
+    if (a==2 && b==3) return 3;
+    if (a==2 && b==4) return 4;
+    if (a==3 && b==4) return 5;
+    /* (2,1),(3,1),(4,1),(3,2),(4,2),(4,3) → bits 6..11  */
+    if (a==2 && b==1) return 6;
+    if (a==3 && b==1) return 7;
+    if (a==4 && b==1) return 8;
+    if (a==3 && b==2) return 9;
+    if (a==4 && b==2) return 10;
+    if (a==4 && b==3) return 11;
+    return -1; /* never reached for distinct a,b */
+}
 
 /* Permutations of {1,2,3,4} – there are exactly 24 of them. */
 /* For each permutation compute a 12‑bit mask: bit i set iff the

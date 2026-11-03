@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 1310, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compare_uint64
+ * Validated: standard, pass, 64 terms through n = 9825 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /* Definition: a(n) = the n‑th prime representable as 4x^2 + x*y + 5y^2,
    for integers x and y.  The index starts at 1.  */
 
@@ -27,7 +29,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/compare_uint64.h"
+
+/*  Utility compare function for qsort ------------------------------------ */
+static int compare_uint64(const void *a, const void *b)
+{
+    uint64_t x = *(const uint64_t*)a;
+    uint64_t y = *(const uint64_t*)b;
+    return (x < y) ? -1 : (x > y) ? 1 : 0;
+}
 
 /* ------------------------------------------------------------------------ */
 /*  64‑bit deterministic primality test (Miller–Rabin) ----------------- */

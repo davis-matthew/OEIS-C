@@ -8,12 +8,14 @@
  *            C(n-j,n-2j)*C(j,n-2j)*C(n,j)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -23,9 +25,9 @@ seq_t a(idx_t n)
     idx_t j_end   = n / 2;         /* floor(n/2) */
     for (idx_t j = j_start; j <= j_end; ++j) {
         idx_t a = n - 2 * j;                      /* n-2j */
-        seq_t term = binom(n - j, a);             /* C(n-j, n-2j) */
-        term *= binom(j, a);                      /* * C(j, n-2j) */
-        term *= binom(n, j);                      /* * C(n, j) */
+        seq_t term = binomial(n - j, a);             /* C(n-j, n-2j) */
+        term *= binomial(j, a);                      /* * C(j, n-2j) */
+        term *= binomial(n, j);                      /* * C(n, j) */
         sum += term;
     }
     return sum;

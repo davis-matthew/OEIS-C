@@ -9,6 +9,7 @@
  *            1; L(0) = 2, L(1) = 1, and L(k) = L(k-1) + L(k-2) for k >= 2
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 13, u128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

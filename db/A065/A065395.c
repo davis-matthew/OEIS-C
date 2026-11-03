@@ -7,13 +7,30 @@
  * Formula:   a(n) = sigma(phi(n)) - phi(sigma(n))
  * Range:     i8 n <= 59, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   my_sigma
+ * Validated: standard, pass, 82 terms through n = 910 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/my_sigma.h"
+
+/* ------------------------------------------------------------------ */
+static seq_t my_sigma(idx_t n)
+{
+    if (n == 0) return 0;          /* not used for offset ≥ 1 */
+    seq_t sum = 0;
+    for (idx_t i = 1; i <= n / i; ++i) {  /* avoids i*i overflow */
+        if (n % i == 0) {
+            seq_t j = n / i;
+            sum += (seq_t)i;
+            if (j != i) {
+                sum += (seq_t)j;
+            }
+        }
+    }
+    return sum;
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper: Euler's totient function: φ(m)                              */

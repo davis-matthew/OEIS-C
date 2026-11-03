@@ -12,12 +12,14 @@
  *            886756160
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 14, u64 n <= 30, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static const seq_t init_vals[13] = {
     81ULL, 300ULL, 1176ULL, 4480ULL, 17768ULL,
@@ -31,7 +33,7 @@ static size_t cache_size = 0;    /* number of terms stored */
 static void ensure_cache_size(idx_t n) {
     if (n <= cache_size) return;
     size_t required = (size_t)n;
-    seq_t *new_cache = (seq_t *)realloc(cache, required * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, required);
     if (!new_cache) abort();  /* allocation failed */
     /* Initialize new elements */
     for (size_t i = cache_size; i < required; ++i) {

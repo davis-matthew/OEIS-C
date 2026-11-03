@@ -10,7 +10,8 @@
  *            linear‑time DP over the last 7 bits
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 36, u64 n <= 80, u128 n <= 169,
  *            big any n
- * Helpers:   popcount8
+ * Validated: standard, pass, 46 terms through n = 195 (2026-11-01)
+ * Helpers:   popcount_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/popcount8.h"
+#include "../utils/popcount_u32.h"
 
 seq_t a(idx_t n) {
     /* Length of the binary array */
@@ -46,7 +47,7 @@ seq_t a(idx_t n) {
             for (int bit = 0; bit <= 1; ++bit) {
                 if (pos >= 7) {
                     unsigned int window = ((unsigned int)mask << 1) | (unsigned int)bit;
-                    if (popcount8(window) > 3) continue;
+                    if (popcount_u32(window) > 3) continue;
                 }
                 int newmask = (((mask << 1) | bit) & 0x7F);
                 curr[newmask] += val;

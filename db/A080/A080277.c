@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = \sum_{k=0}^{\lfloor\log_2 n\rfloor} 2^k * \lfloor n/2^k
  *            \rfloor (recurrence: a(n) = n + 2*a(floor(n/2)), a(1)=1)
- * Range:     u8 n <= 47, u16 n <= 5247, u32 n <= 9902, u64 n <= 9902,
- *            u128 n <= 9902, big any n
+ * Range:     u8 n <= 47, u16 n <= 5247, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 74 terms through n = 9902 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

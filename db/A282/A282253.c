@@ -11,14 +11,25 @@
  *            use and memoises them for later calls
  * Range:     i8 n <= 0, i16 n <= 1, i32 n <= 3, i64 n <= 13, i128 n <= 181,
  *            big any n
- * Helpers:   big_pow, dealloc_seq
+ * Validated: standard, pass, 31 terms through n = 940 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
-#include "../utils/dealloc_seq.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+static void dealloc_seq(seq_t *p)
+{
+#if defined(__cplusplus)
+    delete [] p;
+#else
+    free(p);
+#endif
+}
 
 typedef uint64_t idx_t;   /* supplied by the build */
 
@@ -44,7 +55,7 @@ static void compute_sigma5(idx_t N)
     for (idx_t i = 0; i <= N; ++i) sigma5[i] = 0;
     sigma5[0] = 0;
     for (idx_t d = 1; d <= N; ++d) {
-        seq_t d5 = big_pow((seq_t)d, (seq_t)5);            /* d^5 */
+        seq_t d5 = ipow((seq_t)d, (seq_t)5);            /* d^5 */
         for (idx_t m = d; m <= N; m += d) sigma5[m] += d5; /* add divisor contribution */
     }
 }

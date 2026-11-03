@@ -9,13 +9,15 @@
  *            (2,0), (0,2), (1,1). Returns a(n) for index n
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 29, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,9 +25,9 @@ seq_t a(idx_t n)
 
     size_t sz = (size_t)(n + 1);
 
-    seq_t *prev2 = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *prev1 = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *cur   = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *prev2 = mem_new(seq_t, sz);
+    seq_t *prev1 = mem_new(seq_t, sz);
+    seq_t *cur   = mem_new(seq_t, sz);
     if (!prev2 || !prev1 || !cur) {
         /* allocation failure – return zero (should not occur in tests) */
         return (seq_t)0;
@@ -55,8 +57,8 @@ seq_t a(idx_t n)
         cur   = tmp;
     }
 
-    free(prev2);
-    free(prev1);
-    free(cur);
+    mem_free(prev2);
+    mem_free(prev1);
+    mem_free(cur);
     return result;
 }

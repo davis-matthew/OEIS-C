@@ -12,14 +12,31 @@
  *            arbitrary‑precision * builds the operator* is defi...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 7,
  *            big any n
- * Helpers:   gl_count
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gl_count.h"
+#include "../utils/mem.h"
+
+/* Compute |GL(n,p)| for prime p.  Returns product of (p^n - p^i). */
+static seq_t gl_count(idx_t n, uint64_t p)
+{
+    /* Allocate array of p^i for i = 0..n */
+    seq_t *powp = mem_new(seq_t, (n + 1));
+    powp[0] = 1;
+    for (idx_t i = 1; i <= n; ++i)
+        powp[i] = powp[i - 1] * (seq_t)p;
+    seq_t p_pow_n = powp[n];
+    seq_t prod = 1;
+    for (idx_t i = 0; i < n; ++i)
+        prod *= (p_pow_n - powp[i]);
+    mem_free(powp);
+    return prod;
+}
 
 /* Fast exponentiation for seq_t */
 static seq_t pow_seq_t(seq_t base, uint64_t exp)

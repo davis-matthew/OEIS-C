@@ -11,7 +11,8 @@
  *            squares. The table is computed once on first call
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 3 terms through n = 3 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define K 7
 /* Upper bound large enough to capture all terms of the sequence. */
@@ -62,7 +64,7 @@ static void precompute(void)
         if (dp[K][n] == 5) {
             if (terms_len == terms_cap) {
                 terms_cap = (terms_cap == 0 ? 16 : terms_cap * 2);
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)n;
         }

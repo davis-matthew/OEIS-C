@@ -12,13 +12,47 @@
  *            never appear in 8n+1)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   b_prime_power_value
+ * Validated: standard, pass, 101 terms through n = 9312 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/b_prime_power_value.h"
+
+/* returns the value of the multiplicative function b for a single
+   prime power p^e (p prime, e ≥ 0) */
+static seq_t b_prime_power_value(idx_t p, idx_t e)
+{
+    if (p == 2) {
+        return (e == 0) ? 1 : 0;                 /* although 2 never divides 8n+1 */
+    }
+
+    if ((e & 1) == 1) {                          /* odd exponent ⇒ 0 */
+        return 0;
+    }
+
+    idx_t k = e >> 1;                            /* e = 2 k */
+
+    if (p == 3) {
+        /* b(3^(2k)) = -2 * (-1)^k */
+        return (k & 1) ? (seq_t)2 : (seq_t)-2;
+    }
+
+    /* p is odd and p ≠ 3 */
+    idx_t mod8 = p & 7;                          /* p % 8 */
+
+    if (mod8 == 1 || mod8 == 7) {                /* p ≡ 1 or 7 (mod 8) */
+        return 1;
+    }
+
+    if (mod8 == 3 || mod8 == 5) {                /* p ≡ 3 or 5 (mod 8) */
+        return (k & 1) ? (seq_t)-1 : (seq_t)1;
+    }
+
+    /* Should never reach here for odd primes */
+    return 1;
+}
 
 seq_t a(idx_t n)
 {

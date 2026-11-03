@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   has_adjacent_16
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
    contains adjacent digits 1 and 6, while the base-7 representation of k+1
    does not. The function returns the nth term (1‑based). */
 #include <stdbool.h>
-#include "../utils/has_adjacent_16.h"
+
+/* True if x, written in base 7, has an adjacent pair of digits 1 and 6. */
+static bool has_adjacent_16(seq_t x)
+{
+    if (x == 0)
+        return false;
+    seq_t prev = x % 7;
+    x /= 7;
+    while (x > 0) {
+        seq_t d = x % 7;
+        if ((prev == 1 && d == 6) || (prev == 6 && d == 1))
+            return true;
+        prev = d;
+        x /= 7;
+    }
+    return false;
+}
 
 /* The nth term, n >= 1.  This routine scans successive integers until
    the required count is reached.  The algorithm is O(n * average_gap)

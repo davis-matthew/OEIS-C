@@ -8,12 +8,14 @@
  * Formula:   a(n) = n!*coeff. of x^n in sin(log(1+x) - sin(x))
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 13, i64 n <= 21, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* gw[k] = w'_k * k! for k = 0..n-1 */
     seq_t *gw = NULL;
     if (n > 0) {
-        gw = (seq_t*)malloc(n * sizeof(seq_t));
+        gw = mem_new(seq_t, n);
         gw[0] = 0;                     /* w'_0 = 0 */
         seq_t fac = 1;                 /* 0! = 1 */
         for (idx_t k = 1; k < n; ++k) {
@@ -43,9 +45,9 @@ seq_t a(idx_t n)
     }
 
     /* S and C hold a_n and cos terms, size n+1 */
-    seq_t *S = (seq_t*)calloc(n + 1, sizeof(seq_t));
-    seq_t *C = (seq_t*)calloc(n + 1, sizeof(seq_t));
-    if (!S || !C) { free(gw); free(S); free(C); return 0; }
+    seq_t *S = mem_new(seq_t, n + 1);
+    seq_t *C = mem_new(seq_t, n + 1);
+    if (!S || !C) { mem_free(gw); mem_free(S); mem_free(C); return 0; }
 
     S[0] = 0;     /* a(0) = 0 */
     C[0] = 1;     /* cos(G(0)) = 1 */
@@ -75,6 +77,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = S[n];
-    free(S); free(C); free(gw);
+    mem_free(S); mem_free(C); mem_free(gw);
     return result;
 }

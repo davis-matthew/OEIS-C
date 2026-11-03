@@ -7,7 +7,8 @@
  * Formula:   a(n) = 3*a(n-1) - a(n-2), a(0)=11, a(1)=15
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 21, u64 n <= 44, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * on the seq_t type so that it works correctly for 8,16,32,64,128‑bit
  * integers and arbitrary‑precision integer builds.                                                           */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* dynamic array of computed terms      */
 static size_t cache_size = 0;     /* number of valid entries              */
@@ -34,7 +36,7 @@ ensure_cache(idx_t n)
         size_t new_cap = (cache_cap == 0) ? 4 : cache_cap;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) abort();               /* out of memory */
         seq_cache = tmp;
         cache_cap = new_cap;

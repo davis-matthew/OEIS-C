@@ -11,7 +11,8 @@
  *            triples of rows
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 62,
  *            big any n
- * Helpers:   valid_triple
+ * Validated: standard, pass, 38 terms through n = 195 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,29 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/valid_triple.h"
+
+/* Check whether the middle row of a triple satisfies the constraint. */
+static bool valid_triple(unsigned char up, unsigned char mid, unsigned char down)
+{
+    if (!mid) return true;               /* no 1s – trivially satisfied */
+    for (int c = 0; c < 4; ++c) {
+        if (!(mid & (1U << c))) continue;
+        int neigh = 0;
+        /* up row */
+        if (c > 0 && (up & (1U << (c - 1)))) ++neigh;
+        if (up & (1U << c))                 ++neigh;
+        if (c < 3 && (up & (1U << (c + 1)))) ++neigh;
+        /* mid row */
+        if (c > 0 && (mid & (1U << (c - 1)))) ++neigh;
+        if (c < 3 && (mid & (1U << (c + 1)))) ++neigh;
+        /* down row */
+        if (c > 0 && (down & (1U << (c - 1)))) ++neigh;
+        if (down & (1U << c))                 ++neigh;
+        if (c < 3 && (down & (1U << (c + 1)))) ++neigh;
+        if (neigh != 1 && neigh != 4) return false;
+    }
+    return true;
+}
 
 static bool precomp[16][16][16];
 static bool precomp_done = false;

@@ -9,14 +9,47 @@
  *            sum_of_other_digits (polygon inequality)
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   is_polygon_number
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_polygon_number.h"
+#include "../utils/mem.h"
+
+/* is_polygon_number checks whether a number satisfies the
+ * non‑zero digit and the polygon inequality conditions. */
+static bool is_polygon_number(seq_t num)
+{
+    seq_t tmp = num;
+    /* Maximum decimal digits for practical limits of the sequence */
+    int digits[64];
+    int nd = 0;
+
+    /* Extract digits and ensure no zero digit */
+    while (tmp > (seq_t)0) {
+        unsigned int d = (unsigned int)(tmp % (seq_t)10);
+        if (d == 0u)
+            return false;
+        digits[nd++] = d;
+        tmp /= (seq_t)10;
+    }
+
+    if (nd < 3)               /* need at least three sides */
+        return false;
+
+    unsigned int sum = 0;
+    for (int i = 0; i < nd; ++i)
+        sum += (unsigned int)digits[i];
+
+    for (int i = 0; i < nd; ++i) {
+        if ((unsigned int)digits[i] >= sum - (unsigned int)digits[i])
+            return false;
+    }
+    return true;
+}
 
 /* Cache for already found terms */
 static seq_t *cache   = NULL;   /* dynamic array of terms */
@@ -32,7 +65,7 @@ static void ensure_cache_capacity(void)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-        seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
         if (!new_buf) abort();          /* fatal error on OOM */
         cache = new_buf;
         cache_cap = new_cap;

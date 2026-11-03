@@ -11,6 +11,7 @@
  *            index n corresponds to the position n = r*(r+1)/2 + c, 0 ≤ c ≤ r
  * Range:     u8 n <= 14, u16 n <= 28, u32 n <= 77, u64 n <= 190,
  *            u128 n <= 528, big any n
+ * Validated: standard, pass, 63 terms through n = 1193 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

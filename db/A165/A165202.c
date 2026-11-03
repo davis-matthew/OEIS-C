@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 126, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
        a(n) =  2*a(n-1) - 3*a(n-2) + 2*a(n-3) - a(n-4)    for n ≥ 4   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for computed terms                               */
 static seq_t *a_cache      = NULL;  /* pointer to allocated array   */
@@ -41,7 +43,7 @@ ensure_a_cache(idx_t n)
     while (a_cache_cap < needed)
         a_cache_cap *= 2;
 
-    seq_t *tmp = (seq_t *)realloc(a_cache, a_cache_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, a_cache_cap);
     if (!tmp)          /* allocation failed – give up                */
         return;
     a_cache = tmp;

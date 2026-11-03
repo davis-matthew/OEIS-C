@@ -11,12 +11,14 @@
  *            a(8)=36, a(9)=39, a(10)=40
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ static idx_t computed_up_to = 0; /* first index not yet computed */
 static void ensure_cache(size_t cap)
 {
     if (cap <= cache_cap) return;
-    seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cap);
     if (!tmp) abort(); /* fatal if allocation fails */
     cache = tmp;
     cache_cap = cap;

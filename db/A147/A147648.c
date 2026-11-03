@@ -8,8 +8,9 @@
  *            superperfect number is 2^k with k+1 a Mersenne prime’s exponent;
  *            such numbers are 2, 4, 16, 64, 4096, 65536, 262144, 1073741824,
  *            1152921504606846976,
- * Range:     u8 n <= 8717, u16 n <= 8717, u32 n <= 8717, u64 n <= 8717,
- *            u128 n <= 8717, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 8717 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

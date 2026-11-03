@@ -9,13 +9,16 @@
  *            which are coprime to n*(n+1)/2. Here a(1)=1 by definition
  * Range:     u8 n <= 23, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     /* Ensure we have at least one slot (index 1). */
     if (seq == NULL) {
         alloc_cap = (n > 1 ? n : 1);
-        seq = (seq_t*)malloc((alloc_cap + 1) * sizeof(seq_t));
+        seq = mem_new(seq_t, (alloc_cap + 1));
         if (!seq) return (seq_t)0;     /* allocation failed */
         seq[0] = (seq_t)0;             /* unused */
         seq[1] = (seq_t)1;             /* a(1) */
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
     /* Grow the array if necessary. */
     if (alloc_cap < n) {
         alloc_cap = n;
-        seq = (seq_t*)realloc(seq, (alloc_cap + 1) * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (alloc_cap + 1));
         if (!seq) return (seq_t)0;     /* reallocation failed */
     }
 

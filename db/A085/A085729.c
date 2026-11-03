@@ -11,7 +11,8 @@
  *            factors of the nth prime power
  * Range:     u8 n <= 71, u16 n <= 6636, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, build_primes_upto
+ * Validated: standard, pass, 79 terms through n = 8854 (2026-11-01)
+ * Helpers:   build_primes_upto, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 /* Utility functions provided by the build system */
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/_smallest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
 
 /* Comparator for qsort on uint64_t values */
 static int cmp_u64(const void *a, const void *b)
@@ -112,7 +115,7 @@ seq_t a(idx_t n)
         return 0; /* sum of prime factors of 1 is 0 */
 
     /* find the base prime p and exponent e of m = p^e */
-    uint64_t p = _smallest_prime_factor(m);
+    uint64_t p = smallest_prime_factor(m);
     size_t e = 0;
     uint64_t tmp = m;
     while (tmp > 1) {

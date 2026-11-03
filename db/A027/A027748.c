@@ -11,6 +11,7 @@
  *            bottom
  * Range:     u8 n <= 486, u16 n <= 4569, u32 n <= 4569, u64 n <= 4569,
  *            u128 n <= 4569, big any n
+ * Validated: standard, pass, 116 terms through n = 4558 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

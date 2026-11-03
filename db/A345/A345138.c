@@ -8,12 +8,14 @@
  *            Σ_{d|n, d<n} a(d))
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;        /* 1‑based array of computed values */
 static size_t seq_size = 0;           /* sizeof(seq_cache)  (>= n+1) */
@@ -24,7 +26,7 @@ static void ensure_cache(idx_t n)
 {
     if (seq_cache == NULL) {
         seq_size = (size_t)n + 1;
-        seq_cache = (seq_t *)malloc(seq_size * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_size);
         for (size_t i = 0; i < seq_size; ++i)
             seq_cache[i] = (seq_t)0;
         if (seq_size > 1) seq_cache[1] = (seq_t)1;
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
         max_computed = (seq_size > 2) ? 2 : (idx_t)(seq_size - 1);
     } else if (seq_size <= (size_t)n) {
         size_t new_size = (size_t)n + 1;
-        seq_cache = (seq_t *)realloc(seq_cache, new_size * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_size);
         for (size_t i = seq_size; i < new_size; ++i)
             seq_cache[i] = (seq_t)0;
         if (new_size > 1) seq_cache[1] = (seq_t)1;

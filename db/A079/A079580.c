@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{d|n} a(|n/d - d|), a(0) = 1
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build.  We only need
    stdint types for helpers. */
@@ -34,13 +36,13 @@ static void ensure_capacity(idx_t n)
         return;
 
     idx_t new_size = n + 1;
-    seq_t *new_mem = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, memo, new_size);
     if (!new_mem) {
         /* Out of memory; abort gracefully. */
         abort();
     }
     /* Initialise the new slots to 0 (meaning "unset") */
-    memset(new_mem + memo_size, 0, (new_size - memo_size) * sizeof(seq_t));
+    mem_set(new_mem + memo_size, 0, (new_size - memo_size) * sizeof(seq_t));
     memo = new_mem;
     memo_size = new_size;
 }

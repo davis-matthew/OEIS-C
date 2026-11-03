@@ -12,12 +12,16 @@
  *            is odd (rev is the decimal digit reversal of m)
  * Range:     u8 n <= 48, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
  * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Utility for digit reversal – part of the common utils library */
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/reverse_digits.h"
 
 /* Next value under the transformation P */

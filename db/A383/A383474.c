@@ -13,12 +13,14 @@
  *            coordinates of n on the * antidiagonals (starti...
  * Range:     u8 n <= 30, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;     /* cached DP table (row-major) */
 static size_t dp_size = 0;   /* dimension of the table */
@@ -50,11 +52,11 @@ seq_t a(idx_t n)
     if (dp == NULL || dp_size < new_size) {
         /* Free old table if it exists */
         if (dp != NULL) {
-            free(dp);
+            mem_free(dp);
         }
 
         /* Allocate new table */
-        dp = (seq_t *)malloc(new_size * new_size * sizeof(seq_t));
+        dp = mem_new(seq_t, new_size * new_size);
         if (dp == NULL) {
             /* Allocation failed; return 0 as a safe fallback */
             return (seq_t)0;

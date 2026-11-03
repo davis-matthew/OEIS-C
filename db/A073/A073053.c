@@ -6,15 +6,20 @@
  * Keywords:  easy, nonn, base
  * Formula:   a(n) = DENEAT(n) – concatenate (#even digits, #odd digits, total
  *            digits) of n (leading zeros omitted)
- * Range:     u8 n <= 199, u16 n <= 9940, u32 n <= 9940, u64 n <= 9940,
- *            u128 n <= 9940, big any n
- * Helpers:   digit_len_idx
+ * Range:     u8 n <= 199, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 70 terms through n = 9940 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digit_len_idx.h"
+
+static int digit_len_idx(idx_t x)
+{
+    return (x < 10) ? 1 : 2;          /* x is 0..20 for our use */
+}
 
 seq_t a(idx_t n)
 {

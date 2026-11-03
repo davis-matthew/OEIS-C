@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{d|n} gcd(d, sigma(d))
  * Range:     u8 n <= 23, u16 n <= 83, u32 n <= 239, u64 n <= 839,
  *            u128 n <= 2519, big any n
- * Helpers:   gcd, sigma_of
+ * Validated: standard, pass, 94 terms through n = 9338 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,23 @@
 #include <stddef.h>
 
 /* Helpers from utils */
+#include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/sigma_of.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Returns the prime factorisation of n.
    Prime factors and exponents are stored in the caller–provided

@@ -8,6 +8,7 @@
  *            Prod_{i=1..11} f(2*i), where f(m) = 1 + x + … + x^(m-1)
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 39, u64 n <= 132, u128 n <= 132,
  *            big any n
+ * Validated: full, pass, 133 terms through n = 132 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

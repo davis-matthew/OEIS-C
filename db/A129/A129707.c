@@ -9,12 +9,14 @@
  *            (F(0)=0,F(1)=1)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 35, u64 n <= 78, u128 n <= 167,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 4620 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper that enlarges a dynamic array to hold at least 'need' elements.
    The array and its capacity are updated in place. */
@@ -24,7 +26,7 @@ static void grow_array(seq_t **arr, size_t *cap, size_t need) {
     size_t new_cap = (*cap == 0) ? 1 : *cap;
     while (new_cap < need)
         new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 7440, u64 n <= 7440, u128 n <= 7440,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 7440 terms through n = 7440 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    possible times on a 12‑hour digital clock that use only the digits
    1‑6. The terms are sorted in increasing order. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int seq_compare(const void *a, const void *b)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     static seq_t *arr = NULL;
     static idx_t count = 0;
     if (!arr) {
-        arr = (seq_t *)malloc(sizeof(seq_t) * 7440);
+        arr = mem_new(seq_t, 7440);
         if (!arr) return 0;
         const int hours[] = {1,2,3,4,5,6,11,12};
         const size_t hour_cnt = sizeof(hours) / sizeof(hours[0]);
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
             }
         }
         count = idx;            /* should be 7440 */
-        qsort(arr, count, sizeof(seq_t), seq_compare);
+        mem_qsort(arr, count, sizeof(seq_t), seq_compare);
     }
     if (n == 0 || n > count) return 0;
     return arr[n - 1];

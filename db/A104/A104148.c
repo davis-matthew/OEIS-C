@@ -6,9 +6,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 82, u64 n <= 82, u128 n <= 82,
- *            big any n
- * Helpers:   int_sqrt_idx, is_prime_u64
+ * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 97 terms through n = 995 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,8 @@
  * largest integer that is either a prime or a perfect square.  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_u64.h"   /* provides bool is_prime_u64(uint64_t) */
-#include "../utils/int_sqrt_idx.h"   /* provides idx_t int_sqrt_idx(idx_t) */
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
      * compute floor(sqrt(cube)).  If cube itself is a perfect square
      * (i.e., n is a perfect square), decrement the root to guarantee
      * strict inequality. */
-    idx_t root = int_sqrt_idx((idx_t)cube);          /* floor(sqrt(cube)) */
+    idx_t root = isqrt((idx_t)cube);          /* floor(sqrt(cube)) */
     if ((seq_t)root * root == cube) --root;          /* ensure square < cube */
     seq_t sq = (seq_t)root * root;
 

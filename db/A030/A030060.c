@@ -7,14 +7,17 @@
  * Formula:   a(n) = (n+1)*(n+2)*(n+3)*C(n+3)/6
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 27, u128 n <= 58,
  *            big any n
- * Helpers:   catalan, seq_gcd
+ * Validated: standard, pass, 39 terms through n = 163 (2026-11-01)
+ * Helpers:   catalan, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 /*
  * Compute the nth term of OEIS sequence A030060.
@@ -37,7 +40,7 @@ seq_t a(idx_t n) {
     /* Cancel the denominator 6 among the factors */
     seq_t denom = 6;
     for (idx_t i = 0; i < 3 && denom != 1; ++i) {
-        seq_t g = seq_gcd(f[i], denom);
+        seq_t g = gcd(f[i], denom);
         if (g > 1) {
             f[i] /= g;
             denom /= g;

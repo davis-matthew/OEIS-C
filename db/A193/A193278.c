@@ -12,12 +12,28 @@
  *            of A193278
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   T_calc
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/T_calc.h"
+static seq_t T_calc(idx_t a, idx_t b)
+{
+    /* Implement the rules above by repeated subtraction. */
+    while (1) {
+        if (a == b)                     /* T(a,a) = 1 */
+            return 1;
+        if (a > b) {                    /* enforce a ≤ b */
+            idx_t t = a;
+            a = b;
+            b = t;
+        }
+        if ((b % a) == 0)               /* b is a multiple of a */
+            return (seq_t)(b / a);
+        b -= a;                         /* otherwise reduce b */
+    }
+}
 
 seq_t a(idx_t n)
 {

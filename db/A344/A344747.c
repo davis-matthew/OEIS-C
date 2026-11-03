@@ -7,17 +7,19 @@
  * Formula:   a(n) = (1/6)*(3^n + (-2)^n - 1)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
-    seq_t pow3 = pow_seq((seq_t)3, (int)n);
-    seq_t pow2 = pow_seq((seq_t)2, (int)n);
+    seq_t pow3 = ipow_i32((seq_t)3, (int)n);
+    seq_t pow2 = ipow_i32((seq_t)2, (int)n);
 
     seq_t sum;
     if ((n & 1) == 0) {

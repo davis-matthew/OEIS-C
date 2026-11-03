@@ -7,7 +7,8 @@
  * Formula:   a(1) = 1; for n > 1, a(n) = -Σ_{k=2}^{n} k * a(⌊n/k⌋)
  * Range:     i8 n <= 64, i16 n <= 2193, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9041 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary. */
     if (n + 1 > cap) {
         size_t new_cap = n + 1;
-        seq_t *tmp_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp_cache = mem_resize(seq_t, cache, new_cap);
         bool *tmp_comp  = (bool *)realloc(computed, new_cap * sizeof(bool));
         if (!tmp_cache || !tmp_comp) abort();   /* out of memory */
 

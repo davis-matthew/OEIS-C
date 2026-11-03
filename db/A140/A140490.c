@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   third_non_divisor
+ * Validated: standard, pass, 77 terms through n = 8239 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,22 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/third_non_divisor.h"
+
+/* Helper: returns the third smallest positive integer that does NOT
+ * divide m.  The loop uses a size_t counter and casts to seq_t for
+ * the modulo operation so that the function works for primitive and
+ * arbitrary‑precision integer types. */
+static seq_t third_non_divisor(seq_t m)
+{
+    seq_t cnt = 0;
+    for (size_t k = 1; ; ++k) {
+        if (m % (seq_t)k != 0) {
+            ++cnt;
+            if (cnt == 3)
+                return (seq_t)k;
+        }
+    }
+}
 
 /* ---------------------------------------------------------------------- */
 

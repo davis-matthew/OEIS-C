@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  *   a(n) = Σ_{j=0}^{24} dp_n[j].
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;       /* memoised a(n) values */
 static idx_t  a_cache_size = 0;     /* allocated size of a_cache */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (max_n_computed == 0) {
         /* Allocate space for a(0) and a(1) */
         a_cache_size = 16;
-        a_cache = (seq_t*)malloc(a_cache_size * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_size);
         a_cache[0] = (seq_t)1;
         a_cache[1] = (seq_t)25;
         max_n_computed = 1;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if (n + 1 > a_cache_size) {
         size_t new_size = a_cache_size ? a_cache_size : 16;
         while (new_size < (size_t)(n + 1)) new_size <<= 1;
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
         a_cache = tmp;
         a_cache_size = new_size;
     }

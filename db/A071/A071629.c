@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9902 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* externally supplied integer types */
 extern seq_t a(idx_t n);
@@ -72,9 +74,9 @@ static void init_primes_totients(void)
     max_prime = primes_list[primes_cnt];
 
     /* ---------- allocate answer array ---------- */
-    ans_arr = (seq_t*)malloc((primes_cnt + 1) * sizeof(seq_t));
+    ans_arr = mem_new(seq_t, (primes_cnt + 1));
     if (!ans_arr) exit(1);
-    memset(ans_arr, 0, (primes_cnt + 1) * sizeof(seq_t));
+    mem_set(ans_arr, 0, (primes_cnt + 1) * sizeof(seq_t));
 
     /* ---------- linear sieve for φ up to MAX_K ---------- */
     uint32_t *phi = (uint32_t*)malloc((MAX_K + 1) * sizeof(uint32_t));

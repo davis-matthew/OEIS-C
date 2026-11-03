@@ -12,7 +12,8 @@
  *            uses a deterministic Miller–Rabin test for 64‑bi...
  * Range:     u8 n <= 31, u16 n <= 2913, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9846 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Helper: deterministic Miller–Rabin for 64‑bit --------- */
 static uint64_t mod_mul_uint64(uint64_t a, uint64_t b, uint64_t mod) {
@@ -101,7 +103,7 @@ seq_t a(idx_t n) {
             /* store found k */
             if (cache_size == cache_cap) {           /* need more room */
                 cache_cap = cache_cap ? cache_cap * 2 : 64;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = (seq_t)k;          /* implicit conversion to seq_t */
         }

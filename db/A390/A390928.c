@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 24, u16 n <= 765, u32 n <= 9804, u64 n <= 9804,
- *            u128 n <= 9804, big any n
+ * Range:     u8 n <= 24, u16 n <= 765, u32 n <= 10002, u64 n <= 10002,
+ *            u128 n <= 10002, big any n
+ * Validated: standard, pass, 85 terms through n = 9804 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

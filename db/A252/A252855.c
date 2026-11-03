@@ -14,13 +14,15 @@
  *            the type seq_t.)
  * Range:     u8 none, u16 n <= 9, u32 n <= 25, u64 n <= 56, u128 n <= 118,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*   seq_t and idx_t are defined by the build environment; we don't
     define them here. */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* initialise with first 9 known terms */
     if (num == 0) {
         size_t init = 32;              /* arbitrary starting capacity */
-        cache = (seq_t*)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (cache == NULL) return 0;   /* fallback on out‑of‑memory */
         cap = init;
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         if (target > cap) {
             size_t newcap = cap;
             while (newcap < target) newcap <<= 1;   /* double until enough */
-            seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (tmp == NULL) return 0; /* out of memory fallback */
             cache = tmp;
             cap   = newcap;

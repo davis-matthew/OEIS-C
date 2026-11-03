@@ -12,7 +12,8 @@
  *            dynamically increased limit, sorts them, removes dup...
  * Range:     u8 none, u16 none, u32 n <= 6777, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 78 terms through n = 9739 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <math.h>    /* for pow if needed in other environments */
 
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* comparison routine for qsort ---------------------------------------- */
@@ -58,7 +60,7 @@ static void build_cache(idx_t target_n)
 
         /* estimate required temporary capacity */
         size_t cap = p_cnt * 8;             /* generous over‑estimate */
-        seq_t *tmp = (seq_t *)calloc(cap, sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, cap);
         size_t tmplen = 0;
 
         for (size_t i = 0; i < p_cnt; ++i) {
@@ -82,7 +84,7 @@ static void build_cache(idx_t target_n)
                         /* store candidate */
                         if (tmplen >= cap) {
                             size_t new_cap = cap * 2;
-                            seq_t *new_tmp = (seq_t *)realloc(tmp, new_cap * sizeof(seq_t));
+                            seq_t *new_tmp = mem_resize(seq_t, tmp, new_cap);
                             if (new_tmp == NULL) abort();
                             tmp = new_tmp;
                             cap = new_cap;
@@ -100,10 +102,10 @@ static void build_cache(idx_t target_n)
         free(primes);
 
         /* sort and deduplicate */
-        qsort(tmp, tmplen, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(tmp, tmplen, sizeof(seq_t), cmp_seq_t);
 
         size_t uniq_cap = tmplen;
-        seq_t *uniq = (seq_t *)malloc(uniq_cap * sizeof(seq_t));
+        seq_t *uniq = mem_new(seq_t, uniq_cap);
         size_t uniq_len = 0;
         if (tmplen > 0) {
             uniq[uniq_len++] = tmp[0];
@@ -112,7 +114,7 @@ static void build_cache(idx_t target_n)
             }
         }
 
-        free(tmp);
+        mem_free(tmp);
         cache = uniq;
         cache_len = uniq_len;
         cache_cap = uniq_cap;
@@ -120,7 +122,7 @@ static void build_cache(idx_t target_n)
         if (cache_len >= (size_t)target_n) break;
 
         /* not enough terms – increase limit and try again */
-        free(cache);
+        mem_free(cache);
         cache = NULL;
         cache_len = 0;
         cache_cap = 0;

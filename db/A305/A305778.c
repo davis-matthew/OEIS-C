@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 27, u64 n <= 52, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  pre‑calculated values for a(4) … a(15)  (indices 4…15)  */
 static const seq_t init_vals[] = {
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         size_t newcap = cap ? cap : 64;
         while (newcap <= (size_t)n)
             newcap <<= 1;     /* grow multiplicatively */
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL)       /* allocation failure – give up */
             return (seq_t)0;
         cache = tmp;

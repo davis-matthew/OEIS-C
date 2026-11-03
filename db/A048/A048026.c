@@ -9,13 +9,15 @@
  *            floor((n-2)/3) and L = n - T
  * Range:     u8 n <= 22, u16 n <= 40, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
 
     seq_t total = 0;
     for (idx_t t = 1; t <= tmax; ++t) {
-        seq_t small_part = binom(T, 5 * t);   /* C(T,5t) */
-        seq_t large_part = binom(L, t);       /* C(L,t) */
+        seq_t small_part = binomial(T, 5 * t);   /* C(T,5t) */
+        seq_t large_part = binomial(L, t);       /* C(L,t) */
         seq_t prod = small_part * large_part; /* C(T,5t) * C(L,t) */
         total += prod;
     }

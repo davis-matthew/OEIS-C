@@ -8,7 +8,8 @@
  * Formula:   a(n) = #{ i | 1 ≤ i ≤ ⌊n/2⌋ , A008966(i) = A008966(n‑i) }
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root (floor) for uint64_t.  Avoids overflow. */
 static inline idx_t _isqrt_u64(idx_t x)
@@ -45,10 +47,10 @@ seq_t a(idx_t n)
     /* Allocate new tables up to n */
     size_t sz = (size_t)(n + 1);
     bool *new_sqfree = (bool *)calloc(sz, sizeof(bool));
-    seq_t *new_a_vals = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *new_a_vals = mem_new(seq_t, sz);
     if (!new_sqfree || !new_a_vals) {
         free(new_sqfree);
-        free(new_a_vals);
+        mem_free(new_a_vals);
         return 0;
     }
 
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
 
     /* Replace old tables with the new ones */
     free(sqfree);
-    free(a_vals);
+    mem_free(a_vals);
     sqfree = new_sqfree;
     a_vals = new_a_vals;
     max_n = n;

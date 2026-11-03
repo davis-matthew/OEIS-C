@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   mul16
+ * Validated: standard, pass, 40 terms through n = 913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
  * Then a(2k+1)=A(k), a(2k+2)=B(k). */
 
 #include <stdlib.h>
-#include "../utils/mul16.h"
+#include "../utils/mem.h"
+
+/* Multiply by 16 using a larger intermediate when available. */
+static inline seq_t mul16(seq_t v)
+{
+#if defined(__SIZEOF_INT128__)
+    if (sizeof(seq_t) <= 8) {            /* use 128‑bit if seq_t fits in <=64 bits */
+        unsigned __int128 t = (unsigned __int128)v * 16;
+        return (seq_t)t;
+    }
+#endif
+    return v * 16;                      /* fallback – uses builtin overflow */
+}
 
 static seq_t *A = NULL;          /* sequence A (odd indices)          */
 static seq_t *B = NULL;          /* sequence B (even indices)        */
@@ -33,7 +46,7 @@ static void ensure_A(size_t need)
     if (capA <= need) {
         size_t newcap = capA ? capA * 2 : 8;
         while (newcap <= need) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(A, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, newcap);
         A = tmp;
         capA = newcap;
     }
@@ -52,7 +65,7 @@ static void ensure_B(size_t need)
     if (capB <= need) {
         size_t newcap = capB ? capB * 2 : 8;
         while (newcap <= need) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(B, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, B, newcap);
         B = tmp;
         capB = newcap;
     }

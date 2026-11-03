@@ -9,6 +9,7 @@
  *            2*i*i - 1 if n mod 3 == 2 a(n) = 2*i*i if n mod 3 == 0
  * Range:     u8 n <= 31, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

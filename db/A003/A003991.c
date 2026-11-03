@@ -9,15 +9,17 @@
  *            = n - row*(row-1)/2
  * Range:     u8 n <= 480, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   a000037_isqrt
+ * Validated: standard, pass, 94 terms through n = 4922 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000037_isqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
-    uint64_t sqrt_val = a000037_isqrt(8*n - 7);
+    uint64_t sqrt_val = isqrt_u64(8*n - 7);
     idx_t row = (sqrt_val + 1) / 2;
     idx_t pos = n - row*(row-1)/2;
     

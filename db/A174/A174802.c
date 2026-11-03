@@ -10,14 +10,16 @@
  *            x^m)) The sequence is read row by row, where row r has r entries
  * Range:     u8 n <= 45, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* global storage for the precomputed triangle */
 static seq_t **triangle = NULL;            /* triangle[r][m] */
@@ -37,13 +39,13 @@ static void ensure_rows(idx_t rows_needed)
 
     /* allocate the new rows */
     for (idx_t r = triangle_rows + 1; r <= rows_needed; ++r)
-        triangle[r] = (seq_t*)malloc((r + 1) * sizeof(seq_t)); /* index 0 unused */
+        triangle[r] = mem_new(seq_t, (r + 1)); /* index 0 unused */
 
     /* compute all rows up to rows_needed */
     for (idx_t m = 1; m <= rows_needed; ++m) {
         /* temporary arrays for the series a[n] and a prefix sum */
-        seq_t *a   = (seq_t*)malloc((rows_needed + 1) * sizeof(seq_t));
-        seq_t *pref = (seq_t*)malloc((rows_needed + 1) * sizeof(seq_t));
+        seq_t *a   = mem_new(seq_t, (rows_needed + 1));
+        seq_t *pref = mem_new(seq_t, (rows_needed + 1));
 
         a[0] = 0;
         pref[0] = 0;
@@ -51,7 +53,7 @@ static void ensure_rows(idx_t rows_needed)
         for (idx_t n = 1; n <= rows_needed; ++n) {
             seq_t N = 0;
             if (n <= m)
-                N = binom(m - 1, n - 1);          /* coefficient of x^n in numerator */
+                N = binomial(m - 1, n - 1);          /* coefficient of x^n in numerator */
 
             seq_t sumPrev = pref[n - 1];
             if (n > m)
@@ -67,8 +69,8 @@ static void ensure_rows(idx_t rows_needed)
             triangle[r][m] = a[exp];
         }
 
-        free(a);
-        free(pref);
+        mem_free(a);
+        mem_free(pref);
     }
 
     triangle_rows = rows_needed;

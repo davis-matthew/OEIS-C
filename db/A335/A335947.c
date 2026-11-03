@@ -14,7 +14,8 @@
  *            numerato...
  * Range:     i8 n <= 15, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   binomial, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 /* ---------- Helpers for rational arithmetic ---------- */
 
@@ -53,8 +55,8 @@ static void compute_bernoulli(idx_t max_n)
 
     /* Allocate or grow arrays */
     size_t new_len = (size_t)(max_n + 1);
-    seq_t *new_num = (seq_t *)realloc(ber_num, new_len * sizeof(seq_t));
-    seq_t *new_den = (seq_t *)realloc(ber_den, new_len * sizeof(seq_t));
+    seq_t *new_num = mem_resize(seq_t, ber_num, new_len);
+    seq_t *new_den = mem_resize(seq_t, ber_den, new_len);
     if (!new_num || !new_den) abort();   /* memory allocation failed */
 
     ber_num = new_num;
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
     compute_bernoulli(m);
 
     /* Compute factor (2^{1-m} - 1) as (1 - 2^{m-1}) / 2^{m-1} */
-    seq_t pow2 = pow_seq((seq_t)2, m - 1);            /* 2^(m-1) */
+    seq_t pow2 = ipow_i32((seq_t)2, m - 1);            /* 2^(m-1) */
     seq_t factor_num = (seq_t)1 - pow2;              /* 1 - 2^(m-1) */
     seq_t factor_den = pow2;                         /* 2^(m-1) */
 

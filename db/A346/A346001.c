@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 typedef unsigned char uchar;
 
@@ -46,7 +48,7 @@ static void ensure_terms_capacity(size_t needed)
     if (terms_cap >= needed) return;
     size_t new_cap = terms_cap ? terms_cap << 1 : 16;
     if (new_cap < needed) new_cap = needed;
-    struct term *tmp = (struct term *)realloc(terms, new_cap * sizeof(struct term));
+    struct term *tmp = mem_resize(struct term, terms, new_cap);
     if (!tmp) abort();
     terms = tmp;
     terms_cap = new_cap;
@@ -58,7 +60,7 @@ static void ensure_cache_capacity(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

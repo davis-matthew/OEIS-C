@@ -9,6 +9,7 @@
  *            (-x)^(k(3k-1)/2) (pentagonal number theorem)
  * Range:     i8 n <= 3, i16 n <= 14, i32 n <= 1423, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 50 terms through n = 9703 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

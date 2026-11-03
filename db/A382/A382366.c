@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 3, u64 n <= 19, u128 n <= 20,
+ * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 3, u64 n <= 19, u128 n <= 20,
  *            big any n
- * Helpers:   tzdx
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   ctz_idx_to_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,14 +17,15 @@
 /* Sequence A382366: Expansion of 1/(1-9*Σ_{k≥0} x^{2^k}/(1-x^{2^k}))^{1/3} */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/tzdx.h"
+#include "../utils/ctz_idx_to_i32.h"
+#include "../utils/mem.h"
 
 static void ensure_seq_capacity(seq_t **arr, size_t *cap, size_t need)
 {
     if (*cap < need) {
         size_t new_cap = *cap ? *cap : 1;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         *arr = tmp;
         *cap = new_cap;
     }
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* compute new terms from computed to n */
     for (idx_t idx = computed; idx <= n; ++idx) {
         /* w[idx] = 9 * (1 + v2(idx)) */
-        w_vals[idx] = 9LL * (1 + tzdx(idx));
+        w_vals[idx] = 9LL * (1 + ctz_idx_to_i32(idx));
 
         /* build b[idx] = Σ_{k=1..idx} w[k] * b[idx-k] */
         seq_t sum_b = 0;

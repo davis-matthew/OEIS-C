@@ -12,7 +12,8 @@
  *            condition with a dynamic sieve of Eratosthenes
  * Range:     u8 n <= 69, u16 n <= 8289, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9611 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static idx_t sieve_limit = 0;          /* current upper bound of sieve */
 static uint8_t *prime_flag = NULL;     /* prime_flag[i] == 1 iff i is prime */
@@ -67,7 +69,7 @@ static void ensure_cache_capacity(size_t needed)
     while (seq_cached < needed) {
         if (seq_cached >= seq_cache_cap) {
             seq_cache_cap = seq_cache_cap ? seq_cache_cap * 2 : 128;
-            seq_t *tmp = (seq_t *)realloc(seq_cache, seq_cache_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, seq_cache_cap);
             if (!tmp) exit(EXIT_FAILURE);
             seq_cache = tmp;
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
    a(n) = number of terms a(j) (1 ≤ j < n) that are coprime to (n + a(n‑1)). */
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamic array of a(n) */
 static idx_t  maxComputed = 0;       /* largest n for which a(n) is stored */
@@ -29,7 +32,7 @@ static void ensure_capacity(size_t needed)
     if (capacity >= needed) return;
     size_t new_cap = capacity ? capacity * 2 : 1;
     while (new_cap < needed) new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     capacity = new_cap;
 }
 

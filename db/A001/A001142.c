@@ -9,13 +9,14 @@
  *            = floor(n/p^j)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   a001142_pw
+ * Validated: standard, pass, 32 terms through n = 49 (2026-11-01)
+ * Helpers:   ipow_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a001142_pw.h"
+#include "../utils/ipow_u64.h"
 
 seq_t a(idx_t n) {
     if (n < 2) return 1;
@@ -31,7 +32,7 @@ seq_t a(idx_t n) {
             if (pj > n / p) break;
             pj *= p;
         }
-        if (e > 0) res *= a001142_pw((seq_t)p, (unsigned long long)e);
+        if (e > 0) res *= ipow_u64((seq_t)p, (unsigned long long)e);
     }
     free(comp);
     return res;

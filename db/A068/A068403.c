@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 713, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sigma_of
+ * Validated: standard, pass, 60 terms through n = 9677 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/sigma_of.h"   /* defines seq_t sigma_of(idx_t n) */
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -46,7 +62,7 @@ seq_t a(idx_t n)
                 if (len + 1 > cap)
                 {
                     size_t newcap = cap ? cap * 2 : 64;
-                    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, newcap);
                     if (!tmp)
                         abort();   /* unrecoverable allocation failure */
                     cache = tmp;

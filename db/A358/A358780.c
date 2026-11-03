@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   part_le4
+ * Validated: standard, pass, 104 terms through n = 9179 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
  * ζ(s)ζ(2s)ζ(3s)ζ(4s).
  */
 #include <stdint.h> /* for uint64_t, if necessary */
-#include "../utils/part_le4.h"
+
+/* return the number of partitions of e into parts 1..4 */
+static seq_t part_le4(int e)
+{
+    seq_t sum = 0;
+    for (int d = 0; d <= e / 4; ++d) {
+        for (int c = 0; c <= (e - 4 * d) / 3; ++c) {
+            int rem = e - 4 * d - 3 * c;      /* rem = a + 2*b  */
+            sum += (seq_t)(rem / 2 + 1);       /* number of (a,b) solutions */
+        }
+    }
+    return sum;
+}
 
 /* main sequence function */
 seq_t a(idx_t n)

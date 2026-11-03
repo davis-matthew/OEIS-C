@@ -12,8 +12,8 @@
  *            in rational canonical form. For each class, the transl...
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 6, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   z614_S, z614_cent, z614_divs, z614_gcd, z614_muls, z614_next,
- *            z614_ord, z614_phi
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   gcd_u64, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,14 +21,73 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/z614_S.h"
-#include "../utils/z614_cent.h"
-#include "../utils/z614_divs.h"
-#include "../utils/z614_gcd.h"
-#include "../utils/z614_muls.h"
-#include "../utils/z614_next.h"
-#include "../utils/z614_ord.h"
-#include "../utils/z614_phi.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/totient_u64.h"
+
+static int z614_S(const int *lam, int r, int t) {
+    int s = 0, i;
+    for (i = 0; i < r; i++) s += lam[i] < t ? lam[i] : t;
+    return s;
+}
+
+static void z614_divs(uint32_t *x, size_t L, uint64_t d) {
+    uint64_t rem = 0;
+    size_t i = L;
+    while (i-- > 0) {
+        uint64_t cur = (rem << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        rem = cur % d;
+    }
+}
+
+/* centralizer of primary component: divides Y by odd factors, returns 2-exponent */
+static int z614_cent(int d, const int *lam, int r, uint32_t *Y, size_t L) {
+    int s = 0, i = 0, j, k;
+    for (j = 0; j < r; j++) s += (2 * j + 1) * lam[j];
+    while (i < r) {
+        int c;
+        j = i;
+        while (j < r && lam[j] == lam[i]) j++;
+        c = j - i;
+        s -= c * (c + 1) / 2;
+        for (k = 1; k <= c; k++) {
+            uint64_t f = (1ULL << (d * k)) - 1;
+            if (f > 1) z614_divs(Y, L, f);
+        }
+        i = j;
+    }
+    return d * s;
+}
+
+static void z614_muls(uint32_t *x, size_t L, uint64_t m) {
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t cur = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)cur;
+        carry = cur >> 32;
+    }
+}
+
+static int z614_next(int *a, int *r) {
+    int i = *r - 1, tot, v;
+    while (i >= 0 && a[i] == 1) i--;
+    if (i < 0) return 0;
+    tot = (*r - i - 1) + 1;
+    v = a[i] - 1;
+    a[i] = v;
+    *r = i + 1;
+    while (tot > v) { a[(*r)++] = v; tot -= v; }
+    if (tot > 0) a[(*r)++] = tot;
+    return 1;
+}
+
+static int z614_ord(uint64_t e) {
+    uint64_t x = 2 % e;
+    int k = 1;
+    while (x != 1) { x = (x * 2) % e; k++; }
+    return k;
+}
 
 typedef struct { uint64_t p, c; } z614_pc;
 
@@ -102,7 +161,7 @@ static int z614_comb(const z614_pc *x, int nx, const z614_pc *y, int ny, z614_pc
     int k = 0, i, j, t;
     for (i = 0; i < nx; i++)
         for (j = 0; j < ny; j++) {
-            uint64_t g = z614_gcd(x[i].p, y[j].p);
+            uint64_t g = gcd_u64(x[i].p, y[j].p);
             uint64_t p = x[i].p / g * y[j].p;
             uint64_t c = x[i].c * y[j].c;
             for (t = 0; t < k; t++) if (o[t].p == p) break;
@@ -199,7 +258,7 @@ seq_t a(idx_t n) {
                     uint64_t e = ee[q], cnt;
                     if (e < 3) continue;
                     if (z614_ord(e) != d) continue;
-                    cnt = z614_phi(e) / (uint64_t)d;
+                    cnt = totient_u64(e) / (uint64_t)d;
                     while (cnt--) z614_push(d, e);
                 }
             }

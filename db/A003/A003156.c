@@ -9,13 +9,22 @@
  *            direct search)
  * Range:     u8 n <= 127, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a003156_even_val
+ * Validated: standard, pass, 82 terms through n = 856 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a003156_even_val.h"
+
+static int a003156_even_val(uint64_t m) {
+  int v = 0;
+  while ((m & 1) == 0) {
+    m >>= 1;
+    v++;
+  }
+  return (v % 2) == 0;
+}
 
 seq_t a(idx_t n) {
   uint64_t m = 0;

@@ -7,15 +7,17 @@
  * Formula:   a(n) = 2*A(n) + 3*B(n) - 1 = 5*A(n) + 3*n - 1 where A(n) are the
  *            lower Wythoff numbers (A000201), B(n) = A(n) + n are the upper
  *            Wythoff numbers (A001950)
- * Range:     u8 n <= 23, u16 n <= 5909, u32 n <= 9827, u64 n <= 9827,
- *            u128 n <= 9827, big any n
- * Helpers:   none
+ * Range:     u8 n <= 23, u16 n <= 5909, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 70 terms through n = 9827 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* cached lower Wythoff numbers A(k)   (1‑based: A_cache[0] = A(1)) */
 static seq_t *A_cache      = NULL;      /* array of computed A(n) */
@@ -54,7 +56,7 @@ static void ensure_A_cache(idx_t n)
 
     /* enlarge cache array if necessary */
     if (A_cache_len < (size_t)n) {
-        seq_t *tmp = (seq_t *)realloc(A_cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A_cache, (size_t)n);
         if (!tmp) abort();                    /* allocation failure */
         A_cache = tmp;
     }

@@ -12,7 +12,8 @@
  *            bounded value in order to collect all sums up to the poi...
  * Range:     u8 n <= 30, u16 n <= 2517, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 73 terms through n = 9997 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Forward declaration for sigma calculation. */
 static seq_t sigma_of_uint64(uint64_t n);
@@ -42,7 +45,7 @@ static void build_sequence(size_t required)
         return;
 
     /* Free previous cache if any. */
-    if (cache) { free(cache); cache = NULL; cache_len = 0; }
+    if (cache) { mem_free(cache); cache = NULL; cache_len = 0; }
 
     while (1) {
         /* Mark unique sums with a byte per possible value within the limit. */
@@ -67,7 +70,7 @@ static void build_sequence(size_t required)
 
         /* Are we satisfied?  If so, use this limit to build the cache. */
         if (count >= required + safety) {
-            seq_t *new_cache = (seq_t*)malloc(count * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, count);
             if (!new_cache) abort();    /* memory failure */
 
             size_t idx = 0;

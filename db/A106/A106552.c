@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 2675, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   concat_uint64
+ * Validated: standard, pass, 69 terms through n = 9372 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/concat_uint64.h"
+
+/* ---------- helpers ----------------------------------------------------- */
+static seq_t concat_uint64(uint64_t a, uint64_t b)
+{
+    seq_t pow = 1;
+    uint64_t t = b;
+    do { pow *= 10; t /= 10; } while (t);
+    return (seq_t)a * pow + (seq_t)b;
+}
 
 typedef struct { uint64_t prod; uint32_t p; uint32_t q; } Semi;
 

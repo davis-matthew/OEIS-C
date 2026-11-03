@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 2188, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 typedef seq_t seq_t;    /* provided by the build system */
 typedef idx_t idx_t;    /* provided by the build system */
@@ -78,11 +80,11 @@ static void ensure_sequence(idx_t need)
     /* Allocate or grow the sequence array. */
     if (!seq) {
         seq_cap = 10000;                   /* initial capacity */
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 0;
     } else if (seq_len + 1 > seq_cap) {    /* ensure enough space for one more */
         seq_cap *= 2;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
 
     /* Scan numbers starting from the last searched value. */
@@ -98,7 +100,7 @@ static void ensure_sequence(idx_t need)
         if (semiprime_distinct(k) && semiprime_distinct(k + 1)) {
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)k;
         }

@@ -9,7 +9,8 @@
  *            for k<0)
  * Range:     u8 n <= 11, u16 n <= 36, u32 n <= 119, u64 n <= 408,
  *            u128 n <= 1459, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 5635 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    instead of memcpy. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for partition numbers p(0)..p(n) */
 static seq_t *partitions = NULL;      /* array of computed partitions   */
@@ -35,7 +37,7 @@ static void ensure_partitions(idx_t n)
 
     /* grow the array to size n+1 */
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr)                          /* allocation failure – caller will
                                                 fail naturally */
         return;
@@ -44,7 +46,7 @@ static void ensure_partitions(idx_t n)
     if (partitions) {
         for (idx_t i = 0; i < partitions_cap; ++i)
             new_arr[i] = partitions[i];
-        free(partitions);
+        mem_free(partitions);
     }
 
     /* initialise first element */

@@ -9,7 +9,8 @@
  * Formula:   a(1)=3, a(2)=3, a(3)=9, a(4)=17, a(n)=2*a(n-1)+a(n-4) for n>4
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 29, u64 n <= 59, u128 n <= 119,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* External types provided by the build system */
 extern seq_t a(idx_t n);
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (n > cache_len) {
         size_t new_len = (size_t)n;
         /* realloc may be used; cast result for C++ */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp)            /* allocation failed */
             return (seq_t)0;
         cache = tmp;

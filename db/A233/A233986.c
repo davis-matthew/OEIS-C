@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 11, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_ROWS 5120                 /* 5^6 with no equal adjacent digits */
 
@@ -110,8 +112,8 @@ seq_t a(idx_t n)
     if (!initialized) init();
 
     /* allocate DP arrays */
-    seq_t *curr = (seq_t *)calloc(S, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(S, sizeof(seq_t));
+    seq_t *curr = mem_new(seq_t, S);
+    seq_t *next = mem_new(seq_t, S);
     if (!curr || !next) abort();  /* memory failure */
 
     /* first row: any admissible row is possible */
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
 
     /* perform n transitions → obtain arrays of height n+1 */
     for (idx_t step = 0; step < n; ++step) {
-        memset(next, 0, S * sizeof(seq_t));
+        mem_set(next, 0, S * sizeof(seq_t));
         for (size_t i = 0; i < S; ++i) {
             seq_t vi = curr[i];
             if (!vi) continue;
@@ -140,7 +142,7 @@ seq_t a(idx_t n)
     seq_t total = 0;
     for (size_t i = 0; i < S; ++i) total += curr[i];
 
-    free(curr);
-    free(next);
+    mem_free(curr);
+    mem_free(next);
     return total;
 }

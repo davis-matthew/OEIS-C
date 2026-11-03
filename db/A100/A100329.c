@@ -10,13 +10,15 @@
  *            caches them
  * Range:     i8 n <= 22, i16 n <= 45, i32 n <= 88, i64 n <= 175,
  *            i128 n <= 349, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage for computed terms */
 static seq_t *seq = NULL;
@@ -33,7 +35,7 @@ static void ensure_capacity(idx_t n)
             new_cap *= 2;
             if (new_cap == 0) new_cap = 1;  /* protect against overflow */
         }
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         capacity = new_cap;
     }
 

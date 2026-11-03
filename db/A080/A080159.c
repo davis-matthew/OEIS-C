@@ -11,13 +11,14 @@
  *            binom(2k,k)/(k+1) otherwise
  * Range:     u8 n <= 47, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   binom_mul
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_mul.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +37,8 @@ seq_t a(idx_t n)
     if (r < 2 * k) return 0;
 
     /* Compute T(r,k) = binom(r,2k) * binom(2k,k)/(k+1). */
-    seq_t bin = binom_mul(r, 2 * k);
-    seq_t cat = binom_mul(2 * k, k);
+    seq_t bin = binomial(r, 2 * k);
+    seq_t cat = binomial(2 * k, k);
     cat = cat / ((seq_t)(k + 1));
 
     return bin * cat;

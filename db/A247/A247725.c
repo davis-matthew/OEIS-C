@@ -10,7 +10,8 @@
  *            Computed via dynamic programming over the last three entries
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 20, u128 n <= 44,
  *            big any n
- * Helpers:   triple_decode, triple_index
+ * Validated: standard, pass, 33 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,19 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/triple_decode.h"
-#include "../utils/triple_index.h"
+#include "../utils/mem.h"
+
+/* Decode an index into a triple. */
+static inline void triple_decode(unsigned idx, unsigned *a, unsigned *b, unsigned *c) {
+    *a = idx >> 6;
+    *b = (idx >> 3) & 7;
+    *c = idx & 7;
+}
+
+/* Encode a triple (a,b,c) into an index 0..511. */
+static inline unsigned triple_index(unsigned a, unsigned b, unsigned c) {
+    return (a << 6) | (b << 3) | c;   /* a*64 + b*8 + c */
+}
 
 /* Maximum n we might handle.  The implementation will grow
    storage as needed, so this is just a starting hint. */
@@ -79,7 +91,7 @@ static void ensure_results_capacity(size_t n) {
     if (results_capacity > n) return;
     size_t new_cap = results_capacity ? (results_capacity << 1) : INITIAL_MAX_N;
     if (new_cap <= n) new_cap = n + 1;
-    seq_t *tmp = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, results, new_cap);
     results = tmp;
     results_capacity = new_cap;
 }

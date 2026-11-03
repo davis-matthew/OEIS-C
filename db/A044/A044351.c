@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains_19
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
    does not.  Sequence A044351, offset 1. */
 
 #include <stdbool.h>
-#include "../utils/contains_19.h"
+
+/* Helper: does decimal representation of x contain "19"? */
+static bool contains_19(seq_t x)
+{
+    const seq_t hundred   = 100;
+    const seq_t nineteen  = 19;
+    const seq_t ten       = 10;
+    for (; x >= ten; x /= 10) {
+        if ((x % hundred) == nineteen)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

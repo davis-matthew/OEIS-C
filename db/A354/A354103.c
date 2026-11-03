@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   a(n) = sigma(A267099(n))
- * Range:     u8 n <= 10, u16 n <= 556, u32 n <= 9383, u64 n <= 9383,
- *            u128 n <= 9383, big any n
- * Helpers:   build_primes, build_spf, seq_pow_simple
+ * Range:     u8 n <= 10, u16 n <= 556, u32 n <= 19683, u64 n <= 19683,
+ *            u128 n <= 19683, big any n
+ * Validated: standard, pass, 92 terms through n = 9383 (2026-11-01)
+ * Helpers:   build_primes, build_spf, ipow_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_spf.h"
+#include <stdint.h>
 #include "../utils/build_primes.h"
-#include "../utils/seq_pow_simple.h"
+#include "../utils/build_spf.h"
+#include "../utils/ipow_u64.h"
 
 static bool initialized = false;
 static idx_t *spf = NULL;          /* smallest prime factor array up to LIMIT */
@@ -119,7 +121,7 @@ seq_t a(idx_t n) {
         seq_t base = (seq_t)mapped;
 
         /* Compute (base^(e+1)-1)/(base-1) */
-        seq_t pow_val = seq_pow_simple(base, (uint64_t)(e + 1));
+        seq_t pow_val = ipow_u64(base, (uint64_t)(e + 1));
         seq_t numerator   = pow_val - (seq_t)1;
         seq_t denominator = base - (seq_t)1;
         seq_t factor = numerator / denominator;   /* integer division */

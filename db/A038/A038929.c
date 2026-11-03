@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 62 terms through n = 835 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"   /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/is_prime.h"  /* bool is_prime(idx_t x); */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* find the n-th prime p with (51|p)=1 or 51≡0 (mod p) */
 seq_t a(idx_t n)
@@ -43,14 +46,14 @@ seq_t a(idx_t n)
                 if (cache_len == cache_cap)
                 {
                     cache_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                    cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)candidate;
             }
             else
             {
                 /* compute Legendre (51|candidate) via Euler's criterion */
-                seq_t residue = mod_pow((seq_t)51,
+                seq_t residue = powmod((seq_t)51,
                                         ((candidate - 1) >> 1), /* (p-1)/2 */
                                         (seq_t)candidate);
                 if (residue == (seq_t)1)
@@ -59,7 +62,7 @@ seq_t a(idx_t n)
                     if (cache_len == cache_cap)
                     {
                         cache_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                        cache = mem_resize(seq_t, cache, cache_cap);
                     }
                     cache[cache_len++] = (seq_t)candidate;
                 }

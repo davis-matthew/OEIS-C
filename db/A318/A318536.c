@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 246, u16 n <= 7417, u32 n <= 9599, u64 n <= 9599,
- *            u128 n <= 9599, big any n
- * Helpers:   build_from_digits
+ * Range:     u8 n <= 246, u16 n <= 7417, u32 n <= 10868, u64 n <= 10868,
+ *            u128 n <= 10868, big any n
+ * Validated: standard, pass, 99 terms through n = 9599 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/build_from_digits.h"
+#include "../utils/mem.h"
+
+/* Build a decimal number from msb‑first digits.
+   digits[0] … digits[len‑1] are the decimal digits of the number. */
+static seq_t build_from_digits(const unsigned char *digits, size_t len)
+{
+    seq_t val = 0;
+    for (size_t i = 0; i < len; ++i)
+        val = val * 10 + digits[i];
+    return val;
+}
 
 /* Return the smallest decimal palindrome ≥ x.  */
 static seq_t next_pal(seq_t x)
@@ -94,7 +105,7 @@ seq_t a(idx_t n)
 
     if (!cache) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_size < n) {
@@ -103,7 +114,7 @@ seq_t a(idx_t n)
         if (diff <= 9) {
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

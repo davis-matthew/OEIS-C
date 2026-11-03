@@ -10,16 +10,19 @@
  *            the argument
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   factorize, phi, powmod64
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   factorize, powmod_u64, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/phi.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factorize.h"
-#include "../utils/powmod64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/totient.h"
 
 /* Compute the multiplicative order of 3 modulo N (gcd(3,N)=1). */
 static uint64_t order_of_3(uint64_t N)
@@ -27,7 +30,7 @@ static uint64_t order_of_3(uint64_t N)
     if (N <= 1) return 1;
 
     /* φ(N) fits in uint64_t for N up to 64‑bit */
-    uint64_t phiN = (uint64_t)phi(N);
+    uint64_t phiN = (uint64_t)totient(N);
     uint64_t order = phiN;
 
     /* Factor φ(N) into its prime divisors. */
@@ -40,7 +43,7 @@ static uint64_t order_of_3(uint64_t N)
         uint64_t p = primes[i];
         while (order % p == 0) {
             uint64_t cand = order / p;
-            if (powmod64(3, cand, N) == 1)
+            if (powmod_u64(3, cand, N) == 1)
                 order = cand;
             else
                 break;
@@ -57,7 +60,7 @@ seq_t a(idx_t n)
     /* N = floor((3*n-1)/2) – it always fits in 64‑bit for the usual limits. */
     uint64_t N = ( (uint64_t)3 * n - 1 ) / 2;
 
-    seq_t phiN = phi(N);          /* φ(N) as seq_t */
+    seq_t phiN = totient(N);          /* φ(N) as seq_t */
     uint64_t ord = order_of_3(N);
 
     return phiN / (seq_t)ord;    /* exact division */

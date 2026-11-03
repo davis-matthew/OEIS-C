@@ -10,7 +10,8 @@
  *            a(1)=1, a(2)=1
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;      /* memoised terms (1‑based) */
 static idx_t a_cache_max = 0;      /* highest computed index */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary */
     if (n > a_cache_max) {
         idx_t new_size = n + 1;              /* +1 to keep 1‑based indexing */
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
         if (!tmp && new_size) abort();      /* allocation failed */
         a_cache = tmp;
     }

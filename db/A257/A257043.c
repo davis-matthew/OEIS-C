@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 3900, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   write_word
+ * Validated: standard, pass, 72 terms through n = 9730 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/write_word.h"
+#include "../utils/mem.h"
+
+/* Append a word to the buffer, inserting a space before it if it is not the first word */
+static void write_word(char *buf, size_t *pos, const char *w, bool *first)
+{
+    if (!*first) {
+        buf[(*pos)++] = ' ';
+    }
+    for (const char *p = w; *p; ++p) {
+        buf[(*pos)++] = *p;
+    }
+    *first = false;
+}
 
 /* English word parts */
 static const char *UNITS[] = {
@@ -104,7 +117,7 @@ seq_t a(idx_t n)
         if (same_first_last_letter(cand)) {
             if (CACHE_LEN == CACHE_CAP) {
                 size_t new_cap = CACHE_CAP ? CACHE_CAP * 2 : 128;
-                seq_t *tmp = (seq_t *)realloc(CACHE, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, CACHE, new_cap);
                 if (!tmp) abort();
                 CACHE = tmp;
                 CACHE_CAP = new_cap;

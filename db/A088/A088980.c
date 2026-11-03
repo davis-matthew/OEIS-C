@@ -9,12 +9,14 @@
  *            x^(2^(k-1)))·∏_{j=0}^{k-1} (1 - x^(2^j)))
  * Range:     u8 n <= 51, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* Allocate array for coefficients a[0..N] */
-    seq_t *coeff = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, N + 1);
     if (!coeff) return (seq_t)0;   /* allocation failed */
 
     coeff[0] = (seq_t)1;
@@ -48,8 +50,8 @@ seq_t a(idx_t n)
         else
         {
             /* Build the coefficient array for C_k(x) = 1/∏_{j=0}^{k-2}(1 - x^(2^j)) */
-            seq_t *C = (seq_t *)calloc(N + 1, sizeof(seq_t));
-            if (!C) { free(coeff); return (seq_t)0; }
+            seq_t *C = mem_new(seq_t, N + 1);
+            if (!C) { mem_free(coeff); return (seq_t)0; }
             C[0] = (seq_t)1;
 
             for (size_t j = 0; j <= k - 2; ++j)
@@ -68,11 +70,11 @@ seq_t a(idx_t n)
                     coeff[shift + exp] += C[exp];
             }
 
-            free(C);
+            mem_free(C);
         }
     }
 
     seq_t result = coeff[N];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

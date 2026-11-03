@@ -8,12 +8,15 @@
  * Formula:   a(n) = ((82 - 12 * (n - 1)) * 4^(n - 1) - 1) / 3
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   big_pow
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-02)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +24,7 @@ seq_t a(idx_t n)
     idx_t m = n - 1u;
 
     /* 4^m */
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)m);
+    seq_t pow4 = ipow((seq_t)4, (seq_t)m);
 
     /* coefficient = 82 - 12*m */
     seq_t coeff = (seq_t)82 - (seq_t)12 * (seq_t)m;

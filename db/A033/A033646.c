@@ -8,7 +8,8 @@
  *            d_i are the digits of n in base‑9 (least significant first)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* external types defined by the build system */
 extern seq_t a(idx_t n);
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     if ((size_t)n >= cap) {
         size_t new_cap = (size_t)n + 1;
         /* realloc with explicit cast for C++. */
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         /* compute new entries */
         for (idx_t i = (idx_t)cap; i <= n; ++i) {
             if (i == 0) {

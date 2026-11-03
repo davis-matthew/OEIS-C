@@ -12,13 +12,23 @@
  *            graph on 2r vertices). Thus a(3)=6, a(4)=6, a(5)=3,
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   cycle_pairs_at_distance
+ * Validated: partial, pass, 75 terms through n = 77 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/cycle_pairs_at_distance.h"
+
+/* Count unordered pairs of cycle vertices at distance d on a cycle
+ * of length n.  For odd n all distances 1..(n‑1)/2 have n pairs.
+ * For even n distances < n/2 have n pairs, distance n/2 has n/2 pairs. */
+static seq_t cycle_pairs_at_distance(idx_t n, idx_t d) {
+    if (d == 0 || d > n/2) return (seq_t)0;
+    if ((n % 2) == 0 && d == n/2)
+        return (seq_t)(n / 2);
+    return (seq_t)n;
+}
 
 seq_t a(idx_t n) {
     if (n < 3) return (seq_t)0;          /* undefined for n<3, return 0 */

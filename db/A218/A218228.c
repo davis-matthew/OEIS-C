@@ -13,13 +13,15 @@
  *            a(5)=31739, a(6)=253825, a(7)=2029849, a(8)=16232833, a(9)=...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define SEED_COUNT 19
 static const seq_t SEEDS[SEED_COUNT] = {
@@ -55,7 +57,7 @@ static void ensure_cache_size(idx_t n)
 
     /* Allocate a new buffer big enough for future growth. */
     size_t new_len = ((size_t)n * 2) >= 64 ? (size_t)n * 2 : 64;
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_len);
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache)
         return;          /* allocation failure: caller will handle */
 
@@ -70,7 +72,7 @@ static void ensure_cache_size(idx_t n)
         cached_len = SEED_COUNT;
     }
 
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
 }
 

@@ -10,13 +10,24 @@
  *            representation of n (lexicographically largest shuffle)
  * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   bit_length_u64
+ * Validated: standard, pass, 66 terms through n = 7156 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/bit_length_u64.h"
+
+/* Return the number of bits required to represent n (at least 1). */
+static int bit_length_u64(idx_t n)
+{
+    int len = 0;
+    do {
+        ++len;
+        n >>= 1;
+    } while (n);
+    return len;
+}
 
 seq_t a(idx_t n)
 {

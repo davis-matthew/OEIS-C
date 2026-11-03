@@ -11,13 +11,15 @@
  *            binom(m-1,k-1) computed multiplicatively
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 400 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *B = NULL;   /* B[m] = m! * coeff of x^m/m! in exp(x*exp(x))   */
 static seq_t *E = NULL;   /* E[m] = m! * coeff of x^m/m! in exp( x*exp(x*exp(x)) ) */
@@ -28,8 +30,8 @@ static void ensure_cap(idx_t target)
 {
     if ((size_t)target < cap) return;   /* already big enough */
     size_t new_cap = (size_t)(target + 1) * 2;  /* double to reduce reallocs */
-    seq_t *newB = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
-    seq_t *newE = (seq_t *)realloc(E, new_cap * sizeof(seq_t));
+    seq_t *newB = mem_resize(seq_t, B, new_cap);
+    seq_t *newE = mem_resize(seq_t, E, new_cap);
     if (!newB || !newE) return;  /* allocation failure, program will terminate */
     B = newB;
     E = newE;

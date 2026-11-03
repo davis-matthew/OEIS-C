@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, base
  * Formula:   not stated
- * Range:     u8 n <= 36, u16 n <= 3594, u32 n <= 9297, u64 n <= 9297,
- *            u128 n <= 9297, big any n
- * Helpers:   floor_log2_uint64, is_prime
+ * Range:     u8 n <= 36, u16 n <= 3594, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 71 terms through n = 9297 (2026-11-03)
+ * Helpers:   ilog2, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/ilog2.h"
 #include "../utils/is_prime.h"
-#include "../utils/floor_log2_uint64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,14 +38,14 @@ seq_t a(idx_t n)
     while (qual_cnt < n) {
         if (is_prime(next_cand)) {
             /* Count zeros in binary representation. */
-            uint64_t bits  = floor_log2_uint64(next_cand) + 1;
+            uint64_t bits  = ilog2(next_cand) + 1;
             uint64_t ones  = __builtin_popcountll(next_cand);
             uint64_t zeros = bits - ones;
             if ((zeros & 1UL) != 0) {            /* odd number of zeros */
                 /* Resize cache if necessary. */
                 if (qual_cnt == qual_cap) {
                     qual_cap = qual_cap ? qual_cap * 2 : 256;
-                    seq_t *tmp = (seq_t*)realloc(qual, qual_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, qual, qual_cap);
                     /* In the unlikely event of allocation failure,
                        just return zero (the caller will reject it) */
                     if (!tmp) {

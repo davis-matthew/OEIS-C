@@ -9,14 +9,24 @@
  *            of n
  * Range:     u8 n <= 575, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi_of_power
+ * Validated: standard, pass, 100 terms through n = 8578 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/phi_of_power.h"
+
+static inline uint64_t phi_of_power(uint64_t p, uint64_t exp)
+{
+    if (exp == 0) return 1;
+    /* φ(p^k) = (p-1) * p^(k-1) */
+    unsigned __int128 pow = 1;
+    for (uint64_t i = 1; i < exp; ++i) pow *= p;   /* p^(exp-1) */
+    unsigned __int128 res = (unsigned __int128)(p - 1) * pow;
+    return (uint64_t)res;
+}
 
 static void dfs(const uint64_t *primes,
                 const uint64_t *exps,

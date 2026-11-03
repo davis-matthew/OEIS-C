@@ -7,8 +7,8 @@
  * Formula:   a(n) = gcd( Catalan(n), n! )
  * Range:     u8 n <= 13, u16 n <= 28, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   build_primes_upto, catalan, factorial, gcd, seq_mul, seq_one,
- *            seq_pow
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-01)
+ * Helpers:   build_primes_upto, catalan, gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +19,29 @@
 #include <stdlib.h>
 
 /* Helper functions supplied elsewhere */
-#include "../utils/gcd.h"
-#include "../utils/factorial.h"
-#include "../utils/catalan.h"
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_one.h"
+#include "../utils/catalan.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 /* exponent of prime p in m! */
 static inline idx_t exp_fact(idx_t m, uint64_t p)
@@ -77,7 +93,7 @@ seq_t a(idx_t n)
         /* exponent in gcd = min(exp_catalan, exp_n_fact) */
         idx_t exp_gcd = exp_catalan < exp_n_fact ? exp_catalan : exp_n_fact;
         if (exp_gcd > 0) {
-            seq_t powp = seq_pow((seq_t)p, exp_gcd);
+            seq_t powp = ipow_idx((seq_t)p, exp_gcd);
             result = seq_mul(result, powp);
         }
     }

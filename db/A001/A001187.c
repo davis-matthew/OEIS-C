@@ -8,13 +8,23 @@
  *            * 2^binomial(n-k,2), a(0) = 1, a(1) = 1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   A001187_shl
+ * Validated: standard, pass, 33 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/A001187_shl.h"
+
+static seq_t A001187_shl(seq_t x, idx_t s) {
+    while (s >= 8) {
+        x = x << 8;
+        s -= 8;
+    }
+    if (s > 0)
+        x = x << s;
+    return x;
+}
 
 #define A001187_MAXN 10002
 

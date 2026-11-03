@@ -13,7 +13,8 @@
  *            property and caching the found terms
  * Range:     u8 n <= 10, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   collatz_step
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/collatz_step.h"
+#include "../utils/mem.h"
+
+/* Utility: apply one Collatz step */
+static seq_t collatz_step(seq_t x)
+{
+    /* if x even -> x/2, else (3*x+1)/2 */
+    if ((x & (seq_t)1) == 0)
+        return x >> 1;
+    else
+        return (x * (seq_t)3 + (seq_t)1) >> 1;
+}
 
 /* Test whether a given n is in the sequence */
 static bool in_sequence(seq_t n)
@@ -54,7 +65,7 @@ static void cache_append(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap == 0 ? 16 : cache_cap << 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();          /* abort on memory failure */
         cache = new_cache;
         cache_cap = new_cap;

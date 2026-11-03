@@ -7,7 +7,8 @@
  * Formula:   a(n) = Bell(2n+1) (Bisection of Bell numbers, A099977)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Bell numbers are defined by B(0)=1 and
    B(n+1) = Σ_{k=0}^n binom(n, k) * B(k)   for n≥0.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache for Bell numbers */
 static idx_t bell_len = 0;    /* number of entries already computed (size of bell array) */
@@ -28,7 +30,7 @@ static void ensure_bell_up_to(idx_t up)
 
     /* Allocate or grow the array */
     idx_t new_len = up + 1;
-    bell = (seq_t *)realloc(bell, new_len * sizeof(seq_t));
+    bell = mem_resize(seq_t, bell, new_len);
     if (bell == NULL) { /* memory exhaustion – terminate */
         abort();
     }

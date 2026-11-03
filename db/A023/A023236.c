@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Helper data structures ---------- */
 static uint64_t *prime_list = NULL;      /* primes found so far */
@@ -64,7 +66,7 @@ static void ensure_term_cap(size_t new_cap)
     if (term_cap >= new_cap) return;
     if (term_cap == 0) term_cap = 16;
     while (term_cap < new_cap) term_cap <<= 1;
-    term_cache = (seq_t*)realloc(term_cache, term_cap * sizeof(seq_t));
+    term_cache = mem_resize(seq_t, term_cache, term_cap);
 }
 
 /* Append a new term to the sequence cache. */

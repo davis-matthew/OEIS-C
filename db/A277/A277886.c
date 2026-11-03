@@ -10,21 +10,24 @@
  *            * q
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_prime_small
+ * Validated: standard, pass, 97 terms through n = 9872 (2026-11-01)
+ * Helpers:   factor_u64, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* Compute the next prime > start using is_prime_small (trial division for small integers). */
 static uint64_t next_prime_after(uint64_t start) {
     uint64_t x = start;
     for (;;) {
-        if (is_prime_small(x))
+        if (is_prime_seq(x))
             return x;
         ++x;
     }

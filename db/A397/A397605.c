@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=0..n} n^(n-k) * hypergeom([k-1, k-n], [], -1/n)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* The implementation evaluates the sum using integer arithmetic only. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
         return 1;
 
     /* Pre‑compute powers of n: pow[e] = n^e, 0 <= e <= n */
-    seq_t *pow = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *pow = mem_new(seq_t, (size_t)(n + 1));
     pow[0] = 1;
     for (idx_t i = 1; i <= n; ++i)
         pow[i] = pow[i - 1] * (seq_t)n;
@@ -55,6 +57,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(pow);
+    mem_free(pow);
     return result;
 }

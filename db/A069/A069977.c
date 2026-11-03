@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree
+ * Validated: standard, pass, 77 terms through n = 9527 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* OEIS A069977: numbers k such that k and k+2 are squarefree. */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 /* Static cache for the sequence values */
 static seq_t *cached_vals   = NULL;   /* array of cached values      */
@@ -34,7 +37,7 @@ static void grow_cache(size_t need)
         new_cap = need;
     }
     /* Cast the void* returned by realloc to the correct pointer type. */
-    seq_t *tmp = (seq_t *)realloc(cached_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cached_vals, new_cap);
     if (!tmp) {                               /* fallback on out of memory   */
         abort();
     }

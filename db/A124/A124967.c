@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9825 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---- static state ----------------------------------------------------- */
 static idx_t cur_limit  = 0;          /* current sieve upper bound          */
@@ -73,7 +75,7 @@ static void rebuild(idx_t new_limit)
         if (cnt[(size_t)i] >= 3) ++new_term_count;
 
     /* allocate or reallocate terms array */
-    seq_t *new_terms = (seq_t *)realloc(terms, new_term_count * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_term_count);
     if (!new_terms) {        /* allocation failure: clean up and exit */
         free(cnt);
         return;

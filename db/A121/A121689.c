@@ -7,13 +7,15 @@
  * Formula:   a(n) = \sum_{k=0}^{n} \binom{k^2}{\,n-k\,} (OEIS A121689)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 25, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 612 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are typedefs provided by the build system.  The
    implementation below uses only integer arithmetic supported by the
@@ -26,8 +28,8 @@ static idx_t cache_size = 0;         /* current cache size (>=1)  */
 static void compute_up_to(idx_t N) {
     /* Allocate or reallocate cache */
     cache_size = N + 1;
-    if (cache) free(cache);
-    cache = (seq_t *)calloc((size_t)cache_size, sizeof(seq_t));
+    if (cache) mem_free(cache);
+    cache = mem_new(seq_t, (size_t)cache_size);
     if (!cache) { /* fallback to minimal error handling */
         cache_size = 0;
         return;

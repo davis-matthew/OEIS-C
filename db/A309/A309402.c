@@ -10,9 +10,10 @@
  *            number of non‑empty subsets of [n] whose element sum is *
  *            divisible by k. Row and column are determined by the index in *
  *            the OEIS triangle read by rows
- * Range:     u8 n <= 120, u16 n <= 816, u32 n <= 5984, u64 n <= 9529,
- *            u128 n <= 9529, big any n
- * Helpers:   compute_row_T
+ * Range:     u8 n <= 120, u16 n <= 816, u32 n <= 5984, u64 n <= 22100,
+ *            u128 n <= 22100, big any n
+ * Validated: standard, pass, 100 terms through n = 9529 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,42 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/compute_row_T.h"
+#include "../utils/mem.h"
+
+/* Compute all T(r,k) for 1 <= k <= S(r) where S(r)=r(r+1)/2. */
+static seq_t *compute_row_T(size_t r) {
+    idx_t Smax = (idx_t)r * ((idx_t)r + 1) / 2;
+
+    /* Count how many subsets produce each sum 0..Smax. */
+    seq_t *cnt = mem_new(seq_t, (size_t)(Smax + 1));
+    cnt[0] = 1; /* empty subset */
+
+    for (idx_t i = 1; i <= r; ++i) {
+        for (idx_t s = Smax; s >= i; --s) {
+            cnt[s] += cnt[s - i];
+        }
+    }
+
+    /* T(r,k) counts subsets with sum > 0 and divisible by k. */
+    seq_t *Trow = mem_new(seq_t, (size_t)(Smax + 1));
+
+    for (idx_t s = 1; s <= Smax; ++s) {
+        seq_t val = cnt[s];
+        /* All divisors of s become candidates for k. */
+        for (idx_t d = 1; d * d <= s; ++d) {
+            if (s % d == 0) {
+                Trow[d] += val;
+                idx_t d2 = s / d;
+                if (d2 != d) {
+                    Trow[d2] += val;
+                }
+            }
+        }
+    }
+
+    mem_free(cnt);
+    return Trow; /* Caller owns the memory */
+}
 
 /* Memoisation storage for computed rows. */
 static seq_t **row_cache = NULL;          /* array of pointers to rows */

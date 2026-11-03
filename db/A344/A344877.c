@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1439, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd, pow_uint
+ * Validated: standard, pass, 121 terms through n = 9870 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     /* sequence offset starts at 1, but we guard against n == 0 */
@@ -49,10 +51,10 @@ seq_t a(idx_t n) {
         uint64_t e = exps[i];
         seq_t term;
         if (p == 2) {
-            term = pow_uint(2, e + 1);
+            term = ipow_u64_idx(2, e + 1);
             term -= (seq_t)1;
         } else {
-            term = pow_uint(p, e);
+            term = ipow_u64_idx(p, e);
             term -= (seq_t)1;
         }
         prod *= term;

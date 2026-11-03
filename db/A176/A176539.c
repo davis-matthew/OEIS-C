@@ -10,7 +10,8 @@
  *            A037143 of the n‑th nonprime member (1, 4, 6, 8, 9, …)
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the helper that rebuilds the data up to a new bound */
 static void recompute(idx_t new_limit);
@@ -34,9 +36,9 @@ static void recompute(idx_t new_limit)
 {
     /* Allocate/resize the array that will hold the indices. */
     if (indices) {
-        free(indices);
+        mem_free(indices);
     }
-    indices = (seq_t*)malloc(new_limit * sizeof(seq_t));
+    indices = mem_new(seq_t, new_limit);
     if (!indices) {                 /* allocation failure – nothing to do */
         indices_n = 0;
         return;
@@ -46,7 +48,7 @@ static void recompute(idx_t new_limit)
     uint32_t *spf = (uint32_t*)malloc((new_limit + 1) * sizeof(uint32_t));
     idx_t *primes = (idx_t*)malloc(new_limit * sizeof(idx_t));
     if (!spf || !primes) {
-        free(indices);
+        mem_free(indices);
         indices = NULL;
         indices_n = 0;
         free(spf); free(primes);

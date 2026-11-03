@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 32, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 92 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include "../utils/mem.h"
 
 /* Helper: test whether an integer n satisfies the sequence condition
    (max - min) == mean of its prime factors counted with multiplicity. */
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
         if (satisfies(cand)) {
             if (cache_len == cache_cap) {
                 cache_cap = (cache_cap == 0) ? 8 : (cache_cap * 2);
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)cand;
         }

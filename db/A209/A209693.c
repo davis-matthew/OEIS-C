@@ -12,12 +12,14 @@
  *            polynomials is * * u(n,x) = x*u(n‑1,x) + x*...
  * Range:     u8 n <= 32, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,9 +38,9 @@ seq_t a(idx_t n)
     if (max_row == 0) {
         /*  First row (n = 1) */
         seq_cap   = 1;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
-        u_cur     = (seq_t *)calloc(1, sizeof(seq_t));
-        v_cur     = (seq_t *)calloc(1, sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
+        u_cur     = mem_new(seq_t, 1);
+        v_cur     = mem_new(seq_t, 1);
         u_cur[0]  = 1;          /* u(1,x)=1  */
         v_cur[0]  = 1;          /* v(1,x)=1  */
         seq_cache[seq_used++] = u_cur[0];  /* a(1)=1   */
@@ -51,8 +53,8 @@ seq_t a(idx_t n)
         idx_t new_len = cur_size + 1;        /* degree+1 for next row */
 
         /* allocate arrays for next step */
-        seq_t *u_next = (seq_t *)calloc(new_len, sizeof(seq_t));
-        seq_t *v_next = (seq_t *)calloc(new_len, sizeof(seq_t));
+        seq_t *u_next = mem_new(seq_t, new_len);
+        seq_t *v_next = mem_new(seq_t, new_len);
 
         /* u_next[0] = 0,   u_next[i] = u_cur[i-1] + v_cur[i-1]  (i>=1) */
         u_next[0] = 0;
@@ -68,8 +70,8 @@ seq_t a(idx_t n)
         v_next[new_len-1] = v_cur[new_len-2];
 
         /* free old arrays and rotate */
-        free(u_cur);
-        free(v_cur);
+        mem_free(u_cur);
+        mem_free(v_cur);
         u_cur = u_next;
         v_cur = v_next;
         cur_size = new_len;
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         if (seq_used + new_len > seq_cap) {
             size_t new_cap = seq_cap * 2 + new_len;
             if (new_cap < seq_used + new_len) new_cap = seq_used + new_len;
-            seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             seq_cache = tmp;
             seq_cap   = new_cap;
         }

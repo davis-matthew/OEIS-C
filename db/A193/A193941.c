@@ -8,12 +8,14 @@
  *            a(n)=a(n-1)+a(n-6) (generating function (1+x³)/(1−x−x⁶))
  * Range:     u8 n <= 23, u16 n <= 45, u32 n <= 89, u64 n <= 178,
  *            u128 n <= 355, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         idx_t new_size = n + 1;
         /* realloc is safe because seq_t may be arbitrary-precision; the
            resulting objects are value-initialized when subsequently assigned. */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) {
             /* Allocation failed – return 0 (this case should not occur). */
             return (seq_t)0;

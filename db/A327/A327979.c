@@ -6,14 +6,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(n, A002322(n)) // Carmichael lambda
- * Range:     u8 n <= 1022, u16 n <= 9635, u32 n <= 9635, u64 n <= 9635,
- *            u128 n <= 9635, big any n
+ * Range:     u8 n <= 1022, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9635 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes a(n) = gcd(n, λ(n))  where λ is Carmichael's function.  */
+#include <stdint.h>
 #include "../utils/gcd.h"
 #include <stdint.h>
 

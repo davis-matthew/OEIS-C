@@ -8,7 +8,8 @@
  *            where σ₄(n)=∑_{d|n} d⁴)
  * Range:     u8 n <= 4, u16 n <= 22, u32 n <= 312, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, largest_prime_divisor
+ * Validated: standard, pass, 60 terms through n = 9278 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,30 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/largest_prime_divisor.h"
+
+/* Return the largest prime divisor of m (m >= 2). */
+static uint64_t largest_prime_divisor(uint64_t m)
+{
+    uint64_t largest = 0;
+    /* factor 2 */
+    while ((m & 1ULL) == 0) {
+        largest = 2;
+        m >>= 1;
+    }
+    /* odd factors */
+    for (uint64_t f = 3; f <= m / f; f += 2) {
+        if (m % f == 0) {
+            largest = f;
+            while (m % f == 0)
+                m /= f;
+        }
+    }
+    if (m > 1)            /* remaining m is prime */
+        largest = m;
+    return largest;
+}
 
 /* power of a 64‑bit base to an unsigned power, result in unsigned __int128 */
 static unsigned __int128 pow128(uint64_t base, unsigned int exp)

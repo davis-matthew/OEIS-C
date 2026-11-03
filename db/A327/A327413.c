@@ -9,13 +9,14 @@
  *            (formula applies for odd integer m = 2n-1, n ≥ 1)
  * Range:     u8 n <= 10, u16 n <= 13, u32 n <= 47, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   is_prime_small, pow2
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   is_prime_seq, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
     seq_t m = ((seq_t)n) * 2 - 1;   /* odd integer corresponding to index n */
 
     /* If m is prime, the minimal partition is [m] */
-    if (is_prime_small(m))
+    if (is_prime_seq(m))
         return m;
 
     /* Find the greatest prime p < m */
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
     /* Only odd candidates need to be checked, except for 2 */
     if (cand % 2 == 0)
         cand--;                     /* make it odd */
-    while (cand >= 3 && !is_prime_small(cand))
+    while (cand >= 3 && !is_prime_seq(cand))
         cand -= 2;                   /* skip even numbers */
 
     seq_t p = (seq_t)cand;

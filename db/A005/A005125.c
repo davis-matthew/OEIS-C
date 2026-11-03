@@ -8,14 +8,15 @@
  *            (trial-division test)
  * Range:     u8 n <= 80, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a005125_prime
+ * Validated: standard, pass, 68 terms through n = 994 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/a005125_prime.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
 
     while (count < n) {
         k++;
-        if (a005125_prime(8 * k - 3)) count++;
+        if (is_prime_u64(8 * k - 3)) count++;
     }
 
     return (seq_t)k;

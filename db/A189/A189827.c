@@ -7,18 +7,19 @@
  * Formula:   a(n) = d(n-1) + d(n+1) (d(k) = number of divisors of k)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 91 terms through n = 9553 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
     /* n >= 2 as required by the offset; no need to check bounds */
-    uint64_t d1 = divisor_count_u64((uint64_t)(n - 1));
-    uint64_t d2 = divisor_count_u64((uint64_t)(n + 1));
+    uint64_t d1 = num_divisors((uint64_t)(n - 1));
+    uint64_t d2 = num_divisors((uint64_t)(n + 1));
     return (seq_t)d1 + (seq_t)d2;
 }

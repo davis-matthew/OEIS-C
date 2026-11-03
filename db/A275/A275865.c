@@ -9,13 +9,15 @@
  *            a(0) = 1, a(1) = 1
  * Range:     i8 n <= 27, i16 n <= 54, i32 n <= 109, i64 n <= 217,
  *            i128 n <= 437, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Floor division of an integer by 2. Works for negative numbers. */
 static inline seq_t floor_div2(seq_t x)
@@ -45,9 +47,9 @@ static void ensure_cache(idx_t n)
         return;
 
     if (cache_capacity == 0) {
-        cache = (seq_t *)malloc(new_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, new_capacity);
     } else {
-        cache = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_capacity);
     }
     if (!cache) abort();           /* allocation failed */
 

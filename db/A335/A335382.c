@@ -11,7 +11,8 @@
  *            appeared before a(n) = a(n‑1) − s else a(n) = a(n‑1) + s
  * Range:     u8 n <= 59, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   sigma_of
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/sigma_of.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* ---------- Seen values storage ------------------------------------- */
 
@@ -31,7 +47,7 @@ static size_t seen_cap  = 0;
 static void seen_expand(void)
 {
     size_t new_cap = seen_cap ? seen_cap << 1 : 8;
-    seq_t *new_arr = (seq_t *)realloc(seen_tbl, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seen_tbl, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);
     seen_tbl = new_arr;
     seen_cap = new_cap;
@@ -61,7 +77,7 @@ static size_t cache_cap = 0;
 static void cache_expand(void)
 {
     size_t new_cap = cache_cap ? cache_cap << 1 : 8;
-    seq_t *new_arr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);
     seq_cache = new_arr;
     cache_cap = new_cap;

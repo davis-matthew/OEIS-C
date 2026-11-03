@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/3⌋} binomial(n,k) * binomial(n-2*k,k)
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 27, u64 n <= 31, u128 n <= 31,
  *            big any n
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

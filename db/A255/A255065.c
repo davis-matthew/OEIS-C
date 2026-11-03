@@ -10,7 +10,8 @@
  *            or 6 modulo 10 (i.e., parts 4,6,14,16,24,26,...)
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
     do not recompute the partition array.  */
 
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 static seq_t *part = NULL;          /* array of partition numbers */
 static size_t part_cap = 0;          /* allocated size */
@@ -27,7 +29,7 @@ static size_t part_cap = 0;          /* allocated size */
 /* Recompute the partition values for all n up to 'nmax' inclusive.   */
 static void recompute_part(idx_t nmax) {
     size_t sz = (size_t)nmax + 1;
-    seq_t *newp = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, sz);
     if (!newp) abort();                 /* insufficient memory          */
     for (size_t i = 0; i < sz; ++i) newp[i] = 0;
     newp[0] = 1;                        /* one way to make zero          */
@@ -42,7 +44,7 @@ static void recompute_part(idx_t nmax) {
         for (size_t i = (size_t)s; i < sz; ++i)
             newp[i] += newp[i - s];
 
-    free(part);
+    mem_free(part);
     part = newp;
     part_cap = sz;
 }

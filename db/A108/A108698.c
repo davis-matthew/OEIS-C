@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 20, u32 n <= 70, u64 n <= 253, u128 n <= 962,
  *            big any n
- * Helpers:   seq_malloc, seq_realloc
+ * Validated: standard, pass, 51 terms through n = 8928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,27 @@
 /* Sequence: sorted list of positive integers of the form 6^i * 11^j,
    with i, j ≥ 0.  The function returns the nth term (a(1) = 1). */
 #include <stdlib.h>
-#include "../utils/seq_malloc.h"
-#include "../utils/seq_realloc.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {

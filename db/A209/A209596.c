@@ -8,12 +8,15 @@
  * Formula:   a(n) = (n+1)^9 * ((n+1)*(2*n+1))^4
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 10, u128 n <= 50,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 27 terms through n = 47 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +26,8 @@ seq_t a(idx_t n)
     seq_t two_n_plus_one = two_n + 1;    /* 2 * n + 1 */
     seq_t inner = np1 * two_n_plus_one;  /* (n + 1) * (2 * n + 1) */
 
-    seq_t pow1 = big_pow(np1, (seq_t)9);   /* (n + 1)^9 */
-    seq_t pow2 = big_pow(inner, (seq_t)4); /* ((n + 1)(2n+1))^4 */
+    seq_t pow1 = ipow(np1, (seq_t)9);   /* (n + 1)^9 */
+    seq_t pow2 = ipow(inner, (seq_t)4); /* ((n + 1)(2n+1))^4 */
 
     return pow1 * pow2;
 }

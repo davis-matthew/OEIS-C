@@ -9,7 +9,8 @@
  *            is the number of divisors of k
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 63, u64 n <= 127,
  *            u128 n <= 255, big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 67 terms through n = 6221 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,9 @@
 #include <stdbool.h>
 #include <limits.h>
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 /* static cache of divisor counts */
 static seq_t *tau_cache = NULL;   /* τ(k) for 0 <= k <= cached_max */
@@ -35,9 +38,9 @@ static void recompute_tau(idx_t n)
 {
     /* free previous cache */
     if (tau_cache)
-        free(tau_cache);
+        mem_free(tau_cache);
 
-    tau_cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    tau_cache = mem_new(seq_t, (size_t)(n + 1));
     if (!tau_cache)
         abort(); /* out of memory */
 
@@ -83,14 +86,14 @@ seq_t a(idx_t n)
 
         /* term for divisor d1: τ(n/d1)^d1 = τ(d2)^d1 */
         seq_t base1 = tau_cache[d2];
-        seq_t term1 = pow_seq(base1, (int)d1);
+        seq_t term1 = ipow_i32(base1, (int)d1);
         result += term1;
 
         if (d1 != d2)
         {
             /* term for divisor d2: τ(n/d2)^d2 = τ(d1)^d2 */
             seq_t base2 = tau_cache[d1];
-            seq_t term2 = pow_seq(base2, (int)d2);
+            seq_t term2 = ipow_i32(base2, (int)d2);
             result += term2;
         }
     }

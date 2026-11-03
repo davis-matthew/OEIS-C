@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   has_even_and_odd
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,28 @@
  * the nth valid number is found.  This is efficient for n up to about
  * 10 000. */
 #include <stdbool.h>
-#include "../utils/has_even_and_odd.h"
+
+/* Return true iff v has at least one 1‑bit in an even position and
+ * at least one 1‑bit in an odd position. */
+static bool has_even_and_odd(seq_t v)
+{
+    bool even = false, odd = false;
+    int pos = 0;
+    seq_t t = v;
+    while (t)
+    {
+        if ((t & 1) != 0)
+        {
+            if (pos & 1)
+                odd = true;
+            else
+                even = true;
+        }
+        t >>= 1;
+        pos++;
+    }
+    return even && odd;
+}
 
 /* External linkage required. */
 seq_t a(idx_t n)

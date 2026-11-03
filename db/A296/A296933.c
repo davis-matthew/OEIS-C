@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 3271, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, jacobi_symbol
+ * Validated: standard, pass, 67 terms through n = 9506 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,31 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/jacobi_symbol.h"
+#include "../utils/mem.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +63,7 @@ seq_t a(idx_t n)
     /* Initialise cache lazily. */
     if (cache == NULL) {
         capacity = 64;                /* initial capacity */
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL)           /* allocation failure */
             return (seq_t)0;
     }
@@ -51,9 +76,9 @@ seq_t a(idx_t n)
             /* Expand cache if necessary. */
             if (count == capacity) {
                 capacity *= 2;
-                seq_t *tmp = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, capacity);
                 if (tmp == NULL) {  /* realloc failure */
-                    free(cache);
+                    mem_free(cache);
                     cache = NULL;
                     return (seq_t)0;
                 }

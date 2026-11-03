@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 16, i16 n <= 16, i32 n <= 16, i64 n <= 16, i128 n <= 16,
  *            big any n
- * Helpers:   rebuild_spf
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,14 +21,34 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/rebuild_spf.h"
+#include "../utils/mem.h"
+
+/* Rebuild the smallest prime factor array up to 'limit'.
+   The array is indexed from 0..limit, unused entries at index 0. */
+static void rebuild_spf(uint32_t **p_spf, size_t *spv_limit, size_t limit)
+{
+    if (*p_spf) free(*p_spf);
+    *p_spf = (uint32_t *)malloc((limit + 1) * sizeof(uint32_t));
+    memset(*p_spf, 0, (limit + 1) * sizeof(uint32_t));
+
+    for (size_t i = 2; i <= limit; ++i) {
+        if (!(*p_spf)[i]) {
+            (*p_spf)[i] = (uint32_t)i;
+            if ((uint64_t)i * i <= limit) {
+                for (size_t j = i * i; j <= limit; j += i)
+                    if (!(*p_spf)[j]) (*p_spf)[j] = (uint32_t)i;
+            }
+        }
+    }
+    *spv_limit = limit;
+}
 
 /* Helper to grow the cache dynamically */
 static void grow_cache(seq_t **p_cache, size_t *cap, size_t needed)
 {
     size_t new_cap = *cap ? (*cap) << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*p_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *p_cache, new_cap);
     *p_cache = tmp;
     *cap = new_cap;
 }

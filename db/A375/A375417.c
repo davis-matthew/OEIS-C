@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   digits_seq_t
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem, num_digits_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,12 +25,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/digits_seq_t.h"
+#include "../utils/num_digits_seq.h"
+#include "../utils/mem.h"
 
 /* Helper: concatenate decimal representations of a and b */
 static seq_t concat(seq_t a, seq_t b)
 {
-    idx_t d = digits_seq_t(b);
+    idx_t d = num_digits_seq(b);
     seq_t factor = (seq_t)1;
     for (idx_t i = 0; i < d; ++i)
         factor = factor * (seq_t)10;
@@ -67,7 +69,7 @@ static idx_t seq_len    = 0;
 static void grow_seq(void)
 {
     size_t new_cap = (seq_cap == 0) ? 4 : seq_cap << 1;
-    seq_t *new_ptr = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, seq, new_cap);
     seq = new_ptr;
     seq_cap = new_cap;
 }
@@ -77,7 +79,7 @@ static void ensure_generated(idx_t n)
 {
     if (seq == NULL) {
         seq_cap = 4;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) exit(1);
         seq[0] = (seq_t)1;          /* a(1) = 1 */
         seq_len = 1;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 14, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 76 terms through n = 2629 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,27 @@
    floor((m+n)*φ) with seeds 2 and 3, where φ = (1+√5)/2. */
 
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 typedef struct {
     seq_t val;        /* floor((S[i]+S[j])*φ) value          */
@@ -51,7 +72,7 @@ static void heap_push(Candidate c)
 {
     if (heap_size == heap_cap) {
         heap_cap = (heap_cap == 0) ? 4 : heap_cap * 2;
-        heap = (Candidate *)realloc(heap, heap_cap * sizeof(Candidate));
+        heap = mem_resize(Candidate, heap, heap_cap);
     }
     size_t pos = heap_size++;
     while (pos > 0) {
@@ -88,7 +109,7 @@ static void ensure_S_capacity(size_t needed)
 {
     if (S_cap < needed) {
         S_cap = (needed > S_cap * 2) ? needed : S_cap * 2;
-        S = (seq_t *)realloc(S, S_cap * sizeof(seq_t));
+        S = mem_resize(seq_t, S, S_cap);
     }
 }
 

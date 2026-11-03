@@ -9,18 +9,27 @@
  *            1
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 59, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   factor_u64, gcd_u64, seq_mul, seq_one, seq_pow
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   factor_u64, gcd_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_one.h"
 #include "../utils/gcd_u64.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 /* Helper to compute gcd of two uint64_t numbers */
 
@@ -45,7 +54,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t exp = exps[i] * tau;   /* always even */
         exp /= 2;
-        P = seq_mul(P, seq_pow((seq_t)primes[i], (idx_t)exp));
+        P = seq_mul(P, ipow_idx((seq_t)primes[i], (idx_t)exp));
     }
 
     /* gcd of all exponents, determines the set of perfect‑power roots */
@@ -62,7 +71,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < cnt; ++i) {
             uint64_t e = exps[i] / k;
             if (e > 0)
-                root = seq_mul(root, seq_pow((seq_t)primes[i], (idx_t)e));
+                root = seq_mul(root, ipow_idx((seq_t)primes[i], (idx_t)e));
         }
         R = seq_mul(R, root);
     }

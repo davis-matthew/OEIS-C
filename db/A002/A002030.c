@@ -12,28 +12,30 @@
  *            log of colored graphs)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   a2030_pow2
+ * Validated: standard, pass, 31 terms through n = 49 (2026-11-03)
+ * Helpers:   mem, pow2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a2030_pow2.h"
+#include "../utils/pow2_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *a2030_cache = NULL;
 static idx_t a2030_len = 0;
 
 static void a2030_build(idx_t n) {
     idx_t L = n + 1;
-    seq_t *row = (seq_t *)calloc(L, sizeof(seq_t));
-    seq_t *prev = (seq_t *)calloc(L, sizeof(seq_t));
-    seq_t *pw = (seq_t *)calloc(L, sizeof(seq_t));
-    seq_t *av = (seq_t *)calloc(L, sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, L);
+    seq_t *prev = mem_new(seq_t, L);
+    seq_t *pw = mem_new(seq_t, L);
+    seq_t *av = mem_new(seq_t, L);
     seq_t *c[6];
     int k;
     idx_t m, j, t;
-    for (k = 1; k <= 5; k++) c[k] = (seq_t *)calloc(L, sizeof(seq_t));
+    for (k = 1; k <= 5; k++) c[k] = mem_new(seq_t, L);
 
     for (m = 0; m <= n; m++) {
         /* prev = C(m-1, .), row becomes C(m, .) */
@@ -46,7 +48,7 @@ static void a2030_build(idx_t n) {
         row[0] = 1;
 
         for (j = 0; j <= m; j++) {
-            if (j <= m - j) pw[j] = a2030_pow2((uint64_t)j * (uint64_t)(m - j));
+            if (j <= m - j) pw[j] = pow2_u64((uint64_t)j * (uint64_t)(m - j));
             else pw[j] = pw[m - j];
         }
 
@@ -66,11 +68,11 @@ static void a2030_build(idx_t n) {
         }
     }
 
-    free(row);
-    free(prev);
-    free(pw);
-    for (k = 1; k <= 5; k++) free(c[k]);
-    if (a2030_cache) free(a2030_cache);
+    mem_free(row);
+    mem_free(prev);
+    mem_free(pw);
+    for (k = 1; k <= 5; k++) mem_free(c[k]);
+    if (a2030_cache) mem_free(a2030_cache);
     a2030_cache = av;
     a2030_len = L;
 }

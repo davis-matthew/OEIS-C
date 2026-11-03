@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ROWS   81            /* 3^4 possible rows  */
 #define STATES (ROWS*ROWS)   /* 81×81 state pairs  */
@@ -148,7 +150,7 @@ seq_t a(idx_t n)
 
         if (cur == 2) {
             /* a(2): all ordered pairs of admissible rows. */
-            memset(dp_cur, 0, sizeof(dp_cur));
+            mem_set(dp_cur, 0, sizeof(dp_cur));
             for (int r1 = 0; r1 < ROWS; ++r1) {
                 if (!horiz_ok[r1]) continue;
                 for (int r2 = 0; r2 < ROWS; ++r2) {
@@ -165,7 +167,7 @@ seq_t a(idx_t n)
 
         /* ----------------------------------------------------------- */
         /* cur >= 3 : transfer matrix step. */
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         for (int s = 0; s < STATES; ++s) {
             if (dp_cur[s] == (seq_t)0) continue;
@@ -180,7 +182,7 @@ seq_t a(idx_t n)
         for (int i = 0; i < STATES; ++i) sum += dp_next[i];
 
         /* prepare for next iteration */
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
 
         cache[(size_t)(cur - 1)] = sum;
         last_computed = cur;

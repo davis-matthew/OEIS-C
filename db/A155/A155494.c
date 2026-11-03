@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 95, u32 n <= 416, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1199 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,8 @@
  * read by rows.  The sequence a(n) is the row‑wise enumeration of this
  * triangle; a(n) = T(r,k) where n = r*(r+1)/2 + k, 0 ≤ k ≤ r. */
 #include <stdint.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{i=1..n} d(i)^2 * d(i+1) (offset 1)
  * Range:     u8 n <= 11, u16 n <= 323, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 4807 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache for divisor counts and cumulative sums */
 static size_t cache_limit = 0;          /* highest n for which cache is valid   */
@@ -30,7 +32,7 @@ static void rebuild_cache(idx_t limit)
     {
         size_t new_size = (size_t)limit + 2;          /* we need i+1 up to limit+1 */
         uint32_t *new_divcnt = (uint32_t *)realloc(divcnt, new_size * sizeof(uint32_t));
-        seq_t   *new_cumsum  = (seq_t *)  realloc(cumsum , new_size * sizeof(seq_t ));
+        seq_t   *new_cumsum  = mem_resize(seq_t, cumsum, new_size);
         if (!new_divcnt || !new_cumsum)
         {
             /* In a robust program we would handle OOM; here we simply abort */

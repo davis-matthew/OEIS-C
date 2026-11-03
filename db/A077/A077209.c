@@ -10,22 +10,34 @@
  *            decimal digit of a(n-1)
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 22, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   digit_len, is_squarefree, pow10
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   is_squarefree, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_squarefree.h"   /* bool is_squarefree(seq_t)      */
-#include "../utils/pow10.h"           /* seq_t pow10(idx_t)             */
-#include "../utils/digit_len.h"       /* int  digit_len(seq_t)          */
+#include <stdint.h>
+#include "../utils/is_squarefree.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Computes the next term given the previous one. */
 static seq_t compute_next(seq_t prev)
 {
     const unsigned int last_digit = (unsigned int)(prev % 10); /* 0‑9 */
-    int len = digit_len(prev);                               /* >= 1 */
+    int len = num_digits(prev);                               /* >= 1 */
 
     /* Boundaries of the block of numbers that start with last_digit
        and have the current length. */
@@ -62,7 +74,7 @@ seq_t a(idx_t n)
 
     if (cap == 0) {                     /* first initialisation */
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Extend cache as required */
@@ -70,7 +82,7 @@ seq_t a(idx_t n)
         /* If we need an entry beyond current capacity, grow it. */
         if (stored >= cap) {
             cap = cap * 2;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
 
         if (stored == 0) {

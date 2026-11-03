@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Test whether v satisfies the alternating inequality condition. */
 static inline bool _is_valid(seq_t v) {
@@ -70,7 +72,7 @@ seq_t a(idx_t n) {
         if (cache_cap < (size_t)n) {
             size_t newcap = cache_cap ? cache_cap * 2 : 16;
             while (newcap < (size_t)n) newcap *= 2;
-            cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, newcap);
             cache_cap = newcap;
         }
 

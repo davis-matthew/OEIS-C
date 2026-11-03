@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  word, nonn, easy, tabf, look
  * Formula:   not stated
- * Range:     u8 n <= 9250, u16 n <= 9250, u32 n <= 9250, u64 n <= 9250,
- *            u128 n <= 9250, big any n
- * Helpers:   append_str
+ * Range:     u8 n <= 18454, u16 n <= 18454, u32 n <= 18454, u64 n <= 18454,
+ *            u128 n <= 18454, big any n
+ * Validated: standard, pass, 99 terms through n = 9250 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,13 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/append_str.h"
+
+static void append_str(const char *s, char *buf, size_t *pos)
+{
+    while (*s) {
+        buf[(*pos)++] = *s++;
+    }
+}
 
 static const char *DIGITS[10] = {"zero","one","two","three","four","five","six","seven","eight","nine"};
 static const char *TEENS[10] = {"ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"};

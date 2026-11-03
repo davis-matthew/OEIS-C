@@ -7,6 +7,7 @@
  * Formula:   a(n) = product_{p^e || n!} (1 + floor(e/3))
  * Range:     u8 n <= 27, u16 n <= 62, u32 n <= 146, u64 n <= 353,
  *            u128 n <= 848, big any n
+ * Validated: standard, pass, 70 terms through n = 897 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

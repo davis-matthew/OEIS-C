@@ -9,7 +9,8 @@
  *            a^b, a>1, b>1. Hence a(1)=2, a(2)=13, a(3)=32,
  * Range:     u8 n <= 7, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   next_prime
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *partial_sums = NULL;
 static size_t partial_len = 0;
@@ -32,7 +34,7 @@ static void ensure_capacity(size_t needed)
     if (partial_len >= partial_cap) {
         size_t new_cap = partial_cap ? partial_cap * 2 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *new_buf = (seq_t *)realloc(partial_sums, new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, partial_sums, new_cap);
         if (!new_buf) return;          /* out of memory – caller will handle it */
         partial_sums = new_buf;
         partial_cap  = new_cap;

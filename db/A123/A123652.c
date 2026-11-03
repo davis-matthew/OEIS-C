@@ -9,6 +9,7 @@
  *            n^23 + n^29 + n^31 + n^37 + n^41
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 2, u128 n <= 8,
  *            big any n
+ * Validated: standard, pass, 23 terms through n = 856 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

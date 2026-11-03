@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl, word
  * Formula:   not stated
- * Range:     u8 n <= 8471, u16 n <= 8471, u32 n <= 8471, u64 n <= 8471,
- *            u128 n <= 8471, big any n
- * Helpers:   _add_word, _integer_sqrt
+ * Range:     u8 n <= 11324, u16 n <= 11324, u32 n <= 11324, u64 n <= 11324,
+ *            u128 n <= 11324, big any n
+ * Validated: standard, pass, 107 terms through n = 8471 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,17 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <math.h>
-#include "../utils/_add_word.h"
-#include "../utils/_integer_sqrt.h"
+#include "../utils/isqrt.h"
+
+/* Add letters of a word to a 32‑bit mask.  */
+static inline void _add_word(const char *w, uint32_t *mask)
+{
+    for (const char *p = w; *p; ++p) {
+        char c = *p;
+        if (c >= 'a' && c <= 'z')
+            *mask |= 1u << (c - 'a');
+    }
+}
 
 static const char *const _units[10] = {
     "zero","one","two","three","four","five","six","seven","eight","nine"
@@ -108,7 +118,7 @@ static inline uint32_t _mask_of_number(idx_t n)
 seq_t a(idx_t n)
 {
     /* Find diagonal d and start index of that diagonal. */
-    idx_t d = (_integer_sqrt(1 + 8*n) - 1) / 2;
+    idx_t d = (isqrt(1 + 8*n) - 1) / 2;
     idx_t start = d * (d + 1) / 2;
     idx_t i = n - start;
     idx_t j = d - i;

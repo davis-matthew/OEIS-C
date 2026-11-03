@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 51, u16 n <= 26, u32 n <= 1068, u64 n <= 3697,
+ * Range:     u8 n <= 116, u16 n <= 335, u32 n <= 1068, u64 n <= 3697,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* --------------  dynamic programming tables -------------- */
 
@@ -44,7 +46,7 @@ static void extend_to(idx_t m_needed)
         dp_rows      = (seq_t**)calloc(dp_rows_cap, sizeof(seq_t*));
         dp_row_len   = (idx_t *)calloc(dp_rows_cap, sizeof(idx_t));
 
-        seq_t *row0 = (seq_t*)malloc(sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
         row0[0] = 0;
         row0[0] = 1;                     /* subset of the empty set sums to 0 */
         dp_rows[0]      = row0;
@@ -64,7 +66,7 @@ static void extend_to(idx_t m_needed)
         /*  Compute new rows  */
         for (idx_t cur = dp_rows_len; cur <= m_needed; ++cur) {
             idx_t cur_sum = cur * (cur + 1) / 2;      /* largest attainable sum  */
-            seq_t *row = (seq_t*)malloc((size_t)(cur_sum + 1) * sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, (size_t)(cur_sum + 1));
 
             if (cur == 0) {                          /* row 0 already exists but keep logic clean */
                 row[0] = 1;

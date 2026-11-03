@@ -7,12 +7,17 @@
  * Formula:   a(n) = multiplicative order of 8 modulo (2n+1)
  * Range:     u8 n <= 132, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 92 terms through n = 989 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -54,7 +59,7 @@ seq_t a(idx_t n)
     for (int i = 0; i < fac_cnt; ++i) {
         uint64_t p = factors[i];
         while (order % p == 0) {
-            seq_t candidate = mod_pow((seq_t)8, (uint64_t)(order / p), m);
+            seq_t candidate = powmod((seq_t)8, (uint64_t)(order / p), m);
             if (candidate == 1)
                 order /= p;
             else

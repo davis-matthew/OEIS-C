@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 1184, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   a49_balanced
+ * Validated: standard, pass, 69 terms through n = 1871 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a49_balanced.h"
+#include "../utils/mem.h"
+
+/* check whether the base‑3 representation of x has equal numbers of 0,1,2 */
+static bool a49_balanced(idx_t x)
+{
+    unsigned cnt[3] = {0, 0, 0};
+    while (x > 0) {
+        cnt[x % 3U]++;          /* digit list is built from LSB upwards;
+                                   leading zeros are never produced     */
+        x /= 3U;
+    }
+    return (cnt[0] == cnt[1]) && (cnt[1] == cnt[2]);
+}
 
 static seq_t *a49_coef = NULL;     /* cache of computed terms          */
 static size_t a49_len   = 0;        /* number of cached terms           */
@@ -32,7 +45,7 @@ static void a49_ensure_cap(size_t need)
     if (need <= a49_cap) return;
     size_t new_cap = a49_cap == 0 ? 8 : a49_cap * 2;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_buf = (seq_t *)realloc(a49_coef, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, a49_coef, new_cap);
     if (!new_buf) exit(1);        /* terminate on allocation failure     */
     a49_coef = new_buf;
     a49_cap  = new_cap;

@@ -11,6 +11,7 @@
  *            anti‑diagonals
  * Range:     i8 n <= 23, i16 n <= 50, i32 n <= 128, i64 n <= 317,
  *            i128 n <= 849, big any n
+ * Validated: standard, pass, 82 terms through n = 9622 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

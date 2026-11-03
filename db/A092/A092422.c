@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 41, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
+ * Range:     u8 n <= 48, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   binom, sqrt_uint128_to_idx_t
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-03)
+ * Helpers:   binomial, isqrt_u128_to_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
  * Required headers
  * ---------------------------------------------------------------------- */
 #include <stdlib.h>
-#include "../utils/binom.h"   /* Provides seq_t binom(idx_t a, idx_t b) */
-#include "../utils/sqrt_uint128_to_idx_t.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/isqrt_u128_to_idx.h"
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------------
  * Helper: compute row number r from linear index n.
@@ -32,7 +35,7 @@
 static inline idx_t row_from_index(idx_t n)
 {
     __uint128_t val = (__uint128_t)8 * n + 1;
-    idx_t s = sqrt_uint128_to_idx_t(val);   /* floor(sqrt(8*n+1)) */
+    idx_t s = isqrt_u128_to_idx(val);   /* floor(sqrt(8*n+1)) */
     return (s - 1) / 2;
 }
 
@@ -55,10 +58,10 @@ static void ensure_rows(idx_t need)
     /* Grow storage if required */
     idx_t new_size = (need + 1) * (need + 2) / 2;
     if (!tri) {
-        tri = (seq_t *)malloc(new_size * sizeof(seq_t));
+        tri = mem_new(seq_t, new_size);
         if (!tri) exit(1);  /* allocation failure */
     } else if (new_size > tri_size) {
-        tri = (seq_t *)realloc(tri, new_size * sizeof(seq_t));
+        tri = mem_resize(seq_t, tri, new_size);
         if (!tri) exit(1);
     }
     tri_size = new_size;
@@ -76,7 +79,7 @@ static void ensure_rows(idx_t need)
             idx_t prev_base = (i - k) * (i - k + 1) / 2;
 
             for (idx_t j = 0; j <= limit; ++j) {
-                sum += binom(k + j, k - j) * tri[prev_base + j];
+                sum += binomial(k + j, k - j) * tri[prev_base + j];
             }
             tri[base + k] = sum;
         }

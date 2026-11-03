@@ -14,14 +14,46 @@
  *            T(r,3r‑2) + 1 – T(r,3r+1) = T(r,3r) + 1 The s...
  * Range:     u8 n <= 11, u16 n <= 50, u32 n <= 175, u64 n <= 714,
  *            u128 n <= 1425, big any n
- * Helpers:   T_helper
+ * Validated: standard, pass, 72 terms through n = 1375 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The types seq_t and idx_t are supplied by the build. */
 #include <stddef.h>          /* for size_t */
-#include "../utils/T_helper.h"
+
+/* Recursive helper to compute T(row, col).  The depth is at most the
+   row number, which for n up to 10 000 is below 100. */
+static inline seq_t T_helper(idx_t row, idx_t col)
+{
+    if (row == 1) {                     /* base row */
+        switch (col) {
+        case 1: return (seq_t)11;
+        case 2: return (seq_t)3;
+        case 3: return (seq_t)12;
+        case 4: return (seq_t)13;
+        default: return (seq_t)0;       /* not reached for valid input */
+        }
+    }
+
+    seq_t three_r      = (seq_t)3 * (seq_t)row;
+    seq_t three_r_minus1 = three_r - 1;
+    seq_t three_r_minus2 = three_r - 2;
+
+    if (col <= three_r_minus2) {                /* use previous row */
+        if (col % 3 != 0)
+            return ((seq_t)8 * T_helper(row - 1, col)) + (seq_t)3;
+        else
+            return ((seq_t)8 * T_helper(row - 1, col));
+    } else if (col == three_r_minus1) {          /* special constant */
+        return (seq_t)3;
+    } else if (col == three_r) {                 /* shift by 2 */
+        return T_helper(row, col - 2) + (seq_t)1;
+    } else { /* col == three_r + 1 */            /* shift by 1 */
+        return T_helper(row, col - 1) + (seq_t)1;
+    }
+}
 
 /* Main entry point required by the benchmark harness. */
 seq_t a(idx_t n)

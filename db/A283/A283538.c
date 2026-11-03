@@ -11,13 +11,15 @@
  *            allow arbitrary order of indices
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;   /* length currently allocated (1‑based, index 0 unused) */
@@ -29,14 +31,14 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold indices up to n */
     if (n + 1 > cache_len) {
         /* Allocate new cache with enough space */
-        seq_t *new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
         if (!new_cache) return 0;  /* allocation failed */
 
         /* Copy any previously computed values into the new cache */
         if (cache && cache_len) {
             for (idx_t i = 1; i < cache_len; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
 
         cache = new_cache;

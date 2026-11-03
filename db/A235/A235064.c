@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 24, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Lazy cache – grows as needed.  The cache holds a(n) for n=0 … max_computed.
    a(0) is unused but occupies index 0 to keep indices simple. */
@@ -58,7 +60,7 @@ static void ensure_cache_cap(idx_t need)
     size_t new_size = cache_size ? cache_size * 2 : 64;
     if (new_size < required) new_size = required;
 
-    seq_t *new_cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) abort(); /* out‑of‑memory */
 
     cache = new_cache;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     /* Initialise cache for the first call */
     if (!cache) {
         cache_size = 64;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort();      /* out‑of‑memory */
     }
 

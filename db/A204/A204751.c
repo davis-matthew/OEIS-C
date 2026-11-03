@@ -11,12 +11,14 @@
  *            a(2)=38, a(3)=35, a(4)=40, a(5)=48
  * Range:     u8 none, u16 n <= 21, u32 n <= 44, u64 n <= 90, u128 n <= 183,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (cache_len < n) {
         size_t new_len = (size_t)n;
         /* realloc returns void*, cast explicitly for C++ */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         cache = tmp;
 

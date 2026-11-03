@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   not_square_prime
+ * Validated: standard, pass, 62 terms through n = 861 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,44 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/not_square_prime.h"
+
+/* Test whether 59 is NOT a quadratic residue modulo prime p. */
+static bool not_square_prime(uint32_t p) {
+    if (p == 2)                return true;   /* explicit inclusion */
+    if (p == 59)               return false;  /* 59 divides 59 → 0 is a square */
+
+    if (p < 59) {               /* brute‑force Legendre for small primes */
+        uint32_t s = 59 % p;
+        uint64_t result = 1;
+        uint64_t base   = s;
+        uint64_t exp    = (p - 1) / 2;
+        uint64_t mod    = p;
+        while (exp) {
+            if (exp & 1) result = (result * base) % mod;
+            base = (base * base) % mod;
+            exp >>= 1;
+        }
+        return result == mod - 1;   /* -1 Legendre symbol → non‑residue */
+    }
+
+    /* For p > 59 use quadratic reciprocity.  (59/p) = (p/59)*(-1)^((p-1)/2) */
+    static bool residues[59] = {0};
+    static bool initialized = false;
+    if (!initialized) {
+        for (uint32_t i = 1; i < 59; ++i)
+            residues[(i * i) % 59] = true;
+        initialized = true;
+    }
+
+    uint32_t r = p % 59;
+    bool is_qr = residues[r];            /* (p/59) = +1 if true */
+
+    if (p % 4 == 1)                      /* sign = +1 */
+        return !is_qr;                   /* include when (p/59) = -1 */
+
+    /* p % 4 == 3, sign = -1 */
+    return is_qr;                        /* include when (p/59) = +1 */
+}
 
 static uint32_t *primes = NULL;          /* list of primes */
 static size_t prime_cnt = 0;             /* number of primes stored */

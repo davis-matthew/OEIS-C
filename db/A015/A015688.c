@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *coeff = NULL;       /* coefficients of Φ₁₆₇₉(x)  (size 1585) */
 static seq_t *a_table = NULL;     /* period 1679 values of the sequence */
@@ -64,7 +66,7 @@ static void compute_coeffs(void)
     }
 
     /* store coefficients as seq_t */
-    coeff = (seq_t *) malloc((degQ + 1) * sizeof(seq_t));
+    coeff = mem_new(seq_t, (degQ + 1));
     for (size_t i = 0; i <= degQ; ++i) {
         coeff[i] = (seq_t) quot[i];
     }
@@ -79,7 +81,7 @@ static void compute_sequence(void)
     const size_t period = 1679;
     const size_t degC = 1584;
 
-    a_table = (seq_t *) malloc(period * sizeof(seq_t));
+    a_table = mem_new(seq_t, period);
     a_table[0] = (seq_t)1;
 
     for (size_t n = 1; n < period; ++n) {

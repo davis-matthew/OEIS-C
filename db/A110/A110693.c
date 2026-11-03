@@ -8,7 +8,8 @@
  *            210)/8!
  * Range:     u8 n <= 0, u16 n <= 5, u32 n <= 22, u64 n <= 288,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_uint64
+ * Validated: standard, pass, 40 terms through n = 9051 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
    values fit into seq_t whenever the final value does. */
 
 #include <stdint.h>
-#include "../utils/gcd_uint64.h"
+#include <stdlib.h>
+#include "../utils/gcd_u64.h"
 
 /* Euclidean algorithm on unsigned 64-bit integers. */
 
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     for (int i = 0; i < 7; ++i) {
         seq_t  f  = factors[i];
         uint64_t f64 = (uint64_t)f;           /* safe cast: f ≤ denom or a small integer   */
-        uint64_t g  = gcd_uint64(f64, denom); /* cancel common factors with the denominator */
+        uint64_t g  = gcd_u64(f64, denom); /* cancel common factors with the denominator */
 
         if (g > 1) {
             f64   /= g;

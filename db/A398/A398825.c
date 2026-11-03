@@ -11,7 +11,8 @@
  *            closed‑form formula but builds the sequence on demand
  * Range:     u8 n <= 101, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 77 terms through n = 8757 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Return true iff all exponents in the prime factorisation of n are ≡ 1 (mod 3) */
 static bool good(uint64_t n)
@@ -48,7 +50,7 @@ static void add_to_cache(seq_t val)
 {
     if (cache_len >= cache_cap) {
         size_t newcap = (cache_cap == 0) ? 16 : (cache_cap << 1);
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         /* In practice, realloc on failure will terminate the process.
            For the purposes of this sequence we ignore the error.        */
         cache = tmp;

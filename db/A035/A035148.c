@@ -9,16 +9,18 @@
  * Formula:   a(n) = Sum_{d|n} Kronecker(-42,d)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, powmod64
+ * Validated: standard, pass, 97 terms through n = 9799 (2026-11-01)
+ * Helpers:   factor_u64, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/powmod64.h"
-
+#include "../utils/powmod_u64.h"
 
 static int kronecker_minus42_prime(uint64_t p)
 {
@@ -29,7 +31,7 @@ static int kronecker_minus42_prime(uint64_t p)
     uint64_t a = p - (42 % p);          /* (-42) mod p, non‑zero because p∤42 */
     if (a == p) a = 0;                  /* safety, not needed for p∤42 */
 
-    uint64_t res = powmod64(a, (p - 1) >> 1, p);
+    uint64_t res = powmod_u64(a, (p - 1) >> 1, p);
     if (res == 1)        return 1;
     if (res == p - 1)    return -1;
     return 0;                                 /* should not occur for odd prime */

@@ -12,7 +12,8 @@
  *            operators, and default construction
  * Range:     u8 n <= 156, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9657 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*----------- helper for divisor count ------------------------------------*/
 /*  We maintain a table of smallest prime factors for 64‑bit numbers.  This
@@ -77,7 +79,7 @@ static void init_sequence(void)
     if (seq) return;               /* already initialized */
 
     seq_cap = 128;
-    seq     = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq     = mem_new(seq_t, seq_cap);
     seq_len = 1;
     seq[0] = (seq_t)2;              /* a(1) = 2 */
 
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
                 /* append to sequence */
                 if (seq_len == seq_cap) {
                     seq_cap *= 2;
-                    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_cap);
                     if (!seq) exit(EXIT_FAILURE);
                 }
                 seq[seq_len++] = candidate;

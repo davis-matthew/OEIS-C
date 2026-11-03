@@ -11,14 +11,16 @@
  *            columns. The implementation follows the closed form: A(p,n) =
  *            Σ_{t=0}^{s-1} 2^t·C(p‑3+t, p‑3) + 2^s·(n – C(p‑3+s, p‑2)), where
  *            s = max{ k ∈ ℕ | n > C(p‑3+k, p‑2) }. The functi...
- * Range:     u8 n <= 36, u16 n <= 136, u32 n <= 528, u64 n <= 2080,
- *            u128 n <= 8256, big any n
+ * Range:     u8 n <= 36, u16 n <= 136, u32 n <= 528, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 87 terms through n = 873 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

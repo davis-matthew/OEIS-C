@@ -9,12 +9,14 @@
  *            144*x)^(1/24))
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 4, i64 n <= 9, i128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;
 static idx_t dp_size = 0;
@@ -24,13 +26,13 @@ seq_t a(idx_t n)
     /* Initialise storage for the first term. */
     if (dp_size == 0) {
         dp_size = 1;
-        dp = (seq_t *)realloc(dp, dp_size * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, dp_size);
         dp[0] = 1;
     }
     /* Grow the memoisation array if needed. */
     if (dp_size <= n) {
         idx_t new_size = n + 1;
-        dp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, new_size);
         dp_size = new_size;
     }
     /* Compute terms up to n. */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   digits, minimal_factor, pow10
+ * Validated: full, pass, 9 terms through n = 8 (2026-11-03)
+ * Helpers:   mem, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,16 +29,36 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/digits.h"
-#include "../utils/pow10.h"
-#include "../utils/minimal_factor.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+static inline uint64_t minimal_factor(uint64_t n)
+{
+    if (n % 2ULL == 0ULL) return 2ULL;
+    if (n % 3ULL == 0ULL) return 3ULL;
+    for (uint64_t d = 5ULL; d <= n / d; d += 6ULL) {
+        if (n % d == 0ULL)        return d;
+        if (n % (d + 2ULL) == 0ULL) return d + 2ULL;
+    }
+    return n;          /* n is prime */
+}
 
 static inline void grow_seq(seq_t **arr, size_t *cap, size_t need)
 {
     if (*cap < need) {
         size_t newcap = (*cap == 0) ? 8 : (*cap << 1);
         if (newcap < need) newcap = need;
-        *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }
@@ -80,7 +101,7 @@ seq_t a(idx_t n)
             /* prime: record it and finish */
             grow_seq(&cache, &cap, len + 1);
             cache[len++] = cur;
-            free(primes);
+            mem_free(primes);
             break;
         }
 
@@ -104,17 +125,17 @@ seq_t a(idx_t n)
         /* compute next composite by concatenation */
         seq_t next = (seq_t)0;
         for (size_t i = 0; i < psiz; ++i) {
-            int d = digits((idx_t)primes[i]);
+            int d = num_digits_idx((idx_t)primes[i]);
             seq_t pow = pow10((idx_t)d);
             next = next * pow + primes[i];
         }
         if (count_in) {
-            int d = digits((idx_t)count);
+            int d = num_digits_idx((idx_t)count);
             seq_t pow = pow10((idx_t)d);
             next = next * pow + (seq_t)count;
         }
 
-        free(primes);
+        mem_free(primes);
         cur = next;
     }
 

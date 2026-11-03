@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 11, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------   Tables and state   ------------------------------------- */
 
@@ -132,8 +134,8 @@ static seq_t count_for_C(uint8_t C, idx_t n)
     static seq_t *dp[2] = {NULL, NULL};
     static int allocated = 0;
     if (!allocated) {
-        dp[0] = (seq_t *)malloc(729 * sizeof(seq_t));
-        dp[1] = (seq_t *)malloc(729 * sizeof(seq_t));
+        dp[0] = mem_new(seq_t, 729);
+        dp[1] = mem_new(seq_t, 729);
         allocated = 1;
     }
 

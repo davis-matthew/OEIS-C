@@ -7,14 +7,16 @@
  * Formula:   a(n) = Sum_{k=1..n} gcd(k,n)^(k-2)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         } else {
             seq_t g   = gcd((seq_t)k, (seq_t)n);
             seq_t exp = (seq_t)(k - 2);
-            term = big_pow(g, exp);
+            term = ipow(g, exp);
         }
         sum += term;
     }

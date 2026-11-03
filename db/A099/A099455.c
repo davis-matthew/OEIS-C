@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 1460 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
        a(n) = 7*a(n-1) - 13*a(n-2) + 7*a(n-3) - a(n-4)   for n>=5
    (equivalently: a(n) = 7*a(n-1) + 7*a(n-3) - (13*a(n-2) + a(n-4)))   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* First call: create the cache and copy the five known terms. */
     if (cache == NULL) {
         cache_cap = 16;                     /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (size_t i = 0; i < 5; ++i)
             cache[i] = init[i];
         cache_len = 5;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
             if (needed > new_cap)
                 new_cap = needed;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp == NULL) { /* allocation failed */
                 /* In an extreme failure we return 0; the caller may
                    treat this as an error. */

@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of q^n in ∏_{d|45} (∑_{k≥0} q^{d·k(k+1)/2})
  * Range:     u8 n <= 137, u16 n <= 2102, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,21 +18,22 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const idx_t DIVS[6] = {1, 3, 5, 9, 15, 45};
 
 seq_t a(idx_t n)
 {
     /* Allocate and initialize dp[0] = 1 */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return 0;          /* allocation failure handled as 0 */
     dp[0] = 1;
 
     for (int di = 0; di < 6; ++di) {
         idx_t d = DIVS[di];
         /* Temporary array for the current divisor */
-        seq_t *next = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-        if (!next) { free(dp); return 0; }
+        seq_t *next = mem_new(seq_t, (size_t)(n + 1));
+        if (!next) { mem_free(dp); return 0; }
 
         for (idx_t sum = 0; sum <= n; ++sum) {
             seq_t cur = dp[sum];
@@ -46,11 +48,11 @@ seq_t a(idx_t n)
             }
         }
 
-        free(dp);
+        mem_free(dp);
         dp = next;
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

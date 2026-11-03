@@ -8,12 +8,14 @@
  *            9*(n-1)*(n-2)*a(n-3) (terms with negative indices are omitted)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 19, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 522 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache for memoisation */
 static seq_t *cache = NULL;          /* array of computed a(n) */
@@ -29,14 +31,14 @@ static void ensure_cache(idx_t n)
     /* grow cache if necessary */
     if (cache == NULL) {
         cache_cap = (size_t)(n + 1);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL)
             return;      /* allocation failed – caller gets 0 */
     } else if (cache_cap < (size_t)(n + 1)) {
         size_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap < (size_t)(n + 1))
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)
             return;      /* allocation failed */
         cache = tmp;

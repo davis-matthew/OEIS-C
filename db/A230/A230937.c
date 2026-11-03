@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --- Static memoisation state ------------------------------------------------- */
 static seq_t *cache      = NULL;   /* 0‑based array, cache[0] unused          */
@@ -66,8 +68,8 @@ ensure_cache(idx_t need)
         new_len <<= 1;
     new_len += 1;               /* to include index 'need' */
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
-    if (!tmp) { free(cache); exit(EXIT_FAILURE); }
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
+    if (!tmp) { mem_free(cache); exit(EXIT_FAILURE); }
 
     /* Initialise newly allocated entries to zero. */
     for (idx_t i = cache_len; i < new_len; ++i)

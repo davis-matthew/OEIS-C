@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 109 terms through n = 9221 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cached values: 1‑based indexing, cache[0] is unused */
 static seq_t *cache   = NULL;
@@ -38,13 +40,13 @@ seq_t a(idx_t n)
         if (new_cap == 0) new_cap = 1;
         while (new_cap <= n) new_cap <<= 1;
 
-        seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (!new_arr) return 0;  /* allocation failure – abort silently */
 
         /* copy existing data and free old buffer */
         if (cache) {
-            memcpy(new_arr, cache, (size + 1) * sizeof(seq_t));  /* include unused 0 */
-            free(cache);
+            mem_copy(new_arr, cache, (size + 1) * sizeof(seq_t));  /* include unused 0 */
+            mem_free(cache);
         }
         cache = new_arr;
         capacity = new_cap;

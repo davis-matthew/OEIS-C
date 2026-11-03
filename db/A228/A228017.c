@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   _a228017_check
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,34 @@
  * lazily precomputes the sequence and returns the nth term (1‑based). */
 
 #include <stdbool.h>
-#include "../utils/_a228017_check.h"
+
+static bool _a228017_check(seq_t m)
+{
+    if (m == (seq_t)0) return false;
+
+    /* extract decimal digits (least significant first) */
+    int digits[4];
+    int dcnt = 0;
+    seq_t tmp = m;
+    while (tmp != (seq_t)0) {
+        seq_t d = tmp % (seq_t)10;
+        if (d == (seq_t)0) return false;      /* zeroless requirement */
+        digits[dcnt++] = (int)d;
+        tmp = tmp / (seq_t)10;
+    }
+
+    /* test all non‑empty subsets of digits */
+    int total_masks = 1 << dcnt;
+    for (int mask = 1; mask < total_masks; ++mask) {
+        int sum = 0;
+        for (int i = 0; i < dcnt; ++i)
+            if (mask & (1 << i))
+                sum += digits[i];
+        if (m % (seq_t)sum != (seq_t)0)
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

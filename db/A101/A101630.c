@@ -7,13 +7,14 @@
  * Formula:   a(n) = denominator(15*sum_{k=1}^n 1/((4k-1)k(4k+1)))
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   gcd128
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   gcd_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd128.h"
+#include "../utils/gcd_u128.h"
 
 /* Return the n-th term of OEIS A101630: the denominator of the
    partial sums.  
@@ -34,12 +35,12 @@ seq_t a(idx_t n)
         unsigned __int128 tnum = 15;              /* numerator of term */
 
         /* reduce the term itself */
-        unsigned __int128 g_t = gcd128(tnum, tden);
+        unsigned __int128 g_t = gcd_u128(tnum, tden);
         tnum /= g_t;
         tden /= g_t;
 
         /* add t_k to current sum: (num/den) + (tnum/tden) */
-        unsigned __int128 g1 = gcd128(den, tden);          /* gcd of denominators */
+        unsigned __int128 g1 = gcd_u128(den, tden);          /* gcd of denominators */
         unsigned __int128 lcm_part = tden / g1;            /* part for lcm */
         unsigned __int128 new_den = den * lcm_part;        /* new denominator */
 
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
                                  + tnum * (den / g1);     /* new numerator */
 
         /* reduce the resulting fraction */
-        unsigned __int128 g2 = gcd128(new_num, new_den);
+        unsigned __int128 g2 = gcd_u128(new_num, new_den);
         num = new_num / g2;
         den = new_den / g2;
     }

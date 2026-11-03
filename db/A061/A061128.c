@@ -11,13 +11,40 @@
  *            divisors of 30 and * the Möbius values μ(30/d) = ±1 as g...
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   count_with_divisor
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/count_with_divisor.h"
+#include "../utils/mem.h"
+
+/* Count permutations of n whose all cycle lengths divide d */
+static seq_t count_with_divisor(idx_t n, idx_t d, const seq_t *fact)
+{
+    /* dp[m] holds f_d(m) */
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
+    if (!dp) return (seq_t)0;           /* allocation failed */
+    dp[0] = (seq_t)1;
+
+    for (idx_t m = 1; m <= n; ++m) {
+        seq_t sum = (seq_t)0;
+        /* iterate over lengths l that divide d */
+        for (idx_t l = 1; l <= d; ++l) {
+            if (d % l != 0) continue;
+            if (l > m) break;
+            /* term = (m-1)!/(m-l)! * dp[m-l] */
+            seq_t ratio = fact[m - 1] / fact[m - l];
+            sum += ratio * dp[m - l];
+        }
+        dp[m] = sum;
+    }
+
+    seq_t result = dp[n];
+    mem_free(dp);
+    return result;
+}
 
 /* Divisors of 30 */
 static const idx_t divs[8] = { 1, 2, 3, 5, 6, 10, 15, 30 };
@@ -30,7 +57,7 @@ seq_t a(idx_t n)
     if (n < 1) return (seq_t)0;
 
     /* precompute factorials up to n */
-    seq_t *fact = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (size_t)(n + 1));
     if (!fact) return (seq_t)0;
     fact[0] = (seq_t)1;
     for (idx_t i = 1; i <= n; ++i) fact[i] = fact[i - 1] * (seq_t)i;
@@ -46,6 +73,6 @@ seq_t a(idx_t n)
             neg += val;
     }
 
-    free(fact);
+    mem_free(fact);
     return pos - neg;
 }

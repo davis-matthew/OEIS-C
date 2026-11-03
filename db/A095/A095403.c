@@ -9,18 +9,36 @@
  *            factors p of n
  * Range:     i8 n <= 702, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   digit_sum_local, factor
+ * Validated: standard, pass, 127 terms through n = 8734 (2026-11-01)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/factor.h"
-#include "../utils/digit_sum_local.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/digit_sum.h"
+
+/* --------------------------------------------------------------- */
+static void factor(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    size_t c = 0;
+    for (uint64_t p = 2; p*p <= n; ++p) {
+        if (n % p == 0) {
+            pr[c] = p; exp[c] = 0;
+            while (n % p == 0) { n /= p; ++exp[c]; }
+            ++c;
+        }
+    }
+    if (n > 1) { pr[c] = n; exp[c] = 1; ++c; }
+    *cnt = c;
+}
 
 seq_t a(idx_t n)
 {
     /* Sum of digits of n */
-    seq_t sum_n = digit_sum_local((seq_t)n);
+    seq_t sum_n = digit_sum((seq_t)n);
 
     /* Factorize n and accumulate digit sums of distinct prime factors */
     uint64_t primes[32], exps[32];
@@ -29,7 +47,7 @@ seq_t a(idx_t n)
 
     seq_t sum_pf = 0;
     for (size_t i = 0; i < cnt; ++i) {
-        sum_pf += digit_sum_local((seq_t)primes[i]);
+        sum_pf += digit_sum((seq_t)primes[i]);
     }
 
     /* Difference */

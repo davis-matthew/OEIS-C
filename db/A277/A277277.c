@@ -8,13 +8,17 @@
  *            a(4)=10, a(5)=14, a(6)=20, a(7)=28, a(8)=36, a(9)=44
  * Range:     u8 n <= 16, u16 n <= 39, u32 n <= 85, u64 n <= 177,
  *            u128 n <= 361, big any n
- * Helpers:   _max
+ * Validated: standard, pass, 67 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_max.h"
+#include "../utils/mem.h"
+
+/* Utility to get maximum of two size_t values. */
+static inline size_t _max(size_t a, size_t b) { return a > b ? a : b; }
 
 /* Base values for indices 0..9. */
 static const seq_t _BASE[10] = {
@@ -34,7 +38,7 @@ seq_t a(idx_t n) {
     /* initialise the cache on first call */
     if (_CACHE == NULL) {
         _CAP = 10;
-        _CACHE = (seq_t*)malloc(_CAP * sizeof(seq_t));
+        _CACHE = mem_new(seq_t, _CAP);
         if (!_CACHE) return (seq_t)0;   /* allocation failed */
         for (size_t i = 0; i < 10; ++i)
             _CACHE[i] = _BASE[i];
@@ -44,7 +48,7 @@ seq_t a(idx_t n) {
     /* expand cache if needed */
     if (idx >= _CAP) {
         size_t new_cap = _max(_CAP * 2, idx + 1);
-        seq_t *tmp = (seq_t*)realloc(_CACHE, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _CACHE, new_cap);
         if (!tmp) return (seq_t)0;   /* realloc failed */
         _CACHE = tmp;
         _CAP = new_cap;

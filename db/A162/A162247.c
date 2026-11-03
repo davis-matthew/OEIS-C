@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nice, tabf, nonn
  * Formula:   not stated
- * Range:     u8 n <= 2912, u16 n <= 9513, u32 n <= 9513, u64 n <= 9513,
- *            u128 n <= 9513, big any n
- * Helpers:   none
+ * Range:     u8 n <= 2912, u16 n <= 19795, u32 n <= 19795, u64 n <= 19795,
+ *            u128 n <= 19795, big any n
+ * Validated: standard, pass, 112 terms through n = 9513 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 typedef struct {
     idx_t  len;     /* number of factors */
@@ -41,7 +43,7 @@ ensure_flat_cap(idx_t need)
         size_t new_cap = flat_cap ? flat_cap * 2 : 64;
         while (new_cap < flat_len + need)
             new_cap *= 2;
-        flat = (seq_t *)realloc(flat, new_cap * sizeof(seq_t));
+        flat = mem_resize(seq_t, flat, new_cap);
         flat_cap = new_cap;
     }
 }

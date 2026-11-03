@@ -8,13 +8,15 @@
  * Formula:   a(n) = floor((16+12*(n mod 2)) * 4^n / 15)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 41 terms through n = 1641 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     seq_t factor = ((n & 1) ? FACTOR_ODD : FACTOR_EVEN);
 
     /* compute 4^n (big_pow handles arbitrary precision) */
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)n);
+    seq_t pow4 = ipow((seq_t)4, (seq_t)n);
 
     /* perform division by 15 safely: q = floor(pow4/15), r = pow4 % 15 */
     seq_t q = pow4 / DENOM;

@@ -7,15 +7,16 @@
  * Formula:   a(n) = ∏_{i=1..6} (3^(n-i+1)-1)/(3^i-1)
  * Range:     u8 none, u16 n <= 6, u32 n <= 8, u64 n <= 12, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 28 terms through n = 175 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
 #include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 /* Computes the Gaussian binomial coefficient [n,6] for q=3.
    The sequence is defined for n ≥ 6. For n < 6 the value is
@@ -33,8 +34,8 @@ seq_t a(idx_t n)
         idx_t exp_den = i;
 
         /* compute numerator and denominator */
-        seq_t num = big_pow((seq_t)3, (seq_t)exp_num) - 1;
-        seq_t den = big_pow((seq_t)3, (seq_t)exp_den) - 1;
+        seq_t num = ipow((seq_t)3, (seq_t)exp_num) - 1;
+        seq_t den = ipow((seq_t)3, (seq_t)exp_den) - 1;
 
         /* cancel common factors between num and den */
         seq_t g1 = gcd(num, den);

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 145, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *res   = NULL;   /* array of computed sequence terms */
 static idx_t res_len = 0;     /* number of terms stored */
@@ -87,7 +89,7 @@ static void generate_terms(idx_t limit)
         if (qualifies(n)) {
             if (res_len == res_cap) {
                 idx_t new_cap = res_cap ? res_cap * 2 : 64;
-                seq_t *new_res = (seq_t *)realloc(res, new_cap * sizeof(seq_t));
+                seq_t *new_res = mem_resize(seq_t, res, new_cap);
                 if (!new_res) return;  /* memory failure */
                 res = new_res;
                 res_cap = new_cap;

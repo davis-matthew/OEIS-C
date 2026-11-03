@@ -8,7 +8,8 @@
  *            (a safe prime p is a prime such that (p-1)/2 is also prime)
  * Range:     u8 n <= 92, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 6740 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------  Static storage for primes and terms  ---------- */
 
@@ -142,7 +144,7 @@ static void ensure_terms_upto(idx_t n)
         if (!prime && !hasSafePrimeFactor(current_test)) {
             if (term_cnt == term_cap) {
                 term_cap = (term_cap == 0 ? 16 : term_cap * 2);
-                term_list = (seq_t *)realloc(term_list, term_cap * sizeof(seq_t));
+                term_list = mem_resize(seq_t, term_list, term_cap);
             }
             term_list[term_cnt++] = (seq_t)current_test;
         }

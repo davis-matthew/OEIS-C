@@ -10,15 +10,17 @@
  *            T(2,2), ... * Recurrence for the array: * T(r,k) = 1 if 2*k > r
  *            * T(r,k+1) + T(r-k,k) otherwise * (with the convention T(r,k)=0
  *            for k>r) * The function below implements this de...
- * Range:     u8 n <= 136, u16 n <= 946, u32 n <= 8128, u64 n <= 8816,
- *            u128 n <= 8816, big any n
- * Helpers:   none
+ * Range:     u8 n <= 136, u16 n <= 946, u32 n <= 8128, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 110 terms through n = 8816 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*     Memoised storage of the triangular array T(r,k) (1‑based)     */
@@ -33,7 +35,7 @@ static void t_cache_ensure(idx_t rows)
     idx_t old_size = t_rows * (t_rows + 1) / 2;
     idx_t new_size = rows * (rows + 1) / 2;
 
-    t_cache = (seq_t *)realloc(t_cache, new_size * sizeof(seq_t));
+    t_cache = mem_resize(seq_t, t_cache, new_size);
     if (!t_cache) abort(); /* fatal error if allocation fails */
 
     for (idx_t i = old_size; i < new_size; ++i) t_cache[i] = 0;

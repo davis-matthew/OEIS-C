@@ -14,13 +14,15 @@
  *            row‑by‑row from these polynomials. This implementa...
  * Range:     u8 n <= 17, u16 n <= 49, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <string.h>   /* memset */
+#include "../utils/mem.h"
 
 #define MAX_R       2000                   /* sufficient for n ≈ 10 000   */
 #define MAX_DEG    (4 * MAX_R + 1)         /* maximum polynomial length  */
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
         size_t len_km2 = 4 * (k - 2) + 1;    /* degree+1 of P(k-2) */
 
         /* zero TEMP up to len_k */
-        memset(TMP, 0, len_k * sizeof(seq_t));
+        mem_set(TMP, 0, len_k * sizeof(seq_t));
 
         /* P(k-1) * POLY1 */
         conv(Pm1, len_km1, POLY1, 5, TMP, len_k);

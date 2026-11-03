@@ -8,16 +8,19 @@
  * Formula:   a(n) = Numerator(Bernoulli(2*n, -1/2)) a(0) = 1
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 8, i64 n <= 14, i128 n <= 18,
  *            big any n
- * Helpers:   binom, gcd, pow_uint
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   binomial, gcd, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 typedef struct { seq_t num; seq_t den; } rational;
 
@@ -47,7 +50,7 @@ static void compute_B_polys(idx_t new_max)
 {
     if (new_max <= B_max) return;
     size_t old_cap = new_max + 1;
-    rational *tmp = (rational*)realloc(B_poly, old_cap * sizeof(rational));
+    rational *tmp = mem_resize(rational, B_poly, old_cap);
     if (!tmp) abort();            /* memory error – program halt */
     B_poly = tmp;
     /* initialise B_0 */
@@ -59,7 +62,7 @@ static void compute_B_polys(idx_t new_max)
     for (idx_t i = B_max + 1; i <= new_max; ++i) {
         rational sum; sum.num = 0; sum.den = 1;
         for (idx_t k = 0; k < i; ++k) {
-            seq_t coeff = binom((idx_t)(i + 1), k);        /* binom(i+1,k) */
+            seq_t coeff = binomial((idx_t)(i + 1), k);        /* binom(i+1,k) */
             seq_t tnum  = coeff * B_poly[k].num;           /* numerator */
             seq_t tden  = B_poly[k].den;                   /* denominator */
             rational_add(&sum, tnum, tden);
@@ -89,7 +92,7 @@ seq_t a(idx_t n)
     seq_t Bden = B_poly[m].den;   /* denominator of B_{2n}(-1/2) */
 
     /* compute (2^{1-2n} - 1) = (1 - 2^{2n-1}) / 2^{2n-1} */
-    seq_t pow2_M1 = pow_uint(2, m - 1);          /* 2^{2n-1}   */
+    seq_t pow2_M1 = ipow_u64_idx(2, m - 1);          /* 2^{2n-1}   */
     seq_t diff    = pow2_M1 - 1;                 /* 2^{2n-1}-1  */
     /* term1_num = -(diff * Bnum)  (rational with denominator pow2_M1 * Bden) */
     seq_t term1_num = - (diff * Bnum);

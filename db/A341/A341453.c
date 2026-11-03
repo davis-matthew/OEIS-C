@@ -10,7 +10,8 @@
  *            unordered partition is counted once
  * Range:     u8 n <= 47, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* dp[k][s] = number of partitions of s into k allowed parts
    allowed parts are 1 or composite numbers.  */
@@ -30,8 +32,8 @@ static void ensure_dp(idx_t n)
 
     /* Free any previous tables and allocate new ones */
     for (int k = 0; k <= 6; ++k) {
-        free(dp[k]);
-        dp[k] = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+        mem_free(dp[k]);
+        dp[k] = mem_new(seq_t, (size_t)n + 1);
         if (!dp[k]) exit(1);
     }
 

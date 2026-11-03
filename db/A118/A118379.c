@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   has_perfect_power_digit
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_perfect_power_digit.h"
+
+static inline bool has_perfect_power_digit(uint64_t x)
+{
+    /* set of single‑digit perfect powers: 0,1,4,8,9 */
+    while (x > 0)
+    {
+        uint8_t d = x % 10;
+        if (d == 0 || d == 1 || d == 4 || d == 8 || d == 9)
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 static inline bool is_perfect_power_uint64(uint64_t n)
 {

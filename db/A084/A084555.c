@@ -11,6 +11,7 @@
  *            sum_{i=1}^{m} i·i! // total number of positions occ...
  * Range:     u8 n <= 60, u16 n <= 5614, u32 n <= 5614, u64 n <= 5614,
  *            u128 n <= 5614, big any n
+ * Validated: standard, pass, 76 terms through n = 5049 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

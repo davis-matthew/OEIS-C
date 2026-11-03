@@ -7,12 +7,15 @@
  * Formula:   a(n) = sigma_3(n)^2
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 39, u64 n <= 1547,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 45 terms through n = 9355 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,15 +30,15 @@ seq_t a(idx_t n)
                 m /= p;
             }
             seq_t base = (seq_t)p;
-            seq_t num = seq_pow(base, 3 * (e + 1)) - 1;
-            seq_t den = seq_pow(base, 3) - 1;
+            seq_t num = ipow_idx(base, 3 * (e + 1)) - 1;
+            seq_t den = ipow_idx(base, 3) - 1;
             sigma *= num / den;
         }
     }
     if (m > 1) {            /* remaining prime factor with exponent 1 */
         seq_t base = (seq_t)m;
-        seq_t num = seq_pow(base, 6) - 1;   /* 3*(1+1) = 6 */
-        seq_t den = seq_pow(base, 3) - 1;
+        seq_t num = ipow_idx(base, 6) - 1;   /* 3*(1+1) = 6 */
+        seq_t den = ipow_idx(base, 3) - 1;
         sigma *= num / den;
     }
     return sigma * sigma;

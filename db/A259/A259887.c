@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 23, u64 n <= 51, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 171 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Initialise the table on the first call. */
     if (memo == NULL) {
         cap = 8;
-        memo = (seq_t *)malloc(cap * sizeof(seq_t));
+        memo = mem_new(seq_t, cap);
         if (!memo) return 0;       /* out of memory – not expected in tests */
         memo[0] = 0;               /* dummy value for index 0 */
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     while (last < (size_t)n) {
         if (last + 1 >= cap) {
             size_t new_cap = cap * 2;
-            seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, memo, new_cap);
             if (!tmp) return 0;   /* allocation failed */
             memo = tmp;
             cap = new_cap;

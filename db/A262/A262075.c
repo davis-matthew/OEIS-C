@@ -10,12 +10,14 @@
  *            a(1)=105, a(2)=3248, a(3)=97433
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 641 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* 1‑based cache of computed terms */
 static idx_t  cache_cap = 0;     /* current allocated size */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     if (need < 4) need = 4;
 
     if (cache_cap < need) {
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) abort();        /* memory allocation failed */
         cache = tmp;
         cache_cap = need;

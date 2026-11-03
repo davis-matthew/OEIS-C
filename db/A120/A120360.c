@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 746, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   tau_of_odd
+ * Validated: standard, pass, 62 terms through n = 9379 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,28 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/tau_of_odd.h"
+#include "../utils/mem.h"
+
+/* Compute τ(m) for odd m using trial division. */
+static seq_t tau_of_odd(uint64_t m)
+{
+    if (m == 1) return 1;
+    seq_t result = 1;
+    uint64_t t = m;
+    for (uint64_t p = 3; p <= t / p; p += 2) {
+        if (t % p == 0) {
+            uint64_t exp = 0;
+            while (t % p == 0) {
+                t /= p;
+                exp++;
+            }
+            result *= (exp + 1);
+            if (t == 1) break;
+        }
+    }
+    if (t > 1) result *= 2;   /* remaining prime factor */
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,7 +62,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_cap = 128;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_size = 0;
     }
 
@@ -84,7 +106,7 @@ seq_t a(idx_t n)
         /* All conditions satisfied – store the term. */
         if (cache_size == cache_cap) {
             cache_cap <<= 1;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_size++] = (seq_t)k;
 

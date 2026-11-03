@@ -8,12 +8,14 @@
  * Formula:   a(n) = n * ( a(n-1) + 2^(n-1) ), a(0) = 0
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* ----- initialization ----- */
     if (cache == NULL) {
         cache_size = 1;                 /* store a(0) */
-        cache      = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache      = mem_new(seq_t, cache_size);
         cache[0]   = (seq_t)0;           /* a(0) = 0 */
         pow2       = (seq_t)1;           /* 2^0 for next computation */
         last       = 0;
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Expand cache if necessary */
     if ((idx_t)(n + 1) > cache_size) {
         size_t new_size = (size_t)(n + 1);
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         cache_size = new_size;
     }
 

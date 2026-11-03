@@ -11,13 +11,15 @@
  *            I(n+1)/((n+1)(2n+3)) )
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 7, i64 n <= 13, i128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define DEF_A2681(T, SFX)                                                     \
 static T gcd_##SFX(T x, T y) {                                                \
@@ -33,7 +35,7 @@ static void red_##SFX(T *p, T *q) {                                           \
   if (g != 0 && g != 1) { *p /= g; *q /= g; }                                 \
 }                                                                             \
 static void integ_##SFX(idx_t n, T *num, T *den) {                            \
-  T *c = (T *)calloc((size_t)n + 2, sizeof(T));                               \
+  T *c = mem_new(T, (size_t)n + 2);                               \
   T L, S, g;                                                                  \
   idx_t i, k;                                                                 \
   for (i = 0; i <= n + 1; i++) c[i] = 0;                                      \
@@ -51,7 +53,7 @@ static void integ_##SFX(idx_t n, T *num, T *den) {                            \
   }                                                                           \
   S = 0;                                                                      \
   for (i = 0; i <= n; i++) S += c[i] * (L / (T)(i + 1));                      \
-  free(c);                                                                    \
+  mem_free(c);                                                                    \
   red_##SFX(&S, &L);                                                          \
   *num = S; *den = L;                                                         \
 }                                                                             \

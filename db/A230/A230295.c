@@ -9,14 +9,16 @@
  *            d(n) = A000005(n)
  * Range:     u8 n <= 706, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 102 terms through n = 9992 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;        /* stores a(1)..a(n) */
 static idx_t  cache_size = 0;        /* number of stored elements */
@@ -31,7 +33,7 @@ static void ensure_capacity(idx_t needed)
     idx_t new_cap = cache_cap ? cache_cap << 1 : 8;
     while (new_cap < needed)
         new_cap <<= 1;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -44,8 +46,8 @@ seq_t a(idx_t n)
         for (idx_t i = cache_size + 1; i <= n; ++i) {
             uint64_t val8 = 8 * i + 5;
             uint64_t val4 = 4 * i + 3;
-            uint64_t d8 = divisor_count_u64(val8);
-            uint64_t d4 = divisor_count_u64(val4);
+            uint64_t d8 = num_divisors(val8);
+            uint64_t d4 = num_divisors(val4);
             cum_D8 += (seq_t)d8;
             cum_D4 += (seq_t)d4;
             a_cache[i - 1] = cum_D8 - cum_D4; /* cum_D8 >= cum_D4 always */

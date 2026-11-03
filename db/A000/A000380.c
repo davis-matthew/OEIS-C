@@ -12,19 +12,21 @@
  *            2t^2 s_{n-2} - (t^2+t^3)s_{n-3} + t^4 s_{n-4} +...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t L = n + 1;
     seq_t *R[5];
     int i;
-    for (i = 0; i < 5; i++) R[i] = (seq_t *)calloc((size_t)L, sizeof(seq_t));
+    for (i = 0; i < 5; i++) R[i] = mem_new(seq_t, (size_t)L);
 
     for (idx_t m = 0; m <= n; m++) {
         seq_t *cur = R[m % 5];
@@ -64,6 +66,6 @@ seq_t a(idx_t n) {
         else neg += term;
     }
 
-    for (i = 0; i < 5; i++) free(R[i]);
+    for (i = 0; i < 5; i++) mem_free(R[i]);
     return pos - neg;
 }

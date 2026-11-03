@@ -8,12 +8,14 @@
  *            fib(1)=1
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0)
@@ -21,7 +23,7 @@ seq_t a(idx_t n) {
 
     /* need Fibonacci numbers up to index n+2 */
     const idx_t sz = n + 3;          /* indices 0 .. n+2 inclusive      */
-    seq_t *fib = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *fib = mem_new(seq_t, sz);
     if (!fib) return (seq_t)0;       /* allocation failure */
 
     fib[0] = (seq_t)0;
@@ -35,6 +37,6 @@ seq_t a(idx_t n) {
         sum += fib[i + 2] * fib[i + 3];
     }
 
-    free(fib);
+    mem_free(fib);
     return sum;
 }

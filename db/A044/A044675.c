@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has47
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,31 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has47.h"
+
+/* Returns true iff the base‑9 representation of x contains the
+   consecutive digits 4 followed by 7. */
+static bool has47(seq_t x)
+{
+    unsigned digits[64];
+    size_t len = 0;
+    seq_t t = x;
+
+    /* Extract digits least‑significant first. */
+    while (t > 0) {
+        digits[len++] = (unsigned)(t % 9);
+        t /= 9;
+    }
+
+    if (len < 2) return false;   /* need at least two digits */
+
+    /* Scan from most‑significant to check for "47". */
+    for (int i = (int)len - 1; i >= 1; --i) {
+        if (digits[i] == 4 && digits[i - 1] == 7) {
+            return true;
+        }
+    }
+    return false;
+}
 
 /* Constants ----------------------------------------------------------- */
 

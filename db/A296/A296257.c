@@ -11,7 +11,8 @@
  *            sequences
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 39, u64 n <= 85, u128 n <= 178,
  *            big any n
- * Helpers:   seq_in_array
+ * Validated: standard, pass, 51 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_in_array.h"
+#include "../utils/mem.h"
+
+/* Helper: binary search for seq_t in sorted array a[0..len-1] */
+static bool seq_in_array(const seq_t *a, size_t len, seq_t v) {
+    size_t low = 0, high = len;
+    while (low < high) {
+        size_t mid = low + (high - low) / 2;
+        if (a[mid] == v) return true;
+        if (a[mid] < v) low = mid + 1;
+        else high = mid;
+    }
+    return false;
+}
 
 /* Static caches for a and b */
 static seq_t *a_cache = NULL;
@@ -51,7 +64,7 @@ static void ensure_a(idx_t n) {
     /* initialize a_cache if first call */
     if (a_cache == NULL) {
         a_cap = 8;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = (seq_t)1;
         a_cache[1] = (seq_t)2;
         a_len = 2;
@@ -73,7 +86,7 @@ static void ensure_a(idx_t n) {
         /* grow a_cache if necessary */
         if (a_len == a_cap) {
             a_cap *= 2;
-            a_cache = (seq_t *)realloc(a_cache, a_cap * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, a_cap);
         }
         a_cache[a_len] = new_a;
         a_len++;
@@ -87,7 +100,7 @@ static void ensure_b(idx_t n) {
     /* initialize b_cache if first call */
     if (b_cache == NULL) {
         b_cap = 8;
-        b_cache = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_cache = mem_new(seq_t, b_cap);
         b_len = 0;
         next_candidate = 1;  /* start scanning from 1 */
     }
@@ -102,7 +115,7 @@ static void ensure_b(idx_t n) {
         /* add to b_cache */
         if (b_len == b_cap) {
             b_cap *= 2;
-            b_cache = (seq_t *)realloc(b_cache, b_cap * sizeof(seq_t));
+            b_cache = mem_resize(seq_t, b_cache, b_cap);
         }
         b_cache[b_len] = next_candidate;
         b_len++;

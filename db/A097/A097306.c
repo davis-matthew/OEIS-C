@@ -11,7 +11,8 @@
  *            a(2)=T(2,1), a(3)=T(3,1), a(4)=T(3,2), …
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
     completes well within the 2‑second limit. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     idx_t k = n - cum;   /* 1 ≤ k ≤ ceil(r/2) */
 
     /* --- compute T(r,k) by dynamic programming on odd parts --- */
-    seq_t *dp = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (r + 1));
     for (idx_t i = 0; i <= r; ++i)
         dp[i] = 0;
     dp[0] = 1;
@@ -53,6 +55,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[r];
-    free(dp);
+    mem_free(dp);
     return result;
 }

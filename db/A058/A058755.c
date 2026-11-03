@@ -12,7 +12,8 @@
  *            leading q^(−1) factor, so...
  * Range:     i8 n <= 94, i16 n <= 256, i32 n <= 780, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* External linkage as requested. */
 seq_t a(idx_t n);
@@ -39,9 +41,9 @@ static void recompute_series(idx_t up_to)
        calloc to seq_t* so that the code compiles both in C and in C++,
        even if seq_t is a user‑defined class. */
     size_t cap = (size_t)up_to + 1;
-    seq_t *N = (seq_t*)calloc(cap, sizeof(seq_t));
-    seq_t *D = (seq_t*)calloc(cap, sizeof(seq_t));
-    seq_t *S = (seq_t*)calloc(cap, sizeof(seq_t));
+    seq_t *N = mem_new(seq_t, cap);
+    seq_t *D = mem_new(seq_t, cap);
+    seq_t *S = mem_new(seq_t, cap);
     if (!N || !D || !S) {
         /* In a real system we would handle allocation failure; here we
            simply abort, which is acceptable for the evaluation harness. */
@@ -87,9 +89,9 @@ static void recompute_series(idx_t up_to)
     }
 
     /* Free old arrays if any. */
-    free(num_series);
-    free(den_series);
-    free(coeff_S);
+    mem_free(num_series);
+    mem_free(den_series);
+    mem_free(coeff_S);
 
     /* Install new arrays. */
     num_series = N;

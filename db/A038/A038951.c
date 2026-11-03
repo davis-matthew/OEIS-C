@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   powmod64
+ * Validated: standard, pass, 61 terms through n = 978 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/powmod64.h"
+#include "../utils/powmod_u64.h"
 
 static uint64_t   *prime_list   = NULL; /* primes seen so far */
 static size_t      prime_len    = 0;
@@ -76,7 +77,7 @@ static bool is_quadratic_residue(uint64_t p)
 {
     /* 69 mod p == 0 means p divides 69 → trivial square (0). */
     if ((69ULL % p) == 0) return true;
-    return powmod64(69, (p - 1) / 2, p) == 1;
+    return powmod_u64(69, (p - 1) / 2, p) == 1;
 }
 
 /* Sequence generator. */

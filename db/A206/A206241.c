@@ -9,13 +9,15 @@
  *            gcd(k*a(n-1)+a(n-2), n) = 1; a(0) = 0, a(1) = 1
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cap = 0;
@@ -36,7 +38,7 @@ static void ensure_capacity(idx_t need)
     if (need < cap) return;
     size_t new_cap = cap ? cap * 2 : 16;
     while (new_cap <= (size_t)need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cap = new_cap;
@@ -46,7 +48,7 @@ static void compute_up_to(idx_t n)
 {
     if (cache == NULL) {
         size_t init = 16;
-        cache = (seq_t *)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (!cache) abort();
         cache[0] = 0;
         cache[1] = 1;

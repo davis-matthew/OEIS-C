@@ -12,7 +12,8 @@
  *            |(top0+bottom1)-(bottom0+top1)| = 2
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 22, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Externally linked function required by the build system */
 seq_t a(idx_t n);
@@ -68,8 +70,8 @@ seq_t a(idx_t n)
     init_states();
     idx_t columns = n + 1;          /* number of columns in the array */
 
-    seq_t *dp_prev = (seq_t *)malloc(NUM_STATES * sizeof(seq_t));
-    seq_t *dp_cur  = (seq_t *)malloc(NUM_STATES * sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, NUM_STATES);
+    seq_t *dp_cur  = mem_new(seq_t, NUM_STATES);
     if (!dp_prev || !dp_cur) abort();
 
     /* Initial column: any state is allowed (42 possibilities) */
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (int i = 0; i < NUM_STATES; ++i) result = result + dp_prev[i];
 
-    free(dp_prev);
-    free(dp_cur);
+    mem_free(dp_prev);
+    mem_free(dp_cur);
     return result;
 }

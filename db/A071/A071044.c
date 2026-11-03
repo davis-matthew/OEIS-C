@@ -9,19 +9,20 @@
  *            if n is odd
  * Range:     u8 n <= 254, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow2_uint
+ * Validated: standard, pass, 96 terms through n = 963 (2026-11-01)
+ * Helpers:   pow2_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2_uint.h"
+#include "../utils/pow2_u32.h"
 
 seq_t a(idx_t n)
 {
     /* count set bits in n */
     unsigned int pop = __builtin_popcountll((uint64_t)n);
 
-    seq_t val = pow2_uint(pop);   /* 2^popcount(n) */
+    seq_t val = pow2_u32(pop);   /* 2^popcount(n) */
 
     if ((n & 1) == 0)            /* even n */
         return val;

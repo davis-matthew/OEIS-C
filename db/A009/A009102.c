@@ -7,7 +7,8 @@
  * Formula:   a(n) = -n*a(n-1) + (n even ? (-1)^(n/2) : 0)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 20, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 396 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* with a(0) = 1  */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* if memory not yet allocated, initialise cache up to n */
     if (cache == NULL) {
-        cache = (seq_t *)calloc(n + 1, sizeof(seq_t));
+        cache = mem_new(seq_t, n + 1);
         if (cache == NULL) {
             /* allocation failure – fall back to simple computation without cache */
             idx_t i;
@@ -49,11 +51,11 @@ seq_t a(idx_t n)
     /* extend cache if necessary */
     if (n > cached_to) {
         idx_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (new_cache == NULL) {
             /* allocation failure – compute on the fly */
             idx_t i;
-            seq_t prev = cache[cached_to];
+            seq_t prev = new_cache[cached_to];
             for (i = cached_to + 1; i <= n; ++i) {
                 seq_t term_extra;
                 if ((i & 1) == 0) {

@@ -8,7 +8,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} (1+x^k)^{p(k)}
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 40, u64 n <= 89, u128 n <= 203,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     const size_t N = (size_t)n;
 
     /* ---- compute partition numbers p[0..N] ---- */
-    seq_t *p = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, N + 1);
     if (!p) return (seq_t)0;            /* allocation failure */
     p[0] = (seq_t)1;
     for (size_t i = 1; i <= N; ++i)
@@ -37,11 +39,11 @@ seq_t a(idx_t n)
             p[j] += p[j - i];
 
     /* ---- arrays for dynamic programming ---- */
-    seq_t *dp   = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *bin  = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, N + 1);
+    seq_t *next = mem_new(seq_t, N + 1);
+    seq_t *bin  = mem_new(seq_t, N + 1);
     if (!dp || !next || !bin) {
-        free(p); free(dp); free(next); free(bin);
+        mem_free(p); mem_free(dp); mem_free(next); mem_free(bin);
         return (seq_t)0;            /* allocation failure */
     }
     dp[0] = (seq_t)1;                 /* initial polynomial is 1 */
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         if (tmax == 0) tmax = 0;               /* ensure tmax is valid when p_k==0 */
 
         /* reset next array */
-        memset(next, 0, (N + 1) * sizeof(seq_t));
+        mem_set(next, 0, (N + 1) * sizeof(seq_t));
 
         /* convolution for each residue modulo k */
         for (size_t r = 0; r < k; ++r) {
@@ -94,10 +96,10 @@ seq_t a(idx_t n)
     seq_t result = dp[N];
 
     /* free allocated memory */
-    free(dp);
-    free(next);
-    free(p);
-    free(bin);
+    mem_free(dp);
+    mem_free(next);
+    mem_free(p);
+    mem_free(bin);
 
     return result;
 }

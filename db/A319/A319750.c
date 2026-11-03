@@ -8,7 +8,8 @@
  *            13*hd(n)^2)/2 hd(n+1) = hn(n) * hd(n) The required a(n) is hd(n)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recursive fingerprinting of the Heron sequence denominators. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *hd = NULL;           /* Stores hd(n) */
 static seq_t *hn = NULL;           /* Stores hn(n) */
@@ -26,8 +28,8 @@ static void init_cache(void)
 {
     /* Allocate initial storage for indices 0 and 1. */
     cache_cap = 2;
-    hd  = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-    hn  = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    hd  = mem_new(seq_t, cache_cap);
+    hn  = mem_new(seq_t, cache_cap);
 
     /* Base values. */
     hd[0] = (seq_t)1;
@@ -53,8 +55,8 @@ static void ensure_cache(idx_t n)
         size_t new_cap = cache_cap << 1;   /* double */
         if (new_cap <= (size_t)n + 1)
             new_cap = (size_t)n + 1;
-        hd = (seq_t *)realloc(hd, new_cap * sizeof(seq_t));
-        hn = (seq_t *)realloc(hn, new_cap * sizeof(seq_t));
+        hd = mem_resize(seq_t, hd, new_cap);
+        hn = mem_resize(seq_t, hn, new_cap);
         cache_cap = new_cap;
     }
 

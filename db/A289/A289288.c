@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 111, u32 n <= 111, u64 n <= 111,
  *            u128 n <= 111, big any n
- * Helpers:   contains_zero_digit
+ * Validated: partial, pass, 111 terms through n = 111 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains_zero_digit.h"
+#include "../utils/mem.h"
+
+/* ----------------------------------------------------------------------- */
+static bool contains_zero_digit(seq_t x)
+{
+    const seq_t ten = (seq_t)10;
+    const seq_t zero = (seq_t)0;
+    while (x != zero) {
+        if (x % ten == zero)  /* digit 0 */
+            return true;
+        x /= ten;
+    }
+    return false;
+}
 
 /* ----------------------------------------------------------------------- */
 /*  Check whether a value contains the digit 0.  Works for any unsigned    */
@@ -68,7 +82,7 @@ seq_t a(idx_t n)
     /* Initialise storage if this is the very first call.                     */
     if (size == 0) {
         cap = 16;
-        seq = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, NULL, cap);
         if (!seq) abort();          /* allocation failure  */
         seq[0] = (seq_t)1;          /* a(1) = 1              */
         size = 1;
@@ -125,7 +139,7 @@ seq_t a(idx_t n)
         /* Append the chosen candidate to the sequence.                       */
         if (size + 1 > cap) {
             cap = cap * 2;
-            seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, cap);
             if (!seq) abort();
         }
         seq[size] = cand;

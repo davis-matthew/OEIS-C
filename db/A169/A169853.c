@@ -11,7 +11,8 @@
  *            factors the previous term into its distinct prime...
  * Range:     u8 n <= 166, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9024 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------  static data  ---------------------------------------- */
 
@@ -70,7 +72,7 @@ static void ensure_seq_cap(size_t need)
     while (new_cap < need)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) abort();
     seq = tmp;
     seq_cap = new_cap;
@@ -136,7 +138,7 @@ static void init_sequence(void)
     used_cap = 1024;
 
     /* set up sequence array */
-    seq = (seq_t *)malloc(64 * sizeof(seq_t));
+    seq = mem_new(seq_t, 64);
     seq_cap = 64;
     seq_len = 0;
 

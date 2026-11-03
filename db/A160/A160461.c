@@ -12,13 +12,15 @@
  *            part size m, if m is a multiple of 5 it is proces...
  * Range:     u8 n <= 8, u16 n <= 23, u32 n <= 70, u64 n <= 230, u128 n <= 808,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 834 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         /* Allocate space for new terms. */
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         cache = new_cache;
         /* Initialise all entries to zero before recomputation. */
         for (size_t i = 0; i < new_size; ++i)

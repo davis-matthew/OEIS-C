@@ -10,13 +10,16 @@
  *            q is the smallest prime factor of n
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 62, u64 n <= 122,
  *            u128 n <= 242, big any n
- * Helpers:   _smallest_prime_factor, ipow_seq_t
+ * Validated: standard, pass, 61 terms through n = 1634 (2026-11-01)
+ * Helpers:   ipow_idx, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/ipow_seq_t.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -27,16 +30,16 @@ seq_t a(idx_t n)
 
     /* Find smallest prime factor q of n.  The helper works on uint64_t;
        n is guaranteed to fit into that type (n >= 1). */
-    uint64_t q64 = _smallest_prime_factor((uint64_t)n);
+    uint64_t q64 = smallest_prime_factor((uint64_t)n);
     idx_t q = (idx_t)q64;          /* Convert to idx_t for exponent argument. */
 
     /* If 3 divides n, use the special formula. */
     if ((n % (idx_t)3) == (idx_t)0) {
         idx_t exp = n / (idx_t)3;
-        return ipow_seq_t((seq_t)3, exp);
+        return ipow_idx((seq_t)3, exp);
     }
 
     /* Otherwise use q^(n/q).  Here n/q >= 1 because q <= n. */
     idx_t exp = n / q;
-    return ipow_seq_t((seq_t)q, exp);
+    return ipow_idx((seq_t)q, exp);
 }

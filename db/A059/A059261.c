@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = x(n) + y(n) where (x(n), y(n)) is the coordinates of *
  *            index n in the Hilbert curve of order ⌈log2 √(n+1)⌉
- * Range:     u8 n <= 9708, u16 n <= 9708, u32 n <= 9708, u64 n <= 9708,
- *            u128 n <= 9708, big any n
+ * Range:     u8 n <= 21845, u16 n <= 65535, u32 n <= 65535, u64 n <= 65535,
+ *            u128 n <= 65535, big any n
+ * Validated: standard, pass, 102 terms through n = 9708 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

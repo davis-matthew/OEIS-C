@@ -8,6 +8,7 @@
  *            a(2*k) = k*(k-1)*(32*k-1)/6 a(2*k+1) = 2*k*(2*k+1)*(4*k+1)/3
  * Range:     u8 n <= 8, u16 n <= 46, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

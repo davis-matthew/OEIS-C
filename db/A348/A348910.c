@@ -10,8 +10,9 @@
  * Formula:   a(n) = Σ_{k} ((d_k==1)?1:((d_k==3)?-1:0)) * (-2)^k , * where d_k
  *            are the base‑4 digits of n. This is the required * “real” part
  *            of the Eisenstein‑integer mapping
- * Range:     i8 n <= 9269, i16 n <= 9269, i32 n <= 9269, i64 n <= 9269,
- *            i128 n <= 9269, big any n
+ * Range:     i8 n <= 16383, i16 n <= 16383, i32 n <= 16383, i64 n <= 16383,
+ *            i128 n <= 16383, big any n
+ * Validated: standard, pass, 89 terms through n = 9269 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

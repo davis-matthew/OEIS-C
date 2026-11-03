@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = sum of base-3 digits of n minus the number of trailing
  *            2's in its base‑3 representation
- * Range:     u8 n <= 9841, u16 n <= 9841, u32 n <= 9841, u64 n <= 9841,
- *            u128 n <= 9841, big any n
+ * Range:     u8 n <= 59049, u16 n <= 59049, u32 n <= 59049, u64 n <= 59049,
+ *            u128 n <= 59049, big any n
+ * Validated: standard, pass, 122 terms through n = 9841 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

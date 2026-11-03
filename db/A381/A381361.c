@@ -13,14 +13,36 @@
  *            A(x)=∑a(n)xⁿ/n!. All arithmetic is exact on seq_t
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 32,
  *            big any n
- * Helpers:   add_signed_seq
+ * Validated: standard, pass, 39 terms through n = 488 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/add_signed_seq.h"
+#include "../utils/mem.h"
+
+/* Helper: signed addition of two positive integers with signs. */
+static void add_signed_seq(seq_t *sumMag, bool *sumSign,
+                           seq_t termMag, bool termNeg)
+{
+    if (*sumMag == termMag) {
+        *sumMag = 0;
+        *sumSign = false;        /* zero is non‑negative */
+        return;
+    }
+    if (*sumSign == termNeg) {   /* same sign → add magnitudes */
+        *sumMag += termMag;
+    } else {                     /* different signs → subtract */
+        if (*sumMag > termMag) {
+            *sumMag -= termMag;   /* keep existing sign */
+        } else {
+            *sumMag = termMag - *sumMag;
+            *sumSign = termNeg;
+        }
+    }
+}
 
 /* The sequence function. */
 seq_t a(idx_t n)
@@ -29,9 +51,9 @@ seq_t a(idx_t n)
     if (n == 0) return 1;
 
     /* allocate required storage (indices 0 … n) */
-    seq_t *a_arr  = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    seq_t *C_arr  = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    seq_t *magH   = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *a_arr  = mem_new(seq_t, n + 1);
+    seq_t *C_arr  = mem_new(seq_t, n + 1);
+    seq_t *magH   = mem_new(seq_t, n + 1);
     bool  *negH   = (bool  *)calloc(n + 1, sizeof(bool ));
     if (!a_arr || !C_arr || !magH || !negH) {
         /* allocation failure – return 0 as a safe value */
@@ -106,9 +128,9 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_arr[n];
-    free(a_arr);
-    free(C_arr);
-    free(magH);
+    mem_free(a_arr);
+    mem_free(C_arr);
+    mem_free(magH);
     free(negH);
     return result;
 }

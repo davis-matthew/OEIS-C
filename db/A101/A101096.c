@@ -8,6 +8,7 @@
  *            >= 3 Equivalently: a(n) = 60*(n-1)^2 - 60*(n-1) + 30 (n >= 3)
  * Range:     u8 n <= 3, u16 n <= 34, u32 n <= 8462, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 56 terms through n = 9527 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            sequence (1, 2, 3, 5, 7, 11, …)
  * Range:     u8 n <= 11, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* convolution result */
 static seq_t *p_cache = NULL;   /* p_i = {1, primes} */
@@ -71,9 +73,9 @@ seq_t a(idx_t n)
         size_t sz = (size_t)new_max + 1;
 
         /* Allocate new arrays */
-        seq_t *new_a = (seq_t*)calloc(sz, sizeof(seq_t));
-        seq_t *new_p = (seq_t*)calloc(sz, sizeof(seq_t));
-        seq_t *new_w = (seq_t*)calloc(sz, sizeof(seq_t));
+        seq_t *new_a = mem_new(seq_t, sz);
+        seq_t *new_p = mem_new(seq_t, sz);
+        seq_t *new_w = mem_new(seq_t, sz);
 
         /* --- Build weight array w_i = 1 + popcount(i) mod 2 (values 1 or 2) --- */
         for (size_t i = 0; i < sz; ++i)
@@ -88,11 +90,11 @@ seq_t a(idx_t n)
         if (primes_needed > 0)
         {
             /* primes_temp will hold the needed primes */
-            seq_t *primes_temp = (seq_t*)malloc(primes_needed * sizeof(seq_t));
+            seq_t *primes_temp = mem_new(seq_t, primes_needed);
             build_primes(primes_needed, primes_temp);
             for (size_t i = 0; i < primes_needed; ++i)
                 new_p[i + 1] = primes_temp[i];
-            free(primes_temp);
+            mem_free(primes_temp);
         }
 
         /* --- Convolution: a(i + j) += w[i] * p[j] --- */
@@ -109,9 +111,9 @@ seq_t a(idx_t n)
         /* Free old arrays if any */
         if (initialized)
         {
-            free(a_cache);
-            free(p_cache);
-            free(w_cache);
+            mem_free(a_cache);
+            mem_free(p_cache);
+            mem_free(w_cache);
         }
 
         /* Store new arrays */

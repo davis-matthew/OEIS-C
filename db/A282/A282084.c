@@ -10,6 +10,7 @@
  *            ((n^2+3*n) mod 4)*(2*n^3+27*n^2+112*n)/768)
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 61, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 50 terms through n = 978 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

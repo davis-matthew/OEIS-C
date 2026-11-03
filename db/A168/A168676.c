@@ -12,15 +12,16 @@
  *            (0 ≤ j < m). This is the signed coefficient of x^j in the
  *            characteristic polynomial of M_{m-1}. This formula reproduces
  *            the OEIS sequence A168676 for all n ≥ 0
- * Range:     i8 n <= 48, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
+ * Range:     i8 n <= 65, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Compute a(n) */
 seq_t a(idx_t n)
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
 
     /* j >= 1 : use binomial coefficient */
     idx_t k = j - 1;                   /* k is 0-based */
-    seq_t bin = binom(m - 2, k);       /* C(m-2, j-1) */
+    seq_t bin = binomial(m - 2, k);       /* C(m-2, j-1) */
 
     if (j & 1)                         /* odd j → sign negative */
         return -bin;

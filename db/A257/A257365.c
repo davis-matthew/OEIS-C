@@ -7,14 +7,16 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = sum_{m=0}^{(r-k)/2} binomial(k,m)*binomial(r-2m,k), where
  *            r = floor((sqrt(8n+1)-1)/2) and k = n - r(r+1)/2
- * Range:     u8 n <= 39, u16 n <= 158, u32 n <= 508, u64 n <= 1853,
+ * Range:     u8 n <= 48, u16 n <= 158, u32 n <= 508, u64 n <= 1853,
  *            u128 n <= 6835, big any n
+ * Validated: standard, pass, 82 terms through n = 9809 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t triangle_val(idx_t r, idx_t k)

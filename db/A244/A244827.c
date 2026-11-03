@@ -12,7 +12,8 @@
  *            uniform {0,1,2,3} distribution
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   bound_ok
+ * Validated: standard, pass, 39 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/bound_ok.h"
+#include "../utils/mem.h"
+
+/* local helper: return true if the bound holds for a given sum and prefix length k */
+static inline int bound_ok(idx_t sum, idx_t k)
+{
+    long long diff = (long long)sum * 2 - (long long)3 * (long long)k;
+    long long lhs  = diff * diff;
+    long long rhs  = 20LL * (long long)k;
+    return lhs <= rhs;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,8 +42,8 @@ seq_t a(idx_t n)
     size_t arraySize = maxSum + 1;
 
     /* allocate two working arrays, zeroed */
-    seq_t *dp   = (seq_t *)calloc(arraySize, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(arraySize, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, arraySize);
+    seq_t *next = mem_new(seq_t, arraySize);
     if (!dp || !next)
         abort();                     /* allocation failure */
 
@@ -49,7 +59,7 @@ seq_t a(idx_t n)
     {
         size_t limit = (size_t)3 * (size_t)k;      /* sums up to 3k */
         /* reset next array up to new limit */
-        memset(next, 0, (limit + 1) * sizeof(seq_t));
+        mem_set(next, 0, (limit + 1) * sizeof(seq_t));
 
         for (size_t s = 0; s <= limit; ++s)
         {
@@ -75,8 +85,8 @@ seq_t a(idx_t n)
         ans += dp[s];
 
     /* free memory */
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
 
     return ans;
 }

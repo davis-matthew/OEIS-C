@@ -11,13 +11,17 @@
  *            let k = ⌊log₂(n+2)⌋ – 1 a(n) = 2^(2^k) – 1
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 126,
  *            big any n
- * Helpers:   big_pow, floor_log2_uint64
+ * Validated: standard, pass, 54 terms through n = 123 (2026-11-01)
+ * Helpers:   ilog2, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
-#include "../utils/floor_log2_uint64.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,15 +31,15 @@ seq_t a(idx_t n)
     if (n & 1UL)                 /* odd n (≥3) */
     {
         seq_t exp = (seq_t)(n + 1);
-        seq_t val = big_pow((seq_t)2, exp);
+        seq_t val = ipow((seq_t)2, exp);
         return val - (seq_t)2;
     }
     else                         /* even n (≥2) */
     {
-        idx_t m = floor_log2_uint64(n + 2);
+        idx_t m = ilog2(n + 2);
         idx_t k = m - 1;        /* k ≥ 1 */
         seq_t exp = (seq_t)1 << k;     /* exp = 2^k   */
-        seq_t val = big_pow((seq_t)2, exp);  /* 2^(2^k) */
+        seq_t val = ipow((seq_t)2, exp);  /* 2^(2^k) */
         return val - (seq_t)1;
     }
 }

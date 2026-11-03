@@ -14,7 +14,8 @@
  *            so a search with memoisation * is performed. The rout...
  * Range:     u8 n <= 5, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*--- static storage for cached h(k) values ---------------------------------*/
 static seq_t *h_cache = NULL;      /* index 0 unused */
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t up_to) {
     if ((size_t)up_to < cache_size) return;
     size_t new_size = cache_size > 0 ? cache_size : 1024;
     while (new_size <= (size_t)up_to) new_size <<= 1;
-    seq_t *new_ptr = (seq_t *)realloc(h_cache, new_size * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, h_cache, new_size);
     if (!new_ptr) abort();
     for (size_t i = cache_size; i < new_size; ++i) new_ptr[i] = 0;
     h_cache = new_ptr;
@@ -101,7 +103,7 @@ static seq_t get_len(idx_t n) {
 static void append_seq(seq_t v) {
     if (list_len == list_cap) {
         size_t new_cap = list_cap ? list_cap << 1 : 4;
-        seq_t *new_arr = (seq_t *)realloc(seq_list, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, seq_list, new_cap);
         if (!new_arr) abort();
         seq_list = new_arr;
         list_cap = new_cap;

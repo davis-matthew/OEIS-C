@@ -8,6 +8,7 @@
  *            (2*n+1)*(9664*n^6+28992*n^5+37360*n^4+26400*n^3+10936*n^2+2568*n+315)/315
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 12, u64 n <= 313,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 40 terms through n = 9488 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

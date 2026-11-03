@@ -9,12 +9,14 @@
  * Formula:   a(n) = ∑_{m=0}^{⌊n/2⌋} binom(n - m, m) * binom(n + m, m)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -22,8 +24,8 @@ seq_t a(idx_t n)
     idx_t limit = n / 2;
     seq_t sum = 0;
     for (idx_t m = 0; m <= limit; ++m) {
-        seq_t b1 = binom(n - m, m);   /* binom(n - m, m) */
-        seq_t b2 = binom(n + m, m);   /* binom(n + m, m) */
+        seq_t b1 = binomial(n - m, m);   /* binom(n - m, m) */
+        seq_t b2 = binomial(n + m, m);   /* binom(n + m, m) */
         sum += b1 * b2;
     }
     return sum;

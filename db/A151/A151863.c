@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
        a(n)=2*a(j)+a(j+1) (+1 if j=2^i‑1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of computed values          */
 static size_t cache_cap = 0;     /* allocated size of cache           */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
 {
     size_t required = (size_t)n + 1;
     if (cache_cap >= required) return;
-    seq_t *new_cache = (seq_t *)realloc(cache, required * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, required);
     if (!new_cache) exit(1);
     cache = new_cache;
     cache_cap = required;

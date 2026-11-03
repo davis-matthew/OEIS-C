@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- local helpers ---------- */
 static uint64_t isqrt_u64(uint64_t n)
@@ -77,7 +79,7 @@ static void ensure_capacity(size_t needed)
     if (cap >= needed) return;
     size_t newcap = cap ? cap * 2 : 16;
     if (newcap < needed) newcap = needed;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp) abort();  /* allocation failure */
     cache = tmp;
     cap = newcap;

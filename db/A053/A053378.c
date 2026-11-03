@@ -12,7 +12,8 @@
  *            static array so that calls in any order are O(1)...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   alloc_seq_array, div_by_pow2, free_seq_array
+ * Validated: standard, pass, 34 terms through n = 897 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,26 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/div_by_pow2.h"     /* int div_by_pow2(seq_t x, idx_t k) */
-#include "../utils/alloc_seq_array.h"/* seq_t *alloc_seq_array(size_t n) */
-#include "../utils/free_seq_array.h"  /* void free_seq_array(seq_t *p) */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Helper to divide a seq_t by 2^k (k <= 64). */
+static seq_t div_by_pow2(seq_t x, idx_t k) {
+    seq_t res = x;
+    while (k--) res /= (seq_t)2;
+    return res;
+}
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Keep a cache of computed terms and the current power of 10 value */
 static seq_t *cache = NULL;     /* array of a(i), zero‑based */
@@ -41,7 +59,7 @@ static void grow_cache(idx_t n)
 
     seq_t *new_tbl = alloc_seq_array(new_cap);
     if (cache) {
-        memcpy(new_tbl, cache, cache_size * sizeof(seq_t));
+        mem_copy(new_tbl, cache, cache_size * sizeof(seq_t));
         free_seq_array(cache);
     }
     cache      = new_tbl;

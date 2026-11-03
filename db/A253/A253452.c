@@ -12,7 +12,8 @@
  *            are computed by exhaustive search
  * Range:     u8 none, u16 n <= 6, u32 n <= 17, u64 n <= 37, u128 n <= 78,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 39 terms through n = 208 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 /* ------------------------------------------------------------------ */
 #include <stdbool.h>
 #include <stddef.h>                 /* for NULL */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 #define NUM_ROWS          5            /* length of each row */
 #define ROWS_TABLE_SIZE  243           /* 3^5 possible rows */
@@ -129,8 +131,8 @@ seq_t a(idx_t n)
         return brute_small(n);
 
     /* Closed form for n > 6 */
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)(n - 3));
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)(n - 1));
+    seq_t pow3 = ipow((seq_t)3, (seq_t)(n - 3));
+    seq_t pow2 = ipow((seq_t)2, (seq_t)(n - 1));
     seq_t result = (seq_t)529 * pow3 + (seq_t)1039 * pow2 + (seq_t)5372;
     return result;
 }

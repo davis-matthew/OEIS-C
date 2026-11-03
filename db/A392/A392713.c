@@ -11,8 +11,9 @@
  *            positions of 1-bits in the reversed binary * expansion of n,
  *            prepending 0, taking first differences, * and reversing. The
  *            first part (after the leading 0) * corresponds...
- * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
- *            i128 n <= 10000, big any n
+ * Range:     i8 n <= 76, i16 n <= 76, i32 n <= 76, i64 n <= 76, i128 n <= 76,
+ *            big any n
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

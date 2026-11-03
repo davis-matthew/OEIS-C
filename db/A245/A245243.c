@@ -7,13 +7,15 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = C(r^2 - k^2, r*k - k^2) * where r =
  *            floor((sqrt(8n+1)-1)/2) * and k = n - r*(r+1)/2
- * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 29, u64 n <= 57, u128 n <= 108,
+ * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 30, u64 n <= 57, u128 n <= 108,
  *            big any n
+ * Validated: standard, pass, 61 terms through n = 413 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Integer square root for idx_t (floor of sqrt). */

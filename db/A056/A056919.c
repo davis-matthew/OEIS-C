@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) - floor(n/2)*a(n-2), with a(0)=0, a(1)=1
  * Range:     i8 n <= 10, i16 n <= 17, i32 n <= 26, i64 n <= 33, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached sequence values */
 static idx_t  cache_len = 0;  /* number of elements currently stored (last index + 1) */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
         /* first call – allocate space for at least n+1 elements, but also for a(0) and a(1) */
         idx_t init_size = n + 1;
         if (init_size < 2) init_size = 2;
-        cache = (seq_t *)malloc(init_size * sizeof(seq_t));
+        cache = mem_new(seq_t, init_size);
         if (cache == NULL) return 0;          /* fallback – out of memory */
 
         cache[0] = (seq_t)0;
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     } else if (n >= cache_len) {
         /* grow cache to hold up to n */
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) return 0;  /* fallback – out of memory */
         cache = tmp;
         cache_len = new_size;

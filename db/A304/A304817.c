@@ -8,15 +8,42 @@
  *            a perfect power (i.e., not of the form x^k with x>1 and k>1)
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   compare_pow, isPerfectPower
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/compare_pow.h"
-#include "../utils/isPerfectPower.h"
+
+static int compare_pow(uint64_t base, int exp, uint64_t target)
+{
+    __int128 prod = 1;
+    for (int i = 0; i < exp; ++i) {
+        prod *= base;
+        if (prod > target) return 1;
+    }
+    if (prod == target) return 0;
+    return -1;
+}
+
+static int isPerfectPower(uint64_t x)
+{
+    if (x <= 1) return 0;                 /* 1 is not considered a perfect power */
+    for (int k = 2; ( (1ULL << k) <= x || k < 64 ); ++k) {
+        if ((1ULL << k) > x && k > 63) break;
+        uint64_t low = 2, high = x;
+        while (low <= high) {
+            uint64_t mid = low + ((high - low) >> 1);
+            int cmp = compare_pow(mid, k, x);
+            if (cmp == 0) return 1;      /* found perfect power */
+            else if (cmp < 0) low = mid + 1;
+            else high = mid - 1;
+        }
+    }
+    return 0;
+}
 
 static void count_rec(const uint64_t *pr, const uint64_t *ex, size_t nPr,
                       size_t idx, uint64_t curr, seq_t *cnt)

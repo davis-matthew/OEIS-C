@@ -9,20 +9,23 @@
  *            rows)
  * Range:     u8 n <= 11, u16 n <= 30, u32 n <= 95, u64 n <= 309,
  *            u128 n <= 1056, big any n
- * Helpers:   binomial, isqrt_u128_uint64
+ * Validated: standard, pass, 71 terms through n = 9418 (2026-11-01)
+ * Helpers:   binomial, isqrt_u128_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"
 #include <stdint.h>
-#include "../utils/isqrt_u128_uint64.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/isqrt_u128_to_idx.h"
+#include <stdint.h>
 
 seq_t a(idx_t n)
 {
     /* Find the row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2  */
     unsigned __int128 xx = (unsigned __int128)8 * n + 1;
-    idx_t r = (isqrt_u128_uint64(xx) - 1) >> 1;
+    idx_t r = (isqrt_u128_to_idx(xx) - 1) >> 1;
 
     /* Offset where this row starts (number of elements before row r) */
     idx_t start = r * (r + 1) / 2;

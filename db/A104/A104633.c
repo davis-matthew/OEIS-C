@@ -7,8 +7,9 @@
  * Formula:   a(n) = T(r,k) where r = row such that T(r,1)...T(r,r) are the
  *            nth terms of the triangle; k = n - r(r-1)/2. T(r,k) =
  *            k*(k-r-1)*(k-r-2)/2
- * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
- *            big any n
+ * Range:     u8 n <= 94, u16 n <= 4492, u32 n <= 5050, u64 n <= 5050,
+ *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 74 terms through n = 4604 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

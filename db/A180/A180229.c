@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, tabl
  * Formula:   not stated
- * Range:     i8 n <= 1701, i16 n <= 9912, i32 n <= 9912, i64 n <= 9912,
- *            i128 n <= 9912, big any n
- * Helpers:   gcd, steps_strategy
+ * Range:     i8 n <= 1701, i16 n <= 10011, i32 n <= 10011, i64 n <= 10011,
+ *            i128 n <= 10011, big any n
+ * Validated: standard, pass, 82 terms through n = 9912 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,62 @@
    jug algorithms (pouring from A→B or B→A) and returns the smallest
    number of steps, or -1 if it is impossible. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/steps_strategy.h"
+
+static seq_t steps_strategy(idx_t cap_a, idx_t cap_b, int from_large, seq_t target)
+{
+    seq_t a = 0, b = 0, steps = 0;
+    seq_t cap_a_s = (seq_t)cap_a;
+    seq_t cap_b_s = (seq_t)cap_b;
+
+    while (a != target)
+    {
+        if (from_large) /* start with pouring from small to large (B→A) */
+        {
+            if (b == 0)
+            {
+                b = cap_b_s;
+                steps++;
+            }
+            else if (a == cap_a_s)
+            {
+                a = 0;
+                steps++;
+            }
+            else
+            {
+                seq_t transfer = cap_a_s - a;
+                if (transfer > b) transfer = b;
+                a += transfer;
+                b -= transfer;
+                steps++;
+            }
+        }
+        else /* start with pouring from large to small (A→B) */
+        {
+            if (a == 0)
+            {
+                a = cap_a_s;
+                steps++;
+            }
+            else if (b == cap_b_s)
+            {
+                b = 0;
+                steps++;
+            }
+            else
+            {
+                seq_t transfer = cap_b_s - b;
+                if (transfer > a) transfer = a;
+                a -= transfer;
+                b += transfer;
+                steps++;
+            }
+        }
+    }
+    return steps;
+}
 
 seq_t a(idx_t n)
 {

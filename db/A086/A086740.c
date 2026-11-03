@@ -7,13 +7,15 @@
  * Formula:   a(n) = floor(A000041(n)/n) (partition number divided by n)
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>          /* for NULL */
 #include <stdlib.h>          /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 static seq_t *p_cache = NULL;   /* Cache of partition numbers p(0..max_n_computed) */
 static idx_t max_n_computed = 0;/* Highest n for which p_cache[n] is known */
@@ -24,7 +26,7 @@ static void ensure_cache(idx_t n)
     if (n <= max_n_computed) return;                    /* already large enough */
 
     idx_t new_size = n + 1;                             /* indices 0..n inclusive */
-    seq_t *tmp = (seq_t *)realloc(p_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, p_cache, new_size);
     if (!tmp) return;                                  /* out‑of‑memory, ignore */
 
     p_cache = tmp;

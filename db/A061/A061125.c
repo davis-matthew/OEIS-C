@@ -11,13 +11,15 @@
  *            lengths for the four sets are 2, 4, 6 and 12 respecti...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *f12    = NULL;
 static seq_t *f124   = NULL;
@@ -31,10 +33,10 @@ static void ensure(idx_t upTo)
 
     const size_t newSize = (size_t)upTo + 1;
 
-    seq_t *tmp12   = (seq_t*)realloc(f12,    newSize * sizeof(seq_t));
-    seq_t *tmp124  = (seq_t*)realloc(f124,   newSize * sizeof(seq_t));
-    seq_t *tmp1236 = (seq_t*)realloc(f1236,  newSize * sizeof(seq_t));
-    seq_t *tmpAll  = (seq_t*)realloc(fAll,   newSize * sizeof(seq_t));
+    seq_t *tmp12   = mem_resize(seq_t, f12, newSize);
+    seq_t *tmp124  = mem_resize(seq_t, f124, newSize);
+    seq_t *tmp1236 = mem_resize(seq_t, f1236, newSize);
+    seq_t *tmpAll  = mem_resize(seq_t, fAll, newSize);
     f12   = tmp12;
     f124  = tmp124;
     f1236 = tmp1236;

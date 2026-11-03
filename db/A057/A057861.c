@@ -7,11 +7,13 @@
  * Formula:   a(n) = floor(2^n / Fibonacci(n)) (offset 1)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 49, u128 n <= 49,
  *            big any n
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
  * Helpers:   fib_pair, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/fib_pair.h"
 #include "../utils/pow2.h"
 

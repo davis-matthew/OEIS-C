@@ -11,13 +11,15 @@
  *            index. * * The implementation keeps a dynami...
  * Range:     u8 n <= 58, u16 n <= 9059, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9055 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- helpers ---------- */
 
@@ -78,7 +80,7 @@ static void generate_cache(size_t wanted)
                 ++new_len;
 
         if (new_len >= wanted) {                  /* enough terms – keep them */
-            seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, new_len);
             if (!new_cache) {                      /* allocation failure */
                 free(present);
                 return;
@@ -91,7 +93,7 @@ static void generate_cache(size_t wanted)
                 }
 
             free(present);
-            free(cache);                            /* free old cache */
+            mem_free(cache);                            /* free old cache */
             cache = new_cache;
             cache_len = new_len;
             return;

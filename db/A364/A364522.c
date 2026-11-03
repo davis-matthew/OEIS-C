@@ -6,13 +6,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..floor(n/5)} binomial(n,5*k) * binomial(5*k,k) /
  *            (4*k+1)
- * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 28, u64 n <= 52, u128 n <= 98,
+ * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 28, u64 n <= 52, u128 n <= 98,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 990 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

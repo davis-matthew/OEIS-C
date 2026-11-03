@@ -12,9 +12,10 @@
  *            number-of-divisors function else let u be the smallest unstarred
  *            prior term (among a(1)...a(n-2)), star u (so it cannot be used
  *            again), a(n) = a(n-1) + d(u)
- * Range:     u8 n <= 5280, u16 n <= 9536, u32 n <= 9536, u64 n <= 9536,
- *            u128 n <= 9536, big any n
- * Helpers:   divisor_count_seq
+ * Range:     u8 n <= 5280, u16 n <= 40000, u32 n <= 40000, u64 n <= 40000,
+ *            u128 n <= 40000, big any n
+ * Validated: standard, pass, 88 terms through n = 9536 (2026-11-01)
+ * Helpers:   num_divisors_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/divisor_count_seq.h"
+#include "../utils/num_divisors_seq.h"
 
 /* --------------------------------------------------------------------- */
 
@@ -77,7 +78,7 @@ seq_t a(idx_t n)
 
         if (novel)                                 /* novel term */
         {
-            seq[i] = divisor_count_seq(prev);
+            seq[i] = num_divisors_seq(prev);
         }
         else                                       /* repeated term */
         {
@@ -100,7 +101,7 @@ seq_t a(idx_t n)
             }
             /* Mark that term as used */
             starred[best_idx] = true;
-            seq[i] = prev + divisor_count_seq(best_val);
+            seq[i] = prev + num_divisors_seq(best_val);
         }
 
         /* New term starts unstarred */

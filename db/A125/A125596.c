@@ -8,7 +8,8 @@
  *            2)
  * Range:     u8 n <= 24, u16 n <= 45, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Return a(n) for the OEIS sequence A125596. */
 seq_t a(idx_t n)
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Allocate initial cache if necessary */
     if (!cache) {
-        cache = (seq_t *)calloc(2, sizeof(seq_t));   /* allocate space for indices 0 and 1 */
+        cache = mem_new(seq_t, 2);   /* allocate space for indices 0 and 1 */
         if (!cache) return 0;                       /* allocation failure: return 0 as safe fallback */
         cache[1] = (seq_t)1;                        /* a(1) = 1 */
         max_cached = 1;
@@ -39,13 +41,13 @@ seq_t a(idx_t n)
 
     /* Grow the cache to accommodate n */
     idx_t new_size = n + 1;                         /* indices 0..n inclusive */
-    seq_t *new_cache = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache) return 0;                       /* allocation failure */
     /* copy previous values */
     for (idx_t i = 1; i <= max_cached; ++i) {
         new_cache[i] = cache[i];
     }
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
 
     /* Compute a(m) for all m in (max_cached, n] */

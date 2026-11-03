@@ -12,7 +12,8 @@
  *            smallest primes
  * Range:     u8 n <= 19, u16 n <= 383, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint, seq_mul
+ * Validated: standard, pass, 93 terms through n = 9801 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
-#include "../utils/pow_uint.h"
+#include <string.h>
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* ------------------------------------------------------------------
  * Prime generation ---------------------------------------------------
@@ -148,7 +154,7 @@ seq_t a(idx_t n)
     /* compute the minimal number with this signature */
     seq_t result = (seq_t)1;
     for (size_t i = 0; i < cnt_combined; ++i) {
-        seq_t term = pow_uint((uint64_t)primes_arr[i], (idx_t)exps_combined[i]);
+        seq_t term = ipow_u64_idx((uint64_t)primes_arr[i], (idx_t)exps_combined[i]);
         result = seq_mul(result, term);
     }
 

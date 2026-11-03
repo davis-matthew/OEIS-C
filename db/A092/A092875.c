@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*--- Global cache for the sequence (1‑indexed) --------------------------------*/
 static seq_t *seq_vals = NULL;      /* a[idx_t] values, 1-indexed */
@@ -38,7 +40,7 @@ static void ensure_seq_capacity(idx_t needed) {
     if (seq_cap <= (size_t)needed) {      /* need at least needed+1 slots */
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
         while (new_cap <= (size_t)needed) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
         if (!tmp) abort();
         seq_vals = tmp;
         seq_cap  = new_cap;

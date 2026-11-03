@@ -9,15 +9,30 @@
  *            forming a single path through all 4n cells
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 41, u128 n <= 87,
  *            big any n
- * Helpers:   gp, grow_zero, sp
+ * Validated: standard, pass, 43 terms through n = 949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/grow_zero.h"
-#include "../utils/gp.h"
-#include "../utils/sp.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static int gp(int s, int i) { return (s >> (2 * i)) & 3; }
+
+static int sp(int s, int i, int v) { return (s & ~(3 << (2 * i))) | (v << (2 * i)); }
 
 #define WW 4
 #define NST 4096

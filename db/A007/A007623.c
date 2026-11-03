@@ -7,8 +7,9 @@
  * Formula:   Convert n to factorial base (d_i where n = sum_{i>=1} d_i*i!, 0
  *            <= d_i <= i), then concatenate digits d_1, d_2, ... to form the
  *            result
- * Range:     u8 n <= 17, u16 n <= 719, u32 n <= 9920, u64 n <= 9920,
- *            u128 n <= 9920, big any n
+ * Range:     u8 n <= 17, u16 n <= 719, u32 n <= 40320, u64 n <= 40320,
+ *            u128 n <= 40320, big any n
+ * Validated: standard, pass, 67 terms through n = 9920 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

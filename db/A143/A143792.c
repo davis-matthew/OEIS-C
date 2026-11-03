@@ -10,7 +10,8 @@
  *            binary(p) occurs as a substring in binary(n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   uint64_to_bin
+ * Validated: standard, pass, 121 terms through n = 8405 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,27 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/uint64_to_bin.h"
+
+/* Convert unsigned 64‑bit integer to binary string (null terminated).
+   The result fits in buffer[65]. */
+static void uint64_to_bin(uint64_t x, char *buf)
+{
+    int pos = 0;
+    if (x == 0) {
+        buf[pos++] = '0';
+    } else {
+        char tmp[64];
+        int tpos = 0;
+        while (x) {
+            tmp[tpos++] = '0' + (x & 1ULL);
+            x >>= 1;
+        }
+        /* reverse */
+        while (tpos--)
+            buf[pos++] = tmp[tpos];
+    }
+    buf[pos] = '\0';
+}
 
 static bool contains_substring(const char *big, const char *small)
 {

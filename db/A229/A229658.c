@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 86, i16 n <= 1182, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 8927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Binomial coefficients C(k,j) for k, j ≤ 7 */
 static const unsigned char comb[8][8] = {
@@ -42,7 +44,7 @@ static size_t cache_cap = 0; /* number of terms stored */
 /* Initialise cache with the first 8 values */
 static void init_cache(void) {
     cache_cap = 8;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     for (idx_t i = 0; i < 7; ++i)
         cache[i] = 0;
     cache[7] = 1;
@@ -61,7 +63,7 @@ static void ensure_cache(idx_t n) {
         size_t old_blocks  = cache_cap / 8;
         size_t new_blocks  = target / 8;
 
-        cache = (seq_t *)realloc(cache, target * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, target);
 
         /* Compute new blocks, starting after the last processed block */
         for (size_t block = old_blocks; block < new_blocks; ++block) {

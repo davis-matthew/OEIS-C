@@ -11,15 +11,16 @@
  *            d*s_d. Computed as (Sum_{cycle types} classsize * fixA) / n!
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   a1425_gcd, a1425_pw
+ * Validated: standard, pass, 28 terms through n = 35 (2026-11-01)
+ * Helpers:   gcd_u64, ipow_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a1425_gcd.h"
-#include "../utils/a1425_pw.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ipow_u64.h"
 
 static idx_t a1425_parts[128];
 static idx_t a1425_cnt[128];
@@ -40,23 +41,23 @@ static seq_t a1425_term(idx_t n) {
         uint64_t e = (i % 2 == 1) ? (i * c * c + c) / 2 : i * c * c / 2;
         if (e > 0) {
             if (d == 0) return 0;
-            fix *= a1425_pw((seq_t)d, e);
+            fix *= ipow_u64((seq_t)d, e);
         }
         if (i % 2 == 0) {
             uint64_t d2 = a1425_D(i / 2);
             if (d2 == 0) return 0;
-            fix *= a1425_pw((seq_t)d2, c);
+            fix *= ipow_u64((seq_t)d2, c);
         }
     }
     for (int t = 0; t < a1425_k; t++) {
         for (int u = t + 1; u < a1425_k; u++) {
             uint64_t i = a1425_parts[t], j = a1425_parts[u];
-            uint64_t g = a1425_gcd(i, j);
+            uint64_t g = gcd_u64(i, j);
             uint64_t l = i / g * j;
             uint64_t d = a1425_D(l);
             uint64_t e = g * a1425_cnt[t] * a1425_cnt[u];
             if (d == 0) return 0;
-            fix *= a1425_pw((seq_t)d, e);
+            fix *= ipow_u64((seq_t)d, e);
         }
     }
     /* class size = n! / prod(i^s_i * s_i!) */

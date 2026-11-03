@@ -7,15 +7,18 @@
  * Formula:   a(n) = number of divisors of the sum of decimal digits of n
  * Range:     u8 n <= 815, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, divisor_count_u64
+ * Validated: standard, pass, 108 terms through n = 9559 (2026-11-01)
+ * Helpers:   digit_sum, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* (i.e., a(n) = divisor_count(sum_of_digits(n))) */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/digit_sum.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -25,5 +28,5 @@ seq_t a(idx_t n)
     /* Count the positive divisors of the digit sum.
        Since sum_digits fits in uint64_t for any 64‑bit n, we can cast to
        uint64_t without loss. */
-    return (seq_t)divisor_count_u64((uint64_t)sum_digits);
+    return (seq_t)num_divisors((uint64_t)sum_digits);
 }

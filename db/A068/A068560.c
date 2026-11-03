@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 33, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_N 2000000 /* safe upper bound for the search range */
 
@@ -71,7 +73,7 @@ static bool satisfies(uint32_t n) {
 /* Generate all terms up to MAX_N and store in seq_arr. */
 static void generate_sequence(void) {
     seq_cap = 64;
-    seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_arr = mem_new(seq_t, seq_cap);
     if (!seq_arr) return;
     seq_len = 0;
     /* ensure spf is built */
@@ -80,7 +82,7 @@ static void generate_sequence(void) {
         if (satisfies(i)) {
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+                seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
             }
             seq_arr[seq_len++] = (seq_t)i;
         }

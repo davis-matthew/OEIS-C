@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∑_{S⊆pairs} (-1)^|S| C_S(n)
  * Range:     u8 n <= 32, u16 n <= 212, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*   where pairs = {(1,2),(1,3),(1,4),(2,3),(2,4),(3,4)} and C_S(n) is  */
 /*   the number of solutions of Σ_i i·m_i = n with the equalities in S   */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
     /* Allocate DP array once, size n+1. */
     size_t dp_size = (size_t)(n) + 1;
-    seq_t *dp = (seq_t *)malloc(dp_size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp)
         return (seq_t)0;           /* allocation failure – unlikely in tests */
 
@@ -130,7 +132,7 @@ seq_t a(idx_t n)
             add += count;
     }
 
-    free(dp);
+    mem_free(dp);
     /* add ≥ sub for all n, so subtraction cannot underflow. */
     return add - sub;
 }

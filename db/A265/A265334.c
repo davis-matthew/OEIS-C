@@ -10,6 +10,7 @@
  *            ranges * [k!, 2*k!‑1] for k ≥ 1
  * Range:     u8 n <= 153, u16 n <= 5915, u32 n <= 5915, u64 n <= 5915,
  *            u128 n <= 5915, big any n
+ * Validated: standard, pass, 80 terms through n = 5045 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

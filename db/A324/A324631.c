@@ -9,7 +9,8 @@
  * Formula:   a(n) satisfies the linear recurrence
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 35, u64 n <= 71, u128 n <= 144,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 1734 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* coefficients 15, 1, –17, –23, –10 from the generating function.)       */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *table = NULL;     /* memoisation table */
 static idx_t table_size = 0;    /* current allocated size (>=1) */
@@ -27,7 +29,7 @@ static idx_t table_size = 0;    /* current allocated size (>=1) */
 static void init_table(void)
 {
     if (table == NULL) {
-        table = (seq_t *)malloc(9 * sizeof(seq_t)); /* indices 0..8 */
+        table = mem_new(seq_t, 9); /* indices 0..8 */
         table_size = 9;
         for (idx_t i = 0; i < 4; ++i) table[i] = 0;
         table[4] = (seq_t)15;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     if (n >= table_size) {          /* Need to enlarge and compute more terms */
         idx_t old_size = table_size;
         idx_t new_size = n + 1;     /* allocate up to n */
-        seq_t *tmp = (seq_t *)realloc(table, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, table, new_size);
         if (!tmp) return 0;        /* allocation failure → 0 (unlikely in tests) */
         table = tmp;
         /* Compute missing terms from old_size to n */

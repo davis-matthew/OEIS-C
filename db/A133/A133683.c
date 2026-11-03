@@ -8,7 +8,8 @@
  * Formula:   a(n) = a(n-3) + 2*a(n-5), a(1) … a(5) = 1
  * Range:     u8 n <= 24, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,14 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_seq_array.h" /* provides static seq_t *alloc_seq_array(size_t) */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *cache = NULL;   /* cache of computed terms, a(n) stored at cache[n-1] */
 static size_t cap = 0;        /* allocated array size */
@@ -29,8 +37,8 @@ static void ensure_capacity(size_t needed)
         return;
     seq_t *new_cache = alloc_seq_array(needed);
     if (cache) {
-        memcpy(new_cache, cache, sizeof(seq_t) * cached);
-        free(cache);
+        mem_copy(new_cache, cache, sizeof(seq_t) * cached);
+        mem_free(cache);
     }
     cache = new_cache;
     cap = needed;

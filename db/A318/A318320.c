@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, look
  * Formula:   a(n) = (psi(n) - phi(n))/2
- * Range:     u8 n <= 209, u16 n <= 9903, u32 n <= 9903, u64 n <= 9903,
- *            u128 n <= 9903, big any n
+ * Range:     u8 n <= 209, u16 n <= 46409, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 106 terms through n = 9903 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static seq_t pow_seq(seq_t base, idx_t exp)

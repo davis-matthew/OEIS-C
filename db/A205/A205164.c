@@ -10,12 +10,14 @@
  *            62*a(n-1) - 329*a(n-2) + 324*a(n-3) - 84*a(n-4) (n ≥ 5)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;          /* 1‑indexed memoisation array */
 static idx_t  memo_cap = 0;         /* maximum allocated index (inclusive)   */
@@ -31,7 +33,7 @@ static void ensure_memo(idx_t n)
     idx_t new_cap  = memo_cap ? memo_cap : 8;
     while (new_cap <= n) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t*)realloc(memo, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, memo, (new_cap + 1));
     if (!tmp) return;          /* allocation failure – caller will interpret as 0 */
     memo = tmp;
     memo_cap = new_cap;

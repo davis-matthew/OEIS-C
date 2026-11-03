@@ -10,14 +10,19 @@
  *            along antidiagonals downwards
  * Range:     u8 n <= 24, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   triangle_offset
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/triangle_offset.h"
+
+/* triangular offset: C(d) = (d+1)(d+2)/2  (start of antidiagonal d+1) */
+static inline idx_t triangle_offset(idx_t d) {
+    return (idx_t)(((__uint128_t)(d + 1) * (d + 2)) / 2);
+}
 
 seq_t a(idx_t n) {
     /* Find d such that C(d-1) <= n < C(d)  (minimal d with C(d) > n) */

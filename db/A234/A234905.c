@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 10, u64 n <= 22, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    graph (sum of all entries of the walk matrix A^n). */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static data used by the DP */
 #define N_STATE 56                 /* number of allowed (x,y) pairs with x!=y */
@@ -68,8 +70,8 @@ static void init_graph(void)
 
 static void init_dp(void)
 {
-    dp_curr = (seq_t *)calloc(N_STATE, sizeof(seq_t));
-    dp_next = (seq_t *)calloc(N_STATE, sizeof(seq_t));
+    dp_curr = mem_new(seq_t, N_STATE);
+    dp_next = mem_new(seq_t, N_STATE);
     for (int i = 0; i < N_STATE; ++i) {
         dp_curr[i] = (seq_t)1;          /* paths of length 0 end at every state */
     }
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
     /* extend cache if necessary */
     if (n > cache_len) {
         size_t new_len = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache_arr, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache_arr, new_len);
         cache_arr = tmp;
         /* compute values from current cache_len+1 up to n */
         for (idx_t k = cache_len + 1; k <= n; ++k) {

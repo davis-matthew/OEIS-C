@@ -9,13 +9,15 @@
  *            a(1)=1, a(2)=2, a(3)=3, a(4)=a(5)=4, a(6)=a(7)=6
  * Range:     u8 n <= 335, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 9048 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,9 +33,9 @@ seq_t a(idx_t n)
     size_t new_len = (size_t)n;
     seq_t *tmp;
     if (cache == NULL) {
-        tmp = (seq_t *)malloc(new_len * sizeof(seq_t));
+        tmp = mem_new(seq_t, new_len);
     } else {
-        tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        tmp = mem_resize(seq_t, cache, new_len);
     }
     if (!tmp) abort();
     cache = tmp;

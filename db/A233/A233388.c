@@ -11,13 +11,15 @@
  *            taking each consecutive pair, computing their su...
  * Range:     u8 n <= 21, u16 n <= 5461, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 8806 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: test whether x has an odd popcount (is odious). */
 static bool is_odious(seq_t x)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         odious_cap = 4;
-        odious = (seq_t *)malloc(odious_cap * sizeof(seq_t));
+        odious = mem_new(seq_t, odious_cap);
         odious_len = 0;
         last_candidate = 0;
         initialized = true;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             /* Grow the array if necessary. */
             if (odious_len >= odious_cap) {
                 odious_cap = odious_cap ? odious_cap * 2 : 4;
-                odious = (seq_t *)realloc(odious, odious_cap * sizeof(seq_t));
+                odious = mem_resize(seq_t, odious, odious_cap);
             }
             odious[odious_len++] = cand;
             last_candidate = cand;

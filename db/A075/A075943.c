@@ -11,13 +11,15 @@
  *            previously selected codeword
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (code_len == 0) {
         /* start with 0 as first codeword */
         code_cap = 4;
-        code = (seq_t *)realloc(NULL, code_cap * sizeof(seq_t));
+        code = mem_resize(seq_t, NULL, code_cap);
         code[0] = 0;
         code_len = 1;
         next_candidate = 1;   /* candidate numbers are tested in ascending order */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         if (ok) { /* accept candidate */
             if (code_len == code_cap) {
                 code_cap = code_cap ? code_cap * 2 : 4;
-                code = (seq_t *)realloc(code, code_cap * sizeof(seq_t));
+                code = mem_resize(seq_t, code, code_cap);
             }
             code[code_len++] = cand;
         }

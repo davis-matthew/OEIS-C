@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 596, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_counts
+ * Validated: standard, pass, 107 terms through n = 9330 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
           of the last decimal digit of a(n-1). */
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +38,7 @@ seq_t a(idx_t n)
     /* -- initialise first term ---------------------------------------- */
     if (!init) {
         /* allocate space for indices 0..1 (ignore 0) */
-        seq = (seq_t *)malloc(2 * sizeof(seq_t));
+        seq = mem_new(seq_t, 2);
         if (!seq) abort();
         seq[1] = (seq_t)1;
         cap = 1;
@@ -47,7 +51,7 @@ seq_t a(idx_t n)
     if ((size_t)n <= cap) return seq[(size_t)n];
 
     /* -- grow storage to hold terms up to n ---------------------------- */
-    seq_t *tmp = (seq_t *)realloc(seq, ((size_t)n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, ((size_t)n + 1));
     if (!tmp) abort();
     seq = tmp;
     size_t old_cap = cap;

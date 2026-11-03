@@ -8,8 +8,9 @@
  *            of odd divisors of n evenDiv(n) = number of even divisors of n
  *            This equals the number of unordered pairs of distinct divisors
  *            of n whose arithmetic mean is an integer
- * Range:     u8 n <= 719, u16 n <= 9981, u32 n <= 9981, u64 n <= 9981,
- *            u128 n <= 9981, big any n
+ * Range:     u8 n <= 719, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 96 terms through n = 9981 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

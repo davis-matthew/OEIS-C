@@ -11,14 +11,46 @@
  *            for fast repeated look‑ups
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has94
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has94.h"
+
+/* Check whether the decimal representation of x contains the substring 94.
+   The function works for any integral seq_t (including big integer types),
+   using only division, multiplication and subtraction. */
+static bool has94(seq_t x)
+{
+    /* Compute number of decimal digits */
+    int len = 0;
+    seq_t tmp = x;
+    if (tmp == 0) len = 1;
+    else
+        while (tmp > 0) {
+            len++;
+            tmp /= 10;
+        }
+
+    if (len < 2) return false;
+
+    /* Compute 10^(len-1) as power */
+    seq_t power = 1;
+    for (int i = 1; i < len; ++i) power *= 10;
+
+    int prev = -1;
+    while (power > 0) {
+        int d = (int)(x / power);          /* current most significant digit */
+        x = x - ((seq_t)d * power);        /* remove this digit */
+        if (prev == 9 && d == 4) return true;
+        prev = d;
+        power /= 10;
+    }
+    return false;
+}
 
 /* For arbitrary‑precision seq_t this code is compiled as C++11/14/17.
    It uses only integer arithmetic and deterministic memory layout. */

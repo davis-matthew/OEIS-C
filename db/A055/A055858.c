@@ -11,13 +11,16 @@
  *            row by increasing column index. Thus a(n) = a(r,m) where...
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* External helper: big integer power */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Compute the sequence term */
 seq_t a(idx_t n)
@@ -37,10 +40,10 @@ seq_t a(idx_t n)
 
     /* First element of a row: r^r */
     if (m == 0)
-        return big_pow((seq_t)r, (seq_t)r);
+        return ipow((seq_t)r, (seq_t)r);
 
     /* General case: r^(m-1) * (r+1)^(r-m+1) */
-    seq_t left  = big_pow((seq_t)r,       (seq_t)(m - 1));
-    seq_t right = big_pow((seq_t)(r + 1), (seq_t)(r - m + 1));
+    seq_t left  = ipow((seq_t)r,       (seq_t)(m - 1));
+    seq_t right = ipow((seq_t)(r + 1), (seq_t)(r - m + 1));
     return left * right;
 }

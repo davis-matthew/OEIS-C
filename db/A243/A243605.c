@@ -13,13 +13,15 @@
  *            maximum value used
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 25, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     static seq_t dp_next[9][9][9];
 
     /* Initialize to zero. */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Length 2: first element must be 0.
        Second element can be 0 or introduce the new value 1. */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Build arrays of increasing length up to L.  The loop
        runs L-2 times, adding one new element each iteration. */
     for (idx_t len = 2; len < L; ++len) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         for (int p1 = 0; p1 < 9; ++p1) {
             for (int p2 = 0; p2 < 9; ++p2) {
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
             }
         }
         /* Prepare for next iteration. */
-        memcpy(dp, dp_next, sizeof(dp));
+        mem_copy(dp, dp_next, sizeof(dp));
     }
 
     /* Sum all final states to obtain the total number of arrays. */

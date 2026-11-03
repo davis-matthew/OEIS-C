@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 28, u128 n <= 56,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 956 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* OEIS A293997: Number of linear chord diagrams having n chords
  * and no chord length larger than five.
  *

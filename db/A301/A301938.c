@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 30, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_run_of_8s
+ * Validated: standard, pass, 59 terms through n = 9537 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,32 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has_run_of_8s.h"
+#include "../utils/mem.h"
+
+/* Test whether the decimal representation of x² contains a run of
+   four or more consecutive digit 8's.  The function uses unsigned
+   64‑bit arithmetic for the square, which is sufficient for all
+   numbers that appear in the sequence for the tested indices. */
+static bool has_run_of_8s(seq_t x)
+{
+    unsigned long long sq = (unsigned long long)x * (unsigned long long)x;
+    int run = 0;
+
+    if (sq == 0)          /* 0² == 0, no run of 4 eight's */
+        return false;
+
+    while (sq != 0) {
+        int digit = (int)(sq % 10);
+        if (digit == 8) {
+            if (++run >= 4)
+                return true;
+        } else {
+            run = 0;
+        }
+        sq /= 10;
+    }
+    return false;
+}
 
 /* static state: a simple dynamic array of seq_t values */
 static seq_t *cache       = NULL;   /* cache of found terms          */
@@ -41,7 +67,7 @@ static void grow_cache(size_t needed)
     if (new_cap < needed)
         new_cap = needed;
 
-    seq_t *new_buf = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_new(seq_t, new_cap);
     if (!new_buf) {
         /* Allocation failure – abort program as this is critical. */
         exit(EXIT_FAILURE);
@@ -49,7 +75,7 @@ static void grow_cache(size_t needed)
     for (size_t i = 0; i < cache_size; ++i)
         new_buf[i] = cache[i];
 
-    free(cache);
+    mem_free(cache);
     cache      = new_buf;
     cache_cap  = new_cap;
 }

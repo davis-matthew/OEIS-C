@@ -14,12 +14,14 @@
  *            q that yields each survivor j. The triang...
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of previously computed rows, indexed by m (1‑based). */
 static seq_t **row_cache = NULL;   /* pointer to array of row pointers      */
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t required)
 static void compute_row(idx_t m)
 {
     /* Allocate the row (zeroed).  Cast as needed for C++. */
-    seq_t *row = (seq_t *)malloc(m * sizeof (seq_t));
+    seq_t *row = mem_new(seq_t, m);
     for (idx_t i = 0; i < m; ++i)
         row[i] = 0;
 

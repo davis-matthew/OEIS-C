@@ -10,9 +10,10 @@
  *            consecutive terms never share the same prime signature. No
  *            closed formula is known; this implementation constructs the
  *            sequence by incremental search
- * Range:     u8 n <= 219, u16 n <= 9744, u32 n <= 9744, u64 n <= 9744,
- *            u128 n <= 9744, big any n
- * Helpers:   same_signature, signature_uint64
+ * Range:     u8 n <= 219, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 88 terms through n = 9744 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,53 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/same_signature.h"
-#include "../utils/signature_uint64.h"
+
+/* Compares two prime signatures stored as sorted exponent lists. */
+static bool same_signature(const uint8_t a[64], size_t na,
+                           const uint8_t b[64], size_t nb)
+{
+    if (na != nb) return false;
+    for (size_t i = 0; i < na; ++i)
+        if (a[i] != b[i]) return false;
+    return true;
+}
+
+/* Computes the sorted list of prime exponents of n.
+   The exponents are stored in exps[0..cnt-1]; cnt is written to *cnt_out.
+   Only factors that fit in uint64_t are used (the sequence values are
+   guaranteed to be < 2^64 for all n ≤ 10 000). */
+static void signature_uint64(uint64_t n, uint8_t exps[64], size_t *cnt_out)
+{
+    size_t cnt = 0;
+    uint64_t t = n;
+
+    for (uint64_t p = 2; p * p <= t; ++p) {
+        if (t % p == 0) {
+            uint8_t e = 0;
+            while (t % p == 0) {
+                t /= p;
+                ++e;
+            }
+            exps[cnt++] = e;
+        }
+    }
+    if (t > 1) {                /* remaining prime factor */
+        exps[cnt++] = 1;
+    }
+
+    /* Insertion sort the exponents (cnt is tiny). */
+    for (size_t i = 1; i < cnt; ++i) {
+        uint8_t key = exps[i];
+        size_t j = i;
+        while (j > 0 && exps[j - 1] > key) {
+            exps[j] = exps[j - 1];
+            --j;
+        }
+        exps[j] = key;
+    }
+
+    *cnt_out = cnt;
+}
 
 /* ----- Helper: prime signature of a number (unsigned 64‑bit) ----- */
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains73
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,30 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains73.h"
+#include "../utils/mem.h"
+
+/* Return true if the base‑9 representation of x contains the substring 73. */
+static bool contains73(seq_t x)
+{
+    if (x == 0)
+        return false;          /* base‑9 is "0" – cannot contain "73" */
+
+    seq_t t = x;
+    int prev = -1;              /* previous (less‑significant) digit */
+    while (t > 0)
+    {
+        int d = (int)(t % 9);   /* current least‑significant digit */
+        /* The substring "73" appears when a more‑significant digit is 7
+         * followed by a less‑significant digit 3. In the loop we see the
+         * less‑significant digit first (prev) and then the more‑significant
+         * digit (d). Thus we test d==7 && prev==3. */
+        if (d == 7 && prev == 3)
+            return true;
+        prev = d;
+        t = t / 9;
+    }
+    return false;
+}
 
 /* Return the n-th term of the sequence, n ≥ 1. */
 seq_t a(idx_t n)
@@ -42,7 +66,7 @@ seq_t a(idx_t n)
             if (len == cap)
             {
                 size_t new_cap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     exit(EXIT_FAILURE);
                 cache = tmp;

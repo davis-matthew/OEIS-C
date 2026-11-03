@@ -7,17 +7,24 @@
  * Formula:   a(0)=1; a(2^k)=1; a(2^k*n)=a(n); a(2n+1)=Σ_{k=0}^n a(k)*a(n-k)
  * Range:     u8 n <= 32, u16 n <= 92, u32 n <= 284, u64 n <= 988,
  *            u128 n <= 3620, big any n
- * Helpers:   alloc_cache
+ * Validated: standard, pass, 81 terms through n = 9851 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build.  The helper function
  * alloc_cache allocates an array of seq_t of the requested length.
  * It is defined in the supplied utilities. */
-#include "../utils/alloc_cache.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -82,7 +89,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache.  We do not shrink the allocation.  */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
     }

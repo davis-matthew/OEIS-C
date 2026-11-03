@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 50, u32 n <= 149, u64 n <= 478,
  *            u128 n <= 961, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const int dx[4]   = { 1, 0, -1, 0 };
 static const int dy[4]   = { 0, 1,  0, -1 };
@@ -49,10 +51,10 @@ static void ensure_seq_capacity(size_t need)
 {
     if (state.seq == NULL) {
         state.seq_cap = need > 8 ? need * 2 : 8;
-        state.seq = (seq_t *)calloc(state.seq_cap, sizeof(seq_t));
+        state.seq = mem_new(seq_t, state.seq_cap);
     } else if (need > state.seq_cap) {
         state.seq_cap *= 2;
-        state.seq = (seq_t *)realloc(state.seq, state.seq_cap * sizeof(seq_t));
+        state.seq = mem_resize(seq_t, state.seq, state.seq_cap);
     }
 }
 
@@ -67,7 +69,7 @@ static void enlarge_grid_if_needed(int x, int y)
     int new_width  = 2 * new_offset + 1;
 
     seq_t *new_grid =
-        (seq_t *)calloc((size_t)new_width * new_width, sizeof(seq_t));
+        mem_new(seq_t, (size_t)new_width * new_width);
     for (int gy = 0; gy < state.width; ++gy) {
         for (int gx = 0; gx < state.width; ++gx) {
             seq_t val = state.grid[gy * state.width + gx];
@@ -81,7 +83,7 @@ static void enlarge_grid_if_needed(int x, int y)
             }
         }
     }
-    free(state.grid);
+    mem_free(state.grid);
     state.grid = new_grid;
     state.width = new_width;
     state.offset = new_offset;
@@ -141,12 +143,11 @@ seq_t a(idx_t n)
         /* initialise with a single centre cell */
         state.width = 3;
         state.offset = 1;
-        state.grid = (seq_t *)calloc((size_t)state.width * state.width,
-                                     sizeof(seq_t));
+        state.grid = mem_new(seq_t, (size_t)state.width * state.width);
         int mid = state.offset;
         state.grid[mid * state.width + mid] = 1;
 
-        state.seq = (seq_t *)calloc(8, sizeof(seq_t));
+        state.seq = mem_new(seq_t, 8);
         state.seq[0] = 1;
         state.seq_len = 1;
         state.seq_cap = 8;

@@ -12,7 +12,8 @@
  *            scanning the next integer that is not in a...
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
 
     /* Allocate arrays for a(n) and b(n).  Size n+2 to have indices 0..n for both. */
     size_t sz = (size_t)(n + 2);
-    seq_t *a_arr = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *b_arr = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, sz);
+    seq_t *b_arr = mem_new(seq_t, sz);
     if (!a_arr || !b_arr) {  /* allocation failure */
         return (seq_t)0;
     }
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_arr[n];
-    free(a_arr);
-    free(b_arr);
+    mem_free(a_arr);
+    mem_free(b_arr);
     return result;
 }

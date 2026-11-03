@@ -8,7 +8,8 @@
  *            partition number of m (p(0)=1, p(m)=0 for m<0)
  * Range:     u8 n <= 26, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* --------------------------------------------------------------------- */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *partitions = NULL;   /* partitions[0] = 1 (p(0)) */
 static idx_t part_cap    = 0;      /* allocated size */
@@ -27,14 +29,14 @@ static void ensure_partitions (idx_t upto)
 {
     if (partitions == NULL) {
         part_cap = upto + 1;
-        partitions = (seq_t *)calloc(part_cap, sizeof(seq_t));
+        partitions = mem_new(seq_t, part_cap);
         if (!partitions) abort();
         partitions[0] = (seq_t)1;  /* p(0) */
         part_last = 0;
     } else if (part_cap <= upto) {
         size_t new_cap = part_cap * 2;
         if (new_cap <= upto) new_cap = upto + 1;
-        seq_t *tmp = (seq_t *)realloc(partitions, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, partitions, new_cap);
         if (!tmp) abort();
         for (size_t i = part_cap; i < new_cap; ++i) tmp[i] = (seq_t)0;
         partitions = tmp;

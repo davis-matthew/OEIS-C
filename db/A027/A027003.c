@@ -9,12 +9,26 @@
  *            sequence L(0)=2, L(1)=1, L(n)=L(n-1)+L(n-2))
  * Range:     u8 none, u16 none, u32 n <= 14, u64 n <= 41, u128 n <= 87,
  *            big any n
- * Helpers:   poly_f
+ * Validated: standard, pass, 41 terms through n = 812 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/poly_f.h"
+static seq_t poly_f(idx_t n)
+{
+    seq_t x = (seq_t)n;
+    seq_t res = (seq_t)48;
+    res = res * x - (seq_t)280;   /* -280 */
+    res = res * x + (seq_t)1596;  /* +1596 */
+    res = res * x - (seq_t)910;   /* -910 */
+    res = res * x + (seq_t)10122; /* +10122 */
+    res = res * x + (seq_t)20405; /* +20405 */
+    res = res * x + (seq_t)46509; /* +46509 */
+    res = res * x + (seq_t)47880; /* +47880 */
+    res = res / (seq_t)630;      /* divide by 630 */
+    return res;
+}
 static seq_t lucas(idx_t k)
 {
     if (k == 0) return (seq_t)2;

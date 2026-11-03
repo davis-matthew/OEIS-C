@@ -9,7 +9,8 @@
  *            n ≤ 7
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Standard headers required for the dynamic cache. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache: 1‑based array of computed terms. */
 static seq_t *cache = NULL;
@@ -27,13 +29,13 @@ static void ensure_cache(idx_t n)
 {
     if (n + 1 <= cap) return;                      /* already big enough */
 
-    free(cache);                                    /* discard old array */
+    mem_free(cache);                                    /* discard old array */
 
     size_t newcap = n + 1;
-    cache = (seq_t *)malloc(newcap * sizeof(seq_t));
+    cache = mem_new(seq_t, newcap);
     if (!cache) return;                             /* out of memory – caller handles */
 
-    memset(cache, 0, newcap * sizeof(seq_t));       /* zero all entries */
+    mem_set(cache, 0, newcap * sizeof(seq_t));       /* zero all entries */
     cap = newcap;
 }
 

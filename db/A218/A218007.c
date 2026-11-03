@@ -11,7 +11,8 @@
  *            the maximum n requested
  * Range:     u8 n <= 366, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 898 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External types provided by the build system. */
 extern seq_t a(idx_t n);
@@ -70,7 +72,7 @@ static void ensure_cache(idx_t n)
 {
     if (n <= cache_max) return;
 
-    seq_t *new_buf = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, (size_t)(n + 1));
     if (!new_buf) abort();
     cache = new_buf;
     for (idx_t i = cache_max + 1; i <= n; ++i) cache[i] = 0;

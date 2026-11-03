@@ -9,13 +9,15 @@
  *            numbers of the first kind.)
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 8, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,9 +34,9 @@ seq_t a(idx_t n)
     if (cap <= (size_t)n) {
         size_t old_cap = cap;
         size_t new_cap = (size_t)n + 1;           /* indices 0..n */
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-        prev    = (seq_t *)realloc(prev,    new_cap * sizeof(seq_t));
-        curr    = (seq_t *)realloc(curr,    new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        prev    = mem_resize(seq_t, prev, new_cap);
+        curr    = mem_resize(seq_t, curr, new_cap);
         for (size_t i = old_cap; i < new_cap; ++i) {
             a_cache[i] = 0;
             prev[i]    = 0;

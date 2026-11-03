@@ -10,6 +10,7 @@
  *            c(0)=13, for n>0: * c(n)=26 if n≡4 (mod 4), otherwise c(n)=2
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 59,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 178 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            reptend primes found so far, so any order of calls is supported
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   powmod64
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
-#include "../utils/powmod64.h"  /* uint64_t powmod64(uint64_t base, uint64_t exp, uint64_t mod); */
+#include "../utils/powmod_u64.h"
 #if defined(__cplusplus)
 }
 #endif
@@ -76,13 +77,13 @@ static bool is_full_reptend(uint64_t p)
         if (tmp % q == 0) {
             /* q is a distinct prime factor of n */
             uint64_t exp = n / q;
-            if (powmod64(10, exp, p) == 1) return false;
+            if (powmod_u64(10, exp, p) == 1) return false;
             while (tmp % q == 0) tmp /= q;
         }
     }
     if (tmp > 1) {                            /* leftover prime factor */
         uint64_t exp = n / tmp;
-        if (powmod64(10, exp, p) == 1) return false;
+        if (powmod_u64(10, exp, p) == 1) return false;
     }
     return true;
 }

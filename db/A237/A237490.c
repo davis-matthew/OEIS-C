@@ -14,15 +14,37 @@
  *            programming over rows
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   absdiff_int, computeE
+ * Validated: standard, pass, 31 terms through n = 195 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/absdiff_int.h"
-#include "../utils/computeE.h"
+#include <stdlib.h>
+#include <string.h>
+
+static inline int absdiff_int(int a, int b) {
+    return a > b ? a - b : b - a;
+}
+
+/* auxiliary: compute the expression for a 2×2 block */
+static inline unsigned char computeE(int a, int b, int c, int d)
+{
+    int v[4] = {a, b, c, d};
+    /* simple insertion sort of 4 elements */
+    for (int i = 1; i < 4; ++i) {
+        int key = v[i];
+        int j   = i - 1;
+        while (j >= 0 && v[j] > key) {
+            v[j + 1] = v[j];
+            --j;
+        }
+        v[j + 1] = key;
+    }
+    return (unsigned char)(v[3] + v[2] - v[1] - v[0]);
+}
 
 /* constants */
 #define ROWS 64          /* 3-tuples 0..3 */

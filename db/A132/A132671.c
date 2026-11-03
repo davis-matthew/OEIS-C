@@ -9,7 +9,8 @@
  *            sequence, otherwise a(n) = 7*a(n-1)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,14 +40,14 @@ seq_t a(idx_t n)
     if (seq_len == 0) {
         /* allocate space for terms (start small, double as needed) */
         seq_cap = 64;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) abort();
         seq[0] = (seq_t)1;            /* a(1) = 1 */
         seq_len = 1;
 
         /* allocate space for used values (start small, double as needed) */
         used_cap = 128;
-        used = (seq_t*)malloc(used_cap * sizeof(seq_t));
+        used = mem_new(seq_t, used_cap);
         if (!used) abort();
         used[0] = (seq_t)1;           /* value 1 is used */
         used_len = 1;
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         /* store next in the used array (resize if needed) */
         if (used_len == used_cap) {
             size_t new_cap = used_cap << 1;
-            seq_t *tmp = (seq_t*)realloc(used, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, used, new_cap);
             if (!tmp) abort();
             used = tmp;
             used_cap = new_cap;
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
         /* store next in the seq array (resize if needed) */
         if (seq_len == seq_cap) {
             size_t new_cap = seq_cap << 1;
-            seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             if (!tmp) abort();
             seq = tmp;
             seq_cap = new_cap;

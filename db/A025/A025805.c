@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into parts 2, 4, and 11
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    for j = p .. n  dp[j] += dp[j - p]; */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     static const idx_t parts[3] = { 2, 4, 11 };
 
     /* Allocate and zero‑initialize the DP table */
-    seq_t *dp = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, n + 1);
     if (!dp)  /* allocation failure → return 0 */
         return 0;
 
@@ -38,6 +40,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

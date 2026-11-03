@@ -8,7 +8,8 @@
  * Formula:   a(n) is the n-th semiprime of the form k + (k‑th semiprime)
  * Range:     u8 n <= 21, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   add_seq, is_semiprime_uint64
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,44 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/add_seq.h"
-#include "../utils/is_semiprime_uint64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* enlarge array to store seq_t values */
+static void add_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val) {
+    if (*cap == 0) {
+        *cap  = 4;
+        *arr  = mem_new(seq_t, (*cap));
+    }
+    if (*size == *cap) {
+        *cap <<= 1;
+        *arr  = mem_resize(seq_t, *arr, (*cap));
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
+
+/* true if x is the product of exactly two primes (possibly the same) */
+static bool is_semiprime_uint64(uint64_t x)
+{
+    if (x < 4)
+        return false;
+    uint64_t d = 0;
+    if (x % 2 == 0)
+        d = 2;
+    else {
+        for (uint64_t dd = 3; dd <= x / dd; dd += 2) {
+            if (x % dd == 0) {
+                d = dd;
+                break;
+            }
+        }
+    }
+    if (d == 0)
+        return false;                      /* x is prime */
+    uint64_t second = x / d;
+    return is_prime_u64(second);
+}
 
 static seq_t *semiprimes = NULL;   /* list of semiprimes (1‑based index) */
 static size_t sem_cap   = 0;

@@ -7,11 +7,14 @@
  * Formula:   a(n) = binomial(n+9,9)*2^n
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 13, u64 n <= 34, u128 n <= 87,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 377 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

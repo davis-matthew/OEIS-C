@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 32, u32 n <= 64, u64 n <= 128,
  *            u128 n <= 256, big any n
- * Helpers:   pow2_generic
+ * Validated: standard, pass, 58 terms through n = 474 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,7 @@
    and falls back to generic multiplication for arbitrary‑precision
    integer types. */
 #include <stdint.h>
-#include "../utils/pow2_generic.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -42,25 +43,25 @@ seq_t a(idx_t n)
        precision types no special case is needed. */
     if (sizeof(seq_t) <= 8) {                /* uint64_t */
         if (e1 < 64) {
-            return pow2_generic(e1) - pow2_generic(ep);
+            return pow2(e1) - pow2(ep);
         }
         if (e1 == 64) {
             /* 2^64 = 0 (mod 2^64); so 2^64 – x == -x (unsigned) */
-            return (seq_t)(-(pow2_generic(ep)));
+            return (seq_t)(-(pow2(ep)));
         }
         /* e1 > 64: not expected for a 64‑bit build that verifies
            only values which fit into uint64_t.  Fall back to generic
            computation (may overflow but the value is not required). */
-        return pow2_generic(e1) - pow2_generic(ep);
+        return pow2(e1) - pow2(ep);
     } else if (sizeof(seq_t) <= 16) {        /* unsigned __int128 */
         if (e1 < 128) {
-            return pow2_generic(e1) - pow2_generic(ep);
+            return pow2(e1) - pow2(ep);
         }
         if (e1 == 128) {
-            return (seq_t)(-(pow2_generic(ep)));
+            return (seq_t)(-(pow2(ep)));
         }
-        return pow2_generic(e1) - pow2_generic(ep);
+        return pow2(e1) - pow2(ep);
     } else {                                 /* arbitrary‑precision */
-        return pow2_generic(e1) - pow2_generic(ep);
+        return pow2(e1) - pow2(ep);
     }
 }

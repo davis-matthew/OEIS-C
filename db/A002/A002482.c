@@ -11,7 +11,8 @@
  *            form for odd unimodular lattices; a(1)=a(2)=0 and a(3)...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   a2482_isprime, a2482_powmod
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2482_isprime.h"
-#include "../utils/a2482_powmod.h"
+#include "../utils/is_prime_u64.h"
+
+static uint64_t a2482_powmod(uint64_t b, uint64_t e, uint64_t p) {
+    uint64_t r = 1 % p;
+    b %= p;
+    while (e) {
+        if (e & 1) r = r * b % p;
+        b = b * b % p;
+        e >>= 1;
+    }
+    return r;
+}
 
 #define A2482_ACC(acc, x) do { (acc) += (x); if ((acc) >> 62) (acc) %= p; } while (0)
 
@@ -81,7 +92,7 @@ static void a2482_compute(idx_t N) {
     if (np > 64) np = 64;
     cand = (((uint64_t)1) << 28) - 1;
     for (i = 0; i < np; i++) {
-        while (!a2482_isprime(cand)) cand -= 2;
+        while (!is_prime_u64(cand)) cand -= 2;
         a2482_P[i] = cand;
         cand -= 2;
     }

@@ -13,13 +13,15 @@
  *            Pos(n...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *a_arr  = NULL;
 static seq_t *c2_arr = NULL;
@@ -31,10 +33,10 @@ static idx_t   cached_n = 0;/* last index that has been computed */
 static void grow_arrays(idx_t new_cap)
 {
     if (new_cap <= cap) return;
-    a_arr  = (seq_t*)realloc(a_arr,  new_cap * sizeof(seq_t));
-    c2_arr = (seq_t*)realloc(c2_arr, new_cap * sizeof(seq_t));
-    c3_arr = (seq_t*)realloc(c3_arr, new_cap * sizeof(seq_t));
-    c4_arr = (seq_t*)realloc(c4_arr, new_cap * sizeof(seq_t));
+    a_arr  = mem_resize(seq_t, a_arr, new_cap);
+    c2_arr = mem_resize(seq_t, c2_arr, new_cap);
+    c3_arr = mem_resize(seq_t, c3_arr, new_cap);
+    c4_arr = mem_resize(seq_t, c4_arr, new_cap);
     /* zero new entries */
     for (idx_t i = cap; i < new_cap; ++i)
     {

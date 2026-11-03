@@ -7,8 +7,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 35, u16 n <= 79, u32 n <= 174, u64 n <= 440,
+ * Range:     u8 n <= 37, u16 n <= 79, u32 n <= 174, u64 n <= 440,
  *            u128 n <= 1137, big any n
+ * Validated: standard, pass, 82 terms through n = 9774 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -32,7 +33,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/binomial.h"   // binomial(idx_t, idx_t)
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

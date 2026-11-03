@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=3..n} |Stirling1(n, k) * Stirling1(k, 3)|
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 412 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache state */
 static idx_t current_n = 0;              /* Highest n for which a(n) is cached */
@@ -36,11 +38,11 @@ static void ensure_cap(size_t *cap, seq_t **arr, size_t need)
 {
     if (*cap < need) {
         size_t new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();   /* Out of memory */
         /* Zero the newly allocated part */
         if (new_cap > *cap)
-            memset(tmp + *cap, 0, (new_cap - *cap) * sizeof(seq_t));
+            mem_set(tmp + *cap, 0, (new_cap - *cap) * sizeof(seq_t));
         *arr = tmp;
         *cap = new_cap;
     }
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
 
         /* First time initialization */
         if (current_n == 0) {
-            memset(prev_row, 0, needed * sizeof(seq_t));
+            mem_set(prev_row, 0, needed * sizeof(seq_t));
             prev_row[0] = 1;   /* S1(0,0) = 1 */
             /* sto3 and a_cache already zeroed */
         }

@@ -11,14 +11,25 @@
  *            a(n) = [q^n] (theta^14*F + 16*theta^10*F^2 - 256*theta^6*F^3...
  * Range:     i8 n <= 2, i16 n <= 10, i32 n <= 147, i64 n <= 500,
  *            i128 n <= 500, big any n
- * Helpers:   from_i128
+ * Validated: standard, pass, 47 terms through n = 484 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/from_i128.h"
+
+static seq_t from_i128(__int128 v)
+{
+    if (v >= -(__int128)4000000000000000000LL && v <= (__int128)4000000000000000000LL)
+        return (seq_t)(long long)v;
+    {
+        __int128 q = v / ((__int128)1 << 32);
+        long long rem = (long long)(v - q * ((__int128)1 << 32));
+        return from_i128(q) * (seq_t)4294967296LL + (seq_t)rem;
+    }
+}
 
 typedef unsigned __int128 a2613_u128;
 

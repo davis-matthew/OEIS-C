@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 20, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -----------------  Static data ----------------- */
 static seq_t *terms          = NULL;   /* array of a(k) values          */
@@ -91,7 +93,7 @@ static void ensure_terms_capacity(void)
 {
     if (terms_len >= terms_cap) {
         terms_cap = terms_cap ? terms_cap << 1 : 64;
-        seq_t *tmp = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
         if (tmp) terms = tmp;        /* silently ignore realloc failure          */
     }
 }
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
     if (!primes_inited) init_primes();
     if (!terms) {
         terms_cap = 64;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     /* Generate terms up to the requested index */

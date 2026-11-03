@@ -8,12 +8,13 @@
  *            {k,1,n}] ]
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 44, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -58,6 +59,6 @@ seq_t a(idx_t n)
     }
 
     /* Reduce the fraction: numerator = sum / gcd(sum, prod_mod) */
-    seq_t g = seq_gcd(sum, prod_mod);
+    seq_t g = gcd(sum, prod_mod);
     return sum / g;
 }

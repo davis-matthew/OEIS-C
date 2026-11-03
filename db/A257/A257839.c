@@ -11,13 +11,18 @@
  *            exists. This is OEIS A257839
  * Range:     u8 n <= 17, u16 n <= 44, u32 n <= 784, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ceil_div_seq
+ * Validated: standard, pass, 96 terms through n = 908 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/ceil_div_seq.h"
+
+static inline seq_t ceil_div_seq(seq_t a, seq_t b)
+{
+    return (a + b - 1) / b;
+}
 
 /* Try to find any solution (y,z) for a given n and candidate x.
    If a solution exists with y > x and z > y, return 1; otherwise 0. */

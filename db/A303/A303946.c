@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_uint64, grow_seq, is_squarefree
+ * Validated: standard, pass, 73 terms through n = 9406 (2026-11-03)
+ * Helpers:   gcd_u64, is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,23 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include "../utils/gcd_u64.h"
 #include "../utils/is_squarefree.h"
-#include "../utils/grow_seq.h"
-#include "../utils/gcd_uint64.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Helper: gcd for unsigned 64‑bit values. */
 
@@ -45,7 +60,7 @@ static bool is_perfect_power(seq_t x)
             if (g == 0)
                 g = exp;
             else
-                g = gcd_uint64(g, exp);
+                g = gcd_u64(g, exp);
             if (g == 1)          /* cannot be a perfect power any more */
                 return false;
         }
@@ -54,7 +69,7 @@ static bool is_perfect_power(seq_t x)
         if (g == 0)                /* prime alone → exponent 1 */
             g = 1;
         else
-            g = gcd_uint64(g, 1);   /* gcd(g,1) = 1 → not a power */
+            g = gcd_u64(g, 1);   /* gcd(g,1) = 1 → not a power */
     }
     return g > 1;
 }

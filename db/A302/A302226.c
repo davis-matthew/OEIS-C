@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    a(13)=133601253, a(14)=604673484, a(15)=2736676090, a(16)=12385962613,
    a(17)=56057588893 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* first time: allocate cache for 1…17 -------------------------------- */
     if (cache == NULL) {
         cache_size = 18;                 /* indices 0…17 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return (seq_t)0;   /* unlikely, but keep type safe */
         for (idx_t i = 1; i < cache_size; ++i)
             cache[i] = seed[i];
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 
     /* grow cache to hold new index n -------------------------------------- */
     size_t new_size = (size_t)(n + 1) * sizeof(seq_t);
-    seq_t *tmp = (seq_t *)realloc(cache, new_size);
+    seq_t *tmp = mem_resize(seq_t, cache, (new_size) / sizeof(seq_t));
     if (tmp == NULL)
         return (seq_t)0;    /* allocation failure – return 0 as safe default */
     cache = tmp;

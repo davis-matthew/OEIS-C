@@ -11,13 +11,14 @@
  *            2^n - 1 if n is even: a(n) = 3 * 2^(n-1)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 50 terms through n = 119 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
     if (n == 2) return (seq_t)0;
 
     /* compute 2^n */
-    seq_t pow2 = pow_seq((seq_t)2, (int)n);
+    seq_t pow2 = ipow_i32((seq_t)2, (int)n);
 
     if (n & 1) {          /* odd n */
         return pow2 - (seq_t)1;

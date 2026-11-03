@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 1061, u16 n <= 9931, u32 n <= 9931, u64 n <= 9931,
- *            u128 n <= 9931, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1061, u16 n <= 30030, u32 n <= 30030, u64 n <= 30030,
+ *            u128 n <= 30030, big any n
+ * Validated: standard, pass, 122 terms through n = 9931 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of a helper */
 static int cmp_seq(const void *a, const void *b);
@@ -73,7 +75,7 @@ static void generate_terms(idx_t max_n)
 
     /* Generate all subset products of the primorials (including 1). */
     size_t cap = 64;
-    seq_t *subset = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *subset = mem_new(seq_t, cap);
     if (!subset) abort();
     size_t subset_cnt = 0;
     subset[subset_cnt++] = (seq_t)1;   /* empty product */
@@ -87,7 +89,7 @@ static void generate_terms(idx_t max_n)
                 seq_t val = subset[j] * p;
                 if (subset_cnt == cap) {
                     cap *= 2;
-                    subset = (seq_t *)realloc(subset, cap * sizeof(seq_t));
+                    subset = mem_resize(seq_t, subset, cap);
                     if (!subset) abort();
                 }
                 subset[subset_cnt++] = val;
@@ -96,7 +98,7 @@ static void generate_terms(idx_t max_n)
     }
 
     /* Sort and deduplicate */
-    qsort(subset, subset_cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(subset, subset_cnt, sizeof(seq_t), cmp_seq);
     size_t uniq = 0;
     for (size_t i = 0; i < subset_cnt; ++i) {
         if (uniq == 0 || subset[i] != subset[uniq - 1]) {
@@ -105,12 +107,12 @@ static void generate_terms(idx_t max_n)
     }
 
     /* Allocate the new cache and replace the old one */
-    seq_t *newS = (seq_t *)malloc(uniq * sizeof(seq_t));
+    seq_t *newS = mem_new(seq_t, uniq);
     if (!newS) abort();
-    memcpy(newS, subset, uniq * sizeof(seq_t));
-    free(subset);
+    mem_copy(newS, subset, uniq * sizeof(seq_t));
+    mem_free(subset);
 
-    free(S);
+    mem_free(S);
     S = newS;
     Slen = uniq;
     cache_max = max_n;

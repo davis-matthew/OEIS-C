@@ -8,12 +8,14 @@
  * Formula:   a(n) = 2 - n + 2 * Sum_{k=0..n-2} Sum_{j=0..k} k!/j!
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 22, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 396 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     /* initialise with k = 0 */
     if (!Tarr || !Prefix)
     {
-        Tarr = (seq_t*)malloc(sizeof(seq_t));
-        Prefix = (seq_t*)malloc(sizeof(seq_t));
+        Tarr = mem_new(seq_t, 1);
+        Prefix = mem_new(seq_t, 1);
         Tarr[0] = 1;                /* T0 = 1! / 0! = 1 */
         Prefix[0] = 1;              /* sum_{k=0}^0 T_k = 1 */
         max_k = 0;
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
     if (idx > max_k)
     {
         idx_t new_size = idx + 1;
-        seq_t *new_T = (seq_t*)realloc(Tarr, sizeof(seq_t) * new_size);
-        seq_t *new_P = (seq_t*)realloc(Prefix, sizeof(seq_t) * new_size);
+        seq_t *new_T = mem_resize(seq_t, Tarr, new_size);
+        seq_t *new_P = mem_resize(seq_t, Prefix, new_size);
         if (!new_T || !new_P)
             exit(1);                 /* allocation failure */
 

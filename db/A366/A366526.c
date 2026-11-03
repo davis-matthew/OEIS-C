@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 3330, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   small_prime_factor
+ * Validated: standard, pass, 73 terms through n = 9503 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/small_prime_factor.h"
+#include "../utils/mem.h"
+
+/* Find the smallest prime divisor of n, or n itself if n is prime.
+ * Works for 1 ≤ n ≤ UINT64_MAX.  It runs in O(√n) with a very small
+ * constant factor, which is adequate for the values of q we encounter. */
+static inline uint64_t small_prime_factor(uint64_t n)
+{
+    if (n % 2 == 0) return 2;
+    if (n % 3 == 0) return 3;
+    for (uint64_t d = 5; d * d <= n; d += 6) {
+        if (n % d == 0) return d;
+        if (n % (d + 2) == 0) return d + 2;
+    }
+    return n;           /* n is prime */
+}
 
 /* ---- small_prime_factor ------------------------------------- */
 
@@ -59,7 +74,7 @@ static void grow_cache(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE); /* allocation failure */
     cache = tmp;
     cache_cap = new_cap;

@@ -8,13 +8,15 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) is completely multiplicative: a(1)=1, a(2)=2, a(3)=3,
  *            a(prime_k)=prime_{k-1}*prime_{k-2} for k>2
- * Range:     u8 n <= 22, u16 n <= 268, u32 n <= 9930, u64 n <= 9930,
- *            u128 n <= 9930, big any n
+ * Range:     u8 n <= 22, u16 n <= 268, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 88 terms through n = 9930 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>

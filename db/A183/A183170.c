@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 163, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 74 terms through n = 8167 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,27 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t   *seq_cache = NULL;   /* sequence values              */
 static idx_t    seq_len   = 0;        /* number of stored terms       */
@@ -43,7 +64,7 @@ ensure_seq_capacity(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 64;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();
     seq_cache = tmp;
     seq_cap   = new_cap;
@@ -56,7 +77,7 @@ ensure_queue_capacity(size_t needed)
     if (q_cap >= needed) return;
     size_t new_cap = q_cap ? q_cap * 2 : 64;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(queue, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, queue, new_cap);
     if (!tmp) abort();
     queue   = tmp;
     q_cap   = new_cap;

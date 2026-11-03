@@ -9,7 +9,8 @@
  * Formula:   a(n) = MAX{ A006530(k) : A001358(n) < k < A001358(n+1) }
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of helper */
 static void ensure_precomputation(idx_t n);
@@ -43,7 +45,7 @@ static void ensure_precomputation(idx_t n)
     while (true) {
         /* free previous tables */
         if (spf)   free(spf);
-        if (semis) free(semis);
+        if (semis) mem_free(semis);
 
         /* allocate and build smallest‑prime‑factor table */
         spf = (uint32_t*)malloc((limit + 1) * sizeof(uint32_t));
@@ -60,7 +62,7 @@ static void ensure_precomputation(idx_t n)
 
         /* collect semiprimes up to required count (+ margin) */
         size_t max_need = required + 20;
-        semis = (seq_t*)malloc(max_need * sizeof(seq_t));
+        semis = mem_new(seq_t, max_need);
         size_t cnt = 0;
         for (size_t m = 4; m <= limit && cnt < max_need; ++m) {
             uint32_t p = spf[m];

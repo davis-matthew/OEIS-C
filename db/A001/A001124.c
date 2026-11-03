@@ -7,14 +7,39 @@
  * Formula:   n-th prime p where 5 is the smallest primitive root modulo p
  * Range:     u8 n <= 8, u16 n <= 932, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_primitive_root, powmod
+ * Validated: standard, pass, 65 terms through n = 983 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_primitive_root.h"
-#include "../utils/powmod.h"
+#include "../utils/powmod_u64.h"
+
+static bool is_primitive_root(uint64_t g, uint64_t p) {
+    if (g >= p) return false;
+    
+    uint64_t phi = p - 1;
+    uint64_t temp = phi;
+    
+    for (uint64_t q = 2; q * q <= temp; q++) {
+        if (temp % q == 0) {
+            if (powmod_u64(g, phi / q, p) == 1) {
+                return false;
+            }
+            while (temp % q == 0) {
+                temp /= q;
+            }
+        }
+    }
+    if (temp > 1) {
+        if (powmod_u64(g, phi / temp, p) == 1) {
+            return false;
+        }
+    }
+    
+    return true;
+}
 
 static bool is_prime(uint64_t num) {
     if (num < 2) return false;

@@ -8,12 +8,14 @@
  *            a(1) = 1 (offset 0)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Returns the n-th term of OEIS sequence A015470. */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Ensure we have at least two entries for the base cases. */
     if (cache_size == 0) {
         /* Allocate space for two base terms */
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache) { /* out of memory – abort gracefully */
             cache[0] = 0; /* unlikely to be evaluated */
             return 0;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* Grow the cache to hold at least n+1 elements. */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) {
         /* realloc failed – keep existing cache and return last computed value */
         return cache[cache_size - 1];

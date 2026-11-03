@@ -7,12 +7,14 @@
  * Formula:   a(n) = phi(n) * (n - phi(n))
  * Range:     u8 n <= 31, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +22,7 @@ seq_t a(idx_t n)
     if (n == 0)
         return 0;
 
-    seq_t phi_n = phi(n);          /* φ(n) */
+    seq_t phi_n = totient(n);          /* φ(n) */
     seq_t diff  = (seq_t)n - phi_n;/* n - φ(n) */
     return phi_n * diff;          /* φ(n) * (n - φ(n)) */
 }

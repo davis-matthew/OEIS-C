@@ -10,6 +10,7 @@
  *            This rule reproduces the first 24 terms and a(N) for all N ≥ 0
  * Range:     u8 n <= 2, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

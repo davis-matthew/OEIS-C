@@ -9,13 +9,39 @@
  *            (position within the block)
  * Range:     u8 n <= 254, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   find_row
+ * Validated: standard, pass, 88 terms through n = 9143 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/find_row.h"
+
+/* Find the block number r for index n.
+   r is the minimal integer such that r*(r+1)/2 >= n. */
+static idx_t find_row(idx_t n)
+{
+    idx_t low = 0;
+    idx_t high = 1;
+
+    /* Expand high until the triangular number is >= n */
+    while ( ( (__int128)high * (high + 1) ) / 2 < n )
+    {
+        high <<= 1;
+    }
+
+    /* Binary search between low and high */
+    while (low + 1 < high)
+    {
+        idx_t mid = low + (high - low) / 2;
+        if ( ( (__int128)mid * (mid + 1) ) / 2 >= n )
+            high = mid;
+        else
+            low = mid;
+    }
+
+    return high;
+}
 
 seq_t a(idx_t n)
 {

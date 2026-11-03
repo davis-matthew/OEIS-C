@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
- * Helpers:   none
+ * Validated: partial, pass, 102 terms through n = 102 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* prime_sum[s] == true if s is a prime; otherwise false.  s ranges from 0 to 18. */
 static const bool prime_sum[19] = {
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
     /* Initialise static variables on first call.  */
     if (seq == NULL) {
         seq_cap = 64;
-        seq = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)0;
         seq_len = 1;
         last_digit = 0;
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
     /* Ensure that seq has enough capacity.  */
     if (seq_len + 1 > seq_cap) {
         seq_cap *= 2;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
 
     /* Generate terms until we have at least n of them.  */

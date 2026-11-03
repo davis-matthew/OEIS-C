@@ -11,12 +11,14 @@
  *            counts how many times that factor divides n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   lpf_uint64
+ * Validated: standard, pass, 106 terms through n = 9572 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/lpf_uint64.h"
+#include <stdint.h>
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         return 0;
 
     uint64_t t = (uint64_t)n;
-    uint64_t p = lpf_uint64(t);          /* least prime factor of t */
+    uint64_t p = smallest_prime_factor(t);          /* least prime factor of t */
 
     seq_t exp = 0;
     while (t % p == 0) {

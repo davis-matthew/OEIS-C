@@ -8,6 +8,7 @@
  * Formula:   a(n) = sigma_19(n) = ∑_{d|n} d^19
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 10, u128 n <= 106,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 8866 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

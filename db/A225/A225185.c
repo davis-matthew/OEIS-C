@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 2520, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 80 terms through n = 9809 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,9 @@
 #include <stddef.h>
 #include <math.h>
 
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* ---------------------------------------------------------------------- */
 /* Prime list (trial‑division)                                           */
@@ -163,7 +166,7 @@ static bool has_primitive_root_dividing(uint64_t p)
         bool primitive = true;
         for (int j = 0; j < cnt_phi; ++j) {
             uint64_t q = fac_phi[j];
-            if (mod_pow((seq_t)d, phi / q, (seq_t)p) == (seq_t)1) {
+            if (powmod((seq_t)d, phi / q, (seq_t)p) == (seq_t)1) {
                 primitive = false;
                 break;
             }
@@ -185,7 +188,7 @@ static void ensure_memo_cap(size_t need)
     if (need <= memo_cap) return;
     size_t new_cap = memo_cap ? memo_cap * 2 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, memo, new_cap);
     if (!tmp) abort();
     memo = tmp;
     memo_cap = new_cap;

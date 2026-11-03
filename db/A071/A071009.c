@@ -12,12 +12,30 @@
  *            the 2‑s limit for n ≤ 10000
  * Range:     u8 n <= 5, u16 n <= 20, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   count_triples_for_sum
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_triples_for_sum.h"
+static seq_t count_triples_for_sum(idx_t M, idx_t s)
+{
+    seq_t cnt = 0;
+    idx_t max_c = s / 3;
+    if (max_c > M)   max_c = M;
+    for (idx_t c = 0; c <= max_c; ++c) {
+        idx_t t = s - c;                     /* remaining sum for a+b */
+        /* b must satisfy c ≤ b ≤ min(M, t/2) and t−b ≤ M   */
+        idx_t lower_b = (t > M) ? t - M : 0;
+        idx_t lower   = (c > lower_b) ? c : lower_b;
+        idx_t upper_b = t / 2;
+        idx_t upper   = (upper_b < M) ? upper_b : M;
+        if (lower <= upper) {
+            cnt += (upper - lower + 1);
+        }
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 1136, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has52_oct
+ * Validated: standard, pass, 57 terms through n = 8644 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,31 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has52_oct.h"
+#include "../utils/mem.h"
+
+/* return true iff the octal representation of x contains the consecutive
+   digits 5 followed by 2.  Pattern '52' is detected as a higher-order 5
+   followed by a lower-order 2 while scanning least‑significant digit first. */
+static bool has52_oct(seq_t x)
+{
+    const seq_t e8 = (seq_t)8;
+    const seq_t two = (seq_t)2;
+    const seq_t five = (seq_t)5;
+
+    if (x < (seq_t)2)          /* smallest possible value with "52" is 0o52 = 42 */
+        return false;
+
+    seq_t prev = x % e8;
+    x = x / e8;
+    while (x != (seq_t)0) {
+        seq_t curdig = x % e8;
+        if (prev == two && curdig == five)
+            return true;
+        prev = curdig;
+        x = x / e8;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;      /* memoised sequence values          */
 static size_t cache_len = 0;      /* number of values stored           */
@@ -35,7 +60,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 32;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_len < (size_t)n) {
@@ -43,7 +68,7 @@ seq_t a(idx_t n)
         if (h && !prev_has) {
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = cur;
         }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|n} d * (n/d)^d (offset 1)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 53, u64 n <= 113,
  *            u128 n <= 230, big any n
+ * Validated: standard, pass, 59 terms through n = 4796 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

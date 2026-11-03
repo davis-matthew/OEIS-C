@@ -11,9 +11,10 @@
  *            and an even 2-adic valuation. The computation is performed by
  *            recursion with memoisation, enumerating all divisors of each
  *            intermediate product
- * Range:     u8 n <= 1259, u16 n <= 9740, u32 n <= 9740, u64 n <= 9740,
- *            u128 n <= 9740, big any n
- * Helpers:   make_key
+ * Range:     u8 n <= 1259, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 118 terms through n = 9740 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,12 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/make_key.h"
+#include "../utils/mem.h"
+
+static uint64_t make_key(uint64_t m, uint64_t minf)
+{
+    return (m << 27) | minf;
+}
 
 /* ---------- helper comparison prototype ----------
    Used by qsort to order divisors. ---------- */
@@ -30,8 +36,10 @@ static int compare_uint64(const void *a, const void *b);
 
 /* ---------- prime setup ----------
    Generating all primes <= MAX_PRIME (≈ 10 000) once. ---------- */
-#define MAX_PRIME 10000
-static uint32_t primes[MAX_PRIME / 4 + 1];  /* enough for all primes <= 10000 */
+/* trial division by these primes factors numbers below MAX_PRIME^2; the
+   divisors here are up to n^2, so n < MAX_PRIME (was 10000) */
+#define MAX_PRIME 1000000
+static uint32_t primes[MAX_PRIME / 4 + 1];
 static size_t prime_cnt = 0;
 
 static void init_primes(void)
@@ -101,7 +109,7 @@ static bool cache_inited = false;
 static seq_t cache_get(uint64_t key, bool *found)
 {
     if (!cache_inited) {
-        memset(cache, 0, sizeof(cache));
+        mem_set(cache, 0, sizeof(cache));
         cache_inited = true;
     }
     uint64_t h = key & (HASH_SIZE - 1);

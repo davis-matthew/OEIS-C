@@ -8,16 +8,29 @@
  * Formula:   a(n) = ∏_{k=1..n} k^{d(k)}, where d(k) = number of divisors of k
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   big_pow, divisor_count_u64, seq_alloc_new_array, seq_mul
+ * Validated: standard, pass, 30 terms through n = 117 (2026-11-03)
+ * Helpers:   ipow, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"   /* uint64_t divisor_count_u64(uint64_t) */
-#include "../utils/big_pow.h"           /* seq_t big_pow(seq_t, seq_t) */
-#include "../utils/seq_mul.h"           /* seq_t seq_mul(seq_t, seq_t) */
-#include "../utils/seq_alloc_new_array.h" /* seq_t *seq_alloc_new_array(size_t) */
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 #include <stddef.h>                     /* size_t */
 
 /* Compute a(n) for n ≥ 1.  This implementation memoises values
@@ -58,8 +71,8 @@ a(idx_t n)
     /* Compute terms up to n if not already done. */
     if (n > max_cached) {
         for (idx_t k = max_cached + 1; k <= n; ++k) {
-            uint64_t d = divisor_count_u64(k);           /* d(k) */
-            seq_t pow_k = big_pow((seq_t)k, (seq_t)d);   /* k^{d(k)} */
+            uint64_t d = num_divisors(k);           /* d(k) */
+            seq_t pow_k = ipow((seq_t)k, (seq_t)d);   /* k^{d(k)} */
             cache[k-1] = seq_mul(cache[k-2], pow_k);     /* a(k) = a(k-1)*k^{d(k)} */
         }
         max_cached = n;

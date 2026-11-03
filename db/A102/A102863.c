@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   estimate_prime_upper_bound
+ * Validated: standard, pass, 121 terms through n = 8964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/estimate_prime_upper_bound.h"
+#include <math.h>
+#include "../utils/mem.h"
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 seq_t a(idx_t n)
 {
@@ -41,11 +52,11 @@ seq_t a(idx_t n)
 
     /* storage for the first n primes and cumulative sums */
     uint64_t *primes   = (uint64_t *)malloc((size_t)n * sizeof(uint64_t));
-    seq_t    *prefix   = (seq_t    *)malloc((size_t)n * sizeof(seq_t));
+    seq_t    *prefix   = mem_new(seq_t, (size_t)n);
     if (!primes || !prefix) {
         free(isComposite);
         free(primes);
-        free(prefix);
+        mem_free(prefix);
         return (seq_t)0;
     }
 
@@ -71,7 +82,7 @@ seq_t a(idx_t n)
     if (count < n) {               /* insufficient primes – sanity check */
         free(isComposite);
         free(primes);
-        free(prefix);
+        mem_free(prefix);
         return (seq_t)0;
     }
 
@@ -88,7 +99,7 @@ seq_t a(idx_t n)
     /* clean up */
     free(isComposite);
     free(primes);
-    free(prefix);
+    mem_free(prefix);
 
     return found ? (seq_t)1 : (seq_t)0;
 }

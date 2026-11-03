@@ -12,7 +12,8 @@
  *            satisfy the product modulo n. The sequence is read row by row
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   modinv_u64
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/modinv_u64.h"
+#include "../utils/mem.h"
+
+/* modular inverse of a modulo m (assumes gcd(a,m) == 1) */
+static uint64_t modinv_u64(uint64_t a, uint64_t m)
+{
+    __int128 t = 0, newt = 1;
+    __int128 r = m, newr = a % m;
+    while (newr != 0) {
+        uint64_t q = (uint64_t)(r / newr);
+        __int128 tmp = t - (__int128)q * newt;
+        t = newt;
+        newt = tmp;
+        __int128 tmp2 = r - (__int128)q * newr;
+        r = newr;
+        newr = tmp2;
+    }
+    if (r > 1)
+        return 0;          /* inverse does not exist */
+    if (t < 0)
+        t += m;
+    return (uint64_t)t;
+}
 
 /* gcd for uint64_t */
 static uint64_t gcd_u64(uint64_t a, uint64_t b)
@@ -110,7 +132,7 @@ static void ensure_values_capacity(size_t need)
     size_t new_cap = values_cap ? values_cap * 2 : 8;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, values, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);
     values = tmp;

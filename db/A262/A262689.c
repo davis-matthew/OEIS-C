@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = largest k ≤ ⌊√n⌋ with A002828(n - k^2) = A002828(n)-1
- * Range:     u8 n <= 9557, u16 n <= 9557, u32 n <= 9557, u64 n <= 9557,
- *            u128 n <= 9557, big any n
- * Helpers:   seq_alloc, seq_realloc
+ * Range:     u8 n <= 65535, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 138 terms through n = 9557 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,8 +36,27 @@ static idx_t _floor_isqrt_u64(idx_t n) {
 }
 
 /* Allocate and reallocate utilities for seq_t. */
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Cache for minimal‑square counts (A002828) and sequence values. */
 static seq_t *min_sqs = NULL;

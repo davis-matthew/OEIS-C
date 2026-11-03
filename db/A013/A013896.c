@@ -7,16 +7,17 @@
  * Formula:   a(n) = 20^(5*n + 3)
  * Range:     u8 none, u16 n <= 0, u32 n <= 0, u64 n <= 2, u128 n <= 5,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 24 terms through n = 47 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     seq_t base = (seq_t)20;
     idx_t exponent = n * 5 + 3;
-    return pow_int(base, exponent);
+    return ipow_idx(base, exponent);
 }

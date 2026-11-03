@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1)^2 + (−1)^n , a(1) = 1
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 8, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache = NULL;     /* array of computed terms */
@@ -35,11 +37,11 @@ seq_t a(idx_t n)
 
     /* Allocate or grow the cache so that it can hold a(n). */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(n * sizeof(seq_t));
+        cache = mem_new(seq_t, n);
         if (!cache) abort();
         cached_len = n;
     } else if (n > cached_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) abort();
         cache = tmp;
         cached_len = n;

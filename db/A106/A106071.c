@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 15, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 15, u16 n <= 472, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 9518 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* dynamic array of found terms */
 static seq_t *seq_vals = NULL;
@@ -31,7 +34,7 @@ static void push_seq(seq_t v)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-        seq_vals = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_vals = mem_resize(seq_t, seq_vals, new_cap);
         seq_cap = new_cap;
     }
     seq_vals[seq_len++] = v;
@@ -54,7 +57,7 @@ static void ensure_terms(idx_t n)
                 ++candidate;
                 continue;
             }
-            if (is_prime(candidate)) break;     /* candidate is prime */
+            if (is_prime_u64(candidate)) break;     /* candidate is prime */
             candidate += 2ULL;                 /* next odd number */
         }
 
@@ -64,7 +67,7 @@ static void ensure_terms(idx_t n)
         /* test the two linear forms */
         uint64_t a = 3ULL * p + 14ULL;
         uint64_t b = 14ULL * p + 3ULL;
-        if (is_prime(a) && is_prime(b))
+        if (is_prime_u64(a) && is_prime_u64(b))
             push_seq((seq_t)p);
     }
 }

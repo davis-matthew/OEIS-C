@@ -8,6 +8,7 @@
  * Formula:   a(n) = the (n-5)-th digit of 96485.3321233100184
  * Range:     u8 none, u16 none, u32 n <= 9, u64 n <= 22, u128 n <= 22,
  *            big any n
+ * Validated: full, pass, 18 terms through n = 22 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

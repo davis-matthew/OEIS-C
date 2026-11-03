@@ -9,7 +9,8 @@
  *            a(k-1) * Π_{p prime, p-1 | k} p
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /*--- Utility to compute integer row index from flattened index n ---*/
 static idx_t row_index(idx_t n)
@@ -45,7 +47,7 @@ static idx_t factor_len   = 0;
 static void factor_cache_update(idx_t new_limit)
 {
     idx_t new_len = new_limit + 1;
-    seq_t *new_factor = (seq_t *)malloc((size_t)new_len * sizeof(seq_t));
+    seq_t *new_factor = mem_new(seq_t, (size_t)new_len);
     for (idx_t i = 0; i < new_len; ++i) new_factor[i] = (seq_t)1;
 
     /* Generate primes up to new_limit+1 */
@@ -70,7 +72,7 @@ static void factor_cache_update(idx_t new_limit)
 
     free(is_prime);
 
-    free(factor);
+    mem_free(factor);
     factor      = new_factor;
     factor_len  = new_len;
 }
@@ -85,9 +87,9 @@ static void ensure_a_up_to(idx_t max_index)
         factor_cache_update(max_index);
 
     idx_t new_len = max_index + 1;
-    seq_t *new_a = (seq_t *)malloc((size_t)new_len * sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, (size_t)new_len);
     if (a_vals_len > 0)
-        memcpy(new_a, a_vals, (size_t)a_vals_len * sizeof(seq_t));
+        mem_copy(new_a, a_vals, (size_t)a_vals_len * sizeof(seq_t));
 
     for (idx_t i = a_vals_len; i <= max_index; ++i)
     {
@@ -99,7 +101,7 @@ static void ensure_a_up_to(idx_t max_index)
             new_a[i] = new_a[i - 1] * factor[i];
     }
 
-    free(a_vals);
+    mem_free(a_vals);
     a_vals      = new_a;
     a_vals_len  = new_len;
 }

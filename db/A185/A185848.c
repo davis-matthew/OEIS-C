@@ -13,13 +13,15 @@
  *            2×2 subblock has a diagonal–antidiagonal sum differen...
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h> /* for malloc, realloc, exit */
 #include <stdint.h> /* for uintptr_t if needed */
+#include "../utils/mem.h"
 
 #define ROWS        9          /* 0..8  (three levels of a and three of b) */
 #define D_RANGE     9          /* difference values –4..+4 */
@@ -46,7 +48,7 @@ static void ensure_cache_size(idx_t n)
 {
     if (cache_len <= (size_t)n) {
         size_t new_len = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) {
             /* out‑of‑memory – abort silently */
             exit(1);

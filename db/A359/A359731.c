@@ -7,12 +7,15 @@
  * Formula:   a(n) = (1/2) * Sum_{d|n} (2*d)^d
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 23,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 33 terms through n = 337 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -25,13 +28,13 @@ seq_t a(idx_t n)
         if (n % i == 0) {
             /* first divisor d = i */
             seq_t base1 = (seq_t)2 * (seq_t)i;
-            sum += seq_pow(base1, i);
+            sum += ipow_idx(base1, i);
 
             /* second divisor d = n / i, if distinct */
             idx_t d2 = n / i;
             if (d2 != i) {
                 seq_t base2 = (seq_t)2 * (seq_t)d2;
-                sum += seq_pow(base2, d2);
+                sum += ipow_idx(base2, d2);
             }
         }
     }

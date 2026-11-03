@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"     /* bool is_prime(uint64_t n); */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 /* static cache for composite numbers */
 static uint64_t *composite_cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_composites(idx_t n)
     {
         /* find the next composite number */
         uint64_t x = next_candidate;
-        while (is_prime(x)) ++x;
+        while (is_prime_u64(x)) ++x;
 
         /* grow the array if needed */
         if (composite_len == composite_cap)
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         /* Scan all numbers with this prefix */
         for (uint64_t x = start; x <= end; ++x)
         {
-            if (is_prime(x)) return (seq_t)x;
+            if (is_prime_u64(x)) return (seq_t)x;
         }
 
         /* Prepare next higher k, guard against overflow */

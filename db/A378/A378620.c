@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 616, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, is_squarefree
+ * Validated: standard, pass, 72 terms through n = 977 (2026-11-03)
+ * Helpers:   build_primes_upto, is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 static uint64_t *primes = NULL;      /* current list of primes */
 static size_t   primes_cnt = 0;      /* number of primes in the list   */
@@ -37,7 +39,7 @@ static void grow_terms(size_t needed)
     if (terms_cap < needed) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         terms = tmp;
         terms_cap = new_cap;
     }

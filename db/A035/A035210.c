@@ -12,13 +12,32 @@
  *            function below factors n and applies these rules
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   legendre7
+ * Validated: standard, pass, 97 terms through n = 9590 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/legendre7.h"
+
+/* Legendre symbol (7|p) for an odd prime p (p ≠ 7). */
+static inline int legendre7(uint64_t p)
+{
+    uint64_t exp = (p - 1) / 2;
+    uint64_t base = 7 % p;
+    uint64_t result = 1 % p;
+    while (exp) {
+        if (exp & 1U)
+            result = (unsigned __int128)result * base % p;
+        base = (unsigned __int128)base * base % p;
+        exp >>= 1U;
+    }
+    if (result == 1)
+        return 1;
+    if (result == p - 1)
+        return -1;
+    return 0;   /* the only remaining case is p | 7, handled elsewhere */
+}
 
 seq_t a(idx_t n)
 {

@@ -9,21 +9,23 @@
  *            - x^{k(2k-1)}). We compute the coefficient of x^n by a standard
  *            coin‑change DP with the hexagonal numbers as coin values
  * Range:     u8 n <= 112, u16 n <= 408, u32 n <= 1817, u64 n <= 9640,
- *            u128 n <= 9766, big any n
- * Helpers:   none
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 107 terms through n = 9766 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate a table dp[0..n] initialized to 0.  dp[s] will hold
        the number of partitions of s into hexagonal numbers. */
     size_t size = (size_t)n + 1;
-    seq_t *dp = (seq_t*)calloc(size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
     if (!dp) return (seq_t)0;
     dp[0] = 1;  /* base case: one way to partition 0 */
 
@@ -38,6 +40,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = dp[n];
-    free(dp);
+    mem_free(dp);
     return res;
 }

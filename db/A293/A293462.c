@@ -9,6 +9,7 @@
  * Formula:   a(n) = Σ_{p perfect power, 2≤p≤2n} (p-1 if p≤n+1 else 2n-p+1)
  * Range:     u8 n <= 50, u16 n <= 2043, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 81 terms through n = 8830 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

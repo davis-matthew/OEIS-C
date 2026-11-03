@@ -8,8 +8,9 @@
  * Formula:   a(n) = number of k ≤ n such that for every integer q with 1≤q≤k,
  *            either q divides k or q divides n. This ensures
  *            GCQ_A(n,k)=LCQ_A(n,k)=0
- * Range:     u8 n <= 9934, u16 n <= 9934, u32 n <= 9934, u64 n <= 9934,
- *            u128 n <= 9934, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9934 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

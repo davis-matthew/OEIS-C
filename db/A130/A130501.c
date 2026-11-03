@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache of computed a(n) values (1‑indexed as stored) */
 static seq_t *cache = NULL;
@@ -39,7 +41,7 @@ static void ensure_cache_cap(size_t need) {
     if (need <= cache_cap) return;
     size_t newcap = cache_cap > 0 ? cache_cap * 2 : 16;
     if (newcap < need) newcap = need;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     cache = tmp;
     cache_cap = newcap;
 }

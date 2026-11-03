@@ -11,13 +11,15 @@
  *            b(n) = n if n is composite
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- Globals for memoisation and prime generation ------------------------------------- */
 
@@ -79,7 +81,7 @@ ensure_cache(idx_t n)
     if ((size_t)(n + 1) <= a_cache_cap)
         return;
     size_t new_cap = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_cap);
     if (!new_cache) abort();
     a_cache = new_cache;
     a_cache_cap = new_cap;
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
 {
     /* Initialise cache on first call */
     if (a_cache_cap == 0) {
-        a_cache = (seq_t*)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         if (!a_cache) abort();
         a_cache[0] = (seq_t)1;          /* a(0) = 1 */
         a_cache_cap = 1;

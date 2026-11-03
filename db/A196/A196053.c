@@ -11,7 +11,8 @@
  *            multiplicity (bigomega)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9486 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static idx_t cap = 0;                     /* current allocated size (≥ n+1) */
 static seq_t *a_val = NULL;               /* stored a(n) values           */
@@ -45,7 +47,7 @@ static void expand(idx_t new_cap)
     if (new_cap <= cap) return;
 
     /* Reallocate memory for arrays, preserving existing data. */
-    seq_t  *new_val       = (seq_t *)realloc(a_val, new_cap * sizeof(seq_t));
+    seq_t  *new_val       = mem_resize(seq_t, a_val, new_cap);
     bool   *new_done      = (bool *)realloc(a_done, new_cap * sizeof(bool));
     idx_t  *new_spf       = (idx_t *)realloc(spf, new_cap * sizeof(idx_t));
     idx_t  *new_prime_idx = (idx_t *)realloc(prime_idx, new_cap * sizeof(idx_t));

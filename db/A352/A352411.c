@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 19, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stddef.h>   /* for size_t */
 #include <stdint.h>   /* for uint64_t */
+#include "../utils/mem.h"
 
 extern void seq_realloc(seq_t* old, size_t old_cap, size_t new_cap);  /* placeholder */
 
@@ -42,15 +44,15 @@ static void ensure_cached(idx_t n) {
     if (cached_n > n) return;
     size_t new_cap = n + 1;
     if (!cache_a) {
-        cache_a = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        cache_c = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        cache_b = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        cache_e = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        cache_a = mem_new(seq_t, new_cap);
+        cache_c = mem_new(seq_t, new_cap);
+        cache_b = mem_new(seq_t, new_cap);
+        cache_e = mem_new(seq_t, new_cap);
     } else {
-        cache_a = (seq_t*)realloc(cache_a, new_cap * sizeof(seq_t));
-        cache_c = (seq_t*)realloc(cache_c, new_cap * sizeof(seq_t));
-        cache_b = (seq_t*)realloc(cache_b, new_cap * sizeof(seq_t));
-        cache_e = (seq_t*)realloc(cache_e, new_cap * sizeof(seq_t));
+        cache_a = mem_resize(seq_t, cache_a, new_cap);
+        cache_c = mem_resize(seq_t, cache_c, new_cap);
+        cache_b = mem_resize(seq_t, cache_b, new_cap);
+        cache_e = mem_resize(seq_t, cache_e, new_cap);
     }
     /* initialize base cases */
     if (cached_n == 0) {

@@ -9,14 +9,39 @@
  *            distinct prime factors of m
  * Range:     u8 n <= 88, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   omega
+ * Validated: standard, pass, 76 terms through n = 4796 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/omega.h"
+#include "../utils/mem.h"
+
+/* Count distinct prime factors of a seq_t number (works for any seq_t size). */
+static seq_t omega(seq_t n)
+{
+    seq_t tmp = n;
+    seq_t cnt = 0;
+
+    if (tmp == 1) return 0;       /* 1 has no prime factors */
+
+    if ((tmp & 1) == 0) {          /* factor 2 */
+        cnt++;
+        while ((tmp & 1) == 0) tmp >>= 1;
+    }
+
+    for (idx_t i = 3; (seq_t)i * i <= tmp; i += 2) {
+        if (tmp % (seq_t)i == 0) {
+            cnt++;
+            while (tmp % (seq_t)i == 0) tmp /= (seq_t)i;
+        }
+    }
+
+    if (tmp > 1) cnt++;
+    return cnt;
+}
 
 /* Static cache for computed values.  a(1) is stored at seq_cache[0]. */
 static seq_t *seq_cache = NULL;
@@ -31,7 +56,7 @@ static void ensure_cache_size(idx_t n)
     if (seq_cache_cap < n) {
         idx_t new_cap = seq_cache_cap == 0 ? 16 : seq_cache_cap;
         while (new_cap < n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) abort();
         seq_cache = tmp;
         seq_cache_cap = new_cap;

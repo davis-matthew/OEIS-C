@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 59, u32 n <= 855, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_sqrt, mod_pow, next_prime
+ * Validated: standard, pass, 61 terms through n = 930 (2026-11-01)
+ * Helpers:   ipow_i32, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,9 +30,28 @@
 #endif
 
 /* Utilities provided by the OEIS build environment */
-#include "../utils/next_prime.h"     /* uint64_t next_prime(uint64_t start); */
-#include "../utils/mod_pow.h"        /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/floor_sqrt.h"    /* seq_t floor_sqrt(seq_t x); */
+#include <stdbool.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* static cache to store found primes */
 static seq_t *cache = NULL;          /* dynamic array of found primes   */
@@ -91,14 +111,14 @@ seq_t a(idx_t n)
         seq_t nxt;
         uint64_t exp_half = ((uint64_t)p - 1ULL) / 2ULL;
         while (1) {
-            nxt = mod_pow(a_candidate, exp_half, p);
+            nxt = powmod(a_candidate, exp_half, p);
             if (nxt == p - 1) break; /* found a^(p−1)/2 ≡ –1 (mod p) */
             a_candidate++;
         }
 
         /* Compute t = a^((p−1)/4) mod p, a √(–1) modulo p. */
         uint64_t exp_quart = ((uint64_t)p - 1ULL) / 4ULL;
-        seq_t t = mod_pow(a_candidate, exp_quart, p);
+        seq_t t = powmod(a_candidate, exp_quart, p);
 
         /* Cornacchia's algorithm to obtain x and y with p = x² + y². */
         seq_t x = p, y = t;

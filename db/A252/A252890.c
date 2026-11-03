@@ -11,14 +11,15 @@
  *            v_g(k²+1), where v_g(m) is the exponent of g in m
  * Range:     u8 n <= 9465, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 103 terms through n = 9939 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* greatest prime factor of n²+1 (fits in 64‑bit for n ≤ 10⁴) */
-    uint64_t g = gpf((uint64_t)n * (uint64_t)n + 1ull);
+    uint64_t g = largest_prime_factor((uint64_t)n * (uint64_t)n + 1ull);
 
     uint64_t count = 0;
     for (uint64_t k = 1; k <= n; ++k)

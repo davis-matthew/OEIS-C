@@ -9,7 +9,8 @@
  *            |Stirling1(n,2k)| , with a(0)=1
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build; they are used as-is. */
 
@@ -55,7 +57,7 @@ static void ensure_a_capacity(idx_t n)
 {
     if ((size_t)(n + 1) <= aCap) return;
     size_t newCap = n + 1;
-    aVals = (seq_t *)realloc(aVals, newCap * sizeof(seq_t));
+    aVals = mem_resize(seq_t, aVals, newCap);
     for (size_t i = aCap; i < newCap; ++i) aVals[i] = 0;
     aCap = newCap;
 }
@@ -64,7 +66,7 @@ static void ensure_prevS_capacity(idx_t n)
 {
     if ((size_t)(n + 1) <= sPrevCap) return;
     sPrevCap = n + 1;
-    prevS = (seq_t *)realloc(prevS, sPrevCap * sizeof(seq_t));
+    prevS = mem_resize(seq_t, prevS, sPrevCap);
     for (size_t i = (size_t)n + 1; i < sPrevCap; ++i) prevS[i] = 0;
 }
 
@@ -72,7 +74,7 @@ static void ensure_oddFact_capacity(idx_t k)
 {
     if ((size_t)(k + 1) <= oddCap) return;
     size_t newCap = k + 1;
-    oddFact = (seq_t *)realloc(oddFact, newCap * sizeof(seq_t));
+    oddFact = mem_resize(seq_t, oddFact, newCap);
     if (oddCap == 0) oddFact[0] = 1;   /* (2*0-1)!! = 1  */
     for (size_t i = oddCap; i < newCap; ++i) {
         if (i == 0) oddFact[i] = 1;
@@ -98,7 +100,7 @@ static void compute_up_to(idx_t n)
 
     for (idx_t cur = aLen; cur <= n; ++cur) {
         size_t curSize = cur + 1;
-        seq_t *currS = (seq_t *)calloc(curSize, sizeof(seq_t));
+        seq_t *currS = mem_new(seq_t, curSize);
 
         /* Stirling recurrence s(cur,m) = s(cur-1,m-1) + (cur-1)*s(cur-1,m) */
         for (idx_t m = 1; m <= cur; ++m) {
@@ -128,7 +130,7 @@ static void compute_up_to(idx_t n)
         aVals[cur] = sum;
 
         /* Prepare for the next iteration */
-        free(prevS);
+        mem_free(prevS);
         prevS = currS;
         sPrevCap = curSize;
     }

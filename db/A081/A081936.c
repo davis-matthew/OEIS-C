@@ -10,7 +10,8 @@
  *            lazily the first time it is needed
  * Range:     u8 n <= 36, u16 n <= 7971, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_idx
+ * Validated: standard, pass, 76 terms through n = 9756 (2026-11-03)
+ * Helpers:   gcd_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd_idx.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------- */
 /* Helper types and functions                                   */
@@ -43,7 +45,7 @@ static void ensure_entries_cap(size_t need)
     if (entries_cap >= need) return;
     size_t new_cap = entries_cap ? entries_cap * 2 : 1024;
     while (new_cap < need) new_cap <<= 1;
-    Entry *tmp = (Entry *)realloc(entries, new_cap * sizeof(Entry));
+    Entry *tmp = mem_resize(Entry, entries, new_cap);
     if (!tmp) abort();
     entries = tmp;
     entries_cap = new_cap;
@@ -103,10 +105,10 @@ static void build_sequence(void)
     }
 
     /* Sort all entries by semiperimeter */
-    qsort(entries, entries_len, sizeof(Entry), cmp_entry);
+    mem_qsort(entries, entries_len, sizeof(Entry), cmp_entry);
 
     /* Transfer the legs into the final sequence array */
-    seq = (seq_t *)malloc(entries_len * sizeof(seq_t));
+    seq = mem_new(seq_t, entries_len);
     if (!seq) abort();
     for (size_t i = 0; i < entries_len; ++i) {
         seq[i] = entries[i].leg;

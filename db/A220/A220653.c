@@ -7,12 +7,15 @@
  * Formula:   a(n) = n^11 + 11*n + 11^n
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 7, u64 n <= 18, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     seq_t term2 = sn * (seq_t)11;
 
     /* compute 11^n */
-    seq_t term3 = big_pow((seq_t)11, sn);
+    seq_t term3 = ipow((seq_t)11, sn);
 
     return n_pow + term2 + term3;
 }

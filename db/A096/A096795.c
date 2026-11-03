@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Numerator of the sum of reciprocals of the first n prime powers;
    a(n) = sum_{k=1..n} L / d_k ,  
@@ -67,7 +70,7 @@ seq_t a(idx_t n)
 
         /* --- 2.  Gather all prime powers up to limit --------------- */
         powers_cnt = 0;
-        powers = (seq_t *)malloc((size_t)(limit + 1) * sizeof(seq_t));
+        powers = mem_new(seq_t, (size_t)(limit + 1));
         if (!powers) { free(is_prime); return (seq_t)0; }
 
         powers[powers_cnt++] = (seq_t)1;          /* 1 is the 0‑th prime power */
@@ -88,10 +91,10 @@ seq_t a(idx_t n)
         free(is_prime);
 
         /* --- 3.  Sort the powers and test if we have enough -------- */
-        qsort(powers, powers_cnt, sizeof(seq_t), seq_compare);
+        mem_qsort(powers, powers_cnt, sizeof(seq_t), seq_compare);
 
         if (powers_cnt >= n) break;          /* we have at least n prime powers   */
-        free(powers);
+        mem_free(powers);
         limit *= 2;                           /* enlarge and try again            */
     }
 
@@ -108,6 +111,6 @@ seq_t a(idx_t n)
         L = L * d1;
     }
 
-    free(powers);
+    mem_free(powers);
     return N;                                 /* a(n) */
 }

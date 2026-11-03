@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 24, i16 n <= 24, i32 n <= 24, i64 n <= 24, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute ⌊√n⌋ for unsigned 64‑bit n, without using floating point.  */
 static idx_t integer_sqrt(idx_t n)
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
         if (cache_len >= cache_cap)
         {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();          /* allocation failure */
             cache = tmp;
             cache_cap = new_cap;

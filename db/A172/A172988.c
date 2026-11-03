@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  A172988 – Primes p such that either p-3 or p-6 is prime.
  *  Computation: sieve primes up to a growing limit until n terms
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
         }
 
         /* Allocate space for the terms. */
-        seq_t *new_terms = (seq_t *)malloc(sizeof(seq_t) * count);
+        seq_t *new_terms = mem_new(seq_t, count);
         if (!new_terms) {
             free(s);
             return (seq_t)0;   /* out of memory – unexpected */
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
 
         /* Replace the old cache. */
         free(s);
-        free(term_cache);
+        mem_free(term_cache);
         term_cache = new_terms;
         term_len   = count;
         sieve_limit = new_limit;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   trailing_ones_even
+ * Validated: standard, pass, 72 terms through n = 9618 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/trailing_ones_even.h"
+#include "../utils/mem.h"
+
+/* Return true if the number of trailing 1's in the binary expansion of
+   'x' is even.  For odd numbers this counts the run of consecutive
+   1's at the least significant bits. */
+static bool trailing_ones_even(seq_t x)
+{
+    int cnt = 0;
+    seq_t tmp = x;
+    /* All numbers considered are odd, so the least significant bit
+       is 1.  Stop when a 0 bit is reached. */
+    while ((tmp & 1) != 0) {
+        cnt++;
+        tmp >>= 1;
+    }
+    return (cnt & 1) == 0;
+}
 
 /* static cache to hold computed terms */
 static seq_t *cache = NULL;      /* array of terms */
@@ -39,7 +56,7 @@ static void ensure_cache_cap(idx_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 1;
     while (new_cap < needed)
         new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

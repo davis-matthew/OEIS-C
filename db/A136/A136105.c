@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n-6)(n-7)(n^2+19n-144)/24, n >= 8
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 37 terms through n = 44 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

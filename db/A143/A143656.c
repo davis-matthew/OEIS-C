@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 251, u32 n <= 901, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   gcd, linear_to_rowcol
+ * Validated: standard, pass, 107 terms through n = 1252 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,8 +32,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"   /* provides seq_t gcd(seq_t, seq_t) */
-#include "../utils/linear_to_rowcol.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* Convert a linear index n (1‑based) into row r and column k. */
+static void linear_to_rowcol(idx_t n, idx_t *row, idx_t *col)
+{
+    /* Find smallest r with r(r+1)/2 >= n */
+    idx_t r = 1;
+    while (((seq_t)r * (r + 1u)) / 2u < n) {
+        ++r;
+    }
+    /* Previous triangular number as seq_t. */
+    seq_t prev_tri = ((seq_t)(r - 1u) * r) / 2u;
+    *row = r;
+    *col = (idx_t)((seq_t)n - prev_tri);   /* cast back to idx_t safely */
+}
 
 static seq_t *a_tbl = NULL;      /* a_tbl[1..max] holds A045545 values    */
 static idx_t  a_tbl_size = 0;    /* highest index currently computed     */
@@ -45,7 +60,7 @@ static void ensure_a_up_to(idx_t k_max)
 
     if (a_tbl == NULL) {
         /* Allocate space for indices 0..k_max (index 0 unused). */
-        a_tbl = (seq_t *)realloc(NULL, (size_t)(k_max + 1) * sizeof(seq_t));
+        a_tbl = mem_resize(seq_t, NULL, (size_t)(k_max + 1));
         if (a_tbl == NULL) return;             /* allocation failure: abort silently */
         a_tbl[1] = (seq_t)1;                   /* A045545(1) = 1 */
         a_tbl_size = 1;
@@ -53,7 +68,7 @@ static void ensure_a_up_to(idx_t k_max)
         return;                                 /* already have all needed data */
     } else {
         /* Extend the existing table */
-        seq_t *tmp = (seq_t *)realloc(a_tbl, (size_t)(k_max + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_tbl, (size_t)(k_max + 1));
         if (tmp == NULL) return;                /* allocation failure: abort silently */
         a_tbl = tmp;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 22, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define STATE_CNT 256  /* 4⁴ possible states */
 
@@ -34,7 +36,7 @@ static seq_t ndp[STATE_CNT];
 seq_t a(idx_t n)
 {
     /* n >= 1 : total rows = n+1 */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* initialise with the first row (row 0) */
     for (int a0 = 0; a0 < 4; ++a0)
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     for (idx_t step = 1; step <= n; ++step)   /* add rows 1..n */
     {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
 
         for (int s = 0; s < STATE_CNT; ++s)
         {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
                 }
         }
 
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     seq_t ans = 0;

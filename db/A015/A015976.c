@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 3192, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome, reverse_decimal
+ * Validated: standard, pass, 80 terms through n = 9923 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/reverse_decimal.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 /*----- cache for the sequence values ------------------------------------*/
 static seq_t *cache = NULL;     /* array of computed terms            */
@@ -33,7 +35,7 @@ static void cache_grow(size_t min_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < min_cap)
             new_cap = min_cap;
-        seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, new_cap);
         if (!newp) { /* memory allocation failed */
             abort();  /* this is a fatal error for the sequence generator */
         }
@@ -48,9 +50,9 @@ seq_t a(idx_t n)
     /* Generate terms until we have at least n terms. */
     while (cache_len < (size_t)n) {
         checked_upto++;
-        seq_t rev  = reverse_decimal((seq_t)checked_upto);
+        seq_t rev  = reverse_digits((seq_t)checked_upto);
         seq_t sum  = (seq_t)checked_upto + rev;
-        if (is_palindrome(sum, 10)) {
+        if (is_palindrome_base(sum, 10)) {
             cache_grow(cache_len + 1);
             cache[cache_len++] = (seq_t)checked_upto;
         }

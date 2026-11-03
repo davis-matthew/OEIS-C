@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 42, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage for computed values */
 static seq_t *denoms   = NULL;      /* array of q_n */
@@ -43,7 +45,7 @@ static void ensure_denoms_capacity(idx_t n)
     if (denoms_cap < needed) {
         size_t new_cap = denoms_cap ? denoms_cap * 2 : 64;
         if (new_cap < needed) new_cap = needed;
-        denoms = (seq_t *)realloc(denoms, new_cap * sizeof(seq_t));
+        denoms = mem_resize(seq_t, denoms, new_cap);
         denoms_cap = new_cap;
     }
 }

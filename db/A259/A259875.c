@@ -13,8 +13,9 @@
  *            coefficient in that triangle when read row by row (highest
  *            degree first)
  * Range:     i8 n <= 216, i16 n <= 714, i32 n <= 2476, i64 n <= 9362,
- *            i128 n <= 9633, big any n
- * Helpers:   poly_len
+ *            i128 n <= 10100, big any n
+ * Validated: standard, pass, 98 terms through n = 9633 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/poly_len.h"
+#include "../utils/mem.h"
+
+/* number of coefficients of p_k */
+static size_t poly_len(idx_t k)
+{
+    return (k == 0) ? 1 : ((k - 1) / 2 + 1);
+}
 
 /* cached coefficient arrays */
 static seq_t **poly_array = NULL;         /* array of pointers to coefficients */
@@ -52,13 +59,13 @@ static void build_polys_up_to(idx_t k)
 
     for (idx_t i = built_max + 1; i <= k; ++i) {
         if (i == 0) {
-            poly_array[0] = (seq_t*)malloc(sizeof(seq_t));
+            poly_array[0] = mem_new(seq_t, 1);
             poly_array[0][0] = (seq_t)0;
         } else if (i == 1 || i == 2) {
-            poly_array[i] = (seq_t*)malloc(sizeof(seq_t));
+            poly_array[i] = mem_new(seq_t, 1);
             poly_array[i][0] = (seq_t)1;
         } else if (i == 3) {
-            poly_array[3] = (seq_t*)malloc(2 * sizeof(seq_t));
+            poly_array[3] = mem_new(seq_t, 2);
             poly_array[3][0] = (seq_t)1;   /* coefficient of x   */
             poly_array[3][1] = (seq_t)1;   /* constant term      */
         } else {
@@ -67,7 +74,7 @@ static void build_polys_up_to(idx_t k)
             size_t lenA  = poly_len(i - 2);
             size_t lenB  = poly_len(i - 4);
             size_t newlen = poly_len(i);
-            seq_t *C = (seq_t*)calloc(newlen, sizeof(seq_t)); /* zeroed */
+            seq_t *C = mem_new(seq_t, newlen); /* zeroed */
             /* x * p_{i-2} */
             for (size_t t = 0; t < lenA; ++t)
                 C[t] = A[t];

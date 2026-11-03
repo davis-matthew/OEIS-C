@@ -10,7 +10,8 @@
  *            totient function
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   build_primes_upto, seq_alloc_new_array, seq_free_array
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,14 @@
 #include <math.h>
 
 /* Utilities for primes and dynamic arrays */
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* ---------- Global state ---------- */
 static uint64_t *prime_cache = NULL;       /* first primes, allocated by build_primes_upto */
@@ -68,8 +74,8 @@ static void ensure_cache(idx_t n)
     seq_t *new_phi  = seq_alloc_new_array(new_len);
 
     if (prim_cache != NULL) {
-        memcpy(new_prim, prim_cache, cache_len * sizeof(seq_t));
-        memcpy(new_phi,  phi_cache,  cache_len * sizeof(seq_t));
+        mem_copy(new_prim, prim_cache, cache_len * sizeof(seq_t));
+        mem_copy(new_phi, phi_cache, cache_len * sizeof(seq_t));
         seq_free_array(prim_cache);
         seq_free_array(phi_cache);
     }

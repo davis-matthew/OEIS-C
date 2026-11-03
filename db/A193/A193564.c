@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 414, u16 n <= 9948, u32 n <= 9948, u64 n <= 9948,
- *            u128 n <= 9948, big any n
- * Helpers:   none
+ * Range:     u8 n <= 414, u16 n <= 10946, u32 n <= 10946, u64 n <= 10946,
+ *            u128 n <= 10946, big any n
+ * Validated: standard, pass, 85 terms through n = 9948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache_seq = NULL;
 static bool *cache_filled = NULL;
@@ -40,7 +42,7 @@ static void ensure_capacity(idx_t need)
     if (cache_cap == 0)
         cache_cap = 2;          /* start with a small positive size */
 
-    seq_t  *new_seq    = (seq_t *)calloc(cache_cap + 1, sizeof(seq_t));
+    seq_t  *new_seq    = mem_new(seq_t, cache_cap + 1);
     bool    *new_filled = (bool *)calloc(cache_cap + 1, sizeof(bool));
     if (new_seq == NULL || new_filled == NULL) {
         /* Allocation failure – in a challenge environment we may just
@@ -48,9 +50,9 @@ static void ensure_capacity(idx_t need)
         abort();
     }
     if (cache_seq) {
-        memcpy(new_seq, cache_seq, (old_cap + 1) * sizeof(seq_t));
+        mem_copy(new_seq, cache_seq, (old_cap + 1) * sizeof(seq_t));
         memcpy(new_filled, cache_filled, (old_cap + 1) * sizeof(bool));
-        free(cache_seq);
+        mem_free(cache_seq);
         free(cache_filled);
     }
     cache_seq    = new_seq;

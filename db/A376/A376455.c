@@ -8,13 +8,19 @@
  *            logarithmic comparison with lgamma)
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   log_diff
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/log_diff.h"
+
+static inline long double log_diff(idx_t k, long double ln_n)
+{
+    long double m = (long double)((2ULL*k)+1ULL);
+    return m * ln_n - lgammal(2ULL*k+2ULL);
+}
 
 seq_t a(idx_t n)
 {

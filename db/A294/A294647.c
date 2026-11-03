@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9457, u16 n <= 9457, u32 n <= 9457, u64 n <= 9457,
- *            u128 n <= 9457, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 9457 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     }
 
     /* Allocate storage for the first n terms of a */
-    seq_t *a_vals = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *a_vals = mem_new(seq_t, (size_t)n);
     if (!a_vals) {
         /* In the unlikely event of allocation failure, return 0 */
         return (seq_t)0;
@@ -84,6 +86,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_vals[n - 1];
-    free(a_vals);
+    mem_free(a_vals);
     return result;
 }

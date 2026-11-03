@@ -8,8 +8,9 @@
  * Formula:   a(n) = ∏₁≤i≤k ⌊ a_i·(a_i+1)·∏_{j≠i}(1+a_j) / 4 ⌋ where n =
  *            ∏₁≤i≤k p_i^{a_i} is the prime factorisation of n. For n = 1,
  *            a(1) = 1. (See OEIS A216677.)
- * Range:     u8 n <= 179, u16 n <= 2519, u32 n <= 8593, u64 n <= 8593,
- *            u128 n <= 8593, big any n
+ * Range:     u8 n <= 179, u16 n <= 2519, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 96 terms through n = 8593 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,9 @@
 #include <stddef.h>      /* size_t */
 #include <stdint.h>      /* uint64_t */
 
-#include "../utils/factor_u64.h"   /* factorisation helper */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 /* the types seq_t and idx_t are supplied by the build system */
 

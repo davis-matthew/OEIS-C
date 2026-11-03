@@ -11,6 +11,7 @@
  *            T(i,j) for i=0,1,2,… and j=1…i+1, concatenated b...
  * Range:     u8 n <= 48, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static mutable state */
 static seq_t *A = NULL;   /* coefficients a(n) */
@@ -36,11 +38,11 @@ static void extend_to(idx_t n)
     if (n < len) return;                     /* already computed */
 
     idx_t new_len = n + 1;                   /* space for 0..n */
-    seq_t *Anew    = (seq_t*)malloc(new_len * sizeof(seq_t));
+    seq_t *Anew    = mem_new(seq_t, new_len);
     int   *Snew    = (int*)   malloc(new_len * sizeof(int));
 
     if (!Anew || !Snew) {                    /* allocation failure */
-        if (Anew) free(Anew);
+        if (Anew) mem_free(Anew);
         if (Snew) free(Snew);
         exit(1);
     }
@@ -81,7 +83,7 @@ static void extend_to(idx_t n)
     }
 
     /* free old storage */
-    free(A);
+    mem_free(A);
     free(S);
 
     /* store new arrays */

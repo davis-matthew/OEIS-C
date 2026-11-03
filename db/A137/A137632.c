@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t values */
 static int seq_cmp(const void *x, const void *y)
@@ -62,7 +64,7 @@ static void generate_cache(idx_t limit, seq_t **out, size_t *len)
     }
 
     /* Allocate array for all pair sums */
-    seq_t *pairs = (seq_t *)malloc(pair_cnt * sizeof(seq_t));
+    seq_t *pairs = mem_new(seq_t, pair_cnt);
     if (!pairs) {
         *out = NULL;
         *len = 0;
@@ -83,13 +85,13 @@ static void generate_cache(idx_t limit, seq_t **out, size_t *len)
     }
 
     /* Sort sums */
-    qsort(pairs, pair_cnt, sizeof(seq_t), seq_cmp);
+    mem_qsort(pairs, pair_cnt, sizeof(seq_t), seq_cmp);
 
     /* Deduplicate while preserving order */
     size_t uniq_len = 1;
-    seq_t *uniq = (seq_t *)malloc(pair_cnt * sizeof(seq_t));
+    seq_t *uniq = mem_new(seq_t, pair_cnt);
     if (!uniq) {
-        free(pairs);
+        mem_free(pairs);
         free(p_uint64);
         *out = NULL;
         *len = 0;
@@ -103,7 +105,7 @@ static void generate_cache(idx_t limit, seq_t **out, size_t *len)
     }
 
     /* Clean up */
-    free(pairs);
+    mem_free(pairs);
     free(p_uint64);
 
     *out = uniq;
@@ -136,7 +138,7 @@ seq_t a(idx_t n)
         generate_cache(prime_limit, &new_cache, &new_len);
 
         /* Replace old cache */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
 

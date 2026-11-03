@@ -9,6 +9,7 @@
  * Formula:   a(n) = 2*(4*C(n+5,6)+19*C(n+4,6)-17*C(n+3,6)+4*C(n+2,6))
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 39, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 200 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

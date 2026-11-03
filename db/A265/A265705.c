@@ -9,16 +9,18 @@
  *            ⌊(√(8n+1)–1)/2⌋, col = n – row(row+1)/2, and bitlen(row) = 1 if
  *            row==0 else ⌊log₂(row)⌋+1. This reads the triangle T(n,k)=k IMPL
  *            n (bitwise implication) row‑by‑row
- * Range:     u8 n <= 8945, u16 n <= 8945, u32 n <= 8945, u64 n <= 8945,
- *            u128 n <= 8945, big any n
- * Helpers:   floor_log2_uint64
+ * Range:     u8 n <= 32895, u16 n <= 32895, u32 n <= 32895, u64 n <= 32895,
+ *            u128 n <= 32895, big any n
+ * Validated: standard, pass, 91 terms through n = 8945 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     idx_t col = n - prev;
 
     /* Bit-width of the row number (n). */
-    idx_t bitlen = (row == 0) ? 1 : (idx_t)floor_log2_uint64(row) + 1;
+    idx_t bitlen = (row == 0) ? 1 : (idx_t)ilog2(row) + 1;
 
     /* Mask to keep only the lower bitlen bits. */
     seq_t mask = (((seq_t)1) << bitlen) - 1U;

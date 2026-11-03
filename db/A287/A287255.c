@@ -12,12 +12,14 @@
  *            one, keeping a DP state (k,s) where k is the number...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 581 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,12 +35,12 @@ seq_t a(idx_t n)
     size_t sz     = rows * stride;
 
     /* In C++ calloc returns void*, so cast explicitly. */
-    seq_t *cur = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, sz);
+    seq_t *nxt = mem_new(seq_t, sz);
     if (!cur || !nxt) {
         /* Allocation failure – return 0 as a safe default. */
-        free(cur);
-        free(nxt);
+        mem_free(cur);
+        mem_free(nxt);
         return 0;
     }
 
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return total;
 }

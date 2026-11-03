@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(0) = 0, a(1) = 1; for n > 1, a(n) = (a(n-1) + a(n-2)) (mod n)
- * Range:     u8 n <= 80, u16 n <= 9731, u32 n <= 9731, u64 n <= 9731,
- *            u128 n <= 9731, big any n
- * Helpers:   none
+ * Range:     u8 n <= 80, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 97 terms through n = 9731 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    on out-of-order calls. Uses only +, -, *, /, % and simple datatype
    conversions, supporting all seq_t sizes (including arbitrary precision). */
 #include <stdlib.h>      /* for malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0u) return 0;
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* Initialise cache for indices 0 and 1. */
     if (cache_len == 0) {
         cache_len = 2;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = 0;
         cache[1] = 1;
     }
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
 
     /* Extend cache up to n. */
     idx_t new_len = n + 1;
-    cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
     for (idx_t i = cache_len; i <= n; ++i) {
         seq_t ai = cache[i-1] % (seq_t)i;   /* a(i-1) modulo i */
         seq_t bi = cache[i-2] % (seq_t)i;   /* a(i-2) modulo i */

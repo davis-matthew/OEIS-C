@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2 * sum_{i=1..n} (2*(i - 2^⌊log2 i⌋) + 1)
  * Range:     u8 n <= 21, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   highest_pow2
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,18 @@
 /*   i.e. twice the partial sums of the Josephus numbers J(3,i). */
 
 #include <stdint.h>
-#include "../utils/highest_pow2.h"
+
+static inline idx_t highest_pow2(idx_t x)
+{
+    /* return highest power of two <= x (x>0) */
+    x |= x >> 1;
+    x |= x >> 2;
+    x |= x >> 4;
+    x |= x >> 8;
+    x |= x >> 16;
+    if (sizeof(idx_t) > 4) x |= x >> 32;   /* handle 64-bit idx_t */
+    return x - (x >> 1);
+}
 
 seq_t a(idx_t n)
 {

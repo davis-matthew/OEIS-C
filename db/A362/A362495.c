@@ -10,14 +10,22 @@
  *            of even elements in [n]), * B[k] are Bell numbers (B[0]=1)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 24, u128 n <= 42,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: standard, pass, 41 terms through n = 568 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"   /* alloc_seq_array(size_t) */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -64,6 +72,6 @@ seq_t a(idx_t n)
         result += term;
     }
 
-    free(B);
+    mem_free(B);
     return result;
 }

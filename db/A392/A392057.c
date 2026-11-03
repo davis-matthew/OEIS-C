@@ -7,15 +7,17 @@
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = wt(a(n-1)) + wt(n) with a(0) = 0, where wt(x) is the
  *            binary weight (popcount) of x
- * Range:     u8 n <= 9216, u16 n <= 9216, u32 n <= 9216, u64 n <= 9216,
- *            u128 n <= 9216, big any n
- * Helpers:   none
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 104 terms through n = 9216 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Popcount: count 1-bits of a 64‑bit unsigned integer. */
 static inline int popcount_u64(uint64_t x) {
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
 
     if (cache_len <= target) {
         size_t new_len = target + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return 0;      /* allocation failure: return 0 */
         cache = tmp;
 

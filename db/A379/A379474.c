@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of prime factors p^e || n such that (p ≡ 1 (mod 8)
  *            and e ≡ 1 (mod 4)) or (p ≡ 5 (mod 8) and e ≡ 3 (mod 4))
- * Range:     u8 n <= 6258, u16 n <= 6258, u32 n <= 6258, u64 n <= 6258,
- *            u128 n <= 6258, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 141 terms through n = 6258 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

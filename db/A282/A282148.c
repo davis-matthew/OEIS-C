@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 3645, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_fulcrum
+ * Validated: standard, pass, 72 terms through n = 9995 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,41 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_fulcrum.h"
+
+/* Return true if x satisfies the fulcrum condition. */
+static bool is_fulcrum(seq_t x)
+{
+    /* gather base‑7 digits (least significant first) */
+    uint8_t digits[1024];
+    size_t len = 0;
+    seq_t t = x;
+    while (t > (seq_t)0) {
+        digits[len++] = (uint8_t)(t % (seq_t)7);
+        t /= (seq_t)7;
+    }
+    if (len == 0) return false;          /* x == 0  -> not considered */
+
+    /* try every possible fulcrum position j (1‑based from LSD) */
+    for (size_t j = 1; j <= len; ++j) {
+        seq_t left  = 0;
+        seq_t right = 0;
+
+        /* left side: from j to k (most significant) */
+        for (size_t p = j - 1; p < len; ++p) {
+            seq_t w = (seq_t)(p - (j - 1) + 1);
+            left += w * (seq_t)digits[p];
+        }
+
+        /* right side: from 1 to j‑1 (less significant) */
+        for (size_t p = 0; p < j - 1; ++p) {
+            seq_t w = (seq_t)(j - (p + 1));
+            right += w * (seq_t)digits[p];
+        }
+
+        if (left == right) return true;
+    }
+    return false;
+}
 
 /* Forward declaration of the type‐specific helper functions that may be
    available from ../utils, but are not needed directly by this routine. */

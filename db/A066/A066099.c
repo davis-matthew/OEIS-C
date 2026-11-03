@@ -8,14 +8,28 @@
  * Formula:   a(n) = A030303(n+1) - A030303(n)
  * Range:     u8 n <= 268, u16 n <= 5120, u32 n <= 5120, u64 n <= 5120,
  *            u128 n <= 5120, big any n
- * Helpers:   popcount_sum_u64
+ * Validated: standard, pass, 120 terms through n = 5010 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/popcount_sum_u64.h"
+
+/* Sum of popcount(i) for 0 <= i <= n (n is unsigned 64‑bit).  */
+static seq_t popcount_sum_u64(idx_t n)
+{
+    if (n == 0) return 0;
+    int k = 63 - __builtin_clzll(n);            /* position of highest set bit */
+    idx_t d = ((idx_t)1) << k;                  /* 2^k */
+    seq_t sum0 = 0;
+    if (k > 0)                                  /* sum of 0 .. d-1 */
+        sum0 = ((seq_t)k) * (((seq_t)1) << (k - 1));
+    seq_t sum1 = ((seq_t)(n - d + 1)) +          /* high bit contribution + rest */
+                 popcount_sum_u64(n - d);
+    return sum0 + sum1;
+}
 
 seq_t a(idx_t n)
 {

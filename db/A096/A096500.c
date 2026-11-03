@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = next_prime(n+1) – next_prime(n) (n ≥ 1)
- * Range:     u8 n <= 9967, u16 n <= 9967, u32 n <= 9967, u64 n <= 9967,
- *            u128 n <= 9967, big any n
+ * Range:     u8 n <= 30000, u16 n <= 30000, u32 n <= 30000, u64 n <= 30000,
+ *            u128 n <= 30000, big any n
+ * Validated: standard, pass, 121 terms through n = 9967 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

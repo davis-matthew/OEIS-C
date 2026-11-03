@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   mul5_string
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,32 @@
 #include <string.h>
 #include <stdio.h>
 #include <inttypes.h>
-#include "../utils/mul5_string.h"
+#include "../utils/mem.h"
+
+/* multiply a decimal string by 5, return a freshly allocated string */
+static char *mul5_string(const char *s)
+{
+    size_t len = strlen(s);
+    /* at most one extra digit for carry, plus terminator */
+    char *temp = (char *)malloc(len + 2);
+    if (!temp) return NULL;   /* caller must handle error */
+    size_t t = 0;
+    int carry = 0;
+    for (size_t i = len; i > 0; --i) {
+        int prod = (s[i - 1] - '0') * 5 + carry;
+        temp[t++] = (char)((prod % 10) + '0');
+        carry    = prod / 10;
+    }
+    if (carry) temp[t++] = (char)(carry + '0');
+
+    /* reverse into result */
+    char *res = (char *)malloc(t + 1);
+    if (!res) { free(temp); return NULL; }
+    for (size_t i = 0; i < t; ++i) res[i] = temp[t - 1 - i];
+    res[t] = '\0';
+    free(temp);
+    return res;
+}
 
 /* -------------- helper functions to handle powers of 5 ------------ */
 
@@ -56,7 +82,7 @@ static void ensure_powers_up_to(idx_t k)
     /* compute missing powers */
     while (powers_size <= k) {
         if (powers_size == 0) {
-            powers[powers_size++] = strdup("1");   /* 5^0 = 1 */
+            powers[powers_size++] = mem_strdup("1");   /* 5^0 = 1 */
         } else {
             char *next = mul5_string(powers[powers_size - 1]);
             powers[powers_size++] = next;
@@ -77,7 +103,7 @@ static void ensure_a_cache(idx_t n)
     if (n < a_size) return;
     size_t new_cap = a_cap ? a_cap : 256;
     while (new_cap <= (size_t)n + 1) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_cap);
     bool *new_flag  = (bool  *)realloc(a_computed, new_cap * sizeof(bool));
     if (!new_cache || !new_flag) return; /* ignore failure */
 

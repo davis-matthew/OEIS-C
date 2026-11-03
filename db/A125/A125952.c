@@ -7,12 +7,14 @@
  * Formula:   a(0)=1; a(n)=∑_{k=0}^{n-1} a(a(k) mod n)
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static state: cache of computed values and its bounds. */
 static seq_t *cache = NULL;
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n)
     if (n >= cap) {
         idx_t newcap = (cap > 0) ? cap : 1;
         while (newcap <= n) newcap <<= 1;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cap = newcap;
     }
 }

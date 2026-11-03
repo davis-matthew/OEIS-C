@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 44, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* 16‑bit or 32‑bit values: no special handling needed.  64‑bit values: the
    recurrence's intermediate sums fit inside 2^64 for all n whose result
@@ -71,10 +73,10 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough for index n */
     if ((size_t)n + 1 > cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {                  /* allocation failed – return 0 */
             if (cache)
-                free(cache);
+                mem_free(cache);
             cache = NULL;
             cap = 0;
             last = 0;

@@ -11,13 +11,15 @@
  *            and grows a static cache
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of computed terms */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     /* initialise cache on first call */
     if (!cache) {
         cache_cap = 16;                      /* enough for the first few terms */
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;                 /* allocation failure fallback */
 
         cache[0] = 1;
@@ -46,10 +48,10 @@ seq_t a(idx_t n) {
     if ((size_t)n >= cache_cap) {
         size_t new_cap = cache_cap > 0 ? cache_cap : 16;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) return 0;            /* allocation failure fallback */
-        memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

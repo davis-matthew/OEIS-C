@@ -9,12 +9,14 @@
  *            into distinct parts >1 with a part dividing all others)
  * Range:     u8 n <= 65, u16 n <= 173, u32 n <= 501, u64 n <= 1629,
  *            u128 n <= 5727, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;
 static idx_t dp_size = 0;
@@ -23,7 +25,7 @@ static void ensure_dp(idx_t upTo)
 {
     if (upTo <= dp_size) return;
     /* Allocate new array */
-    seq_t *newdp = (seq_t*)malloc((upTo + 1) * sizeof(seq_t));
+    seq_t *newdp = mem_new(seq_t, (upTo + 1));
     for (idx_t i = 0; i <= upTo; ++i) newdp[i] = (seq_t)0;
     newdp[0] = (seq_t)1;
     /* Compute partitions into distinct parts >= 2 */
@@ -33,7 +35,7 @@ static void ensure_dp(idx_t upTo)
         }
     }
     /* Free previous array if any */
-    if (dp != NULL) free(dp);
+    if (dp != NULL) mem_free(dp);
     dp = newdp;
     dp_size = upTo;
 }

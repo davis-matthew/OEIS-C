@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   init_fib_table
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
 
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/init_fib_table.h"
+
+static void init_fib_table(bool *fib_tbl) {
+    uint64_t f0 = 0, f1 = 1;
+    while (f1 < (1u << 15)) {
+        if (f1 > 0) fib_tbl[f1] = true;
+        uint64_t tmp = f0 + f1;
+        f0 = f1;
+        f1 = tmp;
+    }
+}
 
 seq_t a(idx_t n) {
     /* Precompute Fibonacci indicators up to 2^15 - 1 (enough for n <= 10000). */

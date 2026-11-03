@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 48, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    value at linear index n. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         row_len   = (idx_t*)malloc(sizeof(idx_t));
 
         /* row 0: length 1, value 1 */
-        seq_t *row0 = (seq_t*)malloc(sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
         row0[0] = (seq_t)1;
         rows[0] = row0;
         row_start[0] = 0;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         idx_t r = max_row + 1;                /* next row index */
         idx_t len = (r + 1) / 2 + 1;          /* number of k values */
 
-        seq_t *row = (seq_t*)malloc(sizeof(seq_t) * len);
+        seq_t *row = mem_new(seq_t, len);
 
         if (r == 0) {                         /* row 0 already built */
             row[0] = (seq_t)1;

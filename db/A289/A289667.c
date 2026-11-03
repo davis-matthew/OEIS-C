@@ -10,7 +10,8 @@
  *            base‑3 number
  * Range:     u8 n <= 59, u16 n <= 3431, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_base3
+ * Validated: standard, pass, 80 terms through n = 9572 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/append_base3.h"
+
+static inline void append_base3(idx_t number, unsigned char *out, size_t *len) {
+    unsigned char tmp[32];
+    size_t tmp_len = 0;
+    if (number == 0) {
+        tmp[tmp_len++] = 0;
+    } else {
+        while (number > 0) {
+            tmp[tmp_len++] = number % 3;
+            number /= 3;
+        }
+    }
+    /* Reverse and append to output buffer. */
+    for (size_t i = 0; i < tmp_len; ++i) {
+        out[(*len)++] = tmp[tmp_len - 1 - i];
+    }
+}
 
 /* Ensure this matches the compiler's typedefs for seq_t and idx_t. */
 

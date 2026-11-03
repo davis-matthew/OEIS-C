@@ -8,12 +8,14 @@
  *            a(k) and a(1) = 1
  * Range:     u8 n <= 43, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 76 terms through n = 818 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
 
 /*  A static array is sufficient for the required index range (≤ 10 000).  */

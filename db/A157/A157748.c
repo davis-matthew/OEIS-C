@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 11, i32 n <= 24, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
     P(x) = 1 + 2x – x² – x⁴ – x⁵ – x⁶ + 2x⁷ + x¹⁰ – x¹¹) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[i] holds a(i) */
 static idx_t computed = 0;    /* number of terms currently cached (≥1 when cache[0] is set) */
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n)
 
     idx_t new_cap = n + 1;              /* number of elements needed */
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)                           /* allocation failed – leave cache unchanged */
         return;
 

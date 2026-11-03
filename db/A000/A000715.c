@@ -12,13 +12,21 @@
  *            (1-x^2), (1-x^3) via prefix sums
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 52, u64 n <= 178, u128 n <= 652,
  *            big any n
- * Helpers:   alloc_zero
+ * Validated: standard, pass, 52 terms through n = 9033 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *A715_P = 0, *A715_Q = 0, *A715_A = 0;
 static idx_t A715_cap = 0;

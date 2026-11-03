@@ -8,6 +8,7 @@
  *            a(4)=37500; a(n)=20*a(n-1)-150*a(n-2)+500*a(n-3)-625*a(n-4)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 21, u128 n <= 47,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 905 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

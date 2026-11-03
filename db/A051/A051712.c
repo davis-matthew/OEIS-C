@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 90 terms through n = 9214 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,22 +21,22 @@
  */
 
 #include <stdint.h>
-#include "../utils/gcd_seq.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
     seq_t a_val = (seq_t)n - 1;
     seq_t g;
 
-    g = gcd_seq(a_val, (seq_t)n + 1);
+    g = gcd(a_val, (seq_t)n + 1);
     if (g != 0)
         a_val /= g;
 
-    g = gcd_seq(a_val, (seq_t)n + 2);
+    g = gcd(a_val, (seq_t)n + 2);
     if (g != 0)
         a_val /= g;
 
-    g = gcd_seq(a_val, (seq_t)n + 3);
+    g = gcd(a_val, (seq_t)n + 3);
     if (g != 0)
         a_val /= g;
 

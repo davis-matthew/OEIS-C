@@ -8,6 +8,7 @@
  *            polynomial
  * Range:     i8 n <= 81, i16 n <= 81, i32 n <= 81, i64 n <= 81, i128 n <= 81,
  *            big any n
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
  * Helpers:   factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,9 @@
 /* Φ_{2p}(-1) = p for odd prime p, and Φ_{2k}(-1) = 1 when k is odd composite.      */
 /* For m=1 we have Φ_1(x)=x-1, so Φ_1(-1) = -2. */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/is_prime.h"
 

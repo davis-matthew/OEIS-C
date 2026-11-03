@@ -9,7 +9,8 @@
  *            (n-2*k)^(n-1)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 18, u128 n <= 29,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 38 terms through n = 406 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 /* Include helpers for integer operations */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"   /* pow_uint(base,exp) -> seq_t */
+#include "../utils/ipow_u64_idx.h"
 
 /* --- Small integer build (uint8_t … uint64_t) ------------------------------------ */
 static inline unsigned __int128 pow_uint128(uint64_t base, idx_t exp)
@@ -65,7 +66,7 @@ static inline seq_t a_big(idx_t n)
     idx_t maxk = n / 2;
     for (idx_t k = 0; k <= maxk; ++k) {
         uint64_t base = n - 2 * k;
-        seq_t power   = pow_uint(base, n - 1);             /* (n-2k)^(n-1) */
+        seq_t power   = ipow_u64_idx(base, n - 1);             /* (n-2k)^(n-1) */
         seq_t term    = current * power;
         if ((k & 1) == 0) sum_even += term;
         else              sum_odd  += term;

@@ -7,19 +7,22 @@
  * Formula:   a(n) = 8*5^n - 4*4^n - 4*3^n + 2^n
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 26, u128 n <= 53,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 39 terms through n = 917 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
-    seq_t p5 = seq_pow(5, n);
-    seq_t p4 = seq_pow(4, n);
-    seq_t p3 = seq_pow(3, n);
-    seq_t p2 = seq_pow(2, n);
+    seq_t p5 = ipow_idx(5, n);
+    seq_t p4 = ipow_idx(4, n);
+    seq_t p3 = ipow_idx(3, n);
+    seq_t p2 = ipow_idx(2, n);
 
     seq_t res = 8 * p5;
     res -= 4 * p4;

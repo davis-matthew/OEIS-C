@@ -9,7 +9,8 @@
  *            (i.e. n = 1 + b + b² + … + b^{k-1} for some k ≥ 2)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   repunit_value
+ * Validated: standard, pass, 118 terms through n = 9407 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,36 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/repunit_value.h"
+
+/* helper to compute the repunit value for a given base b and length k.
+   limit is the target n.  If the computed value exceeds limit, *exceeds
+   is set to true and the function returns limit+1.  Otherwise *exceeds
+   is false and the value is the exact repunit. */
+static seq_t repunit_value(idx_t b, int k, seq_t limit, bool *exceeds)
+{
+    seq_t sum  = 1;       /* current sum of terms */
+    seq_t term = 1;       /* current power term */
+
+    for (int i = 1; i < k; ++i)
+    {
+        /* check overflow in term * b */
+        if (term > limit / (seq_t)b) {
+            *exceeds = true;
+            return limit + 1;
+        }
+        term *= (seq_t)b;
+
+        /* check overflow in sum + term */
+        if (sum > limit - term) {
+            *exceeds = true;
+            return limit + 1;
+        }
+        sum += term;
+    }
+
+    *exceeds = false;
+    return sum;
+}
 
 /* main sequence function */
 seq_t a(idx_t n)

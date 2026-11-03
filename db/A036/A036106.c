@@ -11,7 +11,8 @@
  *            each term are treated as decimal digits
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 254, u128 n <= 254,
  *            big any n
- * Helpers:   digit_len, num_digits_uint, seq_from_str, seq_to_str
+ * Validated: standard, pass, 34 terms through n = 253 (2026-11-03)
+ * Helpers:   mem, num_digits, num_digits_u32_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,41 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "../utils/seq_from_str.h"
-#include "../utils/seq_to_str.h"
-#include "../utils/digit_len.h"
-#include "../utils/num_digits_uint.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/num_digits_u32_to_i32.h"
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* Helper: append an unsigned integer to a character buffer */
 static void append_uint(char **p, unsigned int v)
@@ -48,7 +80,7 @@ seq_t a(idx_t n)
     /* One‑time cache initialization */
     if (!cache) {
         cap = 4;                      /* start with a small capacity */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) exit(1);
         cache[0] = seq_from_str("1");
         cache[1] = seq_from_str("2");
@@ -61,7 +93,7 @@ seq_t a(idx_t n)
         if (required > cap) {
             size_t new_cap = cap ? cap * 2 : 4;
             while (new_cap < required) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(1);
             cache = tmp;
             cap = new_cap;
@@ -73,7 +105,7 @@ seq_t a(idx_t n)
 
             /* Count digits in a(i-2) */
             {
-                size_t l = digit_len(cache[i-2]);
+                size_t l = num_digits(cache[i-2]);
                 char *s = (char *)malloc(l + 1);
                 size_t rl = l;
                 seq_to_str(cache[i-2], s, &rl);
@@ -84,7 +116,7 @@ seq_t a(idx_t n)
 
             /* Count digits in a(i-1) */
             {
-                size_t l = digit_len(cache[i-1]);
+                size_t l = num_digits(cache[i-1]);
                 char *s = (char *)malloc(l + 1);
                 size_t rl = l;
                 seq_to_str(cache[i-1], s, &rl);
@@ -96,7 +128,7 @@ seq_t a(idx_t n)
             /* Estimate length of the new string */
             size_t est = 0;
             for (int d = 9; d >= 0; --d) {
-                if (cnt[d]) est += num_digits_uint(cnt[d]) + 1;
+                if (cnt[d]) est += num_digits_u32_to_i32(cnt[d]) + 1;
             }
 
             char *buf = (char *)malloc(est + 1);

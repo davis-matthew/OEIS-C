@@ -7,18 +7,22 @@
  * Formula:   a(n) = (2^n)^(2^n)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   pow2_idx, pow_seq_large
+ * Validated: standard, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2_idx.h"
-#include "../utils/pow_seq_large.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
     /* 2^n ^ 2^n  = 2^(n * 2^n) */
-    seq_t power_of_two = pow2_idx(n);          /* 2^n */
+    seq_t power_of_two = pow2(n);          /* 2^n */
     seq_t exponent = (seq_t)n * power_of_two;  /* n * 2^n */
-    return pow_seq_large((seq_t)2, exponent);
+    return ipow((seq_t)2, exponent);
 }

@@ -7,15 +7,18 @@
  * Formula:   a(n) = prime(n)^(n+1) - prime(n+1)^n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 19,
  *            big any n
- * Helpers:   build_primes_upto, pow_uint
+ * Validated: standard, pass, 32 terms through n = 282 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Cache of primes up to a fixed limit so that
    prime(n) and prime(n+1) can be retrieved quickly. */
@@ -41,8 +44,8 @@ seq_t a(idx_t n)
     seq_t p1 = (seq_t)prime_list[n - 1];   /* prime(n)   */
     seq_t p2 = (seq_t)prime_list[n];      /* prime(n+1) */
 
-    seq_t val1 = pow_uint((uint64_t)p1, n + 1);   /* prime(n)^(n+1) */
-    seq_t val2 = pow_uint((uint64_t)p2, n);       /* prime(n+1)^n */
+    seq_t val1 = ipow_u64_idx((uint64_t)p1, n + 1);   /* prime(n)^(n+1) */
+    seq_t val2 = ipow_u64_idx((uint64_t)p2, n);       /* prime(n+1)^n */
 
     return val1 - val2;                           /* a(n)        */
 }

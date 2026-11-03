@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 51,
  *            big any n
- * Helpers:   _cf_coeff
+ * Validated: standard, pass, 38 terms through n = 150 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,21 @@
    for n ≥ 1: a(n) = c(n) · a(n‑1) + a(n‑2)   where
      c(n) = 4, 2, 4, 22   and repeats every 4 indices. */
 #include <stdlib.h>
-#include "../utils/_cf_coeff.h"
+#include "../utils/mem.h"
+
+/* Continued‑fraction coefficient for sqrt(126). */
+static inline seq_t _cf_coeff(idx_t k)
+{
+    if (k == 0) return (seq_t)11;
+    idx_t r = (k - 1) % 4;
+    switch (r) {
+        case 0: return (seq_t)4;
+        case 1: return (seq_t)2;
+        case 2: return (seq_t)4;
+        case 3: return (seq_t)22;
+    }
+    return (seq_t)0;          /* unreachable */
+}
 
 /* Cache of already computed numerators. */
 static seq_t *cache      = NULL;
@@ -31,7 +46,7 @@ seq_t a(idx_t n)
     /* Grow cache to at least n + 1 elements. */
     size_t need = (size_t)n + 1;
     if (need > cache_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (tmp == NULL) return 0;           /* allocation fail */
         cache = tmp;
 

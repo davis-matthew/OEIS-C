@@ -8,6 +8,7 @@
  *            (Lucas(0)=2), a(2k+1) = Fibonacci(k)
  * Range:     u8 n <= 23, u16 n <= 47, u32 n <= 93, u64 n <= 185,
  *            u128 n <= 369, big any n
+ * Validated: standard, pass, 67 terms through n = 991 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

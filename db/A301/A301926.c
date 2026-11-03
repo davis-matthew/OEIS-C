@@ -7,12 +7,14 @@
  * Formula:   a(n+3) = a(n) + 24*n + 32, a(0)=0, a(1)=3, a(2)=13
  * Range:     u8 n <= 8, u16 n <= 128, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 880 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*
  * Compute the OEIS sequence A301926.
@@ -29,14 +31,14 @@ seq_t a(idx_t n) {
         /* grow to 3 if needed */
         if (cache_len == 0) {
             cache_len = 3;
-            cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_len);
             if (!cache) return 0; /* allocation failure: return 0 as fallback */
             cache[0] = (seq_t)0;
             cache[1] = (seq_t)3;
             cache[2] = (seq_t)13;
         } else {
             /* bump to 3 if still smaller (should not happen) */
-            cache = (seq_t *)realloc(cache, 3 * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, 3);
             if (!cache) return 0;
             if (cache_len == 1) cache[1] = (seq_t)3;
             if (cache_len == 2) cache[2] = (seq_t)13;
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
 
     /* resize cache to hold up to n */
     idx_t new_len = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) return 0; /* allocation failure */
     cache = tmp;
 

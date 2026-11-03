@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of primes p with 100*n ≤ p ≤ 100*n + 99
  * Range:     u8 none, u16 n <= 41, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 9791 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 
 static idx_t      _sieve_limit   = 0;      /* maximum number already sieved */
@@ -45,7 +47,7 @@ static void _ensure_sieve(idx_t new_limit)
                 new_is_prime[m] = false;
 
     /* allocate and fill prefix sum array */
-    seq_t *new_pref_sum = (seq_t *)malloc((size_t)(new_limit + 1) * sizeof(seq_t));
+    seq_t *new_pref_sum = mem_new(seq_t, (size_t)(new_limit + 1));
     if (!new_pref_sum) {
         free(new_is_prime);
         return;
@@ -59,7 +61,7 @@ static void _ensure_sieve(idx_t new_limit)
 
     /* replace old tables */
     free(_sieve_is_prime);
-    free(_sieve_pref_sum);
+    mem_free(_sieve_pref_sum);
     _sieve_is_prime = new_is_prime;
     _sieve_pref_sum = new_pref_sum;
     _sieve_limit   = new_limit;

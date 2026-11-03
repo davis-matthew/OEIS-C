@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   digit_double_factorial
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,23 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/digit_double_factorial.h"
+
+/* Pre‑computed double factorial values for the single digits 0‑9. */
+static seq_t digit_double_factorial(unsigned d)
+{
+    switch (d) {
+        case 0: case 1: return (seq_t)1;
+        case 2: return (seq_t)2;
+        case 3: return (seq_t)3;
+        case 4: return (seq_t)8;
+        case 5: return (seq_t)15;
+        case 6: return (seq_t)48;
+        case 7: return (seq_t)105;
+        case 8: return (seq_t)384;
+        case 9: return (seq_t)945;
+        default: return (seq_t)0; /* never reached */
+    }
+}
 
 /* Static storage for the finite list of numbers that satisfy the
    condition.  The sequence can contain only numbers ≤ 3780 because

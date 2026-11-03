@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   pair_hash_key, seq_type_has_limit, seq_type_max_ll
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,23 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pair_hash_key.h"
-#include "../utils/seq_type_has_limit.h"
-#include "../utils/seq_type_max_ll.h"
+#include "../utils/mem.h"
+
+static inline uint64_t pair_hash_key(idx_t x, idx_t y)
+{
+    return (((uint64_t)x) << 32) | ((uint64_t)y);
+}
+
+/* ----------  helper: detect seq_t limits  ---------- */
+static inline bool seq_type_has_limit(void)
+{
+    return sizeof(seq_t) <= sizeof(unsigned long long);
+}
+
+static inline unsigned long long seq_type_max_ll(void)
+{
+    return (unsigned long long)(~(seq_t)0);
+}
 
 /* ----------  min‑heap for Candidate values  ---------- */
 typedef struct { seq_t val; idx_t x; idx_t y; } Candidate;
@@ -31,7 +46,7 @@ static void heap_reserve(size_t new_cap)
 {
     if (new_cap <= heap_cap) return;
     heap_cap = new_cap;
-    heap = (Candidate *)realloc(heap, heap_cap * sizeof(Candidate));
+    heap = mem_resize(Candidate, heap, heap_cap);
     if (!heap) abort();
 }
 
@@ -104,7 +119,7 @@ static void seq_reserve(size_t new_cap)
 {
     if (new_cap <= seq_cap) return;
     seq_cap = new_cap;
-    seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
     if (!seq_arr) abort();
 }
 
@@ -116,7 +131,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         initialized = true;
         seq_cap = 256;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         if (!seq_arr) abort();
 
         /* seed heap with (0,0) */

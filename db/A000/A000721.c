@@ -11,15 +11,24 @@
  *            x^|C|)
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   gcdu, mu_small
+ * Validated: standard, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
-#include "../utils/gcdu.h"
-#include "../utils/mu_small.h"
+#include "../utils/gcd_u64.h"
+
+static int mu_small(uint64_t m) {
+    int r = 1;
+    for (uint64_t p = 2; p * p <= m; p++) {
+        if (m % p == 0) { m /= p; if (m % p == 0) return 0; r = -r; }
+    }
+    if (m > 1) r = -r;
+    return r;
+}
 
 #define MAXS 8192
 static int ci[64], cs[64], nc;
@@ -43,7 +52,7 @@ static void add_dist(uint64_t i, int s) {
             if (d % e) continue;
             int m = mu_small(d / e);
             if (!m) continue;
-            uint64_t c = gcdu(e, i);
+            uint64_t c = gcd_u64(e, i);
             int64_t F = (s && ((e / c) & 1)) ? 0 : ((int64_t)1 << c);
             sum += m * F;
         }
@@ -52,7 +61,7 @@ static void add_dist(uint64_t i, int s) {
     int nt = 0;
     for (int a = 0; a < ns; a++) {
         for (int b = 0; b < nd; b++) {
-            uint64_t g = gcdu(SL[a], dl[b]);
+            uint64_t g = gcd_u64(SL[a], dl[b]);
             uint64_t L = SL[a] / g * dl[b];
             if (L > HALF) continue; /* lengths only grow; never reaches degree HALF */
             uint64_t c = g * SC[a] * dc[b];

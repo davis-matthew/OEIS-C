@@ -11,7 +11,8 @@
  *            of calls
  * Range:     u8 n <= 118, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9409 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* ---------- prime table ---------------------------------------- */
 static uint64_t *primes = NULL;          /* array of primes          */
@@ -161,11 +163,11 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n) {
         if (passes(next_candidate)) {
             seq_t val = (seq_t)next_candidate;
-            cache = (seq_t *)realloc(cache, (cache_len + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (cache_len + 1));
             if (!cache) return 0;    /* out of memory – unlikely */
 #ifdef __cplusplus
             /* placement new to correctly construct the object          */
-            new (&cache[cache_len]) seq_t(val);
+            *(&cache[cache_len]) = (seq_t)(val);
 #else
             cache[cache_len] = val;
 #endif

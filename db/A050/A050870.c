@@ -9,6 +9,7 @@
  *            = sum_{d | gcd(h,k)} μ(d) * binomial(h/d, k/d)
  * Range:     u8 n <= 121, u16 n <= 121, u32 n <= 121, u64 n <= 121,
  *            u128 n <= 121, big any n
+ * Validated: partial, pass, 122 terms through n = 121 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* gcd for idx_t */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 27, u64 n <= 65, u128 n <= 209,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------------- */
 /* Parameters.  The maximum row needed for n up to about 10 000 is < 200. */
@@ -64,8 +66,8 @@ static void init_binom(void)
 static void init_rows(void)
 {
     /* row 0 */
-    p_rows[0] = (seq_t *)calloc(1, sizeof(seq_t));
-    q_rows[0] = (seq_t *)calloc(1, sizeof(seq_t));
+    p_rows[0] = mem_new(seq_t, 1);
+    q_rows[0] = mem_new(seq_t, 1);
     p_rows[0][0] = (seq_t)1;   /* p(0,n)=1   */
     q_rows[0][0] = (seq_t)2;   /* q(0,n)=2   */
     rows_allocated = 1;
@@ -86,12 +88,12 @@ static void ensure_rows_upto(size_t k)
         size_t prev_len = cur;               /* since row cur-1 has cur entries */
 
         /* allocate new row buffers */
-        seq_t *p_new = (seq_t *)calloc(cur + 1, sizeof(seq_t));
-        seq_t *q_new = (seq_t *)calloc(cur + 1, sizeof(seq_t));
+        seq_t *p_new = mem_new(seq_t, cur + 1);
+        seq_t *q_new = mem_new(seq_t, cur + 1);
 
         /* shift arrays (P(n+1) and Q(n+1)) */
-        seq_t *p_shift = (seq_t *)calloc(cur, sizeof(seq_t));
-        seq_t *q_shift = (seq_t *)calloc(cur, sizeof(seq_t));
+        seq_t *p_shift = mem_new(seq_t, cur);
+        seq_t *q_shift = mem_new(seq_t, cur);
 
         for (size_t i = 0; i < prev_len; ++i) {
             seq_t pi = p_prev[i];
@@ -144,8 +146,8 @@ static void ensure_rows_upto(size_t k)
         }
 
         /* free shift buffers */
-        free(p_shift);
-        free(q_shift);
+        mem_free(p_shift);
+        mem_free(q_shift);
 
         /* store new row */
         p_rows[cur] = p_new;

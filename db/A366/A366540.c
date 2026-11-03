@@ -11,7 +11,8 @@
  *            \;\;-\; \prod_{i=1..n}\prod_{j=i..n}\frac{i+j+n-2}{i+j-1}
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,14 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* --- Prime sieve and factorisation tables -------------------------------- */
 #define MAX_SPF_LIMIT 60000               /* covers n up to about 20000 safely */
@@ -93,7 +100,7 @@ static seq_t compute_D(idx_t n) {
         int p = prime_list[i];
         int e = exp[p];
         if (e > 0) {
-            seq_t pw = seq_pow((seq_t)p, (idx_t)e);
+            seq_t pw = ipow_idx((seq_t)p, (idx_t)e);
             res = seq_mul(res, pw);
         }
     }
@@ -128,7 +135,7 @@ static seq_t compute_E(idx_t n) {
         int p = prime_list[i];
         int e = exp[p];
         if (e > 0) {
-            seq_t pw = seq_pow((seq_t)p, (idx_t)e);
+            seq_t pw = ipow_idx((seq_t)p, (idx_t)e);
             res = seq_mul(res, pw);
         }
     }
@@ -145,10 +152,10 @@ seq_t a(idx_t n) {
 
     /* Allocate or grow cache as needed */
     if (cache == NULL || cache_size < (size_t)n + 1) {
-        seq_t *new_cache = (seq_t*)malloc(sizeof(seq_t) * ((size_t)n + 1));
+        seq_t *new_cache = mem_new(seq_t, ((size_t)n + 1));
         if (cache != NULL) {
-            memcpy(new_cache, cache, sizeof(seq_t) * cache_size);
-            free(cache);
+            mem_copy(new_cache, cache, sizeof(seq_t) * cache_size);
+            mem_free(cache);
         }
         cache = new_cache;
         cache_size = (size_t)n + 1;

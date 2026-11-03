@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of ways to partition n into 5 distinct primes
  * Range:     u8 n <= 142, u16 n <= 712, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 89 terms through n = 9845 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Count of partitions of n into five distinct primes. */
 seq_t a(idx_t n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Allocate or resize DP table if needed. */
     if ((size_t)n > dp_cap) {
         /* Free previous resources. */
-        free(dp);
+        mem_free(dp);
         free(primes);
 
         /* Generate all primes <= n. */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
         /* Allocate new DP table. */
         dp_cap = (size_t)n;
-        dp = (seq_t *)malloc(6 * (dp_cap + 1) * sizeof(seq_t));
+        dp = mem_new(seq_t, 6 * (dp_cap + 1));
         if (!dp) return 0; /* allocation failure – should not happen */
 
         /* Initialise to zero and set base case. */

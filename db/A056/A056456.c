@@ -8,6 +8,7 @@
  * Formula:   a(n) = 5! * Stirling2( floor((n+1)/2), 5 )
  * Range:     u8 n <= 10, u16 n <= 14, u32 n <= 26, u64 n <= 54, u128 n <= 110,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 804 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

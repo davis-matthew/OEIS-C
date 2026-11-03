@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 9886, u16 n <= 9886, u32 n <= 9886, u64 n <= 9886,
  *            u128 n <= 9886, big any n
+ * Validated: standard, pass, 98 terms through n = 9723 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* Search: enumerate non‑coprime pairs (i,j) sorted by i+j and i;
    output the first, then the second coordinate of each pair. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

@@ -10,13 +10,14 @@
  *            4)
  * Range:     u8 n <= 16, u16 n <= 32, u32 n <= 64, u64 n <= 128,
  *            u128 n <= 256, big any n
- * Helpers:   pow2_binary
+ * Validated: standard, pass, 67 terms through n = 856 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow2_binary.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -27,12 +28,12 @@ seq_t a(idx_t n)
     {
         /* exponent = (n-1)/2 */
         idx_t exp = (n - 1) >> 1;
-        return pow2_binary(exp);
+        return pow2(exp);
     }
     else                                 /* even n ≥ 2 */
     {
         idx_t exp = (n >> 1) - 1;        /* n/2 - 1 */
-        seq_t val = pow2_binary(exp);
+        seq_t val = pow2(exp);
         return val + 1;
     }
 }

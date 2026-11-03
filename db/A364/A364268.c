@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=1..n} k^2 * sigma_2(k) (sigma_2 is A001157)
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 /* Sum_{k=1..n} k^2 * sigma_2(k) */
 seq_t a(idx_t n)
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
         while (capacity < need) capacity <<= 1;
 
         /* reallocate arrays to new capacity */
-        sigma2 = (seq_t *)realloc((void *)sigma2, capacity * sizeof(seq_t));
-        psum   = (seq_t *)realloc((void *)psum,   capacity * sizeof(seq_t));
+        sigma2 = mem_resize(seq_t, sigma2, capacity);
+        psum   = mem_resize(seq_t, psum, capacity);
 
         /* initialise new slots of sigma2 to 0 */
         for (size_t i = oldCap; i < capacity; ++i) sigma2[i] = 0;

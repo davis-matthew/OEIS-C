@@ -10,13 +10,15 @@
  *            T(r,r)=7*T(r-1,r-1)
  * Range:     u8 n <= 7, u16 n <= 24, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sparse implementation using only O(r) memory (r≈√(2n)). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
 
     /* Allocate two buffers of size r+1.  For r=0 we still allocate a single element. */
     size_t m = (size_t)(r + 1);
-    seq_t *buf1 = (seq_t*)malloc(m * sizeof *buf1);
-    seq_t *buf2 = (seq_t*)malloc(m * sizeof *buf2);
+    seq_t *buf1 = mem_new(seq_t, (m * sizeof *buf1) / sizeof(seq_t));
+    seq_t *buf2 = mem_new(seq_t, (m * sizeof *buf2) / sizeof(seq_t));
     if (!buf1 || !buf2) { /* out of memory; return zero as a safe fallback */
         return (seq_t)0;
     }
@@ -66,8 +68,8 @@ seq_t a(idx_t n)
     seq_t result = prev[k];
 
     /* Free the allocated buffers. */
-    free(buf1);
-    free(buf2);
+    mem_free(buf1);
+    mem_free(buf2);
 
     return result;
 }

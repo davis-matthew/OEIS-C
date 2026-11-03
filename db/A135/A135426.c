@@ -7,19 +7,21 @@
  * Formula:   a(n) = 7^n * 8^(n^2)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 6,
  *            big any n
- * Helpers:   pow2, pow_uint
+ * Validated: standard, pass, 24 terms through n = 30 (2026-11-01)
+ * Helpers:   ipow_u64_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include <stdbool.h>
+#include "../utils/ipow_u64_idx.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
     /* Calculate 7^n */
-    seq_t t1 = pow_uint(7ULL, n);
+    seq_t t1 = ipow_u64_idx(7ULL, n);
 
     /* Calculate 8^(n^2) as 2^(3*n^2) */
     uint64_t exp = 3ULL * n * n;          /* fits in uint64_t for n <= 10000 */

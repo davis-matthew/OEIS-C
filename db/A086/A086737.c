@@ -8,7 +8,8 @@
  *            number of n
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 45, u64 n <= 131, u128 n <= 422,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 9895 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache for partition numbers */
 static seq_t *p_cache   = NULL;   /* array of p(n) values  */
@@ -30,12 +32,12 @@ static void ensure_partition_cache(idx_t n)
         return;  /* already enough space */
 
     size_t new_cap = (size_t)(n + 1) * 2;   /* grow by a factor of 2 for amortised O(n) */
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) abort(); /* out of memory */
 
     if (p_cache != NULL) {
-        memcpy(new_cache, p_cache, p_cache_cap * sizeof(seq_t));
-        free(p_cache);
+        mem_copy(new_cache, p_cache, p_cache_cap * sizeof(seq_t));
+        mem_free(p_cache);
     }
     /* initialise the new part of the cache to zero */
     for (size_t i = p_cache_cap; i < new_cap; ++i)
@@ -49,7 +51,7 @@ static void ensure_partition_cache(idx_t n)
 static void compute_partitions_upto(idx_t n)
 {
     if (p_cache == NULL) {                 /* first run */
-        p_cache       = (seq_t *)malloc(sizeof(seq_t));
+        p_cache       = mem_new(seq_t, 1);
         if (!p_cache) abort();
         p_cache[0]    = 1;                 /* p(0) = 1 */
         p_cache_cap   = 1;

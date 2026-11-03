@@ -9,15 +9,39 @@
  *            by fixed-point iteration x <- n + 1 + P(x)
  * Range:     u8 n <= 233, u16 n <= 9875, u32 n <= 9875, u64 n <= 9875,
  *            u128 n <= 9875, big any n
- * Helpers:   iroot, pow_le
+ * Validated: standard, pass, 87 terms through n = 9821 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/iroot.h"
-#include "../utils/pow_le.h"
+
+/* true if r^k <= x, without overflow */
+static bool pow_le(uint64_t r, int k, uint64_t x) {
+    uint64_t p = 1;
+    int i;
+    for (i = 0; i < k; i++) {
+        if (r != 0 && p > x / r) return false;
+        p *= r;
+    }
+    return p <= x;
+}
+
+static uint64_t iroot(uint64_t x, int k) {
+    uint64_t lo = 1, hi;
+    if (x == 0) return 0;
+    if (k >= 64) return 1;
+    hi = ((uint64_t)1 << (64 / k + 1 > 63 ? 63 : 64 / k + 1));
+    if (hi > x) hi = x;
+    while (lo < hi) {
+        uint64_t mid = lo + (hi - lo + 1) / 2;
+        if (pow_le(mid, k, x)) lo = mid;
+        else hi = mid - 1;
+    }
+    return lo;
+}
 
 static int mobius_small(int k) {
     int m = 1, p;

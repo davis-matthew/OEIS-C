@@ -11,7 +11,8 @@
  *            nth row and column of the multiplication table
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/is_prime.h"   /* provides: bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static inline bool bit_get(const uint64_t *bits, idx_t v)
 {
@@ -61,9 +63,9 @@ static void ensure_cache(idx_t max_n)
 {
     size_t new_cap = (size_t)(max_n + 1);
     if (g_cache == NULL) {
-        g_cache = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        g_cache = mem_new(seq_t, new_cap);
     } else {
-        seq_t *tmp = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, g_cache, new_cap);
         if (tmp == NULL) exit(1);
         g_cache = tmp;
     }

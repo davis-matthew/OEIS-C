@@ -8,12 +8,13 @@
  *            multiplicatively
  * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 46, u64 n <= 386,
  *            u128 n <= 1000, big any n
- * Helpers:   a001287_gcd_u
+ * Validated: standard, pass, 46 terms through n = 1000 (2026-11-01)
+ * Helpers:   gcd_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a001287_gcd_u.h"
+#include "../utils/gcd_u32.h"
 
 seq_t a(idx_t n) {
     seq_t r = 1;
@@ -22,7 +23,7 @@ seq_t a(idx_t n) {
     for (i = 1; i <= 10; i++) {
         idx_t m = n - 10 + i;
         unsigned rm = (unsigned)(r % (seq_t)i);
-        unsigned g = a001287_gcd_u((unsigned)i, rm);
+        unsigned g = gcd_u32((unsigned)i, rm);
         idx_t t;
         r /= (seq_t)g;
         t = i / g;

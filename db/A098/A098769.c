@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 855, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   int_sqrt, rev
+ * Validated: standard, pass, 69 terms through n = 974 (2026-11-01)
+ * Helpers:   isqrt, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/rev.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
+#include "../utils/reverse_digits_idx.h"
 
 /* Sum of positive divisors of v (including v itself). */
 static seq_t sigma_of(idx_t v)
@@ -29,7 +30,7 @@ static seq_t sigma_of(idx_t v)
     seq_t sum = 1;          /* divisor 1 is always present */
     if (v <= 1) return 1;   /* sigma(1) == 1 */
 
-    idx_t sq = int_sqrt(v);
+    idx_t sq = isqrt(v);
     for (idx_t d = 2; d <= sq; ++d)
     {
         if (v % d == 0)
@@ -60,7 +61,7 @@ seq_t a(idx_t n)
     idx_t found = 0;
     for (idx_t num = 1;; ++num)
     {
-        if (abundant(num) && abundant(rev(num)))
+        if (abundant(num) && abundant(reverse_digits_idx(num)))
         {
             ++found;
             if (found == n) return (seq_t)num;

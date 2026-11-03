@@ -11,7 +11,8 @@
  *            if m is not a square, * where d(m) is the divisor count of m
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, divisor_count_u64, is_prime
+ * Validated: standard, pass, 121 terms through n = 9080 (2026-11-01)
+ * Helpers:   is_prime, isqrt, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,8 @@
 #include <stddef.h>
 
 #include "../utils/is_prime.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +36,8 @@ seq_t a(idx_t n)
             ++count;
     }
 
-    size_t d = divisor_count_u64(composite);
-    idx_t sqrt_val = _floor_isqrt_u64(composite);
+    size_t d = num_divisors(composite);
+    idx_t sqrt_val = isqrt(composite);
     if (sqrt_val * sqrt_val == composite)
         return (seq_t)((d - 1) / 2);
     else

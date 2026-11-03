@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} binomial(n - k*(k-1)/2, k) The
  *            binomial is taken with the standard identity for negative upper
  *            arguments: binom(-m,k) = (-1)^k * binom(m + k - 1, k)
- * Range:     i8 n <= 10, i16 n <= 15, i32 n <= 21, i64 n <= 30, i128 n <= 30,
+ * Range:     i8 n <= 11, i16 n <= 15, i32 n <= 21, i64 n <= 30, i128 n <= 30,
  *            big any n
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t binomial_general(idx_t k, seq_t m)

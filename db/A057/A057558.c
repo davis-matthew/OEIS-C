@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   lexicographic ordering of MxMxMxM (M = {0,1,2,…})
- * Range:     u8 n <= 140, u16 n <= 9089, u32 n <= 9089, u64 n <= 9089,
- *            u128 n <= 9089, big any n
+ * Range:     u8 n <= 140, u16 n <= 19380, u32 n <= 19380, u64 n <= 19380,
+ *            u128 n <= 19380, big any n
+ * Validated: standard, pass, 156 terms through n = 9089 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,14 +7,18 @@
  * Formula:   a(n) = greatest k such that k^8 divides n!
  * Range:     u8 n <= 35, u16 n <= 59, u32 n <= 97, u64 n <= 151,
  *            u128 n <= 259, big any n
- * Helpers:   pow_uint, sieve_primes
+ * Validated: standard, pass, 73 terms through n = 944 (2026-11-01)
+ * Helpers:   ipow_u64_idx, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_u64_idx.h"
 #include "../utils/sieve_primes.h"
-#include "../utils/pow_uint.h"
 
 static idx_t max_cached = 0;
 static idx_t *primes = NULL;
@@ -53,7 +57,7 @@ seq_t a(idx_t n)
 
         idx_t exp = e / 8;
         if (exp)
-            result *= pow_uint((uint64_t)p, exp);
+            result *= ipow_u64_idx((uint64_t)p, exp);
     }
 
     return result;

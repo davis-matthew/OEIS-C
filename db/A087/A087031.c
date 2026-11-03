@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 5548, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 71 terms through n = 9779 (2026-11-01)
  * Helpers:   is_prime, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,10 @@
    numbers n such that 2*P - n is prime, where P is the smallest prime
    greater than n. */
 
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t) */
-#include "../utils/is_prime.h"     /* bool is_prime(idx_t) */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/is_prime.h"
+#include "../utils/next_prime.h"
 
 seq_t a(idx_t n)
 {

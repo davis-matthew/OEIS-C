@@ -7,13 +7,17 @@
  * Formula:   a(n) = 2^sigma(n) mod n (sigma = sum of divisors)
  * Range:     u8 n <= 265, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 101 terms through n = 975 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 /* Compute a(n) for n >= 1 */
 seq_t a(idx_t n)
@@ -48,5 +52,5 @@ seq_t a(idx_t n)
     }
 
     /* Compute 2^sigma mod n using provided modular exponentiation */
-    return mod_pow(2, (idx_t)sigma, n);
+    return powmod(2, (idx_t)sigma, n);
 }

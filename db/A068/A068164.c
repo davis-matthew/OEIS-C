@@ -10,7 +10,8 @@
  *            between digits of n)
  * Range:     u8 n <= 11, u16 n <= 1001, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  Utility functions
@@ -96,12 +98,12 @@ static void ensure_primes_up_to(idx_t limit)
     for (size_t i = 2; i <= (size_t)limit; ++i)
         if (!sieve[i]) ++cnt;
 
-    seq_t *new_primes = (seq_t *)malloc(cnt * sizeof(seq_t));
+    seq_t *new_primes = mem_new(seq_t, cnt);
     size_t idx = 0;
     for (size_t i = 2; i <= (size_t)limit; ++i)
         if (!sieve[i]) new_primes[idx++] = (seq_t)i;
 
-    free(prime_list);
+    mem_free(prime_list);
     prime_list = new_primes;
     prime_cnt  = cnt;
     primes_limit = limit;
@@ -134,7 +136,7 @@ static void ensure_cache_size(idx_t n)
     if ((size_t)n < cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap : 128;
     while ((size_t)n >= new_cap) new_cap <<= 1;
-    cache_vals = (seq_t *)realloc(cache_vals, new_cap * sizeof(seq_t));
+    cache_vals = mem_resize(seq_t, cache_vals, new_cap);
     cache_ok   = (bool   *)realloc(cache_ok,   new_cap * sizeof(bool));
     memset(cache_ok + cache_cap, 0, (new_cap - cache_cap) * sizeof(bool));
     cache_cap = new_cap;

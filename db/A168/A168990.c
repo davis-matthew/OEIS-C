@@ -8,12 +8,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence A168990:
    Growth series generating function:
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (n == (idx_t)0)
         return (seq_t)1;
 
-    seq_t *a = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, (size_t)(n + 1));
     if (!a)
         return (seq_t)0; /* allocation failure */
 
@@ -62,6 +64,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a[n];
-    free(a);
+    mem_free(a);
     return result;
 }

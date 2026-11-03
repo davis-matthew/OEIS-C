@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Simple primality test suitable for the small range of primes needed. */
 static int is_prime_uint64(uint64_t x) {
@@ -61,8 +63,7 @@ seq_t a(idx_t n) {
         prime_arr[prime_cnt] = p;
 
         /* Append to cumulative sum array. */
-        seq_t *tmp_cum = (seq_t *)realloc(cum_arr,
-                          sizeof(seq_t) * (cum_cnt + 1));
+        seq_t *tmp_cum = mem_resize(seq_t, cum_arr, (cum_cnt + 1));
         if (!tmp_cum) {
             abort();
         }

@@ -8,12 +8,14 @@
  *            with a(1) = 1. The function memoizes results in a static array
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* 1‑based cache; cache[0] unused */
 static size_t cache_cap = 0;    /* allocated size (number of slots) */
@@ -25,7 +27,7 @@ static void cache_ensure(idx_t n)
         return;
 
     size_t new_cap = (size_t)n + 1;   /* slots 0..n, where 0 is unused */
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         exit(1);                     /* allocation failure */
 
@@ -37,7 +39,7 @@ static void cache_ensure(idx_t n)
     if (cache) {
         for (size_t i = 1; i < cache_cap; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     cache = new_cache;

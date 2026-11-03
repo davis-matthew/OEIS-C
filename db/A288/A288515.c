@@ -13,14 +13,15 @@
  *            * i = n - j(j+1)/2, j = j. (See comments in the code.)
  * Range:     u8 n <= 38, u16 n <= 97, u32 n <= 311, u64 n <= 1058,
  *            u128 n <= 3792, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 94 terms through n = 9319 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -51,10 +52,10 @@ seq_t a(idx_t n)
             seq_t val = 0;
             idx_t limit_b = (s < j ? s : j);   /* b ranges 0..min(s,j) */
             for (idx_t b = 0; b <= limit_b; ++b) {
-                seq_t t1 = binom(j, b);
+                seq_t t1 = binomial(j, b);
                 /* term2 = binom(j + (s - b) - 1, s - b) */
                 idx_t m = s - b;
-                seq_t t2 = binom(j + m - 1, m);
+                seq_t t2 = binomial(j + m - 1, m);
                 val += t1 * t2;
             }
             f[s] = val;

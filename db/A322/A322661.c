@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 15,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 50 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 /* Sequence A322661: Number of graphs with loops spanning n labeled vertices.
    Formula: a(n) = Σ_{k=0}^{n} (-1)^k * C(n,k) * 2^{(n-k+1)(n-k)/2} */
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 1962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -54,12 +56,12 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 cache_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
-                seq_t *tmpp = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+                seq_t *tmpp = mem_new(seq_t, cache_cap);
                 if (!tmpp) exit(EXIT_FAILURE);
                 if (cache)
                 {
-                    memcpy(tmpp, cache, cache_len * sizeof(seq_t));
-                    free(cache);
+                    mem_copy(tmpp, cache, cache_len * sizeof(seq_t));
+                    mem_free(cache);
                 }
                 cache = tmpp;
             }

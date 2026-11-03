@@ -10,7 +10,8 @@
  *            most once, in any order. The sequence is finite (only 60 terms)
  * Range:     u8 none, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Digits that may appear in the numbers. */
 static const uint8_t digits[4] = {2, 3, 5, 7};
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
         generate(0, (seq_t)0, 0, seq, &seq_len);
         /* Sort in ascending order. */
         if (seq_len > 1)
-            qsort(seq, seq_len, sizeof(seq_t), seq_cmp);
+            mem_qsort(seq, seq_len, sizeof(seq_t), seq_cmp);
         initialized = true;
     }
 

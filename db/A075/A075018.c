@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   pow10_mod_exp
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
           k, k-1, k-2, k-3 is divisible by n; returns 0 if none. */
 
 #include <stdbool.h>
-#include "../utils/pow10_mod_exp.h"
+
+/* 10^exp mod mod (mod is seq_t) */
+static seq_t pow10_mod_exp(idx_t exp, seq_t mod) {
+    seq_t r = 1;
+    for (idx_t i = 0; i < exp; ++i) {
+        r = (r * (seq_t)10) % mod;
+    }
+    return r;
+}
 
 /* number of decimal digits of an idx_t (circularly safe because idx_t is unsigned) */
 static inline int digit_count_idx(idx_t v) {

@@ -7,13 +7,15 @@
  * Formula:   a(n) = ceil((10*n + 1/n)^n) = ((10*n^2+1)^n + n^n - 1) / n^n
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 31 terms through n = 243 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
            arbitrary‑precision type defined in the build. */
         seq_t sn = (seq_t)n;
         seq_t base = (seq_t)10 * sn * sn + (seq_t)1;
-        seq_t B = big_pow(base, sn);          /* (10*n^2+1)^n */
-        seq_t D = big_pow(sn, sn);           /* n^n */
+        seq_t B = ipow(base, sn);          /* (10*n^2+1)^n */
+        seq_t D = ipow(sn, sn);           /* n^n */
         seq_t numer = B + D - (seq_t)1;
         seq_t res = numer / D;               /* ceil(B/D) */
         return res;

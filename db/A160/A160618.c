@@ -9,15 +9,29 @@
  *            fraction is n! / gcd( n!, Σ_{k=0}^{n} binom(n,k) * (n! / k!) )
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   binom, factorial, gcd, mul_mod64
+ * Validated: standard, pass, 37 terms through n = 407 (2026-11-01)
+ * Helpers:   binomial, gcd, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/factorial.h"
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
-#include "../utils/mul_mod64.h"
+#include "../utils/mulmod.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +47,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= n; ++k)
     {
         /* binomial coefficient C(n,k) */
-        seq_t bin = binom(n, k);
+        seq_t bin = binomial(n, k);
 
         /* n! / k! (exact integer) */
         seq_t term_factorial = fact_n / fact_k;
@@ -48,7 +62,7 @@ seq_t a(idx_t n)
         if constexpr (sizeof(seq_t) <= sizeof(uint64_t))
         {
             /* cast operands to uint64_t because mul_mod64 expects them */
-            prod = (seq_t)mul_mod64((uint64_t)bin,
+            prod = (seq_t)mulmod((uint64_t)bin,
                                      (uint64_t)term_factorial,
                                      (uint64_t)fact_n);
         }
@@ -58,7 +72,7 @@ seq_t a(idx_t n)
         }
 #else
         /* In plain C we assume seq_t is an integral type small enough for mul_mod64. */
-        prod = (seq_t)mul_mod64((uint64_t)bin,
+        prod = (seq_t)mulmod((uint64_t)bin,
                                  (uint64_t)term_factorial,
                                  (uint64_t)fact_n);
 #endif

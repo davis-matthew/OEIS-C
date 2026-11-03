@@ -7,6 +7,7 @@
  * Formula:   a(n) = 5 * A007088(n-1) (A007088 lists numbers with digits 0/1)
  * Range:     u8 n <= 4, u16 n <= 32, u32 n <= 512, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 56 terms through n = 8989 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

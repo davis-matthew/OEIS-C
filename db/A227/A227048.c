@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 93, u32 n <= 344, u64 n <= 1321,
  *            u128 n <= 5178, big any n
- * Helpers:   floor_log2_pow3, pow2, seq_mul
+ * Validated: standard, pass, 70 terms through n = 7781 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,23 @@
    intermediate is used to avoid overflow for the largest possible row. */
 
 #include <stdint.h>
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/pow2.h"
-#include "../utils/floor_log2_pow3.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static inline idx_t floor_log2_pow3(idx_t r)
+{
+    /* log2(3) ≈ 1.584962500721156181453 */
+    static const long double LOG2_3 = 1.584962500721156181453L;
+    /* Add a tiny epsilon to avoid rounding down due to floating‑point errors */
+    return (idx_t)((long double)r * LOG2_3 + 1e-12L);
+}
 
 seq_t a(idx_t n)
 {

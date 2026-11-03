@@ -12,6 +12,7 @@
  *            n-m) * and Binomial(x,y) = x choose y (integer)
  * Range:     i8 n <= 15, i16 n <= 45, i32 n <= 47, i64 n <= 47, i128 n <= 47,
  *            big any n
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

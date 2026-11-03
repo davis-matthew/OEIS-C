@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 23, u64 n <= 44, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const uint64_t D = 815; /* the radicand */
 static const uint64_t A0 = 28; /* floor(sqrt(815)) */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         /* Ensure enough storage */
         if (cache_len >= cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) { /* out of memory */
                 abort();
             }

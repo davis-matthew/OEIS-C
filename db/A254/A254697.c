@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 11, u64 n <= 29, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Transition table: next_state[s][d] = state after adding digit d to state s,
    or -1 if the 5‑window is invalid. */
@@ -86,7 +88,7 @@ static void ensure_cache(idx_t needed)
     if (needed <= a_cache_cap) return;
     size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_cache_cap = new_cap;
 }
 
@@ -112,7 +114,7 @@ seq_t a(idx_t n)
         }
 
         /* Clear next array. */
-        memset(next_arr, 0, sizeof(dp_next));
+        mem_set(next_arr, 0, sizeof(dp_next));
 
         /* Transition. */
         for (int s = 0; s < 4096; ++s) {

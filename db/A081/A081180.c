@@ -7,12 +7,14 @@
  * Formula:   a(n) = 8*a(n-1) - 14*a(n-2), a(0)=0, a(1)=1
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 26, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 280 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoisation table for a(n) */
 static idx_t cache_size = 0;  /* actual number of elements allocated */
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* First call – create a table of at least 2 entries */
     if (cache == NULL) {
         idx_t init_sz = (n > 1 ? n + 1 : 2);          /* guarantee a[1] exists when needed */
-        cache = (seq_t*)malloc(init_sz * sizeof(seq_t));
+        cache = mem_new(seq_t, init_sz);
         if (cache == NULL) return (seq_t)0;           /* allocation failure */
 
         cache[0] = (seq_t)0;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
     /* Need to extend the table to include index n */
     idx_t new_sz = n + 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_sz * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_sz);
     if (tmp == NULL) return (seq_t)0;           /* reallocation failure */
     cache = tmp;
 

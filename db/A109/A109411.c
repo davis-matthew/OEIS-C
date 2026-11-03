@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9447, u16 n <= 9447, u32 n <= 9447, u64 n <= 9447,
- *            u128 n <= 9447, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 118 terms through n = 9447 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- helper: test for semiprime --------------------------------- */
 static bool is_semiprime_uint64(uint64_t n)
@@ -54,7 +56,7 @@ static void grow_array(idx_t need)
     if (group_cap >= need) return;
     idx_t new_cap = group_cap ? group_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(group_sizes, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, group_sizes, new_cap);
     if (!tmp) abort();               /* out of memory */
     group_sizes = tmp;
     group_cap   = new_cap;

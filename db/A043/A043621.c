@@ -7,14 +7,47 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   gen_seq
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the n-th integer whose base‑7 representation has exactly six runs */
 #include <stdbool.h>
-#include "../utils/gen_seq.h"
+
+/* Recursive enumeration of numbers of fixed length L with 5 digit changes
+   (i.e. exactly 6 runs).  Digits are generated in lexicographic order
+   and the offset‑th valid number is stored in *res. */
+static void gen_seq(int pos, int prev, int changes_left,
+                    seq_t val, idx_t L,
+                    idx_t *offset, idx_t *cnt,
+                    seq_t *res, bool *done) {
+    if (*done) return;
+    if (pos == (int)L) {
+        if (changes_left == 0) {
+            (*cnt)++;
+            if (*cnt == *offset) {
+                *res = val;
+                *done = true;
+            }
+        }
+        return;
+    }
+    int rem = (int)L - pos;          /* positions still to fill (incl. this one) */
+    int d_start = (pos == 0) ? 1 : 0;
+    for (int d = d_start; d <= 6; ++d) {
+        int n_changes = changes_left;
+        if (pos > 0 && d != prev) n_changes--;
+        if (n_changes < 0) continue;
+        int rem_after = (int)L - pos - 1;
+        if (n_changes > rem_after) continue;   /* cannot complete the required changes */
+        seq_t new_val = val * (seq_t)7 + (seq_t)d;
+        gen_seq(pos + 1, d, n_changes, new_val, L,
+                offset, cnt, res, done);
+        if (*done) return;
+    }
+}
 
 /* Binomial coefficient C(m,5) using 128‑bit arithmetic */
 static unsigned __int128 binom5(idx_t m) {

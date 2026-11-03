@@ -11,14 +11,31 @@
  *            binomial(n-k,⌊(n-k)/2⌋) for all n ≥ 1
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 15, i64 n <= 24, i128 n <= 25,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t a, idx_t b) */
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
 
 /* Cached values of the sequence and of the coefficients c(m)
    = binomial(m, ⌊m/2⌋). */
@@ -33,7 +50,7 @@ static void ensure_c_cache(idx_t n)
     size_t needed = (size_t)n + 1;
     if (c_cap >= needed)
         return;
-    seq_t *new_cache = (seq_t *)realloc(c_cache, needed * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, c_cache, needed);
     if (new_cache == NULL) {
         /* Out of memory – abort. */
         abort();
@@ -52,7 +69,7 @@ static void ensure_a_cache(idx_t n)
     size_t needed = (size_t)n + 1;
     if (a_cap >= needed)
         return;
-    seq_t *new_cache = (seq_t *)realloc(a_cache, needed * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, needed);
     if (new_cache == NULL) {
         /* Out of memory – abort. */
         abort();

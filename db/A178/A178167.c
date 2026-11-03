@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 27, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime generation of odd primes ---------- */
 static idx_t *prime_arr = NULL;          /* array of odd primes */
@@ -86,8 +88,7 @@ seq_t a(idx_t n)
     /* Grow cache array to hold values up to n */
     size_t new_cap = (size_t)n + 1;
     if (new_cap > cache_cap) {
-        seq_t *new_cache = (seq_t *)realloc(seq_cache,
-                                            new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
         if (new_cache == NULL)
             abort();  /* allocation failure */
         seq_cache = new_cache;

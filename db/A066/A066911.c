@@ -7,13 +7,15 @@
  * Formula:   a(n) = sum of all primes p < n such that p∤n
  * Range:     u8 n <= 43, u16 n <= 929, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 7644 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Prime sieve data                                         */
 static idx_t    sieve_limit = 0;          /* largest n for which data are known (exclusive) */
@@ -45,7 +47,7 @@ static void ensure_primes_up_to(idx_t n)
     }
 
     /* Allocate prime prefix‑sum array. */
-    seq_t *new_psum = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *new_psum = mem_new(seq_t, sz);
     if (!new_psum) abort();
     new_psum[0] = 0;
     if (sz > 1) new_psum[1] = 0;
@@ -74,7 +76,7 @@ static void ensure_primes_up_to(idx_t n)
 
     /* Replace old data with new data.     */
     free(is_prime_arr);
-    free(prime_psum);
+    mem_free(prime_psum);
     free(primes_list);
     is_prime_arr   = new_flag;
     prime_psum     = new_psum;

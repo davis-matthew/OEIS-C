@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{k=0..⌊n/3⌋} 2^(n-2k) * binomial(k, n-3k)^2
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 36, u64 n <= 68, u128 n <= 133,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 1937 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* binomial(k, r) is computed multiplicatively */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

@@ -11,7 +11,8 @@
  *            k^(n−k−1)·k! for 1 ≤ k ≤ n-1
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *fact = NULL;        /* factorial[0..N] */
 static idx_t fact_size = 0;       /* current allocated size */
@@ -28,7 +30,7 @@ static void ensure_fact(idx_t n)
 {
     if (n < fact_size) return;
     idx_t new_size = (n == 0) ? 1 : n + 1;
-    seq_t *tmp = (seq_t *)realloc(fact, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact, new_size);
     if (!tmp) return;                /* allocation failure: just abort */
     fact = tmp;
     for (idx_t i = fact_size; i <= n; ++i) {

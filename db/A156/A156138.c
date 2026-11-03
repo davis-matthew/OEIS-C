@@ -9,7 +9,8 @@
  *            f(x) = A(x)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    requested odd index using an O(N^2) recurrence that avoids the
    explicit binomial convolution of sin^2.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build system.  */
 
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
 
     if (K > max_deg) {
         /* free old storage if reallocating */
-        if (coeff) free(coeff);
-        coeff = (seq_t *)malloc(sizeof(seq_t) * (K + 1));
+        if (coeff) mem_free(coeff);
+        coeff = mem_new(seq_t, (K + 1));
         if (!coeff) return 0; /* memory allocation failed */
 
         /* initial values: for odd indices only  */

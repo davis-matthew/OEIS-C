@@ -7,13 +7,15 @@
  * Formula:   a(1) = 1; for n ≥ 1, a(n+1) = Σ_{d|n} a(d)^2
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 8, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache for the sequence */
 static seq_t *cache      = NULL;   /* a(0) unused, a[i] holds a(i) */
@@ -28,12 +30,12 @@ static void ensure_cache(idx_t n)
 
     /* allocate new storage */
     idx_t new_size  = n + 1;           /* indices 0 .. n inclusive */
-    seq_t  *new_c   = (seq_t *)malloc((new_size + 1) * sizeof(seq_t));
+    seq_t  *new_c   = mem_new(seq_t, (new_size + 1));
     bool   *new_cf  = (bool  *)malloc((new_size + 1) * sizeof(bool));
 
     if (!new_c || !new_cf) {
         /* allocation failed – leave previous cache unchanged */
-        free(new_c);
+        mem_free(new_c);
         free(new_cf);
         return;
     }
@@ -50,7 +52,7 @@ static void ensure_cache(idx_t n)
             new_c[i]  = cache[i];
             new_cf[i] = computed[i];
         }
-        free(cache);
+        mem_free(cache);
         free(computed);
     }
 

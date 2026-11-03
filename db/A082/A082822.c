@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Auxiliary utilities ---------- */
 
@@ -82,7 +84,7 @@ static void ensure_seq_capacity(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 64;
     while (new_cap <= need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
     if (!tmp) exit(EXIT_FAILURE);        /* out of memory */
     seq_vals = tmp;
     seq_cap = new_cap;
@@ -98,7 +100,7 @@ static void generate_row(idx_t r)
     uint64_t prod = 1;               /* product modulo r of the first r-1 numbers */
 
     /* Allocate temporary storage for the r numbers of this row */
-    seq_t *row_vals = (seq_t *)malloc(r * sizeof(seq_t));
+    seq_t *row_vals = mem_new(seq_t, r);
     if (!row_vals) exit(EXIT_FAILURE);
 
     /* Scan integers starting from 2 to collect first_needed coprime, unused numbers */
@@ -138,7 +140,7 @@ static void generate_row(idx_t r)
     for (i = 0; i < r; ++i)
         seq_vals[seq_len + 1 + i] = row_vals[i];
     seq_len = new_len;
-    free(row_vals);
+    mem_free(row_vals);
 }
 
 /* ---------- Public interface ---------- */
@@ -149,7 +151,7 @@ seq_t a(idx_t n)
 
     /* On first call, initialize the cache with term 1 and used[1] */
     if (seq_vals == NULL) {
-        seq_vals = (seq_t *)malloc(64 * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, 64);
         if (!seq_vals) exit(EXIT_FAILURE);
         seq_cap = 64;
         seq_vals[0] = 0;           /* dummy */

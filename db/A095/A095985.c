@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   _floor_isqrt_u64, seq_realloc
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,20 @@
 #include <stdbool.h>
 
 /* include the utilities needed for the cache handling and sqrt check */
-#include "../utils/seq_realloc.h"      /* seq_realloc() */
-#include "../utils/_floor_isqrt_u64.h" /* _floor_isqrt_u64() */
+#include <stdlib.h>
+#include "../utils/isqrt.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Cache and state ----------------------------------------------------------*/
 static seq_t *cache = NULL;      /* stored sequence values */
@@ -82,7 +95,7 @@ seq_t a(idx_t n)
             unsigned __int128 t = 8 * m + 1;           /* 8*m + 1 */
 
             uint64_t t64 = (uint64_t)t;                /* fits for our range */
-            uint64_t s = _floor_isqrt_u64(t64);       /* integer sqrt */
+            uint64_t s = isqrt(t64);       /* integer sqrt */
 
             /* m is triangular iff 8*m+1 is a perfect square */
             if ((unsigned __int128)s * (unsigned __int128)s == t) {

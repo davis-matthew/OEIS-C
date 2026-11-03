@@ -10,7 +10,8 @@
  *            distinct decimal digits
  * Range:     u8 n <= 19, u16 n <= 9893, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9597 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- small prime table and helpers ---------- */
 static uint64_t *primes = NULL;
@@ -134,7 +136,7 @@ static uint64_t next_candidate = 2;   /* 1 is not a term */
 static void grow_cache(void) {
     if (cache_len == cache_cap) {
         cache_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_cache = (seq_t *)realloc(seq_cache, cache_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, cache_cap);
     }
 }
 

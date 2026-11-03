@@ -10,6 +10,7 @@
  *            sum_{i=1}^{k} i² >= n
  * Range:     u8 n <= 450, u16 n <= 1015, u32 n <= 1015, u64 n <= 1015,
  *            u128 n <= 1015, big any n
+ * Validated: standard, pass, 103 terms through n = 752 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

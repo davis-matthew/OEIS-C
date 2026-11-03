@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 190, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   no_consecutive_equal_digits_uint64
+ * Validated: standard, pass, 88 terms through n = 9744 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
  */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/no_consecutive_equal_digits_uint64.h"
+
+/* Check if a 64‑bit unsigned integer has no consecutive equal digits. */
+static bool no_consecutive_equal_digits_uint64(uint64_t x)
+{
+    int last = 10;           /* value outside 0‑9 */
+    while (x) {
+        int d = x % 10;
+        if (d == last) return false;
+        last = d;
+        x /= 10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

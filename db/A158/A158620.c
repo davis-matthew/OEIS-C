@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{k=2..n} (k^3-1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 175 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for n ≥ 2.
  * For n < 2 the value is defined as 0; these indices are not used by OEIS. */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     /* enlarge the cache if necessary to hold up to index n */
     if ((idx_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) {
             abort();               /* terminate if memory allocation fails */
         }
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
             for (idx_t i = 0; i <= cache_last; ++i) {
                 new_cache[i] = cache[i];
             }
-            free(cache);
+            mem_free(cache);
         }
 
         cache = new_cache;

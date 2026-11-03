@@ -10,7 +10,8 @@
  *            odd : a(n) = a(r + m/2) - a(r/2)
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static bool   *computed = NULL;
@@ -29,16 +31,16 @@ static void ensure_capacity(idx_t n)
 {
     if (!cache) {
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         computed = (bool *)malloc(sizeof(bool) * cache_len);
         cache[0] = (seq_t)1;
         computed[0] = true;
     }
     if ((size_t)n >= cache_len) {
         size_t new_len = (size_t)n * 2 + 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         bool *new_comp = (bool *)realloc(computed, sizeof(bool) * new_len);
-        memset(new_cache + cache_len, 0, sizeof(seq_t) * (new_len - cache_len));
+        mem_set(new_cache + cache_len, 0, sizeof(seq_t) * (new_len - cache_len));
         memset(new_comp + cache_len, 0, sizeof(bool) * (new_len - cache_len));
         cache = new_cache;
         computed = new_comp;

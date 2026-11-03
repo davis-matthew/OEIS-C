@@ -13,15 +13,31 @@
  *            19r)/2 ≥ n, * pref(r-1) = ((r-1)^2 + 19(r-1))/2, * k = n -
  *            pref(r-1) - 1 (0 ≤ k ≤ r+8). * Then T(r,k) = Σ_{i=0..9}
  *            (-1)^(i+9)·C(9,i)·C(r‑1, k‑i). * The signs are already in...
- * Range:     i8 n <= 171, i16 n <= 464, i32 n <= 829, i64 n <= 1725,
+ * Range:     i8 n <= 171, i16 n <= 464, i32 n <= 1212, i64 n <= 1725,
  *            i128 n <= 1725, big any n
- * Helpers:   binomial, row_for
+ * Validated: standard, pass, 80 terms through n = 1661 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/row_for.h"
+
+static idx_t row_for(idx_t idx) {
+    /* Find the smallest r with (r^2+19r)/2 >= idx. */
+    idx_t lo = 0, hi = idx;
+    while (lo + 1 < hi) {
+        idx_t mid = (lo + hi) >> 1;
+        __int128 val = (__int128)mid * mid + 19 * mid;
+        val = val >> 1;               /* divide by 2 */
+        if ((idx_t)val >= idx)
+            hi = mid;
+        else
+            lo = mid;
+    }
+    return hi;
+}
 
 static const seq_t row9[10] = {
     - (seq_t)1,   /* (-1)^9 * C(9,0) */

@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = the greatest k such that sigma(n) = m^k for some m ≥ 1
  *            (sigma = A000203, the sum of divisors)
- * Range:     u8 n <= 30, u16 n <= 9773, u32 n <= 9773, u64 n <= 9773,
- *            u128 n <= 9773, big any n
- * Helpers:   ugcd_uint64
+ * Range:     u8 n <= 30, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 116 terms through n = 9773 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/ugcd_uint64.h"
+#include <stdlib.h>
+#include "../utils/gcd_u64.h"
 
 /* Utility: gcd for 64‑bit unsigned (used only internally) */
 
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
     if (cnt > 0) {
         k = ex[0];
         for (size_t i = 1; i < cnt; ++i)
-            k = ugcd_uint64(k, ex[i]);
+            k = gcd_u64(k, ex[i]);
     }
 
     return (seq_t)k;      /* k is at least 1 for all n ≥ 1 */

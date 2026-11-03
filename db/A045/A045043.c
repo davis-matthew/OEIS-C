@@ -9,7 +9,8 @@
  *            contains exactly one 0 and exactly one 2
  * Range:     u8 n <= 45, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence */
 static seq_t *cache = NULL;          /* array of computed terms      */
@@ -31,7 +33,7 @@ static void ensure_cache_cap(size_t needed)
         size_t new_cap = cache_cap ? cache_cap * 2 : 1;
         if (new_cap < needed) new_cap = needed;
         /* cast to seq_t * is needed to compile as C++ */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

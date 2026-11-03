@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1373, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   powmod_2
+ * Validated: standard, pass, 61 terms through n = 8824 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/powmod_2.h"
+#include "../utils/mem.h"
+
+/* local fast modular exponentiation: 2^exp mod m */
+static seq_t powmod_2(idx_t exp, unsigned m)
+{
+    if (m == 1)
+        return (seq_t)0;        /* all numbers ≡ 0 (mod 1) */
+    seq_t result = 1 % m;
+    seq_t base   = 2 % m;
+    while (exp) {
+        if (exp & 1U)
+            result = (result * base) % m;
+        base = (base * base) % m;
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,7 +58,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL)
             return (seq_t)0;        /* allocation failed */
         cache[0] = (seq_t)1;        /* a(1) = 1 */
@@ -51,7 +68,7 @@ seq_t a(idx_t n)
     /* enlarge cache when needed */
     if (cache_len >= cache_cap) {
         cache_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (tmp == NULL)
             return (seq_t)0;        /* allocation failed */
         cache = tmp;
@@ -71,7 +88,7 @@ seq_t a(idx_t n)
         if (rem == (seq_t)1) {
             if (cache_len >= cache_cap) {
                 cache_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (tmp == NULL)
                     return (seq_t)0;
                 cache = tmp;

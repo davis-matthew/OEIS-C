@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
     a(n) = Sum_{k=1..n} k^3 * sigma(k)   (sigma is the sum of divisors) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,9 +33,9 @@ seq_t a(idx_t n)
     if (n > max_n) {
         idx_t i, j, k;
         /* allocate needed space */
-        sigma = (seq_t *)realloc(sigma, (n + 1) * sizeof(seq_t));
+        sigma = mem_resize(seq_t, sigma, (n + 1));
         if (!sigma) return 0;              /* allocation failure */
-        cumsum = (seq_t *)realloc(cumsum, (n + 1) * sizeof(seq_t));
+        cumsum = mem_resize(seq_t, cumsum, (n + 1));
         if (!cumsum) return 0;
 
         /* initialise all entries to zero (must work for arbitrary‐precision types) */

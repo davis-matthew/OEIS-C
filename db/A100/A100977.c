@@ -8,15 +8,44 @@
  * Formula:   a(n) = (Sum_{d|h} d) * (Sum_{s=0..m} ((3^(m+s+1)-3^(2*s))/2) *
  *            (3^(eps(s)*n)-3^(eps(s-1)*n))) ; where n = h*3^m, gcd(h,3)=1,
  *            eps(s)=Sum_{i=1..s} 1/3^i, eps(0)=0, eps(-1)=-∞
- * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 35, u64 n <= 51, u128 n <= 51,
+ * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 35, u64 n <= 80, u128 n <= 161,
  *            big any n
- * Helpers:   pow_seq64, sum_divisors
+ * Validated: standard, pass, 67 terms through n = 3824 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq64.h"
-#include "../utils/sum_divisors.h"
+/* helper: exponentiation by squaring for seq_t base and 64-bit exponent */
+static seq_t pow_seq64(seq_t base, idx_t exp)
+{
+    seq_t result = 1;
+    while (exp > 0)
+    {
+        if (exp & 1) result = result * base;
+        base = base * base;
+        exp >>= 1;
+    }
+    return result;
+}
+
+/* helper: sum of divisors of an unsigned integer x (x >= 1) */
+static seq_t sum_divisors(idx_t x)
+{
+    seq_t sum = 1;             /* include divisor 1 */
+    idx_t i;
+    for (i = 2; i * i <= x; ++i)
+    {
+        if (x % i == 0)
+        {
+            sum += i;
+            idx_t other = x / i;
+            if (other != i) sum += other;
+        }
+    }
+    if (x > 1) sum += x;       /* include x itself */
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

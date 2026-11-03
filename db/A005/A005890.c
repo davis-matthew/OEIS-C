@@ -10,18 +10,19 @@
  *            exponents equal to n (direct search over a bounded box)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a005890_isqrt
+ * Validated: standard, pass, 103 terms through n = 984 (2026-11-01)
+ * Helpers:   isqrt_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005890_isqrt.h"
+#include "../utils/isqrt_i64.h"
 
 seq_t a(idx_t n) {
     seq_t result = 0;
     long long N = (long long)n;
-    long long s = a005890_isqrt(N);
+    long long s = isqrt_i64(N);
     long long B = s + 10;
     long long K = s / 4 + 4;
     long long i, j, k;

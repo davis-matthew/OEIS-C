@@ -11,12 +11,14 @@
  *            a(3)=-1, a(4)=1, * a(5)=2, a(6)=1
  * Range:     i8 n <= 32, i16 n <= 61, i32 n <= 61, i64 n <= 61, i128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,9 +36,9 @@ seq_t a(idx_t n)
         /* allocate or reallocate memory, casting for C++ compatibility */
         seq_t *new_cache = NULL;
         if (cache == NULL) {
-            new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+            new_cache = mem_new(seq_t, new_size);
         } else {
-            new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            new_cache = mem_resize(seq_t, cache, new_size);
         }
         if (new_cache == NULL) {            /* allocation failed */
             return 0;                       /* undefined, but avoid crash */

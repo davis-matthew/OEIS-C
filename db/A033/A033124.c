@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,9 +40,9 @@ seq_t a(idx_t n)
     /* Ensure we can store indices up to n and the four base values. */
     idx_t need = (n < 4) ? 5 : n + 1; /* at least indices 1‑4 */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((size_t)need * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)need);
     } else if ((size_t)need > (size_t)cache_size) {
-        cache = (seq_t *)realloc(cache, (size_t)need * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)need);
     }
     cache_size = need;
 

@@ -8,14 +8,41 @@
  *            of n
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 40, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, sigma6_prime_power_uint128
+ * Validated: standard, pass, 46 terms through n = 870 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/sigma6_prime_power_uint128.h"
+
+/* Compute sigma_6(p^e) for a prime power.  The result is returned as an
+   unsigned __int128 so that intermediate values that exceed 64 bits are
+   handled safely.  For any n whose sigma_6(n) fits in seq_t, this
+   intermediate value will also fit in 64 bits. */
+static unsigned __int128 sigma6_prime_power_uint128(uint64_t prime, idx_t e)
+{
+    if (e == 0)
+        return 1;
+
+    /* Compute p^6 once (fits in 128 bits for all primes <= 10^4). */
+    unsigned __int128 p6 = 1;
+    for (int i = 0; i < 6; ++i)
+        p6 *= prime;
+
+    unsigned __int128 term  = 1;  /* current p^(6k) term */
+    unsigned __int128 total = 1;  /* sum of terms */
+
+    for (idx_t k = 1; k <= e; ++k) {
+        term *= p6;
+        total += term;
+    }
+
+    return total;
+}
 
 seq_t a(idx_t n)
 {

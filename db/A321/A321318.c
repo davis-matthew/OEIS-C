@@ -9,8 +9,9 @@
  * Formula:   a(n) = number of distinct sums obtained by partitionering the
  *            binary representation of n into consecutive blocks and summing
  *            the values of the blocks
- * Range:     u8 n <= 2026, u16 n <= 9361, u32 n <= 9361, u64 n <= 9361,
- *            u128 n <= 9361, big any n
+ * Range:     u8 n <= 2026, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 92 terms through n = 9361 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

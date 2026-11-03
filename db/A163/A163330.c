@@ -13,6 +13,7 @@
  *            the preceding diagonals
  * Range:     u8 n <= 77, u16 n <= 3320, u32 n <= 3320, u64 n <= 3320,
  *            u128 n <= 3320, big any n
+ * Validated: standard, pass, 85 terms through n = 2967 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

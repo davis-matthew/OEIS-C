@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 26, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   power_has_no_one
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/power_has_no_one.h"
+#include "../utils/mem.h"
+
+static inline bool power_has_no_one(const uint8_t *digits, size_t len) {
+    for (size_t i = 0; i < len; ++i)
+        if (digits[i] == 1)
+            return false;
+    return true;
+}
 
 seq_t a(idx_t n) {
     if (n == 0)
@@ -44,7 +52,7 @@ seq_t a(idx_t n) {
     /* Initialise cache if necessary. */
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
     }
 
     /* Extend cache until it contains at least n terms. */
@@ -79,7 +87,7 @@ seq_t a(idx_t n) {
             /* Store the exponent k. */
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return 0;
                 cache = tmp;
                 cache_cap = new_cap;

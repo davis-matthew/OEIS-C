@@ -9,8 +9,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = A235224(A003415(n)) – A400164(n) (the same as a(n) =
  *            A400262(n) – A400164(n))
- * Range:     u8 n <= 95, u16 n <= 9915, u32 n <= 9915, u64 n <= 9915,
- *            u128 n <= 9915, big any n
+ * Range:     u8 n <= 95, u16 n <= 32768, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 121 terms through n = 9915 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 /* ------------------------------------------------------------

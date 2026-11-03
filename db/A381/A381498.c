@@ -7,8 +7,9 @@
  * Keywords:  nonn, nice
  * Formula:   a(n) = sum of all numbers k <= n that have the same squarefree
  *            kernel as n
- * Range:     u8 n <= 71, u16 n <= 4799, u32 n <= 9091, u64 n <= 9091,
- *            u128 n <= 9091, big any n
+ * Range:     u8 n <= 71, u16 n <= 4799, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 82 terms through n = 9091 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

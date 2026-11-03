@@ -12,13 +12,15 @@
  *            (1,0)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const int ALL = 0xF;                /* 4‑bit mask 0b1111 */
 
@@ -78,7 +80,7 @@ seq_t a(idx_t n) {
     static bool vis[4096];
 
     int cur = 0, next = 1;
-    memset(dp[cur], 0, sizeof(dp[cur]));
+    mem_set(dp[cur], 0, sizeof(dp[cur]));
     active_cnt[cur] = 0;
     memset(vis, 0, sizeof(vis));
 

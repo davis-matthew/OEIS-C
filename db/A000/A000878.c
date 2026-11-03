@@ -13,8 +13,8 @@
  *            x). T...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   z878_addsh, z878_clog2, z878_deg, z878_divs, z878_gcd, z878_mod,
- *            z878_muls, z878_next_part, z878_shr
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64, ilog2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,15 +22,60 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/z878_addsh.h"
-#include "../utils/z878_clog2.h"
-#include "../utils/z878_deg.h"
-#include "../utils/z878_divs.h"
-#include "../utils/z878_gcd.h"
-#include "../utils/z878_mod.h"
-#include "../utils/z878_muls.h"
-#include "../utils/z878_next_part.h"
-#include "../utils/z878_shr.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ilog2_u64.h"
+
+static void z878_addsh(uint32_t *T, size_t LT, const uint32_t *x, size_t Lx, uint64_t s) {
+    size_t w = (size_t)(s / 32), i, k = w; unsigned b = (unsigned)(s % 32);
+    uint32_t prev = 0; uint64_t c = 0;
+    for (i = 0; i <= Lx; i++) {
+        uint32_t cur = i < Lx ? x[i] : 0;
+        uint32_t piece = b ? (cur << b) | (prev >> (32 - b)) : cur;
+        prev = cur; k = w + i;
+        if (k >= LT) return;
+        { uint64_t v = (uint64_t)T[k] + piece + c; T[k] = (uint32_t)v; c = v >> 32; }
+    }
+    k++;
+    while (c && k < LT) { uint64_t v = (uint64_t)T[k] + c; T[k] = (uint32_t)v; c = v >> 32; k++; }
+}
+
+static int z878_clog2(int j) { int t = 0; while ((1 << t) < j) t++; return t; }
+
+static void z878_divs(uint32_t *x, size_t L, uint32_t m) {
+    uint64_t r = 0; size_t i;
+    for (i = L; i-- > 0;) { uint64_t v = (r << 32) | x[i]; x[i] = (uint32_t)(v / m); r = v % m; }
+}
+
+static uint64_t z878_mod(uint64_t a, uint64_t b) {
+    int db = ilog2_u64(b), da;
+    while ((da = ilog2_u64(a)) >= db) a ^= b << (da - db);
+    return a;
+}
+
+static void z878_muls(uint32_t *x, size_t L, uint32_t m) {
+    uint64_t c = 0; size_t i;
+    for (i = 0; i < L; i++) { uint64_t v = (uint64_t)x[i] * m + c; x[i] = (uint32_t)v; c = v >> 32; }
+}
+
+static int z878_next_part(int *p, int *len) {
+    int i = *len - 1, rem, v, l;
+    while (i >= 0 && p[i] == 1) i--;
+    if (i < 0) return 0;
+    rem = *len - 1 - i;
+    p[i]--; rem++; v = p[i]; l = i + 1;
+    while (rem > 0) { int take = rem < v ? rem : v; p[l++] = take; rem -= take; }
+    *len = l;
+    return 1;
+}
+
+static void z878_shr(uint32_t *x, size_t L, uint64_t s) {
+    size_t w = (size_t)(s / 32), i; unsigned b = (unsigned)(s % 32);
+    for (i = 0; i < L; i++) {
+        size_t src = i + w;
+        uint32_t lo = src < L ? x[src] : 0, hi = src + 1 < L ? x[src + 1] : 0;
+        x[i] = b ? (lo >> b) | (hi << (32 - b)) : lo;
+    }
+}
 
 static int z878_N, z878_nP;
 static uint64_t *z878_P, *z878_Pe;
@@ -72,7 +117,7 @@ static void z878_leaf(int depth) {
             cnt = j == 0 ? 1 : ((uint64_t)1 << (d * S)) - ((uint64_t)1 << (d * prevS));
             prevS = S;
             for (s = 0; s < z878_sN; s++) {
-                uint64_t L = z878_sL[s] / z878_gcd(z878_sL[s], Lc) * Lc;
+                uint64_t L = z878_sL[s] / gcd_u64(z878_sL[s], Lc) * Lc;
                 int t = z878_sT[s] > tc ? z878_sT[s] : tc;
                 uint64_t cc = z878_sC[s] * cnt;
                 for (u = 0; u < z878_nN; u++) if (z878_nL[u] == L && z878_nT[u] == t) break;

@@ -10,15 +10,27 @@
  *            colors (diagonals x+y even or odd) of the n X n board; a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   a002465_cmp_ll, a002465_combine
+ * Validated: standard, pass, 34 terms through n = 370 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a002465_cmp_ll.h"
-#include "../utils/a002465_combine.h"
+#include "../utils/mem.h"
+
+static int a002465_cmp_ll(const void *p, const void *q) {
+    long long x = *(const long long *)p, y = *(const long long *)q;
+    return (x > y) - (x < y);
+}
+
+static seq_t a002465_combine(const seq_t *W, const seq_t *B, long long N) {
+    seq_t sum = 0;
+    long long k;
+    for (k = 0; k <= N; k++) sum += W[k] * B[N - k];
+    return sum;
+}
 
 #define A002465_CAP 1024
 
@@ -53,8 +65,8 @@ seq_t a(idx_t n) {
         a002465_rook(B, N, 1);
         return a002465_combine(W, B, N);
     } else {
-        seq_t *W = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-        seq_t *B = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+        seq_t *W = mem_new(seq_t, (size_t)(N + 1));
+        seq_t *B = mem_new(seq_t, (size_t)(N + 1));
         seq_t r;
         a002465_rook(W, N, 0);
         a002465_rook(B, N, 1);

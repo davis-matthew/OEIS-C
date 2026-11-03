@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9151 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Choose a sieve limit that will contain many terms (≈10 000th prime) */
 static const uint64_t SIEVE_LIMIT = 50000000ULL;
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
             ++y_max;
 
         prime_cap = 4096;
-        prime_list = (seq_t *)malloc(prime_cap * sizeof(seq_t));
+        prime_list = mem_new(seq_t, prime_cap);
         if (!prime_list)
             exit(1);
 
@@ -81,8 +83,7 @@ seq_t a(idx_t n)
                     if (prime_cnt == prime_cap)
                     {
                         prime_cap <<= 1;
-                        seq_t *tmp = (seq_t *)realloc(prime_list,
-                                                      prime_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, prime_list, prime_cap);
                         if (!tmp)
                             exit(1);
                         prime_list = tmp;
@@ -93,7 +94,7 @@ seq_t a(idx_t n)
         }
 
         /* 3. Sort the collected primes */
-        qsort(prime_list, prime_cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(prime_list, prime_cnt, sizeof(seq_t), cmp_seq);
 
         free(is_prime);
         initialized = true;

@@ -11,7 +11,8 @@
  *            sequences and must be <= the row before it. T...
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   key_hash
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/key_hash.h"
+
+static uint64_t key_hash(const uint16_t *key, size_t klen) {
+    uint64_t h = 1469598103934665603ULL;
+    size_t i;
+    for (i = 0; i < klen; i++) {
+        h ^= key[i];
+        h *= 1099511628211ULL;
+    }
+    return h ^ (h >> 29);
+}
 
 typedef unsigned __int128 u128;
 

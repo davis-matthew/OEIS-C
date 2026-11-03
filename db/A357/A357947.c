@@ -9,13 +9,15 @@
  *            prefix sums modulo 12 distinct and never 0 after the first step
  * Range:     u8 n <= 12, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define STATES 12
 #define MASKS (1 << STATES)
@@ -30,12 +32,12 @@ seq_t a(idx_t n)
         ready = true;
         static seq_t curr[MASKS][STATES];
         static seq_t next[MASKS][STATES];
-        memset(curr, 0, sizeof(curr));
+        mem_set(curr, 0, sizeof(curr));
         curr[1][0] = 1;           /* start at note 0, visited mask 1<<0 */
         cache[0] = 1;
 
         for (int len = 1; len <= 11; ++len) {
-            memset(next, 0, sizeof(next));
+            mem_set(next, 0, sizeof(next));
             for (int mask = 0; mask < MASKS; ++mask) {
                 for (int state = 0; state < STATES; ++state) {
                     seq_t val = curr[mask][state];
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
                     sum += next[mask][state];
             cache[len] = sum;
 
-            memcpy(curr, next, sizeof(curr));
+            mem_copy(curr, next, sizeof(curr));
         }
         /* cache[12] is already 0 */
     }

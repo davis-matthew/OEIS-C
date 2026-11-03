@@ -11,7 +11,8 @@
  *            + v*y
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- helpers ---------- */
 static inline idx_t gcd_uint64(idx_t a, idx_t b) {
@@ -67,10 +69,10 @@ seq_t a(idx_t n) {
 
     /* arrays for sums per maximal value b */
     size_t N = (size_t)n + 1;
-    seq_t *sum_u  = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *sum_u2 = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *sum_v  = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *sum_v2 = (seq_t *)calloc(N, sizeof(seq_t));
+    seq_t *sum_u  = mem_new(seq_t, N);
+    seq_t *sum_u2 = mem_new(seq_t, N);
+    seq_t *sum_v  = mem_new(seq_t, N);
+    seq_t *sum_v2 = mem_new(seq_t, N);
 
     /* compute sums for coprime pairs (a,b), a < b */
     for (idx_t a = 1; a <= n; ++a) {
@@ -108,10 +110,10 @@ seq_t a(idx_t n) {
     seq_t result = n2 * S2 - S1 * S1;
 
     /* free memory */
-    free(sum_u);
-    free(sum_u2);
-    free(sum_v);
-    free(sum_v2);
+    mem_free(sum_u);
+    mem_free(sum_u2);
+    mem_free(sum_v);
+    mem_free(sum_v2);
 
     return result;
 }

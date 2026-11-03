@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 18, i16 n <= 162, i32 n <= 338, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* period‑9 sequence b(k) for k = 1,2,… */
 static const int8_t B[9] = { 1, 1, -3, 1, 1, -3, 1, 1, 0 };
@@ -74,8 +76,8 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = AC ? AC : 1;
     while (new_cap <= (size_t)(n + 1)) new_cap <<= 1;
 
-    A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-    C = (seq_t *)realloc(C, new_cap * sizeof(seq_t));
+    A = mem_resize(seq_t, A, new_cap);
+    C = mem_resize(seq_t, C, new_cap);
     AC = new_cap;
 
     /* compute c_k for new capacity */
@@ -97,8 +99,8 @@ seq_t a(idx_t n)
     /* initialize on first call */
     if (A == NULL) {
         AC = 1;
-        A = (seq_t *)malloc(AC * sizeof(seq_t));
-        C = (seq_t *)malloc(AC * sizeof(seq_t));
+        A = mem_new(seq_t, AC);
+        C = mem_new(seq_t, AC);
         A[0] = (seq_t)1;      /* a(0) = 1 */
         cur_max = 0;
     }

@@ -8,6 +8,7 @@
  * Formula:   a(n) = 17 * a(n-1) mod 251, a(1) = 1
  * Range:     u8 n <= 125, u16 n <= 125, u32 n <= 125, u64 n <= 125,
  *            u128 n <= 125, big any n
+ * Validated: standard, pass, 74 terms through n = 124 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

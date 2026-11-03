@@ -10,13 +10,18 @@
  *            by prime factorisation of the current number; the procedure is
  *            identical for all integer builds, including the
  *            arbitrary‑precision category. An upper bound of 20 000 st...
- * Range:     u8 n <= 29, u16 n <= 149, u32 n <= 149, u64 n <= 275,
- *            u128 n <= 275, big any n
+ * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 275, u128 n <= 275,
+ *            big any n
+ * Validated: standard, pass, 118 terms through n = 265 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#ifdef __cplusplus
+#include <vector>
+#endif
+#include <stdlib.h>
 #ifndef __A098008_C__
 #define __A098008_C__
 

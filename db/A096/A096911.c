@@ -10,12 +10,14 @@
  *            dynamic programming
  * Range:     u8 n <= 41, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp_odd = NULL;   /* number of partitions of i into distinct odd parts */
 static seq_t *a_tbl  = NULL;   /* desired sequence values a(i)   */
@@ -26,8 +28,8 @@ static void precompute(idx_t N)
     if (N <= precomp_n) return;
 
     /* Allocate new arrays of size N+1 */
-    seq_t *new_dp = (seq_t*)malloc((size_t)(N+1) * sizeof(seq_t));
-    seq_t *new_a  = (seq_t*)malloc((size_t)(N+1) * sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, (size_t)(N+1));
+    seq_t *new_a  = mem_new(seq_t, (size_t)(N+1));
     if (!new_dp || !new_a) return;            /* allocation failure – should not happen */
 
     /* initialise to zero */
@@ -55,8 +57,8 @@ static void precompute(idx_t N)
     }
 
     /* Replace old tables with the new ones */
-    free(dp_odd);
-    free(a_tbl);
+    mem_free(dp_odd);
+    mem_free(a_tbl);
     dp_odd = new_dp;
     a_tbl  = new_a;
     precomp_n = N;

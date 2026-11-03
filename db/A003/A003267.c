@@ -10,14 +10,24 @@
  *            step (after cancelling a gcd)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   a3267_gcd, a3267_width
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a3267_gcd.h"
-#include "../utils/a3267_width.h"
+#include "../utils/gcd.h"
+
+static int a3267_width(void) {
+    seq_t x = 1;
+    int w = 0;
+    while (x != 0 && w < 200) {
+        x <<= 1;
+        w++;
+    }
+    return w;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -48,7 +58,7 @@ seq_t a(idx_t n) {
         ga = gb;
         gb = t;
         /* r = r * F(n+j) / F(j), done without exceeding the result size */
-        seq_t g = a3267_gcd(fa, r % fa);
+        seq_t g = gcd(fa, r % fa);
         r /= g;
         seq_t d = fa / g;
         r = r * (ga / d);

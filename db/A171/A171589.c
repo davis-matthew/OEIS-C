@@ -12,7 +12,8 @@
  *            * and st...
  * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state storing the triangle in row‑major order */
 static seq_t *data      = NULL;  /* linear storage */
@@ -33,7 +35,7 @@ static void ensure_rows_up_to(idx_t r)
 {
     /* Initialise the triangle with the first row if needed. */
     if (data == NULL) {
-        data     = (seq_t *)malloc(sizeof(seq_t));
+        data     = mem_new(seq_t, 1);
         if (data == NULL) return;          /* OOM – caller will receive garbage */
         data[0]  = (seq_t)1;                /* T(0,0) */
         data_len = 1;
@@ -48,7 +50,7 @@ static void ensure_rows_up_to(idx_t r)
 
         /* compute suffix sums of the previous row:  suffix[j] = Σ_{t=j}^{prev_len-1} prev[t] */
         size_t         suffix_len = (size_t)prev_len + 1;
-        seq_t        * suffix     = (seq_t *)malloc(suffix_len * sizeof(seq_t));
+        seq_t        * suffix     = mem_new(seq_t, suffix_len);
         if (suffix == NULL) return;  /* OOM – nothing more can be done */
         suffix[prev_len] = (seq_t)0;
         for (idx_t j = prev_len; j > 0; --j) {
@@ -62,8 +64,8 @@ static void ensure_rows_up_to(idx_t r)
 
         /* enlarge storage if necessary */
         if (needed_len > data_len) {
-            seq_t *tmp = (seq_t *)realloc(data, needed_len * sizeof(seq_t));
-            if (tmp == NULL) { free(suffix); return; }
+            seq_t *tmp = mem_resize(seq_t, data, needed_len);
+            if (tmp == NULL) { mem_free(suffix); return; }
             data     = tmp;
             data_len = needed_len;
         }
@@ -81,7 +83,7 @@ static void ensure_rows_up_to(idx_t r)
             new_row[k] = term1 + term2 + sum_tail;
         }
 
-        free(suffix);
+        mem_free(suffix);
         ++max_row;          /* advance to next row number */
     }
 }

@@ -13,7 +13,8 @@
  *            the first row
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   seq_alloc, seq_free, seq_resize
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,44 @@
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, free, realloc */
 #include <stdint.h>   /* uint64_t */
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_free.h"
-#include "../utils/seq_resize.h"
+
+static seq_t *seq_alloc(size_t n)
+{
+#ifdef __cplusplus
+    return new seq_t[n];
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static void seq_free(seq_t *p, size_t n)
+{
+#ifdef __cplusplus
+    delete[] p;
+#else
+    (void)n;
+    free(p);
+#endif
+}
+
+static void seq_resize(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap >= need) return;
+    size_t newcap = (*cap) ? (*cap) * 2 : 16;
+    while (newcap < need) newcap <<= 1;
+#ifdef __cplusplus
+    seq_t *newptr = new seq_t[newcap];
+    if (*arr) {
+        for (size_t i = 0; i < *cap; ++i) newptr[i] = (*arr)[i];
+        delete[] *arr;
+    }
+    *arr = newptr;
+#else
+    seq_t *newptr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = newptr;
+#endif
+    *cap = newcap;
+}
 
 seq_t a(idx_t n)
 {

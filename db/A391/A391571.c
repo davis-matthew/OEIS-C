@@ -10,9 +10,10 @@
  * Formula:   a(n) is computed by searching for the smallest odd k>1 such that
  *            the carryless base‑2 division of (n*k) by k is exact; the
  *            function returns the quotient from that division
- * Range:     u8 n <= 28, u16 n <= 4009, u32 n <= 9693, u64 n <= 9693,
- *            u128 n <= 9693, big any n
- * Helpers:   bitlen_seq_t
+ * Range:     u8 n <= 28, u16 n <= 4009, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 95 terms through n = 9693 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 /* carryless division: dividend / divisor over GF(2).
  * Returns the quotient if division is exact, otherwise 0. */
@@ -38,13 +39,13 @@ static seq_t carryless_div(seq_t dividend, seq_t divisor)
         return 0;
 
     /* Pre‑compute divisor degree to avoid repeated work. */
-    int div_deg = bitlen_seq_t(divisor) - 1;
+    int div_deg = bit_length(divisor) - 1;
     if (div_deg < 0)  /* divisor == 0 case */
         return 0;
 
     /* Long division algorithm over GF(2). */
     while (rem != 0) {
-        int rem_deg = bitlen_seq_t(rem) - 1;
+        int rem_deg = bit_length(rem) - 1;
         if (rem_deg < div_deg)
             break;   /* remainder degree lower than divisor: division not exact */
 

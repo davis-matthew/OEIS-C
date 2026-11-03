@@ -6,14 +6,16 @@
  * Keywords:  nonn, base, fini, full, easy
  * Formula:   a(n) = n-th smallest integer whose base‑11 digits are strictly
  *            decreasing
- * Range:     u8 n <= 1, u16 n <= 438, u32 n <= 1998, u64 n <= 2047,
+ * Range:     u8 n <= 1, u16 n <= 65, u32 n <= 1980, u64 n <= 2047,
  *            u128 n <= 2047, big any n
- * Helpers:   none
+ * Validated: full, pass, 2047 terms through n = 2047 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Internal cache to store the 2047 values. */
 static seq_t *cache = NULL;
@@ -33,7 +35,7 @@ static void build_cache(void)
     const unsigned digits = 11;                 /* digits 0 … 10 */
     const size_t total   = (1u << digits) - 1;   /* 2047 subsets */
 
-    cache = (seq_t *)malloc(total * sizeof(seq_t));
+    cache = mem_new(seq_t, total);
     if (!cache) return; /* Should never happen for such a small allocation. */
 
     for (size_t mask = 1; mask <= total; ++mask) {
@@ -46,7 +48,7 @@ static void build_cache(void)
         cache[mask - 1] = val; /* zero‑based index */
     }
 
-    qsort(cache, total, sizeof(seq_t), cmp_seq);
+    mem_qsort(cache, total, sizeof(seq_t), cmp_seq);
     cache_size = total;
 }
 

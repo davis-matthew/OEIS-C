@@ -12,7 +12,8 @@
  *            of left subtree of a complete tree of n node...
  * Range:     u8 n <= 17, u16 n <= 36, u32 n <= 166, u64 n <= 3826,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9870 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ----- helper: floor(log2) for idx_t ----- */
 static inline idx_t floor_log2_uint64(idx_t x) {
@@ -56,16 +58,16 @@ static void ensure_size(idx_t n) {
     size_t new_cells = (size_t)(n + 1) * (KMAX + 1);
 
     if (dp == NULL) {
-        dp = (seq_t *)calloc(new_cells, sizeof(seq_t));
+        dp = mem_new(seq_t, new_cells);
     } else {
-        seq_t *tmp = (seq_t *)realloc(dp, new_cells * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_cells);
         if (!tmp) {
             /* allocation failed – abort silently (unlikely in test harness) */
             exit(EXIT_FAILURE);
         }
         dp = tmp;
         /* zero new portion */
-        memset(dp + old_cells, 0, (new_cells - old_cells) * sizeof(seq_t));
+        mem_set(dp + old_cells, 0, (new_cells - old_cells) * sizeof(seq_t));
     }
 
     /* dp[0][0] already zero from calloc; set dp[0][0] = 1 */

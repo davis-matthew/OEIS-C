@@ -9,7 +9,8 @@
  *            with leading_digit(9*a(n-1) + d) == d; then a(n) = 9*a(n-1) + d
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 22,
  *            big any n
- * Helpers:   digit_len, mul_small, pow10
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,14 +22,38 @@
    - mul_small.h : seq_t mul_small(seq_t x, unsigned int k); */
 
 #include <stdlib.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
-#include "../utils/mul_small.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* Return the most significant decimal digit of x (x > 0). */
 static int leading_digit(seq_t x)
 {
-    int len = digit_len(x);                 /* x > 0 by construction   */
+    int len = num_digits(x);                 /* x > 0 by construction   */
     seq_t div = pow10((idx_t)(len - 1));    /* 10^(len-1)              */
     return (int)(x / div);                  /* top digit 1..9           */
 }
@@ -45,7 +70,7 @@ seq_t a(idx_t n)
     /* Initialise cache with first term a(1)=1 if empty. */
     if (cache_len == 0) {
         cache_cap = (n > 16 ? n : 16);
-        cache = (seq_t *)malloc((size_t)cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         if (cache == NULL) return 0;      /* allocation failure      */
         cache[0] = (seq_t)1;              /* a(1) = 1                */
         cache_len = 1;
@@ -55,7 +80,7 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         idx_t new_cap = cache_cap * 2;
         if (new_cap < n) new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (tmp == NULL) return 0;      /* allocation failure      */
         cache = tmp;
         cache_cap = new_cap;

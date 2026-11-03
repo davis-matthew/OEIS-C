@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 266, u64 n <= 266, u128 n <= 266,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 266 terms through n = 266 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------------*/
 /* helper: integer square root for uint64_t                         */
@@ -89,7 +91,7 @@ static void build_terms(void)
     unsigned long long k_max = isqrt_u64(high_sq);
 
     /* pre-allocate array */
-    terms = (seq_t *)malloc(MAX_TERMS * sizeof(seq_t));
+    terms = mem_new(seq_t, MAX_TERMS);
     term_count = 0;
 
     unsigned char d[14];   /* digits of k² */

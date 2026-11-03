@@ -10,7 +10,8 @@
  *            types of S_6 with their class sizes
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 25, u128 n <= 81,
  *            big any n
- * Helpers:   alloc_zero, cycle_lengths, release, seq_is_big, u128_to_seq
+ * Validated: standard, pass, 36 terms through n = 459 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +19,64 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/seq_is_big.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/cycle_lengths.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static int cycle_lengths(const int *part, int *out)
+{
+    int p[6], pos = 0, c = 0, i, j, m;
+    unsigned char vis[64];
+    for (i = 0; part[i]; i++) {
+        int L = part[i];
+        for (j = 0; j < L; j++) p[pos + j] = pos + (j + 1) % L;
+        pos += L;
+    }
+    memset(vis, 0, sizeof vis);
+    for (m = 1; m < 64; m++) {
+        int x = m, len = 0;
+        if (vis[m]) continue;
+        do {
+            int y = 0;
+            vis[x] = 1;
+            len++;
+            for (j = 0; j < 6; j++)
+                if (x >> j & 1) y |= 1 << p[j];
+            x = y;
+        } while (x != m);
+        out[c++] = len;
+    }
+    return c;
+}
 
 #define NLIMB 5 /* 32-bit limbs, arithmetic mod 2^160 for fixed-width builds */
 

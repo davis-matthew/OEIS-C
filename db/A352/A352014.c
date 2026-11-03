@@ -7,15 +7,51 @@
  * Formula:   a(n) = Sum_{p|n, p prime} (-1)^(n/p+1) * (n-1)!/(p-1)!
  * Range:     i8 n <= 7, i16 n <= 8, i32 n <= 13, i64 n <= 21, i128 n <= 25,
  *            big any n
- * Helpers:   build_primes_upto, ensure_capacity
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/ensure_capacity.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 /* Cached factorials: fact[i] = i!   (i ranges from 0 up to the maximum n-1 requested) */
 static seq_t *fact = NULL;
@@ -31,7 +67,7 @@ static idx_t prime_limit = 0;
 static void ensure_fact(idx_t n) {
     size_t needed = (size_t)(n);      /* need indices 0 .. n-1 inclusive (n elements) */
     if (fact_cap < needed) {
-        ensure_capacity(needed, &fact_cap, (void **)&fact, sizeof(seq_t));
+        ensure_capacity(needed, &fact_cap, OEISC_VPP(&fact), sizeof(seq_t));
     }
     for (size_t i = fact_len; i < needed; ++i) {
         if (i == 0) {

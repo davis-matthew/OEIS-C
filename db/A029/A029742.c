@@ -7,14 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 221, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 104 terms through n = 9184 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence A029742: nth non‑palindromic decimal integer (offset = 1).  */
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +23,7 @@ seq_t a(idx_t n)
     idx_t cnt = 0;           /* count of non‑palindromic numbers seen */
 
     while (1) {
-        if (!is_palindrome(val, (idx_t)10)) {   /* check decimal palindrome */
+        if (!is_palindrome_base(val, (idx_t)10)) {   /* check decimal palindrome */
             ++cnt;
             if (cnt == n)
                 return val;                      /* nth non‑palindromic number found */

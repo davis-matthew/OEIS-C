@@ -10,13 +10,15 @@
  *            four parts each ≤ k
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* DP: dp[j][s] = number of partitions of s into exactly j parts,
        each part ≤ current limit, using parts 1..col.  */
     size_t stride = (size_t)(row + 1);
-    seq_t *dp = (seq_t *)calloc(5 * stride, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, 5 * stride);
     if (!dp)
         return 0;                     /* fallback if allocation fails */
 
@@ -64,6 +66,6 @@ seq_t a(idx_t n)
     for (unsigned j = 0; j <= 4; ++j)
         result += dp[j * stride + (size_t)row];
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

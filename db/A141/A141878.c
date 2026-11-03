@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth prime ≡ 13 (mod 19)
  * Range:     u8 n <= 4, u16 n <= 367, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 61 terms through n = 988 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Cached primes and state for incremental search. */
 static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* One-time initialization. */
     if (!initialized) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
         next_candidate = 13;
         initialized = true;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         if (is_prime(next_candidate)) {
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)next_candidate;
         }

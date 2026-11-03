@@ -7,17 +7,19 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} (1 - x^{k*(k+1)*(k+2)/6})
  * Range:     i8 n <= 104, i16 n <= 104, i32 n <= 104, i64 n <= 104,
  *            i128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate array for coefficients up to n */
-    seq_t *f = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (size_t)(n + 1));
     if (!f) return 0;          /* allocation failed – return 0 as sentinel */
 
     /* initialise coefficients */
@@ -37,6 +39,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = f[n];
-    free(f);
+    mem_free(f);
     return result;
 }

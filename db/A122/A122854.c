@@ -10,15 +10,19 @@
  *            ((p^2)^(e+1)-(-1)^(e+1))/(p^2+1) if p ≡ 3 (mod 4)
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 509, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 63 terms through n = 991 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Dependencies: factor_u64, seq_pow. */
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     /* m = 2n + 1 , always odd */
@@ -45,7 +49,7 @@ seq_t a(idx_t n) {
         seq_t p2 = (seq_t)p * (seq_t)p;
         seq_t denom;
         seq_t num;
-        seq_t pow_val = seq_pow(p2, (idx_t)(e + 1));
+        seq_t pow_val = ipow_idx(p2, (idx_t)(e + 1));
 
         if (p % 4 == 1) {
             denom = p2 - 1;

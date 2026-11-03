@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cached terms */
 static size_t seq_len   = 0;       /* number of cached terms */
@@ -35,7 +37,7 @@ static void ensure_seq_cap(size_t need)
     if (seq_cap >= need) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 64;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     seq_cache = tmp;
     seq_cap   = new_cap;

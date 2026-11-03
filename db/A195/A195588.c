@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..2*n} (-1)^k * mu(2*n-k+1) * mu(k+1)
  * Range:     i8 n <= 943, i16 n <= 1001, i32 n <= 1001, i64 n <= 1001,
  *            i128 n <= 1001, big any n
+ * Validated: standard, pass, 172 terms through n = 969 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

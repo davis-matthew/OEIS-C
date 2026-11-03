@@ -9,17 +9,19 @@
  * Formula:   a(n) = size of the cycle containing n under f(x) = σ_u(x) – x,
  *            where σ_u(x) is the sum of unitary divisors of x. Return 0 if n
  *            is not contained in any finite cycle
- * Range:     u8 n <= 9329, u16 n <= 9330, u32 n <= 9330, u64 n <= 9330,
- *            u128 n <= 9330, big any n
- * Helpers:   factor_u64, pow_uint
+ * Range:     u8 n <= 9329, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 136 terms through n = 9330 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/pow_uint.h"    /* seq_t pow_uint(uint64_t base, idx_t exp); */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
 
 static seq_t sigma_u(uint64_t n)
 {
@@ -36,7 +38,7 @@ static seq_t sigma_u(uint64_t n)
     for (size_t i = 0; i < cnt; ++i)
     {
         /* term = p^a + 1 */
-        seq_t term = pow_uint(primes[i], exps[i]) + 1;
+        seq_t term = ipow_u64_idx(primes[i], exps[i]) + 1;
         result *= term;
     }
     return result;

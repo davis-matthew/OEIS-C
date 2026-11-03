@@ -9,13 +9,31 @@
  *            a(m), T(m,j) = T(m,j-1) + T(m-1,j-1), and a(m+2) = T(m,m)
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 19, u64 n <= 31, u128 n <= 51,
  *            big any n
- * Helpers:   a306_alloc0, a306_grow
+ * Validated: standard, pass, 45 terms through n = 647 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a306_alloc0.h"
-#include "../utils/a306_grow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *a306_alloc0(idx_t len)
+{
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *a306_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = a306_alloc0(newlen);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *A = 0;     /* known terms a(0..have-1) */
 static seq_t *R = 0;     /* current triangle row T(rowm, 0..rowm) */

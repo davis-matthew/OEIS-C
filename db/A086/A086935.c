@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 100, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seqt_to_str
+ * Validated: standard, pass, 66 terms through n = 9701 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/seqt_to_str.h"
+#include "../utils/mem.h"
+
+/* Utility: convert a seq_t value to a decimal string. */
+static size_t seqt_to_str(seq_t x, char *buf)
+{
+    if (x == 0) { buf[0] = '0'; return 1; }
+    char tmp[128];
+    size_t i = 0;
+    while (x > 0) { tmp[i++] = '0' + (int)(x % 10); x /= 10; }
+    for (size_t j = 0; j < i; ++j) buf[j] = tmp[i - 1 - j];
+    return i;
+}
 
 /* Utility: convert an unsigned index (idx_t) to a C string. */
 static size_t idx_to_str(idx_t x, char *buf)
@@ -42,9 +54,9 @@ static void ensure_cache(idx_t n)
     if ((size_t)n + 1 <= cache_cap) return;
     size_t new_cap = cache_cap == 0 ? 64 : cache_cap << 1;
     while ((size_t)n + 1 > new_cap) new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     /* zero the newly allocated part */
-    memset(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+    mem_set(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
     cache_cap = new_cap;
 }
 

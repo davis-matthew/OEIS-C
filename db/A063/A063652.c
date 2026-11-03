@@ -10,7 +10,8 @@
  *            profiles
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t T[256][256] = {{0}};          /* transition counts between profiles */
 static struct { uint8_t next; seq_t ways; } edges[256][256] = {{0}};
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         dp[0] = ((seq_t)1);
         for (int i = 1; i < 256; ++i) dp[i] = ((seq_t)0);
         cache_len = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = dp[0];
         max_computed = 0;
     }
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
 
     /* Extend computation up to n */
     for (size_t step = max_computed + 1; step <= n; ++step) {
-        memset(nextdp, 0, sizeof(nextdp));
+        mem_set(nextdp, 0, sizeof(nextdp));
         for (int i = 0; i < 256; ++i) {
             if (dp[i] == ((seq_t)0)) continue;
             int ec = edge_count[i];
@@ -101,13 +103,13 @@ seq_t a(idx_t n)
         }
         /* Ensure cache large enough */
         if (step >= cache_len) {
-            seq_t *tmp = (seq_t*)realloc(cache, (step + 1) * sizeof(seq_t));
-            if (!tmp) { free(cache); exit(EXIT_FAILURE); }
+            seq_t *tmp = mem_resize(seq_t, cache, (step + 1));
+            if (!tmp) { mem_free(cache); exit(EXIT_FAILURE); }
             cache = tmp;
             cache_len = step + 1;
         }
         cache[step] = nextdp[0];   /* a(step) is the number of ways with empty profile */
-        memcpy(dp, nextdp, sizeof(dp));
+        mem_copy(dp, nextdp, sizeof(dp));
     }
 
     max_computed = n;

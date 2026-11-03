@@ -10,15 +10,26 @@
  *            a(1)=528, a(2)=262912 Recurrence holds for n>2
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 12,
  *            big any n
- * Helpers:   free_cache, seq_alloc_new_array
+ * Validated: standard, pass, 29 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <string.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_cache.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -46,7 +57,7 @@ seq_t a(idx_t n)
         seq_t *new_cache = seq_alloc_new_array(new_len);
 
         /* Copy existing values to the new cache. */
-        memcpy(new_cache, cache, old_len * sizeof(seq_t));
+        mem_copy(new_cache, cache, old_len * sizeof(seq_t));
 
         /* Free old cache and adopt the new one. */
         free_cache(cache);

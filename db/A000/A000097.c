@@ -10,14 +10,24 @@
  *            A000070(n) + a(n-2), a(0) = 1, a(1) = 2
  * Range:     u8 n <= 10, u16 n <= 29, u32 n <= 95, u64 n <= 341,
  *            u128 n <= 1280, big any n
- * Helpers:   alloc_series
+ * Validated: standard, pass, 57 terms through n = 7122 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/alloc_series.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_series(size_t sz)
+{
+    seq_t *p = mem_new(seq_t, sz);
+    size_t i;
+    for (i = 0; i < sz; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *memo_a = 0;
 static size_t memo_cap = 0;

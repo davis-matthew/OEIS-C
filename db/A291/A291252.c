@@ -11,12 +11,14 @@
  *            3a(n‑15) – 9a(n‑16) + a(n‑18) Initial values: a(0)=0, a(1)=0...
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 41, u64 n <= 85, u128 n <= 174,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 943 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[19] = {
     0ULL, 0ULL, 3ULL, 0ULL, 9ULL, 6ULL, 18ULL, 36ULL, 40ULL, 126ULL,
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* Allocate space for the sequence up to n */
     size_t N = (size_t)n;
-    seq_t *seq = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (N + 1));
     if (!seq)
         exit(1);  /* out of memory */
 
@@ -61,6 +63,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[N];
-    free(seq);
+    mem_free(seq);
     return result;
 }

@@ -8,12 +8,14 @@
  *            a(1)=-3, a(2)=7
  * Range:     i8 n <= 5, i16 n <= 12, i32 n <= 26, i64 n <= 31, i128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* first call: initialise three seed values */
     if (!cache) {
         size  = 3;
-        cache = (seq_t *)malloc(sizeof(seq_t) * size);
+        cache = mem_new(seq_t, size);
         cache[0] = 1;
         cache[1] = -3;
         cache[2] = 7;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* enlarge cache to hold up to n */
     idx_t new_size = n + 1;
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+    cache = mem_resize(seq_t, cache, new_size);
 
     /* compute missing terms using the recurrence */
     for (idx_t i = size; i <= n; ++i)

@@ -12,14 +12,36 @@
  *            up to the required range
  * Range:     u8 none, u16 none, u32 n <= 5, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   floor_sqrt, sieve_primes
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   ipow_i32, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_i32.h"
 #include "../utils/sieve_primes.h"
-#include "../utils/floor_sqrt.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* static storage for primes */
 static idx_t *prime_list = NULL;

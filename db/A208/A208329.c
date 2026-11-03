@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 /* Standard includes required for allocation and exit */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static state holding the already computed rows of the triangle */
 static seq_t **triangle = NULL;          /* array of pointers to rows */
@@ -56,7 +58,7 @@ static void ensure_rows(idx_t r)
 
         /* Allocate the new row. */
         size_t len = (size_t)(tri_rows) + 1;
-        seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) exit(EXIT_FAILURE);
 
         if (tri_rows == 0) {               /* T(0,0) = 1 */

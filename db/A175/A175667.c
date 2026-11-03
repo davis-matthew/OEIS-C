@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 16, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 4864 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* maximum m to sieve; should be large enough so that
  * every n up to 10000 finds its m within this range
@@ -43,7 +45,7 @@ static void prepare(void)
     spf      = (uint32_t*)calloc(SIEVE_MAX + 1, sizeof(uint32_t));
     phi_arr  = (uint64_t*)calloc(SIEVE_MAX + 1, sizeof(uint64_t));
     tau_arr  = (uint32_t*)calloc(SIEVE_MAX + 1, sizeof(uint32_t));
-    ans      = (seq_t*)calloc(NMAX + 1, sizeof(seq_t));
+    ans      = mem_new(seq_t, NMAX + 1);
 
     /* simple linear sieve for spf */
     for (uint32_t i = 2; i <= SIEVE_MAX; ++i) {

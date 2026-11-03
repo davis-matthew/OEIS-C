@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 9, i64 n <= 13, i128 n <= 17,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,11 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Cached values of the sequence */
 static seq_t *values   = NULL;   /* a[0..n] */
@@ -35,7 +39,7 @@ static void ensure_cache(idx_t n)
     if ((idx_t)cache_size > n) return;   /* already enough */
 
     size_t new_size = (size_t)(n + 1);
-    seq_t *tmpv = (seq_t *)realloc(values, new_size * sizeof(seq_t));
+    seq_t *tmpv = mem_resize(seq_t, values, new_size);
     unsigned char *tmpk = (unsigned char *)realloc(known, new_size);
     if (tmpv == NULL || tmpk == NULL) exit(1); /* unrecoverable */
 
@@ -72,7 +76,7 @@ seq_t a(idx_t n)
             seq_t sign = ((k & 1ULL) ? -(seq_t)1 : (seq_t)1);
 
             seq_t base   = (seq_t)(i - k);          /* i-k >= 1 here */
-            seq_t power  = big_pow(base, (seq_t)k);
+            seq_t power  = ipow(base, (seq_t)k);
             seq_t bin    = binomial(i, k);
             seq_t term   = values[k];
 

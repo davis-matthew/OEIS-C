@@ -9,6 +9,7 @@
  *            a(0) = 1, a(2n) = 2^{popcount(n)} * a(n), a(2n+1) = 2*a(2n)
  * Range:     u8 n <= 12, u16 n <= 46, u32 n <= 246, u64 n <= 2044,
  *            u128 n <= 8191, big any n
+ * Validated: standard, pass, 65 terms through n = 8172 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

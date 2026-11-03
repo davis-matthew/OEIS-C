@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 441 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,11 +26,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* the types seq_t and idx_t are supplied by the build system */
-extern void *malloc(size_t);
-extern void *realloc(void *, size_t);
-extern void free(void *);
 
 /* ------------------------------------------------------------ */
 /*  Utility: binomial coefficient  C(a,b)  (0 ≤ b ≤ a)          */
@@ -61,7 +60,7 @@ ensure_cache(idx_t n)
 {
     if (cache_cap > n) return;              /* already enough space */
     idx_t new_cap = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     /* realloc with NULL behaves like malloc; if it fails, the program
        will abort – acceptable for this context. */
     cache = new_cache;

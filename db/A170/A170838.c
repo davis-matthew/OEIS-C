@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,11 +24,12 @@
    This yields a(n) for all n ≥ 0.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Allocate DP array of size n+1, zero‑initialized. */
     size_t N = (size_t)n;
-    seq_t *dp = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, N + 1);
     if (dp == NULL) return 0;          /* out of memory → return 0 */
 
     /* Start with the empty product: a[0] = 1. */
@@ -59,6 +61,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[N];
-    free(dp);
+    mem_free(dp);
     return result;
 }

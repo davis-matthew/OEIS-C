@@ -8,7 +8,8 @@
  *            Prime(0)# = 1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 346 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- cached values ---------- */
 static seq_t *a_cache     = NULL;   /* a(n) values */
@@ -65,8 +67,8 @@ static void expand_to_n(idx_t n)
 {
     /* initialise caches if first call */
     if (a_cache == NULL) {
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
-        prim_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
+        prim_cache = mem_new(seq_t, 1);
         a_cap = 1;
         prim_cap = 1;
         a_cache[0] = (seq_t)1;        /* a(0) = 1 */
@@ -79,8 +81,8 @@ static void expand_to_n(idx_t n)
     if ((size_t)n + 1 > a_cap) {
         size_t new_cap = a_cap ? a_cap * 2 : 16;
         while (new_cap <= (size_t)n + 1) new_cap *= 2;
-        seq_t *new_a    = (seq_t *)realloc(a_cache,    new_cap * sizeof(seq_t));
-        seq_t *new_prim = (seq_t *)realloc(prim_cache, new_cap * sizeof(seq_t));
+        seq_t *new_a    = mem_resize(seq_t, a_cache, new_cap);
+        seq_t *new_prim = mem_resize(seq_t, prim_cache, new_cap);
         a_cache  = new_a;
         prim_cache = new_prim;
         a_cap = new_cap;

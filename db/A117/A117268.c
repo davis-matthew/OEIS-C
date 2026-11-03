@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    row‑major order (row 1, then row 2, …).  */
 /*----------------------------------------*/
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,11 +38,11 @@ seq_t a(idx_t n)
     idx_t c = n - start + 1;          /* column inside the found row */
 
     /* Temporary arrays for the previous and current row. */
-    seq_t *prev = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *cur  = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (r + 1));
+    seq_t *cur  = mem_new(seq_t, (r + 1));
 
     /* Tribonacci values up to r. */
-    seq_t *trib = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *trib = mem_new(seq_t, (r + 1));
     trib[1] = 1;
     if (r >= 2) trib[2] = 1;
     if (r >= 3) trib[3] = 2;
@@ -65,9 +67,9 @@ seq_t a(idx_t n)
 
     seq_t result = prev[c];
 
-    free(prev);
-    free(cur);
-    free(trib);
+    mem_free(prev);
+    mem_free(cur);
+    mem_free(trib);
 
     return result;
 }

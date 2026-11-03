@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 52, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _prime_contrib
+ * Validated: standard, pass, 71 terms through n = 9176 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,31 @@
    a(p^e) = (e+1) * p^(e-2) * ((e+2)*(e+3)*p^2 - 2*e*(e+2)*p + e*(e-1)) / 6. */
 
 #include <stdint.h>
-#include "../utils/_prime_contrib.h"
+
+/* Helper that computes the contribution of a prime power p^e. */
+static seq_t _prime_contrib(idx_t p, int e)
+{
+    /* Inner factor: (e+2)*(e+3)*p^2 - 2*e*(e+2)*p + e*(e-1) */
+    seq_t inner = (seq_t)(e + 2) * (e + 3) * p * p
+                - (seq_t)2 * e * (e + 2) * p
+                + (seq_t)e * (e - 1);
+
+    /* Numerator: (e+1) * inner */
+    seq_t num = (seq_t)(e + 1) * inner;
+
+    if (e == 1) {
+        /* p^(e-2) = 1/p, so divide by 6*p */
+        return num / ((seq_t)6 * p);
+    }
+
+    /* For e >= 2: multiply by p^(e-2) */
+    seq_t pow = 1;
+    for (int i = 0; i < e - 2; ++i) pow *= p;
+
+    seq_t res = num * pow;
+    /* final division by 6 (exact) */
+    return res / 6;
+}
 
 /* External function required by the build system. */
 seq_t a(idx_t n)

@@ -9,7 +9,8 @@
  *            contains the same non‑zero number of 1's and 8's
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_equal_1_8
+ * Validated: standard, pass, 65 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has_equal_1_8.h"
+#include "../utils/mem.h"
+
+/* check whether a number has equal non‑zero numbers of 1s and 8s in base 11 */
+static bool has_equal_1_8(seq_t x) {
+    int cnt1 = 0;
+    int cnt8 = 0;
+    while (x > 0) {
+        int d = (int)(x % 11);
+        if (d == 1) cnt1++;
+        else if (d == 8) cnt8++;
+        x = x / 11;
+    }
+    return (cnt1 == cnt8 && cnt1 > 0);
+}
 
 static seq_t *cache = NULL;     /* cache of found sequence values */
 static size_t cache_len = 0;    /* number of values stored */
@@ -29,7 +43,7 @@ static void ensure_capacity(size_t needed) {
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         /* allocation failed – terminate the program */
         abort();

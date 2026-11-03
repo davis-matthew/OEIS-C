@@ -8,7 +8,8 @@
  *            prime
  * Range:     u8 n <= 17, u16 n <= 723, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   add_seq, is_prime32, mod_mul32, mod_pow32
+ * Validated: standard, pass, 65 terms through n = 9743 (2026-11-03)
+ * Helpers:   is_prime_u32, mem, mulmod_u32, powmod_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,24 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/add_seq.h"
-#include "../utils/is_prime32.h"
-#include "../utils/mod_mul32.h"
-#include "../utils/mod_pow32.h"
+#include "../utils/is_prime_u32.h"
+#include "../utils/mulmod_u32.h"
+#include "../utils/powmod_u32.h"
+#include "../utils/mem.h"
+
+/* enlarge array to store seq_t values */
+static void add_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val) {
+    if (*cap == 0) {
+        *cap  = 4;
+        *arr  = mem_new(seq_t, (*cap));
+    }
+    if (*size == *cap) {
+        *cap <<= 1;
+        *arr  = mem_resize(seq_t, *arr, (*cap));
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 /* --------- Global tables and state --------- */
 static uint32_t *g_primes = NULL;   /* list of generated primes */
@@ -34,7 +49,7 @@ static void build_sieve(uint32_t limit)
 {
     /* free previous data */
     free(g_primes);
-    free(g_terms);
+    mem_free(g_terms);
     g_primes = NULL;
     g_terms = NULL;
     g_primes_size = 0;
@@ -73,7 +88,7 @@ static void build_sieve(uint32_t limit)
         uint32_t p = g_primes[idx];
         uint32_t x1 = 5u * p + 12;
         uint32_t x2 = 12u * p + 5;
-        if (is_prime32(x1) && is_prime32(x2)) {
+        if (is_prime_u32(x1) && is_prime_u32(x2)) {
             add_seq(&g_terms, &g_terms_cap, &g_terms_size, (seq_t)p);
         }
     }

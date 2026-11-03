@@ -10,15 +10,18 @@
  *            applied to n
  * Range:     u8 n <= 11, u16 n <= 79, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi, factor_u64
+ * Validated: standard, pass, 76 terms through n = 8576 (2026-11-01)
+ * Helpers:   factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
 
 /* compute the pi‑based arithmetic derivative of a positive integer */
 static seq_t pi_derivative(seq_t n) {
@@ -32,7 +35,7 @@ static seq_t pi_derivative(seq_t n) {
     seq_t sum = 0;
     for (size_t i = 0; i < cnt; ++i) {
         /* term = (n / p_i) * e_i * π(p_i) */
-        seq_t term = (n / (seq_t)p[i]) * (seq_t)e[i] * compute_pi(p[i]);
+        seq_t term = (n / (seq_t)p[i]) * (seq_t)e[i] * prime_pi(p[i]);
         sum += term;
     }
     return sum;

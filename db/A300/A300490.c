@@ -8,12 +8,14 @@
  *            - (n^2+2*n-1)*a(n+2) - (2*n+3)*(n+2)*a(n+1) - (n+2)*(n+1)*a(n)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 436 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with first 5 terms if not already done */
     if (cache_len == 0) {
-        cache = (seq_t*)malloc(sizeof(seq_t) * 5);
+        cache = mem_new(seq_t, 5);
         if (!cache) return 0;          /* out of memory: safe fallback */
         cache[0] = 0;
         cache[1] = 1;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* if the requested index is not yet computed, extend cache */
     if (n >= cache_len) {
-        seq_t *new_cache = (seq_t*)realloc(cache, sizeof(seq_t) * (n + 1));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) return 0;      /* out of memory: safe fallback */
         cache = new_cache;
 

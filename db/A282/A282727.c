@@ -9,6 +9,7 @@
  *            residues < p/2 * * where p = n‑th prime ≡ 3 (mod 8)
  * Range:     u8 n <= 3, u16 n <= 22, u32 n <= 2782, u64 n <= 4000,
  *            u128 n <= 4000, big any n
+ * Validated: standard, pass, 60 terms through n = 3724 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
 
 /* ------------------------------------------------------------ */
 /* Static storage for primes ≡ 3 (mod 8) */

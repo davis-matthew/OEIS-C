@@ -10,12 +10,14 @@
  *            C_1(x)=1, C_n(x)=(x+1)*((x+1)*C_{n-1}(x+1)-x*C_{n-1}(x))
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 55, u64 n <= 121,
  *            u128 n <= 300, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 1255 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;   /* rows[1..rows_max] : arrays of coefficients */
 static idx_t rows_max = 0;    /* largest row computed so far */
@@ -44,14 +46,14 @@ static void ensure_rows(idx_t needed_r)
         if (r == 1)
         {
             /* C_1(x) = 1 */
-            rows[1] = (seq_t*)malloc(sizeof(seq_t));  /* length 1 */
+            rows[1] = mem_new(seq_t, 1);  /* length 1 */
             rows[1][0] = 1;
             continue;
         }
 
         idx_t L = r - 1;                     /* length of previous row */
         seq_t *prev = rows[r - 1];            /* previous coefficients */
-        seq_t *b = (seq_t*)calloc(L, sizeof(seq_t)); /* C_{r-1}(x+1) coeffs */
+        seq_t *b = mem_new(seq_t, L); /* C_{r-1}(x+1) coeffs */
 
         /* Compute b[j] = sum_{i=j}^{L-1} prev[i] * C(i,j) */
         for (idx_t i = 0; i < L; ++i)
@@ -67,7 +69,7 @@ static void ensure_rows(idx_t needed_r)
         }
 
         /* Allocate new row array */
-        seq_t *curr = (seq_t*)malloc(sizeof(seq_t) * r);
+        seq_t *curr = mem_new(seq_t, r);
         for (idx_t k = 0; k < r; ++k)
         {
             seq_t term = 0;
@@ -89,7 +91,7 @@ static void ensure_rows(idx_t needed_r)
             curr[k] = term;
         }
 
-        free(b);
+        mem_free(b);
         rows[r] = curr;
     }
 

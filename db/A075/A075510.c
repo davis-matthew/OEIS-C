@@ -8,12 +8,14 @@
  *            A075510)
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 7, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pow2  = NULL;
 static seq_t *pow4  = NULL;
@@ -26,11 +28,11 @@ static void ensure_size(idx_t n)
 {
     if (n < pow_len) return;
     size_t new_len = (size_t)n + 1;
-    pow2  = (seq_t*)realloc(pow2,  new_len * sizeof(seq_t));
-    pow4  = (seq_t*)realloc(pow4,  new_len * sizeof(seq_t));
-    pow6  = (seq_t*)realloc(pow6,  new_len * sizeof(seq_t));
-    pow8  = (seq_t*)realloc(pow8,  new_len * sizeof(seq_t));
-    pow10 = (seq_t*)realloc(pow10, new_len * sizeof(seq_t));
+    pow2  = mem_resize(seq_t, pow2, new_len);
+    pow4  = mem_resize(seq_t, pow4, new_len);
+    pow6  = mem_resize(seq_t, pow6, new_len);
+    pow8  = mem_resize(seq_t, pow8, new_len);
+    pow10 = mem_resize(seq_t, pow10, new_len);
 
     if (pow_len == 0) {
         pow2[0]  = (seq_t)1;

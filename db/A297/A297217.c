@@ -11,7 +11,8 @@
  *            count, a(n) = 0
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   divisor_count_u64, is_prime_small
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;  /* undefined for n=0, but guard anyway */
@@ -38,14 +40,14 @@ seq_t a(idx_t n) {
         size_t new_cap = div_cap ? div_cap : 16;
         while (new_cap < (size_t)n) new_cap <<= 1;
         if (new_cap > div_cap) {
-            div_counts = (seq_t *)realloc(div_counts, new_cap * sizeof(seq_t));
+            div_counts = mem_resize(seq_t, div_counts, new_cap);
             div_cap = new_cap;
         }
 
         /* find the remaining composites */
         while (composite_count < n) {
-            while (is_prime_small((seq_t)next_candidate)) ++next_candidate;  /* skip primes */
-            seq_t d = divisor_count_u64(next_candidate);                   /* divisor count */
+            while (is_prime_seq((seq_t)next_candidate)) ++next_candidate;  /* skip primes */
+            seq_t d = num_divisors(next_candidate);                   /* divisor count */
             div_counts[composite_count++] = d;
             if (d > global_max_d) global_max_d = (uint32_t)d;
             ++next_candidate;                                            /* advance to next integer */

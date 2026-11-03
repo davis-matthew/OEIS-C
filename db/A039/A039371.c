@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 8513, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_equal_1_and_8
+ * Validated: standard, pass, 69 terms through n = 9965 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 /*----------------------------------------------------------------------------*/
 
 #include <stdbool.h>
-#include "../utils/has_equal_1_and_8.h"
+
+/* Helper: test if a number has the same count of 1 and 8 in base‑9
+   (and both counts > 0). */
+static inline bool has_equal_1_and_8(seq_t v)
+{
+    seq_t tmp = v;
+    unsigned cnt1 = 0, cnt8 = 0;
+    /* Greedy conversion to base‑9 */
+    while (tmp > 0) {
+        int d = (int)(tmp % 9);
+        if (d == 1) ++cnt1;
+        else if (d == 8) ++cnt8;
+        tmp /= 9;
+    }
+    return cnt1 == cnt8 && cnt1 > 0;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

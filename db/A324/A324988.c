@@ -7,7 +7,8 @@
  * Formula:   a(n) = n-th palindrome m such that τ(m) is also a palindrome
  * Range:     u8 n <= 33, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   divisor_count_u64, is_palindrome
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* Return the n-th palindrome whose number of divisors is also a palindrome. */
 seq_t a(idx_t n) {
@@ -35,15 +37,15 @@ seq_t a(idx_t n) {
         uint64_t m = last_checked;
 
         /* Check palindrome property (base 10) */
-        if (is_palindrome((seq_t)m, 10)) {
+        if (is_palindrome_base((seq_t)m, 10)) {
             /* Compute the divisor count τ(m) */
-            uint64_t tau = divisor_count_u64(m);
+            uint64_t tau = num_divisors(m);
             /* τ(m) must also be a palindrome */
-            if (is_palindrome((seq_t)tau, 10)) {
+            if (is_palindrome_base((seq_t)tau, 10)) {
                 /* Ensure sufficient capacity for the cache */
                 if (cache_len == cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 16;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)m;
             }

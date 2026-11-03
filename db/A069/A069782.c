@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 123 terms through n = 9561 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------- helper: gcd for seq_t -------
  */
@@ -78,7 +80,7 @@ static void ensure_cache_capacity(size_t needed)
     if (needed <= cache_alloc) return;
     size_t new_alloc = cache_alloc ? cache_alloc * 2 : 16;
     if (new_alloc < needed) new_alloc = needed;
-    seq_t *tmp = (seq_t *)realloc(cache_terms, new_alloc * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache_terms, new_alloc);
     if (!tmp) abort();
     cache_terms = tmp;
     cache_alloc = new_alloc;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 14, u128 n <= 31,
  *            big any n
- * Helpers:   has_good_line
+ * Validated: standard, pass, 31 terms through n = 198 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,27 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has_good_line.h"
+
+static bool has_good_line(int a, int b, int c, int s) {
+    int x[3][3];
+    for (int r = 0; r < 3; ++r) {
+        int row = (r == 0) ? a : (r == 1 ? b : c);
+        for (int j = 0; j < 3; ++j) {
+            x[r][j] = (row >> (s + j)) & 1;
+        }
+    }
+    /* horizontal */
+    for (int r = 0; r < 3; ++r)
+        if (x[r][0] == x[r][1] && x[r][1] == x[r][2]) return true;
+    /* vertical */
+    for (int c0 = 0; c0 < 3; ++c0)
+        if (x[0][c0] == x[1][c0] && x[1][c0] == x[2][c0]) return true;
+    /* main diagonal */
+    if (x[0][0] == x[1][1] && x[1][1] == x[2][2]) return true;
+    /* anti‑diagonal */
+    if (x[0][2] == x[1][1] && x[1][1] == x[2][0]) return true;
+    return false;
+}
 
 static uint16_t transition_mask[16][16];
 static bool transition_init = false;

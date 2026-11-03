@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 27, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    computed only once, in O(n) time overall. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *q_cache = NULL;          /* memoised denominator array   */
 static idx_t q_cache_size = 0;         /* number of computed elements   */
@@ -41,7 +43,7 @@ static void ensure_cache(size_t needed)
     idx_t new_cap = q_cache_capacity ? q_cache_capacity : 4;
     while (new_cap < (idx_t)needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(q_cache, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, q_cache, new_cap);
     if (!tmp)
         abort();   /* out of memory – abort */
     q_cache = tmp;

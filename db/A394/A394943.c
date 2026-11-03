@@ -15,7 +15,8 @@
  *            S(m)=∑_...
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 21, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   mul_small_fast
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mul_small_fast.h"
+#include "../utils/mem.h"
+
+/* Multiply a seq_t by a small unsigned integer m (here m∈{2,3}). */
+static inline seq_t mul_small_fast(seq_t x, unsigned int m)
+{
+    return x * (seq_t)m;
+}
 
 /* Computes the n‑th term of OEIS A394943. */
 seq_t a(idx_t n)
@@ -33,11 +40,11 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate array for a[0..n] and convolution conv[0..n]. */
-    seq_t *a_arr = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *conv  = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *conv  = mem_new(seq_t, (size_t)(n + 1));
     if (!a_arr || !conv) {
-        free(a_arr);
-        free(conv);
+        mem_free(a_arr);
+        mem_free(conv);
         return (seq_t)0;      /* Allocation failure – return 0. */
     }
 
@@ -109,7 +116,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_arr[n];
-    free(a_arr);
-    free(conv);
+    mem_free(a_arr);
+    mem_free(conv);
     return result;
 }

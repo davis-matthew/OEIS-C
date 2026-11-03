@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 1196, u16 n <= 8713, u32 n <= 8713, u64 n <= 8713,
- *            u128 n <= 8713, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1196, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 94 terms through n = 8713 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n)=# { k | 1≤k≤n-2, a(k) divides a(n-1) } */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache[i] holds a(i+1) for i>=0 */
 static size_t cache_cap = 0;     /* current allocated capacity */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
     /* resize if necessary */
     if ((size_t)n > cache_cap) {
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* allocation failed – abort for this sequence */
             exit(EXIT_FAILURE);

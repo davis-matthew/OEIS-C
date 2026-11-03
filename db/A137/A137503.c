@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   int_sqrt, pow2
+ * Validated: partial, pass, 34 terms through n = 35 (2026-11-03)
+ * Helpers:   isqrt, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,8 +37,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"          /* seq_t pow2(idx_t exp); */
-#include "../utils/int_sqrt.h"      /* idx_t int_sqrt(idx_t n); */
+#include <stdint.h>
+#include "../utils/isqrt.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *b = NULL;          /* b[1..]  */
 static seq_t *c = NULL;          /* c[1..]  */
@@ -50,9 +53,9 @@ static void ensure_size(idx_t n)
     size_t needed = (size_t)n + 1;
     if (current_size >= needed) return;
 
-    seq_t *new_b = (seq_t *)realloc(b, needed * sizeof(seq_t));
-    seq_t *new_c = (seq_t *)realloc(c, needed * sizeof(seq_t));
-    seq_t *new_w = (seq_t *)realloc(w, needed * sizeof(seq_t));
+    seq_t *new_b = mem_resize(seq_t, b, needed);
+    seq_t *new_c = mem_resize(seq_t, c, needed);
+    seq_t *new_w = mem_resize(seq_t, w, needed);
     if (!new_b || !new_c || !new_w) {
         /* Allocation failure: let the caller handle it. */
         return;
@@ -100,7 +103,7 @@ seq_t a(idx_t n)
 
         /* ----- c[i] ----- */
         seq_t sum_c = 0;
-        idx_t root = int_sqrt(i);
+        idx_t root = isqrt(i);
         for (idx_t d = 1; d <= root; ++d) {
             if (i % d == 0) {
                 if (d < i) sum_c += c[d];

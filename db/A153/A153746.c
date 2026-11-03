@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: full, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
-#include "../utils/floor_sqrt.h"   /* floor_sqrt(x) -> seq_t */
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* test whether a 64‑bit integer is a perfect square */
 static bool is_square_uint(uint64_t x)
@@ -44,7 +64,7 @@ static void append_term(seq_t val)
 {
     if (term_cnt == term_cap) {
         size_t new_cap = term_cap ? term_cap << 1 : 16;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp)
             abort();                 /* simple error handling */
         terms = tmp;

@@ -8,19 +8,21 @@
  * Formula:   a(n) = 3^n + 2 - 2*2^n (OEIS A101052)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 42 terms through n = 950 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 /* seq_t and idx_t are defined by the build environment. */
 seq_t a(idx_t n)
 {
     seq_t two = (seq_t)2;
-    seq_t pow2 = pow_seq(two, n);          /* 2^n */
-    seq_t pow3 = pow_seq((seq_t)3, n);     /* 3^n */
+    seq_t pow2 = ipow_idx(two, n);          /* 2^n */
+    seq_t pow3 = ipow_idx((seq_t)3, n);     /* 3^n */
     seq_t result = pow3 + two - (two * pow2); /* 3^n + 2 - 2*2^n */
     return result;
 }

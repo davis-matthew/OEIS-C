@@ -8,7 +8,8 @@
  *            Product_{j=1..k} (1 + x^j)^j
  * Range:     i8 n <= 40, i16 n <= 58, i32 n <= 58, i64 n <= 58, i128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,14 +19,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     idx_t N = n;
     /* Allocate coefficient arrays */
-    seq_t *dp   = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *tmp  = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *res  = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *tmp  = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *res  = mem_new(seq_t, (size_t)(N + 1));
 
     dp[0] = 1;          /* product up to k=0 is 1 */
     res[0] = 1;         /* k=0 contributes to a(0) only */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     idx_t Kmax = (idx_t)floor(sqrt((double)N));
     for (idx_t k = 1; k <= Kmax; ++k) {
         idx_t tmax = N / k;                       /* maximum exponent of t for this k */
-        seq_t *coeff = (seq_t*)malloc((size_t)(tmax + 1) * sizeof(seq_t));
+        seq_t *coeff = mem_new(seq_t, (size_t)(tmax + 1));
         seq_t binom = 1;
         coeff[0] = 1;                              /* binom(k-1,0) = 1 */
 
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         }
 
         /* Convolution: dp (previous product) * coeff (reciprocal of new factor) */
-        memset(tmp, 0, (size_t)(N + 1) * sizeof(seq_t));
+        mem_set(tmp, 0, (size_t)(N + 1) * sizeof(seq_t));
         for (idx_t s0 = 0; s0 <= N; ++s0) {
             seq_t v = dp[s0];
             if (v == 0) continue;
@@ -68,12 +70,12 @@ seq_t a(idx_t n)
             res[i] += dp[i - ksq];
         }
 
-        free(coeff);
+        mem_free(coeff);
     }
 
     seq_t ans = res[N];
-    free(dp);
-    free(tmp);
-    free(res);
+    mem_free(dp);
+    mem_free(tmp);
+    mem_free(res);
     return ans;
 }

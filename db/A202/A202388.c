@@ -7,7 +7,8 @@
  * Formula:   a(n) = digital_root( nth Smith number )
  * Range:     u8 n <= 9, u16 n <= 2375, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, factor_u64, is_prime_small
+ * Validated: standard, pass, 102 terms through n = 9918 (2026-11-03)
+ * Helpers:   digit_sum, factor_u64, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include <stdint.h>
 #include "../utils/digit_sum.h"
 #include "../utils/factor_u64.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /*---------------------------------------------------------------------------*/
 /* Helper: compute the sum of the digits of all prime factors of n,
@@ -57,7 +60,7 @@ static void _ensure_smiths(idx_t n)
         uint64_t cand = curr_candidate;
 
         /* Skip primes – a Smith number must be composite. */
-        if (!is_prime_small((seq_t)cand)) {
+        if (!is_prime_seq((seq_t)cand)) {
             seq_t sum_digits  = digit_sum((seq_t)cand);
             seq_t sum_factors = _prime_factor_digit_sum(cand);
 
@@ -65,7 +68,7 @@ static void _ensure_smiths(idx_t n)
                 /* Expand array if needed. */
                 if (smiths_len == smiths_cap) {
                     smiths_cap = smiths_cap ? smiths_cap * 2 : 16;
-                    smiths = (seq_t *)realloc(smiths, smiths_cap * sizeof(seq_t));
+                    smiths = mem_resize(seq_t, smiths, smiths_cap);
                 }
                 smiths[smiths_len++] = (seq_t)cand;
             }

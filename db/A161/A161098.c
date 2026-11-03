@@ -8,7 +8,8 @@
  * Formula:   G.f.: ∏_{k≥1} (1 + x^(10*k^2)/(1-x^(k^2)))
  * Range:     u8 n <= 242, u16 n <= 747, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 119 terms through n = 953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Number of partitions of n into squares where every part appears at least 10 times. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,13 +26,13 @@ seq_t a(idx_t n)
 
     idx_t N = n;
     /* dp[s] = number of partitions of sum s using processed squares. */
-    seq_t *dp = (seq_t*)calloc((size_t)N + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)N + 1);
     if (!dp) return 0;
     dp[0] = 1;                           /* one way to form 0 */
 
     /* Temporary array to accumulate contributions of the current square. */
-    seq_t *add = (seq_t*)calloc((size_t)N + 1, sizeof(seq_t));
-    if (!add) { free(dp); return 0; }
+    seq_t *add = mem_new(seq_t, (size_t)N + 1);
+    if (!add) { mem_free(dp); return 0; }
 
     for (idx_t k = 1; ; ++k) {
         idx_t t = k * k;                  /* square value */
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[N];
-    free(add);
-    free(dp);
+    mem_free(add);
+    mem_free(dp);
     return result;
 }

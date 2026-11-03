@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 1738, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_biunitary_divisor
+ * Validated: standard, pass, 71 terms through n = 9120 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,36 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* factor_u64(n, primes, exps, &cnt) */
-#include "../utils/is_biunitary_divisor.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+/* Check that d is a proper bi‑unitary divisor of k                   */
+static bool is_biunitary_divisor(uint64_t k,
+                                 const uint64_t *pk,
+                                 const uint64_t *ek,
+                                 size_t cnt_k,
+                                 const uint64_t *pd,
+                                 const uint64_t *ed,
+                                 size_t cnt_d)
+{
+    for (size_t i = 0; i < cnt_k; ++i) {
+        uint64_t p = pk[i];
+        int a_k   = (int)ek[i];
+
+        if ((a_k & 1) == 0) {                /* even exponent in k   */
+            int a_d = 0;                     /* exponent in d       */
+            for (size_t j = 0; j < cnt_d; ++j) {
+                if (pd[j] == p) {
+                    a_d = (int)ed[j];
+                    break;
+                }
+            }
+            if (a_d == a_k / 2)               /* forbidden middle p  */
+                return false;
+        }
+    }
+    return true;
+}
 
 /* ------------------------------------------------------------------ */
 /* Cache for the sequence values                                         */
@@ -79,7 +108,7 @@ static void push_seq(uint64_t val)
 {
     if (seq_len + 1 > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
     seq[seq_len++] = (seq_t)val;

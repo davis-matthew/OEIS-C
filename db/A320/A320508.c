@@ -10,12 +10,14 @@
  *            if col<row, * = (-1)^row if col==row
  * Range:     i8 n <= 80, i16 n <= 80, i32 n <= 80, i64 n <= 80, i128 n <= 80,
  *            big any n
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static inline idx_t floor_sqrt_u64(idx_t x) {

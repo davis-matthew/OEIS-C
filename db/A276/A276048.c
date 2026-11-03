@@ -8,6 +8,7 @@
  * Formula:   a(1)=0; if n=p^k (p prime) then a(n)=p^(p-1); otherwise a(n)=1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

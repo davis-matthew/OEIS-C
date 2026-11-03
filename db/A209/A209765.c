@@ -10,13 +10,15 @@
  *            v(n,x)=2x*u(n-1,x)+x*v(n-1,x)+1, with u(1,x)=1 and v(1,x)=1
  * Range:     u8 n <= 25, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;          /* pointers to all computed rows of u */
 static idx_t   num_rows = 0;         /* number of rows already computed */
@@ -51,8 +53,8 @@ ensure_rows(idx_t r)
 
     for (idx_t cur = num_rows + 1; cur <= r; ++cur) {
         idx_t len = cur;                       /* current row length = cur */
-        seq_t *u_new = (seq_t*)malloc(len * sizeof(seq_t));
-        seq_t *v_new = (seq_t*)calloc(len, sizeof(seq_t)); /* init to 0 */
+        seq_t *u_new = mem_new(seq_t, len);
+        seq_t *v_new = mem_new(seq_t, len); /* init to 0 */
 
         if (cur == 1) {            /* base row */
             u_new[0] = 1;
@@ -77,7 +79,7 @@ ensure_rows(idx_t r)
         rows[cur-1] = u_new;   /* store the new row */
 
         /* free the previous v_prev array (not needed further) */
-        if (v_prev) free(v_prev);
+        if (v_prev) mem_free(v_prev);
 
         u_prev = u_new;
         v_prev = v_new;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 172, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9445 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Computes A050796: numbers n such that n^2+1 has a nontrivial sum of
    two squares representation. The function builds the sequence on demand
@@ -75,7 +77,7 @@ static void ensure_seq_capacity(size_t needed)
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
         while (new_cap < needed)
             new_cap *= 2;
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_cap = new_cap;
     }
 }

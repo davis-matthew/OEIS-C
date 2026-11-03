@@ -12,7 +12,8 @@
  *            (z-1)*(1+i)+1, starting from 0, with duplicate nodes discarded
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 9646 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t r;    /* real part */
@@ -40,7 +42,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = S_cap ? S_cap * 2 : 1024;
     if (new_cap < needed)
         new_cap = needed;
-    complex_t *newp = (complex_t *)realloc(S, new_cap * sizeof(complex_t));
+    complex_t *newp = mem_resize(complex_t, S, new_cap);
     S = newp;
     S_cap = new_cap;
 }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000196(2*prime(n)) - A000196(prime(n)-1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   estimate_prime_upper_bound, isqrt64
+ * Validated: standard, pass, 119 terms through n = 9665 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/estimate_prime_upper_bound.h"
-#include "../utils/isqrt64.h"
+#include <stdbool.h>
+#include <math.h>
+#include "../utils/isqrt_u64.h"
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 seq_t a(idx_t n)
 {
@@ -78,11 +89,11 @@ seq_t a(idx_t n)
     uint64_t p = primes[n - 1];
     uint64_t two_p = 2 * p;
 
-    uint64_t ceil_sqrt_p = isqrt64(p);
+    uint64_t ceil_sqrt_p = isqrt_u64(p);
     if (ceil_sqrt_p * ceil_sqrt_p < p)
         ++ceil_sqrt_p;
 
-    uint64_t floor_sqrt_2p = isqrt64(two_p);
+    uint64_t floor_sqrt_2p = isqrt_u64(two_p);
 
     seq_t result = (seq_t)(floor_sqrt_2p - ceil_sqrt_p + 1);
     return result;

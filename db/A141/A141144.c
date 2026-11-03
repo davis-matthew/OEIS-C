@@ -8,13 +8,14 @@
  * Formula:   not stated
  * Range:     i8 none, i16 n <= 20, i32 n <= 23, i64 n <= 23, i128 n <= 23,
  *            big any n
- * Helpers:   isqrt_ll
+ * Validated: full, pass, 23 terms through n = 23 (2026-11-02)
+ * Helpers:   isqrt_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>  /* size_t */
-#include "../utils/isqrt_ll.h"
+#include "../utils/isqrt_i64.h"
 
 /* Computes the integer X‑coordinates of all solutions of the Ochoa curve
    3Y^2 = 2X^3 + 386X^2 + 256X – 58195.  The function scans X in a
@@ -36,7 +37,7 @@ static void init(void)
         long long rhs  = cube - 440067LL * x + 106074110LL;
         if (rhs < 0) continue;           /* cannot be a perfect square */
 
-        long long s = isqrt_ll(rhs);
+        long long s = isqrt_i64(rhs);
         if (s * s == rhs) {
             solutions[solutions_cnt++] = (seq_t)x;
         }

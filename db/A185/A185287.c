@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   binom, floor_sqrt
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,26 @@
  *      Σ_{k=2}^{n-1} C(m+k-n-1, 2k-n-1)*C(k, 2k-n).
  */
 #include <stdint.h>
-#include "../utils/binom.h"      /* seq_t binom(idx_t a, idx_t b); */
-#include "../utils/floor_sqrt.h" /* seq_t floor_sqrt(seq_t x); */
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -48,7 +67,7 @@ seq_t a(idx_t n)
     idx_t len = 1 + offset;                    /* len ≥ 1 */
 
     /* First term: all parts of y have size 1 */
-    seq_t result = binom(m - 1, len - 1);
+    seq_t result = binomial(m - 1, len - 1);
 
     /* Remaining cases where at least one part of y has size 1 and some
      * parts have size 2 (and y parts ≤2) */
@@ -64,7 +83,7 @@ seq_t a(idx_t n)
 
             if (a1_i < 0 || b1_i < 0 || a1_i < b1_i) continue;
 
-            seq_t term1 = binom((idx_t)a1_i, (idx_t)b1_i);
+            seq_t term1 = binomial((idx_t)a1_i, (idx_t)b1_i);
             if (term1 == 0) continue;
 
             int64_t a2_i = k_i;                     /* k */
@@ -72,7 +91,7 @@ seq_t a(idx_t n)
 
             if (b2_i < 0 || b2_i > a2_i) continue;
 
-            seq_t term2 = binom((idx_t)a2_i, (idx_t)b2_i);
+            seq_t term2 = binomial((idx_t)a2_i, (idx_t)b2_i);
             if (term2 == 0) continue;
 
             result += term1 * term2;

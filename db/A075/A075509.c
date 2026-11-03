@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{m=0..n} 10^(n-m) * S2(n,m) (S2 = Stirling2)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 392 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache for the B_n,k values:  B[k] = S2(n,k) * 10^(n-k)   */
 static seq_t *B = NULL;          /* dynamic array of seq_t, size = max_n+1 */
@@ -30,7 +32,7 @@ static void ensure_Bsize(idx_t n)
 {
     if (n + 1 <= Bsize) return;
     size_t new_size = (size_t)(n + 1);
-    seq_t *new_B = (seq_t *)realloc(B, new_size * sizeof(seq_t));
+    seq_t *new_B = mem_resize(seq_t, B, new_size);
     if (!new_B) abort();
     /* zero new entries */
     for (size_t i = Bsize; i < new_size; ++i) new_B[i] = (seq_t)0;
@@ -43,7 +45,7 @@ static void ensure_a_cache_size(idx_t n)
 {
     if (n + 1 <= a_cache_size) return;
     size_t new_size = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_size);
     if (!new_cache) abort();
     for (size_t i = a_cache_size; i < new_size; ++i) new_cache[i] = (seq_t)0;
     a_cache = new_cache;
@@ -55,12 +57,12 @@ seq_t a(idx_t n)
 {
     /* initialise caches on first call */
     if (!B) {
-        B = (seq_t *)calloc(1, sizeof(seq_t));
+        B = mem_new(seq_t, 1);
         Bsize = 1;
         B[0] = (seq_t)1;               /* B_0,0 = 1 */
     }
     if (!a_cache) {
-        a_cache = (seq_t *)calloc(1, sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         a_cache_size = 1;
         a_cache[0] = (seq_t)1;         /* a(0) = 1 */
     }

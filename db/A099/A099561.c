@@ -11,12 +11,14 @@
  *            expands the cache on demand. C++ compilers accept the...
  * Range:     u8 n <= 22, u16 n <= 39, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first 8 values if not done yet. */
     if (cache == NULL) {
         cache_size = 8;                        /* indices 0 … 7 need to exist */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return 0;           /* allocation failure → 0 as fallback */
         cache[0] = cache[1] = cache[2] = cache[3] = 0;
         cache[4] = cache[5] = cache[6] = cache[7] = 1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     idx_t old_size = cache_size;
     idx_t new_size = n + 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (new_cache == NULL) return 0;           /* allocation failure → 0 as fallback */
     cache = new_cache;
     cache_size = new_size;

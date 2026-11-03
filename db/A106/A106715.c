@@ -9,7 +9,8 @@
  *            number
  * Range:     u8 n <= 3, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   is_prime_digit_sum
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/is_prime_digit_sum.h"
+#include "../utils/mem.h"
+
+/* ----------------- helper functions ----------------- */
+static bool is_prime_digit_sum(uint32_t n)
+{
+    /* n <= 72 for primes up to the chosen limit */
+    static const uint8_t small_primes[] = {
+        2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
+        31, 37, 41, 43, 47, 53, 59, 61, 67, 71
+    };
+    for (size_t i = 0; i < sizeof(small_primes); ++i) {
+        uint8_t p = small_primes[i];
+        if (n == p) return true;
+        if (n < p) break;
+    }
+    return false;
+}
 
 static uint32_t digit_sum(uint32_t x)
 {
@@ -99,7 +116,7 @@ static void compute_terms_until(size_t target)
             if (ok) {
                 if (term_count == term_cap) {
                     term_cap *= 2;
-                    term_list = (seq_t *)realloc(term_list, term_cap * sizeof(seq_t));
+                    term_list = mem_resize(seq_t, term_list, term_cap);
                 }
                 term_list[term_count++] = (seq_t)p[0];
             }
@@ -127,7 +144,7 @@ static void init_once(void)
     generate_primes(26000000);
 
     term_cap = 20000; /* enough for typical requests */
-    term_list = (seq_t *)malloc(term_cap * sizeof(seq_t));
+    term_list = mem_new(seq_t, term_cap);
     term_count = 0;
     term_scan_index = 0;
 }

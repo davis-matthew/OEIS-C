@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 2034, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_53
+ * Validated: standard, pass, 67 terms through n = 9928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,23 @@
 #include <stdbool.h>  /* for bool */
 #include <stdlib.h>   /* for malloc, free, realloc */
 #include <string.h>   /* for memcpy */
-#include "../utils/has_53.h"
+#include "../utils/mem.h"
+
+/*---  helper: detect substring 53 in base‑6 representation of a number  */
+static bool has_53(seq_t value)
+{
+    seq_t prev = (seq_t)-1;
+    while (value > (seq_t)0) {
+        seq_t digit = value % 6;
+        /* In LSD‑first scan, the higher‑order digit appears as 'digit'
+           and the lower‑order as 'prev'.  We need 5 followed by 3. */
+        if (digit == 5 && prev == 3)
+            return true;
+        prev = digit;
+        value /= 6;
+    }
+    return false;
+}
 
 /*---  dynamic cache of already computed terms  */
 static seq_t *cache = NULL;   /* array holding terms  */
@@ -41,12 +58,12 @@ static void ensure_capacity(idx_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     if (new_cap < (size_t)needed)
         new_cap = (size_t)needed;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         return; /* should not happen in the test harness */
     if (cache) {
-        memcpy(new_cache, cache, cache_count * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_count * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

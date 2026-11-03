@@ -12,13 +12,15 @@
  *            a(9)=6098495, a(10)=6108363, a(11)=6118259, a(12)=6128...
  * Range:     u8 none, u16 none, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[23] = {
     15228305ULL, 451621ULL, 614995ULL, 1478651ULL,
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Initialize cache with base values if first call */
     if (cache_size == 0) {
         cache_size = 24;               /* indices 0 … 23 */
-        cache = (seq_t *)realloc(NULL, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_size);
         cache[0] = 0;                  /* placeholder for 0‑th index */
         for (size_t i = 1; i <= 23; ++i)
             cache[i] = init_vals[i - 1];
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* Grow cache to accommodate up to n */
     size_t old_size = cache_size;
     cache_size = sn + 1;
-    cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_size);
 
     /* Compute missing terms using the recurrence */
     for (size_t i = old_size; i <= sn; ++i) {

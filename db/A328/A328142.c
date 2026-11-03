@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 23, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   compare_seq_t, seq_from_str
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_from_str.h"   /* seq_from_str(char const *) → seq_t   */
-#include "../utils/compare_seq_t.h"  /* compare_seq_t(void const *, void const *) */
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+static int compare_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 static seq_t *cache = NULL;         /* array of computed sequence values      */
 static size_t cache_len = 0;        /* number of elements stored              */
@@ -50,7 +70,7 @@ static void ensure_cache(idx_t n)
     size_t total = 9 + 7 * (Lmax - 2);           /* total numbers to store */
 
     /* Reallocate cache if larger than currently stored.                */
-    seq_t *new_cache = (seq_t *)realloc(cache, total * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, total);
     if (!new_cache) {                           /* allocation failed         */
         exit(EXIT_FAILURE);
     }
@@ -89,7 +109,7 @@ static void ensure_cache(idx_t n)
     cache_max_n = n;
 
     /* Sort the cache numerically once.                                         */
-    qsort(cache, cache_len, sizeof(seq_t), compare_seq_t);
+    mem_qsort(cache, cache_len, sizeof(seq_t), compare_seq_t);
 }
 
 /* -------------------------------------------------------------------------

@@ -9,15 +9,39 @@
  *            runs of consecutive equal bits (OEIS A100725)
  * Range:     u8 n <= 51, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   binary_runs, is_prime
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/binary_runs.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+
+/* Count the number of runs of consecutive identical bits in x.
+   An early exit returns if more than 5 runs are found. */
+static inline int binary_runs(uint64_t x)
+{
+    if (x == 0) return 1;          /* binary 0 has one run of 0s */
+
+    int runs  = 1;
+    uint64_t prev = x & 1ULL;
+    x >>= 1;
+    while (x)
+    {
+        uint64_t cur = x & 1ULL;
+        if (cur != prev)
+        {
+            ++runs;
+            if (runs > 5) return runs;  /* early exit */
+        }
+        prev = cur;
+        x >>= 1;
+    }
+    return runs;
+}
 
 #define MAX_GOOD 20000  /* enough for n up to ~10 000 */
 
@@ -34,7 +58,7 @@ seq_t a(idx_t n)
         uint64_t cand = ++last_candidate;
 
         /* test primality */
-        if (!is_prime(cand))
+        if (!is_prime_u64(cand))
             continue;              /* not prime */
 
         /* test binary runs */

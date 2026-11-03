@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 3061, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_palindrome, rev_decimal
+ * Validated: standard, pass, 71 terms through n = 9921 (2026-11-03)
+ * Helpers:   factor_u64, is_palindrome_base, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/is_palindrome.h"
-#include "../utils/rev_decimal.h"
 #include "../utils/factor_u64.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 /* Compare the multiset of prime‑factor exponents of a and b.
    Returns true iff the sorted exponent vectors are identical. */
@@ -82,13 +84,13 @@ seq_t a(idx_t n)
         uint64_t x = (uint64_t)tested;
 
         /* Skip palindromes. */
-        if (!is_palindrome((seq_t)x, 10)) {
-            uint64_t revx = (uint64_t)rev_decimal((seq_t)x);
+        if (!is_palindrome_base((seq_t)x, 10)) {
+            uint64_t revx = (uint64_t)reverse_digits((seq_t)x);
 
             if (signature_equal(x, revx)) {
                 if (len == cap) {
                     cap = cap ? cap << 1 : 64;
-                    found = (seq_t *)realloc(found, cap * sizeof(seq_t));
+                    found = mem_resize(seq_t, found, cap);
                 }
                 found[len++] = (seq_t)x;
             }

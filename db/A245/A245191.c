@@ -9,12 +9,14 @@
  * Formula:   a(n) = Σ_{i≥0, i≡n (mod 2)} (binomial(2n+2, n+2+i) mod 2)·2^i
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 100,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 84 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 /* Computes the n‑th term of OEIS A245191 for any seq_t implementation. */
 seq_t a(idx_t n)

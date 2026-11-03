@@ -7,11 +7,15 @@
  * Formula:   a(1)=3778888999, a(n)=digit_product(a(n‑1)) for n>1
  * Range:     u8 none, u16 none, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-02)
  * Helpers:   digit_product
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_product.h"
 #include <stddef.h>   /* for size_t */
 

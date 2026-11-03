@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   omega_uint64, push_seq
+ * Validated: standard, pass, 70 terms through n = 955 (2026-11-03)
+ * Helpers:   bigomega_u64_to_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/push_seq.h"
-#include "../utils/omega_uint64.h"
+#include "../utils/bigomega_u64_to_i32.h"
+#include "../utils/mem.h"
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 static seq_t *terms   = NULL;   /* array of computed terms      */
 static idx_t  terms_len = 0;    /* number of terms stored       */
@@ -56,13 +69,13 @@ seq_t a(idx_t n)
     if (!initialized) {
         initialized = true;
         terms_cap = 64;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms_len = 0;
     }
 
     while (terms_len < n) {
         ++candidate;
-        if (omega_uint64(candidate) == 3 && is_semiprime_uint64(candidate - 1)) {
+        if (bigomega_u64_to_i32(candidate) == 3 && is_semiprime_uint64(candidate - 1)) {
             push_seq(&terms, &terms_cap, &terms_len, (seq_t)candidate);
         }
     }

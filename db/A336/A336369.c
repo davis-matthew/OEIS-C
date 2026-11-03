@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------- */
 /*   Simple sieve: keeps a static list of primes up to a dynamic limit   */
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
     /* initialise match array on first call */
     if (match == NULL) {
         match_cap = 16;
-        match = (seq_t*)malloc(match_cap * sizeof(seq_t));
+        match = mem_new(seq_t, match_cap);
         if (!match) exit(1);
     }
 
@@ -104,13 +106,13 @@ seq_t a(idx_t n)
         uint64_t p_n1 = sieve_primes[(size_t)next_idx + 1];
 
         uint64_t sum = p_n + p_n1;
-        uint64_t g   = gcd_uint64((uint64_t)(next_idx + 1), sum);
+        uint64_t g   = gcd_u64((uint64_t)(next_idx + 1), sum);
 
         if (g > 1) {
             /* store p_n into the result array */
             if (match_cnt == match_cap) {
                 match_cap = match_cap? match_cap * 2 : 16;
-                match = (seq_t*)realloc(match, match_cap * sizeof(seq_t));
+                match = mem_resize(seq_t, match, match_cap);
                 if (!match) exit(1);
             }
             match[match_cnt] = (seq_t)p_n;

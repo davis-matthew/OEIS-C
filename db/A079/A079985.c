@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 23, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[14] = {
     1, 0, 0, 0, 1, 2, 4, 0, 4, 10, 29, 40, 64, 88
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
 
     /* Initialise cache to hold at least 14 initial terms. */
     if (cache_cap < 14) {
-        seq_t *new_ptr = (seq_t *)realloc(cache, 14 * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, 14);
         if (!new_ptr) {
             abort();
         }
@@ -56,7 +58,7 @@ static void ensure_cache(idx_t n)
 
     /* Grow cache if needed. */
     if (need > cache_cap) {
-        seq_t *new_ptr = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, need);
         if (!new_ptr) {
             abort();
         }

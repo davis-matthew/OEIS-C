@@ -9,7 +9,8 @@
  *            multiplicities are the prime indices of n
  * Range:     u8 n <= 20, u16 n <= 37, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   factorial_upto, sort_descending
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,28 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/factorial_upto.h"
-#include "../utils/sort_descending.h"
+
+/* factorial for idx_t numbers, result in seq_t */
+static seq_t factorial_upto(idx_t n)
+{
+    seq_t res = 1;
+    for (idx_t i = 2; i <= n; ++i) res *= (seq_t)i;
+    return res;
+}
+
+/* insertion sort for a small array, sorting in descending order */
+static void sort_descending(int *arr, size_t n)
+{
+    for (size_t i = 1; i < n; ++i) {
+        int key = arr[i];
+        size_t j = i;
+        while (j > 0 && arr[j - 1] < key) {   /* descending */
+            arr[j] = arr[j - 1];
+            --j;
+        }
+        arr[j] = key;
+    }
+}
 
 /* static prime cache */
 static uint32_t *prime_cache      = NULL;   /* array of primes */

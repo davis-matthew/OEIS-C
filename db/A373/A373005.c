@@ -13,15 +13,34 @@
  *            binomial(i,t) (with the convention binomial(n,...
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   antidiagonal_idx, binomial
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/antidiagonal_idx.h"
+
+/* Helper to compute the integer d such that d*(d+1)/2 ≤ n < (d+1)*(d+2)/2 */
+static idx_t antidiagonal_idx(idx_t n) {
+    /* Binary search for d */
+    idx_t low = 0, high = 1;
+    while ((__int128)high * (high + 1) / 2 <= n) high <<= 1;
+    while (low <= high) {
+        idx_t mid = low + (high - low) / 2;
+        __int128 val = (__int128)mid * (mid + 1) / 2;
+        if (val <= n) {
+            low = mid + 1;
+        } else {
+            if (mid == 0) break;
+            high = mid - 1;
+        }
+    }
+    return high;
+}
 
 seq_t a(idx_t n) {
     /* 1. locate the position (i,j) on the antidiagonal */

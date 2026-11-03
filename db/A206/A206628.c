@@ -10,13 +10,15 @@
  *            = 121, a(3) = 1085, a(4) = 9729
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
     if (cap < need) {
         size_t new_cap = cap == 0 ? need : cap;
         while (new_cap < need) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) exit(EXIT_FAILURE); /* out of memory */
         /* Zero the newly allocated area. */
         if (cap < new_cap)
-            memset(cache + cap, 0, (new_cap - cap) * sizeof(seq_t));
+            mem_set(cache + cap, 0, (new_cap - cap) * sizeof(seq_t));
         cap = new_cap;
     }
 

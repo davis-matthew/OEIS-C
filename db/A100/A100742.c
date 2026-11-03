@@ -7,7 +7,8 @@
  * Formula:   a(n) = smallest prime p such that (p + prime(n))/2 is prime
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   isPrime64
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/isPrime64.h"   /* bool isPrime64(uint64_t n); */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 static uint64_t *global_primes = NULL;   /* list of primes (as uint64_t) */
 static size_t      global_prime_count = 0;
@@ -101,17 +103,17 @@ seq_t a(idx_t n)
         uint64_t sum = p + prime_n;
         if (sum & 1) continue;            /* sum must be even */
         uint64_t q = sum >> 1;            /* (p + prime_n)/2 */
-        if (isPrime64(q)) return (seq_t)p;
+        if (is_prime_u64(q)) return (seq_t)p;
     }
 
     /* If not found, continue testing odd candidates beyond current sieve. */
     uint64_t candidate = (global_primes[global_prime_count - 1] | 1) + 2; /* next odd after last prime */
     for (;;) {
-        if (isPrime64(candidate)) {
+        if (is_prime_u64(candidate)) {
             uint64_t sum = candidate + prime_n;
             if ((sum & 1) == 0) {
                 uint64_t q = sum >> 1;
-                if (isPrime64(q))
+                if (is_prime_u64(q))
                     return (seq_t)candidate;
             }
         }

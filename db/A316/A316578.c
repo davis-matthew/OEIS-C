@@ -13,12 +13,14 @@
  *            a(7)=25271, a(8)=110555, a(9)=478290, a(10)=2079671, a(11...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first 16 terms */
     if (memo_len == 0) {
         memo_len = 17;                  /* indices 0..16 (we use 1..16) */
-        memo = (seq_t*)malloc((size_t)memo_len * sizeof(seq_t));
+        memo = mem_new(seq_t, (size_t)memo_len);
 
         /* 0-index unused */
         memo[ 1] = 1;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 
     /* extend memo array to hold up to n */
     idx_t new_len = n + 1;                 /* allocate indices 0..n */
-    memo = (seq_t*)realloc(memo, (size_t)new_len * sizeof(seq_t));
+    memo = mem_resize(seq_t, memo, (size_t)new_len);
 
     /* compute new terms using the recurrence */
     for (idx_t i = memo_len; i <= n; ++i) {

@@ -9,7 +9,8 @@
  *            primes t,d with t>d and k = 2t - d
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define SIEVE_LIMIT 500000  /* large enough for n <= 10000          */
 
@@ -72,7 +74,7 @@ static void ensure_cache_capacity(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    cache_arr = (seq_t*)realloc(cache_arr, new_cap * sizeof(seq_t));
+    cache_arr = mem_resize(seq_t, cache_arr, new_cap);
     cache_cap = new_cap;
 }
 

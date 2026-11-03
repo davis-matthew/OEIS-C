@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 24, u64 n <= 55, u128 n <= 115,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Allowed sum set {0,3,4,6,7}.  Index by sum 0..9. */
 static const bool S_allowed[10] = {
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     /* Allocate results buffer on first call. */
     if (results == NULL) {
         results_cap = 8;
-        results = (seq_t*)calloc(results_cap, sizeof(seq_t));
+        results = mem_new(seq_t, results_cap);
         if (!results) return (seq_t)0;
     }
 
@@ -126,9 +128,9 @@ seq_t a(idx_t n)
     if (N + 1 > results_cap) {
         size_t new_cap = results_cap;
         while (N + 1 > new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(results, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, results, new_cap);
         if (!tmp) return (seq_t)0;
-        memset(tmp + results_cap, 0, (new_cap - results_cap) * sizeof(seq_t));
+        mem_set(tmp + results_cap, 0, (new_cap - results_cap) * sizeof(seq_t));
         results = tmp;
         results_cap = new_cap;
     }

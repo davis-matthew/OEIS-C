@@ -8,7 +8,8 @@
  * Formula:   a(n) = A013632(A006562(n))-1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* external linkage – do not mark static on the function */
 seq_t a(idx_t n)
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         }
 
         /* ---------- compute balanced primes and their values ---------- */
-        band_vals = (seq_t*)malloc(primes_cnt * sizeof(seq_t));
+        band_vals = mem_new(seq_t, primes_cnt);
         for (idx_t i = 1; i + 1 < primes_cnt; ++i)
         {
             uint32_t p_prev = primes[i - 1];

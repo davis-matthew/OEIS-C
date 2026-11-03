@@ -7,12 +7,14 @@
  * Formula:   a(n) = (n+1) * ∑_{k=1..n} φ(k)
  * Range:     u8 n <= 8, u16 n <= 59, u32 n <= 2416, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9304 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *phi_prefix = NULL;
 static idx_t phi_prefix_max = 0;
@@ -24,7 +26,7 @@ static void ensure_phi_prefix(idx_t n)
 
     idx_t new_max = n;
     /* Temporary array holding φ values */
-    seq_t *phi = (seq_t *)malloc(sizeof(seq_t) * (new_max + 1));
+    seq_t *phi = mem_new(seq_t, (new_max + 1));
     for (idx_t i = 0; i <= new_max; ++i)
         phi[i] = (seq_t)i;
 
@@ -37,14 +39,14 @@ static void ensure_phi_prefix(idx_t n)
     }
 
     /* Prefix sums of φ */
-    seq_t *new_prefix = (seq_t *)malloc(sizeof(seq_t) * (new_max + 1));
+    seq_t *new_prefix = mem_new(seq_t, (new_max + 1));
     new_prefix[0] = 0;
     for (idx_t i = 1; i <= new_max; ++i)
         new_prefix[i] = new_prefix[i - 1] + phi[i];
 
-    free(phi);
+    mem_free(phi);
     if (phi_prefix)
-        free(phi_prefix);
+        mem_free(phi_prefix);
     phi_prefix = new_prefix;
     phi_prefix_max = new_max;
 }

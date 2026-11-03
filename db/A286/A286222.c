@@ -10,7 +10,8 @@
  *            multiplicity (i.e. ω(part) is odd)
  * Range:     u8 n <= 58, u16 n <= 152, u32 n <= 457, u64 n <= 1523,
  *            u128 n <= 5451, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 87 terms through n = 8731 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* for build_primes_upto */
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;   /* a(0)=1 by definition */
@@ -54,7 +56,7 @@ seq_t a(idx_t n) {
     }
 
     /* Small DP array to store partition counts */
-    seq_t *dp = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) {
         free(primes);
         free(omega);
@@ -74,7 +76,7 @@ seq_t a(idx_t n) {
     seq_t result = dp[n];
 
     /* Clean up */
-    free(dp);
+    mem_free(dp);
     free(primes);
     free(omega);
 

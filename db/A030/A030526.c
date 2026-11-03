@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   array_delete
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,16 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/array_delete.h"
+
+/* free array */
+static void array_delete(seq_t* p)
+{
+#ifdef __cplusplus
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 /* allocate an array of seq_t that works in C and C++ */
 static seq_t* array_new(size_t n)

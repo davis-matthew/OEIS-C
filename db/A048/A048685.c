@@ -11,7 +11,8 @@
  *            occurs * in the n-th row of Pascal's triangle
  * Range:     u8 n <= 1189, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors
+ * Validated: standard, pass, 118 terms through n = 9599 (2026-11-03)
+ * Helpers:   bigomega_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,12 +36,12 @@ seq_t a(idx_t n)
 
     /* Allocate an array for Ω(1)…Ω(n).  Index 0 is unused. */
     size_t sz = (size_t)(n + 1);
-    seq_t *omega = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *omega = mem_new(seq_t, sz);
     if (omega == NULL) return 0;
 
     omega[0] = 0;
     for (idx_t i = 1; i <= n; ++i) {
-        omega[i] = count_prime_factors((seq_t)i);
+        omega[i] = bigomega_seq((seq_t)i);
     }
 
     /* Trivial case: k = 0.  C(n, 0) = 1, Ω(1) = 0. */
@@ -63,6 +66,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(omega);
+    mem_free(omega);
     return (seq_t)countMax;
 }

@@ -9,16 +9,34 @@
  *            range. a(n) is the n‑th entry of the concatenation of all rows
  * Range:     u8 n <= 25, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   alloc_seq, free_seq, grow_seq_realloc
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq.h"
-#include "../utils/grow_seq_realloc.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
+
+static seq_t* grow_seq_realloc(seq_t* p, size_t old_cap, size_t new_cap)
+{
+    return mem_resize(seq_t, p, new_cap);
+}
 
 #ifdef __cplusplus
 /* ---------- C++ allocation helpers ---------- */

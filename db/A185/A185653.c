@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 37, i32 n <= 1024, i64 n <= 1024,
  *            i128 n <= 1024, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;             /* cache of a(n) values */
 static size_t   a_cap  = 0;               /* current size of a_cache */
@@ -43,7 +45,7 @@ static void extend_a_cache(idx_t n)
     size_t new_cap = (size_t)n + 1;
 
     if (new_cap > a_cap) {
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) exit(1);                     /* allocation failure */
         a_cache = tmp;
         a_cap = new_cap;
@@ -92,7 +94,7 @@ static void extend_sigma_cache(idx_t n)
 seq_t a(idx_t n)
 {
     if (a_cache == NULL) {                   /* initialise caches */
-        a_cache = (seq_t *)malloc(sizeof(seq_t)); /* size 1, a(0) */
+        a_cache = mem_new(seq_t, 1); /* size 1, a(0) */
         if (!a_cache) exit(1);
         a_cap = 1;
         a_cache[0] = 1;                       /* a(0) = 1 */

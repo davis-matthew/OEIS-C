@@ -11,12 +11,14 @@
  *            r(r+1)/2, and return T(r,k)
  * Range:     u8 n <= 21, u16 n <= 37, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static seq_t pow_int(seq_t base, idx_t exp)
 {
@@ -38,7 +40,7 @@ static seq_t triangle_value(idx_t row, idx_t k)
     seq_t sum = 0;
     for (idx_t j = 0; j <= m; ++j)
     {
-        seq_t term = binom(m, j);                  /* C(m,j)   */
+        seq_t term = binomial(m, j);                  /* C(m,j)   */
         term = term * pow_int((seq_t)k, j);        /* * k^j    */
         term = term * pow_int((seq_t)j, m - j);    /* * j^(m-j) */
         sum += term;

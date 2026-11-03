@@ -10,7 +10,8 @@
  *            A040028
  * Range:     u8 n <= 100, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow_local
+ * Validated: standard, pass, 75 terms through n = 991 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mod_pow_local.h"
+#include "../utils/powmod.h"
 
 /* return 1 if p is a prime belonging to A040028, 0 otherwise.
    For p = 2 or 3 the condition is trivially true.
@@ -32,7 +33,7 @@ static int good_prime(idx_t p)
         return 1;
     if (p % 3 != 1)
         return 1;                /* p ≡ 2 (mod 3) */
-    return mod_pow_local(2, (p - 1) / 3, p) == 1;
+    return powmod(2, (p - 1) / 3, p) == 1;
 }
 
 /* test whether integer x satisfies the two conditions of the sequence.

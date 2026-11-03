@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* List of Euler "lucky" numbers k. */
 static const unsigned int lucky_k[] = {2, 3, 5, 11, 17, 41};
@@ -74,7 +76,7 @@ static void build_cache(void)
     }
 
     /* Sort and remove duplicates.  */
-    qsort(temp, tlen, sizeof(seq_t), seq_cmp);
+    mem_qsort(temp, tlen, sizeof(seq_t), seq_cmp);
 
     size_t out_idx = 0;
     for (size_t i = 0; i < tlen; ++i) {

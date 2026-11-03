@@ -8,6 +8,7 @@
  * Formula:   a(n) = 16 * Σ_{d|n} d^11 - 32 * Σ_{odd d|n, 2d|n} d^11, a(0)=691
  * Range:     u8 none, u16 n <= 2, u32 n <= 5, u64 n <= 15, u128 n <= 15,
  *            big any n
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

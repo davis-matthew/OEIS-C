@@ -8,7 +8,8 @@
  *            for non‑negative integers x,y
  * Range:     u8 n <= 6, u16 n <= 725, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9915 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static bool init_done = false;
 static seq_t *seq = NULL;
@@ -71,14 +73,14 @@ static void ensure(idx_t n)
         if (!seq) {
             seq_cap = limit / 50;          /* Rough estimate of density. */
             if (seq_cap == 0) seq_cap = 1;
-            seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+            seq = mem_new(seq_t, seq_cap);
         }
         seq_len = 0;
         for (idx_t i = 2; i <= limit; ++i) {
             if (is_prime[i] && rep[i]) {
                 if (seq_len == seq_cap) {
                     seq_cap <<= 1;
-                    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_cap);
                 }
                 seq[seq_len++] = (seq_t)i;
             }
@@ -93,7 +95,7 @@ static void ensure(idx_t n)
         }
         /* Not enough terms yet; double the limit and try again. */
         limit <<= 1;
-        free(seq);
+        mem_free(seq);
         seq = NULL;
     }
 }

@@ -12,16 +12,29 @@
  *            where Z(A4) = (s1^4 + 3*s2^2 + 8*s1*s3)/12 is taken...
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 26, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   alloc_zero, tri_down, tri_up
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/tri_down.h"
-#include "../utils/tri_up.h"
+#include "../utils/triangular_seq.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+/* c*(c-1)/2 for exact c >= 1 */
+static seq_t tri_down(seq_t c)
+{
+    if (c % 2 == 0) return (c / 2) * (c - 1);
+    return c * ((c - 1) / 2);
+}
 
 static seq_t *R_ = 0, *S2_ = 0, *S3_ = 0, *M_ = 0, *P_ = 0;
 static long long cap_ = 0;
@@ -81,7 +94,7 @@ static void build(long long N)
         pm = 0;
         for (i = 0; 2 * i < m; i++) pm += R_[i] * R_[m - i];
         if (m % 2 == 0) {
-            M_[m] = pm + tri_up(R_[m / 2]);
+            M_[m] = pm + triangular_seq(R_[m / 2]);
             P_[m] = pm + tri_down(R_[m / 2]);
         } else {
             M_[m] = pm;

@@ -6,13 +6,15 @@
  * Keywords:  easy, nonn, base
  * Formula:   a(n) = nth Rhonda number to base 8 Rhonda number: product of
  *            base‑8 digits = 8 × sum of prime factors (with multiplicity)
- * Range:     u8 none, u16 n <= 21, u32 n <= 33, u64 n <= 33, u128 n <= 33,
- *            big any n
+ * Range:     u8 none, u16 n <= 21, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 49 terms through n = 996 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 

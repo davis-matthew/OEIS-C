@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9593 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *dp[8];          /* DP arrays: dp[k][sum] = #ways with k cubes */
 static seq_t *terms_arr = NULL;
@@ -40,7 +42,7 @@ static void init_sequence(void)
 
     /* allocate and zero DP tables */
     for (int k = 0; k < 8; ++k) {
-        dp[k] = (seq_t *)calloc(sz, sizeof(seq_t));
+        dp[k] = mem_new(seq_t, sz);
         if (!dp[k])
             abort();
     }
@@ -63,7 +65,7 @@ static void init_sequence(void)
 
     /* build the list of sums with at least 10 representations */
     terms_cap = 20000;                     /* initial capacity */
-    terms_arr = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+    terms_arr = mem_new(seq_t, terms_cap);
     if (!terms_arr)
         abort();
     terms_len = 0;
@@ -71,8 +73,7 @@ static void init_sequence(void)
         if (dp[7][s] >= (seq_t)10) {
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms_arr = (seq_t *)realloc(terms_arr,
-                                              terms_cap * sizeof(seq_t));
+                terms_arr = mem_resize(seq_t, terms_arr, terms_cap);
                 if (!terms_arr)
                     abort();
             }
@@ -82,7 +83,7 @@ static void init_sequence(void)
 
     /* free DP tables – they are no longer needed after the list is built */
     for (int k = 0; k < 8; ++k) {
-        free(dp[k]);
+        mem_free(dp[k]);
         dp[k] = NULL;
     }
 

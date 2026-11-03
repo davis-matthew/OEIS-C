@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 36, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 /* All big‑integer helpers are available as extern types. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values (row‑major). */
 static seq_t *seq      = NULL; /* flattened triangle values    */
@@ -41,7 +43,7 @@ ensure_seq_cap (size_t needed)
     if (seq_cap < needed) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 8;
         while (new_cap < needed) new_cap <<= 1;
-        seq = (seq_t*)realloc (seq, new_cap * sizeof (seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -52,7 +54,7 @@ extend_to_row (idx_t new_row)
 {
     idx_t   n        = new_row;
     size_t  row_size = (size_t)n + 1;
-    seq_t  *new_row_arr = (seq_t*)malloc (row_size * sizeof (seq_t));
+    seq_t  *new_row_arr = mem_new(seq_t, row_size);
     seq_t   nn = (seq_t)n;   /* signed version of the row number */
 
     for (idx_t k = 0; k <= n; ++k) {
@@ -66,7 +68,7 @@ extend_to_row (idx_t new_row)
         seq[seq_len++] = val;
     }
 
-    free (prev);
+    mem_free(prev);
     prev = new_row_arr;
     prev_len = (idx_t)row_size;
     current_row = n;
@@ -78,12 +80,12 @@ ensure_up_to (idx_t n)
 {
     if (seq == NULL) { /* first call – initialise row 0 */
         seq_cap = 8;
-        seq = (seq_t*)malloc (seq_cap * sizeof (seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 0;
 
         /* Row 0: T(0,0)=1 */
         prev_len = 1;
-        prev = (seq_t*)malloc (sizeof (seq_t));
+        prev = mem_new(seq_t, 1);
         prev[0] = 1;
         ensure_seq_cap (1);
         seq[seq_len++] = 1;

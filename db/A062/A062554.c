@@ -11,13 +11,15 @@
  *            product 1 is omitted)
  * Range:     u8 n <= 19, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t generators[5] = {4, 6, 8, 12, 20};
 
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialise static data on first entry */
     if (!seq) {
         cache_cap = 1024;              /* initial capacity */
-        seq = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cache_cap);
         idx = (idx_t *)malloc(5 * sizeof(idx_t));
         seq[0] = (seq_t)1;            /* sentinel: product of zero generators */
         seq_len = 1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         /* ensure enough capacity */
         if (seq_len == cache_cap) {
             cache_cap <<= 1;
-            seq = (seq_t *)realloc(seq, cache_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, cache_cap);
         }
 
         /* find the smallest next candidate */

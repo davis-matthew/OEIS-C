@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 768, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_alloc, seq_realloc
+ * Validated: standard, pass, 65 terms through n = 952 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,26 @@
 #include <stdint.h>     /* uint64_t, uint8_t */
 #include <stdlib.h>     /* exit() */
 
-#include "../utils/seq_alloc.h"    /* seq_alloc(size_t) */
-#include "../utils/seq_realloc.h"  /* seq_realloc(seq_t*,size_t,size_t) */
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Compute the sum of decimal digits of a 64‑bit unsigned integer. */
 static seq_t digit_sum_u64(uint64_t x)

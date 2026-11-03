@@ -10,12 +10,14 @@
  *            subsequent elements are last element + element above
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the Bell triangle row and Bell numbers */
 static seq_t *row = NULL;        /* current Bell triangle row */
@@ -34,13 +36,13 @@ seq_t a(idx_t n)
     /* Initialise tables on first call */
     if (bell_len == 0) {
         bell_cap = 4;
-        bell = (seq_t *)malloc(bell_cap * sizeof(seq_t));
+        bell = mem_new(seq_t, bell_cap);
         if (!bell) return (seq_t)0;    /* memory error */
         bell[0] = (seq_t)1;            /* B(0) = 1 */
         bell_len = 1;
 
         row_len = 1;
-        row = (seq_t *)malloc(row_len * sizeof(seq_t));
+        row = mem_new(seq_t, row_len);
         if (!row) return (seq_t)0;
         row[0] = (seq_t)1;            /* first row of Bell triangle */
     }
@@ -52,14 +54,14 @@ seq_t a(idx_t n)
         /* Ensure capacity for the Bell number array */
         if (bell_len >= bell_cap) {
             size_t new_cap = bell_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(bell, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, bell, new_cap);
             if (!tmp) return (seq_t)0;
             bell = tmp;
             bell_cap = new_cap;
         }
 
         /* Allocate new row */
-        seq_t *new_row = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
         if (!new_row) return (seq_t)0;
 
         /* First element is last element of previous row */
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         bell[bell_len] = new_row[0];
 
         /* Free old row, advance */
-        free(row);
+        mem_free(row);
         row = new_row;
         row_len = new_len;
         ++bell_len;

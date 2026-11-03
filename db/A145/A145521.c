@@ -11,7 +11,8 @@
  *            q prime)
  * Range:     u8 none, u16 none, u32 n <= 19, u64 n <= 30, u128 n <= 31,
  *            big any n
- * Helpers:   big_pow, build_primes, seq_cmp
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   build_primes, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,19 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_cmp.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
 #include "../utils/build_primes.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* Node of the min‐heap: current prime power p^q. */
 typedef struct {
@@ -79,14 +90,14 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Allocate the min‑heap: one entry per base prime initially. */
-    Node *heap = (Node *)malloc(prime_cnt * sizeof(Node));
+    Node *heap = mem_new(Node, prime_cnt);
     size_t heap_size = prime_cnt;
 
     /* Initialise heap with each prime raised to the first prime exponent 2. */
     for (size_t i = 0; i < prime_cnt; ++i) {
         heap[i].p = primes[i];
         heap[i].exp_idx = 0;                     /* exponent = primes[0] = 2   */
-        heap[i].val = big_pow((seq_t)primes[i],
+        heap[i].val = ipow((seq_t)primes[i],
                               (seq_t)primes[0]);  /* p^2 */
     }
 
@@ -101,12 +112,12 @@ seq_t a(idx_t n)
         Node *top = &heap[0];
 
         /* Compute a(n): swap base and exponent. */
-        seq_t val = big_pow((seq_t)primes[top->exp_idx], (seq_t)top->p);
+        seq_t val = ipow((seq_t)primes[top->exp_idx], (seq_t)top->p);
         result = val;
 
         /* If this is the requested term, finish. */
         if (iter == (size_t)n) {
-            free(heap);
+            mem_free(heap);
             return result;
         }
 
@@ -114,7 +125,7 @@ seq_t a(idx_t n)
         size_t next_idx = top->exp_idx + 1;
         if (next_idx < prime_cnt) {
             top->exp_idx = next_idx;
-            top->val = big_pow((seq_t)top->p,
+            top->val = ipow((seq_t)top->p,
                                (seq_t)primes[next_idx]);
             sift_down(heap, heap_size, 0);
         } else {
@@ -126,6 +137,6 @@ seq_t a(idx_t n)
     }
 
     /* Should never reach here. */
-    free(heap);
+    mem_free(heap);
     return result;
 }

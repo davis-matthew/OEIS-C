@@ -10,13 +10,15 @@
  *            binom(r-j,k) * C(2,j)
  * Range:     u8 n <= 38, u16 n <= 125, u32 n <= 477, u64 n <= 1917,
  *            u128 n <= 7684, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 9308 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Here C(2,0)=1, C(2,1)=2, C(2,2)=1.  The binomial helper is provided by the utils library. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
 
     seq_t result = 0;
     for (idx_t j = 0; j <= j_max; ++j) {
-        seq_t bin1 = binom(k, j);           /* C(k,j) */
-        seq_t bin2 = binom(r - j, k);       /* C(r-j,k) */
+        seq_t bin1 = binomial(k, j);           /* C(k,j) */
+        seq_t bin2 = binomial(r - j, k);       /* C(r-j,k) */
         seq_t coef = (j == 1) ? 2 : 1;       /* C(2,0)=1, C(2,1)=2, C(2,2)=1 */
         seq_t term = bin1 * bin2 * coef;
         result += term;

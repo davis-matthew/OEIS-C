@@ -9,7 +9,8 @@
  *            (3*(a(n)+n)+1)/2 otherwise
  * Range:     u8 n <= 28, u16 n <= 399, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    subsequent calls are O(1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* array of computed values, index 0 unused    */
 static idx_t cache_len = 0;       /* highest n for which cache[n] is valid (0 if empty) */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Expand cache if necessary */
     if (n > cache_len) {
         size_t newlen = (size_t)n + 1;   /* plus one for index 0 */
-        seq_t *tmp = (seq_t *)realloc(cache, newlen * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newlen);
         if (!tmp) return 0;              /* allocation failure – unlikely in tests */
         cache = tmp;
 

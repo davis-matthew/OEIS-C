@@ -9,7 +9,8 @@
  *            sigma(n,k) is the sum of the k-th powers of the divisors of n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system. */
 extern seq_t seq_pow(seq_t, idx_t);  /* available helper for big integer exponent */
@@ -94,10 +96,10 @@ seq_t a(idx_t n)
     enumerate_divisors((uint64_t)n, pr, ex, pcnt, divs, &tau);
 
     /* 3. Compute sigma_k for k = 0..n */
-    seq_t *sigma = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (size_t)(n + 1));
     if (!sigma) return 0;          /* allocation failure */
-    seq_t *pow_val = (seq_t *)malloc(tau * sizeof(seq_t));
-    if (!pow_val) { free(sigma); return 0; }
+    seq_t *pow_val = mem_new(seq_t, tau);
+    if (!pow_val) { mem_free(sigma); return 0; }
 
     for (size_t j = 0; j < tau; ++j) pow_val[j] = 1;
 
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(pow_val);
-    free(sigma);
+    mem_free(pow_val);
+    mem_free(sigma);
     return res;
 }

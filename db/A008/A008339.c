@@ -8,14 +8,23 @@
  *            (equivalently a(n+1) = a(n)*n/gcd(a(n),n)^2)
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 32, u64 n <= 65, u128 n <= 128,
  *            big any n
- * Helpers:   gcd, seq_mul
+ * Validated: standard, pass, 51 terms through n = 998 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_mul.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static seq_t *cache = NULL;          /* cache[0] unused, cache[1] = 1 */
 static size_t cache_size = 0;        /* allocated size, in slots with index 0 */
@@ -26,7 +35,7 @@ static void ensure_cache(size_t max_needed) {
     if (cache_size > max_needed) return;
     size_t new_size = cache_size > 0 ? cache_size * 2 : 64;
     while (new_size <= max_needed) new_size *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) exit(EXIT_FAILURE);     /* allocation failure */
     cache = tmp;
     cache_size = new_size;
@@ -38,7 +47,7 @@ seq_t a(idx_t n) {
     /* Initialise the cache on first call. */
     if (!cache) {
         cache_size = 64;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) exit(EXIT_FAILURE);
         cache[0] = 0;          /* unused */
         cache[1] = (seq_t)1;   /* a(1) */

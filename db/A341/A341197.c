@@ -7,16 +7,31 @@
  * Formula:   a(n) = Sum_{k=0..n} k^n * (n-k)! * binomial(n,k)^2
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   alloc_seq, big_pow, binomial, free_seq
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +48,7 @@ seq_t a(idx_t n)
         if (k == 0 && n > (idx_t)0)
             powk = (seq_t)0;                 /* 0^n = 0 for n>0   */
         else
-            powk = big_pow((seq_t)k, (seq_t)n);
+            powk = ipow((seq_t)k, (seq_t)n);
 
         seq_t bin = binomial(n, k);
         seq_t term = powk * fact[(size_t)(n - k)];

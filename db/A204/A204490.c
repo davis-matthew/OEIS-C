@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 19, u64 n <= 51, u128 n <= 112,
  *            big any n
- * Helpers:   good_trip
+ * Validated: standard, pass, 39 terms through n = 182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,38 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/good_trip.h"
+#include "../utils/mem.h"
+
+/* --------- test if a 3‑row triplet satisfies the rule ---------- */
+static bool good_trip(int r1, int r2, int r3) {
+    for (int j = 0; j < 6; ++j) {
+        uint8_t row0 = (r1 >> j)   & 7;
+        uint8_t row1 = (r2 >> j)   & 7;
+        uint8_t row2 = (r3 >> j)   & 7;
+        uint8_t col0 = ((r1 >> j)       & 1) |
+                       (((r2 >> j)       & 1) << 1) |
+                       (((r3 >> j)       & 1) << 2);
+        uint8_t col1 = ((r1 >> (j+1))   & 1) |
+                       (((r2 >> (j+1))   & 1) << 1) |
+                       (((r3 >> (j+1))   & 1) << 2);
+        uint8_t col2 = ((r1 >> (j+2))   & 1) |
+                       (((r2 >> (j+2))   & 1) << 1) |
+                       (((r3 >> (j+2))   & 1) << 2);
+        uint8_t diag = ((r1 >> j)       & 1) |
+                       (((r2 >> (j+1))   & 1) << 1) |
+                       (((r3 >> (j+2))   & 1) << 2);
+        int cnt = 0;
+        if (row0 == 0 || row0 == 7) ++cnt;
+        if (row1 == 0 || row1 == 7) ++cnt;
+        if (row2 == 0 || row2 == 7) ++cnt;
+        if (col0 == 0 || col0 == 7) ++cnt;
+        if (col1 == 0 || col1 == 7) ++cnt;
+        if (col2 == 0 || col2 == 7) ++cnt;
+        if (diag == 0 || diag == 7) ++cnt;
+        if (cnt != 1) return false;
+    }
+    return true;
+}
 
 /* --------- DP constants --------------------------------------- */
 #define STATES      65536          /* 256 × 256 row pairs */
@@ -82,8 +114,8 @@ static void push_edge(size_t src, uint32_t dest) {
 /* --------- one‑time initialization -------------------------------- */
 static void init_once(void) {
     /* allocate DP buffers */
-    dp_prev = (seq_t *)malloc(sizeof(seq_t) * STATES);
-    dp_cur  = (seq_t *)malloc(sizeof(seq_t) * STATES);
+    dp_prev = mem_new(seq_t, STATES);
+    dp_cur  = mem_new(seq_t, STATES);
 
     /* each 2‑row pair can start the array */
     for (size_t i = 0; i < STATES; ++i) {
@@ -129,7 +161,7 @@ static void init_once(void) {
 
     /* initialise cache with the pre‑computed values */
     cache_size = MAX_INIT;
-    cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+    cache = mem_new(seq_t, cache_size);
     for (size_t i = 1; i <= cache_size; ++i)      /* cache[0] = a(1) */
         cache[i-1] = seeds[i];
 
@@ -147,7 +179,7 @@ seq_t a(idx_t n) {
     /* extend cache up to n using the recurrence */
     size_t old_size = cache_size;
     cache_size = (size_t)n;
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_size);
+    cache = mem_resize(seq_t, cache, cache_size);
 
     for (size_t k = old_size + 1; k <= n; ++k) {
         seq_t pos = 0, neg = 0;

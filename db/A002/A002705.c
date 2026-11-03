@@ -11,16 +11,43 @@
  *            of {r mod 5N : r mod 5 in {1,2}} with sum...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   a2705_bits, a2705_mul, a2705_phi, a2705_pow4
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a2705_bits.h"
-#include "../utils/a2705_mul.h"
-#include "../utils/a2705_phi.h"
-#include "../utils/a2705_pow4.h"
+#include "../utils/totient_u64.h"
+
+static int a2705_bits(void)
+{
+    static int b = -1;
+    if (b < 0) {
+        seq_t x = 1;
+        int c = 0;
+        while (x != 0 && c < 300) {
+            x = x << 1;
+            c++;
+        }
+        b = (x == 0) ? c : 0;
+    }
+    return b;
+}
+
+static seq_t a2705_mul(seq_t x, seq_t y)
+{
+    seq_t r = (x + 0u) * y;
+    return r;
+}
+
+static seq_t a2705_pow4(idx_t m, int w)
+{
+    seq_t one = 1;
+    if (w && 2 * m >= (idx_t)w)
+        return 0;
+    return one << (2 * m);
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +61,7 @@ seq_t a(idx_t n)
         if (N % e != 0)
             continue;
         m = N / e;
-        ph = a2705_phi(e);
+        ph = totient_u64(e);
         if (e % 5 != 0) {
             seq_t P = (seq_t)ph;
             seq_t pw = a2705_pow4(m, w);

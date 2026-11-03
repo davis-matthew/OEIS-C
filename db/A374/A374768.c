@@ -10,7 +10,8 @@
  *            standard order (A066099) are distinct
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Test whether a given non‑negative integer k satisfies the property. */
 static bool good_k(idx_t k)
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
         if (good_k(next_k)) {
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 4;
-                seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, new_cap);
                 seq_cap = new_cap;
             }
             seq[seq_len++] = (seq_t)next_k;

@@ -8,6 +8,7 @@
  *            (powers 11^0, 11^1, 11^2, …). The value fits in 0..9
  * Range:     u8 n <= 5310, u16 n <= 5310, u32 n <= 5310, u64 n <= 5310,
  *            u128 n <= 5310, big any n
+ * Validated: standard, pass, 115 terms through n = 5071 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

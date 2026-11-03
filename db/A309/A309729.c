@@ -7,7 +7,8 @@
  * Formula:   a(n) = (1/3) * sum_{d|n} (2^d - (-1)^d)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 128,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 52 terms through n = 967 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static seq_t divisor_term(idx_t d)
 {
@@ -40,7 +41,7 @@ static seq_t divisor_term(idx_t d)
      * for arbitrary‑precision builds and for 64‑bit builds with
      * very large divisors (which would overflow the 64‑bit type
      * anyway). */
-    seq_t p = big_pow((seq_t)2, d);   /* 2^d */
+    seq_t p = ipow((seq_t)2, d);   /* 2^d */
     if (d & 1U)   /* d odd: (+1) */
         p += (seq_t)1;
     else          /* d even: (-1) */

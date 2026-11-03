@@ -8,7 +8,8 @@
  *            Φ_406(x)
  * Range:     i8 n <= 168, i16 n <= 168, i32 n <= 168, i64 n <= 168,
  *            i128 n <= 168, big any n
- * Helpers:   alloc_seq_array, free_seq
+ * Validated: full, pass, 169 terms through n = 168 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,21 @@
 /* The algorithm builds Φ_406 polynomial on first call and returns its n‑th coefficient. */
 /* It uses the division formula: Φ_n(x)·∏_{d|n,d<n} Φ_d(x) = x^n – 1. */
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Structure to cache a cyclotomic polynomial. */
 typedef struct {

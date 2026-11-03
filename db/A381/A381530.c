@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   contains_one_idx
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/contains_one_idx.h"
+
+static inline bool contains_one_idx(idx_t x) {
+    if (x == 0) return false;
+    while (x > 0) {
+        if (x % 10 == 1) return true;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     /* search for the smallest k>0 */

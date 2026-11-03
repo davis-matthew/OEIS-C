@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #ifdef __cplusplus
 #  include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Static cache ----------------------------------------------------------- */
 static seq_t *cache   = NULL;   /* array holding computed values   */
@@ -36,7 +38,7 @@ static size_t computed = 0;     /* indices [0 .. computed-1] have valid values *
 static inline void create_elem(seq_t *p, seq_t v)
 {
 #ifdef __cplusplus
-    new (p) seq_t(v);   /* placement new in C++                */
+    *(p) = (seq_t)(v);   /* placement new in C++                */
 #else
     *p = v;             /* simple assignment in C              */
 #endif
@@ -46,7 +48,7 @@ static inline void create_elem(seq_t *p, seq_t v)
 static inline void default_elem(seq_t *p)
 {
 #ifdef __cplusplus
-    new (p) seq_t();    /* default constructor in C++          */
+    *(p) = (seq_t)0;    /* default constructor in C++          */
 #endif
 }
 
@@ -57,7 +59,7 @@ static void init_cache(void)
 
     /* need indices 0..2 */
     size_t initCap = 3;
-    cache = (seq_t *)malloc(initCap * sizeof(seq_t));
+    cache = mem_new(seq_t, initCap);
     if (!cache) abort();
 
     /* default‑construct as needed */
@@ -80,16 +82,16 @@ static void grow_cache_to(size_t n)
     size_t newCap = cap ? cap : 1;
     while (newCap <= n) newCap <<= 1;
 
-    seq_t *newCache = (seq_t *)malloc(newCap * sizeof(seq_t));
+    seq_t *newCache = mem_new(seq_t, newCap);
     if (!newCache) abort();
 
     /* copy existing values */
-    if (cache) memcpy(newCache, cache, cap * sizeof(seq_t));
+    if (cache) mem_copy(newCache, cache, cap * sizeof(seq_t));
 
     /* default‑construct new elements */
     for (size_t i = cap; i < newCap; ++i) default_elem(&newCache[i]);
 
-    free(cache);
+    mem_free(cache);
     cache = newCache;
     cap   = newCap;
 }

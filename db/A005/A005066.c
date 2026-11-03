@@ -7,6 +7,7 @@
  * Formula:   additive with a(p^e) = 0 if p = 2, p^2 otherwise
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 90 terms through n = 8574 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

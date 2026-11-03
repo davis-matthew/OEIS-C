@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = sum of isolated totatives of n
- * Range:     u8 n <= 31, u16 n <= 511, u32 n <= 9884, u64 n <= 9884,
- *            u128 n <= 9884, big any n
+ * Range:     u8 n <= 31, u16 n <= 511, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 85 terms through n = 9884 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
    gcd(k+1, n) > 1
    (k ranges from 1 to n). */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

@@ -8,6 +8,7 @@
  *            a(2)=a(3)=1. Uses a simple cache that grows lazily
  * Range:     u8 n <= 15, u16 n <= 27, u32 n <= 53, u64 n <= 103,
  *            u128 n <= 203, big any n
+ * Validated: standard, pass, 59 terms through n = 969 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

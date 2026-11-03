@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
    the function tests for primality using the provided is_prime_small
    routine.  Only values that are odd, greater than 1, and not
    prime are counted. */
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
             continue;
 
         /* Count if odd composite. */
-        if (!is_prime_small(x))
+        if (!is_prime_seq(x))
             count += 1;
     }
     return count;

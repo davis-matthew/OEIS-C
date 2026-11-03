@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = prime(n)^2 + 1
- * Range:     u8 n <= 6, u16 n <= 54, u32 n <= 6542, u64 n <= 9687,
- *            u128 n <= 9687, big any n
- * Helpers:   none
+ * Range:     u8 n <= 6, u16 n <= 54, u32 n <= 6542, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 57 terms through n = 9687 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
     any idx_t >= 1.  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Buffer to store primes that have already been found */
 static seq_t *primes = NULL;     /* dynamic array of primes */
@@ -34,7 +36,7 @@ static void ensure_primes(idx_t n)
     /* Grow the array incrementally as needed. */
     if (primes == NULL) {
         primes_cap = 128;
-        primes = (seq_t *)malloc(primes_cap * sizeof(seq_t));
+        primes = mem_new(seq_t, primes_cap);
         if (!primes)
             return;   /* allocation failed – caller will get 0 */
     }
@@ -62,8 +64,7 @@ static void ensure_primes(idx_t n)
         if (is_prime) {
             if (primes_len == primes_cap) {
                 primes_cap <<= 1;   /* double capacity */
-                primes = (seq_t *)realloc(primes,
-                                          primes_cap * sizeof(seq_t));
+                primes = mem_resize(seq_t, primes, primes_cap);
                 if (!primes)
                     return;   /* allocation failed */
             }

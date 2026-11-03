@@ -7,13 +7,15 @@
  * Formula:   a(n) = n! * Sum_{k=0..floor(n/2)} binomial(n+2+k,n-2*k)/k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 
 static seq_t *cache = NULL;    /* cache[0..cache_len-1] = a(i) */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 {
     /* Initialise cache with a(0) if necessary */
     if (cache_len == 0) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;                /* allocation failure */
         cache[0] = (seq_t)1;                 /* a(0) = 1 */
         cache_len = 1;
@@ -65,9 +67,9 @@ seq_t a(idx_t n)
     /* Extend cache up to the requested index n */
     while (cache_len <= n) {
         idx_t new_len = cache_len + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) {                          /* realloc failed */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_len = 0;
             return 0;

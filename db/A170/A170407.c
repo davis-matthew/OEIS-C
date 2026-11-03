@@ -8,12 +8,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Formula used:  a(0)=1; for 1≤n≤43  : a(n)=2 + 12*(a(n-1)+…+a(0));
     for 44≤n      : a(n)=1 + 12*(a(n-1)+…+a(n-43)) – 78*a(n-44);
@@ -28,11 +30,11 @@ seq_t a(idx_t n)
     size_t need = (size_t)n + 1;
     if (cache == NULL) {
         capacity = need > 45 ? need : 45;
-        cache = (seq_t *)calloc(capacity, sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL) abort();
     } else if (capacity < need) {
         size_t newcap = need * 2;
-        seq_t *newptr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cache, newcap);
         if (newptr == NULL) abort();
         for (size_t i = capacity; i < newcap; ++i) newptr[i] = 0;
         cache = newptr;

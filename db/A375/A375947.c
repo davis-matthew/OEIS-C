@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache of already computed a(n) values. */
 static seq_t *a_cache  = NULL;      /* a(n) values */
@@ -36,9 +38,9 @@ static void ensure_capacity(idx_t target)
 {
     /* First time: create the arrays for n = 0. */
     if (!a_cache) {
-        a_cache = (seq_t *)calloc(1, sizeof(seq_t));
-        st      = (seq_t *)calloc(1, sizeof(seq_t));
-        A_arr   = (seq_t *)calloc(1, sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
+        st      = mem_new(seq_t, 1);
+        A_arr   = mem_new(seq_t, 1);
         if (!a_cache || !st || !A_arr) exit(1);
         a_cache[0] = (seq_t)1;  /* a(0) = 1 */
         st[0]      = (seq_t)1;  /* Stirling(0,0) = 1 */
@@ -50,9 +52,9 @@ static void ensure_capacity(idx_t target)
 
     /* Expand all three arrays to size target+1. */
     size_t new_cap = (size_t)target + 1;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-    st      = (seq_t *)realloc(st,      new_cap * sizeof(seq_t));
-    A_arr   = (seq_t *)realloc(A_arr,   new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
+    st      = mem_resize(seq_t, st, new_cap);
+    A_arr   = mem_resize(seq_t, A_arr, new_cap);
     if (!a_cache || !st || !A_arr) exit(1);
 
     /* Zero‑initialize new entries. */

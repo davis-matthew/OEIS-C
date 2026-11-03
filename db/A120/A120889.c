@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 9842, u16 n <= 9842, u32 n <= 9842, u64 n <= 9842,
- *            u128 n <= 9842, big any n
+ * Range:     u8 n <= 20100, u16 n <= 20100, u32 n <= 20100, u64 n <= 20100,
+ *            u128 n <= 20100, big any n
+ * Validated: standard, pass, 121 terms through n = 9842 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
    The row indices satisfy r(r+1)/2 ≥ n > (r−1)r/2.
    The column index is k = n − (r−1)r/2 (1 ≤ k ≤ r).
 */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static idx_t triangular_root(idx_t n) {

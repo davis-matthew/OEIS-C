@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 101, i16 n <= 9970, i32 n <= 9970, i64 n <= 9970,
- *            i128 n <= 9970, big any n
- * Helpers:   none
+ * Range:     i8 n <= 101, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 93 terms through n = 9970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Internal static state */
 static seq_t *A_cache = NULL;
@@ -42,8 +44,8 @@ seq_t a(idx_t n) {
 static void compute_up_to(idx_t N) {
     idx_t size = N + 1;
     /* Allocate auxiliary arrays */
-    seq_t *sigma   = (seq_t*)calloc((size_t)size, sizeof(seq_t));
-    seq_t *sum_sigma = (seq_t*)calloc((size_t)size, sizeof(seq_t));
+    seq_t *sigma   = mem_new(seq_t, (size_t)size);
+    seq_t *sum_sigma = mem_new(seq_t, (size_t)size);
     if (!sigma || !sum_sigma) exit(1);
 
     /* Compute σ(n): sum of divisors */
@@ -61,8 +63,8 @@ static void compute_up_to(idx_t N) {
     }
 
     /* Allocate new caches */
-    seq_t *newA = (seq_t*)malloc((size_t)size * sizeof(seq_t));
-    seq_t *newB = (seq_t*)malloc((size_t)size * sizeof(seq_t));
+    seq_t *newA = mem_new(seq_t, (size_t)size);
+    seq_t *newB = mem_new(seq_t, (size_t)size);
     if (!newA || !newB) exit(1);
 
     /* Initialize for n = 1 */
@@ -93,10 +95,10 @@ static void compute_up_to(idx_t N) {
     }
 
     /* Free old caches */
-    free(A_cache);
-    free(B_cache);
-    free(sigma);
-    free(sum_sigma);
+    mem_free(A_cache);
+    mem_free(B_cache);
+    mem_free(sigma);
+    mem_free(sum_sigma);
 
     /* Commit new caches */
     A_cache = newA;

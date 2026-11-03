@@ -12,13 +12,26 @@
  *            {i-3,i-2,i-1,i,i+1,i+2,i+3} are already * occupied by earli...
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 30, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   mask_accept
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/mask_accept.h"
+
+/* test whether a mask corresponds to a complete permutation for a given n */
+static int mask_accept(idx_t n, int mask)
+{
+    for (int off = -3; off <= 3; ++off) {
+        int c = (int)n + off;              /* column index in the original array */
+        if (1 <= c && c <= (int)n) {
+            if ( !(mask & (1 << (off + 3))) )
+                return 0;                  /* required column is not yet used */
+        }
+    }
+    return 1;
+}
 
 static const int OFFSETS[5] = { -3, -2, -1,  1,  3 };
 

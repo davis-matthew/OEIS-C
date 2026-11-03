@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 26, u16 n <= 6825, u32 n <= 8894, u64 n <= 8894,
- *            u128 n <= 8894, big any n
- * Helpers:   none
+ * Range:     u8 n <= 26, u16 n <= 6825, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 71 terms through n = 8894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const uint32_t PRIME_LIMIT = 5000000;  /* primes up to this limit are used */
 
@@ -183,7 +185,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;  /* allocation failure */
         cache_len = 0;
         last_checked = 0;
@@ -195,7 +197,7 @@ seq_t a(idx_t n)
         if (valid_m(last_checked)) {
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache) return 0;
             }
             cache[cache_len++] = (seq_t)last_checked;

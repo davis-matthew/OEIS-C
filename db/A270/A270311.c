@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 79 terms through n = 931 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,11 @@
 #include "../utils/next_prime.h"
 
 #if defined(__cplusplus)
-#  define REALLOC_T(ptr, newsize, type) static_cast<type*>(realloc((ptr), (newsize)))
+#  define REALLOC_T(ptr, newsize, type) mem_resize(type, (ptr), ((newsize)) / sizeof(type))
 #else
-#  define REALLOC_T(ptr, newsize, type) ((type*)realloc((ptr), (newsize)))
+#  define REALLOC_T(ptr, newsize, type) (mem_resize(type, (ptr), ((newsize)) / sizeof(type)))
 #endif
+#include "../utils/mem.h"
 
 /* Global caches */
 static seq_t *matched_indices = NULL;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 309, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 4893 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *lucas_cache = NULL;   /* 1‑based array of Lucas numbers */
 static idx_t lucas_len   = 0;        /* number of stored numbers          */
@@ -30,7 +32,7 @@ static void ensure_lucas_cap(idx_t needed)
     if (needed < lucas_cap) return;
     size_t newcap = (lucas_cap > 0) ? lucas_cap * 2 : 4;
     while (newcap <= needed) newcap *= 2;
-    seq_t *newptr = (seq_t *)realloc(lucas_cache, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, lucas_cache, newcap);
     /* In C++ builds which use a class type for seq_t,
        the objects are default‑constructed by this allocation. */
     if (newptr) {

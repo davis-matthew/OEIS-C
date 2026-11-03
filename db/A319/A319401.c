@@ -7,8 +7,9 @@
  * Keywords:  nonn, look
  * Formula:   Product_{j>=2} 1/(1 - y * x^{F_j}) --> a(n) = number of
  *            partitions of n into exactly 8 positive Fibonacci numbers
- * Range:     u8 n <= 7491, u16 n <= 7491, u32 n <= 7491, u64 n <= 7491,
- *            u128 n <= 7491, big any n
+ * Range:     u8 n <= 17711, u16 n <= 17711, u32 n <= 17711, u64 n <= 17711,
+ *            u128 n <= 17711, big any n
+ * Validated: standard, pass, 85 terms through n = 7491 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

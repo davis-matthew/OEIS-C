@@ -8,7 +8,8 @@
  *            +39*n +40)*4^(n+2) - (27*n^3 +135*n^2 +198*n +80))
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 36 terms through n = 937 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
    and seq_t arithmetic. */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"   /* provides seq_t pow_uint(uint64_t base, idx_t exp); */
+#include "../utils/ipow_u64_idx.h"
 
 /* ---------  128‑bit power helper  --------- */
 static inline __int128 pow_uint128(unsigned base, idx_t exp)
@@ -64,9 +65,9 @@ seq_t a(idx_t n)
     }
     else
     {   /* arbitrary‑precision implementation */
-        seq_t pow10 = pow_uint(10, n + 3);
-        seq_t pow7  = pow_uint(7 , n + 2);
-        seq_t pow4  = pow_uint(4 , n + 2);
+        seq_t pow10 = ipow_u64_idx(10, n + 3);
+        seq_t pow7  = ipow_u64_idx(7 , n + 2);
+        seq_t pow4  = ipow_u64_idx(4 , n + 2);
 
         seq_t poly1 = (seq_t)(3 * n + 8);
         seq_t poly2 = (seq_t)(9 * n * n + 39 * n + 40);

@@ -8,11 +8,13 @@
  *            2^(v2(n)+3))*(-1)^(popcount(n)+1)
  * Range:     i8 n <= 31, i16 n <= 72, i32 n <= 72, i64 n <= 72, i128 n <= 72,
  *            big any n
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Computes the first differences of A066194 (A320667). */

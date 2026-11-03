@@ -10,7 +10,8 @@
  *            Miller-Rabin)
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 237, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sp_isprime, sp_mulmod, sp_powmod, sp_rot
+ * Validated: standard, pass, 49 terms through n = 8919 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,52 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/sp_isprime.h"
-#include "../utils/sp_mulmod.h"
-#include "../utils/sp_powmod.h"
-#include "../utils/sp_rot.h"
+
+static uint64_t sp_mulmod(uint64_t a, uint64_t b, uint64_t m) {
+    return (uint64_t)((unsigned __int128)a * b % m);
+}
+
+static uint64_t sp_powmod(uint64_t b, uint64_t e, uint64_t m) {
+    uint64_t r = 1 % m;
+    b %= m;
+    while (e) {
+        if (e & 1) r = sp_mulmod(r, b, m);
+        b = sp_mulmod(b, b, m);
+        e >>= 1;
+    }
+    return r;
+}
+
+static bool sp_isprime(uint64_t n) {
+    static const uint64_t bases[12] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37};
+    int i, r, s = 0;
+    uint64_t d;
+    if (n < 2) return false;
+    for (i = 0; i < 12; i++) {
+        if (n == bases[i]) return true;
+        if (n % bases[i] == 0) return false;
+    }
+    d = n - 1;
+    while ((d & 1) == 0) { d >>= 1; s++; }
+    for (i = 0; i < 12; i++) {
+        uint64_t x = sp_powmod(bases[i], d, n);
+        if (x == 1 || x == n - 1) continue;
+        for (r = 1; r < s; r++) {
+            x = sp_mulmod(x, x, n);
+            if (x == n - 1) break;
+        }
+        if (r == s) return false;
+    }
+    return true;
+}
+
+static int sp_rot(int d) {
+    switch (d) {
+        case 6: return 9;
+        case 9: return 6;
+        default: return d;
+    }
+}
 
 static uint64_t *sp_cache = NULL;
 static size_t sp_count = 0;

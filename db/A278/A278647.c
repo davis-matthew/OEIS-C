@@ -10,7 +10,8 @@
  *            up to a fixed limit and returns the successive differences
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9492 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Maximum number up to which hypotenuse numbers are precomputed.
    For n up to 10 000 this is more than sufficient. */
@@ -61,7 +63,7 @@ static void init_hyp_sequences(void)
     /* 2. Allocate space for hypotenuse numbers.  The real count is small
        compared with PRECOMPUTE_LIMIT; we allocate the full limit to avoid
        reallocations. */
-    hyp = (seq_t*)malloc(PRECOMPUTE_LIMIT * sizeof(seq_t));
+    hyp = mem_new(seq_t, PRECOMPUTE_LIMIT);
     if (!hyp) {
         free(spf);
         return;

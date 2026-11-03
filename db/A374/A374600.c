@@ -8,7 +8,8 @@
  * Formula:   If n = i^2 * A005117(j) then a(n) = j^2 * A005117(i)
  * Range:     u8 n <= 22, u16 n <= 418, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   uint64_pow_uint
+ * Validated: standard, pass, 74 terms through n = 9987 (2026-11-01)
+ * Helpers:   ipow_u64_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/uint64_pow_uint.h"
+#include "../utils/ipow_u64_to_u64.h"
 
 /* Return true iff x is squarefree (no prime square divides x). */
 static bool is_squarefree_uint64(uint64_t x)
@@ -75,7 +76,7 @@ seq_t a(idx_t n)
         }
         uint64_t half = exp >> 1;           /* floor(exp/2) */
         if (half > 0)
-            i_val *= uint64_pow_uint(p, half);
+            i_val *= ipow_u64_to_u64(p, half);
         if (exp & 1ULL)                     /* odd exponent contributes to squarefree part */
             s_val *= p;
     }

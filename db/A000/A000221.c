@@ -8,13 +8,24 @@
  *            of a(n)); ultimately periodic with period 8 for n >= 5
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   a000221_ssd
+ * Validated: standard, pass, 86 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a000221_ssd.h"
+
+static unsigned a000221_ssd(unsigned x)
+{
+    unsigned s = 0;
+    while (x > 0) {
+        unsigned d = x % 10;
+        s += d * d;
+        x /= 10;
+    }
+    return s;
+}
 
 seq_t a(idx_t n)
 {

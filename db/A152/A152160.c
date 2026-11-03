@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 118, u16 n <= 118, u32 n <= 118, u64 n <= 118,
  *            u128 n <= 118, big any n
- * Helpers:   none
+ * Validated: standard, pass, 105 terms through n = 117 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 struct Element {
     const char *sym;
@@ -72,7 +74,7 @@ static void init_sequence(void)
     size_t i;
     for (i = 0; i < 118; ++i)
         tmp[i] = elements[i];
-    qsort(tmp, 118, sizeof(tmp[0]), cmp_elem);
+    mem_qsort(tmp, 118, sizeof(tmp[0]), cmp_elem);
     for (i = 0; i < 118; ++i)
         atoms_sorted[i] = tmp[i].num;
     init_done = true;

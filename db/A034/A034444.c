@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2^(number of distinct prime factors of n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 121 terms through n = 9764 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;   /* safety, not part of the OEIS offset */
 
     /* Count the distinct prime factors of n. */
-    size_t distinct = count_distinct_primes((uint64_t)n);
+    size_t distinct = omega((uint64_t)n);
 
     /* Compute 2^distinct using only seq_t arithmetic. */
     seq_t result = 1;

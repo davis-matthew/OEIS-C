@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 416, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_uint64
+ * Validated: standard, pass, 58 terms through n = 9811 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 
 /* Prototype from the test harness */
-#include "../utils/is_prime_uint64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_list = NULL;   /* stored primes */
 static size_t   prime_cnt  = 0;     /* number of primes stored */
@@ -80,7 +82,7 @@ ensure_capacity(size_t req)
     if (prime_cap >= req) return;
     size_t new_cap = prime_cap ? prime_cap << 1 : 16;
     if (new_cap < req) new_cap = req;
-    seq_t *tmp = (seq_t *)realloc(prime_list, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_list, new_cap);
     if (!tmp) abort();                 /* allocation failure */
     prime_list = tmp;
     prime_cap  = new_cap;
@@ -111,7 +113,7 @@ generate_terms(size_t need)
         for (;;) {
             if (cand < 2) cand = 2;
             if ((cand & 1) == 0) { cand++; continue; }
-            if (!is_prime_uint64(cand)) { cand++; continue; }
+            if (!is_prime_u64(cand)) { cand++; continue; }
             if (representablePrime(cand)) {
                 add_prime(cand);
                 cand++;                       /* next search starts after this prime */

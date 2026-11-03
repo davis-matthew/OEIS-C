@@ -7,6 +7,7 @@
  * Formula:   a(n+1) = a(n)^2 - 3*n*a(n) + n^2, a(1) = 1
  * Range:     i8 n <= 4, i16 n <= 5, i32 n <= 6, i64 n <= 7, i128 n <= 8,
  *            big any n
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

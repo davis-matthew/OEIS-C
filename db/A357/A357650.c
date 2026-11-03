@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} 4^(n-2*k) * Stirling2(n,2*k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Ensure that *ptr points to an array of at least needed elements.
    New capacity grows by doubling. Newly allocated elements are zeroed. */
@@ -26,11 +28,11 @@ static void ensure_capacity(seq_t **ptr, size_t *current_cap, size_t needed)
     size_t new_cap = (*current_cap == 0) ? 1 : *current_cap;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
     if (!tmp) abort();
     /* Zero any new elements */
     if (new_cap > *current_cap)
-        memset(tmp + *current_cap, 0, (new_cap - *current_cap) * sizeof(seq_t));
+        mem_set(tmp + *current_cap, 0, (new_cap - *current_cap) * sizeof(seq_t));
     *ptr = tmp;
     *current_cap = new_cap;
 }

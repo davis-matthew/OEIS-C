@@ -7,12 +7,14 @@
  * Formula:   divisors of 2^33 - 1
  * Range:     u8 none, u16 none, u32 none, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *a, const void *b) {
     const seq_t *x = (const seq_t *)a;
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
             }
         }
         
-        qsort(divisors, count, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(divisors, count, sizeof(seq_t), cmp_seq_t);
         computed = 1;
     }
     

@@ -10,12 +10,14 @@
  *            triangle containing the n‑th term
  * Range:     i8 n <= 35, i16 n <= 73, i32 n <= 73, i64 n <= 73, i128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **row_cache = NULL; /* row_cache[r-1] holds coefficients of row r */
 static idx_t cached_rows = 0;    /* number of rows currently allocated */
@@ -24,16 +26,16 @@ static void compute_row(idx_t r)
 {
     idx_t m = r * r;                 /* number of coefficients in row r */
     /* allocate storage for the row in the cache */
-    seq_t *row = (seq_t *)malloc((size_t)m * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)m);
     if (!row) exit(EXIT_FAILURE);
 
     /* arrays for polynomial multiplication */
-    seq_t *cur = (seq_t *)malloc((size_t)m * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc((size_t)m * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, (size_t)m);
+    seq_t *next = mem_new(seq_t, (size_t)m);
     if (!cur || !next) exit(EXIT_FAILURE);
 
     /* base polynomial B(x) = x^(r-1) - (1+x+...+x^(r-2)) */
-    seq_t *base = (seq_t *)malloc((size_t)r * sizeof(seq_t));
+    seq_t *base = mem_new(seq_t, (size_t)r);
     if (!base) exit(EXIT_FAILURE);
     for (idx_t i = 0; i < r - 1; ++i) base[i] = -1;
     base[r - 1] = 1;
@@ -68,9 +70,9 @@ static void compute_row(idx_t r)
     row_cache[r - 1] = row;
 
     /* free temporary arrays */
-    free(cur);
-    free(next);
-    free(base);
+    mem_free(cur);
+    mem_free(next);
+    mem_free(base);
 }
 
 seq_t a(idx_t n)

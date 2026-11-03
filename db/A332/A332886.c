@@ -12,7 +12,8 @@
  *            duplicate partition number is p(0)=p(1)=1, so...
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    numbers so that subsequent calls are fast.  It works for all n
    up to about 10 000 in well under 2 s. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pCache = NULL;        /* Memoised partition numbers */
 static idx_t  cacheSize = 0;        /* Number of elements in pCache */
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
 {
     if (n < cacheSize) return;
     size_t newSize = (size_t)n + 1u;
-    seq_t *tmp = (seq_t *)realloc(pCache, newSize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pCache, newSize);
     if (!tmp) abort();                /* out of memory */
     /* initialise new elements to zero */
     for (idx_t i = cacheSize; i < newSize; ++i) tmp[i] = 0;

@@ -11,14 +11,21 @@
  *            - r*log(2)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   logaddexp
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/logaddexp.h"
+
+static long double logaddexp(long double a, long double b)
+{
+    /* Return log(e^a + e^b) with long double precision. */
+    if (a < b) { long double t = a; a = b; b = t; }
+    return a + log1pl(exp(b - a));
+}
 
 seq_t a(idx_t n)
 {

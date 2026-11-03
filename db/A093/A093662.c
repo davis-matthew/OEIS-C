@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of global state */
 static seq_t *matrix = NULL;      /* pointer to the current matrix          */
@@ -58,7 +60,7 @@ static void build_until(idx_t rows_needed)
 {
     /* Initialisation: matrix of size 1×1 with entry 1 */
     if (curSize == 0) {
-        matrix = (seq_t *)malloc(sizeof(seq_t));
+        matrix = mem_new(seq_t, 1);
         if (!matrix) abort();          /* out of memory */
         matrix[0] = (seq_t)1;
         curSize = 1;
@@ -70,7 +72,7 @@ static void build_until(idx_t rows_needed)
         size_t oldSize = curSize;
         size_t newSize = oldSize * 2;
         /* Allocate new matrix and initialise to zero */
-        seq_t *newMat = (seq_t *)calloc(newSize * newSize, sizeof(seq_t));
+        seq_t *newMat = mem_new(seq_t, newSize * newSize);
         if (!newMat) abort();
 
         /* Copy top‑left and bottom‑left blocks from the old matrix */
@@ -96,7 +98,7 @@ static void build_until(idx_t rows_needed)
         }
 
         /* Replace the old matrix */
-        free(matrix);
+        mem_free(matrix);
         matrix = newMat;
         curSize = newSize;
     }

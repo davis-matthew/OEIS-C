@@ -7,12 +7,14 @@
  * Formula:   a(1)=a(2)=1; for n>=3 a(n)=a(n-1)+last decimal digit of a(n-2)
  * Range:     u8 n <= 55, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Advantage: simple O(n) calculation with caching for arbitrary call order. */
 seq_t a(idx_t n)
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (n + 1 > capacity) {
         /* Grow cache to accommodate n */
         idx_t new_capacity = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_capacity);
         if (!new_cache) exit(1);  /* stop if out of memory */
         cache = new_cache;
 

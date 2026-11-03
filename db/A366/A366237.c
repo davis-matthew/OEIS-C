@@ -11,13 +11,15 @@
  *            itself)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #if defined(__SIZEOF_INT128__) && !defined(_MSC_VER)
 typedef unsigned __int128 int128_t;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         size_t a_need = (size_t)(n + 1);
         size_t c_need = (size_t)(2 * n + 1);
 
-        a_arr = (seq_t*)malloc(a_need * sizeof(seq_t));
+        a_arr = mem_new(seq_t, a_need);
         if (!a_arr) abort();
 
 #if HAVE_INT128
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         } else
 #endif
         {
-            c_arr = (seq_t*)calloc(c_need, sizeof(seq_t));
+            c_arr = mem_new(seq_t, c_need);
             if (!c_arr) abort();
         }
         c_size = c_need;
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         /* enlarge arrays */
         size_t new_a_size = (size_t)(n + 1);
         if (new_a_size > (size_t)(max_n + 1)) {
-            a_arr = (seq_t*)realloc(a_arr, new_a_size * sizeof(seq_t));
+            a_arr = mem_resize(seq_t, a_arr, new_a_size);
             if (!a_arr) abort();
         }
         size_t new_c_size = (size_t)(2 * n + 1);
@@ -93,8 +95,7 @@ seq_t a(idx_t n)
             } else
 #endif
             {
-                c_arr = (seq_t*)realloc(c_arr,
-                                       new_c_size * sizeof(seq_t));
+                c_arr = mem_resize(seq_t, c_arr, new_c_size);
                 if (!c_arr) abort();
                 for (size_t i = c_size; i < new_c_size; ++i)
                     c_arr[i] = (seq_t)0;

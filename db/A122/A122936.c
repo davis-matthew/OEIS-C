@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
+ * Validated: full, pass, 45 terms through n = 45 (2026-11-02)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

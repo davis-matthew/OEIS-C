@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   Number of runs of odd length in the base‑9 representation of n
- * Range:     u8 n <= 9026, u16 n <= 9026, u32 n <= 9026, u64 n <= 9026,
- *            u128 n <= 9026, big any n
+ * Range:     u8 n <= 66430, u16 n <= 66430, u32 n <= 66430, u64 n <= 66430,
+ *            u128 n <= 66430, big any n
+ * Validated: standard, pass, 121 terms through n = 9026 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

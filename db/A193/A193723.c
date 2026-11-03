@@ -10,13 +10,15 @@
  *            a(0)=T(0,0), a(1)=T(1,0), a(2)=T(1,1), a(3)=T(2,0), …
  * Range:     u8 n <= 15, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,12 +45,12 @@ seq_t a(idx_t n)
     }
 
     /* Allocate storage for two consecutive rows */
-    seq_t *prev = (seq_t *)malloc((size_t)(r + 1) * sizeof(seq_t));
-    seq_t *cur  = (seq_t *)malloc((size_t)(r + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(r + 1));
+    seq_t *cur  = mem_new(seq_t, (size_t)(r + 1));
     if (!prev || !cur) {
         /* Allocation failed – return zero (should not happen in tests) */
-        if (prev) free(prev);
-        if (cur)  free(cur);
+        if (prev) mem_free(prev);
+        if (cur)  mem_free(cur);
         return (seq_t)0;
     }
 
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
 
     seq_t result = prev[k];
 
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return result;
 }

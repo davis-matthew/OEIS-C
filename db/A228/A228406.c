@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n+1)*(n+2)*(n+3)*(4+44*n/5+16*n^2/5)
  * Range:     u8 n <= 0, u16 n <= 5, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 31 terms through n = 29 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

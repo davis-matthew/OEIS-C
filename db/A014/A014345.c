@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{j=0..n} binomial(n,j)*prime(j+1)*prime(n-j+1)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 21, u64 n <= 50, u128 n <= 111,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 997 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

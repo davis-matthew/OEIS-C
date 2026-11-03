@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root for idx_t values (treats arguments as unsigned). */
 static idx_t _isqrt_u64(idx_t n)
@@ -56,7 +58,7 @@ static void _rebuild(idx_t limit)
     /* Free old data. */
     free(_is_prime);
     free(_primes);
-    free(_count_cache);
+    mem_free(_count_cache);
 
     /* Allocate prime flag array. */
     _is_prime = (bool *)calloc(limit + 1, sizeof(bool));
@@ -93,7 +95,7 @@ static void _rebuild(idx_t limit)
         if (_is_prime[i]) _primes[pos++] = (uint64_t)i;
 
     /* Allocate cache for results. */
-    _count_cache = (seq_t *)malloc(limit * sizeof(seq_t));
+    _count_cache = mem_new(seq_t, limit);
     if (_count_cache == NULL)
     {
         _cache_len = 0;

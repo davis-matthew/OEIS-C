@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*  The types seq_t and idx_t are defined by the build environment.
     Ensure the external declaration so the compiler does not warn.   */
@@ -45,7 +47,7 @@ static void ensure_A_capacity(size_t need)             /* need: index+1   */
     if (need <= Acap) return;
     size_t newcap = Acap ? Acap * 2 : 16;
     while (newcap < need) newcap <<= 1;
-    seq_t *newA = (seq_t *)realloc(A, newcap * sizeof(seq_t));
+    seq_t *newA = mem_resize(seq_t, A, newcap);
     if (!newA) abort();
     A = newA;
     Acap = newcap;

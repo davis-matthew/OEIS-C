@@ -7,13 +7,16 @@
  * Formula:   a(n) = floor(10*n^(1/5)) mod 10
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 118 terms through n = 988 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 static seq_t floor_fifth_root(seq_t x)
 {
@@ -22,7 +25,7 @@ static seq_t floor_fifth_root(seq_t x)
 
     /* Find an upper bound for the 5th root */
     while (true) {
-        seq_t p = seq_pow(hi, (idx_t)5);
+        seq_t p = ipow_idx(hi, (idx_t)5);
         if (p > x)
             break;
         lo = hi;
@@ -32,7 +35,7 @@ static seq_t floor_fifth_root(seq_t x)
     /* Binary search between lo (≤ root) and hi (> root) */
     while (lo + 1 < hi) {
         seq_t mid = (lo + hi) >> 1;   /* mid = (lo + hi) / 2 */
-        seq_t p   = seq_pow(mid, (idx_t)5);
+        seq_t p   = ipow_idx(mid, (idx_t)5);
         if (p <= x)
             lo = mid;
         else
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
     seq_t N = (seq_t)n;
 
     /* 10^5 as seq_t */
-    const seq_t POW10_5 = seq_pow((seq_t)10, (idx_t)5);
+    const seq_t POW10_5 = ipow_idx((seq_t)10, (idx_t)5);
 
     /* floor(10 * n^(1/5)) = floor((10^5 * n)^(1/5)) */
     seq_t t = floor_fifth_root(POW10_5 * N);

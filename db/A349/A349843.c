@@ -8,12 +8,14 @@
  *            delta(n,0) (with a(0) = 1, a(n<0) = 0)
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1U > alloc_size) {
         size_t new_size = (size_t)n + 1U;
         if (new_size < 10U) new_size = 10U;
-        seq_t *new_ptr = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, memo, new_size);
         if (!new_ptr) abort();          /* allocation failure */
         memo = new_ptr;
         alloc_size = new_size;

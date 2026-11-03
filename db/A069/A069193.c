@@ -7,14 +7,15 @@
  * Formula:   a(n) = Sum_{d|n} d * phi(n) / phi(d) (OEIS A069193)
  * Range:     u8 n <= 47, u16 n <= 2519, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_seq_u64
+ * Validated: standard, pass, 76 terms through n = 8539 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_seq_u64.h"
+#include "../utils/ipow_idx.h"
 
 /* --------- computation of a(n) --------------------------- */
 seq_t a(idx_t n)
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
         /* a(p^e) = ((e+1)*p - 1) * p^(e-1) */
         seq_t base = (seq_t)p;
         seq_t coeff = (seq_t)(((e + 1U) * p) - 1U);      /* (e+1)*p - 1 */
-        seq_t powp = pow_seq_u64(base, e - 1U);          /* p^(e-1) */
+        seq_t powp = ipow_idx(base, e - 1U);          /* p^(e-1) */
         seq_t term = coeff * powp;
 
         result *= term;

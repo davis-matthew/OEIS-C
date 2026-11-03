@@ -12,13 +12,15 @@
  *            1)/2 ) // sum i + j * let t = s*(s + 1)/2 /...
  * Range:     u8 n <= 45, u16 n <= 153, u32 n <= 561, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 82 terms through n = 931 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
     idx_t j = s - i;             /* vertical coordinate     */
 
     /* Compute powers of two.  pow_uint returns a seq_t.  */
-    seq_t pow2m = pow_uint(2, j);
-    seq_t pow2n = pow_uint(2, i);
+    seq_t pow2m = ipow_u64_idx(2, j);
+    seq_t pow2n = ipow_u64_idx(2, i);
 
     /* T(i, j) = 1 + i*(2^j - 1) + j*(2^i - 1) - i*j  */
     seq_t result = 1

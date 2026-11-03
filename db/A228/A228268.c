@@ -11,7 +11,8 @@
  *            sorted list
  * Range:     u8 none, u16 none, u32 n <= 1346, u64 n <= 1346, u128 n <= 1346,
  *            big any n
- * Helpers:   is_prime_small, seq_cmp, sieve_primes
+ * Validated: full, pass, 1346 terms through n = 1346 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,16 +21,27 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <string.h>
+#include <stddef.h>
+#include "../utils/is_prime_seq.h"
 #include "../utils/sieve_primes.h"
-#include "../utils/is_prime_small.h"
-#include "../utils/seq_cmp.h"
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* Append `val` to the dynamic array `arr`, reallocating when necessary. */
 static void append_value(seq_t **arr, size_t *len, size_t *cap, seq_t val)
 {
     if (*len + 1 > *cap) {
         size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();
         *arr = tmp;
         *cap = new_cap;
@@ -63,7 +75,7 @@ seq_t a(idx_t n)
                 if (q <= 100) continue;               /* q > 100 */
 
                 seq_t cand = (seq_t)(p * 1000ULL + q);
-                if (is_prime_small(cand))
+                if (is_prime_seq(cand))
                     append_value(&cache, &cache_len, &cache_cap, cand);
             }
         }
@@ -71,7 +83,7 @@ seq_t a(idx_t n)
         free(primes3);   /* free temporary prime list */
 
         /* Sort the candidates in ascending order. */
-        qsort(cache, cache_len, sizeof(seq_t), seq_cmp);
+        mem_qsort(cache, cache_len, sizeof(seq_t), seq_cmp);
     }
 
     if (n == 0 || (idx_t)n > cache_len) return (seq_t)0;

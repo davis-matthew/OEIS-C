@@ -9,13 +9,21 @@
  *            )
  * Range:     u8 none, u16 none, u32 none, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   pow10_seq_t
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow10_seq_t.h"
+
+static seq_t pow10_seq_t(int e)
+{
+    seq_t p = 1;
+    for (int i = 0; i < e; ++i)
+        p *= (seq_t)10;
+    return p;
+}
 
 static int digits_idx(int idx)          /* number of decimal digits of a positive int idx */
 {

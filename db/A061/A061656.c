@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 3242, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t, seq_realloc
+ * Validated: standard, pass, 65 terms through n = 9187 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,21 @@
    have the same proportion of 1‑bits.  Tested against all known terms
    of A061656. */
 #include <stddef.h>
-#include "../utils/seq_realloc.h"
-#include "../utils/bitlen_seq_t.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/bit_length.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +45,7 @@ seq_t a(idx_t n)
     while (len < (size_t)n)
     {
         /* bit length of current k */
-        idx_t   len_k  = bitlen_seq_t(k);
+        idx_t   len_k  = bit_length(k);
         /* count of 1‑bits in k */
         unsigned int ones_k = 0;
         seq_t tmp = k;
@@ -44,7 +58,7 @@ seq_t a(idx_t n)
         /* square */
         seq_t k2 = k * k;
         /* bit length of k² */
-        idx_t len_k2 = bitlen_seq_t(k2);
+        idx_t len_k2 = bit_length(k2);
         /* count of 1‑bits in k² */
         unsigned int ones_k2 = 0;
         tmp = k2;

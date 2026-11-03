@@ -11,7 +11,8 @@
  *            k*(k+1)/2
  * Range:     u8 n <= 14, u16 n <= 192, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _gcd_seq_t, _isqrt_seq
+ * Validated: standard, pass, 65 terms through n = 9835 (2026-11-01)
+ * Helpers:   gcd, isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdlib.h>
 
 /* Helper functions (provided by the evaluation environment) */
-#include "../utils/_isqrt_seq.h"      /* seq_t _isqrt_seq(seq_t) */
-#include "../utils/_gcd_seq_t.h"     /* seq_t _gcd_seq_t(seq_t,seq_t) */
+#include <stdbool.h>
+#include "../utils/gcd.h"
+#include "../utils/isqrt_seq.h"
 
 /*------------------------------------------------------------*/
 /*  In C++ we use a std::vector; in C we allocate raw arrays    */
@@ -53,7 +55,7 @@ static int is_triangular (seq_t x)
 {
     if (x == 0) return 0;                      /* 0 is not triangular */
     seq_t tmp = 8 * x + 1;
-    seq_t r   = _isqrt_seq(tmp);
+    seq_t r   = isqrt_seq(tmp);
     return (r * r == tmp);
 }
 
@@ -90,7 +92,7 @@ seq_t a (idx_t n)
         seq_t cand;
         while (1) {
             cand = triangular(m);
-            seq_t g = _gcd_seq_t(cand, prev_val);
+            seq_t g = gcd(cand, prev_val);
             if (is_triangular(g)) break;
             ++m;
         }
@@ -120,7 +122,7 @@ seq_t a (idx_t n)
         seq_t cand;
         while (1) {
             cand = triangular(m);
-            seq_t g = _gcd_seq_t(cand, prev_val);
+            seq_t g = gcd(cand, prev_val);
             if (is_triangular(g)) break;
             ++m;
         }

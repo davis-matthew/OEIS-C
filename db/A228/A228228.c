@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth prime p such that p mod 16 is 3, 5, 13 or 15
  * Range:     u8 n <= 30, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static seq_t *prime_list = NULL;
@@ -41,7 +43,7 @@ static void init_sequence(void) {
             if (r == 3 || r == 5 || r == 13 || r == 15) {
                 if (prime_len == prime_cap) {
                     size_t new_cap = prime_cap ? prime_cap << 1 : 64;
-                    seq_t *tmp = (seq_t*)realloc(prime_list, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, prime_list, new_cap);
                     if (!tmp) return; /* allocation failed */
                     prime_list = tmp;
                     prime_cap = new_cap;

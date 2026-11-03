@@ -10,7 +10,8 @@
  *            k≤n≤2k, otherwise 0
  * Range:     i8 n <= 71, i16 n <= 71, i32 n <= 71, i64 n <= 71, i128 n <= 71,
  *            big any n
- * Helpers:   offset_row
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/offset_row.h"
+#include <math.h>
+#include "../utils/triangular.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;       /* flattened sequence cache   */
 static size_t a_cache_cap = 0;      /* capacity of a_cache        */
@@ -35,7 +38,7 @@ static void ensure_a_cache_size(idx_t size)
     if (size <= a_cache_cap) return;
     size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 16;
     if (new_cap < size) new_cap = size;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_cache_cap = new_cap;
 }
 
@@ -73,7 +76,7 @@ static void compute_next_row(void)
     /* Prepare indices for the active‑sum update.                      */
     idx_t low_prev = r / 2;                /* ceil((r-1)/2)                               */
     idx_t low_new  = (r + 1) / 2;          /* ceil(r/2)                                    */
-    idx_t start_prev = offset_row(r - 1);  /* first index of row r-1                       */
+    idx_t start_prev = triangular(r - 1);  /* first index of row r-1                       */
 
     /* Add the (r-1)th row to the active sums.                      */
     for (idx_t k = 0; k < r; ++k) {
@@ -83,14 +86,14 @@ static void compute_next_row(void)
     /* If the lower bound increased, subtract the row that fell out. */
     if (low_new > low_prev) {
         idx_t rem = low_prev;
-        idx_t start_rem = offset_row(rem);
+        idx_t start_rem = triangular(rem);
         for (idx_t k = 0; k <= rem; ++k) {
             active_sum[k] -= B_data[start_rem + k];
         }
     }
 
     /* Compute the current row from the active sums.                  */
-    idx_t start = offset_row(r);
+    idx_t start = triangular(r);
     for (idx_t k = 0; k < r; ++k) {
         int16_t val = -(int16_t)active_sum[k];
         B_data[start + k] = val;

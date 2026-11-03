@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor(1/2 + (n^2)*e) (computed with integer arithmetic)
  * Range:     u8 n <= 9, u16 n <= 155, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 64 terms through n = 911 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

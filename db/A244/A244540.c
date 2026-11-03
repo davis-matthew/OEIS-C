@@ -11,14 +11,35 @@
  *            order differentiated
  * Range:     u8 n <= 2500, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   r2
+ * Validated: standard, pass, 103 terms through n = 2459 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/r2.h"
+
+/* Number of representations of n as a^2 + b^2 (order and sign counted). */
+static inline seq_t r2(idx_t n)
+{
+    if (n == 0) return (seq_t)1;
+    unsigned d1 = 0, d3 = 0;
+    for (idx_t i = 1; i * i <= n; ++i) {
+        if (n % i == 0) {
+            idx_t d = i;
+            if ((d & 3) == 1) ++d1;       /* d % 4 == 1 */
+            else if ((d & 3) == 3) ++d3;  /* d % 4 == 3 */
+
+            idx_t d2 = n / i;
+            if (d2 != d) {
+                if ((d2 & 3) == 1) ++d1;
+                else if ((d2 & 3) == 3) ++d3;
+            }
+        }
+    }
+    return (seq_t)4 * ((seq_t)d1 - (seq_t)d3);
+}
 
 /* Integer square root: floor(sqrt(x)) for non‑negative x */
 static inline idx_t int_sqrt(idx_t x)

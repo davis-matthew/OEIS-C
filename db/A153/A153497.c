@@ -9,12 +9,14 @@
  *            a(6)=1453
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 492 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* 1‑based cache, cache[0] unused */
 static idx_t cache_capacity = 0;      /* total allocated slots (including 0)   */
@@ -34,13 +36,13 @@ ensure_cache(idx_t n)
     idx_t new_capacity = (cache_capacity == 0) ? 8 : cache_capacity * 2;
     while (new_capacity < n + 1) new_capacity *= 2;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_capacity);
     if (!new_cache) exit(1); /* allocation failure → abort */
 
 #ifdef __cplusplus
     /* For class types: default‑construct each new element. */
     for (idx_t i = cache_capacity; i < new_capacity; ++i)
-        new (new_cache + i) seq_t();
+        *(new_cache + i) = (seq_t)0;
 #else
     /* POD types: zero‑initialize new slots. */
     for (idx_t i = cache_capacity; i < new_capacity; ++i)

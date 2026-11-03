@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   seq_free_array
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_free_array.h"
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* Trivial allocator helpers; these work for both built‑in types and
    arbitrary‑precision integer classes. */
@@ -26,7 +32,7 @@ static seq_t *seq_alloc_array(size_t n) {
     /* Allocate an array initialized to 0.  This is safe for any seq_t
        that is trivially default constructible (built‑in integers) or
        implements a default constructor (arbitrary‑precision types). */
-    seq_t *p = (seq_t *)malloc(n * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, n);
     if (!p) return NULL;
     for (size_t i = 0; i < n; ++i) p[i] = (seq_t)0;
     return p;

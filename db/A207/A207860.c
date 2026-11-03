@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 46,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_free
+ * Validated: standard, pass, 35 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,8 +34,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free.h"
+#include <stdlib.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 /* ----- core routine ----------------------------------------------------- */
 static seq_t a_static(idx_t const n)
@@ -100,7 +107,7 @@ static seq_t a_static(idx_t const n)
         }
 
         /* ---- initial DP for n = 2 (no horizontal restriction) ----- */
-        memset(dp0, 0, sizeof(dp0));
+        mem_set(dp0, 0, sizeof(dp0));
         for (int x = 0; x < C; ++x) if (valid_col[x]) {
             for (int y = 0; y < C; ++y) if (valid_col[y]) {
                 dp0[(x << R) | y] = 1;
@@ -124,7 +131,7 @@ static seq_t a_static(idx_t const n)
     /* ---- extend the cache up to required index -------------------- */
     while (seq_len < n) {
         /* reset next layer */
-        memset(nxt, 0, sizeof(dp1));
+        mem_set(nxt, 0, sizeof(dp1));
 
         /* propagate all states from cur to nxt via stored transitions */
         for (int idx = 0; idx < ST; ++idx) {
@@ -147,7 +154,7 @@ static seq_t a_static(idx_t const n)
             idx_t new_cap = seq_cap * 2;
             if (new_cap < seq_len + 1) new_cap = seq_len + 1;
             seq_t *new_seq = seq_alloc_new_array(new_cap);
-            memcpy(new_seq, seq, seq_len * sizeof(seq_t));
+            mem_copy(new_seq, seq, seq_len * sizeof(seq_t));
             seq_free(seq);
             seq = new_seq;
             seq_cap = new_cap;

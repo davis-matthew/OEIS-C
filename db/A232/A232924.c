@@ -12,7 +12,8 @@
  *            2515716 a(7) = 20706696 a(8) = 167584476 a(9) = 136743...
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -99,10 +101,10 @@ seq_t a(idx_t n)
        ----------------------------------------------- */
     if (n > cache_size) {
         if (!cache) {
-            cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+            cache = mem_new(seq_t, (size_t)(n + 1));
             cache_allocated = true;
         } else {
-            cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         }
 
         /* Copy known base terms into cache */

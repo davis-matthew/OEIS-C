@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 10, i64 n <= 17, i128 n <= 20,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>   /* size_t, NULL */
 #include <stdlib.h>   /* malloc, realloc */
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Persistent cache of computed values. */
 static seq_t *cache = NULL;            /* a(0)..a(max_computed) */
@@ -31,10 +33,10 @@ seq_t a(idx_t n)
 {
     /* Grow the cache array to hold a[0..n]. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         cache_cap = n + 1;
     } else if (cache_cap <= n) {
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         cache_cap = n + 1;
     }
 

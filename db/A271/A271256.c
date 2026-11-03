@@ -10,6 +10,7 @@
  *            and odd; a(0) = 4, a(1) = 0, a(2) = 31, a(3) = -27, a(4) = 87
  * Range:     i8 n <= 5, i16 n <= 91, i32 n <= 127, i64 n <= 127,
  *            i128 n <= 127, big any n
+ * Validated: standard, pass, 59 terms through n = 121 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,14 +7,21 @@
  * Formula:   a(n) = number of cycles of the map x→x^4 (mod n)
  * Range:     u8 n <= 603, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_pow4_mod
+ * Validated: standard, pass, 111 terms through n = 9821 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/next_pow4_mod.h"
+
+/* Helper: compute x^4 mod mod, all arithmetic in seq_t */
+static inline seq_t next_pow4_mod(seq_t x, seq_t mod)
+{
+    seq_t y = (x * x) % mod;   /* x^2 mod mod */
+    return (y * y) % mod;      /* (x^2)^2 mod mod = x^4 mod mod */
+}
 
 seq_t a(idx_t n)
 {

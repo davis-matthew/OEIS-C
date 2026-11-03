@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 6, u64 n <= 16, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- Helper structures for adjacency lists ---------- */
 typedef struct {
@@ -112,8 +114,8 @@ seq_t a(idx_t n)
 
     /* Allocate two count arrays once */
     if (!counts_built) {
-        cnt[0] = (seq_t *)calloc(4096, sizeof(seq_t));
-        cnt[1] = (seq_t *)calloc(4096, sizeof(seq_t));
+        cnt[0] = mem_new(seq_t, 4096);
+        cnt[1] = mem_new(seq_t, 4096);
         if (!cnt[0] || !cnt[1]) return (seq_t)0; /* allocation failure */
         counts_built = 1;
     }

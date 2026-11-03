@@ -9,7 +9,8 @@
  *            divisors of k
  * Range:     u8 n <= 63, u16 n <= 155, u32 n <= 155, u64 n <= 155,
  *            u128 n <= 155, big any n
- * Helpers:   none
+ * Validated: full, pass, 155 terms through n = 155 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *solutions = NULL;          /* cached solutions */
 static size_t sol_len = 0;                /* number of solutions stored */
@@ -51,7 +53,7 @@ static void init(void)
 
     /* Allocate initial capacity for solutions. */
     sol_cap = 64;
-    solutions = (seq_t *)malloc(sol_cap * sizeof(seq_t));
+    solutions = mem_new(seq_t, sol_cap);
     if (!solutions) {
         free(divcnt);
         return;  /* allocation failed – keep initialized false */
@@ -75,10 +77,10 @@ static void init(void)
             /* Grow solutions array if necessary. */
             if (sol_len == sol_cap) {
                 sol_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(solutions, sol_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, solutions, sol_cap);
                 if (!tmp) {
                     free(divcnt);
-                    free(solutions);
+                    mem_free(solutions);
                     solutions = NULL;
                     sol_len = sol_cap = 0;
                     return;  /* allocation failed – keep initialized false */

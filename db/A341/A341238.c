@@ -11,7 +11,8 @@
  *            incrementally
  * Range:     u8 n <= 83, u16 n <= 351, u32 n <= 351, u64 n <= 351,
  *            u128 n <= 351, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 320 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---- static state ----------------------------------------------------- */
 
@@ -42,7 +44,7 @@ static void grow_terms(size_t needed)
     size_t new_cap = terms_cap ? terms_cap << 1 : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *newp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, terms, new_cap);
     if (!newp)
         exit(EXIT_FAILURE);
     terms = newp;

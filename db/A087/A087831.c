@@ -9,7 +9,8 @@
  *            for n<=4
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   abs_diff_idx
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h> /* needed only for abort() in out-of-memory */
-#include "../utils/abs_diff_idx.h"
+#include "../utils/mem.h"
+
+/* compute absolute difference between idx_t n and seq_t v,
+   cast v to idx_t (safe for the intended ranges) */
+static inline idx_t abs_diff_idx(idx_t n, seq_t v)
+{
+    idx_t iv = (idx_t)v;             /* truncate to index type */
+    return n >= iv ? n - iv : iv - n;
+}
 
 static seq_t *cache = NULL;        /* cached values of a(n) */
 static idx_t cache_len = 0;       /* number of elements stored */
@@ -31,7 +40,7 @@ static void ensure_cap(idx_t need)
     idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     if (!newp) abort();          /* OOM – terminate */
     cache = newp;
     cache_cap = new_cap;

@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = 2^(n+1)*(n^2 + 6*n + 6) - 1
- * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 21, u64 n <= 27, u128 n <= 27,
+ * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 21, u64 n <= 51, u128 n <= 113,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 970 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 910 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    For n = 13 : a(13)=3·(a(12)+…+a(1)) – 6·a(0)+1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[13] = {
     (seq_t)1,      (seq_t)5,      (seq_t)20,     (seq_t)80,
@@ -33,7 +35,7 @@ static idx_t last_computed = (idx_t)-1; /* largest index that has a value */
 /* Grow the cache to at least new_cap entries. */
 static void grow_cache(idx_t new_cap)
 {
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first use. */
     if (cache == NULL) {
         idx_t cap = (n + 1 > 13) ? (n + 1) : 13;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache_cap = cap;
         for (idx_t i = 0; i < 13; ++i)
             cache[i] = init[i];

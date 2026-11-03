@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
     The function memoises computed values to allow out‑of‑order calls. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* 1‑based indices, cache[0] unused */
 static size_t cache_size = 0;    /* number of allocated slots (≥1)          */
@@ -34,7 +36,7 @@ static void ensure_cache_size(idx_t need)
     if (k + 1 <= cache_size)
         return;
     size_t new_cap = k + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                       /* allocation failure – terminate   */
     cache = tmp;

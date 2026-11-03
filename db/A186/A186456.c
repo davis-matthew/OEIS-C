@@ -13,12 +13,14 @@
  *            as needed. It is safe for arbitrary order of cal...
  * Range:     u8 n <= 4, u16 n <= 18, u32 n <= 45, u64 n <= 98, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static const seq_t init[10] = {
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
     /* Initialise cache on first call */
     if (cache == NULL) {
         cap = 10;                       /* indices 0..9 are needed */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) return (seq_t)0;  /* allocation failure */
 
         /* Fill known values */
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
         /* Ensure capacity at least n+1 */
         if ((size_t)n + 1 > cap) {
             cap = (size_t)n + 1;
-            seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cap);
             if (tmp == NULL) return (seq_t)0;   /* allocation failure */
             cache = tmp;
         }

@@ -11,14 +11,15 @@
  *            the decimal digits of n
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 /* Local helper: next lexicographic permutation of an unsigned char array. */
 static int next_permutation(unsigned char *a, int n)
@@ -97,7 +98,7 @@ seq_t a(idx_t n)
     /* sum divisors for each distinct number */
     seq_t sum = 0;
     for (int i = 0; i < uniqcnt; ++i)
-        sum += (seq_t)divisor_count_u64(uniq[i]);
+        sum += (seq_t)num_divisors(uniq[i]);
 
     return sum;
 }

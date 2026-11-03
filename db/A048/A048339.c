@@ -7,14 +7,35 @@
  * Formula:   a(n) = (n - 14*floor((n-1)/14))*(15^floor((n+13)/14) - 1)/14
  * Range:     u8 n <= 29, u16 n <= 57, u32 n <= 113, u64 n <= 226,
  *            u128 n <= 452, big any n
- * Helpers:   big_pow15, power15_128
+ * Validated: standard, pass, 68 terms through n = 680 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow15.h"
-#include "../utils/power15_128.h"
+
+/* C++ (arbitrary precision) implementation */
+static seq_t big_pow15(idx_t exp)
+{
+    seq_t p = 1;
+    for (idx_t i = 0; i < exp; ++i)
+    {
+        p *= 15;
+    }
+    return p;
+}
+
+/* C (fixed-width unsigned integer) implementation using 128‑bit intermediates */
+static seq_t power15_128(idx_t exp)
+{
+    unsigned __int128 p = 1;
+    for (idx_t i = 0; i < exp; ++i)
+    {
+        p *= 15;
+    }
+    return (seq_t)p;
+}
 
 #ifdef __cplusplus
 

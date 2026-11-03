@@ -11,7 +11,8 @@
  *            offset 1. This implements the OEIS triangle A152431
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* global state for memoization */
 static idx_t max_r = 0;          /* highest row already computed */
@@ -37,13 +40,13 @@ static void ensure_up_to(idx_t r)
 
     /* Allocate/extend Bell array (needs indices 0..r) */
     if (B_size < r + 1) {
-        B = (seq_t *)realloc(B, (r + 1) * sizeof(seq_t));
+        B = mem_resize(seq_t, B, (r + 1));
         B_size = r + 1;
     }
 
     /* Allocate/extend A array (needs indices 1..r) */
     if (A_size < r + 1) {
-        A = (seq_t *)realloc(A, (r + 1) * sizeof(seq_t));
+        A = mem_resize(seq_t, A, (r + 1));
         A_size = r + 1;
     }
 
@@ -55,7 +58,7 @@ static void ensure_up_to(idx_t r)
     for (idx_t n = max_r + 1; n <= r; ++n) {
         seq_t sum = 0;
         for (idx_t k = 0; k < n; ++k) {
-            seq_t bin = binom((idx_t)n - 1, k);
+            seq_t bin = binomial((idx_t)n - 1, k);
             sum += bin * B[k];
         }
         B[n] = sum;

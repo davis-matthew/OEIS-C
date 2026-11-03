@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 25, u32 n <= 49, u64 n <= 95, u128 n <= 188,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     }
 
     /* Allocate array of size n+1 to hold all computed values */
-    seq_t *val = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *val = mem_new(seq_t, (size_t)(n + 1));
     if (!val) {
         /* Out of memory; return 0 to indicate failure */
         return (seq_t)0;
@@ -63,6 +65,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = val[n];
-    free(val);
+    mem_free(val);
     return result;
 }

@@ -14,7 +14,8 @@
  *            a(n-3) – coeff_N(n) * where coeff_N(0)=1 and, for 1≤n≤1...
  * Range:     u8 n <= 5, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const int64_t coeffP[17] = {
     -1, -2, -6, -21, -84, -300, -860, -1678, -1458, -7856,
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
     /* Initialize cache if first call */
     if (!cache) {
         cache_size = 6;                     /* indices 0..5 are stored */
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;               /* allocation failed */
         for (idx_t i = 0; i < 6; ++i) cache[i] = base[i];
     }
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
     /* Extend cache if required */
     if (n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0; /* allocation failed */
         cache = tmp;
 

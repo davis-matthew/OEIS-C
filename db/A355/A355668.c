@@ -10,6 +10,7 @@
  *            = Jacobsthal number: J(0)=0, J(1)=1, J(m+2) = J(m+1) + 2*J(m)
  * Range:     u8 n <= 52, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,14 +12,15 @@
  *            a subset of b_0…b_{i-1}
  * Range:     u8 n <= 28, u16 n <= 126, u32 n <= 2046, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   log2_uint64
+ * Validated: standard, pass, 76 terms through n = 7513 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/log2_uint64.h"
+#include "../utils/ilog2.h"
 
 /* maximum number of b_i needed for n up to 2^64−1 (64 bits) */
 #define MAX_B 64
@@ -67,7 +68,7 @@ seq_t a(idx_t n)
     if (n == (idx_t)0)
         return (seq_t)1;        /* a(0)=1 */
 
-    unsigned maxbit = log2_uint64(n);    /* highest set bit index */
+    unsigned maxbit = ilog2(n);    /* highest set bit index */
     compute_b_upto(maxbit);
 
     seq_t res = 1;

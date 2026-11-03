@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   visited_add, visited_has
+ * Validated: standard, pass, 121 terms through n = 8746 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,28 @@
 #include <stdint.h>      /* uint64_t, uint32_t */
 #include <stdlib.h>      /* malloc, free, calloc, memset */
 #include <math.h>        /* log */
-#include "../utils/visited_add.h"
-#include "../utils/visited_has.h"
+
+static inline void visited_add(uint64_t key, uint64_t *t, size_t cap)
+{
+    size_t mask = cap - 1;
+    for (size_t pos = key & mask; ; pos = (pos + 1) & mask) {
+        if (t[pos] == 0) {
+            t[pos] = key;
+            return;
+        }
+    }
+}
+
+/* open‑addressing hash table – key is ((uint64_t)i << 32) | j */
+static inline int visited_has(uint64_t key, uint64_t *t, size_t cap)
+{
+    size_t mask = cap - 1;
+    for (size_t pos = key & mask; ; pos = (pos + 1) & mask) {
+        uint64_t k = t[pos];
+        if (k == 0) return 0;
+        if (k == key) return 1;
+    }
+}
 
 #define VISITED_CAP (1U << 18)  /* 262144 – enough for n up to thousands */
 

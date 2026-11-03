@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 7631 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* popcount for idx_t (uint64_t) using compiler intrinsic when available */
 static inline unsigned popcount_idx(idx_t v)
@@ -63,7 +65,7 @@ static void init_hash(void)
     if (hash_keys != NULL) return;
     hash_capacity = 1U << 20;          /* 1 048 576 slots */
     hash_mask = hash_capacity - 1U;
-    hash_keys = (seq_t *)calloc(hash_capacity, sizeof(seq_t));
+    hash_keys = mem_new(seq_t, hash_capacity);
     hash_used = (unsigned char *)calloc(hash_capacity, sizeof(unsigned char));
 }
 
@@ -110,11 +112,11 @@ static void grow_seq(size_t needed)
     if (seq_len >= needed) return;
     if (seq_cap == 0) {
         seq_cap = 8;
-        seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
     }
     while (seq_cap < needed) {
         seq_cap <<= 1;
-        seq_vals = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+        seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
     }
 }
 

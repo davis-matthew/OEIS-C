@@ -10,8 +10,9 @@
  * Formula:   a(n) = 0 if n is odd; otherwise a(n) = (3^(popcount(n)-1)-1)/2
  *            where popcount(n) is the number of 1's in the binary expansion
  *            of n
- * Range:     u8 n <= 253, u16 n <= 8189, u32 n <= 9932, u64 n <= 9932,
- *            u128 n <= 9932, big any n
+ * Range:     u8 n <= 253, u16 n <= 8189, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 117 terms through n = 9932 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

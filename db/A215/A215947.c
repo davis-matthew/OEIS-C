@@ -8,6 +8,7 @@
  * Formula:   a(n) = 4*sigma(n) - sigma(2*n) (sigma = sum of divisors)
  * Range:     u8 n <= 59, u16 n <= 9239, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 78 terms through n = 9963 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

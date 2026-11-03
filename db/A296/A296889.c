@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_pits_peaks
+ * Validated: standard, pass, 68 terms through n = 9992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,43 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/count_pits_peaks.h"
+#include "../utils/mem.h"
+
+/* helper: count pits and peaks in v (base‑12).  */
+static void
+count_pits_peaks(seq_t v, int *pit, int *peak)
+{
+    /* digits in reverse order (least significant first) */
+    uint8_t rev[64];
+    size_t len = 0;
+    while (v > (seq_t)0 && len < sizeof rev) {
+        rev[len++] = (uint8_t)(v % (seq_t)12);
+        v /= (seq_t)12;
+    }
+
+    if (len < 3) {            /* too short, no interior digits */
+        *pit   = 0;
+        *peak  = 0;
+        return;
+    }
+
+    /* reverse to obtain most significant first */
+    for (size_t i = 0; i < len / 2; ++i) {
+        uint8_t tmp = rev[i];
+        rev[i] = rev[len - 1 - i];
+        rev[len - 1 - i] = tmp;
+    }
+
+    *pit  = 0;
+    *peak = 0;
+    for (size_t i = 1; i + 1 < len; ++i) {
+        uint8_t a = rev[i - 1];
+        uint8_t b = rev[i];
+        uint8_t c = rev[i + 1];
+        if (a > b && b < c) (*pit)++;
+        else if (a < b && b > c) (*peak)++;
+    }
+}
 
 /* dynamic cache for computed sequence terms */
 static seq_t *cache      = NULL;
@@ -41,7 +78,7 @@ seq_t a(idx_t n)
         if (needed > cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 256 : cache_cap * 2;
             if (new_cap < needed) new_cap = needed;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(1);            /* out of memory */
             cache = tmp;
             cache_cap = new_cap;

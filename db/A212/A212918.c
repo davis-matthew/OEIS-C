@@ -9,7 +9,8 @@
  *            multiplicity) equals a pentagonal number (P(j) = j(3j-1)/2)
  * Range:     u8 n <= 19, u16 n <= 1428, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   sum_of_prime_factors
+ * Validated: standard, pass, 69 terms through n = 3869 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sum_of_prime_factors.h"
+#include "../utils/mem.h"
+
+/* sum of prime factors of n (with multiplicity) ------------------------------------- */
+static uint64_t sum_of_prime_factors(uint64_t n)
+{
+    uint64_t sum = 0;
+    if (n < 2) return 0;
+    while ((n & 1ULL) == 0) {
+        sum += 2;
+        n >>= 1;
+    }
+    for (uint64_t i = 3; i <= n / i; i += 2) {
+        while (n % i == 0) {
+            sum += i;
+            n /= i;
+        }
+    }
+    if (n > 1) sum += n;
+    return sum;
+}
 
 /* integer square root for 128‑bit unsigned integers ---------------------------------- */
 static uint64_t isqrt128(unsigned __int128 n)
@@ -56,8 +76,8 @@ static void ensure_cache_for(idx_t n)
         if (is_pentagonal(sum_of_prime_factors(cur))) {
             if (cache_size == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-                if (!tmp) { free(cache); abort(); }
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+                if (!tmp) { mem_free(cache); abort(); }
                 cache = tmp;
                 cache_cap = new_cap;
             }

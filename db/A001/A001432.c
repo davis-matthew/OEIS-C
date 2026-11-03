@@ -11,7 +11,8 @@
  *            and two cycles of lengths b, c give gcd(b,c) edge...
  * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 23, u64 n <= 36, u128 n <= 40,
  *            big any n
- * Helpers:   a1432_blen, a1432_gcd, a1432_isprime, a1432_pow
+ * Validated: standard, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   bit_length_u64, gcd_i32, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a1432_blen.h"
-#include "../utils/a1432_gcd.h"
-#include "../utils/a1432_isprime.h"
-#include "../utils/a1432_pow.h"
+#include "../utils/bit_length_u64.h"
+#include "../utils/gcd_i32.h"
+#include "../utils/is_prime_u64.h"
+
+static uint64_t a1432_pow(uint64_t b, uint64_t e, uint64_t m) {
+    uint64_t r = 1 % m;
+    b %= m;
+    while (e) {
+        if (e & 1) r = r * b % m;
+        b = b * b % m;
+        e >>= 1;
+    }
+    return r;
+}
 
 static uint64_t a1432_p;
 static int a1432_N, a1432_E;
@@ -111,7 +122,7 @@ static void a1432_dfs(int depth, int sum, int maxc, uint64_t z) {
         }
         for (j = 0; j < depth; j++) {
             int q = a1432_parts[j];
-            int g = a1432_gcd(c, q);
+            int g = gcd_i32(c, q);
             long long L = (long long)(c / g) * q;
             if (L <= E) a1432_mulf(dst, (int)L, g);
         }
@@ -135,7 +146,7 @@ seq_t a(idx_t n) {
 
     bits = 2;
     for (j = 1; j <= E; j++)
-        bits += a1432_blen(M - (uint64_t)j + 1) - a1432_blen((uint64_t)j) + 1;
+        bits += bit_length_u64(M - (uint64_t)j + 1) - bit_length_u64((uint64_t)j) + 1;
     K = bits / 28 + 2;
 
     pr = (uint64_t *)malloc(sizeof(uint64_t) * (size_t)K);
@@ -143,7 +154,7 @@ seq_t a(idx_t n) {
     v = (uint64_t *)malloc(sizeof(uint64_t) * (size_t)K);
     cand = ((uint64_t)1 << 29) - 1;
     for (i = 0; i < K; i++) {
-        while (!a1432_isprime(cand)) cand -= 2;
+        while (!is_prime_u64(cand)) cand -= 2;
         pr[i] = cand;
         cand -= 2;
     }

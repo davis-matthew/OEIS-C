@@ -7,8 +7,9 @@
  * Formula:   u(n,2,5) = 6 for odd n not divisible by 3 or 5, 5 for odd n
  *            divisible by 5 (but not by 3), 3 for odd n divisible by 3, 2 for
  *            even n
- * Range:     u8 n <= 9964, u16 n <= 9964, u32 n <= 9964, u64 n <= 9964,
- *            u128 n <= 9964, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9964 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

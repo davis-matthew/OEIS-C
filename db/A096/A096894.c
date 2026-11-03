@@ -9,7 +9,8 @@
  *            d*((2n+1)/d - d)/2
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   _floor_isqrt_u64, gcd
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   gcd, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
     /* candidate from d = 1 gives r = n */
     seq_t min_val = (seq_t)n;
 
-    idx_t sqrt_m = _floor_isqrt_u64(m);
+    idx_t sqrt_m = isqrt(m);
     for (idx_t d = 1; d <= sqrt_m; ++d) {
         if (m % d != 0) continue;
         idx_t e = m / d;

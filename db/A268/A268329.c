@@ -9,14 +9,17 @@
  *            a(5) = 2
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 21, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 26 terms through n = 30 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>   /* for memset */
-#include "../utils/gcd.h"   /* for seq_t gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 5) return 0;  /* behaviour below offset is irrelevant */
@@ -33,15 +36,15 @@ seq_t a(idx_t n) {
     /* allocate or enlarge cache */
     if (cache == NULL) {
         cache_cap = n + 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-        memset(cache, 0, cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
+        mem_set(cache, 0, cache_cap * sizeof(seq_t));
         /* base value */
         cache[5] = 2;
         max_cached = 5;
     } else if (n + 1 > cache_cap) {
         size_t new_cap = n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-        memset(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
+        mem_set(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache_cap = new_cap;
     }
 

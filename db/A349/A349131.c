@@ -7,18 +7,26 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   a(n) = Sum_{d|n} phi(d) * A003958(n/d)
- * Range:     u8 n <= 84, u16 n <= 7314, u32 n <= 9358, u64 n <= 9358,
- *            u128 n <= 9358, big any n
- * Helpers:   factor_u64, pow_uint, seq_mul
+ * Range:     u8 n <= 84, u16 n <= 7314, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 91 terms through n = 9358 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"  /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/pow_uint.h"   /* pow_uint(uint64_t base, idx_t exp) */
-#include "../utils/seq_mul.h"    /* seq_mul(seq_t a, seq_t b) -- optional, used via × operator */
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Computes the sequence A349131: a(1)=1, multiplicative with a(p^e) =
    (p-1)*p^e - (p-2)*(p-1)^e.  Works for any seq_t and idx_t. */
@@ -37,8 +45,8 @@ seq_t a(idx_t n)
         uint64_t p = primes[i];
         uint64_t e = exps[i];
 
-        seq_t p_pow     = pow_uint(p,     e);   /* p^e   */
-        seq_t pm1_pow   = pow_uint(p-1,   e);   /* (p-1)^e */
+        seq_t p_pow     = ipow_u64_idx(p,     e);   /* p^e   */
+        seq_t pm1_pow   = ipow_u64_idx(p-1,   e);   /* (p-1)^e */
 
         seq_t part1 = (seq_t)(p-1) * p_pow;      /* (p-1)*p^e   */
         seq_t part2 = (seq_t)(p-2) * pm1_pow;    /* (p-2)*(p-1)^e */

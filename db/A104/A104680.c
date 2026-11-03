@@ -7,16 +7,18 @@
  * Formula:   a(n) = binom(n+7,7) * binom(n+12,7)
  * Range:     u8 none, u16 n <= 1, u32 n <= 10, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
-    seq_t t1 = binom(n + 7, 7);
-    seq_t t2 = binom(n + 12, 7);
+    seq_t t1 = binomial(n + 7, 7);
+    seq_t t2 = binomial(n + 12, 7);
     return t1 * t2;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 244, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_not_cubefull_uint64
+ * Validated: standard, pass, 93 terms through n = 9185 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,26 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_not_cubefull_uint64.h"
+
+/* Test whether m has a prime factor with exponent < 3.
+   m is assumed to be >= 2. */
+static bool is_not_cubefull_uint64(uint64_t m)
+{
+    uint64_t p = 2;
+    while (p * p <= m) {
+        if (m % p == 0) {
+            int exp = 0;
+            do {
+                m /= p;
+                ++exp;
+            } while (m % p == 0);
+            if (exp < 3) return true;  /* found factor 1 or 2 */
+        }
+        p = (p == 2) ? 3 : p + 2;  /* iterate 2,3,5,7,... */
+    }
+    if (m > 1) return true;      /* remaining prime factor exponent 1 */
+    return false;                /* all exponents >= 3 */
+}
 
 /* REQUIRED: external linkage, no other definitions. */
 seq_t a(idx_t n)

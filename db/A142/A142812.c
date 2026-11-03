@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 105, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 56 terms through n = 960 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* ---- static state ---- */
 static seq_t *prime_list  = NULL;    /* array of primes ≡ 14 (mod 61)           */
@@ -35,7 +37,7 @@ static void ensure_n_primes(idx_t n)
     /* Lazy allocation of the list on first use. */
     if (prime_list == NULL) {
         prime_cap   = 128;
-        prime_list  = (seq_t *)malloc(prime_cap * sizeof(seq_t));
+        prime_list  = mem_new(seq_t, prime_cap);
         if (!prime_list)
             abort();
     }
@@ -48,7 +50,7 @@ static void ensure_n_primes(idx_t n)
         if (candidate >= 14 && is_prime(candidate)) {
             if (prime_count >= prime_cap) {
                 prime_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(prime_list, prime_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime_list, prime_cap);
                 if (!tmp)
                     abort();
                 prime_list = tmp;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int64_t isqrt64(int64_t n)
 {
@@ -55,7 +57,7 @@ static void compute_all(void)
     if (solutions != NULL) return;           /* already computed */
     const int MAX_X = 1000000;               /* safety bound */
     sol_cap     = 16;
-    solutions   = (seq_t *)malloc(sol_cap * sizeof(seq_t));
+    solutions   = mem_new(seq_t, sol_cap);
     if (!solutions) return;                  /* allocation failed */
 
     for (int x = -MAX_X; x <= MAX_X; ++x) {
@@ -66,7 +68,7 @@ static void compute_all(void)
         if (y * y == val) {                 /* perfect square found */
             if (sol_count == sol_cap) {
                 sol_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(solutions, sol_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, solutions, sol_cap);
                 if (!tmp) break;            /* allocation failed */
                 solutions = tmp;
             }
@@ -74,7 +76,7 @@ static void compute_all(void)
         }
     }
     if (sol_count > 1)
-        qsort(solutions, sol_count, sizeof(seq_t), seqcmp);
+        mem_qsort(solutions, sol_count, sizeof(seq_t), seqcmp);
 }
 
 /* Return a(n) for n >= 1. 0 is returned if n exceeds the number of known terms. */

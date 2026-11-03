@@ -8,7 +8,8 @@
  *            cubes
  * Range:     u8 n <= 49, u16 n <= 163, u32 n <= 681, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 824 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,12 +18,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate DP array of size n+1 */
     size_t N = (size_t)n + 1;
-    seq_t *dp = (seq_t*)malloc(N * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, N);
     if (!dp) return 0;                     /* allocation failure guard */
     dp[0] = (seq_t)1;
     for (size_t i = 1; i < N; ++i) dp[i] = (seq_t)0;
@@ -30,12 +32,12 @@ seq_t a(idx_t n)
     /* build list of distinct parts (squares and cubes up to n) */
     size_t max_parts = (size_t)(sqrt((double)n)) + (size_t)(cbrt((double)n)) + 5;
     uint32_t *parts = (uint32_t*)malloc(max_parts * sizeof(uint32_t));
-    if (!parts) { free(dp); return 0; }
+    if (!parts) { mem_free(dp); return 0; }
     size_t parts_len = 0;
 
     /* use a temporary boolean array to avoid duplicates (1 space for each value <= n) */
     bool *used = (bool*)calloc((size_t)n + 1, sizeof(bool));
-    if (!used) { free(dp); free(parts); return 0; }
+    if (!used) { mem_free(dp); free(parts); return 0; }
 
     /* squares */
     for (idx_t k = 1; (idx_t)(k * k) <= n; ++k) {
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp[(size_t)n];
 
-    free(dp);
+    mem_free(dp);
     free(parts);
     free(used);
     return result;

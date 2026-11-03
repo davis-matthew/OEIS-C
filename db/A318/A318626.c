@@ -9,6 +9,7 @@
  *            / 120 where b(n) = 4 if n % 5 == 0 else -1, for n ≥ 1; a(0) = 0
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 113, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 48 terms through n = 8605 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

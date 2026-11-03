@@ -7,19 +7,22 @@
  * Formula:   a(n) = 1 + (3*n-1)*2^(n-1)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 26, u64 n <= 57, u128 n <= 120,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 46 terms through n = 199 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0)
         return (seq_t)0;           /* undefined for offset < 1, return 0 safely */
 
-    seq_t pow2  = seq_pow((seq_t)2, n - 1);   /* 2^(n-1) */
+    seq_t pow2  = ipow_idx((seq_t)2, n - 1);   /* 2^(n-1) */
     seq_t coeff = (seq_t)(3 * n - 1);        /* (3*n - 1) */
     return (seq_t)1 + coeff * pow2;         /* 1 + coeff * 2^(n-1) */
 }

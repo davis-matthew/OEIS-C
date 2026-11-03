@@ -12,14 +12,33 @@
  *            intermediate v...
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 63, u64 n <= 127,
  *            u128 n <= 255, big any n
- * Helpers:   a001521_fsqrt, a001521_pow2, a001521_sqrt2_scaled
+ * Validated: standard, pass, 60 terms through n = 4731 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a001521_fsqrt.h"
-#include "../utils/a001521_pow2.h"
-#include "../utils/a001521_sqrt2_scaled.h"
+#include "../utils/pow2.h"
+
+/* floor(sqrt(2 * 4^m)) */
+static seq_t a001521_sqrt2_scaled(idx_t m) {
+    seq_t r = 1;   /* floor(sqrt(2)) */
+    seq_t rem = 1; /* 2 - 1^2 */
+    for (idx_t j = 1; j <= m; j++) {
+        int bit = rem > r;
+        if (j < m) {
+            if (bit) rem = (rem - r) * 4 - 1;
+            else rem = rem * 4;
+        }
+        r = r * 2 + (bit ? 1 : 0);
+    }
+    return r;
+}
+
+static seq_t a001521_fsqrt(idx_t k) {
+    if (k % 2 == 0) return pow2(k / 2);
+    return a001521_sqrt2_scaled((k - 1) / 2);
+}
 
 seq_t a(idx_t n) {
     if (n <= 1) return 1;

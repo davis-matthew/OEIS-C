@@ -11,17 +11,35 @@
  *            lambda(h+1)*M(k,h+1); a(n) = M(n-1,0)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 19,
  *            big any n
- * Helpers:   a2832_b, a2832_c, a2832_l, alloc_zero
+ * Validated: standard, pass, 31 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/a2832_b.h"
-#include "../utils/a2832_c.h"
-#include "../utils/a2832_l.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t a2832_c(idx_t k) {
+    return (seq_t)((k + 1) / 2) * (seq_t)(2 * k + 1);
+}
+
+static seq_t a2832_b(idx_t h) {
+    if (h == 0) return a2832_c(1);
+    return a2832_c(2 * h) + a2832_c(2 * h + 1);
+}
+
+static seq_t a2832_l(idx_t j) {
+    return a2832_c(2 * j - 1) * a2832_c(2 * j);
+}
 
 static seq_t *a2832_row = 0, *a2832_nxt = 0, *a2832_res = 0;
 static idx_t a2832_cap = 0, a2832_rcap = 0, a2832_k = 0;

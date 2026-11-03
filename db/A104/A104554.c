@@ -8,12 +8,14 @@
  *            a(3)=0
  * Range:     i8 n <= 24, i16 n <= 46, i32 n <= 92, i64 n <= 185,
  *            i128 n <= 370, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 906 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;          /* array of computed terms          */
 static size_t memo_size = 0;        /* allocated size of memo           */
@@ -25,7 +27,7 @@ static void ensure_size(size_t n)
     if (n < memo_size) return;
     size_t new_size = memo_size ? memo_size : 4;
     while (new_size <= n) new_size <<= 1;
-    seq_t *tmp = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, memo, new_size);
     if (!tmp) abort();          /* allocation failure – terminate */
     memo = tmp;
     memo_size = new_size;

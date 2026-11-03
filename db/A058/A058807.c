@@ -10,12 +10,14 @@
  *            Stirling number of the first kind
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +25,8 @@ seq_t a(idx_t n)
 
     /* Dynamic arrays to hold one row of Stirling numbers */
     size_t size = (size_t)n + 1;
-    seq_t *prev = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, size);
+    seq_t *curr = mem_new(seq_t, size);
     if (!prev || !curr) return 0; /* Allocation failure */
 
     prev[0] = 1; /* s(0,0) = 1, other entries are 0 by calloc */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         curr = tmp;
     }
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

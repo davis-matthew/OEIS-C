@@ -8,12 +8,14 @@
  *            numbers)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n‑th term of OEIS A217473.
    Uses memoisation; works with any seq_t and idx_t supplied by the build. */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     size_t lucas_needed = (size_t)(2 * n + 1);   /* maximum k needed */
 
     if (lucas_sz == 0) {                 /* first call: initialise */
-        lucas = (seq_t*)malloc(2 * sizeof(seq_t));
+        lucas = mem_new(seq_t, 2);
         if (!lucas) return (seq_t)0;
         lucas[0] = (seq_t)2;              /* L(0) */
         lucas[1] = (seq_t)1;              /* L(1) */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     if (lucas_sz <= lucas_needed) {
         size_t new_sz = lucas_needed + 1;
-        seq_t *tmp = (seq_t*)realloc(lucas, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, lucas, new_sz);
         if (!tmp) return (seq_t)0;
         lucas = tmp;
         for (size_t i = lucas_sz; i < new_sz; ++i)
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* 2. Ensure we have product values up to a(n)                   */
     /* ------------------------------------------------------------- */
     if (prod_len == 0) {                 /* first call: initialise */
-        prod = (seq_t*)malloc(sizeof(seq_t));
+        prod = mem_new(seq_t, 1);
         if (!prod) return (seq_t)0;
         prod[0] = (seq_t)1;              /* a(0) = 1 */
         prod_len = 1;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
 
     if (prod_len <= (size_t)n) {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(prod, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prod, new_len);
         if (!tmp) return (seq_t)0;
         prod = tmp;
         for (size_t i = prod_len; i <= (size_t)n; ++i) {

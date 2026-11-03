@@ -12,12 +12,14 @@
  *            a(n) = q(n) + 8 * Σ_{k=1}^{n} a(n-k) where q(0)=1, q(...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Allocate array for terms up to n.  n is expected to be small enough
        that a linear allocation of size n+1 is feasible. */
     size_t N = (size_t)n;
-    seq_t *buf = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, (N + 1));
     if (!buf)
         return (seq_t)0;  /* allocation failure */
 
@@ -59,6 +61,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = buf[N];
-    free(buf);
+    mem_free(buf);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 24, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_digits128
+ * Validated: standard, pass, 50 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_digits128.h"
+#include "../utils/mem.h"
+
+/* count base‑8 digits of a 128‑bit number */
+static void count_digits128(unsigned __int128 x, unsigned char cnt[8])
+{
+    for (int i = 0; i < 8; ++i) cnt[i] = 0;
+    if (x == 0) { cnt[0] = 1; return; }
+    while (x > 0) {
+        unsigned d = (unsigned)(x & 7);   /* x % 8 */
+        ++cnt[d];
+        x >>= 3;                          /* x /= 8 */
+    }
+}
 
 static seq_t *term_cache = NULL;          /* cached terms */
 static size_t term_count  = 0;            /* number of cached terms */
@@ -36,7 +49,7 @@ static void ensure_cache(size_t needed)
     if (needed <= term_cap) return;
     size_t new_cap = term_cap ? term_cap * 2 : 64;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
     term_cache = tmp;
     term_cap = new_cap;
 }

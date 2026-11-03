@@ -11,12 +11,14 @@
  *            a(3)=193, a(4)=1407, a(5)=10211, a(6)=73417, a(7)=530771
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* ensure we have initial 7 values in the cache */
     if (cache_size == 0) {
         /* allocate space for 7 terms (indices 0..6) */
-        cache = (seq_t *)malloc(7 * sizeof(seq_t));
+        cache = mem_new(seq_t, 7);
         if (!cache) return 0; /* allocation failure fallback */
         cache[0] = (seq_t)3;
         cache[1] = (seq_t)27;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         return cache[n - 1];
 
     /* otherwise grow the cache up to n and compute missing terms */
-    seq_t *new_cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)n);
     if (!new_cache)
         return 0; /* allocation failure fallback */
     cache = new_cache;

@@ -7,13 +7,16 @@
  * Formula:   a(n) = LCM{ Catalan(0), Catalan(1), …, Catalan(n) }
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 23, u128 n <= 48,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 38 terms through n = 386 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* compute lcm of two seq_t values */
 static seq_t lcm_seq(seq_t a, seq_t b)
@@ -37,7 +40,7 @@ static void ensure_cache(idx_t n)
     if (need <= lcm_cap) return;
     size_t newcap = lcm_cap ? lcm_cap * 2 : 1;
     while (newcap < need) newcap *= 2;
-    seq_t *p = (seq_t *)realloc(lcm_cache, newcap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, lcm_cache, newcap);
     if (!p) abort();                  /* allocation failed */
     lcm_cache = p;
     lcm_cap   = newcap;

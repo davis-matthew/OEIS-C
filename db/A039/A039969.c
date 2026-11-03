@@ -7,12 +7,14 @@
  * Formula:   a(n) = Catalan(n) mod 3
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9654 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of Catalan numbers modulo 3 */
 static seq_t *cache = (seq_t *)0;
@@ -30,7 +32,7 @@ ensure_cache(idx_t n)
 
     /* Allocate or grow the cache. */
     if (cache_len == 0) {
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         if (cache == (seq_t *)0) {
             /* Allocation failure: abort. */
             abort();
@@ -38,7 +40,7 @@ ensure_cache(idx_t n)
         cache[0] = (seq_t)1;   /* Catalan(0) = 1 */
         cache_len = 1;
     } else {
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         if (cache == (seq_t *)0) {
             abort();
         }

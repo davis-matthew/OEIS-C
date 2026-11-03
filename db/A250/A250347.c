@@ -12,13 +12,15 @@
  *            value (0≤k≤4) in the current window. Transition: increment a...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 28, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* ---- includes ------------------------------------------------------- */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- static tables and cache --------------------------------------- */
 static seq_t *cache      = NULL;
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     if (n >= cache_size)
     {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         cache = tmp;
         for (idx_t i = cache_size; i < new_size; ++i)
             cache[i] = 0;

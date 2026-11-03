@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 99, i16 n <= 99, i32 n <= 99, i64 n <= 99, i128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * The sequence a(n) enumerates the triangle row‑by‑row, left to right,
  * with a(1)=T(1,1).  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **T = NULL;      /* table of rows, 1‑based index */
 static idx_t rows = 0;        /* number of rows computed so far */
@@ -36,7 +38,7 @@ static void compute_rows_up_to(idx_t r)
     /* compute new rows */
     for (idx_t rr = rows + 1; rr <= r; ++rr) {
         /* allocate row rr – we ignore index 0 for simplicity */
-        T[(size_t)rr] = (seq_t *)calloc((size_t)(rr + 1), sizeof(seq_t));
+        T[(size_t)rr] = mem_new(seq_t, (size_t)(rr + 1));
         if (!T[(size_t)rr]) abort(); /* out of memory */
 
         T[(size_t)rr][1] = 1; /* T(r,1) = 1 */

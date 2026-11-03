@@ -8,13 +8,14 @@
  *            binomial(n+4*k-1,n-k) / (n-k+1) (s = 5 for A365112)
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 13, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Computes the n-th term of OEIS sequence A365112. */
 seq_t a(idx_t n)
@@ -29,11 +30,11 @@ seq_t a(idx_t n)
         idx_t nk = n - k;                   /* n - k */
 
         /* binomial(nk+1, k) */
-        seq_t c1 = binom(nk + 1, k);
+        seq_t c1 = binomial(nk + 1, k);
         if (c1 == 0) continue;              /* term is zero */
 
         /* binomial(n+4*k-1, nk) */
-        seq_t c2 = binom(n + 4 * k - 1, nk);
+        seq_t c2 = binomial(n + 4 * k - 1, nk);
         if (c2 == 0) continue;              /* term is zero */
 
         seq_t term = c1 * c2;

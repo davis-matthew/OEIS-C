@@ -9,6 +9,7 @@
  *            in base 26 with A = 1, B = 2, …, Z = 26)
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 37, u64 n <= 2887,
  *            u128 n <= 3999, big any n
+ * Validated: full, pass, 3999 terms through n = 3999 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

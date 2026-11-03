@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 9, u64 n <= 43, u128 n <= 161,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 912 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static const seq_t init_15[15] = {
     0ULL, 0ULL, 0ULL,      /* a(1), a(2), a(3) */
@@ -61,9 +63,9 @@ seq_t a(idx_t n) {
         if (cache_cap < 15) {
             size_t new_cap = 15;
             if (!cache) {
-                cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                cache = mem_new(seq_t, new_cap);
             } else {
-                cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
             }
             for (size_t i = 0; i < 15; ++i) {
                 cache[i] = init_15[i];
@@ -74,7 +76,7 @@ seq_t a(idx_t n) {
         /* Extend cache to n and compute necessary values */
         if (n > cache_cap) {
             size_t new_cap = (size_t)n;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
 
             /* Compute values from cache_cap+1 to n */
             for (idx_t i = cache_cap + 1; i <= n; ++i) {

@@ -11,12 +11,14 @@
  *            j); otherwise it equals ±2^e with e = (k‑1)(j‑1) + d – 1 T...
  * Range:     i8 n <= 13, i16 n <= 18, i32 n <= 33, i64 n <= 52, i128 n <= 89,
  *            big any n
+ * Validated: standard, pass, 60 terms through n = 611 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static inline idx_t gcd_idx(idx_t a, idx_t b)

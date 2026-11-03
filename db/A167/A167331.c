@@ -8,16 +8,25 @@
  * Formula:   a(n) = ∏_{p^e‖n} (2*(3p-1))^e ; a(1)=1
  * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, seq_mul, seq_one
+ * Validated: standard, pass, 63 terms through n = 946 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_one.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n)
 {

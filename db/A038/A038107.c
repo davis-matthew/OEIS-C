@@ -8,7 +8,8 @@
  *            n^2 is never prime so the inequality is strict)
  * Range:     u8 n <= 40, u16 n <= 906, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _floor_isqrt_u64, is_prime
+ * Validated: standard, pass, 75 terms through n = 835 (2026-11-01)
+ * Helpers:   is_prime, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,10 @@
 #include <stdbool.h>
 
 /* Helper functions from the utilities */
-#include "../utils/is_prime.h"  /* provides isPrimeGeneric etc, not used directly */
+#include "../utils/is_prime.h"
+#include "../utils/isqrt.h"
 
 /* Use the provided floor sqrt routine */
-#include "../utils/_floor_isqrt_u64.h"
 
 static uint8_t *isPrimeMask = NULL;      /* bitset of composites (0 = prime) */
 static size_t maskSize = 0;              /* number of bytes allocated in isPrimeMask */
@@ -66,7 +67,7 @@ static void extendSieve(idx_t limit)
 
     /* Mark composites in the new range using existing primes */
     idx_t start = (currentMax > 1) ? currentMax + 1 : 2;
-    idx_t sieveLimit = _floor_isqrt_u64(limit);
+    idx_t sieveLimit = isqrt(limit);
     for (size_t i = 0; i < primeCnt; ++i) {
         idx_t p = primeList[i];
         if (p > sieveLimit) break;

@@ -8,14 +8,21 @@
  *            (OEIS A229226 – partitions of {1,…,n} into blocks of size ≤ 9)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 42,
  *            big any n
- * Helpers:   alloc_cache
+ * Validated: standard, pass, 41 terms through n = 457 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/alloc_cache.h"
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *cache = NULL;      /* array of computed values (cache[0] = 1) */
 static size_t cache_cap = 0;     /* actual allocated size of cache */

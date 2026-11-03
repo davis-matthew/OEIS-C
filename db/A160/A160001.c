@@ -12,13 +12,15 @@
  *            equals n. The value is computed by dynamic progr...
  * Range:     u8 n <= 55, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,18 +32,18 @@ seq_t a(idx_t n)
     idx_t size = n + 1;
     unsigned char *visited = (unsigned char*)malloc((size) * sizeof(unsigned char));
     int *parts = (int*)malloc((size) * sizeof(int));
-    seq_t *dp = (seq_t*)malloc((size) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size));
 
     if (!visited || !parts || !dp) {
         /* In a real implementation we would handle allocation failure,
            but here simply return 0. */
-        free(visited); free(parts); free(dp);
+        free(visited); free(parts); mem_free(dp);
         return 0;
     }
 
     /* Initialize arrays. */
     memset(visited, 0, size * sizeof(unsigned char));
-    memset(dp, 0, size * sizeof(seq_t));
+    mem_set(dp, 0, size * sizeof(seq_t));
     dp[0] = 1;  /* one way to sum to zero */
 
     /* Step 1: collect all distinct numbers ≤ n that appear in the trajectory. */
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     /* Clean up */
     free(visited);
     free(parts);
-    free(dp);
+    mem_free(dp);
 
     return result;
 }

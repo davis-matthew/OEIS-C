@@ -10,13 +10,15 @@
  *            ∏_{k∈S} (3^k-1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* e[k] holds the k‑th elementary symmetric sum after processing
        the first i elements.  Size n+1 is enough. */
-    seq_t *e = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *e = mem_new(seq_t, (n + 1));
     if (!e)          /* allocation failure – unlikely in tests */
         return 0;
 
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = e[n - 1];
-    free(e);
+    mem_free(e);
     return res;
 }

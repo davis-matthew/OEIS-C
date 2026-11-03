@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom, pow_uint
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
    Complexity: O(r^2) per call (r≈√(2n)), well below the limits for n≤10000.
 */
 
-#include "../utils/binom.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -38,13 +40,13 @@ seq_t a(idx_t n)
     /* Compute the summation part Σ C(r, r-k-i) * C(i+r-1,r-1) */
     seq_t sum = 0;
     for (idx_t i = 0; i <= rest; ++i) {
-        seq_t a1 = binom(r, rest - i);            /* C(r, r-k-i) */
-        seq_t a2 = binom(i + r - 1, r - 1);        /* C(i+r-1,r-1) */
+        seq_t a1 = binomial(r, rest - i);            /* C(r, r-k-i) */
+        seq_t a2 = binomial(i + r - 1, r - 1);        /* C(i+r-1,r-1) */
         sum += a1 * a2;
     }
 
     /* Multiply by 2^(rest) and by k, then divide by n. */
-    seq_t pow2 = pow_uint(2, rest);
+    seq_t pow2 = ipow_u64_idx(2, rest);
     seq_t result = sum * pow2;                     /* Σ * 2^(n-k) */
     result *= (seq_t)c;                             /* * k */
     result /= (seq_t)r;                             /* / n */

@@ -9,7 +9,8 @@
  *            A014486(n)
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   peak_sum
+ * Validated: partial, pass, 102 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,30 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/peak_sum.h"
+#include "../utils/mem.h"
+
+/* ---------- Helper: compute sum of peak heights for a Dyck binary code ---------- */
+static seq_t peak_sum(uint64_t code, int len)
+{
+    int height = 0;
+    int prev   = 0;
+    seq_t sum   = 0;
+
+    for (int i = 0; i < len; ++i) {
+        int bit = (int)((code >> (len - 1 - i)) & 1ULL);
+        if (bit == 1) {
+            height++;
+            prev = 1;
+        } else {
+            if (prev == 1) {
+                sum += (seq_t)height;  /* height after the up step */
+            }
+            height--;
+            prev = 0;
+        }
+    }
+    return sum;
+}
 
 /* ---------- Global static state ---------- */
 static seq_t *cache = NULL;        /* cache of computed a(n), index 0 holds a(1)          */
@@ -41,10 +65,10 @@ static void push_cache(seq_t val)
 {
     if (cache_cap == 0) {
         cache_cap = 256;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (cache_size >= cache_cap) {
         cache_cap <<= 1;
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_size++] = val;
 }

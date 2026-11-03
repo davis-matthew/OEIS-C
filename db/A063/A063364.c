@@ -11,13 +11,15 @@
  *            a(13)=3448. The sequence is indexed as a(2) being the first term
  * Range:     i8 n <= 2, i16 n <= 40, i32 n <= 40, i64 n <= 40, i128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialisation with known terms */
     if (seq == NULL) {
         capacity = 32;                 /* start with room for indices 0..31 */
-        seq = (seq_t *)malloc(capacity * sizeof(seq_t));
+        seq = mem_new(seq_t, capacity);
         if (!seq)
             return 0; /* allocation failure, unlikely */
         /* Zero initial values */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         size_t new_cap = capacity;
         while ((size_t)n >= new_cap)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp)
             return 0; /* allocation failure */
         /* initialise new slots to 0 */

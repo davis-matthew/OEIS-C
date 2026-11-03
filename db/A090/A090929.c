@@ -9,13 +9,14 @@
  *            (x',y'), then the number at (x',y') is a(n)
  * Range:     u8 n <= 225, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 88 terms through n = 893 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"  /* provides _floor_isqrt_u64 */
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
      * with s² ≥ n.  s is obtained by taking the floor square root of n
      * and adjusting. */
     uint64_t n_val = n;
-    uint64_t s = _floor_isqrt_u64(n_val);      /* floor √n   */
+    uint64_t s = isqrt(n_val);      /* floor √n   */
     if (s * s < n_val)                         /* make it ceil √n */
         ++s;
     if ((s & 1ULL) == 0)                       /* ensure s is odd */

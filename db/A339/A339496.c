@@ -12,7 +12,8 @@
  *            for both triangle entries and divisor sums, f...
  * Range:     u8 n <= 44, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache for a(n)  (1‑based) */
 static size_t cache_cap = 0;         /* current capacity of cache */
@@ -32,13 +34,13 @@ static seq_t sigma_of(idx_t k) {
     if (k == 0) return 0;
     if (k >= sigma_cap) {
         size_t new_cap = k + 1;
-        seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) return 0; /* allocation failure → return 0 */
         if (sigma_cache) {
-            memcpy(new_cache + 1, sigma_cache + 1, (sigma_cap - 1) * sizeof(seq_t));
-            free(sigma_cache);
+            mem_copy(new_cache + 1, sigma_cache + 1, (sigma_cap - 1) * sizeof(seq_t));
+            mem_free(sigma_cache);
         }
-        memset(new_cache + 1, 0, (new_cap - 1) * sizeof(seq_t));
+        mem_set(new_cache + 1, 0, (new_cap - 1) * sizeof(seq_t));
         sigma_cache = new_cache;
         sigma_cap = new_cap;
     }
@@ -79,13 +81,13 @@ seq_t a(idx_t n) {
 
     if (n >= cache_cap) {
         size_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) return 0; /* allocation failure */
         if (cache) {
-            memcpy(new_cache + 1, cache + 1, (cache_cap - 1) * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache + 1, cache + 1, (cache_cap - 1) * sizeof(seq_t));
+            mem_free(cache);
         }
-        memset(new_cache + 1, 0, (new_cap - 1) * sizeof(seq_t));
+        mem_set(new_cache + 1, 0, (new_cap - 1) * sizeof(seq_t));
         cache = new_cache;
         cache_cap = new_cap;
     }

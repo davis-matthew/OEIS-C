@@ -8,7 +8,8 @@
  *            19]
  * Range:     u8 n <= 30, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Allocate or grow the DP array if necessary */
     if (n + 1 > dp_size) {
-        seq_t *new_dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (n + 1));
         if (!new_dp)
             return 0; /* allocation failed */
         dp = new_dp;

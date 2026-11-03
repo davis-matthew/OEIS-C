@@ -7,7 +7,8 @@
  * Formula:   a(n) = 1 + Prod_{d|n, d<n} a(d) (OEIS A343390)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 35, u64 n <= 47, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache to store values up to the largest n requested so far.
    cache[i] holds a(i+1).  max_cached records the number of cached values. */
@@ -32,13 +34,13 @@ static void ensure_capacity(size_t needed)
     if (needed <= cache_cap)
         return;
     size_t new_cap = needed * 2;
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         exit(1);                          /* out of memory – abort */
     if (cache)
     {
-        memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+        mem_free(cache);
     }
     cache      = new_cache;
     cache_cap  = new_cap;

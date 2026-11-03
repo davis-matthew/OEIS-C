@@ -10,13 +10,15 @@
  *            a(4)=636608, a(5)=17824618
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 633 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamic cache for computed values */
 static size_t cache_size = 0;        /* number of values currently stored */
@@ -29,7 +31,7 @@ static void init_cache(void)
 
     /* Allocate initial capacity for the first six terms.  */
     cache_cap = 8;                       /* a bit more than needed */
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (cache == NULL) exit(EXIT_FAILURE); /* abort on allocation failure */
 
     /* The first six terms of the sequence. All constants fit in seq_t. */
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
         while (new_cap < needed)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) exit(EXIT_FAILURE);   /* abort on allocation failure */
         cache = tmp;
         cache_cap = new_cap;

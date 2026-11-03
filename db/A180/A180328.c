@@ -12,7 +12,8 @@
  *            keeping only those sigma values that occur at le...
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   seq_alloc_array, seq_realloc
+ * Validated: standard, pass, 71 terms through n = 861 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,25 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_alloc_array.h"   /* seq_alloc_array()  */
-#include "../utils/seq_realloc.h"      /* seq_realloc()      */
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 typedef struct {
     seq_t    pq;       /* product p*q   */
@@ -121,7 +139,7 @@ static void generate_sequence(void)
             if (prod > LIMIT) break;
             if (pairs_len == pairs_cap) {
                 pairs_cap = pairs_cap ? pairs_cap << 1 : 64;
-                pairs = (spair_t *)realloc(pairs, pairs_cap * sizeof(spair_t));
+                pairs = mem_resize(spair_t, pairs, pairs_cap);
             }
             pairs[pairs_len].pq = (seq_t)prod;
             pairs[pairs_len].sigma = (p + 1) * (q + 1);
@@ -130,7 +148,7 @@ static void generate_sequence(void)
     }
 
     /* 2. Sort pairs by sigma */
-    qsort(pairs, pairs_len, sizeof(spair_t), cmp_spair);
+    mem_qsort(pairs, pairs_len, sizeof(spair_t), cmp_spair);
 
     /* 3. Keep groups with at least two equal sigma values */
     size_t idx = 0;
@@ -146,7 +164,7 @@ static void generate_sequence(void)
         }
     }
 
-    free(pairs);
+    mem_free(pairs);
     free(prime_flags);
     free(prime_list);
     prime_flags = NULL;
@@ -154,7 +172,7 @@ static void generate_sequence(void)
     prime_cnt = 0;
 
     /* 4. Sort final sequence ascending */
-    qsort(seq, seq_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(seq, seq_len, sizeof(seq_t), cmp_seq);
 }
 
 /* ------------------------------------------------------------------ */

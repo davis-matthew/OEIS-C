@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/2⌋} factorial(k) * factorial(n-k)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 421 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes a(n) for any non‑negative n using O(n) time and
    memoized factorials. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* First call: allocate space for factorial(0) */
     if (fac == NULL) {
         fac_cap = 1;
-        fac = (seq_t *)malloc(fac_cap * sizeof(seq_t));
+        fac = mem_new(seq_t, fac_cap);
         if (!fac) return (seq_t)0;          /* allocation failed */
         fac[0] = (seq_t)1;                  /* 0! = 1 */
     }
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Grow factorial array if necessary */
     if ((idx_t)n >= fac_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(fac, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fac, new_cap);
         if (!tmp) return (seq_t)0;          /* allocation failed */
 
         /* Compute missing factorials */

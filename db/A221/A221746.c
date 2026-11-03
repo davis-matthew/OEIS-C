@@ -14,12 +14,14 @@
  *            a(1)=1 a(2)=19 a(3)=98 a(4)=817 a(5)=5567 a(6)=41067 a(...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 23, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* initial terms needed for the recurrence; these are 18 values */
 static const seq_t init_vals[18] = {
@@ -54,7 +56,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* initial allocation: indices 0..18 (19 slots) */
         cache_cap = 19;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort();
         /* fill in the 18 initial values */
         for (size_t i = 1; i <= 18; ++i)
@@ -63,7 +65,7 @@ static void ensure_cache(idx_t n)
     }
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();
         cache = tmp;
         cache_cap = new_cap;

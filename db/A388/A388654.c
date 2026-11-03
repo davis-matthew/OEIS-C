@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 1562, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9002 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
 
         /* --------------------- collect bad numbers into array --------------------- */
         size_t est = (bound / 5) + 10;          /* rough estimate of count */
-        seq_t *tmp = (seq_t *)malloc(est * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, est);
         if (!tmp)
         {
             free(lpf); free(primes); free(bad);
@@ -126,7 +128,7 @@ seq_t a(idx_t n)
                 if (m == est)
                 {
                     est *= 2;
-                    tmp = (seq_t *)realloc(tmp, est * sizeof(seq_t));
+                    tmp = mem_resize(seq_t, tmp, est);
                     if (!tmp)
                     {
                         free(lpf); free(primes); free(bad);
@@ -143,16 +145,16 @@ seq_t a(idx_t n)
         /* If we have enough terms, store them and return the answer */
         if (m >= (size_t)n)
         {
-            seq_vals = (seq_t *)realloc(seq_vals, m * sizeof(seq_t));
-            memcpy(seq_vals, tmp, m * sizeof(seq_t));
-            free(tmp);
+            seq_vals = mem_resize(seq_t, seq_vals, m);
+            mem_copy(seq_vals, tmp, m * sizeof(seq_t));
+            mem_free(tmp);
             seq_len   = m;
             seq_bound = bound;
             return seq_vals[n - 1];
         }
 
         /* Not enough terms yet – enlarge bound and repeat */
-        free(tmp);
+        mem_free(tmp);
         bound *= 2;
     }
 }

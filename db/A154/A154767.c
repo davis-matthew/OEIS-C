@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 1732, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 2453 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration from the build configuration. */
 seq_t a(idx_t n);
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     /* Allocate minimal initial capacity. */
     if (cache_cap == 0) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;  /* should not happen */
     }
 
@@ -87,10 +89,9 @@ seq_t a(idx_t n)
                 /* Grow the cache if necessary. */
                 if (cache_len >= cache_cap) {
                     cache_cap <<= 1;               /* double capacity */
-                    seq_t *new_ptr = (seq_t *)
-                        realloc(cache, sizeof(seq_t) * cache_cap);
+                    seq_t *new_ptr = mem_resize(seq_t, cache, cache_cap);
                     if (!new_ptr) {                 /* allocation failure */
-                        free(cache);
+                        mem_free(cache);
                         cache = NULL; cache_cap = 0;
                         return (seq_t)0;
                     }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = ⌊∏_{i=1}^{n} n^((1+log(i))/(1+i²))⌋
  * Range:     u8 n <= 24, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

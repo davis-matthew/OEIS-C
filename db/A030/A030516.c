@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000040(n)^6 (prime(n) raised to the 6th power)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 12, u64 n <= 257, u128 n <= 1000,
  *            big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: standard, pass, 40 terms through n = 915 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
 
 /* Return the n‑th term of sequence A030516.
    a(1) = 64, a(2) = 729, a(3) = 15625, ...            */
@@ -61,7 +62,7 @@ seq_t a(idx_t n)
 
     /* Compute p^6.  For arbitrary‑precision seq_t, use big_pow. */
     seq_t base   = (seq_t)p;
-    seq_t result = big_pow(base, (seq_t)6);
+    seq_t result = ipow(base, (seq_t)6);
 
     return result;
 }

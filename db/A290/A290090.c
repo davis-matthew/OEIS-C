@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = number of proper divisors of n that are odious * (odious
  *            = binary representation has an odd number of 1's)
- * Range:     u8 n <= 9798, u16 n <= 9798, u32 n <= 9798, u64 n <= 9798,
- *            u128 n <= 9798, big any n
+ * Range:     u8 n <= 16385, u16 n <= 16385, u32 n <= 16385, u64 n <= 16385,
+ *            u128 n <= 16385, big any n
+ * Validated: standard, pass, 136 terms through n = 9798 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

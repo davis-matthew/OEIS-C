@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of the first n 4‑almost primes
  * Range:     u8 n <= 6, u16 n <= 136, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system. */
 seq_t a(idx_t n)
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
         omega[i] = omega[i / (idx_t)spf[i]] + 1;
     }
 
-    seq_t *new_cum = (seq_t *)calloc((size_t)n, sizeof(seq_t));
+    seq_t *new_cum = mem_new(seq_t, (size_t)n);
     if (!new_cum) {
         free(spf); free(omega);
         return (seq_t)0;
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
     free(omega);
 
     /* Replace old cache. */
-    free(cum);
+    mem_free(cum);
     cum = new_cum;
     cum_cap = (size_t)n;
     cum_len = n;

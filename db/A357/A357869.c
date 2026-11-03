@@ -13,7 +13,8 @@
  *            mapping from the linear index n to the coordinates...
  * Range:     u8 n <= 41, u16 n <= 73, u32 n <= 132, u64 n <= 319,
  *            u128 n <= 735, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 1311 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Memoised factorials ---------- */
 static seq_t *factorial_arr = NULL;
@@ -31,7 +33,7 @@ static void ensure_factorial(size_t n)
 {
     if (n < factorial_cap) return;
 
-    factorial_arr = (seq_t*)realloc(factorial_arr, (n + 1) * sizeof(seq_t));
+    factorial_arr = mem_resize(seq_t, factorial_arr, (n + 1));
     if (!factorial_arr) exit(EXIT_FAILURE);
 
     if (factorial_cap == 0) {
@@ -58,7 +60,7 @@ static void ensure_stirling(size_t n)
     if (!stirling) exit(EXIT_FAILURE);
 
     for (size_t i = old_rows; i <= n; ++i) {
-        stirling[i] = (seq_t*)calloc(i + 1, sizeof(seq_t));
+        stirling[i] = mem_new(seq_t, i + 1);
         if (!stirling[i]) exit(EXIT_FAILURE);
     }
 

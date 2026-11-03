@@ -7,7 +7,8 @@
  * Formula:   a(n) = (4*n)!/(3*n)! * Sum_{k=1..n} 1/(3*n+k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Implementation: compute each term of the sum as the product of all numbers
    in the range [3*n+1, 4*n] except one, using prefix and suffix products. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,8 +27,8 @@ seq_t a(idx_t n)
     const seq_t start = (seq_t)3 * n + 1U;  /* first integer in the product range */
 
     /* Allocate prefix and suffix product arrays */
-    seq_t *pref = (seq_t *)malloc((m + 1) * sizeof(seq_t));
-    seq_t *suf  = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+    seq_t *pref = mem_new(seq_t, (m + 1));
+    seq_t *suf  = mem_new(seq_t, (m + 1));
     if (!pref || !suf) return 0; /* memory failure fallback */
 
     /* Prefix product: pref[i] = product of the first i numbers in the range */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         result += pref[k - 1] * suf[k];
     }
 
-    free(pref);
-    free(suf);
+    mem_free(pref);
+    mem_free(suf);
     return result;
 }

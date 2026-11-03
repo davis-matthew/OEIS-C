@@ -9,14 +9,24 @@
  *            for n > 1, a(0) = 0, a(1) = 1
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   zalloc_s
+ * Validated: standard, pass, 36 terms through n = 370 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/zalloc_s.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *zalloc_s(idx_t n)
+{
+    seq_t *p = mem_new(seq_t, (size_t)n);
+    idx_t i;
+    for (i = 0; i < n; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *A_memo = NULL;   /* A_memo[0..cnt-1] computed terms */
 static seq_t *row = NULL;      /* row[k] = binomial(rown, k), k = 0..rown */

@@ -8,12 +8,14 @@
  *            morphism 0 → 11, 1 → 1010, starting from the seed word "1"
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 8949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* initialise with the seed word "1" */
     if (!word) {
-        word = (seq_t*)malloc(sizeof(seq_t));
+        word = mem_new(seq_t, 1);
         if (!word) abort();          /* insufficient memory */
         word[0] = (seq_t)1;
         len    = 1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
             new_len += (word[i] == (seq_t)0) ? 2 : 4;   /* 0 → 11; 1 → 1010 */
 
         /* allocate array for the expanded word */
-        seq_t *new_word = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *new_word = mem_new(seq_t, new_len);
         if (!new_word) abort();      /* insufficient memory */
 
         /* fill the expanded word according to the morphism rules */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         }
 
         /* replace old word with the new expansion */
-        free(word);
+        mem_free(word);
         word = new_word;
         len  = new_len;
     }

@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∏_{p^e‖n, p∈{2,3,5,17,257,65537}} (e+1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_fermat_prime
+ * Validated: standard, pass, 116 terms through n = 9769 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,10 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_fermat_prime.h"
+
+static inline bool is_fermat_prime(uint64_t p) {
+    return (p == 3) || (p == 5) || (p == 17) || (p == 257) || (p == 65537);
+}
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;          /* offset starts at 1, behaviour below is irrelevant */

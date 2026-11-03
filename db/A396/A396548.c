@@ -10,13 +10,17 @@
  *            n = ∏ p^e and ω(e) is the number of distinct prime factors of e
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes, factor_u64
+ * Validated: standard, pass, 116 terms through n = 7176 (2026-11-01)
+ * Helpers:   factor_u64, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +39,7 @@ seq_t a(idx_t n)
         uint64_t e = exps[i];
         core_cnt *= (seq_t)e;
 
-        size_t omega_e = (size_t)count_distinct_primes(e);
+        size_t omega_e = (size_t)omega(e);
         unit_cnt *= ((seq_t)1 << omega_e);
     }
 

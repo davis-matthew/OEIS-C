@@ -11,12 +11,14 @@
  *            a(n-3) XOR a(n-4) XOR a(n-8) * * The sequence is 51...
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc, exit */
+#include "../utils/mem.h"
 
 /* External types are supplied by the build system */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* --- initialize cache if this is the first call --- */
     if (cache == NULL)
     {
-        cache = (seq_t *)malloc(INIT_CAP * sizeof(seq_t));
+        cache = mem_new(seq_t, INIT_CAP);
         if (cache == NULL)   /* fatal error */
             exit(1);
 
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
             cap <<= 1;                  /* double until big enough */
 
         /* reallocate */
-        seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cap);
         if (tmp == NULL)
             exit(1);
         cache = tmp;

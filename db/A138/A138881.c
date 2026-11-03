@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 154, u16 n <= 6938, u32 n <= 9452, u64 n <= 9452,
- *            u128 n <= 9452, big any n
- * Helpers:   none
+ * Range:     u8 n <= 154, u16 n <= 6938, u32 n <= 10550, u64 n <= 10550,
+ *            u128 n <= 10550, big any n
+ * Validated: standard, pass, 88 terms through n = 9452 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static void _init_primes(void);
 static void _generate_divisors(size_t idx, seq_t cur, const seq_t *primes,
@@ -148,7 +150,7 @@ seq_t a(idx_t n)
             _generate_divisors(0, 1, fac_pr, fac_exp, fac_cnt,
                                divs, &len);
 
-            qsort(divs, len, sizeof(seq_t), _cmp_seq);
+            mem_qsort(divs, len, sizeof(seq_t), _cmp_seq);
 
             return divs[(size_t)idx_in_row];
         }

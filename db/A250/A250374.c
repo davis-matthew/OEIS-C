@@ -12,12 +12,14 @@
  *            a(6)=312578, a(7)=720112
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 32, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Small table for the first 7 terms */
 static const seq_t _a_init[8] = {
@@ -43,7 +45,7 @@ static void _ensure_a_cache(idx_t n)
 
     /* Allocate space for indices 0 .. n   (index 0 unused) */
     size_t new_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(_a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _a_cache, new_cap);
     if (!tmp) {
         abort();                           /* out of memory */
     }

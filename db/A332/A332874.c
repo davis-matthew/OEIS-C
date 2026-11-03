@@ -9,7 +9,8 @@
  *            subsets of k distinct positive integers summing to n
  * Range:     u8 n <= 16, u16 n <= 31, u32 n <= 74, u64 n <= 189,
  *            u128 n <= 513, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *dp      = NULL;   /* 1‑D array of size (kmax+1)*(nmax+1) */
 static seq_t *fact    = NULL;
@@ -44,17 +46,17 @@ static void ensure_tables(idx_t n)
         return;   /* already up to date */
 
     /* Deallocate old tables if present */
-    if (dp)      free(dp);
-    if (fact)    free(fact);
-    if (pow2)    free(pow2);
+    if (dp)      mem_free(dp);
+    if (fact)    mem_free(fact);
+    if (pow2)    mem_free(pow2);
 
     dp_nmax  = n;
     dp_kmax  = kmax_needed;
 
     /* Allocate new tables */
-    dp    = (seq_t *)calloc((dp_kmax + 1) * (dp_nmax + 1), sizeof(seq_t));
-    fact  = (seq_t *)calloc(dp_kmax + 1, sizeof(seq_t));
-    pow2  = (seq_t *)calloc(dp_kmax + 1, sizeof(seq_t));
+    dp    = mem_new(seq_t, (dp_kmax + 1) * (dp_nmax + 1));
+    fact  = mem_new(seq_t, dp_kmax + 1);
+    pow2  = mem_new(seq_t, dp_kmax + 1);
 
     if (!dp || !fact || !pow2) exit(1);   /* allocation failure */
 

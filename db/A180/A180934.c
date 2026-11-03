@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 6677, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, is_prime_small, satisfies_composite
+ * Validated: standard, pass, 77 terms through n = 9361 (2026-11-01)
+ * Helpers:   is_prime_seq, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,42 @@
 #include <stddef.h>   /* size_t */
 
 /* Project utilities for prime tests and factorisation */
-#include "../utils/is_prime_small.h"
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/satisfies_composite.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/smallest_prime_factor.h"
+
+/* Test whether a composite integer m satisfies the required property.
+   ex[] holds the exponents of the prime factorisation of m,
+   cnt is the number of such exponents.  The function returns true
+   iff there exists an integer k >= 1 such that prod_i (e_i*k + 1) == m. */
+static bool satisfies_composite(uint64_t m, const uint64_t ex[], size_t cnt)
+{
+    /* Find the smallest exponent to bound k. */
+    uint64_t e_min = ex[0];
+    for (size_t i = 1; i < cnt; ++i)
+        if (ex[i] < e_min)
+            e_min = ex[i];
+
+    /* For each possible k, compute the product of (e_i*k+1).
+       As soon as the product exceeds m, larger k cannot help. */
+    uint64_t k_max = (m - 1) / e_min;
+    for (uint64_t k = 1; k <= k_max; ++k) {
+        unsigned __int128 prod = 1;
+        bool exceeded = false;
+        for (size_t i = 0; i < cnt; ++i) {
+            unsigned long long term = (unsigned long long)ex[i] * k + 1ULL;
+            if (prod > (unsigned __int128)m / term) {
+                exceeded = true;
+                break;
+            }
+            prod *= term;
+        }
+        if (exceeded)
+            break;               /* larger k would only make prod larger */
+        if (prod == (unsigned __int128)m)
+            return true;
+    }
+    return false;
+}
 
 /* --------------------------------------------------------------------- */
 /* Static storage for the sequence up to a fixed maximum length. */
@@ -53,7 +87,7 @@ static void factor_exponents(uint64_t m, uint64_t ex[], size_t *cnt)
 {
     size_t c = 0;
     while (m > 1) {
-        uint64_t p = _smallest_prime_factor(m);
+        uint64_t p = smallest_prime_factor(m);
         uint64_t e = 0;
         while (m % p == 0) {
             m /= p;
@@ -80,7 +114,7 @@ seq_t a(idx_t n)
         }
 
         /* All primes are automatically included. */
-        if (is_prime_small((seq_t)m)) {
+        if (is_prime_seq((seq_t)m)) {
             add_term((seq_t)m);
             continue;
         }

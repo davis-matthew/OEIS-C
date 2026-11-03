@@ -12,8 +12,9 @@
  *            d*(d^-1 mod (10^m-1)/d) (CRT: x == 0 mod d, x == 1 mod
  *            (10^m-1)/d). 10^m-1 is factored incrementally: pri...
  * Range:     u8 n <= 5, u16 n <= 20, u32 n <= 110, u64 n <= 810,
- *            u128 n <= 9396, big any n
- * Helpers:   u128_to_seq
+ *            u128 n <= 18082, big any n
+ * Validated: standard, pass, 55 terms through n = 9396 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/u128_to_seq.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 typedef unsigned __int128 kap_u128;
 

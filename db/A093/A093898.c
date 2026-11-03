@@ -10,13 +10,14 @@
  *            + k^r
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   pow_big
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_big.h"
+#include "../utils/ipow_idx.h"
 
 /* find the row r such that r*(r+1)/2 ≥ n */
 static idx_t find_row(idx_t n)
@@ -48,7 +49,7 @@ seq_t a(idx_t n)
     idx_t k = n - (idx_t)prev;            /* 1 ≤ k ≤ r */
 
     /* compute the two powers and add them */
-    seq_t p1 = pow_big((seq_t)r, k);
-    seq_t p2 = pow_big((seq_t)k, r);
+    seq_t p1 = ipow_idx((seq_t)r, k);
+    seq_t p2 = ipow_idx((seq_t)k, r);
     return p1 + p2;
 }

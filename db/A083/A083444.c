@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 52, i32 n <= 52, i64 n <= 52, i128 n <= 52,
  *            big any n
- * Helpers:   is_prime, is_prime_small, seq_realloc
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   is_prime, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,21 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/is_prime_small.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/is_prime_seq.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -51,7 +64,7 @@ seq_t a(idx_t n)
         }
 
         /* Verify that the sum is prime and > 2 */
-        if (sum > (seq_t)2 && is_prime_small(sum))
+        if (sum > (seq_t)2 && is_prime_seq(sum))
         {
             /* Grow the cache array if necessary */
             if (cache_len + 1 > cache_cap) {

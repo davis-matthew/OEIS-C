@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 49, u32 n <= 140, u64 n <= 441,
  *            u128 n <= 1508, big any n
- * Helpers:   alloc_seq_array, build_primes_upto, free_seq_array
+ * Validated: standard, pass, 66 terms through n = 9908 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,20 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stddef.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* static state for memoised computation */
 static seq_t *dp = NULL;      /* partition counts for current N */
@@ -47,8 +59,8 @@ static void recompute(idx_t N)
     ans = alloc_seq_array((size_t)N + 1);
 
     /* initialise tables */
-    memset(dp,  0, sizeof(seq_t) * ((size_t)N + 1));
-    memset(ans, 0, sizeof(seq_t) * ((size_t)N + 1));
+    mem_set(dp, 0, sizeof(seq_t) * ((size_t)N + 1));
+    mem_set(ans, 0, sizeof(seq_t) * ((size_t)N + 1));
 
     /* dp[0] = 1   (empty partition) */
     dp[0] = (seq_t)1;

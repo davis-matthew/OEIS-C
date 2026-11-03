@@ -10,13 +10,15 @@
  *            derived from the identity ∑_{k=0}^{n} binom(n,k) E_k = 0
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 15, i64 n <= 23, i128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 /* static cache of Euler numbers E[0..max_n] */
 static seq_t *E_cache = NULL;       /* array of Euler numbers */
@@ -30,7 +32,7 @@ ensure_euler(idx_t max)
         return;
 
     /* grow array to hold indices 0..max */
-    seq_t *tmp = (seq_t *)realloc(E_cache, (size_t)(max + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, E_cache, (size_t)(max + 1));
     if (!tmp) {
         /* allocation failure: abort */
         abort();

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 10, i64 n <= 20, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *u = NULL;        /* coefficients of u, 1‑based */
 static seq_t *v = NULL;        /* coefficients of u^2, indices ≥2 */
@@ -39,10 +41,10 @@ static void ensure_capacity_u(idx_t needed)
 {
     if (cap_u > needed) return;
     idx_t new_cap = needed + 1;          /* need indices 0..needed */
-    seq_t *new_arr = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (u) {
-        memcpy(new_arr, u, cap_u * sizeof(seq_t));
-        free(u);
+        mem_copy(new_arr, u, cap_u * sizeof(seq_t));
+        mem_free(u);
     }
     u = new_arr;
     cap_u = new_cap;
@@ -53,10 +55,10 @@ static void ensure_capacity_v(idx_t needed)
 {
     if (cap_v > needed) return;
     idx_t new_cap = needed + 1;
-    seq_t *new_arr = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (v) {
-        memcpy(new_arr, v, cap_v * sizeof(seq_t));
-        free(v);
+        mem_copy(new_arr, v, cap_v * sizeof(seq_t));
+        mem_free(v);
     }
     v = new_arr;
     cap_v = new_cap;

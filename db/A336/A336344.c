@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   cf_len, gcd
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,24 @@
    fraction of the rational p/q. */
 
 /* Dependencies: the gcd function from utils/gcd.h must be available. */
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/cf_len.h"
+
+/* Euclidean algorithm counting the number of quotients.
+   Returns the length of the simple continued fraction of num/den
+   (both positive). */
+static seq_t cf_len(seq_t num, seq_t den)
+{
+    seq_t len = 0;
+    while (den != 0) {
+        /* quotient is not needed, we just count steps */
+        seq_t r = num % den;
+        len++;
+        num = den;
+        den = r;
+    }
+    return len;
+}
 
 seq_t a(idx_t n)
 {

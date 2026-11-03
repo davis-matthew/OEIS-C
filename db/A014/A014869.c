@@ -7,7 +7,8 @@
  * Formula:   Numbers k that divide s(k) where s(1)=1, s(j)=19*s(j-1)+j
  * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   mod_mul, seq_realloc
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,21 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mod_mul.h"        /* for mod_mul(uint64_t a,b,mod) */
-#include "../utils/seq_realloc.h"    /* for seq_realloc(seq_t*,size_t,size_t) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/mulmod.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Recursive helper that returns (p,f,g) for given n:
    p = r^n mod mod
@@ -41,18 +55,18 @@ static res_t calc_t(uint64_t n, uint64_t r, uint64_t mod)
         uint64_t m = n >> 1;
         res_t half = calc_t(m, r, mod);
 
-        uint64_t p = mod_mul(half.p, half.p, mod);
+        uint64_t p = mulmod(half.p, half.p, mod);
 
-        uint64_t f = half.f + mod_mul(half.p, half.f, mod);
+        uint64_t f = half.f + mulmod(half.p, half.f, mod);
         if (f >= mod) f -= mod;
 
         /* g = g*(1+p) + m*p*f  (all modulo mod) */
-        uint64_t g1 = half.g + mod_mul(half.p, half.g, mod);
+        uint64_t g1 = half.g + mulmod(half.p, half.g, mod);
         if (g1 >= mod) g1 -= mod;
 
         uint64_t mmod = m % mod;
-        uint64_t tmp = mod_mul(mmod, half.p, mod);
-        tmp = mod_mul(tmp, half.f, mod);
+        uint64_t tmp = mulmod(mmod, half.p, mod);
+        tmp = mulmod(tmp, half.f, mod);
 
         uint64_t g = g1 + tmp;
         if (g >= mod) g -= mod;
@@ -60,12 +74,12 @@ static res_t calc_t(uint64_t n, uint64_t r, uint64_t mod)
         return (res_t){p, f, g};
     } else {                                /* odd n = 2*m+1 */
         res_t prev = calc_t(n - 1, r, mod);
-        uint64_t p = mod_mul(prev.p, r, mod);
+        uint64_t p = mulmod(prev.p, r, mod);
         uint64_t f = prev.f + prev.p;
         if (f >= mod) f -= mod;
 
         uint64_t nm = (n - 1) % mod;
-        uint64_t g = prev.g + mod_mul(nm, prev.p, mod);
+        uint64_t g = prev.g + mulmod(nm, prev.p, mod);
         if (g >= mod) g -= mod;
 
         return (res_t){p, f, g};

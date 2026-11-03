@@ -9,14 +9,17 @@
  *            triangle are flattened in the natural order)
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 30, u64 n <= 57, u128 n <= 95,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 61 terms through n = 492 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -31,5 +34,5 @@ seq_t a(idx_t n)
 
     /* Compute binomial coefficient C(r,c) and raise it to the power r. */
     seq_t bin = binomial(r, c);
-    return big_pow(bin, (seq_t)r);
+    return ipow(bin, (seq_t)r);
 }

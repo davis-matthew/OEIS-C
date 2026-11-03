@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* a(n) is the smallest k with 0 < k < n such that gcd(k,n)=1 and k does not divide n‑1.
    If no such k exists, return 0.  For n==1 the convention from OEIS is a(1)=1. */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

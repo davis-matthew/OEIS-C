@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   index_from_coord
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>   /* for SIZE_MAX */
-#include "../utils/index_from_coord.h"
+#include "../utils/mem.h"
+
+/* ------------ spiral coordinates → 0‑based index ------------ */
+static size_t index_from_coord(int x, int y)
+{
+    if (x == 0 && y == 0) return 0;
+
+    int ax = x < 0 ? -x : x;
+    int ay = y < 0 ? -y : y;
+    int layer = ax > ay ? ax : ay;         /* ring number   */
+    int side_len = 2 * layer;              /* side length   */
+    size_t offset;
+
+    if (x == layer && y >= -layer + 1 && y <= layer) {        /* right side */
+        offset = y + layer - 1;
+    } else if (y == layer && x >= -layer && x < layer) {      /* top side  */
+        offset = side_len + (layer - 1 - x);
+    } else if (x == -layer && y > -layer && y <= layer - 1) { /* left side */
+        offset = 2 * side_len + (layer - 1 - y);
+    } else { /* bottom side (y == -layer) */                  /* bottom    */
+        offset = 3 * side_len + (x + layer - 1);
+    }
+
+    size_t start = (size_t)(2 * layer - 1);
+    start = start * start;           /* (2*layer-1)^2 */
+    return start + offset;
+}
 
 /* ------------ ordered‑divisor sequence cache ------------ */
 static seq_t *div_seq   = NULL;   /* values in spiral order   */
@@ -57,7 +84,7 @@ static void ensure_div_seq_upto(size_t idx)
             div_cap = div_cap ? div_cap * 2 : 256;
             if (div_cap < div_len + cnt_small + cnt_large)
                 div_cap = div_len + cnt_small + cnt_large;
-            div_seq = (seq_t *)realloc(div_seq, div_cap * sizeof(seq_t));
+            div_seq = mem_resize(seq_t, div_seq, div_cap);
         }
 
         for (size_t i = 0; i < cnt_small; ++i)
@@ -105,7 +132,7 @@ seq_t a(idx_t n)
         visited_len = 0;
 
         div_cap = 256;
-        div_seq = (seq_t *)malloc(div_cap * sizeof(seq_t));
+        div_seq = mem_new(seq_t, div_cap);
         div_len = 0;
         next_m = 1;
         ensure_div_seq_upto(0);     /* origin value */

@@ -9,7 +9,8 @@
  * Formula:   a(a(n)) = 2n + 2, with a minimal positive integer for each n ≥ 1
  * Range:     u8 n <= 190, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 8985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static state for the sequence.  The array index equals the sequence
    index, and the array element holds the corresponding value. */
@@ -35,7 +37,7 @@ static void ensure_cap(size_t need)
     while (new_cap <= need)
         new_cap <<= 1;   /* grow until we can store index 'need' */
 
-    seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
     if (!tmp)
         abort();          /* allocation failed */
 

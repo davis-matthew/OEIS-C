@@ -7,12 +7,14 @@
  * Formula:   a(n) = C(3n, n-12) = Product_{i=0..n-13} (3n-i)/(i+1)
  * Range:     u8 n <= 13, u16 n <= 15, u32 n <= 20, u64 n <= 30, u128 n <= 53,
  *            big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 36 terms through n = 990 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_seq.h"
+#include <stdlib.h>
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     if (n < 12) return 0;
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
         seq_t d = (seq_t)(i + 1);
         /* result * m is divisible by d; split the division so that the
            intermediate never exceeds the final product. */
-        seq_t g = gcd_seq(result, d);
+        seq_t g = gcd(result, d);
         result /= g;
         d /= g;
         /* now gcd(result, d) = 1, so d divides m */

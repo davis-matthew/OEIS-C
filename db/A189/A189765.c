@@ -9,13 +9,14 @@
  *            n‑th order Hilbert matrix, enumerated row‑by‑row
  * Range:     i8 n <= 6, i16 n <= 25, i32 n <= 103, i64 n <= 603,
  *            i128 n <= 2925, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 59 terms through n = 2899 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -50,9 +51,9 @@ seq_t a(idx_t n)
     seq_t sign = ((i + j) & 1) ? (seq_t)-1 : (seq_t)1;
     seq_t fac  = (seq_t)(i + j - 1);
 
-    seq_t bin1 = binom(m + i - 1, m - j);
-    seq_t bin2 = binom(m + j - 1, m - i);
-    seq_t bin3 = binom(i + j - 2, i - 1);
+    seq_t bin1 = binomial(m + i - 1, m - j);
+    seq_t bin2 = binomial(m + j - 1, m - i);
+    seq_t bin3 = binomial(i + j - 2, i - 1);
 
     return sign * fac * bin1 * bin2 * bin3 * bin3;
 }

@@ -11,15 +11,27 @@
  *            gives the first term of each run described in A034309
  * Range:     u8 n <= 3, u16 n <= 38, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   pow10, reverse
+ * Validated: standard, pass, 55 terms through n = 94 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/reverse.h"
-#include "../utils/pow10.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +48,7 @@ seq_t a(idx_t n)
 
     /* 10^k and reverse(m) */
     seq_t pow10k = pow10((idx_t)k);
-    seq_t rev_m  = reverse((seq_t)m);
+    seq_t rev_m  = reverse_digits((seq_t)m);
 
     /* compute left = 10^k * m + rev_m as unsigned __int128 to avoid overflow */
     unsigned __int128 left128 = (unsigned __int128)pow10k * (unsigned __int128)m

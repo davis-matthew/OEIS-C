@@ -7,13 +7,15 @@
  * Formula:   a(n) = floor(10^(n+1)/514) mod 10 (decimal digit of 1/514)
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for previously computed digits */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
 
     /* Extend the cache up to index n */
     size_t new_size = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {
         /* Allocation failure – return 0 (should not happen on typical inputs) */
         return 0;

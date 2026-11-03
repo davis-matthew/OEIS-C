@@ -12,7 +12,8 @@
  *            p^⌊log_p(n+1)⌋, and the sum * Σ_{k=1}^{n} lcm(1…n+1)/k g...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 21, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   log_p_floor
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/log_p_floor.h"
+
+/* Return the largest integer e such that p^e ≤ limit. */
+static int
+log_p_floor(uint64_t p, idx_t limit)
+{
+    int e = 0;
+    uint64_t val = 1;
+    while (val <= limit / p)
+    {
+        val *= p;
+        ++e;
+    }
+    return e;
+}
 
 /* Static storage for prime list.  It grows only when a larger limit is
    queried. */

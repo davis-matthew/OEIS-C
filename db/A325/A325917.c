@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----- DP helper macro ----------------------------------------------------- */
 #define IDX(layer, h, s, p)                                          \
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     const size_t stride = (size_t)(n + 1) * 3 * 2;
 
     /* Allocate two layers: previous and next */
-    seq_t *dp = (seq_t *)malloc(2 * stride * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, 2 * stride);
     if (!dp)
         return (seq_t)0;   /* out of memory (should not happen) */
 
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }
 

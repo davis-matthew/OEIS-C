@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 194, u32 n <= 673, u64 n <= 673, u128 n <= 673,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 658 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,13 +19,14 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Append a value to a dynamic array, growing as needed. */
 static void append_term(seq_t **arr, size_t *cap, size_t *cnt, seq_t val)
 {
     if (*cnt >= *cap) {
         size_t new_cap = (*cap == 0) ? 128 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) return;                     /* allocation failed – ignore this term */
         *arr = tmp;
         *cap = new_cap;
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         /* generate all admissible numbers */
         dfs(0, 0, 0, 0, &terms, &term_cap, &term_sz);
         /* sort ascending to match OEIS order */
-        qsort(terms, term_sz, sizeof(seq_t), cmp_seq);
+        mem_qsort(terms, term_sz, sizeof(seq_t), cmp_seq);
         initialized = true;
     }
 

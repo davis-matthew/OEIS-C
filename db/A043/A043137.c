@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   has_adj12
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,31 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adj12.h"
+#include "../utils/mem.h"
+
+/* Helper: true if seq_t value k has two adjacent digits 1 and 2
+   (in either order) in its base‑7 representation.  */
+static bool has_adj12(seq_t k)
+{
+    /* A number with fewer than two base‑7 digits cannot contain the
+       required adjacency. */
+    if (k <= (seq_t)6)
+        return false;
+
+    seq_t last = k % (seq_t)7;  /* least‑significant digit */
+    seq_t tmp = k / (seq_t)7;
+
+    while (tmp > (seq_t)0)
+    {
+        seq_t d = tmp % (seq_t)7;   /* next more‑significant digit */
+        if ((d == (seq_t)1 && last == (seq_t)2) ||
+            (d == (seq_t)2 && last == (seq_t)1))
+            return true;
+        last = d;
+        tmp /= (seq_t)7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +59,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL)
             return (seq_t)0;  /* allocation failure – unlikely in tests */
     }
@@ -51,7 +76,7 @@ seq_t a(idx_t n)
             if (len == cap)
             {
                 size_t newcap = cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (tmp == NULL)
                     return (seq_t)0;  /* realloc failure */
                 cache = tmp;

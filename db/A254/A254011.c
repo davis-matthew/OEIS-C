@@ -11,13 +11,15 @@
  *            function * (1‑x¹⁸)/((1‑x⁵)(1‑x⁶)(1‑x⁹))
  * Range:     u8 n <= 2500, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 2460 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached terms */
 static size_t cap = 0;           /* allocated cache size */
@@ -30,7 +32,7 @@ static void ensure_capacity(idx_t n)
     if ((idx_t)cap > n) return;
     size_t new_cap = cap ? cap : 64;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) return;                 /* allocation failure → no change */
     cache = new_arr;
     cap   = new_cap;

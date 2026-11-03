@@ -8,17 +8,48 @@
  * Formula:   a(n) = 4^n – n# (n# = product of primes ≤ n)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   big_pow, is_prime, seq_alloc_new_array, seq_free_array
+ * Validated: standard, pass, 43 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"     /* big_pow(seq_t base, seq_t exp) */
-#include "../utils/is_prime.h"   /* is_prime(idx_t n) */
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* Multiply-by-self exponentiation for big exponent (seq_t type) */
+static seq_t big_pow(seq_t base, seq_t exp) {
+    seq_t result = 1;
+    while (exp != 0) {
+        if ((exp % 2) != 0) {
+            result *= base;
+        }
+        base *= base;
+        exp /= 2;
+    }
+    return result;
+}
+
+/* Return true if x >= 2 is prime (deterministic trial division) */
+static inline bool is_prime(idx_t x)
+{
+    if (x < 2)                         return false;
+    if (x == 2 || x == 3)              return true;
+    if (x % 2 == 0)                    return false;
+    for (idx_t i = 3; i <= x / i; i += 2)
+        if (x % i == 0)                return false;
+    return true;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 seq_t a(idx_t n)
 {

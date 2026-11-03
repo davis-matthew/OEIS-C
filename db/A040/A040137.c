@@ -9,7 +9,8 @@
  *            2)
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root for unsigned 64‑bit integers. */
 static idx_t floor_sqrt_uint64(idx_t n) {
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
         /* Allocate temporary storage for the period. */
         size_t cap = 4;
         size_t len = 0;
-        period = (seq_t *)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
 
         while (true) {
             /* Next values of m,d,a_. */
@@ -57,15 +59,14 @@ seq_t a(idx_t n) {
             /* Store a_next. */
             if (len == cap) {
                 cap *= 2;
-                period = (seq_t *)realloc(period, cap * sizeof(seq_t));
+                period = mem_resize(seq_t, period, cap);
             }
             period[len++] = a_next;
 
             /* Period ends when a_next == 2*a0. */
             if (a_next == a0 * 2) {
                 period_len = len;
-                period = (seq_t *)realloc(period,
-                                           period_len * sizeof(seq_t));
+                period = mem_resize(seq_t, period, period_len);
                 break;
             }
             a_prev = a_next;

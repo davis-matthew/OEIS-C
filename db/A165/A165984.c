@@ -8,12 +8,14 @@
  * Formula:   a(n) = binomial(n^3 + n - 1, n)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -21,5 +23,5 @@ seq_t a(idx_t n)
         return (seq_t)1;
     }
     idx_t total = n * n * n + n - 1;
-    return binom(total, n);
+    return binomial(total, n);
 }

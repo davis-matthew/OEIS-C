@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   expand_cache
+ * Validated: standard, pass, 65 terms through n = 833 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/expand_cache.h"
+#include "../utils/mem.h"
+
+/* Expand a cached array to at least new_cap elements, reallocating if needed. */
+static inline void
+expand_cache(seq_t **arr, size_t *cap, size_t new_cap)
+{
+    if (*cap < new_cap) {
+        size_t newsize = (new_cap > 64) ? new_cap : 64;
+        seq_t *tmp = mem_resize(seq_t, *arr, newsize);
+        if (!tmp) return; /* allocation failure: abort silently; sequence generation may stop */
+        *arr = tmp;
+        *cap = newsize;
+    }
+}
 
 static seq_t *prime_cache   = NULL;   /* all primes discovered, needed for primality checks */
 static idx_t prime_len      = 0;

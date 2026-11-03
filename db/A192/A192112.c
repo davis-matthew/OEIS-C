@@ -9,12 +9,14 @@
  *            ≤ i ≤ 40 and 0 ≤ j ≤ ⌊i/2⌋, sorted in increasing order
  * Range:     u8 n <= 21, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *ap, const void *bp)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         for (idx_t i = 0; i <= max_i; ++i)
             total += (i / 2) + 1;          /* j ranges 0 .. floor(i/2) */
 
-        diffs = (seq_t *)malloc(total * sizeof(seq_t));
+        diffs = mem_new(seq_t, total);
         if (!diffs) return 0;              /* out of memory */
 
         size_t pos = 0;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
             }
         }
 
-        qsort(diffs, total, sizeof(seq_t), cmp_seq);
+        mem_qsort(diffs, total, sizeof(seq_t), cmp_seq);
 
         /* remove duplicates in-place */
         size_t uniq = 0;

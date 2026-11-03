@@ -6,9 +6,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 256, u16 n <= 9076, u32 n <= 9076, u64 n <= 9076,
- *            u128 n <= 9076, big any n
- * Helpers:   build_primes_upto, seq_alloc_new_array, seq_realloc
+ * Range:     u8 n <= 256, u16 n <= 12500, u32 n <= 12500, u64 n <= 12500,
+ *            u128 n <= 12500, big any n
+ * Validated: standard, pass, 86 terms through n = 9076 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,25 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_realloc.h"
+#include <string.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* static state shared between calls */
 static seq_t *largest_min_prime = NULL;   /* answer table (index by n)   */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 204, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 52 terms through n = 898 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* declares bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first use. */
     if (cached_len == 0) {
         cached_cap = 64;
-        cache = (seq_t *)malloc(cached_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cached_cap);
         if (!cache) return 0;   /* allocation failure – return 0 */
     }
 
@@ -76,8 +78,8 @@ seq_t a(idx_t n)
             /* Ensure capacity for the new term. */
             if (cached_len == cached_cap) {
                 cached_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(cache, cached_cap * sizeof(seq_t));
-                if (!tmp) { free(cache); return 0; }
+                seq_t *tmp = mem_resize(seq_t, cache, cached_cap);
+                if (!tmp) { mem_free(cache); return 0; }
                 cache = tmp;
             }
             cache[cached_len++] = (seq_t)next_candidate;

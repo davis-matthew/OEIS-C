@@ -8,7 +8,8 @@
  * Formula:   a(0)=1, a(1)=2; a(2^i + j) = 3*a(j) + 2*a(j+1) for 0 ≤ j < 2^i
  * Range:     u8 n <= 13, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache for computed terms */
 static idx_t cache_len = 0u;     /* number of entries in cache */
@@ -32,7 +34,7 @@ _ensure_cache(idx_t n)
     if (n + 1u <= cache_len) return;          /* already big enough */
 
     size_t new_len = (size_t)(n + 1u);
-    seq_t *new_cb = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cb = mem_resize(seq_t, cache, new_len);
     if (!new_cb) abort();                     /* allocation failure */
     cache = new_cb;
 

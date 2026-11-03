@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 34, u64 n <= 67, u128 n <= 132,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 3055 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t val;          /* absolute value of b(k) */
@@ -35,7 +37,7 @@ static void ensure_capacity(idx_t n)
     if (!init_done) {
         /* Allocate enough space for at least the first three terms. */
         size_t sz = (n > 2) ? (size_t)(n + 1) : 3;
-        b_arr = (abt_t *)calloc(sz, sizeof(abt_t));
+        b_arr = mem_new(abt_t, sz);
         if (!b_arr) exit(1);
         b_arr[0].val = (seq_t)0;  b_arr[0].sign = 0;
         b_arr[1].val = (seq_t)1;  b_arr[1].sign = 0;
@@ -45,7 +47,7 @@ static void ensure_capacity(idx_t n)
         init_done     = true;
     } else if (array_size <= n) {
         size_t new_size = (size_t)(n + 1);
-        abt_t *tmp = (abt_t *)realloc(b_arr, new_size * sizeof(abt_t));
+        abt_t *tmp = mem_resize(abt_t, b_arr, new_size);
         if (!tmp) exit(1);
         b_arr = tmp;
         for (idx_t i = array_size; i <= n; ++i) {

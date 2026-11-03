@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   root_is_four
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,28 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/root_is_four.h"
+#include "../utils/mem.h"
+
+/* Return true if the multiplicative digital root of x is 4,
+   ignoring any zero digits during multiplication. */
+static bool root_is_four(seq_t x)
+{
+    if (x == 0)          /* 0 has no non‑zero digits – root 0 */
+        return false;
+
+    while (x >= 10) {    /* iterate until a single digit is reached */
+        seq_t prod = 1;
+        seq_t t = x;
+        while (t) {
+            seq_t d = t % 10;
+            if (d != 0)          /* ignore zeros */
+                prod *= d;
+            t /= 10;
+        }
+        x = prod;            /* next iteration with the product */
+    }
+    return x == 4;
+}
 
 /* --- Cache of the sequence terms ------------------------------------ */
 
@@ -38,7 +60,7 @@ static void ensure_cache(idx_t need)
         /* Grow the cache if necessary. */
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-            seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
             if (!new_arr) { /* allocation failed – abort */
                 exit(1);
             }

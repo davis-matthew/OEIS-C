@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(phi(n) / tau(n)) where tau is the divisor count
  * Range:     u8 n <= 272, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   factor_u64, phi
+ * Validated: standard, pass, 96 terms through n = 1725 (2026-11-01)
+ * Helpers:   factor_u64, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
  */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/phi.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/totient.h"
 
 /* compute the number of divisors tau(n) for a 64‑bit integer n */
 static seq_t tau_u64(uint64_t n)
@@ -43,7 +46,7 @@ static seq_t tau_u64(uint64_t n)
 seq_t a(idx_t n)
 {
     /* phi from utils returns seq_t */
-    seq_t phi_val = phi(n);
+    seq_t phi_val = totient(n);
 
     /* tau is computed as seq_t; it fits in seq_t for all n used in tests */
     seq_t tau_val = tau_u64((uint64_t)n);

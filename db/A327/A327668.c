@@ -7,8 +7,9 @@
  * Formula:   a(n) = n * Sum_{d|n} (-1)^(bigomega(d)-omega(d)) / d This
  *            multiplicative function satisfies a(p^e) = p^e +
  *            (p^e-(-1)^e)/(p+1) for a prime p and exponent e
- * Range:     u8 n <= 119, u16 n <= 9837, u32 n <= 9837, u64 n <= 9837,
- *            u128 n <= 9837, big any n
+ * Range:     u8 n <= 119, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 86 terms through n = 9837 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 30, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   isPrimeGeneric, is_prime
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   is_prime, is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,55 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrimeGeneric.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <limits.h>
 #include "../utils/is_prime.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* Helper to grow a dynamic array */
+#ifdef __cplusplus
+template <class T>
+static void grow_if_needed(T **ptr, size_t *cap, size_t needed, size_t elem_size)
+{
+    if (*cap < needed) {
+        size_t new_cap = (*cap == 0 ? 16 : (*cap << 1));
+        if (new_cap < needed) new_cap = needed;
+        *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        *cap = new_cap;
+    }
+}
+#else
 static void grow_if_needed(void **ptr, size_t *cap, size_t needed, size_t elem_size)
 {
     if (*cap < needed) {
@@ -34,6 +80,7 @@ static void grow_if_needed(void **ptr, size_t *cap, size_t needed, size_t elem_s
         *cap = new_cap;
     }
 }
+#endif
 
 /*  The sequence cache */
 static size_t cache_len    = 0;   /* number of terms computed so far */
@@ -62,7 +109,7 @@ seq_t a(idx_t n)
 
         /* Record the term if it is composite (and >1 to avoid the trivial case p = 2) */
         if (val > (seq_t)1 && !isPrimeGeneric(val)) {
-            grow_if_needed((void **)&cache, &cache_cap, cache_len + 1, sizeof(seq_t));
+            grow_if_needed(OEISC_VPP(&cache), &cache_cap, cache_len + 1, sizeof(seq_t));
             cache[cache_len++] = val;
         }
 

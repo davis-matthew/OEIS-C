@@ -10,14 +10,17 @@
  *            that (S(n)+M(n)) is divisible by (n+1)
  * Range:     u8 n <= 13, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   is_prime_uint64
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static uint64_t *primes   = NULL; /* array of primes */
 static seq_t   *cumsum    = NULL; /* cumulative sums of primes */
@@ -30,13 +33,13 @@ static void ensure_primes(idx_t n)
     while (count < n) {
         uint64_t candidate = (count == 0) ? 2 : primes[count - 1] + 1;
         /* Find the next prime. */
-        while (!is_prime_uint64(candidate))
+        while (!is_prime_u64(candidate))
             ++candidate;
 
         if (count == capacity) {
             size_t newcap = capacity ? capacity * 2 : 64;
             uint64_t *newp = (uint64_t *)realloc(primes, newcap * sizeof(uint64_t));
-            seq_t   *newc = (seq_t   *)realloc(cumsum, newcap * sizeof(seq_t));
+            seq_t   *newc = mem_resize(seq_t, cumsum, newcap);
             if (!newp || !newc) {
                 /* Memory allocation failed – terminate the program. */
                 exit(EXIT_FAILURE);

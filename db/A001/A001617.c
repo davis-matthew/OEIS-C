@@ -10,16 +10,17 @@
  *            A000089 = nu2 = [4 !| n]*Prod_{p|n}(1+(-4/p)), A000086 = nu3 =
  *            [9 !| n]*Prod_{p|n}(1+(-3/p)), A001616 = Sum_{d|n}
  *            phi(gcd(d,n/d))
- * Range:     u8 n <= 1259, u16 n <= 9432, u32 n <= 9432, u64 n <= 9432,
- *            u128 n <= 9432, big any n
- * Helpers:   a1617_gcd, a1617_phi
+ * Range:     u8 n <= 1259, u16 n <= 50000, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 118 terms through n = 9432 (2026-11-01)
+ * Helpers:   gcd_u64, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a1617_gcd.h"
-#include "../utils/a1617_phi.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t m = n;
@@ -45,7 +46,7 @@ seq_t a(idx_t n) {
     for (uint64_t d = 1; d * d <= n; d++) {
         if (n % d == 0) {
             uint64_t e = n / d;
-            uint64_t ph = a1617_phi(a1617_gcd(d, e));
+            uint64_t ph = totient_u64(gcd_u64(d, e));
             cusps += ph;
             if (d != e) cusps += ph;
         }

@@ -12,15 +12,16 @@
  *            significant). The number of positive inte...
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 37, u64 n <= 68, u128 n <= 168,
  *            big any n
- * Helpers:   popcount_uint32, pow_uint
+ * Validated: standard, pass, 57 terms through n = 1849 (2026-11-01)
+ * Helpers:   ipow_u64_idx, popcount_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"   /* pow_uint(uint64_t base, idx_t exp) */
-#include "../utils/popcount_uint32.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/popcount_u32.h"
 
 seq_t a(idx_t n) {
     /* Special case n == 0: the empty partition counts once. */
@@ -60,9 +61,9 @@ seq_t a(idx_t n) {
         }
 
         /* term = 2^{size} */
-        seq_t term = pow_uint(2ULL, size);
+        seq_t term = ipow_u64_idx(2ULL, size);
 
-        if ((popcount_uint32(mask) & 1) == 0) {
+        if ((popcount_u32(mask) & 1) == 0) {
             pos += term;
         } else {
             neg += term;

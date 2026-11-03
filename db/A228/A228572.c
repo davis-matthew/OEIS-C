@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 93, u16 n <= 247, u32 n <= 810, u64 n <= 989,
  *            u128 n <= 989, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 847 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #else
 # define RECAST(ptr, type) ((type)(ptr))
 #endif
+#include "../utils/mem.h"
 
 /*----------------------------------------------------------*/
 /* binomial coefficient for small arguments, exact division */
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
         size_t rowlen = (size_t)kmax + 1;
 
         /* allocate zeroed row */
-        seq_t *row = RECAST(calloc(rowlen, sizeof(seq_t)), seq_t *);
+        seq_t *row = RECAST(mem_new(seq_t, rowlen), seq_t *);
         if (!row) abort();
 
         /* base: T(r,0)=1 */

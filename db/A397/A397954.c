@@ -11,13 +11,15 @@
  *            The new number is accepted only if its decimal value...
  * Range:     u8 n <= 26, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *values = NULL;          /* cached values */
 static idx_t *lengths = NULL;          /* cached digit lengths */
@@ -33,7 +35,7 @@ static void ensure_capacity(size_t need)
         size_t newcap = cap ? cap * 2 : 16;
         while (len + need > newcap)
             newcap *= 2;
-        values  = (seq_t *)realloc(values,  newcap * sizeof(seq_t));
+        values  = mem_resize(seq_t, values, newcap);
         lengths = (idx_t *)realloc(lengths, newcap * sizeof(idx_t));
         cap = newcap;
     }

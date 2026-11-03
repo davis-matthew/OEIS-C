@@ -10,7 +10,8 @@
  *            of the sequence v_i = i^16 (mod p)
  * Range:     u8 n <= 21, u16 n <= 170, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, mul_mod64
+ * Validated: standard, pass, 76 terms through n = 991 (2026-11-01)
+ * Helpers:   build_primes_upto, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,8 @@
 #include <stdlib.h>
 
 /* Utilities that will be available in the build */
-#include "../utils/build_primes_upto.h"   /* void build_primes_upto(idx_t limit, uint64_t **out, size_t *cnt) */
-#include "../utils/mul_mod64.h"           /* uint64_t mul_mod64(uint64_t a, uint64_t b, uint64_t mod) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/mulmod.h"
 
 #define PRIME_LIMIT 200000      /* enough for prime(10000)=104729 */
 
@@ -65,8 +66,8 @@ static inline uint64_t mod_pow64(uint64_t base, uint64_t exp, uint64_t mod)
     while (exp)
     {
         if (exp & 1ULL)
-            result = mul_mod64(result, base, mod);
-        base = mul_mod64(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1ULL;
     }
     return result;

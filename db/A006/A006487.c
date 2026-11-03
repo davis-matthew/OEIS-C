@@ -9,7 +9,8 @@
  *            = floor((P*Q + isqrt(2*Q^4)) / (2*Q^2 - P^2)) + 1
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   a_addbit, a_cmp, a_shr1, a_sub
+ * Validated: standard, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,41 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/a_addbit.h"
-#include "../utils/a_cmp.h"
-#include "../utils/a_shr1.h"
-#include "../utils/a_sub.h"
+#include "../utils/mem.h"
+
+static void a_addbit(uint32_t *x, size_t p, size_t L) {
+    size_t i = p / 32;
+    uint64_t c = (uint64_t)1 << (p % 32);
+    while (c && i < L) {
+        uint64_t t = (uint64_t)x[i] + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+        i++;
+    }
+}
+
+static int a_cmp(const uint32_t *x, const uint32_t *y, size_t L) {
+    size_t i;
+    for (i = L; i-- > 0;)
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    return 0;
+}
+
+static void a_shr1(uint32_t *x, size_t L) {
+    size_t i;
+    for (i = 0; i < L; i++)
+        x[i] = (x[i] >> 1) | (i + 1 < L ? (uint32_t)(x[i + 1] << 31) : 0u);
+}
+
+static void a_sub(uint32_t *x, const uint32_t *y, size_t L) {
+    uint64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] - y[i] - borrow;
+        x[i] = (uint32_t)t;
+        borrow = (t >> 32) & 1;
+    }
+}
 
 typedef struct { uint32_t *d; size_t n; } big_t;
 
@@ -209,7 +241,7 @@ seq_t a(idx_t n) {
 
         if (have == cap) {
             idx_t ncap = cap ? cap * 2 : 16;
-            cache = (seq_t *)realloc(cache, ncap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, ncap);
             cap = ncap;
         }
         cache[have++] = b_to_seq(A);

@@ -8,6 +8,7 @@
  * Formula:   a(n) = (6*n^2+2*n-11+(2*n-5)*(-1)^n)/16+0^n
  * Range:     u8 n <= 25, u16 n <= 417, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 72 terms through n = 8294 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

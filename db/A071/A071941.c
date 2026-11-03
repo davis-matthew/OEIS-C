@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   powmod_uint128
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
    floor(2^n/n) is even, and return the nth such number. */
 
 #include <stdint.h>
-#include "../utils/powmod_uint128.h"
+
+/* Modular exponentiation: compute (base^exp) mod mod,
+   result fits in an unsigned 128‑bit value.  All
+   integers are treated as unsigned. */
+static inline unsigned __int128 powmod_uint128(uint64_t base, uint64_t exp,
+                                               unsigned __int128 mod)
+{
+    unsigned __int128 result = 1;
+    unsigned __int128 b = (unsigned __int128)base % mod;
+    while (exp)
+    {
+        if (exp & 1ULL)
+            result = (result * b) % mod;
+        b = (b * b) % mod;
+        exp >>= 1ULL;
+    }
+    return result;
+}
 
 /* Simple trial division primality test, fast enough for
    the values needed (m < ~1e6 in practice). */

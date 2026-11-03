@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   base12_ok
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,28 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/base12_ok.h"
+#include "../utils/mem.h"
+
+/* Test whether a number satisfies the digit‑difference condition in base 12.
+   The digits are examined from least‑significant to most‑significant; the
+   absolute difference condition is symmetric, so the order is irrelevant. */
+static bool
+base12_ok(seq_t x) {
+    if (x < 12)  /* single‑digit numbers always satisfy the condition */
+        return true;
+
+    uint8_t prev = (uint8_t)(x % 12);
+    x /= 12;
+    while (x > 0) {
+        uint8_t curr = (uint8_t)(x % 12);
+        int diff = prev > curr ? (int)(prev - curr) : (int)(curr - prev);
+        if (diff < 5)
+            return false;
+        prev = curr;
+        x /= 12;
+    }
+    return true;
+}
 
 static seq_t *cache = NULL;      /* cache of sequence terms (a(1), a(2),...)   */
 static size_t cap   = 0;          /* allocated capacity of the cache          */
@@ -32,7 +54,7 @@ ensure_capacity(size_t needed) {
         size_t new_cap = cap ? cap * 2 : 4;
         if (new_cap < needed)
             new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* In a real program you might call abort or handle the error
                however here we just return */ 

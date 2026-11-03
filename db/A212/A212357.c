@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   ensure_capacity, is_uniform, phi
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,28 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/phi.h"              /* seq_t phi(idx_t m) */
-#include "../utils/ensure_capacity.h" /* void ensure_capacity(size_t, size_t*, void**, size_t) */
-#include "../utils/is_uniform.h"
+#include <stdlib.h>
+#include "../utils/totient.h"
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+
+/* Check whether a partition stored in parts[0..len-1] is uniform. */
+static bool is_uniform(const int *parts, int len)
+{
+    for (int i = 1; i < len; ++i)
+        if (parts[i] != parts[0]) return false;
+    return true;
+}
 
 /* Storage for computed coefficients, built incrementally. */
 static seq_t  *coeffs = NULL;
@@ -48,7 +68,7 @@ static void process_partition(const int *parts, int len)
 {
     seq_t coeff = 0;
     if (is_uniform(parts, len))
-        coeff = phi((idx_t)parts[0]);   /* φ(k) for the repeated part k */
+        coeff = totient((idx_t)parts[0]);   /* φ(k) for the repeated part k */
     append_coeff(coeff);
 }
 

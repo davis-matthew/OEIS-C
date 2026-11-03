@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 20, u64 n <= 30, u128 n <= 30,
+ * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 43, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 891 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,19 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
-seq_t a(idx_t n)
+/* the code below runs in wide_t: 128 bits at the fixed widths (never narrower
+   than seq_t), seq_t itself for big, so values that pass 2^64 on the way to a
+   term that fits stay exact; a() returns the term in seq_t */
+#ifdef __cplusplus
+typedef seq_t wide_t;
+#else
+typedef __typeof__((seq_t)0 + (__int128)0) wide_t;
+#endif
+#define seq_t wide_t
+
+seq_t a_wide(idx_t n)
 {
     /* base cases */
     if (n == 1) return (seq_t)0;
@@ -46,7 +58,7 @@ seq_t a(idx_t n)
     if (n + 1 > cap) {
         size_t new_cap = (n + 1) * 2;
         /* realloc may return NULL only on failure; ignore for simplicity */
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         cap = new_cap;
     }
 
@@ -78,10 +90,16 @@ seq_t a(idx_t n)
         /* numerator: pos - neg  (pos > neg by construction) */
         seq_t num = pos - neg;
 
-        /* divide by i to obtain a(i) */
+        /* divide by i to obtain a_wide(i) */
         seq[i_idx] = num / (seq_t)i_idx;
     }
 
     last = n;
     return seq[n];
+}
+
+#undef seq_t
+seq_t a(idx_t n)
+{
+    return (seq_t)a_wide(n);
 }

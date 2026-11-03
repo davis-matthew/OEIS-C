@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 22, u32 n <= 47, u64 n <= 97, u128 n <= 198,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(0)=1, a(1)=2, a(2)=4, a(3)=8, a(4)=14, a(5)=24, a(6)=40
    a(n) = 2*a(n-1) - 2*a(n-3) + 2*a(n-4) - 2*a(n-6) + a(n-7)   for n≥7 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Ensure the storage is large enough for the base values (up to index 6) */
     if (capacity < 7) {
         capacity = 7;
-        terms = (seq_t *)malloc(capacity * sizeof(seq_t));
+        terms = mem_new(seq_t, capacity);
         if (!terms) return (seq_t)0;      /* allocation failure – return 0 */
 
         terms[0] = (seq_t)1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Grow the storage if needed */
     if (n + 1ULL > capacity) {
         idx_t new_cap = n + 1ULL;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) return (seq_t)0;  /* allocation failure */
         terms = tmp;
         capacity = new_cap;

@@ -7,8 +7,9 @@
  * Formula:   a(n) = -2*a(n-1) - a(n-2) + a(n-4) Initial values: a(0) = 1,
  *            a(1) = a(2) = a(3) = 0 This implementation is iterative and uses
  *            only O(1) extra memory
- * Range:     i8 n <= 14, i16 n <= 25, i32 n <= 40, i64 n <= 40, i128 n <= 40,
+ * Range:     i8 n <= 14, i16 n <= 25, i32 n <= 48, i64 n <= 94, i128 n <= 187,
  *            big any n
+ * Validated: standard, pass, 57 terms through n = 973 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

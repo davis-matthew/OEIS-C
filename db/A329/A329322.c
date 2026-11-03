@@ -10,8 +10,9 @@
  *            (a+1) + … + (a+ℓ‑1). For each possible ℓ that yields a positive
  *            integer starting value a, count the even numbers in that
  *            partition and add them to the answer
- * Range:     u8 n <= 901, u16 n <= 9381, u32 n <= 9381, u64 n <= 9381,
- *            u128 n <= 9381, big any n
+ * Range:     u8 n <= 901, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 106 terms through n = 9381 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,12 +9,15 @@
  * Formula:   a(n) = -14237 + 46170*2^n - 32004*4^n + 12960*n*4^n + 72*n*2^n
  * Range:     u8 none, u16 n <= 1, u32 n <= 7, u64 n <= 22, u128 n <= 54,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 883 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Compute the n-th term of OEIS A221052.
  * The sequence is defined for n >= 1.
@@ -22,8 +25,8 @@
 seq_t a(idx_t n)
 {
     /* compute powers of 2 and 4 as big integers */
-    seq_t pow2_n = big_pow((seq_t)2, (seq_t)n);
-    seq_t pow4_n = big_pow((seq_t)4, (seq_t)n);
+    seq_t pow2_n = ipow((seq_t)2, (seq_t)n);
+    seq_t pow4_n = ipow((seq_t)4, (seq_t)n);
 
     /* 46170 * 2^n */
     seq_t result = 46170 * pow2_n;

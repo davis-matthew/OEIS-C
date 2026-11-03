@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2273, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 9924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* global cache */
 static seq_t *seq_vals   = NULL;  /* array of found sums */
@@ -45,7 +47,7 @@ static idx_t   current_max_sum = 0;   /* upper bound used in last dp run */
 /* rebuild the cache up to a new maximum sum */
 static void rebuild_cache(idx_t max_sum) {
     /* free old cache */
-    free(seq_vals);
+    mem_free(seq_vals);
     seq_vals = NULL;
     seq_len  = 0;
     seq_cap  = 0;
@@ -87,7 +89,7 @@ static void rebuild_cache(idx_t max_sum) {
         if (dp[8 * M + s] >= 10) {
             if (seq_len >= seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 128;
-                seq_t *newp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+                seq_t *newp = mem_resize(seq_t, seq_vals, new_cap);
                 if (!newp) break;          /* allocation failure, abort */
                 seq_vals = newp;
                 seq_cap  = new_cap;

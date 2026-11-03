@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 2420, u16 n <= 9926, u32 n <= 9926, u64 n <= 9926,
- *            u128 n <= 9926, big any n
- * Helpers:   gcd, mod_pow
+ * Range:     u8 n <= 2420, u16 n <= 13732, u32 n <= 13732, u64 n <= 13732,
+ *            u128 n <= 13732, big any n
+ * Validated: standard, pass, 86 terms through n = 9926 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/gcd.h"          /* for gcd(seq_t a, seq_t b) */
-#include "../utils/mod_pow.h"      /* for mod_pow(seq_t base, uint64_t exp, seq_t mod) */
+#include <string.h>
+#include "../utils/gcd.h"
+#include "../utils/powmod.h"
 
 typedef idx_t idx_t;
 typedef seq_t seq_t;
@@ -136,7 +138,7 @@ static void add_next_prime(void)
             bool ok = true;
             for (size_t i = 0; i < factor_cnt; ++i) {
                 uint64_t exp = (candidate - 1ULL) / factors[i];
-                if (mod_pow((seq_t)g, exp, (seq_t)candidate) == (seq_t)1) {
+                if (powmod((seq_t)g, exp, (seq_t)candidate) == (seq_t)1) {
                     ok = false;
                     break;
                 }
@@ -205,6 +207,6 @@ seq_t a(idx_t n)
     }
 
     /* compute g0^k mod p */
-    seq_t val = mod_pow(g0, k, (seq_t)p);
+    seq_t val = powmod(g0, k, (seq_t)p);
     return val;
 }

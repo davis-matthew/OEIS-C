@@ -12,12 +12,14 @@
  *            n=15 -2 for n=16 0 for n>=17
  * Range:     u8 n <= 70, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Extend the cache to contain value at index n */
     if (n >= cache_size) {
         size_t new_size = (size_t)(n + 1);
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         /* Compute values lazy, from cache_size up to n */
         for (idx_t i = cache_size; i <= n; ++i) {
             seq_t val = 0;

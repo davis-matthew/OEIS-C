@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_uint64
+ * Validated: standard, pass, 69 terms through n = 981 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/is_prime_uint64.h"
+#include "../utils/is_prime_u64.h"
 
 /* --------------------------------------------------------------------- */
 /* Prime generation utilities                                           */
@@ -72,7 +73,7 @@ static uint64_t next_prime(void)
             return 2;
         }
         if (last % 2 == 0) continue;
-        if (is_prime_uint64(last))
+        if (is_prime_u64(last))
         {
             ensure_prime_capacity(prime_cnt + 1);
             prime_arr[prime_cnt++] = last;
@@ -132,7 +133,7 @@ seq_t a(idx_t n)
         {
             uint64_t p = next_prime();           /* candidate prime       */
             uint64_t q = p + 2;                  /* p+2 to test           */
-            if (is_prime_uint64(q))              /* q is prime → Chen prime: skip */
+            if (is_prime_u64(q))              /* q is prime → Chen prime: skip */
                 continue;
             if (is_semiprime(q))                 /* q is semiprime → Chen prime: skip */
                 continue;

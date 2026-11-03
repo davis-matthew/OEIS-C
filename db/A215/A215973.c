@@ -7,7 +7,8 @@
  * Formula:   a(0) = 1; a(n) = Σ_{k=0..n-1} a(k) * (1 + a(n-1-k)) for n > 0
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 797 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>   /* malloc, realloc, abort */
 #include <stdint.h>   /* for testing with uint64_t */
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* dynamic array holding computed terms   */
 static idx_t  cap     = 0;      /* current capacity of the cache         */
@@ -30,7 +32,7 @@ static void grow_cache(idx_t needed)
         idx_t new_cap = (cap == 0 ? 4 : cap * 2);
         if (new_cap < needed)
             new_cap = needed;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();                    /* allocation failed */
         cache = tmp;

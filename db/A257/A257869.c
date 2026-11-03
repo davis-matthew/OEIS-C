@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 592, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_comb
+ * Validated: standard, pass, 65 terms through n = 8584 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/next_comb.h"
+#include "../utils/mem.h"
+
+/* Helper: next combination in lexicographic order.
+   comb[0..k-1] contains a combination of k distinct indices from {0..n-1}. */
+static int next_comb(size_t *comb, size_t k, size_t n)
+{
+    for (int i = (int)k - 1; i >= 0; --i) {
+        if (comb[i] < n - k + i) {
+            ++comb[i];
+            for (size_t j = i + 1; j < k; ++j)
+                comb[j] = comb[j - 1] + 1;
+            return 1;
+        }
+    }
+    return 0;
+}
 
 /* ---------------------------------------------------------------------- */
 /* Helper: compare two seq_t values for qsort. */
@@ -112,7 +128,7 @@ static void generate_k(idx_t k, seq_t *dest)
     } while (next_comb(minusComb, (size_t)k, positions));
 
     /* sort the generated values for this k */
-    qsort(dest, offset, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(dest, offset, sizeof(seq_t), cmp_seq_t);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -141,7 +157,7 @@ seq_t a(idx_t n)
         size_t count_k = (size_t)c;
 
         size_t newSize = cache_len + count_k;
-        seq_t *newCache = (seq_t *)realloc(cache, newSize * sizeof(seq_t));
+        seq_t *newCache = mem_resize(seq_t, cache, newSize);
         if (!newCache) {
             /* allocation failure – abort */
             exit(1);

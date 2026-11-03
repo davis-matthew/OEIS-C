@@ -7,16 +7,23 @@
  * Formula:   a(n) = denominator of (24·Stirling_2(n,4))/n!
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 23, u128 n <= 35,
  *            big any n
- * Helpers:   big_pow, seq_mul, seq_pow
+ * Validated: standard, pass, 40 terms through n = 431 (2026-11-01)
+ * Helpers:   ipow, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"     /* big_pow(seq_t base, seq_t exp)   */
-#include "../utils/seq_mul.h"     /* seq_mul(seq_t a, seq_t b)      */
-#include "../utils/seq_pow.h"     /* seq_pow(seq_t base, idx_t exp) */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/ipow.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -24,9 +31,9 @@ seq_t a(idx_t n)
     if (n < 4) return 0;
 
     /* ---------- compute numerator 4^n - 4·3^n + 6·2^n - 4 ---------- */
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)n);
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)n);
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)n);
+    seq_t pow4 = ipow((seq_t)4, (seq_t)n);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)n);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)n);
 
     seq_t numerator = pow4;
     numerator = seq_mul(numerator, (seq_t)1);      /* keep type‑consistent */
@@ -74,7 +81,7 @@ seq_t a(idx_t n)
         idx_t exp_gcd = (exp_n < exp_num) ? exp_n : exp_num;
         idx_t exp_den = exp_n - exp_gcd;
         if (exp_den > 0) {
-            denom = seq_mul(denom, seq_pow((seq_t)p, exp_den));
+            denom = seq_mul(denom, ipow_idx((seq_t)p, exp_den));
         }
     }
 

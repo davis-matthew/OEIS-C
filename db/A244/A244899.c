@@ -12,7 +12,8 @@
  *            programming over the possible partial sums
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 28, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(n)) for 0 <= n < 2^64. */
 static inline idx_t int_sqrt_u64(idx_t n)
@@ -51,17 +53,17 @@ seq_t a(idx_t n)
     const idx_t maxsum = 4 * n;          /* maximum possible partial sum */
     const size_t  arrlen = (size_t)maxsum + 1;
 
-    seq_t *prev = (seq_t *)malloc(arrlen * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc(arrlen * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, arrlen);
+    seq_t *curr = mem_new(seq_t, arrlen);
     if (!prev || !curr) {
         /* In a contest environment we should not exit, but
            returning 0 is a safe fallback when allocation fails. */
-        if (prev) free(prev);
-        if (curr) free(curr);
+        if (prev) mem_free(prev);
+        if (curr) mem_free(curr);
         return 0;
     }
-    memset(prev, 0, arrlen * sizeof(seq_t));
-    memset(curr, 0, arrlen * sizeof(seq_t));
+    mem_set(prev, 0, arrlen * sizeof(seq_t));
+    mem_set(curr, 0, arrlen * sizeof(seq_t));
 
     prev[0] = 1;                     /* empty prefix has sum 0 */
 
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
         idx_t high_k = 2 * k + dmax;           /* always <= 4*k */
 
         /* clear current array */
-        memset(curr, 0, arrlen * sizeof(seq_t));
+        mem_set(curr, 0, arrlen * sizeof(seq_t));
 
         /* Transition from prev sums to curr sums */
         for (idx_t s = low_prev; s <= high_prev; ++s) {
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
     for (idx_t s = low_prev; s <= high_prev; ++s)
         result += prev[s];
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

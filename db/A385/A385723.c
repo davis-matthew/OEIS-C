@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   seq_mod_pow
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,22 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_mod_pow.h"
+#include "../utils/mem.h"
+
+/* --- modular exponentiation, implemented with seq_t arithmetic ------------------ */
+static seq_t seq_mod_pow(seq_t base, idx_t exp, seq_t mod)
+{
+    seq_t res = 1 % mod;          /* handle possible mod=1, but k>1 here           */
+    seq_t b   = base % mod;       /* reduce base to avoid overflow                */
+    while (exp) {
+        if (exp & 1ULL)
+            res = (res * b) % mod;
+        exp >>= 1ULL;
+        if (exp)
+            b = (b * b) % mod;
+    }
+    return res;
+}
 
 /* --- cache for already found terms ------------------------------------------- */
 static seq_t *cache      = NULL;    /* array of found k values                     */
@@ -62,7 +78,7 @@ seq_t a(idx_t n)
             /* ensure there is space in the cache */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 1 : cache_cap << 1;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return 0;                   /* out of memory – not expected */
                 cache = tmp;
                 cache_cap = new_cap;

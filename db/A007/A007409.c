@@ -8,12 +8,14 @@
  *            reduced fraction addition
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 30,
  *            big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 33 terms through n = 181 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_seq.h"
+#include <stdlib.h>
+#include "../utils/gcd.h"
 
 static void reduce_by(seq_t *num, seq_t *den, idx_t r) {
     seq_t rr = (seq_t)r;
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     seq_t q = 1;
     for (idx_t k = 1; k <= n; k++) {
         seq_t k3 = (seq_t)k * (seq_t)k * (seq_t)k;
-        seq_t g = gcd_seq(q % k3, k3);
+        seq_t g = gcd(q % k3, k3);
         seq_t qg = q / g;
         seq_t num = p * (k3 / g) + qg;
         seq_t den = qg * k3;

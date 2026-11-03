@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ROWS          243          /* 3^5 possible rows */
 #define STATE_SIZE    (ROWS * 4)    /* 4 flag combinations: (has1,has2) */
@@ -104,8 +106,8 @@ static void build_state(void)
     }
 
     /* allocate DP arrays */
-    cur  = (seq_t *)calloc(STATE_SIZE, sizeof(seq_t));
-    next = (seq_t *)calloc(STATE_SIZE, sizeof(seq_t));
+    cur  = mem_new(seq_t, STATE_SIZE);
+    next = mem_new(seq_t, STATE_SIZE);
 
     /* init: first row must start with 0 (replaces empty array) */
     for (int curr = 0; curr < ROWS; ++curr) {
@@ -134,7 +136,7 @@ static void build_state(void)
     for (i = 0; i < STATE_SIZE; ++i) sum += cur[i];
 
     cache_cap = 16;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[0] = sum;
     cache_len = 1;
     max_computed = 1;
@@ -151,7 +153,7 @@ seq_t a(idx_t n)
         return cache[(size_t)n - 1];
 
     for (size_t row = max_computed + 1; row <= (size_t)n; ++row) {
-        memset(next, 0, STATE_SIZE * sizeof(seq_t));
+        mem_set(next, 0, STATE_SIZE * sizeof(seq_t));
 
         for (size_t st = 0; st < STATE_SIZE; ++st) {
             if (cur[st] == (seq_t)0) continue;
@@ -170,7 +172,7 @@ seq_t a(idx_t n)
 
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
         cache[cache_len++] = sum;

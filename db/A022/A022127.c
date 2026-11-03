@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-1) + a(n-2), a(0) = 3, a(1) = 17
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 41, u64 n <= 87, u128 n <= 179,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 4397 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The sequence values are stored in a static cache so that
  * a(n) can be returned in O(1) time after an initial
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 1;
         while (new_cap <= (size_t)n)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         /* Store the two seed values. */
         cache[0] = (seq_t)3;
         if (cache_cap < 2) {
-            seq_t *tmp = (seq_t *)realloc(cache, 2 * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, 2);
             cache = tmp;
             cache_cap = 2;
         }

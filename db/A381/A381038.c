@@ -9,13 +9,27 @@
  *            - 6*m)*[6*m <= (n/m)-1] ]
  * Range:     u8 n <= 107, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contribution
+ * Validated: standard, pass, 91 terms through n = 9686 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/contribution.h"
+
+static inline seq_t contribution(idx_t m, idx_t n)
+{
+    seq_t add = 0, sub = 0;
+    if (3*m <= 2*n - 1) {
+        add = 2*(seq_t)n - 3*(seq_t)m;
+    }
+    if (6*m <= n - 1) {
+        sub = (seq_t)(n - 6*m);
+    }
+    /* cast to signed to allow subtraction, then back to unsigned */
+    long long delta = (long long)add - (long long)sub;
+    return (seq_t)delta;
+}
 
 seq_t a(idx_t n)
 {

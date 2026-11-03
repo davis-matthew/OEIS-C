@@ -11,13 +11,15 @@
  *            listed)
  * Range:     u8 n <= 25, u16 n <= 50, u32 n <= 141, u64 n <= 455,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_N 10000ULL   /* precompute up to this index (>= the largest test value) */
 
@@ -30,8 +32,8 @@ static void compute_all(void)
     size_t i, k;
     size_t m_limit = (MAX_N + 10) / 2;  /* largest m that can contribute to n <= MAX_N */
     /* allocate arrays */
-    dp_arr   = (seq_t *)calloc(MAX_N + 1, sizeof(seq_t));
-    part_arr = (seq_t *)calloc(MAX_N + 1, sizeof(seq_t));
+    dp_arr   = mem_new(seq_t, MAX_N + 1);
+    part_arr = mem_new(seq_t, MAX_N + 1);
     if (dp_arr == NULL || part_arr == NULL) {
         exit(1);  /* allocation failure */
     }

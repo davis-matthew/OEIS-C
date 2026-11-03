@@ -9,12 +9,14 @@
  *            81
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 13, u64 n <= 33, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 854 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp_cur  = NULL;
 static seq_t *dp_next = NULL;
@@ -29,13 +31,13 @@ static const int squares[10] = {0,1,4,9,16,25,36,49,64,81};
 static void ensure_computed(idx_t n) {
     if (dp_cur == NULL) {
         /* Initial allocation for DP arrays of size 82 (0…81). */
-        dp_cur  = (seq_t*)calloc(82, sizeof(seq_t));
-        dp_next = (seq_t*)calloc(82, sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, 82);
+        dp_next = mem_new(seq_t, 82);
         if (!dp_cur || !dp_next) return;        /* allocation failed */
 
         /* Initial value for dimension 0. */
         dp_cur[0] = 1;                           /* only the zero vector */
-        a_vals = (seq_t*)malloc(sizeof(seq_t));
+        a_vals = mem_new(seq_t, 1);
         if (!a_vals) return;
 
         a_vals[0] = 1;                           /* a(0)=1 */
@@ -66,10 +68,10 @@ static void ensure_computed(idx_t n) {
         if (a_len <= dim) {
             size_t new_len = a_len * 2;
             if (new_len <= dim) new_len = dim + 1;
-            seq_t *tmp = (seq_t*)malloc(new_len * sizeof(seq_t));
+            seq_t *tmp = mem_new(seq_t, new_len);
             if (!tmp) return;                    /* allocation failure */
             for (size_t i = 0; i < a_len; ++i) tmp[i] = a_vals[i];
-            free(a_vals);
+            mem_free(a_vals);
             a_vals = tmp;
             a_len  = new_len;
         }

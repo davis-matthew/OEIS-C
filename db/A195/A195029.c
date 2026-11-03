@@ -7,6 +7,7 @@
  * Formula:   a(n) = 14*n*n + 13*n + 3
  * Range:     u8 n <= 3, u16 n <= 67, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 59 terms through n = 9746 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

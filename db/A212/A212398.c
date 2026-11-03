@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 11, u32 n <= 29, u64 n <= 67, u128 n <= 142,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    Uses dynamic programming over 7‑bit suffixes. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* Ensure cache can hold up to index n */
     if (cache_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;   /* include dummy 0 index */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;              /* allocation failure – unlikely */
         cache = tmp;
         for (size_t i = cache_cap; i < new_cap; ++i) cache[i] = 0;
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     /* Extend DP up to required length n+7 */
     while (current_len < n + 7) {
         /* clear next array */
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         /* transition */
         for (int s = 0; s < 128; ++s) {
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
         cache[(size_t)(current_len + 1 - 7)] = sum;     /* store a(n) */
 
         /* prepare for next iteration */
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
         current_len++;
     }
 

@@ -9,13 +9,16 @@
  * Formula:   a(n) = 6*(n+1-2^⌊log2 n⌋) - 3 for n > 0, a(0) = 1
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes sequence A241717 (P-positions in Nim with up to 3 piles) */
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +26,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* b = floor(log2(n)) */
-    idx_t b = floor_log2_uint64(n);
+    idx_t b = ilog2(n);
 
     /* 2^b as seq_t */
     seq_t pow2b = ((seq_t)1 << b);

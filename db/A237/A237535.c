@@ -10,7 +10,8 @@
  *            * is identical for all subblocks
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   block_diff
+ * Validated: standard, pass, 28 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/block_diff.h"
+#include "../utils/mem.h"
+
+/* Compute upper‑median minus lower‑median of a single 2×2 block */
+static int block_diff(int a, int b, int c, int d)
+{
+    int arr[4] = {a, b, c, d};
+    /* simple sort of 4 values */
+    for (int p = 0; p < 3; ++p)
+        for (int q = 0; q < 3 - p; ++q)
+            if (arr[q] > arr[q + 1]) {
+                int t = arr[q];
+                arr[q] = arr[q + 1];
+                arr[q + 1] = t;
+            }
+    return arr[2] - arr[1];
+}
 
 #define COLS 5
 #define STATE (1 << 10)   /* 4^5 = 1024 states */
@@ -109,7 +125,7 @@ static void ensure_up_to(idx_t n)
 
     size_t needed = (size_t)n + 1;
     if (cache_cap < needed) {
-        cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, needed);
         cache_cap = needed;
     }
 
@@ -121,7 +137,7 @@ static void ensure_up_to(idx_t n)
             seq_t *curr_vec = vecs[d][cur];
             seq_t *next_vec = vecs[d][nxt];
 
-            memset(next_vec, 0, sizeof(seq_t) * STATE);
+            mem_set(next_vec, 0, sizeof(seq_t) * STATE);
 
             /* transition */
             for (int i = 0; i < STATE; ++i) {

@@ -7,12 +7,14 @@
  * Formula:   a(n) = n*a(n-1) + (-1)^n*n, a(0) = 1
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;     /* array of pre‑computed values   */
 static size_t a_cache_len = 0;    /* number of entries currently in a_cache */
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     /* Ensure the base case a(0) = 1 is stored. */
     if (n == 0) {
         if (a_cache_len == 0) {
-            a_cache = (seq_t *)malloc(sizeof(seq_t));
+            a_cache = mem_new(seq_t, 1);
             a_cache_len = 1;
             a_cache[0] = (seq_t)1;
         }
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     /* Extend the cache if the requested index is beyond what we have. */
     if ((size_t)n >= a_cache_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_len);
         a_cache = tmp;
 
         if (a_cache_len == 0) {     /* first time: initialise a(0) */

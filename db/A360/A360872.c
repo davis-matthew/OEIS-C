@@ -9,15 +9,21 @@
  *            periodic pattern of the light‑switch problem for step n
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   gcd_idx_t, lcm_idx_t
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_idx_t.h"
-#include "../utils/lcm_idx_t.h"
+#include "../utils/gcd_idx.h"
+
+static inline idx_t lcm_idx_t(idx_t a, idx_t b)
+{
+    if (a == 0 || b == 0) return 0;
+    return a / gcd_idx(a, b) * b;
+}
 
 seq_t a(idx_t n)
 {

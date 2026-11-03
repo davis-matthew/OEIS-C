@@ -11,6 +11,7 @@
  *            = (k+1)*(r-k)/2
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

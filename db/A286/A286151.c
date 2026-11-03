@@ -8,9 +8,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 126, u16 n <= 9168, u32 n <= 9168, u64 n <= 9168,
- *            u128 n <= 9168, big any n
- * Helpers:   sqrt_floor_128, table_term
+ * Range:     u8 n <= 126, u16 n <= 10584, u32 n <= 10584, u64 n <= 10584,
+ *            u128 n <= 10584, big any n
+ * Validated: standard, pass, 107 terms through n = 9168 (2026-11-01)
+ * Helpers:   isqrt_u128_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,20 @@
 /* required types are defined by the build system */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sqrt_floor_128.h"
-#include "../utils/table_term.h"
+#include "../utils/isqrt_u128_to_idx.h"
+
+/* compute T(n,k) using the closed form, result in seq_t */
+static seq_t table_term(idx_t n, idx_t k)
+{
+    seq_t N = (seq_t)n;
+    seq_t K = (seq_t)k;
+
+    seq_t term1 = N * K;                    /* n*k */
+    seq_t triN  = N * (N + 1) / 2;          /* n*(n+1)/2 */
+    seq_t triK  = K * (K + 1) / 2;          /* k*(k+1)/2 */
+
+    return term1 + triN + triK + N;        /* n*k + triN + triK + n */
+}
 
 /* helper: triangular number m*(m+1)/2, result fits in idx_t */
 static idx_t triangular_idx(idx_t m)
@@ -43,7 +56,7 @@ seq_t a(idx_t n)
 {
     /* locate the antidiagonal: find s with s*(s+1)/2 <= n < (s+1)*(s+2)/2 */
     unsigned __int128 val = (unsigned __int128)n * 8 + 1;
-    idx_t sqrt_val = sqrt_floor_128(val);
+    idx_t sqrt_val = isqrt_u128_to_idx(val);
     idx_t s = (sqrt_val - 1) / 2;
 
     idx_t tri_s = triangular_idx(s);

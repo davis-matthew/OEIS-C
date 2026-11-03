@@ -8,145 +8,79 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* Computation of A063559: a(n) = smallest k such that 3^k has exactly n fours
-   in its decimal representation.  The routine scans successive powers of 3,
-   keeps a big‑integer in base 10⁹, and updates the number of digit 4s
-   incrementally.  Results are memoised and can be queried in any order. */
-#include <stdlib.h>
+/* A063559: the smallest k >= 1 with exactly n digits 4 in 3^k. The powers 3^0,
+ * 3^1, ... are built in base 10^9 and their 4s counted; the first k for each
+ * count is recorded as the scan goes, and the scan resumes for larger n.
+ * (The original stopped at a fixed bound and returned 0 past it.) */
+
 #include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
+#include <stdlib.h>
 
-/* ---------- Digit‑count tables ---------- */
-static uint8_t count4_5[100000];       /* 0 … 99999 : how many ‘4’ in the 5‑digit
-                                         representation (with leading zeros)   */
-static bool count4_5_inited = false;
+#define KMAX 2000000                      /* give up beyond 3^KMAX */
 
-static void init_count4_5(void)
+static uint32_t *L = NULL;                /* 3^k, little-endian base 10^9 */
+static size_t len = 0, cap = 0;
+static uint64_t k = 0;
+static int64_t *first = NULL;             /* first[c]: least k with c fours, -1 if none yet */
+static size_t nfirst = 0;
+
+static unsigned fours(void)
 {
-    if (count4_5_inited) return;
-    for (int i = 0; i < 100000; ++i) {
-        int v = i, c = 0;
-        for (int j = 0; j < 5; ++j) {
-            if (v % 10 == 4) ++c;
-            v /= 10;
-        }
-        count4_5[i] = (uint8_t)c;
+    unsigned c = 0;
+    for (size_t i = 0; i < len; ++i) {
+        uint32_t v = L[i];
+        int d = 0;
+        for (; d < 9 && (v || i + 1 < len); ++d) { c += v % 10 == 4; v /= 10; }
     }
-    count4_5_inited = true;
+    return c;
 }
 
-/* ---------- Big integer in base 10⁹ ---------- */
-#define BASE 1000000000U          /* 10⁹, fits in 32 bits */
-static uint32_t *digits = NULL;    /* little‑endian limbs */
-static size_t digits_len = 0;      /* number of used limbs */
-static size_t digits_cap = 0;      /* allocated limbs */
-
-/* Ensure capacity for at least “needed” limbs. */
-static void ensure_digits_cap(size_t needed)
+static void record(unsigned c)
 {
-    if (needed <= digits_cap) return;
-    size_t new_cap = digits_cap ? digits_cap * 2 : 4;
-    while (new_cap < needed) new_cap <<= 1;
-    uint32_t *tmp = (uint32_t *)realloc(digits, new_cap * sizeof(uint32_t));
-    if (!tmp) abort();
-    digits = tmp;
-    digits_cap = new_cap;
+    if (c >= nfirst) {
+        size_t m = nfirst ? nfirst : 64;
+        while (m <= c) m *= 2;
+        int64_t *t = (int64_t *)realloc(first, m * sizeof *t);
+        if (!t) abort();
+        for (size_t i = nfirst; i < m; ++i) t[i] = -1;
+        first = t;
+        nfirst = m;
+    }
+    if (first[c] < 0) first[c] = (int64_t)k;
 }
 
-/* ---------- Memoised sequence storage ---------- */
-static seq_t *seq_vals = NULL;     /* seq_vals[n] = first k with n fours */
-static size_t seq_cap = 0;         /* allocated entries */
-
-/* Ensure capacity for at least “needed” seq entries. */
-static void ensure_seq_cap(size_t needed)
-{
-    if (needed <= seq_cap) return;
-    size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-    while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
-    if (!tmp) abort();
-    seq_vals = tmp;
-    seq_cap = new_cap;
-    /* initialise new slots to 0 */
-    for (size_t i = seq_cap; i < new_cap; ++i) seq_vals[i] = 0;
-}
-
-/* ---------- Main routine ---------- */
 seq_t a(idx_t n)
 {
-    init_count4_5();
-
-    /* Initialise big integer and memo table on first call. */
-    if (!digits) {
-        ensure_digits_cap(1);
-        digits_len = 1;
-        digits[0] = 3;                     /* 3¹ */
-        ensure_seq_cap(1);
-        seq_vals[0] = (seq_t)1;            /* a(0) = 1 */
+    if (!L) {
+        cap = 16;
+        L = (uint32_t *)malloc(cap * sizeof *L);
+        if (!L) abort();
+        L[0] = 1;                          /* 3^0; k counts from 1 */
+        len = 1;
     }
-
-    /* Total number of digit 4s in the current power. */
-    static size_t total_fours = 0;
-    static idx_t current_k = 1;          /* already at 3¹ */
-
-    /* For the first call after initialisation, count the fours in 3¹. */
-    if (total_fours == 0 && seq_vals[0] == 1 && current_k == 1) {
-        /* 3 has no fours; total_fours stays 0. */
+    while (((size_t)n >= nfirst || first[n] < 0) && k < KMAX) {
+        uint64_t c = 0;
+        for (size_t i = 0; i < len; ++i) {
+            c += (uint64_t)L[i] * 3;
+            L[i] = (uint32_t)(c % 1000000000u);
+            c /= 1000000000u;
+        }
+        if (c) {
+            if (len == cap) {
+                uint32_t *t = (uint32_t *)realloc(L, (cap *= 2) * sizeof *L);
+                if (!t) abort();
+                L = t;
+            }
+            L[len++] = (uint32_t)c;
+        }
+        ++k;
+        record(fours());
     }
-
-    /* Generate further powers until we know a(n). */
-    while (n > 0 && (n >= seq_cap || seq_vals[n] == 0)) {
-
-        /* Multiply the big integer by 3, updating total_fours. */
-        uint64_t carry = 0;
-        for (size_t i = 0; i < digits_len; ++i) {
-            uint32_t old = digits[i];
-            uint64_t prod = (uint64_t)old * 3 + carry;
-            uint32_t newv = (uint32_t)(prod % BASE);
-            carry = prod / BASE;
-
-            /* Count transition of this limb. */
-            uint32_t old_low  = old % 100000U;
-            uint32_t old_high = old / 100000U;
-            uint32_t new_low  = newv % 100000U;
-            uint32_t new_high = newv / 100000U;
-            total_fours +=
-                (size_t)count4_5[new_low] + (size_t)count4_5[new_high]
-                - (size_t)count4_5[old_low] - (size_t)count4_5[old_high];
-
-            digits[i] = newv;
-        }
-
-        /* Add new limbs for any remaining carry. */
-        while (carry) {
-            uint32_t newv = (uint32_t)(carry % BASE);
-            carry /= BASE;
-            ensure_digits_cap(digits_len + 1);
-            digits[digits_len++] = newv;
-
-            uint32_t low = newv % 100000U;
-            uint32_t high = newv / 100000U;
-            total_fours += (size_t)count4_5[low] + (size_t)count4_5[high];
-        }
-
-        /* Advance to the next exponent. */
-        ++current_k;
-
-        /* Record the first occurrence of this number of fours. */
-        if (total_fours >= seq_cap) {
-            /* Extend the seq array sufficiently. */
-            ensure_seq_cap(total_fours + 1);
-        }
-        if (seq_vals[total_fours] == 0) {
-            seq_vals[total_fours] = (seq_t)current_k;
-        }
-    }
-
-    return seq_vals[n];
+    return (size_t)n < nfirst && first[n] >= 0 ? (seq_t)first[n] : (seq_t)0;
 }

@@ -7,13 +7,15 @@
  * Formula:   a(n) = Product_{k=0..n} (L(k)+1), where L(k) are Lucas numbers
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 92 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute Lucas numbers and this sequence with memoisation.
    The arrays are grown as needed and each entry is computed only once,
@@ -33,7 +35,7 @@ static void ensure_lucas_cap(idx_t m)
     if (lucas_cap > 0 && lucas_cap > (size_t)m+1) return;
     size_t new_cap = lucas_cap ? lucas_cap : 2;
     while (new_cap < (size_t)m+1) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(lucas_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, lucas_cache, new_cap);
     if (!new_arr) abort();          /* memory allocation failed */
     lucas_cache = new_arr;
     lucas_cap = new_cap;
@@ -45,7 +47,7 @@ static void ensure_seq_cap(idx_t m)
     if (seq_cap > 0 && seq_cap > (size_t)m+1) return;
     size_t new_cap = seq_cap ? seq_cap : 2;
     while (new_cap < (size_t)m+1) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_arr) abort();
     seq_cache = new_arr;
     seq_cap = new_cap;

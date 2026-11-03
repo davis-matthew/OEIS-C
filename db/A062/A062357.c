@@ -8,6 +8,7 @@
  * Formula:   a(n) = n*p(n+1) - (n+1)*p(n), where p(k) is the k‑th prime
  * Range:     i8 n <= 29, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 88 terms through n = 898 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

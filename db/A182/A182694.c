@@ -9,14 +9,15 @@
  *            0
  * Range:     u8 n <= 1, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 #define MAX_DIV 32          /* the largest divisor count for a 3‑digit number */
 
@@ -30,7 +31,7 @@ static void init_cache(void) {
     }
 
     for (uint64_t k = 100; k <= 999; ++k) {
-        idx_t div = (idx_t)divisor_count_u64(k);   /* divisor count of k */
+        idx_t div = (idx_t)num_divisors(k);   /* divisor count of k */
         if (div <= MAX_DIV) {
             seq_t val = (seq_t)k;
             if (max_num[div] < val) {

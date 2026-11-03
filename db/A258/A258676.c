@@ -11,7 +11,8 @@
  *            used; no closed‑form expression is known
  * Range:     u8 none, u16 n <= 1, u32 n <= 7, u64 n <= 17, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* There are 2^5 = 32 possible row patterns. */
 #define ROWS 32
@@ -68,12 +70,12 @@ seq_t a(idx_t n)
     idx_t rows = n + 2;     /* n+2 rows, always 5 columns */
 
     /* Allocate DP arrays. */
-    seq_t *dp_cur  = (seq_t*)calloc(STATES, sizeof(seq_t));
-    seq_t *dp_next = (seq_t*)calloc(STATES, sizeof(seq_t));
+    seq_t *dp_cur  = mem_new(seq_t, STATES);
+    seq_t *dp_next = mem_new(seq_t, STATES);
     if (!dp_cur || !dp_next) {
         /* Allocation failed – return 0 as a safe fallback. */
-        free(dp_cur);
-        free(dp_next);
+        mem_free(dp_cur);
+        mem_free(dp_next);
         return (seq_t)0;
     }
 
@@ -122,8 +124,8 @@ seq_t a(idx_t n)
     }
 
     /* Free allocated arrays. */
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
 
     return total;
 }

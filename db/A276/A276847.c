@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2322, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 9430 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *coeff = NULL;      /* coefficients of the product up to coeff_size-1 */
 static size_t coeff_size = 0;    /* number of coefficients stored */
@@ -38,7 +40,7 @@ static void recompute_up_to(idx_t limit)
 {
     size_t new_size = (size_t)limit + 1;
     /* Allocate and zero all entries */
-    seq_t *tmp = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_size);
     if (!tmp) exit(EXIT_FAILURE);
     tmp[0] = (seq_t)1;  /* initial value of the empty product */
 
@@ -53,7 +55,7 @@ static void recompute_up_to(idx_t limit)
     }
 
     /* Replace old array by the new one */
-    if (coeff) free(coeff);
+    if (coeff) mem_free(coeff);
     coeff = tmp;
     coeff_size = new_size;
 }

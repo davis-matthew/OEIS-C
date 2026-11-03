@@ -8,7 +8,8 @@
  * Formula:   a(1)=0, for n>1, a(n)=A049084(n)+∑_{d|n , d<n} a(d)
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence, 1‑based.  a_cache[0] is unused. */
 static seq_t *a_cache = NULL;
@@ -37,7 +39,7 @@ static void ensure_cache_capacity(idx_t n)
     size_t new_size = current > 0 ? current : 2;
     while (new_size < needed) new_size <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_size);
     if (!new_cache) abort();
     a_cache = new_cache;
     /* At least a_cache[1] must be defined. */

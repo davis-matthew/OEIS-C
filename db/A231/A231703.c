@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 20, u64 n <= 42, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    Offset: 1 (a(1) = 5).  The first nine values are hard‑coded
    to start the recurrence; no brute‑force search is performed.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache for already computed terms (a(1) stored in cache[0]) */
 static seq_t *cache = NULL;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* lazy initialization: first nine terms of the sequence */
     if (cache_len == 0) {
         cache_cap = 16;                              /* ensure room for 9 terms */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;                        /* memory allocation failed */
 
         cache[0] = 5;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         idx_t newcap = cache_cap;
         while (newcap < n) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return 0;            /* memory reallocation failed */
         cache = tmp;
         cache_cap = newcap;

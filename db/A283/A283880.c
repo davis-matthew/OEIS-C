@@ -9,12 +9,14 @@
  *            the Fibonacci sequence with F(0)=0, F(1)=1
  * Range:     u8 n <= 49, u16 n <= 121, u32 n <= 259, u64 n <= 535,
  *            u128 n <= 1087, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 9848 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached Fibonacci numbers (static, initialized on first use) */
 static seq_t *fib_cache = NULL;   /* array of Fibonacci numbers */
@@ -30,7 +32,7 @@ static void ensure_fib(size_t need)
     size_t new_cap = fib_cap ? fib_cap : 2;
     while (new_cap <= need) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(fib_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fib_cache, new_cap);
     if (!tmp) return;                      /* allocation failure – leave unchanged */
     fib_cache = tmp;
     fib_cap   = new_cap;

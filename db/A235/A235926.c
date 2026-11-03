@@ -11,7 +11,8 @@
  *            320*a(n-3) + 144*a(n-4) - 448*a(n-5) + 64*a(n-6)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* 1‑based sequence storage               */
 static size_t cache_size = 0;    /* current capacity of cache array         */
@@ -38,7 +40,7 @@ static void ensure_cache_capacity(size_t needed)
 {
     if (needed > cache_size) {
         size_t new_cap = needed * 2;
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         if (!new_ptr) abort();              /* out of memory */
         cache = new_ptr;
         cache_size = new_cap;

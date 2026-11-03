@@ -10,7 +10,8 @@
  *            a(1)=2, a(2)=4
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #if defined(__cplusplus)
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 static inline seq_t
 compute_term(seq_t a1, seq_t a2, seq_t a3)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* initialise first three terms */
     if (cache == NULL) {
         cache_size = 3;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)2;
         cache[2] = (seq_t)4;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if ((size_t)n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         for (size_t i = cache_size; i <= (size_t)n; ++i) {
             /* compute a[i] using the recurrence */
             cache[i] = compute_term(cache[i-1], cache[i-2], cache[i-3]);

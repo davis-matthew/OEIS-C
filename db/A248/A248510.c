@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 104, u128 n <= 104,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Denominator of the constant */
 static const seq_t R_K_DEN = (seq_t)213914163877964163ULL;
@@ -50,7 +52,7 @@ static void a_init(void) {
     }
     /* Allocate cache for the first five digits. */
     cache_cap = 32;
-    cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     for (idx_t i = 0; i < 5; ++i) cache[i] = (seq_t)int_digits[i];
     last_computed = 4;          /* positions 5..9 correspond to indices 0..4 */
     rem_frac = rem;
@@ -62,7 +64,7 @@ static void ensure_capacity(idx_t needed) {
     if (needed <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap : 32;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();          /* allocation failure */
     cache = tmp;
     cache_cap = new_cap;

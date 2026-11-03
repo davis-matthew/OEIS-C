@@ -10,12 +10,14 @@
  *            used
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 6, i64 n <= 10, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 368 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Cached computed values: cache[i] == a(i) for i < cache_len */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     /* Initialize cache for n==0 and n==1 */
     if (cache_len == 0) {
         cache_len = 2;
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = (seq_t)1;   /* a(0) */
         cache[1] = (seq_t)16;  /* a(1) */
     }
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     /* Compute up to requested n */
     if (n >= cache_len) {
         /* Expand cache to hold index n */
-        cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         for (idx_t i = cache_len; i <= n; ++i) {
             /* recurrence: a(i) = 16*a(i-1) - 722*(i-1)*a(i-2) */
             const seq_t term1 = cache[i - 1] * (seq_t)16;

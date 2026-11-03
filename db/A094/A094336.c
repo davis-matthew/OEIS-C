@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 11, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,11 @@
 #include <string.h>
 
 /* power function used for arbitrary precision arithmetic */
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* ----- prime sieve for numbers up to sqrt(5e7) ----- */
-static uint32_t primes[900];
+static uint32_t primes[1000];      /* pi(7072) = 906 */
 static size_t prime_cnt = 0;
 
 static void init_primes(void)
@@ -180,7 +182,7 @@ seq_t a(idx_t n)
         size_t idx = used_idx[i];
         idx_t   exp = hash_table[idx].val;
         if (exp > 0)
-            result = result * seq_pow((seq_t)hash_table[idx].key, exp);
+            result = result * ipow_idx((seq_t)hash_table[idx].key, exp);
     }
 
     return result;

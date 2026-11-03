@@ -7,6 +7,7 @@
  * Formula:   a(2^m + k) = 5*2^m + k, where m = floor(log_2(n)), k = n - 2^m
  * Range:     u8 n <= 63, u16 n <= 4095, u32 n <= 4095, u64 n <= 4095,
  *            u128 n <= 4095, big any n
+ * Validated: standard, pass, 75 terms through n = 3750 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

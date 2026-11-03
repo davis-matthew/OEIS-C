@@ -9,7 +9,8 @@
  *            a(3) = 2, a(4) = 3, a(5) = 7, a(6) = 11
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed initial terms for indices 1..6 */
 static const seq_t base_vals[6] = {1, 2, 2, 3, 7, 11};
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (target > cache_len) {
         size_t new_len = target;
         /* realloc returns void* in C and void* in C++ ; explicit cast required */
-        seq_t *new_cache = (seq_t *)realloc(cache_ptr, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache_ptr, new_len);
         if (!new_cache)           /* allocation failed – return zero */
             return 0;
         /* Compute newly required entries */

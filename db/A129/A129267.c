@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 95, i16 n <= 333, i32 n <= 1195, i64 n <= 4502,
  *            i128 n <= 5150, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 5052 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* integer square root of an unsigned __int128 value */
 static inline idx_t isqrt_u128(__uint128_t x)
@@ -61,7 +63,7 @@ static void ensure_rows(idx_t need)
 
     for (idx_t i = rows_count; i <= need; ++i) {
         size_t len = i + 1;
-        seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) abort();
 
         if (i == 0) {

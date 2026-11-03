@@ -8,13 +8,15 @@
  *            a(n+1)=2*(n+1)*a(n)+n! (Offset: 1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h> /* for size_t */
+#include "../utils/mem.h"
 
 /* Memoised storage for a(n) and factorial values.
  * The arrays grow as needed; index 0 holds the values for n=0
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
     if (cached < needed) {
         /* Grow arrays (simple linear growth). */
         size_t new_size = needed * 2;
-        a_vals   = (seq_t *)realloc(a_vals,   new_size * sizeof(seq_t));
-        fact_vals = (seq_t *)realloc(fact_vals, new_size * sizeof(seq_t));
+        a_vals   = mem_resize(seq_t, a_vals, new_size);
+        fact_vals = mem_resize(seq_t, fact_vals, new_size);
 
         /* Initialise from the first missing index up to n. */
         for (size_t i = cached; i < needed; ++i) {

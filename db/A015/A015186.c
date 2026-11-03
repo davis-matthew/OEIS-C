@@ -11,13 +11,23 @@
  *            a(n–k), where φ_k are the coefficients of Φ_1177(x)
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   alloc_seq
+ * Validated: standard, pass, 97 terms through n = 1722 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq.h"  /* alloc_seq(size_t) returns zeroed seq_t* */
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* compute the coefficients of Φ_1177(x);
    φ[0] will be set to 1 and φ[1..1060] to the remaining coefficients. */
@@ -57,8 +67,8 @@ static void compute_coefficients(seq_t *phi)
     }
 
     /* cleanup */
-    free(P);
-    free(B);
+    mem_free(P);
+    mem_free(B);
 }
 
 /* compute all 1177 terms of the periodic sequence once
@@ -86,7 +96,7 @@ static seq_t *compute_periodic(void)
         periodic[n] = -sum;
     }
 
-    free(phi);
+    mem_free(phi);
     return periodic;
 }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   grow_seq_array, is_prime_small
+ * Validated: standard, pass, 76 terms through n = 926 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,23 @@
  * keeps a static cache of found terms, growing it as necessary.
  */
 
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(seq_t n) */
-#include "../utils/grow_seq_array.h"   /* void grow_seq_array(seq_t **arr, size_t *size, size_t new_len); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 seq_t a(idx_t n)
 {
@@ -62,7 +78,7 @@ seq_t a(idx_t n)
         }
 
         /* if the sum is prime, append to cache */
-        if (is_prime_small(sum)) {
+        if (is_prime_seq(sum)) {
             grow_seq_array(&cache, &cache_cap, cache_len + 1);
             cache[cache_len++] = (seq_t)next_candidate;
         }

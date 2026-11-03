@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 20, i16 n <= 54, i32 n <= 129, i64 n <= 305,
  *            i128 n <= 866, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 1367 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -54,11 +56,11 @@ seq_t a(idx_t n)
 
     /* For r≥2, build the triangle iteratively up to row r. */
     idx_t max_len = 2 * r - 1;                /* maximum row size */
-    seq_t *prev = (seq_t *)calloc((size_t)(max_len + 1), sizeof(seq_t));
-    seq_t *cur  = (seq_t *)calloc((size_t)(max_len + 1), sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(max_len + 1));
+    seq_t *cur  = mem_new(seq_t, (size_t)(max_len + 1));
     if (!prev || !cur) {                     /* allocation failure */
-        free(prev);
-        free(cur);
+        mem_free(prev);
+        mem_free(cur);
         return (seq_t)0;
     }
 
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
 
     seq_t result = prev[k];   /* prev now holds row r */
 
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return result;
 }

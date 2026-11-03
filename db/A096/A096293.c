@@ -10,7 +10,8 @@
  *            (the 1‑chain)
  * Range:     u8 n <= 2, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   digit_len, get_digits
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
+ * Helpers:   get_digits, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,15 +20,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <stdint.h>
 #include "../utils/get_digits.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
 
 /* --- helper: sum of squares of decimal digits for type seq_t ---------------- */
 
 static seq_t digit_square_sum_seq(seq_t x)
 {
     /* Get the number of decimal digits of the current value. */
-    size_t dlen = (size_t)digit_len(x);
+    size_t dlen = (size_t)num_digits(x);
 
     /* Allocate a buffer for the digits.  256 digits are enough for
        ordinary 64‑bit integers and for the test values used in this

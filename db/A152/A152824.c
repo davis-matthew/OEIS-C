@@ -6,16 +6,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 202, u32 n <= 1543, u64 n <= 1543,
- *            u128 n <= 1543, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
+ *            big any n
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* OEIS A152824: numbers n such that each decimal digit d of n (d≠0, d≠1)
    leaves the same remainder R≠0 when n is divided by d.
-   For this particular sequence all accepted numbers satisfy R = 1.
    Algorithm: brute‑force search with memoisation.  The function keeps a
    dynamic array of found terms which is extended on demand.  The first
    argument n is 1‑based (a(1) is the first term).  No external library
@@ -25,6 +25,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array of found terms          */
 static size_t cache_len = 0;    /* number of terms stored        */
@@ -57,8 +58,8 @@ static bool good(seq_t x)
                 return false;
         }
     }
-    /* remainder must be 1 for this sequence */
-    return r == 1;
+    /* the common remainder must be nonzero */
+    return r > 0;
 }
 
 static bool ensure_capacity(void)
@@ -66,7 +67,7 @@ static bool ensure_capacity(void)
     if (cache_len < cache_cap)
         return true;
     size_t new_cap = cache_cap ? cache_cap * 2 : 128;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         return false;
     cache = tmp;

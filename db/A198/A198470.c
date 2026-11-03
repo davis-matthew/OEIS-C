@@ -8,7 +8,8 @@
  *            deficient divisors
  * Range:     u8 n <= 39, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9567 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external linkage requested by the problem statement */
 seq_t a(idx_t n) {
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
         sigma = (uint64_t*)malloc(sizeof(uint64_t) * (LIMIT + 1));
         def  = (uint8_t*)   malloc(sizeof(uint8_t)  * (LIMIT + 1));
         sumDef = (uint64_t*)malloc(sizeof(uint64_t) * (LIMIT + 1));
-        seqVals = (seq_t*)malloc(sizeof(seq_t) * LIMIT);   /* gross over-estimate */
+        seqVals = mem_new(seq_t, LIMIT);   /* gross over-estimate */
 
         /* compute sigma(m) = sum of divisors of m */
         for (idx_t i = 1; i <= LIMIT; ++i) {

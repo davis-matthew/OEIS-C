@@ -9,13 +9,15 @@
  *            convolution to compute a[n] for all n up to the largest request
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the required function */
 seq_t a(idx_t n);
@@ -36,17 +38,17 @@ static void ensure_cache(idx_t n)
 
     /* Allocate arrays if this is the first call */
     if (cache_size == 0) {
-        a_cache     = (seq_t*)malloc(sizeof(seq_t) * new_size);
-        C_cache     = (seq_t*)malloc(sizeof(seq_t) * new_size);
-        B_cache     = (seq_t*)malloc(sizeof(seq_t) * new_size);
-        pow2_cache  = (seq_t*)malloc(sizeof(seq_t) * new_size);
+        a_cache     = mem_new(seq_t, new_size);
+        C_cache     = mem_new(seq_t, new_size);
+        B_cache     = mem_new(seq_t, new_size);
+        pow2_cache  = mem_new(seq_t, new_size);
 
         if (!a_cache || !C_cache || !B_cache || !pow2_cache) {
             /* allocation failed – abort with zero */
-            if (a_cache) free(a_cache);
-            if (C_cache) free(C_cache);
-            if (B_cache) free(B_cache);
-            if (pow2_cache) free(pow2_cache);
+            if (a_cache) mem_free(a_cache);
+            if (C_cache) mem_free(C_cache);
+            if (B_cache) mem_free(B_cache);
+            if (pow2_cache) mem_free(pow2_cache);
             a_cache = C_cache = B_cache = pow2_cache = NULL;
             cache_size = 0;
             return;
@@ -61,16 +63,16 @@ static void ensure_cache(idx_t n)
         cache_size = 1;
     } else if (new_size > cache_size) {
         /* Reallocate arrays to the new size */
-        a_cache    = (seq_t*)realloc(a_cache, sizeof(seq_t) * new_size);
-        C_cache    = (seq_t*)realloc(C_cache, sizeof(seq_t) * new_size);
-        B_cache    = (seq_t*)realloc(B_cache, sizeof(seq_t) * new_size);
-        pow2_cache = (seq_t*)realloc(pow2_cache, sizeof(seq_t) * new_size);
+        a_cache    = mem_resize(seq_t, a_cache, new_size);
+        C_cache    = mem_resize(seq_t, C_cache, new_size);
+        B_cache    = mem_resize(seq_t, B_cache, new_size);
+        pow2_cache = mem_resize(seq_t, pow2_cache, new_size);
         if (!a_cache || !C_cache || !B_cache || !pow2_cache) {
             /* allocation failed – abort with zero */
-            if (a_cache) free(a_cache);
-            if (C_cache) free(C_cache);
-            if (B_cache) free(B_cache);
-            if (pow2_cache) free(pow2_cache);
+            if (a_cache) mem_free(a_cache);
+            if (C_cache) mem_free(C_cache);
+            if (B_cache) mem_free(B_cache);
+            if (pow2_cache) mem_free(pow2_cache);
             a_cache = C_cache = B_cache = pow2_cache = NULL;
             cache_size = 0;
             return;

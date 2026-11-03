@@ -8,7 +8,8 @@
  *            the four numbers 10m+1, 10m+3, 10m+7, 10m+9 are prime
  * Range:     u8 n <= 23, u16 n <= 1529, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 59 terms through n = 9087 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Cached values and state for O(1) subsequent calls. */
 static seq_t *cache = NULL;  /* array of found m's */
@@ -28,7 +30,7 @@ static void ensure_cache_capacity(idx_t need) {
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < (size_t)need) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(1);           /* abort on allocation failure */
     cache = new_cache;
     cache_cap = new_cap;

@@ -8,14 +8,36 @@
  *            r(r+1)/2 ≤ n) and k = n - r(r+1)/2
  * Range:     u8 n <= 321, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   row_of, small_binom
+ * Validated: standard, pass, 113 terms through n = 981 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/row_of.h"
-#include "../utils/small_binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+
+static inline idx_t
+row_of(idx_t n)                 /* return r with r(r+1)/2 ≤ n < (r+1)(r+2)/2 */
+{
+    idx_t low  = 0;
+    idx_t high = 1;
+    /* exponential search to find an upper bound */
+    while ((unsigned __int128)high * (high + 1) / 2 <= n) {
+        low  = high;
+        high <<= 1;              /* double high */
+    }
+    /* binary search between low (inclusive) and high (inclusive) */
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1) + 1; /* upper mid to avoid infinite loop */
+        if ((unsigned __int128)mid * (mid + 1) / 2 <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {
@@ -26,7 +48,7 @@ seq_t a(idx_t n)
 
     if (r_minus_k > 2) return 0;                         /* zero outside the non‑zero band */
 
-    seq_t c1 = small_binom(r, k);                        /* C(r,k) */
+    seq_t c1 = binomial(r, k);                        /* C(r,k) */
     seq_t c2;                                            /* C(2,r-k) */
     switch (r_minus_k) {
         case 0: c2 = 1; break;

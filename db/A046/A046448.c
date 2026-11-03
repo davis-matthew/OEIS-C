@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 18, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   digit_count, factor_u64, is_palindrome
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   factor_u64, is_palindrome_base, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,11 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <math.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/digit_count.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/num_digits0.h"
 
 seq_t a(idx_t n)
 {
@@ -60,14 +63,14 @@ seq_t a(idx_t n)
             for (size_t i = 0; i < cnt; ++i) {
                 /* Compute 10^(number of decimal digits of the prime). */
                 seq_t base = 1;
-                uint64_t d = digit_count(primes[i]);
+                uint64_t d = num_digits0(primes[i]);
                 for (uint64_t k = 0; k < d; ++k) base *= 10;
 
                 cat = cat * base + (seq_t)primes[i];
             }
 
             /* Check whether the concatenated number is a palindrome. */
-            if (is_palindrome(cat, 10)) {
+            if (is_palindrome_base(cat, 10)) {
                 ++found;
                 if (found == n) return (seq_t)cand;
             }

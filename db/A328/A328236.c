@@ -8,8 +8,9 @@
  * Formula:   a(n) = least m>1 such that (m*n)' is a multiple of n'
  *            (arithmetical derivative is defined by (p)' = 1 for prime p and
  *            (xy)' = x y' + x' y)
- * Range:     u8 n <= 17, u16 n <= 327, u32 n <= 9802, u64 n <= 9802,
- *            u128 n <= 9802, big any n
+ * Range:     u8 n <= 17, u16 n <= 327, u32 n <= 16385, u64 n <= 16385,
+ *            u128 n <= 16385, big any n
+ * Validated: standard, pass, 108 terms through n = 9802 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Compute arithmetic derivative of x:

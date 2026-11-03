@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 14, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MASK7 0x7F  /* 7‑bit mask */
 
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
 
         /* grow cache if necessary */
         if (step > cache_size) {
-            cache = (seq_t *)realloc(cache, (step + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (step + 1));
         }
         cache[step] = sum;
         cache_size  = step;
@@ -188,13 +190,13 @@ static void init(void)
     }
 
     /* Allocate DP buffers */
-    dp_curr = (seq_t *)malloc(nstates * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(nstates * sizeof(seq_t));
+    dp_curr = mem_new(seq_t, nstates);
+    dp_next = mem_new(seq_t, nstates);
     for (int i = 0; i < nstates; ++i) dp_curr[i] = 1; /* base for n = 2 */
 
     /* Allocate cache and store base values a(1) = 128, a(2) = 16384 */
     cache_size = 2;
-    cache = (seq_t *)malloc(3 * sizeof(seq_t));
+    cache = mem_new(seq_t, 3);
     cache[0] = (seq_t)0;                    /* unused */
     cache[1] = (seq_t)128;                  /* 2^7 */
     cache[2] = (seq_t)16384;                /* 2^14 */

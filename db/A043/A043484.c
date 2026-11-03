@@ -7,13 +7,19 @@
  * Formula:   numbers having four 7's in base 9
  * Range:     u8 none, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   pow8_shift
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow8_shift.h"
+
+static inline uint64_t pow8_shift(unsigned e)
+{
+    /* 8^e = 1 << (3*e) */
+    return ((uint64_t)1) << (3 * e);
+}
 
 static inline uint64_t comb(unsigned n, unsigned k)
 {

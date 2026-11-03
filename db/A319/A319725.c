@@ -7,6 +7,7 @@
  * Formula:   a(n) = sort the base‑8 digits of n in decreasing order
  * Range:     u8 n <= 67, u16 n <= 4095, u32 n <= 4095, u64 n <= 4095,
  *            u128 n <= 4095, big any n
+ * Validated: standard, pass, 85 terms through n = 3687 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

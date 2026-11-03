@@ -12,13 +12,28 @@
  *            undefined; the implementation returns 0 for n == 0...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 30, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   binom_11
+ * Validated: standard, pass, 43 terms through n = 194 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_11.h"
+
+/* Compute \binom(n, 11) for n >= 11.  The result fits in seq_t when it
+ * is needed for the sequence values that fit in the type.  An
+ * unsigned __int128 intermediate is used to avoid overflow on 64‑bit
+ * builds; the final cast to seq_t truncates modulo 2^bits if necessary.
+ */
+static seq_t binom_11(idx_t n)
+{
+    unsigned __int128 acc = 1;
+    for (idx_t i = 1; i <= 11; ++i)
+    {
+        acc = acc * (unsigned __int128)(n - 11 + i) / i;
+    }
+    return (seq_t)acc;
+}
 
 seq_t a(idx_t n)
 {

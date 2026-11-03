@@ -7,6 +7,7 @@
  * Formula:   a(n) = cycle[n mod 4] where cycle = [1, 2, 1, -4] with offset 0
  * Range:     i8 n <= 75, i16 n <= 75, i32 n <= 75, i64 n <= 75, i128 n <= 75,
  *            big any n
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

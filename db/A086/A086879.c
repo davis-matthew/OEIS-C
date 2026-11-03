@@ -11,7 +11,8 @@
  *            (2^n - 1) * A086812(n-1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   pow2, seq_mul
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,14 @@
 #include <stdint.h>   /* for uint64_t, etc. */
 #include <stdbool.h>  /* just in case */
 
-#include "../utils/pow2.h"  /* provides seq_t pow2(idx_t) */
-#include "../utils/seq_mul.h"  /* provides seq_t seq_mul(seq_t, seq_t) */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/pow2.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {

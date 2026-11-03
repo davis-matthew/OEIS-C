@@ -12,13 +12,15 @@
  *            for n < 28, and a(n) = b(n-28) for n ≥ 28
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *coeff = NULL;      /* storage for b array          */
 static size_t coeff_cap = 0;     /* allocated capacity of coeff  */
@@ -32,7 +34,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = coeff_cap ? coeff_cap : 1;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(coeff, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, coeff, new_cap);
     if (!tmp) {
         /* allocation failure – aborting is acceptable for this build. */
         abort();

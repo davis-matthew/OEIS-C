@@ -8,12 +8,14 @@
  *            cubes
  * Range:     u8 n <= 107, u16 n <= 107, u32 n <= 107, u64 n <= 107,
  *            u128 n <= 107, big any n
- * Helpers:   none
+ * Validated: partial, pass, 108 terms through n = 107 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The build supplies seq_t and idx_t. */
 seq_t a(idx_t n)
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
     /* Allocate a 2‑D DP array of size (8) × (n+1).  */
     size_t sz = (size_t)n + 1;
     size_t total = 8 * sz;
-    seq_t *dp = (seq_t *)malloc(sizeof(seq_t) * total);
+    seq_t *dp = mem_new(seq_t, total);
     if (!dp) return (seq_t)0;                 /* allocation failure */
 
     /* initialise the table to 0 */
@@ -59,6 +61,6 @@ seq_t a(idx_t n)
         result += dp[(size_t)p * sz + (size_t)n];
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

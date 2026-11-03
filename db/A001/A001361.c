@@ -9,14 +9,34 @@
  *            x*P(x)/(1-x)^9)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 12, u64 n <= 197, u128 n <= 1000,
  *            big any n
- * Helpers:   a001361_binom8, a001361_gcd
+ * Validated: standard, pass, 39 terms through n = 929 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001361_binom8.h"
-#include "../utils/a001361_gcd.h"
+#include "../utils/gcd_u64.h"
+
+/* binomial(m, 8), exact modulo the width of seq_t (no division on seq_t) */
+static seq_t a001361_binom8(uint64_t m) {
+    uint64_t t[8];
+    uint64_t k, rem, g;
+    int j;
+    seq_t r = 1;
+    if (m < 8) return 0;
+    for (j = 0; j < 8; j++) t[j] = m - 7 + (uint64_t)j;
+    for (k = 2; k <= 8; k++) {
+        rem = k;
+        for (j = 0; j < 8 && rem > 1; j++) {
+            g = gcd_u64(t[j], rem);
+            t[j] /= g;
+            rem /= g;
+        }
+    }
+    for (j = 0; j < 8; j++) r *= (seq_t)t[j];
+    return r;
+}
 
 seq_t a(idx_t n) {
     static const uint32_t c[9] = {1, 232, 24508, 107224, 133510, 55384, 7228, 232, 1};

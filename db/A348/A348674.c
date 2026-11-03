@@ -9,16 +9,26 @@
  *            decimal representation of n into contiguous parts and adding the
  *            parts. Example: n = 120 → splits: 120, 12+0, 1+20, 1+2+0 → 4
  *            distinct sums
- * Range:     u8 n <= 9593, u16 n <= 9593, u32 n <= 9593, u64 n <= 9593,
- *            u128 n <= 9593, big any n
- * Helpers:   compare_seq_t
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 137 terms through n = 9593 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/compare_seq_t.h"
+#include "../utils/mem.h"
+
+static int compare_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 #define MAX_DIGITS 20                     /* because n <= 2^64-1 has ≤ 20 digits */
 #define MAX_SPLITS (1U << (MAX_DIGITS-1)) /* 2^19 = 524288, enough for all cases */
@@ -63,7 +73,7 @@ seq_t a(idx_t n)
 
     /* --- sort the sums and count unique values --------------------------- */
     if (splits > 1)
-        qsort(sums, splits, sizeof(seq_t), compare_seq_t);
+        mem_qsort(sums, splits, sizeof(seq_t), compare_seq_t);
 
     uint64_t uniq = 1;          /* at least one sum exists (the sum of all parts) */
     for (size_t i = 1; i < splits; ++i)

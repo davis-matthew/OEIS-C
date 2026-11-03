@@ -9,13 +9,15 @@
  *            the triangle is read by rows, with offset 1 (a(1) = 1)
  * Range:     u8 n <= 16, u16 n <= 30, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t N)
 {
@@ -46,5 +48,5 @@ seq_t a(idx_t N)
     idx_t e = r - k;
 
     /* Use the provided big_pow routine to compute base^e. */
-    return big_pow(base, (seq_t)e);
+    return ipow(base, (seq_t)e);
 }

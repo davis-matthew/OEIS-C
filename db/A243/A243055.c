@@ -12,15 +12,27 @@
  *            smallest prime dividing n
  * Range:     u8 n <= 3241, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi, gpf, lpf
+ * Validated: standard, pass, 106 terms through n = 9303 (2026-11-01)
+ * Helpers:   largest_prime_factor, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/lpf.h"       /* lpf(uint64_t n) -> smallest prime factor */
-#include "../utils/gpf.h"       /* gpf(uint64_t n) -> greatest prime factor */
-#include "../utils/compute_pi.h"/* compute_pi(idx_t x) -> number of primes <= x */
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/largest_prime_factor.h"
+#include "../utils/prime_pi.h"
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 
 seq_t a(idx_t n)
 {
@@ -28,14 +40,14 @@ seq_t a(idx_t n)
 
     /* Smallest and largest prime factors (values) */
     uint64_t sp = lpf((uint64_t)n);
-    uint64_t gp = gpf((uint64_t)n);
+    uint64_t gp = largest_prime_factor((uint64_t)n);
 
     /* If n is prime the difference is zero */
     if (sp == gp) return (seq_t)0;
 
     /* Convert prime values to their indices via the prime‑counting function */
-    seq_t i = compute_pi((idx_t)sp);    /* index of smallest prime factor */
-    seq_t k = compute_pi((idx_t)gp);    /* index of largest prime factor */
+    seq_t i = prime_pi((idx_t)sp);    /* index of smallest prime factor */
+    seq_t k = prime_pi((idx_t)gp);    /* index of largest prime factor */
 
     return k - i;                       /* difference of indices */
 }

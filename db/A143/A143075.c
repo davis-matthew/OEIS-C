@@ -10,12 +10,14 @@
  *            expansion of 1/(1 - 4x + 5x^2 - 6x^4 + 6x^5 - x^6 - 2x^7 + x^8)
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached values of the sequence   */
 static idx_t  cache_cap = 0;         /* allocated size of cache        */
@@ -27,14 +29,14 @@ ensure_cache(idx_t n)
     /* allocate or grow the cache if necessary                            */
     if (cache == NULL) {
         cache_cap = (n + 1) < 8 ? 8 : (n + 1);
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(1);
         cache[0] = (seq_t)1;            /* a(0) = 1                      */
         cache_max = 0;
     } else if (n >= cache_cap) {
         idx_t new_cap = cache_cap;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_cap = new_cap;

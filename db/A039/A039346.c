@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   has_eq_counts
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
    for subsequent calls. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_eq_counts.h"
+#include "../utils/mem.h"
+
+/* Helper: true if x's octal digits contain the same non‑zero count of 2
+   and 7.  Uses only integer operations allowed by the specification. */
+static inline bool has_eq_counts(seq_t x)
+{
+    unsigned cnt2 = 0, cnt7 = 0;
+    seq_t tmp = x;
+    while (tmp) {
+        unsigned d = (unsigned)(tmp & 7);  /* digit in base 8 */
+        if (d == 2)
+            ++cnt2;
+        else if (d == 7)
+            ++cnt7;
+        tmp >>= 3;                         /* divide by 8 */
+    }
+    return cnt2 > 0 && cnt2 == cnt7;
+}
 
 /* Cached terms of the sequence.  The array grows lazily as needed. */
 static seq_t *seq_cache     = NULL;   /* array of terms, 0‑based */
@@ -38,7 +56,7 @@ static void ensure_size(idx_t n)
         size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
         while (cache_size + (size_t)n > new_cap)
             new_cap *= 2;
-        seq_t *new_mem = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_mem = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_mem) {
             /* Allocation failed; terminate program as sequence cannot be
                calculated further. */

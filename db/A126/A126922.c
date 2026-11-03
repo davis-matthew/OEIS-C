@@ -10,13 +10,15 @@
  *            (x^8+22x^7+208x^6+874x^5+1480x^4+874x^3+208x^2+22x+1)/(1-x)^8
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 24, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= 8; ++k) {
         if (n < k) continue;
         idx_t m = n + 7 - k;               /* m >= 7 for binom(m,7) */
-        seq_t b = binom(m, 7);             /* binom(m,7) */
+        seq_t b = binomial(m, 7);             /* binom(m,7) */
         result += (seq_t)coeff[k] * b;     /* safe: coeff fits in 16 bits */
     }
     return result;

@@ -9,6 +9,7 @@
  *            ceil((n+1)/2)!) Base cases: a(0) = a(1) = 1
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 18, u64 n <= 30, u128 n <= 50,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 723 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

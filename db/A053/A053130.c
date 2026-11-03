@@ -5,19 +5,21 @@
  * Offset:    8    (a(8) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = binomial(2*n-7,8)
- * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 28, u64 n <= 200, u128 n <= 200,
+ * Range:     u8 n <= 9, u16 n <= 12, u32 n <= 35, u64 n <= 200, u128 n <= 200,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 44 terms through n = 187 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     if (n < 8)
         return 0;
     idx_t m = 2*n - 7;
-    return binom(m, 8);
+    return binomial(m, 8);
 }

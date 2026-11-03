@@ -8,22 +8,25 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   mul_mod64
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Finds the smallest positive integer m such that n divides floor(8^m/m). */
 #include <stdint.h>
-#include "../utils/mul_mod64.h"
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mulmod.h"
 
 static uint64_t pow_mod_8(uint64_t exp, uint64_t mod) {
     if (mod == 1) return 0;
     uint64_t base = 8 % mod;
     uint64_t result = 1 % mod;
     while (exp) {
-        if (exp & 1) result = mul_mod64(result, base, mod);
-        base = mul_mod64(base, base, mod);
+        if (exp & 1) result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;

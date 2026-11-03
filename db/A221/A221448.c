@@ -12,7 +12,8 @@
  *            values (offset 1): a(1)=1, a(2)=31, a(3)=221,...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* coefficients for the recurrence, index k=0 … 16 corresponds to a(n-k-1) */
 static const int64_t coeff[17] = {
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 
     /* ensure cache has space for the initial 17 values */
     if (capacity < 17ULL) {
-        seq_t *tmp = (seq_t *)realloc(cache, 17ULL * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, 17ULL);
         if (!tmp) return (seq_t)0;          /* allocation failed */
         cache   = tmp;
         capacity = 17ULL;
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 
     /* grow cache if necessary for new n */
     if (capacity < n) {
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) return (seq_t)0;          /* allocation failed */
         cache   = tmp;
         capacity = n;

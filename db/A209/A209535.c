@@ -11,13 +11,15 @@
  *            (subset‑sum)
  * Range:     u8 n <= 9, u16 n <= 24, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Allocate array for q[0..n] */
-    seq_t *q = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *q = mem_new(seq_t, (size_t)(n + 1));
     if (!q) return 0;              /* allocation failure – unlikely */
 
     /* Initialization */
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
         result += t * t;
     }
 
-    free(q);
+    mem_free(q);
     return result;
 }

@@ -8,13 +8,13 @@
  * Formula:   a(n) = numerator( n * Σ_{k=1..n} 2^(k-1)/k )
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_gcd.h"
-
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +32,7 @@ seq_t a(idx_t n)
         seq_t new_num = S_num * term_den + term_num * S_den;
         seq_t new_den = S_den * term_den;
 
-        seq_t g = seq_gcd(new_num, new_den);
+        seq_t g = gcd(new_num, new_den);
         S_num = new_num / g;
         S_den = new_den / g;
 
@@ -42,6 +42,6 @@ seq_t a(idx_t n)
     seq_t num = S_num * n;                /* numerator of E(n) * n       */
     seq_t den = S_den;                    /* denominator unchanged        */
 
-    seq_t g = seq_gcd(num, den);
+    seq_t g = gcd(num, den);
     return num / g;                       /* return the reduced numerator */
 }

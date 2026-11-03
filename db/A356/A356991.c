@@ -11,12 +11,14 @@
  *            function returns a(n) for all n ≥ 2
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 92 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *fib = NULL;          /* Fibonacci numbers */
 static size_t fib_len = 0;         /* number of Fibonacci numbers stored */
@@ -28,14 +30,14 @@ static void ensure_fib_upto(size_t idx)
 {
     if (fib == NULL) {
         fib_len = 2;
-        fib = (seq_t *)malloc(sizeof(seq_t) * fib_len);
+        fib = mem_new(seq_t, fib_len);
         fib[0] = (seq_t)0;
         fib[1] = (seq_t)1;
     }
     if (fib_len > idx) return;
     size_t old = fib_len;
     fib_len = idx + 1;
-    fib = (seq_t *)realloc(fib, sizeof(seq_t) * fib_len);
+    fib = mem_resize(seq_t, fib, fib_len);
     for (size_t i = old; i <= idx; ++i)
         fib[i] = fib[i-1] + fib[i-2];
 }
@@ -45,14 +47,14 @@ static void ensure_lucas_upto(size_t idx)
 {
     if (lucas == NULL) {
         lucas_len = 2;
-        lucas = (seq_t *)malloc(sizeof(seq_t) * lucas_len);
+        lucas = mem_new(seq_t, lucas_len);
         lucas[0] = (seq_t)2;
         lucas[1] = (seq_t)1;
     }
     if (lucas_len > idx) return;
     size_t old = lucas_len;
     lucas_len = idx + 1;
-    lucas = (seq_t *)realloc(lucas, sizeof(seq_t) * lucas_len);
+    lucas = mem_resize(seq_t, lucas, lucas_len);
     for (size_t i = old; i <= idx; ++i)
         lucas[i] = lucas[i-1] + lucas[i-2];
 }

@@ -9,12 +9,14 @@
  *            matrix M with M[i,j] = (-1)^(i+j)*i/j for i,j = 1..n
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 20, u64 n <= 33, u128 n <= 33,
  *            big any n
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

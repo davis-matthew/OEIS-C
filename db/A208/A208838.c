@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The types idx_t and seq_t are supplied by the build system; no redeclaration is required. */
 
@@ -88,10 +90,10 @@ static void init_precomputations(void)
 
     /* Allocate DP tables. */
     state_size = num_rows * num_rows;
-    dp_prev = (seq_t *)malloc(state_size * sizeof(seq_t));
-    dp_curr = (seq_t *)malloc(state_size * sizeof(seq_t));
-    memset(dp_prev, 0, state_size * sizeof(seq_t));
-    memset(dp_curr, 0, state_size * sizeof(seq_t));
+    dp_prev = mem_new(seq_t, state_size);
+    dp_curr = mem_new(seq_t, state_size);
+    mem_set(dp_prev, 0, state_size * sizeof(seq_t));
+    mem_set(dp_curr, 0, state_size * sizeof(seq_t));
 
     /* Allocate transition masks. */
     next_mask = (uint64_t *)malloc(state_size * sizeof(uint64_t));
@@ -130,7 +132,7 @@ static void ensure_cache(idx_t n)
 
         /* Allocate cache for indices 0..2 (index 0 unused). */
         a_cap = 3;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = (seq_t)0;            /* unused */
         a_cache[1] = (seq_t)num_rows;     /* a(1) */
         a_cache[2] = (seq_t)(num_rows * (seq_t)num_rows); /* a(2) */
@@ -141,13 +143,13 @@ static void ensure_cache(idx_t n)
     /* Resize cache if needed. */
     if ((idx_t)(a_cap) <= n) {
         a_cap = (size_t)(n) + 1;
-        a_cache = (seq_t *)realloc(a_cache, a_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, a_cap);
     }
 
     /* Incrementally compute missing terms. */
     for (idx_t len = last_len + 1; len <= n; ++len) {
         /* Zero dp_curr. */
-        memset(dp_curr, 0, state_size * sizeof(seq_t));
+        mem_set(dp_curr, 0, state_size * sizeof(seq_t));
 
         /* From dp_prev (length len-2) to dp_curr (length len-1). */
         for (size_t p = 0; p < num_rows; ++p) {

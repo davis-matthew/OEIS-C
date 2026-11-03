@@ -9,13 +9,29 @@
  *            3)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_largest_digit_three
+ * Validated: standard, pass, 121 terms through n = 9966 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_largest_digit_three.h"
+
+/* Return true iff the largest decimal digit of d is exactly 3. */
+static bool has_largest_digit_three(idx_t d)
+{
+    bool found_three = false;
+    while (d > 0)
+    {
+        unsigned digit = d % 10U;
+        if (digit > 3U)          /* digit too large */
+            return false;
+        if (digit == 3U)
+            found_three = true;
+        d /= 10U;
+    }
+    return found_three;
+}
 
 seq_t a(idx_t n)
 {

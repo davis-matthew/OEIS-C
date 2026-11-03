@@ -7,13 +7,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n mod 3 != 0 and has an even number of prime factors
  *            (counted with multiplicity); otherwise 0
- * Range:     u8 n <= 8444, u16 n <= 8444, u32 n <= 8444, u64 n <= 8444,
- *            u128 n <= 8444, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 8444 (2026-11-01)
  * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/bigomega.h"
 
 seq_t a(idx_t n)

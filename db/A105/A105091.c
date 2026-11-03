@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000040(9*n-6) + A000040(9*n-4) + A000040(9*n-2)
  * Range:     u8 n <= 3, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *primes = NULL;        /* array of primes */
 static idx_t prime_count = 0;       /* number of primes stored */
@@ -44,8 +46,8 @@ static void build_primes(size_t limit)
         if (is_prime[i]) ++count;
 
     /* Allocate or reallocate primes array */
-    if (primes) free(primes);
-    primes = (seq_t*)malloc(count * sizeof(seq_t));
+    if (primes) mem_free(primes);
+    primes = mem_new(seq_t, count);
     if (!primes) exit(1);
 
     /* Fill primes array */

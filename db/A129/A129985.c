@@ -7,6 +7,7 @@
  * Formula:   a(n) = multiplicative persistence of the nth prime
  * Range:     u8 n <= 54, u16 n <= 7141, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 116 terms through n = 8910 (2026-11-01)
  * Helpers:   build_primes, digit_product
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,9 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
 #include "../utils/digit_product.h"
 

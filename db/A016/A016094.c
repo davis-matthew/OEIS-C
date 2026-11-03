@@ -8,13 +8,15 @@
  *            a(1) = 42
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for already computed terms.  This makes repeated calls fast
    and allows non‑sequential access to a(n). */
@@ -30,7 +32,7 @@ static void GrowCache(size_t needed)
     size_t new_cap = CacheCap ? CacheCap * 2 : 4;
     if (new_cap < needed)
         new_cap = needed;
-    Cache = (seq_t *)realloc(Cache, new_cap * sizeof(seq_t));
+    Cache = mem_resize(seq_t, Cache, new_cap);
     CacheCap = new_cap;
 }
 

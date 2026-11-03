@@ -9,14 +9,23 @@
  *            a(1)=3, a(2)=4, a(3)=7, a(4)=12
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   alloc_seq
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +48,7 @@ seq_t a(idx_t n)
     if (memo == NULL || need > memo_cap) {
         seq_t *p;
 #ifdef __cplusplus
-        p = static_cast<seq_t*>(realloc(memo, need * sizeof(seq_t)));
+        p = mem_resize(seq_t, memo, need);
 #else
         p = realloc(memo, need * sizeof(seq_t));
 #endif

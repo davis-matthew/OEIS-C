@@ -7,16 +7,29 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   alloc_cache, big_pow, free_cache
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  a(n) = Σ_{k=n}^{2n-1} k^k      (OEIS A262926)  */
 #include <stdlib.h>
-#include "../utils/big_pow.h"      /* provides seq_t big_pow(seq_t base, seq_t exp) */
-#include "../utils/free_cache.h"  /* provides void free_cache(seq_t *p)  */
-#include "../utils/alloc_cache.h"/* provides seq_t *alloc_cache(idx_t n) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *pow_cache  = NULL;     /* pow_cache[i] = i^i  for i>=0  (0^0 = 0) */
 static seq_t *pref_cache = NULL;     /* pref_cache[i] = Σ_{k=0}^{i} k^k   */
@@ -51,7 +64,7 @@ ensure_pref_cache(idx_t m)
             new_pow[i]  = (seq_t)0;
             new_pref[i] = new_pow[i];
         } else {
-            new_pow[i]  = big_pow((seq_t)i, (seq_t)i);
+            new_pow[i]  = ipow((seq_t)i, (seq_t)i);
             new_pref[i] = new_pref[i - 1] + new_pow[i];
         }
     }

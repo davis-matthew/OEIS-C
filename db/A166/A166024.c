@@ -10,12 +10,26 @@
  *            recurrence a(n+1)=dsf(a(n)) with a(1)=421845123)
  * Range:     u8 none, u16 none, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   dsf
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/dsf.h"
+static inline seq_t dsf(seq_t x)
+{
+    seq_t sum = 0;
+    while (x > 0)
+    {
+        seq_t digit = x % 10;
+        seq_t pow = 1;
+        for (seq_t i = 0; i < digit; ++i)
+            pow *= digit;
+        sum += pow;
+        x /= 10;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

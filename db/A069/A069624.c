@@ -9,14 +9,16 @@
  *            > 1
  * Range:     u8 n <= 15, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 static seq_t kth_root_floor(seq_t n, idx_t k)
 {
@@ -30,7 +32,7 @@ static seq_t kth_root_floor(seq_t n, idx_t k)
        simple doubling loop.  For larger values this can be
        replaced by a more sophisticated bound using bit lengths. */
     while (true) {
-        seq_t hpow = big_pow(high, (seq_t)k);
+        seq_t hpow = ipow(high, (seq_t)k);
         if (hpow > n)
             break;
         low = high;
@@ -47,7 +49,7 @@ static seq_t kth_root_floor(seq_t n, idx_t k)
     /* Binary search between low and high */
     while (low < high) {
         seq_t mid = low + (high - low + 1) / 2;
-        seq_t mpow = big_pow(mid, (seq_t)k);
+        seq_t mpow = ipow(mid, (seq_t)k);
         if (mpow <= n)
             low = mid;
         else

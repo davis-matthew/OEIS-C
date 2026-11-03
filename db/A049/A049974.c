@@ -11,13 +11,15 @@
  *            (a(1)+…+a(v)) + a(m)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 static seq_t vals[10001];   /* vals[i] == a(i), 1‑based */
 static seq_t sums[10001];   /* sums[i] == a(1)+…+a(i) */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         for (idx_t i = 1; i <= n; ++i) {
             idx_t v = i - 1;
             if (i >= 4 && v >= 1) {
-                idx_t p = floor_log2_uint64(v - 1);
+                idx_t p = ilog2(v - 1);
                 idx_t pow2 = ((idx_t)1) << p;
                 idx_t m = v - pow2;
                 sum = sum + a(i - 1) + a(m);
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = computed + 1; i <= n; ++i) {
         idx_t v = i - 1;
-        idx_t p = floor_log2_uint64(v - 1);
+        idx_t p = ilog2(v - 1);
         idx_t pow2 = ((idx_t)1) << p;
         idx_t m = v - pow2;
         seq_t term = sums[v] + vals[m];

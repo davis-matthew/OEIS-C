@@ -12,14 +12,15 @@
  *            = 0
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -31,18 +32,18 @@ seq_t a(idx_t n)
     seq_t one = 1;
     seq_t two = 2;
 
-    seq_t power_n_n     = big_pow(N, (seq_t)n);          /* n^n */
-    seq_t power_nm1_n   = big_pow(N - 1, (seq_t)n);      /* (n-1)^n */
+    seq_t power_n_n     = ipow(N, (seq_t)n);          /* n^n */
+    seq_t power_nm1_n   = ipow(N - 1, (seq_t)n);      /* (n-1)^n */
     seq_t F1            = power_n_n - power_nm1_n - one;
 
     /* second factor: n^(n^2-n) - 2*(n-1)^(n^2-n) + (n-2)^(n^2-n) - 2^(n^2-n) + 2 */
     idx_t exp_idx = n * n - n;          /* n^2 - n fits in idx_t for n <= 10000 */
     seq_t exp_val = (seq_t)exp_idx;
 
-    seq_t power_n_exp      = big_pow(N,     exp_val);   /* n^(n^2-n) */
-    seq_t power_nm1_exp    = big_pow(N - 1, exp_val);   /* (n-1)^(n^2-n) */
-    seq_t power_nm2_exp    = big_pow(N - 2, exp_val);   /* (n-2)^(n^2-n) */
-    seq_t power_two_exp    = big_pow(two,   exp_val);   /* 2^(n^2-n) */
+    seq_t power_n_exp      = ipow(N,     exp_val);   /* n^(n^2-n) */
+    seq_t power_nm1_exp    = ipow(N - 1, exp_val);   /* (n-1)^(n^2-n) */
+    seq_t power_nm2_exp    = ipow(N - 2, exp_val);   /* (n-2)^(n^2-n) */
+    seq_t power_two_exp    = ipow(two,   exp_val);   /* 2^(n^2-n) */
 
     seq_t two_nm1 = power_nm1_exp << 1;                 /* 2 * (n-1)^(n^2-n) */
 

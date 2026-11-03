@@ -9,12 +9,14 @@
  *            a(0)=1, a(n)=10*9^(n-1) for 1≤n≤35
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Initialise the first 36 terms the first time the function is called. */
     if (!init) {
-        cache = (seq_t *)calloc(36, sizeof(seq_t));
+        cache = mem_new(seq_t, 36);
         if (!cache) abort();          /* allocation failure */
         cache[0] = (seq_t)1;
         seq_t pow9 = (seq_t)1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Extend cache and compute new terms if the caller requested a larger n. */
     if (n > max_computed) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* allocation failure */
         cache = tmp;
 

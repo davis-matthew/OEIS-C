@@ -5,15 +5,17 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 9929, i16 n <= 9929, i32 n <= 9929, i64 n <= 9929,
- *            i128 n <= 9929, big any n
- * Helpers:   none
+ * Range:     i8 n <= 49999, i16 n <= 49999, i32 n <= 49999, i64 n <= 49999,
+ *            i128 n <= 49999, big any n
+ * Validated: standard, pass, 112 terms through n = 9929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Sequence: First differences of A317192.
    Generated from the tribonacci morphism
@@ -63,7 +65,7 @@ ensure_cache(idx_t n)
         if (cache_cap < new_len) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 1;
             while (new_cap < new_len) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(gend_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, gend_cache, new_cap);
             if (!tmp) abort();
             gend_cache = tmp;
             cache_cap  = new_cap;

@@ -9,14 +9,31 @@
  *            of the base‑11 representations of 1,2,…,n,n-1,…,1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   digits_in_base11, pow11_of_len
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digits_in_base11.h"
-#include "../utils/pow11_of_len.h"
+
+/* Helper: number of digits of x in base 11 (x>0) */
+static int digits_in_base11(idx_t x) {
+    int d = 1;
+    while (x >= 11) {
+        x /= 11;
+        ++d;
+    }
+    return d;
+}
+
+/* Helper: 11^len in seq_t */
+static seq_t pow11_of_len(int len) {
+    seq_t r = 1;
+    while (len-- > 0)
+        r = r * 11;
+    return r;
+}
 
 seq_t a(idx_t n) {
     seq_t res = 0;

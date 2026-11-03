@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 none, u32 n <= 23, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    and returns the short leg (min(a,b)) of the n‑th triple in that order. */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t prod;
@@ -45,7 +48,7 @@ static void ensure_capacity(size_t needed, size_t *cap) {
     if (needed <= *cap) return;
     size_t new_cap = *cap ? *cap * 2 : 32;
     while (new_cap < needed) new_cap *= 2;
-    triples = (Triple *)realloc(triples, new_cap * sizeof(Triple));
+    triples = mem_resize(Triple, triples, new_cap);
     *cap = new_cap;
 }
 
@@ -78,7 +81,7 @@ static void ensure_triples(idx_t n) {
 
         m_max = new_m_max;
         /* Re‑sort after adding new triples. */
-        qsort(triples, triple_len, sizeof(Triple), cmp_triple);
+        mem_qsort(triples, triple_len, sizeof(Triple), cmp_triple);
     }
 }
 

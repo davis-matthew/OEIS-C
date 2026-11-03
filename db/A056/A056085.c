@@ -8,7 +8,8 @@
  *            mod 1331
  * Range:     u8 n <= 3, u16 n <= 493, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow_uint
+ * Validated: standard, pass, 59 terms through n = 9348 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mod_pow_uint.h"
+
+/* Fast modular exponentiation using 64‑bit arithmetic.
+   Inputs are small enough (base, exponent, mod ≤ 1331), so 64 bits are safe. */
+static uint64_t mod_pow_uint(uint64_t base, uint64_t exp, uint64_t mod)
+{
+    uint64_t result = 1 % mod;
+    base %= mod;
+    while (exp > 0) {
+        if (exp & 1ULL)
+            result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1ULL;
+    }
+    return result;
+}
 
 static seq_t residues[1331];
 static size_t residue_count = 0;

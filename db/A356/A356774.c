@@ -9,15 +9,17 @@
  *            d-1) + d*binom(n/d, d+1)*(-1)^{d+1} (if n/d ≥ d+1) ] plus an
  *            extra +1 from the n=1 term. This follows from splitting the
  *            original definition into positive and negative summands
- * Range:     i8 n <= 11, i16 n <= 67, i32 n <= 311, i64 n <= 1364,
+ * Range:     i8 n <= 14, i16 n <= 67, i32 n <= 311, i64 n <= 1364,
  *            i128 n <= 2050, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 67 terms through n = 2026 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include the binomial coefficient routine. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Compute the coefficient a(n) of the power series for A356774. */
 seq_t a(idx_t n)
@@ -34,14 +36,14 @@ seq_t a(idx_t n)
         /* Positive-n contribution (d≥2). */
         if (d >= 2 && q <= d-1) {
             seq_t sign = ((q-1) & 1) ? -1 : 1; /* (-1)^(q-1) */
-            seq_t bin  = binom(d-2, q-1);
+            seq_t bin  = binomial(d-2, q-1);
             seq_t term = (seq_t)d * bin;
             res += (sign == 1) ? term : -term;
         }
         /* Negative-n contribution. */
         if (q >= d+1) {
             seq_t sign = ((d+1) & 1) ? -1 : 1; /* (-1)^(d+1) */
-            seq_t bin  = binom(q, d+1);
+            seq_t bin  = binomial(q, d+1);
             seq_t term = (seq_t)d * bin;
             res += (sign == 1) ? term : -term;
         }
@@ -54,14 +56,14 @@ seq_t a(idx_t n)
             /* Positive-n contribution (d2≥2). */
             if (d2 >= 2 && q2 <= d2-1) {
                 seq_t sign = ((q2-1) & 1) ? -1 : 1;
-                seq_t bin  = binom(d2-2, q2-1);
+                seq_t bin  = binomial(d2-2, q2-1);
                 seq_t term = (seq_t)d2 * bin;
                 res += (sign == 1) ? term : -term;
             }
             /* Negative-n contribution. */
             if (q2 >= d2+1) {
                 seq_t sign = ((d2+1) & 1) ? -1 : 1;
-                seq_t bin  = binom(q2, d2+1);
+                seq_t bin  = binomial(q2, d2+1);
                 seq_t term = (seq_t)d2 * bin;
                 res += (sign == 1) ? term : -term;
             }

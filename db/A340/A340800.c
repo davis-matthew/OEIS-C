@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* provides build_primes_upto */
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t *answers = NULL;          /* answers[1..] holds a(n) */
 static size_t answers_cap = 0;          /* current allocated size (1‑based) */
@@ -57,7 +59,7 @@ static void init_state(void)
 static void extend_answers(size_t new_cap)
 {
     if (new_cap <= answers_cap) return;
-    seq_t *tmp = (seq_t *)realloc(answers, sizeof(seq_t) * (new_cap + 1));
+    seq_t *tmp = mem_resize(seq_t, answers, (new_cap + 1));
     if (!tmp) abort();
     /* zero the new part */
     for (size_t i = answers_cap + 1; i <= new_cap; ++i) tmp[i] = (seq_t)0;

@@ -8,12 +8,14 @@
  *            a(0)=0, a(1)=0, a(2)=1, a(3)=3
  * Range:     i8 n <= 11, i16 n <= 21, i32 n <= 41, i64 n <= 80, i128 n <= 158,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 844 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoised sequence values */
 static idx_t  capacity = 0;   /* allocated size (in elements)      */
@@ -26,7 +28,7 @@ static void ensure_capacity(idx_t need)
     idx_t min_cap = need > 4 ? need : 4;     /* at least four slots */
     if (capacity < min_cap) {
         /* reallocate */
-        seq_t *tmp = (seq_t *)realloc(cache, min_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, min_cap);
         if (!tmp) {
             /* out of memory – abort (unreachable in the test harness) */
             exit(1);

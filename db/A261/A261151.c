@@ -7,6 +7,7 @@
  * Formula:   a(n) = 11410337850553 + (n-1)*460909869420
  * Range:     u8 none, u16 none, u32 none, u64 n <= 1000, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 983 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,12 +12,14 @@
  *            starting with a(1)=1
  * Range:     u8 n <= 37, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,12 +36,12 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (cache_len == 0) {
         cache_cap = 128;
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
 
         current_row = 1;
         /* row 1: u(1,x)=1, v(1,x)=1 */
-        u          = (seq_t *)malloc(sizeof(seq_t));
-        v          = (seq_t *)malloc(sizeof(seq_t));
+        u          = mem_new(seq_t, 1);
+        v          = mem_new(seq_t, 1);
         u[0] = 1;
         v[0] = 1;
 
@@ -53,8 +55,8 @@ seq_t a(idx_t n)
         /* length of the new row to produce */
         idx_t new_len = current_row + 1;
 
-        seq_t *next_u = (seq_t *)malloc(new_len * sizeof(seq_t));
-        seq_t *next_v = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *next_u = mem_new(seq_t, new_len);
+        seq_t *next_v = mem_new(seq_t, new_len);
 
         for (idx_t j = 0; j < new_len; ++j) {
             /* previous row has length new_len-1 */
@@ -70,8 +72,8 @@ seq_t a(idx_t n)
         }
 
         /* free old arrays and replace them with the new ones */
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         u = next_u;
         v = next_v;
 
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         if (cache_len + new_len > cache_cap) {
             while (cache_len + new_len > cache_cap)
                 cache_cap <<= 1;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* append the new row's coefficients to the cache */

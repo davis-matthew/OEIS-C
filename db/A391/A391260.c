@@ -9,9 +9,10 @@
  * Formula:   a(n) = i*j if B_i(x)·B_j(x) equals the Stern polynomial
  *            B_{i*j}(x), otherwise a(n) = 0. Here i and j are the
  *            antidiagonal coordinates of index n
- * Range:     u8 n <= 480, u16 n <= 9337, u32 n <= 9337, u64 n <= 9337,
- *            u128 n <= 9337, big any n
- * Helpers:   none
+ * Range:     u8 n <= 480, u16 n <= 22155, u32 n <= 22155, u64 n <= 22155,
+ *            u128 n <= 22155, big any n
+ * Validated: standard, pass, 107 terms through n = 9337 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Maximum degree of any computed Stern polynomial.  For n up to 3·10⁴ the
    degree never exceeds 32.  Increase if a larger bound is needed.    */
@@ -46,7 +48,7 @@ static void init_polynomials(void)
 {
     if (poly_table != NULL) return;              /* already initialized */
 
-    poly_table = (poly_t *)calloc(MAX_POLY_IDX + 1, sizeof(poly_t));
+    poly_table = mem_new(poly_t, MAX_POLY_IDX + 1);
     if (!poly_table) abort();                    /* cannot allocate */
 
     /* 0: B_0 = 0                                           */

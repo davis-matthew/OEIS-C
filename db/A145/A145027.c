@@ -8,7 +8,8 @@
  *            3, a(3) = 4
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 36, u64 n <= 73, u128 n <= 146,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /*  and is valid in C11 as well as C++17 (void* casts are performed). */
 
 #include <stdlib.h>  /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         /* We need space for indices 1..max(3, n).  +1 because storage
            is 1‑based; we ignore index 0 for simplicity. */
         cap = (size_t)((n > 3) ? (n + 1) : 4);
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == (seq_t *)NULL)   /* allocation failed: abort gracefully */
             return (seq_t)0;
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* Grow the cache if the requested n exceeds current capacity. */
     if ((idx_t)(cap) <= n) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == (seq_t *)NULL)   /* reallocation failed: abort gracefully */
             return (seq_t)0;
         cache = tmp;

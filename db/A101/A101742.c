@@ -8,61 +8,62 @@
  * Formula:   Not a closed form. Brute‑force search for the next term. a(1) =
  *            1. a(n+1) = smallest integer > a(n) having more divisors than
  *            a(n) or having exactly as many divisors as a(n‑1)
- * Range:     u8 n <= 37, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
- *            big any n
- * Helpers:   d
+ * Range:     u8 n <= 37, u16 n <= 158, u32 n <= 400, u64 n <= 400,
+ *            u128 n <= 400, big any n
+ * Validated: standard, pass, 76 terms through n = 395 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include <stdlib.h>
-#include "../utils/d.h"   /* d(seq_t n) returns τ(n) */
+/* a(1) = 1; a(n+1) is the least k > a(n) with tau(k) > tau(a(n)) or
+   tau(k) = tau(a(n-1)). The search and the divisor counts are in 64 bits
+   (the terms stay small; in seq_t the search timed out under big), and the
+   terms are cached. */
 
-static seq_t divisor_count(seq_t n) { return d(n); }
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static uint64_t tau_u64(uint64_t n)
+{
+    uint64_t d = 1;
+    for (uint64_t p = 2; p * p <= n; ++p)
+        if (n % p == 0) {
+            uint64_t e = 0;
+            while (n % p == 0) { n /= p; ++e; }
+            d *= e + 1;
+        }
+    return n > 1 ? 2 * d : d;
+}
 
 seq_t a(idx_t n)
 {
     static seq_t *vals = NULL;
-    static seq_t *taux = NULL;
-    static idx_t sz = 0;
-    static idx_t cap = 0;
-
-    if (sz == 0) {          /* initialise with a(1) */
-        cap = 16;
-        vals = (seq_t *)malloc(sizeof(seq_t) * cap);
-        taux = (seq_t *)malloc(sizeof(seq_t) * cap);
-        vals[0] = (seq_t)1;
-        taux[0] = divisor_count(vals[0]);   /* τ(1)=1 */
-        sz = 1;
-    }
-
-    /* generate terms up to the requested index n */
-    while (sz < n) {
-        seq_t prev          = vals[sz - 1];
-        seq_t prev_tau      = taux[sz - 1];
-        seq_t prev_prev_tau = (sz >= 2) ? taux[sz - 2] : (seq_t)0;
-
-        seq_t cand = prev + (seq_t)1;
-        seq_t cand_tau;
-
-        /* find the next suitable integer */
-        while (1) {
-            cand_tau = divisor_count(cand);
-            if (cand_tau > prev_tau || (sz >= 2 && cand_tau == prev_prev_tau))
-                break;
-            cand += (seq_t)1;
+    static size_t sz = 0, cap = 0;
+    static uint64_t last = 0, tau1 = 0, tau2 = 0;     /* a(sz), tau(a(sz)), tau(a(sz-1)) */
+    if (n == 0) return (seq_t)0;
+    while (sz < (size_t)n) {
+        uint64_t k, t;
+        if (sz == 0) {
+            k = 1;
+            t = 1;
+        } else {
+            for (k = last + 1;; ++k) {
+                t = tau_u64(k);
+                if (t > tau1 || (sz >= 2 && t == tau2)) break;
+            }
         }
-
-        if (sz == cap) {             /* grow storage if needed */
-            cap <<= 1;
-            vals = (seq_t *)realloc(vals, sizeof(seq_t) * cap);
-            taux = (seq_t *)realloc(taux, sizeof(seq_t) * cap);
+        if (sz == cap) {
+            cap = cap ? 2 * cap : 64;
+            seq_t *v = mem_resize(seq_t, vals, cap);
+            if (!v) abort();
+            vals = v;
         }
-
-        vals[sz] = cand;
-        taux[sz] = cand_tau;
-        ++sz;
+        vals[sz++] = (seq_t)k;
+        tau2 = tau1;
+        tau1 = t;
+        last = k;
     }
-
     return vals[n - 1];
 }

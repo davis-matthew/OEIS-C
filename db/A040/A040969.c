@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 57 terms through n = 987 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
             if (!comp[i]) {
                 /* i is prime */
                 if (i % 5U == 1U) {
-                    seq_t val = mod_pow((seq_t)12, (i - 1) / 5U, (seq_t)i);
+                    seq_t val = powmod((seq_t)12, (i - 1) / 5U, (seq_t)i);
                     if (val != (seq_t)1) {
                         ++count;
                         if (count == n) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 85, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_distinct_prime_factors
+ * Validated: standard, pass, 54 terms through n = 9773 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
-#include "../utils/sum_distinct_prime_factors.h"   /* not used but avoids missing include */
+/* ----- Helper: sum of distinct prime factors of a number --------------- */
+static idx_t sum_distinct_prime_factors(idx_t v)
+{
+    if (v < 2) return 0;
+    idx_t sum = 0;
+    idx_t m = v;
+
+    for (idx_t p = 2; p <= m / p; ++p) {
+        if (m % p == 0) {
+            sum += p;
+            while (m % p == 0) m /= p;
+        }
+    }
+    if (m > 1) sum += m;
+    return sum;
+}
 /* (The list of utilities is long; only the standard headers are needed for this implementation.) */
 
 /* ---------------------------------------------------------------------- */
@@ -114,8 +131,8 @@ seq_t a(idx_t n)
             /* Both conditions satisfied – store term */
             if (cache_len == cache_cap) {
                 cache_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t*)realloc(term_cache, cache_cap * sizeof(seq_t));
-                if (!tmp) { cache_cap = 0; free(term_cache); term_cache = NULL; return 0; }
+                seq_t *tmp = mem_resize(seq_t, term_cache, cache_cap);
+                if (!tmp) { cache_cap = 0; mem_free(term_cache); term_cache = NULL; return 0; }
                 term_cache = tmp;
             }
             term_cache[cache_len++] = (seq_t)k;

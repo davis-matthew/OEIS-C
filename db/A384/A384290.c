@@ -9,14 +9,22 @@
  * Formula:   a(n) = (214013 * a(n-1) + 10395331) mod 2^24, with a(1) = 1
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   lcg_next
+ * Validated: standard, pass, 44 terms through n = 9774 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Use the seq_t type provided by the build environment. */
 #include <stdint.h>
-#include "../utils/lcg_next.h"
+
+/* One LCG step: generate the next internal state. */
+static inline seq_t lcg_next(seq_t s)
+{
+    /* Mask to 24 bits. The constant 0xFFFFFF is smaller than 2^24
+       and can be safely cast to any unsigned seq_t. */
+    return ((seq_t)214013 * s + (seq_t)10395331) & (seq_t)0xFFFFFF;
+}
 
 /* Return the nth term of the sequence.  The function works for any
    idx_t (uint64_t) and any seq_t width (8, 16, 32, 64 or 128 bits,

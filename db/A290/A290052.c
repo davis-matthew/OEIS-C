@@ -8,7 +8,8 @@
  *            … + x_{2n-2} = n with 0 ≤ x_i ≤ min(i+1, 2n-1-i)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 48,
  *            big any n
- * Helpers:   alloc_zero_array
+ * Validated: standard, pass, 40 terms through n = 917 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,15 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/alloc_zero_array.h"
+
+/* Helper routines for allocating zeroed arrays that work in both C and C++ */
+static seq_t *alloc_zero_array(size_t sz) {
+#ifdef __cplusplus
+    return new seq_t[sz]();          /* value‑initialise (zero for integers) */
+#else
+    return (seq_t*)calloc(sz, sizeof(seq_t));
+#endif
+}
 
 static void free_array(seq_t *p) {
 #ifdef __cplusplus

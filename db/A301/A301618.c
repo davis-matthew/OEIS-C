@@ -7,6 +7,7 @@
  * Formula:   a(n) = least k > n such that gcd(k+1, n+1) > gcd(k, n) > 1
  * Range:     u8 n <= 16, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
+ * Validated: partial, pass, 60 terms through n = 61 (2026-11-01)
  * Helpers:   gcd, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

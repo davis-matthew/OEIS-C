@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 464, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9653 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The implementation uses a linear sieve to pre‑compute the smallest
    prime factor for each integer up to MAX_LIMIT.  The first good
@@ -99,7 +101,7 @@ static void grow_seq(void)
 {
     if (seq_cap == 0) seq_cap = 16;
     else seq_cap <<= 1;
-    seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
     if (!seq_arr) exit(1);
 }
 
@@ -110,7 +112,7 @@ static void build_seq_upto(idx_t n)
 
     if (!seq_arr) {
         seq_cap = 16;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         if (!seq_arr) exit(1);
     }
 

@@ -12,13 +12,15 @@
  *            a(13)=22896
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 62, u128 n <= 127,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static table of the first 13 terms; index 0 unused */
 static const seq_t _precal[14] = {
@@ -38,7 +40,7 @@ static void _ensure_cache(idx_t n)
 {
     if (_cache == NULL) {
         size_t init_cap = 14;                     /* enough for initial terms */
-        _cache = (seq_t*)malloc(init_cap * sizeof(seq_t));
+        _cache = mem_new(seq_t, init_cap);
         _cache_cap = init_cap;
         _cache[0] = 0;
         for (idx_t i = 1; i < 14; ++i) _cache[i] = _precal[i];
@@ -46,7 +48,7 @@ static void _ensure_cache(idx_t n)
     }
     if ((idx_t)(n + 1) > _cache_cap) {
         size_t new_cap = (size_t)(n + 1) * 2;
-        _cache = (seq_t*)realloc(_cache, new_cap * sizeof(seq_t));
+        _cache = mem_resize(seq_t, _cache, new_cap);
         _cache_cap = new_cap;
     }
     for (idx_t i = _cache_max + 1; i <= n; ++i) {

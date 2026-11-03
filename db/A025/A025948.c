@@ -8,13 +8,15 @@
  *            Initial values: a(0)=1, a(1)=22, a(2)=321, a(3)=3938
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 892 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise cache with first four terms */
     if (cache == NULL) {
         cache_size = 4;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)22;
         cache[2] = (seq_t)321;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 
     /* extend the cache up to index n */
     size_t new_size = (size_t)n + 1;
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
 
     /* compute missing terms incrementally */
     for (size_t i = cache_size; i <= (size_t)n; ++i) {

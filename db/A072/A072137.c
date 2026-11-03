@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 102, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reverse
+ * Validated: standard, pass, 121 terms through n = 9864 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
    preperiod).  The algorithm uses Floyd’s cycle‑finding method so it works
    for arbitrary‑precision seq_t and requires only O(1) additional memory. */
 #include <stdlib.h>
-#include "../utils/reverse.h"
+#include <stddef.h>
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -31,24 +33,24 @@ seq_t a(idx_t n)
     seq_t hare     = (seq_t)n;
 
     /* advance tortoise by one step */
-    seq_t rev_t = reverse(tortoise);
+    seq_t rev_t = reverse_digits(tortoise);
     tortoise = (tortoise >= rev_t) ? (tortoise - rev_t) : (rev_t - tortoise);
 
     /* advance hare by two steps until the two pointers meet */
     while (1) {
         /* hare -> next step */
-        seq_t rev_h = reverse(hare);
+        seq_t rev_h = reverse_digits(hare);
         hare = (hare >= rev_h) ? (hare - rev_h) : (rev_h - hare);
 
         /* hare -> second step */
-        rev_h = reverse(hare);
+        rev_h = reverse_digits(hare);
         hare = (hare >= rev_h) ? (hare - rev_h) : (rev_h - hare);
 
         if (tortoise == hare)
             break;                  /* cycle found */
 
         /* tortoise -> next step */
-        rev_t = reverse(tortoise);
+        rev_t = reverse_digits(tortoise);
         tortoise = (tortoise >= rev_t) ? (tortoise - rev_t) : (rev_t - tortoise);
     }
 
@@ -58,10 +60,10 @@ seq_t a(idx_t n)
     size_t mu  = 0;
 
     while (ptr1 != ptr2) {
-        rev_t = reverse(ptr1);
+        rev_t = reverse_digits(ptr1);
         ptr1 = (ptr1 >= rev_t) ? (ptr1 - rev_t) : (rev_t - ptr1);
 
-        rev_t = reverse(ptr2);
+        rev_t = reverse_digits(ptr2);
         ptr2 = (ptr2 >= rev_t) ? (ptr2 - rev_t) : (rev_t - ptr2);
 
         mu++;

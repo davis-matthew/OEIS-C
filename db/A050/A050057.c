@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 74, u32 n <= 516, u64 n <= 4397,
  *            u128 n <= 8193, big any n
- * Helpers:   compute_p
+ * Validated: standard, pass, 64 terms through n = 7933 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
    Initial values: a(1) = 1, a(2) = 3, a(3) = 1.      */
  
 #include <stdint.h>  /* for fixed‑width integer types used by the grader */
-#include "../utils/compute_p.h"
+
+/* Compute the unique integer p such that 2^p < (n-1) ≤ 2^(p+1) .
+   Here t = n-1.      */
+static idx_t compute_p(idx_t t)
+{
+    idx_t p = 0;
+    while (((idx_t)1 << (p + 1)) < t) {
+        ++p;
+    }
+    return p;
+}
 
 #define MAX_CACHE 100000   /* safe upper bound for the requested n */
 

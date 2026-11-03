@@ -8,7 +8,8 @@
  *            sum of six fourth powers in at least six distinct ways
  * Range:     u8 none, u16 n <= 36, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 9436 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper that computes all terms up to a given maximum sum. */
 static void
@@ -56,7 +58,7 @@ compute_terms(idx_t maxSum, seq_t **out, size_t *len)
     }
 
     /* Allocate result array and fill it. */
-    seq_t *terms = (seq_t *)malloc(cnt * sizeof(seq_t));
+    seq_t *terms = mem_new(seq_t, cnt);
     size_t pos = 0;
     for (idx_t s = 0; s <= maxSum; ++s) {
         if (dp[6][s] == 6) {
@@ -88,7 +90,7 @@ ensure_terms(idx_t wanted)
         seq_t *terms;
         size_t len;
         compute_terms(maxSum, &terms, &len);
-        free(cached_terms);
+        mem_free(cached_terms);
         cached_terms = terms;
         cached_len = len;
         cached_max_sum = maxSum;

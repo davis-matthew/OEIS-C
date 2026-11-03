@@ -8,12 +8,14 @@
  * Formula:   a(n) = ∏_{0 ≤ i < j < n} (⌊(i+1)/2⌋² + ⌊(j+1)/2⌋²)
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;      /* stored values a(1)..a(k) in cache[0..k-1]   */
 static size_t  cache_cap = 0;     /* current allocation size                       */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     if (target > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         while (new_cap < target) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

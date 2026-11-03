@@ -11,7 +11,8 @@
  *            non‑zero residues
  * Range:     u8 n <= 25, u16 n <= 723, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         cum_cap = 1;
         row_cap = 1;
-        cum = (seq_t *)malloc(cum_cap * sizeof(seq_t));
+        cum = mem_new(seq_t, cum_cap);
         row = (uint8_t *)malloc(row_cap * sizeof(uint8_t));
         /* row[0] = C(0,0) mod 6 == 1; cum[0] = number of entries in rows 0..0 not divisible by 6 == 1 */
         row[0] = 1;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
 
         if (cum_cap < need) {
             cum_cap = need;
-            cum = (seq_t *)realloc(cum, cum_cap * sizeof(seq_t));
+            cum = mem_resize(seq_t, cum, cum_cap);
         }
 
         if (row_cap < need) {

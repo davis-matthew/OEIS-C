@@ -8,7 +8,8 @@
  *            the number of divisors of k^n divides k^n)
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 8051 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define PRIMELIMIT 100000
 
@@ -127,10 +129,10 @@ static idx_t _cache_size = 0;
 static void _ensure_cache(idx_t n) {
     if (_cache == NULL) {
         _cache_size = 1; /* placeholder for index 0 */
-        _cache = (seq_t *)calloc(_cache_size + 1, sizeof(seq_t));
+        _cache = mem_new(seq_t, _cache_size + 1);
     } else if (n >= _cache_size) {
         size_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _cache, new_size);
         if (tmp == NULL) exit(1); /* allocation failed */
         /* Zero new entries */
         for (size_t i = _cache_size; i < new_size; ++i) tmp[i] = 0;

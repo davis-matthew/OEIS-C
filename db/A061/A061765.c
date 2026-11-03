@@ -9,14 +9,15 @@
  * Formula:   a(n) = A034448(A000203(n))
  * Range:     u8 n <= 16, u16 n <= 5110, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_uint64, pow_int_seq
+ * Validated: standard, pass, 76 terms through n = 9775 (2026-11-01)
+ * Helpers:   factor_uint64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include "../utils/factor_uint64.h"
-#include "../utils/pow_int_seq.h"
+#include "../utils/ipow_idx.h"
 
 /* ---------- Sum of divisors (sigma) -------------------------------- */
 static seq_t sigma_seq(idx_t n)
@@ -32,7 +33,7 @@ static seq_t sigma_seq(idx_t n)
     for (int i = 0; i < cnt; ++i)
     {
         /* term = (p^(e+1) - 1) / (p - 1) */
-        seq_t p_pow = pow_int_seq((seq_t)fac[i], (idx_t)(exp[i] + 1));
+        seq_t p_pow = ipow_idx((seq_t)fac[i], (idx_t)(exp[i] + 1));
         seq_t term  = (p_pow - 1) / ((seq_t)(fac[i] - 1));
         result *= term;
     }
@@ -54,7 +55,7 @@ static seq_t usigma_uint64(uint64_t m)
     seq_t result = 1;
     for (int i = 0; i < cnt; ++i)
     {
-        seq_t p_pow = pow_int_seq((seq_t)fac[i], (idx_t)exp[i]);
+        seq_t p_pow = ipow_idx((seq_t)fac[i], (idx_t)exp[i]);
         seq_t term  = 1 + p_pow;
         result *= term;
     }

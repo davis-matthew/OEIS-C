@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   avg_not_integer
+ * Validated: standard, pass, 81 terms through n = 9521 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,34 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/avg_not_integer.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether the average of permutations of n is NOT an integer */
+static int avg_not_integer(idx_t n)
+{
+    /* compute digit sum and number of digits */
+    idx_t tmp   = n;
+    idx_t sum   = 0;
+    idx_t digits = 0;
+    while (tmp > 0) {
+        sum   += tmp % 10;
+        tmp   /= 10;
+        digits++;
+    }
+    if (digits == 0) return 0;          /* should never happen for n>=1 */
+
+    /* compute P(digits) = Σ_{k=0}^{digits-1} 10^k  (mod digits) */
+    idx_t pow10 = 1 % digits;
+    idx_t P = 0;
+    for (idx_t i = 0; i < digits; i++) {
+        P += pow10;
+        if (P >= digits) P -= digits * (P / digits);
+        pow10 = (pow10 * 10ULL) % digits;
+    }
+    P %= digits;
+
+    return (((sum % digits) * P) % digits) != 0;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -57,7 +85,7 @@ seq_t a(idx_t n)
         /* grow cache if necessary */
         if (cache_len + 1 > cache_cap) {
             cache_cap = cache_cap ? cache_cap << 1 : 16;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* store the found term */

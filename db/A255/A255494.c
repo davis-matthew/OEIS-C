@@ -10,13 +10,15 @@
  *            where r = floor((sqrt(8*n+1)-1)/2) and c = n - r*(r+1)/2
  * Range:     u8 n <= 16, u16 n <= 30, u32 n <= 58, u64 n <= 109,
  *            u128 n <= 217, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1312 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Return the nth term of OEIS A255494 */
 seq_t a(idx_t n)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* Compute Pell numbers P[0..r+1] */
     idx_t psize = r + 2;                         /* need indices up to r+1 */
-    seq_t *pell = (seq_t *)malloc(psize * sizeof(seq_t));
+    seq_t *pell = mem_new(seq_t, psize);
     if (!pell) return 0;                         /* memory failure */
     pell[0] = 0;
     pell[1] = 1;
@@ -47,12 +49,12 @@ seq_t a(idx_t n)
 
     /* Allocate two rows of max size r+1 */
     idx_t rowsz = r + 1;
-    seq_t *prev = (seq_t *)malloc(rowsz * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc(rowsz * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, rowsz);
+    seq_t *curr = mem_new(seq_t, rowsz);
     if (!prev || !curr) {
-        free(pell);
-        free(prev);
-        free(curr);
+        mem_free(pell);
+        mem_free(prev);
+        mem_free(curr);
         return 0;
     }
 
@@ -76,9 +78,9 @@ seq_t a(idx_t n)
     seq_t result = prev[c];
 
     /* Clean up */
-    free(pell);
-    free(prev);
-    free(curr);
+    mem_free(pell);
+    mem_free(prev);
+    mem_free(curr);
 
     return result;
 }

@@ -11,14 +11,24 @@
  *            "10" and "101" → concatenated * string "10101" → decimal 10101
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   pow10_bits
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10_bits.h"
+
+/* 10^k as seq_t */
+static seq_t pow10_bits(unsigned k)
+{
+    seq_t res = 1;
+    for (unsigned i = 0; i < k; ++i) {
+        res *= 10;
+    }
+    return res;
+}
 
 /* number of bits required to represent x (x>0) */
 static unsigned bitlen_uint64(uint64_t x)

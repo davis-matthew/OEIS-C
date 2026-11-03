@@ -12,13 +12,15 @@
  *            pos
  * Range:     i8 n <= 26, i16 n <= 43, i32 n <= 60, i64 n <= 60, i128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root for unsigned 64-bit values. */
 static unsigned long long isqrt_u64(unsigned long long x)
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         fact = fact * (seq_t)i;
 
     /* Compute binomial coefficients C(2*row, j) for j = 0..row */
-    seq_t *c = (seq_t*)malloc((row + 1) * sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (row + 1));
     c[0] = 1;
     for (idx_t j = 1; j <= row; ++j) {
         seq_t num = (seq_t)(2 * row - (j - 1));
@@ -79,6 +81,6 @@ seq_t a(idx_t n)
         sum += term;
     }
 
-    free(c);
+    mem_free(c);
     return sum;
 }

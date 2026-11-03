@@ -6,14 +6,16 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 2 * binomial(n, floor(n/2)+1) for even n a(n) =
  *            binomial(n+1, floor(n/2)+1) / (floor(n/2)+2) for odd n a(0) = 0
- * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 36, u128 n <= 36,
+ * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 36, u128 n <= 36,
  *            big any n
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

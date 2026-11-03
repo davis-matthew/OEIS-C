@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 96, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 63 terms through n = 996 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static idx_t cur_candidate = 1;
 static seq_t *terms = NULL;
@@ -32,7 +35,7 @@ static void cache_append(seq_t val)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *new_ptr = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, terms, new_cap);
         if (!new_ptr) abort();            /* allocation failure */
         terms = new_ptr;
         terms_cap = new_cap;
@@ -52,8 +55,8 @@ seq_t a(idx_t n)
         seq_t D = two_n * (two_n + 1);
 
         /* Compute N mod D: 4^n - 2^n + 8n^2 - 2, modulo D. */
-        seq_t pow4 = mod_pow(4, cur_candidate, D);
-        seq_t pow2 = mod_pow(2, cur_candidate, D);
+        seq_t pow4 = powmod(4, cur_candidate, D);
+        seq_t pow2 = powmod(2, cur_candidate, D);
 
         seq_t num = pow4;
         num -= pow2;

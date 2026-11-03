@@ -5,8 +5,9 @@
  * Offset:    6    (a(6) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = binomial(n+3,4) * binomial(n-3,4) / 5
- * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 35, u64 n <= 35, u128 n <= 35,
+ * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 30 terms through n = 35 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* The sequence is defined for n >= 6.  For n < 6 the function returns 0. */
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

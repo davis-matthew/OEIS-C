@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 178, u32 n <= 518, u64 n <= 1678,
  *            u128 n <= 5855, big any n
- * Helpers:   seq_alloc, seq_free_array
+ * Validated: standard, pass, 83 terms through n = 8551 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,22 @@
    We compute this by an unbounded knapsack DP with memoisation. */
 
 #include <stddef.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_free_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* DP cache */
 static seq_t *dp = NULL;       /* dp[i] = a(i) for 0 <= i <= dp_max */

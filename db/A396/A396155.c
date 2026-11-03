@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 17, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -45,8 +47,8 @@ seq_t a(idx_t n)
     if (cache_len == 0)
     {
         cache_cap = 1;
-        a_cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
-        b_cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        a_cache = mem_new(seq_t, cache_cap);
+        b_cache = mem_new(seq_t, cache_cap);
         if (!a_cache || !b_cache)
             return (seq_t)0;          /* out of memory – unlikely in tests */
 
@@ -62,8 +64,8 @@ seq_t a(idx_t n)
         while (new_cap <= (size_t)n + 1)
             new_cap <<= 1;
 
-        seq_t *new_a = (seq_t *)realloc(a_cache, sizeof(seq_t) * new_cap);
-        seq_t *new_b = (seq_t *)realloc(b_cache, sizeof(seq_t) * new_cap);
+        seq_t *new_a = mem_resize(seq_t, a_cache, new_cap);
+        seq_t *new_b = mem_resize(seq_t, b_cache, new_cap);
         if (!new_a || !new_b)
             return (seq_t)0;          /* out of memory */
 

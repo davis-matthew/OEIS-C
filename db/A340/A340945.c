@@ -8,8 +8,9 @@
  * Keywords:  sign, easy, look
  * Formula:   a(n) = a single Y‑coordinate of the counterclockwise square
  *            spiral, as defined by OEIS A340945
- * Range:     i8 n <= 9378, i16 n <= 9378, i32 n <= 9378, i64 n <= 9378,
- *            i128 n <= 9378, big any n
+ * Range:     i8 n <= 10101, i16 n <= 10101, i32 n <= 10101, i64 n <= 10101,
+ *            i128 n <= 10101, big any n
+ * Validated: standard, pass, 90 terms through n = 9378 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

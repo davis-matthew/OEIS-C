@@ -8,6 +8,7 @@
  *            non‑negative integer with (t+1)(2t+1) >= n
  * Range:     u8 n <= 120, u16 n <= 4950, u32 n <= 4950, u64 n <= 4950,
  *            u128 n <= 4950, big any n
+ * Validated: standard, pass, 82 terms through n = 4355 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

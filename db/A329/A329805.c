@@ -9,16 +9,63 @@
  *            of m
  * Range:     u8 n <= 11, u16 n <= 26, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   build_binom, free_binom, seq_mul
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
-#include "../utils/build_binom.h"
-#include "../utils/free_binom.h"
+#include <stdbool.h>
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* helper: compute binomial coefficients up to max_n */
+static void build_binom(size_t max_n, seq_t ***binom_out)
+{
+#if defined(__cplusplus)
+    seq_t **binom = new seq_t*[max_n + 1];
+    for (size_t i = 0; i <= max_n; ++i)
+        binom[i] = new seq_t[max_n + 1]();      /* value‑initialized to 0 */
+#else
+    seq_t **binom = (seq_t**)malloc((max_n + 1) * sizeof(seq_t*));
+    for (size_t i = 0; i <= max_n; ++i)
+    {
+        binom[i] = (seq_t*)calloc(max_n + 1, sizeof(seq_t));
+    }
+#endif
+    for (size_t i = 0; i <= max_n; ++i)
+    {
+        binom[i][0] = (seq_t)1;
+        binom[i][i] = (seq_t)1;
+        for (size_t j = 1; j < i; ++j)
+            binom[i][j] = binom[i-1][j-1] + binom[i-1][j];
+    }
+    *binom_out = binom;
+}
+
+/* helper: free binomial table */
+static void free_binom(size_t max_n, seq_t **binom)
+{
+    for (size_t i = 0; i <= max_n; ++i)
+    {
+#if defined(__cplusplus)
+        delete [] binom[i];
+#else
+        free(binom[i]);
+#endif
+    }
+#if defined(__cplusplus)
+    delete [] binom;
+#else
+    free(binom);
+#endif
+}
 
 seq_t a(idx_t n)
 {

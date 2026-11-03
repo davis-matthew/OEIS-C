@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 6631, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, is_fib
+ * Validated: standard, pass, 79 terms through n = 9648 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/calc_phi.h"
-#include "../utils/is_fib.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+/* --- helper: test whether x is a Fibonacci number --------------------------------- */
+static bool is_fib(seq_t x)
+{
+    /* 0 is considered Fibonacci. */
+    if (x == (seq_t)0) return true;
+    seq_t a = (seq_t)0;
+    seq_t b = (seq_t)1;
+    while (b < x) {
+        seq_t c = a + b;
+        a = b;
+        b = c;
+    }
+    return b == x;
+}
 
 /* --- cache of produced terms ----------------------------------------------------- */
 static seq_t *cache   = NULL;
@@ -36,11 +52,11 @@ static void ensure_cache_capacity(size_t need)
 {
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     while (cache_len + need > cache_cap) {
         cache_cap *= 2;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 }
 
@@ -49,7 +65,7 @@ static void generate_up_to(size_t n)
 {
     while (cache_len < n) {
         seq_t k      = (seq_t)next_candidate;
-        seq_t phi_k  = calc_phi(k);
+        seq_t phi_k  = totient_seq(k);
         seq_t diff   = k - phi_k;
         if (is_fib(diff)) {
             ensure_cache_capacity(1);

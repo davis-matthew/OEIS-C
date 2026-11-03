@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf, easy
  * Formula:   not stated
- * Range:     u8 n <= 77, u16 n <= 9701, u32 n <= 9701, u64 n <= 9701,
- *            u128 n <= 9701, big any n
- * Helpers:   map_next
+ * Range:     u8 n <= 77, u16 n <= 12824, u32 n <= 12824, u64 n <= 12824,
+ *            u128 n <= 12824, big any n
+ * Validated: standard, pass, 93 terms through n = 9701 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/map_next.h"
+
+static inline seq_t map_next(seq_t x)
+{
+    if (x == (seq_t)1) return (seq_t)1;
+    if ((x % (seq_t)3) == (seq_t)0) return x / (seq_t)3;
+    if ((x % (seq_t)2) == (seq_t)0) return x / (seq_t)2;
+    return x * (seq_t)3 + (seq_t)1;
+}
 
 seq_t a(idx_t n)
 {

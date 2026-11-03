@@ -7,18 +7,19 @@
  * Formula:   a(n) = 5^(5*n + 4)
  * Range:     u8 none, u16 n <= 0, u32 n <= 1, u64 n <= 4, u128 n <= 10,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 27 terms through n = 97 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 /* Computes 5^(5*n + 4) for any n >= 0. */
 seq_t a(idx_t n)
 {
     /* Exponent fits in an int for the intended range (n up to about 10000). */
     int exp = (int)(5 * n + 4);
-    return pow_seq((seq_t)5, exp);
+    return ipow_i32((seq_t)5, exp);
 }

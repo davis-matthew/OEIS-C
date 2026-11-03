@@ -11,14 +11,16 @@
  *            array T(n,k) for n ≥ 1, k ≥ 1)
  * Range:     u8 n <= 31, u16 n <= 72, u32 n <= 164, u64 n <= 424,
  *            u128 n <= 1113, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 82 terms through n = 1241 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* fast power using unsigned __int128 (valid when seq_t is ≤8 bytes) */
 static unsigned __int128 pow128(unsigned __int128 base, idx_t exp)
@@ -67,8 +69,8 @@ seq_t a(idx_t pos)
         unsigned __int128 result = diff / 2;
         return (seq_t)result;
     } else {                         /* arbitrary‑precision seq_t: use helper */
-        seq_t pow_n = big_pow((seq_t)col, (seq_t)row);
-        seq_t pow_h = big_pow((seq_t)col, (seq_t)half);
+        seq_t pow_n = ipow((seq_t)col, (seq_t)row);
+        seq_t pow_h = ipow((seq_t)col, (seq_t)half);
         seq_t diff  = pow_n - pow_h;
         return diff / (seq_t)2;
     }

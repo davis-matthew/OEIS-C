@@ -8,7 +8,8 @@
  * Formula:   a(n) = number of solutions to phi(phi(x)) = n
  * Range:     u8 n <= 383, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9798 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Max value to pre‑compute, enough to cover all n needed in tests.
    10,000,000 gives a safe upper bound for x with phi(phi(x)) <= 10,000. */
@@ -40,7 +42,7 @@ static void precompute(void)
         }
     }
 
-    ans_arr = (seq_t *)calloc((LIMIT + 1), sizeof(seq_t));
+    ans_arr = mem_new(seq_t, (LIMIT + 1));
     if (!ans_arr) {
         free(phi);
         return;

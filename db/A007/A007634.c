@@ -8,13 +8,14 @@
  *            composite
  * Range:     u8 none, u16 n <= 166, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   is_prime_val
+ * Validated: standard, pass, 70 terms through n = 1962 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime_val.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n) {
     seq_t k = 0;
@@ -22,7 +23,7 @@ seq_t a(idx_t n) {
     
     while (true) {
         seq_t val = k * k + k + 41;
-        if (!is_prime_val(val)) {
+        if (!is_prime_seq(val)) {
             count++;
             if (count == n) {
                 return k;

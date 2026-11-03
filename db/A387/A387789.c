@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 9194, u16 n <= 9194, u32 n <= 9194, u64 n <= 9194,
- *            u128 n <= 9194, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10923, u16 n <= 10923, u32 n <= 10923, u64 n <= 10923,
+ *            u128 n <= 10923, big any n
+ * Validated: standard, pass, 103 terms through n = 9194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static bool *computed = NULL;
@@ -30,9 +32,9 @@ static void ensure_capacity(idx_t n)
 {
     if (cache == NULL) {
         cache_size = 2; /* indices 0..1 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         computed = (bool *)malloc(cache_size * sizeof(bool));
-        memset(cache, 0, cache_size * sizeof(seq_t));
+        mem_set(cache, 0, cache_size * sizeof(seq_t));
         memset(computed, 0, cache_size * sizeof(bool));
         cache[1] = 0;
         computed[1] = true;
@@ -40,7 +42,7 @@ static void ensure_capacity(idx_t n)
     while (n + 1 > cache_size) {
         idx_t new_cap = cache_size * 2;
         if (new_cap <= n) new_cap = n * 2 + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         computed = (bool *)realloc(computed, new_cap * sizeof(bool));
         memset(computed + cache_size, 0,
                (new_cap - cache_size) * sizeof(bool));

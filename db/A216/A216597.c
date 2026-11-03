@@ -10,13 +10,15 @@
  *            a(3)=-22, a(4)=-91, a(5)=-364
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 16, i64 n <= 32, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t newcap = cap == 0 ? 64 : cap * 2;
         while ((size_t)n >= newcap) newcap *= 2;
-        cache  = (seq_t *)realloc(cache,  newcap * sizeof(seq_t));
+        cache  = mem_resize(seq_t, cache, newcap);
         valid  = (bool *)realloc(valid,  newcap * sizeof(bool));
         /* Initialise new entries as invalid */
         for (size_t i = cap; i < newcap; ++i) valid[i] = false;

@@ -5,17 +5,26 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = ∏_{p^e∥n} C(n+e, e)
- * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 47, u64 n <= 47, u128 n <= 47,
+ * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   binom, factor_u64, seq_mul
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   binomial, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
 #include "../utils/factor_u64.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +40,7 @@ seq_t a(idx_t n)
     idx_t N = n;                 /* original n */
     for (size_t i = 0; i < cnt; ++i) {
         idx_t e = (idx_t)exps[i];
-        seq_t bin = binom(N + e, e);     /* C(N+e, e) = C(N+e, N) */
+        seq_t bin = binomial(N + e, e);     /* C(N+e, e) = C(N+e, N) */
         prod = seq_mul(prod, bin);
     }
     return prod;

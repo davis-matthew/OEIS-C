@@ -9,12 +9,14 @@
  *            entry for A078940
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Ensure we can answer the request.  Grow the cache if necessary. */
     if (n >= max_cached) {
         idx_t new_size = n + 1;          /* need space for 0..n inclusive */
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        cache = mem_resize(seq_t, cache, new_size);
 
         /* Compute any missing terms, starting from the first missing index. */
         for (idx_t i = max_cached; i <= n; ++i) {

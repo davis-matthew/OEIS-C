@@ -10,13 +10,14 @@
  *            divisors of k
  * Range:     u8 n <= 1275, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 109 terms through n = 1267 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 static inline __int128 triangular(idx_t x)
 {
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
     /* If k divides r, return divisor count of k; otherwise 0. */
     if (k == 0) return (seq_t)0; /* safety, should not happen */
     if (r % k == 0) {
-        return (seq_t)divisor_count_u64((uint64_t)k);
+        return (seq_t)num_divisors((uint64_t)k);
     }
     return (seq_t)0;
 }

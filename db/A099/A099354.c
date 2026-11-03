@@ -11,13 +11,15 @@
  *            − ( (a(n‑1) & 1) ? −1 : 1 ) + 3 * with a(0) = 0, b(0) = 0
  * Range:     u8 n <= 195, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9656 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* global static storage */
 static seq_t *A        = NULL;   /* sequence a */
@@ -38,7 +40,7 @@ ensure_seq_cap(seq_t **arr, idx_t *cap, idx_t need)
     idx_t new_cap = *cap ? *cap << 1 : 16;
     while (new_cap <= need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp)
         abort();
     *arr = tmp;
@@ -70,12 +72,12 @@ seq_t a(idx_t n)
     /* First‑time initialization */
     if (!A) {
         A_cap = 16;
-        A = (seq_t *)malloc(A_cap * sizeof(seq_t));
+        A = mem_new(seq_t, A_cap);
         if (!A)
             abort();
 
         B_cap = 16;
-        B = (seq_t *)malloc(B_cap * sizeof(seq_t));
+        B = mem_new(seq_t, B_cap);
         if (!B)
             abort();
 

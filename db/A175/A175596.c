@@ -10,12 +10,14 @@
  *            A175596)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
      * of divisor counts over all divisors of each i.  The extra
      * 1 is for 0‑indexing convenience; index 0 will remain unused. */
     size_t sz = (size_t)n + 1;
-    seq_t *tau = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *S   = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *tau = mem_new(seq_t, sz);
+    seq_t *S   = mem_new(seq_t, sz);
     if (!tau || !S) {                   /* allocation error */
         /* In a production file you might abort or return 0. */
         return (seq_t)0;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         prod *= S[i];
     }
 
-    free(tau);
-    free(S);
+    mem_free(tau);
+    mem_free(S);
     return prod;
 }

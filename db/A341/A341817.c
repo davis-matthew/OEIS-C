@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 150, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   digit_counts
+ * Validated: standard, pass, 94 terms through n = 4955 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/digit_counts.h"   /* provides void digit_counts(seq_t, unsigned char[10]); */
+#include <stddef.h>
+#include "../utils/digit_counts.h"
+#include "../utils/mem.h"
 
 /* Static cache of the permutation and bookkeeping */
 static seq_t *seq_cache = NULL;      /* array of computed terms            */
@@ -48,7 +51,7 @@ static void seq_append(seq_t val)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 128;
-        seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
     }
     seq_cache[seq_len++] = val;
 

@@ -11,11 +11,13 @@
  *            4, all different and >4, with no leading zero for any part
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   digits_ensure_size_or_grow
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
 /*  The function must work for all supported seq_t types and for
     arbitrary call order.  A minimal lazy global state is used to
     keep the already‑generated terms and the set of used values.  */
@@ -24,7 +26,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/digits_ensure_size_or_grow.h"
+#include "../utils/mem.h"
+
+/*  Dynamic array of digits used to build the concatenated string of
+    natural numbers.  */
+static void digits_ensure_size_or_grow(char **buf, size_t *len,
+                                       size_t *cap, size_t new_len)
+{
+    if (new_len <= *cap) return;
+    size_t new_cap = (*cap > 0) ? *cap : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    *buf = (char*)realloc(*buf, new_cap);
+    *cap = new_cap;
+}
 
 /*  Non‑intrusive hash table used only for seq_t values that are
     non‑zero (zero is never a valid term).  */
@@ -43,12 +57,12 @@ static void hs_init(HashSet *hs)
 {
     hs->size = 16;
     hs->count = 0;
-    hs->table = (seq_t*)calloc(hs->size, sizeof(seq_t));
+    hs->table = mem_new(seq_t, hs->size);
 }
 
 static void hs_free(HashSet *hs)
 {
-    free(hs->table);
+    mem_free(hs->table);
     hs->table = NULL;
     hs->size = hs->count = 0;
 }
@@ -56,7 +70,7 @@ static void hs_free(HashSet *hs)
 static void hs_rehash(HashSet *hs)
 {
     size_t new_size = hs->size << 1;
-    seq_t *new_table = (seq_t*)calloc(new_size, sizeof(seq_t));
+    seq_t *new_table = mem_new(seq_t, new_size);
     for (size_t i = 0; i < hs->size; ++i) {
         seq_t key = hs->table[i];
         if (key) {
@@ -66,7 +80,7 @@ static void hs_rehash(HashSet *hs)
             new_table[idx] = key;
         }
     }
-    free(hs->table);
+    mem_free(hs->table);
     hs->table = new_table;
     hs->size = new_size;
 }
@@ -145,7 +159,7 @@ static void terms_ensure_size_or_grow(SeqState *s, size_t new_cnt)
     if (new_cnt <= s->term_cap) return;
     size_t new_cap = (s->term_cap > 0) ? s->term_cap : 16;
     while (new_cap < new_cnt) new_cap <<= 1;
-    s->terms = (seq_t*)realloc(s->terms, new_cap * sizeof(seq_t));
+    s->terms = mem_resize(seq_t, s->terms, new_cap);
     s->term_cap = new_cap;
 }
 

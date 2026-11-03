@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum of digit sums of all divisors of n
  * Range:     u8 n <= 651, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 91 terms through n = 9854 (2026-11-01)
  * Helpers:   digit_sum, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,8 +15,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/digit_sum.h"
+#include "../utils/factor_u64.h"
 
 static void dfs(size_t idx, const uint64_t *pr, const uint64_t *ex, size_t cnt,
                 seq_t cur, seq_t *sum)

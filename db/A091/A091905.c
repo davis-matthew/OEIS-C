@@ -7,17 +7,19 @@
  * Formula:   a(n) = 8^n/3 + 2*(-4)^n/3
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 22,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
-    seq_t pow8 = pow_uint(8, n);
-    seq_t pow4 = pow_uint(4, n);
+    seq_t pow8 = ipow_u64_idx(8, n);
+    seq_t pow4 = ipow_u64_idx(4, n);
     seq_t two_pow4 = pow4 * (seq_t)2;
     seq_t sum;
     if ((n & 1) == 0)      /* n even: add 2*4^n */

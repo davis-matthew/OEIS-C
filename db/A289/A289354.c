@@ -6,8 +6,9 @@
  * Keywords:  base, fini, full, nonn, changed
  * Formula:   a(n) = number of 9‑digit numbers whose digits sum to n, computed
  *            by dynamic programming over the digits
- * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 73, u64 n <= 73, u128 n <= 73,
+ * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
+ * Validated: full, pass, 81 terms through n = 81 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

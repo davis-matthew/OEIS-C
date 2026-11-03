@@ -12,7 +12,8 @@
  *            = 5 the first term of row 2, and so on
  * Range:     i8 n <= 27, i16 n <= 126, i32 n <= 397, i64 n <= 1560,
  *            i128 n <= 5825, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 85 terms through n = 9923 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 /* The binomial helper is provided by the build system.  */
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Return 2^e as a seq_t.  The loop multiplies with '2' each
    iteration, so big intermediate values are allowed if seq_t
@@ -67,9 +68,9 @@ seq_t a(idx_t n)
                a product of binomials to keep the intermediate values
                reasonably sized.  The helper binom() returns seq_t
                and works for arbitrary precision. */
-            seq_t ways = binom(r, i3);
-            ways = ways * binom(r - i3, i2);
-            ways = ways * binom(r - i3 - i2, i1);
+            seq_t ways = binomial(r, i3);
+            ways = ways * binomial(r - i3, i2);
+            ways = ways * binomial(r - i3 - i2, i1);
 
             /* Factor (-2)^(i1+i2) = (-1)^(i1+i2) * 2^(i1+i2).  */
             idx_t exp = i1 + i2;

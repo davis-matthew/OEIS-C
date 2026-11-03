@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 100, u16 n <= 1978, u32 n <= 9961, u64 n <= 9961,
- *            u128 n <= 9961, big any n
- * Helpers:   coin_exists
+ * Range:     u8 n <= 100, u16 n <= 1978, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 96 terms through n = 9961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,14 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/coin_exists.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a value already exists in the array */
+static bool coin_exists(unsigned long long *arr, size_t cnt, unsigned long long v) {
+    for (size_t i = 0; i < cnt; ++i)
+        if (arr[i] == v) return true;
+    return false;
+}
 
 /* Main function required by the project */
 seq_t a(idx_t n) {
@@ -57,7 +65,7 @@ seq_t a(idx_t n) {
     }
 
     /* Dynamic programming array */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) abort();
 
     dp[0] = (seq_t)1;
@@ -72,6 +80,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

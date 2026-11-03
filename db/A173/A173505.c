@@ -10,6 +10,7 @@
  *            Π_{j=1..m} (4^j - 1)^(m-j) (OEIS A173505)
  * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 22, u64 n <= 29, u128 n <= 47,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 295 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

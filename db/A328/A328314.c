@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 54, u16 n <= 4134, u32 n <= 9205, u64 n <= 9205,
- *            u128 n <= 9205, big any n
- * Helpers:   none
+ * Range:     u8 n <= 54, u16 n <= 4134, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 109 terms through n = 9205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- internal helper structure for the peak → label map --- */
 struct map_entry { seq_t peak; idx_t label; };
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
             {
                 size_t new_cap = map_cap ? map_cap << 1 : 4;
                 struct map_entry *tmp =
-                    (struct map_entry *)realloc(map, new_cap * sizeof(*map));
+                    mem_resize(struct map_entry, map, new_cap);
                 map = tmp;
                 map_cap = new_cap;
             }
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
         if (peak_len == peak_cap)
         {
             size_t new_cap = peak_cap ? peak_cap << 1 : 16;
-            seq_t *tmp = (seq_t *)realloc(peak_arr, new_cap * sizeof(*peak_arr));
+            seq_t *tmp = mem_resize(seq_t, peak_arr, new_cap);
             peak_arr = tmp;
             peak_cap = new_cap;
         }

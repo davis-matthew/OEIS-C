@@ -12,12 +12,14 @@
  *            a(4)=43804, a(5)=697369, a(6)=11136544, a(7)=177977851
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the surrounding build system. */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* First call: allocate and store the first 7 terms */
     if (memo_size == 0) {
         memo_size = 7;
-        memo = (seq_t *)malloc(sizeof(seq_t) * (memo_size + 1));
+        memo = mem_new(seq_t, (memo_size + 1));
         if (!memo) return 0;           /* allocation failure */
         memo[0] = 0;                   /* unused */
         memo[1] = 15;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Extend the memo array if a larger n is requested */
     if (n > memo_size) {
         size_t new_size = (size_t)(n + 1);   /* +1 so index n is valid */
-        seq_t *tmp = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_size);
         if (!tmp) return 0;                /* allocation failure */
         memo = tmp;
         /* Compute new values using the recurrence */

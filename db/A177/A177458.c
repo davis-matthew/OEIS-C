@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   exponent_in_fact, find_min_m_for_exp
+ * Validated: partial, pass, 52 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,43 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/exponent_in_fact.h"
-#include "../utils/find_min_m_for_exp.h"
+
+/* Legendre's formula: exponent of prime p in m! */
+static inline idx_t exponent_in_fact(idx_t m, idx_t p)
+{
+    idx_t e = 0;
+    while (m) {
+        m /= p;
+        e += m;
+    }
+    return e;
+}
+
+/* ------------------------------------------------------------------
+   Return the minimal m (m ≥ 0) such that exponent_in_fact(m,p) ≥ t.
+   If t = 0 return 0.
+   If no such m exists within idx_t limits (overflow), return idx_t_max.
+   ------------------------------------------------------------------ */
+static idx_t find_min_m_for_exp(idx_t p, idx_t t)
+{
+    if (t == 0) return 0;
+    idx_t lo = 0;
+    idx_t hi = 1;
+    /* Exponent grows monotonically; increase hi until it suffices. */
+    while (exponent_in_fact(hi, p) < t) {
+        if (hi > ((idx_t)-1) / 2) return ((idx_t)-1);  /* overflow */
+        hi <<= 1;
+    }
+    /* Binary search to find the first m with exponent ≥ t. */
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo) / 2;
+        if (exponent_in_fact(mid, p) >= t)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    return lo;
+}
 
 /* ------------------------------------------------------------ */
 /* Simple sieve to obtain primes up to a fixed limit. The limit

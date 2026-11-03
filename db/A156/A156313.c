@@ -11,7 +11,8 @@
  *            memoises the result. It is efficient enough for n up...
  * Range:     u8 n <= 12, u16 n <= 539, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes
+ * Validated: standard, pass, 65 terms through n = 9973 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,11 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Build a prime table up to a given limit.  The returned array must be
    freed by the caller. */
+#include <stdint.h>
 #include "../utils/build_primes.h"
 
 static seq_t *cache = NULL;
@@ -58,7 +61,7 @@ static void recompute_up_to(idx_t target)
         }
 
         /* ---- 4) Collect primes that cannot be represented. ---- */
-        seq_t *new_cache = (seq_t *)calloc(prime_cnt, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, prime_cnt);
         size_t new_len = 0;
         for (size_t i = 0; i < prime_cnt; ++i) {
             idx_t p = primes_raw[i];
@@ -67,7 +70,7 @@ static void recompute_up_to(idx_t target)
         }
 
         /* ---- 5) Replace the global cache. ---- */
-        free(cache);
+        mem_free(cache);
         cache     = new_cache;
         cache_len = new_len;
 

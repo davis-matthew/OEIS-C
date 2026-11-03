@@ -12,7 +12,8 @@
  *            distinct even-indexed prime factor (with exponent 1) •...
  * Range:     u8 n <= 46, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* constant upper bound for sieve – large enough to produce >10000 terms. */
 static const size_t SIEVE_LIMIT = 5000000u;
@@ -65,7 +67,7 @@ static void init(void)
 
     /* ---------- Allocate sequence storage ---------- */
     seq_cap = 20000;                           /* initial capacity */
-    seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     seq_len = 0;
 }
 
@@ -123,7 +125,7 @@ static void ensure_n_terms(idx_t n)
         if (is_valid_heinz((uint64_t)next_val)) {
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)next_val;
         }

@@ -12,13 +12,15 @@
  *            a(2)=0, a(3)=1, a(4)=1, a(5)=2, a(6)=4, a(7)=1,...
  * Range:     u8 n <= 45, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 92 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const int Q[16] = { 0, 1, -1, -2, -2, -1, 1, 3, 3, 1, -1, -2, -2, -1, 1, 1 };
 static const long long R[24] = { 0, 1, 1, 0, 0, 0, 2, 0, -2, -3, -3, -1, 2, 4, 4, 4,
@@ -41,14 +43,14 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         cache_cap = 16;
         if (cache_cap <= target) cache_cap = target + 1;
-        cache = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_cap);
         if (!cache) abort();      /* out of memory */
         for (size_t i = 0; i <= 15; ++i) cache[i] = INIT[i];
         cached_last = 15;
     } else if (cache_cap <= target) {
         size_t new_cap = cache_cap;
         while (new_cap <= target) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) abort();
         cache_cap = new_cap;
     }

@@ -8,14 +8,16 @@
  * Formula:   a(1)=a(2)=a(3)=1; a(n)=gpf(a(n-1)+a(n-2)+a(n-3)) for n>3
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 99 terms through n = 852 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* cache[i] holds a(i+1) */
 static size_t cache_cap = 0;   /* current number of stored terms */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Expand the cache to store up to n terms. */
     size_t new_cap = idx;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr)
         abort();                   /* out of memory */
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         } else {
             seq_t sum = cache[i - 1] + cache[i - 2] + cache[i - 3];
             /* The sum fits in uint64_t for the range of n we handle. */
-            cache[i] = (seq_t)gpf((uint64_t)sum);
+            cache[i] = (seq_t)largest_prime_factor((uint64_t)sum);
         }
     }
 

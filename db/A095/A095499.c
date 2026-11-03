@@ -8,6 +8,7 @@
  *            interpreted as a decimal integer
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
+ * Validated: full, pass, 13 terms through n = 12 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

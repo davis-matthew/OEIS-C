@@ -10,13 +10,15 @@
  *            points at graph distance n * in the B_17 lattice
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 5, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     for (int k = 0; k <= DIM; ++k)
     {
-        seq_t C17k  = binom(17, k);
+        seq_t C17k  = binomial(17, k);
         seq_t pow2k = (seq_t)(1ULL << k);
 
         /* ---- term for n ---- */
@@ -39,12 +41,12 @@ seq_t a(idx_t n)
             Gkn = 1;
         else if ((idx_t)k <= n)
         {
-            seq_t c2n_k = binom(2 * n, k);
-            seq_t cn_k  = binom(n, k);
+            seq_t c2n_k = binomial(2 * n, k);
+            seq_t cn_k  = binomial(n, k);
             Gkn = c2n_k - cn_k * (seq_t)k;
         }
         else
-            Gkn = binom(2 * n, k);
+            Gkn = binomial(2 * n, k);
 
         F_n += C17k * pow2k * Gkn;
 
@@ -54,12 +56,12 @@ seq_t a(idx_t n)
             Gkn1 = 1;
         else if ((idx_t)k <= n1)
         {
-            seq_t c2n1_k = binom(2 * n1, k);
-            seq_t cn1_k  = binom(n1, k);
+            seq_t c2n1_k = binomial(2 * n1, k);
+            seq_t cn1_k  = binomial(n1, k);
             Gkn1 = c2n1_k - cn1_k * (seq_t)k;
         }
         else
-            Gkn1 = binom(2 * n1, k);
+            Gkn1 = binomial(2 * n1, k);
 
         F_nm += C17k * pow2k * Gkn1;
     }

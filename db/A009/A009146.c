@@ -7,7 +7,8 @@
  * Formula:   a(n) = (2n)! * [x^(2n)] cosh(sin(x)*cos(x))
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 7, i64 n <= 12, i128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for the e_m values used by the recurrence.
    e_m is defined for all m ≥ 0, and a(n) = e_{2n}. */
@@ -34,7 +36,7 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t need)
     size_t new_cap = (*cap == 0) ? 16 : *cap * 2;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp)
         abort();                       /* out of memory */
     *arr = tmp;

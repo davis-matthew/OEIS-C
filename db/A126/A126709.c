@@ -7,6 +7,7 @@
  * Formula:   a(n) = [4,9,2,3,5,7,8,1,6][(n-1) mod 9]
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

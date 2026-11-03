@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 /*  H(k) = k * (5*k - 3) / 2  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compare two seq_t values for qsort */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort and deduplicate */
-        qsort(sums, total_pairs, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(sums, total_pairs, sizeof(seq_t), cmp_seq_t);
 
         idx_t count = 0;
         seq_t prev = 0;

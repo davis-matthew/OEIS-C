@@ -13,14 +13,30 @@
  *            toge...
  * Range:     u8 n <= 55, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   ensure_b_cap
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/ensure_b_cap.h"
+#include "../utils/mem.h"
+
+/* Dynamic array for b-values */
+static void ensure_b_cap(idx_t target) {
+    static size_t b_cap = 0;
+    static seq_t *b_vals = NULL;
+    /* capacity is updated in a() before use; this helper only ensures space */
+    if (b_cap <= target) {
+        size_t old_cap = b_cap;
+        size_t new_cap = old_cap ? old_cap * 2 : 16;
+        while (new_cap <= target) new_cap *= 2;
+        seq_t *tmp = mem_resize(seq_t, b_vals, new_cap);
+        b_vals = tmp;
+        b_cap = new_cap;
+    }
+}
 
 /* Dynamic array for used flags (0 or 1) */
 static void ensure_used_cap(idx_t idx) {
@@ -52,7 +68,7 @@ seq_t a(idx_t n) {
     /* Allocate or grow b_vals if needed */
     if (b_len == 0 && b_cap == 0) {
         b_cap = 16;
-        b_vals = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_vals = mem_new(seq_t, b_cap);
     }
 
     while (b_len <= (size_t)n) {
@@ -118,7 +134,7 @@ seq_t a(idx_t n) {
         /* --- store b(n) --- */
         if (b_len == b_cap) {
             b_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(b_vals, b_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, b_vals, b_cap);
             b_vals = tmp;
         }
         b_vals[b_len++] = b_val;

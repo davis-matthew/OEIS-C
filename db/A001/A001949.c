@@ -8,14 +8,28 @@
  *            Base cases: a(0) = a(1) = a(2) = a(3) = a(4) = 0
  * Range:     u8 n <= 13, u16 n <= 21, u32 n <= 37, u64 n <= 70, u128 n <= 136,
  *            big any n
- * Helpers:   a001028_grow, a001028_z
+ * Validated: standard, pass, 54 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a001028_z.h"
-#include "../utils/a001028_grow.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/mem.h"
 
+static seq_t *a001028_z(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *a001028_grow(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = a001028_z(newlen);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 seq_t a(idx_t n) {
     if (n < 5) return (seq_t)0;

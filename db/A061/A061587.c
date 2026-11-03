@@ -9,13 +9,15 @@
  *            decimal)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* the build supplies these integer types:
    - idx_t : unsigned integer type for indices
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* initialise caches on first call */
     if (cache == NULL) {
         cacheCap = 16;
-        cache = (seq_t *)malloc(cacheCap * sizeof(seq_t));
+        cache = mem_new(seq_t, cacheCap);
         cache[0] = 1;
         cacheSize = 1;
 
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
         if (cacheSize >= cacheCap) {
             size_t newCap = cacheCap ? cacheCap * 2 : 16;
             cacheCap = newCap;
-            cache = (seq_t *)realloc(cache, cacheCap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cacheCap);
         }
         cache[cacheSize++] = val;
 

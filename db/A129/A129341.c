@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 21, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   no_common_digits_uint128
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,30 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/no_common_digits_uint128.h"
+#include "../utils/mem.h"
+
+/* Return true if two unsigned __int128 values share no decimal digit. */
+static bool no_common_digits_uint128(unsigned __int128 a, unsigned __int128 b)
+{
+    unsigned int mask = 0;
+    if (a == 0)
+        mask |= 1u;                   /* digit 0 */
+    else {
+        while (a > 0) {
+            mask |= 1u << (unsigned)(a % 10);
+            a /= 10;
+        }
+    }
+    if (b == 0)
+        return (mask & 1u) == 0;
+    while (b > 0) {
+        unsigned int bit = 1u << (unsigned)(b % 10);
+        if (mask & bit)
+            return false;
+        b /= 10;
+    }
+    return true;
+}
 
 /* Cache for the computed sequence values. */
 static seq_t *cache = NULL;
@@ -38,7 +62,7 @@ static void grow_cache(size_t new_cap)
     size_t new_size = (cache_cap == 0) ? 16 : cache_cap << 1;
     while (new_size < new_cap)
         new_size <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp)
         exit(1);                     /* allocation failure */
     cache = tmp;

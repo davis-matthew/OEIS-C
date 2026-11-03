@@ -14,6 +14,7 @@
  *            (n−S(m−1))‑th 1‑bit (counting from least signific...
  * Range:     u8 n <= 5120, u16 n <= 5120, u32 n <= 5120, u64 n <= 5120,
  *            u128 n <= 5120, big any n
+ * Validated: standard, pass, 105 terms through n = 4456 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

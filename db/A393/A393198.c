@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 302, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 114 terms through n = 934 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
    m = n−1, which always yields two ones. */
 
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
             if (tmp % m == (idx_t)1) ++cnt;
             tmp /= m;
         }
-        if (cnt > 0 && is_prime_small((seq_t)cnt))
+        if (cnt > 0 && is_prime_seq((seq_t)cnt))
             return (seq_t)m;
     }
 

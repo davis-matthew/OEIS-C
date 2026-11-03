@@ -7,13 +7,16 @@
  * Formula:   a(n) = (2^n-1)*a(n-1) + 1 with a(1)=1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +30,11 @@ seq_t a(idx_t n)
     /* Ensure the cache array can hold indices up to n */
     if (cache == NULL) {
         cap = (n > 1) ? n + 1 : 2;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
     } else if ((size_t)n + 1 > cap) {
         /* grow the array to at least n+1 elements */
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* allocation failure – return 0 as a fail‑safe value */
             return 0;

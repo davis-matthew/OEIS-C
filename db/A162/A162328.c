@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 19, u64 n <= 272, u128 n <= 272,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 273 terms through n = 272 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         coeff_len = degree + 1;     /* 273 */
 
         /* start with the polynomial f(17) = 1 + x + … + x^{16} */
-        coeff = (seq_t*)malloc(K * sizeof(seq_t));
+        coeff = mem_new(seq_t, K);
         if (!coeff) return (seq_t)0;  /* out‑of‑memory guard */
         for (size_t i = 0; i < K; ++i) coeff[i] = 1;
 
@@ -48,8 +50,8 @@ seq_t a(idx_t n)
             size_t new_len = curr_len + f_len - 1;     /* length after convolution */
 
             /* allocate buffer for the new polynomial */
-            seq_t *new_coeff = (seq_t*)malloc(new_len * sizeof(seq_t));
-            if (!new_coeff) { free(coeff); return (seq_t)0; }
+            seq_t *new_coeff = mem_new(seq_t, new_len);
+            if (!new_coeff) { mem_free(coeff); return (seq_t)0; }
 
             /* initialize all coefficients to zero */
             for (size_t t = 0; t < new_len; ++t) new_coeff[t] = 0;
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
             }
 
             /* replace the old polynomial */
-            free(coeff);
+            mem_free(coeff);
             coeff     = new_coeff;
             curr_len  = new_len;
         }

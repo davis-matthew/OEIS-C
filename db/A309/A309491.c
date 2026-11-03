@@ -9,13 +9,15 @@
  * Formula:   a(n) = Sum_{k=1..n} gcd_2(k,n) where gcd_2(b,c) is the
  *            second-largest common divisor of non‑coprime integers b and c,
  *            and is 0 if gcd(b,c)=1
- * Range:     u8 n <= 95, u16 n <= 6719, u32 n <= 9770, u64 n <= 9770,
- *            u128 n <= 9770, big any n
+ * Range:     u8 n <= 95, u16 n <= 6719, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 77 terms through n = 9770 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Return the smallest prime factor of g (or g itself if g is prime). */

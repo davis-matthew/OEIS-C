@@ -11,13 +11,15 @@
  *            index ≥ 4 are excluded)
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Fibonacci cache ---------- */
 static seq_t *fib_cache = NULL;
@@ -28,7 +30,7 @@ static seq_t fib_val(idx_t n)
 {
     if (!fib_cache) {
         fib_cap = 8;
-        fib_cache = (seq_t*)malloc(fib_cap * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, fib_cap);
         fib_cache[0] = (seq_t)0;
         fib_cache[1] = (seq_t)1;
         fib_len = 2;
@@ -36,7 +38,7 @@ static seq_t fib_val(idx_t n)
     while (fib_len <= n) {
         if (fib_len == fib_cap) {
             fib_cap <<= 1;
-            fib_cache = (seq_t*)realloc(fib_cache, fib_cap * sizeof(seq_t));
+            fib_cache = mem_resize(seq_t, fib_cache, fib_cap);
         }
         fib_cache[fib_len] = fib_cache[fib_len-1] + fib_cache[fib_len-2];
         ++fib_len;
@@ -60,7 +62,7 @@ static void ensure_lucas_up_to(seq_t limit)
             break;
         if (lucas_len == lucas_cap) {
             lucas_cap = (lucas_cap ? lucas_cap * 2 : 8);
-            lucas_cache = (seq_t*)realloc(lucas_cache, lucas_cap * sizeof(seq_t));
+            lucas_cache = mem_resize(seq_t, lucas_cache, lucas_cap);
         }
         lucas_cache[lucas_len++] = nxt;
         l_prev2 = l_prev1;
@@ -79,7 +81,7 @@ static seq_t d_value(idx_t n)
 {
     if (!d_cache) {
         d_cap = 16;
-        d_cache = (seq_t*)malloc(d_cap * sizeof(seq_t));
+        d_cache = mem_new(seq_t, d_cap);
         d_len = 0;
     }
 
@@ -104,7 +106,7 @@ static seq_t d_value(idx_t n)
         if (include) {
             if (d_len == d_cap) {
                 d_cap <<= 1;
-                d_cache = (seq_t*)realloc(d_cache, d_cap * sizeof(seq_t));
+                d_cache = mem_resize(seq_t, d_cache, d_cap);
             }
             d_cache[d_len++] = next_candidate;
         }

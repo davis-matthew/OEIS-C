@@ -12,6 +12,7 @@
  *            T(1,0)=T(1,1)=1
  * Range:     i8 n <= 97, i16 n <= 264, i32 n <= 839, i64 n <= 2736,
  *            i128 n <= 5151, big any n
+ * Validated: standard, pass, 94 terms through n = 4986 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

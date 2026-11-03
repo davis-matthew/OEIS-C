@@ -8,27 +8,30 @@
  * Formula:   a(n) = pi(n + pi(n)) - pi(max(0, n - pi(n)))
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
     /* pi(n) */
-    seq_t pi_n = compute_pi(n);
+    seq_t pi_n = prime_pi(n);
 
     /* upper bound n + pi(n) */
     /* cast to idx_t after addition to avoid overflow in seq_t */
     idx_t upper = (n > UINT64_MAX - (idx_t)pi_n) ? UINT64_MAX : (n + (idx_t)pi_n);
-    seq_t pi_upper = compute_pi(upper);
+    seq_t pi_upper = prime_pi(upper);
 
     /* lower bound: max(0, n - pi(n)) */
     idx_t lower = (n > pi_n) ? (n - (idx_t)pi_n) : 0;
-    seq_t pi_lower = compute_pi(lower);
+    seq_t pi_lower = prime_pi(lower);
 
     return pi_upper - pi_lower;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 183, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 904 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* ensure that a memory block has at least `need` elements */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity_seq(T **ptr, size_t *cap, size_t need, size_t elem_size)
+{
+    if (*cap < need)
+    {
+        size_t new_cap = (*cap > 0) ? (*cap * 2) : 4;
+        if (new_cap < need) new_cap = need;
+        *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        *cap = new_cap;
+    }
+}
+#else
 static void ensure_capacity_seq(void **ptr, size_t *cap, size_t need, size_t elem_size)
 {
     if (*cap < need)
@@ -36,6 +59,7 @@ static void ensure_capacity_seq(void **ptr, size_t *cap, size_t need, size_t ele
         *cap = new_cap;
     }
 }
+#endif
 
 seq_t a(idx_t n)
 {
@@ -48,11 +72,11 @@ seq_t a(idx_t n)
     /* initialise with first term */
     if (a_len == 0)
     {
-        ensure_capacity_seq((void **)&a_vals, &a_cap, 1, sizeof(seq_t));
+        ensure_capacity_seq(OEISC_VPP(&a_vals), &a_cap, 1, sizeof(seq_t));
         a_vals[0] = (seq_t)2;      /* a(1) = 2 */
         a_len = 1;
 
-        ensure_capacity_seq((void **)&d_vals, &d_cap, 1, sizeof(long long));
+        ensure_capacity_seq(OEISC_VPP(&d_vals), &d_cap, 1, sizeof(long long));
         d_vals[0] = 2;             /* d(1) = 2 */
         d_len = 1;
     }
@@ -88,8 +112,8 @@ seq_t a(idx_t n)
             if (a_used) { ++h; continue; }
 
             /* acceptable h found */
-            ensure_capacity_seq((void **)&a_vals, &a_cap, a_len + 1, sizeof(seq_t));
-            ensure_capacity_seq((void **)&d_vals, &d_cap, d_len + 1, sizeof(long long));
+            ensure_capacity_seq(OEISC_VPP(&a_vals), &a_cap, a_len + 1, sizeof(seq_t));
+            ensure_capacity_seq(OEISC_VPP(&d_vals), &d_cap, d_len + 1, sizeof(long long));
 
             a_vals[a_len++] = new_a;
             d_vals[d_len++] = h;

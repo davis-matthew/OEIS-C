@@ -7,6 +7,7 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{i=1..8} (1 + x^(4*i-1))
  * Range:     u8 n <= 136, u16 n <= 136, u32 n <= 136, u64 n <= 136,
  *            u128 n <= 136, big any n
+ * Validated: full, pass, 137 terms through n = 136 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

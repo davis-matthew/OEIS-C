@@ -7,18 +7,20 @@
  * Formula:   n-th prime p such that p ≡ 5, 11, 13, 15, 17, 23 (mod 28)
  * Range:     u8 n <= 28, u16 n <= 3271, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 72 terms through n = 4990 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     seq_t count = 0;
     
     for (uint64_t candidate = 2; ; candidate++) {
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             uint64_t mod = candidate % 28;
             if (mod == 5 || mod == 11 || mod == 13 || mod == 15 || mod == 17 || mod == 23) {
                 count++;

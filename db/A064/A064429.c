@@ -7,6 +7,7 @@
  * Formula:   a(n) = n + (n mod 3 == 1 ? 1 : n mod 3 == 2 ? -1 : 0)
  * Range:     u8 n <= 255, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
+ * Validated: standard, pass, 88 terms through n = 2968 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

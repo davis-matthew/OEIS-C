@@ -11,15 +11,21 @@
  *            (p-1) | 2k and p not dividing (2k+1)(2k+2)
  * Range:     u8 n <= 21, u16 n <= 57, u32 n <= 183, u64 n <= 543,
  *            u128 n <= 1000, big any n
- * Helpers:   a006956_isprime, a006956_try
+ * Validated: standard, pass, 83 terms through n = 996 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a006956_isprime.h"
-#include "../utils/a006956_try.h"
+#include "../utils/is_prime_u64.h"
+
+static void a006956_try(uint64_t p, uint64_t m, seq_t *res) {
+    if (!is_prime_u64(p)) return;
+    if ((m + 1) % p == 0 || (m + 2) % p == 0) return;
+    *res *= (seq_t)p;
+}
 
 seq_t a(idx_t n) {
     uint64_t k, m, d;

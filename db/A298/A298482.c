@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;              /* stored sequence values */
 static size_t cache_len = 0;                 /* number of values currently stored */
@@ -88,7 +90,7 @@ static void ensure_cache(idx_t upto)
 
     /* Resize the cache array. */
     size_t newlen = (size_t)upto + 1;
-    seq_t *newc = (seq_t*)realloc(seq_cache, newlen * sizeof(seq_t));
+    seq_t *newc = mem_resize(seq_t, seq_cache, newlen);
     if (!newc && newlen > 0) exit(EXIT_FAILURE); /* allocation failed */
     seq_cache = newc;
 

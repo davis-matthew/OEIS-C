@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 35, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Property: 10*i XOR 11*i = 21*i  (equivalently 10*i & 11*i == 0) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (sz <= target) {
         if (!seq) {
             cap = 16;
-            seq = (seq_t*)malloc(cap * sizeof(seq_t));
+            seq = mem_new(seq_t, cap);
         }
 
         seq_t i = last_i;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
             if ((x & y) == zero) {
                 if (sz >= cap) {
                     cap *= 2;
-                    seq = (seq_t*)realloc(seq, cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, cap);
                 }
                 seq[sz++] = i;
             }

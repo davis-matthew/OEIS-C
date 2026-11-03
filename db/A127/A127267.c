@@ -8,19 +8,22 @@
  * Formula:   a(n) = floor(n / pi(n)) where pi(n) = A000720(n)
  * Range:     u8 n <= 106, u16 n <= 106, u32 n <= 106, u64 n <= 106,
  *            u128 n <= 106, big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 105 terms through n = 106 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
     if (n < 2)   /* behaviour for indices < 2 is not required */
         return 0;
-    seq_t pi = compute_pi(n);           /* pi(n)  */
+    seq_t pi = prime_pi(n);           /* pi(n)  */
     /* pi(n) >= 1 for n >= 2, so the division is safe */
     return (seq_t)n / pi;
 }

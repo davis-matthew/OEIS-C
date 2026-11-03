@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /* --- includes ---------------------------------------------------------------- */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- forward declarations ---------------------------------------------------- */
 static bool qualifies(seq_t m);
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (terms == NULL) {
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
         if (qualifies(last_checked)) {
             if (terms_cnt == terms_cap) {
                 terms_cap = (terms_cap == 0 ? 16 : terms_cap * 2);
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_cnt++] = last_checked;
         }

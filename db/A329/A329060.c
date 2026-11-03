@@ -11,16 +11,19 @@
  *            ≤ r T(r,0,4) = binomial(4*(r+1)+r-1, r) / (r+1) (*) a(n) = T(r,
  *            i, 4) where r satisfies r(r+1)/2 ≤ n < (r+1)(r+2)/2 and i = n -
  *            r(r+1)/2. (0‑based indexing)
- * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 55, u64 n <= 145, u128 n <= 399,
+ * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 56, u64 n <= 145, u128 n <= 399,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 61 terms through n = 8852 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     }
 
     /* (r+1)^(i-1) */
-    seq_t power = big_pow((seq_t)(r + 1), (seq_t)(i - 1));
+    seq_t power = ipow((seq_t)(r + 1), (seq_t)(i - 1));
 
     /* binomial(4*(r+1)+r-i-1, r-i) */
     idx_t n_binom = 4 * (r + 1) + r - i - 1;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 14, i16 n <= 27, i32 n <= 54, i64 n <= 56, i128 n <= 56,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Return the row r (0‑based) such that r*(r+1)/2 ≤ n < (r+1)*(r+2)/2. */
 static idx_t row_of(idx_t n) {
@@ -51,7 +53,7 @@ static void ensure_h_cache(idx_t max_d) {
         return;
 
     idx_t new_size = max_d + 1;
-    seq_t *new_cache = (seq_t *)realloc(h_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, h_cache, new_size);
     if (!new_cache)
         abort();    /* allocation failure */
     h_cache = new_cache;
@@ -64,7 +66,7 @@ static void ensure_h_cache(idx_t max_d) {
     for (idx_t d = start; d <= max_d; ++d) {
         seq_t sum = 0;
         for (idx_t k = 1; k < d; ++k) {
-            seq_t term = binom(d, k);
+            seq_t term = binomial(d, k);
             term *= h_cache[k];
             term *= h_cache[d - k];
             sum += term;
@@ -83,7 +85,7 @@ seq_t a(idx_t n) {
     idx_t d = r - c;            /* difference n-k */
 
     ensure_h_cache(d);
-    seq_t bin = binom(r, c);
+    seq_t bin = binomial(r, c);
     seq_t result = bin * h_cache[d];
     return result;
 }

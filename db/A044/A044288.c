@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has41
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,32 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has41.h"
+#include "../utils/mem.h"
+
+/* Helper: does the base‑9 representation of x contain the substring 41? */
+static bool has41(seq_t x)
+{
+    /* At most 128 base‑9 digits are enough for every value that will be
+       encountered in the tested range (the sequence values never exceed a few
+       million).  For arbitrary‑precision seq_t the loop terminates at 0. */
+    uint8_t digits[128];
+    int pos = 0;
+
+    /* Extract base‑9 digits (least‑significant first). */
+    while (x != (seq_t)0) {
+        digits[pos++] = (uint8_t)(x % (seq_t)9);
+        x = x / (seq_t)9;
+    }
+    if (pos < 2) return false;
+
+    /* Scan from most‐significant to least‐significant to find the substring
+       41. */
+    for (int i = pos - 1; i >= 1; --i) {
+        if (digits[i] == 4 && digits[i - 1] == 1)
+            return true;
+    }
+    return false;
+}
 
 /* Main function: a(n) as defined by OEIS A044288. */
 seq_t a(idx_t n)
@@ -39,7 +65,7 @@ seq_t a(idx_t n)
     /* Grow storage if necessary. */
     if (vals == NULL) {
         capacity = 16;
-        vals = (seq_t *)malloc(capacity * sizeof(seq_t));
+        vals = mem_new(seq_t, capacity);
     }
 
     /* Find elements until we have at least n of them. */
@@ -53,7 +79,7 @@ seq_t a(idx_t n)
             /* Store the value. */
             if (count == capacity) {
                 capacity *= 2;
-                vals = (seq_t *)realloc(vals, capacity * sizeof(seq_t));
+                vals = mem_resize(seq_t, vals, capacity);
             }
             vals[count++] = cand;
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- binomial coefficient -------------------------------------- */
 static seq_t binomial(idx_t n, idx_t k)
@@ -42,7 +44,7 @@ static seq_t binomial(idx_t n, idx_t k)
 static seq_t compute_T(idx_t n, idx_t k)
 {
     /* ---------- Stirling numbers for current N = n ------------------- */
-    seq_t *S = (seq_t *)malloc((k + 1) * sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (k + 1));
     if (!S) return 0; /* fallback on OOM: should not happen */
 
     /* DP to fill S[j] = S1(n,j)  (0 ≤ j ≤ k)                  */
@@ -78,7 +80,7 @@ static seq_t compute_T(idx_t n, idx_t k)
             ++current_N;
         }
     }
-    free(S);
+    mem_free(S);
 
     seq_t inner_sum = sum_pos - sum_neg;   /* guaranteed non-negative */
     seq_t binom2 = binomial(2 * n, n + k);

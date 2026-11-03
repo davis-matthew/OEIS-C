@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 9999, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   power10
+ * Validated: standard, pass, 70 terms through n = 9609 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,15 @@
 */
 
 #include <stdint.h>
-#include "../utils/power10.h"
+
+/* Compute 10^e as a seq_t; e is a small non‑negative integer. */
+static seq_t power10(idx_t e)
+{
+    seq_t r = (seq_t)1;
+    for (idx_t i = (idx_t)0; i < e; ++i)
+        r *= (seq_t)10;
+    return r;
+}
 
 /* Count decimal digits of an idx_t value (n > 0).  Returns at least 1. */
 static inline int digit_count(idx_t n)

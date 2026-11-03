@@ -10,12 +10,14 @@
  *            1/2. The n‑th term is the numerator of the n‑th node (1‑based)
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t a, b;      /* fraction a/b of the node */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* allocate enough space for at most 2n+10 nodes (degree ≤2 per node) */
     size_t cap = 2 * (size_t)n + 10;
-    Node *q = (Node *)malloc(cap * sizeof(Node));
+    Node *q = mem_new(Node, cap);
     if (!q) return 0;  /* allocation failure */
 
     size_t front = 0, back = 0;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         Node cur = q[front++];
         if (front - 1 == (size_t)(n - 1)) {
             seq_t result = cur.a;
-            free(q);
+            mem_free(q);
             return result;
         }
 
@@ -68,6 +70,6 @@ seq_t a(idx_t n)
     }
 
     /* Should not reach here */
-    free(q);
+    mem_free(q);
     return 0;
 }

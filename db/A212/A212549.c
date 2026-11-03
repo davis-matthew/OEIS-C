@@ -9,12 +9,14 @@
  *            of partitions of x whose parts are ≤ k
  * Range:     u8 n <= 24, u16 n <= 50, u32 n <= 142, u64 n <= 456,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *part = NULL;      /* a(n) for 0…max_n  */
 static idx_t  max_n = 0;        /* current maximum index computed */
@@ -23,9 +25,9 @@ static idx_t  max_n = 0;        /* current maximum index computed */
 static void recompute(idx_t N)
 {
     size_t M = (size_t)N;
-    seq_t *dp  = (seq_t*)malloc((M + 1) * sizeof(seq_t));
-    seq_t *tmp = (seq_t*)malloc((M + 1) * sizeof(seq_t));
-    if (!dp || !tmp) { if (dp) free(dp); if (tmp) free(tmp); exit(1); }
+    seq_t *dp  = mem_new(seq_t, (M + 1));
+    seq_t *tmp = mem_new(seq_t, (M + 1));
+    if (!dp || !tmp) { if (dp) mem_free(dp); if (tmp) mem_free(tmp); exit(1); }
 
     for (size_t i = 0; i <= M; ++i) {
         dp[i] = (seq_t)0;
@@ -50,9 +52,9 @@ static void recompute(idx_t N)
     }
 
     /* free old cache and store the new one */
-    if (part) free(part);
+    if (part) mem_free(part);
     part = tmp;
-    free(dp);
+    mem_free(dp);
 
     max_n = N;
 }

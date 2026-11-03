@@ -8,13 +8,15 @@
  *            2^k; * if n is a power of 3, a(n) = 2^k where n = 3^k
  * Range:     i8 n <= 11, i16 n <= 11, i32 n <= 11, i64 n <= 11, i128 n <= 11,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
             t >>= 1;      /* divide by 2 */
             ++k;
         }
-        return big_pow((seq_t)3, (seq_t)k);
+        return ipow((seq_t)3, (seq_t)k);
     }
 
     /* Handle powers of 3 */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         ++k;
     }
     if (t == 1) {           /* n == 3^k */
-        return big_pow((seq_t)2, (seq_t)k);
+        return ipow((seq_t)2, (seq_t)k);
     }
 
     /* Default: unchanged */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 14, u64 n <= 30, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;      /* 1‑based array, cache[1] = a(1) */
@@ -43,7 +45,7 @@ static const seq_t base_vals[15] = {
 static void init_cache(idx_t request_n)
 {
     size_t size_needed = request_n > 15 ? (size_t)request_n : 15;
-    cache = (seq_t *)calloc(size_needed + 1, sizeof(seq_t));
+    cache = mem_new(seq_t, size_needed + 1);
     for (idx_t i = 1; i <= 15; ++i)
         cache[i] = base_vals[i - 1];
     cache_limit = 15;   /* we now have a(1)..a(15) */
@@ -61,7 +63,7 @@ static void ensure_cache(idx_t n)
 
     /* enlarge cache array if necessary */
     if ((size_t)n + 1 > (size_t)cache_limit + 1) {
-        seq_t *tmp = (seq_t *)realloc(cache, ((size_t)n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, ((size_t)n + 1));
         if (!tmp) return;        /* out‑of‑memory – silently abort */
         cache = tmp;
     }

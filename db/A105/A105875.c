@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ensure_cap, factorize_uint64, modpow_uint64
+ * Validated: standard, pass, 73 terms through n = 909 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,39 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/modpow_uint64.h"
-#include "../utils/ensure_cap.h"
-#include "../utils/factorize_uint64.h"
+#include "../utils/powmod_u64.h"
+
+/* ensure capacity for a dynamic uint64_t array */
+static void ensure_cap(size_t *cap, size_t *size, uint64_t **ptr)
+{
+    if (*size + 1 > *cap) {
+        size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        uint64_t *tmp = (uint64_t *)realloc(*ptr, new_cap * sizeof(uint64_t));
+        *ptr = tmp;
+        *cap = new_cap;
+    }
+}
+
+/* factorise n using the known primes; unique prime factors are returned
+   in fac[0..cnt-1] (cnt <= 32). */
+static void factorize_uint64(uint64_t n,
+                             uint64_t fac[32],
+                             size_t *fac_cnt,
+                             size_t prime_cnt,
+                             const uint64_t *primes)
+{
+    size_t cnt = 0;
+    for (size_t i = 0; i < prime_cnt; ++i) {
+        uint64_t p = primes[i];
+        if (p > n / p) break;          /* p > sqrt(n) */
+        if (n % p == 0) {
+            fac[cnt++] = p;
+            while (n % p == 0) n /= p;
+        }
+    }
+    if (n > 1) fac[cnt++] = n;
+    *fac_cnt = cnt;
+}
 
 /* trial division primality test using the list of known primes */
 static bool is_prime_candidate(uint64_t x, size_t prime_cnt, const uint64_t *primes)
@@ -55,7 +86,7 @@ static bool good_prime(uint64_t p,
     for (size_t i = 0; i < fac_cnt; ++i) {
         uint64_t q = fac[i];
         uint64_t exp = m / q;
-        if (modpow_uint64(base, exp, p) == 1) return false;
+        if (powmod_u64(base, exp, p) == 1) return false;
     }
     return true;
 }

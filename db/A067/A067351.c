@@ -9,7 +9,8 @@
  *            prime divisors
  * Range:     u8 n <= 166, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   calc_phi, count_distinct_primes, seq_realloc, sigma_of
+ * Validated: standard, pass, 86 terms through n = 997 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,91 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/sigma_of.h"          /* seq_t sigma_of(idx_t n); */
-#include "../utils/calc_phi.h"          /* seq_t calc_phi(seq_t m); */
-#include "../utils/count_distinct_primes.h" /* int count_distinct_primes(uint64_t n); */
-#include "../utils/seq_realloc.h"       /* seq_t *seq_realloc(seq_t *old, size_t old_cap, size_t new_cap); */
+#include <stdbool.h>
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Compute Euler's totient φ of an odd 64‑bit or larger number m.
+   The algorithm uses trial division up to sqrt(m). */
+static seq_t calc_phi(seq_t m)
+{
+    seq_t result = m;
+    seq_t p = 2;
+
+    /* Handle factor 2 separately to skip it later (m is odd, but keep robust) */
+    if (m % 2 == 0) {
+        while (m % 2 == 0)
+            m /= 2;
+        result -= result / 2;
+    }
+
+    /* Trial division by odd primes */
+    for (p = 3; p <= m / p; p += 2) {
+        if (m % p == 0) {
+            while (m % p == 0)
+                m /= p;
+            result -= result / p;
+        }
+    }
+
+    /* If m > 1, it is a prime factor larger than sqrt(original m) */
+    if (m > 1)
+        result -= result / m;
+
+    return result;
+}
+
+/* Count distinct prime factors of an unsigned 64-bit integer n.
+   The result fits in a signed int for all n that may be passed. */
+static int count_distinct_primes(uint64_t n)
+{
+    if (n <= 1)
+        return 0;
+
+    int cnt = 0;
+    /* Handle factor 2 separately. */
+    if (n % 2 == 0) {
+        cnt++;
+        while (n % 2 == 0)
+            n /= 2;
+    }
+    /* Test odd divisors up to sqrt(n). */
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            cnt++;
+            while (n % p == 0)
+                n /= p;
+        }
+    }
+    if (n > 1)   /* Remaining prime factor. */
+        cnt++;
+    return cnt;
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;   /* Array of accepted k values */
 static size_t cache_len = 0;  /* Number of elements stored */

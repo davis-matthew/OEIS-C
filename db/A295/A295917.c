@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ROWS          7
 #define MASKS_PER_ROW (1u << ROWS)      /* 128 */
@@ -92,19 +94,19 @@ seq_t a(idx_t n)
     static seq_t *dp_cur = NULL;
     static seq_t *dp_nxt = NULL;
     if (!dp_cur) {
-        dp_cur = (seq_t*)calloc(STATES, sizeof(seq_t));
-        dp_nxt = (seq_t*)calloc(STATES, sizeof(seq_t));
+        dp_cur = mem_new(seq_t, STATES);
+        dp_nxt = mem_new(seq_t, STATES);
     }
 
     /* Initialise with first row (a = 0). */
-    memset(dp_cur, 0, sizeof(seq_t) * STATES);
+    mem_set(dp_cur, 0, sizeof(seq_t) * STATES);
     for (int r0 = 0; r0 < MASKS_PER_ROW; ++r0)
         dp_cur[r0] = (seq_t)1;   /* state (0, r0) */
 
     /* Process remaining rows. */
     idx_t steps = n - 1;   /* number of transitions needed */
     for (idx_t k = 0; k < steps; ++k) {
-        memset(dp_nxt, 0, sizeof(seq_t) * STATES);
+        mem_set(dp_nxt, 0, sizeof(seq_t) * STATES);
         for (unsigned int s = 0; s < STATES; ++s) {
             seq_t ways = dp_cur[s];
             if (!ways) continue;

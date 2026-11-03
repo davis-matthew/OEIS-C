@@ -7,6 +7,7 @@
  * Formula:   a(n) = (1/2)*n*(1+n)*(1+9*n+27*n^2+42*n^3+36*n^4+18*n^5+6*n^6)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 13, u64 n <= 20, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

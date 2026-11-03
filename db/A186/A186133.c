@@ -9,7 +9,8 @@
  *            + 24*a(n-3) (for n ≥ 4)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* A186133 – Number of (n+1) X 2 0..2 arrays with no 2 X 2 subblock trace equal to any horizontal or vertical neighbor 2 X 2 subblock trace. */
 
 #include <stdlib.h>  /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,11 +33,11 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         cache_cap = n + 1;     /* ensure capacity for at least n terms */
         if (cache_cap < 4) cache_cap = 4;          /* handle small n            */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (n + 1 > cache_cap) {
         idx_t newcap = cache_cap * 2;
         if (newcap < n + 1) newcap = n + 1;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cache_cap = newcap;
     }
 

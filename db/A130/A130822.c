@@ -11,13 +11,30 @@
  *            3t + 2 * where P(k) = Σ_{i=1}^{k} m(i). * a(n) =...
  * Range:     u8 n <= 44, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   partial_sum, partial_sum_even
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/partial_sum.h"
-#include "../utils/partial_sum_even.h"
+static inline seq_t partial_sum_even(idx_t even_k)
+{
+    /* even_k is guaranteed even; let t = even_k / 2 */
+    idx_t t = even_k >> 1;
+    unsigned __int128 v = ((unsigned __int128)2 * t * t) + t;
+    return (seq_t)v;
+}
+
+static inline seq_t partial_sum(idx_t k)
+{
+    if ((k & 1) == 0)  /* even */
+        return partial_sum_even(k);
+    else {
+        idx_t t = (k - 1) >> 1;                 /* k = 2t + 1 */
+        unsigned __int128 v = ((unsigned __int128)2 * t * t) + (unsigned __int128)3 * t + 2;
+        return (seq_t)v;
+    }
+}
 
 seq_t a(idx_t n)
 {

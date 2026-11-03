@@ -8,14 +8,27 @@
  * Formula:   a(n) = -64939 + 2^n*(-27280*n+344122) + 4^n*(215264*n-268088)
  * Range:     u8 none, u16 n <= 0, u32 n <= 6, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   pow2, pow4
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/pow4.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

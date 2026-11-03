@@ -11,7 +11,8 @@
  *            least one of x or y is a power of two
  * Range:     u8 n <= 2000, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   is_pow2_u64
+ * Validated: standard, pass, 116 terms through n = 1963 (2026-11-01)
+ * Helpers:   is_pow2_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_pow2_u64.h"
+#include "../utils/is_pow2_idx.h"
 
 /*--- helper: integer square root for 64‑bit values --------------------*/
 static inline idx_t isqrt_u64(idx_t v)
@@ -46,10 +47,10 @@ seq_t a(idx_t n)
 
     /* Iterate over x and y.  z is determined by n - x - y. */
     for (idx_t x = 1; x <= n - 2; ++x) {
-        bool xpow2 = is_pow2_u64(x);
+        bool xpow2 = is_pow2_idx(x);
         for (idx_t y = 1; y <= n - x - 1; ++y) {
             /* must have at least one of x or y a power of two */
-            if (!xpow2 && !is_pow2_u64(y))
+            if (!xpow2 && !is_pow2_idx(y))
                 continue;
 
             idx_t z = n - x - y;

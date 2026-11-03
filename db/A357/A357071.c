@@ -12,13 +12,15 @@
  *            equals n
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   none
+ * Validated: partial, pass, 102 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     }
 
     /* Reserve storage for the triangular numbers. */
-    seq_t *tri = (seq_t *)malloc(tri_cnt * sizeof(seq_t));
+    seq_t *tri = mem_new(seq_t, tri_cnt);
     if (!tri)
         return 0;          /* allocation failure */
 
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* Boolean lookup for triangular numbers up to n. */
     bool *is_tri = (bool *)calloc((size_t)n + 1, sizeof(bool));
     if (!is_tri) {
-        free(tri);
+        mem_free(tri);
         return 0;
     }
     for (idx = 0; idx < tri_cnt; ++idx)
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(tri);
+    mem_free(tri);
     free(is_tri);
     return result;
 }

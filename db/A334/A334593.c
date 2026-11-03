@@ -9,17 +9,20 @@
  *            of the binary expansion of n
  * Range:     u8 n <= 8191, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 90 terms through n = 8156 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
     /* n ≥ 1 */
-    idx_t len = floor_log2_uint64(n) + 1;        /* number of bits in n */
+    idx_t len = ilog2(n) + 1;        /* number of bits in n */
 
     /* store the current row of the triangle (max 64 bits for 64‑bit n) */
     unsigned char row[64];

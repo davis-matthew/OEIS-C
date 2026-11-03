@@ -10,7 +10,8 @@
  *            caching)
  * Range:     u8 n <= 27, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   digits_first, digits_last, divisors_from_factorization
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,47 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digits_first.h"
-#include "../utils/digits_last.h"
-#include "../utils/divisors_from_factorization.h"
+#include "../utils/mem.h"
+
+static uint64_t digits_first(uint64_t x)
+{
+    while (x >= 10) x /= 10;
+    return x;
+}
+
+static uint64_t digits_last(uint64_t x)
+{
+    return x % 10;
+}
+
+/* generate all divisors from prime factorization */
+static uint64_t *divisors_from_factorization(const uint64_t *factors,
+                                             const uint64_t *exps,
+                                             size_t cnt,
+                                             size_t *out_len)
+{
+    size_t dcount = 1;
+    for (size_t i = 0; i < cnt; ++i) dcount *= (exps[i] + 1);
+
+    uint64_t *divs = (uint64_t *)malloc(dcount * sizeof(uint64_t));
+    size_t len = 0;
+    divs[len++] = 1;
+
+    for (size_t i = 0; i < cnt; ++i) {
+        uint64_t p = factors[i];
+        uint64_t e = exps[i];
+        size_t old_len = len;
+        uint64_t p_power = 1;
+        for (uint64_t k = 1; k <= e; ++k) {
+            p_power *= p;
+            for (size_t j = 0; j < old_len; ++j) {
+                divs[len++] = divs[j] * p_power;
+            }
+        }
+    }
+    *out_len = len;
+    return divs;
+}
 
 /* ---------- internal utilities ---------- */
 
@@ -154,7 +193,7 @@ static void grow_cache(size_t new_len)
     if (new_len <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap : 16;
     while (new_cap < new_len) new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -167,7 +206,7 @@ seq_t a(idx_t n)
     if (!cache_inited) {
         /* initialize cache with a(1) = 1 */
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;
         cache_len = 1;
         next_candidate = 2;

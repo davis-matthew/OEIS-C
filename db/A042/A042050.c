@@ -8,7 +8,8 @@
  *            a(0)...a(35) given by the convergents to sqrt(549)
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 17, u64 n <= 35, u128 n <= 71,
  *            big any n
- * Helpers:   init_36_terms
+ * Validated: standard, pass, 39 terms through n = 169 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,39 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/init_36_terms.h"
+#include "../utils/mem.h"
+
+/* ----------------------------------------------------------------
+   Compute the first 36 convergent numerators of sqrt(549).
+   This uses the classic continued‑fraction algorithm.
+   ---------------------------------------------------------------- */
+static void init_36_terms(seq_t *cache)
+{
+    const int64_t D   = 549;
+    const int64_t a0  = 23;           /* floor(sqrt(549)) */
+
+    int64_t m = 0;
+    int64_t d = 1;
+    int64_t a_cf = a0;                /* Current continued‑fraction term */
+
+    seq_t p_prev2 = 0;                /* p_{-2} */
+    seq_t p_prev1 = 1;                /* p_{-1} */
+
+    for (idx_t i = 0; i < 36; ++i) {
+        /* p_k = a_cf * p_{k-1} + p_{k-2} */
+        seq_t p = (seq_t)a_cf * p_prev1 + p_prev2;
+        cache[i] = p;
+
+        /* Update for next step in the continued fraction */
+        m = d * a_cf - m;
+        d = (D - m * m) / d;
+        a_cf = (a0 + m) / d;
+
+        /* Shift indices for next iteration */
+        p_prev2 = p_prev1;
+        p_prev1 = p;
+    }
+}
 
 /* ----------------------------------------------------------------
    Sequence access function.
@@ -38,9 +71,9 @@ seq_t a(idx_t n)
         if (newcap < 64) newcap = 64;
         else newcap <<= 1;
         if (cache == NULL) {
-            cache = (seq_t*)malloc(newcap * sizeof(*cache));
+            cache = mem_new(seq_t, newcap);
         } else {
-            cache = (seq_t*)realloc(cache, newcap * sizeof(*cache));
+            cache = mem_resize(seq_t, cache, newcap);
         }
         /* initialise new slots to zero – not strictly needed */
         if (cache) {
@@ -56,8 +89,8 @@ seq_t a(idx_t n)
         if (cap < 36) {
             /* grow to at least 36 */
             size_t newcap = 64;
-            if (cache == NULL) cache = (seq_t*)malloc(newcap * sizeof(*cache));
-            else cache = (seq_t*)realloc(cache, newcap * sizeof(*cache));
+            if (cache == NULL) cache = mem_new(seq_t, newcap);
+            else cache = mem_resize(seq_t, cache, newcap);
             cap = newcap;
         }
         init_36_terms(cache);

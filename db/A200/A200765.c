@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 147, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build environment. */
 seq_t a(idx_t n)
@@ -28,9 +30,9 @@ seq_t a(idx_t n)
     size_t maxSum = 5 * N;                 /* Maximum possible total sum after 5 elements. */
 
     /* Allocate working arrays.  All are sized to maxSum+1 to avoid reallocation. */
-    seq_t *dp_prev = (seq_t *)calloc(maxSum + 1, sizeof(seq_t));
-    seq_t *dp_curr = (seq_t *)calloc(maxSum + 1, sizeof(seq_t));
-    seq_t *prefix  = (seq_t *)calloc(maxSum + 1, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, maxSum + 1);
+    seq_t *dp_curr = mem_new(seq_t, maxSum + 1);
+    seq_t *prefix  = mem_new(seq_t, maxSum + 1);
 
     if (!dp_prev || !dp_curr || !prefix)   /* If allocation fails, return zero. */
         return 0;
@@ -83,9 +85,9 @@ seq_t a(idx_t n)
         ans += dp_prev[s];
 
     /* Clean up. */
-    free(dp_prev);
-    free(dp_curr);
-    free(prefix);
+    mem_free(dp_prev);
+    mem_free(dp_curr);
+    mem_free(prefix);
 
     return ans;
 }

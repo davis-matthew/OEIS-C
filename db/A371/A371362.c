@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* This implementation uses 128‑bit intermediates to avoid overflow
  * for the 64‑bit build.  On builds where seq_t is a larger integer
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* grow cache */
     size_t needed = (size_t)n + 1;
     if (needed > cache_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp)                       /* allocation failed */
             return (seq_t)0;
         cache = tmp;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 33, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   _lower_bound
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,21 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/_lower_bound.h"
+#include "../utils/mem.h"
+
+/*  Utility: binary search for first index with arr[i] >= val                */
+static size_t _lower_bound(const uint32_t *arr, size_t n, uint32_t val)
+{
+    size_t lo = 0, hi = n;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] < val)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo;
+}
 
 #define LIMIT 200000          /* sufficient for the first 10 000 primes */
 #define MAX_PRIMES 20000
@@ -71,7 +86,7 @@ static void _build_min_seed(void)
 {
     _init_primes();
 
-    _min_seed = (seq_t *)malloc(_prime_cnt * sizeof(seq_t));
+    _min_seed = mem_new(seq_t, _prime_cnt);
     if (!_min_seed) exit(1); /* fatal error if allocation fails */
 
     /* Seeds: 2 and 3 are always seeds */

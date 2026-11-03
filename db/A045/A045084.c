@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 295, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 46 terms through n = 8237 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,8 +21,10 @@
        
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k) */
-#include "../utils/pow2.h"       /* seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

@@ -11,8 +11,8 @@
  *            L^2/i^2, then N is divided by gcd(N, D), found...
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 19, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   q2545_add, q2545_divsm, q2545_modsm, q2545_mul, q2545_mulsm,
- *            q2545_sub, q2545_trim
+ * Validated: partial, pass, 26 terms through n = 28 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +20,86 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/q2545_add.h"
-#include "../utils/q2545_divsm.h"
-#include "../utils/q2545_modsm.h"
-#include "../utils/q2545_mul.h"
-#include "../utils/q2545_mulsm.h"
-#include "../utils/q2545_sub.h"
-#include "../utils/q2545_trim.h"
+
+static size_t q2545_add(uint32_t *a, size_t al, const uint32_t *b, size_t bl) {
+    size_t n = al > bl ? al : bl;
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < n; i++) {
+        uint64_t s = carry + (i < al ? a[i] : 0) + (i < bl ? b[i] : 0);
+        a[i] = (uint32_t)s;
+        carry = s >> 32;
+    }
+    if (carry) a[n++] = (uint32_t)carry;
+    return n;
+}
+
+static uint32_t q2545_divsm(uint32_t *x, size_t len, uint32_t d) {
+    uint64_t r = 0;
+    size_t i;
+    for (i = len; i-- > 0;) {
+        r = (r << 32) | x[i];
+        x[i] = (uint32_t)(r / d);
+        r %= d;
+    }
+    return (uint32_t)r;
+}
+
+static uint32_t q2545_modsm(const uint32_t *x, size_t len, uint32_t d) {
+    uint64_t r = 0;
+    size_t i;
+    for (i = len; i-- > 0;) {
+        r = ((r << 32) | x[i]) % d;
+    }
+    return (uint32_t)r;
+}
+
+static size_t q2545_trim(const uint32_t *x, size_t len) {
+    while (len > 0 && x[len - 1] == 0) len--;
+    return len;
+}
+
+static size_t q2545_mul(uint32_t *o, const uint32_t *x, size_t xl, const uint32_t *y, size_t yl) {
+    size_t i, j;
+    if (xl == 0 || yl == 0) return 0;
+    memset(o, 0, (xl + yl) * sizeof(uint32_t));
+    for (i = 0; i < xl; i++) {
+        uint64_t carry = 0;
+        for (j = 0; j < yl; j++) {
+            uint64_t t = (uint64_t)x[i] * y[j] + o[i + j] + carry;
+            o[i + j] = (uint32_t)t;
+            carry = t >> 32;
+        }
+        o[i + yl] = (uint32_t)carry;
+    }
+    return q2545_trim(o, xl + yl);
+}
+
+static size_t q2545_mulsm(uint32_t *x, size_t len, uint32_t m) {
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        uint64_t t = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+    while (carry) {
+        x[len++] = (uint32_t)carry;
+        carry >>= 32;
+    }
+    return len;
+}
+
+static size_t q2545_sub(uint32_t *a, size_t al, const uint32_t *b, size_t bl) {
+    int64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < al; i++) {
+        int64_t s = (int64_t)a[i] - (i < bl ? (int64_t)b[i] : 0) - borrow;
+        if (s < 0) { s += ((int64_t)1 << 32); borrow = 1; } else borrow = 0;
+        a[i] = (uint32_t)s;
+    }
+    return q2545_trim(a, al);
+}
 
 seq_t a(idx_t n) {
     uint64_t m = (uint64_t)n - 1;

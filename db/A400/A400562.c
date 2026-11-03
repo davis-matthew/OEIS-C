@@ -8,8 +8,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, tabf, easy, new
  * Formula:   not stated
- * Range:     u8 n <= 38, u16 n <= 638, u32 n <= 8400, u64 n <= 8400,
- *            u128 n <= 8400, big any n
+ * Range:     u8 n <= 38, u16 n <= 638, u32 n <= 16382, u64 n <= 16382,
+ *            u128 n <= 16382, big any n
+ * Validated: standard, pass, 77 terms through n = 8400 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,7 +23,8 @@
    m is the row number, k the position within that row. */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

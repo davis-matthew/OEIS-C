@@ -10,14 +10,26 @@
  *            – no hard‑coded table
  * Range:     u8 n <= 1, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   apply_elem
+ * Validated: full, pass, 17 terms through n = 16 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/apply_elem.h"
+
+/* apply a group element defined by permutation 'perm' and bit mask 'b' */
+static inline int apply_elem(int v, int b, const int *perm)
+{
+    int u = v ^ b;          /* apply bit flips */
+    int out = 0;
+    for (int i = 0; i < 4; ++i) {
+        int bit = (u >> perm[i]) & 1;
+        out |= bit << i;
+    }
+    return out;
+}
 
 /* list of all 24 permutations of the 4 coordinates */
 static const int perms[24][4] = {

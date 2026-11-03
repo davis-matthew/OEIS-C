@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 19, u32 n <= 36, u64 n <= 76, u128 n <= 151,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 56 terms through n = 953 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/pow_int.h"   /* pow_int(seq_t base, idx_t exp) */
+#include "../utils/ipow_idx.h"
 
 /* Function: a
  *  Computes the denominator of the product described above.
@@ -72,7 +73,7 @@ seq_t a(idx_t n)
     for (uint64_t p = 2; p <= (uint64_t)n; ++p) {
         int e = exp[p];
         if (e < 0) {
-            seq_t mul = pow_int((seq_t)p, (idx_t)(-e));
+            seq_t mul = ipow_idx((seq_t)p, (idx_t)(-e));
             denominator *= mul;              /* * works for both int/BigInt */
         }
     }

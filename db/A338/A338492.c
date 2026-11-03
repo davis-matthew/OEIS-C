@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  *   No external utilities are required.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* dp[i] holds the minimal number of coins for sum i. */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp)
         return (seq_t)0; /* allocation failure → return 0 */
 
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     idx_t max_coins = n + 1;               /* safe upper bound */
     idx_t *coins = (idx_t *)malloc((size_t)max_coins * sizeof(idx_t));
     if (!coins) {
-        free(dp);
+        mem_free(dp);
         return (seq_t)0;
     }
     idx_t coin_cnt = 0;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     free(coins);
     return result;
 }

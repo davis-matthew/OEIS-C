@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system. */
 static seq_t *A = NULL;           /* a-values */
@@ -56,7 +58,7 @@ static void hash_init(void)
 {
     hash_cap = HASH_START;
     hash_cnt = 0;
-    hash_tab  = (seq_t*)calloc(hash_cap, sizeof(seq_t));
+    hash_tab  = mem_new(seq_t, hash_cap);
     hash_used = (unsigned char*)calloc(hash_cap, sizeof(unsigned char));
     if (!hash_tab || !hash_used) abort();
 }
@@ -92,7 +94,7 @@ static bool hash_contains(seq_t x)
 static void hash_grow(void)
 {
     size_t new_cap = hash_cap * 2;
-    seq_t *new_tab  = (seq_t*)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_tab  = mem_new(seq_t, new_cap);
     unsigned char *new_used = (unsigned char*)calloc(new_cap, sizeof(unsigned char));
     if (!new_tab || !new_used) abort();
 
@@ -106,7 +108,7 @@ static void hash_grow(void)
         }
     }
 
-    free(hash_tab);
+    mem_free(hash_tab);
     free(hash_used);
     hash_tab  = new_tab;
     hash_used = new_used;
@@ -121,8 +123,8 @@ seq_t a(idx_t n)
     /* Initial allocation for a() and b() */
     if (A_cap == 0) {
         A_cap = 8;
-        A = (seq_t*)malloc(A_cap * sizeof(seq_t));
-        B = (seq_t*)malloc(A_cap * sizeof(seq_t));
+        A = mem_new(seq_t, A_cap);
+        B = mem_new(seq_t, A_cap);
         if (!A || !B) abort();
 
         /* initialise first terms */
@@ -145,8 +147,8 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > A_cap) {
         size_t new_cap = A_cap ? A_cap : 4;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        A = (seq_t*)realloc(A, new_cap * sizeof(seq_t));
-        B = (seq_t*)realloc(B, new_cap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_cap);
+        B = mem_resize(seq_t, B, new_cap);
         if (!A || !B) abort();
         A_cap = new_cap;
     }

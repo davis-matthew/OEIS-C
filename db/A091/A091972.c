@@ -11,13 +11,15 @@
  *            build
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoisation */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* initialise base array if first call */
     if (!cache) {
         allocated = 6;           /* at least up to index 5 */
-        cache = (seq_t *)malloc(allocated * sizeof(seq_t));
+        cache = mem_new(seq_t, allocated);
         if (!cache) return 0;    /* allocation failure -> 0 */
 
         /* base cases */
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     /* enlarge cache if necessary */
     if (sz > allocated) {
         size_t new_alloc = sz;
-        seq_t *tmp = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
         if (!tmp) return 0;          /* allocation failure */
         cache = tmp;
         allocated = new_alloc;

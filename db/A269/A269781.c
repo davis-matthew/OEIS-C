@@ -9,16 +9,19 @@
  *            numdiv(k) divides n
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 36, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   big_pow, divisor_count_u64, factor_u64
+ * Validated: partial, pass, 54 terms through n = 56 (2026-11-01)
+ * Helpers:   factor_u64, ipow, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/num_divisors.h"
 
 static const int PRIMES[15] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47};
 
@@ -43,7 +46,7 @@ static void dfs_min_k(int idx, seq_t rem, seq_t val,
     {
         if (rem % (e + 1) != 0) continue;
 
-        seq_t pow_val = (e > 0) ? big_pow((seq_t)PRIMES[idx], (seq_t)e) : 1;
+        seq_t pow_val = (e > 0) ? ipow((seq_t)PRIMES[idx], (seq_t)e) : 1;
         seq_t new_val = val * pow_val;
 
         if (*best != 0 && new_val >= *best) {
@@ -85,7 +88,7 @@ seq_t a(idx_t n)
     uint64_t nn = (uint64_t)n;
     seq_t best_k = 0;
 
-    seq_t d_n = divisor_count_u64(nn);
+    seq_t d_n = num_divisors(nn);
 
     /* Iterate over all divisors of n as possible divisor counts of partner. */
     for (uint64_t dk = 1; dk <= nn; ++dk) {

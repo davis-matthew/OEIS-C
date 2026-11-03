@@ -10,7 +10,8 @@
  *            is the k‑th palindromic number that is not squarefree
  * Range:     u8 n <= 13, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   is_squarefree, pow10, reverse
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
+ * Helpers:   is_squarefree, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,19 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/reverse.h"         /* seq_t reverse(seq_t v); */
-#include "../utils/pow10.h"           /* seq_t pow10(idx_t e); */
-#include "../utils/is_squarefree.h"   /* bool is_squarefree(seq_t x); */
+#include <stdlib.h>
+#include "../utils/is_squarefree.h"
+#include "../utils/reverse_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -45,10 +56,10 @@ seq_t a(idx_t n)
             seq_t left_val = (seq_t)left;
 
             if (len % 2 == 1) {        /* odd length palindrome */
-                seq_t rev = reverse(left_val / 10);
+                seq_t rev = reverse_digits(left_val / 10);
                 pal = left_val * pow10(half_len - 1) + rev;
             } else {                   /* even length palindrome */
-                seq_t rev = reverse(left_val);
+                seq_t rev = reverse_digits(left_val);
                 pal = left_val * pow10(half_len) + rev;
             }
 

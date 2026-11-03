@@ -12,7 +12,8 @@
  *            nonsquare‑free tables on demand
  * Range:     u8 n <= 90, u16 n <= 5630, u32 n <= 8189, u64 n <= 8189,
  *            u128 n <= 8189, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 7452 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- helper: make sure there is room for at least 'needed' elements ----- */
 static void ensure_capacity(size_t needed, size_t *cap, seq_t **arr)
@@ -30,7 +32,7 @@ static void ensure_capacity(size_t needed, size_t *cap, seq_t **arr)
     size_t new_cap = (*cap == 0) ? 1 : *cap;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     *arr = tmp;
     *cap = new_cap;
 }

@@ -9,13 +9,15 @@
  *            repeating
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const uint8_t cf_coeff[8] = {1, 6, 2, 14, 2, 6, 1, 58};
 
@@ -28,14 +30,14 @@ seq_t a(idx_t n)
     /* Ensure the cache is initialized */
     if (memo == NULL) {
         memo_len = 1;
-        memo = (seq_t *)malloc(sizeof(seq_t));
+        memo = mem_new(seq_t, 1);
         memo[0] = (seq_t)29;              /* a(0) */
     }
 
     /* Grow the cache up to index n (if required) */
     if (memo_len <= (size_t)n) {
         size_t needed = (size_t)n + 1;
-        memo = (seq_t *)realloc(memo, sizeof(seq_t) * needed);
+        memo = mem_resize(seq_t, memo, needed);
 
         for (size_t i = memo_len; i <= n; ++i) {
             if (i == 1) {

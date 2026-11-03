@@ -8,6 +8,7 @@
  * Formula:   a(n) = product of all k < n such that 1 < gcd(k,n) < k
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 23, u64 n <= 35, u128 n <= 53,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 559 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* Equivalent definition: a(n) = product_{k<n, 1<gcd(k,n)<k} k */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

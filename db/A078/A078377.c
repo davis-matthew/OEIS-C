@@ -10,7 +10,8 @@
  *            positive cube
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9880 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------*/
 /* Count distinct prime factors of a 64‑bit integer.  No utility */
@@ -75,7 +77,7 @@ static void build_cache(void) {
     free(mark);
 
     /* Allocate cache array */
-    cache = (seq_t *)malloc(cnt * sizeof(seq_t));
+    cache = mem_new(seq_t, cnt);
     if (!cache) exit(EXIT_FAILURE);
     for (size_t i = 0; i < cnt; ++i) {
         cache[i] = (seq_t)count_distinct_prime_factors(nums[i]);

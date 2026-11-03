@@ -11,7 +11,8 @@
  *            -> y^2 -> y^3; then all m <= K^3 are liste...
  * Range:     u8 n <= 19, u16 n <= 135, u32 n <= 135, u64 n <= 135,
  *            u128 n <= 135, big any n
- * Helpers:   cube_is_one
+ * Validated: standard, pass, 65 terms through n = 130 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/cube_is_one.h"
+
+static bool cube_is_one(uint64_t x, uint64_t m) {
+    unsigned __int128 t = (unsigned __int128)(x % m) * (x % m) % m;
+    t = t * (x % m) % m;
+    return (uint64_t)t == 1 % m;
+}
 
 #define YMAX 2500
 

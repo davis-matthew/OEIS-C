@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 24, u32 n <= 28, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of local helpers */
 static seq_t mod_pow_seq(seq_t base, seq_t exp, seq_t mod);
@@ -48,7 +50,7 @@ static void ensure_terms_capacity(size_t need)
     if (terms_cap < need) {
         size_t new_cap = terms_cap < 16 ? 16 : terms_cap;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *new_ptr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, terms, new_cap);
         /* In a real system we would check for allocation failure.
            For the judge environment we assume success. */
         terms = new_ptr;

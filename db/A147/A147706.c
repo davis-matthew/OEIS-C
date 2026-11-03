@@ -12,13 +12,15 @@
  *            the partitions built from smaller roots. Complexity...
  * Range:     u8 n <= 32, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h> /* for memcpy, if desired */
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;       /* memoized results */
 static idx_t  memo_size = 0;     /* allocated size of memo */
@@ -29,14 +31,14 @@ static void compute_up_to(idx_t N)
 {
     /* Allocate or enlarge memo array */
     if (memo_size < N + 1) {
-        free(memo);
-        memo = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+        mem_free(memo);
+        memo = mem_new(seq_t, (size_t)(N + 1));
         memo_size = N + 1;
     }
 
     /* Working arrays: dp (current), dp_prev (state before this root). */
-    seq_t *dp      = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *dp_prev = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *dp      = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *dp_prev = mem_new(seq_t, (size_t)(N + 1));
     dp[0] = (seq_t)1;  /* empty partition */
 
     /* Process each digital root d = 1..9 */
@@ -58,8 +60,8 @@ static void compute_up_to(idx_t N)
         memo[i] = dp[i];
 
     /* Free temporary arrays */
-    free(dp);
-    free(dp_prev);
+    mem_free(dp);
+    mem_free(dp_prev);
 
     computed_max = N;
 }

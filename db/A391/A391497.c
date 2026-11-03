@@ -9,9 +9,10 @@
  *            and contains at least one prime factor with exponent 1 or 2 (but
  *            not all exponents equal 3). This is equivalent to the OEIS
  *            definition
- * Range:     u8 n <= 19, u16 n <= 6006, u32 n <= 9751, u64 n <= 9751,
- *            u128 n <= 9751, big any n
- * Helpers:   none
+ * Range:     u8 n <= 19, u16 n <= 6006, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 70 terms through n = 9751 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of found terms */
 static size_t cache_len = 0;     /* number of terms stored */
@@ -59,7 +61,7 @@ static void grow_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    void *tmp = realloc(cache, new_cap * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();          /* allocation failure */
     cache = (seq_t *)tmp;       /* cast to seq_t* is allowed in C++ */
     cache_cap = new_cap;

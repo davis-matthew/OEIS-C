@@ -12,12 +12,14 @@
  *            297896, 397820, 522032, 672214, 853824, 1068640, 1323...
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 145, u64 n <= 200, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[23] = {
     0ULL, /* unused index 0 */
@@ -40,7 +42,7 @@ static void ensure_cache_size(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 32;
     while (new_cap < needed) new_cap *= 2;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     cache = tmp;
     cache_cap = new_cap;

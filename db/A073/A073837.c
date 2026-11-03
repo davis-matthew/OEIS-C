@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 543, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9788 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include "../utils/mem.h"
 
 /* required by the build:
  *  typedef idx_t;   // unsigned integer, e.g., uint64_t
@@ -48,7 +50,7 @@ static void extend_sieve(idx_t limit)
 
     size_t new_size = (size_t)(limit + 1);
     uint8_t *tmp1 = (uint8_t *)realloc(is_prime, new_size * sizeof(uint8_t));
-    seq_t *tmp2 = (seq_t  *)realloc(prime_sum, new_size * sizeof(seq_t));
+    seq_t *tmp2 = mem_resize(seq_t, prime_sum, new_size);
     if (!tmp1 || !tmp2) {
         /* out of memory – abort safely */
         exit(1);

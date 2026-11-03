@@ -10,12 +10,14 @@
  *            Dollars using the denominations 1,2,5,10,20,50,100
  * Range:     u8 n <= 41, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Dynamic programming array: dp[i] = number of ways to make i */
     /* Allocate (n+1) elements of type seq_t, zero-initialized */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return (seq_t)0;      /* Failure doesn't affect correctness */
 
     dp[0] = (seq_t)1;              /* One way to make 0: use no bills */
@@ -42,6 +44,6 @@ seq_t a(idx_t n)
     }
 
     seq_t ans = dp[n];
-    free(dp);
+    mem_free(dp);
     return ans;
 }

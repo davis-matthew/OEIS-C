@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   rising_fact, seq_pow
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,19 @@
  */
 
 #include <stdbool.h>
-#include "../utils/seq_pow.h"    /* seq_pow(base, exp) -> seq_t */
-#include "../utils/rising_fact.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+
+/* Rising factorial (a)_j = a * (a+1) * … * (a+j-1). */
+static seq_t rising_fact(idx_t a, idx_t j)
+{
+    seq_t res = (seq_t)1;
+    for (idx_t t = (idx_t)0; t < j; ++t) {
+        res = res * (seq_t)(a + t);
+    }
+    return res;
+}
 
 /* Compute the binomial coefficient C(n, k) as a seq_t. */
 static seq_t binom_calc(idx_t n, idx_t k)
@@ -57,7 +69,7 @@ static seq_t T_value(idx_t n, idx_t k)
     for (idx_t j = (idx_t)0; j <= diff; ++j) {
         seq_t term = binom_calc(diff, j);
         term = term * rising_fact(k - (idx_t)1, j);
-        term = term * seq_pow((seq_t)n, diff - j);
+        term = term * ipow_idx((seq_t)n, diff - j);
         sum += term;
     }
     return sum;

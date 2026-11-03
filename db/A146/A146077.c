@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, grow_seq, mod_pow
+ * Validated: standard, pass, 69 terms through n = 942 (2026-11-03)
+ * Helpers:   gcd, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,25 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
-#include "../utils/grow_seq.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static uint64_t lpf_uint64(uint64_t n)
 {
@@ -38,7 +55,7 @@ static int satisfies(uint64_t k)
     seq_t k_seq = (seq_t)k;
 
     /* (2^k – 2) mod k */
-    seq_t pow_mod = mod_pow((seq_t)2, k, k_seq);   /* 2^k mod k */
+    seq_t pow_mod = powmod((seq_t)2, k, k_seq);   /* 2^k mod k */
     seq_t diff = (pow_mod >= (seq_t)2) ? pow_mod - (seq_t)2
                                        : pow_mod + k_seq - (seq_t)2;
 

@@ -8,12 +8,17 @@
  * Formula:   a(n) = 125 * a(n-1) mod 2^13, a(1) = 1
  * Range:     u8 n <= 2, u16 n <= 2048, u32 n <= 2048, u64 n <= 2048,
  *            u128 n <= 2048, big any n
- * Helpers:   _mult_mod
+ * Validated: standard, pass, 61 terms through n = 1966 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_mult_mod.h"
+static inline seq_t _mult_mod(seq_t x, seq_t y)
+{
+    /* 2^13 = 8192, so we can use a mask instead of % 8192 */
+    return (x * y) & ((seq_t)0x1FFF);
+}
 
 seq_t a(idx_t n)
 {

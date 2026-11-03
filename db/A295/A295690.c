@@ -9,12 +9,14 @@
  *            a(3)=1
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 47, u64 n <= 93, u128 n <= 185,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 1691 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h> /* for size_t */
+#include "../utils/mem.h"
 
 /* Fixed maximum cache size – sufficient for the tests (n <= 10000). */
 #define MAX_CACHE 200000
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         seq_t *tmp = NULL;
 
         /* Allocate a temporary array large enough for the requested index. */
-        tmp = (seq_t *)malloc(((size_t)n + 1) * sizeof(seq_t));
+        tmp = mem_new(seq_t, ((size_t)n + 1));
         if (tmp == NULL) {
             /* Allocation failed – return 0 as a sentinel. */
             return (seq_t)0;
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
         }
 
         seq_t result = tmp[(size_t)n];
-        free(tmp);
+        mem_free(tmp);
         return result;
     }
 

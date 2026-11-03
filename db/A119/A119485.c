@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #ifndef idx_t
 /* idx_t will be defined by the build system (e.g., uint64_t) */
 #endif
+#include "../utils/mem.h"
 
 /* static table of precomputed sequence values */
 static seq_t *seq_vals = NULL;
@@ -62,15 +64,15 @@ static void vec_init(struct vec *v, size_t start_cap)
 {
     v->sz = 0;
     v->cap = start_cap > 0 ? start_cap : 16;
-    v->a = (seq_t *)malloc(v->cap * sizeof(seq_t));
+    v->a = mem_new(seq_t, (v->cap * sizeof(seq_t)) / sizeof(seq_t));
 }
 
 static void vec_push(struct vec *v, seq_t val)
 {
     if (v->sz == v->cap) {
         v->cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(v->a, v->cap * sizeof(seq_t));
-        if (!tmp) { free(v->a); exit(EXIT_FAILURE); }
+        seq_t *tmp = mem_resize(seq_t, v->a, (v->cap * sizeof(seq_t)) / sizeof(seq_t));
+        if (!tmp) { mem_free(v->a); exit(EXIT_FAILURE); }
         v->a = tmp;
     }
     v->a[v->sz++] = val;
@@ -113,7 +115,7 @@ static void build_up_to(idx_t bound)
     free(is_prime);
 
     /* Sort vector */
-    qsort(v.a, v.sz, sizeof(seq_t), cmp_seq);
+    mem_qsort(v.a, v.sz, sizeof(seq_t), cmp_seq);
 
     /* Remove duplicates in place */
     size_t uniq = 0;
@@ -124,7 +126,7 @@ static void build_up_to(idx_t bound)
     v.sz = uniq;
 
     /* Free old table if any and replace */
-    free(seq_vals);
+    mem_free(seq_vals);
     seq_vals = v.a;
     seq_len = v.sz;
     seq_built = true;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   seq_alloc
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -40,7 +41,15 @@
 #include <stddef.h>          /* for size_t */
 #include <stdint.h>          /* for uint64_t */
 #include <stdlib.h>          /* for malloc / realloc */
-#include "../utils/seq_alloc.h"   /* for seq_alloc(size_t) */
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t **row_cache = NULL;   /* array of pointers to each row   */
 static size_t  cache_len = 0;      /* number of rows currently stored */

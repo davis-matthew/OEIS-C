@@ -9,6 +9,7 @@
  *            x*(1+2*x+4*x^3+5*x^4+6*x^5)/(1-x-x^2-x^4-x^5-x^6))
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 36, u64 n <= 72, u128 n <= 145,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 946 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

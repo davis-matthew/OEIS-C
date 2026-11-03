@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 37, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Maximum prime value used for preprocessing (2 × 10⁷ is comfortably large). */
 #define PRIME_LIMIT 20000000ULL
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
     size_t need = (size_t)n;            /* n ≥ 1 */
     if (cache_size < need) {
         size_t new_size = need * 2;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         for (size_t i = cache_size; i < new_size; ++i)
             cache[i] = 0;
         cache_size = new_size;

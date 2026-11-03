@@ -11,13 +11,15 @@
  *            a(4)=1498, a(5)=10243, a(6)=70037
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const seq_t base_vals[6] = {
     (seq_t)4,
@@ -41,10 +43,10 @@ seq_t a(idx_t n)
 
     if (cache_size < n) {
         /* Allocate additional space. */
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)n);
         if (!new_cache) {
             /* Allocation failed – clear any existing cache. */
-            if (cache) free(cache);
+            if (cache) mem_free(cache);
             cache = NULL;
             cache_size = 0;
             return 0;

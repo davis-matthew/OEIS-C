@@ -9,12 +9,14 @@
  *            = sum of positive divisors of m
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 42, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (n == 0) {
         /* Ensure A[0] exists. */
         if (A == NULL) {
-            A = (seq_t*)calloc(1, sizeof(seq_t));
+            A = mem_new(seq_t, 1);
             if (!A) return 0;
             A[0] = 1;
             A_len = 1;
@@ -46,12 +48,12 @@ seq_t a(idx_t n)
     /* Expand the cache for a(n). */
     idx_t new_len = n + 1;                /* we need indices 0..n inclusive */
     if (A_len == 0) {
-        A = (seq_t*)calloc(new_len, sizeof(seq_t));
+        A = mem_new(seq_t, new_len);
         if (!A) return 0;
         A[0] = 1;                         /* a(0) = 1 */
         A_len = new_len;
     } else if (new_len > A_len) {
-        A = (seq_t*)realloc(A, new_len * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_len);
         if (!A) return 0;
         /* Zero the newly added entries. */
         for (idx_t i = old_A_len; i < new_len; ++i)
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     /* Expand and recompute sigma values if needed. */
     if (new_len > S_len) {
         seq_t *oldS = S;
-        S = (seq_t*)calloc(new_len, sizeof(seq_t));
+        S = mem_new(seq_t, new_len);
         if (!S) { S = oldS; return 0; }
         for (idx_t i = 1; i < new_len; ++i) {
             for (idx_t j = i; j < new_len; j += i)

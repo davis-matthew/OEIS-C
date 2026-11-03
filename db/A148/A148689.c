@@ -10,13 +10,15 @@
  *            C(d,⌊d/2⌋) * C(n‑d,⌊(n‑d)/2⌋)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* -------------- Central binomial coefficients C(k,⌊k/2⌋) ---------------- */
 
@@ -31,7 +33,7 @@ ensure_central(idx_t n)
         return;
 
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr)
         return;   /* allocation failure – let the caller fail */
 
@@ -39,7 +41,7 @@ ensure_central(idx_t n)
     if (central_binoms) {
         for (size_t i = 0; i < (size_t)central_cap; ++i)
             new_arr[i] = central_binoms[i];
-        free(central_binoms);
+        mem_free(central_binoms);
     }
 
     /* compute missing entries  */

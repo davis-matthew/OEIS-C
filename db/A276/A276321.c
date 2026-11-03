@@ -10,16 +10,43 @@
  *            [ (k-(m+1))^i * (-1)^(m-j) * C(k,m-j) ]. * Sequence starts at
  *            n=1, corresponding to the first entry of M(1,0,0)
  * Range:     i8 n <= 114, i16 n <= 348, i32 n <= 1007, i64 n <= 3782,
- *            i128 n <= 9156, big any n
- * Helpers:   binomial, cum_sq, find_k
+ *            i128 n <= 10416, big any n
+ * Validated: standard, pass, 90 terms through n = 9156 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/cum_sq.h"
-#include "../utils/find_k.h"
+
+/* cumulative sum of squares: S(k) = 1²+2²+…+k² = k(k+1)(2k+1)/6 */
+static inline unsigned __int128 cum_sq(idx_t k)
+{
+    return (unsigned __int128)k * (k + 1) * (2 * k + 1) / 6;
+}
+
+/* Find smallest k such that cum_sq(k) >= n.  Works for all n >= 1. */
+static inline idx_t find_k(idx_t n)
+{
+    idx_t lo = 1, hi = 1;
+    while (cum_sq(hi) < n) {
+        if (hi > (UINT64_MAX >> 1)) {
+            hi = UINT64_MAX;
+            break;
+        }
+        hi <<= 1;
+    }
+    while (lo < hi) {
+        idx_t mid = lo + ((hi - lo) >> 1);
+        if (cum_sq(mid) >= n)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    return lo;
+}
 
 /* binary exponentiation for seq_t.  exp fits in idx_t. */
 static inline seq_t seq_pow(seq_t base, idx_t exp)

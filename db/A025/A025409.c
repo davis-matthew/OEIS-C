@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 439, u32 n <= 439, u64 n <= 439, u128 n <= 439,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 401 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The cache that holds the sequence.  seq_cache[n] is a(n+1). */
 static seq_t *seq_cache = NULL;
@@ -73,7 +75,7 @@ static void build_sequence(void)
     }
 
     /* Allocate array for the discovered terms. */
-    seq_t *res = (seq_t *)malloc(term_cnt * sizeof(seq_t));
+    seq_t *res = mem_new(seq_t, term_cnt);
     if (!res) { free(cnt); return; }
 
     /* Second pass: store the sums in ascending order. */

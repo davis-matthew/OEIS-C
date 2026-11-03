@@ -11,12 +11,14 @@
  *            a'(n) = 1 – a'(n – F(k)); then a(n) = a'(n+1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 118 terms through n = 9822 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static tables for the recurrence values a'(i) and for Fibonacci numbers.
    a'(i) is stored 1‑indexed:  a_prime[1] = a'(1).  */
@@ -40,7 +42,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t need)
     {
         size_t newcap = (*cap) ? (*cap) * 2 : 8;
         if (newcap < need) newcap = need;
-        *arr = (seq_t*)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }

@@ -12,12 +12,14 @@
  *            2*a(n-21) + a(n-22) with the initial 22 terms a(1)=4...
  * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 31, u64 n <= 66, u128 n <= 137,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* initial values */
 static const seq_t init_vals[22] = {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;   /* offset is 1; undefined, but return 0 */
 
     if (cache_size < n) {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * n);
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) abort(); /* allocation failure */
         cache = tmp;
 

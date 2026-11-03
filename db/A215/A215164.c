@@ -7,6 +7,7 @@
  * Formula:   nth prime congruent to 1 or 4 modulo 13
  * Range:     u8 n <= 9, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 65 terms through n = 988 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Implementation: iterate over numbers of the form 13*k+r (r∈{1,4}),
    test each for primality with is_prime, and return the nth such prime. */
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

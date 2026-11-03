@@ -9,6 +9,7 @@
  *            p*(p+1)/2 < n <= (p+1)*(p+2)/2 and m = n - p*(p+1)/2 + 1
  * Range:     u8 n <= 52, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

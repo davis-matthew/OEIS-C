@@ -13,7 +13,8 @@
  *            a(7)=334278, a(8)=765598, a(9)=158541...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 32, u64 n <= 200, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static size_t memo_size = 0;
@@ -59,14 +61,14 @@ seq_t a(idx_t n) {
     /* Allocate or resize memo array if necessary */
     if (memo == NULL) {
         memo_size = (n > 22 ? n : 22) + 1;          /* indices 0..n inclusive */
-        memo = (seq_t *)malloc(sizeof(seq_t) * memo_size);
+        memo = mem_new(seq_t, memo_size);
         if (!memo) return (seq_t)0;                 /* allocation failure */
         for (idx_t i = 0; i < memo_size; ++i) memo[i] = 0;
         for (idx_t i = 1; i <= 22; ++i) memo[i] = init[i];
         max_computed = 22;
     } else if (n >= memo_size) {                    /* grow array */
         size_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(memo, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, memo, new_size);
         if (!tmp) return (seq_t)0;
         for (size_t i = memo_size; i < new_size; ++i) tmp[i] = 0;
         memo = tmp;

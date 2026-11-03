@@ -10,12 +10,15 @@
  *            a(2)=5386, a(3)=6476
  * Range:     u8 none, u16 n <= 6, u32 n <= 17, u64 n <= 37, u128 n <= 78,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 39 terms through n = 194 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +27,8 @@ seq_t a(idx_t n)
     if (n == 3) return (seq_t)6476;
 
     /* 2^n and 3^(n-1) */
-    seq_t pow2 = seq_pow((seq_t)2, n);
-    seq_t pow3 = seq_pow((seq_t)3, n - 1);
+    seq_t pow2 = ipow_idx((seq_t)2, n);
+    seq_t pow3 = ipow_idx((seq_t)3, n - 1);
 
     /* Multiply by the constants */
     pow2 *= (seq_t)397;

@@ -12,6 +12,7 @@
  *            (r‑m)·L(m))·F(r‑m+1)...
  * Range:     u8 n <= 20, u16 n <= 135, u32 n <= 702, u64 n <= 3402,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 79 terms through n = 9825 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

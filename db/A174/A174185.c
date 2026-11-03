@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 #define SIEVE_LIMIT 10000000UL   /* enough to cover many terms (≈664k primes) */
 
@@ -49,7 +51,7 @@ static void ensure_prime_cap(void)
 static void ensure_terms_cap(void)
 {
     size_t new_cap = (terms_cap == 0) ? 32 : terms_cap * 2;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) exit(1);
     terms = tmp;
     terms_cap = new_cap;
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
 
         if (prime_val > e) {
             seq_t diff = prime_val - e;
-            if (diff >= (seq_t)2 && is_prime_small(diff))
+            if (diff >= (seq_t)2 && is_prime_seq(diff))
                 ok = true;
         }
 

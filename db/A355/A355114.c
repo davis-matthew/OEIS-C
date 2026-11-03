@@ -8,13 +8,28 @@
  *            binomial(n,k)*6^(k-1)*a(n-k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   cache_ensure
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cache_ensure.h"
+#include "../utils/mem.h"
+
+/* Ensure cache capacity up to index n */
+static void cache_ensure(idx_t n, seq_t **cache, size_t *cap)
+{
+    size_t needed = (size_t)n + 1;
+    if (needed > *cap) {
+        size_t new_cap = (*cap == 0) ? 1 : *cap << 1;
+        while (new_cap < needed) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *cache, new_cap);
+        if (!tmp) exit(1);            /* out of memory */
+        *cache = tmp;
+        *cap   = new_cap;
+    }
+}
 
 /* Multiplicative binomial coefficient */
 static seq_t binom(idx_t n, idx_t k)

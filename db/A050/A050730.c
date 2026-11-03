@@ -9,7 +9,8 @@
  *            decimal expansion of 9^k has no pair of consecutive equal digits
  * Range:     u8 n <= 13, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   ensure_digits_cap, ensure_terms_cap
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,35 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/ensure_digits_cap.h"
-#include "../utils/ensure_terms_cap.h"
+#include "../utils/mem.h"
+
+/* helper to grow a buffer of uint8_t (decimal digits) */
+static void ensure_digits_cap(size_t *len, size_t *cap, uint8_t **buf, size_t needed)
+{
+    if (needed > *cap)
+    {
+        size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
+        if (new_cap < needed) new_cap = needed;
+        uint8_t *new_buf = (uint8_t *)realloc(*buf, new_cap * sizeof(uint8_t));
+        if (!new_buf) abort();               /* out of memory */
+        *buf = new_buf;
+        *cap = new_cap;
+    }
+}
+
+/* helper to grow a buffer of seq_t */
+static void ensure_terms_cap(size_t *len, size_t *cap, seq_t **buf, size_t needed)
+{
+    if (needed > *cap)
+    {
+        size_t new_cap = (*cap == 0) ? 2 : *cap << 1;
+        if (new_cap < needed) new_cap = needed;
+        seq_t *new_buf = mem_resize(seq_t, *buf, new_cap);
+        if (!new_buf) abort();               /* out of memory */
+        *buf = new_buf;
+        *cap = new_cap;
+    }
+}
 
 seq_t a(idx_t n)
 {

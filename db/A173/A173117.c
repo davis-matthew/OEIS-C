@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl, easy, less
  * Formula:   not stated
- * Range:     u8 n <= 39, u16 n <= 178, u32 n <= 643, u64 n <= 1325,
+ * Range:     u8 n <= 58, u16 n <= 179, u32 n <= 644, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 1310 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
  *  row‑major order: a(0)=T(0,0), a(1)=T(1,0), a(2)=T(1,1),
  *  a(3)=T(2,0), a(4)=T(2,1), a(5)=T(2,2), a(6)=T(3,0), …   */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include <stdbool.h>        /* for bool, if needed */
 
 /* Compute the row index r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2  */
@@ -57,7 +60,7 @@ T_value(idx_t n, idx_t k)
         if (kk > nk)               /* binomial is zero otherwise */
             continue;
 
-        val += binom(nk, kk);
+        val += binomial(nk, kk);
     }
 
     return val;

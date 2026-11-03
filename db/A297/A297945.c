@@ -11,13 +11,15 @@
  *            arbitrary order
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 37, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 161 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,10 +35,10 @@ seq_t a(idx_t n)
     if (n + 1 > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 32;
         while (new_cap < n + 1) new_cap <<= 1;
-        seq_t *new_arr = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (cache) {
-            memcpy(new_arr, cache, cache_cap * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_arr, cache, cache_cap * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_arr;
         cache_cap = new_cap;

@@ -7,12 +7,14 @@
  * Formula:   a(0) = 1, a(n) = 5*n*a(n-1) + 2^n (n > 0)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 338 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* initialise cache if empty */
     if (cache_len == 0)
     {
-        cache = (seq_t*)calloc(1, sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = (seq_t)1;            /* a(0) */
         cache_len = 1;
         pow2 = (seq_t)1;                /* 2^0 */
@@ -37,10 +39,10 @@ seq_t a(idx_t n)
     /* otherwise extend cache to include up to n */
     idx_t old_len = cache_len;          /* length before extension */
     idx_t new_len = n + 1;
-    seq_t *new_cache = (seq_t*)calloc(new_len, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     for (idx_t j = 0; j < old_len; ++j)
         new_cache[j] = cache[j];
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = new_len;                /* now cache_len == new_len */
 

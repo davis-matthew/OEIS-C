@@ -12,14 +12,16 @@
  *            fractions
  * Range:     u8 n <= 12, u16 n <= 32, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,17 +33,17 @@ seq_t a(idx_t n)
     /* allocate or extend storage if needed */
     if (!num || max_computed == 0) {
         /* first call – allocate up to n */
-        num = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
-        den = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+        num = mem_new(seq_t, (n + 1));
+        den = mem_new(seq_t, (n + 1));
         if (!num || !den) { abort(); }
         num[1] = den[1] = 1;     /* base case S(1,1) = 1 */
         max_computed = 1;
     } else if (n > max_computed) {
         /* grow arrays to the requested size */
-        seq_t *tmp = (seq_t *)realloc(num, sizeof(seq_t) * (n + 1));
+        seq_t *tmp = mem_resize(seq_t, num, (n + 1));
         if (!tmp) abort();
         num = tmp;
-        tmp = (seq_t *)realloc(den, sizeof(seq_t) * (n + 1));
+        tmp = mem_resize(seq_t, den, (n + 1));
         if (!tmp) abort();
         den = tmp;
     }
@@ -64,17 +66,17 @@ seq_t a(idx_t n)
                 seq_t f_num = den[idx];             /* factor numerator  */
                 seq_t f_den = num[idx];             /* factor denominator */
 
-                seq_t g1 = seq_gcd(f_num, den_k);
+                seq_t g1 = gcd(f_num, den_k);
                 f_num /= g1;
                 den_k  /= g1;
 
-                seq_t g2 = seq_gcd(f_den, num_k);
+                seq_t g2 = gcd(f_den, num_k);
                 f_den /= g2;
                 num_k  /= g2;
 
                 seq_t new_num = num_k * f_num;
                 seq_t new_den = den_k * f_den;
-                seq_t g3 = seq_gcd(new_num, new_den);
+                seq_t g3 = gcd(new_num, new_den);
                 num_k = new_num / g3;
                 den_k = new_den / g3;
             }
@@ -89,17 +91,17 @@ seq_t a(idx_t n)
                     seq_t f_num = den[idx];
                     seq_t f_den = num[idx];
 
-                    seq_t g1 = seq_gcd(f_num, den_k);
+                    seq_t g1 = gcd(f_num, den_k);
                     f_num /= g1;
                     den_k  /= g1;
 
-                    seq_t g2 = seq_gcd(f_den, num_k);
+                    seq_t g2 = gcd(f_den, num_k);
                     f_den /= g2;
                     num_k  /= g2;
 
                     seq_t new_num = num_k * f_num;
                     seq_t new_den = den_k * f_den;
-                    seq_t g3 = seq_gcd(new_num, new_den);
+                    seq_t g3 = gcd(new_num, new_den);
                     num_k = new_num / g3;
                     den_k = new_den / g3;
                 }
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
         }
 
         /* final reduction to be safe */
-        seq_t gfinal = seq_gcd(num_k, den_k);
+        seq_t gfinal = gcd(num_k, den_k);
         num_k /= gfinal;
         den_k /= gfinal;
 

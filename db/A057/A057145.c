@@ -9,13 +9,21 @@
  *            ((n‑2)·k² – (n‑4)·k)/2 read by antidiagonals upwards
  * Range:     u8 n <= 129, u16 n <= 4716, u32 n <= 4951, u64 n <= 4951,
  *            u128 n <= 4951, big any n
- * Helpers:   T_formula
+ * Validated: standard, pass, 89 terms through n = 4933 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/T_formula.h"
+
+static seq_t T_formula(idx_t n, idx_t k)
+{
+    /* T(n,k) = k + (n-2)*k*(k-1)/2   (avoids an extra multiplication) */
+    seq_t nn = (seq_t)n;
+    seq_t kk = (seq_t)k;
+    return kk + ((seq_t)(nn - 2) * kk * (kk - 1)) / 2;
+}
 
 seq_t a(idx_t n)
 {

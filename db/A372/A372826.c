@@ -8,13 +8,15 @@
  *            floor(log₂(3^(n+1))) )
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 40, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   bitlen_seq_t, pow3
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-01)
+ * Helpers:   bit_length, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include "../utils/bit_length.h"
 #include "../utils/pow3.h"
-#include "../utils/bitlen_seq_t.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     seq_t pow3_val = pow3(half + 1);
 
     /* floor(log₂(pow3_val)) = bitlen_seq_t(pow3_val) - 1 */
-    unsigned int bl = bitlen_seq_t(pow3_val);
+    unsigned int bl = bit_length(pow3_val);
 
     return (seq_t)(bl - 1);
 }

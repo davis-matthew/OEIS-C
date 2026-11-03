@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 69, u64 n <= 1090,
  *            u128 n <= 1090, big any n
- * Helpers:   digit_sum, is_prime_small, pow_seq, seq_realloc
+ * Validated: standard, pass, 46 terms through n = 838 (2026-11-01)
+ * Helpers:   digit_sum, ipow_i32, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,23 @@
    those whose digit sum is prime. */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/digit_sum.h"
-#include "../utils/is_prime_small.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime_seq.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;      /* array of found terms */
 static size_t cache_cap = 0;     /* current allocated capacity */
@@ -34,11 +48,11 @@ static void ensure_cache(idx_t n)
 {
     while (cache_size < (size_t)n) {
         /* Compute m^4 and its digit sum. */
-        seq_t k = pow_seq((seq_t)next_m, 4);
+        seq_t k = ipow_i32((seq_t)next_m, 4);
         seq_t sum = digit_sum(k);
 
         /* Store if sum of digits is prime. */
-        if (is_prime_small(sum)) {
+        if (is_prime_seq(sum)) {
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 4;
                 cache = seq_realloc(cache, cache_cap, new_cap);

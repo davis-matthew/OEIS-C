@@ -8,7 +8,8 @@
  *            = 0, and for k ≥ 3, G_k = k! * coeff of x^k in tanh(x); a(0)=1
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 14, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- temporary storage for G_k coefficients --- */
 static seq_t *G   = NULL;   /* G[k] -- see formula above */
@@ -29,7 +31,7 @@ static void ensure_G_capacity(idx_t max_n)
 {
     if (G_cap <= max_n) {
         idx_t new_cap = max_n + 1;
-        G = (seq_t *)realloc(G, new_cap * sizeof(seq_t));
+        G = mem_resize(seq_t, G, new_cap);
         for (idx_t i = G_cap; i < new_cap; ++i) G[i] = (seq_t)0;
         G_cap = new_cap;
     }
@@ -67,7 +69,7 @@ static void ensure_A_capacity(idx_t max_n)
 {
     if (A_cap <= max_n) {
         idx_t new_cap = max_n + 1;
-        A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_cap);
         for (idx_t i = A_cap; i < new_cap; ++i) A[i] = (seq_t)0;
         A_cap = new_cap;
     }

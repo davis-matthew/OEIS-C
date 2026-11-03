@@ -10,13 +10,15 @@
  *            the cumulative count of terms up to * base k reaches n)
  * Range:     u8 n <= 25, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return (seq_t)1;             /* base k = 1, term 1 */
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     seq_t r = target - cum - 1;              /* 0‑based */
 
     /* Store factorials up to k in an array for quick access. */
-    seq_t *fact_arr = (seq_t *)malloc((k + 1) * sizeof(seq_t));
+    seq_t *fact_arr = mem_new(seq_t, (k + 1));
     fact_arr[0] = (seq_t)1;
     for (idx_t i = 1; i <= k; ++i) {
         fact_arr[i] = fact_arr[i - 1] * (seq_t)i;
@@ -68,6 +70,6 @@ seq_t a(idx_t n) {
     }
 
     free(digits);
-    free(fact_arr);
+    mem_free(fact_arr);
     return value;
 }

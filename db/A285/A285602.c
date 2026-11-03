@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 19,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 265 (2026-11-01)
  * Helpers:   gcd, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,9 @@
  * reduction between the numerator and denominator. */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/gcd.h"
 #include "../utils/sieve_first_n_primes.h"
 

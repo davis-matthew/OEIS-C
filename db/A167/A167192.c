@@ -9,7 +9,8 @@
  *            r(r+1)/2 ≥ n k = n - r(r-1)/2 a(n) = (r-k)/gcd(r,k)
  * Range:     u8 n <= 7260, u16 n <= 7260, u32 n <= 7260, u64 n <= 7260,
  *            u128 n <= 7260, big any n
- * Helpers:   gcd, int_sqrt_idx_u64
+ * Validated: standard, pass, 118 terms through n = 6495 (2026-11-01)
+ * Helpers:   gcd, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,13 +18,13 @@
 #include <stdint.h>
 #include <math.h>
 #include "../utils/gcd.h"
-#include "../utils/int_sqrt_idx_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)0;   /* undefined, but return 0 */
     /* find row r such that r(r+1)/2 ≥ n */
-    idx_t s   = int_sqrt_idx_u64(8 * n + 1);
+    idx_t s   = isqrt(8 * n + 1);
     idx_t r   = (s - 1) / 2;
     /* adjust if too small */
     if (r * (r + 1) / 2 < n) ++r;

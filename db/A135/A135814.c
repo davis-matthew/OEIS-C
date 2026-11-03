@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 37, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   flat_to_coords
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/flat_to_coords.h"
+
+/* Helper: convert a flattened index k into (row, col) with row ≥ col
+   such that the triangle is traversed in row‑major order. */
+static void flat_to_coords(idx_t k, idx_t *row, idx_t *col)
+{
+    idx_t r = 0;
+    /* Find the largest r with r*(r+1)/2 ≤ k */
+    while ( ((r + 1) * (r + 2)) / 2 <= k ) r++;
+    /* r now satisfies r*(r+1)/2 ≤ k < (r+1)*(r+2)/2 */
+    *row = r;
+    *col = k - r * (r + 1) / 2;
+}
 
 /* Helper: repeated‑squaring exponentiation for seq_t */
 static seq_t pow_seq_local(seq_t base, int exp)

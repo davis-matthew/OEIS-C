@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 58, u64 n <= 58, u128 n <= 58,
+ * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   binom_small_local
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 /* No external headers are required; only the types idx_t and seq_t are provided. */
 
 #include <stdint.h>  /* For uint64_t in case it is needed by the build */
-#include "../utils/binom_small_local.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     /* Find the antidiagonal d such that d*(d+1)/2 ≤ n < (d+1)*(d+2)/2. */
@@ -42,8 +43,8 @@ seq_t a(idx_t n) {
     seq_t k_seq = (seq_t)col;
 
     for (idx_t j = 0; j <= maxj; ++j) {
-        seq_t term = binom_small_local(row, j);
-        term = term * binom_small_local((2 * (row - j)), row);
+        seq_t term = binomial(row, j);
+        term = term * binomial((2 * (row - j)), row);
         term = term * pow_k;
         result += term;
 

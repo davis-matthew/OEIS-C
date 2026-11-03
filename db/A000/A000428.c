@@ -10,26 +10,33 @@
  *            d*binomial(d+5,6), a(0) = 1
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 38, u128 n <= 85,
  *            big any n
- * Helpers:   is_fixed_width, rising_binom
+ * Validated: standard, pass, 39 terms through n = 870 (2026-11-03)
+ * Helpers:   mem, multichoose
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_fixed_width.h"
-#include "../utils/rising_binom.h"
+#include "../utils/multichoose.h"
+#include "../utils/mem.h"
+
+static int is_fixed_width(void) {
+    seq_t x = 1;
+    for (int i = 0; i < 130; i++) x <<= 1;
+    return x == 0;
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_n = 0;   /* cache valid for indices 0..cache_n */
 
 static void compute_fixed(idx_t N) {
-    seq_t *poly = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *cj = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *poly = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *cj = mem_new(seq_t, (size_t)(N + 1));
     for (idx_t i = 0; i <= N; i++) poly[i] = 0;
     poly[0] = 1;
     for (idx_t k = 1; k <= N; k++) {
-        seq_t m = rising_binom((seq_t)k, 6);
+        seq_t m = multichoose((seq_t)k, 6);
         idx_t jmax = N / k;
         cj[0] = 1;
         for (idx_t j = 1; j <= jmax; j++) {
@@ -50,25 +57,25 @@ static void compute_fixed(idx_t N) {
             if (i == k) break;
         }
     }
-    free(cj);
-    if (cache) free(cache);
+    mem_free(cj);
+    if (cache) mem_free(cache);
     cache = poly;
     cache_n = N;
 }
 
 static void compute_big(idx_t N) {
-    seq_t *c = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *A = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *A = mem_new(seq_t, (size_t)(N + 1));
     for (idx_t i = 0; i <= N; i++) { c[i] = 0; A[i] = 0; }
     for (idx_t d = 1; d <= N; d++) {
-        seq_t v = rising_binom((seq_t)d, 6) * d;
+        seq_t v = multichoose((seq_t)d, 6) * d;
         for (idx_t k = d; k <= N; k += d) c[k] += v;
     }
     idx_t start = 1;
     if (cache) {
         for (idx_t i = 0; i <= cache_n; i++) A[i] = cache[i];
         start = cache_n + 1;
-        free(cache);
+        mem_free(cache);
     } else {
         A[0] = 1;
     }
@@ -77,7 +84,7 @@ static void compute_big(idx_t N) {
         for (idx_t k = 1; k <= n; k++) s += c[k] * A[n - k];
         A[n] = s / n;
     }
-    free(c);
+    mem_free(c);
     cache = A;
     cache_n = N;
 }

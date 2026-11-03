@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 3162, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 76 terms through n = 9260 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"  /* bool is_prime_small(uint64_t) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* static storage for already computed terms */
 static seq_t *terms = NULL;
@@ -30,7 +32,7 @@ static void ensure_capacity(size_t needed) {
         size_t new_cap = terms_cap ? terms_cap << 1 : 8;
         if (new_cap < needed)
             new_cap = needed;
-        terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         terms_cap = new_cap;
     }
 }
@@ -47,8 +49,8 @@ seq_t a(idx_t n) {
             while (true) {
                 uint64_t p1 = 6 * k + 5;
                 uint64_t p2 = 12 * k + 5;
-                bool is_p1 = is_prime_small(p1);
-                bool is_p2 = is_prime_small(p2);
+                bool is_p1 = is_prime_seq(p1);
+                bool is_p2 = is_prime_seq(p2);
                 if (is_p1 ^ is_p2) {  /* exactly one is prime */
                     /* store it */
                     ensure_capacity(terms_len + 1);

@@ -9,7 +9,8 @@
  *            A144765)
  * Range:     u8 n <= 92, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 92 terms through n = 92 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static idx_t _max_n = 0;          /* largest n processed so far                */
 static idx_t _spf_limit = 0;      /* current size of the SPF array              */
@@ -31,10 +33,10 @@ static size_t _trip_cap  = 0;     /* capacity of the trip array                *
 static void _grow_trip(void) {
     if (_trip_cap == 0) {
         _trip_cap = 16;
-        _trip = (seq_t *)malloc(_trip_cap * sizeof(seq_t));
+        _trip = mem_new(seq_t, _trip_cap);
     } else {
         _trip_cap <<= 1;
-        _trip = (seq_t *)realloc(_trip, _trip_cap * sizeof(seq_t));
+        _trip = mem_resize(seq_t, _trip, _trip_cap);
     }
 }
 

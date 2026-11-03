@@ -11,8 +11,9 @@
  *            (k+1)^2 = (m+1)(m+2)(2m+3)/6. The offset within slice m
  *            (0‑based) is offset = n - S(m-1) - 1. Then i = offset / (m+1)
  *            and j = offset % (m+1)
- * Range:     u8 n <= 108, u16 n <= 547, u32 n <= 2619, u64 n <= 8689,
- *            u128 n <= 8689, big any n
+ * Range:     u8 n <= 108, u16 n <= 547, u32 n <= 2619, u64 n <= 10416,
+ *            u128 n <= 10416, big any n
+ * Validated: standard, pass, 104 terms through n = 8689 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

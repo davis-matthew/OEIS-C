@@ -11,12 +11,14 @@
  *            -x*(3x^4+9x^3-29x^2+12x-1)/((x-1)*(x^4-3x^3-27x^2+12x-1))
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;         /* cache[0] unused, cache[i] = a(i) */
 static size_t cache_size = 0;       /* allocated array length (>= n+1) */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
         size_t new_size = cache_size;
         if (new_size == 0) new_size = (n + 1 > 8) ? (n + 1) : 8;
         while ((size_t)(n + 1) > new_size) new_size <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();
         cache = tmp;
         cache_size = new_size;

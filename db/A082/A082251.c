@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 238, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_bit_set, mod_mul_uint64
+ * Validated: standard, pass, 59 terms through n = 9731 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_bit_set.h"
-#include "../utils/mod_mul_uint64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static inline bool is_bit_set(const unsigned char *bits, uint32_t i) {
+    return (bits[i >> 3] >> (i & 7)) & 1;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Types supplied by the build                                        */
@@ -65,8 +71,8 @@ static inline void set_bit(unsigned char *bits, uint32_t i) {
 static inline uint64_t mod_pow_uint64(uint64_t base, uint64_t exp, uint64_t mod) {
     uint64_t res = 1 % mod;
     while (exp) {
-        if (exp & 1) res = mod_mul_uint64(res, base, mod);
-        base = mod_mul_uint64(base, base, mod);
+        if (exp & 1) res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return res;
@@ -86,7 +92,7 @@ static bool is_prime64(uint64_t n) {
         if (x == 1 || x == n - 1) continue;
         bool comp = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mod_mul_uint64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { comp = false; break; }
         }
         if (comp) return false;
@@ -119,7 +125,7 @@ static void init(void) {
 
     /* build terms */
     terms_cap = 1024;
-    terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     terms_cnt = 0;
 
     if (primes_cnt < 9) return;   /* nothing to do */
@@ -136,7 +142,7 @@ static void init(void) {
         if (prime_sum) {
             if (terms_cnt == terms_cap) {
                 terms_cap <<= 1;
-                terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_cnt++] = (seq_t)sum;
         }

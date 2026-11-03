@@ -11,14 +11,20 @@
  *            intermediate exceeds the final value
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   a504_cut, a504_g
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a504_cut.h"
-#include "../utils/a504_g.h"
+#include "../utils/gcd_u64.h"
+
+static uint64_t a504_cut(uint64_t f, uint64_t *r) {
+    uint64_t g = gcd_u64(f, *r);
+    *r /= g;
+    return f / g;
+}
 
 seq_t a(idx_t n) {
     uint64_t r = 810;

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 172, u32 n <= 631, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 136 terms through n = 1177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* maximum row length needed for n up to about 10000 */
 #define MAX_ROW 200
@@ -55,7 +57,7 @@ static void ensure_lin_cap(idx_t need)
     if ((size_t)need <= lin_cap) return;
     size_t new_cap = (lin_cap > 0) ? lin_cap * 2 : 64;
     while (new_cap < (size_t)need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(lin_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, lin_cache, new_cap);
     lin_cache = tmp;
     lin_cap   = new_cap;
 }

@@ -12,13 +12,15 @@
  *            n=1
  * Range:     u8 n <= 24, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *tbl = NULL;      /* triangular storage flat array */
 static size_t rows = 0;        /* number of rows already computed (0 means none) */
@@ -32,7 +34,7 @@ static void ensure_rows(idx_t r)
     size_t new_rows = r + 1;                  /* target number of rows */
     size_t new_size = new_rows * (new_rows + 1) / 2; /* total entries needed */
 
-    tbl = (seq_t *)realloc(tbl, new_size * sizeof(seq_t));
+    tbl = mem_resize(seq_t, tbl, new_size);
     /* recalculate entries for each newly added row */
     for (size_t n = rows; n < new_rows; ++n) {
         size_t base_n = n * (n + 1) / 2;     /* starting index of row n */

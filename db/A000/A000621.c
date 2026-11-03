@@ -10,13 +10,15 @@
  *            a(n-1-2j)*a(j) for n >= 1
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 45, u64 n <= 88, u128 n <= 173,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 2919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n) {
@@ -30,11 +32,11 @@ seq_t a(idx_t n) {
     
     if (target >= memo_size) {
         idx_t new_size = (target + 1) * 2;
-        seq_t *new_memo = (seq_t *)calloc(new_size, sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_size);
         
         if (memo != NULL) {
-            memcpy(new_memo, memo, memo_size * sizeof(seq_t));
-            free(memo);
+            mem_copy(new_memo, memo, memo_size * sizeof(seq_t));
+            mem_free(memo);
         }
         
         memo = new_memo;

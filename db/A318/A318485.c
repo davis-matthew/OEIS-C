@@ -8,12 +8,14 @@
  * Formula:   a(n) counts p‑trees of weight 2n+1 with all odd outdegrees
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 37, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 495 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -21,9 +23,9 @@ seq_t a(idx_t n)
     idx_t Wmax = (idx_t)((seq_t)n * 2 + 1);
 
     /* dynamic arrays of size Wmax+1, zero‑initialised */
-    seq_t *ev = (seq_t *)calloc((size_t)(Wmax + 1), sizeof(seq_t)); /* even‑parity partitions */
-    seq_t *od = (seq_t *)calloc((size_t)(Wmax + 1), sizeof(seq_t)); /* odd‑parity partitions */
-    seq_t *dp = (seq_t *)calloc((size_t)(Wmax + 1), sizeof(seq_t)); /* a(n) values for odd weights */
+    seq_t *ev = mem_new(seq_t, (size_t)(Wmax + 1)); /* even‑parity partitions */
+    seq_t *od = mem_new(seq_t, (size_t)(Wmax + 1)); /* odd‑parity partitions */
+    seq_t *dp = mem_new(seq_t, (size_t)(Wmax + 1)); /* a(n) values for odd weights */
 
     if (!ev || !od || !dp) {
         /* memory allocation failed – return 0 (undefined behaviour otherwise) */
@@ -54,9 +56,9 @@ seq_t a(idx_t n)
 
     seq_t result = dp[Wmax];
 
-    free(ev);
-    free(od);
-    free(dp);
+    mem_free(ev);
+    mem_free(od);
+    mem_free(dp);
 
     return result;
 }

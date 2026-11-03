@@ -11,7 +11,8 @@
  *            (p²-1)/2-prime(p) are prime
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, mod_mul, powmod64
+ * Validated: standard, pass, 116 terms through n = 7838 (2026-11-01)
+ * Helpers:   build_primes_upto, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,10 @@
 #include <stdbool.h>
 
 /* utilities supplied by the build system */
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(limit,&primes,&cnt) */
-#include "../utils/mod_mul.h"             /* mod_mul(uint64_t a,b,mod) */
-#include "../utils/powmod64.h"            /* powmod64(base,exp,mod) */
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 static uint64_t *primes = NULL;      /* primes[i] is the (i+1)-th prime */
 static size_t prime_cnt = 0;
@@ -80,11 +82,11 @@ static bool is_prime_uint64(uint64_t n)
     for (size_t i = 0; i < sizeof(bases)/sizeof(bases[0]); ++i) {
         uint64_t a = bases[i];
         if (a >= n) continue;
-        uint64_t x = powmod64(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;

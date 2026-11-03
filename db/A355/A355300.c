@@ -10,7 +10,8 @@
  *            memoisation with a dynamic cache
  * Range:     u8 n <= 92, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
- * Helpers:   _binary_decimal_mod
+ * Validated: partial, pass, 93 terms through n = 92 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,29 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/_binary_decimal_mod.h"
+#include "../utils/mem.h"
+
+/* Compute A007088(n) modulo n.  The value is interpreted as a decimal
+   number whose digits are the binary digits of n.  Only the remainder
+   modulo n is required, so the computation stays small. */
+static idx_t _binary_decimal_mod(idx_t n)
+{
+    /* Number of bits of n (n > 0). */
+    idx_t bits = 0;
+    idx_t tmp = n;
+    while (tmp) {
+        ++bits;
+        tmp >>= 1;
+    }
+
+    idx_t rem = 0;
+    for (idx_t pos = bits; pos > 0; --pos) {
+        idx_t bit = (n >> (pos - 1)) & 1U;
+        unsigned __int128 prod = (unsigned __int128)rem * 10 + bit;
+        rem = (idx_t)(prod % n);
+    }
+    return rem;
+}
 
 /* Recursive evaluation of a(n) with memoisation. */
 seq_t a(idx_t n)
@@ -30,7 +53,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary. */
     if ((size_t)n >= cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         bool *new_used   = (bool *)realloc(used, new_cap * sizeof(bool));
         if (!new_cache || !new_used) abort();  /* out of memory */
         cache = new_cache;

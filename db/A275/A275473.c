@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* Least k such that d(k*n) = k, or 0 if none found.  The search is bounded
    by k ≤ 4*n, which follows from the inequality d(m) ≤ 2*√m for m>1. */
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
@@ -24,7 +25,7 @@ seq_t a(idx_t n) {
     uint64_t maxk = 4 * nn;
     for (uint64_t k = 1; k <= maxk; ++k) {
         uint64_t m = nn * k;
-        seq_t d = divisor_count_u64(m);
+        seq_t d = num_divisors(m);
         if ((seq_t)k == d) return d;          /* k = d(m) found */
     }
     return 0;                                 /* no such k up to 4*n */

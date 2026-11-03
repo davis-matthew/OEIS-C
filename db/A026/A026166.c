@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 128, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9578 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Types supplied by the build system */
 typedef seq_t seq_t;
@@ -46,7 +48,7 @@ static void ensure_capacity(idx_t idx)
     size_t newcap = cache_cap ? (size_t)cache_cap : 16;
     while (newcap <= (size_t)idx) newcap <<= 1;
 
-    seq_t *new_a = (seq_t *)realloc(a_cache, newcap * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_cache, newcap);
     uint8_t *new_filled = (uint8_t *)realloc(filled, newcap * sizeof(uint8_t));
     if (!new_a || !new_filled) {
         /* Allocation failed; abort the program. */
@@ -69,7 +71,7 @@ static void init_cache(void)
     if (a_cache) return;        /* already initialised */
 
     size_t initial = 16;
-    a_cache = (seq_t *)calloc(initial, sizeof(seq_t));
+    a_cache = mem_new(seq_t, initial);
     filled  = (uint8_t *)calloc(initial, sizeof(uint8_t));
     if (!a_cache || !filled) abort();
 

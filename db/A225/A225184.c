@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 4022, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, append_candidate, mod_pow, next_prime
+ * Validated: standard, pass, 84 terms through n = 9517 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,28 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/append_candidate.h"
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/next_prime.h"
-#include "../utils/_smallest_prime_factor.h"
+#include "../utils/powmod.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* Helper: test whether g is a primitive root modulo prime p.
  * The prime divisors of p‑1 are supplied in the array pf (size cnt). */
@@ -36,7 +55,7 @@ static bool is_primitive_root(uint64_t g, uint64_t p,
 {
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t q = pf[i];
-        seq_t res = mod_pow((seq_t)g, (p - 1) / q, (seq_t)p);
+        seq_t res = powmod((seq_t)g, (p - 1) / q, (seq_t)p);
         if (res == 1)
             return false;
     }
@@ -93,7 +112,7 @@ seq_t a(idx_t n)
         size_t cnt1 = 0;
         uint64_t tmp = p - 1;
         while (tmp > 1) {
-            uint64_t f = _smallest_prime_factor(tmp);
+            uint64_t f = smallest_prime_factor(tmp);
             pf1[cnt1++] = f;
             while (tmp % f == 0)
                 tmp /= f;
@@ -105,7 +124,7 @@ seq_t a(idx_t n)
         size_t cnt2 = 0;
         tmp = p + 1;
         while (tmp > 1) {
-            uint64_t f = _smallest_prime_factor(tmp);
+            uint64_t f = smallest_prime_factor(tmp);
             uint8_t e = 0;
             while (tmp % f == 0) {
                 tmp /= f;

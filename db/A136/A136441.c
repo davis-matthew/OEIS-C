@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
    with a leading 0. For a binary string S of length L, it returns L/d,
    where d is the minimal period of S. */
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     }
 
     /* Number of bits in n */
-    unsigned bits = floor_log2_uint64(n) + 1;    /* >= 1 for n > 0 */
+    unsigned bits = ilog2(n) + 1;    /* >= 1 for n > 0 */
     unsigned L = bits + 1;                      /* length of S = 1 + bits */
 
     /* Build the binary string S[0..L-1] (as 0/1 chars) */

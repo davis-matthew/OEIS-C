@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n, d odd} d^(d+1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 22,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   factor_u64, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
     /* Start with a single divisor: 1.  Allocate space for the divisor
        list; the size is expanded later.  */
     size_t divcnt = 1;
-    seq_t *divs = (seq_t*)malloc(sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, 1);
     if (!divs) return (seq_t)0;          /* unlikely for n <= 10000 */
     divs[0] = (seq_t)1;
 
@@ -58,9 +61,9 @@ seq_t a(idx_t n)
         size_t oldcnt = divcnt;
         size_t newcnt = oldcnt * (e + 1);
 
-        seq_t *newdivs = (seq_t*)realloc(divs, newcnt * sizeof(seq_t));
+        seq_t *newdivs = mem_resize(seq_t, divs, newcnt);
         if (!newdivs) {
-            free(divs);
+            mem_free(divs);
             return (seq_t)0;
         }
         divs = newdivs;
@@ -80,9 +83,9 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < divcnt; ++i) {
         seq_t d   = divs[i];
         seq_t exp = d + (seq_t)1;
-        sum += big_pow(d, exp);
+        sum += ipow(d, exp);
     }
 
-    free(divs);
+    mem_free(divs);
     return sum;
 }

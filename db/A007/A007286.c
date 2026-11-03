@@ -10,13 +10,28 @@
  *            a(0) = 1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   grow_zero, pw2
+ * Validated: standard, pass, 34 terms through n = 191 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/grow_zero.h"
-#include "../utils/pw2.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 #include <stdlib.h>
 
 static seq_t *A_memo = NULL;
@@ -46,7 +61,7 @@ seq_t a(idx_t n) {
         if (m % 2 == 1) {
             if (((m - 1) / 2) % 2 == 0) pos += 1; else neg += 1;
         } else {
-            seq_t p2 = pw2(m);
+            seq_t p2 = pow2(m);
             if ((m / 2) % 2 == 0) pos += p2; else neg += p2;
         }
         seq_t p9 = 1;

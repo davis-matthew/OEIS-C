@@ -13,13 +13,15 @@
  *            a(8)=2122743, a(9)=6501118
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 14, u64 n <= 35, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static const seq_t _init_seq[9] = {
     (seq_t)222ULL,
@@ -43,7 +45,7 @@ static void _ensure_cache(idx_t n)
     if (n <= _cache_cap) return;
     idx_t new_cap = _cache_cap ? _cache_cap << 1 : 16;
     while (new_cap < n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(_cache, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
     if (!tmp) abort();
     _cache = tmp;
     _cache_cap = new_cap;

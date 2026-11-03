@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   match_and_len
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,50 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/match_and_len.h"
+#include "../utils/mem.h"
+
+/* True if the decimal digits of x, examined from most significant to
+   least significant, match the pattern starting at position pat (0‑based).
+   *len_out is set to the number of significant digits of x. */
+static bool match_and_len(seq_t x, uint8_t pat, int *len_out)
+{
+    /* We need a dynamic array to hold the digits of x. */
+    static int *digits = NULL;
+    static size_t cap = 0;
+    size_t len = 0;
+    seq_t t = x;
+
+    /* Collect digits least significant first. */
+    while (t > 0) {
+        if (len == cap) {
+            cap = cap ? cap * 2 : 16;
+            int *tmp = (int *)realloc(digits, cap * sizeof(int));
+            if (!tmp) abort();
+            digits = tmp;
+        }
+        digits[len++] = (int)(t % 10);
+        t /= 10;
+    }
+    if (len == 0) {              /* x==0 (should not happen here) */
+        *len_out = 0;
+        return true;
+    }
+
+    /* Test digits from most significant to least. */
+    for (size_t i = 0; i < len; ++i) {
+        int d = digits[len - 1 - i];
+        bool odd_need = ((pat % 4 == 0) || (pat % 4 == 1));
+        if (odd_need) {
+            if ((d % 2) != 1) return false;
+        } else {
+            if ((d % 2) != 0) return false;
+        }
+        pat = (pat + 1) & 3;   /* advance pattern position, modulo 4 */
+    }
+
+    *len_out = (int)len;
+    return true;
+}
 
 /* Computes a(n) for n>=1. */
 seq_t a(idx_t n)
@@ -48,7 +92,7 @@ seq_t a(idx_t n)
         /* Expand physical storage if needed. */
         if (cache_size >= cache_capacity) {
             size_t new_cap = cache_capacity ? cache_capacity * 2 : 64;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cache_capacity = new_cap;

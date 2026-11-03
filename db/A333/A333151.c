@@ -10,7 +10,8 @@
  *            requested n
  * Range:     u8 n <= 15, u16 n <= 46, u32 n <= 172, u64 n <= 686,
  *            u128 n <= 2799, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9936 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(n)) without overflow */
 static inline idx_t isqrt_u64(idx_t n)
@@ -56,7 +58,7 @@ static void ensure_partitions(idx_t n)
     size_t rows = (size_t)(need_k + 1);
     size_t cols = (size_t)(need_m + 1);
     size_t new_size = rows * cols;
-    seq_t *new_part = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_part = mem_new(seq_t, new_size);
     if (!new_part)
         return;   /* allocation failure; leave old table untouched */
 
@@ -80,7 +82,7 @@ static void ensure_partitions(idx_t n)
 
     /* Replace old table */
     if (partition)
-        free(partition);
+        mem_free(partition);
     partition = new_part;
     max_k     = need_k;
     max_m     = need_m;
@@ -92,8 +94,7 @@ static void ensure_a_cache(idx_t n)
     /* Grow cache array if necessary */
     if (n + 1 > a_cache_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(a_cache,
-                                            new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, a_cache, new_size);
         if (!new_cache)
             return; /* allocation failure; keep old array */
         a_cache      = new_cache;

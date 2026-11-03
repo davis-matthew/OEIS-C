@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 11, u16 n <= 1863, u32 n <= 9806, u64 n <= 9806,
- *            u128 n <= 9806, big any n
- * Helpers:   none
+ * Range:     u8 n <= 11, u16 n <= 1863, u32 n <= 26693, u64 n <= 26693,
+ *            u128 n <= 26693, big any n
+ * Validated: standard, pass, 74 terms through n = 9806 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- static data ----------
    We build a sieve up to LIMIT and store:
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     if (cap == 0) {
         cap = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;
     }
 
@@ -150,7 +152,7 @@ seq_t a(idx_t n)
                 /* store the qualifying k */
                 if (sz >= cap) {
                     size_t new_cap = cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) return (seq_t)0;
                     cache = tmp;
                     cap = new_cap;

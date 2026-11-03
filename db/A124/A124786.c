@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(n)). */
 static uint64_t isqrt_u64(uint64_t n)
@@ -146,7 +148,7 @@ seq_t a(idx_t n)
             if (len == cap)
             {
                 cap = cap ? cap * 2 : 16;
-                list = (seq_t *)realloc(list, cap * sizeof(seq_t));
+                list = mem_resize(seq_t, list, cap);
             }
             list[len++] = (seq_t)cand;
             break;

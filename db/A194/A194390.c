@@ -8,14 +8,35 @@
  * Formula:   m is a term iff # {k ≤ m | frac(k*sqrt(12)) < 1/2 } = m/2
  * Range:     u8 n <= 1, u16 n <= 11, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* static cache of already found terms */
 static seq_t *term_cache   = NULL;   /* array of terms */
@@ -32,8 +53,7 @@ static void push_term(seq_t value)
 {
     if (cache_size == cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : 8;
-        seq_t *temp = (seq_t *)realloc(term_cache,
-                                       new_cap * sizeof(seq_t));
+        seq_t *temp = mem_resize(seq_t, term_cache, new_cap);
         if (!temp) exit(EXIT_FAILURE);   /* out of memory */
         term_cache = temp;
         cache_cap  = new_cap;

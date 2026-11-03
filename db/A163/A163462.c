@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 498 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,12 +34,12 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         cap = 2;
         size = 2;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) exit(EXIT_FAILURE);
         /* initialise the first two elements */
 #ifdef __cplusplus
-        new (&cache[0]) seq_t(1);
-        new (&cache[1]) seq_t(11);
+        *(&cache[0]) = (seq_t)(1);
+        *(&cache[1]) = (seq_t)(11);
 #else
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)11;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         if (new_cap == 0) new_cap = 2;
         while (new_cap <= (size_t)n) new_cap <<= 1;
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) exit(EXIT_FAILURE);
         cache = tmp;
         cap   = new_cap;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         /* construct any newly allocated elements (C++ only) */
 #ifdef __cplusplus
         for (size_t i = size; i < cap; ++i)
-            new (&cache[i]) seq_t();
+            *(&cache[i]) = (seq_t)0;
 #endif
 
         /* compute missing terms */

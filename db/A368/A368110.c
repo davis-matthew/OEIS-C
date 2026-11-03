@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 174, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 8760 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- Parameters ---------- */
 #define SIEVE_LIMIT 200000          /* maximum value in sieve */
@@ -206,7 +208,7 @@ static void add_value(seq_t v)
 {
     if (cached_len == cached_cap) {
         cached_cap = (cached_cap == 0) ? 16 : cached_cap * 2;
-        cached_vals = (seq_t *)realloc(cached_vals, cached_cap * sizeof(seq_t));
+        cached_vals = mem_resize(seq_t, cached_vals, cached_cap);
     }
     cached_vals[cached_len++] = v;
 }

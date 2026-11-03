@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   add_prime, has_large_digit
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/add_prime.h"
-#include "../utils/has_large_digit.h"
+
+/* Dynamically grow the array of found primes */
+static void add_prime(uint64_t **arr, size_t *cap, size_t *cnt, uint64_t val)
+{
+    if (*cnt >= *cap) {
+        size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(**arr));
+        if (!tmp) return;           /* allocation failed – caller will free on exit */
+        *arr = tmp;
+        *cap = new_cap;
+    }
+    (*arr)[(*cnt)++] = val;
+}
+
+/* Return true if x contains at least one decimal digit > 4 */
+static bool has_large_digit(uint64_t x)
+{
+    while (x) {
+        uint64_t d = x % 10;
+        if (d > 4) return true;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

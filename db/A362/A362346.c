@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 15, i64 n <= 24, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 438 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Absolute value for seq_t */
 static inline seq_t abs_seq(seq_t v)
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_cap)
     {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache)
             return 0;                   /* allocation failure (unlikely) */
         cache = new_cache;

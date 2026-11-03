@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 82, u16 n <= 1422, u32 n <= 1422, u64 n <= 1422,
  *            u128 n <= 1422, big any n
- * Helpers:   prev_divides_by_digit_of
+ * Validated: standard, pass, 101 terms through n = 1292 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/prev_divides_by_digit_of.h"
+#include "../utils/mem.h"
+
+/* Test whether a divides any digit of cand (ignoring digit 0) */
+static bool prev_divides_by_digit_of(seq_t prev, seq_t cand)
+{
+    seq_t x = cand;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (d != 0 && prev % d == 0)
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 /*--- internal state ---------------------------------------------*/
 static seq_t *seq = NULL;           /* array of sequence terms */
@@ -38,7 +52,7 @@ static void ensure_seq_cap(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 8;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     seq = tmp;
     seq_cap = new_cap;
 }

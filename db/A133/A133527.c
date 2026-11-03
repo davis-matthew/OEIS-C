@@ -9,7 +9,8 @@
  *            (sum of fifth powers of four consecutive primes)
  * Range:     u8 none, u16 n <= 1, u32 n <= 16, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   fifth_power
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/fifth_power.h"
+
+/* Compute p^5 using only integer operations on seq_t. */
+static seq_t fifth_power(uint32_t p)
+{
+    seq_t base = (seq_t)p;
+    seq_t res = base;
+    for (int i = 1; i < 5; ++i)
+        res *= base;
+    return res;
+}
 
 #define MAX_PRIMES 20000        /* enough for n up to ~10000 */
 #define SIEVE_LIMIT 200000      /* upper bound for sieve */

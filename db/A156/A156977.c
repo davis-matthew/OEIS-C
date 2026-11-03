@@ -9,7 +9,8 @@
  *            number)
  * Range:     u8 none, u16 n <= 42, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   pandigital_square
+ * Validated: full, pass, 87 terms through n = 87 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/pandigital_square.h"
+
+/* Test whether the square of n is a 10‑digit pandigital number. */
+static bool pandigital_square(uint64_t n)
+{
+    uint64_t sq = n * n;
+    uint16_t mask = 0;
+    int cnt = 0;
+
+    while (sq > 0) {
+        unsigned d = (unsigned)(sq % 10ULL);
+        uint16_t bit = 1U << d;
+        if (mask & bit) return false;   /* duplicate digit */
+        mask |= bit;
+        ++cnt;
+        sq /= 10ULL;
+    }
+    if (cnt != 10) return false;        /* number has fewer than 10 digits */
+    return mask == 0x3FFU;              /* digits 0–9 all present */
+}
 
 /* Preallocated storage for the 87 terms of the sequence. */
 static seq_t terms[87];

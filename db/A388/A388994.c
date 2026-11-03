@@ -7,16 +7,19 @@
  * Keywords:  sign, easy
  * Formula:   a(n) = 2*A048250(n) - A000203(n) ( = 2*sum of squarefree
  *            divisors - sum of all divisors )
- * Range:     i8 n <= 12, i16 n <= 2673, i32 n <= 9097, i64 n <= 9097,
- *            i128 n <= 9097, big any n
- * Helpers:   factor_u64, seq_pow
+ * Range:     i8 n <= 12, i16 n <= 2673, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 90 terms through n = 9097 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
         f_prod *= (seq_t)1 + p;
 
         /* sum of divisors contribution: (p^(e+1)-1)/(p-1) */
-        seq_t p_pow = seq_pow(p, (idx_t)(e + 1));
+        seq_t p_pow = ipow_idx(p, (idx_t)(e + 1));
         seq_t sigma_p = (p_pow - (seq_t)1) / (p - (seq_t)1);
         sigma_prod *= sigma_p;
     }

@@ -13,8 +13,8 @@
  *            When s != 0 it contributes 3^(gcd(j,3k)/3) if v...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   a1323_add, a1323_cyc, a1323_div, a1323_gcd, a1323_mul,
- *            a1323_mulpow3, a1323_phi, a1323_v3
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
+ * Helpers:   gcd_u64, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,14 +22,93 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a1323_add.h"
-#include "../utils/a1323_cyc.h"
-#include "../utils/a1323_div.h"
-#include "../utils/a1323_gcd.h"
-#include "../utils/a1323_mul.h"
-#include "../utils/a1323_mulpow3.h"
-#include "../utils/a1323_phi.h"
-#include "../utils/a1323_v3.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/totient_u64.h"
+
+static size_t a1323_add(uint32_t *x, size_t L, const uint32_t *y, size_t Ly)
+{
+    uint64_t carry = 0;
+    size_t i, M = L > Ly ? L : Ly;
+    for (i = 0; i < M; i++) {
+        uint64_t t = (uint64_t)x[i] + (i < Ly ? y[i] : 0) + carry;
+        x[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+    if (carry) x[M++] = (uint32_t)carry;
+    return M;
+}
+
+static int a1323_v3(uint64_t x)
+{
+    int v = 0;
+    while (x % 3 == 0) { x /= 3; v++; }
+    return v;
+}
+
+static uint64_t a1323_cyc(int np, const uint64_t *ks, const int *ms, const int *ts)
+{
+    uint64_t L = 1, d;
+    unsigned __int128 S = 0;
+    int i;
+    for (i = 0; i < np; i++) {
+        if (ms[i] - ts[i] > 0) L = L / gcd_u64(L, ks[i]) * ks[i];
+        if (ts[i] > 0) L = L / gcd_u64(L, 3 * ks[i]) * (3 * ks[i]);
+    }
+    for (d = 1; d <= L; d++) {
+        int ok = 1;
+        uint64_t E = 0, j;
+        unsigned __int128 p;
+        if (L % d) continue;
+        for (i = 0; i < np; i++) {
+            E += (uint64_t)(ms[i] - ts[i]) * gcd_u64(d, ks[i]);
+            if (ts[i] > 0) {
+                uint64_t g = gcd_u64(d, 3 * ks[i]);
+                if (a1323_v3(g) != a1323_v3(ks[i]) + 1) { ok = 0; break; }
+                E += (uint64_t)ts[i] * (g / 3);
+            }
+        }
+        if (!ok) continue;
+        p = 1;
+        for (j = 0; j < E; j++) p *= 3;
+        S += p * totient_u64(L / d);
+    }
+    return (uint64_t)(S / L);
+}
+
+static void a1323_div(uint32_t *x, size_t L, uint32_t d)
+{
+    uint64_t r = 0;
+    size_t i = L;
+    while (i-- > 0) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static size_t a1323_mul(uint32_t *x, size_t L, uint32_t m)
+{
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+    if (carry) x[L++] = (uint32_t)carry;
+    return L;
+}
+
+static size_t a1323_mulpow3(uint32_t *x, size_t L, uint64_t e)
+{
+    while (e >= 20) { L = a1323_mul(x, L, 3486784401u); e -= 20; }
+    if (e > 0) {
+        uint32_t m = 1;
+        while (e-- > 0) m *= 3;
+        L = a1323_mul(x, L, m);
+    }
+    return L;
+}
 
 typedef struct { uint64_t e; uint32_t *c; size_t cl; } a1323_term;
 

@@ -9,7 +9,8 @@
  *            equals the greatest prime ≤ k
  * Range:     u8 n <= 31, u16 n <= 3247, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- primality utilities (deterministic for 64‑bit) ---------- */
 
@@ -90,7 +92,7 @@ static void ensure_capacity(size_t needed) {
     if (term_cap < needed) {
         size_t new_cap = term_cap ? term_cap * 2 : 64;
         if (new_cap < needed) new_cap = needed;
-        term_list = (seq_t *)realloc(term_list, new_cap * sizeof(seq_t));
+        term_list = mem_resize(seq_t, term_list, new_cap);
         term_cap = new_cap;
     }
 }

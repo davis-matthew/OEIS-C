@@ -10,12 +10,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 15, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence A121749: Number of deco polyominoes of height n with all columns odd.
    Recurrence: a(n)=floor(n/2)*(a(n-1)+a(n-2)),  a(1)=a(2)=1 */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Initialise cache dynamically on first call */
     if (cache == NULL) {
         /* Allocate space for indices 0..n (0 unused) */
-        cache = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         if (cache == NULL) abort();     /* allocation failure */
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)1;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* Extend cache if necessary */
     if (n > max_cached) {
-        seq_t *new_cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (new_cache == NULL) abort();
         cache = new_cache;
         /* Compute new entries */

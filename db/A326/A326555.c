@@ -7,15 +7,18 @@
  * Formula:   a(n) = (2^n + 3^n)^n
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   pow2, pow3, seq_pow
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
+ * Helpers:   ipow_idx, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
-#include "../utils/seq_pow.h"
 
 /* Computes a(n) = (2^n + 3^n)^n for n >= 0. */
 seq_t a(idx_t n)
@@ -28,5 +31,5 @@ seq_t a(idx_t n)
     seq_t sum = two_n + three_n;
 
     /* Raise the sum to the n-th power. */
-    return seq_pow(sum, n);
+    return ipow_idx(sum, n);
 }

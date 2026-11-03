@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 */
 
 #include <stdlib.h>          /* malloc, free */
+#include "../utils/mem.h"
 
 /* static array of cached values; 0‑index unused */
 static seq_t *cache = NULL;          /* cache[1..max_n] holds computed a(n) */
@@ -46,7 +48,7 @@ ensure_cache(idx_t n)
 
     /* enlarge the array if necessary */
     if (cache_cap < n + 1) {
-        seq_t *new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
         if (!new_cache) {
             /* allocation failure – abort; this should not happen in tests */
             abort();
@@ -56,7 +58,7 @@ ensure_cache(idx_t n)
             for (idx_t i = 1; i <= cache_max; ++i) {
                 new_cache[i] = cache[i];
             }
-            free(cache);
+            mem_free(cache);
         }
         cache      = new_cache;
         cache_cap  = n + 1;

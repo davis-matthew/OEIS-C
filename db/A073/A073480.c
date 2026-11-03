@@ -12,14 +12,17 @@
  *            m, – for even m) * * For m = 0 we set A024167(0) = 0 and...
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static idx_t table_size = 0;          /* number of entries stored (0..size-1) */
 static seq_t *fact_table = NULL;     /* factorials 0! … (size-1)!          */
@@ -34,8 +37,8 @@ ensure_tables(idx_t need)
 
     idx_t new_size = need + 1;                  /* inclusive of `need` */
 
-    fact_table = (seq_t *)realloc(fact_table, new_size * sizeof(seq_t));
-    a024167   = (seq_t *)realloc(a024167,   new_size * sizeof(seq_t));
+    fact_table = mem_resize(seq_t, fact_table, new_size);
+    a024167   = mem_resize(seq_t, a024167, new_size);
 
     if (table_size == 0) {                      /* first allocation   */
         fact_table[0] = (seq_t)1;                /* 0! = 1             */
@@ -79,7 +82,7 @@ seq_t a(idx_t n)
 
     ensure_tables((r > left) ? r : left);
 
-    seq_t bin = binom(r, k);
+    seq_t bin = binomial(r, k);
     seq_t val = a024167[left];
 
     return bin * val;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -65,13 +67,13 @@ seq_t a(idx_t n)
         if (!rows) abort();
 
         /* Row 0 : length 1, S(1,1)=1 */
-        rows[0] = (seq_t *)malloc(1 * sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         if (!rows[0]) abort();
         rows[0][0] = (seq_t)1;
         cached = 1;
 
         /* Row 1 : length 2, S(2,1)=S(2,2)=1 */
-        rows[1] = (seq_t *)malloc(2 * sizeof(seq_t));
+        rows[1] = mem_new(seq_t, 2);
         if (!rows[1]) abort();
         rows[1][0] = (seq_t)1;
         rows[1][1] = (seq_t)1;
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
         /* Build new rows from 'cached' up to 'r'. */
         for (idx_t i = cached; i <= r; ++i) {
             idx_t len = i + 1;
-            seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, len);
             if (!row) abort();
 
             /* Base cases: S(i+1,1) = 1 for all i, and S(i+1,i+1) = 1. */

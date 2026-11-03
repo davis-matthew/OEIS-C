@@ -7,7 +7,8 @@
  * Formula:   a(3k-2)=0, a(3k-1)=1-a(k), a(3k)=1 (k≥1), a(0)=0
  * Range:     u8 n <= 122, u16 n <= 122, u32 n <= 122, u64 n <= 122,
  *            u128 n <= 122, big any n
- * Helpers:   alloc_seq
+ * Validated: partial, pass, 122 terms through n = 122 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_seq.h"   /* provides seq_t *alloc_seq(size_t) */
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t  *cache   = NULL;   /* computed values (len >= cache_cap) */
 static uint8_t *computed = NULL; /* flag array: 1 = value present */
@@ -36,9 +45,9 @@ static void ensure_cache(idx_t n)
 
     if (cache)
     {
-        memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
+        mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
         memcpy(new_comp, computed, cache_cap * sizeof(uint8_t));
-        free(cache);
+        mem_free(cache);
         free(computed);
     }
     cache    = new_cache;

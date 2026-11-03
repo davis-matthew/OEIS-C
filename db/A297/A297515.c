@@ -12,15 +12,58 @@
  *            transition from two previous rows `pp` and `p` to a * new r...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   good_last, trans_ok
+ * Validated: standard, pass, 37 terms through n = 205 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/good_last.h"
-#include "../utils/trans_ok.h"
+
+/* Return true if the last row `curr` is valid with the preceding row
+ * `prev`.  Only left/right neighbours in `curr` and diagonal
+ * neighbours in `prev` are available. */
+static inline bool good_last(uint8_t prev, uint8_t curr)
+{
+    for (int c = 0; c < 4; ++c) {
+        if (!(curr >> c & 1))
+            continue;
+        int cnt = 0;
+        if (c > 0 && (curr >> (c - 1) & 1)) cnt++;
+        if (c < 3 && (curr >> (c + 1) & 1)) cnt++;
+        if (c > 0 && (prev >> (c - 1) & 1)) cnt++;
+        if (c < 3 && (prev >> (c + 1) & 1)) cnt++;
+        if (cnt != 1 && cnt != 3)
+            return false;
+    }
+    return true;
+}
+
+/* Check whether a transition from rows `pp` -> `p` -> `n` is
+ * allowed: each 1 in `p` must have 1 or 3 neighbours, counting
+ * horizontal neighbours in `p`, diagonal neighbours in `pp`
+ * and diagonal neighbours in `n`. */
+static inline bool trans_ok(uint8_t pp, uint8_t p, uint8_t n)
+{
+    for (int c = 0; c < 4; ++c) {
+        if (!(p >> c & 1))
+            continue;
+        int cnt = 0;
+        /* horizontal neighbours in p */
+        if (c > 0 && (p >> (c - 1) & 1)) cnt++;
+        if (c < 3 && (p >> (c + 1) & 1)) cnt++;
+        /* diagonal neighbours in pp (up-left/up-right) */
+        if (c > 0 && (pp >> (c - 1) & 1)) cnt++;
+        if (c < 3 && (pp >> (c + 1) & 1)) cnt++;
+        /* diagonal neighbours in n (down-left/down-right) */
+        if (c > 0 && (n >> (c - 1) & 1)) cnt++;
+        if (c < 3 && (n >> (c + 1) & 1)) cnt++;
+        if (cnt != 1 && cnt != 3)
+            return false;
+    }
+    return true;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

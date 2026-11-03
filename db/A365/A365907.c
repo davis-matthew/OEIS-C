@@ -8,6 +8,7 @@
  * Formula:   a(n) = n, for n < 2. a(n) = (A000032(3*n-2)+3)/2, for n ≥ 2
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

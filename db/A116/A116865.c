@@ -9,14 +9,15 @@
  *            all such characteristic values
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* Recursively generate partitions of 'sum' into 'parts' parts using part sizes
    starting from 'start'.  Partitions are generated in Abramowitz‑Stegun order
@@ -51,7 +52,7 @@ static bool gen_parts(int sum, int parts, int start, bool all_prime,
     for (int c = maxC; c >= 0; --c) {          /* try all counts for current part */
         bool newPrime = all_prime;
         if (c > 0)                            /* part actually used */
-            newPrime = newPrime && is_prime_small((seq_t)start);
+            newPrime = newPrime && is_prime_seq((seq_t)start);
 
         int newSum = sum - c * start;
         int newParts = parts - c;

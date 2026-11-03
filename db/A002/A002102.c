@@ -8,12 +8,13 @@
  *            of nonnegative solutions to x^2 + y^2 + z^2 = n
  * Range:     u8 n <= 493, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isqrt_helper
+ * Validated: standard, pass, 110 terms through n = 9698 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/isqrt_helper.h"
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
             seq_t y_sq = y * y;
             seq_t remainder_y = remainder_x - y_sq;
             
-            seq_t z = isqrt_helper(remainder_y);
+            seq_t z = isqrt_seq(remainder_y);
             if (z * z == remainder_y) {
                 count++;
             }

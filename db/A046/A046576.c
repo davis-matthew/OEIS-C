@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
    n‑th integer in the sequence (denominator then numerator).  */
 
 #include <stdlib.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t **triangle_cache = NULL;   /* 1‑indexed rows of the triangle */
 static size_t cached_rows   = 0;        /* number of rows currently cached */
@@ -44,7 +46,7 @@ ensure_rows(size_t up_to)
     triangle_cache = tmp;            /* May be NULL if up_to == 0 */
 
     for (size_t r = old + 1; r <= up_to; ++r) {
-        seq_t *row = (seq_t *)malloc(r * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, r);
         if (!row) {
             /* Unable to allocate the required memory */
             exit(EXIT_FAILURE);
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
     seq_t val = triangle_cache[r][pos - 1];           /* index is 0‑based */
 
     /* Reduce the fraction val/4 */
-    seq_t g   = seq_gcd(val, (seq_t)4);
+    seq_t g   = gcd(val, (seq_t)4);
     seq_t num = val / g;    /* numerator of the reduced fraction */
     seq_t den = (seq_t)4 / g; /* denominator of the reduced fraction */
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 6500, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9836 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Helper: integer square root for 32‑bit values. */
 static uint32_t isqrt32(uint32_t n)
@@ -54,7 +56,7 @@ static void rebuild_terms(uint32_t limit, seq_t **terms_out, size_t *count_out)
         }
     }
 
-    seq_t *new_terms = (seq_t*)malloc(cnt * sizeof(seq_t));
+    seq_t *new_terms = mem_new(seq_t, cnt);
     if (!new_terms) {
         free(is_comp);
         return;
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
     /* Grow the limit until enough terms are available. */
     while (term_count < (size_t)n) {
         uint32_t new_limit = current_limit * 2;
-        free(terms);                /* Release old terms. */
+        mem_free(terms);                /* Release old terms. */
         rebuild_terms(new_limit, &terms, &term_count);
         current_limit = new_limit;
     }

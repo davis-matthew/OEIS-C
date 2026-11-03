@@ -10,9 +10,10 @@
  *            n, otherwise 0. A344005(n) is the smallest m>0 such that n
  *            divides m*(m+1). The implementation caches A344005 values up to
  *            the largest n requested
- * Range:     u8 n <= 1875, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
- * Helpers:   egcd_int64, factor_into_prime_powers
+ * Range:     u8 n <= 1875, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 10000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,46 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/egcd_int64.h"
-#include "../utils/factor_into_prime_powers.h"
+#include "../utils/mem.h"
+
+/*--------------------- Helper: extended gcd and modular inverse ---------------------*/
+static int64_t egcd_int64(int64_t a, int64_t b, int64_t *x, int64_t *y)
+{
+    if (b == 0) { *x = 1; *y = 0; return a; }
+    int64_t x1, y1;
+    int64_t g = egcd_int64(b, a % b, &x1, &y1);
+    *x = y1;
+    *y = x1 - (a / b) * y1;
+    return g;
+}
+
+/*--------------------- Factorization into prime powers ---------------------*/
+static void factor_into_prime_powers(uint64_t n, uint64_t *prime, uint64_t *pow, int *cnt)
+{
+    *cnt = 0;
+    uint64_t t = n;
+    if (t % 2 == 0) {
+        uint64_t pe = 1;
+        while (t % 2 == 0) { t /= 2; pe *= 2; }
+        prime[*cnt] = 2;
+        pow[*cnt] = pe;
+        (*cnt)++;
+    }
+    for (uint64_t p = 3; p * p <= t; p += 2) {
+        if (t % p == 0) {
+            uint64_t pe = 1;
+            while (t % p == 0) { t /= p; pe *= p; }
+            prime[*cnt] = p;
+            pow[*cnt] = pe;
+            (*cnt)++;
+        }
+    }
+    if (t > 1) {                /* remaining prime factor */
+        prime[*cnt] = t;
+        pow[*cnt] = t;
+        (*cnt)++;
+    }
+}
 
 static uint64_t modinv_uint64(uint64_t a, uint64_t mod)
 {
@@ -73,7 +112,7 @@ static void ensureCache(idx_t upto)
 {
     if (upto <= cacheSize) return;
     idx_t newSize = upto + 1;                    /* include index 0, which we ignore */
-    seq_t *tmp = (seq_t *)realloc(cacheA, newSize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cacheA, newSize);
     if (tmp == NULL) exit(1);                    /* out of memory */
     if (cacheSize == 0) {
         for (idx_t i = 0; i <= upto; ++i) tmp[i] = 0;

@@ -10,13 +10,15 @@
  *            multiplicity)
  * Range:     u8 n <= 1, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   count_prime_factors
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   bigomega_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
         seq_t t     = k_seq * (k_seq + 1) / 2;
 
         /* test whether t‑1 and t+1 are semiprime */
-        if (count_prime_factors(t - 1) == 2 &&
-            count_prime_factors(t + 1) == 2) {
+        if (bigomega_seq(t - 1) == 2 &&
+            bigomega_seq(t + 1) == 2) {
             ++found;
             if (found == n)
                 return t;               /* found the requested term */

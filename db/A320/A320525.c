@@ -13,7 +13,8 @@
  *            (row r contains T(r,1)...T(r,r)), indexed from 1
  * Range:     u8 n <= 23, u16 n <= 58, u32 n <= 140, u64 n <= 358,
  *            u128 n <= 957, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 1242 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,18 +55,18 @@ seq_t a(idx_t n)
     /* ------------------------------------------------------------------ */
     if (!initialized) {
         /* sequence array: index 0 unused, filled with dummy */
-        a_seq = (seq_t*)malloc(sizeof(seq_t));
+        a_seq = mem_new(seq_t, 1);
         a_seq[0] = (seq_t)0;   /* dummy value */
         a_seq_len = 1;
         a_seq_cap = 1;
 
         /* S₂ row 0: S₂(0,0)=1 */
-        S_prev = (seq_t*)malloc(sizeof(seq_t));
+        S_prev = mem_new(seq_t, 1);
         S_prev[0] = (seq_t)1;
         S_prev_len = 1;
 
         /* A row 0: A(0,0)=1 */
-        A_prev2 = (seq_t*)malloc(sizeof(seq_t));
+        A_prev2 = mem_new(seq_t, 1);
         A_prev2[0] = (seq_t)1;
         A_prev2_len = 1;
 
@@ -85,9 +87,9 @@ seq_t a(idx_t n)
 
         /* --- allocate arrays for the new row --- */
         /* A_cur will have indices 0..row (row+1 elements) */
-        seq_t *A_cur = (seq_t*)calloc((size_t)(row + 1), sizeof(seq_t));
+        seq_t *A_cur = mem_new(seq_t, (size_t)(row + 1));
         /* S_cur similarly */
-        seq_t *S_cur = (seq_t*)calloc((size_t)(row + 1), sizeof(seq_t));
+        seq_t *S_cur = mem_new(seq_t, (size_t)(row + 1));
 
         /* ----- compute A_cur for this row ----- */
         if (row == 1) {
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
             seq_t val = (S_cur[k] - A_cur[k]) / (seq_t)2;
             if (a_seq_len == a_seq_cap) {
                 idx_t new_cap = (a_seq_cap == 0) ? 1 : a_seq_cap * 2;
-                seq_t *tmp = (seq_t*)realloc(a_seq, (size_t)new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, a_seq, (size_t)new_cap);
                 if (!tmp) exit(1);  /* allocation failure */
                 a_seq = tmp;
                 a_seq_cap = new_cap;
@@ -125,7 +127,7 @@ seq_t a(idx_t n)
         }
 
         /* ----- shift S and A rows for next iteration ----- */
-        free(S_prev);
+        mem_free(S_prev);
         S_prev = S_cur;
         S_prev_len = row + 1;
 
@@ -136,7 +138,7 @@ seq_t a(idx_t n)
             /* A_prev2 remains as row 0 */
         } else {
             /* For rows >= 2: discard old A_prev2, shift pointers */
-            free(A_prev2);
+            mem_free(A_prev2);
             A_prev2 = A_prev1;
             A_prev2_len = A_prev1_len;
             A_prev1 = A_cur;

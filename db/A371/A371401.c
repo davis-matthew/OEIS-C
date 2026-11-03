@@ -9,14 +9,23 @@
  *            a(n) is the flattened triangle of T(n,k) read by rows
  * Range:     u8 n <= 17, u16 n <= 49, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial, isqrt_8n_plus1
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/isqrt_8n_plus1.h"
+
+/* helper: integer square root of 8*n+1 using long double, safely */
+static inline idx_t isqrt_8n_plus1(idx_t n)
+{
+    /* sqrt(8*n+1) fits in long double without loss for n <= 2^64-1 */
+    long double d = sqrtl((long double)8 * (long double)n + 1.0L);
+    return (idx_t)d;
+}
 
 /* find the row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2 */
 static inline idx_t find_row(idx_t n)

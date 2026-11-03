@@ -13,13 +13,15 @@
  *            where cnt[d] is the count of digit d among the ba...
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;       /* cached sequence values */
 static idx_t  seq_len = 0;      /* number of cached terms */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 {
     /* initialise cache on first use */
     if (seq_len == 0) {
-        seq = (seq_t *)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         if (!seq) abort();
         seq[0] = (seq_t)0;
         seq_len = 1;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
 
         /* store the next term and update digit counts */
         seq_len++;
-        seq = (seq_t *)realloc(seq, sizeof(seq_t) * seq_len);
+        seq = mem_resize(seq_t, seq, seq_len);
         if (!seq) abort();
         seq[seq_len - 1] = best;
         add_digits(best);

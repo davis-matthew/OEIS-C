@@ -8,12 +8,13 @@
  * Formula:   a(n) = largest power of 2 dividing n that is < sqrt(n), a(1)=1
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
     }
 
     /* Floor(sqrt(n)), adjusted for perfect squares */
-    idx_t sqrt_floor = _floor_isqrt_u64(n);
+    idx_t sqrt_floor = isqrt(n);
     if (sqrt_floor * sqrt_floor == n) {
         if (sqrt_floor > 0) sqrt_floor--;
     }

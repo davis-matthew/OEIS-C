@@ -10,7 +10,8 @@
  *            divisor count and pod the product of divisors
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   big_pow, factor_u64, floor_sqrt, gcd
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,29 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* add the fraction tau/pod to the current fraction num/den */
 static void add_fraction(seq_t tau, seq_t pod, seq_t *num, seq_t *den)
@@ -51,11 +71,11 @@ static void dfs_divisors(size_t idx,
         /* compute pod(d) = d^{tau/2}  (perfect square handled below) */
         seq_t pod;
         if ((cur_tau & 1) == 0) { /* even tau */
-            pod = big_pow(cur_d, cur_tau / 2);
+            pod = ipow(cur_d, cur_tau / 2);
         } else { /* odd tau -> d is a perfect square */
             seq_t sqrt_d = floor_sqrt(cur_d);
             seq_t exp = (cur_tau - 1) / 2;
-            pod = big_pow(cur_d, exp);
+            pod = ipow(cur_d, exp);
             pod = pod * sqrt_d;
         }
         add_fraction(cur_tau, pod, num, den);

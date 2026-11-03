@@ -8,7 +8,8 @@
  *            p
  * Range:     u8 n <= 42, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   test_prime
+ * Validated: standard, pass, 72 terms through n = 952 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/test_prime.h"
+
+/* Trial division primality test using a small prime table */
+static bool test_prime(uint64_t n, const uint64_t *primes, size_t prime_count) {
+    if (n < 2) return false;
+    for (size_t i = 0; i < prime_count; ++i) {
+        uint64_t p = primes[i];
+        if (p * p > n) break;
+        if (n % p == 0) return false;
+    }
+    return true;
+}
 
 /* Helper function: modular multiplication using 128-bit to avoid overflow */
 static uint64_t mod_mul(uint64_t a, uint64_t b, uint64_t mod) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9758 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t    current_limit = 0;
 static seq_t  *term_list     = NULL;
@@ -30,7 +32,7 @@ static size_t  term_capacity = 0;
 static size_t build_terms(idx_t new_limit)
 {
     /* Free any previous list of terms. */
-    if (term_list) { free(term_list); term_list = NULL; }
+    if (term_list) { mem_free(term_list); term_list = NULL; }
     term_len = 0; term_capacity = 0;
 
     /* Allocate DP arrays for k = 0..9. */
@@ -67,7 +69,7 @@ static size_t build_terms(idx_t new_limit)
     /* Reserve space for resulting terms. */
     size_t est_cap = new_limit / 65 + 10;          /* ≈1.5 % of limit */
     if (est_cap < 1024) est_cap = 1024;
-    term_list = (seq_t*)realloc(term_list, est_cap * sizeof(seq_t));
+    term_list = mem_resize(seq_t, term_list, est_cap);
     if (!term_list) abort();
     term_capacity = est_cap;
     term_len = 0;
@@ -77,7 +79,7 @@ static size_t build_terms(idx_t new_limit)
         if (dp[9][(size_t)s] >= 3) {
             if (term_len == term_capacity) {
                 term_capacity *= 2;
-                seq_t *tmp = (seq_t*)realloc(term_list, term_capacity * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, term_list, term_capacity);
                 if (!tmp) abort();
                 term_list = tmp;
             }

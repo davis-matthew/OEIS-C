@@ -7,13 +7,15 @@
  * Formula:   a(n) = (2*a(n-1) + 1) mod n, with a(1) = 0
  * Range:     u8 n <= 146, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Memoizes calculated terms in a static array that grows as needed.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache      = NULL;   /* array of computed terms */
 static idx_t  a_cache_size = 0;      /* current allocated size (in terms) */
@@ -24,7 +26,7 @@ static void a_cache_grow(idx_t new_size)
 {
     if (new_size <= a_cache_size)
         return;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
     if (!tmp) { /* unrecoverable error: abort */
         exit(1);
     }

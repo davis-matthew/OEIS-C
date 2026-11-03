@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 33, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the partition numbers p(0..m) and store them in parts[0..m].
  * The array parts must already be allocated with at least m+1 entries. */
@@ -62,14 +64,14 @@ seq_t a(idx_t n)
 
     if (parts == NULL) {
         /* First time: allocate and compute up to k. */
-        parts = (seq_t *)malloc((size_t)(k + 1) * sizeof(seq_t));
+        parts = mem_new(seq_t, (size_t)(k + 1));
         if (!parts) return (seq_t)0;          /* memory failure, safe error value */
         compute_partitions(k, parts);
         part_limit = k;
     }
     else if (k > part_limit) {
         /* Need larger table: reallocate and recompute from scratch. */
-        seq_t *tmp = (seq_t *)realloc(parts, (size_t)(k + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, parts, (size_t)(k + 1));
         if (!tmp) return (seq_t)0;          /* memory failure */
         parts = tmp;
         compute_partitions(k, parts);

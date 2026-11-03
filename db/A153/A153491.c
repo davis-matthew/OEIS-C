@@ -7,15 +7,16 @@
  * Formula:   a(n) = 11 * binomial(r, k) - 8 where r =
  *            floor((sqrt(8*n+1)-1)/2) is the row index and k = n - r*(r+1)/2
  *            is the offset within that row
- * Range:     u8 n <= 30, u16 n <= 126, u32 n <= 540, u64 n <= 1034,
+ * Range:     u8 n <= 30, u16 n <= 126, u32 n <= 541, u64 n <= 1034,
  *            u128 n <= 1034, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 75 terms through n = 1024 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -41,6 +42,6 @@ seq_t a(idx_t n)
     /* Position within the row. */
     idx_t k = n - start;
 
-    seq_t coeff = binom(r, k);          /* 11 * C(r,k) - 8 */
+    seq_t coeff = binomial(r, k);          /* 11 * C(r,k) - 8 */
     return (seq_t)11 * coeff - (seq_t)8;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 119, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9507 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* helper: integer square root for uint64_t */
 static inline uint64_t isqrt_u64(uint64_t n)
@@ -57,7 +59,7 @@ static void _append_cache(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
-        seq_t *new_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_cache) abort(); /* allocation failed */
         seq_cache = new_cache;
         seq_cap = new_cap;

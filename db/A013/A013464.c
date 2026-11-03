@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 6, i64 n <= 10, i128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* binomial coefficient using the pre‑computed factorials */
 static inline seq_t binom(idx_t n, idx_t k, const seq_t *fact)
@@ -33,14 +35,14 @@ seq_t a(idx_t n)
     idx_t M = 2 * n + 1;
 
     /* ---------- factorials 0! .. M! ---------- */
-    seq_t *fact = (seq_t *)calloc((size_t)(M + 1), sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (size_t)(M + 1));
     if (!fact) return 0;
     fact[0] = 1;
     for (idx_t i = 1; i <= M; ++i)
         fact[i] = fact[i - 1] * (seq_t)i;
 
     /* ---------- g(x) = arctan(x) – artanh(x) ---------- */
-    seq_t *g = (seq_t *)calloc((size_t)(M + 1), sizeof(seq_t));
+    seq_t *g = mem_new(seq_t, (size_t)(M + 1));
     idx_t pos_count = (M >= 3) ? ((M - 3) / 4 + 1) : 0;
     idx_t *pos = (idx_t *)((pos_count > 0) ? malloc(pos_count * sizeof(idx_t)) : NULL);
     idx_t pc = 0;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     }
 
     /* ---------- s(x) = g(x)^2 ---------- */
-    seq_t *s = (seq_t *)calloc((size_t)(M + 1), sizeof(seq_t));
+    seq_t *s = mem_new(seq_t, (size_t)(M + 1));
     if (pos_count > 0) {
         for (idx_t ii = 0; ii < pos_count; ++ii) {
             idx_t i = pos[ii];
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     }
 
     /* ---------- b(x) = 1/(1 + s(x)) ---------- */
-    seq_t *b = (seq_t *)calloc((size_t)(M + 1), sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, (size_t)(M + 1));
     b[0] = 1;
     for (idx_t m = 1; m <= M; ++m) {
         seq_t sum = 0;
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
     }
 
     /* ---------- h(x) = g'(x) * b(x) ---------- */
-    seq_t *h = (seq_t *)calloc((size_t)M, sizeof(seq_t)); /* indices 0 .. M-1 */
+    seq_t *h = mem_new(seq_t, (size_t)M); /* indices 0 .. M-1 */
     for (idx_t m = 0; m < M; ++m) {
         seq_t sum = 0;
         for (idx_t ii = 0; ii < pos_count; ++ii) {
@@ -96,11 +98,11 @@ seq_t a(idx_t n)
     seq_t result = h[2 * n];
 
     /* ---------- clean up ---------- */
-    free(fact);
-    free(g);
+    mem_free(fact);
+    mem_free(g);
     free(pos);
-    free(s);
-    free(b);
-    free(h);
+    mem_free(s);
+    mem_free(b);
+    mem_free(h);
     return result;
 }

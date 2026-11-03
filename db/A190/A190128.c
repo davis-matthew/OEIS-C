@@ -9,7 +9,8 @@
  *            lexicographically by their base‑3 representation (1‑based index)
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: full, pass, 10000 terms through n = 10000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparer used by qsort: lexicographic comparison of the base‑3 strings
    of the two numbers.  The numbers are small (≤ 10000), so a simple
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         sorted = (seq_t*)malloc(sizeof(seq_t) * 10000);
 #endif
         for (idx_t i = 0; i < 10000; ++i) sorted[i] = (seq_t)(i + 1);
-        qsort(sorted, 10000, sizeof(seq_t), lex_cmp);
+        mem_qsort(sorted, 10000, sizeof(seq_t), lex_cmp);
         init_done = true;
     }
     if (n < 1) return 0;          /* undefined for n < 1, return 0 */

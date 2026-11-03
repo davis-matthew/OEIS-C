@@ -8,10 +8,13 @@
  * Formula:   a(n) = 4*a(n-2) - a(n-4), with a(1)=0, a(2)=2, a(3)=2, a(4)=8
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 35, u64 n <= 69, u128 n <= 135,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 #if defined(__cplusplus)
 # include <cstdlib>
@@ -32,7 +35,7 @@ static void ensure_cache(idx_t n)
 
     /* Grow the cache to size n+1 (index 0 unused) */
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_cache) {
         /* Out‑of‑memory: terminate program */
         abort();

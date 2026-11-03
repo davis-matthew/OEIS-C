@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_42_in_base8
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_42_in_base8.h"
+#include "../utils/mem.h"
+
+static bool has_42_in_base8(seq_t x)
+{
+    unsigned prev = 8;          /* sentinel that cannot be a digit */
+    while (x > 0) {
+        unsigned d = (unsigned)(x % 8);
+        if (prev == 2 && d == 4)
+            return true;        /* found “4” followed by “2” */
+        prev = d;
+        x /= 8;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;        /* array of found terms          */
 static idx_t   cache_len = 0;       /* number of terms stored       */
@@ -32,7 +46,7 @@ seq_t a(idx_t n)
     /* Initialisation on first call */
     if (cache_len == 0 && cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Keep generating until we have the n‑th term */
@@ -46,7 +60,7 @@ seq_t a(idx_t n)
             /* Grow cache if necessary */
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = candidate;
         }

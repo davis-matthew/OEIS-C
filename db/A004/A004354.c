@@ -7,6 +7,7 @@
  * Formula:   a(n) = C(5n, n-12), computed multiplicatively with gcd reduction
  * Range:     u8 n <= 13, u16 n <= 14, u32 n <= 18, u64 n <= 26, u128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 29 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

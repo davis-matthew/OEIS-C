@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(1) = 1; for n > 1, a(n) = n + a(A032742(n)) (largest proper
  *            divisor)
- * Range:     u8 n <= 135, u16 n <= 9518, u32 n <= 9518, u64 n <= 9518,
- *            u128 n <= 9518, big any n
+ * Range:     u8 n <= 135, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 97 terms through n = 9518 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

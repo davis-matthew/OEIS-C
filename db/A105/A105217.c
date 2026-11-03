@@ -9,19 +9,21 @@
  *            k-th Lucas number (L(0)=2, L(1)=1, L(k)=L(k-1)+L(k-2))
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     seq_t result = 0;
 
     /* allocate array for Lucas numbers up to n */
-    seq_t *L = (seq_t *)malloc(((idx_t)n + 1) * sizeof(seq_t));
+    seq_t *L = mem_new(seq_t, ((idx_t)n + 1));
     if (L == NULL)
         return 0;                      /* out of memory – unlikely in tests */
 
@@ -56,6 +58,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(L);
+    mem_free(L);
     return result;
 }

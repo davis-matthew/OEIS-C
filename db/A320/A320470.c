@@ -12,6 +12,7 @@
  *            d_k ≥ 0. It is based on the identity n = k*x + Σ_{i=2}...
  * Range:     u8 n <= 61, u16 n <= 291, u32 n <= 1622, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 82 terms through n = 1952 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 54, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     if (n <= 7) {
         /* Allocate minimal cache if not already done */
         if (cache == NULL) {
-            cache = (seq_t *)malloc(7 * sizeof(seq_t));
+            cache = mem_new(seq_t, 7);
             for (idx_t i = 0; i < 7; ++i) cache[i] = init[i];
             cap   = 7;
             max_n = 7;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
 
     /* Lazy allocation if cache has never been created */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(7 * sizeof(seq_t));
+        cache = mem_new(seq_t, 7);
         for (idx_t i = 0; i < 7; ++i) cache[i] = init[i];
         cap   = 7;
         max_n = 7;
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         if ((size_t)n > cap) {
             size_t new_cap = cap;
             while (new_cap < (size_t)n) new_cap = new_cap ? new_cap * 2 : 8;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cap   = new_cap;
         }
         /* Compute terms from max_n+1 up to n */

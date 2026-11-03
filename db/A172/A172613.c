@@ -7,14 +7,28 @@
  * Formula:   a(n) = (9*n)! / (9!^n) (= ∏_{k=1..n} C(9k,9), a(0)=1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 6,
  *            big any n
- * Helpers:   binom_9i
+ * Validated: standard, pass, 25 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binom_9i.h"
+#include "../utils/mem.h"
+
+/* compute C(9*i,9) as a product of 9 consecutive integers divided by 9! */
+static inline seq_t binom_9i(idx_t i)
+{
+    seq_t res   = (seq_t)1;
+    seq_t base  = (seq_t)(9ULL * i);
+
+    /* (9i)*(9i-1)*...*(9i-8)/9!  */
+    for (uint32_t j = 1; j <= 9; ++j)
+        res = res * (base - j + 1) / j;
+
+    return res;
+}
 
 /* Memoised computation of the sequence.  cache[n] holds a(n). */
 seq_t a(idx_t n)
@@ -30,7 +44,7 @@ seq_t a(idx_t n)
             while (new_cap <= n)
                 new_cap *= 2;
 
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             cache      = tmp;
             cache_cap  = new_cap;

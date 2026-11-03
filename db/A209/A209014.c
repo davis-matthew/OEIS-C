@@ -11,7 +11,8 @@
  *            above, diagonally above–left, and horizontally left
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   dig
+ * Validated: standard, pass, 30 terms through n = 195 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,11 @@
    are satisfied. */
 
 #include <stdint.h>
-#include "../utils/dig.h"
+
+/* extract the digit (0..3) of row r at column col (0,1,2) */
+static inline int dig(uint8_t r, int col) {
+    return (r >> (4 - 2 * col)) & 3;     /* shift: 4,2,0 for col 0,1,2 */
+}
 
 static uint8_t M[64][64];
 static int M_ready = 0;

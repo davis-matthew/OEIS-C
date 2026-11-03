@@ -7,13 +7,15 @@
  * Formula:   a(0)=1, a(1)=2, a(2)=-2; for n>=3, a(n) = -2*a(n-1) - 2*a(n-2)
  * Range:     i8 n <= 13, i16 n <= 29, i32 n <= 61, i64 n <= 125,
  *            i128 n <= 253, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* No includes other than standard memory allocation are required */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage as specified */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (table == NULL) {
         /* Allocate space for indices 0,1,2 */
         table_cap = 3;
-        table = (seq_t*)malloc(table_cap * sizeof(seq_t));
+        table = mem_new(seq_t, table_cap);
         if (table == NULL) return (seq_t)0; /* out‑of‑memory: fall back to 0 */
 
         table[0] = (seq_t)1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         /* Expand capacity if necessary */
         size_t new_cap = (size_t)n + 1;
         if (new_cap > table_cap) {
-            seq_t *tmp = (seq_t*)realloc(table, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, table, new_cap);
             if (tmp == NULL) return (seq_t)0; /* allocation failed */
             table = tmp;
             table_cap = new_cap;

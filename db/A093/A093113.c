@@ -11,13 +11,16 @@
  *            For odd indices n = 2k+1 (k ≥ 1) one obtains...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Memoisation cache */
 static seq_t *cache = NULL;
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_cap) {
         idx_t new_cap = n + 1;
         if (new_cap < 16) new_cap = 16;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!tmp) return 0;          /* allocation failure – unlikely */
         /* initialise new elements to zero */
         for (idx_t i = cache_cap; i < new_cap; ++i) tmp[i] = 0;

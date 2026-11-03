@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   jacobi_symbol
+ * Validated: standard, pass, 61 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,54 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/jacobi_symbol.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /* Dynamic array helpers (generic) */
+#ifdef __cplusplus
+template <class T>
+static void grow_array(size_t *cap, size_t min_cap, T **ptr, size_t elem_size) {
+    if (*cap < min_cap) {
+        size_t new_cap = *cap ? *cap * 2 : 64;
+        while (new_cap < min_cap) new_cap <<= 1;
+        T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        if (!tmp) abort();
+        *ptr = tmp;
+        *cap = new_cap;
+    }
+}
+#else
 static void grow_array(size_t *cap, size_t min_cap, void **ptr, size_t elem_size) {
     if (*cap < min_cap) {
         size_t new_cap = *cap ? *cap * 2 : 64;
@@ -33,6 +79,7 @@ static void grow_array(size_t *cap, size_t min_cap, void **ptr, size_t elem_size
         *cap = new_cap;
     }
 }
+#endif
 
 /* Prime list for trial division */
 static uint64_t *prime_list = NULL;
@@ -64,7 +111,7 @@ static bool is_prime_uint64(uint64_t n) {
 static void need_cache(idx_t n) {
     /* Seed the prime list with 2 if it is still empty. */
     if (prime_cnt == 0) {
-        grow_array(&prime_cap, 1, (void **)&prime_list, sizeof(uint64_t));
+        grow_array(&prime_cap, 1, OEISC_VPP(&prime_list), sizeof(uint64_t));
         prime_list[0] = 2;
         prime_cnt = 1;
     }
@@ -72,12 +119,12 @@ static void need_cache(idx_t n) {
     while (cache_cnt < n) {
         if (is_prime_uint64(candidate)) {
             /* Store candidate as a prime for future divisibility tests. */
-            grow_array(&prime_cap, prime_cnt + 1, (void **)&prime_list, sizeof(uint64_t));
+            grow_array(&prime_cap, prime_cnt + 1, OEISC_VPP(&prime_list), sizeof(uint64_t));
             prime_list[prime_cnt++] = candidate;
 
             /* Check the quadratic-residue condition. */
             if (candidate == 43 || jacobi_symbol(43, candidate) == 1) {
-                grow_array(&cache_cap, cache_cnt + 1, (void **)&cache, sizeof(seq_t));
+                grow_array(&cache_cap, cache_cnt + 1, OEISC_VPP(&cache), sizeof(seq_t));
                 cache[cache_cnt++] = (seq_t)candidate;
             }
         }

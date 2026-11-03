@@ -10,8 +10,9 @@
  *            = n - sigma(n) + prod_{p|n}(1+p) * The implementation uses a
  *            linear sieve for smallest prime factors * and multiplicative
  *            formulas for sigma(n) and prod(1+p)
- * Range:     i8 n <= 95, i16 n <= 8238, i32 n <= 8238, i64 n <= 8238,
- *            i128 n <= 8238, big any n
+ * Range:     i8 n <= 95, i16 n <= 12599, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 99 terms through n = 8238 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

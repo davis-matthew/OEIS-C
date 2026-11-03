@@ -9,7 +9,8 @@
  *            digit_sum(sigma(n))
  * Range:     u8 n <= 10, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Utility: sum of decimal digits of a seq_t number                   */
@@ -94,7 +96,7 @@ static size_t seq_cap = 0;
 static void push_value(seq_t val) {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_vals = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_vals = mem_resize(seq_t, seq_vals, new_cap);
         seq_cap = new_cap;
     }
     seq_vals[seq_len++] = val;

@@ -7,14 +7,15 @@
  * Formula:   a(0) = 1; a(n+1) = Sum_{i=0..n} gcd(a(i), a(n-i))
  * Range:     u8 n <= 44, u16 n <= 1958, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bgcd
+ * Validated: standard, pass, 75 terms through n = 8770 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/bgcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     static uint64_t *c = NULL;
@@ -39,7 +40,7 @@ seq_t a(idx_t n) {
         uint64_t s = 0;
         idx_t i;
         for (i = 0; i < m - i; i++)
-            s += bgcd(c[i], c[m - i]);
+            s += gcd_u64(c[i], c[m - i]);
         s *= 2;
         if (i == m - i) s += c[i];
         c[k] = s;

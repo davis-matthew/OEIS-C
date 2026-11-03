@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 17, u64 n <= 36, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* 1‑based index: cache[i] stores a(i) */
 static size_t cap = 0;               /* current allocated capacity (indices 0..cap‑1) */
@@ -35,7 +37,7 @@ static void ensure_cache_cap(idx_t n)
 {
     if ((size_t)n + 1 <= cap) return;
     size_t new_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);   /* abort on allocation failure */
     /* Zero new elements so that a(n)=0 for n < current cap is detected. */
     for (size_t i = cap; i < new_cap; ++i) tmp[i] = 0;

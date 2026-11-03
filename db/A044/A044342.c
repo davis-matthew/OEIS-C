@@ -9,7 +9,8 @@
  *            not
  * Range:     u8 n <= 3, u16 n <= 639, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_substr10
+ * Validated: standard, pass, 63 terms through n = 8309 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,25 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_substr10.h"
+
+/* check whether a decimal representation of x contains the
+   substring "10".  It works with both built‑in integer types and
+   arbitrary‑precision classes that provide % and / operators. */
+static bool has_substr10(seq_t x)
+{
+    if (x == 0)
+        return false;
+
+    unsigned prev = 0xFF;          /* impossible digit value          */
+    while (x > 0) {
+        unsigned d = (unsigned)(x % 10);
+        if (prev == 0 && d == 1)
+            return true;           /* found 1 followed by 0            */
+        prev = d;
+        x /= 10;
+    }
+    return false;
+}
 
 /* static memoisation state ---------------------------------------- */
 static seq_t *cache      = NULL;   /* array of found terms            */

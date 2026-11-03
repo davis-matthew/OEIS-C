@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Grow the cache to hold at least 'needed' elements.  It is
    safe for seq_t to be a POD or a trivial class.  Avoid
@@ -29,9 +31,9 @@ static void ensure_capacity(idx_t needed, seq_t **cache, size_t *cap)
     if ((size_t)needed > *cap) {
         size_t new_cap = (*cap > 0) ? (*cap << 1) : 16;
         if (new_cap < (size_t)needed) new_cap = (size_t)needed;
-        seq_t *tmp = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
-        memset(tmp + *cap, 0, (new_cap - *cap) * sizeof(seq_t));
+        mem_set(tmp + *cap, 0, (new_cap - *cap) * sizeof(seq_t));
         *cache = tmp;
         *cap = new_cap;
     }

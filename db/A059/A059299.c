@@ -11,14 +11,15 @@
  *            (r+1)*(r+2)/2 and setting k = n - r*(r+1)/2
  * Range:     u8 n <= 23, u16 n <= 48, u32 n <= 112, u64 n <= 289,
  *            u128 n <= 803, big any n
- * Helpers:   binom_seq_t
+ * Validated: standard, pass, 75 terms through n = 1091 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/binom_seq_t.h"
+#include "../utils/binomial.h"
 
 /* integer power: base^exp, exponentiation by squaring.
  * Works for base=0 and exp=0 (returns 1). */
@@ -54,7 +55,7 @@ seq_t a(idx_t n)
     idx_t k = n - start_of_row;
 
     /* Compute T(r,k) = C(r,k) * (r-k)^k */
-    seq_t bin = binom_seq_t(r, k);
+    seq_t bin = binomial(r, k);
     seq_t pow = pow_seq_t((seq_t)(r - k), k);
     return bin * pow;
 }

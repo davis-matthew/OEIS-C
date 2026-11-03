@@ -8,7 +8,8 @@
  * Formula:   a(n) = dispersion of ⌊n·φ+3/2⌋ by antidiagonals
  * Range:     u8 n <= 6, u16 n <= 36, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/floor_sqrt.h"   /* provides seq_t floor_sqrt(seq_t) */
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Compute s(n) = ⌊n·φ+3/2⌋, where φ = (1+√5)/2.           */
 /* Uses only integer arithmetic and floor_sqrt.           */
@@ -64,12 +84,12 @@ static void ensure_t(size_t need)
     size_t newcap = t_cap ? t_cap * 2 : 4;
     if (newcap < need)
         newcap = need;
-    seq_t *newptr = (seq_t *)malloc(newcap * sizeof(seq_t));
+    seq_t *newptr = mem_new(seq_t, newcap);
     if (!newptr)
         abort();
     if (t_arr) {
-        memcpy(newptr, t_arr, t_len * sizeof(seq_t));
-        free(t_arr);
+        mem_copy(newptr, t_arr, t_len * sizeof(seq_t));
+        mem_free(t_arr);
     }
     t_arr = newptr;
     t_cap = newcap;

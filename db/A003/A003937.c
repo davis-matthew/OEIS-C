@@ -7,7 +7,8 @@
  * Formula:   a(n) = q^64 * Product_{i=1..8} (q^(2i) - 1), where q =
  *            A000961(n+1) is the n-th prime power > 1
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
- * Helpers:   is_prime_power_u
+ * Validated: standard, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_power_u.h"
+
+static bool is_prime_power_u(uint64_t m) {
+    if (m < 2) return false;
+    for (uint64_t p = 2; p * p <= m; p++) {
+        if (m % p == 0) {
+            while (m % p == 0) m /= p;
+            return m == 1;
+        }
+    }
+    return true;
+}
 
 static uint64_t *pp_cache = NULL;
 static idx_t pp_count = 0;

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(A003961(n), A276086(n))
- * Range:     u8 n <= 99, u16 n <= 6236, u32 n <= 9995, u64 n <= 9995,
- *            u128 n <= 9995, big any n
- * Helpers:   build_primes, seq_mul, seq_pow
+ * Range:     u8 n <= 99, u16 n <= 6236, u32 n <= 11550, u64 n <= 11550,
+ *            u128 n <= 11550, big any n
+ * Validated: standard, pass, 116 terms through n = 9995 (2026-11-01)
+ * Helpers:   build_primes, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,15 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/build_primes.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 #define MAX_K 20        /* maximum number of primorial digits needed for n ≤ 10⁴ */
 
@@ -100,7 +107,7 @@ seq_t a(idx_t n)
         int d = (int)digits[k];
         int m = (e < d) ? e : d;
         if (m > 0) {
-            seq_t pw = seq_pow((seq_t)primes[k], (idx_t)m);
+            seq_t pw = ipow_idx((seq_t)primes[k], (idx_t)m);
             result = seq_mul(result, pw);
         }
     }

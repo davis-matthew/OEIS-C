@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 324, u32 n <= 1175, u64 n <= 4464,
  *            u128 n <= 5050, big any n
- * Helpers:   fibonacci
+ * Validated: standard, pass, 107 terms through n = 4710 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,21 @@
 */
 
 #include <stdint.h>
-#include "../utils/fibonacci.h"
+
+/* Compute F(k) for k >= 1 with F(1)=1, F(2)=1 */
+static seq_t fibonacci(idx_t k)
+{
+    if (k == 1 || k == 2)
+        return (seq_t)1;
+    seq_t a = (seq_t)1;   /* F(1) */
+    seq_t b = (seq_t)1;   /* F(2) */
+    for (idx_t i = 3; i <= k; ++i) {
+        seq_t tmp = b;
+        b = a + b;
+        a = tmp;
+    }
+    return b;
+}
 
 seq_t a(idx_t n)
 {

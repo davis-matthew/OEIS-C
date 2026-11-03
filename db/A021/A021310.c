@@ -8,13 +8,28 @@
  *            1/306
  * Range:     u8 n <= 1, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   power10_mod
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/power10_mod.h"
+
+/* Compute 10^exp (mod mod) for arbitrary-precision seq_t */
+static seq_t power10_mod(idx_t exp, seq_t mod)
+{
+    seq_t base = 10 % mod;
+    seq_t result = 1 % mod;
+    idx_t e = exp;
+    while (e > 0) {
+        if (e & 1ULL)
+            result = (result * base) % mod;
+        base = (base * base) % mod;
+        e >>= 1ULL;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

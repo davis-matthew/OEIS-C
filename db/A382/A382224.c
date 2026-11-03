@@ -8,8 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 22, u32 n <= 22, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   append_candidate, factor_u64, gcd_u64, is_prime_small,
- *            lambda_of_prime_power, powmod64
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   factor_u64, gcd_u64, is_prime_seq, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +20,47 @@
    If a composite with maximal order is found, k is rejected. */
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/append_candidate.h"
-#include "../utils/is_prime_small.h"
-#include "../utils/powmod64.h"
 #include "../utils/gcd_u64.h"
-#include "../utils/lambda_of_prime_power.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
+
+/* From the factorization of an odd prime power p^e,
+   compute λ(p^e) = p^(e-1) * (p-1).  For 2:
+   e==1 -> 1, e==2 -> 2, e>=3 -> 2^(e-2). */
+static uint64_t lambda_of_prime_power(uint64_t p, uint64_t e) {
+    if (p == 2) {
+        if (e == 1) return 1;
+        if (e == 2) return 2;
+        /* e >= 3 */
+        return 1ULL << (e - 2);
+    } else {
+        uint64_t res = 1;
+        for (uint64_t i = 1; i < e; ++i)
+            res *= p;
+        res *= (p - 1);
+        return res;
+    }
+}
 
 /* Euclid gcd for uint64_t */
 
@@ -52,7 +87,7 @@ static void ensure_terms_capacity(size_t needed, size_t *cap, seq_t **ptr) {
     if (needed <= *cap) return;
     size_t new_cap = (*cap) ? (*cap) * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    *ptr = (seq_t*)realloc(*ptr, new_cap * sizeof(seq_t));
+    *ptr = mem_resize(seq_t, *ptr, new_cap);
     *cap = new_cap;
 }
 
@@ -91,12 +126,12 @@ seq_t a(idx_t n) {
             if (gcd_u64(a_val, k) != 1) continue;
 
             /* Skip primes: only composites matter */
-            if (is_prime_small(a_val)) continue;
+            if (is_prime_seq(a_val)) continue;
 
             /* Test if ord(a_val) == lam */
             bool max_order = true;
             for (size_t i = 0; i < lam_div_cnt; ++i) {
-                if (powmod64(a_val, lam_div[i], k) == 1ULL) {
+                if (powmod_u64(a_val, lam_div[i], k) == 1ULL) {
                     max_order = false;
                     break;
                 }

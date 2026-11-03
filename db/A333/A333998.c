@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- Prime sieve infrastructure ------------------------------------------- */
 static unsigned char *isprime       = NULL;   /* true if index is prime */
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
     /* Grow valid_seq buffer if needed */
     if (valid_cnt == valid_cap) {
         size_t new_cap = (valid_cap ? valid_cap * 2 : 16);
-        seq_t *tmp = (seq_t*)realloc(valid_seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, valid_seq, new_cap);
         if (!tmp) exit(1);
         valid_seq = tmp;
         valid_cap = new_cap;

@@ -10,13 +10,15 @@
  *            is a(0) = 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 530 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Compute the n‑th term of OEIS A063822. */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* One‑time allocation and initialization of a(0). */
     if (!seq) {
         cap = 64;
-        seq = (seq_t*)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         if (!seq) exit(EXIT_FAILURE);
         seq[0] = (seq_t)1;   /* a(0) = 1 */
         max_computed = 0;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t new_cap = cap;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         seq = tmp;
         cap = new_cap;

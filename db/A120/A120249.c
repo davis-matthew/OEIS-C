@@ -11,7 +11,8 @@
  *            it as a continued fraction with the first term a0,...
  * Range:     u8 n <= 36, u16 n <= 82, u32 n <= 198, u64 n <= 478,
  *            u128 n <= 1102, big any n
- * Helpers:   get_exponent
+ * Validated: standard, pass, 86 terms through n = 9647 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/get_exponent.h"
+
+/* --- return exponent of given prime in the list of factors ------------- */
+static unsigned int get_exponent(uint64_t prime,
+                                const uint64_t *factor_primes,
+                                const unsigned int *factor_exps,
+                                size_t fc)
+{
+    for (size_t i = 0; i < fc; ++i) {
+        if (factor_primes[i] == prime)
+            return factor_exps[i];
+    }
+    return 0;
+}
 
 #define PRIME_LIMIT 2000000            /* enough for n ≈ 10 000 and larger tests */
 #define MAX_PRIME_COUNT 150000         /* π(PRIME_LIMIT) ≈ 148933 */

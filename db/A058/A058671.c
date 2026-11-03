@@ -8,7 +8,8 @@
  *            η(q^6) η(q^14) η(q^21))/(η(q^2) η(q^3) η(q^7) η(q^42)))^2
  * Range:     u8 n <= 22, u16 n <= 64, u32 n <= 200, u64 n <= 679,
  *            u128 n <= 1000, big any n
- * Helpers:   multiply_by_one_minus_qm
+ * Validated: standard, pass, 68 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,15 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/multiply_by_one_minus_qm.h"
+#include "../utils/mem.h"
+
+/* ----  Local utilities ---- */
+static void multiply_by_one_minus_qm(seq_t *arr, size_t len, int m)
+{
+    if ((size_t)m >= len) return;
+    for (size_t i = len - 1; i >= (size_t)m; --i)
+        arr[i] -= arr[i - m];
+}
 
 /* ----  Cached series data ---- */
 static seq_t *num_series = NULL;       /* numerator product  */
@@ -34,25 +43,25 @@ static void recompute_all_up_to(size_t N)
     size_t needed = N + 1;            /* we need indices 0..N inclusive */
 
     /* Allocate new arrays */
-    seq_t *tmp1 = (seq_t *)malloc(needed * sizeof(seq_t));
-    seq_t *tmp2 = (seq_t *)malloc(needed * sizeof(seq_t));
-    seq_t *tmp3 = (seq_t *)malloc(needed * sizeof(seq_t));
-    seq_t *tmp4 = (seq_t *)malloc(needed * sizeof(seq_t));
-    seq_t *tmp5 = (seq_t *)malloc(needed * sizeof(seq_t));
-    seq_t *tmp6 = (seq_t *)malloc(needed * sizeof(seq_t));
-    seq_t *tmp7 = (seq_t *)malloc(needed * sizeof(seq_t));
+    seq_t *tmp1 = mem_new(seq_t, needed);
+    seq_t *tmp2 = mem_new(seq_t, needed);
+    seq_t *tmp3 = mem_new(seq_t, needed);
+    seq_t *tmp4 = mem_new(seq_t, needed);
+    seq_t *tmp5 = mem_new(seq_t, needed);
+    seq_t *tmp6 = mem_new(seq_t, needed);
+    seq_t *tmp7 = mem_new(seq_t, needed);
 
     if (!tmp1 || !tmp2 || !tmp3 || !tmp4 || !tmp5 || !tmp6 || !tmp7)
         return; /* allocation failure; caller will handle */
 
     /* Initialise to zero */
-    memset(tmp1, 0, needed * sizeof(seq_t));
-    memset(tmp2, 0, needed * sizeof(seq_t));
-    memset(tmp3, 0, needed * sizeof(seq_t));
-    memset(tmp4, 0, needed * sizeof(seq_t));
-    memset(tmp5, 0, needed * sizeof(seq_t));
-    memset(tmp6, 0, needed * sizeof(seq_t));
-    memset(tmp7, 0, needed * sizeof(seq_t));
+    mem_set(tmp1, 0, needed * sizeof(seq_t));
+    mem_set(tmp2, 0, needed * sizeof(seq_t));
+    mem_set(tmp3, 0, needed * sizeof(seq_t));
+    mem_set(tmp4, 0, needed * sizeof(seq_t));
+    mem_set(tmp5, 0, needed * sizeof(seq_t));
+    mem_set(tmp6, 0, needed * sizeof(seq_t));
+    mem_set(tmp7, 0, needed * sizeof(seq_t));
 
     /* Set constant terms */
     tmp1[0] = 1;  /* num series starts with 1 */
@@ -121,13 +130,13 @@ static void recompute_all_up_to(size_t N)
     }
 
     /* Free old arrays */
-    free(num_series);
-    free(den_series);
-    free(den_inv_series);
-    free(s_series);
-    free(s_inv_series);
-    free(s2_series);
-    free(s_inv_sq_series);
+    mem_free(num_series);
+    mem_free(den_series);
+    mem_free(den_inv_series);
+    mem_free(s_series);
+    mem_free(s_inv_series);
+    mem_free(s2_series);
+    mem_free(s_inv_sq_series);
 
     /* Assign new arrays */
     num_series      = tmp1;

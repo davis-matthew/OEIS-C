@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 36, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   mul_small
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,20 @@
    buffer. */
 
 #include <stdlib.h>                 /* calloc, free */
-#include "../utils/mul_small.h"    /* seq_t mul_small(seq_t, unsigned) */
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static inline idx_t isqrt_u64(idx_t n) {
     idx_t low = 0, high = n;
@@ -58,12 +72,12 @@ seq_t a(idx_t n) {
     size_t max_len = (size_t)(2 * r + 1);
 
     /* Allocate three working buffers of that size */
-    seq_t *curr = (seq_t*)calloc(max_len, sizeof(seq_t));
-    seq_t *next = (seq_t*)calloc(max_len, sizeof(seq_t));
-    seq_t *conv = (seq_t*)calloc(max_len, sizeof(seq_t));
+    seq_t *curr = mem_new(seq_t, max_len);
+    seq_t *next = mem_new(seq_t, max_len);
+    seq_t *conv = mem_new(seq_t, max_len);
     if (!curr || !next || !conv) {
         /* Allocation failed – free whatever was allocated and return 0 */
-        free(curr); free(next); free(conv);
+        mem_free(curr); mem_free(next); mem_free(conv);
         return (seq_t)0;
     }
 
@@ -106,9 +120,9 @@ seq_t a(idx_t n) {
     seq_t result = curr[pos];
 
     /* Free allocated buffers */
-    free(curr);
-    free(next);
-    free(conv);
+    mem_free(curr);
+    mem_free(next);
+    mem_free(conv);
 
     return result;
 }

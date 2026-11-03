@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 8, i16 n <= 14, i32 n <= 29, i64 n <= 37, i128 n <= 37,
+ * Range:     i8 n <= 9, i16 n <= 16, i32 n <= 32, i64 n <= 37, i128 n <= 37,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 
 #include <stdlib.h>
 #include <limits.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static idx_t *c_arr     = NULL;   /* A193259(m) */
 static idx_t *v2fac     = NULL;   /* exponent of 2 in m!   */
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     for (idx_t m = 1; m <= half; ++m) {
         idx_t j = n - 2 * m;                       /* exponent in expansion */
         idx_t C = c_arr[m] + j - 1;                /* A193259(m)+j-1   */
-        seq_t bin = binom(C, j);                   /* binomial coeff.  */
+        seq_t bin = binomial(C, j);                   /* binomial coeff.  */
         if (j & 1) bin = -bin;                     /* (-1)^j           */
         result += bin;
     }

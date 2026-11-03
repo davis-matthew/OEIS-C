@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
  * (x^2+4x+3)*(x+1)^(2*r) + (x^2-1)*(x^2+3x+3),
  * where r is the row index and k is the column index within that row
  * obtained by flattening the irregular triangle row by row. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     for (int j = 0; j < 3; ++j) {
         if (k >= (idx_t)j && (k - j) <= two_r) {
-            seq_t bin = binom(two_r, k - j);
+            seq_t bin = binomial(two_r, k - j);
             sum += (seq_t)coeff_q[j] * bin;
         }
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 20, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * return immediately once the range has been generated.  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: test whether a square satisfies the conditions. */
 static bool good_square(seq_t s)
@@ -54,12 +56,12 @@ static void ensure_cache_cap(size_t needed, seq_t **c, size_t *cap)
 {
     if (*cap == 0) {
         *cap = 4;
-        *c   = (seq_t *)malloc(*cap * sizeof(seq_t));
+        *c   = mem_new(seq_t, (*cap * sizeof(seq_t)) / sizeof(seq_t));
         if (*c == NULL) abort();
     } else if (needed > *cap) {
         size_t new_cap = *cap * 2;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(*c, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *c, new_cap);
         if (tmp == NULL) abort();
         *c = tmp;
         *cap = new_cap;

@@ -8,14 +8,17 @@
  *            for square‑free n, 0 otherwise)
  * Range:     i8 n <= 4, i16 n <= 12, i32 n <= 28, i64 n <= 30, i128 n <= 30,
  *            big any n
- * Helpers:   _smallest_prime_factor, seq_pow
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   ipow_idx, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +27,7 @@ seq_t a(idx_t n)
     int mu = 1;                           /* Möbius sign */
     idx_t m = n;
     while (m > 1) {
-        uint64_t p = _smallest_prime_factor(m);
+        uint64_t p = smallest_prime_factor(m);
         int cnt = 0;
         while (m % p == 0) {
             m /= p;
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
         mu = -mu;                         /* flip sign per distinct prime */
     }
 
-    seq_t val = seq_pow((seq_t)2, n);      /* 2^n */
+    seq_t val = ipow_idx((seq_t)2, n);      /* 2^n */
     val = val * (seq_t)(n + 1);           /* * (n + 1) */
     val = val / (seq_t)4;                 /* / 4 */
     return mu < 0 ? -val : val;           /* apply μ(n) */

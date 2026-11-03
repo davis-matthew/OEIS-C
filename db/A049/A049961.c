@@ -11,12 +11,14 @@
  *            values: a(1)=1, a(2)=2
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline unsigned floor_log2_uint64(idx_t v)
 {
@@ -46,8 +48,8 @@ static void ensure_size(idx_t n)
         idx_t new_cap = cur_cap ? (cur_cap << 1) : 16;
         if (new_cap < n)
             new_cap = n;
-        seq_t *tmp_a   = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
-        seq_t *tmp_sum = (seq_t*)realloc(sum_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp_a   = mem_resize(seq_t, a_cache, new_cap);
+        seq_t *tmp_sum = mem_resize(seq_t, sum_cache, new_cap);
         if (!tmp_a || !tmp_sum)
             abort();           /* memory exhausted */
         a_cache   = tmp_a;

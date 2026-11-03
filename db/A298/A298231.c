@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 250, u16 n <= 250, u32 n <= 250, u64 n <= 250,
  *            u128 n <= 250, big any n
- * Helpers:   none
+ * Validated: partial, pass, 250 terms through n = 250 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * word as it grows and returns the n-th symbol (n ≥ 1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function signature required by the build system */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Ensure that the cache is initialised with the first symbol. */
     if (seq_len == 0)
     {
-        seq = (seq_t *)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         if (seq == NULL) return 0;          /* out of memory – unlikely here */
         seq[0] = (seq_t)1;
         seq_len = 1;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         size_t new_len = 4 * cnt1 + 3 * cnt2;
 
         /* Allocate new word. */
-        seq_t *new_seq = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_seq = mem_new(seq_t, new_len);
         if (new_seq == NULL) return 0;        /* out of memory */
 
         /* Build the new word by replacing every symbol according to
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace the old cache. */
-        free(seq);
+        mem_free(seq);
         seq = new_seq;
         seq_len = new_len;
     }

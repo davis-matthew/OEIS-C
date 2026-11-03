@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   is_prime_64
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_64.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_table = NULL;   /* stored primes */
 static idx_t seq_size   = 0;      /* number of primes stored */
@@ -41,11 +44,11 @@ static void ensure_size(idx_t n)
             tmp /= 10;
         }
 
-        if (min_digit == 3 && has3 && is_prime_64(cand)) {
+        if (min_digit == 3 && has3 && is_prime_u64(cand)) {
             /* Store the prime. */
             if (seq_size >= seq_cap) {
                 seq_cap = (seq_cap == 0) ? 64 : seq_cap * 2;
-                seq_table = (seq_t *)realloc(seq_table, seq_cap * sizeof(seq_t));
+                seq_table = mem_resize(seq_t, seq_table, seq_cap);
             }
             seq_table[seq_size++] = (seq_t)cand;
         }

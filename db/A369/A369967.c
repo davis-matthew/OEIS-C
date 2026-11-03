@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if the arithmetic derivative of n is a multiple of 5,
  *            otherwise 0
- * Range:     u8 n <= 256, u16 n <= 9725, u32 n <= 9725, u64 n <= 9725,
- *            u128 n <= 9725, big any n
+ * Range:     u8 n <= 256, u16 n <= 99999, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 145 terms through n = 9725 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

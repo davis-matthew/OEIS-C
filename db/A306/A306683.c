@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,26 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Compute ⌊n·φ⌋ using an integer square‑root. */
 static inline seq_t floor_phi(idx_t n)
@@ -68,7 +88,7 @@ seq_t a(idx_t n)
     /* One‑time initialisation. */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         b_val = compute_b(idx_b);
         c_val = compute_c(idx_c);
     }
@@ -84,8 +104,7 @@ seq_t a(idx_t n)
         } else {                                /* a valid a‑value */
             if (cache_size == cache_cap) {      /* grow cache if needed */
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache,
-                                          sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = current;
         }

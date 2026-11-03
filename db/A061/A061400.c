@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 652, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_squarefree, next_prime
+ * Validated: standard, pass, 65 terms through n = 995 (2026-11-03)
+ * Helpers:   is_squarefree, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 /* Helper prototypes from the utils library */
 #include "../utils/is_squarefree.h"
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Cache for already‑computed terms */
 static seq_t *cache      = NULL;
@@ -41,7 +43,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < cache_len + needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

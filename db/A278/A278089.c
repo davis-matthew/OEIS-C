@@ -13,12 +13,14 @@
  *            pattern and pending requirements for a do...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 28, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>   /* memset, memcpy */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     static seq_t newdp[512];
 
     /* initialise zero */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* row 1: upper‑left element (column 0) must be 0 */
     for (int p = 0; p < 8; ++p) {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 
     /* process the remaining rows */
     for (idx_t r = 2; r <= n; ++r) {
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
 
         for (int s = 0; s < 512; ++s) {
             seq_t val = dp[s];
@@ -138,7 +140,7 @@ seq_t a(idx_t n)
                 newdp[cur * 64 + new_status] += val;
             }
         }
-        memcpy(dp, newdp, sizeof(dp));
+        mem_copy(dp, newdp, sizeof(dp));
     }
 
     /* sum states of the last row that have no pending requirements */

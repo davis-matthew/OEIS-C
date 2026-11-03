@@ -8,14 +8,15 @@
  * Formula:   a(n) = Sum_{d|n} J_3(d) * sigma(d^2) (Jordan totient J_3)
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 71, u64 n <= 5669,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 48 terms through n = 9970 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static void dfs_divisors(size_t idx, int primes_cnt,
                         const uint64_t *primes, const int *exp,
@@ -30,14 +31,14 @@ static void dfs_divisors(size_t idx, int primes_cnt,
             uint64_t p = primes[i];
             if (f > 0) {
                 /* J_3(p^f) = p^(3f) - p^(3f-3) */
-                seq_t p3f = pow_uint(p, 3 * f);
-                seq_t p3   = pow_uint(p, 3);
+                seq_t p3f = ipow_u64_idx(p, 3 * f);
+                seq_t p3   = ipow_u64_idx(p, 3);
                 seq_t p3f_minus = p3f / p3;
                 seq_t jprime = p3f - p3f_minus;
                 termJ *= jprime;
 
                 /* σ(p^(2f)) = (p^(2f+1)-1)/(p-1) */
-                seq_t sigma_prime = (pow_uint(p, 2 * f + 1) - 1) / (p - 1);
+                seq_t sigma_prime = (ipow_u64_idx(p, 2 * f + 1) - 1) / (p - 1);
                 termS *= sigma_prime;
             }
         }

@@ -8,16 +8,19 @@
  *            (i.e., a(n) = A258851⁶(n))
  * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi, factor_u64, pow_seq
+ * Validated: standard, pass, 73 terms through n = 9454 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/compute_pi.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/prime_pi.h"
 
 /* pi‑based arithmetic derivative of m
    (m is treated as a 64‑bit integer, the result is a seq_t) */
@@ -40,14 +43,14 @@ static seq_t pi_derivative(uint64_t m)
         seq_t p           = (seq_t)primes[i];
         uint64_t exp64    = exps[i];
         int      exp      = (int)exp64;              /* exponent fits in int      */
-        seq_t pi_p        = compute_pi(primes[i]);   /* pi(p) as seq_t             */
+        seq_t pi_p        = prime_pi(primes[i]);   /* pi(p) as seq_t             */
 
         /* derivative of the prime power p^exp   */
-        seq_t p_pow       = pow_seq(p, exp - 1);          /* p^(exp-1)                 */
+        seq_t p_pow       = ipow_i32(p, exp - 1);          /* p^(exp-1)                 */
         seq_t der_power   = (seq_t)exp * p_pow * pi_p;    /* exp * p^(exp-1) * pi(p)   */
 
         /* share = m / p^exp (exact division)     */
-        seq_t p_pow_all   = pow_seq(p, exp);              /* p^exp                      */
+        seq_t p_pow_all   = ipow_i32(p, exp);              /* p^exp                      */
         seq_t share       = m_seq / p_pow_all;            /* integer division           */
 
         sum += der_power * share;

@@ -9,12 +9,15 @@
  * Formula:   a(1)=16, a(2)=180, a(n)=60*7^(n-3)*(8*n+5) for n ≥ 3
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 35 terms through n = 205 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;                       /* not part of the sequence */
@@ -23,7 +26,7 @@ seq_t a(idx_t n) {
 
     /* for n ≥ 3 */
     seq_t exponent = (seq_t)(n - 3);            /* n-3 ≥ 0 */
-    seq_t pow7    = big_pow((seq_t)7, exponent);
+    seq_t pow7    = ipow((seq_t)7, exponent);
     seq_t mult    = (seq_t)8 * (seq_t)n + (seq_t)5;
     seq_t result  = (seq_t)60 * pow7;
     result *= mult;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th integer k such that k | sum_{j=1..k} Fib(j*k)
  * Range:     u8 n <= 47, u16 n <= 184, u32 n <= 184, u64 n <= 184,
  *            u128 n <= 184, big any n
- * Helpers:   add_mod, grow_seq
+ * Validated: standard, pass, 74 terms through n = 178 (2026-11-03)
+ * Helpers:   addmod, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,23 @@
 #include <stdbool.h>
 
 /* Utility for dynamic array resizing (provided by the framework) */
-#include "../utils/grow_seq.h"
-#include "../utils/add_mod.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/addmod.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* 2x2 matrix with elements modulo 'mod' */
 typedef struct {

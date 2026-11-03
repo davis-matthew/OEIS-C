@@ -9,13 +9,17 @@
  *            j^(j-2) * (n+1-j)^(n-1-j)
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 static seq_t parking_value(idx_t row, idx_t col)
 {
@@ -26,13 +30,13 @@ static seq_t parking_value(idx_t row, idx_t col)
 
         seq_t a;
         if (j > 1)
-            a = big_pow((seq_t)j, (seq_t)(j - 2));
+            a = ipow((seq_t)j, (seq_t)(j - 2));
         else
             a = 1;
 
         seq_t b;
         if (row > j)
-            b = big_pow((seq_t)(row + 1 - j), (seq_t)(row - 1 - j));
+            b = ipow((seq_t)(row + 1 - j), (seq_t)(row - 1 - j));
         else
             b = 1;
 

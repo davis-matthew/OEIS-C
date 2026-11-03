@@ -9,7 +9,8 @@
  * Formula:   a(n) = #{(k,m) | k>0, m>0, n = pi(k(k+1)/2) + pi(m^2)}
  * Range:     u8 n <= 692, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 106 terms through n = 9791 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <math.h>      /* for sqrt() */
 #include <stdbool.h>   /* for bool, if needed */
+#include "../utils/mem.h"
 
 static unsigned char *sieve = NULL;   /* 0/1 array marking primes */
 static seq_t        *pi_arr = NULL;   /* prefix prime counts */
@@ -36,7 +38,7 @@ ensure_sieve(idx_t n)
        efficient for n up to a few hundred thousand, which covers all
        cases needed for the sequence.) */
     unsigned char *new_sieve = (unsigned char *)malloc((size_t)(n + 1));
-    seq_t        *new_pi    = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+    seq_t        *new_pi    = mem_new(seq_t, (n + 1));
     if (!new_sieve || !new_pi) {
         /* Allocation failed – abort.  In a real environment we would
            handle the error properly, but the BOI framework guarantees
@@ -66,7 +68,7 @@ ensure_sieve(idx_t n)
 
     /* Replace old data. */
     free(sieve);
-    free(pi_arr);
+    mem_free(pi_arr);
     sieve = new_sieve;
     pi_arr = new_pi;
     sieve_limit = n;

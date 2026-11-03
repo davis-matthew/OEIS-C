@@ -8,6 +8,7 @@
  *            defined by L(0)=2, L(1)=1, L(n)=L(n-1)+L(n-2)
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 37, u64 n <= 82, u128 n <= 172,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 900 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

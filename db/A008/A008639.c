@@ -8,12 +8,14 @@
  *            computed by the standard one‑dimensional partition DP
  * Range:     u8 n <= 16, u16 n <= 50, u32 n <= 234, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;   /* cache of partition counts */
 static size_t cap = 0;     /* allocated size of dp */
@@ -23,8 +25,8 @@ static void ensure_cache_size(idx_t n)
 {
     size_t needed = (size_t)n + 1;
     if (cap >= needed) return;
-    seq_t *newdp = (seq_t *)malloc(needed * sizeof(seq_t));
-    free(dp);
+    seq_t *newdp = mem_new(seq_t, needed);
+    mem_free(dp);
     dp = newdp;
     cap = needed;
 }

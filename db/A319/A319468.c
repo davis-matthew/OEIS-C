@@ -9,14 +9,16 @@
  *            summing to n
  * Range:     u8 n <= 1112, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 103 terms through n = 9206 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         /* Ensure enough space for the new palindromes we'll add */
         if (pal_cap < (size_t)(n + 10)) {
             size_t new_cap = (size_t)(n + 10);
-            seq_t *tmp = (seq_t *)realloc(pal, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, pal, new_cap);
             if (!tmp)
                 return 0; /* allocation failure – return 0 as safe default */
             pal = tmp;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
         /* Generate palindromes in the new interval (max_n, n] */
         for (idx_t v = max_n + 1; v <= n; ++v) {
-            if (is_palindrome((seq_t)v, 10UL))
+            if (is_palindrome_base((seq_t)v, 10UL))
                 pal[pal_cnt++] = (seq_t)v;
         }
         max_n = n;

@@ -8,6 +8,7 @@
  *            2*k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 42,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 908 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
  * cast to seq_t only after the required integer arithmetic has been
  * completed to avoid undefined behaviour.  The sequence starts at
  * a(0)=1, matching the OEIS offset. */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

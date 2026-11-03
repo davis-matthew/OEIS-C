@@ -9,12 +9,15 @@
  *            indices start at 0)
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 54, u64 n <= 135, u128 n <= 377,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 61 terms through n = 8888 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
     }
 
     /* Power part: r^(r-k) */
-    seq_t power = big_pow((seq_t)r, (seq_t)(r - k));
+    seq_t power = ipow((seq_t)r, (seq_t)(r - k));
 
     return falling * power;
 }

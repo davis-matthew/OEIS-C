@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 seq_t a(idx_t n)
@@ -53,13 +55,13 @@ seq_t a(idx_t n)
     if (computed_max == 0) {
         /* a(0) = 1 */
         cache_cap = 2;
-        cache = (seq_t*) malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 1;                      /* a(0) */
         cache[1] = 1;                      /* a(1) – single sequence [0] */
 
         /* length 1 arrays */
-        cntN = (seq_t*) malloc(sizeof(seq_t) * 1);
-        cntD = (seq_t*) malloc(sizeof(seq_t) * 1);
+        cntN = mem_new(seq_t, 1);
+        cntD = mem_new(seq_t, 1);
         cntN[0] = 1;   /* sequence [0] */
         cntD[0] = 0;
         computed_max = 1;
@@ -71,8 +73,8 @@ seq_t a(idx_t n)
         idx_t newLen = curLen + 1;            /* length to compute */
 
         /* allocate next arrays */
-        seq_t *nextN = (seq_t*) malloc(sizeof(seq_t) * newLen);
-        seq_t *nextD = (seq_t*) malloc(sizeof(seq_t) * newLen);
+        seq_t *nextN = mem_new(seq_t, newLen);
+        seq_t *nextD = mem_new(seq_t, newLen);
         for (idx_t i = 0; i < newLen; ++i) {
             nextN[i] = 0;
             nextD[i] = 0;
@@ -103,8 +105,8 @@ seq_t a(idx_t n)
         }
 
         /* free old arrays */
-        free(cntN);
-        free(cntD);
+        mem_free(cntN);
+        mem_free(cntD);
 
         cntN = nextN;
         cntD = nextD;
@@ -113,11 +115,11 @@ seq_t a(idx_t n)
         /* grow cache if necessary */
         if (computed_max >= cache_cap) {
             cache_cap = cache_cap * 2 + 1;
-            seq_t *tmp = (seq_t*) realloc(cache, sizeof(seq_t) * cache_cap);
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             if (!tmp) { /* allocation failed, abort */
-                free(cntN);
-                free(cntD);
-                free(cache);
+                mem_free(cntN);
+                mem_free(cntD);
+                mem_free(cache);
                 return 0;
             }
             cache = tmp;

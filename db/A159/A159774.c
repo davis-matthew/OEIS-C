@@ -14,6 +14,7 @@
  *            * For each L it tests the minimal possible l...
  * Range:     u8 none, u16 n <= 4, u32 n <= 6, u64 n <= 12, u128 n <= 12,
  *            big any n
+ * Validated: full, pass, 10 terms through n = 12 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

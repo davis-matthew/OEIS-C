@@ -11,18 +11,20 @@
  *            already in a cycle
  * Range:     u8 n <= 22, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reverse_decimal
+ * Validated: standard, pass, 111 terms through n = 9145 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reverse_decimal.h"
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
 
 /* Return the next value in the sequence S_k */
 static inline seq_t step(seq_t x)
 {
     /* reverse decimal digits then add 3 */
-    return reverse_decimal(x) + (seq_t)3;
+    return reverse_digits(x) + (seq_t)3;
 }
 
 /* Compute the length of the preperiod (steps to first cycle entry) */

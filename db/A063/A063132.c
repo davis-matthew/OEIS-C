@@ -11,11 +11,14 @@
  *            contiguous substring
  * Range:     u8 n <= 1, u16 n <= 37, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   to_base3
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <string.h>
 /* The function computes terms by scanning the candidates 6k±1, testing
    compositeness, finding the largest proper factor, converting both
    numbers to base‑3, and checking the substring.  A static cache is
@@ -26,7 +29,25 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/to_base3.h"
+
+/* ---- Small utilities -------------------------------------------------- */
+static void to_base3(uint64_t x, char *buf, int *len)
+/* Fill buf with base‑3 digits of x, null‑terminated, and return length in *len */
+{
+    int pos = 0;
+    do {
+        buf[pos++] = '0' + (x % 3);
+        x /= 3;
+    } while (x);
+    /* reverse */
+    for (int i = 0; i < pos / 2; ++i) {
+        char tmp = buf[i];
+        buf[i] = buf[pos - 1 - i];
+        buf[pos - 1 - i] = tmp;
+    }
+    buf[pos] = '\0';
+    *len = pos;
+}
 
 /* ---- Prime sieve up to 1,000,000 ---------------------------------- */
 #define PRIME_LIMIT 1000000

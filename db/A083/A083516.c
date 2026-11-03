@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_palindrome.h"   /* is_palindrome(seq_t x, idx_t base) */
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache[n] = a(n) for n >= 1 */
 static size_t cap = 0;               /* current capacity of cache */
@@ -51,7 +53,7 @@ static void ensure_cap(size_t needed)
     size_t new_cap = cap ? cap * 2 : 128;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort(); /* out of memory */
     /* zero the new part */
@@ -59,7 +61,7 @@ static void ensure_cap(size_t needed)
         new_cache[i] = (seq_t)0;
     /* shift if realloc moved the block */
     if (new_cache != cache) {
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cap = new_cap;
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         seq_t m = (seq_t)11 * (seq_t)next_k;   /* current multiple of 11 */
         ++next_k;
 
-        if (!is_palindrome(m, 10))        /* skip non‑palindromic ones */
+        if (!is_palindrome_base(m, 10))        /* skip non‑palindromic ones */
             continue;
 
         seq_t val = digit_sum(m);

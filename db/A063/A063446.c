@@ -7,7 +7,8 @@
  * Formula:   integers m such that d(m+1) = 2*d(m) (d = divisor count)
  * Range:     u8 n <= 26, u16 n <= 6185, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9874 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static idx_t current_limit = 0;      /* highest m that has been checked */
 static idx_t next_to_check = 1;      /* next m to test after current_limit */
@@ -64,7 +66,7 @@ static void ensure_terms_capacity(size_t needed)
     if (needed <= stored_terms_cap) return;
     size_t new_cap = stored_terms_cap ? stored_terms_cap * 2 : 8;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(stored_terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, stored_terms, new_cap);
     if (!tmp) abort();
     stored_terms = tmp;
     stored_terms_cap = new_cap;

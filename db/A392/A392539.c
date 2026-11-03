@@ -12,14 +12,23 @@
  *            numbers with phi(k) <= n
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 19, u64 n <= 41, u128 n <= 87,
  *            big any n
- * Helpers:   build_primes_upto, seq_mul, seq_pow
+ * Validated: standard, pass, 44 terms through n = 842 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static uint64_t *primes = NULL;          /* array of primes up to current limit */
 static size_t primes_count = 0;           /* number of primes stored   */

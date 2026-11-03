@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 139, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   intSqrt, isPerfectSquare, mod_mul
+ * Validated: standard, pass, 77 terms through n = 9595 (2026-11-01)
+ * Helpers:   is_square_u64, isqrt_u64, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/intSqrt.h"
-#include "../utils/isPerfectSquare.h"
-#include "../utils/mod_mul.h"
+#include "../utils/is_square_u64.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/mulmod.h"
 
 /* ---------------------  Miller–Rabin 64‑bit  --------------------- */
 
@@ -30,8 +31,8 @@ static inline uint64_t mod_pow(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t result = 1;
     while (exp) {
         if (exp & 1)
-            result = mod_mul(result, base, mod);
-        base = mod_mul(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -63,7 +64,7 @@ static bool isPrime64(uint64_t n)
         if (x == 1 || x == n-1) continue;
         bool composite = true;
         for (int r = 1; r < s; ++r) {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { composite = false; break; }
         }
         if (composite) return false;
@@ -106,7 +107,7 @@ seq_t a(idx_t n)
         ++tested_k;
         uint64_t k = (uint64_t)tested_k;
         uint64_t m = 24ULL * k + 1;
-        if (!isPrime64(m) && !isPerfectSquare(m)) {
+        if (!isPrime64(m) && !is_square_u64(m)) {
             if (cache_used == cache_cap) cache_grow();
             cache[cache_used++] = (seq_t)k;
         }
@@ -118,7 +119,7 @@ seq_t a(idx_t n)
         ++tested_k;
         uint64_t k = (uint64_t)tested_k;
         uint64_t m = 24ULL * k + 1;
-        if (!isPrime64(m) && !isPerfectSquare(m)) {
+        if (!isPrime64(m) && !is_square_u64(m)) {
             cache[cache_used++] = (seq_t)k;
         }
     }

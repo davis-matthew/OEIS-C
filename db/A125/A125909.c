@@ -9,6 +9,7 @@
  * Formula:   a(n) = 12*7^n-36*6^n+55*5^n-50*4^n+27*3^n-8*2^n+1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 44,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 974 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

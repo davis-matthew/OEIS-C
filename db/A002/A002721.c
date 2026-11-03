@@ -11,12 +11,22 @@
  *            (1/4032)*m*(m*(m*(31*m+1004)+6820)+4272)+1 with m = n*(n+1)
  * Range:     u8 none, u16 n <= 6, u32 n <= 28, u64 n <= 469, u128 n <= 1000,
  *            big any n
- * Helpers:   a2721_binom8
+ * Validated: standard, pass, 43 terms through n = 929 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a2721_binom8.h"
+static seq_t a2721_binom8(idx_t m) {
+    seq_t r = 1;
+    idx_t j;
+    if (m < 8) return 0;
+    for (j = 0; j < 8; j++) {
+        r = r * (seq_t)(m - j);
+        r = r / (seq_t)(j + 1);
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     static const unsigned c[9] = {1, 3, 60, 7, 168, 7, 60, 3, 1};

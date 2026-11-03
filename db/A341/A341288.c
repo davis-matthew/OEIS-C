@@ -11,8 +11,9 @@
  *            d(d+1)/2, j = d - i. T(i, j) = XOR_{u ∈ B(i), v ∈ B(j)} 2^(u XOR
  *            v), B(x) = set of bit positions of 1 in binary representation of
  *            x
- * Range:     u8 n <= 9140, u16 n <= 9140, u32 n <= 9140, u64 n <= 9140,
- *            u128 n <= 9140, big any n
+ * Range:     u8 n <= 10010, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 94 terms through n = 9140 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

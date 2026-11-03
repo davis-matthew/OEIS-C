@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 294, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_lyndon
+ * Validated: standard, pass, 66 terms through n = 8785 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_lyndon.h"
+#include "../utils/mem.h"
+
+/* test whether the word consisting of L digits
+ * (digits are in the range 1‑4) is a Lyndon word */
+static bool is_lyndon(const unsigned char *d, size_t L)
+{
+    for (size_t offset = 1; offset < L; ++offset) {
+        size_t i;
+        for (i = 0; i < L; ++i) {
+            unsigned char a = d[i];
+            unsigned char b = d[(i + offset) % L];
+            if (a < b) break;          /* this rotation is larger */
+            if (a > b) return false;   /* this rotation is smaller → not Lyndon */
+        }
+        if (i == L) return false;       /* rotation equal → not primitive */
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -61,7 +79,7 @@ seq_t a(idx_t n)
             /* ensure capacity of cache */
             if (words_count >= words_cap) {
                 size_t new_cap = words_cap ? words_cap * 2 : 8;
-                seq_t *tmp_arr = (seq_t *)realloc(words, new_cap * sizeof(seq_t));
+                seq_t *tmp_arr = mem_resize(seq_t, words, new_cap);
                 if (!tmp_arr) exit(1); /* abort on allocation failure */
                 words = tmp_arr;
                 words_cap = new_cap;

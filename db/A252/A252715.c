@@ -15,12 +15,14 @@
  *            - 3*a(n-10)
  * Range:     u8 n <= 6, u16 n <= 22, u32 n <= 53, u64 n <= 114, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_vals[12] = {
     96,   63,   70,   97,  135,  178,
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Ensure cache big enough to hold up to n */
     if (memo_size < n + 1) {
         size_t new_size = (n + 1 > 13) ? (n + 1) : 13;
-        seq_t *tmp = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_size);
         if (!tmp) exit(1);
         memo = tmp;
         /* initialize new entries to 0 */

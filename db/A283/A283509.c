@@ -8,7 +8,8 @@
  * Formula:   a(n) = ( Σ_{k=1..n} A005185(k) ) mod (2*n)
  * Range:     u8 n <= 28, u16 n <= 984, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *Q = NULL;      /* 1‑indexed array of Q‑values (Q[1]=1,Q[2]=1) */
 static idx_t Qlen = 0;       /* largest index that has been computed */
@@ -29,7 +31,7 @@ ensure_Q(idx_t n)
 
     /* Allocate space for indices up to n (plus index 0 for 1‑based). */
     idx_t newlen = n + 1;
-    seq_t *tmp = (seq_t *)realloc(Q, (size_t)newlen * sizeof(*Q));
+    seq_t *tmp = mem_resize(seq_t, Q, (size_t)newlen);
     if (!tmp) abort();              /* out of memory */
     Q = tmp;
 

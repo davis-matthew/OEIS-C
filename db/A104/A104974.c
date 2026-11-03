@@ -8,8 +8,9 @@
  *            with r*(r+1)/2 <= n and k = n - r*(r+1)/2. Catalan(m) is odd iff
  *            m+1 is a power of two. Therefore a(n) = 1 ⇔ ((j+1) & j) == 0
  *            where j = ( (r+1)*(r+2)/2 ) - n
- * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
- *            u128 n <= 104, big any n
+ * Range:     u8 n <= 1325, u16 n <= 1325, u32 n <= 1325, u64 n <= 1325,
+ *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 121 terms through n = 1098 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

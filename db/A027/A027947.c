@@ -10,6 +10,7 @@
  *            the generating function (1 + x)/(1 - 2*x^2 - x^3 + x^4)
  * Range:     u8 n <= 14, u16 n <= 28, u32 n <= 55, u64 n <= 111,
  *            u128 n <= 222, big any n
+ * Validated: standard, pass, 55 terms through n = 992 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

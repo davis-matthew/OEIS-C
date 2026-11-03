@@ -9,12 +9,14 @@
  *            a(4)=19 (OEIS A236653)
  * Range:     u8 n <= 43, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cache of terms: seq_cache[i] = a(i) for i>=1 */
 static size_t cache_cap = 0;      /* allocated size (at least cache_cap+1 valid elements) */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (cache_cap < (size_t)n) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 4;
         while (new_cap < (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, (new_cap + 1));
         if (!tmp) exit(1);          /* abort on allocation failure */
         seq_cache = tmp;
         cache_cap = new_cap;

@@ -11,10 +11,13 @@
  *            all ≥ c (the entry T(r,c))
  * Range:     u8 n <= 406, u16 n <= 3081, u32 n <= 7260, u64 n <= 7260,
  *            u128 n <= 7260, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 7212 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 /* Local helper: integer square root (non‑negative, floor). */
 static idx_t int_sqrt_u64(idx_t n) {
@@ -38,7 +41,7 @@ seq_t a(idx_t n) {
     idx_t c = n - r * (r - 1) / 2;                          /* 1‑based column */
 
     /* DP array for subsets of {c,…,r} summing to r.  */
-    seq_t *dp = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (r + 1));
     if (!dp) return 0;  /* fallback in case of allocation failure */
 
     for (idx_t i = 0; i <= r; ++i)
@@ -52,6 +55,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[r];
-    free(dp);
+    mem_free(dp);
     return result;
 }

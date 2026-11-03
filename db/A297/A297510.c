@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define COL_MASK_COUNT 32          /* 2^5 possible column patterns */
 
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
     }
 
     /* Initialise dp with the first two columns.  Column 0 has left mask 0. */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     for (int col0 = 0; col0 < COL_MASK_COUNT; ++col0) {
         for (int col1 = 0; col1 < COL_MASK_COUNT; ++col1) {
             if (ok[0][col0][col1]) dp[col0][col1] = 1;
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
 
     /* Process columns 3..n.  step counts number of columns already placed. */
     for (idx_t step = 2; step < n; ++step) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int prev = 0; prev < COL_MASK_COUNT; ++prev) {
             for (int cur = 0; cur < COL_MASK_COUNT; ++cur) {
                 seq_t val = dp[prev][cur];
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, dp_next, sizeof(dp));
+        mem_copy(dp, dp_next, sizeof(dp));
     }
 
     /* Validate the final column (right neighbour missing, i.e. 0). */

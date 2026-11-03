@@ -10,7 +10,8 @@
  *            2n) and combined by CRT (Garner); a(0) = 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 6,
  *            big any n
- * Helpers:   a7725_isprime, a7725_mulm, a7725_powm
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,48 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a7725_isprime.h"
-#include "../utils/a7725_mulm.h"
-#include "../utils/a7725_powm.h"
+
+static uint64_t a7725_mulm(uint64_t x, uint64_t y, uint64_t p) {
+    return (uint64_t)(((unsigned __int128)x * y) % p);
+}
+
+static uint64_t a7725_powm(uint64_t b, uint64_t e, uint64_t p) {
+    uint64_t r = 1 % p;
+    b %= p;
+    while (e) {
+        if (e & 1) r = a7725_mulm(r, b, p);
+        b = a7725_mulm(b, b, p);
+        e >>= 1;
+    }
+    return r;
+}
+
+static bool a7725_isprime(uint64_t n) {
+    static const uint64_t sp[12] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37};
+    static const uint64_t bases[7] = {2, 325, 9375, 28178, 450775, 9780504, 1795265022};
+    int i, r, s = 0;
+    uint64_t d;
+    if (n < 2) return false;
+    for (i = 0; i < 12; i++) {
+        if (n == sp[i]) return true;
+        if (n % sp[i] == 0) return false;
+    }
+    d = n - 1;
+    while ((d & 1) == 0) { d >>= 1; s++; }
+    for (i = 0; i < 7; i++) {
+        uint64_t b = bases[i] % n, x;
+        bool comp = true;
+        if (b == 0) continue;
+        x = a7725_powm(b, d, n);
+        if (x == 1 || x == n - 1) continue;
+        for (r = 1; r < s; r++) {
+            x = a7725_mulm(x, x, n);
+            if (x == n - 1) { comp = false; break; }
+        }
+        if (comp) return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n) {
     uint64_t L, bits, m, t, q, k, i, jj, j, kk;

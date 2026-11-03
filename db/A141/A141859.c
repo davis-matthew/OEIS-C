@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 538, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- Miller–Rabin for 64‑bit integers ---------- */
 static inline uint64_t modmul64(uint64_t a, uint64_t b, uint64_t mod)
@@ -81,10 +83,10 @@ static bool is_prime64(uint64_t n)
 }
 
 /* ---------- realloc helper for C++ ---------- */
-static inline seq_t *realloc_seq(void *ptr, size_t size)
+static inline seq_t *realloc_seq(seq_t *ptr, size_t size)
 {
 #ifdef __cplusplus
-    return static_cast<seq_t *>(realloc(ptr, size));
+    return mem_resize(seq_t, ptr, (size) / sizeof(seq_t));
 #else
     return (seq_t *)realloc(ptr, size);
 #endif

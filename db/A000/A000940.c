@@ -11,14 +11,22 @@
  *            a(n) = ( Sum_{m|n} phi(m)^2 m^(n/m) (n/m)! + n^2 2...
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 15, u64 n <= 23, u128 n <= 36,
  *            big any n
- * Helpers:   a940_mulc, a940_phi
+ * Validated: standard, pass, 39 terms through n = 488 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a940_mulc.h"
-#include "../utils/a940_phi.h"
+#include "../utils/totient_u64.h"
+
+/* value represented as q*D + r, 0 <= r < D; multiply by small c */
+static void a940_mulc(seq_t *q, uint64_t *r, uint64_t c, uint64_t D)
+{
+    unsigned __int128 t = (unsigned __int128)(*r) * c;
+    *q = *q * c + (seq_t)(uint64_t)(t / D);
+    *r = (uint64_t)(t % D);
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +41,7 @@ seq_t a(idx_t n)
         {
             seq_t q = 0;
             uint64_t r = 1;
-            uint64_t ph = a940_phi(m), e = n / m;
+            uint64_t ph = totient_u64(m), e = n / m;
             a940_mulc(&q, &r, ph, D);
             a940_mulc(&q, &r, ph, D);
             for (i = 0; i < e; i++) a940_mulc(&q, &r, m, D);

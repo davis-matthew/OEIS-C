@@ -8,7 +8,8 @@
  *            x^{k m}
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 371 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build.  Do not define them. */
 extern seq_t factorial(idx_t n); /* returns n! as seq_t */
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
 
     /* Allocate arrays for DP.  Use calloc to zero-initialize. */
     size_t sz = (size_t)n + 1;
-    seq_t *g   = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *tmp = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *g   = mem_new(seq_t, sz);
+    seq_t *tmp = mem_new(seq_t, sz);
     if (!g || !tmp) return 0;        /* allocation failed, return 0 */
 
     g[0] = 1;                        /* g[0] = 1, all other entries 0 */
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = g[n];
-    free(g);
-    free(tmp);
+    mem_free(g);
+    mem_free(tmp);
     return result;
 }

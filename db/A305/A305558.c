@@ -9,7 +9,8 @@
  *            (p1,p2) is the n‑th twin prime pair
  * Range:     i8 n <= 94, i16 n <= 94, i32 n <= 94, i64 n <= 94, i128 n <= 94,
  *            big any n
- * Helpers:   build_primes_upto, is_prime
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 /* Utility functions supplied by the build (included from utilities). */
 #include "../utils/build_primes_upto.h"
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Internal cache of pre‑computed a(n) values. */
 static seq_t   *a_cache = NULL;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
             }
         }
 
-        a_cache = (seq_t *)malloc(twin_pairs * sizeof(seq_t));
+        a_cache = mem_new(seq_t, twin_pairs);
         a_cache_size = twin_pairs;
         size_t pos = 0;
 

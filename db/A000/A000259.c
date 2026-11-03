@@ -9,19 +9,28 @@
  *            2*C(3n-1,n-k-1); F(-1) = 1, F(0) = 0
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 26, u128 n <= 50,
  *            big any n
- * Helpers:   fixed_width_seq
+ * Validated: standard, pass, 40 terms through n = 1053 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/fixed_width_seq.h"
+#include "../utils/mem.h"
+
+static int fixed_width_seq(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 4; i++) x <<= 50;
+    return x == 0;
+}
 
 seq_t a(idx_t n)
 {
     idx_t m = 3 * n - 1, j, k;
-    seq_t *C = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *C = mem_new(seq_t, (size_t)(n + 1));
     seq_t pos = 0, neg = 0, fa = 1, fb = 0, res;
 
     if (fixed_width_seq()) {
@@ -54,7 +63,7 @@ seq_t a(idx_t n)
         fa = fb;
         fb = t;
     }
-    free(C);
+    mem_free(C);
     res = pos - neg;
     return res;
 }

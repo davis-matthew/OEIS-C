@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 230, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   rev_mod17
+ * Validated: standard, pass, 51 terms through n = 943 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
    where rev(x) is the decimal reversal of x. */
 
 #include <stdint.h>
-#include "../utils/rev_mod17.h"
+
+/* Compute rev(x) modulo 17 without constructing the full reversal. */
+static seq_t rev_mod17(seq_t x)
+{
+    seq_t r = 0;
+    while (x > 0) {
+        r = (r * 10 + (x % 10)) % 17;
+        x /= 10;
+    }
+    return r;
+}
 
 /* Return the n-th term of sequence A166398 (n ≥ 1). */
 seq_t a(idx_t n)

@@ -7,12 +7,15 @@
  * Formula:   a(n) = n^(3n^3 + 2)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 2, u128 n <= 2,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -22,5 +25,5 @@ seq_t a(idx_t n)
     seq_t exp  = (seq_t)exp64;        /* cast may truncate for tiny seq_t builds,
                                          but those builds test only values that
                                          fit in seq_t anyway */
-    return big_pow(base, exp);
+    return ipow(base, exp);
 }

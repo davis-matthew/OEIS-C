@@ -9,13 +9,15 @@
  *            algorithm with the * two primes 7 and 13
  * Range:     u8 n <= 5, u16 n <= 18, u32 n <= 60, u64 n <= 217, u128 n <= 830,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 9293 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
         return (seq_t)1;          /* offset is 1, n≥1 in practice */
 
     /* allocate array a[1..n] */
-    seq_t *a = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, (n + 1));
     if (!a)
         return (seq_t)0;          /* allocation failure – unlikely for n≤10000 */
 
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a[n];
-    free(a);
+    mem_free(a);
     return result;
 }

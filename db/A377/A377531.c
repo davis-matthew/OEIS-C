@@ -7,13 +7,15 @@
  * Formula:   a(n) = n! * Sum_{k=0..floor(n/2)} (k+1) * k^(n-2*k)/(n-2*k)!
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         }
 
         idx_t exp   = n - 2 * k;                        /* n-2k */
-        seq_t power = big_pow((seq_t)k, (seq_t)exp);   /* k^(n-2k)   */
+        seq_t power = ipow((seq_t)k, (seq_t)exp);   /* k^(n-2k)   */
         seq_t term  = coeff * ((seq_t)(k + 1)) * power; /* (k+1) * k^(n-2k) * coeff */
 
         sum = sum + term;

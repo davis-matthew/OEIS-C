@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 50, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   factor_u64, mod_pow
+ * Validated: standard, pass, 105 terms through n = 930 (2026-11-03)
+ * Helpers:   factor_u64, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/factor_u64.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Compute a(n) = b(2*n + 1) where b is the multiplicative sequence
  * defined on odd integers by
@@ -42,7 +45,7 @@ static void _ensure_ap_size(size_t limit)
 {
     if (limit <= ap_size) return;
     size_t new_size = limit;
-    seq_t *new_cache = (seq_t *)realloc(ap_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, ap_cache, new_size);
     bool  *new_flag  = (bool  *)realloc(ap_flag , new_size * sizeof(bool));
     if (!new_cache || !new_flag) exit(EXIT_FAILURE);
     for (size_t i = ap_size; i < new_size; ++i) new_flag[i] = false;
@@ -71,7 +74,7 @@ static seq_t _compute_ap(uint64_t p)
         if (rhs == 0)          leg = 0;
         else
         {
-            seq_t pow = mod_pow(rhs, (p - 1) / 2, P);
+            seq_t pow = powmod(rhs, (p - 1) / 2, P);
             leg = (pow == (P - 1)) ? -1 : 1;
         }
         sum += leg;

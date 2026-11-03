@@ -10,20 +10,21 @@
  *            6112k⁴ + 107968k³ + 860312k² + 2975580k + 3357585
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 5, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   binomial_i
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial_i.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     const seq_t denom = (seq_t)305235;
     if ((n & 1) == 0) {                /* n even */
         idx_t k = n >> 1;
-        seq_t binom = binomial_i(k + 16, 16);
+        seq_t binom = binomial(k + 16, 16);
         seq_t kk = (seq_t)k;
 
         /* Terms of the even polynomial */
@@ -38,7 +39,7 @@ seq_t a(idx_t n) {
         return (binom * poly) / denom;
     } else {                            /* n odd */
         idx_t k = n >> 1;               /* floor((n-1)/2) */
-        seq_t binom = binomial_i(k + 16, 16);
+        seq_t binom = binomial(k + 16, 16);
         seq_t kk = (seq_t)k;
 
         /* Terms of the odd polynomial */

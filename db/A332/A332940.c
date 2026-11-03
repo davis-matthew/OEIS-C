@@ -10,7 +10,8 @@
  *            and p mod (2g+1) ≠ 1, * where g is the n‑th Sophie Germain prime
  * Range:     u8 n <= 4, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   floor_sqrt, isPrimeGeneric
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   ipow_i32, is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,49 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/floor_sqrt.h"
+#include <limits.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* -------------------------------------------------------------------------- */
 /* Storage for Sophie Germain primes (1‑based index in sg_primes[n‑1])       */
@@ -114,16 +156,16 @@ seq_t a(idx_t n)
         size_t new_cap = a_cap ? a_cap * 2 : 16;
         if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1;
 
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) abort();
 
         if (seq_a)
         {
-            memcpy(tmp, seq_a, a_cap * sizeof(seq_t));
-            free(seq_a);
+            mem_copy(tmp, seq_a, a_cap * sizeof(seq_t));
+            mem_free(seq_a);
         }
 
-        memset(tmp + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
+        mem_set(tmp + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
         seq_a = tmp;
         a_cap = new_cap;
     }

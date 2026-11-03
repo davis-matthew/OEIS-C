@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t init[24] = {
     1, 3, 6, 9, 13, 18, 27, 31,
@@ -54,9 +56,9 @@ seq_t a(idx_t n)
         /* Realloc cache */
         seq_t *new_cache = NULL;
         if (cache == NULL)
-            new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+            new_cache = mem_new(seq_t, new_len);
         else
-            new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+            new_cache = mem_resize(seq_t, cache, new_len);
 
         /* Handle allocation failure in a defensive way */
         if (new_cache == NULL)

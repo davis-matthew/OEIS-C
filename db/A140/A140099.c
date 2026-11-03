@@ -10,8 +10,9 @@
  *            which is exact for all n that fit in the integer type seq_t
  *            (62‑bit of error < 1/(2 * Q²) guarantees no loss of a unit in
  *            the floor for any n ≤ 2^63). The function works...
- * Range:     u8 n <= 90, u16 n <= 9768, u32 n <= 9768, u64 n <= 9768,
- *            u128 n <= 9768, big any n
+ * Range:     u8 n <= 90, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 77 terms through n = 9768 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

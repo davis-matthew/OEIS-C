@@ -8,11 +8,13 @@
  * Formula:   a(n) = 2^(n-5)*(n*(n+2)+32) if n even, 2^(n-1)*(n+1) if n odd
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 27, u64 n <= 57, u128 n <= 119,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 877 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

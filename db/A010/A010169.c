@@ -7,8 +7,9 @@
  * Formula:   a(0)=9; for n>0, a(n)=1 if n is odd; if n is even, a(n)=8 when
  *            n%4==2 and a(n)=18 when n%4==0. This implements the 4‑periodic
  *            continued fraction terms for sqrt(98)
- * Range:     u8 n <= 8360, u16 n <= 8360, u32 n <= 8360, u64 n <= 8360,
- *            u128 n <= 8360, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 89 terms through n = 8360 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

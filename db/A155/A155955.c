@@ -11,12 +11,15 @@
  *            numbers and then using * seq_pow to comput...
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 33, u64 n <= 64, u128 n <= 151,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 59 terms through n = 4836 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -52,5 +55,5 @@ seq_t a(idx_t n)
     }
 
     seq_t base = (seq_t)k * (seq_t)r;   /* (k*n) */
-    return seq_pow(base, k);            /* base^k  */
+    return ipow_idx(base, k);            /* base^k  */
 }

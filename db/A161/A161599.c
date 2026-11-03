@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 765 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(n) = 17*a(n-1) - a(n-2); a(1)=1, a(2)=18 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (n > cache_len)                    /* need to grow cache */
     {
         idx_t new_len = n;
-        seq_t *new_cache = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) return (seq_t)0;   /* allocation failure */
 
         /* copy existing elements */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         for (idx_t i = start; i < new_len; ++i)
             new_cache[i] = new_cache[i-1] * (seq_t)17 - new_cache[i-2];
 
-        free(cache);
+        mem_free(cache);
         cache     = new_cache;
         cache_len = new_len;
     }

@@ -8,22 +8,23 @@
  * Formula:   a(n) = d(n + d(n)) where d(x) is the number of divisors of x
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 133 terms through n = 9648 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
     /* divisor count of n */
-    idx_t d_n = divisor_count_u64(n);
+    idx_t d_n = num_divisors(n);
 
     /* compute m = n + d(n) */
     idx_t m = n + d_n;
 
     /* return divisor count of m */
-    return (seq_t)divisor_count_u64(m);
+    return (seq_t)num_divisors(m);
 }

@@ -8,7 +8,8 @@
  * Formula:   a(n) = concat(a(n-2), a(n-1)) with a(0)=1, a(1)=2
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   digit_len, pow10, seq_alloc_new_array
+ * Validated: standard, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,25 @@
 #include <stdlib.h>
 
 /* Utility headers providing the required helpers */
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Static cache for memoisation */
 static seq_t *cache      = NULL;
@@ -41,7 +58,7 @@ static void ensure_cache_capacity(idx_t n)
     if (cache) {
         for (size_t i = 0; i <= (size_t)max_idx; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache      = new_cache;
     cache_cap  = new_cap;
@@ -75,7 +92,7 @@ seq_t a(idx_t n)
     for (idx_t i = max_idx + 1; i <= n; ++i) {
         seq_t prev2 = cache[i - 2];
         seq_t prev1 = cache[i - 1];
-        int d       = digit_len(prev1);               /* decimal digits of prev1 */
+        int d       = num_digits(prev1);               /* decimal digits of prev1 */
         seq_t pow   = pow10((idx_t)d);                /* 10^d */
         cache[i]    = prev2 * pow + prev1;            /* concatenation */
     }

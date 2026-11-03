@@ -9,7 +9,8 @@
  *            a(n) = p where p^k is the n-th smallest prime power)
  * Range:     u8 n <= 71, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool _a_initialized = false;
 static seq_t *_a_cache = NULL;
@@ -69,7 +71,7 @@ static void _a_init(void) {
 
     /* Generate all prime powers ≤ LIMIT. */
     size_t cap = prime_cnt * 3; /* over‑estimate */
-    pp_t *powers = (pp_t *)malloc(cap * sizeof(pp_t));
+    pp_t *powers = mem_new(pp_t, cap);
     size_t pcnt = 0;
     for (size_t pi = 0; pi < prime_cnt; ++pi) {
         uint64_t p = primes[pi];
@@ -77,7 +79,7 @@ static void _a_init(void) {
         while (val <= LIMIT) {
             if (pcnt >= cap) {
                 cap *= 2;
-                powers = (pp_t *)realloc(powers, cap * sizeof(pp_t));
+                powers = mem_resize(pp_t, powers, cap);
             }
             powers[pcnt].value = val;
             powers[pcnt].root  = (seq_t)p;
@@ -89,15 +91,15 @@ static void _a_init(void) {
     free(primes);
 
     /* Sort by value to obtain the correct order of prime powers. */
-    qsort(powers, pcnt, sizeof(pp_t), pp_compare);
+    mem_qsort(powers, pcnt, sizeof(pp_t), pp_compare);
 
     /* Extract roots into cache. */
-    _a_cache = (seq_t *)malloc(pcnt * sizeof(seq_t));
+    _a_cache = mem_new(seq_t, pcnt);
     for (size_t i = 0; i < pcnt; ++i) {
         _a_cache[i] = powers[i].root;
     }
     _a_cache_len = pcnt;
-    free(powers);
+    mem_free(powers);
 }
 
 /* Main sequence function. */

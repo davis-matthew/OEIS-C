@@ -9,12 +9,14 @@
  *            a(1) = 1 (indices start at 1)
  * Range:     u8 n <= 9842, u16 n <= 9842, u32 n <= 9842, u64 n <= 9842,
  *            u128 n <= 9842, big any n
- * Helpers:   none
+ * Validated: standard, pass, 144 terms through n = 9800 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of already computed terms.
    cache[0] is unused, cache[1] == a(1), etc. */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
        pointer, so cast for C++ compatibility. */
     if (n >= cache_len) {
         idx_t new_len = n + 1;   /* reserve indices 0..n inclusive */
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) exit(1); /* allocation failed */
         cache = new_cache;
 

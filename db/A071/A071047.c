@@ -11,12 +11,14 @@
  *            and the linear recurrence to stay O(n)
  * Range:     u8 n <= 203, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoised terms */
 static seq_t *cache   = NULL;   /* array of terms */
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
     if (required < 7)
         required = 7;
 
-    seq_t *tmp = (seq_t *)realloc(cache, required * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, required);
     if (!tmp)
         abort();
     cache = tmp;

@@ -9,12 +9,14 @@
  * Formula:   a(n) = Sum_{k=0..n} 2*(n-k+2)^(n-k-1)*C(n, k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 27,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 36 terms through n = 149 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
             term = 2 * comb;
         } else {                /* general case */
             seq_t base  = (seq_t)(t + 2);
-            seq_t power = pow_seq(base, (int)(t - 1));  /* (t+2)^(t-1) */
+            seq_t power = ipow_i32(base, (int)(t - 1));  /* (t+2)^(t-1) */
             term = power * 2 * comb;
         }
 

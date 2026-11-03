@@ -10,6 +10,7 @@
  *            15^k * T(n-1,k) (0 < k < n) * T(n,0) = T(n,n) = 1
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 23, u64 n <= 47, u128 n <= 82,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 1295 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

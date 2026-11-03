@@ -9,13 +9,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = Π_{i=1..u} (gcd(d_i,i+1) mod (i+1)) where d_i are the
  *            factorial‑base digits of n
- * Range:     u8 n <= 9719, u16 n <= 9719, u32 n <= 9719, u64 n <= 9719,
- *            u128 n <= 9719, big any n
+ * Range:     u8 n <= 10080, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 103 terms through n = 9719 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static idx_t factorials[21];

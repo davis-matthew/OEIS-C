@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    The function computes a(n) iteratively using the above relations. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) {
@@ -34,8 +36,8 @@ seq_t a(idx_t n) {
     size_t anum = (size_t)n + 1;
     size_t bnum = (size_t)(n / 2) + 1;   /* ceiling of n/2 + 1, safe for n=0 */
 
-    seq_t *aarr = (seq_t *)malloc(anum * sizeof(seq_t));
-    seq_t *barr = (seq_t *)malloc(bnum * sizeof(seq_t));
+    seq_t *aarr = mem_new(seq_t, anum);
+    seq_t *barr = mem_new(seq_t, bnum);
     if (!aarr || !barr) {
         /* memory allocation failure: return 0 as safe fallback */
         return (seq_t)0;
@@ -66,7 +68,7 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(aarr);
-    free(barr);
+    mem_free(aarr);
+    mem_free(barr);
     return val;
 }

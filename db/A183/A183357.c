@@ -10,13 +10,15 @@
  *            a(6)=57600, a(7)=137088
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 18, u64 n <= 43, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The function must have external linkage as specified */
 seq_t a(idx_t n)
@@ -43,12 +45,12 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough */
     if ((size_t)n > capacity) {
         size_t new_capacity = (size_t)n * 2;
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_capacity);
+        seq_t *new_cache = mem_new(seq_t, new_capacity);
         if (new_cache == NULL)
             return 0; /* Out of memory: fallback to 0 */
         if (cache != NULL) {
-            memcpy(new_cache, cache, sizeof(seq_t) * capacity);
-            free(cache);
+            mem_copy(new_cache, cache, sizeof(seq_t) * capacity);
+            mem_free(cache);
         }
         cache = new_cache;
         capacity = new_capacity;

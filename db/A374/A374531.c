@@ -10,13 +10,18 @@
  *            defined piecewise below
  * Range:     u8 n <= 154, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   base_row
+ * Validated: standard, pass, 71 terms through n = 9127 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/base_row.h"
+
+static inline seq_t base_row(idx_t row) {
+    /* (row-1)*(2*row-1)  -- number of terms before row 'row' */
+    return ((seq_t)(row - 1)) * ((seq_t)(2 * row - 1));
+}
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;                 /* undefined for n<1, return 0 */

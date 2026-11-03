@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    reaches the requested index. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t f0[8] = {
     /* 0 -> 01 00 01 00  */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Ensure we have an initial word of length 1 */
     if (word_len == 0) {
         word_len = 1;
-        word = (seq_t *)malloc(word_len * sizeof(seq_t));
+        word = mem_new(seq_t, word_len);
         if (!word) exit(1);
         word[0] = 0;
     }
@@ -52,23 +54,23 @@ seq_t a(idx_t n)
         }
 
         /* Allocate new word */
-        seq_t *new_word = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_word = mem_new(seq_t, new_len);
         if (!new_word) exit(1);
 
         /* Expand each symbol */
         size_t pos = 0;
         for (size_t i = 0; i < word_len; ++i) {
             if (word[i] == 0) {
-                memcpy(&new_word[pos], f0, 8 * sizeof(seq_t));
+                mem_copy(&new_word[pos], f0, 8 * sizeof(seq_t));
                 pos += 8;
             } else {
-                memcpy(&new_word[pos], f1, 10 * sizeof(seq_t));
+                mem_copy(&new_word[pos], f1, 10 * sizeof(seq_t));
                 pos += 10;
             }
         }
 
         /* Replace old word */
-        free(word);
+        mem_free(word);
         word = new_word;
         word_len = new_len;
     }

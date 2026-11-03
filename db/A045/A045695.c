@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_capacity = 0;
@@ -37,15 +39,13 @@ static void ensure_cache(idx_t needed)
     while (new_cap <= (size_t)needed + 1)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();
 
     /* Zero‑initialize newly allocated slots – valid for POD or trivial types */
     if (new_cache != cache)
-        memset(new_cache + cache_capacity,
-               0,
-               (new_cap - cache_capacity) * sizeof(seq_t));
+        mem_set(new_cache + cache_capacity, 0, (new_cap - cache_capacity) * sizeof(seq_t));
 
     cache = new_cache;
     cache_capacity = new_cap;

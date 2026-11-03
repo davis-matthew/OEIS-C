@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* integer square root for unsigned 64‑bit values */
 static idx_t isqrt(idx_t n) {
@@ -81,7 +83,7 @@ static void build_sequence(idx_t N) {
         }
 
         /* collect the values into a temporary array */
-        seq_t *new_cache = (seq_t *)malloc((size_t)count * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)count);
         if (!new_cache) abort();
         idx_t pos = 0;
         for (idx_t n = 1; n <= limit; ++n) {
@@ -92,7 +94,7 @@ static void build_sequence(idx_t N) {
         free(visited);
 
         /* replace the old cache (if any) with the new one */
-        free(seq_cache);
+        mem_free(seq_cache);
         seq_cache = new_cache;
         seq_len   = count;
         current_limit = limit;

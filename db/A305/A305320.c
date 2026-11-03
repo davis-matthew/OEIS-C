@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1}(1 - x^{σ(k)})
  * Range:     i8 n <= 168, i16 n <= 704, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    performs a standard subset‑sum convolution with factors (1 - x^e). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper to compute all σ(k) for k <= n */
 static void compute_sigma(idx_t n, idx_t *sigma)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* compute divisor sums */
     compute_sigma(n, sigma);
 
-    seq_t *coef = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *coef = mem_new(seq_t, (n + 1));
     if (!coef) { free(sigma); return 0; }
     for (idx_t i = 0; i <= n; ++i) coef[i] = 0;
     coef[0] = 1;
@@ -55,6 +57,6 @@ seq_t a(idx_t n)
     seq_t result = coef[n];
 
     free(sigma);
-    free(coef);
+    mem_free(coef);
     return result;
 }

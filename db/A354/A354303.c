@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,7 @@
  * 64‑bit build).
  */
 
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -45,14 +46,14 @@ seq_t a(idx_t n)
         }
 
         /* Add 1/d to the current fraction p/q */
-        seq_t g = seq_gcd(q, d);        /* gcd(q,d) */
+        seq_t g = gcd(q, d);        /* gcd(q,d) */
         seq_t q1 = q / g;
         seq_t d1 = d / g;
 
         seq_t new_p = p * d1 + q1;
         seq_t new_q = q1 * d;           /* q/g * d */
 
-        seq_t g2 = seq_gcd(new_p, new_q);
+        seq_t g2 = gcd(new_p, new_q);
         if (g2 != (seq_t)1) {
             new_p /= g2;
             new_q /= g2;

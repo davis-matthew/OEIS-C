@@ -10,7 +10,8 @@
  *            classes
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 21, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Dimensions for the difference vectors. */
 #define DIFF_DIM 7
@@ -59,7 +61,7 @@ static void init_global(void)
     for (int d = 1; d < DIFF_DIM; ++d) pow3[d] = pow3[d - 1] * 3;
 
     /* count how many 9‑bit rows produce each difference vector */
-    memset(w_counts, 0, sizeof(w_counts));
+    mem_set(w_counts, 0, sizeof(w_counts));
     for (int row = 0; row < 512; ++row)
     {
         int code = 0;
@@ -92,7 +94,7 @@ static void init_global(void)
 /* Superset sum over the componentwise order (octahedral). */
 static void compute_superset_sums(const seq_t *cur, seq_t *sums)
 {
-    memcpy(sums, cur, N_DIFF * sizeof(seq_t));
+    mem_copy(sums, cur, N_DIFF * sizeof(seq_t));
     for (int d = 0; d < DIFF_DIM; ++d)
     {
         int step = pow3[d];

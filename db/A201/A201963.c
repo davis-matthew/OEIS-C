@@ -7,12 +7,16 @@
  * Formula:   primes of the form 10*n^2 - 7 (OEIS A201963)
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 1345, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   is_prime_uint64
+ * Validated: standard, pass, 48 terms through n = 4613 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime_uint64.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +29,7 @@ seq_t a(idx_t n)
         seq_t p  = (seq_t)10 * mm - 7;
 
         /* Test primality */
-        if (is_prime_uint64((uint64_t)p)) {
+        if (is_prime_u64((uint64_t)p)) {
             count++;
             if (count == n)
                 return p;

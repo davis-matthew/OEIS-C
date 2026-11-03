@@ -7,6 +7,7 @@
  * Formula:   a(n) = (7*n + 1)^4
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 36, u64 n <= 9362,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 37 terms through n = 9943 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

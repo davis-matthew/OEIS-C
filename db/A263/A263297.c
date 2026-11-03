@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = max(A001222(n), A061395(n))
- * Range:     u8 n <= 1618, u16 n <= 8132, u32 n <= 8132, u64 n <= 8132,
- *            u128 n <= 8132, big any n
- * Helpers:   _smallest_prime_factor, bigomega, build_primes_upto, compute_pi
+ * Range:     u8 n <= 1618, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 96 terms through n = 8132 (2026-11-01)
+ * Helpers:   bigomega, build_primes_upto, prime_pi, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include "../utils/bigomega.h"
-#include "../utils/_smallest_prime_factor.h"
 #include "../utils/build_primes_upto.h"
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
+#include "../utils/smallest_prime_factor.h"
 
 static bool primes_initialized = false;
 static uint64_t *prime_array = NULL;
@@ -55,7 +57,7 @@ static seq_t prime_index(uint64_t p)
         }
     }
     /* fallback: use the generic pi function */
-    return compute_pi(p);
+    return prime_pi(p);
 }
 
 /* Main sequence function */
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     seq_t maxPrimeIdx = 0;
     uint64_t temp = (uint64_t)n;
     while (temp > 1) {
-        uint64_t p = _smallest_prime_factor(temp);
+        uint64_t p = smallest_prime_factor(temp);
         seq_t idx = prime_index(p);
         if (idx > maxPrimeIdx) maxPrimeIdx = idx;
         /* strip all copies of p */

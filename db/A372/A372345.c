@@ -12,8 +12,9 @@
  *            A(.,.) along upward antidiagonals: let m be the smallest integer
  *            with n < (m+1)(m+2)/2. Let offset = n – m(m+1)/2. Then i = m -
  *            offset, j = offset
- * Range:     u8 n <= 6252, u16 n <= 8146, u32 n <= 8146, u64 n <= 8146,
- *            u128 n <= 8146, big any n
+ * Range:     u8 n <= 6252, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 8146 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

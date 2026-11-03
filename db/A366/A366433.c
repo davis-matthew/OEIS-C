@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 14, i64 n <= 23, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *a_seq = NULL;   /* stored a(n) values */
 static seq_t *b_arr = NULL;   /* Bk values */
@@ -37,9 +39,9 @@ static void ensure_capacity(idx_t n)
 {
     if (n+3 <= cap) return;
     idx_t new_cap = n + 6; /* a bit extra to avoid frequent reallocs */
-    a_seq  = (seq_t *)realloc(a_seq,  new_cap * sizeof(seq_t));
-    b_arr  = (seq_t *)realloc(b_arr,  new_cap * sizeof(seq_t));
-    c_arr  = (seq_t *)realloc(c_arr,  new_cap * sizeof(seq_t));
+    a_seq  = mem_resize(seq_t, a_seq, new_cap);
+    b_arr  = mem_resize(seq_t, b_arr, new_cap);
+    c_arr  = mem_resize(seq_t, c_arr, new_cap);
     cap = new_cap;
 }
 

@@ -7,7 +7,8 @@
  * Formula:   a(n) = n-th divisor of 100000000001 (OEIS A027899)
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 19, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   seq_cmp
+ * Validated: full, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_cmp.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 static seq_t *divs = NULL;
 static size_t divs_count = 0;
@@ -36,7 +47,7 @@ static void init_divisors(void)
     }
 
     /* Allocate exactly enough space */
-    divs = (seq_t *)malloc(count * sizeof(seq_t));
+    divs = mem_new(seq_t, count);
     size_t pos = 0;
 
     /* Collect divisors */
@@ -53,7 +64,7 @@ static void init_divisors(void)
     }
 
     /* Sort ascending */
-    qsort(divs, count, sizeof(seq_t), seq_cmp);
+    mem_qsort(divs, count, sizeof(seq_t), seq_cmp);
     divs_count = count;
     init_done = true;
 }

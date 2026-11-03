@@ -7,12 +7,15 @@
  * Formula:   a(n) = T(i,j) where T(n,m)=2^n*(1+2^n)^m, read by antidiagonals
  * Range:     u8 n <= 16, u16 n <= 31, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -33,9 +36,9 @@ seq_t a(idx_t n)
     idx_t j = d - offset;
 
     /* Compute T(i,j) = 2^i * (1+2^i)^j. */
-    seq_t pow2i  = seq_pow((seq_t)2, i);          /* 2^i */
+    seq_t pow2i  = ipow_idx((seq_t)2, i);          /* 2^i */
     seq_t base   = pow2i + (seq_t)1;              /* 1 + 2^i */
-    seq_t powexp = seq_pow(base, j);              /* (1+2^i)^j */
+    seq_t powexp = ipow_idx(base, j);              /* (1+2^i)^j */
 
     return pow2i * powexp;
 }

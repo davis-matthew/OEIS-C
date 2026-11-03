@@ -9,8 +9,9 @@
  *            at most twice (OEIS A262530). The sequence is built by counting
  *            admissible digit strings, then unranking the n‑th number in
  *            lexicographic order
- * Range:     u8 n <= 253, u16 n <= 9915, u32 n <= 9915, u64 n <= 9915,
- *            u128 n <= 9915, big any n
+ * Range:     u8 n <= 253, u16 n <= 60574, u32 n <= 91953, u64 n <= 91953,
+ *            u128 n <= 91953, big any n
+ * Validated: standard, pass, 136 terms through n = 9915 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

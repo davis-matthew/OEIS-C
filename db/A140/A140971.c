@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 4042, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9902 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    generates terms on demand, caching previously found values. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* modular multiplication using 128‑bit arithmetic  (k < 2^64)          */
@@ -69,7 +71,7 @@ static inline void append_term(idx_t val)
 {
     if (terms_len == terms_cap) {
         terms_cap = terms_cap ? terms_cap * 2 : 16;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_len++] = (seq_t)val;      /* cast to build's seq_t type */
 }

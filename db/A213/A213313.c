@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 2048, u32 n <= 2351, u64 n <= 2351,
  *            u128 n <= 2351, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 2316 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Prime sieve --------------------------------------------------------- */
 static unsigned char *prime_flag = NULL;   /* prime_flag[i] = 1 if i is prime */
@@ -90,7 +92,7 @@ static void grow_terms(void)
     if (term_cap < term_len + 1) {
         size_t newcap = term_cap ? term_cap * 2 : 16;
         while (newcap < term_len + 1) newcap <<= 1;
-        seq_t *newptr = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, terms, newcap);
         if (!newptr) abort();
         terms = newptr;
         term_cap = newcap;

@@ -8,6 +8,7 @@
  *            n-4 if n odd, for n≥4); a(1)=4, a(2)=6, a(3)=2
  * Range:     u8 n <= 251, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 88 terms through n = 881 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,14 +9,33 @@
  *            nonincreasing
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_nonincreasing
+ * Validated: standard, pass, 102 terms through n = 9217 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_nonincreasing.h"
+
+static inline bool is_nonincreasing(uint64_t n, uint64_t base)
+{
+    if (n < base)   /* single digit */
+        return true;
+    uint64_t digits[64];   /* enough for 64-bit numbers in base 2 */
+    int len = 0;
+    uint64_t t = n;
+    while (t != 0) {
+        digits[len++] = t % base;
+        t /= base;
+    }
+    /* check from most significant towards least */
+    for (int i = len - 1; i > 0; --i) {
+        if (digits[i] < digits[i - 1])
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

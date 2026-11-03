@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The build supplies the scalar integer types seq_t and idx_t.
    Do not #define them here. */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         initialized = true;
 
-        sums       = (seq_t *)malloc(sums_cap * sizeof(seq_t));
+        sums       = mem_new(seq_t, sums_cap);
         prime_list = (uint64_t *)malloc(prime_cap * sizeof(uint64_t));
 
         /* prime list begins with 3 */
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
             /* store the finished run */
             if (sums_len == sums_cap) {
                 sums_cap *= 2;
-                sums = (seq_t *)realloc(sums, sums_cap * sizeof(seq_t));
+                sums = mem_resize(seq_t, sums, sums_cap);
             }
             sums[sums_len++] = current_sum;
 

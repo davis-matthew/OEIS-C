@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf_uint64
+ * Validated: standard, pass, 64 terms through n = 9661 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gpf_uint64.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* Dynamic array holding the already‑computed terms of the sequence. */
 static seq_t *terms = NULL;          /* array of computed terms        */
@@ -35,7 +37,7 @@ static void ensure_terms_capacity(idx_t need)
     if (need <= terms_alloc) return;
     idx_t new_alloc = terms_alloc ? terms_alloc * 2 : 64;
     if (new_alloc < need) new_alloc = need;
-    seq_t *new_ptr = (seq_t *)realloc(terms, new_alloc * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, terms, new_alloc);
     if (!new_ptr) exit(EXIT_FAILURE);   /* abort if memory allocation fails */
     terms = new_ptr;
     terms_alloc = new_alloc;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 {
     while (terms_size < n) {            /* generate until we have 'n' terms */
         uint64_t k = next_k++;          /* current integer to test (as uint64_t) */
-        uint64_t p = gpf_uint64(k);     /* greatest prime factor of k */
+        uint64_t p = largest_prime_factor(k);     /* greatest prime factor of k */
 
         /* Condition 1: p^2 < k   (equivalently  p < k/p) */
         if ((seq_t)p * (seq_t)p >= (seq_t)k)
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
             continue;
 
         /* Condition 3: gpf(m) < p  */
-        uint64_t q = gpf_uint64((uint64_t)m);
+        uint64_t q = largest_prime_factor((uint64_t)m);
         if (q >= p)
             continue;
 

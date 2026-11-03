@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 9, i32 n <= 15, i64 n <= 23, i128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    c(2m+1)=sum_{k=0}^{2m+1} 2^{2m+1-k}C(2m+1,k)a(k)=1.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         /* ensure A[0] exists */
         if (cache_cap < 1) {
             cache_cap = 1;
-            A = (seq_t*)realloc(A, cache_cap * sizeof(seq_t));
+            A = mem_resize(seq_t, A, cache_cap);
         }
         if (cache_len == 0) {
             A[0] = 1;
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
         /* store value */
         if (cache_len >= cache_cap) {
             cache_cap = (cache_cap == 0) ? 1 : cache_cap * 2;
-            A = (seq_t*)realloc(A, cache_cap * sizeof(seq_t));
+            A = mem_resize(seq_t, A, cache_cap);
         }
         A[cache_len++] = val;
     }

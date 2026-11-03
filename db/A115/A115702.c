@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 27, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   floor_sqrt, is_palindrome, rev_decimal
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   ipow_i32, is_palindrome_base, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,30 @@
    such that the decimal reversal of T(n) can be factored into two
    palindromic integers greater than 1. */
 #include <stddef.h>      /* for size_t */
-#include "../utils/rev_decimal.h"   /* rev_decimal(seq_t)            */
-#include "../utils/floor_sqrt.h"    /* floor_sqrt(seq_t)             */
-#include "../utils/is_palindrome.h" /* is_palindrome(seq_t, idx_t)   */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* static state for memoisation ---------------------------------------- */
 static idx_t      next_k = 1;        /* next triangular index to test   */
@@ -33,7 +55,7 @@ ensure_cache_cap(void)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -48,12 +70,12 @@ qualifies(seq_t revT)
     seq_t sqrt_rev = floor_sqrt(revT);           /* integer sqrt            */
 
     for (seq_t p = 2; p <= sqrt_rev; ++p) {
-        if (!is_palindrome(p, 10))            /* skip non‑palindromes    */
+        if (!is_palindrome_base(p, 10))            /* skip non‑palindromes    */
             continue;
 
         if (revT % p == 0) {
             seq_t q = revT / p;
-            if (q > 1 && is_palindrome(q, 10))
+            if (q > 1 && is_palindrome_base(q, 10))
                 return true;
         }
     }
@@ -68,7 +90,7 @@ a(idx_t n)
     while (cache_len < n) {
         seq_t k  = (seq_t)next_k;
         seq_t T  = k * (k + 1) / 2;            /* triangular number       */
-        seq_t revT = rev_decimal(T);           /* reverse(T) in base 10   */
+        seq_t revT = reverse_digits(T);           /* reverse(T) in base 10   */
 
         if (qualifies(revT)) {
             ensure_cache_cap();

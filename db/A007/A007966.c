@@ -11,19 +11,20 @@
  *            Then a(n)=g when m is odd and a(n)=n/g when m...
  * Range:     u8 n <= 262, u16 n <= 300, u32 n <= 300, u64 n <= 300,
  *            u128 n <= 300, big any n
- * Helpers:   a7966_gcd, a7966_isqrt
+ * Validated: standard, pass, 107 terms through n = 278 (2026-11-01)
+ * Helpers:   gcd_u64, isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a7966_gcd.h"
-#include "../utils/a7966_isqrt.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
   uint64_t N = (uint64_t)n;
   if (N == 0) return 0;
-  uint64_t r = a7966_isqrt(N);
+  uint64_t r = isqrt_u64(N);
   if (r * r == N) return (seq_t)r;
 
   uint64_t Pprev = 0, Qprev = 1, ak = r;
@@ -37,7 +38,7 @@ seq_t a(idx_t n) {
     if (k >= 2 && P == Pprev) {
       /* even period, m = k-1; center Q_m = Qprev; convergent p_{m-1} = pm2 */
       uint64_t m = k - 1;
-      uint64_t g = a7966_gcd(pm2, N);
+      uint64_t g = gcd_u64(pm2, N);
       if (g == 0) g = N;
       if (m % 2 == 1) return (seq_t)g;
       return (seq_t)(N / g);

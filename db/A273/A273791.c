@@ -9,6 +9,7 @@
  * Formula:   a(0)=4, a(1)=20, a(n)=8*(n+1) for n≥2 (linear growth)
  * Range:     u8 n <= 30, u16 n <= 127, u32 n <= 127, u64 n <= 127,
  *            u128 n <= 127, big any n
+ * Validated: standard, pass, 70 terms through n = 123 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

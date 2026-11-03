@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 123, u16 n <= 200, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*-------------------------------------------------------------------------
  * Elementary integer square root (floor) – works for idx_t (≤ 2⁶⁴–1)
@@ -52,7 +54,7 @@ static void hash_init(size_t size)
     if (memo.size) return;
     memo.size = size;
     memo.keys   = (uint64_t*)calloc(size, sizeof(uint64_t));
-    memo.values = (seq_t*)calloc(size, sizeof(seq_t));
+    memo.values = mem_new(seq_t, size);
     memo.used   = (uint8_t*)calloc(size, sizeof(uint8_t));
 }
 

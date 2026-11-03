@@ -10,12 +10,14 @@
  *            can be queried in any order
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>    /* malloc, free, exit */
+#include "../utils/mem.h"
 
 static seq_t *bell_cache = NULL;
 static idx_t bell_cache_size = 0;
@@ -29,13 +31,13 @@ static void ensure_bell_cache(idx_t max_k)
     idx_t new_cap = bell_cache_size == 0 ? 1 : bell_cache_size;
     while (new_cap <= max_k) new_cap <<= 1;
 
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);    /* allocation failed */
 
     /* Copy old data if present */
     if (bell_cache != NULL) {
         for (idx_t i = 0; i < bell_cache_size; ++i) new_arr[i] = bell_cache[i];
-        free(bell_cache);
+        mem_free(bell_cache);
     }
     bell_cache = new_arr;
 

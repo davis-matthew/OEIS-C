@@ -10,7 +10,8 @@
  *            (where n=2^t·m, m odd)
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   gcd, mod_pow, pow2
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,43 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
-#include "../utils/pow2.h"
+#include <stdbool.h>
+
+/* Greatest common divisor for seq_t values. */
+static seq_t gcd(seq_t a, seq_t b)
+{
+    while (b != 0) {
+        seq_t t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
+
+/* modular exponentiation using 128‑bit intermediate.
+   Works for any seq_t. */
+static seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod)
+{
+    seq_t res = 1 % mod;
+    base   %= mod;
+    while (exp) {
+        if (exp & 1)
+            res = (unsigned __int128)res * base % mod;
+        exp >>= 1;
+        if (exp)
+            base = (unsigned __int128)base * base % mod;
+    }
+    return res;
+}
+
+/* Compute 2^exp for any exponent that may not fit in the bit width of seq_t. */
+static seq_t pow2(idx_t exp)
+{
+    seq_t res = (seq_t)1;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= (seq_t)2;
+    return res;
+}
 
 seq_t a(idx_t n)
 {

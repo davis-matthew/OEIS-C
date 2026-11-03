@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 199, u16 n <= 400, u32 n <= 400, u64 n <= 400,
  *            u128 n <= 400, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 395 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------- internal state ------- */
 static uint64_t *sigma = NULL;   /* divisor sums */
@@ -101,7 +103,7 @@ static void ensure_terms(idx_t n)
             /* store term, grow array if necessary */
             if (seq_len + 1 > seq_cap) {
                 size_t new_cap = (seq_cap == 0) ? 64 : seq_cap * 2;
-                seq_t *tmp = (seq_t*)realloc(seq_val, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_val, new_cap);
                 if (!tmp) return;               /* allocation failed */
                 seq_val = tmp;
                 seq_cap = new_cap;

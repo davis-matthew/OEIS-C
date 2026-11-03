@@ -11,7 +11,8 @@
  *            the number of excluded primes is even; r = min{k : 2^k – 1 ≥ n}
  * Range:     u8 n <= 15, u16 n <= 63, u32 n <= 127, u64 n <= 127,
  *            u128 n <= 127, big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 127 terms through n = 127 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,19 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static const seq_t primes[50] = {
     2ULL, 3ULL, 5ULL, 7ULL, 11ULL, 13ULL, 17ULL, 19ULL, 23ULL, 29ULL,
@@ -89,7 +101,7 @@ seq_t a(idx_t n)
     }
 
     /* vals[0..pos-1] now contains all required products.  Sort descending. */
-    qsort(vals, pos, sizeof(seq_t), cmp_desc);
+    mem_qsort(vals, pos, sizeof(seq_t), cmp_desc);
 
     seq_t result = vals[m - 1];   /* m is 1‑based, array indices are 0‑based. */
     free_seq_array(vals);

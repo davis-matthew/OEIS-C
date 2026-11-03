@@ -10,15 +10,40 @@
  *            Sum_{k=1..m} (Sum_{d|k} d*b(d)) * c(m-k)
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 29, u64 n <= 58, u128 n <= 116,
  *            big any n
- * Helpers:   a1385_euler_big, a1385_is_fixed
+ * Validated: standard, pass, 50 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a1385_euler_big.h"
-#include "../utils/a1385_is_fixed.h"
+#include "../utils/mem.h"
+
+static void a1385_euler_big(const seq_t *b, seq_t *c, idx_t N) {
+    seq_t *ds = mem_new(seq_t, (size_t)(N + 1));
+    idx_t d, k, m;
+    for (k = 0; k <= N; k++) ds[k] = 0;
+    for (d = 1; d <= N; d++) {
+        if (b[d] == 0) continue;
+        seq_t t = (seq_t)d * b[d];
+        for (k = d; k <= N; k += d) ds[k] += t;
+    }
+    c[0] = 1;
+    for (m = 1; m <= N; m++) {
+        seq_t s = 0;
+        for (k = 1; k <= m; k++) s += ds[k] * c[m - k];
+        c[m] = s / (seq_t)m;
+    }
+    mem_free(ds);
+}
+
+static int a1385_is_fixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x = x * 2;
+    return x == 0;
+}
 
 typedef struct { uint64_t w[3]; } a1385_u192;
 
@@ -106,8 +131,8 @@ static void a1385_build_fixed(idx_t N) {
 }
 
 static void a1385_build_big(idx_t N) {
-    seq_t *b = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *c = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *c = mem_new(seq_t, (size_t)(N + 1));
     idx_t m;
     int h;
     for (m = 0; m <= N; m++) { b[m] = 0; c[m] = 0; }
@@ -117,8 +142,8 @@ static void a1385_build_big(idx_t N) {
         b[0] = 0;
         for (m = 1; m <= N; m++) b[m] = c[m - 1];
     }
-    free(c);
-    if (a1385_bg) free(a1385_bg);
+    mem_free(c);
+    if (a1385_bg) mem_free(a1385_bg);
     a1385_bg = b;
     a1385_bgN = N;
 }

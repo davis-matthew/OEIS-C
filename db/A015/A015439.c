@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   _moi
+ * Validated: standard, pass, 97 terms through n = 1890 (2026-11-01)
+ * Helpers:   mobius_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
    Period: 1430. */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/_moi.h"
+#include "../utils/mobius_idx.h"
 
 #define PERIOD (1430u)
 #define DEG    (480u)
@@ -34,7 +35,7 @@ static void _compute_phi_coeff(seq_t coeff[DEG + 1])
     for (idx_t d = 1; d <= N_VAL; ++d) {
         if (N_VAL % d != 0)
             continue;
-        int mu = _moi(N_VAL / d);
+        int mu = mobius_idx(N_VAL / d);
         if (mu == 1) {                /* multiply by (x^d - 1) */
             for (idx_t i = 0; i <= DEG; ++i) {
                 newpoly[i] = poly[i];

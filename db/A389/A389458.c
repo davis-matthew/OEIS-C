@@ -8,7 +8,8 @@
  * Formula:   a(n) = numbers whose sum of non-unitary divisors is ≡ 2 (mod 4)
  * Range:     u8 n <= 15, u16 n <= 2405, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 7365, big any n
- * Helpers:   factor_u64, gcd_uint64
+ * Validated: standard, pass, 79 terms through n = 9593 (2026-11-03)
+ * Helpers:   factor_u64, gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t, uint64_t *, uint64_t *, size_t *) */
-#include "../utils/gcd_uint64.h"
+#include "../utils/factor_u64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* Compute the sum of non‑unitary divisors of n (n >= 2) */
 static uint64_t sum_nonunitary_divisors(uint64_t n)
@@ -42,7 +44,7 @@ static uint64_t sum_nonunitary_divisors(uint64_t n)
         if (w.idx == cnt) {
             if (w.d > 1 && w.d < n) {
                 uint64_t e = n / w.d;
-                if (gcd_uint64(w.d, e) > 1) sum += w.d;
+                if (gcd_u64(w.d, e) > 1) sum += w.d;
             }
             continue;
         }
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
     /* Expand cache if needed */
     if (len == cap) {
         size_t new_cap = cap ? cap << 1 : 16;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                /* allocation failure */
         cache = tmp;
         cap   = new_cap;

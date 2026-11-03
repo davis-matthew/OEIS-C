@@ -8,6 +8,7 @@
  * Formula:   a(n) = 5*5^n + 2040*4^n + 55980*3^n + 446580*2^n + 1448520
  * Range:     u8 none, u16 none, u32 n <= 9, u64 n <= 26, u128 n <= 54,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 876 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

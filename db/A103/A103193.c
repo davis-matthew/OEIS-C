@@ -12,14 +12,44 @@
  *            [0,1,0], [-2,1,0]]. Return v[ n mod 3 ]
  * Range:     i8 n <= 14, i16 n <= 22, i32 n <= 32, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   mat_mul, mat_vec_mul
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/mat_mul.h"
-#include "../utils/mat_vec_mul.h"
+
+/* Helper function: multiply two 3x3 matrices. */
+static void mat_mul(const seq_t A[3][3], const seq_t B[3][3], seq_t C[3][3])
+{
+    seq_t tmp[3][3];
+    for (idx_t i = 0; i < 3; ++i)
+    {
+        for (idx_t j = 0; j < 3; ++j)
+        {
+            seq_t sum = 0;
+            for (idx_t k = 0; k < 3; ++k)
+                sum = sum + A[i][k] * B[k][j];
+            tmp[i][j] = sum;
+        }
+    }
+    for (idx_t i = 0; i < 3; ++i)
+        for (idx_t j = 0; j < 3; ++j)
+            C[i][j] = tmp[i][j];
+}
+
+/* Helper function: multiply a 3x3 matrix by 3-element vector. */
+static void mat_vec_mul(const seq_t M[3][3], const seq_t v[3], seq_t r[3])
+{
+    for (idx_t i = 0; i < 3; ++i)
+    {
+        seq_t sum = 0;
+        for (idx_t k = 0; k < 3; ++k)
+            sum = sum + M[i][k] * v[k];
+        r[i] = sum;
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) for the sequence A343272. */
 seq_t a(idx_t n)
@@ -31,11 +33,11 @@ seq_t a(idx_t n)
     idx_t max_n = n;
     /* Resize if necessary */
     if ((size_t)max_n + 1 > cap) {
-        if (coeff) free(coeff);
-        if (tmp)   free(tmp);
+        if (coeff) mem_free(coeff);
+        if (tmp)   mem_free(tmp);
         cap = (size_t)max_n + 1;
-        coeff = (seq_t *)malloc(cap * sizeof(seq_t));
-        tmp   = (seq_t *)malloc(cap * sizeof(seq_t));
+        coeff = mem_new(seq_t, cap);
+        tmp   = mem_new(seq_t, cap);
         if (!coeff || !tmp) return 0; /* allocation failure, return 0 */
     }
     /* Initialize polynomial: product of empty set is 1 */

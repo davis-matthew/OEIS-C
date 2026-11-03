@@ -7,14 +7,17 @@
  * Keywords:  base, nonn, look
  * Formula:   a(n) is the largest integer whose square, when represented in
  *            binary, * is a substring of the binary representation of n
- * Range:     u8 n <= 8636, u16 n <= 8636, u32 n <= 8636, u64 n <= 8636,
- *            u128 n <= 8636, big any n
- * Helpers:   floor_log2_uint64
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 115 terms through n = 8636 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 #include <stdint.h>
 #include <stddef.h>
 
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;   /* never reached in the sequence */
 
     /* Number of binary digits of n */
-    size_t len = floor_log2_uint64(n) + 1;
+    size_t len = ilog2(n) + 1;
     uint64_t best = 1;   /* at least 1 always works (1^2 = 1) */
 
     for (size_t i = 0; i < len; ++i) {

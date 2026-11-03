@@ -15,7 +15,8 @@
  *            a(3)=T(0,2), … The implementation uses a dynamic p...
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   row_from_index
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/row_from_index.h"
+#include "../utils/mem.h"
+
+/* Given global index n, return the corresponding (sum,parts) in the
+   triangle.  The cumulative number of entries up to row r-1 is
+   r(r+1)/2.  We find the largest r such that r(r+1)/2 <= n.
+   k = n - r(r+1)/2. */
+static idx_t row_from_index(idx_t n)
+{
+    /* integer square root via binary search on unsigned __int128 */
+    unsigned __int128 lo = 0, hi = (unsigned __int128)1;
+    while (hi * (hi + 1) / 2 <= n)
+        hi <<= 1;
+    while (lo < hi) {
+        unsigned __int128 mid = (lo + hi + 1) / 2;
+        if (mid * (mid + 1) / 2 <= n)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return (idx_t)lo;
+}
 
 /* dp[sum] is a pointer to an array of length sum+1. */
 static seq_t **dp = NULL;
@@ -35,7 +56,7 @@ static void free_dp(void)
     if (dp == NULL)
         return;
     for (idx_t i = 0; i <= dp_rows; ++i)
-        free(dp[i]);
+        mem_free(dp[i]);
     free(dp);
     dp = NULL;
     dp_rows = 0;
@@ -50,7 +71,7 @@ static void recompute_dp(idx_t maxR)
     /* allocate new table */
     dp = (seq_t **)malloc((maxR + 1) * sizeof(seq_t *));
     for (idx_t i = 0; i <= maxR; ++i)
-        dp[i] = (seq_t *)calloc((size_t)(i + 1), sizeof(seq_t));
+        dp[i] = mem_new(seq_t, (size_t)(i + 1));
 
     /* base case */
     dp[0][0] = 1;

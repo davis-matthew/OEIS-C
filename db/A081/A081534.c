@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   count_distinct_primes
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Cache of computed terms (1‑based values). */
 static seq_t *cache = NULL;       /* NULL or array of seq_t */
@@ -37,11 +39,11 @@ static void append_term(seq_t val)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(*new_cache));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) abort();                     /* out of memory */
         for (size_t i = 0; i < cache_len; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
             append_term((seq_t)next_k);
         } else {                           /* even k: test k+1 */
             uint64_t kplus1 = (uint64_t)next_k + 1;
-            if (count_distinct_primes(kplus1) >= 2)
+            if (omega(kplus1) >= 2)
                 append_term((seq_t)next_k);
         }
         ++next_k;                          /* advance to next k */

@@ -11,19 +11,21 @@
  *            = floor((sqrt(8*n+1)-1)/2), c = n - r*(r+1)/2
  * Range:     i8 n <= 17, i16 n <= 31, i32 n <= 60, i64 n <= 145,
  *            i128 n <= 393, big any n
- * Helpers:   binomial, floor_isqrt_u64
+ * Validated: standard, pass, 61 terms through n = 4616 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_isqrt_u64.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     /* Find row r and column c from flattened index n */
     idx_t d = 8ULL * n + 1;                      /* 8*n + 1 */
-    idx_t s = floor_isqrt_u64(d);                /* floor(sqrt(d)) */
+    idx_t s = isqrt(d);                /* floor(sqrt(d)) */
     idx_t r = (s - 1) / 2;                       /* row index */
     idx_t t = r * (r + 1) / 2;                   /* terms before row r */
     idx_t c = n - t;                              /* column index within row */

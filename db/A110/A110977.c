@@ -10,30 +10,32 @@
  *            is the distance from n to the nearest prime
  * Range:     u8 n <= 20, u16 n <= 31, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 static seq_t dist_to_prime(idx_t n)
 {
     /* distance from n to the closest prime */
     uint64_t un = (uint64_t)n;
-    if (is_prime(un))
+    if (is_prime_u64(un))
         return 0;
 
     uint64_t up   = un + 1;          /* first upward candidate */
     uint64_t down = (un > 0 ? un - 1 : 0); /* first downward candidate */
 
     for (uint64_t d = 1; ; ++d) {
-        bool up_ok   = is_prime(up);
+        bool up_ok   = is_prime_u64(up);
         bool down_ok = false;
         if (down > 0)
-            down_ok = is_prime(down);
+            down_ok = is_prime_u64(down);
 
         if (up_ok || down_ok)
             return (seq_t)d;

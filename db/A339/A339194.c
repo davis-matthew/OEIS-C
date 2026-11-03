@@ -8,7 +8,8 @@
  * Formula:   a(n) = prime(n) * Sum_{k=1}^{n-1} prime(k) (identity from OEIS)
  * Range:     u8 n <= 5, u16 n <= 22, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   _prime_limit_for_idx, sieve_primes
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_prime_limit_for_idx.h"
+#include <math.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
+#include "../utils/mem.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 seq_t a(idx_t n)
 {
@@ -45,7 +56,7 @@ seq_t a(idx_t n)
 
         /* Free old data */
         free(primes);
-        free(cumsum);
+        mem_free(cumsum);
 
         /* Store the new data */
         primes = new_primes;
@@ -53,7 +64,7 @@ seq_t a(idx_t n)
         max_n_processed = n;
 
         /* Allocate and compute the cumulative sum array */
-        cumsum = (seq_t *)malloc((prime_count + 1) * sizeof(seq_t));
+        cumsum = mem_new(seq_t, (prime_count + 1));
         cumsum[0] = 0;
         for (size_t i = 0; i < prime_count; ++i)
         {

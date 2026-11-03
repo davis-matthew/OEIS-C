@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, nice
  * Formula:   a(n) = 1 + [n is even and n>2] + [n == 12 || n == 24 || n == 60]
- * Range:     u8 n <= 9797, u16 n <= 9797, u32 n <= 9797, u64 n <= 9797,
- *            u128 n <= 9797, big any n
+ * Range:     u8 n <= 12000, u16 n <= 12000, u32 n <= 12000, u64 n <= 12000,
+ *            u128 n <= 12000, big any n
+ * Validated: standard, pass, 121 terms through n = 9797 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

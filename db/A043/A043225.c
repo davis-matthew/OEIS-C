@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   digit_len, get_digits
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   get_digits, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,14 +19,17 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/get_digits.h"   /* for get_digits() */
-#include "../utils/digit_len.h"    /* for digit_len() */
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/get_digits.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 /* Helper: test whether a decimal representation of x contains
  * the adjacent digits 1 and 2 in either order. */
 static bool contains12or21(seq_t x)
 {
-    size_t d = digit_len(x);
+    size_t d = num_digits(x);
     if (d < 2) return false;
     uint8_t *buf = (uint8_t*)malloc(d);
     if (!buf) return false;          /* failed allocation – silently treat as false */
@@ -65,7 +69,7 @@ seq_t a(idx_t n)
             if (len == cap)          /* grow cache */
             {
                 size_t new_cap = cap ? cap * 2 : 8;
-                seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return 0;   /* allocation failure */
                 cache = tmp;
                 cap = new_cap;

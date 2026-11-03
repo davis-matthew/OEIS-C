@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  mult, nonn, easy
  * Formula:   a(n) = ∏_{p^e‖n} (prev_prime(p) * p^{e-1}) (a(1)=1, a(2)=1)
- * Range:     u8 n <= 262, u16 n <= 9784, u32 n <= 9784, u64 n <= 9784,
- *            u128 n <= 9784, big any n
+ * Range:     u8 n <= 262, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 92 terms through n = 9784 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

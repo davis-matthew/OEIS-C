@@ -8,6 +8,7 @@
  *            polynomial Φ_145(x)
  * Range:     i8 n <= 112, i16 n <= 112, i32 n <= 112, i64 n <= 112,
  *            i128 n <= 112, big any n
+ * Validated: full, pass, 113 terms through n = 112 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

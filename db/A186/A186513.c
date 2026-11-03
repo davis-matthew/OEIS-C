@@ -7,14 +7,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = n + floor(sqrt((n^2)/5-9/10))
- * Range:     u8 n <= 11, u16 n <= 71, u32 n <= 100, u64 n <= 100,
+ * Range:     u8 n <= 11, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   sqrt_floor
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sqrt_floor.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -26,6 +28,6 @@ seq_t a(idx_t n)
     seq_t nn       = n;
     seq_t numerator = 2 * nn * nn - 9;      /* 2 n^2 - 9   */
     seq_t q          = numerator / 10;      /* floor((2 n^2-9)/10) */
-    seq_t s          = sqrt_floor(q);       /* floor(sqrt(q)) */
+    seq_t s          = isqrt_seq(q);       /* floor(sqrt(q)) */
     return nn + s;
 }

@@ -8,13 +8,15 @@
  *            a(3)=38, a(4)=87, a(5)=354)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 38, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 911 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t, NULL */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* Dynamic array growth helper – works with both C and C++ */
 static void grow_cache(idx_t n, seq_t **arr, size_t *cap)
@@ -27,7 +29,7 @@ static void grow_cache(idx_t n, seq_t **arr, size_t *cap)
         new_cap *= 2;
 
 #ifdef __cplusplus
-    seq_t *tmp = reinterpret_cast<seq_t*>(realloc(*arr, new_cap * sizeof(seq_t)));
+    seq_t *tmp = reinterpret_cast<seq_t*>(mem_resize(seq_t, *arr, new_cap));
 #else
     seq_t *tmp = realloc(*arr, new_cap * sizeof(seq_t));
 #endif

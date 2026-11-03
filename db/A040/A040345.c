@@ -7,6 +7,7 @@
  * Formula:   a(0)=19; for n>=1, a(n)= {9,1,1,9,38}[(n-1)%5]
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* allocate symmetric matrix of size (s+1) x (s+1) */
     idx_t sz = s + 1;
     size_t size = (size_t)sz * (size_t)sz;
-    seq_t *T = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *T = mem_new(seq_t, size);
     if (!T) {
         return (seq_t)0;   /* allocation failure – undefined but safe */
     }
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
     idx_t j = s - i;
     seq_t result = T[IDX(i, j)];
 
-    free(T);
+    mem_free(T);
     #undef IDX
     return result;
 }

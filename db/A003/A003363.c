@@ -9,7 +9,8 @@
  *            values are found, raise L and repeat
  * Range:     u8 n <= 4, u16 n <= 405, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3363_rec
+ * Validated: standard, pass, 63 terms through n = 9496 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/a3363_rec.h"
+
+static void a3363_rec(int k, uint64_t minb, uint64_t sum, uint64_t L,
+                      unsigned char *bits) {
+    uint64_t b;
+    if (k == 0) {
+        bits[sum >> 3] |= (unsigned char)(1u << (sum & 7));
+        return;
+    }
+    for (b = minb;; b++) {
+        uint64_t p = b * b * b;
+        p = p * p;
+        if (sum + (uint64_t)k * p > L) break;
+        a3363_rec(k - 1, b, sum + p, L, bits);
+    }
+}
 
 static uint64_t *a3363_terms = NULL;
 static idx_t a3363_cnt = 0;

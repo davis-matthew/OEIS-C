@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------
    Internal caches
@@ -71,7 +73,7 @@ static void extend_cache(size_t target)
     /* Allocate / grow the output array lazily */
     if (diffs_cap == 0) {
         diffs_cap = 16;
-        diffs = (seq_t *)malloc(diffs_cap * sizeof(seq_t));
+        diffs = mem_new(seq_t, diffs_cap);
         if (!diffs) abort();
     }
 
@@ -93,7 +95,7 @@ static void extend_cache(size_t target)
             /* Grow the output array if necessary */
             if (diffs_len == diffs_cap) {
                 size_t new_cap = diffs_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(diffs, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, diffs, new_cap);
                 if (!tmp) abort();
                 diffs = tmp;
                 diffs_cap = new_cap;

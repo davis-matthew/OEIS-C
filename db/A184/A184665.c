@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* adjacency matrix for the 16 row states; 1 iff the two rows can be adjacent */
 static uint8_t adj[16][16];
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
         /* Reserve space in the cache, if necessary */
         if (cache_size <= (size_t)n) {
             size_t new_size = (size_t)n + 1;
-            seq_t *nc = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            seq_t *nc = mem_resize(seq_t, cache, new_size);
             if (!nc) return (seq_t)0;  /* allocation failure */
             cache = nc;
             cache_size = new_size;

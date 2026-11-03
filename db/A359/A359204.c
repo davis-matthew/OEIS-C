@@ -7,15 +7,18 @@
  * Formula:   a(n) = Sum_{d|n} (n/d) * 4^(n-d)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 /* Recursive enumerator of all divisors of n.
    pr[pos..] – array of prime factors,
@@ -32,7 +35,7 @@ static void dfs_divisors(idx_t n,
 {
     if (pcnt == 0) {
         /* cur is a divisor of n */
-        seq_t term = big_pow((seq_t)4, (seq_t)(n - cur));
+        seq_t term = ipow((seq_t)4, (seq_t)(n - cur));
         term *= (seq_t)(n / cur);
         *acc += term;
         return;

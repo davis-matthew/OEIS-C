@@ -9,13 +9,14 @@
  *            q is also prime
  * Range:     i8 n <= 69, i16 n <= 71, i32 n <= 71, i64 n <= 71, i128 n <= 71,
  *            big any n
+ * Validated: partial, pass, 70 terms through n = 71 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {

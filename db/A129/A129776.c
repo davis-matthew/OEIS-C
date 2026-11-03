@@ -11,7 +11,8 @@
  *            permutations in S_n
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 /*                 - 8*a(n-4)  - 4*a(n-5)  + 3*a(n-6);      */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (len == 0) {
         size_t initial = 16;
         if (initial < 6) initial = 6;
-        cache = (seq_t *)malloc(initial * sizeof(seq_t));
+        cache = mem_new(seq_t, initial);
         if (cache == NULL) return (seq_t)0;  /* allocation failed */
         cap   = initial;
         for (idx_t i = 0; i < 6; ++i) cache[i] = init[i];
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     if ((size_t)(n + 1) > cap) {
         size_t newcap = cap;
         while (newcap < (size_t)(n + 1)) newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL) return (seq_t)0;  /* allocation failed */
         cache = tmp;
         cap   = newcap;

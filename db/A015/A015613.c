@@ -8,12 +8,14 @@
  *            Euler's totient function
  * Range:     u8 n <= 30, u16 n <= 465, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 8948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for n >= 1.  The result is stored in `cumphi`,
    a running cumulative sum of phi values.  The array is
@@ -33,18 +35,18 @@ seq_t a(idx_t n)
         idx_t i, j;
 
         /* Resize cumulative array. */
-        seq_t *new_cum = (seq_t*)malloc(sizeof(seq_t) * (n + 1));
+        seq_t *new_cum = mem_new(seq_t, (n + 1));
         if (!new_cum) {            /* allocation failed */
-            if (cumphi) free(cumphi);
+            if (cumphi) mem_free(cumphi);
             return (seq_t)0;
         }
-        if (cumphi) free(cumphi);
+        if (cumphi) mem_free(cumphi);
         cumphi = new_cum;
 
         /* Allocate temporary phi array. */
-        seq_t *phi = (seq_t*)malloc(sizeof(seq_t) * (n + 1));
+        seq_t *phi = mem_new(seq_t, (n + 1));
         if (!phi) {
-            free(cumphi);
+            mem_free(cumphi);
             cumphi = NULL;
             return (seq_t)0;
         }
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
             cumphi[i] = cumphi[i - 1] + phi[i];
 
         /* Clean up temporary array. */
-        free(phi);
+        mem_free(phi);
 
         /* Update cached maximum. */
         maxN = n;

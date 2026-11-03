@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   _append, _one_slope
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,51 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/_append.h"
-#include "../utils/_one_slope.h"
+#include "../utils/mem.h"
+
+/* Append val to a dynamic array *arr, reallocating if necessary. */
+static void _append(seq_t **arr, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t new_cap = (*cap == 0 ? 16 : (*cap << 1));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+        if (!tmp) abort();                  /* out of memory */
+        *arr = tmp;
+        *cap = new_cap;
+    }
+    (*arr)[*len] = val;
+    ++(*len);
+}
+
+/* Check if a factorial‑base representation of num has at most one
+   distinct slope among its non‑zero digits. */
+static bool _one_slope(seq_t num)
+{
+    if (num == 0)          /* the special case 0 is always accepted */
+        return true;
+
+    seq_t rem = num;      /* remainder while extracting digits */
+    bool seen = false;    /* whether a slope has been seen yet */
+    seq_t slope_val = 0;  /* the unique slope value, if any */
+    idx_t i = 1;          /* current position (1‑based, least significant first) */
+
+    while (rem > 0) {
+        seq_t digit = rem % (seq_t)(i + 1);   /* digit for position i */
+        rem = rem / (seq_t)(i + 1);           /* quotient for next iteration */
+
+        if (digit > 0) {                     /* consider only non‑zero digits */
+            seq_t slope = (seq_t)i - digit;  /* slope at this position */
+            if (!seen) {
+                seen = true;
+                slope_val = slope;
+            } else if (slope != slope_val) {
+                return false;                /* more than one distinct slope */
+            }
+        }
+        ++i;
+    }
+    return true;                            /* zero or one distinct slope */
+}
 
 /* External function required by the task. */
 seq_t a(idx_t n)

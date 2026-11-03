@@ -7,13 +7,15 @@
  * Formula:   a(0)=1; a(n+1)= (a(n) even)? a(n)/2 : 41*a(n)+1
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 24, u64 n <= 42, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* cached values of the sequence       */
 static idx_t cache_len = 0;     /* number of elements stored          */
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first term 1 */
     if (cache_len == 0) {
         cache_cap = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort();          /* OOM guard */
         cache[0] = (seq_t)1;
         cache_len = 1;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         idx_t new_cap = cache_cap;
         while (new_cap <= n) new_cap <<= 1;    /* double until big enough */
-        cache = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+        cache = mem_resize(seq_t, cache, new_cap);
         if (cache == NULL) abort();           /* OOM guard */
         cache_cap = new_cap;
     }

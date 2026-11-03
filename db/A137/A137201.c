@@ -9,6 +9,7 @@
  *            contains the string "666" at least once in its base‑b expansion
  * Range:     u8 none, u16 n <= 1766, u32 n <= 2938, u64 n <= 2938,
  *            u128 n <= 2938, big any n
+ * Validated: standard, pass, 59 terms through n = 2919 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

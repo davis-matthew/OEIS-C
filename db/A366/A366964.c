@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   has_diff7
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
    search of natural numbers, checking the digit difference. */
 
 #include <stdbool.h>   /* for bool */
-#include "../utils/has_diff7.h"
+
+static inline bool has_diff7(idx_t x)
+{
+    int min = 9, max = 0;
+    while (x > (idx_t)0) {
+        int d = (int)(x % (idx_t)10);
+        if (d < min) min = d;
+        if (d > max) max = d;
+        x /= (idx_t)10;
+    }
+    return max - min == 7;
+}
 
 seq_t a(idx_t n)
 {

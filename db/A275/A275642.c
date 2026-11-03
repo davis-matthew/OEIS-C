@@ -7,13 +7,15 @@
  * Formula:   a(n) = coefficient of q^n in (1-q)^8 / Π_{j=1..8}(1-q^j)
  * Range:     i8 n <= 13, i16 n <= 53, i32 n <= 53, i64 n <= 53, i128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Precomputed polynomial coefficients p[0..36] for P(q)=∏_{j=1}^8 (1-q^j) */
@@ -54,7 +56,7 @@ seq_t a(idx_t n) {
     if (cache_size <= (size_t)n) {
         size_t new_cap = cache_cap ? cache_cap : 16;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
         /* Compute new terms */

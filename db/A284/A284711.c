@@ -8,16 +8,30 @@
  *            5*2^(2*n-2)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   phi, pow2, pow4
+ * Validated: standard, pass, 41 terms through n = 1571 (2026-11-01)
+ * Helpers:   pow2, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Offsets: a(2) is the first term. */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/pow4.h"
+#include "../utils/totient.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +48,7 @@ seq_t a(idx_t n)
         idx_t d2 = two_n / i;
 
         if ((d1 & 1) == 0) {           /* d1 even */
-            seq_t phi_val = phi(d1);
+            seq_t phi_val = totient(d1);
             idx_t exp = two_n / d1;     /* 2*n/d1 */
             seq_t pow_val = pow4(exp);  /* 4^exp */
             sum += phi_val * pow_val;
@@ -43,7 +57,7 @@ seq_t a(idx_t n)
         if (d1 == d2) continue;        /* square case handled above */
 
         if ((d2 & 1) == 0) {           /* d2 even */
-            seq_t phi_val = phi(d2);
+            seq_t phi_val = totient(d2);
             idx_t exp = two_n / d2;     /* 2*n/d2 */
             seq_t pow_val = pow4(exp);
             sum += phi_val * pow_val;

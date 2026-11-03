@@ -9,8 +9,9 @@
  *            (0‑based) that contains the flattened position n, i.e. the
  *            largest r with r*(r+1)/2 ≤ n, and k = n − r*(r+1)/2 is the
  *            offset within that row
- * Range:     u8 n <= 73, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
- *            big any n
+ * Range:     u8 n <= 73, u16 n <= 205, u32 n <= 663, u64 n <= 2407,
+ *            u128 n <= 8000, big any n
+ * Validated: standard, pass, 95 terms through n = 7610 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

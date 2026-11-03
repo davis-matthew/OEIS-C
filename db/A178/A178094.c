@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 110, u16 n <= 110, u32 n <= 110, u64 n <= 110,
  *            u128 n <= 110, big any n
- * Helpers:   lpf
+ * Validated: partial, pass, 110 terms through n = 110 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
 /* Recurrence: a(1)=1, a(2)=1, a(n)=lpf(a(n-1)+a(n-2)) for n≥3 */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/lpf.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +41,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold index n.  Index 0 is unused. */
     if (cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;                  /* index 0 unused       */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             return (seq_t)0;                            /* allocation failure   */
         /* initialise newly allocated cells to 0 (uncomputed) */

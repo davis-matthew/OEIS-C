@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 803, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_representation, is_prime, is_square_uint64
+ * Validated: standard, pass, 46 terms through n = 9779 (2026-11-03)
+ * Helpers:   is_prime_u64, is_square_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/is_prime.h"
-#include "../utils/has_representation.h"
-#include "../utils/is_square_uint64.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/is_square_u64.h"
+#include "../utils/mem.h"
+
+static bool has_representation(uint64_t p)
+{
+    /* Find integer y with 32*y^2 <= p.  For each such y, check if
+       p - 32*y^2 is a perfect square. */
+    uint64_t max_y = (uint64_t)sqrt((long double)p / 32.0L);
+    for (uint64_t y = 0; y <= max_y; ++y)
+    {
+        unsigned __int128 prod = (unsigned __int128)32 * y * y;
+        uint64_t rem = (uint64_t)(p - (uint64_t)prod);
+        if (is_square_u64(rem))
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -42,18 +59,18 @@ seq_t a(idx_t n)
     if (cap == 0)
     {
         cap = 64;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
     }
 
     /* Generate terms until we have at least n elements */
     while (size < n)
     {
-        if (is_prime(candidate) && has_representation(candidate))
+        if (is_prime_u64(candidate) && has_representation(candidate))
         {
             if (size == cap)
             {
                 cap <<= 1;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[size++] = (seq_t)candidate;
         }

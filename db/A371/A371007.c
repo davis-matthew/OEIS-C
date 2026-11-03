@@ -9,13 +9,29 @@
  *            * where Stirling2(n,k) is the Stirling number of the second kind
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   compute_stirling
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/compute_stirling.h"
+#include "../utils/mem.h"
+
+/* Compute Stirling numbers of the second kind S(n,k) for a fixed n.  
+ * Allocate an array of size n+1.  After the call S[k] contains S(n,k).  */
+static void compute_stirling(idx_t n, seq_t *S)
+{
+    /* S(0,0)=1, S(i,0)=0 for i>0 */
+    S[0] = 1;
+    for (idx_t i = 1; i <= n; ++i) {
+        S[i] = 0;
+        for (idx_t k = i; k >= 1; --k) {
+            S[k] = S[k] * ((seq_t)k) + S[k - 1];
+        }
+        S[0] = 0;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +46,7 @@ seq_t a(idx_t n)
     }
 
     /* -- 2. Compute Stirling numbers S(n,k) for k=0..n  */
-    seq_t *S = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (n + 1));
     if (!S) {
         return 0; /* allocation failure, should not happen in tests */
     }
@@ -67,6 +83,6 @@ seq_t a(idx_t n)
         pow2 = pow2 / 2;                      /* 2^(n-(k+1)) */
     }
 
-    free(S);
+    mem_free(S);
     return sum;
 }

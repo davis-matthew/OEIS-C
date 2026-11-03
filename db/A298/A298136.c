@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 37, u128 n <= 72,
  *            big any n
- * Helpers:   _count_same_neighbors
+ * Validated: standard, pass, 42 terms through n = 204 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,45 @@
    Computed by dynamic programming over rows. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_count_same_neighbors.h"
+
+static bool _count_same_neighbors(bool prev_present, uint8_t prev_row,
+                                  uint8_t curr_row,
+                                  bool next_present, uint8_t next_row) {
+    /* Check whether a single row satisfies its condition given
+       optional neighboring rows. */
+    for (int j = 0; j < 5; ++j) {
+        int val = (curr_row >> j) & 1;
+        int cnt = 0;
+
+        /* left neighbor in same row */
+        if (j > 0 && ((curr_row >> (j - 1)) & 1) == val) ++cnt;
+        /* right neighbor in same row */
+        if (j < 4 && ((curr_row >> (j + 1)) & 1) == val) ++cnt;
+
+        /* above neighbors */
+        if (prev_present) {
+            for (int dj = -1; dj <= 1; ++dj) {
+                int cj = j + dj;
+                if (cj >= 0 && cj < 5) {
+                    if (((prev_row >> cj) & 1) == val) ++cnt;
+                }
+            }
+        }
+        /* below neighbors */
+        if (next_present) {
+            for (int dj = -1; dj <= 1; ++dj) {
+                int cj = j + dj;
+                if (cj >= 0 && cj < 5) {
+                    if (((next_row >> cj) & 1) == val) ++cnt;
+                }
+            }
+        }
+
+        if (!(cnt == 2 || cnt == 3 || cnt == 5 || cnt == 7))
+            return false;
+    }
+    return true;
+}
 
 static bool _mask_initialized = false;
 static unsigned int _middleMask[32][32];

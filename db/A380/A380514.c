@@ -12,15 +12,18 @@
  *            as required
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 18,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* binomial(idx_t, idx_t) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include <stdlib.h>              /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +35,8 @@ seq_t a(idx_t n)
     /* Initialise for n = 0 */
     if (seq_vals == NULL) {
         /* Allocate for a single element */
-        seq_vals  = (seq_t *)malloc(sizeof(seq_t));
-        fact_vals = (seq_t *)malloc(sizeof(seq_t));
+        seq_vals  = mem_new(seq_t, 1);
+        fact_vals = mem_new(seq_t, 1);
         if (seq_vals == NULL || fact_vals == NULL) return (seq_t)0;
         seq_vals[0]  = (seq_t)1;         /* a(0) = 1 */
         fact_vals[0] = (seq_t)1;         /* 0! = 1 */
@@ -48,12 +51,12 @@ seq_t a(idx_t n)
         size_t new_size = (size_t)(new_limit + 1);
 
         /* Allocate new tables */
-        seq_t *new_seq_vals  = (seq_t *)malloc(new_size * sizeof(seq_t));
-        seq_t *new_fact_vals = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_seq_vals  = mem_new(seq_t, new_size);
+        seq_t *new_fact_vals = mem_new(seq_t, new_size);
         if (new_seq_vals == NULL || new_fact_vals == NULL) {
             /* Allocation failed – return 0 as a safe failure value */
-            free(new_seq_vals);
-            free(new_fact_vals);
+            mem_free(new_seq_vals);
+            mem_free(new_fact_vals);
             return (seq_t)0;
         }
 
@@ -86,8 +89,8 @@ seq_t a(idx_t n)
         }
 
         /* Replace old tables */
-        free(seq_vals);
-        free(fact_vals);
+        mem_free(seq_vals);
+        mem_free(fact_vals);
         seq_vals  = new_seq_vals;
         fact_vals = new_fact_vals;
         max_n = new_limit;

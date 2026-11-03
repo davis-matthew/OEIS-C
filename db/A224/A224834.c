@@ -9,13 +9,15 @@
  *            divisors up to the integer square root
  * Range:     u8 n <= 719, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 91 terms through n = 9199 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h" /* divisor_count_u64(uint64_t) */
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     for (idx_t d = 1; (d * d) <= n; ++d) {
         if (n % d == 0) {
             /* τ(d) ≤ d for d ≥ 1, fits comfortably in seq_t */
-            seq_t tau = (seq_t)divisor_count_u64(d);
+            seq_t tau = (seq_t)num_divisors(d);
             sum += tau * tau;
         }
     }

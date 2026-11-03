@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000040(A000040(n)+1) - 1
  * Range:     u8 n <= 16, u16 n <= 844, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   estimate_prime_value_limit
+ * Validated: standard, pass, 67 terms through n = 9441 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,14 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/estimate_prime_value_limit.h"
+
+/* estimate an upper bound for the n-th prime (for n >= 6) */
+static idx_t estimate_prime_value_limit(idx_t n) {
+    if (n < 6) return 15;                /* primes up to 13 are all needed   */
+    double dn = (double)n;
+    double bound = dn * (log(dn) + log(log(dn))) + 10.0;
+    return (idx_t)bound;
+}
 
 /* static storage for the prime table */
 static uint64_t *prime_table = NULL;   /* array of primes (ascending) */

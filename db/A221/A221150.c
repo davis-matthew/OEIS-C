@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 92 terms through n = 770 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /*
  * Formula: a(n) = floor((n + 2) / (phi + 2)) - floor((n + 1) / (phi + 2))
  * where phi = (1 + sqrt(5)) / 2.

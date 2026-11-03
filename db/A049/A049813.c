@@ -8,13 +8,15 @@
  * Formula:   a(n) = 1 + Σ_{b=2}^{n} #{a: 1≤a≤⌊b/9⌋ , gcd(a,b)=1}
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t *spf = NULL;       /* smallest prime factor array */
 static idx_t spf_lim = 0;
@@ -83,11 +85,11 @@ static void ensure_cache(idx_t N)
 {
     if (N <= cache_max) return;
     if (!cache) {
-        cache = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (N + 1));
         if (!cache) return;         /* memory error – caller will return 0 */
         cache[0] = 0;
     } else {
-        cache = (seq_t *)realloc(cache, (N + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (N + 1));
         if (!cache) return;         /* memory error */
     }
     /* compute values from cache_max+1 up to N */

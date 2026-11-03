@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 4865, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 69 terms through n = 9474 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp); */
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
             /* store the term */
             if (term_cnt >= term_cap) {
                 term_cap = (term_cap == 0) ? 16 : term_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, term_cap);
                 if (!tmp) return 0;   /* allocation failure */
                 terms = tmp;
             }

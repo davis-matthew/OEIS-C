@@ -8,13 +8,15 @@
  *            k*A352013(k-1)*binomial(n-1,k-1)*a(n-k)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 20, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static state – memoised values */
 static seq_t *fact_arr = NULL;   /* factorials: fact_arr[i] = i!          */
@@ -64,33 +66,33 @@ static void ensure_capacity(idx_t need)
 
     /* ---- factorials ---- */
     if (!fact_arr) {
-        fact_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        fact_arr = mem_new(seq_t, new_cap);
         fact_arr[0] = 1;
     } else {
-        fact_arr = (seq_t*)realloc(fact_arr, new_cap * sizeof(seq_t));
+        fact_arr = mem_resize(seq_t, fact_arr, new_cap);
     }
     for (idx_t i = max_n + 1; i < new_cap; ++i)
         fact_arr[i] = fact_arr[i-1] * (seq_t)i;
 
     /* ---- allocate A352 and B arrays ---- */
     if (!A352_arr) {
-        A352_arr = (seq_t*)calloc(new_cap, sizeof(seq_t));
+        A352_arr = mem_new(seq_t, new_cap);
     } else {
-        A352_arr = (seq_t*)realloc(A352_arr, new_cap * sizeof(seq_t));
+        A352_arr = mem_resize(seq_t, A352_arr, new_cap);
     }
     if (!B_arr) {
-        B_arr = (seq_t*)calloc(new_cap, sizeof(seq_t));
+        B_arr = mem_new(seq_t, new_cap);
     } else {
-        B_arr = (seq_t*)realloc(B_arr, new_cap * sizeof(seq_t));
+        B_arr = mem_resize(seq_t, B_arr, new_cap);
     }
 
     /* ---- allocate a array ---- */
     if (!a_arr) {
-        a_arr = (seq_t*)calloc(new_cap, sizeof(seq_t));
+        a_arr = mem_new(seq_t, new_cap);
         a_arr[0] = 1;          /* a(0) */
         if (new_cap > 1) a_arr[1] = 0; /* a(1) */
     } else {
-        a_arr = (seq_t*)realloc(a_arr, new_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
     }
 
     /* compute new A352 values and corresponding B values */

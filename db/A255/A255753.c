@@ -13,12 +13,14 @@
  *            1914280, 2603820, 3577560, 5163800, 7335400, 10077720
  * Range:     u8 none, u16 none, u32 n <= 35, u64 n <= 99, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_vals[18] = {
     99200ULL, 180619ULL, 197284ULL, 203503ULL, 196744ULL,
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Initialise memoisation storage on the first call. */
     if (memo_len == 0) {
         memo_cap = 64;             /* start with a modest capacity */
-        memo      = (seq_t*)malloc(memo_cap * sizeof(seq_t));
+        memo      = mem_new(seq_t, memo_cap);
         if (!memo) return 0;       /* allocation failure – return zero */
         for (idx_t i = 0; i < 18; ++i) memo[i] = base_vals[i];
         memo_len = 18;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     if (n > memo_cap) {
         idx_t new_cap = memo_cap * 2;
         if (new_cap < n) new_cap = n;
-        seq_t *tmp = (seq_t*)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (!tmp) return 0;        /* allocation failure */
         memo = tmp;
         memo_cap = new_cap;

@@ -8,15 +8,18 @@
  * Formula:   a(n) = 6^(prime(n)-1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow, build_primes
+ * Validated: standard, pass, 29 terms through n = 203 (2026-11-01)
+ * Helpers:   build_primes, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/ipow.h"
 
 static idx_t *prime_cache = NULL;
 static size_t prime_cnt   = 0;
@@ -43,5 +46,5 @@ seq_t a(idx_t n) {
     if (n < 1) return (seq_t)0;          /* value for out-of-range indices */
     ensure_primes(n);
     idx_t p = prime_cache[n-1];
-    return big_pow((seq_t)6, (seq_t)(p - 1));
+    return ipow((seq_t)6, (seq_t)(p - 1));
 }

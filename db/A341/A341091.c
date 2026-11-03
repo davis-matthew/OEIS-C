@@ -12,17 +12,24 @@
  *            T(n,k) = Σ_{m=n..k} (-1)^(m+n) · binomial(m+1,n) where k is the
  *            unique row with k(k+1)/2 ≤ n < (k+1)(k+2)/2 and the column index
  *            is i = n - k(k+1)/2
- * Range:     i8 n <= 30, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
+ * Range:     i8 n <= 48, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   binomial, tri_leq
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* * Utility header providing the binomial function   */
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/tri_leq.h"
+
+/* Check if m*(m+1)/2 ≤ n without 64‑bit overflow. */
+static int tri_leq(idx_t m, idx_t n)
+{
+    return ((seq_t)m * (m + 1) / 2) <= n;
+}
 
 /* Return the row index k such that k(k+1)/2 ≤ n < (k+1)(k+2)/2. */
 static idx_t find_row(idx_t n)

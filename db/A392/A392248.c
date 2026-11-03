@@ -12,8 +12,9 @@
  *            (n-1) + n * (m+1) * m * (4*m - 1) / 3 The sequence a(n) is
  *            obtained by reading the table A(k,n) (rows k = 2,3,…) and
  *            columns n = 1,2,… along antidiagonals: a(1)=A(2,1), a(2...
- * Range:     u8 n <= 26, u16 n <= 693, u32 n <= 8441, u64 n <= 8441,
- *            u128 n <= 8441, big any n
+ * Range:     u8 n <= 26, u16 n <= 693, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 71 terms through n = 8441 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

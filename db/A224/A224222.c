@@ -11,7 +11,8 @@
  *            no * such prime q exists the sequence terminates
  * Range:     u8 n <= 17, u16 n <= 19, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: full, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* ---------- static state ---------- */
 static seq_t *seq_cache   = NULL;   /* computed terms          */
@@ -46,7 +48,7 @@ static void ensure_cache_cap(size_t need)
     if (need <= seq_cap) return;
     size_t newcap = seq_cap ? seq_cap : 16;
     while (newcap < need) newcap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, newcap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, newcap);
     seq_cap = newcap;
 }
 
@@ -64,7 +66,7 @@ static void ensure_used_cap(size_t need)
     if (need <= used_cap) return;
     size_t newcap = used_cap ? used_cap : 16;
     while (newcap < need) newcap <<= 1;
-    used_primes = (seq_t *)realloc(used_primes, newcap * sizeof(seq_t));
+    used_primes = mem_resize(seq_t, used_primes, newcap);
     used_cap = newcap;
 }
 
@@ -87,7 +89,7 @@ static bool is_used_prime(seq_t q)
 static void generate_next_prime(void)
 {
     uint64_t candidate = (prime_cnt == 0) ? 2U : primes[prime_cnt - 1] + 1U;
-    while (!is_prime_small((seq_t)candidate)) candidate++;
+    while (!is_prime_seq((seq_t)candidate)) candidate++;
     ensure_prime_cap(prime_cnt + 1);
     primes[prime_cnt++] = candidate;
 }
@@ -160,7 +162,7 @@ seq_t a(idx_t n)
                     break;
                 }
 
-                if (is_prime_small((seq_t)cand) && !is_used_prime(cand))
+                if (is_prime_seq((seq_t)cand) && !is_used_prime(cand))
                 {
                     chosen = (seq_t)cand;
                     break;

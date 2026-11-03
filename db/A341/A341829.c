@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 9661, u16 n <= 9661, u32 n <= 9661, u64 n <= 9661,
- *            u128 n <= 9661, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10175, u16 n <= 10175, u32 n <= 10175, u64 n <= 10175,
+ *            u128 n <= 10175, big any n
+ * Validated: standard, pass, 106 terms through n = 9661 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
         if (cum + len >= n) {
             /* The desired term lies in this row */
             size_t offset = n - cum - 1;
-            if (len > 1) qsort(buf, len, sizeof(seq_t), cmp_seq_t);
+            if (len > 1) mem_qsort(buf, len, sizeof(seq_t), cmp_seq_t);
             return buf[offset];
         }
 

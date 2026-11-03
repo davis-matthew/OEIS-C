@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   add_factor, pow_seq, seq_mul
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,9 +28,40 @@
 #include <stdbool.h>
 
 /* bring in the computational helpers used below */
-#include "../utils/pow_seq.h"
-#include "../utils/seq_mul.h"
-#include "../utils/add_factor.h"
+#include <string.h>
+#include "../utils/ipow_i32.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* factorise a small integer m using the supplied list of primes.
+   The exponents are added to the array exp[pi] (prime index pi). */
+static void add_factor(uint64_t m, uint64_t *prime, int *exp, int primes_cnt)
+{
+    for (int i = 0; i < primes_cnt; ++i) {
+        uint64_t p = prime[i];
+        if (p * p > m)
+            break;
+        int cnt = 0;
+        while (m % p == 0) {
+            ++cnt;
+            m /= p;
+        }
+        if (cnt)
+            exp[i] += cnt;
+    }
+    if (m > 1) {
+        /* remaining prime must be in the list */
+        for (int i = 0; i < primes_cnt; ++i) {
+            if (prime[i] == m) {
+                exp[i] += 1;
+                break;
+            }
+        }
+    }
+}
 
 /* integer square‑root: floor(sqrt(x)) */
 static uint64_t isqrt_u64(uint64_t x)
@@ -144,7 +176,7 @@ seq_t a(idx_t N)
     for (int i = 0; i < primes_cnt; ++i) {
         int e = exp[i];
         if (e > 0) {
-            seq_t p_pow = pow_seq((seq_t)prime[i], e);
+            seq_t p_pow = ipow_i32((seq_t)prime[i], e);
             result = seq_mul(result, p_pow);
         }
     }

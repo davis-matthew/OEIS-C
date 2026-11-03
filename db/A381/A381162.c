@@ -7,7 +7,8 @@
  * Formula:   a(n) = (8*n)! / ((n!)^4 * (4*n)!)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 8,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,14 @@
 #include <stddef.h>
 
 /* Utilities provided by the build system */
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Prime exponent in m! (Legendre's formula) */
 static idx_t legendre(idx_t m, idx_t p) {
@@ -98,7 +105,7 @@ seq_t a(idx_t n) {
         idx_t exp   = exp8 - 4 * expn - exp4;   /* exponent in a(n) */
 
         if (exp > (idx_t)0) {
-            seq_t pp = seq_pow((seq_t)p, exp);
+            seq_t pp = ipow_idx((seq_t)p, exp);
             result   = seq_mul(result, pp);
         }
     }

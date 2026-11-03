@@ -11,14 +11,29 @@
  *            2/17 = 1176470588235294 * pattern 1 : digits of 4/17 =
  *            2352941176470588 * pattern 2 : digits of 6/17 = 352941176...
  * Range:     u8 none, u16 none, u32 none, u64 n <= 5, u128 n <= 10, big any n
- * Helpers:   make_pattern, pow_seq
+ * Validated: standard, pass, 26 terms through n = 308 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow_seq.h"
-#include "../utils/make_pattern.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Compute the 16‑digit pattern for a given numerator (2,4,6,8,10) */
+static seq_t make_pattern(uint64_t numerator)
+{
+    seq_t pattern = 0;
+    uint64_t remainder = numerator;
+    for (int i = 0; i < 16; ++i) {
+        remainder *= 10;
+        uint64_t digit = remainder / 17;
+        remainder = remainder % 17;
+        pattern = pattern * (seq_t)10 + (seq_t)digit;
+    }
+    return pattern;
+}
 
 /* Return a(n) for the given 1‑based index n */
 seq_t a(idx_t n)
@@ -34,7 +49,7 @@ seq_t a(idx_t n)
             patterns[i] = make_pattern(numerators[i]);
 
         /* 10^16 needed for concatenation */
-        pow10_16 = pow_seq((seq_t)10, 16);
+        pow10_16 = ipow_i32((seq_t)10, 16);
         initialized = true;
     }
 

@@ -13,6 +13,7 @@
  *            compatible if for c=0,1,2 | (row1[c] + row2[c+1]) –...
  * Range:     u8 none, u16 n <= 3, u32 n <= 12, u64 n <= 27, u128 n <= 57,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 197 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

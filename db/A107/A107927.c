@@ -9,13 +9,26 @@
  *            digit of m sum to 9
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   has_comp_digit
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_comp_digit.h"
+
+static bool has_comp_digit(seq_t val, const bool have[10]) {
+    /* scan all decimal digits of val, looking for a complement 9‑digit in 'have' */
+    while (val != 0) {
+        seq_t d_big = val % 10;     /* extract least‑significant digit */
+        int d = (int)d_big;         /* safe conversion: d ∈ [0,9] */
+        if (have[9 - d]) {
+            return true;
+        }
+        val /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     /* determine which digits occur in n */

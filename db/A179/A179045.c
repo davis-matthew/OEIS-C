@@ -9,12 +9,14 @@
  *            T(n,k) = 0 if k>n
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* A flat triangular array that stores T[n][k] with 1‑based indices.
    offset for row r (1‑based) is (r‑1)*r/2.                 */
@@ -35,8 +37,7 @@ static void ensure_flat(idx_t up_to) {
     idx_t new_size = offset_row(up_to) + up_to;
 
     if (new_size > flat_size) {
-        flat = (seq_t *)realloc(flat,
-                                (size_t)new_size * sizeof(seq_t));
+        flat = mem_resize(seq_t, flat, (size_t)new_size);
         /* If realloc fails, the program will abort;  this is fine.  */
         flat_size = new_size;
     }

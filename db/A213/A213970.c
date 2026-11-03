@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   mask_to_seq
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
  *  The function enumerates words of length L by a binary mask,
  *  checks for primitiveness, and returns the nth term. */
 #include <stdbool.h>
-#include "../utils/mask_to_seq.h"
+
+static seq_t mask_to_seq(idx_t mask, idx_t L)
+{
+    seq_t val = 0;
+    for (idx_t i = 0; i < L; ++i)
+    {
+        seq_t digit = ((mask >> (L - 1 - i)) & 1) ? 3 : 1;
+        val = val * 10 + digit;
+    }
+    return val;
+}
 
 static bool is_primitive(idx_t mask, idx_t L)
 {

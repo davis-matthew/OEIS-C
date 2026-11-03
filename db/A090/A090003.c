@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = longest run of consecutive 1's in binary representation
  *            of n^3
- * Range:     u8 n <= 7, u16 n <= 49, u32 n <= 7985, u64 n <= 7985,
- *            u128 n <= 7985, big any n
+ * Range:     u8 n <= 7, u16 n <= 49, u32 n <= 16383, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 118 terms through n = 7985 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

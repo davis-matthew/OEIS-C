@@ -8,7 +8,8 @@
  * Formula:   a(n) = #{k : 0 ≤ k ≤ n, first decimal digit of F_k = 7}
  * Range:     u8 n <= 4407, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   leading_digit_uint64
+ * Validated: standard, pass, 121 terms through n = 9250 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/leading_digit_uint64.h"
+
+/* utility: return the leading decimal digit of a non‑zero uint64_t */
+static inline int leading_digit_uint64(uint64_t x)
+{
+    while (x >= 10U) x /= 10U;
+    return (int)x;
+}
 
 /* log10(φ) and log10(√5) for Binet formula */
 static const long double LOG10PHI   = log10l((sqrtl(5.0L) + 1.0L) / 2.0L);

@@ -10,7 +10,8 @@
  *            returns the n‑th smallest value (1‑based)
  * Range:     u8 n <= 54, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort – works for any seq_t that supports
    operator <, == after casting the void pointers. */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap ? cache_cap * 2 : 64;
             while (new_cap < cache_count + new_terms)
                 new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cache_cap = new_cap;
         }
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
     /* Sort once if we have new entries. */
     if (dirty)
     {
-        qsort(cache, cache_count, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(cache, cache_count, sizeof(seq_t), cmp_seq_t);
         dirty = false;
     }
 

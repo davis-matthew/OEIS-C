@@ -8,13 +8,15 @@
  *            a(0) = a(1) = 0 (derived from the OEIS entry for A219758)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 50, u128 n <= 109,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 46 terms through n = 936 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (n > 7) {
         /* For n > 7 we need to multiply by 2^(n-7).
            Use the arbitrary‑precision power function for full correctness. */
-        seq_t pow = big_pow((seq_t)2, (seq_t)(n - 7));
+        seq_t pow = ipow((seq_t)2, (seq_t)(n - 7));
         seq_t tmp_big = (seq_t)tmp * pow;
         return tmp_big + (seq_t)N + (seq_t)1;
     } else {

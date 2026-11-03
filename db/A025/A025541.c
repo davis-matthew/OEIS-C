@@ -8,7 +8,8 @@
  * Formula:   a(n) = LCM{C(2k,k):0≤k≤n} * Σ_{k=0}^{n} 1/C(2k,k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   binom, pow_uint
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
    with all supported integer precisions. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 static int exp_fact(idx_t n, idx_t p) {
     int e = 0;
@@ -62,7 +65,7 @@ seq_t a(idx_t n) {
 
     /* Compute C(2k,k) for k = 0..n */
     size_t len = (size_t)n + 1;
-    seq_t *C = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *C = mem_new(seq_t, len);
     if (!C) return 0;
     C[0] = 1;
     for (idx_t k = 1; k <= n; ++k) {
@@ -96,7 +99,7 @@ seq_t a(idx_t n) {
     for (size_t pi = 0; pi < prime_cnt; ++pi) {
         int e = prime_exp[pi];
         if (e > 0) {
-            seq_t p_pow = pow_uint((uint64_t)primes[pi], (idx_t)e);
+            seq_t p_pow = ipow_u64_idx((uint64_t)primes[pi], (idx_t)e);
             L *= p_pow;
         }
     }
@@ -109,7 +112,7 @@ seq_t a(idx_t n) {
     }
 
     /* Clean up */
-    free(C);
+    mem_free(C);
     free(primes);
     free(prime_exp);
     return sum;

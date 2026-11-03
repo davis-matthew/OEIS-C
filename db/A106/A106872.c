@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th prime that can be written as 2x^2 + xy + 4y^2
  * Range:     u8 n <= 19, u16 n <= 2197, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime64, modpow_uint64
+ * Validated: standard, pass, 70 terms through n = 9969 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/modpow_uint64.h"   /* modpow_uint64(unsigned long long base,
-                                     unsigned long long exp,
-                                     unsigned long long mod) */
-#include "../utils/isPrime64.h"     /* isPrime64(uint64_t) */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* Helper: check whether prime p can be expressed as 2x^2 + xy + 4y^2 */
 static bool prime_represents(uint64_t p)
@@ -36,7 +37,7 @@ static bool prime_represents(uint64_t p)
     uint64_t d = (p - (31 % p)) % p;   /* d ≡ –31 (mod p) */
     if (d == 0)                        /* p divides 31 → p = 31 */
         return false;
-    uint64_t leg = modpow_uint64(d, (p - 1) / 2, p);
+    uint64_t leg = powmod_u64(d, (p - 1) / 2, p);
     if (leg != 1)                      /* not a quadratic residue → cannot be represented */
         return false;
 
@@ -71,7 +72,7 @@ seq_t a(idx_t n)
     /* Grow the array if necessary */
     if (computed == 0 && terms == NULL) {
         cap = 8;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
     }
 
     /* Generate terms until we have at least n of them */
@@ -84,10 +85,10 @@ seq_t a(idx_t n)
                 cand++;
         }
 
-        if (isPrime64(cand) && prime_represents(cand)) {
+        if (is_prime_u64(cand) && prime_represents(cand)) {
             if (computed == cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, cap);
                 if (!tmp) abort();       /* allocation failure */
                 terms = tmp;
             }

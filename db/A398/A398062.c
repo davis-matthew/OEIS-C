@@ -10,12 +10,26 @@
  *            nondivisor of k in reverse anti‑diagonal order
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   nth_nondivisor
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/nth_nondivisor.h"
+/* Compute the nth nondivisor of k. */
+static seq_t nth_nondivisor(idx_t k, idx_t n)
+{
+    seq_t count = 0;
+    seq_t x = 2;                     /* start checking from 2 */
+    const seq_t kk = (seq_t)k;       /* k cast to seq_t for modulus */
+    while (1) {
+        if (kk % x != 0) {
+            count++;
+            if (count == n) return x;
+        }
+        x++;
+    }
+}
 
 /* Main function as required. */
 seq_t a(idx_t n)

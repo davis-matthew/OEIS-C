@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) - 11*a(n-2); a(0) = 1, a(1) = 1
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 17, i64 n <= 36, i128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for computed values */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* Initial allocation */
     if (cache_cap == 0) {
         cache_cap = (n >= 2 ? n + 1 : 2);          /* at least space for 0 and 1 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
         last = 1;
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     if (n >= cache_cap) {
         idx_t new_cap = cache_cap;
         while (new_cap <= n) new_cap *= 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

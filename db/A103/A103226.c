@@ -12,14 +12,28 @@
  *            antidiagonals of the Gaussian lattice. Th...
  * Range:     i8 n <= 108, i16 n <= 108, i32 n <= 108, i64 n <= 108,
  *            i128 n <= 108, big any n
- * Helpers:   divide_gaussian
+ * Validated: partial, pass, 108 terms through n = 108 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/divide_gaussian.h"
+
+/* Check if Gaussian integer (da,db) is divisible by (pa,pb).
+   If divisible, (qa,qb) becomes the quotient. */
+static inline bool divide_gaussian(int da, int db,
+                                   int pa, int pb,
+                                   int *qa, int *qb) {
+    long long N  = (long long)pa * pa + (long long)pb * pb;
+    long long r  = (long long)da * pa + (long long)db * pb;
+    long long i  = (long long)db * pa - (long long)da * pb;
+    if (r % N != 0 || i % N != 0) return false;
+    *qa = (int)(r / N);
+    *qb = (int)(i / N);
+    return true;
+}
 
 /* --- Gaussian prime table ------------------------------------------- */
 

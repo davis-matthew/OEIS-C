@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 28, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,33 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* --- helper for dynamic arrays ------------------------------------- */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(T **ptr, size_t *cap, size_t needed, size_t elem_size)
+{
+    if (needed > *cap) {
+        size_t new_cap = (*cap > 0) ? *cap * 2 : 1;
+        while (new_cap < needed)
+            new_cap *= 2;
+        T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        if (!tmp)
+            return;   /* out of memory – the caller will fail gracefully */
+        *ptr   = tmp;
+        *cap   = new_cap;
+    }
+}
+#else
 static void ensure_capacity(void **ptr, size_t *cap, size_t needed, size_t elem_size)
 {
     if (needed > *cap) {
@@ -44,6 +70,7 @@ static void ensure_capacity(void **ptr, size_t *cap, size_t needed, size_t elem_
         *cap   = new_cap;
     }
 }
+#endif
 
 /* --- memoised flat triangle ---------------------------------------- */
 static seq_t *flat      = NULL;   /* all terms in order */
@@ -67,12 +94,12 @@ seq_t a(idx_t n)
     /* initialise on first call -------------------------------------- */
     if (!flat) {
         /* allocate and store first term a(1) = 1 */
-        ensure_capacity((void**)&flat, &flat_cap, 1, sizeof(seq_t));
+        ensure_capacity(OEISC_VPP(&flat), &flat_cap, 1, sizeof(seq_t));
         flat[0] = 1;
         flat_len = 1;
 
         /* initialise first row in prev_row */
-        ensure_capacity((void**)&prev_row, &prev_cap, 2, sizeof(seq_t));
+        ensure_capacity(OEISC_VPP(&prev_row), &prev_cap, 2, sizeof(seq_t));
         prev_row[1] = 1;   /* T(1,1) */
     }
 
@@ -92,7 +119,7 @@ seq_t a(idx_t n)
     /* r is now the last row already computed */
     for (++r; r <= (idx_t)n; ++r) {
         /* ensure we have space for the new row in prev_row */
-        ensure_capacity((void**)&prev_row, &prev_cap, r + 1, sizeof(seq_t));
+        ensure_capacity(OEISC_VPP(&prev_row), &prev_cap, r + 1, sizeof(seq_t));
 
         /* new row is r; compute each element in descending order
          * so that we can use the in‑place recurrence. */
@@ -105,7 +132,7 @@ seq_t a(idx_t n)
         }
 
         /* append the new row to the flat array */
-        ensure_capacity((void**)&flat, &flat_cap, flat_len + r, sizeof(seq_t));
+        ensure_capacity(OEISC_VPP(&flat), &flat_cap, flat_len + r, sizeof(seq_t));
         for (idx_t k = 1; k <= r; ++k)
             flat[flat_len++] = prev_row[k];
     }

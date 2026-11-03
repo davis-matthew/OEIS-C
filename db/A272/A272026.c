@@ -13,7 +13,8 @@
  *            A272026. The function works for all n≥1 and for a...
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   len_row
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,22 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <math.h>
-#include "../utils/len_row.h"
+
+/* internal helper: length of row n = number of columns present in row n */
+static inline idx_t len_row(idx_t n)
+{
+    /* Compute floor((sqrt(8*n+1)-1)/2) safely using integer arithmetic. */
+    /* First compute floor(sqrt(8*n+1)). */
+    uint64_t M = 8ULL * n + 1ULL;
+    /* use double sqrt for an initial estimate */
+    double d = sqrt((double)M);
+    idx_t m = (idx_t)d;
+    /* correct possible rounding errors */
+    while ((unsigned __int128)m * m > M) --m;
+    while ((unsigned __int128)(m + 1) * (m + 1) <= M) ++m;
+    /* now m = floor(sqrt(8*n+1)) */
+    return (m - 1) / 2;
+}
 
 seq_t a(idx_t n)
 {

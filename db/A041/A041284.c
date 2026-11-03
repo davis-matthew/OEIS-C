@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  *   a(4)=6088, a(5)=12425, a(6)=55788, a(7)=124001
  */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Computes the n-th term of A041284 */
 seq_t a(idx_t n)
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* first call: allocate cache and fill with initial values */
     if (cache == NULL) {
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0; /* on memory failure */
         for (size_t i = 0; i < 8; ++i)
             cache[i] = init[i];
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* extend cache capacity if necessary */
     size_t need = (size_t)n + 1;
     if (need > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) return (seq_t)0;  /* fallback on allocation failure */
         cache    = tmp;
         cache_cap = need;

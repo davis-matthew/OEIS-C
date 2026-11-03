@@ -7,14 +7,24 @@
  * Formula:   a(n) = (1 - (-10)^n)/11
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 10, i64 n <= 20, i128 n <= 39,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: standard, pass, 34 terms through n = 924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses the recurrence a(n) = -9*a(n-1) + 10*a(n-2) with
    a(1) = 1, a(2) = -9.  The sequence is memoised. */
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 #include <stdlib.h>
 
 seq_t a(idx_t n)

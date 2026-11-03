@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 36, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
    to compute powers of two in arbitrary-precision arithmetic. 
 */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -44,13 +47,13 @@ seq_t a(idx_t n)
             cur = (cur * 2) % n;
             ++exp;
         }
-        seq_t pow2 = big_pow((seq_t)2, (seq_t)exp);
+        seq_t pow2 = ipow((seq_t)2, (seq_t)exp);
         return pow2 - 1;
     } else {   /* n is even */
         seq_t odd_val = a(temp);     /* recursive call on odd part */
         if (v2 == 1)                 /* 2^{0} * odd_val */
             return odd_val;
-        seq_t mult = big_pow((seq_t)2, (seq_t)(v2 - 1));
+        seq_t mult = ipow((seq_t)2, (seq_t)(v2 - 1));
         return mult * odd_val;
     }
 }

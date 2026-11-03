@@ -7,7 +7,8 @@
  * Formula:   a(n) = 21*a(n-1) + a(n-2), a(0) = 2, a(1) = 21
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 498 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* This function keeps a cache in order to answer calls in any order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of computed terms; grows as needed */
 static seq_t *a_cache = NULL;   /* pointer to cached values   */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Ensure the first two terms are cached */
     if (a_cache_len == 0) {
         a_cache_len = 2;
-        a_cache = (seq_t *)realloc(NULL, a_cache_len * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, NULL, a_cache_len);
         a_cache[0] = (seq_t)2;
         a_cache[1] = (seq_t)21;
     }
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     }
 
     /* Grow the cache to hold up to term n */
-    a_cache = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, (n + 1));
     for (idx_t i = a_cache_len; i <= n; ++i) {
         /* Recurrence: a[i] = 21*a[i-1] + a[i-2] */
         a_cache[i] = (seq_t)21 * a_cache[i-1] + a_cache[i-2];

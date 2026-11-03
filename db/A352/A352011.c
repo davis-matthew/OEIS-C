@@ -9,14 +9,31 @@
  *            with a(0) = 1
  * Range:     i8 n <= 6, i16 n <= 12, i32 n <= 20, i64 n <= 37, i128 n <= 70,
  *            big any n
- * Helpers:   alloc_new_cache
+ * Validated: standard, pass, 45 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_new_cache.h"
+#include "../utils/mem.h"
+
+/* Helper: allocate a new cache of given size.  The utilities provide
+ * seq_alloc_new_array, which returns a freshly allocated array of seq_t.
+ * It is safe to use for arbitrary-precision integer types.
+ */
+static seq_t *alloc_new_cache(size_t sz)
+{
+    /* The build supplies this function via "../utils/alloc.h" or similar.
+       If missing, fallback to plain malloc which will work for
+       native integer types. */
+#ifdef HAVE_SEQ_ALLOC_NEW_ARRAY
+    return seq_alloc_new_array(sz);
+#else
+    return mem_new(seq_t, sz);
+#endif
+}
 
 /* The integer types seq_t and idx_t are provided by the build system. */
 static seq_t *cache = NULL;         /* buffer holding already computed values */
@@ -32,7 +49,7 @@ seq_t a(idx_t n)
         seq_t *new_cache = alloc_new_cache((size_t)n + 1);
         for (size_t i = 0; i < cache_len; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = (size_t)n + 1;
     }

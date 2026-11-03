@@ -12,7 +12,8 @@
  *            a(n) = q+2m when frac(2*sqrt(q)) >= (sqrt(5)-1)...
  * Range:     u8 n <= 59, u16 n <= 6546, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isq64
+ * Validated: standard, pass, 78 terms through n = 9250 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isq64.h"
+#include "../utils/isqrt_u64.h"
 
 static uint64_t *pp_q = NULL;   /* prime powers in increasing order */
 static uint64_t *pp_p = NULL;   /* their prime */
@@ -64,11 +65,11 @@ seq_t a(idx_t n) {
     else if (q == 4) res = 10;
     else if (q == 9) res = 20;
     else {
-        uint64_t m = isq64(4 * q);
-        uint64_t s = isq64(q);
+        uint64_t m = isqrt_u64(4 * q);
+        uint64_t s = isqrt_u64(q);
         bool square = (s * s == q);
         bool special = (!square && m % p == 0);
-        uint64_t x = isq64(q - 1);
+        uint64_t x = isqrt_u64(q - 1);
         if (x * x + 1 == q) special = true;
         uint64_t y;
         for (y = (s > 0 ? s - 1 : 0); y <= s + 1; y++) {

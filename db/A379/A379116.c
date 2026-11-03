@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 85, u16 n <= 9856, u32 n <= 9856, u64 n <= 9856,
- *            u128 n <= 9856, big any n
- * Helpers:   none
+ * Range:     u8 n <= 85, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 86 terms through n = 9856 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Smallest prime factor table and primitive data */
 static uint32_t *spf = NULL;          /* spf[i] == smallest prime factor of i */
@@ -111,7 +113,7 @@ static void ensure_cache(idx_t n)
     if (seq_len == 0)                          /* first time initialization */
     {
         seq_cap = 16;
-        seq_cache = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         seq_cache[0] = (seq_t)0;              /* a(1) = 0 */
         seq_cache[1] = (seq_t)1;              /* a(2) = 1 */
         seq_len = 2;
@@ -127,7 +129,7 @@ static void ensure_cache(idx_t n)
             if (seq_len >= seq_cap)
             {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq_cache = (seq_t*)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_len] = (seq_t)cur_candidate;
             ++seq_len;

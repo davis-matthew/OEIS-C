@@ -10,9 +10,10 @@
  *            equivalent to: for every integer q (1 <= q <= min(n,k)), q
  *            divides n or q divides k. The implementation precomputes for
  *            each k the least common multiple (LCM) of all integers <=...
- * Range:     u8 n <= 9849, u16 n <= 9849, u32 n <= 9849, u64 n <= 9849,
- *            u128 n <= 9849, big any n
- * Helpers:   _gcd_uint64, _lcm_cap
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9849 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/_gcd_uint64.h"
-#include "../utils/_lcm_cap.h"
+#include <stdbool.h>
+#include "../utils/gcd_u64.h"
+
+/* Compute LCM(lcm, q) capped at CAP (here 10001) */
+static uint64_t _lcm_cap(uint64_t l, uint64_t q, uint64_t CAP)
+{
+    uint64_t g = gcd_u64(l, q);
+    uint64_t div = l / g;
+    if (div > CAP / q) return CAP + 1; /* overflow or exceed cap */
+    uint64_t res = div * q;
+    if (res > CAP) return CAP + 1;
+    return res;
+}
 
 static size_t _max_k = 0;
 static uint64_t *_L = NULL;

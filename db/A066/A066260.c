@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration ---------------------------------------------------*/
 
@@ -97,7 +99,7 @@ static seq_t composite_of_index(idx_t k)
         /* Store it */
         if (composites_len >= composites_cap) {
             size_t new_cap = composites_cap ? composites_cap * 2 : 64;
-            seq_t *tmp = (seq_t *)realloc(composites, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, composites, new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             composites = tmp;
             composites_cap = new_cap;

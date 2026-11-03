@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   exit_if_null, hash_seq_t
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,22 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/exit_if_null.h"
-#include "../utils/hash_seq_t.h"
+#include "../utils/mem.h"
+
+/*--- Utility helpers ------------------------------------------------------*/
+static void exit_if_null(void *p) {
+    if (!p) { exit(1); }
+}
+
+static inline size_t hash_seq_t(seq_t v) {
+    uint64_t h = (uint64_t)v;
+    h ^= h >> 33;
+    h *= 0xff51afd7ed558ccdULL;
+    h ^= h >> 33;
+    h *= 0xc4ceb9fe1a85ec53ULL;
+    h ^= h >> 33;
+    return (size_t)h;
+}
 
 /* seq_t and idx_t are supplied by the build */
 static const size_t BUCKET_SIZE = 131071; /* prime number > 1e5 */
@@ -101,7 +116,7 @@ static void ensure_entries_cap(size_t needed) {
     if (entries_cap >= needed) return;
     size_t new_cap = entries_cap ? entries_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    Entry *new_e = (Entry *)realloc(entries, new_cap * sizeof(Entry));
+    Entry *new_e = mem_resize(Entry, entries, new_cap);
     exit_if_null(new_e);
     entries = new_e;
     entries_cap = new_cap;
@@ -141,7 +156,7 @@ static void ensure_seq_cap(size_t needed) {
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(seq_res, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq_res, new_cap);
     exit_if_null(new_arr);
     seq_res = new_arr;
     seq_cap = new_cap;
@@ -190,12 +205,12 @@ static void init_globals(void) {
     for (size_t i = 0; i < BUCKET_SIZE; ++i) bucket[i] = (size_t)-1;
     entries_cap = 16;
     entries_len = 0;
-    entries = (Entry *)calloc(entries_cap, sizeof(Entry));
+    entries = mem_new(Entry, entries_cap);
     exit_if_null(entries);
 
     /* output sequence */
     seq_cap = 16;
-    seq_res = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+    seq_res = mem_new(seq_t, seq_cap);
     exit_if_null(seq_res);
     seq_len = 0;
 }

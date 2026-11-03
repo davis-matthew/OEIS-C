@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 8809 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Resize the cached sequence array if needed.
    Works in both C and C++. */
@@ -33,7 +35,7 @@ static void grow_cache(seq_t **cache, size_t *cap, size_t needed)
     if (new_cap < needed)
         new_cap = needed;
     /* realloc works for malloced memory; in C++ this free/allocate is valid. */
-    void *tmp = (void *)realloc(*cache, new_cap * sizeof(seq_t));
+    void *tmp = mem_resize(void, *cache, (new_cap * sizeof(seq_t)) / sizeof(void));
     *cache = (seq_t *)tmp;
     *cap   = new_cap;
 }

@@ -10,6 +10,7 @@
  *            This yields the reduced denominator
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 28, u64 n <= 48, u128 n <= 96,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 2295 (2026-11-01)
  * Helpers:   build_primes_upto, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;           /* defensive, offset starts at 1   */

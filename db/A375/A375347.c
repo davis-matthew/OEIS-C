@@ -9,14 +9,17 @@
  *            has a solution. Equivalently, k is a kth power residue modulo n
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* Euclidean gcd for unsigned 64-bit values. */
 static inline uint64_t _gcd_u64(uint64_t a, uint64_t b) {
@@ -79,7 +82,7 @@ seq_t a(idx_t n) {
                 /* brute‑force check for this prime power */
                 bool found = false;
                 for (uint64_t x = 0; x < mod; ++x) {
-                    seq_t r = mod_pow((seq_t)x, kraw, (seq_t)mod);
+                    seq_t r = powmod((seq_t)x, kraw, (seq_t)mod);
                     if (r == (seq_t)(kraw % mod)) {
                         found = true;
                         break;
@@ -90,7 +93,7 @@ seq_t a(idx_t n) {
                 /* k coprime to p: use the kth‑power residue test */
                 uint64_t g = _gcd_u64(kraw, phi);
                 uint64_t exp = phi / g;
-                seq_t v = mod_pow((seq_t)(kraw % mod), exp, (seq_t)mod);
+                seq_t v = powmod((seq_t)(kraw % mod), exp, (seq_t)mod);
                 if (v != 1) ok = false;
             }
         }

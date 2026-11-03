@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 64, u32 n <= 133, u64 n <= 271,
  *            u128 n <= 550, big any n
- * Helpers:   insert_unique
+ * Validated: standard, pass, 71 terms through n = 1894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,36 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/insert_unique.h"
+#include "../utils/mem.h"
+
+/* Internal helper that inserts a value into a sorted unique array. */
+static void insert_unique(seq_t val, seq_t **arr, size_t *len, size_t *cap)
+{
+    /* Binary search for insertion point. */
+    size_t left = 0, right = *len;
+    while (left < right) {
+        size_t mid = (left + right) >> 1;
+        if ((*arr)[mid] < val)
+            left = mid + 1;
+        else
+            right = mid;
+    }
+    /* If the value already exists, do nothing. */
+    if (left < *len && (*arr)[left] == val)
+        return;
+
+    /* Ensure capacity. */
+    if (*len + 1 > *cap) {
+        *cap = (*cap ? *cap * 2 : 4);
+        *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
+    }
+
+    /* Shift elements to the right, if needed, and insert the value. */
+    if (*len > left)
+        mem_move(&(*arr)[left + 1], &(*arr)[left], (*len - left) * sizeof(seq_t));
+    (*arr)[left] = val;
+    (*len)++;
+}
 
 /* Computes the n-th term of A259624 (n ≥ 1). */
 seq_t a(idx_t n)
@@ -37,7 +67,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* Allocate initial buffer. */
         uniq_cap = 8;
-        uniq = (seq_t *)realloc(uniq, uniq_cap * sizeof(seq_t));
+        uniq = mem_resize(seq_t, uniq, uniq_cap);
 
         /* First few Fibonacci numbers (0,1,1).  Add their F‑1, F, F+1 values. */
         insert_unique((seq_t)0, &uniq, &uniq_len, &uniq_cap);            /* 0   */

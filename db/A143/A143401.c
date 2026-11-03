@@ -7,6 +7,7 @@
  * Formula:   a(n) = coefficient of x^n in x^6/∏_{t=6}^{12} (1-tx)
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 12, u64 n <= 20, u128 n <= 38,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 279 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

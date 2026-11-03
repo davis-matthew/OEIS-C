@@ -9,13 +9,16 @@
  *            triangle T(i,j) = binomial(i,j)*9^(i-j)*6^j flattened row‑major
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 #include <stdint.h>
 
 static idx_t _row_from_index(idx_t n)
@@ -49,8 +52,8 @@ seq_t a(idx_t n)
 
     /* Compute the term: binomial(i,j) * 9^(i-j) * 6^j */
     seq_t bin = binomial(i, j);
-    seq_t pow9 = pow_uint(9, i - j);
-    seq_t pow6 = pow_uint(6, j);
+    seq_t pow9 = ipow_u64_idx(9, i - j);
+    seq_t pow6 = ipow_u64_idx(6, j);
 
     seq_t result = bin;
     result *= pow9;

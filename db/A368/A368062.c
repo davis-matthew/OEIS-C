@@ -9,7 +9,8 @@
  *            A257297(k) = (all digits except the last) × last digit
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 24, u64 n <= 56, u128 n <= 116,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 612 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t values. */
 static int cmp_seq_t(const void *a, const void *b)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
             size_t required = curr_len - 2;
             while (pow10_len <= required) {
                 size_t new_cap = (pow10_len == 0) ? 2 : pow10_len << 1;
-                seq_t *tmp = (seq_t *)realloc(pow10, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, pow10, new_cap);
                 if (!tmp) return (seq_t)0;
                 pow10 = tmp;
                 if (pow10_len == 0) {
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
             /* The only 1‑digit solution is 0. */
             if (term_len == term_cap) {
                 size_t new_cap = (term_cap == 0) ? 16 : term_cap << 1;
-                seq_t *tmp = (seq_t *)realloc(term, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, term, new_cap);
                 if (!tmp) return (seq_t)0;
                 term = tmp;
                 term_cap = new_cap;
@@ -107,12 +109,12 @@ seq_t a(idx_t n)
 
         if (local_cnt > 0) {
             /* Sort local results to maintain increasing order. */
-            qsort(local, local_cnt, sizeof(seq_t), cmp_seq_t);
+            mem_qsort(local, local_cnt, sizeof(seq_t), cmp_seq_t);
 
             for (size_t i = 0; i < local_cnt; ++i) {
                 if (term_len == term_cap) {
                     size_t new_cap = (term_cap == 0) ? 16 : term_cap << 1;
-                    seq_t *tmp = (seq_t *)realloc(term, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, term, new_cap);
                     if (!tmp) return (seq_t)0;
                     term = tmp;
                     term_cap = new_cap;

@@ -9,7 +9,8 @@
  *            ({k*sqrt(6)+1/2} - {k*sqrt(6)}) > 0
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* dynamic cache of the found terms */
 static seq_t *memo      = NULL;   /* array of terms */
@@ -38,7 +41,7 @@ static void ensure_cache_capacity(size_t needed)
     if (memo_cap >= needed) return;
     size_t new_cap = memo_cap ? memo_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *p = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, memo, new_cap);
     if (!p) abort();               /* out of memory */
     memo      = p;
     memo_cap  = new_cap;
@@ -49,7 +52,7 @@ static bool less_than_half(idx_t k)
 {
     idx_t k2 = k * k;               /* k^2   */
     idx_t N  = 6 * k2;              /* 6*k^2 */
-    idx_t m  = int_sqrt(N);         /* floor(sqrt(6*k^2)) */
+    idx_t m  = isqrt(N);         /* floor(sqrt(6*k^2)) */
 
     /* left side: 24*k^2   */
     idx_t left  = 24 * k2;

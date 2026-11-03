@@ -11,6 +11,7 @@
  *            (1 ≤ k ≤ n) where s = +1 if n is even, s = -1 if n...
  * Range:     i8 n <= 24, i16 n <= 43, i32 n <= 101, i64 n <= 248,
  *            i128 n <= 626, big any n
+ * Validated: standard, pass, 71 terms through n = 1279 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

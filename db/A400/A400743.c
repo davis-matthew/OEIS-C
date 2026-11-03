@@ -12,7 +12,8 @@
  *            generated once and reused for subsequent calls
  * Range:     u8 n <= 4, u16 n <= 547, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 63 terms through n = 9063 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t   *seq_vals = NULL;   /* array of found primes */
 static size_t   seq_len  = 0;      /* number of stored primes      */
@@ -64,7 +67,7 @@ init_seq(void)
 
     /* ---------- allocate space for the sequence ---------- */
     seq_cap = 20000;  /* initial capacity */
-    seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, seq_cap);
     seq_len = 0;
 
     /* ---------- test each prime for the property ---------- */
@@ -85,7 +88,7 @@ init_seq(void)
             if (temp % q == 0) {
                 while (temp % q == 0) temp /= q;
                 while (ord % q == 0) {
-                    seq_t cand = mod_pow((seq_t)2, ord / q, (seq_t)p);
+                    seq_t cand = powmod((seq_t)2, ord / q, (seq_t)p);
                     if (cand == (seq_t)1) ord /= q;
                     else break;
                 }
@@ -95,7 +98,7 @@ init_seq(void)
         if (temp > 1) {
             uint32_t q = (uint32_t)temp;
             while (ord % q == 0) {
-                seq_t cand = mod_pow((seq_t)2, ord / q, (seq_t)p);
+                seq_t cand = powmod((seq_t)2, ord / q, (seq_t)p);
                 if (cand == (seq_t)1) ord /= q;
                 else break;
             }
@@ -104,7 +107,7 @@ init_seq(void)
         if ((ord & 7ULL) == 0) {   /* ord divisible by 8 */
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq_vals = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+                seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
             }
             seq_vals[seq_len++] = (seq_t)p;
         }

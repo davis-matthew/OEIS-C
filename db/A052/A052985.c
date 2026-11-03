@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n) = 3*a(n-1) - a(n-2) + a(n-3) - a(n-4)   for n≥4   */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoization array            */
 static size_t  cap   = 0;        /* allocated capacity           */
@@ -27,11 +29,11 @@ static void ensure(idx_t n)
     /* grow the cache array if needed */
     if (cache == NULL) {
         cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
     }
     while (cap <= (size_t)n) {
         cap *= 2;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * cap);
+        cache = mem_resize(seq_t, cache, cap);
     }
     /* compute missing terms */
     while (next <= n) {

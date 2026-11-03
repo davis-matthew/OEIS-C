@@ -10,7 +10,8 @@
  *            x^k)) = (∏_{k≥1} (1 - 2x^k)) * p(x)
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    Thus D can be built in O(n^2) using only additions/subtractions. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
     /* Grow pre‑computed tables if necessary */
     if (n > max_n) {
         idx_t new_max = n;
-        seq_t *p_new = (seq_t*)calloc(new_max + 1, sizeof(seq_t));
-        seq_t *D_new = (seq_t*)calloc(new_max + 1, sizeof(seq_t));
+        seq_t *p_new = mem_new(seq_t, new_max + 1);
+        seq_t *D_new = mem_new(seq_t, new_max + 1);
 
         /* ---------- 1. Partition numbers p(n) ----------
            p[0] = 1, p[s] = Σ_{k=1}^s p[s - k]           */
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old tables */
-        free(p); free(D);
+        mem_free(p); mem_free(D);
         p = p_new;
         D = D_new;
         max_n = new_max;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = A001097(n+1) (twin primes greater than 3)
  * Range:     u8 n <= 32, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>        /* for malloc, realloc */
 #include <stdint.h>        /* for uint64_t */
 #include <stdbool.h>       /* for bool */
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(uint64_t) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Static cache for already computed terms. */
 static seq_t *cache = NULL;      /* array of terms */
@@ -30,7 +32,7 @@ static void grow_cache(size_t new_cap)
     if (new_cap <= cache_cap)
         return;
     size_t new_size = new_cap > 8 ? new_cap : 8;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) {
         /* Should never happen in the test harness. */
         abort();
@@ -51,16 +53,16 @@ seq_t a(idx_t n)
         if (last_checked < 5)          /* skip 1,2,3,4 – we start at 5 */
             continue;
 
-        if (!is_prime_small((uint64_t)last_checked))
+        if (!is_prime_seq((uint64_t)last_checked))
             continue;                 /* not prime */
 
         /* Check for twin prime partner (>3). */
         bool has_twin = false;
         if (last_checked > 5 &&
-            is_prime_small((uint64_t)(last_checked - 2)))
+            is_prime_seq((uint64_t)(last_checked - 2)))
             has_twin = true;
         if (!has_twin && last_checked > 3 &&
-            is_prime_small((uint64_t)(last_checked + 2)))
+            is_prime_seq((uint64_t)(last_checked + 2)))
             has_twin = true;
 
         if (!has_twin)

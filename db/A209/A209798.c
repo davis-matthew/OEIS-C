@@ -9,12 +9,14 @@
  * Formula:   a(n) = 2*B(n)+n-1, where B(n) is the nth Bell number
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,11 +33,11 @@ seq_t a(idx_t n)
     /* first call: initialise arrays */
     if (Bell == NULL) {
         bell_cap = 1;
-        Bell = (seq_t *)malloc(bell_cap * sizeof(seq_t));
+        Bell = mem_new(seq_t, bell_cap);
         Bell[0] = (seq_t)1;          /* B(0) = 1 */
 
         stir_cap = 1;
-        Stir = (seq_t *)malloc(stir_cap * sizeof(seq_t));
+        Stir = mem_new(seq_t, stir_cap);
         Stir[0] = (seq_t)1;          /* S(0,0) = 1 */
 
         max_n = 0;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         /* enlarge Stirling array if needed */
         if (stir_cap <= m) {
             size_t newcap = m + 1;
-            seq_t *tmp = (seq_t *)realloc(Stir, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, Stir, newcap);
             for (idx_t i = max_n + 1; i < newcap; ++i)
                 tmp[i] = (seq_t)0;
             Stir = tmp;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         /* enlarge Bell array if needed */
         if (bell_cap <= m) {
             size_t newcap = m + 1;
-            seq_t *tmp = (seq_t *)realloc(Bell, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, Bell, newcap);
             Bell = tmp;
             bell_cap = newcap;
         }

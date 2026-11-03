@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 113, u16 n <= 113, u32 n <= 113, u64 n <= 113,
  *            u128 n <= 113, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 113 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime sieve up to 1 000 000 ---------- */
 static uint32_t *prime_list = NULL;
@@ -231,7 +233,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         init_primes();
         cache_init();
-        a_seq = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_seq = mem_new(seq_t, a_cap);
         initialized = true;
     }
 
@@ -246,7 +248,7 @@ seq_t a(idx_t n)
             /* grow a_seq if needed */
             if (a_len == a_cap) {
                 a_cap <<= 1;
-                a_seq = (seq_t *)realloc(a_seq, a_cap * sizeof(seq_t));
+                a_seq = mem_resize(seq_t, a_seq, a_cap);
             }
             a_seq[a_len++] = (seq_t)candidate;
         }

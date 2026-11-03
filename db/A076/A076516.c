@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 230, u64 n <= 230,
  *            u128 n <= 230, big any n
- * Helpers:   factor_u64, floor_sqrt, is_prime_small, mod_pow
+ * Validated: standard, pass, 51 terms through n = 205 (2026-11-03)
+ * Helpers:   factor_u64, ipow_i32, is_prime_seq, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,10 +26,30 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(seq_t n); */
-#include "../utils/mod_pow.h"          /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/floor_sqrt.h"      /* seq_t floor_sqrt(seq_t x); */
-#include "../utils/factor_u64.h"      /* void factor_u64(uint64_t n, uint64_t *primes, uint64_t *exps, size_t *cnt); */
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *terms   = NULL;   /* stored primes */
 static size_t terms_len = 0;    /* number of primes found so far */
@@ -43,7 +64,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = terms_cap ? terms_cap << 1 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
     terms = new_arr;
     terms_cap = new_cap;
 }
@@ -62,7 +83,7 @@ seq_t a(idx_t n)
         /* Ignore numbers that are too small or obviously not primes. */
         if (p_num < 5ULL)
             continue;
-        if (!is_prime_small((seq_t)p_num))
+        if (!is_prime_seq((seq_t)p_num))
             continue;
 
         /* Compute the multiplicative order of 10 mod p. */
@@ -81,7 +102,7 @@ seq_t a(idx_t n)
                 if (order % q != 0)
                     break;
                 uint64_t cand = order / q;
-                if (mod_pow((seq_t)10, cand, (seq_t)p_num) == (seq_t)1)
+                if (powmod((seq_t)10, cand, (seq_t)p_num) == (seq_t)1)
                     order = cand;
                 else
                     /* further division by the same prime would increase the exponent */

@@ -8,18 +8,19 @@
  *            ((p-1)! mod p^2 + 1)/p mod p
  * Range:     u8 n <= 59, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   a2068_isprime, a2068_nth_prime
+ * Validated: standard, pass, 82 terms through n = 1844 (2026-11-03)
+ * Helpers:   is_prime_u64, nth_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a2068_isprime.h"
-#include "../utils/a2068_nth_prime.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/nth_prime.h"
 
 seq_t a(idx_t n) {
-    uint64_t p = a2068_nth_prime(n);
+    uint64_t p = nth_prime(n);
     if (p == 2) return (seq_t)1;
     unsigned __int128 p2 = (unsigned __int128)p * p;
     unsigned __int128 fact = 1;

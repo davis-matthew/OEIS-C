@@ -12,12 +12,14 @@
  *            row‑major order (row 0, row 1, …)
  * Range:     u8 n <= 14, u16 n <= 54, u32 n <= 170, u64 n <= 665,
  *            u128 n <= 1274, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1244 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         size_t next = row_count;          /* new row index */
         size_t len  = next + 1;           /* number of elements in this row */
 
-        seq_t *newrow = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *newrow = mem_new(seq_t, len);
         if (next == 0) {
             /* Base row: T(0,0)=1 */
             newrow[0] = 1;

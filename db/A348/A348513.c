@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = n - Sum_{m|n} μ(n/m) * ∏_{p|m} (1 + p^{v_p(m)})
- * Range:     u8 n <= 395, u16 n <= 9666, u32 n <= 9666, u64 n <= 9666,
- *            u128 n <= 9666, big any n
+ * Range:     u8 n <= 395, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 114 terms through n = 9666 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static void dfs(const uint64_t *pr, const uint64_t *ex, size_t pcnt,

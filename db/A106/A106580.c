@@ -9,14 +9,30 @@
  *            n-th element of the triangle read by rows
  * Range:     u8 n <= 61, u16 n <= 150, u32 n <= 491, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   row_of_index
+ * Validated: standard, pass, 107 terms through n = 1273 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/row_of_index.h"
+#include "../utils/mem.h"
+
+static inline idx_t row_of_index(idx_t n)
+{
+    /* Binary search for the largest r with r*(r+1)/2 <= n. */
+    idx_t low = 0, high = n, mid, tri;
+    idx_t r = 0;
+    while (low <= high)
+    {
+        mid = low + (high - low) / 2;
+        tri = mid * (mid + 1) / 2;
+        if (tri <= n) { r = mid; low = mid + 1; }
+        else           high = mid - 1;
+    }
+    return r;
+}
 
 /* Static storage for computed rows.  rows[i] points to an array of length i+1. */
 static seq_t **rows = NULL;      /* pointer array */
@@ -42,7 +58,7 @@ static void ensure_rows_cap(idx_t max_index)
 static void compute_row(idx_t n)
 {
     /* Allocate storage for the new row.  */
-    seq_t *row = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)(n + 1));
     if (!row) abort();              /* out of memory */
 
     /* Base case: first entry is always 1.  */
@@ -50,7 +66,7 @@ static void compute_row(idx_t n)
 
     if (n > 0) {
         /* Temporary array collecting the Σ_{i≥1} T(n-2i,k-i) contributions. */
-        seq_t *S = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        seq_t *S = mem_new(seq_t, (size_t)(n + 1));
         if (!S) abort();
 
         /* For all i such that n-2i ≥ 0, accumulate contributions from row n-2i. */
@@ -67,7 +83,7 @@ static void compute_row(idx_t n)
             row[k] = row[k - 1] + S[k];
         }
 
-        free(S);
+        mem_free(S);
     }
 
     /* Store the computed row. */

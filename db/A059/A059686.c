@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   dfs_match
+ * Validated: standard, pass, 96 terms through n = 8584 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,25 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/dfs_match.h"
+
+/* Recursive DFS used to find an augmenting path. */
+static int dfs_match(int u,
+                     const uint32_t **factors, const size_t *sz,
+                     int *match, char *visited)
+{
+    size_t i;
+    for (i = 0; i < sz[u]; ++i) {
+        uint32_t p = factors[u][i];
+        if (visited[p])
+            continue;
+        visited[p] = 1;
+        if (match[p] == -1 || dfs_match(match[p], factors, sz, match, visited)) {
+            match[p] = u;
+            return 1;
+        }
+    }
+    return 0;
+}
 
 /* Global smallest‑prime‑factor table (lazily built). */
 static uint32_t *global_spf = NULL;

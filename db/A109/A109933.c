@@ -8,7 +8,8 @@
  *            increasing order
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   gen_divisors_recursive
+ * Validated: full, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gen_divisors_recursive.h"
+#include "../utils/mem.h"
+
+/* Generates all divisors of N (uint64_t) into the array *divs, updating *cnt and *cap. */
+static void gen_divisors_recursive(const uint32_t *pf, const uint8_t *exp, size_t pcnt,
+                                   uint64_t cur, size_t pos, uint64_t *divs, size_t *cnt, size_t *cap) {
+    if (pos == pcnt) {
+        if (*cnt == *cap) {
+            *cap *= 2;
+            divs = (uint64_t*)realloc(divs, *cap * sizeof(uint64_t));
+        }
+        divs[(*cnt)++] = cur;
+        return;
+    }
+    uint64_t p = (uint64_t)pf[pos];
+    uint64_t val = cur;
+    for (uint8_t e = 0; e <= exp[pos]; e++) {
+        gen_divisors_recursive(pf, exp, pcnt, val, pos + 1, divs, cnt, cap);
+        val *= p;
+    }
+}
 
 /* ------------ helpers for factorisation and divisor generation ------------ */
 
@@ -94,7 +114,7 @@ seq_t a(idx_t n) {
         /* sort */
         qsort(tmp_divs, tmp_cnt, sizeof(uint64_t), cmp_uint64);
         /* convert to seq_t array */
-        divs = (seq_t*)malloc(tmp_cnt * sizeof(seq_t));
+        divs = mem_new(seq_t, tmp_cnt);
         for (size_t i = 0; i < tmp_cnt; i++) divs[i] = (seq_t)tmp_divs[i];
         div_cnt = tmp_cnt;
         free(tmp_divs);

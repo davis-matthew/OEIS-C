@@ -7,8 +7,9 @@
  * Formula:   a(n) = A000265(2*n - popcount(n)) where A000265(x) is the
  *            largest odd divisor of x. popcount(n) is the number of 1‑bits in
  *            the binary representation of n
- * Range:     u8 n <= 129, u16 n <= 9415, u32 n <= 9415, u64 n <= 9415,
- *            u128 n <= 9415, big any n
+ * Range:     u8 n <= 129, u16 n <= 16385, u32 n <= 16385, u64 n <= 16385,
+ *            u128 n <= 16385, big any n
+ * Validated: standard, pass, 95 terms through n = 9415 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

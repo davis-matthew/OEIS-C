@@ -7,13 +7,15 @@
  * Formula:   a(n) = the nth divisor of 504 in ascending order
  * Range:     u8 n <= 22, u16 n <= 24, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *x, const void *y)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        qsort(divs, 24, sizeof(seq_t), cmp_seq);
+        mem_qsort(divs, 24, sizeof(seq_t), cmp_seq);
         init = true;
     }
 

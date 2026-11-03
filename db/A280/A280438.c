@@ -12,7 +12,8 @@
  *            a(5)=360, a(6)=548, a(7)=834
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 38, u64 n <= 83, u128 n <= 174,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache. Index 0 is unused; cache[n] holds a(n). */
 static seq_t *cache      = NULL;   /* pointer to allocated array of seq_t */
@@ -33,13 +35,13 @@ ensure_cache(idx_t max_index)
     if (cache == NULL) {
         /* initial allocation */
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return;      /* allocation failure, caller will handle */
     }
     if ((size_t)(max_index + 1) > cache_cap) {
         size_t new_cap = cache_cap * 2;
         while ((size_t)(max_index + 1) > new_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return;        /* realloc failure, keep old cache */
         cache = tmp;
         cache_cap = new_cap;

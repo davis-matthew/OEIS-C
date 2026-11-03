@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 74, u32 n <= 231, u64 n <= 780,
  *            u128 n <= 1002, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    and works with any of the provided integer types. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached array of A000700 values
    f_arr[i] = number of partitions of i into distinct odd parts   */
@@ -34,7 +36,7 @@ static idx_t  f_cap = 0;   /* highest index computed in f_arr */
 static void recompute_f(idx_t limit)
 {
     size_t cap = (size_t)(limit + 1);
-    seq_t *new_f = (seq_t *)calloc(cap, sizeof(seq_t));
+    seq_t *new_f = mem_new(seq_t, cap);
     if (!new_f) return;          /* memory allocation failed – stay with old data */
 
     new_f[0] = 1;                 /* empty partition */
@@ -44,7 +46,7 @@ static void recompute_f(idx_t limit)
         }
     }
 
-    free(f_arr);
+    mem_free(f_arr);
     f_arr = new_f;
     f_cap  = limit;
 }

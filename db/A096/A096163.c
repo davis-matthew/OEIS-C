@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   count_distinct_primes, count_prime_factors, next_prime
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   bigomega_seq, next_prime, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"              /* uint64_t next_prime(uint64_t start); */
-#include "../utils/count_distinct_primes.h"   /* int count_distinct_primes(uint64_t n); */
-#include "../utils/count_prime_factors.h"     /* seq_t count_prime_factors(seq_t n); */
+#include "../utils/bigomega_seq.h"
+#include "../utils/next_prime.h"
+#include "../utils/omega.h"
 
 /*--- Public function ----------------------------------------------------*/
 seq_t a(idx_t n)
@@ -35,13 +36,13 @@ seq_t a(idx_t n)
         candidate = next_prime(candidate);
 
         uint64_t m = candidate - 1;                  /* candidate‑1 */
-        if (count_distinct_primes(m) != 3) {          /* need exactly 3 distinct primes */
+        if (omega(m) != 3) {          /* need exactly 3 distinct primes */
             ++candidate;   /* skip to next odd (next_prime will handle this) */
             continue;
         }
         /* count_prime_factors returns the total number of prime factors
            (with multiplicity).  We require exactly 3 and all distinct.    */
-        if (count_prime_factors((seq_t)m) != 3) {
+        if (bigomega_seq((seq_t)m) != 3) {
             ++candidate;
             continue;
         }

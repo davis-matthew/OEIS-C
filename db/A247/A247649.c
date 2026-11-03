@@ -9,7 +9,8 @@
  *            x^2)^n (mod 2)
  * Range:     u8 n <= 94, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   xor_shift
+ * Validated: standard, pass, 80 terms through n = 9245 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,31 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/xor_shift.h"
+#include "../utils/mem.h"
+
+/* XOR src into dst after shifting src left by 'shift' bits
+   (shift is 0..4).  src_len and dst_len are in words. */
+static void xor_shift(const uint64_t *src, size_t src_len,
+                      uint64_t *dst, size_t dst_len,
+                      unsigned shift)
+{
+    if (src_len == 0 || shift > 4) return;
+    if (shift == 0) {
+        for (size_t i = 0; i < src_len && i < dst_len; ++i)
+            dst[i] ^= src[i];
+        return;
+    }
+    unsigned bit_shift = shift;                /* 1..4 */
+    uint64_t carry = 0;
+    size_t i = 0;
+    for (; i < src_len; ++i) {
+        uint64_t w = src[i];
+        uint64_t shifted = (w << bit_shift) | carry;
+        if (i < dst_len) dst[i] ^= shifted;
+        carry = w >> (64 - bit_shift);
+    }
+    if (carry && i < dst_len) dst[i] ^= carry;
+}
 
 /* Static cache of already computed values */
 static seq_t *cache = NULL;
@@ -50,7 +75,7 @@ static void compute_to(idx_t n)
 
     /* Allocate or grow cache */
     if ((idx_t)(n + 1) > cache_size) {
-        seq_t *tmp = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         cache_size = n + 1;

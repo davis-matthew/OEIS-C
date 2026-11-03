@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn, base
  * Formula:   not stated
- * Range:     u8 none, u16 none, u32 n <= 52, u64 n <= 52, u128 n <= 52,
- *            big any n
- * Helpers:   digits, is_prime_seq, pow10_seq
+ * Range:     u8 none, u16 none, u32 n <= 1360, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 68 terms through n = 9981 (2026-11-01)
+ * Helpers:   is_prime_seq, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,20 @@
    The sequence is stored in a static array; this is sufficient for
    indices up to at least 10 000. */
 #include <stdbool.h>
-#include "../utils/digits.h"
-#include "../utils/pow10_seq.h"
+#include <stdint.h>
 #include "../utils/is_prime_seq.h"
+#include "../utils/num_digits_idx.h"
+
+/* return 10^exp as seq_t */
+static seq_t pow10_seq(idx_t exp)
+{
+    seq_t res = (seq_t)1;
+    while (exp != 0) {
+        res *= 10;
+        --exp;
+    }
+    return res;
+}
 
 #define MAX_TERMS 20000   /* enough for all required tests */
 
@@ -44,7 +56,7 @@ seq_t a(idx_t n)
         ++last_checked;         /* next candidate */
 
         /* Skip candidates that cannot satisfy the necessary conditions. */
-        idx_t d = digits(last_checked);          /* number of decimal digits */
+        idx_t d = num_digits_idx(last_checked);          /* number of decimal digits */
         if ((d & 1) || (last_checked % 3 == 2)) continue;
 
         /* Build the number 1nn1:

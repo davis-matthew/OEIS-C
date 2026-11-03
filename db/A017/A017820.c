@@ -9,12 +9,14 @@
  *            1, a(6) = 2 (Number of compositions of n into parts 3,4,5,6,7)
  * Range:     u8 n <= 20, u16 n <= 36, u32 n <= 68, u64 n <= 132,
  *            u128 n <= 261, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initial cache setup */
     if (cache == NULL) {
         cache_len = 7;                         /* store indices 0..6 */
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)0;
         cache[2] = (seq_t)0;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* grow cache to hold up to n */
     size_t new_len = (size_t)n + 1;
     if (new_len > (size_t)cache_len) {
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         /* recompute values from old length up to n */
         for (idx_t i = cache_len; i <= n; ++i) {
             if (i <= 6) {

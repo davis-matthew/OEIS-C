@@ -12,14 +12,15 @@
  *            is odd, = 1 otherwise
  * Range:     u8 n <= 66, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
- * Helpers:   gcd_seq
+ * Validated: partial, pass, 91 terms through n = 92 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_seq.h"
+#include "../utils/gcd.h"
 
 /* Euclidean algorithm for seq_t */
 
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
     seq_t row = (seq_t) r;
     seq_t ccol = (seq_t) col;
 
-    bool coprime = (gcd_seq(row, ccol) == 1);
+    bool coprime = (gcd(row, ccol) == 1);
     bool odd_sum = ((r + col) & 1) != 0;   /* (row + col) is odd */
 
     if (coprime && odd_sum)

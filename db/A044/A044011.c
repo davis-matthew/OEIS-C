@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1280, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has18or81
+ * Validated: standard, pass, 57 terms through n = 9711 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has18or81.h"
+#include "../utils/mem.h"
+
+/* Return true if x contains the substring "18" or "81" in base 10. */
+static bool has18or81(seq_t x)
+{
+    if (x < 10) return false;
+    unsigned char digits[50];
+    int len = 0;
+    seq_t t = x;
+    while (t) {
+        digits[len++] = (unsigned char)(t % 10);
+        t /= 10;
+    }
+    for (int i = len - 1; i > 0; --i) {
+        if (digits[i] == 1 && digits[i - 1] == 8) return true;
+        if (digits[i] == 8 && digits[i - 1] == 1) return true;
+    }
+    return false;
+}
 
 /* Return the nth element (n >= 1) of the sequence. */
 seq_t a(idx_t n)
@@ -37,7 +56,7 @@ seq_t a(idx_t n)
     if (cap < (size_t)n) {
         size_t new_cap = cap ? cap * 2 : 16;
         if (new_cap < (size_t)n) new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cap = new_cap;
     }

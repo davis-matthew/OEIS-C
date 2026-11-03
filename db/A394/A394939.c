@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 23, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;           /* offset entry */
@@ -40,13 +42,13 @@ seq_t a(idx_t n) {
     ---------------------------------*/
     if (!A) {
         sizeA = 2;                         /* need indices 0..1    */
-        A   = (seq_t *)malloc(sizeof(seq_t) * sizeA);
+        A   = mem_new(seq_t, sizeA);
         A[0] = (seq_t)0;
         A[1] = (seq_t)1;
         computed = 1;
 
         sizeT = 3;                         /* indices 0..2 needed  */
-        T   = (seq_t *)malloc(sizeof(seq_t) * sizeT);
+        T   = mem_new(seq_t, sizeT);
         for (idx_t i = 0; i < sizeT; ++i) T[i] = (seq_t)0;
         T[2] = A[1] * A[1];                /* contribution of (1,1)*/
     }
@@ -58,7 +60,7 @@ seq_t a(idx_t n) {
         /* extend A array to hold a[0..n]        */
         if (sizeA <= n) {
             size_t newA = n + 1;
-            seq_t *tmp = (seq_t *)realloc(A, sizeof(seq_t) * newA);
+            seq_t *tmp = mem_resize(seq_t, A, newA);
             for (size_t i = sizeA; i < newA; ++i) tmp[i] = (seq_t)0;
             A = tmp;
             sizeA = newA;
@@ -66,7 +68,7 @@ seq_t a(idx_t n) {
         /* ensure T array can hold sums up to 2*n  */
         size_t newT = 2 * n + 1;
         if (sizeT < newT) {
-            seq_t *tmp = (seq_t *)realloc(T, sizeof(seq_t) * newT);
+            seq_t *tmp = mem_resize(seq_t, T, newT);
             for (size_t i = sizeT; i < newT; ++i) tmp[i] = (seq_t)0;
             T = tmp;
             sizeT = newT;

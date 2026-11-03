@@ -8,14 +8,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = #{ k ≥ 1 : n - L(k) is a positive squarefree number }
  *            where L(1)=1, L(2)=3 and L(k)=L(k-1)+L(k-2)
- * Range:     u8 n <= 1316, u16 n <= 8948, u32 n <= 8948, u64 n <= 8948,
- *            u128 n <= 8948, big any n
+ * Range:     u8 n <= 1316, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 106 terms through n = 8948 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
 
 seq_t a(idx_t n)

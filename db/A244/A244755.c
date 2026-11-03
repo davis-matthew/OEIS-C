@@ -7,13 +7,16 @@
  * Formula:   a(n) = Sum_{k=0..n} C(n,k) * (1 + 3^k)^(n-k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 33 terms through n = 86 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +27,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= n; ++k)
     {
         seq_t base  = pow3 + 1;                /* 1 + 3^k */
-        seq_t term  = seq_pow(base, n - k);    /* (1 + 3^k)^(n-k) */
+        seq_t term  = ipow_idx(base, n - k);    /* (1 + 3^k)^(n-k) */
         term        = term * binom;            /* C(n,k) * term */
         result      = result + term;           /* accumulate */
 

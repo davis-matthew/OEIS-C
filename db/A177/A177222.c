@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   isPrimeTrial
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 #define PRIME_LIMIT 10000000U          /* primes up to 10 million */
 
@@ -77,7 +79,7 @@ static void init_primes(void)
 static bool is_prime(uint64_t n)
 {
     if (n <= PRIME_LIMIT) return prime_sieve[(size_t)n] == 0;
-    return isPrimeTrial((seq_t)n);
+    return is_prime_seq((seq_t)n);
 }
 
 /* ------------------------------------------------------------------ */
@@ -111,7 +113,7 @@ static void ensure_cache(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return;               /* allocation failure unlikely */
     cache = tmp;
     cache_cap = new_cap;

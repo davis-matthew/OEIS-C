@@ -7,13 +7,27 @@
  * Formula:   a(n) = Fibonacci(n) written in base 6, interpreted as decimal
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 38, u64 n <= 73, u128 n <= 145,
  *            big any n
- * Helpers:   convert_to_base6
+ * Validated: standard, pass, 49 terms through n = 874 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/convert_to_base6.h"
+#include "../utils/mem.h"
+
+static seq_t convert_to_base6(seq_t fib) {
+    if (fib == 0) return 0;
+    seq_t result = 0;
+    seq_t power = 1;
+    while (fib > 0) {
+        seq_t digit = fib % 6;
+        result += digit * power;
+        power *= 10;
+        fib /= 6;
+    }
+    return result;
+}
 
 static seq_t fib(idx_t n) {
     if (n == 0) return 0;
@@ -25,13 +39,13 @@ static seq_t fib(idx_t n) {
     if (n >= cache_len) {
         idx_t old_len = cache_len;
         idx_t new_len = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         
         if (cache != NULL) {
             for (idx_t i = 0; i < old_len; i++) {
                 new_cache[i] = cache[i];
             }
-            free(cache);
+            mem_free(cache);
         } else {
             new_cache[0] = 0;
             new_cache[1] = 1;

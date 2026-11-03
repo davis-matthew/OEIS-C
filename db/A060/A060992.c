@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{i=1..⌊n/2⌋} gcd(n-i, i)
  * Range:     u8 n <= 89, u16 n <= 6299, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   local_gcd_uint64
+ * Validated: standard, pass, 78 terms through n = 9737 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
    build environment. */
 
 #include <stdint.h>
-#include "../utils/local_gcd_uint64.h"
+
+/* Local Euclidean GCD for unsigned 64‑bit values. */
+static inline seq_t local_gcd_uint64(uint64_t a, uint64_t b)
+{
+    while (b != 0) {
+        uint64_t t = b;
+        b = a % b;
+        a = t;
+    }
+    return (seq_t)a;
+}
 
 seq_t a(idx_t n)
 {

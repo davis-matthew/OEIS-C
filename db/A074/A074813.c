@@ -8,14 +8,15 @@
  * Formula:   a(n) = number of primes between n and rev(n) (inclusive)
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   rev
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/rev.h"     /*  rev(idx_t)  */
+#include "../utils/reverse_digits_idx.h"
 
 static bool *prime_sieve = NULL;   /*  prime_sieve[i] == true <=> i is prime (0‑based) */
 static idx_t sieve_limit   = 0;     /*  maximum number for which the sieve is built */
@@ -81,7 +82,7 @@ static void ensure_sieve(idx_t limit)
 seq_t a(idx_t n)
 {
     /* Reverse decimal digits of n.  */
-    idx_t rev_n = rev(n);
+    idx_t rev_n = reverse_digits_idx(n);
 
     /* Determine the inclusive window.  */
     idx_t low  = (n < rev_n) ? n : rev_n;

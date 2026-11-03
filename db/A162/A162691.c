@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator to sort seq_t values in ascending order. */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -46,7 +48,7 @@ static void _init_terms(void)
             temp[tcnt++] = k;
         }
     }
-    qsort(temp, tcnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(temp, tcnt, sizeof(seq_t), cmp_seq_t);
     for (size_t i = 0; i < tcnt; ++i) {
         _a_terms[i] = temp[i];
     }

@@ -11,7 +11,8 @@
  *            few evaluations
  * Range:     i8 n <= 6, i16 n <= 13, i32 n <= 27, i64 n <= 33, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of already computed values */
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     /* Initialise cache with first 4 terms on first call */
     if (cache == NULL) {
         cache_size = 4;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = 1;
         cache[1] = 1;
         cache[2] = 0;
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     if ((idx_t)n >= cache_size) {
         size_t new_size = cache_size;
         while (new_size <= (size_t)n) new_size <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) return 0; /* allocation failure – return 0 as fallback */
         cache = tmp;
         cache_size = new_size;

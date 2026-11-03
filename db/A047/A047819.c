@@ -7,13 +7,16 @@
  * Formula:   a(n) = ∏_{i=1..n} ((i+3)(i+4)(i+5))/(i(i+1)(i+2))
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 29, u64 n <= 375,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 43 terms through n = 9720 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

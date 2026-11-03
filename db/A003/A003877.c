@@ -10,13 +10,28 @@
  *            Sum_{corners c} f^(lambda - c), f^() = 1
  * Range:     u8 n <= 2, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   syt_count
+ * Validated: full, pass, 101 terms through n = 101 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/syt_count.h"
+
+static seq_t syt_count(int *part, int plen) {
+    if (plen == 0) return 1;
+    seq_t total = 0;
+    for (int i = 0; i < plen; i++) {
+        /* row i has a removable corner if it is the last row or strictly longer than the next */
+        if (i == plen - 1 || part[i] > part[i + 1]) {
+            part[i]--;
+            int newlen = (part[i] == 0) ? plen - 1 : plen;
+            total += syt_count(part, newlen);
+            part[i]++;
+        }
+    }
+    return total;
+}
 
 static seq_t degrees_cache[101];
 static int cache_size = 0;

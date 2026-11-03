@@ -10,7 +10,8 @@
  *            binomial(n, floor(n/2)) equals 1 )
  * Range:     u8 n <= 34, u16 n <= 98, u32 n <= 218, u64 n <= 511,
  *            u128 n <= 1174, big any n
- * Helpers:   build_primes_upto, seq_pow
+ * Validated: standard, pass, 78 terms through n = 9969 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* Cached prime list up to the largest n seen. */
 static uint64_t   *prime_list  = NULL;
@@ -60,5 +61,5 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)1;   /* safety for offset handling */
     ensure_primes_upto(n);
     idx_t once = count_once_primes(n);
-    return seq_pow((seq_t)2, once);
+    return ipow_idx((seq_t)2, once);
 }

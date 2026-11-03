@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy, nice
  * Formula:   a(n) = usigma(n) – n, where usigma(n) = ∏(1 + p^e) over the
  *            prime factorization n = ∏p^e
- * Range:     u8 n <= 209, u16 n <= 9945, u32 n <= 9945, u64 n <= 9945,
- *            u128 n <= 9945, big any n
+ * Range:     u8 n <= 209, u16 n <= 30029, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 98 terms through n = 9945 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

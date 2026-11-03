@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>          /* for size_t */
 #include <stdlib.h>          /* for malloc, realloc, free */
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* cached a(n) values   */
 static size_t cache_cap = 0;    /* current capacity in bytes   */
@@ -37,7 +39,7 @@ static void ensure_capacity(idx_t n) {
     idx_t cap = cache_cap ? cache_cap : 16;
     while ((idx_t)cap <= n)
         cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, cap);
     cache = new_cache;
     cache_cap = cap;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 339, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   max_le
+ * Validated: standard, pass, 102 terms through n = 9370 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,17 @@
 /* Uses greedy alternating Lucas and Fibonacci representation. */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/max_le.h"
+
+/* Return the largest element in arr[0..sz) that is <= rem. */
+static seq_t max_le(const seq_t *arr, size_t sz, seq_t rem)
+{
+    seq_t best = arr[0];
+    for (size_t i = 1; i < sz; ++i) {
+        if (arr[i] <= rem && arr[i] > best)
+            best = arr[i];
+    }
+    return best;
+}
 
 static seq_t lucas[64];
 static size_t lucas_cnt = 0;

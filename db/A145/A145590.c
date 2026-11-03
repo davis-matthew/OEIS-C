@@ -10,14 +10,17 @@
  *            value is computed by simulating the sieve
  * Range:     u8 none, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
         }
 
         len = cnt;
-        vals = (seq_t *)malloc(len * sizeof(seq_t));
+        vals = mem_new(seq_t, len);
 
         /* sieve array: false = unmarked, true = marked */
         unsigned char *marked = (unsigned char *)calloc((size_t)(N + 1), 1);

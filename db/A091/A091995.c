@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 155, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   diag_prefix_sum
+ * Validated: standard, pass, 87 terms through n = 8882 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
    The sequence is computed from the position of the n‑th element in this
    antidiagonal ordering. */
 #include <stdint.h>
-#include "../utils/diag_prefix_sum.h"
+
+/* Prefix count of elements up to and including diagonal sum s (s≥2). */
+static inline idx_t diag_prefix_sum(idx_t s)
+{
+    if (s < 2) return 0;
+    idx_t m = s >> 1;                /* ⌊s/2⌋ */
+    return (s & 1) ? m * (m + 1) : m * m;
+}
 
 /* Return ⌊√n⌋ for n up to 2^64−1.  Uses only integer arithmetic. */
 static inline idx_t floor_sqrt_u64(idx_t n)

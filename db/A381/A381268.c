@@ -8,11 +8,13 @@
  * Formula:   a(n) = 2^(6*n - 4*popcount(n))
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 11, u128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Portable popcount for idx_t (assumed 64‑bit). */

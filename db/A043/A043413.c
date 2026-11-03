@@ -8,14 +8,29 @@
  *            contains exactly one digit 5
  * Range:     u8 n <= 70, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_one_five
+ * Validated: standard, pass, 74 terms through n = 917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_one_five.h"
+#include "../utils/mem.h"
+
+/* Returns true iff x has exactly one digit 5 in its base‑7 expansion. */
+static bool has_one_five(seq_t x)
+{
+    unsigned cnt = 0;
+    while (x != (seq_t)0) {
+        if ((x % (seq_t)7) == (seq_t)5) {
+            ++cnt;
+            if (cnt > 1) return false;
+        }
+        x /= (seq_t)7;
+    }
+    return cnt == 1;
+}
 
 /* Cache of already computed terms. */
 static seq_t *cache      = NULL;
@@ -30,7 +45,7 @@ static void ensure_cache_cap(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 1024;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache     = tmp;
     cache_cap = new_cap;

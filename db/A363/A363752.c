@@ -7,15 +7,17 @@
  * Formula:   a(n) = prime(k) such that prime(k) mod k is prime
  * Range:     u8 n <= 34, u16 n <= 1607, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, is_prime_small
+ * Validated: standard, pass, 71 terms through n = 9854 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n) {
     static uint64_t *primes = NULL;
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
         idx_t k = processed;      /* 1‑based index of this prime */
         uint64_t rem = prime % k; /* compute prime(k) mod k */
 
-        if (rem > 1 && is_prime_small((seq_t)rem)) {
+        if (rem > 1 && is_prime_seq((seq_t)rem)) {
             ++found;
             last_special = (seq_t)prime;
         }

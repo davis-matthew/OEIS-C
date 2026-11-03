@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   binom, cum_count, pow2
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,9 +32,19 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/cum_count.h"
+
+/* cumulative number of elements up to and including row 'r' (0‑based) */
+static idx_t cum_count(idx_t r)
+{
+    idx_t p = r >> 1;               /* floor(r/2) */
+    if ((r & 1) == 0) {             /* even row: r = 2p */
+        return (p + 1) * (p + 1);
+    } else {                        /* odd row: r = 2p+1 */
+        return (p + 1) * (p + 2);
+    }
+}
 
 /* Main sequence function.  The index n is 1‑based: a(1) is the first term. */
 seq_t a(idx_t n)
@@ -51,7 +62,7 @@ seq_t a(idx_t n)
     idx_t k = n - prev - 1;
 
     /* Compute binomial coefficient C(r-k, k) and 2^(r-2k). */
-    seq_t bin   = binom(r - k, k);
+    seq_t bin   = binomial(r - k, k);
     seq_t pow2ex = pow2(r - 2 * k);
 
     return bin * pow2ex;

@@ -11,14 +11,29 @@
  *            with that k; the row with k=1 (C(n,1)=n) is counted i...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom_leq
+ * Validated: standard, pass, 116 terms through n = 9663 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom_leq.h"
+
+/* binom_leq(r,k,target) returns
+   C(r,k) if it is ≤ target, otherwise target+1.
+   All arithmetic is performed in __int128, 
+   which is safe because res ≤ target ≤ 2^64-1. */
+static seq_t binom_leq(idx_t r, idx_t k, idx_t target)
+{
+    __int128 res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * ( (__int128)(r + 1 - i) );
+        res = res / i;
+        if (res > target) return target + 1;
+    }
+    return (seq_t)res;
+}
 
 seq_t a(idx_t n)
 {

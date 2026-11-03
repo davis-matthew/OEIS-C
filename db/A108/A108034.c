@@ -7,6 +7,7 @@
  * Formula:   a(n) = n!*(9*n^4-78*n^3+235*n^2-438*n+680)/72
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 10, u64 n <= 17, u128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 21 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

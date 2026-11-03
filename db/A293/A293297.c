@@ -10,13 +10,15 @@
  *            derivative of x^x (t = log x) evaluated at x=1
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 14, i64 n <= 22, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 128;
         while (new_cap < (size_t)n + 1)
             new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
     /* Resize factorial array if necessary */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         size_t new_cap = fact_cap ? fact_cap * 2 : 128;
         while (new_cap < (size_t)n + 2)
             new_cap <<= 1;
-        fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_cap);
         fact_cap = new_cap;
     }
 

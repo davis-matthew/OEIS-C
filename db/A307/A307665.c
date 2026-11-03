@@ -8,14 +8,17 @@
  * Formula:   a(n) = Sum_{j=0..⌊n/k⌋} binomial(2*n, k*j+n) where (n,k) are the
  *            coordinates of the square array A(n,k) (n≥0, k≥1) read by
  *            antidiagonals (n is the row index, k the column index)
- * Range:     u8 n <= 13, u16 n <= 43, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The utility binomial function is provided by the build. */
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
 #include <stdint.h>   /* for UINT64_MAX */
 

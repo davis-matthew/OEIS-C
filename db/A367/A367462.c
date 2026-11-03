@@ -8,11 +8,13 @@
  *            binomial(n-2k+1,n-3k)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 33, u128 n <= 33,
  *            big any n
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -10,12 +10,14 @@
  *            otherwise the largest e with k^e | n
  * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 47, u64 n <= 143, u128 n <= 719,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 66 terms through n = 9493 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
             ++exp;
             t /= k;
         }
-        result = result * pow_uint(k, exp);
+        result = result * ipow_u64_idx(k, exp);
     }
     return result;
 }

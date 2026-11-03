@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root for unsigned 64‑bit values (no math.h). */
 static uint64_t u64_isqrt(uint64_t v)
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         seq_t **new_tri = (seq_t **)realloc(tri, new_rows * sizeof(seq_t *));
         tri = new_tri;
         for (size_t i = tri_rows; i < new_rows; ++i) {
-            tri[i] = (seq_t *)calloc(i + 1, sizeof(seq_t));
+            tri[i] = mem_new(seq_t, i + 1);
             /* Fill the new row i. */
             if (i == 0) {
                 tri[0][0] = (seq_t)1;

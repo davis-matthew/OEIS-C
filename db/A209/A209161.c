@@ -12,13 +12,15 @@
  *            1,2,3,… and each row r has r coefficients (v(r...
  * Range:     u8 n <= 19, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Helper: ensure that the cache can hold indices up to 'need' (0‑based size). */
 static void _ensure_cache(size_t need, seq_t **cache, size_t *cap)
@@ -26,7 +28,7 @@ static void _ensure_cache(size_t need, seq_t **cache, size_t *cap)
     if (need <= *cap) return;
     size_t new_cap = (*cap) ? (*cap) << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *cache, new_cap);
     if (!tmp) abort();                     /* allocation failure */
     *cache = tmp;
     *cap   = new_cap;
@@ -50,8 +52,8 @@ seq_t a(idx_t n)
 
     /* Initialise the first row if this is the first call. */
     if (max_row == 0) {
-        u_prev = (seq_t *)malloc(sizeof(seq_t));
-        v_prev = (seq_t *)malloc(sizeof(seq_t));
+        u_prev = mem_new(seq_t, 1);
+        v_prev = mem_new(seq_t, 1);
         u_prev[0] = (seq_t)1;
         v_prev[0] = (seq_t)1;
         _ensure_cache(2, &cache, &cache_cap);   /* need space for index 1 */
@@ -63,8 +65,8 @@ seq_t a(idx_t n)
     while (max_row < r) {
         idx_t next = max_row + 1;          /* row to compute */
         /* Allocate new coefficient arrays for the next row. */
-        seq_t *new_u = (seq_t *)malloc(sizeof(seq_t) * next);
-        seq_t *new_v = (seq_t *)malloc(sizeof(seq_t) * next);
+        seq_t *new_u = mem_new(seq_t, next);
+        seq_t *new_v = mem_new(seq_t, next);
 
         /* Compute new_u[j] = u_prev[j] + v_prev[j] + v_prev[j‑1] (with bounds). */
         for (idx_t j = 0; j < next; ++j) {
@@ -89,8 +91,8 @@ seq_t a(idx_t n)
         }
 
         /* Prepare for next iteration: free old arrays and set to new ones. */
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = new_u;
         v_prev = new_v;
         max_row = next;

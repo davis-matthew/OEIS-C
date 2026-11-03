@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n‑th integer m such that tau(m) > tau(m+1)
  * Range:     u8 n <= 103, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_simple
+ * Validated: standard, pass, 78 terms through n = 9056 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_simple.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* Cache for the sequence values. */
 static seq_t *cache = NULL;
@@ -34,7 +36,7 @@ static void cache_append(seq_t val)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap == 0 ? 8 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);  /* abort on allocation failure */
         cache = tmp;
         cache_cap = new_cap;
@@ -47,8 +49,8 @@ static void ensure_cache(idx_t n)
 {
     idx_t m = next_candidate;
     while ((idx_t)cache_len < n) {
-        uint64_t tau_m  = divisor_count_simple((uint64_t)m);
-        uint64_t tau_mp = divisor_count_simple((uint64_t)(m + 1));
+        uint64_t tau_m  = num_divisors((uint64_t)m);
+        uint64_t tau_mp = num_divisors((uint64_t)(m + 1));
         if (tau_m > tau_mp)
             cache_append((seq_t)m);
         ++m;

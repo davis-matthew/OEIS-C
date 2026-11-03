@@ -9,7 +9,8 @@
  *            concatenating the first n positive integers in some order
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   cmp_numeric
+ * Validated: partial, pass, 17 terms through n = 18 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/cmp_numeric.h"
+
+/* numeric ascending comparator for generating all permutations */
+static int cmp_numeric(const void *p1, const void *p2)
+{
+    idx_t a = *(const idx_t *)p1;
+    idx_t b = *(const idx_t *)p2;
+    if (a < b) return -1;
+    if (a > b) return 1;
+    return 0;
+}
 
 /* small helper: number of decimal digits of an unsigned integer */
 static idx_t digit_count(idx_t x)

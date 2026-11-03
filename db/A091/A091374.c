@@ -9,13 +9,15 @@
  *            bigomega(1)=0)
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t *spf            = NULL;            /* smallest prime factor */
 static unsigned char *bigomega = NULL;         /* Ω(m) for m ≤ limit (fits in a byte for m<2¹⁶⁴) */
@@ -43,7 +45,7 @@ static void rebuild(idx_t limit)
     if (!bigomega) exit(EXIT_FAILURE);
 
     /* reallocate prefix sum array */
-    prefix = (seq_t *)realloc(prefix, sz * sizeof(seq_t));
+    prefix = mem_resize(seq_t, prefix, sz);
     if (!prefix) exit(EXIT_FAILURE);
 
     /* grow primes buffer if necessary */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Constants for the logarithm ratios (double precision).           */
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
             uint32_t m = prime_index[(size_t)p];
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap << 1 : 128;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)m;
         }

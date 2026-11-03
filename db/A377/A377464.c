@@ -9,12 +9,14 @@
  *            (binomial(n,j) - binomial(i,n-j))
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,20 +24,20 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Precompute C(n,k) for k = 0..n */
-    seq_t *cn = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *cn = mem_new(seq_t, (n + 1));
     cn[0] = (seq_t)1;
     for (idx_t k = 1; k <= n; ++k)
         cn[k] = cn[k - 1] * (seq_t)(n - k + 1) / (seq_t)k;
 
     /* Suffix sums of C(n,k) for k = 0..n-1 (C(n,n) not used) */
-    seq_t *suff = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *suff = mem_new(seq_t, (n + 1));
     suff[n] = (seq_t)0;
     for (idx_t k = n; k > 0; --k)
         suff[k - 1] = suff[k] + cn[k - 1];
 
     /* Arrays for current row of Pascal's triangle (C(i,k)) and its prefix sums */
-    seq_t *row = (seq_t *)calloc(n, sizeof(seq_t));   /* zeros, row[0] will be set */
-    seq_t *pre = (seq_t *)calloc(n, sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, n);   /* zeros, row[0] will be set */
+    seq_t *pre = mem_new(seq_t, n);
 
     row[0] = (seq_t)1;
     pre[0] = (seq_t)1;
@@ -64,10 +66,10 @@ seq_t a(idx_t n)
         }
     }
 
-    free(cn);
-    free(suff);
-    free(row);
-    free(pre);
+    mem_free(cn);
+    mem_free(suff);
+    mem_free(row);
+    mem_free(pre);
 
     return result;
 }

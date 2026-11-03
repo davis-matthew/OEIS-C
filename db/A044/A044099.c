@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_42_base5
+ * Validated: standard, pass, 62 terms through n = 872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_42_base5.h"
+#include "../utils/mem.h"
+
+/* Helper: true if the base‑5 representation of x contains the
+   consecutive digits 4 followed by 2 (most significant → least). */
+static bool has_42_base5(seq_t x)
+{
+    int prev = -1;          /* previous digit, most significant seen so far */
+    while (x > 0) {
+        int cur = (int)(x % 5);
+        if (prev == 2 && cur == 4) {           /* pattern 2,4 when scanning LSB→MSB */
+            return true;
+        }
+        prev = cur;
+        x /= 5;
+    }
+    return false;
+}
 
 /* Required external function */
 seq_t a(idx_t n)
@@ -41,7 +58,7 @@ seq_t a(idx_t n)
             /* Ensure capacity */
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 32;
-                seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 cache = tmp;
                 cache_cap = new_cap;

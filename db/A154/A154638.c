@@ -11,12 +11,14 @@
  *            + 3*a(n+1) - 6*a(n) for n ≥ 1
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 36, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation (external linkage for a only) */
 static seq_t *cache = NULL;      /* array holding computed terms */
@@ -34,7 +36,7 @@ static void ensure_capacity(idx_t need)
     while (new_cap < required)
         new_cap *= 2;
 
-    void *tmp = realloc(cache, new_cap * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, cache, new_cap);
     cache = (seq_t *)tmp;                /* cast to seq_t* for C/C++ */
     cache_cap = new_cap;
 }

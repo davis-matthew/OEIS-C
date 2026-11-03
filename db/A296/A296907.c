@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8856, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _has_more_pits
+ * Validated: standard, pass, 59 terms through n = 9956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,36 @@
    Computed by iterating over natural numbers and testing the condition. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_has_more_pits.h"
+#include "../utils/mem.h"
+
+/* test whether a value has more pits than peaks in its base‑60 expansion */
+static bool _has_more_pits(seq_t v)
+{
+    /* extract base‑60 digits (least significant first) */
+    uint8_t digits[64];            /* enough for 64‑bit numbers; larger values
+                                     are unlikely for n <= 10000 */
+    int len = 0;
+    seq_t tmp = v;
+    do {
+        digits[len++] = (uint8_t)(tmp % (seq_t)60);
+        tmp /= 60;
+    } while (tmp != (seq_t)0);
+
+    if (len < 3)                 /* no interior positions */
+        return false;
+
+    int pits = 0, peaks = 0;
+    for (int i = 1; i <= len - 2; ++i) {
+        uint8_t left  = digits[i - 1];
+        uint8_t cur   = digits[i];
+        uint8_t right = digits[i + 1];
+        if (left > cur && cur < right)
+            ++pits;
+        else if (left < cur && cur > right)
+            ++peaks;
+    }
+    return pits > peaks;
+}
 
 /* static storage for memoisation */
 static seq_t *cache = NULL;     /* array of found terms */
@@ -34,7 +64,7 @@ static void _ensure_cache_capacity(size_t needed)
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     /* In a contest environment we can ignore realloc failure as the
        problem guarantees small n. */
     cache = new_cache;

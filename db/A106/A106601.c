@@ -7,12 +7,14 @@
  * Formula:   3‑limiting word of the morphism 1→2, 2→3, 3→31233
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
 
     /* initialise word with the starting symbol 3 */
     if (word_len == 0) {
-        word = (seq_t*)malloc(sizeof(seq_t));
+        word = mem_new(seq_t, 1);
         if (!word) return 0;          /* allocation failure (unlikely) */
         word[0] = (seq_t)3;
         word_len = 1;
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
             new_len += (v == (seq_t)3 ? 5 : 1);
         }
 
-        seq_t *new_word = (seq_t*)malloc(sizeof(seq_t) * new_len);
+        seq_t *new_word = mem_new(seq_t, new_len);
         if (!new_word) return 0;      /* allocation failure */
 
         idx_t pos = 0;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(word);
+        mem_free(word);
         word = new_word;
         word_len = new_len;
     }

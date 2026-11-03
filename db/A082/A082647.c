@@ -8,14 +8,34 @@
  * Formula:   a(n) = number of odd divisors d of n with d ≤ ⌊√(2n)⌋
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_divs
+ * Validated: standard, pass, 121 terms through n = 9330 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/count_divs.h"
+
+/* --------- recursive enumeration of odd divisors up to limit --------- */
+static void count_divs(size_t idx, unsigned __int128 cur,
+                       const uint64_t *pr, const uint64_t *exp,
+                       size_t cnt, uint64_t limit, seq_t *res)
+{
+    if (cur > limit)
+        return;                          /* exceeds allowed limit */
+
+    if (idx == cnt) {                     /* all prime factors processed */
+        (*res)++;                         /* cur is a valid odd divisor */
+        return;
+    }
+
+    unsigned __int128 val = cur;
+    for (uint64_t e = 0; e <= exp[idx]; ++e) {
+        count_divs(idx + 1, val, pr, exp, cnt, limit, res);
+        val *= pr[idx];
+    }
+}
 
 /* --------- utility: integer square root for uint128 values --------- */
 static uint64_t isqrt_uint128(unsigned __int128 x)

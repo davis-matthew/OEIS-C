@@ -12,12 +12,14 @@
  *            a(0)=T(0,0), * a(1)=T(1,0), a(2)=T(1,1), a(3)=T(2,0), etc
  * Range:     u8 n <= 24, u16 n <= 50, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for arbitrary‑precision seq_t or built‑in integer types. */
 seq_t a(idx_t n)
@@ -30,11 +32,11 @@ seq_t a(idx_t n)
 
     /* Allocate two rows of the triangle. */
     size_t sz = (size_t)(r + 1);           /* maximum needed width */
-    seq_t *prev = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *cur  = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *cur  = mem_new(seq_t, sz);
     if (!prev || !cur) {
-        free(prev);
-        free(cur);
+        mem_free(prev);
+        mem_free(cur);
         return (seq_t)0;                  /* fallback on allocation failure */
     }
 
@@ -66,8 +68,8 @@ seq_t a(idx_t n)
     seq_t result = (k <= r) ? prev[k] : (seq_t)0;
 
     /* Free temporary storage. */
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
 
     return result;
 }

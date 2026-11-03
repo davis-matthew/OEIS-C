@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    compatible with C11 and C++17. */
 
 #include <stdlib.h>   /* malloc, free, memset */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     idx_t required = (n + 1) * 3;    /* number of slots needed */
     if (dp == NULL || required > cap) {
-        seq_t *tmp = (seq_t *)realloc(dp, required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, required);
         if (tmp == NULL)
             return (seq_t)0;           /* allocation failed – return 0 */
         dp = tmp;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     }
 
     /* Zero out the DP table up to the required size. */
-    memset(dp, 0, required * sizeof(seq_t));
+    mem_set(dp, 0, required * sizeof(seq_t));
     dp[0] = (seq_t)1;                 /* dp[0][0] = 1 */
 
     /* Iterate over possible part sizes j from 1 to n.

@@ -9,7 +9,8 @@
  *            triangular‑number representation of n
  * Range:     u8 n <= 279, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   min_k_at_least
+ * Validated: standard, pass, 96 terms through n = 945 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
    the remainder is represented again with alternating signs starting with a positive term. */
 
 #include <stdint.h>
-#include "../utils/min_k_at_least.h"
+
+/* Find the smallest k (k ≥ 1) such that T_k = k(k+1)/2  ≥  n.  */
+static idx_t min_k_at_least(seq_t n) {
+    idx_t k = 1;
+    while (1) {
+        seq_t T = (seq_t)k * ((seq_t)k + 1) / 2;
+        if (T >= n) return k;
+        ++k;
+    }
+}
 
 struct Result { seq_t pos; seq_t neg; };
 

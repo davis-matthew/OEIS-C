@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 255, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow_uint, seq_mul
+ * Validated: standard, pass, 59 terms through n = 891 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,15 @@
 /* OEIS A167336: Totally multiplicative sequence with a(p) = 8p+2. */
 /* a(n) = product over p^e||n of (8p+2)^e */
 #include <stdint.h>
-#include "../utils/pow_uint.h"   /* seq_t pow_uint(uint64_t base, idx_t exp) */
-#include "../utils/seq_mul.h"   /* seq_t seq_mul(seq_t a, seq_t b) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +43,7 @@ seq_t a(idx_t n)
     }
     if (exp2) {
         uint64_t base = 8ULL * 2ULL + 2ULL;            /* 18 */
-        seq_t term = pow_uint(base, exp2);
+        seq_t term = ipow_u64_idx(base, exp2);
         result = seq_mul(result, term);
     }
 
@@ -48,7 +56,7 @@ seq_t a(idx_t n)
                 temp /= p;
             }
             uint64_t base = 8ULL * p + 2ULL;
-            seq_t term = pow_uint(base, e);
+            seq_t term = ipow_u64_idx(base, e);
             result = seq_mul(result, term);
         }
     }
@@ -56,7 +64,7 @@ seq_t a(idx_t n)
     /* remaining prime factor, if any */
     if (temp > 1) {
         uint64_t base = 8ULL * temp + 2ULL;
-        seq_t term = pow_uint(base, 1);   /* e = 1 */
+        seq_t term = ipow_u64_idx(base, 1);   /* e = 1 */
         result = seq_mul(result, term);
     }
 

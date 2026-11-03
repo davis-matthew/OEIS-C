@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 37, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   lower_bound_idx, sieve_primes
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
-#include "../utils/lower_bound_idx.h"
+
+/* Binary search for the first index where arr[i] >= v */
+static size_t lower_bound_idx(const idx_t *arr, size_t n, idx_t v)
+{
+    size_t lo = 0, hi = n;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] < v)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo;
+}
 
 /* Store the terms found so far (values are seq_t but the data is tiny). */
 #define MAX_TERMS 20000                /* enough for all test cases up to 10000 */

@@ -8,11 +8,13 @@
  * Formula:   a(n) = numerator of Σ_{d=1}^{2n} 6^(2n+1‑d)/d
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 12,
  *            big any n
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

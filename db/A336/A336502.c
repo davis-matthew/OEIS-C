@@ -8,12 +8,14 @@
  *            k*(k+1)/2 is the k-th triangular number
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 222 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL; /* a_cache[i] = a(i) */
 static size_t cache_len = 0;   /* largest i for which a_cache[i] is valid */
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* Allocate cache on first call */
     if (a_cache == NULL) {
-        a_cache = (seq_t*)malloc(sizeof(seq_t) * (size_t)(n + 1));
+        a_cache = mem_new(seq_t, (size_t)(n + 1));
         if (!a_cache) return (seq_t)0;    /* allocation failure */
         a_cache[0] = (seq_t)0;
         cache_len = 0;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     /* Resize cache to hold up to n if necessary */
     if ((size_t)n > cache_len) {
-        seq_t *tmp = (seq_t*)realloc(a_cache, sizeof(seq_t) * ((size_t)n + 1));
+        seq_t *tmp = mem_resize(seq_t, a_cache, ((size_t)n + 1));
         if (!tmp) { /* allocation failed; return last computed sum */
             return sum;
         }

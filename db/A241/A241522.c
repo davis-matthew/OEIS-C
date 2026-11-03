@@ -11,7 +11,8 @@
  *            the recurrence)
  * Range:     u8 n <= 5, u16 n <= 43, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 /* Utility to compute 2^exp in seq_t */
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Recursive, memoised calculation of a(n) */
 static seq_t rec(idx_t n)
@@ -35,7 +37,7 @@ static seq_t rec(idx_t n)
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
         /* realloc must be cast in C++ */
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         seen  = (unsigned char *)realloc(seen,  new_size * sizeof(unsigned char));
         if (!cache || !seen) {
             /* allocation failed – return 0 (should never happen for test data) */

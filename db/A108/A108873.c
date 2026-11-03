@@ -9,15 +9,32 @@
  *            base‑10 integer, is a semiprime
  * Range:     u8 n <= 48, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   base3_to_decimal
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/base3_to_decimal.h"
+
+/* Convert base‑3 representation of x to a decimal number interpreted from its digits */
+static uint64_t base3_to_decimal(uint64_t x) {
+    if (x == 0) return 0;
+    uint8_t digits[64];
+    size_t len = 0;
+    while (x > 0) {
+        digits[len++] = (uint8_t)(x % 3);
+        x /= 3;
+    }
+    uint64_t y = 0;
+    for (size_t i = 0; i < len; ++i) {
+        y = y * 10 + digits[len - 1 - i];
+    }
+    return y;
+}
 
 static bool primes_initialized = false;
 static const int PRIME_UPPER = 1000000;

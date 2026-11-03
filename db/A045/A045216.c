@@ -8,14 +8,30 @@
  * Formula:   numbers in base‑5 with exactly three 0’s and two 4’s
  * Range:     u8 none, u16 n <= 35, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   has_prop
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_prop.h"
+#include "../utils/mem.h"
+
+/* Test whether a value has exactly three 0’s and two 4’s in its base‑5 representation. */
+static bool has_prop(seq_t x)
+{
+    idx_t zeros = 0;
+    idx_t fours = 0;
+    seq_t t = x;
+    while (t != 0) {
+        seq_t d = t % 5;          /* ଛୋଟ ଡିଜିଟ୍ ଖୋଜା */
+        if (d == 0) zeros++;
+        else if (d == 4) fours++;
+        t /= 5;
+    }
+    return zeros == 3 && fours == 2;
+}
 
 /* Return the n‑th term (n ≥ 1) of the sequence. */
 seq_t a(idx_t n)
@@ -38,7 +54,7 @@ seq_t a(idx_t n)
             /* Ensure the cache has room for the new term. */
             if (sz >= cap) {
                 size_t newcap = (cap == 0) ? 16 : cap << 1;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp)          /* allocation failure – return 0 */
                     return 0;
                 cache = tmp;

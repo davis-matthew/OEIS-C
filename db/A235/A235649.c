@@ -7,9 +7,10 @@
  * Offset:    4    (a(4) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 299, u16 n <= 9371, u32 n <= 9371, u64 n <= 9371,
- *            u128 n <= 9371, big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 299, u16 n <= 10005, u32 n <= 10005, u64 n <= 10005,
+ *            u128 n <= 10005, big any n
+ * Validated: standard, pass, 87 terms through n = 9371 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* static cache for computed terms */
 static seq_t *cache = NULL;      /* array of a(n) values */
@@ -35,8 +37,7 @@ static void ensure_cache(idx_t n)
     if (cache_size > n) return;
 
     idx_t new_size = n + 1;            /* indices 0..n */
-    seq_t *new_cache = (seq_t *)realloc(cache,
-                                       (size_t)new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_size);
     if (!new_cache) { abort(); }       /* out of memory */
     /* initialise the new part to 0 */
     for (idx_t i = cache_size; i < new_size; ++i) new_cache[i] = 0;

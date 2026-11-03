@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* dynamic programming: shift one bitset by a given amount */
 static void shift_or(uint64_t *dest, const uint64_t *src,
@@ -83,14 +85,14 @@ static void build_sequence(seq_t **seq_ptr, size_t *cnt_ptr, size_t bound)
     /* collect primes that are reachable */
     size_t est = bound / 100 + 1;            /* rough estimate */
     size_t cap = est < 4000 ? 4000 : est;
-    *seq_ptr = (seq_t *)malloc(cap * sizeof(seq_t));
+    *seq_ptr = mem_new(seq_t, cap);
     *cnt_ptr = 0;
     for (size_t p = 2; p <= bound; ++p) {
         if (!is_prime[p]) continue;
         if (prev[p >> 6] & (1ULL << (p & 63))) {
             if (*cnt_ptr == cap) {
                 cap <<= 1;
-                *seq_ptr = (seq_t *)realloc(*seq_ptr, cap * sizeof(seq_t));
+                *seq_ptr = mem_resize(seq_t, *seq_ptr, cap);
             }
             (*seq_ptr)[*cnt_ptr] = (seq_t)p;
             ++(*cnt_ptr);
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
         if (seq_len < (size_t)n) {
             /* not enough: double the bound and try again */
             bound <<= 1;
-            free(seq);
+            mem_free(seq);
             seq = NULL;
             seq_len = 0;
         }

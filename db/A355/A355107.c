@@ -8,12 +8,14 @@
  *            |Stirling1(n-1,k)| * a(k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
     /* Allocate or grow arrays if necessary */
     if (cap < n + 1) {
         size_t new_cap = (size_t)(n + 1);
-        A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-        S = (seq_t *)realloc(S, new_cap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_cap);
+        S = mem_resize(seq_t, S, new_cap);
 
         /* initialise new entries */
         for (idx_t i = cap; i < new_cap; ++i) {

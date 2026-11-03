@@ -12,14 +12,42 @@
  *            * thus finds the row r such that * r(r‑1)...
  * Range:     u8 n <= 7875, u16 n <= 7875, u32 n <= 7875, u64 n <= 7875,
  *            u128 n <= 7875, big any n
- * Helpers:   count_in_period
+ * Validated: standard, pass, 121 terms through n = 6895 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_in_period.h"
+
+/* Count how many times residue m (0 ≤ m < mod) appears
+ * in the Pisano period modulo mod.  The count fits
+ * in seq_t. */
+static seq_t count_in_period(idx_t mod, idx_t m)
+{
+    if (mod == 1) {
+        /* Modulo 1: the period consists of a single 0. */
+        return (m == 0) ? 1 : 0;
+    }
+
+    idx_t a = 0;
+    idx_t b = 1 % mod;               /* ensure b < mod */
+    seq_t cnt = 0;
+
+    while (true) {
+        if (a == m) {
+            cnt++;
+        }
+        idx_t tmp = a + b;
+        if (tmp >= mod) tmp -= mod;   /* tmp < 2*mod, so one subtraction is enough */
+        a = b;
+        b = tmp;
+        if (a == 0 && b == (1 % mod))
+            break;
+    }
+    return cnt;
+}
 
 /* Find the smallest r such that r*(r+1)/2 >= n.
  * n is 1‑based and n >= 1.  r fits in idx_t.  */

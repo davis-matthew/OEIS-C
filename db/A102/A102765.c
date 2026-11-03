@@ -8,13 +8,14 @@
  *            antidiagonals (row index decreases within each diagonal)
  * Range:     u8 n <= 18, u16 n <= 42, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   uint_pow
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/uint_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
     /* Compute T(row, col) = ((row+4)^col - (row-1)^col)/5. */
     if (row == 0)                /* n = 0 case: handle sign of (n-1)^k */
     {
-        seq_t pow4 = uint_pow((seq_t)4, col);
+        seq_t pow4 = ipow_idx((seq_t)4, col);
         seq_t h;
         if (col & 1)  /* k odd: (-1)^k = -1 */
             h = pow4 + 1;
@@ -41,8 +42,8 @@ seq_t a(idx_t n)
     }
     else
     {
-        seq_t upper = uint_pow((seq_t)(row + 4), col);
-        seq_t lower = uint_pow((seq_t)(row - 1), col);
+        seq_t upper = ipow_idx((seq_t)(row + 4), col);
+        seq_t lower = ipow_idx((seq_t)(row - 1), col);
         return (upper - lower) / 5;
     }
 }

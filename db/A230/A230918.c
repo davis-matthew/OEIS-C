@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 94, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, mod_pow, phi
+ * Validated: standard, pass, 77 terms through n = 9639 (2026-11-03)
+ * Helpers:   gcd, mem, powmod, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,13 @@
 /* Sequence: numbers k such that phi(k)^phi(k) == gcd(k,phi(k)) (mod k) */
 /* Implemented by a simple brute‑force search with memoisation. */
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/phi.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0, cache_cap = 0;
@@ -28,7 +33,7 @@ static void cache_push(idx_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 128 : cache_cap * 2;
-        seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, new_cap);
         if (!newp) abort();
         cache = newp;
         cache_cap = new_cap;
@@ -45,9 +50,9 @@ seq_t a(idx_t n)
             cache_push(1);
             continue;
         }
-        seq_t phi_k = phi(k);
+        seq_t phi_k = totient(k);
         unsigned long long phi64 = (unsigned long long)phi_k;   /* phi(k) fits in 64‑bit up to our range */
-        seq_t pow_v = mod_pow(phi_k, phi64, (seq_t)k);
+        seq_t pow_v = powmod(phi_k, phi64, (seq_t)k);
         seq_t g = gcd((seq_t)k, phi_k);
         if (pow_v == g) cache_push(k);
     }

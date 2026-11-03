@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   has_equal_6_and_9
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_equal_6_and_9.h"
+#include "../utils/mem.h"
+
+/* Return true if the base‑11 representation of x has the same number of
+   6's and 9's.  The function works for any seq_t type that supports
+   division, modulo, and comparison with zero. */
+static bool has_equal_6_and_9(seq_t x)
+{
+    int c6 = 0, c9 = 0;
+    seq_t t = x;
+    while (t > 0)
+    {
+        int d = (int)(t % 11);
+        if (d == 6)
+            ++c6;
+        else if (d == 9)
+            ++c9;
+        t /= 11;
+    }
+    return c6 == c9;
+}
 
 /* Ensure that the dynamic array 'arr' has capacity for at least 'needed'
    elements.  The capacity is doubled each time it is enlarged. */
@@ -31,7 +51,7 @@ static void ensure_capacity(size_t needed, size_t *cap, seq_t **arr)
         size_t new_cap = (*cap > 0) ? (*cap << 1) : 64;
         while (new_cap < needed)
             new_cap <<= 1;
-        seq_t *p = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, *arr, new_cap);
         *arr = p;
         *cap = new_cap;
     }

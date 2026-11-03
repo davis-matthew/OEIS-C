@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 15, i32 n <= 31, i64 n <= 42, i128 n <= 42,
  *            big any n
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
  *   a(n) = (-1)^(n/2) * 2^(n-1)   for even n >= 2
  */
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

@@ -10,12 +10,15 @@
  *            occurrence of k with k+1
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 14 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static seq_t B_k(seq_t n, idx_t k)
 {
@@ -30,7 +33,7 @@ static seq_t B_k(seq_t n, idx_t k)
         if (digit != 0) {
             /* Recursively compute B_k(i) for the exponent. */
             seq_t exp_i = B_k((seq_t)i, k);
-            seq_t pow = big_pow(base, exp_i);
+            seq_t pow = ipow(base, exp_i);
             result += pow * (seq_t)digit;
         }
         temp /= k;

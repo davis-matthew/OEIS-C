@@ -9,7 +9,8 @@
  *            multiply by 10 and dividing by 2^B
  * Range:     u8 n <= 109, u16 n <= 109, u32 n <= 109, u64 n <= 109,
  *            u128 n <= 109, big any n
- * Helpers:   none
+ * Validated: partial, pass, 110 terms through n = 109 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* maximum bits needed for 10001 decimal digits
    10001 * log2(10)  ≈ 33277, plus a few safety bits    */
@@ -125,9 +127,9 @@ static void build_cache(idx_t max_n)
 {
     if (digit_cache && cached_max >= max_n) return;   /* already done */
 
-    if (digit_cache) { free(digit_cache); digit_cache = NULL; }
+    if (digit_cache) { mem_free(digit_cache); digit_cache = NULL; }
     cached_max = max_n;
-    digit_cache = (seq_t*)malloc(sizeof(seq_t) * (max_n + 1));
+    digit_cache = mem_new(seq_t, (max_n + 1));
     if (!digit_cache) return;   /* out of memory – caller must handle but
                                    unlikely in test harness */
 

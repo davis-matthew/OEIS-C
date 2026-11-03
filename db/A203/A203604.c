@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 46, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,6 +42,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------  main function  ---------------- */
 seq_t a(idx_t n)
@@ -68,12 +70,12 @@ seq_t a(idx_t n)
     /* First initialisation */
     if (cache == NULL) {
         cache_cap = (size_t)MAXN + 1u;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         len   = 2 * MAXN + 1;
         offset = MAXN;
 
-        cur  = (seq_t *)calloc(3 * len, sizeof(seq_t));
-        next = (seq_t *)calloc(3 * len, sizeof(seq_t));
+        cur  = mem_new(seq_t, 3 * len);
+        next = mem_new(seq_t, 3 * len);
         if (!cache || !cur || !next) exit(EXIT_FAILURE);
 
         /* B(1)  – initialise the DP for step 1 */

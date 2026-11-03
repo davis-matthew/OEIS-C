@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = (n+4-3*floor((n+4)/6)-2)*floor((n+4)/6)+1
- * Range:     u8 n <= 53, u16 n <= 884, u32 n <= 9708, u64 n <= 9708,
- *            u128 n <= 9708, big any n
+ * Range:     u8 n <= 53, u16 n <= 884, u32 n <= 10003, u64 n <= 10003,
+ *            u128 n <= 10003, big any n
+ * Validated: standard, pass, 76 terms through n = 9708 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

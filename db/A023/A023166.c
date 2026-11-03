@@ -8,7 +8,8 @@
  *            (mod k)
  * Range:     u8 n <= 6, u16 n <= 369, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    modulo k.  It memoises results so that subsequent calls are fast. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* fast‑doubling: compute Fibonacci pair (F(n), F(n+1)) modulo 'mod' */
 static void fib_pair_u64(uint64_t n, uint64_t mod, uint64_t *fn, uint64_t *fn1)
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         /* grow the terms array if needed */
         if (len == allocated) {
             size_t new_cap = allocated ? allocated * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             terms = tmp;
             allocated = new_cap;

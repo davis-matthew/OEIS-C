@@ -10,7 +10,8 @@
  *            p_{i+1} <= 1 + sigma(p1^a1*...*pi^ai))
  * Range:     u8 n <= 8, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_impractical_abundant
+ * Validated: standard, pass, 68 terms through n = 944 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_impractical_abundant.h"
+
+static bool is_impractical_abundant(uint64_t m) {
+    uint64_t x = m, s = 1, p;
+    bool practical = true;
+    for (p = 2; p * p <= x; p += (p == 2 ? 1 : 2)) {
+        if (x % p == 0) {
+            uint64_t pk = 1, t = 1;
+            if (p > s + 1) practical = false;
+            while (x % p == 0) {
+                x /= p;
+                pk *= p;
+                t += pk;
+            }
+            s *= t;
+        }
+    }
+    if (x > 1) {
+        if (x > s + 1) practical = false;
+        s *= (x + 1);
+    }
+    return s > 2 * m && !practical;
+}
 
 static uint64_t *terms = NULL;
 static idx_t nterms = 0, capterms = 0;

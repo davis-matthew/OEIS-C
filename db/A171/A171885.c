@@ -8,6 +8,7 @@
  * Formula:   a(n) = n + 2*4^⌊log₂n⌋ − 3*2^⌊log₂n⌋, with a(0)=0, a(1)=1
  * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 9788 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

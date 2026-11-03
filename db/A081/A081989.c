@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   digit_product, isqrt_seq
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   digit_product, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,26 @@
 /* Standard includes required for the build. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/digit_product.h"
-#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
+
+/* Integer square root (floor) of a non‑negative seq_t value. */
+static seq_t isqrt_seq(seq_t v)
+{
+    seq_t lo = 0, hi = v;
+    while (lo <= hi) {
+        seq_t mid = lo + ((hi - lo) >> 1);
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
 
 /* Test whether a candidate k satisfies the defining property.  Returns
    true if 1 + product_of_digits(k) is a perfect square greater than 1. */
@@ -55,7 +74,7 @@ seq_t a(idx_t n)
     if (!cache)
     {
         cap   = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;          /* allocation failure – caller will ignore */
     }
 
@@ -63,7 +82,7 @@ seq_t a(idx_t n)
     if (size == cap)
     {
         cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cap);
         if (!tmp) return 0;
         cache = tmp;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_sqrt_u64
+ * Validated: standard, pass, 103 terms through n = 9575 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/_floor_sqrt_u64.h"
+#include "../utils/isqrt.h"
 
 static uint64_t *primes = NULL;   /* global prime table */
 static size_t   primes_cnt = 0;   /* number of primes stored */
@@ -68,7 +69,7 @@ static bool _is_prime_u64(idx_t n) {
         return true;
     if (n % 2 == 0)
         return false;
-    idx_t lim = _floor_sqrt_u64(n);
+    idx_t lim = isqrt(n);
     for (size_t i = 0; i < primes_cnt; ++i) {
         uint64_t p = primes[i];
         if ((__uint128_t)p * p > n)
@@ -95,7 +96,7 @@ static /* 1‑based */ size_t _prime_index_uint64(uint64_t p) {
 }
 
 static uint64_t _smallest_prime_factor_u64(idx_t n) {
-    idx_t lim = _floor_sqrt_u64(n);
+    idx_t lim = isqrt(n);
     for (size_t i = 0; i < primes_cnt; ++i) {
         uint64_t p = primes[i];
         if ((__uint128_t)p * p > n)
@@ -122,7 +123,7 @@ seq_t a(idx_t n) {
     if (n == 3)
         return (seq_t)1;
 
-    idx_t sq = _floor_sqrt_u64(n);
+    idx_t sq = isqrt(n);
     if (sq < 2)
         sq = 2;
     ensure_primes_upto(sq);

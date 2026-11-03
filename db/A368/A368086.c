@@ -9,13 +9,15 @@
  *            Recurrence: a(1) = 0; a(n+1) = digit(n) - a(n)
  * Range:     i8 n <= 71, i16 n <= 71, i32 n <= 71, i64 n <= 71, i128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* 1‑based a(n) values, a_cache[1] = 0 */
 static idx_t  a_cache_len = 0;
@@ -64,7 +66,7 @@ static void ensure_a_cache(idx_t n)
     idx_t required = n + 1;            /* array is 1‑based; ignore index 0 */
     if (a_cache_cap == 0) a_cache_cap = 8;
     while (a_cache_cap < required) a_cache_cap <<= 1;
-    a_cache = (seq_t*)realloc(a_cache, (a_cache_cap + 1) * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, (a_cache_cap + 1));
 
     if (a_cache_len == 0) {            /* first initialization */
         a_cache[1] = 0;

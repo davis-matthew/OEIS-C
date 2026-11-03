@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 253, u16 n <= 9924, u32 n <= 9924, u64 n <= 9924,
- *            u128 n <= 9924, big any n
- * Helpers:   none
+ * Range:     u8 n <= 253, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 89 terms through n = 9924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Static state for memoisation and lazy allocation                  */
@@ -51,13 +53,12 @@ static void ensure_capacity(idx_t need)
     size_t new_cap = current_capacity == 0 ? 64 : current_capacity;
     while (new_cap < (size_t)need) new_cap <<= 1;
 
-    a_arr     = (seq_t*)realloc(a_arr,    (new_cap + 1) * sizeof(seq_t));
+    a_arr     = mem_resize(seq_t, a_arr, (new_cap + 1));
     used      = (bool*) realloc(used,     (new_cap + 1) * sizeof(bool));
     must_even = (bool*) realloc(must_even, (new_cap + 1) * sizeof(bool));
 
     /* initialise newly allocated slots */
-    memset(a_arr    + current_capacity + 1, 0,
-           (new_cap - current_capacity) * sizeof(seq_t));
+    mem_set(a_arr    + current_capacity + 1, 0, (new_cap - current_capacity) * sizeof(seq_t));
     memset(used     + current_capacity + 1, 0,
            (new_cap - current_capacity) * sizeof(bool));
     memset(must_even + current_capacity + 1, 0,

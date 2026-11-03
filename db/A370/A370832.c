@@ -12,20 +12,22 @@
  *            m(m+1)/2 ≤ n. * Let k = n - m(m+1)/2. * If k == 0 →...
  * Range:     u8 n <= 17, u16 n <= 31, u32 n <= 70, u64 n <= 160,
  *            u128 n <= 418, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9496 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Helper: compute T(m,k) using the generating function product.
  * m ≥ 1, 1 ≤ k ≤ m.  The result fits in seq_t.
  */
 static seq_t compute_T(idx_t m, idx_t k) {
     /* Polynomal array: indices 0..m.  poly[i] will hold coefficient of x^i. */
-    seq_t *poly = (seq_t *)calloc((size_t)(m + 1), sizeof(seq_t));
+    seq_t *poly = mem_new(seq_t, (size_t)(m + 1));
     if (!poly) return (seq_t)0;      /* out‑of‑memory guard; silently returns 0 */
 
     /* Start with the initial factor x.  poly[0] stays 0. */
@@ -48,7 +50,7 @@ static seq_t compute_T(idx_t m, idx_t k) {
     }
 
     seq_t result = poly[k];
-    free(poly);
+    mem_free(poly);
     return result;
 }
 

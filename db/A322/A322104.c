@@ -9,15 +9,18 @@
  *            sigma_k(d)
  * Range:     u8 n <= 24, u16 n <= 58, u32 n <= 157, u64 n <= 412,
  *            u128 n <= 1092, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 82 terms through n = 970 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 static void dfs_recursive(size_t idx, seq_t d_val, seq_t sigma_val,
                           const uint64_t *pr, const uint64_t *ex,
@@ -39,7 +42,7 @@ static void dfs_recursive(size_t idx, seq_t d_val, seq_t sigma_val,
 
     /* precompute sigma_k(p^e) */
     seq_t sigma[64];
-    seq_t pow_pk = seq_pow((seq_t)p, (idx_t)k);   /* p^k  */
+    seq_t pow_pk = ipow_idx((seq_t)p, (idx_t)k);   /* p^k  */
     seq_t mul = 1;
     sigma[0] = 1;                 /* p^{0*k} = 1  */
     for (int e = 1; e <= emax; ++e) {

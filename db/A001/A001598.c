@@ -10,7 +10,8 @@
  *            m^k <= bound, sorting and deduplicating
  * Range:     u8 n <= 261, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a1598_cmp, a1598_g
+ * Validated: standard, pass, 86 terms through n = 999 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a1598_cmp.h"
-#include "../utils/a1598_g.h"
+#include "../utils/gcd_u64.h"
+
+static int a1598_cmp(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
 
 static uint64_t *a1598_pp = NULL;
 static size_t a1598_cnt = 0;
@@ -66,7 +71,7 @@ seq_t a(idx_t n) {
     uint64_t bn = a1598_pp[n - 1];
     seq_t count = 0;
     for (idx_t i = 0; i < n; i++) {
-        if (a1598_g(a1598_pp[i], bn) == 1) count++;
+        if (gcd_u64(a1598_pp[i], bn) == 1) count++;
     }
     return count;
 }

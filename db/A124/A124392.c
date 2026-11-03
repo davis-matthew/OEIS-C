@@ -7,8 +7,9 @@
  * Formula:   a(n) = T(r,c) where r is the row index with r(r+1)/2 ≤ n <
  *            (r+1)(r+2)/2, c = n - r(r+1)/2, and T(r,c) = Σ_{j=0..r-c}
  *            C(r-j,c) · C(2j,r-c)
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 170, u64 n <= 594,
+ * Range:     u8 n <= 14, u16 n <= 54, u32 n <= 170, u64 n <= 594,
  *            u128 n <= 2210, big any n
+ * Validated: standard, pass, 82 terms through n = 4976 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

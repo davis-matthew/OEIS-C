@@ -7,6 +7,7 @@
  * Formula:   a(n) = discrete_log_3(n mod 113) (with a(n)=0 if n≡0 mod 113)
  * Range:     u8 n <= 112, u16 n <= 112, u32 n <= 112, u64 n <= 112,
  *            u128 n <= 112, big any n
+ * Validated: full, pass, 112 terms through n = 112 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

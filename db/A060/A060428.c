@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   less, val
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,19 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/less.h"
-#include "../utils/val.h"
+#include "../utils/mem.h"
+
+/* Compare values; returns true if a < b. */
+static inline int less(seq_t a, seq_t b)
+{
+    return a < b;
+}
+
+/* Compute x^2 + x*y + y^2 as seq_t. */
+static seq_t val(idx_t x, idx_t y)
+{
+    return (seq_t)x * (seq_t)x + (seq_t)x * (seq_t)y + (seq_t)y * (seq_t)y;
+}
 
 typedef struct {
     seq_t value; /* value of x^2 + x*y + y^2 */
@@ -40,7 +52,7 @@ static void heap_ensure(size_t n)
     size_t new_cap = heap_cap ? heap_cap * 2 : 16;
     while (new_cap < heap_sz + n)
         new_cap *= 2;
-    heap = (node_t *)realloc(heap, new_cap * sizeof(node_t));
+    heap = mem_resize(node_t, heap, new_cap);
     heap_cap = new_cap;
 }
 

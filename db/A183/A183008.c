@@ -7,12 +7,14 @@
  * Formula:   a(n) = 24 * p(n) where p(n) is the partition function
  * Range:     u8 n <= 5, u16 n <= 26, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* allocate the cache on first use */
     if (p == NULL) {
         cap = 1;
-        p = (seq_t *)malloc(cap * sizeof(seq_t));
+        p = mem_new(seq_t, cap);
         if (p == NULL) return (seq_t)0;   /* allocation failed */
         p[0] = (seq_t)1;                   /* p(0) = 1 */
     }
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* grow the cache if necessary, preserving old values */
     if ((size_t)n + 1 > cap) {
         size_t new_cap = (size_t)n + 64;   /* give some slack */
-        seq_t *q = (seq_t *)realloc(p, new_cap * sizeof(seq_t));
+        seq_t *q = mem_resize(seq_t, p, new_cap);
         if (q == NULL) return (seq_t)0;   /* allocation failed */
         /* new slots are left uninitialized – they will be set when computed */
         p = q;

@@ -11,7 +11,8 @@
  *            ∏_p (exp_p!) (p runs over prime factors of n)
  * Range:     i8 n <= 47, i16 n <= 9999, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   small_factorial
+ * Validated: standard, pass, 85 terms through n = 8482 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/small_factorial.h"
+
+/* factorial of a small unsigned integer (fits into seq_t) */
+static inline seq_t small_factorial(unsigned t)
+{
+    seq_t r = 1;
+    for (unsigned i = 2; i <= t; ++i)
+        r *= (seq_t)i;
+    return r;
+}
 
 /* small prime sieve for factorisation (enough for n up to ~100000) */
 #define PRIME_CAP 9600

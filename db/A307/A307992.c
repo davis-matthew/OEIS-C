@@ -8,7 +8,8 @@
  * Formula:   a(1) = a(2) = 1 a(n) = Sum_{d | (n-2)} d * a((n-2)/d) for n ≥ 3
  * Range:     u8 n <= 19, u16 n <= 83, u32 n <= 681, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9828 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* No external libraries needed other than <stdlib.h> for memory handling. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* 1‑indexed array of computed terms     */
 static size_t cache_len = 0;         /* current allocated length (index last+1) */
@@ -29,7 +31,7 @@ static void build_to(idx_t n)
 
     /* enlarge the cache */
     size_t new_len = (size_t)(n) + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) abort();          /* should never happen in the intended setting */
     cache = tmp;
 

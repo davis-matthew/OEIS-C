@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{d|n} μ(n/d) * φ(d) / ∏_{p|d} gcd(p-1, d-1)
  * Range:     i8 n <= 260, i16 n <= 8191, i32 n <= 8191, i64 n <= 8191,
  *            i128 n <= 8191, big any n
- * Helpers:   calc_phi, factor_u64, gcd, mu_of
+ * Validated: standard, pass, 112 terms through n = 7989 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,108 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/calc_phi.h"   /* seq_t calc_phi(seq_t m); */
-#include "../utils/factor_u64.h"  /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/gcd.h"        /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/mu_of.h"      /* int mu_of(idx_t n); */
+#include <stdbool.h>
+#include <stdlib.h>
+
+/* Compute Euler's totient φ of an odd 64‑bit or larger number m.
+   The algorithm uses trial division up to sqrt(m). */
+static seq_t calc_phi(seq_t m)
+{
+    seq_t result = m;
+    seq_t p = 2;
+
+    /* Handle factor 2 separately to skip it later (m is odd, but keep robust) */
+    if (m % 2 == 0) {
+        while (m % 2 == 0)
+            m /= 2;
+        result -= result / 2;
+    }
+
+    /* Trial division by odd primes */
+    for (p = 3; p <= m / p; p += 2) {
+        if (m % p == 0) {
+            while (m % p == 0)
+                m /= p;
+            result -= result / p;
+        }
+    }
+
+    /* If m > 1, it is a prime factor larger than sqrt(original m) */
+    if (m > 1)
+        result -= result / m;
+
+    return result;
+}
+
+/* Trial‑division factorisation producing distinct primes
+   pr[i] and their multiplicities ex[i].  The caller
+   must provide arrays large enough for the factors. */
+static void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt)
+{
+    size_t i = 0;
+    if (n <= 1) { *cnt = 0; return; }
+    /* Factor 2. */
+    while ((n & 1) == 0) {
+        if (i && pr[i - 1] == 2) {
+            ++ex[i - 1];
+        } else {
+            pr[i] = 2;
+            ex[i] = 1;
+            ++i;
+        }
+        n >>= 1;
+    }
+    /* Odd factors. */
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            pr[i] = p;
+            ex[i] = 0;
+            while (n % p == 0) {
+                ++ex[i];
+                n /= p;
+            }
+            ++i;
+        }
+    }
+    if (n > 1) {
+        pr[i] = n;
+        ex[i] = 1;
+        ++i;
+    }
+    *cnt = i;
+}
+
+/* Greatest common divisor for seq_t values. */
+static seq_t gcd(seq_t a, seq_t b)
+{
+    while (b != 0) {
+        seq_t t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 /* Compute A247074(d) = φ(d) / ∏_{p|d} gcd(p-1,d-1) */
 static seq_t a247074_of(idx_t d)

@@ -10,13 +10,15 @@
  *            a(5)=6915, a(6)=20475, a(7)=60588
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 17, u64 n <= 37, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Initial 7 terms (index 0 unused) */
 static const seq_t init_terms[8] = {
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n) {
 
     /* Allocate or grow the cache */
     size_t new_size = (size_t)(n + 1);    /* include 0 index */
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) {
         /* In an OEIS helper build this should never happen */
         return;

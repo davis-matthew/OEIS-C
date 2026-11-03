@@ -10,13 +10,15 @@
  *            a(7)=246792, a(8)=458018, a(9)=732810, a(10)=1069534)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const idx_t _base_vals[11] = {
     0ULL,         /* unused 0th index */
@@ -43,9 +45,9 @@ seq_t a(idx_t n)
     if (n > computed_upto) {
         size_t new_size = (size_t)(n + 1); /* include index 0 */
         if (cache == NULL) {
-            cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+            cache = mem_new(seq_t, new_size);
         } else {
-            cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_size);
         }
 
         /* Fill values */

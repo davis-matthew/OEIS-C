@@ -8,14 +8,16 @@
  *            10. The sequence terminates after 55
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"      /* bool is_palindrome(seq_t, idx_t) */
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 /* Cache of discovered palindromic Fibonacci numbers. */
 static seq_t    *pal_cache = NULL;
@@ -32,7 +34,7 @@ static void add_palind(seq_t v)
 {
     if (pal_len == pal_cap) {
         size_t new_cap = pal_cap ? pal_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(pal_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pal_cache, new_cap);
         if (!tmp) {
             /* Allocation failure – the sequence is finite, exit safely. */
             exit(1);
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
        iterator bound to avoid infinite loops. */
     const idx_t MAX_FIB_INDEX = 1000000;   /* 1 M Fibonacci indices are enough */
     while (pal_len < (size_t)n && fib_idx < MAX_FIB_INDEX) {
-        if (is_palindrome(fib_prev, (idx_t)10))
+        if (is_palindrome_base(fib_prev, (idx_t)10))
             add_palind(fib_prev);
 
         /* Advance to the next Fibonacci number. */

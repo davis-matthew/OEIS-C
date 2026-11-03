@@ -10,12 +10,15 @@
  *            by row, starting from offset 0
  * Range:     u8 n <= 24, u16 n <= 60, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
     idx_t k = n - start;          /* column in the row */
 
     seq_t base = (seq_t)(r - k + 1);
-    seq_t pow_val = big_pow(base, (seq_t)k);
+    seq_t pow_val = ipow(base, (seq_t)k);
     seq_t result = ((seq_t)k) * pow_val + (seq_t)(r - k);
 
     return result;

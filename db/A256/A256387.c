@@ -9,7 +9,8 @@
  *            is_semiprime(2*n+4))
  * Range:     u8 n <= 111, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, is_prime, seq_realloc
+ * Validated: standard, pass, 77 terms through n = 8703 (2026-11-01)
+ * Helpers:   is_prime, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,15 +22,27 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include <stddef.h>
 #include "../utils/is_prime.h"
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/smallest_prime_factor.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* test whether an integer m is a semiprime (product of two primes, with multiplicity) */
 static bool is_semiprime(uint64_t m)
 {
     if (m < 4) return false;
-    uint64_t sp = _smallest_prime_factor(m);
+    uint64_t sp = smallest_prime_factor(m);
     if (sp == 0) return false;        /* safety for pathological input      */
     if (sp == m) return false;        /* m is prime – not semiprime          */
     uint64_t q = m / sp;

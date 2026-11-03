@@ -11,14 +11,28 @@
  *            31, 41, 43, 71, 101, 227, 239, 311
  * Range:     u8 n <= 12, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   sort_list
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sort_list.h"
+
+/* Helper: simple insertion sort for at most 128 elements */
+static void sort_list(uint64_t *list, size_t count)
+{
+    for (size_t i = 1; i < count; ++i) {
+        uint64_t key = list[i];
+        size_t j = i;
+        while (j > 0 && list[j - 1] > key) {
+            list[j] = list[j - 1];
+            --j;
+        }
+        list[j] = key;
+    }
+}
 
 /* Helper: add a prime to the global list if not already present */
 static void add_prime(uint64_t *list, size_t *count, uint64_t p)

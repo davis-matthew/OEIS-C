@@ -9,8 +9,9 @@
  *            distinct prime divisors p of n. * The implementation factors n
  *            by trial division; this is fast for * the n values used in the
  *            test cases (up to a few ten‑thousands)
- * Range:     u8 n <= 453, u16 n <= 9904, u32 n <= 9904, u64 n <= 9904,
- *            u128 n <= 9904, big any n
+ * Range:     u8 n <= 453, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 122 terms through n = 9904 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

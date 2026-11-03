@@ -7,22 +7,24 @@
  * Formula:   a(n) = number of partitions of n into 9 positive cubes; obtained
  *            by a DP equivalent to the coefficient of y^9 x^n in ∏_{k≥1} 1/(1
  *            - y x^{k^3})
- * Range:     u8 n <= 9639, u16 n <= 9192, u32 n <= 9192, u64 n <= 9192,
- *            u128 n <= 9192, big any n
- * Helpers:   none
+ * Range:     u8 n <= 9639, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 124 terms through n = 9192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* number of parts we want */
     const int C = 10;               /* index 0..9 (inclusive) */
     size_t total = (size_t)(n + 1) * C;
-    seq_t *dp = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
     if (!dp) return 0; /* fallback, unlikely for small n */
 
     for (size_t i = 0; i < total; ++i)
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n * C + 9];
-    free(dp);
+    mem_free(dp);
     return result;
 }

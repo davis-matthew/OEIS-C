@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static unsigned char  *is_prime = NULL;   /* 1‑bit sieve bitmap */
 static signed char    *mu       = NULL;   /* Möbius values (-1,0,1) */
@@ -85,7 +87,7 @@ static void init_sequence(void)
 
     seq_cap = 200000;   /* expected number of terms */
     seq_len = 0;
-    seq = (seq_t*)calloc(seq_cap, sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
 
     for (size_t k = 2; k <= LIMIT; ++k) {
         /* μ(k) ∈ {–1,0,1} so k–μ(k) = k-1, k, or k+1 */
@@ -93,7 +95,7 @@ static void init_sequence(void)
         if (pk > 1 && pk <= LIMIT + 1 && is_prime[pk]) {
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)pk;
         }

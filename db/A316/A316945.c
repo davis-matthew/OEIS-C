@@ -12,7 +12,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Partition element: number of parts (k) and product of parts (p) */
 typedef struct {
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         gen_parts(n, n, (idx_t)0, (seq_t)1, parts, &part_cnt);
 
         /* Order to group equal (k,p) pairs */
-        qsort(parts, part_cnt, sizeof(part_t), cmp_parts);
+        mem_qsort(parts, part_cnt, sizeof(part_t), cmp_parts);
 
         /* Mark admissible k values */
         bool admissible[20] = {false};

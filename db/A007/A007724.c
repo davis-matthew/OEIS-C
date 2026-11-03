@@ -9,14 +9,15 @@
  *            factorization (Legendre) so every partial product divides a(n)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   val_p
+ * Validated: partial, pass, 19 terms through n = 20 (2026-11-01)
+ * Helpers:   valuation
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/val_p.h"
+#include "../utils/valuation.h"
 
 static uint64_t legendre_exp(uint64_t m, uint64_t p) {
     uint64_t e = 0;
@@ -38,7 +39,7 @@ seq_t a(idx_t n) {
         {
             uint64_t num = legendre_exp(N, p);
             uint64_t den = legendre_exp(n - 1, p) + legendre_exp(n, p) + legendre_exp(n + 1, p)
-                         + val_p(n, p) + val_p(2 * (uint64_t)n - 1, p) + val_p(2 * (uint64_t)n + 1, p);
+                         + valuation(n, p) + valuation(2 * (uint64_t)n - 1, p) + valuation(2 * (uint64_t)n + 1, p);
             uint64_t e = num - den;
             for (k = 0; k < e; k++) r *= (seq_t)p;
         }

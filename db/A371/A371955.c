@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 491, u32 n <= 500, u64 n <= 500,
- *            u128 n <= 493, big any n
- * Helpers:   none
+ *            u128 n <= 500, big any n
+ * Validated: standard, pass, 65 terms through n = 493 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 #define PRIME_SIEVE_LIMIT 20000000U   /* enough for the first 10 000 terms */
 
@@ -196,8 +198,7 @@ seq_t a(idx_t n)
             /* grow cache if necessary */
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 16 : cache_cap << 1;
-                seq_t *new_arr = (seq_t *)realloc(term_cache,
-                                                   new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_resize(seq_t, term_cache, new_cap);
                 if (!new_arr) exit(1);          /* allocation failed */
                 term_cache = new_arr;
                 cache_cap  = new_cap;

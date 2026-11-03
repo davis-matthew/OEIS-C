@@ -11,8 +11,8 @@
  *            -(n(2n+2)(2n+3)*S(n) + 4(n+1)*S(n+1)), Y = 2*L*(2n+3)...
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 6, i64 n <= 10, i128 n <= 15,
  *            big any n
- * Helpers:   q2683_S, q2683_addmul, q2683_cmp, q2683_divmod, q2683_muladd,
- *            q2683_sub, q2683_trim
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +20,109 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/q2683_S.h"
-#include "../utils/q2683_addmul.h"
-#include "../utils/q2683_cmp.h"
-#include "../utils/q2683_divmod.h"
-#include "../utils/q2683_muladd.h"
-#include "../utils/q2683_sub.h"
-#include "../utils/q2683_trim.h"
+
+/* acc += a*b (acc zero-padded with enough capacity) */
+static void q2683_addmul(uint32_t *acc, const uint32_t *a, size_t al, const uint32_t *b, size_t bl) {
+    size_t i, j, k;
+    for (i = 0; i < al; i++) {
+        uint64_t carry = 0;
+        if (a[i] == 0) continue;
+        for (j = 0; j < bl; j++) {
+            uint64_t t = (uint64_t)a[i] * b[j] + acc[i + j] + carry;
+            acc[i + j] = (uint32_t)t;
+            carry = t >> 32;
+        }
+        k = i + bl;
+        while (carry) {
+            uint64_t t = (uint64_t)acc[k] + carry;
+            acc[k] = (uint32_t)t;
+            carry = t >> 32;
+            k++;
+        }
+    }
+}
+
+static int q2683_cmp(const uint32_t *a, size_t al, const uint32_t *b, size_t bl) {
+    size_t i;
+    if (al != bl) return al < bl ? -1 : 1;
+    for (i = al; i-- > 0;)
+        if (a[i] != b[i]) return a[i] < b[i] ? -1 : 1;
+    return 0;
+}
+
+static uint32_t q2683_divmod(uint32_t *x, size_t len, uint32_t d, int write) {
+    uint64_t r = 0;
+    size_t i;
+    for (i = len; i-- > 0;) {
+        uint64_t cur = (r << 32) | x[i];
+        if (write) x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+    return (uint32_t)r;
+}
+
+static size_t q2683_trim(const uint32_t *x, size_t len) {
+    while (len && x[len - 1] == 0) len--;
+    return len;
+}
+
+/* a -= b, requires a >= b */
+static size_t q2683_sub(uint32_t *a, size_t al, const uint32_t *b, size_t bl) {
+    int64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < al; i++) {
+        int64_t t = (int64_t)a[i] - borrow - (i < bl ? (int64_t)b[i] : 0);
+        if (t < 0) { t += ((int64_t)1 << 32); borrow = 1; } else borrow = 0;
+        a[i] = (uint32_t)t;
+    }
+    return q2683_trim(a, al);
+}
+
+/* S = sum_j (-1)^(m-j) |c_j| * L/(j+1); result magnitude in pos, sign in *neg_out */
+static size_t q2683_S(const uint32_t *poly, const size_t *plen, size_t W, idx_t m,
+                      const uint32_t *L, size_t Ll, uint32_t *q,
+                      uint32_t *pos, uint32_t *neg, size_t cap, int *neg_out) {
+    idx_t j;
+    size_t pl, nl, len;
+    memset(pos, 0, cap * sizeof(uint32_t));
+    memset(neg, 0, cap * sizeof(uint32_t));
+    for (j = 0; j <= m; j++) {
+        size_t ql;
+        memcpy(q, L, Ll * sizeof(uint32_t));
+        q2683_divmod(q, Ll, (uint32_t)(j + 1), 1);
+        ql = q2683_trim(q, Ll);
+        if ((m - j) & 1)
+            q2683_addmul(neg, poly + j * W, plen[j], q, ql);
+        else
+            q2683_addmul(pos, poly + j * W, plen[j], q, ql);
+    }
+    pl = q2683_trim(pos, cap);
+    nl = q2683_trim(neg, cap);
+    if (q2683_cmp(pos, pl, neg, nl) >= 0) {
+        len = q2683_sub(pos, pl, neg, nl);
+        *neg_out = 0;
+    } else {
+        len = q2683_sub(neg, nl, pos, pl);
+        memcpy(pos, neg, len * sizeof(uint32_t));
+        *neg_out = 1;
+    }
+    return len;
+}
+
+/* x = x*m + y ; returns new length */
+static size_t q2683_muladd(uint32_t *x, size_t xl, uint32_t m, const uint32_t *y, size_t yl) {
+    size_t L = xl > yl ? xl : yl, i;
+    uint64_t carry = 0;
+    for (i = 0; i < L; i++) {
+        uint64_t t = carry;
+        if (i < xl) t += (uint64_t)x[i] * m;
+        if (i < yl) t += y[i];
+        x[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+    if (carry) x[L++] = (uint32_t)carry;
+    return q2683_trim(x, L);
+}
 
 seq_t a(idx_t n) {
     idx_t m1 = n + 1, N2 = n + 2, top = 2 * n + 3, k, j, p;

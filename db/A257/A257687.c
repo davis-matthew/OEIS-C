@@ -9,8 +9,9 @@
  * Formula:   a(n) = number obtained by discarding the most significant digit
  *            from n's factorial base representation and converting the
  *            remainder back to decimal
- * Range:     u8 n <= 975, u16 n <= 8260, u32 n <= 8260, u64 n <= 8260,
- *            u128 n <= 8260, big any n
+ * Range:     u8 n <= 975, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 113 terms through n = 8260 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

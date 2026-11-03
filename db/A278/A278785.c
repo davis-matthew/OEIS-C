@@ -12,7 +12,8 @@
  *            primes for subsequent...
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 70 terms through n = 995 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------------*/
 /*  Internal state for memoisation                                  */
@@ -88,8 +90,7 @@ static void add_term(uint64_t value)
 {
     if (term_cnt == term_cap) {
         term_cap = (term_cap == 0) ? 16 : term_cap * 2;
-        term_list = (seq_t *)realloc(term_list,
-                        term_cap * sizeof(seq_t));
+        term_list = mem_resize(seq_t, term_list, term_cap);
     }
     term_list[term_cnt++] = (seq_t)value;
 }

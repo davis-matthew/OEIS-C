@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 78 terms through n = 8599 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t a;
@@ -46,7 +48,7 @@ static void init_pairs(void)
     if (init_done) return;
     const size_t M = 400;                     /* enough for n≈10 000 */
     size_t est = (size_t)(0.31 * M * M);      /* rough estimate */
-    pair_arr = (pair_t *)malloc(est * sizeof(pair_t));
+    pair_arr = mem_new(pair_t, est);
     if (!pair_arr) exit(EXIT_FAILURE);
     pair_cnt = 0;
 
@@ -61,8 +63,8 @@ static void init_pairs(void)
             }
         }
     }
-    pair_arr = (pair_t *)realloc(pair_arr, pair_cnt * sizeof(pair_t));
-    qsort(pair_arr, pair_cnt, sizeof(pair_t), pair_cmp);
+    pair_arr = mem_resize(pair_t, pair_arr, pair_cnt);
+    mem_qsort(pair_arr, pair_cnt, sizeof(pair_t), pair_cmp);
     init_done = 1;
 }
 

@@ -6,8 +6,9 @@
  * Keywords:  nonn, changed
  * Formula:   a(n) = exponent of the largest prime‐power divisor of n (the
  *            prime power divisor with the greatest numeric value)
- * Range:     u8 n <= 9634, u16 n <= 9634, u32 n <= 9634, u64 n <= 9634,
- *            u128 n <= 9634, big any n
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 118 terms through n = 9634 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

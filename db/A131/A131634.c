@@ -8,15 +8,26 @@
  *            semiprime)
  * Range:     i8 none, i16 none, i32 none, i64 n <= 1000, i128 n <= 1000,
  *            big any n
- * Helpers:   build_primes_upto, compare_seq_t
+ * Validated: standard, pass, 88 terms through n = 977 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/compare_seq_t.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
+
+static int compare_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 static uint64_t *primes        = NULL;
 static size_t   primes_len     = 0;
@@ -35,7 +46,7 @@ static void init_sequence(void)
 
     /* Build all odd semiprimes <= LIMIT.  */
     size_t cap = 1024;
-    odd_semiprimes = (seq_t *)malloc(cap * sizeof(seq_t));
+    odd_semiprimes = mem_new(seq_t, cap);
     if (!odd_semiprimes) exit(1);
     size_t len = 0;
 
@@ -47,7 +58,7 @@ static void init_sequence(void)
             if (prod > (seq_t)LIMIT) break;
             if (len == cap) {
                 cap <<= 1;
-                odd_semiprimes = (seq_t *)realloc(odd_semiprimes, cap * sizeof(seq_t));
+                odd_semiprimes = mem_resize(seq_t, odd_semiprimes, cap);
                 if (!odd_semiprimes) exit(1);
             }
             odd_semiprimes[len++] = prod;
@@ -56,7 +67,7 @@ static void init_sequence(void)
     odd_len = len;
 
     /* Sort the odd semiprimes.  */
-    qsort(odd_semiprimes, odd_len, sizeof(seq_t), compare_seq_t);
+    mem_qsort(odd_semiprimes, odd_len, sizeof(seq_t), compare_seq_t);
 
     initialized = 1;
 }

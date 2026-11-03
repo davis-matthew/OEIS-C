@@ -13,12 +13,14 @@
  *            r(r+1)/2 ≤ n, k = n – r(r+1)/2. Thus a(n) = T(r,k)...
  * Range:     u8 n <= 28, u16 n <= 56, u32 n <= 121, u64 n <= 300,
  *            u128 n <= 705, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 2431 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache of computed rows */
 static seq_t **T = NULL;
@@ -37,7 +39,7 @@ static void ensure_rows(idx_t r)
     /* compute missing rows one by one */
     for (i = rows; i <= r; ++i) {
         /* allocate current row: i+1 elements (columns 0..i) */
-        T[i] = (seq_t *)malloc(sizeof(seq_t) * (i + 1));
+        T[i] = mem_new(seq_t, (i + 1));
         T[i][0] = (seq_t)1;        /* T(i,0) = 1 */
         /* compute columns 1 .. i */
         if (i > 0) {

@@ -7,14 +7,38 @@
  * Formula:   a(n) = 1 + Sum_{d|n, d<n} mu(n/d) * a(d)
  * Range:     i8 n <= 719, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   mu_of
+ * Validated: standard, pass, 96 terms through n = 7665 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mu_of.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 static seq_t *a_cache = NULL;
 static bool *a_computed = NULL;
@@ -27,7 +51,7 @@ static void ensure_cache_size(idx_t n)
     size_t new_cap = cache_cap ? cache_cap : 64;
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_cap);
     bool *new_computed = (bool *)realloc(a_computed, new_cap * sizeof(bool));
     if (!new_cache || !new_computed) abort();
     a_cache = new_cache;

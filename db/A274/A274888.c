@@ -12,7 +12,8 @@
  *            n = 0, 1, 2, ... See OEIS A274888
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *coeffs = NULL;      /* global list of coefficients read by rows */
 static size_t coeffs_len = 0;     /* number of coefficients currently stored */
@@ -38,7 +40,7 @@ static void ensure_cap(seq_t **arr, size_t *len, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t newcap = (*cap) ? (*cap) * 2 : 16;
         while (newcap < needed) newcap *= 2;
-        *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }
@@ -49,12 +51,12 @@ seq_t a(idx_t n)
     /* initialise global state on first call */
     if (!initialized) {
         coeffs_cap = 16;
-        coeffs = (seq_t *)malloc(coeffs_cap * sizeof(seq_t));
+        coeffs = mem_new(seq_t, coeffs_cap);
         coeffs_len = 0;
 
         /* row 0 polynomial: 1 */
         polyPrev_cap = 8;
-        polyPrev = (seq_t *)malloc(polyPrev_cap * sizeof(seq_t));
+        polyPrev = mem_new(seq_t, polyPrev_cap);
         polyPrev[0] = 1;
         polyPrev_len = 1;
         curRow = 0;
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         if (curRow % 2 == 1) {                /* odd n: multiply by [n] */
             idx_t m = curRow;                 /* [n] has length m of ones */
             size_t newLen = polyPrev_len + (size_t)m - 1; /* convolution length */
-            polyCur = (seq_t *)malloc(newLen * sizeof(seq_t));
+            polyCur = mem_new(seq_t, newLen);
             for (size_t i = 0; i < newLen; ++i) polyCur[i] = 0;
 
             for (size_t i = 0; i < polyPrev_len; ++i) {
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
             idx_t m = curRow / 2;              /* m >= 1 */
             size_t newLen = polyPrev_len + (size_t)m;   /* after shift and add */
 
-            seq_t *temp = (seq_t *)malloc(newLen * sizeof(seq_t));
+            seq_t *temp = mem_new(seq_t, newLen);
             for (size_t i = 0; i < newLen; ++i) temp[i] = 0;
 
             for (size_t i = 0; i < polyPrev_len; ++i) {
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
             } else {
                 size_t lenD = (size_t)m;       /* length of divisor, all ones */
                 size_t lenQ = newLen - (lenD - 1);
-                polyCur = (seq_t *)malloc(lenQ * sizeof(seq_t));
+                polyCur = mem_new(seq_t, lenQ);
                 for (size_t i = 0; i < lenQ; ++i) polyCur[i] = 0;
 
                 /* long division: temp = polyCur * divisor */
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
                         temp[qidx + j] -= coeff;
                     }
                 }
-                free(temp);
+                mem_free(temp);
                 polyCur_len = lenQ;
             }
         }
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
             coeffs[coeffs_len++] = polyCur[i];
 
         /* prepare for next iteration: previous polynomial becomes current */
-        free(polyPrev);
+        mem_free(polyPrev);
         polyPrev = polyCur;
         polyPrev_len = polyCur_len;
     }

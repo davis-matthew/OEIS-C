@@ -10,7 +10,8 @@
  *            integer is a multiple of the integer itself
  * Range:     u8 n <= 9, u16 n <= 12, u32 n <= 33, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   cmp_seq_t
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
-#include "../utils/cmp_seq_t.h"
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* check whether a given integer satisfies the definition */
 static bool is_good_candidate(idx_t cand)
@@ -38,7 +48,7 @@ static bool is_good_candidate(idx_t cand)
 
     /* number of possible substrings = len*(len+1)/2 */
     size_t maxsubs = (size_t)len * (len + 1) / 2;
-    seq_t *subvals = (seq_t *)malloc(maxsubs * sizeof(seq_t));
+    seq_t *subvals = mem_new(seq_t, maxsubs);
     if (!subvals) abort();
 
     /* generate all substrings and store their numeric values */
@@ -52,7 +62,7 @@ static bool is_good_candidate(idx_t cand)
     }
 
     /* sort to deduplicate */
-    qsort(subvals, count, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(subvals, count, sizeof(seq_t), cmp_seq_t);
 
     /* sum of squares of distinct values */
     seq_t sum = (seq_t)0;
@@ -63,7 +73,7 @@ static bool is_good_candidate(idx_t cand)
         while (j < count && subvals[j] == cur) ++j;
         i = j;
     }
-    free(subvals);
+    mem_free(subvals);
 
     /* check divisibility */
     seq_t cand_seq = (seq_t)cand;
@@ -87,7 +97,7 @@ seq_t a(idx_t n)
             /* add to storage */
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap << 1 : 4;
-                seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
                 if (!new_terms) abort();
                 terms = new_terms;
                 terms_cap = new_cap;

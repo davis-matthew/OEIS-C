@@ -9,19 +9,21 @@
  *            x^{k^3})
  * Range:     u8 n <= 624, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 124 terms through n = 8166 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     const idx_t PARTS = 6ULL;
     size_t stride = (size_t)(n + 1);
     size_t dim = (size_t)(PARTS + 1) * stride;
-    seq_t *dp = (seq_t *)calloc(dim, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dim);
     if (!dp)
         return (seq_t)0;
     dp[0] = (seq_t)1;
@@ -42,6 +44,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)PARTS * stride + (size_t)n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

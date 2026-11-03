@@ -12,7 +12,8 @@
  *            returns the run‑lengths of that difference list:...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 8143 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static state --------------------------------------------------------- */
 
@@ -106,7 +108,7 @@ static void ensure_runlen(idx_t n)
                         /* run finished – store it */
                         if (runlen_len == runlen_cap) {
                             runlen_cap = runlen_cap ? runlen_cap * 2 : 256;
-                            runlen     = (seq_t*)realloc(runlen, runlen_cap * sizeof(seq_t));
+                            runlen     = mem_resize(seq_t, runlen, runlen_cap);
                             if (!runlen) exit(EXIT_FAILURE);
                         }
                         runlen[runlen_len++] = (seq_t)curr_run;
@@ -122,7 +124,7 @@ static void ensure_runlen(idx_t n)
         if (curr_run > 0 && runlen_len < (size_t)n) {
             if (runlen_len == runlen_cap) {
                 runlen_cap = runlen_cap ? runlen_cap * 2 : 256;
-                runlen     = (seq_t*)realloc(runlen, runlen_cap * sizeof(seq_t));
+                runlen     = mem_resize(seq_t, runlen, runlen_cap);
                 if (!runlen) exit(EXIT_FAILURE);
             }
             runlen[runlen_len++] = (seq_t)curr_run;

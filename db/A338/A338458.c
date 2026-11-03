@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * heptagonal pyramidal numbers needed to sum to n.  */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,9 +43,9 @@ seq_t a(idx_t n)
         size_t new_cap = target_len;
         if (new_cap < 64) new_cap = 64;          /* arbitrary minimal size */
         if (dp == NULL) {
-            dp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            dp = mem_new(seq_t, new_cap);
         } else {
-            dp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+            dp = mem_resize(seq_t, dp, new_cap);
         }
         dp_cap = new_cap;
     }

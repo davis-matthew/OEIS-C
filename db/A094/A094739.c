@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 33, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,6 +43,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- integer square root for 64‑bit values ---------------------------- */
 static seq_t
@@ -98,7 +100,7 @@ static void
 generate_terms(void)
 {
     size_t cap = 64;
-    terms = (seq_t *)malloc(cap * sizeof(seq_t));
+    terms = mem_new(seq_t, cap);
     if (!terms) exit(1);
 
     seq_t m = 1;
@@ -107,7 +109,7 @@ generate_terms(void)
             if (has_unique_partition(m)) {
                 if (terms_cnt >= cap) {
                     cap <<= 1;
-                    terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, cap);
                     if (!terms) exit(1);
                 }
                 terms[terms_cnt++] = m;

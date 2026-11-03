@@ -10,7 +10,8 @@
  *            of n
  * Range:     u8 n <= 726, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 111 terms through n = 872 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 /* If n is a perfect square the two middle divisors coincide and the answer is 0. */
 
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     seq_t count = 0;
     for (idx_t p = j + 1; p < k; ++p)
     {
-        if (isPrimeTrial((seq_t)p))
+        if (is_prime_seq((seq_t)p))
             ++count;
     }
 

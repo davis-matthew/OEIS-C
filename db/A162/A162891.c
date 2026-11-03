@@ -11,18 +11,20 @@
  *            ≥ k) with a_new[j] for j < k staying unchan...
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 43, u64 n <= 89, u128 n <= 181,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate workspace */
     size_t size = (size_t)(n + 1);
-    seq_t *dp = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
     if (!dp) {
         /* On memory allocation failure return 0 */
         return 0;
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

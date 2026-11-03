@@ -9,7 +9,8 @@
  * Formula:   a(n) = a(n-1) + a(2*n-2-2^(p+1)), where p = floor_log2(n-2)
  * Range:     u8 n <= 15, u16 n <= 49, u32 n <= 127, u64 n <= 506,
  *            u128 n <= 3087, big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: standard, pass, 59 terms through n = 7594 (2026-11-03)
+ * Helpers:   ilog2, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/pow2.h"          /* seq_t pow2(idx_t exp) */
-#include "../utils/floor_log2_uint64.h"  /* unsigned floor_log2_uint64(idx_t) */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,12 +43,12 @@ seq_t a(idx_t n)
         /* grow with some slack; use calloc to clear new area */
         idx_t new_cap = n + 16;
         size_t new_bytes = (size_t)new_cap * sizeof(seq_t);
-        seq_t *new_buf = (seq_t *)calloc(new_bytes, 1);
+        seq_t *new_buf = mem_new(seq_t, (new_bytes) * (1) / sizeof(seq_t));
         if (!new_buf) abort();  /* irrecoverable for this program */
 
         if (buf) {
-            memcpy(new_buf, buf, cap * sizeof(seq_t));
-            free(buf);
+            mem_copy(new_buf, buf, cap * sizeof(seq_t));
+            mem_free(buf);
         }
         buf = new_buf;
         cap = new_cap;
@@ -61,7 +65,7 @@ seq_t a(idx_t n)
     /* compute missing terms up to n -------------------------------------*/
     for (idx_t i = size + 1; i <= n; ++i) {
         /* p = floor_log2(n-2) ------------------------------------------*/
-        int p = (int)floor_log2_uint64(i - 2);
+        int p = (int)ilog2(i - 2);
 
         /* 2^(p+1) -------------------------------------------------------*/
         seq_t powp = pow2((idx_t)(p + 1));

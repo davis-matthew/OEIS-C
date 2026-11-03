@@ -9,13 +9,15 @@
  *            partitions of m into at most 6 parts)
  * Range:     u8 n <= 17, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,9 +27,9 @@ seq_t a(idx_t n)
     size_t need = (size_t)n + 1;
 
     if (need > dp_cap) {
-        seq_t *newdp = (seq_t*)malloc(need * sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, need);
         if (!newdp) return 0;         /* out‑of‑memory: return 0 */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp = newdp;
         dp_cap = need;
     }

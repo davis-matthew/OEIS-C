@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1695, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   would_overflow_sum
+ * Validated: standard, pass, 69 terms through n = 9761 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/would_overflow_sum.h"
+#include "../utils/mem.h"
+
+static inline bool would_overflow_sum(seq_t sum, seq_t add)
+{
+#if HAVE_UINT128
+    if (sizeof(seq_t) <= 8)
+    {
+        unsigned __int128 s = (unsigned __int128)sum;
+        unsigned __int128 a = (unsigned __int128)add;
+        unsigned __int128 max = (unsigned __int128)(-1);
+        return (s + a) > max;
+    }
+#endif
+    return false;
+}
 
 /* helper: generate all primes up to limit */
 static void generate_primes(idx_t limit, uint32_t **primes_out, size_t *cnt_out)
@@ -125,7 +140,7 @@ seq_t a(idx_t n)
     if (prime_cnt == 0) return 0;
 
     /* 2. Build heap with one entry per starting prime. */
-    Node *heap = (Node *)calloc(prime_cnt, sizeof(Node));
+    Node *heap = mem_new(Node, prime_cnt);
     size_t heap_size = 0;
     for (size_t i = 0; i < prime_cnt; ++i)
     {
@@ -174,7 +189,7 @@ seq_t a(idx_t n)
 
     /* 4. Clean up */
     free(primes);
-    free(heap);
+    mem_free(heap);
 
     return result;
 }

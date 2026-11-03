@@ -12,7 +12,8 @@
  *            evaluated for n>=2
  * Range:     u8 n <= 40, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   divisor_count_u64, sigma_of
+ * Validated: standard, pass, 72 terms through n = 1877 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,24 @@
 #include <stdlib.h>
 
 /* Utilities for divisor count and sigma */
-#include "../utils/divisor_count_u64.h"   /* size_t divisor_count_u64(uint64_t n); */
-#include "../utils/sigma_of.h"           /* seq_t sigma_of(idx_t n); */
+#include <stdint.h>
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static seq_t *cache = NULL;          /* stores a[1]..a[cache_size] in cache[0..] */
 static size_t cache_cap = 0;         /* allocated capacity in cache entries */
@@ -34,7 +51,7 @@ static void ensure_cache(size_t n)
     if (n <= cache_cap) return;
     size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
     if (new_cap < n) new_cap = n;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();   /* allocation failure */
     cache = tmp;
     cache_cap = new_cap;
@@ -57,7 +74,7 @@ seq_t a(idx_t n)
             seq_t prev = cache[i-1];
             /* Compute divisor count d(prev) */
             uint64_t prev64 = (uint64_t)prev;            /* assume fits */
-            size_t d = divisor_count_u64(prev64);
+            size_t d = num_divisors(prev64);
             seq_t d_seq = (seq_t)d;
             /* Compute s(prev) = sigma(prev) - prev */
             seq_t sigma = sigma_of((idx_t)prev);

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 3574, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 8647 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    tau(k) (number of divisors of k) divides k. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,11 +36,11 @@ seq_t a(idx_t n)
         /* Allocate arrays for smallest prime factor, exponent of that prime, and tau. */
         idx_t *spf = (idx_t *)malloc((limit + 1) * sizeof(idx_t));
         idx_t *exp = (idx_t *)malloc((limit + 1) * sizeof(idx_t));
-        seq_t *tau = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+        seq_t *tau = mem_new(seq_t, (limit + 1));
 
         if (!spf || !exp || !tau) {
             /* Allocation failure – clean up and return 0. */
-            free(spf); free(exp); free(tau);
+            free(spf); free(exp); mem_free(tau);
             return (seq_t)0;
         }
 
@@ -82,14 +84,14 @@ seq_t a(idx_t n)
                 ++count;
                 if (count == n) {
                     seq_t result = (seq_t)i;
-                    free(spf); free(exp); free(tau);
+                    free(spf); free(exp); mem_free(tau);
                     return result;
                 }
             }
         }
 
         /* Not enough refactorables found – increase the upper bound. */
-        free(spf); free(exp); free(tau);
+        free(spf); free(exp); mem_free(tau);
         limit <<= 1;            /* double the limit */
         if (limit == 0) limit = (idx_t)-1;   /* fallback for overflow */
     }

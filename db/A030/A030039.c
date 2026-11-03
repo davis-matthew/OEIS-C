@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 27, u64 n <= 49, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    Offset: 0
    Computes each term once and memoises the values for arbitrary call order. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         /* enlarge the array to hold n+1 terms */
         idx_t new_len = n + 1;
         /* realloc handles NULL pointer == malloc */
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         /* initialize the values from current length up to n */
         for (idx_t i = cache_len; i <= n; ++i) {
             if (i == 0) {

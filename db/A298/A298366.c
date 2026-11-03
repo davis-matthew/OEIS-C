@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 7000, u32 n <= 7000, u64 n <= 7000,
  *            u128 n <= 7000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 79 terms through n = 6642 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    order is handled efficiently. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,14 +42,14 @@ seq_t a(idx_t n)
         /* Test the primality of cand-5 and cand-3 using the supplied helper */
         seq_t val1 = cand - (seq_t)5;
         seq_t val2 = cand - (seq_t)3;
-        bool comp1 = !is_prime_small(val1);
-        bool comp2 = !is_prime_small(val2);
+        bool comp1 = !is_prime_seq(val1);
+        bool comp2 = !is_prime_seq(val2);
 
         if (comp1 && comp2) {                      /* found a valid term */
             /* Expand cache if necessary */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
                     /* allocation failed – abort with zero */
                     return (seq_t)0;

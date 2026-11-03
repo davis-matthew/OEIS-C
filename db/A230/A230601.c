@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   lucas_power2plus2
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,55 @@
  */
 
 #include <stdbool.h>
-#include "../utils/lucas_power2plus2.h"
+
+/* Computes L(2^n + 2) for a given n.  The result is returned as seq_t.  */
+static seq_t lucas_power2plus2(idx_t n)
+{
+    /* Determine the highest bit to process. */
+    idx_t top;
+    if (n == 0)
+        top = 1;          /* k = 3  -> bits 1 and 0 are set                */
+    else if (n == 1)
+        top = 2;          /* k = 4  -> only bit 2 is set                 */
+    else
+        top = n;          /* k = 2^n + 2 -> bits n and 1 are set          */
+
+    /* Fibonacci pair (F(m), F(m+1)), starting with m = 0. */
+    seq_t a = 0;          /* F(0) */
+    seq_t b = 1;          /* F(1) */
+
+    /* Main loop, iterating over bits of k from top to 0. */
+    for (idx_t i = top; ; --i) {
+        /* Fast‑doubling step: compute F(2m) and F(2m+1). */
+        seq_t two_b = b << 1;                     /* 2·b            */
+        seq_t c = a * (two_b - a);                /* F(2m)          */
+        seq_t d = a * a + b * b;                  /* F(2m+1)        */
+
+        /* Decide whether the current bit of k is 1. */
+        bool bit_set;
+        if (n == 0)
+            bit_set = (i == 1 || i == 0);
+        else if (n == 1)
+            bit_set = (i == 2);
+        else
+            bit_set = (i == n || i == 1);
+
+        /* Update Fibonacci pair according to the bit. */
+        if (bit_set) {
+            a = d;
+            b = c + d;          /* b = F(2m+2) = F(2m) + F(2m+1) */
+        } else {
+            a = c;
+            b = d;              /* b = F(2m+1)            */
+        }
+
+        if (i == 0)               /* finished processing all bits   */
+            break;
+    }
+
+    /* Return the Lucas number: L(k) = 2·F(k+1) – F(k). */
+    return (b << 1) - a;
+}
 
 /* --------------------------------------------------------------------- */
 

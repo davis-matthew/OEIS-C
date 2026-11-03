@@ -11,13 +11,15 @@
  *            The one‑dimensional sequence a(n) is obtained by rea...
  * Range:     u8 n <= 21, u16 n <= 66, u32 n <= 231, u64 n <= 862,
  *            u128 n <= 3322, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9321 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: smallest m with m*(m+1)/2 >= n */
 static idx_t diagonal_from_index(idx_t n)
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     idx_t max_row = diagonal_from_index(n);
 
     /* Allocate current values for each row (1‑based) */
-    seq_t *cur = (seq_t *)calloc((size_t)(max_row + 1), sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, (size_t)(max_row + 1));
     if (!cur)
         return (seq_t)0;   /* allocation failure */
 
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
             ++count;
             seq_t val = cur[r];
             if (count == n) {
-                free(cur);
+                mem_free(cur);
                 return val;
             }
             /* advance the row value: s(x) = 3*x - 1 */
@@ -75,6 +77,6 @@ seq_t a(idx_t n)
 
     /* Fallback (should never be reached) */
     seq_t result = cur[1];
-    free(cur);
+    mem_free(cur);
     return result;
 }

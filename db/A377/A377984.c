@@ -9,14 +9,16 @@
  * Formula:   a(n) = 2*sigma(n) - A003961(n) where sigma(n) = sum of divisors
  *            of n, and A003961 is the fully multiplicative function with
  *            A003961(p^e) = next_prime(p)^e for any prime p
- * Range:     i8 n <= 47, i16 n <= 1023, i32 n <= 9958, i64 n <= 9958,
- *            i128 n <= 9958, big any n
+ * Range:     i8 n <= 47, i16 n <= 1023, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 94 terms through n = 9958 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
 
 seq_t a(idx_t n) {

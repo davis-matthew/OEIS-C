@@ -12,7 +12,8 @@
  *            of v(n,x), read row by row
  * Range:     u8 n <= 19, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    for subsequent calls. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t max_row = 0;              /* largest row computed so far   */
 static seq_t *u_buf = NULL;            /* coefficients of u(n,x) for row max_row */
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
     if (row > max_row) {
         /* if this is the first call, initialise row 1 */
         if (max_row == 0) {
-            u_buf = (seq_t *)malloc(sizeof(seq_t));
-            v_buf = (seq_t *)malloc(sizeof(seq_t));
+            u_buf = mem_new(seq_t, 1);
+            v_buf = mem_new(seq_t, 1);
             u_buf[0] = 1;
             v_buf[0] = 1;
             max_row = 1;
@@ -52,8 +54,8 @@ seq_t a(idx_t n)
         /* iterate from max_row+1 up to the desired row */
         for (idx_t s = max_row + 1; s <= row; ++s) {
             idx_t new_sz = s;
-            seq_t *u_new = (seq_t *)malloc(sizeof(seq_t) * new_sz);
-            seq_t *v_new = (seq_t *)malloc(sizeof(seq_t) * new_sz);
+            seq_t *u_new = mem_new(seq_t, new_sz);
+            seq_t *v_new = mem_new(seq_t, new_sz);
 
             idx_t prev_sz = s - 1;
             for (idx_t i = 0; i < new_sz; ++i) {
@@ -72,8 +74,8 @@ seq_t a(idx_t n)
                 u_new[i] = ua;
                 v_new[i] = va;
             }
-            free(u_buf);
-            free(v_buf);
+            mem_free(u_buf);
+            mem_free(v_buf);
             u_buf = u_new;
             v_buf = v_new;
         }

@@ -13,7 +13,8 @@
  *            the rows: 1; 1,2; 1,3,2; 1,3,5,4,2;
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   kth_eliminated
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,37 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
-#include "../utils/kth_eliminated.h"
+
+/* Compute the k-th eliminated person (1‑based) in a circle of n people
+   with elimination step 2, starting by removing person 1. */
+static seq_t kth_eliminated(idx_t n, idx_t k)
+{
+    /* Circular singly linked list via next array */
+    idx_t *next = (idx_t*)malloc((n + 1) * sizeof(idx_t));
+    if (!next) return (seq_t)0; /* should not happen */
+    for (idx_t i = 1; i <= n; ++i)
+        next[i] = (i == n) ? 1 : i + 1;
+
+    idx_t prev = n, cur = 1, rank = 0;
+    seq_t result = 0;
+
+    while (1) {
+        rank++;
+        seq_t eliminated = cur;
+        if (rank == k) { result = eliminated; break; }
+
+        /* Remove cur from the circle */
+        next[prev] = next[cur];
+        cur = next[prev];        /* new current after removal */
+        /* Skip the next person */
+        if (cur != 0) {
+            prev = cur;
+            cur = next[prev];
+        }
+    }
+    free(next);
+    return result;
+}
 
 /* Helper: integer square root of an unsigned __int128 value.
    Returns floor(sqrt(x)). */

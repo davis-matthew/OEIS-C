@@ -7,17 +7,19 @@
  * Keywords:  nonn
  * Formula:   a(n) = Least number with the same prime signature as 2*n-1
  *            (A046523(2n-1))
- * Range:     u8 n <= 1732, u16 n <= 8118, u32 n <= 8118, u64 n <= 8118,
- *            u128 n <= 8118, big any n
- * Helpers:   factor_u64, pow_int
+ * Range:     u8 n <= 1732, u16 n <= 32769, u32 n <= 32769, u64 n <= 32769,
+ *            u128 n <= 32769, big any n
+ * Validated: standard, pass, 131 terms through n = 8118 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 /* first 16 primes, enough for all exponents that occur for 2*n-1 up to n≈10000 */
 static const uint64_t PRIMES[16] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53};
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* build the least number with the same exponent multiset */
     seq_t result = 1;
     for (size_t i = 0; i < cnt; ++i) {
-        seq_t term = pow_int((seq_t)PRIMES[i], (idx_t)exps_arr[i]);
+        seq_t term = ipow_idx((seq_t)PRIMES[i], (idx_t)exps_arr[i]);
         result *= term;
     }
 

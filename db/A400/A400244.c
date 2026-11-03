@@ -7,16 +7,19 @@
  * Keywords:  nonn
  * Formula:   a(0) = 1; a(n) = Σ_{k=0..⌊n/3⌋} binomial(n+k+1,4k+1) * a(k)
  *            (OEIS A400244)
- * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 31, u128 n <= 31,
+ * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 24, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t n, idx_t k); */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Persistent cache – 0‑based index */
 static seq_t *cache  = NULL;
@@ -29,7 +32,7 @@ static void ensure_cache(idx_t n)
     if (n < cap) return;
 
     idx_t new_cap = n + 1;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     bool  *new_done  = (bool*)realloc(done,  new_cap * sizeof(bool));
     if (!new_cache || !new_done) abort();
 
@@ -55,7 +58,7 @@ seq_t a(idx_t n)
         seq_t sum = 0;
         idx_t maxk = i / 3;
         for (idx_t k = 0; k <= maxk; ++k) {
-            seq_t bin = binom(i + k + 1, 4 * k + 1);
+            seq_t bin = binomial(i + k + 1, 4 * k + 1);
             sum += bin * cache[k];
         }
         cache[i] = sum;

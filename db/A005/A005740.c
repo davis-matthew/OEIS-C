@@ -12,15 +12,28 @@
  *            type; OR type is its complement), X(m) = 2 * Sum...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   binom, grow_zero
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
-#include "../utils/grow_zero.h"
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 static seq_t *F = 0, *Fh = 0, *Ad = 0, *U = 0, *Xh = 0, *V = 0, *P2 = 0, *row = 0;
 static idx_t cnt = 0;   /* F[1..cnt] are computed; row holds binomial row cnt */
@@ -74,7 +87,7 @@ seq_t a(idx_t n) {
     seq_t result = 2;   /* k = 0 term: binomial(n,0) * 2 */
     if (n >= 2) ensure(n - 1);
     for (idx_t k = 1; k + 1 <= n; k++) {
-        result += binom(n, k) * F[k];
+        result += binomial(n, k) * F[k];
     }
     return result;
 }

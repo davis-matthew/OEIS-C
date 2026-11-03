@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* The implementation uses a simple dynamic cache and the above recurrence.  */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t   cache_len = 0;   /* number of terms actually stored   */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     /* Expand capacity until it can hold indices 0..n */
     if (cache_cap == 0) {
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         /* initialise first two terms */
         cache[0] = (seq_t)0;
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
     }
     while (cache_cap <= n) {
         cache_cap <<= 1;                 /* double */
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         if (!cache) abort();
     }
 

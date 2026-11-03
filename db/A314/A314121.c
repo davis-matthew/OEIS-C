@@ -13,12 +13,14 @@
  *            a(9)=48, a(10)=54, a(11)=58, a(12)=64
  * Range:     u8 n <= 47, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoisation (allow random access order) */
@@ -50,7 +52,7 @@ seq_t a(idx_t n) {
     /* Initialise cache on first call */
     if (cache == NULL) {
         cache_len = 13;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL) {
             /* If allocation fails, fall back to on‑the‑fly computation */
             return init[12];  /* should never happen for valid n > 12 */
@@ -63,7 +65,7 @@ seq_t a(idx_t n) {
     /* Extend cache if needed */
     if ((size_t)n >= cache_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL) {
             /* If realloc fails, we can't compute the requested term */
             return cache[cache_len - 1];  /* safe fallback */

@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy, nice
  * Formula:   a(0) = 1; for n > 0, a(n) = 8*A000203(n/A006519(n))*(2 +
  *            (-1)^n), i.e. 8*sigma(odd part of n), times 3 if n is even
- * Range:     u8 n <= 17, u16 n <= 2969, u32 n <= 9960, u64 n <= 9960,
- *            u128 n <= 9960, big any n
+ * Range:     u8 n <= 17, u16 n <= 2969, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 73 terms through n = 9960 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

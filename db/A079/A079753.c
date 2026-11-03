@@ -11,13 +11,15 @@
  * Formula:   a(3) = 0; for n>=4, a(n) = n*a(n-1) + (n-1)*(n-2)/2
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 /* initialise storage once */
     if (mem == NULL) {
         mem_size = 4;                     /* indices 0..3 */
-        mem = (seq_t *)calloc(mem_size, sizeof(seq_t));
+        mem = mem_new(seq_t, mem_size);
         if (mem == NULL) return (seq_t)0; /* allocation failure */
         mem[3] = (seq_t)0;                /* a(3)=0 */
     }
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 /* grow table if necessary */
     if ((size_t)(n + 1) > mem_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(mem, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, mem, new_size);
         if (tmp == NULL) return (seq_t)0;          /* allocation failure */
         /* initialise new entries to 0 */
         for (size_t i = mem_size; i < new_size; ++i)

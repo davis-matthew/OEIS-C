@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = number of divisors d of n such that d^n mod n = d
- * Range:     u8 n <= 2649, u16 n <= 9828, u32 n <= 9828, u64 n <= 9828,
- *            u128 n <= 9828, big any n
- * Helpers:   factor_u64, mod_pow
+ * Range:     u8 n <= 2649, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 116 terms through n = 9828 (2026-11-01)
+ * Helpers:   factor_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,14 +16,16 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 static void dfs_count(size_t pos, seq_t current, const uint64_t *pr, const uint64_t *ex,
                       size_t cnt, idx_t n, seq_t *out)
 {
     if (pos == cnt) {
-        seq_t val = mod_pow(current, (uint64_t)n, (seq_t)n);
+        seq_t val = powmod(current, (uint64_t)n, (seq_t)n);
         if (val == current) {
             (*out)++;
         }

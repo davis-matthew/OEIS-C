@@ -9,6 +9,7 @@
  *            sequence is periodic with period 1829
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
+ * Validated: standard, pass, 94 terms through n = 1672 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   a(n) = A051903(A209061(n))
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree_exponent
+ * Validated: standard, pass, 104 terms through n = 8331 (2026-11-03)
+ * Helpers:   is_squarefree_u32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,11 +28,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/is_squarefree_exponent.h"
+#include "../utils/is_squarefree_u32.h"
+#include "../utils/mem.h"
 
 /* forward declarations */
 static void init_spf(size_t limit);
-static bool is_squarefree_exponent(uint32_t e);
+static bool is_squarefree_u32(uint32_t e);
 static bool esf_and_max_exp(uint64_t x, seq_t *maxe);
 static const size_t INITIAL_SPF_LIMIT = 1000000;   /* initial sieve size */
 
@@ -90,7 +92,7 @@ static bool esf_and_max_exp(uint64_t x, seq_t *maxe)
             temp /= p;
             ++e;
         }
-        if (!is_squarefree_exponent(e)) return false;
+        if (!is_squarefree_u32(e)) return false;
         if ((seq_t)e > max_exp) max_exp = (seq_t)e;
     }
     *maxe = max_exp;
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
     /* first call: initialise static state */
     if (cache_size == 0) {
         cache_cap = 128;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(1);
         cache[0] = (seq_t)0;   /* a(1) = 0 */
         cache_size = 1;
@@ -127,7 +129,7 @@ seq_t a(idx_t n)
         if (esf_and_max_exp(candidate, &max_exp)) {
             if (cache_size == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache) exit(1);
             }
             cache[cache_size++] = max_exp;

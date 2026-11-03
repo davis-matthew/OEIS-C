@@ -9,7 +9,8 @@
  *            prime and r has only prime factors 2 and/or 5
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, is_prime
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"          /* is_prime(idx_t) */
-#include "../utils/_prime_limit_for_idx.h"   /* _prime_limit_for_idx(idx_t) */
-#include "../utils/build_primes_upto.h"      /* build_primes_upto(idx_t, uint64_t **, size_t *) */
+#include <math.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 static uint64_t *prime_list   = NULL;   /* array of primes  */
 static size_t     prime_cnt   = 0;       /* number of primes in prime_list   */

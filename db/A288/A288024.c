@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 423, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, next_prime
+ * Validated: standard, pass, 62 terms through n = 989 (2026-11-03)
+ * Helpers:   is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* cached values */
 static seq_t      *cache          = NULL;
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t need)
     /* initialise cache array if necessary */
     if (cache == NULL) {
         cache_capacity = 16;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
     }
 
     /* find further terms until we have 'need' of them */
@@ -61,7 +63,7 @@ static void ensure_cache(idx_t need)
                         /* grow cache if needed */
                         if (cache_size == cache_capacity) {
                             cache_capacity <<= 1;
-                            cache = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+                            cache = mem_resize(seq_t, cache, cache_capacity);
                         }
                         cache[cache_size++] = (seq_t)p;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   irreducible_mod_prime, is_emod_prime
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,91 @@
    modulo 5 (a prime in the product ring is prime in each component). */
 
 #include <stdbool.h>
-#include "../utils/irreducible_mod_prime.h"
-#include "../utils/is_emod_prime.h"
+
+/* Check whether the polynomial represented by digits[0..deg] is irreducible
+   over GF(p).  The polynomial is the carryless number: value = Σ digits[i]·x^i. */
+static bool irreducible_mod_prime(const int *digits, int deg, int p)
+{
+    if (deg <= 1) return true;            /* degree 0 or 1 polynomials are irreducible */
+
+    int max_check = deg / 2;               /* only divisors up to half the degree are needed */
+
+    /* Temporary arrays for division; size 20 is more than enough for the maximum degree. */
+    int f[20];
+    int g[3];                              /* largest needed for degree 2 */
+
+    for (int d = 1; d <= max_check; ++d) {
+        if (d == 1) {                      /* monic polynomials x + a  (a = 0..p-1) */
+            for (int a = 0; a < p; ++a) {
+                g[0] = a;
+                g[1] = 1;                  /* leading coefficient set to 1 */
+
+                /* Copy and reduce coefficients modulo p. */
+                for (int i = 0; i <= deg; ++i) f[i] = digits[i] % p;
+                int rdeg = deg;
+                while (rdeg >= 0 && f[rdeg] == 0) --rdeg;
+
+                /* Long division: f = q*g + r;  test whether r==0. */
+                while (rdeg >= d) {
+                    int factor = f[rdeg];              /* leading coefficient of f (mod p) */
+                    int shift  = rdeg - d;
+                    for (int i = 0; i <= d; ++i) {
+                        int idx = i + shift;
+                        f[idx] -= factor * g[i];
+                        f[idx] %= p;
+                        if (f[idx] < 0) f[idx] += p;
+                    }
+                    while (rdeg >= 0 && f[rdeg] == 0) --rdeg;
+                }
+                if (rdeg < 0) return false;            /* divisible by g -> reducible */
+            }
+        } else if (d == 2) {                /* monic polynomials x² + a·x + b */
+            for (int a = 0; a < p; ++a) {
+                for (int b = 0; b < p; ++b) {
+                    g[0] = a;
+                    g[1] = b;
+                    g[2] = 1;                  /* leading coefficient set to 1 */
+
+                    for (int i = 0; i <= deg; ++i) f[i] = digits[i] % p;
+                    int rdeg = deg;
+                    while (rdeg >= 0 && f[rdeg] == 0) --rdeg;
+
+                    while (rdeg >= d) {
+                        int factor = f[rdeg];
+                        int shift  = rdeg - d;
+                        for (int i = 0; i <= d; ++i) {
+                            int idx = i + shift;
+                            f[idx] -= factor * g[i];
+                            f[idx] %= p;
+                            if (f[idx] < 0) f[idx] += p;
+                        }
+                        while (rdeg >= 0 && f[rdeg] == 0) --rdeg;
+                    }
+                    if (rdeg < 0) return false;        /* reducible */
+                }
+            }
+        }
+    }
+    return true;           /* no divisor found -> irreducible */
+}
+
+/* Test whether x is a carryless (e‑type) prime. */
+static bool is_emod_prime(seq_t x)
+{
+    int digits[20];
+    int len = 0;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        digits[len++] = d;
+        x /= 10;
+    }
+    if (len == 0) return false;            /* x == 0 */
+    int deg = len - 1;
+
+    if (!irreducible_mod_prime(digits, deg, 2)) return false;
+    if (!irreducible_mod_prime(digits, deg, 5)) return false;
+    return true;
+}
 
 /* Recursive generation of e‑type numbers.  Results are produced in ascending
    numeric order.  When the nth term is found the global flag stops further

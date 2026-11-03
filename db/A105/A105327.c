@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static seq_t *terms    = NULL;
@@ -32,7 +34,7 @@ static void push_term(seq_t val)
 {
     if (terms_len >= terms_cap) {
         size_t new_cap = terms_cap == 0 ? 16 : terms_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();
         terms = tmp;
         terms_cap = new_cap;
@@ -58,7 +60,7 @@ static void init_sequence(void)
     }
 
     /* ---------- Prime counting function pi(x) ---------- */
-    seq_t *pi = (seq_t *)malloc((LIMIT + 1) * sizeof(seq_t));
+    seq_t *pi = mem_new(seq_t, (LIMIT + 1));
     if (!pi) abort();
     pi[0] = 0;
     for (size_t i = 1; i <= LIMIT; ++i)
@@ -94,7 +96,7 @@ static void init_sequence(void)
 
     /* Clean up temporary storage */
     free(is_prime);
-    free(pi);
+    mem_free(pi);
     initialized = true;
 }
 

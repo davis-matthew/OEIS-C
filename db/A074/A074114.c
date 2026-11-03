@@ -11,15 +11,36 @@
  *            a(n) = 2^a0 · 3, else a(n) = 2^a0
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 20,
  *            big any n
- * Helpers:   max_pow2_leq, pow10_ui, pow2_seq
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/max_pow2_leq.h"
-#include "../utils/pow10_ui.h"
-#include "../utils/pow2_seq.h"
+#include "../utils/pow2.h"
+
+/* Return the largest exponent e such that 2^e ≤ *limit.  */
+static idx_t max_pow2_leq(const seq_t *limit)
+{
+    idx_t e = 0;
+    seq_t cur = 1;                /* 2^e */
+    while (cur <= (*limit) / 2)   /* ensure cur*2 will not exceed the limit */
+    {
+        cur *= 2;
+        ++e;
+    }
+    return e;                     /* 2^e ≤ *limit < 2^(e+1) */
+}
+
+/* Compute 10^exp using repeated multiplication.  */
+static seq_t pow10_ui(idx_t exp)
+{
+    seq_t r = 1;
+    for (idx_t i = 0; i < exp; ++i)
+        r *= 10;
+    return r;
+}
 
 /* Main sequence function.  */
 seq_t a(idx_t n)
@@ -36,8 +57,8 @@ seq_t a(idx_t n)
     idx_t a1 = max_pow2_leq(&limit_div3);
 
     /* Construct the two candidate values. */
-    seq_t cand1 = pow2_seq(a0);          /* 2^a0 */
-    seq_t cand2 = pow2_seq(a1) * 3;      /* 2^a1 * 3 */
+    seq_t cand1 = pow2(a0);          /* 2^a0 */
+    seq_t cand2 = pow2(a1) * 3;      /* 2^a1 * 3 */
 
     idx_t sum1 = a0;              /* a + b for cand1  (b=0) */
     idx_t sum2 = a1 + 1;          /* a + b for cand2  (b=1) */

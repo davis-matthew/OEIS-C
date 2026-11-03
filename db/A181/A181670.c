@@ -9,14 +9,18 @@
  *            2)
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   mod_pow, sieve_first_n_primes
+ * Validated: partial, pass, 98 terms through n = 98 (2026-11-01)
+ * Helpers:   powmod, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 #include "../utils/sieve_first_n_primes.h"
 
 static uint32_t *cached_primes = NULL; /* array of first primes[0..cnt-1] */
@@ -61,7 +65,7 @@ a(idx_t n)
     uint32_t prime_k = cached_primes[k - 1];   /* k‑th prime */
 
     /* compute 2^(r-1) mod prime_k */
-    seq_t result = mod_pow((seq_t)2, (uint64_t)(r - 1), (seq_t)prime_k);
+    seq_t result = powmod((seq_t)2, (uint64_t)(r - 1), (seq_t)prime_k);
 
     return result;
 }

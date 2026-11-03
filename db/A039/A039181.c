@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   has_equal_2_and_10
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,21 @@
 /* Sequence A039181: numbers whose base-11 representation has the same number of 2's and 10's */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_equal_2_and_10.h"
+#include "../utils/mem.h"
+
+/* test whether an index has equal number of digit 2 and digit 10 in base 11 */
+static bool has_equal_2_and_10(idx_t x) {
+    int c2 = 0, c10 = 0;
+    while (x > 0) {
+        int d = x % 11;
+        if (d == 2)
+            ++c2;
+        else if (d == 10)
+            ++c10;
+        x /= 11;
+    }
+    return c2 == c10;
+}
 
 /* static state for memoization */
 static seq_t *seq_cache = NULL;
@@ -28,7 +43,7 @@ static idx_t seq_next = 0;
 static void ensure_cache_cap(size_t needed) {
     if (needed <= seq_cache_cap) return;
     size_t new_cap = needed * 2 + 64;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cache_cap = new_cap;
 }
 

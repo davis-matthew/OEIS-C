@@ -10,91 +10,89 @@
  *            multiply to n. For each prime factor p^e of n the index i with
  *            prime(i)=p occurs e times in the multiset. All integer averages
  *            of subsets of this multiset are collected,...
- * Range:     u8 n <= 9594, u16 n <= 9594, u32 n <= 9594, u64 n <= 9594,
- *            u128 n <= 9594, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9594 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+/* The parts of the partition with Heinz number n are the indices pi(p) of
+   its prime factors p, with multiplicity. A sub-multiset is a choice of
+   exponents 0..e_i for each distinct prime (a divisor of n); its average is
+   (sum of chosen indices) / (number chosen). The distinct integer averages of
+   the nonempty choices are counted. pi comes from a sieve that grows with n
+   (the original had fixed tables for n <= 10000). */
+
 #include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
+#include <stdlib.h>
 
-static int primes[1229];
-static int prime_count;
-static int prime_index[10001];
-static bool primes_initialized = false;
+static uint32_t *pi_tab = NULL;           /* pi_tab[x] = pi(x), x <= pi_lim */
+static uint64_t pi_lim = 0;
 
-/* simple sieve to fill primes[] and prime_index[] for values up to 10000 */
-static void init_primes(void)
+static void ensure_pi(uint64_t n)
 {
-    bool is_prime[10001];
-    memset(is_prime, true, sizeof(is_prime));
-    is_prime[0] = is_prime[1] = false;
-    for (int i = 2; i * i <= 10000; ++i)
-        if (is_prime[i])
-            for (int j = i * i; j <= 10000; j += i)
-                is_prime[j] = false;
-
-    prime_count = 0;
-    for (int i = 2; i <= 10000; ++i)
-        if (is_prime[i]) {
-            prime_index[i] = ++prime_count;   /* indices start at 1 */
-            primes[prime_count - 1] = i;
-        }
-
-    primes_initialized = true;
+    if (n <= pi_lim) return;
+    uint64_t lim = pi_lim ? 2 * pi_lim : 1024;
+    while (lim < n) lim *= 2;
+    unsigned char *comp = (unsigned char *)calloc(lim + 1, 1);
+    uint32_t *t = (uint32_t *)malloc((lim + 1) * sizeof *t);
+    if (!comp || !t) abort();
+    for (uint64_t i = 2; i * i <= lim; ++i)
+        if (!comp[i])
+            for (uint64_t j = i * i; j <= lim; j += i) comp[j] = 1;
+    uint32_t c = 0;
+    for (uint64_t i = 0; i <= lim; ++i) {
+        if (i >= 2 && !comp[i]) ++c;
+        t[i] = c;
+    }
+    free(comp);
+    free(pi_tab);
+    pi_tab = t;
+    pi_lim = lim;
 }
 
 seq_t a(idx_t n)
 {
-    if (!primes_initialized)
-        init_primes();
+    if (n <= 1) return (seq_t)0;              /* no parts, no averages */
+    ensure_pi((uint64_t)n);
 
-    if (n == 1)
-        return 0;         /* no parts -> no averages */
-
-    /* collect indices corresponding to prime factors of n */
-    int idx[16];            /* k <= 13 for n <= 10000 */
-    int k = 0;
-    uint64_t temp = (uint64_t)n;
-
-    for (int i = 0; i < prime_count; ++i) {
-        int p = primes[i];
-        if ((uint64_t)p * p > temp)
-            break;
-        while (temp % p == 0) {
-            idx[k++] = prime_index[p];
-            temp /= p;
+    uint64_t idx[64], m = (uint64_t)n;        /* distinct parts and their multiplicities */
+    int e[64], k = 0;
+    for (uint64_t p = 2; p * p <= m; ++p)
+        if (m % p == 0) {
+            idx[k] = pi_tab[p];
+            e[k] = 0;
+            while (m % p == 0) { m /= p; ++e[k]; }
+            ++k;
         }
+    if (m > 1) { idx[k] = pi_tab[m]; e[k] = 1; ++k; }
+
+    /* walk all exponent vectors c (0 <= c_i <= e_i) like an odometer */
+    int c[64] = {0};
+    uint64_t *seen = NULL;
+    size_t nseen = 0, cap = 0;
+    for (;;) {
+        int i = 0;
+        while (i < k && c[i] == e[i]) c[i++] = 0;
+        if (i == k) break;
+        ++c[i];
+        uint64_t sum = 0, cnt = 0;
+        for (int j = 0; j < k; ++j) { sum += (uint64_t)c[j] * idx[j]; cnt += (uint64_t)c[j]; }
+        if (sum % cnt) continue;
+        uint64_t avg = sum / cnt;
+        size_t s = 0;
+        while (s < nseen && seen[s] != avg) ++s;
+        if (s < nseen) continue;
+        if (nseen == cap) {
+            cap = cap ? 2 * cap : 16;
+            uint64_t *t = (uint64_t *)realloc(seen, cap * sizeof *t);
+            if (!t) abort();
+            seen = t;
+        }
+        seen[nseen++] = avg;
     }
-    if (temp > 1)          /* remaining prime factor */
-        idx[k++] = prime_index[(int)temp];
-
-    /* visited array for distinct integer averages */
-    bool visited[2000] = {0};   /* max average <= 1229 for n <= 10000 */
-    seq_t count = 0;
-
-    /* enumerate all non‑empty subsets */
-    int limit = 1 << k;
-    for (int mask = 1; mask < limit; ++mask) {
-        seq_t sum = 0;
-        int cnt = 0;
-        for (int i = 0; i < k; ++i) {
-            if (mask & (1 << i)) {
-                sum += (seq_t)idx[i];
-                ++cnt;
-            }
-        }
-        if (sum % (seq_t)cnt == 0) {
-            int avg = (int)(sum / (seq_t)cnt);
-            if (!visited[avg]) {
-                visited[avg] = true;
-                ++count;
-            }
-        }
-    }
-
-    return count;
+    free(seen);
+    return (seq_t)nseen;
 }

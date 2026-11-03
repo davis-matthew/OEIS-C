@@ -8,14 +8,16 @@
  * Formula:   a(n) = (k^n - k^(n-phi(n))) / n read by downward antidiagonals
  * Range:     u8 n <= 31, u16 n <= 61, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   phi, seq_pow
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   ipow_idx, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
-#include "../utils/phi.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -44,13 +46,13 @@ seq_t a(idx_t n)
     idx_t col  = sum - row;          /* k in the definition */
 
     /* Compute phi(row) and the required exponent.  */
-    seq_t phi_val = phi(row);        /* phi(row) fits in seq_t */
+    seq_t phi_val = totient(row);        /* phi(row) fits in seq_t */
     idx_t phi_int = (idx_t)phi_val;  /* small enough for idx_t */
 
     seq_t base = (seq_t)col;
 
-    seq_t pow1 = seq_pow(base, row);
-    seq_t pow2 = seq_pow(base, row - phi_int);
+    seq_t pow1 = ipow_idx(base, row);
+    seq_t pow2 = ipow_idx(base, row - phi_int);
 
     seq_t diff = pow1 - pow2;
     seq_t result = diff / (seq_t)row;

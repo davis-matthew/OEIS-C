@@ -11,7 +11,8 @@
  *            square‑free). See OEIS A076488
  * Range:     u8 n <= 14, u16 n <= 2308, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_seq_t, grow_int_array
+ * Validated: standard, pass, 71 terms through n = 9949 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd_seq_t.h"
-#include "../utils/grow_int_array.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* helper: grow a generic integer array */
+static void grow_int_array(int **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 2 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        *arr = (int *)realloc(*arr, new_cap * sizeof(int));
+        *cap = new_cap;
+    }
+}
 
 /* internal types (seq_t and idx_t are provided by the build) */
 static size_t LIMIT = 2000000;        /* initial search bound */
@@ -42,7 +54,7 @@ static void init_sieve(size_t n)
     if (spf != NULL) free(spf);
     if (mu  != NULL) free(mu);
     if (primes != NULL) free(primes);
-    if (terms != NULL) free(terms);
+    if (terms != NULL) mem_free(terms);
     processed_upto = 0;
     terms_cnt = 0;
     terms_cap = 0;
@@ -124,12 +136,12 @@ static void process_number(idx_t x)
     }
 
     if (!sqfree) {
-        seq_t g1 = gcd_seq_t(sigma, phi);
-        seq_t g2 = gcd_seq_t(rad_sigma, rad_phi);
+        seq_t g1 = gcd(sigma, phi);
+        seq_t g2 = gcd(rad_sigma, rad_phi);
         if (g1 == g2) {
             if (terms_cnt == terms_cap) {
                 size_t new_cap = (terms_cap == 0) ? 2 : (terms_cap << 1);
-                terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, new_cap);
                 terms_cap = new_cap;
             }
             terms[terms_cnt++] = (seq_t)x;

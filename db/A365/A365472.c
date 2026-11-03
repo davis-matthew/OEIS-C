@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   all_nonprime_digits
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/all_nonprime_digits.h"
+#include "../utils/mem.h"
+
+/* check whether all digits of x are non‑prime (0,1,4,6,8,9) */
+static bool all_nonprime_digits(seq_t x)
+{
+    if (x == 0) return true;   /* single digit 0 is non‑prime */
+    seq_t t = x;
+    while (t > 0)
+    {
+        seq_t d = t % 10;
+        if (d == 2 || d == 3 || d == 5 || d == 7) return false;
+        t /= 10;
+    }
+    return true;
+}
 
 /* static cache to speed up arbitrary order of calls */
 static seq_t *cache = NULL;
@@ -33,7 +48,7 @@ static void grow_cache(size_t needed)
     {
         size_t new_cap = cache_cap == 0 ? 64 : cache_cap * 2;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

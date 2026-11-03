@@ -11,8 +11,9 @@
  *            A020639(n), else 0 where n' is the arithmetic derivative of n,
  *            A020639 is the least prime factor, A053669 is the least prime
  *            not dividing its argument
- * Range:     u8 n <= 9762, u16 n <= 9762, u32 n <= 9762, u64 n <= 9762,
- *            u128 n <= 9762, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 141 terms through n = 9762 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,6 +8,7 @@
  *            = 1 if r == m, * else (m+4) * (4*(m+1))^(r-m-1)
  * Range:     u8 n <= 9, u16 n <= 28, u32 n <= 78, u64 n <= 212, u128 n <= 566,
  *            big any n
+ * Validated: standard, pass, 57 terms through n = 6402 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

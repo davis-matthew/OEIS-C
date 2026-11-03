@@ -8,7 +8,8 @@
  * Formula:   a(n) is counted by a transfer‑matrix DP over rows
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   isValid
+ * Validated: standard, pass, 35 terms through n = 205 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,34 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/isValid.h"
+
+/* Test whether the middle row (mid) satisfies the neighbour condition
+   when the top and bottom rows are (top) and (bottom). */
+static bool isValid(uint8_t top, uint8_t mid, uint8_t bottom)
+{
+    for (int j = 0; j < 6; ++j) {
+        int cnt = 0;
+        /* top row */
+        if (j >= 1) cnt += (top >> (j - 1)) & 1;
+        cnt += (top >> j) & 1;
+        if (j <= 4) cnt += (top >> (j + 1)) & 1;
+
+        /* middle row (left/right only) */
+        if (j >= 1) cnt += (mid >> (j - 1)) & 1;
+        if (j <= 4) cnt += (mid >> (j + 1)) & 1;
+
+        /* bottom row */
+        if (j >= 1) cnt += (bottom >> (j - 1)) & 1;
+        cnt += (bottom >> j) & 1;
+        if (j <= 4) cnt += (bottom >> (j + 1)) & 1;
+
+        if ((mid >> j) & 1) {                 /* if the cell itself is 1, check its count */
+            if (!(cnt == 0 || cnt == 3 || cnt == 5))
+                return false;
+        }
+    }
+    return true;
+}
 
 /* Cached transition data: for each (top,mid) pair, list of bottom rows that are valid. */
 static unsigned char nxtCount[64][64];

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 101 terms through n = 9950 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +21,13 @@
    or a prime. */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 static inline seq_t sopfr_u64(uint64_t u) {
     seq_t sum = 0;
     while (u > 1) {
-        uint64_t p = _smallest_prime_factor(u);
+        uint64_t p = smallest_prime_factor(u);
         sum += (seq_t)p;
         u /= p;
     }

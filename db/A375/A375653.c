@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 */
 
 #include <stddef.h>                    /* for size_t if needed */
-#include "../utils/big_pow.h"          /* seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* ---------------------------------------------------------------------- */
 /*  Compute a(n) for the OEIS sequence A375653                          */
@@ -57,7 +60,7 @@ seq_t a(idx_t n)
 
         /* ---- compute base power ------------------------------------- */
         seq_t base = (seq_t)(n - 2 * k + 1);
-        seq_t pow  = big_pow(base, (seq_t)k);  /* (n-2k+1)^k   */
+        seq_t pow  = ipow(base, (seq_t)k);  /* (n-2k+1)^k   */
 
         /* ---- term contribution -------------------------------------- */
         seq_t term = coeff * pow;

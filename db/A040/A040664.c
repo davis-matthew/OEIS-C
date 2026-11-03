@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* compute integer floor sqrt of a seq_t value */
 static seq_t seq_floor_sqrt(seq_t x)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         /* build the periodic part */
         /* provisional capacity */
         size_t cap = 16;
-        period = (seq_t *)malloc(cap * sizeof(*period));
+        period = mem_new(seq_t, cap);
         if (!period) {
             /* allocation failed – return 0 as sentinel */
             return (seq_t)0;
@@ -66,9 +68,9 @@ seq_t a(idx_t n)
             /* grow array if necessary */
             if (period_len == cap) {
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(period, cap * sizeof(*period));
+                seq_t *tmp = mem_resize(seq_t, period, cap);
                 if (!tmp) {
-                    free(period);
+                    mem_free(period);
                     return (seq_t)0;
                 }
                 period = tmp;

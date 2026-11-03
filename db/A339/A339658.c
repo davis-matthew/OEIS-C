@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* -----------------  global arrays  ----------------- */
 static seq_t *cache      = NULL;   /* stored sequence values     */
@@ -97,7 +99,7 @@ static void initialise_cache(void)
         return;
 
     cache_cap = 16;
-    cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (cache == NULL)
     {
         /* on failure just return 0 as fallback (unlikely in tests) */
@@ -113,7 +115,7 @@ static void cache_append(seq_t val)
     if (cache_len >= cache_cap)
     {
         size_t new_cap = cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)
             return; /* fallback */
         cache = tmp;

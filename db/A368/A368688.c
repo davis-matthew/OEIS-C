@@ -8,12 +8,14 @@
  *            f(k+3)=f(k+2)+f(k) for k>=1
  * Range:     u8 n <= 16, u16 n <= 31, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system. */
 
@@ -29,11 +31,11 @@ seq_t a(idx_t n)
     if (n > max_n) {
         /* Resize arrays to accommodate up to n. */
         idx_t new_size = n + 1;     /* indices 0..n inclusive */
-        seq_t *f_new = (seq_t *)realloc(f, new_size * sizeof(seq_t));
+        seq_t *f_new = mem_resize(seq_t, f, new_size);
         if (!f_new) return (seq_t)0;/* out of memory: unlikely    */
         f = f_new;
 
-        seq_t *sum_new = (seq_t *)realloc(sum, new_size * sizeof(seq_t));
+        seq_t *sum_new = mem_resize(seq_t, sum, new_size);
         if (!sum_new) return (seq_t)0;
         sum = sum_new;
 

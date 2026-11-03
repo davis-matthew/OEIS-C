@@ -7,6 +7,7 @@
  * Formula:   a(n) = q^63 * ∏_{d∈{2,6,8,10,12,14,18}} (q^d−1) / (q−1,2) where
  *            q is the n-th prime power
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
+ * Validated: partial, pass, 2 terms through n = 2 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

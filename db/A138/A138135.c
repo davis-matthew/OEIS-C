@@ -11,13 +11,15 @@
  *            and avoids large intermediate values
  * Range:     u8 n <= 16, u16 n <= 41, u32 n <= 122, u64 n <= 402,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 937 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* pair of pentagonal number and its sign */
 struct pent {
@@ -38,7 +40,7 @@ static void ensure_cache(size_t max)
     if (max <= cache_max) return;
 
     /* resize a_cache */
-    a_cache = (seq_t *)realloc(a_cache, (max + 1) * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, (max + 1));
     if (a_cache == NULL) return;   /* allocation failed – give up silently */
 
     /* resize tau_cache */

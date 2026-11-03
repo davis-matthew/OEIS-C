@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of found terms */
 static seq_t *cache = NULL;
@@ -87,7 +89,7 @@ static void ensure_cache_capacity(void)
     if (new_cap < cache_len + 1) {
         new_cap = cache_len + 1;
     }
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (new_cache == NULL) {
         /* In a real program you would handle allocation failure;
            here we simply abort to keep the implementation brief. */
@@ -97,7 +99,7 @@ static void ensure_cache_capacity(void)
         for (size_t i = 0; i < cache_len; ++i) {
             new_cache[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

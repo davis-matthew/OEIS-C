@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   ensure_capacity, is_prime, mod_pow
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,44 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/ensure_capacity.h"
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 static inline uint64_t gcd_u64(uint64_t a, uint64_t b)
 {
@@ -41,7 +77,7 @@ static uint64_t next_candidate = 3;   /* next odd number to test   */
 static void append_prime(seq_t prime)
 {
     if (val_len + 1 > val_cap) {
-        ensure_capacity(val_len + 1, &val_cap, (void **)&valid_primes,
+        ensure_capacity(val_len + 1, &val_cap, OEISC_VPP(&valid_primes),
                         sizeof(seq_t));
     }
     valid_primes[val_len++] = prime;
@@ -73,12 +109,12 @@ seq_t a(idx_t n)
         uint64_t exp100 = d / g100;
 
         seq_t mod = (seq_t)p;
-        seq_t pow10 = mod_pow((seq_t)2, exp10, mod);
+        seq_t pow10 = powmod((seq_t)2, exp10, mod);
         if (pow10 != (seq_t)1) {
             continue; /* 2 is NOT a 10th power mod p */
         }
 
-        seq_t pow100 = mod_pow((seq_t)2, exp100, mod);
+        seq_t pow100 = powmod((seq_t)2, exp100, mod);
         if (pow100 == (seq_t)1) {
             continue; /* 2 IS a 100th power mod p – reject */
         }

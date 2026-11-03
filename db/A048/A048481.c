@@ -7,12 +7,15 @@
  * Formula:   a(n) = 2^(n+1) * (n-2) + 2*n + 5, a(0)=1, a(1)=3
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 26, u64 n <= 57, u128 n <= 120,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 47 terms through n = 994 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +24,7 @@ seq_t a(idx_t n)
     if (n == 1) return (seq_t)3;
 
     /* 2^(n+1) */
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)(n + 1));
+    seq_t pow2 = ipow((seq_t)2, (seq_t)(n + 1));
 
     /* (n-2) is non‑negative for n >= 2, so we can cast safely. */
     seq_t mult = pow2 * (seq_t)(n - 2);

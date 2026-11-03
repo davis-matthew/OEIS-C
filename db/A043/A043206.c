@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_adjacent45
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_adjacent45.h"
+#include "../utils/mem.h"
+
+/* Return true if the base‑9 representation of x contains the
+   consecutive digits 4 and 5 in either order. */
+static bool has_adjacent45(seq_t x)
+{
+    seq_t prev = -1;               /* sentinel value for "no previous digit" */
+    while (x > 0) {
+        seq_t d = x % 9;           /* least significant base‑9 digit */
+        if (prev != -1) {
+            if ((prev == 4 && d == 5) || (prev == 5 && d == 4))
+                return true;
+        }
+        prev = d;
+        x = x / 9;
+    }
+    return false;
+}
 
 /* Return the n-th element of the sequence (1‑based index). */
 seq_t a(idx_t n)
@@ -36,7 +54,7 @@ seq_t a(idx_t n)
         if (has_adjacent45(k) && !has_adjacent45(k - 1)) {
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return 0; /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

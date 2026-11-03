@@ -9,12 +9,14 @@
  *            greater than floor(sqrt(n))
  * Range:     u8 n <= 15, u16 n <= 30, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root for a 64‑bit unsigned integer. */
 static inline idx_t
@@ -50,7 +52,7 @@ ensure_cache(idx_t n)
     if (n < cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap << 1 : 1;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(EXIT_FAILURE);
     cache = new_cache;
     /* New entries are zero (uncomputed). */
@@ -66,7 +68,7 @@ ensure_dp(idx_t n)
     if ((size_t)need <= dp_cap) return;
     idx_t new_cap = dp_cap ? dp_cap << 1 : 1;
     while ((size_t)new_cap < need) new_cap <<= 1;
-    seq_t *new_buf = (seq_t *)realloc(dp_buf, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, dp_buf, new_cap);
     if (!new_buf) exit(EXIT_FAILURE);
     dp_buf = new_buf;
     dp_cap = new_cap;

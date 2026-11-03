@@ -10,7 +10,8 @@
  *            seq_t and * idx_t, using a simple incremental prime generator
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_mod6
+ * Validated: standard, pass, 103 terms through n = 947 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_mod6.h"
+
+/* Count integers in [L,R] that are congruent to r (mod 6). */
+static seq_t count_mod6(uint64_t L, uint64_t R, uint64_t r)
+{
+    if (L > R)
+        return 0;
+    uint64_t first = L;
+    uint64_t mod   = first % 6;
+    if (mod != r)
+        first += (r + 6 - mod) % 6;
+    if (first > R)
+        return 0;
+
+    uint64_t last = R;
+    mod = last % 6;
+    if (mod != r)
+        last -= (mod + 6 - r) % 6;
+    if (last < first)
+        return 0;
+
+    return (seq_t)((last - first) / 6) + 1;
+}
 
 /* Static storage for generated primes.  primes[0] is the first prime (2). */
 static uint64_t *primes = NULL;

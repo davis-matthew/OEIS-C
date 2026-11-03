@@ -8,7 +8,8 @@
  * Formula:   a(1) = 1, a(n+1) = reverse_decimal(a(n)) + 25
  * Range:     u8 n <= 4, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   reverse_decimal
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/reverse_decimal.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initial allocation for the first term */
     if (cap == 0) {
         cap = 16;                                /* start with a modest capacity */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;             /* out of memory -> return 0 */
         cache[0] = (seq_t)1;                     /* a(1) = 1 */
         len = 1;
@@ -37,12 +39,12 @@ seq_t a(idx_t n)
     /* Extend cache up to requested index */
     while (len < (size_t)n) {
         seq_t prev = cache[len - 1];
-        seq_t next = reverse_decimal(prev) + (seq_t)25;
+        seq_t next = reverse_digits(prev) + (seq_t)25;
 
         /* Grow capacity if necessary */
         if (len >= cap) {
             cap <<= 1;                           /* double capacity */
-            seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cap);
             if (!tmp) return (seq_t)0;           /* out of memory -> return 0 */
             cache = tmp;
         }

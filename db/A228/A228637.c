@@ -9,6 +9,7 @@
  *            2x - 1 V_{m+1}(x) = 2xV_m(x) - V_{m-1}(x) (m >= 1)
  * Range:     i8 n <= 22, i16 n <= 47, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   equal_state
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,14 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/equal_state.h"
+
+static inline bool equal_state(const uint64_t *a, const uint64_t *b, size_t w)
+{
+    for (size_t i = 0; i < w; ++i)
+        if (a[i] != b[i])
+            return false;
+    return true;
+}
 
 #define MAX_N 20000                     /* safe upper bound for n (≈10000) */
 #define MAX_W ((MAX_N + 63) / 64)       /* maximum number of 64‑bit words needed */

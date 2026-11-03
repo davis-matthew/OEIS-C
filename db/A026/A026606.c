@@ -11,12 +11,14 @@
  *            remaining symbols (2→1, 3→2)
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *derived_cache = NULL;
 static size_t derived_len   = 0;
@@ -61,7 +63,7 @@ static void init_cache(void)
     /* Derive the final sequence (remove 1's and subtract 1) */
     const size_t wanted = 500000;               /* sufficient for all tests */
     derived_len = 0;
-    derived_cache = (seq_t *)malloc(wanted * sizeof(seq_t));
+    derived_cache = mem_new(seq_t, wanted);
     if (!derived_cache) abort();
 
     for (size_t i = 0; i < cur_len; ++i) {
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
         /* This part is rarely executed due to the large initial cache. */
         size_t old_len = derived_len;
         size_t needed = (size_t) n * 2;          /* rough upper bound */
-        derived_cache = (seq_t *)realloc(derived_cache, needed * sizeof(seq_t));
+        derived_cache = mem_resize(seq_t, derived_cache, needed);
         /* regenerate up to needed terms by extending the substitution. */
         /* (omitted for brevity – the initial cache covers all test cases). */
         derived_len = needed;

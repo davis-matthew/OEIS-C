@@ -8,13 +8,15 @@
  * Formula:   (n+1)*a(n+1) = 4*a(n) + 4*n*a(n-1) a(0) = 1, a(1) = 4
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 24, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoization */
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     /* ensure cache has enough space */
     if (cache_size <= n) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_size);
         if (!new_cache) return (seq_t)0; /* allocation failed; caller must handle */
         cache = new_cache;
         /* initialize new positions if extending beyond current size */

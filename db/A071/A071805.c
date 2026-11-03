@@ -10,7 +10,8 @@
  *            cardinality of k
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   divisor_counts
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_counts.h"
+#include "../utils/mem.h"
+
+/* Compute τ(k) for all 1 ≤ k ≤ n.
+ * The result is an array of uint16_t[0..n], unused index 0. */
+static void divisor_counts(idx_t n, uint16_t **out)
+{
+    uint16_t *tau = (uint16_t*)calloc((size_t)(n + 1), sizeof(uint16_t));
+    if (!tau) { *out = NULL; return; }
+
+    for (idx_t i = 1; i <= n; ++i) {
+        for (idx_t j = i; j <= n; j += i) {
+            ++tau[j];
+        }
+    }
+    *out = tau;
+}
 
 /* Simple sieve that fills *primes with the primes ≤ limit.
  * The caller must free (*primes).  *cnt counts them. */
@@ -89,7 +105,7 @@ seq_t a(idx_t n)
 
     /* Step 4: count pairs using a frequency table over shifted f-values */
     size_t diff = (size_t)(max_f - min_f + 1);
-    seq_t *cnt_arr = (seq_t*)calloc(diff, sizeof(seq_t));
+    seq_t *cnt_arr = mem_new(seq_t, diff);
     seq_t ans = (seq_t)0;
 
     for (idx_t i = 1; i <= n; ++i) {
@@ -108,7 +124,7 @@ seq_t a(idx_t n)
 
     /* Clean up */
     free(f_vals);
-    free(cnt_arr);
+    mem_free(cnt_arr);
     free(prime_arr);
     free(tau_arr);
 

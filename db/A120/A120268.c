@@ -7,13 +7,16 @@
  * Formula:   a(n) = numerator of Sum_{k=1..n} 1/(2*k-1)^2
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 24,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 31 terms through n = 285 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +31,8 @@ seq_t a(idx_t n)
     /* initialise storage on first call                                 */
     if (capacity == 0) {
         capacity = 16;
-        num_arr  = (seq_t *)malloc((capacity + 1) * sizeof(seq_t));
-        den_arr  = (seq_t *)malloc((capacity + 1) * sizeof(seq_t));
+        num_arr  = mem_new(seq_t, (capacity + 1));
+        den_arr  = mem_new(seq_t, (capacity + 1));
         if (!num_arr || !den_arr) return (seq_t)0;   /* allocation failed */
 
         /* sum for n = 1: 1 / 1^2 = 1/1   */
@@ -42,8 +45,8 @@ seq_t a(idx_t n)
     if (n > capacity) {
         idx_t new_cap = capacity == 0 ? 16 : capacity;
         while (n > new_cap) new_cap <<= 1;
-        seq_t *tmp1 = (seq_t *)realloc(num_arr, (new_cap + 1) * sizeof(seq_t));
-        seq_t *tmp2 = (seq_t *)realloc(den_arr, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp1 = mem_resize(seq_t, num_arr, (new_cap + 1));
+        seq_t *tmp2 = mem_resize(seq_t, den_arr, (new_cap + 1));
         if (!tmp1 || !tmp2) return (seq_t)0;    /* allocation failed */
         num_arr  = tmp1;
         den_arr  = tmp2;

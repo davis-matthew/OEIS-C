@@ -10,7 +10,8 @@
  *            7
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 12, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Constants for full set of rows (0..3)³. */
 #define TOTAL_CELLS 64          /* 4³ */
@@ -100,8 +102,8 @@ seq_t a(idx_t n)
     static size_t allocated = 0;
 
     if (cur == NULL || allocated < STATES) {
-        cur  = (seq_t*)realloc(cur,  STATES * sizeof(seq_t));
-        nxt  = (seq_t*)realloc(nxt,  STATES * sizeof(seq_t));
+        cur  = mem_resize(seq_t, cur, STATES);
+        nxt  = mem_resize(seq_t, nxt, STATES);
         allocated = STATES;
     }
 

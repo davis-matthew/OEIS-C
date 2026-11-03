@@ -8,16 +8,31 @@
  * Formula:   a(0) = 0; for n > 0, a(n) = 1 + a( n -
  *            sum_of_digits_in_factorial_base(n) ) where the digit sum is
  *            taken in the factorial number system
- * Range:     u8 n <= 1813, u16 n <= 9778, u32 n <= 9778, u64 n <= 9778,
- *            u128 n <= 9778, big any n
- * Helpers:   factorial_digit_sum
+ * Range:     u8 n <= 1813, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 88 terms through n = 9778 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/factorial_digit_sum.h"
+
+static inline seq_t factorial_digit_sum(idx_t v)
+{
+    seq_t sum = 0;
+    idx_t d   = v;
+    idx_t i   = 1;          /* loop counter, starts at 1 (1! place) */
+    while (d > 0) {
+        idx_t div = i + 1;          /* next factorial base */
+        idx_t rem = d % div;        /* current factorial digit */
+        sum += (seq_t)rem;
+        d   /= div;
+        ++i;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

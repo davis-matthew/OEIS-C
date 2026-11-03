@@ -10,7 +10,8 @@
  *            twice (allowing overlap) in the concatenation of a(0) ... a(n‑1)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_DIGITS   200000          /* estimated maximum length of the concatenated string */
 #define MAX_STATES   (2 * MAX_DIGITS + 5)
@@ -153,7 +155,7 @@ seq_t a(idx_t n)
     if (first) {
         first = 0;
         seq_cap = 64;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         seq_cache[0] = (seq_t)0;
         seq_computed = 0;
         digits_len = 0;
@@ -171,7 +173,7 @@ seq_t a(idx_t n)
         /* grow cache if necessary */
         if (seq_computed + 1 >= seq_cap) {
             seq_cap <<= 1;
-            seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
         }
         seq_cache[seq_computed + 1] = val;
         ++seq_computed;

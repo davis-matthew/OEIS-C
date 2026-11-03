@@ -13,7 +13,8 @@
  *            * numerator(Bernoulli(2n))
  * Range:     i8 n <= 4, i16 n <= 5, i32 n <= 8, i64 n <= 14, i128 n <= 17,
  *            big any n
- * Helpers:   c1896_bitlen, c1896_isprime, c1896_mul_small
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   bit_length_u64_to_u64, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/c1896_bitlen.h"
-#include "../utils/c1896_isprime.h"
-#include "../utils/c1896_mul_small.h"
+#include "../utils/bit_length_u64_to_u64.h"
+#include "../utils/is_prime_u64.h"
+
+static void c1896_mul_small(uint32_t *x, size_t *len, uint32_t m) {
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < *len; i++) {
+        uint64_t t = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+    if (carry) x[(*len)++] = (uint32_t)carry;
+}
 
 typedef struct {
     uint32_t *d;
@@ -57,7 +68,7 @@ static void c1896_build(idx_t N) {
     }
     c1896_T = (c1896_num *)malloc((size_t)(N + 1) * sizeof(c1896_num));
     for (j = 1; j <= N; j++) {
-        uint64_t bits = 4 * (uint64_t)j + 2 * (uint64_t)j * c1896_bitlen(2 * (uint64_t)j);
+        uint64_t bits = 4 * (uint64_t)j + 2 * (uint64_t)j * bit_length_u64_to_u64(2 * (uint64_t)j);
         size_t cap = (size_t)(bits / 32 + 4);
         c1896_T[j].d = (uint32_t *)calloc(cap, sizeof(uint32_t));
         c1896_T[j].len = 0;
@@ -87,7 +98,7 @@ seq_t a(idx_t n) {
 
     m = 2 * (uint64_t)n;
     for (e = 1; e <= m; e++)
-        if (m % e == 0 && c1896_isprime(e + 1)) np++;
+        if (m % e == 0 && is_prime_u64(e + 1)) np++;
 
     cap = c1896_T[n].len + 2 + np + (size_t)(m / 32) + 6;
     x = (uint32_t *)calloc(cap, sizeof(uint32_t));
@@ -95,7 +106,7 @@ seq_t a(idx_t n) {
     len = c1896_T[n].len;
     c1896_mul_small(x, &len, (uint32_t)m);
     for (e = 1; e <= m; e++)
-        if (m % e == 0 && c1896_isprime(e + 1)) c1896_mul_small(x, &len, (uint32_t)(e + 1));
+        if (m % e == 0 && is_prime_u64(e + 1)) c1896_mul_small(x, &len, (uint32_t)(e + 1));
 
     /* y = x * 2^(m-1) - x */
     y = (uint32_t *)calloc(cap, sizeof(uint32_t));

@@ -7,7 +7,8 @@
  * Formula:   a(n) = product_{d|n} (d+1) - 1
  * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes the sum of products of elements of all non‑empty subsets of the divisors of n. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Simple trial‑division prime factorisation.
  * On return *cnt equals the number of distinct prime factors of n,
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     }
 
     /* allocate array for all divisors */
-    seq_t *divisors = (seq_t *)malloc(sizeof(seq_t) * dcnt);
+    seq_t *divisors = mem_new(seq_t, dcnt);
     if (!divisors) {
         return 0; /* unlikely for the input range */
     }
@@ -102,6 +104,6 @@ seq_t a(idx_t n)
         prod *= (divisors[i] + (seq_t)1);
     }
 
-    free(divisors);
+    mem_free(divisors);
     return prod - (seq_t)1; /* subtract the empty subset contribution */
 }

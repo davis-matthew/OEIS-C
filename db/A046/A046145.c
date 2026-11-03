@@ -7,7 +7,8 @@
  * Formula:   a(n) = smallest primitive root of n, or 0 if none
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod64, ugcd_uint64
+ * Validated: standard, pass, 117 terms through n = 8297 (2026-11-01)
+ * Helpers:   gcd_u64, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stddef.h>
 
 /* Utility: modular multiplication modulo 64-bit (no overflow) */
-#include "../utils/mul_mod64.h"
-#include "../utils/ugcd_uint64.h"
+#include <stdlib.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/mulmod.h"
 
 /* --------------------------------------------------------------------- */
 /* Helper: Euclidean GCD for uint64_t ----------------------------------- */
@@ -31,8 +33,8 @@ static uint64_t pow_mod_uint64(uint64_t base, uint64_t exp, uint64_t mod)
     base %= mod;
     while (exp) {
         if (exp & 1ULL)
-            res = mul_mod64(res, base, mod);
-        base = mul_mod64(base, base, mod);
+            res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1ULL;
     }
     return res;
@@ -132,7 +134,7 @@ seq_t a(idx_t n)
 
     /* Search for the smallest primitive root */
     for (uint64_t g = 2; g < N; ++g) {
-        if (ugcd_uint64(g, N) != 1)
+        if (gcd_u64(g, N) != 1)
             continue;                       /* must be coprime */
 
         /* Check that g has order φ(N) modulo N */

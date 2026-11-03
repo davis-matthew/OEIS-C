@@ -12,12 +12,14 @@
  *            requested n. All arithmetic is performed with the native...
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 37, u64 n <= 71, u128 n <= 140,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 892 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Ensure the cache has room for indices 1..N. */
     if (N + 1 > cache_size) {
         size_t new_size = N + 1;          /* +1 since we ignore index 0 */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) {
             /* Out of memory – in a contest environment this would
                terminate the program.  Here we just return 0. */

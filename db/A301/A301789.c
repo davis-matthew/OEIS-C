@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 35, u64 n <= 74, u128 n <= 153,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    The function memoizes results so calls in any order are O(n) total. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache with the six known values once */
     if (!initialized) {
-        cache = (seq_t *)realloc(NULL, (6 + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, (6 + 1));
         if (!cache) abort();
         for (size_t i = 1; i <= 6; ++i)
             cache[i] = (seq_t)base[i];
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* Grow the cache if the requested index is beyond what we have */
     if ((size_t)n > cache_len) {
         size_t new_len = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_len + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_len + 1));
         if (!tmp) abort();
         cache = tmp;
 

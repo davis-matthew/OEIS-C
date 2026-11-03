@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, easy
  * Formula:   not stated
- * Range:     i8 n <= 9582, i16 n <= 9582, i32 n <= 9582, i64 n <= 9582,
- *            i128 n <= 9582, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 94 terms through n = 9582 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

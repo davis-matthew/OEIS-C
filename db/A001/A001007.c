@@ -10,17 +10,18 @@
  *            no intermediate value grows beyond about the size of the result
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   a001007_nth_prime
+ * Validated: standard, pass, 37 terms through n = 189 (2026-11-01)
+ * Helpers:   nth_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a001007_nth_prime.h"
+#include "../utils/nth_prime_u64.h"
 
 seq_t a(idx_t n) {
-    uint64_t p = a001007_nth_prime((uint64_t)n);
+    uint64_t p = nth_prime_u64((uint64_t)n);
     uint64_t P2 = p * p;
     uint64_t L = (2 * p) / 3;
 

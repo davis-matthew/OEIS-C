@@ -7,12 +7,14 @@
  * Formula:   a(n) = 6*a(n-2) - 4*a(n-4), a(0)=1, a(1)=5, a(2)=6, a(3)=26
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static idx_t seq_cache_len = 0;
@@ -28,11 +30,11 @@ seq_t a(idx_t n)
         size_t new_cap = (size_t)(n + 1);
         if (seq_cache_cap == 0)
         {
-            seq_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_cache = mem_new(seq_t, new_cap);
         }
         else
         {
-            seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         }
         seq_cache_cap = new_cap;
     }

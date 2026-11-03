@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 267, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 /* if compiled as C++ the explicit casts of void* to seq_t* are required   */
 
 static seq_t *a_arr    = NULL;   /* a(n)  */
@@ -44,23 +46,23 @@ static void ensure_capacity(idx_t n)
 
     /* reallocate a_arr */
     if (a_arr == NULL) {
-        a_arr = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        a_arr = mem_new(seq_t, new_cap);
     } else {
-        a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
     }
 
     /* reallocate ap_arr */
     if (ap_arr == NULL) {
-        ap_arr = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        ap_arr = mem_new(seq_t, new_cap);
     } else {
-        ap_arr = (seq_t *)realloc(ap_arr, new_cap * sizeof(seq_t));
+        ap_arr = mem_resize(seq_t, ap_arr, new_cap);
     }
 
     /* reallocate app_arr */
     if (app_arr == NULL) {
-        app_arr = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        app_arr = mem_new(seq_t, new_cap);
     } else {
-        app_arr = (seq_t *)realloc(app_arr, new_cap * sizeof(seq_t));
+        app_arr = mem_resize(seq_t, app_arr, new_cap);
     }
 
     cap = new_cap;

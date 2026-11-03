@@ -7,8 +7,9 @@
  * Formula:   a(n) = 1 if n is a pentatope number, otherwise 0. Pentatope
  *            numbers are of the form n = k*(k+1)*(k+2)*(k+3)/24. The function
  *            uses integer arithmetic only
- * Range:     u8 n <= 9863, u16 n <= 9863, u32 n <= 9863, u64 n <= 9863,
- *            u128 n <= 9863, big any n
+ * Range:     u8 n <= 101270, u16 n <= 101270, u32 n <= 101270,
+ *            u64 n <= 101270, u128 n <= 101270, big any n
+ * Validated: standard, pass, 143 terms through n = 9863 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -6,9 +6,10 @@
  * Keywords:  nonn, easy
  * Formula:   Least number of odd squares that sum to n, defined by case
  *            analysis on n mod 8 (OEIS A101412)
- * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
- *            u128 n <= 105, big any n
- * Helpers:   has_two_odd_square_sum, int_sqrt_idx, is_square
+ * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 7892 (2026-11-01)
+ * Helpers:   is_square, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_square.h"
-#include "../utils/has_two_odd_square_sum.h"
-#include "../utils/int_sqrt_idx.h"
+#include "../utils/isqrt.h"
+
+/* Test whether a number n (seq_t) can be expressed as a sum of two odd
+   squares.  */
+static bool has_two_odd_square_sum(seq_t n)
+{
+    idx_t nn = (idx_t)n;                /* safe for n ≤ 2^64‑1 */
+    idx_t sqrt_n = isqrt(nn);
+
+    for (idx_t a = 1; a <= sqrt_n; a += 2) {
+        idx_t a2 = a * a;
+        if (a2 > nn) break;
+        idx_t rem = nn - a2;
+        idx_t b = isqrt(rem);
+        if (b * b == rem && (b & 1))
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

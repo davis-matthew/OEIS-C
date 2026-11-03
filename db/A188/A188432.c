@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 141, u16 n <= 141, u32 n <= 141, u64 n <= 141,
  *            u128 n <= 141, big any n
+ * Validated: partial, pass, 141 terms through n = 141 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

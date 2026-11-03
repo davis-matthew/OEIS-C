@@ -12,18 +12,20 @@
  *            term: a(n)=28*sum_{i=1}^{min(24,n)}a(n-i)+2 (fo...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 602 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate array to hold terms up to n */
     size_t N = (size_t)n + 1;
-    seq_t *arr = (seq_t*)malloc(N * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, N);
     if (!arr) return 0;   /* fallback on allocation failure */
 
     /* initial term */
@@ -52,6 +54,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = arr[n];
-    free(arr);
+    mem_free(arr);
     return res;
 }

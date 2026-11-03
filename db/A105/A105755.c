@@ -8,12 +8,14 @@
  *            = a(-8) = -1
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 2286 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,14 +26,14 @@ seq_t a(idx_t n)
     /* Ensure the buffer exists */
     if (dp == NULL) {
         /* Allocate space for at least one element (a(0)) */
-        dp = (seq_t*)malloc(sizeof(seq_t));
+        dp = mem_new(seq_t, 1);
         dp_size = 0;
     }
 
     /* Grow buffer if necessary */
     if (n + 1 > dp_size) {
         idx_t new_size = n + 1;
-        dp = (seq_t*)realloc(dp, new_size * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, new_size);
 
         for (idx_t i = dp_size; i <= n; ++i) {
             if (i == 0) {

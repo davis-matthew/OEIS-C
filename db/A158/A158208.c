@@ -13,17 +13,33 @@
  *            Σ_{i=0..⌊(n−1)/2⌋} binomial(n,i)*(1/x−1)^i (n≥1). The sequence
  *            begins: 2; 1,1; 1,0,1; -2,3,3; ... Initial values: a(0)=2,
  *            a(1)=1, a(2)=1,...
- * Range:     i8 n <= 35, i16 n <= 61, i32 n <= 61, i64 n <= 61, i128 n <= 61,
+ * Range:     i8 n <= 37, i16 n <= 61, i32 n <= 61, i64 n <= 61, i128 n <= 61,
  *            big any n
- * Helpers:   binomial, grow_seq
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/grow_seq.h"
+#include <stddef.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* static storage for the flattened sequence */
 static seq_t *cache      = NULL;   /* flattened values a(0),a(1),…   */

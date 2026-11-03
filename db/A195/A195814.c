@@ -12,7 +12,8 @@
  *            appearing in p and q together (each exactly once)
  * Range:     u8 none, u16 n <= 19, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   digit_frequencies, factor_u64
+ * Validated: full, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   digit_frequencies, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"
 #include "../utils/digit_frequencies.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Bit mask of the distinct digits in a 64‑bit integer.
    Bit i (0≤i≤9) is set iff digit i appears in x. */
@@ -133,7 +135,7 @@ static inline void cache_append(seq_t val)
 {
     if (cache_len == cache_cap) {
         cache_cap = (cache_cap == 0) ? 128 : cache_cap << 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_len++] = val;
 }

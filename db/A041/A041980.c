@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 19, u64 n <= 39, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 /* Include standard headers needed for size_t and dynamic allocation */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function to compute the n-th term of the sequence. */
 seq_t a(idx_t n)
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* Allocate enough space to store values from 0 up to n */
     size_t need = (size_t)n + 1;
-    seq_t *vals = (seq_t*)malloc(need * sizeof(seq_t));
+    seq_t *vals = mem_new(seq_t, need);
     if (!vals) {
         /* In case of allocation failure, return 0 (unlikely for small n) */
         return (seq_t)0;
@@ -64,6 +66,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = vals[n];
-    free(vals);
+    mem_free(vals);
     return result;
 }

@@ -12,14 +12,16 @@
  *            C(n,s)·A(n‑s,k). * The function returns the element a(n)
  * Range:     u8 n <= 32, u16 n <= 62, u32 n <= 116, u64 n <= 249,
  *            u128 n <= 625, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 9656 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;
 static size_t dp_stride = 0;
@@ -51,7 +53,7 @@ static void ensure_dp(size_t max_n)
     size_t new_stride = max_n + 1;
     if (dp_stride != 0 && dp_stride >= new_stride) return;
 
-    seq_t *new_dp = (seq_t *)calloc(new_stride * new_stride, sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, new_stride * new_stride);
     if (!new_dp) return; /* allocation failure – caller sees zero values */
 
     /* base row n==0 */
@@ -67,7 +69,7 @@ static void ensure_dp(size_t max_n)
             size_t maxS = (k < n) ? k : n;
             for (size_t s = 1; s <= maxS; ++s)
             {
-                seq_t choose = binom((idx_t)n, (idx_t)s);
+                seq_t choose = binomial((idx_t)n, (idx_t)s);
                 seq_t prod  = choose * new_dp[(n - s) * new_stride + k];
                 sum += prod;
             }
@@ -75,7 +77,7 @@ static void ensure_dp(size_t max_n)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     dp = new_dp;
     dp_stride = new_stride;
 }

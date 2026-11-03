@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{p|n, p prime} p^(n/p - 1) (OEIS A373458)
  * Range:     u8 n <= 17, u16 n <= 33, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   big_pow, factor_u64, is_prime
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   factor_u64, ipow, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < pf_cnt; ++i) {
         idx_t p   = (idx_t)pr[i];
         idx_t exp = n / p - 1;
-        seq_t term = big_pow((seq_t)p, (seq_t)exp);
+        seq_t term = ipow((seq_t)p, (seq_t)exp);
         sum += term;
     }
     return sum;

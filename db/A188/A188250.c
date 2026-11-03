@@ -9,15 +9,44 @@
  *            * non‑zero, satisfying x1*x2 + x2*x3 + x3*x4 = 0
  * Range:     u8 n <= 5, u16 n <= 49, u32 n <= 135, u64 n <= 135,
  *            u128 n <= 135, big any n
- * Helpers:   count_k_range, gcd_idx_t
+ * Validated: standard, pass, 57 terms through n = 129 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/count_k_range.h"
-#include "../utils/gcd_idx_t.h"
+#include "../utils/gcd_idx.h"
+
+/* Count integer k that satisfy the constraints for given parameters. */
+static inline seq_t count_k_range(idx_t N1, idx_t N2, idx_t g, int sign)
+{
+    /* shift = sign * g  (may be negative).  */
+    int64_t shift = (int64_t)g * (int64_t)sign;
+
+    int64_t low1  = -(int64_t)N1;
+    int64_t high1 = (int64_t)N1;
+    int64_t low2  = -(int64_t)N2 - shift;
+    int64_t high2 = (int64_t)N2 - shift;
+
+    int64_t low  = low1 > low2 ? low1 : low2;
+    int64_t high = high1 < high2 ? high1 : high2;
+
+    if (high < low) return 0;
+
+    seq_t cnt = (seq_t)(high - low + 1);
+
+    /* exclude k = 0 */
+    if (low <= 0 && 0 <= high) cnt -= 1;
+
+    /* exclude k = -shift  (D = 0) */
+    int64_t neg_shift = -shift;   /* = -(sign*g) */
+    if (low <= neg_shift && neg_shift <= high) cnt -= 1;
+
+    if ((int64_t)cnt < 0) cnt = 0;
+    return cnt;
+}
 
 /* Euclidean GCD for unsigned 64‑bit integers. */
 
@@ -35,7 +64,7 @@ seq_t a(idx_t n)
 
     for (idx_t b = 1; b <= n; ++b) {
         for (idx_t c = 1; c <= n; ++c) {
-            idx_t g   = gcd_idx_t(b, c);
+            idx_t g   = gcd_idx(b, c);
             idx_t b1  = b / g;
             idx_t c1  = c / g;
             idx_t N1  = floor_n[c1];

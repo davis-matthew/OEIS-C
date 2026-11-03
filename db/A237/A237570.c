@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   alloc_seq_array, medianDiff
+ * Validated: standard, pass, 31 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,32 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/medianDiff.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: median difference of a 2×2 block -------------------------------- */
+static uint8_t medianDiff(uint8_t a0, uint8_t a1,
+                          uint8_t b0, uint8_t b1)
+{
+    uint8_t v[4] = {a0,a1,b0,b1};
+    /* simple insertion sort for 4 elements */
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3 - i; ++j) {
+            if (v[j] > v[j+1]) {
+                uint8_t t = v[j];
+                v[j] = v[j+1];
+                v[j+1] = t;
+            }
+        }
+    }
+    return v[2] - v[1];
+}
 
 /* Types supplied by the build system ----------------------------------- */
 typedef uint64_t idx_t;         /* index type */

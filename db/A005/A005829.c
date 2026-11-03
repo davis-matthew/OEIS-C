@@ -10,17 +10,65 @@
  *            fixed-point tau = floor(tau*2^B) for big builds
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   bits_bound, ftau_zeck, isqrt_big, seq_is_big
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_big.h"
-#include "../utils/bits_bound.h"
-#include "../utils/ftau_zeck.h"
-#include "../utils/isqrt_big.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static idx_t bits_bound(idx_t i) {
+    /* a(i) < 2^((9*i)/8 + 4) since a(i)/a(i-1) -> ~2.0953 < 2^(9/8) */
+    return (9 * i) / 8 + 4;
+}
+
+/* floor(tau*x) via Zeckendorf: x = sum F_k  =>  tau*x = sum F_{k+1} - sum psi^k,
+   so floor = shift(x) - 1 if the smallest index k is even, else shift(x). */
+static seq_t ftau_zeck(seq_t x) {
+    seq_t f[200];
+    int m, i, kmin = -1;
+    seq_t r, sh = 0;
+    if (x == 0) return 0;
+    f[0] = 1; /* F_2 */
+    f[1] = 2; /* F_3 */
+    m = 2;
+    while (f[m - 1] <= x && m < 199) {
+        f[m] = f[m - 1] + f[m - 2];
+        m++;
+    }
+    r = x;
+    for (i = m - 2; i >= 0; i--) {
+        if (f[i] <= r) {
+            r -= f[i];
+            sh += f[i + 1];
+            kmin = i;
+        }
+    }
+    if (kmin >= 0 && (kmin % 2) == 0) sh -= 1;
+    return sh;
+}
+
+static seq_t isqrt_big(seq_t N, idx_t startbits) {
+    seq_t s = (seq_t)1 << startbits;
+    for (;;) {
+        seq_t t = (s + N / s) >> 1;
+        if (t >= s) break;
+        s = t;
+    }
+    return s;
+}
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -38,7 +86,7 @@ seq_t a(idx_t n) {
 
     if (cache == NULL) {
         cap = (n + 1 < 64) ? 64 : n + 1;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         for (i = 0; i < cap; i++) cache[i] = 0;
         cache[0] = 0;
         cache[1] = 2;
@@ -50,10 +98,10 @@ seq_t a(idx_t n) {
         idx_t newcap = cap * 2;
         seq_t *nc;
         if (newcap < n + 1) newcap = n + 1;
-        nc = (seq_t *)malloc(newcap * sizeof(seq_t));
+        nc = mem_new(seq_t, newcap);
         for (i = 0; i < newcap; i++) nc[i] = 0;
         for (i = 0; i <= done; i++) nc[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = nc;
         cap = newcap;
     }

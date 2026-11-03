@@ -11,13 +11,15 @@
  *            them so that subsequent calls return the value instantly
  * Range:     u8 n <= 2, u16 n <= 141, u32 n <= 141, u64 n <= 141,
  *            u128 n <= 141, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 139 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static Fibonacci table (k > 1 : 1, 2, 3, 5, 8, ...) */
 #define MAX_FIB 200
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
     /* grow cache if required */
     if (cache_cap == 0) {
         cache_cap = 64;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* generate terms until we have the n-th one */
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
         /* store valid number */
         if (cache_len == cache_cap) {
             cache_cap <<= 1;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = next_val;
         next_val++;                           /* advance to next candidate */

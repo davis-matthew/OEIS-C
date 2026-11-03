@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* factorials up to 9! (needed for permutation ranking). */
 static const idx_t FACT[10] = {1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880};
@@ -125,7 +127,7 @@ seq_t a(idx_t n) {
         }
 
         /* Count frequencies of each distance. */
-        freq = (seq_t *)malloc((max_dist + 1) * sizeof(seq_t));
+        freq = mem_new(seq_t, (max_dist + 1));
         if (!freq) return (seq_t)0;  /* unlikely to happen */
         for (idx_t i = 0; i <= max_dist; ++i) freq[i] = 0;
         for (idx_t i = 0; i < NUM_STATES; ++i) {

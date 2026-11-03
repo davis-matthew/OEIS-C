@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9328 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const size_t LIMIT = 2000000;  /* upper bound for sieve */
 static const seq_t  LIMIT_SEQ = (seq_t)LIMIT;
@@ -47,9 +49,9 @@ static size_t   untouch_cnt = 0;
 static void init(void) {
     /* Allocate arrays */
     spf = (uint64_t*)malloc((LIMIT + 1) * sizeof(uint64_t));
-    usig = (seq_t*)malloc((LIMIT + 1) * sizeof(seq_t));
+    usig = mem_new(seq_t, (LIMIT + 1));
     present = (bool*)calloc(LIMIT + 1, sizeof(bool));
-    untouch = (seq_t*)malloc((LIMIT + 1) * sizeof(seq_t));
+    untouch = mem_new(seq_t, (LIMIT + 1));
 
     /* Compute smallest prime factors (linear sieve) */
     for (size_t i = 2; i <= LIMIT; ++i) {

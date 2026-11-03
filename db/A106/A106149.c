@@ -8,7 +8,8 @@
  * Formula:   a(n) = bigomega(p(n+1)-p(n))
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   bigomega_uint64, estimate_prime_upper_bound
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   bigomega_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/estimate_prime_upper_bound.h"
-#include "../utils/bigomega_uint64.h"
+#include <math.h>
+#include "../utils/bigomega_u64.h"
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 /* Static storage for primes */
 static idx_t prime_count = 0;          /* number of primes stored          */
@@ -78,5 +88,5 @@ seq_t a(idx_t n)
     /* Compute the difference between consecutive primes. */
     uint64_t diff = prime_arr[n] - prime_arr[n - 1];  /* 0‑based indices */
 
-    return bigomega_uint64(diff);
+    return bigomega_u64(diff);
 }

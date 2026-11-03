@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9717 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,10 +27,11 @@
 
 /* Helper macro to cast the result of realloc for seq_t pointers. */
 #ifdef __cplusplus
-#define REALLOC_SEQ_T(ptr, newsize) reinterpret_cast<seq_t*>(realloc(ptr,newsize))
+#define REALLOC_SEQ_T(ptr, newsize) mem_resize(seq_t, ptr, (newsize) / sizeof(seq_t))
 #else
-#define REALLOC_SEQ_T(ptr, newsize) (seq_t*)realloc(ptr,newsize)
+#define REALLOC_SEQ_T(ptr, newsize) mem_resize(seq_t, ptr, (newsize) / sizeof(seq_t))
 #endif
+#include "../utils/mem.h"
 
 /* Cache of accepted terms. */
 static seq_t *cache = NULL;

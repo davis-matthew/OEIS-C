@@ -10,13 +10,24 @@
  *            does not change the value). Result is returned as a seq_t
  * Range:     u8 n <= 48, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   int_floor_log7
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/int_floor_log7.h"
+
+/* Return ⌊log₇ x⌋ for x > 0. */
+static inline idx_t int_floor_log7(idx_t x)
+{
+    idx_t r = 0;
+    while (x >= 7) {
+        x /= 7;
+        ++r;
+    }
+    return r;
+}
 
 /* Number of digits of x in base 7 (x > 0). */
 static inline int base7_digits(idx_t x)

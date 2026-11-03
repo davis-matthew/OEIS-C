@@ -11,7 +11,8 @@
  *            ≤ 10 000
  * Range:     u8 n <= 9, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*  External types supplied by the build environment:
  *     seq_t – unsigned integer of 8/16/32/64/128 bits or arbitrary‑precision
@@ -37,7 +39,7 @@ static void push_value(seq_t val)
 {
     if (prefix_size == prefix_cap) {
         prefix_cap = prefix_cap ? prefix_cap * 2 : 16;
-        seq_t *tmp = (seq_t*)realloc(prefix, prefix_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prefix, prefix_cap);
         if (!tmp) exit(1);
         prefix = tmp;
     }
@@ -80,7 +82,7 @@ static void precompute(void)
     }
 
     /*  Reallocate the prefix array from scratch. */
-    if (prefix) { free(prefix); prefix = NULL; }
+    if (prefix) { mem_free(prefix); prefix = NULL; }
     prefix_cap  = 0;
     prefix_size = 0;
 

@@ -9,7 +9,8 @@
  *            as a distinct part type; duplicates contribute separate ways)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 26, u64 n <= 51, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache == NULL) {
         cache_len = 1;                     /* need entry for a(0) */
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = 1;                      /* a(0) = 1 */
         computed_to = 0;
     }
@@ -52,10 +54,10 @@ seq_t a(idx_t n)
     /* Ensure array large enough for n */
     if ((size_t)(n + 1) > cache_len) {
         size_t new_len = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_len);
         if (!tmp) return 0;                /* allocation failure, should not happen */
-        memcpy(tmp, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
         cache = tmp;
         cache_len = new_len;
     }

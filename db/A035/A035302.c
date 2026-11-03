@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 18, i32 n <= 38, i64 n <= 78, i128 n <= 156,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 862 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(n+1) = 2*a(n) - 4*a(n-1) + 4*a(n-2),  a(0)=0, a(1)=1, a(2)=-2 */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation (compatible with both C and C++) */
 static seq_t *cache      = NULL;   /* array of computed terms                 */
@@ -33,7 +35,7 @@ ensure_cache(size_t needed)
         size_t new_cap = cache_cap ? cache_cap * 2 : 4;
         while (new_cap < needed)
             new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL && new_cap != 0)
             abort();                  /* allocation failure – signal error */
         cache = tmp;

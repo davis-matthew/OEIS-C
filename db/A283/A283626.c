@@ -12,13 +12,15 @@
  *            pairs (x,y) with x*y ≤ n, determining the grea...
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t _factor_triples_size = 0;     /* capacity of the array */
 static struct Factor {
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     static idx_t cache_size = 0;
     if (n >= cache_size) {
         idx_t new_size = n + 1;              /* 1‑based indexing; 0 unused */
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();                  /* allocation failure */
         for (idx_t i = cache_size; i < new_size; ++i) tmp[i] = 0;
         cache = tmp;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   int_sqrt, simple_sieve
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   isqrt, simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"   /* returns idx_t */
-#include "../utils/simple_sieve.h"  /* simple_sieve */
+#include "../utils/isqrt.h"
+#include "../utils/simple_sieve.h"
 
 /* Comparison function for qsort on idx_t values */
 static int cmp_idx(const void *p, const void *q)
@@ -110,7 +111,7 @@ seq_t a(idx_t n)
         return 0;   /* offset is 1; n=0 not used */
 
     /* Ensure we have primes up to sqrt(n) */
-    uint32_t limit = (uint32_t)int_sqrt(n);
+    uint32_t limit = (uint32_t)isqrt(n);
     if (limit < 2)
         limit = 2;
     ensure_primes(limit);

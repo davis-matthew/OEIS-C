@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 61, u16 n <= 1021, u32 n <= 7632, u64 n <= 7632,
- *            u128 n <= 7632, big any n
- * Helpers:   none
+ * Range:     u8 n <= 61, u16 n <= 1021, u32 n <= 16381, u64 n <= 16381,
+ *            u128 n <= 16381, big any n
+ * Validated: standard, pass, 108 terms through n = 7632 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    (in any order) are fast. */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* Ensure the cache array has at least 'need' elements.
    Works for both C and C++ builds. */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t need, seq_t **arr, idx_t *cap)
     idx_t new_cap = (*cap == 0 ? 1 : *cap);
     while (new_cap < need)
         new_cap <<= 1;                    /* grow by factors of 2   */
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     if (*arr == NULL)
         abort();                          /* terminate on failure   */
     *cap = new_cap;

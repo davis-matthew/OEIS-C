@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 6471, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_ans_cap, ensure_prime_cap
+ * Validated: standard, pass, 75 terms through n = 9878 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,29 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ensure_ans_cap.h"
-#include "../utils/ensure_prime_cap.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------- */
+static void ensure_ans_cap(size_t *cap, seq_t **arr, size_t need)
+{
+    if (*cap > need) return;
+    size_t new_cap = (*cap) ? (*cap) << 1 : 64;
+    while (new_cap <= need) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    for (size_t i = *cap; i < new_cap; ++i) tmp[i] = 0;
+    *arr = tmp;
+    *cap = new_cap;
+}
+
+static void ensure_prime_cap(size_t *cap, uint64_t **arr, size_t need)
+{
+    if (*cap > need) return;
+    size_t new_cap = (*cap) ? (*cap) << 1 : 64;
+    while (new_cap <= need) new_cap <<= 1;
+    uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(uint64_t));
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* --------------------------------------------------------------- */
 /*   Helpers for dynamic tables (used only inside a())              */
@@ -39,7 +61,7 @@ seq_t a(idx_t n)
 
     /* Ensure answers table large enough for n */
     if (!answers) {
-        answers = (seq_t *)malloc(64 * sizeof(seq_t));
+        answers = mem_new(seq_t, 64);
         ans_cap = 64;
         for (size_t i = 0; i < ans_cap; ++i) answers[i] = 0;
     }

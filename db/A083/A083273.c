@@ -11,7 +11,8 @@
  *            nth prime gap (difference between the (n+1)th and nth primes)
  * Range:     u8 n <= 34, u16 n <= 217, u32 n <= 3644, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, pow_int_seq
+ * Validated: standard, pass, 86 terms through n = 9907 (2026-11-01)
+ * Helpers:   ipow_idx, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,8 @@
 #include <stdlib.h>
 
 /*----------- Utilities ----------------------------------------------------*/
-#include "../utils/is_prime.h"          /* for is_prime() if needed */
-#include "../utils/pow_int_seq.h"       /* seq_t pow_int_seq(seq_t base, idx_t exp); */
+#include "../utils/ipow_idx.h"
+#include "../utils/is_prime.h"
 
 /*----------- Prime sieve (once) ------------------------------------------*/
 #define PRIME_LIMIT 200000                 /* enough for n ≈ 10000                */
@@ -133,7 +134,7 @@ seq_t a(idx_t n)
             }
             int exp_use = max_exp[pi] - e_in_gap;
             if (exp_use > 0) {
-                seq_t factor = pow_int_seq((seq_t)primes[pi], (idx_t)exp_use);
+                seq_t factor = ipow_idx((seq_t)primes[pi], (idx_t)exp_use);
                 ak *= factor;
             }
         }

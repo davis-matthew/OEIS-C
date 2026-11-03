@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root for unsigned 64‑bit integers. */
 static idx_t isqrt_u64(idx_t n)
@@ -54,11 +56,11 @@ seq_t a(idx_t n)
         idx_t new_max = n;
 
         /* Allocate new tables (malloc must be cast for C++). */
-        seq_t *newP = (seq_t *)malloc((new_max + 1) * sizeof(seq_t));
-        seq_t *newA = (seq_t *)malloc((new_max + 1) * sizeof(seq_t));
+        seq_t *newP = mem_new(seq_t, (new_max + 1));
+        seq_t *newA = mem_new(seq_t, (new_max + 1));
         if (!newP || !newA) {        /* allocation failure */
-            free(newP);
-            free(newA);
+            mem_free(newP);
+            mem_free(newA);
             return 0;
         }
 
@@ -108,8 +110,8 @@ seq_t a(idx_t n)
 
         free(is_prime);
 
-        free(P);
-        free(A);
+        mem_free(P);
+        mem_free(A);
         P = newP;
         A = newA;
         cur_max = new_max;

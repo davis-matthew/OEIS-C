@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 52, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 58, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 68 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* global cache of computed terms and the ω‑values up to the current max. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* helper to grow terms array */
     if (terms_alloc == 0) {
         terms_alloc = 16;
-        terms = (seq_t *)malloc(terms_alloc * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_alloc);
         if (!terms) return (seq_t)0;
     }
 
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
                 if (terms_len >= terms_alloc) {
                     size_t new_alloc = terms_alloc * 2;
                     if (new_alloc == 0) new_alloc = 16;
-                    seq_t *tmp = (seq_t *)realloc(terms, new_alloc * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, new_alloc);
                     if (!tmp) return (seq_t)0;
                     terms = tmp;
                     terms_alloc = new_alloc;

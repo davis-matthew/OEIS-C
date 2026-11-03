@@ -14,13 +14,15 @@
  *            (a(1) … a(18)): 0, 6, 37, 639, 2875, 21...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     /* initial allocation & pre‑load of a(1)..a(18) */
     if (table == NULL) {
         idx_t cap = (n > 18) ? n : 18;
-        table = (seq_t *)malloc((size_t)cap * sizeof(seq_t));
+        table = mem_new(seq_t, (size_t)cap);
         for (idx_t i = 0; i < 18; ++i)
             table[i] = (seq_t)init_vals[i];
         table_len = 18;
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     else if (n > table_cap) {
         idx_t newcap = table_cap * 2;
         if (newcap < n) newcap = n;
-        table = (seq_t *)realloc(table, (size_t)newcap * sizeof(seq_t));
+        table = mem_resize(seq_t, table, (size_t)newcap);
         table_cap = newcap;
     }
 

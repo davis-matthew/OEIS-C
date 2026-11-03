@@ -11,7 +11,8 @@
  *            Thus a(n) = 0 if the corresponding entry lies in colum...
  * Range:     i8 n <= 23, i16 n <= 39, i32 n <= 57, i64 n <= 57, i128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* Required: seq_t and idx_t are provided by the build environment. */
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,11 +51,11 @@ seq_t a(idx_t n)
            s(0,0)=1, s(i,0)=0 for i>0
            s(i,j) = s(i-1,j-1) + (i-1)*s(i-1,j).        */
     size_t len  = (size_t)k + 1;   /* length of the working arrays */
-    seq_t *prev = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, len);
+    seq_t *curr = mem_new(seq_t, len);
     if (!prev || !curr) {         /* allocation failure */
-        if (prev) free(prev);
-        if (curr) free(curr);
+        if (prev) mem_free(prev);
+        if (curr) mem_free(curr);
         return 0;
     }
     prev[0] = 1;                  /* s(0,0)=1 */
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     seq_t s_val = prev[k];
     seq_t result = -((seq_t)k) * s_val;
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

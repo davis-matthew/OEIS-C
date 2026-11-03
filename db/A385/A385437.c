@@ -13,7 +13,8 @@
  *            the terms T(n,k) with 2 ≤ k ≤ 2n in row‑major order
  * Range:     u8 n <= 18, u16 n <= 40, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system. */
 typedef uint64_t idx_t;   /* assumed definition */
@@ -35,7 +37,7 @@ static void init_stirling(void)
 {
     S = (seq_t **)malloc(sizeof(seq_t *));
     if (!S) exit(EXIT_FAILURE);
-    S[0] = (seq_t *)malloc(sizeof(seq_t));
+    S[0] = mem_new(seq_t, 1);
     if (!S[0]) exit(EXIT_FAILURE);
     S[0][0] = 1;   /* S(0,0) = 1 */
     max_s = 0;
@@ -49,7 +51,7 @@ static void ensure_stirling(idx_t need)
 
     for (idx_t s = max_s + 1; s <= need; ++s) {
         /* allocate the new row */
-        seq_t *row = (seq_t *)malloc((s + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (s + 1));
         if (!row) exit(EXIT_FAILURE);
         row[0] = 0;              /* S(s,0) = 0 for s>0 */
 

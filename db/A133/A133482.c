@@ -9,13 +9,17 @@
  * Formula:   a(n) = product over prime powers of p^(p*e)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 46 terms through n = 383 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n <= 1) {
@@ -30,7 +34,7 @@ seq_t a(idx_t n) {
     for (size_t i = 0; i < cnt; ++i) {
         seq_t p_seq = (seq_t)primes[i];
         seq_t exp_seq = (seq_t)primes[i] * (seq_t)exps[i];
-        result *= big_pow(p_seq, exp_seq);
+        result *= ipow(p_seq, exp_seq);
     }
     return result;
 }

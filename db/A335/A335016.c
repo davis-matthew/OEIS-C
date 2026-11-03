@@ -10,13 +10,15 @@
  *            sequence is finite: 10, 13, 17, 20, 29
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort */
 static int cmp_seq(const void *p1, const void *p2) {
@@ -37,7 +39,7 @@ static void build_sequence(void) {
     if (initialized) return;
     const uint64_t max_side = 200;   /* safe upper bound for the largest side (known to be 29) */
     size_t cap = 10;
-    seq_t *arr = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, cap);
     size_t len = 0;
 
     for (uint64_t a = 1; a <= max_side; ++a) {
@@ -52,7 +54,7 @@ static void build_sequence(void) {
                 if (prod == Psq) {                   /* area == perimeter and integer area */
                     if (len == cap) {
                         cap <<= 1;
-                        arr = (seq_t *)realloc(arr, cap * sizeof(seq_t));
+                        arr = mem_resize(seq_t, arr, cap);
                     }
                     arr[len++] = (seq_t)c;            /* store the longest side */
                 }
@@ -61,7 +63,7 @@ static void build_sequence(void) {
     }
 
     /* Sort the obtained longest sides */
-    qsort(arr, len, sizeof(seq_t), cmp_seq);
+    mem_qsort(arr, len, sizeof(seq_t), cmp_seq);
 
     /* Store in static cache */
     const_arr = arr;

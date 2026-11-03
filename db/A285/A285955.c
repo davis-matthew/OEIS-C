@@ -14,7 +14,8 @@
  *            is u' = 3u + 8v, v' = u + 3v. b = (u-1)/2, k =...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 33,
  *            big any n
- * Helpers:   next_pell_pair
+ * Validated: standard, pass, 36 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/next_pell_pair.h"
+#include "../utils/mem.h"
+
+/* advance one Pell pair (u,v) to the next solution */
+static inline void next_pell_pair(seq_t *u, seq_t *v)
+{
+    seq_t uu = *u;
+    seq_t vv = *v;
+    *u = (seq_t)3 * uu + (seq_t)8 * vv;
+    *v = uu + (seq_t)3 * vv;
+}
 
 /* idx_t and seq_t are provided by the build environment; do not
    redefine them here. The function link must be external. */
@@ -51,7 +61,7 @@ static void ensure_cache_capacity(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{p|n} p * mu(n/p)
  * Range:     i8 n <= 88, i16 n <= 88, i32 n <= 88, i64 n <= 88, i128 n <= 88,
  *            big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/_smallest_prime_factor.h"    /* provides uint64_t _smallest_prime_factor(uint64_t) */
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
     uint64_t temp = n;
     while (temp > 1)
     {
-        uint64_t p = _smallest_prime_factor(temp);
+        uint64_t p = smallest_prime_factor(temp);
         int e = 0;
         do
         {

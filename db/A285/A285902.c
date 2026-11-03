@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    computation incrementally. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state -------------------------------------------------------------- */
 static idx_t max_computed = 0;   /* largest n that has been processed */
@@ -36,12 +38,12 @@ static void recompute(idx_t n)
         return;                  /* already have data up to n */
 
     /* free any previous buffer (the memory will be reallocated below) */
-    if (rep) free(rep);
-    if (cum) free(cum);
+    if (rep) mem_free(rep);
+    if (cum) mem_free(cum);
 
     /* allocate arrays of length n+1 (indices 0..n) */
-    rep = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    cum = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    rep = mem_new(seq_t, (size_t)(n + 1));
+    cum = mem_new(seq_t, (size_t)(n + 1));
     if (!rep || !cum)              /* allocation failure → further calls will
                                        simply return 0 */
         return;

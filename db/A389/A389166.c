@@ -10,9 +10,10 @@
  *            Each such integer is of the form p^(1+4k)·r² with p≡1 (mod 4),
  *            k≥0, r>1 odd and gcd(p,r)=1. For that number n, a(n)=p^(4k)·r²,
  *            which equals n/p
- * Range:     u8 none, u16 n <= 3, u32 n <= 8810, u64 n <= 8810,
- *            u128 n <= 8810, big any n
- * Helpers:   big_pow
+ * Range:     u8 none, u16 n <= 3, u32 n <= 19999, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 102 terms through n = 8810 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* ----------  Global data for primes and heap  ---------- */
 static bool primes_inited = false;
@@ -105,7 +107,7 @@ static void heap_push(node_t node)
 {
     if (heap_size == heap_cap) {
         heap_cap = heap_cap ? heap_cap * 2 : 8;
-        heap = (node_t*)realloc(heap, heap_cap * sizeof(node_t));
+        heap = mem_resize(node_t, heap, heap_cap);
     }
     heap[heap_size++] = node;
     sift_up(heap_size - 1);
@@ -127,7 +129,7 @@ static inline void ensure_seq_capacity(void)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 8;
-        seq_array = (seq_t*)realloc(seq_array, seq_cap * sizeof(seq_t));
+        seq_array = mem_resize(seq_t, seq_array, seq_cap);
     }
 }
 
@@ -138,7 +140,7 @@ seq_t a(idx_t n)
     if (!primes_inited) init_special_primes();
     if (!heap_inited) {
         heap_cap   = specialPrimeCnt;
-        heap       = (node_t*)malloc(heap_cap * sizeof(node_t));
+        heap       = mem_new(node_t, heap_cap);
         heap_size  = 0;
         for (size_t i = 0; i < specialPrimeCnt; ++i) {
             uint64_t p = specialPrimes[i];
@@ -151,7 +153,7 @@ seq_t a(idx_t n)
     /* initialise sequence array once */
     if (!seq_array) {
         seq_cap = 8;
-        seq_array = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_array = mem_new(seq_t, seq_cap);
         seq_len  = 0;
     }
 
@@ -174,7 +176,7 @@ seq_t a(idx_t n)
 
         /* if this was the first r (r==3), seed next k */
         if (cur.r == 3) {
-            seq_t powp_next = cur.powp * big_pow((seq_t)cur.p, (seq_t)4);
+            seq_t powp_next = cur.powp * ipow((seq_t)cur.p, (seq_t)4);
             seq_t n_next = (seq_t)cur.p * powp_next *
                            ((seq_t)3 * (seq_t)3);
             node_t nd_knext = {cur.p, 3, powp_next, n_next};

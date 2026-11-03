@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   _floor_isqrt_u64, _smallest_prime_factor, next_prime
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   isqrt, mem, next_prime, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/next_prime.h"          /* uint64_t next_prime(uint64_t) */
-#include "../utils/_smallest_prime_factor.h" /* uint64_t _smallest_prime_factor(uint64_t) */
-#include "../utils/_floor_isqrt_u64.h"     /* uint64_t _floor_isqrt_u64(uint64_t) */
+#include "../utils/isqrt.h"
+#include "../utils/next_prime.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* ---------- dynamic storage for found terms ---------- */
 static seq_t  *seq_vals      = NULL; /* array of computed terms          */
@@ -74,7 +76,7 @@ static bool search_divisor(uint64_t current, size_t idx,
     if (idx == fcnt) {
         if (current > target_sum) {
             uint64_t r = current - target_sum;
-            if (r > 1 && _smallest_prime_factor(r) == r)
+            if (r > 1 && smallest_prime_factor(r) == r)
                 return true;
         }
         return false;
@@ -125,9 +127,9 @@ seq_t a(idx_t n)
         uint64_t S = p + q + p * q;
 
         /* If S is composite, search for a suitable divisor */
-        if (_smallest_prime_factor(S) != S) {                 /* composite */
+        if (smallest_prime_factor(S) != S) {                 /* composite */
             /* Factor S */
-            ensure_primes_upto((uint64_t)_floor_isqrt_u64(S));
+            ensure_primes_upto((uint64_t)isqrt(S));
 
             uint64_t temp = S;
             uint64_t factors[64];
@@ -157,7 +159,7 @@ seq_t a(idx_t n)
                 /* Store p in the sequence */
                 if (seq_count == seq_capacity) {
                     size_t new_cap = seq_capacity ? seq_capacity * 2 : 16;
-                    seq_t *new_arr = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+                    seq_t *new_arr = mem_resize(seq_t, seq_vals, new_cap);
                     if (!new_arr) abort();
                     seq_vals = new_arr;
                     seq_capacity = new_cap;

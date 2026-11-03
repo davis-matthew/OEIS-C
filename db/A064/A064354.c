@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 23, u128 n <= 35,
  *            big any n
- * Helpers:   _smallest_prime_factor, ensure_capacity, gcd
+ * Validated: standard, pass, 38 terms through n = 96 (2026-11-03)
+ * Helpers:   gcd, mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,44 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/ensure_capacity.h"
-#include "../utils/_smallest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 seq_t a(idx_t n)
 {
@@ -37,7 +73,7 @@ seq_t a(idx_t n)
     /* One-time initialization */
     if (!initialized) {
         /* Allocate space for the first element (a(1) = 1) */
-        ensure_capacity(1, &cache_cap, (void **)&cache, sizeof(seq_t));
+        ensure_capacity(1, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
         cache[0] = (seq_t)1;
         cache_len = 1;
         initialized = true;
@@ -52,7 +88,7 @@ seq_t a(idx_t n)
         /* Find next composite: skip primes using _smallest_prime_factor */
         do {
             cur_num++;
-        } while (_smallest_prime_factor(cur_num) == cur_num);
+        } while (smallest_prime_factor(cur_num) == cur_num);
 
         /* Update running LCM */
         seq_t comp_seq = (seq_t)cur_num;
@@ -62,7 +98,7 @@ seq_t a(idx_t n)
         if (new_lcm != cur_lcm) {
             /* New distinct value – store it */
             ++cache_len;
-            ensure_capacity(cache_len, &cache_cap, (void **)&cache, sizeof(seq_t));
+            ensure_capacity(cache_len, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
             cache[cache_len - 1] = new_lcm;
             cur_lcm = new_lcm;
         }

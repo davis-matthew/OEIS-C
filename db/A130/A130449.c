@@ -7,12 +7,14 @@
  * Formula:   a(0) = 1; a(n) = 4^(n+1) * a(n-1) + 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* one‑time initialization */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache == NULL) return (seq_t)0;        /* allocation fail – unlikely in tests */
         cache[0] = (seq_t)1;                       /* a(0) = 1 */
         max_computed = 0;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* enlarge cache to hold up to n */
     idx_t old_max = max_computed;
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * (size_t)(n + 1));
+    cache = mem_resize(seq_t, cache, (size_t)(n + 1));
     if (cache == NULL) return (seq_t)0;            /* allocation fail */
 
     /* continue the recurrence for indices old_max+1 .. n */

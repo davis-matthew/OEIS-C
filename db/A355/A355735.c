@@ -10,7 +10,8 @@
  *            prime‑indices of n
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/build_primes_upto.h"   /* provides build_primes_upto */
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static idx_t   max_prime_limit = 0;      /* primes built up to this value   */
 static uint64_t *primes = NULL;          /* array of primes                  */
@@ -162,7 +164,7 @@ seq_t a(idx_t n)
     idx_t first = idxs[0];
     dp_prev_cnt = idx_div_cnt[first];
     prev_divs   = idx_divisors[first];
-    dp_prev = (seq_t *)calloc(dp_prev_cnt, sizeof(seq_t));
+    dp_prev = mem_new(seq_t, dp_prev_cnt);
     for (size_t i = 0; i < dp_prev_cnt; ++i) dp_prev[i] = (seq_t)1;
 
     /* Successive indices. */
@@ -171,7 +173,7 @@ seq_t a(idx_t n)
         const idx_t *cur_divs = idx_divisors[cur];
         size_t cur_cnt = idx_div_cnt[cur];
 
-        seq_t *dp_cur = (seq_t *)calloc(cur_cnt, sizeof(seq_t));
+        seq_t *dp_cur = mem_new(seq_t, cur_cnt);
 
         size_t p = 0;
         seq_t pref = 0;
@@ -184,7 +186,7 @@ seq_t a(idx_t n)
             dp_cur[i] = pref;
         }
 
-        free(dp_prev);
+        mem_free(dp_prev);
         dp_prev = dp_cur;
         prev_divs = cur_divs;
         dp_prev_cnt = cur_cnt;
@@ -195,7 +197,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < dp_prev_cnt; ++i) ans += dp_prev[i];
 
     /* Clean up. */
-    free(dp_prev);
+    mem_free(dp_prev);
     free(idxs);
 
     return ans;

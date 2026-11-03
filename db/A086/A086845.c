@@ -7,7 +7,8 @@
  * Formula:   a(1) = 0, a(n) = a(floor(n/2)) + 2*a(ceil(n/2)) + floor(n/2)
  * Range:     u8 n <= 33, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
  * (uint8_t … uint64_t, unsigned __int128, or arbitrary‑precision). */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* cache[i] holds a(i) for i ≥ 1 */
 static size_t  cache_cap = 0;         /* allocated size (index 0 is unused) */
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = cache_cap ? cache_cap : 16;
         while (new_cap < needed) new_cap <<= 1;
 
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();          /* out of memory – test harness will handle */
 
         cache = new_cache;

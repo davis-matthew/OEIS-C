@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n);
 
@@ -33,7 +35,7 @@ static void append_term(seq_t v)
 {
     if (term_len == term_cap) {
         size_t newcap = term_cap == 0 ? 16 : term_cap * 2;
-        seq_t *newptr = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, terms, newcap);
         if (!newptr) exit(EXIT_FAILURE);
         terms = newptr;
         term_cap = newcap;

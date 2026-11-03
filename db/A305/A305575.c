@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, look
  * Formula:   not stated
- * Range:     i8 n <= 707, i16 n <= 9856, i32 n <= 9856, i64 n <= 9856,
- *            i128 n <= 9856, big any n
- * Helpers:   none
+ * Range:     i8 n <= 707, i16 n <= 17664, i32 n <= 17664, i64 n <= 17664,
+ *            i128 n <= 17664, big any n
+ * Validated: standard, pass, 100 terms through n = 9856 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root for 64‑bit unsigned integers: floor(sqrt(v)). */
 static inline idx_t isqrt_u64(idx_t v)
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
         /* generate all lattice points (x,y) with x² + y² = r2 */
         size_t pt_cap = 8;
         size_t pt_len = 0;
-        struct _Point *pts = (struct _Point *)malloc(pt_cap * sizeof(struct _Point));
+        struct _Point *pts = mem_new(struct _Point, pt_cap);
 
         for (long long xc = -(long long)lim; xc <= (long long)lim; ++xc) {
             idx_t xabs = (xc >= 0) ? (idx_t)xc : (idx_t)(-xc);
@@ -94,13 +96,13 @@ seq_t a(idx_t n)
                     /* (xc, y) and its reflection (xc, -y) */
                     if (pt_len == pt_cap) {
                         pt_cap <<= 1;
-                        pts = (struct _Point *)realloc(pts, pt_cap * sizeof(struct _Point));
+                        pts = mem_resize(struct _Point, pts, pt_cap);
                     }
                     pts[pt_len++] = (struct _Point){ (seq_t)xc, (seq_t)y };
                     if (y != 0) {
                         if (pt_len == pt_cap) {
                             pt_cap <<= 1;
-                            pts = (struct _Point *)realloc(pts, pt_cap * sizeof(struct _Point));
+                            pts = mem_resize(struct _Point, pts, pt_cap);
                         }
                         pts[pt_len++] = (struct _Point){ (seq_t)xc, (seq_t)(-(long long)y) };
                     }
@@ -108,27 +110,27 @@ seq_t a(idx_t n)
             } else { /* y2 == 0, point lies on the x‑axis */
                 if (pt_len == pt_cap) {
                     pt_cap <<= 1;
-                    pts = (struct _Point *)realloc(pts, pt_cap * sizeof(struct _Point));
+                    pts = mem_resize(struct _Point, pts, pt_cap);
                 }
                 pts[pt_len++] = (struct _Point){ (seq_t)xc, (seq_t)0 };
             }
         }
 
         /* sort the points by polar angle */
-        qsort(pts, pt_len, sizeof(struct _Point), _point_cmp);
+        mem_qsort(pts, pt_len, sizeof(struct _Point), _point_cmp);
 
         /* append the sorted x‑values to the cache */
         size_t needed = cache_len + pt_len;
         if (needed > cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 16 : cache_cap;
             while (new_cap < needed) new_cap <<= 1;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
         for (size_t i = 0; i < pt_len; ++i)
             cache[cache_len++] = pts[i].x;
 
-        free(pts);
+        mem_free(pts);
         ++next_r2;
     }
 

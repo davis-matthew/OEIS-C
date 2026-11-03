@@ -11,6 +11,7 @@
  *            first, then row 1, …)
  * Range:     u8 n <= 35, u16 n <= 35, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <limits.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Helper: triangular number of a row.

@@ -9,7 +9,8 @@
  *            with the 4th (largest) part equal to k)
  * Range:     u8 n <= 21, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   p3
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,13 @@
    (≈2.8 million loop iterations for n = 10000). */
 
 #include <stdint.h>
-#include "../utils/p3.h"
+
+static inline seq_t p3(seq_t s)
+/* Number of partitions of s into at most 3 parts (or into parts ≤3). */
+{
+    /* p_3(s) = ⌊(s·s + 6·s + 12)/12⌋, valid for all integer s ≥ 0. */
+    return (s * s + 6 * s + 12) / 12;
+}
 
 seq_t a(idx_t n)
 {

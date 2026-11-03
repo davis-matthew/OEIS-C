@@ -7,6 +7,7 @@
  * Formula:   A002247 is a finite (6,2)-sequence with 12 terms
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
+ * Validated: full, pass, 12 terms through n = 11 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

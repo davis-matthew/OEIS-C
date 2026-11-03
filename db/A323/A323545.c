@@ -7,17 +7,44 @@
  * Formula:   a(n) = Product_{k=0..n} (k^7 + (n-k)^7)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 4, u128 n <= 6,
  *            big any n
- * Helpers:   pow_uint, seq_alloc, seq_mul, seq_realloc
+ * Validated: standard, pass, 26 terms through n = 79 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/pow_uint.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *pow7 = NULL;
 static size_t pow7_cap = 0;
@@ -32,7 +59,7 @@ static void ensure_pow7(idx_t n) {
         pow7 = seq_realloc(pow7, pow7_cap, new_cap);
     }
     for (idx_t i = pow7_len; i <= n; ++i) {
-        pow7[i] = pow_uint((uint64_t)i, (idx_t)7);
+        pow7[i] = ipow_u64_idx((uint64_t)i, (idx_t)7);
     }
     pow7_cap = new_cap;
     pow7_len = new_cap;

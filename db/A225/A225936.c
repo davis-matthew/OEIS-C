@@ -12,8 +12,8 @@
  *            otherwise
  * Range:     u8 none, u16 none, u32 n <= 13, u64 n <= 124, u128 n <= 1000,
  *            big any n
- * Helpers:   alloc_seq_array, build_primes_upto, compare_seq_t,
- *            free_seq_array
+ * Validated: standard, pass, 39 terms through n = 958 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +23,26 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/compare_seq_t.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include "../utils/mem.h"
+
+static int compare_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Global storage for pre‑computed prime powers */
 static seq_t *prime_powers = NULL;
@@ -76,7 +93,7 @@ static void init_prime_powers(void)
     }
     free(primes);
 
-    qsort(arr, cnt, sizeof(seq_t), compare_seq_t);
+    mem_qsort(arr, cnt, sizeof(seq_t), compare_seq_t);
 
     prime_powers      = arr;
     prime_powers_cnt  = cnt;

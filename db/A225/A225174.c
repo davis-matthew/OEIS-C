@@ -8,8 +8,9 @@
  * Formula:   a(n) = greatest common unitary divisor of the pair (i,j) * where
  *            (i,j) is the n‑th element visited in the antidiagonal traversal
  *            * of the infinite square array T(i,j) = unitary_gcd(i,j)
- * Range:     u8 n <= 9929, u16 n <= 9929, u32 n <= 9929, u64 n <= 9929,
- *            u128 n <= 9929, big any n
+ * Range:     u8 n <= 20100, u16 n <= 20100, u32 n <= 20100, u64 n <= 20100,
+ *            u128 n <= 20100, big any n
+ * Validated: standard, pass, 121 terms through n = 9929 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            prime(1)+...+prime(n)
  * Range:     u8 n <= 9, u16 n <= 1128, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,31 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Dynamic array helpers: generic reallocation used for primes and cumulative sums. */
+#ifdef __cplusplus
+template <class T>
+static T *grow_vec(T **ptr, size_t *cap, size_t needed, size_t elem_size)
+{
+    if (*cap >= needed) return NULL;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 16;
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();
+    *ptr = tmp;
+    *cap = new_cap;
+    return tmp;
+}
+#else
 static void *grow_vec(void **ptr, size_t *cap, size_t needed, size_t elem_size)
 {
     if (*cap >= needed) return NULL;
@@ -30,6 +54,7 @@ static void *grow_vec(void **ptr, size_t *cap, size_t needed, size_t elem_size)
     *cap = new_cap;
     return tmp;
 }
+#endif
 
 /* Store primes and their running sums. */
 static uint32_t *primes = NULL;
@@ -37,8 +62,8 @@ static size_t primes_cap = 0, primes_count = 0;
 static seq_t *cum = NULL;          /* cum[i] = sum of first i primes, cum[0] = 0 */
 static size_t cum_cap = 0, cum_count = 0;
 
-static void grow_primes(size_t needed)   { grow_vec((void**)&primes, &primes_cap, needed, sizeof(uint32_t)); }
-static void grow_cum(size_t needed)      { grow_vec((void**)&cum,    &cum_cap,    needed, sizeof(seq_t)); }
+static void grow_primes(size_t needed)   { grow_vec(OEISC_VPP(&primes), &primes_cap, needed, sizeof(uint32_t)); }
+static void grow_cum(size_t needed)      { grow_vec(OEISC_VPP(&cum),    &cum_cap,    needed, sizeof(seq_t)); }
 
 static uint32_t next_prime(void)
 {

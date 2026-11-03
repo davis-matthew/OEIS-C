@@ -8,7 +8,8 @@
  * Formula:   a(n) = 16*a(n-1) + 10 + ((n-1) mod 6), a(1) = 10
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 763 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Sequence values are stored in a static dynamic array.
    The array holds terms a(1)..a(cache_len). */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Allocate the cache if it does not exist yet. */
     if (cache == NULL) {
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL) return 0;           /* allocation failed */
         cache[0] = (seq_t)10;                  /* a(1) */
     }
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* If the requested term is not yet computed, extend the cache. */
     if ((size_t)n > cache_len) {
         size_t new_len = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL) return 0;            /* allocation failed */
         cache = tmp;
 

@@ -13,6 +13,7 @@
  *            increasing * decimal order. The array is built lazily...
  * Range:     u8 none, u16 none, u32 n <= 1405, u64 n <= 1405, u128 n <= 1405,
  *            big any n
+ * Validated: full, pass, 1405 terms through n = 1405 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

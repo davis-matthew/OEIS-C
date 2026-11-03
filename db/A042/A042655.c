@@ -9,6 +9,7 @@
  *            sqrt(857).)
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 23, u64 n <= 48, u128 n <= 91,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 200 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

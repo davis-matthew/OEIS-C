@@ -9,13 +9,14 @@
  *            antidiagonals. * Offset: 1 (a(1) is the first term listed below)
  * Range:     u8 n <= 53, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   sqrt_floor_uint128
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sqrt_floor_uint128.h"
+#include "../utils/isqrt_u128.h"
 
 /* ---------- helper functions ---------- */
 
@@ -67,7 +68,7 @@ seq_t a(idx_t n)
         unsigned __int128 k     = (unsigned __int128)col;
         unsigned __int128 p     = k * pow3;          /* k * 3^m */
         unsigned __int128 X     = p * p * 3;        /* 3 * p^2 */
-        unsigned __int128 root  = sqrt_floor_uint128(X);
+        unsigned __int128 root  = isqrt_u128(X);
         return (seq_t)root;                                /* floor value */
     }
 }

@@ -8,7 +8,8 @@
  *            (ones), odd (zeros), even (ones), … (OEIS A044888)
  * Range:     u8 n <= 20, u16 n <= 520, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   compare_seq_t
+ * Validated: standard, pass, 64 terms through n = 949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/compare_seq_t.h" /* compare_seq_t */
+#include "../utils/mem.h"
+
+static int compare_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 /* Working cache – large enough to hold a few tens of thousands of terms.
    For primitive unsigned types this is a plain array; for arbitrary‑precision
@@ -67,7 +77,7 @@ static void build_cache(idx_t bits)
     }
 
     /* Sort to obtain terms in increasing order. */
-    qsort(temp, cnt, sizeof(seq_t), compare_seq_t);
+    mem_qsort(temp, cnt, sizeof(seq_t), compare_seq_t);
 
     /* Copy to global cache. */
     for (size_t i = 0; i < cnt && i < CACHE_MAX; ++i)

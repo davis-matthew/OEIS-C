@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9851 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The static state that holds the pre‑computed terms. */
 static seq_t *seq  = NULL;   /* 0‑based array of terms */
@@ -33,7 +35,7 @@ static void compute_terms (idx_t limit, seq_t **out, size_t *len)
 {
     size_t L = (size_t)(limit + 1);
 
-    seq_t  *rad    = (seq_t *)calloc(L, sizeof(seq_t));
+    seq_t  *rad    = mem_new(seq_t, L);
     unsigned int *omega = (unsigned int *)calloc(L, sizeof(unsigned int));
     unsigned int *spf  = (unsigned int *)calloc(L, sizeof(unsigned int));
     uint32_t *primes = (uint32_t *)malloc(L * sizeof(uint32_t));
@@ -64,7 +66,7 @@ static void compute_terms (idx_t limit, seq_t **out, size_t *len)
     }
 
     /* Gather the terms satisfying rad(m)*omega(m) == m. */
-    seq_t *tmp  = (seq_t *)malloc(L * sizeof(seq_t));
+    seq_t *tmp  = mem_new(seq_t, L);
     size_t count = 0;
     for (idx_t m = 2; m <= limit; ++m) {
         if ((rad[m] * (seq_t)omega[m]) == (seq_t)m) {
@@ -75,7 +77,7 @@ static void compute_terms (idx_t limit, seq_t **out, size_t *len)
     *out = tmp;
     *len = count;
 
-    free(rad);
+    mem_free(rad);
     free(omega);
     free(spf);
     free(primes);
@@ -88,7 +90,7 @@ static void ensure_sequence (idx_t n)
 {
     if (seq != NULL) {
         if (seq_len >= n) return;
-        free(seq);          /* discard old table */
+        mem_free(seq);          /* discard old table */
         seq = NULL;
     }
 
@@ -102,7 +104,7 @@ static void ensure_sequence (idx_t n)
             seq_len = (idx_t)len;
             break;
         }
-        free(tmp);
+        mem_free(tmp);
         bound <<= 1;        /* double the bound and try again */
     }
 }

@@ -10,12 +10,15 @@
  *            square‑free)
  * Range:     u8 n <= 774, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 108 terms through n = 998 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_squarefree.h"
 
 seq_t a(idx_t n) {

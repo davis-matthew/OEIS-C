@@ -9,12 +9,14 @@
  *            ≤ k < n (OEIS A355784)
  * Range:     u8 n <= 31, u16 n <= 1464, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 107 terms through n = 9641 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 #include <stdbool.h>
 
 seq_t a(idx_t n)
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     seq_t cnt = 0;
     for (idx_t k = 1; k <= half; ++k) {
         seq_t v = (seq_t)k * (seq_t)(n - k) + (seq_t)n;
-        if (is_prime_small(v))
+        if (is_prime_seq(v))
             ++cnt;
     }
     return cnt;

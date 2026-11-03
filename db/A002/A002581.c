@@ -6,9 +6,10 @@
  * Keywords:  nonn, cons
  * Formula:   a(n) = floor(3^(1/3) * 10^(n-1)) mod 10; 3^(-1/3) by Newton y <-
  *            y + y*(1-3y^3)/3 in base-10^9 fixed point, then 3^(1/3) = 3*y^2
- * Range:     u8 n <= 9764, u16 n <= 9764, u32 n <= 9764, u64 n <= 9764,
- *            u128 n <= 9764, big any n
- * Helpers:   c3r_cmp
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 124 terms through n = 9764 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/c3r_cmp.h"
+
+static int c3r_cmp(const uint32_t *x, const uint32_t *y, size_t L) {
+    size_t i = L;
+    while (i-- > 0) {
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    }
+    return 0;
+}
 
 #define C3R_B 1000000000ULL
 

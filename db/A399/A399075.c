@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{k=1..⌊n/3⌋} A000005(k) * A000009(n-3k)
  * Range:     u8 n <= 23, u16 n <= 61, u32 n <= 195, u64 n <= 688,
  *            u128 n <= 2577, big any n
+ * Validated: standard, pass, 69 terms through n = 9739 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

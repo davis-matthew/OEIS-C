@@ -8,15 +8,16 @@
  *            The function is multiplicative; for a prime power p^e: φ(p^e) =
  *            (p−1)·p^(e−1) a(p^e) = φ(p^e) / (7 if φ(p^e) is divisible by 7
  *            else 1)
- * Range:     u8 n <= 256, u16 n <= 9549, u32 n <= 9549, u64 n <= 9549,
- *            u128 n <= 9549, big any n
- * Helpers:   pow_uint
+ * Range:     u8 n <= 256, u16 n <= 10116, u32 n <= 10116, u64 n <= 10116,
+ *            u128 n <= 10116, big any n
+ * Validated: standard, pass, 92 terms through n = 9549 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"   /* provides seq_t pow_uint(uint64_t, idx_t) */
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
             tmp /= 2;
             ++e;
         }
-        seq_t phi = pow_uint(2, e - 1);          /* (2-1)=1 so phi = 2^(e-1) */
+        seq_t phi = ipow_u64_idx(2, e - 1);          /* (2-1)=1 so phi = 2^(e-1) */
         if (phi % 7 == 0)
             phi = phi / 7;                       /* never happens for 2, but harmless */
         result *= phi;
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
                 tmp /= p;
                 ++e;
             }
-            seq_t phi = (seq_t)(p - 1) * pow_uint(p, e - 1);
+            seq_t phi = (seq_t)(p - 1) * ipow_u64_idx(p, e - 1);
             if (phi % 7 == 0)
                 phi /= 7;
             result *= phi;

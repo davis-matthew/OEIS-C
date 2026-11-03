@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 97, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_even_preceded_by_ge
+ * Validated: standard, pass, 75 terms through n = 9685 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_even_preceded_by_ge.h"
+#include "../utils/mem.h"
+
+/* Helper that tests whether a number has an even digit immediately
+   preceded by a digit >= that digit. */
+static bool has_even_preceded_by_ge(seq_t x)
+{
+    if (x < 10)            /* single‑digit numbers cannot satisfy */
+        return false;
+    while (x >= 10) {
+        int d0 = (int)(x % 10);            /* current digit (units)   */
+        int d1 = (int)((x / 10) % 10);     /* preceding digit         */
+        if ((d0 & 1) == 0 && d1 >= d0)
+            return true;
+        x /= 10;                           /* move one digit left     */
+    }
+    return false;
+}
 
 /* Main sequence function.  Uses a static dynamic array to cache
    previously computed terms, so calls in any order are efficient. */
@@ -34,7 +51,7 @@ seq_t a(idx_t n)
     /* Ensure cache storage exists. */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Grow cache until we have at least n terms. */
@@ -46,7 +63,7 @@ seq_t a(idx_t n)
                 /* Store it. */
                 if (cache_size == cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_size++] = val;
                 next_candidate++;   /* advance to next integer for next search */

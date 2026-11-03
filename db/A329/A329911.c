@@ -10,13 +10,15 @@
  *            sum_{k=0}^m C(m,k) * B_k = 2 * B_m (valid for m>0)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 6,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *B_cache = NULL;      // dynamic array of B numbers
 static idx_t B_cache_size = 0;     // number of B values actually stored
@@ -30,7 +32,7 @@ static void ensure_B_cache(idx_t need)
     if (B_cache_cap < need + 1) {
         idx_t new_cap = B_cache_cap ? B_cache_cap * 2 : 16;
         if (new_cap < need + 1) new_cap = need + 1;
-        seq_t *new_buf = (seq_t *)realloc(B_cache, new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, B_cache, new_cap);
         B_cache = new_buf;
         B_cache_cap = new_cap;
     }

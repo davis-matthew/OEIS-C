@@ -11,7 +11,8 @@
  *            the concatenation of all rows, starting at a(4)=2
  * Range:     u8 n <= 35, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   mul_mod_u64
+ * Validated: full, pass, 73 terms through n = 76 (2026-11-02)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mul_mod_u64.h"
+#include "../utils/mulmod.h"
 
 /*------------------------------------------------------------------*/
 /*  Auxiliary routines                                               */
@@ -34,8 +35,8 @@ static uint64_t mod_pow_u64(uint64_t base, uint64_t exp, uint64_t mod)
     while (exp)
     {
         if (exp & 1u)
-            result = mul_mod_u64(result, base, mod);
-        base = mul_mod_u64(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1u;
     }
     return result;
@@ -72,7 +73,7 @@ static bool is_prime_u64(uint64_t n)
         bool composite = true;
         for (unsigned int r = 1u; r < s; ++r)
         {
-            x = mul_mod_u64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1u)
             {
                 composite = false;

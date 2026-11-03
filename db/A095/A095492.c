@@ -6,13 +6,23 @@
  * Keywords:  nonn
  * Formula:   a(n) = decimal concatenation of the base‑n representation of 50
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow10.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* seq_t and idx_t are defined by the build system */
 seq_t a(idx_t n)

@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 10*k^3 + 7 where k is the n‑th integer such that 10*k^3+7
  *            is prime
- * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 30, u64 n <= 30, u128 n <= 30,
- *            big any n
+ * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 118, u64 n <= 6000,
+ *            u128 n <= 6000, big any n
+ * Validated: standard, pass, 46 terms through n = 5896 (2026-11-01)
  * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

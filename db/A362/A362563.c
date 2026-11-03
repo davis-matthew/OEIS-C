@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  *   so index n → (row r, column k) where r(r+1)/2 >= n.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,9 +43,9 @@ seq_t a(idx_t n)
     /* Allocate space for two previous rows and the current row.
        Arrays are indexed from 0; we use indices 2..r+1. */
     size_t size = (size_t)(r + 3);      /* enough for highest index (r+1) */
-    seq_t *row_n2 = (seq_t *)calloc(size, sizeof(seq_t)); /* row n-2 */
-    seq_t *row_n1 = (seq_t *)calloc(size, sizeof(seq_t)); /* row n-1 */
-    seq_t *row_cur = (seq_t *)calloc(size, sizeof(seq_t));/* row n   */
+    seq_t *row_n2 = mem_new(seq_t, size); /* row n-2 */
+    seq_t *row_n1 = mem_new(seq_t, size); /* row n-1 */
+    seq_t *row_cur = mem_new(seq_t, size);/* row n   */
     if (!row_n2 || !row_n1 || !row_cur) {
         /* Allocation failed – abort. */
         exit(EXIT_FAILURE);
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     row_n2[2] = (seq_t)1;
     if (r == 1) {
         seq_t result = row_n2[k];
-        free(row_n2); free(row_n1); free(row_cur);
+        mem_free(row_n2); mem_free(row_n1); mem_free(row_cur);
         return result;
     }
 
@@ -62,14 +64,14 @@ seq_t a(idx_t n)
     row_n1[3] = (seq_t)2;
     if (r == 2) {
         seq_t result = row_n1[k];
-        free(row_n2); free(row_n1); free(row_cur);
+        mem_free(row_n2); mem_free(row_n1); mem_free(row_cur);
         return result;
     }
 
     /* ----- Rows 3 .. r ----- */
-    seq_t *suffix = (seq_t *)calloc(r + 2, sizeof(seq_t));
+    seq_t *suffix = mem_new(seq_t, r + 2);
     if (!suffix) {
-        free(row_n2); free(row_n1); free(row_cur);
+        mem_free(row_n2); mem_free(row_n1); mem_free(row_cur);
         exit(EXIT_FAILURE);
     }
 
@@ -99,6 +101,6 @@ seq_t a(idx_t n)
 
     seq_t result = row_n1[k];
 
-    free(row_n2); free(row_n1); free(row_cur); free(suffix);
+    mem_free(row_n2); mem_free(row_n1); mem_free(row_cur); mem_free(suffix);
     return result;
 }

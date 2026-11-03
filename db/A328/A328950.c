@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static void sift_down(seq_t *heap, idx_t len, idx_t i)
 {
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         return (seq_t)0;             /* a(1) = 0 */
 
     size_t cap = (size_t)n;          /* n is small in typical usage */
-    seq_t *heap = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *heap = mem_new(seq_t, cap);
     if (!heap)
         return (seq_t)0;             /* allocation failed, return 0 */
 
@@ -89,6 +91,6 @@ seq_t a(idx_t n)
         sift_up(heap, len - 1);
     }
 
-    free(heap);
+    mem_free(heap);
     return total;
 }

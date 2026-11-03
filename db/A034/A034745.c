@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{d|n} fib(d) * 3^(n/d-1) (OEIS A034745)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   fib, pow3
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,20 @@
 #include <stdlib.h>   /* malloc, realloc, free, exit */
 #include <stdint.h>   /* uint64_t */
 #include <stddef.h>   /* size_t */
-#include "../utils/fib.h"
+#include <stdbool.h>
 #include "../utils/pow3.h"
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* Cache of powers of 3: pow3_cache[e] = 3^e for 0 ≤ e ≤ pow3_len-1. */
 static seq_t *pow3_cache = NULL;
@@ -30,7 +43,7 @@ static void ensure_pow3(size_t exp)
     if (exp < pow3_len) return;           /* already cached */
 
     /* Grow the array.  realloc returns void*, cast to seq_t*. */
-    seq_t *new_cache = (seq_t *)realloc(pow3_cache, (exp + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, pow3_cache, (exp + 1));
     if (!new_cache) {                     /* allocation failure – abort */
         exit(EXIT_FAILURE);
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: standard, pass, 35 terms through n = 294 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
    Implementation uses iterative factorial ratio to avoid repeated factorials
    and pow_seq for integer powers (exponent ≤ 9999 for n ≤ 10000). */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
         if (m <= 1)
             power_val = 1;
         else
-            power_val = pow_seq((seq_t)(m + 1), (int)(m - 1));
+            power_val = ipow_i32((seq_t)(m + 1), (int)(m - 1));
 
         /* binomial(3m, k) */
         seq_t bin_val = binomial(3 * m, k);

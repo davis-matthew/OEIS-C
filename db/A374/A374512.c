@@ -9,12 +9,14 @@
  *            a(0)=1, a(1)=0, a(2)=2, a(3)=4, a(4)=6
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -24,7 +26,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_len)
         return;
     idx_t new_len = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_len);
     if (!tmp) {
         /* Allocation failed – abort (sequence values beyond this point
            are not required for the problem constraints). */

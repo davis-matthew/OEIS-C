@@ -9,7 +9,8 @@
  *            Equivalent: a(n) = A217038(A001597(n)) + 1
  * Range:     u8 n <= 165, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_cbrt
+ * Validated: standard, pass, 86 terms through n = 9138 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/int_cbrt.h"
+
+/* integer cube root (floor) using binary search */
+static idx_t int_cbrt(idx_t n) {
+    idx_t lo = 0, hi = n;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        if ((__int128)mid * mid * mid <= n)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 /* integer square root (floor) using binary search */
 static idx_t int_sqrt(idx_t n) {

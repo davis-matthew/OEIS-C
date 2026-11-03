@@ -8,14 +8,16 @@
  * Formula:   a(n) is totally additive with a(2)=0 and for n>1, a(prime(n)) =
  *            1 + a(n). For even n, a(2m)=a(m); for odd composites, a(n) =
  *            a(p) + a(n/p) where p is the smallest prime factor of n
- * Range:     u8 n <= 9581, u16 n <= 9581, u32 n <= 9581, u64 n <= 9581,
- *            u128 n <= 9581, big any n
- * Helpers:   none
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9581 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute a(n) for all 1..n */
-    seq_t *a_arr = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, (n + 1));
     if (!a_arr) { free(spf); free(prime_idx); return 0; }
 
     a_arr[1] = 0;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     /* Clean up */
     free(spf);
     free(prime_idx);
-    free(a_arr);
+    mem_free(a_arr);
 
     return result;
 }

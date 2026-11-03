@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 91, i16 n <= 91, i32 n <= 91, i64 n <= 91, i128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 92 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc, free, NULL */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,9 +53,9 @@ seq_t a(idx_t n)
     if (!cache) {
         /* allocate initial cache with some default size */
         cap = 256;
-        cache = (seq_t *)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         /* first row: i = 0, only T(0,0) = 1 */
-        prev_row = (seq_t *)malloc(sizeof(seq_t));
+        prev_row = mem_new(seq_t, 1);
         prev_row[0] = (seq_t)1;
         prev_len  = 1;
         cache[0] = (seq_t)1;
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         /* compute next row: i = current_row + 1          */
         idx_t i = current_row + 1;           /* new row number */
         /* allocate array for the new row */
-        seq_t *new_row = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, (i + 1));
         new_row[0] = (seq_t)1;               /* T(i,0) = 1   */
 
         /* fill columns j = 1 .. i                       */
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
             size_t new_cap = cap ? cap * 2 : 256;
             while (cached + (i + 1) > new_cap)
                 new_cap *= 2;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cap   = new_cap;
         }
 
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
             cache[cached++] = new_row[j];
 
         /* drop old row, keep new row for the next iteration */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = new_row;
         prev_len = i + 1;
         current_row = i;

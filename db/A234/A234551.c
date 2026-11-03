@@ -10,14 +10,17 @@
  *            having its diagonal sum differing from its antidiagonal sum by 3
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 18, u128 n <= 38,
  *            big any n
- * Helpers:   absint
+ * Validated: standard, pass, 32 terms through n = 193 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/absint.h"
+
+/* Helper to compute absolute value of int */
+static inline int absint(int x) { return x >= 0 ? x : -x; }
 
 /* Compile‑time constants */
 enum { MAX_DIFF   = 6,

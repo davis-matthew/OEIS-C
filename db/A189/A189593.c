@@ -10,13 +10,15 @@
  *            1 Compute lazily with memoisation. The table grows as needed
  * Range:     u8 n <= 11, u16 n <= 21, u32 n <= 41, u64 n <= 82, u128 n <= 162,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* 0‑based array, index 0 unused */
 static size_t seq_cap   = 0;      /* allocated capacity (elements) */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* initialisation: ensure room for indices 0..7 (index 0 unused) */
     if (seq_cache == NULL) {
         seq_cap   = 8;                     /* indices 0..7 */
-        seq_cache = (seq_t *)malloc(sizeof(seq_t) * seq_cap);
+        seq_cache = mem_new(seq_t, seq_cap);
         if (!seq_cache) return (seq_t)0;   /* allocation failed */
 
         seq_cache[1] = (seq_t)1;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Resize cache if needed */
     if ((size_t)n + 1 > seq_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_ptr = (seq_t *)realloc(seq_cache, sizeof(seq_t) * new_cap);
+        seq_t *new_ptr = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_ptr) return (seq_t)0;   /* allocation failed */
         seq_cache = new_ptr;
         seq_cap   = new_cap;

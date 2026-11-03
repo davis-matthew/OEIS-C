@@ -8,12 +8,19 @@
  *            56*C(n+2,6) + 28*C(n+2,7) + 8*C(n+2,8) + 1*C(n+2,9)
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   binom_val
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_val.h"
+static seq_t binom_val(seq_t m, int k) {
+    seq_t r = 1;
+    int i;
+    for (i = 1; i <= k; ++i)
+        r = r * (m - k + i) / i;   /* exact division at each step */
+    return r;
+}
 
 seq_t a(idx_t n) {
     seq_t m = (seq_t)n + 2;            /* m = n + 2 */

@@ -8,7 +8,8 @@
  *            n-2 is not prime (offset 1)
  * Range:     u8 n <= 40, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Build the sequence up to a numeric limit `lim`.
    *seq_ptr receives the new array; *len_ptr receives its length (including the first two 0,1). */
@@ -37,7 +39,7 @@ static void build_sequence(uint64_t lim, seq_t **seq_ptr, size_t *len_ptr)
 
     /* Gather qualifying odd composite numbers */
     size_t temp_cap = (lim >> 1) + 10;          /* rough estimate of odd composites */
-    seq_t *temp = (seq_t *)malloc(temp_cap * sizeof(seq_t));
+    seq_t *temp = mem_new(seq_t, temp_cap);
     size_t tlen = 0;
 
     for (uint64_t num = 3; num <= lim; num += 2) {
@@ -45,7 +47,7 @@ static void build_sequence(uint64_t lim, seq_t **seq_ptr, size_t *len_ptr)
             if (num < 2 || !is_prime[num - 2]) {           /* n‑2 is composite (or <2) */
                 if (tlen == temp_cap) {                    /* grow temporary array */
                     temp_cap <<= 1;
-                    temp = (seq_t *)realloc(temp, temp_cap * sizeof(seq_t));
+                    temp = mem_resize(seq_t, temp, temp_cap);
                 }
                 temp[tlen++] = (seq_t)num;
             }
@@ -55,12 +57,12 @@ static void build_sequence(uint64_t lim, seq_t **seq_ptr, size_t *len_ptr)
 
     /* Allocate final sequence with 0,1 prefix */
     size_t new_cap = 2 + tlen;
-    seq_t *new_seq = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_new(seq_t, new_cap);
     new_seq[0] = (seq_t)0;
     new_seq[1] = (seq_t)1;
     for (size_t i = 0; i < tlen; ++i)
         new_seq[2 + i] = temp[i];
-    free(temp);
+    mem_free(temp);
 
     *seq_ptr = new_seq;
     *len_ptr = new_cap;
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
 
         seq_t *old_seq = seq;
         build_sequence(limit, &seq, &seq_len);
-        free(old_seq);
+        mem_free(old_seq);
     }
 
     /* Return the requested element (offset 1) */

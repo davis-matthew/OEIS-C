@@ -9,7 +9,8 @@
  *            A014664(n) is the multiplicative order of 2 modulo prime(n)
  * Range:     u8 n <= 69, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   powmod_2_uint64
+ * Validated: standard, pass, 88 terms through n = 908 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/powmod_2_uint64.h"
+
+/* Local helper: modular exponentiation of 2 ^ exp (mod mod_val).
+   All arguments fit into uint64_t, so there's no overflow risk. */
+static seq_t powmod_2_uint64(uint64_t exp, uint64_t mod_val)
+{
+    uint64_t result = 1 % mod_val;
+    uint64_t base   = 2 % mod_val;
+    while (exp) {
+        if (exp & 1ULL) result = (result * base) % mod_val;
+        base = (base * base) % mod_val;
+        exp >>= 1ULL;
+    }
+    return (seq_t)result;
+}
 
 /* --- Prime generation -------------------------------------------------- */
 /* Static cache of primes used for the sequence. */

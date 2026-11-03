@@ -12,6 +12,7 @@
  *            n-i)
  * Range:     u8 n <= 13, u16 n <= 42, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Compute a(q,n) via the explicit sum.

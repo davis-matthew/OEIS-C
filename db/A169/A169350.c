@@ -10,7 +10,8 @@
  *            30: a(n) = 47 * Σ_{k=1}^{29} a(n-k) - 1128 * a(n-30)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #if defined(__cplusplus)
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 /* multiply seq_t by a small unsigned int, using __int128 for native ints */
 #if defined(__cplusplus)
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_size) {
         /* grow cache */
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) exit(1);  /* allocation failed */
         cache = new_cache;
 

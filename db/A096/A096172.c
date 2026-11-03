@@ -7,7 +7,8 @@
  * Formula:   a(n) = largest prime factor of n^4 + 1 (OEIS A096172)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 265, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_uint64, mod_mul_uint64, pollards_rho
+ * Validated: standard, pass, 55 terms through n = 7972 (2026-11-01)
+ * Helpers:   gcd_u64, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,28 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint64.h"
-#include "../utils/mod_mul_uint64.h"
-#include "../utils/pollards_rho.h"
+#include <stdlib.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/mulmod.h"
+
+/* Pollard's Rho algorithm to find a non‑trivial factor */
+static uint64_t pollards_rho(uint64_t n)
+{
+    if ((n & 1ULL) == 0) return 2ULL;
+    uint64_t c = 1ULL;
+    while (true) {
+        uint64_t x = 2ULL, y = 2ULL, d = 1ULL;
+        while (d == 1ULL) {
+            x = (mulmod(x, x, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            uint64_t diff = (x > y) ? (x - y) : (y - x);
+            d = gcd_u64(diff, n);
+        }
+        if (d != n) return d;
+        ++c;  /* try a different constant */
+    }
+}
 
 /* GCD for 64‑bit integers */
 
@@ -28,8 +48,8 @@ static uint64_t mod_pow_uint64(uint64_t a, uint64_t e, uint64_t mod)
 {
     uint64_t r = 1;
     while (e) {
-        if (e & 1) r = mod_mul_uint64(r, a, mod);
-        a = mod_mul_uint64(a, a, mod);
+        if (e & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return r;
@@ -65,7 +85,7 @@ static bool is_prime_uint64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mod_mul_uint64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;

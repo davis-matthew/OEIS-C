@@ -11,13 +11,16 @@
  *            (1-5*x+3*x^2+x^2*sqrt(1-4*x))/(1-6*x+8*x^2-4*x^3)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   catalan
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stddef.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
 
     /* grow the array to hold at least n+1 entries */
     if ((size_t)(n + 1) > cap) {
-        seq = (seq_t *)realloc(seq, (n + 1) * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (n + 1));
         if (!seq) abort();          /* memory error is fatal */
         cap = n + 1;
     }

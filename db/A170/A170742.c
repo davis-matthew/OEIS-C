@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1, for n = 0 a(n) = 23 * 22^(n-1), for n > 0
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 698 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

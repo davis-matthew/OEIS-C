@@ -7,13 +7,15 @@
  * Formula:   a(2*n) = 2 * tau(n), a(2*n+1) = tau(2*n+1)
  * Range:     u8 n <= 2101, u16 n <= 2101, u32 n <= 2101, u64 n <= 2101,
  *            u128 n <= 2101, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 121 terms through n = 2079 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -22,10 +24,10 @@ seq_t a(idx_t n)
 
     if ((n & 1ULL) == 0) {           /* n is even: n = 2*m */
         idx_t m = n >> 1;            /* m = n/2 */
-        size_t tau_m = divisor_count_u64(m);
+        size_t tau_m = num_divisors(m);
         return (seq_t)(2 * tau_m);
     } else {                         /* n is odd */
-        size_t tau_n = divisor_count_u64(n);
+        size_t tau_n = num_divisors(n);
         return (seq_t)tau_n;
     }
 }

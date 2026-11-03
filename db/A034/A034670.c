@@ -8,17 +8,20 @@
  *            (equivalently, a(n) = (2^(7n)-1)/(2^n-1) for n>0, and a(0)=7)
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 7, i128 n <= 7,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     /* 2^n */
-    seq_t base = seq_pow((seq_t)2, n);
+    seq_t base = ipow_idx((seq_t)2, n);
 
     seq_t term   = 1;   /* current 2^(k*n) */
     seq_t result = 1;   /* accumulates the sum */

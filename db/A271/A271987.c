@@ -9,6 +9,7 @@
  *            of m expressed in base k
  * Range:     u8 n <= 232, u16 n <= 381, u32 n <= 381, u64 n <= 381,
  *            u128 n <= 381, big any n
+ * Validated: standard, pass, 81 terms through n = 369 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

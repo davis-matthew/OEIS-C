@@ -9,13 +9,15 @@
  *            for all n >= 5
  * Range:     i8 n <= 13, i16 n <= 30, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of computed terms, growing as needed */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     /* initialize the cache with the first five terms if not yet done */
     if (cache_len == 0) {
         cache_len = 5;                           /* indices 0..4 */
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) { /* out of memory; return zero as sentinel (unlikely) */
             return (seq_t)0;
         }
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
 
     /* grow the cache to include index n */
     idx_t new_len = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) {
         /* realloc failed: memory exhausted – return 0 */
         return (seq_t)0;

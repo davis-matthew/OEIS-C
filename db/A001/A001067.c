@@ -12,7 +12,8 @@
  *            A006953(n) = Pro...
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 17, i128 n <= 29,
  *            big any n
- * Helpers:   add_limbs, bitlen_u, shr_limbs, small_isprime
+ * Validated: standard, pass, 38 terms through n = 300 (2026-11-03)
+ * Helpers:   bit_length_u64, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,33 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/add_limbs.h"
-#include "../utils/bitlen_u.h"
-#include "../utils/shr_limbs.h"
-#include "../utils/small_isprime.h"
+#include "../utils/bit_length_u64.h"
+#include "../utils/is_prime_u64.h"
+
+static void add_limbs(uint32_t *a, size_t cap, const uint32_t *b, size_t lb) {
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < cap && (i < lb || carry); i++) {
+        uint64_t v = (uint64_t)a[i] + carry + (i < lb ? b[i] : 0);
+        a[i] = (uint32_t)v;
+        carry = v >> 32;
+    }
+}
+
+static size_t shr_limbs(uint32_t *dst, const uint32_t *src, size_t len, uint64_t s) {
+    size_t limb = (size_t)(s / 32), i, out;
+    unsigned bit = (unsigned)(s % 32);
+    if (limb >= len) return 0;
+    out = len - limb;
+    for (i = 0; i < out; i++) {
+        uint64_t v = (uint64_t)src[i + limb] >> bit;
+        if (bit && i + limb + 1 < len)
+            v |= ((uint64_t)src[i + limb + 1] << (32 - bit));
+        dst[i] = (uint32_t)v;
+    }
+    while (out > 0 && dst[out - 1] == 0) out--;
+    return out;
+}
 
 static uint32_t **tl = NULL;
 static size_t *tlen = NULL;
@@ -41,7 +65,7 @@ static void build(idx_t N) {
     tl = (uint32_t **)calloc(N + 1, sizeof(uint32_t *));
     tlen = (size_t *)calloc(N + 1, sizeof(size_t));
     for (j = 1; j <= N; j++) {
-        bits += (uint64_t)bitlen_u(2 * j - 1) + (uint64_t)bitlen_u(2 * j);
+        bits += (uint64_t)bit_length_u64(2 * j - 1) + (uint64_t)bit_length_u64(2 * j);
         tl[j] = (uint32_t *)calloc(bits / 32 + 4, sizeof(uint32_t));
     }
     tl[1][0] = 1;
@@ -94,7 +118,7 @@ seq_t a(idx_t n) {
     }
 
     for (d = 1; d <= m; d++)
-        if (m % d == 0 && small_isprime(d + 1)) {
+        if (m % d == 0 && is_prime_u64(d + 1)) {
             uint64_t p = d + 1, t = m;
             cnt++;
             while (t % p == 0) { cnt++; t /= p; }
@@ -105,7 +129,7 @@ seq_t a(idx_t n) {
     memcpy(X, tl[n], tlen[n] * sizeof(uint32_t));
     xl = tlen[n];
     for (d = 1; d <= m; d++)
-        if (m % d == 0 && small_isprime(d + 1)) {
+        if (m % d == 0 && is_prime_u64(d + 1)) {
             uint64_t p = d + 1, t = m, c = 1;
             while (t % p == 0) { c++; t /= p; }
             while (c--) {

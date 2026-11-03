@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 13, i32 n <= 21, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -43,6 +44,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static inline idx_t floor_log2_idx(idx_t n)
 {
@@ -60,7 +62,7 @@ static void ensure_computed(idx_t n)
     if (n < cache_len) return;
 
     /* Expand cache if necessary */
-    num_cache = (seq_t *)realloc(num_cache, sizeof(seq_t) * (n + 1));
+    num_cache = mem_resize(seq_t, num_cache, (n + 1));
     for (idx_t i = cache_len; i <= n; ++i)
     {
         if (i == 0)

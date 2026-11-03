@@ -8,13 +8,15 @@
  *            a(2)=1, a(3)=2, a(4)=3, a(5)=4
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -24,9 +26,9 @@ static seq_t compute_a(idx_t n);
 static seq_t compute_a(idx_t n) {
     if (n >= cache_len) {
         idx_t new_len = (n < 10000) ? 10000 : n + 10000;
-        seq_t *new_cache = (seq_t *)realloc(cache, (new_len + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (new_len + 1));
         if (new_cache == NULL) return 0;
-        memset(new_cache + cache_len, 0, (new_len + 1 - cache_len) * sizeof(seq_t));
+        mem_set(new_cache + cache_len, 0, (new_len + 1 - cache_len) * sizeof(seq_t));
         cache = new_cache;
         cache_len = new_len + 1;
     }

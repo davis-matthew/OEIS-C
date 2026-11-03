@@ -13,12 +13,14 @@
  *            (n>11)
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 54, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,13 +51,13 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         size_t cap = target > 11 ? target : 11;
-        cache = (seq_t*)calloc(cap + 1, sizeof(seq_t));   /* index 0 unused */
+        cache = mem_new(seq_t, cap + 1);   /* index 0 unused */
         for (size_t i = 1; i <= 11; ++i) {
             cache[i] = init[i-1];
         }
         cache_size = 11;
     } else if (target > cache_size) {
-        cache = (seq_t*)realloc(cache, (target + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (target + 1));
     }
 
     /* Compute missing terms using the recurrence */

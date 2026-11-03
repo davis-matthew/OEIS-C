@@ -13,7 +13,8 @@
  *            triangle defined by q(x,n)
  * Range:     u8 n <= 29, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 typedef unsigned __int128 u128;          /* for 128‑bit integer arithmetic */
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     /* Expand Stirling table if needed. */
     if (r > max_precomp) {
         idx_t new_size = row_offset(r + 1);   /* (r+1)(r+2)/2 entries */
-        S = (seq_t *)realloc(S, new_size * sizeof(seq_t));
+        S = mem_resize(seq_t, S, new_size);
         /* Initialize base case if first time. */
         if (max_precomp == 0 && S != NULL)
             S[0] = 1;   /* S(0,0) = 1 */

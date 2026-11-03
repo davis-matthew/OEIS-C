@@ -8,14 +8,23 @@
  *            ), j = n - i*(i+1)/2 (enumerating the triangle row‑by‑row)
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 38, u64 n <= 139, u128 n <= 504,
  *            big any n
- * Helpers:   big_pow, binomial, seq_mul
+ * Validated: standard, pass, 52 terms through n = 9990 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static inline idx_t floor_sqrt_u128(__int128 x) {
     idx_t low = 0;
@@ -42,8 +51,8 @@ seq_t a(idx_t n) {
 
     /* Compute term */
     seq_t bin = binomial(i, j);
-    seq_t pow11 = big_pow((seq_t)11, (seq_t)(i - j));
-    seq_t pow9  = big_pow((seq_t)9,  (seq_t)j);
+    seq_t pow11 = ipow((seq_t)11, (seq_t)(i - j));
+    seq_t pow9  = ipow((seq_t)9,  (seq_t)j);
     seq_t temp  = seq_mul(bin, pow11);
     seq_t result = seq_mul(temp, pow9);
     return result;

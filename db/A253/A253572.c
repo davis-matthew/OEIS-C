@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define MAX_PRIME_R 200   /* enough for n up to about 10000 */
 
@@ -66,14 +68,14 @@ grow_row_cache(size_t r, size_t needed)
 {
     if (needed <= row_len[r])
         return;
-    seq_t *new_arr = (seq_t *)malloc(needed * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, needed);
     if (!new_arr)
         return;       /* allocation failed – caller will return 0 */
 
     new_arr[0] = (seq_t)1;
     size_t *idx = (size_t *)malloc(r * sizeof(size_t));
     if (!idx) {
-        free(new_arr);
+        mem_free(new_arr);
         return;
     }
     for (size_t i = 0; i < r; ++i)
@@ -95,7 +97,7 @@ grow_row_cache(size_t r, size_t needed)
     }
     free(idx);
 
-    free(row_cache[r]);
+    mem_free(row_cache[r]);
     row_cache[r] = new_arr;
     row_len[r] = needed;
 }

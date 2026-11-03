@@ -13,13 +13,15 @@
  *            T(row,col) in row‑major order
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached rows of the triangle.  Each row is an array of seq_t. */
 static seq_t **triangle_cache = NULL;
@@ -43,7 +45,7 @@ static void ensure_cache_capacity(size_t new_cap) {
 static void compute_rows_up_to(size_t row_index) {
     for (size_t r = cache_rows; r <= row_index; ++r) {
         size_t len = r + 1;
-        seq_t *row = (seq_t *)malloc(sizeof(seq_t) * len);
+        seq_t *row = mem_new(seq_t, len);
         if (!row) abort();
 
         /* First element of the new row */

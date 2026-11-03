@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 106, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9474 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static memoisation structures */
 static idx_t  last_n = 0;       /* highest n computed so far */
@@ -36,7 +38,7 @@ static void ensure_terms_cap(size_t cap) {
     if (terms_cap < cap) {
         size_t new_cap = terms_cap ? terms_cap : 16;
         while (new_cap < cap) new_cap <<= 1;
-        seq_t *new_terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
         if (!new_terms) abort();
         terms = new_terms;
         terms_cap = new_cap;

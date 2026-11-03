@@ -10,7 +10,8 @@
  *            to the greatest prime factor of k (inclusive)
  * Range:     u8 n <= 57, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   lower_bound_prime
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/lower_bound_prime.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------------- */
+static size_t lower_bound_prime(uint32_t *arr, size_t n, uint32_t val)
+{
+    size_t lo = 0, hi = n;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] < val)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo;
+}
 
 /* ------------------------------------------------------------------------- */
 /*  Prime sieve  (Eratosthenes) – up to a fixed limit                        */
@@ -64,7 +79,7 @@ static void build_primes(void)
     free(is_prime);
 
     /* Prefix sums of primes */
-    prime_sum = (seq_t *)malloc(prime_cnt * sizeof(seq_t));
+    prime_sum = mem_new(seq_t, prime_cnt);
     if (!prime_sum) abort();
     seq_t sum = 0;
     for (size_t i = 0; i < prime_cnt; ++i) {
@@ -134,7 +149,7 @@ static void grow_terms(size_t needed)
     if (needed <= terms_cap) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 4;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) abort();
     terms   = tmp;
     terms_cap = new_cap;

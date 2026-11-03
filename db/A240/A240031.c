@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, mod_pow
+ * Validated: standard, pass, 69 terms through n = 987 (2026-11-01)
+ * Helpers:   factor_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/mod_pow.h"     /* mod_pow(seq_t base, uint64_t exp, seq_t mod) */
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
             uint64_t q = pf[i];
             while (ord % q == 0) {
                 uint64_t cand = ord / q;
-                seq_t r = mod_pow((seq_t)a_mod, cand, (seq_t)p);
+                seq_t r = powmod((seq_t)a_mod, cand, (seq_t)p);
                 if (r == (seq_t)1)
                     ord = cand;
                 else
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
         /* if the exponent e > 1, check the Hensel lifting condition */
         if (e > 1) {
             seq_t p2 = (seq_t)p * (seq_t)p;
-            seq_t r = mod_pow((seq_t)a_mod, p - 1, p2);
+            seq_t r = powmod((seq_t)a_mod, p - 1, p2);
             if (r == (seq_t)1) {
                 ++candidate;
                 continue;

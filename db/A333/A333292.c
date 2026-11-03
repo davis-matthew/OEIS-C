@@ -9,8 +9,9 @@
  *            k = n - (m-1)*m/2 - T(m,n) = Sum_{1<=i<=m,1<=j<=n, gcd(i,j)=1}
  *            i*j Using Möbius inversion: T(m,n) = Σ_{d=1}^{m} μ(d) * d² *
  *            S(n/d) * S(m/d) with S(x) = x*(x+1)/2 and μ the Möbius function
- * Range:     u8 n <= 25, u16 n <= 324, u32 n <= 9458, u64 n <= 9458,
- *            u128 n <= 9458, big any n
+ * Range:     u8 n <= 25, u16 n <= 324, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 82 terms through n = 9458 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

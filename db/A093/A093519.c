@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 8047 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static bool *rep = NULL;          /* rep[x] = true if x is a sum of two pentagonals */
 static size_t rep_limit = 0;      /* current maximum index of rep array */
@@ -49,7 +51,7 @@ static void grow_seq_array(seq_t **p, size_t *len, size_t *cap, size_t extra)
     if (*len + extra > *cap) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
         while (new_cap < *len + extra) new_cap <<= 1;
-        *p = (seq_t *)realloc(*p, new_cap * sizeof(seq_t));
+        *p = mem_resize(seq_t, *p, new_cap);
         *cap = new_cap;
     }
 }
@@ -59,8 +61,8 @@ static void recompute(size_t limit)
 {
     /* free old data */
     free(rep);   rep = NULL;
-    free(pent);  pent = NULL;  pent_len = pent_cap = 0;
-    free(nonrep);nonrep = NULL;nonrep_len = nonrep_cap = 0;
+    mem_free(pent);  pent = NULL;  pent_len = pent_cap = 0;
+    mem_free(nonrep);nonrep = NULL;nonrep_len = nonrep_cap = 0;
 
     rep_limit = limit;
     rep = (bool *)calloc(limit + 1, sizeof(bool));      /* all false */

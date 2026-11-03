@@ -10,9 +10,10 @@
  *            concatenation * of two primes a and b such that the
  *            concatenation of b and a is also prime. * The split must not
  *            introduce leading zeros in either part
- * Range:     u8 n <= 2, u16 n <= 145, u32 n <= 145, u64 n <= 1000,
+ * Range:     u8 n <= 2, u16 n <= 145, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   append_candidate, concat_parts, digit_count, is_prime_big
+ * Validated: standard, pass, 63 terms through n = 959 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,96 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_prime_big.h"
-#include "../utils/concat_parts.h"
-#include "../utils/digit_count.h"
-#include "../utils/append_candidate.h"
+#include <math.h>
+#include <stdlib.h>
+#include "../utils/num_digits0.h"
+#include "../utils/mem.h"
+#include "../utils/is_prime_u64.h"
+
+/* Miller–Rabin primality test for seq_t (supports 8/16/32/64/128/ arbitrary-precision) */
+/* n fits in uint64_t (n >= 0 here) */
+static bool is_prime_big_fits_u64(seq_t v)
+{
+    if (sizeof(seq_t) <= 8) return true;
+    return !((seq_t)UINT64_MAX < v);
+}
+
+static bool is_prime_big(seq_t n) {
+    if (n < 2) return false;
+    /* exact in 64 bits when n fits: the seq_t products below overflow at
+       u64/i64 once n passes 2^32, and are slow under big */
+    if (is_prime_big_fits_u64(n)) return is_prime_u64((uint64_t)n);
+    if (n == 2 || n == 3) return true;
+    if ((n & 1) == 0) return false;
+
+    /* write n-1 as d * 2^s with d odd */
+    seq_t d = n - 1;
+    unsigned s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        s++;
+    }
+
+    /* deterministic bases covering 128‑bit values */
+    static const int base_list[] = {2,3,5,7,11,13,17,19,23,29,31,37};
+    const int num_bases = sizeof(base_list)/sizeof(base_list[0]);
+
+    for (int i = 0; i < num_bases; i++) {
+        seq_t a = (seq_t)base_list[i];
+        if (a >= n) continue;
+
+        /* compute a^d mod n */
+        seq_t x = 1;
+        seq_t pow = a % n;
+        seq_t exp = d;
+        while (exp > 0) {
+            if (exp & 1) x = (x * pow) % n;
+            pow = (pow * pow) % n;
+            exp >>= 1;
+        }
+
+        if (x == 1 || x == n-1) continue;
+
+        bool cont = false;
+        for (unsigned r = 1; r < s; r++) {
+            x = (x * x) % n;
+            if (x == n-1) { cont = true; break; }
+        }
+        if (!cont) return false;
+    }
+    return true;
+}
+
+static seq_t concat_parts(idx_t a, idx_t b)
+{
+    seq_t part_a = (seq_t)a;
+    seq_t part_b = (seq_t)b;
+    seq_t pow = 1;
+    seq_t tmp = part_b;
+    /* pow = 10^(number of decimal digits of b) */
+    while (tmp > 0) {
+        pow *= 10;
+        tmp /= 10;
+    }
+    return part_a * pow + part_b;
+}
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* static storage for generated terms */
 static seq_t *memo_terms = NULL;        /* array of found terms */
@@ -36,7 +123,7 @@ static idx_t last_checked = 1;          /* start at 1; will be moved to 3 on fir
 /* test whether a prime p satisfies the required property */
 static bool has_property(idx_t p)
 {
-    uint64_t d = digit_count(p);       /* number of decimal digits */
+    uint64_t d = num_digits0(p);       /* number of decimal digits */
     if (d < 2) return false;           /* need at least two digits */
 
     uint64_t divisor = 10ULL;          /* 10^k, where k = number of digits of right part */

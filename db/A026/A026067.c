@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   free_seq_arr
+ * Validated: partial, pass, 47 terms through n = 53 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,16 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/free_seq_arr.h"
+#include <stdint.h>
+
+static inline void free_seq_arr(seq_t* p)
+{
+#if defined(__cplusplus)
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 /* Forward declaration of helper that allocates an array of seq_t */
 static seq_t* alloc_seq_arr(size_t n);

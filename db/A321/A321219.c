@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 427, u16 n <= 427, u32 n <= 427, u64 n <= 427,
  *            u128 n <= 427, big any n
+ * Validated: full, pass, 751 terms through n = 427 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -129,7 +130,7 @@ static void init_digits(uint8_t digits[751])
     BigInt pow5 = power_uint(5, 1074);
 
     /* Convert to decimal.  5^1074 has 751 digits. */
-    char decimal[760];   /* a little room for safety */
+    char decimal[800];   /* each snprintf below is given 25 bytes: 751 + 25 must fit (760 did not) */
     size_t len = big_to_decimal(&pow5, decimal);
     assert(len == 751);  /* length must match OEIS */
     for (size_t i = 0; i < len; ++i)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: full, pass, 10000 terms through n = 10000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* item used during sorting: the original number and its hex string (max length 4 for 10000). */
 typedef struct {
@@ -69,7 +71,7 @@ static void init_cache(void)
     qsort(items, N, sizeof(Item), cmp_hex);
 
     /* allocate the final sequence array */
-    sorted = (seq_t *)malloc(N * sizeof(seq_t));
+    sorted = mem_new(seq_t, N);
     if (!sorted) { free(items); return; }
     for (idx_t i = 0; i < N; ++i)
         sorted[i] = (seq_t)items[i].num;

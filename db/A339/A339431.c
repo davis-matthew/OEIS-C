@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 126, u16 n <= 284, u32 n <= 818, u64 n <= 3310,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 9938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     size_t cap_k = (size_t)max_k + 1;                 /* columns for k */
     size_t cap_t = (size_t)n + 1;                    /* rows for sum */
     size_t total = cap_t * cap_k;
-    seq_t *dp = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
     if (!dp) return (seq_t)0;                       /* out of memory safeguard */
 
     /* Initialize DP */
@@ -62,9 +64,9 @@ seq_t a(idx_t n)
     }
 
     /* Precompute factorials up to max_k */
-    seq_t *fact = (seq_t *)malloc(cap_k * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, cap_k);
     if (!fact) {
-        free(dp);
+        mem_free(dp);
         return (seq_t)0;
     }
     fact[0] = 1;
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         ans += dp[base_n + k] * fact[k];
     }
 
-    free(dp);
-    free(fact);
+    mem_free(dp);
+    mem_free(fact);
     return ans;
 }

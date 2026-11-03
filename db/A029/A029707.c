@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 51, u16 n <= 6906, u32 n <= 9576, u64 n <= 9576,
- *            u128 n <= 9576, big any n
- * Helpers:   build_primes
+ * Range:     u8 n <= 51, u16 n <= 6906, u32 n <= 86027, u64 n <= 86027,
+ *            u128 n <= 86027, big any n
+ * Validated: standard, pass, 72 terms through n = 9576 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 /* Static cache of twin‑prime indices: 1‑based indices of the first prime
  * in each twin pair, stored as seq_t. */
@@ -44,7 +47,7 @@ static void rebuild_twin_indices(idx_t limit)
         if (primes[i + 1] == primes[i] + 2u) ++cnt;
 
     /* Allocate new storage for the indices. */
-    seq_t *new_twin = (seq_t *)malloc(cnt * sizeof(seq_t));
+    seq_t *new_twin = mem_new(seq_t, cnt);
     if (!new_twin) {
         free(primes);
         exit(EXIT_FAILURE);
@@ -57,7 +60,7 @@ static void rebuild_twin_indices(idx_t limit)
             new_twin[pos++] = (seq_t)(i + 1);
 
     /* Swap the new array into place. */
-    free(twin_indices);
+    mem_free(twin_indices);
     twin_indices = new_twin;
     twin_count   = cnt;
 

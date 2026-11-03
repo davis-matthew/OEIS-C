@@ -9,13 +9,15 @@
  *            = 2*a(n+1);
  * Range:     u8 n <= 69, u16 n <= 1847, u32 n <= 9842, u64 n <= 9842,
  *            u128 n <= 9842, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9840 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the OEIS sequence A254104. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         size_t new_cap = (size_t)n + 1;
 
 #ifdef __cplusplus
-        seq_t *new_cache = static_cast<seq_t *>(realloc(cache, new_cap * sizeof(seq_t)));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
 #else
         seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
 #endif

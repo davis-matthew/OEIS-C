@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 2932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Sequence: Numbers whose base-3 representation contains exactly three 0's and four 1's */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* next_permutation for arrays of int - standard algorithm */
 static int next_permutation(int *a, size_t n)
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
                 /* expand cache if necessary */
                 if (cache_size == cache_cap) {
                     size_t new_cap = cache_cap ? (cache_cap << 1) : 64;
-                    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                     cache = new_cache;
                     cache_cap = new_cap;
                 }

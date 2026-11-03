@@ -8,7 +8,8 @@
  *            number (B(0)=1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 23, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 544 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *bell = NULL;          /* array of stored Bell numbers, 0‑based */
 static idx_t  max_bell = 0;         /* highest index computed so far */
@@ -34,14 +36,14 @@ static void ensure_bell(idx_t n)
 
     /* Resize the array if needed */
     if (bell == NULL) {
-        bell = (seq_t*)calloc(1, sizeof(seq_t));
+        bell = mem_new(seq_t, 1);
         if (bell == NULL) abort();
         bell[0] = (seq_t)1;
         max_bell = 0;
     }
 
     /* Allocate space up to n */
-    seq_t *tmp = (seq_t*)realloc(bell, (n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, bell, (n + 1));
     if (tmp == NULL) abort();
     bell = tmp;
 

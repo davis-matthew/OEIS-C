@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy, cofr
  * Formula:   a(0) = 6, a(n) = a(n-10) for n > 10, period =
  *            {1,1,3,1,5,1,3,1,1,12}
- * Range:     u8 n <= 9547, u16 n <= 9547, u32 n <= 9547, u64 n <= 9547,
- *            u128 n <= 9547, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 94 terms through n = 9547 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

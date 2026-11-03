@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   encode, fib
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Fibonacci helper (provided by the build system). */
-#include "../utils/fib.h"
-#include "../utils/encode.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
+
+/* encode triple into 64 bits (assumes each index < 2^20) */
+static inline uint64_t encode(idx_t i, idx_t j, idx_t k)
+{
+    return ((uint64_t)i << 40) | ((uint64_t)j << 20) | (uint64_t)k;
+}
 
 /* heap node ---------------------------------------------------------- */
 typedef struct {
@@ -46,7 +63,7 @@ static inline int cmpNode(const Node *a, const Node *b)
 static void heap_init(void)
 {
     heap_cap = 64;
-    heap = (Node *)malloc(heap_cap * sizeof(Node));
+    heap = mem_new(Node, heap_cap);
     heap_size = 0;
 }
 
@@ -55,7 +72,7 @@ static void heap_push(Node v)
     if (!heap) heap_init();
     if (heap_size == heap_cap) {
         heap_cap <<= 1;
-        heap = (Node *)realloc(heap, heap_cap * sizeof(Node));
+        heap = mem_resize(Node, heap, heap_cap);
     }
     size_t pos = heap_size++;
     while (pos && cmpNode(&v, &heap[(pos-1)>>1]) < 0) {
@@ -119,7 +136,7 @@ static size_t seq_cap  = 0;
 static void seq_init(void)
 {
     seq_cap   = 64;
-    seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, seq_cap);
     seq_len   = 0;
 }
 
@@ -151,7 +168,7 @@ static void generate_upto(idx_t n)
         if (!has_last || cur.prod != last_output) {
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;
-                seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_len++] = cur.prod;
             last_output = cur.prod;

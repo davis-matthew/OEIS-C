@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,9 +43,9 @@ seq_t a(idx_t n)
     /* initialise the cache on first call */
     if (a_cache == NULL) {
         cap = 16;                                   /* start with some space */
-        a_cache = (seq_t *)malloc(cap * sizeof(seq_t));
-        m_cache = (seq_t *)malloc(cap * sizeof(seq_t));
-        d_cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, cap);
+        m_cache = mem_new(seq_t, cap);
+        d_cache = mem_new(seq_t, cap);
 
         /* a0 = floor(sqrt(633)) = 25, m0 = 0, d0 = 1 */
         a_cache[0] = (seq_t)25;
@@ -64,9 +66,9 @@ seq_t a(idx_t n)
     if (N + 1 > cap) {
         size_t new_cap = cap ? cap : 1;
         while (new_cap <= N) new_cap <<= 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-        m_cache = (seq_t *)realloc(m_cache, new_cap * sizeof(seq_t));
-        d_cache = (seq_t *)realloc(d_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        m_cache = mem_resize(seq_t, m_cache, new_cap);
+        d_cache = mem_resize(seq_t, d_cache, new_cap);
         cap = new_cap;
     }
 

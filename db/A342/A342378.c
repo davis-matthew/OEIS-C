@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 168, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 81 terms through n = 922 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,11 +24,13 @@
 
 #include <stdlib.h>          // for malloc, realloc
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"   // bitlen_seq_t(seq_t x)
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Return true iff x has a non‑trivial border of length a (1 ≤ a < L/2). */
 static bool hasBorder(seq_t x) {
-    idx_t L = bitlen_seq_t(x);          // number of bits in x
+    idx_t L = bit_length(x);          // number of bits in x
     if (L < 3) return false;           // need at least ABA
     idx_t maxA = (L - 1) / 2;          // a < L/2 ensures B non‑empty
     unsigned int bits = sizeof(seq_t) * 8;  // width of seq_t
@@ -60,7 +63,7 @@ static void ensure_cache_cap(idx_t needed) {
     if (cache_cap >= needed) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp && new_cap) {
         /* Allocation failed – abort */
         exit(1);

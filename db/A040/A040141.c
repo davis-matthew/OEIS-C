@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 61 terms through n = 965 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* ---------- Cache for sequence values ---------- */
 static seq_t *seq_cache = NULL;
@@ -40,7 +43,7 @@ static void ensure_seq_capacity(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 64;
     while (new_cap < need) new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap   = new_cap;
 }
 
@@ -116,7 +119,7 @@ seq_t a(idx_t n)
             else
                 e = (p - 1) / 2;
 
-            seq_t pow_val = mod_pow((seq_t)18, e, (seq_t)p);
+            seq_t pow_val = powmod((seq_t)18, e, (seq_t)p);
             if (pow_val == (seq_t)1) {
                 seq_cache[seq_len++] = (seq_t)p;
             }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = n*A130260(n) - Fib(2*A130260(n)-1) + 1
  * Range:     u8 n <= 57, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   fib
+ * Validated: standard, pass, 76 terms through n = 4274 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,18 @@
 /* This implementation computes a(n) by summing blocks of equal differences.
    Each integer j repeats Fib(2*j-1) times, where the block contributes j
    to the running sum. */
-#include "../utils/fib.h"
+#include <stdbool.h>
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n)
 {

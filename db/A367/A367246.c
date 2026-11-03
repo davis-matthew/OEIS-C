@@ -8,14 +8,17 @@
  * Formula:   a(n) = 29*6^(n-1) - 49*5^(n-1) + 5*4^n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(1) = 0, a(2) = 9, a(3) = 139, ... as listed in OEIS A367246 */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -25,9 +28,9 @@ seq_t a(idx_t n)
     /* n-1 is safe because n > 0 */
     idx_t n_minus1 = n - 1;
 
-    seq_t pow6 = seq_pow((seq_t)6, n_minus1);
-    seq_t pow5 = seq_pow((seq_t)5, n_minus1);
-    seq_t pow4 = seq_pow((seq_t)4, n);
+    seq_t pow6 = ipow_idx((seq_t)6, n_minus1);
+    seq_t pow5 = ipow_idx((seq_t)5, n_minus1);
+    seq_t pow4 = ipow_idx((seq_t)4, n);
 
     seq_t sum = (seq_t)29 * pow6 + (seq_t)5 * pow4;
     seq_t res = sum - (seq_t)49 * pow5;

@@ -8,7 +8,8 @@
  * Formula:   a(n) = numerator(Bernoulli(n)^2*(2^(n+2)-4)) for n >= 0
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 11, u64 n <= 23, u128 n <= 30,
  *            big any n
- * Helpers:   binomial, pow2
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t num;   /* absolute value of numerator (always >= 0) */
@@ -104,7 +106,7 @@ static void compute_B_upto(idx_t n)
     /* Expand cache if necessary */
     if (B_size < n + 1) {
         idx_t new_size = n + 1;
-        frac_t *tmp = (frac_t *)realloc(B_cache, new_size * sizeof(frac_t));
+        frac_t *tmp = mem_resize(frac_t, B_cache, new_size);
         if (!tmp && new_size > 0)
             exit(EXIT_FAILURE);
         B_cache = tmp;

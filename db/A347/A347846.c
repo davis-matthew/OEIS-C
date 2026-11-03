@@ -12,13 +12,15 @@
  *            V_k = (F₉)ⁿ
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h> /* size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for a[0…max] */
@@ -33,12 +35,12 @@ seq_t a(idx_t n) {
     /* ensure a_arr big enough */
     if (a_arr == NULL) {
         a_size = 1;
-        a_arr = (seq_t *)malloc(sizeof(seq_t) * a_size);
+        a_arr = mem_new(seq_t, a_size);
         a_arr[0] = 1;                 /* a(0) = 1 */
     } else if ((size_t)n >= a_size) {
         size_t new_sz = a_size;
         while ((size_t)n >= new_sz) new_sz <<= 1;
-        a_arr = (seq_t *)realloc(a_arr, sizeof(seq_t) * new_sz);
+        a_arr = mem_resize(seq_t, a_arr, new_sz);
         for (size_t i = a_size; i < new_sz; ++i) a_arr[i] = 0;
         a_size = new_sz;
     }
@@ -46,12 +48,12 @@ seq_t a(idx_t n) {
     /* ensure qpow big enough */
     if (qpow == NULL) {
         qpow_size = 1;
-        qpow = (seq_t *)malloc(sizeof(seq_t) * qpow_size);
+        qpow = mem_new(seq_t, qpow_size);
         qpow[0] = 1;                 /* 9^0 = 1 */
     } else if ((size_t)n >= qpow_size) {
         size_t new_sz = qpow_size;
         while ((size_t)n >= new_sz) new_sz <<= 1;
-        qpow = (seq_t *)realloc(qpow, sizeof(seq_t) * new_sz);
+        qpow = mem_resize(seq_t, qpow, new_sz);
         for (size_t i = qpow_size; i < new_sz; ++i) {
             qpow[i] = qpow[i - 1] * (seq_t)9;
         }

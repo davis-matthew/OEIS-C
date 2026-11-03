@@ -10,12 +10,14 @@
  *            a(1)=2, a(2)=2, a(3)=4, a(4)=4
  * Range:     u8 n <= 338, u16 n <= 999, u32 n <= 999, u64 n <= 999,
  *            u128 n <= 999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Initialize cache with first five values on first call */
     if (cache == NULL) {
         cache_size = 5;
-        cache = (seq_t *)realloc(NULL, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_size);
         if (cache == NULL) {
             /* Out‑of‑memory: abort (unlikely in test harness) */
             return 0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* Grow the cache if a higher index is requested */
     if (n >= cache_size) {
         seq_t *new_cache =
-            (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+            mem_resize(seq_t, cache, (size_t)(n + 1));
         if (new_cache == NULL) {
             /* Out‑of‑memory: abort */
             return 0;

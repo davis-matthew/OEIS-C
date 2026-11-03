@@ -9,7 +9,8 @@
  *            n²}
  * Range:     u8 n <= 10, u16 n <= 42, u32 n <= 687, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   compare_uint32
+ * Validated: standard, pass, 61 terms through n = 2379 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compare_uint32.h"
+
+/* Comparator for qsort on uint32_t */
+static int compare_uint32(const void *a, const void *b)
+{
+    uint32_t va = *(const uint32_t *)a;
+    uint32_t vb = *(const uint32_t *)b;
+    return (va > vb) - (va < vb);
+}
 
 seq_t a(idx_t n)
 {

@@ -7,14 +7,17 @@
  * Formula:   a(n) = n - largest quadratic nonresidue modulo n (OEIS A354974)
  * Range:     u8 n <= 1326, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 114 terms through n = 9892 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* Helper: factor n into prime powers.  The arrays must have room for at least 32 factors. */
 static void factorize_uint64(uint64_t n, uint64_t primes[32], int exps[32], int *cnt)
@@ -94,7 +97,7 @@ static bool is_nonresidue(uint64_t x, uint64_t n)
 
             /* Even exponent – test Legendre symbol of remaining part modulo p */
             uint64_t a = tmp % p;
-            seq_t leg = mod_pow((seq_t)a, (p - 1) / 2, (seq_t)p);
+            seq_t leg = powmod((seq_t)a, (p - 1) / 2, (seq_t)p);
             if ((uint64_t)leg == (p - 1))   /* −1 modulo p → nonresidue */
                 return true;
         }

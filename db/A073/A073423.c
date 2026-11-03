@@ -8,8 +8,9 @@
  * Formula:   a(0) = 2; for n > 0, a(n) = 1 if n is a triangular number,
  *            otherwise 0. (Triangular numbers are those n where there exists
  *            k with n = k*(k+1)/2.)
- * Range:     u8 n <= 9937, u16 n <= 9937, u32 n <= 9937, u64 n <= 9937,
- *            u128 n <= 9937, big any n
+ * Range:     u8 n <= 22154, u16 n <= 22154, u32 n <= 22154, u64 n <= 22154,
+ *            u128 n <= 22154, big any n
+ * Validated: standard, pass, 121 terms through n = 9937 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

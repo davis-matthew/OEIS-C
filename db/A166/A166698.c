@@ -7,8 +7,9 @@
  * Keywords:  sign, mult
  * Formula:   a(n) = 0 if n is even, a(n) = 1 if n is odd and bigomega(n) is
  *            even, a(n) = -1 if n is odd and bigomega(n) is odd
- * Range:     i8 n <= 9978, i16 n <= 9978, i32 n <= 9978, i64 n <= 9978,
- *            i128 n <= 9978, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9978 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

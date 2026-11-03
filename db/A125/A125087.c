@@ -12,7 +12,8 @@
  *            for multiple prime bases.)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 117 terms through n = 974 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     /* Initialise with a(1)=1 */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache == NULL) abort();
         cache[0] = 1;            /* a(1) = 1 */
         freq[1] = 1;             /* record the occurrence of value 1 */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     }
 
     /* Extend cache up to index n */
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
     if (tmp == NULL) abort();
     cache = tmp;
 

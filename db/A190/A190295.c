@@ -10,14 +10,23 @@
  *            then k = n - (r-1)r/2. The term is a(n) = T(r,k)
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   big_pow, binom, seq_mul
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static inline idx_t binary_search_row(idx_t n) {
     idx_t low = 1, high = n;
@@ -39,9 +48,9 @@ seq_t a(idx_t n) {
     idx_t k = n - prev;                     /* 1 ≤ k ≤ r */
 
     /* Compute T(r,k) = k * C(r,k) * (r-1)^(r-k) */
-    seq_t res = binom(r, k);                /* C(r,k)   */
+    seq_t res = binomial(r, k);                /* C(r,k)   */
     if (r > 1) {                            /* (r-1)^(r-k) */
-        seq_t pow = big_pow(r - 1, r - k);
+        seq_t pow = ipow(r - 1, r - k);
         res = seq_mul(res, pow);
     }
     /* multiply by k */

@@ -7,14 +7,16 @@
  * Keywords:  nonn, tabf
  * Formula:   T(n,k) = k * binomial(n-2k, 3k) (n ≥ 5, 1 ≤ k ≤ ⌊n/5⌋) Sequence
  *            read by rows, offset 5. a(5) is the first term
- * Range:     u8 n <= 13, u16 n <= 39, u32 n <= 46, u64 n <= 46, u128 n <= 46,
+ * Range:     u8 n <= 18, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 42 terms through n = 46 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
     idx_t n1 = row - 2 * k;           /* n-2k */
     idx_t r1 = 3 * k;                 /* 3k */
 
-    seq_t bin = binom(n1, r1);
+    seq_t bin = binomial(n1, r1);
     return ((seq_t)k) * bin;
 }

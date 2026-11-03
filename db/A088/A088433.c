@@ -8,13 +8,30 @@
  *            = n
  * Range:     u8 n <= 2048, u16 n <= 2048, u32 n <= 2048, u64 n <= 2048,
  *            u128 n <= 2048, big any n
- * Helpers:   int_cube_root, int_sqrt
+ * Validated: standard, pass, 116 terms through n = 1985 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/int_cube_root.h"
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include <limits.h>
+#include "../utils/isqrt.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {
@@ -26,7 +43,7 @@ seq_t a(idx_t n)
         if (n % u != 0) continue;           /* u must divide n            */
         idx_t n1 = n / u;                   /* remaining product v*w      */
 
-        idx_t vmax = int_sqrt(n1);          /* floor(sqrt(n1))           */
+        idx_t vmax = isqrt(n1);          /* floor(sqrt(n1))           */
         for (idx_t v = u; v <= vmax; ++v) {
             if (n1 % v != 0) continue;      /* v must divide n1          */
             idx_t w = n1 / v;                /* w = n1 / v                 */

@@ -11,8 +11,8 @@
  *            division), then the bits are scanned
  * Range:     u8 n <= 118, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a004717_add, a004717_atanh, a004717_divsmall, a004717_geq,
- *            a004717_iszero, a004717_shl1, a004717_sub
+ * Validated: standard, pass, 70 terms through n = 973 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +20,78 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a004717_add.h"
-#include "../utils/a004717_atanh.h"
-#include "../utils/a004717_divsmall.h"
-#include "../utils/a004717_geq.h"
-#include "../utils/a004717_iszero.h"
-#include "../utils/a004717_shl1.h"
-#include "../utils/a004717_sub.h"
+
+static void a004717_add(uint32_t *a, const uint32_t *b, int L) {
+    uint64_t c = 0;
+    int i;
+    for (i = 0; i < L; i++) {
+        uint64_t s = (uint64_t)a[i] + b[i] + c;
+        a[i] = (uint32_t)s;
+        c = s >> 32;
+    }
+}
+
+static void a004717_divsmall(uint32_t *a, int L, uint32_t d) {
+    uint64_t r = 0;
+    int i;
+    for (i = L - 1; i >= 0; i--) {
+        uint64_t cur = (r << 32) | a[i];
+        a[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static int a004717_iszero(const uint32_t *a, int L) {
+    int i;
+    for (i = 0; i < L; i++) if (a[i]) return 0;
+    return 1;
+}
+
+/* out += 2^W * atanh(1/k) */
+static void a004717_atanh(uint32_t *out, int L, long long W, uint32_t k) {
+    uint32_t *p = (uint32_t *)calloc((size_t)L, sizeof(uint32_t));
+    uint32_t *t = (uint32_t *)calloc((size_t)L, sizeof(uint32_t));
+    uint32_t j;
+    p[W / 32] = 1u << (W % 32);
+    a004717_divsmall(p, L, k);
+    for (j = 0; ; j++) {
+        memcpy(t, p, (size_t)L * sizeof(uint32_t));
+        a004717_divsmall(t, L, 2 * j + 1);
+        a004717_add(out, t, L);
+        a004717_divsmall(p, L, k * k);
+        if (a004717_iszero(p, L)) break;
+    }
+    free(p);
+    free(t);
+}
+
+static int a004717_geq(const uint32_t *a, const uint32_t *b, int L) {
+    int i;
+    for (i = L - 1; i >= 0; i--) {
+        if (a[i] != b[i]) return a[i] > b[i];
+    }
+    return 1;
+}
+
+static void a004717_shl1(uint32_t *a, int L) {
+    uint32_t c = 0;
+    int i;
+    for (i = 0; i < L; i++) {
+        uint32_t nc = a[i] >> 31;
+        a[i] = (a[i] << 1) | c;
+        c = nc;
+    }
+}
+
+static void a004717_sub(uint32_t *a, const uint32_t *b, int L) {
+    int64_t br = 0;
+    int i;
+    for (i = 0; i < L; i++) {
+        int64_t s = (int64_t)a[i] - b[i] - br;
+        if (s < 0) { s += ((int64_t)1 << 32); br = 1; } else br = 0;
+        a[i] = (uint32_t)s;
+    }
+}
 
 static long long *a004717_pos = NULL;
 static long long a004717_cnt = 0;

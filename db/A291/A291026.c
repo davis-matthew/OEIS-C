@@ -8,12 +8,14 @@
  *            a(0) = 4 a(1) = 23 a(2) = 128 a(3) = 711
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached sequence values */
 static idx_t cache_len = 0;   /* number of allocated slots in cache */
@@ -26,7 +28,7 @@ static void ensure_capacity(idx_t n)
         idx_t new_len = cache_len == 0 ? 4 : cache_len * 2;
         if (new_len <= n) new_len = n + 1;
         /* Use a cast so the code compiles in both C and C++ */
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         cache_len = new_len;
     }
 }

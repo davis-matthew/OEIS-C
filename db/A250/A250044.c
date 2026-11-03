@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 6565, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, member
+ * Validated: standard, pass, 68 terms through n = 9981 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,25 @@
 #include <stdlib.h>
 
 /* Utility function: GCD of two seq_t values, defined in gcd.h */
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/member.h"
+#include "../utils/mem.h"
+
+/* Binary search helper: true if target appears in arr[0..len-1] */
+static bool member(const seq_t *arr, size_t len, seq_t target)
+{
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = lo + (hi - lo) / 2;
+        if (arr[mid] < target)
+            lo = mid + 1;
+        else if (arr[mid] > target)
+            hi = mid;
+        else
+            return true;
+    }
+    return false;
+}
 
 /* External linkage required by the build system */
 seq_t a(idx_t n)
@@ -53,7 +71,7 @@ seq_t a(idx_t n)
                 /* grow array if needed */
                 if (seq_len == seq_cap) {
                     size_t new_cap = seq_cap ? seq_cap * 2 : 64;
-                    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
                     /* no error handling needed for the evaluation harness */
                     seq = tmp;
                     seq_cap = new_cap;

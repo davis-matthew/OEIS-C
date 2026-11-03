@@ -9,12 +9,14 @@
  *            OEIS sequence A014668
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoized implementation that keeps a[1..max_n] and its prefix sums
    pref[0..max_n] in static arrays.  pref[0] is always 0.
@@ -30,10 +32,8 @@ static void ensure_capacity(idx_t idx)
 {
     if (idx + 1 > cap) {                 /* need space for indices 0..idx */
         size_t new_cap = (idx + 1) * 2;   /* grow with a factor 2            */
-        seq_t *tmp_a = (seq_t *)realloc(a_cache,
-                                        new_cap * sizeof(seq_t));
-        seq_t *tmp_p = (seq_t *)realloc(pref_cache,
-                                        new_cap * sizeof(seq_t));
+        seq_t *tmp_a = mem_resize(seq_t, a_cache, new_cap);
+        seq_t *tmp_p = mem_resize(seq_t, pref_cache, new_cap);
         if (!tmp_a || !tmp_p) abort();   /* out of memory                   */
         a_cache = tmp_a;
         pref_cache = tmp_p;

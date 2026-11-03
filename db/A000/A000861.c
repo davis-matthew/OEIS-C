@@ -11,14 +11,21 @@
  *            a(n) = a(n-1) + a(n-46) - a(n-47) for n > 48
  * Range:     u8 n <= 118, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ends_with_vowel_mod100
+ * Validated: standard, pass, 81 terms through n = 896 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/ends_with_vowel_mod100.h"
+
+static bool ends_with_vowel_mod100(unsigned t) {
+    unsigned u = t % 10, tens = t / 10;
+    if (t == 0) return false;          /* "hundred", "thousand", "million", ... */
+    if (tens == 1) return t == 12;     /* only "twelve" among 10..19 */
+    return u == 1 || u == 2 || u == 3 || u == 5 || u == 9;
+}
 
 seq_t a(idx_t n) {
     unsigned res[46];

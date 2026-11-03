@@ -12,7 +12,8 @@
  *            k * such that for every row the triple of bit...
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 51, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- Constants ---------------------------------------- */
 #define STATE_BITS 4                     /* 4 rows per column       */
@@ -131,7 +133,7 @@ seq_t a(idx_t n)
 
     /* extend DP until we reach n */
     for (idx_t len = cache_last + 1; len <= n; ++len) {
-        memset(next, 0, sizeof(next));
+        mem_set(next, 0, sizeof(next));
 
         for (int idx = 0; idx < PAIRS; ++idx) {
             seq_t val = curr[idx];
@@ -145,7 +147,7 @@ seq_t a(idx_t n)
         }
 
         /* copy next to curr for next iteration */
-        memcpy(curr, next, sizeof(curr));
+        mem_copy(curr, next, sizeof(curr));
 
         /* sum curr gives a(len) */
         seq_t sum = 0;

@@ -11,7 +11,8 @@
  *            * Initial values (offset 3): * a(3)=105, a(4)=8112...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 702 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* C implementation ---------------------------------------------------------- */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #if defined(__SIZEOF_INT128__)
 typedef unsigned __int128 big_t;      /* 128‑bit intermediate for 64‑bit seq_t   */
@@ -99,6 +101,7 @@ seq_t a(idx_t n)
 #else
 /* C++ implementation --------------------------------------------------------- */
 #include <cstdint>
+#include "../utils/mem.h"
 #include <type_traits>
 
 /* if seq_t is a 64‑bit integral type, use unsigned __int128 for intermediates;
@@ -116,7 +119,7 @@ seq_t a(idx_t n)
     /* initialise cache if empty */
     if (!cache) {
         cache_cap = (size_t)n + 1;
-        cache = (seq_t *)std::malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);   /* (std::malloc does not construct seq_t) */
         if (!cache) return 0;
         for (size_t i = 0; i < cache_cap; ++i) cache[i] = 0;
         if (cache_cap > 3) cache[3] = (seq_t)105;
@@ -128,7 +131,7 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     else if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = ((size_t)n + 1) * 2;
-        seq_t *tmp = (seq_t *)std::realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;
         for (size_t i = cache_cap; i < new_cap; ++i) tmp[i] = 0;
         cache = tmp;

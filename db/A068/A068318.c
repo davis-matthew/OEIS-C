@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of the two prime factors of the n‑th semiprime
  * Range:     u8 n <= 156, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global cache for generated semiprimes. */
 static seq_t   *semiprimes = NULL;   /* array of nth semiprime (seq_t form) */
@@ -62,8 +64,8 @@ static void rebuild_semiprimes(size_t limit)
 
     /* Ensure capacity of the cache. */
     if (semi_cap < 1024) {
-        free(semiprimes);
-        semiprimes = (seq_t*)malloc(1024 * sizeof(seq_t));
+        mem_free(semiprimes);
+        semiprimes = mem_new(seq_t, 1024);
         semi_cap   = 1024;
     }
 
@@ -76,8 +78,7 @@ static void rebuild_semiprimes(size_t limit)
                 /* Grow cache if needed. */
                 if (semi_len == semi_cap) {
                     semi_cap *= 2;
-                    semiprimes = (seq_t*)realloc(semiprimes,
-                                                 semi_cap * sizeof(seq_t));
+                    semiprimes = mem_resize(seq_t, semiprimes, semi_cap);
                 }
                 semiprimes[semi_len++] = (seq_t)i;
             }

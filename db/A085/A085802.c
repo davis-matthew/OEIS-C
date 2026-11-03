@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 103, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_semiprime_small
+ * Validated: standard, pass, 78 terms through n = 9637 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,30 @@
 /* ---------------------------------------------------------------------- */
 /* Standard includes – only what is allowed in the fine‑tuned build.      */
 #include <stdbool.h>
-#include "../utils/is_semiprime_small.h"
+
+/* A semiprime is the product of exactly two prime factors (counting
+ * multiplicities); 4 = 2 × 2 is allowed.                                 */
+static inline bool is_semiprime_small(uint32_t x)
+{
+    if (x < 4)            /* 0,1,2,3 are not semiprime                     */
+        return false;
+
+    uint32_t n = x;
+    uint32_t factor_count = 0;
+
+    for (uint32_t p = 2; (uint64_t)p * p <= n; ++p) {
+        while (n % p == 0) {
+            ++factor_count;
+            n /= p;
+            if (factor_count > 2)        /* more than two prime factors    */
+                return false;
+        }
+    }
+    if (n > 1)             /* remaining prime factor */
+        ++factor_count;
+
+    return factor_count == 2;
+}
 
 /* ---------------------------------------------------------------------- */
 /* Helper: test whether an unsigned integer x (x ≥ 0) is a semiprime.    */

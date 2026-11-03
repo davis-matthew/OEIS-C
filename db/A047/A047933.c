@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 502, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factorize, next_prime
+ * Validated: standard, pass, 64 terms through n = 878 (2026-11-03)
+ * Helpers:   factorize, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"
 #include "../utils/factorize.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static inline uint64_t modpow_uint64(uint64_t base, uint64_t exp, uint64_t mod) {
     uint64_t result = 1 % mod;
@@ -71,7 +73,7 @@ seq_t a(idx_t n) {
         if (q == next_p) {   /* q is the next prime after p */
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 4;
-                seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_len++] = (seq_t)q;
         }

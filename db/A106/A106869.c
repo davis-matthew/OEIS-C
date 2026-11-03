@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   primes of the form x^2 + x*y + 6*y^2 with x,y ≥ 0
- * Range:     u8 none, u16 n <= 248, u32 n <= 916, u64 n <= 10000,
+ * Range:     u8 none, u16 n <= 248, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_seq, isprime_big, push_seq
+ * Validated: standard, pass, 60 terms through n = 9038 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,12 +16,33 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Utility headers for the helper functions.  The build system
    supplies these and declares the prototypes. */
-#include "../utils/isprime_big.h"   /* bool isprime_big(seq_t) */
-#include "../utils/cmp_seq.h"      /* int cmp_seq(const void*, const void*) */
-#include "../utils/push_seq.h"     /* void push_seq(seq_t **, idx_t *, idx_t *, seq_t) */
+#include "../utils/is_prime_seq.h"
+
+/* Comparator for qsort on seq_t values. */
+static int cmp_seq(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 /* Static state holding the enumeration progress. */
 static seq_t *prime_form_primes = NULL;   /* array of found primes */
@@ -48,7 +70,7 @@ static void generate_new_primes(idx_t old_limit, idx_t new_limit) {
             if (val > (seq_t)new_limit)
                 break;                            /* for this y, larger x only increase val */
 
-            if (val > (seq_t)old_limit && val >= (seq_t)2 && isprime_big(val))
+            if (val > (seq_t)old_limit && val >= (seq_t)2 && is_prime_seq(val))
                 add_prime(val);
         }
     }
@@ -60,7 +82,7 @@ static void sort_and_dedup_primes(void) {
     if (prime_form_len == 0)
         return;
 
-    qsort(prime_form_primes, prime_form_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(prime_form_primes, prime_form_len, sizeof(seq_t), cmp_seq);
 
     /* Remove duplicates in-place. */
     idx_t j = 0;

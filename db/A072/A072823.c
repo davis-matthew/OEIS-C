@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 220, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_at_least_three_set_bits
+ * Validated: standard, pass, 86 terms through n = 9857 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,13 @@
    representation contains at least three 1‑bits. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_at_least_three_set_bits.h"
+
+static inline bool has_at_least_three_set_bits(idx_t x)
+{
+    /* Use the GCC/Clang builtin popcount for 64‑bit values. */
+    unsigned pc = __builtin_popcountll((uint64_t)x);
+    return pc >= 3;
+}
 
 seq_t a(idx_t n)
 {

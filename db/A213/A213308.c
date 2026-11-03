@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   isPrimeTrial
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* allocate initial storage */
     if (!terms) {
         cap   = 32;
-        terms = (seq_t*)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
     }
 
     /* keep searching until we have at least n terms or a safe upper limit */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
             seq_t val = 0;
             for (size_t j = i; j < len; ++j) {
                 val = val * 10 + (seq_t)digs[j];
-                if (!isPrimeTrial(val)) {
+                if (!is_prime_seq(val)) {
                     ++nonprime;
                     if (nonprime > 1) break;
                 }
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
             /* store the term */
             if (used == cap) {
                 cap <<= 1;
-                terms = (seq_t*)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[used++] = (seq_t)cand;
         }

@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 72 terms through n = 958 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Sequence: Numbers n such that 19*n + 17 is prime.
    a(1) = 0, a(2) = 6, etc.  This implementation pre‑allocates a
    sufficiently large static array and expands as needed.  It works for
@@ -20,7 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 /* Pre‑allocate space for up to 200 000 terms.  The tests in this
    repository never require more, and this keeps the implementation
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
         /* Test whether 19*last_checked + 17 is prime. */
         uint64_t candidate = 19ULL * (uint64_t)last_checked + 17ULL;
-        if (is_prime(candidate))
+        if (is_prime_u64(candidate))
         {
             /* Store the n that satisfies the property. */
             terms[terms_len] = (seq_t)last_checked;

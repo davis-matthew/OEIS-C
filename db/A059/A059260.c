@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 217, u32 n <= 681, u64 n <= 1274,
  *            u128 n <= 1274, big any n
- * Helpers:   allocate_seq_buffer, free_seq_buffer
+ * Validated: standard, pass, 94 terms through n = 1193 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,8 +37,25 @@
  */
 
 #include <stdlib.h>
-#include "../utils/allocate_seq_buffer.h"
-#include "../utils/free_seq_buffer.h"
+
+/* allocate and free a buffer of seq_t that works in both C and C++ */
+static seq_t *allocate_seq_buffer(idx_t len)
+{
+#ifdef __cplusplus
+    return new seq_t[len]();
+#else
+    return (seq_t *)calloc(len, sizeof(seq_t));
+#endif
+}
+
+static void free_seq_buffer(seq_t *p, idx_t len)
+{
+#ifdef __cplusplus
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 /* compute T(i,j) by dynamic programming */
 static seq_t T_of(idx_t i, idx_t j)

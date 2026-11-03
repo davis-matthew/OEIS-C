@@ -7,15 +7,32 @@
  * Formula:   a(n) = floor(2*r² / k), where r is the row number such that
  *            S(r‑1) < n ≤ S(r) and S(m) = m(m+1)(2m+1)/3, while k = n –
  *            S(r‑1) is the column index within that row
- * Range:     u8 n <= 826, u16 n <= 9171, u32 n <= 9171, u64 n <= 9171,
- *            u128 n <= 9171, big any n
- * Helpers:   S
+ * Range:     u8 n <= 826, u16 n <= 11050, u32 n <= 11050, u64 n <= 11050,
+ *            u128 n <= 11050, big any n
+ * Validated: standard, pass, 115 terms through n = 9171 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/S.h"
+
+static seq_t S(idx_t r)
+{
+    unsigned __int128 a = r;
+    unsigned __int128 b = r + 1;
+    unsigned __int128 c = 2 * r + 1;
+
+    /* divide one factor by 3 to avoid overflow */
+    if (a % 3 == 0)
+        a /= 3;
+    else if (b % 3 == 0)
+        b /= 3;
+    else
+        c /= 3;
+
+    return (seq_t)(a * b * c);
+}
 
 seq_t a(idx_t n)
 {

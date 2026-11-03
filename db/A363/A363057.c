@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9896, u16 n <= 9896, u32 n <= 9896, u64 n <= 9896,
- *            u128 n <= 9896, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 9896 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    This function produces the n‑th run length. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Assume seq_t and idx_t are defined by the build. */
 static seq_t *run_buf = NULL;          /* stored run lengths */
@@ -36,7 +38,7 @@ static void ensure_run_capacity(void)
 {
     if (run_cnt >= run_cap) {
         size_t new_cap = run_cap == 0 ? 256 : run_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(run_buf, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, run_buf, new_cap);
         if (!tmp) abort(); /* memory error – terminate */
         run_buf = tmp;
         run_cap = new_cap;

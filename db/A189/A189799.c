@@ -13,7 +13,8 @@
  *            101110111110111101100011001110111…)
  * Range:     u8 n <= 41, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* --- Global state ---------------------------------------------------- */
 static bool initialized = false;
@@ -68,7 +70,7 @@ static void init_globals(void)
     /* Cache for computed a(n) values */
     cache_cap = 16;
     cache_keys = (idx_t *)malloc(cache_cap * sizeof(idx_t));
-    cache_vals = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache_vals = mem_new(seq_t, cache_cap);
     cache_len = 0;
 
     initialized = true;
@@ -95,7 +97,7 @@ static void ensure_cache_capacity(void)
     if (cache_len >= cache_cap) {
         cache_cap <<= 1;
         cache_keys = (idx_t *)realloc(cache_keys, cache_cap * sizeof(idx_t));
-        cache_vals = (seq_t *)realloc(cache_vals, cache_cap * sizeof(seq_t));
+        cache_vals = mem_resize(seq_t, cache_vals, cache_cap);
     }
 }
 

@@ -10,14 +10,17 @@
  *            (m−1)m/2, T(m,k) = binomial(m−1, k−1) * m^(m−k) * k
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
 
     /* compute the required value */
     seq_t bin  = binomial((idx_t)(r - 1), (idx_t)(k - 1));
-    seq_t powt = big_pow((seq_t)r, (seq_t)(r - k));
+    seq_t powt = ipow((seq_t)r, (seq_t)(r - k));
     seq_t res  = bin * powt;
     res *= (seq_t)k;
     return res;

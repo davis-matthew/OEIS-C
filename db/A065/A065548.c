@@ -8,12 +8,14 @@
  * Formula:   a(1)=1; for n>0: a(2*n)=∑_{i=1}^{n} a(i), a(2*n+1)=a(n)^2
  * Range:     u8 n <= 34, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
         if (cap < need) {
             size_t newcap = (cap) ? cap << 1 : 16;
             while (newcap < need) newcap <<= 1;
-            a_arr = (seq_t *)realloc(a_arr, newcap * sizeof(seq_t));
-            pref  = (seq_t *)realloc(pref,  newcap * sizeof(seq_t));
+            a_arr = mem_resize(seq_t, a_arr, newcap);
+            pref  = mem_resize(seq_t, pref, newcap);
             cap   = newcap;
         }
 

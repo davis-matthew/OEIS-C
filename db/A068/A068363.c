@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 614, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_64
+ * Validated: standard, pass, 63 terms through n = 944 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_prime_64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Main sequence generator */
 seq_t a(idx_t n) {
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
 
         /* Reserve space for terms */
         term_cap = prime_count;               /* at most one term per k */
-        terms = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, term_cap);
         if (!terms) return (seq_t)0; /* allocation failure */
 
         /* Generate sums prime(k) + prime(k+2) + prime(k+4) */
@@ -71,11 +73,11 @@ seq_t a(idx_t n) {
                         + (seq_t)prime_list[k + 4];
             bool prime = false;
             if (sum <= LIMIT) prime = !is_comp[(idx_t)sum];
-            else prime = is_prime_64((uint64_t)sum);
+            else prime = is_prime_u64((uint64_t)sum);
             if (prime) {
                 if (term_len == term_cap) {
                     term_cap += prime_count; /* increase capacity */
-                    terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, term_cap);
                     if (!terms) return (seq_t)0;
                 }
                 terms[term_len++] = sum;

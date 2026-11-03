@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 16, i32 n <= 33, i64 n <= 34, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*----- storage for nonsquarefree numbers -----*/
 static seq_t *S = NULL;          /* array of nonsquarefree numbers   */
@@ -37,7 +39,7 @@ static void ensure_S(idx_t needed)
     if (S_capacity < needed) {
         idx_t new_cap = S_capacity ? S_capacity << 1 : 16;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *p = (seq_t *)realloc(S, sizeof(seq_t) * new_cap);
+        seq_t *p = mem_resize(seq_t, S, new_cap);
         if (!p) abort();
         S = p;
         S_capacity = new_cap;
@@ -70,7 +72,7 @@ static void ensure_row_capacity(idx_t need)
 {
     if (row_capacity < need) {
         row_capacity = need;
-        seq_t *p = (seq_t *)realloc(row_buf, sizeof(seq_t) * row_capacity);
+        seq_t *p = mem_resize(seq_t, row_buf, row_capacity);
         if (!p) abort();
         row_buf = p;
     }

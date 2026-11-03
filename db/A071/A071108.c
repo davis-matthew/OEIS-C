@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 34, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 487 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     if (n > c_max) {
         /* Allocate or grow the continuant array */
         size_t new_size = (size_t)(n + 1);
-        c_vals = (seq_t *)realloc(c_vals, new_size * sizeof(seq_t));
+        c_vals = mem_resize(seq_t, c_vals, new_size);
         if (!c_vals) return 0;                /* out of memory – abort silently   */
 
         /* Initialise base values on first run */

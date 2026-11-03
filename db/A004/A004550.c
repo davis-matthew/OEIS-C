@@ -9,7 +9,8 @@
  *            square root in base 5, with bignums in 32-bit limbs
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a4550_cmp, a4550_mulsmall
+ * Validated: standard, pass, 115 terms through n = 9728 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a4550_cmp.h"
-#include "../utils/a4550_mulsmall.h"
+
+static int a4550_cmp(const uint32_t *a, size_t al, const uint32_t *b, size_t bl) {
+    size_t i;
+    if (al != bl) return al < bl ? -1 : 1;
+    for (i = al; i-- > 0;) {
+        if (a[i] != b[i]) return a[i] < b[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+static void a4550_mulsmall(uint32_t *x, size_t *len, uint32_t m, uint32_t add) {
+    uint64_t carry = add;
+    size_t i;
+    for (i = 0; i < *len; i++) {
+        uint64_t v = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)v;
+        carry = v >> 32;
+    }
+    while (carry) {
+        x[(*len)++] = (uint32_t)carry;
+        carry >>= 32;
+    }
+}
 
 static uint32_t *A4550_R = NULL, *A4550_P = NULL, *A4550_T = NULL;
 static size_t A4550_cap = 0, A4550_rl = 0, A4550_pl = 0;

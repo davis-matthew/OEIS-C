@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 28, u128 n <= 50,
  *            big any n
- * Helpers:   my_gcd
+ * Validated: standard, pass, 39 terms through n = 975 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
  */
  
 #include <stdlib.h>
-#include "../utils/my_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
  
 /* --------------------------------------------------------------------
  * Small Euclidean gcd for seq_t.  No external dependency is used.
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* If cache is empty, create capacity for first element */
     if (cap == 0) {
         cap = 1;
-        cache = (seq_t *)malloc((size_t)cap * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cap);
         if (!cache) exit(1);      /* allocation failure */
     }
  
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         while (cap < n) {
             size_t new_cap = (size_t)cap * 2;
             if (new_cap == 0) new_cap = 1;  /* just in case */
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(1);
             cache = tmp;
             cap   = (idx_t)new_cap;
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
             } else {
                 seq_t prev   = cache[i - 2];          /* a(i-1) */
                 seq_t i_seq  = (seq_t)i;              /* current index as seq_t */
-                seq_t g      = my_gcd(prev, i_seq);   /* gcd(a(i-1), i) */
+                seq_t g      = gcd(prev, i_seq);   /* gcd(a(i-1), i) */
                 seq_t lcm    = (prev / g) * i_seq;    /* lcm(a(i-1), i) */
                 val = (prev << 1) + lcm;              /* 2*a(i-1) + lcm */
             }

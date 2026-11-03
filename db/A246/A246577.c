@@ -9,7 +9,8 @@
  *            x)^2 (1 - x^2)^2 (1 - x^3)^2)
  * Range:     i8 n <= 49, i16 n <= 64, i32 n <= 64, i64 n <= 64, i128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    and e_m are coefficients of the Euler product. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* sequence values */
 static size_t a_cap = 0;
@@ -32,7 +34,7 @@ static void ensure_e(size_t up_to)
     /* allocate space if necessary (additive extension keeps old values) */
     if (e_cap <= up_to) {
         size_t new_cap = up_to + 1;
-        seq_t *new_e = (seq_t*)realloc(e_cache, new_cap * sizeof(seq_t));
+        seq_t *new_e = mem_resize(seq_t, e_cache, new_cap);
         if (!new_e) exit(1);
         e_cache = new_e;
         e_cap   = new_cap;
@@ -58,7 +60,7 @@ static void ensure_a(size_t up_to)
     if (a_cap <= up_to) {
         size_t old_cap = a_cap;
         size_t new_cap = up_to + 1;
-        seq_t *new_a = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_cache, new_cap);
         if (!new_a) exit(1);
         a_cache = new_a;
 

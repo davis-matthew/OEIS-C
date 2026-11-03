@@ -8,7 +8,8 @@
  * Formula:   a(n) = A048385(A000045(n))
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 30, u64 n <= 54, u128 n <= 109,
  *            big any n
- * Helpers:   fib, get_digits
+ * Validated: standard, pass, 49 terms through n = 986 (2026-11-01)
+ * Helpers:   get_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,20 @@
    digits of the n‑th Fibonacci number. */
 
 #include <stddef.h>
-#include "../utils/fib.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/get_digits.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n)
 {

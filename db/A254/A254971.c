@@ -13,13 +13,15 @@
  *            a(11)=8620990, a(12)=26645405
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 16, u64 n <= 36, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static idx_t     seq_cache_len = 0;   /* highest index cached (1‑based) */
@@ -30,9 +32,9 @@ static void seq_cache_ensure(idx_t n)
     /* initialize cache on first use */
     if (seq_cache == NULL) {
         seq_cache_cap = 13;                 /* cache indices 0..12, ignore 0 */
-        seq_cache = (seq_t *)malloc(seq_cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cache_cap);
         if (!seq_cache) return;             /* allocation failure – unlikely */
-        memset(seq_cache, 0, seq_cache_cap * sizeof(seq_t));
+        mem_set(seq_cache, 0, seq_cache_cap * sizeof(seq_t));
         seq_cache[1]  = (seq_t)121;
         seq_cache[2]  = (seq_t)310;
         seq_cache[3]  = (seq_t)1008;
@@ -51,15 +53,13 @@ static void seq_cache_ensure(idx_t n)
     /* extend allocation if necessary */
     if (n + 1 > seq_cache_cap) {
         idx_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(seq_cache,
-                                            new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
         if (new_cache == NULL) return;   /* keep old cache on failure */
         seq_cache = new_cache;
         seq_cache_cap = new_cap;
         /* new slots already zeroed by realloc for most implementations;
            but zero them to be safe. */
-        memset(seq_cache + seq_cache_len + 1,
-               0, (new_cap - seq_cache_len - 1) * sizeof(seq_t));
+        mem_set(seq_cache + seq_cache_len + 1, 0, (new_cap - seq_cache_len - 1) * sizeof(seq_t));
     }
 }
 

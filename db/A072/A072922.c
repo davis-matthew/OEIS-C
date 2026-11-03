@@ -11,11 +11,14 @@
  *            integer. All arithmetic uses the supplied * seq_t type
  * Range:     u8 none, u16 none, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
+#include <string.h>
 #include <stddef.h>   /* for size_t */
 #include <ctype.h>    /* for isalpha */
 

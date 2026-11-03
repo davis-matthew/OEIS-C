@@ -8,15 +8,17 @@
  * Formula:   a(n) = number of unordered pairs of positive Fibonacci numbers
  *            whose sum is n (count the solutions to n = f + g with f,g ∈
  *            {1,2,3,5,8,…}, f ≤ g)
- * Range:     u8 n <= 1582, u16 n <= 9698, u32 n <= 9698, u64 n <= 9698,
- *            u128 n <= 9698, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1582, u16 n <= 17711, u32 n <= 17711, u64 n <= 17711,
+ *            u128 n <= 17711, big any n
+ * Validated: standard, pass, 103 terms through n = 9698 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Number of partitions of n into exactly two positive Fibonacci numbers */
 seq_t a(idx_t n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Initialize the Fibonacci array if needed */
     if (fib == NULL) {
         fib_cap = 16;
-        fib = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib = mem_new(seq_t, fib_cap);
         if (fib == NULL) return 0;  /* allocation failure: return 0 */
         /* Distinct positive Fibonacci numbers start: 1, 2 */
         fib[0] = 1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     while (fib[fib_cnt - 1] < (seq_t) n) {
         if (fib_cnt == fib_cap) {
             fib_cap <<= 1; /* double capacity */
-            seq_t *tmp = (seq_t *)realloc(fib, fib_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fib, fib_cap);
             if (tmp == NULL) return 0; /* allocation failure */
             fib = tmp;
         }

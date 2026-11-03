@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    with initial values: a(1)=3, a(2)=21, a(3)=48, a(4)=161, a(5)=473. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for arbitrary‑order calls */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     /* enlarge cache if necessary */
     if (n > cache_max) {
         idx_t new_max = n;
-        seq_t *new_cache = (seq_t *)realloc(cache, (new_max + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (new_max + 1));
         if (!new_cache) exit(EXIT_FAILURE);      /* allocation failed */
         cache = new_cache;
 

@@ -7,13 +7,15 @@
  * Formula:   a(n) = ((n + 1)^7 + (1 + (-1)^n)/2 )/2
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 25, u64 n <= 623, u128 n <= 1000,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 42 terms through n = 964 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 #if defined(__cplusplus)
 #include <type_traits>
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     {
         /* Arbitrary‑precision seq_t: rely on the provided big_pow helper. */
         seq_t base = (seq_t)(n + 1);
-        seq_t pow  = big_pow(base, 7);
+        seq_t pow  = ipow(base, 7);
         if ((n & 1ULL) == 0) pow += (seq_t)1;   /* (1+(-1)^n)/2 == 1 for even n */
         return pow >> 1;
     }

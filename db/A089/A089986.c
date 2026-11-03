@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 51, i16 n <= 64, i32 n <= 64, i64 n <= 64, i128 n <= 64,
  *            big any n
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
  * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)

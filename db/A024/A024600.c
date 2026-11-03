@@ -9,14 +9,23 @@
  *            ⌊(m + ⌊m·√5⌋)/2⌋ (upper Wythoff sequence)
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   compute_t128, i128_sqrt
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/compute_t128.h"
-#include "../utils/i128_sqrt.h"
+#include "../utils/isqrt_u128.h"
+
+/* t(m) for any m ≥ 1 – using 128‑bit arithmetic only */
+static inline unsigned __int128 compute_t128(idx_t m)
+{
+    unsigned __int128 mm   = (unsigned __int128)m;
+    unsigned __int128 sq   = isqrt_u128((unsigned __int128)5 * mm * mm);
+    unsigned __int128 phi  = (mm + sq) / 2;   /* floor(m·φ) */
+    return mm + phi;                         /* t(m) = m + floor(m·φ) */
+}
 
 /* Public function – sequence A024600 */
 seq_t a(idx_t n)

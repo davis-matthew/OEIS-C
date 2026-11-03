@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 773, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime, square_digit_sum_is_37
+ * Validated: standard, pass, 59 terms through n = 896 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/next_prime.h"
-#include "../utils/square_digit_sum_is_37.h"
+#include "../utils/mem.h"
+
+/* Helper: return true if the sum of decimal digits of (p * p) equals 37. */
+static bool square_digit_sum_is_37(idx_t p)
+{
+    /* Use unsigned __int128 for multiplication – it holds (2⁶⁴‑1)². */
+    unsigned __int128 sq = (unsigned __int128)p * (unsigned __int128)p;
+    unsigned int sum = 0;
+    while (sq > 0) {
+        sum += (unsigned int)(sq % 10);
+        sq /= 10;
+    }
+    return sum == 37;
+}
 
 /* The main function required by the build. */
 seq_t a(idx_t n)
@@ -44,7 +58,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
                 if (new_cap < cache_len + 1) new_cap = cache_len + 1;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();                 /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

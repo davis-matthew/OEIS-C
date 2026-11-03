@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + 100*a(n-2), with a(1)=1, a(2)=1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache[i] holds a(i+1) */
 static size_t cache_sz = 0;      /* number of terms currently cached */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache if it does not yet contain the desired term */
     if (cache_sz < need) {
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp)
             return 0;           /* allocation failed */
 

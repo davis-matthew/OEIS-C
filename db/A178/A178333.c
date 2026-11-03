@@ -9,8 +9,9 @@
  *            else if x mod 10 = y then 0 else h(x div 10, x mod 10) h(x, y) =
  *            if y = 1 then 0^x else if x mod 10 < y then h(x div 10, x mod
  *            10) else 0 (0^0 is treated as 1)
- * Range:     u8 n <= 9890, u16 n <= 9890, u32 n <= 9890, u64 n <= 9890,
- *            u128 n <= 9890, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9890 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

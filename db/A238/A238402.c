@@ -9,7 +9,8 @@
  *            pi(q) is the prime counting function (A000720)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9597 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* integer floor of square root (works for 64‑bit indices) */
 static inline idx_t floor_isqrt(idx_t n)
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     idx_t pi_n = pi[n];
 
     /* --- Count occurrences of d = q - pi(q) for 1 ≤ q ≤ n --- */
-    seq_t *count_f = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *count_f = mem_new(seq_t, (size_t)(n + 1));
     if (!count_f) { free(is_prime); free(pi); return 0; }
     for (idx_t i = 0; i <= n; ++i) count_f[i] = 0;
     for (idx_t q = 1; q <= n; ++q) {
@@ -82,6 +84,6 @@ seq_t a(idx_t n)
 
     free(is_prime);
     free(pi);
-    free(count_f);
+    mem_free(count_f);
     return result;
 }

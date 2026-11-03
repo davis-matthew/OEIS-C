@@ -9,7 +9,8 @@
  *            composite numbers. The sequence stops at 210 (last term)
  * Range:     u8 n <= 43, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   gcd
+ * Validated: full, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Static data structures */
 static bool *comp = NULL;            /* composite marker array */
@@ -36,7 +38,7 @@ static void ensure_cache_cap(size_t need)
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    seq_t *newp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     if (!newp) exit(1);
     cache = newp;
     cache_cap = new_cap;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   contains_sorted
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/contains_sorted.h"
+
+/* Binary search on a strictly sorted array of seq_t values. */
+static bool contains_sorted(const seq_t *arr, size_t len, seq_t value)
+{
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] == value) return true;
+        if (arr[mid] < value) lo = mid + 1;
+        else hi = mid;
+    }
+    return false;
+}
 
 /* Dynamic array for the sequence values */
 static seq_t *seq   = NULL;

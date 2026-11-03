@@ -9,7 +9,8 @@
  *            at most twice
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 26, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 599 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,18 +33,18 @@ seq_t a(idx_t n)
 
     /* Allocate new cache and temporary arrays of size n+1 */
     size_t sz = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, sz);
     if (!new_cache) return 0;        /* in case of allocation failure */
-    memset(new_cache, 0, sz * sizeof(seq_t));
+    mem_set(new_cache, 0, sz * sizeof(seq_t));
     new_cache[0] = 1;
 
-    seq_t *dp   = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *bin  = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, sz);
+    seq_t *bin  = mem_new(seq_t, sz);
     if (!dp || !bin) {
-        free(new_cache); free(dp); free(bin);
+        mem_free(new_cache); mem_free(dp); mem_free(bin);
         return 0;
     }
-    memset(dp, 0, sz * sizeof(seq_t));
+    mem_set(dp, 0, sz * sizeof(seq_t));
     dp[0] = 1;
 
     /* Main DP: process block sizes k = 1 .. n */
@@ -72,11 +74,11 @@ seq_t a(idx_t n)
         new_cache[i] = dp[i];
 
     /* free temporary arrays */
-    free(dp);
-    free(bin);
+    mem_free(dp);
+    mem_free(bin);
 
     /* replace old cache if any */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_size = sz;
     max_computed = n;

@@ -8,16 +8,31 @@
  *            exactly four digits equal to 2. The values are generated in
  *            increasing order by scanning consecutive integers and counting
  *            the digit 2 in base‑6. The first term is a(1)=518
- * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
- *            big any n
- * Helpers:   has_four_twos
+ * Range:     u8 none, u16 n <= 577, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 57 terms through n = 9966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_four_twos.h"
+#include "../utils/mem.h"
+
+/* --- count occurrence of digit 2 in base 6 of x --------------------- */
+static bool has_four_twos(uint64_t x)
+{
+    int cnt = 0;
+    while (x > 0) {
+        if ((x % 6) == 2) {
+            ++cnt;
+            if (cnt > 4) return false;
+        }
+        x /= 6;
+    }
+    return (cnt == 4);
+}
 
 /* --- static cache --------------------------------------------------- */
 static seq_t *CACHE      = NULL;          /* sorted list of found terms   */
@@ -31,7 +46,7 @@ static void cache_push(seq_t value)
     if (CACHE_CAP <= CACHE_SIZE) {
         size_t new_cap = CACHE_CAP ? CACHE_CAP * 2 : 16;
         while (new_cap <= CACHE_SIZE) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(CACHE, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, CACHE, new_cap);
         if (tmp == NULL) abort();   /* ensure memory availability */
         CACHE = tmp;
         CACHE_CAP = new_cap;

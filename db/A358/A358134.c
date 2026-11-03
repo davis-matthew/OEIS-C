@@ -11,7 +11,8 @@
  *            cumulative sums of each composition
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   dfs_row
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,34 @@
    L(1)=1, for m≥2: L(m) = (m+1)*2^(m-2)                                  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/dfs_row.h"
+
+static void dfs_row(int rem, int depth,
+                    unsigned int *parts,
+                    idx_t offset,
+                    idx_t *cnt,
+                    seq_t *ans,
+                    bool *found)
+{
+    if (*found) return;
+    if (rem == 0) {
+        seq_t sum = 0;
+        for (int i = 0; i < depth; ++i) {
+            sum += (seq_t)parts[i];
+            if (*cnt == offset) {
+                *ans = sum;
+                *found = true;
+                return;
+            }
+            ++(*cnt);
+        }
+        return;
+    }
+    for (int part = rem; part >= 1; --part) {
+        parts[depth] = part;
+        dfs_row(rem - part, depth + 1, parts, offset, cnt, ans, found);
+        if (*found) return;
+    }
+}
 
 seq_t a(idx_t n)
 {

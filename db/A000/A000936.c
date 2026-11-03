@@ -12,7 +12,8 @@
  *            T_A, T_B = trees that are mirror-symmetric a...
  * Range:     u8 n <= 15, u16 n <= 20, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   hx_inreg
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/hx_inreg.h"
+
+static int hx_inreg(int type, int x, int y)
+{
+    int par = (x + y) & 1;
+    switch (type) {
+    case 0: return x > 0 || (x == 0 && y == 0);
+    case 1: return x > 0 || (x == 0 && (y == 0 || y == 1));
+    case 2: return y <= 0;
+    case 3: return (x > 0 && y <= 0) || (x == 0 && y == 0);
+    default:
+        if (x == 0 && y == 1) return 1;
+        return x > 0 && (6 * y + (par ? -1 : 1) - 1 > 2 * x);
+    }
+}
 
 static int G_, MM_, LC_;
 static unsigned char *inT_, *mark_, *reg_;

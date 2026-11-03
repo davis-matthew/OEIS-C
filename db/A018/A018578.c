@@ -8,7 +8,8 @@
  *            660. Undefined for n > 24 or n < 1
  * Range:     u8 n <= 18, u16 n <= 24, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   div_cmp
+ * Validated: full, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,16 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/div_cmp.h"
+#include "../utils/mem.h"
+
+static int div_cmp(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -43,7 +53,7 @@ seq_t a(idx_t n)
                         divs[idx++] = prod;
                     }
 
-        qsort(divs, 24, sizeof(seq_t), div_cmp);
+        mem_qsort(divs, 24, sizeof(seq_t), div_cmp);
         initialized = true;
     }
 

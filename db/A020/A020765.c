@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth decimal digit of 1/√8 (decimal expansion of √2/4)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdint.h>   /* uint8_t, uint32_t, uint64_t */
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 /* ------------------- big‑integer in decimal digits ------------------- */
 #define MAX_DEC 21000          /* enough for n up to ~10 000 */
@@ -214,9 +216,9 @@ seq_t a(idx_t n)
     size_t needed = (size_t)(n + 1);
 
     if (needed > cache_size) {
-        seq_t *new_cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, needed);
         compute_digits(needed, new_cache);
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = new_cache;
         cache_size = needed;
     }

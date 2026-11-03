@@ -13,7 +13,8 @@
  *            Complexity: O(16 * number_of_states * n), with stat...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_MASK 16             /* 4-bit column masks */
 #define MAX_BITS (1 << 12)      /* 12 bits (3 bits per 4 columns) */
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     }
 
     /* initialise DP */
-    memset(dp, 0, sizeof(dp0));
+    mem_set(dp, 0, sizeof(dp0));
     /* start with previous row empty */
     int start_id = pattern_count * 0 + global_id[0][0];
     dp[start_id] = 1;
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
 
     for (idx_t row = 0; row < n; ++row) {
         /* reset next DP and seen */
-        memset(next_dp, 0, sizeof(dp0));
+        mem_set(next_dp, 0, sizeof(dp0));
         memset(seen, 0, sizeof(seen));
         next_active_len = 0;
 

@@ -8,6 +8,7 @@
  *            (k+1)*(2^k+3^k)*binomial(n-1,k)*a(k)*a(n-1-k)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,7 +22,7 @@
 #define FREE_ARRAY(p)     delete[] (p)
 #else
 #define ALLOC_ARRAY(T, n) ((T*)malloc((size_t)(n)*sizeof(T)))
-#define FREE_ARRAY(p)     free((void*)(p))
+#define FREE_ARRAY(p)     free((p))
 #endif
 
 seq_t a(idx_t n)

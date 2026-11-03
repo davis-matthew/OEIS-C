@@ -11,7 +11,8 @@
  *            [[M(k),0],[M(k)²,M(k)]] (block 2×2)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static storage for the matrix and its current size (a power of two). */
 static seq_t *matrix = NULL;
@@ -33,7 +35,7 @@ static void ensure_size(size_t need)
         curr_size = (curr_size == 0) ? 1 : (curr_size << 1);
 
         /* Allocate a new N×N matrix. */
-        seq_t *newM = (seq_t *)malloc(curr_size * curr_size * sizeof(seq_t));
+        seq_t *newM = mem_new(seq_t, curr_size * curr_size);
         if (!newM) {
             /* In a real build we would handle allocation failure. */
             abort();
@@ -69,7 +71,7 @@ static void ensure_size(size_t need)
         }
 
         /* Free the previous matrix and replace it. */
-        free(matrix);
+        mem_free(matrix);
         matrix = newM;
     }
 }

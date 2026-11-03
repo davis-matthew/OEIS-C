@@ -10,7 +10,8 @@
  *            composite, 4
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* 1‑based cache of computed values; cache[0] is unused. */
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     if (cache_cap <= (size_t)n) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 128;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;          /* allocation failure */
         if (!cache) *(tmp) = 0;      /* first element reserved but unused */
         cache = tmp;

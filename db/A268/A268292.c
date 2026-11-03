@@ -8,6 +8,7 @@
  * Formula:   a(n) = floor((n-3)^2/12) + floor((n-4)^2/12) for n > 0, a(0) = 0
  * Range:     u8 n <= 18, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

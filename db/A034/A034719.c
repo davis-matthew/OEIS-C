@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{d|n} 3^(d + n/d)
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,14 +29,14 @@ seq_t a(idx_t n)
     if (pow_arr == NULL) {
         pow_size = n + 2;
         if (pow_size < 3) pow_size = 3;          /* ensure indices 0,1,2 exist */
-        pow_arr = (seq_t *)malloc(sizeof(seq_t) * pow_size);
+        pow_arr = mem_new(seq_t, pow_size);
         pow_arr[0] = (seq_t)1;
         for (idx_t i = 1; i < pow_size; ++i)
             pow_arr[i] = pow_arr[i - 1] * (seq_t)3;
     } else if (n + 1 >= pow_size) {
         idx_t new_size = n + 2;
         if (new_size < pow_size) new_size = pow_size * 2;  /* safety growth */
-        pow_arr = (seq_t *)realloc(pow_arr, sizeof(seq_t) * new_size);
+        pow_arr = mem_resize(seq_t, pow_arr, new_size);
         for (idx_t i = pow_size; i < new_size; ++i)
             pow_arr[i] = pow_arr[i - 1] * (seq_t)3;
         pow_size = new_size;

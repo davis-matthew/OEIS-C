@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Node in the heap: current value for a prime sequence */
 struct Node {
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         free(tmp);
 
         /* --- heap initialization ----------------------- */
-        heap = (struct Node*)malloc(primes_cnt * sizeof(struct Node));
+        heap = mem_new(struct Node, primes_cnt);
         if (!heap) abort();
         for (size_t i = 0; i < primes_cnt; ++i) {
             heap[i].prime_idx = i;
@@ -138,7 +140,7 @@ seq_t a(idx_t n)
         /* Store extracted value */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-            seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) abort();
             cache = new_cache;
             cache_cap = new_cap;

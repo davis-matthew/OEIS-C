@@ -5,17 +5,27 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = gcd(n! + 1, nⁿ + 1)
- * Range:     u8 n <= 130, u16 n <= 9488, u32 n <= 9488, u64 n <= 9488,
- *            u128 n <= 9488, big any n
- * Helpers:   fact_mod_uint32, powmod_uint32
+ * Range:     u8 n <= 130, u16 n <= 32774, u32 n <= 80001, u64 n <= 80001,
+ *            u128 n <= 80001, big any n
+ * Validated: standard, pass, 117 terms through n = 9488 (2026-11-01)
+ * Helpers:   powmod_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/fact_mod_uint32.h"
-#include "../utils/powmod_uint32.h"
+#include "../utils/powmod_u32.h"
+
+/* Compute n! mod mod (mod ≤ PRIME_LIMIT) */
+static uint32_t fact_mod_uint32(uint32_t n, uint32_t mod)
+{
+    uint32_t res = 1u % mod;
+    for (uint32_t i = 2u; i <= n; ++i) {
+        res = (uint32_t)((uint64_t)res * i % mod);
+    }
+    return res;
+}
 
 /* Limit for the sieve that is sufficient for n ≤ 10000 (6n+100 ≤ 61000) */
 #define PRIME_LIMIT 65000
@@ -69,7 +79,7 @@ seq_t a(idx_t n)
 
         /* Check n! ≡ –1 (mod p) and nⁿ ≡ –1 (mod p) */
         if (fact_mod_uint32((uint32_t)n, p) == p - 1u &&
-            powmod_uint32((uint32_t)n, (uint32_t)n, p) == p - 1u)
+            powmod_u32((uint32_t)n, (uint32_t)n, p) == p - 1u)
             return (seq_t)p;      /* gcd is the prime p */
     }
 

@@ -10,14 +10,31 @@
  *            absolute value
  * Range:     i8 n <= 75, i16 n <= 75, i32 n <= 75, i64 n <= 75, i128 n <= 75,
  *            big any n
- * Helpers:   inverse_of_10
+ * Validated: partial, pass, 72 terms through n = 75 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/inverse_of_10.h"
+
+/* Extended Euclidean algorithm: return inverse of a (10) modulo m (p). */
+static int64_t inverse_of_10(idx_t p) {
+    int64_t a = 10;
+    int64_t b = (int64_t)p;
+    int64_t x0 = 1, x1 = 0;
+    while (b != 0) {
+        int64_t q = a / b;
+        int64_t r = a % b;
+        int64_t x2 = x0 - q * x1;
+        a = b;  b = r;
+        x0 = x1;  x1 = x2;
+    }
+    int64_t inv = x0 % (int64_t)p;
+    if (inv < 0) inv += (int64_t)p;           /* bring to [0, p-1] */
+    return inv;
+}
 
 /* Dynamic array of primes, 1‑based indexing: prime_list[i-1] = ith prime. */
 static idx_t *prime_list = NULL;

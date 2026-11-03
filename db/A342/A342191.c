@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global state for memoization and prime data */
 static seq_t *terms = NULL;
@@ -137,7 +139,7 @@ seq_t a(idx_t n)
 {
     if (!initialized) {
         terms_capacity = 128;
-        terms = (seq_t*)malloc(terms_capacity * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_capacity);
         terms_size = 0;
         next_scan = 1;
         initialized = true;
@@ -155,7 +157,7 @@ seq_t a(idx_t n)
         if (factor_and_check(next_scan)) {
             if (terms_size == terms_capacity) {
                 terms_capacity <<= 1;
-                terms = (seq_t*)realloc(terms, terms_capacity * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_capacity);
             }
             terms[terms_size++] = (seq_t)next_scan;
         }

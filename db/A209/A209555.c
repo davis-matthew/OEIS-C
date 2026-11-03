@@ -12,14 +12,23 @@
  *            implementation uses only integer arithmetic in seq_t
  * Range:     u8 n <= 59, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   binom_iter
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdint.h>
-#include "../utils/binom_iter.h"
+
+/* compute binomial(n,k) iteratively using seq_t arithmetic  */
+static inline seq_t binom_iter(idx_t n, idx_t k, seq_t initial) {
+    seq_t res = initial;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * ((seq_t)(n - k + i)) / (seq_t)i;
+    }
+    return res;
+}
 
 /* main function required by the evaluation system */
 seq_t a(idx_t n) {

@@ -8,15 +8,19 @@
  *            k*prime(k+1) is prime. Offset is 1: a(1)=2, a(2)=14,
  * Range:     u8 n <= 21, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   isPrime64, isprime_big
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime_seq, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrime64.h"
-#include "../utils/isprime_big.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* global arrays for primes and found terms */
 static idx_t *prime_array   = NULL;   /* 1-based primes: prime_array[i-1] = prime(i) */
@@ -51,7 +55,7 @@ static void ensure_primes(idx_t k)
                                           prime_capacity * sizeof(idx_t));
         }
         /* find next prime */
-        while (!isPrime64(next_prime_candidate))
+        while (!is_prime_u64(next_prime_candidate))
             next_prime_candidate += 2;
         prime_array[prime_count++] = next_prime_candidate;
         next_prime_candidate += 2;
@@ -67,7 +71,7 @@ seq_t a(idx_t n)
     /* lazy initialization */
     if (term_array == NULL) {
         term_capacity = 64;
-        term_array = (seq_t*)malloc(term_capacity * sizeof(seq_t));
+        term_array = mem_new(seq_t, term_capacity);
     }
     if (prime_array == NULL)
         ensure_primes(2);  /* prime(1) and prime(2) are needed */
@@ -93,15 +97,14 @@ seq_t a(idx_t n)
         /* Test primality */
         bool prime_flag;
         if (val128 <= (unsigned __int128)UINT64_MAX)
-            prime_flag = isPrime64((uint64_t)val128);
+            prime_flag = is_prime_u64((uint64_t)val128);
         else
-            prime_flag = isprime_big(val);
+            prime_flag = is_prime_seq(val);
 
         if (prime_flag) {
             if (term_size == term_capacity) {
                 term_capacity <<= 1;
-                term_array = (seq_t*)realloc(term_array,
-                                             term_capacity * sizeof(seq_t));
+                term_array = mem_resize(seq_t, term_array, term_capacity);
             }
             term_array[term_size++] = (seq_t)last_k_tested;
         }

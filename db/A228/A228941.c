@@ -11,13 +11,22 @@
  *            OEIS sequence A228941
  * Range:     u8 n <= 28, u16 n <= 28, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   cf_coeff
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/cf_coeff.h"
+
+static inline seq_t cf_coeff(idx_t i)
+{
+    if (i == 0) return (seq_t)2;
+    idx_t r = i % 3U;               /* i modulo 3 */
+    if (r == 2U)                    /* even partial quotient */
+        return (seq_t)2 * ((i + 1U) / 3U);
+    return (seq_t)1;                 /* all other positions give 1 */
+}
 
 seq_t a(idx_t n)
 {

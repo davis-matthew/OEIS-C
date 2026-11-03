@@ -8,23 +8,34 @@
  * Formula:   a(n) = coefficient of 2*x + ∏_{i≥1} (1-x^i)/(1+x^i)^2
  * Range:     i8 n <= 32, i16 n <= 62, i32 n <= 62, i64 n <= 62, i128 n <= 62,
  *            big any n
- * Helpers:   coeff_gi
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/coeff_gi.h"
+#include "../utils/mem.h"
+
+static inline seq_t coeff_gi(idx_t m)
+{
+    /* Return coefficient of x^{i*m} in the factor
+       g_i(x) = (1 - x^i)/(1+x^i)^2 = 1 + Σ_{m≥1} (-1)^m (2m+1) x^{i*m}   */
+    seq_t w = (seq_t)(2*(seq_t)m + 1);
+    if ((m & 1u) != 0u)                /* m is odd   →  (-1) factor  */
+        w = -w;
+    return w;
+}
 
 seq_t a(idx_t n)
 {
     /* Allocate two arrays of length n+1 */
-    seq_t *dp   = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, (n + 1));
+    seq_t *next = mem_new(seq_t, (n + 1));
     if (!dp || !next) {                /* graceful failure if OOM */
-        if (dp) free(dp);
-        if (next) free(next);
+        if (dp) mem_free(dp);
+        if (next) mem_free(next);
         return (seq_t)0;
     }
 
@@ -59,7 +70,7 @@ seq_t a(idx_t n)
     if (n == 1)
         result += (seq_t)2;
 
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

@@ -12,14 +12,30 @@
  *            n = j(3j+1) for some j >= 0, else 0
  * Range:     u8 n <= 28, u16 n <= 78, u32 n <= 237, u64 n <= 791,
  *            u128 n <= 2821, big any n
- * Helpers:   a9_e2
+ * Validated: standard, pass, 72 terms through n = 9501 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a9_e2.h"
+
+/* sign of x^n in Product(1-x^(2m)): +1, -1, or 0 */
+static int a9_e2(idx_t n)
+{
+    idx_t m, j;
+    if (n & 1) return 0;
+    m = n / 2;
+    for (j = 0;; j++) {
+        idx_t g1 = j * (3 * j - (j > 0 ? 1 : 0)) / 2;
+        idx_t g2 = j * (3 * j + 1) / 2;
+        if (j == 0) g1 = 0;
+        if (g1 > m) break;
+        if (g1 == m || g2 == m) return (j & 1) ? -1 : 1;
+    }
+    return 0;
+}
 
 #define A9_CAP 65536
 

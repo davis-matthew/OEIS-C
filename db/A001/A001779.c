@@ -9,6 +9,7 @@
  *            1/((1+x)(1-x)^8) = (1/((1-x)(1+x))) * 1/(1-x)^7
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 84, u64 n <= 2105,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 44 terms through n = 9728 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

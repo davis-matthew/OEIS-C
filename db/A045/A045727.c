@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 24,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 30 terms through n = 586 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,19 @@
 #include <stddef.h>    /* size_t */
 #include <stdbool.h>   /* bool */
 
-#include "../utils/digit_len.h"   /* digit_len() */
-#include "../utils/pow10.h"       /* pow10() */
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -45,13 +57,13 @@ seq_t a(idx_t n)
     /*--- Allocate initial cache buffer. --------------------------------*/
     if (cache == NULL) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /*--- Generate terms until we have at least n of them. ----------------*/
     while (used < n) {
         /* Estimate number of digits in curr_fib.                    */
-        size_t d = digit_len(curr_fib);
+        size_t d = num_digits(curr_fib);
 
         /* Update the power of ten divisor when the digit count changes. */
         if (d != last_digits) {
@@ -65,7 +77,7 @@ seq_t a(idx_t n)
             /* Store the discovered Fibonacci number.                  */
             if (used >= cap) {
                 cap *= 2;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[used++] = curr_fib;
         }

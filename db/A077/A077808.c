@@ -9,12 +9,14 @@
  * Formula:   a(n) = A001222(A007088(n))
  * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 1928, u64 n <= 8190,
  *            u128 n <= 8190, big any n
- * Helpers:   count_prime_factors
+ * Validated: standard, pass, 118 terms through n = 7451 (2026-11-01)
+ * Helpers:   bigomega_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -36,5 +38,5 @@ seq_t a(idx_t n)
     }
 
     /* Count prime factors with multiplicity (big‑omega). */
-    return count_prime_factors(val);
+    return bigomega_seq(val);
 }

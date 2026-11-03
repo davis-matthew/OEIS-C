@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 15, i32 n <= 27, i64 n <= 40, i128 n <= 40,
  *            big any n
- * Helpers:   catalan, pow2
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,20 @@
    a(2·m+1) = 0 for m≥1
    (Catalan(k) = binom(2k,k)/(k+1)) */
 #include <stdint.h>
-#include "../utils/catalan.h"
 #include "../utils/pow2.h"
+
+/* Catalan number C(k) = binom(2k,k)/(k+1) computed multiplicatively */
+static seq_t catalan(idx_t k)
+{
+    seq_t res = (seq_t)1;
+    /* compute binom(2k,k) */
+    for (idx_t i = (idx_t)1; i <= k; ++i) {
+        res = res * (seq_t)(k + i) / (seq_t)i;
+    }
+    /* divide by (k+1) to get Catalan number */
+    res /= (seq_t)(k + 1);
+    return res;
+}
 
 seq_t a(idx_t n)
 {

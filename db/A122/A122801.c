@@ -9,7 +9,8 @@
  *            (C(m,k) is binomial coefficient)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   binomial_simple
+ * Validated: standard, pass, 29 terms through n = 48 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
    parts and no isolated vertices. */
 
 #include <stdint.h>
-#include "../utils/binomial_simple.h"
+#include "../utils/binomial.h"
 
 /* compute binomial coefficient C(n,k) using seq_t arithmetic */
 
@@ -46,7 +47,7 @@ seq_t a(idx_t n) {
     /* Sum over j: number of zero columns to exclude */
     for (idx_t j = 0; j <= n; ++j) {
         /* binomial coefficient C(n,j) */
-        seq_t binom = binomial_simple(n, j);
+        seq_t binom = binomial(n, j);
 
         /* Base 2^{n-j} - 1 */
         seq_t p2 = seq_pow_seq((seq_t)2, n - j);
@@ -75,7 +76,7 @@ seq_t a(idx_t n) {
         sum_fixed = sum_neg - sum_pos;   /* should not happen for n>0 */
 
     /* factor C(2n,n) / 2 */
-    seq_t binom_2n_n = binomial_simple(2 * n, n);
+    seq_t binom_2n_n = binomial(2 * n, n);
     seq_t factor = binom_2n_n / (seq_t)2;  /* integer division, C(2n,n) always even for n>0 */
 
     /* final result */

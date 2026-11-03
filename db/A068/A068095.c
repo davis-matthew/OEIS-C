@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 716, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_u64
+ * Validated: standard, pass, 76 terms through n = 9802 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mul_u64.h"
+#include "../utils/mem.h"
+
+/* Multiply a 64‑bit unsigned integer with a seq_t value.
+   The result always fits into seq_t for the sizes required by the
+   sequence as generated up to the first ten thousand terms. */
+static inline seq_t mul_u64(uint64_t a, seq_t b)
+{
+    /* 64‑bit seq_t: use 128‑bit intermediate to avoid overflow. */
+    if (sizeof(seq_t) <= 8) {
+        return (seq_t)(( __uint128_t)a * ( __uint128_t)b);
+    }
+    /* 32‑bit or larger seq_t: the product of two non‑negative numbers
+       that fit in seq_t will also fit. */
+    return (seq_t)((uint64_t)a * (uint64_t)b);
+}
 
 /* Fibonacci primes: first few primes that are Fibonacci numbers */
 static const uint64_t fib_primes[] = {
@@ -41,7 +56,7 @@ static void ensure_terms(idx_t n)
     if (humble_size == 0) {
         /* first run: initialise cache */
         humble_cap = 32;
-        humble = (seq_t*)malloc(humble_cap * sizeof(seq_t));
+        humble = mem_new(seq_t, humble_cap);
         humble[0] = (seq_t)1;
         humble_size = 1;
 
@@ -66,7 +81,7 @@ static void ensure_terms(idx_t n)
         /* append the next term */
         if (humble_size == humble_cap) {
             humble_cap = humble_cap ? humble_cap << 1 : 32;
-            humble = (seq_t*)realloc(humble, humble_cap * sizeof(seq_t));
+            humble = mem_resize(seq_t, humble, humble_cap);
         }
         humble[humble_size++] = best;
 

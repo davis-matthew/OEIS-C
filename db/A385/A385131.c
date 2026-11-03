@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{d|n} d * (A051903(d) mod 2)
  * Range:     u8 n <= 119, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Factorise n by trial division. */
@@ -65,7 +67,7 @@ seq_t a(idx_t n) {
     /* Enumerate all divisors with their maximal exponent. */
     size_t  fac_cnt = cnt;
     size_t* idx     = (size_t*)calloc(fac_cnt, sizeof(size_t));
-    seq_t  *pow_arr = (seq_t*)malloc(fac_cnt * sizeof(seq_t));
+    seq_t  *pow_arr = mem_new(seq_t, fac_cnt);
     for (i = 0; i < fac_cnt; ++i) pow_arr[i] = (seq_t)1;
 
     seq_t sum = (seq_t)0;
@@ -95,6 +97,6 @@ seq_t a(idx_t n) {
     }
 
     free(idx);
-    free(pow_arr);
+    mem_free(pow_arr);
     return sum;
 }

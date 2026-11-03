@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*  Static state used by the routine.  All arrays are grown on demand. */
 static struct {
@@ -113,7 +115,7 @@ append_seq_term(seq_t v)
 {
     if (st.seq_cnt == st.seq_cap) {
         st.seq_cap = st.seq_cap ? st.seq_cap << 1 : 64;
-        st.seq_vals = (seq_t*)realloc(st.seq_vals, st.seq_cap * sizeof(seq_t));
+        st.seq_vals = mem_resize(seq_t, st.seq_vals, st.seq_cap);
     }
     st.seq_vals[st.seq_cnt++] = v;
 }
@@ -142,7 +144,7 @@ a(idx_t n)
         /*  Small initial sieve – will grow automatically  */
         ensure_limit(2000);
 
-        st.seq_vals   = (seq_t*)calloc(64, sizeof(seq_t));
+        st.seq_vals   = mem_new(seq_t, 64);
         st.seq_cap    = 64;
         st.seq_cnt    = 0;
 

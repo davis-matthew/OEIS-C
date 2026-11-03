@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* 15‑digit fixed‑point scale (10^15) is sufficient for k ≤ 10000.
    All computations are integer‑only. */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* initial allocation of the terms array */
     if (!initialized) {
         terms_cap = 64;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         /* already have cur_k = 1, frac = α, but no term qualifies at k=1 */
         initialized = true;
     }
@@ -63,8 +65,7 @@ seq_t a(idx_t n)
         if (frac < BETA) {
             if (terms_len == terms_cap) {
                 terms_cap <<= 1;
-                terms = (seq_t *)realloc(terms,
-                                        terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)cur_k;
         }

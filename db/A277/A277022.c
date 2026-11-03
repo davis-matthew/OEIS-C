@@ -11,8 +11,9 @@
  *            digit k by a run of k 1‑bits followed by a 0 if not the
  *            rightmost run. Zero digits become 0. The resulting binary number
  *            is a(n)
- * Range:     u8 n <= 28, u16 n <= 388, u32 n <= 8072, u64 n <= 8072,
- *            u128 n <= 8072, big any n
+ * Range:     u8 n <= 28, u16 n <= 388, u32 n <= 13858, u64 n <= 30030,
+ *            u128 n <= 30030, big any n
+ * Validated: standard, pass, 95 terms through n = 8072 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

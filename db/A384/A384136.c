@@ -7,6 +7,7 @@
  * Formula:   a(n) = (3*n)!/(2*n)! * Sum_{k=1..n} 1/(2*n+k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

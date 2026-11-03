@@ -9,21 +9,24 @@
  *            of decimal digits of n-1
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   digit_len, is_prime
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   is_prime, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
 
 seq_t a(idx_t n)
 {
     idx_t m_idx = n - 1;
     seq_t m = (seq_t)m_idx;
     if (m_idx > 2 && (m_idx & 1U) && is_prime(m_idx)) {
-        return (seq_t)digit_len(m);
+        return (seq_t)num_digits(m);
     }
     return m;
 }

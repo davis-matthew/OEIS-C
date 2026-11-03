@@ -7,7 +7,8 @@
  * Formula:   a(n) = (A372966(n) - 1)/240
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 16, u64 n <= 508,
  *            u128 n <= 10000, big any n
- * Helpers:   f_of_prime_power, factor_u64
+ * Validated: standard, pass, 46 terms through n = 9873 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,32 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/f_of_prime_power.h"
+
+/* multiplicative factor for a prime power */
+static seq_t f_of_prime_power(uint64_t p, idx_t exp)
+{
+    if (exp == 0)
+        return (seq_t)1;
+
+    seq_t P  = (seq_t)p;
+    seq_t p4 = P * P * P * P;      /* p⁴      */
+    seq_t p8 = p4 * p4;            /* p⁸      */
+
+    seq_t sum  = 0;                /* Σ p^{8m}   */
+    seq_t term = 1;                /* current p^{8m} */
+    for (idx_t i = 0; i < exp; ++i) {
+        sum  += term;
+        term *= p8;
+    }
+    /* term is now p^{8·exp} */
+
+    /* f(pᵉ) = term – (p⁴ – 1)·sum  */
+    seq_t prod = sum * (p4 - (seq_t)1);
+    return term - prod;
+}
 
 /* main sequence function */
 seq_t a(idx_t n)

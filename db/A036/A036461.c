@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1088, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 8477 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    2^(k+1) and counts the 1’s.  Results are memoised so that each
    n is evaluated only once, regardless of call order. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate for a(0) */
         cache_cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;          /* 2^0 = 1, one ‘1’ digit */
 
         /* Initialise base‑3 representation for 2^0 */
@@ -93,8 +95,7 @@ seq_t a(idx_t n)
         if (next_index >= cache_cap) {
             size_t new_cap = cache_cap * 2;
             if (new_cap == 0) new_cap = 1;
-            seq_t *tmp = (seq_t *)realloc(cache,
-                                          sizeof(seq_t) * new_cap);
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return 0;
             cache = tmp;
             cache_cap = new_cap;

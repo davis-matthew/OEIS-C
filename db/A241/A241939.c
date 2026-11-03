@@ -11,12 +11,14 @@
  *            a(6)=122162, a(7)=297324, a(8)=654345
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 31, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 /* initialise first 8 terms on first call */
     if (memo == NULL) {
         memo_sz = 8;
-        memo = (seq_t*)malloc((memo_sz + 1) * sizeof(seq_t));
+        memo = mem_new(seq_t, (memo_sz + 1));
         if (memo == NULL) return 0;        /* allocation failure */
 
         seq_t mask = ~(seq_t)0;            /* all bits 1 for the type */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
 /* extend cache if necessary */
     if (n > memo_sz) {
-        seq_t *new_memo = (seq_t*)realloc(memo, (n + 1) * sizeof(seq_t));
+        seq_t *new_memo = mem_resize(seq_t, memo, (n + 1));
         if (new_memo == NULL) return 0;   /* allocation failure */
         memo = new_memo;
 

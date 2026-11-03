@@ -9,7 +9,8 @@
  *            and testing the primitive root property
  * Range:     u8 n <= 24, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factorize, is_prime, powmod64, seq_realloc
+ * Validated: standard, pass, 73 terms through n = 966 (2026-11-01)
+ * Helpers:   factorize, is_prime, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"
 #include "../utils/factorize.h"
-#include "../utils/powmod64.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod_u64.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* static cache of the sequence values */
 static seq_t *cache = NULL;        /* array of found primes */
@@ -57,7 +69,7 @@ static bool _is_primitive_root_63(uint64_t p)
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t q = prime_factors[i];
         /* order of 63 modulo p must not divide m/q -> test 63^(m/q) ≡ 1? */
-        if (powmod64(63ULL, m / q, p) == 1ULL)
+        if (powmod_u64(63ULL, m / q, p) == 1ULL)
             return false;              /* not a primitive root */
     }
     return true;                       /* all tests passed */

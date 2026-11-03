@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 11, u64 n <= 26, u128 n <= 57,
  *            big any n
- * Helpers:   transition_ok
+ * Validated: standard, pass, 35 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/transition_ok.h"
+#include "../utils/mem.h"
+
+/* helper: check whether adding row k after rows i and j keeps all
+ * 3×3 blocks valid (including diagonal restrictions). */
+static bool transition_ok(const int *ri, const int *rj, const int *rk)
+{
+    /* For each 3×3 block starting at column start (0,1,2) */
+    for (int start = 0; start < 3; ++start)
+    {
+        /* column sums */
+        for (int col = 0; col < 3; ++col)
+        {
+            int sum = ri[start + col] + rj[start + col] + rk[start + col];
+            if (sum != 3 && sum != 6) return false;
+        }
+        /* main diagonal */
+        int d1 = ri[start] + rj[start + 1] + rk[start + 2];
+        if (d1 == 3 || d1 == 6) return false;
+        /* anti‑diagonal */
+        int d2 = ri[start + 2] + rj[start + 1] + rk[start];
+        if (d2 == 3 || d2 == 6) return false;
+    }
+    return true;
+}
 
 /* --- constants ------------------------------------------------------- */
 #define DIGITS   5   /* width of the rows (3+2) */
@@ -91,8 +115,8 @@ static void init_once(void)
     }
 
     pairCount = M * M;
-    dp     = (seq_t *)malloc(pairCount * sizeof(seq_t));
-    newdp  = (seq_t *)malloc(pairCount * sizeof(seq_t));
+    dp     = mem_new(seq_t, pairCount);
+    newdp  = mem_new(seq_t, pairCount);
     if (!dp || !newdp) exit(EXIT_FAILURE);
 
     /* 2) Count transitions and store flat array */
@@ -152,7 +176,7 @@ static void init_once(void)
 
     /* 4) initialise memoisation cache */
     cache_len = 1;
-    cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_len);
     if (!cache) exit(EXIT_FAILURE);
     cache[0] = (seq_t)0;
     cached_n = 0;
@@ -174,7 +198,7 @@ seq_t a(idx_t n)
     {
         size_t new_len = cache_len;
         while ((idx_t)new_len <= n) new_len *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         cache_len = new_len;

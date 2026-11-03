@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 127, u64 n <= 416,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 910 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 /* --------------------------------------------------------------------- */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Cache of unrestricted partition numbers up to the largest n
@@ -42,7 +44,7 @@ static void ensure_part(idx_t up_to)
 
     idx_t newN   = up_to;
     size_t sz   = (size_t)(newN + 1);
-    seq_t *new_arr = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, sz);
     if (!new_arr)                      /* allocation failure */
         exit(EXIT_FAILURE);
 
@@ -60,7 +62,7 @@ static void ensure_part(idx_t up_to)
     }
 
     /* Replace old cache */
-    free(part_arr);
+    mem_free(part_arr);
     part_arr   = new_arr;
     max_part_n = newN;
 }
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
 
     /* 2. Compute q(n): partitions whose parts are only 1 or 4 (mod 5) */
     size_t len = (size_t)(n + 1);
-    seq_t *q = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *q = mem_new(seq_t, len);
     if (!q)                     /* allocation failure */
         exit(EXIT_FAILURE);
 
@@ -96,6 +98,6 @@ seq_t a(idx_t n)
     }
 
     seq_t ans = part - q[n];      /* q[n] ≤ part[n] always */
-    free(q);
+    mem_free(q);
     return ans;
 }

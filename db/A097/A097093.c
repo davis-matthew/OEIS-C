@@ -12,6 +12,7 @@
  *            recurrence
  * Range:     u8 n <= 27, u16 n <= 59, u32 n <= 154, u64 n <= 469,
  *            u128 n <= 1568, big any n
+ * Validated: standard, pass, 69 terms through n = 9389 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

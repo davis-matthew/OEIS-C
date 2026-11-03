@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper data structures --------------------------------------------------- */
 
@@ -199,7 +201,7 @@ static void cache_ensure(idx_t n)
     if ((idx_t)cache_cap < n) {
         size_t newcap = cache_cap ? cache_cap << 1 : 16;
         while ((idx_t)newcap < n) newcap <<= 1;
-        seq_cache = (seq_t *)realloc(seq_cache, newcap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, newcap);
         for (size_t i = cache_cap; i < newcap; ++i) seq_cache[i] = 0;
         cache_cap = newcap;
     }

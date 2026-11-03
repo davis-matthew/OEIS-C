@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   bitlen_seq_t, heap_swap
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,13 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/heap_swap.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
+
+static void heap_swap(seq_t *a, seq_t *b) {
+    seq_t t = *a; *a = *b; *b = t;
+}
 
 /* Min‑heap for seq_t values */
 typedef struct {
@@ -44,7 +50,7 @@ static void heap_grow(seq_heap_t *h, size_t needed) {
     if (h->capacity >= needed) return;
     size_t newcap = h->capacity ? h->capacity * 2 : 8;
     while (newcap < needed) newcap <<= 1;
-    h->data = (seq_t *)realloc(h->data, newcap * sizeof(seq_t));
+    h->data = mem_resize(seq_t, h->data, newcap);
     h->capacity = newcap;
 }
 
@@ -92,13 +98,13 @@ static size_t seq_cap = 0;
 
 static void seq_grow(void) {
     size_t newcap = seq_cap ? seq_cap * 2 : 8;
-    seq_arr = (seq_t *)realloc(seq_arr, newcap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, newcap);
     seq_cap = newcap;
 }
 
 /* Add all candidates derived from a_k into the heap */
 static void add_candidates(seq_heap_t *h, seq_t a_k) {
-    idx_t len_a = bitlen_seq_t(a_k);            /* number of bits of a_k */
+    idx_t len_a = bit_length(a_k);            /* number of bits of a_k */
     /* j = ∅ : a_k U a_k */
     seq_t cand = (a_k << len_a) | a_k;
     heap_push(h, cand);

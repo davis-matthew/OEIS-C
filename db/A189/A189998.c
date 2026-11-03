@@ -10,6 +10,7 @@
  *            255*n^2 + 450*n + 274)/((n+1)(n+2)(n+3)(n+4)(n+5))
  * Range:     u8 none, u16 n <= 7, u32 n <= 202, u64 n <= 1000, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 952 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,6 +11,7 @@
  *            Lucas(2(r-k)-t+1) * C( (2*k-r)+(t)-1 , t )
  * Range:     u8 n <= 50, u16 n <= 164, u32 n <= 617, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1295 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 3994, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9811 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* The build system supplies seq_t and idx_t; do not define them. */
 
@@ -93,14 +95,14 @@ static void rebuild_if_needed(idx_t needed)
 
         /* Collect irreducible norms. */
         size_t irr_cap = rep_cnt;   /* upper bound */
-        seq_t *irr_tmp = (seq_t*)malloc(irr_cap * sizeof(seq_t));
+        seq_t *irr_tmp = mem_new(seq_t, irr_cap);
         if (!irr_tmp) { free(is_rep); free(is_red); free(rep_list); exit(EXIT_FAILURE); }
         size_t irr_cnt = 0;
         for (size_t n = 2; n <= limit; ++n) {
             if (is_rep[n] && !is_red[n]) {
                 if (irr_cnt >= irr_cap) {
                     irr_cap *= 2;
-                    irr_tmp = (seq_t*)realloc(irr_tmp, irr_cap * sizeof(seq_t));
+                    irr_tmp = mem_resize(seq_t, irr_tmp, irr_cap);
                     if (!irr_tmp) { free(is_rep); free(is_red); free(rep_list); exit(EXIT_FAILURE); }
                 }
                 irr_tmp[irr_cnt++] = (seq_t)n;
@@ -113,7 +115,7 @@ static void rebuild_if_needed(idx_t needed)
 
         if (irr_cnt >= needed) {
             /* Replace old cache. */
-            free(irred_vals);
+            mem_free(irred_vals);
             irred_vals = irr_tmp;
             irred_count = irr_cnt;
             cur_limit = (idx_t)limit;
@@ -121,7 +123,7 @@ static void rebuild_if_needed(idx_t needed)
         }
 
         /* Not enough: discard temporary data and try a larger limit. */
-        free(irr_tmp);
+        mem_free(irr_tmp);
         limit = limit * 2;
         if (limit == 0) /* overflow guard */
             limit = SIZE_MAX;

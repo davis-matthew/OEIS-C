@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 71 terms through n = 953 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 static const size_t SIEVE_LIMIT = 2000000;   /* enough for n up to ~10⁴ */
 
@@ -92,10 +94,10 @@ static void resize_cache(void)
 {
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
     } else {
         cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 }
 
@@ -106,7 +108,7 @@ static seq_t next_valid_prime(void)
         uint32_t p = prime_list[prime_ptr++];
         if (p == 2) continue;   /* 2 never qualifies for the sequence */
 
-        uint64_t d   = gcd64(26ULL, (uint64_t)p - 1ULL);
+        uint64_t d   = gcd_u64(26ULL, (uint64_t)p - 1ULL);
         uint64_t exp = ((uint64_t)p - 1ULL) / d;
         if (mod_pow64(2ULL, exp, (uint64_t)p) != 1ULL)
             return (seq_t)p;

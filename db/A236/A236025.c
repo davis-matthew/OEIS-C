@@ -12,7 +12,8 @@
  *            divisors and tau is the divisor count
  * Range:     u8 n <= 129, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* type aliases are supplied by the build system (seq_t, idx_t). */
 
@@ -143,7 +145,7 @@ static void precompute(void)
     qsort(entries, count, sizeof(entry_t), cmp_entries);
 
     /* Extract the sorted numbers into sorted_vals. */
-    sorted_vals = (seq_t *)malloc(count * sizeof(seq_t));
+    sorted_vals = mem_new(seq_t, count);
     if (!sorted_vals) exit(EXIT_FAILURE);
     for (size_t i = 0; i < count; ++i) {
         sorted_vals[i] = (seq_t)entries[i].n;

@@ -9,7 +9,8 @@
  *            (A000041)
  * Range:     u8 n <= 11, u16 n <= 27, u32 n <= 75, u64 n <= 232,
  *            u128 n <= 782, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Use the provided types seq_t (value type) and idx_t (index type). */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for partition numbers p(0)…p(max). */
 static seq_t *partitions = NULL;
@@ -37,7 +39,7 @@ ensure_partitions(idx_t upto)
         size_t new_cap = part_cap ? part_cap : 2;
         while (new_cap < needed)
             new_cap <<= 1;
-        seq_t *new_arr = (seq_t *)realloc(partitions, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, partitions, new_cap);
         if (!new_arr) abort();           /* out of memory */
         partitions = new_arr;
         part_cap   = new_cap;

@@ -8,10 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 /*  Number of reduced words of length n in the Coxeter group on 30 generators
     with relations (S_i)^2 = (S_i S_j)^43 = I.
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     if (n > MAX_N) {
         /* Fallback for extremely large n (should not happen in tests). */
         /* Allocate a dynamic array and compute on the fly. */
-        seq_t *buf = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        seq_t *buf = mem_new(seq_t, (n + 1));
         if (!buf) return (seq_t)0;       /* memory error → return 0 */
 
         buf[0] = (seq_t)1;
@@ -54,7 +57,7 @@ seq_t a(idx_t n)
             buf[43] = (seq_t)28 * prefix_sum - (seq_t)405;
             if (n == 43) {
                 seq_t res = buf[43];
-                free(buf);
+                mem_free(buf);
                 return res;
             }
             /* Further terms */
@@ -67,7 +70,7 @@ seq_t a(idx_t n)
         }
 
         seq_t ans = buf[n];
-        free(buf);
+        mem_free(buf);
         return ans;
     }
 

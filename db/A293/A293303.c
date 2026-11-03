@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mu_exp_uint
+ * Validated: standard, pass, 83 terms through n = 9016 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,27 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mu_exp_uint.h"
+
+/* Exponential Möbius function for a small integer m (m ≤ exponent of a prime). */
+static int mu_exp_uint(uint64_t m)
+{
+    if (m == 1) return 1;          /* μ_exp(1) = 1 */
+    int primes = 0;
+    uint64_t t = m;
+    for (uint64_t q = 2; q * q <= t; ++q) {
+        if (t % q == 0) {
+            int mult = 0;
+            while (t % q == 0) {
+                t /= q;
+                ++mult;
+                if (mult > 1) return 0;   /* square factor → 0 */
+            }
+            ++primes;
+        }
+    }
+    if (t > 1) ++primes;         /* remaining prime factor */
+    return (primes & 1) ? -1 : 1;
+}
 
 /* ------------------------------------------------------------------ */
 

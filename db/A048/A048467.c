@@ -9,6 +9,7 @@
  *            8*a(n-2) + 4*a(n-3) for n >= 3
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 27, u64 n <= 58, u128 n <= 121,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 2561 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

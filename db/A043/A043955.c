@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_adjacent_four_six
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
    number is found.  This is efficient for n up to about 10 000. */
 
 #include <stdbool.h>
-#include "../utils/has_adjacent_four_six.h"
+
+/* Return true iff x in base‑8 has the substring "46" or "64". */
+static bool has_adjacent_four_six(seq_t x)
+{
+    if (x == 0) return false;
+    unsigned prev = 255;                    /* sentinel for “no previous digit” */
+    while (x) {
+        unsigned d = (unsigned)(x % 8);
+        if ((d == 4 && prev == 6) || (d == 6 && prev == 4))
+            return true;
+        prev = d;
+        x /= 8;
+    }
+    return false;
+}
 
 /* a(n) = the nth number k (n ≥ 1) such that k has "46" or "64" in base‑8
    but k+1 does not.  The offset is 1; for n ≤ 0 the function returns 0. */

@@ -9,6 +9,7 @@
  *            odd n
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 53, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 44 terms through n = 949 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

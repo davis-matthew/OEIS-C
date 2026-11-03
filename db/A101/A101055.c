@@ -8,12 +8,14 @@
  *            with a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 438 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* factorials: fact[i] = i!  (i >= 0) */
 static seq_t *fact = NULL;
@@ -29,14 +31,14 @@ static void ensure_fact(idx_t n)
 {
     if (fact_size <= n) {
         if (fact_size == 0) {
-            fact = (seq_t*)malloc(sizeof(seq_t));
+            fact = mem_new(seq_t, 1);
             if (!fact) return;          /* no memory – caller will fail */
             fact[0] = 1;               /* 0! = 1 */
             fact_size = 1;
         }
         while (fact_size <= n) {
             seq_t prev = fact[fact_size - 1];
-            fact = (seq_t*)realloc(fact, (fact_size + 1) * sizeof(seq_t));
+            fact = mem_resize(seq_t, fact, (fact_size + 1));
             if (!fact) return;          /* no memory – caller will fail */
             fact[fact_size] = prev * (seq_t)fact_size;
             fact_size++;
@@ -50,7 +52,7 @@ static void ensure_a(idx_t n)
     if (a_size <= n) {
         if (a_size == 0) {
             a_cap  = 8;
-            a_arr  = (seq_t*)malloc(a_cap * sizeof(seq_t));
+            a_arr  = mem_new(seq_t, a_cap);
             if (!a_arr) return;          /* no memory – caller will fail */
             a_arr[0] = 1;                 /* a(0) = 1 */
             a_size = 1;
@@ -77,7 +79,7 @@ static void ensure_a(idx_t n)
 
             if (a_size >= a_cap) {
                 a_cap *= 2;
-                a_arr = (seq_t*)realloc(a_arr, a_cap * sizeof(seq_t));
+                a_arr = mem_resize(seq_t, a_arr, a_cap);
                 if (!a_arr) return;          /* no memory – caller will fail */
             }
             a_arr[a_size] = sum;

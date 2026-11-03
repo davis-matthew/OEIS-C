@@ -10,15 +10,28 @@
  *            smallest
  * Range:     u8 n <= 1, u16 n <= 38, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3399_cmp, a3399_push
+ * Validated: standard, pass, 55 terms through n = 9672 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a3399_cmp.h"
-#include "../utils/a3399_push.h"
+
+static int a3399_cmp(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
+
+static void a3399_push(uint64_t **arr, size_t *cnt, size_t *cap, uint64_t v) {
+    if (*cnt >= *cap) {
+        size_t nc = *cap ? *cap * 2 : 1024;
+        *arr = (uint64_t *)realloc(*arr, nc * sizeof(uint64_t));
+        *cap = nc;
+    }
+    (*arr)[(*cnt)++] = v;
+}
 
 static uint64_t a3399_pw[128];
 static int a3399_pw_ready = 0;

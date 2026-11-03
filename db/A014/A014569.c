@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 8, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   has_333
+ * Validated: standard, pass, 59 terms through n = 919 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_333.h"
+
+/* Return true if the decimal expansion of x contains "333". */
+static bool has_333(seq_t x)
+{
+    seq_t d1 = 0, d2 = 0;
+    while (x > 0) {
+        seq_t digit = x % 10;
+        if (digit == 3 && d1 == 3 && d2 == 3)
+            return true;
+        d2 = d1;
+        d1 = digit;
+        x /= 10;
+    }
+    return false;
+}
 
 /* a(n) returns the nth term of the Super‑3 Numbers sequence. */
 seq_t a(idx_t n)

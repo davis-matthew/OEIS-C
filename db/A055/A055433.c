@@ -10,13 +10,14 @@
  *            most 9
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 22, u128 n <= 57,
  *            big any n
- * Helpers:   binom_n_k
+ * Validated: standard, pass, 35 terms through n = 948 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom_n_k.h"
+#include "../utils/binomial.h"
 
 /* precomputed constant c[0..81] */
 static bool initialized = false;
@@ -71,7 +72,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     idx_t maxk = n < 81 ? n : 81;
     for (idx_t k = 0; k <= maxk; ++k) {
-        seq_t binom = binom_n_k(n, k);
+        seq_t binom = binomial(n, k);
         seq_t term = binom * pow2[k] * c[k];
         result += term;
     }

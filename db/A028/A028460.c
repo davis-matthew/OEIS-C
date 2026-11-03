@@ -10,7 +10,8 @@
  *            efficient O(n) with a small constant
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 253 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------*/
 /* Constants and global tables                               */
@@ -111,7 +113,7 @@ static void init_transitions(void)
 
     for (int mask_in = 0; mask_in < STATE; ++mask_in) {
         seq_t counts[STATE];
-        memset(counts, 0, sizeof counts);
+        mem_set(counts, 0, sizeof counts);
         dfs_match((uint16_t)mask_in, 0, (uint16_t)mask_in, counts);
 
         uint16_t len = 0;
@@ -132,8 +134,8 @@ static void init_transitions(void)
 static void ensure_dp_vectors(void)
 {
     if (dp_cur_len) return;
-    dp_cur = (seq_t *)calloc(STATE, sizeof(seq_t));
-    dp_next = (seq_t *)calloc(STATE, sizeof(seq_t));
+    dp_cur = mem_new(seq_t, STATE);
+    dp_next = mem_new(seq_t, STATE);
     dp_cur_len = STATE;
     /* initial state before any layer: no pending edges. */
     dp_cur[0] = 1;
@@ -145,10 +147,10 @@ static void ensure_dp_vectors(void)
 static void ensure_answers(size_t sz)
 {
     if (answers && (answered_to + 1) >= sz) return;
-    seq_t *new_arr = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, sz);
     if (answers) {
-        memcpy(new_arr, answers, sizeof(seq_t) * (answered_to + 1));
-        free(answers);
+        mem_copy(new_arr, answers, sizeof(seq_t) * (answered_to + 1));
+        mem_free(answers);
     }
     answers = new_arr;
 }
@@ -169,7 +171,7 @@ static void compute_until(idx_t n)
     idx_t target_layer = 2 * n;
     while (current_layer < target_layer) {
         /* reset next layer DP vector */
-        memset(dp_next, 0, sizeof(seq_t) * STATE);
+        mem_set(dp_next, 0, sizeof(seq_t) * STATE);
 
         /* transition from current state to next */
         for (uint16_t mask_in = 0; mask_in < STATE; ++mask_in) {

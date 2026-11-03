@@ -8,8 +8,9 @@
  * Formula:   a(n) = 0 if the exponent of 2 in n is 1 or ≥3; otherwise, if n
  *            is odd and square‑free, a(n)=(-1)^{ω(n)}; if n = 4·m with m odd
  *            square‑free, a(n)=(-1)^{ω(m)+1}
- * Range:     i8 n <= 9659, i16 n <= 9659, i32 n <= 9659, i64 n <= 9659,
- *            i128 n <= 9659, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 124 terms through n = 9659 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

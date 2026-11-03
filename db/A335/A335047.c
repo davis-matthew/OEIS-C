@@ -8,6 +8,7 @@
  *            Special cases: a(1)=0, a(2)=3, a(3)=8, a(4)=17, a(5)=24, a(6)=37
  * Range:     u8 n <= 15, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            square root algorithm in base 4 (radicand 10 = "22"_4)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a4587_cmp, a4587_shl4_add, a4587_sub, a4587_trial
+ * Validated: standard, pass, 115 terms through n = 9998 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,55 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a4587_cmp.h"
-#include "../utils/a4587_shl4_add.h"
-#include "../utils/a4587_sub.h"
-#include "../utils/a4587_trial.h"
+
+static int a4587_cmp(const uint32_t *x, const uint32_t *y, size_t L) {
+    size_t j = L;
+    while (j > 0) {
+        j--;
+        if (x[j] != y[j]) return x[j] < y[j] ? -1 : 1;
+    }
+    return 0;
+}
+
+/* a = a*16 + add, over L words */
+static void a4587_shl4_add(uint32_t *a, size_t L, uint32_t add) {
+    uint64_t carry = add;
+    size_t j;
+    for (j = 0; j < L; j++) {
+        uint64_t v = ((uint64_t)a[j] << 4) + carry;
+        a[j] = (uint32_t)v;
+        carry = v >> 32;
+    }
+}
+
+/* x -= y, over L words (x >= y) */
+static void a4587_sub(uint32_t *x, const uint32_t *y, size_t L) {
+    uint64_t borrow = 0;
+    size_t j;
+    for (j = 0; j < L; j++) {
+        uint64_t s = (uint64_t)y[j] + borrow;
+        uint64_t xv = x[j];
+        if (xv >= s) { x[j] = (uint32_t)(xv - s); borrow = 0; }
+        else { x[j] = (uint32_t)(xv + ((uint64_t)1 << 32) - s); borrow = 1; }
+    }
+}
+
+/* y = d*(8p + d), over L words */
+static void a4587_trial(uint32_t *y, const uint32_t *p, size_t L, uint32_t d) {
+    uint64_t carry = d;
+    size_t j;
+    for (j = 0; j < L; j++) {
+        uint64_t v = ((uint64_t)p[j] << 3) + carry;
+        y[j] = (uint32_t)v;
+        carry = v >> 32;
+    }
+    carry = 0;
+    for (j = 0; j < L; j++) {
+        uint64_t v = (uint64_t)y[j] * d + carry;
+        y[j] = (uint32_t)v;
+        carry = v >> 32;
+    }
+}
 
 static unsigned char *a4587_dig = NULL;
 static idx_t a4587_ndig = 0;

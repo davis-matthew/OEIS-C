@@ -7,13 +7,15 @@
  * Formula:   Expansion of Product_{m >= 1} (1-m*q^m)^10
  * Range:     i8 n <= 3, i16 n <= 11, i32 n <= 33, i64 n <= 90, i128 n <= 229,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,13 +24,13 @@ seq_t a(idx_t n)
 
     /* Allocate arrays for the current coefficient set and a temporary buffer.
        The arrays have size n+1 to hold coefficients from 0 to n. */
-    seq_t *coeff = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    seq_t *temp  = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, n + 1);
+    seq_t *temp  = mem_new(seq_t, n + 1);
     if (!coeff || !temp) {
         /* Allocation failure – return zero.  In normal use this is never
            expected to happen for n <= 10000. */
-        free(coeff);
-        free(temp);
+        mem_free(coeff);
+        mem_free(temp);
         return (seq_t)0;
     }
 
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
     /* Result is coefficient of q^n. */
     seq_t result = coeff[n];
 
-    free(coeff);
-    free(temp);
+    mem_free(coeff);
+    mem_free(temp);
     return result;
 }

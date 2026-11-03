@@ -7,6 +7,7 @@
  * Formula:   a(n) = k where prime(k) = 2*prime(k+2) - prime(k+3)
  * Range:     u8 n <= 8, u16 n <= 483, u32 n <= 1192, u64 n <= 1192,
  *            u128 n <= 1192, big any n
+ * Validated: standard, pass, 66 terms through n = 1154 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

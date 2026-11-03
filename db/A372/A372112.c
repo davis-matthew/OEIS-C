@@ -9,7 +9,8 @@
  *            number is generated incrementally and cached
  * Range:     u8 n <= 157, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9329 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* One-time initialization */
     if (!initialized) {
-        terms = (seq_t *)calloc(CACHE_SIZE + 1, sizeof(seq_t));
+        terms = mem_new(seq_t, CACHE_SIZE + 1);
         /* term 1 corresponds to squarefree number 1 */
         terms[1] = (seq_t)1;
         max_computed = 1;
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
                 /* In case we exceeded the preallocated cache, reallocate */
                 size_t new_size = CACHE_SIZE * 2;
                 while (idx > new_size) new_size *= 2;
-                terms = (seq_t *)realloc(terms, (new_size + 1) * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, (new_size + 1));
                 if (!terms) exit(1);                   /* allocation error */
                 terms[idx] = is_prime_candidate ? (seq_t)current_candidate : (seq_t)1;
                 /* Update CACHE_SIZE if we want to keep track (optional) */

@@ -8,12 +8,13 @@
  *            2^(2n-1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 62,
  *            big any n
- * Helpers:   a000531_g
+ * Validated: standard, pass, 42 terms through n = 99 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000531_g.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
 	for (i = 1; i < n; i++) {
 		unsigned long long num = (unsigned long long)(n + i);
 		unsigned long long den = (unsigned long long)i;
-		unsigned long long g = a000531_g((unsigned long long)(b % (seq_t)den), den);
+		unsigned long long g = gcd_u64((unsigned long long)(b % (seq_t)den), den);
 		b = (seq_t)(b / (seq_t)g);
 		b = (seq_t)(b * (seq_t)(num / (den / g)));
 	}

@@ -9,14 +9,27 @@
  *            a(1)=0, a(2)=1
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   rev, seq_realloc
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/rev.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n) {
     static seq_t *a_arr = NULL;   /* memoization array */
@@ -37,10 +50,10 @@ seq_t a(idx_t n) {
             } else if (i == 2) {
                 a_arr[i] = 1;
             } else {
-                seq_t r2 = rev(a_arr[i-2]);        /* rev(a(i-2)) */
-                seq_t r3 = rev(a_arr[i-3]);        /* rev(a(i-3)) */
+                seq_t r2 = reverse_digits(a_arr[i-2]);        /* rev(a(i-2)) */
+                seq_t r3 = reverse_digits(a_arr[i-3]);        /* rev(a(i-3)) */
                 seq_t sum = a_arr[i-1] + r2 + r3;  /* a(i-1)+r2+r3 */
-                a_arr[i] = rev(sum);               /* rev of the sum */
+                a_arr[i] = reverse_digits(sum);               /* rev of the sum */
             }
         }
         size = n + 1;   /* indices 0..n are now valid */

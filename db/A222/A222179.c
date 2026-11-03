@@ -8,12 +8,14 @@
  *            by 9 (partition numbers are p(0)=1, p(1)=1, …)
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 10, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,14 +29,14 @@ seq_t a(idx_t n)
     /* Lazy initialisation of partition array */
     if (p == NULL) {
         p_cap = 1;
-        p = (seq_t*)malloc(p_cap * sizeof(seq_t));
+        p = mem_new(seq_t, p_cap);
         p[0] = (seq_t)1;                /* p(0) = 1 */
         currentN = 0;
     }
 
     /* Ensure the result array has space up to required index */
     if (a_vals == NULL) {
-        a_vals = (seq_t*)malloc(128 * sizeof(seq_t));
+        a_vals = mem_new(seq_t, 128);
         maxComputed = 0;
     }
 
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         /* Ensure capacity of partition array */
         if (next_k >= p_cap) {
             p_cap = (p_cap > 0) ? p_cap * 2 : 64;
-            p = (seq_t*)realloc(p, p_cap * sizeof(seq_t));
+            p = mem_resize(seq_t, p, p_cap);
         }
 
         /* Compute p[next_k] using the generalized pentagonal
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         /* Check divisibility by 9 and store the quotient. */
         if ( (p[next_k] % (seq_t)9) == 0 ) {
             if (maxComputed == 128) {
-                a_vals = (seq_t*)realloc(a_vals, (maxComputed + 128) * sizeof(seq_t));
+                a_vals = mem_resize(seq_t, a_vals, (maxComputed + 128));
             }
             a_vals[maxComputed] = p[next_k] / (seq_t)9;
             ++maxComputed;

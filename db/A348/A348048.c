@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = sigma(n) / gcd( sigma(n), A003959(n) )
- * Range:     u8 n <= 22, u16 n <= 7321, u32 n <= 9897, u64 n <= 9897,
- *            u128 n <= 9897, big any n
+ * Range:     u8 n <= 22, u16 n <= 7321, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 9897 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,10 @@
 /* Uses the provided factor_u64 and gcd utilities. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

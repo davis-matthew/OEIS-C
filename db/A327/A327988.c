@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* helper: recursive divisor enumeration that tests the condition */
 static bool check_divisors_rec(size_t idx, uint64_t cur, uint64_t k,
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (seq_len == 0) {
         seq_cap = 16;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         seq_cache[0] = (seq_t)0;          /* a(1) = 0 */
         seq_len = 1;
         next_k = 1;                       /* first positive to test */
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
         if (k_is_good(cand)) {
             if (seq_len >= seq_cap) {
                 seq_cap *= 2;
-                seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_len++] = (seq_t)cand;
         }

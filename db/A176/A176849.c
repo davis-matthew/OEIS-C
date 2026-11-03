@@ -8,13 +8,15 @@
  * Formula:   a(n) = binomial(6*r, k) where * r = the largest integer such
  *            that offset(r) = 3*r^2 - 2*r <= n, * k = n - offset(r).
  *            (offset(r) is the starting index of row r.)
- * Range:     u8 n <= 10, u16 n <= 26, u32 n <= 49, u64 n <= 49, u128 n <= 49,
+ * Range:     u8 n <= 11, u16 n <= 45, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -10,7 +10,8 @@
  *            log10(5))
  * Range:     u8 n <= 25, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array, leading_digit_is_4
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,31 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/leading_digit_is_4.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* ----------  leading‑digit test  ---------- */
+static bool leading_digit_is_4(idx_t k)
+{
+    /* Constants in long double for maximum accuracy. */
+    static const long double LOG10_2 = log10l(2.0L);
+    static const long double LOG10_4 = log10l(4.0L);
+    static const long double LOG10_5 = log10l(5.0L);
+
+    long double x    = (long double)k * LOG10_2;
+    long double frac = x - floorl(x);          /* fractional part */
+    return (frac >= LOG10_4) && (frac < LOG10_5);
+}
 
 /* ----------  cache for sequence values  ---------- */
 static seq_t *cache       = NULL;   /* pointer to allocated array of seq_t */

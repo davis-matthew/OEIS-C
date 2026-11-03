@@ -9,12 +9,14 @@
  *            binomial(3*n+2*k+1 , n)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 16,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* binomial(3*n+1, n) = binom(3*n+1, n) */
     idx_t top_first = 3 * n + 1;
-    seq_t C1 = binom(top_first, n);
+    seq_t C1 = binomial(top_first, n);
 
     /* N = 3*n + 2*k + 1, initial N when k = 0 */
     seq_t N = (seq_t)top_first;

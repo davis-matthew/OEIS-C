@@ -11,14 +11,33 @@
  *            subblock equal throughout the array
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   block_expr
+ * Validated: standard, pass, 32 terms through n = 188 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/block_expr.h"
+
+/* compute the expression max + lower median – upper median – min
+   for four values a,b,c,d */
+static int block_expr(int a, int b, int c, int d)
+{
+    int v[4] = {a, b, c, d};
+
+    /* simple O(6) sort of the four values */
+    for (int i = 0; i < 3; ++i)
+        for (int j = i + 1; j < 4; ++j)
+            if (v[i] > v[j]) {
+                int t = v[i];
+                v[i] = v[j];
+                v[j] = t;
+            }
+
+    /* after sorting: v[0] ≤ v[1] ≤ v[2] ≤ v[3] */
+    return v[3] + v[1] - v[2] - v[0];
+}
 
 /* extract the 2‑bit digit at column j (0..2) of a 3‑digit base‑4 row */
 static inline int val_at(unsigned int row, int j)

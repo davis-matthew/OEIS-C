@@ -11,14 +11,43 @@
  *            DP over rows
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   precompute_viol
+ * Validated: standard, pass, 33 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/precompute_viol.h"
+
+static void precompute_viol(uint8_t viol[16][16][16]) {
+    for (uint8_t prev = 0; prev < 16; ++prev) {
+        for (uint8_t curr = 0; curr < 16; ++curr) {
+            for (uint8_t next = 0; next < 16; ++next) {
+                uint8_t add = 0;
+                /* Evaluate each cell in curr */
+                for (uint8_t c = 0; c < 4; ++c) {
+                    if (!(curr & (1U << c))) continue; /* cell is 0 */
+                    uint8_t neigh = 0;
+                    /* left */
+                    if (c > 0 && (curr & (1U << (c - 1)))) ++neigh;
+                    /* right */
+                    if (c < 3 && (curr & (1U << (c + 1)))) ++neigh;
+                    /* up-left */
+                    if (c > 0 && (prev & (1U << (c - 1)))) ++neigh;
+                    /* up-right */
+                    if (c < 3 && (prev & (1U << (c + 1)))) ++neigh;
+                    /* down-left */
+                    if (c > 0 && (next & (1U << (c - 1)))) ++neigh;
+                    /* down-right */
+                    if (c < 3 && (next & (1U << (c + 1)))) ++neigh;
+                    if (neigh > 2) ++add;
+                }
+                viol[prev][curr][next] = add;
+            }
+        }
+    }
+}
 
 seq_t a(idx_t n) {
     /* Precompute neighbour violation table once */

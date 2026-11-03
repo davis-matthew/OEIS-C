@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 29, u32 n <= 31, u64 n <= 34, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
            e = 3 if n==29,
            else e = 3*(n-28). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 seq_t a(idx_t n)
 {
     if (n <= 20)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     if (pow10_size <= e) {
         size_t new_size = e + 1;
-        seq_t *tmp = (seq_t*)realloc(pow10, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow10, new_size);
         if (!tmp)
             abort();   /* out of memory */
         pow10 = tmp;

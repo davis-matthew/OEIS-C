@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 9999, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors, seq_alloc_array, seq_realloc
+ * Validated: standard, pass, 115 terms through n = 8826 (2026-11-03)
+ * Helpers:   bigomega_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,27 @@
    Omega(x) = Omega( Sum_{k=1..n} a(k) ), where Omega(m) = A001222(m) */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_prime_factors.h"
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_realloc.h"
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *a_values = NULL;   /* a[1] .. a[max_n]  */
 static seq_t *cum_values = NULL; /* cumulative sums cum[1] .. cum[max_n]  */
@@ -44,8 +63,8 @@ static seq_t find_next_term(seq_t sum)
 {
     seq_t x = 2;                      /* 1 cannot satisfy the condition (Omega(1)=0) */
     for (;;) {
-        seq_t ox = count_prime_factors(x);
-        seq_t os = count_prime_factors(sum + x);
+        seq_t ox = bigomega_seq(x);
+        seq_t os = bigomega_seq(sum + x);
         if (ox == os) return x;
         ++x;
     }

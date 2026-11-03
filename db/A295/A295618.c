@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    (a(n)) and (b(n)) are increasing complementary sequences. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state for memoisation ---------------------------------------- */
 static seq_t *a_seq = NULL;
@@ -60,9 +62,9 @@ seq_t a(idx_t n)
     /* initialise on the first call */
     if (!initialized) {
         a_cap = 4;
-        a_seq = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_seq = mem_new(seq_t, a_cap);
         b_cap = 4;
-        b_seq = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_seq = mem_new(seq_t, b_cap);
 
         a_seq[0] = 2; a_seq[1] = 4; a_seq[2] = 6;
         b_seq[0] = 1; b_seq[1] = 3; b_seq[2] = 5;
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
             size_t new_cap = a_cap ? a_cap : 1;
             while (new_cap <= (size_t)n)
                 new_cap <<= 1;
-            a_seq = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
+            a_seq = mem_resize(seq_t, a_seq, new_cap);
             a_cap = new_cap;
         }
         /* ensure capacity for b_seq */
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
             size_t new_cap = b_cap ? b_cap : 1;
             while (new_cap <= (size_t)n)
                 new_cap <<= 1;
-            b_seq = (seq_t *)realloc(b_seq, new_cap * sizeof(seq_t));
+            b_seq = mem_resize(seq_t, b_seq, new_cap);
             b_cap = new_cap;
         }
 

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 15, u16 n <= 438, u32 n <= 9018, u64 n <= 9018,
- *            u128 n <= 9018, big any n
- * Helpers:   has_equal_runs, seq_realloc
+ * Range:     u8 n <= 15, u16 n <= 438, u32 n <= 10500, u64 n <= 10500,
+ *            u128 n <= 10500, big any n
+ * Validated: standard, pass, 61 terms through n = 9018 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,58 @@
  
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_realloc.h"   /* provides seq_realloc   */
-#include "../utils/has_equal_runs.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Test whether a number has an equal number of odd‑length and even‑length
+ * runs of equal digits in its base‑15 representation. */
+static bool has_equal_runs(seq_t x)
+{
+    seq_t temp = x;
+    int digit = -1;    /* previous digit   */
+    int runlen = 0;    /* length of current run */
+    int odd = 0, even = 0;
+
+    /* Build the number digit by digit (least significant first) */
+    while (temp > 0) {
+        int d = (int)(temp % 15); /* current digit in base 15 */
+        temp = temp / 15;
+
+        if (runlen == 0) {          /* first digit of the number */
+            digit = d;
+            runlen = 1;
+        } else if (d == digit) {    /* extend current run      */
+            runlen++;
+        } else {                    /* finish current run      */
+            if (runlen % 2 == 0)
+                even++;
+            else
+                odd++;
+            digit = d;
+            runlen = 1;
+        }
+    }
+
+    /* account for the final run */
+    if (runlen > 0) {
+        if (runlen % 2 == 0)
+            even++;
+        else
+            odd++;
+    }
+
+    return odd == even;
+}
 
 static seq_t *cache = NULL;  /* dynamically expanded array of sequence terms   */
 static size_t cache_size = 0;/* number of terms stored in cache                 */

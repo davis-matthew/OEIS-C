@@ -9,13 +9,15 @@
  *            n, * col = n - r*(r+1)/2, and * T(r,k) = binomial(r+1, 2k - r)
  *            if 2k >= r, * 0 otherwise. * This implements the flattening of
  *            the triangle described by OEIS A119900
- * Range:     u8 n <= 41, u16 n <= 182, u32 n <= 586, u64 n <= 1274,
+ * Range:     u8 n <= 61, u16 n <= 183, u32 n <= 620, u64 n <= 1274,
  *            u128 n <= 1274, big any n
+ * Validated: standard, pass, 102 terms through n = 1217 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static inline idx_t find_row(idx_t n) {

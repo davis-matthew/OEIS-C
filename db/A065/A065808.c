@@ -8,13 +8,15 @@
  *            representation of a smaller perfect square
  * Range:     u8 n <= 8, u16 n <= 243, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9026 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*---------------------------------------------------------------*/
 /*  Pre‑computation of small perfect squares                      */
@@ -43,7 +45,7 @@ static void prepare_squares(void)
         seq_t m = 0;
         while (m * m < limit) ++m;
         sqs_sizes[l] = (size_t)m;                      /* m values from 0 to m-1 */
-        sqs[l] = (seq_t *)malloc(sqs_sizes[l] * sizeof(seq_t));
+        sqs[l] = mem_new(seq_t, sqs_sizes[l]);
         for (size_t i = 0; i < sqs_sizes[l]; ++i)
             sqs[l][i] = (seq_t)i * (seq_t)i;
     }
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
         if (has_property(cand)) {
             if ((size_t)term_count == cache_size) {
                 cache_size = (cache_size == 0) ? 16 : cache_size * 2;
-                cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_size);
             }
             cache[term_count] = cand;
             ++term_count;

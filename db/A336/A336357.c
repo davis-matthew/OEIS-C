@@ -10,7 +10,8 @@
  *            prime factors of k
  * Range:     u8 n <= 10, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   count_distinct_primes, sigma_of
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,13 +19,29 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/count_distinct_primes.h"
-#include "../utils/sigma_of.h"
+#include <stdint.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Return the number of distinct prime factors of a 64‑bit integer. */
 static inline int omega64(uint64_t n)
 {
-    return count_distinct_primes(n);
+    return omega(n);
 }
 
 /* Test whether k satisfies the defining condition. */
@@ -54,7 +71,7 @@ static void append_term(uint64_t term)
 {
     if (len >= cap) {
         size_t new_cap = cap ? cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) {
             /* Allocation failure – terminate with no output. */
             abort();

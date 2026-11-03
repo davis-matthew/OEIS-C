@@ -8,12 +8,13 @@
  * Formula:   a(n) = 9*10^⌊(n-1)/2⌋ - 8*9^⌊(n-1)/2⌋ (for n ≥ 1)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   pow_seq_const
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq_const.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -21,8 +22,8 @@ seq_t a(idx_t n)
     idx_t k = (n - 1) / 2;         /* floor((n-1)/2) */
     seq_t ten  = 10;
     seq_t nine = 9;
-    seq_t p10 = pow_seq_const(ten,  k);
-    seq_t p9  = pow_seq_const(nine, k);
+    seq_t p10 = ipow_idx(ten,  k);
+    seq_t p9  = ipow_idx(nine, k);
     seq_t res1 = 9 * p10;
     seq_t res2 = 8 * p9;
     return res1 - res2;

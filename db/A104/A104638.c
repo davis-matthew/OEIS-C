@@ -9,7 +9,8 @@
  *            (reused across calls) and counts its odd digits
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_odd_digits_uint64, estimate_prime_upper_bound
+ * Validated: standard, pass, 116 terms through n = 9831 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,29 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/estimate_prime_upper_bound.h"
-#include "../utils/count_odd_digits_uint64.h"
+#include <math.h>
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
+
+/* Count odd decimal digits of a 64‑bit integer. */
+static inline int count_odd_digits_uint64(uint64_t x)
+{
+    int c = 0;
+    do {
+        uint64_t d = x % 10;
+        if (d & 1u)
+            ++c;
+        x /= 10;
+    } while (x);
+    return c;
+}
 
 /* Static storage for the primes found so far. */
 static uint64_t *prime_buf = NULL; /* array used as seq_t values */

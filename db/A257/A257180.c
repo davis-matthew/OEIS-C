@@ -12,7 +12,8 @@
  *            * a(0) = 1 * a(1) = 3, a(2) = 3 * a(3) = 9, a(4) = 24,...
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 68, u64 n <= 177,
  *            u128 n <= 509, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1297 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     idx_t needed = r + 1;
     if (t_cap < needed) {
         idx_t newcap = needed;
-        seq_t *newt = (seq_t *)malloc(newcap * newcap * sizeof(seq_t));
+        seq_t *newt = mem_new(seq_t, newcap * newcap);
         if (!newt) return 0;   /* allocation failed, return 0 as a safe fallback */
 
         /* Build the entire square table up to newcap-1   */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        free(t);
+        mem_free(t);
         t = newt;
         t_cap = newcap;
     }

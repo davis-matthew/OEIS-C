@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = * a(1)=1, a(2)=2, a(3)=3; * For n>3, let m=n-1. * If m is
  *            an odd prime, a(n)=4; * else a(n)= floor(m/2)+3
- * Range:     u8 n <= 506, u16 n <= 8617, u32 n <= 8617, u64 n <= 8617,
- *            u128 n <= 8617, big any n
+ * Range:     u8 n <= 506, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 120 terms through n = 8617 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

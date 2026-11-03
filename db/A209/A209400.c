@@ -9,7 +9,8 @@
  *            a(0)=a(1)=a(2)=a(3)=0, a(4)=2, a(5)=7
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 452 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* The function memoises values so it works for arbitrary call order. */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     if (cache_len < want) {
         /* grow the cache */
-        seq_t *new_cache = (seq_t *)realloc(cache, want * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, want);
         if (!new_cache)                 /* allocation failure */
             abort();
         cache = new_cache;

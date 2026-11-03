@@ -8,13 +8,15 @@
  *            - x)
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* external types: seq_t, idx_t are defined by the build system */
 
@@ -25,7 +27,7 @@ static size_t a_cached_len = 0; /* length of a_cache (2501) */
 static seq_t* alloc_seq_array(size_t n)
 {
     /* cast to void* to silence strict aliasing warnings */
-    return (seq_t*)malloc(n * sizeof(seq_t));
+    return mem_new(seq_t, n);
 }
 
 /* Function to compute the sequence value */
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
         }
 
         free(coeff);
-        free(binom);
+        mem_free(binom);
         a_cached_len = (size_t)(MAX_N + 1);
     }
 

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 78, i16 n <= 78, i32 n <= 78, i64 n <= 78, i128 n <= 78,
  *            big any n
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* A174530: Numerators of the second row of the Akiyama–Tanigawa table for 1/n!.
    For n ≥ 2: a(n) = n+1 if n+1 is prime; otherwise a(n) = 1.
    Special cases: a(0) = -1, a(1) = 0, a(3) = 4 (because 4 = n+1). */
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

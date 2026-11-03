@@ -14,7 +14,8 @@
  *            ro...
  * Range:     u8 none, u16 n <= 3, u32 n <= 15, u64 n <= 109, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Precomputed tables ---------- */
 #define ROWS 243          /* 3^5 possible rows */
@@ -107,7 +109,7 @@ static void ensure_cache(idx_t n)
     if (need > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -121,7 +123,7 @@ static void ensure_cache(idx_t n)
         for (int r = 0; r < ROWS; ++r) dp_curr[r] = 1;
 
         /* Transition to height = 2.  */
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int p = 0; p < ROWS; ++p) {
             seq_t val = dp_curr[p];
             if (!val) continue;
@@ -136,14 +138,14 @@ static void ensure_cache(idx_t n)
 
         cache[0] = tot;
         cache_len = 1;
-        memcpy(dp_curr, dp_next, sizeof(dp_curr));
+        mem_copy(dp_curr, dp_next, sizeof(dp_curr));
     }
 
     /* Extend the cached sequence up to n.  */
     for (size_t idx = cache_len; idx < need; ++idx) {
         /* dp_curr corresponds to the current height (idx+2).  */
         /* Compute counts for the next height.  */
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int p = 0; p < ROWS; ++p) {
             seq_t val = dp_curr[p];
             if (!val) continue;
@@ -157,7 +159,7 @@ static void ensure_cache(idx_t n)
         for (int r = 0; r < ROWS; ++r) tot += dp_next[r];
 
         cache[idx] = tot;
-        memcpy(dp_curr, dp_next, sizeof(dp_curr));
+        mem_copy(dp_curr, dp_next, sizeof(dp_curr));
     }
     cache_len = need;
 }

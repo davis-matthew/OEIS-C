@@ -7,15 +7,27 @@
  * Formula:   a(n) = Sum_{d|n} F(d)*phi(n/d) (F is the Fibonacci sequence)
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 47, u64 n <= 93, u128 n <= 186,
  *            big any n
- * Helpers:   fib, phi
+ * Validated: standard, pass, 54 terms through n = 1858 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/fib.h"   /* seq_t fib(idx_t n);          */
-#include "../utils/phi.h"   /* seq_t phi(idx_t n);          */
+#include <stdbool.h>
+#include "../utils/totient.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* Local prime‑factorisation (simple trial division).  It is fast enough
    for n ≤ 10000 and uses only standard integer operations. */
@@ -58,7 +70,7 @@ static void divisor_contrib(size_t idx,
 {
     if (idx == cnt) {
         seq_t f  = fib((idx_t)cur);
-        seq_t phi_v = phi((idx_t)(n / cur));
+        seq_t phi_v = totient((idx_t)(n / cur));
         *sum += f * phi_v;
         return;
     }

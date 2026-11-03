@@ -9,15 +9,17 @@
  * Formula:   a(n) = 1 + a(index(n)) where * index(n) = number of primes ≤ n
  *            if n is prime * index(n) = n − 1 − number of primes ≤ n if n is
  *            composite * a(1) = 1
- * Range:     u8 n <= 8626, u16 n <= 8626, u32 n <= 8626, u64 n <= 8626,
- *            u128 n <= 8626, big any n
- * Helpers:   none
+ * Range:     u8 n <= 32998, u16 n <= 32998, u32 n <= 32998, u64 n <= 32998,
+ *            u128 n <= 32998, big any n
+ * Validated: standard, pass, 109 terms through n = 8626 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute a(n) for all 1..n */
-    seq_t *a_arr = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, (N + 1));
     if (!a_arr) { free(is_prime); free(pi); return 0; }
     a_arr[0] = 0;          /* unused */
     a_arr[1] = 1;          /* base case */
@@ -65,6 +67,6 @@ seq_t a(idx_t n)
 
     free(is_prime);
     free(pi);
-    free(a_arr);
+    mem_free(a_arr);
     return result;
 }

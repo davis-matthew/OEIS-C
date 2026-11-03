@@ -12,13 +12,17 @@
  *            reformulates t...
  * Range:     u8 n <= 15, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   even_contrib
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>  /* for uintptr_t etc. (idx_t, seq_t are supplied by the build) */
-#include "../utils/even_contrib.h"
+
+static inline seq_t even_contrib(idx_t x) {
+    return ((x & 1) == 0) ? (seq_t)x : 0;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n) {

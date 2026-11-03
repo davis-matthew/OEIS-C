@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf, look
  * Formula:   not stated
- * Range:     u8 n <= 187, u16 n <= 940, u32 n <= 6423, u64 n <= 9624,
- *            u128 n <= 9624, big any n
- * Helpers:   none
+ * Range:     u8 n <= 187, u16 n <= 940, u32 n <= 6423, u64 n <= 10100,
+ *            u128 n <= 10100, big any n
+ * Validated: standard, pass, 94 terms through n = 9624 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -48,6 +49,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------------
  *  Integer square‑root for unsigned 64‑bit integers.
@@ -88,7 +90,7 @@ static void build_table(idx_t n)
     D = (seq_t **)realloc(D, (n + 1) * sizeof(seq_t *));
     for (idx_t i = max_row + 1; i <= n; ++i) {
         idx_t len = (i + 1) / 2;               /* number of columns in row i */
-        D[i] = (seq_t *)malloc((len + 1) * sizeof(seq_t)); /* indices 1..len */
+        D[i] = mem_new(seq_t, (len + 1)); /* indices 1..len */
         D[i][1] = (seq_t)1;                   /* D_1(n) = 1 for all n>0 */
 
         for (idx_t k = 2; k <= len; ++k) {

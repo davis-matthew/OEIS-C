@@ -12,7 +12,8 @@
  *            smallest such divisor (which is guaranteed to be n/p f...
  * Range:     u8 n <= 511, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, sigma_prime_u64
+ * Validated: standard, pass, 98 terms through n = 9879 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,22 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/sigma_prime_u64.h"
+
+/* Compute σ(p^e) for a prime p and exponent e (e >= 0).  The
+   result is small enough for n ≤ 10 000, so unsigned long long
+   is safe for all intermediate computations. */
+static inline unsigned long long sigma_prime_u64(uint64_t p, int e)
+{
+    unsigned long long cur  = 1;
+    unsigned long long sum  = 1;          /* include p^0 = 1 */
+    for (int i = 0; i < e; ++i) {
+        cur *= (unsigned long long)p;
+        sum += cur;
+    }
+    return sum;
+}
 
 /* Return the sequence value a(n) for n ≥ 2.  For n < 2 the value
    is unspecified; we return 0. */

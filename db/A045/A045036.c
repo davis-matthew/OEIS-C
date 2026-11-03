@@ -9,12 +9,14 @@
  *            and three 1's
  * Range:     u8 none, u16 n <= 33, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* Dynamic array holding computed terms */
 static idx_t  cache_size = 0;      /* Current number of stored terms   */
@@ -27,7 +29,7 @@ static void grow_cache(idx_t needed)
     if (needed <= cache_cap) return;
     idx_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
     while (new_cap < needed) new_cap *= 2;
-    cache = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (size_t)new_cap);
     cache_cap = new_cap;
 }
 

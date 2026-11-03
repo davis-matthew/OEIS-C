@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* dynamic cache of computed terms */
 static idx_t cache_size = 0;       /* next free index (size of cache) */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 {
     /* Initialise the cache with the 13 known initial terms on first use. */
     if (!cache) {
-        cache = (seq_t *)malloc(13 * sizeof(seq_t));
+        cache = mem_new(seq_t, 13);
         if (!cache) exit(1);
         cache_size = 13;
         cache[0]  = 1;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
 
     /* Expand the cache to hold values up to index n.  realloc may
        move the buffer, so we cast the return value to the correct type. */
-    cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (n + 1));
     if (!cache) exit(1);
 
     /* Compute the missing terms using the recurrence. */

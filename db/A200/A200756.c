@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 10, u16 n <= 36, u32 n <= 55, u64 n <= 55, u128 n <= 55,
+ * Range:     u8 n <= 15, u16 n <= 45, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,14 +18,14 @@
     a(n) reads the rows of T left to right.  */
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static seq_t T_row_col(idx_t row, idx_t col)
 {
     seq_t sum = (seq_t)0;
     for (idx_t i = col; i <= row; ++i) {
-        seq_t term = binom(i, row - i);                           /* binom(i,n-i) */
-        term = term * binom(2 * i - col - 1, i - 1);             /* binom(2i-k-1,i-1) */
+        seq_t term = binomial(i, row - i);                           /* binom(i,n-i) */
+        term = term * binomial(2 * i - col - 1, i - 1);             /* binom(2i-k-1,i-1) */
         term = term * (seq_t)col;                                /* multiply by k before division */
         term /= i;                                                /* safe integer division */
         sum += term;

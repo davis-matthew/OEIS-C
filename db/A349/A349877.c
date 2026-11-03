@@ -8,8 +8,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = number of iterations of f(x) = floor((5*x + 7) / 3) until
  *            x becomes a multiple of 3, or -1 if this never occurs
- * Range:     u8 n <= 1, u16 n <= 3246, u32 n <= 9737, u64 n <= 9737,
- *            u128 n <= 9737, big any n
+ * Range:     u8 n <= 1, u16 n <= 3246, u32 n <= 19683, u64 n <= 19683,
+ *            u128 n <= 19683, big any n
+ * Validated: standard, pass, 119 terms through n = 9737 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

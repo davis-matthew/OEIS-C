@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=2..n+1} (p_k - p_{ceil(k/2)})
  * Range:     u8 n <= 15, u16 n <= 202, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
+ * Validated: standard, pass, 66 terms through n = 2848 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static uint64_t *prime_cache = NULL;

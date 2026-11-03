@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 8, u16 n <= 506, u32 n <= 9197, u64 n <= 9197,
- *            u128 n <= 9197, big any n
- * Helpers:   dfs_subset_sum, int_cube_root
+ * Range:     u8 n <= 8, u16 n <= 506, u32 n <= 10286, u64 n <= 10286,
+ *            u128 n <= 10286, big any n
+ * Validated: standard, pass, 64 terms through n = 9197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,45 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/int_cube_root.h"
-#include "../utils/dfs_subset_sum.h"
+#include <limits.h>
+#include "../utils/mem.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
+
+/* --------------------------------------------------------------------- */
+static bool dfs_subset_sum(size_t pos, seq_t sum,
+                           const seq_t *cubes, const seq_t *cum_rem,
+                           const seq_t target, size_t len)
+{
+    if (sum == target) return true;
+    if (sum > target) return false;
+    /* not enough remaining cubes to reach target */
+    if (sum + cum_rem[pos] < target) return false;
+    if (pos == len) return false;
+
+    /* try including the current cube */
+    if (sum + cubes[pos] <= target) {
+        if (dfs_subset_sum(pos + 1, sum + cubes[pos],
+                           cubes, cum_rem, target, len))
+            return true;
+    }
+    /* try skipping it */
+    return dfs_subset_sum(pos + 1, sum,
+                           cubes, cum_rem, target, len);
+}
 
 /* --------------------------------------------------------------------- */
 /* Recursive subset–sum search with pruning                               */
@@ -95,7 +133,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {       /* initialise cache */
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Generate terms until we have enough.                               */
@@ -105,8 +143,7 @@ seq_t a(idx_t n)
         if (in_sequence(m)) {
             if (cache_size == cache_cap) {
                 cache_cap <<= 1;                /* double the capacity */
-                cache = (seq_t*)realloc(cache,
-                                         cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = (seq_t)m;
         }

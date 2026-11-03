@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{p≤n} p^{⌊v_p(n!)/5⌋} , where v_p(n!) = ∑_{i≥1} ⌊n/p^i⌋
  * Range:     u8 n <= 24, u16 n <= 37, u32 n <= 62, u64 n <= 97, u128 n <= 163,
  *            big any n
+ * Validated: standard, pass, 64 terms through n = 953 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

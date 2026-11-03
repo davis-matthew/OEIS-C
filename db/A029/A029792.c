@@ -12,7 +12,8 @@
  *            is an unsigned integer type or an arbitrary...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 19, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   digits_mask
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digits_mask.h"
+
+/* Bitmask of decimal digits occurring in x.
+   Works for both native integers and big‑int classes. */
+static inline unsigned int digits_mask(seq_t x)
+{
+    unsigned int m = 0;
+    while (x != 0) {
+        unsigned int d = (unsigned int)(x % 10);
+        m |= 1u << d;
+        x /= 10;
+    }
+    return m;
+}
 
 seq_t a(idx_t n)
 {

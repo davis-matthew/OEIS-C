@@ -8,7 +8,8 @@
  * Formula:   a(n) = A007814(n)+A007814(n+1)+A007814(n+2)-1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   tz
+ * Validated: standard, pass, 126 terms through n = 9144 (2026-11-01)
+ * Helpers:   ctz_idx_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,12 +17,12 @@
 /* where A007814(k) is the exponent of 2 dividing k (v₂(k)). */
 
 #include <stdint.h>
-#include "../utils/tz.h"
+#include "../utils/ctz_idx_to_seq.h"
 
 seq_t a(idx_t n)
 {
-    seq_t v1 = tz(n);
-    seq_t v2 = tz(n + 1);
-    seq_t v3 = tz(n + 2);
+    seq_t v1 = ctz_idx_to_seq(n);
+    seq_t v2 = ctz_idx_to_seq(n + 1);
+    seq_t v3 = ctz_idx_to_seq(n + 2);
     return v1 + v2 + v3 - 1;
 }

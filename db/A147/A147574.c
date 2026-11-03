@@ -7,12 +7,14 @@
  * Formula:   a(n) = 510510 * A080681(n)
  * Range:     u8 none, u16 none, u32 n <= 868, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 9248 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The allowed primes */
 static const seq_t PRIMES[7] = { 2, 3, 5, 7, 11, 13, 17 };
@@ -29,7 +31,7 @@ static void ensure_capacity(size_t need)
     if (smooth_cap < need) {
         size_t new_cap = smooth_cap ? smooth_cap * 2 : 16;
         while (new_cap < need) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(smooth, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, smooth, new_cap);
         smooth = tmp;
         smooth_cap = new_cap;
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  *    keep the new remainder for the next step.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of already computed digits */
@@ -33,12 +35,12 @@ seq_t a(idx_t n) {
         /* grow capacity if necessary */
         if (cap == 0) {
             cap = 4;
-            digits = (seq_t*)malloc(cap * sizeof(seq_t));
+            digits = mem_new(seq_t, cap);
         }
         while (len <= n) {
             if (len >= cap) {
                 cap <<= 1;
-                digits = (seq_t*)realloc(digits, cap * sizeof(seq_t));
+                digits = mem_resize(seq_t, digits, cap);
             }
             /* long‑division step */
             rem *= 10;                       /* shift left one decimal place */

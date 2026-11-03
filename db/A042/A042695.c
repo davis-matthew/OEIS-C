@@ -8,7 +8,8 @@
  *            n <= 29 are generated from the convergents of sqrt(877)
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 29, u64 n <= 53, u128 n <= 104,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,28 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Helper to grow an array: double capacity or set to needed. */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap > 0) ? (*cap * 2) : 16;
+    if (new_cap < needed) new_cap = needed;
+    *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    *cap = new_cap;
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (needed <= *cap) return;
@@ -27,6 +48,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
     *ptr = realloc(*ptr, new_cap * elem_size);
     *cap = new_cap;
 }
+#endif
 
 seq_t a(idx_t n)
 {
@@ -44,7 +66,7 @@ seq_t a(idx_t n)
 
     /* if cache empty, initialise first term */
     if (cache == NULL) {
-        ensure_capacity(1, &cache_cap, (void **)&cache, sizeof(seq_t));
+        ensure_capacity(1, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
         cache[0] = (seq_t)1;
         cache_len = 1;
     }
@@ -54,7 +76,7 @@ seq_t a(idx_t n)
 
     /* Compute all missing terms up to n */
     for (idx_t i = cache_len; i <= n; ++i) {
-        ensure_capacity(i + 1, &cache_cap, (void **)&cache, sizeof(seq_t));
+        ensure_capacity(i + 1, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
 
         if (i < 30) {                 /* generate via continued fraction */
             /* next CF coefficient */

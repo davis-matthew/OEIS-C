@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   exponent_of_power_of_three, exponent_of_power_of_two
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,34 @@
 
 #include <stdbool.h>
 #include <stddef.h>   /* for size_t */
-#include "../utils/exponent_of_power_of_three.h"
-#include "../utils/exponent_of_power_of_two.h"
+
+/* ------------------------------------------------------------------
+ * Helper: exponent of a pure power of 3 (or -1 if not a pure power)
+ * ------------------------------------------------------------------ */
+static int exponent_of_power_of_three(seq_t n)
+{
+    if (n == 0) return -1;
+    int exp = 0;
+    while (n % 3 == 0) {
+        n = n / 3;
+        exp++;
+    }
+    return (n == 1) ? exp : -1;
+}
+
+/* ------------------------------------------------------------------
+ * Helper: exponent of a pure power of 2 (or -1 if not a pure power)
+ * ------------------------------------------------------------------ */
+static int exponent_of_power_of_two(seq_t n)
+{
+    if (n == 0) return -1;
+    int exp = 0;
+    while (n % 2 == 0) {
+        n = n / 2;
+        exp++;
+    }
+    return (n == 1) ? exp : -1;
+}
 
 /* ------------------------------------------------------------------
  * Test whether m belongs to the sequence.

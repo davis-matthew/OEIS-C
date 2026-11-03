@@ -11,7 +11,8 @@
  *            partitions of n+32 into 8 distinct parts c...
  * Range:     u8 n <= 25, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_CACHE 20000   /* change if larger indices are required */
 
@@ -44,7 +46,7 @@ static void precompute_base(void)
     const int max_n = 58;            /* 0 … 58 inclusive */
     const int Smax  = max_n + 24;    /* sum of the 7 unrestricted parts */
     seq_t dp[8][84];                 /* 8 × (58+24+1) = 672 entries */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     dp[0][0] = 1;
 
     for (int x = 1; x <= Smax; ++x) {

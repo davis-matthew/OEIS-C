@@ -7,7 +7,8 @@
  * Formula:   Number of partitions of n of order n
  * Range:     u8 n <= 29, u16 n <= 83, u32 n <= 239, u64 n <= 839,
  *            u128 n <= 4000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 3785 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 /* Standard headers -------------------------------------------------------*/
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------------------
    Function to compute the number of partitions of n of order n.
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     }
 
     /* ---- DP array -------------------------------------------------------*/
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     seq_t sum_pos = 0;
     seq_t sum_neg = 0;
 
@@ -125,7 +127,7 @@ seq_t a(idx_t n)
     seq_t result = sum_pos - sum_neg;
 
     /* free memory */
-    free(dp);
+    mem_free(dp);
     free(divs);
 
     return result;

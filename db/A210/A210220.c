@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    The function returns a(n) = V(row,col) for the index n. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static state across calls */
@@ -40,8 +42,8 @@ seq_t a(idx_t n) {
         ++cur_row;   /* compute next row */
 
         /* Allocate storage for the new row */
-        U_cur = (seq_t *)malloc((cur_row + 1) * sizeof(seq_t));
-        V_cur = (seq_t *)malloc((cur_row + 1) * sizeof(seq_t));
+        U_cur = mem_new(seq_t, (cur_row + 1));
+        V_cur = mem_new(seq_t, (cur_row + 1));
 
         if (cur_row == 1) {
             /* Base row */
@@ -68,7 +70,7 @@ seq_t a(idx_t n) {
         if (needed > a_cap) {
             size_t newcap = a_cap ? a_cap * 2 : 64;
             while (newcap < needed) newcap <<= 1;
-            a_vals = (seq_t *)realloc(a_vals, newcap * sizeof(seq_t));
+            a_vals = mem_resize(seq_t, a_vals, newcap);
             a_cap  = newcap;
         }
 
@@ -78,8 +80,8 @@ seq_t a(idx_t n) {
         }
 
         /* Free the previous row buffers */
-        free(U_prev);
-        free(V_prev);
+        mem_free(U_prev);
+        mem_free(V_prev);
 
         /* Prepare for the next iteration */
         U_prev = U_cur;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 47, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: partial, pass, 51 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,18 @@
 /* Computes a(n) = smallest k such that digit_sum(7*k) = n, for n ≥ 2 */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_from_str.h"
+#include <string.h>
+#include <stdbool.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 /* Public sequence function.  The types seq_t and idx_t are supplied by the build. */
 seq_t a(idx_t n)

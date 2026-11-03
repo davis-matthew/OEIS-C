@@ -8,13 +8,15 @@
  *            (n-2)*(n-1)*n*a(n-3) * Initial values: a(0)=1, a(1)=4, a(2)=23
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 405 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (required < 3) required = 3;  /* keep the three seed values */
 
     if (required > cache_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, required);
         if (!tmp) abort();                /* out of memory */
         cache = tmp;
 

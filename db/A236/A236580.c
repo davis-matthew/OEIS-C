@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 22, u128 n <= 22,
+ * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    with initial values a(0)=1, a(1)=4, a(2)=25, a(3)=154 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *mem = NULL;
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     if (!mem) {
         size_t need = (size_t)(n + 1);
         if (need < 4) need = 4;          /* at least indices 0..3 */
-        mem = (seq_t*)calloc(need, sizeof(seq_t));
+        mem = mem_new(seq_t, need);
         if (!mem) exit(1);
         mem[0] = (seq_t)1;
         mem[1] = (seq_t)4;
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
 
     /* Resize storage to hold up to n */
     size_t newsize = (size_t)(n + 1);
-    seq_t *tmp = (seq_t*)realloc(mem, newsize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, mem, newsize);
     if (!tmp) exit(1);
     mem = tmp;
 

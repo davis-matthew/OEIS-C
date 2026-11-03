@@ -7,7 +7,8 @@
  * Formula:   a(n) = sigma(n^2) – n*sigma(n)
  * Range:     u8 n <= 29, u16 n <= 329, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sigma_from_factors, sigma_sq_from_factors
+ * Validated: standard, pass, 82 terms through n = 9636 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,51 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/sigma_from_factors.h"
-#include "../utils/sigma_sq_from_factors.h"
+
+/* Compute the divisor sum σ(m) for a given factorization. */
+static seq_t sigma_from_factors(const idx_t *primes,
+                                const int *exps,
+                                size_t nfactors)
+{
+    seq_t result = 1;
+    for (size_t i = 0; i < nfactors; ++i) {
+        seq_t p = (seq_t)primes[i];
+        int e = exps[i];
+
+        /* sum = 1 + p + … + p^e  (for σ(n)) */
+        seq_t sum = 1;
+        seq_t power = 1;
+        for (int k = 0; k < e; ++k) {
+            power *= p;
+            sum += power;
+        }
+        result *= sum;
+    }
+    return result;
+}
+
+/* Compute the divisor sum σ(m) for a given factorization,
+   but with exponent doubled (for σ(n²)). */
+static seq_t sigma_sq_from_factors(const idx_t *primes,
+                                   const int *exps,
+                                   size_t nfactors)
+{
+    seq_t result = 1;
+    for (size_t i = 0; i < nfactors; ++i) {
+        seq_t p = (seq_t)primes[i];
+        int e = exps[i];
+
+        /* sum = 1 + p + … + p^(2e)  (for σ(n²)) */
+        seq_t sum = 1;
+        seq_t power = 1;
+        for (int k = 0; k < 2 * e; ++k) {
+            power *= p;
+            sum += power;
+        }
+        result *= sum;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

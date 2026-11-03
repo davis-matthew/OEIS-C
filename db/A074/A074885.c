@@ -10,7 +10,8 @@
  *            all terms ≤ 1875902 have been precomputed by a sieve
  * Range:     u8 n <= 38, u16 n <= 343, u32 n <= 436, u64 n <= 436,
  *            u128 n <= 436, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 363 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const unsigned int LIMIT = 1875902;   /* empirical maximum value */
 static bool *representable = NULL;          /* bitmap of representable numbers */
@@ -53,7 +55,7 @@ static void init_sequence(void)
         if (!representable[i]) ++seq_len;
 
     /* store the sequence values */
-    seq_vals = (seq_t *)malloc(seq_len * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, seq_len);
     if (!seq_vals) return; /* allocation failure */
     idx_t idx = 0;
     for (size_t i = 1; i <= LIMIT; ++i)

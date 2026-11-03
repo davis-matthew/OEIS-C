@@ -12,15 +12,16 @@
  *            with s(s+1)/2 ≥ n; * let prev = (s-1)s/2, * offset = n -...
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 23, u64 n <= 48, u128 n <= 95,
  *            big any n
- * Helpers:   big_pow, phi
+ * Validated: standard, pass, 46 terms through n = 1192 (2026-11-01)
+ * Helpers:   ipow, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/phi.h"      /* seq_t phi(idx_t m); */
-#include "../utils/big_pow.h"  /* seq_t big_pow(seq_t base, seq_t exp); */
+#include "../utils/ipow.h"
+#include "../utils/totient.h"
 
 static inline idx_t gcd_idx_t(idx_t a, idx_t b)
 {
@@ -55,17 +56,17 @@ seq_t a(idx_t n)
 
     for (idx_t c = 1; c <= i; ++c) {
         if (i % c != 0) continue;
-        seq_t phi_c = phi(c);
+        seq_t phi_c = totient(c);
 
         for (idx_t d = 1; d <= j; ++d) {
             if (j % d != 0) continue;
-            seq_t phi_d = phi(d);
+            seq_t phi_d = totient(d);
 
             idx_t g   = gcd_idx_t(c, d);
             idx_t lcm = (c / g) * d;
             idx_t exp = (i * j) / lcm;    /* exponent for 6 */
 
-            seq_t pow6 = big_pow((seq_t)6, (seq_t)exp);
+            seq_t pow6 = ipow((seq_t)6, (seq_t)exp);
             sum += phi_c * phi_d * pow6;
         }
     }

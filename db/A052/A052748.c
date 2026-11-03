@@ -10,7 +10,8 @@
  *            n>0, and we only need k=1,2,3
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Copyright holder: ChatGPT (2026) */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of a(n)=6*c(n,3) for n up to max_computed */
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     if (cap == 0) {
         /* allocate small capacity, store c3[0]=0 */
         size_t init_cap = 4;
-        c3 = (seq_t *)realloc(NULL, init_cap * sizeof(seq_t));
+        c3 = mem_resize(seq_t, NULL, init_cap);
         if (!c3) return (seq_t)0; /* out of memory: return 0 (not expected) */
         cap = init_cap;
         c3[0] = (seq_t)0; /* a(0)=0 => c(0,3)=0 */
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
         size_t needed = (size_t)(n + 1);
         size_t new_cap = cap ? cap : 4;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(c3, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, c3, new_cap);
         if (!tmp) return (seq_t)0; /* out of memory */
         c3 = tmp;
         cap = new_cap;

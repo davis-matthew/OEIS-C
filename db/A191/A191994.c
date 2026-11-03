@@ -9,12 +9,14 @@
  *            Fib(2)=1, Fib(3)=2,
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 13, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fib_cache = NULL;   /* Fibonacci numbers, indexed by n (1‑based) */
 static size_t fib_cap = 0;        /* allocated capacity of fib_cache   */
@@ -31,12 +33,12 @@ static void ensure_fib_capacity(idx_t needed)
     size_t new_cap = fib_cap ? fib_cap * 2 : (size_t)needed + 5;
     if (new_cap <= (size_t)needed) new_cap = (size_t)needed + 5;
 
-    seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) return;                 /* allocation failed – emit 0 for safety */
 
     if (fib_cache) {
         for (size_t i = 0; i < fib_cap; ++i) new_arr[i] = fib_cache[i];
-        free(fib_cache);
+        mem_free(fib_cache);
     }
     for (size_t i = fib_cap; i < new_cap; ++i) new_arr[i] = 0;
     fib_cache = new_arr;
@@ -50,12 +52,12 @@ static void ensure_prod_capacity(idx_t needed)
     size_t new_cap = prod_cap ? prod_cap * 2 : (size_t)needed + 5;
     if (new_cap <= (size_t)needed) new_cap = (size_t)needed + 5;
 
-    seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) return;
 
     if (prod_cache) {
         for (size_t i = 0; i < prod_cap; ++i) new_arr[i] = prod_cache[i];
-        free(prod_cache);
+        mem_free(prod_cache);
     }
     for (size_t i = prod_cap; i < new_cap; ++i) new_arr[i] = 0;
     prod_cache = new_arr;

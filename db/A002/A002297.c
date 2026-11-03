@@ -11,8 +11,8 @@
  *            reducing by the primes <= n-1
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 32,
  *            big any n
- * Helpers:   q2297_add, q2297_div, q2297_legendre, q2297_mod, q2297_mul,
- *            q2297_sub, q2297_trim
+ * Validated: standard, pass, 39 terms through n = 82 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,13 +21,81 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/q2297_add.h"
-#include "../utils/q2297_div.h"
-#include "../utils/q2297_legendre.h"
-#include "../utils/q2297_mod.h"
-#include "../utils/q2297_mul.h"
-#include "../utils/q2297_sub.h"
-#include "../utils/q2297_trim.h"
+
+static void q2297_add(uint64_t *x, size_t *xl, const uint64_t *y, size_t yl) {
+    size_t L = *xl > yl ? *xl : yl, i;
+    uint64_t carry = 0;
+    for (i = 0; i < L; i++) {
+        uint64_t xi = i < *xl ? x[i] : 0;
+        uint64_t yi = i < yl ? y[i] : 0;
+        uint64_t s = xi + yi;
+        uint64_t c1 = s < xi;
+        uint64_t s2 = s + carry;
+        uint64_t c2 = s2 < s;
+        x[i] = s2;
+        carry = c1 | c2;
+    }
+    if (carry) x[L++] = carry;
+    *xl = L;
+}
+
+static void q2297_trim(const uint64_t *x, size_t *len) {
+    while (*len > 0 && x[*len - 1] == 0) (*len)--;
+}
+
+static void q2297_div(uint64_t *x, size_t *len, uint64_t d) {
+    unsigned __int128 rem = 0;
+    size_t i;
+    for (i = *len; i-- > 0;) {
+        unsigned __int128 cur = (rem << 64) | x[i];
+        x[i] = (uint64_t)(cur / d);
+        rem = cur % d;
+    }
+    q2297_trim(x, len);
+}
+
+static uint64_t q2297_legendre(uint64_t m, uint64_t p) {
+    uint64_t e = 0;
+    while (m) { m /= p; e += m; }
+    return e;
+}
+
+static uint64_t q2297_mod(const uint64_t *x, size_t len, uint64_t d) {
+    unsigned __int128 rem = 0;
+    size_t i;
+    for (i = len; i-- > 0;) {
+        unsigned __int128 cur = (rem << 64) | x[i];
+        rem = cur % d;
+    }
+    return (uint64_t)rem;
+}
+
+static void q2297_mul(uint64_t *x, size_t *len, uint64_t m) {
+    unsigned __int128 carry = 0;
+    size_t i;
+    for (i = 0; i < *len; i++) {
+        unsigned __int128 t = (unsigned __int128)x[i] * m + carry;
+        x[i] = (uint64_t)t;
+        carry = t >> 64;
+    }
+    if (carry) x[(*len)++] = (uint64_t)carry;
+}
+
+/* x -= y, requires x >= y */
+static void q2297_sub(uint64_t *x, size_t *xl, const uint64_t *y, size_t yl) {
+    uint64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < *xl; i++) {
+        uint64_t yi = i < yl ? y[i] : 0;
+        uint64_t d = x[i] - yi;
+        uint64_t b1 = x[i] < yi;
+        uint64_t d2 = d - borrow;
+        uint64_t b2 = d < borrow;
+        x[i] = d2;
+        borrow = b1 | b2;
+    }
+    q2297_trim(x, xl);
+}
 
 seq_t a(idx_t n) {
     size_t N = (size_t)n;

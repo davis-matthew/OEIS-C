@@ -13,13 +13,15 @@
  *            (Read the triangle row‑by‑row, a(0) is the first entry of row 0)
  * Range:     u8 n <= 48, u16 n <= 160, u32 n <= 575, u64 n <= 2046,
  *            u128 n <= 5049, big any n
- * Helpers:   alloc_seq_array
+ * Validated: standard, pass, 86 terms through n = 4984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root (floor) for idx_t.  No overflow for idx_t up to 2^64-1. */
 static idx_t isqrt_u64(idx_t x)
@@ -57,7 +59,13 @@ static void grow_rows_array(void)
 
 /* Allocate an array of seq_t elements.  The utility alloc_seq_array is provided
    in the build environment.  It is declared in "../utils/alloc_seq_array.h". */
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Compute the row r of the triangle, storing it in row_ptrs. */
 static void compute_row(idx_t r)

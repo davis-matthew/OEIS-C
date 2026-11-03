@@ -13,16 +13,19 @@
  *            a(0) = 0 * a(n+1) = * if there exists an unused number obtained
  *            by turning off a 1-bit of a(n), * choose the largest such number
  *            (rightmost off bit) * else * choose the small...
- * Range:     u8 n <= 156, u16 n <= 9700, u32 n <= 9700, u64 n <= 9700,
- *            u128 n <= 9700, big any n
- * Helpers:   bitlen_seq_t
+ * Range:     u8 n <= 156, u16 n <= 13112, u32 n <= 26232, u64 n <= 26232,
+ *            u128 n <= 26232, big any n
+ * Validated: standard, pass, 107 terms through n = 9700 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>          /* for malloc, realloc */
 #include <stdbool.h>         /* for bool */
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_vals = NULL;      /* memoised sequence values */
 static size_t seq_capacity = 0;     /* allocated capacity of seq_vals  */
@@ -32,7 +35,7 @@ static size_t seq_len = 0;          /* number of values computed so far */
 static void seq_grow(void)
 {
     size_t new_cap = seq_capacity ? seq_capacity * 2 : 8;
-    seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
     seq_vals = tmp;
     seq_capacity = new_cap;
 }
@@ -58,7 +61,7 @@ static seq_t next_term(seq_t cur)
 {
     /* try turning off a 1‑bit – choose the rightmost eligible bit
      * (largest result among unseen candidates) */
-    int bitlen = (int)bitlen_seq_t(cur);
+    int bitlen = (int)bit_length(cur);
     int bitwidth = (int)(sizeof(seq_t) * 8);
     seq_t best_off = 0;
     bool found_off = false;

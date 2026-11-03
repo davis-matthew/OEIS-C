@@ -9,12 +9,14 @@
  *            values a(1)=36, a(2)=400, a(3)=5184
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes term a(n) of OEIS A264361.
    The function is memoized; calls may come in any order.
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* First call: allocate space for at least 3 terms (the initial ones). */
     if (cache == NULL) {
         size_t cap = (size_t)((n > 3) ? n : 3);
-        cache = (seq_t *)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL)
             exit(1);   /* allocation failure */
         cache[0] = (seq_t)36;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* If we need terms beyond what we have, grow the cache and compute. */
     if (n > max_cached) {
         size_t new_cap = (size_t)n;            /* we only need up to n for now */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)
             exit(1);   /* allocation failure */
         cache = tmp;

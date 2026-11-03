@@ -11,13 +11,15 @@
  *            a(1)=0, a(2)=0, a(3)=1, a(4)=1, a(5)=1, a(6)=2, a(7)=4, a(8)=7
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t base[9] = { (seq_t)1, (seq_t)0, (seq_t)0, (seq_t)1,
                                (seq_t)1, (seq_t)1, (seq_t)2, (seq_t)4,
@@ -37,12 +39,11 @@ seq_t a(idx_t n)
     /* Grow the cache if needed. */
     if (n >= cache_sz) {
         size_t new_sz = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (!tmp) abort();
         cache = tmp;
         if (cache_sz < new_sz)
-            memset(cache + cache_sz, 0,
-                   (new_sz - cache_sz) * sizeof(seq_t));
+            mem_set(cache + cache_sz, 0, (new_sz - cache_sz) * sizeof(seq_t));
 
         cache_sz = new_sz;
         /* Store the base values (they are needed for the first few indices). */

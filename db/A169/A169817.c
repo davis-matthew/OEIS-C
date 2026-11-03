@@ -14,7 +14,8 @@
  *            and a prime * number of 1’s
  * Range:     u8 n <= 29, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   count_prime_factors, is_prime, is_prime_small
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   bigomega_seq, is_prime, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(idx_t n); */
-#include "../utils/is_prime.h"         /* bool is_prime(idx_t n); */
-#include "../utils/count_prime_factors.h" /* seq_t count_prime_factors(seq_t n); */
+#include "../utils/bigomega_seq.h"
+#include "../utils/is_prime.h"
+#include "../utils/is_prime_seq.h"
 
 #define MAX_CACHE 40000   /* enough for n up to about 10000 */
 
@@ -46,7 +47,7 @@ static bool has_prime_zero_one_bits(uint64_t x)
     int ones  = __builtin_popcountll(x);
     int bits  = 64 - __builtin_clzll(x);
     int zeros = bits - ones;
-    return is_prime_small(ones) && is_prime_small(zeros);
+    return is_prime_seq(ones) && is_prime_seq(zeros);
 }
 
 /*---| generate primes with the property up to index n |-----------------*/
@@ -66,7 +67,7 @@ static void generate_semiprimes_up_to(idx_t n)
 {
     if (n <= semiprimes_count) return;
     while (semiprimes_count < n) {
-        if (count_prime_factors((seq_t)semiprimes_next) == 2 &&
+        if (bigomega_seq((seq_t)semiprimes_next) == 2 &&
             has_prime_zero_one_bits(semiprimes_next)) {
             semiprimes_cache[semiprimes_count++] = (seq_t)semiprimes_next;
         }

@@ -12,12 +12,14 @@
  *            demand, memoises all terms up to the largest request...
  * Range:     u8 n <= 14, u16 n <= 36, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* Initialisation: row 0 */
     if (flat_len == 0) {
-        prev        = (seq_t *)calloc(1, sizeof(seq_t));
+        prev        = mem_new(seq_t, 1);
         if (!prev) exit(1);
         prev[0]     = (seq_t)1;
         prev_len    = 1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         prevprev_len= 0;
 
         /* store row 0 in the flat array */
-        flat       = (seq_t *)calloc(1, sizeof(seq_t));
+        flat       = mem_new(seq_t, 1);
         if (!flat) exit(1);
         flat[0]    = prev[0];
         flat_len   = 1;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         idx_t next_row = row + 1;      /* index of the row to generate */
         idx_t new_len  = next_row + 1; /* number of elements in the row */
 
-        seq_t *new_row = (seq_t *)calloc(new_len, sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
         if (!new_row) exit(1);
 
         for (idx_t k = 0; k < new_len; ++k) {
@@ -67,8 +69,7 @@ seq_t a(idx_t n)
         }
 
         /* Append the new row to the flattened array */
-        seq_t *tmp = (seq_t *)realloc(flat,
-                                      (flat_len + new_len) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, flat, (flat_len + new_len));
         if (!tmp) exit(1);
         flat = tmp;
         for (idx_t i = 0; i < new_len; ++i)
@@ -77,7 +78,7 @@ seq_t a(idx_t n)
         flat_len += new_len;
 
         /* Shift the row pointers for the next iteration */
-        if (prevprev) free(prevprev);
+        if (prevprev) mem_free(prevprev);
         prevprev      = prev;
         prevprev_len  = prev_len;
 

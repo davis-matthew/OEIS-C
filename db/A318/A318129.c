@@ -8,16 +8,19 @@
  * Formula:   a(n) = 2^{2^n-1} + 1 - Σ_{m=1..n} (-1)^{m+1}·C(n,m)·2^{2^{n-m}}
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   big_pow, binom, pow_uint
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   binomial, ipow, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(0) = 1 */
 
-#include "../utils/binom.h"
-#include "../utils/pow_uint.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -30,9 +33,9 @@ seq_t a(idx_t n)
     for (idx_t m = 1; m <= n; ++m)
     {
         /* term = C(n,m) * 2^{2^{n-m}} */
-        seq_t bin = binom(n, m);          /* binomial coefficient */
-        seq_t exp = pow_uint(2, n - m);   /* 2^{n-m} as seq_t */
-        seq_t pow2 = big_pow( (seq_t)2, exp ); /* 2^{2^{n-m}} */
+        seq_t bin = binomial(n, m);          /* binomial coefficient */
+        seq_t exp = ipow_u64_idx(2, n - m);   /* 2^{n-m} as seq_t */
+        seq_t pow2 = ipow( (seq_t)2, exp ); /* 2^{2^{n-m}} */
         seq_t term = bin * pow2;
 
         if (m & 1)          /* m odd -> positive sign */
@@ -42,9 +45,9 @@ seq_t a(idx_t n)
     }
 
     /* total = 2^{2^n-1} */
-    seq_t exp_total = pow_uint(2, n);          /* 2^n */
+    seq_t exp_total = ipow_u64_idx(2, n);          /* 2^n */
     exp_total -= (seq_t)1;                    /* 2^n - 1 */
-    seq_t total = big_pow( (seq_t)2, exp_total ); /* 2^{2^n-1} */
+    seq_t total = ipow( (seq_t)2, exp_total ); /* 2^{2^n-1} */
 
     seq_t sum = pos_sum - neg_sum;            /* Σ (-1)^{m+1}C(n,m)2^{2^{n-m}} */
 

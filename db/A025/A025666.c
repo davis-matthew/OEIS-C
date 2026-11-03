@@ -11,7 +11,8 @@
  *            duplicates; a visited bitmap is used for that. Th...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 122 terms through n = 9489 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* maximum i or j that can appear while generating the first 10 000 terms.
    The 64‑bit bound 5 000 is far above the real limit (≈120).              */
@@ -107,7 +109,7 @@ static void cache_expand(size_t min_cap)
     size_t new_cap = cache_cap ? cache_cap << 1 : 64;
     if (new_cap < min_cap)
         new_cap = min_cap;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();
     cache = new_cache;
     cache_cap = new_cap;

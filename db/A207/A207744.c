@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Validates that a 6‑bit column contains no vertical forbidden pattern. */
 static int vertical_ok(uint8_t col)
@@ -80,8 +82,8 @@ seq_t a(idx_t n)
         }
 
         /* Allocate DP tables */
-        cur  = (seq_t *)calloc(states, sizeof(seq_t));
-        next = (seq_t *)calloc(states, sizeof(seq_t));
+        cur  = mem_new(seq_t, states);
+        next = mem_new(seq_t, states);
 
         init = 1;
     }
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
     /* Add columns 3 … n */
     for (size_t step = 2; step < (size_t)n; ++step) {
         /* zero next layer */
-        memset(next, 0, states * sizeof(seq_t));
+        mem_set(next, 0, states * sizeof(seq_t));
 
         for (i = 0; i < states; ++i) {
             seq_t ways = cur[i];

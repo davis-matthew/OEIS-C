@@ -9,14 +9,28 @@
  *            and k-2 is divisible by n; 0 if no such k exists
  * Range:     u8 n <= 181, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow10mod
+ * Validated: standard, pass, 81 terms through n = 930 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10mod.h"
+
+/* 10^exp mod mod, where 0 <= exp < UINT32_MAX */
+static seq_t pow10mod(unsigned int exp, idx_t mod)
+{
+    seq_t result = 1 % (seq_t)mod;
+    seq_t base   = 10 % (seq_t)mod;
+    while (exp) {
+        if (exp & 1)
+            result = (result * base) % (seq_t)mod;
+        base = (base * base) % (seq_t)mod;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* number of decimal digits of a non‑negative integer (0 has 1 digit) */
 static unsigned int digits_uint64(uint64_t x)

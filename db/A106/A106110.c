@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 18, u32 n <= 2570, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 9662 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Deterministic Miller–Rabin for 64‑bit integers.  Works for all n < 2^64. */
 static bool isPrime64(uint64_t n)
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         cand[0] = '7';
         cand_len = 1;
         primes_cap = 8192;
-        primes = (seq_t *)malloc(sizeof(seq_t) * primes_cap);
+        primes = mem_new(seq_t, primes_cap);
         primes_cnt = 0;
         initialized = true;
     }
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
         if (isPrime64(val)) {
             if (primes_cnt == primes_cap) {
                 primes_cap <<= 1;
-                primes = (seq_t *)realloc(primes, sizeof(seq_t) * primes_cap);
+                primes = mem_resize(seq_t, primes, primes_cap);
             }
             primes[primes_cnt] = (seq_t)val;
             primes_cnt++;

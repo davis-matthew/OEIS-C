@@ -11,7 +11,8 @@
  *            increasing order; a(n) returns the n‑th element
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,24 +21,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
-
-/* ---------- memory helper that works in C and C++ ---------- */
-static void *alloc_seq(size_t n_elements, size_t elem_size)
-{
-#if defined(__cplusplus)
-    return reinterpret_cast<seq_t *>(std::malloc(n_elements * elem_size));
-#else
-    return malloc(n_elements * elem_size);
-#endif
-}
-static void *realloc_seq(void *ptr, size_t n_elements, size_t elem_size)
-{
-#if defined(__cplusplus)
-    return reinterpret_cast<seq_t *>(std::realloc(ptr, n_elements * elem_size));
-#else
-    return realloc(ptr, n_elements * elem_size);
-#endif
-}
+#include "../utils/mem.h"
 
 /* ---------- main routine ---------- */
 seq_t a(idx_t n)
@@ -70,7 +54,7 @@ seq_t a(idx_t n)
             /* Grow table if needed */
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap << 1 : 16;
-                seq_t *new_ptr = (seq_t *)realloc_seq(terms, new_cap, sizeof(seq_t));
+                seq_t *new_ptr = mem_resize(seq_t, terms, new_cap);
                 terms = new_ptr;
                 terms_cap = new_cap;
             }

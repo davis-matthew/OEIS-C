@@ -11,13 +11,14 @@
  *            a(n) = (2/(n+1))*binomial(3*n, n)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 49,
  *            big any n
- * Helpers:   a007226_gcd
+ * Validated: standard, pass, 41 terms through n = 198 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a007226_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     seq_t v = 2;
@@ -25,7 +26,7 @@ seq_t a(idx_t n) {
     for (k = 1; k <= n; k++) {
         uint64_t num = 3 * (3 * (uint64_t)k - 1) * (3 * (uint64_t)k - 2);
         uint64_t den = 2 * ((uint64_t)k + 1) * (2 * (uint64_t)k - 1);
-        uint64_t g = a007226_gcd(num, den);
+        uint64_t g = gcd_u64(num, den);
         num /= g;
         den /= g;
         /* den divides a(k-1) since a(k) is an integer and gcd(num, den) = 1 */

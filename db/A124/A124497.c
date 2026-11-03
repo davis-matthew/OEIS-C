@@ -9,15 +9,17 @@
  *            Sum_{k=0..n/2} ((binomial(2*k,k)*binomial(n-k,k))/(k+1))
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   binomial, seq_gcd
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -38,19 +40,19 @@ seq_t a(idx_t n)
             seq_t denom = (seq_t)(2*m + k + 1);
 
             /* cancel with denom step by step */
-            seq_t g = seq_gcd(term, denom);
+            seq_t g = gcd(term, denom);
             term /= g;
             denom /= g;
 
             /* multiply by A */
             term *= A;
-            g = seq_gcd(term, denom);
+            g = gcd(term, denom);
             term /= g;
             denom /= g;
 
             /* multiply by B */
             term *= B;
-            g = seq_gcd(term, denom);
+            g = gcd(term, denom);
             term /= g;
             denom /= g;   /* denom should now be 1 */
 
@@ -84,12 +86,12 @@ seq_t a(idx_t n)
             seq_t term = A2;
             seq_t denom = (seq_t)(k + 1);
 
-            seq_t g = seq_gcd(term, denom);
+            seq_t g = gcd(term, denom);
             term /= g;
             denom /= g;
 
             term *= B2;
-            g = seq_gcd(term, denom);
+            g = gcd(term, denom);
             term /= g;
             denom /= g;  /* denom should be 1 now */
 

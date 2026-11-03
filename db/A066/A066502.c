@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 787 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------- local helper ---------- */
 
@@ -78,7 +80,7 @@ static void init_cache(void)
     for (idx_t i = 2; i <= BOUND; ++i)
         if (marked[i]) ++count;
 
-    seq_cache = (seq_t *)malloc(count * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, count);
     if (!seq_cache) { free(marked); return; }
     seq_len = 0;
 

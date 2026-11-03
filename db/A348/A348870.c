@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 96, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   gcd, pow10
+ * Validated: partial, pass, 96 terms through n = 96 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,18 @@
       a(2*k)   = (10^digits(k)-1) / gcd(k,10^digits(k)-1)
    where digits(k) is the number of decimal digits of k.  Hence
    a(2*k-1)/a(2*k) has decimal expansion 0.k repeating. */
-#include "../utils/gcd.h"    /* provides gcd(seq_t,seq_t) */
-#include "../utils/pow10.h"  /* provides pow10(idx_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Return the number of decimal digits of n (n ≥ 1). */
 static idx_t num_digits(idx_t n) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 11, u32 n <= 23, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   divisors_from_factor
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,30 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/divisors_from_factor.h"
+
+/* Generate all divisors of n from its factorisation.  divs array
+   is initially size div_cap (must be > expected count).  Count
+   returned in *len.                                     */
+static void
+divisors_from_factor(const uint64_t *primes, const unsigned *exps,
+                     size_t pcnt, uint64_t *divs, size_t *len)
+{
+    divs[0] = 1;
+    *len   = 1;
+    for (size_t i = 0; i < pcnt; ++i) {
+        uint64_t p   = primes[i];
+        unsigned exp = exps[i];
+        size_t old_len = *len;
+        uint64_t mul = 1;
+        for (unsigned e = 1; e <= exp; ++e) {
+            mul *= p;
+            for (size_t j = 0; j < old_len; ++j) {
+                divs[*len] = divs[j] * mul;
+                ++(*len);
+            }
+        }
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /* Sieve of Eratosthenes – primes ≤ limit.  Returned array is

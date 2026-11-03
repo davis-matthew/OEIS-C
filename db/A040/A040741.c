@@ -9,12 +9,14 @@
  *            sequence repeats with period 20, ending with the term 2*a0 = 54
  * Range:     u8 n <= 0, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
             /* Store the new coefficient */
             if (len >= cap) {
                 cap = (cap == 0) ? 16 : cap * 2;
-                arr = (seq_t *)realloc(arr, cap * sizeof(seq_t));
+                arr = mem_resize(seq_t, arr, cap);
             }
             arr[len++] = a;
 

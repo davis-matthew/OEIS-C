@@ -7,9 +7,10 @@
  * Keywords:  base, nonn, look
  * Formula:   a(n) = min{m>0 : gcd(m,n)>1 and popcount(m)=popcount(n)} -
  *            brute‑force search
- * Range:     u8 n <= 255, u16 n <= 9612, u32 n <= 9612, u64 n <= 9612,
- *            u128 n <= 9612, big any n
- * Helpers:   gcd
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 98 terms through n = 9612 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* popcount for seq_t up to 128 bits. */
 static unsigned popcount_seq_t(seq_t x)
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n)
     if (n + 1 > g_cap) {
         idx_t new_cap = g_cap ? (g_cap << 1) : 16;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, g_cache, new_cap);
         if (!tmp)
             abort(); /* memory exhaustion */
         if (new_cap > g_cap) {

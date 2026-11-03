@@ -8,19 +8,21 @@
  *            7*a(i7)), the smallest such product that is greater than a(k-1)
  * Range:     u8 n <= 9, u16 n <= 26, u32 n <= 91, u64 n <= 340,
  *            u128 n <= 1307, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 9278 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 1) return (seq_t)1;
 
-    seq_t *seq = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (size_t)n);
     seq[0] = (seq_t)1;
 
     idx_t i5 = 0, i7 = 0;
@@ -52,6 +54,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n - 1];
-    free(seq);
+    mem_free(seq);
     return result;
 }

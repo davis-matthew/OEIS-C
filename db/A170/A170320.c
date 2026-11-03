@@ -12,12 +12,14 @@
  *            is requested. * All arithmetic uses the typ...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* realloc, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     /* Ensure we have room for index n */
     if (n >= (idx_t)len) {
         size_t new_len = (size_t)n + 1;
-        seq_t* new_vals = (seq_t*)realloc(vals, new_len * sizeof(seq_t));
-        seq_t* new_pref = (seq_t*)realloc(pref, new_len * sizeof(seq_t));
+        seq_t* new_vals = mem_resize(seq_t, vals, new_len);
+        seq_t* new_pref = mem_resize(seq_t, pref, new_len);
         if (!new_vals || !new_pref) abort(); /* allocation failure */
 
         vals = new_vals;

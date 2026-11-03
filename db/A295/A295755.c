@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    a(n)=a(n-1)+a(n-3)+a(n-4)+b(n-3)   (n≥4)   */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;           /* array for a(n)   */
 static seq_t *B = NULL;           /* array for b(n)   */
@@ -46,8 +48,8 @@ static void ensure_capacity(idx_t needed) {
     if ((size_t)needed + 1 <= cap) return;
     size_t new_cap = cap ? cap : 4;
     while (new_cap <= (size_t)needed + 1) new_cap <<= 1;
-    A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-    B = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
+    A = mem_resize(seq_t, A, new_cap);
+    B = mem_resize(seq_t, B, new_cap);
     cap = new_cap;
 }
 
@@ -56,8 +58,8 @@ seq_t a(idx_t n) {
     /* Lazy initialization of the base case. */
     if (A == NULL) {
         cap = 4;
-        A = (seq_t *)malloc(cap * sizeof(seq_t));
-        B = (seq_t *)malloc(cap * sizeof(seq_t));
+        A = mem_new(seq_t, cap);
+        B = mem_new(seq_t, cap);
         A[0] = 1; A[1] = 2; A[2] = 3; A[3] = 4;
         B[0] = 5; B[1] = 6; B[2] = 7; B[3] = 8;
         last_b   = 8;

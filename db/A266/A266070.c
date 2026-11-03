@@ -8,6 +8,7 @@
  * Formula:   a(0)=1; a(1)=0; a(n)=n%2 for n>=2
  * Range:     u8 n <= 999, u16 n <= 999, u32 n <= 999, u64 n <= 999,
  *            u128 n <= 999, big any n
+ * Validated: standard, pass, 102 terms through n = 990 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

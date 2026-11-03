@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,11 +46,11 @@ seq_t a(idx_t n)
     if (n == 2) return (seq_t)2;
 
     /* Allocate arrays of size n (values 0 .. n‑1 are possible) */
-    seq_t *eq   = (seq_t*)calloc(n, sizeof(seq_t));   /* E */
-    seq_t *neq  = (seq_t*)calloc(n, sizeof(seq_t));   /* N */
-    seq_t *eq_new   = (seq_t*)calloc(n, sizeof(seq_t));
-    seq_t *neq_new  = (seq_t*)calloc(n, sizeof(seq_t));
-    seq_t *suff  = (seq_t*)calloc(n, sizeof(seq_t));
+    seq_t *eq   = mem_new(seq_t, n);   /* E */
+    seq_t *neq  = mem_new(seq_t, n);   /* N */
+    seq_t *eq_new   = mem_new(seq_t, n);
+    seq_t *neq_new  = mem_new(seq_t, n);
+    seq_t *suff  = mem_new(seq_t, n);
     if (!eq || !neq || !eq_new || !neq_new || !suff) return (seq_t)0; /* oops */
 
     /* Length 2 initialization */
@@ -91,9 +93,9 @@ seq_t a(idx_t n)
         result += eq[v] + neq[v];
 
     /* Free allocated memory */
-    free(eq);    free(neq);
-    free(eq_new); free(neq_new);
-    free(suff);
+    mem_free(eq);    mem_free(neq);
+    mem_free(eq_new); mem_free(neq_new);
+    mem_free(suff);
 
     return result;
 }

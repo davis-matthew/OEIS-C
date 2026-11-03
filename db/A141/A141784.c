@@ -8,7 +8,8 @@
  *            (m‑th) nonprime (including 0) and the difference k‑m is prime
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define SIEVE_MAX 4000000   /* Fixed sieve size (4 million). Enough for n≈10⁴ */
 
@@ -76,7 +78,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap < n) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : 128;
         if (new_cap < n) new_cap = n;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
         init_sieve();
 
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
         next_value = 0;
         next_nonprime_index = 0;

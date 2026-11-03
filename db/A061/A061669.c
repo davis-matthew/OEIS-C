@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn, changed
  * Formula:   a(n) = n * (mu(n) + 1) where mu is the Möbius function
- * Range:     u8 n <= 128, u16 n <= 9300, u32 n <= 9300, u64 n <= 9300,
- *            u128 n <= 9300, big any n
+ * Range:     u8 n <= 128, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 91 terms through n = 9300 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static uint64_t _pr[64];

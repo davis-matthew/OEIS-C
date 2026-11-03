@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of triples (u,v,w) of divisors of n with u < v < w
  *            and v - u = w - v
- * Range:     u8 n <= 901, u16 n <= 9668, u32 n <= 9668, u64 n <= 9668,
- *            u128 n <= 9668, big any n
+ * Range:     u8 n <= 901, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 117 terms through n = 9668 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

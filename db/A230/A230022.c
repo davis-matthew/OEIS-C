@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 4000, u16 n <= 4000, u32 n <= 4000, u64 n <= 4000,
  *            u128 n <= 4000, big any n
+ * Validated: standard, pass, 96 terms through n = 3909 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,7 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/build_primes.h"   /* build_primes(limit, &out, &cnt) */
+#include "../utils/build_primes.h"
 
 static int cmp_uint32(const void *a, const void *b)
 {

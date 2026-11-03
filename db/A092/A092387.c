@@ -9,12 +9,14 @@
  *            a(n)=4*a(n-1)-4*a(n-2)+a(n-3) for n≥3)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 46, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 729 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* calloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* cached terms a(0)…a(k) */
 static idx_t  cache_len = 0;    /* size of allocated cache */
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n)
     if (cache_len == 0)          /* initialise base terms 0…2 */
     {
         cache_len = 3;
-        cache = (seq_t*)calloc(cache_len, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) abort();
         cache[0] = (seq_t)4;
         cache[1] = (seq_t)5;
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
     if (n >= cache_len)          /* extend cache up to n */
     {
         size_t new_len = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
 
         /* Compute new terms using the recurrence. */

@@ -13,7 +13,8 @@
  *            number) occurs as a substring somewhere in a(n)
  * Range:     u8 n <= 31, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_digits, sum_substring_exists, used_hash
+ * Validated: standard, pass, 74 terms through n = 9990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,53 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_digits.h"
-#include "../utils/sum_substring_exists.h"
-#include "../utils/used_hash.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static inline void factor_digits(seq_t x, unsigned char *buf, int *len)
+{
+    int i = 0;
+    do {
+        buf[i++] = (unsigned char)(x % 10);
+    } while ((x /= 10));
+    for (int j = 0; j < i/2; ++j) {
+        unsigned char t = buf[j];
+        buf[j] = buf[i-1-j];
+        buf[i-1-j] = t;
+    }
+    *len = i;
+}
+
+/* Check whether decimal representation of 'sum' appears as a
+   contiguous substring inside the digits array.  len is number of digits. */
+static bool sum_substring_exists(const unsigned char *digits, int len, int sum)
+{
+    if (sum < 10) {
+        unsigned char target = (unsigned char)sum;
+        for (int i = 0; i < len; ++i) {
+            if (digits[i] == target) return true;
+        }
+        return false;
+    } else {
+        unsigned char tens = (unsigned char)(sum / 10);
+        unsigned char units = (unsigned char)(sum % 10);
+        for (int i = 0; i < len - 1; ++i) {
+            if (digits[i] == tens && digits[i+1] == units) return true;
+        }
+        return false;
+    }
+}
+
+static inline size_t used_hash(seq_t x)
+{
+    uint64_t h = (uint64_t)(x);
+    h ^= h >> 33;
+    h *= 0xff51afd7ed558ccdULL;
+    h ^= h >> 33;
+    h *= 0xc4ceb9fe1a85ec53ULL;
+    h ^= h >> 33;
+    return (size_t)h;
+}
 
 /* ------------------------------------------------------------------ */
 /* Hash table for used numbers (seq_t)                                 */
@@ -62,7 +107,7 @@ static void seq_ensure_cap(size_t needed)
     if (seq_cap >= needed) return;
     size_t cap = (seq_cap > 1) ? seq_cap : 8;
     while (cap < needed) cap <<= 1;
-    seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, cap);
     seq_cap = cap;
 }
 
@@ -163,9 +208,9 @@ seq_t a(idx_t n)
     /* Initialise tables on first call */
     if (!used_cap) {
         used_cap = 1 << 18;          /* 262144 → plenty for 10‑thousands terms */
-        used_table = (seq_t *)calloc(used_cap, sizeof(seq_t));
+        used_table = mem_new(seq_t, used_cap);
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 1;                 /* a(1) is pre‑filled */
         seq[1] = 10;
         used_add(10);

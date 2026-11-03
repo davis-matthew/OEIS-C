@@ -9,13 +9,14 @@
  *            a(3)=20, a(4)=45, a(5)=95, a(6)=193, a(7)=389
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 26 terms through n = 27 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
     if (n < 8) return base[n];
 
     seq_t val = base[7];                     /* a(7) */
-    seq_t pow2 = pow_uint(2, 3);             /* 2^3 for i = 8 */
+    seq_t pow2 = ipow_u64_idx(2, 3);             /* 2^3 for i = 8 */
 
     for (idx_t i = 8; i <= n; ++i) {
         /* double pow2 when |i-6| changes parity (i.e., at even i >= 10) */

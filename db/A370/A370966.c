@@ -7,6 +7,7 @@
  * Formula:   a(n) = 35/6*6^n - 6*4^n + 2/3*3^n + 1/2*2^n
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 48,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 976 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

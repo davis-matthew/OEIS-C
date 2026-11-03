@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of 0's in binary expansion of n^3
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 2414, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 110 terms through n = 8722 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     }
 
     /* number of bits needed to represent cube */
-    unsigned bitlen = bitlen_seq_t(cube);
+    unsigned bitlen = bit_length(cube);
 
     /* 0-bits are total bits minus 1-bits */
     seq_t zeros = (seq_t)bitlen - ones;

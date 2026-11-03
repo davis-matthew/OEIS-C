@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 800, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 63 terms through n = 877 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* Primes of the form 16n+9 */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     /* offset 1: a(1) is the first term 41 */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     while (1) {
         k++;                                 /* next k */
         uint64_t p = 16ULL * k + 9ULL;       /* candidate prime */
-        if (is_prime(p)) {
+        if (is_prime_u64(p)) {
             count++;                         /* found a prime of the form 16n+9 */
             if (count == n) return (seq_t)p; /* desired term */
         }

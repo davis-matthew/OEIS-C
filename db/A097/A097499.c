@@ -8,7 +8,8 @@
  * Formula:   a(n) = p^q + q^p, where p and q are consecutive primes
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: standard, pass, 25 terms through n = 71 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,11 @@
 /* Computation uses the helper functions build_primes_upto and big_pow. */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Compute the n-th term of OEIS A097499.
    n = 1 corresponds to the first term (p=2,q=3). */
@@ -47,8 +51,8 @@ seq_t a(idx_t n)
     uint64_t q = primes[n];
 
     /* Compute p^q and q^p using arbitrary precision arithmetic. */
-    seq_t pow1 = big_pow((seq_t)p, (seq_t)q);
-    seq_t pow2 = big_pow((seq_t)q, (seq_t)p);
+    seq_t pow1 = ipow((seq_t)p, (seq_t)q);
+    seq_t pow2 = ipow((seq_t)q, (seq_t)p);
 
     return pow1 + pow2;
 }

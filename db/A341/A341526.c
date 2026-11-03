@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 63, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   factor_u64, gcd, next_prime, pow_uint
+ * Validated: standard, pass, 82 terms through n = 6642 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,13 @@
 /*  A341526: numerator of the reduced fraction
  *  n * sigma(A003961(n))  /  sigma(n) * A003961(n)   */
 #include <stddef.h>
-#include "../utils/gcd.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
 #include "../utils/next_prime.h"
-#include "../utils/pow_uint.h"
 
 static seq_t sigma_of_factors(const uint64_t *primes, const uint64_t *exps,
                               size_t cnt, uint64_t offset)
@@ -30,7 +34,7 @@ static seq_t sigma_of_factors(const uint64_t *primes, const uint64_t *exps,
         seq_t p = (seq_t)primes[i];
         seq_t e = (seq_t)exps[i];
         /* term = (p^{e+1} - 1) / (p - 1)  (or offset version) */
-        seq_t num = pow_uint((uint64_t)p, (idx_t)(e + 1)) - 1;
+        seq_t num = ipow_u64_idx((uint64_t)p, (idx_t)(e + 1)) - 1;
         seq_t den = offset ? (seq_t)(offset + (i == 0 ? 0 : 0)) : (p - 1);
         /* For A003961, we multiply p by 1; here offset handles shifting outside */
         result *= num / den;
@@ -45,9 +49,9 @@ static seq_t a003961_value(const uint64_t *primes, const uint64_t *exps,
     seq_t sigma  = 1;
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t nextp = next_prime(primes[i]);          /* shift to next prime */
-        seq_t  pexp   = pow_uint(nextp, (idx_t)exps[i]);  /* nextp^e */
+        seq_t  pexp   = ipow_u64_idx(nextp, (idx_t)exps[i]);  /* nextp^e */
         value *= pexp;
-        seq_t num = pow_uint(nextp, (idx_t)(exps[i] + 1)) - 1;
+        seq_t num = ipow_u64_idx(nextp, (idx_t)(exps[i] + 1)) - 1;
         seq_t den = nextp - 1;
         sigma *= num / den;
     }
@@ -71,7 +75,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         seq_t p   = (seq_t)primes[i];
         seq_t e   = (seq_t)exps[i];
-        seq_t num = pow_uint((uint64_t)p, (idx_t)(e + 1)) - 1;
+        seq_t num = ipow_u64_idx((uint64_t)p, (idx_t)(e + 1)) - 1;
         seq_t den = p - 1;
         sigma_n *= num / den;
     }

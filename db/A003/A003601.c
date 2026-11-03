@@ -9,12 +9,24 @@
  * Formula:   search for numbers j where tau(j) divides sigma(j)
  * Range:     u8 n <= 70, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_sigma
+ * Validated: standard, pass, 86 terms through n = 8880 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_sigma.h"
+static seq_t compute_sigma(seq_t n) {
+	seq_t sum = 0;
+	for (seq_t d = 1; d * d <= n; d++) {
+		if (n % d == 0) {
+			sum += d;
+			if (d * d != n) {
+				sum += n / d;
+			}
+		}
+	}
+	return sum;
+}
 
 static seq_t compute_tau(seq_t n) {
 	seq_t count = 0;

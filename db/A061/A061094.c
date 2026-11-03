@@ -13,7 +13,8 @@
  *            {1,2,5,6,10,14}
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   is_excluded
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_excluded.h"
+
+static inline bool is_excluded(seq_t v)
+{
+    /* The only numbers not allowed in the sequence are 5, 6, 10 and 14.
+       We start counting from 3, so 1 and 2 are implicitly excluded. */
+    return (v == (seq_t)5) || (v == (seq_t)6) ||
+           (v == (seq_t)10) || (v == (seq_t)14);
+}
 
 seq_t a(idx_t n)
 {

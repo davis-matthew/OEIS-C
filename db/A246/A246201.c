@@ -12,9 +12,10 @@
  *            2*a( A091245(n) ); (A091226 and A091245 give the ordinal
  *            positions of the irreducible and reducible polynomials in the
  *            binary order.)
- * Range:     u8 n <= 42, u16 n <= 241, u32 n <= 2200, u64 n <= 9990,
- *            u128 n <= 9990, big any n
- * Helpers:   none
+ * Range:     u8 n <= 42, u16 n <= 241, u32 n <= 2200, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 95 terms through n = 9990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static inline int poly_degree(uint32_t p) {
     return 31 - __builtin_clz(p);
@@ -60,7 +62,7 @@ static void ensure_cache(idx_t idx) {
     if (need > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < need) new_cap = need + 16;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
     if (irred_list == NULL) {

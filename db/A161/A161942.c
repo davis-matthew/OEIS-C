@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, mult, nonn
  * Formula:   a(n) = odd part of σ(n) where σ(n) = ∑_{d|n} d (sum of divisors)
- * Range:     u8 n <= 16, u16 n <= 1008, u32 n <= 9416, u64 n <= 9416,
- *            u128 n <= 9416, big any n
+ * Range:     u8 n <= 16, u16 n <= 1008, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 98 terms through n = 9416 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

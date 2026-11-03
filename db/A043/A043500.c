@@ -8,12 +8,14 @@
  *            contains exactly four digit '2's (OEIS sequence A043500)
  * Range:     u8 none, u16 n <= 42, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 9766 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Counts the number of digit '2' in the decimal representation of x. */
 static inline int count_twos(idx_t x)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
             size_t nc = cap == 0 ? 16 : cap * 2;
             while (nc < need)
                 nc *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, nc * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, nc);
             if (!tmp)
             {
                 /* Allocation failure; terminate gracefully */

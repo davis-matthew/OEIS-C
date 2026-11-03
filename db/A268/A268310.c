@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow, pow_uint
+ * Validated: standard, pass, 103 terms through n = 9339 (2026-11-01)
+ * Helpers:   ipow_u64_idx, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,8 +31,8 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include "../utils/mod_pow.h"   /* seq_t mod_pow(seq_t, uint64_t, seq_t) */
-#include "../utils/pow_uint.h"  /* seq_t pow_uint(uint64_t, idx_t) */
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/powmod.h"
 
 static uint32_t *composites = NULL;   /* list of composite numbers (c) */
 static size_t      composites_cnt  = 0;   /* number of composites stored   */
@@ -156,10 +157,10 @@ static seq_t _compute_k(uint32_t c, uint32_t b)
             next_mod = (seq_t)(uc * (uint64_t)c);
         } else {
             /* For larger integer types, use pow_uint (exponent is small) */
-            next_mod = pow_uint((uint64_t)c, (idx_t)(max_k + 1));
+            next_mod = ipow_u64_idx((uint64_t)c, (idx_t)(max_k + 1));
         }
 
-        if (mod_pow((seq_t)b, (uint64_t)(c - 1), next_mod) != (seq_t)1)
+        if (powmod((seq_t)b, (uint64_t)(c - 1), next_mod) != (seq_t)1)
             break;
 
         max_k = max_k + 1;
@@ -188,7 +189,7 @@ seq_t a(idx_t n)
     for (uint32_t b = 2; b < c; ++b) {
         if (_gcd_u64((uint64_t)b, (uint64_t)c) != 1) continue;
 
-        if (mod_pow((seq_t)b, (uint64_t)(c - 1), (seq_t)c) != (seq_t)1)
+        if (powmod((seq_t)b, (uint64_t)(c - 1), (seq_t)c) != (seq_t)1)
             continue;
 
         seq_t k = _compute_k(c, b);

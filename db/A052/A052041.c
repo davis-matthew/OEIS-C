@@ -10,13 +10,26 @@
  *            zero‑digit test
  * Range:     u8 n <= 14, u16 n <= 168, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_zero_digit
+ * Validated: standard, pass, 65 terms through n = 997 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_zero_digit.h"
+
+/* Return true if x contains the digit 0, otherwise false. */
+static bool has_zero_digit(seq_t x)
+{
+    /* A zero digit occurs when x is divisible by 10. */
+    const seq_t ten = (seq_t)10;
+    while (x > 0) {
+        if (x % ten == 0)
+            return true;
+        x /= ten;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

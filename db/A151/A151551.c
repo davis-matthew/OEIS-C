@@ -7,12 +7,14 @@
  * Formula:   a(n) = [x^n] (1 + 3x) * Prod_{k>=1} (1 + x^(2^k-1) + 2*x^(2^k))
  * Range:     u8 n <= 59, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 /* Multiply the current DP array by the factor (1 + x^e1 + 2*x^e2).
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 {
     /* Allocate DP array of size n+1. */
     size_t sz = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(sizeof(seq_t) * sz);
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) return (seq_t)0;                /* out of memory -> zero */
 
     /* Initialize dp[0] = 1, others = 0. */
@@ -58,6 +60,6 @@ seq_t a(idx_t n)
     }
 
     /* Clean up and return. */
-    free(dp);
+    mem_free(dp);
     return result;
 }

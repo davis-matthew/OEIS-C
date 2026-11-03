@@ -8,13 +8,15 @@
  *            4^floor(n^2/4)*((1/2-sqrt(2)/2)*cos(3*Pi*n/4)+(1/2+sqrt(2)/2)*cos(Pi*n/4))
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 7, i64 n <= 11, i128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (coeff == 0)
         return (seq_t)0;
 
-    seq_t pow4 = big_pow((seq_t)4, exp);
+    seq_t pow4 = ipow((seq_t)4, exp);
 
     return coeff > 0 ? pow4 : -pow4;
 }

@@ -10,15 +10,23 @@
  *            = T(i,j)
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 37, u64 n <= 124, u128 n <= 446,
  *            big any n
- * Helpers:   big_pow, binomial, seq_mul
+ * Validated: standard, pass, 46 terms through n = 9131 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static inline __int128 tri128(idx_t k) {
     return (__int128)k * (k + 1) / 2;
@@ -50,8 +58,8 @@ seq_t a(idx_t n) {
 
     /* Compute binomial(i,j) * 12^(i-j) * 11^j */
     seq_t res        = binomial(i, j);
-    seq_t pow12      = big_pow((seq_t)12, (seq_t)(i - j));
-    seq_t pow11      = big_pow((seq_t)11, (seq_t)j);
+    seq_t pow12      = ipow((seq_t)12, (seq_t)(i - j));
+    seq_t pow11      = ipow((seq_t)11, (seq_t)j);
 
     res = seq_mul(res, pow12);
     res = seq_mul(res, pow11);

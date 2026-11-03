@@ -7,12 +7,15 @@
  * Formula:   a(n) = 24^(5*n + 4)
  * Range:     u8 none, u16 none, u32 n <= 0, u64 n <= 1, u128 n <= 4,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 24 terms through n = 48 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -21,5 +24,5 @@ seq_t a(idx_t n)
     /* Exponent 5*n + 4 */
     const idx_t exp = 5 * n + 4;
     /* Compute the power using the utility function */
-    return seq_pow(base, exp);
+    return ipow_idx(base, exp);
 }

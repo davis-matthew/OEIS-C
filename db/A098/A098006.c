@@ -7,6 +7,7 @@
  * Formula:   a(n) = (p-1)/2 - φ(p-1) , p = nth odd prime (offset 2)
  * Range:     u8 n <= 176, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 98 terms through n = 9667 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

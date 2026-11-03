@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 560, u32 n <= 4960, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 8764 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Compare two seq_t values for qsort. */
 static int seq_compare(const void *p1, const void *p2) {
@@ -79,7 +81,7 @@ static void build_table(void) {
     table_len = len;
 
     /* Sort the generated values */
-    qsort(table, table_len, sizeof(seq_t), seq_compare);
+    mem_qsort(table, table_len, sizeof(seq_t), seq_compare);
 
     /* Remove duplicates (there shouldn't be any, but be safe). */
     size_t uniq = 0;

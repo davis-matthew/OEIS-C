@@ -9,12 +9,23 @@
  *            10 where d(n) is the number of decimal digits of n
  * Range:     u8 n <= 0, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
+#include <stdint.h>
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Count decimal digits of an idx_t value (x=0 gives 1). */
 static idx_t digit_count(idx_t x)

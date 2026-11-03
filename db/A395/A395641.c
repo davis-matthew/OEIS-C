@@ -10,7 +10,8 @@
  *            - r!, where r = floor((sqrt(8n+1)-1)/2) and k = n - r(r+1)/2
  * Range:     i8 n <= 15, i16 n <= 35, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Routine to compute the OEIS sequence A395641. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static storage for values computed so far */
 static seq_t *flat = NULL;          /* flattened coefficients */
@@ -38,7 +40,7 @@ static void ensure_capacity(seq_t **ptr, size_t *cap, size_t needed)
     if (needed <= *cap) return;
     size_t new_cap = (*cap ? (*cap << 1) : 16);
     if (new_cap < needed) new_cap = needed;
-    *ptr = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    *ptr = mem_resize(seq_t, *ptr, new_cap);
     *cap = new_cap;
 }
 

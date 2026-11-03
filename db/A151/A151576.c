@@ -8,12 +8,13 @@
  * Formula:   a(n) = n * ( 3^(n-1) - n * 2^(n-1) + n*(n-1)/2 )
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 38, u128 n <= 77,
  *            big any n
- * Helpers:   pow_uint_seqs
+ * Validated: standard, pass, 42 terms through n = 482 (2026-11-01)
+ * Helpers:   ipow_u32_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint_seqs.h"
+#include "../utils/ipow_u32_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +24,8 @@ seq_t a(idx_t n)
     idx_t nm1 = n - 1;
     seq_t n_seq = (seq_t)n;
 
-    seq_t pow2 = pow_uint_seqs(2, nm1);
-    seq_t pow3 = pow_uint_seqs(3, nm1);
+    seq_t pow2 = ipow_u32_idx(2, nm1);
+    seq_t pow3 = ipow_u32_idx(3, nm1);
 
     seq_t term2 = n_seq * pow2;                     /* n * 2^(n-1) */
     seq_t term3 = n_seq * (n_seq - 1) / 2;          /* n*(n-1)/2     */

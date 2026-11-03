@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *diff_prime = NULL;      /* diff_prime[diff] = smallest prime with that diff */
 static size_t diff_cap   = 0;          /* array capacity */
@@ -36,9 +38,9 @@ static void ensure_capacity(size_t needed)
         return;
     size_t new_cap = diff_cap > 0 ? diff_cap : 8;
     while (new_cap <= needed) new_cap <<= 1;
-    diff_prime = (seq_t*)realloc(diff_prime, new_cap * sizeof(seq_t));
+    diff_prime = mem_resize(seq_t, diff_prime, new_cap);
     /* Initialize the newly allocated part to 0 (i.e., zero the integer) */
-    memset(diff_prime + diff_cap, 0, (new_cap - diff_cap) * sizeof(seq_t));
+    mem_set(diff_prime + diff_cap, 0, (new_cap - diff_cap) * sizeof(seq_t));
     diff_cap = new_cap;
 }
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Initialise once */
     if (!initialized) {
         diff_cap = 8;
-        diff_prime = (seq_t*)calloc(diff_cap, sizeof(seq_t));
+        diff_prime = mem_new(seq_t, diff_cap);
         diff_prime[0] = (seq_t)2ULL;      /* diff 0 occurs at prime 2 */
         current_prime = 2ULL;
         current_diff  = 0;

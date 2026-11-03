@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 617, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_u64, smallest_prime_factor
+ * Validated: standard, pass, 61 terms through n = 9855 (2026-11-03)
+ * Helpers:   gcd_u64, is_prime_u64, mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,40 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/smallest_prime_factor.h"
+#include <stddef.h>
+#include <string.h>
+#include "../utils/gcd_u64.h"
 #include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
+
+/* Pollard–Rho: find a non‑trivial divisor of n (n composite) */
+static uint64_t pollard(uint64_t n) {
+    if (n % 2 == 0) return 2;
+    uint64_t c = 1;
+    while (1) {
+        uint64_t x = 2, y = 2, d = 1;
+        while (d == 1) {
+            x = (mulmod(x, x, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            uint64_t diff = x > y ? x - y : y - x;
+            d = gcd_u64(diff, n);
+        }
+        if (d != n) return d;
+        ++c;  /* try another constant */
+    }
+}
+
+/* recursive smallest prime factor */
+static uint64_t smallest_prime_factor(uint64_t n) {
+    if (n % 2 == 0) return 2;
+    if (is_prime_u64(n)) return n;
+    uint64_t d = pollard(n);
+    uint64_t s1 = smallest_prime_factor(d);
+    uint64_t s2 = smallest_prime_factor(n / d);
+    return (s1 < s2) ? s1 : s2;
+}
 
 /* Pre‑computed table of whether 0…64 are semiprime (product of two primes,
    allowing a square).  This table is used for the popcount test. */
@@ -101,14 +134,14 @@ static void ensure_cache(idx_t n_needed) {
     if (cache_len >= (size_t)n_needed) return;
     if (cache_cap == 0) {
         cache_cap = 128;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     while (cache_len < (size_t)n_needed) {
         /* Skip non‑candidates */
         while (!candidate_ok(next_candidate)) ++next_candidate;
         if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = (seq_t)next_candidate;
         ++next_candidate;   /* next search starts at the following integer */

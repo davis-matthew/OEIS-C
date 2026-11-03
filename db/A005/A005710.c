@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + a(n-8), a(i) = 1 for i = 0..7
  * Range:     u8 n <= 30, u16 n <= 57, u32 n <= 110, u64 n <= 216,
  *            u128 n <= 429, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 458 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -20,7 +22,7 @@ seq_t a(idx_t n) {
     
     if (cache == NULL) {
         cache_len = 8;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         for (idx_t i = 0; i < 8; i++) {
             cache[i] = 1;
         }
@@ -30,11 +32,11 @@ seq_t a(idx_t n) {
         return cache[n];
     }
     
-    seq_t *new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (n + 1));
     for (idx_t i = 0; i < cache_len; i++) {
         new_cache[i] = cache[i];
     }
-    free(cache);
+    mem_free(cache);
     
     for (idx_t i = cache_len; i <= n; i++) {
         new_cache[i] = new_cache[i - 1] + new_cache[i - 8];

@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{i=1..floor((n-1)/2)} (i^8 + (n-i)^8)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 15, u64 n <= 176,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 41 terms through n = 9521 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

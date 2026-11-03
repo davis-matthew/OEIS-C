@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 2021, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 78 terms through n = 9204 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* Static storage for the found terms. */
 #define MAX_TERMS 20000          /* must be > maximum number of terms needed (e.g. n=10000) */
@@ -45,8 +48,8 @@ seq_t a(idx_t n)
         seq_t d = (seq_t)(2 * (idx_t)k - 1);           /* modulus 2*k-1              */
 
         /* Compute 2^k mod d and 3^k mod d. */
-        seq_t mod2 = mod_pow((seq_t)2, k, d);
-        seq_t mod3 = mod_pow((seq_t)3, k, d);
+        seq_t mod2 = powmod((seq_t)2, k, d);
+        seq_t mod3 = powmod((seq_t)3, k, d);
 
         /* Check the divisibility condition. */
         seq_t sum = (seq_t)1 + mod2 + mod3;            /* 1 + 2^k + 3^k (mod d)     */

@@ -9,13 +9,14 @@
  *            column number, d = r - c is the distance from the diagonal
  * Range:     i8 n <= 14, i16 n <= 44, i32 n <= 69, i64 n <= 69, i128 n <= 69,
  *            big any n
- * Helpers:   binom_double_d
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-01)
+ * Helpers:   central_binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/binom_double_d.h"
+#include "../utils/central_binomial.h"
 
 seq_t a(idx_t n) {
     /* Find the row r such that r(r+1)/2 <= n < (r+1)(r+2)/2. */
@@ -34,6 +35,6 @@ seq_t a(idx_t n) {
     idx_t d = r - c;        /* distance from the diagonal */
 
     seq_t denom = (seq_t)1 - (seq_t)(2 * d);
-    seq_t num = binom_double_d(d);
+    seq_t num = central_binomial(d);
     return num / denom;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has_adjacent_25_52
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent_25_52.h"
+#include "../utils/mem.h"
+
+/* Return true if the base‑6 representation of x contains adjacent digits
+ * 2 and 5 in either order.  Digits are examined from least‑significant to
+ * most‑significant; adjacency in any order is accepted. */
+static bool has_adjacent_25_52(seq_t x)
+{
+    seq_t prev = (seq_t)6;   /* sentinel value outside 0‑5 */
+    while (x > 0) {
+        seq_t d = x % 6;
+        x /= 6;
+        if (prev != 6 && ((prev == 2 && d == 5) || (prev == 5 && d == 2)))
+            return true;
+        prev = d;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +56,7 @@ seq_t a(idx_t n)
         if (has_adjacent_25_52(cur) && !has_adjacent_25_52(cur + 1)) {
             if (len == cap) {
                 size_t newcap = cap ? cap * 2 : 16;
-                seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, newcap);
                 if (!seq)
                     abort();   /* allocation failure */
                 cap = newcap;

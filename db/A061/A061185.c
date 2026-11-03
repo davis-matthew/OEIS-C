@@ -8,7 +8,8 @@
  * Formula:   a(n) = A060921(n+5,5)/2, recurrence from g.f. (1-3x+x^2)^6
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 12, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  *     a(10)=158677370, a(11)=606790410. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int init_vals[] = {
     3, 49, 462, 3294, 19715, 104517,
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (terms_len == 0) {
         size_t init_len = sizeof(init_vals) / sizeof(init_vals[0]);
         terms_len = init_len;
-        terms = (seq_t *)malloc(terms_len * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_len);
         for (size_t i = 0; i < init_len; ++i)
             terms[i] = (seq_t) init_vals[i];
     }
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* grow the table if needed */
     if ((size_t)n + 1 > terms_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *new_terms = (seq_t *)realloc(terms, new_len * sizeof(seq_t));
+        seq_t *new_terms = mem_resize(seq_t, terms, new_len);
         if (new_terms == NULL) {
             /* allocation failed – in competitive programming context abort */
             abort();

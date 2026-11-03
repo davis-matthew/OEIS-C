@@ -10,7 +10,8 @@
  *            square array read by descending * antidiagonals
  * Range:     u8 n <= 18, u16 n <= 50, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 static seq_t compute_R(idx_t k, idx_t n)
 {
@@ -30,20 +32,20 @@ static seq_t compute_R(idx_t k, idx_t n)
     }
 
     /* Pre‑compute x^k for 1 ≤ x ≤ n. */
-    seq_t *powX = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *powX = mem_new(seq_t, (size_t)(n + 1));
     if (!powX) return (seq_t)0;
     for (idx_t x = (idx_t)1; x <= n; ++x)
-        powX[x] = seq_pow((seq_t)x, k);
+        powX[x] = ipow_idx((seq_t)x, k);
 
     /* Pre‑compute m^k for 0 ≤ m ≤ 2*n (upper bound for the kth root). */
     size_t mid_max = (size_t)(2 * n);
-    seq_t *powMid = (seq_t *)malloc((mid_max + 1) * sizeof(seq_t));
+    seq_t *powMid = mem_new(seq_t, (mid_max + 1));
     if (!powMid) {
-        free(powX);
+        mem_free(powX);
         return (seq_t)0;
     }
     for (idx_t m = (idx_t)0; m <= (idx_t)mid_max; ++m)
-        powMid[m] = seq_pow((seq_t)m, k);
+        powMid[m] = ipow_idx((seq_t)m, k);
 
     seq_t total = (seq_t)0;
 
@@ -71,8 +73,8 @@ static seq_t compute_R(idx_t k, idx_t n)
         }
     }
 
-    free(powX);
-    free(powMid);
+    mem_free(powX);
+    mem_free(powMid);
     return total;
 }
 

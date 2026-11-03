@@ -8,7 +8,8 @@
  *            (prime(i) counts the i‑th prime, starting with prime(1)=2)
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   sieve_primes
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/sieve_primes.h"   /* void sieve_primes(idx_t limit, idx_t **primes_out, size_t *cnt_out); */
+#include <string.h>
+#include "../utils/sieve_primes.h"
+#include "../utils/mem.h"
 
 static idx_t  max_prepared = 0;      /* largest n for which tables are built */
 static uint64_t *prime_list = NULL; /* list of primes up to current limit */
@@ -33,7 +36,7 @@ static void prepare(idx_t n)
 
     /* free previous allocations */
     free(prime_list);
-    free(cumulative);
+    mem_free(cumulative);
     prime_list = NULL;
     cumulative = NULL;
     prime_cnt   = 0;
@@ -56,7 +59,7 @@ static void prepare(idx_t n)
     }
 
     /* build cumulative sums */
-    cumulative = (seq_t *)malloc((prime_cnt + 1) * sizeof(seq_t));
+    cumulative = mem_new(seq_t, (prime_cnt + 1));
     cumulative[0] = 0;
     for (size_t i = 0; i < prime_cnt; ++i)
         cumulative[i + 1] = cumulative[i] + (seq_t)prime_list[i];

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   compute_phi105, mul_by_xd_minus1, poly_divide_monic
+ * Validated: standard, pass, 97 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,76 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>   /* for memcpy, memset */
-#include "../utils/compute_phi105.h"
-#include "../utils/mul_by_xd_minus1.h"
-#include "../utils/poly_divide_monic.h"
+#include "../utils/mem.h"
+
+static void mul_by_xd_minus1(seq_t *poly, idx_t *deg, idx_t d)
+{
+    /* Multiply the polynomial by (x^d – 1).
+       poly[0..*deg] contains the current polynomial.
+       After the call poly[0..(*deg)+d] holds the result and *deg is updated. */
+    static seq_t tmp[200];
+    idx_t newdeg = *deg + d;
+    /* clear tmp to zero for indices up to newdeg */
+    for (idx_t i = 0; i <= newdeg; ++i) tmp[i] = 0;
+    for (idx_t i = 0; i <= *deg; ++i) {
+        seq_t val = poly[i];
+        tmp[i]     -= val;     /* multiply by –1   */
+        tmp[i + d] += val;     /* multiply by x^d   */
+    }
+    /* copy back to poly */
+    for (idx_t i = 0; i <= newdeg; ++i) poly[i] = tmp[i];
+    *deg = newdeg;
+}
+
+/* Divide the monic polynomial 'den' (degree deg_den) from 'num' (degree deg_num).
+   The result is stored in 'quot' and its degree in *deg_quot.  The division
+   is exact because den is monic and divides num. */
+static void poly_divide_monic(const seq_t *num, idx_t deg_num,
+                              const seq_t *den, idx_t deg_den,
+                              seq_t *quot, idx_t *deg_quot)
+{
+    static seq_t tmp[200];
+    mem_copy(tmp, num, (deg_num + 1) * sizeof(seq_t));
+    /* initialize quotient to zero */
+    for (idx_t i = 0; i <= deg_num - deg_den; ++i) quot[i] = 0;
+    for (idx_t i = deg_num; i >= deg_den; --i) {
+        seq_t coeff = tmp[i];
+        if (coeff == 0) continue;
+        quot[i - deg_den] = coeff;
+        /* subtract coeff * den shifted by (i–deg_den) */
+        for (idx_t j = 0; j <= deg_den; ++j) {
+            tmp[i - deg_den + j] -= coeff * den[j];
+        }
+    }
+    *deg_quot = deg_num - deg_den;
+}
+
+/* Compute the coefficients of Φ105(x).  The coefficients are stored in
+   phi_coeff[0..48].  phi_coeff[0] will be set to 1. */
+static void compute_phi105(seq_t phi_coeff[49])
+{
+    static seq_t num[200], den[200];
+    idx_t deg_num = 0, deg_den = 0;
+    /* initialise to the constant polynomial 1 */
+    num[0] = den[0] = 1;
+    /* numerator factors: (x^3–1)(x^5–1)(x^7–1)(x^105–1) */
+    const idx_t num_factors[] = {3, 5, 7, 105};
+    for (size_t i = 0; i < sizeof(num_factors) / sizeof(num_factors[0]); ++i)
+        mul_by_xd_minus1(num, &deg_num, num_factors[i]);
+    /* denominator factors: (x–1)(x^15–1)(x^21–1)(x^35–1) */
+    const idx_t den_factors[] = {1, 15, 21, 35};
+    for (size_t i = 0; i < sizeof(den_factors) / sizeof(den_factors[0]); ++i)
+        mul_by_xd_minus1(den, &deg_den, den_factors[i]);
+
+    /* divide numerator by denominator to obtain Φ105 */
+    static seq_t quot[200];
+    idx_t deg_quot;
+    poly_divide_monic(num, deg_num, den, deg_den, quot, &deg_quot);
+
+    /* store the coefficients (deg_quot should be 48) */
+    for (idx_t i = 0; i <= deg_quot; ++i)
+        phi_coeff[i] = quot[i];
+}
 
 seq_t a(idx_t n)
 {

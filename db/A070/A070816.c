@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *smooth = NULL;          /* array of k values */
 static size_t smooth_capacity = 0;    /* allocated capacity */
@@ -38,7 +40,7 @@ static inline void ensure_capacity(size_t needed)
     {
         size_t new_cap = smooth_capacity ? smooth_capacity << 1 : 16;
         if (new_cap < needed) new_cap = needed;
-        smooth = (seq_t *)realloc(smooth, new_cap * sizeof(seq_t));
+        smooth = mem_resize(seq_t, smooth, new_cap);
         smooth_capacity = new_cap;
     }
 }

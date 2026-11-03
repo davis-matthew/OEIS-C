@@ -8,6 +8,7 @@
  * Formula:   a(3k) = 2 + 9k a(3k+1) = 4 + 9k a(3k+2) = 6 + 9k for k >= 0
  * Range:     u8 n <= 84, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 66 terms through n = 858 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

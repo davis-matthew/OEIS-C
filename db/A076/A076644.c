@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n - floor(sqrt(n))) + n (a(1) = 1)
  * Range:     u8 n <= 49, u16 n <= 2095, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 8296 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer floor square root for a 64‑bit unsigned value.
    Returns ⌊√v⌋. Simple binary search.  */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (n > cached) {
         /* Grow cache to accommodate up to n. */
         idx_t new_size = n; /* new number of elements */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)        /* allocation failure */
             return 0;
         cache = tmp;

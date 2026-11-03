@@ -7,20 +7,21 @@
  * Formula:   a(n) = Sum_{k=0..n} (k+1)*(n-k)^k
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 27, u128 n <= 45,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 40 terms through n = 557 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     seq_t result = 0;
     for (idx_t k = 0; k <= n; ++k) {
         seq_t base  = (seq_t)(n - k);
-        seq_t power = pow_seq(base, k);
+        seq_t power = ipow_idx(base, k);
         seq_t term  = (seq_t)(k + 1) * power;
         result += term;
     }

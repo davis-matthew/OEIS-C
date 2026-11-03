@@ -9,7 +9,8 @@
  *            Germain primes
  * Range:     u8 n <= 8782, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 103 terms through n = 9870 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"    /* provides is_prime(idx_t x) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* <idx_t> is an alias for uint64_t.  <seq_t> is the output type.  */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* extend the cache to cover [max_n+1 .. n] */
     idx_t new_max = n;
     /* Grow the counts array to size new_max+1 (index 0..new_max) */
-    seq_t *new_counts = (seq_t *)realloc(counts, (new_max + 1) * sizeof(seq_t));
+    seq_t *new_counts = mem_resize(seq_t, counts, (new_max + 1));
     if (!new_counts) abort();      /* memory error */
     counts = new_counts;
 

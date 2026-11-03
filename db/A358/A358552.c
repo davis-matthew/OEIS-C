@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9998, u16 n <= 9998, u32 n <= 9998, u64 n <= 9998,
- *            u128 n <= 9998, big any n
- * Helpers:   none
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 124 terms through n = 9998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static data for primes and memoisation */
 static uint64_t *primes = NULL;      /* list of primes */
@@ -108,7 +110,7 @@ static void ensure_cache(idx_t needed)
         return;
 
     idx_t new_cap = needed + 1;
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         return;
 
@@ -117,7 +119,7 @@ static void ensure_cache(idx_t needed)
     for (idx_t i = cache_cap; i < new_cap; ++i)
         new_cache[i] = 0;
 
-    free(height_cache);
+    mem_free(height_cache);
     height_cache = new_cache;
     cache_cap = new_cap;
 }

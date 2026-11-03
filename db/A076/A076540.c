@@ -7,11 +7,13 @@
  * Formula:   a(n) = binomial(2*n-1, n-2) + binomial(2*n-2, n-1)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 66,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 1363 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t binom(idx_t n, idx_t k)

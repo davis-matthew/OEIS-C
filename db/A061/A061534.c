@@ -8,12 +8,14 @@
  *            a(3) = 29 (OEIS A061534)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* cached sequence values */
 static idx_t cached_upto = (idx_t)-1; /* highest index computed so far */
@@ -23,9 +25,9 @@ static idx_t cache_size  = 0;      /* allocated array size */
 static void grow_cache_to(idx_t upto)
 {
     if (cache == NULL) {
-        cache = (seq_t*)malloc((upto + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (upto + 1));
     } else if (cache_size <= upto) {
-        cache = (seq_t*)realloc(cache, (upto + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (upto + 1));
     }
     if (cache == NULL) abort();
     if (upto + 1 > cache_size) cache_size = upto + 1;

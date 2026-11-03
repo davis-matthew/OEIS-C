@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_mul
+ * Validated: standard, pass, 74 terms through n = 826 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
    no exponent k ≥ 1 satisfies 2^k ≡ –1 (mod N). */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_mul.h"
+#include <stdint.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* Helper: test whether an odd m > 1 divides 2^k + 1 for some k ≥ 1.
    Returns true if such k exists (i.e., 2^k ≡ –1 mod m). */
@@ -26,7 +29,7 @@ static bool _has_minus_one_power(idx_t m)
     idx_t target = m - 1;          /* –1 mod m */
 
     while (val != target && val != 1)
-        val = mod_mul((uint64_t)val, 2ULL, (uint64_t)m);  /* val = 2*val mod m */
+        val = mulmod((uint64_t)val, 2ULL, (uint64_t)m);  /* val = 2*val mod m */
 
     return val == target;
 }
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
         {
             if (cache_cap == 0) cache_cap = 64;
             else                cache_cap <<= 1;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* test next odd integer */

@@ -9,13 +9,15 @@
  *            r*(r+1)/2 + k (0 ≤ k ≤ r). The triangle is read row by row
  * Range:     i8 n <= 10, i16 n <= 29, i32 n <= 96, i64 n <= 360,
  *            i128 n <= 1346, big any n
- * Helpers:   binom, pow3
+ * Validated: standard, pass, 61 terms through n = 4984 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow3.h"
-#include "../utils/binom.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     idx_t k = n - prev_sum;              /* column index within the row */
 
     seq_t pow3_r = pow3(r);              /* 3^r */
-    seq_t comb   = binom(r, k);          /* C(r,k) */
+    seq_t comb   = binomial(r, k);          /* C(r,k) */
 
     /* T(r,k,3) = (1 - 3^r) * (C(r,k) - 1) + 1 */
     seq_t term = 1 - (pow3_r - 1) * (comb - 1);

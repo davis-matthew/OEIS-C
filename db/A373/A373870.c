@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} k! * k^(n-3) * |Stirling1(n,k)|
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 static seq_t *a_cache = NULL;          /* Memoised sequence values. */
@@ -38,7 +40,7 @@ static void ensure_a_cap(idx_t n)
 {
     if (a_cap < (size_t)n + 1) {
         a_cap = (size_t)n + 1;
-        a_cache = (seq_t *)realloc(a_cache, a_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, a_cap);
     }
 }
 
@@ -46,7 +48,7 @@ static void ensure_fact_cap(idx_t n)
 {
     if (fact_cap < (size_t)n + 1) {
         fact_cap = (size_t)n + 1;
-        fact_cache = (seq_t *)realloc(fact_cache, fact_cap * sizeof(seq_t));
+        fact_cache = mem_resize(seq_t, fact_cache, fact_cap);
         if (fact_cache[0] == 0) fact_cache[0] = (seq_t)1;      /* Ensure 0! = 1. */
     }
 }
@@ -55,8 +57,8 @@ static void ensure_st_cap(idx_t n)
 {
     if (st_cap < (size_t)n + 1) {
         st_cap = (size_t)n + 1;
-        st_prev = (seq_t *)realloc(st_prev, st_cap * sizeof(seq_t));
-        st_curr = (seq_t *)realloc(st_curr, st_cap * sizeof(seq_t));
+        st_prev = mem_resize(seq_t, st_prev, st_cap);
+        st_curr = mem_resize(seq_t, st_curr, st_cap);
     }
 }
 
@@ -64,7 +66,7 @@ static void ensure_pow_cap(idx_t n)
 {
     if (pow_cap < (size_t)n + 1) {
         pow_cap = (size_t)n + 1;
-        pow_k = (seq_t *)realloc(pow_k, pow_cap * sizeof(seq_t));
+        pow_k = mem_resize(seq_t, pow_k, pow_cap);
     }
 }
 

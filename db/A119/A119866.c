@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,20 @@
    decimal digits.  The sequence is a(1)=10541, a(2)=33334, …   (OEIS A119866) */
 
 #include <stdlib.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Return the n‑th term of A119866 (offset 1).  The function is
    memoised internally, so it works for calls in any order. */
@@ -38,7 +51,7 @@ seq_t a(idx_t n)
     /* Expand the search until we have found at least n terms. */
     while (len < n) {
         /* y holds x².  Check whether the first five digits of y are equal. */
-        int d = digit_len(y);            /* number of decimal digits of y     */
+        int d = num_digits(y);            /* number of decimal digits of y     */
         if (d >= 5) {
             /* Compute 10^(d‑5) to truncate the last d‑5 digits. */
             seq_t p10   = pow10((idx_t)(d - 5));
@@ -51,7 +64,7 @@ seq_t a(idx_t n)
                     /* Grow the cache: double capacity or set to 4 if zero. */
                     size_t new_cap = cap ? cap * 2 : 4;
                     while (new_cap <= len) new_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) exit(EXIT_FAILURE);
                     cache = tmp;
                     cap   = new_cap;

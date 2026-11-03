@@ -9,13 +9,15 @@
  *            and c = n - r(r-1)/2
  * Range:     u8 n <= 666, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 1237 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,11 +41,11 @@ seq_t a(idx_t n)
         idx_t newmax = r;
 
         /* reallocate g and S to hold indices 0..newmax          */
-        seq_t *tmp_g = (seq_t *)realloc(g, (newmax + 1) * sizeof(seq_t));
-        seq_t *tmp_S = (seq_t *)realloc(S, (newmax + 1) * sizeof(seq_t));
+        seq_t *tmp_g = mem_resize(seq_t, g, (newmax + 1));
+        seq_t *tmp_S = mem_resize(seq_t, S, (newmax + 1));
         if (!tmp_g || !tmp_S) {
-            free(tmp_g);
-            free(tmp_S);
+            mem_free(tmp_g);
+            mem_free(tmp_S);
             return 0;  /* allocation failure → 0 as fallback */
         }
         g = tmp_g;

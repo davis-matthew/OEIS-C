@@ -8,13 +8,17 @@
  * Formula:   a(n) = J_2(n) + g(n) where J_2(n) = n^2 * Π_{p|n} (1 - 1/p^2)
  *            (Jordan totient of order 2) g(n) = Π_{p|n} (-(p^2 - 1))
  *            (Dirichlet inverse of J_2)
- * Range:     u8 n <= 13, u16 n <= 184, u32 n <= 801, u64 n <= 9931,
- *            u128 n <= 9931, big any n
+ * Range:     u8 n <= 13, u16 n <= 184, u32 n <= 801, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 92 terms through n = 9931 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static idx_t *primes = NULL;

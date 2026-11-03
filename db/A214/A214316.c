@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 185, i16 n <= 2500, i32 n <= 2500, i64 n <= 2500,
  *            i128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 2384 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *f_cache = NULL;   /* cache of f(k) for k in [0, f_limit-1] */
 static idx_t f_limit = 0;       /* current cache size */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (n + 1 > f_limit) {
         idx_t new_lim = n + 1;
-        f_cache = (seq_t *)realloc(f_cache, sizeof(seq_t) * new_lim);
+        f_cache = mem_resize(seq_t, f_cache, new_lim);
         compute_f(f_cache, n);
         f_limit = new_lim;
     }

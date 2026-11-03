@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 17, u128 n <= 37,
  *            big any n
- * Helpers:   absdiff_uint8
+ * Validated: standard, pass, 32 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,13 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/absdiff_uint8.h"
+#include "../utils/mem.h"
+
+/* Helper: absolute difference for unsigned 8‑bit values */
+static inline int absdiff_uint8(uint8_t a, uint8_t b)
+{
+    return a > b ? a - b : b - a;
+}
 
 #define MAX_ROWS      64                  /* 3 cells in a row, coded in base‑4 */
 #define MAX_STATES    (MAX_ROWS * MAX_ROWS)
@@ -172,7 +179,7 @@ seq_t a(idx_t n)
 
     /* Number of vertical transitions is n-1 */
     for (idx_t step = 1; step < n; ++step) {
-        memset(dp_nxt, 0, state_count * sizeof(seq_t));
+        mem_set(dp_nxt, 0, state_count * sizeof(seq_t));
         for (int s = 0; s < state_count; ++s) {
             seq_t val = dp_cur[s];
             if (val == 0) continue;

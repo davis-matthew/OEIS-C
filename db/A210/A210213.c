@@ -12,12 +12,14 @@
  *            constant term of each polynomial
  * Range:     u8 n <= 30, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* flattened triangle values */
 static size_t  cache_len = 0;        /* number of values cached          */
@@ -32,7 +34,7 @@ static void append_cache(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 64;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();           /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;
@@ -46,8 +48,8 @@ static void generate_next_row(void)
 {
     /* new row length = prev_len + 1 */
     size_t new_len = prev_len + 1;
-    seq_t *u_new = (seq_t *)malloc(new_len * sizeof(seq_t));
-    seq_t *v_new = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *u_new = mem_new(seq_t, new_len);
+    seq_t *v_new = mem_new(seq_t, new_len);
     if (!u_new || !v_new) abort();  /* allocation failure */
 
     /* k = 0 case */
@@ -72,8 +74,8 @@ static void generate_next_row(void)
     }
 
     /* free previous arrays and update pointers/length */
-    free(u_prev);
-    free(v_prev);
+    mem_free(u_prev);
+    mem_free(v_prev);
     u_prev = u_new;
     v_prev = v_new;
     prev_len = new_len;
@@ -88,8 +90,8 @@ static void ensure_cache(idx_t n)
     if (cache_len == 0) {
         /* Row 1: u = 1, v = 1 */
         prev_len = 1;
-        u_prev = (seq_t *)malloc(prev_len * sizeof(seq_t));
-        v_prev = (seq_t *)malloc(prev_len * sizeof(seq_t));
+        u_prev = mem_new(seq_t, prev_len);
+        v_prev = mem_new(seq_t, prev_len);
         if (!u_prev || !v_prev) abort();
         u_prev[0] = (seq_t)1;
         v_prev[0] = (seq_t)1;

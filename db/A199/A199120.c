@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached partition table.  dp_cache[i] = a(i).  cache_size = size of dp_cache. */
 static seq_t *dp_cache = NULL;
@@ -28,7 +30,7 @@ static idx_t cache_size = 0;
 static void recompute_cache(idx_t new_max)
 {
     /* Allocate DP array. */
-    seq_t *dp = (seq_t *)malloc((size_t)(new_max + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(new_max + 1));
     for (idx_t i = 0; i <= new_max; ++i) dp[i] = 0;
     dp[0] = 1;
 
@@ -93,7 +95,7 @@ static void recompute_cache(idx_t new_max)
     free(cnt);
 
     /* Replace the old cache. */
-    if (dp_cache) free(dp_cache);
+    if (dp_cache) mem_free(dp_cache);
     dp_cache = dp;
     cache_size = new_max + 1;
 }

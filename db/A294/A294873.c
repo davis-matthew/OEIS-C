@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Π_{d|n, d>1, d = x^(2k-1) (maximal k ≥ 1)} prime(k)
- * Range:     u8 n <= 59, u16 n <= 239, u32 n <= 1259, u64 n <= 9179,
- *            u128 n <= 9179, big any n
+ * Range:     u8 n <= 59, u16 n <= 239, u32 n <= 1259, u64 n <= 10079,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 119 terms through n = 9179 (2026-11-01)
  * Helpers:   factor_u64, gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd_u64.h"
 

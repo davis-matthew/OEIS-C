@@ -8,13 +8,26 @@
  * Formula:   a(n) = 3^(floor(n/2)+1) - fibonacci(n+3)
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   fib, pow3
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-01)
+ * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/fib.h"
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow3.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n)
 {

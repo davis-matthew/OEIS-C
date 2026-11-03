@@ -8,15 +8,33 @@
  *            n·a(n))
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 14, u64 n <= 22, u128 n <= 34,
  *            big any n
- * Helpers:   isqrt128, isqrt_seq
+ * Validated: standard, pass, 41 terms through n = 395 (2026-11-01)
+ * Helpers:   isqrt_i128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/isqrt128.h"   /* unsigned long long isqrt128(__int128 x) */
-#include "../utils/isqrt_seq.h"  /* seq_t isqrt_seq(seq_t v)          */
+#include <stdbool.h>
+#include "../utils/isqrt_i128.h"
+
+/* Integer square root (floor) of a non‑negative seq_t value. */
+static seq_t isqrt_seq(seq_t v)
+{
+    seq_t lo = 0, hi = v;
+    while (lo <= hi) {
+        seq_t mid = lo + ((hi - lo) >> 1);
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
 
 seq_t a(idx_t n)
 {
@@ -63,7 +81,7 @@ seq_t a(idx_t n)
         idx_t k = i - 1;                     /* the previous index */
         if (sizeof(seq_t) <= 8) {            /* 8‑byte or smaller integer types */
             unsigned __int128 prod = (unsigned __int128)k * (unsigned __int128)cache[k];
-            unsigned long long root = isqrt128(prod);   /* floor sqrt */
+            unsigned long long root = isqrt_i128(prod);   /* floor sqrt */
             seq_t m = (seq_t)root;
             cache[i] = m * m;
         } else {                             /* arbitrary‑precision or larger types */

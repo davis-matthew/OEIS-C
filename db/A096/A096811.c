@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 390, u16 n <= 1200, u32 n <= 4141, u64 n <= 5150,
  *            u128 n <= 5150, big any n
- * Helpers:   pref
+ * Validated: standard, pass, 206 terms through n = 5061 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,13 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pref.h"
+#include "../utils/mem.h"
+
+/* triangular number of index r  (number of terms in rows 0 … r)        */
+static inline idx_t pref(idx_t r)
+{
+    return ((r + 1) * (r + 2)) / 2;
+}
 
 static seq_t **rows = NULL;      /* array of pointers to rows           */
 static size_t   rows_used = 0;   /* number of rows already stored       */
@@ -40,7 +47,7 @@ static void ensure_rows_cap(size_t n)
 /* compute row r (0‑based) and store it in rows[r]                     */
 static void compute_row(idx_t r)
 {
-    seq_t *row = (seq_t *)calloc((size_t)r + 1, sizeof *row);
+    seq_t *row = mem_new(seq_t, (size_t)r + 1);
     for (idx_t k = 0; k <= r; ++k) {
         if (k == 0 || k == 1 || k == r) {
             row[k] = (seq_t)1;

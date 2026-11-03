@@ -8,12 +8,14 @@
  *            (This recurrence generates the row sums of triangle A122851.)
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 22, u64 n <= 38, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,10 +30,10 @@ seq_t a(idx_t n)
     /* allocate or grow cache if needed */
     size_t needed = (size_t)n + 1;
     if (!cache) {
-        cache = (seq_t*)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         cap   = needed;
     } else if (needed > cap) {
-        cache = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, needed);
         cap   = needed;
     }
 

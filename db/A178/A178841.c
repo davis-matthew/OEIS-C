@@ -9,13 +9,16 @@
  *            counts pure inverting compositions of n
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 55 terms through n = 849 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *a_arr = NULL;
@@ -26,8 +29,8 @@ seq_t a(idx_t n) {
     /* initial allocation */
     if (!a_arr) {
         size_t init = 8;
-        a_arr = (seq_t*)malloc(init * sizeof(seq_t));
-        p_arr = (seq_t*)malloc(init * sizeof(seq_t));
+        a_arr = mem_new(seq_t, init);
+        p_arr = mem_new(seq_t, init);
         cap   = init;
     }
 
@@ -35,8 +38,8 @@ seq_t a(idx_t n) {
     if ((size_t)n >= cap) {
         size_t newcap = cap;
         while (newcap <= (size_t)n) newcap <<= 1;
-        a_arr = (seq_t*)realloc(a_arr, newcap * sizeof(seq_t));
-        p_arr = (seq_t*)realloc(p_arr, newcap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, newcap);
+        p_arr = mem_resize(seq_t, p_arr, newcap);
         cap   = newcap;
     }
 

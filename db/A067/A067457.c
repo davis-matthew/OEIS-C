@@ -8,14 +8,15 @@
  *            of m starts with the digits of n
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 8, u64 n <= 13, u128 n <= 21,
  *            big any n
- * Helpers:   digits_idx
+ * Validated: standard, pass, 33 terms through n = 294 (2026-11-01)
+ * Helpers:   num_digits_idx_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdint.h>
-#include "../utils/digits_idx.h"
+#include "../utils/num_digits_idx_to_idx.h"
 
 /* Fast exponentiation of a^e (e >= 1), result in seq_t. */
 static seq_t pow_seq_local(seq_t base, idx_t exp)
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
     if (n == 1)
         return (seq_t)1;                /* 1^1 = 1 */
 
-    const idx_t L = digits_idx(n);     /* digits of n */
+    const idx_t L = num_digits_idx_to_idx(n);     /* digits of n */
 
     for (uint64_t a = 2;; ++a)
     {

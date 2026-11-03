@@ -8,14 +8,15 @@
  * Formula:   a(n) = (floor(sqrt(n*prime(n)))+1)^2 - n*prime(n)
  * Range:     u8 n <= 6, u16 n <= 31, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   small_sqrt
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/small_sqrt.h"
+#include "../utils/isqrt_u64.h"
 
 /* static prime cache ------------------------------------------------------*/
 #define MAX_PRIME_COUNT 11000               /* enough for n up to ~10 000     */
@@ -33,7 +34,7 @@ static void ensure_n_primes(idx_t n)
     for (; primes_count < n && primes_count < MAX_PRIME_COUNT; ++candidate)
     {
         bool is_prime = true;
-        unsigned long long lim = small_sqrt(candidate);
+        unsigned long long lim = isqrt_u64(candidate);
         for (idx_t i = 0; i < primes_count && (unsigned long long)primes[i] <= lim; ++i)
         {
             if (candidate % (unsigned long long)primes[i] == 0ULL)

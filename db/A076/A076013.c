@@ -7,13 +7,15 @@
  * Formula:   a(n) = A075504(n+7,7) = (9^n)*S2(n+7,7)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 489 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache for previously computed terms */
 static seq_t *cache = NULL;
@@ -54,7 +56,7 @@ static void init_cache(void)
 
         /* allocate space for 7 values (indices 0..6) */
         cache_capacity = 7;
-        cache = (seq_t *)malloc((size_t)cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_capacity);
         if (cache == NULL) return; /* allocation failure */
 
         static const seq_t first7[7] = {
@@ -81,7 +83,7 @@ static void ensure_cache(idx_t n)
     /* enlarge cache */
     idx_t new_capacity = n + 1;
     if (new_capacity > cache_capacity) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_capacity);
         if (tmp == NULL) return; /* allocation failure */
         cache = tmp;
         cache_capacity = new_capacity;

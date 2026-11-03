@@ -9,14 +9,23 @@
  *            square root in base 7 on arrays of base-7 digits
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_digits
+ * Validated: standard, pass, 115 terms through n = 9420 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/cmp_digits.h"
+
+static int cmp_digits(const int *x, size_t xl, const int *y, size_t yl) {
+    size_t i;
+    if (xl != yl) return xl < yl ? -1 : 1;
+    for (i = xl; i-- > 0;) {
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    }
+    return 0;
+}
 
 static int *P = 0, *R = 0, *T = 0, *V = 0;
 static size_t plen = 0, rlen = 0, cap = 0;

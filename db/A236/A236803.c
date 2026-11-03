@@ -13,13 +13,15 @@
  *            1039350577, 7613312515. The function memoises the values so...
  * Range:     u8 none, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[10] = {
     (seq_t)277ULL,
@@ -43,7 +45,7 @@ static void ensure_capacity(idx_t n)
     if (n < cache_cap) return;
     /* grow at least 64 slots beyond requested n for amortised guarantees */
     size_t new_cap = (size_t)n + 64;
-    seq_t *new_ptr = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, (new_cap + 1));
     if (!new_ptr) abort();
     cache = new_ptr;
     cache_cap = new_cap;

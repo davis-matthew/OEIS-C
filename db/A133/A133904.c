@@ -11,7 +11,8 @@
  *            positive divisors of k
  * Range:     u8 n <= 12, u16 n <= 57, u32 n <= 93, u64 n <= 158,
  *            u128 n <= 282, big any n
- * Helpers:   _divisor_count_uint64, gcd
+ * Validated: standard, pass, 69 terms through n = 5786 (2026-11-03)
+ * Helpers:   gcd, mem, num_divisors_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/_divisor_count_uint64.h"
+#include "../utils/num_divisors_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,12 +42,12 @@ seq_t a(idx_t n)
         if (cap == 0)
         {
             cap = 4;
-            cache = (seq_t *)malloc(cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cap);
         }
         while (cap < need)
         {
             cap <<= 1;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
 
         /* Compute missing terms. */
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
             {
                 seq_t g   = gcd(prev, (seq_t)(idx - 1));
                 seq_t prod = g * prev;
-                seq_t dcnt = _divisor_count_uint64(idx - 1);
+                seq_t dcnt = num_divisors_idx(idx - 1);
                 cache[i] = prod + dcnt;
             }
         }

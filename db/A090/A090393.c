@@ -10,6 +10,7 @@
  *            3980172*n^2 + 20946960*n) / 5040
  * Range:     u8 n <= 0, u16 n <= 5, u32 n <= 71, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 44 terms through n = 936 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

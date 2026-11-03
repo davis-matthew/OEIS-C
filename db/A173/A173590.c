@@ -14,14 +14,34 @@
  *            index n are recovered by: s = floor((√(8...
  * Range:     u8 n <= 7, u16 n <= 29, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   big_pow, floor_sqrt
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   ipow, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
-#include "../utils/floor_sqrt.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t N)
 {
@@ -39,7 +59,7 @@ seq_t a(idx_t N)
     } else {
         seq_t base  = (seq_t)k_val;
         seq_t exp   = (seq_t)(2 * n_val + 2);
-        seq_t num   = big_pow(base, exp);
+        seq_t num   = ipow(base, exp);
         num -= 1;
         seq_t denom = (seq_t)(k_val * k_val - 1);
         term1 = num / denom;
@@ -53,7 +73,7 @@ seq_t a(idx_t N)
     } else {
         seq_t base2  = (seq_t)m_val;
         seq_t exp2   = (seq_t)(2 * k_val);
-        seq_t num2   = big_pow(base2, exp2);
+        seq_t num2   = ipow(base2, exp2);
         num2 -= 1;
         seq_t denom2 = (seq_t)(m_val * m_val - 1);
         term2 = num2 / denom2;

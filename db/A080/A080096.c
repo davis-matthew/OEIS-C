@@ -8,12 +8,14 @@
  * Formula:   a(n) = |a(n-1) - a(n-2) - a(n-3)|, a(1)=a(2)=1, a(3)=2
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 /* absolute difference of the last three terms */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cap = 4;                                 /* hold indices 1..3 + spare */
-        cache = (seq_t*)malloc((cap + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cap + 1));
         if (!cache) return (seq_t)0;             /* allocation failed */
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)1;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     if (n > cap)
     {
         while (cap < n) cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, (cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (cap + 1));
         if (!tmp) return (seq_t)0;              /* allocation failed */
         cache = tmp;
     }

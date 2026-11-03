@@ -10,7 +10,8 @@
  *            above
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 26, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,6 +39,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
@@ -54,10 +56,10 @@ seq_t a(idx_t n)
     size_t range_prev = 7;             /* 6*1 + 1 */
     size_t offset_prev = 3;            /* 3*1, for sum 0 -> index 3 */
 
-    seq_t *f_prev = (seq_t *)calloc(range_prev, sizeof(seq_t));
+    seq_t *f_prev = mem_new(seq_t, range_prev);
     seq_t *g_prev[VALS];
     for (int v = 0; v < VALS; ++v) {
-        g_prev[v] = (seq_t *)calloc(range_prev, sizeof(seq_t));
+        g_prev[v] = mem_new(seq_t, range_prev);
     }
 
     /* initialize with length 1 sequences */
@@ -73,10 +75,10 @@ seq_t a(idx_t n)
         size_t range_curr = 6 * m + 1;
         size_t offset_curr = 3 * m;
 
-        seq_t *f_curr = (seq_t *)calloc(range_curr, sizeof(seq_t));
+        seq_t *f_curr = mem_new(seq_t, range_curr);
         seq_t *g_curr[VALS];
         for (int v = 0; v < VALS; ++v) {
-            g_curr[v] = (seq_t *)calloc(range_curr, sizeof(seq_t));
+            g_curr[v] = mem_new(seq_t, range_curr);
         }
 
         /* transition */
@@ -92,8 +94,8 @@ seq_t a(idx_t n)
         }
 
         /* free previous arrays */
-        free(f_prev);
-        for (int v = 0; v < VALS; ++v) free(g_prev[v]);
+        mem_free(f_prev);
+        for (int v = 0; v < VALS; ++v) mem_free(g_prev[v]);
 
         /* prepare for next iteration */
         f_prev = f_curr;
@@ -106,8 +108,8 @@ seq_t a(idx_t n)
     seq_t ans = f_prev[3 * n];
 
     /* free remaining arrays */
-    free(f_prev);
-    for (int v = 0; v < VALS; ++v) free(g_prev[v]);
+    mem_free(f_prev);
+    for (int v = 0; v < VALS; ++v) mem_free(g_prev[v]);
 
     return ans;
 }

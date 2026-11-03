@@ -8,14 +8,17 @@
  *            odd (n ≥ 3) with a(1)=1, a(2)=1, a(3)=3
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 46, u128 n <= 88,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 46 terms through n = 2215 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* static cache of lcm(1..k) for k = 1 .. max_n */
 static seq_t *lcm_tbl = NULL;
@@ -29,7 +32,7 @@ ensure_lcm_tbl(idx_t up_to)
         return;
 
     size_t new_size = (size_t)(up_to + 1);          /* use 1‑based indexing, ignore index 0 */
-    seq_t *tmp = (seq_t *)realloc(lcm_tbl, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, lcm_tbl, new_size);
     lcm_tbl = tmp;
 
     if (max_n == 0) {                               /* first allocation */

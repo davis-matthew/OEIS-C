@@ -7,12 +7,14 @@
  * Formula:   a(n) = Product_{k=1..n} A000085(k)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     /* grow the arrays if necessary */
     if (cap < n + 1) {
         idx_t   new_cap = n + 1;
-        seq_t * new_inv  = (seq_t *)realloc(inv,  new_cap * sizeof(seq_t));
-        seq_t * new_prod = (seq_t *)realloc(prod, new_cap * sizeof(seq_t));
+        seq_t * new_inv  = mem_resize(seq_t, inv, new_cap);
+        seq_t * new_prod = mem_resize(seq_t, prod, new_cap);
         if (!new_inv || !new_prod)        /* allocation failed */
             exit(EXIT_FAILURE);
         inv  = new_inv;

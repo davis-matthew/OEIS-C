@@ -11,7 +11,8 @@
  *            sequence is cached for repeated calls
  * Range:     u8 n <= 29, u16 n <= 3299, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9685 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- parameters ---------- */
 #define MAX_VAL       310000           /* sieve bound sufficient for n≈10000 */
@@ -69,7 +71,7 @@ static inline void ensure_cache_cap(size_t needed)
     if (cache_cap >= needed) return;
     size_t cap = cache_cap == 0 ? INITIAL_CAP : cache_cap * 2;
     if (cap < needed) cap = needed;
-    seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cap);
     if (!tmp) exit(1);   /* memory failure */
     cache = tmp;
     cache_cap = cap;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = concatenation of all divisors of n that are >1 (a(1)=0)
  * Range:     u8 n <= 9, u16 n <= 11, u32 n <= 35, u64 n <= 119, u128 n <= 359,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 9267 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

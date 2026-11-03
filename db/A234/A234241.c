@@ -13,13 +13,15 @@
  *            a(8)=11170450750
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 16, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* --- Initialization -------------------------------------------------- */
     if (cache_len == 0) {
         cache_len = 8;                     /* we will store indices 0..8 */
-        cache = (seq_t *)malloc((cache_len + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_len + 1));
         if (!cache) abort();               /* allocation failure */
 
         /* cache[0] is unused; store initial terms in cache[1..8] */
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
 
     /* --- Extend cache to hold up to index n -------------------------------- */
     idx_t new_len = n;                       /* new maximum index needed */
-    seq_t *new_cache = (seq_t *)malloc((new_len + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (new_len + 1));
     if (!new_cache) abort();
 
     /* Copy existing cached values into the new array. */
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
     }
 
     /* Free the old cache and replace it with the enlarged one. */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = new_len;
 

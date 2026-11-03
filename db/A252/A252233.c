@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n is square‑free and has an odd number of distinct
  *            prime factors, otherwise a(n) = 0. a(1) = 0
- * Range:     u8 n <= 8678, u16 n <= 8678, u32 n <= 8678, u64 n <= 8678,
- *            u128 n <= 8678, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 8678 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

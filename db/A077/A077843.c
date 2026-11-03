@@ -8,12 +8,14 @@
  *            (coefficients of (1‑x)/(1‑2x‑2x²‑2x³) )
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 42, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 2120 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoised values */
 static idx_t capacity = 0;    /* allocated array size */
@@ -26,13 +28,13 @@ static void ensure_capacity(idx_t n)
 
     if (capacity == 0) {
         capacity = 4;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
     }
 
     while (size <= n) {
         if (size >= capacity) {
             capacity <<= 1;              /* grow */
-            cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, capacity);
         }
 
         seq_t term;

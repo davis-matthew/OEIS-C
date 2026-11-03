@@ -9,8 +9,9 @@
  *            divisor ≡ 1 (mod 4) } - the sequence of hypotenuses that occur
  *            in exactly two distinct integer right triangles
  * Range:     u8 n <= 9, u16 n <= 1510, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 7935, big any n
- * Helpers:   none
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 63 terms through n = 9963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
+#include "../utils/mem.h"
 
 /* node stored in the min‑heap ------------------------------------- */
 typedef struct {
@@ -154,7 +156,7 @@ seq_t a(idx_t n) {
         }
         /* 4. initialise output array with a modest capacity */
         seq_cap = 1024;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 0;
     }
 
@@ -164,6 +166,11 @@ seq_t a(idx_t n) {
     while (seq_len < (size_t)n) {
         /* pop smallest candidate */
         Node node = heap_pop(heap, &heap_len);
+        if (seq_len == seq_cap) {             /* the cache never grew past 1024 */
+            seq_cap *= 2;
+            seq = mem_resize(seq_t, seq, seq_cap);
+            if (!seq) abort();
+        }
         seq[seq_len++] = (seq_t)node.val;
         /* advance the pointer for this prime */
         ++node.ki;

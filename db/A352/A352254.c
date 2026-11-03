@@ -7,7 +7,8 @@
  * Formula:   a(0) = 1; a(n) = Σ_{k=1..n} binomial(2n-1, 2k-1) * k * a(n-k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* Uses memoisation to be efficient for any order of calls. */
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, abort */
-#include "../utils/binomial.h"   /* binomial(idx_t a, idx_t b) returns seq_t */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* memoisation array */
 static seq_t *cache = NULL;      /* allocated array of computed terms */
@@ -28,7 +30,7 @@ static void ensure_capacity(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 1;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) { abort(); }   /* unrecoverable failure */
     cache = tmp;
     cache_cap = new_cap;

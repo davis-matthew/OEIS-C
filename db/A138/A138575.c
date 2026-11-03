@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9360 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    value H(1)=0 explicitly. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for H and B values */
 static seq_t *H_cache = NULL;
@@ -38,8 +40,8 @@ static void ensure_cache_size(size_t need)
     size_t new_size = need > 1 ? need * 2 : 1;
     while (new_size < need)
         new_size *= 2;
-    seq_t *new_H = (seq_t *)realloc(H_cache, new_size * sizeof(seq_t));
-    seq_t *new_B = (seq_t *)realloc(B_cache, new_size * sizeof(seq_t));
+    seq_t *new_H = mem_resize(seq_t, H_cache, new_size);
+    seq_t *new_B = mem_resize(seq_t, B_cache, new_size);
     if (!new_H || !new_B)
         abort();                      /* allocation failed */
     H_cache = new_H;

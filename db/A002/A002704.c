@@ -9,14 +9,22 @@
  *            (7*q)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   a002704_is_fixed, a002704_phi
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a002704_is_fixed.h"
-#include "../utils/a002704_phi.h"
+#include "../utils/totient_u64.h"
+
+static int a002704_is_fixed(void)
+{
+    seq_t x = 1;
+    int w = 0;
+    while (w < 200 && x != 0) { x = x + x; w++; }
+    return x == 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,7 +49,7 @@ seq_t a(idx_t n)
                 if (d % 7 == 0) continue;
                 uint64_t s = 3 * (q / d);
                 if (s >= 128) continue;
-                S += (u128)a002704_phi(d) * ((u128)1 << s);
+                S += (u128)totient_u64(d) * ((u128)1 << s);
             }
         }
         S += (u128)7 * q - qp;
@@ -66,7 +74,7 @@ seq_t a(idx_t n)
                 uint64_t d = ds[k];
                 if (d % 7 == 0) continue;
                 idx_t s = (idx_t)(3 * (q / d));
-                S += (seq_t)a002704_phi(d) * ((seq_t)1 << s);
+                S += (seq_t)totient_u64(d) * ((seq_t)1 << s);
             }
         }
         S += (seq_t)7 * (seq_t)q;

@@ -8,7 +8,8 @@
  *            = A000108(i)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,15 +18,16 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Allocate an array of seq_t of given length.
    Construct each element if compiling as C++ (necessary for
    arbitrary‑precision types).  */
 static seq_t* alloc_seq_array(size_t len) {
-    seq_t* arr = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t* arr = mem_new(seq_t, len);
     #ifdef __cplusplus
     for (size_t i = 0; i < len; ++i) {
-        new (arr + i) seq_t();   /* placement new */
+        *(arr + i) = (seq_t)0;   /* placement new */
     }
     #endif
     return arr;
@@ -38,10 +40,10 @@ static void free_seq_array(seq_t* arr, size_t len) {
     if (!arr) return;
     #ifdef __cplusplus
     for (size_t i = 0; i < len; ++i) {
-        (arr + i)->~seq_t();    /* explicit destructor call */
+(void)0;  /* mem_free destroys the elements */    /* explicit destructor call */
     }
     #endif
-    free(arr);
+    mem_free(arr);
 }
 
 /* Compute Catalan numbers up to n and use them to obtain the

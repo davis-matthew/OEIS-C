@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static bool is_prime_seq(seq_t n)
 {
@@ -72,12 +92,12 @@ seq_t a(idx_t n)
             if (cache_cap == 0)
             {
                 cache_cap = 16;
-                prime_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+                prime_cache = mem_new(seq_t, cache_cap);
             }
             else if (cache_size == cache_cap)
             {
                 cache_cap <<= 1;
-                prime_cache = (seq_t *)realloc(prime_cache, cache_cap * sizeof(seq_t));
+                prime_cache = mem_resize(seq_t, prime_cache, cache_cap);
             }
             prime_cache[cache_size++] = cumulative;
         }

@@ -9,12 +9,14 @@
  *            exactly one digit 0 and exactly two digits 1 (OEIS A044972)
  * Range:     u8 n <= 35, u16 n <= 870, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9282 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define TMP_SIZE 5000   /* fits all counts needed for n ≤ ~10 000 */
 
@@ -70,6 +72,6 @@ seq_t a(idx_t n)
         }
     }
 
-    qsort(block, cnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(block, cnt, sizeof(seq_t), cmp_seq_t);
     return block[k];
 }

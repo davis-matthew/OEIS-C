@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9905 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- Smallest prime factor sieve ----------------------------------- */
 
@@ -84,7 +86,7 @@ static void ensure_cache_capacity(idx_t need)
     idx_t new_cap = cache_capacity ? (cache_capacity << 1) : 4096;
     if (new_cap < need) new_cap = need;
 
-    seq_t *new_buf = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
     if (!new_buf) exit(1);      /* allocation or reallocation failed */
     cache = new_buf;
     cache_capacity = new_cap;

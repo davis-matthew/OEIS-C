@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   build_primes, isPrimeTrial, seq_to_str
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   build_primes, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
 /* Sequence A144565:
    a(n) is the smallest composite number > a(n-1) that contains the n‑th prime
    as a decimal substring.  Offset 1 (a(1) is the first term).  The algorithm
@@ -25,9 +27,30 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/isPrimeTrial.h"
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/seq_to_str.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 static seq_t *cache = NULL;          /* cache[i] holds a(i+1)           */
 static size_t cache_len = 0;         /* number of computed terms        */
@@ -70,7 +93,7 @@ static void ensure_cache_capacity(size_t needed)
     while (new_cap < needed)
         new_cap *= 2;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) {
         /* allocation failed – abort as the sequence cannot be computed */
         abort();
@@ -105,7 +128,7 @@ seq_t a(idx_t n)
         idx_t cand = (idx_t)(prev) + 1;   /* start from a(n-1)+1 */
         for (;;) {
             /* candidate > 1 and composite */
-            if (cand > 1 && !isPrimeTrial((seq_t)cand)) {
+            if (cand > 1 && !is_prime_seq((seq_t)cand)) {
                 /* convert cand to string for substring test */
                 char cand_buf[64];
                 size_t cand_len = 0;

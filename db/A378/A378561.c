@@ -11,7 +11,8 @@
  *            2^{k-2j} * (C(k-j,j-1)+C(k-j+1,j))
  * Range:     u8 n <= 17, u16 n <= 32, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial, pow2
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Integer square root of a 64‑bit unsigned integer */
 static inline uint64_t isqrt_u64(uint64_t x)
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     idx_t k = n - row_start;                           /* column within the row */
 
     /* Compute Stirling numbers of the second kind S(i,j) for i = 0..r */
-    seq_t *Srow = (seq_t*)calloc((size_t)(r + 1), sizeof(seq_t));
+    seq_t *Srow = mem_new(seq_t, (size_t)(r + 1));
     if (!Srow) return 0;   /* memory failure – will not be reached in test harness */
     Srow[0] = 1;           /* S(0,0) = 1 */
     for (idx_t i = 1; i <= r; ++i)
@@ -112,6 +114,6 @@ seq_t a(idx_t n)
         result += term;
     }
 
-    free(Srow);
+    mem_free(Srow);
     return result;
 }

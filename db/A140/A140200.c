@@ -7,12 +7,22 @@
  * Formula:   a(n) = Σₖ₌₁ⁿ ((k%3==0)?0:((popcount(k)==2)?2:1))
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   popcount_le2
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/popcount_le2.h"
+static int popcount_le2(idx_t v)
+{
+    int c = 0;
+    while (v) {
+        ++c;
+        if (c > 2) break;   /* we only care if c == 2 or > 2 */
+        v &= v - 1;          /* clear the lowest set bit */
+    }
+    return c;
+}
 /* Where popcount(k) is the number of 1‑bits in the binary expansion of k. */
 /* This implements OEIS A140200 – the partial sums of A140080. */
 

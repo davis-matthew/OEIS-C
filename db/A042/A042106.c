@@ -8,13 +8,15 @@
  *            a(3)=665857
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of the sequence.  The function keeps a static
    cache so that any n can be queried, in any order, in O(n) time
@@ -33,8 +35,7 @@ seq_t a(idx_t n)
         size_t new_cap = idx + 1;
         if (new_cap < 8) new_cap = 8;        /* minimal initial size */
         new_cap *= 2;                       /* double it */
-        cache = (seq_t *)realloc(cache,
-                                  new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

@@ -8,14 +8,19 @@
  *            n primes
  * Range:     u8 n <= 15, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   count_distinct_primes, sieve_first_n_primes
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
+ * Helpers:   omega, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/omega.h"
 #include "../utils/sieve_first_n_primes.h"
-#include "../utils/count_distinct_primes.h"
 
 seq_t a(idx_t n)
 {
@@ -40,6 +45,6 @@ seq_t a(idx_t n)
     /* Count distinct prime divisors of the sum */
     /* sum is guaranteed to fit in uint64_t for n up to at least 10000,
        which covers the test range. */
-    int distinct = count_distinct_primes((uint64_t)sum);
+    int distinct = omega((uint64_t)sum);
     return (seq_t)distinct;
 }

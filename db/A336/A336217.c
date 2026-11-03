@@ -7,12 +7,14 @@
  * Formula:   a(0) = 1; a(n) = 2 * Σ_{k=0}^{n-1} binomial(n,k)^2 * a(k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Use the utility where available, otherwise fall back to malloc/realloc.
    The compiler will provide seq_alloc_new_array, seq_realloc if the build
@@ -31,7 +33,7 @@ static void ensure_cache_capacity(idx_t n)
 
     if (cache == NULL) {
         cache_capacity = need;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (cache == NULL) abort();                 /* out of memory */
         for (size_t i = 0; i < cache_capacity; ++i)
             cache[i] = 0;
@@ -40,7 +42,7 @@ static void ensure_cache_capacity(idx_t n)
     } else if (need > cache_capacity) {
         size_t new_cap = cache_capacity * 2;
         if (need > new_cap) new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();
         cache = tmp;
         for (size_t i = cache_capacity; i < new_cap; ++i)

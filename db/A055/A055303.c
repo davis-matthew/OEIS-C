@@ -9,12 +9,14 @@
  *            because (n-3) divides a(n-1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Undefined below offset; return 0. */
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     /* Ensure table large enough for index n. */
     if (n + 1 > sz) {
         idx_t new_sz = n + 1;
-        tbl = (seq_t *)realloc(tbl, new_sz * sizeof(seq_t));
+        tbl = mem_resize(seq_t, tbl, new_sz);
         sz = new_sz;
     }
 

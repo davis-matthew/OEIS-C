@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 47, u16 n <= 9740, u32 n <= 9740, u64 n <= 9740,
- *            u128 n <= 9740, big any n
- * Helpers:   factor_u64, gcd, next_prime, pow_uint, prev_prime, sigma_of
+ * Range:     u8 n <= 47, u16 n <= 22967, u32 n <= 22968, u64 n <= 22968,
+ *            u128 n <= 22968, big any n
+ * Validated: standard, pass, 100 terms through n = 9740 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx, is_prime, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,12 +26,38 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
-#include "../utils/sigma_of.h"
 #include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
-#include "../utils/prev_prime.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 /* main sequence function */
 seq_t a(idx_t n)
@@ -44,7 +71,7 @@ seq_t a(idx_t n)
     seq_t a003961 = 1;
     for (size_t i = 0; i < n_cnt; ++i) {
         uint64_t np = next_prime(n_pr[i]);   /* next prime after n_pr[i] */
-        seq_t pw = pow_uint(np, (idx_t)n_ex[i]);
+        seq_t pw = ipow_u64_idx(np, (idx_t)n_ex[i]);
         a003961 *= pw;
     }
 
@@ -65,7 +92,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < q_cnt; ++i) {
         uint64_t prev = (q_pr[i] > 2) ? prev_prime(q_pr[i]) : 0;
         if (prev == 0) continue;            /* 2 has no previous prime */
-        seq_t pw = pow_uint(prev, (idx_t)q_ex[i]);
+        seq_t pw = ipow_u64_idx(prev, (idx_t)q_ex[i]);
         res *= pw;
     }
 

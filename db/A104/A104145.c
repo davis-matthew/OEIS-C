@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, sign
  * Formula:   not stated
- * Range:     i8 n <= 115, i16 n <= 115, i32 n <= 115, i64 n <= 115,
- *            i128 n <= 115, big any n
- * Helpers:   none
+ * Range:     i8 n <= 8192, i16 n <= 8192, i32 n <= 8192, i64 n <= 8192,
+ *            i128 n <= 8192, big any n
+ * Validated: standard, pass, 131 terms through n = 8112 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    The resulting 2^k terms form A(k+1).  This recursive rule generates
    the sequence a(n).  Initial term: a(1)=1. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_buf = NULL;   /* array holding computed terms   */
 static idx_t seq_len = 0;       /* current number of stored terms */
@@ -36,13 +38,13 @@ static void ensure_capacity(idx_t need)
     idx_t newcap = seq_cap ? seq_cap * 2 : 8;
     while (newcap < need)
         newcap *= 2;
-    seq_t *newbuf = (seq_t *)malloc(newcap * sizeof(seq_t));
+    seq_t *newbuf = mem_new(seq_t, newcap);
     if (!newbuf)          /* allocation failed – keep old buffer */
         return;
     if (seq_buf) {
         for (idx_t i = 0; i < seq_len; ++i)
             newbuf[i] = seq_buf[i];
-        free(seq_buf);
+        mem_free(seq_buf);
     }
     seq_buf = newbuf;
     seq_cap = newcap;

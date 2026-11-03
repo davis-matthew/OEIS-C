@@ -11,16 +11,29 @@
  *            table of smallest prime factors built with the...
  * Range:     u8 n <= 192, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf, is_prime_ul, seq_realloc
+ * Validated: standard, pass, 85 terms through n = 9913 (2026-11-03)
+ * Helpers:   build_spf, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/is_prime_ul.h"
+#include "../utils/is_prime_u64.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -67,7 +80,7 @@ seq_t a(idx_t n)
         }
 
         /* Record the number if τ(num) is non‑prime */
-        if (!is_prime_ul(tau)) {
+        if (!is_prime_u64(tau)) {
             if (seq_len == seq_cap) {                /* grow array */
                 size_t new_cap = seq_cap ? seq_cap << 1 : 256;
                 seq = seq_realloc(seq, seq_cap, new_cap);

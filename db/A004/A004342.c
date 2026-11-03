@@ -9,12 +9,14 @@
  *            factor before each multiplication
  * Range:     u8 n <= 13, u16 n <= 15, u32 n <= 19, u64 n <= 28, u128 n <= 47,
  *            big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 35 terms through n = 92 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_seq.h"
+#include <stdlib.h>
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     for (i = 1; i <= k; i++) {
         seq_t num = base + (seq_t)i;
         seq_t den = (seq_t)i;
-        seq_t g = gcd_seq(r, den);
+        seq_t g = gcd(r, den);
         r /= g;
         den /= g;
         num /= den; /* exact: den divides num since gcd(r, den) = 1 */

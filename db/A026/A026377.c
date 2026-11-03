@@ -12,14 +12,24 @@
  *            recurrence new[t] = old[t] + 3*old[t-1] + old[t-2] (for...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 29, u128 n <= 56,
  *            big any n
- * Helpers:   free_seq_arr
+ * Validated: standard, pass, 40 terms through n = 903 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/free_seq_arr.h"
+#include <stdint.h>
+
+static inline void free_seq_arr(seq_t* p)
+{
+#if defined(__cplusplus)
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 /* Helper allocation / deallocation that works for both C and C++ */
 static inline seq_t *alloc_seq(size_t n)

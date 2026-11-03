@@ -11,13 +11,15 @@
  *            and memoises the result so subsequent calls are...
  * Range:     i8 n <= 85, i16 n <= 85, i32 n <= 85, i64 n <= 85, i128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised coefficient array */
 static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* If we haven't computed enough terms yet, recompute up to n. */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         for (size_t i = 0; i < new_size; ++i)
             new_cache[i] = 0;
         new_cache[0] = 1;                /* a(0) = 1 */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cache);                     /* discard old array */
+        mem_free(cache);                     /* discard old array */
         cache = new_cache;
         cache_size = new_size;
     }

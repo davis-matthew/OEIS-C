@@ -10,12 +10,14 @@
  *            block 2,3,…,x,x+1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cached word (1‑based positions) */
 static seq_t *word = NULL;
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* --- initialise with the single symbol 2 --------------- */
     if (!word) {
-        word = (seq_t *)malloc(sizeof(seq_t));  /* size == 1 */
+        word = mem_new(seq_t, 1);  /* size == 1 */
         if (!word) return 0;                    /* allocation failed */
         word[0] = (seq_t)2;
         size = 1;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
             newlen += (idx_t)word[i];
 
         /* allocate new buffer for the expanded word */
-        seq_t *new_word = (seq_t *)malloc(newlen * sizeof(seq_t));
+        seq_t *new_word = mem_new(seq_t, newlen);
         if (!new_word) return 0;   /* allocation failed */
 
         /* fill new_word with the replacement blocks 2,…,val+1 */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         }
 
         /* replace old word */
-        free(word);
+        mem_free(word);
         word = new_word;
         size = newlen;
     }

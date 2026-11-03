@@ -8,6 +8,7 @@
  *            floor((n+9)/2), n-i )
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 47, u64 n <= 614,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 48 terms through n = 887 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* Number of n‑element subsets of [n+9] having an even sum. */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -11,12 +11,14 @@
  *            into distinct parts (A026906)
  * Range:     u8 n <= 12, u16 n <= 34, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for memoisation */
 static seq_t *p_arr = NULL;   /* unrestricted partitions, p(k)   */
@@ -34,10 +36,10 @@ static void ensure_capacity(idx_t n)
 
     size_t old_cap = cap;
     size_t new_cap = (size_t)n + 1;
-    p_arr  = (seq_t *)realloc(p_arr,  new_cap * sizeof(seq_t));
-    q_arr  = (seq_t *)realloc(q_arr,  new_cap * sizeof(seq_t));
-    sp_arr = (seq_t *)realloc(sp_arr, new_cap * sizeof(seq_t));
-    sd_arr = (seq_t *)realloc(sd_arr, new_cap * sizeof(seq_t));
+    p_arr  = mem_resize(seq_t, p_arr, new_cap);
+    q_arr  = mem_resize(seq_t, q_arr, new_cap);
+    sp_arr = mem_resize(seq_t, sp_arr, new_cap);
+    sd_arr = mem_resize(seq_t, sd_arr, new_cap);
     if (!p_arr || !q_arr || !sp_arr || !sd_arr)
         abort();                    /* allocation failed */
 

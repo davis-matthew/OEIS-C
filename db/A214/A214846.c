@@ -12,13 +12,15 @@
  *            element of that reading
  * Range:     u8 n <= 69, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,12 +39,12 @@ seq_t a(idx_t n)
     /* Initialise on first call. */
     if (cache == NULL) {
         cache_cap  = 16;
-        cache      = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache      = mem_new(seq_t, cache_cap);
         if (!cache) return 0;                     /* fatal error */
 
         /* diagonal d = 0 */
         prev_len = 1;
-        prev     = (seq_t *)malloc(prev_len * sizeof(seq_t));
+        prev     = mem_new(seq_t, prev_len);
         if (!prev) return 0;
         prev[0] = 1;
         cache[0] = prev[0];
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         /* Ensure buffer for the current diagonal. */
         if (curr_cap < diag_size) {
             curr_cap = diag_size;
-            curr = (seq_t *)realloc(curr, curr_cap * sizeof(seq_t));
+            curr = mem_resize(seq_t, curr, curr_cap);
             if (!curr) return 0;
         }
 
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
             /* Append to the global cache. */
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap * 2 + 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache) return 0;
             }
             cache[cache_len++] = val;

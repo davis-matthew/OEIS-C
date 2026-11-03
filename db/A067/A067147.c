@@ -10,12 +10,14 @@
  *            ((r-k)/2)!) otherwise
  * Range:     u8 n <= 28, u16 n <= 56, u32 n <= 153, u64 n <= 407,
  *            u128 n <= 1179, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 5098 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Compute the factorial quotient.
        r!/(k!*((r-k)/2)!) = binom(r,k) * (diff)! / ((diff/2)!). */
     idx_t m = diff >> 1;           /* (r-k)/2 */
-    seq_t result = binom(r, k);    /* r!/(k!*(r-k)!) */
+    seq_t result = binomial(r, k);    /* r!/(k!*(r-k)!) */
 
     /* Multiply by (diff)! / m! : product of integers (m+1)..diff. */
     seq_t factor = 1;

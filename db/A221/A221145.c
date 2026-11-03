@@ -9,12 +9,14 @@
  *            permutations of k elements with all cycles of length >=3
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 2,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of f(k) values */
 static seq_t *f_cache = NULL;
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     size_t need = n;                       /* need indices 0 .. n-1 inclusive */
     if (f_size < need) {
         size_t new_size = need;
-        seq_t *tmp = (seq_t *)realloc(f_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, f_cache, new_size);
         if (!tmp) exit(EXIT_FAILURE);     /* allocation failed */
         f_cache = tmp;
         /* initialize base cases if this is the first allocation */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1138, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega, small_sigma
+ * Validated: standard, pass, 93 terms through n = 9008 (2026-11-01)
+ * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,20 @@
    produced by bigomega. */
 /* Includes the bigomega utility header, which is part of the provided
    build environment. */
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
+
+/* small sigma for arguments up to a few dozen */
+static seq_t small_sigma(idx_t x) {
+    seq_t sum = 0;
+    for (idx_t d = 1; d <= x; ++d) {
+        if (x % d == 0) sum += d;
+    }
+    return sum;
+}
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/small_sigma.h"
 
 seq_t a(idx_t n) {
     /* n must be >= 1.  a(1) = 0 by definition. */

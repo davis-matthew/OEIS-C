@@ -8,13 +8,15 @@
  *            popcount(m), i.e. the A180054 sequence (3‑flimsy numbers)
  * Range:     u8 n <= 14, u16 n <= 5469, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 8468 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Count the number of 1‑bits in a seq_t value.  This works for all
    integer types supported by the build, including arbitrary‑precision
@@ -52,8 +54,7 @@ seq_t a(idx_t n)
             /* Grow cache if necessary. */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 4 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc((void *)cache_arr,
-                                              new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache_arr, new_cap);
                 assert(tmp != NULL);   /* abort on allocation failure */
                 cache_arr = tmp;
                 cache_cap = new_cap;

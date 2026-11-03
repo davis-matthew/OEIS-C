@@ -12,7 +12,8 @@
  *            from an explicit polynomial)
  * Range:     u8 none, u16 n <= 2, u32 n <= 15, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   poly_a
+ * Validated: standard, pass, 38 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,32 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/poly_a.h"
+#include "../utils/mem.h"
+
+/* --- Compute the initial polynomial values for n = 1..9 --- */
+static seq_t poly_a(idx_t n)
+{
+    seq_t nn = (seq_t)n;   /* base */
+    seq_t p = nn;          /* n^1 */
+    seq_t n2 = p * p;      /* n^2 */
+    seq_t n3 = n2 * p;     /* n^3 */
+    seq_t n4 = n3 * p;     /* n^4 */
+    seq_t n5 = n4 * p;     /* n^5 */
+    seq_t n6 = n5 * p;     /* n^6 */
+    seq_t n7 = n6 * p;     /* n^7 */
+    seq_t n8 = n7 * p;     /* n^8 */
+
+    seq_t M = (seq_t)14 * n8
+            + (seq_t)36 * n7
+            + (seq_t)84 * n6
+            + (seq_t)126 * n5
+            + (seq_t)42 * n4
+            - (seq_t)14 * n3
+            + (seq_t)7  * n2
+            - p;
+
+    return M / (seq_t)14; /* all integer divisions */
+}
 
 /* --- Main sequence function --- */
 seq_t a(idx_t n)
@@ -36,7 +62,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* Enough room for the first 9 terms plus a few safety slots */
         cap = (n > 10) ? n + 1 : 20;
-        cache = (seq_t*)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0; /* allocation failure */
     }
 
@@ -44,7 +70,7 @@ seq_t a(idx_t n)
     if (n >= cap) {
         idx_t new_cap = n + 1;
         if (new_cap < cap * 2) new_cap = cap * 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0; /* allocation failure */
         /* zero newly allocated part (calloc left earlier blocks zeroed) */
         for (idx_t i = cap; i < new_cap; ++i) tmp[i] = (seq_t)0;

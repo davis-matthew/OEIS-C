@@ -7,13 +7,15 @@
  * Formula:   a(n) = (2^⌊√n⌋ − 1) · 2^(n − ⌊√n⌋) (offset 1)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Integer square root for 64‑bit values, using binary search. */
 static idx_t
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
     idx_t k = isqrt_u64(n);
 
     /* Compute 2^k and 2^(n−k). */
-    seq_t pow_k    = big_pow((seq_t)2, (seq_t)k);
-    seq_t pow_nk   = big_pow((seq_t)2, (seq_t)(n - k));
+    seq_t pow_k    = ipow((seq_t)2, (seq_t)k);
+    seq_t pow_nk   = ipow((seq_t)2, (seq_t)(n - k));
 
     /* (2^k − 1) · 2^(n−k). */
     return (pow_k - (seq_t)1) * pow_nk;

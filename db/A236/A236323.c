@@ -10,12 +10,14 @@
  *            memoised iterative computation
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 29, u64 n <= 61, u128 n <= 125,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array indexed 1..n */
 static size_t cache_size = 0;    /* allocated size (elements 0..cache_size-1) */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* expand the cache if necessary */
     if (cache_size <= idx) {
         size_t new_size = idx + 1;          /* indices 0..idx */
-        void *tmp = realloc(cache, new_size * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();                 /* out of memory */
         cache = (seq_t *)tmp;
         cache_size = new_size;

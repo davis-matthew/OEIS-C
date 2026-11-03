@@ -8,15 +8,18 @@
  *            arithmetic derivative)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 4095, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi, factor_u64
+ * Validated: standard, pass, 70 terms through n = 8351 (2026-11-01)
+ * Helpers:   factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
 
 /* Compute the π‑based arithmetic derivative of a single integer. */
 static seq_t derivative(seq_t n)
@@ -35,7 +38,7 @@ static seq_t derivative(seq_t n)
     for (size_t i = 0; i < cnt; ++i) {
         seq_t p  = (seq_t)facs[i];
         seq_t v  = (seq_t)exps[i];
-        seq_t pi = compute_pi((idx_t)p);       /* π(p) */
+        seq_t pi = prime_pi((idx_t)p);       /* π(p) */
 
         /* term = (n / p) * π(p) * v  */
         seq_t term = (n / p) * pi * v;

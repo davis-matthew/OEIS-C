@@ -11,14 +11,15 @@
  *            the cycle lengths as 4*j_i, (j_i) a partition...
  * Range:     u8 n <= 11, u16 n <= 15, u32 n <= 19, u64 n <= 27, u128 n <= 36,
  *            big any n
- * Helpers:   sc_gcd
+ * Validated: standard, pass, 47 terms through n = 100 (2026-11-01)
+ * Helpers:   gcd_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sc_gcd.h"
+#include "../utils/gcd_i64.h"
 
 static seq_t sc_Q, sc_R, sc_MF;
 static long long *sc_parts;
@@ -46,7 +47,7 @@ static void sc_rec(long long rem, long long maxp, long long np, long long gsum,
         long long j = rem < maxp ? rem : maxp;
         for (; j >= 1; j--) {
             long long g = 0, i, mult;
-            for (i = 0; i < np; i++) g += sc_gcd(j, sc_parts[i]);
+            for (i = 0; i < np; i++) g += gcd_i64(j, sc_parts[i]);
             mult = (np > 0 && sc_parts[np - 1] == j) ? lastmult + 1 : 1;
             sc_parts[np] = j;
             sc_rec(rem - j, j, np + 1, gsum + g, mult, z * (seq_t)j * (seq_t)mult);

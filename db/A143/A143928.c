@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ensure_prime_upto
+ * Validated: standard, pass, 57 terms through n = 966 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,70 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/ensure_prime_upto.h"
+
+/* Dynamically grow a table of primes.
+   primes[0] = 2, primes[1] = 3, ...                         */
+static void ensure_prime_upto(idx_t idx)
+{
+    static uint64_t *primes = NULL;
+    static size_t   count   = 0;
+    static size_t   cap     = 0;
+
+    if (count == 0) {
+        cap = 64;
+        primes = (uint64_t *)malloc(cap * sizeof(uint64_t));
+        if (!primes) abort();
+        count = 0;
+    }
+
+    while (count <= (size_t)idx) {
+        uint64_t candidate;
+        if (count == 0)
+            candidate = 2;
+        else {
+            candidate = primes[count - 1] + 1;
+            if (candidate % 2 == 0)
+                candidate++;          /* skip even numbers */
+        }
+
+        /* find next prime */
+        while (true) {
+            bool is_prime = true;
+            /* trial‑division using previous primes */
+            for (size_t i = 1; i < count; ++i) {   /* start at 3 */
+                uint64_t p = primes[i];
+                if (p > candidate / p) break;      /* p*p > candidate */
+                if (candidate % p == 0) {
+                    is_prime = false;
+                    break;
+                }
+            }
+            if (is_prime) {
+                /* store the prime */
+                if (count == cap) {
+                    cap <<= 1;
+                    uint64_t *tmp = (uint64_t *)realloc(primes, cap * sizeof(uint64_t));
+                    if (!tmp) abort();
+                    primes = tmp;
+                }
+                primes[count++] = candidate;
+                break;   /* done, go to outer loop to check next idx */
+            }
+            candidate += 2; /* next odd number */
+        }
+    }
+
+    /* make primes and count visible to a() */
+    static uint64_t *primes_ptr = NULL;
+    static size_t   primes_cnt  = 0;
+    if (!primes_ptr) {
+        primes_ptr = primes;
+        primes_cnt = count;
+    } else {
+        primes_ptr = primes;
+        primes_cnt = count;
+    }
+}
 
 seq_t a(idx_t n)
 {

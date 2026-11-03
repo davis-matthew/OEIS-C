@@ -12,7 +12,8 @@
  *            computed terms so that calls may arrive in any order
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   init_probs
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/init_probs.h"
+#include "../utils/mem.h"
+
+/* local helpers for the Benford probabilities 1..7 in base 8 */
+static void init_probs(double probs[8]) {
+    const double LOG8 = log(8.0);          /* natural log of 8 */
+    probs[1] = log( 2.0) / LOG8;          /* log_8(2)   */
+    probs[2] = log( 1.5) / LOG8;          /* log_8(3/2) */
+    probs[3] = log(4.0/3.0) / LOG8;       /* log_8(4/3) */
+    probs[4] = log( 1.25) / LOG8;         /* log_8(5/4) */
+    probs[5] = log( 1.20) / LOG8;         /* log_8(6/5) */
+    probs[6] = log(7.0/6.0) / LOG8;       /* log_8(7/6) */
+    probs[7] = log(8.0/7.0) / LOG8;       /* log_8(8/7) */
+}
 
 /* a(n) – returns the nth term of A055448. */
 seq_t a(idx_t n) {
@@ -43,7 +56,7 @@ seq_t a(idx_t n) {
     /* ensure cache is large enough */
     if (n >= cache_size) {
         idx_t new_size = n + 1;             /* slot 0 unused */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0;          /* allocation failure */
         cache = tmp;
         /* initialise new entries to zero */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 3315, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cast_uint64_to_seq
+ * Validated: standard, pass, 69 terms through n = 9412 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,12 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/cast_uint64_to_seq.h"
+#include "../utils/mem.h"
+
+/* Special cast helper: cast a uint64_t value to seq_t when it fits. */
+static inline seq_t cast_uint64_to_seq(uint64_t v) {
+    return (seq_t)v;
+}
 
 seq_t a(idx_t n)
 {
@@ -60,7 +66,7 @@ seq_t a(idx_t n)
                 /* Append next_k to the cache. */
                 if (list_sz == list_cap) {
                     list_cap = list_cap ? list_cap * 2 : 4;
-                    seq_t *tmp_arr = (seq_t *)realloc(list, list_cap * sizeof(seq_t));
+                    seq_t *tmp_arr = mem_resize(seq_t, list, list_cap);
                     if (!tmp_arr) /* allocation failure – return 0 as a sentinel */
                         return (seq_t)0;
                     list = tmp_arr;

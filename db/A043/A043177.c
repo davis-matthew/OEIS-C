@@ -10,14 +10,29 @@
  *            either order (i.e., “56” or “65”), but k−1 does not
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_adjacent56
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent56.h"
+
+/* Return true if the octal representation of x contains the pattern
+   "56" or "65" as adjacent digits (in any order). */
+static bool has_adjacent56(uint64_t x)
+{
+    int prev = -1;          /* previous digit, -1 means none */
+    while (x > 0) {
+        int d = x & 7;      /* x % 8, faster for powers of 2 */
+        if ((prev == 5 && d == 6) || (prev == 6 && d == 5))
+            return true;
+        prev = d;
+        x >>= 3;           /* x /= 8 */
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

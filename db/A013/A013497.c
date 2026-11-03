@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * coefficient of x^n in log(cosh(x) - log(1+x))
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 14, i64 n <= 21, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdbool.h>  /* bool, false, true */
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;      /* Cached a(n) values */
 static seq_t *f_cache = NULL;      /* Cached f(n) values   */
@@ -38,8 +40,8 @@ static void ensure_cache(idx_t n)
     seq_t *a_new = NULL;
     seq_t *f_new = NULL;
 
-    a_new = (seq_t *)realloc(a_cache, new_sz * sizeof(seq_t));
-    f_new = (seq_t *)realloc(f_cache, new_sz * sizeof(seq_t));
+    a_new = mem_resize(seq_t, a_cache, new_sz);
+    f_new = mem_resize(seq_t, f_cache, new_sz);
 
     if (!a_new || !f_new) {
         /* Allocation failure: terminate the program. */

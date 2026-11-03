@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   gpf, isPrimeGeneric
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,13 +24,37 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/gpf.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/largest_prime_factor.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* Step function of the recurrence. */
 static inline seq_t step(seq_t cur, seq_t N)
 {
-    return isPrimeGeneric(cur) ? cur + N : (seq_t)gpf((uint64_t)cur);
+    return isPrimeGeneric(cur) ? cur + N : (seq_t)largest_prime_factor((uint64_t)cur);
 }
 
 /* Public function required by the exerciser. */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 3483, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9707 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>   /* malloc, realloc */
 #include <stdint.h>   /* uint32_t */
 #include <stdbool.h>  /* bool */
+#include "../utils/mem.h"
 
 static inline idx_t isqrt_uint64(idx_t v)
 {
@@ -109,7 +111,7 @@ static idx_t next_k = 0;   /* next integer k to evaluate */
 static void grow_seq_cache(void)
 {
     size_t new_cap = seq_cache_cap ? seq_cache_cap << 1 : 16;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) exit(1);
     seq_cache = tmp;
     seq_cache_cap = new_cap;

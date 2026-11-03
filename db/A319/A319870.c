@@ -9,13 +9,15 @@
  *            ∏_{k=0}^{(n‑1)%6} (6·⌈n/6⌉ – k)
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 41, u64 n <= 965,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (cum_sum == NULL)
     {
         cap = 8;
-        cum_sum = (seq_t *)malloc(cap * sizeof(seq_t));
+        cum_sum = mem_new(seq_t, cap);
         len = 1;                    /* cum_sum[0] will be zero */
         cum_sum[0] = (seq_t)0;
     }
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         if (len == cap)
         {
             size_t newcap = (cap == 0) ? 8 : cap * 2;
-            cum_sum = (seq_t *)realloc(cum_sum, newcap * sizeof(seq_t));
+            cum_sum = mem_resize(seq_t, cum_sum, newcap);
             cap = newcap;
         }
 

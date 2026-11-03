@@ -10,8 +10,9 @@
  *            partition, taking only the odd‑indexed parts, and multiplying
  *            the primes of those parts. This follows directly from the
  *            definition of the Heinz number and odd bisection
- * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
+ * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
+ *            big any n
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

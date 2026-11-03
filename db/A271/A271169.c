@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 7611 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t power5(idx_t base)
 {
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
        Pre‑compute all fifth powers up to max_base.
        ------------------------------------------------------------------ */
     size_t pow_cnt = (size_t)max_base + 1;
-    seq_t *pow5 = (seq_t *)malloc(pow_cnt * sizeof(seq_t));
+    seq_t *pow5 = mem_new(seq_t, pow_cnt);
     if (!pow5) return 0;
     pow5[0] = 0;
     for (size_t i = 1; i < pow_cnt; ++i)
@@ -65,9 +67,9 @@ seq_t a(idx_t n)
         return 0; /* cannot allocate array for extremely large n */
     arr_size = (size_t)n + 1;
 
-    seq_t *dp = (seq_t *)calloc(arr_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, arr_size);
     if (!dp) {
-        free(pow5);
+        mem_free(pow5);
         return 0;
     }
 
@@ -90,10 +92,10 @@ seq_t a(idx_t n)
     for (int ci = 0; ci < 6; ++ci) {
         idx_t coeff = coeffs[ci];
 
-        seq_t *next = (seq_t *)calloc(arr_size, sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, arr_size);
         if (!next) {
-            free(dp);
-            free(pow5);
+            mem_free(dp);
+            mem_free(pow5);
             return 0;
         }
 
@@ -110,12 +112,12 @@ seq_t a(idx_t n)
             }
         }
 
-        free(dp);
+        mem_free(dp);
         dp = next;
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
-    free(pow5);
+    mem_free(dp);
+    mem_free(pow5);
     return result;
 }

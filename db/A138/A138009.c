@@ -8,13 +8,15 @@
  * Formula:   a(n) = number of k ≤ n with d(k) ≥ d(n) (d is divisor count)
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 8717 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static uint16_t *divcnt = NULL;     /* divisor counts, index 1..max */
 static seq_t    *aseq   = NULL;     /* a(n) values, index 1..max */
@@ -27,7 +29,7 @@ static void extend_cache(idx_t new_limit) {
 
     /* Reallocate arrays to accommodate up to new_limit */
     divcnt = (uint16_t*)realloc(divcnt, (new_limit + 1) * sizeof(uint16_t));
-    aseq   = (seq_t*)   realloc(aseq,   (new_limit + 1) * sizeof(seq_t));
+    aseq   = mem_resize(seq_t, aseq, (new_limit + 1));
 
     /* Compute divisor counts and a(n) for newly added indices */
     for (idx_t i = cache_max + 1; i <= new_limit; ++i) {

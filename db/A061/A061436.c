@@ -9,8 +9,9 @@
  * Formula:   a(n) = number of steps for the trajectory of n to reach 1 under
  *            the map f(x) = x/3 if x mod 3 == 0 f(x) = x + 3 – (x mod 3)
  *            otherwise. For n = 1 the trajectory requires 2 steps (1 → 3 → 1)
- * Range:     u8 n <= 1857, u16 n <= 9859, u32 n <= 9859, u64 n <= 9859,
- *            u128 n <= 9859, big any n
+ * Range:     u8 n <= 1857, u16 n <= 99999, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 117 terms through n = 9859 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

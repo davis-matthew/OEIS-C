@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 19, i64 n <= 29, i128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 
 #include <stdlib.h>   /* malloc, free */
 #include <stdint.h>   /* size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     /* ---------- compute divisor sums σ(k) for 1..2n ---------- */
     idx_t limit = 2 * n;
-    seq_t *sigma = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (limit + 1));
     if (!sigma) return (seq_t)0;   /* allocation fail -> zero term */
     for (idx_t i = 0; i <= limit; ++i)
         sigma[i] = (seq_t)0;
@@ -53,16 +55,16 @@ seq_t a(idx_t n)
     }
 
     /* ---------- precompute weights weight(k) = σ(2k)−4σ(k) ---------- */
-    seq_t *weight = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    if (!weight) { free(sigma); return (seq_t)0; }
+    seq_t *weight = mem_new(seq_t, (n + 1));
+    if (!weight) { mem_free(sigma); return (seq_t)0; }
     weight[0] = (seq_t)0;   /* unused */
     for (idx_t k = 1; k <= n; ++k) {
         weight[k] = sigma[2 * k] - (seq_t)4 * sigma[k];
     }
 
     /* ---------- dynamic programming for a(i), 0..n ---------- */
-    seq_t *a_val = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    if (!a_val) { free(sigma); free(weight); return (seq_t)0; }
+    seq_t *a_val = mem_new(seq_t, (n + 1));
+    if (!a_val) { mem_free(sigma); mem_free(weight); return (seq_t)0; }
     a_val[0] = (seq_t)1;
 
     for (idx_t m = 1; m <= n; ++m) {
@@ -77,8 +79,8 @@ seq_t a(idx_t n)
 
     seq_t result = a_val[n];
 
-    free(sigma);
-    free(weight);
-    free(a_val);
+    mem_free(sigma);
+    mem_free(weight);
+    mem_free(a_val);
     return result;
 }

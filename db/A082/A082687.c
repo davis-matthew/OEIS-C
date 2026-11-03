@@ -7,12 +7,13 @@
  * Formula:   a(n) = numerator(∑_{k=1..n} 1/(n+k))
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 36 terms through n = 98 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
         seq_t new_den = den * d;         /* denominator of the sum before reduction */
 
         /* reduce the fraction */
-        seq_t g = seq_gcd(new_num, new_den);
+        seq_t g = gcd(new_num, new_den);
         num = new_num / g;
         den = new_den / g;
     }

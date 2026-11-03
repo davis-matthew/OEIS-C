@@ -9,15 +9,27 @@
  *            the lengths of its runs of consecutive bits
  * Range:     u8 n <= 36, u16 n <= 292, u32 n <= 5460, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_p_factorial, floor_log2_uint64, pow_uint
+ * Validated: standard, pass, 80 terms through n = 8031 (2026-11-01)
+ * Helpers:   ilog2, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
-#include "../utils/pow_uint.h"
-#include "../utils/count_p_factorial.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/ipow_u64_idx.h"
+
+static inline idx_t count_p_factorial(idx_t n, unsigned int p)
+{
+    idx_t e = 0;
+    while (n)
+    {
+        n /= p;
+        e += n;
+    }
+    return e;
+}
 
 seq_t a(idx_t n)
 {
@@ -25,7 +37,7 @@ seq_t a(idx_t n)
         return 1;
 
     /* number of bits in n */
-    idx_t len = floor_log2_uint64(n) + 1;
+    idx_t len = ilog2(n) + 1;
 
     /* collect run lengths */
     unsigned int runs[64];
@@ -77,7 +89,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < primes_cnt; ++i)
     {
         if (exp_diff[i] > 0)
-            result *= pow_uint(primes[i], (idx_t)exp_diff[i]);
+            result *= ipow_u64_idx(primes[i], (idx_t)exp_diff[i]);
     }
     return result;
 }

@@ -11,14 +11,15 @@
  *            The sequence thus consists of the eight numbers listed in OEIS
  * Range:     u8 none, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   gcd_int
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-02)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_int.h"
+#include "../utils/gcd_i32.h"
 
 static seq_t seq_arr[8];
 static idx_t seq_len = 0;
@@ -34,21 +35,21 @@ static void generate_seq(void)
         {
             if (d1 == d0)
                 continue;
-            if (gcd_int(d0, d1) != 1)
+            if (gcd_i32(d0, d1) != 1)
                 continue;
             for (int d2 = 1; d2 <= 4; ++d2)
             {
                 if (d2 == d0 || d2 == d1)
                     continue;
-                if (gcd_int(d1, d2) != 1)
+                if (gcd_i32(d1, d2) != 1)
                     continue;
                 for (int d3 = 1; d3 <= 4; ++d3)
                 {
                     if (d3 == d0 || d3 == d1 || d3 == d2)
                         continue;
-                    if (gcd_int(d2, d3) != 1)
+                    if (gcd_i32(d2, d3) != 1)
                         continue;
-                    if (gcd_int(d3, d0) != 1)
+                    if (gcd_i32(d3, d0) != 1)
                         continue;
                     seq_arr[pos++] = (seq_t)(d0 * 1000 + d1 * 100 + d2 * 10 + d3);
                 }

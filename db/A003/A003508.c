@@ -10,17 +10,68 @@
  *            trial division + Miller-Rabin + Pollard-Brent rho
  * Range:     u8 n <= 26, u16 n <= 145, u32 n <= 406, u64 n <= 1833,
  *            u128 n <= 2000, big any n
- * Helpers:   s3508_fits, s3508_gcdS, s3508_pwS, s3508_rhobig
+ * Validated: standard, pass, 70 terms through n = 1914 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/s3508_fits.h"
-#include "../utils/s3508_gcdS.h"
-#include "../utils/s3508_pwS.h"
-#include "../utils/s3508_rhobig.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* ---------- conversions between seq_t and 128-bit ---------- */
+static int s3508_fits(seq_t x) {
+    seq_t t = x;
+    int i;
+    for (i = 0; i < 8; i++) t /= 65536;
+    return t == 0;
+}
+
+static seq_t s3508_pwS(seq_t b, seq_t e, seq_t m) {
+    seq_t r = 1;
+    b = b % m;
+    while (e > 0) {
+        if (e % 2 == 1) r = r * b % m;
+        b = b * b % m;
+        e /= 2;
+    }
+    return r;
+}
+
+static seq_t s3508_rhobig(seq_t n) {
+    idx_t cc;
+    const unsigned long M = 64;
+    for (cc = 1;; cc++) {
+        seq_t y = 2, x = 0, ys = 0, q = 1, g = 1;
+        unsigned long r = 1, k, i, lim;
+        y += cc;
+        do {
+            x = y;
+            for (i = 0; i < r; i++) y = (y * y + cc) % n;
+            k = 0;
+            do {
+                ys = y;
+                lim = (M < r - k) ? M : r - k;
+                for (i = 0; i < lim; i++) {
+                    y = (y * y + cc) % n;
+                    q = q * (x > y ? x - y : y - x) % n;
+                }
+                g = gcd(q, n);
+                k += M;
+            } while (k < r && g == 1);
+            r <<= 1;
+        } while (g == 1);
+        if (g == n) {
+            do {
+                ys = (ys * ys + cc) % n;
+                g = gcd(x > ys ? x - ys : ys - x, n);
+            } while (g == 1);
+        }
+        if (g != n) return g;
+    }
+}
 
 typedef unsigned __int128 s3508_u128;
 
@@ -244,13 +295,13 @@ seq_t a(idx_t n) {
     if (n == 1) return 1;
     if (s3508_cache == NULL) {
         s3508_cap = (n >= 32) ? n + 32 : 64;
-        s3508_cache = (seq_t *)malloc(s3508_cap * sizeof(seq_t));
+        s3508_cache = mem_new(seq_t, s3508_cap);
         s3508_cache[1] = 1;
         s3508_done = 1;
     }
     while (n >= s3508_cap) {
         idx_t nc = s3508_cap * 2;
-        s3508_cache = (seq_t *)realloc(s3508_cache, nc * sizeof(seq_t));
+        s3508_cache = mem_resize(seq_t, s3508_cache, nc);
         s3508_cap = nc;
     }
     if (n <= s3508_done) return s3508_cache[n];

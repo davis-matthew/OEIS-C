@@ -10,7 +10,8 @@
  *            denominator, a(n) = Σ_{j=1..n} L(n)/c(j)
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 24, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   gcd, grow_seq, is_prime
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,25 @@
    and grow_seq provided by the build environment. */
 
 #include <stdbool.h>
-#include "../utils/gcd.h"        /* seq_t gcd(seq_t, seq_t) */
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t) */
-#include "../utils/grow_seq.h"   /* void grow_seq(seq_t**, size_t*, size_t) */
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/gcd.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static idx_t comp_next = 4;                    /* candidate for next composite */
 static idx_t comp_cnt  = 0;                    /* number of composites stored */

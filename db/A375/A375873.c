@@ -14,6 +14,7 @@
  *            entries of all T(0), T(1), T(2), … in that order
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
+ * Validated: partial, pass, 84 terms through n = 83 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,8 +23,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 /* Tetrahedral number S(m) = (m+1)(m+2)(m+3)/6.  Returns value as unsigned __int128. */
 static inline unsigned __int128 tetrahedral(idx_t m)

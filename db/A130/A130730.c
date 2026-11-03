@@ -7,13 +7,16 @@
  * Formula:   a(n) = 2^(2^n) + 7
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   big_pow, pow2
+ * Validated: standard, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow.h"
 #include "../utils/pow2.h"
-#include "../utils/big_pow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +24,7 @@ seq_t a(idx_t n)
     seq_t exp = pow2(n);
 
     /* Compute 2^(exp) as a seq_t result */
-    seq_t val = big_pow((seq_t)2, exp);
+    seq_t val = ipow((seq_t)2, exp);
 
     /* Add 7 to get the Fermat number of order 7 */
     val += (seq_t)7;

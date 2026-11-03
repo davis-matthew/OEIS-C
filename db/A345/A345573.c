@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 759, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 9197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------- */
 /*  Internal state                                                     */
@@ -135,7 +137,7 @@ static void init_terms(void)
      *  Collect sums that appear at least seven times.                  *
      * ---------------------------------------------------------------- */
     size_t capacity = 20000;          /* initial capacity */
-    terms = (seq_t *)malloc(capacity * sizeof(*terms));
+    terms = mem_new(seq_t, capacity);
     if (!terms) {
         free(pow4);
         free(cnt);
@@ -146,7 +148,7 @@ static void init_terms(void)
         if (cnt[s] >= 7) {
             if (term_count >= capacity) {
                 capacity *= 2;
-                seq_t *tmp = (seq_t *)realloc(terms, capacity * sizeof(*terms));
+                seq_t *tmp = mem_resize(seq_t, terms, capacity);
                 if (!tmp) {
                     free(pow4);
                     free(cnt);

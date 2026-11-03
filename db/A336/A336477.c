@@ -7,8 +7,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = 1 iff n is of the form 2^k × (product of distinct Fermat
  *            primes)
- * Range:     u8 n <= 8010, u16 n <= 8010, u32 n <= 8010, u64 n <= 8010,
- *            u128 n <= 8010, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8010 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

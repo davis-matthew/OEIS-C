@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 96, u16 n <= 9859, u32 n <= 9859, u64 n <= 9859,
- *            u128 n <= 9859, big any n
- * Helpers:   none
+ * Range:     u8 n <= 96, u16 n <= 15000, u32 n <= 15000, u64 n <= 15000,
+ *            u128 n <= 15000, big any n
+ * Validated: standard, pass, 76 terms through n = 9859 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Test whether n is cubefree and satisfies the condition. */
 static bool satisfies(uint64_t n)
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
             if (len == cap)
             {
                 size_t newcap = cap ? cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) abort();     /* unlikely but safe */
                 cache = tmp;
                 cap   = newcap;

@@ -8,14 +8,16 @@
  * Formula:   a(n) = ceiling((d + n/10^d)^9), d = 1 + floor(log10 n)
  * Range:     u8 n <= 8, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   digit_count
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-01)
+ * Helpers:   num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
 
 /* 192‑bit unsigned integer, little‑endian: w[0] least‑significant. */
 typedef struct {
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)2;
 
     /* Number of decimal digits of n. */
-    idx_t d = digit_count((uint64_t)n);      /* d ≥ 1 for n > 0 */
+    idx_t d = num_digits0((uint64_t)n);      /* d ≥ 1 for n > 0 */
 
     /* 10^d as uint64_t (fits in 32 bits for d ≤ 5). */
     uint64_t pow10d = 1;

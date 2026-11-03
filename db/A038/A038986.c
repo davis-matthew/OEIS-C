@@ -8,7 +8,8 @@
  *            mod p (i.e. (95/p) = -1)
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, powmod64
+ * Validated: standard, pass, 60 terms through n = 983 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/powmod64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* static cache of computed values */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ static inline void ensure_cache_cap(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? (cache_cap << 1) : 64;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();          /* allocation failure */
     cache = tmp;
     cache_cap = new_cap;
@@ -45,7 +47,7 @@ static inline void ensure_cache_cap(size_t need)
 static inline uint64_t legendre_95(uint64_t p)
 {
     /* p is prime and odd */
-    return powmod64(95, (p - 1) >> 1, p);
+    return powmod_u64(95, (p - 1) >> 1, p);
 }
 
 seq_t a(idx_t n)

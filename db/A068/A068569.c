@@ -12,7 +12,8 @@
  *            which is sufficient to generate at least the...
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------
  *  Helper: number of letters in an integer written in English
@@ -142,7 +144,7 @@ static void ensure_seq_cap(size_t needed)
     size_t new_cap = seq_cap ? seq_cap * 2 : 128U;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *new_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq_arr, new_cap);
     if (!new_arr)
         exit(EXIT_FAILURE);
     seq_arr = new_arr;
@@ -161,7 +163,7 @@ static void compute_sequence(idx_t LIMIT_N, size_t TARGET_TERMS)
         ratio_seen = NULL;
     }
     if (seq_arr) {
-        free(seq_arr);
+        mem_free(seq_arr);
         seq_arr = NULL;
     }
     ratio_cap = seq_cap = ratio_cap = seq_cap = 0;

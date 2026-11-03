@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 2886, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   good_divisors
+ * Validated: standard, pass, 68 terms through n = 9878 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/good_divisors.h"
+#include "../utils/mem.h"
+
+/* Test whether a divisor count is of the form 3·2^m.                  */
+static bool good_divisors(uint32_t d)
+{
+    if (d < 3 || d % 3 != 0)
+        return false;
+    uint32_t k = d / 3;
+    return (k & (k - 1)) == 0;   /* k is a power of two */
+}
 
 /* ------------------------------------------------------------------ */
 /* Prime table (sieve of Eratosthenes)                                 */
@@ -89,7 +99,7 @@ static void append_seq(uint64_t val)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 8;
-        seq_storage = (seq_t*)realloc(seq_storage, seq_cap * sizeof(seq_t));
+        seq_storage = mem_resize(seq_t, seq_storage, seq_cap);
     }
     seq_storage[seq_len++] = (seq_t)val;
 }

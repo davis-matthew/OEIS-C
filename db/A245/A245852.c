@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   noZero
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,15 @@
 /* Search: iterate powers of 8 and count those whose decimal expansion
  * contains no digit '0'; return the n‑th such power. */
 #include <stdbool.h>
-#include "../utils/noZero.h"
+
+static bool noZero(seq_t x) {
+    while (x != 0) {
+        if ((x % 10) == 0)
+            return false;
+        x /= 10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;

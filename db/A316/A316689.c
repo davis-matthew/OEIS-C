@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 48, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 static const seq_t base_values[12] = {
     0,      /* unused index 0 */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* start with a size that fits the first 11 values */
         cap = 32;
-        cache = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cap);
         if (!cache)
             return (seq_t)0;     /* allocation failure (unlikely) */
         for (idx_t i = 1; i <= 11; ++i)
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         size_t newcap = cap ? cap * 2 : 32;
         while ((idx_t)newcap <= n)
             newcap *= 2;
-        seq_t *ptr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, cache, newcap);
         if (!ptr)
             return (seq_t)0;     /* allocation failure */
         cache = ptr;

@@ -7,9 +7,10 @@
  * Formula:   a(n) = u * C_s * D_t * ∏_{p≡3 (mod 4), p>3} (p−3)·p^(r−1) where
  *            n = 2^s · 3^t · u · ∏ p_i^r_i, u contains only primes ≡1 (mod
  *            4), and p_i ≡3 (mod 4), p_i>3
- * Range:     u8 n <= 256, u16 n <= 9983, u32 n <= 9983, u64 n <= 9983,
- *            u128 n <= 9983, big any n
- * Helpers:   factor_u64, pow_uint
+ * Range:     u8 n <= 256, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 85 terms through n = 9983 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow_uint.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -52,9 +55,9 @@ seq_t a(idx_t n)
             continue;
         }
         if ((p & 3ULL) == 1ULL) {          /* p ≡ 1 (mod 4) */
-            u *= pow_uint(p, e);
+            u *= ipow_u64_idx(p, e);
         } else {                           /* p ≡ 3 (mod 4), p>3 */
-            seq_t factor = pow_uint(p, e > 1 ? e - 1 : 0); /* p^(e-1) */
+            seq_t factor = ipow_u64_idx(p, e > 1 ? e - 1 : 0); /* p^(e-1) */
             factor *= (seq_t)(p - 3);
             pt_fact *= factor;
         }
@@ -73,8 +76,8 @@ seq_t a(idx_t n)
     } else if (s == 4) {
         C_s = 5;
     } else { /* s >= 5 */
-        seq_t odd  = pow_uint(2, s - 2);   /* 2^(s-2) */
-        seq_t even = pow_uint(2, s - 5);   /* 2^(s-5) */
+        seq_t odd  = ipow_u64_idx(2, s - 2);   /* 2^(s-2) */
+        seq_t even = ipow_u64_idx(2, s - 5);   /* 2^(s-5) */
         C_s = odd + even;                  /* 9·2^(s-5) */
     }
 
@@ -83,7 +86,7 @@ seq_t a(idx_t n)
     if (t == 0) {
         D_t = 1;
     } else {
-        seq_t pow3 = pow_uint(3, t - 1); /* 3^(t-1) */
+        seq_t pow3 = ipow_u64_idx(3, t - 1); /* 3^(t-1) */
         D_t = pow3 * 2ULL;
     }
 

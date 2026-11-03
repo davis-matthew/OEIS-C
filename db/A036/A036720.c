@@ -11,13 +11,15 @@
  *            * B(t-p) (coefficients of A(x)^4)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 36, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 468 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #ifdef __cplusplus
 #include <type_traits>
@@ -38,7 +40,7 @@ ensure_cap_seq_t(seq_t **arr, size_t *cap, size_t needed)
         size_t new_cap = (*cap > 0) ? (*cap << 1) : 1;
         while (new_cap < needed)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp)
             exit(EXIT_FAILURE);
         for (size_t i = *cap; i < new_cap; ++i)
@@ -60,12 +62,12 @@ seq_t a(idx_t n)
     /* lazy initialization */
     if (a_buf == NULL) {
         a_cap = 1;
-        a_buf = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_buf = mem_new(seq_t, a_cap);
         if (!a_buf) exit(EXIT_FAILURE);
         a_buf[0] = (seq_t)1;              /* a(0) = 1 */
 
         b_cap = 1;
-        b_buf = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_buf = mem_new(seq_t, b_cap);
         if (!b_buf) exit(EXIT_FAILURE);
         b_buf[0] = (seq_t)1;              /* B(0) = a0*a0 = 1 */
         max_n = 0;

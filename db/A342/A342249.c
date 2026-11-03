@@ -8,12 +8,14 @@
  *            = number of multisets {p1,…,p9} of powers of 2 with p1+…+p9 = n
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, calloc, free */
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* 1‑D array holding a 10×(max_n+1) table */
 static idx_t max_n = 0;           /* largest n for which dp is valid */
@@ -25,13 +27,13 @@ static void compute_dp(idx_t limit)
     if (limit < max_n) return;            /* already computed */
 
     /* Free old table if any */
-    if (dp) free(dp);
+    if (dp) mem_free(dp);
 
     /* Allocate new table: 10 rows × (limit+1) columns */
     size_t rows    = 10;
     size_t cols    = (size_t)(limit + 1);
     size_t size    = rows * cols;
-    dp = (seq_t *)calloc(size, sizeof(seq_t));   /* zero‑initialised */
+    dp = mem_new(seq_t, size);   /* zero‑initialised */
     if (!dp) return;               /* memory failure → leave dp NULL */
 
     /* Helper macro to index dp[k][s] */

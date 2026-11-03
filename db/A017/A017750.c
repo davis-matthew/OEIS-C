@@ -8,12 +8,13 @@
  *            sequence is indexed so that a(86)=1, a(87)=87, a(88)=3828, …
  * Range:     u8 n <= 87, u16 n <= 88, u32 n <= 92, u64 n <= 103,
  *            u128 n <= 137, big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 32 terms through n = 9557 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     /* The sequence is defined only for n >= 86.
@@ -36,12 +37,12 @@ seq_t a(idx_t n) {
         seq_t denominator = (seq_t)k;
 
         /* Cancel common factors with the current result */
-        seq_t g1 = seq_gcd(result, denominator);
+        seq_t g1 = gcd(result, denominator);
         result /= g1;
         denominator /= g1;
 
         /* Cancel remaining common factors with the numerator */
-        seq_t g2 = seq_gcd(numerator, denominator);
+        seq_t g2 = gcd(numerator, denominator);
         numerator /= g2;
         denominator /= g2;
 

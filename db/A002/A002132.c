@@ -10,7 +10,8 @@
  *            2*Sum_{k>=1} (-1)^(k+1)*a(n-k^2), a(n) = 0 for n < 4
  * Range:     u8 n <= 19, u16 n <= 116, u32 n <= 4619, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 8431 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a002132_cache = NULL;
 static idx_t a002132_len = 0;
@@ -26,12 +28,12 @@ seq_t a(idx_t n) {
     if (n < 4) return 0;
     if (n >= a002132_len) {
         idx_t newlen = n + 1;
-        seq_t *nv = (seq_t *)malloc((size_t)newlen * sizeof(seq_t));
+        seq_t *nv = mem_new(seq_t, (size_t)newlen);
         if (nv == NULL) return 0;
         for (idx_t i = 0; i < newlen; i++) nv[i] = 0;
         for (idx_t i = 0; i < a002132_len; i++) nv[i] = a002132_cache[i];
         idx_t start = a002132_len < 4 ? 4 : a002132_len;
-        free(a002132_cache);
+        mem_free(a002132_cache);
         a002132_cache = nv;
         for (idx_t i = start; i < newlen; i++) {
             seq_t pos = 0, neg = 0;

@@ -11,13 +11,15 @@
  *            21, 44, 82, 144, 273, 531, … (OEIS A195957)
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 33, u64 n <= 66, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* 125 possible rows (3 cells, each 0..4).  */
 #define STATE_COUNT 125
@@ -114,14 +116,14 @@ seq_t a(idx_t n)
     if (n == 1) return single_valid_count;
 
     /*  initialise DP for 2 rows  */
-    memset(dp_curr, 0, sizeof(dp_curr));
+    mem_set(dp_curr, 0, sizeof(dp_curr));
     for (size_t idx = 0; idx < STATE_COUNT * STATE_COUNT; ++idx)
         if (init_valid[idx]) dp_curr[idx] = (seq_t)1;
 
     /*  iterate for rows 3 .. n  */
     if (n >= 3) {
         for (idx_t step = 3; step <= n; ++step) {
-            memset(dp_next, 0, sizeof(dp_next));
+            mem_set(dp_next, 0, sizeof(dp_next));
             for (size_t idx = 0; idx < STATE_COUNT * STATE_COUNT; ++idx) {
                 seq_t cnt = dp_curr[idx];
                 if (!cnt) continue;
@@ -135,7 +137,7 @@ seq_t a(idx_t n)
                     dp_next[curr * STATE_COUNT + next] += cnt;
                 }
             }
-            memcpy(dp_curr, dp_next, sizeof(dp_curr));
+            mem_copy(dp_curr, dp_next, sizeof(dp_curr));
         }
     }
 

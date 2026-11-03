@@ -12,7 +12,8 @@
  *            satisfies the linear recurrence c[0] = 1 c[1] = 0...
  * Range:     i8 n <= 90, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root of a 64‑bit unsigned integer.
    Returns floor( sqrt(x) ). */
@@ -45,7 +47,7 @@ static void ensure_c(idx_t max)
 {
     if (max < c_cache_len) return;
     size_t new_len = (size_t)max + 1;
-    seq_t *tmp = (seq_t *)realloc(c_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, c_cache, new_len);
     if (!tmp) return;                /* ignore allocation failure in this context */
     c_cache = tmp;
     for (idx_t i = c_cache_len; i <= max; ++i) {

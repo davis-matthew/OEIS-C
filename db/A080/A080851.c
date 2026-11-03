@@ -9,8 +9,9 @@
  *            (0‑based), find the diagonal d such that * (d+1)(d+2)/2 > n and
  *            d(d+1)/2 ≤ n. * Let offset = n - d(d+1)/2. * Then r = d -
  *            offset, c = offset. * The value a(n) is computed...
- * Range:     u8 n <= 61, u16 n <= 976, u32 n <= 7823, u64 n <= 7823,
- *            u128 n <= 7823, big any n
+ * Range:     u8 n <= 61, u16 n <= 976, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 94 terms through n = 7823 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

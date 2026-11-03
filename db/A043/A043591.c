@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   comb_11, dp_index
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/comb_11.h"
-#include "../utils/dp_index.h"
+
+/* Compute C(n,11) using 128‑bit integers. */
+static inline unsigned __int128 comb_11(int n)
+{
+    unsigned __int128 res = 1;
+    /* n >= 11 */
+    for (int i = 1; i <= 11; ++i) {
+        res = res * (unsigned __int128)(n - 11 + i) / (unsigned __int128)i;
+    }
+    return res;
+}
+
+/* Return the index inside the table for position 'pos', number of runs used 'run',
+   and previous digit 'prev' (0,1,2 or 3 meaning no previous). */
+static inline size_t dp_index(int pos, int run, int prev, int L)
+{
+    return ((size_t)pos * 12 + run) * 4 + prev;
+}
 
 seq_t a(idx_t n)
 {

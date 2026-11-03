@@ -9,7 +9,8 @@
  * Formula:   A072884 – k such that f(f(k)) = k, where f(k) = Σ (digit^3)
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   digit_cube_sum
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/digit_cube_sum.h"
+#include "../utils/mem.h"
+
+/* Sum of the cubes of the decimal digits of v */
+static seq_t digit_cube_sum(seq_t v)
+{
+    seq_t sum = 0;
+    while (v > 0) {
+        unsigned d = (unsigned)(v % 10);
+        seq_t d3 = (seq_t)d * d * d;
+        sum += d3;
+        v /= 10;
+    }
+    return sum;
+}
 
 /* Cache of the sequence */
 static seq_t *table = NULL;
@@ -34,7 +48,7 @@ static void init_cache(void)
        known maximum (2188).  Using a small bound keeps the allocation tiny
        even on wide integer builds. */
     const idx_t LIMIT = 3000;
-    table = (seq_t *)malloc(sizeof(seq_t) * LIMIT);
+    table = mem_new(seq_t, LIMIT);
     if (!table) { ready = true; return; }
 
     size_t idx = 0;

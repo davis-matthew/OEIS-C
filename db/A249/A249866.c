@@ -5,9 +5,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, easy, tabl
  * Formula:   not stated
- * Range:     u8 n <= 9892, u16 n <= 9892, u32 n <= 9892, u64 n <= 9892,
- *            u128 n <= 9892, big any n
- * Helpers:   _floor_isqrt_u64, gcd
+ * Range:     u8 n <= 11176, u16 n <= 11176, u32 n <= 11176, u64 n <= 11176,
+ *            u128 n <= 11176, big any n
+ * Validated: standard, pass, 121 terms through n = 9892 (2026-11-01)
+ * Helpers:   gcd, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
    a(n) is obtained by enumerating the triangle T(n,m) row‑by‑row
    (n=2,3,…; m=1,…,n-1) and taking the n‑th entry.  */
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Find the row r such that (r‑1)*r/2 > t,
        where r ≥ 2.  */
     idx_t val = 8 * t + 1;
-    idx_t s   = _floor_isqrt_u64(val);     /* floor( sqrt(1+8t) ) */
+    idx_t s   = isqrt(val);     /* floor( sqrt(1+8t) ) */
     idx_t r   = (s + 1) / 2 + 1;           /* minimal integer > root */
 
     /* Position m within the row (1‑based).  */

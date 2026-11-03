@@ -9,7 +9,8 @@
  *            binomial(2k+2, k+1) * n^{n-2-2k} / (n-2-2k)!
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   count_twos
+ * Validated: standard, pass, 36 terms through n = 367 (2026-11-01)
+ * Helpers:   ctz_seq_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
    all operations are performed on seq_t values.  */
 
 #include <stdint.h>
-#include "../utils/count_twos.h"
+#include "../utils/ctz_seq_to_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +45,7 @@ seq_t a(idx_t n)
 
         /* Component 1: ratio */
         seq_t comp = ratio;
-        idx_t tw = count_twos(comp);
+        idx_t tw = ctz_seq_to_idx(comp);
         if (tw > rem) tw = rem;
         comp >>= tw;
         rem -= tw;
@@ -52,7 +53,7 @@ seq_t a(idx_t n)
 
         /* Component 2: (k+1) */
         comp = (seq_t)(k + 1);
-        tw = count_twos(comp);
+        tw = ctz_seq_to_idx(comp);
         if (tw > rem) tw = rem;
         comp >>= tw;
         rem -= tw;
@@ -60,7 +61,7 @@ seq_t a(idx_t n)
 
         /* Component 3: binom */
         comp = binom;
-        tw = count_twos(comp);
+        tw = ctz_seq_to_idx(comp);
         if (tw > rem) tw = rem;
         comp >>= tw;
         rem -= tw;
@@ -68,7 +69,7 @@ seq_t a(idx_t n)
 
         /* Component 4: npow */
         comp = npow;
-        tw = count_twos(comp);
+        tw = ctz_seq_to_idx(comp);
         if (tw > rem) tw = rem;
         comp >>= tw;
         rem -= tw;

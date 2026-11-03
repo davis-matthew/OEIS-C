@@ -8,17 +8,20 @@
  * Formula:   a(n) = 2^(n-1) - n*phi(n)
  * Range:     i8 n <= 8, i16 n <= 16, i32 n <= 32, i64 n <= 35, i128 n <= 35,
  *            big any n
- * Helpers:   phi, pow2
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   pow2, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     seq_t pow_term = pow2(n - 1);
-    seq_t phi_term = phi(n);
+    seq_t phi_term = totient(n);
     return pow_term - (seq_t)n * phi_term;
 }

@@ -10,12 +10,15 @@
  *            binomial((n+2)-n*i,i) which simplifies to the given closed form
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 196 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     seq_t exp  = (seq_t)(n + 2);
 
     /* Compute (n+1)^(n+2) using the provided big_pow routine. */
-    seq_t pow = big_pow(base, exp);
+    seq_t pow = ipow(base, exp);
 
     /* Subtract 2*(n+1).  The intermediate multiplication fits in seq_t
        for all n values that the build’s seq_t type can represent. */

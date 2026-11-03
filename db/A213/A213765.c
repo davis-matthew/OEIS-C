@@ -12,12 +12,13 @@
  *            sequence (F(0)=0, F(1)=1)
  * Range:     u8 n <= 36, u16 n <= 190, u32 n <= 903, u64 n <= 1830,
  *            u128 n <= 1830, big any n
- * Helpers:   fib_iter
+ * Validated: standard, pass, 75 terms through n = 1728 (2026-11-01)
+ * Helpers:   fibonacci
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/fib_iter.h"
+#include "../utils/fibonacci.h"
 
 seq_t a(idx_t n)
 {
@@ -42,9 +43,9 @@ seq_t a(idx_t n)
     idx_t r     = pos + 1;             /* row index */
     idx_t s     = sum - r;             /* column index */
 
-    seq_t Fn_k4 = fib_iter(r + s + 4);
-    seq_t Fn_1  = fib_iter(r + 1);
-    seq_t Fn_4  = fib_iter(r + 4);
+    seq_t Fn_k4 = fibonacci(r + s + 4);
+    seq_t Fn_1  = fibonacci(r + 1);
+    seq_t Fn_4  = fibonacci(r + 4);
 
     seq_t term = Fn_k4 - Fn_4 - ( (seq_t)2 * (seq_t)s * Fn_1 );
     return term;

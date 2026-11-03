@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    a(n) is the triangle read by rows (offset 1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         size_t init_cap = 8;
         rows = (seq_t **)malloc(init_cap * sizeof(seq_t *));
         cum  = (idx_t  *)malloc(init_cap * sizeof(idx_t ));
-        fibs = (seq_t  *)malloc(init_cap * sizeof(seq_t ));
+        fibs = mem_new(seq_t, init_cap);
         if (!rows || !cum || !fibs) abort();
         rows_cap = init_cap;
         cum_cap  = init_cap;
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     if (target_row >= fibs_cap) {
         size_t new_cap = fibs_cap == 0 ? 8 : fibs_cap;
         while (new_cap <= target_row) new_cap <<= 1;
-        seq_t *tmp_fibs = (seq_t *)realloc(fibs, new_cap * sizeof(seq_t));
+        seq_t *tmp_fibs = mem_resize(seq_t, fibs, new_cap);
         if (!tmp_fibs) abort();
         fibs = tmp_fibs;
         fibs_cap = new_cap;
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
     for (idx_t i = max_i + 1; i <= target_row; ++i) {
 
         /* allocate memory for row i (index 0 unused) */
-        seq_t *row = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (!row) abort();
         rows[i] = row;
 

@@ -12,13 +12,21 @@
  *            (i-2)*(j-2)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   perimeter
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/perimeter.h"
+#include "../utils/mem.h"
+
+/* compute perimeter of i x j rectangle */
+static inline seq_t perimeter(idx_t i, idx_t j) {
+    if (i <= 2 || j <= 2)
+        return (seq_t)i * (seq_t)j;
+    return (seq_t)i * j - (seq_t)(i - 2) * (j - 2);
+}
 
 static seq_t *cache = NULL;            /* memoised values */
 static size_t cache_cap = 0;           /* allocated capacity of cache */
@@ -36,11 +44,11 @@ seq_t a(idx_t n) {
         /* ensure allocation */
         if (cache_len == 0) {
             cache_cap = 64;
-            cache = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, NULL, cache_cap);
         } else if (cache_cap < (size_t)n) {
             size_t new_cap = cache_cap;
             while (new_cap < (size_t)n) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cache_cap = new_cap;
         }

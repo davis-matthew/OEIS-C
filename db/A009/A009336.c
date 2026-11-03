@@ -9,13 +9,24 @@
  *            manipulation without using floating‑point arithmetic
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 15, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   alloc_seq
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* includes for the utilities that allocate sequences */
-#include "../utils/alloc_seq.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 #include <stddef.h>   /* for size_t and NULL */
 
 /* external linkage function */

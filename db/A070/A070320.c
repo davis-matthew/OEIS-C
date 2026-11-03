@@ -9,7 +9,8 @@
  *            to find the largest prime ≤ n and returns that prime minus one
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static idx_t prime_limit = 0;      /* highest n that has been sieved */
 static seq_t *prime_list = NULL;  /* primes ≤ prime_limit (increasing) */
@@ -47,7 +49,7 @@ ensure_primes(idx_t n)
             ++new_cnt;
 
     /* Allocate space for the primes. */
-    seq_t *new_primes = (seq_t *)malloc(new_cnt * sizeof(seq_t));
+    seq_t *new_primes = mem_new(seq_t, new_cnt);
     if (!new_primes)
         exit(EXIT_FAILURE);
 
@@ -60,7 +62,7 @@ ensure_primes(idx_t n)
     free(comp);
 
     /* Replace the old list with the new one. */
-    free(prime_list);
+    mem_free(prime_list);
     prime_list = new_primes;
     prime_cnt = new_cnt;
     prime_limit = n;

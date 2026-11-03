@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf, easy
  * Formula:   not stated
- * Range:     u8 n <= 23, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
+ * Range:     u8 n <= 33, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    C(r, k) with k = 1 … r–1 (i.e. the coefficients except the outer 1's).
    Row 0 contributes a single 1. */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
             /* odd row, inner coefficients */
             idx_t k = pos + 1;             /* k ranges 1 … r‑1         */
-            return binom(r, k);            /* exact binomial coeff.     */
+            return binomial(r, k);            /* exact binomial coeff.     */
         }
 
         count += add;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(0) = 0, a(1) = 1; for n>1
  * a(n) = Σ_{k=0}^{n-2} [ a(k) XOR a(n-k-2) ] */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache and tracking of last computed index */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* initial allocation for the first two terms */
     if (cache == NULL) {
         cache_size = 2;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) exit(EXIT_FAILURE);
         cache[0] = 0;
         cache[1] = 1;
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     /* grow cache if needed and compute new terms only once */
     if ((size_t)(n + 1) > cache_size) {
         size_t new_size = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         cache_size = new_size;

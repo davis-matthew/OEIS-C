@@ -11,7 +11,8 @@
  *            sum equals the set of distinct digits of its digital product
  * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declarations for seq_t operations are assumed to be provided
    by the build (integer types have the usual operators, arbitrary
@@ -66,7 +68,7 @@ push_term(seq_t val)
         size_t new_cap = (terms_cap > 0 ? terms_cap * 2 : 64);
         /* Cast the void* returned by realloc so that the code compiles
            in both C and C++.  In C the cast is unused but harmless.   */
-        seq_t *newp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, terms, new_cap);
         if (newp == NULL)
             abort();                /* unrecoverable allocation failure */
         terms      = newp;

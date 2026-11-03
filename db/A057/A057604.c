@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 94, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_uint64
+ * Validated: standard, pass, 64 terms through n = 9622 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Cached primes of the required form */
 static seq_t *cache      = NULL;   /* array of found primes */
@@ -37,7 +39,7 @@ static uint64_t next_k     = 0;    /* next k to test */
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();               /* unrecoverable memory error */
     cache = tmp;
     cache_cap = new_cap;
@@ -55,7 +57,7 @@ static void ensure_n(size_t n)
         seq_t cand = (seq_t)cand64;
 
         /* Test primality with the provided 64‑bit routine */
-        if (is_prime_uint64(cand64)) {
+        if (is_prime_u64(cand64)) {
             if (cache_len == cache_cap) grow_cache();
             cache[cache_len++] = cand;
         }

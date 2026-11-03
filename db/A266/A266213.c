@@ -12,12 +12,15 @@
  *            sum_{k=1..min(n,r)} binomial(r-1, k-1) * binomial(n, k) * 2^k
  * Range:     u8 n <= 47, u16 n <= 126, u32 n <= 418, u64 n <= 1508,
  *            u128 n <= 5150, big any n
+ * Validated: standard, pass, 82 terms through n = 4934 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

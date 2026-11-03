@@ -11,18 +11,49 @@
  *            sigma running over the permutations whose c...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   a4107_g, a4107_powmod, is_prime, seq_is_big, u128_to_seq
+ * Validated: standard, pass, 28 terms through n = 40 (2026-11-03)
+ * Helpers:   gcd_i32, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/seq_is_big.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/a4107_g.h"
-#include "../utils/a4107_powmod.h"
+#include <stdlib.h>
+#include "../utils/gcd_i32.h"
+#include "../utils/is_prime_u64.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static uint64_t a4107_powmod(uint64_t b, uint64_t e, uint64_t p)
+{
+    uint64_t r = 1 % p;
+    b %= p;
+    while (e) {
+        if (e & 1) r = r * b % p;
+        b = b * b % p;
+        e >>= 1;
+    }
+    return r;
+}
 
 #define A4107_MAXN 128
 #define A4107_MAXE (A4107_MAXN * A4107_MAXN + 1)
@@ -84,7 +115,7 @@ seq_t a(idx_t n)
     nn = (int)n;
     Emax = nn * nn;
     for (i = 0; i <= nn; i++)
-        for (j = 0; j <= nn; j++) a4107_gcd[i][j] = a4107_g(i, j);
+        for (j = 0; j <= nn; j++) a4107_gcd[i][j] = gcd_i32(i, j);
 
     if (seq_is_big()) {
         seq_t res = 0;
@@ -102,7 +133,7 @@ seq_t a(idx_t n)
         int cnt = 0, q, e;
         unsigned __int128 x = 0, M = 1;
         while (cnt < 5) {
-            if (is_prime(cand)) primes[cnt++] = cand;
+            if (is_prime_u64(cand)) primes[cnt++] = cand;
             cand--;
         }
         a4107_big = 0;

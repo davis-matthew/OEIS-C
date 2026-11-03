@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2^(n-1) - tau(n) where tau(n) = number of divisors of n
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Static cache for divisor counts (1‑based).  The pointer is kept as a void*
    so that the same code compiles for both C and C++ (in C++ we use delete[]). */
@@ -38,7 +41,7 @@ static void ensure_tau_cache(idx_t n)
     if (!new_cache) return;              /* allocation failed – trust caller */
 
     /* Initialize to zero */
-    memset(new_cache, 0, cap * sizeof(seq_t));
+    mem_set(new_cache, 0, cap * sizeof(seq_t));
 
     seq_t *cache = (seq_t *)new_cache;
 

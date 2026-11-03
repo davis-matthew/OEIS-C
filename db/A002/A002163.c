@@ -9,9 +9,10 @@
  *            b=1; for each digit d = number of times b can be subtracted from
  *            a (b += 2 after each subtraction); then a = 100*a, b = 10*b - 9.
  *            Digits are memoized with a doubling cache
- * Range:     u8 n <= 9680, u16 n <= 9680, u32 n <= 9680, u64 n <= 9680,
- *            u128 n <= 9680, big any n
- * Helpers:   s2163_cmp
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 9680 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/s2163_cmp.h"
+
+static int s2163_cmp(const uint32_t *x, size_t lx, const uint32_t *y, size_t ly) {
+    if (lx != ly) return lx < ly ? -1 : 1;
+    while (lx > 0) {
+        lx--;
+        if (x[lx] != y[lx]) return x[lx] < y[lx] ? -1 : 1;
+    }
+    return 0;
+}
 
 #define S2163_BASE 1000000000u
 

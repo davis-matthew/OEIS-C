@@ -7,7 +7,8 @@
  * Formula:   a(n) = 1 + Sum_{k=2..n} (-1)^k * k * a(floor(n/k))
  * Range:     i8 n <= 25, i16 n <= 415, i32 n <= 8191, i64 n <= 8191,
  *            i128 n <= 8191, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 7850 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration for recursive helper */
 static seq_t compute_a(idx_t n);
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n)
     size_t newsize = cache_size ? cache_size << 1 : 2;
     if (newsize <= (size_t)n + 1) newsize = (size_t)n + 1;
     /* Reallocate arrays */
-    seq_t *newcache = (seq_t*)realloc(cache, newsize * sizeof(seq_t));
+    seq_t *newcache = mem_resize(seq_t, cache, newsize);
     bool  *newknown = (bool*)realloc(known, newsize * sizeof(bool));
     if (!newcache || !newknown) {
         /* Allocation failed – abort; sequence building is impossible */

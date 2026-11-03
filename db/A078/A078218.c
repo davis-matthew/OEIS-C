@@ -12,7 +12,8 @@
  *            less than 10^k; it uses modular arithmetic to avoid * c...
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 29, u64 n <= 107, u128 n <= 359,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 47 terms through n = 9698 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* comparison function for qsort on uint64_t */
 static int cmp_uint64(const void *x, const void *y)
@@ -53,7 +64,7 @@ seq_t a(idx_t n)
 
     for (size_t i = 0; i < dcnt; ++i) {
         uint64_t d   = divs[i];
-        int      dlen = digit_len(d);
+        int      dlen = num_digits(d);
         seq_t    p10  = pow10((idx_t)dlen);          /* 10^dlen as seq_t */
         prefix = prefix * p10 + (seq_t)d;           /* update prefix value      */
         rem_n = (rem_n * ((idx_t)p10) + d) % n;     /* update remainder modulo n */

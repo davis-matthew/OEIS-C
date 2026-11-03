@@ -7,7 +7,8 @@
  * Formula:   a(n) = 3*n*a(n-1) + 3^n, a(0) = 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * pow3 is maintained across calls.  Memory is grown as needed. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         idx_t new_cap = (cache_cap == 0) ? 1 : cache_cap;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return 0;       /* allocation failure, return 0 as a guard value */
         cache = new_cache;
         cache_cap = new_cap;

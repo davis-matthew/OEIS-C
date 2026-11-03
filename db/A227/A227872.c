@@ -7,13 +7,25 @@
  * Formula:   a(n) = Sum_{d|n} A010060(d) (odious divisors of n)
  * Range:     u8 n <= 384, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   popcount_odd
+ * Validated: standard, pass, 103 terms through n = 9669 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/popcount_odd.h"
+
+/* returns 1 if x has an odd number of 1‑bits, 0 otherwise */
+static int popcount_odd(seq_t x)
+{
+    int odd = 0;
+    while (x)
+    {
+        odd ^= 1;        /* toggle between 0 and 1 */
+        x &= x - 1;      /* clear lowest set bit */
+    }
+    return odd;
+}
 
 /* recursive enumeration of all divisors from the factorisation data
    primes[0..factors-1] with exponents exps[0..factors-1] */

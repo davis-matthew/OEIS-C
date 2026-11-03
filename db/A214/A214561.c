@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = number of 1's in the binary representation of n^n
- * Range:     u8 n <= 78, u16 n <= 9836, u32 n <= 9776, u64 n <= 9776,
- *            u128 n <= 9776, big any n
- * Helpers:   mul_small_limb
+ * Range:     u8 n <= 78, u16 n <= 9836, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 81 terms through n = 9776 (2026-11-03)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,29 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mul_small_limb.h"
+
+/* Multiply a big‑integer stored in 64‑bit limbs by a small integer.  */
+static void mul_small_limb(uint64_t **limbp, size_t *size,
+                           size_t *cap, uint64_t mul)
+{
+    uint64_t *limb = *limbp;
+    __uint128_t carry = 0;
+    for (size_t i = 0; i < *size; ++i) {
+        __uint128_t prod = (__uint128_t)limb[i] * mul + carry;
+        limb[i] = (uint64_t)prod;
+        carry   = prod >> 64;
+    }
+    if (carry) {
+        if (*size == *cap) {
+            *cap *= 2;
+            limb = (uint64_t *)realloc(limb, *cap * sizeof(uint64_t));
+            if (!limb) abort();
+            *limbp = limb;
+        }
+        limb[*size] = (uint64_t)carry;
+        ++(*size);
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +57,7 @@ seq_t a(idx_t n)
 
     /* Repeatedly multiply by n, n times: compute n^n. */
     for (idx_t i = 0; i < n; ++i) {
-        mul_small_limb(limb, &sz, &cap, (uint64_t)n);
+        mul_small_limb(&limb, &sz, &cap, (uint64_t)n);
     }
 
     /* Count 1‑bits across all limbs. */

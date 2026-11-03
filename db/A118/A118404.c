@@ -13,13 +13,26 @@
  *            1, c ≥ 1 where p(r) is the coefficient of x^r in (1+x)...
  * Range:     i8 n <= 83, i16 n <= 152, i32 n <= 152, i64 n <= 152,
  *            i128 n <= 152, big any n
- * Helpers:   p_r
+ * Validated: partial, pass, 153 terms through n = 152 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/p_r.h"
+#include "../utils/mem.h"
+
+static seq_t p_r(idx_t r)
+{
+    if (r == 0)
+        return 1;
+    if ((r & 1u) == 0)          /* even r > 0 */
+        return 0;
+    /* r is odd */
+    idx_t half = (r - 1) / 2;   /* (r-1)/2 */
+    seq_t sign = (half & 1u) ? -1 : 1;
+    return 2 * sign;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +50,7 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
             while (cache_size + (size_t)(r + 1) > new_cap)
                 new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)
                 abort();                       /* out of memory */
             cache = tmp;

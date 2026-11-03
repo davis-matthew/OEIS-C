@@ -7,6 +7,7 @@
  * Formula:   a(n)=66*((n-1)/2)+5 for odd n; a(n)=66*((n-2)/2)+17 for even n
  * Range:     u8 n <= 8, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 65 terms through n = 867 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,13 +8,21 @@
  *            divisible by 4 (base 10)
  * Range:     u8 n <= 8, u16 n <= 170, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   pow10_u, reverse_number
+ * Validated: standard, pass, 64 terms through n = 2925 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10_u.h"
-#include "../utils/reverse_number.h"
+#include "../utils/reverse_digits.h"
+
+/* Helper: compute 10^p for small p */
+static seq_t pow10_u(idx_t p)
+{
+    seq_t r = 1;
+    while (p--) r *= 10;
+    return r;
+}
 /* a(1) = 0; a(2) = 4; a(3) = 8; a(4) = 44; … */
 
 /* Main sequence generator */
@@ -41,7 +49,7 @@ seq_t a(idx_t n)
             seq_t end   = pow10_u(k) - 1;
             seq_t i = start;
             while (i <= end) {
-                seq_t rev = reverse_number(i);
+                seq_t rev = reverse_digits(i);
                 seq_t pal = i * pow_k + rev;
                 if (pal % 4 == 0) {
                     ++count;
@@ -57,7 +65,7 @@ seq_t a(idx_t n)
             seq_t end   = pow10_u(k) - 1;
             seq_t i = start;
             while (i <= end) {
-                seq_t rev   = reverse_number(i);
+                seq_t rev   = reverse_digits(i);
                 seq_t base  = i * pow_kp1 + rev;   /* left part + right part (without middle) */
                 seq_t d = 0;
                 while (d <= 9) {

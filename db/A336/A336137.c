@@ -12,7 +12,8 @@
  *            all n ≥ 0
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   count_partitions_with_sum, dfs_mask
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,54 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_partitions_with_sum.h"
-#include "../utils/dfs_mask.h"
+#include "../utils/mem.h"
+
+/* Recursive counts of partitions of 'mask' into blocks each summing to 's'.
+ * Vectors: sums[mask] gives sum of indices in 'mask'.
+ * 'dp' and 'seen' provide memoisation. */
+static seq_t dfs_mask(int mask, seq_t s, seq_t *sums, int m,
+                      seq_t *dp, bool *seen)
+{
+    if (seen[mask])
+        return dp[mask];
+
+    seq_t total = 0;
+    if (mask == 0) {
+        total = 1;
+    } else {
+        /* smallest set element (least significant bit) */
+        int first = 0;
+        while (!(mask & (1 << first)))
+            first++;
+
+        /* iterate all submasks of 'mask' that contain 'first' */
+        for (int sub = mask; sub; sub = (sub - 1) & mask) {
+            if (!(sub & (1 << first)))
+                continue;
+            if (sums[sub] == s)
+                total += dfs_mask(mask ^ sub, s, sums, m, dp, seen);
+        }
+    }
+    seen[mask] = true;
+    dp[mask] = total;
+    return total;
+}
+
+/* Count partitions of the full set (m elements) into blocks each summing to 's'. */
+static seq_t count_partitions_with_sum(seq_t s, int m, seq_t *sums)
+{
+    int maxMask = 1 << m;
+    seq_t *dp = mem_new(seq_t, (size_t)maxMask);
+    bool *seen = (bool *)calloc((size_t)maxMask, sizeof(bool));
+    if (!dp || !seen) {
+        /* memory error – return 0 as safe fallback */
+        mem_free(dp); free(seen);
+        return 0;
+    }
+    seq_t res = dfs_mask(maxMask - 1, s, sums, m, dp, seen);
+    mem_free(dp); free(seen);
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -49,7 +96,7 @@ seq_t a(idx_t n)
 
     /* Precompute sums for all subsets. */
     int maxMask = 1 << m;
-    seq_t *sums = (seq_t *)malloc((size_t)maxMask * sizeof(seq_t));
+    seq_t *sums = mem_new(seq_t, (size_t)maxMask);
     if (!sums) return 0;
     sums[0] = 0;
     for (int mask = 1; mask < maxMask; ++mask) {
@@ -77,6 +124,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(sums);
+    mem_free(sums);
     return ans;
 }

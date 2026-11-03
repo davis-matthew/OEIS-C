@@ -12,14 +12,47 @@
  *            (i,j) with i+j = s, i ≥ 1, j ≥ 1. For a given ind...
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 31, u64 n <= 50, u128 n <= 97,
  *            big any n
- * Helpers:   binomial, floor_isqrt_u64
+ * Validated: standard, pass, 54 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"
-#include "../utils/floor_isqrt_u64.h"
+#include <stdlib.h>
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
+
+/* Compute floor(sqrt(n)) for a 64‑bit integer n.  */
+static idx_t floor_isqrt_u64(idx_t n)
+{
+    idx_t lo = 0, hi = n, mid, ans = 0;
+    while (lo <= hi) {
+        mid = lo + ((hi - lo) >> 1);
+        __uint128_t sq = (__uint128_t)mid * mid;
+        if (sq <= n) {
+            ans = mid;
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return ans;
+}
 
 /* Compute T(n,k) = (n*k)!/(k!^n) via the recurrence
  * T(1,k) = 1,  T(n,k) = T(n-1,k) * C(n*k, k). */

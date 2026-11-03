@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 1012, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9722 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(2^i + j) = 3*a(j) + a(j+1)  for 0 ≤ j < 2^i. */
 
 #include <stdlib.h>   /* realloc, size_t */
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;        /* memoisation table */
 static size_t dp_cap = 0;       /* allocated size of dp */
@@ -34,13 +36,13 @@ seq_t a(idx_t n)
     if (dp == NULL) {
         dp_cap = n + 1;
         if (dp_cap < 2) dp_cap = 2;          /* need at least index 1 for the base */
-        dp = (seq_t *)realloc(dp, dp_cap * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, dp_cap);
         if (dp == NULL) return 0;            /* allocation failed */
         dp_max = 0;
     } else if ((size_t)n >= dp_cap) {
         size_t new_cap = dp_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_cap);
         if (tmp == NULL) return 0;
         dp = tmp;
         dp_cap = new_cap;

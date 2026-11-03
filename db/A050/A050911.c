@@ -12,7 +12,8 @@
  *            multisets, then for a given n builds the coin‑...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 26, u64 n <= 105, u128 n <= 500,
  *            big any n
- * Helpers:   sort3, sort_uint8
+ * Validated: standard, pass, 44 terms through n = 500 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,30 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sort3.h"
-#include "../utils/sort_uint8.h"
+
+static inline void sort3(int *a, int *b, int *c)
+{
+    int t;
+    if (*a > *b) { t = *a; *a = *b; *b = t; }
+    if (*b > *c) { t = *b; *b = *c; *c = t; }
+    if (*a > *b) { t = *a; *a = *b; *b = t; }
+}
+
+/* small insertion sort for up to 20 elements */
+static void sort_uint8(uint8_t *a, int n)
+{
+    for (int i = 1; i < n; ++i)
+    {
+        uint8_t key = a[i];
+        int j = i - 1;
+        while (j >= 0 && a[j] > key)
+        {
+            a[j + 1] = a[j];
+            --j;
+        }
+        a[j + 1] = key;
+    }
+}
 
 #define NUM_TRIANGLES 20
 

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} phi(k) * floor(n/k)^5
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 83, u64 n <= 7070,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 8870 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *phi_buf = NULL;          /* buffer holding phi values up to current size */
 static size_t phi_buf_size = 0;        /* current size of phi_buf */
@@ -26,9 +28,9 @@ static void compute_phi_until(idx_t n)
     size_t N = (size_t)n;
     if (phi_buf_size <= N) {
         size_t new_size = N + 1;
-        seq_t *tmp = (seq_t *)realloc(phi_buf, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, phi_buf, new_size);
         if (!tmp && new_size > 0) {
-            tmp = (seq_t *)malloc(new_size * sizeof(seq_t));
+            tmp = mem_new(seq_t, new_size);
             if (!tmp) {
                 /* Allocation failed – abort the program */
                 abort();

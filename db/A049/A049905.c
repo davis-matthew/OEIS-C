@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    a(n) = (a(1)+...+a(n-1)) - a(m). */
 /* The implementation uses memoised prefix sums. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline unsigned floor_log2_u64(idx_t v)
 {
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
     /* Allocate and initialise the arrays on the first call. */
     if (a_cache == NULL) {
         cache_size = 4;
-        a_cache = (seq_t*)calloc(cache_size, sizeof(seq_t));
-        pref_cache = (seq_t*)calloc(cache_size, sizeof(seq_t));
+        a_cache = mem_new(seq_t, cache_size);
+        pref_cache = mem_new(seq_t, cache_size);
         if (a_cache == NULL || pref_cache == NULL) return 0; /* allocation failed */
         a_cache[0] = (seq_t)0;
         pref_cache[0] = (seq_t)0;
@@ -51,10 +53,10 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cache_size) {
         size_t new_cap = cache_size;
         while (new_cap < (size_t)n + 1) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (tmp == NULL) return 0;
         a_cache = tmp;
-        tmp = (seq_t*)realloc(pref_cache, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, pref_cache, new_cap);
         if (tmp == NULL) return 0;
         pref_cache = tmp;
         cache_size = new_cap;

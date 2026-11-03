@@ -8,7 +8,8 @@
  * Formula:   a(n) = |{p ≤ prime(n) : nextprime(p) – p ≡ 2 (mod 4)}|
  * Range:     u8 n <= 418, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 98 terms through n = 9145 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"  /* provides: uint64_t next_prime(uint64_t start) */
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cum_cap) {
         size_t new_cap = cum_cap ? cum_cap * 2 : 16;
         if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1;
-        cum = (seq_t *)realloc(cum, new_cap * sizeof(seq_t));
+        cum = mem_resize(seq_t, cum, new_cap);
         cum_cap = new_cap;
     }
 

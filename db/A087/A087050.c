@@ -9,7 +9,8 @@
  *            nonsquarefree number
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf, pow_seq, seq_mul
+ * Validated: standard, pass, 117 terms through n = 9129 (2026-11-03)
+ * Helpers:   build_spf, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,16 @@
 #include <stdbool.h>
 
 /* Utilities provided by the judge */
-#include "../utils/build_spf.h"   /* void build_spf(idx_t limit, idx_t **out); */
-#include "../utils/pow_seq.h"     /* seq_t pow_seq(seq_t base, int exp); */
-#include "../utils/seq_mul.h"     /* seq_t seq_mul(seq_t a, seq_t b); */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/build_spf.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static idx_t       _spf_limit   = 0;          /* size of _spf array (number of valid indices) */
 static idx_t      * _spf        = NULL;       /* smallest prime factor for each index */
@@ -55,7 +63,7 @@ static void _ensure_cache(size_t need)
     size_t new_cap = _cache_cap ? _cache_cap * 2 : 16;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t*)realloc(_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, _cache, new_cap);
     if (!new_cache)
         exit(EXIT_FAILURE);
     _cache = new_cache;
@@ -94,7 +102,7 @@ seq_t a(idx_t n)
             if (q > 0)
                 root_of_largest_square =
                     seq_mul(root_of_largest_square,
-                            pow_seq((seq_t)p, q));
+                            ipow_i32((seq_t)p, q));
         }
 
         if (nonsqfree) {

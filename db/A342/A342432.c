@@ -7,13 +7,16 @@
  * Formula:   a(n) = Sum_{d|n} phi(n/d) * d^(n-2)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   big_pow, phi
+ * Validated: standard, pass, 35 terms through n = 386 (2026-11-01)
+ * Helpers:   ipow, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -33,15 +36,15 @@ seq_t a(idx_t n)
             idx_t d2 = n / d;
 
             /* term for divisor d */
-            seq_t term1 = phi(d2);                     /* φ(n/d)  */
-            seq_t pow1  = big_pow((seq_t)d, exp);      /* d^(n-2) */
+            seq_t term1 = totient(d2);                     /* φ(n/d)  */
+            seq_t pow1  = ipow((seq_t)d, exp);      /* d^(n-2) */
             sum += term1 * pow1;
 
             if (d != d2)
             {
                 /* term for divisor d2 (complementary divisor) */
-                seq_t term2 = phi(d);                 /* φ(n/d2) = φ(d) */
-                seq_t pow2  = big_pow((seq_t)d2, exp); /* d2^(n-2) */
+                seq_t term2 = totient(d);                 /* φ(n/d2) = φ(d) */
+                seq_t pow2  = ipow((seq_t)d2, exp); /* d2^(n-2) */
                 sum += term2 * pow2;
             }
         }

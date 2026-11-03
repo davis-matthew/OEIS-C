@@ -7,12 +7,14 @@
  * Formula:   a(n) = 20*a(n‑1) - 97*a(n‑2), a(0) = 1, a(1) = 10
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* start with room for at least two terms */
         cap = 2;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) abort(); /* allocation failure */
 
         cache[0] = (seq_t)1;   /* a(0) */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         size_t newcap = cap;
         while (newcap < (size_t)n + 1)
             newcap <<= 1;     /* use power‑of‑two growth */
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL) abort(); /* realloc failure */
         cache = tmp;
         cap   = newcap;

@@ -8,13 +8,30 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   equal_23
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/equal_23.h"
+
+/* Return true if ‘value’ has the same number of digits 2 and 3 in base 12 */
+static bool equal_23(seq_t value)
+{
+    seq_t t = value;
+    int count2 = 0;
+    int count3 = 0;
+    while (t != (seq_t)0) {
+        seq_t digit = t % (seq_t)12;
+        if (digit == (seq_t)2)
+            count2++;
+        else if (digit == (seq_t)3)
+            count3++;
+        t = t / (seq_t)12;
+    }
+    return count2 == count3;
+}
 
 /* Search: enumerates integers and keeps those whose base‑12 representation
    contains an equal number of 2s and 3s. */

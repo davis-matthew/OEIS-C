@@ -7,6 +7,7 @@
  * Formula:   a(n) = A001065(A005101(n)) = A204822(n) - A005101(n)
  * Range:     u8 n <= 32, u16 n <= 6238, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 71 terms through n = 9551 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -27,8 +28,8 @@ static size_t     abundant_len = 0;    /* number of abundant numbers stored */
 static void recompute(idx_t limit)
 {
     /* free previous data if any */
-    if (sigma) free((void *)sigma);
-    if (abundant) free((void *)abundant);
+    if (sigma) free(sigma);
+    if (abundant) free(abundant);
 
     /* Allocate new arrays */
     sigma_cap = (size_t)limit + 1;

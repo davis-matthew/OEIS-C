@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static tables for memoization */
 static seq_t *tab_a      = NULL;   /* a(i)  when defined */
@@ -37,10 +39,10 @@ static void ensure_capacity(idx_t max_idx)
     if (cap >= needed) return;
 
     /* reallocate the arrays */
-    seq_t *a_new   = (seq_t *)realloc(tab_a,   needed * sizeof(seq_t));
+    seq_t *a_new   = mem_resize(seq_t, tab_a, needed);
     bool   *def_new = (bool  *)realloc(tab_def, needed * sizeof(bool));
     bool   *req_new = (bool  *)realloc(tab_req, needed * sizeof(bool));
-    seq_t *val_new  = (seq_t *)realloc(tab_val,  needed * sizeof(seq_t));
+    seq_t *val_new  = mem_resize(seq_t, tab_val, needed);
 
     /* abort on allocation failure */
     if (!a_new || !def_new || !req_new || !val_new) abort();

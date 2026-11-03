@@ -9,14 +9,25 @@
  *            > 1, with a(1)=a(2)=1 (palindrome 0 and 1)
  * Range:     u8 n <= 35, u16 n <= 800, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   largest_prime_factor, pow10
+ * Validated: standard, pass, 81 terms through n = 9680 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow10.h"
+#include <stdbool.h>
 #include "../utils/largest_prime_factor.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t nth_palindrome(idx_t n)
 {

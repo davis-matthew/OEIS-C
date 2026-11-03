@@ -11,7 +11,8 @@
  *            and new values appear in row‑major order
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 6, u128 n <= 13,
  *            big any n
- * Helpers:   max_from_idx, max_to_idx
+ * Validated: standard, pass, 26 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/max_from_idx.h"
-#include "../utils/max_to_idx.h"
+#include "../utils/mem.h"
+
+/* Return numeric value of a max index (0 → -1, 1 → 0, 2 → 1, 3 → 2) */
+static inline int max_from_idx(size_t idx) { return (int)idx - 1; }
+
+/* Convert numeric max to index */
+static inline size_t max_to_idx(int m) { return (size_t)(m + 1); }
 
 #define ROWS 729                /* 3^6 possible rows */
 #define MAX_COLS 6
@@ -139,8 +145,8 @@ static void build_initial_states(void) {
 /* Compute first 15 terms (a(1) … a(15)) */
 static void compute_initial_terms(seq_t *terms, size_t count) {
     /* DP arrays */
-    seq_t *cur  = (seq_t*)calloc(MAX_STATES, sizeof(seq_t));
-    seq_t *next = (seq_t*)calloc(MAX_STATES, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, MAX_STATES);
+    seq_t *next = mem_new(seq_t, MAX_STATES);
 
     /* initial row(s) : after 1 row */
     for (size_t s = 0; s < first_cnt; ++s)
@@ -148,7 +154,7 @@ static void compute_initial_terms(seq_t *terms, size_t count) {
 
     /* iterate for next rows */
     for (size_t step = 1; step <= count; ++step) {
-        memset(next, 0, MAX_STATES * sizeof(seq_t));
+        mem_set(next, 0, MAX_STATES * sizeof(seq_t));
         for (size_t s = 0; s < MAX_STATES; ++s) {
             if (cur[s] == 0) continue;
             size_t tcnt = trans_cnt[s];
@@ -165,7 +171,7 @@ static void compute_initial_terms(seq_t *terms, size_t count) {
         /* swap cur and next */
         seq_t *tmp = cur; cur = next; next = tmp;
     }
-    free(cur); free(next);
+    mem_free(cur); mem_free(next);
 }
 
 /* Initialize cache and tables on first call */
@@ -179,7 +185,7 @@ static void init_cache(void) {
 
     /* Allocate cache for at least 15 terms plus small room */
     cache_cap = 32;
-    cache = (seq_t*)calloc(cache_cap, sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
 
     seq_t init_terms[15];
     compute_initial_terms(init_terms, 15);
@@ -216,9 +222,9 @@ seq_t a(idx_t n) {
     if (n >= cache_cap) {
         size_t new_cap = cache_cap;
         while (n >= new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
-        memset(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache = tmp;
         cache_cap = new_cap;
     }

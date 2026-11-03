@@ -13,7 +13,8 @@
  *            T(r,c). * * This implementation memoises...
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,18 +27,19 @@
 #ifdef __cplusplus
 #include <new>  /* for placement new */
 #endif
+#include "../utils/mem.h"
 
 /* allocate an array of seq_t and construct it (C++ only) */
 static seq_t *alloc_seq_array(size_t len)
 {
-    seq_t *p = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, len);
     if (!p) {
         fprintf(stderr, "Out of memory\n");
         exit(EXIT_FAILURE);
     }
 #ifdef __cplusplus
     for (size_t i = 0; i < len; ++i)
-        new (&p[i]) seq_t();
+        *(&p[i]) = (seq_t)0;
 #endif
     return p;
 }

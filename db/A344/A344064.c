@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} (1 + 5^(k-1)*x^k)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 473 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of computed coefficients up to the largest n seen so far. */
@@ -27,8 +29,8 @@ seq_t a(idx_t n) {
     }
 
     /* Resize cache to hold up to n (inclusive). */
-    if (cache) free(cache);
-    cache = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    if (cache) mem_free(cache);
+    cache = mem_new(seq_t, (size_t)(n + 1));
     if (!cache) return (seq_t)0;               /* allocation failure */
 
     cache[0] = (seq_t)1;                      /* a(0) = 1 */

@@ -10,8 +10,9 @@
  * Formula:   a(n) = real part of Σ_{k≥0, d_k > 0} (1+w)^(d_k-1) * (3+w)^k
  *            where n = Σ d_k * 7^k and w = -1/2 + sqrt(-3)/2 (Eisenstein
  *            integer representation: z = u + v*w, return u)
- * Range:     i8 n <= 7448, i16 n <= 7448, i32 n <= 7448, i64 n <= 7448,
- *            i128 n <= 7448, big any n
+ * Range:     i8 n <= 16806, i16 n <= 16806, i32 n <= 16806, i64 n <= 16806,
+ *            i128 n <= 16806, big any n
+ * Validated: standard, pass, 92 terms through n = 7448 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

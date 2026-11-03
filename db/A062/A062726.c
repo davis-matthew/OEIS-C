@@ -8,14 +8,50 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 316, u32 n <= 316, u64 n <= 316,
  *            u128 n <= 316, big any n
- * Helpers:   has_unique_roman_digits
+ * Validated: full, pass, 316 terms through n = 316 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Search for the nth integer whose Roman numeral representation contains no repeated letters. */
 #include <stdbool.h>
-#include "../utils/has_unique_roman_digits.h"
+
+static bool has_unique_roman_digits(int x)
+{
+    /* Roman letters: I V X L C D M – 7 distinct symbols */
+    bool seen[7] = {false};
+
+    static const int values[13] =
+        {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
+    static const char *symbols[13] =
+        {"M", "CM", "D", "CD", "C", "XC", "L", "XL",
+         "X", "IX", "V", "IV", "I"};
+
+    for (int i = 0; i < 13; ++i) {
+        while (x >= values[i]) {
+            const char *p = symbols[i];
+            while (*p) {
+                int idx;
+                switch (*p) {
+                case 'I': idx = 0; break;
+                case 'V': idx = 1; break;
+                case 'X': idx = 2; break;
+                case 'L': idx = 3; break;
+                case 'C': idx = 4; break;
+                case 'D': idx = 5; break;
+                case 'M': idx = 6; break;
+                default: return false; /* unexpected symbol */
+                }
+                if (seen[idx]) return false;   /* repeated letter */
+                seen[idx] = true;
+                ++p;
+            }
+            x -= values[i];
+        }
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

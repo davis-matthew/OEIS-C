@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 14, i16 n <= 44, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   pow4_small
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,15 @@
    otherwise        -> a = -4^(r-k-1)  */
 #include <stdint.h>
 #include <math.h>
-#include "../utils/pow4_small.h"
+
+/* small helper: compute 4^e as seq_t */
+static seq_t pow4_small(idx_t e)
+{
+    seq_t v = 1;
+    for (idx_t i = 0; i < e; ++i)
+        v *= (seq_t)4;
+    return v;
+}
 
 seq_t a(idx_t n)
 {

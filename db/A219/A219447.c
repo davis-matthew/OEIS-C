@@ -13,13 +13,15 @@
  *            a(6)=2603, a(7)=10421, a(8)=41777, a(9)=166911, a...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* array of computed values          */
 static size_t cache_cap  = 0;      /* allocated capacity (number of slots) */
@@ -37,7 +39,7 @@ static void ensure_cache_cap(size_t need)
     if (new_cap < need)
         new_cap = need;
 
-    seq_t *new_buf = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_new(seq_t, new_cap);
     if (!new_buf) abort();          /* allocation failure */
 
     /* Copy existing values to new buffer.  Use assignment to handle
@@ -46,7 +48,7 @@ static void ensure_cache_cap(size_t need)
         new_buf[i] = cache[i];
 
     /* Free old buffer. */
-    free(cache);
+    mem_free(cache);
     cache        = new_buf;
     cache_cap    = new_cap;
 }

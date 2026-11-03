@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k>=0, 2^k <= n+1} A000041(n + 1 - 2^k)
  * Range:     u8 n <= 13, u16 n <= 37, u32 n <= 116, u64 n <= 394,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* standard includes */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* partition cache */
 static seq_t *p_cache = NULL;          /* array p_cache[i] = p(i) */
@@ -30,7 +32,7 @@ static void ensure_partitions(idx_t max_n)
     idx_t new_len = (p_len == 0) ? 64 : p_len;
     while (new_len <= max_n) new_len <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(p_cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, p_cache, new_len);
     if (!new_cache) exit(EXIT_FAILURE);
     p_cache = new_cache;
 

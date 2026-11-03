@@ -12,13 +12,15 @@
  *            memory O(n)
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 5, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
 
     /* ---------- 1. Compute Eulerian numbers A(n,k) for k=0..n-1 ---------- */
     /* Two temporary rows for the recurrence */
-    seq_t *prev = (seq_t *)malloc(n * sizeof(seq_t));
-    seq_t *cur  = (seq_t *)malloc(n * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, n);
+    seq_t *cur  = mem_new(seq_t, n);
     if (!prev || !cur) return (seq_t)0;  /* allocation failure */
 
     /* base case A(1,0)=1 */
@@ -55,9 +57,9 @@ seq_t a(idx_t n)
     /* after loop, 'prev' holds A(n,k) for k=0..n-1 */
 
     /* ---------- 2. DP over array rows ---------- */
-    seq_t *dp_prev = (seq_t *)malloc(n * sizeof(seq_t));
-    seq_t *dp_cur  = (seq_t *)malloc(n * sizeof(seq_t));
-    if (!dp_prev || !dp_cur) { free(prev); free(cur); return (seq_t)0; }
+    seq_t *dp_prev = mem_new(seq_t, n);
+    seq_t *dp_cur  = mem_new(seq_t, n);
+    if (!dp_prev || !dp_cur) { mem_free(prev); mem_free(cur); return (seq_t)0; }
 
     /* initialize dp for first row (row 1) */
     for (idx_t k = 0; k < n; ++k) dp_prev[k] = prev[k];
@@ -80,10 +82,10 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k < n; ++k) result += dp_prev[k];
 
     /* ---------- 4. Clean up ---------- */
-    free(prev);
-    free(cur);
-    free(dp_prev);
-    free(dp_cur);
+    mem_free(prev);
+    mem_free(cur);
+    mem_free(dp_prev);
+    mem_free(dp_cur);
 
     return result;
 }

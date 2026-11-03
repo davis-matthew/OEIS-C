@@ -10,12 +10,14 @@
  *            has the same number of 1's in its binary representation as n
  * Range:     u8 n <= 200, u16 n <= 200, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
+ * Validated: standard, pass, 100 terms through n = 198 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Find the smallest integer coprime to n with popcount equal to that of n. */

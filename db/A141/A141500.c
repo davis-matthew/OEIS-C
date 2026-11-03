@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 34, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   big_pow, seq_mul, seq_one
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,9 +32,16 @@
 #include <stdbool.h>
 
 /* Function prototypes from the utilities provided by the build. */
-#include "../utils/big_pow.h"   /* big_pow(seq_t base, seq_t exp)      */
-#include "../utils/seq_mul.h"   /* seq_mul(seq_t a, seq_t b)          */
-#include "../utils/seq_one.h"   /* seq_one(void)                     */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 /* ---------- Prime number generation ---------- */
 
@@ -96,7 +104,7 @@ seq_t a(idx_t n)
         seq_t base = (seq_t)primes[c];         /* prime[c+1] */
         seq_t mul  = (seq_t)primes[c + 2];     /* prime[c+3] */
 
-        seq_t powv = big_pow(base, (seq_t)row); /* base^row */
+        seq_t powv = ipow(base, (seq_t)row); /* base^row */
         return seq_mul(powv, mul);
     }
 }

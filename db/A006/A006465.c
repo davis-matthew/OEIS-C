@@ -9,9 +9,10 @@
  *            Euclidean algorithm with big integers on the rational
  *            truncations S_N = 4^5*Sum_{k=0..N} 1/4^(2^k) = P/2^(2^(N+1)).
  *            Only the terms where S_N and S_{N+1} agree are kept
- * Range:     u8 none, u16 n <= 7881, u32 n <= 7881, u64 n <= 7881,
- *            u128 n <= 7881, big any n
- * Helpers:   mulsub_w, setbit_w, word_at
+ * Range:     u8 none, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 62 terms through n = 7881 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,28 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/mulsub_w.h"
-#include "../utils/setbit_w.h"
-#include "../utils/word_at.h"
+
+static void mulsub_w(uint32_t *A, const uint32_t *B, uint64_t q, size_t W) {
+    uint64_t carry = 0, borrow = 0;
+    size_t i;
+    for (i = 0; i < W; i++) {
+        uint64_t p = (uint64_t)B[i] * q + carry;
+        uint64_t sb, ai;
+        carry = p >> 32;
+        sb = (p & 0xffffffffULL) + borrow;
+        ai = A[i];
+        if (ai >= sb) { A[i] = (uint32_t)(ai - sb); borrow = 0; }
+        else { A[i] = (uint32_t)(ai + 0x100000000ULL - sb); borrow = 1; }
+    }
+}
+
+static void setbit_w(uint32_t *X, long pos) {
+    X[pos / 32] |= (uint32_t)1 << (pos % 32);
+}
+
+static uint32_t word_at(const uint32_t *X, size_t W, size_t i) {
+    return i < W ? X[i] : 0;
+}
 
 static long *best_cf = NULL;
 static long best_len = 0;

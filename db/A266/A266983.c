@@ -10,12 +10,15 @@
  *            for odd n (n>0), * a(0) = 1 * (OEIS A266983)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 31 terms through n = 911 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
 
     /* compute 10^(2n-1) */
     idx_t exp = 2*n - 1;
-    seq_t pow10 = big_pow((seq_t)10, (seq_t)exp);
+    seq_t pow10 = ipow((seq_t)10, (seq_t)exp);
 
     if (n & 1U) {          /* odd n */
         return (pow10 - (seq_t)1) / (seq_t)9;

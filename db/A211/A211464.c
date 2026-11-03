@@ -14,7 +14,8 @@
  *            a(10)=3631741,...
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 15, u64 n <= 32, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*=== memoisation state ====================================================*/
 static seq_t *cache = NULL;      /* array of computed values, 1‑based */
@@ -38,7 +40,7 @@ static void grow_cache(idx_t n)
         size_t new_size = cache_size ? cache_size * 2 : 16;
         while (new_size <= (size_t)n)
             new_size *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         cache = tmp;
         cache_size = new_size;
     }

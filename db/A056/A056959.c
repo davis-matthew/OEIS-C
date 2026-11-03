@@ -12,7 +12,8 @@
  *            a(2)=4, a(3)=16,
  * Range:     u8 n <= 26, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   collatz_next
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
    dependencies are required. */
 
 #include <stdint.h>
-#include "../utils/collatz_next.h"
+
+/* Helper to compute next Collatz step using 128‑bit intermediate to
+   avoid overflow for 64‑bit seq_t.  The resulting value is cast back
+   to seq_t.  For arbitrary‑precision seq_t this cast is harmless. */
+static inline seq_t collatz_next(seq_t x)
+{
+    if (x & 1) {
+        __int128 y = (__int128)x * 3 + 1;
+        return (seq_t)y;
+    } else {
+        return x >> 1;
+    }
+}
 
 /* Main sequence generator */
 seq_t a(idx_t n)

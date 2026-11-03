@@ -9,7 +9,8 @@
  *            of its digits
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   freq_matches
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/freq_matches.h"
+
+/* Helper to compare digit frequencies with desired counts. */
+static bool freq_matches(const unsigned char *cnt, const unsigned char *freq, int d)
+{
+    if (d == 0) return freq[0] == cnt[0] && freq[1] == cnt[1] &&
+                     freq[2] == cnt[2] && freq[3] == cnt[3] &&
+                     freq[4] == cnt[4] && freq[5] == cnt[5] &&
+                     freq[6] == cnt[6] && freq[7] == cnt[7] &&
+                     freq[8] == cnt[8] && freq[9] == cnt[9];
+    for (int i = 0; i < 10; ++i)
+        if (cnt[i] != freq[i]) return false;
+    return true;
+}
 
 static const seq_t pow9[10] = {
     (seq_t)0,              // 0^9

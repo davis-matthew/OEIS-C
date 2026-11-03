@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* Computes the number of consecutive primes in the arithmetic progression
    starting at 29 with common difference d = 2*n, stopping when the first
    composite appears. */
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

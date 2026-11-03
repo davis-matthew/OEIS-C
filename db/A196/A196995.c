@@ -8,13 +8,22 @@
  * Formula:   a(n) = (-1)^binomial(n,2) * 2^(n^2-1) * n^(n^2) for n>=2, a(1)=0
  * Range:     i8 n <= 2, i16 n <= 2, i32 n <= 3, i64 n <= 4, i128 n <= 5,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,10 +40,10 @@ seq_t a(idx_t n)
     seq_t e = (seq_t)n * (seq_t)n;
 
     /* n^(n^2) */
-    seq_t pow_n = big_pow((seq_t)n, e);
+    seq_t pow_n = ipow((seq_t)n, e);
 
     /* 2^(n^2-1) */
-    seq_t pow2 = big_pow((seq_t)2, e - (seq_t)1);
+    seq_t pow2 = ipow((seq_t)2, e - (seq_t)1);
 
     /* product */
     seq_t prod = seq_mul(pow_n, pow2);

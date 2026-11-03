@@ -7,7 +7,8 @@
  * Formula:   a(n) = (2*10^(n+3) - 9*8^(n+3) + 8*7^(n+3) - 4^(n+3))/72
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
  * generating function 1/((1-4x)(1-7x)(1-8x)(1-10x)):
  *   a(n) = 29*a(n-1) - 306*a(n-2) + 1384*a(n-3) - 2240*a(n-4)
  * with initial values a(0)=1, a(1)=29, a(2)=535, a(3)=8025.  */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;

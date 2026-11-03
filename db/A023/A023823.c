@@ -9,7 +9,8 @@
  *            factors of k counted with multiplicity
  * Range:     u8 n <= 855, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 8442 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for smallest prime factors and prefix sums of Ω(k). */
 static uint32_t *spf   = NULL;          /* smallest prime factor array   */
@@ -70,7 +72,7 @@ static void _ensure_cache(idx_t limit)
         seq_t *new_prefix;
         uint8_t *new_omega;
         if (prefix == NULL) {
-            new_prefix = (seq_t*)calloc(newlen, sizeof(seq_t));
+            new_prefix = mem_new(seq_t, newlen);
             new_omega  = (uint8_t*)calloc(newlen, sizeof(uint8_t));
             if (new_prefix == NULL || new_omega == NULL) abort();
             /* indices 0 and 1 are already zero-by-calloc */
@@ -83,7 +85,7 @@ static void _ensure_cache(idx_t limit)
             omega  = new_omega;
             prefix_len = newlen;
         } else {
-            new_prefix = (seq_t*)realloc(prefix, newlen * sizeof(seq_t));
+            new_prefix = mem_resize(seq_t, prefix, newlen);
             new_omega  = (uint8_t*)realloc(omega, newlen * sizeof(uint8_t));
             if (new_prefix == NULL || new_omega == NULL) abort();
             for (idx_t i = oldlen; i <= limit; ++i) {

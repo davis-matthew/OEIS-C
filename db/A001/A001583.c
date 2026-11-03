@@ -7,9 +7,10 @@
  * Keywords:  nonn, nice
  * Formula:   search -- sieve the primes p == 1 (mod 5) and keep those with
  *            Fibonacci((p-1)/5) == 0 (mod p)
- * Range:     u8 n <= 1, u16 n <= 328, u32 n <= 9919, u64 n <= 9919,
- *            u128 n <= 9919, big any n
- * Helpers:   a001583_fib, a001583_mulmod
+ * Range:     u8 n <= 1, u16 n <= 328, u32 n <= 24903, u64 n <= 24903,
+ *            u128 n <= 24903, big any n
+ * Validated: standard, pass, 59 terms through n = 9919 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,27 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/a001583_fib.h"
-#include "../utils/a001583_mulmod.h"
+#include "../utils/mulmod.h"
+
+/* F(k) mod m by fast doubling */
+static uint64_t a001583_fib(uint64_t k, uint64_t m) {
+    uint64_t f = 0, g = 1; /* F(i), F(i+1) */
+    int bit = 63;
+    while (bit >= 0 && !((k >> bit) & 1)) bit--;
+    for (; bit >= 0; bit--) {
+        uint64_t t = (2 * g % m + m - f) % m;
+        uint64_t c = mulmod(f, t, m);                 /* F(2i) */
+        uint64_t d = (mulmod(f, f, m) + mulmod(g, g, m)) % m; /* F(2i+1) */
+        if ((k >> bit) & 1) {
+            f = d;
+            g = (c + d) % m;
+        } else {
+            f = c;
+            g = d;
+        }
+    }
+    return f;
+}
 
 static uint64_t *a001583_terms = NULL;
 static idx_t a001583_cnt = 0;

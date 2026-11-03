@@ -9,12 +9,14 @@
  *            (n-k-1), d < n-k-1} a(d)
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 39, u64 n <= 75, u128 n <= 148,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 496 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,12 +36,12 @@ seq_t a(idx_t n)
         new_cap = new_cap * 2;                   /* amortised linear growth */
 
         seq_t *tmp;
-        tmp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, a_vals, new_cap);
         if (!tmp) return 0;
         a_vals = tmp;
 
-        tmp = (seq_t *)realloc(S_vals, new_cap * sizeof(seq_t));
-        if (!tmp) { free(a_vals); return 0;}
+        tmp = mem_resize(seq_t, S_vals, new_cap);
+        if (!tmp) { mem_free(a_vals); return 0;}
         S_vals = tmp;
 
         /* initialise newly added slots to 0 */

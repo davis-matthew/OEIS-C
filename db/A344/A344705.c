@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, easy
  * Formula:   a(n) = n + Dedekind ψ(n) – σ(n)
- * Range:     i8 n <= 48, i16 n <= 1848, i32 n <= 8976, i64 n <= 8976,
- *            i128 n <= 8976, big any n
+ * Range:     i8 n <= 48, i16 n <= 1848, i32 n <= 16560, i64 n <= 16560,
+ *            i128 n <= 16560, big any n
+ * Validated: standard, pass, 98 terms through n = 8976 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

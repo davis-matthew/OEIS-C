@@ -8,12 +8,14 @@
  *            Euler zigzag numbers (OEIS A000111)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 21, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----- Global state -------------------------------------------------- */
 static seq_t *E        = NULL;      /* Euler numbers E[0..] */
@@ -31,12 +33,12 @@ static void compute_euler_upto(idx_t max_n)
 
     /* Allocate or grow the Euler array. */
     if (E == NULL) {
-        E = (seq_t *)malloc((max_n + 1) * sizeof(seq_t));
+        E = mem_new(seq_t, (max_n + 1));
         if (!E) return;       /* silent failure */
         E[0] = (seq_t)1;
         E_len = 1;
     } else if (max_n + 1 > E_len) {
-        seq_t *tmp = (seq_t *)realloc(E, (max_n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, E, (max_n + 1));
         if (!tmp) return;
         E = tmp;
     }
@@ -45,11 +47,11 @@ static void compute_euler_upto(idx_t max_n)
     if (row_cap < (size_t)(max_n + 1)) {
         seq_t *tmp;
 
-        tmp = (seq_t *)realloc(prev_row, (max_n + 1) * sizeof(seq_t));
+        tmp = mem_resize(seq_t, prev_row, (max_n + 1));
         if (!tmp) return;
         prev_row = tmp;
 
-        tmp = (seq_t *)realloc(cur_row, (max_n + 1) * sizeof(seq_t));
+        tmp = mem_resize(seq_t, cur_row, (max_n + 1));
         if (!tmp) return;
         cur_row = tmp;
 
@@ -95,10 +97,10 @@ static void compute_sequence_upto(idx_t max_n)
 
     /* Allocate or extend the sequence array. */
     if (A == NULL) {
-        A = (seq_t *)malloc((max_n + 1) * sizeof(seq_t));
+        A = mem_new(seq_t, (max_n + 1));
         if (!A) return;
     } else if (max_n + 1 > A_len) {
-        seq_t *tmp = (seq_t *)realloc(A, (max_n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, (max_n + 1));
         if (!tmp) return;
         A = tmp;
     }

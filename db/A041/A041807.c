@@ -9,12 +9,14 @@
  *            sqrt(424)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 46, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;         /* array of computed terms */
 static idx_t   cached_nmax = 0;     /* largest index currently stored */
@@ -31,7 +33,7 @@ static void init_base_terms(void)
     unsigned i;
 
     /* allocate array for 36 terms */
-    cache = (seq_t *)malloc(36 * sizeof(seq_t));
+    cache = mem_new(seq_t, 36);
     cached_nmax = 35;
 
     for (i = 0; i <= 35; ++i)
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     if (n > cached_nmax)
     {
         /* reallocate larger array */
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
 
         /* compute missing terms */
         for (idx_t i = cached_nmax + 1; i <= n; ++i)

@@ -10,6 +10,7 @@
  *            1/16*(10*n^2+32*n+22) for n odd
  * Range:     u8 n <= 18, u16 n <= 322, u32 n <= 999, u64 n <= 999,
  *            u128 n <= 999, big any n
+ * Validated: standard, pass, 68 terms through n = 974 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

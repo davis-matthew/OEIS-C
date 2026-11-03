@@ -7,12 +7,14 @@
  * Formula:   a(n) = 10*a(n-1) + 21, a(0) = 1
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -20,7 +22,7 @@ seq_t a(idx_t n) {
 
     if (n >= cache_len) {
         size_t new_len = (size_t)(n + 1);
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         for (idx_t i = cache_len; i <= n; ++i) {
             if (i == 0) {
                 cache[0] = 1;

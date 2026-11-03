@@ -8,6 +8,7 @@
  * Formula:   a(n) = smallest k such that n * k - 1 is a palindrome (base 10)
  * Range:     u8 n <= 76, u16 n <= 120, u32 n <= 120, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 100 terms through n = 8935 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

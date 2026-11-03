@@ -10,12 +10,14 @@
  *            square array read by antidiagonals downwards (offset 1)
  * Range:     i8 n <= 40, i16 n <= 78, i32 n <= 78, i64 n <= 78, i128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     static seq_t *pow_arr = NULL;
     static size_t pow_size = 0;
     if (pow_size < (size_t)row) {
-        pow_arr = (seq_t *)realloc(pow_arr, row * sizeof(seq_t));
+        pow_arr = mem_resize(seq_t, pow_arr, row);
         pow_size = (size_t)row;
     }
     pow_arr[0] = 1;

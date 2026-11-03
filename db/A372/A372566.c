@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 34, u16 n <= 9635, u32 n <= 9635, u64 n <= 9635,
- *            u128 n <= 9635, big any n
- * Helpers:   gcd
+ * Range:     u8 n <= 34, u16 n <= 10965, u32 n <= 12000, u64 n <= 12000,
+ *            u128 n <= 12000, big any n
+ * Validated: standard, pass, 82 terms through n = 9635 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/gcd.h"   /* gcd(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 #define LIMIT 5000000          /* should cover the first ~10 000 terms */
 
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         build_sieve();
         terms_cap = 256;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms_len = 0;
         initialized = true;
     }
@@ -158,7 +160,7 @@ seq_t a(idx_t n)
         if ((uint64_t)g > 1) {
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)k;
         }

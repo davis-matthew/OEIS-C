@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 815, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mulmod64
+ * Validated: standard, pass, 61 terms through n = 8973 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mulmod64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
 
 /*--- Integer square root for 64‑bit values --------------------------------*/
 static uint64_t int_sqrt(uint64_t v)
@@ -46,8 +48,8 @@ static uint64_t powmod64(uint64_t a, uint64_t e, uint64_t mod)
     uint64_t res = 1;
     a %= mod;
     while (e) {
-        if (e & 1) res = mulmod64(res, a, mod);
-        a = mulmod64(a, a, mod);
+        if (e & 1) res = mulmod(res, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return res;
@@ -82,7 +84,7 @@ static bool is_prime_uint64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (int r = 1; r < s; ++r) {
-            x = mulmod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;

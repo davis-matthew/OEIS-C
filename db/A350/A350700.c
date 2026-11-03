@@ -11,7 +11,8 @@
  *            calculates their popcount and bit length, and memoises the s...
  * Range:     i8 n <= 2848, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 7483 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* internal big–integer representation */
 typedef struct {
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
     /* initialisation on first call */
     if (!initialized) {
         /* cache[0] = -1 (a(0)) */
-        cache      = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache      = mem_new(seq_t, 2);
         cache[0]   = (seq_t)-1;
         cache[1]   = 0;      /* placeholder for a(1) */
         cache_len  = 2;
@@ -133,7 +135,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* extend cache to hold up to n */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) {
         /* malloc failure – return zero, though this is unlikely in tests */
         return (seq_t)0;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache for the flattened triangle */
 static seq_t *cache      = NULL;   /* array holding the sequence values */
@@ -43,7 +45,7 @@ static void grow_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();          /* out of memory */
     cache = tmp;
     cache_cap = new_cap;
@@ -57,16 +59,16 @@ seq_t a(idx_t n)
     /* initialise data on first call */
     if (!initialized) {
         cache_cap = 64;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
 
         /* row 1 */
-        seq_t *row1 = (seq_t *)malloc(sizeof(seq_t) * 2); /* index 0 unused */
+        seq_t *row1 = mem_new(seq_t, 2); /* index 0 unused */
         row1[1] = 1;
         cache[cache_len++] = 1;          /* a(1) = 1 */
 
         /* row 2 */
-        seq_t *row2 = (seq_t *)malloc(sizeof(seq_t) * 3); /* indices 1..2 */
+        seq_t *row2 = mem_new(seq_t, 3); /* indices 1..2 */
         row2[1] = 2;
         row2[2] = 2;
         cache[cache_len++] = 2;          /* a(2) = 2 */
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
     /* otherwise build rows until we have enough entries */
     while (cache_len < (size_t)n) {
         /* allocate current row (indices 0 .. row_num) */
-        seq_t *cur = (seq_t *)malloc(sizeof(seq_t) * (row_num + 1));
+        seq_t *cur = mem_new(seq_t, (row_num + 1));
         if (!cur) abort();
 
         /* first element of every row beyond the first is 2 */
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
         }
 
         /* advance rows for next iteration */
-        free(row_prev2);
+        mem_free(row_prev2);
         row_prev2 = row_prev1;
         row_prev1 = cur;
         ++row_num;

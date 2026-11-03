@@ -10,12 +10,14 @@
  *            binom(3*n,n)*binom(2*n,n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 33 terms through n = 538 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -24,16 +26,16 @@ seq_t a(idx_t n)
     idx_t ceil = n - half;
 
     /* s(3,n) = binom(3*n,n) * binom(2*n,n) */
-    seq_t s_n = binom(3*n, n);
-    s_n = s_n * binom(2*n, n);
+    seq_t s_n = binomial(3*n, n);
+    s_n = s_n * binomial(2*n, n);
 
     /* s(3,floor(n/2)) */
-    seq_t s_half = binom(3*half, half);
-    s_half = s_half * binom(2*half, half);
+    seq_t s_half = binomial(3*half, half);
+    s_half = s_half * binomial(2*half, half);
 
     /* s(3,ceil(n/2)) */
-    seq_t s_ceil = binom(3*ceil, ceil);
-    s_ceil = s_ceil * binom(2*ceil, ceil);
+    seq_t s_ceil = binomial(3*ceil, ceil);
+    s_ceil = s_ceil * binomial(2*ceil, ceil);
 
     return s_n - (s_half * s_ceil);
 }

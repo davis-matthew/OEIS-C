@@ -10,7 +10,8 @@
  *            2p-1 has at least two distinct prime factors
  * Range:     u8 n <= 36, u16 n <= 5680, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes, is_prime
+ * Validated: standard, pass, 84 terms through n = 9099 (2026-11-03)
+ * Helpers:   is_prime, mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Cache of pre‑computed terms */
 static seq_t *cache = NULL;      /* array of sequence values */
@@ -35,7 +38,7 @@ static void generate_terms(size_t need)
     /* initialise cache if first time */
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
     }
 
@@ -45,12 +48,12 @@ static void generate_terms(size_t need)
 
         /* Test if 2*p-1 has at least two distinct prime factors */
         idx_t t = 2 * last_candidate - 1;
-        if (count_distinct_primes(t) < 2) continue; /* does not qualify */
+        if (omega(t) < 2) continue; /* does not qualify */
 
         /* store the term, expanding cache if needed */
         if (cache_size == cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) abort();
             cache = new_cache;
             cache_cap = new_cap;

@@ -11,13 +11,15 @@
  *            (1 ≤ j ≤ r-1) The sequence A193822 is obta...
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for the triangle w(r,j) */
 static seq_t *triangle = NULL;           /* contiguous array to store rows */
@@ -30,7 +32,7 @@ static void ensure_triangle_upto_row(idx_t r)
     /* Initial allocation and first row */
     if (triangle == NULL) {
         triangle_capacity = 32;
-        triangle = (seq_t *)calloc(triangle_capacity, sizeof(seq_t));
+        triangle = mem_new(seq_t, triangle_capacity);
         if (triangle == NULL) return;    /* allocation failed – give up */
         triangle[0] = (seq_t)1;          /* w(0,0) */
         triangle_max_row = 0;
@@ -43,7 +45,7 @@ static void ensure_triangle_upto_row(idx_t r)
     if (triangle_capacity < needed_cap) {
         size_t new_cap = triangle_capacity ? triangle_capacity : 32;
         while (new_cap < needed_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(triangle, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, triangle, new_cap);
         if (tmp == NULL) return;          /* allocation failed – give up */
         triangle = tmp;
         triangle_capacity = new_cap;

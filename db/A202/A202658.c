@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 35, u64 n <= 75, u128 n <= 154,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    a linear‑time algorithm in n.  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,21 +39,21 @@ seq_t a(idx_t n)
     /* --- allocate a_arr ------------------- */
     if (!a_arr) {
         a_cap = 64;
-        a_arr = (seq_t*)calloc(a_cap, sizeof(seq_t));
+        a_arr = mem_new(seq_t, a_cap);
         if (!a_arr) abort();
     }
 
     /* --- allocate counts4 ----------------- */
     if (!counts4) {
-        counts4 = (seq_t*)calloc(625, sizeof(seq_t));
-        new_counts4 = (seq_t*)calloc(625, sizeof(seq_t));
+        counts4 = mem_new(seq_t, 625);
+        new_counts4 = mem_new(seq_t, 625);
         if (!counts4 || !new_counts4) abort();
     }
 
     /* --- grow a_arr if necessary --------- */
     while (a_cap <= n) {
         size_t new_cap = a_cap * 2;
-        seq_t *tmp = (seq_t*)realloc(a_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_arr, new_cap);
         if (!tmp) abort();
         /* zero the new part */
         for (size_t i = a_cap; i < new_cap; ++i) tmp[i] = 0;

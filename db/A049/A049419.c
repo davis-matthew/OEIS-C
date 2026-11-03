@@ -8,14 +8,15 @@
  *            a(p^e) = tau(e), tau(m) = number of divisors of m
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   tau_of_exp
+ * Validated: standard, pass, 118 terms through n = 9953 (2026-11-01)
+ * Helpers:   num_divisors_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/tau_of_exp.h"
+#include "../utils/num_divisors_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
         cnt++;
     }
     if (cnt > 0) {
-        result *= tau_of_exp(cnt);
+        result *= num_divisors_i32(cnt);
     }
 
     /* odd factors */
@@ -42,14 +43,14 @@ seq_t a(idx_t n)
             cnt++;
         }
         if (cnt > 0) {
-            result *= tau_of_exp(cnt);
+            result *= num_divisors_i32(cnt);
         }
     }
 
     /* if a prime remains */
     if (x > 1) {
         /* remaining prime has exponent 1, tau(1) == 1 */
-        result *= tau_of_exp(1);
+        result *= num_divisors_i32(1);
     }
 
     return result;

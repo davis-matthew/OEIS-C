@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 33, u32 n <= 62, u64 n <= 121,
  *            u128 n <= 238, big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 61 terms through n = 985 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoization */
@@ -29,8 +31,8 @@ seq_t a(idx_t n) {
     if (!initialized) {
         /* start with space for at least a(0) */
         size_t init_cap = 16;
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
-        memset(cache, 0, init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
+        mem_set(cache, 0, init_cap * sizeof(seq_t));
         cap = init_cap;
         /* initialise a(0) */
         cache[0] = (seq_t)1;
@@ -41,10 +43,10 @@ seq_t a(idx_t n) {
     if (cap <= (size_t)n) {
         size_t new_cap = cap;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        memset(tmp, 0, new_cap * sizeof(seq_t));
-        memcpy(tmp, cache, cap * sizeof(seq_t));
-        free(cache);
+        seq_t *tmp = mem_new(seq_t, new_cap);
+        mem_set(tmp, 0, new_cap * sizeof(seq_t));
+        mem_copy(tmp, cache, cap * sizeof(seq_t));
+        mem_free(cache);
         cache = tmp;
         cap = new_cap;
     }

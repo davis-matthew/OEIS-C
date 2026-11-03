@@ -8,19 +8,20 @@
  *            otherwise a(n) = n. The triangular indices are increased by k-1
  * Range:     u8 n <= 45, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   int_sqrt128
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/int_sqrt128.h"
+#include "../utils/isqrt_u128.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)0;   /* safety for index 0, not used */
     unsigned __int128 val = (unsigned __int128)1 + (unsigned __int128)8 * n;
-    unsigned __int128 s = int_sqrt128(val);
+    unsigned __int128 s = isqrt_u128(val);
 
     seq_t inc = 0;
     if (s * s == val && (s & 1) == 1) {          /* n is triangular */

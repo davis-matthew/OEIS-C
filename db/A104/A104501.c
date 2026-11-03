@@ -11,17 +11,19 @@
  *            to 1 / ∏_{k≥1, k%27∉{0,12,15}} (1-x^k)
  * Range:     u8 n <= 16, u16 n <= 44, u32 n <= 134, u64 n <= 446,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 900 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* allocate array of size n+1 */
     size_t sz = (size_t)n + 1;
-    seq_t *dp = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) return 0;            /* allocation failure; unlikely for test sizes */
 
     dp[0] = 1;                    /* empty partition */
@@ -39,6 +41,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t ans = dp[n];
-    free(dp);
+    mem_free(dp);
     return ans;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,19 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Global state for the sequence */
 static seq_t *seq = NULL;           /* stored sequence values       */
@@ -55,8 +67,8 @@ static void ensure_capacity(void)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
-        seq_t *tmp_seq   = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
-        seq_t *tmp_pow10 = (seq_t *)realloc(pow10_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp_seq   = mem_resize(seq_t, seq, new_cap);
+        seq_t *tmp_pow10 = mem_resize(seq_t, pow10_arr, new_cap);
         if (!tmp_seq || !tmp_pow10) abort(); /* out of memory */
         seq = tmp_seq;
         pow10_arr = tmp_pow10;
@@ -74,7 +86,7 @@ static void build_up_to(idx_t n)
         if (!is_concatenation(cand)) {
             ensure_capacity();
             seq[seq_len] = cand;
-            size_t digs = (size_t)digit_len(cand);   /* number of decimal digits */
+            size_t digs = (size_t)num_digits(cand);   /* number of decimal digits */
             pow10_arr[seq_len] = pow10(digs);       /* 10^digs */
             ++seq_len;
         }

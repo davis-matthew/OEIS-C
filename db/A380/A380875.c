@@ -9,7 +9,8 @@
  *            integer right triangles
  * Range:     u8 n <= 3, u16 n <= 146, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   u64_gcd
+ * Validated: standard, pass, 82 terms through n = 9934 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/u64_gcd.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* Small prime table for factorization */
 #define PRIME_LIMIT 50000
@@ -111,7 +113,7 @@ static int is_perimeter(seq_t p)
             if (t <= m || t >= 2 * m) continue;
             uint64_t n_val = t - m;
             if (n_val >= m || n_val == 0) continue;
-            if (u64_gcd((uint64_t)m, n_val) != 1) continue;
+            if (gcd_u64((uint64_t)m, n_val) != 1) continue;
             if (((m & 1) == (n_val & 1))) continue;
             return 1;   /* found a valid (m,n,k) triple */
         }
@@ -135,7 +137,7 @@ seq_t a(idx_t n)
         if (is_perimeter(tri)) {
             if (cached == cap) {
                 size_t new_cap = (cap ? cap * 2 : 4);
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 cache = tmp;
                 cap = new_cap;

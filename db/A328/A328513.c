@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth connected squarefree number
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   gcd_u32
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   gcd_u32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include "../utils/gcd_u32.h"
+#include "../utils/mem.h"
 
 /* global sieve data ----------------------------------------------------- */
 static uint8_t *sieve = NULL;
@@ -138,7 +140,7 @@ seq_t a(idx_t n) {
         }
 
         if (squarefree && is_connected(idxs, idx_cnt)) {
-            cache = (seq_t*)realloc(cache, (cache_size + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (cache_size + 1));
             cache[cache_size++] = (seq_t)cand;
         }
 

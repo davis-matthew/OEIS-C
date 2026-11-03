@@ -11,6 +11,7 @@
  *            9 by 111111111 and each other digit d by 0 followed by d 1's)
  * Range:     u8 n <= 8, u16 n <= 87, u32 n <= 6887, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 72 terms through n = 9435 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

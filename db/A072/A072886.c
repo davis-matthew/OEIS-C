@@ -13,7 +13,8 @@
  *            fifteenth, * sixteenth, seventeenth, eighteenth,...
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   ordinal_word
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,39 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/ordinal_word.h"
+#include "../utils/mem.h"
+
+static void ordinal_word(idx_t n, char *buf)
+{
+    /* n >= 2.  The buffer must be large enough (64 bytes is ample).  */
+    static const char *unit_ord[10] =
+        {"", "first", "second", "third", "fourth",
+         "fifth", "sixth", "seventh", "eighth", "ninth"};
+    static const char *ten_special[10] =
+        {"tenth", "eleventh", "twelfth", "thirteenth", "fourteenth",
+         "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth"};
+    static const char *tens_word[10] =
+        {"", "", "twenty", "thirty", "forty",
+         "fifty", "sixty", "seventy", "eighty", "ninety"};
+    static const char *ten_ord[10] =
+        {"", "", "twentieth", "thirtieth", "fortieth",
+         "fiftieth", "sixtieth", "seventieth", "eightieth", "ninetieth"};
+
+    if (n < 10) {
+        strcpy(buf, unit_ord[(int)n]);
+    } else if (n < 20) {
+        strcpy(buf, ten_special[(int)n - 10]);
+    } else {
+        int tens  = (int)((n / 10) * 10);
+        int unit  = (int)( n % 10 );
+        if (unit == 0) {
+            strcpy(buf, ten_ord[tens / 10]);
+        } else {
+            strcpy(buf, tens_word[tens / 10]);
+            strcat(buf, unit_ord[unit]);
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +71,7 @@ seq_t a(idx_t n)
     /* Initialise cache if needed on the first call */
     if (!cache) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Keep generating until we have at least n values cached.  */
@@ -53,7 +86,7 @@ seq_t a(idx_t n)
                 if (cache_size + 1 > cache_cap) {
                     size_t new_cap = cache_cap * 2;
                     if (new_cap < cache_size + 1) new_cap = cache_size + 1;
-                    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, new_cap);
                     cache_cap = new_cap;
                 }
                 cache[++cache_size] = (seq_t)pos;
@@ -70,7 +103,7 @@ seq_t a(idx_t n)
                 if (cache_size + 1 > cache_cap) {
                     size_t new_cap = cache_cap * 2;
                     if (new_cap < cache_size + 1) new_cap = cache_size + 1;
-                    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, new_cap);
                     cache_cap = new_cap;
                 }
                 cache[++cache_size] = (seq_t)pos;

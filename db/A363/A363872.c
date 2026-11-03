@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   seq_to_str
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,27 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/seq_to_str.h"
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* Array of sequence values: 1‑based indexing (seq[1] is a(1)) */
 static seq_t *seq      = NULL;
@@ -47,7 +68,7 @@ static void ensure_seq_cap(idx_t n)
     if (seq_cap >= (size_t)n + 1) return;   /* +1: we may store a(n+1) */
     size_t new_cap = seq_cap ? seq_cap * 2 : 64;
     while (new_cap <= (size_t)n + 1) new_cap *= 2;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 
@@ -65,7 +86,7 @@ static void record_used(seq_t v)
 {
     if (used_len == used_cap) {
         size_t new_cap = used_cap ? used_cap * 2 : 64;
-        used_list = (seq_t *)realloc(used_list, new_cap * sizeof(seq_t));
+        used_list = mem_resize(seq_t, used_list, new_cap);
         used_cap  = new_cap;
     }
     used_list[used_len++] = v;

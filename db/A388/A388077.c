@@ -8,13 +8,37 @@
  *            where k = n+floor((24n)^(1/4))-1
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   floor_fourth_root_u128
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_fourth_root_u128.h"
+
+/* Compute floor of the fourth root of an unsigned 128-bit integer.
+   The result fits into idx_t (i.e., 64 bits). */
+static idx_t floor_fourth_root_u128(unsigned __int128 x)
+{
+    /* The maximum possible value of 24*n for n < 2^64 is < 2^70,
+       so its fourth root < 2^17.5 < 2^18 < 1<<18.  The following
+       search range is more than sufficient. */
+    idx_t lo = 0;
+    idx_t hi = (1ULL << 32);        /* upper bound: hi^4 > x for all x < 2^128 */
+
+    while (lo < hi) {
+        idx_t mid = (lo + hi + 1) >> 1;
+        unsigned __int128 val = (unsigned __int128)mid *
+                                (unsigned __int128)mid *
+                                (unsigned __int128)mid *
+                                (unsigned __int128)mid;
+        if (val <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 /* Compute the binomial coefficient C(m,4) for m>=0.
    For m<4 the result is 0.  The intermediate product fits in

@@ -13,13 +13,15 @@
  *            9961241, 15014753, 21788652, 31911831, * 45586648,...
  * Range:     u8 none, u16 none, u32 n <= 31, u64 n <= 97, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* cache[i] holds a(i+1) */
 static size_t cache_size = 0;      /* number of terms currently stored */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first 24 terms on first call */
     if (cache_size == 0) {
         cache_cap = 32;                               /* initial capacity */
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return (seq_t)0;           /* allocation failed */
 
         static const seq_t init[24] = {
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         if (new_cap == 0) new_cap = 32;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return (seq_t)0;            /* allocation failed */
         cache = tmp;
         cache_cap = new_cap;

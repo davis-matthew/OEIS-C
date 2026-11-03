@@ -11,12 +11,14 @@
  *            P(x)/(1-x)^13
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 7, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 static const seq_t COEFF[14] = {
     (seq_t)1ULL,     (seq_t)325ULL,  (seq_t)17238ULL,  (seq_t)294294ULL,
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     seq_t res = 0;
     for (idx_t j = 0; j < 14; ++j) {
         if (j > n) break;
-        seq_t bin = binom(n + 12 - j, 12);
+        seq_t bin = binomial(n + 12 - j, 12);
         res += COEFF[j] * bin;
     }
     return res;

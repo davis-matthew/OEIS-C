@@ -11,19 +11,21 @@
  *            bits in the binary representation of n
  * Range:     u8 n <= 365, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 103 terms through n = 7994 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n) {
     if (n == 0)
         return 0;
 
     seq_t N = (seq_t)n;
-    unsigned k = bitlen_seq_t(N);      /* number of bits in n (k >= 1) */
+    unsigned k = bit_length(N);      /* number of bits in n (k >= 1) */
     seq_t min_diff = N;                /* split with left part empty */
 
     /* iterate over all non‑trivial splits: i bits on the left (1 <= i < k) */

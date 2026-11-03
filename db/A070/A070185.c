@@ -10,7 +10,8 @@
  *            exponentiation and a simple sieve for prime generation
  * Range:     u8 none, u16 n <= 31, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------------- */
 /* helper: simple gcd for small integers                                     */
@@ -83,7 +86,7 @@ seq_t a(idx_t n)
         generate_primes(limit);
 
         seq_capacity = 1024;
-        seq_cache = (seq_t *)malloc(seq_capacity * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_capacity);
         seq_used  = 0;
         prime_pos = 0;
         initialized = true;
@@ -104,13 +107,13 @@ seq_t a(idx_t n)
         uint64_t exp1 = (p - 1) / g1;
         uint64_t exp2 = (p - 1) / g2;
 
-        seq_t r1 = mod_pow((seq_t)2, exp1, (seq_t)p);
-        seq_t r2 = mod_pow((seq_t)2, exp2, (seq_t)p);
+        seq_t r1 = powmod((seq_t)2, exp1, (seq_t)p);
+        seq_t r2 = powmod((seq_t)2, exp2, (seq_t)p);
 
         if (r1 == (seq_t)1 && r2 != (seq_t)1) {
             if (seq_used == seq_capacity) {
                 seq_capacity *= 2;
-                seq_cache = (seq_t *)realloc(seq_cache, seq_capacity * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_capacity);
                 if (!seq_cache) { abort(); }
             }
             seq_cache[seq_used++] = (seq_t)p;

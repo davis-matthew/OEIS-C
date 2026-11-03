@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 /* Standard headers for memory functions.  They work for both C and C++. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation across calls.  cache[0] is unused. */
 static seq_t *cache = NULL;     /* array of seq_t values, indices start at 1 */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 {
     /* Allocate the cache on first use. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));   /* size 1 for index 0 */
+        cache = mem_new(seq_t, 1);   /* size 1 for index 0 */
         if (!cache) return 0;                     /* allocation failure */
         cache[0] = 0;
         cache_cap = 1;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Ensure we have space for index n. */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;                     /* indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                                /* allocation failure */
         cache = tmp;
         /* Initialise new slots to 0 (uncomputed). */

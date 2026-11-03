@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 122, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_belgian0_ull
+ * Validated: standard, pass, 79 terms through n = 9688 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,51 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_belgian0_ull.h"
+#include "../utils/mem.h"
+
+/* Test whether a 64‑bit integer is a Belgian‑0 number.  For the
+   sequence all terms up to the 10,000th fit easily in 64 bits. */
+static bool is_belgian0_ull(unsigned long long v)
+{
+    if (v == 0ULL)          /* 0 is handled separately as a Belgian‑0 number */
+        return true;
+
+    /* Extract decimal digits (least‑significant first). */
+    int dig[20];              /* 20 digits are enough for 64‑bit values */
+    int dcnt = 0;
+    unsigned long long tmp = v;
+    while (tmp > 0) {
+        dig[dcnt++] = (int)(tmp % 10);
+        tmp /= 10;
+    }
+    if (dcnt == 0) {          /* should not happen for v>0 */
+        dig[0] = 0;
+        dcnt = 1;
+    }
+
+    /* Compute sum of digits S and all prefix sums. */
+    int sum_digits = 0;
+    int prefix[21];
+    prefix[0] = 0;            /* prefix for r = 0 */
+
+    for (int i = 0; i < dcnt; ++i) {
+        int d = dig[dcnt - 1 - i];  /* most‑significant first */
+        sum_digits += d;
+        prefix[i + 1] = prefix[i] + d;
+    }
+
+    if (sum_digits == 0)  /* digit sum zero only for v==0, already handled */
+        return false;
+
+    /* Check existence of r satisfying the condition. */
+    for (int r = 0; r < dcnt; ++r) {
+        int pref = prefix[r];
+        if (v < (unsigned long long)pref) continue;
+        if ( ((v - (unsigned long long)pref) % (unsigned long long)sum_digits) == 0 )
+            return true;
+    }
+    return false;
+}
 
 static seq_t *term_cache = NULL;
 static size_t cache_cap   = 0;
@@ -34,7 +79,7 @@ static void grow_cache(size_t min_needed)
     if (cache_cap >= min_needed) return;
     size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
     while (new_cap < min_needed) new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, term_cache, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);
     term_cache = new_arr;
     cache_cap = new_cap;

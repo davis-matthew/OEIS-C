@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 85 terms through n = 9953 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache if not yet */
     if (!cache) {
         cache_alloc = 64;
-        cache = (seq_t *)malloc(cache_alloc * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_alloc);
         if (!cache) return (seq_t)0;   /* out of memory – safe return */
         cache[0] = 0;                  /* dummy element for 1‑based indexing */
     }
@@ -69,7 +72,7 @@ seq_t a(idx_t n)
             /* Ensure cache capacity */
             if (cache_len + 1 >= cache_alloc) {
                 size_t new_alloc = cache_alloc * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
                 if (!tmp) return (seq_t)0; /* out of memory */
                 cache = tmp;
                 cache_alloc = new_alloc;

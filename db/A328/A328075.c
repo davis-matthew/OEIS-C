@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 179, u16 n <= 1862, u32 n <= 1862, u64 n <= 1862,
  *            u128 n <= 1862, big any n
- * Helpers:   distinct_digit_differences
+ * Validated: standard, pass, 118 terms through n = 1829 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,42 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/distinct_digit_differences.h"
+
+/* Local helper: check whether all pairwise absolute digit differences
+   of the decimal representation of num are distinct.  Only numbers with
+   at most five digits are passed to this routine in this implementation. */
+static bool distinct_digit_differences(unsigned int num)
+{
+    unsigned char digits[5];
+    size_t dlen = 0;
+    unsigned int tmp = num;
+
+    /* extract digits into temporary buffer (reverse order) */
+    while (tmp > 0) {
+        digits[dlen++] = (unsigned char)(tmp % 10);
+        tmp /= 10;
+    }
+
+    /* reverse to obtain original order */
+    for (size_t i = 0; i < dlen / 2; ++i) {
+        unsigned char t = digits[i];
+        digits[i] = digits[dlen - 1 - i];
+        digits[dlen - 1 - i] = t;
+    }
+
+    /* mask for differences 0–9; a bit set indicates the difference
+       has already been seen. */
+    unsigned int seen = 0;
+    for (size_t i = 0; i < dlen; ++i) {
+        for (size_t j = i + 1; j < dlen; ++j) {
+            int diff = digits[i] - digits[j];
+            if (diff < 0) diff = -diff;        /* absolute difference */
+            if (seen & (1u << diff)) return false;
+            seen |= (1u << diff);
+        }
+    }
+    return true;
+}
 
 /* Static cache for all qualifying numbers (max 90 000 entries).  The array
    is only filled on the first call to a().  */

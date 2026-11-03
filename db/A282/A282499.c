@@ -9,13 +9,15 @@
  *            (i>=1, j>=2) such that a+b+c = n
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 96 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global state */
 static idx_t current_limit = 0;
@@ -56,7 +58,7 @@ static void rebuild(idx_t maxN)
     free(seen);
 
     /* 2. First convolution: number of ordered pairs summing to each value */
-    seq_t *conv2 = (seq_t*)calloc((size_t)maxN + 1, sizeof(seq_t));
+    seq_t *conv2 = mem_new(seq_t, (size_t)maxN + 1);
 
     for (size_t i = 0; i < pp_len; ++i) {
         idx_t a = pp[i];
@@ -70,7 +72,7 @@ static void rebuild(idx_t maxN)
     }
 
     /* 3. Second convolution: add third perfect power */
-    seq_t *new_ways = (seq_t*)calloc((size_t)maxN + 1, sizeof(seq_t));
+    seq_t *new_ways = mem_new(seq_t, (size_t)maxN + 1);
 
     for (size_t k = 0; k < pp_len; ++k) {
         idx_t c = pp[k];
@@ -79,11 +81,11 @@ static void rebuild(idx_t maxN)
         }
     }
 
-    free(conv2);
+    mem_free(conv2);
     free(pp);
 
     /* 4. Store results */
-    if (ways_arr) free(ways_arr);
+    if (ways_arr) mem_free(ways_arr);
     ways_arr = new_ways;
     current_limit = maxN;
 }

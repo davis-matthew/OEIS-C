@@ -11,8 +11,9 @@
  *            being a primitive nondeficient number (A006039). The check is
  *            performed by computing the sum–of–divisors function σ(n) and
  *            comparing it with 2n
- * Range:     u8 n <= 8885, u16 n <= 8885, u32 n <= 8885, u64 n <= 8885,
- *            u128 n <= 8885, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8885 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

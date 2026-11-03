@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   ends_in_singleton, seq_alloc, seq_realloc
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,108 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/ends_in_singleton.h"
+#include <stdlib.h>
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Test whether the run‑sum trajectory of the k‑th composition reaches a
+   singleton.  The composition is built from the bits of k as described
+   in OEIS A353857. */
+static bool ends_in_singleton(idx_t k)
+{
+    /* The representation of a composition never needs more than 64 parts. */
+    unsigned int parts[64];
+    unsigned int cur[64], next[64];
+    unsigned int len = 0;
+
+    /* Build the composition from the binary expansion of k.
+       Bits are processed LSB first, so the resulting parts array is the
+       composition in reversed order. */
+    {
+        idx_t temp = k;
+        unsigned int prev = 0;
+        unsigned int pos = 1;
+        while (temp) {
+            if (temp & 1ULL) {
+                parts[len++] = pos - prev;
+                prev = pos;
+            }
+            temp >>= 1;
+            ++pos;
+        }
+        /* Reverse to obtain the standard‑order composition. */
+        for (unsigned int i = 0; i < len / 2; ++i) {
+            unsigned int t = parts[i];
+            parts[i] = parts[len - 1 - i];
+            parts[len - 1 - i] = t;
+        }
+    }
+
+    if (len == 1)
+        return true;               /* already a singleton */
+
+    for (unsigned int i = 0; i < len; ++i)
+        cur[i] = parts[i];
+    unsigned int cur_len = len;
+
+    /* Apply the run‑sum transformation until a singleton is reached
+       or a fixed point (non‑singleton) is detected. */
+    while (cur_len > 1) {
+        unsigned int next_len = 0;
+        unsigned int i = 0;
+        while (i < cur_len) {
+            unsigned int v = cur[i];
+            unsigned int sum = v;
+            unsigned int j = i + 1;
+            while (j < cur_len && cur[j] == v) {
+                sum += v;
+                ++j;
+            }
+            next[next_len++] = sum;
+            i = j;
+        }
+
+        /* If the transformed sequence equals the previous one we are
+           at a fixed point that is not a singleton. */
+        if (next_len == cur_len) {
+            bool same = true;
+            for (unsigned int t = 0; t < next_len; ++t)
+                if (next[t] != cur[t]) {
+                    same = false;
+                    break;
+                }
+            if (same)
+                return false;      /* fixed point, not a singleton */
+        }
+
+        if (next_len == 1)
+            return true;          /* singleton reached */
+
+        for (unsigned int t = 0; t < next_len; ++t)
+            cur[t] = next[t];
+        cur_len = next_len;
+    }
+    return true;                   /* reached singleton when len==1 */
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

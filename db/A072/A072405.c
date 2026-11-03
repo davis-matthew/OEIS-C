@@ -9,16 +9,17 @@
  *            other entries of the triangle are 1. The pair (r,k) is obtained
  *            from the flat index n by reading the triangle row‑by‑row with
  *            offset 0
- * Range:     u8 n <= 39, u16 n <= 197, u32 n <= 680, u64 n <= 1325,
+ * Range:     u8 n <= 70, u16 n <= 198, u32 n <= 681, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 107 terms through n = 1279 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +40,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* main formula: C(r,k) – C(r‑2,k‑1) */
-    seq_t big   = binom(r, k);
-    seq_t small = binom(r - 2, k - 1);  /* k ≥ 1 and r ≥ 2 here */
+    seq_t big   = binomial(r, k);
+    seq_t small = binomial(r - 2, k - 1);  /* k ≥ 1 and r ≥ 2 here */
     return big - small;
 }

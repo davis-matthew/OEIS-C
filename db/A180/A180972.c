@@ -8,6 +8,7 @@
  *            n > 13 (sequence has only 13 terms)
  * Range:     u8 none, u16 n <= 4, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,14 +12,16 @@
  *            first d that satisfies 2*(n-d)^2 ≡ 0 (mod d) * gi...
  * Range:     u8 n <= 11, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   mul_mod
+ * Validated: partial, pass, 60 terms through n = 61 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mul_mod.h"   /* mul_mod(uint64_t a, uint64_t b, uint64_t mod) */
+#include <stddef.h>
+#include "../utils/mulmod.h"
 
 static idx_t largest_d(idx_t n)
 {
@@ -28,8 +30,8 @@ static idx_t largest_d(idx_t n)
         idx_t val = n - d;                   /* k = val */
         uint64_t val_mod = (uint64_t)(val % d);
         /* compute (val^2 * 2) mod d without overflow           */
-        uint64_t t = mul_mod(val_mod, val_mod, (uint64_t)d); /* val^2 mod d */
-        t      = mul_mod(t, 2ULL, (uint64_t)d);              /* 2*val^2 mod d */
+        uint64_t t = mulmod(val_mod, val_mod, (uint64_t)d); /* val^2 mod d */
+        t      = mulmod(t, 2ULL, (uint64_t)d);              /* 2*val^2 mod d */
         if (t == 0)
             return d;
     }

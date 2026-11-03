@@ -10,7 +10,8 @@
  *            such that r(r+1)/2 ≥ n. k = n - (r-1)r/2 - 1 (0‑based column)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static state for the prime sieve */
 static seq_t *prime_flag = NULL;   /* one byte per number, 1=prime, 0=not */
@@ -31,10 +33,10 @@ static void ensure_prime_limit(idx_t lim)
         return;  /* already sufficient */
 
     /* Free old flag array if any */
-    free(prime_flag);
+    mem_free(prime_flag);
 
     /* Allocate new array, index 0..lim */
-    prime_flag = (seq_t *)malloc((size_t)(lim + 1) * sizeof(seq_t));
+    prime_flag = mem_new(seq_t, (size_t)(lim + 1));
     if (!prime_flag)
         exit(EXIT_FAILURE);
 

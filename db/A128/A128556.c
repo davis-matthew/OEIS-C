@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count_seq_t
+ * Validated: standard, pass, 78 terms through n = 994 (2026-11-03)
+ * Helpers:   mem, num_divisors_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_seq_t.h"
+#include "../utils/num_divisors_seq.h"
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------------
  *  Local state: the generated part of the sequence.
@@ -54,7 +56,7 @@ static void grow_seq(size_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 64;
     while (new_cap < need) new_cap *= 2;
 
-    seq_t *newp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, seq, new_cap);
     seq = newp;
     seq_cap = new_cap;
 }
@@ -87,7 +89,7 @@ static void ensure_up_to(idx_t n)
         seq_t prev = seq[seq_len - 1];
 
         /* Compute d(a(n-1)) */
-        seq_t d = divisor_count_seq_t(prev);
+        seq_t d = num_divisors_seq(prev);
 
         /* Find the smallest multiple of d not seen before */
         for (seq_t mult = (seq_t)1;; ++mult) {

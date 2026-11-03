@@ -10,12 +10,14 @@
  *            implements the recurrence with memoisation
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 7, i64 n <= 14, i128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Persistent cache of already computed terms */
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
         size = n + 1;  /* at least enough for n */
         /* Allocate and cast correctly in both C and C++ */
 #ifdef __cplusplus
-        cache = static_cast<seq_t*>(malloc(size * sizeof(seq_t)));
+        cache = mem_new(seq_t, size);
 #else
         cache = (seq_t*)malloc(size * sizeof(seq_t));
 #endif
@@ -46,14 +48,14 @@ seq_t a(idx_t n) {
     else if (size <= n) {
         idx_t newsize = n + 1;
 #ifdef __cplusplus
-        seq_t *newcache = static_cast<seq_t*>(malloc(newsize * sizeof(seq_t)));
+        seq_t *newcache = mem_new(seq_t, newsize);
 #else
         seq_t *newcache = (seq_t*)malloc(newsize * sizeof(seq_t));
 #endif
         /* Copy existing values to the new cache */
         for (i = 0; i < size; ++i)
             newcache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = newcache;
         size  = newsize;
     }

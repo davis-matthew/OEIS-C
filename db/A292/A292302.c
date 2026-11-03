@@ -12,13 +12,15 @@
  *            of phi and b in static arrays and expands them o...
  * Range:     i8 n <= 18, i16 n <= 60, i32 n <= 60, i64 n <= 60, i128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* external types provided by the build */
 typedef uint64_t idx_t;
@@ -54,7 +56,7 @@ static void compute_phi(idx_t N)
 static void recompute_b(idx_t N)
 {
     /* allocate/resize b array */
-    seq_t *new_b = (seq_t *)realloc(b, (N + 1) * sizeof(seq_t));
+    seq_t *new_b = mem_resize(seq_t, b, (N + 1));
     if (!new_b) exit(EXIT_FAILURE);
     b = new_b;
     b_cap = N + 1;

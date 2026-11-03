@@ -9,7 +9,8 @@
  *            (memoized)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   grow_words
+ * Validated: standard, pass, 115 terms through n = 961 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/grow_words.h"
+
+static uint32_t *grow_words(uint32_t *p, size_t oldn, size_t newn) {
+    uint32_t *q = (uint32_t *)realloc(p, newn * sizeof(uint32_t));
+    if (newn > oldn) memset(q + oldn, 0, (newn - oldn) * sizeof(uint32_t));
+    return q;
+}
 
 static uint32_t *Ybuf = NULL, *Rbuf = NULL, *Tbuf = NULL;
 static size_t L = 0;

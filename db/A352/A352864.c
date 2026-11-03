@@ -9,7 +9,8 @@
  *            initial value a(0) = 1
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 21, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* ensure cache large enough for n */
     if (n >= cache_size) {
         idx_t needed = n + 1;
-        cache = (seq_t*)realloc(cache, sizeof(seq_t) * needed);
+        cache = mem_resize(seq_t, cache, needed);
         /* compute missing entries */
         for (idx_t i = cache_size; i <= n; ++i) {
             if (i == 0) {

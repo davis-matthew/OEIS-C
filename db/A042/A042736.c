@@ -8,7 +8,8 @@
  *            a(3)=899, a(4)=53011, a(5)=53910, a(6)=1562491, a(7)=1616401
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 /* Helper: multiply by 1798 with 128‑bit intermediate when needed. */
 static seq_t mul_1798(seq_t x)
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     {
         cache_cap = 8;
         cache_len = 8;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort(); /* allocation failure */
 
         cache[0] = (seq_t)29;
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
         if (i + 1 >= cache_cap)
         {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort(); /* allocation failure */
             cache = tmp;
             cache_cap = new_cap;

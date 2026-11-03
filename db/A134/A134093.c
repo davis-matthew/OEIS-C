@@ -8,7 +8,8 @@
  *            Π_{i=1..k}(1-i*x)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* temporary coefficient buffers; reallocated on first use */
 static seq_t *h_prev = NULL;
@@ -42,11 +44,11 @@ ensure_h_capacity(size_t need)
     if (need <= h_cap)
         return;
     /* free old buffers if present */
-    if (h_prev) free(h_prev);
-    if (h_curr) free(h_curr);
+    if (h_prev) mem_free(h_prev);
+    if (h_curr) mem_free(h_curr);
     /* allocate new buffers */
-    h_prev = (seq_t *)malloc(need * sizeof(seq_t));
-    h_curr = (seq_t *)malloc(need * sizeof(seq_t));
+    h_prev = mem_new(seq_t, need);
+    h_curr = mem_new(seq_t, need);
     h_cap  = need;
 }
 

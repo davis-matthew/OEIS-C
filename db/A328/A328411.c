@@ -9,7 +9,8 @@
  * Formula:   a(n) = largest m such that (Z/mZ)* is isomorphic to C_2 × C_(2n)
  * Range:     u8 n <= 17, u16 n <= 4373, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_uint64
+ * Validated: standard, pass, 80 terms through n = 9433 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     if (!done) {
         /* allocate result array */
-        res = (seq_t*)calloc((size_t)MAX_N + 1, sizeof(seq_t));
+        res = mem_new(seq_t, (size_t)MAX_N + 1);
 
         /* parameters for sieve */
         const uint32_t MAX_K = 4 * MAX_N;      /* maximum totient value needed */
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
                     for (uint32_t i = 1; i < e; ++i) pe_minus1 *= p;
                     lam = (uint64_t)(p - 1) * pe_minus1;
                 }
-                lambda = lambda / gcd_uint64(lambda, lam) * lam;
+                lambda = lambda / gcd_u64(lambda, lam) * lam;
             }
 
             if ((uint32_t)lambda == k / 2) {            /* λ(m) = 2n */

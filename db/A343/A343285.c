@@ -11,7 +11,8 @@
  *            using a dynamic‑programming * convolution o...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"   /* big_pow(seq_t base, idx_t exp) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *dp_prev = NULL;   /* array with computed a values   */
 static seq_t *dp_next = NULL;   /* temporary array during preprocessing */
@@ -31,15 +34,15 @@ static void precompute(idx_t up_to)
 {
     /* free any old tables */
     if (dp_prev) {
-        free(dp_prev);
-        free(dp_next);
+        mem_free(dp_prev);
+        mem_free(dp_next);
     }
 
     if (up_to < 1) return;   /* nothing to compute */
 
     size_t sz = (size_t)(up_to + 1);
-    dp_prev = (seq_t *)malloc(sz * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(sz * sizeof(seq_t));
+    dp_prev = mem_new(seq_t, sz);
+    dp_next = mem_new(seq_t, sz);
     if (!dp_prev || !dp_next) {               /* allocation failure */
         dp_prev = dp_next = NULL;
         return;
@@ -56,7 +59,7 @@ static void precompute(idx_t up_to)
         for (idx_t i = 1; i <= up_to; ++i)
             dp_next[i] = dp_prev[i];
 
-        seq_t base5 = big_pow((seq_t)k, 5);    /* k^5 in seq_t */
+        seq_t base5 = ipow((seq_t)k, 5);    /* k^5 in seq_t */
         seq_t w      = base5;                   /* binom(k^5,1) for e=1  */
         idx_t pow_k  = k;                       /* k^e for current e  */
         idx_t e      = 1;                       /* current exponent  */

@@ -12,7 +12,8 @@
  *            Candidates whose prime indices are * *not* all...
  * Range:     u8 n <= 46, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   append_candidate, is_prime, sieve_primes
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime, mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,27 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/sieve_primes.h"
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/append_candidate.h"
+#include "../utils/sieve_primes.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 static idx_t *prime_list = NULL;          /* list of primes up to LIMIT */
 static size_t prime_count = 0;
@@ -46,7 +65,7 @@ static void init(void)
         prime_to_index[(size_t)prime_list[i]] = (idx_t)(i + 1); /* 1‑based */
 
     cache_cap = 128;
-    cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache_size = 0;
     last_candidate = 0;
     initialized = true;

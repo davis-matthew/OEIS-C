@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparison function for qsort that works for all seq_t types
  * (primitive unsigned ints and C++ unsigned __int128 or BigInt). */
@@ -93,7 +95,7 @@ static void build_row(int r)
     if (row_cache[r] != NULL) return;          /* already cached */
 
     if (r == 0) {                              /* trivial row */
-        row_cache[0] = (seq_t *)malloc(2 * sizeof(seq_t));
+        row_cache[0] = mem_new(seq_t, 2);
         row_cache[0][0] = 0;
         row_cache[0][1] = 1;
         row_len_cache[0] = 2;
@@ -103,7 +105,7 @@ static void build_row(int r)
     init_fib();
 
     size_t len = 1ULL << r;                    /* 2^r elements */
-    seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, len);
     size_t cnt = 0;
 
     /* Minimum and maximum possible lengths of the Zeckendorf binary
@@ -119,7 +121,7 @@ static void build_row(int r)
     }
 
     /* The recursion may produce the numbers in arbitrary order; sort them. */
-    qsort(row, len, sizeof(seq_t), seq_cmp);
+    mem_qsort(row, len, sizeof(seq_t), seq_cmp);
 
     row_cache[r] = row;
     row_len_cache[r] = len;

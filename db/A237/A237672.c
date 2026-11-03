@@ -12,14 +12,35 @@
  *            computed by dynamic programming over row pairs
  * Range:     u8 none, u16 n <= 4, u32 n <= 9, u64 n <= 21, u128 n <= 45,
  *            big any n
- * Helpers:   precompute_S
+ * Validated: standard, pass, 34 terms through n = 206 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/precompute_S.h"
+
+static void precompute_S(uint8_t S[16][16]) {
+    for (int r1 = 0; r1 < 16; ++r1) {
+        int a = r1 >> 2;          // first cell of row r1
+        int b = r1 & 3;           // second cell of row r1
+        for (int r2 = 0; r2 < 16; ++r2) {
+            int c = r2 >> 2;      // first cell of row r2
+            int d = r2 & 3;       // second cell of row r2
+            int v[4] = {a, b, c, d};
+            /* simple bubble sort of 4 elements */
+            for (int i = 0; i < 4; ++i)
+                for (int j = i + 1; j < 4; ++j)
+                    if (v[i] > v[j]) {
+                        int t = v[i];
+                        v[i] = v[j];
+                        v[j] = t;
+                    }
+            S[r1][r2] = (uint8_t)(v[0] + v[2] + v[3]);  // min + third + max
+        }
+    }
+}
 
 seq_t a(idx_t n) {
     if (n == 1) return (seq_t)256;   // 4^4

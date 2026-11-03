@@ -8,13 +8,15 @@
  *            A180053)
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for n ≥ 1.
    The function is memoised; thus subsequent calls for the same or
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Ensure we have space for indices 1 … n */
     size_t needed = (size_t)n + 1; /* +1 because we ignore index 0 */
     if (needed > cap) {
-        seq_t *new_cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, needed);
         cache = new_cache;
         cap   = needed;
     }

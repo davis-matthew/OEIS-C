@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 29, u32 n <= 116, u64 n <= 471,
  *            u128 n <= 1934, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 3490 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Helper: triangular number k*(k+1)/2 computed safely with 128‑bit arithmetic. */
 static inline idx_t triangular(idx_t k)
@@ -43,7 +45,7 @@ static void ensure_pow(idx_t up_to)
 {
     if (pow4 == NULL) {
         pow4_cap = 4;
-        pow4 = (seq_t *)malloc(pow4_cap * sizeof(seq_t));
+        pow4 = mem_new(seq_t, pow4_cap);
         pow4[0] = 1;          /* 4^0 */
         pow4_len = 0;
     }
@@ -53,7 +55,7 @@ static void ensure_pow(idx_t up_to)
     if ((size_t)up_to > pow4_cap - 1) {
         size_t new_cap = pow4_cap;
         while ((size_t)up_to > new_cap - 1) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(pow4, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow4, new_cap);
         pow4 = tmp;
         pow4_cap = new_cap;
     }

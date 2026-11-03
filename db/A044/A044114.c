@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   has20_base6_idx, seq_free
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,15 +27,34 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has20_base6_idx.h"
-#include "../utils/seq_free.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* =========================================================================
+   Utility: check if a non‑negative idx_t value has the substring "20"
+   in its base‑6 representation.
+   ========================================================================= */
+static bool has20_base6_idx(idx_t x)
+{
+    int prev = -1;
+    while (x) {
+        int d = (int)(x % (idx_t)6);
+        if (d == 2 && prev == 0)
+            return true;
+        prev = d;
+        x /= (idx_t)6;
+    }
+    return false;
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 /* =========================================================================
    Simple dynamic array for seq_t values.
    ========================================================================= */
 static seq_t *seq_alloc(size_t cap)
 {
-    return (seq_t *)malloc(cap * sizeof(seq_t));
+    return mem_new(seq_t, cap);
 }
 
 /* Cache of previously found sequence values.  All pointers and sizes

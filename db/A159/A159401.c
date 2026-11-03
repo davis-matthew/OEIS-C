@@ -8,14 +8,16 @@
  *            * binom(n², c1) * binom(n²‑c1, c4) * binom(n²‑c1‑c4, c9) * *
  *            binom(n²‑c1‑c4‑c9, c16) * (counting n×n arrays of squares of
  *            integers whose entries sum to 18)
- * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 31,
+ * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 32,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 30 terms through n = 98 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 typedef struct {
     idx_t c1, c4, c9, c16;
@@ -46,10 +48,10 @@ seq_t a(idx_t n)
         /* skip solutions that need more cells than available */
         if (s->c1 + s->c4 + s->c9 + s->c16 > (idx_t)m)
             continue;
-        seq_t t = binom((idx_t)m, s->c1);
-        t *= binom((idx_t)(m - s->c1), s->c4);
-        t *= binom((idx_t)(m - s->c1 - s->c4), s->c9);
-        t *= binom((idx_t)(m - s->c1 - s->c4 - s->c9), s->c16);
+        seq_t t = binomial((idx_t)m, s->c1);
+        t *= binomial((idx_t)(m - s->c1), s->c4);
+        t *= binomial((idx_t)(m - s->c1 - s->c4), s->c9);
+        t *= binomial((idx_t)(m - s->c1 - s->c4 - s->c9), s->c16);
         total += t;
     }
     return total;

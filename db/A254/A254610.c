@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   max_pow2_le
+ * Validated: standard, pass, 103 terms through n = 9341 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,15 @@
 #include <string.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/max_pow2_le.h"
+
+/* ---------- Helper: largest power of two <= v (v > 0) ---------- */
+static uint64_t
+max_pow2_le(uint64_t v)
+{
+    uint64_t p = 1;
+    while ((p << 1) <= v) p <<= 1;
+    return p;
+}
 
 /* ---------- Prime list management ---------- */
 static uint64_t *prime_list   = NULL;   /* sorted list of primes */

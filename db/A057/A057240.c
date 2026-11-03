@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   modmul_uint64
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem, mulmod_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/modmul_uint64.h"
+#include "../utils/mulmod_idx.h"
+#include "../utils/mem.h"
 
 /* 64‑bit modular exponentiation */
 static inline idx_t modpow_uint64(idx_t base, uint64_t exp, idx_t mod) {
@@ -29,8 +31,8 @@ static inline idx_t modpow_uint64(idx_t base, uint64_t exp, idx_t mod) {
     idx_t b = base % mod;
     while (exp) {
         if (exp & 1U)
-            result = modmul_uint64(result, b, mod);
-        b = modmul_uint64(b, b, mod);
+            result = mulmod_idx(result, b, mod);
+        b = mulmod_idx(b, b, mod);
         exp >>= 1U;
     }
     return result;
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
 
     if (cap == 0) {                  /* first allocation */
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -78,7 +80,7 @@ seq_t a(idx_t n) {
         /* grow cache if necessary */
         if (len == cap) {
             cap <<= 1;                /* double capacity */
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
         cache[len++] = val;
         ++next_k;                     /* advance for next search */

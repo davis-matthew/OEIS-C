@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 931, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 60 terms through n = 877 (2026-11-01)
+ * Helpers:   next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,11 @@
    Search by iterating primes and testing powmod(3, (p‑1)/7, p) != 1. */
 
 #include <stdbool.h>
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start); */
-#include "../utils/mod_pow.h"     /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n) {
     /* n is 1‑based; n ≥ 1 per the problem statement. */
@@ -30,7 +34,7 @@ seq_t a(idx_t n) {
     while (count < target) {
         p = next_prime(p);          /* next prime after p */
         if ((p % 7ULL) == 1ULL) {   /* only primes ≡ 1 (mod 7) can fail 3⁷ ≡ 3 */
-            seq_t r = mod_pow((seq_t)3, (p - 1ULL) / 7ULL, (seq_t)p);
+            seq_t r = powmod((seq_t)3, (p - 1ULL) / 7ULL, (seq_t)p);
             if (r != (seq_t)1) {
                 count++;
                 if (count == target) {

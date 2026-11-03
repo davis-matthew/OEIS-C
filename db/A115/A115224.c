@@ -8,7 +8,8 @@
  *            3) (multiplicative, a(p^e) = (p³ – 1) * p^(5e – 3))
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 84, u64 n <= 7138,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 49 terms through n = 9646 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 /* OEIS A115224 – Number of 3 × 3 symmetric matrices over Z(n) having determinant 1 */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
 
         /* p^(5e – 3) */
         idx_t exp = 5 * e - 3;          /* e ≥ 1 so exp ≥ 2 */
-        seq_t pow = pow_uint((uint64_t)p, exp);
+        seq_t pow = ipow_u64_idx((uint64_t)p, exp);
 
         result *= (coef * pow);
     }

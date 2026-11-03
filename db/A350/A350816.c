@@ -8,11 +8,13 @@
  *            * 2^(n+1) (valid for n >= 0) Sequence offset: a(1) = 2
  * Range:     u8 n <= 12, u16 n <= 27, u32 n <= 69, u64 n <= 159,
  *            u128 n <= 345, big any n
+ * Validated: standard, pass, 61 terms through n = 972 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 1999, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, sigma_tau
+ * Validated: standard, pass, 76 terms through n = 9958 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,40 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"         /* provides bool is_prime(idx_t) */
-#include "../utils/sigma_tau.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* compute σ(n) (sum of divisors) and τ(n) (number of divisors) for n <= 2^64-1.
+   Uses simple trial division.  Results are stored in *sigma_out and *tau_out.  */
+static void sigma_tau(uint64_t n, seq_t *sigma_out, seq_t *tau_out)
+{
+    seq_t sigma = 1;
+    seq_t tau   = 1;
+    uint64_t t  = n;
+
+    for (uint64_t p = 2; p * p <= t; ++p) {
+        if (t % p) continue;
+        int exp = 0;
+        while ((t % p) == 0) { t /= p; ++exp; }
+
+        /* compute (p^(exp+1) - 1) / (p - 1)   */
+        seq_t p_pow = 1;
+        for (int i = 0; i < exp + 1; ++i) p_pow *= (seq_t)p;
+        seq_t term = (p_pow - 1) / (p - 1);
+
+        sigma *= term;
+        tau   *= (exp + 1);
+    }
+
+    if (t > 1) {                    /* remaining prime factor */
+        seq_t p = (seq_t)t;
+        sigma *= (p + 1);
+        tau   *= 2;
+    }
+
+    *sigma_out = sigma;
+    *tau_out   = tau;
+}
 
 /* external integer types supplied by the build                                                      */
 extern seq_t *seq_alloc(size_t n);     /* Needed only for realloc; could use stdlib */
@@ -38,7 +71,7 @@ static void ensure_capacity(size_t needed)
     if (needed <= cap) return;
     size_t new_cap = cap ? cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();          /* allocation failure */
     cache = tmp;
     cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   valid_horizontal
+ * Validated: standard, pass, 38 terms through n = 168 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
    whose nodes are ordered pairs of admissible
    column patterns.                                   */
 #include <stdbool.h>
-#include "../utils/valid_horizontal.h"
+
+static inline bool valid_horizontal(int a, int b, int c)
+{
+    // check each of the 4 rows for forbidden triples
+    for (int r = 0; r < 4; ++r) {
+        int x = (a >> r) & 1;
+        int y = (b >> r) & 1;
+        int z = (c >> r) & 1;
+        if (x == 0 && y == 0 && z == 0) return false;
+        if (x == 0 && y == 1 && z == 0) return false;
+    }
+    return true;
+}
 
 static inline bool valid_vertical(int col)
 {

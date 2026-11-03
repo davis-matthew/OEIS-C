@@ -8,7 +8,8 @@
  * Formula:   a(n) = A000120(A087118(n + 1))
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   T_cube, cum_run
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,19 @@
 /* a(n) is the n-th element of the concatenated runs {y..x} for each x>=1, y=1..x. */
 
 #include <stdint.h>
-#include "../utils/T_cube.h"
-#include "../utils/cum_run.h"
+
+/* compute T(x) = x*(x+1)*(x+2)/6  (the total number of elements up to block x) */
+static inline unsigned __int128 T_cube(idx_t x)
+{
+    return (unsigned __int128)x * (x + 1) * (x + 2) / 6;
+}
+
+/* cumulative length of runs up to a given run index y in block x:
+   Srun(y) = sum_{k=1}^{y} (x - k + 1) = y*(2*x - y + 1)/2  */
+static inline unsigned __int128 cum_run(idx_t y, idx_t x)
+{
+    return (unsigned __int128)y * (2 * (unsigned __int128)x - y + 1) / 2;
+}
 
 seq_t a(idx_t n)
 {

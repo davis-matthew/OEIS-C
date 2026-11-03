@@ -8,12 +8,16 @@
  *            for n >= 2
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 5, i64 n <= 11, i128 n <= 15,
  *            big any n
- * Helpers:   seq_one
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_one.h"
+#include <stdint.h>
+#include <stdlib.h>
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 /* External linkage function required by the build */
 seq_t a(idx_t n)

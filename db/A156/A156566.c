@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   catalan, pow_uint
+ * Validated: standard, pass, 35 terms through n = 445 (2026-11-03)
+ * Helpers:   catalan, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,11 @@
  */
 
 #include <stdlib.h>                 /* realloc, exit */
-#include "../utils/pow_uint.h"      /* seq_t pow_uint(uint64_t base, idx_t exp) */
-#include "../utils/catalan.h"       /* seq_t catalan(idx_t k) */
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/catalan.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 /* Static cache for memoization (externally visible across calls). */
 static seq_t *cache = NULL;         /* a(0) .. a(k) */
@@ -37,7 +41,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         /* Allocate or grow the storage. */
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) {
             exit(1);                 /* out‑of‑memory on demand */
         }
@@ -55,7 +59,7 @@ seq_t a(idx_t n)
                 cache[i] = cache[i - 1] * (seq_t)9;
             } else {                 /* odd index: a(2m+1) = 9*a(2m) - 8^m*Catalan(m) */
                 idx_t m = (i - 1) >> 1;               /* m = (i-1)/2 */
-                seq_t pow8 = pow_uint(8ULL, m);        /* 8^m */
+                seq_t pow8 = ipow_u64_idx(8ULL, m);        /* 8^m */
                 seq_t cat   = catalan(m);              /* Catalan(m) */
                 cache[i] = cache[i - 1] * (seq_t)9 - pow8 * cat;
             }

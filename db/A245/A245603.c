@@ -13,8 +13,9 @@
  *            rank of n among the odd‑Ω numbers (starting at 1). Then * a(n) =
  *            2 * a(k). If Ω(n) is even, let k = the rank of n among * the
  *            even‑Ω numbers greater than 1 (starting at 1)....
- * Range:     u8 n <= 77, u16 n <= 9883, u32 n <= 9883, u64 n <= 9883,
- *            u128 n <= 9883, big any n
+ * Range:     u8 n <= 77, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 95 terms through n = 9883 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

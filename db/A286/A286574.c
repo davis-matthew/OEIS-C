@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = sum of popcounts of the lengths of 1‑runs in the binary
  *            expansion of n
- * Range:     u8 n <= 9486, u16 n <= 9486, u32 n <= 9486, u64 n <= 9486,
- *            u128 n <= 9486, big any n
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 137 terms through n = 9486 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

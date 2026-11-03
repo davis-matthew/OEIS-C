@@ -11,7 +11,8 @@
  *            T(1,1), a(3) = T(2,0),
  * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom, pow3
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/binom.h"   /* binom_n_k : seq_t binom(idx_t n, idx_t k)  */
-#include "../utils/pow3.h"    /* pow3 : seq_t pow3(idx_t e)                 */
+#include "../utils/binomial.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +45,7 @@ seq_t a(idx_t n)
             /* coefficient of x^m in c(x)^j
                = j/(2m+j) * binom(2m+j, m)        */
             idx_t N = 2 * m + j;
-            seq_t bin = binom(N, m);           /* binom(2m+j, m)             */
+            seq_t bin = binomial(N, m);           /* binom(2m+j, m)             */
             seq_t num  = bin * (seq_t)j;       /* bin * j                    */
             coeff = num / (seq_t)N;           /* exact division              */
         }

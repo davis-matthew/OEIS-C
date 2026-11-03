@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   digit_count
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -93,11 +96,11 @@ seq_t a(idx_t n)
             }
 
             /* Accept only if the two primes have different digit counts. */
-            if (digit_count(a) != digit_count(b)) {
+            if (num_digits0(a) != num_digits0(b)) {
                 /* Ensure enough capacity in the cache. */
                 if (cache_len >= cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 64;
-                    cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)current;
                 ++current;

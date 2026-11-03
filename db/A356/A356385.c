@@ -8,7 +8,8 @@
  * Formula:   a(n) = A353654(n+1) - A353654(n) (offset 1)
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: test whether x has the same number of trailing 0 bits
    as the number of other 0 bits in its binary representation. */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
                 if (len >= cap)
                 {
                     size_t newcap = cap ? cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(vals, newcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, vals, newcap);
                     if (!tmp)
                         abort();                          /* out of memory */
                     vals = tmp;

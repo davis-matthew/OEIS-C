@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _is_prime
+ * Validated: standard, pass, 87 terms through n = 942 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,12 +18,15 @@
    otherwise a(n)=3n. */
 
 #include <stdint.h>
-#include "../utils/_is_prime.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
     seq_t sn = (seq_t)n;
-    if (_is_prime((uint64_t)n))
+    if (is_prime_u64((uint64_t)n))
         return sn + (seq_t)1;
     if (n > (idx_t)2 && (n & (idx_t)1) == (idx_t)0)
         return sn >> 1;           /* n/2 */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 103, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   free_seq_arr, get_digits
+ * Validated: standard, pass, 82 terms through n = 9769 (2026-11-01)
+ * Helpers:   get_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,7 +39,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/get_digits.h"
-#include "../utils/free_seq_arr.h"
+
+static inline void free_seq_arr(seq_t* p)
+{
+#if defined(__cplusplus)
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 /* C++ compatibility: allocate a raw array of seq_t objects. */
 static seq_t *alloc_seq_arr(size_t cap)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Definition: a(n) is the nth integer k (starting from 1) for which the
    largest prime factor of k^2−1 equals 13. The sequence is finite and all
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
         /* Initial capacity guess */
         size_t cap = 64;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
         if (!terms) return 0; /* allocation failed */
 
         size_t count = 0;
@@ -62,8 +64,8 @@ seq_t a(idx_t n)
             if (ok) {
                 if (count == cap) {
                     cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(terms, cap * sizeof(seq_t));
-                    if (!tmp) { free(terms); return 0; }
+                    seq_t *tmp = mem_resize(seq_t, terms, cap);
+                    if (!tmp) { mem_free(terms); return 0; }
                     terms = tmp;
                 }
                 terms[count++] = (seq_t)k;

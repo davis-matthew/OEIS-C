@@ -9,13 +9,15 @@
  *            }
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Count function required by the build */
 seq_t a(idx_t n)
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Allocate temporary arrays (C++ requires explicit cast) */
     idx_t *lpf  = (idx_t *)malloc((size_t)(n + 1) * sizeof(idx_t));
-    seq_t *cnt  = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *cnt  = mem_new(seq_t, (size_t)(n + 1));
 
     if (!lpf || !cnt)                      /* allocation failed */
     {
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
 
     /* Free temporary memory */
     free(lpf);
-    free(cnt);
+    mem_free(cnt);
 
     return result;
 }

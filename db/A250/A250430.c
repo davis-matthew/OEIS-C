@@ -9,7 +9,8 @@
  *            every two consecutive values in every row and column
  * Range:     u8 none, u16 n <= 3, u32 n <= 14, u64 n <= 91, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Internal tables and state -------------------------------------------- */
 
@@ -110,13 +112,13 @@ static void seq_init(void) {
     /* ------------------------------------------------------------------ */
     /*  DP setup for n = 1 (two rows)                                     */
     /* ------------------------------------------------------------------ */
-    seq_cur  = (seq_t*)malloc(seq_state_cnt * sizeof(seq_t));
-    seq_next = (seq_t*)malloc(seq_state_cnt * sizeof(seq_t));
+    seq_cur  = mem_new(seq_t, seq_state_cnt);
+    seq_next = mem_new(seq_t, seq_state_cnt);
     for (size_t s = 0; s < seq_state_cnt; ++s)
         seq_cur[s] = 1;                                 /* one way to form each pair */
 
     seq_cache_len = 4;                                  /* first small size */
-    seq_cache = (seq_t*)malloc(seq_cache_len * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, seq_cache_len);
     seq_cache[1] = 0;
     for (size_t s = 0; s < seq_state_cnt; ++s)
         seq_cache[1] += seq_cur[s];
@@ -133,7 +135,7 @@ static void seq_recalc_upto(idx_t target) {
 
     for (size_t step = seq_last_n + 1; step <= (size_t)target; ++step) {
         /* zero next state buffer */
-        memset(seq_next, 0, seq_state_cnt * sizeof(seq_t));
+        mem_set(seq_next, 0, seq_state_cnt * sizeof(seq_t));
 
         /* transition */
         for (size_t s = 0; s < seq_state_cnt; ++s) {
@@ -162,7 +164,7 @@ static void seq_recalc_upto(idx_t target) {
         /* enlarge cache if necessary */
         if ((size_t)step >= seq_cache_len) {
             size_t newSize = seq_cache_len * 2;
-            seq_t *newCache = (seq_t*)realloc(seq_cache, newSize * sizeof(seq_t));
+            seq_t *newCache = mem_resize(seq_t, seq_cache, newSize);
             seq_cache = newCache;
             seq_cache_len = newSize;
         }
@@ -185,7 +187,7 @@ seq_t a(idx_t n) {
         size_t newSize = seq_cache_len;
         while ((size_t)n >= newSize)
             newSize *= 2;
-        seq_t *newCache = (seq_t*)realloc(seq_cache, newSize * sizeof(seq_t));
+        seq_t *newCache = mem_resize(seq_t, seq_cache, newSize);
         seq_cache = newCache;
         seq_cache_len = newSize;
     }

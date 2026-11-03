@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 5158, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9301 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static storage for memoised result */
 static seq_t *result = NULL;
@@ -73,7 +75,7 @@ static void precompute(void)
     }
 
     /* ---------- build the result array ---------- */
-    result = (seq_t*)malloc(prime_cnt * sizeof(seq_t));
+    result = mem_new(seq_t, prime_cnt);
     if (!result) { free(excluded); free(primes); free(is_prime); exit(1); }
 
     for (idx_t i = 2; i <= LIMIT; ++i) {

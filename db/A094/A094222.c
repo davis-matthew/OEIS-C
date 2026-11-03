@@ -9,14 +9,17 @@
  *            prime factors)
  * Range:     u8 n <= 130, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 82 terms through n = 4405 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"   /* count_distinct_primes(uint64_t) */
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* 0‑based cache of a(1), a(2), …            */
 static idx_t cache_size = 0;     /* allocated capacity (in entries)           */
@@ -31,9 +34,9 @@ static void ensure_cache(idx_t n)
     idx_t new_size = n + 1;          /* need indices 0 … n */
 
     if (cache == NULL) {
-        cache = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)new_size);
     } else {
-        cache = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)new_size);
     }
     if (cache == NULL)
         abort();                    /* out of memory */
@@ -70,7 +73,7 @@ seq_t a(idx_t n)
     for (idx_t i = computed + 1; i <= n; ++i) {
         seq_t prev = cache[i - 2];                   /* a(i-1) */
         uint64_t prev_u64 = (uint64_t)prev;          /* safe for n <= 10000 */
-        int distinct = count_distinct_primes(prev_u64);
+        int distinct = omega(prev_u64);
         cache[i - 1] = prev + (seq_t)distinct;       /* a(i) */
     }
     computed = n;

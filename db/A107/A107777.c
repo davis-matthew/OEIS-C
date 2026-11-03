@@ -10,7 +10,8 @@
  *            …
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   digit_mask_local
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/digit_mask_local.h"
+#include "../utils/mem.h"
+
+/* Compute a bit mask for the decimal digits of x.
+   It uses seq_t arithmetic (which may be arbitrary‑precision) and
+   returns a 16‑bit mask with bits 0‑9 set according to the digits present.
+   The special case x==0 returns a mask with only bit 0 set. */
+static inline uint16_t digit_mask_local(seq_t x)
+{
+    uint16_t m = 0;
+    if (x == 0)
+        return 1;           /* bit for digit 0 */
+    while (x != (seq_t)0) {
+        uint16_t d = (uint16_t)(x % 10);
+        m |= (uint16_t)(1 << d);
+        x /= 10;
+    }
+    return m;
+}
 
 /* Sequence computation */
 seq_t a(idx_t n)
@@ -33,7 +51,7 @@ seq_t a(idx_t n)
     /* initialization on first call */
     if (sz == 0) {
         cap = 64;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         if (!seq) return 0;    /* allocation failed – unlikely */
         seq[0] = (seq_t)6;      /* a(1) */
         sz = 1;
@@ -64,7 +82,7 @@ seq_t a(idx_t n)
                 /* store the new term */
                 if (sz == cap) {
                     cap <<= 1;
-                    seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, cap);
                 }
                 seq[sz++] = cand;
                 break;

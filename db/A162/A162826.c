@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array of all terms, sorted ascending */
 static size_t cache_len = 0;  /* number of terms */
@@ -47,7 +49,7 @@ static void generate_cache(void)
         tmp[j] = key;
     }
 
-    cache = (seq_t *)malloc(cnt * sizeof(seq_t));
+    cache = mem_new(seq_t, cnt);
     for (size_t i = 0; i < cnt; ++i) {
         cache[i] = tmp[i];
     }

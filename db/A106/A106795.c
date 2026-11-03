@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9765 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    and then returns the n‑th symbol. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* a(n) – element of OEIS sequence A106795, 0‑based indexing */
 seq_t a(idx_t n)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* initialise with the seed word 1 */
     if (seq == NULL) {
         seq_len = 1;
-        seq = (seq_t *)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         seq[0] = ONE;
     }
 
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         }
 
         /* allocate buffer for the new word */
-        seq_t *next = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, new_len);
         idx_t pos = 0;
 
         /* perform the substitution for each symbol */
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         }
 
         /* discard old word and store the new one */
-        free(seq);
+        mem_free(seq);
         seq = next;
         seq_len = new_len;
     }

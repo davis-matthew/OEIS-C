@@ -8,6 +8,7 @@
  *            6, c(n+1) = c(n)^3 - 3*c(n)
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 6, u64 n <= 6, u128 n <= 8,
  *            big any n
+ * Validated: standard, pass, 15 terms through n = 14 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

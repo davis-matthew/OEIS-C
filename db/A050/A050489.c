@@ -7,6 +7,7 @@
  * Formula:   a(n) = catalan(n) * (10*n + 1)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 32, u128 n <= 64,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 197 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 /* Sequence A050489 (OEIS A050489) */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)

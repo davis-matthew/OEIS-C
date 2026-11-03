@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 170, u16 n <= 170, u32 n <= 170, u64 n <= 170,
  *            u128 n <= 170, big any n
- * Helpers:   min_value
+ * Validated: partial, pass, 170 terms through n = 170 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,18 @@
  */
 
 #include <stdbool.h>
-#include "../utils/min_value.h"
+
+/* minimal value achievable for permutations of size m (m ≥ 1). */
+static seq_t min_value(int m)
+{
+    seq_t val = 1;
+    for (int i = 0; i < m; ++i) {
+        seq_t p = (seq_t)(m - i);        /* descending p_i = m-i */
+        seq_t q = (seq_t)(i + 1);        /* ascending q_i = i+1 */
+        val = p * val + q;
+    }
+    return val;
+}
 
 /* next_permutation for an int array of length n.
    Returns true if a next permutation exists, false otherwise

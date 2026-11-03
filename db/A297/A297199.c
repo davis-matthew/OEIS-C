@@ -9,8 +9,9 @@
  *            k, sum_{i=k}^{m} i^3 = (m(m+1)/2)^2 – ((k-1)k/2)^2. * We count
  *            all pairs (k,m) with k^3 ≤ n and m ≥ k that satisfy this
  *            equality
- * Range:     u8 n <= 3747, u16 n <= 9581, u32 n <= 9581, u64 n <= 9581,
- *            u128 n <= 9581, big any n
+ * Range:     u8 n <= 3747, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 107 terms through n = 9581 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

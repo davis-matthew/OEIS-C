@@ -9,12 +9,19 @@
  *            implements OEIS A043314
  * Range:     u8 n <= 27, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   pow9_idx
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow9_idx.h"
+static idx_t pow9_idx(idx_t e)
+{
+    idx_t r = 1;
+    for (idx_t i = 0; i < e; ++i)
+        r *= 9;
+    return r;
+}
 
 seq_t a(idx_t n)
 {

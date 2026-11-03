@@ -9,13 +9,15 @@
  *            A076739)
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 35, u64 n <= 70, u128 n <= 139,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 3592 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* external integer types (supplied by the build) */
 extern seq_t a(idx_t n);
@@ -34,7 +36,7 @@ static void ensure_dp(idx_t n)
     if (dp_size <= n) {
         idx_t old = dp_size;
         idx_t new_size = n + 1;
-        dp_arr = (seq_t *)realloc(dp_arr, new_size * sizeof(seq_t));
+        dp_arr = mem_resize(seq_t, dp_arr, new_size);
         if (!dp_arr) exit(1);      /* memory failure aborts */
         for (idx_t i = old; i <= n; ++i)
             dp_arr[i] = 0;
@@ -51,7 +53,7 @@ static void ensure_fib(idx_t n)
     seq_t a_val = 1, b_val = 2;   /* 1, 2 are the first two unique Fibonacci numbers */
 
     if (fib_cnt == 0) {
-        fib_arr = (seq_t *)malloc(4 * sizeof(seq_t));  /* small initial capacity */
+        fib_arr = mem_new(seq_t, 4);  /* small initial capacity */
         if (!fib_arr) exit(1);
         fib_arr[0] = (seq_t)1;
         fib_arr[1] = (seq_t)2;
@@ -66,7 +68,7 @@ static void ensure_fib(idx_t n)
         seq_t next = a_val + b_val;
         if (next > (seq_t)n) break;
         if (fib_cnt >= 4) {   /* simple dynamic resize */
-            fib_arr = (seq_t *)realloc(fib_arr, (fib_cnt + 4) * sizeof(seq_t));
+            fib_arr = mem_resize(seq_t, fib_arr, (fib_cnt + 4));
             if (!fib_arr) exit(1);
         }
         fib_arr[fib_cnt++] = next;

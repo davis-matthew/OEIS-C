@@ -7,14 +7,34 @@
  * Formula:   a(n) = ∏_{p^e‖n} σ₂(e) , σ₂(e)=∑_{d∣e} d²
  * Range:     u8 n <= 863, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, sigma2_of_e
+ * Validated: standard, pass, 100 terms through n = 9911 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/sigma2_of_e.h"
+
+/* Compute σ₂(e)=∑_{d∣e} d²  (e is at most 64 for n≤2⁶⁴) */
+static seq_t sigma2_of_e(uint64_t e)
+{
+    seq_t sum = 0;
+    for (uint64_t d = 1; d * d <= e; ++d) {
+        if (e % d == 0) {
+            seq_t d2 = (seq_t)d * (seq_t)d;
+            sum += d2;
+            uint64_t o = e / d;
+            if (o != d) {
+                seq_t o2 = (seq_t)o * (seq_t)o;
+                sum += o2;
+            }
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

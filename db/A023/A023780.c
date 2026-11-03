@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 109, u16 n <= 898, u32 n <= 2036, u64 n <= 2048,
  *            u128 n <= 2048, big any n
- * Helpers:   init_binom
+ * Validated: full, pass, 2048 terms through n = 2048 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
    The sequence starts with 0 (n=1) and then all non‑zero such integers.
 */
 #include <stdint.h>
-#include "../utils/init_binom.h"
+
+/* Precompute binomial coefficients C(11, k) needed for unranking */
+static void init_binom(idx_t binom[12][12])
+{
+    for (idx_t n = 0; n <= 11; ++n)
+    {
+        binom[n][0] = binom[n][n] = 1;
+        for (idx_t k = 1; k < n; ++k)
+            binom[n][k] = binom[n-1][k-1] + binom[n-1][k];
+    }
+}
 
 seq_t a(idx_t n)
 {

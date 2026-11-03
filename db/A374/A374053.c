@@ -10,13 +10,17 @@
  *            f(3,e) = 0 * f(p,e) (p≡1 mod3) = (e is odd) ? 1 : 0 * f(p,e)
  *            (p≡2 mod3) = (e is even) ? 1 : 0 * (otherwise) = 1 * (Thus a(n)
  *            is either 0 or 1.)
- * Range:     u8 n <= 9863, u16 n <= 9863, u32 n <= 9863, u64 n <= 9863,
- *            u128 n <= 9863, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 9863 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

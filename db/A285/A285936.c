@@ -10,15 +10,17 @@
  *            zero) that share a nontrivial common divisor with n
  * Range:     u8 n <= 104, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_count, gcd
+ * Validated: standard, pass, 121 terms through n = 9454 (2026-11-01)
+ * Helpers:   gcd, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <math.h>
 #include "../utils/gcd.h"
-#include "../utils/digit_count.h"
+#include "../utils/num_digits0.h"
 
 /* Precomputed powers of 10 up to 10^19 (fits in uint64_t).  */
 static const uint64_t POW10[20] = {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (n < 10)   /* sequence offset starts at 10 */
         return 0;
 
-    uint64_t d = digit_count(n);           /* number of decimal digits */
+    uint64_t d = num_digits0(n);           /* number of decimal digits */
     seq_t count = 0;
 
     for (uint64_t k = 1; k < d; ++k) {

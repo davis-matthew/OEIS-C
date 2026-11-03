@@ -10,7 +10,8 @@
  *            a decomposition exists
  * Range:     u8 n <= 110, u16 n <= 110, u32 n <= 110, u64 n <= 110,
  *            u128 n <= 110, big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 110 terms through n = 110 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_palindrome.h"   /* provides is_palindrome(seq_t,idx_t) */
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 /* ---------- palindrome cache ---------- */
 static seq_t   *_pal      = NULL;      /* list of palindromic numbers */
@@ -36,14 +38,14 @@ static void _ensure_pal_limit(seq_t limit)
     if (_pal_cap == 0) _pal_cap = 8;
     while (_pal_cap <= (size_t)(limit + 1)) _pal_cap <<= 1;
 
-    _pal = (seq_t *)realloc(_pal, _pal_cap * sizeof(seq_t));
+    _pal = mem_resize(seq_t, _pal, _pal_cap);
 
     /* compute palindromes from _pal_max + 1 to limit */
     for (seq_t x = _pal_max + 1; x <= limit; ++x) {
-        if (is_palindrome(x, 10)) {
+        if (is_palindrome_base(x, 10)) {
             if (_pal_len == _pal_cap) { /* enlarge list if needed */
                 _pal_cap <<= 1;
-                _pal = (seq_t *)realloc(_pal, _pal_cap * sizeof(seq_t));
+                _pal = mem_resize(seq_t, _pal, _pal_cap);
             }
             _pal[_pal_len++] = x;
         }
@@ -57,7 +59,7 @@ static bool _is_sum_of_two_nonzero_palindromes(seq_t x)
     for (size_t i = 0; i < _pal_len && _pal[i] < x; ++i) {
         seq_t p   = _pal[i];
         seq_t rest = x - p;
-        if (rest > 0 && is_palindrome(rest, 10)) return true;
+        if (rest > 0 && is_palindrome_base(rest, 10)) return true;
     }
     return false;
 }
@@ -78,7 +80,7 @@ static void _generate_up_to_request(idx_t n)
         if (_is_sum_of_two_nonzero_palindromes(_current)) {
             if (_seq_len == _seq_cap) {   /* enlarge array if needed */
                 _seq_cap = (_seq_cap == 0) ? 8 : _seq_cap << 1;
-                _seq = (seq_t *)realloc(_seq, _seq_cap * sizeof(seq_t));
+                _seq = mem_resize(seq_t, _seq, _seq_cap);
             }
             _seq[_seq_len++] = _current;
         }

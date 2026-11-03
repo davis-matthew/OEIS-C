@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 35, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static idx_t
 find_row(idx_t n)
@@ -61,14 +63,14 @@ seq_t a(idx_t n)
     idx_t len[3] = {0, 0, 0};
 
     /* base rows */
-    poly[0] = (seq_t *)malloc(sizeof(seq_t));
+    poly[0] = mem_new(seq_t, 1);
     poly[0][0] = (seq_t)1;
     len[0] = 1;
 
     if (r == 0)
         return poly[0][pos];
 
-    poly[1] = (seq_t *)malloc(2 * sizeof(seq_t));
+    poly[1] = mem_new(seq_t, 2);
     poly[1][0] = (seq_t)0;
     poly[1][1] = (seq_t)2;
     len[1] = 2;
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     if (r == 1)
         return poly[1][pos];
 
-    poly[2] = (seq_t *)malloc(3 * sizeof(seq_t));
+    poly[2] = mem_new(seq_t, 3);
     poly[2][0] = (seq_t)0;
     poly[2][1] = (seq_t)0;
     poly[2][2] = (seq_t)4;
@@ -92,10 +94,10 @@ seq_t a(idx_t n)
         idx_t prev3 = (k - 3) % 3;
         idx_t new_len = k + 1;
 
-        seq_t *cur = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, new_len);
         if (!cur) {
             /* memory failure – free everything and return 0 */
-            for (idx_t i = 0; i < 3; ++i) free(poly[i]);
+            for (idx_t i = 0; i < 3; ++i) mem_free(poly[i]);
             return (seq_t)0;
         }
 
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
             cur[i] = term1 - term2;
         }
 
-        free(poly[idx]);          /* discard the row that is no longer needed */
+        mem_free(poly[idx]);          /* discard the row that is no longer needed */
         poly[idx] = cur;
         len[idx] = new_len;
     }
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
     seq_t result = poly[r % 3][pos];
 
     /* clean up all allocated rows */
-    for (idx_t i = 0; i < 3; ++i) free(poly[i]);
+    for (idx_t i = 0; i < 3; ++i) mem_free(poly[i]);
 
     return result;
 }

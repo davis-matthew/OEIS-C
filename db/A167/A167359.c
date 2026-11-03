@@ -8,7 +8,8 @@
  * Formula:   a(n) = Π_{p^e‖n} ((p+2)*(p-3))^e ; if 3 | n then a(n)=0
  * Range:     i8 n <= 12, i16 n <= 187, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 71 terms through n = 982 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* Computes the OEIS sequence A167359. */
 /* Uses the helper pow_int (../utils/pow_int.h). */
 #include <stdint.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
             }
             if (p == 3) return 0;         /* any factor 3 gives zero */
             seq_t factor = (seq_t)p * (seq_t)p - (seq_t)p - (seq_t)6;
-            result *= pow_int(factor, (idx_t)e);
+            result *= ipow_idx(factor, (idx_t)e);
         }
     }
 

@@ -11,9 +11,10 @@
  *            non‑negative integer that does not already appear in the same
  *            row, column, main diagonal (n−k constant), or anti‑diagonal (n+k
  *            constant). The sequence is read by rows in reverse or...
- * Range:     u8 n <= 8838, u16 n <= 8838, u32 n <= 8838, u64 n <= 8838,
- *            u128 n <= 8838, big any n
- * Helpers:   compute_needed_row
+ * Range:     u8 n <= 19500, u16 n <= 20300, u32 n <= 20300, u64 n <= 20300,
+ *            u128 n <= 20300, big any n
+ * Validated: standard, pass, 107 terms through n = 8838 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include "../utils/compute_needed_row.h"
+#include "../utils/mem.h"
+
+static size_t compute_needed_row(idx_t n)
+{
+    /* compute r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2 */
+    double d = sqrt((double)(8.0L* (long double)n + 1.0L));
+    size_t r = (size_t)((d - 1.0) / 2.0);
+    while (((r + 1) * (r + 2)) / 2 <= n) ++r;
+    while ((r * (r + 1)) / 2 > n) --r;
+    return r;
+}
 
 /* ---------- Bitset implementation ------------------------------------- */
 
@@ -109,7 +120,7 @@ static void add_value(seq_t v)
 {
     if (g_seq_len == g_seq_cap) {
         g_seq_cap = (g_seq_cap == 0) ? 1 : g_seq_cap * 2;
-        g_seq = (seq_t *)realloc(g_seq, g_seq_cap * sizeof(seq_t));
+        g_seq = mem_resize(seq_t, g_seq, g_seq_cap);
     }
     g_seq[g_seq_len++] = v;
 }

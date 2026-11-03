@@ -9,13 +9,15 @@
  *            p(p-1)/2 - p ) ), with p(k)=0 for k<0, a(0)=0
  * Range:     u8 n <= 18, u16 n <= 46, u32 n <= 133, u64 n <= 427,
  *            u128 n <= 1483, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for partition numbers */
 static seq_t *part = NULL;      /* p(n) array */
@@ -67,12 +69,12 @@ static void ensure_partitions(idx_t up) {
 
     /* Allocate or grow the partition array */
     if (!part) {
-        part = (seq_t*)malloc((up + 1) * sizeof(seq_t));
+        part = mem_new(seq_t, (up + 1));
         if (!part) return;
         part[0] = 1;      /* p(0) = 1 */
         part_max = 0;
     } else {
-        seq_t *newp = (seq_t*)realloc(part, (up + 1) * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, part, (up + 1));
         if (!newp) return;
         part = newp;
     }

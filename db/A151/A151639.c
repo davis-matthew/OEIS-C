@@ -7,13 +7,15 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{j=0..11} (-1)^(j+1)*binomial(3*n+1,
  *            11-j)*(binomial(j+1, 3))^n
- * Range:     u8 none, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 16,
+ * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 16,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 195 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t pow_seq_idx(seq_t base, idx_t exp)

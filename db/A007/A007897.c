@@ -10,25 +10,27 @@
  *            i>0
  * Range:     u8 n <= 520, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a000248_pow, pw2
+ * Validated: standard, pass, 97 terms through n = 8757 (2026-11-01)
+ * Helpers:   ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pw2.h"
-#include "../utils/a000248_pow.h"
-
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/pow2.h"
 
 static seq_t compute_prime_power(idx_t p, idx_t e) {
     if (p == 2) {
         if (e == 1) return 1;
         if (e == 2) return 2;
-        seq_t power = pw2(e - 2);
+        seq_t power = pow2(e - 2);
         return power + 2;
     } else {
         seq_t p_seq = (seq_t)p;
         seq_t half_pm1 = (p_seq - 1) / 2;
-        seq_t pe_minus_1 = a000248_pow(p_seq, e - 1);
+        seq_t pe_minus_1 = ipow_idx(p_seq, e - 1);
         seq_t result = 1 + half_pm1 * pe_minus_1;
         return result;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, gcd_uint64
+ * Validated: standard, pass, 116 terms through n = 977 (2026-11-01)
+ * Helpers:   factor_u64, gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* Count all integer bases y > x such that y^k = rem for some k ≥ 1.
    Each such y corresponds to one unordered factorization of n. */
@@ -45,7 +47,7 @@ static void count_roots(const uint64_t rem, const uint64_t x, seq_t *cnt)
     /* Compute the greatest common divisor of the exponents. */
     uint64_t g = exps[0];
     for (size_t i = 1; i < pcnt; ++i) {
-        g = gcd_uint64(g, exps[i]);
+        g = gcd_u64(g, exps[i]);
     }
 
     /* Enumerate all divisors k of g (including k = 1). */

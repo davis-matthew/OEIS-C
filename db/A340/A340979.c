@@ -8,13 +8,15 @@
  *            to write n as an ordered sum of 6 positive cubes)
  * Range:     u8 n <= 225, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 109 terms through n = 9262 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* When compiled as C++, seq_t may be an arbitrary‑precision integer
    class.  The following code uses only integer arithmetic and
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         /* Allocate new table with 7 rows and (n+1) columns. */
         size_t cols  = (size_t)(n + 1);
         size_t elems = 7 * cols;
-        seq_t *newdp = (seq_t*)calloc(elems, sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, elems);
         if (!newdp) {             /* allocation failure → return 0 silently */
             return 0;
         }
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace the old table (if any) and update the state. */
-        free(dp);
+        mem_free(dp);
         dp     = newdp;
         dp_max = n;
     }

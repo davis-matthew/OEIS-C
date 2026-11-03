@@ -10,12 +10,14 @@
  *            recurrence derived from the generating function)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 476 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     size_t need = (size_t)n + 1;
     if (need > cache_len) {
         /* grow the cache */
-        seq_t *new_cache = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, need);
         /* initial allocation: if cache was NULL, new_cache is same as cache */
         cache = new_cache;
         /* compute new terms */

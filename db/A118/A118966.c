@@ -9,13 +9,15 @@
  *            a(n) = 2*n-1. Sequence index starts at 1
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values: seq[i] == a(i+1).  seq_len stores the number of terms
    currently computed.  'used' records which positive integers have appeared
@@ -36,7 +38,7 @@ static void ensure_sequence(idx_t n)
 
     /* Allocate space for the values that will be written. */
     size_t old_len = seq_len;
-    seq = (seq_t *)realloc(seq, (size_t)n * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, (size_t)n);
     if (!seq) abort();                 /* memory error */
 
     /* Ensure 'used' can index up to 2*n‑1.  The capacity is at least 2*n

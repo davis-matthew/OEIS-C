@@ -9,16 +9,24 @@
  *            for n = ∏p_i^{e_i}
  * Range:     u8 n <= 19, u16 n <= 23, u32 n <= 59, u64 n <= 179,
  *            u128 n <= 719, big any n
- * Helpers:   factor_u64, seq_mul, seq_pow
+ * Validated: standard, pass, 75 terms through n = 9545 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -62,7 +70,7 @@ seq_t a(idx_t n)
         idx_t gcd_exp = (expG < expX) ? expG : expX;
         if (gcd_exp == 0) continue;
 
-        seq_t pow_val = seq_pow((seq_t)p, gcd_exp);
+        seq_t pow_val = ipow_idx((seq_t)p, gcd_exp);
         result        = seq_mul(result, pow_val);
     }
 

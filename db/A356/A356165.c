@@ -7,99 +7,71 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 268, u16 n <= 9604, u32 n <= 9604, u64 n <= 9604,
- *            u128 n <= 9604, big any n
+ * Range:     u8 n <= 269, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 107 terms through n = 9604 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* OEIS formula: a(n) = n minus the smallest k>0 such that n divides k*A003961(k),
-   where A003961 is fully multiplicative and A003961(p) = nextprime(p) for prime p.
-   The function returns a(n). */
+/* A356165: n minus the least k >= 1 with n | k A003961(k), A003961 being fully
+ * multiplicative with p -> nextprime(p); k = n always works. k A003961(k) is
+ * multiplicative with p^e -> (p nextprime(p))^e, taken modulo n in 128-bit
+ * steps. A smallest-prime-factor table and the next prime of each prime grow
+ * with n (the original's tables stopped at 40000). */
 
 #include <stdint.h>
-#include <stdbool.h>
 #include <stdlib.h>
 
-/*--- Constants & global tables -----------------------------------------*/
-#define MAX_LIMIT 40000   /* sufficient for n up to ~10 000 */
+static uint32_t *spf = NULL, *nextp = NULL;
+static uint64_t lim = 0;
 
-static uint32_t spf[MAX_LIMIT + 1];   /* smallest prime factor */
-static uint32_t primes[MAX_LIMIT + 1];
-static size_t   prime_cnt = 0;
-static uint32_t nextprime_of_prime[MAX_LIMIT + 1];
-static bool     init_done  = false;
-
-/*--- Helper to compute integer power modulo using 128‑bit arithmetic ----*/
-static seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod)
+static void build(uint64_t L)
 {
-    if (mod == 1) return 0;
-    seq_t res = 1 % mod;
-    seq_t b   = base % mod;
-    while (exp) {
-        if (exp & 1)
-            res = (unsigned __int128)res * b % mod;
-        b = (unsigned __int128)b * b % mod;
-        exp >>= 1;
-    }
-    return res;
-}
-
-/*--- Initialisation of primes, SPF and next‑prime table ----------------*/
-static void init(void)
-{
-    if (init_done) return;
-    init_done = true;
-
-    /* SPF sieve */
-    for (uint32_t i = 0; i <= MAX_LIMIT; ++i) spf[i] = i;
-    spf[0] = 0;  spf[1] = 1;
-    for (uint32_t i = 2; i * i <= MAX_LIMIT; ++i) {
-        if (spf[i] == i) {                     /* i is prime */
-            for (uint32_t j = i * i; j <= MAX_LIMIT; j += i)
-                if (spf[j] == j) spf[j] = i;
+    free(spf);
+    free(nextp);
+    spf = (uint32_t *)calloc((size_t)L + 1, sizeof *spf);
+    nextp = (uint32_t *)calloc((size_t)L + 1, sizeof *nextp);
+    if (!spf || !nextp) abort();
+    for (uint64_t i = 2; i <= L; ++i)
+        if (!spf[i])
+            for (uint64_t j = i; j <= L; j += i)
+                if (!spf[j]) spf[j] = (uint32_t)i;
+    uint64_t prev = 0;
+    for (uint64_t i = 2; i <= L; ++i)
+        if (spf[i] == i) {
+            if (prev) nextp[prev] = (uint32_t)i;
+            prev = i;
         }
-    }
-
-    /* List of primes and next‑prime mapping */
-    for (uint32_t i = 2; i <= MAX_LIMIT; ++i) if (spf[i] == i)
-        primes[prime_cnt++] = i;
-
-    for (size_t i = 0; i + 1 < prime_cnt; ++i)
-        nextprime_of_prime[primes[i]] = primes[i + 1];
-    nextprime_of_prime[primes[prime_cnt - 1]] = 0;   /* last prime */
+    lim = L;                              /* nextp is set for primes below the last one */
 }
 
-/*--- Main sequence function --------------------------------------------*/
+static uint64_t mulmod(uint64_t a, uint64_t b, uint64_t m)
+{
+    return (uint64_t)((unsigned __int128)a * b % m);
+}
+
 seq_t a(idx_t n)
 {
-    init();                            /* one‑time initialisation */
-
-    if (n == 0) return (seq_t)0;       /* safety for non‑offset calls */
-
-    seq_t mod = (seq_t)n;              /* local copy to avoid repeated casts */
-
-    /* Brute‑force search for the minimal k (always exists with k = n) */
-    for (uint64_t k = 1; k <= n; ++k) {
-        seq_t g_mod = (mod == 1) ? 0 : 1 % mod;   /* compute G(k) mod n */
-        uint64_t temp = k;
-        while (temp > 1) {
-            uint32_t p = spf[(uint32_t)temp];
-            uint64_t e = 0;
-            while (temp % p == 0) { temp /= p; ++e; }
-
-            uint64_t base_full = (uint64_t)p * (uint64_t)nextprime_of_prime[p];
-            seq_t   base_mod  = (seq_t)(base_full % mod);
-            seq_t   pow_mod   = mod_pow(base_mod, e, mod);
-            g_mod = (unsigned __int128)g_mod * pow_mod % mod;
-            if (g_mod == 0) break;            /* early exit if already 0 */
-        }
-
-        if (g_mod == 0)                      /* n | G(k) */
-            return (seq_t)(n - k);
+    if (n < 1) return (seq_t)0;
+    const uint64_t N = (uint64_t)n;
+    if (N + 1000 > lim) {                 /* room for nextprime of every p <= n */
+        uint64_t L = lim ? 2 * lim : 1 << 16;
+        while (L < N + 1000) L *= 2;
+        build(L);
     }
-
-    /* Fallback (should never be reached; k = n is always a solution) */
+    for (uint64_t k = 1; k <= N; ++k) {
+        uint64_t g = 1 % N, t = k;
+        while (t > 1 && g) {
+            uint64_t p = spf[t];
+            uint64_t b = mulmod(p % N, nextp[p] % N, N);
+            while (t % p == 0) {
+                t /= p;
+                g = mulmod(g, b, N);
+            }
+        }
+        if (g == 0) return (seq_t)(N - k);
+    }
     return (seq_t)0;
 }

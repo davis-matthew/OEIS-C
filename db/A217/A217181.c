@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_six_consecutive
+ * Validated: standard, pass, 70 terms through n = 8289 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_six_consecutive.h"
+
+static bool has_six_consecutive(const uint8_t *digits, size_t len)
+{
+    if (len < 6) return false;
+    int cnt = 1;
+    for (size_t i = 1; i < len; ++i) {
+        if (digits[i] == digits[i - 1]) {
+            ++cnt;
+            if (cnt >= 6) return true;
+        } else {
+            cnt = 1;
+        }
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

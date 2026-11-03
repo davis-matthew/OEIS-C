@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 31, u32 n <= 61, u64 n <= 121,
  *            u128 n <= 241, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    Any n ≥ 0 is obtained from this recurrence.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* First call: create the cache and store the base values. */
     if (buf == NULL) {
         capa = 8; /* we know values for 0..7 */
-        buf = (seq_t *)calloc(capa, sizeof(seq_t));
+        buf = mem_new(seq_t, capa);
         if (buf == NULL)          /* allocation failure */
             return (seq_t)0;
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* Expand the cache if necessary. */
     if ((idx_t)(capa) <= n) {
         size_t new_capa = n + 1;
-        seq_t *tmp = (seq_t *)realloc(buf, new_capa * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_capa);
         if (tmp == NULL)          /* allocation failure */
             return (seq_t)0;
         /* Zero any new slots so that later additions are safe. */

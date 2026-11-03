@@ -11,7 +11,8 @@
  *            Σ_{k=1..i, evenΩ(k)} dp[i-k]
  * Range:     u8 n <= 21, u16 n <= 39, u32 n <= 75, u64 n <= 148,
  *            u128 n <= 292, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 70 terms through n = 6716 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* dp[i] = a(i) */
 static size_t dp_cap = 0;         /* number of entries stored (dp_cap = max_index + 1) */
@@ -77,14 +79,14 @@ static void ensure_dp(idx_t n)
         return;
 
     if (dp_cap == 0) {       /* first call */
-        dp = (seq_t *)malloc(sizeof(seq_t));
+        dp = mem_new(seq_t, 1);
         if (dp == NULL)
             exit(EXIT_FAILURE);
         dp[0] = (seq_t)1;
         dp_cap = 1;
     }
 
-    dp = (seq_t *)realloc(dp, (size_t)(n + 1) * sizeof(seq_t));
+    dp = mem_resize(seq_t, dp, (size_t)(n + 1));
     if (dp == NULL)
         exit(EXIT_FAILURE);
 

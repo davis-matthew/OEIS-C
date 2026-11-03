@@ -10,6 +10,7 @@
  *            (12k+3) (k ≥ 0) a(0) = 1
  * Range:     i8 n <= 5, i16 n <= 10, i32 n <= 24, i64 n <= 29, i128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

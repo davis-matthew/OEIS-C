@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 557, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 64 terms through n = 955 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +21,13 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 /* Test whether a 64‑bit number is prime. */
 static inline bool is_prime_local(uint64_t x)
 {
-    return x >= 2 && _smallest_prime_factor(x) == x;
+    return x >= 2 && smallest_prime_factor(x) == x;
 }
 
 /* Test whether a 64‑bit number is a semiprime (product of two primes,
@@ -33,7 +35,7 @@ static inline bool is_prime_local(uint64_t x)
 static inline bool is_semiprime(uint64_t x)
 {
     if (x < 4) return false;
-    uint64_t a = _smallest_prime_factor(x);
+    uint64_t a = smallest_prime_factor(x);
     if (a == x) return false;          /* prime */
     uint64_t b = x / a;
     return is_prime_local(b);

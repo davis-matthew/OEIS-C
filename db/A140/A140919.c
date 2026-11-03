@@ -9,15 +9,18 @@
  * Formula:   a(n) = prod_{i=0}^{3} binomial(n+12 , n+i) * i! / (n+12-i)^(3-i)
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   binomial, gcd, pow_seq
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   binomial, gcd, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 static const seq_t fact[4] = { (seq_t)1, (seq_t)1, (seq_t)2, (seq_t)6 };
 
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i < r; ++i) {
         numerators[i] = binomial(s, p + i);
         numerators[i] *= fact[(size_t)i];
-        denominators[i] = pow_seq((seq_t)(s - i), (int)(r - i - 1));
+        denominators[i] = ipow_i32((seq_t)(s - i), (int)(r - i - 1));
     }
 
     /* Cancel common factors between numerators and denominators */

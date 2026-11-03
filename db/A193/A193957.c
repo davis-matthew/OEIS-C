@@ -13,7 +13,8 @@
  *            Σ_{i=0}^{k-1} a_i, where a_0 = 1, a_j = a_{j-...
  * Range:     u8 n <= 34, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   fib
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
     seq_t   : unsigned integer type (8,16,32,64 bit or arbitrary‑precision) supplied by the build. */
 
 #include <stdlib.h>
-#include "../utils/fib.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* static storage for the sequences a_j and their prefix sums */
 static seq_t *Aj = NULL;          /* a_j values  */
@@ -40,8 +53,8 @@ static void ensure_size(size_t need)
     while (newcap <= need)
         newcap <<= 1;
 
-    Aj  = (seq_t *)realloc(Aj,  newcap * sizeof(seq_t));
-    pref = (seq_t *)realloc(pref, newcap * sizeof(seq_t));
+    Aj  = mem_resize(seq_t, Aj, newcap);
+    pref = mem_resize(seq_t, pref, newcap);
 
     /* fill the new entries */
     for (size_t i = cap; i < newcap; ++i)

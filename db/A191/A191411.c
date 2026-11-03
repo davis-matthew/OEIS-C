@@ -12,17 +12,19 @@
  *            (mod 4) and D = -4n otherwise
  * Range:     u8 n <= 56, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   _floor_isqrt_u64, gcd, is_prime
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-02)
+ * Helpers:   gcd, is_prime, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Includes */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/gcd.h"              /* use for gcd if needed */
+#include "../utils/gcd.h"
 #include "../utils/is_prime.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 /* helper: test whether n is squarefree (trial division, n ≤ 10^6 is fine) */
 static bool is_squarefree(idx_t n)
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
 
     seq_t count = 0;               /* class number */
     /* bound for a in reduced form: a^2 ≤ |D|/3  */
-    idx_t bound = (idx_t)_floor_isqrt_u64(absD / 3 + 1);
+    idx_t bound = (idx_t)isqrt(absD / 3 + 1);
 
     for (idx_t aVal = 1; aVal <= bound; ++aVal) {
         /* parity condition: b must have same parity as D (≡ absD mod 2) */

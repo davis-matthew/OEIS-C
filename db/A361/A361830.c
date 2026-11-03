@@ -9,15 +9,16 @@
  * Formula:   a(n) = T(m, k) where * T(n,k) = Σ_{j=0..n} binom(2*j, j) *
  *            binom(k*j, n-j) * s = floor( (√(8*n+1)-1)/2 ) * m = n -
  *            s*(s+1)/2 * k = s - m
- * Range:     u8 n <= 13, u16 n <= 43, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 25, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Find the greatest integer s such that s*(s+1)/2 <= n. */
 static inline idx_t find_diagonal(idx_t n)
@@ -42,8 +43,8 @@ static inline seq_t T_value(idx_t n, idx_t k)
 {
     seq_t total = 0;
     for (idx_t j = 0; j <= n; ++j) {
-        seq_t t1 = binom((idx_t)(2 * j), j);
-        seq_t t2 = binom((idx_t)(k * j), n - j);
+        seq_t t1 = binomial((idx_t)(2 * j), j);
+        seq_t t2 = binomial((idx_t)(k * j), n - j);
         total += t1 * t2;
     }
     return total;

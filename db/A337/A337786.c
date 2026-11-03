@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 67 terms through n = 9888 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 /* Utility: gcd for seq_t */
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Types supplied by the build are seq_t and idx_t.  */
 
@@ -54,7 +56,7 @@ static void push_seq(seq_t **arr, size_t *len, size_t *cap, seq_t val)
 {
     if (*len == *cap) {
         size_t new_cap = (*cap == 0) ? 128 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();
         *arr = tmp;
         *cap = new_cap;
@@ -69,7 +71,7 @@ static void generate_sequence(size_t target, seq_t **seq_out, size_t *len_out)
     idx_t Xmax = 200;   /* initial bound for x and y */
     while (1) {
         size_t pairs = (size_t)Xmax * (size_t)Xmax;
-        Item *items = (Item *)calloc(pairs, sizeof(Item));
+        Item *items = mem_new(Item, pairs);
         if (!items) abort();
         size_t items_len = 0;
 
@@ -89,7 +91,7 @@ static void generate_sequence(size_t target, seq_t **seq_out, size_t *len_out)
         }
 
         /* Sort items by value to group equal values together */
-        qsort(items, items_len, sizeof(Item), cmp_item);
+        mem_qsort(items, items_len, sizeof(Item), cmp_item);
 
         /* Collect final sequence values */
         seq_t *seq = NULL;
@@ -112,7 +114,7 @@ static void generate_sequence(size_t target, seq_t **seq_out, size_t *len_out)
             }
         }
 
-        free(items);
+        mem_free(items);
 
         if (seq_len >= target) {
             *seq_out = seq;
@@ -121,7 +123,7 @@ static void generate_sequence(size_t target, seq_t **seq_out, size_t *len_out)
         }
 
         /* Not enough terms yet – try with a larger bound */
-        free(seq);
+        mem_free(seq);
         Xmax *= 2;   /* increase search range */
     }
 }

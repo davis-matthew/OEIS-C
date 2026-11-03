@@ -7,8 +7,9 @@
  * Formula:   a(n) = number of weakly increasing factorizations of n^2 into
  *            integers >1 such that the alternating product of the factors is
  *            an integer
- * Range:     u8 n <= 119, u16 n <= 7559, u32 n <= 9805, u64 n <= 9805,
- *            u128 n <= 9805, big any n
+ * Range:     u8 n <= 119, u16 n <= 7559, u32 n <= 16415, u64 n <= 16415,
+ *            u128 n <= 16415, big any n
+ * Validated: standard, pass, 108 terms through n = 9805 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

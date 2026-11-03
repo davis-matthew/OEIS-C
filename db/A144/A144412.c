@@ -9,6 +9,7 @@
  * Formula:   a(n) = 2 for n=1,2; a(3)=4; a(4)=0; a(5)=−8; a(n)=0 for n≥6
  * Range:     i8 n <= 101, i16 n <= 101, i32 n <= 101, i64 n <= 101,
  *            i128 n <= 101, big any n
+ * Validated: partial, pass, 101 terms through n = 101 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

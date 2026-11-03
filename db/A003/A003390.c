@@ -9,7 +9,8 @@
  *            are found, and a(n) is the n-th marked number
  * Range:     u8 n <= 1, u16 n <= 85, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   A3390_shor
+ * Validated: standard, pass, 57 terms through n = 9445 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/A3390_shor.h"
+
+static void A3390_shor(uint64_t *dst, const uint64_t *src, size_t W, uint64_t s) {
+    size_t w = (size_t)(s / 64);
+    unsigned r = (unsigned)(s % 64);
+    if (w >= W) return;
+    for (size_t i = W; i-- > w;) {
+        size_t j = i - w;
+        uint64_t v = src[j] << r;
+        if (r && j > 0) v |= src[j - 1] >> (64 - r);
+        dst[i] |= v;
+    }
+}
 
 static uint64_t *A3390_terms = NULL;
 static idx_t A3390_cnt = 0;

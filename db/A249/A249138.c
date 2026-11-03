@@ -10,14 +10,15 @@
  *            N_k(x)=floor((k+2)/2)*N_{k-2}(x)+x*N_{k-1}(x) (k≥2)
  * Range:     u8 n <= 37, u16 n <= 93, u32 n <= 256, u64 n <= 707,
  *            u128 n <= 2020, big any n
- * Helpers:   start_of_row
+ * Validated: standard, pass, 82 terms through n = 5092 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/start_of_row.h"
+#include "../utils/triangular.h"
 
 static inline idx_t
 row_of(idx_t n)
@@ -31,7 +32,7 @@ row_of(idx_t n)
 seq_t a(idx_t n)
 {
     idx_t r = row_of(n);
-    idx_t j = n - start_of_row(r);
+    idx_t j = n - triangular(r);
 
     if (r == 0)
         return (seq_t)1;

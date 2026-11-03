@@ -9,11 +9,13 @@
  *            a(n-1), a(1)=2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-02)
  * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/is_prime_seq.h"
 #include <stdbool.h>
 

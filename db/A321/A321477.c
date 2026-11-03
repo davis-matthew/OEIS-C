@@ -12,14 +12,32 @@
  *            r(r−1)/2 – 1, and compute the * period of the recurre...
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   period_mod
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/period_mod.h"
+
+/* Return the period of U_m(k,−1) modulo modulus. */
+static seq_t period_mod(idx_t modulus, idx_t k)
+{
+    if (modulus == 1) return (seq_t)1;   /* T(1,0) = 1 */
+    seq_t mod = (seq_t)modulus;
+    seq_t prev = 0;
+    seq_t curr = 1 % mod;                /* 1 (mod modulus), modulus>1 here */
+    seq_t next;
+    idx_t cnt = 0;
+    do {
+        next = (((seq_t)k) * curr + prev) % mod;
+        prev = curr;
+        curr = next;
+        ++cnt;
+    } while (!(prev == 0 && curr == 1)); /* period found */
+    return (seq_t)cnt;
+}
 
 seq_t a(idx_t n)
 {

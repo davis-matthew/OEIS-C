@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 2*A000203(n) - 2*n + 1 * where A000203(n) is the sum of
  *            divisors of n (σ(n)). * a(n) = 2*σ(n) - 2*n + 1
- * Range:     u8 n <= 48, u16 n <= 9859, u32 n <= 9859, u64 n <= 9859,
- *            u128 n <= 9859, big any n
+ * Range:     u8 n <= 48, u16 n <= 12599, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 9859 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

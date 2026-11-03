@@ -8,15 +8,17 @@
  * Formula:   a(n) = 2^n written in base 15, digits concatenated as decimal
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   A001832_pow2
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/A001832_pow2.h"
+#include <stdint.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
-    seq_t power = A001832_pow2(n);
+    seq_t power = pow2(n);
     seq_t result = 0;
     seq_t multiplier = 1;
     

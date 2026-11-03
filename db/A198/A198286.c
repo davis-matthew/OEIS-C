@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 221, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 69 terms through n = 9813 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
 
 static seq_t a_prime_power(uint64_t p, unsigned e)
 {
@@ -39,13 +41,13 @@ static seq_t a_prime_power(uint64_t p, unsigned e)
 
     if ((e & 1U) == 0)   /* even exponent */
     {
-        seq_t num = pow_uint(p, (idx_t)(e + 2)) - p2;   /* p^(e+2) - p^2 */
+        seq_t num = ipow_u64_idx(p, (idx_t)(e + 2)) - p2;   /* p^(e+2) - p^2 */
         seq_t part = (seq_t)2 * (num / denom);
         return part + (seq_t)1;
     }
     else                /* odd exponent */
     {
-        seq_t num = pow_uint(p, (idx_t)(e + 1)) - (seq_t)1; /* p^(e+1) - 1 */
+        seq_t num = ipow_u64_idx(p, (idx_t)(e + 1)) - (seq_t)1; /* p^(e+1) - 1 */
         seq_t part = (p2 + (seq_t)1) * (num / denom);
         return part;
     }

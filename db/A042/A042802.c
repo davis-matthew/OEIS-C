@@ -11,7 +11,8 @@
  *            [1,1,8,4,1,1,2,1,1,1,14,1,1,1,2,1,1,4,8,1,1,60]
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 21, u64 n <= 43, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Precomputed period of continued fraction coefficients for sqrt(932) */
 static const unsigned short period[22] = {
@@ -38,7 +40,7 @@ static void ensure_cache(size_t need)
     if (cache_cap < need) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
         while (new_cap < need) new_cap *= 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) {
             /* In case of allocation failure, abort as per build policy */
             abort();

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,20 @@
 
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/alloc_seq_array.h"   /* provides seq_t *alloc_seq_array(size_t) */
-#include "../utils/free_seq_array.h"    /* provides void free_seq_array(seq_t*) */
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;          /* pointer to cached values   */
 static idx_t  cache_size = 0;        /* allocated size (number of elements)   */
@@ -61,7 +74,7 @@ static void ensure_capacity(idx_t n)
     idx_t new_size = n + 1;
     seq_t *new_cache = alloc_seq_array(new_size);
     size_t bytes = cache_done + 1;
-    memcpy(new_cache, cache, bytes * sizeof(seq_t));
+    mem_copy(new_cache, cache, bytes * sizeof(seq_t));
 
     free_seq_array(cache);
     cache = new_cache;

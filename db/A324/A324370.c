@@ -12,7 +12,8 @@
  *            product directly for each call
  * Range:     u8 n <= 24, u16 n <= 60, u32 n <= 180, u64 n <= 420,
  *            u128 n <= 1800, big any n
- * Helpers:   digit_sum_base_p
+ * Validated: standard, pass, 90 terms through n = 4332 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,18 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/digit_sum_base_p.h"
+
+/* Compute the base-p digit sum of n. */
+static seq_t digit_sum_base_p(idx_t n, uint64_t p)
+{
+    idx_t  tmp = n;
+    seq_t  sum = 0;
+    while (tmp) {
+        sum += tmp % p;
+        tmp /= p;
+    }
+    return sum;
+}
 
 /* Prime list stored in a dynamically allocated array. */
 static uint64_t *prime_list = NULL;   /* primes up to prime_limit */

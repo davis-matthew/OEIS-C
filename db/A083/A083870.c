@@ -9,15 +9,44 @@
  *            such that the n‑th decimal palindrome = x * y and 1 ≤ x ≤ y
  * Range:     u8 n <= 14, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   floor_sqrt, is_palindrome, pow10
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   ipow_i32, is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/is_palindrome.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/is_palindrome_base.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Return the n-th decimal palindrome (n ≥ 1). */
 static seq_t nth_palindrome(idx_t n)
@@ -59,8 +88,8 @@ seq_t a(idx_t n)
         seq_t d_seq = (seq_t)d;
         if (P % d_seq == 0) {
             seq_t e_seq = P / d_seq;
-            if (is_palindrome(d_seq, (idx_t)10) &&
-                is_palindrome(e_seq, (idx_t)10))
+            if (is_palindrome_base(d_seq, (idx_t)10) &&
+                is_palindrome_base(e_seq, (idx_t)10))
             {
                 ++count;                      /* d ≤ e automatically */
             }

@@ -8,12 +8,14 @@
  *            29, a(n) computed by the standard quadratic‑surd algorithm
  * Range:     u8 n <= 1, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build:
    typedef <some unsigned> seq_t;   // sequence element type
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap  = 64;                      /* start with a small size */
-        cache      = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache      = mem_new(seq_t, cache_cap);
         cache_len  = 1;
         cache[0] = a0;                        /* a(0) */
         m = 0; d = 1;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         /* store the new term */
         if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len] = a_next;
         cache_len++;

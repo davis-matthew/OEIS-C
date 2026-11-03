@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 73 terms through n = 884 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Helpers for dynamic arrays ------------------------------------------------- */
 
@@ -29,7 +32,7 @@ static void grow_if_needed(size_t *cnt, size_t *cap, seq_t **arr)
 {
     if (*cnt >= *cap) {
         size_t new_cap = (*cap) ? (*cap) * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();
         *arr = tmp;
         *cap = new_cap;
@@ -76,12 +79,12 @@ static bool is_primitive_root_71(uint64_t p)
                     (uint64_t)all_primes[i] * (uint64_t)all_primes[i] <= tmp; ++i) {
         uint64_t q = (uint64_t)all_primes[i];
         if (tmp % q == 0ULL) {
-            if (mod_pow((seq_t)71, phi / q, (seq_t)p) == (seq_t)1) return false;
+            if (powmod((seq_t)71, phi / q, (seq_t)p) == (seq_t)1) return false;
             while (tmp % q == 0ULL) tmp /= q;
         }
     }
     if (tmp > 1ULL) {
-        if (mod_pow((seq_t)71, phi / tmp, (seq_t)p) == (seq_t)1) return false;
+        if (powmod((seq_t)71, phi / tmp, (seq_t)p) == (seq_t)1) return false;
     }
     return true;
 }
@@ -95,13 +98,13 @@ seq_t a(idx_t n)
     /* One‑time initialization of the prime lists --------------------------- */
     if (all_prime_cnt == 0) {
         all_prime_cap = 16;
-        all_primes = (seq_t *)malloc(all_prime_cap * sizeof(seq_t));
+        all_primes = mem_new(seq_t, all_prime_cap);
         if (!all_primes) abort();
         all_primes[0] = (seq_t)2;
         all_prime_cnt = 1;
 
         prim_cap = 16;
-        prim_prime = (seq_t *)malloc(prim_cap * sizeof(seq_t));
+        prim_prime = mem_new(seq_t, prim_cap);
         if (!prim_prime) abort();
         prim_prime[0] = (seq_t)2;          /* 2 has primitive root 71 by definition */
         prim_cnt = 1;

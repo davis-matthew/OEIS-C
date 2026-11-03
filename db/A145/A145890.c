@@ -10,9 +10,10 @@
  *            r*(r+1)/2, and T(n,k) = binomial(2k,k) * binomial(2n-2k,n-k) /
  *            (n-k+1). The sequence lists the triangle T(n,k) row‑wise (by
  *            increasing n, and for each n, by increasing k)
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 /* Utility function provided by the build system; can be omitted with a
    local implementation if desired. */
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static inline idx_t
 isqrt_u64(idx_t n)          /* integer sqrt, floor of sqrt(n) */
@@ -49,8 +50,8 @@ a(idx_t n)
     idx_t k   = n - row_start;      /* column within the row */
 
     /* Compute T(r,k) = binom(2k,k) * binom(2(r-k),r-k) / (r-k+1) */
-    seq_t b1   = binom(2 * k, k);
-    seq_t b2   = binom(2 * (r - k), r - k);
+    seq_t b1   = binomial(2 * k, k);
+    seq_t b2   = binomial(2 * (r - k), r - k);
     seq_t prod = b1 * b2;
     seq_t denom = (seq_t)(r - k + 1);
     return prod / denom;

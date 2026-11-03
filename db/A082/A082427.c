@@ -11,12 +11,14 @@
  *            for the 64‑bit build)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Initialise cache for the first call */
     if (cache_len == 0) {
         /* Allocate space for indices 1 and 2 (we will grow as needed) */
-        cache = (seq_t *)malloc(3 * sizeof(seq_t));
+        cache = mem_new(seq_t, 3);
         if (!cache) exit(EXIT_FAILURE);
         cache[1] = (seq_t)1;               /* a(1) */
         cumulative_sum = cache[1];
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Grow cache and compute missing values up to n */
     if (n > cache_len) {
         idx_t new_len = n + 1;  /* +1 because we use 1‑based index */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) exit(EXIT_FAILURE);
         cache = new_cache;
 

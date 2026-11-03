@@ -7,19 +7,21 @@
  * Formula:   a(n) = number of compositions of n² into sums of squares
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t m = (idx_t)n * (idx_t)n;          /* m = n^2 */
     if (m == 0) return (seq_t)1;           /* a(0) = 1 */
 
     /* Allocate array dp[0..m] of seq_t values. */
-    seq_t *dp = (seq_t*)malloc((size_t)(m + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(m + 1));
     if (!dp) return (seq_t)0;              /* allocation failed (unlikely) */
 
     dp[0] = (seq_t)1;
@@ -32,6 +34,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[m];
-    free(dp);
+    mem_free(dp);
     return result;
 }

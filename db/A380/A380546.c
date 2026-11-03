@@ -11,7 +11,8 @@
  *            partition of 2*n (n ≥ 2). a(2)=2
  * Range:     u8 n <= 17, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         }
 
         /* Extend cumulative array */
-        seq_t *new_cum = (seq_t *)realloc(cum, (n + 1) * sizeof(seq_t));
+        seq_t *new_cum = mem_resize(seq_t, cum, (n + 1));
         cum = new_cum;
         for (size_t i = cum_size; i <= n; ++i) {
             if (i == 0 || i == 1) {

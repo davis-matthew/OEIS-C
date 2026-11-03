@@ -11,6 +11,7 @@
  *            by L, where L = 9 - (n-6)/2
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 19, u128 n <= 19,
  *            big any n
+ * Validated: full, pass, 19 terms through n = 19 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

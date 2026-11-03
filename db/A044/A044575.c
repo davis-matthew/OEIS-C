@@ -10,7 +10,8 @@
  *            representation of n+1 does not
  * Range:     u8 n <= 3, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   contains_07
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,29 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/contains_07.h"
+#include "../utils/mem.h"
+
+/* Return true if the base‑8 representation of x contains the substring “07”. */
+static inline bool contains_07(seq_t x)
+{
+    /* Base‑8 digits are extracted least significant first. */
+    if (x == (seq_t)0) return false;
+
+    unsigned int digits[128];
+    size_t len = 0;
+    const seq_t eight = (seq_t)8;
+
+    while (x > (seq_t)0) {
+        digits[len++] = (unsigned int)(x % eight);
+        x /= eight;
+    }
+
+    /* Scan most significant → least significant for the pattern 0 (above) 7 (below). */
+    for (size_t i = len; i-- > 1; ) {
+        if (digits[i] == 0 && digits[i - 1] == 7) return true;
+    }
+    return false;
+}
 
 /* Local cache of previously computed terms. */
 static seq_t *cache = NULL;        /* array of computed terms */
@@ -30,7 +53,7 @@ static seq_t next_scan = 0;        /* next integer to test */
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap == 0) ? 64 : cache_cap << 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();   /* allocation failure */
     cache = tmp;
     cache_cap = new_cap;

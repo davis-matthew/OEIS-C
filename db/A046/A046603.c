@@ -12,7 +12,8 @@
  *            fractions from the previous row and * reducing by gcd. T...
  * Range:     u8 n <= 31, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t num;
@@ -44,7 +46,7 @@ static void ensure_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }
@@ -62,7 +64,7 @@ static void ensure_row(Rational **arr, size_t *cap, idx_t need)
     if (*cap >= (size_t)need) return;
     size_t new_cap = *cap ? *cap * 2 : 1;
     while (new_cap < (size_t)need) new_cap *= 2;
-    *arr = (Rational*)realloc(*arr, sizeof(Rational) * new_cap);
+    *arr = mem_resize(Rational, *arr, new_cap);
     *cap = new_cap;
 }
 
@@ -71,13 +73,13 @@ static void build_until(idx_t n)
 {
     /* Lazy initialization */
     if (!cache) {
-        cache = (seq_t*)malloc(64 * sizeof(seq_t));
+        cache = mem_new(seq_t, 64);
         cache_cap = 64;
         cache_len = 0;
     }
 
     if (!row_prev) {
-        row_prev = (Rational*)malloc(sizeof(Rational));
+        row_prev = mem_new(Rational, 1);
         cap_prev = 1;
         row_prev[0].num = (seq_t)1;
         row_prev[0].den = (seq_t)1;

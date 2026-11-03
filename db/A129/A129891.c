@@ -9,12 +9,14 @@
  *            coefficients of certain polynomials
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 28, u64 n <= 57, u128 n <= 114,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoized implementation using a dynamically resizable array. */
 static seq_t *cache = NULL;     /* stored sequence values               */
@@ -27,7 +29,7 @@ static void grow_cache(size_t new_cap)
     if (new_cap <= ca_cap) return;
     size_t cap = ca_cap > 0 ? ca_cap * 2 : 4;
     if (cap < new_cap) cap = new_cap;
-    seq_t *new_cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, cap);
     if (!new_cache) {
         /* In a real library one would handle the error more gracefully. */
         abort();

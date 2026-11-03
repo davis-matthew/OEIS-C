@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 1987, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   negabinary_digit_sum_signed
+ * Validated: standard, pass, 72 terms through n = 9006 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/negabinary_digit_sum_signed.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------
+   Negabinary digit sum of a negative integer (int64_t).
+   The function works for any k that fits in a 64‑bit signed value,
+   which is sufficient for the tested range of the sequence.
+   -------------------------------------------------------------------- */
+static uint64_t negabinary_digit_sum_signed(int64_t n)
+{
+    uint64_t sum = 0;
+    while (n != 0) {
+        int64_t r = n % -2;     /* remainder can be negative            */
+        n /= -2;                /* division rounds toward 0             */
+        if (r < 0) {
+            r += 2;             /* adjust remainder to be 0 or 1       */
+            n += 1;
+        }
+        sum += (uint64_t)r;     /* r is now 0 or 1                    */
+    }
+    return sum;
+}
 
 /* --------------------------------------------------------------------
    Test whether a given k satisfies the definition of A331821.
@@ -52,7 +73,7 @@ static void cache_ensure(void)
 {
     if (cache_len < cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 32;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                  /* memory exhaustion */
     cache = tmp;
     cache_cap = new_cap;

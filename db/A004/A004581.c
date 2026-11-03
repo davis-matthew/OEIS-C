@@ -10,7 +10,8 @@
  *            multi-limb integers, memoized across calls
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   A004581_cmp, A004581_mulsm, A004581_sub
+ * Validated: standard, pass, 115 terms through n = 9671 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,44 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/A004581_cmp.h"
-#include "../utils/A004581_mulsm.h"
-#include "../utils/A004581_sub.h"
+
+static int A004581_cmp(const uint32_t *a, size_t al, const uint32_t *b, size_t bl) {
+    size_t i;
+    if (al != bl) return al < bl ? -1 : 1;
+    i = al;
+    while (i--) {
+        if (a[i] != b[i]) return a[i] < b[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+/* dst = src*m + add (dst may alias src); returns normalized length */
+static size_t A004581_mulsm(uint32_t *dst, const uint32_t *src, size_t len,
+                            uint32_t m, uint32_t add) {
+    uint64_t c = add;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        c += (uint64_t)src[i] * m;
+        dst[i] = (uint32_t)c;
+        c >>= 32;
+    }
+    if (c) dst[len++] = (uint32_t)c;
+    while (len && dst[len - 1] == 0) len--;
+    return len;
+}
+
+/* a -= b (requires a >= b); returns normalized length */
+static size_t A004581_sub(uint32_t *a, size_t al, const uint32_t *b, size_t bl) {
+    int64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < al; i++) {
+        int64_t t = (int64_t)a[i] - borrow - (i < bl ? (int64_t)b[i] : 0);
+        if (t < 0) { t += ((int64_t)1 << 32); borrow = 1; } else borrow = 0;
+        a[i] = (uint32_t)t;
+    }
+    while (al && a[al - 1] == 0) al--;
+    return al;
+}
 
 static unsigned char *A004581_dig = 0;
 static size_t A004581_ndig = 0, A004581_digcap = 0;

@@ -9,12 +9,14 @@
  *            a(2)=5, a(3)=13. Cached iterative evaluation with dynamic array
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 23, u64 n <= 46, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 498 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values: memo[i] holds a(i) for 0 <= i <= sz. */
 static seq_t *memo = NULL;    /* pointer to the cached array */
@@ -28,7 +30,7 @@ static void ensure_capacity(idx_t new_cap)
         return;                 /* already enough space */
 
     /* Allocate new array */
-    seq_t *new_mem = (seq_t *)malloc((size_t)new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_new(seq_t, (size_t)new_cap);
     if (new_mem == NULL)
         abort();                /* out of memory, stop program */
 
@@ -36,7 +38,7 @@ static void ensure_capacity(idx_t new_cap)
     if (memo != NULL) {
         for (idx_t i = 0; i <= sz; ++i)
             new_mem[i] = memo[i];
-        free(memo);
+        mem_free(memo);
     }
 
     memo = new_mem;

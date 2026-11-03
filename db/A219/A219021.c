@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{k=1..n} A001353(k)^3 / Sum_{k=1..n} A001353(k)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 9, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 554 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Lucas sequence U(4,1):
     U_0 = 0, U_1 = 1,
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     {
         /* Allocate space for at least 5 terms */
         cache_cap = 5;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
 
         /* Compute U(4,1) terms and their sums up to the 5th term */
         seq_t sumU = 0;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     /* Extend the cache to accommodate term 'n' if needed */
     if (n > cache_cap) {
         cache_cap = (size_t)n;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* Compute missing terms using the 5th‑order linear recurrence:

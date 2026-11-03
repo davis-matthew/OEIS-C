@@ -8,8 +8,9 @@
  * Formula:   Let r be the smallest integer such that (r+1)(r+2)/2 > n. Let k
  *            = n - r*(r+1)/2. Then a(n) = r & k. The sequence is the
  *            flattening of the triangle T(n,k)=n AND k
- * Range:     u8 n <= 9333, u16 n <= 9333, u32 n <= 9333, u64 n <= 9333,
- *            u128 n <= 9333, big any n
+ * Range:     u8 n <= 33151, u16 n <= 125750, u32 n <= 125750, u64 n <= 125750,
+ *            u128 n <= 125750, big any n
+ * Validated: standard, pass, 119 terms through n = 9333 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,7 +11,8 @@
  *            a(1)=0, a(2)=4, a(3)=10, a(4)=20, a(5)=38
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 40, u64 n <= 85, u128 n <= 176,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,15 +35,13 @@ seq_t a(idx_t n)
         size_t new_bytes = (size_t)(n + 1) * sizeof(seq_t);
         seq_t *new_cache;
         if (cache == NULL) {
-            new_cache = (seq_t *)calloc(n + 1, sizeof(seq_t));
+            new_cache = mem_new(seq_t, n + 1);
             if (new_cache == NULL) abort();
         } else {
-            new_cache = (seq_t *)realloc(cache, new_bytes);
+            new_cache = mem_resize(seq_t, cache, (new_bytes) / sizeof(seq_t));
             if (new_cache == NULL) abort();
             /* zero the newly added entries */
-            memset((void *)(new_cache + old_size + 1),
-                   0,
-                   (n - old_size) * sizeof(seq_t));
+            mem_set((new_cache + old_size + 1), 0, (n - old_size) * sizeof(seq_t));
         }
         cache = new_cache;
         cache_size = n;

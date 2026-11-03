@@ -14,7 +14,8 @@
  *            searching integers sequentially
  * Range:     u8 n <= 85, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 76 terms through n = 993 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static size_t seq_size = 0;          /* number of terms stored */
 static size_t seq_cap  = 0;          /* capacity of the array */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* Ensure the cached array has enough space for new terms. */
     if (seq_arr == NULL) {
         seq_cap = 8;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
     }
 
     /* Generate terms until we have at least n of them. */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         /* Store the new term. */
         if (seq_size == seq_cap) {
             seq_cap *= 2;
-            seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+            seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
         }
         seq_arr[seq_size++] = (seq_t)next_val;
         next_val++; /* next candidate to test */

@@ -10,13 +10,15 @@
  *            a(n)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,11 +32,11 @@ seq_t a(idx_t n)
 
     /* initialise at n = 0 */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = (seq_t)1;                /* a(0) = 1 */
         cache_len = 1;
 
-        prev = (seq_t *)malloc(sizeof(seq_t));
+        prev = mem_new(seq_t, 1);
         prev[0] = (seq_t)1;                /* v_0(0) = 1 */
         prev_len = 1;
     }
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         size_t next_n    = current_n + 1;   /* n to compute           */
         size_t new_len   = next_n + 1;      /* new row size (k = 0..next_n) */
 
-        seq_t *curr = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, new_len);
 
         seq_t max_val = (seq_t)0;           /* maximum of current row */
 
@@ -69,9 +71,9 @@ seq_t a(idx_t n)
         }
 
         /* store a(next_n) */
-        seq_t *tmp = (seq_t *)realloc(cache, (cache_len + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (cache_len + 1));
         if (tmp == NULL) { /* allocation failed – abort quietly */
-            free(curr);
+            mem_free(curr);
             return (seq_t)0;
         }
         cache = tmp;
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         cache_len++;
 
         /* move to next row */
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prev_len = new_len;
     }

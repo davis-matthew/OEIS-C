@@ -13,7 +13,8 @@
  *            2^(n-k) / (n-k)! * * ∏_{j=1}^{n-k} (2(p+j)-1)
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial, factorial, seq_pow
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/seq_pow.h"
 #include "../utils/binomial.h"
-#include "../utils/factorial.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 static idx_t find_row(idx_t n)
 {
@@ -60,7 +71,7 @@ seq_t a(idx_t n)
         idx_t bin_n = r - p - 1;
         idx_t bin_k = m;
         seq_t bin = binomial(bin_n, bin_k);
-        seq_t pow4 = seq_pow((seq_t)4, m);
+        seq_t pow4 = ipow_idx((seq_t)4, m);
         return bin * pow4;
     } else {                                   /* k odd:  k = 2p+1 */
         idx_t p = (k - 1) / 2;
@@ -69,7 +80,7 @@ seq_t a(idx_t n)
             seq_t term = (seq_t)(2 * (p + j) - 1);   /* odd factor */
             prod *= term;
         }
-        seq_t pow2m = seq_pow((seq_t)2, m);
+        seq_t pow2m = ipow_idx((seq_t)2, m);
         seq_t numer = prod * pow2m;
         seq_t denom = factorial(m);
         return numer / denom;

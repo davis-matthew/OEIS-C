@@ -9,15 +9,18 @@
  *            ∏p_j^k_j)
  * Range:     u8 n <= 19, u16 n <= 43, u32 n <= 67, u64 n <= 131,
  *            u128 n <= 259, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 91 terms through n = 3933 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     uint64_t m = (uint64_t)n;
@@ -39,5 +42,5 @@ seq_t a(idx_t n) {
         prod_k  *= (seq_t)exps[i];
     }
 
-    return big_pow(prod_k, rad);
+    return ipow(prod_k, rad);
 }

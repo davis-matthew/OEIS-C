@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  *  standard C headers.                                                */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Estimate the diagonal index d for a given sequence index n.
  * d is the smallest integer with (d+1)(d+2)/2 ≥ n.  */
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     }
 
     /* pre‑compute powers k^e for e = 0 .. n_row-1  (n_row is small). */
-    seq_t *pow = (seq_t *)malloc((size_t)n_row * sizeof(seq_t));
+    seq_t *pow = mem_new(seq_t, (size_t)n_row);
     if (!pow) return 0;                     /* graceful failure if out of memory */
 
     pow[0] = 1;
@@ -74,6 +76,6 @@ seq_t a(idx_t n)
         sum += pow[exp];
     }
 
-    free(pow);
+    mem_free(pow);
     return sum;
 }

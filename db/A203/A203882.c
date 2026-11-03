@@ -9,16 +9,21 @@
  *            values: a(1)=107653, a(2)=7501753, a(3)=543848893
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 8, u128 n <= 19,
  *            big any n
- * Helpers:   mul144, mul450, mul79
+ * Validated: standard, pass, 27 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/mul144.h"
-#include "../utils/mul450.h"
-#include "../utils/mul79.h"
+#include "../utils/mem.h"
+
+static inline seq_t mul144 (seq_t x) { return (x << 7) + (x << 4); }
+
+static inline seq_t mul450 (seq_t x) { return (x << 8) + (x << 7) + (x << 6) + (x << 1); }
+
+static inline seq_t mul79  (seq_t x) { return (x << 6) + (x << 3) + (x << 2) + (x << 1) + x; }
 
 /* ----- cache handling ----- */
 static seq_t *cache        = NULL;   /* cache[i-1] = a(i)  (1‑based indices) */
@@ -31,8 +36,7 @@ static void enlarge_cache(idx_t needed)
         return;
     idx_t new_cap = needed;
     /* realloc copies the existing elements automatically */
-    cache = (seq_t *)realloc(cache,
-                              sizeof(seq_t) * (size_t)new_cap);
+    cache = mem_resize(seq_t, cache, (size_t)new_cap);
     cache_cap = new_cap;
 }
 

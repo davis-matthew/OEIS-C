@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   has_equal_1_2
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_equal_1_2.h"
+#include "../utils/mem.h"
+
+/* Return true iff x's base‑12 expansion contains equal counts of 1
+   and 2.  For x == 0 the counts are 0 and 0, so the function returns
+   true. */
+static bool has_equal_1_2(seq_t x)
+{
+    unsigned cnt1 = 0, cnt2 = 0;
+    do {
+        unsigned digit = (unsigned)(x % 12);
+        if (digit == 1) ++cnt1;
+        else if (digit == 2) ++cnt2;
+        x /= 12;
+    } while (x);
+    return cnt1 == cnt2;
+}
 
 static seq_t *found = NULL;         /* dynamic array of terms */
 static size_t found_len = 0;        /* number of terms stored      */
@@ -31,7 +47,7 @@ static void grow_found(size_t min_cap)
 {
     size_t new_cap = found_cap ? found_cap * 2 : 16;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(found, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, found, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     found = tmp;
     found_cap = new_cap;

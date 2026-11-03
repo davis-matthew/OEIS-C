@@ -9,7 +9,8 @@
  *            q is prime
  * Range:     u8 n <= 11, u16 n <= 25, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   digit_len, is_prime
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-03)
+ * Helpers:   is_prime_u64, num_digits0_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,10 @@
  */
 
 #include <stdbool.h>
-#include "../utils/digit_len.h"
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits0_seq.h"
 
 static seq_t POW10[21];
 static bool POW10_INIT = false;
@@ -88,9 +91,9 @@ seq_t a(idx_t n)
 
     for (idx_t j = 1; ; ++j) {                    /* iterate palindromes q */
         seq_t q    = nth_positive_palindrome(j);
-        idx_t d    = digit_len(q);
+        idx_t d    = num_digits0_seq(q);
         seq_t val  = P * POW10[d] + q;             /* concatenated number */
 
-        if (is_prime((uint64_t)val)) return q;
+        if (is_prime_u64((uint64_t)val)) return q;
     }
 }

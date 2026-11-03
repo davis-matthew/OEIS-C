@@ -8,8 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 24, u128 n <= 30,
  *            big any n
- * Helpers:   _smallest_prime_factor, build_primes_upto,
- *            count_distinct_primes, seq_pow
+ * Validated: partial, pass, 29 terms through n = 30 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx, omega, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,10 +26,10 @@
 #include <stdlib.h>
 
 /* Helper utilities from the build system */
-#include "../utils/count_distinct_primes.h"
-#include "../utils/_smallest_prime_factor.h"
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/omega.h"
+#include "../utils/smallest_prime_factor.h"
 
 /* External function required by the framework */
 seq_t a(idx_t n)
@@ -39,11 +39,11 @@ seq_t a(idx_t n)
         return 0;
 
     /* If n has more than one distinct prime factor, no such integer exists */
-    if (count_distinct_primes((uint64_t)n) != 1)
+    if (omega((uint64_t)n) != 1)
         return 0;
 
     /* n is a power of a single prime p */
-    uint64_t p = _smallest_prime_factor((uint64_t)n);
+    uint64_t p = smallest_prime_factor((uint64_t)n);
     uint64_t tmp = (uint64_t)n;
     int k = 0;                       /* exponent of p in n */
     while (tmp % p == 0) {
@@ -88,7 +88,7 @@ seq_t a(idx_t n)
         if (q == p && e == k)
             --e;
 
-        seq_t fac = seq_pow((seq_t)q, (idx_t)e);
+        seq_t fac = ipow_idx((seq_t)q, (idx_t)e);
         result *= fac;
     }
 

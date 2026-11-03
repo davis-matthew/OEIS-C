@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,8 @@
  *  This follows directly from the defining formula in the OEIS entry.
  */
 
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t N, idx_t K) */
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Sum binomial terms Σ_{j=k..r} binomial(j, r-j) */
     seq_t sum = 0;
     for (idx_t j = k; j <= r; ++j)
-        sum += binom(j, r - j);
+        sum += binomial(j, r - j);
 
     return sum;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 153, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   count_omega_uint64, is_prime
+ * Validated: standard, pass, 54 terms through n = 1690 (2026-11-01)
+ * Helpers:   bigomega_u64_to_u32, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
+#include "../utils/bigomega_u64_to_u32.h"
 #include "../utils/is_prime.h"
-#include "../utils/count_omega_uint64.h"
 
 /* Static cache of discovered terms (stored as uint64_t).
    The cache is expanded lazily until it contains at least n terms. */
@@ -61,7 +62,7 @@ static void extend_cache(idx_t n)
             if (is_prime(p2))
             {
                 uint64_t mid = next_candidate + 1;
-                if (count_omega_uint64(mid) == 6)
+                if (bigomega_u64_to_u32(mid) == 6)
                 {
                     /* Store the candidate in the cache. */
                     cache_u64[cache_len++] = next_candidate;

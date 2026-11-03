@@ -9,13 +9,31 @@
  *            of dⁿ and concatenate the resulting digits
  * Range:     u8 n <= 199, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   dr_pow
+ * Validated: standard, pass, 83 terms through n = 9646 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>    /* for uint64_t, if needed */
-#include "../utils/dr_pow.h"
+
+/* Compute the digital root of dⁿ (modulo 9).  For d = 0 the result is 0;
+ * otherwise the digital root is 1–9, with 9 representing a residue of 0
+ * modulo 9.  The exponent n is given as idx_t.  The result is returned
+ * as seq_t. */
+static inline seq_t dr_pow(idx_t n, int d)
+{
+    if (d == 0) return 0;
+    int base = d % 9;
+    int r    = 1 % 9;
+    idx_t e  = n;
+    while (e) {
+        if (e & 1U) r = (r * base) % 9;
+        base = (base * base) % 9;
+        e >>= 1;
+    }
+    return (seq_t)(r == 0 ? 9 : r);
+}
 
 /* Main sequence function.  idx_t n >= 1.  The result is constructed by
  * processing the decimal digits of n from most significant to least

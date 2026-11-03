@@ -8,7 +8,8 @@
  * Formula:   a(n) = Product_{k=1}^{4*n-9} prime(k) – prime(4*n)^4
  * Range:     i8 none, i16 none, i32 n <= 4, i64 n <= 6, i128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 25 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* dynamically stored primes and prefix products */
 static uint32_t *primes = NULL;      /* primes[0] = 2, primes[1] = 3, ... */
@@ -68,14 +70,14 @@ static void ensure_primes(idx_t need)
     seq_t *new_prefix = NULL;
 
     if (prefix == NULL) {
-        new_prefix = (seq_t *)malloc(new_prefix_len * sizeof(seq_t));
+        new_prefix = mem_new(seq_t, new_prefix_len);
         new_prefix[0] = (seq_t)1;
         for (size_t i = 1; i <= primes_cnt; ++i)
             new_prefix[i] = new_prefix[i - 1] * (seq_t)primes[i - 1];
         prefix = new_prefix;
         prefix_len = new_prefix_len;
     } else {
-        new_prefix = (seq_t *)realloc(prefix, new_prefix_len * sizeof(seq_t));
+        new_prefix = mem_resize(seq_t, prefix, new_prefix_len);
         /* compute only the new entries */
         for (size_t i = prefix_len; i <= primes_cnt; ++i)
             new_prefix[i] = new_prefix[i - 1] * (seq_t)primes[i - 1];

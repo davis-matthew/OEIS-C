@@ -7,6 +7,7 @@
  * Formula:   a(n) = Re(∏_{k=1..n} (k + (n-k+1)i))
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 10, i64 n <= 16, i128 n <= 27,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 384 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

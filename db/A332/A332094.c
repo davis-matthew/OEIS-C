@@ -8,7 +8,8 @@
  *            (prime(j)-prime(i)) )
  * Range:     u8 n <= 6, u16 n <= 35, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   seq_gcd, sieve_first_n_primes
+ * Validated: partial, pass, 48 terms through n = 49 (2026-11-01)
+ * Helpers:   gcd, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/gcd.h"
 #include "../utils/sieve_first_n_primes.h"
-#include "../utils/seq_gcd.h"
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
     /* Compute numerator = 2 * sum / GCD(2*sum, n*(n-1)) */
     seq_t num = sum * 2;
     seq_t den = (seq_t)n * (n - 1);
-    seq_t g   = seq_gcd(num, den);
+    seq_t g   = gcd(num, den);
     num /= g;   /* den /= g;  // not needed for result */
 
     /* Clean up */

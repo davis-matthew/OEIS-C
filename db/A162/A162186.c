@@ -7,7 +7,8 @@
  * Formula:   a(n) = [x^n] ∏_{k=1}^{46} (1-x^(2k))/(1-x)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 26, u128 n <= 107,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 2117 terms through n = 2116 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,15 +32,15 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         /* Allocate space for the final coefficient vector (degree 0..2116) */
-        coeff = (seq_t *)malloc((MAX_DEG + 1) * sizeof(seq_t));
-        temp  = (seq_t *)malloc((MAX_DEG + 1) * sizeof(seq_t));
+        coeff = mem_new(seq_t, (MAX_DEG + 1));
+        temp  = mem_new(seq_t, (MAX_DEG + 1));
         if (!coeff || !temp) {
             /* Out of memory – return zero on failure (should never happen in tests). */
             return (seq_t)0;
         }
 
         /* Initialise first polynomial = 1 */
-        memset(coeff, 0, (MAX_DEG + 1) * sizeof(seq_t));
+        mem_set(coeff, 0, (MAX_DEG + 1) * sizeof(seq_t));
         coeff[0] = (seq_t)1;
         idx_t old_len = 1;          /* current length (degree + 1) of coeff */
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
             idx_t new_len = old_len + L - 1;    /* new length after convolution */
 
             /* Reset temp array for the new convolution */
-            memset(temp, 0, new_len * sizeof(seq_t));
+            mem_set(temp, 0, new_len * sizeof(seq_t));
 
             /* Convolution: add coeff[i] shifted by 0 .. L-1 */
             for (idx_t i = 0; i < old_len; ++i) {
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             }
 
             /* Copy the result back into coeff */
-            memcpy(coeff, temp, new_len * sizeof(seq_t));
+            mem_copy(coeff, temp, new_len * sizeof(seq_t));
 
             old_len = new_len;
         }

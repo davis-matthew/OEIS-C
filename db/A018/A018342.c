@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Divisors of 225 (3²·5²) in increasing order */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t _divs[9];
 static bool _divs_initialized = false;
@@ -40,7 +42,7 @@ static void init_divisors(void)
             _divs[pos++] = p3 * p5;
         }
     }
-    qsort(_divs, 9, sizeof(seq_t), cmp_seq);
+    mem_qsort(_divs, 9, sizeof(seq_t), cmp_seq);
     _divs_initialized = true;
 }
 

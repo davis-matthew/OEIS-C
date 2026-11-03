@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 22, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (n >= cached_len) {
         size_t old_len = cached_len;                    /* old size */
         size_t new_len = (size_t)n + 1;                 /* must hold indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return 0;                             /* allocation failed */
         cache = tmp;
         cached_len = new_len;                           /* new size */

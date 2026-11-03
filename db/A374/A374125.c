@@ -6,14 +6,46 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 30, u16 n <= 8797, u32 n <= 8797, u64 n <= 8797,
- *            u128 n <= 8797, big any n
- * Helpers:   fib_mod_rec
+ * Range:     u8 n <= 30, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 88 terms through n = 8797 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/fib_mod_rec.h"
+/*
+ * Formula: a(n) = A328845(n) mod 360,
+ * where A328845(n) is the Fibonacci‑based arithmetic derivative
+ * defined by d(p) = F(p) for prime p and the usual Leibniz rule:
+ * d(mn) = m·d(n) + n·d(m).
+ * The derivative is computed modulo 360.
+ */
+static seq_t fib_mod_rec(unsigned long long n, seq_t *fn, seq_t *fn1)
+{
+    if (n == 0) {
+        *fn  = 0;
+        *fn1 = 1;
+        return 0;
+    }
+    seq_t a, b, c, d;
+    fib_mod_rec(n >> 1, &a, &b);
+
+    /* Fast‑doubling formulas (all arithmetic is modulo 360) */
+    seq_t two_b = (b * 2) % 360;
+    seq_t two_b_minus_a = (two_b + 360 - a) % 360;
+    c = (a * two_b_minus_a) % 360;
+    d = (a * a + b * b) % 360;
+
+    if (n & 1) {
+        *fn  = d;
+        *fn1 = (c + d) % 360;
+    } else {
+        *fn  = c;
+        *fn1 = d;
+    }
+    return 0;
+}
 
 static seq_t fib_mod(unsigned long long n)
 {

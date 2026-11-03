@@ -9,7 +9,8 @@
  *            a(i) ) from OEIS A215448
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values.  Dynamically grow as needed. */
 static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Grow cache to hold at least indices 0..n */
     if ((size_t)n >= cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) {
             /* Out of memory – return 0 as sentinel; caller should not
                handle this case for OEIS sequences. */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         if (cache) {
             for (size_t i = 0; i < cache_cap; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
 
         /* Compute new values */

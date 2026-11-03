@@ -8,6 +8,7 @@
  * Formula:   a(n) = (2*n^3 + 11*n^2 + 31*n + 27 + (n^2 + n + 5)*(-1)^n) / 32
  * Range:     u8 n <= 13, u16 n <= 99, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
+ * Validated: standard, pass, 65 terms through n = 187 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

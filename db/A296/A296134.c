@@ -6,17 +6,53 @@
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{d | A052409(n)} A000009(d) where A052409(n) is the gcd
  *            of the exponents in the prime factorization of n
- * Range:     u8 n <= 9135, u16 n <= 9135, u32 n <= 9135, u64 n <= 9135,
- *            u128 n <= 9135, big any n
- * Helpers:   _gcd_int, _gcd_of_exponents
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9135 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for uint64_t */
 #include <stdbool.h>
-#include "../utils/_gcd_int.h"
-#include "../utils/_gcd_of_exponents.h"
+#include "../utils/gcd_i32.h"
+
+/* GCD of the exponents of prime factors of n (n >= 1) */
+static int _gcd_of_exponents(idx_t n)
+{
+    if (n == 1) return 1;
+
+    int g = 0;
+    idx_t tmp = n;
+
+    /* factor 2 */
+    int e = 0;
+    while ((tmp & 1ULL) == 0) {
+        ++e;
+        tmp >>= 1;
+    }
+    if (e) g = e;
+
+    /* odd factors */
+    for (idx_t p = 3; p <= tmp / p; p += 2) {
+        if (tmp % p == 0) {
+            e = 0;
+            while (tmp % p == 0) {
+                ++e;
+                tmp /= p;
+            }
+            g = (g == 0) ? e : gcd_i32(g, e);
+        }
+    }
+
+    /* remaining prime factor (exponent 1) */
+    if (tmp > 1) {
+        g = (g == 0) ? 1 : gcd_i32(g, 1);
+    }
+
+    return (g == 0) ? 1 : g;
+}
 
 static seq_t _g0[65];
 static int   _g0_init = 0;

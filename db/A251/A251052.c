@@ -13,13 +13,15 @@
  *            521785, a(7) = 1045337, a(8) = 2159272, * a(9) = 4456235...
  * Range:     u8 none, u16 n <= 3, u32 n <= 17, u64 n <= 44, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* storage for computed terms (index 1..n)   */
 static size_t cache_size = 0;        /* current allocated size (>= n+1)          */
@@ -38,16 +40,15 @@ static void ensure_cache(idx_t n)
     /* Allocate / grow the cache to accommodate index n */
     if (cache == NULL) {
         cache_size = (size_t)n + 1;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return;                 /* allocation failed – abort silently */
-        memset(cache, 0, cache_size * sizeof(seq_t));
+        mem_set(cache, 0, cache_size * sizeof(seq_t));
     } else if (cache_size <= (size_t)n) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return;
         cache = tmp;
-        memset(cache + cache_size, 0,
-               (new_size - cache_size) * sizeof(seq_t));
+        mem_set(cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
         cache_size = new_size;
     }
 

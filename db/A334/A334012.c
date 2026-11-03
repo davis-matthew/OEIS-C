@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   octagonal
+ * Validated: partial, pass, 3 terms through n = 3 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/octagonal.h"
+#include "../utils/mem.h"
+
+/* Octagonal number O(t) = t * (3*t - 2) */
+static seq_t octagonal(idx_t t)
+{
+    seq_t tt = (seq_t)t;
+    return tt * ((seq_t)3 * tt - 2);
+}
 
 /* Node used in the min‑heap – each node represents one running sum
    of consecutive octagonal numbers. */
@@ -52,7 +60,7 @@ static void heap_push(struct Heap *h, struct Node n)
 {
     if (h->size == h->cap) {
         size_t new_cap = (h->cap == 0) ? 8 : h->cap * 2;
-        struct Node *tmp = (struct Node *)realloc(h->data, sizeof(struct Node) * new_cap);
+        struct Node *tmp = mem_resize(struct Node, h->data, new_cap);
         if (!tmp) return; /* allocation failure – let caller handle */
         h->data = tmp;
         h->cap  = new_cap;
@@ -113,7 +121,7 @@ static void ensure(idx_t target /* target n */)
     if (!initialized) {
         /* initialise cache */
         cache_size = 2;  /* index 0 unused, we need room for a(1) */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return; /* allocation error – caller will fail if cache is NULL */
         for (size_t i = 0; i < cache_size; ++i) cache[i] = 0;
         heap_init(&pq);
@@ -127,7 +135,7 @@ static void ensure(idx_t target /* target n */)
     /* grow cache if needed */
     if (cache_size <= target) {
         size_t new_size = target + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return; /* allocation error */
         cache = tmp;
         for (size_t i = cache_size; i < new_size; ++i) cache[i] = 0;

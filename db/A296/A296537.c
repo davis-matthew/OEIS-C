@@ -10,14 +10,39 @@
  *            Computed by a transfer‑matrix DP over rows
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 35, u128 n <= 69,
  *            big any n
- * Helpers:   valid_row_state
+ * Validated: standard, pass, 40 terms through n = 208 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/valid_row_state.h"
+
+/* Check whether the middle row `mid` (0..15) satisfies the
+   adjacency condition when the previous row is `prev`
+   and the next row is `next`.  */
+static inline bool valid_row_state(uint8_t prev, uint8_t mid, uint8_t next)
+{
+    for (int c = 0; c < 4; ++c) {
+        int bit = 1 << c;
+        if (!(mid & bit))
+            continue;                     /* no requirement for a 0 cell */
+        int count = 0;
+        /* vertical neighbors */
+        if (prev & bit) count++;
+        if (next & bit) count++;
+        /* horizontal neighbors */
+        if (c > 0 && (mid & (1 << (c - 1)))) count++;
+        if (c < 3 && (mid & (1 << (c + 1)))) count++;
+        /* anti‑diagonal neighbors */
+        if (c < 3 && (prev & (1 << (c + 1)))) count++;
+        if (c > 0 && (next & (1 << (c - 1)))) count++;
+        if (count != 2 && count != 4)
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

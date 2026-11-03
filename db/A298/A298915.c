@@ -10,12 +10,14 @@
  *            a(4) = 6, a(5) = 9, a(6) = 14, a(7) = 24, a(8) = 44, a(9) = 81
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* allocate cache on first call */
     if (!cache) {
         cap = 64;  /* initial capacity, will grow as needed */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache)
             return (seq_t)0; /* allocation failed – unlikely */
 
@@ -62,9 +64,9 @@ seq_t a(idx_t n)
     /* enlarge cache until it can hold index n */
     while (cap <= n) {
         size_t newcap = cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) {
-            free(cache);
+            mem_free(cache);
             return (seq_t)0;
         }
         cache = tmp;

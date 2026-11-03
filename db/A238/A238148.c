@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 21, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External types supplied by build */
 typedef uint64_t idx_t;       /* will be overridden if necessary */
@@ -74,19 +76,19 @@ static void dp_init(idx_t nmax)
 
     compute_T_matrix();
 
-    dp.cur  = (seq_t*)malloc(sizeof(seq_t)*256);
-    dp.next = (seq_t*)malloc(sizeof(seq_t)*256);
+    dp.cur  = mem_new(seq_t, 256);
+    dp.next = mem_new(seq_t, 256);
     for(int i=0; i<256; ++i) dp.cur[i] = (seq_t)1;   /* all (prev,curr) pairs for a 2×2 array */
 
     dp.cachecap = (idx_t)nmax;
-    dp.cache = (seq_t*)malloc(sizeof(seq_t)*dp.cachecap);
+    dp.cache = mem_new(seq_t, dp.cachecap);
     dp.cachelen = 0;
 }
 
 static void dp_ensure_cache(idx_t needed)
 {
     if(dp.cachecap >= needed) return;
-    dp.cache = (seq_t*)realloc(dp.cache, sizeof(seq_t)*needed);
+    dp.cache = mem_resize(seq_t, dp.cache, needed);
     dp.cachecap = needed;
 }
 
@@ -103,7 +105,7 @@ static void dp_compute_upto(idx_t max_n)
         }
 
         /* Transition to build row n (total rows = n+1) */
-        memset(dp.next, 0, sizeof(seq_t)*256);
+        mem_set(dp.next, 0, sizeof(seq_t)*256);
         for(int v=0; v<256; ++v) {
             seq_t curval = dp.cur[v];
             if(curval == (seq_t)0) continue;

@@ -10,7 +10,8 @@
  *            where m(m+1)/2 <= n < (m+1)(m+2)/2 and k = n - m(m+1)/2
  * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   build_primes, pow_seq, seq_mul
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   build_primes, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/build_primes.h" /* build_primes(limit, &primes, &cnt) */
-#include "../utils/pow_seq.h"     /* pow_seq(seq_t base, int exp) */
-#include "../utils/seq_mul.h"     /* seq_mul(seq_t a, seq_t b) */
+#include <string.h>
+#include "../utils/build_primes.h"
+#include "../utils/ipow_i32.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static idx_t *prime_cache = NULL;
 static size_t prime_cache_cnt = 0;
@@ -81,7 +87,7 @@ seq_t a(idx_t n)
             (int64_t)exp_factorial(m + 3, p);
 
         if (e > 0) {
-            seq_t power = pow_seq((seq_t)p, (int)e);
+            seq_t power = ipow_i32((seq_t)p, (int)e);
             res = seq_mul(res, power);
         }
     }

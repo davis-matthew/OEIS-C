@@ -6,14 +6,16 @@
  * Keywords:  nonn
  * Formula:   a(0)=1; for n>0, a(n)=∑_{k|n, 1≤n/k≤k+1} binomial(k+4,4) *
  *            binomial(k,n/k-1)
- * Range:     u8 n <= 3, u16 n <= 22, u32 n <= 62, u64 n <= 62, u128 n <= 62,
+ * Range:     u8 n <= 5, u16 n <= 27, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Use the binomial helper provided by the framework */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Computes A326005(a) for any n>=0. */

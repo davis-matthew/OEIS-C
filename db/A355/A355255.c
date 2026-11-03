@@ -15,7 +15,8 @@
  *            starting from the binary word of length r represented by k
  * Range:     u8 n <= 8190, u16 n <= 8190, u32 n <= 8190, u64 n <= 8190,
  *            u128 n <= 8190, big any n
- * Helpers:   none
+ * Validated: standard, pass, 143 terms through n = 8147 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Maximum row that covers all indices used in the test suite.
    2^16 gives 65535 total entries, more than enough for the limits
@@ -67,7 +69,7 @@ static void build_table(void)
     for (int r = 0; r < MAX_ROW; r++) {
         size_t sz = 1u << r;                /* 2^r entries in row r */
         row_size[r] = sz;
-        a_table[r] = (seq_t *)malloc(sz * sizeof(seq_t));
+        a_table[r] = mem_new(seq_t, sz);
         if (a_table[r] == NULL) abort();   /* fatal on allocation failure */
 
         if (r == 0) {                     /* special case: empty word */

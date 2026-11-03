@@ -8,6 +8,7 @@
  *            is the most significant digit
  * Range:     u8 n <= 313, u16 n <= 313, u32 n <= 313, u64 n <= 313,
  *            u128 n <= 313, big any n
+ * Validated: full, pass, 157 terms through n = 313 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,11 +7,13 @@
  * Formula:   a(n) = 2^e with e = 4*(n/8) + {0,1,2,2,3,3,3,3}[n%8]
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 63, u64 n <= 127,
  *            u128 n <= 255, big any n
+ * Validated: standard, pass, 69 terms through n = 978 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

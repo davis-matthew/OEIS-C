@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 15, i16 n <= 31, i32 n <= 63, i64 n <= 127,
  *            i128 n <= 257, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 2310 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc, free, exit */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for memoisation */
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
         if (needed > cap) {
             size_t new_cap = cap ? cap * 2 : 8;
             while (new_cap < needed) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(1);   /* allocation failure */
             cache = tmp;
             cap = new_cap;

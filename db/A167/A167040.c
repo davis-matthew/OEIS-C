@@ -11,13 +11,17 @@
  *            sequence is read row‑by‑row from the triangle
  * Range:     u8 n <= 16, u16 n <= 30, u32 n <= 70, u64 n <= 160,
  *            u128 n <= 418, big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 71 terms through n = 1319 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static seq_t int_pow(seq_t base, idx_t exp)
 {

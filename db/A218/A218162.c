@@ -11,7 +11,8 @@
  *            (A133870)
  * Range:     u8 n <= 2, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   factor_prime, is_prime, mod_pow, seq_cmp
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,38 @@
 #include <stdbool.h>
 
 /* Utility functions */
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x) */
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod) */
-#include "../utils/seq_cmp.h"    /* int seq_cmp(const void *p1, const void *p2) */
-#include "../utils/factor_prime.h"
+#include <string.h>
+#include <stddef.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
+
+/* Factorisation of a 64‑bit integer into its distinct prime factors. */
+static void factor_prime(uint64_t n, uint64_t *factors, size_t *cnt)
+{
+    size_t i = 0;
+    if (n % 2 == 0) {
+        factors[i++] = 2;
+        while (n % 2 == 0) n /= 2;
+    }
+    for (uint64_t d = 3; d * d <= n; d += 2) {
+        if (n % d == 0) {
+            factors[i++] = d;
+            while (n % d == 0) n /= d;
+        }
+    }
+    if (n > 1) factors[i++] = n;
+    *cnt = i;
+}
 
 /* Find a primitive root modulo p (p > 2). */
 static seq_t primitive_root(uint64_t p)
@@ -37,7 +66,7 @@ static seq_t primitive_root(uint64_t p)
     for (uint64_t g = 2;; ++g) {
         bool ok = true;
         for (i = 0; i < cnt; ++i) {
-            if (mod_pow((seq_t)g, (p - 1) / factors[i], (seq_t)p) == (seq_t)1) {
+            if (powmod((seq_t)g, (p - 1) / factors[i], (seq_t)p) == (seq_t)1) {
                 ok = false;
                 break;
             }
@@ -55,10 +84,10 @@ static seq_t smallest_k(uint64_t p)
     uint64_t t    = (p - 1) / 32;   /* exponent for first solution */
     uint64_t step = (p - 1) / 16;   /* difference between consecutive solutions */
 
-    seq_t min_k = mod_pow(g, t, (seq_t)p);
+    seq_t min_k = powmod(g, t, (seq_t)p);
     seq_t cur;
     for (uint64_t i = 1; i < 16; ++i) {
-        cur = mod_pow(g, t + i * step, (seq_t)p);
+        cur = powmod(g, t + i * step, (seq_t)p);
         if (seq_cmp(&cur, &min_k) < 0) min_k = cur;
     }
     return min_k;
@@ -102,7 +131,7 @@ seq_t a(idx_t n)
         /* Grow values array if necessary */
         if (v_cnt + 1 > v_cap) {
             size_t new_cap = v_cap ? v_cap << 1 : 16;
-            seq_t *tmp = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, values, new_cap);
             if (!tmp) return (seq_t)0;
             values = tmp;
             v_cap = new_cap;

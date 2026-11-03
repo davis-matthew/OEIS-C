@@ -10,7 +10,8 @@
  * Formula:   a(n) = A001222(A160649(n)) = A160649(n+1) - A160649(n);
  * Range:     u8 n <= 88, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors
+ * Validated: standard, pass, 121 terms through n = 9889 (2026-11-03)
+ * Helpers:   bigomega_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 /* a(1) = 1, a(2) = 1, a(3) = 2, a(4) = 2, ...  (OEIS A160650) */
 
 #include <stdlib.h>
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
+#include "../utils/mem.h"
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     /* Initialize cache with the first term */
     if (max_comp == 0) {
         cache_cap = 2;                           /* allocate room for a[1] */
-        a_vals = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, cache_cap);
         curA   = (seq_t)2;                       /* A_1 = 2 */
         a_vals[1] = (seq_t)1;                    /* a_1 = Ω(2) = 1 */
         max_comp = 1;
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
         if (n + 1 > cache_cap) {
             idx_t new_cap = cache_cap ? cache_cap * 2 : 2;
             while (new_cap <= n) new_cap *= 2;
-            a_vals = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+            a_vals = mem_resize(seq_t, a_vals, new_cap);
             cache_cap = new_cap;
         }
 
@@ -53,7 +56,7 @@ seq_t a(idx_t n)
             /* A_i = A_{i-1} + a_{i-1} */
             seq_t nextA = curA + a_vals[i - 1];
             /* a_i = Ω(A_i) */
-            seq_t ai = count_prime_factors(nextA);
+            seq_t ai = bigomega_seq(nextA);
             /* Update for next iteration */
             curA = nextA;
             a_vals[i] = ai;

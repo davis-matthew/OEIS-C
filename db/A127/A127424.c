@@ -8,15 +8,27 @@
  * Formula:   a(n) = concatenate(n+1, n, n-1)
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   digits, pow10
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* i.e. a(n) = (n+1) * 10^(digits(n)+digits(n-1)) + n * 10^(digits(n-1)) + (n-1) */
 
-#include "../utils/digits.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,8 +39,8 @@ seq_t a(idx_t n)
     idx_t k3 = n - 1;   /* third number (k-2)          */
 
     /* Number of decimal digits of the second and third numbers */
-    int d2 = digits(k2);   /* digits(k)   */
-    int d3 = digits(k3);   /* digits(k-1) */
+    int d2 = num_digits_idx(k2);   /* digits(k)   */
+    int d3 = num_digits_idx(k3);   /* digits(k-1) */
 
     /* Compute the concatenation using powers of 10 */
     seq_t part1 = (seq_t)k1 * pow10((idx_t)(d2 + d3)); /* (k) * 10^(d2+d3)    */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 4235, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factorial_digits_nonincreasing
+ * Validated: standard, pass, 103 terms through n = 9155 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,33 @@
     works with the arbitrary‑precision build as well as 64‑bit builds.  */
 
 #include <stdbool.h>
-#include "../utils/factorial_digits_nonincreasing.h"
+
+/*  Test if the factorial‑base representation of N has
+    nonincreasing digits (from most significant to least).  */
+static bool factorial_digits_nonincreasing(seq_t N)
+{
+    seq_t prev = 0;
+    bool first = true;
+    int i = 1;                      /* factorial position (1! = 1) */
+    while (N > 0) {
+        seq_t base   = (seq_t)(i + 1);   /* digit i is modulo base */
+        seq_t digit  = N % base;
+        N          /= base;
+
+        if (!first) {
+            /* digits are collected from least significant to most,
+               so after the first digit they must be nondecreasing.
+               A decrease (digit < prev) means the digits are not
+               nonincreasing when read most‑significant first.  */
+            if (digit < prev)
+                return false;
+        }
+        prev = digit;
+        first = false;
+        ++i;
+    }
+    return true;   /* all digits satisfied (empty representation for 0 is ok) */
+}
 
 seq_t a(idx_t n)
 {

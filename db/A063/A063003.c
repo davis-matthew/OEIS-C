@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 41, u128 n <= 82,
  *            big any n
- * Helpers:   bitlen_seq_t, is_power_of_two, pow2, pow3
+ * Validated: standard, pass, 43 terms through n = 178 (2026-11-01)
+ * Helpers:   bit_length, is_pow2, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,19 +18,21 @@
  * Computes the difference between 3^n and the next larger or equal power of 2.
  */
 
-#include "../utils/pow3.h"            /* pow3(idx_t) */
-#include "../utils/pow2.h"            /* pow2(idx_t) */
-#include "../utils/bitlen_seq_t.h"    /* bitlen_seq_t(seq_t) */
-#include "../utils/is_power_of_two.h" /* is_power_of_two(seq_t) */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/is_pow2.h"
+#include "../utils/pow2.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {
     seq_t p = pow3(n);                     /* 3^n */
-    unsigned bl = bitlen_seq_t(p);         /* bit length of 3^n */
+    unsigned bl = bit_length(p);         /* bit length of 3^n */
     idx_t exp = bl - 1;                    /* floor(log2(3^n)) */
 
     seq_t pw = pow2(exp);                  /* 2^exp */
-    if (!is_power_of_two(p)) {             /* if 3^n is not a power of two */
+    if (!is_pow2(p)) {             /* if 3^n is not a power of two */
         ++exp;                             /* move to the next exponent */
         pw = pow2(exp);                    /* 2^(exp+1) */
     }

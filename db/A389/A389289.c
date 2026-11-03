@@ -7,14 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} binomial(n+k-1,k) *
  *            binomial(k,n-2*k)
- * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 22, u64 n <= 41, u128 n <= 80,
+ * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 41, u128 n <= 80,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 841 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"  /* Provides seq_t binomial(idx_t, idx_t); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

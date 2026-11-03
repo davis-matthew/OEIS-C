@@ -9,7 +9,8 @@
  *            and 2m+1 is a prime ≡ 1 (mod 4)
  * Range:     u8 n <= 33, u16 n <= 5255, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul128
+ * Validated: standard, pass, 71 terms through n = 9169 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul128.h"
+#include "../utils/mem.h"
+
+/* ---------- Miller–Rabin primality test for 64‑bit integers ---------- */
+static inline __uint128_t mul128(__uint128_t a, __uint128_t b, uint64_t mod)
+{
+    return (a * b) % mod;
+}
 
 static uint64_t mod_pow(uint64_t a, uint64_t e, uint64_t mod)
 {
@@ -74,7 +81,7 @@ static void grow_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) exit(1);        /* fatal: out of memory            */
     cache = new_arr;
     cache_cap = new_cap;

@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 35, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
     storage so that repeated calls (even out of order) are efficient. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of helper that ensures all rows up to 'up_to' exist */
 static void ensure_rows(idx_t up_to);
@@ -54,7 +56,7 @@ static void ensure_rows(idx_t up_to)
 
     for (idx_t i = triangle_used; i <= up_to; ++i) {
         idx_t len = i + 1;
-        seq_t *curr = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, len);
 
         if (i == 0) {
             /* Base row: T(0,0)=1 */

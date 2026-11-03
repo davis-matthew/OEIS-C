@@ -8,6 +8,7 @@
  *            Fib(n)=Fib(n-1)+Fib(n-2) for n ≥ 2)
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 41, u64 n <= 87, u128 n <= 179,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 996 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

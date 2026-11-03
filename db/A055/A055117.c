@@ -11,6 +11,7 @@
  *            number. This produces the sequence * A055117
  * Range:     u8 n <= 48, u16 n <= 2400, u32 n <= 2400, u64 n <= 2400,
  *            u128 n <= 2400, big any n
+ * Validated: standard, pass, 82 terms through n = 2366 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

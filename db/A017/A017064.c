@@ -7,15 +7,17 @@
  * Formula:   a(n) = (7*n+6)^12
  * Range:     u8 none, u16 none, u32 n <= 0, u64 n <= 4, u128 n <= 231,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 26 terms through n = 4400 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
     seq_t base = (seq_t)7 * n + 6;
-    return pow_seq(base, 12);
+    return ipow_i32(base, 12);
 }

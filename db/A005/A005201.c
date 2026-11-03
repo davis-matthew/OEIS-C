@@ -11,17 +11,48 @@
  *            fixed-width builds, it computes the terms modulo four p...
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 25, u64 n <= 47, u128 n <= 88,
  *            big any n
- * Helpers:   addm, grow_zero, seq_is_big, u128_to_seq
+ * Validated: standard, pass, 46 terms through n = 893 (2026-11-03)
+ * Helpers:   addmod_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/grow_zero.h"
-#include "../utils/seq_is_big.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/addm.h"
+#include <string.h>
+#include "../utils/addmod_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 #define NP 4
 static const uint64_t P[NP] = { 2305843009213693951ULL, 1000000007ULL,
@@ -70,23 +101,23 @@ static void mext(idx_t N)
             } else {
                 s = 0;
                 for (k = 1; k < m; k++)
-                    s = addm(s, mulm(B[k], T[m - k], p), p);
+                    s = addmod_u64(s, mulm(B[k], T[m - k], p), p);
                 T[m] = mulm(s, powm((m - 1) % p, p - 2, p), p);
             }
             s = 0;
             for (d = 1; d * d <= m; d++) {
                 if (m % d == 0) {
                     idx_t e = m / d;
-                    s = addm(s, mulm(d % p, T[d], p), p);
-                    if (e != d) s = addm(s, mulm(e % p, T[e], p), p);
+                    s = addmod_u64(s, mulm(d % p, T[d], p), p);
+                    if (e != d) s = addmod_u64(s, mulm(e % p, T[e], p), p);
                 }
             }
             B[m] = s;
             s = T[m];
             for (k = 1; k < m; k++)
-                s = addm(s, mulm(T[k], D[m - k], p), p);
+                s = addmod_u64(s, mulm(T[k], D[m - k], p), p);
             F[m] = s;
-            D[m] = (m % 2 == 0) ? addm(s, p - F[m / 2], p) : s;
+            D[m] = (m % 2 == 0) ? addmod_u64(s, p - F[m / 2], p) : s;
         }
     }
     mlen = nl;
@@ -105,18 +136,18 @@ static seq_t a_mod(idx_t n)
         uint64_t s = (n % 2 == 0) ? F[n / 2] : 0;
         for (k = 1; k < n; k++) {
             idx_t j2 = n - k;
-            if (j2 % 2 == 0) s = addm(s, mulm(T[k], F[j2 / 2], p), p);
+            if (j2 % 2 == 0) s = addmod_u64(s, mulm(T[k], F[j2 / 2], p), p);
         }
-        r[q] = addm(T[n], p - s, p);
+        r[q] = addmod_u64(T[n], p - s, p);
     }
     c[0] = r[0];
     for (i = 1; i < NP; i++) {
         uint64_t p = P[i], v, pr = 1;
         v = c[i - 1] % p;
         for (j = i - 2; j >= 0; j--)
-            v = addm(mulm(v, P[j] % p, p), c[j] % p, p);
+            v = addmod_u64(mulm(v, P[j] % p, p), c[j] % p, p);
         for (j = 0; j < i; j++) pr = mulm(pr, P[j] % p, p);
-        c[i] = mulm(addm(r[i], p - v, p), powm(pr, p - 2, p), p);
+        c[i] = mulm(addmod_u64(r[i], p - v, p), powm(pr, p - 2, p), p);
     }
     R = c[NP - 1];
     for (j = NP - 2; j >= 0; j--)

@@ -7,6 +7,7 @@
  * Formula:   sum of n mod p over all primes p ≤ smallest prime ≥ n
  * Range:     u8 n <= 67, u16 n <= 1567, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 9518 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,8 +15,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/build_primes_upto.h" /* build_primes_upto(uint64_t limit, uint64_t **primes_out, size_t *cnt_out) */
-#include "../utils/is_prime.h"        /* is_prime(uint64_t) */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
 
 /* Cached list of primes */
 static uint64_t *prime_cache = NULL;     /* array of primes up to prime_cache_limit */

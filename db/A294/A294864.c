@@ -12,7 +12,8 @@
  *            The function memoises values, so calls may appear in any order
  * Range:     u8 n <= 20, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Bit‑set for marks of numbers that have appeared in either a() or b() */
 static uint8_t *used_bits = NULL;   /* one bit per integer, 0 … */
@@ -67,7 +69,7 @@ static void ensure_a_capacity(idx_t n)
     if ((size_t)n >= a_cap) {
         size_t new_cap = a_cap ? a_cap << 1 : 8;
         if (new_cap <= (size_t)n) new_cap = (size_t)n + 8;
-        seq_t *tmp = (seq_t*)realloc(a_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
         if (!tmp) abort();
         a_vals = tmp;
         a_cap = new_cap;
@@ -79,7 +81,7 @@ static void ensure_b_capacity(idx_t n)
     if ((size_t)n >= b_cap) {
         size_t new_cap = b_cap ? b_cap << 1 : 8;
         if (new_cap <= (size_t)n) new_cap = (size_t)n + 8;
-        seq_t *tmp = (seq_t*)realloc(b_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, b_vals, new_cap);
         if (!tmp) abort();
         b_vals = tmp;
         b_cap = new_cap;

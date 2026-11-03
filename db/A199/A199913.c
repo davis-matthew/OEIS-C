@@ -12,12 +12,14 @@
  *            62776, a(8) = 114768, a(9) = 200520, a(10) = 335216, a(...
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 69, u64 n <= 200, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[15] = {0,
     32, 232, 1312, 5016, 12872, 29864, 62776, 114768,
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (cache_size < idx + 1) {
         size_t new_size = cache_size ? cache_size * 2 : 64;
         if (new_size < idx + 1) new_size = idx + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) exit(1);             /* allocation failure */
         /* initialise new slots to 0 */
         for (size_t i = cache_size; i < new_size; ++i) tmp[i] = 0;

@@ -6,8 +6,9 @@
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = nth positive integer whose decimal digit sum equals 5 ×
  *            (number of digits)
- * Range:     u8 n <= 16, u16 n <= 3679, u32 n <= 9409, u64 n <= 9409,
- *            u128 n <= 9409, big any n
+ * Range:     u8 n <= 16, u16 n <= 3679, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 70 terms through n = 9409 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

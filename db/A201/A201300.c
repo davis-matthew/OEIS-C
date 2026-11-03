@@ -5,16 +5,18 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   primes of the form 9*n^3+5
- * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 25, u64 n <= 25, u128 n <= 25,
- *            big any n
- * Helpers:   mod_mul
+ * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 49, u64 n <= 2000,
+ *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 41 terms through n = 1968 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_mul.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
 
 /* Modulo multiplication using 128‑bit intermediate to avoid overflow. */
 
@@ -24,8 +26,8 @@ static inline uint64_t mod_pow(uint64_t a, uint64_t e, uint64_t m)
     uint64_t r = 1;
     while (e)
     {
-        if (e & 1U) r = mod_mul(r, a, m);
-        a = mod_mul(a, a, m);
+        if (e & 1U) r = mulmod(r, a, m);
+        a = mulmod(a, a, m);
         e >>= 1U;
     }
     return r;
@@ -65,7 +67,7 @@ static bool is_prime_uint64(uint64_t n)
         bool composite = true;
         for (unsigned r = 1; r < s; ++r)
         {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1U) { composite = false; break; }
         }
         if (composite) return false;

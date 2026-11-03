@@ -12,13 +12,15 @@
  *            bits) × (Δ offset). Transitions add a new bit; the *...
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 34, u64 n <= 67, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 484 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
     if (!cur || !nxt) return (seq_t)0;          /* allocation failed */
 
     /* Clear arrays. */
-    memset(cur, 0, total * sizeof(seq_t));
-    memset(nxt, 0, total * sizeof(seq_t));
+    mem_set(cur, 0, total * sizeof(seq_t));
+    mem_set(nxt, 0, total * sizeof(seq_t));
 
     /* Use a byte offset to convert a Δ value to an array index: */
     const size_t offset = N;                    /* safe offset */
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         int new_max  =  (int)(len - 2);
 
         /* Clear the next layer. */
-        memset(nxt, 0, total * sizeof(seq_t));
+        mem_set(nxt, 0, total * sizeof(seq_t));
 
         /* Iterate over all 4 states (a,b) of the last two bits. */
         for (int s = 0; s < 4; ++s)

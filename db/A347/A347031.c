@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 324, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 9684 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  Static arrays for memoisation.
  *  cache[i] holds a(i) for i ≥ 1.  computed[i] is true iff cache[i] is valid.
@@ -43,7 +45,7 @@ ensure_cache(idx_t n)
         new_size <<= 1;
 
     /* reallocate cache array */
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp)
         abort();
     cache = tmp;

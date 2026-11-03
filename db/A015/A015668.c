@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   mul_by_x_minus_one
+ * Validated: standard, pass, 97 terms through n = 1667 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,22 @@
     polynomial. */
 
 #include <stdlib.h>
-#include "../utils/mul_by_x_minus_one.h"
+#include "../utils/mem.h"
+
+/* ---------- helper: multiply a polynomial by (x^d‑1) ------------------------------------ */
+static void mul_by_x_minus_one(seq_t *poly, idx_t *deg, idx_t d)
+{
+    /* poly must have room for (old_deg + d) coefficients */
+    for (idx_t i = *deg; ; --i) {
+        seq_t v = poly[i];
+        if (v) {
+            poly[i + d] += v;   /* shift part */
+            poly[i]       = -v; /* set original part to -v */
+        }
+        if (i == 0) break;
+    }
+    *deg += d;
+}
 
 /* ---------- constants --------------------------------------------------------------------- */
 static const idx_t PERIOD   = 1659;
@@ -44,7 +60,7 @@ static void init_sequence(void)
 
     /* 1.  build numerator N(x) = Π_{μ(n/d)=+1} (x^d‑1) */
     const idx_t sum_pos = POS_DEG[0] + POS_DEG[1] + POS_DEG[2] + POS_DEG[3];   /* 1748 */
-    seq_t *num = (seq_t*)calloc(sum_pos + 1, sizeof(seq_t));
+    seq_t *num = mem_new(seq_t, sum_pos + 1);
     if (!num) abort();
     num[0] = 1;
     idx_t degN = 0;
@@ -53,7 +69,7 @@ static void init_sequence(void)
 
     /* 2.  build denominator D(x) = Π_{μ(n/d)=‑1} (x^d‑1) */
     const idx_t sum_neg = NEG_DEG[0] + NEG_DEG[1] + NEG_DEG[2] + NEG_DEG[3];   /* 812 */
-    seq_t *den = (seq_t*)calloc(sum_neg + 1, sizeof(seq_t));
+    seq_t *den = mem_new(seq_t, sum_neg + 1);
     if (!den) abort();
     den[0] = 1;
     idx_t degD = 0;
@@ -62,7 +78,7 @@ static void init_sequence(void)
 
     /* 3.  divide N by D to obtain Φ₁₆₅₉(x)  (exact division) */
     idx_t degQ = degN - degD;          /* φ(1659) = 936 */
-    seq_t *coeff = (seq_t*)malloc((degQ + 1) * sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (degQ + 1));
     if (!coeff) abort();
 
     for (idx_t i = degN; i >= degD; --i) {
@@ -72,11 +88,11 @@ static void init_sequence(void)
             num[i - degD + j] -= q * den[j];
     }
 
-    free(num);
-    free(den);
+    mem_free(num);
+    mem_free(den);
 
     /* 4.  compute the periodic coefficients a(n) for n=0…PERIOD‑1  */
-    periodic = (seq_t*)calloc(PERIOD, sizeof(seq_t));
+    periodic = mem_new(seq_t, PERIOD);
     if (!periodic) abort();
 
     periodic[0] = 1;
@@ -88,7 +104,7 @@ static void init_sequence(void)
         periodic[n] = -sum;
     }
 
-    free(coeff);
+    mem_free(coeff);
 }
 
 /* ---------- public function --------------------------------------------------------------- */

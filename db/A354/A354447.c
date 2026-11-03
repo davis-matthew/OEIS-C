@@ -12,7 +12,8 @@
  *            up to a cubic limit, counting duplicates, an...
  * Range:     u8 none, u16 none, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   count_distinct_primes, is_squarefree
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   is_squarefree, mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdbool.h>
 
 #include "../utils/is_squarefree.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* compare function for qsort on uint64_t */
 static int cmp_uint64(const void *p, const void *q)
@@ -58,7 +60,7 @@ static void generate_candidates(idx_t limit, seq_t **out, size_t *len)
 
     /* collect sums that occur at least twice and fulfill the prime criteria */
     size_t cap = 128;
-    seq_t *cand = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *cand = mem_new(seq_t, cap);
     if (!cand) {
         free(sums);
         *out = NULL;
@@ -73,12 +75,12 @@ static void generate_candidates(idx_t limit, seq_t **out, size_t *len)
         while (j < pair_cnt && sums[j] == v) ++j;
         if (j - i >= 2) {                     /* at least two representations */
             if (is_squarefree((seq_t)v) &&
-                count_distinct_primes(v) == 4) {
+                omega(v) == 4) {
                 if (clen == cap) {
                     cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(cand, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cand, cap);
                     if (!tmp) {  /* allocation failure, abort */
-                        free(cand);
+                        mem_free(cand);
                         free(sums);
                         *out = NULL;
                         *len = 0;
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
         seq_t *new_cache = NULL;
         size_t new_len  = 0;
         generate_candidates(current_limit, &new_cache, &new_len);
-        free(seq_cache);                /* discard old data */
+        mem_free(seq_cache);                /* discard old data */
         seq_cache      = new_cache;
         seq_cache_len  = (idx_t)new_len;
     }

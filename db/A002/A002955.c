@@ -10,15 +10,32 @@
  *            c'(k)*b(m-k), a(m+1) = b(m)
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 29, u64 n <= 53, u128 n <= 101,
  *            big any n
- * Helpers:   A_grow, a2955_is_fixed
+ * Validated: standard, pass, 48 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/A_grow.h"
-#include "../utils/a2955_is_fixed.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+static int a2955_is_fixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) x = x + x;
+    return x == 0;
+}
 
 typedef struct { uint64_t w[4]; } a2955_u256;
 

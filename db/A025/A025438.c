@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into 5 distinct squares
  * Range:     u8 n <= 107, u16 n <= 107, u32 n <= 107, u64 n <= 107,
  *            u128 n <= 107, big any n
- * Helpers:   none
+ * Validated: partial, pass, 108 terms through n = 107 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* integer square root, returns floor(sqrt(n)) */
 static inline size_t isqrt(size_t n)
@@ -38,14 +40,14 @@ static void ensure_dp(size_t n)
     /* free old tables if they exist */
     if (dp != NULL) {
         for (int k = 0; k <= 5; ++k)
-            free(dp[k]);
+            mem_free(dp[k]);
         free(dp);
     }
 
     /* allocate new tables, one entry per possible sum 0..n */
     dp = (seq_t **)malloc(6 * sizeof(seq_t *));
     for (int k = 0; k <= 5; ++k)
-        dp[k] = (seq_t *)calloc(n + 1, sizeof(seq_t));
+        dp[k] = mem_new(seq_t, n + 1);
 
     cur_max_n = n;
 }
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
 
     /* reset tables for the new test case */
     for (int k = 0; k <= 5; ++k)
-        memset(dp[k], 0, (N + 1) * sizeof(seq_t));
+        mem_set(dp[k], 0, (N + 1) * sizeof(seq_t));
 
     dp[0][0] = 1;                    /* one way to form sum 0 with 0 squares */
 

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    a(n) is the nth coefficient when the rows of the triangular array
    T(n,k) are read left‑to‑right, starting with a(1)=1. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,8 +41,8 @@ seq_t a(idx_t n)
 
     /* Allocate a few rows.  Indices 1..r are used; index 0 is ignored. */
     size_t cap = (size_t)r + 1;
-    seq_t *prev2 = (seq_t*)calloc(cap, sizeof(seq_t));
-    seq_t *prev1 = (seq_t*)calloc(cap, sizeof(seq_t));
+    seq_t *prev2 = mem_new(seq_t, cap);
+    seq_t *prev1 = mem_new(seq_t, cap);
     if (!prev2 || !prev1) return 0;  /* allocation failure */
 
     /* Base rows */
@@ -50,8 +52,8 @@ seq_t a(idx_t n)
 
     /* Build rows 3 .. r */
     for (idx_t row = 3; row <= r; ++row) {
-        seq_t *curr = (seq_t*)calloc((size_t)row + 1, sizeof(seq_t));
-        if (!curr) { free(prev2); free(prev1); return 0; }
+        seq_t *curr = mem_new(seq_t, (size_t)row + 1);
+        if (!curr) { mem_free(prev2); mem_free(prev1); return 0; }
 
         for (idx_t pos = 1; pos <= row; ++pos) {
             seq_t val = 0;
@@ -67,13 +69,13 @@ seq_t a(idx_t n)
             curr[pos] = val;
         }
 
-        free(prev2);
+        mem_free(prev2);
         prev2 = prev1;
         prev1 = curr;
     }
 
     seq_t result = prev1[k];
-    free(prev2);
-    free(prev1);
+    mem_free(prev2);
+    mem_free(prev1);
     return result;
 }

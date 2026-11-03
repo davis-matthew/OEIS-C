@@ -9,13 +9,14 @@
  *            intermediates exact
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   a002054_gcd_local
+ * Validated: standard, pass, 41 terms through n = 965 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a002054_gcd_local.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n) {
     idx_t m, k, i;
@@ -26,7 +27,7 @@ seq_t a(idx_t n) {
     for (i = 1; i <= k; i++) {
         idx_t num = m - k + i;
         idx_t den = i;
-        idx_t g = a002054_gcd_local(num, den);
+        idx_t g = gcd_idx(num, den);
         num /= g;
         den /= g;
         /* r * num / den is an integer and gcd(num, den) = 1, so den | r */

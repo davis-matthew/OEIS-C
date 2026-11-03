@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 3196, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_power_of_two
+ * Validated: standard, pass, 87 terms through n = 9922 (2026-11-03)
+ * Helpers:   is_pow2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,8 +41,8 @@ seq_t a(idx_t n)
     if (n > cap) {
         size_t new_cap = (cap == 0) ? 8 : cap * 2;
         if (new_cap < (size_t)n) new_cap = n;
-        a_arr   = (seq_t *)realloc(a_arr,   (new_cap + 1) * sizeof(seq_t));
-        cum_arr = (seq_t *)realloc(cum_arr, (new_cap + 1) * sizeof(seq_t));
+        a_arr   = mem_resize(seq_t, a_arr, (new_cap + 1));
+        cum_arr = mem_resize(seq_t, cum_arr, (new_cap + 1));
         cap = new_cap;
     }
 
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
 
     /* Compute missing terms up to n. */
     for (idx_t k = computed; k < n; ++k) {
-        if (is_power_of_two(cum_arr[k]))
+        if (is_pow2(cum_arr[k]))
             a_arr[k + 1] = (seq_t)k;
         else
             a_arr[k + 1] = a_arr[k];

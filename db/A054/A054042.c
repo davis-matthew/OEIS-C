@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor((sqrt(10)-1)/sqrt(10) * 10^(n+1)) * 10^(-1)
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 #define BASE 1000000000U
 
@@ -162,7 +164,7 @@ static void init_sequence(void) {
 
     /* ----- 4. divide X by S to get decimal digits ----- */
     bi_copy(&Rdiv, &X);                 /* current remainder */
-    digits = (seq_t*)malloc(MAX_DIGITS * sizeof(seq_t));
+    digits = mem_new(seq_t, MAX_DIGITS);
     for (size_t i=0; i<MAX_DIGITS; i++) {
         bi_mul_small(&Rdiv, 10);                 /* shift remainder */
 

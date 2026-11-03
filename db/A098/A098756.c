@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 25, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
      a(n) = b * 10 + e  (or b * 100 + 10 when e==1).
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,10 +42,10 @@ seq_t a(idx_t n)
     while (len < (size_t)n) {
         if (cap == 0) {
             cap = 16;
-            seq = (seq_t*)malloc(cap * sizeof(seq_t));
+            seq = mem_new(seq_t, cap);
         } else if (len == cap) {
             cap <<= 1;
-            seq = (seq_t*)realloc(seq, cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, cap);
         }
         idx_t idx = (idx_t)len + 1;            /* 1‑based index of the new element */
 

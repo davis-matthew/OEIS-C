@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 2722, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   parity_seq_t
+ * Validated: standard, pass, 103 terms through n = 9796 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
  */
 
 #include <stdbool.h>
-#include "../utils/parity_seq_t.h"
+
+/* Parity of the number of 1-bits in an arbitrary-width integer */
+static unsigned parity_seq_t(seq_t v)
+{
+    unsigned p = 0;
+    while (v) {
+        p ^= (unsigned)(v & 1);
+        v >>= 1;
+    }
+    return p;
+}
 
 seq_t a(idx_t n)
 {

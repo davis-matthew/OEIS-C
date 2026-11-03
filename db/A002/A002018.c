@@ -8,12 +8,14 @@
  *            1, a(1) = 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 252 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct {
     idx_t index;
@@ -37,12 +39,12 @@ static int find_memo(idx_t n, seq_t *out) {
 static void add_memo(idx_t n, seq_t value) {
     if (memo_count >= memo_capacity) {
         memo_capacity = memo_capacity ? memo_capacity * 2 : 16;
-        MemoEntry *new_table = (MemoEntry *)malloc(memo_capacity * sizeof(MemoEntry));
+        MemoEntry *new_table = mem_new(MemoEntry, memo_capacity);
         if (!new_table) return;
         for (size_t i = 0; i < memo_count; i++) {
             new_table[i] = memo_table[i];
         }
-        if (memo_table) free(memo_table);
+        if (memo_table) mem_free(memo_table);
         memo_table = new_table;
     }
     memo_table[memo_count].index = n;

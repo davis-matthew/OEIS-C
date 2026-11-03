@@ -7,6 +7,7 @@
  * Formula:   a(n) = ((10*n^2 + 4*n - 3)*(-1)^n + 3)/8
  * Range:     i8 n <= 9, i16 n <= 161, i32 n <= 5000, i64 n <= 5000,
  *            i128 n <= 5000, big any n
+ * Validated: standard, pass, 62 terms through n = 4433 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

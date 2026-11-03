@@ -11,15 +11,18 @@
  *            valid y values in order
  * Range:     u8 none, u16 n <= 5, u32 n <= 21, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   digits_seq, floor_sqrt_seq
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   isqrt_seq, mem, num_digits0_seq_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt_seq.h"
-#include "../utils/digits_seq.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
+#include "../utils/num_digits0_seq_to_i32.h"
+#include "../utils/mem.h"
 
 static seq_t *y_vals = NULL;      /* stored y values */
 static size_t  y_count = 0;      /* number of stored values   */
@@ -32,7 +35,7 @@ static void ensure_capacity(size_t need)
     if (y_cap >= need) return;
     size_t new_cap = y_cap ? y_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(y_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, y_vals, new_cap);
     if (!tmp) abort();
     y_vals = tmp;
     y_cap  = new_cap;
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
         if (y == 0) continue;    /* safety, never happens */
 
         /* number of decimal digits of y */
-        int d = digits_seq(y);
+        int d = num_digits0_seq_to_i32(y);
 
         /* P = 10^d */
         seq_t P = 1;
@@ -61,7 +64,7 @@ seq_t a(idx_t n)
         /* Discriminant D = A^2 - 4B */
         seq_t D = A * A - 4 * B;
 
-        seq_t sqrtD = floor_sqrt_seq(D);
+        seq_t sqrtD = isqrt_seq(D);
         if (sqrtD * sqrtD != D) continue;   /* not a perfect square */
 
         seq_t t = (A - sqrtD) / 2;           /* interval length = y - x + 1 */

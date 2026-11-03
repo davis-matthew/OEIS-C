@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 56, u64 n <= 137,
  *            u128 n <= 379, big any n
- * Helpers:   binomial, floor_isqrt_u64, pow_seq, seq_mul
+ * Validated: standard, pass, 61 terms through n = 1189 (2026-11-01)
+ * Helpers:   binomial, ipow_i32, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,18 @@
  * to its row r and column k, then evaluating T(r, k).
  */
 
-#include "../utils/floor_isqrt_u64.h"   /* floor_isqrt_u64 */
-#include "../utils/binomial.h"          /* binomial */
-#include "../utils/pow_seq.h"           /* pow_seq */
-#include "../utils/seq_mul.h"           /* seq_mul */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/isqrt.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +46,7 @@ seq_t a(idx_t n)
 
     /* find the row r that contains this element */
     idx_t discr    = 1 + 8 * s;
-    idx_t sqrt_d   = floor_isqrt_u64(discr);
+    idx_t sqrt_d   = isqrt(discr);
     idx_t r        = (sqrt_d + 1) / 2 + 1;  /* preliminary row estimate */
 
     /* adjust r in case the floor approximation was not exact */
@@ -61,7 +70,7 @@ seq_t a(idx_t n)
 
     /* compute T(r, k) */
     seq_t bin = binomial(r - 2, k - 1);                 /* binomial part  */
-    seq_t pow = pow_seq((seq_t)(r - 1), (int)(r - k - 1));/* power part     */
+    seq_t pow = ipow_i32((seq_t)(r - 1), (int)(r - k - 1));/* power part     */
 
     return seq_mul(bin, pow);
 }

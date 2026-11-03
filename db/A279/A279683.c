@@ -8,7 +8,8 @@
  * Formula:   a(n) = a(n-1)*n + (n-1)! * (2^(n-1)-1), a(0) = 0 (OEIS A279683)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   seq_alloc
+ * Validated: standard, pass, 37 terms through n = 395 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/seq_alloc.h"   /* provides seq_alloc(size_t) */
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;      /* cache of computed a(n) values */
 static size_t  cache_cap = 0;    /* allocated capacity of cache array   */
@@ -44,7 +55,7 @@ static void ensure_cache(idx_t n)
 
         seq_t *new_cache = seq_alloc(new_cap);
         /* copy existing entries – no need to free old cache */
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
 
         cache = new_cache;
         cache_cap = new_cap;

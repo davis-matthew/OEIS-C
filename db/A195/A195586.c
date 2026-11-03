@@ -12,7 +12,8 @@
  *            = Σ_{i=0}^{m} a[i] · a[m-i] (convolution of a with itself)
  * Range:     u8 n <= 11, u16 n <= 27, u32 n <= 85, u64 n <= 279,
  *            u128 n <= 987, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* shared state */
 static seq_t *a_arr = NULL;   /* holds a[0..max] */
@@ -36,7 +38,7 @@ static void ensure_upto(idx_t n)
     size_t needed_d_cap = (size_t)2 * (size_t)n + 1;
     if (needed_d_cap > d_cap) {
         size_t old_d_cap = d_cap;
-        d_arr = (seq_t *)realloc(d_arr, needed_d_cap * sizeof(seq_t));
+        d_arr = mem_resize(seq_t, d_arr, needed_d_cap);
         if (!d_arr) exit(EXIT_FAILURE);
         if (old_d_cap == 0) {
             /* initialise all elements to 0 */
@@ -51,7 +53,7 @@ static void ensure_upto(idx_t n)
     if (a_cap < required_a_cap) {
         size_t new_a_cap = a_cap ? a_cap << 1 : 1;
         while (new_a_cap < required_a_cap) new_a_cap <<= 1;
-        a_arr = (seq_t *)realloc(a_arr, new_a_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_a_cap);
         if (!a_arr) exit(EXIT_FAILURE);
         a_cap = new_a_cap;
     }

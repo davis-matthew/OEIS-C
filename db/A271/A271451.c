@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 41, i16 n <= 146, i32 n <= 546, i64 n <= 2049,
  *            i128 n <= 5050, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 4676 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Store the coefficient arrays for each generated row.
  * rows[i] points to an array of length i (i ≥ 1).  rows[0] is NULL. */
@@ -59,7 +61,7 @@ static void ensure_rows(idx_t needed)
         rows[0] = NULL;
 
         /* row 1 – Q1(x) = 1 */
-        rows[1] = (seq_t *)malloc(sizeof(seq_t));
+        rows[1] = mem_new(seq_t, 1);
         if (rows[1] == NULL) abort();
         rows[1][0] = (seq_t)1;
         max_row = 1;
@@ -86,7 +88,7 @@ static void ensure_rows(idx_t needed)
         }
 
         size_t len = (size_t)r;          /* number of coefficients */
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (row == NULL) abort();
 
         const seq_t *prev1 = rows[r - 1];

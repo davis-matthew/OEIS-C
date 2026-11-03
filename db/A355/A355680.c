@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 49, i32 n <= 49, i64 n <= 49, i128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  * via a min‑heap over absolute values. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Utility: absolute value for seq_t -------------------------------- */
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
 
     /* capacity needs to hold at most 2*n+10 elements. */
     size_t cap = (size_t)n * 2 + 10;
-    seq_t *buf = (seq_t *)malloc(sizeof(seq_t) * cap);
+    seq_t *buf = mem_new(seq_t, cap);
     if (!buf)
         return 0;  /* allocation failure fallback */
 
@@ -111,6 +113,6 @@ seq_t a(idx_t n)
             heap_push(&h, c2);
     }
 
-    free(buf);
+    mem_free(buf);
     return result;
 }

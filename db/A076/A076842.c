@@ -11,15 +11,23 @@
  *            lowest terms
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 13, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   alloc_seq_array, gcd
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"          /* seq_t seq_gcd(seq_t a, seq_t b) */
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 #if defined(__cplusplus)
 #include <type_traits>

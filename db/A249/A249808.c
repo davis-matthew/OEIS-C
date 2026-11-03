@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 9659, u16 n <= 9659, u32 n <= 9659, u64 n <= 9659,
- *            u128 n <= 9659, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10440, u16 n <= 10440, u32 n <= 10440, u64 n <= 10440,
+ *            u128 n <= 10440, big any n
+ * Validated: standard, pass, 136 terms through n = 9659 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Sequence A249808 – triangular table read by rows.  */
 /* a(n) = A(row(k),col(k)) where row(k) is the smallest r with
@@ -51,7 +53,7 @@ ensure_cache(idx_t n)
     idx_t new_tri = row * (row + 1) / 2;      /* length required, 1‑indexed           */
 
     /* Reallocate the cache array if necessary */
-    seq_t *tmp = (seq_t *)realloc(cache, (new_tri + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (new_tri + 1));
     if (!tmp) return;                         /* allocation failure – keep old cache  */
     cache = tmp;
     /* No need to zero the new part – values will be overwritten */
@@ -83,7 +85,7 @@ ensure_cache(idx_t n)
     }
 
     /* Cumulative counts of smallest prime factors */
-    seq_t *cumul = (seq_t *)calloc(prime_cnt, sizeof(seq_t));
+    seq_t *cumul = mem_new(seq_t, prime_cnt);
     if (!cumul) { free(spf); free(prime_index); free(primes); return; }
 
     /* Fill the cache */
@@ -105,7 +107,7 @@ ensure_cache(idx_t n)
     free(spf);
     free(prime_index);
     free(primes);
-    free(cumul);
+    mem_free(cumul);
 
     max_tri_cached = new_tri;
 }

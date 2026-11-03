@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{p|n, prime} p^(n-p)
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 19, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   build_primes_upto, floor_isqrt_u64, pow_uint
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_u64_idx, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/floor_isqrt_u64.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     static size_t      prime_cnt  = 0;
     static idx_t       prime_limit = 0;
 
-    idx_t sqrt_n = floor_isqrt_u64(n);
+    idx_t sqrt_n = isqrt(n);
     if (sqrt_n > prime_limit) {
         /* Rebuild prime table for the larger limit */
         free(prime_cache);
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         if (p > sqrt_n)
             break;
         if (temp % p == 0) {
-            sum += pow_uint(p, n - p);
+            sum += ipow_u64_idx(p, n - p);
             /* Remove all occurrences of this prime factor to avoid double‑counting */
             while (temp % p == 0)
                 temp /= p;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     /* Remaining factor > sqrt(n) is either 1 or a single prime > sqrt(n) */
     if (temp > 1) {
         /* If n is prime, temp == n and exponent is n-n = 0 -> 1 */
-        sum += pow_uint(temp, n - temp);
+        sum += ipow_u64_idx(temp, n - temp);
     }
 
     return sum;

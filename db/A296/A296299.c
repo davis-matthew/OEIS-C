@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build system */
 extern seq_t a(idx_t n);
@@ -37,7 +39,7 @@ static void ensure_bsize(size_t target_index)
     if (bsize == 0) {
         /* initialise the root word 1221 */
         bsize = 4;
-        bvec = (seq_t *)malloc(bsize * sizeof(seq_t));
+        bvec = mem_new(seq_t, bsize);
         if (!bvec) abort();
         bvec[0] = (seq_t)1;
         bvec[1] = (seq_t)2;
@@ -52,7 +54,7 @@ static void ensure_bsize(size_t target_index)
         for (size_t i = 0; i < bsize; ++i)
             newsize += (bvec[i] == (seq_t)1 ? 3 : 5);
 
-        seq_t *newvec = (seq_t *)malloc(newsize * sizeof(seq_t));
+        seq_t *newvec = mem_new(seq_t, newsize);
         if (!newvec) abort();
 
         /* store the fixed prefix 1221 */
@@ -79,7 +81,7 @@ static void ensure_bsize(size_t target_index)
             }
         }
 
-        free(bvec);
+        mem_free(bvec);
         bvec = newvec;
         bsize = newsize;
     }

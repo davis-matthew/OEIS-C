@@ -8,14 +8,38 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 43,
  *            big any n
- * Helpers:   col_valid
+ * Validated: standard, pass, 36 terms through n = 208 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/col_valid.h"
+
+/* Boolean test whether column 'mid' satisfies the adjacency condition
+ * given its left ('left') and right ('right') neighbours. */
+static bool col_valid(uint8_t left, uint8_t mid, uint8_t right)
+{
+    for (int row = 0; row < 6; ++row) {
+        if (((mid >> row) & 1) == 0) continue;  /* examine only 1's */
+
+        int cnt = 0;
+
+        /* left column neighbours */
+        if (row > 0   && ((left >> (row - 1)) & 1)) ++cnt; /* up‑left */
+        if ((left >> row) & 1)                         ++cnt; /* left   */
+        if (row < 5   && ((left >> (row + 1)) & 1)) ++cnt; /* down‑left */
+
+        /* right column neighbours */
+        if (row > 0   && ((right >> (row - 1)) & 1)) ++cnt; /* up‑right */
+        if ((right >> row) & 1)                         ++cnt; /* right   */
+        if (row < 5   && ((right >> (row + 1)) & 1)) ++cnt; /* down‑right */
+
+        if (cnt != 2 && cnt != 4) return false;
+    }
+    return true;
+}
 
 /* Core: Count 6×n binary arrays where each 1 has exactly 2 or 4
  * adjacent 1s in the 6–neighbour (hexagonal) directions:

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 5179, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _legendre_factorial
+ * Validated: standard, pass, 67 terms through n = 8678 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/_legendre_factorial.h"
+#include "../utils/mem.h"
+
+/* Legendre exponent of prime p in m! */
+static seq_t _legendre_factorial(idx_t m, uint32_t p)
+{
+    seq_t exp = 0;
+    uint64_t pp = p;
+    while (pp <= m) {
+        exp += m / pp;
+        if (pp > m / p) break;          /* avoid overflow of pp*p   */
+        pp *= p;
+    }
+    return exp;
+}
 
 /* ---------- prime sieve up to a fixed limit ----------
    Sieve is performed once on first call.  LIMIT has to be
@@ -100,8 +114,7 @@ seq_t a(idx_t n)
         if (_check_candidate(_next_candidate)) {
             if (_size == _cap) {               /* enlarge cache  */
                 size_t new_cap = _cap == 0 ? 8 : _cap << 1;
-                _cache = (seq_t*)realloc(_cache,
-                                         new_cap * sizeof(seq_t));
+                _cache = mem_resize(seq_t, _cache, new_cap);
                 _cap = new_cap;
             }
             _cache[_size++] = (seq_t)_next_candidate;

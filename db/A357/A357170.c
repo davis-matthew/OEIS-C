@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   count_distinct_primes, divisor_count_u64, next_prime
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   next_prime, num_divisors, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,8 @@
 #include <limits.h>
 #include <stdbool.h>
 #include "../utils/next_prime.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/num_divisors.h"
+#include "../utils/omega.h"
 
 /* Return the n-th element of the sequence (n >= 1). */
 seq_t a(idx_t n)
@@ -42,13 +43,13 @@ seq_t a(idx_t n)
             uint64_t min_tau = UINT64_MAX;
 
             for (uint64_t k = p + 1; k < next; ++k) {
-                uint64_t tau = divisor_count_u64(k);
+                uint64_t tau = num_divisors(k);
                 if (tau < min_tau)
                     min_tau = tau;
             }
 
             /* min_tau is a prime power iff it has exactly one distinct prime factor */
-            if (count_distinct_primes(min_tau) == 1) {
+            if (omega(min_tau) == 1) {
                 ++found;
                 if (found == n)
                     result = (seq_t)p;

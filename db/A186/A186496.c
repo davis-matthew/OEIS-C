@@ -13,12 +13,13 @@
  *            numbers, with ties resolved by placing the pentagonal nu...
  * Range:     u8 n <= 13, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     if (n == 0)
@@ -33,7 +34,7 @@ seq_t a(idx_t n) {
     /* Count of pentagonal numbers not exceeding g:
        Solve j(3j-1)/2 <= g  ->  j = floor((1 + sqrt(1+24*g))/6) */
     idx_t sqrt_arg = 1 + (uint64_t)24 * (uint64_t)g;      /* 1 + 24*g  (fits in 64-bit for allowed n) */
-    idx_t sqrt_val = _floor_isqrt_u64(sqrt_arg);          /* floor(sqrt(1+24*g)) */
+    idx_t sqrt_val = isqrt(sqrt_arg);          /* floor(sqrt(1+24*g)) */
     seq_t gcnt = (seq_t)(( (seq_t)1 + (seq_t)sqrt_val ) / (seq_t)6);
 
     /* If g is a multiple of 5, reduce count by 1 because the pentagonal

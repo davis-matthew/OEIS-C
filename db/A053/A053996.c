@@ -7,11 +7,13 @@
  * Formula:   a(n) = (4^n - 1)(4^n - 4)...(4^n - 4^(n-1)) / n! (n >= 0)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t pow_seq_uint(seq_t base, idx_t exp)

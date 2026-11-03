@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 15, u64 n <= 38, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 167 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoised values */
 static seq_t *memo = NULL;   /* array of memoised a(k)   (0‑based, a(1) in memo[0]) */
@@ -61,7 +63,7 @@ static void ensure_capacity(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *new_mem = (seq_t *)realloc(memo, new_cap * sizeof *new_mem);
+    seq_t *new_mem = mem_resize(seq_t, memo, (new_cap * sizeof *new_mem) / sizeof(seq_t));
     if (!new_mem)
         abort();  /* out of memory */
 

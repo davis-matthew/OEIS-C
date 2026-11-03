@@ -9,13 +9,16 @@
  *            row from low to high degree
  * Range:     i8 n <= 17, i16 n <= 59, i32 n <= 203, i64 n <= 718,
  *            i128 n <= 2600, big any n
- * Helpers:   big_pow, binom
+ * Validated: standard, pass, 58 terms through n = 2380 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +38,8 @@ seq_t a(idx_t n)
     idx_t k    = half - pos;           /* index of binomial term    */
     idx_t exp  = (r & 1) + 2 * pos;    /* power of two in coefficient */
 
-    seq_t coef = binom(r - k, k);      /* binomial coefficient      */
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)exp);  /* 2^exp      */
+    seq_t coef = binomial(r - k, k);      /* binomial coefficient      */
+    seq_t pow2 = ipow((seq_t)2, (seq_t)exp);  /* 2^exp      */
     coef *= pow2;                     /* combine to get coefficient */
     if (k & 1)                        /* apply the (-1)^k sign     */
         coef = -coef;

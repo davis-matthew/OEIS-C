@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = sigma(n^2) / gcd(sigma(n^2), A003961(n^2))
- * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 1758, u64 n <= 8468,
- *            u128 n <= 8468, big any n
- * Helpers:   gcd, next_prime, seq_pow
+ * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 1758, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 76 terms through n = 8468 (2026-11-01)
+ * Helpers:   gcd, ipow_idx, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/gcd.h"          /* gcd(seq_t, seq_t) */
-#include "../utils/seq_pow.h"      /* seq_pow(seq_t, idx_t) */
-#include "../utils/next_prime.h"   /* next_prime(uint64_t) */
+#include <stdlib.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/next_prime.h"
 
 static seq_t pow_seq_u64(uint64_t base, idx_t exp)
 {
@@ -89,14 +91,14 @@ seq_t a(idx_t n)
 
         /* sigma part: (p^(exp_sq+1) - 1) / (p - 1) */
         seq_t p_seq          = (seq_t)p;
-        seq_t numerator      = seq_pow(p_seq, (idx_t)(exp_sq + 1));
+        seq_t numerator      = ipow_idx(p_seq, (idx_t)(exp_sq + 1));
         seq_t sigma_term     = (numerator - (seq_t)1) / (p_seq - (seq_t)1);
         sigma *= sigma_term;
 
         /* A003961 part: (nextprime(p))^exp_sq */
         uint64_t next_p = next_prime_uint64(p);
         seq_t next_p_seq = (seq_t)next_p;
-        seq_t af_term    = seq_pow(next_p_seq, (idx_t)exp_sq);
+        seq_t af_term    = ipow_idx(next_p_seq, (idx_t)exp_sq);
         af961 *= af_term;
     }
 

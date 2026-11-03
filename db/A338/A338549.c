@@ -11,14 +11,15 @@
  *            division factorisation and per-prime multiplicative con...
  * Range:     i8 n <= 3, i16 n <= 13, i32 n <= 213, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   pow_uint_local
+ * Validated: standard, pass, 52 terms through n = 9763 (2026-11-01)
+ * Helpers:   ipow_idx_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow_uint_local.h"
+#include "../utils/ipow_idx_to_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -49,12 +50,12 @@ seq_t a(idx_t n)
             if (exp == 1) {
                 term = (seq_t)-17;
             } else {
-                seq_t powPow = pow_uint_local(2, 4 * (exp - 1));
+                seq_t powPow = ipow_idx_to_seq(2, 4 * (exp - 1));
                 term = (seq_t)-15 * powPow;
             }
         } else {
-            seq_t powp4 = pow_uint_local(p, 4);
-            seq_t powpe = pow_uint_local(p, 4 * (exp - 1));
+            seq_t powp4 = ipow_idx_to_seq(p, 4);
+            seq_t powpe = ipow_idx_to_seq(p, 4 * (exp - 1));
             term = (powp4 - 1) * powpe;
         }
 

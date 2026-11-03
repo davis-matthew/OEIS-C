@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   _E128
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,13 @@
    where A000914(k) = Σ_{1≤i<j≤k} i·j = ((k(k+1)/2)^2 – k(k+1)(2k+1)/6)/2. */
 
 #include <stdint.h>
-#include "../utils/_E128.h"
+
+static inline unsigned __int128 _E128(uint64_t k) {
+    unsigned __int128 kk = k;
+    unsigned __int128 sum   = kk * (kk + 1) / 2;          /* Σi         */
+    unsigned __int128 sum2  = kk * (kk + 1) * (2 * kk + 1) / 6; /* Σi^2  */
+    return (sum * sum - sum2) >> 1;                       /* E(k)       */
+}
 
 seq_t a(idx_t n) {
     if (n < 1)               /* safety for out‑of‑bounds index */

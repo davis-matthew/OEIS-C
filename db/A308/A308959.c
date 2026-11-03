@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: compute least prime factor for each number up to n */
 static void compute_spf(idx_t n, idx_t *spf) {
@@ -90,8 +92,8 @@ seq_t a(idx_t n) {
     /* DP arrays: count and sum of maximums for m parts */
     size_t rows = 7;               /* we need m = 0..6 */
     size_t cols = N + 1;
-    seq_t *cnt   = (seq_t*)calloc(rows * cols, sizeof(seq_t));
-    seq_t *sumdp = (seq_t*)calloc(rows * cols, sizeof(seq_t));
+    seq_t *cnt   = mem_new(seq_t, rows * cols);
+    seq_t *sumdp = mem_new(seq_t, rows * cols);
     if (!cnt || !sumdp) return 0;   /* allocation failure guard */
 
     cnt[0] = 1;   /* one way to sum to 0 with 0 parts */
@@ -124,8 +126,8 @@ seq_t a(idx_t n) {
     free(mu);
     free(spf);
     free(sf);
-    free(cnt);
-    free(sumdp);
+    mem_free(cnt);
+    mem_free(sumdp);
 
     return result;
 }

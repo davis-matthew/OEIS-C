@@ -10,13 +10,15 @@
  *            a(4)=168, a(5)=488, a(6)=1422, a(7)=4160
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 40, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache: index 0 is unused to keep access 1‑based */
 static seq_t *cache      = NULL;
@@ -36,7 +38,7 @@ static void ensure_capacity(idx_t n)
         return;
 
     /* Allocate an array of size n+1 (index 0 .. n) */
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
     if (!tmp)
         abort();                     /* fatal memory error */
     cache = tmp;

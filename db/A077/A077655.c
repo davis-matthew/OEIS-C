@@ -10,22 +10,23 @@
  *            (Ω(1) = 0). This function computes a(n) by testing consecutive *
  *            integers n+1, n+2, … until the Ω value differs, counting how
  *            many * successive integers share the same...
- * Range:     u8 n <= 9468, u16 n <= 9468, u32 n <= 9468, u64 n <= 9468,
- *            u128 n <= 9468, big any n
- * Helpers:   big_omega
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9468 (2026-11-01)
+ * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for standard integer types */
-#include "../utils/big_omega.h"
+#include "../utils/bigomega.h"
 
 seq_t a(idx_t n)
 {
-    seq_t omega_n = big_omega(n);
+    seq_t omega_n = bigomega(n);
     for (idx_t k = 1; ; ++k)
     {
-        if (big_omega(n + k) != omega_n)
+        if (bigomega(n + k) != omega_n)
             return (seq_t)(k - 1);
     }
 }

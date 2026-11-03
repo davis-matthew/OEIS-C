@@ -8,7 +8,8 @@
  * Formula:   a(n) = numerator of \sum_{d|n} sigma(n/d)^d / d
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 39, u64 n <= 79, u128 n <= 161,
  *            big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 54 terms through n = 4157 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 
 /* seq_t and idx_t are defined by the build system.  */
 #include <stdint.h>   /* for uint64_t etc.  */
-#include "../utils/gcd_seq.h"
+#include "../utils/gcd.h"
 
 /* Local helper: compute sigma(n) = sum of divisors of n. */
 static seq_t sigma_of(idx_t n)
@@ -86,7 +87,7 @@ seq_t a(idx_t n)
         }
     }
 
-    seq_t g = gcd_seq(N, (seq_t)n);
+    seq_t g = gcd(N, (seq_t)n);
     return N / g;                    /* numerator of the reduced fraction */
 }
 

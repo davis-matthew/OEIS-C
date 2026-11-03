@@ -6,23 +6,25 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..n} binomial(2*k+1, n-k) * binomial(3*k, k) /
  *            (2*k+1)
- * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 22,
+ * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Computes OEIS sequence A366266. */
 seq_t a(idx_t n)
 {
     seq_t sum = 0;
     for (idx_t k = 0; k <= n; ++k) {
-        seq_t b1 = binom(2*k + 1, n - k);          /* binomial(2*k+1, n-k) */
-        seq_t b2 = binom(3*k, k);                 /* binomial(3*k, k)     */
+        seq_t b1 = binomial(2*k + 1, n - k);          /* binomial(2*k+1, n-k) */
+        seq_t b2 = binomial(3*k, k);                 /* binomial(3*k, k)     */
         seq_t term = b1 * b2;                     /* product of binomials */
         term /= (seq_t)(2*k + 1);                 /* divide by (2*k+1)    */
         sum += term;

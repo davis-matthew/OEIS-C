@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 9632, u16 n <= 9632, u32 n <= 9632, u64 n <= 9632,
- *            u128 n <= 9632, big any n
- * Helpers:   binary_digits
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 122 terms through n = 9632 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binary_digits.h"
+
+/* Convert n to binary digits (least‑significant first).
+ * Returns the number of bits written to buf. */
+static idx_t
+binary_digits(idx_t n, uint8_t *buf)
+{
+    if (n == 0) {
+        buf[0] = 0;
+        return 1;
+    }
+    idx_t len = 0;
+    while (n > 0) {
+        buf[len++] = (uint8_t)(n & 1);
+        n >>= 1;
+    }
+    return len;
+}
 
 /* Convert n to decimal digits (least‑significant first).
  * Returns the number of digits written to buf. */

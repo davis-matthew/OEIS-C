@@ -9,7 +9,8 @@
  *            least one part of each type)
  * Range:     u8 n <= 77, u16 n <= 182, u32 n <= 498, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static arrays for dynamic programming, rebuilt when a larger n is requested. */
 static seq_t *dpS  = NULL;   /* partitions using 7k or 7k+4          */
@@ -34,15 +36,15 @@ static void
 recompute(idx_t N)
 {
     /* free old tables if any */
-    if (dpS) free(dpS);
-    if (dp7) free(dp7);
-    if (dp4) free(dp4);
+    if (dpS) mem_free(dpS);
+    if (dp7) mem_free(dp7);
+    if (dp4) mem_free(dp4);
 
     /* allocate new tables, +1 for zero index */
     size_t sz = (size_t)(N + 1);
-    dpS = (seq_t *)calloc(sz, sizeof(seq_t));
-    dp7 = (seq_t *)calloc(sz, sizeof(seq_t));
-    dp4 = (seq_t *)calloc(sz, sizeof(seq_t));
+    dpS = mem_new(seq_t, sz);
+    dp7 = mem_new(seq_t, sz);
+    dp4 = mem_new(seq_t, sz);
 
     /* initialize base case: one way to make sum 0 – empty part set */
     dpS[0] = dp7[0] = dp4[0] = (seq_t)1;

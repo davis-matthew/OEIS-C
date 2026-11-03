@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∏prime_i prime(i)^(XOR_{j>=i} e(j))
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 28, u64 n <= 52, u128 n <= 102,
  *            big any n
- * Helpers:   big_pow, build_primes_upto, factor_u64
+ * Validated: standard, pass, 63 terms through n = 2332 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 static uint32_t *prime_list = NULL;
 static size_t prime_cnt   = 0;
@@ -86,7 +87,7 @@ seq_t a(idx_t n)
         }
 
         if (xor_acc != 0) {
-            result *= big_pow((seq_t)p, (seq_t)xor_acc);
+            result *= ipow((seq_t)p, (seq_t)xor_acc);
         }
     }
 

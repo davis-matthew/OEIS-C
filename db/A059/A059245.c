@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 512, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 61 terms through n = 911 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdint.h>
 
 /* Helper function prototypes from the utils directory */
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start); */
-#include "../utils/mod_pow.h"      /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Test whether the congruence x^13 ≡ 2 (mod p) has a solution.
    Returns true if at least one solution exists. */
@@ -28,7 +31,7 @@ static bool has_solution_13th_power_2(uint64_t p)
     if (p == 2) return true;                     /* 0^13 = 0 ≡ 2 (mod 2) is possible      */
     uint64_t d   = (p % 13 == 1) ? 13 : 1;        /* gcd(13, p-1) */
     uint64_t exp = (p - 1) / d;                   /* exponent for the criterion         */
-    seq_t   r    = mod_pow((seq_t)2, exp, (seq_t)p); /* 2^exp mod p */
+    seq_t   r    = powmod((seq_t)2, exp, (seq_t)p); /* 2^exp mod p */
     return r == (seq_t)1;                        /* solution exists iff r == 1          */
 }
 
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on the first call */
     if (!initialized) {
         seq_cap   = 256;
-        seq       = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq       = mem_new(seq_t, seq_cap);
         seq_len   = 0;
         initialized = true;
     }
@@ -58,7 +61,7 @@ seq_t a(idx_t n)
         if (!has_solution_13th_power_2(p)) {       /* include if no solution exists */
             if (seq_len == seq_cap) {              /* grow the buffer if needed */
                 seq_cap <<= 1;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)p;
         }

@@ -9,22 +9,52 @@
  *            offset: 1
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 40, u64 n <= 80, u128 n <= 160,
  *            big any n
- * Helpers:   mu_of, seq_mul, seq_pow
+ * Validated: standard, pass, 50 terms through n = 200 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/mu_of.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 /* Count palindromes of length len that use all three symbols.
    The number equals 3^m - 3*2^m + 3 where m = ceil(len/2). */
 static seq_t palindrome3_count(idx_t len)
 {
     idx_t m = (len + 1) / 2;          /* ceil(len/2) */
-    seq_t pow3 = seq_pow(3, m);
-    seq_t pow2 = seq_pow(2, m);
+    seq_t pow3 = ipow_idx(3, m);
+    seq_t pow2 = ipow_idx(2, m);
     seq_t res = pow3;
     res -= seq_mul(pow2, 3);
     res += 3;

@@ -7,13 +7,14 @@
  * Formula:   a(n) = A007093(prime(n)) - primes written in base 7
  * Range:     u8 n <= 33, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 72 terms through n = 999 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     // Find the n-th prime
@@ -22,7 +23,7 @@ seq_t a(idx_t n) {
     
     while (count < n) {
         prime++;
-        if (is_prime(prime)) {
+        if (is_prime_u64(prime)) {
             count++;
         }
     }

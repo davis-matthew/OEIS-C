@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   gcd64, pollard_rho
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
-#include "../utils/pollard_rho.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
+
+/* Pollard‑Rho algorithm to find a non‑trivial factor of n. */
+static uint64_t pollard_rho(uint64_t n) {
+    if (n % 2ULL == 0) return 2;
+    static uint64_t seed = 2;
+    while (1) {
+        uint64_t c = seed++;
+        uint64_t x = 2, y = 2, d = 1;
+        while (d == 1) {
+            x = ((unsigned __int128)x * x + c) % n;
+            y = ((unsigned __int128)y * y + c) % n;
+            y = ((unsigned __int128)y * y + c) % n;
+            uint64_t diff = x > y ? x - y : y - x;
+            d = gcd_u64(diff, n);
+        }
+        if (d != n) return d;
+    }
+}
 
 /* Small primes up to 1000 – used for quick small‐size testing. */
 static const uint32_t small_primes[] = {
@@ -129,7 +148,7 @@ seq_t a(idx_t n) {
 
         if (size == cap) {
             cap = cap ? cap * 2 : 16;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
         cache[size++] = (seq_t)last_k;
     }

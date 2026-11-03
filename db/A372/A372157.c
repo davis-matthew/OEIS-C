@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
  */
 
 #include <stdlib.h>          /* malloc/realloc */
-#include "../utils/seq_pow.h"/* seq_pow(seq_t, idx_t) */
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *fact = NULL;   /* factorial cache */
 static idx_t fact_cap = 0;   /* current capacity of fact array */
@@ -32,7 +35,7 @@ static void ensure_factorial_up_to(idx_t n)
     if (fact_cap > n) return;
 
     idx_t new_cap = n + 1;
-    seq_t *new_fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+    seq_t *new_fact = mem_resize(seq_t, fact, new_cap);
     if (!new_fact) return; /* allocation failed; caller will use whatever is available */
 
     /* Compute missing factorials */
@@ -59,7 +62,7 @@ seq_t a(idx_t n)
         idx_t exp = n - m - 1;                     /* >= 0 because n >= 1 */
 
         /* power = (m+3)^(n-m-1) */
-        seq_t power = seq_pow((seq_t)(m + 3), exp);
+        seq_t power = ipow_idx((seq_t)(m + 3), exp);
 
         /* coeff = 3 * n! / (m! (n-2m)!) */
         seq_t coeff = fact[n];

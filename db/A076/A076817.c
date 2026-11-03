@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    (rounded to integer, all divisions are exact). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The build supplies the types seq_t and idx_t.  */
 seq_t a(idx_t n)
@@ -30,14 +32,14 @@ seq_t a(idx_t n)
     /* Lazy initialization – store first two terms. */
     if (cache_len == 0) {
         cache_len = 2;
-        cache = (seq_t*)malloc((cache_len + 1) * sizeof(seq_t)); /* index 0 unused */
+        cache = mem_new(seq_t, (cache_len + 1)); /* index 0 unused */
         cache[1] = (seq_t)10;
         cache[2] = (seq_t)10;
     }
 
     /* Grow the cache if the requested index is beyond the current size. */
     if (n > cache_len) {
-        seq_t *new_cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) {
             /* Allocation failed – in the constrained environment just abort. */
             abort();

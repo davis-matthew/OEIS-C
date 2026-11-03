@@ -7,13 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 1432, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 61 terms through n = 9981 (2026-11-01)
+ * Helpers:   digit_sum_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/digit_sum.h"
+#include "../utils/digit_sum_u64.h"
 
 /* Search for k such that k/(sum of digits of k) is prime */
 
@@ -37,7 +38,7 @@ seq_t a(idx_t n) {
     
     while (count < n) {
         k++;
-        uint64_t ds = digit_sum(k);
+        uint64_t ds = digit_sum_u64(k);
         if (ds > 0 && k % ds == 0) {
             uint64_t quotient = k / ds;
             if (is_prime(quotient)) {

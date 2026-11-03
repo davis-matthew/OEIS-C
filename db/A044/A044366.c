@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains34, seq_realloc
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,34 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/seq_realloc.h"   /* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) */
-#include "../utils/contains34.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Test whether a decimal integer contains the adjacent digits 3,4
+ * (in that order; the check is performed on the reversed digit
+ * sequence, so we look for 4 followed by 3). */
+static bool contains34(seq_t x)
+{
+    if (x < (seq_t)34) return false;
+    seq_t prev = (seq_t)10; /* sentinel value that cannot equal 4 */
+    while (x > 0) {
+        seq_t cur = x % (seq_t)10;
+        if (cur == (seq_t)3 && prev == (seq_t)4) return true;
+        prev = cur;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 /* Dynamically allocated cache for the computed sequence values. */
 static seq_t *cache      = NULL;

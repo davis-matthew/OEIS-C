@@ -5,8 +5,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, look
  * Formula:   a(n) = |{(p,q) : p+q = n, 1 ≤ p ≤ q, p,q ∈ {1} ∪ primes}|
- * Range:     u8 n <= 6929, u16 n <= 8512, u32 n <= 8512, u64 n <= 8512,
- *            u128 n <= 8512, big any n
+ * Range:     u8 n <= 6929, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 105 terms through n = 8512 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

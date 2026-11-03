@@ -12,12 +12,14 @@
  *            a(9)=1741,a(10)=4605,a(11)=120...
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 24, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int coeffs[20] = {
     1,  2,  3,  4,  6, 13, -9, -11, -7,  5,
@@ -40,7 +42,7 @@ static void grow_cache(size_t need)
     if (cache_cap > need) return;
     size_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap <= need) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(EXIT_FAILURE);
     cache = new_cache;
     cache_cap = new_cap;

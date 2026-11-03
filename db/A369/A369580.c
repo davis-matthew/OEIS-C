@@ -10,7 +10,8 @@
  *            f(n,m)=f(n,m-1)+f(n-1,m)+3*f(n-1,m-1) for n,m>0
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 /*  a(n) = g(n,n)/3.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* allocate two rows of size N+1 each */
-    seq_t *prev = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, N + 1);
+    seq_t *curr = mem_new(seq_t, N + 1);
     if (!prev || !curr) {
         /* allocation failed – return 0 (sequence not defined) */
-        free(prev); free(curr);
+        mem_free(prev); mem_free(curr);
         return (seq_t)0;
     }
 
@@ -69,8 +71,8 @@ seq_t a(idx_t n)
     seq_t result = prev[N] / (seq_t)3;
 
     /* free allocated memory */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
 
     return result;
 }

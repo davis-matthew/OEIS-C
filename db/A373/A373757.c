@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=0..⌊n/3⌋} binomial(n-k-1, n-3k) / (6^k * k!)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    operations for each newly computed value. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t cache_size = 0;          /* size of allocated arrays (indices 0 .. cache_size-1) */
 static seq_t *fact_arr = NULL;        /* factorial array: fact[i] = i!   */
@@ -30,8 +32,8 @@ static void grow_cache(idx_t new_size) {
         return;
 
     /* Reallocate factorial and sequence arrays to the new size. */
-    seq_t *tmp_fact = (seq_t *)realloc(fact_arr, new_size * sizeof(seq_t));
-    seq_t *tmp_a    = (seq_t *)realloc(a_arr,    new_size * sizeof(seq_t));
+    seq_t *tmp_fact = mem_resize(seq_t, fact_arr, new_size);
+    seq_t *tmp_a    = mem_resize(seq_t, a_arr, new_size);
     if (!tmp_fact || !tmp_a) {
         abort(); /* memory allocation failure */
     }

@@ -10,17 +10,19 @@
  *            composite, 0 if n is prime. Recurrence for the Dirichlet inverse
  *            g: g(1) = 1 g(n) = -A005171(n) - Σ_{d|n, 1<d<n} A005171(d) *
  *            g(n/d) for n>1 Then a(n) = A005171(n) + g(n)
- * Range:     i8 n <= 8639, i16 n <= 9039, i32 n <= 9039, i64 n <= 9039,
- *            i128 n <= 9039, big any n
- * Helpers:   int_sqrt, is_prime
+ * Range:     i8 n <= 8639, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9039 (2026-11-01)
+ * Helpers:   is_prime, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 static seq_t *g_cache = NULL;   /* Dirichlet inverse values */
 static size_t g_cap   = 0;       /* current allocation size */
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         for (idx_t k = g_max + 1; k <= n; ++k) {
             seq_t fn = nonprime(k);
             seq_t sum = 0;
-            idx_t limit = int_sqrt(k);
+            idx_t limit = isqrt(k);
             for (idx_t d = 2; d <= limit; ++d) {
                 if (k % d == 0) {
                     idx_t d1 = d;

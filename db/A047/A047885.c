@@ -10,13 +10,16 @@
  *            (m = offset in diagonal, n = sum - offset)
  * Range:     i8 n <= 65, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 /* Return the diagonal index s such that the entries up to sum s
    contain the term at position n.  */
@@ -45,9 +48,9 @@ seq_t a(idx_t n)
     idx_t k = s - offset;
 
     /* Compute the pi values and apply the formula */
-    seq_t pi_s = compute_pi(s);
-    seq_t pi_m = compute_pi(m);
-    seq_t pi_k = compute_pi(k);
+    seq_t pi_s = prime_pi(s);
+    seq_t pi_m = prime_pi(m);
+    seq_t pi_k = prime_pi(k);
 
     return pi_s - pi_m - pi_k;
 }

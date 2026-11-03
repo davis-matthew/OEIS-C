@@ -15,12 +15,14 @@
  *            +8x^17+10x^18+1x^19+1x^20
  * Range:     i8 n <= 6, i16 n <= 18, i32 n <= 31, i64 n <= 31, i128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int p_coeffs[21] = {
     0,  /* unused; p_coeffs[k] stores coefficient for x^k, 1≤k≤20 */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         idx_t old_len = buf_len;
         idx_t new_len = n + 1;          /* include index 0 (unused) */
 
-        seq_t *new_buf = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_buf = mem_new(seq_t, new_len);
         if (!new_buf)
             exit(EXIT_FAILURE);
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
         /* free old buffer */
         if (buf)
-            free(buf);
+            mem_free(buf);
 
         buf = new_buf;
         buf_len = n;

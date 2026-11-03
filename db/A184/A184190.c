@@ -11,14 +11,35 @@
  *            A184190
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   init_adjacent
+ * Validated: standard, pass, 36 terms through n = 200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/init_adjacent.h"
+
+/* Build adjacency matrix M[r][s] once. */
+static void init_adjacent(seq_t M[8][8]) {
+    static bool initialized = false;
+    if (initialized)
+        return;
+    for (uint32_t r = 0; r < 8; ++r)
+        for (uint32_t s = 0; s < 8; ++s) {
+            bool ok = true;
+            for (uint32_t j = 0; j < 2; ++j) {
+                uint32_t sum = ((r >> j) & 1)     + ((r >> (j + 1)) & 1) +
+                               ((s >> j) & 1)     + ((s >> (j + 1)) & 1);
+                if (sum == 1) {
+                    ok = false;
+                    break;
+                }
+            }
+            M[r][s] = ok ? 1 : 0;
+        }
+    initialized = true;
+}
 
 static void mat_mul(const seq_t A[8][8], const seq_t B[8][8], seq_t C[8][8]) {
     for (uint32_t i = 0; i < 8; ++i)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;          /* array of found terms   */
 static size_t terms_len = 0;         /* number of valid terms  */
@@ -94,7 +96,7 @@ static void rebuild_terms(size_t new_limit)
 {
     free(spf);
     free(is_prime_bool);
-    free(terms);
+    mem_free(terms);
     spf = NULL;
     is_prime_bool = NULL;
     terms = NULL;
@@ -106,7 +108,7 @@ static void rebuild_terms(size_t new_limit)
 
     /* estimate capacity (roughly one in ~1000 numbers) */
     terms_cap = new_limit / 1000 + 1;
-    terms = (seq_t*)calloc(terms_cap, sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     if (!terms) abort();
 
     for (uint32_t n = 4; n <= new_limit; n += 4) {
@@ -126,7 +128,7 @@ static void rebuild_terms(size_t new_limit)
         if (count == 4) {
             if (terms_len >= terms_cap) {
                 terms_cap <<= 1;
-                seq_t *tmp = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                 if (!tmp) abort();
                 terms = tmp;
             }

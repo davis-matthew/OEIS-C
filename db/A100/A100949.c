@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = number of unordered pairs {p,s} with p prime, s semiprime
  *            and p + s = n (OEIS A100949)
- * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
- *            u128 n <= 101, big any n
+ * Range:     u8 n <= 4049, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 117 terms through n = 9861 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

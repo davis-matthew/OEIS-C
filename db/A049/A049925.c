@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static storage for the sequence and its prefix sums */
 static seq_t *a_arr   = NULL;   /* a_arr[i] = a(i)   (1‑based)   */
@@ -45,8 +47,8 @@ static void ensure_capacity(idx_t n)
         new_cap <<= 1;
 
     /* realloc may return NULL on failure – let it propagate to a crash. */
-    a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
-    pref  = (seq_t *)realloc(pref,  new_cap * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, new_cap);
+    pref  = mem_resize(seq_t, pref, new_cap);
 
     /* initialise pref[0] on first allocation */
     if (cap == 0)

@@ -7,14 +7,25 @@
  * Formula:   a(n) = C(2n-1,n-1) mod n³
  * Range:     u8 n <= 7, u16 n <= 44, u32 n <= 1646, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   fact_exp_uint32
+ * Validated: standard, pass, 66 terms through n = 9754 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/fact_exp_uint32.h"
+
+/* exponent of prime p in m! (Legendre's formula) */
+static uint32_t fact_exp_uint32(uint32_t m, uint32_t p)
+{
+    uint32_t e = 0;
+    while (m) {
+        m /= p;
+        e += m;
+    }
+    return e;
+}
 
 /* modular exponentiation with 128‑bit intermediate */
 static uint64_t mod_pow_uint64(uint64_t base, uint32_t exp, uint64_t mod)

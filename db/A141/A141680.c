@@ -7,13 +7,15 @@
  * Keywords:  nonn, tabl
  * Formula:   T(n,m) = (n/m) * binomial(n,m) if m divides n, else 0 * a(n) is
  *            the linearization of the triangle by rows (n = row, m = column)
- * Range:     u8 n <= 31, u16 n <= 161, u32 n <= 577, u64 n <= 2311,
+ * Range:     u8 n <= 49, u16 n <= 161, u32 n <= 577, u64 n <= 2311,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 71 terms through n = 5025 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

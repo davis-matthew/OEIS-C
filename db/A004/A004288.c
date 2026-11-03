@@ -7,8 +7,9 @@
  * Formula:   breadth-first search over residues mod n for the least number
  *            with base-8 digits only 0 and 1 that is divisible by n; the
  *            base-8 digit string is returned read as a decimal number
- * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 36, u64 n <= 36, u128 n <= 36,
- *            big any n
+ * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 62, u64 n <= 510,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 52 terms through n = 9279 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

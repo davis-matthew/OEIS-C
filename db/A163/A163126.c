@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 333, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 116 terms through n = 994 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -30,7 +33,7 @@ static void ensure_cache_size(idx_t need)
     if (cache_cap >= required)
         return;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, required * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, required);
     if (!new_cache)
         abort();
 

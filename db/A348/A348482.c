@@ -9,12 +9,14 @@
  *            T(r,k) = (Σ_{i=k..r} i!) / k! (read the triangle by rows)
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root of a 64‑bit unsigned integer.
    Returns ⌊√x⌋.  (binary method, O(log bits)) */
@@ -44,11 +46,11 @@ seq_t a(idx_t n)
     idx_t k = n - before;                               /* column in this row */
 
     /* Allocate factorial and prefix‑sum arrays up to r. */
-    seq_t *fact = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *pref = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (r + 1));
+    seq_t *pref = mem_new(seq_t, (r + 1));
     if (!fact || !pref) {
-        free(fact);
-        free(pref);
+        mem_free(fact);
+        mem_free(pref);
         return 0;   /* allocation failure – caller must handle */
     }
 
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
 
     seq_t result = row_sum / fact[k];   /* exact division by definition */
 
-    free(fact);
-    free(pref);
+    mem_free(fact);
+    mem_free(pref);
     return result;
 }

@@ -7,15 +7,18 @@
  * Keywords:  sign
  * Formula:   a(n) = (product of lengths of runs of 1‑bits) - (product of
  *            lengths of runs of 0‑bits) in the binary representation of n
- * Range:     i8 n <= 9515, i16 n <= 9515, i32 n <= 9515, i64 n <= 9515,
- *            i128 n <= 9515, big any n
- * Helpers:   floor_log2_uint64
+ * Range:     i8 n <= 10922, i16 n <= 10922, i32 n <= 10922, i64 n <= 10922,
+ *            i128 n <= 10922, big any n
+ * Validated: standard, pass, 94 terms through n = 9515 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
     }
 
     /* Find the index of the most significant 1-bit. */
-    idx_t msb = floor_log2_uint64(n);
+    idx_t msb = ilog2(n);
 
     /* Products of run lengths.  Empty products are 1. */
     seq_t prod1 = 1;

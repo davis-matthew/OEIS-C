@@ -8,11 +8,13 @@
  * Formula:   a(n) = numerator of 4 * \sum_{k=1}^{n} 1/(4k-3)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

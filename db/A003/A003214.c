@@ -10,18 +10,44 @@
  *            W(m/2)(W(m/2)+1)/2
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 29, u64 n <= 55, u128 n <= 105,
  *            big any n
- * Helpers:   a3214_W, a3214_bits, a3214_halfpair, a3214_inv, a3214_isfixed
+ * Validated: standard, pass, 51 terms through n = 2526 (2026-11-01)
+ * Helpers:   triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a3214_W.h"
-#include "../utils/a3214_bits.h"
-#include "../utils/a3214_halfpair.h"
-#include "../utils/a3214_inv.h"
-#include "../utils/a3214_isfixed.h"
+#include "../utils/triangular_seq.h"
+
+static void a3214_W(seq_t *W, idx_t m) {
+    if (m == 0) { W[0] = 0; return; }
+    if (m == 1) { W[1] = 1; return; }
+    seq_t s = 0;
+    for (idx_t i = 1; 2 * i < m; i++) s += W[i] * W[m - i];
+    if (m % 2 == 0) s += triangular_seq(W[m / 2]);
+    W[m] = s;
+}
+
+static int a3214_bits(void) {
+    seq_t x = 1;
+    int w = 0;
+    while (x != 0) { x <<= 1; w++; }
+    return w;
+}
+
+/* inverse of odd q modulo 2^w (fixed-width only) */
+static seq_t a3214_inv(seq_t q) {
+    seq_t x = q;
+    for (int i = 0; i < 8; i++) x = x * ((seq_t)2 - q * x);
+    return x;
+}
+
+static bool a3214_isfixed(void) {
+    seq_t z = 0;
+    z -= 1;
+    return z > 0;
+}
 
 #define A3214_MAXF 300
 

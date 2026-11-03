@@ -9,13 +9,14 @@
  *            [(n-2p)(n-2q) - max(0,(n-3p)(n-3q))]
  * Range:     u8 n <= 8, u16 n <= 35, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* Euclidean GCD for 64‑bit unsigned integers. */
 
@@ -29,7 +30,7 @@ seq_t a(idx_t n) {
 
     for (idx_t q = 1; q <= max_idx; ++q) {
         for (idx_t p = 1; p <= max_idx; ++p) {
-            if (gcd_uint64(p, q) != 1) continue;  /* only reduced slopes */
+            if (gcd_u64(p, q) != 1) continue;  /* only reduced slopes */
 
             /* Lines with slope +p/q (and later -p/q). */
             seq_t t1 = (N - (seq_t)(2 * p)) * (N - (seq_t)(2 * q));

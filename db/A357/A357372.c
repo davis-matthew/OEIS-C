@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl, easy, frac
  * Formula:   not stated
- * Range:     u8 n <= 772, u16 n <= 9586, u32 n <= 9586, u64 n <= 9586,
- *            u128 n <= 9586, big any n
+ * Range:     u8 n <= 772, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 9586 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* Sequence A357372: a(n) is the nth element of the antidiagonal‐ordered square array  
    A(i,j) = (i + j) / gcd(i + j, i * j). */ 
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

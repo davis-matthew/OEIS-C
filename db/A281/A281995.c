@@ -9,7 +9,8 @@
  *            sum_of_distinct_prime_factors(n) is also squarefree
  * Range:     u8 n <= 134, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_isqrt_u64
+ * Validated: standard, pass, 81 terms through n = 9455 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------
    Prime sieve utilities
@@ -66,7 +68,7 @@ static void generate_primes_up_to(uint32_t limit)
    sqrt(v)+1, extending it if necessary. */
 static void ensure_primes_upto(uint64_t v)
 {
-    uint32_t need = (uint32_t)(floor_isqrt_u64(v) + 1);
+    uint32_t need = (uint32_t)(isqrt(v) + 1);
     if (prime_limit < need)
         generate_primes_up_to(need * 2 + 100);   /* extra margin */
 }
@@ -145,7 +147,7 @@ static void append_term(seq_t val)
 {
     if (term_cnt == term_cap) {
         term_cap = term_cap ? term_cap * 2 : 8;
-        term_cache = (seq_t*)realloc(term_cache, term_cap * sizeof(seq_t));
+        term_cache = mem_resize(seq_t, term_cache, term_cap);
     }
     term_cache[term_cnt++] = val;
 }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*(n+1)*(n+2)*(n+3)*(1+3*n+n^2)/120
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 88, u64 n <= 3608,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 47 terms through n = 9707 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

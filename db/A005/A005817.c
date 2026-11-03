@@ -9,13 +9,14 @@
  *            numbers A000108 computed by C(0) = 1, C(k+1) = C(k)*(4k+2)/(k+2)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 21, u64 n <= 38, u128 n <= 71,
  *            big any n
- * Helpers:   a005817_gcd
+ * Validated: standard, pass, 44 terms through n = 200 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005817_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     idx_t i1 = (n + 1) / 2;  /* floor(n/2 + 1/2) */
@@ -26,7 +27,7 @@ seq_t a(idx_t n) {
     for (k = 0; k < i2; k++) {
         uint64_t num = 4 * (uint64_t)k + 2;
         uint64_t den = (uint64_t)k + 2;
-        uint64_t g = a005817_gcd(num, den);
+        uint64_t g = gcd_u64(num, den);
         c /= (seq_t)(den / g);
         c *= (seq_t)(num / g);
         if (k + 1 == i1) c1 = c;

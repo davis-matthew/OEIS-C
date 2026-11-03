@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 13, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   dec_digits_uint64, factor
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,8 +33,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor.h"
-#include "../utils/dec_digits_uint64.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------- */
+static void factor(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    size_t c = 0;
+    for (uint64_t p = 2; p*p <= n; ++p) {
+        if (n % p == 0) {
+            pr[c] = p; exp[c] = 0;
+            while (n % p == 0) { n /= p; ++exp[c]; }
+            ++c;
+        }
+    }
+    if (n > 1) { pr[c] = n; exp[c] = 1; ++c; }
+    *cnt = c;
+}
+
+/* number of decimal digits of a positive 64‑bit integer */
+static uint8_t dec_digits_uint64(uint64_t x)
+{
+    uint8_t d = 0;
+    do { ++d; x /= 10; } while (x);
+    return d;
+}
 
 /* sequence term function */
 seq_t a(idx_t n)
@@ -78,7 +101,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 cache_cap = (cache_cap ? cache_cap * 2U : 16U);
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)val;
         }

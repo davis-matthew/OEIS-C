@@ -10,7 +10,8 @@
  *            A000005, omega = A001221)
  * Range:     u8 n <= 5, u16 n <= 144, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_pow_seq
+ * Validated: standard, pass, 83 terms through n = 981 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_pow_seq.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* smallest‑prime‑factor table ------------------------------------------------*/
 static uint32_t *spf = NULL;      /* array of smallest prime factors   */
@@ -67,7 +69,7 @@ static void factorise(uint64_t n, seq_t *sigma, idx_t *tau, idx_t *omega, seq_t 
         while (tmp % p == 0) { tmp /= p; ++exp; }
 
         /* (p^{exp+1}-1)/(p-1) */
-        seq_t term = seq_pow_seq((seq_t)p, (idx_t)(exp + 1)) - 1;
+        seq_t term = ipow_idx((seq_t)p, (idx_t)(exp + 1)) - 1;
         term /= (seq_t)(p - 1);
         s_val *= term;
 
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
     if (!a_seq)  /* first call: initialise storage */
     {
         a_cap = 16;
-        a_seq = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_seq = mem_new(seq_t, a_cap);
         a_size = 0;
         next_k  = 1;
     }
@@ -117,14 +119,14 @@ seq_t a(idx_t n)
         factorise(k, &sigma, &tau, &omega, &phi);
 
         seq_t left  = sigma - phi;                 /* sigma - phi   */
-        seq_t right = seq_pow_seq((seq_t)tau, omega); /* tau^omega    */
+        seq_t right = ipow_idx((seq_t)tau, omega); /* tau^omega    */
 
         if (left > right)                         /* condition true */
         {
             if (a_size == a_cap)                  /* grow array    */
             {
                 a_cap <<= 1;
-                a_seq = (seq_t *)realloc(a_seq, a_cap * sizeof(seq_t));
+                a_seq = mem_resize(seq_t, a_seq, a_cap);
             }
             a_seq[a_size++] = (seq_t)k;
         }

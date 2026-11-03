@@ -9,14 +9,26 @@
  *            – s_3(2n))/2, and s_3(x) is the sum of base‑3 digits of x
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   sum_digits_base3
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sum_digits_base3.h"
+
+/* Sum of digits of x in base 3 */
+static idx_t sum_digits_base3(idx_t x)
+{
+    idx_t sum = 0;
+    while (x)
+    {
+        sum += x % 3;
+        x /= 3;
+    }
+    return sum;
+}
 
 /* Count 1‑bits in an idx_t value */
 static idx_t popcnt(idx_t x)

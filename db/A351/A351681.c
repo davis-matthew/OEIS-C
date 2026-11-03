@@ -8,7 +8,8 @@
  *            s(k)=prime(k-1) for k>=2
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,14 +32,14 @@ seq_t a(idx_t n)
     static size_t prime_cnt = 0;
 
     if (cache_size == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * 2);
+        cache = mem_new(seq_t, 2);
         cache[0] = 0;
         cache[1] = (seq_t)1;
         cache_size = 1;
 
         S_cap = 2;
-        S_prev = (seq_t *)malloc(sizeof(seq_t) * S_cap);
-        S_curr = (seq_t *)malloc(sizeof(seq_t) * S_cap);
+        S_prev = mem_new(seq_t, S_cap);
+        S_curr = mem_new(seq_t, S_cap);
         S_prev[0] = 0;
         S_prev[1] = (seq_t)1;
     }
@@ -72,12 +74,12 @@ seq_t a(idx_t n)
 
         if (S_cap < n + 1) {
             S_cap = n + 1;
-            S_prev = (seq_t *)realloc(S_prev, sizeof(seq_t) * S_cap);
-            S_curr = (seq_t *)realloc(S_curr, sizeof(seq_t) * S_cap);
+            S_prev = mem_resize(seq_t, S_prev, S_cap);
+            S_curr = mem_resize(seq_t, S_curr, S_cap);
         }
 
         if (cache_size + 1 <= n) {
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+            cache = mem_resize(seq_t, cache, (n + 1));
         }
 
         for (idx_t cur = cache_size + 1; cur <= n; ++cur) {

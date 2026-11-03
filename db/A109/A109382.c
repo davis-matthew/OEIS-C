@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn, word
  * Formula:   a(n) = LD(nameof(n), nameof(n+1))
- * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
- *            u128 n <= 105, big any n
- * Helpers:   append_str, levenshtein
+ * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 122 terms through n = 8934 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,40 @@
    return their Levenshtein distance. */
 #include <string.h>
 #include <stdint.h>
-#include "../utils/append_str.h"
-#include "../utils/levenshtein.h"
+
+/* Append a string to a buffer, moving the pointer. */
+static void append_str(char **pp, const char *s) {
+    for (; *s; ++s) { **pp = *s; ++(*pp); }
+}
+
+/* Compute Levenshtein distance between two null‑terminated strings. */
+static seq_t levenshtein(const char *s1, const char *s2) {
+    size_t l1 = strlen(s1);
+    size_t l2 = strlen(s2);
+    static seq_t row0[512], row1[512];
+    seq_t *prev = row0, *curr = row1;
+
+    for (size_t j = 0; j <= l2; ++j) prev[j] = (seq_t)j;
+
+    for (size_t i = 1; i <= l1; ++i) {
+        curr[0] = (seq_t)i;
+        for (size_t j = 1; j <= l2; ++j) {
+            seq_t cost = (s1[i - 1] == s2[j - 1]) ? 0 : 1;
+            seq_t del = prev[j] + 1;
+            seq_t ins = curr[j - 1] + 1;
+            seq_t sub = prev[j - 1] + cost;
+            seq_t minv = del;
+            if (ins < minv) minv = ins;
+            if (sub < minv) minv = sub;
+            curr[j] = minv;
+        }
+        /* swap rows for next iteration */
+        seq_t *tmp = prev;
+        prev = curr;
+        curr = tmp;
+    }
+    return prev[l2];
+}
 
 /* English words for 0‑19 and common tens */
 static const char * const units[] = {

@@ -9,7 +9,8 @@
  *            0)
  * Range:     u8 n <= 19, u16 n <= 39, u32 n <= 78, u64 n <= 157,
  *            u128 n <= 315, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 2436 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         new_cap <<= 1;
 
     /* Reallocate cache to the new capacity.  Cast is needed for C++11. */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();          /* allocation failed */
     cache = tmp;
     cap   = new_cap;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         /* Ensure capacity covers the base indices 0..5. */
         if (cap < 6) {
             size_t tmp_cap = 6;
-            seq_t *tmp2 = (seq_t *)realloc(cache, tmp_cap * sizeof(seq_t));
+            seq_t *tmp2 = mem_resize(seq_t, cache, tmp_cap);
             if (!tmp2) abort();
             cache = tmp2;
             cap   = tmp_cap;

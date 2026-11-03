@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 19, u64 n <= 43, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_ROWS 64
 #define MAX_STATES (MAX_ROWS * MAX_ROWS)
@@ -112,12 +114,12 @@ seq_t a(idx_t n)
     size_t states = (size_t)num_rows * (size_t)num_rows;
 
     /* Initialize for length 2: every pair is possible */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     for (size_t s = 0; s < states; ++s) dp[s] = (seq_t)1;
 
     /* Iterate from length 3 up to n */
     for (idx_t step = 3; step <= n; ++step) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (size_t s = 0; s < states; ++s) {
             seq_t val = dp[s];
             if (!val) continue;
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
                 ndp[ns] += val;
             }
         }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* Sum over all states */

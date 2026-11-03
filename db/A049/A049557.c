@@ -8,15 +8,19 @@
  *            p) has a solution
  * Range:     u8 n <= 42, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 73 terms through n = 990 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
 #include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static bool _cond(uint64_t p)
 {
@@ -27,7 +31,7 @@ static bool _cond(uint64_t p)
     else if (m % 5 == 0)  g = 5;
     else                  g = 1;
     uint64_t exp = m / g;
-    seq_t res = mod_pow((seq_t)2, exp, (seq_t)p);
+    seq_t res = powmod((seq_t)2, exp, (seq_t)p);
     return res == (seq_t)1;
 }
 
@@ -42,7 +46,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* start with a modest capacity, will grow as needed */
         sel_cap = 256;
-        selected = (seq_t*)malloc(sel_cap * sizeof(seq_t));
+        selected = mem_new(seq_t, sel_cap);
         initialized = true;
     }
 
@@ -52,7 +56,7 @@ seq_t a(idx_t n)
             if (_cond((uint64_t)next_candidate)) {
                 if (sel_cnt >= sel_cap) {
                     sel_cap *= 2;
-                    seq_t *tmp = (seq_t*)realloc(selected, sel_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, selected, sel_cap);
                     if (!tmp) abort();           /* allocation failure */
                     selected = tmp;
                 }

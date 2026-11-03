@@ -10,7 +10,8 @@
  *            a(n,k-1)+(3*n-2*k)*a(n,k), a(n,0) = δ_{n,0}, a(0,k) = δ_{0,k}
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Includes */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global cache of computed rows */
 static seq_t **rows = NULL;       /* rows[1] .. rows[rows_len] */
@@ -44,7 +46,7 @@ static void ensure_rows(idx_t r)
         /* Initialise row 1 if needed. */
         if (rows_len == 0)
         {
-            seq_t *row1 = (seq_t*)malloc(2 * sizeof(seq_t));  /* indices 0..1 */
+            seq_t *row1 = mem_new(seq_t, 2);  /* indices 0..1 */
             if (!row1) exit(1);
             row1[0] = 0;          /* a(1,0) = 0 (unused) */
             row1[1] = 1;          /* a(1,1) = 1 */
@@ -56,7 +58,7 @@ static void ensure_rows(idx_t r)
         for (idx_t cur = rows_len + 1; cur <= r; ++cur)
         {
             seq_t *prev = rows[cur - 1];
-            seq_t *cur_row = (seq_t*)malloc(((size_t)cur + 1) * sizeof(seq_t));
+            seq_t *cur_row = mem_new(seq_t, ((size_t)cur + 1));
             if (!cur_row) exit(1);
             cur_row[0] = 0;  /* a(cur,0) = 0 (unused) */
 

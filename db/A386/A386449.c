@@ -9,13 +9,15 @@
  *            allow calls in any order.)
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function returns the nth term of the sequence A386449.
    The types seq_t and idx_t are supplied by the build system. */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* allocate and initialise cache when first called */
     if (cache == NULL) {
         cap = 16;                         /* initial capacity */
-        cache = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cap);
         if (!cache) return 0;             /* allocation failure – unlikely */
         for (size_t i = 0; i < cap; ++i) cache[i] = 0;
         cache[0] = 1;                     /* a(0) = 1 */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if ((idx_t)(cap-1) < n) {
         size_t newcap = cap;
         while ((idx_t)(newcap-1) < n) newcap <<= 1;   /* double until big enough */
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return 0;   /* allocation failure – unlikely */
         cache = tmp;
         for (size_t i = cap; i < newcap; ++i) cache[i] = 0;

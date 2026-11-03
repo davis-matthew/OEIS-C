@@ -7,20 +7,22 @@
  * Formula:   a(n) = 3*a(n-1)-3*a(n-2)+3*a(n-3), with a(0)=1, a(1)=3, a(2)=7
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 26, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void ensure_capacity(size_t needed, size_t *cap, seq_t **ptr)
 {
     if (needed < *cap) return;
     size_t newcap = (*cap == 0) ? 4 : *cap * 2;
     while (newcap <= needed) newcap *= 2;
-    *ptr = (seq_t *)realloc(*ptr, newcap * sizeof(seq_t));
+    *ptr = mem_resize(seq_t, *ptr, newcap);
     *cap = newcap;
 }
 

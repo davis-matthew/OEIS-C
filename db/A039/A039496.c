@@ -10,13 +10,15 @@
  *            those two counts equal
  * Range:     u8 n <= 3, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache of found terms */
 static seq_t *cache = NULL;
@@ -31,7 +33,7 @@ static void ensure_cache_capacity(idx_t need) {
     idx_t new_size = cache_size ? cache_size : 128;
     while (new_size < need)
         new_size <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)
         abort(); /* allocation failure */
     cache = new_cache;

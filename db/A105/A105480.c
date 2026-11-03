@@ -7,16 +7,26 @@
  * Offset:    4    (a(4) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = binomial(n-1,3) · Bell(n-4) (offset 4)
- * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 24, u128 n <= 24,
+ * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 26, u128 n <= 43,
  *            big any n
- * Helpers:   small_free, small_malloc
+ * Validated: standard, pass, 37 terms through n = 576 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/small_free.h"
-#include "../utils/small_malloc.h"
+#include "../utils/mem.h"
+
+static void small_free(void *ptr)
+{
+    free(ptr);
+}
+
+static void *small_malloc(idx_t elems)
+{
+    return malloc((size_t)elems * sizeof(seq_t));
+}
 
 /* ------------------------------------------------------------------
  *  Internal helper: compute Bell numbers up to n (inclusive) using a
@@ -35,19 +45,19 @@ static void ensure_bell(idx_t n)
     /* initialise caches */
     if (bell_cache == NULL) {
         bell_cache_len = 1;
-        bell_cache = (seq_t *)malloc(sizeof(seq_t));
+        bell_cache = mem_new(seq_t, 1);
         bell_cache[0] = (seq_t)1;                /* Bell(0) = 1 */
     }
     if (stir_old == NULL) {
         stir_old_len = 1;
-        stir_old = (seq_t *)malloc(sizeof(seq_t));
+        stir_old = mem_new(seq_t, 1);
         stir_old[0] = (seq_t)1;                  /* S(0,0) = 1 */
     }
 
     for (idx_t m = bell_cache_len; m <= n; ++m) {
         /* Allocate new Stirling row (size m+1)   */
         idx_t sz = m + 1;
-        seq_t *stir_new = (seq_t *)malloc(sizeof(seq_t) * sz);
+        seq_t *stir_new = mem_new(seq_t, sz);
         stir_new[0] = (seq_t)0;                 /* S(m,0) = 0 for m>0 */
 
         /* Inner recurrence: S(m,k) = S(m-1,k-1) + k·S(m-1,k) */
@@ -64,13 +74,12 @@ static void ensure_bell(idx_t n)
         for (idx_t k = 1; k <= m; ++k) bell_val += stir_new[k];
 
         /* store Bell(m)   */
-        seq_t *new_cache = (seq_t *)realloc(bell_cache,
-                                           sizeof(seq_t) * (sz));
+        seq_t *new_cache = mem_resize(seq_t, bell_cache, (sz));
         bell_cache = new_cache;
         bell_cache[m] = bell_val;
 
         /* update Stirling row pointers           */
-        small_free(stir_old);
+        mem_free(stir_old);
         stir_old = stir_new;
         stir_old_len = sz;
     }

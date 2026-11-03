@@ -12,16 +12,38 @@
  *            returns its denominator
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 29, u64 n <= 52, u128 n <= 101,
  *            big any n
- * Helpers:   build_spf, gcd, powerfree_u
+ * Validated: standard, pass, 50 terms through n = 996 (2026-11-01)
+ * Helpers:   build_spf, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"
 #include "../utils/build_spf.h"
-#include "../utils/powerfree_u.h"
+#include "../utils/gcd.h"
+
+/* Compute the powerfree part of k: product of primes with exponent exactly 1 */
+static seq_t
+powerfree_u(idx_t k, const idx_t *local_spf)
+{
+    if (k == 1) return 1;
+    seq_t prod = 1;
+    idx_t n = k;
+    while (n > 1)
+    {
+        idx_t p = local_spf[n];
+        idx_t cnt = 0;
+        while (n % p == 0)
+        {
+            n /= p;
+            ++cnt;
+        }
+        if (cnt == 1)
+            prod *= (seq_t)p;
+    }
+    return prod;
+}
 
 static idx_t *spf = NULL;           /* smallest prime factor table */
 static idx_t  spf_limit = 0;        /* current size of spf table */

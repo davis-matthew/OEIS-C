@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* number of precomputed Mersenne primes used for the generator */
 #define MER_PRIME_COUNT 9
@@ -57,13 +59,13 @@ seq_t a(idx_t n)
     /* initialisation on first call */
     if (!initialized) {
         numbers_cap   = 32;
-        numbers       = (seq_t*)malloc(numbers_cap * sizeof(seq_t));
+        numbers       = mem_new(seq_t, numbers_cap);
         if (!numbers) return 0;
         numbers[0]    = (seq_t)1;   /* sentinel for the generator */
         numbers_len   = 1;
 
         composites_cap = 32;
-        composites     = (seq_t*)malloc(composites_cap * sizeof(seq_t));
+        composites     = mem_new(seq_t, composites_cap);
         if (!composites) return 0;
         composites_len = 0;
 
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
         /* append to the list of all numbers */
         if (numbers_len == numbers_cap) {
             numbers_cap *= 2;
-            seq_t *tmp = (seq_t*)realloc(numbers, numbers_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, numbers, numbers_cap);
             if (!tmp) return 0;
             numbers = tmp;
         }
@@ -117,7 +119,7 @@ seq_t a(idx_t n)
         if (!is_prime) {
             if (composites_len == composites_cap) {
                 composites_cap *= 2;
-                seq_t *tmpc = (seq_t*)realloc(composites, composites_cap * sizeof(seq_t));
+                seq_t *tmpc = mem_resize(seq_t, composites, composites_cap);
                 if (!tmpc) return 0;
                 composites = tmpc;
             }

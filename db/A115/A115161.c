@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for the sequence, updated lazily */
 static seq_t *sequence = NULL;   /* array of non‑representable integers */
@@ -110,7 +112,7 @@ static void build_seq(idx_t bound)
     ------------------------------------------------------------ */
     /* free previous allocation, if any */
     if (sequence) {
-        free(sequence);
+        mem_free(sequence);
         sequence = NULL;
         seq_len = 0;
         seq_cap = 0;
@@ -120,7 +122,7 @@ static void build_seq(idx_t bound)
         if (!mark[i]) {
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 8;
-                sequence = (seq_t *)realloc(sequence, seq_cap * sizeof(seq_t));
+                sequence = mem_resize(seq_t, sequence, seq_cap);
                 if (!sequence) exit(1);
             }
             sequence[seq_len++] = (seq_t)i;

@@ -7,13 +7,25 @@
  * Formula:   T(n,k) = round((n/k)*round(n/k)) (triangle read by rows)
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   round_div_idx, round_div_seq
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/round_div_idx.h"
-#include "../utils/round_div_seq.h"
+static inline idx_t round_div_idx(idx_t a, idx_t b) {
+    idx_t q = a / b;
+    idx_t r = a % b;
+    if (r * 2 >= b) q++;
+    return q;
+}
+
+static inline seq_t round_div_seq(seq_t a, seq_t b) {
+    seq_t q = a / b;
+    seq_t r = a % b;
+    if (r * 2 >= b) q++;
+    return q;
+}
 
 seq_t a(idx_t N) {
     idx_t total = 0;

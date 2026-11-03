@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 22, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Small prime table for digit sums up to 135. */
 static const uint16_t _small_prime_table[] = {
@@ -126,7 +128,7 @@ static void ensure_cache(idx_t n)
         if (is_small_prime(sum)) {
             if (qlen == qcap) {
                 size_t new_cap = qcap ? qcap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(qual, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, qual, new_cap);
                 if (!tmp) exit(1);
                 qual = tmp;
                 qcap = new_cap;

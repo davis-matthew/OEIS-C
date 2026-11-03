@@ -10,7 +10,8 @@
  *            a greedy search
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_ternary, has_overlap
+ * Validated: standard, pass, 83 terms through n = 8843 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,60 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/get_ternary.h"
-#include "../utils/has_overlap.h"
+#include "../utils/mem.h"
+
+/* Fill buf[0..len-1] with the ternary digits of x (most–significant first).  */
+static void get_ternary(seq_t x, int *buf, int *len)
+{
+    int tmp[64];
+    int tlen = 0;
+    if (x == 0) {
+        buf[0] = 0;
+        *len = 1;
+        return;
+    }
+    while (x > 0) {
+        tmp[tlen++] = (int)(x % 3);
+        x /= 3;
+    }
+    for (int i = 0; i < tlen; ++i)
+        buf[i] = tmp[tlen - 1 - i];
+    *len = tlen;
+}
+
+/* Return true if the ternary representation of a overlaps with that of b. */
+static bool has_overlap(seq_t a, seq_t b)
+{
+    int da[64], db[64];
+    int lena = 0, lenb = 0;
+    get_ternary(a, da, &lena);
+    get_ternary(b, db, &lenb);
+
+    int maxk = lena < lenb ? lena : lenb;
+    /* suffix of a == prefix of b */
+    for (int k = 1; k <= maxk; ++k) {
+        bool ok = true;
+        for (int i = 0; i < k; ++i) {
+            if (da[lena - k + i] != db[i]) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok) return true;
+    }
+    /* suffix of b == prefix of a */
+    for (int k = 1; k <= maxk; ++k) {
+        bool ok = true;
+        for (int i = 0; i < k; ++i) {
+            if (db[lenb - k + i] != da[i]) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok) return true;
+    }
+    return false;
+}
 
 /* Global state for lazy generation */
 static seq_t *perm = NULL;          /* array of generated terms                   */
@@ -51,7 +104,7 @@ static void ensure_perm_capacity(idx_t length)
     if (length <= perm_cap) return;
     idx_t new_cap = perm_cap ? perm_cap * 2 : 8;
     while (new_cap < length) new_cap *= 2;
-    seq_t *new_perm = (seq_t*)realloc(perm, new_cap * sizeof(seq_t));
+    seq_t *new_perm = mem_resize(seq_t, perm, new_cap);
     if (!new_perm) abort();
     perm = new_perm;
     perm_cap = new_cap;

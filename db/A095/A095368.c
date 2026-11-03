@@ -10,12 +10,14 @@
  *            Sequence offset: 3 (a(3) is first term)
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
         /* grow to at least new_cap, doubling size to keep amortized cost O(1) */
         if (cap == 0) {
             cap = 16;
-            cache = (seq_t *)malloc(cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cap);
         } else {
             while (cap <= (size_t)n)
                 cap <<= 1;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
         /* initialise base values up to 7 on first expansion */
         if (n >= 3 && cache[3] == 0) { /* simple flag check */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 78, i16 n <= 78, i32 n <= 78, i64 n <= 78, i128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
     (n = r + (c-1)(c)/2,  r ≥ 0, c ≥ 1). */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Use the seq_t and idx_t types supplied by the build; no redefinition.   */
 
@@ -50,11 +52,11 @@ static void init_tables(idx_t max_n)
     if (len <= table_len) return;          /* already sufficient */
 
     /* Free old tables if they exist. */
-    if (e_arr) free(e_arr);
-    if (p_arr) free(p_arr);
+    if (e_arr) mem_free(e_arr);
+    if (p_arr) mem_free(p_arr);
 
-    e_arr = (seq_t *)malloc(len * sizeof(seq_t));
-    p_arr = (seq_t *)malloc(len * sizeof(seq_t));
+    e_arr = mem_new(seq_t, len);
+    p_arr = mem_new(seq_t, len);
     table_len = len;
 
     /* Pentagonal coefficients e[n] (coefficients of ∏(1 - x^j)). */

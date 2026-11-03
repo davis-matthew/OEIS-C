@@ -8,12 +8,14 @@
  *            0, a(2) = 1, a(3) = 1, a(4) = 1, a(5) = 2, a(6) = 3
  * Range:     u8 n <= 19, u16 n <= 35, u32 n <= 68, u64 n <= 133,
  *            u128 n <= 264, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of computed terms */
 static seq_t *cache = NULL;      /* allocated array of seq_t */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (cache_size < n + 1) {
         idx_t new_size = n + 1;
         /* C-style cast allows the code to compile as both C and C++ */
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_size);
         if (!new_cache) return 0;          /* allocation failed: return 0 as safe fallback */
         cache = new_cache;
         /* Initialise newly added slots to zero (default for seq_t is implementation‑defined) */

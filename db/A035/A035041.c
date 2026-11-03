@@ -7,11 +7,13 @@
  * Formula:   a(n) = 2^n - C(n,0) - C(n,1) - ... - C(n,8)
  * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 965 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static seq_t binom_small(idx_t n, idx_t k)

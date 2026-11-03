@@ -9,8 +9,9 @@
  *            index n by mapping to the triangle row r (n>=2) and column b
  *            (2<=b<=r). The unreduced numerator dm_num(b, r) equals the sum
  *            over the base‑b digits d_i of (2*d_i - (b-1))
- * Range:     i8 n <= 2211, i16 n <= 9289, i32 n <= 9289, i64 n <= 9289,
- *            i128 n <= 9289, big any n
+ * Range:     i8 n <= 2211, i16 n <= 10012, i32 n <= 10012, i64 n <= 10012,
+ *            i128 n <= 10012, big any n
+ * Validated: standard, pass, 82 terms through n = 9289 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

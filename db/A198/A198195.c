@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 93, u32 n <= 100, u64 n <= 100, u128 n <= 100,
  *            big any n
+ * Validated: standard, pass, 71 terms through n = 97 (2026-11-01)
  * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sieve_primes.h"   /* sieve_primes(limit, &primes, &cnt) */
+#include <string.h>
+#include "../utils/sieve_primes.h"
 
 /* --- helper binary searches on a sorted array of idx_t primitives --- */
 static size_t first_gt(const idx_t *arr, size_t n, idx_t val) {

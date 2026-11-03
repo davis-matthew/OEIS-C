@@ -9,24 +9,25 @@
  *            (theta_3(z)*theta_3(18z)+theta_2(z)*theta_2(18z))
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     seq_t result = 0;
     /* Maximum |y| such that 18*y^2 <= n. */
-    idx_t y_max = _floor_isqrt_u64(n / 18);
+    idx_t y_max = isqrt(n / 18);
 
     for (idx_t y = 0; y <= y_max; ++y) {
         idx_t y2  = y * y;          /* y^2 fits in idx_t for the given bound. */
         idx_t prod = 18 * y2;        /* 18*y^2 <= n, so prod fits in idx_t. */
         idx_t t = n - prod;         /* Remaining part for x^2. */
-        idx_t s = _floor_isqrt_u64(t);
+        idx_t s = isqrt(t);
 
         if (s * s != t)              /* t is not a perfect square. */
             continue;

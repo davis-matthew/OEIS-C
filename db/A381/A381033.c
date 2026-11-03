@@ -9,8 +9,9 @@
  * Formula:   a(n) = 1 if there is a digit > 1 in the primorial base expansion
  *            of n whose least significant such digit has radix prime dividing
  *            n; otherwise 0
- * Range:     u8 n <= 9904, u16 n <= 9904, u32 n <= 9904, u64 n <= 9904,
- *            u128 n <= 9904, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 143 terms through n = 9904 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

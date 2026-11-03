@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 66, u16 n <= 1311, u32 n <= 9698, u64 n <= 9698,
- *            u128 n <= 9698, big any n
- * Helpers:   pow2
+ * Range:     u8 n <= 66, u16 n <= 1311, u32 n <= 12087, u64 n <= 12087,
+ *            u128 n <= 12087, big any n
+ * Validated: standard, pass, 84 terms through n = 9698 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* dynamic cache of the computed sequence */
 static seq_t *cache = NULL;   /* array of terms */
@@ -48,7 +50,7 @@ static void ensure_cache(idx_t need)
     if (cache_len == 0)
     {
         cache_cap = 256;                     /* start with a modest capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(EXIT_FAILURE);
         cache[0] = (seq_t)7;
         cache_len = 1;
@@ -62,7 +64,7 @@ static void ensure_cache(idx_t need)
     {
         size_t new_cap = cache_cap ? cache_cap * 2 : 256;
         if (new_cap < need_sz + 1) new_cap = need_sz + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         cache_cap = new_cap;

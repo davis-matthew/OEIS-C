@@ -7,11 +7,13 @@
  * Formula:   a(n) = mu(n) for n != 2; a(2) = -4 (special case)
  * Range:     i8 n <= 1091, i16 n <= 1091, i32 n <= 1091, i64 n <= 1091,
  *            i128 n <= 1091, big any n
+ * Validated: standard, pass, 93 terms through n = 1069 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/mobius.h"
 
 seq_t a(idx_t n)

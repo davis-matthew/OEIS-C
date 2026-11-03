@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 97, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_equal_zeros_and_threes
+ * Validated: standard, pass, 79 terms through n = 8894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
  * static cache is used so that repeated calls (in any order) are fast. */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has_equal_zeros_and_threes.h"
+#include "../utils/mem.h"
+
+/* test whether n has the same number of 0's and 3's in base 5 */
+static int
+has_equal_zeros_and_threes(seq_t n)
+{
+    int zeros  = 0;
+    int threes = 0;
+    seq_t x = n;
+    while (x > (seq_t)0) {
+        int d = (int)(x % (seq_t)5);
+        if (d == 0)       ++zeros;
+        else if (d == 3)  ++threes;
+        x /= (seq_t)5;
+    }
+    return zeros == threes;
+}
 
 static seq_t *cache = NULL;      /* cached terms */
 static idx_t  cache_len = 0;     /* number of cached terms */
@@ -32,8 +49,7 @@ push_cache(seq_t val)
 {
     if (cache_len == cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!tmp) abort();          /* out of memory */
         cache = tmp;
         cache_cap = new_cap;

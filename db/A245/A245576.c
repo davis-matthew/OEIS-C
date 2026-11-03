@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 39, u32 n <= 2625, u64 n <= 3001,
  *            u128 n <= 3001, big any n
- * Helpers:   ensure_capacity, is_prime
+ * Validated: standard, pass, 74 terms through n = 2941 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,20 @@
 #include <stdbool.h>
 #include <stddef.h>
 /* helpers from the utilities */
-#include "../utils/is_prime.h"          /* is_prime(idx_t)           */
-#include "../utils/ensure_capacity.h"  /* ensure_capacity (...)    */
+#include <stdlib.h>
+#include "../utils/is_prime.h"
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
 
 static seq_t *cache = NULL;    /* stored primes satisfying the condition */
 static size_t  cache_cap = 0;   /* capacity of the cache            */

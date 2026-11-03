@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _has_exp_mod3
+ * Validated: standard, pass, 75 terms through n = 9443 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_has_exp_mod3.h"
+#include "../utils/mem.h"
+
+/* test whether m has a prime factor with exponent ≡ 2 (mod 3) */
+static bool _has_exp_mod3(uint64_t m)
+{
+    for (uint64_t p = 2; p * p <= m; ++p) {
+        if (m % p == 0) {
+            uint64_t e = 0;
+            do {
+                m /= p;
+                ++e;
+            } while (m % p == 0);
+            if ((e % 3) == 2)
+                return true;
+        }
+    }
+    /* a remaining prime factor has exponent 1, which is not 2 mod 3 */
+    return false;
+}
 
 /* cache for already-found terms */
 static seq_t *cache   = NULL;
@@ -38,7 +57,7 @@ static void _ensure_cache_capacity(size_t n)
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
     while (new_cap < n)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         exit(1);   /* out of memory */
     cache = tmp;

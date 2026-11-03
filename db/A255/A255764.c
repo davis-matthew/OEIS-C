@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 1279, u64 n <= 9339,
- *            u128 n <= 9339, big any n
- * Helpers:   none
+ * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 1279, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 59 terms through n = 9339 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Count the number of set bits in an unsigned 64‑bit integer. */
 static inline int popcount64(idx_t x)
@@ -69,9 +71,9 @@ seq_t a(idx_t n)
     if (n + 1 > cap) {
         size_t new_cap = (size_t)(n + 1);
         if (sum == NULL) {
-            sum = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            sum = mem_new(seq_t, new_cap);
         } else {
-            seq_t *tmp = (seq_t *)realloc(sum, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, sum, new_cap);
             if (!tmp) abort();    /* fatal error – should never happen here */
             sum = tmp;
         }

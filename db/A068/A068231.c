@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence: primes ≡ 11 (mod 12) */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Ensure a seq_t array has capacity for at least 'need' elements. */
 static void ensure_seq_capacity(seq_t **a, size_t *len, size_t *cap, size_t need)
@@ -23,7 +25,7 @@ static void ensure_seq_capacity(seq_t **a, size_t *len, size_t *cap, size_t need
         size_t newcap = (*cap == 0) ? 64 : *cap * 2;
         if (newcap < need)
             newcap = need;
-        *a = (seq_t *)realloc(*a, newcap * sizeof(seq_t));
+        *a = mem_resize(seq_t, *a, newcap);
         *cap = newcap;
     }
 }

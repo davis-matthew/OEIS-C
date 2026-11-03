@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 186, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_uint128
+ * Validated: standard, pass, 85 terms through n = 988 (2026-11-03)
+ * Helpers:   is_prime_u128, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint128.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/mem.h"
 
 /* ---------- Cache storage (for memoisation) ---------------------------- */
 static seq_t *cache = NULL;          /* array of found terms */
@@ -33,7 +35,7 @@ static void grow_cache(void)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         __uint128_t sq = (__uint128_t)tested_n * tested_n;
         __uint128_t val = sq * 4 + 1;
 
-        if (!is_prime_uint128(val)) {   /* composite → store */
+        if (!is_prime_u128(val)) {   /* composite → store */
             grow_cache();
             cache[cache_len++] = (seq_t)tested_n;
         }

@@ -8,12 +8,14 @@
  *            5
  * Range:     u8 n <= 66, u16 n <= 181, u32 n <= 563, u64 n <= 1911,
  *            u128 n <= 6898, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9660 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* DP table, dp[i] = a(i) */
 static idx_t dp_size = 0;         /* allocated size of dp */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* Allocate the DP table if this is the first call */
     if (dp == NULL) {
         dp_size = n > 0 ? n + 1 : 1;
-        dp = (seq_t*)malloc(dp_size * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_size);
         if (!dp) return (seq_t)0;         /* out‑of‑memory: return 0 */
         for (idx_t i = 0; i < dp_size; ++i) dp[i] = (seq_t)0;
         dp[0] = (seq_t)1;
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
 
     /* Extend the table to at least n+1 entries if necessary */
     if (n + 1 > dp_size) {
-        seq_t *tmp = (seq_t*)realloc(dp, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (n + 1));
         if (!tmp) return (seq_t)0;         /* out‑of‑memory */
         dp = tmp;
         for (idx_t i = dp_size; i <= n; ++i) dp[i] = (seq_t)0;

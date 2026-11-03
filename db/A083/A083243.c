@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   divisor_count_u64, phi
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem, num_divisors, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/phi.h"
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 /* Dynamic array holding found terms. */
 static seq_t *seq = NULL;
@@ -34,7 +37,7 @@ static void grow_seq(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) abort();
     seq = tmp;
     seq_cap = new_cap;
@@ -50,8 +53,8 @@ static void append(seq_t value)
 /* Return true iff k satisfies the defining inequality. */
 static bool qualifies(uint64_t k)
 {
-    seq_t phi_k = phi(k);                 /* φ(k) */
-    unsigned d_k = divisor_count_u64(k); /* d(k) */
+    seq_t phi_k = totient(k);                 /* φ(k) */
+    unsigned d_k = num_divisors(k); /* d(k) */
     seq_t lhs = (seq_t)d_k + phi_k - 1;   /* d + φ - 1 */
     lhs = lhs * 2;                        /* compare with k */
     return lhs > (seq_t)k;

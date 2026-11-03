@@ -9,13 +9,26 @@
  *            adjacent digit pair 3,5 while that of n+1 does not
  * Range:     u8 n <= 6, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_35
+ * Validated: standard, pass, 58 terms through n = 991 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_35.h"
+
+static bool has_35(seq_t v)
+{
+    int prev = -1;
+    while (v > 0) {
+        int d = (int)(v % 7);          /* least‑significant digit in base 7 */
+        if (d == 3 && prev == 5)       /* pattern 3 5 seen in the correct order */
+            return true;
+        prev = d;
+        v /= 7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

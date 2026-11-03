@@ -8,13 +8,17 @@
  *            Stirling2(n,2*k)/k!
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* static state used for memoisation */
 static idx_t max_n_computed = (idx_t)(-1);          /* highest n for which cache is valid */
@@ -36,8 +40,8 @@ static void ensure_fpow(idx_t up_to)
         return;
 
     size_t new_cap = up_to + 1;
-    f_array   = (seq_t *)realloc(f_array,   new_cap * sizeof(seq_t));
-    pow_array = (seq_t *)realloc(pow_array, new_cap * sizeof(seq_t));
+    f_array   = mem_resize(seq_t, f_array, new_cap);
+    pow_array = mem_resize(seq_t, pow_array, new_cap);
 
     for (idx_t k = fpow_cap; k <= up_to; ++k) {
         if (k == 0) {                     /* not really used, but harmless      */
@@ -52,7 +56,7 @@ static void ensure_fpow(idx_t up_to)
             f_array[k] = val;
 
             /* pow_k = (k+1)^(k-1)                   */
-            pow_array[k] = big_pow((seq_t)(k+1), (seq_t)(k-1));
+            pow_array[k] = ipow((seq_t)(k+1), (seq_t)(k-1));
         }
     }
     fpow_cap = new_cap;
@@ -64,8 +68,8 @@ static void ensure_stir_cap(idx_t i)
     if (stir_cap > i)
         return;
     size_t new_cap = i + 1;
-    prev_row = (seq_t *)realloc(prev_row, new_cap * sizeof(seq_t));
-    cur_row  = (seq_t *)realloc(cur_row, new_cap * sizeof(seq_t));
+    prev_row = mem_resize(seq_t, prev_row, new_cap);
+    cur_row  = mem_resize(seq_t, cur_row, new_cap);
     stir_cap = new_cap;
 }
 
@@ -84,7 +88,7 @@ seq_t a(idx_t n)
 
         if (cache == NULL || cache_cap == 0) {
             cache_cap = 1;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[0] = (seq_t)1;
         max_n_computed = 0;
@@ -124,7 +128,7 @@ seq_t a(idx_t n)
         /* Store the result in the cache */
         if (i >= cache_cap) {
             cache_cap = i + 1;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[i] = sum;
 

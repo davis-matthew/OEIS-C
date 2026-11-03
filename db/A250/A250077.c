@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 12, u64 n <= 31, u128 n <= 70,
  *            big any n
- * Helpers:   is_6tuple_valid
+ * Validated: standard, pass, 36 terms through n = 176 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,24 @@
    counts.  No hard‑coded values are used.  */
 
 #include <stdbool.h>
-#include "../utils/is_6tuple_valid.h"
+
+/* Check whether a 6‑tuple satisfies the required property */
+static bool
+is_6tuple_valid(const unsigned char d[6])
+{
+    for (int i = 0; i < 6; ++i) {
+        for (int j = i + 1; j < 6; ++j) {
+            int m = d[i] > d[j] ? d[i] : d[j];
+            int min_rest = 5;   /* larger than any possible digit */
+            for (int k = 0; k < 6; ++k) {
+                if (k == i || k == j) continue;
+                if (d[k] < min_rest) min_rest = d[k];
+            }
+            if (m == min_rest) return true;
+        }
+    }
+    return false;
+}
 
 #define STATES 3125        /* 5^5 */
 

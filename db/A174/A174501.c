@@ -9,12 +9,14 @@
  *            the recurrence B(0)=2, B(1)=6, B(k)=6*B(k-1)-B(k-2)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 51, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* initialise cache for k = 0,1 */
     if (B == NULL) {
-        B = (seq_t *)malloc(2 * sizeof(seq_t));
+        B = mem_new(seq_t, 2);
         if (B == NULL)          /* allocation failed – give up */
             return (seq_t)0;
         B[0] = (seq_t)2;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     /* extend cache as needed */
     if (k > max_k) {
-        seq_t *newB = (seq_t *)realloc(B, (k + 1) * sizeof(seq_t));
+        seq_t *newB = mem_resize(seq_t, B, (k + 1));
         if (newB == NULL)       /* allocation failed – give up */
             return (seq_t)0;
         B = newB;

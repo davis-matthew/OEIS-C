@@ -13,7 +13,8 @@
  *            (sum(P) mod max(P) == 0) and |P| ≥ 3
  * Range:     u8 n <= 9, u16 n <= 317, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 766 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int initialized = 0;
 
@@ -86,14 +88,14 @@ static void compute_sequence(void)
 
     /* Build the sequence from the computed data */
     seq_capacity = 2048;
-    seq_terms = (seq_t*)malloc(seq_capacity * sizeof(seq_t));
+    seq_terms = mem_new(seq_t, seq_capacity);
     if (!seq_terms) exit(1);
 
     for (i = 2; i <= limit; ++i) {
         if (cntd[i] >= 3 && sumd[i] % lpf[i] == 0) {
             if (seq_size == seq_capacity) {
                 size_t new_cap = seq_capacity * 2;
-                seq_terms = (seq_t*)realloc(seq_terms, new_cap * sizeof(seq_t));
+                seq_terms = mem_resize(seq_t, seq_terms, new_cap);
                 if (!seq_terms) exit(1);
                 seq_capacity = new_cap;
             }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 282, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 89 terms through n = 9568 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 /* compute Euler's totient φ(m) for a positive uint64_t m */
 static idx_t _phi_u64(idx_t m)
@@ -48,11 +52,11 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     if (n <= 10)         /* small n: direct 7^7 mod n */
-        return mod_pow((seq_t)7, (uint64_t)7, (seq_t)n);
+        return powmod((seq_t)7, (uint64_t)7, (seq_t)n);
 
     /* general case: 7^(a(φ(n))) mod n */
     idx_t phi = _phi_u64(n);
     seq_t exp = a(phi);
     /* exp fits in idx_t because a(phi) < phi <= n */
-    return mod_pow((seq_t)7, (uint64_t)exp, (seq_t)n);
+    return powmod((seq_t)7, (uint64_t)exp, (seq_t)n);
 }

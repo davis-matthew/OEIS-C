@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of spiny partitions with exactly n parts
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 25, u64 n <= 49, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
 
     idx_t N = n;
     /* allocate two work arrays of length N+1 */
-    seq_t *dp   = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *next = mem_new(seq_t, (size_t)(N + 1));
     if (!dp || !next) return (seq_t)0; /* allocation failed */
 
     dp[0] = (seq_t)1;    /* start with zero parts */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= N; ++k)
     {
         /* first zero target array */
-        memset(next, 0, (size_t)(N + 1) * sizeof(seq_t));
+        mem_set(next, 0, (size_t)(N + 1) * sizeof(seq_t));
 
         if (k == 1)
         {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[N];   /* number of partitions with exactly N parts */
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

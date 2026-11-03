@@ -8,12 +8,25 @@
  *            of 104 written in base n. * For n = 1 the result is 104 ones
  *            (unary representation)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
- * Helpers:   seq_from_str
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_from_str.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 235, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exp_is_squarefree
+ * Validated: standard, pass, 90 terms through n = 8095 (2026-11-03)
+ * Helpers:   is_squarefree_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/exp_is_squarefree.h"
+#include "../utils/is_squarefree_i32.h"
+#include "../utils/mem.h"
 
 /* ---------- Prime sieve ---------- */
 static uint32_t *prime_list = NULL;
@@ -62,7 +64,7 @@ static bool exp_squarefree(uint64_t n)
         if (tmp % p == 0) {
             int exp = 0;
             while (tmp % p == 0) { tmp /= p; ++exp; }
-            if (!exp_is_squarefree(exp)) return false;
+            if (!is_squarefree_i32(exp)) return false;
         }
     }
     /* remaining factor >1 has exponent 1 -> always squarefree */
@@ -80,7 +82,7 @@ static void grow_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 128;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return;
     cache = tmp;
     cache_cap = new_cap;

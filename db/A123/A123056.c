@@ -9,6 +9,7 @@
  *            c(n)=6*c(n-1)-c(n-2); d(0)=1, d(1)=3, d(n)=6*d(n-1)-d(n-2)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 25,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 396 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

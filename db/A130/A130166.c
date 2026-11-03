@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t primes_1000[1000];
 static bool primes_ready = false;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache. */
     if (cache == NULL) {
         size_t cap = (size_t)n + 1;      /* 1-based, need n+1 slots */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL)
             return (seq_t)0;             /* allocation failed */
         cache[1] = (seq_t)1;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         last_full     = (seq_t)1;
     } else if ((size_t)(n + 1) > (size_t)last_computed + 1) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)
             return (seq_t)0;             /* reallocation failed */
         cache = tmp;

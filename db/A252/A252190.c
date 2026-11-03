@@ -9,7 +9,8 @@
  * Formula:   a(n) = 15*a(n-3) - 70*a(n-6) + 120*a(n-9) - 64*a(n-12)
  * Range:     u8 none, u16 n <= 6, u32 n <= 25, u64 n <= 58, u128 n <= 122,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* The function is memoised; it works for any order of calls and for   */
 /* all supported seq_t types (arbitrary‑precision included).          */
 #include <stdlib.h>
+#include "../utils/mem.h"
 static const seq_t init_val[22] = {
     0ULL,                  /* dummy for 0‑index */
     (seq_t)7973,           /* a(1) */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 
     /* grow buffer to hold indices up to n */
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(buf, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, buf, new_size);
     if (!tmp) return 0;  /* out of memory – unlikely in test harness */
     buf = tmp;
 

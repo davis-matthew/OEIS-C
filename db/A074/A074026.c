@@ -8,7 +8,8 @@
  *            else 1)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 14, i64 n <= 14, i128 n <= 14,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 /* generate all divisors d of n and accumulate the required sum */
 static void dfs_divisors(const uint64_t *primes, const uint64_t *exp_n,
@@ -28,7 +30,7 @@ static void dfs_divisors(const uint64_t *primes, const uint64_t *exp_n,
     if (idx == cnt) {
         if (!zero_k) {
             /* compute 5^(cur_d-1) */
-            seq_t pow5 = big_pow((seq_t)5, (seq_t)(cur_d - 1));
+            seq_t pow5 = ipow((seq_t)5, (seq_t)(cur_d - 1));
             /* multiply by 5 if (n/d) is a multiple of 5 */
             if ((n_total / cur_d) % 5 == 0)
                 pow5 = pow5 * (seq_t)5;

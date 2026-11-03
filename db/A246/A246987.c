@@ -8,13 +8,14 @@
  * Formula:   a(n) = (1 - 3*2^(2+n) + 7*2^(1+2*n) + 3*5^n + 6^(1+n)) / 12
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 48,
  *            big any n
- * Helpers:   power_uint128
+ * Validated: standard, pass, 41 terms through n = 921 (2026-11-01)
+ * Helpers:   ipow_u64_idx_to_i128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/power_uint128.h"
+#include "../utils/ipow_u64_idx_to_i128.h"
 
 /* ---- Power helpers ----------------------------------------------------- */
 
@@ -40,10 +41,10 @@ seq_t a(idx_t n)
     /* If seq_t is 64–bit or smaller, use __int128 intermediates. */
     if (sizeof(seq_t) <= sizeof(uint64_t))
     {
-        __int128 pow2_2n     = power_uint128(2, 2 + n);   /* 2^(2+n)   */
-        __int128 pow2_1_2n   = power_uint128(2, 1 + 2 * n);/* 2^(1+2n)  */
-        __int128 pow5_n      = power_uint128(5, n);       /* 5^n       */
-        __int128 pow6_1n     = power_uint128(6, 1 + n);   /* 6^(1+n)   */
+        __int128 pow2_2n     = ipow_u64_idx_to_i128(2, 2 + n);   /* 2^(2+n)   */
+        __int128 pow2_1_2n   = ipow_u64_idx_to_i128(2, 1 + 2 * n);/* 2^(1+2n)  */
+        __int128 pow5_n      = ipow_u64_idx_to_i128(5, n);       /* 5^n       */
+        __int128 pow6_1n     = ipow_u64_idx_to_i128(6, 1 + n);   /* 6^(1+n)   */
 
         __int128 numerator = 1
                              - 3 * pow2_2n

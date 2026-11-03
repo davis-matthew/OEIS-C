@@ -9,13 +9,15 @@
  *            and a vertical 101-pattern
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global data prepared once on first call */
 static int init_done = 0;
@@ -69,8 +71,8 @@ static void init(void)
     }
 
     /* Allocate DP arrays */
-    dp = (seq_t*)malloc(total_states * sizeof(seq_t));
-    next_dp = (seq_t*)malloc(total_states * sizeof(seq_t));
+    dp = mem_new(seq_t, total_states);
+    next_dp = mem_new(seq_t, total_states);
 
     init_done = 1;
 }

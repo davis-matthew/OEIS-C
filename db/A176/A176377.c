@@ -7,6 +7,7 @@
  * Formula:   a(n) = 502*a(n-1) - a(n-2), a(1)=1, a(2)=251
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 15,
  *            big any n
+ * Validated: standard, pass, 28 terms through n = 197 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

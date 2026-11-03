@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Limits for the sieve (4 000 000 is ample for 10 000 terms). */
 #define MAX_PRIME_LIMIT   4000000
@@ -99,7 +101,7 @@ static void init_sieve(void)
         }
 
     /* Allocate output array. */
-    output_arr = (seq_t*)malloc(INIT_OUTPUT_CAP * sizeof(seq_t));
+    output_arr = mem_new(seq_t, INIT_OUTPUT_CAP);
     output_cap = INIT_OUTPUT_CAP;
 }
 
@@ -109,7 +111,7 @@ static void append_output(seq_t value)
     if (output_size == output_cap)
     {
         size_t new_cap = output_cap * 2;
-        seq_t *tmp = (seq_t*)realloc(output_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, output_arr, new_cap);
         output_arr = tmp;
         output_cap = new_cap;
     }

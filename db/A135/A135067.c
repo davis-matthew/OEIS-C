@@ -8,7 +8,8 @@
  *            palindromic
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   append_candidate, big_pow, is_palindrome, is_prime
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   ipow, is_palindrome_base, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/is_palindrome_base.h"
 #include "../utils/is_prime.h"
-#include "../utils/is_palindrome.h"
-#include "../utils/append_candidate.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +57,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (!initialized) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
         initialized = true;
     }
@@ -48,9 +66,9 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n) {
         if (is_prime((idx_t)next_prime)) {
             seq_t p = (seq_t)next_prime;
-            seq_t cube = big_pow(p, (seq_t)3);   /* p^3 */
+            seq_t cube = ipow(p, (seq_t)3);   /* p^3 */
 
-            if (is_palindrome(cube, (idx_t)10))
+            if (is_palindrome_base(cube, (idx_t)10))
                 append_candidate(&cache, &cache_len, &cache_cap, cube);
         }
         next_prime++;

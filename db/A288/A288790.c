@@ -8,14 +8,24 @@
  *            for n ≥ 8)
  * Range:     u8 n <= 10, u16 n <= 12, u32 n <= 17, u64 n <= 27, u128 n <= 43,
  *            big any n
- * Helpers:   binomial, seq_alloc
+ * Validated: standard, pass, 37 terms through n = 571 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) -> seq_t */
-#include "../utils/seq_alloc.h"  /* seq_alloc, seq_free_array (unused) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *bell = NULL;      /* dynamic cache of Bell numbers */
 static idx_t bell_last = 0;     /* highest computed index in 'bell' */

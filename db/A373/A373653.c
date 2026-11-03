@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} binomial(3*n-5*k-1,k)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 30, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Initial values: a(0)=1, a(1)=1, a(2)=1, a(3)=4, a(4)=7, a(5)=16, a(6)=34 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence for efficient repeated calls. */
 static seq_t *cache = NULL;        /* array of computed terms */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* First-time initialization */
     if (cache == NULL) {
         /* Allocate enough space for the first 7 terms */
-        cache = (seq_t *)malloc(7 * sizeof(seq_t));
+        cache = mem_new(seq_t, 7);
         if (cache == NULL)
             return (seq_t)0;  /* out of memory; unlikely in tests */
         for (size_t i = 0; i < 7; ++i)
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     /* Expand the cache to accommodate index n */
     size_t new_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp == NULL)
         return (seq_t)0;      /* out of memory */
     cache = tmp;

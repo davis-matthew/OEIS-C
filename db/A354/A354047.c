@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 73, u16 n <= 2557, u32 n <= 9629, u64 n <= 9629,
- *            u128 n <= 9629, big any n
- * Helpers:   floor_log2_uint64, pow3
+ * Range:     u8 n <= 73, u16 n <= 2557, u32 n <= 16382, u64 n <= 16382,
+ *            u128 n <= 16382, big any n
+ * Validated: standard, pass, 79 terms through n = 9629 (2026-11-01)
+ * Helpers:   ilog2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
    compute the value in O(log n) time with only integer operations. */
 
 #include <stdint.h>
+#include <stddef.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow3.h"
-#include "../utils/floor_log2_uint64.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     while (n != 0) {
         /* find k so that 2ᵏ ≤ n+1 < 2ᵏ⁺¹ */
         idx_t m = n + 1;
-        unsigned k = floor_log2_uint64(m);   /* k ≥ 1 because n ≥ 1 */
+        unsigned k = ilog2(m);   /* k ≥ 1 because n ≥ 1 */
 
         /* add the 3^(k-1) term */
         result += pow3((idx_t)(k - 1));

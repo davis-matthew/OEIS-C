@@ -10,13 +10,33 @@
  *            k*(k+1)/2 ≥ n j = n – k*(k-1)/2
  * Range:     i8 n <= 6, i16 n <= 28, i32 n <= 48, i64 n <= 48, i128 n <= 48,
  *            big any n
- * Helpers:   _row_from_n
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_row_from_n.h"
+
+/* find the row number k such that k*(k+1)/2 >= n and (k-1)*k/2 < n */
+static idx_t _row_from_n(idx_t n)
+{
+    idx_t lo = 1, hi = 1;
+    /* Expand hi until the triangular number >= n */
+    while ((__int128)hi * (hi + 1) / 2 < n)
+        hi <<= 1;
+    /* Binary search */
+    while (lo < hi)
+    {
+        idx_t mid = lo + ((hi - lo) >> 1);
+        __int128 mid_total = (__int128)mid * (mid + 1) / 2;
+        if (mid_total >= n)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    return lo;
+}
 
 /* multiplicative binomial coefficient: binomial(n, k) */
 static seq_t _binom(idx_t n, idx_t k)

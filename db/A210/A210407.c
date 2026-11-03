@@ -10,12 +10,14 @@
  *            Initial terms: a(1)=78, a(2)=2520, a(3)=80496, a(4)=2574592
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* calloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* first initialisation: allocate minimal space (indices 0..4) */
     if (cache == NULL) {
         capacity = 5;          /* need indices 0..4; index 0 unused */
-        cache = (seq_t*)calloc(capacity, sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) return 0;  /* allocation failed */
 
         /* hard‑code first four terms */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* grow cache if requested index beyond allocated size */
     if (n >= capacity) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;          /* allocation failed */
         cache = tmp;
         capacity = new_cap;

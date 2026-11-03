@@ -9,14 +9,17 @@
  *            n-k)^(n-k-1). For k = n this term simplifies to 2^(n^2)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Pre‑compute powers of 2: 2^i for i = 0 .. 2*n. */
     size_t size = 2 * (size_t)n + 1;          /* indices 0 .. 2*n */
-    seq_t *pow2 = (seq_t*)malloc(size * sizeof(seq_t));
+    seq_t *pow2 = mem_new(seq_t, size);
     if (!pow2) return 0;                     /* allocation failure */
 
     pow2[0] = (seq_t)1;
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
 
         seq_t term = binom;
         term = term * pow2_k_kp1;
-        term = term * pow_seq(base, exp);
+        term = term * ipow_i32(base, exp);
 
         sum = sum + term;
 
@@ -59,8 +62,8 @@ seq_t a(idx_t n)
 
     /* k = n term: 2^(n^2) */
     int exp_n2 = (int)(n * n);
-    sum = sum + pow_seq((seq_t)2, exp_n2);
+    sum = sum + ipow_i32((seq_t)2, exp_n2);
 
-    free(pow2);
+    mem_free(pow2);
     return sum;
 }

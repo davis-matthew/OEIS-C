@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Test whether transition from pattern p to q is allowed.            */
@@ -58,7 +60,7 @@ static void ensure_cache(idx_t need, seq_t **cache_pp, size_t *cap_pp)
     size_t new_cap = (*cap_pp) ? (*cap_pp) * 2U : 2U;
     while (new_cap < need_cap)
         new_cap <<= 1U;
-    seq_t *tmp = (seq_t *)realloc(*cache_pp, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *cache_pp, new_cap);
     if (!tmp)
         exit(1);                 /* out of memory – terminate   */
     /* zero the new part of the cache */
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
 
         /* Initialise cache for n = 1 */
         cache_cap = 2;                    /* will hold indices 0 and 1           */
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
 
         /* DP for first row: all patterns admissible */
         for (int i = 0; i < 256; ++i)
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
     seq_t *next_dp = dp[1 - cur];
 
     for (idx_t r = cached_n + 1; r <= n; ++r) {
-        memset(next_dp, 0, 256 * sizeof(seq_t));
+        mem_set(next_dp, 0, 256 * sizeof(seq_t));
 
         for (int p = 0; p < 256; ++p) {
             seq_t val = cur_dp[p];

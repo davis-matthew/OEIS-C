@@ -11,13 +11,15 @@
  *            and taking their cent values 1, 2, 10, 5, 20, 100...
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Data structure for one coin.  Diameter stored as tenths of a millimetre
  * (i.e. multiples of 0.01 mm) to keep it integral.  Value is the
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < 8; ++i) {
             sorted[i] = unsorted[i];
         }
-        qsort(sorted, 8, sizeof(struct coin), cmp_coin);
+        mem_qsort(sorted, 8, sizeof(struct coin), cmp_coin);
         initialized = 1;
     }
 

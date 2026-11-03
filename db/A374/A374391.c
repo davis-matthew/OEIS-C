@@ -12,12 +12,15 @@
  *            a(17)=104, a(18)=369, a(19)=291 (values up to a(19) initi...
  * Range:     u8 n <= 17, u16 n <= 33, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 extern void free_seq_array(seq_t *p); /* optional cleanup helper */
 
@@ -58,7 +61,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* We store values for n = -1 .. 19 : 21 entries. */
         cache_size = 21;
-        cache = (seq_t *)calloc(cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) { perror("calloc"); abort(); }
         for (size_t i = 0; i < 21; ++i) {
             cache[i] = base_vals[i];
@@ -76,7 +79,7 @@ seq_t a(idx_t n)
 
     /* Resize cache if necessary. */
     if (new_size > cache_size) {
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (new_cache == NULL) { perror("realloc"); abort(); }
         cache = new_cache;
 

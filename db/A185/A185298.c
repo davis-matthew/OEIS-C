@@ -7,12 +7,15 @@
  * Formula:   a(n) = Sum_{k=1..n} binomial(n,k) * k^(n-k+1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 21, u128 n <= 37,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 39 terms through n = 531 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
         binom = binom * (seq_t)(n - k + 1) / (seq_t)k;
 
         /* Compute k^(n-k+1) using seq_pow */
-        seq_t power = seq_pow((seq_t)k, n - k + 1);
+        seq_t power = ipow_idx((seq_t)k, n - k + 1);
 
         /* Accumulate term */
         sum += binom * power;

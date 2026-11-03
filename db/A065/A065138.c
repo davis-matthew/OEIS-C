@@ -9,7 +9,8 @@
  *            of the cubes of their digits (OEIS A065138)
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;
 static size_t terms_len = 0;
@@ -35,7 +37,7 @@ static void prepare_terms(void) {
      * beyond 5 digits.  We scan all values up to 5000 to be safe. */
     const seq_t limit = 5000;
     terms_cap = 64;
-    terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     if (!terms) return;  /* out of memory – sequence will be empty */
 
     for (seq_t x = 0; x <= limit; ++x) {
@@ -57,7 +59,7 @@ static void prepare_terms(void) {
         if (x == sum_digits + sum_cubes) {
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
                 if (!terms) return;
             }
             terms[terms_len++] = x;

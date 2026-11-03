@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains_34
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
    efficient.  */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/contains_34.h"
+
+static bool contains_34(seq_t v)
+{
+    if (v == 0)
+        return false;
+    int prev = -1;
+    while (v > 0) {
+        int d = (int)(v % 9);
+        if (d == 3 && prev == 4)
+            return true;
+        prev = d;
+        v /= 9;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;     /* cached terms */
 static size_t cache_len = 0;    /* number of terms stored */

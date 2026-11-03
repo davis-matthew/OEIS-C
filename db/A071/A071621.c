@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 6536, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9409 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------- */
 /*  Global data for the sieve and for caching the sequence              */
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
     /* initialise the result array lazily */
     if (!seq_vals) {
         seq_cap = 16;
-        seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
     }
 
     /* generate terms until we reach the requested index 'n' */
@@ -146,7 +148,7 @@ seq_t a(idx_t n)
         if (representable(p)) {
             if (seq_cnt >= seq_cap) {
                 seq_cap *= 2;
-                seq_vals = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+                seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
             }
             seq_vals[seq_cnt++] = (seq_t)p;
         }

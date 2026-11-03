@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence: numbers of the form 3*x^2 + 10*y^2, sorted ascending. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define YMAX 8192           /* number of y‑lines kept in the heap */
 
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
 {
     if ((size_t)n > cache_cap) {
         size_t new_cap = (size_t)n * 2;
-        void *tmp = realloc(cache, sizeof(seq_t) * new_cap);
+        void *tmp = mem_resize(seq_t, cache, new_cap);
         /* cast for C/C++ compatibility */
         cache = (seq_t *)tmp;
         cache_cap = new_cap;

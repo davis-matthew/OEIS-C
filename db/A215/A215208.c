@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 803, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   extend_uint64_vector
+ * Validated: standard, pass, 64 terms through n = 980 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/extend_uint64_vector.h"
+
+/* Make an array large enough for at least `need` elements. */
+static void extend_uint64_vector(uint64_t **vec, size_t *cap, size_t need) {
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        *vec = (uint64_t*)realloc(*vec, new_cap * sizeof(uint64_t));
+        *cap = new_cap;
+    }
+}
 
 /* Storage for all primes found and for those with residue 2 or 7 mod 17. */
 static uint64_t  *prime_list  = NULL;

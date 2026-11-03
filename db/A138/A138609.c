@@ -13,14 +13,27 @@
  *            element of A042963. For each n, find the block tha...
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   term_A014601, term_A042963
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/term_A014601.h"
-#include "../utils/term_A042963.h"
+
+/* k‑th term of A014601: 3,4,7,8,11,12,… */
+static inline seq_t term_A014601(idx_t k)
+{
+    seq_t q = (seq_t)((k - 1) / 2);
+    return (k & 1) ? 4 * q + 3 : 4 * q + 4;
+}
+
+/* k‑th term of A042963: 1,2,5,6,9,10,… */
+static inline seq_t term_A042963(idx_t k)
+{
+    seq_t q = (seq_t)((k - 1) / 2);
+    return (k & 1) ? 4 * q + 1 : 4 * q + 2;
+}
 
 /* Determine block t such that t*(t+1)/2 >= n. */
 static inline idx_t find_block(idx_t n)

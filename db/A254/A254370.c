@@ -7,6 +7,7 @@
  * Formula:   a(n) = 35*2^n + 5*4^n + 15*3^n + 5^n + 70
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 1000 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

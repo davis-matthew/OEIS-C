@@ -12,12 +12,14 @@
  *            etc
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,11 +37,11 @@ seq_t a(idx_t n)
     /* Helper: grow an array when necessary */
     if (q_cap == 0) { /* first allocation */
         q_cap = 64;
-        q = (seq_t*)malloc(q_cap * sizeof(seq_t));
+        q = mem_new(seq_t, q_cap);
     }
     if (evens_cap == 0) {
         evens_cap = 64;
-        evens = (seq_t*)malloc(evens_cap * sizeof(seq_t));
+        evens = mem_new(seq_t, evens_cap);
     }
 
     /* Ensure we have computed enough even values to answer request */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         /* Extend q array if needed */
         if (next_k >= q_cap) {
             size_t new_cap = q_cap * 2;
-            seq_t *tmp = (seq_t*)realloc(q, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, q, new_cap);
             q = tmp;
             q_cap = new_cap;
         }
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         if (((q[next_k] & 1) == 0)) {
             if (evens_size >= evens_cap) {
                 size_t new_cap = evens_cap * 2;
-                seq_t *tmp = (seq_t*)realloc(evens, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, evens, new_cap);
                 evens = tmp;
                 evens_cap = new_cap;
             }

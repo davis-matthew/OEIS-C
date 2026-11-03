@@ -9,9 +9,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn, base, tabf
  * Formula:   not stated
- * Range:     u8 n <= 338, u16 n <= 9534, u32 n <= 9534, u64 n <= 9534,
- *            u128 n <= 9534, big any n
- * Helpers:   bitlen_seq_t, pattern_in_sequence
+ * Range:     u8 n <= 338, u16 n <= 11419, u32 n <= 11419, u64 n <= 11419,
+ *            u128 n <= 11419, big any n
+ * Validated: standard, pass, 121 terms through n = 9534 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/pattern_in_sequence.h"
+#include "../utils/bit_length.h"
+
+/* Return true iff pattern of length pat_len occurs in bits[0..bits_len-1]. */
+static bool pattern_in_sequence(const uint8_t *bits, size_t bits_len,
+                                const uint8_t *pat, size_t pat_len)
+{
+    if (pat_len > bits_len) return false;
+    for (size_t i = 0; i + pat_len <= bits_len; ++i) {
+        size_t j;
+        for (j = 0; j < pat_len; ++j) {
+            if (bits[i + j] != pat[j]) break;
+        }
+        if (j == pat_len) return true;
+    }
+    return false;
+}
 
 /* static state for lazy construction */
 static uint8_t *seq_bits = NULL;   /* bitstream, each element 0 or 1 */
@@ -71,7 +86,7 @@ seq_t a(idx_t n)
 
         /* Find smallest candidate whose binary pattern is absent. */
         for (;;) {
-            size_t pat_len = bitlen_seq_t(candidate);
+            size_t pat_len = bit_length(candidate);
             uint8_t *pat = (uint8_t *)malloc(pat_len);
             if (!pat) abort();
             for (size_t i = 0; i < pat_len; ++i) {
@@ -84,7 +99,7 @@ seq_t a(idx_t n)
         }
 
         /* Append bits of chosen candidate to the stream. */
-        size_t pat_len = bitlen_seq_t(candidate);
+        size_t pat_len = bit_length(candidate);
         uint8_t *pat = (uint8_t *)malloc(pat_len);
         if (!pat) abort();
         for (size_t i = 0; i < pat_len; ++i) {

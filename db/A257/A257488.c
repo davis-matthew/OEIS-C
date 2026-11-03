@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl, easy
  * Formula:   not stated
- * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 55, u64 n <= 55, u128 n <= 55,
+ * Range:     u8 n <= 15, u16 n <= 45, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
    with r(r+1)/2 ≥ n and k = n - (r-1)r/2. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Return the n‑th term of A257488 (a(1)=1). */
 seq_t a(idx_t n)
@@ -41,8 +42,8 @@ seq_t a(idx_t n)
     idx_t max_i = r - k;             /* i goes from 0 to r-k */
 
     for (idx_t i = 0; i <= max_i; ++i) {
-        seq_t c1 = binom(2 * i + 2 * k, i);
-        seq_t c2 = binom(r - i - 1, k - 1);
+        seq_t c1 = binomial(2 * i + 2 * k, i);
+        seq_t c2 = binomial(r - i - 1, k - 1);
         seq_t denom = (seq_t)i + (seq_t)k;
         seq_t term = ((seq_t)k * c1 * c2) / denom;
         total = total + term;

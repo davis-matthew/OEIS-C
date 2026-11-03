@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*(n+1)*(2*n+1)*(n^2+n+3)/30
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 143, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 50 terms through n = 923 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

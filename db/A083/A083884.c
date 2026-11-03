@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>   /* for malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array of previously computed terms */
 static idx_t  cache_len = 0;  /* number of terms stored, i.e. cache_len = highest index + 1 */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 {
     /* initialise cache for a(0) */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));   /* room for a(0) */
+        cache = mem_new(seq_t, 1);   /* room for a(0) */
         if (!cache) abort();
         cache[0] = (seq_t)1;
         cache_len = 1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* extend cache up to n */
     if (n >= cache_len) {
         idx_t new_len = n + 1;                     /* indices 0 .. n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         cache = tmp;
         for (idx_t i = cache_len; i <= n; ++i) {

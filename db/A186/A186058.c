@@ -9,7 +9,8 @@
  *            having a positive determinant
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 19, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define STATE_COUNT 4096   /* 2^12: two rows of 6 bits each */
 
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
     for (idx_t step = 0; step < n; ++step)
     {
         /* zero next array */
-        memset(next, 0, sizeof(next_arr));
+        mem_set(next, 0, sizeof(next_arr));
 
         for (int state = 0; state < STATE_COUNT; ++state)
         {

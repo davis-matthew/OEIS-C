@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  * arbitrary indices, even out of order, are fast.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed terms, 1‑based (cache[0] holds a(1)). */
 static seq_t *seq_cache = NULL;   /* pointer to the cache array */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Expand the cache if the requested index is not yet cached. */
     if (cache_len < n) {
         idx_t new_len = n;
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_len);
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache)
             return (seq_t)0;   /* Allocation failure – unlikely. */
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace the old cache. */
-        free(seq_cache);
+        mem_free(seq_cache);
         seq_cache = new_cache;
         cache_len = new_len;
     }

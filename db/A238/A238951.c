@@ -9,7 +9,8 @@
  *            n/d)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bigomega, count_distinct_primes, factor_u64
+ * Validated: standard, pass, 102 terms through n = 791 (2026-11-01)
+ * Helpers:   bigomega, factor_u64, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,12 @@
 /* where Ω(d) is the total number of prime factors of d (with multiplicity). */
 
 /* Required helpers from the utils library */
-#include "../utils/factor_u64.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/factor_u64.h"
+#include "../utils/omega.h"
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -75,7 +79,7 @@ seq_t a(idx_t n)
             continue;            /* Ω(d) even: skip */
         }
         uint64_t co = (uint64_t)n / d;
-        seq_t cnt = (seq_t)count_distinct_primes(co);
+        seq_t cnt = (seq_t)omega(co);
         sum += cnt;
     }
 

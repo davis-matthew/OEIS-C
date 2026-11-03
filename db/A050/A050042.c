@@ -12,14 +12,16 @@
  *            calls may arrive in any order
  * Range:     u8 n <= 42, u16 n <= 208, u32 n <= 1804, u64 n <= 8193,
  *            u128 n <= 8193, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 65 terms through n = 7368 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 #ifdef __cplusplus
 #include <new>
@@ -98,7 +100,7 @@ seq_t a(idx_t n) {
     ensure_capacity(n);
 
     for (idx_t i = last + 1; i <= n; ++i) {
-        idx_t exp   = floor_log2_uint64(i - 1);          /* p₀ = floor(log₂(i-1)) */
+        idx_t exp   = ilog2(i - 1);          /* p₀ = floor(log₂(i-1)) */
         idx_t pow2  = (1ULL << exp);
         if (pow2 == i - 1) {                            /* adjust when i-1 is a power of two */
             exp--;

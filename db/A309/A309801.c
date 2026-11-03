@@ -7,12 +7,15 @@
  * Formula:   a(n) = Σ (k+1)^n over all bit positions k where bit k of n is 1
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"   /* provides big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
         if (tmp & 1ULL)  /* bit k is set */
         {
             seq_t base = (seq_t)(bit + 1);        /* (k + 1) */
-            seq_t term = big_pow(base, (seq_t)n); /* (k + 1)^n */
+            seq_t term = ipow(base, (seq_t)n); /* (k + 1)^n */
             sum += term;                         /* accumulate */
         }
         tmp >>= 1;      /* move to next bit */

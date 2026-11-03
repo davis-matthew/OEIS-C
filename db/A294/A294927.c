@@ -6,16 +6,41 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of proper divisors d of n that are nondeficient
  *            (σ(d) ≥ 2·d)
- * Range:     u8 n <= 8543, u16 n <= 9560, u32 n <= 9560, u64 n <= 9560,
- *            u128 n <= 9560, big any n
- * Helpers:   is_nondeficient, sum_of_divisors
+ * Range:     u8 n <= 8543, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9560 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_nondeficient.h"
-#include "../utils/sum_of_divisors.h"
+
+/* sum of all divisors of m (including m itself) */
+static seq_t sum_of_divisors(idx_t m)
+{
+    seq_t sum = 0;
+    /* iterate only up to sqrt(m) using integer arithmetic */
+    for (idx_t i = 1; i * i <= m; ++i)
+    {
+        if (m % i == 0)
+        {
+            sum += (seq_t)i;
+            idx_t j = m / i;
+            if (j != i)
+                sum += (seq_t)j;
+        }
+    }
+    return sum;
+}
+
+/* true iff m is nondeficient (σ(m) ≥ 2·m) */
+static bool is_nondeficient(idx_t m)
+{
+    seq_t sigma = sum_of_divisors(m);
+    /* avoid underflow by comparing directly */
+    return sigma >= ((seq_t)2 * (seq_t)m);
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

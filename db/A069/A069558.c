@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   tri_is_valid
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,40 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/tri_is_valid.h"
+
+/* Helper: test whether a triangular number satisfies the digit rules */
+static bool tri_is_valid(seq_t tri)
+{
+    seq_t temp = tri;
+    idx_t position = 1;                 /* 1‑based from the rightmost digit */
+
+    while (temp > 0) {
+        uint8_t digit = (uint8_t)(temp % 10);   /* extract least‑significant digit */
+        temp = temp / 10;                      /* shift right */
+
+        if (digit == 0)
+            return false;                      /* zero digits are disallowed */
+
+        if (digit == 1) {
+            /* digit 1 is allowed only if position has no divisor 2…9 */
+            if (position > 1) {
+                if ((position % 2 == 0) ||
+                    (position % 3 == 0) ||
+                    (position % 5 == 0) ||
+                    (position % 7 == 0))
+                    return false;
+            }
+        } else {
+            /* for other digits: position divides digit or digit is a multiple of position */
+            if ((position % (idx_t)digit != 0) &&
+                (((idx_t)digit) % position != 0))
+                return false;
+        }
+
+        position++;
+    }
+    return true;
+}
 
 /* Forward declaration – seq_t and idx_t are supplied by the build */
 seq_t a(idx_t n);

@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = 0 if n is a perfect square, otherwise * a(n) = 1 + a(n -
  *            d(n)), where d(n) = number of divisors of n
- * Range:     u8 n <= 63, u16 n <= 8909, u32 n <= 8909, u64 n <= 8909,
- *            u128 n <= 8909, big any n
- * Helpers:   build_primes, floor_sqrt
+ * Range:     u8 n <= 63, u16 n <= 8909, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 117 terms through n = 8909 (2026-11-01)
+ * Helpers:   build_primes, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,28 @@
 #include <stdlib.h>
 #include <stdbool.h>
 /* Utilities supplied by the build system */
-#include "../utils/floor_sqrt.h"          /* floor_sqrt(seq_t) */
-#include "../utils/build_primes.h"       /* build_primes(idx_t,idx_t**,size_t*) */
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* ------------------------------------------------------------------ */
 /* Global prime cache                                               */

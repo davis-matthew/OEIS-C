@@ -12,13 +12,15 @@
  *            a(6)=327588, a(7)=1596200, a(8)=8064200, a(9)=39342364
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 11, u64 n <= 25, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* Cache of computed terms, indexed from 0. */
 static idx_t  cache_cap = 0;      /* Current capacity of the cache. */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap == 0) {
         /* Initial allocation: at least n+1, but also enough for the first 9 terms. */
         cache_cap = (n + 1) > 10 ? n + 1 : 10;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         /* Base values for indices 1..9 as given in the OEIS entry. */
         const seq_t base[10] = {
             0ULL,              /* dummy for index 0 */
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n)
             cache[i] = base[i];
     } else if (n + 1 > cache_cap) {
         cache_cap = n + 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 }
 

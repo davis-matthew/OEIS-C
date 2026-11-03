@@ -7,6 +7,7 @@
  * Formula:   a(n) = ((199*n + 5*55)*F(n+1) + 123*(n+1)*F(n)) / 5
  * Range:     u8 none, u16 n <= 7, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
  * Helpers:   fib_pair
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

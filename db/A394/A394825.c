@@ -12,12 +12,14 @@
  *            k*A(0,k-1)+1 A(n,k) = k*(A(n,k-1)+A(n-1,k)-A(n-1,k-1)) (n,k>0)
  * Range:     u8 n <= 18, u16 n <= 40, u32 n <= 85, u64 n <= 202,
  *            u128 n <= 545, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9847 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;          /* flattened triangle A[i][k] */
 static size_t A_cap = 0;         /* current dimension (size = A_cap^2) */
@@ -29,7 +31,7 @@ static void rebuild_triangle(size_t new_cap)
 
     /* Allocate new storage */
     size_t new_size = new_cap * new_cap;
-    seq_t *newA = (seq_t*)realloc(A, new_size * sizeof(seq_t));
+    seq_t *newA = mem_resize(seq_t, A, new_size);
     if (!newA) { /* allocation failed – abort */
         exit(EXIT_FAILURE);
     }

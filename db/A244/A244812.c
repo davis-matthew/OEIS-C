@@ -9,12 +9,17 @@
  *            n + 12)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   pow10_idx_t
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10_idx_t.h"
+static idx_t pow10_idx_t(int d) {
+    idx_t r = 1;
+    for (int i = 0; i < d; ++i) r *= 10;
+    return r;
+}
 
 static seq_t champernowne_digit(idx_t pos) {
     idx_t remaining = pos;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Static storage for the flattened sequence. */
 static seq_t *flat = NULL;      /* read‑only sequence values */
@@ -39,7 +41,7 @@ static void grow_flat(size_t new_cap) {
     if (new_cap <= flat_cap) return;
     size_t cap = (flat_cap == 0) ? 16 : flat_cap;
     while (cap < new_cap) cap <<= 1;
-    flat = (seq_t *)realloc(flat, cap * sizeof(seq_t));
+    flat = mem_resize(seq_t, flat, cap);
     flat_cap = cap;
 }
 
@@ -51,7 +53,7 @@ static void ensure_terms(idx_t n) {
     if (flat_len == 0) {
         /* Row 1: T(1,0)=1 */
         row_prevprev_len = 1;
-        row_prevprev = (seq_t *)malloc(1 * sizeof(seq_t));
+        row_prevprev = mem_new(seq_t, 1);
         row_prevprev[0] = (seq_t)1;
         grow_flat(1);
         flat[flat_len++] = row_prevprev[0];
@@ -59,7 +61,7 @@ static void ensure_terms(idx_t n) {
 
         /* Row 2: T(2,0)=T(2,1)=2 */
         row_prev_len = 2;
-        row_prev = (seq_t *)malloc(2 * sizeof(seq_t));
+        row_prev = mem_new(seq_t, 2);
         row_prev[0] = (seq_t)2;
         row_prev[1] = (seq_t)2;
         grow_flat(3);
@@ -70,7 +72,7 @@ static void ensure_terms(idx_t n) {
     /*  Generate rows until we have at least n terms. */
     while (flat_len < (size_t)n) {
         size_t new_len = row_prev_len + 1;            /* row length */
-        seq_t *new_row = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
 
         for (size_t k = 0; k < new_len; ++k) {
             seq_t sum = (seq_t)0;
@@ -92,7 +94,7 @@ static void ensure_terms(idx_t n) {
         }
 
         /*  Advance the row pointers. */
-        free(row_prevprev);
+        mem_free(row_prevprev);
         row_prevprev = row_prev;
         row_prevprev_len = row_prev_len;
 

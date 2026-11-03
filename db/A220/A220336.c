@@ -9,12 +9,14 @@
  *            a(3n+1)=2.)
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 13, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if (B_cap < needed) {
         size_t new_cap = B_cap ? B_cap << 1 : 4;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(B, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, B, new_cap);
         if (!tmp) abort();          /* out of memory */
         B = tmp;
         B_cap = new_cap;

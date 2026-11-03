@@ -12,6 +12,7 @@
  *            y(k) = (378*X_k + 810*Y_k - 486)/4 (For k = 0 the val...
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 4, u128 n <= 10,
  *            big any n
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

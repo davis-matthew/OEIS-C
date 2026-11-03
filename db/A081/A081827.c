@@ -7,7 +7,8 @@
  * Formula:   a(n) = Q(n+1) - Q(n)
  * Range:     i8 n <= 766, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 9890 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *Q_cache = NULL;    /* 1‑based array of Q values                               */
 static idx_t   Q_alloc = 0;      /* total allocated length             */
@@ -34,7 +36,7 @@ static void ensure_Q(idx_t n_needed)
     /* Allocate or grow the cache to accommodate up to n_needed */
     if (Q_alloc < n_needed + 2) {            /* +2 to have index 1..n_needed */
         idx_t new_alloc = n_needed + 2;
-        Q_cache = (seq_t *)realloc(Q_cache, sizeof(seq_t) * new_alloc);
+        Q_cache = mem_resize(seq_t, Q_cache, new_alloc);
         if (!Q_cache) {
             /* Out of memory – aborting for simplicity */
             exit(1);

@@ -8,7 +8,8 @@
  *            unique
  * Range:     u8 n <= 22, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort, works for any unsigned integer seq_t. */
 static int seq_cmp(const void *p, const void *q)
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
                     /* Append to terms array. */
                     if (terms_len >= terms_cap) {
                         size_t new_cap = terms_cap == 0 ? 64 : terms_cap * 2;
-                        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                         if (!tmp) abort();
                         terms = tmp;
                         terms_cap = new_cap;
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
         }
 
         /* Keep the terms sorted for correct indexing. */
-        qsort(terms, terms_len, sizeof(seq_t), seq_cmp);
+        mem_qsort(terms, terms_len, sizeof(seq_t), seq_cmp);
 
         current_limit = new_limit;
     }

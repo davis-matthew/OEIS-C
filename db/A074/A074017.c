@@ -10,12 +10,15 @@
  *            Special cases: a(1)=1, a(2)=0
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-# include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -37,11 +40,11 @@ seq_t a(idx_t n)
         coeff = first ? 1 : 0;
     }
 
-    seq_t base = big_pow((seq_t)7, (seq_t)(n - 2)); /* 7^(n-2) */
+    seq_t base = ipow((seq_t)7, (seq_t)(n - 2)); /* 7^(n-2) */
     if (coeff == 0)
         return base;
 
-    seq_t extra = big_pow((seq_t)7, (seq_t)k);     /* 7^k */
+    seq_t extra = ipow((seq_t)7, (seq_t)k);     /* 7^k */
 
     if (coeff == 1)
         return base + extra;

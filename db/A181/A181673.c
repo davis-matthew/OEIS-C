@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   floor_div10
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_div10.h"
+
+/* floor division by 10 for signed int (C truncates toward zero) */
+static inline int floor_div10(int v)
+{
+    if (v >= 0) return v / 10;
+    /* v < 0 */
+    int neg = -v;
+    int q = neg / 10;
+    return (neg % 10 == 0) ? -q : -q - 1;
+}
 
 /* static buffers for memoisation */
 static idx_t   precomp_limit = 0;    /* largest n for which we have data   */

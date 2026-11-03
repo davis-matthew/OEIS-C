@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 199, u32 n <= 199, u64 n <= 199,
  *            u128 n <= 199, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Configuration: adjust LIMIT for the expected range of terms   */
@@ -120,7 +122,7 @@ static void init(void)
     /* 5. Build the answer array from primes that satisfy      */
     /* -------------------------------------------------------- */
     size_t ans_cap = prime_count;
-    answer_vals = (seq_t*)calloc(ans_cap, sizeof(seq_t));
+    answer_vals = mem_new(seq_t, ans_cap);
     if (!answer_vals) exit(1);
 
     for (size_t i = 0; i < prime_count; ++i)

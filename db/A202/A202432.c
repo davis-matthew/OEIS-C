@@ -10,7 +10,8 @@
  *            dynamic programming over rows
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 14, u128 n <= 31,
  *            big any n
- * Helpers:   alloc_seq, free_seq
+ * Validated: standard, pass, 30 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,20 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 #define ROWS 128
 #define STATE_COUNT (ROWS * ROWS)
@@ -110,7 +123,7 @@ a(idx_t n)
     /* Allocate DP arrays */
     seq_t *dp_prev = alloc_seq(STATE_COUNT);
     seq_t *dp_curr = alloc_seq(STATE_COUNT);
-    memset(dp_prev, 0, STATE_COUNT * sizeof(seq_t));
+    mem_set(dp_prev, 0, STATE_COUNT * sizeof(seq_t));
 
     /* Initial two rows (height = 2) – any pair of horizontally valid rows */
     for (int a = 0; a < ROWS; ++a) {
@@ -124,7 +137,7 @@ a(idx_t n)
 
     /* Add n additional rows to reach total height n+2 */
     for (idx_t step = 0; step < n; ++step) {
-        memset(dp_curr, 0, STATE_COUNT * sizeof(seq_t));
+        mem_set(dp_curr, 0, STATE_COUNT * sizeof(seq_t));
         for (int idx = 0; idx < STATE_COUNT; ++idx) {
             seq_t cnt = dp_prev[idx];
             if (cnt == 0) continue;

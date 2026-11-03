@@ -11,7 +11,8 @@
  *            M exactly once
  * Range:     u8 none, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   allowed_subtractive, compute_value, value_of
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,52 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/allowed_subtractive.h"
-#include "../utils/compute_value.h"
-#include "../utils/value_of.h"
+
+/* Allowed subtractive pairs: IV, IX, XL, XC, CD, CM */
+static inline bool allowed_subtractive(char a, char b) {
+    return (a == 'I' && (b == 'V' || b == 'X')) ||
+           (a == 'X' && (b == 'L' || b == 'C')) ||
+           (a == 'C' && (b == 'D' || b == 'M'));
+}
+
+/* Get numeric value of a single Roman character */
+static inline int value_of(char c) {
+    switch (c) {
+        case 'I': return 1;
+        case 'V': return 5;
+        case 'X': return 10;
+        case 'L': return 50;
+        case 'C': return 100;
+        case 'D': return 500;
+        case 'M': return 1000;
+    }
+    return 0; /* should not happen */
+}
+
+/* Check if a permutation forms a valid Roman numeral under the standard rules
+   and compute its integer value. If invalid, return 0. */
+static seq_t compute_value(const char perm[7]) {
+    int v[7];
+    for (int i = 0; i < 7; ++i) v[i] = value_of(perm[i]);
+
+    /* Validate the order */
+    for (int i = 0; i < 6; ++i) {
+        if (v[i] < v[i+1]) {                /* potential subtractive pair */
+            if (!allowed_subtractive(perm[i], perm[i+1])) return 0;
+            if (i+2 < 7 && v[i+2] > v[i+1])   /* next symbol too large */
+                return 0;
+        }
+    }
+
+    /* Compute the numeric value */
+    seq_t sum = 0;
+    for (int i = 0; i < 6; ++i) {
+        if (v[i] < v[i+1]) sum -= v[i];
+        else sum += v[i];
+    }
+    sum += v[6];
+    return sum;
+}
 
 static const char symbols[7] = {'I','V','X','L','C','D','M'};
 static const int   values_map[7] = {1,5,10,50,100,500,1000};

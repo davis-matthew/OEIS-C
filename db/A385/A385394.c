@@ -7,7 +7,8 @@
  * Formula:   a(n) = (Sum_{k=0..n} (binomial(n, k) mod 8)) / 2^bitcount(n)
  * Range:     u8 n <= 62, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache for previously computed values */
 static idx_t          maxComputed = 0;   /* highest n already computed   */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         size_t initCap = (size_t) (n + 1);
         if (initCap == 0) initCap = 1;                 /* at least one slot */
         binRow = (uint8_t*)malloc(initCap * sizeof(uint8_t));
-        aCache = (seq_t*)malloc(initCap * sizeof(seq_t));
+        aCache = mem_new(seq_t, initCap);
         binCap = initCap;
 
         /* row 0 */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         if (newCap > binCap)
         {
             binRow = (uint8_t*)realloc(binRow, newCap * sizeof(uint8_t));
-            aCache = (seq_t*)realloc(aCache, newCap * sizeof(seq_t));
+            aCache = mem_resize(seq_t, aCache, newCap);
             binCap = newCap;
         }
 

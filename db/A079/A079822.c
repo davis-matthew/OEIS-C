@@ -8,7 +8,8 @@
  *            composite number
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   isPrime, pow10
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,18 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/isPrime.h"
+#include <stdbool.h>
+#include "../utils/is_prime.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Cache for composite numbers to avoid recomputation between calls. */
 static uint64_t *composite_cache = NULL;
@@ -31,7 +42,7 @@ static uint64_t nth_composite(idx_t n)
     while (composite_cache_len < n)
     {
         uint64_t cand = next_candidate++;
-        if (cand > 1 && !isPrime((idx_t)cand))
+        if (cand > 1 && !is_prime((idx_t)cand))
         {
             if (composite_cache_len == composite_cache_cap)
             {

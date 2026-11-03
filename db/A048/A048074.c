@@ -9,12 +9,14 @@
  *            3k) where K = min(floor((n+2)/3), floor((n - floor((n+2)/3))/3))
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
 
     seq_t sum = 0;
     for (idx_t k = 1; k <= kmax; ++k) {
-        seq_t c1 = binom(t, k);
-        seq_t c2 = binom(upper, 3 * k);
+        seq_t c1 = binomial(t, k);
+        seq_t c2 = binomial(upper, 3 * k);
         sum += c1 * c2;
     }
     return sum;

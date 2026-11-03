@@ -13,12 +13,14 @@
  *            uses a static memoisation cache that grows * as needed. It...
  * Range:     u8 none, u16 n <= 19, u32 n <= 54, u64 n <= 123, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with the known first 12 values (indices 0..12) */
     if (!cache) {
-        cache = (seq_t *)realloc(NULL, (12 + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, (12 + 1));
         cache[0]  = (seq_t)0;          /* unused but convenient for 1‑based indexing */
         cache[1]  = (seq_t)1966;
         cache[2]  = (seq_t)771;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
     /* enlarge the cache to hold indices up to n (inclusive) */
     if (n > cache_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         cache = tmp;
         /* compute the missing terms using the recurrence relation */
         for (idx_t i = cache_len + 1; i <= n; ++i) {

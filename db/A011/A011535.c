@@ -8,13 +8,23 @@
  *            contains a digit 5
  * Range:     u8 n <= 49, u16 n <= 3439, u32 n <= 3439, u64 n <= 3439,
  *            u128 n <= 3439, big any n
- * Helpers:   has_five
+ * Validated: standard, pass, 69 terms through n = 3306 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_five.h"
+
+static bool has_five(seq_t v)
+{
+    while (v > 0) {
+        if (v % 10 == 5)
+            return true;
+        v /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

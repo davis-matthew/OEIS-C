@@ -12,6 +12,7 @@
  *            D=13, F=14, G=15, H=16, J=17, K=18, * L=19, Z=20,...
  * Range:     u8 n <= 26, u16 n <= 26, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
+ * Validated: full, pass, 26 terms through n = 26 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

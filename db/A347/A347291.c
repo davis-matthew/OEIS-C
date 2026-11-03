@@ -9,13 +9,14 @@
  *            a(p^k) = p^(k-1) if k >= 2 (multiplicative over distinct primes)
  * Range:     u8 n <= 511, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_seq_fast
+ * Validated: standard, pass, 101 terms through n = 9304 (2026-11-01)
+ * Helpers:   ipow_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for uint64_t */
-#include "../utils/pow_seq_fast.h"
+#include "../utils/ipow_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
         if (exp == 1)
             result *= (seq_t)2;
         else
-            result *= pow_seq_fast((seq_t)2, exp - 1);
+            result *= ipow_u64((seq_t)2, exp - 1);
     }
 
     /* iterate over odd potential divisors */
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
             if (exp == 1)
                 result *= (seq_t)2;
             else
-                result *= pow_seq_fast((seq_t)d, exp - 1);
+                result *= ipow_u64((seq_t)d, exp - 1);
         }
     }
 

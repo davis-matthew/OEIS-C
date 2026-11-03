@@ -8,12 +8,14 @@
  * Formula:   a(n) = binomial(n*(n+1), n*(n+1)/2)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 29 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -22,5 +24,5 @@ seq_t a(idx_t n)
     /* m = n*(n+1)/2 fits in idx_t for all supported n. */
     idx_t m = (idx_t)(twice / 2);
     /* Return binomial(2*m, m).  binom() accepts idx_t arguments. */
-    return binom((idx_t)twice, m);
+    return binomial((idx_t)twice, m);
 }

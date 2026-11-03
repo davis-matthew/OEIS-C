@@ -8,13 +8,15 @@
  *            a(1)=0, a(2)=0, a(3)=3 (expansion of (1-x)^(-1)/(1+x+x^2-2*x^3))
  * Range:     i8 n <= 12, i16 n <= 25, i32 n <= 48, i64 n <= 97, i128 n <= 196,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (!init) {
         /* allocate a small initial array                         */
         cap = 8;
-        cache = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cap);
         if (!cache) exit(1);
 
         cache[0] = (seq_t)1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t new_cap = cap;
         while ((size_t)n + 1 > new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cap = new_cap;

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   a(n) = A003958(sigma(A003961(n)))
- * Range:     u8 n <= 12, u16 n <= 920, u32 n <= 9528, u64 n <= 9528,
- *            u128 n <= 9528, big any n
- * Helpers:   factor_u64, next_prime, pow_uint
+ * Range:     u8 n <= 12, u16 n <= 920, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 104 terms through n = 9528 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 #include <stdbool.h>
 
 /* Utilities used */
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
 #include "../utils/next_prime.h"
-#include "../utils/pow_uint.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         uint64_t p      = primes[i];
         uint64_t e      = exps[i];
         uint64_t nextp  = next_prime(p);                  /* next prime after p   */
-        seq_t term = pow_uint(nextp, e);                  /* nextp^e              */
+        seq_t term = ipow_u64_idx(nextp, e);                  /* nextp^e              */
         m *= term;
     }
 
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t r = primes[i];
         uint64_t f = exps[i];
-        seq_t r_pow = pow_uint(r, f + 1);                 /* r^(f+1) */
+        seq_t r_pow = ipow_u64_idx(r, f + 1);                 /* r^(f+1) */
         seq_t numerator = r_pow - 1;
         seq_t denom     = (seq_t)(r - 1);
         seq_t sigma_r   = numerator / denom;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t s = primes[i];
         uint64_t g = exps[i];
-        seq_t term = pow_uint(s - 1, g);
+        seq_t term = ipow_u64_idx(s - 1, g);
         result *= term;
     }
 

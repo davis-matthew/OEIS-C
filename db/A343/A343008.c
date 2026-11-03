@@ -8,13 +8,24 @@
  * Formula:   a(n) = F(n+5) * F(n+2) - 12 * (-1)^n
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 21, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   fib
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/fib.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n)
 {

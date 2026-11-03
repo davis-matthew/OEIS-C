@@ -8,14 +8,25 @@
  * Formula:   a(n) = record chain lengths of A341755
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_from_str.h"
+#include <string.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 /* Return the n-th term of OEIS A341756.
  * For n <= 9 the values are computed by a small table.

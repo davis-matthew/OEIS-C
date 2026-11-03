@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn, base
  * Formula:   not stated
- * Range:     u8 none, u16 none, u32 none, u64 n <= 28, u128 n <= 28,
+ * Range:     u8 none, u16 none, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   isprime_big
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 /* Uses incremental search over n to find the nth prime of the form 1nn1. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/isprime_big.h"
+#include "../utils/is_prime_seq.h"
 
 /* Compute 10^exp as a seq_t. */
 static seq_t pow10_seq(uint64_t exp)
@@ -54,7 +55,7 @@ seq_t a(idx_t n)
                   + (seq_t)m * 10
                   + 1;               /* 1nn1 */
 
-        if (isprime_big(val)) {
+        if (is_prime_seq(val)) {
             ++count;
             if (count == n)
                 return val;

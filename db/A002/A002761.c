@@ -13,14 +13,47 @@
  *            a(n) = count of class n
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   a002761_classify
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a002761_classify.h"
+
+static int a002761_classify(const int *cards) {
+    int r[5];
+    unsigned mask = 0;
+    int distinct = 0, i, j;
+    bool flush = true;
+    for (i = 0; i < 5; i++) {
+        r[i] = cards[i] % 13;
+        if (cards[i] / 13 != cards[0] / 13) flush = false;
+        if (!(mask & (1u << r[i]))) { mask |= 1u << r[i]; distinct++; }
+    }
+    if (distinct == 5) {
+        unsigned m = mask;
+        bool straight;
+        while (!(m & 1u)) m >>= 1;
+        straight = (m == 0x1Fu) || (mask == 0x100Fu); /* wheel A-2-3-4-5 */
+        if (straight && flush) return (mask == 0x1F00u) ? 0 : 1;
+        if (flush) return 4;
+        if (straight) return 5;
+        return 9;
+    }
+    if (distinct == 4) return 8;
+    {
+        int maxc = 0;
+        for (i = 0; i < 5; i++) {
+            int c = 0;
+            for (j = 0; j < 5; j++) if (r[j] == r[i]) c++;
+            if (c > maxc) maxc = c;
+        }
+        if (distinct == 3) return (maxc == 3) ? 6 : 7;
+        return (maxc == 4) ? 2 : 3;
+    }
+}
 
 static uint32_t a002761_cnt[10];
 static bool a002761_done = false;

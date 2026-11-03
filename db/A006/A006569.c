@@ -9,14 +9,37 @@
  *            B(m-k) / ((k+1)*(k+2)/2)
  * Range:     i8 n <= 3, i16 n <= 9, i32 n <= 17, i64 n <= 28, i128 n <= 28,
  *            big any n
- * Helpers:   frac_gcd, grow_zero
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/grow_zero.h"
-#include "../utils/frac_gcd.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static seq_t frac_gcd(seq_t x, seq_t y) {
+    if (x < 0) x = -x;
+    if (y < 0) y = -y;
+    while (y != 0) {
+        seq_t t = x % y;
+        x = y;
+        y = t;
+    }
+    return x;
+}
 
 static seq_t *Bn = NULL;   /* numerators */
 static seq_t *Bd = NULL;   /* denominators (positive) */

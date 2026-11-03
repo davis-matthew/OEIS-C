@@ -11,15 +11,42 @@
  *            - 5x^4/2 + 5x^3/3 - x/6. The exceptional term...
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 112, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a362_jacobi, a362_kron, a362_to_seq
+ * Validated: standard, pass, 46 terms through n = 9193 (2026-11-01)
+ * Helpers:   jacobi_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a362_jacobi.h"
-#include "../utils/a362_kron.h"
-#include "../utils/a362_to_seq.h"
+#include "../utils/jacobi_i64.h"
+
+static int a362_kron(long long d, long long r)
+{
+    int s = 1;
+    while ((r & 1) == 0) {
+        long long dm;
+        if ((d & 1) == 0) return 0;
+        dm = ((d % 8) + 8) % 8;
+        if (dm == 3 || dm == 5) s = -s;
+        r >>= 1;
+    }
+    if (r == 1) return s;
+    return s * jacobi_i64(d, r);
+}
+
+static seq_t a362_to_seq(__int128 v)
+{
+    uint64_t lo = (uint64_t)v;
+    uint64_t hi = (uint64_t)(v >> 64);
+    seq_t r = (seq_t)0;
+    if (hi != 0) {
+        r = (seq_t)hi;
+        r = r * (seq_t)4294967296ULL;
+        r = r * (seq_t)4294967296ULL;
+    }
+    r += (seq_t)lo;
+    return r;
+}
 
 seq_t a(idx_t n)
 {

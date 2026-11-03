@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = carryless base‑2 product of run lengths in binary
  *            representation of n
- * Range:     u8 n <= 9799, u16 n <= 9799, u32 n <= 9799, u64 n <= 9799,
- *            u128 n <= 9799, big any n
+ * Range:     u8 n <= 10922, u16 n <= 10922, u32 n <= 10922, u64 n <= 10922,
+ *            u128 n <= 10922, big any n
+ * Validated: standard, pass, 135 terms through n = 9799 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

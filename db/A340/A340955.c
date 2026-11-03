@@ -10,15 +10,25 @@
  *            dynamic‑programming recurrence
  * Range:     u8 n <= 18, u16 n <= 41, u32 n <= 400, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq, seq_free
+ * Validated: standard, pass, 61 terms through n = 9366 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/seq_free.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 static seq_t *dp = NULL;        /* DP table: 11 rows × (current_max+1) columns */
 static size_t stride = 0;       /* number of columns in dp */

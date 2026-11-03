@@ -6,14 +6,18 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(2n) = binomial(2n,n), a(2n+1) = catalan(n)
- * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 67, u128 n <= 131,
+ * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 67, u128 n <= 131,
  *            big any n
- * Helpers:   binom, catalan
+ * Validated: standard, pass, 52 terms through n = 942 (2026-11-01)
+ * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)
@@ -21,7 +25,7 @@ seq_t a(idx_t n)
     /* Even indices: a(2n) = C(2n,n) */
     if ((n & 1) == 0) {
         idx_t k = n >> 1;          /* n = 2k */
-        return binom(2 * k, k);
+        return binomial(2 * k, k);
     }
     /* Odd indices:  a(2n+1) = Catalan(n) */
     else {

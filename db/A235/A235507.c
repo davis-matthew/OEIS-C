@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 42, u16 n <= 1323, u32 n <= 9920, u64 n <= 9920,
- *            u128 n <= 9920, big any n
- * Helpers:   none
+ * Range:     u8 n <= 42, u16 n <= 1323, u32 n <= 10796, u64 n <= 10796,
+ *            u128 n <= 10796, big any n
+ * Validated: standard, pass, 77 terms through n = 9920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Computes the n‑th MHN‑2 (multiple Harshad number of order 2).  The sequence starts
    at a(1)=1.  For n==0 the function returns 0 as a safe sentinel. */
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 static inline seq_t digit_sum(seq_t x) {
     seq_t s = 0;
@@ -32,7 +34,7 @@ static void ensure_capacity(size_t need, seq_t **arr, size_t *cap) {
     if (*cap < need) {
         size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         *arr = tmp;
         *cap = new_cap;
     }

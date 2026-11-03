@@ -7,7 +7,8 @@
  * Formula:   enumerates the primes whose decimal digits are only in {1,4,5,8}
  * Range:     u8 n <= 5, u16 n <= 72, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrimeGeneric
+ * Validated: standard, pass, 59 terms through n = 9881 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,31 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/isPrimeGeneric.h"
+#include <stdbool.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 static const uint8_t digit_map[4] = {1, 4, 5, 8};
 
@@ -76,8 +101,7 @@ ensure_primes(idx_t n)
         if (isPrimeGeneric(candidate)) {
             if (prime_len == prime_cap) {
                 idx_t new_cap = prime_cap ? prime_cap * 2 : 32;
-                seq_t *tmp = (seq_t *)realloc(prime_list,
-                                              new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime_list, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 prime_list = tmp;
                 prime_cap = new_cap;

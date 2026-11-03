@@ -9,8 +9,9 @@
  *            and w² + 2xy = 0. The value is a(n) = 4n+1 + 4·∑_{k=1}^{⌊n/2⌋}
  *            Q(k,n) where Q(k,n) = number of positive divisors d of 2k²
  *            satisfying d≤n and (2k²)/d ≤ n
- * Range:     u8 n <= 23, u16 n <= 3107, u32 n <= 9512, u64 n <= 9512,
- *            u128 n <= 9512, big any n
+ * Range:     u8 n <= 23, u16 n <= 3107, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 69 terms through n = 9512 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

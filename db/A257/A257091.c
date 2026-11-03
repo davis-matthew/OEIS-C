@@ -11,12 +11,14 @@
  *            a(n) = a(m) + e + floor(e/5) + floor(e/25) + …
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9819 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- cache of computed values ---------- */
 static seq_t *cache = NULL;      /* a(n) for n ≥ 1 (index 0 unused) */
@@ -63,12 +65,12 @@ static void ensure_cache(idx_t n)
 
     /* Allocate or grow cache array */
     if (cache == NULL) {
-        cache = (seq_t *)calloc(n + 1, sizeof(seq_t));
+        cache = mem_new(seq_t, n + 1);
         if (!cache)
             abort();
         cache[1] = 0;                  /* a(1) = 0 */
     } else {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp)
             abort();
         cache = tmp;

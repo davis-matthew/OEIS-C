@@ -10,15 +10,21 @@
  *            increase L and repeat
  * Range:     u8 n <= 5, u16 n <= 126, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3348_cmp, a3348_p5
+ * Validated: standard, pass, 63 terms through n = 9830 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a3348_cmp.h"
-#include "../utils/a3348_p5.h"
+
+static int a3348_cmp(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
+
+static uint64_t a3348_p5(uint64_t x) { return x * x * x * x * x; }
 
 static uint64_t *a3348_cache = NULL;
 static idx_t a3348_len = 0;

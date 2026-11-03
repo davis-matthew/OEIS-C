@@ -9,7 +9,8 @@
  *            until n terms exist
  * Range:     u8 n <= 22, u16 n <= 611, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a4857_cmp
+ * Validated: standard, pass, 63 terms through n = 9452 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a4857_cmp.h"
+
+static int a4857_cmp(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p;
+    uint64_t y = *(const uint64_t *)q;
+    return (x < y) ? -1 : (x > y) ? 1 : 0;
+}
 
 static uint64_t *a4857_buf = NULL;
 static size_t a4857_cnt = 0, a4857_cap = 0;

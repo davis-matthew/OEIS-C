@@ -7,14 +7,16 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/3)} k^(3*n)
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 33 terms through n = 182 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 /* Require the big integer power function from the utilities. */
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
             /* 0^0 is defined as 1; otherwise 0. */
             term = (exp == 0) ? 1 : 0;
         } else {
-            term = big_pow((seq_t)k, exp);
+            term = ipow((seq_t)k, exp);
         }
         sum += term;
     }

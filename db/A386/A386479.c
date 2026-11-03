@@ -7,6 +7,7 @@
  * Formula:   a(n) = 0 for n = 0, otherwise a(n) = 2*n^2 - 3*n + 5
  * Range:     u8 n <= 11, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 168, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   int64_in_array
+ * Validated: standard, pass, 82 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/int64_in_array.h"
+#include "../utils/mem.h"
+
+/* Test whether val is present in an array of signed 64‑bit values. */
+static bool int64_in_array(const int64_t *arr, size_t cnt, int64_t val) {
+    for (size_t i = 0; i < cnt; i++)
+        if (arr[i] == val) return true;
+    return false;
+}
 
 /* Helper to enlarge a buffer of type T up to at least 'need'.
    The arrow (&) cast is required for C++ compilation. */
@@ -30,7 +38,7 @@
         if ((cap) > (need)) break;                           \
         size_t newcap = (cap) ? (cap) * 2 : 128;              \
         while (newcap <= (need)) newcap <<= 1;                \
-        (buf) = (type*)realloc((buf), newcap * sizeof(type));\
+        (buf) = mem_resize(type, (buf), newcap);\
         if (!(buf)) abort();                                 \
         (cap) = newcap;                                      \
     } while (0)
@@ -58,7 +66,7 @@ seq_t a(idx_t n) {
     if (a_cnt == 0) {
         /* a(1) = 2, d(1) = 2 */
         a_cap = 128;
-        a_vals = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
         if (!a_vals) abort();
         a_vals[0] = 2;
         a_cnt    = 1;

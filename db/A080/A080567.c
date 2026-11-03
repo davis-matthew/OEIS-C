@@ -7,7 +7,8 @@
  * Formula:   a(n) = 1 + Sum_{k=2..n} 2^((prime(k)-1)/2)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   is_prime, pow2
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   is_prime, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include "../utils/is_prime.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         /* Initial allocation.  a(1)=1. */
         if (cum_len == 0) {
             cum_cap = 16;
-            cum     = (seq_t *)malloc(cum_cap * sizeof(seq_t));
+            cum     = mem_new(seq_t, cum_cap);
             if (!cum) return 0;           /* allocation failed */
             cum[0] = (seq_t)1;            /* a(1) = 1 */
             cum_len = 1;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         /* Grow the array if necessary. */
         if (cum_len == cum_cap) {
             size_t new_cap = cum_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cum, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cum, new_cap);
             if (!tmp) return 0;           /* allocation failed */
             cum = tmp;
             cum_cap = new_cap;

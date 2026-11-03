@@ -11,19 +11,40 @@
  *            a(n,1) = n * a(n,m) the smallest positive integer not yet in row
  *            n such that * |a(n,m)-a(n,m-1)| is a power of 2 (for m>1). * The
  *            sequence a(n) is the flattening of that triangle (OEIS A175344)
- * Range:     u8 n <= 8766, u16 n <= 8766, u32 n <= 8766, u64 n <= 8766,
- *            u128 n <= 8766, big any n
- * Helpers:   is_power_of_two, row_contains, seq_alloc_array, seq_free_array
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 107 terms through n = 8766 (2026-11-03)
+ * Helpers:   is_pow2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
-#include "../utils/row_contains.h"
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/is_pow2.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+/* Return true iff the candidate already occurs in the row up to used_len-1.
+ * used_len is the index where the next element will be stored. */
+static bool row_contains(const seq_t *row, idx_t used_len, seq_t cand)
+{
+    for (idx_t i = 1; i < used_len; ++i) {
+        if (row[i] == cand) return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -50,7 +71,7 @@ seq_t a(idx_t n)
         for (;;) {
             if (!row_contains(row, m, cand)) {
                 seq_t diff = (prev > cand) ? (prev - cand) : (cand - prev);
-                if (is_power_of_two(diff)) {
+                if (is_pow2(diff)) {
                     row[m] = cand;
                     break;
                 }

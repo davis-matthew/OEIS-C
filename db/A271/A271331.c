@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 6 terms through n = 5 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    a(n) = (1 + a(n-1)^3)/a(n-2)  for odd n. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static memoization array: cache[i] holds a(i). */
@@ -29,7 +32,7 @@ seq_t a(idx_t n) {
 /* Ensure the array is large enough for indices up to n */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();   /* out‑of‑memory */
         cache = new_cache;
         cache_cap = new_cap;
@@ -44,7 +47,7 @@ seq_t a(idx_t n) {
             val = (seq_t)3;
         } else {
             seq_t exp = (i % 2 == 0) ? (seq_t)4 : (seq_t)3;
-            seq_t pow_val = big_pow(cache[i - 1], exp);
+            seq_t pow_val = ipow(cache[i - 1], exp);
             val = (pow_val + (seq_t)1) / cache[i - 2];
         }
         cache[i] = val;

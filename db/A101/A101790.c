@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 180, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, push_seq
+ * Validated: standard, pass, 62 terms through n = 9420 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,21 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/push_seq.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 static seq_t *cache = NULL;     /* cached sequence values */
 static idx_t  cache_cap = 0;    /* allocated capacity of cache */
@@ -39,15 +53,15 @@ seq_t a(idx_t n)
     /* Generate terms until we have at least n of them.  */
     while (cache_size < n) {
         /* Find the next prime p.  */
-        while (!is_prime(next_candidate))
+        while (!is_prime_u64(next_candidate))
             next_candidate += 2;      /* only odd candidates */
 
         uint64_t p = next_candidate;
 
         /* Check the additional primality conditions.  */
         if ((p & 3U) == 3U &&
-            is_prime(2ULL * p + 1ULL) &&
-            is_prime(4ULL * p + 3ULL)) {
+            is_prime_u64(2ULL * p + 1ULL) &&
+            is_prime_u64(4ULL * p + 3ULL)) {
 
             seq_t k = ((seq_t)p + 1) / 4;   /* k = (p+1)/4 */
             push_seq(&cache, &cache_cap, &cache_size, k);

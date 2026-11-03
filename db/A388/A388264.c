@@ -11,13 +11,15 @@
  *            the gcd directly from the mixed‑radix digits, avoiding overflow
  *            of the full primorial values
  * Range:     u8 n <= 19, u16 n <= 111, u32 n <= 1001, u64 n <= 9191,
- *            u128 n <= 9325, big any n
+ *            u128 n <= 11550, big any n
+ * Validated: standard, pass, 98 terms through n = 9325 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
 
 /* σ(n) – sum of all divisors of n (including n) */

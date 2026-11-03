@@ -10,12 +10,14 @@
  *            317, a(5) = 600, a(6) = 1033
  * Range:     u8 n <= 3, u16 n <= 24, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_vals[7] = {0ULL, 8ULL, 45ULL, 136ULL, 317ULL, 600ULL, 1033ULL};
 
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap < needed) {
         idx_t new_cap = cache_cap > 0 ? cache_cap : 16;
         while (new_cap < needed) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

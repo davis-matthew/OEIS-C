@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 122, u32 n <= 122, u64 n <= 122,
  *            u128 n <= 122, big any n
- * Helpers:   int_cube_root, pow_int
+ * Validated: standard, pass, 76 terms through n = 119 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,24 @@
 #include <stdlib.h>   /* malloc, calloc, free, abort */
 #include <stddef.h>   /* size_t */
 
-#include "../utils/pow_int.h"          /* seq_t pow_int(seq_t base, idx_t exp) */
-#include "../utils/int_cube_root.h"   /* idx_t int_cube_root(idx_t n) */
+#include <stdint.h>
+#include <limits.h>
+#include "../utils/ipow_idx.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 static uint8_t *repr = NULL;   /* boolean table: 0 = not representable */
 static idx_t L_current = 0;     /* highest value for which repr is built */
@@ -77,13 +94,13 @@ static void rebuild_table(idx_t limit)
     if (!cube_w || !arr2x || !arr3y || !arr4z) abort();
 
     for (idx_t i = 0; i <= w_max; ++i)
-        cube_w[i] = pow_int((seq_t)i, 3);
+        cube_w[i] = ipow_idx((seq_t)i, 3);
     for (idx_t i = 0; i <= x_max; ++i)
-        arr2x[i] = 2 * pow_int((seq_t)i, 3);
+        arr2x[i] = 2 * ipow_idx((seq_t)i, 3);
     for (idx_t i = 0; i <= y_max; ++i)
-        arr3y[i] = 3 * pow_int((seq_t)i, 3);
+        arr3y[i] = 3 * ipow_idx((seq_t)i, 3);
     for (idx_t i = 0; i <= z_max; ++i)
-        arr4z[i] = 4 * pow_int((seq_t)i, 3);
+        arr4z[i] = 4 * ipow_idx((seq_t)i, 3);
 
     /* Enumerate all representable sums up to 'limit' */
     seq_t lim_seq = (seq_t)limit;

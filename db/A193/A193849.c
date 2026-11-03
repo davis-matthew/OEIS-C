@@ -10,12 +10,14 @@
  *            corresponds to the unique pair (r,k) such that n = r*(r+1)/2 + k
  * Range:     u8 n <= 10, u16 n <= 37, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     }
 
     /* Allocate the previous row (row 0) */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, 1);
     if (!prev) {
         /* Allocation failed – return 0 as a safe fallback */
         return (seq_t)0;
@@ -42,9 +44,9 @@ seq_t a(idx_t n)
 
     /* Build rows up to r */
     for (idx_t row = 1; row <= r; ++row) {
-        seq_t *curr = (seq_t *)malloc(sizeof(seq_t) * (row + 1));
+        seq_t *curr = mem_new(seq_t, (row + 1));
         if (!curr) {
-            free(prev);
+            mem_free(prev);
             return (seq_t)0;
         }
 
@@ -58,12 +60,12 @@ seq_t a(idx_t n)
             curr[col] = a_val * 2 + b_val * 3;
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 
     /* Retrieve the requested element and free memory */
     seq_t result = prev[k];
-    free(prev);
+    mem_free(prev);
     return result;
 }

@@ -8,7 +8,8 @@
  *            evil. Computed via brute‐force search
  * Range:     u8 n <= 42, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   negabinary_is_evil
+ * Validated: standard, pass, 72 terms through n = 9234 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,24 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/negabinary_is_evil.h"
+#include "../utils/mem.h"
+
+/* Helper: test if a non‑negative integer is a negabinary evil number.
+   An integer is evil if its negabinary representation contains an even
+   number of 1's.  The algorithm uses the signed 64‑bit type; the values
+   produced by this sequence are far below 2^64, so the cast is safe. */
+static inline bool negabinary_is_evil(seq_t x)
+{
+    /* work in a signed type so we can represent negative intermediates */
+    long long n = (long long)x;
+    int parity = 0;          /* number of 1's modulo 2 */
+    while (n != 0) {
+        int bit = (int)(n & 1LL);   /* least significant bit 0 or 1 */
+        parity ^= bit;
+        n = -(n - bit) / 2;         /* next value in the recursion */
+    }
+    return parity == 0;
+}
 
 /* Dynamically grow the cache that holds the sequence terms. */
 static seq_t *seq_cache = NULL;
@@ -31,7 +49,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 64;
     while (new_cap < need)
         new_cap *= 2;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap = new_cap;
 }
 

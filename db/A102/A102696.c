@@ -12,7 +12,8 @@
  *            array
  * Range:     u8 n <= 56, u16 n <= 6547, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 8803 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* -------------------------- static state -------------------------- */
 static idx_t *primes = NULL;          /* list of generated odd primes          */
@@ -53,7 +55,7 @@ static void ensure_memo_capacity(idx_t min_cap)
     if (min_cap <= memo_cap) return;
     size_t new_cap = (memo_cap == 0) ? 16 : memo_cap * 2;
     if (new_cap < min_cap) new_cap = min_cap;
-    memo = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    memo = mem_resize(seq_t, memo, new_cap);
     memo_cap = new_cap;
 }
 

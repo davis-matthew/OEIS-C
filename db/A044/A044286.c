@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 890, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_38
+ * Validated: standard, pass, 63 terms through n = 8019 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,25 @@
    available in all supported builds. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_38.h"
+#include "../utils/mem.h"
+
+/* Check whether x (in base 9) contains the consecutive digit pair 3,8.
+   The algorithm iterates over the digits from least significant to most
+   significant keeping the previously seen digit.  If that previous (less
+   significant) digit is 8 and the current digit is 3 we have found the pair
+   3,8 in the correct order. */
+static bool has_38(seq_t x)
+{
+    seq_t prev = 10;           /* sentinel larger than any base‑9 digit */
+    while (x) {
+        seq_t d = x % 9;
+        if (prev == 8 && d == 3)   /* current digit is 3 (more significant) */
+            return true;
+        prev = d;
+        x /= 9;
+    }
+    return false;
+}
 
 /* Cached values of the sequence (0‑based index).  The cache grows as needed
    and is shared between calls. */
@@ -43,7 +62,7 @@ static void ensure_cap(size_t new_cap)
     size_t new_size = cache_cap ? cache_cap * 2 : 16;
     while (new_size < new_cap)
         new_size *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     /* In the unlikely event that realloc fails we abort; the build will
        terminate and the test harness will report a failure. */
     if (!tmp) abort();

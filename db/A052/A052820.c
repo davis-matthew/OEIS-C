@@ -10,7 +10,8 @@
  *            multiplicatively to avoid any missing external function
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 369 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build. */
 extern seq_t binom_product(idx_t n, idx_t k); /* unused – present for reference */
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
     /* First call – initialise caches for n = 0. */
     if (!a_cache) {
         cache_size = 1;
-        a_cache = (seq_t *)malloc((size_t)cache_size * sizeof(seq_t));
-        fact    = (seq_t *)malloc((size_t)cache_size * sizeof(seq_t));
+        a_cache = mem_new(seq_t, (size_t)cache_size);
+        fact    = mem_new(seq_t, (size_t)cache_size);
         if (!a_cache || !fact) return (seq_t)0;   /* out‑of‑memory abort */
         a_cache[0] = (seq_t)1;   /* a(0) = 1 */
         fact[0]    = (seq_t)1;   /* 0! = 1 */
@@ -48,8 +50,8 @@ seq_t a(idx_t n)
         if (new_size <= n + 1) new_size = n + 1;
 
         /* Reallocate storage for a_cache and fact arrays. */
-        seq_t *tmp_a = (seq_t *)realloc(a_cache, (size_t)new_size * sizeof(seq_t));
-        seq_t *tmp_f = (seq_t *)realloc(fact,    (size_t)new_size * sizeof(seq_t));
+        seq_t *tmp_a = mem_resize(seq_t, a_cache, (size_t)new_size);
+        seq_t *tmp_f = mem_resize(seq_t, fact, (size_t)new_size);
         if (!tmp_a || !tmp_f) return (seq_t)0;   /* out‑of‑memory abort */
         a_cache = tmp_a;
         fact    = tmp_f;

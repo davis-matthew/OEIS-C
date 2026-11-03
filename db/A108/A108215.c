@@ -7,7 +7,8 @@
  * Formula:   a(n) = P[n] * P[n+1] (P[k] is the k‑th semiprime, 1‑indexed)
  * Range:     u8 n <= 5, u16 n <= 81, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ensure_array_cap_seq, ensure_array_cap_uint64, isqrt_uint64
+ * Validated: standard, pass, 58 terms through n = 984 (2026-11-03)
+ * Helpers:   isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,31 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isqrt_uint64.h"   /* helper: uint64_t isqrt(uint64_t) */
-#include "../utils/ensure_array_cap_seq.h"
-#include "../utils/ensure_array_cap_uint64.h"
+#include <stddef.h>
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
+
+static void ensure_array_cap_seq(seq_t **arr, size_t *cap, size_t min_needed)
+{
+    if (*cap >= min_needed) return;
+    size_t new_cap = *cap ? *cap : 16;
+    while (new_cap < min_needed) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();                 /* OOM: terminate */
+    *arr = tmp;
+    *cap = new_cap;
+}
+
+static void ensure_array_cap_uint64(uint64_t **arr, size_t *cap, size_t min_needed)
+{
+    if (*cap >= min_needed) return;
+    size_t new_cap = *cap ? *cap : 16;
+    while (new_cap < min_needed) new_cap <<= 1;
+    uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(uint64_t));
+    if (!tmp) abort();                 /* OOM: terminate */
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* ----------  Helpers for dynamic arrays  ---------- */
 
@@ -63,7 +86,7 @@ static bool is_semiprime(uint64_t x)
 {
     if (x < 4) return false;           /* 4 = 2*2 is the first semiprime */
 
-    uint64_t limit = isqrt_uint64(x) + 1;
+    uint64_t limit = isqrt_u64(x) + 1;
     ensure_primes_up_to(limit);
 
     uint64_t tmp = x;

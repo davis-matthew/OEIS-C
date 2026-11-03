@@ -12,14 +12,46 @@
  *            in O(√m) time by grouping equal quotients. All arit...
  * Range:     u8 n <= 2, u16 n <= 15, u32 n <= 601, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   eval_E, sum_d_floor
+ * Validated: standard, pass, 52 terms through n = 9470 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for uint64_t, needed only for comments */
-#include "../utils/eval_E.h"
-#include "../utils/sum_d_floor.h"
+
+/* ---------------------------------------------------------
+   Compute Σ_{d=1}^{M} d * ⌊M/d⌋ in O(√M) time.             */
+static seq_t sum_d_floor(idx_t M)
+{
+    seq_t total = 0;
+    for (idx_t l = 1; l <= M; ) {
+        /* For all d in [l, r] the quotient t = ⌊M/d⌋ is the same. */
+        idx_t t = M / l;
+        idx_t r = M / t;          /* r = largest d with ⌊M/d⌋ = t */
+
+        seq_t cnt = (seq_t)(r - l + 1);
+        seq_t sum_lr = ((seq_t)l + (seq_t)r) * cnt / 2;
+
+        total += sum_lr * (seq_t)t;
+        l = r + 1;
+    }
+    return total;
+}
+
+/* ---------------------------------------------------------
+   Evaluate the function E(m) as defined in the formula.     */
+static seq_t eval_E(idx_t M)
+{
+    /* Basic term Σ d * ⌊M/d⌋. */
+    seq_t s1 = sum_d_floor(M);
+
+    /* Subtract contributions of divisors divisible by 4. */
+    idx_t quarter = M / 4;
+    seq_t s2 = sum_d_floor(quarter);
+
+    return s1 - (seq_t)4 * s2;
+}
 
 /* Forward declarations of helper functions making only the allowed
    arithmetic and control constructs. */

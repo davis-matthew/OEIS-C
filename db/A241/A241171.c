@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 32, u64 n <= 74, u128 n <= 184,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1042 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,8 +41,8 @@ seq_t a(idx_t n)
 
     /* Allocate two rows for dynamic programming.  Length r+1 is enough for the
        largest needed row.  Indices start at 1 (index 0 is unused).       */
-    seq_t *prev = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (r + 1));
+    seq_t *curr = mem_new(seq_t, (r + 1));
 
     /* Initialise previous row to zeros.                           */
     for (idx_t i = 0; i <= r; ++i) prev[i] = 0;
@@ -66,8 +68,8 @@ seq_t a(idx_t n)
         /* if we have reached the desired row, extract the answer */
         if (row == r) {
             seq_t result = curr[c];
-            free(prev);
-            free(curr);
+            mem_free(prev);
+            mem_free(curr);
             return result;
         }
 
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
     }
 
     /* Should never reach here.                                   */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return 0;
 }

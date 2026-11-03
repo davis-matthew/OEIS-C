@@ -9,7 +9,8 @@
  *            subsets S summing to n
  * Range:     u8 n <= 31, u16 n <= 141, u32 n <= 984, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9626 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* helper: factorial table up to 20!  (20 distinct Fibonacci numbers ≤ 10000) */
 static seq_t fact[21];
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
     size_t cols = N + 1;
 
     /* dp array: dp[k][s] = number of subsets of size k summing to s */
-    seq_t *dp = (seq_t *)calloc(rows * cols, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, rows * cols);
     if (!dp) return 0;   /* allocation failure */
 
     #define IDX(k,s) ((k)*(cols)+(s))
@@ -83,6 +85,6 @@ seq_t a(idx_t n) {
         if (cnt) result = result + cnt * fact[k];
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

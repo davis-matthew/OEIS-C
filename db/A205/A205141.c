@@ -11,13 +11,15 @@
  *            a later term; the function returns s(j)
  * Range:     u8 n <= 26, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
 
     /* Ensure we have enough space for vals[1..n+1] and first[0..n-1] */
     if (cap_vals < n + 2) {
-        if (vals) free(vals);
-        vals = (seq_t *)malloc((n + 2) * sizeof(seq_t));
+        if (vals) mem_free(vals);
+        vals = mem_new(seq_t, (n + 2));
         cap_vals = n + 2;
     }
     if (cap_first < n) {

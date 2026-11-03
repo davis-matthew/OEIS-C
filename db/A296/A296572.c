@@ -11,12 +11,14 @@
  *            a(8) = 5931, a(9) = 16941
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 42, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* cache[1] holds a(1) */
 static size_t cache_len = 0;    /* highest index computed */
@@ -28,7 +30,7 @@ static void ensure_cache_size(size_t needed)
     if (cache_cap < needed + 1) {          /* +1 because we use 1‑based indices */
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < needed + 1) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* Initialise the cache with the first 9 terms on the first call. */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;  /* allocation failure, give 0 as a safe fall‑back */
 
         cache[1] = (seq_t)4;

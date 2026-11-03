@@ -13,6 +13,7 @@
  *            count), a = ⌊k/2⌋, b = (k+1)-a, c = n-k. Then T(n,k) = C...
  * Range:     u8 n <= 16, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,8 +22,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial.h" /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/pow2.h"     /* seq_t pow2(idx_t exp); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 /* Helper: compute T(n,k) */
 static seq_t T_val(idx_t n, idx_t k)

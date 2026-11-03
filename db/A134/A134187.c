@@ -9,9 +9,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of previous terms equal to any non‑isolated
  *            divisor of 2*n
- * Range:     u8 n <= 419, u16 n <= 9040, u32 n <= 9040, u64 n <= 9040,
- *            u128 n <= 9040, big any n
- * Helpers:   build_primes, factor_u64
+ * Range:     u8 n <= 419, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 108 terms through n = 9040 (2026-11-03)
+ * Helpers:   build_primes, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/factor_u64.h"
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* cache for computed a(k) values */
 static seq_t *cache = NULL;
@@ -44,8 +47,8 @@ static void ensure_cache_cap(idx_t n)
     if (n < cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 8;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-    memset(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
+    mem_set(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
     cache_cap = new_cap;
 }
 
@@ -55,8 +58,8 @@ static void ensure_freq_cap(idx_t n)
     if (n < freq_cap) return;
     size_t new_cap = freq_cap ? freq_cap << 1 : 8;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    freq = (seq_t *)realloc(freq, new_cap * sizeof(seq_t));
-    memset(freq + freq_cap, 0, (new_cap - freq_cap) * sizeof(seq_t));
+    freq = mem_resize(seq_t, freq, new_cap);
+    mem_set(freq + freq_cap, 0, (new_cap - freq_cap) * sizeof(seq_t));
     freq_cap = new_cap;
 }
 

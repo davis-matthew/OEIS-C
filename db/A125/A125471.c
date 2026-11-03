@@ -10,7 +10,8 @@
  *            9 (else 0)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 /* Include the big‑integer multiplication helper provided by the
  * build environment.  It guarantees correct behaviour on both
  * fixed‑size and arbitrary‑precision seq_t types. */
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper definitions                                               */

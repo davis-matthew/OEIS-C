@@ -7,16 +7,18 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of distinct values of φ(d) for proper divisors d
  *            of n
- * Range:     u8 n <= 4889, u16 n <= 8420, u32 n <= 8420, u64 n <= 8420,
- *            u128 n <= 8420, big any n
- * Helpers:   phi
+ * Range:     u8 n <= 4889, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8420 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/phi.h"           /* seq_t phi(idx_t m); */
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
             /* Process d1 if it is a proper divisor (not n). */
             if (d1 != n)
             {
-                seq_t ph = phi(d1);
+                seq_t ph = totient(d1);
                 idx_t pv = (idx_t)ph;                /* φ(d1) fits in idx_t */
                 if (!seen[pv])
                 {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
             /* Process d2 if it is distinct from d1 and not n. */
             if (d2 != d1 && d2 != n)
             {
-                seq_t ph = phi(d2);
+                seq_t ph = totient(d2);
                 idx_t pv = (idx_t)ph;
                 if (!seen[pv])
                 {

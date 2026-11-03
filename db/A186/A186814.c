@@ -10,7 +10,8 @@
  *            of −1 mod p
  * Range:     u8 n <= 24, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   isPrimeGeneric, mod_pow, seq_realloc
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,43 @@
 #include <stddef.h>
 
 /* UTILS AVAILABLE IN THE BUILD SYSTEM */
-#include "../utils/isPrimeGeneric.h"   /* bool isPrimeGeneric(seq_t n); */
-#include "../utils/mod_pow.h"          /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/seq_realloc.h"      /* seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap); */
+#include <limits.h>
+#include <string.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/powmod.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* DECLARATION OF seq_t AND idx_t ARE SUPPLIED BY THE BUILD SYSTEM */
 
@@ -56,12 +91,12 @@ static seq_t tonelli_shanks_minus_one(seq_t p)
 
     /* Find a quadratic non‑residue z */
     seq_t z = 2;
-    while (mod_pow(z, (uint64_t)((p - 1) / 2), p) != p - 1)
+    while (powmod(z, (uint64_t)((p - 1) / 2), p) != p - 1)
         ++z;
 
-    seq_t c = mod_pow(z, (uint64_t)q, p);
-    seq_t x = mod_pow(a, (uint64_t)((q + 1) / 2), p);
-    seq_t t = mod_pow(a, (uint64_t)q, p);
+    seq_t c = powmod(z, (uint64_t)q, p);
+    seq_t x = powmod(a, (uint64_t)((q + 1) / 2), p);
+    seq_t t = powmod(a, (uint64_t)q, p);
     int m = s;
 
     while (t != 1) {
@@ -75,7 +110,7 @@ static seq_t tonelli_shanks_minus_one(seq_t p)
 
         int shift = m - i - 1;
         uint64_t exp = 1ULL << shift;
-        seq_t b = mod_pow(c, exp, p);
+        seq_t b = powmod(c, exp, p);
 
         x = (x * b) % p;
         c = (b * b) % p;

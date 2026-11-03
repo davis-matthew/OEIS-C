@@ -11,12 +11,14 @@
  *            a(3)=1, * a(4)=3, a(5)=1, a(6)=3, …
  * Range:     u8 n <= 45, u16 n <= 153, u32 n <= 561, u64 n <= 2145,
  *            u128 n <= 8385, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 8834 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
  
 static seq_t *jacob = NULL;    /* array of Jacobsthal numbers, indices 0..m */
 static size_t  jlen = 0;       /* allocated size (count) */
@@ -26,7 +28,7 @@ static void ensure_jacob(idx_t need)
 {
     if ((idx_t)jlen > need) return;        /* already computed */
     size_t newlen = (size_t)need + 1;
-    seq_t *tmp = (seq_t *)realloc(jacob, newlen * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, jacob, newlen);
     if (!tmp) { /* allocation failure – let caller handle via abort() if desired */ }
     jacob = tmp;
     /* Initialize beginning if this is the first allocation */

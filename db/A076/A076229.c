@@ -7,7 +7,8 @@
  * Formula:   a(n) = Min{x : A076228(x) = n}
  * Range:     u8 n <= 11, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   count_less_than
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
    with memoisation.  It is fully compliant with C11 and C++17. */
 
 #include <stdlib.h> /* malloc, realloc, abort */
-#include "../utils/count_less_than.h"
+#include "../utils/mem.h"
+
+/* Helper: number of Collatz terms less than the start value. */
+static seq_t count_less_than(seq_t start) {
+    seq_t x = start;
+    seq_t cnt = 0;
+
+    while (x != 1) {
+        if (x < start) ++cnt;
+
+        if ((x & 1) == 0)
+            x >>= 1;               /* even */
+        else
+            x = x * 3 + 1;          /* odd */
+    }
+    /* The terminal 1 is included if it is less than start. */
+    if (1 < start) ++cnt;
+    return cnt;
+}
 
 /* Memoised table: min_x[k] = minimal x with A076228(x) = k.
    Index 0 is unused; a value of 0 indicates 'unset'. */
@@ -48,7 +67,7 @@ seq_t a(idx_t n) {
         /* Grow the table if the computed count is outside current bounds. */
         if ((size_t)cnt + 1 > min_x_len) {
             size_t new_len = (size_t)cnt + 1;   /* indices 0..cnt inclusive */
-            seq_t *tmp = (seq_t *)realloc(min_x, new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, min_x, new_len);
             if (!tmp) abort();                 /* Out of memory */
             /* Initialise new entries to 0 */
             for (size_t i = min_x_len; i < new_len; ++i)

@@ -10,23 +10,25 @@
  *            with 1’s on the main, sub‑ and super‑diagonals
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the number of n‑1‑step 3‑D king paths from one face of an n×n×n cube to the opposite face. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     size_t sz = (size_t)n;
     if (sz == 0) return (seq_t)0;
 
-    seq_t *cur = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, sz);
+    seq_t *nxt = mem_new(seq_t, sz);
     if (!cur || !nxt) {
-        free(cur);
-        free(nxt);
+        mem_free(cur);
+        mem_free(nxt);
         return (seq_t)0;   /* allocation failure */
     }
 
@@ -66,7 +68,7 @@ seq_t a(idx_t n) {
 
     seq_t result = total * total;   /* square the count */
 
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return result;
 }

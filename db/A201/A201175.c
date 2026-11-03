@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   generate primes of the form 5*n^3+6 by brute‑force search
- * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 27, u64 n <= 27, u128 n <= 27,
- *            big any n
+ * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 74, u64 n <= 3000,
+ *            u128 n <= 3000, big any n
+ * Validated: standard, pass, 43 terms through n = 2988 (2026-11-01)
  * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

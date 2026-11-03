@@ -7,12 +7,14 @@
  * Formula:   a(n) = Π_{i=1..n} Π_{j=1..n} (i^2 + j)
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* Ensure cache is initialized with a(0) = 1 */
     if (cache == NULL) {
         cache_len = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();          /* out of memory */
         cache[0] = (seq_t)1;          /* a(0) = 1 */
     }
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Expand cache up to n, computing new terms on the fly */
     size_t old_len = (size_t)cache_len;
     size_t new_len = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache) abort();          /* out of memory */
     cache = new_cache;
     cache_len = (idx_t)new_len;

@@ -8,14 +8,15 @@
  * Formula:   a(n) = numerator of Π_{i=0}^{n-1} (n-i)^{(-1)^⌈i/2⌉}
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 36, u64 n <= 76, u128 n <= 152,
  *            big any n
+ * Validated: standard, pass, 56 terms through n = 868 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-
 
 /* Computes the numerator of the product described in the OEIS entry for
    sequence A337354.  For n=0 the function returns 0.  The result is

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{p|n, p prime} n^gcd(p,n/p)
  * Range:     u8 n <= 8, u16 n <= 24, u32 n <= 48, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Compute A351748 for an index n (n >= 1) */
 seq_t a(idx_t n)
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
             /* contribution of this prime */
             uint64_t rest = (uint64_t)n / p;
             seq_t g = gcd((seq_t)p, (seq_t)rest);   /* gcd(p, n/p) */
-            sum += big_pow(base, g);
+            sum += ipow(base, g);
 
             /* remove all copies of the factor p from m */
             while (m % p == 0)
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
         uint64_t p = m;
         uint64_t rest = (uint64_t)n / p;
         seq_t g = gcd((seq_t)p, (seq_t)rest);
-        sum += big_pow(base, g);
+        sum += ipow(base, g);
     }
 
     return sum;

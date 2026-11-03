@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   has_longest_zero
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,33 @@
    a longest contiguous run of zeros (ties with ones allowed). */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_longest_zero.h"
+#include "../utils/mem.h"
+
+/* Return true if x has longest run of 0's at least as long as longest run of 1's. */
+static bool has_longest_zero(idx_t x)
+{
+    if (x == 0) return false;          /* not a positive integer */
+    int max0 = 0, max1 = 0;
+    int run  = 0, bit = -1;
+
+    while (x) {
+        int b = (int)(x & 1);          /* current bit (0 or 1) */
+        if (b == bit) {
+            run++;
+        } else {
+            if (bit == 0 && run > max0) max0 = run;
+            if (bit == 1 && run > max1) max1 = run;
+            bit = b;
+            run = 1;
+        }
+        x >>= 1;
+    }
+    /* account for the final run */
+    if (bit == 0 && run > max0) max0 = run;
+    if (bit == 1 && run > max1) max1 = run;
+
+    return max0 >= max1;
+}
 
 static seq_t *cache = NULL;        /* cached a(k) values */
 static idx_t cache_size = 0;       /* capacity of cache array   */
@@ -31,7 +58,7 @@ static void expand_cache(idx_t needed)
     if (cache_size >= needed) return;
     idx_t new_size = cache_size ? cache_size * 2 : 16;
     while (new_size < needed) new_size <<= 1;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_size);
     if (!new_ptr) {
         /* In a production setting we would handle the error; for simplicity we abort. */
         abort();

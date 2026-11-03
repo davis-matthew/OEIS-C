@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 60 terms through n = 910 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,13 @@
    ignored.  Palindromes are excluded. */
 
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"   /* is_palindrome(seq_t, int) */
+#include "../utils/is_palindrome_base.h"
 
 /* Test whether x is a non‑palindromic balanced number. */
 static bool is_balanced_nonpal(seq_t x)
 {
     /* Exclude palindromes. */
-    if (is_palindrome(x, 10))
+    if (is_palindrome_base(x, 10))
         return false;
 
     /* Extract decimal digits of x (least‑significant first). */

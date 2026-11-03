@@ -7,7 +7,8 @@
  * Formula:   partitions of n into distinct odd primes
  * Range:     u8 n <= 125, u16 n <= 341, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 102 terms through n = 979 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Number of partitions of n into distinct odd primes. */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Allocate DP array of size n+1. */
     size_t sz = (size_t)(n + 1);
-    seq_t *dp = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) {
         return (seq_t)0;
     }
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     seq_t result = dp[n];
 
     /* Free allocated memory. */
-    free(dp);
+    mem_free(dp);
     free(prime_list);
 
     return result;

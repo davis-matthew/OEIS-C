@@ -9,6 +9,7 @@
  *            to all non‑empty subsets of {1,3,5,7,9}.)
  * Range:     u8 n <= 5, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
+ * Validated: full, pass, 31 terms through n = 31 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

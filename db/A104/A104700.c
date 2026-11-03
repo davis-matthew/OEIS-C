@@ -8,12 +8,14 @@
  *            if n is odd : a(n) = a(n-1) * a(n-2)
  * Range:     i8 n <= 10, i16 n <= 12, i32 n <= 14, i64 n <= 14, i128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise for indices 0 and 1 */
     if (buf == NULL) {
         buf_cap = 2;
-        buf = (seq_t*)malloc(sizeof(seq_t) * buf_cap);
+        buf = mem_new(seq_t, buf_cap);
         buf[0] = (seq_t)0;
         buf[1] = (seq_t)1;
         buf_last = 1;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         if (new_cap < n + 1) {
             new_cap = n + 1;
         }
-        buf = (seq_t*)realloc(buf, sizeof(seq_t) * new_cap);
+        buf = mem_resize(seq_t, buf, new_cap);
         buf_cap = new_cap;
     }
 

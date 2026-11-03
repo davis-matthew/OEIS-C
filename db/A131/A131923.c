@@ -10,6 +10,7 @@
  *            the binomial coefficient C(r,k) plus the row number r
  * Range:     u8 n <= 59, u16 n <= 197, u32 n <= 646, u64 n <= 2376,
  *            u128 n <= 5049, big any n
+ * Validated: standard, pass, 85 terms through n = 4884 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

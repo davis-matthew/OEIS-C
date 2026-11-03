@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   factor_u64, gcd, pow_uint
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/gcd.h"
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 /* Compute λ(k) for a 64‑bit integer k.                          */
 static seq_t carmichael(idx_t k)
@@ -53,7 +55,7 @@ static seq_t carmichael(idx_t k)
                 factor = ((seq_t)1) << (e - 2);      /* 2^(e-2)           */
         } else {
             /* λ(p^e) = p^(e‑1) * (p‑1) for odd primes. */
-            factor = pow_uint(p, e - 1) * (seq_t)(p - 1);
+            factor = ipow_u64_idx(p, e - 1) * (seq_t)(p - 1);
         }
 
         seq_t g = gcd(lambda, factor);
@@ -74,11 +76,11 @@ static bool   initialized = false;
 static void grow_records(void)
 {
     size_t new_cap = (rec_cap == 0) ? 32 : rec_cap * 2;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) abort();
     if (records) {
-        memcpy(new_arr, records, rec_len * sizeof(seq_t));
-        free(records);
+        mem_copy(new_arr, records, rec_len * sizeof(seq_t));
+        mem_free(records);
     }
     records = new_arr;
     rec_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into parts 4, 9, 10, and 12
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* (coin‑change DP, order of parts: 4, 9, 10, 12) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for computed values */
 static seq_t *dp = NULL;       /* array of partition counts */
@@ -32,7 +34,7 @@ static void compute_until(idx_t N)
     }
 
     /* Allocate (or reallocate) the array and initialise it */
-    dp = (seq_t *)realloc(dp, (N + 1) * sizeof(seq_t));
+    dp = mem_resize(seq_t, dp, (N + 1));
     /* Reinitialise all entries to 0 to avoid artefacts from previous computations */
     for (idx_t i = 0; i <= N; ++i) {
         dp[i] = 0;

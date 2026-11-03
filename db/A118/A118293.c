@@ -8,13 +8,15 @@
  * Formula:   a(n) = rev_decimal(a(n-1)) + 1, with a(1) = 18
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   reverse_decimal
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/reverse_decimal.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache to store already computed terms */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     /* Allocate or grow cache if needed */
     if (n > cache_cap) {
         /* Ensure capacity for n terms */
-        seq_t *new_cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, n);
         if (!new_cache) return 0; /* fallback: memory allocation failure */
         cache = new_cache;
         cache_cap = n;
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
         if (i == 0) {
             cache[i] = (seq_t)18;
         } else {
-            seq_t rev = reverse_decimal(cache[i - 1]);
+            seq_t rev = reverse_digits(cache[i - 1]);
             cache[i] = rev + (seq_t)1;
         }
     }

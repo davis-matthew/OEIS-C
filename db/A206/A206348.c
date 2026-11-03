@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   digit_frequencies, digit_sum
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   digit_frequencies, digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 
 #include <stddef.h>          /* size_t */
 #include <stdlib.h>          /* malloc, realloc, free */
-#include "../utils/digit_sum.h"
+#include <stdbool.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* static cache for memoisation of results (1‑based indices) */
 static seq_t *cache = NULL;
@@ -35,7 +38,7 @@ static void ensure_cache_size(idx_t n)
         new_cap <<= 1;                /* double until big enough */
 
     /* Reallocate the cache array.  Cast `void*` to the class pointer. */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp && new_cap != 0)          /* allocation failure */
         exit(EXIT_FAILURE);
     cache = tmp;

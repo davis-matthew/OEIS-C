@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9422 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Node used in the heap. */
 typedef struct {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
 
     /* Generate all 3‑smooth numbers ≤ m_max. */
     size_t ms_cap = 16;
-    seq_t *ms = (seq_t *)malloc(ms_cap * sizeof(seq_t));
+    seq_t *ms = mem_new(seq_t, ms_cap);
     size_t ms_cnt = 0;
 
     for (idx_t p2 = 1; p2 <= m_max; p2 <<= 1)
@@ -72,20 +74,20 @@ seq_t a(idx_t n)
             if (ms_cnt == ms_cap)
             {
                 ms_cap <<= 1;
-                ms = (seq_t *)realloc(ms, ms_cap * sizeof(seq_t));
+                ms = mem_resize(seq_t, ms, ms_cap);
             }
             ms[ms_cnt++] = (seq_t)p2 * (seq_t)p3;
         }
     }
 
     /* Build a min‑heap: each node is the next candidate of a progression. */
-    Node *heap = (Node *)malloc(ms_cnt * sizeof(Node));
+    Node *heap = mem_new(Node, ms_cnt);
     for (size_t i = 0; i < ms_cnt; ++i)
     {
         heap[i].m   = ms[i];
         heap[i].val = (seq_t)5 * ms[i];
     }
-    free(ms); /* no longer needed */
+    mem_free(ms); /* no longer needed */
 
     /* Heapify. */
     for (size_t i = (ms_cnt >> 1); i > 0; --i)
@@ -100,6 +102,6 @@ seq_t a(idx_t n)
         sift_down(heap, ms_cnt, 0);
     }
 
-    free(heap);
+    mem_free(heap);
     return result;
 }

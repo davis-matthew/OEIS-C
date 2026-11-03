@@ -7,7 +7,8 @@
  * Formula:   a(n) = (1/n) * Sum_{d|n} sigma(d) * C(2*d-1, d) * mu(n/d)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   binom_2d_minus1_d
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/binom_2d_minus1_d.h"
+
+/* ------------------------------------------------------------ */
+static seq_t binom_2d_minus1_d(idx_t d)
+{
+    seq_t res = 1;
+    for (idx_t k = 1; k <= d; ++k) {
+        res = (res * (seq_t)(d - 1 + k)) / (seq_t)k;
+    }
+    return res;
+}
 
 /* ------------------------------------------------------------ */
 /* Small prime sieve (up to 20000 – enough for n <= 10000).    */

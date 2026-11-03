@@ -10,11 +10,13 @@
  *            at indices 0
  * Range:     u8 n <= 9, u16 n <= 22, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static seq_t T_value(idx_t n, idx_t k)

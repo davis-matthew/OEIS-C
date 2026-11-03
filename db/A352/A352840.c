@@ -9,12 +9,14 @@
  *            a(n)=a(n-1)+a((n-1)-a(n-1))
  * Range:     u8 n <= 332, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9114 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache     = NULL;  /* array of computed terms, index 0 unused */
 static size_t a_cache_cap = 0;     /* total capacity allocated (number of elements) */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
     /* grow the cache to hold indices 0..n */
     size_t needed_cap = (size_t)n + 1;        /* extra index 0 */
     if (a_cache_cap < needed_cap) {
-        seq_t *tmp = (seq_t *)realloc(a_cache, needed_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, needed_cap);
         if (!tmp) abort();                    /* out of memory */
         a_cache      = tmp;
         a_cache_cap  = needed_cap;

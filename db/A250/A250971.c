@@ -13,13 +13,27 @@
  *            allowed iff for every column c = 0..5 not (a...
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 9, u128 n <= 20,
  *            big any n
- * Helpers:   allowed_transition
+ * Validated: standard, pass, 28 terms through n = 203 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/allowed_transition.h"
+
+/* test whether transition from state s to t is allowed */
+static inline bool allowed_transition(idx_t s, idx_t t)
+{
+    for (idx_t col = 0; col < 6; ++col) {
+        unsigned char a = (s >> col) & 1;
+        unsigned char b = (s >> (col + 1)) & 1;
+        unsigned char c = (t >> col) & 1;
+        unsigned char d = (t >> (col + 1)) & 1;
+        if (a == 0 && d == 0 && b != c)
+            return false;   /* forbidden */
+    }
+    return true;
+}
 
 #define S 128
 

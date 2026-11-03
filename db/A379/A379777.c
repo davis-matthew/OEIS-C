@@ -9,8 +9,9 @@
  * Keywords:  nonn, tabl, easy
  * Formula:   compute a(n) by reading the array A(n,k) along upward
  *            antidiagonals
- * Range:     u8 n <= 298, u16 n <= 9339, u32 n <= 9339, u64 n <= 9339,
- *            u128 n <= 9339, big any n
+ * Range:     u8 n <= 298, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 94 terms through n = 9339 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

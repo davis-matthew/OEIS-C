@@ -9,14 +9,23 @@
  *            starts with 1
  * Range:     u8 n <= 10, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   pow8idx
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/pow8idx.h"
+
+/* Multiply by 8 in idx_t (used only for counting). */
+static idx_t pow8idx(idx_t exp)
+{
+    idx_t r = 1;
+    for (idx_t i = 0; i < exp; ++i)
+        r *= 8;
+    return r;
+}
 
 seq_t a(idx_t n)
 {

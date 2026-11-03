@@ -12,6 +12,7 @@
  *            -462*a(n-6)+330*a(n-7)-165*a(n-8)+55*a(n-9)-11*a(n-10)+a(n-11)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 21, u64 n <= 192, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 931 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

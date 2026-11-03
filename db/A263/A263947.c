@@ -10,15 +10,29 @@
  *            Indexing starts at 1
  * Range:     u8 none, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 15,
  *            big any n
- * Helpers:   mul115598, seq_mul_wrapper
+ * Validated: standard, pass, 29 terms through n = 375 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mul115598.h"
-#include "../utils/seq_mul_wrapper.h"
+#include "../utils/mem.h"
+
+/* Fallback multiplication for built‑in seq_t types.  If seq_mul is
+ * provided by the build, the function below is never used. */
+static inline seq_t seq_mul_wrapper(seq_t a, seq_t b)
+{
+    return a * b;
+}
+
+/* Helper to multiply by the constant 115598.  Works for both built‑in
+ * and arbitrary‑precision seq_t types. */
+static inline seq_t mul115598(seq_t x)
+{
+    return seq_mul_wrapper(x, (seq_t)115598);
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +56,7 @@ seq_t a(idx_t n)
     /* First allocation – store the five seed values. */
     if (cache == NULL) {
         size_t init_size = 6;       /* 0…5 inclusive */
-        cache = (seq_t *)calloc(init_size, sizeof(seq_t));
+        cache = mem_new(seq_t, init_size);
         if (cache == NULL) return 0;   /* out of memory – unlikely */
 
         cache[0] = 0;
@@ -57,7 +71,7 @@ seq_t a(idx_t n)
     /* Grow the cache if a larger index is requested. */
     if ((size_t)n > cached) {
         size_t new_size = (size_t)n + 1;          /* accommodate 0…n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) return 0;                /* out of memory – unlikely */
         cache = tmp;
 

@@ -12,12 +12,14 @@
  *            factor. The sequence is obtained by listing (a,c...
  * Range:     u8 none, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 typedef struct { seq_t a; seq_t c; } pair_t;
@@ -63,7 +65,7 @@ static int cmp_pair(const void *p1, const void *p2)
 static void regenerate_pairs(idx_t limit)
 {
     /* free old data */
-    if (pairs) free(pairs);
+    if (pairs) mem_free(pairs);
     pairs     = NULL;
     pairs_cap = 0;
     pairs_cnt = 0;
@@ -95,8 +97,8 @@ static void regenerate_pairs(idx_t limit)
                 /* enlarge storage if needed */
                 if (pairs_cnt == pairs_cap) {
                     size_t new_cap = pairs_cap ? pairs_cap << 1 : 8;
-                    pair_t *tmp = (pair_t*)realloc(pairs, new_cap * sizeof(pair_t));
-                    if (!tmp) { free(pairs); abort(); }
+                    pair_t *tmp = mem_resize(pair_t, pairs, new_cap);
+                    if (!tmp) { mem_free(pairs); abort(); }
                     pairs     = tmp;
                     pairs_cap = new_cap;
                 }
@@ -109,7 +111,7 @@ static void regenerate_pairs(idx_t limit)
 
     /* sort pairs by a then c */
     if (pairs_cnt > 1) {
-        qsort(pairs, pairs_cnt, sizeof(pair_t), cmp_pair);
+        mem_qsort(pairs, pairs_cnt, sizeof(pair_t), cmp_pair);
     }
 }
 

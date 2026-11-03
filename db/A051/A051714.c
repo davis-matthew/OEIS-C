@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 23, i16 n <= 84, i32 n <= 340, i64 n <= 693,
  *            i128 n <= 1762, big any n
- * Helpers:   seq_abs
+ * Validated: standard, pass, 107 terms through n = 9650 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_abs.h"
+
+/* ------------------------------------------------------------------ */
+static inline seq_t seq_abs(seq_t x) { return x < 0 ? -x : x; }
 
 /* ------------------------------------------------------------------ */
 /* Integer square root for unsigned 64‑bit values (floor)             */

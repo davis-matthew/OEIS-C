@@ -9,7 +9,8 @@
  *            member (p, p+2)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Cache for the computed terms. */
 static seq_t *cache = NULL;      /* cache[1] is a(1) */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Initialise static structures on first use. */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)calloc(cache_cap + 1, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap + 1);
 
         /* Ensure the array is usable up to cache_cap+1. */
         cache[0] = (seq_t)0;   /* unused slot for 0th index */
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         /* Grow cache if necessary. */
         if (cache_size + 1 > cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *new_buf = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+            seq_t *new_buf = mem_resize(seq_t, cache, (new_cap + 1));
             if (!new_buf) {
                 /* Allocation failure – abort gracefully. */
                 /* In a production build we might exit or handle the error. */

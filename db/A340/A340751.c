@@ -10,7 +10,8 @@
  *            prime
  * Range:     u8 n <= 43, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   _coprime_range, gcd
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,37 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/_coprime_range.h"
+
+/* Count integers in [low,high] that are coprime to the product of pf[0..pc-1] */
+static seq_t _coprime_range(idx_t low, idx_t high, const int *pf, int pc)
+{
+    if (low > high)
+        return 0;
+
+    seq_t total = (seq_t)(high - low + 1);
+
+    int subsets = 1 << pc;
+    for (int mask = 1; mask < subsets; ++mask)
+    {
+        int prod = 1;
+        int bits = 0;
+        for (int i = 0; i < pc; ++i)
+        {
+            if (mask & (1 << i))
+            {
+                prod *= pf[i];
+                ++bits;
+            }
+        }
+
+        seq_t cnt = (seq_t)(high / prod) - (seq_t)((low - 1) / prod);
+        if (bits & 1)
+            total -= cnt;
+        else
+            total += cnt;
+    }
+    return total;
+}
 
 #define MAX_PF 6  /* maximum distinct prime factors for numbers <= 10000 */
 

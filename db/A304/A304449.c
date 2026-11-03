@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 178, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree_u64
+ * Validated: standard, pass, 83 terms through n = 9679 (2026-11-03)
+ * Helpers:   is_squarefree_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/is_squarefree_u64.h"
+#include "../utils/mem.h"
 
 /* Helper: integer square root of a 64‑bit value (floor). */
 static unsigned long long isqrt_u64(unsigned long long n)
@@ -60,7 +62,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t needed)
     if (*cap >= needed) return;
     size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
     while (new_cap < needed) new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     if (!*arr) abort();
     *cap = new_cap;
 }

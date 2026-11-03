@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,7 +17,8 @@
    we replace k by k - gcd(k, d(k)) and d(k) is the number of divisors of k.
    a(0) = 0; for n >= 1, a(n) = 1 + a(n - gcd(n, d(n))). */
 #include <stdbool.h>
-#include "../utils/gcd.h"   /* provides seq_t gcd(seq_t a, seq_t b) */
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 static inline seq_t divisor_count(idx_t n)
 {

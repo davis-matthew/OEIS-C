@@ -8,8 +8,9 @@
  *            discriminants (OEIS A086669). A fundamental discriminant is D =
  *            1 or • D ≡ 1 (mod 4) and square‑free, • D ≡ 0 (mod 4), D/4 is
  *            square‑free and (D/4) ≡ 2 or 3 (mod 4)
- * Range:     u8 n <= 9867, u16 n <= 9867, u32 n <= 9867, u64 n <= 9867,
- *            u128 n <= 9867, big any n
+ * Range:     u8 n <= 16385, u16 n <= 16385, u32 n <= 16385, u64 n <= 16385,
+ *            u128 n <= 16385, big any n
+ * Validated: standard, pass, 116 terms through n = 9867 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

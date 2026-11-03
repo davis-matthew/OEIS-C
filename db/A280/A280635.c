@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   digit_len
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,12 +30,13 @@
 #include <stddef.h>
 #include <stdbool.h>
  
-#include "../utils/digit_len.h"   /* int digit_len(seq_t x); */
+#include <stdlib.h>
+#include "../utils/num_digits.h"
  
 /* Check whether n satisfies the definition of A280635. */
 static bool is_area_num(seq_t n)
 {
-    int len = digit_len(n);           /* number of decimal digits */
+    int len = num_digits(n);           /* number of decimal digits */
     if (len < 3) return false;        /* need at least three parts */
  
     /* Pre‑compute powers of ten up to len (10^k).  200 digits are

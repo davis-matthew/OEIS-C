@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 957, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---- static state ---- */
 static seq_t *sigma = NULL;           /* sigma[0] unused */
@@ -44,8 +46,8 @@ static void ensure_sigma_tau_up_to(idx_t cap)
     idx_t new_cap = sigma_size ? sigma_size : 1;
     while (new_cap <= cap) new_cap <<= 1;
 
-    seq_t *new_sigma = (seq_t *)realloc(sigma, new_cap * sizeof(seq_t));
-    seq_t *new_tau   = (seq_t *)realloc(tau,   new_cap * sizeof(seq_t));
+    seq_t *new_sigma = mem_resize(seq_t, sigma, new_cap);
+    seq_t *new_tau   = mem_resize(seq_t, tau, new_cap);
 
     if (!new_sigma || !new_tau) {
         exit(1);
@@ -80,7 +82,7 @@ static void ensure_lights_capacity(void)
 {
     if (light_count < lights_cap) return;
     size_t new_cap = lights_cap ? lights_cap << 1 : 16;
-    seq_t *new_arr = (seq_t *)realloc(lights, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, lights, new_cap);
     if (!new_arr) exit(1);
     lights = new_arr;
     lights_cap = new_cap;

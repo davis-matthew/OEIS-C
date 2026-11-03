@@ -8,7 +8,8 @@
  *            cube but is not a perfect cube
  * Range:     u8 n <= 36, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   icbrt_uint64
+ * Validated: standard, pass, 70 terms through n = 6723 (2026-11-03)
+ * Helpers:   icbrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/icbrt_uint64.h"
+#include "../utils/icbrt_u64.h"
+#include "../utils/mem.h"
 
 /* Pre‑computed small primes used to test for prime cubes. */
 static int primes[50];
@@ -51,7 +53,7 @@ static void ensure_cache(size_t n_needed)
         uint64_t cand = last_checked;
 
         /* Skip perfect cubes. */
-        uint64_t k = icbrt_uint64(cand);
+        uint64_t k = icbrt_u64(cand);
         if ( (__int128)k * k * k == cand ) continue;
 
         /* Test whether cand has a prime factor with exponent ≥ 3. */
@@ -69,8 +71,7 @@ static void ensure_cache(size_t n_needed)
         if (cache_len == cache_cap)
         {
             cache_cap = cache_cap ? cache_cap * 2 : 16;
-            cache = (seq_t *)realloc(cache,
-                cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = (seq_t)cand;
     }

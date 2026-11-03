@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 786, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9777 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Types seq_t and idx_t are supplied by the build environment. */
 
@@ -57,7 +59,7 @@ static void rebuild(idx_t new_limit)
     free(offsets);
     free(bucket_len);
     free(pred_list);
-    free(seq_vals);
+    mem_free(seq_vals);
 
     max_n = new_limit;
     size_t sz = (size_t)(max_n + 1);
@@ -66,7 +68,7 @@ static void rebuild(idx_t new_limit)
     parent     = (idx_t    *)calloc(sz, sizeof(idx_t));
     offsets    = (uint32_t *)calloc(sz, sizeof(uint32_t));
     bucket_len = (uint32_t *)calloc(sz, sizeof(uint32_t));
-    seq_vals   = (seq_t    *)calloc(sz, sizeof(seq_t));
+    seq_vals   = mem_new(seq_t, sz);
 
     /* Compute sigma(1..max_n) using a divisor sieve */
     for (idx_t d = 1; d <= max_n; ++d) {

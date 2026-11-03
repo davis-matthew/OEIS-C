@@ -12,14 +12,15 @@
  *            numbers 1..2n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 33,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 37 terms through n = 496 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -78,7 +79,7 @@ seq_t a(idx_t n)
     for (uint32_t p = 2; p < sz; ++p) {
         int e = exp[p];
         if (e > 0) {
-            result *= pow_int((seq_t)p, e);
+            result *= ipow_idx((seq_t)p, e);
         }
     }
 

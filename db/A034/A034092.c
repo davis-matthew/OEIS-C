@@ -8,6 +8,7 @@
  *            Implementation precomputes all triples
  * Range:     u8 n <= 114, u16 n <= 114, u32 n <= 114, u64 n <= 114,
  *            u128 n <= 114, big any n
+ * Validated: full, pass, 115 terms through n = 114 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

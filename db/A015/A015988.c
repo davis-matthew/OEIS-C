@@ -9,7 +9,8 @@
  *            reverse‑and‑add steps to reach a palindrome (index 0-based)
  * Range:     u8 none, u16 none, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   is_palindrome, reverse_decimal
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,16 +18,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/reverse_decimal.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 static bool requires_eight_steps(seq_t x)
 {
     seq_t cur = x;
     for (int step = 1; step <= 8; ++step) {
-        seq_t rev = reverse_decimal(cur);
+        seq_t rev = reverse_digits(cur);
         cur = cur + rev;
-        if (is_palindrome(cur, 10)) {
+        if (is_palindrome_base(cur, 10)) {
             return step == 8;
         }
     }
@@ -59,7 +61,7 @@ static seq_t next_candidate_c = 1;
 static void grow_terms_c(void)
 {
     size_t new_cap = terms_cap_c == 0 ? 64 : terms_cap_c << 1;
-    seq_t *p = (seq_t *)realloc(terms_c, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, terms_c, new_cap);
     if (!p) abort();
     terms_c = p;
     terms_cap_c = new_cap;

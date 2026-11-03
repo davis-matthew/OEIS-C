@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------  partitions into parts 1..7  -------------------------------- */
 static seq_t *p7 = NULL;          /* p7[t]  for 0 <= t <= current max */
@@ -36,10 +38,10 @@ static void ensure_p7_up_to(idx_t max_t)
     if (need <= p7_len) return;          /* already computed */
 
     /* Allocate & compute fresh DP of required size.  */
-    seq_t *newp = (seq_t *)malloc(need * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, need);
     if (!newp) abort();
 
-    memset(newp, 0, need * sizeof(seq_t));
+    mem_set(newp, 0, need * sizeof(seq_t));
     newp[0] = 1;                         /* one way to make 0 */
 
     for (idx_t coin = 1; coin <= 7; ++coin) {
@@ -48,7 +50,7 @@ static void ensure_p7_up_to(idx_t max_t)
         }
     }
 
-    free(p7);
+    mem_free(p7);
     p7 = newp;
     p7_len = need;
 }

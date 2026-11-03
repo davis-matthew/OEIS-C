@@ -12,14 +12,15 @@
  *            start - 1 is the 0‑based column index within that row
  * Range:     u8 n <= 38, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-
 
 static inline seq_t fib_n(idx_t n)
 {

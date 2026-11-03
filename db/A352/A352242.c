@@ -6,8 +6,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, tabl, easy
  * Formula:   a(n) = (r-k)*(r^3-k^3) read by rows; r and k are derived from n
- * Range:     u8 n <= 7, u16 n <= 121, u32 n <= 9280, u64 n <= 9280,
- *            u128 n <= 9280, big any n
+ * Range:     u8 n <= 7, u16 n <= 121, u32 n <= 11176, u64 n <= 11176,
+ *            u128 n <= 11176, big any n
+ * Validated: standard, pass, 71 terms through n = 9280 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

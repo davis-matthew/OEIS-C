@@ -7,12 +7,14 @@
  * Formula:   a(n) = 7 * b(n) where b(n) is the n‑th 7‑smooth number
  * Range:     i8 n <= 15, i16 n <= 21, i32 n <= 21, i64 n <= 21, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term (1‑based) of A085130. */
 seq_t a(idx_t n)
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (smooth_len == 0) {
         smooth_cap = 16;
-        smooth = (seq_t *)malloc(smooth_cap * sizeof(seq_t));
+        smooth = mem_new(seq_t, smooth_cap);
         smooth[0] = (seq_t)1;     /* first 7‑smooth number */
         smooth_len = 1;
     }
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         /* grow storage if necessary */
         if (smooth_len >= smooth_cap) {
             smooth_cap <<= 1;
-            smooth = (seq_t *)realloc(smooth, smooth_cap * sizeof(seq_t));
+            smooth = mem_resize(seq_t, smooth, smooth_cap);
         }
 
         seq_t next2 = (seq_t)2 * smooth[i2];

@@ -9,14 +9,33 @@
  *            representation of m is congruent to 5 mod 6
  * Range:     u8 n <= 34, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   runs_mod6_eq5
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/runs_mod6_eq5.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether number x has run count ≡ 5 (mod 6) in base 3 */
+static int runs_mod6_eq5(seq_t x)
+{
+    if (x == 0) return 0;          /* 0 has 0 runs, not 5 mod 6 */
+    seq_t last_digit = x % 3;
+    x /= 3;
+    seq_t runs = 1;                /* counted the MSB digit above */
+    while (x != 0) {
+        seq_t d = x % 3;
+        if (d != last_digit) {
+            ++runs;
+            last_digit = d;
+        }
+        x /= 3;
+    }
+    return (runs % 6) == 5;
+}
 
 static seq_t *cache = NULL;        /* cache of computed sequence elements */
 static size_t cache_cap = 0;       /* capacity of cache array */
@@ -33,7 +52,7 @@ seq_t a(idx_t n)
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
             if (new_cap < (size_t)n) new_cap = n;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();    /* memory allocation failure */
             cache = tmp;
             cache_cap = new_cap;

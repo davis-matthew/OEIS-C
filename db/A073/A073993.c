@@ -11,13 +11,15 @@
  *            returns a(n) for n ≥ 1; n < 1 yields 0
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* flat array storing dp[row*36 + 6*t + s] */
 static size_t dp_len = 0;     /* number of rows currently stored (0..dp_len-1) */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialise with the empty string DP[0] */
     if (dp_len == 0) {
         dp_len = 1;
-        dp = (seq_t*)malloc(sizeof(seq_t) * 36);
+        dp = mem_new(seq_t, 36);
         if (!dp) return (seq_t)0;              /* allocation failure */
         for (int i = 0; i < 36; ++i) dp[i] = (seq_t)0;
         dp[0] = (seq_t)1;                     /* trace 0, subtrace 0 */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (dp_len <= target) {
         size_t old_len = dp_len;
         dp_len = target + 1;
-        dp = (seq_t*)realloc(dp, dp_len * sizeof(seq_t) * 36);
+        dp = mem_resize(seq_t, dp, dp_len * 36);
         if (!dp) return (seq_t)0;              /* allocation failure */
 
         /* Zero the new rows */

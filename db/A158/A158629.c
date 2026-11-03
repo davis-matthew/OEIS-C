@@ -7,6 +7,7 @@
  * Formula:   a(n) = 484*n^2 + 22
  * Range:     u8 n <= 0, u16 n <= 11, u32 n <= 2978, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 52 terms through n = 9379 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

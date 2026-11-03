@@ -12,14 +12,17 @@
  *            property iff among the minima we find a duplicate
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache   = NULL;  /* stored values of the sequence */
 static size_t cache_cap   = 0;     /* allocated capacity of seq_cache */
@@ -73,7 +76,7 @@ seq_t a(idx_t n)
         /* Grow the cache if necessary */
         if (cache_len == cache_cap) {
             cache_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_cache = (seq_t*)realloc(seq_cache, cache_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, cache_cap);
         }
         seq_cache[cache_len++] = (seq_t)next_candidate;
         ++next_candidate;                 /* next integer to test */

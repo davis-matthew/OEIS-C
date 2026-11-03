@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 27, i32 n <= 50, i64 n <= 50, i128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* external types provided by the build system */
 extern seq_t a(idx_t n);
@@ -42,9 +44,9 @@ seq_t a(idx_t n)
         if (newcap <= (size_t)n) newcap = (size_t)n + 1;
 
         /* reallocate arrays */
-        A  = (seq_t *)realloc(A, newcap * sizeof(seq_t));
+        A  = mem_resize(seq_t, A, newcap);
         MU = (int  *)realloc(MU, newcap * sizeof(int));
-        S  = (seq_t *)realloc(S, newcap * sizeof(seq_t));
+        S  = mem_resize(seq_t, S, newcap);
         if (!A || !MU || !S)
             abort();   /* allocation failed */
 

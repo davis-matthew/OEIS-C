@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 200, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types, defined by the build */
 extern seq_t a(idx_t n);
@@ -30,7 +32,7 @@ static void ensure_capacity(idx_t n)
 {
     if (n < cache_size) return;
     idx_t new_size = n + 1;             /* include index 0 */
-    seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_size);
     if (!new_cache) exit(1);            /* out of memory */
     cache = new_cache;
     for (idx_t i = cache_size; i < new_size; ++i)

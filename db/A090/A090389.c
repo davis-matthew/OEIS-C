@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 37, i32 n <= 37, i64 n <= 37, i128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* Dependencies assumed to be supplied by the build system. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- primality test --- */
 static bool isPrime(seq_t n)
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         /* extend cache if necessary */
         if (cache_len == cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) /* fatal: OOM – let the build fail */
                 return 0;
             cache = new_cache;

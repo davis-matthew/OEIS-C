@@ -9,7 +9,8 @@
  *            coprime to (a(n-1)+1)
  * Range:     u8 n <= 12, u16 n <= 495, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, floor_sqrt
+ * Validated: standard, pass, 81 terms through n = 970 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,27 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/floor_sqrt.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Sequence storage and prime cache. */
 static seq_t *a_cache      = NULL;
@@ -39,13 +59,13 @@ static idx_t    prime_limit = 0;     /* highest prime generated */
 static void ensure_a_cache(idx_t n)
 {
     if (a_cache == NULL) {
-        a_cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        a_cache = mem_new(seq_t, (size_t)(n + 1));
         if (a_cache == NULL) exit(1);      /* abort on allocation failure */
         a_cache[0]   = 0;
         a_cache_cap  = (size_t)(n + 1);
         a_cache_n    = 0;
     } else if (a_cache_cap <= (size_t)n) {
-        a_cache = (seq_t *)realloc(a_cache, (size_t)(n + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (size_t)(n + 1));
         if (a_cache == NULL) exit(1);
         a_cache_cap = (size_t)(n + 1);
     }

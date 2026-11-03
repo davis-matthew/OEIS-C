@@ -11,7 +11,8 @@
  *            a(n)=a(n‑1)+d(k‑1)
  * Range:     u8 n <= 8388, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_realloc
+ * Validated: standard, pass, 94 terms through n = 9606 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,8 +43,19 @@ static inline uint64_t divisor_count_u64(uint64_t n)
 }
 
 /* Use the seq_ helper for proper allocation of arbitrary‑precision types. */
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
 
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {

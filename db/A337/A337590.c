@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 9, i64 n <= 14, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The build supplies seq_t and idx_t.  Do not define them here. */
 
@@ -48,13 +50,13 @@ static void ensure_cache(idx_t n)
     if (required <= cache_len)
         return;
 
-    seq_t *new_cache = (seq_t *)calloc(required, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, required);
     if (new_cache == NULL)
         abort();   /* allocation failure */
 
     if (cache) {
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache      = new_cache;
     cache_len  = required;

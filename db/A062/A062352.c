@@ -9,6 +9,7 @@
  *            the middle and then strictly increase
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 67, u64 n <= 84, u128 n <= 84,
  *            big any n
+ * Validated: full, pass, 84 terms through n = 84 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

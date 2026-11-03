@@ -7,12 +7,15 @@
  * Formula:   a(n) = binomial(n+8,8) * 8^n
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 33,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 390 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +26,7 @@ seq_t a(idx_t n)
     }
 
     /* compute 8^n using the arbitrary‑precision power helper */
-    seq_t pow8 = big_pow((seq_t)8, (seq_t)n);
+    seq_t pow8 = ipow((seq_t)8, (seq_t)n);
 
     /* final result */
     return bin * pow8;

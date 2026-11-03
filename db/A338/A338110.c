@@ -9,14 +9,18 @@
  * Formula:   a(n) = n*(2*n)^(3*(n-1))
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Cached values: 1‑based index, cache[0] unused */
 static seq_t *cache   = NULL;   /* array of computed terms       */
@@ -33,7 +37,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold the n-th term */
     if ((size_t)n >= cap) {
         size_t new_cap = (size_t)n + 1;   /* +1 because 1‑based */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         unsigned char *new_valid = (unsigned char *)realloc(valid, new_cap);
         if (!new_cache || !new_valid) {
             abort();   /* allocation failure */
@@ -50,7 +54,7 @@ seq_t a(idx_t n)
         /* Compute a(n) = n * (2*n)^(3*(n-1)) */
         seq_t base = ((seq_t)2 * (seq_t)n);
         seq_t exponent = ((seq_t)3 * (seq_t)(n - 1));
-        seq_t pow_val = big_pow(base, exponent);
+        seq_t pow_val = ipow(base, exponent);
         seq_t result = (seq_t)n * pow_val;
         cache[n] = result;
         valid[n] = 1;

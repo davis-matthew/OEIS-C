@@ -10,13 +10,15 @@
  *            A045187
  * Range:     u8 none, u16 n <= 240, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 1882 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL; /* stored terms */
 static size_t  cap       = 0;     /* current capacity of cache   */
@@ -31,7 +33,7 @@ static void gen_rec(int pos, int len, seq_t val, int zeros, int twos)
         if (zeros == 3 && twos == 3) {
             if (cnt == cap) {
                 cap = (cap == 0) ? 64 : cap * 2;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[cnt++] = val;
         }
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     if (!init_done) {
         /* initialisation: allocate cache */
         cap  = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         init_done = true;
     }
 

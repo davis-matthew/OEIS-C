@@ -7,6 +7,7 @@
  * Formula:   a(n) = 11321 - 23479*n + 16423*n^2 - 4693*n^3 + 471*n^4
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

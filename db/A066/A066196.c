@@ -12,7 +12,8 @@
  *            condition
  * Range:     u8 n <= 7, u16 n <= 772, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_u64, modmul128, popcount_u64
+ * Validated: standard, pass, 63 terms through n = 9810 (2026-11-03)
+ * Helpers:   bit_length_u64, mem, mulmod, popcount
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,16 +22,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/bitlen_u64.h"
-#include "../utils/modmul128.h"
-#include "../utils/popcount_u64.h"
+#include "../utils/bit_length_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/popcount.h"
+#include "../utils/mem.h"
 
 static uint64_t modpow64(uint64_t a, uint64_t e, uint64_t mod)
 {
     uint64_t r = 1;
     while (e) {
-        if (e & 1) r = modmul128(r, a, mod);
-        a = modmul128(a, a, mod);
+        if (e & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return r;
@@ -63,7 +65,7 @@ static bool isPrime_u64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (int r = 1; r < s; ++r) {
-            x = modmul128(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;
@@ -82,7 +84,7 @@ static void append_balanced(seq_t val)
 {
     if (buf_len == buf_cap) {
         size_t newcap = buf_cap ? buf_cap * 2 : 16;
-        seq_t *newbuf = (seq_t *)realloc(buf, newcap * sizeof(seq_t));
+        seq_t *newbuf = mem_resize(seq_t, buf, newcap);
         if (!newbuf) abort();
         buf = newbuf;
         buf_cap = newcap;
@@ -103,9 +105,9 @@ seq_t a(idx_t n)
 
     while (balanced_found < n) {
         if (isPrime_u64(cur)) {
-            int bl = bitlen_u64(cur);
+            int bl = bit_length_u64(cur);
             if ((bl & 1) == 0) { /* even number of bits */
-                int ones = popcount_u64(cur);
+                int ones = popcount(cur);
                 if (ones * 2 == bl) {
                     append_balanced((seq_t)cur);
                     ++balanced_found;

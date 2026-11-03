@@ -8,7 +8,8 @@
  * Formula:   a(n) = (F(3*n) - 2*F(n))/6
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 32, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    For n>=4: a(n) = 5*a(n-1) - 2*a(n-2) - 5*a(n-3) - a(n-4) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialise cache with first four values */
     if (cache_size == 0) {
         cache_size = 4;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache)
             return 0; /* allocation failed */
         cache[0] = 0;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     /* extend cache up to n */
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)
         return 0; /* allocation failed */
     cache = new_cache;

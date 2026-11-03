@@ -10,7 +10,8 @@
  *            the integer k
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #ifdef __cplusplus
 #include <new>       /* placement new for non‑POD seq_t (if used) */
 #endif
+#include "../utils/mem.h"
 
 /* ---  SETTINGS ---------------------------------------------------- */
 #define MAX_N_PRIME 104729      /* 10000‑th prime */
@@ -99,11 +101,11 @@ seq_t a(idx_t n)
         free(is_prime);
 
         /* 2. allocate and compute partition numbers up to MAX_N_PRIME */
-        partitions = (seq_t *)malloc(sizeof(seq_t) * (MAX_N_PRIME + 1));
+        partitions = mem_new(seq_t, (MAX_N_PRIME + 1));
 #ifdef __cplusplus
         /* ensure construction for non‑POD types */
         for (int i = 0; i <= MAX_N_PRIME; ++i) {
-            new (&partitions[i]) seq_t();
+            *(&partitions[i]) = (seq_t)0;
         }
 #endif
         compute_partitions(partitions);

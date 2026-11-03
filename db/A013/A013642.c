@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 2022, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper comparison for qsort */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -46,7 +48,7 @@ static void rebuild_cache(idx_t limit)
 {
     /* Rough estimate for the number of generated values; 12 per a is ample. */
     size_t est = (size_t)(limit * 12);
-    seq_t *tmp = (seq_t *)malloc(est * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, est);
     if (!tmp) abort();
 
     size_t n = 0;              /* number of generated values */
@@ -64,7 +66,7 @@ static void rebuild_cache(idx_t limit)
                     seq_t k = a_sq + (seq_t)b1;
                     if (n == est) {          /* grow the buffer */
                         est <<= 1;
-                        seq_t *t = (seq_t *)realloc(tmp, est * sizeof(seq_t));
+                        seq_t *t = mem_resize(seq_t, tmp, est);
                         if (!t) abort();
                         tmp = t;
                     }
@@ -75,7 +77,7 @@ static void rebuild_cache(idx_t limit)
                     seq_t k = a_sq + (seq_t)b2;
                     if (n == est) {
                         est <<= 1;
-                        seq_t *t = (seq_t *)realloc(tmp, est * sizeof(seq_t));
+                        seq_t *t = mem_resize(seq_t, tmp, est);
                         if (!t) abort();
                         tmp = t;
                     }
@@ -86,7 +88,7 @@ static void rebuild_cache(idx_t limit)
     }
 
     /* Sort and remove duplicates */
-    qsort(tmp, n, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(tmp, n, sizeof(seq_t), cmp_seq_t);
     size_t uniq = 0;
     for (size_t i = 0; i < n; ++i) {
         if (i == 0 || cmp_seq_t(&tmp[i], &tmp[uniq-1]) != 0)
@@ -94,10 +96,10 @@ static void rebuild_cache(idx_t limit)
     }
 
     /* Resize the cache to the exact size */
-    seq_t *new_cache = (seq_t *)realloc(cache, uniq * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, uniq);
     if (!new_cache && uniq > 0) abort();
-    if (new_cache) memcpy(new_cache, tmp, uniq * sizeof(seq_t));
-    free(tmp);
+    if (new_cache) mem_copy(new_cache, tmp, uniq * sizeof(seq_t));
+    mem_free(tmp);
 
     cache = new_cache;
     cache_len = uniq;

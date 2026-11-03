@@ -8,7 +8,8 @@
  *            for all odd divisors d of (p-1), where p is the n-th prime
  * Range:     u8 n <= 102, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
- * Helpers:   divisor_list
+ * Validated: partial, pass, 102 terms through n = 102 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,41 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/divisor_list.h"
+
+/*  Helper: list all divisors of an odd number n (≤ ~10^5).              */
+static void divisor_list(idx_t n, idx_t *out, size_t *cnt)
+{
+    idx_t primes[16];
+    int exps[16];
+    int num = 0;
+    idx_t tmp = n;
+    for (idx_t p = 2; p * p <= tmp; ++p) {
+        if (tmp % p == 0) {
+            int e = 0;
+            while (tmp % p == 0) { tmp /= p; ++e; }
+            primes[num] = p;
+            exps[num] = e;
+            ++num;
+        }
+    }
+    if (tmp > 1) { primes[num] = tmp; exps[num] = 1; ++num; }
+
+    size_t total = 1;
+    out[0] = 1;
+    for (int i = 0; i < num; ++i) {
+        idx_t p = primes[i];
+        int e  = exps[i];
+        size_t old = total;
+        for (int exp = 1; exp <= e; ++exp) {
+            idx_t mul = 1;
+            for (int k = 0; k < exp; ++k) mul *= p;
+            for (size_t j = 0; j < old; ++j) {
+                out[total++] = out[j] * mul;
+            }
+        }
+    }
+    *cnt = total;
+}
 
 /* --------------------------------------------------------------------- */
 /*  Prime generation (sieve up to 200000 – sufficient for n ≤ 10000)    */

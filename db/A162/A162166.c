@@ -8,7 +8,8 @@
  *            x^(2k-1))
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,15 +31,15 @@ seq_t a(idx_t n)
     if (coeff == NULL) {
         /* Build the polynomial by successive convolution with (1+x+…+x^(2k-1)) */
         size_t cur_len = 1;
-        seq_t *cur = (seq_t*)malloc(cur_len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, cur_len);
         if (!cur) return 0;
         cur[0] = 1;                 /* polynomial 1 */
 
         for (idx_t k = 1; k <= M; ++k) {
             size_t L = 2 * (size_t)k;           /* length of the next factor (all ones) */
             size_t new_len = cur_len + L - 1;    /* degree grows by (L-1)  */
-            seq_t *next = (seq_t*)malloc(new_len * sizeof(seq_t));
-            if (!next) { free(cur); return 0; }
+            seq_t *next = mem_new(seq_t, new_len);
+            if (!next) { mem_free(cur); return 0; }
 
             seq_t window = 0;
             for (size_t i = 0; i < new_len; ++i) {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
                 next[i] = window;
             }
 
-            free(cur);
+            mem_free(cur);
             cur     = next;
             cur_len = new_len;
         }

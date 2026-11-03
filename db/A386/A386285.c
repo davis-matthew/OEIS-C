@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  * in several distinct quadruples it is counted as many times.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build. */
 
@@ -38,10 +40,10 @@ static void grow_capacity(void)
 {
     if (u_cap == 0) {
         u_cap = 64;
-        u_vals = (seq_t *)malloc(u_cap * sizeof(seq_t));
+        u_vals = mem_new(seq_t, u_cap);
     } else {
         u_cap *= 2;
-        u_vals = (seq_t *)realloc(u_vals, u_cap * sizeof(seq_t));
+        u_vals = mem_resize(seq_t, u_vals, u_cap);
     }
 }
 

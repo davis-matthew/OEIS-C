@@ -8,7 +8,8 @@
  * Formula:   a(n) = (A001187(n)+(-1)^(n-1)*A000142(n-1))/2
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow, binomial, factorial
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,21 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binomial.h"   /* static seq_t binomial(idx_t a, idx_t b);   */
-#include "../utils/big_pow.h"    /* static seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/factorial.h"  /* static seq_t factorial(idx_t m);           */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 static seq_t *c_arr = NULL;   /* cache for A001187(n) */
 static size_t c_size = 0;     /* highest n with valid c_arr[n] */
@@ -32,7 +45,7 @@ static void ensure_connected(idx_t n)
 
     /* Grow the cache array to hold indices 0..n */
     size_t new_size = (size_t)n + 1;  /* include index n */
-    void *tmp = realloc(c_arr, new_size * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, c_arr, new_size);
     if (!tmp)
         abort();
     c_arr = (seq_t *)tmp;
@@ -52,7 +65,7 @@ static void ensure_connected(idx_t n)
     for (idx_t i = c_size + 1; i <= n; ++i) {
         /* total number of graphs on i vertices: 2^(i*(i-1)/2) */
         idx_t total_exp = (i * (i - 1)) / 2;
-        seq_t total = big_pow((seq_t)2, (seq_t)total_exp);
+        seq_t total = ipow((seq_t)2, (seq_t)total_exp);
 
         seq_t sum = (seq_t)0;
 
@@ -62,7 +75,7 @@ static void ensure_connected(idx_t n)
             seq_t ck    = c_arr[k];                /* connected graphs on k vertices */
 
             idx_t sub_exp = ((i - k) * (i - k - 1)) / 2;
-            seq_t power = big_pow((seq_t)2, (seq_t)sub_exp); /* graphs on remaining vertices */
+            seq_t power = ipow((seq_t)2, (seq_t)sub_exp); /* graphs on remaining vertices */
 
             seq_t term = binom * ck;
             term *= power;

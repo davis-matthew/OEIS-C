@@ -13,7 +13,8 @@
  *            a is the triangle read by rows
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   gcd, mod_pow
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* ---------- Precomputation of φ(n) and cumulative sums ---------- */
 #define MAX_LIMIT 200000            /* enough to cover indices up to a few
@@ -93,7 +95,7 @@ static seq_t multiplicative_order(seq_t a, seq_t m)
 
     for (idx_t e = 1; e <= phi_u; ++e) {
         if (phi_u % e == 0) {
-            if (mod_pow(a, (uint64_t)e, m) == (seq_t)1)
+            if (powmod(a, (uint64_t)e, m) == (seq_t)1)
                 return (seq_t)e;
         }
     }

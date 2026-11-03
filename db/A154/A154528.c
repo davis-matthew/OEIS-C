@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_frequencies, is_prime_small
+ * Validated: standard, pass, 73 terms through n = 985 (2026-11-03)
+ * Helpers:   digit_frequencies, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
 #include "../utils/digit_frequencies.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* static cache of found terms */
 static seq_t *seq_cache = NULL;        /* array of seq_t values */
@@ -33,7 +35,7 @@ static void ensure_cache_cap(size_t needed)
     if (seq_cache_cap >= needed) return;
     size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    seq_t *p = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, seq_cache, new_cap);
     seq_cache = p;
     seq_cache_cap = new_cap;
 }
@@ -52,7 +54,7 @@ static bool satisfies_property(seq_t k)
     }
     /* d is the smallest non‑zero digit, m its count */
     int sum = d + (int)m;
-    return (sum % 2 == 0 && sum >= 4 && !is_prime_small((seq_t)sum));
+    return (sum % 2 == 0 && sum >= 4 && !is_prime_seq((seq_t)sum));
 }
 
 seq_t a(idx_t n)
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     while (seq_cache_len < (size_t)n) {
         /* find the next composite with the required property */
         for (;;) {
-            if (!is_prime_small(seq_last_num)) {
+            if (!is_prime_seq(seq_last_num)) {
                 if (satisfies_property(seq_last_num)) {
                     ensure_cache_cap(seq_cache_len + 1);
                     seq_cache[seq_cache_len++] = seq_last_num;

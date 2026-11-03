@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{i=1..n} (2*n - i) * mu(i)^2
  * Range:     u8 n <= 15, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Non-degenerate: returns 0 for n == 0 */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* global cache */
 static unsigned char *sqf = NULL;                /* 1 if squarefree, 0 otherwise */
@@ -31,7 +33,7 @@ static void extend_idx(idx_t n) {
 
     sqf = (unsigned char *)realloc(sqf, new_size * sizeof(unsigned char));
     pref_count = (idx_t *)realloc(pref_count, new_size * sizeof(idx_t));
-    pref_sum = (seq_t *)realloc(pref_sum, new_size * sizeof(seq_t));
+    pref_sum = mem_resize(seq_t, pref_sum, new_size);
     if (!sqf || !pref_count || !pref_sum)
         exit(1);   /* memory allocation failure */
 

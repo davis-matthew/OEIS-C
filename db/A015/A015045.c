@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in the series expansion of 1/Φ_1036(x)
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   poly_divide
+ * Validated: standard, pass, 97 terms through n = 1604 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,32 @@
    a(n-k) with c_0 = 1 and c_k the coefficients of Φ_1036 is used. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/poly_divide.h"
+
+/* Helper: integer division of polynomials (dividend / divisor), divisor is monic */
+static void poly_divide(const seq_t *dividend, int deg_dividend,
+                        const seq_t *divisor, int deg_divisor,
+                        seq_t *quotient, int *deg_quotient) {
+    seq_t w[1037];
+    seq_t q[1037];
+    for (int i = 0; i <= deg_dividend; ++i) w[i] = dividend[i];
+    for (int i = 0; i <= deg_dividend; ++i) q[i] = 0;
+
+    for (int i = deg_dividend; i >= deg_divisor; --i) {
+        seq_t coeff = w[i];
+        int shift = i - deg_divisor;
+        q[shift] = coeff;
+        for (int j = 0; j <= deg_divisor; ++j) {
+            w[shift + j] -= coeff * divisor[j];
+        }
+    }
+    int dq = -1;
+    for (int i = deg_dividend - deg_divisor; i >= 0; --i) {
+        if (q[i] != 0) { dq = i; break; }
+    }
+    if (dq == -1) dq = 0;
+    for (int i = 0; i <= dq; ++i) quotient[i] = q[i];
+    *deg_quotient = dq;
+}
 
 #define PERIOD 1036
 

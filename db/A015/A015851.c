@@ -7,7 +7,8 @@
  * Formula:   a(n) is the n‑th integer k such that φ(k) divides σ(k+8)
  * Range:     u8 none, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *phi = NULL;          /* φ values  (size: limit+9) */
 static seq_t *sigma = NULL;        /* σ values (size: limit+9) */
@@ -27,7 +29,7 @@ static idx_t current_limit = 0;    /* current maximum k searched         */
 static void add_term(seq_t v) {
     if (terms_len == terms_cap) {
         terms_cap = terms_cap ? terms_cap << 1U : 16U;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_len++] = v;
 }
@@ -36,8 +38,8 @@ static void add_term(seq_t v) {
 static void recompute(idx_t new_limit) {
     /* allocate arrays large enough for φ up to new_limit and σ up to new_limit+8 */
     idx_t size = new_limit + 9;          /* index 0 … new_limit+8 inclusive */
-    phi   = (seq_t *)realloc(phi,   size * sizeof(seq_t));
-    sigma = (seq_t *)realloc(sigma, size * sizeof(seq_t));
+    phi   = mem_resize(seq_t, phi, size);
+    sigma = mem_resize(seq_t, sigma, size);
 
     /* initialise φ and σ */
     for (idx_t i = 0; i < size; ++i) {
@@ -66,7 +68,7 @@ static void recompute(idx_t new_limit) {
     terms_len = 0;
     if (terms_cap < 16) {
         terms_cap = 16;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     for (idx_t k = 1; k <= new_limit; ++k) {
         if ( (sigma[k + 8] % phi[k]) == 0 ) {

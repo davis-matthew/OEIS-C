@@ -7,13 +7,15 @@
  * Formula:   a(n) = abs(Stirling1(n+2,2)) - abs(Stirling1(n+2,3))
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 19, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 362 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *c2 = NULL;   /* abs(Stirling1(m,2)) for m up to current max */
 static seq_t *c3 = NULL;   /* abs(Stirling1(m,3)) for m up to current max */
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
         initialized = 1;
         /* allocate space for indices 0 and 1 */
         cap = 2;
-        c2 = (seq_t *)malloc(cap * sizeof(seq_t));
-        c3 = (seq_t *)malloc(cap * sizeof(seq_t));
+        c2 = mem_new(seq_t, cap);
+        c3 = mem_new(seq_t, cap);
         if (!c2 || !c3) return 0;   /* out of memory – unlikely in tests */
         c2[0] = 0;  c3[0] = 0;
         c2[1] = 0;  c3[1] = 0;
@@ -45,8 +47,8 @@ seq_t a(idx_t n)
     if (m >= cap)
     {
         idx_t new_cap = m + 1;
-        seq_t *tmp2 = (seq_t *)realloc(c2, new_cap * sizeof(seq_t));
-        seq_t *tmp3 = (seq_t *)realloc(c3, new_cap * sizeof(seq_t));
+        seq_t *tmp2 = mem_resize(seq_t, c2, new_cap);
+        seq_t *tmp3 = mem_resize(seq_t, c3, new_cap);
         if (!tmp2 || !tmp3) return 0;   /* allocation failed */
         c2 = tmp2;
         c3 = tmp3;

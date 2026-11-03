@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Helper: compute n!!  (n≥0) */
@@ -73,7 +75,7 @@ static void ensure_doubles_up_to(seq_t limit)
 {
     /* initialise with a single 1 (0!! = 1 = 1!!) */
     if (d_len == 0) {
-        doubles = (seq_t *)malloc(sizeof(seq_t));
+        doubles = mem_new(seq_t, 1);
         if (!doubles) return; /* allocation failure – silently abort */
         doubles[0] = (seq_t)1;
         d_len = 1;
@@ -83,7 +85,7 @@ static void ensure_doubles_up_to(seq_t limit)
         seq_t val = double_factorial(next_n);
         if (val > limit)
             break;
-        seq_t *tmp = (seq_t *)realloc(doubles, (d_len + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, doubles, (d_len + 1));
         if (!tmp) return; /* allocation failure – silently abort */
         doubles = tmp;
         doubles[d_len] = val;
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
 
     /* initialise the terms array once */
     if (!terms) {
-        terms = (seq_t *)malloc(32 * sizeof(seq_t));
+        terms = mem_new(seq_t, 32);
         if (!terms) return (seq_t)0; /* allocation failure – return 0   */
     }
     size_t terms_cap = 32;
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
             /* grow terms array if needed */
             if (terms_n == terms_cap) {
                 terms_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                 if (!tmp) return (seq_t)0; /* allocation failure – return 0   */
                 terms = tmp;
             }

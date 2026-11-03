@@ -7,11 +7,13 @@
  * Formula:   a(n) = Product_{k=1..n} (binomial(k-1,6) + binomial(n-k,6))
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 11, u64 n <= 12, u128 n <= 15,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 114 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

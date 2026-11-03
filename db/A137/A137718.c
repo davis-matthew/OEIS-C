@@ -8,12 +8,14 @@
  *            4*a(n-4) (derived from the given generating function)
  * Range:     i8 n <= 12, i16 n <= 28, i32 n <= 36, i64 n <= 36, i128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Allocate an array big enough to hold all terms up to n. */
     size_t size = (size_t)(n + 1);
-    seq_t *terms = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *terms = mem_new(seq_t, size);
     if (terms == NULL) return (seq_t)0;   /* unlikely but defensively */
 
     /* Initialisation of the array. */
@@ -40,6 +42,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = terms[n];
-    free(terms);
+    mem_free(terms);
     return result;
 }

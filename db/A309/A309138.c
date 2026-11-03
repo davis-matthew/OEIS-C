@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#endif
 
 /* Node used in the min‑heap */
 typedef struct {
@@ -79,6 +87,18 @@ static void heap_sift_down(size_t i)
 }
 
 /* Grow a generic array, casting for C++ compatibility */
+#ifdef __cplusplus
+template <class T>
+static void grow(T **ptr, size_t *cap, size_t elem_size) /* elem_size: sizeof(T) */
+{
+    size_t new_cap = (*cap) ? (*cap) * 2 : 128;
+    T *p = mem_resize(T, *ptr, new_cap);
+    /* In C++ the allocation must be cast to a pointer of the desired type;
+       the cast is omitted in C since it is implicit. */
+    *ptr = p;
+    *cap = new_cap;
+}
+#else
 static void grow(void **ptr, size_t *cap, size_t elem_size)
 {
     size_t new_cap = (*cap) ? (*cap) * 2 : 128;
@@ -88,11 +108,12 @@ static void grow(void **ptr, size_t *cap, size_t elem_size)
     *ptr = p;
     *cap = new_cap;
 }
+#endif
 
 /* Push a node onto the heap */
 static void heap_push(node_t n)
 {
-    if (heap_len == heap_cap) grow((void**)&heap, &heap_cap, sizeof(node_t));
+    if (heap_len == heap_cap) grow(OEISC_VPP(&heap), &heap_cap, sizeof(node_t));
     heap[heap_len++] = n;
     heap_sift_up(heap_len - 1);
 }
@@ -132,9 +153,9 @@ seq_t a(idx_t n)
     /* initialise static structures on first call */
     if (!cache) {
         cache_cap = 128;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         heap_cap  = 128;
-        heap = (node_t*)malloc(heap_cap * sizeof(node_t));
+        heap = mem_new(node_t, heap_cap);
 
         /* start with y = 0, x = 0 */
         heap_push((node_t){ 0, 0, 0 });
@@ -145,7 +166,7 @@ seq_t a(idx_t n)
 
         /* store next distinct value */
         if (cur.val != last_val) {
-            if (cache_len == cache_cap) grow((void**)&cache, &cache_cap, sizeof(seq_t));
+            if (cache_len == cache_cap) grow(OEISC_VPP(&cache), &cache_cap, sizeof(seq_t));
             cache[cache_len++] = cur.val;
             last_val = cur.val;
         }

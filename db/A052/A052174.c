@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,13 +31,13 @@
     allocation is used. */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Return binomial coefficient C(a,b); 0 when b>a. */
 static inline seq_t binom_safe(idx_t a, idx_t b)
 {
     if (b > a) return 0;
-    return binom(a, b);
+    return binomial(a, b);
 }
 
 seq_t a(idx_t n)

@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 358, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 55 terms through n = 9942 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
    Search primes sequentially with next_prime until the nth such pair is found. */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
 
 seq_t a(idx_t n)

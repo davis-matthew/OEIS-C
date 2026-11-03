@@ -8,9 +8,10 @@
  * Formula:   a(n) gives the n-th term of the irregular triangle T(n,k)=k! mod
  *            prime(n) (prime(n) is the n‑th prime), flattened row‑major with
  *            first term at n=2
- * Range:     u8 n <= 6003, u16 n <= 9338, u32 n <= 9338, u64 n <= 9338,
- *            u128 n <= 9338, big any n
- * Helpers:   factorial_mod
+ * Range:     u8 n <= 6003, u16 n <= 65221, u32 n <= 65221, u64 n <= 65221,
+ *            u128 n <= 65221, big any n
+ * Validated: standard, pass, 98 terms through n = 9338 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/factorial_mod.h"
+
+/* Compute k! mod p for small k, where k < p and p fits into uint64_t. */
+static seq_t factorial_mod(uint64_t k, uint64_t p)
+{
+    seq_t res = (seq_t)1;
+    for (uint64_t i = 2; i <= k; ++i) {
+        uint64_t prod = ((uint64_t)res * i) % p;
+        res = (seq_t)prod;
+    }
+    return res;
+}
 
 /* Static storage for primes */
 static uint64_t *primes = NULL;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = (27*3^n - 63)/2
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 17, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
 
     /* Compute 3^n.  The helper pow_seq performs repeated squaring in
        exact arithmetic (big‑int for arbitrary precision builds). */
-    seq_t pow3 = pow_seq((seq_t)3, (int)n);
+    seq_t pow3 = ipow_i32((seq_t)3, (int)n);
 
     /* Apply the formula, using integer arithmetic only. */
     seq_t result = ((seq_t)27 * pow3 - (seq_t)63) / (seq_t)2;

@@ -9,13 +9,15 @@
  *            distinct parts (OEIS A000009)
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 127, u64 n <= 416,
  *            u128 n <= 1458, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9290 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *partitions = NULL;   /* p[n] */
 static seq_t *dist_parts = NULL;   /* q[n] */
@@ -28,8 +30,8 @@ static void compute_upto(idx_t n)
     if (new_cap == 0) new_cap = 1;
     while (new_cap <= n) new_cap <<= 1;          /* grow in powers of two */
 
-    partitions = (seq_t *)realloc(partitions, new_cap * sizeof(seq_t));
-    dist_parts = (seq_t *)realloc(dist_parts,   new_cap * sizeof(seq_t));
+    partitions = mem_resize(seq_t, partitions, new_cap);
+    dist_parts = mem_resize(seq_t, dist_parts, new_cap);
 
     for (idx_t i = 0; i < new_cap; ++i) {
         partitions[i] = 0;

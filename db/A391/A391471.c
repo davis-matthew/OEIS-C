@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 137, u32 n <= 484, u64 n <= 484,
  *            u128 n <= 484, big any n
- * Helpers:   digit_counts, digit_len
+ * Validated: standard, pass, 70 terms through n = 483 (2026-11-03)
+ * Helpers:   digit_counts, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/digit_counts.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cached terms */
 static size_t seq_len  = 0;       /* number of cached terms */
@@ -33,7 +36,7 @@ static idx_t  next_k   = 1;       /* next integer to test */
 static bool is_term(seq_t k)
 {
     seq_t t = (k * 11 + 5) / 10;                /* T(k) = floor((11*k+5)/10) */
-    if (digit_len(k) != digit_len(t))
+    if (num_digits(k) != num_digits(t))
         return false;
 
     unsigned char cnt1[10] = {0};
@@ -54,7 +57,7 @@ static void ensure_cache(size_t needed)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_ptr) /* out of memory – abort silently */
         return;
     seq_cache = new_ptr;

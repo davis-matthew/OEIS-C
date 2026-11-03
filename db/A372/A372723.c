@@ -9,13 +9,15 @@
  *            Σ_{j=k..r} (-1)^(r-j) * j! * binomial(r,j) * binomial(j,k)
  * Range:     u8 n <= 15, u16 n <= 30, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t n, idx_t k); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;      /* factorial cache */
 static idx_t fact_cache_size = 0;     /* number of stored factorials */
@@ -32,12 +34,12 @@ static void ensure_factorial_cache_up_to(idx_t n)
 
     if (fact_cache_size == 0) {
         /* First allocation: 0! = 1 */
-        p = (seq_t*)malloc(new_size * sizeof(seq_t));
+        p = mem_new(seq_t, new_size);
         if (!p) exit(1);
         p[0] = (seq_t)1;
         fact_cache_size = 1;
     } else {
-        p = (seq_t*)realloc(fact_cache, new_size * sizeof(seq_t));
+        p = mem_resize(seq_t, fact_cache, new_size);
         if (!p) exit(1);
     }
 

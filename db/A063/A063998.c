@@ -10,7 +10,8 @@
  *            1/(k/d) or (1/d) + (k/d)
  * Range:     u8 n <= 8, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   dfs_subset
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,24 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/dfs_subset.h"
+#include "../utils/mem.h"
+
+/* recursive subset‑sum solver with pruning using suffix sums */
+static bool dfs_subset(const uint64_t *w, size_t m, size_t idx,
+                       uint64_t cur, uint64_t target,
+                       const uint64_t *suff)
+{
+    if (cur == target)
+        return true;
+    if (idx == m)
+        return false;
+    if (cur + suff[idx] < target)
+        return false;
+    if (cur + w[idx] <= target)
+        if (dfs_subset(w, m, idx + 1, cur + w[idx], target, suff))
+            return true;
+    return dfs_subset(w, m, idx + 1, cur, target, suff);
+}
 
 /* static cache for computed terms */
 static seq_t *cache = NULL;      /* array of terms */
@@ -39,7 +57,7 @@ static void grow_cache(idx_t need)
     idx_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

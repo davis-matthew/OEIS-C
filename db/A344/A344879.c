@@ -9,8 +9,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = ∏_{p^e||n} f(p^e) / lcm_{p^e||n} f(p^e), where
  *            f(p^e)=p^e-1 for odd primes p and f(2^e)=2^(e+1)-1
- * Range:     u8 n <= 1101, u16 n <= 9852, u32 n <= 9852, u64 n <= 9852,
- *            u128 n <= 9852, big any n
+ * Range:     u8 n <= 1101, u16 n <= 9852, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9852 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

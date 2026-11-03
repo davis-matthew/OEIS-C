@@ -12,13 +12,15 @@
  *            (a(n) = 0 if the sequence is infinite)
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;      /* memoised a(n) values */
 static bool   *a_done  = NULL;      /* flags */
@@ -30,7 +32,7 @@ static void ensure_a_cap(idx_t n)
     if ((size_t)n < a_cap) return;
     size_t new_cap = a_cap ? a_cap << 1 : 64;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_done  = (bool  *)realloc(a_done,  new_cap * sizeof(bool));
     for (size_t i = a_cap; i < new_cap; ++i) a_done[i] = false;
     a_cap = new_cap;
@@ -44,7 +46,7 @@ static seq_t compute_a(idx_t n)
     if (n < 3) return (seq_t)0;   /* behaviour below offset irrelevant */
 
     size_t cap_f = (size_t)n + 5;
-    seq_t *F = (seq_t *)malloc(cap_f * sizeof(seq_t));
+    seq_t *F = mem_new(seq_t, cap_f);
     if (!F) return (seq_t)0;  /* memory failure; fall back to 0 */
 
     for (idx_t i = 1; i <= n; ++i) F[i] = (seq_t)1;
@@ -55,8 +57,8 @@ static seq_t compute_a(idx_t n)
         if ((size_t)k >= cap_f) {
             size_t new_cap = cap_f << 1;
             while (new_cap <= (size_t)k) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(F, new_cap * sizeof(seq_t));
-            if (!tmp) { free(F); return (seq_t)0; }
+            seq_t *tmp = mem_resize(seq_t, F, new_cap);
+            if (!tmp) { mem_free(F); return (seq_t)0; }
             F = tmp;
             cap_f = new_cap;
         }
@@ -75,7 +77,7 @@ static seq_t compute_a(idx_t n)
     }
 
     /* exceeded safety limit: treat as infinite */
-    free(F);
+    mem_free(F);
     return (seq_t)0;
 }
 

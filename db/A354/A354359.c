@@ -7,8 +7,9 @@
  * Formula:   a(n) = Dirichlet inverse of A124859, multiplicative. For a prime
  *            power p^k: A124859(p^k) = 2 * Π_{j=1}^{k-1} odd_prime_j a(p^k) =
  *            - Σ_{i=1}^{k} A124859(p^i) * a(p^{k-i})
- * Range:     i8 n <= 31, i16 n <= 127, i32 n <= 1023, i64 n <= 9927,
- *            i128 n <= 9927, big any n
+ * Range:     i8 n <= 31, i16 n <= 127, i32 n <= 1023, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 9927 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,7 +17,9 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t, uint64_t*, uint64_t*, size_t*) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 static const uint32_t ODD_PRIMES[] = {
     3U, 5U, 7U, 11U, 13U, 17U, 19U, 23U, 29U, 31U,

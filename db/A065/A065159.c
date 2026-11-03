@@ -11,6 +11,7 @@
  *            itself, while each ‘0’ bit is replaced by a single zero
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 62, u64 n <= 318,
  *            u128 n <= 3070, big any n
+ * Validated: standard, pass, 56 terms through n = 9516 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

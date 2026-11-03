@@ -11,6 +11,7 @@
  *            T = T(1,col) if row==2 : T = T(2,col) if row...
  * Range:     u8 n <= 14, u16 n <= 44, u32 n <= 152, u64 n <= 560,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 68 terms through n = 1168 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

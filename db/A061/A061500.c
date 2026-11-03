@@ -9,7 +9,8 @@
  *            digits of n) / (number of such distinct numbers) )
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   cmp_ull, gen_rec
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,34 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/cmp_ull.h"
-#include "../utils/gen_rec.h"
+
+/* Comparator for sorting unsigned long long integers */
+static int cmp_ull(const void *a, const void *b)
+{
+    unsigned long long x = *(const unsigned long long *)a;
+    unsigned long long y = *(const unsigned long long *)b;
+    if (x < y) return -1;
+    if (x > y) return 1;
+    return 0;
+}
+
+/* Recursive generation of all numbers from the digit multiset */
+static void gen_rec(int depth, unsigned long long cur,
+                    const uint8_t *digits, int d,
+                    bool *used, size_t *cnt, unsigned long long *arr)
+{
+    if (depth > 0 && cur > 0)
+        arr[(*cnt)++] = cur;
+
+    for (int i = 0; i < d; ++i) {
+        if (used[i]) continue;
+        if (i > 0 && digits[i] == digits[i-1] && !used[i-1])
+            continue;            /* skip duplicate permutations */
+        used[i] = true;
+        gen_rec(depth + 1, cur * 10 + digits[i], digits, d, used, cnt, arr);
+        used[i] = false;
+    }
+}
 
 /* Comparator for sorting 8‑bit digit arrays */
 static int cmp_u8(const void *a, const void *b)

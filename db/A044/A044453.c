@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 2911, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains_23_base4
+ * Validated: standard, pass, 69 terms through n = 9451 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,23 @@
 */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/contains_23_base4.h"
+#include "../utils/mem.h"
+
+/* Return true if base‑4 representation of x contains the substring "23". */
+static bool contains_23_base4(seq_t x)
+{
+    /* Scan digits from least‑significant to most‑significant. */
+    while (x != 0) {
+        int cur = (int)(x % 4);
+        x /= 4;
+        if (cur == 3) {            /* potential start of "23" */
+            if (x % 4 == 2) {
+                return true;       /* found "23" */
+            }
+        }
+    }
+    return false;
+}
 
 /* Sequence a(n) for OEIS A044453.
    a(1) is the first occurring number satisfying the condition. */
@@ -34,7 +51,7 @@ seq_t a(idx_t n)
 
     /* Ensure cache has enough space. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(16 * sizeof(seq_t));
+        cache = mem_new(seq_t, 16);
         if (cache == NULL) {
             abort(); /* memory failure */
         }
@@ -54,7 +71,7 @@ seq_t a(idx_t n)
                 } else {
                     /* Grow if needed. */
                     if (cached_max >= 8 && cached_max % 8 == 0) {
-                        seq_t *new_cache = (seq_t *)realloc(cache, (cached_max * 2) * sizeof(seq_t));
+                        seq_t *new_cache = mem_resize(seq_t, cache, (cached_max * 2));
                         if (new_cache == NULL) {
                             abort();
                         }

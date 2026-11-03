@@ -11,14 +11,23 @@
  *            (u-1)^s_u) * sum_{v=1..⌊n/u⌋} (v^s_v - (v-1)^s_v) ]
  * Range:     u8 none, u16 n <= 6, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   power_int
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/power_int.h"
+#include "../utils/mem.h"
+
+static seq_t power_int(seq_t base, uint8_t exp)
+{
+    seq_t res = 1;
+    for (uint8_t i = 0; i < exp; ++i)
+        res *= base;
+    return res;
+}
 
 static const idx_t factorials[5] = {1, 1, 2, 6, 24};
 
@@ -35,8 +44,8 @@ seq_t a(idx_t n)
 
     for (uint8_t s = 1; s <= 4; ++s)
     {
-        arr[s] = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-        cum[s] = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+        arr[s] = mem_new(seq_t, (N + 1));
+        cum[s] = mem_new(seq_t, (N + 1));
         if (!arr[s] || !cum[s]) return 0; /* allocation failure */
 
         cum[s][0] = 0;
@@ -98,8 +107,8 @@ seq_t a(idx_t n)
     /* Free allocated memory */
     for (uint8_t s = 1; s <= 4; ++s)
     {
-        free(arr[s]);
-        free(cum[s]);
+        mem_free(arr[s]);
+        mem_free(cum[s]);
     }
 
     return result;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-1) + a(n-3) + a(n-4), a(0)=a(1)=a(2)=a(3)=1
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 47, u64 n <= 94, u128 n <= 186,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 4592 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    same or lower index cost nothing.  The implementation works for any
    integer type seq_t supplied by the build. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* memoization array */
 static size_t cache_len = 0;       /* number of entries currently stored */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     /* Reallocate the cache array.  Using realloc allows us to keep the
        previously computed values. */
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (tmp == NULL) {            /* allocation failure – abort gracefully */
         exit(EXIT_FAILURE);
     }

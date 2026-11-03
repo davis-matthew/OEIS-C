@@ -9,7 +9,8 @@
  *            prime (OEIS A059793)
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   isPrimeTrial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -55,14 +57,14 @@ seq_t a(idx_t n)
 
         /* Test if m^2+1 is prime. */
         seq_t candidate = (seq_t)val128;
-        if (isPrimeTrial(candidate)) {
+        if (is_prime_seq(candidate)) {
             /* Store 2*m as the next sequence value. */
             seq_t val = (seq_t)2 * (seq_t)m;
 
             /* Ensure enough space in the cache. */
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 8 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
                     /* Out of memory – terminate. */
                     exit(1);

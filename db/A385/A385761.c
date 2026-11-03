@@ -9,12 +9,14 @@
  *            k^5) * a(k) * a(n-1-k), with a(0) = 1
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,11 +28,11 @@ seq_t a(idx_t n)
 
     /* initialise caches on first call */
     if (A == NULL) {
-        A   = (seq_t *)malloc(sizeof(seq_t));
+        A   = mem_new(seq_t, 1);
         A[0] = (seq_t)1;   /* a(0) */
         Alen = 1;
 
-        C   = (seq_t *)malloc(sizeof(seq_t));
+        C   = mem_new(seq_t, 1);
         C[0] = (seq_t)1;   /* coefficient for k = 0 */
         Clen = 1;
     }
@@ -39,13 +41,13 @@ seq_t a(idx_t n)
     if (n >= Alen) {
         idx_t old_len = Alen;
         size_t new_A_size = (size_t)(n + 1);
-        A = (seq_t *)realloc(A, new_A_size * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_A_size);
         Alen = (idx_t)new_A_size;
 
         /* compute missing coefficients */
         if (n >= Clen) {
             size_t new_C_size = (size_t)n;   /* need indices 0 .. n-1 */
-            C = (seq_t *)realloc(C, new_C_size * sizeof(seq_t));
+            C = mem_resize(seq_t, C, new_C_size);
             for (idx_t k = Clen; k < n; ++k) {
                 __int128 kk = k;
                 __int128 val =

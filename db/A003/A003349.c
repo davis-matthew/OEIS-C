@@ -7,12 +7,14 @@
  * Formula:   a(n) = n-th number that is the sum of 4 positive 5th powers
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 8740 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -28,7 +30,7 @@ static void generate_sums(int max_b) {
     if (max_b <= max_base) return;
     
     idx_t capacity = 100000;
-    seq_t *temp = (seq_t *)malloc(capacity * sizeof(seq_t));
+    seq_t *temp = mem_new(seq_t, capacity);
     idx_t count = 0;
     
     for (int a = 1; a <= max_b; a++) {
@@ -43,7 +45,7 @@ static void generate_sums(int max_b) {
                     
                     if (count >= capacity) {
                         capacity *= 2;
-                        temp = (seq_t *)realloc(temp, capacity * sizeof(seq_t));
+                        temp = mem_resize(seq_t, temp, capacity);
                     }
                     temp[count++] = sum;
                 }
@@ -51,7 +53,7 @@ static void generate_sums(int max_b) {
         }
     }
     
-    qsort(temp, count, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(temp, count, sizeof(seq_t), cmp_seq_t);
     
     idx_t unique_count = 0;
     for (idx_t i = 0; i < count; i++) {
@@ -60,7 +62,7 @@ static void generate_sums(int max_b) {
         }
     }
     
-    free(cache);
+    mem_free(cache);
     cache = temp;
     cache_len = unique_count;
     max_base = max_b;

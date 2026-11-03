@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 33, u64 n <= 65, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 397 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 16 possible suffixes of length 4 (0 … 15) */
 #define S 16
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Allocate two layers (current & next) in one contiguous block. */
     /* calloc initializes to zero. */
-    seq_t *dp = (seq_t *)calloc(2 * layer_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, 2 * layer_size);
     if (dp == NULL) return (seq_t)0;          /* safe fallback on OOM */
 
     seq_t *cur  = dp;
@@ -90,6 +92,6 @@ seq_t a(idx_t n)
         result += cur[idx];
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

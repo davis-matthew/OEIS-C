@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -47,9 +48,9 @@ static void ensure_limit(idx_t up_to)
     uint64_t N = (uint64_t)up_to;
 
     /* free any existing tables */
-    free((void*)spf);
-    free((void*)semiprime_flag);
-    free((void*)semiprimes);
+    free(spf);
+    free(semiprime_flag);
+    free(semiprimes);
 
     /* allocate new tables */
     spf            = (uint64_t *)calloc(N + 1, sizeof(uint64_t));

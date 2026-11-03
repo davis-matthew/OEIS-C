@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   last_occurrence
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/last_occurrence.h"
+#include "../utils/mem.h"
+
+/* Helper: find last (rightmost) occurrence of pattern `pat[0..plen-1]`
+   inside text `txt[0..tlen-1]`.  Returns start index or -1 if not found. */
+static int last_occurrence(const unsigned char *txt, int tlen,
+                           const unsigned char *pat, int plen)
+{
+    if (plen > tlen) return -1;
+    for (int i = tlen - plen; i >= 0; --i) {
+        int j = 0;
+        while (j < plen && txt[i + j] == pat[j]) ++j;
+        if (j == plen) return i;
+    }
+    return -1;
+}
 
 /* Static state used by the algorithm. */
 static seq_t          *cache      = NULL;
@@ -67,11 +82,11 @@ static void ensure_cache_cap(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 8;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(*cache));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     bool  *new_seen  = (bool *)realloc(cache_seen, new_cap * sizeof(*cache_seen));
     if (!new_cache || !new_seen) abort();           /* allocation failure */
     /* Initialize newly allocated entries */
-    memset(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+    mem_set(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
     memset(new_seen + cache_cap, 0, (new_cap - cache_cap) * sizeof(bool));
     cache = new_cache;
     cache_seen = new_seen;
@@ -111,7 +126,7 @@ seq_t a(idx_t n)
     /* Initial allocation if this is the first call. */
     if (cache_cap == 0) {
         cache_cap = 8;
-        cache = (seq_t*)realloc(NULL, cache_cap * sizeof(*cache));
+        cache = mem_resize(seq_t, NULL, cache_cap);
         cache_seen = (bool*)realloc(NULL, cache_cap * sizeof(*cache_seen));
         memset(cache_seen, 0, cache_cap * sizeof(bool));
     }

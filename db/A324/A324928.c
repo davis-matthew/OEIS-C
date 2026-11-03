@@ -7,7 +7,8 @@
  * Formula:   a(n) = n-th number whose Matula-Goebel depth is 3
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Maximum number up to which we pre‑compute data.  This is far above the
    values needed for n ≤ 10000, and guarantees enough terms.   */
@@ -32,7 +34,7 @@ static void init_data(void)
 {
     spf          = (idx_t*)malloc((MAX_LIMIT + 1) * sizeof(idx_t));
     prime_index  = (idx_t*)calloc(MAX_LIMIT + 1, sizeof(idx_t));
-    depth_cache  = (seq_t*)malloc((MAX_LIMIT + 1) * sizeof(seq_t));
+    depth_cache  = mem_new(seq_t, (MAX_LIMIT + 1));
 
     /* smallest prime factor sieve */
     for (idx_t i = 0; i <= MAX_LIMIT; ++i) spf[i] = 0;

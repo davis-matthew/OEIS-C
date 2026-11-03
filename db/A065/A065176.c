@@ -6,8 +6,9 @@
  * Keywords:  easy, nonn
  * Formula:   a(1) = 0, a(n) = 2 * (floor(n/2) & -floor(n/2)) for n >= 2 (i.e.
  *            a(n) = 2 * (n/2 & -(n/2)))
- * Range:     u8 n <= 255, u16 n <= 9803, u32 n <= 9803, u64 n <= 9803,
- *            u128 n <= 9803, big any n
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 115 terms through n = 9803 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

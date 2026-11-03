@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of divisors of n that are NOT congruent to 2 mod 3
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 9981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_cap = 0;
@@ -25,11 +27,11 @@ seq_t a(idx_t n)
     /* Recompute the cache if the requested index is beyond current capacity. */
     if (n > cache_cap)
     {
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
         if (!new_cache) return 0;  /* allocation failed */
 
         /* clear previous cache */
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = new_cache;
         cache_cap = n;
 

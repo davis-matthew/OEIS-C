@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes, is_prime
+ * Validated: standard, pass, 70 terms through n = 985 (2026-11-03)
+ * Helpers:   build_primes, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
 #include "../utils/build_primes.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static const idx_t PRIME_LIMIT = 3000000;          /* sieve limit */
 static idx_t *primes = NULL;                      /* prime list */
@@ -43,7 +45,7 @@ static void initialise(void) {
     build_primes(PRIME_LIMIT, &primes, &primeCnt);
 
     seqCap = 128;
-    seqArr = (seq_t *)malloc(seqCap * sizeof(seq_t));
+    seqArr = mem_new(seq_t, seqCap);
     seqLen = 0;
     primePos = 0;
 }
@@ -52,7 +54,7 @@ static void initialise(void) {
 static void append_seq(seq_t val) {
     if (seqLen == seqCap) {
         seqCap <<= 1;
-        seqArr = (seq_t *)realloc(seqArr, seqCap * sizeof(seq_t));
+        seqArr = mem_resize(seq_t, seqArr, seqCap);
     }
     seqArr[seqLen++] = val;
 }

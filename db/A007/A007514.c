@@ -11,8 +11,8 @@
  *            4*atan(1/239) at about log2(n!) + guard bits
  * Range:     u8 n <= 268, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a007514_add, a007514_atan_inv, a007514_div25, a007514_div57121,
- *            a007514_divsmall, a007514_mulsmall, a007514_sub
+ * Validated: standard, pass, 92 terms through n = 7899 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +20,103 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a007514_add.h"
-#include "../utils/a007514_atan_inv.h"
-#include "../utils/a007514_div25.h"
-#include "../utils/a007514_div57121.h"
-#include "../utils/a007514_divsmall.h"
-#include "../utils/a007514_mulsmall.h"
-#include "../utils/a007514_sub.h"
+
+static void a007514_add(uint32_t *s, const uint32_t *q, size_t st, size_t len) {
+    uint64_t carry = 0;
+    size_t i = len;
+    while (i > st) {
+        i--;
+        uint64_t cur = (uint64_t)s[i] + q[i] + carry;
+        s[i] = (uint32_t)cur;
+        carry = cur >> 32;
+    }
+    while (carry && i > 0) {
+        i--;
+        uint64_t cur = (uint64_t)s[i] + carry;
+        s[i] = (uint32_t)cur;
+        carry = cur >> 32;
+    }
+}
+
+static void a007514_div25(uint32_t *a, size_t from, size_t len) {
+    uint64_t rem = 0;
+    size_t i;
+    for (i = from; i < len; i++) {
+        uint64_t cur = (rem << 32) | a[i];
+        uint64_t qq = cur / 25u;
+        a[i] = (uint32_t)qq;
+        rem = cur - qq * 25u;
+    }
+}
+
+static void a007514_div57121(uint32_t *a, size_t from, size_t len) {
+    uint64_t rem = 0;
+    size_t i;
+    for (i = from; i < len; i++) {
+        uint64_t cur = (rem << 32) | a[i];
+        uint64_t qq = cur / 57121u;
+        a[i] = (uint32_t)qq;
+        rem = cur - qq * 57121u;
+    }
+}
+
+static void a007514_divsmall(uint32_t *a, size_t from, size_t len, uint32_t d) {
+    uint64_t rem = 0;
+    size_t i;
+    for (i = from; i < len; i++) {
+        uint64_t cur = (rem << 32) | a[i];
+        a[i] = (uint32_t)(cur / d);
+        rem = cur % d;
+    }
+}
+
+static void a007514_sub(uint32_t *s, const uint32_t *q, size_t st, size_t len) {
+    int64_t borrow = 0;
+    size_t i = len;
+    while (i > st) {
+        i--;
+        int64_t cur = (int64_t)s[i] - (int64_t)q[i] - borrow;
+        if (cur < 0) { cur += ((int64_t)1 << 32); borrow = 1; } else borrow = 0;
+        s[i] = (uint32_t)cur;
+    }
+    while (borrow && i > 0) {
+        i--;
+        int64_t cur = (int64_t)s[i] - borrow;
+        if (cur < 0) { cur += ((int64_t)1 << 32); borrow = 1; } else borrow = 0;
+        s[i] = (uint32_t)cur;
+    }
+}
+
+/* s = atan(1/x) in fixed point: limb 0 is the integer part */
+static void a007514_atan_inv(uint32_t x, uint32_t *s, uint32_t *t, uint32_t *q, size_t len) {
+    size_t st = 0;
+    uint32_t k;
+    memset(t, 0, len * sizeof(uint32_t));
+    t[0] = 1;
+    a007514_divsmall(t, 0, len, x);
+    memcpy(s, t, len * sizeof(uint32_t));
+    for (k = 1;; k++) {
+        if (x == 5) a007514_div25(t, st, len);
+        else a007514_div57121(t, st, len);
+        while (st < len && t[st] == 0) st++;
+        if (st == len) break;
+        memcpy(q + st, t + st, (len - st) * sizeof(uint32_t));
+        a007514_divsmall(q, st, len, 2 * k + 1);
+        if (k & 1) a007514_sub(s, q, st, len);
+        else a007514_add(s, q, st, len);
+    }
+}
+
+static void a007514_mulsmall(uint32_t *a, size_t len, uint32_t m) {
+    uint64_t carry = 0;
+    size_t i = len;
+    while (i > 0) {
+        i--;
+        uint64_t cur = (uint64_t)a[i] * m + carry;
+        a[i] = (uint32_t)cur;
+        carry = cur >> 32;
+    }
+}
 
 static uint32_t *a007514_dig = 0;
 static idx_t a007514_cap = 0;

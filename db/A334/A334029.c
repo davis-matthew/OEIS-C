@@ -12,14 +12,38 @@
  *            computed with a Duval‑like algorithm using reversed compar...
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   co_lyndon_factor_len
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/co_lyndon_factor_len.h"
+
+/* Co‑Lyndon factorization length using a Duval‑like algorithm with
+   reversed comparison (lexicographically minimal shuffling). */
+static idx_t co_lyndon_factor_len(const int *w, idx_t len)
+{
+    idx_t i = 0, f = 0;
+    while (i < len) {
+        idx_t j = i + 1;
+        idx_t k = i;
+        while (j < len && w[k] >= w[j]) {
+            if (w[k] > w[j])
+                k = i;
+            else
+                ++k;
+            ++j;
+        }
+        idx_t period = j - k;
+        while (i <= k) {
+            ++f;
+            i += period;
+        }
+    }
+    return f;
+}
 
 seq_t a(idx_t n)
 {

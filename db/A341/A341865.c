@@ -8,6 +8,7 @@
  * Formula:   a(n) = n - Sum_{d_i*(p_i-1)}, where n = ∏ p_i^d_i
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,6 +8,7 @@
  *            a(n) = 6m² + 4m − 1 if n is odd (n = 2m+1), a(n) = 6m² + 8m + 1
  * Range:     u8 n <= 12, u16 n <= 208, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 77 terms through n = 9672 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

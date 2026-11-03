@@ -9,15 +9,16 @@
  *            (n-k+1)*A008292(n-1,k-1), A008292(1,1) = 1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   a007338_isprime, a007338_powm
+ * Validated: standard, pass, 7 terms through n = 6 (2026-11-03)
+ * Helpers:   ipow_u64, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a007338_isprime.h"
-#include "../utils/a007338_powm.h"
+#include "../utils/ipow_u64.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t *row;
@@ -37,8 +38,8 @@ seq_t a(idx_t n) {
     }
 
     for (k = 0; k < n; k++) {
-        do { p++; } while (!a007338_isprime(p));
-        result *= a007338_powm((seq_t)p, row[k]);
+        do { p++; } while (!is_prime_u64(p));
+        result *= ipow_u64((seq_t)p, row[k]);
     }
 
     free(row);

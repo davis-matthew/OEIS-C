@@ -8,6 +8,7 @@
  * Formula:   a(2*k) = 2^(k+1) – 4, a(2*k-1) = (2*k-1)*(2^k – 2), a(3) = 1
  * Range:     u8 n <= 8, u16 n <= 22, u32 n <= 52, u64 n <= 114, u128 n <= 240,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 534 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

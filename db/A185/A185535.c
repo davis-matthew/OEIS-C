@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 171 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* External integer types provided by the build system. */
 extern seq_t a(idx_t n);
@@ -34,7 +36,7 @@ static void init_cache(idx_t n)
 {
     /* start with some room */
     capacity = n > 16 ? n : 16;
-    cache = (seq_t *)malloc((capacity + 1) * sizeof(seq_t));
+    cache = mem_new(seq_t, (capacity + 1));
     if (!cache) exit(EXIT_FAILURE);
     for (idx_t i = 0; i <= capacity; ++i) cache[i] = (seq_t)0;
 
@@ -58,7 +60,7 @@ static void ensure_cache(idx_t n)
     if (n > capacity) {
         size_t new_cap = capacity * 2;
         if (new_cap < n) new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         capacity = new_cap;

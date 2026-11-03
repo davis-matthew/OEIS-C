@@ -7,15 +7,17 @@
  * Formula:   a(n) = 11^(3*n + 2)
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 2, u64 n <= 5, u128 n <= 11,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 27 terms through n = 174 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     /* Compute exponent 3*n + 2 (fits in idx_t for n up to 10000) */
-    return pow_uint(11, 3*n + 2);
+    return ipow_u64_idx(11, 3*n + 2);
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 74, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum_seq, is_prime_small
+ * Validated: standard, pass, 58 terms through n = 984 (2026-11-01)
+ * Helpers:   digit_sum, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
    Computation is performed by brute‑force search. */
 
 #include <stdbool.h>
-#include "../utils/digit_sum_seq.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/digit_sum.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;              /* undefined for n < 1, return 0 as placeholder */
@@ -30,8 +31,8 @@ seq_t a(idx_t n) {
     while (count < n) {
         ++k;
         seq_t sq = (seq_t)k * (seq_t)k;    /* square */
-        seq_t sum = digit_sum_seq(sq);    /* digit sum of the square */
-        if (is_prime_small(sum)) {         /* check if sum is prime */
+        seq_t sum = digit_sum(sq);    /* digit sum of the square */
+        if (is_prime_seq(sum)) {         /* check if sum is prime */
             ++count;
             if (count == n) {
                 result = sq;

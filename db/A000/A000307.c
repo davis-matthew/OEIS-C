@@ -11,15 +11,36 @@
  *            transform b -> c is evaluated as c(j) = (L^j b)(...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   a307_stirling, zalloc_s
+ * Validated: standard, pass, 37 terms through n = 403 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/zalloc_s.h"
-#include "../utils/a307_stirling.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *zalloc_s(idx_t n)
+{
+    seq_t *p = mem_new(seq_t, (size_t)n);
+    idx_t i;
+    for (i = 0; i < n; i++) p[i] = 0;
+    return p;
+}
+
+static void a307_stirling(const seq_t *b, seq_t *out, seq_t *w, idx_t N)
+{
+    idx_t j, k;
+    for (k = 0; k <= N; k++)
+        w[k] = b[k];
+    for (j = 0; j <= N; j++) {
+        out[j] = w[0];
+        for (k = 0; k + j < N; k++)
+            w[k] = w[k] * (seq_t)k + w[k + 1];
+    }
+}
 
 static seq_t *a307_res = 0;
 static idx_t a307_cap = 0;

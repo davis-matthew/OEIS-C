@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 6, u64 n <= 15, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* constants */
 #define ROWS      4096      /* 4^6 rows */
@@ -124,7 +126,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         init_tables();
         cache_cap = 64;
-        seq_cache = (seq_t *)malloc((cache_cap + 1) * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, (cache_cap + 1));
         cache_len  = 0;
         initialized = true;
     }
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
         idx_t step = cache_len + 1;   /* compute a(step) */
 
         /* zero dp_next */
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         /* transition */
         for (int r = 0; r < ROWS; ++r) {
@@ -158,8 +160,7 @@ seq_t a(idx_t n)
             idx_t new_cap = cache_cap * 2;
             while (new_cap < step)
                 new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(seq_cache,
-                                          (new_cap + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, (new_cap + 1));
             if (!tmp) {
                 /* out of memory – return computed value anyway */
                 return total;
@@ -170,7 +171,7 @@ seq_t a(idx_t n)
         seq_cache[step] = total;
 
         /* prepare for next step: dp_cur = dp_next, dp_next cleared next loop */
-        memcpy(dp_cur, dp_next, sizeof(dp_next));
+        mem_copy(dp_cur, dp_next, sizeof(dp_next));
         ++cache_len;
     }
 

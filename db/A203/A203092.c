@@ -12,13 +12,15 @@
  *            summation is used; for k==0 the value is 1.)
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binom, pow_int
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/pow_int.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -38,9 +40,9 @@ seq_t a(idx_t n)
     seq_t sum = 0;
 
     for (idx_t j = k; j <= r; ++j) {
-        seq_t term = binom(r, j);                    /* C(r,j) */
-        term *= binom(j - 1, k - 1);                 /* C(j-1,k-1) */
-        term *= pow_int((seq_t)j, j - k);            /* j^(j-k) */
+        seq_t term = binomial(r, j);                    /* C(r,j) */
+        term *= binomial(j - 1, k - 1);                 /* C(j-1,k-1) */
+        term *= ipow_idx((seq_t)j, j - k);            /* j^(j-k) */
         sum += term;
     }
 

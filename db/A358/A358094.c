@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4217, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9708 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
    mul[2], mul[3].  The answer is add[n] + mul[n] (with a(1)=1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
 
     /* Allocate arrays for values up to n */
     size_t sz = (size_t)n + 1;
-    seq_t *add = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *mul = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *add = mem_new(seq_t, sz);
+    seq_t *mul = mem_new(seq_t, sz);
     if (!add || !mul) {
         /* Memory allocation failed – abort */
         exit(EXIT_FAILURE);
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = add[n] + mul[n];
-    free(add);
-    free(mul);
+    mem_free(add);
+    mem_free(mul);
     return result;
 }

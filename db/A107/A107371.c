@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 4509, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 7357, big any n
- * Helpers:   is_prime
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 71 terms through n = 9777 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,10 @@
 /* Sequence: numbers k such that 101*k - 103 is prime.  a(1)=6, a(2)=10, … */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(uint64_t) */
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* external linkage as required */
 seq_t a(idx_t n)
@@ -27,15 +31,15 @@ seq_t a(idx_t n)
     static uint64_t next = 1;    /* next k to test */
 
     /* grow the array as needed */
-    const idx_t grow = (cap == 0) ? 4 : cap * 2;
+    /* (the capacity doubles inside the loop) */
 
     /* generate terms until we have at least n of them */
     while (size < n) {
         uint64_t val = 101ULL * next - 103ULL;   /* candidate prime */
-        if (is_prime(val)) {
+        if (is_prime_u64(val)) {
             if (size == cap) {
-                cap   = grow;
-                ks    = (seq_t *)realloc(ks, cap * sizeof(seq_t));
+                cap   = cap ? cap * 2 : 4;     /* (a fixed step stopped growing) */
+                ks    = mem_resize(seq_t, ks, cap);
             }
             ks[size++] = (seq_t)next;           /* store the k-value */
         }

@@ -10,7 +10,8 @@
  *            r(m+1-k), with b(k) = Sum_{d|k} d*r(d)
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 24, u64 n <= 46, u128 n <= 87,
  *            big any n
- * Helpers:   alloc_series
+ * Validated: standard, pass, 43 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_series.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_series(size_t sz)
+{
+    seq_t *p = mem_new(seq_t, sz);
+    size_t i;
+    for (i = 0; i < sz; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *R = NULL;   /* R[k]  = r(k), A000081 */
 static seq_t *Bv = NULL;  /* Bv[k] = b(k) = Sum_{d|k} d*r(d) */

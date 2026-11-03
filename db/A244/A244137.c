@@ -9,13 +9,16 @@
  *            = 0 returns 0 (except n = 0 gives 1)
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 66, u64 n <= 153,
  *            u128 n <= 406, big any n
- * Helpers:   binomial, pow_seq
+ * Validated: standard, pass, 61 terms through n = 5134 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 /* Integer square‑root of a uint64_t using binary search. */
 static idx_t int_isqrt_u64(idx_t v)
@@ -51,12 +54,12 @@ seq_t a(idx_t n)
     seq_t term = binomial(r, k);
 
     if (k > 1) {
-        term = term * pow_seq((seq_t)k, (int)(k - 1));
+        term = term * ipow_i32((seq_t)k, (int)(k - 1));
     }
 
     idx_t rmk = r - k;
     if (rmk > 0) {
-        term = term * pow_seq((seq_t)rmk, (int)rmk);
+        term = term * ipow_i32((seq_t)rmk, (int)rmk);
     }
     /* when rmk == 0 the factor is 0^0 = 1, no need to multiply */
 

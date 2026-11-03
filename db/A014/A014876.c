@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 370, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 485 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const uint64_t A00 = 25, A01 = 1, A02 = 1;
 static const uint64_t A10 = 0, A11 = 1, A12 = 1;
@@ -78,10 +80,10 @@ static uint64_t next_candidate = 1;
 static void grow_cache(void) {
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else {
         cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 }
 

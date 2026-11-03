@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   digit_counts, seq_mul
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/seq_mul.h"
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* ---------- Helper to test allowed digits ---------- */
 static bool only_allowed(seq_t x)
@@ -56,12 +63,12 @@ static void dyn_grow(struct dyn_array *a, size_t need)
     if (a->cap >= need) return;
     size_t newcap = a->cap ? (a->cap << 1) : 16;
     if (newcap < need) newcap = need;
-    seq_t *newdata = (seq_t *)malloc(sizeof(seq_t) * newcap);
+    seq_t *newdata = mem_new(seq_t, newcap);
     if (a->data) {
         for (size_t i = 0; i < a->len; ++i) {
             newdata[i] = a->data[i];
         }
-        free(a->data);
+        mem_free(a->data);
     }
     a->data = newdata;
     a->cap = newcap;
@@ -90,12 +97,12 @@ static void heap_init(struct heap *h)
 static void heap_grow(struct heap *h)
 {
     size_t newcap = h->cap ? (h->cap << 1) : 16;
-    seq_t *newdata = (seq_t *)malloc(sizeof(seq_t) * newcap);
+    seq_t *newdata = mem_new(seq_t, newcap);
     if (h->data) {
         for (size_t i = 0; i < h->size; ++i) {
             newdata[i] = h->data[i];
         }
-        free(h->data);
+        mem_free(h->data);
     }
     h->data = newdata;
     h->cap  = newcap;

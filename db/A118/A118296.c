@@ -8,7 +8,8 @@
  * Formula:   a(1) = 21, a(n) = rev_decimal(a(n-1)) + 1 for n > 1
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   rev_decimal, seq_realloc
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,21 @@
 
 #include <stddef.h>                     /* for size_t */
 #include <stdlib.h>                     /* for seq_realloc */
-#include "../utils/rev_decimal.h"       /* rev_decimal() */
-#include "../utils/seq_realloc.h"       /* seq_realloc() */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/reverse_digits.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -48,7 +62,7 @@ seq_t a(idx_t n)
     }
 
     for (idx_t i = len + 1; i <= n; ++i) {
-        cache[i] = rev_decimal(cache[i-1]) + (seq_t)1;
+        cache[i] = reverse_digits(cache[i-1]) + (seq_t)1;
     }
     len = n;
 

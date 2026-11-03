@@ -11,12 +11,14 @@
  *            > 16; initial values a(1)…a(16) are given in the OEIS entry
  * Range:     u8 none, u16 n <= 23, u32 n <= 210, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[17] = {
     0,          /* index 0 unused */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         idx_t needed = (n > 16) ? n : 16;   /* allocate up to the larger of n or 16 */
         cache_len = needed + 1;             /* +1 for index 0 unused */
-        cache = (seq_t*)calloc((size_t)cache_len, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_len);
         cache[0] = 0;                      /* safety */
         for (idx_t i = 1; i <= 16; ++i)
             cache[i] = init_vals[i];
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     /* Grow cache to accommodate new indices. */
     idx_t old_len = cache_len;
     idx_t new_len = n + 1;
-    seq_t *tmp = (seq_t*)realloc(cache, (size_t)new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_len);
     if (!tmp) return 0; /* allocation failure – unlikely for the given limits */
     cache = tmp;
     cache_len = new_len;

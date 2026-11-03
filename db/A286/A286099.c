@@ -12,14 +12,26 @@
  *            antidiagonal_coords. The Cantor pairing function is * T(x, y) =
  *            (x + y)·(x + y + 1)/2 + y. Thus * * a(n) = ((i & j + i | j) * (i
  *            & j + i | j + 1)) / 2 + (i | j)
- * Range:     u8 n <= 252, u16 n <= 9519, u32 n <= 9519, u64 n <= 9519,
- *            u128 n <= 9519, big any n
- * Helpers:   antidiagonal_coords
+ * Range:     u8 n <= 252, u16 n <= 10584, u32 n <= 10584, u64 n <= 10584,
+ *            u128 n <= 10584, big any n
+ * Validated: standard, pass, 107 terms through n = 9519 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/antidiagonal_coords.h"
+#include <stdbool.h>
+
+/* mapping from linear index n to pair (i,j) on the antidiagonals of T */
+static inline void antidiagonal_coords(idx_t n, idx_t *i, idx_t *j)
+{
+    /* find s such that (s+1)(s+2)/2 <= n < (s+2)(s+3)/2 */
+    idx_t s = 0;
+    while (((s + 1) * (s + 2)) / 2 <= n) ++s;
+    idx_t pos = n - (s * (s + 1)) / 2;  /* 0 <= pos <= s */
+    *i = pos;
+    *j = s - pos;
+}
 
 seq_t a(idx_t n)
 {

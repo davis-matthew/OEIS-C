@@ -9,8 +9,9 @@
  * Formula:   a(n) = A235224(n) - A400164(n) where A235224(n) = number of
  *            digits in the primorial base representation of n and A400164(n)
  *            = max_{d|n,d prime power} A235224(n/d)
- * Range:     u8 n <= 9444, u16 n <= 9444, u32 n <= 9444, u64 n <= 9444,
- *            u128 n <= 9444, big any n
+ * Range:     u8 n <= 32768, u16 n <= 32768, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 121 terms through n = 9444 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,12 +7,14 @@
  * Formula:   recurrence a(n+2) = a(n+1) + 8*(n+1)*a(n), a(0)=1, a(1)=1
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 20, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 569 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache to store previously computed terms.
    cache_len  : number of terms currently stored (≥ 2 after first init).
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (cache_len == 0)
     {
         cache_cap = 2;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();          /* allocation failure: terminate */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         if (new_cap == 0) new_cap = 1;
         while (new_cap <= n) new_cap <<= 1;   /* double until sufficient */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                    /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

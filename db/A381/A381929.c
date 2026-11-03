@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Initialise cache once */
     if (!ends) {
         cap  = 16;
-        ends = (seq_t *)malloc(cap * sizeof(seq_t));
+        ends = mem_new(seq_t, cap);
     }
 
     /* Generate run‑ending positions until we have at least n of them */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         if (val != last_val) {     /* run ends */
             if (sz == cap) {       /* grow buffer if needed */
                 cap <<= 1;
-                ends = (seq_t *)realloc(ends, cap * sizeof(seq_t));
+                ends = mem_resize(seq_t, ends, cap);
             }
             ends[sz++] = (seq_t)(last_i - 1);   /* store terminating position */
             last_val = val;                 /* update for next iteration */

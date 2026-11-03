@@ -10,7 +10,8 @@
  *            array entries of A174037 and flattens them row by row
  * Range:     u8 n <= 38, u16 n <= 126, u32 n <= 508, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 1308 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 /* Helper declarations */
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/binom.h"    /* provides seq_t binom(idx_t a, idx_t b); */
+#include "../utils/binomial.h"
 
 /* Return the largest r such that r*(r+1)/2 <= n. */
 static inline idx_t row_of(idx_t n)
@@ -55,7 +56,7 @@ seq_t a(idx_t n)
     idx_t k     = n - (idx_t)start;
 
     /* Binomial coefficient C(r,k). */
-    seq_t C = binom(r, k);
+    seq_t C = binomial(r, k);
 
     /* Compute T(r,k,2) = Σ_{j≥0} 2^j * floor(C / 2^j). */
     seq_t res = 0;

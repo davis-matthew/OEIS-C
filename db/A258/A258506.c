@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 19, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Problem parameters */
 #define ROWS        32          /* number of 5‑bit rows 0 … 31            */
@@ -142,12 +144,12 @@ seq_t a(idx_t n)
     static seq_t *cur = NULL;
     static seq_t *nxt = NULL;
     if (!cur) {
-        cur = (seq_t *)calloc(STATE_COUNT, sizeof(seq_t));
-        nxt = (seq_t *)calloc(STATE_COUNT, sizeof(seq_t));
+        cur = mem_new(seq_t, STATE_COUNT);
+        nxt = mem_new(seq_t, STATE_COUNT);
     }
 
     /* reset buffers */
-    memset(cur, 0, STATE_COUNT * sizeof(seq_t));
+    mem_set(cur, 0, STATE_COUNT * sizeof(seq_t));
 
     /* ---- initial step: first triple of rows (rows 0,1,2) ---- */
     for (int r0 = 0; r0 < ROWS; ++r0) {
@@ -163,7 +165,7 @@ seq_t a(idx_t n)
 
     /* ---- add remaining rows (n‑1 transitions) ---- */
     for (idx_t step = 1; step < n; ++step) {
-        memset(nxt, 0, STATE_COUNT * sizeof(seq_t));
+        mem_set(nxt, 0, STATE_COUNT * sizeof(seq_t));
         for (int s = 0; s < STATE_COUNT; ++s) {
             seq_t count = cur[s];
             if (count == 0) continue;

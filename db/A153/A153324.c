@@ -9,7 +9,8 @@
  *            precomputation
  * Range:     u8 none, u16 none, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Two‑digit primes (ordered ascending) */
 static const int PRIMES2D[21] = {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* On the first call build the sequence once. */
     if (VALUES == NULL) {
         /* Allocate space for all 231 terms.  */
-        VALUES = (seq_t *)malloc(231 * sizeof(seq_t));
+        VALUES = mem_new(seq_t, 231);
         if (VALUES == NULL) /* allocation failure – return zero for all indices */
             return (seq_t)0;
 

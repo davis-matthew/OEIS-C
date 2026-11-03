@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{i=1..n} A001783(i)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 22, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper Euclidean gcd for idx_t, which is uint64_t */
 static inline idx_t _gcd_u64(idx_t a, idx_t b)
@@ -44,8 +46,8 @@ seq_t a(idx_t n)
     if (n > cap) {
         size_t new_cap = (cap > 0) ? cap * 2 : 64;
         while (new_cap < n) new_cap *= 2;
-        prod = (seq_t *)realloc(prod, new_cap * sizeof(seq_t));
-        sum  = (seq_t *)realloc(sum,  new_cap * sizeof(seq_t));
+        prod = mem_resize(seq_t, prod, new_cap);
+        sum  = mem_resize(seq_t, sum, new_cap);
         cap = new_cap;
     }
 

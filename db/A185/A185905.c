@@ -10,6 +10,7 @@
  *            binomial(k+3,4)*binomial(m+3,4)
  * Range:     u8 n <= 16, u16 n <= 97, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 75 terms through n = 1234 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

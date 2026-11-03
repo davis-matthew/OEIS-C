@@ -8,7 +8,8 @@
  * Formula:   a(n) = (concat(n,…,1) - concat(1,…,n)) / 9
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 10, i64 n <= 15, i128 n <= 19,
  *            big any n
- * Helpers:   digits_of
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/digits_of.h"
+#include <stdlib.h>
+#include "../utils/num_digits_idx.h"
 
 /* ---------- Base‑1e9 big integer support ---------- */
 #define BIG_DIGIT_BASE 1000000000U
@@ -144,14 +146,14 @@ seq_t a(idx_t n)
 
     /* Build concat(n,…,1) */
     for (idx_t i = n; i > 0; --i) {
-        int d = digits_of(i);          /* number of decimal digits of i */
+        int d = num_digits_idx(i);          /* number of decimal digits of i */
         big_mul_small(&b1, pow10[d]);  /* multiply by 10^d */
         big_add_small(&b1, (uint32_t)i);/* add i */
     }
 
     /* Build concat(1,…,n) */
     for (idx_t i = 1; i <= n; ++i) {
-        int d = digits_of(i);
+        int d = num_digits_idx(i);
         big_mul_small(&b2, pow10[d]);
         big_add_small(&b2, (uint32_t)i);
     }

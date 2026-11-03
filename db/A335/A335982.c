@@ -8,13 +8,15 @@
  *            binomial(n-1,k) * a(k)
  * Range:     i8 n <= 3, i16 n <= 9, i32 n <= 15, i64 n <= 24, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised computation */
 seq_t a(idx_t n)
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache on first call */
     if (cache == NULL) {
-        cache = (seq_t *)realloc(NULL, sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, 1);
         if (cache == NULL)  /* allocation failure – fallback to first term */
             return (seq_t)1;
         cache[0] = (seq_t)1;  /* a(0) = 1 */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 
     /* Extend cache to size n+1 */
     size_t new_cap = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp == NULL)          /* allocation failure – return last known value */
         return cache[last];
     cache = tmp;

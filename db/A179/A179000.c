@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   ceil_sqrt_u128
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
    (row=row, col=col) on the anti‑diagonal and returns T(row,col). */
 
 #include <stdint.h>
-#include "../utils/ceil_sqrt_u128.h"
+
+static inline idx_t ceil_sqrt_u128(__uint128_t n) {
+    idx_t lo = 0, hi = (idx_t)1 << 34;  /* 2^34 > sqrt(max n) for 64‑bit */
+    while (lo < hi) {
+        idx_t mid = lo + ((hi - lo) >> 1);
+        __uint128_t sq = (__uint128_t)mid * mid;
+        if (sq >= n)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n) {
     if (n == 0)  /* index <1 – undefined, return 0 */

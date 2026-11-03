@@ -10,7 +10,8 @@
  *            = Sum_{k=1..m} binomial(m,k)*A000670(m-k), A000670(0) = 1
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   a7003_gcd, alloc_zero, release, seq_is_big
+ * Validated: standard, pass, 37 terms through n = 152 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,27 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/seq_is_big.h"
-#include "../utils/a7003_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
 
 /* exact c*t/j, given that j divides c*t, without overflowing the result */
 static seq_t a7003_muldiv(seq_t c, seq_t t, idx_t j)
@@ -31,7 +49,7 @@ static seq_t a7003_muldiv(seq_t c, seq_t t, idx_t j)
     seq_t sj = (seq_t)j;
     if (sj == 0)
         return c * t;
-    seq_t g = a7003_gcd(c, sj);
+    seq_t g = gcd(c, sj);
     if (g == 0)
         g = 1;
     seq_t q = sj / g;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 31, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **T_table = NULL;     /* rows of the triangle, index by n */
 static idx_t  T_max_row = 3;       /* largest row currently computed */
@@ -56,7 +58,7 @@ static void ensure_row(idx_t need)
     /* Build missing rows */
     for (idx_t n = T_max_row + 1; n <= need; ++n) {
         size_t len = n - 3;     /* number of entries in row n (k = 4..n) */
-        T_table[n] = (seq_t *)malloc(sizeof(seq_t) * len);
+        T_table[n] = mem_new(seq_t, len);
         if (!T_table[n])
             return;            /* out of memory, caller will get 0 */
 

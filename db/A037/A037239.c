@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, frac, easy
  * Formula:   a(n) = 8 * (highest power of 2 dividing n) = 2^(v2(n)+3)
- * Range:     u8 n <= 31, u16 n <= 8191, u32 n <= 9197, u64 n <= 9197,
- *            u128 n <= 9197, big any n
+ * Range:     u8 n <= 31, u16 n <= 8191, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 89 terms through n = 9197 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

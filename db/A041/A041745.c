@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 35, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External integer types provided by the build */
 typedef uint64_t idx_t;
@@ -47,17 +49,17 @@ static void _ensure_cache(idx_t n)
     size_t needed = (size_t)n + 1;
     if (_cache_len < needed) {
         size_t old_len = _cache_len;
-        seq_t *tmp = (seq_t *)realloc(_cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _cache, needed);
         if (!tmp) {
             /* Allocation failed – fallback: rebuild cache from scratch. */
-            free(_cache);
+            mem_free(_cache);
             _cache      = NULL;
             _cache_len  = 0;
             _ensure_cache(n);
             return;
         }
         /* New slots are undefined – set to zero. */
-        memset(tmp + old_len, 0, (needed - old_len) * sizeof(seq_t));
+        mem_set(tmp + old_len, 0, (needed - old_len) * sizeof(seq_t));
         _cache     = tmp;
         _cache_len = needed;
     }

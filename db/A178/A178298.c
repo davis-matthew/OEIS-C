@@ -8,20 +8,21 @@
  * Formula:   a(n) = 7^n + 9^n + (13^n)/2 - (5^(n+1))/2
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_int.h"   /* Provides seq_t pow_int(seq_t base, idx_t exp) */
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
-    seq_t pow7  = pow_int(7, n);
-    seq_t pow9  = pow_int(9, n);
-    seq_t pow13 = pow_int(13, n);
-    seq_t pow5  = pow_int(5, n + 1);
+    seq_t pow7  = ipow_idx(7, n);
+    seq_t pow9  = ipow_idx(9, n);
+    seq_t pow13 = ipow_idx(13, n);
+    seq_t pow5  = ipow_idx(5, n + 1);
 
     seq_t half13 = pow13 / 2;
     seq_t half5  = pow5  / 2;

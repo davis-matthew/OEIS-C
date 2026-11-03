@@ -9,12 +9,14 @@
  * Formula:   a(1)=1, a(2)=3, a(3)=11, a(n)=5*a(n-1)-5*a(n-2)+2*a(n-3) (n≥4)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache to store already computed terms. */
 static seq_t   *cache = NULL;   /* array of terms a(1) .. a(cache_len)          */
@@ -32,7 +34,7 @@ ensure_capacity(idx_t need)
     if (new_cap < (size_t)need)
         new_cap = (size_t)need;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {                       /* allocation failed – abort silently   */
         return;
     }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 72, u32 n <= 515, u64 n <= 4339,
  *            u128 n <= 8193, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 8035 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    m = 2^(p+1)+2-n and p=floor(log2(n-2)). */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* initialise the table on first use */
     if (sz == 0) {
         cap = 4;
-        seq = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, NULL, cap);
         seq[0] = 0;                 /* unused */
         seq[1] = (seq_t)1;
         seq[2] = (seq_t)3;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1U > cap) {
         size_t new_cap = cap ? cap << 1 : 4;
         if (new_cap < (size_t)n + 1U) new_cap = (size_t)n + 1U;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         seq = tmp;
         cap = new_cap;
     }

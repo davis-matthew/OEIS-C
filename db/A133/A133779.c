@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf, easy
  * Formula:   not stated
- * Range:     u8 n <= 1073, u16 n <= 9264, u32 n <= 9264, u64 n <= 9264,
- *            u128 n <= 9264, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1073, u16 n <= 12248, u32 n <= 12248, u64 n <= 12248,
+ *            u128 n <= 12248, big any n
+ * Validated: standard, pass, 104 terms through n = 9264 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Ensure the array has at least 'needed' capacity, reallocating if
    necessary.  'array' points to the current array pointer and
@@ -29,7 +31,7 @@ static void ensure_capacity(size_t needed, size_t *cap, seq_t **array)
     if (*cap < needed) {
         size_t newcap = (*cap == 0) ? 1 : (*cap << 1);
         while (newcap < needed) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*array, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *array, newcap);
         if (!tmp) exit(1);
         *array = tmp;
         *cap   = newcap;
@@ -69,7 +71,7 @@ static void append_row(idx_t row, seq_t **seq, size_t *len, size_t *cap)
         if (iso2) {
             if (large_len == large_cap) {
                 size_t newcap = (large_cap == 0) ? 8 : (large_cap << 1);
-                seq_t *tmp = (seq_t *)realloc(large, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, large, newcap);
                 if (!tmp) exit(1);
                 large = tmp;
                 large_cap = newcap;
@@ -85,7 +87,7 @@ static void append_row(idx_t row, seq_t **seq, size_t *len, size_t *cap)
         ensure_capacity(*len + 1, cap, seq);
         (*seq)[(*len)++] = large[j];
     }
-    free(large);
+    mem_free(large);
 
     /* If no isolated divisors were found, store the placeholder 0. */
     if (!found) {

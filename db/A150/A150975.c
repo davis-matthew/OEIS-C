@@ -11,7 +11,8 @@
  *            (1,1,1)}
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* Includes */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Utility functions for modular arithmetic ---------- */
 static uint64_t modpow_uint64(uint64_t a, uint64_t e, uint64_t mod) {
@@ -181,13 +183,13 @@ seq_t a(idx_t n) {
         rec_coeff = coeff;
 
         /* store initial terms */
-        init_vals = (seq_t *)malloc(rec_len * sizeof(seq_t));
+        init_vals = mem_new(seq_t, rec_len);
         for (size_t i = 0; i < rec_len; ++i)
             init_vals[i] = (seq_t)tiny[i];
 
         /* initialize cache */
         cache_size = rec_len;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (size_t i = 0; i < rec_len; ++i)
             cache[i] = init_vals[i];
 
@@ -198,7 +200,7 @@ seq_t a(idx_t n) {
     /* ensure cache large enough */
     if ((size_t)n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) exit(1);
         cache = new_cache;
 

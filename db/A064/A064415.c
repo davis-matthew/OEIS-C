@@ -10,7 +10,8 @@
  *            a(n)=∑_{p^e‖n} e * a(p-1). The sequence is completely additive
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 121 terms through n = 9256 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Cache structures */
 static idx_t *cache_idx = NULL;
@@ -40,7 +42,7 @@ static void cache_put(idx_t n, seq_t v) {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
         idx_t *new_idx = (idx_t *)realloc(cache_idx, new_cap * sizeof(idx_t));
-        seq_t *new_val = (seq_t *)realloc(cache_val, new_cap * sizeof(seq_t));
+        seq_t *new_val = mem_resize(seq_t, cache_val, new_cap);
         if (!new_idx || !new_val) exit(1);
         cache_idx = new_idx;
         cache_val = new_val;

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 63, u16 n <= 8267, u32 n <= 8405, u64 n <= 8405,
- *            u128 n <= 8405, big any n
- * Helpers:   add_valutations
+ * Range:     u8 n <= 63, u16 n <= 8267, u32 n <= 15620, u64 n <= 15620,
+ *            u128 n <= 15620, big any n
+ * Validated: standard, pass, 86 terms through n = 8405 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/add_valutations.h"
+
+/* compute 2‑adic and 3‑adic valuations of x (x is a uint64_t) */
+static void add_valutations(uint64_t x, int *v2, int *v3)
+{
+    while ((x & 1ULL) == 0) {
+        ++(*v2);
+        x >>= 1;
+    }
+    while (x % 3ULL == 0) {
+        ++(*v3);
+        x /= 3ULL;
+    }
+}
 
 /* test whether k is squarefree and whether v2(φ(k))≤v2(k-1) and
  * v3(φ(k))≤v3(k-1) for the case that k>1 and fits in uint64_t */

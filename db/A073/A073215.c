@@ -9,14 +9,15 @@
  *            This implements the definition of OEIS A073215
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 34, u64 n <= 118, u128 n <= 434,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 44 terms through n = 965 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -45,8 +46,8 @@ seq_t a(idx_t n)
     unsigned __int128 prev = ((unsigned __int128)i * (i + 1)) >> 1;
     idx_t j = n - (idx_t)prev;          /* 0 ≤ j ≤ i */
 
-    seq_t pow_i = pow_int((seq_t)23, i);
-    seq_t pow_j = pow_int((seq_t)23, j);
+    seq_t pow_i = ipow_idx((seq_t)23, i);
+    seq_t pow_j = ipow_idx((seq_t)23, j);
 
     return pow_i + pow_j;
 }

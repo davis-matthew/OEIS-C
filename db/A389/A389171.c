@@ -9,8 +9,9 @@
  * Formula:   a(n) = n + A048146(n) - A057723(n) A048146(n) = sum of
  *            non‑unitary divisors of n A057723(n) = sum of divisors of n that
  *            are divisible by every prime divisor of n
- * Range:     u8 n <= 16, u16 n <= 1573, u32 n <= 9748, u64 n <= 9748,
- *            u128 n <= 9748, big any n
+ * Range:     u8 n <= 16, u16 n <= 1573, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 120 terms through n = 9748 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

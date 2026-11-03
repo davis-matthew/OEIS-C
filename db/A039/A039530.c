@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   has_equal_3_and_11
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
    stores already found terms so that calls with arbitrary n are fast. */
 
 #include <stdlib.h>
-#include "../utils/has_equal_3_and_11.h"
+
+/* Helper: convert a number to base‑12 and count digits 3 and 11. */
+static int has_equal_3_and_11(idx_t x) {
+    int cnt3 = 0, cnt11 = 0;
+    while (x > 0) {
+        unsigned d = x % 12;
+        if (d == 3)      cnt3++;
+        else if (d == 11) cnt11++;
+        x /= 12;
+    }
+    return (cnt3 == cnt11) && (cnt3 > 0);
+}
 
 /* Main sequence entry. */
 seq_t a(idx_t n) {

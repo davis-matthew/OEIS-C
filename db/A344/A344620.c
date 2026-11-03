@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 28, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of found primes */
 static size_t cache_cap = 0, cache_count = 0;
@@ -36,7 +39,7 @@ ensure_capacity(size_t need)
     if (need > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 4;
         while (new_cap < need) new_cap *= 2;
-        seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
         if (!new_arr) abort();
         cache = new_arr;
         cache_cap = new_cap;
@@ -63,9 +66,9 @@ prime_has_valid_a(idx_t p)
         seq_t r3 = (aa + 1) % p;                /* a^2+1                  */
         if (r3 == (seq_t)0) continue;
 
-        if (mod_pow(r1, half, p) == (seq_t)1 &&
-            mod_pow(r2, half, p) == (seq_t)1 &&
-            mod_pow(r3, half, p) == (seq_t)1) {
+        if (powmod(r1, half, p) == (seq_t)1 &&
+            powmod(r2, half, p) == (seq_t)1 &&
+            powmod(r3, half, p) == (seq_t)1) {
             /* Found a counter‑example; this prime is excluded. */
             return true;
         }

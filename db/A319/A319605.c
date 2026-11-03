@@ -11,7 +11,8 @@
  *            the smallest power p^k ≥ n and keeps the minimum among those
  * Range:     u8 n <= 33, u16 n <= 4960, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto
+ * Validated: standard, pass, 83 terms through n = 9536 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
 
 static idx_t *prime_list = NULL;      /* cached prime list as idx_t */
 static size_t prime_count = 0;
@@ -48,7 +49,7 @@ seq_t a(idx_t n)
 
     idx_t temp = n;
     seq_t best = 0;           /* 0 used as "unset" sentinel */
-    idx_t sqrt_n = _floor_isqrt_u64(n);
+    idx_t sqrt_n = isqrt(n);
 
     /* Ensure we can test divisibility by all primes ≤ √n */
     if (sqrt_n < 2) sqrt_n = 2;

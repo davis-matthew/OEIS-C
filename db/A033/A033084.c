@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 84, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 175 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    values in increasing order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* initial capacity – grows as needed */
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* first five single‑digit numbers (1 … 5) */
         for (int d = 1; d <= 5; ++d) {
             cache[cache_len++] = (seq_t)d;
@@ -50,8 +52,7 @@ seq_t a(idx_t n)
         /* helper: ensure there's room for at least one more element */
         if (cache_len == cache_cap) {
             cache_cap <<= 1;                     /* double the size    */
-            cache = (seq_t *)realloc(cache,
-                                      cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* generate children according to the allowed next digits */
@@ -60,8 +61,7 @@ seq_t a(idx_t n)
             seq_t child = cur * (seq_t)6 + (seq_t)2;
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache,
-                                          cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = child;
             break;
@@ -70,8 +70,7 @@ seq_t a(idx_t n)
             seq_t child = cur * (seq_t)6 + (seq_t)3;
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache,
-                                          cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = child;
             break;
@@ -81,15 +80,13 @@ seq_t a(idx_t n)
             seq_t child0 = base + (seq_t)0;
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache,
-                                          cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = child0;
             seq_t child4 = base + (seq_t)4;
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache,
-                                          cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = child4;
             break;
@@ -99,15 +96,13 @@ seq_t a(idx_t n)
             seq_t child1 = base + (seq_t)1;
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache,
-                                          cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = child1;
             seq_t child5 = base + (seq_t)5;
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache,
-                                          cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = child5;
             break;
@@ -116,8 +111,7 @@ seq_t a(idx_t n)
             seq_t child = cur * (seq_t)6 + (seq_t)2;
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache,
-                                          cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = child;
             break;
@@ -126,8 +120,7 @@ seq_t a(idx_t n)
             seq_t child = cur * (seq_t)6 + (seq_t)3;
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache,
-                                          cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = child;
             break;

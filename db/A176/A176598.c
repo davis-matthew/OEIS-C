@@ -8,13 +8,15 @@
  *            (product of powers of 2, 5 and 41)
  * Range:     u8 none, u16 n <= 19, u32 n <= 279, u64 n <= 500, u128 n <= 500,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 470 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Store the generated 2‑5‑41 smooth numbers (s(1)=1). */
 static seq_t *smooth = NULL;          /* array of smooth numbers         */
@@ -29,8 +31,8 @@ static void extend_cache(idx_t need)
 
     /* Allocate or grow the smooth array. */
     seq_t *tmp = (smooth == NULL)
-        ? (seq_t *)malloc(need * sizeof(seq_t))
-        : (seq_t *)realloc(smooth, need * sizeof(seq_t));
+        ? mem_new(seq_t, need)
+        : mem_resize(seq_t, smooth, need);
     if (!tmp)
         abort();                 /* memory exhausted */
 

@@ -8,16 +8,33 @@
  *            7, with a(0..7) = 0, 2, 3, 4, 8, 14, 25, 47
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   alloc_zero, release, round_sqrt
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/round_sqrt.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+/* round(sqrt(x)) for x >= 1: the largest k with k*(k-1) < x */
+static idx_t round_sqrt(idx_t x) {
+    idx_t k = 1;
+    while ((k + 1) * k < x) k++;
+    return k;
+}
 
 seq_t a(idx_t n) {
     static const int init[8] = {0, 2, 3, 4, 8, 14, 25, 47};

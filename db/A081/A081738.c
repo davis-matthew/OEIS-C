@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{p prime, 2 <= p <= n} p^2 (offset 1)
  * Range:     u8 n <= 12, u16 n <= 96, u32 n <= 4728, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9362 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    sums of their squares.  Each call expands the list up to the
    requested n, then returns the last sum whose prime is <= n.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t *primes = NULL;          /* list of primes found so far        */
 static size_t primes_len = 0, primes_cap = 0;
@@ -35,7 +37,7 @@ static void grow_if_needed(size_t need)
     if (need > sums_cap) {
         size_t new_cap = sums_cap ? sums_cap * 2 : 16;
         if (new_cap < need) new_cap = need;
-        prime_sqsums = (seq_t *)realloc(prime_sqsums, new_cap * sizeof(seq_t));
+        prime_sqsums = mem_resize(seq_t, prime_sqsums, new_cap);
         sums_cap = new_cap;
     }
 }

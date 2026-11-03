@@ -9,12 +9,14 @@
  *            (1+53x+9x^2)/((1+x)(1-83x+x^2)))
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 467 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute the n-th term of OEIS A051028 */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (cap < n+1) {
         idx_t newcap = cap ? cap*2 : 8;
         while (newcap <= n) newcap *= 2;
-        buf = (seq_t *)realloc(buf, newcap * sizeof(seq_t));
+        buf = mem_resize(seq_t, buf, newcap);
         cap = newcap;
     }
 

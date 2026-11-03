@@ -12,13 +12,22 @@
  *            otherwise : let r = n – 16; L = 4 + r/9, d = r%9 +...
  * Range:     u8 n <= 8, u16 n <= 29, u32 n <= 72, u64 n <= 160, u128 n <= 333,
  *            big any n
- * Helpers:   repdigit
+ * Validated: standard, pass, 58 terms through n = 982 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/repdigit.h"
+
+static seq_t repdigit(uint64_t digit, idx_t len) {
+    seq_t res = 0;
+    seq_t dseq = (seq_t)digit;
+    for (idx_t i = 0; i < len; ++i) {
+        res = res * 10 + dseq;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     if (n == 0)          /* undefined for offset 1, but return 0 */

@@ -12,13 +12,15 @@
  *            a(3)=T(2,1), …
  * Range:     u8 n <= 20, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;     /* triangle[i] points to row i+1 */
 static idx_t  triangle_size = 0;    /* number of rows stored */
@@ -42,7 +44,7 @@ static void ensure_triangle(idx_t rows_needed)
 
     for (idx_t r = triangle_size + 1; r <= rows_needed; ++r) {
         idx_t len = r;
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) {
             /* Allocation failure – abort as per ISO C. */
             abort();

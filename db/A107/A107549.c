@@ -11,13 +11,29 @@
  *            1036952400*x^9 + 1166597190*x^8 + 818649040*x^7 + 354...
  * Range:     u8 none, u16 n <= 0, u32 n <= 5, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   binom_n_plus_15_choose_15
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_n_plus_15_choose_15.h"
+
+/* compute binomial (n+15 choose 15) for n >= 0 */
+static seq_t binom_n_plus_15_choose_15(idx_t n)
+{
+    /* We compute C(n+15, 15) multiplicatively.
+       The division is exact at each step. */
+    seq_t res = 1;
+    /* n+15 is at most around 10^4 + 15 in typical usage; intermediate
+       values may exceed 64 bits but fit into the seq_t type. */
+    for (idx_t i = 1; i <= 15; ++i)
+    {
+        res = res * (seq_t)(n + 15 - (i - 1));
+        res = res / (seq_t)i;
+    }
+    return res;
+}
 
 /* coefficients of the numerator, indexed from x^0 to x^16 */
 static const seq_t COEF[17] = {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   gcd_u64
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* --------- small utilities ------------------------------------------- */
 
@@ -35,7 +38,7 @@ static void compute_A178_up_to(idx_t limit)
     if (A178_last >= limit) return;
 
     size_t new_size = (size_t)(limit + 1);
-    seq_t *new_ptr = (seq_t *)realloc(A178, new_size * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, A178, new_size);
     if (!new_ptr) exit(1);           /* allocation failure */
     A178 = new_ptr;
 

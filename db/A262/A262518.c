@@ -9,13 +9,15 @@
  *            number of divisors of k
  * Range:     u8 n <= 799, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 109 terms through n = 10000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static caches for divisor count and steps */
 static seq_t *steps = NULL;
@@ -30,7 +32,7 @@ static void ensure_capacity(idx_t max_k) {
     if (new_cap <= (size_t)max_k) new_cap = (size_t)max_k + 1;   /* at least max_k+1 */
 
     /* Reallocate arrays */
-    steps    = (seq_t*)   realloc(steps,    new_cap * sizeof(seq_t));
+    steps    = mem_resize(seq_t, steps, new_cap);
     dcnt     = (uint32_t*)realloc(dcnt,     new_cap * sizeof(uint32_t));
 
     /* Initialize new entries */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Forward declarations for static helpers. */
 static void add_prime(idx_t p);
@@ -50,7 +52,7 @@ static void add_prime(idx_t p) {
 static void add_special(idx_t p) {
     if (specials_cnt >= specials_cap) {
         specials_cap = specials_cap ? specials_cap * 2 : 16;
-        specials = (seq_t *)realloc(specials, specials_cap * sizeof(seq_t));
+        specials = mem_resize(seq_t, specials, specials_cap);
     }
     specials[specials_cnt++] = (seq_t)p;
 }

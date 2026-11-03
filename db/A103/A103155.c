@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   toggle_word
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/toggle_word.h"
+#include "../utils/mem.h"
+
+/* XORs the parity mask of a word into *mask.  Only letters a‑z are
+   considered; punctuation is ignored. */
+static inline void toggle_word(const char *word, uint32_t *mask) {
+    for (; *word; ++word) {
+        char c = *word;
+        if (c >= 'a' && c <= 'z')
+            *mask ^= 1u << (c - 'a');
+    }
+}
 
 static const char * const uni_names[20] = {
     0, "one", "two", "three", "four", "five", "six", "seven", "eight",
@@ -105,7 +116,7 @@ seq_t a(idx_t n)
     /* Grow or initialise the solution array if needed. */
     if (sol_used < n && sol_cap == 0) {
         sol_cap = 8;
-        sol = (seq_t *)malloc(sol_cap * sizeof(seq_t));
+        sol = mem_new(seq_t, sol_cap);
     }
 
     /* Continue processing numbers until we have at least n solutions. */
@@ -116,7 +127,7 @@ seq_t a(idx_t n)
         if (parity == 0) {          /* all letters even */
             if (sol_used == sol_cap) {
                 sol_cap *= 2;
-                sol = (seq_t *)realloc(sol, sol_cap * sizeof(seq_t));
+                sol = mem_resize(seq_t, sol, sol_cap);
             }
             sol[sol_used++] = (seq_t)last_checked;
         }

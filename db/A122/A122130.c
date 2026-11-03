@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool allowed_part(idx_t s)
 {
@@ -42,11 +44,11 @@ seq_t a(idx_t n)
 {
     /* Allocate or grow the cache to size n+1 */
     if (dp == NULL) {
-        dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        dp = mem_new(seq_t, (size_t)(n + 1));
         if (dp == NULL) abort();
         max_n = n;
     } else if (n > max_n) {
-        seq_t *tmp = (seq_t *)realloc(dp, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (size_t)(n + 1));
         if (tmp == NULL) abort();
         dp = tmp;
         max_n = n;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
 
     /* Re‑compute dp[0..n] from scratch whenever we extend the range.
        This guarantees correctness even when calls are out of order. */
-    memset(dp, 0, (size_t)(max_n + 1) * sizeof(seq_t));
+    mem_set(dp, 0, (size_t)(max_n + 1) * sizeof(seq_t));
     dp[0] = (seq_t)1;
 
     for (idx_t s = 1; s <= max_n; ++s) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, prime_power_uint64
+ * Validated: standard, pass, 71 terms through n = 9478 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,19 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/prime_power_uint64.h"
+
+static bool prime_power_uint64(uint64_t base, unsigned exp, uint64_t *res)
+{
+    __uint128_t r = 1;
+    for (unsigned i = 0; i < exp; ++i) {
+        r *= base;
+        if (r > UINT64_MAX) return false;   /* overflow for 64‑bit build */
+    }
+    *res = (uint64_t)r;
+    return true;
+}
 
 seq_t a(idx_t n)
 {

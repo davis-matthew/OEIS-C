@@ -8,12 +8,14 @@
  *            binomial(n-2k-1, n-3k)
  * Range:     i8 n <= 9, i16 n <= 14, i32 n <= 28, i64 n <= 35, i128 n <= 35,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
 
         if (top < bottom) continue;     /* binomial would be zero */
 
-        seq_t t1 = binom(n + k, k);
-        seq_t t2 = binom(top, bottom);
+        seq_t t1 = binomial(n + k, k);
+        seq_t t2 = binomial(top, bottom);
 
         seq_t term = t1 * t2;
         if (((n - k) & 1) == 1) term = -term;

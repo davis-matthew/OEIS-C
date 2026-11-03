@@ -10,12 +10,14 @@
  *            1..9): 3, 15, 41, 120, 465, 1472, 4667, 16230, 53266 (Offset 1)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache to cover n */
     idx_t new_sz = n;
-    cache = (seq_t *)realloc(cache, (size_t)new_sz * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (size_t)new_sz);
 
     /* Initial nine terms */
     static const seq_t init[9] = {

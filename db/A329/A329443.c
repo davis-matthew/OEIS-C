@@ -9,13 +9,16 @@
  *            numeric base > 1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _gcd64
+ * Validated: standard, pass, 103 terms through n = 9729 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for uint64_t */
-#include "../utils/_gcd64.h"
+#include <stdlib.h>
+#include <math.h>
+#include "../utils/gcd_u64.h"
 
 /* Helper: Euclidean algorithm for 64‑bit integers */
 
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
         if (g == 0)
             g = val;
         else
-            g = _gcd64(g, val);
+            g = gcd_u64(g, val);
 
         if (g == 1) break;   /* cannot become smaller */
     }

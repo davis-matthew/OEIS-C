@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 79, u32 n <= 562, u64 n <= 7864,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9651 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     do { expCount++; tmp >>= 1; } while (tmp);
 
     /* allocate DP table: (targetS+1) rows × expCount columns */
-    seq_t *dp = (seq_t *)calloc((targetS + 1) * expCount, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (targetS + 1) * expCount);
     if (!dp) return (seq_t)0; /* allocation failure, return 0 */
 
     /* base case: single part 1 */
@@ -73,6 +75,6 @@ seq_t a(idx_t n)
         result += dp[targetS * expCount + k];
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

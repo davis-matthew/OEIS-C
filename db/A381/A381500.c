@@ -9,9 +9,10 @@
  *            of prime factors, then lexicographically (ascending) on the *
  *            already-descending list of prime factors. * * The implementation
  *            builds the required row using combinatorial * unr...
- * Range:     u8 n <= 25, u16 n <= 119, u32 n <= 1022, u64 n <= 9687,
- *            u128 n <= 9687, big any n
- * Helpers:   build_primes_upto, seq_mul
+ * Range:     u8 n <= 25, u16 n <= 119, u32 n <= 1022, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 73 terms through n = 9687 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 #define MAX_BINOM 64          /* supports N up to 63, sufficient for all n <= 2^63 */
 

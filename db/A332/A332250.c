@@ -8,14 +8,16 @@
  * Formula:   a(0)=0, a(n+1)=a(n)+h(n) where h(n)= 1 if (#1's in base‑5 of n
  *            minus #3's) ≡ 1 (mod 4), -1 if ≡ 3 (mod 4), 0 otherwise The
  *            value a(n) is the Y‑coordinate of the quadratic Koch curve
- * Range:     u8 n <= 6311, u16 n <= 9733, u32 n <= 9733, u64 n <= 9733,
- *            u128 n <= 9733, big any n
- * Helpers:   none
+ * Range:     u8 n <= 6311, u16 n <= 15625, u32 n <= 15625, u64 n <= 15625,
+ *            u128 n <= 15625, big any n
+ * Validated: standard, pass, 97 terms through n = 9733 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,12 +33,12 @@ seq_t a(idx_t n)
         if (cache_cap < need) {
             idx_t new_cap = cache_cap ? cache_cap * 2 : 8;
             if (new_cap < need) new_cap = need;
-            seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, new_cap);
             if (!new_cache) return (seq_t)0;   /* OOM – unlikely */
             /* Copy existing values */
             for (idx_t i = 0; i < cache_len; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
             cache     = new_cache;
             cache_cap = new_cap;
         }

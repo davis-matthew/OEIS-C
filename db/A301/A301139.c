@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 167, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>    /* malloc, realloc, NULL */
+#include "../utils/mem.h"
 
 static const seq_t init_terms[14] = {
     1ULL, 4ULL, 10ULL, 20ULL, 34ULL, 58ULL, 82ULL,
@@ -42,7 +44,7 @@ ensure_cache(idx_t min_capacity)
         return;
 
     size_t new_cap = (size_t)min_capacity;
-    seq_t *new_ptr = (seq_t *)realloc((void *)cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     cache = new_ptr;
     cache_capacity = min_capacity;
 

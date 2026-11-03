@@ -10,7 +10,8 @@
  *            ordered factorizations of n into k factors >1
  * Range:     u8 n <= 35, u16 n <= 239, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 88 terms through n = 9953 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Generate all divisors >1 of a number given its prime factorisation.
    The result is stored in divs and dcnt is updated.
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
     }
 
     /* b[0] is unused; indices 1..maxk hold the b_k values. */
-    seq_t *b = (seq_t *)malloc((maxk + 1) * sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, (maxk + 1));
     if (!b) {
         return (seq_t)0; /* allocation failure */
     }
@@ -110,6 +112,6 @@ seq_t a(idx_t n)
         res += b[k] * b[k + 1];
     }
 
-    free(b);
+    mem_free(b);
     return res;
 }

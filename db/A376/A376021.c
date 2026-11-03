@@ -7,15 +7,17 @@
  * Formula:   a(n) = Sum_{d|n} d^(n/d - d) * binomial(n/d-1,d-1)
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         if (m < d) continue;       /* skip when binomial would be zero (m-1 < d-1) */
 
         idx_t e = m - d;
-        seq_t pow_val = big_pow((seq_t)d, (seq_t)e);
+        seq_t pow_val = ipow((seq_t)d, (seq_t)e);
         seq_t bin_val = binomial(m - 1, d - 1);
         result += pow_val * bin_val;
     }

@@ -10,13 +10,33 @@
  *            a(n)=3*a(n-2)+2*a(n-3)−3*a(n-4)−6*a(n-5)+6*a(n-7)+3*a(n-8)−2*a(n-9)−3*a(n-10)+a(n-12)
  * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 205, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   base_val
+ * Validated: standard, pass, 49 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/base_val.h"
+#include "../utils/mem.h"
+
+static inline seq_t base_val(idx_t i)
+{
+    switch (i) {
+        case 1: return (seq_t)2;
+        case 2: return (seq_t)53;
+        case 3: return (seq_t)204;
+        case 4: return (seq_t)585;
+        case 5: return (seq_t)1326;
+        case 6: return (seq_t)2817;
+        case 7: return (seq_t)5028;
+        case 8: return (seq_t)8789;
+        case 9: return (seq_t)13970;
+        case 10: return (seq_t)21601;
+        case 11: return (seq_t)31512;
+        case 12: return (seq_t)45353;
+        default: return 0; /* not used */
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +51,7 @@ seq_t a(idx_t n)
     if (cap < need) {
         size_t newcap = (cap ? cap : 32);
         while (newcap < need) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (newcap) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (newcap));
         if (!tmp) abort();  /* allocation failure */
         cache = tmp;
         cap = newcap;

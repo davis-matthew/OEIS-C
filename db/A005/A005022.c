@@ -9,12 +9,14 @@
  *            = 26
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 17, u64 n <= 35, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     
     if (memo == NULL) {
         memo_len = 16;
-        memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_len);
         memo[0] = (seq_t)1;
         memo[1] = (seq_t)6;
         memo[2] = (seq_t)26;
@@ -34,11 +36,11 @@ seq_t a(idx_t n) {
     
     if (memo_len <= n) {
         idx_t new_len = (n + 1) * 2;
-        seq_t *tmp = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_len);
         for (idx_t i = 0; i < memo_len; i++) {
             tmp[i] = memo[i];
         }
-        free(memo);
+        mem_free(memo);
         memo = tmp;
         memo_len = new_len;
     }

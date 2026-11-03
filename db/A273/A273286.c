@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 27, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64, sigma_of
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,24 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../utils/sigma_of.h"
-#include "../utils/factor_u64.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* ------------------------------------------------------------------
    global tables
@@ -149,8 +165,7 @@ static void generate_solutions_until(size_t needed)
                 /* Store solution */
                 if (sol_cnt >= sol_cap) {
                     sol_cap = sol_cap == 0 ? 128 : sol_cap * 2;
-                    seq_t *new_sol = (seq_t *)realloc(solutions,
-                                                      sol_cap * sizeof(seq_t));
+                    seq_t *new_sol = mem_resize(seq_t, solutions, sol_cap);
                     if (!new_sol)
                         exit(1);
                     solutions = new_sol;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 22, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,11 @@
 
 /* Use helper binom() from utils/binom.h and big_pow() from utils/big_pow.h. */
 #include <stdlib.h>
-#include "../utils/binom.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +40,7 @@ seq_t a(idx_t n)
     idx_t k = n - r * (r + 1) / 2;          /* 0 ≤ k ≤ r */
 
     /* Allocate array for the coefficients T[0..r]. */
-    seq_t *T = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *T = mem_new(seq_t, (r + 1));
     if (!T) {
         /* Allocation failure: return zero as safe fallback. */
         return 0;
@@ -49,10 +53,10 @@ seq_t a(idx_t n)
     for (idx_t j = r; j-- > 0; ) {
         seq_t sum = 0;
         for (idx_t m = j + 1; m <= r; ++m) {
-            seq_t coeff = binom(m, j);                       /* binom(m,j)          */
+            seq_t coeff = binomial(m, j);                       /* binom(m,j)          */
             seq_t base  = (seq_t)(3 * m);                    /* 3m                   */
             idx_t expidx = m - j;                            /* m-j                 */
-            seq_t power = big_pow(base, (seq_t)expidx);       /* (3m)^(m-j)           */
+            seq_t power = ipow(base, (seq_t)expidx);       /* (3m)^(m-j)           */
             seq_t term  = T[m] * coeff * power;              /* A_m * binom * power  */
             sum += term;
         }
@@ -60,6 +64,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = T[k];
-    free(T);
+    mem_free(T);
     return result;
 }

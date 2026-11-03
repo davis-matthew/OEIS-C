@@ -7,12 +7,13 @@
  * Formula:   a(n) = Sum((-1)^i*binomial(6, i)*(6-i)^n, i = 0 .. 5)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   power
+ * Validated: standard, pass, 38 terms through n = 995 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/power.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n < 6) return 0;
@@ -21,7 +22,7 @@ seq_t a(idx_t n) {
     seq_t result = 0;
     
     for (int i = 0; i < 6; i++) {
-        seq_t pow_term = power((seq_t)(6 - i), n);
+        seq_t pow_term = ipow_idx((seq_t)(6 - i), n);
         seq_t term = binom[i] * pow_term;
         
         if (i % 2 == 0) {

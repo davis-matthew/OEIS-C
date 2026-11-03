@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   _row_start, fib
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,20 @@
  * n‑th element of the flattened triangle. */
 
 #include <stdlib.h>
-#include "../utils/fib.h"
-#include "../utils/_row_start.h"
+#include <stdbool.h>
+#include "../utils/triangular.h"
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* dynamic array of pointers to rows; rows[i] points to the row of length
  * i+1 (0‑based). */
@@ -52,7 +65,7 @@ static void _ensure_rows(idx_t req)
     while (rows_cnt <= (size_t)req) {
         size_t len = rows_cnt + 1;                 /* length of new row */
         /* allocate raw memory for the row; cast for C++ compatibility */
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) exit(1);                         /* allocation fail */
 
         seq_t end_val = fib((idx_t)rows_cnt + 3);
@@ -82,7 +95,7 @@ static void _ensure_rows(idx_t req)
 seq_t a(idx_t n)
 {
     idx_t r = _row_of_index(n);          /* row containing index n */
-    idx_t start = _row_start(r);         /* first index of row r */
+    idx_t start = triangular(r);         /* first index of row r */
     idx_t col   = n - start;             /* column within the row */
     _ensure_rows(r);                     /* compute rows up to r if needed */
     return rows[r][(size_t)col];

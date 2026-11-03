@@ -11,12 +11,14 @@
  *            2^p < n-1 <= 2^(p+1) (i.e. p = floor(log2(n-2)) )
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 static idx_t floor_log2_idx(idx_t v)
 {
@@ -40,12 +42,12 @@ seq_t a(idx_t n)
     if (n > max_n)
     {
         /* Grow values array */
-        seq_t *new_values = (seq_t *)realloc(values, n * sizeof(seq_t));
+        seq_t *new_values = mem_resize(seq_t, values, n);
         if (!new_values) return (seq_t)0;
         values = new_values;
 
         /* Grow prefix array */
-        seq_t *new_prefix = (seq_t *)realloc(prefix, (n + 1) * sizeof(seq_t));
+        seq_t *new_prefix = mem_resize(seq_t, prefix, (n + 1));
         if (!new_prefix) return (seq_t)0;
         prefix = new_prefix;
 

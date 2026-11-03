@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 23, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const int init_vals[] = {
     1, 4, 16, 56, 189, 616,
@@ -50,9 +52,9 @@ seq_t a(idx_t n)
     /* First allocation: capacity for indices 0..15 */
     if (!cache) {
         cap = 16;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;            /* allocation failure: return 0 */
-        memset(cache, 0, cap * sizeof(seq_t));
+        mem_set(cache, 0, cap * sizeof(seq_t));
 
         /* Store initial values for n = 4 .. 15 */
         for (idx_t i = 4; i <= 15; ++i) {
@@ -66,11 +68,11 @@ seq_t a(idx_t n)
         if (n + 1 > cap) {
             idx_t new_cap = cap * 2;
             if (n + 1 > new_cap) new_cap = n + 1;
-            seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_new(seq_t, new_cap);
             if (!tmp) return 0;          /* allocation failure */
-            memcpy(tmp, cache, cap * sizeof(seq_t));
-            memset(tmp + cap, 0, (new_cap - cap) * sizeof(seq_t));
-            free(cache);
+            mem_copy(tmp, cache, cap * sizeof(seq_t));
+            mem_set(tmp + cap, 0, (new_cap - cap) * sizeof(seq_t));
+            mem_free(cache);
             cache = tmp;
             cap = new_cap;
         }

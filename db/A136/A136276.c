@@ -9,7 +9,8 @@
  *            sequence lists the k-values of all integer solutions (m,k)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,27 @@
    the search stops once the desired index has been reached. */
 
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 #define MAX_M 1000000UL   /* safe upper bound for the search */
 
@@ -41,9 +62,9 @@ static void ensure_sol_cap(size_t needed)
     while (new_cap < needed)
         new_cap *= 2;
     if (solutions == NULL)
-        solutions = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        solutions = mem_new(seq_t, new_cap);
     else
-        solutions = (seq_t *)realloc(solutions, new_cap * sizeof(seq_t));
+        solutions = mem_resize(seq_t, solutions, new_cap);
     sol_cap = new_cap;
 }
 

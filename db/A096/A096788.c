@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   isPrime
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrime.h"          /* provides bool isPrime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* external typedefs supplied by the build system */
 extern seq_t a(idx_t n);
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* first allocation of the cache */
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* ------------------- generate terms up to index n ------------------- */
@@ -56,15 +58,14 @@ seq_t a(idx_t n)
                 next_candidate++;
 
             /* Skip primes; m must be composite (m>1) */
-            if (next_candidate > 1 && !isPrime(next_candidate)) {
+            if (next_candidate > 1 && !is_prime(next_candidate)) {
                 idx_t sum = 2 * next_candidate + 1; /* 2m+1 */
-                if (isPrime(sum)) {                 /* m and m+1 composite, 2m+1 prime */
+                if (is_prime(sum)) {                 /* m and m+1 composite, 2m+1 prime */
 
                     /* store the term */
                     if (cache_len == cache_cap) {
                         cache_cap <<= 1;
-                        cache = (seq_t *)realloc(cache,
-                                                  cache_cap * sizeof(seq_t));
+                        cache = mem_resize(seq_t, cache, cache_cap);
                     }
                     cache[cache_len++] = (seq_t)next_candidate;
 

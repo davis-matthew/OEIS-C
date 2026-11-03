@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 18, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64, seq_cmp, seq_pow
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,10 +26,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/seq_pow.h"
-#include "../utils/seq_cmp.h"
-#include "../utils/factor_u64.h"
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* ------------------------------------------------------------------ */
 /* Small‑integer modular exponentiation used only for computing the
@@ -112,7 +122,7 @@ seq_t a(idx_t n) {
     /* ------------------------------------------------------------------
        If order is even, minimal weight is 2.  Find smallest k. */
     if ((order & 1ULL) == 0) {
-        seq_t pow2 = seq_pow((seq_t)2, (idx_t)(order / 2));
+        seq_t pow2 = ipow_idx((seq_t)2, (idx_t)(order / 2));
         seq_t k = (pow2 + (seq_t)1) / (seq_t)p;
         return k;
     }
@@ -148,8 +158,8 @@ seq_t a(idx_t n) {
         uint64_t need = (p - ((rem_j + 1) % p)) % p;
         uint32_t exp = exp_by_rem[need];
         if (exp != NONE && (uint64_t)exp > j) {
-            seq_t pow_i = seq_pow((seq_t)2, (idx_t)exp);
-            seq_t pow_j = seq_pow((seq_t)2, (idx_t)j);
+            seq_t pow_i = ipow_idx((seq_t)2, (idx_t)exp);
+            seq_t pow_j = ipow_idx((seq_t)2, (idx_t)j);
             seq_t numerator = pow_i + pow_j + (seq_t)1;
             seq_t k = numerator / (seq_t)p;
             if (!found || seq_cmp(&k, &best_k) < 0) {

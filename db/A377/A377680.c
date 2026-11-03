@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 33, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,6 +43,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int p[16] = {
     1, -24, 266, -1815, 8634, -30981, 89318, -216717,
@@ -57,7 +59,7 @@ static const int q[13] = {
 seq_t a(idx_t n)
 {
     /* Allocate array for coefficients up to n.  The size is always at least 1. */
-    seq_t *a = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, (n + 1));
     if (!a) return 0;   /* out of memory, return 0 (unlikely in typical use) */
 
     for (idx_t i = 0; i <= n; ++i) {
@@ -83,6 +85,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a[n];
-    free(a);
+    mem_free(a);
     return result;
 }

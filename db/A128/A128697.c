@@ -7,13 +7,22 @@
  * Formula:   a(n) = Sum_{k=1..n} F(k)^8 (F(k) = Fibonacci number)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 24,
  *            big any n
- * Helpers:   pow8_func
+ * Validated: standard, pass, 37 terms through n = 561 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow8_func.h"
+#include "../utils/mem.h"
+
+/* Helper: compute x^8 using 3 multiplications */
+static inline seq_t pow8_func(seq_t x) {
+    seq_t a = x * x;   /* x^2 */
+    seq_t b = a * a;   /* x^4 */
+    seq_t c = b * b;   /* x^8 */
+    return c;
+}
 
 /* External linkage function that returns term a(n) */
 seq_t a(idx_t n) {
@@ -28,7 +37,7 @@ seq_t a(idx_t n) {
     /* Initialise on first call */
     if (cache == NULL) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)0;         /* a(0) = 0 */
         cache_len = 1;               /* have term 0 stored */
     }
@@ -45,7 +54,7 @@ seq_t a(idx_t n) {
         /* Grow array if necessary */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 1;
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
         cache[cache_len] = cum_sum;

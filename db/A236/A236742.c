@@ -12,14 +12,29 @@
  *            programming: it iterates n times, * multiplying the curre...
  * Range:     u8 none, u16 n <= 2, u32 n <= 5, u64 n <= 12, u128 n <= 27,
  *            big any n
- * Helpers:   median_sum4
+ * Validated: standard, pass, 30 terms through n = 205 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/median_sum4.h"
+
+/* --------------------------------------------------------------------- */
+static int median_sum4(unsigned char a, unsigned char b,
+                       unsigned char c, unsigned char d)
+{
+    unsigned char minv = a, maxv = a;
+    int tot = a + b + c + d;
+    if (b < minv) minv = b;
+    if (c < minv) minv = c;
+    if (d < minv) minv = d;
+    if (b > maxv) maxv = b;
+    if (c > maxv) maxv = c;
+    if (d > maxv) maxv = d;
+    return tot - minv - maxv;
+}
 
 #define ROWS 243      /* 3^5 possible row patterns */
 #define SNS   5       /* number of possible median sums */

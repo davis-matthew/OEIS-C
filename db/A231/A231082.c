@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 35,
  *            big any n
- * Helpers:   _check_column, _decode
+ * Validated: standard, pass, 34 terms through n = 173 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,48 @@
    considered).  The values are obtained by a transfer‑matrix DP. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_check_column.h"
-#include "../utils/_decode.h"
+
+/* decode a column code into its 3 row values */
+static inline void _decode(uint8_t col, uint8_t out[3]) {
+    out[0] = col & 3;
+    out[1] = (col >> 2) & 3;
+    out[2] = (col >> 4) & 3;
+}
+
+/* check that the middle column satisfies the plus/minus‑neighbour rule
+   with optional left and/or right neighbour columns */
+static inline bool _check_column(uint8_t mid, bool left_ok, uint8_t left,
+                                 bool right_ok, uint8_t right) {
+    uint8_t midv[3], leftv[3], rightv[3];
+    _decode(mid, midv);
+    if (left_ok)  _decode(left,  leftv);
+    if (right_ok) _decode(right, rightv);
+
+    for (int r = 0; r < 3; ++r) {
+        int cur = midv[r];
+        bool plus = false, minus = false;
+        int plus_val = (cur + 1) & 3;
+        int minus_val = (cur + 3) & 3;
+
+        /* horizontal neighbours */
+        if (left_ok)  { int v = leftv[r];  plus |= (v == plus_val);  minus |= (v == minus_val); }
+        if (right_ok) { int v = rightv[r]; plus |= (v == plus_val);  minus |= (v == minus_val); }
+
+        /* diagonal left neighbours */
+        if (left_ok) {
+            if (r > 0)  { int v = leftv[r-1]; plus |= (v == plus_val);  minus |= (v == minus_val); }
+            if (r < 2)  { int v = leftv[r+1]; plus |= (v == plus_val);  minus |= (v == minus_val); }
+        }
+        /* diagonal right neighbours */
+        if (right_ok) {
+            if (r > 0)  { int v = rightv[r-1]; plus |= (v == plus_val);  minus |= (v == minus_val); }
+            if (r < 2)  { int v = rightv[r+1]; plus |= (v == plus_val);  minus |= (v == minus_val); }
+        }
+
+        if (!plus || !minus) return false;
+    }
+    return true;
+}
 
 static bool _a231082_inited = false;
 

@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence: a(0)=1; for n>0, a(n)=a(n‑7)+a(n‑10)+a(n‑11) with missing indices treated as 0.
    The sequence counts partitions of n into parts 7, 10 and 11.  The implementation
@@ -20,7 +22,7 @@
 seq_t a(idx_t n)
 {
     /* Allocate space for DP table */
-    seq_t *dp = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return 0;          /* allocation failed – unlikely for small n */
 
     /* initialise to zero; dp[0] will be set to 1 below */
@@ -41,6 +43,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, has_digit9
+ * Validated: standard, pass, 121 terms through n = 9848 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,19 @@
    contains the digit 9 (base 10).  The sequence is OEIS A083896. */
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/has_digit9.h"
+
+/* Test whether a decimal number contains the digit 9 */
+static inline int has_digit9(uint64_t x)
+{
+    if (x == 0) return 0;
+    while (x > 0) {
+        if (x % 10 == 9) return 1;
+        x /= 10;
+    }
+    return 0;
+}
 
 seq_t a(idx_t n)
 {

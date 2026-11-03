@@ -13,14 +13,15 @@
  *            (x,y,z) and solving w² = n − (x²+y²+z²) when * i...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 116 terms through n = 9145 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 /* seq_t and idx_t are defined by the build; we use only the
  * operations allowed by the OEIS framework. */
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
         return 0;                /* value below the offset is undefined */
 
     seq_t count = 0;
-    idx_t max_x = _floor_isqrt_u64(n);       /* floor(sqrt(n)) */
+    idx_t max_x = isqrt(n);       /* floor(sqrt(n)) */
 
     /* Enumerate admissible (x,y,z) triples. */
     for (idx_t x = 1; x <= max_x; ++x) {
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
 
                 /* Remaining part that must be w². */
                 idx_t remaining = n - sum_xyz;
-                idx_t w = _floor_isqrt_u64(remaining);
+                idx_t w = isqrt(remaining);
                 if (w * w != remaining)
                     continue;                /* no integer w satisfies the sum */
 
@@ -61,7 +62,7 @@ seq_t a(idx_t n)
                 idx_t diff1 = x - y;
                 idx_t diff2 = w - z;
                 idx_t prod  = diff1 * diff2;
-                idx_t sq    = _floor_isqrt_u64(prod);
+                idx_t sq    = isqrt(prod);
                 if (sq * sq == prod)
                     ++count;
             }

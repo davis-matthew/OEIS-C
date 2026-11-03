@@ -9,6 +9,7 @@
  *            (floor(n/3)+1)*(floor(n/3)-floor((n-1)/3)+(3/2)*(floor(n/3)+2)*(3*floor((n+1)/3)-n))*(-1)^n
  * Range:     i8 n <= 24, i16 n <= 50, i32 n <= 50, i64 n <= 50, i128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

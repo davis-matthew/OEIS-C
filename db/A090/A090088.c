@@ -7,15 +7,19 @@
  * Keywords:  nonn
  * Formula:   a(n) = smallest even composite x > 2 such that (2n-1)^(x-1) ≡ 1
  *            (mod x)
- * Range:     u8 n <= 1, u16 n <= 9443, u32 n <= 9443, u64 n <= 9443,
- *            u128 n <= 9443, big any n
- * Helpers:   mod_pow
+ * Range:     u8 n <= 1, u16 n <= 16520, u32 n <= 16520, u64 n <= 16520,
+ *            u128 n <= 16520, big any n
+ * Validated: standard, pass, 102 terms through n = 9443 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +31,7 @@ seq_t a(idx_t n)
     while (1)
     {
         /* test whether B^(x-1) ≡ 1 (mod x) */
-        if (mod_pow(B, (idx_t)(x - 1), x) == (seq_t)1)
+        if (powmod(B, (idx_t)(x - 1), x) == (seq_t)1)
             return x;               /* found the minimal even pseudoprime */
 
         /* move to the next even number */

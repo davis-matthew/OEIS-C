@@ -9,13 +9,15 @@
  *            a(n-k) where d(k) is the number of divisors of k
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* divisor count: number of positive divisors of n */
 static uint32_t divisor_count(uint32_t n)
@@ -48,9 +50,9 @@ seq_t a(idx_t n)
     {
         size_t new_limit = (size_t)n + 1;
         /* Reallocate arrays */
-        a_cache    = (seq_t *)realloc(a_cache, new_limit * sizeof(seq_t));
-        b_cache    = (seq_t *)realloc(b_cache, new_limit * sizeof(seq_t));
-        fact_cache = (seq_t *)realloc(fact_cache, new_limit * sizeof(seq_t));
+        a_cache    = mem_resize(seq_t, a_cache, new_limit);
+        b_cache    = mem_resize(seq_t, b_cache, new_limit);
+        fact_cache = mem_resize(seq_t, fact_cache, new_limit);
 
         /* factorials */
         if (cache_limit == 0)

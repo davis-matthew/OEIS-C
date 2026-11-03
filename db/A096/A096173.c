@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 986, u32 n <= 2086, u64 n <= 2086,
  *            u128 n <= 2086, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 2029 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --- fast 64‑bit primality test (Miller–Rabin, deterministic for
  *      n < 3·10^12).  It works on values that fit in uint64_t.   */
@@ -94,9 +96,9 @@ seq_t a(idx_t n)
         /* a valid term – store it in the cache */
         if (cache_len == cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) {                     /* allocation failure */
-                free(cache);
+                mem_free(cache);
                 cache = NULL;
                 cache_len = cache_cap = 0;
                 return (seq_t)0;

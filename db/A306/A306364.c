@@ -10,7 +10,8 @@
  *            array indexing)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 30 terms through n = 31 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Cached factorials up to the largest value seen so far. */
 static seq_t *fact_cache = NULL;
@@ -31,13 +33,13 @@ static seq_t factorial_cached(idx_t n)
 
     /* Allocate or expand cache. */
     if (fact_cache == NULL) {
-        fact_cache = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+        fact_cache = mem_new(seq_t, (n + 1));
         if (!fact_cache) return (seq_t)0;
         fact_cache[0] = (seq_t)1;
         fact_cache[1] = (seq_t)1;
         fact_max = 1;
     } else {
-        fact_cache = (seq_t *)realloc(fact_cache, sizeof(seq_t) * (n + 1));
+        fact_cache = mem_resize(seq_t, fact_cache, (n + 1));
         if (!fact_cache) return (seq_t)0;
     }
 

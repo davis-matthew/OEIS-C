@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 316, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9404 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* sequence values, 1‑based */
 static size_t *pos = NULL;         /* prefix counts of positive values */
@@ -37,7 +39,7 @@ static idx_t cur = 0;              /* highest index currently computed */
 /* Initialise the data structures with the first term a(1)=0. */
 static void init(void) {
     size_t init_cap = 16;               /* initial capacity, can grow */
-    seq = (seq_t *)calloc(init_cap, sizeof(seq_t));
+    seq = mem_new(seq_t, init_cap);
     pos = (size_t *)calloc(init_cap, sizeof(size_t));
     seq_cap = pos_cap = init_cap;
     seq[1] = (seq_t)0;
@@ -54,7 +56,7 @@ static void ensure(idx_t n) {
     if ((size_t)n + 1 > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 2;
         while (new_cap <= (size_t)n + 1) new_cap <<= 1;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         pos = (size_t *)realloc(pos, new_cap * sizeof(size_t));
         seq_cap = pos_cap = new_cap;
     }

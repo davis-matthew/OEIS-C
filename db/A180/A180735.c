@@ -8,13 +8,15 @@
  *            a(2)=-1, a(3)=-3
  * Range:     i8 n <= 15, i16 n <= 34, i32 n <= 70, i64 n <= 142,
  *            i128 n <= 288, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 783 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* array of computed values */
 static size_t cache_size = 0;     /* current array length */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (cache == NULL) {
         cache_size = 4;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         assert(cache != NULL);
         cache[0] = 1;
         cache[1] = 1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Grow the cache to hold all indices up to n. */
     size_t new_size = (size_t)n + 1;
     if (new_size > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         assert(tmp != NULL);
         cache = tmp;
         /* Compute newly added entries. */

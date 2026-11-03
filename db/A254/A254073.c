@@ -10,7 +10,8 @@
  *            brute‑force enumeration of residues modulo p^e
  * Range:     u8 n <= 13, u16 n <= 170, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pp_square
+ * Validated: standard, pass, 65 terms through n = 9598 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pp_square.h"
+
+/* Compute a(p^e) for the case 3∤φ(p^e) (p≡2 mod 3 or p=3,e=1). */
+static seq_t pp_square(idx_t p, idx_t e)
+{
+    seq_t mod = 1;
+    for (idx_t k = 0; k < e; ++k) mod *= p;
+    return mod * mod;
+}
 
 /* Maximum n considered */
 #define MAXN 10000

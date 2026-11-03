@@ -7,15 +7,30 @@
  * Formula:   a(n) = Sum_{d|n} 9^(d-1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 41,
  *            big any n
- * Helpers:   factor_u64, mul_small
+ * Validated: standard, pass, 37 terms through n = 720 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* Precompute powers of 9: pow9[k] = 9^k */
 static seq_t *pow9 = NULL;
@@ -25,14 +40,14 @@ static void ensure_pow9(size_t up_to) {
     if (pow9_size == 0) {
         /* initialise with 9^0 = 1 */
         pow9_size = 1;
-        pow9 = (seq_t *)malloc(sizeof(seq_t));
+        pow9 = mem_new(seq_t, 1);
         if (!pow9) return;  /* allocation failed, but caller will handle */
         pow9[0] = (seq_t)1;
     }
     while (pow9_size <= up_to) {
         size_t new_size = pow9_size * 2;
         if (new_size <= up_to) new_size = up_to + 1;
-        seq_t *tmp = (seq_t *)realloc(pow9, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow9, new_size);
         if (!tmp) return;  /* allocation failed, but caller will handle */
         pow9 = tmp;
         for (size_t i = pow9_size; i < new_size; ++i) {

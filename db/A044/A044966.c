@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -24,6 +25,7 @@
         a(n) = 3^L − 1 − 3^k .
    (All arithmetic uses the arbitrary‑precision type seq_t.) */
 
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n)

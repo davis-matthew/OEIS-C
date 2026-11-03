@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 19, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 817 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  Global tables and counters                                 */
@@ -116,7 +118,7 @@ static void grow_cache(size_t needed)
     while (newcap < needed)
         newcap *= 2;
 
-    seq_cache = (seq_t *)realloc(seq_cache, newcap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, newcap);
     seq_cap = newcap;
 }
 

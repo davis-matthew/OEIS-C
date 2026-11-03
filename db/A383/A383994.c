@@ -12,12 +12,14 @@
  *            coefficients. The terms a(0)=0 are produced on de...
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 13, i64 n <= 21, i128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 441 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Make sure the auxiliary array contains values up to index n */
     if (aux_size <= n) {
         idx_t new_cap = (aux_cap < 2*(n+1)) ? 2*(n+1) : aux_cap;
-        seq_t *new_a = (seq_t*)realloc(a_aux, new_cap * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_aux, new_cap);
         if (!new_a) abort(); /* allocation failure */
         a_aux = new_a;
         aux_cap = new_cap;

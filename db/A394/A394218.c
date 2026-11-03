@@ -11,13 +11,15 @@
  *            c(5)=1, and for j≥2: c(3j)=c(j-1), c(3j+1)=c(3j+2)=c(j)
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for the sequence and auxiliary data */
 static seq_t *seq = NULL;          /* 0‑based array of a(n) */
@@ -34,7 +36,7 @@ static void ensure_seq_capacity(idx_t need)
     size_t new_len = seq_len ? seq_len * 2 : 64;
     while (new_len < need)
         new_len *= 2;
-    seq = (seq_t *)realloc(seq, new_len * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_len);
     seq_len = new_len;
 }
 
@@ -43,7 +45,7 @@ static void init_seq(void)
     if (seq != NULL)
         return;
     seq_len = 64;
-    seq = (seq_t *)malloc(seq_len * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_len);
     /* a(0)=0 for convenience, a(1)=1, ... a(5)=3 */
     seq[0] = (seq_t)0;
     seq[1] = (seq_t)1;

@@ -9,7 +9,8 @@
  *            integer square root of 7*4^k on multiword integers
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sq7_cmp, sq7_shl, sq7_sub
+ * Validated: standard, pass, 115 terms through n = 9437 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,35 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/sq7_cmp.h"
-#include "../utils/sq7_shl.h"
-#include "../utils/sq7_sub.h"
+
+static int sq7_cmp(const uint32_t *x, const uint32_t *y, size_t w) {
+    size_t i = w;
+    while (i > 0) {
+        i--;
+        if (x[i] != y[i]) return x[i] > y[i] ? 1 : -1;
+    }
+    return 0;
+}
+
+static void sq7_shl(uint32_t *x, size_t w, int s) {
+    uint32_t carry = 0;
+    size_t i;
+    for (i = 0; i < w; i++) {
+        uint32_t v = x[i];
+        x[i] = (v << s) | carry;
+        carry = v >> (32 - s);
+    }
+}
+
+static void sq7_sub(uint32_t *x, const uint32_t *y, size_t w) {
+    uint64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < w; i++) {
+        uint64_t d = (uint64_t)x[i] - y[i] - borrow;
+        x[i] = (uint32_t)d;
+        borrow = (d >> 63) & 1;
+    }
+}
 
 static unsigned char *sq7_bits = NULL;
 static idx_t sq7_nbits = 0;

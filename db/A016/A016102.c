@@ -11,7 +11,8 @@
  *            the number of representations of an intege...
  * Range:     i8 n <= 3000, i16 n <= 3000, i32 n <= 3000, i64 n <= 3000,
  *            i128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 2902 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define PERIOD 2093
 #define MAX_N   2092
@@ -33,8 +35,8 @@ static void init(void)
     seq_t Q[553];               /* coefficients of (x-1)(x⁹¹-1)(x¹⁶¹-1)(x²⁹⁹-1) */
 
     /* zero the auxiliary arrays */
-    memset(m, 0, sizeof(m));
-    memset(Q, 0, sizeof(Q));
+    mem_set(m, 0, sizeof(m));
+    mem_set(Q, 0, sizeof(Q));
 
     /* ----- compute m[e] for 0 ≤ e ≤ 2092 ----- */
     idx_t max_i = MAX_N / 7;

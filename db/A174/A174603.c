@@ -10,16 +10,18 @@
  *            3^(-k)*Gamma((n+1)/3-k)/(k!*(n-3*k)!)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n) {
     /* base term: k = 0 -> 3^n */
-    seq_t term = pow_seq((seq_t)3, (int)n);
+    seq_t term = ipow_i32((seq_t)3, (int)n);
     seq_t sum   = term;
 
     idx_t maxk = n / 3;            /* floor(n/3) */

@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum of divisors of 4*n-2
  * Range:     u8 n <= 31, u16 n <= 5197, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 9403 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

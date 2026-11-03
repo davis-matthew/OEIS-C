@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   is_prime_uint64
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 #define SIEVE_LIMIT 1000000UL   /* primes up to sqrt(10^12) are enough */
 
@@ -85,7 +87,7 @@ static bool valid_prime(uint64_t p)
     /* Iterate over powers of two: 2^k < p */
     for (uint64_t pow = 2; pow < p; ) {
         uint64_t m = p - pow;
-        if (!(is_prime_uint64(m) || is_semiprime(m)))
+        if (!(is_prime_u64(m) || is_semiprime(m)))
             return false;
         if (pow > UINT64_MAX / 2) break;   /* avoid overflow */
         pow <<= 1;
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
     uint64_t candidate = 3;        /* first odd prime */
 
     while (count < need) {
-        if (is_prime_uint64(candidate) && valid_prime(candidate)) {
+        if (is_prime_u64(candidate) && valid_prime(candidate)) {
             ++count;
             if (count == need) return (seq_t)candidate;
         }

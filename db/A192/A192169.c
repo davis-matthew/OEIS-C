@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *a, const void *b) {
     seq_t va = *(const seq_t*)a;
@@ -68,7 +70,7 @@ seq_t a(idx_t n) {
             }
         }
         /* Now sort the cache. */
-        qsort(cache, cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(cache, cnt, sizeof(seq_t), cmp_seq);
         cached = cnt;
     }
     /* Bounds check: if n exceeds the number of generated terms,

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   isPrime
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrime.h"  /* for bool isPrime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* ---------- constants ---------- */
 
@@ -96,7 +98,7 @@ static bool is_semiprime_uint64(uint64_t n)
 
         if (n % p64 == 0) {
             uint64_t q = n / p64;           /* remaining factor */
-            return isPrime(q);              /* q must be prime */
+            return is_prime(q);              /* q must be prime */
         }
     }
     return false;    /* n is prime or has more than two prime factors */
@@ -111,7 +113,7 @@ static void generate_terms(size_t n)
     /* Allocate terms array if needed. */
     if (terms == NULL) {
         terms_cap = 1024;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) exit(1);
     }
 
@@ -131,7 +133,7 @@ static void generate_terms(size_t n)
             seq_t term = (seq_t)((seq_t)2 * (seq_t)p);
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
                 if (!terms) exit(1);
             }
             terms[terms_len++] = term;

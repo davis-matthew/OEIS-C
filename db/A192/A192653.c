@@ -7,17 +7,38 @@
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{k=0..n} binomial(n,k) * floor_sqrt(catalan(k)) *
  *            floor_sqrt(catalan(n-k))
- * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 27, u128 n <= 27,
+ * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   catalan, floor_sqrt
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   catalan, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/catalan.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* cache of floor_sqrt(catalan(i)) for i≤current_max_n */
 static seq_t *sqrtcat_cache = NULL;
@@ -29,7 +50,7 @@ static void ensure_sqrtcat(idx_t n)
     if (n < sqrtcat_size) return;            /* already cached */
 
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, (size_t)new_size);
     if (!tmp) return;                        /* allocation failed: treat as no further values */
 
     /* copy existing values */
@@ -42,7 +63,7 @@ static void ensure_sqrtcat(idx_t n)
 
     /* free old cache and install new one */
     if (sqrtcat_cache != NULL)
-        free(sqrtcat_cache);
+        mem_free(sqrtcat_cache);
     sqrtcat_cache = tmp;
     sqrtcat_size  = new_size;
 }

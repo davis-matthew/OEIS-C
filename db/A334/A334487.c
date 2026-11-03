@@ -8,7 +8,8 @@
  * Formula:   a(n) = p(n,2)*p(n,5)/p(n,10)
  * Range:     u8 n <= 36, u16 n <= 2150, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   remove_factors
+ * Validated: standard, pass, 91 terms through n = 4980 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/remove_factors.h"
+
+/* helper: remove all factors of d from n */
+static uint64_t remove_factors(uint64_t n, uint64_t d)
+{
+    while (n % d == 0) n /= d;
+    return n;
+}
 
 /* maximum prime for pre‑computed sieve (covers sqrt of n up to ~1e12) */
 #define MAX_PRIME 1000000

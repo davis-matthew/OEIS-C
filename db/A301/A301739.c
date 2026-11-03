@@ -12,12 +12,14 @@
  *            partitions of t into exactly 3 parts
  * Range:     u8 n <= 13, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>          /* malloc, realloc, exit */
+#include "../utils/mem.h"
 
 static seq_t *star_prefix = NULL;   /* star_prefix[i] = Π_{t=3}^{i} ⌊(t²+3)/12⌋ cumulative sum */
 static idx_t  prefix_size = 0;     /* largest i that has been computed */
@@ -30,8 +32,7 @@ ensure_star_prefix(idx_t max_index)
         return;
 
     /* Allocate or grow the array. */
-    seq_t *new_ptr = (seq_t *)realloc(star_prefix,
-                                      (max_index + 1) * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, star_prefix, (max_index + 1));
     if (new_ptr == NULL)
         exit(EXIT_FAILURE);
 

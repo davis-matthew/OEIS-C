@@ -8,7 +8,8 @@
  *            the form n*k-1 )
  * Range:     u8 n <= 46, u16 n <= 2916, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 83 terms through n = 9922 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 /* This implements A093868: smallest prime that differs from a multiple
    of n by unity. Uses trial prime tests for small candidates. */
 
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     for (uint64_t k = 1; ; ++k) {
         uint64_t candidate = un * k + 1;
         if (candidate < 2) continue;   /* skip values < 2 */
-        if (is_prime_small(candidate)) {
+        if (is_prime_seq(candidate)) {
             p_plus = candidate;
             break;
         }
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     for (uint64_t k = 1; ; ++k) {
         uint64_t candidate = un * k - 1;
         if (candidate < 2) continue;   /* skip values < 2 */
-        if (is_prime_small(candidate)) {
+        if (is_prime_seq(candidate)) {
             p_minus = candidate;
             break;
         }

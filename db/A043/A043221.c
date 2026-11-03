@@ -13,14 +13,34 @@
  *            a...
  * Range:     u8 n <= 4, u16 n <= 1280, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has06_or60
+ * Validated: standard, pass, 57 terms through n = 9887 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has06_or60.h"
+#include "../utils/mem.h"
+
+/* Return true if x contains "06" or "60" in its decimal representation. */
+static bool has06_or60(seq_t x)
+{
+    const seq_t ten = (seq_t)10;
+    if (x < ten) return false;
+    seq_t prev = x % ten;
+    x /= ten;
+    while (x > 0)
+    {
+        seq_t cur = x % ten;
+        if ((prev == (seq_t)0 && cur == (seq_t)6) ||
+            (prev == (seq_t)6 && cur == (seq_t)0))
+            return true;
+        prev = cur;
+        x /= ten;
+    }
+    return false;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -34,7 +54,7 @@ seq_t a(idx_t n)
     if (terms == NULL)
     {
         terms_cnt = 1;
-        terms = (seq_t *)malloc(sizeof(seq_t));
+        terms = mem_new(seq_t, 1);
         terms[0] = (seq_t)60;         /* a(1) = 60 */
         search_start = (seq_t)61;     /* start searching after the first term */
     }
@@ -55,7 +75,7 @@ seq_t a(idx_t n)
         }
 
         /* Store the found term */
-        seq_t *tmp = (seq_t *)realloc(terms, sizeof(seq_t) * (terms_cnt + 1));
+        seq_t *tmp = mem_resize(seq_t, terms, (terms_cnt + 1));
         if (tmp == NULL)              /* allocation failure – abort */
             abort();
         terms = tmp;

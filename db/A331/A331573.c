@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{k=1..n} (-1)^(n-k)*binomial(n-1,k-1)*phi(k)
  * Range:     i8 n <= 8, i16 n <= 15, i32 n <= 30, i64 n <= 34, i128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 /* Computes a(n) for any n ≥ 1.  Uses memoised prefix sums of floor(k·sqrt(8)). */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,14 +59,14 @@ seq_t a(idx_t n)
     /* Allocate or grow the array so that pref[n] is available */
     if (pref == NULL) {
         pref_cap = 16;
-        pref = (seq_t *)malloc(pref_cap * sizeof(seq_t));
+        pref = mem_new(seq_t, pref_cap);
         if (!pref) abort();           /* allocation failed */
         pref[0] = (seq_t)0;
         pref_len = 1;
     } else if (pref_cap <= n) {
         /* double until we have room for index n */
         while (pref_cap <= n) pref_cap <<= 1;
-        pref = (seq_t *)realloc(pref, pref_cap * sizeof(seq_t));
+        pref = mem_resize(seq_t, pref, pref_cap);
         if (!pref) abort();           /* allocation failed */
     }
 

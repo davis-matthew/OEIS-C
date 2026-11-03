@@ -9,7 +9,8 @@
  *            n>=38) * with P[0]=1, P[1..37]=2, P[38]=1, P[n>=39]=0
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -46,6 +47,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) {
@@ -53,7 +55,7 @@ seq_t a(idx_t n) {
     }
 
     /* Allocate array for a[0..n] */
-    seq_t *a_arr = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, (size_t)n + 1);
     if (!a_arr) {
         /* In production code, handle allocation failure appropriately. */
         return (seq_t)0;
@@ -87,6 +89,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = a_arr[n];
-    free(a_arr);
+    mem_free(a_arr);
     return result;
 }

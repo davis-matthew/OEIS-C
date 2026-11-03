@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9999, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   intFourthRoot
+ * Validated: standard, pass, 117 terms through n = 9183 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/intFourthRoot.h"
+
+/* Compute floor fourth root of n: max r such that r^4 <= n. */
+static idx_t intFourthRoot(idx_t n)
+{
+    /* Initial estimate using floating point (safe for n up to huge values). */
+    double est = pow((double)n, 0.25);
+    idx_t r = (idx_t)est;
+
+    /* Adjust upwards while still fitting. */
+    while ((seq_t)(r + 1) * (r + 1) * (r + 1) * (r + 1) <= n)
+        ++r;
+
+    /* Adjust downwards if necessary. */
+    while ((seq_t)r * r * r * r > n)
+        --r;
+
+    return r;
+}
 
 /* Count integer triples (x,y,z) with x^4+y^4+z^4 = n, |x|,|y|,|z| <= n. */
 seq_t a(idx_t n)

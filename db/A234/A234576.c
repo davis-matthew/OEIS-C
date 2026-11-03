@@ -11,13 +11,22 @@
  *            a(4)=4, a(5)=7, a(6)=14, a(7)=34
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 30, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   make_array
+ * Validated: partial, pass, 31 terms through n = 34 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/make_array.h"
+
+static seq_t *make_array(size_t n)
+{
+#ifdef __cplusplus
+    return new seq_t[n];
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
 
 static void free_array(seq_t *p)
 {

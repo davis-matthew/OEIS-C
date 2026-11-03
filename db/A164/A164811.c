@@ -11,7 +11,8 @@
  *            light‑weight Spanish number name generator
  * Range:     i8 n <= 4, i16 n <= 35, i32 n <= 35, i64 n <= 35, i128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "../utils/mem.h"
 
 /* Helper arrays for Spanish number words (no accents, no punctuation). */
 static const char *const units[20] = {
@@ -124,7 +126,7 @@ static void ensure_capacity(idx_t n)
     if ((size_t)n > cap) {
         size_t new_cap = cap ? cap : 64;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(answers, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, answers, new_cap);
         if (!tmp) {
             /* On allocation failure fall back to maximum‑possible answer */
             for (size_t i = cap; i < new_cap; ++i) tmp[i] = (seq_t)-1;
@@ -156,7 +158,7 @@ static void answers_ensure_idx(idx_t n)
     if ((size_t)n > answers_cap) {
         size_t new_cap = answers_cap ? answers_cap : 64;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(answers, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, answers, new_cap);
         if (!tmp) {
             /* allocation failed – but we cannot recover, return */
             return;

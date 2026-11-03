@@ -10,7 +10,8 @@
  *            n>0, a(0)=1)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Global caches for the sequence and the auxiliary values */
 static seq_t *A_cache = NULL;  /* a(n) values          */
@@ -30,8 +32,8 @@ static void ensure_cache(idx_t n)
     if (n <= cache_max) return;           /* already have enough space */
 
     /* Allocate or grow the arrays */
-    seq_t *A_new = (seq_t *)realloc(A_cache, (n + 1) * sizeof(seq_t));
-    seq_t *D_new = (seq_t *)realloc(D_cache, (n + 1) * sizeof(seq_t));
+    seq_t *A_new = mem_resize(seq_t, A_cache, (n + 1));
+    seq_t *D_new = mem_resize(seq_t, D_cache, (n + 1));
     assert(A_new && D_new);               /* failure is fatal */
     A_cache = A_new;
     D_cache = D_new;

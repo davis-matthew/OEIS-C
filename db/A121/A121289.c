@@ -7,7 +7,8 @@
  * Formula:   a(n) = n / (largest triangular number dividing n)
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 83 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache of triangular numbers T_k = k*(k+1)/2, for k >= 1.
    triangular[i] == T_{i+1}. */
@@ -29,7 +31,7 @@ static void ensure_triangular(idx_t limit)
     /* Initial allocation if needed */
     if (tri_cap == 0) {
         tri_cap = 128;
-        triangular = (seq_t *)malloc(tri_cap * sizeof(seq_t));
+        triangular = mem_new(seq_t, tri_cap);
     }
 
     /* Generate next triangular values until exceeding limit */
@@ -42,7 +44,7 @@ static void ensure_triangular(idx_t limit)
         /* Grow the array if necessary */
         if (tri_len == tri_cap) {
             tri_cap *= 2;
-            triangular = (seq_t *)realloc(triangular, tri_cap * sizeof(seq_t));
+            triangular = mem_resize(seq_t, triangular, tri_cap);
         }
 
         triangular[tri_len++] = t;                           /* store T_k     */

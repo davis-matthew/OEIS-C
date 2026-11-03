@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state for memoisation and bit‑set of used integers. */
 static seq_t *a_vals = NULL;          /* array of a[0..max_a]              */
@@ -76,7 +78,7 @@ static void init_sequence(void)
 {
     /* Allocate a[0] and a[1]. */
     a_cap = 2;
-    a_vals = (seq_t *)malloc(a_cap * sizeof(seq_t));
+    a_vals = mem_new(seq_t, a_cap);
     if (!a_vals)
         abort();
     a_vals[0] = (seq_t)1;
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
         size_t new_cap = a_cap ? a_cap << 1 : 8;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
         if (!tmp)
             abort();
         a_vals = tmp;

@@ -11,13 +11,14 @@
  *            2*(4*n+1)! / ((n+1)!*(3*n+2)!))
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 23, u128 n <= 44,
  *            big any n
- * Helpers:   a260_gcd
+ * Validated: standard, pass, 38 terms through n = 186 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a260_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -29,13 +30,13 @@ seq_t a(idx_t n)
         /* Cancel den against num and v so the product num*v equals the next
            term exactly, with nothing larger than the result. */
         while (den > 1) {
-            unsigned long long g = a260_gcd(num, den);
+            unsigned long long g = gcd_u64(num, den);
             if (g > 1) {
                 num /= g;
                 den /= g;
                 continue;
             }
-            g = a260_gcd((unsigned long long)(v % (seq_t)den), den);
+            g = gcd_u64((unsigned long long)(v % (seq_t)den), den);
             if (g <= 1)
                 break; /* only reachable after fixed-width overflow */
             v /= (seq_t)g;

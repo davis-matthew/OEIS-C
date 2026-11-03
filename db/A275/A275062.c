@@ -9,12 +9,14 @@
  * Formula:   A(n,k) = ∏_{i=0}^{k-1} ⌊(n+i)/k⌋!
  * Range:     u8 n <= 33, u16 n <= 63, u32 n <= 117, u64 n <= 273,
  *            u128 n <= 700, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;   /* factorial cache: fact_cache[i] = i!  */
 static idx_t fact_cache_cap = 0;   /* number of cached factorials */
@@ -26,7 +28,7 @@ static void ensure_fact(idx_t n)
     if (n + 1 <= fact_cache_cap)
         return;
 
-    seq_t *new_cache = (seq_t*)realloc(fact_cache, sizeof(seq_t) * (n + 1));
+    seq_t *new_cache = mem_resize(seq_t, fact_cache, (n + 1));
     if (!new_cache)
         exit(1);  /* out of memory */
 

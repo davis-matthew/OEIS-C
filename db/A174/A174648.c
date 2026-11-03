@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{i=1..n} A000452(i)
  * Range:     u8 n <= 15, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forward declaration of a helper binary search used for seq_t */
 static bool binary_search_seq(const seq_t *arr, size_t len, seq_t key);
@@ -56,7 +58,7 @@ static void ensure_capacity(size_t need, seq_t **arr, size_t *cap)
     size_t new_cap = (*cap == 0) ? 16 : *cap << 1;
     while (new_cap < need)
         new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 
@@ -68,12 +70,12 @@ static void generate_to(idx_t n)
 {
     /* lazily initialise the storage arrays */
     if (seq_arr == NULL) {
-        seq_arr = (seq_t *)malloc(16 * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, 16);
         seq_cap = 16;
         seq_len = 0;
     }
     if (cum_arr == NULL) {
-        cum_arr = (seq_t *)malloc(16 * sizeof(seq_t));
+        cum_arr = mem_new(seq_t, 16);
         cum_cap = 16;
         cum_len = 1;
         cum_arr[0] = (seq_t)0;   /* a(0) = 0 */

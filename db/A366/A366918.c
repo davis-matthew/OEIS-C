@@ -8,17 +8,30 @@
  * Formula:   a(n) = omega(n)! when n is squarefree, * 1 when n = 4, * -1
  *            otherwise * (omega(n) is the number of distinct prime factors of
  *            n)
- * Range:     i8 n <= 2231, i16 n <= 9730, i32 n <= 9730, i64 n <= 9730,
- *            i128 n <= 9730, big any n
- * Helpers:   bigomega, factorial, is_squarefree
+ * Range:     i8 n <= 2231, i16 n <= 30030, i32 n <= 30030, i64 n <= 30030,
+ *            i128 n <= 30030, big any n
+ * Validated: standard, pass, 111 terms through n = 9730 (2026-11-01)
+ * Helpers:   bigomega, is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_squarefree.h"
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/bigomega.h"
-#include "../utils/factorial.h"
+#include "../utils/is_squarefree.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 26, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   calc_phi, mod_pow
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem, powmod, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 /* seq_t and idx_t are supplied by the build system */
-#include "../utils/calc_phi.h"   /* seq_t calc_phi(seq_t m); */
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 /* Return the n‑th term (1‑based) of the sequence. */
 seq_t a(idx_t n)
@@ -41,17 +45,17 @@ seq_t a(idx_t n)
            algorithm correct for any future exceptions. */
         if ((candidate % 71) == 0)
         {
-            seq_t phi = calc_phi(k);            /* φ(k) */
+            seq_t phi = totient_seq(k);            /* φ(k) */
             seq_t mod = k * k;                  /* k²  – fits safely in seq_t for our limits */
             uint64_t exp = (uint64_t)phi;       /* exponent for mod_pow (fits in 64 bits) */
 
-            if (mod_pow((seq_t)11, exp, mod) == (seq_t)1)
+            if (powmod((seq_t)11, exp, mod) == (seq_t)1)
             {
                 /* Grow cache if necessary */
                 if (len == cap)
                 {
                     size_t new_cap = cap ? cap * 2 : 32;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp)
                         abort();                 /* unrecoverable memory failure */
                     cache = tmp;

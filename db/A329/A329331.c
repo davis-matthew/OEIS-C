@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   bitpos_to_pair, pow2
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,25 @@
     from the linear index n by reading the matrix
     by descending antidiagonals.  */
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/bitpos_to_pair.h"
+
+/* Convert a bit position p to the pair (i,j) such that
+   the p‑th power of two corresponds to the monomial x^i y^j.
+   This uses the enumeration of anti‑diagonals: for a given
+   diagonal sum s the bit positions are
+   T_s + j  with 0 ≤ j ≤ s,   where T_s = s*(s+1)/2. */
+static void bitpos_to_pair(idx_t p, idx_t *i, idx_t *j)
+{
+    idx_t s = 0;
+    idx_t t = 0;          /* T_s */
+    while (t + s + 1 <= p) {
+        ++s;
+        t = s * (s + 1) / 2;
+    }
+    *j = p - t;
+    *i = s - *j;
+}
 
 /*  A(a,b) : the binary operation described in the OEIS entry.
     It is the product in the ring GF(2)[x,y] of the two

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9857, u16 n <= 9857, u32 n <= 9857, u64 n <= 9857,
- *            u128 n <= 9857, big any n
- * Helpers:   none
+ * Range:     u8 n <= 13308, u16 n <= 99996, u32 n <= 99996, u64 n <= 99996,
+ *            u128 n <= 99996, big any n
+ * Validated: standard, pass, 120 terms through n = 9857 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes: a(n) = #{p prime ≤ n | p+4 prime} ("cousin prime count up to n") */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Count cousin prime pairs */
     seq_t count = 0;
     /* allocate cumulative array up to n */
-    seq_t *cum = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *cum = mem_new(seq_t, (n + 1));
     if (!cum) { free(prime); return 0; }
     cum[0] = 0;
     for (idx_t i = 1; i <= n; ++i) {
@@ -48,6 +50,6 @@ seq_t a(idx_t n)
     seq_t result = cum[n];
 
     free(prime);
-    free(cum);
+    mem_free(cum);
     return result;
 }

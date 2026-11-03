@@ -9,7 +9,8 @@
  *            composite number (first few composites are 4,6,8,9,...)
  * Range:     u8 n <= 1929, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, compute_pi
+ * Validated: standard, pass, 90 terms through n = 8822 (2026-11-01)
+ * Helpers:   build_primes_upto, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/compute_pi.h"
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     while (low <= high) {
         idx_t mid = low + (high - low) / 2;
-        idx_t pi_mid = (idx_t)compute_pi(mid);   /* primes <= mid */
+        idx_t pi_mid = (idx_t)prime_pi(mid);   /* primes <= mid */
         idx_t composites = mid - pi_mid - 1;     /* composites <= mid */
         if (composites >= n) {
             Cn = mid;

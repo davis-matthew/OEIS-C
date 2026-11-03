@@ -8,15 +8,17 @@
  *            binomial(n-2k,k)/(n-2k)!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 23,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 35 terms through n = 298 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) */
-#include "../utils/big_pow.h"    /* big_pow(seq_t base, seq_t exp) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         seq_t base = (seq_t)(2 * m + 1);
         seq_t exp  = (seq_t)(m - 1);
 
-        seq_t pow = big_pow(base, exp);
+        seq_t pow = ipow(base, exp);
 
         seq_t term = bin * pow;
         term *= P;

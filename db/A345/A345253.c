@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   finv_value
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,24 @@
    and Finv(x) is the largest k with F(k) ≤ x. */
 
 #include <stdint.h>   /* for consistency, though idx_t/seq_t are provided */
-#include "../utils/finv_value.h"
+
+/* Finv(v): largest k such that F(k) ≤ v. */
+static idx_t finv_value(seq_t v)
+{
+    /* start with k = 1 (F(1)=1) */
+    idx_t k = 1;
+    seq_t fk   = 1;   /* F(k)    */
+    seq_t fkp1 = 1;   /* F(k+1)  */
+
+    while (fkp1 <= v)
+    {
+        seq_t next = fk + fkp1;  /* F(k+2) */
+        fk   = fkp1;
+        fkp1 = next;
+        ++k;
+    }
+    return k;
+}
 
 /* Compute the k‑th Fibonacci number (F(0)=0, F(1)=1). */
 static seq_t fib_of(idx_t k)

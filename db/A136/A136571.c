@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 42, i16 n <= 305, i32 n <= 1313, i64 n <= 1623,
  *            i128 n <= 1623, big any n
- * Helpers:   gcd_idx_t
+ * Validated: standard, pass, 91 terms through n = 1416 (2026-11-03)
+ * Helpers:   gcd_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -56,7 +57,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gcd_idx_t.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Local utility functions                                               */
@@ -106,7 +108,7 @@ static seq_t c_n_r(idx_t k, idx_t r)
 {
     if (r == 0) return (seq_t)phi_small(k);
 
-    idx_t g = gcd_idx_t(k, r);
+    idx_t g = gcd_idx(k, r);
     seq_t sum = 0;
 
     /* iterate over divisors of g */
@@ -130,14 +132,14 @@ static void compute_row_coeffs(idx_t k, seq_t **coeff_out, size_t *len_out)
 {
     if (k == 1) {
         *len_out = 2;
-        *coeff_out = (seq_t *)malloc(2 * sizeof(seq_t));
+        *coeff_out = mem_new(seq_t, 2);
         (*coeff_out)[0] = (seq_t)1;
         (*coeff_out)[1] = (seq_t)-2;
         return;
     }
     if (k == 2) {
         *len_out = 2;
-        *coeff_out = (seq_t *)malloc(2 * sizeof(seq_t));
+        *coeff_out = mem_new(seq_t, 2);
         (*coeff_out)[0] = (seq_t)1;
         (*coeff_out)[1] = (seq_t)2;
         return;
@@ -148,7 +150,7 @@ static void compute_row_coeffs(idx_t k, seq_t **coeff_out, size_t *len_out)
     size_t len = D + 1;                   /* number of coefficients */
 
     /* power sums p[1..D] */
-    seq_t *p = (seq_t *)calloc(D + 1, sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, D + 1);
 
     for (idx_t m = 1; m <= D; ++m) {
         seq_t sum = 0;
@@ -165,7 +167,7 @@ static void compute_row_coeffs(idx_t k, seq_t **coeff_out, size_t *len_out)
     }
 
     /* Newton identities to get polynomial coefficients a[0..D] */
-    seq_t *a = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, len);
     a[0] = (seq_t)1;   /* leading coefficient */
 
     for (idx_t kidx = 1; kidx <= D; ++kidx) {
@@ -176,7 +178,7 @@ static void compute_row_coeffs(idx_t k, seq_t **coeff_out, size_t *len_out)
         a[kidx] = -temp / (seq_t)kidx;
     }
 
-    free(p);
+    mem_free(p);
 
     /* output array */
     *coeff_out = a;
@@ -210,6 +212,6 @@ seq_t a(idx_t index)
     compute_row_coeffs(row, &coeff, &coeff_len);
 
     seq_t result = coeff[offset];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

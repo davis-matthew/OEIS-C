@@ -14,7 +14,8 @@
  *            i=1 and is accepted.)
  * Range:     u8 n <= 5, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   is_prime_small, next_prime
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* grow a dynamic array of seq_t */
 static void grow_seq_array(seq_t **arr, size_t *cap, size_t need)
@@ -31,7 +33,7 @@ static void grow_seq_array(seq_t **arr, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t newcap = (*cap) ? (*cap << 1) : 64;
     while (newcap < need) newcap <<= 1;
-    *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, newcap);
     *cap = newcap;
 }
 /* grow a dynamic array of uint64_t */
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     /* initialise static storage on first call */
     if (!terms) {
         terms_cap = 64;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
     if (!primes) {
         primes_cap = 64;
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
 
         /* ensure we have the i‑th prime */
         while (primes_len < (size_t)i) {
-            if (is_prime_small((seq_t)prime_candidate)) {
+            if (is_prime_seq((seq_t)prime_candidate)) {
                 grow_uint64_array(&primes, &primes_cap, primes_len + 1);
                 primes[primes_len++] = prime_candidate;
             }
@@ -111,8 +113,8 @@ seq_t a(idx_t n)
         seq_t sod_p = digit_sum_u64(p);
 
         /* digit sum of i must be prime, except i==1 */
-        bool sod_i_prime = (i == 1) ? true : is_prime_small(sod_i);
-        bool sod_p_prime = is_prime_small(sod_p);
+        bool sod_i_prime = (i == 1) ? true : is_prime_seq(sod_i);
+        bool sod_p_prime = is_prime_seq(sod_p);
 
         if (sod_i_prime && sod_p_prime && sod_i < sod_p) {
             /* check that sod_p is the next prime after sod_i */

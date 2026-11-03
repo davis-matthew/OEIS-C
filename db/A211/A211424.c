@@ -7,119 +7,68 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of ordered triples (w,x,y) with w,x,y∈{−n,…,0,…,n}
  *            and w^2 + 3xy = 0
- * Range:     u8 n <= 26, u16 n <= 3590, u32 n <= 9732, u64 n <= 9732,
- *            u128 n <= 9732, big any n
+ * Range:     u8 n <= 26, u16 n <= 3590, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 69 terms through n = 9732 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+/* A211424: the number of ordered triples (w,x,y) in [-n,n]^3 with
+ * w^2 + 3xy = 0. w = 0 gives 4n + 1 triples (x = 0 or y = 0); otherwise
+ * w = 3k (3 | w^2 forces 3 | w) and xy = -3k^2, so x is +-d for a divisor d of
+ * M = 3k^2 with d <= n and M/d <= n, the sign of y following: 2 triples per
+ * such d. M's divisors come from factoring k (the original factored M with
+ * primes up to 6000 only, too few for M past 3.6e7). */
+
 #include <stdint.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include <math.h>
 
-/* ------------------------------------------------------------------------- */
-/* Prime generation (once, up to 6000)                                        */
-/* ------------------------------------------------------------------------- */
-#define MAX_PRIME_SIEVE 6000
-
-static uint32_t primes_arr[MAX_PRIME_SIEVE];
-static size_t primes_cnt = 0;
-static bool primes_inited = false;
-
-static void init_primes(void)
+static uint64_t count_divisors_in_bounds(uint64_t k, uint64_t n)
 {
-    if (primes_inited) return;
-    bool sieve[MAX_PRIME_SIEVE + 1];
-    for (size_t i = 0; i <= MAX_PRIME_SIEVE; ++i) sieve[i] = true;
-    sieve[0] = sieve[1] = false;
-    for (size_t i = 2; i * i <= MAX_PRIME_SIEVE; ++i) {
-        if (sieve[i]) {
-            for (size_t j = i * i; j <= MAX_PRIME_SIEVE; j += i)
-                sieve[j] = false;
+    uint64_t P[16], E[16];
+    int np = 0;
+    uint64_t t = k;
+    P[np] = 3; E[np++] = 1;                   /* the factor 3 of M = 3k^2 */
+    for (uint64_t p = 2; p * p <= t; ++p) {
+        if (t % p) continue;
+        uint64_t e = 0;
+        while (t % p == 0) { t /= p; ++e; }
+        if (p == 3) E[0] += 2 * e;
+        else { P[np] = p; E[np++] = 2 * e; }
+    }
+    if (t > 1) {
+        if (t == 3) E[0] += 2;
+        else { P[np] = t; E[np++] = 2; }
+    }
+    size_t cap = 1;
+    for (int i = 0; i < np; ++i) cap *= (size_t)(E[i] + 1);
+    uint64_t *div = (uint64_t *)malloc(cap * sizeof *div);
+    if (!div) abort();
+    size_t nd = 1;
+    div[0] = 1;
+    for (int i = 0; i < np; ++i) {
+        size_t old = nd;
+        uint64_t m = 1;
+        for (uint64_t e = 1; e <= E[i]; ++e) {
+            m *= P[i];
+            for (size_t j = 0; j < old; ++j) div[nd++] = div[j] * m;
         }
     }
-    for (size_t i = 2; i <= MAX_PRIME_SIEVE; ++i)
-        if (sieve[i]) primes_arr[primes_cnt++] = (uint32_t)i;
-    primes_inited = true;
-}
-
-/* ------------------------------------------------------------------------- */
-/* Factorisation and divisor enumeration                                      */
-/* ------------------------------------------------------------------------- */
-static size_t count_divisors_in_bounds(uint64_t M, uint64_t n)
-{
-    /* factorise M */
-    uint32_t facP[32];
-    int facE[32];
-    size_t facCnt = 0;
-    uint64_t tmp = M;
-
-    init_primes();
-    for (size_t i = 0; i < primes_cnt && (uint64_t)primes_arr[i] * primes_arr[i] <= tmp; ++i) {
-        uint32_t p = primes_arr[i];
-        if (tmp % p == 0) {
-            int e = 0;
-            while (tmp % p == 0) {
-                tmp /= p;
-                ++e;
-            }
-            facP[facCnt] = p;
-            facE[facCnt] = e;
-            ++facCnt;
-        }
-    }
-    if (tmp > 1) {          /* remaining prime factor */
-        facP[facCnt] = (uint32_t)tmp;
-        facE[facCnt] = 1;
-        ++facCnt;
-    }
-
-    /* enumerate all (positive) divisors */
-    uint64_t divis[2048];
-    size_t divSize = 1;
-    divis[0] = 1;
-
-    for (size_t i = 0; i < facCnt; ++i) {
-        uint64_t p = facP[i];
-        int e = facE[i];
-        size_t oldSize = divSize;
-        uint64_t mult = 1;
-        for (int k = 1; k <= e; ++k) {
-            mult *= p;
-            for (size_t j = 0; j < oldSize; ++j) {
-                divis[divSize++] = divis[j] * mult;
-            }
-        }
-    }
-
-    /* count those satisfying d ≤ n and M/d ≤ n */
-    size_t cnt = 0;
-    for (size_t i = 0; i < divSize; ++i) {
-        uint64_t d = divis[i];
-        if (d <= n && M / d <= n) ++cnt;
-    }
+    const uint64_t M = 3 * k * k;
+    uint64_t cnt = 0;
+    for (size_t i = 0; i < nd; ++i)
+        if (div[i] <= n && M / div[i] <= n) ++cnt;
+    free(div);
     return cnt;
 }
 
-/* ------------------------------------------------------------------------- */
-/* Main sequence function                                                     */
-/* ------------------------------------------------------------------------- */
 seq_t a(idx_t n)
 {
-    seq_t total = 0;
-
-    /* w must be a multiple of 3: w = 3*k, |w| ≤ n  */
-    int64_t maxk = (int64_t)(n / 3);
-    for (int64_t k = -maxk; k <= maxk; ++k) {
-        if (k == 0) {
-            total += (seq_t)4 * (seq_t)n + (seq_t)1;        /* 4n+1  */
-        } else {
-            uint64_t M = 3ULL * (uint64_t)k * (uint64_t)k;  /* 3*k^2  */
-            size_t t = count_divisors_in_bounds(M, (uint64_t)n);
-            total += (seq_t)2 * (seq_t)t;
-        }
-    }
-    return total;
+    const uint64_t N = (uint64_t)n;
+    uint64_t total = 4 * N + 1;                /* w = 0 */
+    for (uint64_t k = 1; 3 * k <= N; ++k)
+        total += 2 * 2 * count_divisors_in_bounds(k, N);   /* w = +-3k */
+    return (seq_t)total;
 }

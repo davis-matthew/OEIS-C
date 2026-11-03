@@ -8,12 +8,15 @@
  *            a(1)=6
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 14,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 31 terms through n = 247 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +31,8 @@ seq_t a(idx_t n)
     seq_t base7   = (seq_t)7;
     seq_t exp7    = (seq_t)n;
 
-    seq_t pow2 = big_pow(base2, exp2);
-    seq_t pow7 = big_pow(base7, exp7);
+    seq_t pow2 = ipow(base2, exp2);
+    seq_t pow7 = ipow(base7, exp7);
 
     return factor1 * pow2 * pow7;
 }

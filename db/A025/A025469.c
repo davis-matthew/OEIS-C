@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = number of solutions to n = x^3 + y^3 + z^3 with x>y>z>0
- * Range:     u8 n <= 9911, u16 n <= 9911, u32 n <= 9911, u64 n <= 9911,
- *            u128 n <= 9911, big any n
- * Helpers:   none
+ * Range:     u8 n <= 17073, u16 n <= 17073, u32 n <= 17073, u64 n <= 17073,
+ *            u128 n <= 17073, big any n
+ * Validated: standard, pass, 124 terms through n = 9911 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    for C builds it uses calloc to obtain zero‑initialised storage. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for precomputation */
 static seq_t *sum_counts = NULL;
@@ -34,7 +36,7 @@ static void free_sum_counts(void)
             delete[] sum_counts;
         else
 #endif
-            free(sum_counts);
+            mem_free(sum_counts);
         sum_counts = NULL;
         max_precomp = 0;
         allocated_with_new = 0;
@@ -109,7 +111,7 @@ static void precompute(idx_t limit)
         delete[] cube;
     else
 #endif
-        free(cube);
+        mem_free(cube);
 
     max_precomp = limit;
 }

@@ -11,13 +11,33 @@
  *            divisors ≡1,3 (mod 4)
  * Range:     i8 n <= 8, i16 n <= 20, i32 n <= 38, i64 n <= 38, i128 n <= 38,
  *            big any n
- * Helpers:   r2_func
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>          /* size_t, NULL */
-#include "../utils/r2_func.h"
+#include "../utils/mem.h"
+
+static seq_t r2_func(idx_t n) {
+    if (n == 0) return (seq_t)1;
+    idx_t d;
+    int cnt1 = 0, cnt3 = 0;
+    for (d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            idx_t d1 = d;
+            if (d1 % 4 == 1) ++cnt1;
+            else if (d1 % 4 == 3) ++cnt3;
+            idx_t d2 = n / d;
+            if (d2 != d1) {
+                if (d2 % 4 == 1) ++cnt1;
+                else if (d2 % 4 == 3) ++cnt3;
+            }
+        }
+    }
+    return (seq_t)((seq_t)4 * ((seq_t)cnt1 - (seq_t)cnt3));
+}
 
 seq_t a(idx_t n) {
     static seq_t *D = NULL;   /* r_2 coefficients */
@@ -27,8 +47,8 @@ seq_t a(idx_t n) {
     size_t N = (size_t)n;
     if (N >= cap) {
         size_t new_cap = N + 1;
-        seq_t *newD = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        seq_t *newA = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *newD = mem_new(seq_t, new_cap);
+        seq_t *newA = mem_new(seq_t, new_cap);
 
         size_t i;
         /* copy old data */
@@ -53,8 +73,8 @@ seq_t a(idx_t n) {
             }
         }
 
-        free(D);
-        free(A);
+        mem_free(D);
+        mem_free(A);
         D = newD;
         A = newA;
         cap = new_cap;

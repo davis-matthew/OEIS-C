@@ -10,14 +10,32 @@
  *            c(3)=12, c(5)=-210, c(7)=1016)
  * Range:     i8 n <= 0, i16 n <= 2, i32 n <= 15, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   a002608_mul_euler
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a002608_mul_euler.h"
+
+static void a002608_mul_euler(long long *F, long long L, long long s)
+{
+    /* multiply F in place by Prod_k (1 - q^(s*k)) = sum_j (-1)^j q^(s*j(3j-+1)/2) */
+    long long i;
+    for (i = L - 1; i >= 1; i--) {
+        long long acc = 0, j;
+        for (j = 1;; j++) {
+            long long e1 = s * (j * (3 * j - 1) / 2);
+            long long e2 = s * (j * (3 * j + 1) / 2);
+            long long sg = (j & 1) ? -1 : 1;
+            if (e1 > i) break;
+            acc += sg * F[i - e1];
+            if (e2 <= i) acc += sg * F[i - e2];
+        }
+        F[i] += acc;
+    }
+}
 
 static long long *a002608_F = NULL;   /* coefficients of Prod (1-q^k)^8 (1-q^2k)^8 */
 static long long a002608_len = 0;

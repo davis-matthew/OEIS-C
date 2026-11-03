@@ -9,7 +9,8 @@
  *            prime)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   pow_seq_local
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_seq_local.h"
+#include "../utils/ipow_idx.h"
 
 /* Forward declaration for the arbitrary-precision exponent helper */
-static seq_t pow_seq_local(seq_t base, idx_t exp);
+static seq_t ipow_idx(seq_t base, idx_t exp);
 
 /* Prime sieve data */
 static bool primes_initialized = false;
@@ -95,5 +96,5 @@ seq_t a(idx_t n)
     idx_t pip_value = primes_table[nth_prime_value];   /* p_{p_n} */
 
     /* Return pip_value ^ pip_value */
-    return pow_seq_local((seq_t)pip_value, (idx_t)pip_value);
+    return ipow_idx((seq_t)pip_value, (idx_t)pip_value);
 }

@@ -12,7 +12,8 @@
  *            integers and keeps those that satisfy the conditi...
  * Range:     u8 n <= 51, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 71 terms through n = 9133 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Helper: test whether n satisfies the condition for the sequence */
 static bool is_candidate(uint64_t n)
@@ -69,13 +71,13 @@ seq_t a(idx_t n)
             if (cache_len >= cache_cap)
             {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *new_ptr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+                seq_t *new_ptr = mem_new(seq_t, new_cap);
                 if (!new_ptr) /* OOM protection – return zero */
                     return (seq_t)0;
                 if (cache)
                 {
-                    memcpy(new_ptr, cache, cache_len * sizeof(seq_t));
-                    free(cache);
+                    mem_copy(new_ptr, cache, cache_len * sizeof(seq_t));
+                    mem_free(cache);
                 }
                 cache    = new_ptr;
                 cache_cap = new_cap;

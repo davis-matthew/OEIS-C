@@ -11,8 +11,9 @@
  *            most k parts). * For a given global index n (offset 1) find the
  *            row r that satisfies * 1 + 2 + … + r−1 < n ≤ 1 + 2 + … + r. *
  *            Then set c = n − (1 + 2 + … + r−1) (1‑based c...
- * Range:     u8 n <= 145, u16 n <= 963, u32 n <= 8180, u64 n <= 9025,
- *            u128 n <= 9025, big any n
+ * Range:     u8 n <= 145, u16 n <= 963, u32 n <= 8180, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 9025 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

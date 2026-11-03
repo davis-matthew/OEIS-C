@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for values of the sequence (cache) */
 static seq_t *cache = NULL;
@@ -36,12 +38,12 @@ static void ensure_factorial(idx_t up_to)
     if (fact == NULL) {
         fact_size = up_to + 1;
         if (fact_size == 0) fact_size = 1;
-        fact = (seq_t*)malloc(fact_size * sizeof(seq_t));
+        fact = mem_new(seq_t, fact_size);
         fact[0] = 1;          /* 0! = 1 */
         fact_up_to = 0;
     } else if (fact_size <= up_to) {
         size_t new_size = up_to + 1;
-        seq_t *tmp = (seq_t*)realloc(fact, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, new_size);
         fact = tmp;
         fact_size = new_size;
     }
@@ -57,12 +59,12 @@ static void ensure_cache(idx_t up_to)
     if (cache == NULL) {
         cache_size = up_to + 1;
         if (cache_size == 0) cache_size = 1;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = 0;          /* a(0) = 0 */
         cache_up_to = 0;
     } else if (cache_size <= up_to) {
         size_t new_size = up_to + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         cache = tmp;
         cache_size = new_size;
     }

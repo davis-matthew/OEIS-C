@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 15, u64 n <= 32, u128 n <= 68,
  *            big any n
- * Helpers:   forbidden_pattern
+ * Validated: standard, pass, 38 terms through n = 185 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,13 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/forbidden_pattern.h"
+
+/* returns true iff (a,b,c) is forbidden: 000 or 010 */
+static inline int forbidden_pattern(int a, int b, int c)
+{
+    return ((a == 0 && b == 0 && c == 0) ||
+            (a == 0 && b == 1 && c == 0));
+}
 
 /* checks a triple of rows for vertical columns and the main NW‑SE
    diagonal of length 3 */

@@ -6,15 +6,17 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = C(r, k) + 2^k - 1, * where r = floor((sqrt(8n+1)-1)/2)
  *            and k = n - r*(r+1)/2
- * Range:     u8 n <= 39, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 43, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     idx_t tri = r * (r + 1) / 2;
     idx_t k = n - tri;
 
-    seq_t part1 = binom(r, k);     /* C(r,k) */
+    seq_t part1 = binomial(r, k);     /* C(r,k) */
     seq_t part2 = pow2(k);         /* 2^k */
 
     return part1 + part2 - 1;

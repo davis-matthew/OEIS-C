@@ -9,12 +9,14 @@
  *            binary representation of n repeated n times
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 25,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 335 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Compute the nth term of OEIS A162472.  n >= 1. */

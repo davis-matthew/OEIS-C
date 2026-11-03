@@ -8,7 +8,8 @@
  *            contains exactly three distinct digits
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *vals = NULL;
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
         /* store the found candidate */
         if (len == cap) {
             size_t newcap = (cap == 0) ? 16 : cap * 2;
-            seq_t *tmp = (seq_t *)realloc(vals, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, vals, newcap);
             if (!tmp) abort();  /* allocation failed */
             vals = tmp;
             cap = newcap;

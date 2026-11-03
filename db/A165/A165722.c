@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 21, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   ensure_terms_capacity
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ensure_terms_capacity.h"
+#include "../utils/mem.h"
+
+static void ensure_terms_capacity(size_t need)
+{
+    static size_t cap = 0;
+    static seq_t *terms = NULL;
+    if (terms == NULL) {
+        cap = 16;
+        terms = mem_new(seq_t, cap);
+    }
+    if (need > cap) {
+        size_t newcap = cap;
+        while (newcap < need) newcap *= 2;
+        terms = mem_resize(seq_t, terms, newcap);
+        cap = newcap;
+    }
+    *(&terms) = terms;
+    *(&cap) = cap;
+}
 
 /* Helper for doubling dynamically sized arrays */
 static void ensure_digits_capacity(size_t need)
@@ -68,7 +87,7 @@ static void init_static_data(void)
     }
     if (terms == NULL) {
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 }
 
@@ -121,7 +140,7 @@ static void append_term(seq_t k)
 {
     if (terms_len == terms_cap) {
         terms_cap *= 2;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_len++] = k;
 }

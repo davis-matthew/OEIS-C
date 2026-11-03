@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=1..n} tau(gcd(k,n)^gcd(k,n))
  * Range:     u8 n <= 11, u16 n <= 41, u32 n <= 329, u64 n <= 6929,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, factor_u64
+ * Validated: standard, pass, 74 terms through n = 9255 (2026-11-01)
+ * Helpers:   factor_u64, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
 
 static void gen_divs(size_t idx, uint64_t n, uint64_t d,
                      uint64_t *pr, uint64_t *ex,
@@ -27,7 +30,7 @@ static void gen_divs(size_t idx, uint64_t n, uint64_t d,
     if (idx == m) {
         /* leaf: d is complete divisor */
         seq_t d_seq = (seq_t)d;
-        seq_t phi = calc_phi((seq_t)(n / d));
+        seq_t phi = totient_seq((seq_t)(n / d));
 
         seq_t tau = 1;
         for (size_t i = 0; i < m; ++i) {

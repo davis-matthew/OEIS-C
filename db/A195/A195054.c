@@ -7,6 +7,7 @@
  * Formula:   a(n) = p(n) - p(n-1) - p(n-2) + p(n-5)
  * Range:     i8 n <= 22, i16 n <= 51, i32 n <= 141, i64 n <= 445,
  *            i128 n <= 1526, big any n
+ * Validated: standard, pass, 63 terms through n = 8806 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

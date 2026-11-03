@@ -9,11 +9,13 @@
  *            1584720*n*4^n - 136500*n^2*2^n + 608400*n^2*4^n
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 17, u128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

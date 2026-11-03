@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_check_overflow
+ * Validated: standard, pass, 92 terms through n = 9786 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/mul_check_overflow.h"
+#include "../utils/mem.h"
+
+/* Multiplication with early overflow check against a limit.
+   used only for 64‑bit arithmetic, but works generically with seq_t. */
+static seq_t mul_check_overflow(seq_t a, seq_t b, seq_t limit)
+{
+    if (a == 0 || b == 0) return 0;
+    if (a > limit / b) return limit + 1;   /* indicates overflow beyond limit */
+    return a * b;
+}
 
 /* ---------- Prime sieve for numbers up to 1 000 000 ---------- */
 #define MAX_PRIME 1000000
@@ -121,7 +131,7 @@ static void ensure_series_capacity(size_t n)
     if (g_seq_cap > n) return;
     size_t new_cap = (g_seq_cap == 0) ? 16 : g_seq_cap * 2;
     if (new_cap < n + 1) new_cap = n + 1;
-    seq_t *new_arr = (seq_t*)realloc(g_seq, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, g_seq, new_cap);
     g_seq = new_arr;
     g_seq_cap = new_cap;
 }

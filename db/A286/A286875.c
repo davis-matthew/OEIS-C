@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{p^k || n, k>=2} p^k (sum of unitary proper prime
  *            power divisors)
- * Range:     u8 n <= 255, u16 n <= 9889, u32 n <= 9889, u64 n <= 9889,
- *            u128 n <= 9889, big any n
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 124 terms through n = 9889 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

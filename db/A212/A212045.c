@@ -13,16 +13,25 @@
  *            T(k,n)=numerator of the reduced fraction R(k,n). The sequence...
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 42, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   seq_gcd, seq_mul, seq_pow
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_gcd.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t idx)
 {
@@ -36,7 +45,7 @@ seq_t a(idx_t idx)
     if (n == 1 && k == 1) return (seq_t)1;
 
     /* pre‑compute powers of two: 2^(n-1) and 2^n */
-    seq_t pow2 = seq_pow((seq_t)2, n - 1);      /* 2^(n-1) */
+    seq_t pow2 = ipow_idx((seq_t)2, n - 1);      /* 2^(n-1) */
     seq_t pow2_n = seq_mul(pow2, (seq_t)2);     /* 2^n */
 
     /* base fractions for k = 0 and k = 1 */
@@ -45,7 +54,7 @@ seq_t a(idx_t idx)
 
     seq_t num_prev1 = pow2_n - (seq_t)1;               /* numerator of R(1,n) */
     seq_t den_prev1 = seq_mul((seq_t)n, pow2);         /* denominator of R(1,n) */
-    seq_t g = seq_gcd(num_prev1, den_prev1);
+    seq_t g = gcd(num_prev1, den_prev1);
     num_prev1 /= g;
     den_prev1 /= g;
 
@@ -67,14 +76,14 @@ seq_t a(idx_t idx)
         seq_t tmp2 = seq_mul(term2_num, term1_den);
         seq_t diff1_num = tmp1 - tmp2;          /* term1 ≥ term2 by theory */
         seq_t diff1_den = seq_mul(term1_den, term2_den);
-        g = seq_gcd(diff1_num, diff1_den);
+        g = gcd(diff1_num, diff1_den);
         diff1_num /= g;
         diff1_den /= g;
 
         /* subtract 2^(1-n) = 1 / pow2 */
         seq_t expr_num = seq_mul(diff1_num, pow2) - seq_mul((seq_t)1, diff1_den);
         seq_t expr_den = seq_mul(diff1_den, pow2);
-        g = seq_gcd(expr_num, expr_den);
+        g = gcd(expr_num, expr_den);
         expr_num /= g;
         expr_den /= g;
 
@@ -82,7 +91,7 @@ seq_t a(idx_t idx)
         seq_t fac = (seq_t)(n + 1 - cur);        /* positive integer */
         seq_t final_num = expr_num;
         seq_t final_den = seq_mul(expr_den, fac);
-        g = seq_gcd(final_num, final_den);
+        g = gcd(final_num, final_den);
         final_num /= g;
         final_den /= g;
 

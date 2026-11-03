@@ -7,8 +7,9 @@
  * Formula:   a(n) = number of binomial coefficients C(n,k) ≡ 2 (mod 3) (i.e.
  *            the number of twos in row n of Pascal's triangle modulo 3).
  *            Computed via Lucas' theorem for the prime 3
- * Range:     u8 n <= 727, u16 n <= 9669, u32 n <= 9669, u64 n <= 9669,
- *            u128 n <= 9669, big any n
+ * Range:     u8 n <= 727, u16 n <= 19683, u32 n <= 19683, u64 n <= 19683,
+ *            u128 n <= 19683, big any n
+ * Validated: standard, pass, 97 terms through n = 9669 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

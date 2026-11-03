@@ -10,7 +10,8 @@
  *            Cauchy determinant for 1/(x_i+x_j) with x_i=i+3/2
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   build_primes, seq_pow
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   build_primes, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -93,7 +94,7 @@ seq_t a(idx_t n)
     for (size_t pi = 0; pi < prime_cnt; ++pi) {
         int64_t e = exps[pi];
         if (e > 0) {
-            result = seq_pow((seq_t)primes[pi], (idx_t)e) * result;
+            result = ipow_idx((seq_t)primes[pi], (idx_t)e) * result;
         }
     }
 

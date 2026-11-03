@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1083, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 9505 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #ifndef LIMIT
 #define LIMIT 5000000
 #endif
+#include "../utils/mem.h"
 
 static uint32_t *spf = NULL;           /* size LIMIT+1 */
 static seq_t *vals = NULL;             /* collected sequence values */
@@ -48,7 +50,7 @@ static void init_spf(void) {
 /* Compute the sequence up to LIMIT */
 static void compute_vals(void) {
     vals_cap = 20000;
-    vals = (seq_t*)malloc(vals_cap * sizeof(seq_t));
+    vals = mem_new(seq_t, vals_cap);
     if (!vals) exit(1);
 
     for (uint32_t n = 2; n <= LIMIT; ++n) {
@@ -69,7 +71,7 @@ static void compute_vals(void) {
         if (f == 8) {
             if (vals_len == vals_cap) {
                 vals_cap *= 2;
-                vals = (seq_t*)realloc(vals, vals_cap * sizeof(seq_t));
+                vals = mem_resize(seq_t, vals, vals_cap);
                 if (!vals) exit(1);
             }
             vals[vals_len++] = (seq_t)n;

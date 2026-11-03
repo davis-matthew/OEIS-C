@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   seqt_digits
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,30 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seqt_digits.h"
+#include "../utils/mem.h"
+
+/* Convert a seq_t value to its decimal digits.
+   The digits are stored in buf[0]..buf[len-1] (most significant first).
+   Returns the number of digits. */
+static size_t seqt_digits(seq_t val, unsigned char *buf)
+{
+    if (val == 0) {
+        buf[0] = 0;
+        return 1;
+    }
+    seq_t tmp = val;
+    size_t len = 0;
+    while (tmp > 0) {
+        buf[len++] = (unsigned char)(tmp % 10);
+        tmp /= 10;
+    }
+    for (size_t i = 0; i < len / 2; ++i) {
+        unsigned char c = buf[i];
+        buf[i] = buf[len - 1 - i];
+        buf[len - 1 - i] = c;
+    }
+    return len;
+}
 
 /* Memoised sequence values */
 static seq_t *a_cache = NULL;
@@ -41,7 +65,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n + 1 <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) abort();   /* out of memory */
     a_cache = tmp;
     cache_cap = new_cap;

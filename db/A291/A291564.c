@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look, easy
  * Formula:   a(n) = n - Σ_{i=1..n} [prime(i) = prime(2n-i)]
- * Range:     u8 n <= 1023, u16 n <= 8551, u32 n <= 8551, u64 n <= 8551,
- *            u128 n <= 8551, big any n
+ * Range:     u8 n <= 1023, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 90 terms through n = 8551 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

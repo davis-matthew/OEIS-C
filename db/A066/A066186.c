@@ -7,6 +7,7 @@
  * Formula:   a(n) = n * p(n) (p(n) = number of partitions of n)
  * Range:     u8 n <= 8, u16 n <= 26, u32 n <= 88, u64 n <= 326,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 57 terms through n = 951 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

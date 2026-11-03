@@ -7,7 +7,8 @@
  * Formula:   a(n) = 4p, where p is prime and both 2p+1 and 4p+1 are composite
  * Range:     u8 n <= 5, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- Prime test (deterministic Miller–Rabin for 64‑bit integers) --- */
 static bool is_prime_u64(uint64_t n)
@@ -66,7 +68,7 @@ static void append_term(seq_t val)
 {
     if (terms_len >= terms_cap) {
         terms_cap = terms_cap ? terms_cap * 2 : 32;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_len++] = val;
 }

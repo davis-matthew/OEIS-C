@@ -8,7 +8,8 @@
  *            n‑th such semiprime (offset 1)
  * Range:     u8 n <= 5, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed values. */
 static seq_t *semiprimes = NULL;
@@ -47,7 +49,7 @@ static void init(void)
 
     /* Allocate a starting buffer for the semiprimes. */
     sem_cap = 20000;
-    semiprimes = (seq_t*)malloc(sem_cap * sizeof(seq_t));
+    semiprimes = mem_new(seq_t, sem_cap);
 
     /* Enumerate numbers congruent to 5 mod 8 and test for semiprime. */
     for (idx_t k = 0; ; ++k) {
@@ -64,8 +66,7 @@ static void init(void)
             /* q is prime (or q==p).  num is a semiprime. */
             if (sem_count == sem_cap) {
                 sem_cap *= 2;
-                semiprimes = (seq_t*)realloc(semiprimes,
-                                            sem_cap * sizeof(seq_t));
+                semiprimes = mem_resize(seq_t, semiprimes, sem_cap);
             }
             semiprimes[sem_count++] = num;
         }

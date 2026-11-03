@@ -10,7 +10,8 @@
  *            bigomega and pow2
  * Range:     u8 n <= 20, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   bigomega, pow2
+ * Validated: partial, pass, 104 terms through n = 104 (2026-11-03)
+ * Helpers:   bigomega, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include "../utils/bigomega.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* static cache for memoised values */
 static seq_t *cache = NULL;     /* array of a(i) values, 0‑based */
@@ -34,7 +36,7 @@ static void grow_cache(size_t need)
     size_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) {
         /* in a contest setting, aborting is acceptable; real code should handle allocation error */
         exit(EXIT_FAILURE);

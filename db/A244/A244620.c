@@ -7,6 +7,7 @@
  * Formula:   a(n) = (9699690*n - 4849867 - 2192597*(-1)^n)/2
  * Range:     u8 none, u16 none, u32 n <= 489, u64 n <= 1000, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 914 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

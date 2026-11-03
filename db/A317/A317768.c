@@ -13,12 +13,14 @@
  *            a(12)=584, a(13)=981, a(14)=1670, a(15)=2806, a(16)...
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 41, u64 n <= 83, u128 n <= 167,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* helper array of the first 24 terms, indexed from 1; index 0 unused */
 static const seq_t _init[25] = {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     }
 
     /* allocate array sized n+1 (0..n) */
-    seq_t *arr = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (size_t)(n + 1));
     if (!arr) {
         /* allocation failed – return 0 (unlikely for supported n) */
         return (seq_t)0;
@@ -66,6 +68,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

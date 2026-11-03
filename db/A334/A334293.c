@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*a(n-1) + 3*a(n-2) + a(n-3) with a(0)=1, a(1)=0, a(2)=2
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -25,7 +27,7 @@ static void ensure_cache_size(idx_t n, seq_t **ptr, size_t *cap)
     size_t new_cap = (*cap == 0) ? 4 : (*cap * 2);
     while (new_cap < (size_t)needed) new_cap *= 2;
     /* cast for C++ compatibility */
-    seq_t *tmp = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
     if (tmp == NULL) { abort(); }
     *ptr   = tmp;
     *cap   = new_cap;

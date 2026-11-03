@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 64 terms through n = 886 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
     /* grow array helpers */
     if (results == NULL) {
         res_cap = 32;
-        results = (seq_t *)realloc(NULL, res_cap * sizeof(seq_t));
+        results = mem_resize(seq_t, NULL, res_cap);
         if (!results) return 0; /* allocation failure */
     }
     if (primes == NULL) {
@@ -78,7 +81,7 @@ seq_t a(idx_t n)
             } else if (current % 3 == 2) {          /* p ≡ 2 (mod 3) → all non‑zero residues are cubes */
                 qualifies = true;
             } else if (current % 3 == 1) {          /* p ≡ 1 (mod 3) → test the cubic residue condition */
-                seq_t r = mod_pow((seq_t)14,
+                seq_t r = powmod((seq_t)14,
                                   (uint64_t)(current - 1) / 3,
                                   (seq_t)current);
                 if (r == (seq_t)1) qualifies = true;
@@ -88,7 +91,7 @@ seq_t a(idx_t n)
                 /* add to results list */
                 if (res_len == res_cap) {
                     res_cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(results, res_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, results, res_cap);
                     if (!tmp) return 0;
                     results = tmp;
                 }

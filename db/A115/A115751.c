@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9738, u16 n <= 9738, u32 n <= 9738, u64 n <= 9738,
- *            u128 n <= 9738, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10001, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 121 terms through n = 9738 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system; no typedefs here. */
 
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Initialization on first call. */
     if (cache == NULL) {
         maxComputed = 1;
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));   /* indices 0..1 */
+        cache = mem_new(seq_t, 2);   /* indices 0..1 */
         seen  = (bool *)calloc(2, sizeof(bool));      /* indices 0..1 */
 
         cache[1] = (seq_t)1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     if (n > maxComputed) {
         idx_t newSize = n + 1;  /* array indices 0..n */
 
-        cache = (seq_t *)realloc(cache, (size_t)newSize * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)newSize);
         seen  = (bool  *)realloc(seen,  (size_t)newSize * sizeof(bool));
 
         /* New entries of seen are initially false. */

@@ -7,6 +7,7 @@
  * Formula:   a(n) = decimal digit at position n of 2^1024 - 2^971
  * Range:     u8 n <= 617, u16 n <= 617, u32 n <= 617, u64 n <= 617,
  *            u128 n <= 617, big any n
+ * Validated: full, pass, 309 terms through n = 617 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,15 +12,29 @@
  *            entry T(n,k) is the numerator of CF(n,k) in l...
  * Range:     u8 n <= 10, u16 n <= 23, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   big_pow, binomial, factorial, gcd
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/factorial.h"
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -67,7 +81,7 @@ seq_t a(idx_t n)
             int base_int = 2 + (int)(k / 2) - (int)j;
             seq_t base_abs = (base_int >= 0) ? (seq_t)base_int
                                              : (seq_t)(-base_int);
-            term_abs = bin * big_pow(base_abs, (seq_t)row);
+            term_abs = bin * ipow(base_abs, (seq_t)row);
 
             if (base_int < 0)                  /* negative base contributes */
                 term_pos = ((j + row) % 2 == 0);
@@ -80,7 +94,7 @@ seq_t a(idx_t n)
             int base_num = 2 * s + 5;                   /* odd numerator */
             seq_t base_abs = (base_num >= 0) ? (seq_t)base_num
                                               : (seq_t)(-base_num);
-            term_abs = bin * big_pow(base_abs, (seq_t)row);
+            term_abs = bin * ipow(base_abs, (seq_t)row);
 
             if (base_num < 0)                    /* negative base */
                 term_pos = ((j + row) % 2 == 0);
@@ -104,7 +118,7 @@ seq_t a(idx_t n)
     /* Full denominator before reduction */
     seq_t denom = kFact;
     if (k % 2 == 1)                               /* factor 2^row for odd k */
-        denom *= big_pow((seq_t)2, (seq_t)row);
+        denom *= ipow((seq_t)2, (seq_t)row);
 
     /* Reduce the fraction */
     seq_t g = gcd(numerator_abs, denom);

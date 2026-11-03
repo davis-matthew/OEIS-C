@@ -9,7 +9,8 @@
  *            in {k^2 mod 51 : k integers}
  * Range:     u8 n <= 18, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort */
 static int cmp_seq(const void *a, const void *b)
@@ -46,7 +48,7 @@ static void init_residues(void)
             values[count++] = r;
         }
     }
-    qsort(values, count, sizeof(seq_t), cmp_seq);
+    mem_qsort(values, count, sizeof(seq_t), cmp_seq);
 
     /* store the computed array in the static area */
     static seq_t *storage = NULL;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
                 res[len++] = r;
             }
         }
-        qsort(res, len, sizeof(seq_t), cmp_seq);
+        mem_qsort(res, len, sizeof(seq_t), cmp_seq);
         initialized = true;
     }
 

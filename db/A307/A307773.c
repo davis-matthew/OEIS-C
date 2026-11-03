@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} |Stirling1(n,k)| * prime(k)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"  /* provides extern bool is_prime(idx_t); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
  /* Cache for computed a(n) values */
 static seq_t *cached_vals   = NULL;  /* indices 1..max_n   */
@@ -65,15 +67,15 @@ seq_t a(idx_t n)
 
     /* Grow cached_vals if needed */
     if (cached_cap < (size_t)(n + 1)) {
-        seq_t *tmp = (seq_t *)realloc(cached_vals, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cached_vals, (n + 1));
         cached_vals = tmp;
         cached_cap  = (size_t)(n + 1);
     }
 
     /* Grow Stirling rows if needed */
     if (row_cap < (size_t)(n + 1)) {
-        seq_t *tmp1 = (seq_t *)realloc(row_prev, (n + 1) * sizeof(seq_t));
-        seq_t *tmp2 = (seq_t *)realloc(row_cur,  (n + 1) * sizeof(seq_t));
+        seq_t *tmp1 = mem_resize(seq_t, row_prev, (n + 1));
+        seq_t *tmp2 = mem_resize(seq_t, row_cur, (n + 1));
         row_prev = tmp1;
         row_cur  = tmp2;
         row_cap  = (size_t)(n + 1);

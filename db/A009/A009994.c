@@ -9,6 +9,7 @@
  *            0,1,2,3,4,5,6,7, 8,9,11,12,13,14,15,16,17,18,19,22,23,24,25,26,
  * Range:     u8 n <= 122, u16 n <= 1946, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 81 terms through n = 9925 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

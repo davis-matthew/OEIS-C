@@ -10,7 +10,8 @@
  *            T(m-1,k-1))
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 31,
  *            big any n
- * Helpers:   grow_zero, moebius_mu, zalloc_arr
+ * Validated: standard, pass, 39 terms through n = 405 (2026-11-03)
+ * Helpers:   mem, mobius_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,25 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/zalloc_arr.h"
-#include "../utils/grow_zero.h"
-#include "../utils/moebius_mu.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/mobius_idx.h"
+#include "../utils/mem.h"
+
+static seq_t *zalloc_arr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 static seq_t *fubini = NULL;   /* fubini[m] = A000670(m) */
 static seq_t *trow = NULL;     /* current row T(r-1, k) */
@@ -68,11 +85,11 @@ seq_t a(idx_t n) {
     for (d = 1; d * d <= n; d++) {
         if (n % d == 0) {
             idx_t e = n / d;
-            int mu = moebius_mu(d);
+            int mu = mobius_idx(d);
             if (mu > 0) result += fubini[e - 1];
             else if (mu < 0) result -= fubini[e - 1];
             if (e != d) {
-                int mu2 = moebius_mu(e);
+                int mu2 = mobius_idx(e);
                 if (mu2 > 0) result += fubini[d - 1];
                 else if (mu2 < 0) result -= fubini[d - 1];
             }

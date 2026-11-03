@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 213, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 86 terms through n = 9968 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Multiply polynomials over GF(2) – XOR‑multiplication. */
 static seq_t poly_mul(seq_t a, seq_t b)
@@ -39,11 +41,11 @@ static seq_t poly_mod(seq_t dividend, seq_t divisor)
     if (divisor == 0)
         return dividend;
 
-    size_t div_deg = bitlen_seq_t(divisor) - 1;
+    size_t div_deg = bit_length(divisor) - 1;
     seq_t rem = dividend;
 
-    while (rem != 0 && bitlen_seq_t(rem) > div_deg) {
-        size_t rem_deg = bitlen_seq_t(rem) - 1;
+    while (rem != 0 && bit_length(rem) > div_deg) {
+        size_t rem_deg = bit_length(rem) - 1;
         size_t shift   = rem_deg - div_deg;
         rem ^= (divisor << shift);
     }
@@ -57,7 +59,7 @@ static bool is_reducible(seq_t p)
     if (p < 4)
         return false;
 
-    size_t deg = bitlen_seq_t(p) - 1;
+    size_t deg = bit_length(p) - 1;
     if (deg <= 1)
         return false;
 
@@ -89,7 +91,7 @@ static idx_t last_checked = 0;         /* last integer examined. */
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr)
         exit(1);
     cache = new_ptr;

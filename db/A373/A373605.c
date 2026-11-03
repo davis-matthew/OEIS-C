@@ -7,8 +7,9 @@
  * Keywords:  sign, base, easy
  * Formula:   a(n) = Σ_{k even} d_k – Σ_{k odd} d_k, where (d_0, d_1, …) are
  *            the digits in the primorial base representation of n
- * Range:     i8 n <= 9939, i16 n <= 9939, i32 n <= 9939, i64 n <= 9939,
- *            i128 n <= 9939, big any n
+ * Range:     i8 n <= 16170, i16 n <= 16170, i32 n <= 16170, i64 n <= 16170,
+ *            i128 n <= 16170, big any n
+ * Validated: standard, pass, 115 terms through n = 9939 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

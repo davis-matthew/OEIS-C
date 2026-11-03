@@ -10,7 +10,8 @@
  *            the decimal reversals of those divisors
  * Range:     u8 n <= 26, u16 n <= 324, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   rev
+ * Validated: standard, pass, 74 terms through n = 966 (2026-11-03)
+ * Helpers:   mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,12 @@
    sum of proper divisors = sum of digit‑reversed proper divisors.
    The function a(n) returns the n‑th element (1‑based indexing). */
 
-
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/rev.h"
+#include <stdbool.h>
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
 
 #define LIMIT 1000000UL       /* enough to get many terms (≈>10 000) */
 
@@ -59,7 +61,7 @@ static void init(void)
        For every proper divisor i (i≥1), add i to all multiples j>i.
        Also add rev(i) to sumrev for those multiples. */
     for (idx_t i = 1; i <= LIMIT; ++i) {
-        uint64_t revv = (uint64_t)rev(i);   /* reverse of i */
+        uint64_t revv = (uint64_t)reverse_digits_idx(i);   /* reverse of i */
         for (idx_t j = i << 1; j <= LIMIT; j += i) {
             sumproper[j] += (uint64_t)i;
             sumrev[j]    += revv;
@@ -68,14 +70,14 @@ static void init(void)
 
     /* Allocate array for terms, starting small. */
     term_cap = 1024;
-    terms = (seq_t *)malloc(term_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, term_cap);
 
     /* Collect composite numbers satisfying the condition. */
     for (idx_t n = 4; n <= LIMIT; ++n) {
         if (is_composite[n] && sumproper[n] == sumrev[n]) {
             if (term_count == term_cap) {
                 term_cap <<= 1;
-                terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, term_cap);
             }
             terms[term_count++] = (seq_t)n;
         }

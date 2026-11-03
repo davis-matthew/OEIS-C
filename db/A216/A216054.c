@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 82, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for the band‑limited triangular array T.
    Each row r stores values for k = r + offset, offset = 0 … 5. */
@@ -42,7 +44,7 @@ static void ensure_rows(size_t needed)
     T_table = (seq_t **)realloc(T_table, new_rows * sizeof(seq_t *));
     /* allocate new rows and initialise them to 0 */
     for (size_t r = old_rows; r < new_rows; ++r) {
-        T_table[r] = (seq_t *)malloc(6 * sizeof(seq_t));
+        T_table[r] = mem_new(seq_t, 6);
         for (size_t c = 0; c < 6; ++c)
             T_table[r][c] = (seq_t)0;      /* zero initialisation */
     }

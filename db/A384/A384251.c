@@ -9,14 +9,17 @@
  *            p^e for odd prime p
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 85 terms through n = 8478 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Count trailing zeros of a positive 64‑bit integer. */
 static inline uint64_t trailing_zeros_u64(uint64_t x)
@@ -55,7 +58,7 @@ seq_t a(idx_t n)
             result *= (seq_t)val64;
         } else {
             /* odd prime powers contribute p^e */
-            seq_t val = pow_uint(p, e); /* p^e, already in seq_t */
+            seq_t val = ipow_u64_idx(p, e); /* p^e, already in seq_t */
             result *= val;
         }
     }

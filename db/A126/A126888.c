@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 2696, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9276 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const idx_t LIMIT = 5000000ULL;           /* upper bound for pre‑computation */
 static uint16_t *divs = NULL;                    /* divisor counts 1..LIMIT */
@@ -56,7 +58,7 @@ static void init_sequence(void)
     }
 
     /* Allocate best array, initialise to zero (unset) */
-    best = (seq_t*)calloc((LIMIT + 1), sizeof(seq_t));
+    best = mem_new(seq_t, (LIMIT + 1));
     if (!best) abort();
 
     /* Find minimal x for each attainable n */

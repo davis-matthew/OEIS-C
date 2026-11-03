@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 36, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_free_array
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,8 +38,15 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *k_array = NULL;     /* stores generated k values (0‑based)      */
 static size_t k_len   = 0;        /* number of stored k values               */

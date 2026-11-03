@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{l=1..n} n! / ( l · (n–l)! ) · (n+1)^{ n–l }
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 37 terms through n = 133 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
        t_{l+1} = t_l · l · (n–l) / ((l+1) · (n+1))
    and a(n) = Σ_{l=1..n} t_l
    (valid for all n ≥ 0, with a(0)=0). */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     /* compute (n+1)^(n-1) once */
     seq_t base  = (seq_t)n + 1;
     seq_t exp   = n - 1;           /* idx_t converted to seq_t */
-    seq_t power = big_pow(base, exp);
+    seq_t power = ipow(base, exp);
 
     /* t_1 = n · (n+1)^{n-1} */
     seq_t cur = power * (seq_t)n;

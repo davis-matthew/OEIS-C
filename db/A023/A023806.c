@@ -7,14 +7,23 @@
  * Formula:   not stated
  * Range:     u8 n <= 216, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   perm_idx
+ * Validated: standard, pass, 85 terms through n = 9470 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Algorithm for OEIS sequence A023806: returns the n‑th xenodrome (base‑12 number with all distinct digits). */
 #include <stdint.h>
-#include "../utils/perm_idx.h"
+
+static inline idx_t perm_idx(idx_t n, idx_t k)
+{
+    /* Compute the number of permutations P(n,k) = n!/(n-k)! */
+    idx_t r = 1;
+    for (idx_t i = 0; i < k; ++i)
+        r *= (n - i);
+    return r;
+}
 
 seq_t a(idx_t n)
 {

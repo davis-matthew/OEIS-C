@@ -8,7 +8,8 @@
  *            a(n)=a(n-1)+2*a(n-2)+2*a(n-3)+a(n-4)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 26, u64 n <= 53, u128 n <= 106,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* This implements a memoised, O(n) computation that works for any
    sequence type seq_t and index type idx_t defined by the build. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (size == 0)
     {
         size = 5;
-        cache = (seq_t *)malloc(sizeof(seq_t) * size);
+        cache = mem_new(seq_t, size);
         if (!cache)    /* allocation failed – return 0 (unused) */
             return 0;
         cache[0] = 1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (n >= size)
     {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)    /* allocation failed – return 0 (unused) */
             return 0;
         cache = tmp;

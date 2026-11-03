@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   valid_column
+ * Validated: standard, pass, 32 terms through n = 185 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,29 @@
    performed. */
 
 #include <stdint.h>
-#include "../utils/valid_column.h"
+
+static inline int valid_column(uint8_t prev, uint8_t curr, uint8_t next)
+{
+    for (int r = 0; r < 6; ++r) {
+        if ((curr >> r) & 1U) {
+            int cnt = 0;
+            /* left neighbour (horizontal) */
+            if (prev & (1U << r))      ++cnt;
+            /* right neighbour (horizontal) */
+            if (next & (1U << r))      ++cnt;
+            /* up‑left diagonal */
+            if (r > 0 && (prev & (1U << (r - 1))))   ++cnt;
+            /* down‑left diagonal */
+            if (r < 5 && (prev & (1U << (r + 1))))   ++cnt;
+            /* up‑right diagonal */
+            if (r > 0 && (next & (1U << (r - 1))))   ++cnt;
+            /* down‑right diagonal */
+            if (r < 5 && (next & (1U << (r + 1))))   ++cnt;
+            if (cnt != 2 && cnt != 3 && cnt != 5) return 0;
+        }
+    }
+    return 1;
+}
 
 /* Transition lists for all 4096 states (prev,curr).
    Each list contains the next column values that make

@@ -8,12 +8,14 @@
  * Formula:   a(0) = 1; for n ≥ 1: a(n) = a(n-1) * (3*n + 6)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 370 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache with a(0) */
     if (!cache) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = (seq_t)1;          /* a(0) = 1 */
         cache_len = 1;
     }
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     while (cache_len <= n) {
         idx_t i = cache_len;          /* index to compute (current n) */
         /* grow the array by one element */
-        cache = (seq_t *)realloc(cache, (cache_len + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (cache_len + 1));
 
         /* multiply by 3*i + 6  (since i = current n) */
         seq_t mult = (seq_t)3 * (seq_t)(i + 2);   /* 3*i + 6 */

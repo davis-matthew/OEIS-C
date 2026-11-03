@@ -12,12 +12,14 @@
  *            a(5)=3; a(6)=12, a(7)=9, a(8)=1; …
  * Range:     u8 n <= 20, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle base case n=1 directly */
@@ -38,16 +40,16 @@ seq_t a(idx_t n) {
        The maximum degree needed is floor(r/2), thus arrays of size
        (r/2+2) are sufficient. */
     size_t max_len = (size_t)(r / 2) + 3;
-    seq_t *u_cur = (seq_t*)malloc(sizeof(seq_t) * max_len);
-    seq_t *v_cur = (seq_t*)malloc(sizeof(seq_t) * max_len);
-    seq_t *u_next = (seq_t*)malloc(sizeof(seq_t) * max_len);
-    seq_t *v_next = (seq_t*)malloc(sizeof(seq_t) * max_len);
+    seq_t *u_cur = mem_new(seq_t, max_len);
+    seq_t *v_cur = mem_new(seq_t, max_len);
+    seq_t *u_next = mem_new(seq_t, max_len);
+    seq_t *v_next = mem_new(seq_t, max_len);
     if (!u_cur || !v_cur || !u_next || !v_next) {
         /* Allocation failed; return 0 as a safe default. */
-        if (u_cur) free(u_cur);
-        if (v_cur) free(v_cur);
-        if (u_next) free(u_next);
-        if (v_next) free(v_next);
+        if (u_cur) mem_free(u_cur);
+        if (v_cur) mem_free(v_cur);
+        if (u_next) mem_free(u_next);
+        if (v_next) mem_free(v_next);
         return (seq_t)0;
     }
 
@@ -88,10 +90,10 @@ seq_t a(idx_t n) {
     seq_t value = v_cur[pos];
 
     /* Clean up */
-    free(u_cur);
-    free(v_cur);
-    free(u_next);
-    free(v_next);
+    mem_free(u_cur);
+    mem_free(v_cur);
+    mem_free(u_next);
+    mem_free(v_next);
 
     return value;
 }

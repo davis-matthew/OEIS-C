@@ -9,7 +9,8 @@
  *            (sum_of_digits(k)) is a perfect square of a prime
  * Range:     u8 n <= 7, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: bit length of an unsigned value (generic for any seq_t) */
 static unsigned bitlen_seq_t(seq_t x)
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
                 /* grow cache if needed */
                 if (sz == cap) {
                     size_t newcap = cap ? cap * 2 : 4;
-                    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, newcap);
                     if (!tmp) {
                         exit(EXIT_FAILURE);
                     }

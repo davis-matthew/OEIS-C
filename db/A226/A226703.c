@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
    T(r,k) = binomial(2*r,k) * Stirling2(2*r - k, r).          */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binomial.h"          /* seq_t binomial(idx_t n, idx_t k); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Compute Stirling numbers of the second kind S(m,k) for 0 ≤ k ≤ m
    using the recurrence: S(m,k) = k*S(m-1,k) + S(m-1,k-1).        */
@@ -30,11 +32,11 @@ static seq_t stirling2(idx_t m, idx_t k)
 
     /* Allocate two rows of length k+1. */
     size_t len = (size_t)k + 1;
-    seq_t *prev = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, len);
+    seq_t *curr = mem_new(seq_t, len);
     if (!prev || !curr) {
         /* Out‑of‑memory fall‑back: return 0 (not expected for small n). */
-        free(prev); free(curr);
+        mem_free(prev); mem_free(curr);
         return (seq_t)0;
     }
 
@@ -57,8 +59,8 @@ static seq_t stirling2(idx_t m, idx_t k)
     }
 
     seq_t result = prev[k];
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }
 

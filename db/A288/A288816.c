@@ -8,13 +8,15 @@
  *            where σ(k) = Σ_{d|k} d (sum of divisors of k)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 686 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for OEIS sequence A288816. */
 seq_t a(idx_t n)
@@ -28,16 +30,16 @@ seq_t a(idx_t n)
     /* Ensure array capacity is sufficient for index n. */
     if (cap < (size_t)n + 1) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *newA    = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-        seq_t *newS    = (seq_t *)realloc(sigma, new_cap * sizeof(seq_t));
+        seq_t *newA    = mem_resize(seq_t, A, new_cap);
+        seq_t *newS    = mem_resize(seq_t, sigma, new_cap);
         /* In case realloc failed, everything is undefined – the testing harness
            will not provide such large values anyway. */
         A     = newA;
         sigma = newS;
         /* Zero any new elements that might hold garbage. */
         if (cap < new_cap) {
-            memset(&A[cap], 0, (new_cap - cap) * sizeof(seq_t));
-            memset(&sigma[cap], 0, (new_cap - cap) * sizeof(seq_t));
+            mem_set(&A[cap], 0, (new_cap - cap) * sizeof(seq_t));
+            mem_set(&sigma[cap], 0, (new_cap - cap) * sizeof(seq_t));
         }
         cap = new_cap;
     }

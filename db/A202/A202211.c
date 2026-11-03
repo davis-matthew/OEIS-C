@@ -9,14 +9,17 @@
  *            + 1
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 73 terms through n = 971 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gpf.h"
+#include <stdint.h>
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
     /* grow cache and seen arrays if necessary */
     if ((size_t)n > cap) {
         size_t newcap = (size_t)n;
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();
         cache = tmp;
         bool *s_tmp = (bool*)realloc(seen, newcap * sizeof(bool));
@@ -51,8 +54,8 @@ seq_t a(idx_t n)
         } else {
             seq_t prev1 = cache[(size_t)(i - 2)];   /* a(i-1) */
             seq_t prev2 = cache[(size_t)(i - 3)];   /* a(i-2) */
-            uint64_t g1 = gpf((uint64_t)prev1);
-            uint64_t g2 = gpf((uint64_t)prev2);
+            uint64_t g1 = largest_prime_factor((uint64_t)prev1);
+            uint64_t g2 = largest_prime_factor((uint64_t)prev2);
             cache[idx] = 2 * ( (seq_t)g1 + (seq_t)g2 ) + 1;
         }
         seen[idx] = true;

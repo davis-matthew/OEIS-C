@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper comparison for qsort on seq_t elements */
 static int seq_cmp(const void *a, const void *b)
@@ -64,7 +66,7 @@ static void build_sequence(void)
         if (is_prime[i]) ++double_prime_count;
 
     seq_len = prime_count + double_prime_count;
-    seq_array = (seq_t *)malloc(seq_len * sizeof(seq_t));
+    seq_array = mem_new(seq_t, seq_len);
     if (!seq_array) { free(is_prime); return; }
 
     /* Fill sequence array with primes and twice odd primes */
@@ -78,7 +80,7 @@ static void build_sequence(void)
     }
 
     /* Sort the resulting array */
-    qsort(seq_array, seq_len, sizeof(seq_t), seq_cmp);
+    mem_qsort(seq_array, seq_len, sizeof(seq_t), seq_cmp);
 
     free(is_prime);
     init_done = true;

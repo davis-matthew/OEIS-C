@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn, look
  * Formula:   not stated
- * Range:     u8 n <= 94, u16 n <= 9830, u32 n <= 9433, u64 n <= 9433,
- *            u128 n <= 9433, big any n
- * Helpers:   none
+ * Range:     u8 n <= 94, u16 n <= 9830, u32 n <= 10002, u64 n <= 10002,
+ *            u128 n <= 10002, big any n
+ * Validated: standard, pass, 97 terms through n = 9433 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for the sequence and helper data */
 static seq_t *seq = NULL;          /* array of computed terms */
@@ -52,7 +54,7 @@ static void append(seq_t val)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 4;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
     seq[seq_len++] = val;
 }
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     /* initialise with the first two terms if not already done */
     if (seq_len == 0) {
         seq_cap = 4;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         append((seq_t)1);
         append((seq_t)2);
         /* next_missing starts at 1; it will be advanced when needed */

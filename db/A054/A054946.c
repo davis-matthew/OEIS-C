@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: standard, pass, 31 terms through n = 71 (2026-11-03)
+ * Helpers:   binomial, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stdbool.h>
 
 /* Helper routines supplied by the build */
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 /*----------------- Memoisation storage -----------------*/
 static seq_t *a_cache = NULL;   /* indexed 1.. */
@@ -37,7 +40,7 @@ static void grow_cache(idx_t n, seq_t **cache, size_t *cap)
     if ((size_t)n + 1 > *cap) {
         size_t new_cap = (*cap) ? (*cap) * 2 : 16;
         while (new_cap <= (size_t)n + 1) new_cap *= 2;
-        *cache = (seq_t*)realloc(*cache, new_cap * sizeof(seq_t));
+        *cache = mem_resize(seq_t, *cache, new_cap);
         *cap   = new_cap;
     }
 }
@@ -58,7 +61,7 @@ seq_t a(idx_t n)
        handle large exponents without overflow in intermediate types. */
     for (idx_t i = f_size + 1; i <= n; ++i) {
         idx_t exp = (idx_t)i * ((idx_t)i - 1u) / 2u;   /* fits in idx_t */
-        f_cache[i] = pow_uint(2ull, exp);
+        f_cache[i] = ipow_u64_idx(2ull, exp);
     }
     f_size = n;
 

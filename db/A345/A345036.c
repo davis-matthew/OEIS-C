@@ -7,12 +7,15 @@
  * Formula:   a(n) = Sum_{k=1..n} (-n)^(floor(n/k)-1)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 16, i128 n <= 27,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 35 terms through n = 380 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
         idx_t nextk = n / m + 1;                  /* first k where floor(n/k) drops */
         idx_t count = nextk - k;                  /* number of k's with this m     */
 
-        seq_t pow_val = seq_pow(base, m - 1);     /* (-n)^(m-1) */
+        seq_t pow_val = ipow_idx(base, m - 1);     /* (-n)^(m-1) */
         seq_t term = pow_val * (seq_t)count;      /* contribution of this block   */
 
         sum += term;

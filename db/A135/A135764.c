@@ -11,12 +11,14 @@
  *            along descending antidiagonals
  * Range:     u8 n <= 42, u16 n <= 150, u32 n <= 558, u64 n <= 2142,
  *            u128 n <= 8382, big any n
+ * Validated: standard, pass, 116 terms through n = 9194 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Integer square root of an unsigned __int128 x, returning the largest r

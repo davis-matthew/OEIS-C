@@ -11,13 +11,15 @@
  *            * The function is computed by successive search and memoisation
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: test whether a number satisfies the digit‑parity condition. */
 static int has_property(seq_t v)
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     /* Ensure capacity for at least n elements */
     if (cache_len == 0) {
         cache_cap = 32;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Start searching from the smallest integer following the last cached one */
@@ -75,9 +77,9 @@ seq_t a(idx_t n)
             /* enlarge cache if needed */
             if ((size_t)cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 32;
-                seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {           /* allocation failed, return 0 as safe guard */
-                    free(cache);
+                    mem_free(cache);
                     return 0;
                 }
                 cache = tmp;

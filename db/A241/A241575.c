@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 238, u16 n <= 238, u32 n <= 238, u64 n <= 238,
  *            u128 n <= 238, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 227 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    1 → 0101010   */
 /* Returns the nth element (0‑based) of A241575. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* initialise with the seed word "0" */
     if (len == 0) {
-        buf = (seq_t *)malloc(sizeof(seq_t));
+        buf = mem_new(seq_t, 1);
         if (!buf) return 0;    /* out of memory: return 0 as a fallback */
         buf[0] = 0;
         len = 1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
             new_len += (buf[i] == 0) ? 5 : 7;
 
         /* allocate buffer for the next generation */
-        seq_t *new_buf = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_buf = mem_new(seq_t, new_len);
         if (!new_buf) return 0; /* out of memory */
 
         /* fill the new buffer with the morphism images */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         }
 
         /* discard old buffer and adopt the new one */
-        free(buf);
+        mem_free(buf);
         buf = new_buf;
         len = new_len;
     }

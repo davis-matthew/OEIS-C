@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 143, u32 n <= 543, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1248 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--- static data for memoisation ---------------------------------------*/
 static seq_t **rows = NULL;          /* pointer array, 1‑based indexing */
@@ -51,7 +53,7 @@ static void ensure_rows(idx_t upto)
     /* compute rows from (max_precomp+1) up to 'upto' */
     for (idx_t n = max_precomp + 1; n <= upto; ++n) {
         /* allocate an array of size n+1 (ignore index 0) */
-        seq_t *row = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(n + 1));
         if (!row) abort();
         rows[(size_t)n] = row;
 

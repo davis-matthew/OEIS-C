@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 8544, u32 n <= 8544, u64 n <= 8544,
  *            u128 n <= 8544, big any n
- * Helpers:   digit_count64
+ * Validated: standard, pass, 61 terms through n = 7947 (2026-11-01)
+ * Helpers:   num_digits_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_count64.h"
+#include "../utils/num_digits_u64_to_u32.h"
 
 /* Small table of powers of ten (sufficient for 64‑bit values). */
 static const unsigned long long POW10[20] = {

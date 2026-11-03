@@ -11,15 +11,21 @@
  *            of fixA * n!/z) / n!
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   a1330_fixed, a1330_gcd
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a1330_fixed.h"
-#include "../utils/a1330_gcd.h"
+#include "../utils/gcd_idx.h"
+
+static int a1330_fixed(void) {
+    seq_t x = 0;
+    x -= 1;
+    return x > 0;
+}
 
 #define A1330_DEF(T, SUF)                                                     \
 static T a1330_pw_##SUF(T b, idx_t e) {                                       \
@@ -42,7 +48,7 @@ static void a1330_rec_##SUF(idx_t rem, idx_t maxp, idx_t *s, idx_t *act,      \
             for (k = 2; k <= s[i]; k++) den *= (T)k;                          \
             for (y = 0; y < nact; y++) {                                      \
                 idx_t j = act[y];                                             \
-                idx_t g = a1330_gcd(i, j);                                    \
+                idx_t g = gcd_idx(i, j);                                    \
                 idx_t l = i / g * j;                                          \
                 idx_t base = 0;                                               \
                 for (z = 0; z < nact; z++) {                                  \

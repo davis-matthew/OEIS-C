@@ -10,12 +10,14 @@
  *            * Π_{j=1}^{k} ((r+1)^j – 1) / r^k, read row‐wise (r = 0,1,2,…)
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 25, u64 n <= 34, u128 n <= 63,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 61 terms through n = 343 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (k == 0) return (seq_t)1;
 
     /* Start with the binomial coefficient C(r,k). */
-    seq_t res = binom(r, k);
+    seq_t res = binomial(r, k);
 
     /* Compute the product Π ((r+1)^j – 1) / r for j = 1…k. */
     seq_t base   = (seq_t)(r + 1);

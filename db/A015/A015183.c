@@ -9,13 +9,15 @@
  *            q^{n-k}·[n-1,k-1] (k>0), [n,0]=[n,n]=1 a(0)=1
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 5, i64 n <= 7, i128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,10 +34,10 @@ seq_t a(idx_t n)
     /* initialise arrays only once */
     if (!init) {
         capacity   = 1;
-        cache_vals = (seq_t *)malloc(capacity * sizeof(seq_t));
-        prev_row   = (seq_t *)malloc(capacity * sizeof(seq_t));
-        curr_row   = (seq_t *)malloc(capacity * sizeof(seq_t));
-        pow_q      = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache_vals = mem_new(seq_t, capacity);
+        prev_row   = mem_new(seq_t, capacity);
+        curr_row   = mem_new(seq_t, capacity);
+        pow_q      = mem_new(seq_t, capacity);
         if (!cache_vals || !prev_row || !curr_row || !pow_q)
             return (seq_t)0;                 /* allocation failed   */
 
@@ -53,16 +55,16 @@ seq_t a(idx_t n)
     while (capacity <= n) {
         idx_t new_cap = capacity * 2;
         /* reallocate powers of q */
-        seq_t *new_pow = (seq_t *)realloc(pow_q, new_cap * sizeof(seq_t));
+        seq_t *new_pow = mem_resize(seq_t, pow_q, new_cap);
         if (!new_pow) return (seq_t)0;
         for (idx_t i = capacity; i < new_cap; ++i)
             new_pow[i] = new_pow[i - 1] * q; /* q^(i) = q^(i-1)*q */
         pow_q = new_pow;
 
         /* reallocate row buffers and cache */
-        seq_t *new_prev = (seq_t *)realloc(prev_row, new_cap * sizeof(seq_t));
-        seq_t *new_curr = (seq_t *)realloc(curr_row, new_cap * sizeof(seq_t));
-        seq_t *new_cache = (seq_t *)realloc(cache_vals, new_cap * sizeof(seq_t));
+        seq_t *new_prev = mem_resize(seq_t, prev_row, new_cap);
+        seq_t *new_curr = mem_resize(seq_t, curr_row, new_cap);
+        seq_t *new_cache = mem_resize(seq_t, cache_vals, new_cap);
         if (!new_prev || !new_curr || !new_cache) return (seq_t)0;
         prev_row   = new_prev;
         curr_row   = new_curr;

@@ -11,15 +11,50 @@
  *            terms
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 22,
  *            big any n
- * Helpers:   base6_to_decimal, pow10
+ * Validated: standard, pass, 33 terms through n = 312 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow10.h"   /* seq_t pow10(idx_t e) */
-#include "../utils/base6_to_decimal.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Convert a non‑negative integer `num` to its base‑6 representation
+ * and interpret that representation as a decimal integer.
+ * len_out receives the number of decimal digits produced. */
+static seq_t base6_to_decimal(idx_t num, size_t *len_out)
+{
+    /* Maximum length for 64‑bit number is < 54 base‑6 digits,
+     * which is far below the stack capacity. */
+    uint8_t rev[64];
+    size_t len = 0;
+    idx_t tmp = num;
+    do {
+        rev[len++] = (uint8_t)(tmp % 6);
+        tmp /= 6;
+    } while (tmp != 0);
+
+    seq_t val = 0;
+    for (size_t i = 0; i < len; ++i) {
+        /* digits are stored in reverse order; process from most
+         * significant to least. */
+        val = val * (seq_t)10 + rev[len - 1 - i];
+    }
+    if (len_out) *len_out = len;
+    return val;
+}
 
 static seq_t *cache = NULL;          /* 0‑indexed storage for a(i) */
 static size_t cache_cap = 0;         /* allocated capacity */
@@ -32,7 +67,7 @@ static void ensure_cache_capacity(size_t need)
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_mem = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, cache, new_cap);
     if (!new_mem) abort();   /* Out of memory – terminate */
     cache = new_mem;
     cache_cap = new_cap;

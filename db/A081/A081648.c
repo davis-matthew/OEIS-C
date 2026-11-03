@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 319, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 886 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* 9 quadratic residues modulo 81 */
 static const seq_t residues[9] = {0,1,4,9,16,25,36,49,64};
@@ -64,7 +66,7 @@ static void ensure_capacity(size_t sz)
     if (sz <= capacity) return;
     size_t new_cap = capacity ? capacity * 2 : 8;
     while (new_cap < sz) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t)); /* cast required for C++ */
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap); /* cast required for C++ */
     cache = tmp;
     capacity = new_cap;
 }

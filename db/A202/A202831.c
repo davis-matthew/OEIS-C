@@ -8,6 +8,7 @@
  *            125*(n-1)*(n-2)^2*a(n-3) Initial values: a(0)=1, a(1)=4, a(2)=81
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 181 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

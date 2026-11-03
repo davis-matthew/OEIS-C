@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 40, u32 n <= 129, u64 n <= 396,
  *            u128 n <= 1208, big any n
- * Helpers:   sign_idx
+ * Validated: standard, pass, 61 terms through n = 9343 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,12 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/sign_idx.h"
+#include "../utils/mem.h"
+
+static inline int sign_idx(int diff)
+{
+    return diff > 0 ? 2 : (diff < 0 ? 0 : 1);
+}
 
 seq_t a(idx_t n)
 {
@@ -51,16 +57,16 @@ seq_t a(idx_t n)
     size_t k = (size_t)j;
     size_t bufsz = (k + 1) * 3;
 
-    seq_t *dp_cur = (seq_t *)malloc(bufsz * sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)malloc(bufsz * sizeof(seq_t));
+    seq_t *dp_cur = mem_new(seq_t, bufsz);
+    seq_t *dp_next = mem_new(seq_t, bufsz);
     if (!dp_cur || !dp_next) {
         /* Handle allocation failure: return 0 as a safe fallback */
-        free(dp_cur);
-        free(dp_next);
+        mem_free(dp_cur);
+        mem_free(dp_next);
         return (seq_t)0;
     }
-    memset(dp_cur, 0, bufsz * sizeof(seq_t));
-    memset(dp_next, 0, bufsz * sizeof(seq_t));
+    mem_set(dp_cur, 0, bufsz * sizeof(seq_t));
+    mem_set(dp_next, 0, bufsz * sizeof(seq_t));
 
     /* Base: all length-2 sequences */
     for (idx_t a = 0; a <= j; ++a) {
@@ -75,7 +81,7 @@ seq_t a(idx_t n)
     /* Extend to length L */
     for (idx_t pos = 2; pos < L; ++pos) {
         /* reset next table */
-        memset(dp_next, 0, bufsz * sizeof(seq_t));
+        mem_set(dp_next, 0, bufsz * sizeof(seq_t));
 
         for (idx_t last = 0; last <= j; ++last) {
             for (int sIdx = 0; sIdx < 3; ++sIdx) {
@@ -105,7 +111,7 @@ seq_t a(idx_t n)
         for (int sIdx = 0; sIdx < 3; ++sIdx)
             total += dp_cur[v * 3 + sIdx];
 
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     return total;
 }

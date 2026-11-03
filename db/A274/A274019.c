@@ -11,13 +11,35 @@
  *            recurrence on-the-fly, avoiding any need for dynamic memory
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 16, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   calc_phi, compute_c
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/calc_phi.h"
-#include "../utils/compute_c.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
+
+/* Compute the recurrence value c(d). */
+static seq_t compute_c(idx_t d)
+{
+    if (d == 1) return (seq_t)4;
+    if (d == 2) return (seq_t)16;
+    if (d == 3) return (seq_t)61;
+
+    seq_t c_nm3 = (seq_t)4;   /* c(1)   */
+    seq_t c_nm2 = (seq_t)16;  /* c(2)   */
+    seq_t c_nm1 = (seq_t)61;  /* c(3)   */
+    seq_t c_n   = 0;
+
+    for (idx_t i = 4; i <= d; ++i) {
+        c_n   = 4 * c_nm1 - c_nm3;
+        c_nm3 = c_nm2;
+        c_nm2 = c_nm1;
+        c_nm1 = c_n;
+    }
+    return c_nm1;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,9 +51,9 @@ seq_t a(idx_t n)
         idx_t e = n / d;                 /* paired divisor */
         seq_t c_d  = compute_c(d);
         seq_t c_e  = compute_c(e);
-        sum += calc_phi((seq_t)e) * c_d; /* φ(e)·c(d)   */
+        sum += totient_seq((seq_t)e) * c_d; /* φ(e)·c(d)   */
         if (d != e) {
-            sum += calc_phi((seq_t)d) * c_e; /* φ(d)·c(e)   */
+            sum += totient_seq((seq_t)d) * c_e; /* φ(d)·c(e)   */
         }
     }
     return sum / (seq_t)n;  /* division is exact */

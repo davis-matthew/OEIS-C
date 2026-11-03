@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
 
     /* initialize cache if this is the first call ---------------------------- */
     if (max_n == 0) {
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
-        B       = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
+        B       = mem_new(seq_t, 1);
         a_cache[0] = (seq_t)1;  /* a(0) = 1 */
         B[0]       = (seq_t)0;
         max_n      = 0;
@@ -54,8 +56,8 @@ seq_t a(idx_t n)
         idx_t new_n = n;
 
         /* reallocate arrays for the new maximum */
-        a_cache = (seq_t *)realloc(a_cache, (new_n + 1) * sizeof(seq_t));
-        B       = (seq_t *)realloc(B,       (new_n + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (new_n + 1));
+        B       = mem_resize(seq_t, B, (new_n + 1));
 
         /* zero the B array for the new range */
         for (idx_t i = 0; i <= new_n; ++i)

@@ -8,17 +8,19 @@
  *            6*binomial(2n, n) - 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 22,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 31 terms through n = 550 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     /* Compute the central binomial coefficient C(2n, n). */
-    seq_t c = binom(2 * n, n);
+    seq_t c = binomial(2 * n, n);
 
     /* Square and cube the binomial. */
     seq_t c2 = c * c;    /* C(2n, n)^2 */

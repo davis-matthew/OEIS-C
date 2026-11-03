@@ -9,12 +9,14 @@
  *            p(n-27) + p(n-28) where p(k) = A000041(k) and p(k)=0 for k<0
  * Range:     u8 n <= 54, u16 n <= 104, u32 n <= 241, u64 n <= 648,
  *            u128 n <= 1962, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9887 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of partition numbers p(0..p_max).  The array is grown lazily. */
 static seq_t *partitions = NULL;
@@ -26,8 +28,7 @@ static void build_partitions(idx_t n)
     if (n <= p_max) return;                /* already computed */
 
     /* Allocate or enlarge the array. */
-    seq_t *newp = (seq_t *)realloc(partitions,
-                                   (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, partitions, (size_t)(n + 1));
     if (!newp) return;                     /* allocation failure – ignore */
     partitions = newp;
 

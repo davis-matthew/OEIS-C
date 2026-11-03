@@ -7,12 +7,16 @@
  * Formula:   a(n) = Sum_{i=0..n-1} prime(n-i) * (2*i+1)
  * Range:     u8 n <= 6, u16 n <= 38, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 seq_t a(idx_t n)

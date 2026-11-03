@@ -9,13 +9,15 @@
  *            a(4)=24, a(5)=44, a(6)=75, a(7)=141
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 48 terms through n = 971 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         return r;                    /* n < 8 */
 
     /* 256^q = 2^(8q) */
-    seq_t mult = big_pow((seq_t)256, (seq_t)q);
+    seq_t mult = ipow((seq_t)256, (seq_t)q);
 
     return r * mult;                 /* multiplication is exact for any seq_t */
 }

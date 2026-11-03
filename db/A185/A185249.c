@@ -10,12 +10,13 @@
  *            is even, otherwise 0
  * Range:     u8 n <= 24, u16 n <= 49, u32 n <= 128, u64 n <= 241,
  *            u128 n <= 451, big any n
- * Helpers:   _seq_gcd
+ * Validated: standard, pass, 107 terms through n = 5105 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_seq_gcd.h"
+#include "../utils/gcd.h"
 
 static seq_t compute_T(idx_t n, idx_t k)
 {
@@ -34,7 +35,7 @@ static seq_t compute_T(idx_t n, idx_t k)
             seq_t b = (seq_t)(i + j);
             num *= a;
             den *= b;
-            seq_t g = _seq_gcd(num, den);
+            seq_t g = gcd(num, den);
             if (g > 1) {
                 num /= g;
                 den /= g;

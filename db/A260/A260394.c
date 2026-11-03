@@ -11,13 +11,19 @@
  *            for any n≥1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   highest_power_of_two
+ * Validated: standard, pass, 102 terms through n = 9787 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/highest_power_of_two.h"
+
+static inline uint64_t highest_power_of_two(idx_t n) {
+    /* n is ≥1 */
+    uint64_t e = 63 - __builtin_clzll((unsigned long long)n);
+    return (uint64_t)1 << e;
+}
 
 static const seq_t base[3] = {0, 1, 1};
 

@@ -12,7 +12,8 @@
  *            direct search with a pre‑computed table of two‑square sums
  * Range:     u8 n <= 14, u16 n <= 124, u32 n <= 124, u64 n <= 124,
  *            u128 n <= 124, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 112 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* maximum n up to which the pre‑computed table is built;
    the known list ends at 10839, so 200000 is far enough. */
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
         if (!has_good_repr(cand)) {
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
                 if (!tmp) exit(1);
                 seq_arr = tmp;
                 seq_cap = new_cap;

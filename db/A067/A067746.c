@@ -9,13 +9,15 @@
  *            - 1)))
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -37,10 +39,10 @@ seq_t a(idx_t n)
     idx_t exp_two = two_n_minus2 - cancel;   /* may be zero */
 
     /* compute n^(2*n-1) */
-    seq_t pow_n = big_pow((seq_t)n, two_n_minus1);
+    seq_t pow_n = ipow((seq_t)n, two_n_minus1);
 
     /* compute 2^exp_two */
-    seq_t pow_two = big_pow((seq_t)2, exp_two);
+    seq_t pow_two = ipow((seq_t)2, exp_two);
 
     /* assemble result: pow_n * (2*n-1) * pow_two */
     seq_t result = pow_n * (seq_t)two_n_minus1 * pow_two;

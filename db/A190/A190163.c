@@ -14,13 +14,15 @@
  *            a(0)=a(1)=...=a(6)=0, a(7)=1
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 20, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,20 +34,20 @@ seq_t a(idx_t n)
     /* Initialise cache with the known initial values. */
     if (cap == 0) {
         cap = 8;                      /* 0..7 */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;   /* allocation failed */
-        memset(cache, 0, cap * sizeof(seq_t));  /* a(0)..a(6)=0   */
+        mem_set(cache, 0, cap * sizeof(seq_t));  /* a(0)..a(6)=0   */
         cache[7] = (seq_t)1;          /* a(7)=1          */
         len = 8;                      /* next index to compute */
     } else if (cap <= (size_t)n) {
         /* Grow to at least n+1 elements. */
         size_t newcap = cap * 2;
         while (newcap <= (size_t)n) newcap <<= 1;
-        seq_t *newcache = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *newcache = mem_new(seq_t, newcap);
         if (!newcache) return cache[n < len ? n : 0];
-        memcpy(newcache, cache, cap * sizeof(seq_t));
-        memset(newcache + cap, 0, (newcap - cap) * sizeof(seq_t));
-        free(cache);
+        mem_copy(newcache, cache, cap * sizeof(seq_t));
+        mem_set(newcache + cap, 0, (newcap - cap) * sizeof(seq_t));
+        mem_free(cache);
         cache = newcache;
         cap   = newcap;
     }

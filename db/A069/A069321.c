@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 409 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *B      = NULL;   /* array of B[0..max]        */
 static size_t B_cap  = 0;      /* allocated capacity of B   */
@@ -44,7 +46,7 @@ static void ensure_B(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
     if (new_cap > B_cap) {
-        seq_t *tmp = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, B, new_cap);
         if (!tmp)
             abort();           /* allocation failed */
         B = tmp;

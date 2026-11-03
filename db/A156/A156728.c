@@ -7,12 +7,14 @@
  * Formula:   a(n) = (A000002(n) + A000002(n+1)) mod 2
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +22,7 @@ seq_t a(idx_t n)
 
     /* We need Kolakoski terms up to index n+1 inclusive. */
     size_t total = (size_t)(n + 2);                /* indices 1 .. n+1 */
-    seq_t *k = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *k = mem_new(seq_t, total);
     if (k == NULL) return 0;                      /* allocation failed */
 
     /* Initialise the first two terms of Kolakoski sequence. */
@@ -51,6 +53,6 @@ seq_t a(idx_t n)
     /* a(n) = (k[n] + k[n+1]) mod 2 */
     seq_t result = ((k[n] + k[n + 1]) & (seq_t)1);
 
-    free(k);
+    mem_free(k);
     return result;
 }

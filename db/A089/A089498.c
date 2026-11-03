@@ -9,12 +9,14 @@
  *            recurrence)
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 11, i64 n <= 11, i128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialize tables if necessary */
     if (B_len == 0) {
         B_cap = 2;
-        B = (seq_t *)malloc(B_cap * sizeof(seq_t));
+        B = mem_new(seq_t, B_cap);
         if (!B) return (seq_t)0;       /* allocation failure, return 0 as fallback */
 
         B[0] = (seq_t)2;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     }
     if (Prefix_len < 3) { /* we need Prefix[0], Prefix[1], Prefix[2] at least */
         Prefix_cap = 3;
-        Prefix = (seq_t *)malloc(Prefix_cap * sizeof(seq_t));
+        Prefix = mem_new(seq_t, Prefix_cap);
         if (!Prefix) return (seq_t)0;
 
         Prefix[0] = (seq_t)0;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         /* ensure capacity for new B */
         if (B_len == B_cap) {
             size_t new_cap = B_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, B, new_cap);
             if (!tmp) return (seq_t)0;   /* allocation failure */
             B = tmp;
             B_cap = new_cap;
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         /* ensure capacity for new Prefix entry */
         if (Prefix_len == Prefix_cap) {
             size_t new_cap = Prefix_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(Prefix, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, Prefix, new_cap);
             if (!tmp) return (seq_t)0;
             Prefix = tmp;
             Prefix_cap = new_cap;

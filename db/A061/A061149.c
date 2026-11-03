@@ -8,7 +8,8 @@
  * Formula:   a(n) = Product_{j=1..n} prime(j)^(prime(n-j+1)-1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   build_primes, pow_seq_t
+ * Validated: standard, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   build_primes, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdbool.h>
 
 /* Helpers provided by the build environment */
+#include <stdlib.h>
 #include "../utils/build_primes.h"
-#include "../utils/pow_seq_t.h"
+#include "../utils/ipow_idx.h"
 
 /* Cache for the first primes.  prime_array[k] = the (k+1)-th prime  */
 static idx_t *prime_array = NULL;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     for (idx_t j = 1; j <= n; ++j) {
         seq_t base  = prime_array[j - 1];       /* prime(j)                 */
         idx_t exp   = prime_array[n - j] - 1;   /* prime(n-j+1)-1           */
-        result *= pow_seq_t(base, exp);         /* multiply into the product */
+        result *= ipow_idx(base, exp);         /* multiply into the product */
     }
     return result;
 }

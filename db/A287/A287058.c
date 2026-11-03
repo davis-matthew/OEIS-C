@@ -7,13 +7,15 @@
  * Formula:   a(n) = digit_sum(118^n)
  * Range:     u8 n <= 25, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 typedef struct {
     uint8_t *digits;   /* least‑significant decimal digit first */
@@ -34,7 +36,7 @@ static void ensure_sum_cache(idx_t n)
 {
     while (sum_cap <= (size_t)n) {
         sum_cap = (sum_cap > 0) ? sum_cap * 2 : 1;
-        sum_cache = (seq_t *)realloc(sum_cache, sum_cap * sizeof(seq_t));
+        sum_cache = mem_resize(seq_t, sum_cache, sum_cap);
     }
 }
 
@@ -86,7 +88,7 @@ static void init(void)
         pow118.len = 1;
 
         sum_cap = 1;
-        sum_cache = (seq_t *)malloc(sum_cap * sizeof(seq_t));
+        sum_cache = mem_new(seq_t, sum_cap);
         sum_cache[0] = 1;              /* digit sum of 1 */
         cache_n = 0;
     }

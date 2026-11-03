@@ -9,15 +9,19 @@
  *            generated on demand
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 61 terms through n = 952 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_cache = NULL;   /* cache of found primes */
 static size_t cache_len  = 0;       /* number of primes in cache   */
@@ -29,7 +33,7 @@ static void append_prime(seq_t v)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 64 : cache_cap << 1;
-        seq_t *tmp = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         prime_cache = tmp;
         cache_cap = new_cap;
@@ -40,7 +44,7 @@ static void append_prime(seq_t v)
 /* Return true if 74 is a quadratic nonresidue modulo the odd prime p. */
 static bool legendre_not_square(idx_t p)
 {
-    seq_t res = mod_pow((seq_t)74, (p - 1) / 2, (seq_t)p);
+    seq_t res = powmod((seq_t)74, (p - 1) / 2, (seq_t)p);
     return (res == (seq_t)p - 1);
 }
 

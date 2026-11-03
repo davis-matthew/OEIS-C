@@ -8,13 +8,15 @@
  *            2*a(n‑3) + 4*a(n‑4) –10*a(n‑5) – 2*a(n‑6) – a(n‑8) + a(n‑9)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 37, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;   /* cached sequence values                     */
 static size_t sz   = 0;     /* number of values currently stored          */
@@ -25,7 +27,7 @@ static void init_seq(void)
 {
     if (!seq) {
         cap = 32;                      /* initial capacity                 */
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
 
         /* exact values for n = 0 … 8 */
         seq[0] = 1;
@@ -51,7 +53,7 @@ static void ensure_size(idx_t n)
     while (sz <= idx) {
         if (sz >= cap) {                  /* grow storage */
             cap *= 2;
-            seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, cap);
         }
 
         /* recurrence for next value */

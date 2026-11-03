@@ -9,13 +9,15 @@
  *            with p prime and x integer
  * Range:     u8 n <= 95, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 116 terms through n = 9950 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -30,13 +32,13 @@ seq_t a(idx_t n)
         if (fneg > limit) break;              /* fneg increases for dx>=1 */
 
         seq_t pneg = S - fneg;
-        if (isPrimeTrial(pneg)) ++count;       /* negative x */
+        if (is_prime_seq(pneg)) ++count;       /* negative x */
 
         if (dx > 0) {
             seq_t fpos = 9 * (dd * dd) + 7 * dd;   /* x = +dx */
             if (fpos <= limit) {
                 seq_t ppos = S - fpos;
-                if (isPrimeTrial(ppos)) ++count;  /* positive x */
+                if (is_prime_seq(ppos)) ++count;  /* positive x */
             }
         }
     }

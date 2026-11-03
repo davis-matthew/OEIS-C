@@ -9,9 +9,10 @@
  *            * canonical prime powers form a strictly increasing sequence. *
  *            The function enumerates successive integers, tests the property,
  *            * and memoises the terms so that later calls are O(1)
- * Range:     u8 n <= 223, u16 n <= 9908, u32 n <= 9908, u64 n <= 9908,
- *            u128 n <= 9908, big any n
- * Helpers:   none
+ * Range:     u8 n <= 223, u16 n <= 54963, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 105 terms through n = 9908 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- prime sieve (once) ---------- */
 static uint32_t *prime_list = NULL;
@@ -80,7 +82,7 @@ static seq_t  last_return  = 0;   /* last number examined */
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap == 0 ? 512 : cache_cap * 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();      /* memory allocation failed */
     cache = tmp;
     cache_cap = new_cap;

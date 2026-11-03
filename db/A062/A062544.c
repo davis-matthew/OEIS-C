@@ -8,12 +8,14 @@
  *            a(1)=1, a(2)=3
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 35, u64 n <= 72, u128 n <= 144,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 279 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;     /* array of computed values */
 static size_t   len   = 0;      /* number of elements stored */
@@ -27,7 +29,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = cap ? cap << 1 : 4;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
     /* In case of allocation failure, the program will abort; this is
        acceptable for a sequence generator used in a controlled environment. */
     terms = new_terms;

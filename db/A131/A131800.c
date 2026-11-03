@@ -7,6 +7,7 @@
  * Formula:   a(n) = {1, 2, 5, 6}[n mod 4]
  * Range:     u8 n <= 107, u16 n <= 107, u32 n <= 107, u64 n <= 107,
  *            u128 n <= 107, big any n
+ * Validated: partial, pass, 108 terms through n = 107 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,19 +8,20 @@
  *            iteratively applying phi until reaching 1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_phi
+ * Validated: standard, pass, 121 terms through n = 9864 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_phi.h"
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n) {
     seq_t count = 0;
     uint64_t current = (uint64_t)n;
     
     while (current > 1) {
-        current = compute_phi(current);
+        current = totient_u64(current);
         count++;
     }
     

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alt_sum_is_11
+ * Validated: standard, pass, 64 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,36 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alt_sum_is_11.h"
+#include "../utils/mem.h"
+
+/* Compute alternating digit sum (sign + for MSB, then - for next digit,
+   etc.) and test whether it equals 11.  The calculation is performed
+   using only integer arithmetic. */
+static bool alt_sum_is_11(seq_t x) {
+    unsigned char digits[64];        /* Enough for any seq_t that fits in 64 bits */
+    size_t ndig = 0;
+
+    if (x == (seq_t)0) {
+        return false;                /* 0 does not satisfy the condition */
+    }
+
+    /* Extract digits in little‑endian order. */
+    while (x != (seq_t)0) {
+        digits[ndig++] = (unsigned char)(x % (seq_t)10);
+        x /= (seq_t)10;
+    }
+
+    /* Accumulate from the most significant digit. */
+    bool positive = true;
+    int sum = 0;
+    for (size_t i = 0; i < ndig; ++i) {
+        unsigned char d = digits[ndig - 1 - i];
+        sum += positive ? d : -d;
+        positive = !positive;
+    }
+
+    return sum == 11;
+}
 
 /* Return the nth term of the sequence (1‑based index).  The implementation
    keeps a cache of found terms and reuses it for subsequent calls. */
@@ -36,7 +66,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on first use. */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* If allocation fails we abort; the test harness will not continue. */
         if (cache == NULL) abort();
     }
@@ -47,7 +77,7 @@ seq_t a(idx_t n)
             /* Store the new term. */
             if (found == (idx_t)cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (tmp == NULL) abort();
                 cache = tmp;
                 cache_cap = new_cap;

@@ -10,14 +10,30 @@
  *            q*y = n
  * Range:     u8 n <= 28, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   modinv_coprime
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/modinv_coprime.h"
+
+/* Modular inverse of a modulo m (a and m are coprime) */
+static inline idx_t modinv_coprime(idx_t a, idx_t m) {
+    long long aa = a, bb = m;
+    long long x0 = 1, y0 = 0, x1 = 0, y1 = 1;
+    while (bb) {
+        long long q = aa / bb;
+        long long tmp = aa - q * bb;
+        aa = bb; bb = tmp;
+        tmp = x0 - q * x1; x0 = x1; x1 = tmp;
+        tmp = y0 - q * y1; y0 = y1; y1 = tmp;
+    }
+    long long inv = x0;
+    if (inv < 0) inv += m;
+    return (idx_t)inv;
+}
 
 /* Greatest common divisor of two unsigned integers */
 static inline idx_t gcd_idx(idx_t a, idx_t b) {

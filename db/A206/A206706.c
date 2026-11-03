@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 78, i16 n <= 78, i32 n <= 78, i64 n <= 78, i128 n <= 78,
  *            big any n
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
    moebius(n,k) = μ(n/k) if k≠0 and k|n, else 0.
    The sequence is the flattened triangle (row by row). */
 
+#include <stdint.h>
 #include "../utils/mobius.h"
 
 static seq_t moebius_block(idx_t n, idx_t k)

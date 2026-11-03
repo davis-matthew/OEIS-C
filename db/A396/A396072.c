@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 8645 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for pre‑computed missing numbers */
 static seq_t *missing = NULL;      /* array of values not representable */
@@ -50,7 +52,7 @@ static void init(void)
 
     /* store all numbers that are not representable */
     missing_len = 0;
-    missing = (seq_t *)malloc((bound + 1) * sizeof(seq_t));
+    missing = mem_new(seq_t, (bound + 1));
     for (idx_t i = 1; i <= bound; ++i) {
         if (!repr[i]) {
             missing[missing_len++] = (seq_t)i;

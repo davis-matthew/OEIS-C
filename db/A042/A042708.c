@@ -9,14 +9,35 @@
  *            generated from its continued‑fraction expansion
  * Range:     u8 none, u16 n <= 7, u32 n <= 20, u64 n <= 41, u128 n <= 87,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 44 terms through n = 200 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/floor_sqrt.h"   /* provides floor_sqrt(seq_t) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -29,7 +50,7 @@ static void init_initial_terms(void)
 
     const seq_t D = (seq_t)884;        /* the radicand */
     cache_size = 16;
-    cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_size);
     if (cache == NULL)
         return;                      /* allocation failure – caller will return 0 */
 
@@ -77,7 +98,7 @@ seq_t a(idx_t n)
 
     /* Need to extend the cache up to n. */
     size_t new_size = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (tmp == NULL)
         return cache[cache_size - 1];   /* cannot grow – return last cached value */
     cache = tmp;

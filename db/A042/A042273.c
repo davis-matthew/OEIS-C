@@ -7,7 +7,8 @@
  * Formula:   a(n) = denominator of the n-th convergent of sqrt(662)
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 23, u64 n <= 45, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* constants for sqrt(662) */
 static const uint64_t D = 662u;
@@ -40,7 +42,7 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = denoms_cap ? denoms_cap * 2 : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    denoms = (seq_t *)realloc(denoms, new_cap * sizeof(seq_t));
+    denoms = mem_resize(seq_t, denoms, new_cap);
     denoms_cap = new_cap;
 }
 
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     if (!initialized)
     {
         denoms_cap = 16;
-        denoms = (seq_t *)malloc(denoms_cap * sizeof(seq_t));
+        denoms = mem_new(seq_t, denoms_cap);
         init_state();
     }
 

@@ -8,12 +8,14 @@
  * Formula:   a(1)=1; a(n)=n*(2n+1)*C(2n-1,n-1)-2n^2-2 for n>=2
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   binom_n_k
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_n_k.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* binomial coefficient C(2n-1, n-1) */
     idx_t two_n_minus1 = (idx_t)(2 * n - 1);
     idx_t n_minus1     = (idx_t)(n - 1);
-    seq_t bin = binom_n_k(two_n_minus1, n_minus1);
+    seq_t bin = binomial(two_n_minus1, n_minus1);
 
     seq_t total = mul * bin;
 

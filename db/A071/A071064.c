@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 25, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,20 @@
    digits AND terminate in that sum.  This is OEIS A071064. */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Pre‑computed factorials 0! … 9! */
 static const seq_t fact[10] = {
@@ -51,7 +64,7 @@ static seq_t sum_fact_digits(seq_t x)
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 16ull;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) exit(1);
     cache = new_arr;
     cache_cap = new_cap;
@@ -76,7 +89,7 @@ seq_t a(idx_t n)
 
         if (sum <= cur) {
             if (cur % sum == (seq_t)0) {
-                int len_sum = digit_len(sum);
+                int len_sum = num_digits(sum);
                 seq_t pow10k = pow10((idx_t)len_sum);
                 if (cur % pow10k == sum) {
                     add_to_cache(cur);

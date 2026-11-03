@@ -8,6 +8,7 @@
  * Formula:   a(n) = n^7 + 7*n^6 + 6*n^5 + 20*n^4 - 12*n^3 + 22*n^2 - 18*n + 4
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 22, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 201 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

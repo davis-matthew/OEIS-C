@@ -9,9 +9,10 @@
  *            P(t−1,R−m) ] * where P(t,s) is the number of partitions of s
  *            into exactly t parts. * P(0,0)=1 and, for t>0,
  *            P(t,s)=P(t−1,s−1)+P(t,s−t) (s≥t)
- * Range:     u8 n <= 5, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
+ * Range:     u8 n <= 48, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   compute_partition_table
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,28 @@
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, free, size_t */
 #include <string.h>   /* for memset */
-#include "../utils/compute_partition_table.h"
+#include "../utils/mem.h"
+
+/* Static helper: fill the table P with dimensions (tmax+1)×(n+1).  */
+static void compute_partition_table(idx_t n, size_t tmax, seq_t *P)
+{
+    size_t cols = (size_t)n + 1;
+    /* base case P(0,0) = 1 */
+    P[0 * cols + 0] = 1;
+
+    for (size_t t = 1; t <= tmax; ++t) {
+        for (size_t s = 0; s <= n; ++s) {
+            if (s < t) {
+                P[t * cols + s] = 0;
+                continue;
+            }
+            seq_t val = P[(t - 1) * cols + (s - 1)];
+            if (s >= t)
+                val += P[t * cols + (s - t)];
+            P[t * cols + s] = val;
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +54,7 @@ seq_t a(idx_t n)
     /* allocate space for table P : (max_t+1) × (n+1)  */
     size_t rows = max_t + 1;
     size_t cols = (size_t)n + 1;
-    seq_t *P = (seq_t *)malloc(rows * cols * sizeof(seq_t));
+    seq_t *P = mem_new(seq_t, rows * cols);
     if (P == NULL)
         return 0;   /* allocation failure; return 0 as safe fallback */
 
@@ -59,6 +81,6 @@ seq_t a(idx_t n)
         ans += add;
     }
 
-    free(P);
+    mem_free(P);
     return ans;
 }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 7, u64 n <= 20, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 140 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function to be implemented by the grader */
 seq_t a(idx_t n)
@@ -106,8 +108,8 @@ seq_t a(idx_t n)
         return sum;
     }
 
-    seq_t *cur = (seq_t*)calloc(state_cnt, sizeof(seq_t));
-    seq_t *nxt = (seq_t*)calloc(state_cnt, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, state_cnt);
+    seq_t *nxt = mem_new(seq_t, state_cnt);
     if (!cur || !nxt) { return 0; } /* malloc failure – unlikely */
 
     /* initial step: one row */
@@ -132,7 +134,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (size_t i = 0; i < state_cnt; ++i) result += cur[i];
 
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return result;
 }

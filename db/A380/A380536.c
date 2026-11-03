@@ -11,8 +11,9 @@
  *            A351566(n) is the radix prime of the second least significant
  *            non‑zero digit in the primorial base expansion of n, or 1 if
  *            there is no such digit
- * Range:     u8 n <= 3447, u16 n <= 9531, u32 n <= 9531, u64 n <= 9531,
- *            u128 n <= 9531, big any n
+ * Range:     u8 n <= 3447, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 142 terms through n = 9531 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

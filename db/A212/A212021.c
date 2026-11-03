@@ -9,6 +9,7 @@
  *            quadruples (w,x,y,z)∈{1,…,n}⁴ satisfying 2*w*x = 3*y*z
  * Range:     u8 n <= 11, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

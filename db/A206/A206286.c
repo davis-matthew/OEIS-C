@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   is_prime, leading_digit_is_one, seq_realloc
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,25 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/leading_digit_is_one.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Return true if the most significant decimal digit of x is 1. */
+static inline bool leading_digit_is_one(idx_t x)
+{
+    while (x >= 10) x /= 10;
+    return x == 1;
+}
 
 /* Cache of already generated terms. */
 static seq_t *cache = NULL;

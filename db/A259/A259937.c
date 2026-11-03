@@ -10,25 +10,37 @@
  *            multiplying the current value by 10^digits(i) and adding i
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   digits, pow10
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
-#include "../utils/digits.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     seq_t res = 0;
 
     /* forward part: 1, 2, ..., n */
     for (idx_t i = 1; i <= n; ++i) {
-        res = res * pow10((idx_t)digits(i)) + (seq_t)i;
+        res = res * pow10((idx_t)num_digits_idx(i)) + (seq_t)i;
     }
 
     /* reverse part: n, n-1, ..., 1 */
     for (idx_t i = n; i >= 1; --i) {
-        res = res * pow10((idx_t)digits(i)) + (seq_t)i;
+        res = res * pow10((idx_t)num_digits_idx(i)) + (seq_t)i;
     }
 
     return res;

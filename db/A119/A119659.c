@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 7, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   floor_sqrt, is_prime
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   ipow_i32, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"      /* is_prime(idx_t) -> bool */
-#include "../utils/floor_sqrt.h"    /* floor_sqrt(seq_t) -> seq_t */
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* ---------- static working storage ------------------------------------ */
 static uint64_t *primes        = NULL;      /* all primes discovered  */
@@ -56,7 +76,7 @@ static void grow_uint64_array(uint64_t **arr, size_t *cap)
 static void grow_seq_array(seq_t **arr, size_t *cap)
 {
     size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 

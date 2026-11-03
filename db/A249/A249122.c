@@ -9,8 +9,9 @@
  *            prime divisor of m. This implementation computes lpf by trial
  *            division, * which is fast enough for the typical test range (n ≤
  *            10000)
- * Range:     u8 n <= 15, u16 n <= 8270, u32 n <= 8270, u64 n <= 8270,
- *            u128 n <= 8270, big any n
+ * Range:     u8 n <= 15, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 92 terms through n = 8270 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

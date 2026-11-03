@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has_20
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,19 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/has_20.h"
+
+/* Helper: true if decimal representation of x contains "20" */
+static bool has_20(seq_t x)
+{
+    if (x < 20) return false;          /* quick exit for small x */
+    while (x >= 20)                    /* examine pairs of consecutive digits */
+    {
+        seq_t last_two = x % 100;      /* last two decimal digits */
+        if (last_two == 20) return true;
+        x /= 10;                       /* drop the least significant digit */
+    }
+    return false;
+}
 
 /* Main function: a(n) for A044352 */
 seq_t a(idx_t n)

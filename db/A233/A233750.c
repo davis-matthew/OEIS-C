@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   diff_int
+ * Validated: standard, pass, 30 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/diff_int.h"
+#include "../utils/mem.h"
+
+static inline int diff_int(int a, int b) { return a > b ? a - b : b - a; }
 
 /* Number of states: 6^3 = 216 */
 #define NUM_STATES 216
@@ -92,11 +95,11 @@ seq_t a(idx_t n)
     /* Initialize DP: one row can be any state */
     int cur = 0, nxt = 1;
     for (int s = 0; s < NUM_STATES; ++s) dp[cur][s] = (seq_t)1;
-    memset(dp[nxt], 0, sizeof(dp[nxt]));
+    mem_set(dp[nxt], 0, sizeof(dp[nxt]));
 
     /* Process each additional row */
     for (idx_t step = 1; step <= n; ++step) {
-        memset(dp[nxt], 0, sizeof(dp[nxt]));
+        mem_set(dp[nxt], 0, sizeof(dp[nxt]));
         for (int i = 0; i < NUM_STATES; ++i) {
             seq_t val = dp[cur][i];
             if (!val) continue;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 10*a(n-1) - 15*a(n-2); a(0) = 1, a(1) = 5
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache to handle out‑of‑order calls efficiently */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* allocate or grow cache if necessary */
     if (cache == NULL) {
         /* start with capacity for two terms */
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (cache == NULL) return (seq_t)0;          /* out of memory – unlikely */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)5;
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     if (n >= cache_size) {
         /* grow cache to hold up to a(n) */
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) return (seq_t)0; /* allocation failure */
         cache = tmp;
         /* compute missing terms */

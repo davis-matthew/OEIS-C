@@ -8,12 +8,14 @@
  * Formula:   a(n) = floor(n/2)*ceil(n/2)*(n-1)! (OEIS A077613)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 446 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Ensure the cache exists and has entry for 0! */
     if (fact == NULL) {
-        fact = (seq_t *)malloc(sizeof(seq_t));
+        fact = mem_new(seq_t, 1);
         if (!fact) return (seq_t)0;          /* allocation failed */
         fact[0] = (seq_t)1;                 /* 0! = 1 */
         fact_max = 0;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Extend the cache if necessary */
     if (k > fact_max) {
         size_t new_cap = (size_t)(k + 1);    /* need indices 0 .. k */
-        seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, new_cap);
         if (!tmp) return (seq_t)0;           /* allocation failed */
         fact = tmp;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 2276, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, generate_all_divisors, is_prime
+ * Validated: standard, pass, 72 terms through n = 8197 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,35 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"     /* bool is_prime(idx_t x); */
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/generate_all_divisors.h"
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+static void generate_all_divisors(const uint64_t *pr, const uint64_t *ex,
+                                  size_t idx, size_t cnt, uint64_t cur,
+                                  uint64_t **vec, size_t *len, size_t *cap)
+{
+    if (idx == cnt) {
+        /* push cur into the vector */
+        if (*len == *cap) {
+            size_t new_cap = (*cap) ? (*cap) * 2 : 8;
+            uint64_t *tmp = (uint64_t *)realloc(*vec, new_cap * sizeof(uint64_t));
+            if (!tmp) abort();
+            *vec = tmp;
+            *cap = new_cap;
+        }
+        (*vec)[(*len)++] = cur;
+        return;
+    }
+
+    uint64_t p = pr[idx];
+    uint64_t prod = cur;
+    for (uint64_t e = 0; e <= ex[idx]; ++e) {
+        generate_all_divisors(pr, ex, idx + 1, cnt, prod,
+                              vec, len, cap);
+        prod *= p;
+    }
+}
 
 static bool prime_has_property(uint64_t p);
 static void generate_all_divisors(const uint64_t *pr, const uint64_t *ex,
@@ -46,7 +73,7 @@ seq_t a(idx_t n)
             /* store the prime */
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, new_cap);
                 if (!tmp) abort();
                 seq = tmp;
                 seq_cap = new_cap;

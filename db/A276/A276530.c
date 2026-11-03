@@ -9,16 +9,32 @@
  *            a(2) = a(3) = a(4) = a(5) = 1
  * Range:     u8 n <= 11, u16 n <= 13, u32 n <= 15, u64 n <= 17, u128 n <= 19,
  *            big any n
- * Helpers:   free_cache, seq_alloc_new_array, seq_mul
+ * Validated: standard, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_cache.h"
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Return the nth term of sequence A276530. */
 seq_t a(idx_t n)

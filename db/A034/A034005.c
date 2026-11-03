@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 7, u16 n <= 21, u32 n <= 74, u64 n <= 98, u128 n <= 98,
+ * Range:     u8 n <= 10, u16 n <= 31, u32 n <= 93, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   catalan, seq_to_str
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-01)
+ * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,29 @@
  *  C(k) = binomial(2k,k)/(k+1).
  */
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
-#include "../utils/seq_to_str.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 seq_t a(idx_t n)
 {

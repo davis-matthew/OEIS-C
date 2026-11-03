@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 4804, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 116 terms through n = 9595 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t   *term_cache  = NULL; /* cache of computed terms */
 static size_t  cache_cap   = 0;     /* capacity of the cache array   */
@@ -34,7 +36,7 @@ static void ensure_cache(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
     term_cache = tmp;
     cache_cap  = new_cap;
 }

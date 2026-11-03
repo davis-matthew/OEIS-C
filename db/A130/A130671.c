@@ -8,14 +8,16 @@
  * Formula:   a(n) = t(k,m) with t(n,m) = 2*binomial(m,n) - (1 + n*(m-n))
  *            where (m,k) are the coordinates of the n‑th element in the
  *            triangle read in row-major order (offset 1)
- * Range:     u8 n <= 40, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
+ * Range:     u8 n <= 59, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Includes the shared binomial routine */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   a(n) = denominator((n-1)!/n^n)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 21,
  *            big any n
- * Helpers:   build_primes_upto, pow_uint, seq_mul
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,15 @@
    = e*n - sum_{i>=1} floor((n-1)/p^i) */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
-#include "../utils/pow_uint.h"            /* pow_uint */
-#include "../utils/seq_mul.h"            /* seq_mul */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Caches for prime sieve */
 static uint64_t *cached_primes = NULL;
@@ -61,7 +68,7 @@ seq_t a(idx_t n) {
         }
         idx_t exp = (idx_t)(e * n - S);
         if (exp > 0) {
-            seq_t term = pow_uint(p, exp);
+            seq_t term = ipow_u64_idx(p, exp);
             seq_t new_res = seq_mul(result, term);
             /* free intermediate if necessary? not required by spec */
             result = new_res;
@@ -80,7 +87,7 @@ seq_t a(idx_t n) {
         }
         idx_t exp = (idx_t)(e * n - S);
         if (exp > 0) {
-            seq_t term = pow_uint(p, exp);
+            seq_t term = ipow_u64_idx(p, exp);
             seq_t new_res = seq_mul(result, term);
             result = new_res;
         }

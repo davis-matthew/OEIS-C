@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 76 terms through n = 9401 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
    a(1) = 1, a(2) = 2, a(3) = 3, a(4) = 5, a(5) = 6, a(6) = 7, a(7) = 11, ... */
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 #define MAX_LIMIT 200000          /* enough to cover the first 10 000 terms */
 
@@ -31,7 +34,7 @@ static void compute_sequence(void)
     size_t i, j;
 
     /* Allocate and initialise σ array */
-    sigma_arr = (seq_t *)malloc((MAX_LIMIT + 1) * sizeof(seq_t));
+    sigma_arr = mem_new(seq_t, (MAX_LIMIT + 1));
     for (i = 0; i <= MAX_LIMIT; ++i) sigma_arr[i] = 0;
 
     /* Classic divisor‑sum sieve */
@@ -57,13 +60,13 @@ static void compute_sequence(void)
             if (seq_len == cap)
             {
                 cap = (cap == 0) ? 1024 : cap << 1;
-                seq_list = (seq_t *)realloc(seq_list, cap * sizeof(seq_t));
+                seq_list = mem_resize(seq_t, seq_list, cap);
             }
             seq_list[seq_len++] = (seq_t)i;
         }
     }
 
-    free(sigma_arr);
+    mem_free(sigma_arr);
     sigma_arr = NULL;
     initialized = true;
 }

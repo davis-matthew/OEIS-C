@@ -8,7 +8,8 @@
  *            Stirling2(n-k,k)/(n-k)!
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,17 @@
    and reformulates the summand to avoid fractional division by multiplying
    by the factor (n!/(n-k)!). */
 
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -30,8 +40,8 @@ seq_t a(idx_t n)
     idx_t maxk = n / 2;
 
     /* allocate two rows for Stirling DP */
-    seq_t *prev = (seq_t *)calloc(maxk + 1, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(maxk + 1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, maxk + 1);
+    seq_t *curr = mem_new(seq_t, maxk + 1);
     if (!prev || !curr) return (seq_t)0;  /* allocation failure */
 
     prev[0] = (seq_t)1;  /* S(0,0) = 1 */
@@ -51,7 +61,7 @@ seq_t a(idx_t n)
         idx_t k_needed = n - m;           /* k such that m = n - k */
         if (k_needed >= 1 && k_needed <= maxk && k_needed <= limit) {
             /* (n - 2*k + 1)^(k-1) */
-            seq_t pow_term = seq_pow((seq_t)(n - 2 * k_needed + 1),
+            seq_t pow_term = ipow_idx((seq_t)(n - 2 * k_needed + 1),
                                      (idx_t)(k_needed - 1));
 
             /* Stirling value */
@@ -72,7 +82,7 @@ seq_t a(idx_t n)
         curr = temp;
     }
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return sum;
 }

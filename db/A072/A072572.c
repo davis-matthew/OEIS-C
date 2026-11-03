@@ -8,7 +8,8 @@
  *            divisible by 3
  * Range:     u8 n <= 16, u16 n <= 1869, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 69 terms through n = 9980 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build environment */
 
@@ -50,7 +52,7 @@ static void ensure_cache_capacity(size_t needed)
     {
         size_t new_cap = cache_cap ? cache_cap << 1 : 128;
         while (new_cap < needed) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }

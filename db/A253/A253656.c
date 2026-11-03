@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 20, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ROWS 27          /* 3^3 possible rows */
 #define D_RANGE 5        /* D ∈ {‑2,‑1,0,1,2} */
@@ -136,7 +138,7 @@ seq_t a(idx_t n)
     }
 
     /* ---- initialisation: first pair ------------------------------------------- */
-    memset(dpA, 0, sizeof(dpA));
+    mem_set(dpA, 0, sizeof(dpA));
     if (n >= 1) {
         for (int r0 = 0; r0 < ROWS; ++r0) {
             for (int r1 = 0; r1 < ROWS; ++r1) {
@@ -156,7 +158,7 @@ seq_t a(idx_t n)
     seq_t *curr = dpA;
     seq_t *next = dpB;
     for (idx_t step = 2; step <= n; ++step) {
-        memset(next, 0, sizeof(dpB));
+        mem_set(next, 0, sizeof(dpB));
         for (int s = 0; s < STATE_COUNT; ++s) {
             seq_t val = curr[s];
             if (val == 0) continue;

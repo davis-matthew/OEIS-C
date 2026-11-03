@@ -7,6 +7,7 @@
  * Formula:   a(n) = (2^floor(n/2) + [n=1] - [n=0]) / 2
  * Range:     u8 n <= 17, u16 n <= 33, u32 n <= 65, u64 n <= 129,
  *            u128 n <= 257, big any n
+ * Validated: standard, pass, 63 terms through n = 944 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* The function returns the integer in the OEIS sequence A158780 for any n ≥ 0. */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {

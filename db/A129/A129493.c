@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 94, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 77 terms through n = 9496 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,11 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t n); */
-#include "../utils/mod_pow.h"   /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of found terms */
 static size_t cache_len = 0;          /* number of terms stored */
@@ -43,7 +47,7 @@ static void ensure_cache_capacity(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 128;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) abort(); /* insufficient memory */
     cache = new_ptr;
     cache_cap = new_cap;
@@ -71,7 +75,7 @@ seq_t a(idx_t n)
 
         /* Compute 3^k mod k. */
         idx_t k = next_test;
-        seq_t r = mod_pow((seq_t)3, (uint64_t)k, (seq_t)k);
+        seq_t r = powmod((seq_t)3, (uint64_t)k, (seq_t)k);
 
         /* Check the condition: remainder > 1 and a power of 3. */
         if (r > (seq_t)1 && is_power_of_3(r)) {

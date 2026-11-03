@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, look, base
  * Formula:   not stated
- * Range:     u8 n <= 169, u16 n <= 9731, u32 n <= 9731, u64 n <= 9731,
- *            u128 n <= 9731, big any n
- * Helpers:   floor_log2_uint64, isPrimeTrial
+ * Range:     u8 n <= 169, u16 n <= 32768, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 84 terms through n = 9731 (2026-11-01)
+ * Helpers:   ilog2, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"
-#include "../utils/isPrimeTrial.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/is_prime_seq.h"
 
 /* Small primes sufficient for all run lengths that give a value that
    fits into 8‑bit seq_t (i.e. up to the 20th prime, 71).  For larger
@@ -46,7 +49,7 @@ static seq_t get_prime_of_len(idx_t n)
     idx_t count = 20u;
     seq_t candidate = 73;          /* the 21st prime */
     while (count < n) {
-        if (isPrimeTrial(candidate)) {
+        if (is_prime_seq(candidate)) {
             ++count;
         }
         candidate += 2;
@@ -60,7 +63,7 @@ seq_t a(idx_t n)
         return (seq_t)1;           /* empty product */
     }
 
-    idx_t msb = floor_log2_uint64(n);
+    idx_t msb = ilog2(n);
     seq_t result = (seq_t)1;
 
     int cur_bit = (int)((n >> msb) & (idx_t)1);

@@ -10,12 +10,14 @@
  *            for n>4
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 37, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[0] holds a(1) */
 static idx_t max_cached = 0;   /* number of terms currently cached */
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n)
     if (n <= max_cached) return;
 
     /* Grow the cache to hold n terms */
-    seq_t *new_cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)n);
     if (!new_cache) abort();
     cache = new_cache;
 

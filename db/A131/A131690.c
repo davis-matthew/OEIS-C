@@ -8,8 +8,8 @@
  *            sequence 1,2,3,5,7,11,... (primes with a leading 1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   _prime_limit_for_idx, big_pow, build_primes_upto, seq_mul,
- *            seq_one
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +19,26 @@
 #include <stdlib.h>
 
 /* Utility functions provided by the build environment */
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_one.h"
-#include "../utils/_prime_limit_for_idx.h"
+#include <stdbool.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* Static cache of primes (starting at 2).  We keep the largest
    prime list needed across calls so repeated invocations are fast. */
@@ -94,7 +109,7 @@ seq_t a(idx_t n)
         }
 
         /* General case: multiply by base^exp.  big_pow handles exponentiation. */
-        seq_t power = big_pow(base, exp);
+        seq_t power = ipow(base, exp);
         result = seq_mul(result, power);
     }
 

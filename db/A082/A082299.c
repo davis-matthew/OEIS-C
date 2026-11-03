@@ -8,8 +8,9 @@
  * Formula:   a(n) = gcd(n, A001414(n)) – the GCD of n and the sum of its *
  *            prime factors (with multiplicity). a(1) = 1, a(2) = 2, a(6) = 1,
  *            …
- * Range:     u8 n <= 256, u16 n <= 9342, u32 n <= 9342, u64 n <= 9342,
- *            u128 n <= 9342, big any n
+ * Range:     u8 n <= 256, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 109 terms through n = 9342 (2026-11-01)
  * Helpers:   build_spf, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
+#include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/gcd.h"
 
 /* Smallest‑prime‑factor table (0..max_n).  It is rebuilt only when a larger
  * n is requested. */

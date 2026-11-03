@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 755, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 117 terms through n = 9292 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,12 +40,12 @@ seq_t a(idx_t n)
     }
 
     /* Allocate convolution buffers */
-    seq_t *prev = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(n + 1));
     if (!prev) { free(cubes); return 0; }
     prev[0] = 1;                      /* (∑ q^{m^3})^0 has coefficient 1 at 0 */
 
-    seq_t *cur = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-    if (!cur) { free(prev); free(cubes); return 0; }
+    seq_t *cur = mem_new(seq_t, (size_t)(n + 1));
+    if (!cur) { mem_free(prev); free(cubes); return 0; }
 
     /* Perform 5 successive convolutions */
     for (idx_t rep = 0; rep < 5; ++rep) {
@@ -61,8 +63,8 @@ seq_t a(idx_t n)
     }
 
     seq_t result = prev[n];
-    free(cur);
-    free(prev);
+    mem_free(cur);
+    mem_free(prev);
     free(cubes);
     return result;
 }

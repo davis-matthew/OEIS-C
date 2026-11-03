@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;        /* memoised values (reallocated on demand) */
 static idx_t  dp_size = 0;      /* current allocated size of dp  */
@@ -32,10 +34,10 @@ seq_t a(idx_t n)
     if (dp == NULL || n + 1 > dp_size) {
         /* free previous table if it existed */
         if (dp != NULL) {
-            free(dp);
+            mem_free(dp);
         }
         /* (void*)* cast suppresses C++ implicit conversion error */
-        dp      = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        dp      = mem_new(seq_t, (size_t)(n + 1));
         dp_size = n + 1;
     }
 

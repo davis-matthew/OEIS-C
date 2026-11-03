@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 107, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root (floor).  Uses only integer arithmetic. */
 static inline idx_t isqrt(idx_t x)
@@ -32,8 +34,8 @@ static inline idx_t isqrt(idx_t x)
 seq_t a(idx_t n)
 {
     /* Pre‑allocate coefficient arrays for φ(q)^3 and φ(q^2)^3. */
-    seq_t *phi3   = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *phi2_3 = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *phi3   = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *phi2_3 = mem_new(seq_t, (size_t)(n + 1));
     if (!phi3 || !phi2_3) return 0;   /* allocation failure protects */
 
     /* Build φ(q)^3 coefficients. */
@@ -86,8 +88,8 @@ seq_t a(idx_t n)
         result += phi3[s] * phi2_3[n - s];
 
     /* Clean up. */
-    free(phi3);
-    free(phi2_3);
+    mem_free(phi3);
+    mem_free(phi2_3);
 
     return result;
 }

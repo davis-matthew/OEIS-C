@@ -10,13 +10,15 @@
  *            (a(n)) and (b(n)) are increasing complementary sequences
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state: two growing arrays for a and b, the current number of
    filled terms (len), the allocated capacity (cap), and the last used
@@ -33,8 +35,8 @@ static void ensure_cap(size_t need)
     if (cap >= need) return;
     size_t new_cap = cap ? cap << 1 : 8;
     while (new_cap < need) new_cap <<= 1;
-    a_seq = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
-    b_seq = (seq_t *)realloc(b_seq, new_cap * sizeof(seq_t));
+    a_seq = mem_resize(seq_t, a_seq, new_cap);
+    b_seq = mem_resize(seq_t, b_seq, new_cap);
     cap = new_cap;
 }
 

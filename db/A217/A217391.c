@@ -9,12 +9,14 @@
  *            numbers, number of preferential arrangements)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised arrays of the ordered Bell numbers and the partial sums
    of their squares. */
@@ -29,8 +31,8 @@ static void ensure_capacity(size_t new_cap)
     if (new_cap <= cap) return;
     size_t new_size = new_cap > 2*cap ? new_cap : (cap ? 2*cap : 1);
 #ifdef __cplusplus
-    t_vals   = (seq_t*)realloc(t_vals,   new_size * sizeof(seq_t));
-    sum_vals = (seq_t*)realloc(sum_vals, new_size * sizeof(seq_t));
+    t_vals   = mem_resize(seq_t, t_vals, new_size);
+    sum_vals = mem_resize(seq_t, sum_vals, new_size);
 #else
     t_vals   = realloc(t_vals,   new_size * sizeof(seq_t));
     sum_vals = realloc(sum_vals, new_size * sizeof(seq_t));

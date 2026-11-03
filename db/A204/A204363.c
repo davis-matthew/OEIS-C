@@ -14,13 +14,15 @@
  *            initial values a(1)=74, a(2)=212, a(3)=555, a(4)=891...
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 19, u64 n <= 41, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[18] = {
     74ULL, 212ULL, 555ULL, 891ULL, 2419ULL, 6121ULL, 13693ULL,
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     if (n > cached_max) {
         size_t needed = (size_t)(n + 1); /* index 0 unused */
         if (cache == NULL) {
-            cache = (seq_t *)malloc(needed * sizeof(seq_t));
+            cache = mem_new(seq_t, needed);
             if (!cache) exit(1);
             for (idx_t i = 1; i <= 18; ++i) {
                 cache[i] = init_vals[i - 1];
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
             cache_size = needed;
             cached_max = 18;
         } else if (needed > cache_size) {
-            seq_t *p = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+            seq_t *p = mem_resize(seq_t, cache, needed);
             if (!p) exit(1);
             cache = p;
             cache_size = needed;

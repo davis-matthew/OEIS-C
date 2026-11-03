@@ -11,13 +11,17 @@
  *            floor((sqrt(8*n+1)-1)/2), column k = n - r*(r+1)/2
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 56, u64 n <= 124,
  *            u128 n <= 331, big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 61 terms through n = 5078 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Find the greatest r such that r*(r+1)/2 <= n.  n is 64‑bit. */
 static idx_t triangular_row(idx_t n)
@@ -52,7 +56,7 @@ static inline seq_t value_of_row_col(idx_t r, idx_t k)
     }
     seq_t bin2 = binomial(r - 2, k - 1);
     /* r^(r-1) can be huge; let big_pow handle arbitrary precision */
-    seq_t r_pow = big_pow((seq_t)r, (seq_t)(r - 1));
+    seq_t r_pow = ipow((seq_t)r, (seq_t)(r - 1));
     return bin + r_pow * bin2;
 }
 

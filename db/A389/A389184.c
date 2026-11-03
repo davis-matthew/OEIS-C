@@ -10,13 +10,57 @@
  *            5760)/5760 (Special values are supplied for 3 ≤ n ≤ 10.)
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 25, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   even_polynomial, odd_polynomial
+ * Validated: standard, pass, 54 terms through n = 996 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/even_polynomial.h"
-#include "../utils/odd_polynomial.h"
+static seq_t even_polynomial(seq_t sn)
+{
+    const seq_t c7   = 7,      c210  = 210,     c1660  = 1660;
+    const seq_t c14040 = 14040, c117632 = 117632,   c384000 = 384000;
+    const seq_t c5760 = 5760;
+
+    seq_t p2 = sn * sn;            /* n^2 */
+    seq_t p3 = p2 * sn;            /* n^3 */
+    seq_t p4 = p3 * sn;            /* n^4 */
+    seq_t p5 = p4 * sn;            /* n^5 */
+    seq_t p6 = p5 * sn;            /* n^6 */
+
+    seq_t num = c7 * p6
+              + c210 * p5
+              + c1660 * p4
+              + c14040 * p3
+              - c117632 * p2
+              + c384000 * sn
+              + c5760;
+
+    return num / 5760;
+}
+
+static seq_t odd_polynomial(seq_t sn)
+{
+    const seq_t c7   = 7,      c135  = 135,     c730  = 730;
+    const seq_t c11370 = 11370, c43937 = 43937,   c83535 = 83535;
+    const seq_t c5760 = 5760;
+
+    seq_t p2 = sn * sn;            /* n^2 */
+    seq_t p3 = p2 * sn;            /* n^3 */
+    seq_t p4 = p3 * sn;            /* n^4 */
+    seq_t p5 = p4 * sn;            /* n^5 */
+    seq_t p6 = p5 * sn;            /* n^6 */
+
+    seq_t num = c7 * p6
+              + c135 * p5
+              + c730 * p4
+              + c11370 * p3
+              - c43937 * p2
+              + c83535 * sn
+              + c5760;
+
+    return num / 5760;
+}
 
 seq_t a(idx_t n)
 {

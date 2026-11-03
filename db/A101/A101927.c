@@ -10,6 +10,7 @@
  *            a(n-2)*((2*(n-3)+1)^2+1)*((2*(n-2)+1)^2+1) holds for n≥3
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 7, i64 n <= 11, i128 n <= 18,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 94 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

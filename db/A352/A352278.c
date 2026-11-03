@@ -8,7 +8,8 @@
  *            (n ≥ 1)
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 8, i64 n <= 13, i128 n <= 18,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_alloc = (size_t)(n + 1);
-        cache = (seq_t*)calloc(cache_alloc, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_alloc);
         if (cache == NULL) return 0; /* allocation failure (unlikely) */
         cache[0] = (seq_t)1;
         cache_computed = 1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (cache_alloc <= (size_t)n)
     {
         size_t new_alloc = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
         if (tmp == NULL) return 0; /* allocation failure (unlikely) */
         cache = tmp;
         cache_alloc = new_alloc;

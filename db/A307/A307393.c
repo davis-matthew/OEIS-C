@@ -10,6 +10,7 @@
  *            k*j+3)
  * Range:     u8 n <= 26, u16 n <= 118, u32 n <= 494, u64 n <= 2014,
  *            u128 n <= 8126, big any n
+ * Validated: standard, pass, 82 terms through n = 9167 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

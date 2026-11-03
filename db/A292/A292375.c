@@ -8,9 +8,10 @@
  *            where A252463(n) = n/2 if n is even, otherwise each odd prime
  *            factor is replaced by the previous odd prime (3 → 2, 5 → 3, 7 →
  *            5, …)
- * Range:     u8 n <= 1545, u16 n <= 9891, u32 n <= 9891, u64 n <= 9891,
- *            u128 n <= 9891, big any n
- * Helpers:   is_prime_small
+ * Range:     u8 n <= 1545, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9891 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdbool.h>
 
 /* Detect whether x is a prime (assumes x fits in seq_t).  */
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* Return the previous odd prime of an odd prime p.  For p == 3 the previous
    odd prime is 2; otherwise scan downward for the next smaller odd prime. */
@@ -29,7 +30,7 @@ static idx_t prev_odd_prime(idx_t p)
 
     uint64_t candidate = p - 2;
     while (candidate >= 3) {
-        if (is_prime_small((seq_t)candidate)) return candidate;
+        if (is_prime_seq((seq_t)candidate)) return candidate;
         candidate -= 2;
     }
     return 2;   /* Fallback – never reached for valid input. */

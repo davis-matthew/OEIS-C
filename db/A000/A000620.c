@@ -12,15 +12,47 @@
  *            (A000621); T(0) = N(0) = 1
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 24, u64 n <= 43, u128 n <= 81,
  *            big any n
- * Helpers:   a306_grow, div3, fixed_w
+ * Validated: standard, pass, 48 terms through n = 1808 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a306_grow.h"
-#include "../utils/div3.h"
-#include "../utils/fixed_w.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *a306_alloc0(idx_t len)
+{
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *a306_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = a306_alloc0(newlen);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+static int fixed_w(void) {
+    seq_t z = 0;
+    z = z - 1;
+    return z > 0;
+}
+
+static seq_t div3(seq_t v) {
+    if (fixed_w()) {
+        seq_t y = 1;
+        int i;
+        for (i = 0; i < 8; i++) y = y * (2 - 3 * y);
+        return v * y;
+    }
+    return v / 3;
+}
 
 static seq_t *Tt = 0, *S2 = 0, *Nn = 0;
 static idx_t cnt = 0, cap = 0;

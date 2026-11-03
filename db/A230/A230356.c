@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   square_part_uint64
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,40 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/square_part_uint64.h"
+#include "../utils/mem.h"
+
+/*  Compute the square part (largest square divisor) of a 64‑bit integer  */
+static seq_t square_part_uint64(uint64_t n)
+{
+    if (n <= 1) return (seq_t)n;   /* 0 or 1 */
+    uint64_t tmp = n;
+    seq_t sq = 1;
+
+    /* Factor 2 */
+    int exp = 0;
+    while ((tmp & 1ULL) == 0ULL) {
+        tmp >>= 1;
+        ++exp;
+    }
+    int e_even = exp & ~1;
+    for (int i = 0; i < e_even; ++i) sq *= 2;
+
+    /* Odd factors */
+    for (uint64_t p = 3; p * p <= tmp; p += 2) {
+        if (tmp % p != 0) continue;
+        exp = 0;
+        while (tmp % p == 0) {
+            tmp /= p;
+            ++exp;
+        }
+        e_even = exp & ~1;
+        for (int i = 0; i < e_even; ++i) sq *= p;
+    }
+    if (tmp > 1) {
+        /* tmp is a prime > sqrt(original n) with exponent 1 -> e_even = 0 none */
+    }
+    return sq;
+}
 
 /*  Cache for the computed sequence terms  */
 static seq_t *cache      = NULL;
@@ -35,7 +69,7 @@ static void cache_append(seq_t v)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 256;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_cap = new_cap;

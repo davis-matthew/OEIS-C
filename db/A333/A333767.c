@@ -12,20 +12,23 @@
  *            the * expansion) is returned. If no zeros occur (...
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <limits.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0 || n == 1)
         return (seq_t)0;
 
-    int msb   = (int)floor_log2_uint64(n);
+    int msb   = (int)ilog2(n);
     int minlen = INT_MAX;     /* will hold the minimal zero run length */
     int zeros  = -1;          /* -1 means "not currently counting zeros" */
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 71 terms through n = 911 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../utils/next_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Return true if prime p satisfies the condition */
 static bool satisfies(uint64_t p)
@@ -45,7 +48,7 @@ static bool satisfies(uint64_t p)
             /* q is a prime divisor of p-1 */
             while (order % q == 0) {
                 uint64_t cand = order / q;
-                if (mod_pow((seq_t)2, cand, (seq_t)p) == 1)
+                if (powmod((seq_t)2, cand, (seq_t)p) == 1)
                     order = cand;
                 else
                     break;
@@ -57,7 +60,7 @@ static bool satisfies(uint64_t p)
         uint64_t q = factor;
         while (order % q == 0) {
             uint64_t cand = order / q;
-            if (mod_pow((seq_t)2, cand, (seq_t)p) == 1)
+            if (powmod((seq_t)2, cand, (seq_t)p) == 1)
                 order = cand;
             else
                 break;
@@ -81,7 +84,7 @@ seq_t a(idx_t n)
         if (satisfies(last_prime)) {
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap > 0 ? seq_cap * 2 : 8;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)last_prime;
         }

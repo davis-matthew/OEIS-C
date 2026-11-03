@@ -7,15 +7,18 @@
  * Formula:   a(n) = 0!*1!*2!*3!*4!*5! * (6*n)! / (n!*(n+1)!*…*(n+5)!)
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   build_primes_upto, gcd, pow_int
+ * Validated: standard, pass, 30 terms through n = 220 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/gcd.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_int.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
 
 static inline idx_t fact_prime_exp(idx_t m, idx_t p)
 {
@@ -64,7 +67,7 @@ seq_t a(idx_t n)
 
         idx_t exp = e6 + pref_exp - expsum;
         if (exp > 0) {
-            seq_t pow_val = pow_int((seq_t)p, exp);
+            seq_t pow_val = ipow_idx((seq_t)p, exp);
             res *= pow_val;
         }
     }

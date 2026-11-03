@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 177, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains_17, seq_mul
+ * Validated: standard, pass, 53 terms through n = 9752 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,28 @@
 /* Search: a(n) = n‑th multiple of 17 that contains the substring "17" in its decimal representation */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
-#include "../utils/contains_17.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Return true if the decimal representation of x contains the substring "17". */
+static bool contains_17(seq_t x)
+{
+    seq_t prev = 10;  /* sentinel value larger than any single digit */
+    while (x > 0) {
+        seq_t digit = x % 10;
+        if (digit == 1 && prev == 7)
+            return true;
+        prev = digit;
+        x = x / 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +51,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cap = 4;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Generate terms until we have at least n of them. */
@@ -39,9 +60,9 @@ seq_t a(idx_t n)
         if (contains_17(m)) {
             if (count >= cap) {
                 size_t newcap = cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) {
-                    free(cache);
+                    mem_free(cache);
                     cache = NULL;
                     cap = 0;
                     return (seq_t)0;

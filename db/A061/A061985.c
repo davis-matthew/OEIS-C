@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----------  dynamic storage for b(k) and the distinct set  ---------- */
 static seq_t *b = NULL;              /* b(k) values          */
@@ -35,7 +37,7 @@ static void grow_b(size_t needed)
     if (needed <= b_cap) return;
     size_t new_cap = b_cap ? b_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(b, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, b, new_cap);
     if (!tmp) exit(1);
     b = tmp;
     b_cap = new_cap;
@@ -47,7 +49,7 @@ static void grow_dist(size_t needed)
     if (needed <= dist_cap) return;
     size_t new_cap = dist_cap ? dist_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(dist, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dist, new_cap);
     if (!tmp) exit(1);
     dist = tmp;
     dist_cap = new_cap;
@@ -88,7 +90,7 @@ static void insert_dist(seq_t val)
 
     /* shift to make room and insert */
     grow_dist(dist_len + 1);
-    memmove(&dist[lo+1], &dist[lo], (dist_len - lo) * sizeof(seq_t));
+    mem_move(&dist[lo+1], &dist[lo], (dist_len - lo) * sizeof(seq_t));
     dist[lo] = val;
     dist_len++;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   build_primes_upto, floor_isqrt_u64, prime_pi
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/floor_isqrt_u64.h"   /* returns idx_t floor(sqrt(n)) */
-#include "../utils/prime_pi.h"          /* seq_t prime_pi(idx_t limit) */
-#include "../utils/build_primes_upto.h" /* void build_primes_upto(idx_t limit, uint64_t **out, size_t *cnt) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
+#include "../utils/prime_pi.h"
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------- */
 /*  Prime table (kept up to a maximum value).                           */
@@ -62,7 +64,7 @@ static void cache_grow(size_t need)
     if (cache_cap > need) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap <= need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
     term_cache = tmp;
     cache_cap  = new_cap;
 }
@@ -76,7 +78,7 @@ static bool satisfies(idx_t n)
     if (n <= 1) return false;
 
     idx_t temp = n;
-    idx_t lim  = floor_isqrt_u64(temp) + 1;
+    idx_t lim  = isqrt(temp) + 1;
     ensure_primes_upto(lim);
 
     unsigned long long sum = 0ULL;           /* sum of prime indices (with multiplicities) */

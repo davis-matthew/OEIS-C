@@ -8,7 +8,8 @@
  *            375000) / 375000
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 48,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 39 terms through n = 954 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 /* Computed with two branches: 128‑bit arithmetic for small seq_t (≤64‑bit),
    arbitrary precision arithmetic for larger seq_t using the supplied big_pow. */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -57,7 +60,7 @@ seq_t a(idx_t n)
                + (seq_t)309274 * m
                + (seq_t)375000;
 
-    seq_t pow5 = big_pow((seq_t)5, (seq_t)n);
+    seq_t pow5 = ipow((seq_t)5, (seq_t)n);
     seq_t result = (pow5 * poly) / (seq_t)375000;
     return result;
 }

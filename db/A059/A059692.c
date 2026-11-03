@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 573, u16 n <= 9869, u32 n <= 9869, u64 n <= 9869,
  *            u128 n <= 9869, big any n
- * Helpers:   carryless_product
+ * Validated: standard, pass, 107 terms through n = 9848 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,57 @@
  */
 
 #include <stdint.h>
-#include "../utils/carryless_product.h"
+
+/* Carry‑less product of two non‑negative integers (base‑10). */
+static seq_t carryless_product(idx_t a, idx_t b)
+{
+    /* Extract decimal digits of a and b (least‑significant first).
+       The maximum number of decimal digits for a 64‑bit integer
+       is 20; 22 is a safe upper bound. */
+    uint8_t da[22] = {0};
+    uint8_t db[22] = {0};
+    idx_t na = 0, nb = 0;
+
+    idx_t t = a;
+    if (t == 0) {
+        da[na++] = 0;
+    } else {
+        while (t) {
+            da[na++] = (uint8_t)(t % 10);
+            t /= 10;
+        }
+    }
+
+    t = b;
+    if (t == 0) {
+        db[nb++] = 0;
+    } else {
+        while (t) {
+            db[nb++] = (uint8_t)(t % 10);
+            t /= 10;
+        }
+    }
+
+    /* Temporary array to hold digit products (no carries). */
+    uint32_t prod[44] = {0};          /* at most na+nb ≤ 44 */
+
+    for (idx_t i = 0; i < na; ++i) {
+        for (idx_t j = 0; j < nb; ++j) {
+            prod[i + j] += (uint32_t)da[i] * (uint32_t)db[j];
+        }
+    }
+
+    /* Convert digit products to a base‑10 number, taking each digit
+       modulo 10 (no carry). */
+    seq_t result = 0;
+    seq_t mult   = 1;
+    for (idx_t k = 0; k < na + nb; ++k) {
+        uint32_t d = prod[k] % 10;
+        if (d) result += mult * (seq_t)d;
+        mult *= 10;
+    }
+    return result;
+}
 
 /* Integer square root of a 64‑bit unsigned integer: floor(sqrt(x)) */
 static uint64_t isqrt_u64(uint64_t x)

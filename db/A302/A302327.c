@@ -13,7 +13,8 @@
  *            zero. The function uses a transfer‑matrix * DP...
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 22, u128 n <= 47,
  *            big any n
- * Helpers:   col_valid_bits
+ * Validated: standard, pass, 35 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,32 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/col_valid_bits.h"
+#include "../utils/mem.h"
+
+/*------------------------------------------------------------*/
+static inline bool col_valid_bits(int mid, int left, int right,
+                                  int have_left, int have_right)
+{
+    for (int r = 0; r < 6; ++r) {
+        int mid_bit = (mid >> r) & 1;
+        int count = 0;
+
+        if (have_left) {
+            if (((left >> r) & 1) == mid_bit) ++count;
+            if (r > 0   && (((left >> (r - 1)) & 1) == mid_bit)) ++count;
+            if (r < 5   && (((left >> (r + 1)) & 1) == mid_bit)) ++count;
+        }
+        if (have_right) {
+            if (((right >> r) & 1) == mid_bit) ++count;
+            if (r > 0   && (((right >> (r - 1)) & 1) == mid_bit)) ++count;
+            if (r < 5   && (((right >> (r + 1)) & 1) == mid_bit)) ++count;
+        }
+
+        if (count == 3 || count == 5 || count == 6)
+            return false;
+    }
+    return true;
+}
 
 /*------------------------------------------------------------*/
 /*  Auxiliary tables (built once)                            */
@@ -93,8 +119,8 @@ seq_t a(idx_t n)
      * per column → 12 bits total, 4096 possible states.                */
     static seq_t dp_prev[1 << 12];
     static seq_t dp_curr[1 << 12];
-    memset(dp_prev, 0, sizeof(dp_prev));
-    memset(dp_curr, 0, sizeof(dp_curr));
+    mem_set(dp_prev, 0, sizeof(dp_prev));
+    mem_set(dp_curr, 0, sizeof(dp_curr));
 
     /* Initialize all pairs of columns that satisfy the start condition. */
     for (int col1 = 0; col1 < 64; ++col1) {
@@ -119,7 +145,7 @@ seq_t a(idx_t n)
 
     /* For n >= 3, extend the matrix column by column. */
     for (idx_t step = 3; step <= n; ++step) {
-        memset(dp_curr, 0, sizeof(dp_curr));
+        mem_set(dp_curr, 0, sizeof(dp_curr));
         for (int idx = 0; idx < (1 << 12); ++idx) {
             seq_t val = dp_prev[idx];
             if (val == 0) continue;
@@ -134,7 +160,7 @@ seq_t a(idx_t n)
                 m ^= low;
             }
         }
-        memcpy(dp_prev, dp_curr, sizeof(dp_prev));
+        mem_copy(dp_prev, dp_curr, sizeof(dp_prev));
     }
 
     /* Final boundary check for last column. */

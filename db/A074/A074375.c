@@ -9,6 +9,7 @@
  *            (with multiplicity)
  * Range:     u8 n <= 22, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
  * Helpers:   factor_uint64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,7 +17,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_uint64.h"   /* provides factor_uint64 */
+#include "../utils/factor_uint64.h"
 
 seq_t a(idx_t n)
 {

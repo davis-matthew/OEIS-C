@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   digit_len, isPrimeGeneric
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,32 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/digit_len.h"
-#include "../utils/isPrimeGeneric.h"
+#include <stddef.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* the function mandated by the RE */
 seq_t a(idx_t n) {
@@ -33,13 +58,13 @@ seq_t a(idx_t n) {
 
     /* cube of n */
     seq_t cube = (seq_t)n * (seq_t)n * (seq_t)n;
-    int B = digit_len(cube);       /* number of decimal digits of the cube */
+    int B = num_digits(cube);       /* number of decimal digits of the cube */
 
     for (uint64_t L = 0; ; ++L) { /* total number of added digits (prefix+suffix) */
 
         /* precompute powers of 10 up to B+L */
         size_t powSize = (size_t)(B + L + 1);
-        seq_t *pow10 = (seq_t *)malloc(powSize * sizeof(seq_t));
+        seq_t *pow10 = mem_new(seq_t, powSize);
         if (!pow10) return 0;        /* allocation failure – should not happen */
         pow10[0] = 1;
         for (size_t i = 1; i < powSize; ++i)
@@ -47,7 +72,7 @@ seq_t a(idx_t n) {
 
         /* 3^k for k = 0 .. L  (to count digit combinations) */
         uint64_t *cnt3 = (uint64_t *)malloc((L + 1) * sizeof(uint64_t));
-        if (!cnt3) { free(pow10); return 0; }
+        if (!cnt3) { mem_free(pow10); return 0; }
         cnt3[0] = 1;
         for (uint64_t i = 1; i <= L; ++i)
             cnt3[i] = cnt3[i - 1] * 3ULL;
@@ -98,7 +123,7 @@ seq_t a(idx_t n) {
             }
         }
 
-        free(pow10);
+        mem_free(pow10);
         free(cnt3);
 
         if (found) return best;   /* smallest prime found for this L */

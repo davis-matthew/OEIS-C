@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy, nice
  * Formula:   a(n) = 1 + Sum_{i=1..n} phi(i)
- * Range:     u8 n <= 28, u16 n <= 463, u32 n <= 8963, u64 n <= 8963,
- *            u128 n <= 8963, big any n
+ * Range:     u8 n <= 28, u16 n <= 463, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 73 terms through n = 8963 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

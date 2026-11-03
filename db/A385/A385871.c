@@ -13,7 +13,8 @@
  *            A385...
  * Range:     u8 none, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Constants (adjustable to guarantee enough primes for all queries) */
 #define MAX_IDX 250000          /* number of primes to precompute          */
@@ -73,7 +75,7 @@ static void init_sequential_chains(void)
 
     /* Allocate arrays */
     primes_arr    = (uint32_t *)malloc((MAX_IDX + 1) * sizeof(uint32_t));
-    diff_arr      = (seq_t *)malloc((MAX_IDX + 1) * sizeof(seq_t));
+    diff_arr      = mem_new(seq_t, (MAX_IDX + 1));
     next_idx_arr  = (idx_t *)malloc((MAX_IDX + 1) * sizeof(idx_t));
     parent_arr    = (idx_t *)malloc((MAX_IDX + 1) * sizeof(idx_t));
     size_arr      = (idx_t *)malloc((MAX_IDX + 1) * sizeof(idx_t));

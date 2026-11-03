@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2 * A039725(n) // even abundant numbers
  * Range:     u8 n <= 58, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root using binary search */
 static idx_t int_sqrt(idx_t n)
@@ -105,7 +107,7 @@ static void append_even_abundant(seq_t val)
 {
     if (even_abund_cnt == even_abund_cap) {
         idx_t new_cap = even_abund_cap ? even_abund_cap << 1 : 16;
-        even_abundants = (seq_t *)realloc(even_abundants, new_cap * sizeof(seq_t));
+        even_abundants = mem_resize(seq_t, even_abundants, new_cap);
         even_abund_cap = new_cap;
     }
     even_abundants[even_abund_cnt++] = val;

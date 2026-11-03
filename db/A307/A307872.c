@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{k=1..⌊n/3⌋} k * (⌊(n-k)/2⌋ - k + 1)
  * Range:     u8 n <= 28, u16 n <= 190, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
+ * Validated: standard, pass, 71 terms through n = 2927 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(0) = 1
    a(n) = n * a(n-1) + Σ_{k=1..n} 2^(n-k) * (k-1)! * binomial(n,k) * a(n-k)  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (n + 1 > a_cap) {
         idx_t new_cap = a_cap ? a_cap << 1 : 1;
         if (new_cap < n + 1) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();
         a_cache = tmp;
         a_cap = new_cap;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     if (n + 1 > fact_cap) {
         idx_t new_cap = fact_cap ? fact_cap << 1 : 1;
         if (new_cap < n + 1) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, new_cap);
         if (!tmp) abort();
         fact = tmp;
         fact_cap = new_cap;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     if (n + 1 > pow2_cap) {
         idx_t new_cap = pow2_cap ? pow2_cap << 1 : 1;
         if (new_cap < n + 1) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(pow2, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow2, new_cap);
         if (!tmp) abort();
         pow2 = tmp;
         pow2_cap = new_cap;

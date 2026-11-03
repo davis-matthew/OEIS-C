@@ -12,7 +12,8 @@
  *            the missing integers
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   count_facts_uint64
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,22 @@
 #include <string.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/count_facts_uint64.h"
+
+/* Helper: count the number of multiplicative factorizations of n.
+   The function is recursive and uses only 64‑bit arithmetic.  The
+   result can be larger than the width of seq_t; the caller handles
+   truncation only when the value is needed in the sequence. */
+static uint64_t count_facts_uint64(uint64_t n, uint64_t min_fac)
+{
+    uint64_t result = 1;                       /* the partition [n] itself */
+    uint64_t root   = (uint64_t) sqrt((double)n);
+    for (uint64_t d = min_fac; d <= root; ++d) {
+        if (n % d == 0) {
+            result += count_facts_uint64(n / d, d);
+        }
+    }
+    return result;
+}
 
 /* ------------------------------------------------------------------ */
 

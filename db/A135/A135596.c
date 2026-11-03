@@ -9,7 +9,8 @@
  *            p is the n-th prime and q is the (n+1)-th prime
  * Range:     u8 n <= 30, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   build_primes, ceil_div_int128
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,16 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/ceil_div_int128.h"
+
+/* Ceil division for signed __int128 by positive uint64_t. */
+static inline __int128 ceil_div_int128(__int128 a, uint64_t b)
+{
+    if (a >= 0)
+        return (a + b - 1) / b;
+    return a / b;    /* truncation toward 0 gives ceil for negative a */
+}
 
 static uint64_t *primes = NULL;
 static size_t primes_cnt = 0;

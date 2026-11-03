@@ -9,15 +9,23 @@
  *            triangle row‑by‑row (i≥j)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 38, u64 n <= 126, u128 n <= 475,
  *            big any n
- * Helpers:   binomial, seq_mul, seq_pow
+ * Validated: standard, pass, 46 terms through n = 988 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -45,8 +53,8 @@ seq_t a(idx_t n)
     seq_t bin = binomial(i, j);
 
     /* Compute 10^(i-j) and 12^j. */
-    seq_t pow10 = seq_pow((seq_t)10, i - j);
-    seq_t pow12 = seq_pow((seq_t)12, j);
+    seq_t pow10 = ipow_idx((seq_t)10, i - j);
+    seq_t pow12 = ipow_idx((seq_t)12, j);
 
     /* Return the product bin * pow10 * pow12. */
     return seq_mul(seq_mul(bin, pow10), pow12);

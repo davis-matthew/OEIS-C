@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache[1..N] == a(1)..a(N)  */
 static idx_t cache_size = 0;     /* largest index computed so far */
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
         return;
 
     /* Allocate or enlarge cache to hold indices 0..n (0 unused). */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) {
         /* Allocation failed – abort as the sequence cannot be calculated. */
         abort();

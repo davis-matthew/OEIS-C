@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 30, u16 n <= 1860, u32 n <= 9155, u64 n <= 9155,
- *            u128 n <= 9155, big any n
- * Helpers:   none
+ * Range:     u8 n <= 30, u16 n <= 1860, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 76 terms through n = 9155 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Ensure a list of primes up to 1,000,000 is available. */
 static uint32_t *primes = NULL;
@@ -72,7 +74,7 @@ static size_t a_cache_size = 0;
 static void grow_a_cache(size_t need) {
     size_t new_size = a_cache_size ? a_cache_size * 2 : 16;
     while (new_size < need) new_size *= 2;
-    seq_t *new_cache = (seq_t *)realloc(a_cache, (new_size + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, (new_size + 1));
     if (!new_cache) abort();
     /* Initialise new entries to 0 (sentinel for "not computed") */
     for (size_t i = a_cache_size + 1; i <= new_size; ++i) new_cache[i] = 0;

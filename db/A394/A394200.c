@@ -8,12 +8,14 @@
  *            + x^{k(k+2)}) / (1 - x^{k(k+2)})
  * Range:     u8 n <= 76, u16 n <= 234, u32 n <= 878, u64 n <= 4033,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9076 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of helper functions. */
 static void recompute(idx_t max_n);
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
 /* Compute all terms up to max_n and store them in the cache. */
 static void recompute(idx_t max_n) {
     size_t sz = (size_t)max_n + 1;
-    seq_t *dp = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) return;  /* allocation failed; leave old cache untouched */
 
     dp[0] = (seq_t)1;  /* a(0) = 1 */
@@ -41,8 +43,8 @@ static void recompute(idx_t max_n) {
         idx_t m = k * (k + 2);   /* part size k(k+2) */
         if (m > max_n) break;
 
-        seq_t *next = (seq_t*)calloc(sz, sizeof(seq_t));
-        if (!next) { free(dp); return; }
+        seq_t *next = mem_new(seq_t, sz);
+        if (!next) { mem_free(dp); return; }
 
         /* For residues modulo m update the DP. */
         for (idx_t r = 0; r < m; ++r) {
@@ -55,11 +57,11 @@ static void recompute(idx_t max_n) {
             }
         }
 
-        free(dp);
+        mem_free(dp);
         dp = next;
     }
 
-    if (seq_cache) free(seq_cache);
+    if (seq_cache) mem_free(seq_cache);
     seq_cache = dp;
     seq_max   = max_n;
 }

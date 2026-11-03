@@ -7,12 +7,14 @@
  * Formula:   a(n) = 34*a(n-1) - a(n-2) - 4232 for n>2; a(1)=1369, a(2)=42025
  * Range:     u8 none, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 600 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* extend cache if required */
     if (n > cache_len) {
         idx_t new_len = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL)              /* allocation failed */
             return 0;
         cache = tmp;

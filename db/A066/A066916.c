@@ -7,21 +7,24 @@
  * Formula:   a(n) = n^phi(n) - 1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   big_pow, phi
+ * Validated: standard, pass, 40 terms through n = 93 (2026-11-01)
+ * Helpers:   ipow, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) /* Undefined for index 0, but return 0 to be safe */
         return (seq_t)0;
-    seq_t phi_n   = phi(n);          /* phi(n) fits in seq_t */
+    seq_t phi_n   = totient(n);          /* phi(n) fits in seq_t */
     seq_t base    = (seq_t)n;        /* convert index to seq_t */
-    seq_t result  = big_pow(base, phi_n); /* compute n^phi(n) */
+    seq_t result  = ipow(base, phi_n); /* compute n^phi(n) */
     /* Subtract one */
     result = result - 1;
     return result;

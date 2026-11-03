@@ -11,18 +11,27 @@
  *            A002426(0)=1, A002426(1)=1, * A002426(n) = ((2n-1)*A0024...
  * Range:     u8 n <= 21, u16 n <= 66, u32 n <= 192, u64 n <= 670,
  *            u128 n <= 2358, big any n
- * Helpers:   binom, seq_mul
+ * Validated: standard, pass, 71 terms through n = 4808 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>          /* size_t */
 #include <stdint.h>          /* idx_t and seq_t are defined by the build */
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 #ifdef __cplusplus
 #include <type_traits>
-#include "../utils/seq_mul.h"
 #endif
 
 /* --------------------------------------------------------------- */
@@ -47,7 +56,7 @@ static void ensure_A002426(idx_t max)
     while (new_cap <= (size_t)(max + 1))
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(A002426_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A002426_cache, new_cap);
     A002426_cache = tmp;
     A002426_cap   = new_cap;
 
@@ -120,7 +129,7 @@ seq_t a(idx_t n)
     seq_t base_val = A002426_cache[base];
 
     /* Compute binomial coefficient C(r,k) */
-    seq_t binom_val = binom(r, k);
+    seq_t binom_val = binomial(r, k);
 
     /* Return the product */
     return binom_val * base_val;

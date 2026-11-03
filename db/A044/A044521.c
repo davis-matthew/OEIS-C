@@ -12,7 +12,8 @@
  *            natural numbers and keeping those that * sa...
  * Range:     u8 n <= 5, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_02_uint64
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_02_uint64.h"
+#include "../utils/mem.h"
+
+/* Test whether the base‑7 representation of x contains the substring "02". */
+static bool has_02_uint64(uint64_t x)
+{
+    if (x == 0) return false;
+    uint8_t digits[32];          /* 7^32 > 2^64, enough for uint64_t */
+    int len = 0;
+    while (x > 0) {
+        digits[len++] = (uint8_t)(x % 7);
+        x /= 7;
+    }
+    /* Scan from most significant to least significant digit. */
+    for (int i = len - 1; i > 0; --i)
+        if (digits[i] == 0 && digits[i - 1] == 2)
+            return true;
+    return false;
+}
 
 /* Memoisation storage for computed terms. */
 static seq_t* cache  = NULL;
@@ -32,7 +50,7 @@ static uint64_t cur = 1;        /* next candidate to test */
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-    seq_t* tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t* tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);
     cache = tmp;
     cache_cap = new_cap;

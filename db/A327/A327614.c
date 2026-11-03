@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    records visited configurations; it stops as soon as a configuration is
    repeated. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t a, b, c, d;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Dynamic array of visited configurations (only the 4 values) */
     size_t cap = 128;
-    state_t *visited = (state_t*)malloc(cap * sizeof(state_t));
+    state_t *visited = mem_new(state_t, cap);
     size_t sz = 0;
     visited[sz++] = (state_t){A, B, C, D};
 
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
                 visited[i].b == cur.b &&
                 visited[i].c == cur.c &&
                 visited[i].d == cur.d) {
-                free(visited);
+                mem_free(visited);
                 return (seq_t)steps;
             }
         }
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         /* store the new configuration */
         if (sz == cap) {
             cap <<= 1;
-            visited = (state_t*)realloc(visited, cap * sizeof(state_t));
+            visited = mem_resize(state_t, visited, cap);
         }
         visited[sz++] = cur;
     }

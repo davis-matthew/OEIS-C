@@ -12,15 +12,26 @@
  *            product directly (exact modulo 2^w)
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 33, u64 n <= 109, u128 n <= 384,
  *            big any n
- * Helpers:   a001028_z, a001939_is_fixed
+ * Validated: standard, pass, 48 terms through n = 9819 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a001028_z.h"
-#include "../utils/a001939_is_fixed.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *a001028_z(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static int a001939_is_fixed(void) {
+    return (seq_t)((seq_t)0 - 1) > (seq_t)0;
+}
 
 static seq_t *a001939_A = NULL;
 static idx_t a001939_have = 0;
@@ -41,7 +52,7 @@ seq_t a(idx_t n) {
                     dp[j] += dp[j - k];
         }
         r = dp[n];
-        free(dp);
+        mem_free(dp);
         return r;
     }
 

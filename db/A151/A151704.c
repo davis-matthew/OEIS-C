@@ -8,13 +8,19 @@
  *            power. Then a(n) = 2*a(j) + a(j+1)
  * Range:     u8 n <= 123, u16 n <= 4090, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   msb_power
+ * Validated: standard, pass, 97 terms through n = 8017 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/msb_power.h"
+
+static inline idx_t msb_power(idx_t n)
+{
+    /* n > 0 for all calls */
+    return (idx_t)1ULL << (63 - __builtin_clzll(n));
+}
 
 static seq_t a_rec(idx_t n)
 {

@@ -11,12 +11,14 @@
  *            (OEIS A154233)
  * Range:     u8 n <= 16, u16 n <= 38, u32 n <= 82, u64 n <= 218,
  *            u128 n <= 575, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1247 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
     size_t needed = (size_t)(r + 1);
     if (buf_size < needed) {
         size_t new_size = needed;
-        seq_t *p2 = (seq_t *)realloc(prev2, new_size * sizeof(seq_t));
-        seq_t *p1 = (seq_t *)realloc(prev1, new_size * sizeof(seq_t));
-        seq_t *pc = (seq_t *)realloc(cur,   new_size * sizeof(seq_t));
+        seq_t *p2 = mem_resize(seq_t, prev2, new_size);
+        seq_t *p1 = mem_resize(seq_t, prev1, new_size);
+        seq_t *pc = mem_resize(seq_t, cur, new_size);
         prev2 = p2; prev1 = p1; cur = pc;
         buf_size = new_size;
     }

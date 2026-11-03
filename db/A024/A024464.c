@@ -10,7 +10,8 @@
  *            lower Wythoff (Beatty) sequence, φ=(1+√5)/2
  * Range:     u8 n <= 11, u16 n <= 30, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* dynamic cache for Fibonacci numbers */
 static seq_t *fib_cache = NULL;      /* index 0..len-1 */
@@ -34,7 +36,7 @@ static void ensure_fib(size_t idx)
     if (fib_len > idx) return;
 
     size_t new_len = idx + 1;
-    seq_t *new_cache = (seq_t*)realloc(fib_cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, fib_cache, new_len);
     if (!new_cache) { exit(EXIT_FAILURE); }
     fib_cache = new_cache;
 
@@ -52,7 +54,7 @@ static void ensure_wythoff(size_t idx)
     if (tyw_len > idx) return;
 
     size_t new_len = idx + 1;
-    seq_t *new_cache = (seq_t*)realloc(tyw_cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, tyw_cache, new_len);
     if (!new_cache) { exit(EXIT_FAILURE); }
     tyw_cache = new_cache;
 

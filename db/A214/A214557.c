@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 7, u128 n <= 34,
  *            big any n
- * Helpers:   append_times, build_term
+ * Validated: standard, pass, 28 terms through n = 598 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,34 @@
 /* Standard headers that are valid for both C and C++. */
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/append_times.h"
-#include "../utils/build_term.h"
+
+/* Append the digit 'd' repeated 'cnt' times to a seq_t value. */
+static inline void append_times(seq_t *val, int d, idx_t cnt)
+{
+    for (idx_t i = 0; i < cnt; ++i)
+        *val = (*val) * 10 + d;
+}
+
+/* Build the term corresponding to the given p and q. */
+static inline seq_t build_term(idx_t p, idx_t q)
+{
+    seq_t x = 0;
+    idx_t pp1 = p + 1;
+    append_times(&x, 8, pp1);
+    append_times(&x, 6, pp1);
+    append_times(&x, 4, pp1);
+    append_times(&x, 3, q);
+    append_times(&x, 2, p);
+    x = x * 10 + 1;               /* digit 1 once */
+    append_times(&x, 9, pp1);
+    append_times(&x, 7, pp1);
+    append_times(&x, 6, q);
+    append_times(&x, 5, pp1);
+    append_times(&x, 3, pp1);
+    append_times(&x, 1, p);
+    x = x * 10 + 2;               /* final digit 2 */
+    return x;
+}
 
 /* Main entry point: returns the n‑th term (1‑based). */
 seq_t a(idx_t n)

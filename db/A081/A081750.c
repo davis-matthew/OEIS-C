@@ -9,8 +9,9 @@
  *            r == 5 3 if r == 2 or r == 4 2k + 2 if r == 3 (Equivalent to
  *            a(6k)=2k, a(6k+1)=1, a(6k+2)=3, a(6k+3)=2k+2, a(6k+4)=3,
  *            a(6k+5)=1.)
- * Range:     u8 n <= 764, u16 n <= 7449, u32 n <= 7449, u64 n <= 7449,
- *            u128 n <= 7449, big any n
+ * Range:     u8 n <= 764, u16 n <= 19999, u32 n <= 19999, u64 n <= 19999,
+ *            u128 n <= 19999, big any n
+ * Validated: standard, pass, 110 terms through n = 7449 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

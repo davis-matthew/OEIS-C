@@ -10,12 +10,14 @@
  *            a(7)=1127, a(8)=1138, a(9)=1289, a(10)=1298 (indices start at 1)
  * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 34, u64 n <= 74, u128 n <= 150,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of A097228 (1‑based index).  */
 seq_t a(idx_t n) {
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     /* allocate and fill initial cache if needed */
     if (cache_size == 0) {
         cache_size = 11;                      /* indices 1..10 */
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         for (idx_t i = 1; i < cache_size; ++i)
             cache[i] = init[i];
     }
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
     /* extend cache up to requested n */
     if (n >= cache_size) {
         idx_t new_size = n + 1;                 /* need indices up to n */
-        seq_t *new_cache = (seq_t*)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) { /* allocation failed: fallback to initial terms up to available size */
             return init[n < 11 ? n : 10];
         }

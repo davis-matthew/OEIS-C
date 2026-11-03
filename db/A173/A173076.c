@@ -12,11 +12,14 @@
  *            after another (row 0 first, then row 1, etc.)
  * Range:     u8 n <= 38, u16 n <= 110, u32 n <= 335, u64 n <= 1147,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1202 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

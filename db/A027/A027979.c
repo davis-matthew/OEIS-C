@@ -7,12 +7,24 @@
  * Formula:   a(n) = (n+1)*Lucas(2*n) + 3*Fibonacci(2*n) - (-1)^n
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 19, u64 n <= 42, u128 n <= 87,
  *            big any n
- * Helpers:   fib
+ * Validated: standard, pass, 41 terms through n = 996 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/fib.h"
+#include <stdbool.h>
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* Fast doubling method: compute (F(n), F(n+1)) into fn, fn1. */
 static void

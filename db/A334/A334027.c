@@ -11,7 +11,8 @@
  *            by the build (unsigned integer or arbitrary‑precision)
  * Range:     u8 n <= 11, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   append_uint_buf
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,36 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/append_uint_buf.h"
+
+/* ------------------------------------------------------------------ */
+static void append_uint_buf(uint64_t val, uint8_t **buf, size_t *len, size_t *cap)
+{
+    if (val == 0) {                     /* special case */
+        if (*len == *cap) {
+            *cap = (*cap == 0) ? 8 : (*cap << 1);
+            *buf = (uint8_t *)realloc(*buf, *cap);
+            if (!*buf) abort();
+        }
+        (*buf)[(*len)++] = 0;
+        return;
+    }
+
+    uint8_t tmp[32];
+    size_t pos = 0;
+    while (val > 0) {
+        tmp[pos++] = (uint8_t)(val % 10);
+        val /= 10;
+    }
+    /* copy backwards to produce correct order */
+    while (pos--) {
+        if (*len == *cap) {
+            *cap = (*cap == 0) ? 8 : (*cap << 1);
+            *buf = (uint8_t *)realloc(*buf, *cap);
+            if (!*buf) abort();
+        }
+        (*buf)[(*len)++] = tmp[pos];
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /* Factorise n -> arrays of exponents.  Limits are generous for n up

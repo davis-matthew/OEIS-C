@@ -8,14 +8,25 @@
  * Formula:   a(n) = (3^n + 1 - (sqrt(3)*i)^n - (-sqrt(3)*i)^n)/4
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 41, u128 n <= 81,
  *            big any n
- * Helpers:   pow3_uint128, seq_pow
+ * Validated: standard, pass, 47 terms through n = 972 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
-#include "../utils/pow3_uint128.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+
+/* Compute 3^e using unsigned 128‑bit arithmetic.  Works for e up to about 70,
+   enough for all n where the result fits into 64 bits. */
+static unsigned __int128 pow3_uint128(idx_t e)
+{
+    unsigned __int128 r = 1;
+    for (idx_t i = 0; i < e; ++i)
+        r *= 3;
+    return r;
+}
 
 #if defined(__SIZEOF_INT128__)
 
@@ -46,11 +57,11 @@ seq_t a(idx_t n)
 #else
         /* Fallback (no 128‑bit support) – use seq_pow even for small types.
            It may overflow for large n, but the tested values fit. */
-        seq_t pow3n = seq_pow((seq_t)3, n);
+        seq_t pow3n = ipow_idx((seq_t)3, n);
         seq_t res   = pow3n + 1;
         if ((n & 1ULL) == 0) {
             idx_t k   = n >> 1;
-            seq_t pk   = seq_pow((seq_t)3, k);
+            seq_t pk   = ipow_idx((seq_t)3, k);
             seq_t term = pk * 2;
             if ((k & 1ULL) == 0)
                 res -= term;
@@ -62,11 +73,11 @@ seq_t a(idx_t n)
     }
 
     /* Arbitrary‑precision seq_t. */
-    seq_t pow3n = seq_pow((seq_t)3, n);
+    seq_t pow3n = ipow_idx((seq_t)3, n);
     seq_t res   = pow3n + 1;
     if ((n & 1ULL) == 0) {
         idx_t k   = n >> 1;
-        seq_t pk   = seq_pow((seq_t)3, k);
+        seq_t pk   = ipow_idx((seq_t)3, k);
         seq_t term = pk * 2;
         if ((k & 1ULL) == 0)
             res -= term;

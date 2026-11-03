@@ -12,13 +12,22 @@
  *            find the smallest integer r > current_root for wh...
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   cube_mod
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cube_mod.h"
+#include "../utils/mem.h"
+
+/* minimal helper: cube modulo a small integer */
+static inline seq_t cube_mod(seq_t x, idx_t mod)
+{
+    seq_t xm = x % mod;           /* x modulo mod */
+    seq_t xm2 = (xm * xm) % mod;  /* x² mod mod */
+    return (xm2 * xm) % mod;     /* x³ mod mod */
+}
 
 /* cache of computed terms: a(1) is stored at index 0 */
 static seq_t *cache      = NULL;   /* a(i) for i=1.. */
@@ -36,7 +45,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cap = 16;                     /* initial capacity */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();          /* memory failure */
         cache[0] = (seq_t)1;          /* a(1) = 1 */
         current_root = (seq_t)1;      /* partial sum after first term is 1³ */
@@ -50,7 +59,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cap) {
         size_t newcap = cap;
         while (newcap < (size_t)n) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();
         cache = tmp;
         cap = newcap;

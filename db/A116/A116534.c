@@ -10,7 +10,8 @@
  *            a(n)=ceil(a(n-1)/2)+(1+(-1)^a(n-1))*10^floor(log10(a(n-1))+1)*a(n-2)/4
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 12, u64 n <= 14, u128 n <= 16,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,19 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,9 +45,9 @@ seq_t a(idx_t n)
 
     if (cap <= n) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) {
-            new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            new_cache = mem_new(seq_t, new_cap);
             if (!new_cache) {
                 abort();   /* allocation failed */
             }
@@ -55,7 +67,7 @@ seq_t a(idx_t n)
         seq_t next;
         if ((prev & 1) == 0) {          /* even */
             seq_t prevprev = cache[i - 2];
-            idx_t d = (idx_t)digit_len(prev);
+            idx_t d = (idx_t)num_digits(prev);
             seq_t pow10d = pow10(d);
             seq_t concat = prevprev * pow10d + prev;
             next = concat / 2;

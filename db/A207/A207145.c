@@ -11,13 +11,15 @@
  *            a(7)=434, a(8)=742, a(9)=866, a(10)=1478, a(11)=1730, a(12)=2954
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 53, u64 n <= 117, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Two helper macros for the indices */
 #define MAX_INIT_IDX   12
@@ -43,7 +45,7 @@ static void ensure_cache_cap(idx_t n)
 
     /* Grow the cache.  Use realloc; if it fails, we abort – the
        sequence generation must not silently return wrong values. */
-    void *tmp = realloc(cache, needed * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, cache, needed);
     if (!tmp) {
         /* In production code one would handle the error; here we
            simply let the program terminate. */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 49, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* static memoisation buffer ------------------------------------------------ */
 static seq_t *memo = NULL;      /* 1‑based: memo[n] contains a(n)         */
@@ -36,7 +38,7 @@ static void ensure_capacity(idx_t n)
         return;                 /* already sufficient                 */
 
     size_t new_cap = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, memo, new_cap);
     if (!tmp) {
         /* memory failure; terminate the program */
         exit(EXIT_FAILURE);
@@ -47,7 +49,7 @@ static void ensure_capacity(idx_t n)
 #ifdef __cplusplus
     /* Construct the newly allocated elements (only needed for non‑trivial seq_t) */
     for (size_t i = memo_cap - (new_cap - memo_cap); i < new_cap; ++i) {
-        new(&memo[i]) seq_t();  /* placement new */
+        *(&memo[i]) = (seq_t)0;  /* placement new */
     }
 #endif
 }

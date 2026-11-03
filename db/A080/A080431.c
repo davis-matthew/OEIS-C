@@ -11,14 +11,22 @@
  *            * already appeared. Self products a(k)*a(k...
  * Range:     u8 n <= 41, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   power_of_two_ge
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/power_of_two_ge.h"
+#include "../utils/mem.h"
+
+static size_t power_of_two_ge(size_t n)
+{
+    size_t p = 1;
+    while (p < n) p <<= 1;
+    return p;
+}
 
 #if defined(__SIZEOF_INT128__)
 typedef __uint128_t prod_t;
@@ -138,10 +146,10 @@ seq_t a(idx_t n)
     if (terms_len < (size_t)n) {
         if (terms_len == 0) {
             terms_cap = 16;
-            terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+            terms = mem_new(seq_t, terms_cap);
         } else if (terms_len == terms_cap) {
             terms_cap <<= 1;
-            terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, terms_cap);
         }
 
         for (; terms_len < (size_t)n; ++terms_len) {

@@ -9,12 +9,14 @@
  *            numbers (triangular numbers are 0,1,3,6,10,…)
  * Range:     u8 n <= 3, u16 n <= 18, u32 n <= 320, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external integer types provided by the build */
 seq_t a(idx_t n)
@@ -31,10 +33,10 @@ seq_t a(idx_t n)
         tri[m] = (idx_t)(((seq_t)m * (m + 1)) / 2);
 
     /* dynamic programming arrays: dp[s] = ways to reach sum s with k terms */
-    seq_t *dp   = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *newdp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *newdp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp || !newdp) {             /* out‑of‑memory fallback */
-        free(tri); free(dp); free(newdp);
+        free(tri); mem_free(dp); mem_free(newdp);
         return 0;
     }
 
@@ -60,8 +62,8 @@ seq_t a(idx_t n)
 
     seq_t result = dp[n];
 
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
     free(tri);
     return result;
 }

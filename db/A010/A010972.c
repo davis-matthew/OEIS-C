@@ -7,11 +7,13 @@
  * Formula:   a(n) = binomial(n,19)
  * Range:     u8 n <= 20, u16 none, u32 n <= 34, u64 n <= 91, u128 n <= 854,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 997 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /*

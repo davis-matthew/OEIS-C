@@ -7,7 +7,8 @@
  * Formula:   a(n) = n * [x^n] log(1 + ∑_{k≥0} x^{2^k})
  * Range:     i8 n <= 23, i16 n <= 51, i32 n <= 52, i64 n <= 52, i128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache of r[n] values (coefficients of 1/(1+∑x^{2^k})) */
 static seq_t *r_cache = NULL;
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     /* Extend cache up to n if necessary */
     if (n > r_max_cached) {
         /* Allocate or grow array to size n+1 */
-        seq_t *new_cache = (seq_t *)realloc(r_cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, r_cache, (n + 1));
         if (!new_cache) return (seq_t)0;      /* out of memory */
         r_cache = new_cache;
 

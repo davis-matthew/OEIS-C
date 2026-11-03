@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of primes among first n primes that divide the sum
  *            of the first n primes
- * Range:     u8 n <= 13, u16 n <= 1550, u32 n <= 9823, u64 n <= 9823,
- *            u128 n <= 9823, big any n
+ * Range:     u8 n <= 13, u16 n <= 1550, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9823 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

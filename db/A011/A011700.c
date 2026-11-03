@@ -8,12 +8,14 @@
  *            a(n-8) (binary recurrence)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
 
     /* initialize with the first 8 terms */
     if (len == 0) {
-        buf = (seq_t *)malloc(8 * sizeof(seq_t));
+        buf = mem_new(seq_t, 8);
         buf[0] = 0; buf[1] = 0; buf[2] = 0; buf[3] = 0;
         buf[4] = 0; buf[5] = 0; buf[6] = 0; buf[7] = 1;
         len = 8;
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* if the requested index is beyond what we have, extend the buffer */
     if (n >= len) {
         /* grow buffer to hold indices up to n */
-        buf = (seq_t *)realloc(buf, (n + 1) * sizeof(seq_t));
+        buf = mem_resize(seq_t, buf, (n + 1));
 
         /* compute the missing terms using the recurrence */
         for (size_t i = (size_t)len; i <= (size_t)n; ++i) {

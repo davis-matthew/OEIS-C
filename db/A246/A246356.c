@@ -13,7 +13,8 @@
  *            that avoids floating point arithmetic
  * Range:     u8 n <= 63, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 #define MAX_LIMBS 2000   /* > 20000 bits / 32 */
 
@@ -163,7 +165,7 @@ static void seq_grow(size_t new_cap) {
     if (new_cap > seq_cap) {
         size_t cap = seq_cap ? seq_cap * 2 : 16;
         if (cap < new_cap) cap = new_cap;
-        seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, cap);
         seq_cap = cap;
     }
 }

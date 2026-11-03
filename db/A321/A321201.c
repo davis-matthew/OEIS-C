@@ -13,14 +13,28 @@
  *            alternately
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   num_solutions
+ * Validated: partial, pass, 86 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/num_solutions.h"
+
+/* Count the number of non‑negative solutions (e2, e3) of
+   2*e2 + 3*e3 = n.  The solutions are sorted by increasing e2. */
+static idx_t num_solutions(idx_t n) {
+    idx_t max_e3 = n / 3;              /* largest e3 that does not exceed n/3   */
+    /* adjust parity so that 2*e2 = n - 3*e3 is even */
+    if ((max_e3 & 1) != (n & 1))
+        max_e3--;                      /* decrease to get correct parity       */
+    /* smallest possible e3 */
+    idx_t min_e3 = n & 1;
+    if (max_e3 < min_e3)
+        return 0;                      /* no solution                          */
+    return (max_e3 - min_e3) / 2 + 1;   /* number of admissible e3 values       */
+}
 
 /* Return the nth element of the flattened list.  n is 1‑based with
    the OEIS offset of 2, i.e. a(2) is the first element. */

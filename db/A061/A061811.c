@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 750, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   all_even_digits
+ * Validated: standard, pass, 67 terms through n = 9223 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/all_even_digits.h"
+#include "../utils/mem.h"
+
+/* Test whether all decimal digits of x are even. */
+static inline bool all_even_digits(seq_t x)
+{
+    if (x == 0)           /* 0 is considered to have only even digits */
+        return true;
+
+    while (x != 0) {
+        seq_t dig   = x % 10;     /* least significant decimal digit   */
+        if ((dig % 2) != 0)       /* odd digit found                    */
+            return false;
+        x /= 10;                  /* move to next digit                  */
+    }
+    return true;
+}
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;       /* cached sequence values */
@@ -32,7 +48,7 @@ seq_t a(idx_t n) {
     /* Helper to grow cache if needed. */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_cap);
     }
 
     /* Initialize on first call. */
@@ -51,7 +67,7 @@ seq_t a(idx_t n) {
     if ((size_t)n > cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap < (size_t)n) new_cap = n;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

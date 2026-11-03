@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 10, i64 n <= 18, i128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 869 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    The function caches computed values so each index is evaluated at most once. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of previously computed values */
@@ -30,9 +32,9 @@ seq_t a(idx_t n) {
     if ((size_t)n >= cap) {
         size_t new_cap = (size_t)n + 1;
         if (cache == NULL)
-            cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, new_cap);
         else
-            cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 

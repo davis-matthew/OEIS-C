@@ -9,13 +9,22 @@
  *            by DP): for all j≥i, dp[j] += 9*dp[j-i]
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: standard, pass, 37 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"  /* alloc_seq_array(size_t) */
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -61,7 +70,7 @@ seq_t a(idx_t n)
 
         /* Replace old cache – free only if malloc/free used    */
         if (dp != NULL) {
-            free(dp);
+            mem_free(dp);
         }
         dp = newdp;
         max_n = n;

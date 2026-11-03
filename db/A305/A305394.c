@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = nth symbol of the fixed point of the morphism 5 → 54, 4 →
  *            53, 3 → 5 (ternary tribonacci word on {5,4,3})
- * Range:     u8 n <= 8442, u16 n <= 8442, u32 n <= 8442, u64 n <= 8442,
- *            u128 n <= 8442, big any n
+ * Range:     u8 n <= 49999, u16 n <= 49999, u32 n <= 49999, u64 n <= 49999,
+ *            u128 n <= 49999, big any n
+ * Validated: standard, pass, 112 terms through n = 8442 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

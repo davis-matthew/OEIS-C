@@ -10,6 +10,7 @@
  *            the linear recurrence a(n)=3*a(n-1)-4*a(n-2)+3*a(n-3)-a(n-4)
  * Range:     i8 n <= 128, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 82 terms through n = 9369 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

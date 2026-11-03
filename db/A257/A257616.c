@@ -10,13 +10,15 @@
  *            (6*k+2) * T(n-1,k) + (6*(n-k)+2) * T(n-1,k-1) for k>0
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 38, u64 n <= 109, u128 n <= 285,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1273 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
         if (needed > cache_size) {
             /* Allocate more space.  The explicit cast works for both C and C++. */
-            seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, needed);
             if (!tmp)          /* allocation failure – return 0 */
                 return (seq_t)0;
             cache = tmp;

@@ -8,7 +8,8 @@
  * Formula:   a(n) = phi(n)/ord(3,s) where n = 3^e * s with gcd(3,s)=1
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   calc_phi, ord3_mod
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/calc_phi.h"  /* provides seq_t calc_phi(seq_t) */
-#include "../utils/ord3_mod.h"
+#include "../utils/totient_seq.h"
+
+/* compute the multiplicative order of 3 modulo s (gcd(3,s)=1) */
+static inline seq_t ord3_mod(uint64_t s)
+{
+    if (s == 1) return (seq_t)1;
+    uint64_t x = 3 % s;
+    seq_t ord = 1;
+    while (x != 1) {
+        x = (x * 3) % s;
+        ord++;
+    }
+    return ord;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,7 +41,7 @@ seq_t a(idx_t n)
     while (tmp % 3 == 0) tmp /= 3;
     uint64_t s = (uint64_t)tmp;  /* s is not divisible by 3 */
 
-    seq_t phi_n = calc_phi((seq_t)n);
+    seq_t phi_n = totient_seq((seq_t)n);
     seq_t ord = ord3_mod(s);
     return phi_n / ord;
 }

@@ -8,13 +8,15 @@
  *            where sigma(k) is the sum of divisors function
  * Range:     i8 n <= 4, i16 n <= 34, i32 n <= 1653, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 7575 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Grow / compute sigma_cache if necessary. */
     if (sigma_len < need)
     {
-        seq_t *new_sigma = (seq_t *)calloc(need, sizeof(seq_t));
+        seq_t *new_sigma = mem_new(seq_t, need);
         if (!new_sigma)
             return (seq_t)0;              /* out‑of‑memory, should not happen */
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(sigma_cache);
+        mem_free(sigma_cache);
         sigma_cache = new_sigma;
         sigma_len   = need;
     }
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Grow a_cache to hold values up to n. */
     if (a_len < need)
     {
-        seq_t *new_a = (seq_t *)realloc(a_cache, need * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_cache, need);
         if (!new_a)
             return (seq_t)0;              /* out‑of‑memory */
         a_cache = new_a;

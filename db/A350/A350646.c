@@ -9,14 +9,17 @@
  *            k^(n−k) )
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 24, u128 n <= 41,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 41 terms through n = 78 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(0) = 1; f is defined for all n≥0. */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,15 +33,15 @@ seq_t a(idx_t n)
 
         /* product of the mi's: a_part^(k−r) * (a_part+1)^r */
         if (k > r) {
-            term *= big_pow((seq_t)a_part, (seq_t)(k - r));
+            term *= ipow((seq_t)a_part, (seq_t)(k - r));
         }
         if (r > 0) {
-            term *= big_pow((seq_t)(a_part + 1), (seq_t)r);
+            term *= ipow((seq_t)(a_part + 1), (seq_t)r);
         }
 
         /* multiply by k^(n-k) */
         if (n > k) {
-            term *= big_pow((seq_t)k, (seq_t)(n - k));
+            term *= ipow((seq_t)k, (seq_t)(n - k));
         }
 
         if (term > best) best = term;

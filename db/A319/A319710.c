@@ -7,15 +7,24 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n is divisible by the square of its smallest prime
  *            factor, 0 otherwise
- * Range:     u8 n <= 8652, u16 n <= 8652, u32 n <= 8652, u64 n <= 8652,
- *            u128 n <= 8652, big any n
- * Helpers:   lpf
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 137 terms through n = 8652 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/lpf.h"
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 
 seq_t a(idx_t n)
 {

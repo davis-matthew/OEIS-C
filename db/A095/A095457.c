@@ -8,13 +8,26 @@
  *            n)
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 8, u64 n <= 8, u128 n <= 9,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: full, pass, 10 terms through n = 9 (2026-11-02)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 #include <stdint.h>
 
 seq_t a(idx_t n)
@@ -53,7 +66,7 @@ seq_t a(idx_t n)
     seq_t res = 0;
     for (int i = len - 1; i >= 0; --i) {
         int d = digits[i];
-        int k = digit_len((seq_t)d);    /* number of decimal digits of d */
+        int k = num_digits((seq_t)d);    /* number of decimal digits of d */
         res = res * pow10((idx_t)k) + (seq_t)d;
     }
     return res;

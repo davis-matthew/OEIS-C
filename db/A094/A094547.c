@@ -7,7 +7,8 @@
  * Formula:   a(1) = 1; a(2*n) = 4*a(2*n-1) - a(n); a(2*n+1) = 4*a(2*n)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* external types supplied by the build system */
 extern seq_t a(idx_t n);
@@ -43,10 +45,10 @@ seq_t a(idx_t n)
         size_t new_len = (size_t)n + 1;   /* indices 0 .. n used; index 0 unused */
         seq_t *tmp = a_cache;
         if (a_cache == NULL) {
-            tmp = (seq_t *)malloc(new_len * sizeof(seq_t));
+            tmp = mem_new(seq_t, new_len);
             if (!tmp) abort();            /* failure to allocate */
         } else {
-            tmp = (seq_t *)realloc(tmp, new_len * sizeof(seq_t));
+            tmp = mem_resize(seq_t, tmp, new_len);
             if (!tmp) abort();
         }
         a_cache = tmp;

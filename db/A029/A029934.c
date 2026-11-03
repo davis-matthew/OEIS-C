@@ -7,7 +7,8 @@
  * Formula:   a(n) = denominator of n*∏_{d|n}(1+1/d)
  * Range:     u8 n <= 29, u16 n <= 71, u32 n <= 143, u64 n <= 359,
  *            u128 n <= 1439, big any n
- * Helpers:   build_divs, factor_u64, seq_mul, seq_pow
+ * Validated: standard, pass, 74 terms through n = 9955 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,32 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/build_divs.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Recursively build the list of divisors of n.  */
+static void build_divs(size_t idx, uint64_t cur,
+                       const uint64_t *pr, const uint64_t *ex,
+                       size_t fac_cnt, uint64_t *out, size_t *cnt)
+{
+    if (idx == fac_cnt) {
+        out[(*cnt)++] = cur;
+        return;
+    }
+    uint64_t p   = pr[idx];
+    uint64_t pow = 1;
+    for (size_t e = 0; e <= ex[idx]; ++e) {
+        build_divs(idx + 1, cur * pow, pr, ex, fac_cnt, out, cnt);
+        pow *= p;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -72,7 +95,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < fac_cnt; ++i) {
         if (expD[i] > expN[i]) {
             idx_t e   = expD[i] - expN[i];
-            seq_t pwr = seq_pow((seq_t)fac_pr[i], e);
+            seq_t pwr = ipow_idx((seq_t)fac_pr[i], e);
             denom     = seq_mul(denom, pwr);
         }
     }

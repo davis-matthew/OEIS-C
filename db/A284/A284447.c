@@ -9,8 +9,9 @@
  *            2^(2k+1) that is ≤ n (i.e., f(n) = 4 for 8…31, 20 for 32…63, 84
  *            for 128…511, …) This yields a self‑inverse permutation with
  *            fixed points 1..7
- * Range:     u8 n <= 255, u16 n <= 9868, u32 n <= 9868, u64 n <= 9868,
- *            u128 n <= 9868, big any n
+ * Range:     u8 n <= 255, u16 n <= 32767, u32 n <= 32767, u64 n <= 32767,
+ *            u128 n <= 32767, big any n
+ * Validated: standard, pass, 79 terms through n = 9868 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

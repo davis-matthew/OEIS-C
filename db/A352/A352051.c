@@ -8,6 +8,7 @@
  * Formula:   a(n) = n^5 * Sum_{d|n, d<n, d odd} 1 / d^5
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 84, u64 n <= 7127,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 49 terms through n = 9791 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   gpf
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gpf.h"    /* provides uint64_t gpf(uint64_t) */
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 static bool a120685_qualifies(uint64_t m)
 {
@@ -34,7 +36,7 @@ static bool a120685_qualifies(uint64_t m)
     uint64_t step = 0;
     for (;;) {
         step++;
-        val = 1 + gpf(val);     /* next value of f */
+        val = 1 + largest_prime_factor(val);     /* next value of f */
         if (val == 4ULL)
             return (step & 1ULL) == 0;   /* even step -> accept */
     }
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     /* Lazy build of sequence up to index n */
     if (capacity == 0) {
         capacity = 128;
-        seq = (seq_t *)malloc(capacity * sizeof(seq_t));
+        seq = mem_new(seq_t, capacity);
     }
 
     while (size <= n) {
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         /* grow allocation if necessary */
         if (size == capacity) {
             capacity *= 2;
-            seq = (seq_t *)realloc(seq, capacity * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, capacity);
         }
 
         seq[size++] = (seq_t)next_m;

@@ -7,13 +7,15 @@
  * Formula:   a(n) = (n - 4 + prime(n) mod 9) mod 10
  * Range:     u8 n <= 54, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage for the list of primes */
 static seq_t *primes_list = NULL;    /* array of found primes, 1‑based indexing */
@@ -51,8 +53,7 @@ ensure_primes(idx_t n)
         }
 
         /* reallocate primes_list to hold the new primes */
-        seq_t *new_list = (seq_t*)realloc(primes_list,
-                                          (sieve_limit + primes_needed) * sizeof(seq_t));
+        seq_t *new_list = mem_resize(seq_t, primes_list, (sieve_limit + primes_needed));
         if (!new_list) abort();
         primes_list = new_list;
 

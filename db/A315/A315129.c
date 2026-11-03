@@ -13,13 +13,15 @@
  *            a(17) = 82, a(18) = 88, a(19) = 94, a(20) =...
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t _A315129_init[22] = {
     (seq_t)1,  (seq_t)6,  (seq_t)10, (seq_t)12, (seq_t)18,
@@ -40,15 +42,14 @@ static void _A315129_ensure(idx_t n)
         /* Initial allocation; at least hold the known initial values. */
         _A315129_cache_cap = n + 1;
         if (_A315129_cache_cap < 64) _A315129_cache_cap = 64;
-        _A315129_cache = (seq_t *)malloc(_A315129_cache_cap * sizeof(seq_t));
+        _A315129_cache = mem_new(seq_t, _A315129_cache_cap);
         /* Copy known initial values. */
-        memcpy(_A315129_cache, _A315129_init,
-               sizeof(_A315129_init));
+        mem_copy(_A315129_cache, _A315129_init, sizeof(_A315129_init));
         _A315129_cache_size = 22;
     } else if (n >= _A315129_cache_cap) {
         idx_t new_cap = _A315129_cache_cap * 2;
         if (new_cap <= n) new_cap = n + 1;
-        _A315129_cache = (seq_t *)realloc(_A315129_cache, new_cap * sizeof(seq_t));
+        _A315129_cache = mem_resize(seq_t, _A315129_cache, new_cap);
         _A315129_cache_cap = new_cap;
     }
 

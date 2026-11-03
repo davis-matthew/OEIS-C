@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 106, u32 n <= 333, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 875 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 static idx_t _max_n = 0;
 static seq_t *P_all = NULL;
@@ -35,29 +37,28 @@ static seq_t *P3   = NULL;
 /* Rebuild all partition tables up to new_max. */
 static void _rebuild(idx_t new_max)
 {
-    /* Allocate raw memory for the tables. */
-    size_t sz = sizeof(seq_t) * (new_max + 1);
-    void *mem_all = malloc(sz);
-    void *mem_p1   = malloc(sz);
-    void *mem_p3   = malloc(sz);
+    /* Allocate the tables (zero-initialised seq_t elements). */
+    seq_t *mem_all = mem_new(seq_t, new_max + 1);
+    seq_t *mem_p1   = mem_new(seq_t, new_max + 1);
+    seq_t *mem_p3   = mem_new(seq_t, new_max + 1);
     if (!mem_all || !mem_p1 || !mem_p3)
         return; /* enough memory assumed */
 
     /* Free any previous tables. */
-    if (P_all) free(P_all);
-    if (P1)   free(P1);
-    if (P3)   free(P3);
+    if (P_all) mem_free(P_all);
+    if (P1)   mem_free(P1);
+    if (P3)   mem_free(P3);
 
-    P_all = (seq_t *)mem_all;
-    P1   = (seq_t *)mem_p1;
-    P3   = (seq_t *)mem_p3;
+    P_all = mem_all;
+    P1   = mem_p1;
+    P3   = mem_p3;
 
     /* Construct (or initialize) table entries. */
     for (idx_t i = 0; i <= new_max; ++i) {
 #ifdef __cplusplus
-        new(&P_all[i]) seq_t();
-        new(&P1[i])   seq_t();
-        new(&P3[i])   seq_t();
+        *(&P_all[i]) = (seq_t)0;
+        *(&P1[i]) = (seq_t)0;
+        *(&P3[i]) = (seq_t)0;
 #else
         P_all[i] = 0;
         P1[i]   = 0;

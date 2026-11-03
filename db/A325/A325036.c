@@ -7,9 +7,10 @@
  * Formula:   a(n) = product of prime indices of n – sum of prime indices of n
  *            (prime indices of n are a multiset consisting of the indices of
  *            the prime factors counted with multiplicity)
- * Range:     i8 n <= 1182, i16 n <= 9173, i32 n <= 9173, i64 n <= 9173,
- *            i128 n <= 9173, big any n
- * Helpers:   build_primes_upto, pow_uint
+ * Range:     i8 n <= 1182, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 109 terms through n = 9173 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static uint64_t *prime_list = NULL;   /* array of primes ≤ current limit */
 static size_t      prime_cnt  = 0;     /* number of primes in prime_list    */
@@ -82,7 +83,7 @@ a(idx_t n)
             ++exp;
         }
         idx_t idx = prime_index(p);
-        prod *= pow_uint((uint64_t)idx, exp);
+        prod *= ipow_u64_idx((uint64_t)idx, exp);
         sum  += (seq_t)idx * (seq_t)exp;
     }
 

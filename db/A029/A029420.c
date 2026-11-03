@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of partitions of n into parts 6, 7, 10, and 11
  * Range:     u8 n <= 175, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         size_t bytes = (size_t)new_size * sizeof(seq_t);
 
         /* allocate new array */
-        seq_t *new_dp = (seq_t *)malloc(bytes);
+        seq_t *new_dp = mem_new(seq_t, (bytes) / sizeof(seq_t));
         if (!new_dp) return 0;  /* allocation failed, return 0 as safe fallback */
 
         /* initialise to 0 and set base case */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         }
 
         /* replace old cache */
-        if (dp != NULL) free(dp);
+        if (dp != NULL) mem_free(dp);
         dp = new_dp;
         dp_size = new_size;
     }

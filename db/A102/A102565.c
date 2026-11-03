@@ -8,24 +8,25 @@
  *            odd n, a(n)=-2 if popcount((n-1)/2) odd else 0
  * Range:     i8 n <= 100, i16 n <= 100, i32 n <= 100, i64 n <= 100,
  *            i128 n <= 100, big any n
- * Helpers:   popcnt64
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-01)
+ * Helpers:   popcount_idx_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/popcnt64.h"
+#include "../utils/popcount_idx_to_u32.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;
     if (n & 1) {                      /* n is odd */
         idx_t k = (n - 1) >> 1;
-        unsigned ones = popcnt64(k);
+        unsigned ones = popcount_idx_to_u32(k);
         return (seq_t)(-2) * (seq_t)(ones & 1u);
     } else {                           /* n is even */
         idx_t k = n >> 1;
         if (k == 0) return 0;
-        unsigned ones = popcnt64(k);
+        unsigned ones = popcount_idx_to_u32(k);
         return (seq_t)((ones & 1u) ? 1 : -1);
     }
 }

@@ -8,7 +8,8 @@
  * Formula:   a(1)=a(2)=1; a(n)=∑_{k=1}^{n-2} binomial(n-2,k)*a(k)*a(n-k)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 20, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdint.h>   /* for uintptr_t if needed */
+#include "../utils/mem.h"
 
 static seq_t *cache     = NULL;   /* array of computed a(n) */
 static idx_t  cache_lim = 0;      /* size of *cache array (index 0..n) */
@@ -32,7 +34,7 @@ ensure_cache(idx_t n)
     if (n < cache_lim) return;                /* already large enough */
 
     size_t new_size = (size_t)n + 1;           /* +1 because we use 0..n */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (new_cache == NULL) { /* OOM – terminate (malloc behaviour) */ }
     /* Initialise the newly added elements to zero.  For seq_t this is
      * equivalent to seq_t zero = 0. */

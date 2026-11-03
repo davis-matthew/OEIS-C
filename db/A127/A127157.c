@@ -12,6 +12,7 @@
  *            all rows of this triangle, offset starting at 1
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /*  Total number of terms up to (and including) row m.

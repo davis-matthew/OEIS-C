@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{k=0}^{16} c_k * binom(n, k) (binomial basis)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 26, u128 n <= 42,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 41 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

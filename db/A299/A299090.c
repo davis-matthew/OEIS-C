@@ -8,8 +8,9 @@
  * Formula:   a(n) = ⌊log₂(max exponent in prime factorization of n)⌋ + 1
  *            (a(1)=0). That is, the number of digits in the binary
  *            representation of the multiset of prime factors of n
- * Range:     u8 n <= 9533, u16 n <= 9533, u32 n <= 9533, u64 n <= 9533,
- *            u128 n <= 9533, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9533 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

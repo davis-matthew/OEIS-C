@@ -8,22 +8,26 @@
  *            (mod n)
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This implementation enumerates all divisors and checks the condition using the provided mod_pow. */
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 static bool good_divisor(idx_t n, idx_t d)
 {
     seq_t mod = (seq_t)n;
     seq_t base_d = (seq_t)d;
-    seq_t A = mod_pow(base_d, (uint64_t)d, mod);
+    seq_t A = powmod(base_d, (uint64_t)d, mod);
     seq_t md = mod - base_d;
-    seq_t B = mod_pow(md, (uint64_t)d, mod);
+    seq_t B = powmod(md, (uint64_t)d, mod);
     return (A == B) && (A == md);
 }
 

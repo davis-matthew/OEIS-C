@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 20, i32 n <= 38, i64 n <= 40, i128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Memoised storage */
 static seq_t *A = NULL;        /* a[1 .. max_n]  */
@@ -37,19 +39,19 @@ static void ensure_capacity(idx_t up_to)
 
     /* Reallocate A */
     if (A == NULL)
-        A = (seq_t*)malloc(new_len * sizeof(seq_t));
+        A = mem_new(seq_t, new_len);
     else
-        A = (seq_t*)realloc(A, new_len * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_len);
     if (new_len > N_alloc)                     /* zero new slots */
-        memset(A + N_alloc, 0, (new_len - N_alloc) * sizeof(seq_t));
+        mem_set(A + N_alloc, 0, (new_len - N_alloc) * sizeof(seq_t));
 
     /* Reallocate F */
     if (F == NULL)
-        F = (seq_t*)malloc(new_len * sizeof(seq_t));
+        F = mem_new(seq_t, new_len);
     else
-        F = (seq_t*)realloc(F, new_len * sizeof(seq_t));
+        F = mem_resize(seq_t, F, new_len);
     if (new_len > N_alloc)
-        memset(F + N_alloc, 0, (new_len - N_alloc) * sizeof(seq_t));
+        mem_set(F + N_alloc, 0, (new_len - N_alloc) * sizeof(seq_t));
 
     /* Update F for newly available indices (those larger than
      * (computed == 0 ? 0 : computed-2)).

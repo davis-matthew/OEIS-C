@@ -9,13 +9,14 @@
  *            (n-3k)!)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 11, i64 n <= 19, i128 n <= 21,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"    /* provides seq_t pow_uint(uint64_t base, idx_t exp) */
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     seq_t result = 0;          /* running sum of terms */
@@ -28,7 +29,7 @@ seq_t a(idx_t n) {
         if (k == 0) {
             pow_val = 1;
         } else {
-            pow_val = pow_uint(k + 1, k - 1);
+            pow_val = ipow_u64_idx(k + 1, k - 1);
         }
 
         /* term for current k: (-1)^k * pow_val * c */

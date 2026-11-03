@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   count_sevens
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,15 @@
        e_{2m}   = 4 + 7·m   (even m)  
        e_{2m+1} = 8 + 7·m   (odd m).          */
 #include <stdint.h>
-#include "../utils/count_sevens.h"
+
+static idx_t count_sevens(idx_t n) {
+    /* n ≥ 4 here */
+    idx_t m = (n - 4) / 7;                      /* integer division */
+    if (n >= 8 + 7 * m)                          /* e_{2m+1} ≤ n? */
+        return 2 * m + 2;                        /* indices 0…2m+1 → count = 2m+2 */
+    else
+        return 2 * m + 1;                        /* indices 0…2m   → count = 2m+1 */
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;               /* undefined, but safe for idx_t ≥ 1 */

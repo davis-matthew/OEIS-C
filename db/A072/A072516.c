@@ -7,12 +7,13 @@
  * Formula:   a(n) = Sum_{k=1..floor(sqrt(n))} (n mod k^2)
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   int_sqrt_seq
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/int_sqrt_seq.h"
+#include "../utils/isqrt_seq.h"
 /* The function uses a simple binary‑search integer square root
    that works for any unsigned seq_t. */
 
@@ -22,7 +23,7 @@ seq_t a(idx_t n)
         return 0;
 
     seq_t sum = 0;
-    seq_t max_k = int_sqrt_seq((seq_t)n);
+    seq_t max_k = isqrt_seq((seq_t)n);
 
     for (idx_t k = 1; k <= (idx_t)max_k; ++k)
     {

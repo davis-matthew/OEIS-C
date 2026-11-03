@@ -9,7 +9,8 @@
  *            prime of the form 6k+1 (offset 1)
  * Range:     i8 n <= 74, i16 n <= 74, i32 n <= 74, i64 n <= 74, i128 n <= 74,
  *            big any n
- * Helpers:   is_prime, jacobi_symbol
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,33 @@
 #include <stdbool.h>
 
 /* Legendre (Jacobi) symbol, returns -1, 0, or +1 */
-#include "../utils/jacobi_symbol.h"
-/* primality test for idx_t values */
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
+/* primality test for idx_t values */
 
 /* Cache for primes of the form 6k+1 (1‑based indexing) */
 static uint32_t *primes06 = NULL;   /* array of primes 6k+1 */
@@ -90,8 +115,7 @@ static void ensure_sum_cache(idx_t n)
 
         if (sum_cache_cnt == sum_cache_cap) {
             size_t new_cap = sum_cache_cap ? sum_cache_cap * 2 : 32;
-            seq_t *tmp = (seq_t *)realloc(sum_cache,
-                                          new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, sum_cache, new_cap);
             if (!tmp) abort();
             sum_cache = tmp;
             sum_cache_cap = new_cap;

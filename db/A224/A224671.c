@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 40, u64 n <= 86, u128 n <= 178,
  *            big any n
- * Helpers:   alloc_seq
+ * Validated: standard, pass, 49 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,16 @@
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *cache = NULL;           /* array of computed terms */
 static idx_t cache_size   = 0;        /* highest index computed (1‑based) */

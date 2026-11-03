@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Coefficient array for c(n), 0 is unused. */
 static const int coeff[11] = { 0, -1, -1, 0, 0, 2, 0, 0, -1, -1, 1 };
@@ -53,7 +55,7 @@ static void ensure_capacity(idx_t n, size_t *cap, seq_t **arr)
         size_t new_cap = (*cap == 0) ? 1 : *cap;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;   /* multiply by 2 */
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (cache == NULL) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;   /* a(0) = 1 */
         cache_max = 0;
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
     type so it compiles under C++17. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Least‑prime‑factor sieve (dynamic, O(n log log n) ) --------- */
 static idx_t spf_bound = 0;          /* highest integer whose spf is known */
@@ -81,7 +83,7 @@ static void ensure_sem_capacity(idx_t min_needed)
     if (sem_cap >= min_needed) return;
     idx_t new_cap = sem_cap ? sem_cap * 2 : 1;
     while (new_cap < min_needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(sem_mod8, (size_t)new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, sem_mod8, (size_t)new_cap);
     if (!tmp) abort();
     sem_mod8 = tmp;
     sem_cap  = new_cap;

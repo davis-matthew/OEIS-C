@@ -13,13 +13,15 @@
  *            I...
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 33, u64 n <= 70, u128 n <= 147,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 1467 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,17 +43,17 @@ seq_t a(idx_t n)
         size_t first_cap = (size_t)(n + 1 > 18 ? n + 1 : 18);
         cache_cap = first_cap;
         cache_size = first_cap < 18 ? (idx_t)first_cap : 18;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;  /* allocation failure – unlikely in normal use   */
         /* Copy the 18 known terms into the array                      */
-        memcpy(cache, init_vals, cache_size * sizeof(seq_t));
+        mem_copy(cache, init_vals, cache_size * sizeof(seq_t));
     }
 
     if ((n + 1) > cache_cap) {
         /* Grow the storage – double the current capacity or just enough for n */
         size_t new_cap = (size_t)(n + 1);
         if (new_cap < cache_cap * 2) new_cap = cache_cap * 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return 0;  /* allocation failure */
         cache = new_cache;
         cache_cap = new_cap;

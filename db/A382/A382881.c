@@ -13,12 +13,14 @@
  *            The sequence a(n) is simply the triangle T fl...
  * Range:     i8 n <= 90, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         triangle = (seq_t **)realloc(triangle,
                      sizeof(seq_t *) * rows);  /* cast needed for C++ */
         for (idx_t i = old_rows; i < rows; ++i) {
-            triangle[i] = (seq_t *)malloc(sizeof(seq_t) * (i + 1)); /* cast */
+            triangle[i] = mem_new(seq_t, (i + 1)); /* cast */
 
             /* T(i,0) */
             if (i == 0)

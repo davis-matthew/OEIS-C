@@ -10,6 +10,7 @@
  *            (n+1)³+(n+1)²) otherwise * a(3n+2) = n³+n²+n for n≥1 * a(2) = 8
  * Range:     u8 n <= 14, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

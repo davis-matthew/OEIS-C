@@ -15,23 +15,25 @@
  *            The flattened list of all coefficients gives A13...
  * Range:     u8 n <= 21, u16 n <= 48, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper to construct a row of seq_t values when compiled as C++.
  * In C this code is ineffective and harmless. */
 #ifdef __cplusplus
 #include <new>
 static void seq_t_default_construct(seq_t *p, size_t len) {
-    for (size_t i = 0; i < len; ++i) new(&p[i]) seq_t();
+    for (size_t i = 0; i < len; ++i) *(&p[i]) = (seq_t)0;
 }
 static void seq_t_destruct(seq_t *p, size_t len) {
-    for (size_t i = 0; i < len; ++i) p[i].~seq_t();
+    /* (mem_free destroys the elements) */
 }
 #else
 static void seq_t_default_construct(seq_t *p, size_t len) { (void)p; (void)len; }
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     if (!rows) return 0;                  /* allocation failure */
 
     /* Row 0: single coefficient equal to 0. */
-    rows[0] = (seq_t *)malloc(sizeof(seq_t));
+    rows[0] = mem_new(seq_t, 1);
     if (rows[0]) {
         seq_t_default_construct(rows[0], 1);
         rows[0][0] = 0;
@@ -67,25 +69,25 @@ seq_t a(idx_t n)
     }
 
     /* Row 1: single coefficient equal to 1. */
-    rows[1] = (seq_t *)malloc(sizeof(seq_t));
+    rows[1] = mem_new(seq_t, 1);
     if (rows[1]) {
         seq_t_default_construct(rows[1], 1);
         rows[1][0] = 1;
     } else {
-        free(rows[0]); free(rows);
+        mem_free(rows[0]); free(rows);
         return 0;
     }
 
     /* Compute rows 2 .. r. */
     for (idx_t nrow = 2; nrow <= r; ++nrow) {
         /* Allocate space for nrow coefficients. */
-        rows[nrow] = (seq_t *)malloc((size_t)nrow * sizeof(seq_t));
+        rows[nrow] = mem_new(seq_t, (size_t)nrow);
         if (!rows[nrow]) {
             /* clean up on failure */
             for (idx_t k = 0; k <= nrow; ++k) {
                 if (rows[k]) {
                     seq_t_destruct(rows[k], k);
-                    free(rows[k]);
+                    mem_free(rows[k]);
                 }
             }
             free(rows);
@@ -127,7 +129,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= r; ++k) {
         if (rows[k]) {
             seq_t_destruct(rows[k], k);
-            free(rows[k]);
+            mem_free(rows[k]);
         }
     }
     free(rows);

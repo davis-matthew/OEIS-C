@@ -9,7 +9,8 @@
  *            2*a(n-1)+3*a(n-2)-a(n-3)-5*a(n-4)-2*a(n-5)+5*a(n-6)+a(n-7)-2*a(n-8)
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 19, u64 n <= 41, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Initial values (offset 1): 66, 172, 462, 1278, 3448, 9394, 25526, 69336, 188418   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[9] = {
     (seq_t)66,  (seq_t)172,  (seq_t)462,
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
 
     /* grow storage */
     size_t new_len = (size_t)(n + 1);           /* include index 0 unused */
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) abort();                         /* out of memory */
     cache = tmp;
 

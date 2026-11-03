@@ -9,9 +9,10 @@
  * Formula:   A336676 – irregular triangle read by rows. a(n) is the list of
  *            all T(n,k) with 2*k-1 ≤ n ≤ k², in row‑major order. T(n,0)=0 for
  *            n>0, T(0,0)=1, and T(n,k)=∑_{i<k} T(n-2k+1,i) (n>0)
- * Range:     u8 n <= 2151, u16 n <= 9772, u32 n <= 9772, u64 n <= 9772,
- *            u128 n <= 9772, big any n
- * Helpers:   none
+ * Range:     u8 n <= 2151, u16 n <= 11966, u32 n <= 34889, u64 n <= 34889,
+ *            u128 n <= 34889, big any n
+ * Validated: standard, pass, 121 terms through n = 9772 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@ static unsigned long long isqrt_u64(unsigned long long v)
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;
 static size_t terms_cap = 0;
@@ -47,7 +49,7 @@ static void ensure_terms_cap(size_t need)
     if (terms_cap < need) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 64;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         terms = tmp;
         terms_cap = new_cap;
     }
@@ -98,7 +100,7 @@ static void generate_up_to(idx_t target)
         if (next_n == 0) {
             seq_t val = 1;            /* T(0,0) = 1 */
             add_term(val);
-            T[0] = (seq_t*)calloc(1, sizeof(seq_t));
+            T[0] = mem_new(seq_t, 1);
             T_sizes[0] = 1;
             T[0][0] = val;
             ++next_n;
@@ -113,7 +115,7 @@ static void generate_up_to(idx_t target)
 
         /* Allocate the row for this n. */
         size_t row_size = k_max + 1;                          /* indices 0..k_max */
-        T[next_n] = (seq_t*)calloc(row_size, sizeof(seq_t));
+        T[next_n] = mem_new(seq_t, row_size);
         T_sizes[next_n] = row_size;
 
         /* Base case for k = 0.  T(n,0)=0 for n>0. */

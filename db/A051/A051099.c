@@ -11,7 +11,8 @@
  *            searches primes in order, caches the ones satisfying...
  * Range:     u8 n <= 12, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _gcd_u64, _mod_pow, isPrime
+ * Validated: standard, pass, 66 terms through n = 898 (2026-11-03)
+ * Helpers:   gcd_u64, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,12 @@
 #include <stdbool.h>
 #include <stdio.h>      /* for abort() */
 
-#include "../utils/isPrime.h"      /* bool isPrime(idx_t) */
-#include "../utils/_gcd_u64.h"    /* uint64_t _gcd_u64(uint64_t, uint64_t) */
-#include "../utils/_mod_pow.h"    /* seq_t _mod_pow(seq_t, uint64_t, seq_t) */
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_cache = NULL;   /* cached primes satisfying the condition */
 static size_t  cache_len   = 0;
@@ -35,7 +39,7 @@ static void cache_grow(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
     if (!tmp) abort();
     prime_cache = tmp;
     cache_cap = new_cap;
@@ -52,7 +56,7 @@ static void cache_append(seq_t val)
    subsequent calls.  The helper isPrime uses idx_t (uint64_t). */
 static uint64_t next_prime(void)
 {
-    while (!isPrime((idx_t)next_candidate))
+    while (!is_prime((idx_t)next_candidate))
         ++next_candidate;
     uint64_t p = next_candidate;
     ++next_candidate;
@@ -71,9 +75,9 @@ seq_t a(idx_t n)
             continue;
         }
         uint64_t a_val = p - 2;                 /* equivalent to (-2 mod p) */
-        uint64_t d     = _gcd_u64(60ULL, p - 1);/* gcd(60, p-1) */
+        uint64_t d     = gcd_u64(60ULL, p - 1);/* gcd(60, p-1) */
         uint64_t exp   = (p - 1) / d;           /* exponent */
-        seq_t res = _mod_pow((seq_t)a_val, exp, (seq_t)p);
+        seq_t res = powmod((seq_t)a_val, exp, (seq_t)p);
         if (res == (seq_t)1)                    /* power residue condition */
             cache_append((seq_t)p);
     }

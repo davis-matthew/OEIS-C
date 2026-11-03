@@ -7,9 +7,10 @@
  * Formula:   a(n) = Σ_{k=0..⌊(n-4)/3⌋} C(n,3k+4)*a(n-3k-4), a(0)=1,
  *            a(1)=a(2)=a(3)=0. The function returns a(n) for any n≥0.
  *            Memoisation is used so that repeated calls are fast
- * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 18, u64 n <= 27, u128 n <= 28,
+ * Range:     u8 n <= 10, u16 n <= 14, u32 n <= 18, u64 n <= 27, u128 n <= 28,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   // provides: seq_t binomial(idx_t n, idx_t k);
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   // array holding computed values
 static size_t cache_cap  = 0;      // number of valid entries in cache (size)
@@ -31,7 +33,7 @@ static void ensure_up_to(idx_t n)
     /* Grow the cache to size n+1 (no exponential growth is required for the
        expected n up to 10 000). */
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) abort();              // allocation failure
 
     cache = new_ptr;

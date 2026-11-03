@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 /* Include required headers */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
     /* Initialisation on first use */
     if (terms == NULL)
     {
-        terms   = (seq_t *)malloc(sizeof(seq_t));    /* allocate space for first term */
-        u       = (seq_t *)malloc(sizeof(seq_t));
-        v       = (seq_t *)malloc(sizeof(seq_t));
+        terms   = mem_new(seq_t, 1);    /* allocate space for first term */
+        u       = mem_new(seq_t, 1);
+        v       = mem_new(seq_t, 1);
         prev_len = 1;                                  /* first row length */
         u[0] = 1;  /* u(1,x)=1 */
         v[0] = 1;  /* v(1,x)=1 */
@@ -55,8 +57,8 @@ seq_t a(idx_t n)
         idx_t new_len = prev_len + 1;   /* next row length */
 
         /* Allocate arrays for new row */
-        seq_t *u_new = (seq_t *)calloc(new_len, sizeof(seq_t));
-        seq_t *v_new = (seq_t *)calloc(new_len, sizeof(seq_t));
+        seq_t *u_new = mem_new(seq_t, new_len);
+        seq_t *v_new = mem_new(seq_t, new_len);
 
         /* Compute the new row from the previous row */
         for (idx_t i = 0; i < prev_len; ++i)
@@ -74,10 +76,10 @@ seq_t a(idx_t n)
 
         /* Ensure the terms array is large enough */
         size_t needed = prev_len * (prev_len + 1) / 2 + new_len;
-        seq_t *tmp = (seq_t *)realloc(terms, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, needed);
         if (tmp == NULL) {
             /* Allocation failure – return 0 as a safe fallback */
-            free(u_new); free(v_new); return 0;
+            mem_free(u_new); mem_free(v_new); return 0;
         }
         terms = tmp;
 
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
         }
 
         /* Prepare for next iteration */
-        free(u); free(v);
+        mem_free(u); mem_free(v);
         u = u_new;
         v = v_new;
         prev_len = new_len;

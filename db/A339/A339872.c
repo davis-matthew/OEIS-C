@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A055396(A160595(n))
- * Range:     u8 n <= 1728, u16 n <= 8788, u32 n <= 8788, u64 n <= 8788,
- *            u128 n <= 8788, big any n
- * Helpers:   build_primes_upto, calc_phi, factor_u64
+ * Range:     u8 n <= 1728, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8788 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"
-#include "../utils/calc_phi.h"
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/totient_seq.h"
 
 /* Pre‑computed primes up to a fixed limit */
 static uint64_t *prime_list = NULL;
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
     size_t n1_cnt = 0;
 
     /* Compute phi(n) (fits in 64 bits for n <= 10000) */
-    seq_t phi_seq = calc_phi(n);
+    seq_t phi_seq = totient_seq(n);
     uint64_t phi_val = (uint64_t)phi_seq;
 
     uint64_t n_minus_1 = (uint64_t)n - 1;

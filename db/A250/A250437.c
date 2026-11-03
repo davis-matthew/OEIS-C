@@ -12,13 +12,15 @@
  *            f(L) is computed by a small DP over the 6 possibl...
  * Range:     u8 none, u16 n <= 4, u32 n <= 16, u64 n <= 132, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Transition data for the 6 admissible pairs (u,v). */
 static const unsigned char pair_u[6] = {0,0,0,1,1,2};
@@ -45,9 +47,9 @@ static void ensure_f(idx_t need)
     size_t new_cap = (size_t)need + 1;            /* index 0..need */
     seq_t *tmp = f_cache;
     if (!tmp)
-        tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        tmp = mem_new(seq_t, new_cap);
     else
-        tmp = (seq_t *)realloc(tmp, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, tmp, new_cap);
     if (!tmp)
         return;                     /* allocation failed – leave unchanged */
 

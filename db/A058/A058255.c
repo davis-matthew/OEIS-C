@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 12, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 354 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------- helper: gcd for seq_t ------------------------------------ */
 static seq_t gcd_seq_t(seq_t a, seq_t b)
@@ -47,7 +49,7 @@ static void push_value(seq_t v)
 {
     if (values_len >= values_cap) {
         size_t new_cap = values_cap ? values_cap * 2 : 32;
-        seq_t *tmp = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, values, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         values = tmp;
         values_cap = new_cap;

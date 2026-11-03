@@ -9,7 +9,8 @@
  *            absolute differences between consecutive block minima ≤ 9
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 551 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #define SEQ_IMPLEMENTATION
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 extern seq_t pow_seq(seq_t base, idx_t exp);  /* generic power if needed */
 
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     size_t N = (size_t)n;
 
     /* Allocate array for the final sequence values. */
-    seq_t *ans = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *ans = mem_new(seq_t, N + 1);
     if (!ans) abort();          /* allocation failure */
     ans[0] = (seq_t)1;          /* a(0) = 1 */
 
@@ -45,10 +47,10 @@ seq_t a(idx_t n) {
     for (size_t i = 1; i <= N; ++i) ans[i] = (seq_t)1;
 
     /* Temporary arrays for dynamic programming over block counts. */
-    seq_t *prev = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *cur  = (seq_t *)calloc(N, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, N);
+    seq_t *cur  = mem_new(seq_t, N);
     if (!prev || !cur) {
-        free(ans);
+        mem_free(ans);
         abort();
     }
     prev[0] = (seq_t)1; /* F[1][0] = 1 */
@@ -63,7 +65,7 @@ seq_t a(idx_t n) {
         }
 
         /* Compute F[k][s] for s = k‑1 … N‑1. */
-        memset(cur, 0, N * sizeof(seq_t));
+        mem_set(cur, 0, N * sizeof(seq_t));
         size_t min_s = k - 1;
         for (size_t s = min_s; s < N; ++s) {
             seq_t sum = (seq_t)0;
@@ -96,8 +98,8 @@ seq_t a(idx_t n) {
 
     /* Store the requested value and free temporary arrays. */
     seq_t result = ans[N];
-    free(ans);
-    free(prev);
-    free(cur);
+    mem_free(ans);
+    mem_free(prev);
+    mem_free(cur);
     return result;
 }

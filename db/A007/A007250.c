@@ -12,16 +12,33 @@
  *            width...
  * Range:     i8 n <= 1, i16 n <= 4, i32 n <= 15, i64 n <= 57, i128 n <= 218,
  *            big any n
- * Helpers:   release, seq_is_big, zalloc_arr
+ * Validated: standard, pass, 40 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/zalloc_arr.h"
-#include "../utils/release.h"
-#include "../utils/seq_is_big.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *zalloc_arr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
 
 typedef unsigned __int128 u128_t;
 

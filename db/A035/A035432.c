@@ -8,7 +8,8 @@
  *            7k+2 or 7k+4
  * Range:     u8 n <= 55, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 1) return (seq_t)0;          /* offset is 1 */
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
     }
 
     /* Allocate DP array. */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) abort();
 
     /* Initialise dp[0] and zero others. */
@@ -77,7 +79,7 @@ seq_t a(idx_t n) {
 
     seq_t result = dp[n];
 
-    free(dp);
+    mem_free(dp);
     free(parts);
 
     return result;

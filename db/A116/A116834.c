@@ -9,6 +9,7 @@
  *            1729*n^2 - 3438*n + 2592) / 24
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

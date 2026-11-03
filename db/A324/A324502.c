@@ -9,7 +9,8 @@
  *            divisors of d
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 /* The code computes pod(d) = d^{τ(d)/2} and takes the lcm over the divisors of n. */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Maximum distinct prime factors for reasonable n (e.g., n <= 10^10) */
 #define MAX_PRF 64
@@ -86,7 +89,7 @@ seq_t a(idx_t n)
     /* Compute result as product of primes^best[p] */
     seq_t result = (seq_t)1;
     for (size_t i = 0; i < cnt; ++i) {
-        seq_t pow_p = big_pow((seq_t)primes[i], (seq_t)best[i]);
+        seq_t pow_p = ipow((seq_t)primes[i], (seq_t)best[i]);
         result *= pow_p;
     }
 

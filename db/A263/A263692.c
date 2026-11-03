@@ -12,13 +12,15 @@
  *            (index starts at 1)
  * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 52, u64 n <= 106,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Thread‑safe static cache (no multi‑threading support required). */
 static seq_t *cache = NULL;     /* pointer to array of computed terms */
@@ -37,10 +39,10 @@ seq_t a(idx_t n)
     if (target > cache_len) {
         /* Allocate or reallocate memory. In C++ we cast explicitly. */
         size_t new_cap = target;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* Allocation failed – return 0 as a safe failure value. */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_len = 0;
             return (seq_t)0;

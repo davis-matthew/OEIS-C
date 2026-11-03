@@ -12,12 +12,14 @@
  *            a(n)=a(n-1)+a(n-16)-a(n-17)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 846 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;     /* cached values a(1)..a(cache_len) */
 static idx_t cache_len = 0;       /* number of cached elements */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* first call: allocate at least max(n,20) slots and fill initial terms */
     if (a_cache == NULL) {
         idx_t need = n > 20 ? n : 20;
-        a_cache = (seq_t *)malloc(need * sizeof(seq_t));
+        a_cache = mem_new(seq_t, need);
         cache_len = need;
         for (idx_t i = 0; i < 20; ++i) a_cache[i] = init_terms[i];
         for (idx_t i = 20; i < need; ++i)          /* compute terms 21..need */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     else if (n > cache_len) {
         idx_t old_len = cache_len;
         idx_t new_len = n;
-        a_cache = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_len);
         cache_len = new_len;
         for (idx_t i = old_len; i < new_len; ++i)    /* compute from old_len+1 to n */
             a_cache[i] = a_cache[i-1] + a_cache[i-16] - a_cache[i-17];

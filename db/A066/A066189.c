@@ -8,19 +8,21 @@
  *            into distinct parts
  * Range:     u8 n <= 13, u16 n <= 42, u32 n <= 155, u64 n <= 600,
  *            u128 n <= 2377, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9626 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0u) return (seq_t)0;
 
     /* Allocate and zero‑initialize the DP array for counts of distinct partitions */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return (seq_t)0;           /* Allocation failed: return 0 as fallback */
 
     dp[0] = (seq_t)1;                   /* Empty partition */
@@ -34,6 +36,6 @@ seq_t a(idx_t n)
 
     seq_t result = ((seq_t)n) * dp[n];  /* a(n) = n * q(n) */
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

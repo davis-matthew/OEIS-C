@@ -10,7 +10,8 @@
  *            OEIS A104012)
  * Range:     u8 n <= 35, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_uint64
+ * Validated: standard, pass, 75 terms through n = 949 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime_uint64.h"     /* bool is_prime_uint64(uint64_t) */
+#include "../utils/is_prime_u64.h"
 
 /* static cache for the discovered indices */
 static idx_t *cache = NULL;          /* indices m */
@@ -48,14 +49,14 @@ seq_t a(idx_t n)
         for (idx_t m = start; cache_used < n; ++m) {
             /* First factor */
             uint64_t f1 = (uint64_t)(2 * m + 1);
-            if (!is_prime_uint64(f1))
+            if (!is_prime_u64(f1))
                 continue;
 
             /* Second factor, computed in 128‑bit to avoid overflow */
             unsigned __int128 prod = (unsigned __int128)5 * m * m
                                    + (unsigned __int128)5 * m + 1;
             uint64_t f2 = (uint64_t)prod;   /* safe for the needed range */
-            if (!is_prime_uint64(f2))
+            if (!is_prime_u64(f2))
                 continue;
 
             /* Found a valid index */

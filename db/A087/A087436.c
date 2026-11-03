@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = number of odd prime factors of n, counted with
  *            multiplicity
- * Range:     u8 n <= 9688, u16 n <= 9688, u32 n <= 9688, u64 n <= 9688,
- *            u128 n <= 9688, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 118 terms through n = 9688 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 /* C/C++ compatible implementation */
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 static inline seq_t pow_nc(seq_t base, idx_t exp);
 static inline seq_t sum_subseq(const seq_t *a, idx_t idx, idx_t len);
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (n == 1) return (seq_t)48;
 
     /* Allocate array to hold values 0 … n */
-    seq_t *data = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *data = mem_new(seq_t, (n + 1));
     if (!data) return (seq_t)0;          /* allocation failure (unlikely) */
 
     data[0] = (seq_t)1;
@@ -59,6 +61,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = data[n];
-    free(data);
+    mem_free(data);
     return result;
 }

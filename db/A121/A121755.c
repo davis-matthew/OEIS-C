@@ -8,6 +8,7 @@
  * Formula:   a(n) = Numerator[ Sum_{k=1..n} p_k / Product_{k=1..n} p_k ]
  * Range:     u8 n <= 13, u16 n <= 157, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 84 terms through n = 9995 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 /   divided by the product of the first n primes.  */
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 static uint32_t *primes = NULL;   /* cache of the first primes */

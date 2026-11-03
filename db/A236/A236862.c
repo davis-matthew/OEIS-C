@@ -12,7 +12,8 @@
  *            irreducible over GF(2).)
  * Range:     u8 n <= 8192, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 137 terms through n = 8095 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Helper: bit length of a 64‑bit integer                               */
@@ -74,7 +76,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 16;
     while ((size_t)n >= new_cap) new_cap <<= 1;
 
-    seq_t *ptr = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, a_cache, new_cap);
     if (!ptr) abort();                     /* allocation failed */
     for (size_t i = a_cache_cap; i < new_cap; ++i) ptr[i] = (seq_t)-1;
     a_cache = ptr;

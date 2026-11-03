@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   has_allowed_digit
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
    digit e in a(n‑1) with d + e == 9. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_allowed_digit.h"
+#include "../utils/mem.h"
+
+/* return true if integer x contains a digit that is allowed by
+   the 10‑bit mask 'mask' (bit i is set if digit i is allowed) */
+static bool has_allowed_digit(seq_t x, uint16_t mask)
+{
+    if (x == 0) {
+        /* digit 0 is present */
+        return (mask & 1u) != 0;
+    }
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (mask & (1u << d))
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +51,7 @@ seq_t a(idx_t n)
     /* initialise storage on first call */
     if (seq_len == 0) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = 0;
         seq_len = 1;            /* a(0) is known */
     }
@@ -83,7 +101,7 @@ seq_t a(idx_t n)
         /* store the new term */
         if (seq_len >= seq_cap) {
             size_t newcap = seq_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, newcap);
             seq = tmp;
             seq_cap = newcap;
         }

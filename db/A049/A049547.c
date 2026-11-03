@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_uint64, int_sqrt, mod_pow
+ * Validated: standard, pass, 71 terms through n = 969 (2026-11-01)
+ * Helpers:   gcd_u64, isqrt, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/int_sqrt.h"   /* int_sqrt(idx_t n) */
-#include "../utils/mod_pow.h"    /* mod_pow(seq_t base, uint64_t exp, seq_t mod) */
-#include "../utils/gcd_uint64.h"
+#include <string.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/powmod.h"
 
 /* Allocate or grow an array of uint64_t */
 static inline uint64_t *grow(uint64_t *arr, size_t *cap)
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
 
             /* trial division by known primes up to sqrt(cand) */
             bool is_prime = true;
-            uint64_t limit = int_sqrt((idx_t)cand);
+            uint64_t limit = isqrt((idx_t)cand);
             for (size_t i = 0; i < prime_cnt; ++i) {
                 uint64_t q = prime_list[i];
                 if (q > limit) break;
@@ -90,9 +92,9 @@ seq_t a(idx_t n)
             qualifies = true;
         } else {
             uint64_t m = p - 1;
-            uint64_t g = gcd_uint64(15, m);
+            uint64_t g = gcd_u64(15, m);
             uint64_t exp = m / g;
-            if (mod_pow((seq_t)2, exp, (seq_t)p) == (seq_t)1)
+            if (powmod((seq_t)2, exp, (seq_t)p) == (seq_t)1)
                 qualifies = true;
         }
 

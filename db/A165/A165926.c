@@ -9,7 +9,8 @@
  *            factorisation) and that are quadratic non‑residues modulo n
  * Range:     u8 n <= 47, u16 n <= 639, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   make_spf
+ * Validated: standard, pass, 76 terms through n = 949 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/make_spf.h"
+
+/* ---------- small helper: smallest prime factor sieve ---------- */
+static uint32_t *make_spf(size_t limit)
+{
+    uint32_t *spf = (uint32_t *)malloc((limit + 1) * sizeof(uint32_t));
+    if (!spf) return NULL;
+    for (size_t i = 0; i <= limit; ++i) spf[i] = (uint32_t)i;
+    spf[0] = 0;
+    if (limit >= 1) spf[1] = 1;
+    for (size_t i = 2; i * i <= limit; ++i) {
+        if (spf[i] == (uint32_t)i) {
+            for (size_t j = i * i; j <= limit; j += i)
+                if (spf[j] == (uint32_t)j) spf[j] = (uint32_t)i;
+        }
+    }
+    return spf;
+}
 
 /* ---------- test whether x has a square factor (i.e. not square‑free) ---------- */
 static int has_square_factor(idx_t x, const uint32_t *spf)

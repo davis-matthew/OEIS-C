@@ -7,6 +7,7 @@
  * Formula:   a(n) = 4*n + A053824(2^n - 1) (base‑5 digit sum of 2^n minus 1)
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

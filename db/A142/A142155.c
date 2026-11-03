@@ -9,12 +9,14 @@
  *            a(n-2) + a(n-4) + a(n-5) + a(n-6) + a(n-7) - a(n-9) - a(n-10)
  * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 42, i64 n <= 83, i128 n <= 166,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (need > buf_cap) {
         size_t new_cap = buf_cap ? buf_cap * 2 : 16;
         if (new_cap < need) new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         buf = tmp;
         for (size_t i = buf_cap; i < new_cap; ++i) buf[i] = 0;

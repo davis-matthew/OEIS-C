@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 219, u16 n <= 9910, u32 n <= 9910, u64 n <= 9910,
- *            u128 n <= 9910, big any n
- * Helpers:   none
+ * Range:     u8 n <= 219, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 81 terms through n = 9910 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root for idx_t (uint64_t) */
 static inline idx_t floor_sqrt(idx_t n) {
@@ -87,7 +89,7 @@ static idx_t  last_checked = 0;  /* last integer examined by the sieve */
 static void append_term(seq_t val) {
     if (terms_l == terms_c) {
         size_t new_c = terms_c ? terms_c * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(terms, new_c * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_c);
         if (!tmp) abort();
         terms = tmp;
         terms_c = new_c;

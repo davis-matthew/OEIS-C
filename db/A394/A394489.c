@@ -7,6 +7,7 @@
  * Formula:   a(n) = prod_{j=0}^{n-1} (2*(n+1) - 5*j) / (n+1)
  * Range:     i8 n <= 4, i16 n <= 5, i32 n <= 9, i64 n <= 16, i128 n <= 27,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 279 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

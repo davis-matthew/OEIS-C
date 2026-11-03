@@ -9,13 +9,15 @@
  *            w∈{0,1} and x,y,z ≥ 0
  * Range:     u8 n <= 1018, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 117 terms through n = 9432 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root (largest r s.t. r*r ≤ n).  Works for any non‑negative n. */
 static inline idx_t int_sqrt(idx_t n)
@@ -41,13 +43,13 @@ static idx_t  cache_limit = 0;    /* highest value for which cnt_cache is valid 
 static void build_cache(idx_t max)
 {
     /* Allocate a fresh array of size max+1, zeroed.                        */
-    seq_t *new_cache = (seq_t *)calloc((size_t)(max + 1), sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)(max + 1));
     if (!new_cache)          /* allocation failed – leave cache empty           */
         return;
 
     /* If we already had a cache, free it.                                  */
     if (cnt_cache != NULL)
-        free(cnt_cache);
+        mem_free(cnt_cache);
 
     /* Pre‑compute limits to avoid unnecessary iterations.                  */
     const idx_t lim_x = int_sqrt(max);

@@ -8,13 +8,16 @@
  *            for q=6)
  * Range:     u8 none, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 27 terms through n = 189 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = 1; i <= 4; ++i) {
         idx_t exp = n - i + 1;                /* n-i+1 */
-        seq_t num = big_pow((seq_t)6, exp) - 1;
+        seq_t num = ipow((seq_t)6, exp) - 1;
         seq_t den = (seq_t)denom_raw[i - 1];
 
         /* Reduce numerator and denominator together. */

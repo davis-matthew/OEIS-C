@@ -7,13 +7,17 @@
  * Formula:   squares divisible by their number of digits
  * Range:     u8 n <= 9, u16 n <= 80, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len
+ * Validated: standard, pass, 65 terms through n = 9959 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,11 +28,11 @@ seq_t a(idx_t n)
 
     while (cache_len < n) {
         seq_t square = (seq_t)next_k * (seq_t)next_k;
-        int d = digit_len(square);
+        int d = num_digits(square);
         if (square % (seq_t)d == 0) {
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *new_arr = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
                 if (!new_arr) abort();
                 cache = new_arr;
                 cache_cap = new_cap;

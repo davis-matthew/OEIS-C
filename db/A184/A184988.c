@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 262, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_digits, sub_val
+ * Validated: standard, pass, 94 terms through n = 8120 (2026-11-01)
+ * Helpers:   get_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/get_digits.h"
-#include "../utils/sub_val.h"
+
+static inline seq_t sub_val(const uint8_t *d, size_t l, size_t r)
+{
+    seq_t v = 0;
+    for (size_t i = l; i <= r; ++i)
+        v = v * 10 + (seq_t)d[i];
+    return v;
+}
 
 /* Largest palindromic substring of n².
    Compute n², then find the maximum numeric value of any substring of

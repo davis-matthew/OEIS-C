@@ -12,13 +12,65 @@
  *            a(8)=730509, a(9)=4271331, a(10)=24974286, a(11)=146021443, a...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   compute_large
+ * Validated: standard, pass, 36 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/compute_large.h"
+
+/* Helper for computing a(n) where n>15 but n can be larger than CACHE_MAX.
+ * Uses a rolling buffer of the last 13 values.
+ */
+static seq_t compute_large(idx_t n)
+{
+    /* pull the first 15 values from the stored constants */
+    const seq_t base[16] = {
+        0ULL,                           /* 0 unused */
+        1ULL, 17ULL, 113ULL, 628ULL, 3641ULL,
+        21375ULL, 124972ULL, 730509ULL,
+        4271331ULL, 24974286ULL, 146021443ULL,
+        853770711ULL, 4991901968ULL,
+        29187089317ULL, 170653628083ULL
+    };
+
+    if (n <= 15)
+        return base[n];
+
+    seq_t last[13];
+    /* initialise last[0..12] = a(15)..a(3) */
+    last[0] = base[15];
+    last[1] = base[14];
+    last[2] = base[13];
+    last[3] = base[12];
+    last[4] = base[11];
+    last[5] = base[10];
+    last[6] = base[9];
+    last[7] = base[8];
+    last[8] = base[7];
+    last[9] = base[6];
+    last[10] = base[5];
+    last[11] = base[4];
+    last[12] = base[3];
+
+    seq_t term = 0;
+    for (idx_t i = 16; i <= n; ++i) {
+        term = (seq_t)5*last[0] + (seq_t)3*last[1]
+            + (seq_t)14*last[2] - (seq_t)9*last[3]
+            - (seq_t)29*last[4] - (seq_t)33*last[5]
+            - (seq_t)48*last[6] + (seq_t)34*last[7]
+            - (seq_t)2*last[8] - (seq_t)10*last[9]
+            - (seq_t)32*last[10] + (seq_t)12*last[11]
+            + (seq_t)8*last[12];
+
+        /* shift the buffer */
+        for (int j = 12; j > 0; --j)
+            last[j] = last[j-1];
+        last[0] = term;
+    }
+    return term;
+}
 
 /* maximum n that will be cached – the benchmark mentions n≈10000. */
 #define CACHE_MAX 10000

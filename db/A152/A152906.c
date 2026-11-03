@@ -11,12 +11,14 @@
  *            index k is obtained by dividing the position within the row by 3
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   binom_n_k
+ * Validated: partial, pass, 95 terms through n = 94 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_n_k.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -37,5 +39,5 @@ seq_t a(idx_t n)
     /* block (each block holds 3 identical entries)  */
     idx_t k = pos / 3;
 
-    return binom_n_k(r, k);   /* C(r, k) */
+    return binomial(r, k);   /* C(r, k) */
 }

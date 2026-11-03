@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   ensure_vals_capacity
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/ensure_vals_capacity.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static void ensure_vals_capacity(idx_t sz, seq_t **vals, idx_t *cap)
+{
+    if (sz <= *cap) return;
+    idx_t newcap = (*cap) ? (*cap) * 2 : 4;
+    while (newcap < sz) newcap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *vals, (newcap * sizeof(**vals)) / sizeof(seq_t));
+    if (!tmp) exit(EXIT_FAILURE);
+    *vals = tmp;
+    *cap  = newcap;
+}
 
 /* Computes A367812 (lexicographically earliest sequence of distinct
    nonnegative integers such that the Levenshtein distance between

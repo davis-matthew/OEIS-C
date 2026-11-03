@@ -10,7 +10,8 @@
  *            (ballot number)
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 33 terms through n = 63 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/binom.h"   /* returns seq_t binom(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
 
     for (idx_t j = 0; j <= maxj; ++j) {
         /* binomial(n, j) as seq_t */
-        seq_t bin_n_j = binom(n, j);
+        seq_t bin_n_j = binomial(n, j);
 
         /* compute B(n,j) = ((n-2*j+1)/(n-j+1)) * binom(n, j) */
         idx_t numer_mul = n - 2*j + 1;          /* small integer */

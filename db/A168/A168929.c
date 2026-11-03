@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* alphabet size – must be a constant expression */
 enum { ALPHABET = 12 };
@@ -145,15 +147,15 @@ static void build_automaton(void)
     /* -----------------------------------------------------------------
        3.  Allocate DP arrays
        ----------------------------------------------------------------- */
-    dp_prev = (seq_t *)calloc(state_count, sizeof(seq_t));
-    dp_cur  = (seq_t *)calloc(state_count, sizeof(seq_t));
+    dp_prev = mem_new(seq_t, state_count);
+    dp_cur  = mem_new(seq_t, state_count);
     dp_prev[0] = 1;   /* empty word */
 
     /* -----------------------------------------------------------------
        4.  Allocate memoisation storage
        ----------------------------------------------------------------- */
     memo_cap = 16;
-    memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+    memo = mem_new(seq_t, memo_cap);
     memo[0] = 1;  /* a(0) = 1 */
     memo_len = 1;
 
@@ -199,7 +201,7 @@ seq_t a(idx_t n)
             /* store result */
             if (memo_len >= memo_cap) {
                 memo_cap <<= 1;
-                memo = (seq_t *)realloc(memo, memo_cap * sizeof(seq_t));
+                memo = mem_resize(seq_t, memo, memo_cap);
             }
             memo[memo_len++] = total;
 

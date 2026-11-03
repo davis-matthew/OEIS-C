@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 6748, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9575 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for Tribonacci numbers (first few: 1,1,2,4,7,13,…) */
 static seq_t *trib = NULL;
@@ -46,7 +48,7 @@ ensure_trib(seq_t limit)
         tril: ;
         if (trib_cap < 3) {
             trib_cap = 3;
-            trib = (seq_t *)realloc(trib, trib_cap * sizeof(seq_t));
+            trib = mem_resize(seq_t, trib, trib_cap);
         }
         trib[0] = (seq_t)1;
         trib[1] = (seq_t)1;
@@ -65,7 +67,7 @@ ensure_trib(seq_t limit)
 
         if (trib_len == trib_cap) {
             trib_cap = trib_cap ? trib_cap * 2 : 4;
-            trib = (seq_t *)realloc(trib, trib_cap * sizeof(seq_t));
+            trib = mem_resize(seq_t, trib, trib_cap);
         }
         trib[trib_len++] = next;
     }
@@ -94,11 +96,11 @@ ensure_terms(size_t needed)
 {
     if (terms_cap == 0) {
         terms_cap = 4;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     while (terms_cap < needed) {
         terms_cap = terms_cap * 2;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
 }
 
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
     /* Initialise tribonacci array on first call */
     if (trib_len == 0) {
         trib_cap = 3;
-        trib = (seq_t *)realloc(trib, trib_cap * sizeof(seq_t));
+        trib = mem_resize(seq_t, trib, trib_cap);
         trib[0] = (seq_t)1;
         trib[1] = (seq_t)1;
         trib[2] = (seq_t)2;

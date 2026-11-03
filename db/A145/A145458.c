@@ -10,7 +10,8 @@
  *            Σ_{k=8}^n C(n−1, k−1) · C(k,8) · a(n−k) for n ≥ 8
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 21, u64 n <= 31, u128 n <= 48,
  *            big any n
- * Helpers:   seq_alloc_array
+ * Validated: standard, pass, 45 terms through n = 493 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,13 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc_array.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* External integer types supplied by the build */
 extern size_t _floor_isqrt_u64(idx_t n);
@@ -36,7 +43,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = cap ? cap * 2 : 1;
     while (new_cap <= (size_t)n)
         new_cap *= 2;
-    cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     for (size_t i = cap; i < new_cap; ++i)
         cache[i] = 0;
     cap = new_cap;
@@ -53,7 +60,7 @@ static void ensure_binom(idx_t n)
     size_t new_cap = binom_cap ? binom_cap * 2 : 1;
     while (new_cap <= (size_t)n)
         new_cap *= 2;
-    binom8 = (seq_t*)realloc(binom8, new_cap * sizeof(seq_t));
+    binom8 = mem_resize(seq_t, binom8, new_cap);
 
     /* initialise new entries */
     for (size_t k = binom_cap; k < new_cap; ++k) {

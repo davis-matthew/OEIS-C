@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* a(n) = minimum integer m > a(n-1) such that for all i < n, m mod a(i) >= 2 */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache for the sequence */
 static seq_t *seq_arr = NULL;   /* array of previously computed terms */
@@ -29,7 +31,7 @@ static void ensure_capacity(idx_t needed)
         if (new_cap < (size_t)needed) {
             new_cap = needed;
         }
-        seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, new_cap);
         seq_cap = new_cap;
     }
 }

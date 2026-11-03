@@ -11,15 +11,27 @@
  *            sigma(m) q^m = q*psi(q^2)^4, psi(q) = Sum_{k>=0} q^(k(k+1)/2)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   alloc_zero, release
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 /* in place: v <- v * theta_3(q), truncated to len terms */
 static void mul_theta(seq_t *v, idx_t len)

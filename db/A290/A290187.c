@@ -11,12 +11,14 @@
  *            a(3) = 68, a(4) = 168
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* compute 432*2^(n-5) - 8*n - 15  for n ≥ 5 */
     int exp = (int)(n - 5ULL);      /* exponent fits in a signed 32‑bit int for n ≤ 10000 */
-    seq_t pow2 = pow_seq((seq_t)2, exp);
+    seq_t pow2 = ipow_i32((seq_t)2, exp);
     seq_t val   = pow2 * (seq_t)432;
     seq_t sub   = (seq_t)8 * (seq_t)n + (seq_t)15;
     return val - sub;

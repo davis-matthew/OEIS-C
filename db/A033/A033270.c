@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of odd primes <= n (OEIS A033270)
  * Range:     u8 n <= 1620, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9381 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static storage for sieve data */
 static uint8_t  *is_composite = (uint8_t *)0;   /* 0 = prime candidate, 1 = composite */
@@ -26,11 +28,11 @@ recompute_sieve(idx_t limit)
 {
     /* Allocate arrays with explicit casts for C++ compatibility */
     uint8_t *composite = (uint8_t *)calloc((size_t)(limit + 1), sizeof(uint8_t));
-    seq_t   *pref      = (seq_t *)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    seq_t   *pref      = mem_new(seq_t, (size_t)(limit + 1));
 
     if (!composite || !pref) {
         free(composite);
-        free(pref);
+        mem_free(pref);
         return;   /* Allocation failed – leave old tables unchanged */
     }
 
@@ -52,7 +54,7 @@ recompute_sieve(idx_t limit)
 
     /* Replace old tables with the new ones */
     free(is_composite);
-    free(prefix);
+    mem_free(prefix);
     is_composite = composite;
     prefix       = pref;
     curr_limit   = limit;

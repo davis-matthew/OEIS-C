@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{k=1..n} sigma(k)*sigma(2*k)
  * Range:     u8 n <= 4, u16 n <= 29, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* where sigma(n) is the sum of all divisors of n */
 
@@ -31,13 +33,13 @@ static idx_t last_n = 0;           /* maximum n that has been computed */
 static void recompute_sigma(idx_t new_limit)
 {
     /* Allocate a zeroed array of (new_limit+1) entries. */
-    seq_t *arr = (seq_t*)calloc((size_t)new_limit + 1, sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (size_t)new_limit + 1);
     if (!arr) return;                 /* let the caller deal with OOM */
     for (idx_t i = 1; i <= new_limit; ++i) {
         for (idx_t j = i; j <= new_limit; j += i)
             arr[j] += (seq_t)i;
     }
-    free(sigma);
+    mem_free(sigma);
     sigma = arr;
     sigma_size = (size_t)new_limit + 1;
 }
@@ -52,7 +54,7 @@ static void extend_to(idx_t n)
 
     /* Grow the a_cache array if necessary. */
     if ((size_t)(n + 1) > a_cache_size) {
-        a_cache = (seq_t*)realloc(a_cache, (size_t)(n + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (size_t)(n + 1));
         a_cache_size = (size_t)(n + 1);
     }
 

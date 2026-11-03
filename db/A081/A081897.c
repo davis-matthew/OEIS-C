@@ -7,13 +7,27 @@
  * Formula:   a(n) = 5^n*(n^3 + 42*n^2 + 407*n + 750)/750
  * Range:     u8 n <= 0, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 51,
  *            big any n
- * Helpers:   pow5_fast
+ * Validated: standard, pass, 40 terms through n = 823 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow5_fast.h"
+
+/* fast exponentiation of 5^k for unsigned integral k */
+static seq_t pow5_fast(idx_t k)
+{
+    seq_t res = 1;      /* 5^0 = 1 */
+    seq_t base = 5;     /* current power of 5 */
+    while (k) {
+        if (k & 1U)
+            res *= base;
+        base *= base;
+        k >>= 1U;
+    }
+    return res;
+}
 
 /* main sequence function */
 seq_t a(idx_t n)

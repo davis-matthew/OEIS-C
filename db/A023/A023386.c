@@ -9,12 +9,25 @@
  *            base‑6 digits of a(n) as a base‑9 number (written in decimal)
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 16, u64 n <= 19, u128 n <= 23,
  *            big any n
- * Helpers:   convert_base6_to_base9
+ * Validated: standard, pass, 37 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/convert_base6_to_base9.h"
+/* Convert a number written in base 6 to its equivalent written in base 9 */
+static seq_t convert_base6_to_base9(seq_t val)
+{
+    seq_t next = 0;
+    seq_t mult = 1;
+    while (val > (seq_t)0) {
+        seq_t digit = val % (seq_t)6;   /* least significant base‑6 digit */
+        val = val / (seq_t)6;
+        next += digit * mult;          /* place digit in base‑9 position */
+        mult *= (seq_t)9;
+    }
+    return next;
+}
 
 seq_t a(idx_t n)
 {

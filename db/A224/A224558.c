@@ -10,13 +10,15 @@
  *            a(4)=749, a(5)=988, a(6)=1298, a(7)=1668, a(8)=2201)
  * Range:     u8 none, u16 n <= 18, u32 n <= 47, u64 n <= 105, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Initial terms as 64‑bit literals; cast to seq_t when used.
    Casting avoids compilation warnings for small seq_t types. */
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         cache_size = (size_t)(n + 1);
         if (cache_size < 9) cache_size = 9;  /* at least for indices 1..8 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) {
             /* Out of memory – fatal for this sequence. */
             exit(EXIT_FAILURE);
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
         max_cached = 8;
     } else if ((size_t)(n + 1) > cache_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) {
             exit(EXIT_FAILURE);
         }

@@ -8,12 +8,14 @@
  *            Initial values: a(0)=0, a(1)=-1, a(2)=0, a(3)=-8, a(4)=19
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 16, i64 n <= 32, i128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoisation array          */
 static idx_t cache_capacity = 0;     /* current allocated size     */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
     if (!cache) {
         idx_t sz = n + 1;
         if (sz < 5) sz = 5;
-        cache = (seq_t *)calloc(sz, sizeof(seq_t));
+        cache = mem_new(seq_t, sz);
         if (!cache) exit(1);
         /* copy initial values */
         for (idx_t i = 0; i < 5; ++i) cache[i] = init_vals[i];
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
     } else if (n + 1 > cache_capacity) {
         idx_t new_cap = cache_capacity ? cache_capacity * 2 : 5;
         if (new_cap < n + 1) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_capacity = new_cap;

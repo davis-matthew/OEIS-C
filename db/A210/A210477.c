@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 14, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 53 terms through n = 991 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Static state between calls */
 static seq_t   *seq_cache = NULL;   /* cached values of a(n)      */
@@ -38,7 +40,7 @@ static void ensure_cache_capacity(size_t needed)
     if (seq_cap < needed) {
         size_t new_cap = (seq_cap == 0) ? 8 : (seq_cap << 1);
         if (new_cap < needed) new_cap = needed;
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_cap = new_cap;
     }
 }

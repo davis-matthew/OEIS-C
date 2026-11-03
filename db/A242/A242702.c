@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 24, u32 n <= 8194, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, count_prime_factors, is_prime
+ * Validated: standard, pass, 69 terms through n = 8195 (2026-11-03)
+ * Helpers:   bigomega_seq, build_primes_upto, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,34 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/count_prime_factors.h"
-#include "../utils/is_prime.h"
+#include "../utils/bigomega_seq.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* ------------------------------------------------------------------ */
 /* Dynamic array helpers                                              */
 /* ------------------------------------------------------------------ */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed > *cap) {
+        size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
+        while (new_cap < needed) new_cap <<= 1;
+        *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        *cap = new_cap;
+    }
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (needed > *cap) {
@@ -36,6 +58,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
         *cap = new_cap;
     }
 }
+#endif
 
 /* ------------------------------------------------------------------ */
 /* Int‑prime table for fast trial division                           */
@@ -96,7 +119,7 @@ seq_t a(idx_t n)
         if (cand <= (seq_t)UINT64_MAX) {
             cand_semiprime = is_semiprime_uint64((uint64_t)cand);
         } else {
-            cand_semiprime = (count_prime_factors(cand) == 2);
+            cand_semiprime = (bigomega_seq(cand) == 2);
         }
 
         if (cand_semiprime) {
@@ -108,11 +131,11 @@ seq_t a(idx_t n)
             if (m <= (seq_t)UINT64_MAX) {
                 m_semiprime = is_semiprime_uint64((uint64_t)m);
             } else {
-                m_semiprime = (count_prime_factors(m) == 2);
+                m_semiprime = (bigomega_seq(m) == 2);
             }
 
             if (m_semiprime) {
-                ensure_capacity(cache_len + 1, &cache_cap, (void **)&cache, sizeof(seq_t));
+                ensure_capacity(cache_len + 1, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
                 cache[cache_len++] = cand;
             }
         }

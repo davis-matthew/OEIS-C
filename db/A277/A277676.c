@@ -10,7 +10,8 @@
  *            stored in a static cache so that any call order works
  * Range:     u8 n <= 210, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* initialize caches on first call */
     if (seq_len == 0) {
         seq_cap = 16;
-        seq = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
 
         log_cap = 32;
         log_fact = (long double *)calloc(log_cap, sizeof(long double));
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
             /* store k = m-2 in the sequence array */
             if (seq_len + 1 > seq_cap) {
                 size_t new_cap = seq_cap * 2;
-                seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, new_cap);
                 seq_cap = new_cap;
             }
             seq[seq_len++] = (seq_t)(computed_m - 2);

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 40, u64 n <= 84, u128 n <= 170,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 1‑indexed cache of computed values */
 static idx_t  max_computed = 0; /* largest n with cache[n] valid */
@@ -41,9 +43,9 @@ ensure_capacity(idx_t n)
 {
     if (cache == NULL) {
         /* n is small enough for the tests; no overflow checking needed */
-        cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
     } else if (n > max_computed) {
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
     }
 }
 

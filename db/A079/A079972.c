@@ -9,12 +9,14 @@
  *            a(3)=1, and a(k)=0 for k<0)
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 56, u64 n <= 111,
  *            u128 n <= 221, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 5142 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* static cache of computed values */
 static idx_t   a_cache_len = 0; /* number of values currently stored (size of a_cache) */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (n >= a_cache_len)
     {
         idx_t new_len = n + 1;                 /* need space for indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_len);
         if (!tmp)                               /* allocation failure -> abort */
             abort();
 

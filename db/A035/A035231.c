@@ -15,7 +15,8 @@
  *            equals the Legen...
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* modular exponentiation (base^exp mod mod) for 64‑bit values */
 static uint64_t modpow64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -158,7 +160,7 @@ seq_t a(idx_t n)
     /* initialise once */
     if (!seq) {
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_size = 0;
         next_candidate = 1;
     }
@@ -172,8 +174,7 @@ seq_t a(idx_t n)
         if (allowed_number(next_candidate)) {
             if (seq_size == seq_cap) {
                 seq_cap <<= 1;
-                seq = (seq_t *)realloc(seq,
-                                       seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_size++] = (seq_t)next_candidate;
         }

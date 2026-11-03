@@ -8,13 +8,15 @@
  *            binomial(2*n,2*k) * a(k)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +36,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_size) {
         size_t new_cache_size = (size_t)n + 1;
         /* realloc with explicit cast to avoid C++ warning */
-        cache = (seq_t*)realloc(cache,
-                                new_cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cache_size);
         if (!cache) { /* in practice we could abort, but omitted for brevity */
             return (seq_t)0;
         }
@@ -55,8 +56,8 @@ seq_t a(idx_t n)
             /* binomial coefficients C(2*i , j) for j=0..2*i */
             size_t needed = (size_t)2 * i + 1;
             if (needed > binom_cap) {
-                free(binom);
-                binom = (seq_t*)malloc(needed * sizeof(seq_t));
+                mem_free(binom);
+                binom = mem_new(seq_t, needed);
                 if (!binom) return (seq_t)0;
                 binom_cap = needed;
             }

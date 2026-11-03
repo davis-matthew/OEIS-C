@@ -11,7 +11,8 @@
  *            using cycle detection
  * Range:     u8 n <= 10, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   nxt
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/nxt.h"
+
+static uint64_t nxt(uint64_t x, uint64_t k2) {
+    switch (x & 3) {
+    case 0: case 1: return x >> 2;
+    case 2: return (x + k2) >> 2;
+    default: return (x + k2 - 1) >> 2;
+    }
+}
 
 static uint64_t *mk = NULL;
 static size_t mk_cap = 0;

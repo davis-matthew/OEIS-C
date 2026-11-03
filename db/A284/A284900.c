@@ -9,15 +9,18 @@
  *            p^(4e) for odd prime p)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 255, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 52 terms through n = 9234 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -39,12 +42,12 @@ seq_t a(idx_t n)
 
         if (p == 2u) {
             /* term = (7*2^(4e+1)+1)/15 */
-            seq_t pow_val = pow_uint(2, 4 * (idx_t)e + 1);
+            seq_t pow_val = ipow_u64_idx(2, 4 * (idx_t)e + 1);
             term = pow_val * 7 + 1;
             term = term / 15;
         } else {
             /* term = 1 + p^4 + p^8 + ... + p^(4e) */
-            seq_t x   = pow_uint(p, 4);
+            seq_t x   = ipow_u64_idx(p, 4);
             seq_t sum = 1;
             seq_t pow_val = 1;
             for (size_t j = 1; j <= e; ++j) {

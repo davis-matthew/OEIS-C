@@ -10,7 +10,8 @@
  *            seq_t types
  * Range:     u8 n <= 25, u16 n <= 189, u32 n <= 4086, u64 n <= 8191,
  *            u128 n <= 3, big any n
- * Helpers:   _popcount_u64
+ * Validated: standard, pass, 77 terms through n = 7074 (2026-11-03)
+ * Helpers:   mem, popcount_idx_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_popcount_u64.h"
+#include "../utils/popcount_idx_to_u32.h"
+#include "../utils/mem.h"
 
 /* keep a cache of already computed values */
 static seq_t *cache = NULL;      /* array of seq_t, indexed by n */
@@ -37,7 +39,7 @@ static void _ensure_cache(idx_t n)
         new_len <<= 1;           /* grow by powers of two */
 
     /* reallocate; cast for C++ compatibility */
-    seq_t *new_cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache)
         abort();                 /* allocation failure */
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
 
     idx_t half = n >> 1;           /* floor(n/2) */
     seq_t sub  = a(half);
-    unsigned int factor = 1 + _popcount_u64(n);
+    unsigned int factor = 1 + popcount_idx_to_u32(n);
     seq_t result = (seq_t)factor * sub;
 
     cache[n] = result;             /* memoise */

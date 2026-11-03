@@ -9,6 +9,7 @@
  *            235*n^4 + 1200*n^3 + 3319*n^2 + 4536*n + 2205) / 11520
  * Range:     u8 none, u16 n <= 1, u32 n <= 36, u64 n <= 1000, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 57 terms through n = 933 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            sieve, ord(2,p) is found by factoring p-1
  * Range:     u8 n <= 1027, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a001917_ord2, a001917_powmod
+ * Validated: standard, pass, 119 terms through n = 9260 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a001917_ord2.h"
-#include "../utils/a001917_powmod.h"
+#include "../utils/powmod_u64.h"
+
+static uint64_t a001917_ord2(uint64_t p) {
+    uint64_t ord = p - 1, m = p - 1, q;
+    for (q = 2; q * q <= m; q++) {
+        if (m % q == 0) {
+            while (m % q == 0) m /= q;
+            while (ord % q == 0 && powmod_u64(2, ord / q, p) == 1) ord /= q;
+        }
+    }
+    if (m > 1)
+        while (ord % m == 0 && powmod_u64(2, ord / m, p) == 1) ord /= m;
+    return ord;
+}
 
 static uint64_t *a001917_primes = NULL;
 static uint64_t a001917_count = 0;

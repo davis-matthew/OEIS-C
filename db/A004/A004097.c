@@ -10,7 +10,8 @@
  *            T(n,0)
  * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   limb_digit_sum
+ * Validated: standard, pass, 78 terms through n = 981 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/limb_digit_sum.h"
+
+static uint32_t limb_digit_sum(uint32_t x) {
+    uint32_t s = 0;
+    while (x) { s += x % 10; x /= 10; }
+    return s;
+}
 
 static uint32_t *memo_sums = NULL;
 static idx_t memo_cnt = 0;

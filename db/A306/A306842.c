@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{d|n} binomial(n,d)*binomial(n,n/d)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 55, u128 n <= 119,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 2866 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

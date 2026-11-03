@@ -11,13 +11,15 @@
  *            Q_{k-2} * where a_0 = ⌊√878⌋ = 29 and a_1,a_2,… is the period...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 19, u64 n <= 39, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- helpers ---------- */
 static inline uint64_t integer_sqrt_uint64(uint64_t n)
@@ -78,7 +80,7 @@ static void init(void)
 
     /* Initialise array of numerators with the first term */
     P_cap = 16;
-    P = (seq_t *)malloc(P_cap * sizeof(seq_t));
+    P = mem_new(seq_t, P_cap);
     P[0] = (seq_t)a0_global;
     P_len = 1;
 }
@@ -89,7 +91,7 @@ static void ensure_P_capacity(size_t needed)
     if (needed <= P_cap) return;
     size_t new_cap = P_cap ? P_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    P = (seq_t *)realloc(P, new_cap * sizeof(seq_t));
+    P = mem_resize(seq_t, P, new_cap);
     P_cap = new_cap;
 }
 

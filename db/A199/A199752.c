@@ -7,6 +7,7 @@
  * Formula:   a(n) = 3*11^n + 1
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 36,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 809 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

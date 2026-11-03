@@ -9,13 +9,15 @@
  *            a(3)=110
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>  /* for size_t, but idx_t is supplied by the build */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
         /* realloc returns void*, so we explicitly cast to seq_t*.
            This satisfies C++ as well as C. */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();          /* allocation failure */
 
         cache = tmp;

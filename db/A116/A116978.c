@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 30, u32 n <= 1584, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   digit_product
+ * Validated: standard, pass, 55 terms through n = 4866 (2026-11-03)
+ * Helpers:   digit_product, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    of cubes that satisfy the condition and returns the nth term. */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_product.h"
+#include "../utils/mem.h"
 
 /* Cache of found cubes */
 static seq_t *cube_cache      = NULL;
@@ -55,7 +58,7 @@ seq_t a(idx_t n)
             /* Grow cache if necessary */
             if (cube_cache_len == cube_cache_cap) {
                 size_t new_cap = cube_cache_cap ? cube_cache_cap * 2 : 32;
-                seq_t *tmp = (seq_t *)realloc(cube_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cube_cache, new_cap);
                 if (!tmp)                                     /* allocation failure */
                     return (seq_t)0;
                 cube_cache      = tmp;

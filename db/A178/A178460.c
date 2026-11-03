@@ -8,13 +8,16 @@
  *            follows from the definition a(n) = Σ_{k=1..n} ⌊2^k/127⌋
  * Range:     u8 n <= 13, u16 n <= 21, u32 n <= 37, u64 n <= 69, u128 n <= 133,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 48 terms through n = 967 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for memoised values.  cache[0] is unused for the
@@ -30,7 +33,7 @@ seq_t a(idx_t n) {
         size_t new_cap = capacity?capacity:16;
         if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;        /* double */
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) abort();                               /* allocation failure */
         capacity = (idx_t)new_cap;
     }

@@ -10,7 +10,8 @@
  *            of k−1 does not
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_adjacent_26_or_62
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,26 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has_adjacent_26_or_62.h"
+#include "../utils/mem.h"
+
+/* Test whether x has an adjacent pair (2,6) or (6,2) in base‑8. */
+static bool has_adjacent_26_or_62(seq_t x)
+{
+    if (x < 8)                 /* few digits, impossible to have two digits */
+        return false;
+
+    seq_t y = x;
+    seq_t prev = y % 8;
+    y /= 8;
+    while (y > 0) {
+        seq_t cur = y % 8;
+        if ((prev == 2 && cur == 6) || (prev == 6 && cur == 2))
+            return true;
+        prev = cur;
+        y /= 8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +59,7 @@ seq_t a(idx_t n)
         if (curr_has && !prev_has) {
             if (cache_size == cache_capacity) {
                 size_t new_cap = cache_capacity ? cache_capacity << 1 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)           /* allocation failure – return 0 */
                     return 0;
                 cache = tmp;

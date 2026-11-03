@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   append_idx, append_uint32
+ * Validated: standard, pass, 62 terms through n = 922 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,8 +34,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/append_idx.h"
-#include "../utils/append_uint32.h"
+
+static void append_idx(idx_t **arr, size_t *len, size_t *cap, idx_t val)
+{
+    if (*len == *cap)
+    {
+        *cap = (*cap == 0) ? 1024 : (*cap << 1);
+        *arr = (idx_t*)realloc(*arr, *cap * sizeof(idx_t));
+    }
+    (*arr)[(*len)++] = val;
+}
+
+static void append_uint32(uint32_t **arr, size_t *len, size_t *cap, uint32_t val)
+{
+    if (*len == *cap)
+    {
+        *cap = (*cap == 0) ? 1024 : (*cap << 1);
+        *arr = (uint32_t*)realloc(*arr, *cap * sizeof(uint32_t));
+    }
+    (*arr)[(*len)++] = val;
+}
 
 /*---------------------  static data  ---------------------*/
 

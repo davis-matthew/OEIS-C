@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 14, i16 n <= 36, i32 n <= 105, i64 n <= 300,
  *            i128 n <= 902, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 4984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Triangle read by rows of the triangle algorithm applied to a(m)=(-1)^m/m! */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
     seq_t **prev = (seq_t**)malloc(dim * sizeof(seq_t*));
     seq_t **cur  = (seq_t**)malloc(dim * sizeof(seq_t*));
     for (idx_t m = 0; m <= r; ++m) {
-        prev[m] = (seq_t*)calloc(dim, sizeof(seq_t));
-        cur[m]  = (seq_t*)calloc(dim, sizeof(seq_t));
+        prev[m] = mem_new(seq_t, dim);
+        cur[m]  = mem_new(seq_t, dim);
     }
 
     /* Base row: p(0,m,x) = (-1)^m (constant polynomial) */
@@ -74,8 +76,8 @@ seq_t a(idx_t n)
 
     /* Free allocated memory */
     for (idx_t m = 0; m <= r; ++m) {
-        free(prev[m]);
-        free(cur[m]);
+        mem_free(prev[m]);
+        mem_free(cur[m]);
     }
     free(prev);
     free(cur);

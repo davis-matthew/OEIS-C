@@ -7,13 +7,21 @@
  * Formula:   a(n) = decimal concatenation of the base‑n representation of 73
  *            * (for n = 1 the unary representation is used)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
- * Helpers:   pow10len
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow10len.h"
+
+static inline int pow10len(int len)
+{
+    int v = 1;
+    while (len-- > 0)
+        v *= 10;
+    return v;
+}
 
 seq_t a(idx_t n)
 {

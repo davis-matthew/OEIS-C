@@ -7,12 +7,14 @@
  * Formula:   a(1) = 10, a(n) = a(n-1)^3 - 3*a(n-1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_capacity = 0;
@@ -24,12 +26,12 @@ seq_t a(idx_t n) {
         idx_t new_capacity = n;
         if (new_capacity < 1000) new_capacity = 1000;
         
-        seq_t *new_memo = (seq_t *)malloc(sizeof(seq_t) * (new_capacity + 1));
+        seq_t *new_memo = mem_new(seq_t, (new_capacity + 1));
         if (memo != NULL) {
             for (idx_t i = 0; i <= last_computed; i++) {
                 new_memo[i] = memo[i];
             }
-            free(memo);
+            mem_free(memo);
         } else {
             for (idx_t i = 0; i <= new_capacity; i++) {
                 new_memo[i] = 0;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 6, u64 n <= 14, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define NUM_ROWS 243            /* 3^5 possible rows */
 #define NUM_STATES (NUM_ROWS * NUM_ROWS)
@@ -146,8 +148,8 @@ static void init(void) {
             adj[idx] = NULL;
     }
 
-    dp_cur  = (seq_t *)calloc(NUM_STATES, sizeof(seq_t));
-    dp_next = (seq_t *)calloc(NUM_STATES, sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, NUM_STATES);
+    dp_next = mem_new(seq_t, NUM_STATES);
 
     active_cur  = (int *)malloc(NUM_STATES * sizeof(int));
     active_next = (int *)malloc(NUM_STATES * sizeof(int));
@@ -165,7 +167,7 @@ static void init(void) {
 
     /* cache first answer */
     answers_cap = 64;
-    answers = (seq_t *)malloc(answers_cap * sizeof(seq_t));
+    answers = mem_new(seq_t, answers_cap);
     answers_size = 0;
     answers[answers_size++] = (seq_t)active_cur_sz;   /* a(1) */
 
@@ -176,7 +178,7 @@ static void ensure_answers_cap(size_t needed) {
     if (needed <= answers_cap) return;
     size_t newcap = answers_cap * 2;
     if (newcap < needed) newcap = needed;
-    answers = (seq_t *)realloc(answers, newcap * sizeof(seq_t));
+    answers = mem_resize(seq_t, answers, newcap);
     answers_cap = newcap;
 }
 
@@ -186,7 +188,7 @@ seq_t a(idx_t n) {
 
     while (answers_size < n) {
         /* zero next DP array */
-        memset(dp_next, 0, NUM_STATES * sizeof(seq_t));
+        mem_set(dp_next, 0, NUM_STATES * sizeof(seq_t));
         active_next_sz = 0;
 
         /* accumulate counts for next state list and sum of all next states */

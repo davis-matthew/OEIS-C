@@ -7,12 +7,14 @@
  * Formula:   a(n) = 5*a(n-1)+6, a(0) = -1 (i.e. a(n) = (5^n‑3)/2)
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 13, i64 n <= 27, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,9 +28,9 @@ seq_t a(idx_t n)
         size_t new_cap = (size_t)(n + 1);
         /* Allocate or grow the cache */
         if (cap == 0) {
-            cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, new_cap);
         } else {
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
         }
         cap = new_cap;
     }

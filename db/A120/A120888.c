@@ -9,6 +9,7 @@
  *            counts the entries row‑by‑row, starting with a(1) = T(1,1)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
    r(r+1)/2 ≥ n > (r-1)r/2, then k = n - (r-1)r/2.  */
 /* Requires:  ../utils/gcd.h */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

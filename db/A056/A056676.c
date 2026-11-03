@@ -11,6 +11,7 @@
  *            binomial is exactly 1
  * Range:     u8 n <= 34, u16 n <= 88, u32 n <= 206, u64 n <= 488,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 78 terms through n = 804 (2026-11-01)
  * Helpers:   build_primes_upto, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 /* Include generic utilities. */
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/pow2.h"
 

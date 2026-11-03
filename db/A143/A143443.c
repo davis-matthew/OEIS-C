@@ -7,7 +7,8 @@
  * Formula:   a(n) = n * A002321(n) (Mertens function)
  * Range:     i8 n <= 42, i16 n <= 44, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Compute the sequence a(n) = n * M(n) where M(n) is the Mertens
    function (sum of μ(k) for k = 1..n).  We store a cumulative sum
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         free(primes);
 
         /* Reallocate the cumulative sum array to the new size. */
-        seq_t *new_mu_sum = (seq_t*)realloc(mu_sum, (size_t)need * sizeof(seq_t));
+        seq_t *new_mu_sum = mem_resize(seq_t, mu_sum, (size_t)need);
         if (!new_mu_sum) abort();
         mu_sum = new_mu_sum;
         mu_cap = need;

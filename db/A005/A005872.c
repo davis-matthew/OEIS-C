@@ -10,13 +10,29 @@
  *            and in-plane A2-coset norms m (a(2n) = 0)
  * Range:     u8 n <= 999, u16 n <= 999, u32 n <= 999, u64 n <= 999,
  *            u128 n <= 999, big any n
- * Helpers:   eis_divsum
+ * Validated: standard, pass, 98 terms through n = 789 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/eis_divsum.h"
+
+static int64_t eis_divsum(uint64_t m) {
+    /* Sum_{d|m} chi_{-3}(d) */
+    int64_t s = 0;
+    uint64_t d;
+    for (d = 1; d * d <= m; d++) {
+        if (m % d == 0) {
+            uint64_t e = m / d;
+            int cd = (d % 3 == 1) ? 1 : (d % 3 == 2 ? -1 : 0);
+            int ce = (e % 3 == 1) ? 1 : (e % 3 == 2 ? -1 : 0);
+            s += cd;
+            if (e != d) s += ce;
+        }
+    }
+    return s;
+}
 
 seq_t a(idx_t n) {
     if (n % 2 == 0) return (seq_t)0;

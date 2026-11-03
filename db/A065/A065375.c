@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 32, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 typedef struct { seq_t p; seq_t q; } Pair;
 
@@ -38,7 +40,7 @@ static size_t init_flag = 0;
 static void grow_result(void)
 {
     size_t new_cap = (result_cap == 0) ? 4 : result_cap << 1;
-    result = (Pair*)realloc(result, new_cap * sizeof(Pair));
+    result = mem_resize(Pair, result, new_cap);
     result_cap = new_cap;
 }
 

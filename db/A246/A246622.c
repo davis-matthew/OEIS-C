@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 14, u16 n <= 3706, u32 n <= 9911, u64 n <= 9911,
- *            u128 n <= 9911, big any n
- * Helpers:   grow_seq_array, isPrimeGeneric, seq_alloc_new_array
+ * Range:     u8 n <= 14, u16 n <= 3706, u32 n <= 13250, u64 n <= 13250,
+ *            u128 n <= 13250, big any n
+ * Validated: standard, pass, 70 terms through n = 9911 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,9 +30,49 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/isPrimeGeneric.h"        /* bool isPrimeGeneric(seq_t n); */
-#include "../utils/seq_alloc_new_array.h"   /* seq_t *seq_alloc_new_array(size_t n); */
-#include "../utils/grow_seq_array.h"        /* void grow_seq_array(seq_t **arr, size_t *size, size_t new_len); */
+#include <stdint.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 /* Cache for previously found terms. */
 static seq_t *seq_cache = NULL;   /* array of terms */

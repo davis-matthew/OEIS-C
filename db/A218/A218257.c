@@ -7,7 +7,8 @@
  * Formula:   a(n) = tau(n^8-1) - tau(n^4-1) (tau = number of divisors)
  * Range:     u8 n <= 26, u16 n <= 3276, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mulmod_uint128
+ * Validated: standard, pass, 75 terms through n = 9871 (2026-11-01)
+ * Helpers:   mulmod_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mulmod_uint128.h"
+#include "../utils/mulmod_u128.h"
 
 /* ------------------------------------------------------------------ */
 /* ------------------------- Random → xorshift -----------------------*/
@@ -41,8 +42,8 @@ static unsigned __int128 powmod_uint128(unsigned __int128 a,
     unsigned __int128 res = 1;
     while (e) {
         if (e & 1)
-            res = mulmod_uint128(res, a, mod);
-        a = mulmod_uint128(a, a, mod);
+            res = mulmod_u128(res, a, mod);
+        a = mulmod_u128(a, a, mod);
         e >>= 1;
     }
     return res;
@@ -81,7 +82,7 @@ static bool is_prime_uint128(unsigned __int128 n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (unsigned r = 1; r < s; ++r) {
-            x = mulmod_uint128(x, x, n);
+            x = mulmod_u128(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;
@@ -119,9 +120,9 @@ static unsigned __int128 pollard_rho_uint128(unsigned __int128 n)
         unsigned __int128 y = x;
         unsigned __int128 d = 1;
         while (d == 1) {
-            x = (mulmod_uint128(x, x, n) + c) % n;
-            y = (mulmod_uint128(y, y, n) + c) % n;
-            y = (mulmod_uint128(y, y, n) + c) % n;
+            x = (mulmod_u128(x, x, n) + c) % n;
+            y = (mulmod_u128(y, y, n) + c) % n;
+            y = (mulmod_u128(y, y, n) + c) % n;
             unsigned __int128 diff = x > y ? x - y : y - x;
             d = gcd_uint128(diff, n);
             if (d == n) break;

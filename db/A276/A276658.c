@@ -8,13 +8,15 @@
  * Formula:   a(0)=1, a(1)=2, a(2)=0, a(n)=a(n-1)+a(n-2)+a(n-3) for n≥3
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -24,9 +26,9 @@ seq_t a(idx_t n) {
     /* Ensure the array holds indices 0..n */
     size_t needed = (size_t)n + 1;
     if (needed > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) { /* reallocation failed – fall back to malloc */
-            tmp = (seq_t *)malloc(needed * sizeof(seq_t));
+            tmp = mem_new(seq_t, needed);
         }
         cache = tmp;
         cache_cap = needed;

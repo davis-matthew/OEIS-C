@@ -11,12 +11,26 @@
  *            offset)
  * Range:     u8 n <= 528, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   a005836
+ * Validated: standard, pass, 85 terms through n = 5016 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a005836.h"
+/* Compute A005836(x): interpret binary bits of x as digits in base 3. */
+static inline seq_t a005836(idx_t x)
+{
+    seq_t result = 0;
+    seq_t pow = 1;                /* 3^position */
+    while (x)
+    {
+        if (x & 1U)
+            result += pow;
+        pow *= 3;
+        x >>= 1;
+    }
+    return result;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

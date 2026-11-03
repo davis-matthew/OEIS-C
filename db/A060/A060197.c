@@ -9,12 +9,15 @@
  *            ending with 0 (includes the starting term)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +25,7 @@ seq_t a(idx_t n)
     seq_t current = (seq_t)n;   /* current element of the sequence */
 
     while (current > 0) {
-        current = compute_pi((idx_t)current);
+        current = prime_pi((idx_t)current);
         count++;
     }
 

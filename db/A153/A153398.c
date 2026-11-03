@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
+ * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
  */
 
 #include <stddef.h>            /* for size_t */
-#include "../utils/binom.h"    /* seq_t binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* ------------------------------------------------------------------ */
 seq_t a(idx_t n)
@@ -41,11 +43,11 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= n; ++k)
     {
         /* Compute B = C(3k+1,k)/(3k+1) */
-        seq_t B = binom(3 * k + 1, k);
+        seq_t B = binomial(3 * k + 1, k);
         B = B / (seq_t)(3 * k + 1);        /* exact division */
 
         /* Compute D = C(4n-2k,n-k) */
-        seq_t D = binom(4 * n - 2 * k, n - k);
+        seq_t D = binomial(4 * n - 2 * k, n - k);
 
         /* term = B * D * k / (2n-k) */
         seq_t term = B;

@@ -6,16 +6,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = coefficient of x^n in ((1 - x^46) * ∏_{i=1}^{45} (1 -
  *            x^{2i})) / (1 - x)^46
- * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 18, u128 n <= 18,
+ * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 #define M 46
 #define NUM_DEG (M * M)
@@ -65,7 +66,7 @@ seq_t a(idx_t n)
             continue;
         }
         idx_t a_val = (n - (idx_t)k) + offset;
-        seq_t term = binom(a_val, kBinom);
+        seq_t term = binomial(a_val, kBinom);
         if (c > 0) {
             sum += term;
         } else {

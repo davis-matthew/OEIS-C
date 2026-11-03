@@ -7,6 +7,7 @@
  * Formula:   a(n) = decimal concatenation of the digits of 60 written in base
  *            n (base‑1 is the unary “60 ones”)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

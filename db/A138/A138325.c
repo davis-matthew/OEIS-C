@@ -9,7 +9,8 @@
  *            root of p, * or 0 if no such prime exists
  * Range:     u8 n <= 458, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_mul
+ * Validated: standard, pass, 94 terms through n = 952 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_mul.h"
+#include "../utils/mulmod.h"
 
 /* prime array (dynamic) */
 static uint64_t *primes_arr = NULL;
@@ -62,8 +63,8 @@ static uint64_t powmod(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t res = 1 % mod;
     base %= mod;
     while (exp) {
-        if (exp & 1ULL) res = mod_mul(res, base, mod);
-        base = mod_mul(base, base, mod);
+        if (exp & 1ULL) res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return res;

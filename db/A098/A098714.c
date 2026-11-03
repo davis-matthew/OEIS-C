@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 7219, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   grow_vector
+ * Validated: standard, pass, 70 terms through n = 9780 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,15 @@
 
 #include <stdlib.h>   /* malloc, free, calloc */
 #include <stdbool.h>  /* bool type */
-#include "../utils/grow_vector.h"
+#include "../utils/mem.h"
+
+/* ----- dynamic array for seq_t values ----- */
+static void grow_vector(seq_t **arr, size_t *size, size_t *cap, size_t needed)
+{
+    if (*cap >= needed) return;
+    while (*cap < needed) *cap = (*cap == 0 ? 4 : *cap * 2);
+    *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
+}
 
 /* ----- helper: integer gcd, works for any unsigned integer type ----- */
 static inline seq_t gcd_seq_t(seq_t a, seq_t b)
@@ -83,7 +92,7 @@ static void init_sequence(void)
 
     /* collect perimeters that appear exactly once */
     unique_cap = 256;                          /* initial capacity */
-    unique_perims = (seq_t *)malloc(unique_cap * sizeof(seq_t));
+    unique_perims = mem_new(seq_t, unique_cap);
     if (!unique_perims) { free(cnt); return; } /* allocation failure */
 
     for (idx_t p = 12; p <= LIMIT; ++p) {     /* smallest perimeter is 12 */

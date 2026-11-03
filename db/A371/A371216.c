@@ -9,7 +9,8 @@
  *            GCD(a(n-1), n-1)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Memoised computation of the sequence.  The cache is grown on demand.
    The implementation is O(n) per call and works for any seq_t and idx_t
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialise cache on first use */
     if (cache == NULL) {
         cache_cap = 2;                    /* store indices 0,1 at first */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* initialise the first two terms */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         if (new_cap < needed)
             new_cap = needed;
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)                /* allocation failure – abort */
             abort();
         cache = tmp;

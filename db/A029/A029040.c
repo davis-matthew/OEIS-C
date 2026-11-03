@@ -8,20 +8,22 @@
  *            implementation uses dynamic programming with a single array
  * Range:     u8 n <= 48, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 /* Return the n‑th term of sequence A029040. */
 seq_t a(idx_t n)
 {
     /* Size of the DP array */
     size_t sz = (size_t)n + 1U;
-    seq_t *dp = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) return (seq_t)0;  /* allocation failed */
 
     /* Initialise dp[0] = 1, others to 0 */
@@ -40,6 +42,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

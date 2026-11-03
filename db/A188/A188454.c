@@ -13,13 +13,15 @@
  *            re...
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9174 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const int DIGITS[9] = {0,2,3,4,5,6,7,8,9};
 
@@ -69,7 +71,7 @@ static void generate_rec(unsigned int mask,
         if (ok) {
             if (*cnt == *cap) {
                 *cap = (*cap == 0 ? 1024 : *cap << 1);
-                *arr = (seq_t *)realloc(*arr, (*cap) * sizeof(seq_t));
+                *arr = mem_resize(seq_t, *arr, (*cap));
             }
             (*arr)[*cnt] = next_val;
             (*cnt)++;
@@ -91,7 +93,7 @@ static void build_sequence(void)
     generate_rec(0, 0, digits, (seq_t)0, &cand, &count, &cap);
 
     /* sort the collected numbers */
-    qsort(cand, count, sizeof(seq_t), seq_compare);
+    mem_qsort(cand, count, sizeof(seq_t), seq_compare);
 
     seq_array = cand;
     seq_size  = count;

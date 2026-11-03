@@ -9,12 +9,70 @@
  * Formula:   not stated
  * Range:     u8 n <= 9455, u16 n <= 9455, u32 n <= 9455, u64 n <= 9455,
  *            u128 n <= 9455, big any n
- * Helpers:   get_row_index
+ * Validated: standard, pass, 107 terms through n = 8047 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/get_row_index.h"
+/* Helper: return the row index (1‑based) of the pos‑th element
+   in the clockwise spiral traversal of an k×k matrix. */
+static idx_t get_row_index(idx_t k, idx_t pos)
+{
+    /* For k = 1 the only element is in row 1. */
+    if (k == 1)
+        return 1;
+
+    idx_t top    = 1;
+    idx_t bottom = k;
+    idx_t left   = 1;
+    idx_t right  = k;
+    idx_t current = 0;   /* number of cells already processed */
+
+    while (1)
+    {
+        /* top row : left → right */
+        idx_t len = right - left + 1;
+        if (current + len >= pos)
+            return top;
+        current += len;
+        ++top;
+        if (top > bottom)
+            break;
+
+        /* right column : top → bottom */
+        len = bottom - top + 1;
+        if (current + len >= pos) {
+            idx_t offset = pos - current - 1;   /* zero based */
+            return top + offset;
+        }
+        current += len;
+        --right;
+        if (left > right)
+            break;
+
+        /* bottom row : right → left */
+        len = right - left + 1;
+        if (current + len >= pos)
+            return bottom;
+        current += len;
+        --bottom;
+        if (top > bottom)
+            break;
+
+        /* left column : bottom → top */
+        len = bottom - top + 1;
+        if (current + len >= pos) {
+            idx_t offset = pos - current - 1;
+            return bottom - offset;
+        }
+        current += len;
+        ++left;
+    }
+
+    /* Should never be reached for valid inputs. */
+    return 0;
+}
 /* Computes a(n) as the row index of the n-th element in the
    concatenated rows of spirals of size 1×1, 2×2, 3×3, …,
    i.e. the irregular triangle read by rows (OEIS A343558). */

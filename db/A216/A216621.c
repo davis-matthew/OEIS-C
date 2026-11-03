@@ -8,9 +8,10 @@
  * Formula:   a(n) = T(r,k) where r is the row and k the column in the lower
  *            triangular array read by rows, and T(r,k) = Sum_{c|r , d|k}
  *            phi(gcd(c,d)) (phi is Euler’s totient function)
- * Range:     u8 n <= 1829, u16 n <= 9861, u32 n <= 9861, u64 n <= 9861,
- *            u128 n <= 9861, big any n
- * Helpers:   divisors, gcd, phi
+ * Range:     u8 n <= 1829, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 93 terms through n = 9861 (2026-11-01)
+ * Helpers:   gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,20 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
-#include "../utils/phi.h"
-#include "../utils/divisors.h"
+#include "../utils/totient.h"
+
+static void
+divisors(idx_t n, idx_t *out, size_t *cnt)
+{
+    size_t c = 0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            out[c++] = d;
+            if (d != n / d) out[c++] = n / d;
+        }
+    }
+    *cnt = c;
+}
 
 static seq_t
 triangle_value(idx_t r, idx_t k)
@@ -35,7 +48,7 @@ triangle_value(idx_t r, idx_t k)
         for (size_t j = 0; j < sk; ++j) {
             seq_t d = (seq_t)divk[j];
             seq_t g = gcd(c, d);
-            sum += phi((idx_t)g);
+            sum += totient((idx_t)g);
         }
     }
     return sum;

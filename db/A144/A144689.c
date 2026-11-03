@@ -10,13 +10,15 @@
  *            (a(n-1) - a(n-18) + a(n-19)) mod 7
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 117 terms through n = 924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Grow the array to accommodate at least 'needed' elements. */
 static void ensure_capacity(seq_t **arr, size_t *capacity, size_t needed)
@@ -24,7 +26,7 @@ static void ensure_capacity(seq_t **arr, size_t *capacity, size_t needed)
     if (needed <= *capacity) return;
     size_t newcap = (*capacity) ? *capacity : 1;
     while (newcap < needed) newcap <<= 1;
-    *arr = (seq_t*)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, newcap);
     *capacity = newcap;
 }
 

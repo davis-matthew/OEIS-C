@@ -11,12 +11,14 @@
  *            required integral
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     if (cache_len <= (size_t)n) {
         /* new size required */
         size_t new_len = (size_t)n + 1;
-        a_cache = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
-        D_cache = (seq_t *)realloc(D_cache, new_len * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_len);
+        D_cache = mem_resize(seq_t, D_cache, new_len);
 
         for (size_t i = cache_len; i < new_len; ++i) {
             if (i == 0) {

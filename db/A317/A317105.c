@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 3722, u32 n <= 3722, u64 n <= 3722,
  *            u128 n <= 3722, big any n
- * Helpers:   spiral_index
+ * Validated: full, pass, 3723 terms through n = 3722 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,37 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/spiral_index.h"
+#include "../utils/mem.h"
+
+/* Spiral index for coordinates (x,y).  The spiral starts at (0,0)=0 and
+   proceeds right, up, left, left, down, down, right, right, right, …     */
+static seq_t spiral_index(int64_t x, int64_t y)
+{
+    int64_t ax = x >= 0 ? x : -x;
+    int64_t ay = y >= 0 ? y : -y;
+    int64_t l  = ax > ay ? ax : ay;          /* ring level */
+
+    if (l == 0)
+        return (seq_t)0;
+
+    seq_t base = (seq_t)(2 * l - 1);          /* (2*l-1)^2 */
+    base = base * base;
+
+    int64_t offset;
+    if (x == l && y >= -(l - 1) && y <= l) {          /* right side */
+        offset = y + (l - 1);
+    } else if (y == l && x >= -l && x <= l - 1) {      /* top side */
+        offset = 3 * l - 1 - x;
+    } else if (x == -l && y >= -l && y <= l - 1) {     /* left side */
+        offset = 4 * l + (l - 1 - y);
+    } else if (y == -l && x >= -l + 1 && x <= l) {     /* bottom side */
+        offset = 6 * l + (x + l - 1);
+    } else {                                           /* should not happen */
+        offset = 0;
+    }
+
+    return base + (seq_t)offset;
+}
 
 /* Candidate moves of a (1,3)-leaper. */
 static const int dx[8] = {  1,  1, -1, -1,  3,  3, -3, -3 };
@@ -87,7 +118,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         initialized = true;
         seq_cap = 1;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         if (!seq_arr) abort();
         seq_arr[0] = (seq_t)0;
         seq_len = 1;
@@ -120,7 +151,7 @@ seq_t a(idx_t n)
 
         if (seq_len == seq_cap) {
             size_t new_cap = seq_cap << 1;
-            seq_t *new_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+            seq_t *new_arr = mem_resize(seq_t, seq_arr, new_cap);
             if (!new_arr) abort();
             seq_arr = new_arr;
             seq_cap = new_cap;

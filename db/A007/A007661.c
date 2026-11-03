@@ -8,6 +8,7 @@
  * Formula:   a(n) = Product_{i=0..floor((n-1)/3)} (n - 3*i)
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 26, u64 n <= 44, u128 n <= 77,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 198 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

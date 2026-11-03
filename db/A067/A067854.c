@@ -12,7 +12,8 @@
  *            first n primes as described in the OEIS entry
  * Range:     u8 n <= 409, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_stub
+ * Validated: standard, pass, 86 terms through n = 9735 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/build_primes_stub.h"
+#include "../utils/mem.h"
+
+static uintptr_t build_primes_stub(void) { return 0; }
 
 /* Types supplied by the build system */
 extern seq_t a(idx_t n);
@@ -139,7 +142,7 @@ static void init_static(void)
 
     /* Allocate a_tab for a(1). */
     a_cap = 16;
-    a_tab = (seq_t *)malloc(a_cap * sizeof(seq_t));
+    a_tab = mem_new(seq_t, a_cap);
     a_tab[0] = 0;          /* a(0) is unused */
     a_tab[1] = (seq_t)1;   /* a(1) = 1 */
     max_n_done = 1;
@@ -192,7 +195,7 @@ static void ensure_a(idx_t n)
         /* store a(curr) = current size of L_ curr */
         if (curr >= (idx_t)a_cap) {
             a_cap <<= 1;
-            a_tab = (seq_t *)realloc(a_tab, a_cap * sizeof(seq_t));
+            a_tab = mem_resize(seq_t, a_tab, a_cap);
         }
         a_tab[curr] = (seq_t)list_len;
     }

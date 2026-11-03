@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1798, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq
+ * Validated: standard, pass, 98 terms through n = 9542 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
  * Computation of a(p^e) uses integer arithmetic only.
  */
 #include <stdint.h>
-#include "../utils/bitlen_seq.h"
+#include <stdlib.h>
+#include <stdbool.h>
+
+/*--- Compute the number of bits in a seq_t value ---------------------*/
+static idx_t bitlen_seq(seq_t x)
+{
+    idx_t len = 0;
+    while (x != (seq_t)0) {
+        ++len;
+        x >>= 1;
+    }
+    return len ? len : 1;            /* never zero for n ≥ 1 */
+}
 
 /* integer square root (floor) for an arbitrary-precision seq_t */
 static inline seq_t floor_sqrt_seq(seq_t x)

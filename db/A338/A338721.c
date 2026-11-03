@@ -10,14 +10,16 @@
  *            * For a given 1‑based index n the function finds the row r such
  *            that the * cumulative number of terms up to r is ≥ n, determines
  *            the column k of * the n‑th term, and returns T(r,k)
- * Range:     u8 n <= 1255, u16 n <= 8975, u32 n <= 8975, u64 n <= 8975,
- *            u128 n <= 8975, big any n
- * Helpers:   int_sqrt
+ * Range:     u8 n <= 1255, u16 n <= 10075, u32 n <= 10075, u64 n <= 10075,
+ *            u128 n <= 10075, big any n
+ * Validated: standard, pass, 98 terms through n = 8975 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Find the row containing the n-th term. */
     while (1) {
         /* Kmax(r) = floor((sqrt(8*r+1)-1)/2). */
-        kmax = (int_sqrt((idx_t)8 * r + 1) - 1) / 2;
+        kmax = (isqrt((idx_t)8 * r + 1) - 1) / 2;
         cumulative += kmax;
         if (cumulative >= n) {
             break;

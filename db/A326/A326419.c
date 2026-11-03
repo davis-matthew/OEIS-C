@@ -8,14 +8,29 @@
  *            + φ(n)·(φ(n)-1)/2
  * Range:     u8 n <= 24, u16 n <= 366, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi_of_divisor
+ * Validated: standard, pass, 72 terms through n = 9554 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/phi_of_divisor.h"
+
+/* Compute φ(m) given the prime factors of n (the full factorization is
+   available; we only use those divisors that actually divide m). */
+static seq_t phi_of_divisor(uint64_t m,
+                            const uint64_t primes[20], size_t pcnt)
+{
+    seq_t result = (seq_t)m;
+    for (size_t i = 0; i < pcnt; ++i) {
+        uint64_t p = primes[i];
+        if ((m % p) == 0) {
+            result -= result / (seq_t)p;
+        }
+    }
+    return result;
+}
 
 static inline uint64_t gcd_u64(uint64_t a, uint64_t b)
 {

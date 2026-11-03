@@ -9,7 +9,8 @@
  *            binomial(n,j) * a(n-j), n>0
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache for memoisation */
 static seq_t *cache    = NULL;
@@ -34,7 +36,7 @@ static void ensure_cache_size(idx_t n)
     while ((idx_t)new_cap <= n)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (new_cache == NULL)
         exit(EXIT_FAILURE); /* unable to allocate */
 
@@ -42,7 +44,7 @@ static void ensure_cache_size(idx_t n)
     if (cache) {
         for (size_t i = 0; i < cache_cap; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     /* initialize the newly allocated slots to zero */

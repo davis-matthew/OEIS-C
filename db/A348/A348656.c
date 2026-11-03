@@ -10,7 +10,8 @@
  *            The sequence starts 1, 2, 4, 8, 16, 26, 32, 50, 58, 64, 98, 106,
  * Range:     u8 n <= 11, u16 n <= 112, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 70 terms through n = 9253 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"   /* provides: seq_t gcd(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *records = NULL;          /* dynamic array of record values (m's)      */
 static size_t records_len = 0;         /* number of stored records                */
@@ -80,7 +82,7 @@ ensure_records_capacity(size_t new_len)
     if (new_len <= records_cap) return;
     size_t new_cap = records_cap ? records_cap * 2 : 16;
     if (new_cap < new_len) new_cap = new_len;
-    seq_t *tmp = (seq_t*)realloc(records, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, records, new_cap);
     records = tmp;
     records_cap = new_cap;
 }
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
 
     /* First call: initialize the static tables. */
     if (records == NULL) {
-        records = (seq_t*)malloc(16 * sizeof(seq_t));
+        records = mem_new(seq_t, 16);
         records_cap = 16;
         records_len = 1;
         records[0] = (seq_t)1;

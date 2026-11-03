@@ -11,7 +11,8 @@
  *            51, a(7) = 70, a(8) = 91
  * Range:     u8 n <= 13, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Static cache to store computed terms up to the maximum n requested.
    The cache is expanded lazily on demand. */
@@ -38,7 +40,7 @@ static void ensure_cache_up_to(idx_t n)
         idx_t needed = (n < 9 ? 9 : n + 1);
         if (needed > cache_size) {
             /* Allocate enough space; we use realloc to grow. */
-            cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, needed);
             assert(cache != NULL);
             cache_size = needed;
         }
@@ -51,7 +53,7 @@ static void ensure_cache_up_to(idx_t n)
     if (n + 1 > cache_len) {
         if (n + 1 > cache_size) {
             /* Grow the allocation to the required size. */
-            cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (n + 1));
             assert(cache != NULL);
             cache_size = n + 1;
         }

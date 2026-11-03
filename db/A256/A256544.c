@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 117 terms through n = 9557 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
     and i + j + k = n.                           */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t _max_computed = 0;      /* largest n already processed   */
 static seq_t * _counts = NULL;      /* a(0)…a(_max_computed)         */
@@ -50,10 +52,10 @@ static void _recompute(idx_t max_n) {
     }
 
     /*  Free any previous data and allocate fresh arrays. */
-    if (_counts) free(_counts);
+    if (_counts) mem_free(_counts);
     if (_vals)   free(_vals);
 
-    _counts = (seq_t *)calloc((size_t)(max_n + 1), sizeof(seq_t));
+    _counts = mem_new(seq_t, (size_t)(max_n + 1));
     _vals   = buf;
     _val_cnt = m;
     _max_computed = max_n;

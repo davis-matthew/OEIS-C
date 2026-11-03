@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9630 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    (x,y ≥ 0, z,w ≥ 1).  Counts the number of ordered
    4‑tuples (x,y,z,w) satisfying the equation. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer floor square root for unsigned 64‑bit values. */
 static inline idx_t int_sqrt(idx_t n) {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     /* Allocate an array that will hold, for each t from 0 to n,
        the number of positive (z,w) pairs such that
        t = z^3 + w*(w+1)/2.  The array is zero‑initialized. */
-    seq_t *t_counts = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *t_counts = mem_new(seq_t, (size_t)n + 1);
     if (!t_counts) return 0;                 /* allocation failed */
 
     /* Precompute all (z,w) pairs that contribute to any t ≤ n. */
@@ -88,6 +90,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(t_counts);
+    mem_free(t_counts);
     return count;
 }

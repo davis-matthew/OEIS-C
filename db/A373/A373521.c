@@ -7,11 +7,13 @@
  * Formula:   a(n) = n! * Sum_{k=0..⌊n/4⌋} binomial(3*n/4-2*k-1,k)/(n-4*k)!
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static void muldiv(seq_t *x, seq_t mul, seq_t div)

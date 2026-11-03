@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 19, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define K           18            /* alphabet size (=18)          */
 #define MAX_CACHE   10001          /* sufficient for n≤10000      */
@@ -128,7 +130,7 @@ static void init_initial_terms(void)
 /* One‑time initialization of all static data structures.             */
 static void init_cache(void)
 {
-    cache = (seq_t *)malloc(sizeof(seq_t) * MAX_CACHE);
+    cache = mem_new(seq_t, MAX_CACHE);
     if (!cache) exit(1);          /* unlikely for test data */
 
     init_recurrence();

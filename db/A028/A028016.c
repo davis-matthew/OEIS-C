@@ -7,12 +7,14 @@
  * Formula:   a(n) = (7*11^(n+3)-3*9^(n+4)+21*8^(n+3)-2^(n+3))/378
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         size_t sz = 4;                /* at least four entries for 0..3 */
         if (n + 1 > sz)
             sz = n + 1;
-        cache = (seq_t *)malloc(sz * sizeof(seq_t));
+        cache = mem_new(seq_t, sz);
         if (!cache) return (seq_t)0;   /* out‑of‑memory: fall back to 0 */
 
         cache[0] = (seq_t)1;
@@ -47,9 +49,9 @@ seq_t a(idx_t n)
     size_t needed = (size_t)(n + 1);
     size_t old_size = (size_t)(cached + 1);
     if (needed > old_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) {
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cached = 0;
             return (seq_t)0;           /* allocation failed */

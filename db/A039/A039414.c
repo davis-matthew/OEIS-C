@@ -10,7 +10,8 @@
  *            a(1)=27
  * Range:     u8 n <= 8, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   digit_counts
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/digit_counts.h"
+#include "../utils/mem.h"
 
 /* cache of already discovered terms */
 static seq_t *values = NULL;      /* array of found terms   */
@@ -45,7 +48,7 @@ static void ensure_cache(idx_t n)
         /* grow the array if necessary */
         if (val_len == val_cap) {
             size_t new_cap = val_cap == 0 ? 16 : val_cap << 1;
-            seq_t *tmp = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, values, new_cap);
             if (!tmp) exit(EXIT_FAILURE);  /* allocation failure */
             values = tmp;
             val_cap = new_cap;

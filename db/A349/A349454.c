@@ -10,13 +10,17 @@
  *            floor((sqrt(8*n+1)-1)/2) and k = n - r(r+1)/2
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 65, u64 n <= 152,
  *            u128 n <= 405, big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 71 terms through n = 9053 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Integer square‑root for idx_t (non‑recursive, binary search). */
 static idx_t int_sqrt_u64(idx_t x)
@@ -53,7 +57,7 @@ seq_t a(idx_t n)
     /* Power part: (r - k - 1)^(r - k) */
     seq_t base = (seq_t)(r - k - 1);
     seq_t exp  = (seq_t)(r - k);
-    seq_t powv = big_pow(base, exp);
+    seq_t powv = ipow(base, exp);
 
     return bin * powv;
 }

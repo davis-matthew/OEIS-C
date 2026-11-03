@@ -11,14 +11,17 @@
  *            the intermediate coefficients c_k are in...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* static workspace -------------------------------------------------------- */
 static seq_t *A = NULL;      /* a[1..max_n]          */
@@ -33,10 +36,10 @@ static void ensure_workspace(idx_t n)
     if (n <= capacity) return;
 
     /* reallocate arrays */
-    A      = (seq_t *)realloc(A,     (n + 2) * sizeof(seq_t));
-    C      = (seq_t *)realloc(C,     (n + 1) * sizeof(seq_t));
-    E      = (seq_t *)realloc(E,     (n + 1) * sizeof(seq_t));
-    sigma  = (seq_t *)realloc(sigma,  (n + 1) * sizeof(seq_t));
+    A      = mem_resize(seq_t, A, (n + 2));
+    C      = mem_resize(seq_t, C, (n + 1));
+    E      = mem_resize(seq_t, E, (n + 1));
+    sigma  = mem_resize(seq_t, sigma, (n + 1));
 
     /* compute divisor sum sigma(1..n) */
     for (idx_t i = 1; i <= n; ++i) sigma[i] = 0;
@@ -70,7 +73,7 @@ static void ensure_workspace(idx_t n)
             {
                 /* divisor d */
                 idx_t n1 = kp / d;
-                seq_t pow1 = big_pow((seq_t)sigma[n1], (seq_t)d);
+                seq_t pow1 = ipow((seq_t)sigma[n1], (seq_t)d);
                 seq_t term1 = pow1 * A[d] * (seq_t)d;
                 c_val += term1;
 
@@ -79,7 +82,7 @@ static void ensure_workspace(idx_t n)
                 {
                     idx_t d2 = n1;
                     idx_t n2 = d;
-                    seq_t pow2 = big_pow((seq_t)sigma[n2], (seq_t)d2);
+                    seq_t pow2 = ipow((seq_t)sigma[n2], (seq_t)d2);
                     seq_t term2 = pow2 * A[d2] * (seq_t)d2;
                     c_val += term2;
                 }

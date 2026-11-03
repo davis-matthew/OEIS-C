@@ -9,13 +9,15 @@
  *            a(n) = Sum_{i=0..n} A050536(i)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   next_tri
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-03)
+ * Helpers:   mem, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/next_tri.h"
+#include "../utils/triangular_seq.h"
+#include "../utils/mem.h"
 
 /* cache of partial sums */
 static seq_t *a_cache = NULL;
@@ -36,12 +38,12 @@ static void ensure_capacity(idx_t needed)
         new_cap <<= 1;
     seq_t *tmp;
 
-    tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp)
         abort();
     a_cache = tmp;
 
-    tmp = (seq_t *)realloc(f_cache, new_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, f_cache, new_cap);
     if (!tmp)
         abort();
     f_cache = tmp;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     ensure_capacity(n + 1);
     for (idx_t i = cache_len; i <= n; ++i) {
         seq_t prev = f_cache[i - 1];
-        seq_t cur  = next_tri(prev);
+        seq_t cur  = triangular_seq(prev);
         f_cache[i] = cur;
         a_cache[i] = a_cache[i - 1] + cur;
     }

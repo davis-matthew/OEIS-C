@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{p = 1..n} tau(1 + p^2)/2 (OEIS A147807)
  * Range:     u8 n <= 96, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 80 terms through n = 9618 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* cache[n] holds a(n) for 0 <= n <= cache_len          */
 static size_t   cache_cap = 0;  /* number of elements allocated in cache              */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold indices up to n (including 0). */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)          /* allocation failure – give up */
             return 0;
         cache = tmp;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         for (idx_t i = cache_len + 1; i <= n; ++i) {
             uint64_t p = (uint64_t)i;          /* current p      */
             uint64_t m = p * p + 1ULL;         /* m = p^2 + 1    */
-            uint64_t tau = divisor_count_u64(m);/* tau(m)          */
+            uint64_t tau = num_divisors(m);/* tau(m)          */
             seq_t term = (seq_t)(tau >> 1);    /* tau/2 (integer) */
             cache[i] = cache[i - 1] + term;    /* running sum     */
         }

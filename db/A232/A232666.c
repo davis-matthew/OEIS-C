@@ -8,7 +8,8 @@
  *            the largest integer such that 6^k divides a(n−1)+a(n−2)
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values */
 static seq_t *cache   = NULL;   /* pointer to allocated array */
@@ -28,7 +30,7 @@ static void ensure_capacity(idx_t n)
     if ((size_t)n < cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap <= (size_t)n) new_cap <<= 1;   /* double until large enough */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     cache = new_cache;
     cache_cap = new_cap;
     if (!cache) abort();   /* allocation failure */

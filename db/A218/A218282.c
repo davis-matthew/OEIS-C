@@ -13,12 +13,14 @@
  *            a(13)=66711107, a(14)=266839591, a(15)=1067339019, a(16...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_values[17] = {
     (seq_t)3ULL,
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
     }
 
     /* Allocate array to hold all computed terms up to n */
-    seq_t *seq = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (n + 1));
     if (!seq) {
         /* In real code you might handle the allocation error.
            For simplicity we return 0. */
@@ -80,6 +82,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

@@ -9,7 +9,8 @@
  *            a(0)=1, a(1)=1, a(2)=4, a(3)=20, a(4)=127
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array of computed terms */
 static size_t cache_cap = 0;    /* allocated capacity */
@@ -30,7 +32,7 @@ static void grow_cache(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 1;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     if (!newp) /* allocation failed */
         return; /* silently. The calling code will get incomplete values. */
     cache = newp;

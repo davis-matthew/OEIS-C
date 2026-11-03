@@ -8,6 +8,7 @@
  * Formula:   a(n) = 0 for n<1 or n>3; a(1) = 2840, a(2) = 957, a(3) = 91
  * Range:     u8 none, u16 n <= 3, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
+ * Validated: partial, pass, 3 terms through n = 3 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

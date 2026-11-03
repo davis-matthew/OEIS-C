@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   grow_seq, is_prime_small, mod_pow
+ * Validated: standard, pass, 62 terms through n = 949 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime_small.h"
-#include "../utils/mod_pow.h"
-#include "../utils/grow_seq.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static uint64_t s_next_candidate = 2;   /* next number to test for primality   */
 static seq_t *s_terms = NULL;           /* array of accepted primes            */
@@ -39,11 +56,11 @@ static void ensure_n_terms(idx_t n)
             {
                 break;
             }
-            else if ((candidate & 1U) && is_prime_small(candidate))
+            else if ((candidate & 1U) && is_prime_seq(candidate))
             {
                 if (candidate != 19)               /* exclude p = 19    */
                 {
-                    seq_t res = mod_pow((seq_t)19,
+                    seq_t res = powmod((seq_t)19,
                                         (candidate - 1) / 2,
                                         candidate);
                     if (res == (candidate - 1))    /* 19 is non‑residue */

@@ -8,14 +8,16 @@
  * Formula:   a(0)=1; for n≥1, a(n) = (1/n) * Σ_{k=1..n} (Σ_{d|k} d * c_d) *
  *            a(n-k), where c_d = 2,-3,2,1,2,-3,2,-6,2,-3,2,1,2,-3,2,-3
  *            repeating
- * Range:     i8 n <= 19, i16 n <= 734, i32 n <= 9345, i64 n <= 9345,
- *            i128 n <= 9345, big any n
- * Helpers:   none
+ * Range:     i8 n <= 19, i16 n <= 734, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 9345 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Periodic sequence c_d */
 static const seq_t period[16] = {
@@ -43,8 +45,8 @@ seq_t a(idx_t n) {
     if (need > cap) {
         size_t new_cap = cap > 0 ? cap : 16;
         while (new_cap < need) new_cap <<= 1;
-        coef = (seq_t *)realloc(coef, new_cap * sizeof(seq_t));
-        s_val = (seq_t *)realloc(s_val, new_cap * sizeof(seq_t));
+        coef = mem_resize(seq_t, coef, new_cap);
+        s_val = mem_resize(seq_t, s_val, new_cap);
         cap = new_cap;
     }
 

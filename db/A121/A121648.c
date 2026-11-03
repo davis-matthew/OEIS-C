@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static seq_t *bArr = NULL;          /* b(n) = sqrt(a(n))   */
 static seq_t *sqArr = NULL;         /* sqArr[n] = b(n)^2    */
@@ -32,8 +34,8 @@ static void ensure_capacity(size_t n)
     if (cap > n) return;
     size_t newcap = cap ? cap << 1 : 1;
     while (newcap <= n) newcap <<= 1;
-    seq_t *newb  = (seq_t *)realloc(bArr,  newcap * sizeof(seq_t));
-    seq_t *newsq = (seq_t *)realloc(sqArr, newcap * sizeof(seq_t));
+    seq_t *newb  = mem_resize(seq_t, bArr, newcap);
+    seq_t *newsq = mem_resize(seq_t, sqArr, newcap);
     assert(newb && newsq);          /* abort on allocation failure */
     bArr  = newb;
     sqArr = newsq;

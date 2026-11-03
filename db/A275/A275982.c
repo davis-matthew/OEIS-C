@@ -6,8 +6,9 @@
  * Offset:    6533    (a(6533) is the first term)
  * Keywords:  nonn, cons, easy, fini, full
  * Formula:   a(n) = decimal digit (n - 6533 + 1) of 2^21701 - 1
- * Range:     u8 n <= 9788, u16 n <= 9788, u32 n <= 9788, u64 n <= 9788,
- *            u128 n <= 9788, big any n
+ * Range:     u8 n <= 13065, u16 n <= 13065, u32 n <= 13065, u64 n <= 13065,
+ *            u128 n <= 13065, big any n
+ * Validated: full, pass, 6533 terms through n = 13065 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

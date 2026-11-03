@@ -10,13 +10,16 @@
  *            237^n + 278^n + 291^n + 302^n
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 12,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
 
     seq_t sum = 0;
     for (size_t i = 0; i < 12; ++i)
-        sum += big_pow(bases[i], n);   /* big_pow handles 0^0 = 1  */
+        sum += ipow(bases[i], n);   /* big_pow handles 0^0 = 1  */
 
     return sum;
 }

@@ -11,15 +11,39 @@
  *            satisfy a(0) = 1, a(n) = (1/n) * Σ_{k=1}^{...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 17, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   binomial, seq_mul
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
-#include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,8 +54,8 @@ seq_t a(idx_t n)
 
     /* Initialise cache for n = 0 */
     if (max_n == 0) {
-        A = (seq_t *)malloc(sizeof(seq_t));
-        G = (seq_t *)malloc(sizeof(seq_t));
+        A = mem_new(seq_t, 1);
+        G = mem_new(seq_t, 1);
         assert(A && G);
         A[0] = (seq_t)1;      /* a(0) = 1 */
         G[0] = (seq_t)0;      /* unused */
@@ -42,8 +66,8 @@ seq_t a(idx_t n)
         return A[n];
 
     /* Extend the cache up to n */
-    seq_t *A_new = (seq_t *)realloc(A, (n + 1) * sizeof(seq_t));
-    seq_t *G_new = (seq_t *)realloc(G, (n + 1) * sizeof(seq_t));
+    seq_t *A_new = mem_resize(seq_t, A, (n + 1));
+    seq_t *G_new = mem_resize(seq_t, G, (n + 1));
     assert(A_new && G_new);
     A = A_new;
     G = G_new;

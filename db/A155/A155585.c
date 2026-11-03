@@ -11,13 +11,15 @@
  *            (1/2) * Σ_{k=0}^{n-1} C(n-1,k) * E[k] * E[n-1-k]
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 14, i64 n <= 24, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;      /* array of Euler zigzag values E[n] */
 static idx_t A_size = 0;     /* next index to compute (size of filled part) */
@@ -29,7 +31,7 @@ static void compute_A_up_to(idx_t N)
     /* grow storage if necessary */
     if (N + 1 > A_cap) {
         size_t new_cap = (size_t)(N + 1);
-        seq_t *newA = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        seq_t *newA = mem_resize(seq_t, A, new_cap);
         if (!newA) exit(EXIT_FAILURE);
         A = newA;
         A_cap = new_cap;

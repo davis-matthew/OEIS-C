@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 101, u16 n <= 8651, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_realloc_guarded
+ * Validated: standard, pass, 75 terms through n = 9948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,38 @@
 #include <stddef.h>   /* size_t, NULL, idx_t, seq_t */
 #include <stdbool.h>  /* bool */
 #include <stdlib.h>   /* malloc, realloc, free */
-#include "../utils/seq_realloc_guarded.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+#ifdef __cplusplus
+template <class T>
+static T *seq_realloc_guarded(T *ptr, size_t old_cap, size_t new_cap, size_t elem_size)
+{
+    T *p = mem_resize(T, ptr, (new_cap * elem_size) / sizeof(T));
+    if (!p) {
+        mem_free(ptr);
+        return NULL;
+    }
+    return p;
+}
+#else
+static void *seq_realloc_guarded(void *ptr, size_t old_cap, size_t new_cap, size_t elem_size)
+{
+    void *p = realloc(ptr, new_cap * elem_size);
+    if (!p) {
+        free(ptr);
+        return NULL;
+    }
+    return p;
+}
+#endif
 
 static bool is_alternating(seq_t x)
 {

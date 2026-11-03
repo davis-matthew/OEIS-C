@@ -11,14 +11,17 @@
  *            Computed by generating rows incrementally
  * Range:     u8 n <= 235, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 88 terms through n = 7808 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -63,11 +66,11 @@ seq_t a(idx_t n)
 
                 if (terms_len >= terms_cap) {
                     size_t new_cap = terms_cap == 0 ? 256 : terms_cap * 2;
-                    seq_t *new_terms = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                    seq_t *new_terms = mem_new(seq_t, new_cap);
                     if (!new_terms) exit(1);
                     if (terms) {
-                        memcpy(new_terms, terms, terms_len * sizeof(seq_t));
-                        free(terms);
+                        mem_copy(new_terms, terms, terms_len * sizeof(seq_t));
+                        mem_free(terms);
                     }
                     terms = new_terms;
                     terms_cap = new_cap;

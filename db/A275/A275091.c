@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 17, u64 n <= 36, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Types and constants                                               */
@@ -145,10 +147,10 @@ seq_t a(idx_t n)
     }
 
     /* DP arrays: number of ways to reach each state */
-    seq_t *dp_cur  = (seq_t *)calloc(MAX_STATE, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(MAX_STATE, sizeof(seq_t));
+    seq_t *dp_cur  = mem_new(seq_t, MAX_STATE);
+    seq_t *dp_next = mem_new(seq_t, MAX_STATE);
     if (!dp_cur || !dp_next) {
-        free(dp_cur); free(dp_next);
+        mem_free(dp_cur); mem_free(dp_next);
         return (seq_t)0;                /* allocation failure */
     }
 
@@ -161,7 +163,7 @@ seq_t a(idx_t n)
     /* Iterate column by column. */
     for (idx_t col = 0; col < n; ++col) {
         /* clear next array and active list */
-        memset(dp_next, 0, MAX_STATE * sizeof(seq_t));
+        mem_set(dp_next, 0, MAX_STATE * sizeof(seq_t));
         act_next_len = 0;
 
         /* iterate only over states that have a non‑zero count */
@@ -197,7 +199,7 @@ seq_t a(idx_t n)
         total += dp_cur[act_cur[i]];
     }
 
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     return total;
 }

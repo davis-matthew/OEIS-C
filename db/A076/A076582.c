@@ -8,13 +8,15 @@
  *            exactly 8 prime factors (with multiplicity)
  * Range:     u8 none, u16 n <= 9, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build; they are unsigned integer types. */
 
@@ -81,7 +83,7 @@ static void ensure_terms_capacity(size_t need)
     if (terms_cap >= need) return;
     size_t new_cap = terms_cap == 0 ? 16 : terms_cap << 1;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
     if (!new_arr) abort();
     terms = new_arr;
     terms_cap = new_cap;

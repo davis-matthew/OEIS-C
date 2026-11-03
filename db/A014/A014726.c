@@ -7,7 +7,8 @@
  * Formula:   a(n) = A014421(n)^2
  * Range:     u8 n <= 20, u16 n <= 45, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache of computed terms */
 static seq_t *cache      = NULL;   /* array of a(k) */
@@ -31,7 +33,7 @@ static void cache_append(seq_t val)
 {
     if (cache_size >= cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);           /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;
@@ -44,7 +46,7 @@ static void init_first_row(void)
 {
     if (prev_row) return;          /* already initialised */
 
-    prev_row = (seq_t *)malloc(sizeof(seq_t));
+    prev_row = mem_new(seq_t, 1);
     if (!prev_row) exit(1);
     prev_row[0] = (seq_t)1;        /* C(0,0)=1 */
     prev_len   = 1;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         /* Compute next row of Pascal's triangle */
         idx_t      r       = current_row + 1;
         size_t     next_len = prev_len + 1;
-        seq_t *    new_row  = (seq_t *)malloc(next_len * sizeof(seq_t));
+        seq_t *    new_row  = mem_new(seq_t, next_len);
         if (!new_row) exit(1);
 
         new_row[0] = (seq_t)1;
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
         }
 
         /* Advance to the next row */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = new_row;
         prev_len = next_len;
         current_row = r;

@@ -10,7 +10,8 @@
  *            U(a,b) = U(a-1,b-1) + U(a-b,b)
  * Range:     u8 n <= 33, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Global cache for the unrestricted partition numbers U(n,k) */
 static seq_t *dp = NULL;               /* 1‑D array storing dp[k][n] */
@@ -36,20 +38,20 @@ static void ensure_dp(idx_t N)
 
     /* free old table if any */
     if (dp != NULL) {
-        free(dp);
+        mem_free(dp);
         dp = NULL;
     }
     max_n_alloc = new_n;
     max_k_alloc = new_k;
     size_t total = (max_k_alloc + 1) * (max_n_alloc + 1);
-    dp = (seq_t *)malloc(total * sizeof(seq_t));
+    dp = mem_new(seq_t, total);
     if (dp == NULL) {
         /* Out of memory – in such an unlikely case simply return
            zero for all answers (no sequence calculation possible). */
         return;
     }
     /* Zero initialisation of the whole table */
-    memset(dp, 0, total * sizeof(seq_t));
+    mem_set(dp, 0, total * sizeof(seq_t));
 
     /* base case U(0,0) = 1 */
     dp[0] = (seq_t)1;

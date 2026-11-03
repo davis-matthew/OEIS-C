@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 230, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 850 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define PARENT_SINK 13   /* sentinel value meaning “no previous digit” */
 
@@ -37,7 +39,7 @@ static void gen_rec(int pos, int L, int prev, int flag, seq_t cur)
         if (flag == 0) {                     /* only complete runs are accepted */
             if (cache_len == cache_cap) {    /* grow cache if needed */
                 cache_cap = cache_cap ? cache_cap * 2 : 1024;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = cur;
         }

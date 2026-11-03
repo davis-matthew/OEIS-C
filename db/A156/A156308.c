@@ -10,7 +10,8 @@
  *            binomial(n+m-1, 2m-1) (OEIS A156290)
  * Range:     u8 n <= 23, u16 n <= 83, u32 n <= 309, u64 n <= 1194,
  *            u128 n <= 1275, big any n
- * Helpers:   rc_of_index
+ * Validated: standard, pass, 71 terms through n = 1047 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/rc_of_index.h"
+
+/* Convert the linear index n into triangle coordinates (r,c).  n ≥ 1. */
+static void rc_of_index(idx_t n, idx_t *r, idx_t *c)
+{
+    idx_t row = 1;
+    idx_t tri = 1;                /* T(1) = 1 */
+    while (tri < n) {
+        ++row;
+        tri += row;
+    }
+    *r = row;
+    *c = n - (tri - row);         /* 1‑based column within the row */
+}
 
 #define MAX_N 20000            /* maximum N = r + c - 1 for n ≤ 10000 */
 

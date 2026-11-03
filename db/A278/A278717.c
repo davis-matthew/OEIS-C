@@ -13,11 +13,13 @@
  *            1, gcd(r, m)=1, r+m is odd; 0 otherwise
  * Range:     i8 n <= 45, i16 n <= 81, i32 n <= 81, i64 n <= 81, i128 n <= 81,
  *            big any n
+ * Validated: partial, pass, 80 terms through n = 81 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n) {

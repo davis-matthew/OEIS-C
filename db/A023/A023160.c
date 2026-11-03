@@ -8,7 +8,8 @@
  *            f
  * Range:     u8 n <= 508, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow9_mod
+ * Validated: standard, pass, 99 terms through n = 9643 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,15 @@
 /* Computes a(n) = number of cycles of the map x → x^9 mod n */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow9_mod.h"
+
+/* helper: fast exponentiation of x^9 mod n (fixed exponent 9) */
+static inline seq_t pow9_mod(idx_t x, idx_t n) {
+    seq_t a = (seq_t)x % (seq_t)n;   /* x mod n, keep in seq_t to avoid overflow   */
+    seq_t a2 = (a * a) % (seq_t)n;   /* x^2  mod n */
+    seq_t a4 = (a2 * a2) % (seq_t)n; /* x^4  mod n */
+    seq_t a8 = (a4 * a4) % (seq_t)n; /* x^8  mod n */
+    return (a * a8) % (seq_t)n;      /* x^9 = x * x^8  mod n */
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;                        /* offset starts at 1, but guard against 0 */

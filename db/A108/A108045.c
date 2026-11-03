@@ -8,9 +8,10 @@
  * Formula:   T(n,k) = T(n‑1,k‑1) – T(n‑2,k); Initial values: T(0,0)=1,
  *            T(1,0)=0, T(1,1)=1, T(2,0)=−2. The sequence a(n) is the triangle
  *            read by rows: a(n) = T(r,c) where n = r(r+1)/2 + c, 0 ≤ c ≤ r
- * Range:     i8 n <= 90, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
- *            big any n
- * Helpers:   none
+ * Range:     i8 n <= 95, i16 n <= 333, i32 n <= 1243, i64 n <= 4600,
+ *            i128 n <= 5150, big any n
+ * Validated: standard, pass, 107 terms through n = 4317 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;   /* pointers to rows of the triangle */
 static idx_t   rows_alloc = 0;    /* allocated number of row slots */
@@ -39,7 +41,7 @@ ensure_row(idx_t r)
     /* Compute rows from rows_used up to r. */
     for (idx_t i = rows_used; i <= r; ++i) {
         /* Allocate current row (length i+1). */
-        seq_t *cur = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, (i + 1));
         for (idx_t k = 0; k <= i; ++k) {
             seq_t val;
             if (i == 0) {                     /* row 0: 1 */

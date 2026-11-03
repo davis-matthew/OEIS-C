@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9389 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparison routine for qsort */
 static int seq_cmp(const void *p1, const void *p2)
@@ -44,7 +46,7 @@ static void init_terms(void)
 {
     const idx_t MAX_BASE = 150;
     size_t estimated = (size_t)MAX_BASE * (MAX_BASE + 1) * (MAX_BASE - 1) / 3;
-    terms = (seq_t *)malloc(estimated * sizeof(seq_t));
+    terms = mem_new(seq_t, estimated);
     if (!terms) exit(1);          /* allocation failure */
 
     terms_len = 0;
@@ -61,7 +63,7 @@ static void init_terms(void)
         }
     }
 
-    qsort(terms, terms_len, sizeof(seq_t), seq_cmp);
+    mem_qsort(terms, terms_len, sizeof(seq_t), seq_cmp);
 
     size_t uniq_len = 0;
     for (size_t i = 0; i < terms_len; ++i) {

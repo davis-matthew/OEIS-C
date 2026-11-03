@@ -12,13 +12,30 @@
  *            (col^(col>>1)) == 0
  * Range:     u8 n <= 5150, u16 n <= 5150, u32 n <= 5150, u64 n <= 5150,
  *            u128 n <= 5150, big any n
- * Helpers:   max_s_with_tri
+ * Validated: standard, pass, 121 terms through n = 4444 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/max_s_with_tri.h"
+
+static inline idx_t
+max_s_with_tri(idx_t n)
+{
+    /* Find largest s such that s*(s+1)/2 <= n. */
+    idx_t low = 0, high = 1;
+    while ((unsigned __int128)high * (high + 1) / 2 <= n)
+        high <<= 1;
+    while (low < high) {
+        idx_t mid = low + (high - low + 1) / 2;
+        if ((unsigned __int128)mid * (mid + 1) / 2 <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {

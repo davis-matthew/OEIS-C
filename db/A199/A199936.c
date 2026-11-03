@@ -9,6 +9,7 @@
  *            (∑_{i≥2} F_i x^{F_i}/(1−x^{F_i}))·∏_{j≥1} 1/(1−x^j)
  * Range:     u8 n <= 9, u16 n <= 28, u32 n <= 96, u64 n <= 345,
  *            u128 n <= 1301, big any n
+ * Validated: standard, pass, 58 terms through n = 4985 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

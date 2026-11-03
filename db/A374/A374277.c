@@ -7,12 +7,14 @@
  * Formula:   a(n) = numbers k such that exactly one of 2,3,5 divides k
  * Range:     u8 n <= 119, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9717 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         /* Ensure cache capacity */
         if (cap == 0) {
             cap = 16;
-            cache = (seq_t *)malloc(cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cap);
             if (cache == NULL) exit(1);
         }
         while (current_max_index < n) {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
             if (cnt == 1) {
                 if (current_max_index == cap) {   /* grow cache */
                     size_t ncap = cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(cache, ncap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, ncap);
                     if (tmp == NULL) exit(1);
                     cache = tmp;
                     cap = ncap;

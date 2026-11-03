@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 3461, u32 n <= 5189, u64 n <= 5189,
  *            u128 n <= 5189, big any n
- * Helpers:   digit_sum_base9
+ * Validated: standard, pass, 72 terms through n = 4964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
    the sum of its distinct prime divisors. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/digit_sum_base9.h"
+#include "../utils/mem.h"
+
+/* Sums the digits of v in base 9 and returns the result as seq_t. */
+static seq_t digit_sum_base9(uint64_t v)
+{
+    seq_t s = 0;
+    while (v) {
+        s += (seq_t)(v % 9);
+        v /= 9;
+    }
+    return s;
+}
 
 /* Returns the sum of distinct prime divisors of n.  The calculation is
    performed by trial division; the result is stored in seq_t. */
@@ -53,7 +65,7 @@ static void grow_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap : 64;
     while (new_cap < needed) new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

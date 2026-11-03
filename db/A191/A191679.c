@@ -9,7 +9,8 @@
  *            whose sum is divisible by 9) / 9
  * Range:     u8 none, u16 n <= 8, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- primes -------------------------------------------------- */
 static uint32_t *prime_array = NULL;      /* stored primes (≥2)     */
@@ -74,8 +76,7 @@ static void append_value(seq_t val)
 {
     if (value_count == value_cap) {
         size_t new_cap = value_cap ? value_cap * 2 : 16;
-        seq_t *new_p = (seq_t *)realloc(value_cache,
-                                        new_cap * sizeof(seq_t));
+        seq_t *new_p = mem_resize(seq_t, value_cache, new_cap);
         if (!new_p) exit(1);
         value_cache = new_p;
         value_cap = new_cap;

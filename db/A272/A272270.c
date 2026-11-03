@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   has_digit3_elsewhere
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_digit3_elsewhere.h"
+#include "../utils/mem.h"
+
+/* returns true iff m has a digit 3 at some position i>0 in base‑4 */
+static inline bool has_digit3_elsewhere(idx_t m)
+{
+    if (m < 4) return false;      /* only one digit */
+    idx_t pos = 0;
+    while (m > 0) {
+        if (pos > 0 && (m & 3u) == 3u) return true;
+        m >>= 2;                  /* divide by 4 */
+        pos++;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;        /* memoisation array */
 static size_t cache_cap = 0;       /* allocated capacity */
@@ -36,7 +50,7 @@ seq_t a(idx_t n)
         if (has_digit3_elsewhere(last_checked)) {
             if (cache_cnt == cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k = n(n–1)/2 + 1}^{n(n+1)/2} digit_sum(k)
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Return the decimal digit sum of a 64‑bit integer.  */
 static inline uint64_t digit_sum_uint64(uint64_t x)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             new_cap <<= 1;          /* double until large enough */
 
         /* Allocate new storage.  */
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) abort();    /* fatal in the unlikely event of OOM */
 
         /* Copy previously computed terms.  */
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         {
             for (idx_t i = 1; i <= computed; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = new_cap;

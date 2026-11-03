@@ -7,21 +7,23 @@
  * Formula:   a(n) = Sum_{k = 0..n} C(n,k)^2 * C(n+k,n) * C(n+2*k,n)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 23,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 31 terms through n = 478 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     seq_t sum = 0;
     for (idx_t k = 0; k <= n; ++k) {
-        seq_t c1 = binom(n, k);                   /* C(n,k)          */
+        seq_t c1 = binomial(n, k);                   /* C(n,k)          */
         seq_t term = c1 * c1;                     /* C(n,k)^2        */
-        term *= binom(n + k, n);                  /* * C(n+k,n)      */
-        term *= binom(n + 2 * k, n);              /* * C(n+2k,n)     */
+        term *= binomial(n + k, n);                  /* * C(n+k,n)      */
+        term *= binomial(n + 2 * k, n);              /* * C(n+2k,n)     */
         sum += term;
     }
     return sum;

@@ -9,31 +9,33 @@
  *            (∏_{t=1}^{b} (81^t–1)·81^{t–1})
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     idx_t maxb = n / 4;
 
     /* pre‑compute powers of 3 (up to 3^n) */
-    seq_t *pow3 = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *pow3 = mem_new(seq_t, (n + 1));
     pow3[0] = (seq_t)1;
     for (idx_t i = 1; i <= n; ++i)
         pow3[i] = pow3[i - 1] * ((seq_t)3);
 
     /* pre‑compute powers of 81 (up to 81^maxb) */
-    seq_t *pow81 = (seq_t *)malloc((maxb + 1) * sizeof(seq_t));
+    seq_t *pow81 = mem_new(seq_t, (maxb + 1));
     pow81[0] = (seq_t)1;
     for (idx_t i = 1; i <= maxb; ++i)
         pow81[i] = pow81[i - 1] * ((seq_t)81);
 
     /* pre‑compute GL(b,81) = ∏_{t=1}^{b} (81^t–1)·81^{t–1} */
-    seq_t *GL81 = (seq_t *)malloc((maxb + 1) * sizeof(seq_t));
+    seq_t *GL81 = mem_new(seq_t, (maxb + 1));
     GL81[0] = (seq_t)1;
     for (idx_t k = 1; k <= maxb; ++k)
         GL81[k] = GL81[k - 1] * pow81[k - 1] * (pow81[k] - (seq_t)1);
@@ -51,9 +53,9 @@ seq_t a(idx_t n)
         ans += term;
     }
 
-    free(pow3);
-    free(pow81);
-    free(GL81);
+    mem_free(pow3);
+    mem_free(pow81);
+    mem_free(GL81);
 
     return ans;
 }

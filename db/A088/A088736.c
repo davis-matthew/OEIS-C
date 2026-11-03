@@ -7,16 +7,35 @@
  * Formula:   a(n) = 10^p - p where p is the (n‑1)-th prime
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, pow10
+ * Validated: partial, pass, 11 terms through n = 12 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/_prime_limit_for_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 static uint64_t *prime_buf = NULL;   /* stored primes, ascending */
 static size_t prime_cnt = 0;         /* number of primes stored */

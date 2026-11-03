@@ -9,12 +9,14 @@
  *            Initial values: a(0)=1, a(1)=8, a(2)=41, a(3)=227, a(4)=1234
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 845 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[5] = {
     (seq_t)1, (seq_t)8, (seq_t)41, (seq_t)227, (seq_t)1234
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
         size_t needed = n + 1;
         if (needed < 5) needed = 5;
         cache_len = needed;
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) abort();          /* out of memory */
         /* initialise first five terms */
         for (size_t i = 0; i < 5; ++i) cache[i] = init_vals[i];
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
         /* grow cache to at least n+1 */
         size_t new_len = cache_len;
         while (new_len <= (size_t)n) new_len <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         cache = tmp;
         /* initialise new slots to zero */

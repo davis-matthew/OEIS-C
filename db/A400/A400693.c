@@ -9,13 +9,22 @@
  *            (p-1)/2
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   is_odd_prime
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_odd_prime.h"
+
+static bool is_odd_prime(idx_t x)
+{
+    if (x < 3) return false;          /* 2 is not odd */
+    if ((x & 1) == 0) return false;   /* even numbers are not considered */
+    for (idx_t d = 3; d * d <= x; d += 2)
+        if (x % d == 0) return false;
+    return true;
+}
 
 seq_t a(idx_t n)
 {

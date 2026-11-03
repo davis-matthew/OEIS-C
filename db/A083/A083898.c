@@ -7,15 +7,25 @@
  * Formula:   Number of divisors of n with all decimal digits ≤ 3
  * Range:     u8 n <= 286, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digits_le3, factor_u64
+ * Validated: standard, pass, 121 terms through n = 987 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/digits_le3.h"
+
+/* helper: true if every decimal digit of x is ≤ 3 */
+static inline bool digits_le3(seq_t x) {
+    while (x > 0) {
+        if ((x % (seq_t)10) > (seq_t)3) return false;
+        x /= (seq_t)10;
+    }
+    return true;
+}
 
 /* recursively enumerate divisors and count those with digits ≤ 3 */
 static seq_t rec_div(const uint64_t *pr, const uint64_t *ex,

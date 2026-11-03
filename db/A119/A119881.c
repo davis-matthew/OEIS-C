@@ -9,7 +9,8 @@
  *            Sum_{k=0}^{m-1} binom(2m,2k) * E_{2k}
  * Range:     i8 n <= 5, i16 n <= 10, i32 n <= 16, i64 n <= 24, i128 n <= 38,
  *            big any n
- * Helpers:   binom_n_k
+ * Validated: standard, pass, 44 terms through n = 182 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #endif
-#include "../utils/binom_n_k.h"
+#include "../utils/binomial.h"
 
 /* ----------  static storage  ---------- */
 #ifdef __cplusplus
@@ -87,7 +88,7 @@ ensure_euler(idx_t m)
         for (size_t i = old; i <= (size_t)m; ++i) {
             seq_t sum = 0;
             for (size_t k = 0; k < i; ++k) {
-                seq_t term = binom_n_k((idx_t)(2 * i), (idx_t)(2 * k));
+                seq_t term = binomial((idx_t)(2 * i), (idx_t)(2 * k));
                 term = term * euler_vec[k];
                 sum += term;
             }
@@ -107,7 +108,7 @@ ensure_euler(idx_t m)
         for (size_t i = euler_size; i <= (size_t)m; ++i) {
             seq_t sum = 0;
             for (size_t k = 0; k < i; ++k) {
-                seq_t term = binom_n_k((idx_t)(2 * i), (idx_t)(2 * k));
+                seq_t term = binomial((idx_t)(2 * i), (idx_t)(2 * k));
                 term = term * euler_ptr[k];
                 sum += term;
             }
@@ -135,7 +136,7 @@ ensure_a(idx_t n)
                 ensure_pow3((idx_t)i);
                 seq_t sum = 0;
                 for (size_t j = 0; j <= max_j; ++j) {
-                    seq_t c  = binom_n_k((idx_t)i, (idx_t)(2 * j));
+                    seq_t c  = binomial((idx_t)i, (idx_t)(2 * j));
                     seq_t p  = pow3_vec[i - 2 * j];
                     seq_t term = c * p * euler_vec[j];
                     sum += term;
@@ -158,7 +159,7 @@ ensure_a(idx_t n)
                 ensure_pow3((idx_t)i);
                 seq_t sum = 0;
                 for (size_t j = 0; j <= max_j; ++j) {
-                    seq_t c  = binom_n_k((idx_t)i, (idx_t)(2 * j));
+                    seq_t c  = binomial((idx_t)i, (idx_t)(2 * j));
                     seq_t p  = pow3_ptr[i - 2 * j];
                     seq_t term = c * p * euler_ptr[j];
                     sum += term;

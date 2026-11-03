@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 496, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 92 terms through n = 9316 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* Cache for a(n) and for the SPF table. */
 static seq_t *a_cache    = NULL;   /* a_cache[i] holds a(i+1) */
@@ -67,7 +69,7 @@ static void expand_cache(idx_t n)
     if (n <= a_cache_sz) return;
 
     /* Grow the a_cache array. */
-    seq_t *new_cache = (seq_t *)realloc(a_cache, n * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, n);
     if (!new_cache) exit(EXIT_FAILURE);
     a_cache = new_cache;
 

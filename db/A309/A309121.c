@@ -8,7 +8,8 @@
  * Formula:   a(n) counts the primes in I_n = [(n^2+3n-2)/2 , n(n+5)/2]
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   calc_limit
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/calc_limit.h"
+
+/* Helper to compute integer limit for a given n */
+static inline idx_t calc_limit(idx_t n) {
+    return (n * (n + 5)) / 2;
+}
 
 /* Prime sieve and prefix construction */
 static void build_sieve(idx_t limit,

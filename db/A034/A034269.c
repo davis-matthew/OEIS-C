@@ -11,12 +11,13 @@
  *            guarantees exact integer arithmetic
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 14, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 41 terms through n = 1000 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -34,15 +35,15 @@ seq_t a(idx_t n)
         seq_t d = (kk + 4) * (kk - 1) * (kk * kk + kk - 1); /* denominator */
 
         /* Reduce b and d by their gcd */
-        seq_t g1 = seq_gcd(b, d);
+        seq_t g1 = gcd(b, d);
         b /= g1; d /= g1;
 
         /* Remove common factors of ans and d */
-        seq_t g2 = seq_gcd(ans, d);
+        seq_t g2 = gcd(ans, d);
         ans /= g2; d /= g2;
 
         /* Remove remaining factors of d from b */
-        seq_t g3 = seq_gcd(b, d);
+        seq_t g3 = gcd(b, d);
         b /= g3; d /= g3;
 
         /* After reductions, d must be 1 */

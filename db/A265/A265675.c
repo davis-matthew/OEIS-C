@@ -9,7 +9,8 @@
  *            the n‑th squarefree number
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, is_squarefree
+ * Validated: standard, pass, 84 terms through n = 9792 (2026-11-03)
+ * Helpers:   gcd, is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include "../utils/gcd.h"
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 /* Cache of the first k squarefree numbers (1‑based indexing) */
 static seq_t *sqfree = NULL;
@@ -34,9 +36,9 @@ ensure_sqfree(idx_t n)
 
     /* Allocate or grow the cache */
     if (sqfree == NULL) {
-        sqfree = (seq_t *)malloc(sizeof(seq_t) * n);
+        sqfree = mem_new(seq_t, n);
     } else {
-        sqfree = (seq_t *)realloc(sqfree, sizeof(seq_t) * n);
+        sqfree = mem_resize(seq_t, sqfree, n);
     }
 
     /* Find further squarefree numbers until we have n of them */

@@ -11,11 +11,13 @@
  *            2^(r-1)+1 for r>0
  * Range:     u8 n <= 13, u16 n <= 23, u32 n <= 41, u64 n <= 78, u128 n <= 150,
  *            big any n
+ * Validated: standard, pass, 54 terms through n = 2047 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 #ifdef __cplusplus
 #include <type_traits>

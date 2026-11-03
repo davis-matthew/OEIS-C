@@ -9,7 +9,8 @@
  *            primitive root of q; a(1) = 2
  * Range:     u8 n <= 29, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   grow_seq, mod_pow
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
-#include "../utils/grow_seq.h"
+#include <string.h>
+#include <stddef.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static uint32_t *prime_arr = NULL;   /* list of primes (needed for factorisation) */
 static size_t     prime_cnt = 0;     /* number of primes in the list */
@@ -85,13 +101,13 @@ static bool is_primitive_root(uint64_t base, uint64_t mod)
                       (uint64_t)prime_arr[i] * (uint64_t)prime_arr[i] <= temp; ++i) {
         uint32_t p = prime_arr[i];
         if (temp % p == 0) {
-            if (mod_pow((seq_t)base, phi / p, (seq_t)mod) == (seq_t)1)
+            if (powmod((seq_t)base, phi / p, (seq_t)mod) == (seq_t)1)
                 return false;
             while (temp % p == 0) temp /= p;
         }
     }
     if (temp > 1)
-        if (mod_pow((seq_t)base, phi / temp, (seq_t)mod) == (seq_t)1)
+        if (powmod((seq_t)base, phi / temp, (seq_t)mod) == (seq_t)1)
             return false;
     return true;
 }

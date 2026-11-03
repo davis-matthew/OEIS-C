@@ -8,9 +8,10 @@
  *            order (OEIS A066099). For the empty composition a(0)=0. For a
  *            composition b(1)…b(k), a = Σ_{i=1}^{k} C(k-1,i-1) * b(i)
  *            (binomial coefficients, left to right)
- * Range:     u8 n <= 510, u16 n <= 9806, u32 n <= 9806, u64 n <= 9806,
- *            u128 n <= 9806, big any n
- * Helpers:   binom
+ * Range:     u8 n <= 510, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 106 terms through n = 9806 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,7 @@
    seq_t type.  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Compute floor(log2(v)) for v > 0.  Only integer shifts are used. */
 static inline idx_t floor_log2_uint64(idx_t v)
@@ -79,7 +80,7 @@ seq_t a(idx_t n)
     /* Compute the weighted sum with binomial coefficients. */
     seq_t result = 0;
     for (idx_t i = 0; i < len; ++i) {
-        seq_t weight = binom(len - 1, i);
+        seq_t weight = binomial(len - 1, i);
         result += weight * (seq_t)parts[i];
     }
 

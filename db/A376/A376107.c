@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
    a(n) = (n-1)! * Σ_{k=0}^{n-1} binom(n,k) * 3^k *
           (- (n-k))^{n-1-k} / (n-1-k)!                     */
 #include <stdbool.h>
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         idx_t base = n - k;                /* positive base          */
 
         /* absolute value of (-base)^e     */
-        seq_t abs_pow = pow_seq((seq_t)base, (int)e);
+        seq_t abs_pow = ipow_i32((seq_t)base, (int)e);
 
         /* build the term magnitude        */
         seq_t term = abs_pow;

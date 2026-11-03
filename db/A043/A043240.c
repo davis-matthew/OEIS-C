@@ -10,7 +10,8 @@
  *            the preceding integer k-1 does not contain those substrings
  * Range:     u8 n <= 6, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_adjacent_34_or_43
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,25 @@
    integer arithmetic operators used below. */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has_adjacent_34_or_43.h"
+
+/* Test whether a decimal number contains the adjacent
+   digits 34 or 43. */
+static bool has_adjacent_34_or_43(seq_t x)
+{
+    if (x == (seq_t)0)
+        return false;
+    seq_t prev = x % (seq_t)10;
+    x = x / (seq_t)10;
+    while (x > (seq_t)0) {
+        seq_t curr = x % (seq_t)10;
+        if ((prev == (seq_t)3 && curr == (seq_t)4) ||
+            (prev == (seq_t)4 && curr == (seq_t)3))
+            return true;
+        prev = curr;
+        x = x / (seq_t)10;
+    }
+    return false;
+}
 
 /* Static table to store the sequence values.  The size is
    chosen large enough for the tested range (>= 10000).  The

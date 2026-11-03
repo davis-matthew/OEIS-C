@@ -10,13 +10,15 @@
  *            2*T(n-1,k-1) + T(n-2,k-1) (n>=2, k>=2)
  * Range:     u8 n <= 34, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* External types are provided by the build system */
 #include <stdlib.h>   /* malloc, free, memset */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,12 +35,12 @@ seq_t a(idx_t n)
 
     /* Allocate triangular array of size (r+1) x (r+1) */
     size_t size = (size_t)(r + 1) * (size_t)(r + 1);
-    seq_t *T = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *T = mem_new(seq_t, size);
     if (!T)
         return 0;                /* fallback on allocation failure */
 
     /* Initialize to zero */
-    memset(T, 0, size * sizeof(seq_t));
+    mem_set(T, 0, size * sizeof(seq_t));
 
     /* Base cases */
     T[1 * (r + 1) + 1] = 1;      /* T(1,1) */
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
     seq_t res = T[r * (r + 1) + k];
 
     /* Clean up */
-    free(T);
+    mem_free(T);
     return res;
 }

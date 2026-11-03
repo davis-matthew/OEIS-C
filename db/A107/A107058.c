@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 9598 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* A107058: a(n) = smallest m>0 such that prime(n)*prime(n+1)-m is prime.
  *  Computation method: find the largest prime less than p_n * p_{n+1}
  *  where p_k is the k‑th prime; then a(n) = p_n * p_{n+1} - that prime.   */

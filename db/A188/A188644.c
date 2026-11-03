@@ -12,13 +12,17 @@
  *            starts a(0)=1, a(1)=1, a(2)=1, a(3)=1, a(4)=7, ... (see OEI...
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Compute the value A(i,k) for the given row i and column k.  */
 static seq_t compute_A_n_k(seq_t i, idx_t k)
@@ -32,8 +36,8 @@ static seq_t compute_A_n_k(seq_t i, idx_t k)
     for (idx_t j = 0; j <= k; ++j)
     {
         seq_t bin   = binomial(2 * k, 2 * j);
-        seq_t pw1   = big_pow(i2minus1, (seq_t)(k - j));
-        seq_t pw2   = big_pow(i, (seq_t)(2 * j));
+        seq_t pw1   = ipow(i2minus1, (seq_t)(k - j));
+        seq_t pw2   = ipow(i, (seq_t)(2 * j));
         result += bin * pw1 * pw2;
     }
 

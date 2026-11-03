@@ -10,15 +10,31 @@
  *            prime‑factorization exponents)
  * Range:     u8 n <= 88, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors, grow_seq
+ * Validated: standard, pass, 79 terms through n = 9900 (2026-11-03)
+ * Helpers:   bigomega_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/grow_seq.h"
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/bigomega_seq.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Cached values of the sequence, zero‑based indexed: a(1) is cache[0] */
 static seq_t *cache = NULL;
@@ -43,7 +59,7 @@ static void ensure_cache_upto(idx_t n)
     /* Compute all new terms incrementally. */
     for (size_t i = cache_len; i < (size_t)n; ++i) {
         seq_t prev = cache[i-1];
-        seq_t inc  = count_prime_factors(prev);
+        seq_t inc  = bigomega_seq(prev);
         cache[i] = prev + inc;
     }
     cache_len = (size_t)n;

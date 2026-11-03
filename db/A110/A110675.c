@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_uint64
+ * Validated: standard, pass, 68 terms through n = 991 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 static const uint64_t POW10[20] = {
     1ULL,
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
     for (;; ++k) {
         unsigned d = digits_uint64(k);
         uint64_t N = 2222ULL * POW10[d] + k;
-        if (is_prime_uint64(N)) {
+        if (is_prime_u64(N)) {
             ++count;
             if (count == n) {
                 return (seq_t)k;

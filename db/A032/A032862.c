@@ -11,14 +11,45 @@
  *            0,1,2,3,4,5,6,7,14…
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   good_base7
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/good_base7.h"
+#include "../utils/mem.h"
+
+/* Check whether a number satisfies the alternating (> < …) pattern in base 7.
+   The number x may be of any build‑dependent integer type seq_t. */
+static bool good_base7(seq_t x)
+{
+    seq_t t = x;
+    if (t == 0)               /* single digit 0 is acceptable */
+        return true;
+
+    /* 256 digits is far more than enough for any 64‑bit integer in base 7. */
+    uint8_t digits[256];
+    int len = 0;
+    while (t != 0) {
+        digits[len++] = (uint8_t)(t % 7);
+        t /= 7;
+    }
+
+    bool greater = true;      /* first comparison must be “>” */
+    for (int i = len - 1; i > 0; --i) {
+        if (greater) {
+            if (digits[i] <= digits[i - 1])
+                return false;
+        } else {
+            if (digits[i] >= digits[i - 1])
+                return false;
+        }
+        greater = !greater;
+    }
+    return true;
+}
 
 /* Static cache of previously computed terms. */
 static seq_t *cache       = NULL;   /* array of sequence values */
@@ -35,7 +66,7 @@ seq_t a(idx_t n)
             /* Grow the cache if necessary. */
             if (cache_size == cache_cap) {
                 size_t newcap = cache_cap == 0 ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) abort();       /* allocation failure */
                 cache = tmp;
                 cache_cap = newcap;

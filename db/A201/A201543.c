@@ -12,7 +12,8 @@
  *            sequence is a derangement of the positive integers
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   ms_digit, prime_sum
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/ms_digit.h"
-#include "../utils/prime_sum.h"
+#include "../utils/mem.h"
+
+/* most significant decimal digit of x (x>=1) */
+static inline seq_t ms_digit(seq_t x) {
+    while (x >= 10) x /= 10;
+    return x;
+}
+
+/* check if sum (0..18) is prime */
+static inline bool prime_sum(int s) {
+    return (s == 2 || s == 3 || s == 5 || s == 7 || s == 11 || s == 13 || s == 17);
+}
 
 static seq_t *seq = NULL;       /* array of computed terms */
 static size_t seq_len = 0;      /* number of terms stored */
@@ -36,7 +47,7 @@ static void ensure_seq_capacity(size_t len_needed) {
     if (len_needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     if (new_cap < len_needed) new_cap = len_needed;
-    seq_t *new_seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_resize(seq_t, seq, new_cap);
     if (!new_seq) abort();
     seq = new_seq;
     seq_cap = new_cap;

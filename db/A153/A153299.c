@@ -8,16 +8,20 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=1..n} C(3k, k)/(2k+1) * C(2n-k, n-k) * k/(2n-k)
  *            (a(0)=1)
- * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 21,
+ * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   binom, seq_one
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"
-#include "../utils/seq_one.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n)
 {
@@ -30,11 +34,11 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= n; ++k)
     {
         /* A_k  = C(3k, k)/(2k+1)   (the cubic Catalan numbers) */
-        seq_t Ak = binom(3 * k, k);
+        seq_t Ak = binomial(3 * k, k);
         Ak /= (seq_t)(2 * k + 1);
 
         /* B_k  = C(2n-k, n-k)     (a binomial coefficient) */
-        seq_t Bk = binom(2 * n - k, n - k);
+        seq_t Bk = binomial(2 * n - k, n - k);
 
         /* term = A_k * B_k * k/(2n-k)   (exact division) */
         seq_t term = Ak * Bk;

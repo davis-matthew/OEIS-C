@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   pow8u
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,13 @@
    order of the inner digits. */
 
 #include <stddef.h>
-#include "../utils/pow8u.h"
+
+static inline idx_t pow8u(idx_t exp)
+{
+    idx_t r = 1;
+    while (exp--) r *= 8;
+    return r;
+}
 
 seq_t a(idx_t n)
 {

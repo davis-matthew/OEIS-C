@@ -10,7 +10,8 @@
  *            n
  * Range:     u8 n <= 54, u16 n <= 508, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   alloc_seq_array, seq_free_array
+ * Validated: standard, pass, 79 terms through n = 8075 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq_array.h"   /* seq_t *alloc_seq_array(size_t n); */
-#include "../utils/seq_free_array.h"   /* void seq_free_array(seq_t* p); */
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;

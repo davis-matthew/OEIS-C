@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(1)=0; a(n)=A018252(n-1) for n>1
- * Range:     u8 n <= 202, u16 n <= 9774, u32 n <= 9774, u64 n <= 9774,
- *            u128 n <= 9774, big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 202, u16 n <= 17739, u32 n <= 17739, u64 n <= 17739,
+ *            u128 n <= 17739, big any n
+ * Validated: standard, pass, 82 terms through n = 9774 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;   /* number of elements stored (index 1..size) */
@@ -28,7 +30,7 @@ static void ensure_cache_capacity(void)
     if (cache_size + 1 <= cache_cap) return;
     size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
     while (cache_size + 1 > new_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) { abort(); }  /* out of memory */
     cache = tmp;
     cache_cap = new_cap;

@@ -10,7 +10,8 @@
  *            = (2n-1) * ( T(n-1,k-1) + 2*(n-1)*T(n-1,k) )
  * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 28, u64 n <= 66, u128 n <= 171,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 3739 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Needed for size_t and abort() */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global storage for the triangle */
 static seq_t **triangle = NULL;   /* rows of the triangle T   */
@@ -59,7 +61,7 @@ static void ensure_triangle_upto(idx_t max_row)
         /* Allocate a row of length n+1.  Use a cast so the code compiles
            in both C and C++ (the build may provide an arbitrary‑precision
            class for seq_t). */
-        seq_t *row = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (n + 1));
         if (!row) abort();
         triangle[n] = row;
 

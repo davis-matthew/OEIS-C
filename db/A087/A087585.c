@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   pow10, rev_decimal
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,23 @@
    a(n) = smallest multiple of a(n-1) that does not end with 0
           and whose decimal representation begins with the digit
           reversal of a(n-1).  */
-#include "../utils/rev_decimal.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/reverse_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t next_term(seq_t prev)
 {
-    seq_t revPrev = rev_decimal(prev);
+    seq_t revPrev = reverse_digits(prev);
 
     for (int d = 0; ; ++d) {
         seq_t pow10_d = pow10((unsigned int)d);

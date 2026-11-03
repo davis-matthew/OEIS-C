@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   add_sub, add_word_mask
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,97 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/add_sub.h"
-#include "../utils/add_word_mask.h"
+
+/* Add all letters of an ASCII word to the bit mask.
+   Only characters 'a'..'z' are considered. */
+static void add_word_mask(const char *w, uint32_t *mask)
+{
+    for (; *w; ++w) {
+        char c = *w;
+        if (c >= 'a' && c <= 'z')
+            *mask |= 1u << (c - 'a');
+    }
+}
+
+/* Recursive routine that builds the mask for a number < 1000. */
+static void add_sub(uint32_t sub, uint32_t *mask)
+{
+    /* Numbers 1 … 16 */
+    static const char *under20[20] = {
+        "",        "un",   "deux",  "trois", "quatre", "cinq",
+        "six",     "sept", "huit", "neuf",  "dix",    "onze",
+        "douze",   "treize", "quatorze", "quinze", "seize",
+        "dix-sept", "dix-huit", "dix-neuf"
+    };
+
+    if (sub == 0)
+        return;
+
+    if (sub < 20) {
+        add_word_mask(under20[sub], mask);
+        return;
+    }
+
+    if (sub < 100) {
+        unsigned tens = sub / 10;
+        unsigned rem  = sub % 10;
+
+        if (tens == 7) {                      /* 70‑79: soixante + 10‑19 */
+            if (rem == 11) {                  /* 71: soixante et onze */
+                add_word_mask("soixante", mask);
+                add_word_mask("et", mask);
+                add_word_mask("onze", mask);
+            } else {
+                add_word_mask("soixante", mask);
+                add_sub(10 + rem, mask);      /* 10‑19 */
+            }
+        } else if (tens == 8) {               /* 80‑89 */
+            if (rem == 0) {
+                add_word_mask("quatre-vingts", mask);
+            } else {
+                add_word_mask("quatre-vingt", mask);
+                add_sub(rem, mask);
+            }
+        } else if (tens == 9) {               /* 90‑99 */
+            add_word_mask("quatre-vingt", mask);
+            add_sub(sub - 80, mask);          /* 10‑19 */
+        } else {                              /* 20‑69 */
+            static const char *tens_word[7] = {
+                "", "", "vingt", "trente", "quarante",
+                "cinquante", "soixante"
+            };
+            if (rem == 0) {
+                add_word_mask(tens_word[tens], mask);
+            } else if (rem == 1) {          /* 21,31,...,61 */
+                add_word_mask(tens_word[tens], mask);
+                add_word_mask("et", mask);
+                add_word_mask("un", mask);
+            } else {
+                add_word_mask(tens_word[tens], mask);
+                add_sub(rem, mask);
+            }
+        }
+        return;
+    }
+
+    /* 100‑999 */
+    unsigned hundreds = sub / 100;
+    unsigned rem      = sub % 100;
+
+    if (hundreds == 1)
+        add_word_mask("cent", mask);
+    else {
+        add_sub(hundreds, mask);          /* 1‑9 */
+        add_word_mask("cent", mask);
+    }
+
+    if (rem == 0) {
+        if (hundreds > 1)
+            *mask |= 1u << ('s' - 'a');    /* plural "cents" */
+    } else {
+        add_sub(rem, mask);
+    }
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

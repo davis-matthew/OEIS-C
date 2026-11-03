@@ -11,12 +11,14 @@
  *            computation
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fib_arr = NULL;   /* fib_arr[k] = F_{k+1}  (Fib sequence) */
 static idx_t fib_len = 0;
@@ -30,7 +32,7 @@ static void ensure_fib(idx_t sz)
     /* grow: double size or reach sz, whichever larger */
     idx_t new_sz = fib_len ? fib_len * 2 : 2;
     if (new_sz < sz) new_sz = sz;
-    fib_arr = (seq_t *)realloc(fib_arr, new_sz * sizeof(seq_t));
+    fib_arr = mem_resize(seq_t, fib_arr, new_sz);
     if (!fib_arr) exit(1);
     /* initialize new elements */
     if (fib_len == 0) { /* first two values */
@@ -51,7 +53,7 @@ static void ensure_c(idx_t sz)
     if (c_len >= sz) return;
     idx_t new_sz = c_len ? c_len * 2 : 4;
     if (new_sz < sz) new_sz = sz;
-    c_arr = (seq_t *)realloc(c_arr, new_sz * sizeof(seq_t));
+    c_arr = mem_resize(seq_t, c_arr, new_sz);
     if (!c_arr) exit(1);
     if (c_len == 0) {
         /* initialize first four values (convolution of Fibonacci) */

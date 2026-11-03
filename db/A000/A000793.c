@@ -11,19 +11,21 @@
  *            with g[s] = 1 initially; a(n) = g[n]
  * Range:     u8 n <= 18, u16 n <= 46, u32 n <= 119, u64 n <= 357,
  *            u128 n <= 1109, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9272 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *a793_g = NULL;
 static idx_t a793_cap = 0;
 
 static void a793_build(idx_t N) {
-    seq_t *g = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *g = mem_new(seq_t, (size_t)(N + 1));
     bool *comp = (bool *)calloc((size_t)(N + 1), sizeof(bool));
     idx_t s, p, i;
     for (s = 0; s <= N; s++) g[s] = 1;
@@ -43,7 +45,7 @@ static void a793_build(idx_t N) {
         }
     }
     free(comp);
-    if (a793_g) free(a793_g);
+    if (a793_g) mem_free(a793_g);
     a793_g = g;
     a793_cap = N;
 }

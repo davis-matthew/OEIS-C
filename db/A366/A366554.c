@@ -7,11 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/4⌋} binomial(k+1, n-4k) * Catalan(k)
  * Range:     u8 n <= 20, u16 n <= 34, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-01)
  * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
 

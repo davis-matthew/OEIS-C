@@ -9,28 +9,31 @@
  *            4*120^n + 6*180^n - 5*360^n + 720^n (n ≥ 1)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 13,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 27 terms through n = 206 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;               /* silently handle offset < 1 */
 
     /* Compute all required powers once */
-    seq_t p6   = big_pow((seq_t)6,   (seq_t)n);
-    seq_t p15  = big_pow((seq_t)15,  (seq_t)n);
-    seq_t p20  = big_pow((seq_t)20,  (seq_t)n);
-    seq_t p30  = big_pow((seq_t)30,  (seq_t)n);
-    seq_t p60  = big_pow((seq_t)60,  (seq_t)n);
-    seq_t p90  = big_pow((seq_t)90,  (seq_t)n);
-    seq_t p120 = big_pow((seq_t)120, (seq_t)n);
-    seq_t p180 = big_pow((seq_t)180, (seq_t)n);
-    seq_t p360 = big_pow((seq_t)360, (seq_t)n);
-    seq_t p720 = big_pow((seq_t)720, (seq_t)n);
+    seq_t p6   = ipow((seq_t)6,   (seq_t)n);
+    seq_t p15  = ipow((seq_t)15,  (seq_t)n);
+    seq_t p20  = ipow((seq_t)20,  (seq_t)n);
+    seq_t p30  = ipow((seq_t)30,  (seq_t)n);
+    seq_t p60  = ipow((seq_t)60,  (seq_t)n);
+    seq_t p90  = ipow((seq_t)90,  (seq_t)n);
+    seq_t p120 = ipow((seq_t)120, (seq_t)n);
+    seq_t p180 = ipow((seq_t)180, (seq_t)n);
+    seq_t p360 = ipow((seq_t)360, (seq_t)n);
+    seq_t p720 = ipow((seq_t)720, (seq_t)n);
 
     /* Sum positive and negative contributions separately */
     seq_t sum_pos = 0, sum_neg = 0;

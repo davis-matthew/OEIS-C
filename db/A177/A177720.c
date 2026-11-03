@@ -8,6 +8,7 @@
  * Formula:   a(n) = 1/2 * Σ_{dx,dy∈Z} (n-|dx|)*(n-|dy|) with gcd(|dx|,|dy|)=3
  * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

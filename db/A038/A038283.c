@@ -8,14 +8,16 @@
  *            floor((sqrt(8*n+1)-1)/2), j = n - i*(i+1)/2
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* integer square root of a 128‑bit unsigned integer */
 static inline idx_t isqrt_u128(unsigned __int128 v)
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
 
     /* compute the value */
     seq_t bin = binomial(i, j);
-    seq_t pow8 = pow_uint(8, i - j);
-    seq_t pow5 = pow_uint(5, j);
+    seq_t pow8 = ipow_u64_idx(8, i - j);
+    seq_t pow5 = ipow_u64_idx(5, j);
 
     return bin * pow8 * pow5;
 }

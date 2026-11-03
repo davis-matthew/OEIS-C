@@ -8,11 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#ifdef __cplusplus
+#include <vector>
+#endif
 /* Sequence A398655 – Lower (1, 2/3) midsequence of triangular and tetrahedral numbers.
    Recurrence (order 10):
    a(n) = 4*a(n-1) - 6*a(n-2) + 3*a(n-3) + 3*a(n-4) - 6*a(n-5) + 3*a(n-6)

@@ -11,13 +11,31 @@
  *            not. The sequence is obtained by a simple search
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_adj_26
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_adj_26.h"
+
+/* Check whether the base‑8 representation of |x| contains an
+   adjacent pair of digits 2 and 6 (either 26 or 62). */
+static inline bool has_adj_26(seq_t x)
+{
+    /* Use a sentinel value outside the range 0–7 for the previous digit. */
+    const seq_t sentinel = (seq_t)16;
+    seq_t prev = sentinel;
+    while (x > (seq_t)0) {
+        seq_t d = x % (seq_t)8;
+        if ((prev == (seq_t)2 && d == (seq_t)6) ||
+            (prev == (seq_t)6 && d == (seq_t)2))
+            return true;
+        prev = d;
+        x /= (seq_t)8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,11 +9,13 @@
  *            T(j,k) = Sum_{r=0..j} (-k)^r * binomial(j,r)^2
  * Range:     i8 n <= 39, i16 n <= 84, i32 n <= 182, i64 n <= 454,
  *            i128 n <= 1207, big any n
+ * Validated: standard, pass, 82 terms through n = 9853 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

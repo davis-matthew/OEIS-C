@@ -10,12 +10,14 @@
  *            a(1)=0,a(2)=1,a(3)=0,a(4)=1,a(5)=1,a(6)=1,a(7)=3,a(8)=1,a(9)=3,a(10)=6
  * Range:     u8 n <= 22, u16 n <= 40, u32 n <= 76, u64 n <= 148,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (n + 1 > cap) {
         idx_t new_cap = cap ? cap << 1 : n + 1;
         if (new_cap < n + 1) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         /* If the allocation failed, return 0 (undefined behavior otherwise) */
         if (!tmp) return 0;
         /* Zero-initialize the newly added part */

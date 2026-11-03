@@ -12,14 +12,22 @@
  *            read row by row. Offset = 1
  * Range:     u8 n <= 17, u16 n <= 39, u32 n <= 143, u64 n <= 576,
  *            u128 n <= 1275, big any n
- * Helpers:   binom, col_of_idx
+ * Validated: standard, pass, 71 terms through n = 1261 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/col_of_idx.h"
+#include "../utils/binomial.h"
+
+/* Return the column (k) within row r that corresponds to index t.  */
+static idx_t col_of_idx(idx_t t, idx_t r)
+{
+    /* 1‑based index of the first element of row r:  (r-1)*r/2 + 1 */
+    idx_t first = ( (unsigned __int128)(r - 1) * r ) / 2 + 1;
+    return t - first + 1;
+}
 
 /* Return the row (n) of the triangle that contains the t‑th element
  * when the triangle is read by rows.  */
@@ -34,8 +42,8 @@ static idx_t row_of_idx(idx_t t)
 /* Compute T(r,k) for a fixed row r and column k.  */
 static seq_t T_row_col(idx_t r, idx_t k)
 {
-    seq_t bin1 = binom(r + 1, k);          /* binom(r+1,k)   */
-    seq_t bin2 = binom(r - 1, k - 1);      /* binom(r-1,k-1) */
+    seq_t bin1 = binomial(r + 1, k);          /* binom(r+1,k)   */
+    seq_t bin2 = binomial(r - 1, k - 1);      /* binom(r-1,k-1) */
 
     /* product of the two binomials.  Use 128‑bit to avoid overflow.  */
     unsigned __int128 prod = (unsigned __int128)bin1 *

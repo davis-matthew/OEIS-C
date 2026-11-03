@@ -8,11 +8,13 @@
  * Formula:   a(n) = sum_{k=0..n} sigma(k^2 + 1)
  * Range:     u8 n <= 7, u16 n <= 51, u32 n <= 2099, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 9217 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
 

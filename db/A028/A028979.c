@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   is_palindrome, is_prime
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   is_palindrome_base, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stdbool.h>
 #include <limits.h>
 
-#include "../utils/is_prime.h"      /* bool is_prime(idx_t n); */
-#include "../utils/is_palindrome.h" /* bool is_palindrome(seq_t x, idx_t base); */
+#include "../utils/is_palindrome_base.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* compute the maximum value that can be represented by type seq_t */
 static unsigned __int128 seq_t_max(void) {
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
     /* initialise static storage on first call */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_sz = 0;
 
         primes_cap = 16;
@@ -82,10 +84,10 @@ seq_t a(idx_t n) {
                 continue;
 
             seq_t prod = (seq_t)prod128;
-            if (is_palindrome(prod, 10)) {
+            if (is_palindrome_base(prod, 10)) {
                 if (cache_sz == cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_sz++] = prod;
             }

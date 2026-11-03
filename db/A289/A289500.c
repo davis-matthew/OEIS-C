@@ -9,6 +9,7 @@
  *            to 10n and counts primes in the requested range
  * Range:     u8 n <= 2602, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 98 terms through n = 9132 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

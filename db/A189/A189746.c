@@ -7,13 +7,15 @@
  * Formula:   a(1)=5, a(2)=2, a(n) = 5*a(n-1) + 2*a(n-2) for n>=3
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 /* Return the n-th term of OEIS A189746.  The result is exact within
    the limits of the seq_t type.  Cached values are reused across
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Lazy initialisation: ensure we can store at least the first two terms. */
     if (cache == NULL) {
         cache_cap = (size_t)(n > 2 ? n : 2);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort(); /* unrecoverable, sequence cannot be computed */
         cache[0] = (seq_t)5;  /* a(1) */
         cache[1] = (seq_t)2;  /* a(2) */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         if (new_cap == 0) new_cap = 2;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort(); /* unrecoverable */
         cache = tmp;
         cache_cap = new_cap;

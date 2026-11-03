@@ -10,6 +10,7 @@
  *            3/(4*(2*n+1)) - 81/(4*(2*n+3))) (offset 1)
  * Range:     u8 none, u16 n <= 2, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
    N = 64*(n+1)*(2*n+1)*(2*n+3) + 3*(n+1)*(n+2)*(2*n+3)
        - 81*(n+1)*(n+2)*(2*n+1) - 4*(n+2)*(2*n+1)*(2*n+3). */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

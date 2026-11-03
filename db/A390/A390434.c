@@ -10,7 +10,8 @@
  *            sequence a(n) is the triangle read by rows
  * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 28, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper function: integer square root of a 64‑bit number.
    Using int_sqrt from utils if available, otherwise a simple binary search. */
@@ -52,7 +54,7 @@ static void ensure_cache_capacity(size_t need) {
     if (cache_cap < need) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 64;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* Allocation failure: abort (should not happen in test harness) */
             exit(1);
@@ -73,7 +75,7 @@ seq_t a(idx_t n) {
     if (cache_len == 0) {
         /* Allocate space for row 0 */
         ensure_cache_capacity(1);
-        prev_row = (seq_t *)malloc(sizeof(seq_t));
+        prev_row = mem_new(seq_t, 1);
         if (!prev_row) exit(1);
         prev_row[0] = (seq_t)1;      /* T(0,0) */
         cache[0] = prev_row[0];
@@ -88,7 +90,7 @@ seq_t a(idx_t n) {
         size_t curr_size = (size_t)new_row + 1;   /* Size of row array */
 
         /* Allocate current row */
-        seq_t *curr_row = (seq_t *)malloc(curr_size * sizeof(seq_t));
+        seq_t *curr_row = mem_new(seq_t, curr_size);
         if (!curr_row) exit(1);
 
         /* First element is 0 for n>0 */
@@ -114,7 +116,7 @@ seq_t a(idx_t n) {
         }
 
         /* Prepare for next iteration */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = curr_row;
         prev_size = curr_size;
         ++max_row_done;

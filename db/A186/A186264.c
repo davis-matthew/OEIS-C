@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 19, u128 n <= 36,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 38 terms through n = 195 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* cache for previously computed values */
 static seq_t *cache   = NULL;
@@ -53,7 +55,7 @@ ensure_cache(idx_t n)
     if (required > cacheAlloc) {
         size_t newAlloc = cacheAlloc == 0 ? 8 : cacheAlloc * 2;
         if (newAlloc < required) newAlloc = required;
-        seq_t *tmp = (seq_t *)realloc(cache, newAlloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newAlloc);
         if (!tmp) exit(EXIT_FAILURE);      /* out of memory */
         cache = tmp;
         cacheAlloc = newAlloc;

@@ -9,14 +9,17 @@
  *            Σ_{i=0}^{min(k,n-k)} C(2n-2k-i,i)·C(2k-i,i)
  * Range:     u8 n <= 39, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* flattened triangle */
 static size_t cache_len = 0;          /* number of elements stored          */
@@ -28,8 +31,8 @@ static seq_t compute_T(idx_t n, idx_t k)
     idx_t max_i = (k <= n - k) ? k : n - k;
     seq_t sum = 0;
     for (idx_t i = 0; i <= max_i; ++i) {
-        seq_t a = binom((idx_t)(2 * n - 2 * k - i), (idx_t)i);
-        seq_t b = binom((idx_t)(2 * k - i), (idx_t)i);
+        seq_t a = binomial((idx_t)(2 * n - 2 * k - i), (idx_t)i);
+        seq_t b = binomial((idx_t)(2 * k - i), (idx_t)i);
         sum += a * b;
     }
     return sum;
@@ -52,7 +55,7 @@ static void ensure_cache_upto(idx_t target)
         size_t cap = cache_cap > 0 ? cache_cap : 8;
         while (cap < new_len)
             cap <<= 1;
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
         cache_cap = cap;
     }
 

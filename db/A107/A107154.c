@@ -8,7 +8,8 @@
  *            19 (mod 24)
  * Range:     i8 n <= 4, i16 n <= 46, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
- * Helpers:   mul_mod64
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_mod64.h"
+#include <stddef.h>
+#include <string.h>
+#include "../utils/mulmod.h"
 
 /* ---------- Miller–Rabin primality test for 64‑bit integers ---------- */
 
@@ -25,8 +28,8 @@ static inline uint64_t pow_mod64(uint64_t a, uint64_t e, uint64_t mod)
     uint64_t res = 1 % mod;
     uint64_t base = a % mod;
     while (e) {
-        if (e & 1) res = mul_mod64(res, base, mod);
-        base = mul_mod64(base, base, mod);
+        if (e & 1) res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         e >>= 1;
     }
     return res;
@@ -60,7 +63,7 @@ static bool is_prime_64(uint64_t n)
         if (x == 1 || x == n-1) continue;
         bool comp = true;
         for (int r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) {
                 comp = false;
                 break;

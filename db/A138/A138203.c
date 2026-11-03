@@ -14,7 +14,8 @@
  *            the n‑th element of that final survivor list
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for the cache of computed survivors */
 static seq_t *cache = NULL;
@@ -37,8 +39,8 @@ static void build_cache(idx_t need) {
 
     while (true) {
         /* allocate arrays for the sieve */
-        seq_t *cur  = (seq_t*)malloc(sizeof(seq_t) * limit);
-        seq_t *nxt  = (seq_t*)malloc(sizeof(seq_t) * limit);
+        seq_t *cur  = mem_new(seq_t, limit);
+        seq_t *nxt  = mem_new(seq_t, limit);
         char  *rem  = (char*)calloc(limit + 1, sizeof(char));  /* removed flags */
         if (!cur || !nxt || !rem) abort();
 
@@ -76,20 +78,20 @@ static void build_cache(idx_t need) {
         }
 
         /* allocate cache and copy the survivors */
-        seq_t *new_cache = (seq_t*)malloc(sizeof(seq_t) * cur_len);
-        memcpy(new_cache, cur, sizeof(seq_t) * cur_len);
-        free(cur); free(nxt); free(rem);
+        seq_t *new_cache = mem_new(seq_t, cur_len);
+        mem_copy(new_cache, cur, sizeof(seq_t) * cur_len);
+        mem_free(cur); mem_free(nxt); free(rem);
 
         if (cur_len >= need) {
             /* store in the static cache */
-            if (cache) free(cache);
+            if (cache) mem_free(cache);
             cache     = new_cache;
             cache_len = cur_len;
             cache_ready = true;
             return;
         }
         /* not enough survivors: enlarge the limit and retry */
-        free(new_cache);
+        mem_free(new_cache);
         limit *= 2;
     }
 }

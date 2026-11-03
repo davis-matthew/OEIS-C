@@ -7,12 +7,14 @@
  * Formula:   a(n) = n! * floor((n+3)/3)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 443 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Initial allocation */
     if (fact == NULL) {
         fact_cap = 16;                            /* arbitrary small start */
-        fact = (seq_t*)malloc(fact_cap * sizeof(seq_t));
+        fact = mem_new(seq_t, fact_cap);
         fact[0] = (seq_t)1;                       /* 0! = 1 */
         fact_len = 1;
     }
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (n >= fact_cap) {
         /* double until enough */
         while (n >= fact_cap) fact_cap <<= 1;
-        fact = (seq_t*)realloc(fact, fact_cap * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, fact_cap);
     }
 
     /* Compute missing factorials */

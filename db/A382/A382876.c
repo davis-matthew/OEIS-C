@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   valid_perm
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/valid_perm.h"
+
+/* Test whether a permutation of the prime‑indices multiset yields
+ * distinct run‑sums.  perm is an array of length m. */
+static bool valid_perm(const uint32_t *perm, int m)
+{
+    uint32_t sums[20];
+    int sumcnt = 0;
+    for (int i = 0; i < m; ) {
+        uint32_t val = perm[i];
+        int j = i;
+        while (j < m && perm[j] == val)
+            ++j;
+        uint32_t run_sum = val * (uint32_t)(j - i);
+        for (int k = 0; k < sumcnt; ++k)
+            if (sums[k] == run_sum)
+                return false;
+        sums[sumcnt++] = run_sum;
+        i = j;
+    }
+    return true;
+}
 
 /* ---------- prime table ---------- */
 static uint32_t *prime_list = NULL;

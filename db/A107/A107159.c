@@ -7,7 +7,8 @@
  * Formula:   primes of the form 4x^2 + 13y^2 (searched explicitly)
  * Range:     u8 n <= 6, u16 n <= 810, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_sqrt, is_prime, push_seq
+ * Validated: standard, pass, 61 terms through n = 9171 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,14 +17,27 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"
-#include "../utils/int_sqrt.h"
-#include "../utils/push_seq.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 /* Helper: true if n is a perfect square (uint64_t) */
 static bool is_square_uint64(uint64_t n)
 {
-    uint64_t r = int_sqrt(n);
+    uint64_t r = isqrt(n);
     return r * r == n;
 }
 
@@ -31,7 +45,7 @@ static bool is_square_uint64(uint64_t n)
 static bool represented(uint64_t p)
 {
     /* y may start from 0; y^2 <= p/13 */
-    uint64_t maxy = int_sqrt(p / 13);
+    uint64_t maxy = isqrt(p / 13);
     for (uint64_t y = 0; y <= maxy; ++y) {
         uint64_t term  = 13 * y * y;
         if (term > p) break;
@@ -56,7 +70,7 @@ seq_t a(idx_t n)
     while (size < n) {
         /* Find the next prime */
         for (;;) {
-            if (is_prime(candidate)) break;
+            if (is_prime_u64(candidate)) break;
             candidate += 2;               /* skip even numbers */
         }
 

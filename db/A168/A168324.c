@@ -10,14 +10,18 @@
  *            + e_2 + … + e_i). a(1) = 0
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   binom, factor_u64
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   binomial, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* factor_u64 */
-#include "../utils/binom.h"       /* binom */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +41,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i)
     {
         total += (idx_t)exps[i];                 /* add the i‑th multiplicity */
-        result *= binom(total, (idx_t)exps[i]);  /* multinomial increment */
+        result *= binomial(total, (idx_t)exps[i]);  /* multinomial increment */
     }
 
     return result;

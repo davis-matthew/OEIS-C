@@ -7,13 +7,15 @@
  * Formula:   a(n) = 42*a(n-1) - 2*(n-1)*a(n-2), a(0)=1, a(1)=42
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 11, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 648 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the sequence A158727: Hermite(n,21). */
 seq_t a(idx_t n)
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Compute required storage size. */
     size_t need = (size_t)n + 1;
     if (need > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) { /* allocation failed – aborting is acceptable for a single call */
             return (seq_t)0;
         }

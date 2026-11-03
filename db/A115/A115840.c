@@ -9,12 +9,14 @@
  *            k : a(k) < 6n } (self‑describing sequence)
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ extern seq_t a(idx_t n)
     /* compute missing terms up to the requested index */
     if (size < n) {
         idx_t new_size = n + 1;    /* +1 for 1‑based indexing */
-        seq_t *tmp = (seq_t *)realloc(seq, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_size);
         if (!tmp) abort();        /* allocation failed */
         seq = tmp;
 

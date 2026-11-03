@@ -9,7 +9,8 @@
  *            and q primes, * such that (p−1)² ≡ (q−1)² (mod n)
  * Range:     u8 n <= 479, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 116 terms through n = 9891 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Count of prime pairs satisfying the congruence modulo n. */
 seq_t a(idx_t n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* Count how many primes produce each residue r = (p-1)² mod n. */
     size_t sz = (size_t)n;                     /* n is small (≤ 10000) */
-    seq_t *res_cnt = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *res_cnt = mem_new(seq_t, sz);
     if (!res_cnt)
     {
         free(primes);
@@ -53,6 +55,6 @@ seq_t a(idx_t n)
     }
 
     free(primes);
-    free(res_cnt);
+    mem_free(res_cnt);
     return total;
 }

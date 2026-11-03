@@ -9,18 +9,20 @@
  *            choose j]_q = [n+j-1 choose j-1]_q * (1-q^(n+j)) / (1-q^j)
  * Range:     u8 n <= 6, u16 n <= 20, u32 n <= 115, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t N = 4 * n;
     idx_t j, k;
     seq_t r;
-    seq_t *c = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (size_t)(N + 1));
     if (!c) return 0;
     c[0] = 1;
     for (k = 1; k <= N; k++) c[k] = 0;
@@ -34,6 +36,6 @@ seq_t a(idx_t n) {
         }
     }
     r = c[N];
-    free(c);
+    mem_free(c);
     return r;
 }

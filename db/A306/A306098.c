@@ -12,13 +12,15 @@
  *            plane partitions obey n * A005987(n) = ∑_{k=...
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 37, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The following types are defined by the build environment. */
 typedef seq_t seq_t;   /* arbitrary precision or unsigned integer type */
@@ -36,10 +38,10 @@ static void _grow(idx_t n)
     if (n <= _max_n) return;
 
     /* allocate new arrays of size n+1 (index 0..n) */
-    seq_t *Pnew   = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *Snew   = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *Tpnew  = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *Tsnew  = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *Pnew   = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *Snew   = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *Tpnew  = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *Tsnew  = mem_new(seq_t, (size_t)(n + 1));
 
     /* compute divisor‑sum tables Tpnew and Tsnew for all k ≤ n */
     for (idx_t d = 1; d <= n; ++d)
@@ -80,10 +82,10 @@ static void _grow(idx_t n)
     }
 
     /* free previous tables */
-    free(P);
-    free(S);
-    free(Tp);
-    free(Ts);
+    mem_free(P);
+    mem_free(S);
+    mem_free(Tp);
+    mem_free(Ts);
 
     /* store new tables */
     P  = Pnew;

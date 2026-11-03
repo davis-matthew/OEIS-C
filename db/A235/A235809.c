@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 428, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   big_pow, digit_counts
+ * Validated: standard, pass, 68 terms through n = 957 (2026-11-03)
+ * Helpers:   digit_counts, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     /* Grow cache to hold at least n terms */
     while (terms_len < n)
     {
-        seq_t cube = big_pow((seq_t)next_k, (seq_t)3);
+        seq_t cube = ipow((seq_t)next_k, (seq_t)3);
 
         unsigned char cnt[10];
         for (int i = 0; i < 10; ++i) cnt[i] = 0;
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
             if (terms_len >= terms_cap)
             {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) abort();          /* allocation failed */
                 terms = tmp;
                 terms_cap = new_cap;

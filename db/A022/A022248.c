@@ -7,12 +7,15 @@
  * Formula:   a(n) = Product_{i=1..8} (8^(n-i+1)-1)/(8^i-1)
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 9, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 23 terms through n = 127 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
 
         if (i >= 8) {
             /* 8^(i-8) computed once per i */
-            seq_t powBase = seq_pow((seq_t)8, i - 8);
+            seq_t powBase = ipow_idx((seq_t)8, i - 8);
 
             for (idx_t k = 1; k <= 8; ++k) {
                 if (k > i) {          /* G(i,k) = 0 for k > i */

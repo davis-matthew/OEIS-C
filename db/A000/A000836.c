@@ -12,8 +12,8 @@
  *            number of cycles of (g,s) acting on the maps F_2...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   a836_cent, a836_clog, a836_deg, a836_g, a836_pmod, a836_pw2,
- *            a836_summin
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_u64, ilog2_u64, pow2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,13 +21,40 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a836_cent.h"
-#include "../utils/a836_clog.h"
-#include "../utils/a836_deg.h"
-#include "../utils/a836_g.h"
-#include "../utils/a836_pmod.h"
-#include "../utils/a836_pw2.h"
-#include "../utils/a836_summin.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ilog2_u64.h"
+#include "../utils/pow2_u64.h"
+
+static seq_t a836_cent(const int *lam, int len, int d) {
+    uint64_t E = 0; int i, j, t;
+    seq_t r = 1;
+    for (i = 0; i < len; i++) E += (uint64_t)(2 * i + 1) * (uint64_t)lam[i];
+    i = 0;
+    while (i < len) {
+        int m;
+        j = i;
+        while (j < len && lam[j] == lam[i]) j++;
+        m = j - i;
+        E -= (uint64_t)(m * (m + 1) / 2);
+        for (t = 1; t <= m; t++) r *= pow2_u64((uint64_t)d * (uint64_t)t) - 1;
+        i = j;
+    }
+    return r * pow2_u64((uint64_t)d * E);
+}
+
+static int a836_clog(int j) { int t = 0; while ((1 << t) < j) t++; return t; }
+
+static uint64_t a836_pmod(uint64_t a, uint64_t f) {
+    int df = ilog2_u64(f), da;
+    while ((da = ilog2_u64(a)) >= df) a ^= f << (da - df);
+    return a;
+}
+
+static int a836_summin(const int *lam, int len, int j) {
+    int s = 0, i;
+    for (i = 0; i < len; i++) s += lam[i] < j ? lam[i] : j;
+    return s;
+}
 
 typedef struct { uint64_t *per; uint64_t *cnt; int n; } a836_dist;
 typedef struct { int **p; int *len; int n, cap; } a836_plist;
@@ -52,7 +79,7 @@ static a836_dist a836_conv(const a836_dist *A, const a836_dist *B) {
     for (i = 0; i < A->n; i++)
         for (j = 0; j < B->n; j++) {
             uint64_t x = A->per[i], y = B->per[j];
-            a836_add(&R, x / a836_g(x, y) * y, A->cnt[i] * B->cnt[j]);
+            a836_add(&R, x / gcd_u64(x, y) * y, A->cnt[i] * B->cnt[j]);
         }
     return R;
 }
@@ -121,9 +148,9 @@ static void a836_rec(a836_ctx *X, int i, int rem, const a836_dist *D, seq_t C) {
                 if (T.per[t] % 2 == 0) ce += cy;
                 if (T.per[t] % 3 == 0) c3 += cy;
             }
-            W = a836_pw2(3 * c) + a836_pw2(2 * c + ce) * 3 + a836_pw2(c + 2 * c3) * 2;
+            W = pow2_u64(3 * c) + pow2_u64(2 * c + ce) * 3 + pow2_u64(c + 2 * c3) * 2;
             uc = a836_cent(X->UP->p[uq], X->UP->len[uq], 1);
-            uw = a836_pw2((uint64_t)X->ug1[u]) - a836_pw2((uint64_t)X->ug2[u]);
+            uw = pow2_u64((uint64_t)X->ug1[u]) - pow2_u64((uint64_t)X->ug2[u]);
             coef = X->M0 * uw / (uc * C);
             X->S += coef * W;
             a836_free(&T);
@@ -156,8 +183,8 @@ seq_t a(idx_t n) {
         while ((1 << lg) < w) lg++;
         if (N > lg - 2) return 0;
     }
-    for (i = 0; i < N; i++) GL *= a836_pw2((uint64_t)N) - a836_pw2((uint64_t)i);
-    X.M0 = a836_pw2((uint64_t)N) * GL;
+    for (i = 0; i < N; i++) GL *= pow2_u64((uint64_t)N) - pow2_u64((uint64_t)i);
+    X.M0 = pow2_u64((uint64_t)N) * GL;
     X.S = 0;
     X.np = 0; X.pdeg = NULL; X.pord = NULL;
     for (d = 2; d <= N; d++) {

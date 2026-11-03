@@ -7,6 +7,7 @@
  * Formula:   a(2*n) = n + 1, a(2*n - 1) = 2*n - 1
  * Range:     u8 n <= 256, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 89 terms through n = 4870 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

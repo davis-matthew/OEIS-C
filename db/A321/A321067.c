@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 198, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 57 terms through n = 974 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
 
 /* Euclidean greatest common divisor for uint64_t values */
 
@@ -91,7 +92,7 @@ seq_t a(idx_t n)
             while (1) {
                 unsigned __int128 two_v2 = (unsigned __int128)2ULL * v * v;
                 if (two_v2 <= k2) { v++; continue; }
-                if (gcd64(k, v) == 1) break;
+                if (gcd_u64(k, v) == 1) break;
                 v++;
             }
             /* a = k² + 2k v */
@@ -109,7 +110,7 @@ seq_t a(idx_t n)
                 if ( (r & 1ULL) == 0ULL) { r++; continue; }  /* need odd r */
                 unsigned __int128 r2 = (unsigned __int128)r * r;
                 if (r2 <= two_v2) { r++; continue; }
-                if (gcd64(r, v) == 1) break;
+                if (gcd_u64(r, v) == 1) break;
                 r++;
             }
             uint64_t u = v + r;                  /* u = v + r */

@@ -10,16 +10,29 @@
  *            arithmetic only, no floating point
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   factor_u64, factorial, odd_divisor_sum
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   factor_u64, sigma_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/factorial.h"
-#include "../utils/odd_divisor_sum.h"
+#include "../utils/sigma_u64.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +55,7 @@ seq_t a(idx_t n)
         two_pow *= (seq_t)2;
 
     /* 4. Compute σ(m) (sum of divisors of the odd part) */
-    seq_t sigma = odd_divisor_sum(m);
+    seq_t sigma = sigma_u64(m);
 
     /* 5. Result = fact * two_pow * sigma */
     seq_t result = fact;

@@ -9,6 +9,7 @@
  *            where s is the starting bit position and l is the run length
  * Range:     u8 n <= 39, u16 n <= 169, u32 n <= 2643, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 79 terms through n = 8026 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

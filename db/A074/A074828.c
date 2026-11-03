@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(1) = 1; for n > 1: if n is prime then a(n) = 2*n, else a(n) =
  *            smallest prime divisor of n
- * Range:     u8 n <= 130, u16 n <= 9912, u32 n <= 9912, u64 n <= 9912,
- *            u128 n <= 9912, big any n
+ * Range:     u8 n <= 130, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 106 terms through n = 9912 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <math.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

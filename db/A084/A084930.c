@@ -8,12 +8,14 @@
  *            (2*r+1)/(r+1+k) where n = r*(r+1)/2 + k, 0 <= k <= r
  * Range:     i8 n <= 10, i16 n <= 31, i32 n <= 49, i64 n <= 49, i128 n <= 49,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     idx_t k = n - prev;
 
     /* Compute the coefficient using the closed‑form formula. */
-    seq_t val = binom(r + 1 + k, 2 * k + 1);
+    seq_t val = binomial(r + 1 + k, 2 * k + 1);
     val *= (seq_t)(2 * r + 1);
     val /= (seq_t)(r + 1 + k);
 

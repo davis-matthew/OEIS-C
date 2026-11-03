@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8383, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   _gcd_idx_t
+ * Validated: standard, pass, 88 terms through n = 8349 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
     (row r contains k = 1 … r).  For a 1‑based linear index m the
     function returns the mth triangle entry.                          */
 #include <stdint.h>
-#include "../utils/_gcd_idx_t.h"
+#include "../utils/gcd_idx.h"
 
 /* Euclidean algorithm for idx_t (uint64_t).  Not in the utils list */
 
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
     idx_t k = n - start + 1;
 
     /* Compute the triangle value */
-    idx_t g = _gcd_idx_t(r, k);
+    idx_t g = gcd_idx(r, k);
 
     return (seq_t)r + (seq_t)k - (seq_t)g;
 }

@@ -11,7 +11,8 @@
  *            of adjacent decimal digits until only one digit remains
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   compute_last_row
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,44 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/compute_last_row.h"
+#include "../utils/mem.h"
+
+/* compute the last row of the "upside-down" triangle for n */
+static seq_t
+compute_last_row(seq_t n)
+{
+    /* maximum number of decimal digits for 128‑bit integer is < 40, so 64 is safe */
+    uint8_t digits[64];
+    size_t len = 0;
+    seq_t tmp = n;
+
+    if (tmp == 0) {
+        digits[len++] = 0;
+    } else {
+        while (tmp > 0) {
+            digits[len++] = (uint8_t)(tmp % 10);
+            tmp /= 10;
+        }
+        /* reverse to obtain most significant digit first */
+        for (size_t i = 0; i < len / 2; ++i) {
+            uint8_t x = digits[i];
+            digits[i] = digits[len - 1 - i];
+            digits[len - 1 - i] = x;
+        }
+    }
+
+    /* iteratively compute absolute differences until one digit remains */
+    while (len > 1) {
+        size_t new_len = len - 1;
+        for (size_t i = 0; i < new_len; ++i) {
+            uint8_t a = digits[i];
+            uint8_t b = digits[i + 1];
+            digits[i] = (a > b) ? (a - b) : (b - a);
+        }
+        len = new_len;
+    }
+    return (seq_t)digits[0];
+}
 
 /* global cache storage for the sequence */
 static seq_t *seq_cache       = NULL;
@@ -36,7 +74,7 @@ ensure_cache(size_t needed)
     size_t new_cap = seq_cache_cap ? seq_cache_cap : 128;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_arr)
         abort();              /* insufficient memory */
     seq_cache     = new_arr;

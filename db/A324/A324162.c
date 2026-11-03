@@ -13,7 +13,8 @@
  *            (k*j)! * S(n, k*j) / ((k!)^j * j!) with S(n,m) the St...
  * Range:     u8 n <= 28, u16 n <= 46, u32 n <= 121, u64 n <= 277,
  *            u128 n <= 742, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 82 terms through n = 9666 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stddef.h>     /* for size_t */
 #include <stdint.h>     /* for uint64_t */
 
-#include "../utils/seq_pow.h"  /* seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* maximum n we will need (sufficient for index up to ~10^4) */
 #define MAX_N 200
@@ -130,7 +132,7 @@ static seq_t _T_row_K(size_t row, size_t k)
         for (int pi = 0; pi < prime_count; ++pi) {
             int e = exps[pi];
             if (e > 0)
-                comb *= seq_pow((seq_t)primes[pi], (idx_t)e);
+                comb *= ipow_idx((seq_t)primes[pi], (idx_t)e);
         }
 
         sum += base * comb;

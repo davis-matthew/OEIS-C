@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, cmp_seq_t
+ * Validated: standard, pass, 80 terms through n = 9315 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,35 @@
 #include <stdbool.h>
 
 /* ---------- utils from the framework ---------- */
-#include "../utils/cmp_seq_t.h"          /* int cmp_seq_t(const void *, const void *); */
-#include "../utils/append_candidate.h"   /* void append_candidate(seq_t **, size_t *, size_t *, seq_t); */
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* ---------- function declaration ---------- */
 seq_t a(idx_t n)
@@ -62,7 +90,7 @@ seq_t a(idx_t n)
 
         /* sort the candidate list */
         if (tmp_len > 0)
-            qsort(tmp, tmp_len, sizeof(seq_t), cmp_seq_t);
+            mem_qsort(tmp, tmp_len, sizeof(seq_t), cmp_seq_t);
 
         /* remove duplicates in place, producing the final sorted unique list */
         if (tmp_len > 0) {

@@ -9,7 +9,8 @@
  *            (prime(2k)-prime(2k-1))
  * Range:     i8 n <= 390, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 8467 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- prime storage (0‑based) ---------- */
 static uint32_t *prime_list = NULL;   /* prime_list[i] == prime(i+1) */
@@ -73,7 +75,7 @@ ensure_cache(size_t max_index)
 {
     if (a_cap <= max_index) {
         a_cap = max_index + 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, a_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, a_cap);
         if (!tmp)
             abort();
         a_cache = tmp;

@@ -7,18 +7,19 @@
  * Formula:   a(n) = 1 if n=0, else 6*5^(n-1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   a000248_pow
+ * Validated: standard, pass, 40 terms through n = 192 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000248_pow.h"
-
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0) {
         return (seq_t)1;
     }
-    seq_t power = a000248_pow((seq_t)5, n - 1);
+    seq_t power = ipow_idx((seq_t)5, n - 1);
     return (seq_t)6 * power;
 }

@@ -8,7 +8,8 @@
  *            = 2³¹−1 = 2147483647. a(1) = 90, a(2) = 96, …
  * Range:     u8 n <= 7, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Local deterministic Miller–Rabin primes checker for u64 ----------
  *  Works for all 64‑bit numbers.  It uses multiplication modulo mod via
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
     if (cache == NULL)            /* first call: allocate default size */
     {
         cap   = 128;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     const uint64_t M31 = 2147483647ULL;    /* 2^31−1 */
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
             {
                 size_t oldcap = cap;
                 cap   *= 2;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[count++] = (seq_t)cand;
         }

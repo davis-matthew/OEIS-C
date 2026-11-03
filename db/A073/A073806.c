@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of divisors of Σ_{d|n} d² (σ₂(n))
  * Range:     u8 n <= 1819, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sigma2_from_factors
+ * Validated: standard, pass, 97 terms through n = 9380 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,27 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/sigma2_from_factors.h"
+
+/* Compute σ₂(n) = Σ_{d|n} d², using the prime factorisation of n. */
+static uint64_t sigma2_from_factors(uint64_t *pfactors,
+                                    uint64_t *pexps,
+                                    size_t pc)
+{
+    uint64_t result = 1;
+    for (size_t i = 0; i < pc; ++i) {
+        uint64_t p = pfactors[i];
+        uint64_t e = pexps[i];
+        uint64_t term = 1;           /* Σ_{k=0}^{e} p^{2k} */
+        uint64_t pow = 1;            /* p^{2k} */
+        uint64_t p2 = p * p;         /* p² */
+        for (uint64_t k = 0; k < e; ++k) {
+            pow *= p2;
+            term += pow;
+        }
+        result *= term;
+    }
+    return result;
+}
 
 static uint64_t *prime_list = NULL;   /* primes ≤ 100 000 */
 static size_t   prime_cnt   = 0;

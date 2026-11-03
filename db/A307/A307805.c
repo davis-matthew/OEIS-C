@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 1874, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_prime, gpf
+ * Validated: standard, pass, 76 terms through n = 9830 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,62 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/get_prime.h"  /* uint32_t get_prime(idx_t k) */
-#include "../utils/gpf.h"        /* uint64_t gpf(uint64_t x) */
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
+
+/* Return the k‑th prime (k ≥ 1).  On first call the prime list
+   is built incrementally using trial division.  The list is
+   stored in a static array which is expanded as necessary.   */
+static uint32_t get_prime(idx_t k)
+{
+    static uint32_t *pr = NULL;     /* array of primes */
+    static size_t sz   = 0;         /* number of primes stored */
+    static size_t cap  = 0;         /* allocated capacity */
+    static uint32_t cand = 3;       /* candidate after 2 */
+
+    /* initialise the prime table on first use */
+    if (sz == 0) {
+        cap = 8;
+        pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+        if (!pr) abort();
+        sz = 0;
+    }
+
+    /* grow the array until we have at least k primes */
+    while (sz < (size_t)k) {
+        if (sz == 0) {                /* add the first prime */
+            pr[sz++] = 2;
+            continue;
+        }
+
+        /* find the next prime candidate */
+        uint32_t p = cand;
+        bool ok = true;
+        for (size_t i = 0; i < sz; ++i) {
+            uint32_t prime = pr[i];
+            if ((uint64_t)prime * prime > (uint64_t)p) break;
+            if (p % prime == 0) { ok = false; break; }
+        }
+
+        if (!ok) {                    /* not prime – keep searching */
+            cand += 2;                /* only odd numbers remain */
+            continue;
+        }
+
+        /* prime found – store it, grow table if needed */
+        if (sz == cap) {
+            cap <<= 1;
+            pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+            if (!pr) abort();
+        }
+        pr[sz++] = p;
+        cand = p + 2;
+    }
+
+    return pr[(size_t)k - 1];
+}
 
 /* static cache: first_i_cache[p] = first index i with gpf(prime(i)-1)=p.
  * 0 indicates “not yet seen” */
@@ -40,7 +95,7 @@ ensure_cache_size(size_t need)
         new_size = 64;
     while (new_size < need)
         new_size <<= 1;
-    seq_t *tmp = (seq_t *)realloc(first_i_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, first_i_cache, new_size);
     if (!tmp)
         abort();  /* out of memory – terminate */
     for (size_t i = cache_size; i < new_size; ++i)
@@ -68,7 +123,7 @@ seq_t a(idx_t n)
     for (idx_t i = last_checked_i + 1; ; ++i)
     {
         uint32_t pi = get_prime(i);                       /* prime(i) */
-        uint64_t g  = gpf((uint64_t)pi - 1ULL);           /* gpf of prime(i)-1 */
+        uint64_t g  = largest_prime_factor((uint64_t)pi - 1ULL);           /* gpf of prime(i)-1 */
         size_t gi   = (size_t)g;
 
         /* Expand cache to hold this prime value if needed */

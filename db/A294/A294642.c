@@ -8,7 +8,8 @@
  *            Catalan(k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   pow2, seq_pow
+ * Validated: standard, pass, 36 terms through n = 245 (2026-11-01)
+ * Helpers:   ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_pow.h"   /* seq_pow(base, exp) → seq_t */
-#include "../utils/pow2.h"      /* pow2(k) → seq_t, but we use an incremental loop */
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* Start values for the accumulators */
     seq_t ans      = (seq_t)0;             /* sum of terms */
-    seq_t pow_n    = seq_pow((seq_t)n, n); /* n^n   (will be divided by n^2 each loop) */
+    seq_t pow_n    = ipow_idx((seq_t)n, n); /* n^n   (will be divided by n^2 each loop) */
     seq_t catalan  = (seq_t)1;             /* Catalan(0) */
     seq_t pow2_val = (seq_t)1;             /* 2^k   (kept incrementally) */
     seq_t bin      = (seq_t)1;             /* binomial(n, 0) */

@@ -11,15 +11,31 @@
  *            * 2^((n+(n mod 2)+2k)/2)
  * Range:     u8 n <= 13, u16 n <= 35, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   _row_len, binomial, pow2
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/_row_len.h"
+
+/* Number of entries in row n of the triangle */
+static inline idx_t _row_len(idx_t n)
+{
+    idx_t m = n & 1u;                         /* n mod 2 */
+
+    /* For n = 1 the inequality 6k + 3m ≤ n gives no k ≥ 0, but the row
+       contains a single zero entry.  Handle this as a special case. */
+    if (n < 3*m)        /* only n = 1 satisfies this */
+        return 1u;
+
+    idx_t kmax = (n - 3*m) / 6;               /* floor((n-3m)/6) */
+    return kmax + 1u;                         /* k = 0 … kmax */
+}
 
 /* Compute a single triangle entry T(n,k) */
 static inline seq_t _T_value(idx_t n, idx_t k)

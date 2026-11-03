@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 16, u64 n <= 256,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_u128, prime_power_factor
+ * Validated: standard, pass, 41 terms through n = 9290 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,31 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/pow_u128.h"
-#include "../utils/prime_power_factor.h"
+
+/* Compute (base^exp) using unsigned __int128 to avoid overflow.
+ *   base may be up to 10000, exp up to 106 (for n <= 10000).
+ *   The result fits in unsigned __int128 for all allowed inputs. */
+static inline unsigned __int128 pow_u128(unsigned __int128 base, unsigned exp)
+{
+    unsigned __int128 result = 1;
+    while (exp) {
+        if (exp & 1u) result *= base;
+        base *= base;
+        exp >>= 1u;
+    }
+    return result;
+}
+
+/* Compute the multiplicative factor for a prime power p^e */
+static inline seq_t prime_power_factor(idx_t p, unsigned e)
+{
+    unsigned exp = 8u * e + 2u;                 /* exponent of p in numerator   */
+    unsigned __int128 num = pow_u128((unsigned __int128)p, exp);
+    num += 1;                                   /* numerator: p^exp + 1         */
+    unsigned __int128 den = (unsigned __int128)p * p + 1; /* denominator: p^2 + 1     */
+    unsigned __int128 fact = num / den;          /* exact division                */
+    return (seq_t)fact;                         /* fits in seq_t for allowed n   */
+}
 
 /* Factorise n and accumulate the product of factors. */
 seq_t a(idx_t n)

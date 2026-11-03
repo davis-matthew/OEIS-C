@@ -9,7 +9,8 @@
  *            (unlimited multiplicity)
  * Range:     u8 n <= 19, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     }
 
     /* Dynamic programming for partitions using the Ulam numbers (unlimited usage). */
-    seq_t *dp = (seq_t *)calloc((size_t)n + 1, sizeof *dp);
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
     if (!dp) { free(cnt); free(ulam); return (seq_t)1; }
 
     dp[0] = (seq_t)1;                                 /* empty partition */
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
     seq_t result = dp[n];
 
     /* Clean up */
-    free(dp);
+    mem_free(dp);
     free(cnt);
     free(ulam);
 

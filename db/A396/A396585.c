@@ -10,13 +10,15 @@
  *            row: a(0)=1, a(1)=0, a(2)=1, a(3)=3,
  * Range:     u8 n <= 17, u16 n <= 41, u32 n <= 111, u64 n <= 338,
  *            u128 n <= 1114, big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 61 terms through n = 8895 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *M = NULL;        /* array of Motzkin numbers          */
 static idx_t M_cap = 0;        /* currently allocated capacity      */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Ensure Motzkin numbers M[0..r] are available.  */
     if (M_cap < r + 1) {
         idx_t new_cap = r + 5;                 /* spare slots */
-        seq_t *tmp = (seq_t *)realloc(M, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, M, new_cap);
         M = tmp;
         M_cap = new_cap;
     }

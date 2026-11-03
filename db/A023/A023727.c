@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_ones_base5
+ * Validated: standard, pass, 64 terms through n = 908 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 
 /* required standard header */
 #include <stdlib.h>
-#include "../utils/count_ones_base5.h"
+
+/* helper: count digits equal to 1 in the base‑5 representation of x */
+static int count_ones_base5(seq_t x) {
+    int cnt = 0;
+    while (x != 0) {
+        if ((x % 5) == 1)
+            ++cnt;
+        x /= 5;
+    }
+    return cnt;
+}
 
 /* static cache for memoisation */
 #define MAX_CACHE 20000                 /* enough for n up to about 10000 */

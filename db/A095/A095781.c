@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   has_all_dec_digits, has_nondec_digit_14
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,8 +39,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_all_dec_digits.h"
-#include "../utils/has_nondec_digit_14.h"
+#include "../utils/mem.h"
+
+/*--- helper functions ---------------------------------------------------*/
+static bool has_all_dec_digits(seq_t x, idx_t base)
+{
+    while (x != 0) {
+        seq_t r = x % base;
+        if (r >= 10U) return false;
+        x /= base;
+    }
+    return true;
+}
+
+static bool has_nondec_digit_14(seq_t x)
+{
+    /* return true iff base‑14 representation contains a digit ≥10 (A–D) */
+    while (x != 0) {
+        seq_t r = x % 14U;
+        if (r >= 10U) return true;
+        x /= 14U;
+    }
+    return false;   /* all digits 0‑9 */
+}
 
 /*--- the required public function ---------------------------------------*/
 seq_t a(idx_t n)
@@ -53,7 +75,7 @@ seq_t a(idx_t n)
     /* Ensure capacity for at least one more term */
     if (cache_len >= cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap << 1 : 4;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();      /* memory exhaustion */
         cache = tmp;
         cache_cap = new_cap;

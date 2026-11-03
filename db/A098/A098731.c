@@ -12,7 +12,8 @@
  *            hence a small visited array suffices
  * Range:     u8 n <= 42, u16 n <= 9778, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_square_sum_uint64, is_happy_uint64
+ * Validated: standard, pass, 72 terms through n = 9676 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,40 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/digit_square_sum_uint64.h"
-#include "../utils/is_happy_uint64.h"
+#include "../utils/mem.h"
+
+/* Sum of squares of decimal digits of a 64‑bit integer. */
+static inline uint64_t digit_square_sum_uint64(uint64_t n)
+{
+    uint64_t sum = 0;
+    while (n > 0) {
+        uint64_t d = n % 10;
+        sum += d * d;
+        n /= 10;
+    }
+    return sum;
+}
+
+/* Test whether x is happy; x is a 64‑bit integer. */
+static bool is_happy_uint64(uint64_t x)
+{
+    /* Reduce initial value if it somehow exceeds 2000
+       (not expected for the problem, but keeps the table small). */
+    while (x >= 2000) {
+        x = digit_square_sum_uint64(x);
+    }
+
+    /* Detect cycles with a small table. */
+    bool visited[2000];
+    memset(visited, 0, sizeof(visited));
+
+    while (true) {
+        if (x == 1) return true;
+        if (visited[x]) return false;
+        visited[x] = true;
+        x = digit_square_sum_uint64(x);
+    }
+}
 
 /* Static cache for previously found terms. */
 static seq_t *k_cache   = NULL;
@@ -41,7 +74,7 @@ seq_t a(idx_t n)
             /* Ensure enough storage. */
             if (cache_sz == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-                seq_t *tmp = (seq_t *)realloc(k_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, k_cache, new_cap);
                 if (!tmp) abort();                 /* allocation failure */
                 k_cache = tmp;
                 cache_cap = new_cap;

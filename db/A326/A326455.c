@@ -11,7 +11,8 @@
  *            multiplied by n
  * Range:     u8 n <= 27, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   gen_primes_upto
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,55 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gen_primes_upto.h"
+#include "../utils/mem.h"
+
+/* ----------------------------------------------------------------- */
+static void gen_primes_upto(idx_t limit, uint64_t **out, size_t *cnt)
+{
+    if (limit < 2) {
+        *out = NULL;
+        *cnt = 0;
+        return;
+    }
+
+    size_t sz = (size_t)limit + 1;
+    char *is_p = (char *)malloc(sz);
+    if (!is_p) {
+        *out = NULL;
+        *cnt = 0;
+        return;
+    }
+
+    for (size_t i = 0; i < sz; ++i)
+        is_p[i] = 1;
+    is_p[0] = is_p[1] = 0;
+    for (size_t i = 2; i * i <= limit; ++i) {
+        if (is_p[i]) {
+            for (size_t j = i * i; j <= limit; j += i)
+                is_p[j] = 0;
+        }
+    }
+
+    size_t primes_est = 0;
+    for (size_t i = 2; i <= limit; ++i)
+        if (is_p[i]) ++primes_est;
+
+    uint64_t *pr = (uint64_t *)malloc(primes_est * sizeof(uint64_t));
+    if (!pr) {
+        free(is_p);
+        *out = NULL;
+        *cnt = 0;
+        return;
+    }
+
+    size_t idx = 0;
+    for (size_t i = 2; i <= limit; ++i)
+        if (is_p[i]) pr[idx++] = (uint64_t)i;
+
+    free(is_p);
+    *out = pr;
+    *cnt = primes_est;
+}
 
 /* ----------------------------------------------------------------- */
 /* Generate all primes up to limit (inclusive) into an array.          */
@@ -46,7 +95,7 @@ seq_t a(idx_t n)
     /* DP array: dp[k][s] stored linearly, k = 0..8, s = 0..n */
     size_t stride = (size_t)n + 1;
     size_t dp_size = 9 * stride;
-    seq_t *dp = (seq_t *)calloc(dp_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) {
         free(primes);
         return 0;
@@ -70,7 +119,7 @@ seq_t a(idx_t n)
     seq_t ways = dp[8 * stride + (size_t)n];
     seq_t result = (seq_t)n * ways;
 
-    free(dp);
+    mem_free(dp);
     free(primes);
     return result;
 }

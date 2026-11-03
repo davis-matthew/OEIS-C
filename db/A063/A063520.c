@@ -9,14 +9,16 @@
  *            s ≥ t > 0
  * Range:     u8 n <= 359, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _isqrt_u64
+ * Validated: standard, pass, 91 terms through n = 9803 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_isqrt_u64.h"
+#include <stddef.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* All indices and bounds are in idx_t (unsigned 64‑bit). */
     idx_t limit = 3 * n;                 /* s·t ≤ 3n from r ≥ s ≥ t > 0 */
-    idx_t t_max = _isqrt_u64(limit);     /* floor sqrt(limit) */
+    idx_t t_max = isqrt(limit);     /* floor sqrt(limit) */
 
     for (idx_t t = 1; t <= t_max; ++t) {
         idx_t s_max = limit / t;         /* maximal s for this t */

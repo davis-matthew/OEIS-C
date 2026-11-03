@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 128, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   even_sum_digits
+ * Validated: standard, pass, 82 terms through n = 867 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
  * you can generate the terms by the 10‑period recurrence
  * a(n+10) = a(n) + 20 after the first 10 terms.        */
 #include <stdbool.h>
-#include "../utils/even_sum_digits.h"
+
+/* Check whether the decimal digit sum of an integer x is even.
+ * Works for arbitrary sized seq_t because only modulo 10
+ * and division by 10 are used. */
+static bool even_sum_digits(seq_t x)
+{
+    seq_t t = x;
+    bool parity = false;                  /* true if odd count of odd digits */
+    while (t > (seq_t)0) {
+        seq_t digit = t % (seq_t)10;
+        parity ^= (bool)(digit & (seq_t)1);
+        t = t / (seq_t)10;
+    }
+    return !parity;                       /* true if sum is even */
+}
 
 /* Public entry point for the sequence. */
 seq_t a(idx_t n)

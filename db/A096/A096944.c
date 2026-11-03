@@ -7,12 +7,24 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 13, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   bin_choose5
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bin_choose5.h"
+/* Computes C(n,5) for n >= 5 using multiplies and exact divides. */
+static seq_t bin_choose5(idx_t n)
+{
+    seq_t r = 1;
+    /* n*(n-1)*...*(n-4)/120 computed step by step. */
+    for (idx_t i = 1; i <= 5; ++i)
+    {
+        r = r * (seq_t)(n - (5 - i)); /* numerator term */
+        r = r / (idx_t)i;             /* divide by i, exact */
+    }
+    return r;
+}
 /*
  * Formula: a(n) = (n+30) * binomial(n+5,5) / 6
  * (Derived from a(n) = (n+30)*C(n+5,5)/6).

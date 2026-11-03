@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n has a divisor that is a Zumkeller number, else 0
  *            (a(n) = [A378446(n) > 0])
- * Range:     u8 n <= 9566, u16 n <= 9566, u32 n <= 9566, u64 n <= 9566,
- *            u128 n <= 9566, big any n
+ * Range:     u8 n <= 108045, u16 n <= 108045, u32 n <= 108045,
+ *            u64 n <= 108045, u128 n <= 108045, big any n
+ * Validated: standard, pass, 142 terms through n = 9566 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

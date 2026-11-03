@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 189, u32 n <= 959, u64 n <= 960,
  *            u128 n <= 960, big any n
- * Helpers:   none
+ * Validated: full, pass, 960 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    numbers are sorted numerically to obtain the sequence. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Order of digits according to Cyrillic transliteration of
    their Russian names: 8,2,9,0,1,5,7,3,4,6. */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
             CACHE[CACHE_LEN++] = val;
         }
 
-        qsort(CACHE, CACHE_LEN, sizeof(seq_t), compare_seq);
+        mem_qsort(CACHE, CACHE_LEN, sizeof(seq_t), compare_seq);
         BUILT = 1;
     }
 

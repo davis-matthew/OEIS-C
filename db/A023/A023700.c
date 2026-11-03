@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 9999, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 8716 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    evaluates the nth element by binary search and digit
    counting – no table lookup is used. */
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Count how many integers <= X have exactly two 2's in their
    ternary representation. */
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
 
     /* Pre‑compute powers of 3 up to exponent i+1 for binary search bounds. */
     idx_t max_exp = i + 1;
-    seq_t *pow3 = (seq_t *)malloc((size_t)(max_exp + 1) * sizeof(seq_t));
+    seq_t *pow3 = mem_new(seq_t, (size_t)(max_exp + 1));
     pow3[0] = (seq_t)1;
     for (idx_t k = 1; k <= max_exp; ++k)
         pow3[k] = pow3[k - 1] * (seq_t)3;
@@ -111,6 +113,6 @@ seq_t a(idx_t n)
             high = mid;
     }
 
-    free(pow3);
+    mem_free(pow3);
     return low;
 }

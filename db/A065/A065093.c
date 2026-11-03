@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n} phi(k)*phi(n+1-k)
  * Range:     u8 n <= 14, u16 n <= 98, u32 n <= 3928, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 65 terms through n = 9790 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

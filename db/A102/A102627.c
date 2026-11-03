@@ -12,7 +12,8 @@
  *            the maximum n requested
  * Range:     u8 n <= 35, u16 n <= 89, u32 n <= 259, u64 n <= 839,
  *            u128 n <= 1000, big any n
- * Helpers:   needed_rows
+ * Validated: standard, pass, 83 terms through n = 906 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,13 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
-#include "../utils/needed_rows.h"
+#include "../utils/mem.h"
+
+static idx_t needed_rows(idx_t n)
+{
+    /* maximum d such that d*(d+1)/2 ≤ n  → floor((sqrt(8*n+1)-1)/2) */
+    return (idx_t)((sqrt(8.0* (double)n + 1.0) - 1.0) / 2.0) + 1;
+}
 
 /* static data used to cache the p_d(n) table */
 static seq_t *p_table = NULL;   /* flattened array: p_table[d*(cols)+n] */
@@ -33,8 +40,7 @@ static void recompute_table(idx_t n)
     idx_t new_rows = needed_rows(n);
 
     /* allocate new table */
-    seq_t *new_table = (seq_t *)calloc((size_t)new_rows * (size_t)new_cols,
-                                         sizeof(seq_t));
+    seq_t *new_table = mem_new(seq_t, (size_t)new_rows * (size_t)new_cols);
     if (!new_table) {
         /* allocation failed – terminate program */
         abort();
@@ -60,7 +66,7 @@ static void recompute_table(idx_t n)
     }
 
     /* replace old table */
-    free(p_table);
+    mem_free(p_table);
     p_table = new_table;
     cols = new_cols;
     rows = new_rows;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 3^n*Catalan(n)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 36 terms through n = 99 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 static seq_t pow3(idx_t n) {
     seq_t result = 1;
@@ -26,7 +28,7 @@ static seq_t pow3(idx_t n) {
 }
 
 seq_t a(idx_t n) {
-    seq_t binom_val = binom(2*n, n);
+    seq_t binom_val = binomial(2*n, n);
     seq_t catalan = binom_val / ((seq_t)(n + 1));
     seq_t power_3 = pow3(n);
     return power_3 * catalan;

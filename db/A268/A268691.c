@@ -12,7 +12,8 @@
  *            number of zeros
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   ceil_quarter, floor_three_quarters
+ * Validated: standard, pass, 51 terms through n = 3258 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/ceil_quarter.h"
-#include "../utils/floor_three_quarters.h"
+#include "../utils/mem.h"
+
+static inline idx_t ceil_quarter(idx_t k) { return (k + 3) / 4; }
+
+static inline idx_t floor_three_quarters(idx_t k) { return k - ceil_quarter(k); }
 
 static seq_t *cur = NULL;
 static seq_t *next = NULL;
@@ -34,12 +38,12 @@ seq_t a(idx_t n)
     /* initialisation */
     if (cache_sz == 0) {
         cur_sz = 1;
-        cur = (seq_t *)malloc(cur_sz * sizeof(seq_t));
-        next = (seq_t *)malloc(cur_sz * sizeof(seq_t));
+        cur = mem_new(seq_t, cur_sz);
+        next = mem_new(seq_t, cur_sz);
         if (!cur || !next) return (seq_t)0;
         cur[0] = (seq_t)1;
         next[0] = (seq_t)0;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;
         cache[0] = (seq_t)1;
         cache_sz = 1;
@@ -49,15 +53,15 @@ seq_t a(idx_t n)
     if (cur_sz <= (size_t)n) {
         size_t new_sz = (size_t)n + 1;
         size_t old_sz = cur_sz;
-        seq_t *tmp = (seq_t *)realloc(cur, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cur, new_sz);
         if (!tmp) return (seq_t)0;
         cur = tmp;
-        tmp = (seq_t *)realloc(next, new_sz * sizeof(seq_t));
+        tmp = mem_resize(seq_t, next, new_sz);
         if (!tmp) return (seq_t)0;
         next = tmp;
         if (new_sz > old_sz) {
-            memset(cur + old_sz, 0, (new_sz - old_sz) * sizeof(seq_t));
-            memset(next + old_sz, 0, (new_sz - old_sz) * sizeof(seq_t));
+            mem_set(cur + old_sz, 0, (new_sz - old_sz) * sizeof(seq_t));
+            mem_set(next + old_sz, 0, (new_sz - old_sz) * sizeof(seq_t));
         }
         cur_sz = new_sz;
     }
@@ -75,7 +79,7 @@ seq_t a(idx_t n)
         }
 
         /* clear next array for all usable indices */
-        memset(next, 0, cur_sz * sizeof(seq_t));
+        mem_set(next, 0, cur_sz * sizeof(seq_t));
 
         /* previous range */
         idx_t prev_low, prev_high;
@@ -110,7 +114,7 @@ seq_t a(idx_t n)
 
         /* extend cache if necessary */
         if (cache_sz <= k) {
-            seq_t *new_cache = (seq_t *)realloc(cache, (k + 1) * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, (k + 1));
             if (!new_cache) return (seq_t)0;
             cache = new_cache;
             cache_sz = k + 1;

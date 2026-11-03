@@ -14,14 +14,44 @@
  *            A(r,m). For n = 0 the value is 1
  * Range:     i8 n <= 22, i16 n <= 46, i32 n <= 52, i64 n <= 52, i128 n <= 52,
  *            big any n
- * Helpers:   compute_eulerian
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_eulerian.h"
+#include "../utils/mem.h"
+
+/* Computes the Eulerian numbers for rows up to r.
+   prev[i] contains A(r,i) for i=0..r-1 after the loop.          */
+static void compute_eulerian(idx_t r, seq_t **prev_out, size_t *len_out)
+{
+    /* Base case: r = 1 => A(1,0) = 1 */
+    seq_t *prev = mem_new(seq_t, 1);
+    prev[0] = (seq_t)1;
+    size_t prev_len = 1;
+
+    for (idx_t new_r = 2; new_r <= r; ++new_r) {
+        size_t new_len = new_r;
+        seq_t *new_arr = mem_new(seq_t, new_len);
+        for (size_t m = 0; m < new_len; ++m) {
+            seq_t t1 = 0, t2 = 0;
+            if (m < prev_len)          /* A(r-1, m) term */
+                t1 = prev[m] * (seq_t)(m + 1);
+            if (m > 0)                  /* A(r-1, m-1) term */
+                t2 = prev[m - 1] * (seq_t)(new_len - m);
+            new_arr[m] = t1 + t2;
+        }
+        mem_free(prev);
+        prev = new_arr;
+        prev_len = new_len;
+    }
+
+    *prev_out = prev;
+    *len_out = prev_len;
+}
 
 /* Find the smallest r such that r*(r+1) > n-1 (i.e. the row containing n).  */
 static inline idx_t row_of_index(idx_t n)
@@ -81,6 +111,6 @@ seq_t a(idx_t n)
         pow2 += pow2;
     }
 
-    free(euler);
+    mem_free(euler);
     return result;
 }

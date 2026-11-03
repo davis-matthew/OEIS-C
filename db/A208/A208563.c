@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int COEF[10] = {
     61,    -1124, 9139, -34187, 44684,
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 
     if (cache_size == 0) {
         const size_t init_cap = 12;   /* indices 0…11 inclusive */
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         cache_cap = init_cap;
         for (size_t i = 0; i < 12; ++i) cache[i] = INIT[i];
         cache_size = 11;             /* we have values up to a(11) */
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_cap) {
         size_t new_cap = cache_cap;
         while ((size_t)n >= new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;          /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

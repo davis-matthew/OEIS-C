@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 8870 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define BLOCK_SIZE 1000000U      /* size of each processing block */
 
@@ -55,7 +57,7 @@ static const size_t NP = sizeof(PRIME_POWERS)/sizeof(PRIME_POWERS[0]);
 static void add_term(seq_t val) {
     if (terms_len == terms_cap) {
         terms_cap = terms_cap? (terms_cap << 1) : 128;
-        terms_cache = (seq_t *)realloc(terms_cache, terms_cap * sizeof(seq_t));
+        terms_cache = mem_resize(seq_t, terms_cache, terms_cap);
     }
     terms_cache[terms_len++] = val;
 }
@@ -65,7 +67,7 @@ seq_t a(idx_t n) {
     /* initialise cache on first call */
     if (terms_cache == NULL) {
         terms_cap    = 128;
-        terms_cache  = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms_cache  = mem_new(seq_t, terms_cap);
         block_start  = 2U;
         prev_prev     = prev_curr = false;
     }

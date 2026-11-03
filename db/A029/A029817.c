@@ -10,7 +10,8 @@
  *            have the same parity, and −1 otherwise.)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   pow7_uint128
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <math.h>
-#include "../utils/pow7_uint128.h"
+
+/* Compute d^7 as a 128‑bit integer */
+static inline __uint128_t pow7_uint128(uint64_t d) {
+    __uint128_t r = d;
+    r *= d; /* d² */
+    r *= d; /* d³ */
+    r *= d; /* d⁴ */
+    r *= d; /* d⁵ */
+    r *= d; /* d⁶ */
+    r *= d; /* d⁷ */
+    return r;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) {

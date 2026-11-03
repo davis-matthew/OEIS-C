@@ -7,16 +7,21 @@
  * Formula:   search — enumerate all multisets of at most 7 positive 7th
  *            powers with sum <= L, then sort and dedupe the sums; L doubles
  *            until there are at least n terms
- * Range:     u8 n <= 15, u16 n <= 295, u32 n <= 9995, u64 n <= 9995,
- *            u128 n <= 9995, big any n
- * Helpers:   s_cmp
+ * Range:     u8 n <= 15, u16 n <= 295, u32 n <= 15469, u64 n <= 15469,
+ *            u128 n <= 15469, big any n
+ * Validated: standard, pass, 68 terms through n = 9995 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/s_cmp.h"
+
+static int s_cmp(const void *x, const void *y) {
+    uint64_t u = *(const uint64_t *)x, v = *(const uint64_t *)y;
+    return (u > v) - (u < v);
+}
 
 static uint64_t *s_cache = NULL;
 static idx_t s_cache_len = 0;

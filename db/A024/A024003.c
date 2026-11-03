@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 - n^5
  * Range:     i8 n <= 2, i16 n <= 8, i32 n <= 73, i64 n <= 555, i128 n <= 555,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 490 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

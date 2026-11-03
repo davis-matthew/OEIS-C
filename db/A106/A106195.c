@@ -10,7 +10,8 @@
  *            array (1/(1−2x), x(1−x)/(1−2x))
  * Range:     u8 n <= 28, u16 n <= 93, u32 n <= 330, u64 n <= 1233,
  *            u128 n <= 4581, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 81 terms through n = 7868 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 /* Determine the row r such that r(r+1)/2 ≤ n < (r+1)(r+2)/2. */
 static idx_t
@@ -40,8 +42,8 @@ T_val(idx_t r, idx_t c)
     seq_t sum = 0;
     idx_t max_i = r - c;
     for (idx_t i = 0; i <= max_i; ++i) {
-        seq_t b1 = binom(c, i);          /* C(c,i)  */
-        seq_t b2 = binom(r - c, i);      /* C(r−c,i) */
+        seq_t b1 = binomial(c, i);          /* C(c,i)  */
+        seq_t b2 = binomial(r - c, i);      /* C(r−c,i) */
         seq_t term = b1 * b2;
         idx_t exp = max_i - i;           /* r−c−i   */
         seq_t pow2 = 1;

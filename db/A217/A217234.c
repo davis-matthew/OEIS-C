@@ -10,14 +10,16 @@
  *            with identical top row and left column. * For r >= 2 and c >= 2:
  *            * T(r,c) = 2 * binom(2*r - c, r - 1) * For c == 1: T(r,1) = 1.
  *            (Also T(1,1) = 1)
- * Range:     u8 n <= 11, u16 n <= 37, u32 n <= 55, u64 n <= 55, u128 n <= 55,
+ * Range:     u8 n <= 16, u16 n <= 46, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 #include <stdint.h>
 
@@ -64,6 +66,6 @@ seq_t a(idx_t n)
      */
     idx_t a_param = 2 * r - c;
     idx_t b_param = r - 1;
-    seq_t bin = binom(a_param, b_param);
+    seq_t bin = binomial(a_param, b_param);
     return bin * (seq_t)2;
 }

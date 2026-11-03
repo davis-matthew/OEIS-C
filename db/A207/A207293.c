@@ -9,7 +9,8 @@
  *            prime
  * Range:     u8 n <= 9, u16 n <= 1623, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, is_prime_small, sieve_primes
+ * Validated: standard, pass, 69 terms through n = 9433 (2026-11-01)
+ * Helpers:   digit_sum, is_prime_seq, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include <stdint.h>
+#include <string.h>
 #include "../utils/digit_sum.h"
+#include "../utils/is_prime_seq.h"
 #include "../utils/sieve_primes.h"
 
 /* Static state to keep the prime sieve between calls */
@@ -56,12 +59,12 @@ seq_t a(idx_t n) {
             seq_t p  = (seq_t)prime_list[i];   /* current prime */
             seq_t s1 = digit_sum(p);           /* first digit sum */
 
-            if (!is_prime_small((idx_t)s1))
+            if (!is_prime_seq((idx_t)s1))
                 continue;                     /* s1 not prime → reject */
 
             seq_t s2 = digit_sum(s1);          /* second digit sum */
 
-            if (is_prime_small((idx_t)s2))
+            if (is_prime_seq((idx_t)s2))
                 continue;                     /* s2 is prime → reject */
 
             ++cnt;

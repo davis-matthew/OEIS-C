@@ -13,13 +13,15 @@
  *            dynamic programming. * The algorithm iterates over...
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 33, u64 n <= 65, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static inline idx_t isqrt_u64(idx_t n)
 {
@@ -41,10 +43,10 @@ seq_t a(idx_t n)
 
     /* Allocate two DP arrays of length n+1.  */
     size_t size = (size_t)(n + 1);
-    seq_t *dp_prev = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *dp_curr = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, size);
+    seq_t *dp_curr = mem_new(seq_t, size);
     if (!dp_prev || !dp_curr) {
-        free(dp_prev); free(dp_curr);
+        mem_free(dp_prev); mem_free(dp_curr);
         return (seq_t)0;
     }
 
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         idx_t low  = (k + d_min) / 2;               /* ceil((k - σ)/2) */
         idx_t high = (k + d_max) / 2;               /* floor((k + σ)/2) */
 
-        memset(dp_curr, 0, size * sizeof(seq_t));
+        mem_set(dp_curr, 0, size * sizeof(seq_t));
 
         for (idx_t s = low; s <= high; ++s) {
             seq_t val = 0;
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
     for (idx_t s = prev_low; s <= prev_high; ++s)
         ans += dp_prev[s];
 
-    free(dp_prev);
-    free(dp_curr);
+    mem_free(dp_prev);
+    mem_free(dp_curr);
     return ans;
 }

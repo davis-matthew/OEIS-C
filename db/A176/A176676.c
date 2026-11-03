@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   is_prime, realloc_safe
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,32 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/is_prime.h"
-#include "../utils/realloc_safe.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+#ifdef __cplusplus
+template <class T>
+static T *realloc_safe(T *p, size_t size) {
+    /* In C++ a T * cast is required, but realloc already
+       returns T * so we cast to the expected type in the
+       caller.  This helper is purely to satisfy the style. */
+    return mem_resize(T, p, (size) / sizeof(T));
+}
+#else
+static void *realloc_safe(void *p, size_t size) {
+    /* In C++ a void* cast is required, but realloc already
+       returns void* so we cast to the expected type in the
+       caller.  This helper is purely to satisfy the style. */
+    return realloc(p, size);
+}
+#endif
 
 seq_t a(idx_t n) {
     if (n < 1) return (seq_t)0;  /* offset is 1 */

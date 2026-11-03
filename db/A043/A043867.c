@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   runs_divisible_by_10
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,26 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/runs_divisible_by_10.h"
+#include "../utils/mem.h"
+
+/* Return true if the base‑4 representation of x has a run count
+   that is a multiple of 10. */
+static bool runs_divisible_by_10(seq_t x)
+{
+    seq_t t = x;
+    int runs = 0;
+    int prev_digit = -1;  /* -1 means no previous digit yet */
+
+    while (t > (seq_t)0) {
+        int d = (int)(t % (seq_t)4);  /* least significant base‑4 digit */
+        if (d != prev_digit) {
+            ++runs;
+            prev_digit = d;
+        }
+        t /= (seq_t)4;
+    }
+    return (runs % 10) == 0;
+}
 
 /* Cached list of numbers found so far. */
 static seq_t *cache     = NULL;  /* array of seq_t values */
@@ -37,7 +57,7 @@ static void ensure_cache_capacity(size_t min_cap)
     if (cache_cap < min_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         if (new_cap < min_cap) new_cap = min_cap;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();  /* out of memory */
         cache      = new_cache;
         cache_cap  = new_cap;

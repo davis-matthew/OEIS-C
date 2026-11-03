@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 static idx_t *ycache = NULL;  /* cached y values (as idx_t) */
 static size_t  ylen   = 0;    /* number of cached values */
@@ -35,11 +36,11 @@ static idx_t   next_s = 0;    /* next sum of squares to process */
 static void generate_until(idx_t needed)
 {
     while (ylen < needed) {
-        idx_t x_limit = _floor_isqrt_u64(next_s);
+        idx_t x_limit = isqrt(next_s);
         for (idx_t x = 0; x <= x_limit; ++x) {
             idx_t x2   = x * x;
             idx_t diff = next_s - x2;              /* >=0 */
-            idx_t y    = _floor_isqrt_u64(diff);   /* integer sqrt */
+            idx_t y    = isqrt(diff);   /* integer sqrt */
             if (y * y == diff) {                   /* perfect square */
                 if (ylen >= ycap) {
                     ycap = ycap ? ycap * 2 : 128;

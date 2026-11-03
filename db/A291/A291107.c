@@ -8,12 +8,14 @@
  *            A(4)=16, A(5)=26, A(6)=42
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL; /* 1‑indexed array */
 static idx_t  cache_cap  = 0;    /* allocated size of cache      */
@@ -30,14 +32,14 @@ static void ensure_cache(idx_t n)
 
     /* Grow the cache if necessary */
     if (n + 1 > cache_cap) {
-        seq_t *new_cache = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)(n + 1));
         if (!new_cache)
             exit(1);                  /* out of memory */
         /* copy existing values */
         for (idx_t i = 1; i <= max_computed; ++i)
             new_cache[i] = cache[i];
         /* free old array */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = (size_t)(n + 1);
     }

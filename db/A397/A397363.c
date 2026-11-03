@@ -12,13 +12,26 @@
  *            3, read as a decimal integer
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   base3_to_dec
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h> /* for size_t, if needed */
-#include "../utils/base3_to_dec.h"
+
+static seq_t base3_to_dec(idx_t x)
+{
+    seq_t result = 0;
+    seq_t mult   = 1;
+    while (x) {
+        int digit = x % 3;              /* digit in base 3, 0..2 */
+        result += (seq_t)digit * mult;
+        mult   *= (seq_t)10;             /* next decimal place */
+        x     /= 3;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 18, u64 n <= 42, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- constants for state representation ---------- */
 #define ROWS 4          /* number of bits in a row (columns of the array) */
@@ -130,7 +132,7 @@ seq_t a(idx_t n)
     seq_t *cur = dp_cur, *nxt = dp_nxt;
 
     /* initialise with all valid 3‑row states (first 3 rows) */
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
 
     for (uint8_t a = 0; a < 16; ++a)
         for (uint8_t b = 0; b < 16; ++b)
@@ -151,7 +153,7 @@ seq_t a(idx_t n)
     /* number of additional rows to add */
     idx_t steps = n - 1;                    /* (n+2)-3 = n-1 */
     for (idx_t step = 0; step < steps; ++step) {
-        memset(nxt, 0, sizeof(dp_nxt));
+        mem_set(nxt, 0, sizeof(dp_nxt));
         for (uint16_t id = 0; id < STATES; ++id) {
             seq_t cnt = cur[id];
             if (!cnt) continue;

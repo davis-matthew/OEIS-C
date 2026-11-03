@@ -10,7 +10,8 @@
  *            for m). If p is even, a(n)=p/2+1; otherwise a(n)=m
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isqrt_uint128
+ * Validated: standard, pass, 115 terms through n = 9703 (2026-11-01)
+ * Helpers:   isqrt_u128_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,13 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isqrt_uint128.h"
+#include "../utils/isqrt_u128_to_u64.h"
 
 seq_t a(idx_t n)
 {
     /* Find m such that (m-1)*m >= n.  */
     unsigned __int128 val = (unsigned __int128)4 * n + 1; /* 1 + 4n   */
-    uint64_t sqrtv     = isqrt_uint128(val);
+    uint64_t sqrtv     = isqrt_u128_to_u64(val);
     uint64_t m         = (sqrtv + 1) / 2;               /* floor */
     while ((unsigned __int128)(m - 1) * m < n)
         m++;                                            /* safety for floor case   */

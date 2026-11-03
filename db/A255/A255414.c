@@ -9,8 +9,9 @@
  *            = a(n-8)+210 for n>8 with the given * initial values. The
  *            computation is O(1) and works * for any n >= 1. For n == 0 we
  *            return 0, though the * sequence is defined for n >= 1
- * Range:     u8 n <= 10, u16 n <= 2497, u32 n <= 9942, u64 n <= 9942,
- *            u128 n <= 9942, big any n
+ * Range:     u8 n <= 10, u16 n <= 2497, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 80 terms through n = 9942 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

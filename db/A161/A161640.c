@@ -9,13 +9,15 @@
  *            terms are non‑zero; the degree is Σ_{k=1}^{32} k = 528
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
 #include <string.h>   /* for memset */
+#include "../utils/mem.h"
 
 static seq_t coeff[529];          /* coefficient array for 0 … 528 */
 static int coeff_initialized = 0; /* flag */
@@ -26,12 +28,12 @@ static void init_coeff(void)
     static seq_t tmp[529];
     size_t cur_deg = 0;            /* current degree of the product */
 
-    memset(coeff, 0, sizeof(coeff));
+    mem_set(coeff, 0, sizeof(coeff));
     coeff[0] = 1;                  /* (product of zero factors) */
 
     for (idx_t k = 1; k <= 32; ++k)        /* multiply by (1 + x + … + x^k) */
     {
-        memset(tmp, 0, sizeof(tmp));
+        mem_set(tmp, 0, sizeof(tmp));
 
         /* convolution: coeff ⊗ [1,1,…,1] (k+1 terms) */
         for (idx_t i = 0; i <= cur_deg; ++i)
@@ -44,7 +46,7 @@ static void init_coeff(void)
 
         /* copy the new coefficients back */
         cur_deg += k;
-        memcpy(coeff, tmp, (cur_deg + 1) * sizeof(seq_t));
+        mem_copy(coeff, tmp, (cur_deg + 1) * sizeof(seq_t));
     }
 
     coeff_initialized = 1;

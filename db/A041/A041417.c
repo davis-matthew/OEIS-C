@@ -8,13 +8,15 @@
  *            a(2)=14, a(3)=15, a(4)=434, a(5)=449, a(6)=6271, a(7)=6720
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t _init[8] = {
     1, 1, 14, 15, 434, 449, 6271, 6720
@@ -29,14 +31,14 @@ static void _ensure_cache(idx_t n) {
     if (_cache == NULL) {
         /* initial allocation: at least 16 entries */
         _cache_cap = 16;
-        _cache = (seq_t*)malloc(_cache_cap * sizeof(seq_t));
+        _cache = mem_new(seq_t, _cache_cap);
         /* initialise with zeros */
         for (size_t i = 0; i < _cache_cap; ++i)
             _cache[i] = 0;
     }
     while (_cache_cap <= (size_t)n) {
         size_t new_cap = _cache_cap * 2;
-        seq_t *tmp = (seq_t*)realloc(_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
         if (!tmp) { /* allocation failed – abort */
             abort();
         }

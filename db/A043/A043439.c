@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 37, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   count_fours_base8
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,17 @@
  */
 
 #include <stdlib.h>
-#include "../utils/count_fours_base8.h"
+#include "../utils/mem.h"
+
+static unsigned count_fours_base8(seq_t value)
+{
+    unsigned cnt = 0;
+    while (value > 0) {
+        if (value % 8 == 4) cnt++;
+        value /= 8;
+    }
+    return cnt;
+}
 
 static seq_t *cache = NULL;            /* cache of found terms          */
 static size_t cache_cap = 0;           /* allocated slots in cache      */
@@ -36,7 +47,7 @@ static void expand_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);   /* abort on allocation failure */
     cache   = tmp;
     cache_cap = new_cap;

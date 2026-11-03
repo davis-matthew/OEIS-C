@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 431, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_cube_root, reverse_digits
+ * Validated: standard, pass, 77 terms through n = 993 (2026-11-03)
+ * Helpers:   ipow_i32, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,29 @@
 /* The sequence of numbers k such that k - rev(k) is a perfect cube. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 #include "../utils/reverse_digits.h"
-#include "../utils/floor_cube_root.h"
+#include "../utils/mem.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Determines if x is a perfect cube. */
 static bool is_cube(seq_t x)
@@ -36,7 +58,7 @@ static void add_to_cache(seq_t val)
 {
     if (cache_count == cache_size) {
         size_t new_size = cache_size ? cache_size * 2 : 256;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         /* Ignore realloc failure – in the contest environment enough memory
            will be available. */
         cache = tmp;

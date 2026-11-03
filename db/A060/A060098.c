@@ -10,15 +10,17 @@
  *            the binomial coefficient (zero if b>a or b<0). For a given n,
  *            find the unique row r with r(r+1)/2 ≤ n < (r+1)(r+2)/2, and let
  *            k = n - r(r+1)/2. Then a(n)=T(r,k)
- * Range:     u8 n <= 39, u16 n <= 142, u32 n <= 506, u64 n <= 1734,
+ * Range:     u8 n <= 47, u16 n <= 142, u32 n <= 506, u64 n <= 1734,
  *            u128 n <= 5150, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 5115 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Compute T(r,k) using the explicit sum formula. */
 static seq_t T_value(idx_t r, idx_t k)
@@ -29,8 +31,8 @@ static seq_t T_value(idx_t r, idx_t k)
         idx_t n2i = r - 2 * i;
         if (k > n2i)
             break;
-        seq_t term1 = binom(n2i, k);           /* C(r-2i, k)      */
-        seq_t term2 = binom((k + i) - 1, i);  /* C(k+i-1, i)  */
+        seq_t term1 = binomial(n2i, k);           /* C(r-2i, k)      */
+        seq_t term2 = binomial((k + i) - 1, i);  /* C(k+i-1, i)  */
         sum += term1 * term2;
     }
     return sum;

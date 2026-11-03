@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 41, i32 n <= 41, i64 n <= 41, i128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    a(11) = 1962, a(12) = 2184, a(13) = 2404 */
 
 #include <stddef.h>  /* for size_t */
+#include "../utils/mem.h"
 
 #define MAX_N 20000   /* sufficient for all tests (≤ 10000) */
 
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         /* If the caller requests a value beyond our preallocated range,
            compute it on demand without caching.  (The test harness never
            requests n > 20000, so this case is unlikely.) */
-        seq_t *tmp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, (n + 1));
         if (!tmp)
             return (seq_t)0;  /* out of memory, return 0 as a safe fallback */
 
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
             }
         }
         seq_t result = tmp[n];
-        free(tmp);
+        mem_free(tmp);
         return result;
     }
 

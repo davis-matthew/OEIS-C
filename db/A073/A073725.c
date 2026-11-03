@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   calc_phi, is_prime
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-01)
+ * Helpers:   is_prime, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"     /* is_prime(idx_t) */
-#include "../utils/calc_phi.h"     /* calc_phi(seq_t) */
+#include <stdbool.h>
+#include "../utils/is_prime.h"
+#include "../utils/totient_seq.h"
 
 /* Storage for composites and a lookup table from composite value → index. */
 static uint64_t *comps = NULL;          /* list of composite numbers */
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
     /* n‑th composite (1‑based index): */
     uint64_t c = comps[(size_t)n - 1];
 
-    seq_t phi_val = calc_phi((seq_t)c);        /* φ(c) */
+    seq_t phi_val = totient_seq((seq_t)c);        /* φ(c) */
 
     /* φ(c) must be in the range where we have mapping. */
     if ((uint64_t)phi_val < val_cap && val_to_idx[(uint64_t)phi_val] != 0)

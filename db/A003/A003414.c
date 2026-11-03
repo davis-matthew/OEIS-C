@@ -11,6 +11,7 @@
  *            E(m,k-1) + E(m-1,m-k), E(0,0) = 1
  * Range:     i8 n <= 10, i16 n <= 13, i32 n <= 16, i64 n <= 22, i128 n <= 32,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 93 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

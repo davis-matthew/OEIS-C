@@ -11,13 +11,15 @@
  *            < n‑1 ≤ 2^(p+1) (equivalently p = ⌊log₂(n‑2)⌋)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of already computed values and their prefix sums. */
 static seq_t *values = NULL;   /* values[1] … values[m]   */
@@ -37,8 +39,8 @@ static void ensure_cache_size(idx_t new_cap)
         cache_cap *= 2;
 
     /* Reallocate.  We keep index 0 unused, so allocate +1. */
-    values  = (seq_t *)realloc(values,  (cache_cap + 1) * sizeof(seq_t));
-    prefix  = (seq_t *)realloc(prefix,  (cache_cap + 1) * sizeof(seq_t));
+    values  = mem_resize(seq_t, values, (cache_cap + 1));
+    prefix  = mem_resize(seq_t, prefix, (cache_cap + 1));
 }
 
 /* Main routine. */

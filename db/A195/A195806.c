@@ -13,7 +13,8 @@
  *            a(6)=12469, a(7)=27412, a(8)=55059, a(9)=1029...
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for computed values */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* Allocate a small initial capacity */
         cap = 64;
-        cache = (seq_t*)malloc(cap * sizeof(*cache));
+        cache = mem_new(seq_t, cap);
         static const seq_t init[14] = {
             (seq_t)16ULL,          (seq_t)105ULL,          (seq_t)496ULL,
             (seq_t)1759ULL,        (seq_t)5052ULL,         (seq_t)12469ULL,
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
             (seq_t)181543ULL,      (seq_t)304908ULL,       (seq_t)491563ULL,
             (seq_t)765184ULL,      (seq_t)1155567ULL
         };
-        memcpy(cache, init, sizeof(init));
+        mem_copy(cache, init, sizeof(init));
         len = 14;
     }
 
@@ -52,9 +54,9 @@ seq_t a(idx_t n) {
     if (cap < (size_t)n) {
         size_t newcap = cap ? cap : 8;
         while (newcap < (size_t)n) newcap <<= 1;
-        seq_t *tmp = (seq_t*)malloc(newcap * sizeof(*tmp));
-        memcpy(tmp, cache, len * sizeof(*tmp));
-        free(cache);
+        seq_t *tmp = mem_new(seq_t, newcap);
+        mem_copy(tmp, cache, len * sizeof(*tmp));
+        mem_free(cache);
         cache = tmp;
         cap   = newcap;
     }

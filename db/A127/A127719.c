@@ -7,7 +7,8 @@
  * Formula:   a(n) = ⌊√(∑_{i=1}^{n} p_i²)⌋ where p_i is the ith prime
  * Range:     u8 n <= 3, u16 n <= 16, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, floor_sqrt
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,41 @@
 #include <stdint.h>
 
 /* Utility to compute the floor of the integer square root. */
-#include "../utils/floor_sqrt.h"
+#include <stdbool.h>
+#include <math.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* Utility that returns an upper bound for the nth prime. */
-#include "../utils/_prime_limit_for_idx.h"
 
 /* Utility that builds all primes ≤ limit. */
-#include "../utils/build_primes_upto.h"
 
 /* seq_t and idx_t are provided by the build system. */
 
@@ -65,7 +94,7 @@ seq_t a(idx_t n)
     if (sum_sq_cnt < (size_t)n) {
         if (sum_sq_capacity < (size_t)n) {
             size_t new_cap = sum_sq_capacity ? sum_sq_capacity << 1 : n + 1;
-            seq_t *tmp = (seq_t *)realloc(sum_sq_prefix, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, sum_sq_prefix, new_cap);
             /* If realloc fails, we keep the old pointer – the function
                will be called again after the next call and will retry. */
             if (tmp) {

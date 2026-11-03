@@ -8,7 +8,8 @@
  *            increasing order
  * Range:     u8 n <= 25, u16 n <= 1001, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static storage for the computed subsequence primes. */
 static seq_t *subseq   = NULL;
@@ -39,7 +41,7 @@ static void grow_subseq(size_t needed)
     if (subseq_cap < needed) {
         size_t new_cap = subseq_cap ? subseq_cap * 2 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(subseq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, subseq, new_cap);
         /* In case realloc fails we silently keep the old pointer,
            which will be reused; this fits the judge constraints. */
         if (tmp) {
@@ -79,7 +81,7 @@ static void extend_sieve(idx_t new_limit)
                 /* Ensure storage space. */
                 if (subseq_cnt == subseq_cap) {
                     size_t new_cap = subseq_cap ? subseq_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(subseq, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, subseq, new_cap);
                     if (tmp) {
                         subseq = tmp;
                         subseq_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 7, u64 n <= 22, u128 n <= 53,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 34 terms through n = 925 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
    a(n) = 167682 + 2^n*(79709 + 24876*n + 3996*n^2)
                + 4^n*(13458 + 1512*n + 1296*n^2)
    (offset: a(1) is first term) */
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     seq_t t2 = (seq_t)1296 * n2 + (seq_t)1512 * nseq + 13458;
 
     /* Powers of 2 and 4 */
-    seq_t pow2n = pow_seq((seq_t)2, (int)n);
-    seq_t pow4n = pow_seq((seq_t)4, (int)n);
+    seq_t pow2n = ipow_i32((seq_t)2, (int)n);
+    seq_t pow4n = ipow_i32((seq_t)4, (int)n);
 
     /* Assemble the result */
     seq_t result = 167682 + pow2n * t1 + pow4n * t2;

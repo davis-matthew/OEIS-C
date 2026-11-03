@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of helper functions */
 static void recompute_sieve(idx_t limit);
@@ -54,7 +56,7 @@ static void generate_to_n(idx_t target) {
         if ((spf_index_arr[last_tested] & 1U) == 0) {
             /* Grow sequence cache if necessary */
             if (seq_len == 0) {
-                seq_cache = (seq_t *)malloc(16 * sizeof(seq_t));
+                seq_cache = mem_new(seq_t, 16);
             } else {
                 /* Ensure capacity, double if needed */
                 if (seq_len == (idx_t)((seq_t)(seq_cache[0]) == 0 ? 0 : 0)) {
@@ -62,7 +64,7 @@ static void generate_to_n(idx_t target) {
                 }
             }
             if (seq_len >= (idx_t)16) {
-                seq_cache = (seq_t *)realloc(seq_cache, seq_len * 2 * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_len * 2);
             }
             seq_cache[seq_len++] = (seq_t)last_tested;
         }

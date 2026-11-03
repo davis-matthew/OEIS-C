@@ -9,13 +9,14 @@
  *            the number of divisors
  * Range:     u8 n <= 41, u16 n <= 3527, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 80 terms through n = 9673 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
         uint64_t k64 = (uint64_t)k;
         uint64_t nk64 = (uint64_t)(n - k);
         uint64_t s = k64 * k64 + nk64 * nk64;
-        uint64_t d = divisor_count_u64(s);
+        uint64_t d = num_divisors(s);
         sum += (seq_t)d;
     }
     return sum;

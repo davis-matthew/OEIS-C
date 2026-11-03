@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 164, u32 n <= 263, u64 n <= 263, u128 n <= 263,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 253 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* see the build system for the definitions of seq_t and idx_t */
 extern idx_t _prime_limit_for_idx(idx_t n); /* unused but present in utils */
@@ -60,7 +62,7 @@ static void init_sequence(void)
 
     /*---  Reserve space for the terms ------------------------------------*/
     term_cap = 512;  /* start with a modest capacity */
-    term_cache = (seq_t*)malloc(term_cap * sizeof(seq_t));
+    term_cache = mem_new(seq_t, term_cap);
     if (!term_cache) return;   /* allocation failure – abort */
 
     /*---  Scan primes greater than 10 000 and keep only the good ones ------*/
@@ -110,7 +112,7 @@ static void init_sequence(void)
             /* Store the valid prime in the cache */
             if (term_count == term_cap) {
                 term_cap *= 2;
-                seq_t *tmp = (seq_t*)realloc(term_cache, term_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, term_cache, term_cap);
                 if (!tmp) return; /* allocation failure – abort */
                 term_cache = tmp;
             }

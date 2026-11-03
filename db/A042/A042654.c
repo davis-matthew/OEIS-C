@@ -7,7 +7,8 @@
  * Formula:   compute the numerators of the convergents to sqrt(857)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 20, u64 n <= 43, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *period = NULL;      /* store partial quotients after a0 */
 static idx_t period_len = 0;       /* number of terms in the period */
@@ -39,7 +41,7 @@ static void init_period(void)
 
     /* allocate an initial buffer for the period terms */
     size_t cap = 16;
-    period = (seq_t*)malloc(cap * sizeof(seq_t));
+    period = mem_new(seq_t, cap);
 
     idx_t m = 0;
     idx_t d = 1;
@@ -54,7 +56,7 @@ static void init_period(void)
 
         if (period_len == cap) {
             cap <<= 1;
-            period = (seq_t*)realloc(period, cap * sizeof(seq_t));
+            period = mem_resize(seq_t, period, cap);
         }
         period[period_len++] = (seq_t)a_cur;
 

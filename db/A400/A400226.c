@@ -9,7 +9,8 @@
  *            computed incrementally regardless of call order
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   binomial_mul_div
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/binomial_mul_div.h"
+#include "../utils/mem.h"
+
+static inline seq_t binomial_mul_div(seq_t val,
+                                    unsigned long long num1,
+                                    unsigned long long num2,
+                                    unsigned long long den1,
+                                    unsigned long long den2)
+{
+    unsigned __int128 tmp = (unsigned __int128)val * (unsigned __int128)num1 *
+                            (unsigned __int128)num2;
+    tmp /= (unsigned long long)(den1 * den2);
+    return (seq_t)tmp;
+}
 
 /* Helper that computes b * num1 * num2 / (den1 * den2) safely.
    For built‑in integral seq_t we use a 128‑bit intermediate.
@@ -39,7 +52,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call (a(0)=1) */
     if (!cache) {
         cache_size   = 1;
-        cache        = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache        = mem_new(seq_t, cache_size);
         if (!cache) abort();
         cache[0]     = (seq_t)1;
         computed_max = 0;
@@ -49,7 +62,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_size) {
         size_t new_size = cache_size;
         while (new_size <= (size_t)n) new_size <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();
         cache = tmp;
         cache_size = new_size;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 21, u64 n <= 30, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /*--- Persistent cache of discovered terms --------------------------------*/
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* cache for terms */
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_size = 1;
         cache[0] = (seq_t)1;            /* a(1) = 1 = 2^0 */
 
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
     /*--- Grow cache array if needed ----------------------------------------*/
     if (cache_cap < cache_size + 1) {
         cache_cap *= 2;
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /*--- Generate terms until we have the n-th one --------------------------*/

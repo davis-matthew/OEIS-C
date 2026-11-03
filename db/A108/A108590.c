@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   find_in_sequence
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,29 @@
     per call, well below the 2 s limit. */
 
 #include <stdbool.h>
-#include "../utils/find_in_sequence.h"
+
+/* binary search for n in the Beatty sequence ⌊k·P/Q⌋.
+   If found, stores the index in *k_out and returns true. */
+static bool find_in_sequence(idx_t n, idx_t *k_out,
+                             seq_t P, seq_t Q)
+{
+    idx_t low = 1, high = n; /* k <= n always holds */
+    while (low <= high)
+    {
+        idx_t mid = low + ((high - low) >> 1);
+        seq_t val = (seq_t)mid * P / Q;
+        if (val == n)
+        {
+            *k_out = mid;
+            return true;
+        }
+        else if (val < n)
+            low = mid + 1;
+        else
+            high = mid - 1;
+    }
+    return false;
+}
 
 static const seq_t PA = 104348;      /* numerator of α   */
 static const seq_t QA = 66430;       /* denominator of α */

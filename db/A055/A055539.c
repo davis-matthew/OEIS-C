@@ -14,7 +14,8 @@
  *            12/(1-x)^4-12/(1-x)^2/(1-x^2)-24/(1-x)^2+24...
  * Range:     u8 none, u16 n <= 8, u32 n <= 22, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   binomial, seq_mul
+ * Validated: partial, pass, 25 terms through n = 27 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,13 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../utils/binomial.h"   /* binomial(idx_t,idx_t) -> seq_t */
-#include "../utils/seq_mul.h"    /* seq_mul(seq_t,seq_t) -> seq_t */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* --------------------------------------------------------------------- */
 /*  Helper: copy binomial(e,t) into an int64_t value (fits for small e). */
@@ -116,9 +122,9 @@ static void build_coefficients(void)
     coeffs_init = true;
 
     /* Build Q(x) = (1-x)^16 (1-x^2)^6 (1-x^3)^4 (1-x^4)^2 (1-x^6)   */
-    int64_t Q[55] = {0};
-    int64_t temp[55] = {0};
-    int64_t poly[55];
+    int64_t Q[1024] = {0};
+    int64_t temp[1024] = {0};
+    int64_t poly[1024];
     int lenPoly;
 
     Q[0] = 1;
@@ -127,8 +133,8 @@ static void build_coefficients(void)
     for (int f = 0; f < MAX_FACTORS; ++f) {
         build_factor_poly(FACTOR_K[f], FACTOR_MAXE[f], poly, &lenPoly);
         poly_mul(Q, degQ + 1, poly, lenPoly, temp);
-        memcpy(Q, temp, (degQ + lenPoly + 1) * sizeof(int64_t));
-        degQ += lenPoly - 1;
+        memcpy(Q, temp, (MAX_D + 1) * sizeof(int64_t));   /* products are kept to degree MAX_D */
+        degQ += lenPoly - 1; if (degQ > MAX_D) degQ = MAX_D;
     }
 
     memcpy(Q_coeff, Q, (MAX_D + 1) * sizeof(int64_t));
@@ -146,8 +152,8 @@ static void build_coefficients(void)
             rem_exp[k] = FACTOR_MAXE[k] - t->exp[k];
 
         /* Compute polynomial for the remaining factors.                  */
-        int64_t Ptmp[55] = {0};
-        int64_t poly2[55];
+        int64_t Ptmp[1024] = {0};
+        int64_t poly2[1024];
         int lenPoly2;
         Ptmp[0] = 1;
         int degP = 0;
@@ -157,8 +163,8 @@ static void build_coefficients(void)
             if (e == 0) continue;
             build_factor_poly(FACTOR_K[k], e, poly2, &lenPoly2);
             poly_mul(Ptmp, degP + 1, poly2, lenPoly2, temp);
-            memcpy(Ptmp, temp, (degP + lenPoly2 + 1) * sizeof(int64_t));
-            degP += lenPoly2 - 1;
+            memcpy(Ptmp, temp, (MAX_D + 1) * sizeof(int64_t));
+            degP += lenPoly2 - 1; if (degP > MAX_D) degP = MAX_D;
         }
 
         int64_t mult = (int64_t)t->coeff;
@@ -182,10 +188,10 @@ static void ensure_cache(idx_t new_cap)
 {
     if (new_cap < cache_cap) return;  /* already large enough */
 
-    seq_t *new_cache = (seq_t*)calloc((size_t)(new_cap + 1), sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)(new_cap + 1));
     if (cache) {
-        memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = (size_t)new_cap;

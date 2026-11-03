@@ -9,7 +9,8 @@
  *            = 1. C(n,k) is the binomial coefficient n choose k
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 17, u64 n <= 27, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 425 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache for computed terms */
 static seq_t *cache = NULL;      /* cached values a(0) .. a(cache_size-1) */
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap == 0)
     {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return;       /* allocation failure – nothing can be done */
         cache[0] = 1;             /* a(0) = 1 */
         cache_size = 1;
@@ -52,7 +54,7 @@ static void ensure_cache(idx_t n)
     {
         idx_t new_cap = cache_cap;
         while (n + 1 > new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;        /* allocation failure – keep old cache */
         cache = tmp;
         cache_cap = new_cap;

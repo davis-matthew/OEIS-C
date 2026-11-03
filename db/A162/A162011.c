@@ -12,12 +12,14 @@
  *            example: P_1(z) = 1 – z P_2(z) = 1 – 11z + 19z² –...
  * Range:     i8 n <= 8, i16 n <= 16, i32 n <= 29, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build system */
 extern seq_t a(idx_t n);
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
         /* Temporary polynomial storage. Allocate once per iteration
            (size is at most 40*41/2+1 = 821 for n≈10000). */
-        seq_t *poly  = (seq_t *)calloc(len, sizeof(seq_t));
+        seq_t *poly  = mem_new(seq_t, len);
         if (!poly) return (seq_t)0;          /* out of memory */
 
         poly[0] = (seq_t)1;  /* start with polynomial "1" */
@@ -62,8 +64,8 @@ seq_t a(idx_t n)
             for (idx_t r = (idx_t)0; r < reps; ++r) {
                 /* polynomial multiplication by (1 - s z)  */
                 size_t new_len = cur_len + (size_t)1;
-                seq_t *next = (seq_t *)calloc(new_len, sizeof(seq_t));
-                if (!next) { free(poly); return (seq_t)0; }
+                seq_t *next = mem_new(seq_t, new_len);
+                if (!next) { mem_free(poly); return (seq_t)0; }
 
                 next[0] = poly[0];
                 for (size_t i = (size_t)1; i < cur_len; ++i) {
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
                 /* highest degree term: -s * poly[cur_len-1] */
                 next[cur_len] = - poly[cur_len - (size_t)1] * s;
 
-                free(poly);
+                mem_free(poly);
                 poly = next;
                 cur_len = new_len;
             }
@@ -85,8 +87,8 @@ seq_t a(idx_t n)
             size_t new_cap = buf_cap;
             if (new_cap == 0) new_cap = 16;
             while (new_cap < required) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
-            if (!tmp) { free(poly); return (seq_t)0; }
+            seq_t *tmp = mem_resize(seq_t, buf, new_cap);
+            if (!tmp) { mem_free(poly); return (seq_t)0; }
             buf   = tmp;
             buf_cap = new_cap;
         }
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
             buf[buf_len + i] = poly[i];
         buf_len += cur_len;
 
-        free(poly);
+        mem_free(poly);
     }
 
     /* Return the requested term (1‑based indexing). */

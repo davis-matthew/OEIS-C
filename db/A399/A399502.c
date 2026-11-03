@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 344, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   push_key
+ * Validated: standard, pass, 85 terms through n = 8628 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/push_key.h"
+#include "../utils/mem.h"
+
+/* Push a key into a dynamic stack */
+static inline void push_key(uint64_t key, uint64_t **buf, size_t *size, size_t *cap)
+{
+    if (*size >= *cap) {
+        *cap <<= 1;
+        *buf = (uint64_t *)realloc(*buf, *cap * sizeof(uint64_t));
+    }
+    (*buf)[(*size)++] = key;
+}
 
 struct Entry { uint64_t key; seq_t val; };
 
@@ -63,7 +74,7 @@ seq_t a(idx_t n)
     /* Allocate hash table, power‑of‑two sized, 4× n entries to keep load factor low */
     size_t cap = 16;
     while (cap < (size_t)n * 4 + 64) cap <<= 1;
-    struct Entry *table = (struct Entry *)calloc(cap, sizeof(struct Entry));
+    struct Entry *table = mem_new(struct Entry, cap);
     if (!table) return 0;  /* allocation failure – unlikely in test harness */
     for (size_t i = 0; i < cap; ++i) table[i].key = EMPTY_KEY;
     size_t mask = cap - 1;
@@ -72,7 +83,7 @@ seq_t a(idx_t n)
     size_t qcap = 16;
     uint64_t *qbuf = (uint64_t *)calloc(qcap, sizeof(uint64_t));
     size_t qsize = 0;
-    if (!qbuf) { free(table); return 0; }
+    if (!qbuf) { mem_free(table); return 0; }
 
     /* Origin coordinates encoded into key: 21 bits each */
     uint64_t origin = 0ULL;
@@ -129,7 +140,7 @@ seq_t a(idx_t n)
             ++count;
     }
 
-    free(table);
+    mem_free(table);
     free(qbuf);
     return (seq_t)count;
 }

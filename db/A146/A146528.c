@@ -7,17 +7,18 @@
  * Formula:   a(0)=4; for n>=1, a(n)=2^n+4
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0)
         return (seq_t)4;
-    seq_t val = pow_int((seq_t)2, n);  /* compute 2^n */
+    seq_t val = ipow_idx((seq_t)2, n);  /* compute 2^n */
     return val + (seq_t)4;
 }

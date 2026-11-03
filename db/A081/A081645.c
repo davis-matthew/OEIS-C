@@ -9,14 +9,17 @@
  *            * and n is not a perfect square
  * Range:     u8 n <= 32, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   _isqrt_seq
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_isqrt_seq.h"   /* provide _isqrt_seq(seq_t) */
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
 
 static seq_t* cache = NULL;
 static idx_t cache_len = 0;
@@ -29,7 +32,7 @@ static void grow_cache(idx_t needed)
     if (needed <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
     while (cache_len < n) {
         seq_t r = cand % (seq_t)36;
         if (r == 0 || r == 1 || r == 4 || r == 9 || r == 16 || r == 25) {
-            seq_t s = _isqrt_seq(cand);
+            seq_t s = isqrt_seq(cand);
             if (s * s != cand) {
                 cache[cache_len++] = cand;
             }

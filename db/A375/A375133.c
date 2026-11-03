@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{i>=0} (x^i * Product_{j=1..i-1} (1-x^(3*j))/(1-x^j))
  * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 177, u64 n <= 300,
  *            u128 n <= 300, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 296 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 /*  The types seq_t and idx_t are supplied by the build.  */
 
 seq_t a(idx_t n)
@@ -37,9 +39,9 @@ seq_t a(idx_t n)
     if (capacity < need) {
         idx_t new_cap = need * 2;       /* simple doubling policy          */
         if (new_cap < need) new_cap = need;
-        dp  = (seq_t *)realloc(dp,  new_cap * sizeof(seq_t));
-        res = (seq_t *)realloc(res, new_cap * sizeof(seq_t));
-        tmp = (seq_t *)realloc(tmp, new_cap * sizeof(seq_t));
+        dp  = mem_resize(seq_t, dp, new_cap);
+        res = mem_resize(seq_t, res, new_cap);
+        tmp = mem_resize(seq_t, tmp, new_cap);
         if (!dp || !res || !tmp) exit(EXIT_FAILURE);
         capacity = new_cap;
     }

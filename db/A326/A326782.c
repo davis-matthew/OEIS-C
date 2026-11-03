@@ -9,6 +9,7 @@
  *            a(4)=6, a(5)=16, …
  * Range:     u8 n <= 16, u16 n <= 64, u32 n <= 2048, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 65 terms through n = 9958 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t exp) */
+#include "../utils/pow2.h"
 
 /* first 200 primes – plenty for n≤100 000 (needs < 200 bits). */
 static const unsigned int primes[] = {

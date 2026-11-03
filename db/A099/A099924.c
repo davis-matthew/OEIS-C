@@ -8,13 +8,15 @@
  *            4. F(k) is the Fibonacci number (F(0)=0, F(1)=1)
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 38, u64 n <= 82, u128 n <= 173,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 4614 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static caches for the sequence and the Fibonacci numbers */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* initialise caches on first call */
     if (a_cache == NULL) {
         a_cap = 4;
-        a_cache = (seq_t*)calloc(a_cap, sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = 4;  /* a(0) */
         a_cache[1] = 4;  /* a(1) */
         a_cache[2] = 13; /* a(2) */
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
         a_len   = 4;
 
         f_cap = 2;
-        f_cache = (seq_t*)malloc(f_cap * sizeof(seq_t));
+        f_cache = mem_new(seq_t, f_cap);
         f_cache[0] = 0;  /* F(0) */
         f_cache[1] = 1;  /* F(1) */
         f_len   = 2;
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
     if ((idx_t)n + 1 > a_cap) {
         size_t new_cap = a_cap * 2;
         if (new_cap <= (size_t)n + 1) new_cap = (size_t)n + 1;
-        a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cap   = new_cap;
     }
 
@@ -54,7 +56,7 @@ seq_t a(idx_t n) {
         if (f_cap < target + 1) {
             size_t new_cap = f_cap ? f_cap * 2 : 2;
             if (new_cap < target + 1) new_cap = target + 1;
-            f_cache = (seq_t*)realloc(f_cache, new_cap * sizeof(seq_t));
+            f_cache = mem_resize(seq_t, f_cache, new_cap);
             f_cap   = new_cap;
         }
         while (f_len <= (idx_t)n - 1) {
@@ -72,7 +74,7 @@ seq_t a(idx_t n) {
             if (f_cap < target + 1) {
                 size_t new_cap = f_cap ? f_cap * 2 : 2;
                 if (new_cap < target + 1) new_cap = target + 1;
-                f_cache = (seq_t*)realloc(f_cache, new_cap * sizeof(seq_t));
+                f_cache = mem_resize(seq_t, f_cache, new_cap);
                 f_cap   = new_cap;
             }
             while (f_len <= (idx_t)i - 1) {

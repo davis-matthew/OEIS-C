@@ -12,7 +12,8 @@
  *            using the generating function ∏_{j≥1} (1+x^j)/(1...
  * Range:     u8 n <= 36, u16 n <= 276, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 1260 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *overpartitions = NULL;
 static idx_t overpart_max = 0ULL;
@@ -29,11 +31,11 @@ static void ensure_overpartitions(idx_t need)
     if (need <= overpart_max)
         return;
 
-    free(overpartitions);
-    overpartitions = (seq_t *)malloc((need + 1) * sizeof(seq_t));
+    mem_free(overpartitions);
+    overpartitions = mem_new(seq_t, (need + 1));
 
-    seq_t *dp   = (seq_t *)malloc((need + 1) * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc((need + 1) * sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, (need + 1));
+    seq_t *next = mem_new(seq_t, (need + 1));
 
     for (idx_t i = 0; i <= need; ++i)
         dp[i] = 0;
@@ -61,8 +63,8 @@ static void ensure_overpartitions(idx_t need)
     for (idx_t i = 0; i <= need; ++i)
         overpartitions[i] = dp[i];
 
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     overpart_max = need;
 }
 

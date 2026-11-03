@@ -8,17 +8,20 @@
  * Keywords:  nonn
  * Formula:   a(n) = greatest divisor d of n such that sigma(d) < 2*d <
  *            A003961(d), or 1 if no such divisor exists
- * Range:     u8 n <= 62, u16 n <= 5315, u32 n <= 8424, u64 n <= 8424,
- *            u128 n <= 8424, big any n
- * Helpers:   factor_u64, next_prime, pow_uint
+ * Range:     u8 n <= 62, u16 n <= 5315, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 108 terms through n = 8424 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
 #include "../utils/next_prime.h"
-#include "../utils/pow_uint.h"
 
 static void dfs(size_t idx, seq_t d, seq_t sigma, seq_t a,
                 uint64_t *primes, size_t *exps, size_t cnt,
@@ -41,9 +44,9 @@ static void dfs(size_t idx, seq_t d, seq_t sigma, seq_t a,
 
     /* exponent 1 .. emax */
     for (size_t e = 1; e <= emax; ++e) {
-        seq_t p_pow      = pow_uint(p, e);
-        seq_t sigma_part = (pow_uint(p, e + 1) - 1) / (p - 1);
-        seq_t a_part     = pow_uint(nextp, e);
+        seq_t p_pow      = ipow_u64_idx(p, e);
+        seq_t sigma_part = (ipow_u64_idx(p, e + 1) - 1) / (p - 1);
+        seq_t a_part     = ipow_u64_idx(nextp, e);
         seq_t d_next     = d * p_pow;
         seq_t sigma_next = sigma * sigma_part;
         seq_t a_next     = a * a_part;

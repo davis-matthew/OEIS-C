@@ -13,14 +13,31 @@
  *            G(t(K^2))
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   a3496_mul, a3496_zero
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a3496_mul.h"
-#include "../utils/a3496_zero.h"
+#include "../utils/mem.h"
+
+/* out = x*y truncated to L terms (out distinct from x and y) */
+static void a3496_mul(const seq_t *x, const seq_t *y, seq_t *out, idx_t L)
+{
+	for (idx_t k = 0; k < L; k++) {
+		seq_t s = (seq_t)0;
+		for (idx_t i = 0; i <= k; i++) s += x[i] * y[k - i];
+		out[k] = s;
+	}
+}
+
+static seq_t *a3496_zero(idx_t len)
+{
+	seq_t *v = mem_new(seq_t, (size_t)len);
+	for (idx_t i = 0; i < len; i++) v[i] = (seq_t)0;
+	return v;
+}
 
 seq_t a(idx_t n)
 {
@@ -91,6 +108,6 @@ seq_t a(idx_t n)
 	}
 
 	seq_t result = qp[n] - qm[n];
-	free(cb); free(row); free(c); free(R); free(B); free(T); free(qp); free(qm);
+	mem_free(cb); mem_free(row); mem_free(c); mem_free(R); mem_free(B); mem_free(T); mem_free(qp); mem_free(qm);
 	return result;
 }

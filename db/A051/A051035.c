@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 162, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 8218 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * at least one representation as the sum of two primes.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
             if (representable) {
                 if (terms_len == terms_cap) {
                     size_t new_cap = terms_cap ? terms_cap * 2 : 32;
-                    seq_t *new_arr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                    seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
                     if (!new_arr) abort();
                     terms = new_arr;
                     terms_cap = new_cap;

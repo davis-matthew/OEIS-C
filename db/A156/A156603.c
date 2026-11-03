@@ -12,28 +12,17 @@
  *            defined by U_0=1, U_1=2x, U_{j+1}=2x U_j - U_{j-1}
  * Range:     i8 n <= 26, i16 n <= 43, i32 n <= 83, i64 n <= 112,
  *            i128 n <= 181, big any n
- * Helpers:   _floor_isqrt_u64, gcd
+ * Validated: standard, pass, 82 terms through n = 1317 (2026-11-02)
+ * Helpers:   gcd, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* Necessary helper: integer square root of an unsigned 64‑bit number */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"      /* to satisfy compiler - any utility included is allowed */
+#include "../utils/gcd.h"
+#include "../utils/isqrt.h"
 
-#if __has_include("../utils/_floor_isqrt_u64.h")
-#include "../utils/_floor_isqrt_u64.h"
-#else
-/* Fallback implementation (should not be needed on the target build). */
-static inline uint64_t _floor_isqrt_u64(uint64_t n)
-{
-    uint64_t x = n;
-    uint64_t y = (x + 1) >> 1;
-    while (y < x) { x = y; y = (x + n / x) >> 1; }
-    return x;
-}
-#endif
 
 static seq_t factorial(idx_t m)
 {
@@ -46,7 +35,7 @@ static seq_t factorial(idx_t m)
 seq_t a(idx_t n)
 {
     /* Determine the diagonal d such that d(d+1)/2 <= n < (d+1)(d+2)/2. */
-    idx_t d = (_floor_isqrt_u64(8ULL * n + 1ULL) - 1ULL) / 2ULL;
+    idx_t d = (isqrt(8ULL * n + 1ULL) - 1ULL) / 2ULL;
     idx_t start = d * (d + 1) / 2;
     idx_t offset = n - start;           /* row index (m) */
     idx_t m = offset;

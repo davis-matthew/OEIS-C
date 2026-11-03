@@ -8,16 +8,40 @@
  *            n!)
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 34, u64 n <= 67, u128 n <= 131,
  *            big any n
- * Helpers:   q2678_div, q2678_mod, q2678_pow2mod
+ * Validated: standard, pass, 51 terms through n = 260 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/q2678_div.h"
-#include "../utils/q2678_mod.h"
-#include "../utils/q2678_pow2mod.h"
+
+static void q2678_div(uint32_t *x, size_t L, uint32_t p) {
+    uint64_t rem = 0;
+    for (size_t i = L; i-- > 0;) {
+        uint64_t cur = (rem << 32) | x[i];
+        x[i] = (uint32_t)(cur / p);
+        rem = cur % p;
+    }
+}
+
+static uint32_t q2678_mod(const uint32_t *x, size_t L, uint32_t p) {
+    uint64_t rem = 0;
+    for (size_t i = L; i-- > 0;)
+        rem = ((rem << 32) | x[i]) % p;
+    return (uint32_t)rem;
+}
+
+static uint64_t q2678_pow2mod(uint64_t e, uint64_t m) {
+    uint64_t r = 1 % m, b = 2 % m;
+    while (e) {
+        if (e & 1) r = r * b % m;
+        b = b * b % m;
+        e >>= 1;
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     idx_t m = n - 1;

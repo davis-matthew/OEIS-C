@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,27 @@
  *  The period is detected by the standard continued‑fraction algorithm.
  */
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *period_terms = NULL;
 static size_t  period_len  = 0;
@@ -41,7 +62,7 @@ static void init_once(void) {
 
     /* reserve an initial capacity */
     size_t capacity = 64;
-    period_terms = (seq_t *)malloc(sizeof(seq_t) * capacity);
+    period_terms = mem_new(seq_t, capacity);
     size_t term_count = 0;
 
     while (1) {
@@ -52,7 +73,7 @@ static void init_once(void) {
 
         if (term_count == capacity) {
             capacity *= 2;
-            period_terms = (seq_t *)realloc(period_terms, sizeof(seq_t) * capacity);
+            period_terms = mem_resize(seq_t, period_terms, capacity);
         }
         period_terms[term_count++] = a;
 

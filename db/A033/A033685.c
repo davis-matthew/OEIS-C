@@ -9,7 +9,8 @@
  *            for residues 2,3,5,8 (residue 0 never appears in the sum)
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 4856 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* sign table indexed by residue mod 9 (0 unused) */
 static const int sign_map[9] = {
@@ -98,12 +100,12 @@ static void extend_cache(idx_t n)
     if (n < cache_nmax) return;          /* already computed */
 
     if (!cache) {
-        cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         if (!cache) abort();              /* allocation failure */
         cache[0] = (seq_t)0;
         cache_nmax = 1;
     } else if (n + 1 > cache_nmax) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) abort();
         cache = tmp;
     }

@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=1..n} k^(2*(n-k)) * binomial(n-1,k-1), a(0)=1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialisation: a(0) = 1 */
     if (a_vals == NULL) {
         capacity = 1;
-        a_vals = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        a_vals = mem_new(seq_t, capacity);
         a_vals[0] = (seq_t)1;
         current_sum = a_vals[0];
     }
@@ -41,8 +43,8 @@ seq_t a(idx_t n)
         /* make sure we have enough storage */
         if (new_n + 1 > capacity) {
             size_t new_cap = new_n + 1;
-            a_vals = (seq_t *)realloc(a_vals, sizeof(seq_t) * new_cap);
-            b_vals = (seq_t *)realloc(b_vals, sizeof(seq_t) * new_cap);
+            a_vals = mem_resize(seq_t, a_vals, new_cap);
+            b_vals = mem_resize(seq_t, b_vals, new_cap);
             capacity = new_cap;
         }
 

@@ -12,15 +12,25 @@
  *            coefficient
  * Range:     u8 n <= 38, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom, start_row
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include the binomial helper; adjust the path as needed. */
-#include "../utils/binom.h"
 #include <stdint.h>
-#include "../utils/start_row.h"
+#include "../utils/binomial.h"
+
+static inline idx_t start_row(idx_t r)
+{
+    /* s(r) = (r^2 + r)/2 + 1; use 128-bit to avoid overflow. */
+    unsigned __int128 val = (unsigned __int128)r * r + r;
+    val /= 2;
+    val += 1;
+    return (idx_t)val;
+}
+#include <stdint.h>
 
 seq_t a(idx_t n)
 {
@@ -55,7 +65,7 @@ seq_t a(idx_t n)
         return 1;
 
     idx_t k = t + 1;                     /* column index (1-based) */
-    seq_t coeff = binom(r, k);            /* C(r, k) */
+    seq_t coeff = binomial(r, k);            /* C(r, k) */
     coeff *= (seq_t)5;                    /* multiply by 5 */
     return coeff;
 }

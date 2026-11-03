@@ -8,11 +8,13 @@
  *            - k*(k+1)/2
  * Range:     i8 n <= 26, i16 n <= 58, i32 n <= 58, i64 n <= 58, i128 n <= 58,
  *            big any n
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static inline idx_t triangular(idx_t k)

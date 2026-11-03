@@ -10,6 +10,7 @@
  *            (possibly overlapping) occurrences of the binary expansion of n
  * Range:     u8 n <= 14, u16 n <= 22, u32 n <= 38, u64 n <= 70, u128 n <= 134,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 951 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   has_five_runs
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,23 @@
    configuration. */
 
 #include <stdbool.h>
-#include "../utils/has_five_runs.h"
+
+/* Return true iff v has exactly 5 runs in base‑11. */
+static bool has_five_runs(seq_t v)
+{
+    int runs = 0;
+    int prev = -1;                       /* sentinel: no previous digit */
+    while (v > (seq_t)0) {
+        int digit = (int)(v % (seq_t)11);
+        if (runs == 0 || digit != prev) {
+            ++runs;
+            prev = digit;
+            if (runs > 5) return false; /* early exit */
+        }
+        v /= (seq_t)11;
+    }
+    return runs == 5;
+}
 
 /* External function requested by the harness. */
 seq_t a(idx_t n)

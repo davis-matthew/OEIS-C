@@ -7,13 +7,15 @@
  * Formula:   a(n) = n*(5^n - 1) + 1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 25, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) = n*(5^n - 1) + 1 with caching for efficiency.  */
 seq_t a(idx_t n)
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         if (needed > pow5_cap) {
             size_t new_cap = pow5_cap ? pow5_cap * 2 : 1;
             while (new_cap < needed) new_cap *= 2;
-            pow5_cache = (seq_t*)realloc(pow5_cache, new_cap * sizeof(seq_t));
+            pow5_cache = mem_resize(seq_t, pow5_cache, new_cap);
             pow5_cap = new_cap;
         }
         /* Compute missing 5^i values and corresponding a(i) values */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
             if (i >= a_cap) {
                 size_t new_cap = a_cap ? a_cap * 2 : 1;
                 while (new_cap <= i) new_cap *= 2;
-                a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+                a_cache = mem_resize(seq_t, a_cache, new_cap);
                 a_cap = new_cap;
             }
             seq_t term = ((seq_t)i) * (pow5_cache[i] - 1) + 1;

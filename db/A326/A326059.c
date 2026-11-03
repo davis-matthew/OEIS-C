@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = A285309(n) - n
- * Range:     i8 n <= 83, i16 n <= 9856, i32 n <= 9856, i64 n <= 9856,
- *            i128 n <= 9856, big any n
+ * Range:     i8 n <= 83, i16 n <= 12599, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 107 terms through n = 9856 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 /* Computes a(n) by enumerating the divisors of n, summing those that are not perfect squares,
    and then subtracting n. */
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

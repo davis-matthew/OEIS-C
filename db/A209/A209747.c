@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  *   v(n,x) = u(n-1,x) + v(n-1,x) + 1
  * with u(1,x)=1, v(1,x)=1.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Find the row r (r>=1) such that the total number of terms up to that
  * row, r*(r+1)/2, is at least n.  */
@@ -61,10 +63,10 @@ a(idx_t n)
         size_t new_len = old_len + 1;          /* new row length = r */
 
         /* Allocate space for the new row. */
-        seq_t *U_new = (seq_t *)malloc(new_len * sizeof(seq_t));
-        seq_t *V_new = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *U_new = mem_new(seq_t, new_len);
+        seq_t *V_new = mem_new(seq_t, new_len);
         if (!U_new || !V_new) {
-            free(U_new); free(V_new);
+            mem_free(U_new); mem_free(V_new);
             return (seq_t)0;   /* allocation failure */
         }
 
@@ -101,8 +103,8 @@ a(idx_t n)
         }
 
         /* Release old arrays and update static pointers. */
-        free(U);
-        free(V);
+        mem_free(U);
+        mem_free(V);
         U = U_new;
         V = V_new;
         cur_len = (idx_t)new_len;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   compute_reachable
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,66 @@
  
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/compute_reachable.h"
+#include "../utils/mem.h"
+
+/* Determine whether a number <= limit is representable as
+   a sum of five positive squares.  The result is written into
+   the array 'reachable' whose indices run from 0..limit. */
+static void compute_reachable(idx_t limit, char *reachable)
+{
+    idx_t size = limit + 1;
+    char *dp_prev = (char*)calloc(size, sizeof(char));
+    char *dp_curr = (char*)calloc(size, sizeof(char));
+    if (dp_prev == NULL || dp_curr == NULL) {
+        /* In a contest environment we could abort, but for
+           safety we simply zero reachable. */
+        if (dp_prev) free(dp_prev);
+        if (dp_curr) free(dp_curr);
+        memset(reachable, 0, size);
+        return;
+    }
+    dp_prev[0] = 1; /* start with 0 as the empty sum */
+
+    /* Pre‑compute all positive squares up to limit. */
+    idx_t max_a = 1;
+    while ((max_a + 1) * (max_a + 1) <= limit)
+        ++max_a;
+    idx_t num_squares = max_a;
+    idx_t *squares = (idx_t*)malloc(num_squares * sizeof(idx_t));
+    if (squares == NULL) {
+        free(dp_prev);
+        free(dp_curr);
+        memset(reachable, 0, size);
+        return;
+    }
+    for (idx_t a = 1; a <= max_a; ++a)
+        squares[a - 1] = a * a;
+
+    /* DP: add squares one at a time, up to five terms. */
+    for (int step = 0; step < 5; ++step) {
+        memset(dp_curr, 0, size);
+        for (idx_t sum = 0; sum <= limit; ++sum) {
+            if (dp_prev[sum]) {
+                for (idx_t i = 0; i < num_squares; ++i) {
+                    idx_t nxt = sum + squares[i];
+                    if (nxt > limit) break;
+                    dp_curr[nxt] = 1;
+                }
+            }
+        }
+        /* swap for next iteration */
+        char *tmp = dp_prev;
+        dp_prev = dp_curr;
+        dp_curr = tmp;
+    }
+
+    /* copy result */
+    memcpy(reachable, dp_prev, size);
+
+    free(dp_prev);
+    free(dp_curr);
+    free(squares);
+}
 
 seq_t a(idx_t n)
 {
@@ -56,7 +116,7 @@ seq_t a(idx_t n)
                 /* grow array if necessary */
                 if (seq_len == seq_cap) {
                     seq_cap = seq_cap ? seq_cap * 2 : 8;
-                    seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_cap);
                     if (seq == NULL) {
                         /* allocation failed – clean up and exit */
                         free(reachable);

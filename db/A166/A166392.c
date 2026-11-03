@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 188, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rev_mod19
+ * Validated: standard, pass, 47 terms through n = 9860 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
  * routine works for any seq_t size and stays well under 2 s for n up to ~10000. */
 
 #include <stdbool.h>          /* for bool if needed (not used here) */
-#include "../utils/rev_mod19.h"
+
+/* Compute rev(x) mod 19 using only idx_t arithmetic. */
+static inline idx_t rev_mod19(idx_t x)
+{
+    idx_t r = 0;
+    while (x)
+    {
+        r = (r * 10 + (x % 10)) % 19;
+        x /= 10;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {

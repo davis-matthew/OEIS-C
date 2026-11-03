@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 48 terms through n = 9595 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pow_int.h"   /* pow_int(seq_t base, idx_t exp) */
+#include "../utils/ipow_idx.h"
 
 /* Small integer binomial coefficient, returned as seq_t. */
 static seq_t binom_int(int n, int k)
@@ -39,7 +40,7 @@ static seq_t f_count(int rem, int k)
     seq_t res = (seq_t)0;
     for (int i = 0; i <= k; ++i) {
         seq_t term = binom_int(k, i) *
-                     pow_int((seq_t)(6 - i), (idx_t)rem);
+                     ipow_idx((seq_t)(6 - i), (idx_t)rem);
         if ((i & 1) == 0)
             res += term;
         else

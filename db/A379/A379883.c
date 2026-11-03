@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 92, u16 n <= 1007, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 117 terms through n = 9575 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---- helper: prime factorisation for seq_t (small numbers) ---- */
 typedef struct { seq_t prime; uint32_t exp; } factor_t;
@@ -144,9 +146,9 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;                  /* undefined, safe */
     if ((size_t)n > cache_len) {
         /* grow cache */
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * (size_t)n);
-        if (cache_len) memcpy(new_cache, seq_cache, sizeof(seq_t) * cache_len);
-        free(seq_cache);
+        seq_t *new_cache = mem_new(seq_t, (size_t)n);
+        if (cache_len) mem_copy(new_cache, seq_cache, sizeof(seq_t) * cache_len);
+        mem_free(seq_cache);
         seq_cache = new_cache;
         /* initialise counters for new elements */
         for (size_t i = cache_len; i < (size_t)n; ++i) {

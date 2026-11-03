@@ -9,13 +9,16 @@
  *            binomial(2r+1, r-m) / (2^(2r) * (2m+1)), where (r,m) is the
  *            (row,column) obtained from the triangular numbering: r*(r+1)/2 ≤
  *            n < (r+1)(r+2)/2
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 14, u16 n <= 44, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

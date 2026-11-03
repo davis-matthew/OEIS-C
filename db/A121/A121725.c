@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 /* required headers */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Implementation using 128‑bit arithmetic for the C build ---------- */
 /*  The code that uses __int128 is compiled only when compiling in C
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
     if (count < 3) {
         size_t new_cap = 3;
         if (cap < new_cap) {
-            void *tmp = realloc(cache, new_cap * sizeof(seq_t));
+            void *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return 0;          /* allocation failure */
             cache = (seq_t *)tmp;
             cap   = new_cap;
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
     if (n >= cap) {
         size_t new_cap = cap ? cap * 2 : 4;
         while (new_cap <= n) new_cap <<= 1;
-        void *tmp = realloc(cache, new_cap * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                       /* allocation failure */
         cache = (seq_t *)tmp;
         cap   = new_cap;

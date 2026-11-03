@@ -9,9 +9,10 @@
  * Formula:   a(n) = label of the pair (σ(n)-n, prime exponents of n sorted
  *            ascending) in the order of first appearance, starting with
  *            (0,∅)=1
- * Range:     u8 n <= 355, u16 n <= 9893, u32 n <= 9893, u64 n <= 9893,
- *            u128 n <= 9893, big any n
- * Helpers:   pack_exponents
+ * Range:     u8 n <= 355, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 115 terms through n = 9893 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/pack_exponents.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------------- */
+static inline uint64_t pack_exponents(const int *exps, size_t cnt)
+{
+    uint64_t key = 0;
+    for (size_t i = 0; i < cnt; ++i)
+        key = (key << 4) | (uint64_t)(exps[i] & 0xF);
+    return key;
+}
 
 /* ------------------------------------------------------------------------- */
 /*  Helpers for smallest‑prime‑factor sieve                                  */
@@ -67,7 +77,7 @@ static void hash_init(void)
 {
     if (hash_initd) return;
     hash_keys = (Key *)calloc(HASH_SIZE, sizeof(Key));
-    hash_vals = (seq_t *)calloc(HASH_SIZE, sizeof(seq_t));
+    hash_vals = mem_new(seq_t, HASH_SIZE);
     if (!hash_keys || !hash_vals) exit(1);
     /* mark all slots as empty */
     for (size_t i = 0; i < HASH_SIZE; ++i)
@@ -115,7 +125,7 @@ static void cache_ensure(size_t n)
     if (cache_cap >= n + 1) return;
     size_t new_cap = cache_cap == 0 ? 64 : cache_cap;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cached, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cached, new_cap);
     if (!tmp) exit(1);
     cached = tmp;
     cache_cap = new_cap;

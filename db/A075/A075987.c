@@ -9,7 +9,8 @@
  *            (product_{k=1}^{n-1}prime(k))^3
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   seq_mul, seq_pow, sieve_first_n_primes
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   ipow_idx, mem, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,16 @@
 #include <stdbool.h>
 
 /* external utilities for primes and big integer arithmetic */
+#include <string.h>
+#include <math.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/sieve_first_n_primes.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* compute the n-th term of OEIS A075987 */
 seq_t a(idx_t n) {
@@ -46,7 +54,7 @@ seq_t a(idx_t n) {
     /* Expand cache if needed */
     if (cache_len <= (size_t)n) {
         size_t new_len = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         if (!cache) return (seq_t)0; /* allocation failed; caller may handle */
         /* initialize first element */
         if (cache_len == 0) {
@@ -62,8 +70,8 @@ seq_t a(idx_t n) {
     for (size_t i = prod_len; i < (size_t)n; ++i) { /* i is zero‑based index for prime(i+1) */
         /* prime at position i+1 is primes[i] */
         seq_t p = (seq_t)primes[i];
-        seq_t p3 = seq_pow(p, 3);
-        seq_t prod3 = seq_pow(prod_cum, 3);
+        seq_t p3 = ipow_idx(p, 3);
+        seq_t prod3 = ipow_idx(prod_cum, 3);
         seq_t a_prev = cache[i];
         cache[i + 1] = a_prev * p3 + prod3;
         prod_cum = seq_mul(prod_cum, p);

@@ -12,13 +12,15 @@
  *            a(n)=3*a(n-1)+3*a(n-2)-a(n-3) if n is odd
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 26, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 864 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;   /* number of entries already computed */
@@ -28,7 +30,7 @@ static void ensure_up_to(idx_t n)
     if (n < cache_size) return;         /* already computed */
 
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) abort();            /* out of memory */
 
     /* compute values for indices cache_size .. n */

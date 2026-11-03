@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   digits_u64
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem, num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digits_u64.h"
+#include "../utils/num_digits_u64.h"
+#include "../utils/mem.h"
 
 /* compute floor(sqrt(x)) for 64‑bit unsigned integers */
 static uint64_t floor_isqrt_u64(uint64_t n)
@@ -40,8 +42,8 @@ static uint64_t floor_isqrt_u64(uint64_t n)
 static bool has_property_u64(uint64_t val)
 {
     uint64_t m    = floor_isqrt_u64(val);          /* floor(sqrt(val)) */
-    int     dv    = digits_u64(val);
-    int     dm    = digits_u64(m);
+    int     dv    = num_digits_u64(val);
+    int     dm    = num_digits_u64(m);
     int     exp   = dv - dm;                       /* shift to get prefix */
 
     uint64_t pow10 = 1;
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
             if (cache_size == cache_cap)
             {
                 cache_cap = (cache_cap == 0) ? 64 : cache_cap << 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = (seq_t)next_candidate;
         }

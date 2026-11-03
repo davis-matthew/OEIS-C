@@ -7,12 +7,14 @@
  * Formula:   a(n) = ∏_{j=0}^{n-2} (5ⁿ−5ʲ)² / (5ⁿ⁻¹−5ʲ) (n ≥ 1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

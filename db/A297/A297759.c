@@ -8,14 +8,39 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   transition_valid
+ * Validated: standard, pass, 33 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/transition_valid.h"
+
+static inline bool transition_valid(uint8_t a, uint8_t b, uint8_t c)
+{
+    for (int j = 0; j < 5; ++j) {
+        if (!(b & (1u << j))) continue;      /* only examine 1‑cells in b */
+
+        uint8_t nbors = 0;
+
+        /* horizontal neighbours in the same row */
+        if (j > 0 && (b & (1u << (j - 1)))) ++nbors;
+        if (j < 4 && (b & (1u << (j + 1)))) ++nbors;
+
+        /* diagonal neighbours from the row above (a) */
+        if (j > 0 && (a & (1u << (j - 1)))) ++nbors;
+        if (j < 4 && (a & (1u << (j + 1)))) ++nbors;
+
+        /* diagonal neighbours from the row below (c) */
+        if (j > 0 && (c & (1u << (j - 1)))) ++nbors;
+        if (j < 4 && (c & (1u << (j + 1)))) ++nbors;
+
+        /* a 1 must have 2, 3, or 4 neighbours */
+        if (!(nbors == 2 || nbors == 3 || nbors == 4)) return false;
+    }
+    return true;
+}
 
 /* This implementation counts n×5 binary arrays where each 1
    has between 2 and 4 adjacent 1s in the 6‐neighbourhood

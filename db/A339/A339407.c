@@ -12,7 +12,8 @@
  *            number of parts * dp_odd[k] = # partitions of k w...
  * Range:     u8 n <= 22, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
 
     /* Allocate DP arrays */
     size_t sz = (size_t)(n + 1);
-    seq_t *dp_even = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *dp_odd  = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *dp_even = mem_new(seq_t, sz);
+    seq_t *dp_odd  = mem_new(seq_t, sz);
     if (!dp_even || !dp_odd) {
         /* In a real environment we would handle allocation failure;
            here we simply return 0 to keep the signature. */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp_odd[(size_t)n];
-    free(dp_even);
-    free(dp_odd);
+    mem_free(dp_even);
+    mem_free(dp_odd);
     return result;
 }

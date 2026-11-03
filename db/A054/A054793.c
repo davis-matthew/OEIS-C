@@ -9,13 +9,27 @@
  *            1)^4 Base cases: a(0) = 0, a(1) = 1
  * Range:     u8 n <= 4, u16 n <= 17, u32 n <= 257, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   fourth_root_floor
+ * Validated: standard, pass, 62 terms through n = 992 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fourth_root_floor.h"
+
+/* integer fourth root floor of a 64‑bit integer */
+static inline uint64_t fourth_root_floor(uint64_t n)
+{
+    uint64_t low = 0, high = (uint64_t)1 << 16;      /* 2^16 = 65536 */
+    while (low < high) {
+        uint64_t mid = (low + high + 1) >> 1;       /* upper mid */
+        unsigned __int128 mid2 = (unsigned __int128)mid * mid;
+        unsigned __int128 mid4 = mid2 * mid2;
+        if (mid4 <= n) low = mid;
+        else high = mid - 1;
+    }
+    return low;
+}
 
 /* external function required by the test harness */
 seq_t a(idx_t n)

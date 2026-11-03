@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 63, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,8 @@
 /* a(n) = T(r,m) where r is the unique integer with 1+r(r-1) ≤ n < 1+(r+1)r, */
 /* and m = n - (1+r(r-1)).                                                    */
 #include <stdint.h>
-#include "../utils/binomial.h"   /* provides binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 static inline idx_t isqrt_u64(idx_t v) {
     idx_t lo = 0, hi = v;

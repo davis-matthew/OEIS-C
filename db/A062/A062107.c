@@ -7,12 +7,13 @@
  * Formula:   a(n) = 10*3^(n-4) for n ≥ 4 * with a(1) = 0, a(2) = 1, a(3) = 3
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 42, u128 n <= 82,
  *            big any n
- * Helpers:   pow3_idx
+ * Validated: standard, pass, 47 terms through n = 940 (2026-11-01)
+ * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow3_idx.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {
@@ -29,6 +30,6 @@ seq_t a(idx_t n)
     }
 
     /* a(n) = 10 * 3^(n-4) for n ≥ 4 */
-    seq_t pow_part = pow3_idx(n - 4);
+    seq_t pow_part = pow3(n - 4);
     return (seq_t)10 * pow_part;
 }

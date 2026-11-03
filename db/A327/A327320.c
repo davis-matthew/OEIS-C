@@ -11,14 +11,18 @@
  *            2^k) / 3^{v3(r)+1}, where v3(r) is the exponent of 3 in r
  * Range:     u8 n <= 12, u16 n <= 40, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
  * Helpers:   binomial, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
-#include "../utils/binomial.h"
 
 /* Helper: exponent of 3 in r. */
 static idx_t v3(idx_t r)

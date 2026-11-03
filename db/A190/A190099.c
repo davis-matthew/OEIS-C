@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 20, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         size_t new_cap = (cache_cap == 0 ? 16 : cache_cap);
         while (new_cap < need)
             new_cap <<= 1;             /* grow by factor 2 */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();            /* out of memory */
         /* zero the new portion – works for arithmetic types and
            for arbitrary‑precision classes that can be assigned 0 */

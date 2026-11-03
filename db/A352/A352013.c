@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{d|n} (-1)^(n/d+1) * (n-1)!/(d-1)!
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 14, i64 n <= 22, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 448 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache for the products (n-1)!/(d-1)! for the current n */
 static seq_t *prod_table = NULL;
@@ -25,8 +27,8 @@ seq_t a(idx_t n)
 
     /* resize cache if needed */
     if (n > prod_cap) {
-        free(prod_table);
-        prod_table = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        mem_free(prod_table);
+        prod_table = mem_new(seq_t, (size_t)(n + 1));
         prod_cap = n;
     }
 

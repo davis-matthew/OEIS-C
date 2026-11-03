@@ -10,7 +10,8 @@
  *            prime(k)^{e_k} (standard prime k-indexing)
  * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 136, u64 n <= 312,
  *            u128 n <= 726, big any n
- * Helpers:   big_pow, build_primes_upto, factor_u64
+ * Validated: standard, pass, 78 terms through n = 9859 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/big_pow.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 /* static cache of primes up to a fixed limit */
 static uint64_t *prime_list   = NULL;
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
         seq_t e   = (seq_t)pf_ex[i];
         uint64_t p = pf_pr[i];
         idx_t k    = prime_index(p);          /* 1‑based */
-        seq_t pow_val = big_pow(b, (seq_t)(k - 1));
+        seq_t pow_val = ipow(b, (seq_t)(k - 1));
         result += e * pow_val;
     }
     return result;

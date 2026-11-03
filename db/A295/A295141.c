@@ -11,13 +11,15 @@
  *            not in {a[0..n],b[0..n-1]}
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Binary search: return true if val occurs in the first 'cnt' elements of arr */
 static bool contains_a(idx_t cnt, const seq_t *arr, seq_t val)
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
     /* One-time initialization with the first two terms. */
     if (size == 0) {
         size = 2;                         /* indices 0 and 1 */
-        a_arr = (seq_t *)malloc(size * sizeof(seq_t));
-        b_arr = (seq_t *)malloc(size * sizeof(seq_t));
+        a_arr = mem_new(seq_t, size);
+        b_arr = mem_new(seq_t, size);
 
         a_arr[0] = 1;
         a_arr[1] = 2;
@@ -68,8 +70,8 @@ seq_t a(idx_t n)
             idx_t new_size = size * 2;
             if (new_size < new_idx + 1)
                 new_size = new_idx + 1;
-            a_arr = (seq_t *)realloc(a_arr, new_size * sizeof(seq_t));
-            b_arr = (seq_t *)realloc(b_arr, new_size * sizeof(seq_t));
+            a_arr = mem_resize(seq_t, a_arr, new_size);
+            b_arr = mem_resize(seq_t, b_arr, new_size);
             size = new_size;
         }
 

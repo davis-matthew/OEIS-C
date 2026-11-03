@@ -10,14 +10,17 @@
  *            The function is memoised; calls in any order are supported
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 45, u64 n <= 91, u128 n <= 184,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 54 terms through n = 967 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Return the n-th term of OEIS A079289. */
 seq_t a(idx_t n)
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
         while (new_cap <= (size_t)n) {
             new_cap *= 2;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             abort();   /* allocation failure */
         }

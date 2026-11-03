@@ -11,7 +11,8 @@
  *            regular polytopes) is included automatically
  * Range:     u8 n <= 15, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   cross_value, cube_value, max_seq_value128, simplex_value
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,54 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cross_value.h"
-#include "../utils/cube_value.h"
-#include "../utils/max_seq_value128.h"
-#include "../utils/simplex_value.h"
+#include "../utils/mem.h"
+
+/* maximum representable value of seq_t, computed as 2^bits-1 */
+static inline unsigned __int128 max_seq_value128(void)
+{
+    unsigned int bits = 8U * sizeof(seq_t);
+    if (bits >= 128)               /* seq_t is 128 bits or larger */
+        return ((unsigned __int128)-1);
+    else
+        return (((unsigned __int128)1 << bits) - 1);
+}
+
+/* crosspolytope value: 16 * C(m,4),  m >= 4 */
+static inline seq_t cross_value(idx_t m, bool *valid)
+{
+    if (m < 4) { *valid = false; return 0; }
+    unsigned __int128 c = (unsigned __int128)m * (m - 1) * (m - 2) * (m - 3) / 24;
+    unsigned __int128 v = c * 16;
+    unsigned __int128 maxv = max_seq_value128();
+    if (v > maxv) { *valid = false; return 0; }
+    *valid = true;
+    return (seq_t)v;
+}
+
+/* cube value: C(m,3) * 2^(m-3),  m >= 4 */
+static inline seq_t cube_value(idx_t m, bool *valid)
+{
+    if (m < 4) { *valid = false; return 0; }
+    unsigned __int128 fac = (unsigned __int128)m * (m - 1) * (m - 2) / 6;
+    unsigned shift = (unsigned)(m - 3);
+    if (shift >= 128) { *valid = false; return 0; }
+    unsigned __int128 v = fac << shift;
+    unsigned __int128 maxv = max_seq_value128();
+    if (v > maxv) { *valid = false; return 0; }
+    *valid = true;
+    return (seq_t)v;
+}
+
+/* simplex value: C(m+1,4),  m >= 3 */
+static inline seq_t simplex_value(idx_t m, bool *valid)
+{
+    unsigned __int128 n = (unsigned __int128)(m + 1);
+    unsigned __int128 v = n * (n - 1) * (n - 2) * (n - 3) / 24;
+    unsigned __int128 maxv = max_seq_value128();
+    if (v > maxv) { *valid = false; return 0; }
+    *valid = true;
+    return (seq_t)v;
+}
 
 /* The sequence function */
 seq_t a(idx_t n)
@@ -95,7 +140,7 @@ seq_t a(idx_t n)
         if (!has_last || best != last_val) {
             if (len == cap) {
                 cap = (cap == 0) ? 16 : cap * 2;
-                seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
             }
             seq[len++] = best;
             last_val = best;

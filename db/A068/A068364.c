@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 313, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 9256 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* upper bound for the sieve (primes up to this value are generated) */
 static const uint32_t SIEVE_LIMIT = 50000000u;   /* 50 million */
@@ -86,7 +88,7 @@ static void append_result(seq_t v)
 {
     if (results_size == results_cap) {
         size_t new_cap = results_cap ? results_cap * 2 : 32;
-        seq_t *tmp = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, results, new_cap);
         if (!tmp) abort();
         results = tmp;
         results_cap = new_cap;

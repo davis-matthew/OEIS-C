@@ -9,7 +9,8 @@
  *            d(n), * where d(x) is the number of divisors of x
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Automatic prime table – sufficient for all needed sqrt(n) (n ≤ 10⁴). */
 static uint32_t *primes = NULL;
@@ -92,10 +94,10 @@ seq_t a(idx_t n)
     /* Resize cache if necessary */
     if (a_cache == NULL) {
         a_cap = (size_t)n + 2;      /* at least n+1 indices */
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
     } else if ((size_t)n + 1 > a_cap) {
         a_cap = (size_t)n + 2;
-        a_cache = (seq_t *)realloc(a_cache, a_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, a_cap);
     }
 
     /* Compute terms up to n */

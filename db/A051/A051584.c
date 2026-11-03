@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 8991, u16 n <= 8991, u32 n <= 8991, u64 n <= 8991,
- *            u128 n <= 8991, big any n
- * Helpers:   factorize, gen_divisors, isqrt128
+ * Range:     u8 n <= 10085, u16 n <= 10085, u32 n <= 10085, u64 n <= 10085,
+ *            u128 n <= 10085, big any n
+ * Validated: standard, pass, 136 terms through n = 8991 (2026-11-01)
+ * Helpers:   factorize, isqrt_i128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,24 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factorize.h"
-#include "../utils/gen_divisors.h"
-#include "../utils/isqrt128.h"
+#include "../utils/isqrt_i128.h"
+
+static void gen_divisors(uint64_t val, uint64_t primes[], int exps[],
+                         int idx, uint64_t current, uint64_t *arr,
+                         size_t *size)
+{
+    if (idx == 0) {
+        arr[*size] = current;
+        (*size)++;
+        return;
+    }
+    uint64_t p = primes[idx - 1];
+    uint64_t v = 1;
+    for (int e = 0; e <= exps[idx - 1]; e++) {
+        gen_divisors(val, primes, exps, idx - 1, current * v, arr, size);
+        v *= p;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -70,7 +87,7 @@ seq_t a(idx_t n)
             uint64_t sumxy = x + y;
             __int128 D = (__int128)sumxy * sumxy + (__int128)4 * t;
 
-            uint64_t sqrtD = isqrt128(D);
+            uint64_t sqrtD = isqrt_i128(D);
             if ((__int128)sqrtD * sqrtD != D) continue;
 
             if (sqrtD <= sumxy) continue;              /* z would be <= 0 */

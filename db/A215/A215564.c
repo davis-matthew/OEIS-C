@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   ensure_capacity, gcd, next_prime
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   gcd, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,46 @@
  * avoids overflow for values that fit in the underlying `seq_t` type.
  */
 #include <stddef.h>          /* for size_t */
-#include "../utils/next_prime.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/ensure_capacity.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 seq_t a(idx_t n) {
     /* Static state: cache of computed terms, its capacity,
@@ -44,7 +82,7 @@ seq_t a(idx_t n) {
 
         /* Ensure the cache has enough capacity before writing. */
         size_t new_cap = cache_len + terms;
-        ensure_capacity(new_cap, &cache_cap, (void **)&cache, sizeof(seq_t));
+        ensure_capacity(new_cap, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
 
         /* Compute the sequence values for this prime. */
         seq_t val = 1;                 /* C(p,1)/p = 1 */

@@ -7,14 +7,18 @@
  * Formula:   a(n) = n! * Σ_{k=0..⌊n/3⌋} (k+1)^(k-1) / (k! (n-3k)!)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 32,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 37 terms through n = 415 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Static cache for factorials */
 static seq_t *fact_cache = NULL;
@@ -25,7 +29,7 @@ static void ensure_fact(idx_t n)
 {
     if ((size_t)n + 1 > fact_cache_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(fact_cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, fact_cache, new_len);
         if (!new_cache) abort(); /* Out of memory */
         fact_cache = new_cache;
         /* Initialize if cache was empty */
@@ -58,7 +62,7 @@ seq_t a(idx_t n)
         if (k == 0)
             pow_term = (seq_t)1;
         else
-            pow_term = big_pow((seq_t)(k + 1), (seq_t)(k - 1));
+            pow_term = ipow((seq_t)(k + 1), (seq_t)(k - 1));
 
         temp = temp * pow_term;
         result += temp;

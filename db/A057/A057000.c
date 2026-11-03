@@ -7,16 +7,17 @@
  * Formula:   a(n) = phi(n+1) - phi(n)
  * Range:     i8 n <= 177, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   _phi
+ * Validated: standard, pass, 90 terms through n = 9639 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     /* n is guaranteed to be >= 1 */
     idx_t n_plus_1 = n + 1;
-    return _phi(n_plus_1) - _phi(n);
+    return totient(n_plus_1) - totient(n);
 }

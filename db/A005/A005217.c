@@ -11,18 +11,77 @@
  *            = (1/m) * Sum_{k=1..m} s(k)*a(m-k)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 20, u64 n <= 37, u128 n <= 69,
  *            big any n
- * Helpers:   a5217_fill_big, alloc_zero, grow_zero, seq_is_big, u128_to_seq
+ * Validated: standard, pass, 45 terms through n = 176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/grow_zero.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/seq_is_big.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/a5217_fill_big.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static void a5217_fill_big(seq_t *B, seq_t *C, idx_t L)
+{
+    seq_t cb = 1, cat = 1;
+    idx_t k, d, j;
+    for (k = 1; k <= L; k++) {
+        seq_t c;
+        if (k % 2 == 0) {
+            idx_t m = k / 2;
+            cb = cb * (seq_t)(2 * (2 * m - 1));
+            cb /= (seq_t)m;
+            c = cb;
+        } else {
+            c = cb * 2;
+        }
+        B[k] = (c + cat * 2) / 4;
+        cat = cat * (seq_t)(4 * k - 2);
+        cat /= (seq_t)(k + 1);
+        C[k] = 0;
+    }
+    for (d = 1; d <= L; d++)
+        for (j = d; j <= L; j += d)
+            C[j] += B[d] * (seq_t)d;
+}
 
 typedef unsigned __int128 a5217_u128;
 

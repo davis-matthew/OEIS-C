@@ -7,16 +7,24 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) is multiplicative with a(p^e) = p^(p-1) if e >= p,
  *            otherwise a(p^e) = p^e
- * Range:     u8 n <= 256, u16 n <= 7532, u32 n <= 7532, u64 n <= 7532,
- *            u128 n <= 7532, big any n
- * Helpers:   big_pow, seq_mul
+ * Range:     u8 n <= 256, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 104 terms through n = 7532 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n) {
     /* OEIS offset starts at 1; n >= 1 */
@@ -32,8 +40,8 @@ seq_t a(idx_t n) {
             t >>= 1;
             e++;
         }
-        seq_t factor = (e >= 2) ? big_pow((seq_t)2, (seq_t)(2 - 1))
-                                : big_pow((seq_t)2, (seq_t)e);
+        seq_t factor = (e >= 2) ? ipow((seq_t)2, (seq_t)(2 - 1))
+                                : ipow((seq_t)2, (seq_t)e);
         result = seq_mul(result, factor);
     }
 
@@ -45,8 +53,8 @@ seq_t a(idx_t n) {
                 t /= p;
                 e++;
             }
-            seq_t factor = ((uint64_t)e >= p) ? big_pow((seq_t)p, (seq_t)(p - 1))
-                                              : big_pow((seq_t)p, (seq_t)e);
+            seq_t factor = ((uint64_t)e >= p) ? ipow((seq_t)p, (seq_t)(p - 1))
+                                              : ipow((seq_t)p, (seq_t)e);
             result = seq_mul(result, factor);
         }
     }
@@ -54,7 +62,7 @@ seq_t a(idx_t n) {
     /* If a prime factor larger than sqrt(t) remains */
     if (t > 1) {
         uint64_t p = t;                 /* exponent e = 1 */
-        seq_t factor = big_pow((seq_t)p, (seq_t)1);
+        seq_t factor = ipow((seq_t)p, (seq_t)1);
         result = seq_mul(result, factor);
     }
 

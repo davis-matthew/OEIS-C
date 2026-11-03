@@ -8,14 +8,23 @@
  *            evaluated by prime factorization (Legendre's formula)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 38,
  *            big any n
- * Helpers:   a2294_vfact
+ * Validated: standard, pass, 37 terms through n = 93 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a2294_vfact.h"
+
+static uint64_t a2294_vfact(uint64_t m, uint64_t p) {
+    uint64_t s = 0;
+    while (m) {
+        m /= p;
+        s += m;
+    }
+    return s;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;

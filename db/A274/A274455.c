@@ -8,9 +8,10 @@
  * Keywords:  sign, easy
  * Formula:   a(n) computed by BFS on a tree with rules x-1 and 2x, starting
  *            from 1 and removing duplicate nodes
- * Range:     i8 n <= 54, i16 n <= 2583, i32 n <= 9614, i64 n <= 9614,
- *            i128 n <= 9614, big any n
- * Helpers:   none
+ * Range:     i8 n <= 54, i16 n <= 2583, i32 n <= 10946, i64 n <= 10946,
+ *            i128 n <= 10946, big any n
+ * Validated: standard, pass, 78 terms through n = 9614 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* array of all generated terms (and visited set)   */
 static size_t seq_len   = 0;       /* number of terms stored so far                  */
@@ -34,7 +36,7 @@ static void ensure_seq_cache_capacity(size_t new_cap)
     if (seq_cap >= new_cap) return;
     size_t cap = seq_cap ? seq_cap : 64;
     while (cap < new_cap) cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, cap);
     seq_cap = cap;
 }
 
@@ -45,10 +47,10 @@ static void ensure_queue_capacity(size_t new_cap)
     if (q_cap >= new_cap) return;
     size_t cap = q_cap ? q_cap : 64;
     while (cap < new_cap) cap <<= 1;
-    seq_t *new_queue = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *new_queue = mem_new(seq_t, cap);
     size_t remaining = q_back - q_front;
-    if (remaining) memcpy(new_queue, queue + q_front, remaining * sizeof(seq_t));
-    free(queue);
+    if (remaining) mem_copy(new_queue, queue + q_front, remaining * sizeof(seq_t));
+    mem_free(queue);
     queue = new_queue;
     q_front = 0;
     q_back  = remaining;

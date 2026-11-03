@@ -10,13 +10,15 @@
  *            484 a(9) = 572 a(10) = 650 a(11) = 738 a(12) = 816 a(13) = 906
  * Range:     i8 n <= 3, i16 n <= 43, i32 n <= 43, i64 n <= 43, i128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[] = {
     (seq_t)-1,
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
     if (!cache_inited) {
         cache_inited = true;
         cache_cap = 64;  /* arbitrary grow factor */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (size_t i = 0; i < sizeof(init_vals)/sizeof(init_vals[0]); ++i)
             cache[i] = init_vals[i];
         cache_len = sizeof(init_vals)/sizeof(init_vals[0]);  /* 12 */
@@ -61,10 +63,10 @@ seq_t a(idx_t n) {
     if (needed_len > cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap < needed_len) new_cap = needed_len;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         for (size_t i = 0; i < cache_len; ++i)
             tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = tmp;
         cache_cap = new_cap;
     }

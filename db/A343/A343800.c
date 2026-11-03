@@ -15,12 +15,15 @@
  *            used. For 64‑bit seq_t a small 128‑bit in...
  * Range:     u8 none, u16 none, u32 n <= 5, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 13 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -31,11 +34,11 @@ seq_t a(idx_t n)
 
     /* Branch for big integer types (size > 64 bits) */
     if (sizeof(seq_t) > sizeof(unsigned long long)) {
-        seq_t pow63 = big_pow((seq_t)63, (seq_t)exp);
-        seq_t pow31 = big_pow((seq_t)31, (seq_t)exp);
-        seq_t pow15 = big_pow((seq_t)15, (seq_t)exp);
-        seq_t pow7  = big_pow((seq_t)7,  (seq_t)exp);
-        seq_t pow3  = big_pow((seq_t)3,  (seq_t)exp);
+        seq_t pow63 = ipow((seq_t)63, (seq_t)exp);
+        seq_t pow31 = ipow((seq_t)31, (seq_t)exp);
+        seq_t pow15 = ipow((seq_t)15, (seq_t)exp);
+        seq_t pow7  = ipow((seq_t)7,  (seq_t)exp);
+        seq_t pow3  = ipow((seq_t)3,  (seq_t)exp);
 
         seq_t result = (seq_t)465 * pow63;
         result -= (seq_t)1110 * pow31;

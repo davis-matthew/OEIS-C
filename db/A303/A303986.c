@@ -11,6 +11,7 @@
  *            seq_t defined by the build environment
  * Range:     i8 n <= 11, i16 n <= 24, i32 n <= 52, i64 n <= 132,
  *            i128 n <= 347, big any n
+ * Validated: standard, pass, 82 terms through n = 1248 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

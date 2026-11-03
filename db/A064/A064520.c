@@ -9,7 +9,8 @@
  * Formula:   a(n) = Sum_{k=1..n} (-1)^(A002024(k)+1)*k
  * Range:     i8 n <= 35, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   find_run
+ * Validated: standard, pass, 85 terms through n = 964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/find_run.h"
+#include "../utils/mem.h"
+
+/* Helper: find m such that T_{m-1} < n <= T_m, where T_m = m*(m+1)/2 */
+static idx_t find_run(idx_t n) {
+    idx_t lo = 0, hi = 1;
+    /* Exponential search for upper bound */
+    while (((unsigned __int128)hi * (hi + 1)) / 2 < n) {
+        if (hi > (UINT64_MAX >> 1))
+            hi = UINT64_MAX;
+        else
+            hi <<= 1;
+    }
+    /* Binary search */
+    while (lo + 1 < hi) {
+        idx_t mid = lo + (hi - lo) / 2;
+        if (((unsigned __int128)mid * (mid + 1)) / 2 >= n)
+            hi = mid;
+        else
+            lo = mid;
+    }
+    return hi;
+}
 
 seq_t a(idx_t n) {
     if (n == 0)          /* should not happen for offset 1 */
@@ -37,7 +59,7 @@ seq_t a(idx_t n) {
 
     if (pref == NULL) {                        /* first call: allocate and init */
         pref_cap = 16;
-        pref = (seq_t *)calloc(pref_cap, sizeof(seq_t));
+        pref = mem_new(seq_t, pref_cap);
         if (!pref) return 0;                   /* OOM */
         pref[0] = 0;
         pref_len = 1;
@@ -45,7 +67,7 @@ seq_t a(idx_t n) {
     if (pref_cap < (size_t)m) {                /* enlarge storage if needed */
         size_t new_cap = pref_cap > 0 ? pref_cap : 16;
         while (new_cap < (size_t)m) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(pref, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pref, new_cap);
         if (!tmp) return 0;                   /* OOM */
         pref = tmp;
         pref_cap = new_cap;

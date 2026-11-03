@@ -12,7 +12,8 @@
  *            results for repeated calls
  * Range:     u8 n <= 7, u16 n <= 343, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9063 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- Miller–Rabin helpers --------------------------------------------------- */
 static uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t mod) {
@@ -96,13 +98,13 @@ static void ensure_cache(idx_t n) {
     if (cache_len >= n) return;
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(1);
     }
     while (cache_len < n) {
         if (cache_len == cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t*)realloc(cache, sizeof(seq_t) * cache_cap);
+            cache = mem_resize(seq_t, cache, cache_cap);
             if (!cache) exit(1);
         }
 

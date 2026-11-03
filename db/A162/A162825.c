@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t values. */
 static int cmp_seq(const void *a, const void *b)
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort and deduplicate the candidate list. */
-        qsort(cand, (size_t)ccount, sizeof(seq_t), cmp_seq);
+        mem_qsort(cand, (size_t)ccount, sizeof(seq_t), cmp_seq);
 
         terms_len = 0;
         idx_t i = 0;

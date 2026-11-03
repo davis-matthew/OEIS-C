@@ -8,12 +8,15 @@
  * Formula:   T(k,n) = (k*(2*k+3)^n + 1)/(k+1) read by antidiagonals
  * Range:     u8 n <= 17, u16 n <= 41, u32 n <= 113, u64 n <= 291,
  *            u128 n <= 806, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 82 terms through n = 4837 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Find the diagonal s such that s*(s+1)/2 <= n < (s+1)*(s+2)/2 */
@@ -33,7 +36,7 @@ seq_t a(idx_t n) {
     seq_t base = (seq_t)(2 * k + 3);
 
     /* Compute pow_val = base^t */
-    seq_t pow_val = big_pow(base, (seq_t)t);
+    seq_t pow_val = ipow(base, (seq_t)t);
 
     /* Use the simplified formula to avoid overflow:
        T = pow_val - (pow_val - 1) / (k + 1)   */

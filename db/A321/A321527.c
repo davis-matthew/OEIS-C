@@ -7,8 +7,9 @@
  * Keywords:  sign
  * Formula:   a(n) = s(n/3) - s(n/4) - s(n/6) + s(n/12) where s(k) is the sum
  *            of divisors of k (0 if k is not a positive integer)
- * Range:     i8 n <= 269, i16 n <= 9309, i32 n <= 9309, i64 n <= 9309,
- *            i128 n <= 9309, big any n
+ * Range:     i8 n <= 269, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 92 terms through n = 9309 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

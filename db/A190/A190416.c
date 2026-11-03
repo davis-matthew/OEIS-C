@@ -12,12 +12,14 @@
  *            not end with “11”
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     const idx_t maxM = (k + (idx_t)1) / (idx_t)2;
 
     /* allocate array for counts of length m */
-    seq_t *countLen = (seq_t *)calloc((size_t)(maxM + (idx_t)1), sizeof(seq_t));
+    seq_t *countLen = mem_new(seq_t, (size_t)(maxM + (idx_t)1));
     if (!countLen) return (seq_t)0;   /* just for safety */
 
     /* base cases */
@@ -75,6 +77,6 @@ seq_t a(idx_t n)
     idx_t mk = (k + (idx_t)1) / (idx_t)2;      /* ceil(k/2) */
     result = result * countLen[mk];
 
-    free(countLen);
+    mem_free(countLen);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* auxiliary static storage -------------------------------------------------- */
 
@@ -50,7 +52,7 @@ ensure_fibs(size_t need)
     size_t new_cap = fib_len ? fib_len << 1 : 32;
     while (new_cap <= need) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(fib, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fib, new_cap);
     if (!tmp) exit(1);
 
     if (fib_len == 0) {
@@ -77,7 +79,7 @@ append_next_row(void)
 
     /* resize cur_row buffer if necessary */
     if (cur_len < len) {
-        seq_t *tmp = (seq_t *)realloc(cur_row, len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cur_row, len);
         if (!tmp) exit(1);
         cur_row = tmp;
         cur_len = len;
@@ -100,7 +102,7 @@ append_next_row(void)
 
     /* append cur_row to flattened array */
     size_t new_flat_len = flat_len + len;
-    seq_t *tmp = (seq_t *)realloc(flat, new_flat_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, flat, new_flat_len);
     if (!tmp) exit(1);
     flat = tmp;
 

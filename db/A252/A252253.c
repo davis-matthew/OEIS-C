@@ -11,7 +11,8 @@
  *            a(6)=453, a(7)=501, a(8)=579, a(9)=681
  * Range:     u8 none, u16 n <= 25, u32 n <= 59, u64 n <= 128, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache to store computed values; indexed by n (1‑based) */
@@ -33,9 +35,9 @@ seq_t a(idx_t n) {
     /* Allocate or grow the cache to at least 'need' elements */
     if (cache == NULL) {
         cache_cap = need > 10 ? need : 10;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (cache_cap < need) {
-        cache = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, need);
         cache_cap = need;
     }
 

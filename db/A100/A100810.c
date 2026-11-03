@@ -7,7 +7,8 @@
  * Formula:   a(n) = 0 if prime(n) + 2 = prime(n+1), otherwise 1
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 static uint64_t *primes = NULL;          /* array of primes, 0‑indexed   */
 static idx_t      primes_count = 0;      /* number of primes stored     */
@@ -55,7 +58,7 @@ ensure_primes(idx_t count)
     /* Generate subsequent primes */
     uint64_t candidate = (primes_count == 1) ? 3 : primes[primes_count - 1] + 2;
     while (primes_count < count) {
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             primes[primes_count++] = candidate;
         }
         candidate += 2; /* skip even numbers */

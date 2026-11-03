@@ -11,14 +11,25 @@
  *            on demand and memoises each row
  * Range:     u8 n <= 124, u16 n <= 308, u32 n <= 378, u64 n <= 378,
  *            u128 n <= 378, big any n
- * Helpers:   has_zero_digit_in_base
+ * Validated: standard, pass, 97 terms through n = 375 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_zero_digit_in_base.h"
+#include "../utils/mem.h"
+
+/* Test whether x has a zero digit in the given base (base ≥ 3).   */
+static inline bool has_zero_digit_in_base(seq_t x, unsigned int base)
+{
+    while (x > 0) {
+        if ((x % base) == 0) return true;
+        x /= base;
+    }
+    return false;
+}
 
 typedef struct {
     size_t len;          /* number of stored values      */
@@ -40,8 +51,7 @@ static void ensure_row(idx_t idx, size_t need)
         size_t new_cap = cache_cap ? cache_cap * 2 : 4;
         while (new_cap <= (size_t)idx) new_cap *= 2;
 
-        RowCache *tmp = (RowCache *)realloc(row_cache,
-                                            new_cap * sizeof(RowCache));
+        RowCache *tmp = mem_resize(RowCache, row_cache, new_cap);
         if (!tmp) exit(1);                   /* allocation failed */
 
         /* Initialise the newly created rows. */
@@ -61,7 +71,7 @@ static void ensure_row(idx_t idx, size_t need)
     /* First use: allocate storage and insert the mandatory 1 and 2. */
     if (row->len == 0) {
         row->cap = 4;
-        row->data = (seq_t *)malloc(row->cap * sizeof(seq_t));
+        row->data = mem_new(seq_t, (row->cap * sizeof(seq_t)) / sizeof(seq_t));
         if (!row->data) exit(1);
         row->data[0] = (seq_t)1;
         row->data[1] = (seq_t)2;
@@ -85,8 +95,7 @@ static void ensure_row(idx_t idx, size_t need)
         if (!zero) {
             if (row->len == row->cap) {
                 row->cap *= 2;
-                seq_t *newp = (seq_t *)realloc(row->data,
-                                               row->cap * sizeof(seq_t));
+                seq_t *newp = mem_resize(seq_t, row->data, (row->cap * sizeof(seq_t)) / sizeof(seq_t));
                 if (!newp) exit(1);
                 row->data = newp;
             }

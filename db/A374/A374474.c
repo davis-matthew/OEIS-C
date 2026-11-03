@@ -8,17 +8,34 @@
  * Formula:   a(n) = 1 if the least prime dividing the sum of divisors of n
  *            equals the least prime not dividing n, else a(n) = 0. n starts
  *            at 1
- * Range:     u8 n <= 8204, u16 n <= 8204, u32 n <= 8204, u64 n <= 8204,
- *            u128 n <= 8204, big any n
- * Helpers:   build_primes, sigma_of
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 8204 (2026-11-01)
+ * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/build_primes.h"   /* build_primes(limit, &primes, &cnt) */
-#include "../utils/sigma_of.h"      /* sigma_of(n) -> seq_t */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/build_primes.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static idx_t *primes = NULL;
 static size_t prime_cnt = 0;

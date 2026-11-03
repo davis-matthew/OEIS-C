@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 /* Check whether x satisfies the digit condition for all bases 10..17. */
 static bool good(seq_t x)
@@ -51,7 +53,7 @@ static void cache_append(seq_t val)
     if (_cache_size == _cache_cap)
     {
         size_t new_cap = _cache_cap ? _cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
         if (!tmp)
             abort();                       /* allocation failure     */
         _cache      = tmp;

@@ -9,7 +9,8 @@
  *            p(k)=1 if k=0 or k=36, p(k)=2 if 1≤k≤35, and p(k)=0 otherwise
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   seq_alloc_array
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
    rational generating function. */
 
 #include <stddef.h>
-#include "../utils/seq_alloc_array.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *cache      = NULL;   /* stored sequence values */
 static size_t cache_cap  = 0;      /* allocated capacity of cache   */

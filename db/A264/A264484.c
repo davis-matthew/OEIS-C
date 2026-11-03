@@ -11,12 +11,14 @@
  *            a(7)=121, a(8)=261, a(9)=576
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 57, u128 n <= 113,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised cache of computed terms: cache[i] == a(i+1) */
 static seq_t *cache = NULL;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (cached < (size_t)n) {
         idx_t new_cap = n;                /* number of terms required */
         /* realloc may return a void*; cast to seq_t* for C++ compatibility */
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * (size_t)new_cap);
+        cache = mem_resize(seq_t, cache, (size_t)new_cap);
         /* If realloc fails, cache will be NULL; the caller will get a NUL
            dereference.  The problem statement does not require error handling
            beyond basic allocation. */

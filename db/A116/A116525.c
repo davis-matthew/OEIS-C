@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(0)=0, a(1)=1, a(n)=11*a(n/2) for even n,
  *            a(n)=10*a((n-1)/2)+a((n+1)/2) for odd n≥3
- * Range:     u8 n <= 6, u16 n <= 31, u32 n <= 767, u64 n <= 9241,
- *            u128 n <= 9241, big any n
- * Helpers:   alloc_seq
+ * Range:     u8 n <= 6, u16 n <= 31, u32 n <= 767, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 56 terms through n = 9241 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_seq.h"
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Cache of computed terms; initialized lazily. */
 static seq_t *cache = NULL;
@@ -42,8 +49,8 @@ static void ensure_capacity(idx_t needed)
         return; /* allocation failed; caller will handle */
 
     if (cache) {
-        memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-        free(cache); /* free_seq only for C++ builds; free works in both */
+        mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+        mem_free(cache); /* free_seq only for C++ builds; free works in both */
     }
     cache = new_cache;
     cache_cap = new_cap;

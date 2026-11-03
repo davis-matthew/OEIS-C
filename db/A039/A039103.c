@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 164, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * a(2)=1, a(3)=2, a(4)=3, a(5)=5, … */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cache of already found terms.  cache[0] = 0 for a(1). */
 static seq_t *cache = NULL;          /* array of terms */
@@ -46,7 +48,7 @@ static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     if (new_cap < cache_len) new_cap = cache_len;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort(); /* Out of memory: terminate */
     cache = tmp;
     cache_cap = new_cap;

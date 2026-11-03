@@ -7,8 +7,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = oddpart(3 * oddpart(3n+2) - 1)
- * Range:     u8 n <= 28, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
- *            big any n
+ * Range:     u8 n <= 28, u16 n <= 8608, u32 n <= 9999, u64 n <= 9999,
+ *            u128 n <= 9999, big any n
+ * Validated: standard, pass, 86 terms through n = 9853 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

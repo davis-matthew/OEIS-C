@@ -11,13 +11,37 @@
  *            zeros are discarded)
  * Range:     u8 n <= 4, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   sort_digits_inc
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/sort_digits_inc.h"
+#include "../utils/mem.h"
+
+/* Sort the decimal digits of x into increasing order and
+   return the resulting integer (leading zeros are omitted). */
+static seq_t sort_digits_inc(seq_t x)
+{
+    int cnt[10] = {0};
+    while (x > 0) {
+        int d = (int)(x % 10);
+        cnt[d]++;
+        x = x / 10;
+    }
+    seq_t res = 0;
+    int leading = 1;
+    for (int d = 0; d < 10; ++d) {
+        for (int i = 0; i < cnt[d]; ++i) {
+            if (leading && d == 0)
+                continue;       /* skip leading zeros */
+            leading = 0;
+            res = res * 10 + d;
+        }
+    }
+    return res;
+}
 
 /* Reverse the decimal digits of x. */
 static seq_t reverse_digits(seq_t x)
@@ -52,7 +76,7 @@ seq_t a(idx_t n)
     /* Initialise cache with a(1)=9 if needed. */
     if (cache_len == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) /* allocation failed */
             return (seq_t)0;
         cache[0] = (seq_t)9;
@@ -70,7 +94,7 @@ seq_t a(idx_t n)
         /* Grow cache if necessary. */
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) /* allocation failed */
                 return (seq_t)0;
             cache = tmp;

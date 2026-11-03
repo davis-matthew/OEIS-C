@@ -8,6 +8,7 @@
  *            F(2*n+2)+F(2*n+4) = F(k-2)+F(k) for k = 2*n+4)
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 18, u64 n <= 40, u128 n <= 86,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 979 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

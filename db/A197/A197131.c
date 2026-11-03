@@ -9,12 +9,14 @@
  *            |W(D_n)| = 2^(n-1) * n! (the order of the Coxeter group D_n)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc, calloc, exit */
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* cache of a(n)   */
 static seq_t *f_cache = NULL;   /* cache of |W(D_n)| = 2^(n-1)*n!  */
@@ -28,8 +30,8 @@ static void extend_cache(idx_t n)
     size_t new_size = (size_t)n + 1;                        /* indices 0..n */
 
     if (a_cache == NULL) {                                  /* first time */
-        a_cache = (seq_t *)calloc(new_size, sizeof(seq_t));
-        f_cache = (seq_t *)calloc(new_size, sizeof(seq_t));
+        a_cache = mem_new(seq_t, new_size);
+        f_cache = mem_new(seq_t, new_size);
         if (!a_cache || !f_cache) exit(1);
 
         /* base values for n = 2 */
@@ -37,8 +39,8 @@ static void extend_cache(idx_t n)
         f_cache[2] = (seq_t)4;         /* |W(D_2)| = 4            */
         max_cached = 2;
     } else {
-        a_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
-        f_cache = (seq_t *)realloc(f_cache, new_size * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_size);
+        f_cache = mem_resize(seq_t, f_cache, new_size);
         if (!a_cache || !f_cache) exit(1);
     }
 

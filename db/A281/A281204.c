@@ -14,12 +14,14 @@
  *            order of calls is supported
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 26, u64 n <= 64, u128 n <= 142,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, size_t */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;            /* dynamic array of computed terms   */
 static idx_t  cache_size = 0;          /* allocated size (number of entries)*/
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Initialise cache on the first call */
     if (!cache) {
         cache_size = 16;                     /* start with room for 16 entries */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return (seq_t)0;         /* out of memory -> 0 as fallback */
 
         /* Fill the known initial values */
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     if (cache_size <= n) {
         size_t new_size = cache_size;
         while (new_size <= (size_t)n) new_size *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0;           /* out of memory -> 0 */
         cache = tmp;
         cache_size = new_size;

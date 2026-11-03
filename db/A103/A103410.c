@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   choose2
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,13 @@
    The function memoises results so that calls can arrive in any order. */
 
 #include <stdlib.h>
-#include "../utils/choose2.h"
+#include "../utils/mem.h"
+
+/* Helper: binomial coefficient C(x,2) = x*(x-1)/2 */
+static seq_t choose2(seq_t x)
+{
+    return (x * (x - 1)) / 2;
+}
 
 /* Memoisation storage – grows dynamically as needed. */
 static seq_t *memo = NULL;     /* a(k) values */
@@ -35,8 +42,8 @@ seq_t a(idx_t n)
     if (n + 1 > memo_sz) {
         idx_t new_sz = n + 1;
 
-        memo     = (seq_t *)realloc(memo,     new_sz * sizeof(seq_t));
-        sum_pref = (seq_t *)realloc(sum_pref, new_sz * sizeof(seq_t));
+        memo     = mem_resize(seq_t, memo, new_sz);
+        sum_pref = mem_resize(seq_t, sum_pref, new_sz);
 
         /* Compute any missing terms up to n. */
         while (memo_sz <= n) {

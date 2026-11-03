@@ -11,7 +11,8 @@
  *            and 8
  * Range:     u8 n <= 11, u16 n <= 35, u32 n <= 124, u64 n <= 300,
  *            u128 n <= 300, big any n
- * Helpers:   alloc_seq_array, seq_free_array
+ * Validated: standard, pass, 59 terms through n = 286 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,14 +20,23 @@
 #include <stdlib.h>  /* for size_t, NULL */
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------
    Helper: allocation of sequences for arbitrary‑precision seq_t.
    The build supplies this function; it returns a fresh array of
    seq_t elements suitable for use in both C and C++.
    ------------------------------------------------------------------- */
-#include "../utils/alloc_seq_array.h"   /* provides seq_t *alloc_seq_array(size_t) */
-#include "../utils/seq_free_array.h"    /* provides void seq_free_array(seq_t *) */
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* -------------------------------------------------------------------
    Static cache state – shared by all invocations of a().

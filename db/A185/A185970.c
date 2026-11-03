@@ -7,13 +7,15 @@
  * Formula:   a(n) = 2^((n^2-n-2)/2)*(n+2)! (OEIS A185970)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* fast 2^e for seq_t (works for both built‑in and big‑int seq_t) */
 static seq_t pow2_seq(idx_t e) {
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
 
     /* initialise cache with a(0) = 1 */
     if (!cache) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;      /* safety */
         cache[0] = (seq_t)1;              /* a(0) = 1 */
         cache_len = 1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
     if (n < cache_len) return cache[n];
 
     /* enlarge cache if needed */
-    cache = (seq_t*)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (size_t)(n + 1));
     if (!cache) return (seq_t)0;          /* safety */
     /* fill missing values */
     for (size_t i = cache_len; i <= (size_t)n; ++i) {

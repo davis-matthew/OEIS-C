@@ -8,13 +8,15 @@
  *            a(1) = 0, a(2) = 14
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Ensure that the cache can hold indices 0..n (inclusive). Newly
    allocated slots are zeroed. */
@@ -26,8 +28,7 @@ static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr)
     size_t new_cap = (cap == 0) ? 1 : cap;
     while (new_cap <= (size_t)n) new_cap <<= 1;          /* double until > n */
 
-    seq_t *new_cache = (seq_t *)realloc(*cache_ptr,
-                     new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, *cache_ptr, new_cap);
     if (!new_cache) abort();                            /* memory exhausted */
 
     /* zero the newly allocated part */

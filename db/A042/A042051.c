@@ -7,7 +7,8 @@
  * Formula:   a(n) is the denominator of the nth convergent to sqrt(549)
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 18, u64 n <= 36, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computed by iterating the continued‑fraction expansion of sqrt(549). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Allocate cache on first call */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL)
             return (seq_t)0; /* allocation failure – unlikely in tests */
     }
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
             /* Resize cache if necessary */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     return (seq_t)0; /* allocation failure */
                 cache = tmp;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (2*n+1)*denominator((2*n+1)*Bernoulli(2*n))
  * Range:     u8 n <= 5, u16 n <= 17, u32 n <= 59, u64 n <= 269,
  *            u128 n <= 1889, big any n
+ * Validated: standard, pass, 60 terms through n = 9284 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static uint64_t *primes = NULL;   /* primes up to max_limit */

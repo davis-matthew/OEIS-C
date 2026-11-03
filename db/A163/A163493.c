@@ -10,12 +10,14 @@
  *            (binom(-1,0) = 1) implicitly handled by the k==0 case
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 35, u64 n <= 67, u128 n <= 132,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 53 terms through n = 2887 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -31,14 +33,14 @@ seq_t a(idx_t n)
             /* binom(-1,0) = 1 and binom(n,0) = 1 */
             term1 = (seq_t)1;
         } else if (n >= 3 * k) {          /* ensures n-2k >= k  */
-            term1 = binom(2 * k - 1, k) * binom(n - 2 * k, k);
+            term1 = binomial(2 * k - 1, k) * binomial(n - 2 * k, k);
         }
 
         /* second part */
         if (n >= 2 * k + 1) {            /* no underflow in n-2k-1 */
             idx_t nmk1 = n - 2 * k - 1;
             if (nmk1 >= k) {             /* ensures n-2k-1 >= k  */
-                term2 = binom(2 * k, k) * binom(nmk1, k);
+                term2 = binomial(2 * k, k) * binomial(nmk1, k);
             }
         }
 

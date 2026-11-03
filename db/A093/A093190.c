@@ -11,11 +11,13 @@
  *            index n of the sequence satisfies * a(1) = t(1...
  * Range:     u8 n <= 31, u16 n <= 84, u32 n <= 240, u64 n <= 682,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 82 terms through n = 1236 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

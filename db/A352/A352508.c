@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 748, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 8617 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Storage for Catalan numbers and the sequence values.               */
@@ -52,7 +54,7 @@ static void add_catalan(void)
 
     if (cat_len == cat_cap) {                /* grow storage if needed */
         size_t new_cap = cat_cap ? cat_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(catalan, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, catalan, new_cap);
         if (!tmp) abort(); /* out of memory */
         catalan = tmp;
         cat_cap = new_cap;
@@ -67,7 +69,7 @@ static void ensure_catalan_up_to(seq_t limit)
     if (cat_len == 0) {                         /* first element: C_0 = 1 */
         if (cat_cap == 0) {
             cat_cap = 16;
-            catalan = (seq_t *)malloc(cat_cap * sizeof(seq_t));
+            catalan = mem_new(seq_t, cat_cap);
             if (!catalan) abort();
         }
         catalan[0] = (seq_t)1;
@@ -116,7 +118,7 @@ seq_t a(idx_t n)
         if (is_catalan_niven(cand)) {
             if (term_len == term_cap) {          /* grow terms array */
                 size_t new_cap = term_cap ? term_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) abort(); /* out of memory */
                 terms = tmp;
                 term_cap = new_cap;

@@ -12,12 +12,14 @@
  *            is a(n). Complexity: dominated by the facto...
  * Range:     u8 n <= 767, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 117 terms through n = 9426 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gpf.h"
+#include <stdint.h>
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         return (seq_t)n;
 
     uint64_t value = n;
-    uint64_t p = gpf(value);          /* largest prime divisor of n */
+    uint64_t p = largest_prime_factor(value);          /* largest prime divisor of n */
     if (p == 0)                       /* defensive: shouldn't happen for n>1 */
         return (seq_t)value;
 

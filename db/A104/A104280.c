@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 #if defined(__cplusplus)
 #   define SEQ_T_CAST(x) static_cast<seq_t>((x))
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         uint64_t p1 = 2 * cand - 1;  /* 2n - 1   */
         uint64_t p2 = 2 * cand + 1;  /* 2n + 1   */
 
-        if (is_prime(p1) && !is_prime(p2)) {
+        if (is_prime_u64(p1) && !is_prime_u64(p2)) {
             ++found;
             if (found == n) {
                 return SEQ_T_CAST(cand);

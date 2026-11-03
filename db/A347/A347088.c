@@ -7,15 +7,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = A055155(n) - A000005(n) (sum of gcd(d, n/d) over all
  *            divisors of n minus the number of divisors)
- * Range:     u8 n <= 3599, u16 n <= 9513, u32 n <= 9513, u64 n <= 9513,
- *            u128 n <= 9513, big any n
- * Helpers:   gcd64
+ * Range:     u8 n <= 3599, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9513 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd64.h"
+#include <stdbool.h>
+#include "../utils/gcd_u64.h"
 
 /* 64‑bit Euclidean algorithm (works for any seq_t values up to 2^64−1). */
 
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     for (idx_t d = 1; d <= n / d; ++d) {
         if (n % d == 0) {
             idx_t e = n / d;
-            uint64_t g = gcd64(d, e);
+            uint64_t g = gcd_u64(d, e);
             sum += (seq_t)g;
             if (d != e) {
                 sum += (seq_t)g;

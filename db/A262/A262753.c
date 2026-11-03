@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,14 +46,14 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* first use: allocate up to max(n,7) and copy the 7 known terms */
         cache_cap = (n > 7U) ? n : 7U;
-        cache = (seq_t *)malloc((size_t)cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         if (!cache) abort();
         for (idx_t i = 0; i < 7U; ++i) cache[i] = init[i];
         cache_len = 7U;
     } else if (n > cache_cap) {
         /* enlarge cache */
         cache_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)cache_cap);
         if (!tmp) abort();
         cache = tmp;
     }

@@ -11,13 +11,23 @@
  *            values: a(1)=27, a(2)=67, a(3)=162, …
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 25, u64 n <= 55, u128 n <= 117,
  *            big any n
- * Helpers:   median3
+ * Validated: standard, pass, 43 terms through n = 208 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/median3.h"
+
+static inline int median3(int x, int y, int z)
+{
+    int mn = x, mx = x;
+    if (y < mn) mn = y;
+    if (z < mn) mn = z;
+    if (y > mx) mx = y;
+    if (z > mx) mx = z;
+    return x + y + z - mn - mx;
+}
 
 enum { STATES = 27 };                     /* 3 * 3 * 3 possibilities */
 

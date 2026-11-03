@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Numbers whose number of runs in base 3 is congruent to 1 (mod 7).
    a(1) = 1, a(2) = 2, a(3) = 4, ... , a(24) = 2489
    The function generates terms by brute‑force search and caches the

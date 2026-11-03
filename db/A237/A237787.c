@@ -12,15 +12,36 @@
  *            one. Computed by a simple dynamic program over rows
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 14, u128 n <= 31,
  *            big any n
- * Helpers:   adj1, fvalue_four
+ * Validated: standard, pass, 31 terms through n = 198 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/adj1.h"
-#include "../utils/fvalue_four.h"
+
+/* one additional helper to test |x - y| == 1 with unsigned values */
+static inline bool adj1(uint8_t x, uint8_t y)
+{
+    return (x + 1 == y) || (y + 1 == x);
+}
+
+/* compute V value for four numbers a0..a3 */
+static inline uint8_t fvalue_four(uint8_t a0, uint8_t a1, uint8_t a2, uint8_t a3)
+{
+    uint8_t v[4] = {a0, a1, a2, a3};
+
+    /* sorting network for 4 elements */
+    if (v[0] > v[1]) { uint8_t t = v[0]; v[0] = v[1]; v[1] = t; }
+    if (v[2] > v[3]) { uint8_t t = v[2]; v[2] = v[3]; v[3] = t; }
+    if (v[0] > v[2]) { uint8_t t = v[0]; v[0] = v[2]; v[2] = t; }
+    if (v[1] > v[3]) { uint8_t t = v[1]; v[1] = v[3]; v[3] = t; }
+    if (v[1] > v[2]) { uint8_t t = v[1]; v[1] = v[2]; v[2] = t; }
+
+    /* v[3] = max, v[0] = min, v[1] = lower median */
+    return v[3] + v[0] - v[1];
+}
 
 /* dimensions of a row: 3 columns, each entry 0..3 */
 #define ROWS 3

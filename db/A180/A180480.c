@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 1515, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9878 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Return true if m satisfies the defining property. */
 static bool is_valid(seq_t m)
@@ -58,9 +60,9 @@ seq_t a(idx_t n)
         if (new_cap < n)
             new_cap = n;
         if (!cache) {
-            cache = (seq_t *)malloc((size_t)new_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, (size_t)new_cap);
         } else {
-            cache = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (size_t)new_cap);
         }
         /* Fill the cache up to the requested index. */
         while (len < n) {

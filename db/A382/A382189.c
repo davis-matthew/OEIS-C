@@ -10,13 +10,15 @@
  *            d(0) = 1, d(n) = 4 * Σ_{p∈{3^k:3^k≤n}} d(n-p)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *a_cache   = NULL;   /* a[n] */
@@ -30,8 +32,8 @@ static void ensure_cache(idx_t n)
     /* initialise on first use */
     if (cache_cap == 0) {
         cache_cap = 1;
-        a_cache   = (seq_t*)malloc(cache_cap * sizeof(seq_t));
-        d_cache   = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        a_cache   = mem_new(seq_t, cache_cap);
+        d_cache   = mem_new(seq_t, cache_cap);
         if (!a_cache || !d_cache) return;  /* out of memory – caller must treat */
         a_cache[0] = (seq_t)1; /* a(0) = 1 */
         d_cache[0] = (seq_t)1; /* d(0) = 1 */
@@ -42,8 +44,8 @@ static void ensure_cache(idx_t n)
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
-        d_cache = (seq_t*)realloc(d_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        d_cache = mem_resize(seq_t, d_cache, new_cap);
         cache_cap = new_cap;
     }
 

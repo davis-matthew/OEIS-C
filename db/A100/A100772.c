@@ -10,7 +10,8 @@
  *            (1‑indexed)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 7, u64 n <= 8, u128 n <= 9,
  *            big any n
- * Helpers:   digit_len, pow10, seq_to_dec_string
+ * Validated: standard, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem, num_digits0_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,44 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
-#include "../utils/seq_to_dec_string.h"
+#include <stdint.h>
+#include "../utils/num_digits0_seq.h"
+#include "../utils/mem.h"
+
+static seq_t pow10(idx_t exp) {
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i) res *= (seq_t)10;
+    return res;
+}
+
+/* Convert a seq_t value to a decimal string.  The buffer must be
+   large enough to hold the result.  */
+static void seq_to_dec_string(seq_t val, char *buf, size_t buflen)
+{
+    seq_t v = val;
+    if (v == 0) {
+        if (buflen >= 2) {
+            buf[0] = '0';
+            buf[1] = '\0';
+        }
+        return;
+    }
+    size_t pos = 0;
+    /* Extract digits in reverse order. */
+    while (v != 0 && pos + 1 < buflen) {
+        seq_t d = v % 10;
+        v = v / 10;
+        buf[pos++] = (char)('0' + (int)d);
+    }
+    /* Null‑terminate and reverse the string. */
+    if (pos >= buflen) pos = buflen - 1;
+    buf[pos] = '\0';
+    for (size_t i = 0; i < pos / 2; ++i) {
+        char tmp = buf[i];
+        buf[i] = buf[pos - 1 - i];
+        buf[pos - 1 - i] = tmp;
+    }
+}
 
 /* number of palindromes of a given decimal length l (l >= 1) */
 static seq_t count_len(int l)
@@ -34,7 +70,7 @@ static seq_t count_len(int l)
 /* number of palindromes ≤ x */
 static seq_t count_palindromes_leq(seq_t x)
 {
-    idx_t len = digit_len(x);
+    idx_t len = num_digits0_seq(x);
     seq_t total = 0;
 
     for (idx_t l = 1; l < len; ++l)
@@ -148,7 +184,7 @@ seq_t a(idx_t n)
         /* grow memo array */
         if (cap < n) {
             idx_t new_cap = n + 32;
-            seq_t *tmp = (seq_t*)realloc(memo, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, memo, new_cap);
             if (!tmp) return (seq_t)0;   /* allocation failure */
             memo = tmp;
             cap = new_cap;

@@ -9,8 +9,9 @@
  *            prime(2*k-1) (prime(k) = k-th prime). For n=1 it returns 1. The
  *            implementation is efficient for n up to about 10 000 and can be
  *            called in any order
- * Range:     u8 n <= 44, u16 n <= 1874, u32 n <= 9220, u64 n <= 9220,
- *            u128 n <= 9220, big any n
+ * Range:     u8 n <= 44, u16 n <= 1874, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 76 terms through n = 9220 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

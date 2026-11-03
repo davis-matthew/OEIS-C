@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 6962, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9888 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for computed values up to 'max_cached' */
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
     if (max_cached <= n) {
         /* Compute up to new maximum n */
         /* Allocate cache for values a(0)..a(n)      */
-        seq_t *new_cache = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
         if (!new_cache) {
             /* Allocation failure – cannot compute */
             return (seq_t)0;
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
         /* Difference array for accumulation of cube contributions  */
         int64_t *diff = (int64_t*)calloc((size_t)(n + 2), sizeof(int64_t));
         if (!diff) {
-            free(new_cache);
+            mem_free(new_cache);
             return (seq_t)0;
         }
 
@@ -104,7 +106,7 @@ seq_t a(idx_t n) {
         }
 
         /* Replace old cache with the new one */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         max_cached = n + 1;
         free(diff);

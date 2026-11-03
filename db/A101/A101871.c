@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000688(2*n+1) = product_{p^e||2n+1} partition(e)
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   mul128
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
  *           (partition(0)=1, partition(1)=1, partition(2)=2, …) */
 
 #include <stdint.h>
-#include "../utils/mul128.h"
+#include <stdlib.h>
+#include <stdalign.h>
+
+/* Helper: safe multiplication using 128‑bit intermediate when
+   available and seq_t is a built‑in integer.  For arbitrary‑precision
+   types the plain * operator is used. */
+static inline seq_t mul128(seq_t a, seq_t b)
+{
+#if defined(__SIZEOF_INT128__) && !defined(__cplusplus)
+    return (seq_t)((unsigned __int128)(unsigned long long)a * b);
+#else
+    return a * b;
+#endif
+}
 
 static const seq_t partition_table[10] = {
     1, /* partition(0) */

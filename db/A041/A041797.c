@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   compute_initial_36
+ * Validated: standard, pass, 45 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,46 @@
 */
 
 #include <stdlib.h>
-#include "../utils/compute_initial_36.h"
+#include "../utils/mem.h"
+
+/* Compute the first 36 terms directly from the continued fraction of sqrt(419). */
+static void compute_initial_36(seq_t *out)
+{
+    const idx_t D   = 419;          /* Squarefree part */
+    const idx_t a0  = 20;           /* floor(sqrt(419)) */
+
+    idx_t m   = 0;
+    idx_t d   = 1;
+    idx_t a   = a0;
+
+    /* Convergent numerators/denominators: p(-1)=1, p(0)=a0; q(-1)=0, q(0)=1. */
+    seq_t p_prevprev = 1;
+    seq_t p_prev     = (seq_t)a0;
+    seq_t q_prevprev = 0;
+    seq_t q_prev     = 1;
+
+    out[0] = 1;                      /* a(0) */
+
+    for (idx_t k = 1; k <= 35; ++k) {
+        idx_t m_next = d * a - m;
+        idx_t d_next = (D - m_next * m_next) / d;
+        idx_t a_next = (a0 + m_next) / d_next;
+
+        seq_t p_next = (seq_t)a_next * p_prev + p_prevprev;
+        seq_t q_next = (seq_t)a_next * q_prev + q_prevprev;
+
+        out[k] = q_next;            /* a(k) = denominator of the k‑th convergent */
+
+        m = m_next;
+        d = d_next;
+        a = a_next;
+
+        p_prevprev = p_prev;
+        p_prev = p_next;
+        q_prevprev = q_prev;
+        q_prev = q_next;
+    }
+}
 
 /* Global cache for memoization. */
 static seq_t *cache   = NULL;   /* array holding a(n) values */
@@ -35,13 +75,13 @@ seq_t a(idx_t n)
         /* At least 36 entries are needed for the recurrence initialization. */
         size_t alloc = n + 1;
         if (alloc < 36) alloc = 36;
-        cache = (seq_t *)malloc(sizeof(seq_t) * alloc);
+        cache = mem_new(seq_t, alloc);
         if (!cache) return (seq_t)0;    /* allocation failed */
         cache_len = 0;
     } else if (cache_len <= n) {
         size_t alloc = n + 1;
         if (alloc < 36) alloc = 36;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * alloc);
+        seq_t *tmp = mem_resize(seq_t, cache, alloc);
         if (!tmp) return (seq_t)0;    /* allocation failed */
         cache = tmp;
     }

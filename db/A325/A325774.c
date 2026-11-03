@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 171, u32 n <= 250, u64 n <= 250,
  *            u128 n <= 250, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 240 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build.  No other includes are needed. */
 
@@ -33,16 +35,16 @@ static size_t cap = 0;           /* maximum n for which data have been built */
 static void build_up_to(idx_t up)
 {
     /* free any previous data */
-    if (p) free(p);
+    if (p) mem_free(p);
     for (int k = 0; k < 5; ++k) {
-        if (r[k]) free(r[k]);
+        if (r[k]) mem_free(r[k]);
     }
 
     size_t sz = (size_t)up + 1;          /* number of entries: 0..up */
 
-    p = (seq_t *)calloc(sz, sizeof(seq_t));
+    p = mem_new(seq_t, sz);
     for (int k = 0; k < 5; ++k) {
-        r[k] = (seq_t *)calloc(sz, sizeof(seq_t));
+        r[k] = mem_new(seq_t, sz);
     }
 
     /* base: empty partition */

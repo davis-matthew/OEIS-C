@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 59, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 /* Computes a(n) of OEIS A162537 by brute‑force search.  */
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Return true if every run of consecutive equal bits in val has length

@@ -12,12 +12,14 @@
  *            a(n) directly
  * Range:     i8 n <= 6, i16 n <= 21, i32 n <= 75, i64 n <= 273,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,9 +30,9 @@ seq_t a(idx_t n)
     /* Allocate arrays: A holds current product coefficients,
        H is temporary array for 1/(1 - x^(3m)) expansion,
        B holds new coefficients after applying the factor for m. */
-    seq_t *A = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *H = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *B = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, N + 1);
+    seq_t *H = mem_new(seq_t, N + 1);
+    seq_t *B = mem_new(seq_t, N + 1);
     if (!A || !H || !B) return 0; /* allocation failure */
 
     A[0] = 1; /* initial product is 1 */
@@ -82,9 +84,9 @@ seq_t a(idx_t n)
     }
 
     /* Free memory */
-    free(A);
-    free(H);
-    free(B);
+    mem_free(A);
+    mem_free(H);
+    mem_free(B);
 
     return result;
 }

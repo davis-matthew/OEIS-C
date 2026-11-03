@@ -8,7 +8,8 @@
  *            595*a(n-2) + 3900*a(n-3) - 9504*a(n-4) for n≥4
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first four terms if empty */
     if (cache_len == 0) {
         cache_len = 4;
-        cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_len);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)40;
         cache[2] = (seq_t)1005;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (cache_len <= n) {
         /* Allocate space up to n */
         idx_t new_len = n + 1;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
 
         /* Compute terms starting from the first missing index */
         for (idx_t i = cache_len; i <= n; ++i) {

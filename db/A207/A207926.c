@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 12, u64 n <= 26, u128 n <= 53,
  *            big any n
- * Helpers:   is_valid_horizontal
+ * Validated: standard, pass, 36 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/is_valid_horizontal.h"
+#include "../utils/mem.h"
+
+/* ---------- helpers for horizontal / vertical constraints ---------- */
+static bool is_valid_horizontal(uint8_t m)
+{
+    /* reject any 000 or 010 within the 6‑bit row */
+    for (int j = 0; j < 4; ++j) {
+        uint8_t bits = (m >> j) & 7;          /* three bits starting at j */
+        if (bits == 0 || bits == 2)           /* 000 or 010 */
+            return false;
+    }
+    return true;
+}
 
 static bool vertical_ok(uint8_t a, uint8_t b, uint8_t c)
 {
@@ -73,8 +86,8 @@ static void init(void)
 
     /* 2. allocate DP arrays */
     size_t S = (size_t)M * (size_t)M;
-    dpPrev = (seq_t *)calloc(S, sizeof(seq_t));
-    dpCurr = (seq_t *)calloc(S, sizeof(seq_t));
+    dpPrev = mem_new(seq_t, S);
+    dpCurr = mem_new(seq_t, S);
 
     /* 3. pre‑compute transitions */
     unsigned char temp[64];

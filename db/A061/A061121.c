@@ -11,12 +11,14 @@
  *            cycles of lengths {1,2} no2(n) – permutations with...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 14, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort, size_t */
+#include "../utils/mem.h"
 
 static seq_t *total   = NULL;   /* allowed lengths {1,2,3,6}   */
 static seq_t *no2only = NULL;   /* allowed lengths {1,2}      */
@@ -33,33 +35,33 @@ static void ensure_capacity(idx_t n)
     /* Allocate or grow total */
     seq_t *tmp;
     if (total == NULL) {
-        tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        tmp = mem_new(seq_t, new_cap);
         if (!tmp) abort();
         total = tmp;
     } else {
-        tmp = (seq_t *)realloc(total, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, total, new_cap);
         if (!tmp) abort();
         total = tmp;
     }
 
     /* Allocate or grow no2only */
     if (no2only == NULL) {
-        tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        tmp = mem_new(seq_t, new_cap);
         if (!tmp) abort();
         no2only = tmp;
     } else {
-        tmp = (seq_t *)realloc(no2only, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, no2only, new_cap);
         if (!tmp) abort();
         no2only = tmp;
     }
 
     /* Allocate or grow no3only */
     if (no3only == NULL) {
-        tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        tmp = mem_new(seq_t, new_cap);
         if (!tmp) abort();
         no3only = tmp;
     } else {
-        tmp = (seq_t *)realloc(no3only, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, no3only, new_cap);
         if (!tmp) abort();
         no3only = tmp;
     }

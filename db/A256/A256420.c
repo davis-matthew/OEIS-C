@@ -9,7 +9,8 @@
  *            integer not yet used in the sequence
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 76 terms through n = 9632 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Global state for memoisation */
 static seq_t *a_vals   = NULL;   /* 1‑based values stored as 0‑based */
@@ -48,8 +50,7 @@ static void ensure_a_cap(idx_t needed) {
     if (a_cap > needed) return;
     idx_t new_cap = a_cap ? a_cap * 2 : 8;
     while (new_cap <= needed) new_cap <<= 1;
-    seq_t *new_vals = (seq_t *)realloc(a_vals,
-                                      (size_t)new_cap * sizeof(seq_t));
+    seq_t *new_vals = mem_resize(seq_t, a_vals, (size_t)new_cap);
     if (!new_vals) abort();
     a_vals = new_vals;
     a_cap  = new_cap;

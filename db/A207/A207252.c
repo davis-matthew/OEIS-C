@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Destination list for state transitions */
 typedef struct {
@@ -115,8 +117,8 @@ static void ensure_cache(idx_t n)
         }
 
         /* --- Allocate state count arrays ------------------------------------- */
-        state_cnt0 = (seq_t *)calloc(S, sizeof(seq_t));
-        state_cnt1 = (seq_t *)calloc(S, sizeof(seq_t));
+        state_cnt0 = mem_new(seq_t, S);
+        state_cnt1 = mem_new(seq_t, S);
 
         /* For n = 2 each pair of rows is allowed */
         for (size_t i = 0; i < S; ++i)
@@ -124,7 +126,7 @@ static void ensure_cache(idx_t n)
 
         /* --- Allocate cache for sequence values ----------------------------- */
         a_cache_cap = 32;
-        a_cache = (seq_t *)calloc(a_cache_cap, sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_cap);
 
         /* a(1) = number of valid rows, a(2) = V² (all pairs) */
         a_cache[1] = (seq_t)V;
@@ -141,14 +143,14 @@ static void ensure_cache(idx_t n)
         size_t newcap = a_cache_cap ? a_cache_cap * 2 : 32;
         while ((size_t)n + 1 > newcap)
             newcap *= 2;
-        a_cache = (seq_t *)realloc(a_cache, newcap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, newcap);
         a_cache_cap = newcap;
     }
 
     /* DP iterations for step = cached_n+1 .. n */
     for (idx_t step = cached_n + 1; step <= n; ++step) {
         /* Zero next counts */
-        memset(state_cnt1, 0, S * sizeof(seq_t));
+        mem_set(state_cnt1, 0, S * sizeof(seq_t));
 
         /* Transition */
         for (size_t src = 0; src < S; ++src) {

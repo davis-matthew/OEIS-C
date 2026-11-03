@@ -12,12 +12,14 @@
  *            is grown as needed and always contains all valu...
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 15, u64 n <= 32, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* cache[0] unused, cache[1] = a(1) */
 static idx_t  cache_capacity = 0;   /* allocated array size (>=1) */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     /* allocate or grow the buffer to accommodate indices 1..n */
     if (cache == NULL) {
         size_t cap = (size_t)(n + 1 > (idx_t)9 ? (idx_t)n + 1 : (idx_t)9);
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();
         cache_capacity = cap;
     } else if ((idx_t)(cache_capacity) <= n) {
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n)
                                  ? (idx_t)n + 1
                                  : cache_capacity * 2);
         if (new_cap < (size_t)9) new_cap = 9;
-        cache = (seq_t *)realloc((void *)cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) abort();
         cache_capacity = new_cap;
     }

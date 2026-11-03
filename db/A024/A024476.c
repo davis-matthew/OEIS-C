@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=1..floor((n+1)/2)} A000032(k) * A023533(n-k+1)
  * Range:     u8 n <= 30, u16 n <= 57, u32 n <= 101, u64 n <= 211,
  *            u128 n <= 403, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 4310 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Here A023533(m) = 1 if m is a tetrahedral number, 0 otherwise */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *lucas = NULL;          /* 1‑based indexing: lucas[1] = 1, lucas[2] = 3   */
 static idx_t lucas_cap = 0;          /* current allocated size (≥ needed)            */
@@ -36,7 +38,7 @@ static void ensure_lucas(idx_t maxk)
     if (new_cap < maxk)
         new_cap = maxk;
 
-    seq_t *new_lucas = (seq_t *)realloc(lucas, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_lucas = mem_resize(seq_t, lucas, (new_cap + 1));
     if (!new_lucas)
         exit(EXIT_FAILURE);
     lucas = new_lucas;

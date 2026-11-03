@@ -6,13 +6,15 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = sum_{d | 2n} C(floor(n/d)+floor(d/2)-1, floor(d/2))
- * Range:     u8 n <= 39, u16 n <= 159, u32 n <= 588, u64 n <= 1000,
+ * Range:     u8 n <= 39, u16 n <= 159, u32 n <= 593, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 78 terms through n = 937 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{p, distinct prime divisor of n} [σ(n) mod p ≠ 0]
- * Range:     u8 n <= 22, u16 n <= 5685, u32 n <= 9964, u64 n <= 9964,
- *            u128 n <= 9964, big any n
+ * Range:     u8 n <= 22, u16 n <= 5685, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9964 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static seq_t pow_seq(seq_t base, uint64_t exp) {

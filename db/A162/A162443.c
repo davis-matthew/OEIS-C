@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 11, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   gcd_seq
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_seq.h"
+#include "../utils/gcd.h"
 
 /* Helper: compute binomial coefficient C(n,k) as seq_t.
  * Works for all supported seq_t types.  Uses the multiplicative formula.
@@ -74,6 +75,6 @@ seq_t a(idx_t n)
     seq_t denom = binomial(two_n_minus_2, n_minus_1);
 
     /* --- 5. Reduce fraction to lowest terms --- */
-    seq_t g = gcd_seq(num, denom);
+    seq_t g = gcd(num, denom);
     return num / g;
 }

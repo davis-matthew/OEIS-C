@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(1)=1; for n>=1, a(n+1)=sum_{k=1..n} gcd(k,a(n))
- * Range:     u8 n <= 49, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
- *            big any n
- * Helpers:   local_gcd
+ * Range:     u8 n <= 49, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 79 terms through n = 992 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
  * C++17 as long as seq_t supports +, -, *, /, %, %% and gcd operations. */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/local_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Cached values: a(1) stored at cached_a[0] */
 static seq_t *cached_a = NULL;
@@ -33,7 +35,7 @@ static void ensure_capacity(size_t len)
     if (new_cap < len)
         new_cap = len;
     /* explicit cast for C++ compatibility */
-    seq_t *tmp = (seq_t *)realloc(cached_a, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cached_a, new_cap);
     cached_a = tmp;
     cached_cap = new_cap;
 }
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         seq_t a_prev = cached_a[cur - 2];   /* a(cur-1) */
         for (idx_t k = 1; k < cur; ++k)
         {
-            seq_t g = local_gcd((seq_t)k, a_prev);
+            seq_t g = gcd((seq_t)k, a_prev);
             sum += g;
         }
         cached_a[cur - 1] = sum;

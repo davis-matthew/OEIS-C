@@ -11,6 +11,7 @@
  *            representations
  * Range:     u8 n <= 95, u16 n <= 3503, u32 n <= 3503, u64 n <= 3503,
  *            u128 n <= 3503, big any n
+ * Validated: standard, pass, 75 terms through n = 3242 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

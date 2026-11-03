@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,27 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static bool _a040423_inited = false;
 static seq_t _a040423_a0;
@@ -42,7 +63,7 @@ static void _a040423_compute(void)
 
     /* Allocate a small buffer for the period terms */
     size_t cap = 8;
-    _a040423_period = (seq_t *)malloc(cap * sizeof(seq_t));
+    _a040423_period = mem_new(seq_t, cap);
     size_t len = 0;
 
     while (1) {
@@ -52,7 +73,7 @@ static void _a040423_compute(void)
 
         if (len >= cap) {
             cap *= 2;
-            _a040423_period = (seq_t *)realloc(_a040423_period, cap * sizeof(seq_t));
+            _a040423_period = mem_resize(seq_t, _a040423_period, cap);
         }
         _a040423_period[len++] = (seq_t)a_next;
 

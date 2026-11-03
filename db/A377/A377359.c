@@ -8,7 +8,8 @@
  *            where s(n,k) are unsigned Stirling numbers of the first kind
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Declare the required function with external linkage */
 seq_t a(idx_t n);
@@ -35,7 +37,7 @@ static idx_t  max_n_computed = 0;   /* highest n already computed */
 static void ensure_capacity(size_t needed, size_t *cap, seq_t **ptr)
 {
     if (*cap < needed) {
-        seq_t *newp = (seq_t *)realloc(*ptr, needed * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, *ptr, needed);
         if (!newp) abort();           /* abort on allocation failure */
         *ptr = newp;
         *cap = needed;
@@ -48,13 +50,13 @@ seq_t a(idx_t n)
     /* ----- First‑time initialization ----- */
     if (a_cache == NULL) {
         a_cache_cap = 1;
-        a_cache = (seq_t *)malloc(sizeof(seq_t) * a_cache_cap);
+        a_cache = mem_new(seq_t, a_cache_cap);
         if (!a_cache) abort();
         a_cache[0] = (seq_t)1;          /* a(0) = 1 */
 
         /* Stirling row 0: only s(0,0)=1 */
         prev_cap = 1;
-        s_prev = (seq_t *)malloc(sizeof(seq_t) * prev_cap);
+        s_prev = mem_new(seq_t, prev_cap);
         if (!s_prev) abort();
         s_prev[0] = (seq_t)1;
 

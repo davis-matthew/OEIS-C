@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,6 +39,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static inline idx_t find_row(idx_t n)
 {
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     idx_t k = (idx_t)(n - sum_prev);   /* 1 ≤ k ≤ r */
 
     /* 2. DP to count partitions of r into distinct parts that avoid part k */
-    seq_t *dp = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(r + 1));
     if (!dp) return (seq_t)0;          /* allocation failed; return 0 */
     dp[0] = (seq_t)1;
 
@@ -80,6 +82,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[r];
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -9,7 +9,8 @@
  *            divide n
  * Range:     u8 n <= 72, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are provided by the build environment. */
 /* For a C build seq_t is an unsigned integer type; for a C++ build it
@@ -43,10 +45,10 @@ static void ensure_cache(size_t n)
     if (new_cap < cache_cap * 3 / 2 + 16)
         new_cap = cache_cap * 3 / 2 + 16;
     if (cache_cap == 0) {
-        cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
         computed = (unsigned char*)malloc(new_cap * sizeof(unsigned char));
     } else {
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         computed = (unsigned char*)realloc(computed, new_cap * sizeof(unsigned char));
     }
     if (cache == NULL || computed == NULL)
@@ -65,13 +67,13 @@ seq_t a(idx_t n)
         return cache[N];
 
     /* DP array on the stack would be too large; allocate dynamically. */
-    seq_t *dp = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (N + 1));
     if (dp == NULL)
         abort();  /* out of memory */
     dp[0] = (seq_t)1;
     /* initialize the rest to zero – malloc may already do this on many
      * systems, but be explicit for safety. */
-    memset(dp + 1, 0, N * sizeof(seq_t));
+    mem_set(dp + 1, 0, N * sizeof(seq_t));
 
     for (size_t i = 1; i <= N; i += 2) {      /* odd parts only */
         if (N % i == 0)                       /* part would divide n – skip */
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[N];
-    free(dp);
+    mem_free(dp);
 
     cache[N] = result;
     computed[N] = 1;

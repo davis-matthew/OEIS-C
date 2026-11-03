@@ -11,7 +11,8 @@
  *            k-j)
  * Range:     i8 n <= 23, i16 n <= 48, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,11 +39,11 @@ seq_t a(idx_t n)
     if (vals == NULL) {
         /* start with row 0 */
         val_cap = 8;
-        vals = (seq_t*)malloc(val_cap * sizeof(seq_t));
+        vals = mem_new(seq_t, val_cap);
         vals[0] = (seq_t)1;
         val_len = 1;
 
-        e_prev = (seq_t*)malloc(1 * sizeof(seq_t));
+        e_prev = mem_new(seq_t, 1);
         e_prev[0] = (seq_t)1;
         e_prev_n = 0;
     }
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         idx_t r_plus = r + 1;                       /* used for binom   */
 
         /* compute Eulerian numbers for row r */
-        seq_t *e_curr = (seq_t*)malloc((r_plus) * sizeof(seq_t));
+        seq_t *e_curr = mem_new(seq_t, (r_plus));
         /* element 0 is always 1 */
         e_curr[0] = (seq_t)1;
         for (idx_t k = 1; k < r; ++k) {
@@ -76,13 +78,13 @@ seq_t a(idx_t n)
             }
             if (val_len == val_cap) {
                 val_cap <<= 1;
-                vals = (seq_t*)realloc(vals, val_cap * sizeof(seq_t));
+                vals = mem_resize(seq_t, vals, val_cap);
             }
             vals[val_len++] = sum;
         }
 
         /* free previous Eulerian array and remember the current one */
-        free(e_prev);
+        mem_free(e_prev);
         e_prev = e_curr;
         e_prev_n = r;
     }

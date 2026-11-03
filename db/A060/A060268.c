@@ -9,14 +9,15 @@
  *            definition a(n) = min(A049653(n), A060266(n))
  * Range:     u8 n <= 106, u16 n <= 106, u32 n <= 106, u64 n <= 106,
  *            u128 n <= 106, big any n
- * Helpers:   mulmod64
+ * Validated: partial, pass, 105 terms through n = 106 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mulmod64.h"
+#include "../utils/mulmod.h"
 
 /* --- fast modular arithmetic for 64‑bit numbers -------------------------------- */
 
@@ -25,8 +26,8 @@ static inline uint64_t powmod64(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t result = 1;
     while (exp) {
         if (exp & 1U)
-            result = mulmod64(result, base, mod);
-        base = mulmod64(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1U;
     }
     return result;
@@ -73,7 +74,7 @@ static bool is_prime_uint64(uint64_t n)
             continue;
         bool composite = true;
         for (unsigned r = 1; r < s; ++r) {
-            x = mulmod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;

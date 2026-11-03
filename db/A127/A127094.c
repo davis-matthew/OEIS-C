@@ -7,6 +7,7 @@
  * Formula:   T(n, K) = mod(n, k-n-1) - mod(n+1, k-n-1) + 1 (reversed rows)
  * Range:     u8 n <= 465, u16 n <= 465, u32 n <= 465, u64 n <= 465,
  *            u128 n <= 465, big any n
+ * Validated: standard, pass, 82 terms through n = 458 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,7 +12,8 @@
  *            sequence A206015.)
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define C14  ((seq_t)14)
 #define C23  ((seq_t)23)
@@ -40,12 +42,12 @@ seq_t a(idx_t n)
         while (new_cap < (size_t)n)
             new_cap *= 2;
         if (new_cap < 5) new_cap = 5;  /* reserve space for base */
-        seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (!new_arr) exit(1);
 
         /* copy old data if any */
         if (cache)
-            memcpy(new_arr, cache, cache_cap * sizeof(seq_t));
+            mem_copy(new_arr, cache, cache_cap * sizeof(seq_t));
 
         /* initialise base values on first allocation */
         if (cache_cap == 0) {
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
                         - C64 * new_arr[i-5];
         }
 
-        free(cache);
+        mem_free(cache);
         cache = new_arr;
         /* cache_cap may remain the same (previous size) or larger,
            but we just need at least n elements stored. */

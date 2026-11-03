@@ -8,17 +8,22 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* OEIS A145994: last prime in a run of at least 2 consecutive primes of the form 4k+3 */
 
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/is_prime.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +41,7 @@ seq_t a(idx_t n)
     /* Initialize cache on first call */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Generate terms until we have at least n of them */
@@ -59,7 +64,7 @@ seq_t a(idx_t n)
             if (run_len >= 2) {           /* run ended with a prime of this type */
                 if (cache_cnt >= cache_cap) {
                     cache_cap <<= 1;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_cnt++] = last_in_run;
             }

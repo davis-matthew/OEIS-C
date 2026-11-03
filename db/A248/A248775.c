@@ -8,7 +8,8 @@
  *            Σ_{k≥1} ⌊n / p^k⌋ is the exponent of p in n!
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 14, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 41 terms through n = 937 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 /* This computes the greatest 7‑th‑power‑free divisor of n!.  */
 
 #include <stdbool.h>
-#include "../utils/seq_pow.h"   /* seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 static bool is_prime(idx_t x) {
     if (x < 2) return false;
@@ -38,7 +41,7 @@ seq_t a(idx_t n) {
         }
         idx_t r = exp % 7;
         if (r == 0) continue;
-        seq_t powp = seq_pow((seq_t)p, r);
+        seq_t powp = ipow_idx((seq_t)p, r);
         result *= powp;
     }
     return result;

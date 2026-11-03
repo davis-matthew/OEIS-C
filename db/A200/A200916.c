@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 26, u64 n <= 26, u128 n <= 26,
- *            big any n
- * Helpers:   is_prime_seq
+ * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 80, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 42 terms through n = 989 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_cache = NULL;
 static size_t prime_cache_size = 0;
@@ -28,7 +30,7 @@ static void add_prime(seq_t val)
 {
     if (prime_cache_size == prime_cache_capacity) {
         size_t new_cap = prime_cache_capacity ? prime_cache_capacity * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
         prime_cache = tmp;
         prime_cache_capacity = new_cap;
     }

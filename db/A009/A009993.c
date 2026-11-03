@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 120, u32 n <= 512, u64 n <= 512,
  *            u128 n <= 512, big any n
- * Helpers:   none
+ * Validated: full, pass, 512 terms through n = 512 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #ifdef __cplusplus
 #include <algorithm>
 #endif
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;  /* sorted array of sequence values     */
 static idx_t  cache_n = 0;     /* number of values stored (512)       */
@@ -39,7 +41,7 @@ static int cmp_seqt(const void *p, const void *q)
 static void build_cache(void)
 {
     const idx_t N = 512;                 /* 2^9 subsets of {1,…,9}          */
-    seq_t *arr = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, N);
     if (!arr) return; /* should never happen */
 
     /* Generate a number for each subset mask (0 … 511) */

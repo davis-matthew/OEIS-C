@@ -11,7 +11,8 @@
  *            generating‑function formula * G(x) = 1 + Σ_{m≥0} x^{(m+1)^2}...
  * Range:     u8 n <= 22, u16 n <= 51, u32 n <= 141, u64 n <= 439,
  *            u128 n <= 1000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 75 terms through n = 911 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 #ifdef __cplusplus
 #include <new>
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
     if (n == 0) return 1U;
 
     /* maximum core side length m with m² ≤ n */
-    idx_t maxM = _floor_isqrt_u64(n);
+    idx_t maxM = isqrt(n);
 
     /* Allocate array for partition counts.  We need n+1 entries. */
     seq_t *dp;

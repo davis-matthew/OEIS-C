@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(2*n+1, n) * (n+1)^2
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 13, u64 n <= 28, u128 n <= 59,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 188 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

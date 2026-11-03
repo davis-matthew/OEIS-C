@@ -9,6 +9,7 @@
  *            binary expansion of n; if none, returns 0
  * Range:     u8 n <= 540, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 102 terms through n = 7823 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

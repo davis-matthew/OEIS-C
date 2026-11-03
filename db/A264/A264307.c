@@ -10,7 +10,8 @@
  *            a(3)=68
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 35, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  *  geometrically to keep amortised O(1) allocation cost. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;      /* cached values, 1‑based index */
 static idx_t  a_cache_size = 0;   /* allocated capacity (>= index+1) */
@@ -35,7 +37,7 @@ static void a_cache_ensure(idx_t n) {
     while (new_size <= n + 1)
         new_size <<= 1;
 
-    a_cache = (seq_t *)realloc(a_cache, sizeof(seq_t) * new_size);
+    a_cache = mem_resize(seq_t, a_cache, new_size);
     a_cache_size = new_size;
 }
 

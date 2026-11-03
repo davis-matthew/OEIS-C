@@ -10,7 +10,8 @@
  *            a(6)=6
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 30, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary */
     if (n > cached_n) {
         size_t new_size = (size_t)(n + 1);     /* +1 to use 1‑based indexing */
-        seq_t *new_cache = (seq_t*)malloc(sizeof(seq_t) * new_size);
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (cache && cached_n > 0)
-            memcpy(new_cache, cache, sizeof(seq_t) * (size_t)(cached_n + 1));
+            mem_copy(new_cache, cache, sizeof(seq_t) * (size_t)(cached_n + 1));
 
         /* initialise base cases up to n if not already set */
         if (new_cache) {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         }
 
         /* free old cache */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
 
         /* compute missing terms using the recurrence */

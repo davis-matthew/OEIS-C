@@ -10,12 +10,14 @@
  * Formula:   a(0)=1, a(1)=0, a(2)=5, a(n)=2*(2^n-1) for n>2
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 124 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {

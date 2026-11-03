@@ -8,13 +8,25 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   has_ones_twos
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_ones_twos.h"
+
+static inline bool has_ones_twos(seq_t x)
+{
+    seq_t c1 = 0, c2 = 0;
+    while (x != 0) {
+        seq_t d = x % (seq_t)12;
+        if (d == 1)  c1++;
+        else if (d == 2) c2++;
+        x = x / (seq_t)12;
+    }
+    return (c1 > 0 && c1 == c2);
+}
 
 /* OEIS A039604: Numbers whose base‑12 representation has the same non‑zero
    number of 1’s and 2’s.  Computed by brute‑force enumeration. */

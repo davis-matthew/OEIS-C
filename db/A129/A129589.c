@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000129(n+1) - n (OEIS A129589)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 50, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* A000129 is the Pell sequence: P(0)=0, P(1)=1, P(k)=2*P(k-1)+P(k-2). */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *pell = NULL;   /* dynamically grown array of Pell numbers */
 static size_t pell_cap = 0;   /* current allocation capacity */
@@ -33,7 +35,7 @@ static void ensure_pell_upto(idx_t k)
         size_t new_cap = pell_cap ? pell_cap * 2 : 8;
         if (new_cap < target)
             new_cap = target;
-        seq_t *tmp = (seq_t *)realloc(pell, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pell, new_cap);
         pell = tmp;
         pell_cap = new_cap;
     }

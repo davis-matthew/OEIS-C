@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n, d odd} d^9 * ((d%4==1)?1:-1)
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 10, i64 n <= 128,
  *            i128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_seq
+ * Validated: standard, pass, 41 terms through n = 9982 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/pow_seq.h"     /* seq_t pow_seq(seq_t base, int exp) */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_i32.h"
 
 static void dfs_divisors(const uint64_t *primes, const uint64_t *exps,
                          size_t idx, size_t nprimes,
@@ -27,7 +29,7 @@ static void dfs_divisors(const uint64_t *primes, const uint64_t *exps,
         /* process divisor 'current' */
         if ((current & 1) != 0) {          /* only odd divisors contribute */
             seq_t mod4 = current % 4;
-            seq_t d9   = pow_seq(current, 9); /* current^9 */
+            seq_t d9   = ipow_i32(current, 9); /* current^9 */
             if (mod4 == (seq_t)1)
                 *sum += d9;
             else

@@ -11,7 +11,8 @@
  *            e even)
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 85 terms through n = 9662 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -40,11 +43,11 @@ seq_t a(idx_t n)
         uint64_t e = ex[i];
         if (p == 2ull) {
             /* a(2^e) = 2^e */
-            result *= pow_uint(2ull, e);
+            result *= ipow_u64_idx(2ull, e);
         } else {
             uint64_t f = (e % 2 == 0 ? e : 1ull);          /* f = e if e even, else 1 */
-            seq_t pe  = pow_uint(p, e);                    /* p^e */
-            seq_t pe_f = pow_uint(p, e - f);               /* p^{e-f} */
+            seq_t pe  = ipow_u64_idx(p, e);                    /* p^e */
+            seq_t pe_f = ipow_u64_idx(p, e - f);               /* p^{e-f} */
             result *= (pe - pe_f);                        /* p^e - p^{e-f} */
         }
     }

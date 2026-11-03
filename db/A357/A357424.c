@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} (n-k)^(k-1) * Stirling2(n,k) (OEIS A357424)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_free_array, seq_pow
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,15 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <math.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *a_cache   = NULL;   /* memoised a(n) values                */
 static size_t a_cap     = 0;       /* capacity of a_cache array           */
@@ -41,7 +48,7 @@ static void grow_seqs(seq_t **arr, size_t *cap, size_t len, size_t needed)
 
     seq_t *new_arr = seq_alloc_new_array(new_cap);
     if (*arr && len > 0)
-        memcpy(new_arr, *arr, len * sizeof(seq_t));
+        mem_copy(new_arr, *arr, len * sizeof(seq_t));
     if (*arr)
         seq_free_array(*arr);
     *arr = new_arr;
@@ -102,7 +109,7 @@ static void compute_to(idx_t n)
             if (base == (seq_t)0 && exp == 0)   /* convention 0^0 = 1 */
                 pow_term = (seq_t)1;
             else
-                pow_term = seq_pow(base, exp);
+                pow_term = ipow_idx(base, exp);
             sum += S_curr[k] * pow_term;
         }
         a_cache[m] = sum;

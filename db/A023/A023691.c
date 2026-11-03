@@ -11,13 +11,15 @@
  *            and supports the standard integer arithmetic oper...
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 9342 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* cached terms */
 static idx_t cache_size  = 0;      /* number currently stored */
@@ -48,7 +50,7 @@ static void ensure_cache(idx_t n)
         idx_t new_cap = cache_cap ? cache_cap * 2 : 1;
         if (new_cap < n)
             new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

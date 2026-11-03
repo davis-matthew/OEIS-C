@@ -12,7 +12,8 @@
  *            the middle prime satisfies (prev - prevprev >...
  * Range:     u8 none, u16 n <= 33, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 53 terms through n = 9373 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/next_prime.h"     /* uint64_t next_prime(uint64_t start); */
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *terms      = NULL;   /* array of sequence terms (prime values) */
 static size_t terms_cnt  = 0;      /* how many terms have been stored     */
@@ -35,10 +37,10 @@ static void grow_terms(void)
 {
     if (terms_cap == 0) {
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     } else {
         terms_cap <<= 1;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
 }
 

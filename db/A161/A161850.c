@@ -9,7 +9,8 @@
  *            of k)
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Miller–Rabin helpers (64‑bit only) ---------- */
 static inline uint64_t mul_mod_u64(uint64_t a, uint64_t b, uint64_t mod)
@@ -150,7 +152,7 @@ static size_t seq_cap   = 0;
 seq_t a(idx_t n)
 {
     init_prime_list();
-    if (!seq_cache) { seq_cap = 16; seq_cache = (seq_t*)malloc(seq_cap * sizeof(seq_t)); }
+    if (!seq_cache) { seq_cap = 16; seq_cache = mem_new(seq_t, seq_cap); }
 
     static uint64_t next_composite = 4;   /* first composite number */
 
@@ -172,7 +174,7 @@ seq_t a(idx_t n)
         if (is_prime_u64(val)) {
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;
-                seq_cache = (seq_t*)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_len++] = (seq_t)val;
         }

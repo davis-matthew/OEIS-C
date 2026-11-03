@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 829 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Initial values: a(0)=0, a(1)=0, a(2)=0, a(3)=6, a(4)=72, a(5)=630
    Computes terms for any n ≥ 0 in O(n) time, memoising results. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoisation array */
 static size_t cache_cap = 0;     /* allocated capacity */
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;                      /* double until big enough */
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                     /* allocation failure */
     cache = tmp;
     cache_cap = new_cap;

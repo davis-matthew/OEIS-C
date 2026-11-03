@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* undefined for n=0, safe return */
@@ -91,7 +93,7 @@ seq_t a(idx_t n) {
     if (dyn_cache == NULL) {
         idx_t init_size = n + 1;
         if (init_size < 20) init_size = 20;
-        dyn_cache = (seq_t *)malloc(sizeof(seq_t) * init_size);
+        dyn_cache = mem_new(seq_t, init_size);
         if (!dyn_cache) return 0; /* allocation failure */
 
         /* Zero all entries */
@@ -130,7 +132,7 @@ seq_t a(idx_t n) {
     if (n + 1 > dyn_size) {
         idx_t new_size = n + 1;
         if (new_size < dyn_size * 2) new_size = dyn_size * 2;
-        seq_t *tmp = (seq_t *)realloc(dyn_cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, dyn_cache, new_size);
         if (!tmp) return 0; /* allocation failure */
         /* Zero newly allocated part */
         for (idx_t i = dyn_size; i < new_size; ++i) tmp[i] = 0;

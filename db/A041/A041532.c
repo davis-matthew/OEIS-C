@@ -10,6 +10,7 @@
  *            {1,4,1,1,1,3,10,1,15,1,10,3,1,1,1,4,1,32}
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 40, u128 n <= 80,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 200 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

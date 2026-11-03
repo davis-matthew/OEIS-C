@@ -12,7 +12,8 @@
  *            this manner
  * Range:     u8 n <= 110, u16 n <= 110, u32 n <= 110, u64 n <= 110,
  *            u128 n <= 110, big any n
- * Helpers:   gcd, mod_pow
+ * Validated: partial, pass, 110 terms through n = 110 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* Euler's totient function φ(m).  m ≤ floor((3n−1)/2). */
 static seq_t compute_phi(idx_t m)
@@ -48,14 +50,14 @@ static seq_t compute_order_3(idx_t N, seq_t phiN)
         if (temp % p == 0) {
             while (temp % p == 0) temp /= p;
             while (order % p == 0 &&
-                   mod_pow((seq_t)3, (uint64_t)(order / p), (seq_t)N) == (seq_t)1)
+                   powmod((seq_t)3, (uint64_t)(order / p), (seq_t)N) == (seq_t)1)
                 order /= p;
         }
     }
     if (temp > 1) {
         seq_t prime = (seq_t)temp;
         while (order % prime == 0 &&
-               mod_pow((seq_t)3, (uint64_t)(order / prime), (seq_t)N) == (seq_t)1)
+               powmod((seq_t)3, (uint64_t)(order / prime), (seq_t)N) == (seq_t)1)
             order /= prime;
     }
     return order;

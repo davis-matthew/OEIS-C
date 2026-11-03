@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 21, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static bool vertical_ok(uint8_t p)
 {
@@ -129,12 +131,12 @@ static void init_A207922(void)
     }
 
     /* 4. allocate DP buffers */
-    S->dp_cur  = (seq_t *)calloc(states, sizeof(seq_t));
-    S->dp_next = (seq_t *)calloc(states, sizeof(seq_t));
+    S->dp_cur  = mem_new(seq_t, states);
+    S->dp_next = mem_new(seq_t, states);
 
     /* 5. initialise cache */
     S->cache_cap = 2;
-    S->cache = (seq_t *)calloc(S->cache_cap + 1, sizeof(seq_t));
+    S->cache = mem_new(seq_t, S->cache_cap + 1);
     S->cache_len = 0;
 }
 
@@ -170,7 +172,7 @@ seq_t a(idx_t n)
     /* extend calculations from current cache_len+1 up to n */
     for (idx_t col = S->cache_len + 1; col <= n; ++col) {
         /* zero dp_next */
-        memset(S->dp_next, 0, ((size_t)S->valcnt * (size_t)S->valcnt) * sizeof(seq_t));
+        mem_set(S->dp_next, 0, ((size_t)S->valcnt * (size_t)S->valcnt) * sizeof(seq_t));
 
         /* transition */
         size_t states = (size_t)S->valcnt * (size_t)S->valcnt;
@@ -199,7 +201,7 @@ seq_t a(idx_t n)
         if (S->cache_len < col) {
             if (S->cache_len == S->cache_cap) {
                 size_t newcap = S->cache_cap * 2;
-                S->cache = (seq_t *)realloc(S->cache, (newcap + 1) * sizeof(seq_t));
+                S->cache = mem_resize(seq_t, S->cache, (newcap + 1));
                 S->cache_cap = newcap;
             }
             S->cache[col] = sum;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 4, u64 n <= 10, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 979 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
    (Rule 15 elementary cellular automaton starting from a single ON cell). */
 
 #include <stdbool.h>                 /* optional, harmless */
-#include "../utils/big_pow.h"        /* provides: seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Compute 100^n.  big_pow accepts seq_t arguments. */
-    seq_t pow100n = big_pow((seq_t)100, (seq_t)n);
+    seq_t pow100n = ipow((seq_t)100, (seq_t)n);
 
     /* t = 10 * 100^n - 10  */
     seq_t t = pow100n * (seq_t)10;

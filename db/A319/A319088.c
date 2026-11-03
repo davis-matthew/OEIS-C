@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n} k^2 * tau_3(k)
  * Range:     u8 n <= 5, u16 n <= 25, u32 n <= 739, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 55 terms through n = 9580 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,10 @@
 
 /* tau_3(k) = prod_{p^e || k} binomial(e+2,2) */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stddef.h>
 #include "../utils/factor_u64.h"
 #include <stddef.h>
 

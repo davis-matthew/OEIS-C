@@ -10,12 +10,14 @@
  *            element a(1) corresponds to i=j=1
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -50,5 +52,5 @@ seq_t a(idx_t n)
 
     /* Compute τ(i*j) using the supplied divisor count routine */
     uint64_t product = (uint64_t)i * (uint64_t)j;
-    return (seq_t)divisor_count_u64(product);
+    return (seq_t)num_divisors(product);
 }

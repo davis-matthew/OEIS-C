@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 #define MAX_PRIME_LIMIT (2000000)
 #define PRIMES_ARRAY_SIZE 200000     /* safely > π(2 000 000) */
@@ -134,7 +136,7 @@ static void ensure_cache(idx_t n)
     while (cache_len < n) {
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-            seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) abort();
             cache = new_cache;
             cache_cap = new_cap;

@@ -8,14 +8,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A276085(A370117(n))
- * Range:     u8 n <= 95, u16 n <= 9530, u32 n <= 9530, u64 n <= 9530,
- *            u128 n <= 9530, big any n
+ * Range:     u8 n <= 95, u16 n <= 12287, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 103 terms through n = 9530 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

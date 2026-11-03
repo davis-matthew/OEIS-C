@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   runs_alternate_even_first
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,38 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/runs_alternate_even_first.h"
+#include "../utils/mem.h"
+
+static bool runs_alternate_even_first(seq_t x)
+{
+    if (x == 0) return false;           /* no 0 in the sequence */
+
+    /* collect base‑11 digits (least significant first) */
+    unsigned char digits[128];
+    int len = 0;
+    seq_t t = x;
+    while (t > 0) {
+        seq_t d = t % 11;                /* d < 11 always */
+        t = t / 11;
+        digits[len++] = (unsigned char)d;
+    }
+
+    /* traverse digits from most significant to least significant */
+    int expectedParity = 0;  /* 0 = even, 1 = odd; first run must be even */
+    seq_t runLen = 1;
+
+    for (int i = len - 2; i >= 0; --i) {
+        if (digits[i] == digits[i + 1]) {
+            ++runLen;
+        } else {
+            if ((runLen & 1) != expectedParity) return false;
+            expectedParity ^= 1;  /* toggle parity */
+            runLen = 1;
+        }
+    }
+    /* check last run */
+    return ((runLen & 1) == expectedParity);
+}
 
 seq_t a(idx_t n)
 {
@@ -43,11 +75,11 @@ seq_t a(idx_t n)
         /* add to cache */
         if (cache_size == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, new_cap);
             if (!new_cache) exit(EXIT_FAILURE);  /* allocation failed */
             for (size_t i = 0; i < cache_size; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
             cache = new_cache;
             cache_cap = new_cap;
         }

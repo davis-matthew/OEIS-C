@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   a(n) = lcm_{d|n} tau(d) * Sum_{d|n} 1/tau(d)
- * Range:     u8 n <= 47, u16 n <= 1023, u32 n <= 9458, u64 n <= 9458,
- *            u128 n <= 9458, big any n
+ * Range:     u8 n <= 47, u16 n <= 1023, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 108 terms through n = 9458 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,13 +9,15 @@
  *            5
  * Range:     i8 n <= 10, i16 n <= 23, i32 n <= 48, i64 n <= 98, i128 n <= 199,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 914 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t  max_computed = 0;   /* largest n with cache[n] valid   */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
 {
     size_t need = (size_t)n + 1;
     if (capacity < need) {
-        seq_t *new_cache = (seq_t*)realloc(cache, need * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, need);
         if (!new_cache) abort();  /* allocation failure */
         cache = new_cache;
         capacity = need;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* First call – initialise base cases */
     if (!cache) {
         capacity = 4;
-        cache = (seq_t*)malloc(sizeof(seq_t) * capacity);
+        cache = mem_new(seq_t, capacity);
         if (!cache) abort();
         cache[0] = -1;
         cache[1] =  1;

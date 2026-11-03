@@ -12,7 +12,8 @@
  *            Eratosthenes up to 2 n and a linear scan over the prime list
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_bit_runs
+ * Validated: standard, pass, 101 terms through n = 9785 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/count_bit_runs.h"
+
+/* ------------------------------------------------------------------ */
+static unsigned int count_bit_runs(uint64_t x)
+{
+    if (x == 0) return 1;          /* “0” has one run by definition */
+    unsigned int runs = 1;
+    int prev = x & 1u;
+    x >>= 1;
+    while (x) {
+        int cur = x & 1u;
+        if (cur != prev) {
+            ++runs;
+            prev = cur;
+        }
+        x >>= 1;
+    }
+    return runs;
+}
 
 static idx_t prime_max_limit = 0;          /* highest number for which we have a sieve   */
 static bool *prime_sieve = NULL;          /* prime_sieve[i] == true  ⇒ composite         */

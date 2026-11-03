@@ -8,7 +8,8 @@
  *            "3129" and k is a prime number
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_digits, isPrime64
+ * Validated: standard, pass, 76 terms through n = 994 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/isPrime64.h"   /* bool isPrime64(uint64_t n); */
-#include "../utils/count_digits.h" /* idx_t count_digits(uint64_t x); */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/mem.h"
 
 static const uint64_t pow10_tbl[20] = {
     1ULL, 10ULL, 100ULL, 1000ULL, 10000ULL, 100000ULL,
@@ -38,11 +41,11 @@ static void ensure_capacity(idx_t needed) {
     if (seq_cap >= needed) return;
     idx_t new_cap = seq_cap == 0 ? 16 : seq_cap << 1;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);     /* out of memory */
     if (seq_vals) {
-        memcpy(new_arr, seq_vals, seq_len * sizeof(seq_t));
-        free(seq_vals);
+        mem_copy(new_arr, seq_vals, seq_len * sizeof(seq_t));
+        mem_free(seq_vals);
     }
     seq_vals = new_arr;
     seq_cap  = new_cap;
@@ -52,11 +55,11 @@ seq_t a(idx_t n) {
     if (n == 0) return 0;               /* undefined below offset */
     while (seq_len < n) {
         uint64_t k = next_k;
-        idx_t digits = count_digits(k);
+        idx_t digits = num_digits_idx(k);
         uint64_t pow10 = pow10_tbl[digits];
         unsigned __int128 concat = (unsigned __int128)3129 * pow10 + k;
         uint64_t val = (uint64_t)concat;   /* safe for the ranges needed */
-        if (isPrime64(val)) {
+        if (is_prime_u64(val)) {
             ensure_capacity(seq_len + 1);
             seq_vals[seq_len++] = (seq_t)k;
         }

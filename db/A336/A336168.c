@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration from prelude: seq_t a(idx_t n); */
 
@@ -48,7 +50,7 @@ static void ensure_cache(idx_t n) {
     if (n < cache_cap)
         return;
     idx_t new_cap = n + 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     computed = (unsigned char *)realloc(computed, new_cap * sizeof(unsigned char));
     for (idx_t i = cache_cap; i < new_cap; ++i)
         computed[i] = 0;

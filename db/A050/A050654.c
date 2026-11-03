@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   mul_mod_u64
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mul_mod_u64.h"
+#include "../utils/mulmod.h"
 
 /*----- fast modular exponentiation (128‑bit intermediate) -----*/
 
@@ -35,8 +36,8 @@ static uint64_t mod_pow_u64(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t result = 1 % mod;
     while (exp)
     {
-        if (exp & 1) result = mul_mod_u64(result, base, mod);
-        base = mul_mod_u64(base, base, mod);
+        if (exp & 1) result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -66,7 +67,7 @@ static bool is_prime_u64(uint64_t n)
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r)
         {
-            x = mul_mod_u64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1046, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 1238 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,6 +39,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Function required by the harness */
 seq_t a(idx_t n)
@@ -110,9 +112,9 @@ seq_t a(idx_t n)
         /* new total size for triangular array: N*(N+1)/2 */
         size_t new_size_T = ((size_t)n * (size_t)(n + 1)) / 2;
         if (T == NULL)
-            T = (seq_t*)malloc(new_size_T * sizeof(seq_t));
+            T = mem_new(seq_t, new_size_T);
         else
-            T = (seq_t*)realloc(T, new_size_T * sizeof(seq_t));
+            T = mem_resize(seq_t, T, new_size_T);
         size_T = new_size_T;
 
         /* compute rows from computed_max+1 up to n */
@@ -146,7 +148,7 @@ seq_t a(idx_t n)
 
                 /* store the value, using placement new in C++ mode */
 #if defined(__cplusplus)
-                new (&T[idx]) seq_t(val);
+                *(&T[idx]) = (seq_t)(val);
 #else
                 T[idx] = val;
 #endif

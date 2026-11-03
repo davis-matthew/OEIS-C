@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 16, u16 n <= 5540, u32 n <= 9972, u64 n <= 9972,
- *            u128 n <= 9972, big any n
- * Helpers:   none
+ * Range:     u8 n <= 16, u16 n <= 5540, u32 n <= 16794, u64 n <= 16794,
+ *            u128 n <= 16794, big any n
+ * Validated: standard, pass, 68 terms through n = 9972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build. */
 extern seq_t a(idx_t n);
@@ -56,7 +58,7 @@ static void recompute(idx_t need)
             if (cnt[x] == 2) ++found;
 
         /* Store all such numbers in an array. */
-        seq_t *new_terms = (seq_t*)malloc(found * sizeof(seq_t));
+        seq_t *new_terms = mem_new(seq_t, found);
         if (!new_terms) {
             free(cnt);
             abort();
@@ -70,7 +72,7 @@ static void recompute(idx_t need)
         free(cnt);
 
         if (found >= need) {
-            free(terms);
+            mem_free(terms);
             terms = new_terms;
             terms_len = found;
             current_bound = bound;
@@ -78,7 +80,7 @@ static void recompute(idx_t need)
         }
 
         /* Too few terms: try a larger bound. */
-        free(new_terms);
+        mem_free(new_terms);
         bound *= 2;   /* double the bound and retry */
     }
 }

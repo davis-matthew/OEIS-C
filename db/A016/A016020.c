@@ -8,14 +8,15 @@
  *            4*n + 1
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 static const uint64_t SMALL_PRIMES[] = {
     2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113
@@ -39,7 +40,7 @@ static void process_factorisation(const uint64_t *factors, int flen, seq_t *best
 
     seq_t k = 1;
     for (int i = 0; i < flen; ++i)
-        k *= pow_seq((seq_t)SMALL_PRIMES[i], exps[i]);
+        k *= ipow_i32((seq_t)SMALL_PRIMES[i], exps[i]);
 
     if (*best == 0 || k < *best) *best = k;
 }

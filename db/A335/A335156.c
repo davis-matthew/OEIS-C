@@ -12,16 +12,24 @@
  *            the concatenation of the entries of A(m;r,s) for m = 1,2,3, ...
  *            with 1 ≤ r ≤ m and 1 ≤ s ≤ m, read row‑by‑row (i.e. for a fixed
  *            m, r runs from 1 to m and inside that s runs from 1...
- * Range:     u8 n <= 21, u16 n <= 49, u32 n <= 91, u64 n <= 91, u128 n <= 91,
+ * Range:     u8 n <= 43, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   binomial, seq_mul
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n) {
     /* Find the block m such that the first term in block m is

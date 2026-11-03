@@ -10,20 +10,33 @@
  *            index)
  * Range:     u8 n <= 66, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   fib, int_sqrt
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/fib.h"
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/isqrt.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;               /* n is always ≥ 1 by the offset */
 
     /* Find row r such that r*(r+1)/2 ≥ n. */
-    idx_t r = (int_sqrt(1 + 8 * n) - 1) / 2;
+    idx_t r = (isqrt(1 + 8 * n) - 1) / 2;
     idx_t tri = r * (r + 1) / 2;
     while (tri < n) {
         ++r;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   has44oct
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has44oct.h"
+#include "../utils/mem.h"
+
+/* Return true iff the octal representation of `x` contains the
+   consecutive digits 4,4.  Zero has no digits, so it never satisfies. */
+static bool has44oct(seq_t x)
+{
+    int prev = -1;
+    while (x) {
+        int d = (int)(x % (seq_t)8);
+        if (d == 4 && prev == 4) return true;
+        prev = d;
+        x = x / (seq_t)8;
+    }
+    return false;
+}
 
 /* Static cache for memoisation.  `cache_len`  = number of stored terms
    (i.e. the current index of the largest cached value).  `scan_last`
@@ -46,7 +61,7 @@ seq_t a(idx_t n)
             /* Ensure enough space in the array */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();        /* allocation failure */
                 cache     = tmp;
                 cache_cap = new_cap;

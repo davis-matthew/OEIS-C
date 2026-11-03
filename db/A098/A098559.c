@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2*3^n*n! for n >= 1, a(0) = 1 (taken from the OEIS entry)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 184 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

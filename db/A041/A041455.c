@@ -11,13 +11,15 @@
  *            a(16)=111940242, a(17)=260398009, a(18)=372338251, a(19)=...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t init[20] = {
     1ULL, 1ULL, 2ULL, 5ULL, 17ULL,
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* initialise the cache if necessary */
     if (!cache) {
         cache_len = 20;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return init[0];      /* allocation failure – give a default value */
         for (size_t i = 0; i < 20; ++i)
             cache[i] = init[i];
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     /* grow the cache if we need more space */
     size_t needed = (size_t)n + 1;
     if (needed > cache_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) return cache[cache_len - 1];  /* out of memory: return last known */
         cache = tmp;
         cache_len = needed;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = n * (LCM(1..n) + 1) + n * (n - 1) / 2
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static idx_t prime_limit = 0;

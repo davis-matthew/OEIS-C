@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   count_distinct_digits, is_prime
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,21 @@
 /* Smallest prime with n distinct digits (search algorithm) */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/count_distinct_digits.h"
+#include "../utils/is_prime_u64.h"
+
+static int count_distinct_digits(seq_t num) {
+    bool seen[10] = {false};
+    seq_t temp = num;
+    while (temp > 0) {
+        seen[(int)(temp % 10)] = true;
+        temp /= 10;
+    }
+    int count = 0;
+    for (int i = 0; i < 10; i++) {
+        if (seen[i]) count++;
+    }
+    return count;
+}
 
 seq_t a(idx_t n) {
     if (n < 1 || n > 10) return 0;
@@ -63,7 +77,7 @@ seq_t a(idx_t n) {
     }
     
     for (seq_t current = start; (long long)current < (long long)start + max_search; current++) {
-        if (is_prime((long long)current) && count_distinct_digits(current) == ni) {
+        if (is_prime_u64((long long)current) && count_distinct_digits(current) == ni) {
             computed[ni] = true;
             cache[ni] = current;
             return current;

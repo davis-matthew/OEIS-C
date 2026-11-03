@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   popcnt_idx
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem, popcount_idx_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/popcnt_idx.h"
+#include "../utils/popcount_idx_to_u32.h"
+#include "../utils/mem.h"
 
 /* global state for cached terms */
 static seq_t *terms = NULL;
@@ -54,7 +56,7 @@ static void grow_terms(idx_t min_needed)
     if ((size_t)terms_cap < (size_t)min_needed) {
         size_t new_cap = terms_cap ? (size_t)terms_cap * 2 : 4;
         while ((size_t)new_cap < (size_t)min_needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();
         terms = tmp;
         terms_cap = (idx_t)new_cap;
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
         if (cur > sieve_limit)          /* we need to sieve up to some lookahead */
             extend_sieve_to(cur * 2);
 
-        unsigned int pop_n = popcnt_idx(cur);   /* popcount(n) */
+        unsigned int pop_n = popcount_idx_to_u32(cur);   /* popcount(n) */
 
         /* Sum of popcounts of the exponents in the prime factorization */
         unsigned int pop_exp_sum = 0;
@@ -125,7 +127,7 @@ seq_t a(idx_t n)
                 x /= p;
                 ++e;
             }
-            pop_exp_sum += popcnt_idx(e);
+            pop_exp_sum += popcount_idx_to_u32(e);
         }
 
         if (pop_n == pop_exp_sum) {           /* satisfies the defining condition */

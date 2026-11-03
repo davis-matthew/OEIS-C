@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   digit_prod_limit
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_prod_limit.h"
+#include "../utils/mem.h"
+
+static uint64_t digit_prod_limit(seq_t x, idx_t k)
+{
+    uint64_t prod = 1;
+    uint64_t limit = (uint64_t)k;
+    if (x == (seq_t)0) return 0;          /* handle zero as special case */
+
+    while (x > (seq_t)0) {
+        uint64_t digit = (uint64_t)(x % (seq_t)10);
+        if (digit == 0) return 0;          /* zero digit means product 0 */
+        if (digit > 0 && prod > limit / digit) {
+            return limit + 1;             /* product would overflow limit */
+        }
+        prod *= digit;
+        x /= (seq_t)10;
+    }
+    return prod;
+}
 
 /* Helper: compute product of decimal digits of x, with an early
    exit if the product would exceed the value of k.  If the product
@@ -45,10 +64,10 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     if (found == ccap) {
         size_t new_cap = ccap ? ccap * 2 : 16;
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (cache) {
             for (size_t i = 0; i < ccap; ++i) new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         ccap = new_cap;

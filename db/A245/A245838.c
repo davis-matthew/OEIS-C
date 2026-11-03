@@ -7,8 +7,9 @@
  * Formula:   a(n) = arithmetic derivative of 3*n+1. a(n) = (3*n + 1)'. The
  *            arithmetic derivative of m = p1^e1 * p2^e2 * … is ∑ e_i * (m /
  *            p_i)
- * Range:     u8 n <= 52, u16 n <= 4436, u32 n <= 9728, u64 n <= 9728,
- *            u128 n <= 9728, big any n
+ * Range:     u8 n <= 52, u16 n <= 4436, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 83 terms through n = 9728 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

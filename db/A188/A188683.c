@@ -10,6 +10,7 @@
  *            9*(9*n^2+27*n+20)^2*a(n) = 0 Base values: a(0)=1, a(1)=2
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 24,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 587 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

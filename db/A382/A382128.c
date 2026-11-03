@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 202, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 9828 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Recamán memoization ---------- */
 static seq_t *recam_vals = NULL;   /* 1‑based Recamán values in recam_vals[0] */
@@ -62,7 +64,7 @@ ensure_recam_idx(idx_t need)
     while (new_cap < (size_t)need)
         new_cap <<= 1;
     if (new_cap > recam_cap) {
-        recam_vals = (seq_t *)realloc(recam_vals, new_cap * sizeof(seq_t));
+        recam_vals = mem_resize(seq_t, recam_vals, new_cap);
         recam_cap  = new_cap;
     }
 

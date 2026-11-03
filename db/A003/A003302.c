@@ -11,8 +11,8 @@
  *            a(n) = D(n) / gcd(N(n), D(n)). The gcd is found prim...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 8, u64 n <= 14, u128 n <= 15,
  *            big any n
- * Helpers:   a3302_addmul, a3302_div, a3302_mod, a3302_mul, a3302_norm,
- *            a3302_sub
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +20,82 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a3302_addmul.h"
-#include "../utils/a3302_div.h"
-#include "../utils/a3302_mod.h"
-#include "../utils/a3302_mul.h"
-#include "../utils/a3302_norm.h"
-#include "../utils/a3302_sub.h"
+
+static size_t a3302_norm(const uint32_t *x, size_t L)
+{
+    while (L > 1 && x[L - 1] == 0) L--;
+    return L;
+}
+
+static size_t a3302_addmul(uint32_t *T, size_t LT, const uint32_t *X, size_t LX, uint32_t m)
+{
+    uint64_t c = 0;
+    size_t i;
+    while (LT < LX) T[LT++] = 0;
+    for (i = 0; i < LX; i++) {
+        c += (uint64_t)X[i] * m + T[i];
+        T[i] = (uint32_t)c;
+        c >>= 32;
+    }
+    for (; c && i < LT; i++) {
+        c += T[i];
+        T[i] = (uint32_t)c;
+        c >>= 32;
+    }
+    if (c) T[LT++] = (uint32_t)c;
+    return a3302_norm(T, LT);
+}
+
+static size_t a3302_div(uint32_t *x, size_t L, uint64_t d)
+{
+    uint64_t r = 0;
+    size_t i = L;
+    while (i--) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+    return a3302_norm(x, L);
+}
+
+static uint64_t a3302_mod(const uint32_t *x, size_t L, uint64_t d)
+{
+    uint64_t r = 0;
+    size_t i = L;
+    while (i--) r = ((r << 32) | x[i]) % d;
+    return r;
+}
+
+static size_t a3302_mul(uint32_t *x, size_t L, uint32_t m)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        c += (uint64_t)x[i] * m;
+        x[i] = (uint32_t)c;
+        c >>= 32;
+    }
+    while (c) { x[L++] = (uint32_t)c; c >>= 32; }
+    return a3302_norm(x, L);
+}
+
+/* T -= U, requires T >= U */
+static size_t a3302_sub(uint32_t *T, size_t LT, const uint32_t *U, size_t LU)
+{
+    uint64_t br = 0;
+    size_t i;
+    for (i = 0; i < LU; i++) {
+        uint64_t d = (uint64_t)T[i] - U[i] - br;
+        T[i] = (uint32_t)d;
+        br = (d >> 32) ? 1 : 0;
+    }
+    for (; br && i < LT; i++) {
+        uint64_t d = (uint64_t)T[i] - br;
+        T[i] = (uint32_t)d;
+        br = (d >> 32) ? 1 : 0;
+    }
+    return a3302_norm(T, LT);
+}
 
 static uint32_t *a3302_Pa = NULL, *a3302_Pb = NULL, *a3302_Pt = NULL;
 static size_t a3302_La = 0, a3302_Lb = 0, a3302_cap = 0;

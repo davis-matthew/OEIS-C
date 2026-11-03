@@ -8,15 +8,37 @@
  *            Fib(pi(p)+2)
  * Range:     u8 n <= 36, u16 n <= 82, u32 n <= 198, u64 n <= 478,
  *            u128 n <= 1102, big any n
- * Helpers:   fib, prime_count
+ * Validated: standard, pass, 84 terms through n = 9209 (2026-11-01)
+ * Helpers:   fibonacci
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/fib.h"
-#include "../utils/prime_count.h"
+#include "../utils/fibonacci.h"
+
+static idx_t prime_count(idx_t n) {
+    if (n < 2) return 0;
+    bool *sieve = (bool *)malloc(n + 1);
+    for (idx_t i = 0; i <= n; i++) sieve[i] = true;
+    sieve[0] = sieve[1] = false;
+    
+    for (idx_t i = 2; i * i <= n; i++) {
+        if (sieve[i]) {
+            for (idx_t j = i * i; j <= n; j += i) {
+                sieve[j] = false;
+            }
+        }
+    }
+    
+    idx_t count = 0;
+    for (idx_t i = 2; i <= n; i++) {
+        if (sieve[i]) count++;
+    }
+    free(sieve);
+    return count;
+}
 
 static seq_t power(seq_t base, idx_t exp) {
     seq_t result = 1;
@@ -44,7 +66,7 @@ seq_t a(idx_t n) {
             }
             
             idx_t pi_p = prime_count(p);
-            seq_t q = fib(pi_p + 2);
+            seq_t q = fibonacci(pi_p + 2);
             seq_t factor = (q - 1) * power(q, e - 1);
             result *= factor;
         }
@@ -52,7 +74,7 @@ seq_t a(idx_t n) {
     
     if (m > 1) {
         idx_t pi_m = prime_count(m);
-        seq_t q = fib(pi_m + 2);
+        seq_t q = fibonacci(pi_m + 2);
         result *= (q - 1);
     }
     

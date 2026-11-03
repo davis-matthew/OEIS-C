@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 40, i64 n <= 40, i128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
    for n up to about 100 000. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t _a_max_n     = 0;      /* highest n computed for a() */
 static seq_t *_a_cache    = NULL;   /* a values */
@@ -76,7 +78,7 @@ static seq_t* ensure_c(idx_t max_n)
 {
     if (max_n == 0) {
         if (_c_cap == 0) {
-            _c_cache = (seq_t*)malloc(sizeof(seq_t));
+            _c_cache = mem_new(seq_t, 1);
             if (!_c_cache) exit(1);
             _c_cache[0] = (seq_t)1;
             _c_cap = 1;
@@ -85,7 +87,7 @@ static seq_t* ensure_c(idx_t max_n)
     }
     if (max_n + 1 > _c_cap) {
         size_t new_cap = (size_t)max_n + 1;
-        seq_t *tmp = (seq_t*)realloc(_c_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _c_cache, new_cap);
         if (!tmp) exit(1);
         _c_cache = tmp;
         if (_c_cap == 0) {
@@ -111,7 +113,7 @@ static seq_t* ensure_a(idx_t max_n)
 {
     if (max_n + 1 > _a_cap) {
         size_t new_cap = (size_t)max_n + 1;
-        seq_t *tmp = (seq_t*)realloc(_a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _a_cache, new_cap);
         if (!tmp) exit(1);
         _a_cache = tmp;
         if (_a_cap == 0) {

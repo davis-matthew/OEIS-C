@@ -12,7 +12,8 @@
  *            (for p ≥ 3), otherwise we compute the divis...
  * Range:     u8 n <= 25, u16 n <= 465, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, divisor_count_u64, is_prime, sigma_of
+ * Validated: standard, pass, 78 terms through n = 9805 (2026-11-03)
+ * Helpers:   is_prime, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,42 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/sigma_of.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/append_candidate.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* Static cache for the generated sequence values */
 static seq_t *seq_cache = NULL;
@@ -41,7 +74,7 @@ static bool k_satisfies(idx_t k)
         return true;
 
     /* For composites, compute σ(k) and τ(k) */
-    uint64_t tau = divisor_count_u64(k);          /* τ(k) */
+    uint64_t tau = num_divisors(k);          /* τ(k) */
     seq_t sigma = sigma_of(k);                    /* σ(k) */
 
     /* Integer arithmetic on seq_t */

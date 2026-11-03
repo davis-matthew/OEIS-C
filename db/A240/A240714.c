@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   mod_mul
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mod_mul.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ---------- simple 64‑bit Miller‑Rabin primality test ---------- */
 
@@ -34,8 +36,8 @@ static inline uint64_t mod_pow(uint64_t a, uint64_t d, uint64_t mod)
     uint64_t r = 1;
     while (d)
     {
-        if (d & 1) r = mod_mul(r, a, mod);
-        a = mod_mul(a, a, mod);
+        if (d & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         d >>= 1;
     }
     return r;
@@ -66,7 +68,7 @@ static bool is_prime_u64(uint64_t n)
         bool comp = true;
         for (uint64_t r = 1; r < s; ++r)
         {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { comp = false; break; }
         }
         if (comp) return false;
@@ -121,7 +123,7 @@ static void append_term(seq_t val)
     if (term_len == term_cap)
     {
         term_cap = (term_cap == 0) ? 8 : term_cap * 2;
-        term_cache = (seq_t*)realloc(term_cache, term_cap * sizeof(seq_t));
+        term_cache = mem_resize(seq_t, term_cache, term_cap);
         if (!term_cache) abort();
     }
     term_cache[term_len++] = val;

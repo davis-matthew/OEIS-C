@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 20, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: partial, pass, 19 terms through n = 22 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
    with |b-p| = n and b^(p-1) ≡ 1 (mod p²).  */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
         seq_t base2 = (seq_t)(p - n);   /* b = p − n  */
 
         /* Test the two possible bases.  The exponents are p‑1. */
-        if (mod_pow(base1, p - 1, mod) == 1) return (seq_t)p;
-        if (mod_pow(base2, p - 1, mod) == 1) return (seq_t)p;
+        if (powmod(base1, p - 1, mod) == 1) return (seq_t)p;
+        if (powmod(base2, p - 1, mod) == 1) return (seq_t)p;
     }
 }

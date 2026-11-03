@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   binomc
+ * Validated: partial, pass, 98 terms through n = 97 (2026-11-01)
+ * Helpers:   binomial_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
    concatenated sequence (a(0) is the first bit). */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomc.h"
+#include "../utils/binomial_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +46,7 @@ seq_t a(idx_t n)
 
     for (weight = 0; weight <= len; ++weight)
     {
-        idx_t cnt_vec = binomc(len, weight);            /* C(len,weight) */
+        idx_t cnt_vec = binomial_idx(len, weight);            /* C(len,weight) */
         idx_t bits_in_group = cnt_vec * len;
         if (rem_in_len >= bits_in_group)
             rem_in_len -= bits_in_group;
@@ -61,7 +62,7 @@ seq_t a(idx_t n)
        decreasing numeric value (unusual lex).  Convert
        vec_idx from descending order to ascending numeric
        order to unrank it. */
-    idx_t cnt_vec = binomc(len, weight);
+    idx_t cnt_vec = binomial_idx(len, weight);
     idx_t rank_desc = vec_idx;
     idx_t rank_asc  = cnt_vec - 1 - rank_desc;   /* ascending numeric rank */
 
@@ -76,7 +77,7 @@ seq_t a(idx_t n)
         if (remaining_ones == 0)
             break;  /* all remaining bits are 0 */
 
-        idx_t count_with_zero = binomc(remaining_len - 1, remaining_ones);
+        idx_t count_with_zero = binomial_idx(remaining_len - 1, remaining_ones);
         if (rank_asc < count_with_zero)
         {
             /* put 0 at this position */

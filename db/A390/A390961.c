@@ -9,7 +9,8 @@
  *            whose number of divisors is not a power of 2
  * Range:     u8 n <= 13, u16 n <= 298, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, factor_u64, is_power_of_two, pow_uint
+ * Validated: standard, pass, 81 terms through n = 7066 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx, is_pow2, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,10 @@
 #include <stdbool.h>
 #include <assert.h>
 
-#include "../utils/divisor_count_u64.h"
-#include "../utils/is_power_of_two.h"
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/is_pow2.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +36,8 @@ seq_t a(idx_t n)
     /* Fill cache up to the n‑th such integer */
     while (nums_len < (size_t)n) {
         uint64_t cur = (uint64_t)next_start;
-        uint64_t d = divisor_count_u64(cur);
-        if (!is_power_of_two((seq_t)d)) {
+        uint64_t d = num_divisors(cur);
+        if (!is_pow2((seq_t)d)) {
             if (nums_len == nums_cap) {
                 size_t new_cap = nums_cap ? nums_cap << 1 : 64;
                 uint64_t *tmp = (uint64_t *)realloc(nums, new_cap * sizeof(uint64_t));
@@ -62,7 +63,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t p = prime[i];
         uint32_t e = (uint32_t)exp[i];
-        seq_t num = pow_uint(p, (idx_t)(e + 1)) - 1;    /* p^(e+1) - 1 */
+        seq_t num = ipow_u64_idx(p, (idx_t)(e + 1)) - 1;    /* p^(e+1) - 1 */
         seq_t denom = (seq_t)(p - 1);
         seq_t factor = num / denom;                    /* (p^(e+1)-1)/(p-1) */
         sigma *= factor;
@@ -77,7 +78,7 @@ seq_t a(idx_t n)
         uint32_t bit = 1;
         while (bit <= e) {
             if (e & bit) {
-                seq_t p_pow = pow_uint(p, (idx_t)bit);
+                seq_t p_pow = ipow_u64_idx(p, (idx_t)bit);
                 factor *= (1 + p_pow);
             }
             bit <<= 1;

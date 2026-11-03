@@ -10,7 +10,8 @@
  *            = 2*n – 3 – 2^ceil(log₂(n‑1)) for n ≥ 3
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 127,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 3195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Standard headers */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static caches for a(n) and its prefix sums.
  * Index 0 is unused so that a(1) is at a_cache[1], etc. */
@@ -39,8 +41,8 @@ static void grow_cache(idx_t need)
     while (cache_cap < need)
         cache_cap <<= 1;          /* double until large enough */
 
-    a_cache      = (seq_t *)realloc(a_cache,      cache_cap * sizeof(seq_t));
-    prefix_cache = (seq_t *)realloc(prefix_cache, cache_cap * sizeof(seq_t));
+    a_cache      = mem_resize(seq_t, a_cache, cache_cap);
+    prefix_cache = mem_resize(seq_t, prefix_cache, cache_cap);
     if (a_cache == NULL || prefix_cache == NULL) {
         abort();   /* allocation failed */
     }

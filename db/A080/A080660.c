@@ -11,13 +11,20 @@
  *            F = 24! and G = 24!/2
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 2, u128 n <= 3,
  *            big any n
- * Helpers:   factorial_of
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factorial_of.h"
+
+static seq_t factorial_of(idx_t up_to) {
+    seq_t res = 1;
+    for (idx_t i = 2; i <= up_to; ++i)
+        res *= (seq_t)i;
+    return res;
+}
 
 static seq_t pow_seq_t(seq_t base, idx_t exp) {
     seq_t res = 1;

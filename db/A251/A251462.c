@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 14, u64 n <= 37, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Doubly linked list of integers (used for state indexing) */
 typedef struct {
@@ -147,8 +149,8 @@ seq_t a(idx_t n)
         }
 
         /* Allocate DP arrays. */
-        dp_cur = (seq_t *)malloc(S * sizeof(seq_t));
-        dp_next = (seq_t *)malloc(S * sizeof(seq_t));
+        dp_cur = mem_new(seq_t, S);
+        dp_next = mem_new(seq_t, S);
         initialized = true;
     }
 

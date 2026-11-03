@@ -9,6 +9,7 @@
  *            f(n-1) + f(n-2) + f(n-3) + f(n-4) for n ≥ 4
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 285 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

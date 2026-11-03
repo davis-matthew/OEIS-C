@@ -8,7 +8,8 @@
  * Formula:   a(n) = number of pairs (q,r) with q <= r and φ(q)+φ(r)=2*n
  * Range:     u8 none, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   compute_phi_upto
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compute_phi_upto.h"
+#include "../utils/mem.h"
+
+/* Build the totient table up to 'limit' (inclusive). */
+static void
+compute_phi_upto(idx_t limit, seq_t *phi)
+{
+    for (idx_t i = 0; i <= limit; ++i) phi[i] = i;
+    for (idx_t p = 2; p <= limit; ++p) {
+        if (phi[p] == p) {                  /* p is prime */
+            for (idx_t k = p; k <= limit; k += p)
+                phi[k] -= phi[k] / p;
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -26,14 +40,14 @@ seq_t a(idx_t n)
     idx_t limit  = target * 4 + 1000; /* safe upper bound for q,r */
 
     /* Allocate and compute φ values */
-    seq_t *phi = (seq_t *)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, (size_t)(limit + 1));
     if (!phi) return 0;
     compute_phi_upto(limit, phi);
 
     /* Frequency array for φ values seen so far (up to target) */
-    seq_t *freq = (seq_t *)calloc((size_t)(target + 1), sizeof(seq_t));
+    seq_t *freq = mem_new(seq_t, (size_t)(target + 1));
     if (!freq) {
-        free(phi);
+        mem_free(phi);
         return 0;
     }
 
@@ -50,7 +64,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(phi);
-    free(freq);
+    mem_free(phi);
+    mem_free(freq);
     return ans;
 }

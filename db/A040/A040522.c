@@ -8,7 +8,8 @@
  *            of sqrt(546)
  * Range:     u8 none, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes a(n), the n-th term of the continued fraction for sqrt(546). */
 seq_t a(idx_t n)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
         /* dynamic array for period coefficients */
         period_cap = 8;                           /* initial capacity */
-        period = (seq_t *)malloc(period_cap * sizeof(seq_t));
+        period = mem_new(seq_t, period_cap);
         if (!period) {
             /* memory allocation failed; return 0 as fallback */
             return (seq_t)0;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
             /* store a_k in period */
             if (period_len == period_cap) {
                 period_cap *= 2;
-                period = (seq_t *)realloc(period, period_cap * sizeof(seq_t));
+                period = mem_resize(seq_t, period, period_cap);
                 if (!period) {
                     return (seq_t)0;
                 }

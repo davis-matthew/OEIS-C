@@ -8,7 +8,8 @@
  *            (deterministic Miller-Rabin), memoized
  * Range:     u8 n <= 66, u16 n <= 7364, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a2384_isprime, a2384_mulmod, a2384_powmod
+ * Validated: standard, pass, 77 terms through n = 9572 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a2384_isprime.h"
-#include "../utils/a2384_mulmod.h"
-#include "../utils/a2384_powmod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 static uint64_t *a2384_cache = NULL;
 static idx_t a2384_len = 0;
@@ -29,7 +30,7 @@ seq_t a(idx_t n) {
     if (n == 0) return 0;
     while (a2384_len < n) {
         uint64_t m = a2384_last + 1;
-        while (!a2384_isprime(m * m + m + 1)) m++;
+        while (!is_prime_u64(m * m + m + 1)) m++;
         a2384_last = m;
         if (a2384_len == a2384_cap) {
             idx_t nc = a2384_cap ? a2384_cap * 2 : 1024;

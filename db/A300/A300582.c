@@ -10,13 +10,16 @@
  *            coin change with weight 3*2^k)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *cached_dp = NULL;   /* dynamic array holding computed values */
 static size_t cached_size = 0;    /* allocated size of cached_dp */
@@ -26,9 +29,9 @@ seq_t a(idx_t n)
     /* Expand the cache if needed */
     if (cached_size < n + 1) {
         /* free previous cache */
-        free(cached_dp);
+        mem_free(cached_dp);
         /* allocate new cache with zero initialization */
-        cached_dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        cached_dp = mem_new(seq_t, (size_t)(n + 1));
         if (!cached_dp) /* allocation failed */
             return 0;
         cached_size = (size_t)(n + 1);

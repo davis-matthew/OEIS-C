@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Triangle record used only during sorting. */
 typedef struct {
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
 
         /* Temporary array to store triangle records before sorting. */
         idx_t cap = 1024;
-        Triangle *tris = (Triangle *)malloc(cap * sizeof(Triangle));
+        Triangle *tris = mem_new(Triangle, cap);
         count = 0;
 
         for (idx_t a = 2; a <= MAX_SIDE; ++a)
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
                     if (count == cap)
                     {
                         cap <<= 1;
-                        tris = (Triangle *)realloc(tris, cap * sizeof(Triangle));
+                        tris = mem_resize(Triangle, tris, cap);
                     }
 
                     /* Store triangle record. */
@@ -95,15 +97,15 @@ seq_t a(idx_t n)
         }
 
         /* Sort the triangle records. */
-        qsort(tris, count, sizeof(Triangle), triangle_cmp);
+        mem_qsort(tris, count, sizeof(Triangle), triangle_cmp);
 
         /* Extract the sorted perimeters into a compact array. */
-        perims = (seq_t *)malloc(count * sizeof(seq_t));
+        perims = mem_new(seq_t, count);
         for (idx_t i = 0; i < count; ++i)
             perims[i] = tris[i].per;
 
         /* Free temporary storage. */
-        free(tris);
+        mem_free(tris);
 
         ready = true;
     }

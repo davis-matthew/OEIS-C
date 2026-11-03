@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: standard, pass, 73 terms through n = 9521 (2026-11-01)
+ * Helpers:   ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,12 +23,14 @@
  */
 
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"   /* floor_log2_uint64(idx_t v) */
-#include "../utils/pow2.h"                /* pow2(idx_t exp) returns seq_t */
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/pow2.h"
 
 static unsigned ceil_log2_u64(idx_t v) {
     /* v >= 1 */
-    unsigned fl = floor_log2_uint64(v);
+    unsigned fl = ilog2(v);
     return (((idx_t)1 << fl) == v) ? fl : fl + 1;
 }
 

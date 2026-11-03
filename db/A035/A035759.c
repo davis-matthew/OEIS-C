@@ -7,13 +7,15 @@
  * Formula:   a(n) = [x^(2n)] ((1+x)/(1-x))^22
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 4, u64 n <= 16, u128 n <= 143,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 9514 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* provides static seq_t binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

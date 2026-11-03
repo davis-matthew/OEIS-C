@@ -9,12 +9,14 @@
  *            a(2)=2, a(3)=2, a(4)=4, a(5)=5, a(6)=9, a(7)=12
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 48, u64 n <= 94, u128 n <= 186,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (sz < 7)
     {
         size_t new_sz = 8; /* indices 0..7 */
-        seq = (seq_t *)realloc(seq, new_sz * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_sz);
         for (idx_t i = 1; i <= 7; ++i)
             seq[i] = init[i];
         sz = 7;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (n > sz)
     {
         size_t new_sz = n + 1;               /* indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(seq, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_sz);
         if (!tmp) exit(EXIT_FAILURE);
         seq = tmp;
         /* Compute new terms using recurrence.  Start from current sz+1. */

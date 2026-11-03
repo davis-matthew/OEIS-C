@@ -10,7 +10,8 @@
  *            memoized)
  * Range:     u8 n <= 5, u16 n <= 53, u32 n <= 6336, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cuban_isprime, cuban_mulmod, cuban_powmod
+ * Validated: standard, pass, 60 terms through n = 9158 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cuban_isprime.h"
-#include "../utils/cuban_mulmod.h"
-#include "../utils/cuban_powmod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 static uint64_t *cuban_ks = NULL;
 static idx_t cuban_cnt = 0;
@@ -31,7 +32,7 @@ seq_t a(idx_t n) {
     while (cuban_cnt < n) {
         uint64_t k = ++cuban_lastk;
         uint64_t v = 3 * k * (k + 1) + 1;
-        if (cuban_isprime(v)) {
+        if (is_prime_u64(v)) {
             if (cuban_cnt == cuban_cap) {
                 idx_t nc = cuban_cap ? cuban_cap * 2 : 1024;
                 cuban_ks = (uint64_t *)realloc(cuban_ks, (size_t)nc * sizeof(uint64_t));

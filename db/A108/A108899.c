@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) is the n‑th integer k such that 11*k + 2357 is prime
- * Range:     u8 n <= 32, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 32, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 72 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Deterministic Miller–Rabin for 64‑bit integers */
 static inline uint64_t mod_mul(uint64_t a, uint64_t b, uint64_t mod) {
@@ -72,7 +74,7 @@ seq_t a(idx_t n) {
     /* initialise table if it does not yet exist */
     if (tbl_cap == 0) {
         tbl_cap = 16;
-        table = (seq_t *)malloc(tbl_cap * sizeof(seq_t));
+        table = mem_new(seq_t, tbl_cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -88,7 +90,7 @@ seq_t a(idx_t n) {
         /* store the found k */
         if (tbl_len == tbl_cap) {
             tbl_cap <<= 1;
-            table = (seq_t *)realloc(table, tbl_cap * sizeof(seq_t));
+            table = mem_resize(seq_t, table, tbl_cap);
         }
         table[tbl_len++] = (seq_t)k;
 

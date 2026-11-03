@@ -9,7 +9,8 @@
  *            of substrings 0001 and 0111
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 34, u64 n <= 66, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 478 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #ifndef MAX_N
 #define MAX_N 20000
 #endif
+#include "../utils/mem.h"
 
 #define OFFSET    MAX_N
 #define DIFF_SIZE (2 * MAX_N + 1)
@@ -38,13 +40,13 @@ static void init_once(void)
 {
     if (init) return;
     const size_t total_cells = 8 * DIFF_SIZE;
-    dp_cur  = (seq_t *)malloc(total_cells * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(total_cells * sizeof(seq_t));
-    ans     = (seq_t *)malloc((MAX_N + 1) * sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, total_cells);
+    dp_next = mem_new(seq_t, total_cells);
+    ans     = mem_new(seq_t, (MAX_N + 1));
     if (!dp_cur || !dp_next || !ans) return;  /* allocation failed */
 
-    memset(dp_cur,  0, total_cells * sizeof(seq_t));
-    memset(dp_next, 0, total_cells * sizeof(seq_t));
+    mem_set(dp_cur, 0, total_cells * sizeof(seq_t));
+    mem_set(dp_next, 0, total_cells * sizeof(seq_t));
 
     /* a(0) = 1 */
     dp_cur[0 * DIFF_SIZE + OFFSET] = 1;
@@ -66,9 +68,7 @@ static void extend_to(idx_t n)
         size_t width_new = end_new - start_new + 1;
 
         for (size_t m = 0; m < 8; ++m) {
-            memset(&dp_next[m * DIFF_SIZE + start_new],
-                   0,
-                   width_new * sizeof(seq_t));
+            mem_set(&dp_next[m * DIFF_SIZE + start_new], 0, width_new * sizeof(seq_t));
         }
 
         /* ------- transition from current length ------- */

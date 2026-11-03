@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 40, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   catalan
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,13 +25,17 @@
 extern seq_t a(idx_t n);
 
 /* ----------  required helpers from the utils package  ---------- */
-#include "../utils/catalan.h"      /* catalan(idx_t)            */
+#include <stddef.h>
+#include <stdlib.h>
+#include <math.h>
+#include "../utils/catalan.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
 #ifndef EXIT_FAILURE
 #  define EXIT_FAILURE 1
 #endif
+#include "../utils/mem.h"
 
 /* ----------  internal state  ---------- */
 static seq_t **tri = NULL;          /* pointer to rows                */
@@ -52,14 +57,14 @@ static void ensure_rows(idx_t needed)
 
     /* --- grow C array --- */
     if (new_rows > C_cap) {
-        Cval = (seq_t*)realloc(Cval, new_rows * sizeof(seq_t));
+        Cval = mem_resize(seq_t, Cval, new_rows);
         if (!Cval) { exit(EXIT_FAILURE); }
         C_cap = new_rows;
     }
 
     /* --- grow convolution buffer --- */
     if (new_rows > conv_cap) {
-        conv = (seq_t*)realloc(conv, new_rows * sizeof(seq_t));
+        conv = mem_resize(seq_t, conv, new_rows);
         if (!conv) { exit(EXIT_FAILURE); }
         conv_cap = new_rows;
     }
@@ -67,7 +72,7 @@ static void ensure_rows(idx_t needed)
     /* --- build missing rows --- */
     for (size_t n = cur_rows; n < new_rows; ++n) {
         size_t len = n + 1;
-        tri[n] = (seq_t*)calloc(len, sizeof(seq_t));   /* zero-initialised */
+        tri[n] = mem_new(seq_t, len);   /* zero-initialised */
         if (!tri[n]) { exit(EXIT_FAILURE); }
 
         /* compute C(n) : C(0)=1, C(n)=Catalan(n-1) for n>=1 */

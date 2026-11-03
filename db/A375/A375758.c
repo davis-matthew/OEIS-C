@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 227, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9667 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build system */
 extern seq_t a(idx_t n);  /* declaration required for other files */
@@ -72,7 +74,7 @@ static void ensure_seq_capacity(idx_t len)
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     if (new_cap < (size_t)len)
         new_cap = (size_t)len;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp)
         abort();
     seq = tmp;

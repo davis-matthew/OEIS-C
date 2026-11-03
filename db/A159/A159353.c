@@ -8,7 +8,8 @@
  * Formula:   a(n) = n / gcd(n, 2^n – 2)
  * Range:     u8 n <= 274, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_idx_t, mod_pow
+ * Validated: standard, pass, 100 terms through n = 9913 (2026-11-01)
+ * Helpers:   gcd_idx, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
-#include "../utils/gcd_idx_t.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/gcd_idx.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -32,12 +35,12 @@ seq_t a(idx_t n)
     }
 
     /* Compute 2^n modulo n */
-    seq_t mod_val = mod_pow((seq_t)2, n, (seq_t)n);
+    seq_t mod_val = powmod((seq_t)2, n, (seq_t)n);
     idx_t r = (idx_t)mod_val;                /* remainder in [0, n-1] */
     idx_t diff = (r >= 2) ? (r - 2) : (r + n - 2); /* (2^n - 2) mod n */
 
     /* Compute gcd(n, diff) using 64-bit arithmetic to avoid seq_t overflow */
-    idx_t g = gcd_idx_t(n, diff);
+    idx_t g = gcd_idx(n, diff);
 
     /* a(n) = n / g */
     seq_t result = (seq_t)(n / g);

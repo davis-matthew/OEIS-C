@@ -11,14 +11,16 @@
  *            * In that case a(n) = binomial(r, ⌊r/2⌋). The triangle is
  *            indexed * linearly starting with a(0) = 1, a(1) = 1, a(2) = 1,
  *            a(3) = 1, … as * described in the OEIS entry
- * Range:     u8 n <= 39, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Include the binomial routine supplied by the build system.  */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

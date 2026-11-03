@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Triangle storage: each row i (0‑based) is an array of i+1 seq_t values.
  * triangle[i][k] == T(k,i).  The pointers themselves are stored in this
@@ -42,7 +44,7 @@ static size_t allocated_rows = 0;      /* capacity of the triangle pointer array
  * cast to seq_t * to satisfy C++ type checking. */
 static seq_t *alloc_row(size_t len)
 {
-    return (seq_t *)calloc(len, sizeof(seq_t));
+    return mem_new(seq_t, len);
 }
 
 /* Ensure the triangle array has room for at least new_cap rows.

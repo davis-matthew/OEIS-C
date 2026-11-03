@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  *     a(n) = T_n * a(n‑1) + a(n‑2)   (n ≥ 3)
  *  where T_n = n*(n+1)/2  is the n‑th triangular number.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* 1‑based cache (cache[1] == a(1)) */
 static idx_t  cache_limit = 0;     /* largest index that has been computed */
@@ -30,7 +32,7 @@ static void compute_up_to(idx_t n)
         return;                       /* already computed */
 
     /* Grow the cache to hold indices 0 .. n (index 0 unused). */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache)
         abort();                      /* allocation failure – terminate */
     cache = new_cache;

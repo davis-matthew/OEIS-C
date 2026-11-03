@@ -8,9 +8,10 @@
  * Formula:   a(n) = restricted‑growth transform of P( A296078(n), A296092(n)
  *            ), where P is the Cantor pairing function A000027(k,l) =
  *            (k+l)*(k+l+1)/2 + k
- * Range:     u8 n <= 63, u16 n <= 9919, u32 n <= 9919, u64 n <= 9919,
- *            u128 n <= 9919, big any n
- * Helpers:   calc_phi, factor_u64, seq_pow, sigma_of
+ * Range:     u8 n <= 63, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9919 (2026-11-03)
+ * Helpers:   factor_u64, ipow_idx, mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,25 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n,uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/calc_phi.h"    /* seq_t calc_phi(seq_t m); */
-#include "../utils/sigma_of.h"   /* seq_t sigma_of(idx_t n); */
-#include "../utils/seq_pow.h"    /* seq_t seq_pow(seq_t base, idx_t exp); */
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Prime signature of 1 + m (m > 0).  For m = 0 or 1 we return 1.
    The signature is the product of the first primes raised to the
@@ -60,7 +76,7 @@ static seq_t prime_signature(seq_t m)
     seq_t sig = 1;
     for (size_t i = 0; i < cnt; ++i) {
         seq_t prime = (seq_t)first_primes[i];
-        seq_t pw = seq_pow(prime, (idx_t)ex_buf[i]);
+        seq_t pw = ipow_idx(prime, (idx_t)ex_buf[i]);
         sig *= pw;
     }
     return sig;
@@ -92,7 +108,7 @@ seq_t a(idx_t n)
     if (n > max_n) {
         size_t new_cap = (n + 1) * 2;      /* double for amortised growth */
         if (new_cap > a_cap) {
-            seq_t *tmp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
             if (!tmp) abort();            /* memory failure – let program terminate */
             a_vals = tmp;
             a_cap = new_cap;
@@ -100,7 +116,7 @@ seq_t a(idx_t n)
 
         /* Compute terms from (max_n + 1) up to n. */
         for (idx_t k = max_n + 1; k <= n; ++k) {
-            seq_t phi_val   = calc_phi((seq_t)k);
+            seq_t phi_val   = totient_seq((seq_t)k);
             seq_t sigma_val = sigma_of(k);
 
             seq_t sig_phi   = prime_signature(1 + phi_val);
@@ -127,7 +143,7 @@ seq_t a(idx_t n)
                 if (map_len + 1 > map_cap) {
                     size_t new_map_cap = (map_cap + 1) * 2;
                     struct map_entry *tmp =
-                        (struct map_entry *)realloc(map, new_map_cap * sizeof(struct map_entry));
+                        mem_resize(struct map_entry, map, new_map_cap);
                     if (!tmp) abort();
                     map = tmp;
                     map_cap = new_map_cap;

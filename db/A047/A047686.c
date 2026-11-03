@@ -11,7 +11,8 @@
  *            returned
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   gcd, pow_uint
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   gcd, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stddef.h>
 #include <stdio.h>
 #include "../utils/gcd.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t num;   /* absolute numerator (always non‑negative) */
@@ -49,7 +51,7 @@ static void ensure_B(size_t maxIdx)
 {
     if (maxIdx <= B_max) return;
 
-    B = (Rat *)realloc(B, sizeof(Rat) * (maxIdx + 1));
+    B = mem_resize(Rat, B, (maxIdx + 1));
     if (!B) exit(1);
 
     for (size_t i = B_max + 1; i <= maxIdx; ++i) {
@@ -184,7 +186,7 @@ seq_t a(idx_t n)
             if (g > 1) { num /= g; den /= g; }
         }
         /* compute 2^(2n-1)-1 using big‑int pow */
-        seq_t pow2_odd = pow_uint(2, 2 * n - 1);
+        seq_t pow2_odd = ipow_u64_idx(2, 2 * n - 1);
         seq_t term3 = pow2_odd - (seq_t)1;
         num = num * term3;
         seq_t g = gcd(num, den);

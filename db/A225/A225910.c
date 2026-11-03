@@ -12,14 +12,26 @@
  *            computed from n)
  * Range:     u8 n <= 29, u16 n <= 47, u32 n <= 82, u64 n <= 158,
  *            u128 n <= 285, big any n
- * Helpers:   antidiag_idx, pow2
+ * Validated: standard, pass, 82 terms through n = 2150 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/antidiag_idx.h"
+
+static void antidiag_idx(idx_t n, idx_t *i, idx_t *j)
+{
+    /* Find k such that k(k+1)/2 <= n < (k+1)(k+2)/2.  Here k = i+j. */
+    idx_t k = 0;
+    while ((k * (k + 1)) / 2 <= n)
+        ++k;
+    --k;
+    idx_t base = (k * (k + 1)) / 2;
+    *i = n - base;        /* i = offset along the diagonal */
+    *j = k - *i;          /* j = remaining part of k */
+}
 
 seq_t a(idx_t n)
 {

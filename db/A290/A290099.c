@@ -7,8 +7,9 @@
  * Keywords:  sign, mult, easy
  * Formula:   a(n) = multiplicative with a(2^e)=(-1)^e, a(p^e)=prevprime(p)^e
  *            for odd primes p
- * Range:     i8 n <= 136, i16 n <= 8803, i32 n <= 8803, i64 n <= 8803,
- *            i128 n <= 8803, big any n
+ * Range:     i8 n <= 136, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 107 terms through n = 8803 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

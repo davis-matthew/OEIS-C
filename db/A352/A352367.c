@@ -8,7 +8,8 @@
  *            binom(n‑1,k‑1)·Catalan(k‑1)·a(n‑k)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* where Catalan(0)=1 and Catalan(m)=binom(2m,m)/(m+1)   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Catalan cache ---------- */
 static seq_t *cat_cache = NULL;   /* cat_cache[i] = Catalan(i)   */
@@ -27,7 +29,7 @@ static void ensure_cat(idx_t n)
 {
     /* Allocate if needed. */
     if (cat_cap == 0) {
-        cat_cache = (seq_t *)malloc(sizeof(seq_t));
+        cat_cache = mem_new(seq_t, 1);
         cat_cache[0] = (seq_t)1;             /* Catalan(0) = 1 */
         cat_cap   = 1;
         cat_size  = 1;
@@ -37,7 +39,7 @@ static void ensure_cat(idx_t n)
     if (cat_cap <= (size_t)n) {
         size_t new_cap = cat_cap > 0 ? cat_cap * 2 : 1;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cat_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cat_cache, new_cap);
         cat_cache = tmp;
         cat_cap   = new_cap;
     }
@@ -61,7 +63,7 @@ static size_t a_size  = 0;      /* number of stored a's */
 static void ensure_a(idx_t n)
 {
     if (a_cap == 0) {
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         a_cache[0] = (seq_t)1;   /* a(0)=1 */
         a_cap   = 1;
         a_size  = 1;
@@ -69,7 +71,7 @@ static void ensure_a(idx_t n)
     if (a_cap <= (size_t)n) {
         size_t new_cap = a_cap > 0 ? a_cap * 2 : 1;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         a_cache = tmp;
         a_cap   = new_cap;
     }

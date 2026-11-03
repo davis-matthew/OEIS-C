@@ -10,7 +10,8 @@
  *            up to the required square range (default 10^8 = 10000^2)
  * Range:     u8 n <= 4, u16 n <= 46, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 899 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- global data ---------- */
 static seq_t *prime_list = NULL;   /* list of primes */
@@ -36,7 +38,7 @@ static inline int bit_get(const uint8_t *arr, size_t idx) {
 /* ---------- sieve routine (generates primes up to 'limit') ---------- */
 static void init_sieve(uint64_t limit) {
     if (prime_list) {
-        free(prime_list);
+        mem_free(prime_list);
         prime_list = NULL;
     }
 
@@ -57,7 +59,7 @@ static void init_sieve(uint64_t limit) {
     /* estimate prime count (~limit / log(limit)) for initial buffer */
     size_t est = (size_t)((double)limit / log((double)limit) * 1.2);
     if (est < 100) est = 100;
-    seq_t *plist = (seq_t*)malloc(est * sizeof(seq_t));
+    seq_t *plist = mem_new(seq_t, est);
     if (!plist) abort();
 
     size_t cnt = 0;
@@ -66,7 +68,7 @@ static void init_sieve(uint64_t limit) {
         if (!bit_get(sieve, i >> 1)) {
             if (cnt == est) {
                 est <<= 1;
-                plist = (seq_t*)realloc(plist, est * sizeof(seq_t));
+                plist = mem_resize(seq_t, plist, est);
                 if (!plist) abort();
             }
             plist[cnt++] = (seq_t)i;

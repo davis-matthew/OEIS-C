@@ -12,15 +12,18 @@
  *            a(n) lists the elements of M in anti‑diagona...
  * Range:     u8 n <= 36, u16 n <= 136, u32 n <= 528, u64 n <= 2080,
  *            u128 n <= 5050, big any n
- * Helpers:   pow2, seq_one
+ * Validated: standard, pass, 76 terms through n = 4322 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/pow2.h"
-#include "../utils/seq_one.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 /* integer square root of a 128‑bit unsigned integer, returning floor(sqrt(x)) */
 static unsigned long long isqrt128(unsigned __int128 x)

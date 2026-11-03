@@ -8,6 +8,7 @@
  * Formula:   a(n) = 1 if n is even; 2^(n-1) if n is odd
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
+ * Validated: standard, pass, 59 terms through n = 399 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

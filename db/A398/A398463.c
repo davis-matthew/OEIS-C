@@ -7,6 +7,7 @@
  * Formula:   a(n) = n * ∏_{p^e || n} e^2 (multiplicative, a(p^e) = e^2 * p^e)
  * Range:     u8 n <= 15, u16 n <= 575, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 81 terms through n = 9153 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,7 +15,9 @@
 
 #include <stddef.h>          /* for size_t */
 #include <stdint.h>          /* for uint64_t */
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t, uint64_t *, uint64_t *, size_t *) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 0)   /* undefined for OEIS offset 1, but guard anyway */

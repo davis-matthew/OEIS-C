@@ -7,7 +7,8 @@
  * Formula:   a(n) = (-1)^n*(n+3)!/(2*(n+1))
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 10, i64 n <= 18, i128 n <= 32,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 37 terms through n = 438 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* initialise cache for n = 0 */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;          /* allocation failed – unlikely */
         cache[0] = (seq_t)3;                  /* a(0) = 3 */
         cache_len = 1;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* extend cache up to index n (if needed) */
     if ((size_t)n >= cache_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return (seq_t)0;            /* allocation failed – unlikely */
         cache = tmp;
 

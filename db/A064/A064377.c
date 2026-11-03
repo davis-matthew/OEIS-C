@@ -11,7 +11,8 @@
  *            the finite list of solutions the function returns 0
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 18, u64 n <= 111, u128 n <= 111,
  *            big any n
- * Helpers:   factor_u64, grow_seq, phi, seq_pow
+ * Validated: full, pass, 111 terms through n = 111 (2026-11-03)
+ * Helpers:   factor_u64, ipow_idx, mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,24 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/phi.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/grow_seq.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static size_t seq_len = 0;          /* number of terms found so far   */
 static seq_t *seq_arr = NULL;       /* array holding the terms        */
@@ -41,7 +56,7 @@ static void ensure_terms(idx_t target)
     {
         ++last_checked;
         /* Compute phi(last_checked) */
-        seq_t phi_val = phi(last_checked);
+        seq_t phi_val = totient(last_checked);
 
         /* Compute sigma_4(last_checked) */
         uint64_t n = last_checked;
@@ -56,13 +71,13 @@ static void ensure_terms(idx_t target)
             seq_t p   = primes[i];
             uint64_t e = exps[i];
 
-            seq_t num = seq_pow(p, 4 * (e + 1)) - 1;
-            seq_t den = seq_pow(p, 4) - 1;
+            seq_t num = ipow_idx(p, 4 * (e + 1)) - 1;
+            seq_t den = ipow_idx(p, 4) - 1;
             seq_t term = num / den;
             sigma4 *= term;
         }
 
-        seq_t phi5 = seq_pow(phi_val, 5);
+        seq_t phi5 = ipow_idx(phi_val, 5);
         if (sigma4 > phi5)
         {
             if (seq_len == seq_cap)

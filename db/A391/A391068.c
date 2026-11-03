@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 25, i16 n <= 42, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   my_binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/my_binomial.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Static cached triangle values */
 static idx_t      next_row = 0;    /* next row to generate */
@@ -44,7 +46,7 @@ static seq_t compute_T(idx_t r, idx_t k)
 {
     seq_t val = 0;
     for (idx_t j = 0; j <= k; ++j) {
-        seq_t bin = my_binomial(k, j);
+        seq_t bin = binomial(k, j);
         seq_t base = (seq_t)2 - (seq_t)j;   /* careful signed subtraction */
         seq_t powv = my_pow(base, r);
         seq_t term = bin * powv;
@@ -59,7 +61,7 @@ static void ensure_cache(idx_t n)
 {
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     while (cache_len <= n) {
         idx_t r = next_row;
@@ -67,7 +69,7 @@ static void ensure_cache(idx_t n)
             seq_t val = compute_T(r, k);
             if (cache_len + 1 > cache_cap) {
                 cache_cap = cache_cap * 2;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = val;
         }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static state for memoisation */
 static seq_t *cache = NULL;        /* cached values */
@@ -47,7 +49,7 @@ static void ensure_capacity(size_t needed_cap)
     while (new_cap < needed_cap)
         new_cap <<= 1;
 
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) {
         /* In case of allocation failure, abort – the calling environment
          * must handle this appropriately. */
@@ -55,8 +57,8 @@ static void ensure_capacity(size_t needed_cap)
     }
 
     if (cache) {
-        memcpy(new_arr, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_arr, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
 
     cache = new_arr;
@@ -71,7 +73,7 @@ static void compute_upto(idx_t target)
     /* Initialise cache on first use */
     if (cache_len == 0) {
         ensure_capacity(11);
-        memcpy(cache, init_seq, 11 * sizeof(seq_t));
+        mem_copy(cache, init_seq, 11 * sizeof(seq_t));
         cache_len = 11;
     }
 

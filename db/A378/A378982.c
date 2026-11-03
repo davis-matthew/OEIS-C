@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = (A003961(n)-(1+sigma(n))) mod (A003961(n)-2*n)
- * Range:     u8 n <= 16, u16 n <= 1534, u32 n <= 9314, u64 n <= 9314,
- *            u128 n <= 9314, big any n
+ * Range:     u8 n <= 16, u16 n <= 1534, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 108 terms through n = 9314 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

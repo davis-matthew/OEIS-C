@@ -8,7 +8,8 @@
  * Formula:   a(n) = n*B(n-1) + n*(n-1)*B(n-2) with B(0)=1. a(0)=0, a(1)=1
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Standard headers for memory allocation */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static array of Bell numbers (B[0] = 1) */
 static seq_t *Bell = NULL;          /* array of Bell numbers */
@@ -30,7 +32,7 @@ static void grow_bell(size_t new_cap)
     size_t cap = Bell_cap ? Bell_cap * 2 : 4;
     if (cap < new_cap)
         cap = new_cap;
-    Bell = (seq_t *)realloc(Bell, cap * sizeof(seq_t));
+    Bell = mem_resize(seq_t, Bell, cap);
     /* In the unlikely event of allocation failure, Bell will be NULL
        and the program will crash when accessed – acceptable for this
        context. */

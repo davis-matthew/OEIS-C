@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   has20_in_base3
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,27 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has20_in_base3.h"
+#include "../utils/mem.h"
+
+/* Return true iff the base‑3 representation of num contains the
+ * substring 20.  num must be non‑negative. */
+static bool has20_in_base3(seq_t num)
+{
+    if (num == 0) return false;
+    unsigned char digits[2048];
+    int len = 0;
+    seq_t x = num;
+    while (x > 0) {
+        seq_t d = x % 3;
+        x /= 3;
+        digits[len++] = (unsigned char)d;
+    }
+    for (int i = 0; i + 1 < len; ++i) {
+        if (digits[i] == 0 && digits[i + 1] == 2)
+            return true;
+    }
+    return false;
+}
 
 /* Static cache used by the sequence function. */
 static seq_t *cache_terms = NULL;     /* array of found terms           */
@@ -43,8 +64,7 @@ seq_t a(idx_t n)
                 if (cache_count >= cache_capacity) {
                     size_t newcap = cache_capacity ? cache_capacity * 2 : 8;
                     while (newcap <= cache_count) newcap <<= 1;
-                    cache_terms = (seq_t *)realloc(cache_terms,
-                                                    newcap * sizeof(seq_t));
+                    cache_terms = mem_resize(seq_t, cache_terms, newcap);
                     if (!cache_terms) abort();      /* allocation failed */
                     cache_capacity = newcap;
                 }

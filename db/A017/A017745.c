@@ -9,11 +9,13 @@
  *            on 64‑bit builds
  * Range:     u8 n <= 82, u16 n <= 83, u32 n <= 87, u64 n <= 98, u128 n <= 135,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 7811 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

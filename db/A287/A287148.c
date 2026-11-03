@@ -11,7 +11,8 @@
  *            {2} ∪ {p prime | p ≡ 1 (mod 4)}
  * Range:     u8 n <= 15, u16 n <= 26, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     }
 
     /* ----- 3. Dynamic programming ----- */
-    seq_t *dp = (seq_t*)malloc((size_t)(target + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(target + 1));
     if (!dp) { free(is_prime); free(allow); return 0; }
     dp[0] = 1;
     for (idx_t m = 1; m <= target; ++m) {
@@ -69,6 +71,6 @@ seq_t a(idx_t n)
     /* ----- 4. Clean up ----- */
     free(is_prime);
     free(allow);
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    a(1)=T(0,0), a(2)=T(1,0), a(3)=T(1,1), a(4)=T(2,0), …      */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root: floor(sqrt(x)) for 0≤x<2^64 */
 static idx_t floor_isqrt_u64(idx_t x)
@@ -63,7 +65,7 @@ static void ensure_rows_to(size_t up_to)
     /* compute missing rows */
     for (size_t i = tri_rows_max; i <= up_to; ++i) {
         size_t len = i + 1;
-        seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) return;   /* allocation failure – sequence cannot be produced */
 
         if (i == 0) {

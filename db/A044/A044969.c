@@ -10,7 +10,8 @@
  *            1’s
  * Range:     u8 n <= 6, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   choose_fixed
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/choose_fixed.h"
+
+static inline uint64_t choose_fixed(uint64_t n, unsigned k)
+{
+    switch (k) {
+        case 0: return 1;
+        case 1: return n;
+        case 2: return n * (n - 1) / 2;
+        case 3: return n * (n - 1) * (n - 2) / 6;
+        case 4: return n * (n - 1) * (n - 2) * (n - 3) / 24;
+        default: return 0;
+    }
+}
 
 seq_t a(idx_t n)
 {

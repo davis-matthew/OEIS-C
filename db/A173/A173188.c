@@ -7,18 +7,21 @@
  * Formula:   a(n) = binomial(n+5,5)*9^n
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 34,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 400 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Compute C(n+5,5) = (n+5)*(n+4)*(n+3)*(n+2)*(n+1)/120 */
     seq_t bin = ((seq_t)(n + 5) * (n + 4) * (n + 3) * (n + 2) * (n + 1)) / 120;
     /* Compute 9^n */
-    seq_t pow9 = big_pow((seq_t)9, (seq_t)n);
+    seq_t pow9 = ipow((seq_t)9, (seq_t)n);
     return bin * pow9;
 }

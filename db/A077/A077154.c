@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 133, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global sieve and cumulative composite counter */
 static idx_t  sieve_limit   = 0;      /* maximum index currently computed */
@@ -35,11 +37,11 @@ ensure_limit(idx_t new_lim)
 
     /* Free old storage */
     if (sieve_prime)   free(sieve_prime);
-    if (composite_ip)  free(composite_ip);
+    if (composite_ip)  mem_free(composite_ip);
 
     /* Allocate new arrays with 1‑based safety */
     sieve_prime   = (bool *)malloc((new_lim + 1) * sizeof(bool));
-    composite_ip  = (seq_t *)malloc((new_lim + 1) * sizeof(seq_t));
+    composite_ip  = mem_new(seq_t, (new_lim + 1));
     if (!sieve_prime || !composite_ip) abort();
 
     /* Sieve of Eratosthenes */

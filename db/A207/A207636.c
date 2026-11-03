@@ -10,15 +10,18 @@
  *            2*C(r-1,k-1)*2^{r-k}. For r = 0: T(0,0) = 1
  * Range:     u8 n <= 22, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Dependencies: powers of two and binomial coefficients.  */
 #include <math.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp); */
-#include "../utils/binom.h"  /* seq_t binom(idx_t a, idx_t b); */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -40,14 +43,14 @@ seq_t a(idx_t n)
     seq_t t1 = 0, t2 = 0;
 
     if (k <= r - 1U) {
-        seq_t comb1 = binom(r - 1U, k);
+        seq_t comb1 = binomial(r - 1U, k);
         seq_t pow1  = pow2((idx_t)((r - 1U) - k));
         t1 = comb1 * pow1;
         t1 = t1 * (seq_t)3;       /* multiply by 3 */
     }
 
     if (k > 0U) {
-        seq_t comb2 = binom(r - 1U, k - 1U);
+        seq_t comb2 = binomial(r - 1U, k - 1U);
         seq_t pow2v = pow2((idx_t)(r - k));
         t2 = comb2 * pow2v;
         t2 = t2 * (seq_t)2;       /* multiply by 2 */

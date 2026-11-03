@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Static state for caching computed terms */
 static seq_t *g_cache     = NULL;    /* array of terms */
@@ -53,7 +55,7 @@ static void cache_append(seq_t val)
 {
     if (g_cache_size == g_cache_cap) {
         size_t new_cap = g_cache_cap ? g_cache_cap * 2 : 128;
-        seq_t *new_arr = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, g_cache, new_cap);
         if (!new_arr) exit(1);
         g_cache = new_arr;
         g_cache_cap = new_cap;

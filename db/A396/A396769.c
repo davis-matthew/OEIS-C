@@ -10,13 +10,15 @@
  *            a(n-p) + n + k * p a(1) = 0
  * Range:     u8 n <= 45, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* floor_log2_uint64 for 64‑bit unsigned values, defined for n > 0 */
 static inline idx_t floor_log2_uint64(idx_t v)
@@ -39,13 +41,13 @@ seq_t a(idx_t n)
     if (n > sackin_cap) {
         idx_t new_cap = sackin_cap ? sackin_cap << 1 : 1;
         while (new_cap < n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t*)malloc((new_cap + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (new_cap + 1));
         if (!new_cache) return 0;            /* allocation failed */
 
         /* copy existing entries, keep index 0 defined as 0 */
         new_cache[0] = 0;
         for (idx_t i = 1; i <= sackin_cap; ++i) new_cache[i] = sackin_cache[i];
-        free(sackin_cache);
+        mem_free(sackin_cache);
         sackin_cache = new_cache;
         sackin_cap   = new_cap;
     }

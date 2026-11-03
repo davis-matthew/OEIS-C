@@ -8,13 +8,15 @@
  *            (A003586)
  * Range:     u8 n <= 5272, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 8258 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static const long double LOG2_VAL = log((long double)2);
 static const long double LOG3_VAL = log((long double)3);
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Allocate arrays for exponents of 2 and 3, and for the sums */
     idx_t *e2 = (idx_t*)malloc(sizeof(idx_t) * (n + 1));
     idx_t *e3 = (idx_t*)malloc(sizeof(idx_t) * (n + 1));
-    seq_t *s  = (seq_t*)malloc(sizeof(seq_t) * (n + 1));
+    seq_t *s  = mem_new(seq_t, (n + 1));
 
     /* Base case: the first 3‑smooth number is 1 */
     e2[1] = 0;   e3[1] = 0;
@@ -65,6 +67,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = s[n];
-    free(e2); free(e3); free(s);
+    free(e2); free(e3); mem_free(s);
     return result;
 }

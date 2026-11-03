@@ -7,16 +7,42 @@
  * Formula:   a(0) = 1, a(n+1) = Sum_{k=0..floor(n/2)} s(k)*a(n-2*k), where
  *            s(n) = A000625(n): s(0) = 1, s(n+1) = ([x^n] s(x)^3 + 2*[x^n]
  *            s(x^3)) / 3, i.e. S(x) = 1 + x*(S(x)^3 + 2*S(x^3))/3
- * Range:     u8 n <= 12, u16 n <= 22, u32 n <= 36, u64 n <= 36, u128 n <= 36,
+ * Range:     u8 n <= 12, u16 n <= 22, u32 n <= 41, u64 n <= 79, u128 n <= 154,
  *            big any n
- * Helpers:   grow_zero, seq_is_fixed_width
+ * Validated: standard, pass, 57 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/grow_zero.h"
-#include "../utils/seq_is_fixed_width.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static seq_t *A5627_s = NULL, *A5627_sq = NULL, *A5627_cu = NULL;
 static idx_t A5627_scap = 0, A5627_ns = 0;

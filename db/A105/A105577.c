@@ -8,12 +8,14 @@
  * Formula:   a(n) = 2*a(n-1) - 3*a(n-2) + 2*a(n-3), a(0)=1, a(1)=5, a(2)=6
  * Range:     i8 n <= 11, i16 n <= 27, i32 n <= 43, i64 n <= 43, i128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for previously computed terms */
 static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ static void ensure_capacity(size_t needed)
     size_t newcap = cap ? (cap << 1) : 4;
     if (newcap < needed)
         newcap = needed;
-    cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newcap);
     cap   = newcap;
 }
 

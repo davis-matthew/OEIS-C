@@ -8,13 +8,17 @@
  *            numbers n such that n+6 is prime)
  * Range:     u8 n <= 52, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 74 terms through n = 901 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +35,7 @@ seq_t a(idx_t n)
     {
         /* start with a modest capacity; grow as needed */
         cache_cap = 128;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
         initialized = 1;
     }
@@ -46,7 +50,7 @@ seq_t a(idx_t n)
         if (cache_len >= cache_cap)
         {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         cache[cache_len++] = val;

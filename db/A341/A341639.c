@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 24, u128 n <= 25,
  *            big any n
- * Helpers:   calc_phi
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* a(i) stored at cache[i-1]    */
 static size_t cache_len = 0;    /* number of terms computed so far */
@@ -33,7 +36,7 @@ static void ensure_cache(idx_t n)
 
     if (cache_len == 0) {                  /* initialise a(1) */
         size_t init_cap = (n < 2) ? 2 : (size_t)n;
-        cache = (seq_t *)realloc(cache, init_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, init_cap);
         if (!cache) abort();
         cache_cap = init_cap;
         cache[0] = (seq_t)1;
@@ -46,7 +49,7 @@ static void ensure_cache(idx_t n)
     if (n > cache_cap) {                  /* enlarge storage */
         size_t new_cap = (cache_cap > 0) ? cache_cap << 1 : 1;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;
@@ -59,11 +62,11 @@ static void ensure_cache(idx_t n)
         for (idx_t d = 1; d * d <= ndiv; ++d) {
             if (ndiv % d == 0) {
                 idx_t q = ndiv / d;
-                seq_t phi_d = calc_phi((seq_t)d);
+                seq_t phi_d = totient_seq((seq_t)d);
                 seq_t term1 = phi_d * cache[d - 1] * cache[q - 1];
                 sum += term1;
                 if (d != q) {
-                    seq_t phi_q = calc_phi((seq_t)q);
+                    seq_t phi_q = totient_seq((seq_t)q);
                     seq_t term2 = phi_q * cache[q - 1] * cache[d - 1];
                     sum += term2;
                 }

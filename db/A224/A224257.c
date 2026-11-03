@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 62, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   init_term
+ * Validated: standard, pass, 48 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,23 @@
 */
 
 #include <stdlib.h>
-#include "../utils/init_term.h"
+#include "../utils/mem.h"
+
+/* Helper to initialise a single term for 1 ≤ i ≤ 7 */
+static seq_t init_term(idx_t i)
+{
+    switch (i)
+    {
+        case 1: return 22;
+        case 2: return 158;
+        case 3: return 648;
+        case 4: return 2017;
+        case 5: return 5246;
+        case 6: return 11990;
+        case 7: return 24842;
+        default: return 0;
+    }
+}
 
 /* Static cache for memoisation */
 static seq_t *cache = NULL;
@@ -41,7 +58,7 @@ seq_t a(idx_t n)
         idx_t old_size  = cache_size;
         idx_t new_size  = n + 1;    /* indices 0 … n inclusive */
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)
             return 0;               /* allocation failure – return 0 */
 

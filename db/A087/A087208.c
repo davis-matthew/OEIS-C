@@ -8,14 +8,19 @@
  *            a(0) = 1, a(1) = 1. The sequence is A087208
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   alloc_array, free_array
+ * Validated: standard, pass, 39 terms through n = 448 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_array.h"
-#include "../utils/free_array.h"
+#include "../utils/mem.h"
+
+/* C: use malloc/free */
+static inline seq_t* alloc_array(size_t count) { return mem_new(seq_t, count); }
+
+static inline void free_array(seq_t* ptr) { mem_free(ptr); }
 
 #ifdef __cplusplus
     

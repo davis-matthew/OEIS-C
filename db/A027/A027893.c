@@ -7,12 +7,14 @@
  * Formula:   a(n) = n-th divisor of 99999 in increasing order
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         const seq_t p271[2] = {1, (seq_t)271};             /* 271^0,271^1 */
 
         div_cnt = 12;
-        divs = (seq_t *)malloc(div_cnt * sizeof(seq_t));
+        divs = mem_new(seq_t, div_cnt);
         size_t idx = 0;
         for (int e3 = 0; e3 <= 2; ++e3)
             for (int e41 = 0; e41 <= 1; ++e41)

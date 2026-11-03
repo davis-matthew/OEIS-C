@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_cube_root, two_exp
+ * Validated: standard, pass, 103 terms through n = 9187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,34 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/int_cube_root.h"
-#include "../utils/two_exp.h"
+#include <limits.h>
+#include "../utils/mem.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
+
+/* Return exponent of highest power of 2 dividing x. */
+static seq_t two_exp(uint64_t x)
+{
+    seq_t exp = 0;
+    while ((x & 1ULL) == 0) {
+        ++exp;
+        x >>= 1;
+    }
+    return exp;
+}
 
 /* Cache of 2‑adic valuations of the cubefree numbers. */
 static seq_t *cache = NULL;
@@ -107,7 +134,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
         while (new_cap < cache_len + (size_t)n)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof *cache);
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap * sizeof *cache) / sizeof(seq_t));
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

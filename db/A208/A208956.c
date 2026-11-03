@@ -11,14 +11,17 @@
  *            number of derangements of m)
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 91, u64 n <= 210,
  *            u128 n <= 595, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 71 terms through n = 9948 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Derangement cache.  der_cache[0] = 1, der_cache[1] = 0. */
 static seq_t *der_cache = NULL;
@@ -30,7 +33,7 @@ static void ensure_der(idx_t upto)
     if (upto <= der_current) return;            /* already computed */
 
     if (der_cache == NULL) {                    /* first allocation */
-        der_cache = (seq_t *)malloc(sizeof(seq_t) * (upto + 1));
+        der_cache = mem_new(seq_t, (upto + 1));
         if (der_cache == NULL) return; /* allocation failure – should not happen */
         der_cache[0] = (seq_t)1;
         if (upto >= 1) der_cache[1] = (seq_t)0;
@@ -39,8 +42,7 @@ static void ensure_der(idx_t upto)
     }
 
     /* enlarge cache */
-    seq_t *tmp = (seq_t *)realloc(der_cache,
-                                  sizeof(seq_t) * (upto + 1));
+    seq_t *tmp = mem_resize(seq_t, der_cache, (upto + 1));
     if (tmp == NULL) return; /* allocation failure – ignore */
     der_cache = tmp;
 
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     /* Sum i = k..r of C(r,i)*D(r-i). */
     seq_t result = (seq_t)0;
     for (idx_t i = k; i <= r; ++i) {
-        seq_t bin = binom(r, i);
+        seq_t bin = binomial(r, i);
         seq_t der = der_cache[r - i];
         result += bin * der;
     }

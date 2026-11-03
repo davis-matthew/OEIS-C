@@ -7,8 +7,9 @@
  * Keywords:  sign, easy
  * Formula:   a(n) = (#proper divisors d|n with d ≡ 1 (mod 3)) – (#proper
  *            divisors d|n with d ≡ 2 (mod 3))
- * Range:     i8 n <= 7856, i16 n <= 7856, i32 n <= 7856, i64 n <= 7856,
- *            i128 n <= 7856, big any n
+ * Range:     i8 n <= 20000, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 7856 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

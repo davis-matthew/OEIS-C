@@ -7,7 +7,8 @@
  * Formula:   a(n) = (n!)^n + n^n
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow, factorial
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,8 +34,20 @@
  *   * extra safety for the n==0 case
  */
 
-#include "../utils/factorial.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -51,8 +64,8 @@ seq_t a(idx_t n)
     seq_t exp = (seq_t)n;
 
     /* Compute (n!)^n and n^n using big_pow. */
-    seq_t term1 = big_pow(fac, exp);
-    seq_t term2 = big_pow((seq_t)n, exp);
+    seq_t term1 = ipow(fac, exp);
+    seq_t term2 = ipow((seq_t)n, exp);
 
     /* Return the sum.  Arithmetic is performed in seq_t, which may
      * be an unsigned integer of different widths or an arbitrary‑

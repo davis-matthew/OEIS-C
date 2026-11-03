@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2^n written in base 9, interpreted as a base-10 number
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 30, u64 n <= 61, u128 n <= 122,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 916 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,15 +9,18 @@
  *            enumerates the triangle row‑wise for n ≥ 5
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 25, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 26 terms through n = 30 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* gives seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/big_pow.h"    /* gives seq_t big_pow(seq_t base, seq_t exp); */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *S5 = NULL;        /* Stirling numbers S(k,5)  */
 static idx_t S5_size = 0;       /* allocated size of S5 */
@@ -30,7 +33,7 @@ static void ensure_S5(idx_t n)
 
     if (S5_size > n) return;     /* already computed */
 
-    seq_t *s = (seq_t *)realloc(S5, (n + 1) * sizeof(seq_t));
+    seq_t *s = mem_resize(seq_t, S5, (n + 1));
     if (!s) exit(EXIT_FAILURE);   /* memory exhaustion */
     S5 = s;
 
@@ -83,7 +86,7 @@ seq_t a(idx_t n)
 
     /* ----- compute the entry --------------------------------------- */
     seq_t bin   = binomial(row, k);                 /* C(row,k)   */
-    seq_t pow26 = big_pow((seq_t)26, (seq_t)(row - k));  /* 26^(row-k) */
+    seq_t pow26 = ipow((seq_t)26, (seq_t)(row - k));  /* 26^(row-k) */
     seq_t term  = bin * pow26;                      /* first product */
     term = term * S5[k];                            /* multiply by S(k,5) */
 

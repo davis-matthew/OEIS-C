@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 22, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* prime constants */
 #define PRIME_CNT 21
@@ -35,7 +37,7 @@ static const uint16_t primes[PRIME_CNT] = {
 
 /* array that flags whether a number can be expressed as a
    product of three two‑digit primes */
-static unsigned char prod_exists[MAX_PROD+1] = {0};
+static unsigned char prod_exists[1000000] = {0};   /* indexed by six-digit concatenations too (MAX_PROD+1 was too small) */
 
 /* array that will contain the sequence values */
 static seq_t seq_values[9261] = {0};
@@ -75,7 +77,7 @@ static void init_sequence(void) {
         }
     }
     /* sort the resulting numbers */
-    qsort(seq_values, seq_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(seq_values, seq_len, sizeof(seq_t), cmp_seq);
     initialized = true;
 }
 

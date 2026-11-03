@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(n) * 4^prime(n) - 1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   estimate_prime_upper_bound, pow_seq
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,17 @@
 #include <stdbool.h>
 
 /* Helpers from the framework */
-#include "../utils/estimate_prime_upper_bound.h"
-#include "../utils/pow_seq.h"
+#include <math.h>
+#include "../utils/ipow_idx.h"
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 /* static storage for the primes */
 static uint64_t *prime_list = NULL;   /* array of found primes */
@@ -85,7 +95,7 @@ seq_t a(idx_t n)
     uint64_t p = prime_list[n - 1];          /* prime(n) */
 
     /* Compute 4^prime(n) */
-    seq_t power = pow_seq((seq_t)4, (idx_t)p);
+    seq_t power = ipow_idx((seq_t)4, (idx_t)p);
 
     /* Compute p * power - 1 */
     return (seq_t)p * power - (seq_t)1;

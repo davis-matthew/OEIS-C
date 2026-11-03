@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   harmonic_asym
+ * Validated: standard, pass, 58 terms through n = 93 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,26 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/harmonic_asym.h"
+
+/*  For large m we use the asymptotic expansion:
+        H_m = ln m + γ + 1/(2m) - 1/(12m^2) + 1/(120m^4) - 1/(252m^6)
+             + 1/(240m^8)  (valid to very high precision)  */
+static long double harmonic_asym(idx_t m)
+{
+    const long double GAMMA = 0.57721566490153286060651209L;
+    long double n  = (long double)m;
+    long double inv = 1.0L / n;
+    long double inv2 = inv * inv;
+    long double inv4 = inv2 * inv2;
+    long double inv6 = inv4 * inv2;
+    long double inv8 = inv4 * inv4;
+    return logl(n) + GAMMA
+            + 0.5L * inv
+            - inv2 / 12.0L
+            + inv4 / 120.0L
+            - inv6 / 252.0L
+            + inv8 / 240.0L;
+}
 
 /* ----------  Harmonic number helpers  ---------- */
 

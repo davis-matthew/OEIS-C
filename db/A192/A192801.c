@@ -9,12 +9,14 @@
  *            a(2) = 4
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoisation array */
 static size_t cached_size = 0;       /* number of elements stored */
@@ -24,8 +26,8 @@ seq_t a(idx_t n) {
     if ((size_t)(n + 1) > cached_size) {
         size_t new_size = (size_t)(n + 1);
         seq_t *new_cache = cached_size == 0
-                ? (seq_t*)malloc(new_size * sizeof(seq_t))
-                : (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+                ? mem_new(seq_t, new_size)
+                : mem_resize(seq_t, cache, new_size);
         if (!new_cache) {
             /* Out of memory – terminate the program */
             abort();

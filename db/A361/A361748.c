@@ -9,9 +9,10 @@
  * Formula:   a(n) is the n‑th element of a triangle built greedily: each row
  *            starts with the smallest unused positive integer m, and the row
  *            contains the first n unused multiples of m
- * Range:     u8 n <= 89, u16 n <= 6780, u32 n <= 9699, u64 n <= 9699,
- *            u128 n <= 9699, big any n
- * Helpers:   none
+ * Range:     u8 n <= 89, u16 n <= 6780, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 82 terms through n = 9699 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static storage for generated terms and bookkeeping */
 static seq_t *terms = NULL;          // flattened sequence
@@ -57,7 +59,7 @@ static void ensure_terms_capacity(size_t need)
     if (need <= terms_cap) return;
     size_t new_cap = terms_cap ? (terms_cap * 2) : 1;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     terms = tmp;
     terms_cap = new_cap;

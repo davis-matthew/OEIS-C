@@ -8,6 +8,7 @@
  *            (n+1)-st primes
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 22, u64 n <= 29, u128 n <= 98,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 1783 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,12 +12,14 @@
  *            from the last computed row
  * Range:     u8 n <= 18, u16 n <= 39, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of rows and results */
@@ -30,9 +32,9 @@ seq_t a(idx_t n) {
     /* initialise on first call */
     if (!prev) {
         cap = 1;
-        prev = (seq_t *)malloc(cap * sizeof(seq_t));
-        curr = (seq_t *)malloc(cap * sizeof(seq_t));
-        a_cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        prev = mem_new(seq_t, cap);
+        curr = mem_new(seq_t, cap);
+        a_cache = mem_new(seq_t, cap);
         if (!prev || !curr || !a_cache) return 0;  /* memory failure */
         prev[0] = (seq_t)1;
         a_cache[0] = (seq_t)1;
@@ -42,9 +44,9 @@ seq_t a(idx_t n) {
     /* enlarge allocation if needed */
     if ((idx_t)(cap) <= n) {
         size_t new_cap = (size_t)(n + 1);
-        prev = (seq_t *)realloc(prev, new_cap * sizeof(seq_t));
-        curr = (seq_t *)realloc(curr, new_cap * sizeof(seq_t));
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        prev = mem_resize(seq_t, prev, new_cap);
+        curr = mem_resize(seq_t, curr, new_cap);
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         if (!prev || !curr || !a_cache) return 0;  /* memory failure */
         cap = new_cap;
     }

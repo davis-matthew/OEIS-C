@@ -6,15 +6,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, fini, full
  * Formula:   a(n) = coefficient of q^n in (1-q)^36*(1-q^3)^8*(1-q^6)^2
- * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 9, i64 n <= 72, i128 n <= 72,
+ * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 12, i64 n <= 72, i128 n <= 72,
  *            big any n
- * Helpers:   binom
+ * Validated: full, pass, 73 terms through n = 72 (2026-11-02)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -25,9 +27,9 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         for (idx_t i = 0; i <= 36; ++i)
-            binom36[i] = binom((idx_t)36, i);
+            binom36[i] = binomial((idx_t)36, i);
         for (idx_t j = 0; j <= 8; ++j)
-            binom8[j] = binom((idx_t)8, j);
+            binom8[j] = binomial((idx_t)8, j);
         binom2[0] = 1;          /* C(2,0) */
         binom2[1] = 2;          /* C(2,1) */
         binom2[2] = 1;          /* C(2,2) */

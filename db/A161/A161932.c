@@ -7,6 +7,7 @@
  * Formula:   a(n) = coefficient of ∏_{k=1}^{25} (1 + x + … + x^{2k-1})
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 13, u64 n <= 53, u128 n <= 625,
  *            big any n
+ * Validated: full, pass, 626 terms through n = 625 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

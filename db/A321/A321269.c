@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: standard, pass, 42 terms through n = 1639 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,10 @@
    Initial values: a(1)=a(2)=a(3)=0
 */
 
-#include "../utils/big_pow.h"
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* Return the nth term of A321269.
    n=1 is the first term in the OEIS offset.               */
@@ -40,16 +43,16 @@ seq_t a(idx_t n)
     const seq_t ns = (seq_t)n;
 
     /* Powers of small integers – big_pow works for arbitrary exponents.  */
-    seq_t pow4n  = big_pow((seq_t)4, (seq_t)n);           /* 4^n          */
-    seq_t pow3n1 = big_pow((seq_t)3, (seq_t)(n - 1));     /* 3^(n-1)      */
-    seq_t pow2n2 = big_pow((seq_t)2, (seq_t)(n - 2));     /* 2^(n-2)      */
+    seq_t pow4n  = ipow((seq_t)4, (seq_t)n);           /* 4^n          */
+    seq_t pow3n1 = ipow((seq_t)3, (seq_t)(n - 1));     /* 3^(n-1)      */
+    seq_t pow2n2 = ipow((seq_t)2, (seq_t)(n - 2));     /* 2^(n-2)      */
     seq_t pow2n  = pow2n2 * (seq_t)4;                     /* 2^n          */
 
     /* binomial coefficients – binom accepts idx_t arguments.      */
-    seq_t b2 = binom(n, 2);
-    seq_t b3 = binom(n, 3);
-    seq_t b4 = binom(n, 4);
-    seq_t b5 = binom(n, 5);
+    seq_t b2 = binomial(n, 2);
+    seq_t b3 = binomial(n, 3);
+    seq_t b4 = binomial(n, 4);
+    seq_t b5 = binomial(n, 5);
 
     /* Assemble the formula.  All intermediate results fit in seq_t. */
     seq_t pos = pow4n

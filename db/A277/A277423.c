@@ -8,13 +8,15 @@
  *            binomial(n,k)^2 (OTTE: OEIS A277423)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 18, i128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 408 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* external utilities; their prototypes are already provided elsewhere */
 seq_t factorial(idx_t n);
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     seq_t binom = 1;       /* C(n,0) = 1 */
 
     /* pre‑compute powers of n: pow[e] = n^e, e = 0..n */
-    seq_t *pow = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *pow = mem_new(seq_t, (n + 1));
     if (!pow) return 0;    /* allocation failure – fallback to 0 */
     pow[0] = 1;
     for (idx_t e = 1; e <= n; ++e)
@@ -55,6 +57,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(pow);
+    mem_free(pow);
     return sum;
 }

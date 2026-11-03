@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 64 terms through n = 978 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 /* Return the n‑th element of the sequence (1‑based index). */
 seq_t a(idx_t n)
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     while (cache_len < n)
     {
         /* Compute 2^next_candidate modulo next_candidate. */
-        seq_t pow_mod = mod_pow((seq_t)2,
+        seq_t pow_mod = powmod((seq_t)2,
                                 (uint64_t)next_candidate,
                                 (seq_t)next_candidate);
 

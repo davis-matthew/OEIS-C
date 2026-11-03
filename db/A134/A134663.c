@@ -9,15 +9,22 @@
  *            k, 0 ≤ k ≤ 4r. (The triangle is read row by row.)
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   binomial, terms_before128
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/terms_before128.h"
+
+/* terms_before(r) = number of entries in rows 0 .. r-1 */
+static inline __int128 terms_before128(idx_t r)
+{
+    return (__int128)2 * r * r - r;
+}
 
 static inline idx_t terms_before(idx_t r)
 {

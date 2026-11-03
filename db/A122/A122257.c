@@ -7,8 +7,9 @@
  * Formula:   a(n) = 1 if n is a Pierpont prime (prime of the form 2^u * 3^v +
  *            1), else 0. Equivalent to: a(n) = 1 if n is prime and n-1 has no
  *            prime factors > 3, else 0
- * Range:     u8 n <= 9850, u16 n <= 9850, u32 n <= 9850, u64 n <= 9850,
- *            u128 n <= 9850, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9850 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -14,14 +14,20 @@
  *            can be made from an n × k * sheet of paper. Th...
  * Range:     u8 n <= 105, u16 n <= 4466, u32 n <= 9872, u64 n <= 9872,
  *            u128 n <= 9872, big any n
- * Helpers:   volume
+ * Validated: standard, pass, 84 terms through n = 9751 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/volume.h"
+
+/* Volume of a box for a given n, k and x. */
+static inline seq_t volume(idx_t N, idx_t K, idx_t x)
+{
+    return (seq_t)(N - 2 * x) * (seq_t)(K - 2 * x) * (seq_t)x;
+}
 
 /* Integer square root for uint64_t: floor(sqrt(v)) */
 static inline idx_t int_sqrt_u64(idx_t v)

@@ -9,7 +9,8 @@
  *            binomial(n-i-1, i-1)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 35, u128 n <= 68,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 45 terms through n = 981 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 /* where Catalan(0)=1, binomial(m,k)=0 if k<0 or k>m.                      */
 
 #include <stdint.h>
-#include "../utils/pow_int.h"   /* big integer exponentiation */
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     /* Special cases for small n */
@@ -30,7 +31,7 @@ seq_t a(idx_t n) {
     seq_t sum = 0;
 
     /* 3^(n-2) will be the first power used (i = 1) */
-    seq_t pow3_cur = pow_int((seq_t)3, n - 2);
+    seq_t pow3_cur = ipow_idx((seq_t)3, n - 2);
 
     /* Catalan numbers are generated on the fly:
        C(0) = 1

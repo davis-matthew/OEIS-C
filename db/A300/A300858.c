@@ -11,17 +11,43 @@
  *            components
  * Range:     i8 n <= 274, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   count_in, dfs_count_in, divisor_count_u64, factorize
+ * Validated: standard, pass, 92 terms through n = 9190 (2026-11-01)
+ * Helpers:   factorize, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factorize.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/count_in.h"
-#include "../utils/dfs_count_in.h"
+#include "../utils/num_divisors.h"
+
+static void dfs_count_in(idx_t idx, uint64_t prod, idx_t n,
+                         const uint64_t *primes, size_t pr_cnt,
+                         seq_t *cnt) {
+    if (idx == pr_cnt) {
+        if (prod > 1 && prod <= n && n % prod != 0)
+            (*cnt)++;
+        return;
+    }
+    uint64_t p = primes[idx];
+    uint64_t v = prod;
+    /* exponent 0 */
+    dfs_count_in(idx + 1, v, n, primes, pr_cnt, cnt);
+    /* exponents ≥ 1 */
+    while (v <= n / p) {
+        v *= p;
+        dfs_count_in(idx + 1, v, n, primes, pr_cnt, cnt);
+    }
+}
+
+static seq_t count_in(idx_t n, const uint64_t *primes, size_t pr_cnt) {
+    seq_t cnt = 0;
+    dfs_count_in(0, 1, n, primes, pr_cnt, &cnt);
+    return cnt;
+}
 
 seq_t a(idx_t n) {
     /* compute φ(n) */
@@ -34,7 +60,7 @@ seq_t a(idx_t n) {
         phi -= phi / (seq_t)primes[i];
 
     /* compute d(n) */
-    seq_t d = (seq_t)divisor_count_u64((uint64_t)n);
+    seq_t d = (seq_t)num_divisors((uint64_t)n);
 
     /* total nondivisors in the cototient of n */
     seq_t tot = (seq_t)n - phi - d + 1;

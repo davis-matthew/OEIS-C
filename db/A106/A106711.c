@@ -10,15 +10,53 @@
  *            a(5) = 23,
  * Range:     u8 n <= 18, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   generate_next_prime, is_prime_uint64
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/generate_next_prime.h"
-#include "../utils/is_prime_uint64.h"
+#include <stdint.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Ensure an array of uint64_t is large enough to hold indexes [0..min_needed] */
+static void ensure_uint64_array(uint64_t **arr, size_t *cap, size_t min_needed)
+{
+    if (*cap <= min_needed) {
+        size_t newcap = (*cap) ? (*cap) * 2 : 64;
+        if (newcap <= min_needed) newcap = min_needed + 1;
+        *arr = (uint64_t *)realloc(*arr, newcap * sizeof(uint64_t));
+        *cap = newcap;
+    }
+}
+
+/* Generate the next prime after last */
+static uint64_t generate_next_prime(uint64_t last,
+                                    uint64_t **primes, size_t *cnt, size_t *cap)
+{
+    uint64_t candidate = last + 1;
+    if (candidate <= 2) candidate = 2;
+    if (candidate > 2 && (candidate & 1) == 0) ++candidate;  /* start from odd */
+
+    for (;;) {
+        bool prime = true;
+        for (size_t i = 0; i < *cnt; ++i) {
+            uint64_t p = (*primes)[i];
+            if (p * p > candidate) break;
+            if (candidate % p == 0) { prime = false; break; }
+        }
+        if (prime) {
+            ensure_uint64_array(primes, cap, *cnt);
+            (*primes)[*cnt] = candidate;
+            ++(*cnt);
+            return candidate;
+        }
+        candidate += 2;
+    }
+}
 
 static seq_t *terms = NULL;            /* array of sequence terms */
 static size_t terms_len = 0, terms_cap = 0;
@@ -37,14 +75,14 @@ static bool digit_sum_is_prime(uint64_t p) {
         s += p % 10;
         p /= 10;
     }
-    return is_prime_uint64(s);
+    return is_prime_u64(s);
 }
 
 /* append a new term to the dynamic array */
 static void append_term(uint64_t v) {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap == 0 ? 16 : terms_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) exit(1);
         terms = tmp;
         terms_cap = new_cap;

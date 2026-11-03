@@ -12,13 +12,15 @@
  *            a(6)=1893780, a(7)=9714968, a(8)=35251360, a(9)=119069850...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 12, u64 n <= 139, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 1‑based cache; cache[0] is unused. */
 static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ static size_t cache_len = 0;   /* number of allocated slots (>= current max n+1)
 /* Allocate and fill the first 17 values (including a dummy 0 index). */
 static void init_cache(void)
 {
-    cache = (seq_t *)malloc(18 * sizeof(seq_t));
+    cache = mem_new(seq_t, 18);
     if (!cache) exit(EXIT_FAILURE);
 
     cache[0] = (seq_t)0;
@@ -56,7 +58,7 @@ static void init_cache(void)
 static void ensure_cache(size_t needed)
 {
     if (needed <= cache_len) return;
-    seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, needed);
     if (!tmp) exit(EXIT_FAILURE);
     cache = tmp;
     cache_len = needed;

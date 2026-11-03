@@ -7,18 +7,21 @@
  * Formula:   a(n) = 2*12^n - 6^n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 38 terms through n = 739 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     /* 12^n and 6^n via binary exponentiation */
-    seq_t pow12n = seq_pow(12, n);
-    seq_t pow6n  = seq_pow(6, n);
+    seq_t pow12n = ipow_idx(12, n);
+    seq_t pow6n  = ipow_idx(6, n);
 
     /* a(n) = 2*12^n - 6^n */
     seq_t result = pow12n;

@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, frac, easy
  * Formula:   a(n) = numerator of (n^2 * 2^n) / binom(2n, n)
- * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 16, u64 n <= 30, u128 n <= 30,
+ * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 17, u64 n <= 30, u128 n <= 30,
  *            big any n
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,10 @@
 
 /* i.e. a(n) = (n^2 * 2^n) / gcd(n^2 * 2^n, binom(2n, n)) */
 
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 /* Euclidean gcd for arbitrary-precision seq_t types */
 static seq_t my_gcd(seq_t a, seq_t b)

@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{k=0..n} 3^k * binomial(k+2,2) * binomial(4*n+4,n-k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* initial binomial coefficient C(4*n+4, n) */
     idx_t upper = 4 * n + 4;
     idx_t r     = n;                 /* current argument in C(upper, r) */
-    seq_t c     = binom(upper, r);   /* binom returns seq_t */
+    seq_t c     = binomial(upper, r);   /* binom returns seq_t */
 
     for (idx_t k = 0; k <= n; ++k) {
         /* binomial(k+2,2) = (k+2)*(k+1)/2 */

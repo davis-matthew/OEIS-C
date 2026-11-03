@@ -9,13 +9,15 @@
  *            9 4 : 29 5 : 99 6 : 354 7 : 1290 8 : 4762 9 : 17663 10 : 65733
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build */
 static seq_t *memo = NULL;          /* array holding values a(3) .. a(max computed) */
@@ -25,7 +27,7 @@ static const idx_t offset = 3;      /* a(3) is stored at memo[0] */
 /* initialize memo with the first 8 values (a(3)..a(10)) */
 static void init_memo(void) {
     if (memo != NULL) return;
-    memo = (seq_t *)malloc(8 * sizeof(seq_t));
+    memo = mem_new(seq_t, 8);
     memo_size = 8;
     memo[0] = 9;
     memo[1] = 29;
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     /* grow memo array if needed */
     if (n >= offset + memo_size) {
         idx_t needed = n - offset + 1;        /* total entries required */
-        memo = (seq_t *)realloc(memo, needed * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, needed);
         /* compute new entries */
         for (idx_t i = memo_size; i < needed; ++i) {
             /* indices in memo correspond to a(3), a(4), ... */

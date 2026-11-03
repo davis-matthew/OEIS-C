@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    if a(n‑1)=1 then a(n)=2; if a(n‑1)=2 then a(n)=3; if a(n‑1)=3 then a(n)=1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
     if (n >= cap) {
         size_t new_cap = (cap == 0) ? 4 : (size_t)cap * 2;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        A = (seq_t *)realloc(A, sizeof(seq_t) * (new_cap + 1));
-        S = (seq_t *)realloc(S, sizeof(seq_t) * (new_cap + 1));
+        A = mem_resize(seq_t, A, (new_cap + 1));
+        S = mem_resize(seq_t, S, (new_cap + 1));
         cap = (idx_t)new_cap;
     }
 

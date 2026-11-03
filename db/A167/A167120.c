@@ -8,12 +8,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence: a(n) = 20*a(n-1) - 64*a(n-2) + 1,
    with initial values a(0)=1, a(1)=22, a(2)=376 */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* allocate and initialise cache on first use */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((size_t)3 * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)3);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)22;
         cache[2] = (seq_t)376;
@@ -43,8 +45,7 @@ seq_t a(idx_t n)
     }
 
     /* grow the cache to hold the new index */
-    seq_t *tmp = (seq_t *)realloc(cache,
-                                  (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
     if (tmp == NULL) {
         /* allocation failure – abort (unlikely in test environment) */
         abort();

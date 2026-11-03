@@ -8,14 +8,17 @@
  * Formula:   a(n) = n + d(n)
  * Range:     u8 n <= 239, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _divisor_count_u64
+ * Validated: standard, pass, 87 terms through n = 921 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* where d(n) = number of positive divisors of n  */
 
-#include "../utils/_divisor_count_u64.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -23,5 +26,5 @@ seq_t a(idx_t n)
        The helper _divisor_count_u64 works on uint64_t and returns the
        number of divisors of n.  Casting to seq_t ensures the result is
        computed in the correct integer width for this build.  */
-    return (seq_t)n + (seq_t)_divisor_count_u64(n);
+    return (seq_t)n + (seq_t)num_divisors(n);
 }

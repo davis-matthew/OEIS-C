@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 511, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_idx_array_capacity
+ * Validated: standard, pass, 91 terms through n = 8462 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/ensure_idx_array_capacity.h"
+#include "../utils/mem.h"
+
+/* Ensure there is space for at least 'req' elements in an array of idx_t */
+static void ensure_idx_array_capacity(idx_t **ptr, size_t *cap, size_t req)
+{
+    if (*cap >= req) return;
+    size_t new_cap = (*cap == 0) ? 4 : *cap;
+    while (new_cap < req) new_cap <<= 1;
+    idx_t *new_ptr = (idx_t *)realloc(*ptr, new_cap * sizeof *new_ptr);
+    *ptr = new_ptr;
+    *cap = new_cap;
+}
 
 /* Helper structure for storing the list of indices at which a value occurs */
 struct IndexList {
@@ -95,7 +107,7 @@ seq_t a(idx_t n)
     if ((size_t)n > values_cap) {
         size_t new_cap = (values_cap == 0) ? 16 : values_cap << 1;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *new_vals = (seq_t *)realloc(values, new_cap * sizeof *new_vals);
+        seq_t *new_vals = mem_resize(seq_t, values, (new_cap * sizeof *new_vals) / sizeof(seq_t));
         values = new_vals;
         values_cap = new_cap;
         /* initialise new slots to zero (unknown) */

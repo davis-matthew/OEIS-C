@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute integer triangular number r*(r+1)/2 safely */
 static inline idx_t triangular(idx_t r)
@@ -68,8 +70,8 @@ seq_t a(idx_t n)
     idx_t c   = n - start;
 
     /* allocate two rows of size r+1 */
-    seq_t *prev = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(r + 1));
+    seq_t *curr = mem_new(seq_t, (size_t)(r + 1));
     if (!prev || !curr) return (seq_t)0;  /* out of memory fallback */
 
     prev[0] = (seq_t)1;                     /* T(0,0) = 1 */
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
     /* result is prev[c] after the last iteration (row r) */
     seq_t result = prev[c];
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

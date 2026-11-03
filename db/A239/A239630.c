@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Compute a(1..∞) by a 0‑1 knapsack over ordinary primes.               */
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     /* DP: dp[k] = minimal product achieving weight k  (0 ≤ k ≤ n).    */
     /* A value of 0 denotes an unreachable state.                      */
     /* ---------------------------------------------------------------- */
-    seq_t *dp = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
     if (!dp) { free(primes); exit(EXIT_FAILURE); }
     dp[0] = (seq_t)1;   /* weight 0 achieved by empty product */
 
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     free(primes);
     return result;
 }

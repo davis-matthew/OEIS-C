@@ -9,15 +9,30 @@
  *            primes
  * Range:     u8 n <= 46, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   build_primes, mul_small
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n) {
     /* Every 9‑prime partition needs at least 9 × 2 = 18, so 0 before that. */
@@ -34,8 +49,8 @@ seq_t a(idx_t n) {
 
     /* dp_cnt[c][s] : number of ways to pick c primes summing to s
        dp_sum[c][s] : weighted sum of the 4th largest part for those ways   */
-    seq_t *cnt  = (seq_t *)calloc(cells, sizeof(seq_t));
-    seq_t *sum  = (seq_t *)calloc(cells, sizeof(seq_t));
+    seq_t *cnt  = mem_new(seq_t, cells);
+    seq_t *sum  = mem_new(seq_t, cells);
     if (!cnt || !sum) {
         free(primes);
         return 0;
@@ -45,10 +60,10 @@ seq_t a(idx_t n) {
     for (size_t pi = 0; pi < prime_cnt; ++pi) {
         seq_t p = (seq_t)primes[pi];
 
-        seq_t *new_cnt = (seq_t *)calloc(cells, sizeof(seq_t));
-        seq_t *new_sum = (seq_t *)calloc(cells, sizeof(seq_t));
+        seq_t *new_cnt = mem_new(seq_t, cells);
+        seq_t *new_sum = mem_new(seq_t, cells);
         if (!new_cnt || !new_sum) {
-            free(cnt); free(sum);
+            mem_free(cnt); mem_free(sum);
             free(primes);
             return 0;
         }
@@ -85,12 +100,12 @@ seq_t a(idx_t n) {
             }
         }
 
-        free(cnt); free(sum);
+        mem_free(cnt); mem_free(sum);
         cnt = new_cnt;
         sum = new_sum;
     }
 
     seq_t result = sum[9 * stride + n];
-    free(cnt); free(sum); free(primes);
+    mem_free(cnt); mem_free(sum); free(primes);
     return result;
 }

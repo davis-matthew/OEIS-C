@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = (75*a(n-1) + 74) mod 65537, a(1) = 1
- * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 9388, u64 n <= 9388,
- *            u128 n <= 9388, big any n
+ * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 58 terms through n = 9388 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

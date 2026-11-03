@@ -10,14 +10,23 @@
  *            v_p((2n)!)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 21, u64 n <= 34, u128 n <= 65,
  *            big any n
- * Helpers:   a004677_legendre
+ * Validated: standard, pass, 44 terms through n = 949 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a004677_legendre.h"
+
+static int64_t a004677_legendre(idx_t m, idx_t p) {
+    int64_t e = 0;
+    while (m > 0) {
+        m /= p;
+        e += (int64_t)m;
+    }
+    return e;
+}
 
 seq_t a(idx_t n) {
     idx_t lim = 3 * n + 2;

@@ -11,6 +11,7 @@
  *            a_i·(i+s)!. a(0) is defined as 2
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 16, u64 n <= 28, u128 n <= 36,
  *            big any n
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

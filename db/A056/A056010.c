@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 20, u64 n <= 37, u128 n <= 72,
  *            big any n
- * Helpers:   prod_mul
+ * Validated: standard, pass, 43 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/prod_mul.h"
+#include "../utils/mem.h"
+
+/* Product helper – uses 128‑bit intermediate for integer seq_t types. */
+static inline seq_t prod_mul(seq_t x, seq_t y)
+{
+#if defined(__cplusplus)
+    return x * y;                /* C++ builds (big‑int types) */
+#else
+    /* C build – seq_t is an unsigned integer type. */
+    return (seq_t)((unsigned __int128)x * (unsigned __int128)y);
+#endif
+}
 
 static seq_t *A = NULL;    /* dynamic array for values a(0)..a(k) */
 static size_t A_cap = 0;   /* current allocated capacity */
@@ -30,7 +42,7 @@ static void ensure_cap(size_t min_cap)
     if (A_cap >= min_cap) return;
     size_t new_cap = (A_cap > 0) ? A_cap : 4;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A, new_cap);
     if (!tmp) return;            /* allocation failure will be caught later */
     for (size_t i = A_cap; i < new_cap; ++i) tmp[i] = (seq_t)0;
     A = tmp;

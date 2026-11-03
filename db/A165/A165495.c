@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
         /* divisor_count_u64 expects a uint64_t argument; the current
          * k is guaranteed to fit in 64 bits for the range of n of
          * interest (up to ~10⁴). */
-        uint64_t dt = divisor_count_u64((uint64_t)k);
+        uint64_t dt = num_divisors((uint64_t)k);
         k += (seq_t)dt;
     } while ((k % (seq_t)4U) == 0U);
 

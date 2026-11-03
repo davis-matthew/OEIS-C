@@ -11,7 +11,8 @@
  *            (r+1)(r+2)/2; let offset = n - r(r+1)/2; then a(n)=T(r...
  * Range:     u8 n <= 15, u16 n <= 46, u32 n <= 139, u64 n <= 472,
  *            u128 n <= 1325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1296 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;   /* rows of the triangle T(n,k) */
 static idx_t max_row = 0;         /* highest row that has been built */
@@ -33,7 +35,7 @@ static void build_rows_to(idx_t r)
         max_row = 0;
 
         /* Row 0: only one element 1. */
-        triangle[0] = (seq_t *)calloc(1, sizeof(seq_t));
+        triangle[0] = mem_new(seq_t, 1);
         triangle[0][0] = (seq_t)1;
     }
 
@@ -45,7 +47,7 @@ static void build_rows_to(idx_t r)
 
     for (idx_t i = max_row + 1; i <= r; ++i) {
         /* Row i has i+1 elements. */
-        triangle[i] = (seq_t *)calloc(i + 1, sizeof(seq_t));
+        triangle[i] = mem_new(seq_t, i + 1);
 
         if (i == 1) {  /* base case for row 1 */
             triangle[i][0] = (seq_t)1;

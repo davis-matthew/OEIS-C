@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Coefficient array d[0..15] for the recurrence. */
 static const int d_coeff[16] = {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache. */
     if (cache == NULL) {
         cap  = 2;                  /* minimal capacity, will expand later */
-        cache = (seq_t *)malloc((cap+1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cap+1));
         if (cache == NULL) return 0;  /* allocation failure -> 0 */
         cache[0] = 0;
     }
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         while (newcap < (size_t)n) {
             newcap <<= 1;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, (newcap+1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (newcap+1));
         if (tmp == NULL)
             return 0;          /* allocation failure */
         cache = tmp;

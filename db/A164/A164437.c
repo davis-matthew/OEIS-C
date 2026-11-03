@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 41, u64 n <= 84, u128 n <= 170,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 1827 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Recursive computation with memoisation.  seq[n] holds a(n) and
  * dp[code] holds the number of strings of the current length whose
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
      * ----------------------------------------------------------------- */
     if (seq == NULL) {
         seq_alloc = 1;
-        seq = (seq_t *)calloc(seq_alloc, sizeof(seq_t));
+        seq = mem_new(seq_t, seq_alloc);
         if (seq == NULL) return (seq_t)0;   /* allocation failure */
         seq[0] = 1;                          /* a(0) = 1 */
         dp[0] = 1;                            /* empty suffix */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
      * ----------------------------------------------------------------- */
     if ((size_t)n + 1 > seq_alloc) {
         size_t new_alloc = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(seq, new_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_alloc);
         if (tmp == NULL) return (seq_t)0;   /* allocation failure */
         seq = tmp;
         seq_alloc = new_alloc;

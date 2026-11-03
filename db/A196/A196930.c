@@ -11,9 +11,10 @@
  *            that does not use the part 1, with the entries for a row sorted
  *            nondecreasing. The function builds the triangle row by row until
  *            it reaches the required index
- * Range:     u8 n <= 9138, u16 n <= 9138, u32 n <= 9138, u64 n <= 9138,
- *            u128 n <= 9138, big any n
- * Helpers:   cmp_seq_asc, gen_parts
+ * Range:     u8 n <= 10143, u16 n <= 10143, u32 n <= 10143, u64 n <= 10143,
+ *            u128 n <= 10143, big any n
+ * Validated: standard, pass, 117 terms through n = 9138 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,36 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/cmp_seq_asc.h"
-#include "../utils/gen_parts.h"
+#include "../utils/mem.h"
+
+/* Simple comparison for qsort to sort ascending */
+static int cmp_seq_asc(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
+
+/* Recursive generation of partitions of `rem` with parts no larger
+   than `max_part` and all ≥ 2.  When a partition is complete
+   its last element (the smallest part) is appended to `small`.
+   `len` counts elements in `parts`. */
+static void gen_parts(idx_t rem, idx_t max_part,
+                      seq_t *parts, size_t len,
+                      seq_t *small, size_t *small_len)
+{
+    if (rem == 0) {
+        if (len > 0)        /* the last inserted part is the smallest */
+            small[(*small_len)++] = parts[len - 1];
+        return;
+    }
+    for (idx_t part = (rem < max_part ? rem : max_part); part >= 2; --part) {
+        parts[len] = part;
+        gen_parts(rem - part, part, parts, len + 1, small, small_len);
+    }
+}
 
 /* Cache of the flattened triangle */
 static seq_t *cache = NULL;          /* flattened values   */
@@ -40,7 +69,7 @@ static void push_value(seq_t v)
 {
     if (cache_used == cache_cap) {
         cache_cap = cache_cap ? cache_cap * 2 : 16;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_used++] = v;
 }
@@ -66,7 +95,7 @@ static void build_until(idx_t n)
         gen_parts(current_row, current_row, parts, 0, smallest, &small_len);
 
         /* Sort the smallest parts to obtain the row in nondecreasing order */
-        qsort(smallest, small_len, sizeof(seq_t), cmp_seq_asc);
+        mem_qsort(smallest, small_len, sizeof(seq_t), cmp_seq_asc);
 
         /* Append the sorted row to the cache */
         for (size_t i = 0; i < small_len; ++i)

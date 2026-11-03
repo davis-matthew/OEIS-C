@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   div_ceil128, div_floor128
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/div_ceil128.h"
-#include "../utils/div_floor128.h"
+
+/* ceil division of signed __int128 numerator by positive uint64_t denominator */
+static inline uint64_t div_ceil128(__int128 num, uint64_t den) {
+    if (num >= 0) return (uint64_t)((num + (den - 1)) / den);
+    return (uint64_t)(num / den);          /* truncates toward zero == ceil for negative */
+}
+
+/* floor division of signed __int128 numerator by positive uint64_t denominator */
+static inline uint64_t div_floor128(__int128 num, uint64_t den) {
+    return (uint64_t)(num / den);           /* truncates toward zero which is floor for positive */
+}
 
 static inline uint64_t floor_sqrt_u64(uint64_t x) {
     uint64_t r = (uint64_t) sqrtl((long double)x);

@@ -8,13 +8,24 @@
  *            of 2 removed
  * Range:     u8 n <= 1364, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   modPow_uint64
+ * Validated: standard, pass, 113 terms through n = 9944 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/modPow_uint64.h"
+
+static uint64_t modPow_uint64(uint64_t base, uint64_t exp, uint64_t mod) {
+    uint64_t res = 1 % mod;
+    base %= mod;
+    while (exp) {
+        if (exp & 1ULL) res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return res;
+}
 
 static uint64_t phi_uint64(uint64_t n) {
     uint64_t result = n;

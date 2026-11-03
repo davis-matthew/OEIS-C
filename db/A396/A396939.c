@@ -10,19 +10,21 @@
  *            sequence is enumerated starting at n = 1
  * Range:     u8 n <= 229, u16 n <= 9696, u32 n <= 9696, u64 n <= 9696,
  *            u128 n <= 9696, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 83 terms through n = 9616 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Return true if x has an isolated single 1 or an isolated double 1
    in its binary expansion. */
 static bool has_isolated(seq_t x)
 {
-    unsigned len = bitlen_seq_t(x);          /* number of used bits */
+    unsigned len = bit_length(x);          /* number of used bits */
 
     /* Check for isolated single 1 */
     for (unsigned k = 0; k < len; ++k) {

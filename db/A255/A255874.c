@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper to compute f(n,k) */
 static seq_t *prefix_buf = NULL;      /* dynamic buffer for prefix sums   */
@@ -33,7 +35,7 @@ static idx_t  prefix_cap = 0;         /* current capacity of prefix_buf   */
 static void ensure_prefix_cap(idx_t n)
 {
     if (prefix_cap < n + 1) {
-        seq_t *tmp = (seq_t *)realloc(prefix_buf, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prefix_buf, (n + 1));
         /* If realloc fails, we keep the old buffer; the function
            will still work for smaller n.  In typical usage it never
            fails because n never grows beyond the values seen.      */

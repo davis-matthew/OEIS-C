@@ -8,14 +8,15 @@
  *            1‑based row and column indices, respectively
  * Range:     i8 n <= 35, i16 n <= 5050, i32 n <= 5050, i64 n <= 5050,
  *            i128 n <= 5050, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 82 terms through n = 4987 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The index n (1‑based) maps to (m,k) via the triangular numbers. */
 #include <stdint.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 static inline idx_t triangular(idx_t m) {
     return (idx_t)(((__int128)m * (m + 1)) / 2);
@@ -24,7 +25,7 @@ static inline idx_t triangular(idx_t m) {
 seq_t a(idx_t n) {
     /* n is guaranteed >= 1 for the problem specification. */
     idx_t t = 8ull * n + 1ull;
-    idx_t sqrt_t = int_sqrt(t);                 /* floor(sqrt(8n+1)) */
+    idx_t sqrt_t = isqrt(t);                 /* floor(sqrt(8n+1)) */
     idx_t m = (sqrt_t - 1) / 2;                 /* candidate row */
     /* Ensure triangular(m) >= n, adjust if necessary. */
     while (triangular(m) < n) ++m;

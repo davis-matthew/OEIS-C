@@ -7,7 +7,8 @@
  * Formula:   a(n) = 5*a(n-1) - 288*(n-1)*a(n-2). a(0)=1, a(1)=5
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 6, i64 n <= 12, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 420 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,10 +28,10 @@ seq_t a(idx_t n)
     /* ensure capacity */
     if (n + 1 > allocated) {
         idx_t new_cap = n + 1;
-        seq_t *new_mem = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_mem = mem_new(seq_t, new_cap);
         if (allocated > 0) {
-            memcpy(new_mem, cache, allocated * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_mem, cache, allocated * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_mem;
         allocated = new_cap;

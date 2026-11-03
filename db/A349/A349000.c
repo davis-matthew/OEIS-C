@@ -8,9 +8,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, look
  * Formula:   a(n) = A323166(A276086(n))
- * Range:     u8 n <= 14, u16 n <= 58, u32 n <= 826, u64 n <= 9862,
- *            u128 n <= 9862, big any n
- * Helpers:   factor_u64, gcd, seq_pow
+ * Range:     u8 n <= 14, u16 n <= 58, u32 n <= 826, u64 n <= 11550,
+ *            u128 n <= 11550, big any n
+ * Validated: standard, pass, 106 terms through n = 9862 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
 
 static const uint64_t PRIMES[] = {
     2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         idx_t digit = remaining / (idx_t)weight;
         remaining %= (idx_t)weight;
         if (digit > 0) {
-            seq_t p_pow = seq_pow((seq_t)PRIMES[i], (idx_t)digit);
+            seq_t p_pow = ipow_idx((seq_t)PRIMES[i], (idx_t)digit);
             m *= p_pow;
         }
     }
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
     factor_u64(m64, pr, ex, &cnt);
 
     for (size_t i = 0; i < cnt; ++i) {
-        seq_t p_pow = seq_pow((seq_t)pr[i], (idx_t)ex[i]);
+        seq_t p_pow = ipow_idx((seq_t)pr[i], (idx_t)ex[i]);
         usigma *= (p_pow + (seq_t)1);
     }
 

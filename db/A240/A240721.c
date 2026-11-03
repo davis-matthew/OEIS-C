@@ -9,12 +9,14 @@
  *            4*(3*n+1)*(2*n-1)*a(n-2) = 0, with a(0) = 1, a(1) = 7
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 915 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* array of computed terms */
 static idx_t  cache_max = 0;       /* highest index already stored */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         /* Allocate at least enough space for n+1, but avoid sending
            zero to malloc.  Use 2 for the trivial small cases. */
         cache_cap = (n >= 1 ? (size_t)(n + 1) : 2);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return 0;            /* allocation failed */
         cache[0] = (seq_t)1;                    /* a(0) */
         if (cache_cap > 1)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if ((size_t)(cache_max + 1) <= n) {
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;   /* double until enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return 0;                    /* realloc failed */
         cache = tmp;
         cache_cap = new_cap;

@@ -10,14 +10,31 @@
  *            row 0. a(n) gives the flattened sequence (row-major)
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 90, u64 n <= 230,
  *            u128 n <= 629, big any n
- * Helpers:   index_to_row
+ * Validated: standard, pass, 71 terms through n = 1319 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/index_to_row.h"
+#include "../utils/mem.h"
+
+/* map linear index to triangle row number n such that
+   n*(n+1)/2 <= idx < (n+1)*(n+2)/2 */
+static idx_t index_to_row(idx_t idx)
+{
+    double d = sqrt((double)idx * 8.0 + 1.0);
+    idx_t n = (idx_t)((d - 1.0) * 0.5);
+
+    /* adjust for possible rounding error */
+    while ((n + 1) * (n + 2) / 2 <= idx)
+        ++n;
+    while (n * (n + 1) / 2 > idx)
+        --n;
+
+    return n;
+}
 
 /* cache of factorials */
 static seq_t *fact_cache = NULL;
@@ -30,7 +47,7 @@ static void ensure_fact(idx_t n)
         return;
 
     idx_t new_cap = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(fact_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, fact_cache, new_cap);
     if (new_cache == NULL)
         abort();                      /* out of memory */
 

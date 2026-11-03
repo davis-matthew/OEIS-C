@@ -8,12 +8,14 @@
  *            Σ_{k=0}^{m} C(m,k) * Bell(k) (m ≥ 0)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *Bell = NULL;          /* array of Bell numbers */
 static idx_t Bell_len = 0;          /* number of computed Bell numbers (0 .. Bell_len-1) */
@@ -24,7 +26,7 @@ static void ensure_capacity(size_t new_cap) {
     if (Bell_cap >= new_cap) return;
     size_t old_cap = Bell_cap;
     Bell_cap = new_cap;
-    Bell = (seq_t *)realloc(Bell, Bell_cap * sizeof(seq_t));
+    Bell = mem_resize(seq_t, Bell, Bell_cap);
     if (!Bell) exit(1);
     /* initialise the newly added elements to zero */
     for (size_t i = old_cap; i < Bell_cap; ++i) Bell[i] = (seq_t)0;
@@ -46,7 +48,7 @@ static void ensure_bell(idx_t max_needed) {
         /* first allocation */
         size_t new_cap = 2;                     /* at least for indices 0 and 1 */
         while (new_cap <= (size_t)max_needed) new_cap <<= 1;
-        Bell = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        Bell = mem_new(seq_t, new_cap);
         if (!Bell) exit(1);
         for (size_t i = 0; i < new_cap; ++i) Bell[i] = (seq_t)0;
         Bell_cap = new_cap;

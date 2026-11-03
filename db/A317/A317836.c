@@ -9,13 +9,15 @@
  *            digit‑sum vectors
  * Range:     u8 n <= 58, u16 n <= 388, u32 n <= 2310, u64 n <= 2310,
  *            u128 n <= 2310, big any n
- * Helpers:   none
+ * Validated: standard, pass, 108 terms through n = 2123 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* primes used as bases for the primorial representation.
  * Only the first several are needed for n <= 10000. */
@@ -53,11 +55,11 @@ seq_t a(idx_t n)
     uint64_t size = mult[K-1] * ((uint64_t)D[K-1] + 1ULL);
 
     /* 3. Allocate DP array and pre‑compute digit vectors of every state. */
-    seq_t *dp = (seq_t *)calloc((size_t)size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)size);
     if (!dp) return 0;          /* memory failure: return zero */
 
     uint8_t *state_digits = (uint8_t *)malloc((size_t)(size * K) * sizeof(uint8_t));
-    if (!state_digits) { free(dp); return 0; }
+    if (!state_digits) { mem_free(dp); return 0; }
 
     for (uint64_t idx = 0; idx < size; ++idx) {
         uint64_t tmp = idx;
@@ -118,6 +120,6 @@ seq_t a(idx_t n)
 
     /* 7. Free allocated memory and return. */
     free(state_digits);
-    free(dp);
+    mem_free(dp);
     return result;
 }

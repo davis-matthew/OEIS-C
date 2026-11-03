@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, look
  * Formula:   a(n) = phi(A267099(n)) - phi(n)
- * Range:     i8 n <= 41, i16 n <= 2186, i32 n <= 9048, i64 n <= 9048,
- *            i128 n <= 9048, big any n
- * Helpers:   build_primes_upto, calc_phi, factor_u64, pow_uint
+ * Range:     i8 n <= 41, i16 n <= 2186, i32 n <= 19683, i64 n <= 19683,
+ *            i128 n <= 19683, big any n
+ * Validated: standard, pass, 96 terms through n = 9048 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, ipow_u64_idx, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,8 @@
 
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
-#include "../utils/calc_phi.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/totient_seq.h"
 
 /* --- Global tables for prime lists ------------------------------------- */
 #define PRIME_LIMIT 30000          /* sufficient for n <= 10000 */
@@ -112,7 +113,7 @@ static seq_t map_value(idx_t n)
         uint64_t prime = fac[i];
         unsigned int e = (unsigned int)exp[i];
         uint64_t mapped = map_prime_u64(prime);
-        seq_t pow_val = pow_uint(mapped, (idx_t)e);
+        seq_t pow_val = ipow_u64_idx(mapped, (idx_t)e);
         result = result * pow_val;
     }
     return result;
@@ -123,7 +124,7 @@ seq_t a(idx_t n)
 {
     init();
     seq_t mapped_n = map_value(n);
-    seq_t phi_m = calc_phi(mapped_n);
-    seq_t phi_n = calc_phi((seq_t)n);
+    seq_t phi_m = totient_seq(mapped_n);
+    seq_t phi_n = totient_seq((seq_t)n);
     return phi_m - phi_n;
 }

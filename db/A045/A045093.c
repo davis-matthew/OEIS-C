@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   has_full_count, matches_idx
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,30 @@
 /* Sequence: numbers whose base‑4 representation contains exactly one '1' and three '2's. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_full_count.h"
-#include "../utils/matches_idx.h"
+#include "../utils/mem.h"
+
+static bool has_full_count(idx_t x) {
+    int c1 = 0, c2 = 0, digit;
+    while (x) {
+        digit = (int)(x % 4);
+        x /= 4;
+        if (digit == 1) ++c1;
+        else if (digit == 2) ++c2;
+    }
+    return (c1 == 1 && c2 == 3);
+}
+
+static bool matches_idx(idx_t x) {
+    int c1 = 0, c2 = 0, digit;
+    while (x) {
+        digit = (int)(x % 4);
+        x /= 4;
+        if (digit == 1) ++c1;
+        else if (digit == 2) ++c2;
+        else if (digit != 0 && digit != 3) return false; /* impossible, but keep safety */
+    }
+    return (c1 == 1 && c2 == 3);
+}
 
 static bool matches(idx_t x) {
     return has_full_count(x);
@@ -39,7 +62,7 @@ seq_t a(idx_t n) {
 
     if (!values) {
         cap = 16;
-        values = (seq_t*)malloc(cap * sizeof(seq_t));
+        values = mem_new(seq_t, cap);
     }
 
     while (sz < (size_t)n) {
@@ -47,9 +70,9 @@ seq_t a(idx_t n) {
         if (matches(next_checked)) {
             if (sz == cap) {
                 size_t new_cap = cap * 2;
-                seq_t *tmp = (seq_t*)realloc(values, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, values, new_cap);
                 if (!tmp) { /* allocation failure, abort */
-                    free(values);
+                    mem_free(values);
                     exit(1);
                 }
                 values = tmp;

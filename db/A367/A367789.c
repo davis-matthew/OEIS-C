@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (k+1)^(k-1) * binomial(n+2*k-1, n-k)/k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,11 @@
 /* Sequence A367789 */
 
 /* Dependencies */
-#include "../utils/big_pow.h"     /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +34,7 @@ seq_t a(idx_t n)
         /* (k+1)^(k-1) */
         seq_t pow_k = 1;
         if (k > 0) {
-            pow_k = big_pow((seq_t)(k + 1), (seq_t)(k - 1));
+            pow_k = ipow((seq_t)(k + 1), (seq_t)(k - 1));
         }
 
         /* binomial(n + 2k - 1, n - k) */

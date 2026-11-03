@@ -12,17 +12,18 @@
  *            equal to that over x
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 179, u64 n <= 179,
  *            u128 n <= 179, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 51 terms through n = 179 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_floor_isqrt_u64.h"   /* declares _floor_isqrt_u64(idx_t) */
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* Radius of the sphere */
-    idx_t R = _floor_isqrt_u64(n);
+    idx_t R = isqrt(n);
 
     /* Frequency array for x-coordinates: indexed by x+R, size = 2*R+1 */
     /* R <= floor(sqrt(10000)) = 100, so size 201 is safe */
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
         long long xsq = x * x;
         if (xsq > (long long)n) continue;              /* no y possible */
 
-        idx_t maxY = _floor_isqrt_u64(n - (idx_t)xsq);
+        idx_t maxY = isqrt(n - (idx_t)xsq);
         for (idx_t iy = 0; iy <= 2*maxY; ++iy) {
             long long y = (long long)iy - (long long)maxY;   /* signed y value */
             long long ysq = y * y;
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
             if (sumxy > (long long)n) continue;
 
             idx_t rem   = n - (idx_t)sumxy;
-            idx_t zmax  = _floor_isqrt_u64(rem);
+            idx_t zmax  = isqrt(rem);
             seq_t cnt   = (seq_t)(2*zmax + 1);     /* z runs from -zmax..zmax */
             freq[ix] += cnt;
         }

@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   T_candidate
+ * Validated: partial, pass, 70 terms through n = 72 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,18 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/T_candidate.h"
+
+static inline seq_t T_candidate(idx_t n, idx_t k)
+{
+    idx_t len = (n + 1) >> 1;              /* floor((n+1)/2) */
+    if (k < 1 || k > len) return 0;
+    if (k == 1) return (seq_t)3 * (seq_t)n;
+    if (k == len) {
+        if (n & 1) return (seq_t)2 * (seq_t)n;
+        return (seq_t)4 * (seq_t)n;
+    }
+    return (seq_t)4 * (seq_t)n;
+}
 
 static inline seq_t row_cumulative(idx_t r)
 {

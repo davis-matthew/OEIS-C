@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 20, i16 n <= 45, i32 n <= 49, i64 n <= 49, i128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (n >= capacity) {
         idx_t new_cap = capacity ? capacity << 1 : 16;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(data, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, data, new_cap);
         if (!tmp) abort(); /* out of memory */
         data = tmp;
         /* initialize the new slots with zero (they will be overwritten) */

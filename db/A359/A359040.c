@@ -9,13 +9,15 @@
  *            of positive divisors of m
  * Range:     u8 n <= 39, u16 n <= 4319, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9031 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* Allocate an array to store the divisor counts up to n. */
     size_t sz = (size_t)n + 1;
-    seq_t *divcnt = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *divcnt = mem_new(seq_t, sz);
     if (!divcnt) return 0;
 
     /* Initialise to zero. */
@@ -45,6 +47,6 @@ seq_t a(idx_t n)
         sum += (seq_t)prod;
     }
 
-    free(divcnt);
+    mem_free(divcnt);
     return sum;
 }

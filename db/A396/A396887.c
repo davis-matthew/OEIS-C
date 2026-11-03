@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 15, u64 n <= 23, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(0)=0, a(1)=0, a(2)=1. This function memoizes results to allow
    arbitrary order of calls. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;          /* cache of computed terms */
 static idx_t memo_size = 0;         /* current allocated size (terms 0..memo_size-1) */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* grow the cache if necessary */
     if (memo_size <= n) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_size);
         if (!tmp) abort();          /* allocation failed – terminate */
         memo = tmp;
 

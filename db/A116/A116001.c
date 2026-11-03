@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 126, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_sqrt, isPrimeGeneric, phi, sigma_of
+ * Validated: standard, pass, 71 terms through n = 987 (2026-11-03)
+ * Helpers:   ipow_i32, is_prime_u128, is_prime_u64, mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,65 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/phi.h"
-#include "../utils/sigma_of.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/isPrimeGeneric.h"
+#include <limits.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* ---------- Helper: check whether a value is semiprime ---------- */
 static bool is_semiprime(seq_t x)
@@ -58,7 +114,7 @@ static void cache_append(seq_t val)
 {
     if (term_len == term_cap) {
         size_t new_cap = term_cap ? term_cap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
         if (!tmp) abort();   /* malloc failure */
         term_cache = tmp;
         term_cap   = new_cap;
@@ -79,7 +135,7 @@ seq_t a(idx_t n)
         /* Find the next n such that sigma(n)-phi(n) is semiprime. */
         while (1) {
             seq_t sigma_val = sigma_of(m);
-            seq_t phi_val   = phi(m);
+            seq_t phi_val   = totient(m);
             seq_t diff      = sigma_val - phi_val;
 
             if (is_semiprime(diff)) {

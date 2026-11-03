@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{d|n} 2^(d-1) * Fib(n/d) (Fib(1)=1, Fib(2)=1)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static tables for pre‑computed values, shared by all calls */
 static seq_t *fib   = NULL;  /* Fibonacci numbers, 1‑indexed */
@@ -27,14 +29,14 @@ static void ensure_precomp(idx_t n)
     if (n <= cap) return;          /* already covered */
 
     idx_t new_cap = n;
-    seq_t *new_fib   = (seq_t*)malloc(sizeof(seq_t) * (new_cap + 1));
-    seq_t *new_pow2  = (seq_t*)malloc(sizeof(seq_t) * (new_cap + 1));
-    seq_t *new_cache = (seq_t*)malloc(sizeof(seq_t) * (new_cap + 1));
+    seq_t *new_fib   = mem_new(seq_t, (new_cap + 1));
+    seq_t *new_pow2  = mem_new(seq_t, (new_cap + 1));
+    seq_t *new_cache = mem_new(seq_t, (new_cap + 1));
 
     /* copy existing data, if any */
-    if (fib)   memcpy(new_fib,   fib,   sizeof(seq_t)*(cap + 1));
-    if (pow2)  memcpy(new_pow2,  pow2,  sizeof(seq_t)*(cap + 1));
-    if (cache) memcpy(new_cache, cache, sizeof(seq_t)*(cap + 1));
+    if (fib)   mem_copy(new_fib, fib, sizeof(seq_t)*(cap + 1));
+    if (pow2)  mem_copy(new_pow2, pow2, sizeof(seq_t)*(cap + 1));
+    if (cache) mem_copy(new_cache, cache, sizeof(seq_t)*(cap + 1));
 
     /* initialise entries which were not previously allocated */
     if (new_cap >= 0) {
@@ -56,7 +58,7 @@ static void ensure_precomp(idx_t n)
     for (idx_t i = cap + 1; i <= new_cap; ++i) new_cache[i] = (seq_t)0;
 
     /* replace old tables */
-    free(fib);   free(pow2);   free(cache);
+    mem_free(fib);   mem_free(pow2);   mem_free(cache);
     fib    = new_fib;
     pow2   = new_pow2;
     cache  = new_cache;

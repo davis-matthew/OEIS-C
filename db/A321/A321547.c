@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} (-1)^(d-1)*d^8
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 14, i64 n <= 234,
  *            i128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 42 terms through n = 9323 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
  * only constant extra space. */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -32,14 +33,14 @@ seq_t a(idx_t n)
         if (n % d != 0) continue;
 
         /* first divisor d */
-        seq_t term = pow_uint(d, 8);
+        seq_t term = ipow_u64_idx(d, 8);
         if ((d & 1ULL) == 0) term = -term;
         sum += term;
 
         /* second divisor e = n/d, skip if same as d */
         idx_t e = n / d;
         if (e != d) {
-            seq_t term2 = pow_uint(e, 8);
+            seq_t term2 = ipow_u64_idx(e, 8);
             if ((e & 1ULL) == 0) term2 = -term2;
             sum += term2;
         }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 6607, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   estimate_prime_upper_bound
+ * Validated: standard, pass, 82 terms through n = 9634 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/estimate_prime_upper_bound.h"
+
+/* Upper bound for the n‑th prime (n ≥ 6).  Useful for the sieve limit. */
+static size_t estimate_prime_upper_bound(size_t n) {
+    if (n < 6) return 15;                /* primes up to 13 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (size_t)(bound) + 3;          /* safety margin */
+}
 
 /* Prime table (1‑based indexing, prime[0] = prime(1)) */
 static size_t prime_count = 0;       /* number of primes currently stored */

@@ -7,11 +7,13 @@
  * Formula:   a(n) = (2*2^n+7*(-1)^n)/3
  * Range:     i8 n <= 5, i16 n <= 13, i32 n <= 29, i64 n <= 32, i128 n <= 32,
  *            big any n
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

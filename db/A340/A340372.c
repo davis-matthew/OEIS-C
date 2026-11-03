@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n has no more than one odd prime factor to an odd
  *            power, 0 otherwise
- * Range:     u8 n <= 9409, u16 n <= 9409, u32 n <= 9409, u64 n <= 9409,
- *            u128 n <= 9409, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9409 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

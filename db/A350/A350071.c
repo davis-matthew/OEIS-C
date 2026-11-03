@@ -7,18 +7,21 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(sigma(n^2), A003961(n^2))
- * Range:     u8 n <= 9, u16 n <= 55, u32 n <= 5593, u64 n <= 9879,
- *            u128 n <= 9879, big any n
- * Helpers:   factor_u64, gcd, next_prime, seq_pow
+ * Range:     u8 n <= 9, u16 n <= 55, u32 n <= 5593, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9879 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_idx, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
 #include "../utils/next_prime.h"
-#include "../utils/seq_pow.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
         /* sigma contribution: (p^(2*exp+1)-1)/(p-1)  */
         seq_t base       = (seq_t)p;
         idx_t sigma_exp  = (idx_t)(2 * exp + 1);
-        seq_t num        = seq_pow(base, sigma_exp) - (seq_t)1;
+        seq_t num        = ipow_idx(base, sigma_exp) - (seq_t)1;
         seq_t denom      = base - (seq_t)1;
         seq_t sigma_pe2  = num / denom;
         sigma_val *= sigma_pe2;
@@ -49,7 +52,7 @@ seq_t a(idx_t n)
         uint64_t nextp    = next_prime(p);
         seq_t next_base   = (seq_t)nextp;
         idx_t shift_exp   = (idx_t)(2 * exp);
-        seq_t shift_pe    = seq_pow(next_base, shift_exp);
+        seq_t shift_pe    = ipow_idx(next_base, shift_exp);
         shift_val *= shift_pe;
     }
 

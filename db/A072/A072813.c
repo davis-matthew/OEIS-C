@@ -10,13 +10,15 @@
  *            1,4(2),8(2),9(3),16(4),25(5),27(3),32(2),
  * Range:     u8 none, u16 none, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Includes only standard headers that are available in C11 and C++17. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper structure for sorting. */
 typedef struct {
@@ -52,7 +54,7 @@ static void init_sequence(void)
 
     /* Rough upper bound on number of generated pairs: ~70 000. */
     size_t temp_cap = 80000;
-    ppair_t *temp = (ppair_t *)malloc(temp_cap * sizeof(ppair_t));
+    ppair_t *temp = mem_new(ppair_t, temp_cap);
     size_t temp_count = 0;
 
     /* Enumerate b^e for b ≥ 2, e ≥ 2, stopping when the value exceeds LIMIT. */
@@ -64,7 +66,7 @@ static void init_sequence(void)
             /* Store the pair. */
             if (temp_count == temp_cap) {
                 temp_cap <<= 1;
-                temp = (ppair_t *)realloc(temp, temp_cap * sizeof(ppair_t));
+                temp = mem_resize(ppair_t, temp, temp_cap);
             }
             temp[temp_count].value = val;
             temp[temp_count].base  = base;
@@ -77,11 +79,11 @@ static void init_sequence(void)
     }
 
     /* Sort the pairs (value ascending, base descending). */
-    qsort(temp, temp_count, sizeof(ppair_t), cmp_ppair);
+    mem_qsort(temp, temp_count, sizeof(ppair_t), cmp_ppair);
 
     /* Deduplicate, keeping the first occurrence (largest base). */
     base_count = temp_count + 1;          /* +1 for the value 1 (base 1) */
-    bases = (seq_t *)malloc(base_count * sizeof(seq_t));
+    bases = mem_new(seq_t, base_count);
     bases[0] = (seq_t)1;                  /* a(1) = 1 */
 
     size_t idx = 1;                       /* index into bases array */
@@ -92,7 +94,7 @@ static void init_sequence(void)
         bases[idx++] = temp[i].base;
     }
 
-    free(temp);
+    mem_free(temp);
     initialized = 1;
 }
 

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 924 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -26,7 +27,7 @@
    For n = 1, a(1) = 1 by definition. */
 
 #include <stdint.h>
-#include "../utils/gcd.h"   /* provides seq_t gcd(seq_t, seq_t) */
+#include "../utils/gcd.h"
 
 static seq_t pow10_seq(idx_t exp)
 {

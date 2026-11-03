@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 18, u64 n <= 33, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>        /* for uint8_t, uint8_t arrays            */
+#include "../utils/mem.h"
 
 #define WIDTH 5
 #define STATES (1 << WIDTH)
@@ -153,7 +155,7 @@ extern seq_t a(idx_t n)
     /* DP arrays: cur[prev][cur] = number of ways to reach this pair */
     static seq_t cur[STATES][STATES];
     static seq_t nxt[STATES][STATES];
-    memset(cur, 0, sizeof(cur));
+    mem_set(cur, 0, sizeof(cur));
 
     /* Initialise with first two rows */
     for (int r0 = 0; r0 < STATES; ++r0) {
@@ -165,7 +167,7 @@ extern seq_t a(idx_t n)
 
     /* Process remaining rows 3..n (index 2..n-1) */
     for (idx_t row = 2; row < n; ++row) {
-        memset(nxt, 0, sizeof(nxt));
+        mem_set(nxt, 0, sizeof(nxt));
         for (int a = 0; a < STATES; ++a) {
             for (int b = 0; b < STATES; ++b) {
                 seq_t ways = cur[a][b];
@@ -177,7 +179,7 @@ extern seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(cur, nxt, sizeof(cur));
+        mem_copy(cur, nxt, sizeof(cur));
     }
 
     /* Final bottom validation */

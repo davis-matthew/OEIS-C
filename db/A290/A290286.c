@@ -11,6 +11,7 @@
  *            * det = λ0 * λ2 * ((r0 - r2)^2 + (r1 - r3)^2)
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 9, i64 n <= 19, i128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

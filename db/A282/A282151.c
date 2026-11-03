@@ -12,7 +12,8 @@
  *            condition). Implemented by brute‑force * search with memoization
  * Range:     u8 n <= 25, u16 n <= 2813, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_fulcrum_number
+ * Validated: standard, pass, 71 terms through n = 9649 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,44 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_fulcrum_number.h"
+#include "../utils/mem.h"
+
+static bool is_fulcrum_number(seq_t n)
+{
+    /* Extract decimal digits (least‑significant first). */
+    uint8_t digits[128];
+    size_t len = 0;
+    seq_t t = n;
+    if (t == 0) {
+        digits[0] = 0;
+        len = 1;
+    } else {
+        while (t != 0) {
+            seq_t q = t / 10;
+            seq_t r = t - q * 10;
+            digits[len++] = (uint8_t)r;
+            t = q;
+        }
+    }
+    if (len < 2) return false;          /* need at least two digits */
+
+    /* Test every possible split between two digits. */
+    for (size_t split = 1; split < len; ++split) {
+        seq_t left = 0, right = 0;
+        /* Left side: indices split .. len-1, weights increasing from 1. */
+        for (size_t i = split; i < len; ++i) {
+            seq_t weight = (seq_t)(i - split + 1);
+            left += weight * digits[i];
+        }
+        /* Right side: indices 0 .. split-1, weights increasing from 1. */
+        for (size_t i = 0; i < split; ++i) {
+            seq_t weight = (seq_t)(split - i);
+            right += weight * digits[i];
+        }
+        if (left == right) return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -46,7 +84,7 @@ seq_t a(idx_t n)
         /* Ensure there is room in the cache. */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap == 0 ? 16 : cache_cap << 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             cache = tmp;
             cache_cap = new_cap;

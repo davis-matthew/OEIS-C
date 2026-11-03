@@ -11,7 +11,8 @@
  *            masks
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   word_mask_string
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/word_mask_string.h"
+#include "../utils/mem.h"
+
+/* Bit mask of the letters a–z in a C string. */
+static uint32_t word_mask_string(const char *w)
+{
+    uint32_t m = 0;
+    for (; *w; ++w) {
+        if (*w >= 'a' && *w <= 'z')
+            m |= 1u << (*w - 'a');
+        else if (*w >= 'A' && *w <= 'Z')
+            m |= 1u << (*w - 'A');
+    }
+    return m;
+}
 
 /* ------------------------------------------------------------------ */
 /* Name masks for units, tens, and magnitude words                    */
@@ -145,7 +159,7 @@ static void seq_append(seq_t val)
 {
     if (seq_len >= seq_cap) {
         seq_cap = seq_cap ? seq_cap << 1 : 16;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
     seq[seq_len++] = val;
 }
@@ -171,7 +185,7 @@ static void seq_init(void)
     ensure_capacity(16);
 
     /* Allocate space for the sequence itself. */
-    seq = (seq_t *)malloc(16 * sizeof(seq_t));
+    seq = mem_new(seq_t, 16);
     seq_cap = 16;
     seq_len = 0;
 

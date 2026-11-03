@@ -11,13 +11,15 @@
  *            read row by row (rows start at 1)
  * Range:     u8 n <= 30, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache of already computed terms of the sequence */
 static seq_t *cache = NULL;          /* flat array of coefficients */
@@ -39,12 +41,12 @@ static void extend_up_to(idx_t target)
     if (rows_done == 0) {
         /* row 1: u=[1], v=[1] */
         row_len = 1;
-        row_u = (seq_t *)malloc(sizeof(seq_t));
-        row_v = (seq_t *)malloc(sizeof(seq_t));
+        row_u = mem_new(seq_t, 1);
+        row_v = mem_new(seq_t, 1);
         row_u[0] = (seq_t)1;
         row_v[0] = (seq_t)1;
         /* cache the coefficient of row 1 */
-        cache = (seq_t *)realloc(cache, sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, 1);
         cache[0] = row_u[0];
         cache_len = 1;
         rows_done = 1;
@@ -53,8 +55,8 @@ static void extend_up_to(idx_t target)
     /* iteratively generate subsequent rows */
     for (idx_t n = rows_done + 1; n <= target; ++n) {
         idx_t new_len = n;                      /* length of new row */
-        seq_t *new_u = (seq_t *)calloc(new_len, sizeof(seq_t));
-        seq_t *new_v = (seq_t *)calloc(new_len, sizeof(seq_t));
+        seq_t *new_u = mem_new(seq_t, new_len);
+        seq_t *new_v = mem_new(seq_t, new_len);
 
         /* compute coefficients for new_u and new_v */
         for (idx_t k = 0; k < new_len; ++k) {
@@ -74,14 +76,14 @@ static void extend_up_to(idx_t target)
         }
 
         /* append new row's coefficients to cache */
-        cache = (seq_t *)realloc(cache, (cache_len + new_len) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (cache_len + new_len));
         for (idx_t k = 0; k < new_len; ++k)
             cache[cache_len + k] = new_u[k];
         cache_len += new_len;
 
         /* free old row arrays and move new ones in place */
-        free(row_u);
-        free(row_v);
+        mem_free(row_u);
+        mem_free(row_v);
         row_u = new_u;
         row_v = new_v;
         row_len = new_len;

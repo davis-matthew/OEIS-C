@@ -11,14 +11,25 @@
  *            coefficient, S = Stirling number of the second kind)
  * Range:     u8 n <= 16, u16 n <= 31, u32 n <= 70, u64 n <= 160,
  *            u128 n <= 419, big any n
- * Helpers:   index_to_coords
+ * Validated: standard, pass, 61 terms through n = 1956 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/index_to_coords.h"
+
+/* Convert the linear index n into triangle coordinates (r,k) */
+static void index_to_coords(idx_t n, idx_t *r, idx_t *k)
+{
+    idx_t rr = 0;
+    /* find largest r with r(r+1)/2 <= n */
+    while ( ((rr + 1) * (rr + 2) / 2) <= n )
+        ++rr;
+    *r = rr;
+    *k = n - rr * (rr + 1) / 2;
+}
 
 #define MAX_ROW 200   /* sufficient for n up to 10000 */
 

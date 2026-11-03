@@ -8,15 +8,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of iterations of x -> x - gpf(x) to reach 0
  *            starting from n. a(0) = 0, a(1) = 1
- * Range:     u8 n <= 9968, u16 n <= 9968, u32 n <= 9968, u64 n <= 9968,
- *            u128 n <= 9968, big any n
- * Helpers:   gpf
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 102 terms through n = 9968 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
     uint64_t x = (uint64_t)n;
 
     while (x > 0) {
-        uint64_t p = gpf(x);       /* greatest prime factor of x */
+        uint64_t p = largest_prime_factor(x);       /* greatest prime factor of x */
         x -= p;
         cnt++;
     }

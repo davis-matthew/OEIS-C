@@ -9,8 +9,9 @@
  *            largest p‑full divisor of n. For each prime p dividing n, a
  *            prime power p^e contributes to the p‑full divisor only if e ≥ p.
  *            The arithmetic derivative is then computed by the usual rules
- * Range:     u8 n <= 127, u16 n <= 8391, u32 n <= 8391, u64 n <= 8391,
- *            u128 n <= 8391, big any n
+ * Range:     u8 n <= 127, u16 n <= 13823, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 116 terms through n = 8391 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Fast exponentiation: base^exp for seq_t, exp of type idx_t.  */

@@ -11,15 +11,32 @@
  *            m (mod n)}) is a divisor of n}
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   divisor_ok, powmod_uint
+ * Validated: standard, pass, 112 terms through n = 4772 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Auxiliary modular exponentiation using 128‑bit multiplication */
 #include <stdint.h>
-#include "../utils/divisor_ok.h"
-#include "../utils/powmod_uint.h"
+#include "../utils/powmod_u64.h"
+
+/* Test whether divisor d satisfies the condition for given n */
+static inline uint8_t divisor_ok(uint64_t d, uint64_t n)
+{
+    uint64_t count1 = 0, count2 = 0;
+    for (uint64_t m = 0; m < n; ++m)
+    {
+        uint64_t p = powmod_u64(m, d, n);
+        if (p == m) ++count1;
+        if ((p + m) % n == 0) ++count2;
+    }
+    if (count2 == 0) return 0;
+    if (count1 % count2 != 0) return 0;
+    uint64_t ratio = count1 / count2;
+    if (n % ratio != 0) return 0;
+    return 1;
+}
 
 /* Main sequence function as required */
 seq_t a(idx_t n)

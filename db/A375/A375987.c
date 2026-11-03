@@ -8,13 +8,15 @@
  *            |Stirling1(n,k)|
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 10, i64 n <= 17, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* allocate temporary arrays */
     size_t sz = (size_t)n + 1;
-    seq_t *b = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, sz);
     if (!b)
         return (seq_t)0;
     b[0] = (seq_t)1;
@@ -33,12 +35,12 @@ seq_t a(idx_t n)
         b[k] = b[k - 1] * factor;
     }
 
-    seq_t *prev = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *cur  = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *cur  = mem_new(seq_t, sz);
     if (!prev || !cur) {
-        free(b);
-        if (prev) free(prev);
-        if (cur)  free(cur);
+        mem_free(b);
+        if (prev) mem_free(prev);
+        if (cur)  mem_free(cur);
         return (seq_t)0;
     }
     prev[0] = (seq_t)1;
@@ -59,8 +61,8 @@ seq_t a(idx_t n)
         sum += b[k] * prev[k];
     }
 
-    free(b);
-    free(prev);
-    free(cur);
+    mem_free(b);
+    mem_free(prev);
+    mem_free(cur);
     return sum;
 }

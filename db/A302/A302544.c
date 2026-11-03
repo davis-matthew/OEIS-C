@@ -9,8 +9,9 @@
  *            non‑negative integers such that A065359(a(n)) = -A065359(n). The
  *            function builds the permutation on demand using a greedy choice,
  *            storing the result in static arrays
- * Range:     u8 n <= 255, u16 n <= 8630, u32 n <= 8630, u64 n <= 8630,
- *            u128 n <= 8630, big any n
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 83 terms through n = 8630 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

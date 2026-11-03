@@ -9,15 +9,24 @@
  *            odious. (computed by brute‑force search)
  * Range:     u8 n <= 4, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   _is_odd_evil, _is_odious, _popcnt_seq
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   popcount_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/_is_odd_evil.h"
-#include "../utils/_is_odious.h"
-#include "../utils/_popcnt_seq.h"
+#include "../utils/popcount_seq.h"
+
+static inline bool _is_odd_evil(seq_t x)
+{
+    return ((x & 1) != 0) && ((popcount_seq(x) & 1) == 0);
+}
+
+static inline bool _is_odious(seq_t x)
+{
+    return ((popcount_seq(x) & 1) != 0);
+}
 
 seq_t a(idx_t n)
 {

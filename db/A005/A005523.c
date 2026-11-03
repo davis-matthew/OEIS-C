@@ -12,14 +12,15 @@
  *            maximal points on elliptic curves over finite fields
  * Range:     u8 n <= 62, u16 n <= 6587, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a000037_isqrt
+ * Validated: standard, pass, 80 terms through n = 9492 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/a000037_isqrt.h"
-
+#include <stdint.h>
+#include "../utils/isqrt_u64.h"
 
 #define CACHE_SIZE 30000
 
@@ -29,7 +30,7 @@ static idx_t cache_count = 0;
 static seq_t prime_of_prime_power(seq_t n) {
     if (n < 2) return 0;
     
-    uint64_t limit = a000037_isqrt((uint64_t)n);
+    uint64_t limit = isqrt_u64((uint64_t)n);
     
     for (uint64_t p_val = 2; p_val <= limit; p_val++) {
         seq_t p = (seq_t)p_val;
@@ -71,7 +72,7 @@ seq_t a(idx_t n) {
     seq_t q = prime_powers[n - 1];
     seq_t p = prime_of_prime_power(q);
     
-    seq_t s = (seq_t)a000037_isqrt((uint64_t)q);
+    seq_t s = (seq_t)isqrt_u64((uint64_t)q);
     seq_t t = (q > s * (s + 1)) ? (2 * s + 1) : (2 * s);
     
     bool p_not_div_t = (t % p != 0);

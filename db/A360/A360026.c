@@ -12,12 +12,14 @@
  *            recurrence. For 64‑bit integer builds (C mode) a 128‑bit...
  * Range:     i8 n <= 19, i16 n <= 30, i32 n <= 56, i64 n <= 105,
  *            i128 n <= 201, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array of computed terms */
 static idx_t cache_size = 0;  /* capacity of cache array */
@@ -33,7 +35,7 @@ static void ensure_cache_size(idx_t need)
     while ((idx_t)new_size < need)
         new_size <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)
         abort();  /* unrecoverable infrastructure failure */
 

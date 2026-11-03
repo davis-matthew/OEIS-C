@@ -7,7 +7,8 @@
  * Formula:   a(n+1) = a(n) + digit_sum(a(n)^3), a(1) = 3
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 47, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum, seq_realloc
+ * Validated: standard, pass, 65 terms through n = 911 (2026-11-01)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,21 @@
 /*  OEIS offset: 1 (a(1) is the first term) */
 
 #include <stddef.h>
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;       /* cache[0] unused, cache[1] .. cache[max] store terms */
 static size_t cache_cap = 0;      /* current capacity of cache (index max + 1) */

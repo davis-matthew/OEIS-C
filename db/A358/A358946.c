@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -40,6 +41,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_vals = NULL;     /* the sequence */
 static size_t seq_len = 0;         /* number of elements stored */
@@ -73,14 +75,14 @@ static void build_sequence(void)
     /* Count represented numbers and store them in seq_vals */
     seq_len = 0;
     size_t capacity = 128;
-    seq_vals = (seq_t *)malloc(capacity * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, capacity);
     if (!seq_vals) exit(EXIT_FAILURE);
 
     for (size_t i = 1; i <= (size_t)B; ++i) {
         if (present[i]) {
             if (seq_len >= capacity) {
                 capacity <<= 1;
-                seq_vals = (seq_t *)realloc(seq_vals, capacity * sizeof(seq_t));
+                seq_vals = mem_resize(seq_t, seq_vals, capacity);
                 if (!seq_vals) exit(EXIT_FAILURE);
             }
             seq_vals[seq_len++] = (seq_t)i;

@@ -10,6 +10,7 @@
  *            of m)
  * Range:     u8 n <= 6560, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 102 terms through n = 9152 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,8 +20,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/factor_u64.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 /*--- Prime table ---------------------------------------------------------*/
 static uint64_t *prime_list = NULL; /* primes[0] = prime(1) = 2 */

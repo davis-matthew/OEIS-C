@@ -9,13 +9,30 @@
  *            the decimal digits of n as a subsequence (in the same order)
  * Range:     u8 n <= 13, u16 n <= 173, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   subseq_match
+ * Validated: standard, pass, 70 terms through n = 9760 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/subseq_match.h"
+
+/* Return true if array 'need' (length need_len) is a subsequence of
+ * array 'cand' (length cand_len). */
+static bool subseq_match(const unsigned char *need, int need_len,
+                        const unsigned char *cand, int cand_len)
+{
+    int i = 0, j = 0;
+    while (i < need_len && j < cand_len) {
+        if (need[i] == cand[j]) {
+            ++i;
+            ++j;
+        } else {
+            ++j;
+        }
+    }
+    return i == need_len;
+}
 
 /* Max digits for an arbitrary‑precision seq_t (up to ~39 for 128‑bit). */
 #define MAX_DGT 40

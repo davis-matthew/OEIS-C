@@ -10,7 +10,8 @@
  *            columns
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* 4‑bit columns: values 0..15 */
 #define ENCODE(c3, c2, c1) (((uint16_t)(c3) << 8) | ((uint16_t)(c2) << 4) | (uint16_t)(c1))
@@ -106,8 +108,8 @@ static void ensure_cache(idx_t n)
 static void init_dp_arrays(void)
 {
     if (!dp_cur) {
-        dp_cur  = (seq_t *)malloc(4096 * sizeof(seq_t));
-        dp_next = (seq_t *)malloc(4096 * sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, 4096);
+        dp_next = mem_new(seq_t, 4096);
         for (int i = 0; i < 4096; ++i) {
             dp_cur[i]  = 0;
             dp_next[i] = 0;

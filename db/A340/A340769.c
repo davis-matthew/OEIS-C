@@ -7,13 +7,23 @@
  * Formula:   a(n) = third-smallest divisor of n² (n>1)
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   find_spf
+ * Validated: standard, pass, 87 terms through n = 9819 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/find_spf.h"
+
+/* Smallest prime factor (spf) of a positive integer n >= 2.
+   This simple trial division runs in O(sqrt(n)) time. */
+static uint64_t find_spf(uint64_t n) {
+    if (n % 2ULL == 0ULL) return 2ULL;
+    for (uint64_t d = 3ULL; d * d <= n; d += 2ULL) {
+        if (n % d == 0ULL) return d;
+    }
+    return n; /* n is prime */
+}
 
 /* OEIS A340769: third-smallest divisor of n², with n > 1. */
 seq_t a(idx_t n) {

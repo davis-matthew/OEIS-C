@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(n - n^(2/3)) = n - ceil(n^(2/3))
  * Range:     u8 n <= 300, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   cube_root_floor_u128
+ * Validated: standard, pass, 77 terms through n = 946 (2026-11-01)
+ * Helpers:   icbrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cube_root_floor_u128.h"
+#include "../utils/icbrt_u128.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
     seq_t N = (seq_t)n;                /* Convert index to output type */
     unsigned __int128 n2 = (__int128)n * n; /* n^2 fits in 128 bits */
 
-    uint64_t t = cube_root_floor_u128(n2);   /* floor(cuberoot(n^2)) */
+    uint64_t t = icbrt_u128(n2);   /* floor(cuberoot(n^2)) */
 
     unsigned __int128 t3 = (__int128)t * t * t;
     bool perfect = (t3 == n2);              /* n^2 is a perfect cube? */

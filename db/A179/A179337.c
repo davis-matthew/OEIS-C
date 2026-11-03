@@ -7,6 +7,7 @@
  * Formula:   a(n) = (66*n*(n-1) - 3*(2*n-1)*(-1)^n + 17)/4
  * Range:     u8 n <= 2, u16 n <= 32, u32 n <= 8607, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 55 terms through n = 9671 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

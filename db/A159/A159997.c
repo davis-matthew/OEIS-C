@@ -7,12 +7,14 @@
  * Formula:   a(n) = 19*a(n-1) - 288*(n-1)*a(n-2), a(0)=1, a(1)=19
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 7, i64 n <= 12, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 394 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call that needs it */
     if (!cache) {
         cache_size = 2;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort();                       /* allocation failure */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)19;
@@ -37,9 +39,9 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if ((idx_t)(n + 1) > cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) {
-            free(cache);
+            mem_free(cache);
             abort();                                 /* allocation failure */
         }
         cache = tmp;

@@ -9,9 +9,10 @@
  *            we keep the k that are arrangements of those digits with P | k
  *            and k/P equal to 1 or a prime. Small cases use pruned
  *            permutations (the trailing digits must be divisible...
- * Range:     u8 n <= 16, u16 n <= 51, u32 n <= 2060, u64 n <= 9549,
- *            u128 n <= 9549, big any n
- * Helpers:   a1103_arr, a1103_cmpu, a1103_mulmod, a1103_powmod, a1103_qok
+ * Range:     u8 n <= 16, u16 n <= 51, u32 n <= 2060, u64 n <= 12677,
+ *            u128 n <= 12677, big any n
+ * Validated: standard, pass, 62 terms through n = 9549 (2026-11-01)
+ * Helpers:   mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,11 +21,48 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/a1103_arr.h"
-#include "../utils/a1103_cmpu.h"
-#include "../utils/a1103_mulmod.h"
-#include "../utils/a1103_powmod.h"
-#include "../utils/a1103_qok.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+
+static uint64_t a1103_arr(const unsigned char *c, int asc) {
+    uint64_t v = 0;
+    int d, e;
+    if (asc) {
+        for (d = 1; d <= 9; d++)
+            for (e = 0; e < c[d]; e++) v = v * 10 + (uint64_t)d;
+    } else {
+        for (d = 9; d >= 1; d--)
+            for (e = 0; e < c[d]; e++) v = v * 10 + (uint64_t)d;
+    }
+    return v;
+}
+
+static int a1103_cmpu(const void *x, const void *y) {
+    uint64_t u = *(const uint64_t *)x, v = *(const uint64_t *)y;
+    return u < v ? -1 : (u > v ? 1 : 0);
+}
+
+static bool a1103_qok(uint64_t q) {
+    static const uint64_t sp[12] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37};
+    int i, r, s = 0;
+    uint64_t d;
+    if (q == 1) return true;
+    if (q < 2) return false;
+    for (i = 0; i < 12; i++)
+        if (q % sp[i] == 0) return q == sp[i];
+    d = q - 1;
+    while ((d & 1) == 0) { d >>= 1; s++; }
+    for (i = 0; i < 12; i++) {
+        uint64_t x = powmod_u64(sp[i], d, q);
+        if (x == 1 || x == q - 1) continue;
+        for (r = 1; r < s; r++) {
+            x = mulmod(x, x, q);
+            if (x == q - 1) break;
+        }
+        if (r == s) return false;
+    }
+    return true;
+}
 
 typedef struct { uint64_t P; unsigned char c[10]; } a1103_ms;
 

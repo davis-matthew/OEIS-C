@@ -7,7 +7,8 @@
  * Formula:   a(n) = n / gcd(n, A002808(n))
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   gcd, is_prime
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,11 @@
    where A002808(n) is the n-th composite number (starting with 4). */
 
 #include <stddef.h>
-#include "../utils/is_prime.h"   /* is_prime(idx_t n) -> bool */
-#include "../utils/gcd.h"        /* gcd(seq_t a, seq_t b) -> seq_t */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *composites = NULL; /* array of nth composites, 0‑based */
 static size_t compcnt   = 0;     /* number of composites stored */
@@ -29,7 +33,7 @@ static void grow_composites(size_t needed) {
     if (needed > compsc) {
         size_t new_cap = compsc ? compsc * 2 : 16;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(composites, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, composites, new_cap);
         if (!tmp) return; /* allocation failure – just abort further growth */
         composites = tmp;
         compsc = new_cap;

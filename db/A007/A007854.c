@@ -9,13 +9,14 @@
  *            = 3, computed as a(n) = 4*a(n-1) + (a(n-1) - 3*A000108(n-1))/2
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   a007854_gcd
+ * Validated: standard, pass, 39 terms through n = 967 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a007854_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
@@ -28,7 +29,7 @@ seq_t a(idx_t n) {
         /* C(m) = C(m-1) * 2(2m-1) / (m+1), done without exceeding C(m) */
         uint64_t num = 2 * (2 * m - 1);
         uint64_t den = m + 1;
-        uint64_t g = a007854_gcd(num, den);
+        uint64_t g = gcd_u64(num, den);
         num /= g;
         den /= g;
         seq_t d = (seq_t)den;

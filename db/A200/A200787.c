@@ -10,6 +10,7 @@
  *            133*n^2 + 68*n + 12) / 12 (valid for all n ≥ 1, offset 1)
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 92, u64 n <= 139, u128 n <= 139,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 123 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

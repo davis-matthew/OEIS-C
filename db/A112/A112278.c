@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   get_prime, seq_malloc, seq_realloc
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   is_prime_trial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,66 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/get_prime.h"
-#include "../utils/seq_malloc.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/is_prime_trial.h"
+#include "../utils/mem.h"
+
+/*--- dynamic array helpers for primes --------------------------------------*/
+static void ensure_primes_cap(size_t *cap, uint64_t **arr, size_t min_cap) {
+    if (*cap < min_cap) {
+        size_t new_cap = (*cap) ? (*cap) << 1 : 16;
+        if (new_cap < min_cap) new_cap = min_cap;
+        uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(uint64_t));
+        if (!tmp) abort();
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
+
+static seq_t get_prime(uint64_t idx) {
+    static uint64_t *prime_vec = NULL;
+    static size_t prime_cap = 0;
+    static size_t prime_sz  = 0;
+    static uint64_t candidate = 3;      /* next odd to test */
+
+    if (!prime_vec) { /* first call: initialise */
+        ensure_primes_cap(&prime_cap, &prime_vec, 16);
+        prime_vec[0] = 2;
+        prime_sz = 1;
+    }
+
+    while (prime_sz < idx) {
+        /* find next prime */
+        while (!is_prime_trial(candidate, prime_vec, prime_sz))
+            candidate += 2;
+
+        /* add found prime */
+        if (prime_sz == prime_cap)
+            ensure_primes_cap(&prime_cap, &prime_vec, prime_cap << 1);
+
+        prime_vec[prime_sz++] = candidate;
+        candidate += 2;
+    }
+    return (seq_t)prime_vec[idx - 1];
+}
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;

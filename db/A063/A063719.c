@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th number such that n - φ(n) + 1 is a prime
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   is_target
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_target.h"
+#include "../utils/mem.h"
+
+/* static helper: check if cototient equals one of the required values */
+static inline bool is_target(uint64_t t)
+{
+    return t==2 || t==4 || t==16 || t==256 || t==65536;
+}
 
 /* compute phi[0..limit] using a classic sieve */
 static void compute_phi(uint64_t limit, uint64_t *phi)
@@ -49,7 +56,7 @@ static void append_seq(seq_t **seq, size_t *len, size_t *cap, seq_t val)
 {
     if (*len == *cap) {
         *cap = (*cap == 0) ? 16 : (*cap << 1);
-        *seq = (seq_t *)realloc(*seq, (*cap) * sizeof(seq_t));
+        *seq = mem_resize(seq_t, *seq, (*cap));
     }
     (*seq)[*len] = val;
     ++(*len);

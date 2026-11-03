@@ -10,8 +10,9 @@
  *            < n there exists a base b' in the range 2 ≤ b' ≤ b for which the
  *            sum of digits of k and the sum of digits of n (both taken in
  *            base b') differ. The algorithm computes the minimal such b
- * Range:     u8 n <= 873, u16 n <= 9971, u32 n <= 9971, u64 n <= 9971,
- *            u128 n <= 9971, big any n
+ * Range:     u8 n <= 873, u16 n <= 49999, u32 n <= 49999, u64 n <= 49999,
+ *            u128 n <= 49999, big any n
+ * Validated: standard, pass, 103 terms through n = 9971 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

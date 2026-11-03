@@ -12,13 +12,15 @@
  *            (r+1-i) with m = min(j, r-j). The return value...
  * Range:     u8 n <= 12, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   gcd_seq
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/gcd_seq.h"
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 /* Greatest common divisor for seq_t */
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         /* Add term_num/term_den to the running sum */
         seq_t new_num = num * term_den + term_num * den;
         seq_t new_den = den * term_den;
-        seq_t g       = gcd_seq(new_num, new_den);
+        seq_t g       = gcd(new_num, new_den);
         num = new_num / g;
         den = new_den / g;
 

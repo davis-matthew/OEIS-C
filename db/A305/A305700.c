@@ -7,6 +7,7 @@
  * Formula:   a(n) = numerator of Sum_{primes p < n} 1/(n-p)
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 29, u64 n <= 59, u128 n <= 119,
  *            big any n
+ * Validated: standard, pass, 56 terms through n = 3446 (2026-11-01)
  * Helpers:   build_primes_upto, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

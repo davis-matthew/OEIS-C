@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Integer square root of an unsigned 128‑bit integer. */
 static unsigned __int128 isqrt128(unsigned __int128 x)
@@ -82,12 +84,12 @@ seq_t a(idx_t n)
 
     idx_t needed_entries = n * (n + 1) / 2;
     if (cache_cap < (size_t)needed_entries) {
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * needed_entries);
+        seq_t *new_cache = mem_new(seq_t, needed_entries);
         if (!new_cache) abort();
         if (cache) {
             for (idx_t i = 0; i < cache_len; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = (size_t)needed_entries;

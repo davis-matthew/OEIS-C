@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 4217, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, gcd, pow10
+ * Validated: standard, pass, 76 terms through n = 9072 (2026-11-03)
+ * Helpers:   gcd, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,21 @@
    gcd(m, 10^d - 1 - m) > 1, where d is the number of decimal digits of m. */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +49,7 @@ seq_t a(idx_t n)
         if (len + 1 > cap) {
             size_t new_cap = (cap == 0) ? 16 : cap * 2;
 #ifdef __cplusplus
-            void *tmp = realloc(list, new_cap * sizeof(seq_t));
+            void *tmp = mem_resize(seq_t, list, new_cap);
             if (!tmp) abort();          /* out of memory */
             list = static_cast<seq_t*>(tmp);
 #else
@@ -49,7 +62,7 @@ seq_t a(idx_t n)
         /* Test the next candidate integer */
         idx_t  cand    = next++;
         seq_t  cand_s  = (seq_t)cand;
-        int    d       = digit_len((idx_t)cand);          /* number of decimal digits */
+        int    d       = num_digits((idx_t)cand);          /* number of decimal digits */
         seq_t  pow10d  = pow10(d);                       /* 10^d as seq_t */
         seq_t  comp    = pow10d - 1 - cand_s;            /* 9's complement of cand */
         seq_t  g       = gcd(cand_s, comp);              /* gcd(cand, complement) */

@@ -12,6 +12,7 @@
  *            1. For other n the value is the product o...
  * Range:     i8 n <= 7, i16 n <= 63, i32 n <= 2047, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 72 terms through n = 9942 (2026-11-01)
  * Helpers:   factor_u64, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,8 +20,10 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* factor_u64 */
-#include "../utils/pow2.h"          /* pow2 */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

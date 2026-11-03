@@ -12,12 +12,14 @@
  *            offset)
  * Range:     i8 n <= 4, i16 n <= 44, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* memoisation array */
 static size_t cache_len = 0;       /* allocated length of cache */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* Extend the cache to hold the requested index. */
     if (idx >= cache_len) {
         size_t new_len = idx + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp)          /* out‑of‑memory; caller may treat as 0 */
             return 0;
         cache = tmp;

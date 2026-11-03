@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   good_base9_run_property
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,42 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/good_base9_run_property.h"
+#include "../utils/mem.h"
+
+/* Helper: test if the base‑9 expansion of v satisfies the property. */
+static bool good_base9_run_property(seq_t v)
+{
+    seq_t oddSum  = 0;
+    seq_t evenSum = 0;
+    seq_t prev    = (seq_t)-1;          /* sentinel */
+    seq_t runLen  = 0;
+    seq_t tmp     = v;
+
+    while (tmp > 0) {
+        seq_t digit = tmp % (seq_t)9;
+        tmp /= (seq_t)9;
+        if (digit == prev) {
+            runLen++;
+        } else {
+            if (runLen > 0) {
+                if ((runLen & (seq_t)1) == 0)
+                    evenSum += runLen;
+                else
+                    oddSum += runLen;
+            }
+            prev   = digit;
+            runLen = 1;
+        }
+    }
+    /* handle the final run */
+    if (runLen > 0) {
+        if ((runLen & (seq_t)1) == 0)
+            evenSum += runLen;
+        else
+            oddSum += runLen;
+    }
+    return oddSum == evenSum;
+}
 
 /* Main sequence function.  O(n) incremental generation with memoisation. */
 seq_t a(idx_t n)
@@ -33,7 +69,7 @@ seq_t a(idx_t n)
         /* Ensure enough capacity for a new term */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return 0;            /* allocation failed */
             cache = tmp;
             cache_cap = new_cap;

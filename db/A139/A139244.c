@@ -7,15 +7,27 @@
  * Formula:   a(0) = 4; a(n) = a(n-1)^2 - 1 for n ≥ 1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   seq_alloc_array, seq_free_array
+ * Validated: standard, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc_array.h"   /* seq_alloc_array */
-#include "../utils/seq_free_array.h"    /* seq_free_array */
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *cache = NULL;  /* array of computed terms */
 static size_t cache_len = 0; /* current number of terms stored */

@@ -7,16 +7,19 @@
  * Formula:   a(n) = 8*9^⌊(n-1)/2⌋
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 43 terms through n = 949 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;          /* not defined for n<1, return 0 */
     idx_t k = (n - 1) / 2;                /* floor((n-1)/2) */
-    seq_t pow9 = big_pow((seq_t)9, (seq_t)k);
+    seq_t pow9 = ipow((seq_t)9, (seq_t)k);
     return (seq_t)8 * pow9;
 }

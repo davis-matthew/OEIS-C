@@ -12,13 +12,15 @@
  *            ((n+2)*(n-3))
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Choose an intermediate type large enough for multiplication */
 #if defined(__SIZEOF_INT128__)
@@ -37,7 +39,7 @@ static void a_ensure_capacity(idx_t n)
 {
     if (a_cache == NULL) {
         a_cap = n + 1;
-        a_cache = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         if (a_cache == NULL) {
             /* out of memory – give up */
             a_cap = 0;
@@ -45,7 +47,7 @@ static void a_ensure_capacity(idx_t n)
         }
     } else if (a_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (tmp == NULL) return;      /* allocation failed – keep old buffer */
         a_cache = tmp;
         a_cap = new_cap;

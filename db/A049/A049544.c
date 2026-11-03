@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 66 terms through n = 973 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,10 @@
 /* A computed sequence: primes p such that x^12 ≡ 2 (mod p) has a solution. */
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* Helper: Euclidean gcd for unsigned 64‑bit integers. */
 static uint64_t gcd_u64(uint64_t a, uint64_t b)
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
             uint64_t pm1 = (uint64_t)(p - 1);
             uint64_t d    = gcd_u64(12ULL, pm1);
             uint64_t exp  = pm1 / d;
-            seq_t   res   = mod_pow((seq_t)2, exp, (seq_t)p);
+            seq_t   res   = powmod((seq_t)2, exp, (seq_t)p);
             ok = (res == (seq_t)1);
         }
 

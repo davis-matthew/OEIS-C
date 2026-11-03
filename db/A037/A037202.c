@@ -7,7 +7,8 @@
  * Formula:   a(n) = 1 + Sum a(p), p prime, p | (prime_n - 1) (a(2)=1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, build_spf, seq_alloc_new_array, seq_realloc
+ * Validated: standard, pass, 108 terms through n = 8594 (2026-11-03)
+ * Helpers:   build_primes_upto, build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,26 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <stddef.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/build_spf.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/seq_alloc_new_array.h"
+#include "../utils/mem.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 /* static state */
 static uint64_t *primes = NULL;            /* list of primes up to current limit */
@@ -74,8 +91,7 @@ static void ensure_primes_and_spf(idx_t n)
     /* Resize cert_by_value array if needed */
     if (cert_by_value_limit < (prime_limit + 1)) {
         seq_t *tmp = seq_realloc(cert_by_value, cert_by_value_limit, prime_limit + 1);
-        memset(tmp + cert_by_value_limit, 0,
-               (prime_limit + 1 - cert_by_value_limit) * sizeof(seq_t));
+        mem_set(tmp + cert_by_value_limit, 0, (prime_limit + 1 - cert_by_value_limit) * sizeof(seq_t));
         cert_by_value = tmp;
         cert_by_value_limit = prime_limit + 1;
     }
@@ -92,7 +108,7 @@ static void ensure_certificates(idx_t n)
     /* Resize cert array if needed */
     if (cert_cap < (size_t)n) {
         seq_t *tmp = seq_realloc(cert, cert_cap, n);
-        memset(tmp + cert_cap, 0, (n - cert_cap) * sizeof(seq_t));
+        mem_set(tmp + cert_cap, 0, (n - cert_cap) * sizeof(seq_t));
         cert = tmp;
         cert_cap = n;
     }

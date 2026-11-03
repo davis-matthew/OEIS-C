@@ -10,7 +10,8 @@
  *            lazily, caching results between calls using static storage
  * Range:     u8 n <= 20, u16 n <= 941, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   enlarge_uint64_arr
+ * Validated: standard, pass, 68 terms through n = 9497 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/enlarge_uint64_arr.h"
+
+/* --------------------------------------------------------------------- */
+static void enlarge_uint64_arr(uint64_t **arr, size_t *cap, size_t needed) {
+    if (*cap >= needed) return;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 8;
+    while (new_cap < needed) new_cap <<= 1;
+    uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(uint64_t));
+    if (!tmp) exit(1); /* abort on allocation failure */
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* --------------------------------------------------------------------- */
 /* Dynamic array helpers (uint64_t version) ---------------------------- */

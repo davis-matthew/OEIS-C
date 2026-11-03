@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 311, i16 n <= 864, i32 n <= 2673, i64 n <= 8909,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 8553 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,10 +45,10 @@ seq_t a(idx_t n)
 
     /* Allocate or reallocate the coefficient array */
     if (coeff_cap < new_cap) {
-        seq_t *tmp = (coeff_cap == 0) ? (seq_t *)malloc(new_cap * sizeof(seq_t))
-                                      : (seq_t *)realloc(coeff, new_cap * sizeof(seq_t));
+        seq_t *tmp = (coeff_cap == 0) ? mem_new(seq_t, new_cap)
+                                      : mem_resize(seq_t, coeff, new_cap);
         if (!tmp) {               /* allocation failed – return 0 */
-            if (coeff) free(coeff);
+            if (coeff) mem_free(coeff);
             coeff = NULL;
             coeff_cap = 0;
             max_cached = 0;

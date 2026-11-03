@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 2968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* integer square root for unsigned long long (floor of sqrt(x)) */
 static inline unsigned long long isqrt_ull(unsigned long long x)
@@ -65,7 +67,7 @@ static void heap_push(seq_t v, idx_t i, idx_t j)
 {
     if (heap_len == heap_cap) {
         heap_cap = heap_cap ? heap_cap * 2 : 4;
-        heap = (struct node *)realloc(heap, heap_cap * sizeof(struct node));
+        heap = mem_resize(struct node, heap, heap_cap);
     }
     size_t k = heap_len++;
     while (k > 0) {
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
     /* one‑time initialization */
     if (seq_len == 0) {
         seq_cap = 4;
-        seq = (seq_t *)malloc(seq_cap * sizeof(*seq));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;
         seq[1] = (seq_t)2;
         seq_len = 2;
@@ -130,7 +132,7 @@ seq_t a(idx_t n)
         if (val != last) {                 /* skip duplicates */
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 4;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(*seq));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = val;
             added = true;

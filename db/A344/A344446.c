@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, look
  * Formula:   a(n) = number of partitions of n into 3 semiprimes
- * Range:     u8 n <= 284, u16 n <= 5748, u32 n <= 9482, u64 n <= 9482,
- *            u128 n <= 9482, big any n
+ * Range:     u8 n <= 284, u16 n <= 5748, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 94 terms through n = 9482 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static int cmp_idx_t(const void *p1, const void *p2)

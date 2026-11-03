@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 
 #include <stdlib.h>   /* malloc, realloc, abort, size_t */
 #include <stdint.h>   /* for uintptr_t cast */
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;    /* array of pointers to each row */
 static size_t triangle_cap = 0;    /* current capacity of the triangle array */
@@ -50,7 +52,7 @@ static void compute_row(idx_t r)
     }
 
     /* allocate storage for the row itself */
-    triangle[r] = (seq_t*)malloc((size_t)(r + 1) * sizeof(seq_t));
+    triangle[r] = mem_new(seq_t, (size_t)(r + 1));
     if (!triangle[r]) abort();
 
     if (r == 0) {

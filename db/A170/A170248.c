@@ -11,7 +11,8 @@
  *            entry
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    with all (S_i,S_j) relations of order 40.  The sequence starts
    1,47,2162,99452,4574792,…  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_size = 0;
@@ -33,7 +35,7 @@ static void ensure_size(idx_t n)
     /* Allocate or reallocate.  The returned pointer may be NULL; in
        that case the program will abort, which is acceptable for this
        library build. */
-    seq_t *tmp = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, memo, new_size);
     memo = tmp;
     memo_size = new_size;
 }

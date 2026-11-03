@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_ull
+ * Validated: standard, pass, 69 terms through n = 962 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_ull.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     while (found < n) {
         unsigned __int128 prod = (unsigned __int128)candidate * 100ULL + 99ULL;
         uint64_t test = (uint64_t)prod;        /* safe for the range of n requested */
-        if (is_prime_ull(test)) {
+        if (is_prime_u64(test)) {
             ++found;
             result = (seq_t)candidate;
         }

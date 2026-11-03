@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 129, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_distinct_primes, rev
+ * Validated: standard, pass, 83 terms through n = 924 (2026-11-03)
+ * Helpers:   mem, omega, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,11 @@
    in a static cache to handle arbitrary calls in any order. */
 
 #include <stdlib.h>
-#include "../utils/count_distinct_primes.h"
-#include "../utils/rev.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/omega.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,15 +37,15 @@ seq_t a(idx_t n)
     while (cache_len < n)
     {
         ++last_checked;                       /* candidate k */
-        int omega_k   = count_distinct_primes(last_checked);
-        int omega_rev = count_distinct_primes(rev(last_checked));
+        int omega_k   = omega(last_checked);
+        int omega_rev = omega(reverse_digits_idx(last_checked));
         if (omega_k == omega_rev)
         {
             /* grow cache if necessary */
             if (cache_len + 1 > cache_cap)
             {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();           /* memory exhausted */
                 cache = tmp;
                 cache_cap = new_cap;

@@ -9,7 +9,8 @@
  *            exactly two distinct positive indices i < j. T_m = m(m+1)/2
  * Range:     u8 n <= 1, u16 n <= 19, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---- Prime sieve (global, built on first use) ---- */
 static uint32_t *prime_list = NULL;
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
 
     /* enlarge cache if needed */
     if (n > cache_size) {
-        cache = (seq_t*)realloc(cache, (size_t)n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)n);
         cache_size = n;
     }
 

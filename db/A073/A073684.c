@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 98 terms through n = 7361 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
 
 #define MAX_GROUPS 20000   /* enough for the first 10 000 terms */
 #define MAX_PRIMES 200000 /* generous upper bound for primes needed */
@@ -90,7 +91,7 @@ seq_t a(idx_t n)
             const idx_t p = nextPrime();
             sum += p;
             ++len;
-            if (len >= minLen && isPrime(sum)) {
+            if (len >= minLen && is_prime(sum)) {
                 groupLens[groupCount] = (seq_t)len;
                 ++groupCount;
                 break;

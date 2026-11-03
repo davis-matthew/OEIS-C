@@ -8,6 +8,7 @@
  *            (2*n*(3*n^3-14*n^2+147*n+272)+(4*n^3-30*n^2+128*n-27)*(-1)^n-741)/768
  * Range:     u8 n <= 13, u16 n <= 54, u32 n <= 862, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 66 terms through n = 868 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

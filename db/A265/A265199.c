@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) returns seq_t */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* ----- factorial cache ----- */
 static seq_t *fact = NULL;          /* fact[n] = n!  (seq_t) */
@@ -38,7 +40,7 @@ static void ensure_factorial(idx_t up_to)
     seq_t *new_fact;
 
     if (!fact) {
-        new_fact = (seq_t*)malloc(new_size * sizeof(seq_t));
+        new_fact = mem_new(seq_t, new_size);
         if (!new_fact) exit(1);
         /* base case 0! = 1 */
         new_fact[0] = (seq_t)1;
@@ -47,7 +49,7 @@ static void ensure_factorial(idx_t up_to)
         fact = new_fact;
         factN = up_to;
     } else {
-        new_fact = (seq_t*)realloc(fact, new_size * sizeof(seq_t));
+        new_fact = mem_resize(seq_t, fact, new_size);
         if (!new_fact) exit(1);
         for (idx_t i = factN + 1; i <= up_to; ++i)
             new_fact[i] = new_fact[i-1] * (idx_t)i;
@@ -72,7 +74,7 @@ static void ensure_T_size(idx_t max_p)
     if (!new_T || !new_Tc) exit(1);
 
     for (idx_t p = Tsize; p <= max_p; ++p) {
-        new_T[p]    = (seq_t*)calloc(p + 1, sizeof(seq_t));
+        new_T[p]    = mem_new(seq_t, p + 1);
         new_Tc[p]   = (bool*)calloc(p + 1, sizeof(bool));
         if (!new_T[p] || !new_Tc[p]) exit(1);
     }

@@ -14,12 +14,14 @@
  *            Initial values: a(1)=1,a(2)=5,a(3)=24,a...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static table of the first 22 terms (index 0 -> a(1)) */
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
     /* Ensure the cache can store up to n terms. */
     if (cap < (size_t)n) {
         size_t new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* allocation failure */
         cache = tmp;
         cap   = new_cap;

@@ -9,7 +9,8 @@
  *            binomial(n-1,m-1)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* compute a single value of the sequence */
 static seq_t compute_a(idx_t n)
@@ -29,7 +32,7 @@ static seq_t compute_a(idx_t n)
     }
 
     /* pre‑compute powers of n :  n^0 , n^1 , … , n^(n-1) */
-    seq_t *pow_n = (seq_t *)malloc(sizeof(seq_t) * n);
+    seq_t *pow_n = mem_new(seq_t, n);
     pow_n[0] = 1;
     for (idx_t i = 1; i < n; ++i) {
         pow_n[i] = pow_n[i - 1] * (seq_t) n;
@@ -42,7 +45,7 @@ static seq_t compute_a(idx_t n)
     for (idx_t m = 2; m <= n; ++m) {
         /* term = n^(n-m) * m^(m-2) * binomial(n-1, m-1) */
         seq_t term = pow_n[n - m];
-        term = term * big_pow((seq_t) m, (seq_t) m - 2);
+        term = term * ipow((seq_t) m, (seq_t) m - 2);
         term = term * binomial(n - 1, m - 1);
 
         if ((m & 1) == 0)          /* even m → (+1) */
@@ -56,7 +59,7 @@ static seq_t compute_a(idx_t n)
     ans = ans - (sum_pos * 2);
     ans = ans + (sum_neg * 2);
 
-    free(pow_n);
+    mem_free(pow_n);
     return ans;
 }
 
@@ -72,14 +75,14 @@ seq_t a(idx_t n)
     }
 
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = 1;          /* a(1) */
         cache_cap = 1;
     }
 
     if ((size_t) n > cache_cap) {
         /* grow cache to accommodate up to n */
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * (size_t) n);
+        cache = mem_resize(seq_t, cache, (size_t) n);
         for (idx_t i = cache_cap + 1; i <= n; ++i) {
             cache[i - 1] = compute_a(i);
         }

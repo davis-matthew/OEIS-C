@@ -9,7 +9,8 @@
  *            O(n^2) memoised recurrence suitable for up to n≈10000
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #endif
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,9 +40,9 @@ seq_t a(idx_t n)
     if (!a_arr) {
         /* Allocate initial capacity. */
         cap = 4;                                       /* 0..3 */
-        a_arr = (seq_t *)calloc(cap, sizeof(seq_t));
-        pow3  = (seq_t *)calloc(cap, sizeof(seq_t));
-        S     = (seq_t *)calloc(cap, sizeof(seq_t));
+        a_arr = mem_new(seq_t, cap);
+        pow3  = mem_new(seq_t, cap);
+        S     = mem_new(seq_t, cap);
 
         a_arr[1] = (seq_t)1;      /* a(1) = 1 */
         pow3[0]  = (seq_t)1;      /* 3^0   */
@@ -59,9 +61,9 @@ seq_t a(idx_t n)
     if (n + 1 >= cap) {
         idx_t new_cap = cap;
         while (new_cap <= n + 1) new_cap <<= 1;
-        a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
-        pow3  = (seq_t *)realloc(pow3,  new_cap * sizeof(seq_t));
-        S     = (seq_t *)realloc(S,     new_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
+        pow3  = mem_resize(seq_t, pow3, new_cap);
+        S     = mem_resize(seq_t, S, new_cap);
         for (idx_t i = cap; i < new_cap; ++i) {
             a_arr[i] = 0;
             pow3[i]  = 0;

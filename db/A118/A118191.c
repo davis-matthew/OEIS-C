@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=0..n} 5^(k*(n-k))
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 31 terms through n = 66 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 /* Uses the helper big_pow(base, exp) for efficient exponentiation */
 /* Assumes seq_t and idx_t are defined elsewhere with full integer support */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= half; ++k)
     {
         idx_t exp = k * (n - k);            /* k*(n-k) fits in idx_t */
-        seq_t term = big_pow(base, (seq_t)exp); /* 5^exp */
+        seq_t term = ipow(base, (seq_t)exp); /* 5^exp */
 
         if (k == n - k)                   /* middle term when n even */
         {

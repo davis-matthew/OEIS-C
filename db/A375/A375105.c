@@ -7,12 +7,15 @@
  * Formula:   a(n) = (2*n)^(n-2)*(2*n)!/n!
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +26,7 @@ seq_t a(idx_t n)
 
     /* Compute (2*n)^(n-2) using the provided big_pow helper. */
     seq_t base = (seq_t)(2 * n);
-    seq_t pow_term = big_pow(base, (seq_t)(n - 2));
+    seq_t pow_term = ipow(base, (seq_t)(n - 2));
 
     /* Compute the factorial ratio (2*n)! / n! =
        product_{k=n+1}^{2*n} k  */

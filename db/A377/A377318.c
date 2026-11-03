@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 279, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_bits
+ * Validated: standard, pass, 64 terms through n = 916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_bits.h"
+#include "../utils/mem.h"
+
+/* Return true iff n is prime using the precomputed bit sieve.  The array
+ * `bits` represents odd numbers only: the jth odd number (3,5,7,...) is
+ * stored at bits[(j-1)/64] >> ((j-1) & 63).  A set bit = composite. */
+static inline bool is_prime_bits(const uint64_t *bits, unsigned int n)
+{
+    if (n == 2) return true;
+    if (n < 2 || (n & 1) == 0) return false;   /* even numbers */
+    unsigned int idx = (n >> 1) - 1;             /* position among odds */
+    return ((bits[idx >> 6] >> (idx & 63)) & 1ULL) == 0;
+}
 
 /* static state ------------------------------------------------------------- */
 static seq_t *seq_table = NULL;    /* table of k values                */
@@ -73,7 +85,7 @@ static void precompute(void)
 
     /* Reserve an initial capacity – more than enough for 12 000 entries. */
     seq_cap = 12000;
-    seq_table = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_table = mem_new(seq_t, seq_cap);
     if (!seq_table) {
         free(bits);
         return;   /* allocation failure */
@@ -98,8 +110,7 @@ static void precompute(void)
                 /* Store the index k (prime_idx) in the table. */
                 if (seq_len == seq_cap) {          /* grow table if needed */
                     seq_cap <<= 1;                 /* double capacity */
-                    seq_table = (seq_t *)realloc(seq_table,
-                                                 seq_cap * sizeof(seq_t));
+                    seq_table = mem_resize(seq_t, seq_table, seq_cap);
                     if (!seq_table) {              /* realloc failed */
                         free(bits);
                         seq_len = 0;

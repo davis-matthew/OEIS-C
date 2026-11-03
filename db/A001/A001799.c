@@ -10,14 +10,25 @@
  *            removed)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   a1799_addf
+ * Validated: standard, pass, 33 terms through n = 800 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a1799_addf.h"
+
+static void a1799_addf(int *e, uint64_t x, int s) {
+    uint64_t p;
+    for (p = 2; p * p <= x; p++) {
+        while (x % p == 0) {
+            e[p] += s;
+            x /= p;
+        }
+    }
+    if (x > 1) e[x] += s;
+}
 
 seq_t a(idx_t n) {
     uint64_t N = (uint64_t)n;

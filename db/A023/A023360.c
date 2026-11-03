@@ -7,14 +7,18 @@
  * Formula:   a(n) = Sum_{prime p<=n} a(n-p) with a(0)=1
  * Range:     u8 n <= 17, u16 n <= 31, u32 n <= 60, u64 n <= 116,
  *            u128 n <= 230, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 60 terms through n = 5087 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamic cache for a(n) */
 static size_t cache_cap = 0;         /* capacity of cache array */
@@ -41,7 +45,7 @@ static void ensure_cache(idx_t n)
 {
     if ((size_t)(n + 1) > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;            /* allocation failed – leave cache unchanged */
         /* initialize the newly added entries */
         for (size_t i = cache_cap; i < new_cap; ++i) tmp[i] = 0;
@@ -59,7 +63,7 @@ seq_t a(idx_t n)
     /* Initialise cache at index 0 if not already done */
     if (cache == NULL) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;   /* allocation failure */
         cache[0] = (seq_t)1;
     }

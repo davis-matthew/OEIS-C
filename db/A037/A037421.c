@@ -9,7 +9,8 @@
  *            base 9
  * Range:     u8 n <= 14, u16 n <= 263, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_set_equal, free_seq_array, seq_alloc_new_array
+ * Validated: standard, pass, 65 terms through n = 9996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,30 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/digit_set_equal.h"
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+static inline bool digit_set_equal(seq_t val, uint8_t mask9)
+{
+    uint8_t mask3 = 0;
+    seq_t x = val;
+    while (x) {
+        uint8_t d = (uint8_t)(x % 3);
+        mask3 |= 1u << d;
+        x /= 3;
+    }
+    return mask3 == mask9;
+}
 
 static void append_value(seq_t val, seq_t **cache, size_t *len, size_t *cap)
 {

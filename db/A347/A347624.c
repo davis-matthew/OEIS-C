@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* ---- 4. DP table: dp[k][s] for k=0..5, s=0..n ---- */
     size_t stride = (size_t)(n + 1);
     size_t total = 6 * stride;
-    seq_t *dp = (seq_t*)malloc(total * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
     if (!dp) { free(parts); return (seq_t)0; }
     for (size_t i = 0; i < total; ++i) dp[i] = 0;
     dp[0] = (seq_t)1;   /* dp[0][0] = 1 */
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
     for (size_t k = 0; k <= 5; ++k)
         ans += dp[k * stride + nidx];
 
-    free(dp);
+    mem_free(dp);
     free(parts);
     return ans;
 }

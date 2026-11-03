@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   swap_count
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,16 @@
 
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/swap_count.h"
+
+static uint32_t swap_count(const char *str, size_t len)
+{
+    uint32_t inv = 0;
+    for (size_t i = 0; i < len; ++i)
+        for (size_t j = i + 1; j < len; ++j)
+            if (str[i] > str[j])
+                ++inv;
+    return inv;
+}
 
 static const char *ones[] = {"", "one","two","three","four","five",
                              "six","seven","eight","nine"};

@@ -10,6 +10,7 @@
  *            the current remainder, d_i = floor(remainder / P_i)
  * Range:     u8 n <= 11, u16 n <= 69, u32 n <= 5740, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 61 terms through n = 9324 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

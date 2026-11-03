@@ -11,8 +11,9 @@
  *            n, then position (i,j). If i=j return 0, else use Cantor pairing
  *            T(m,k) = (m+k-2)*(m+k-1)/2 + m with m = i-j, k = j (if i>j) or m
  *            = i, k = j-i (if i<j)
- * Range:     u8 n <= 299, u16 n <= 9517, u32 n <= 9517, u64 n <= 9517,
- *            u128 n <= 9517, big any n
+ * Range:     u8 n <= 299, u16 n <= 10585, u32 n <= 10585, u64 n <= 10585,
+ *            u128 n <= 10585, big any n
+ * Validated: standard, pass, 121 terms through n = 9517 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

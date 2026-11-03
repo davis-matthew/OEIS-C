@@ -7,13 +7,15 @@
  * Formula:   a(n) = 4*A000041(n) (four times the partition number)
  * Range:     u8 n <= 11, u16 n <= 35, u32 n <= 115, u64 n <= 393,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *part = NULL;   /* partition numbers p(0)...p(n) */
 static idx_t  part_max = 0;  /* largest index for which p(i) is computed */
@@ -24,7 +26,7 @@ static void ensure_part(idx_t n)
 {
     /* Initial allocation / recompute up to n */
     if (part == NULL) {
-        part = (seq_t *)calloc(n + 1, sizeof(seq_t));
+        part = mem_new(seq_t, n + 1);
         if (part == NULL) exit(1);
         part[0] = 1;            /* p(0) = 1 */
         if (n >= 1) {
@@ -55,10 +57,10 @@ static void ensure_part(idx_t n)
     if (n > part_max) {
         size_t old_size = part_max + 1;
         size_t new_size = n + 1;
-        seq_t *new_part = (seq_t *)calloc(new_size, sizeof(seq_t));
+        seq_t *new_part = mem_new(seq_t, new_size);
         if (new_part == NULL) exit(1);
-        memcpy(new_part, part, old_size * sizeof(seq_t));
-        free(part);
+        mem_copy(new_part, part, old_size * sizeof(seq_t));
+        mem_free(part);
         part = new_part;
 
         for (idx_t k = part_max + 1; k <= n; ++k) {

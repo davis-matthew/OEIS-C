@@ -8,13 +8,15 @@
  *            Σ_{i=0}^{n/2} a(i) * a(n/2-i) : 0)
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This recurrence follows from (1 – x – x²)A(x) = A(x²)². */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached terms a(0)…a(max_cached-1) */
 static idx_t max_cached = 0;         /* number of terms currently stored */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (n >= max_cached) {
         /* Allocate until we have at least n+1 slots */
         size_t newsize = (size_t)(n + 1);
-        cache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newsize);
         if (!cache) abort();           /* allocation failed */
 
         /* Initialize the base case if this is the first call */

@@ -9,13 +9,15 @@
  *            e.g.f. 1/(exp(-x) – 3*x))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  Static storage for memoised values.  */
 static seq_t       *seq_cache = NULL;   /* array of computed a(i)          */
@@ -30,7 +32,7 @@ static void ensure_cache_cap(idx_t n)
         return;
     /* double size until large enough (or use needed if >2) */
     size_t new_cap = needed > 2 ? needed * 2 : 2;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp)
         abort();                       /* out of memory */
     seq_cache = tmp;

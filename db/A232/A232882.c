@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Static cache of discovered twin primes.  Each prime is stored as
    a separate seq_t element; the array contains the primes in the
@@ -43,7 +45,7 @@ static void grow_list(size_t needs)
     size_t newcap = cap == 0 ? 2 : cap << 1;
     while (newcap < needs)
         newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(list, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, list, newcap);
     if (!tmp)
         abort();                   /* allocation failure is fatal */
     list = tmp;
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         uint64_t p1 = 9 * last_k - 1; /* lower twin prime candidate   */
         uint64_t p2 = 9 * last_k + 1; /* upper twin prime candidate   */
 
-        if (is_prime_small(p1) && is_prime_small(p2))
+        if (is_prime_seq(p1) && is_prime_seq(p2))
         {
             /* Store both primes in the cache. */
             grow_list(len + 2);

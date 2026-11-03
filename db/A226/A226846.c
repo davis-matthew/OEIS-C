@@ -12,7 +12,8 @@
  *            (permanent pair) 0..8 we precompute the t...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 24, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool transition_inited = false;
 static uint8_t trans[256][9];
@@ -79,7 +81,7 @@ static void grow_a_cache(size_t new_cap)
     if (new_cap <= a_cache_cap) return;
     size_t cap = new_cap;
     if (cap < 16) cap = 16;
-    seq_t *tmp = (seq_t *)realloc(a_cache, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, cap);
     if (!tmp) exit(1); /* allocation failure */
     a_cache = tmp;
     a_cache_cap = cap;
@@ -93,8 +95,8 @@ seq_t a(idx_t n)
 
     /* First call: allocate DP arrays. */
     if (!dp_cur) {
-        dp_cur = (seq_t *)calloc(256, sizeof(seq_t));
-        dp_next = (seq_t *)calloc(256, sizeof(seq_t));
+        dp_cur = mem_new(seq_t, 256);
+        dp_next = mem_new(seq_t, 256);
         if (!dp_cur || !dp_next) exit(1);
         dp_cur[255] = (seq_t)1; /* all 8 states reachable initially */
     }

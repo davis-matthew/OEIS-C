@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 37, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    contains exactly four 0's and one 3, returned in increasing order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* persistent cache */
 static seq_t *cache      = NULL;
@@ -29,7 +31,7 @@ static void grow_cache(void)
 {
     if (cache_cap == 0) cache_cap = 64;
     else               cache_cap <<= 1;
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 }
 
 /* a(n) – n-th element of the sequence (n ≥ 1) */

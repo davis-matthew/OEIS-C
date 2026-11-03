@@ -8,6 +8,7 @@
  * Formula:   a(n) = n^2*(2n^2 - 8n - 9 + (-1)^n)/4 for n>=5, 0 otherwise
  * Range:     u8 n <= 6, u16 n <= 20, u32 n <= 305, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 56 terms through n = 965 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

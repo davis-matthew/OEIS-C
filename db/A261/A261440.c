@@ -7,8 +7,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl, easy
  * Formula:   not stated
- * Range:     u8 n <= 17, u16 n <= 32, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 24, u16 n <= 49, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -26,6 +27,7 @@
 #include <stdint.h>
 
 /* utility for binomial coefficients */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* A(i,j) via the conjectured closed form */

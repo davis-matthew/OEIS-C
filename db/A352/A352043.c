@@ -6,15 +6,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(0) = 1 ; a(n) = ∑_{k=0..⌊(n-1)/4⌋} binomial(n-3k-1,k) * a(k)
- * Range:     u8 n <= 19, u16 n <= 35, u32 n <= 64, u64 n <= 124,
+ * Range:     u8 n <= 20, u16 n <= 35, u32 n <= 64, u64 n <= 124,
  *            u128 n <= 240, big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 63 terms through n = 901 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* first time: allocate cache[0] = a(0) = 1 */
     if (cache == NULL) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return 0;/* out‑of‑memory: caller must tolerate 0 */
         cache[0] = 1;
         cache_last = 0;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         idx_t new_cap = cache_cap;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return 0;/* out‑of‑memory: caller must tolerate 0 */
         cache = tmp;
         cache_cap = new_cap;

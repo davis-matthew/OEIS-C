@@ -9,14 +9,26 @@
  *            for n≥2
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   iterate_a
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/iterate_a.h"
+#include "../utils/mem.h"
+
+/* Iterate the sequence 'a' depth times starting from index 'idx'.
+   depth ≥ 1 is assumed. */
+static inline seq_t iterate_a(const seq_t *a, idx_t idx, unsigned depth) {
+    seq_t res = a[idx];
+    for (unsigned k = 1; k < depth; ++k) {
+        idx = (idx_t)res;
+        res = a[idx];
+    }
+    return res;
+}
 
 /* Static cache for memoisation (1‑based indexing). */
 static seq_t *cache = NULL;
@@ -28,7 +40,7 @@ static void ensure_cache(idx_t n) {
     if (n < cache_capacity) return;
     idx_t newcap = (cache_capacity > 0) ? (cache_capacity << 1) : 8;
     while (newcap <= n) newcap <<= 1;
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * (newcap + 1));
+    cache = mem_resize(seq_t, cache, (newcap + 1));
     cache_capacity = newcap;
 }
 

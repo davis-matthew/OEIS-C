@@ -8,12 +8,14 @@
  *            (recurrence from (1-x^2)/(1+x+x^2))
  * Range:     i8 n <= 71, i16 n <= 71, i32 n <= 71, i64 n <= 71, i128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* initialise cache with first three terms */
     if (cache_len == 0) {
         cache_len = 3;
-        cache = (seq_t *)malloc((size_t)cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_len);
         if (!cache) return (seq_t)0;        /* fallback if allocation fails */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)-1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         if (i == cache_len) {
             /* grow cache one element at a time */
             idx_t new_len = i + 1;
-            seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_len);
             if (!tmp) return (seq_t)0;  /* allocation failure */
             cache = tmp;
             cache_len = new_len;

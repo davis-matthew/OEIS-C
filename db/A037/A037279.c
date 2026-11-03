@@ -9,7 +9,8 @@
  *            non‑trivial divisors in ascending order
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 47, u64 n <= 119,
  *            u128 n <= 419, big any n
- * Helpers:   digit_len, is_prime, pow10
+ * Validated: standard, pass, 65 terms through n = 985 (2026-11-01)
+ * Helpers:   is_prime, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,19 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Compute a(n) for the OEIS sequence A037279. */
 seq_t a(idx_t n)
@@ -60,7 +71,7 @@ seq_t a(idx_t n)
     for (size_t k = 0; k < smallCnt; ++k)
     {
         seq_t d = (seq_t)small[k];
-        int len = digit_len(d);
+        int len = num_digits(d);
         seq_t pow10e = pow10((idx_t)len);
         result = result * pow10e + d;
     }
@@ -69,7 +80,7 @@ seq_t a(idx_t n)
     for (size_t k = 0; k < largeCnt; ++k)
     {
         seq_t d = (seq_t)large[largeCnt - 1 - k];
-        int len = digit_len(d);
+        int len = num_digits(d);
         seq_t pow10e = pow10((idx_t)len);
         result = result * pow10e + d;
     }

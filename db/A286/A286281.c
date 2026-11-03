@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 2704, u16 n <= 8727, u32 n <= 8727, u64 n <= 8727,
- *            u128 n <= 8727, big any n
- * Helpers:   none
+ * Range:     u8 n <= 2704, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 116 terms through n = 8727 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,13 +33,14 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate one counter for each possible floor.  Floor values
        never exceed n+1 for the required range (up to about 10 000). */
     size_t sz = (size_t)(n + 2);
-    seq_t *counters = (seq_t *)malloc(sizeof(seq_t) * sz);
+    seq_t *counters = mem_new(seq_t, sz);
     if (!counters) return (seq_t)0;                 /* allocation failure */
     for (idx_t i = 0; i < sz; ++i) counters[i] = 0;
 
@@ -73,6 +75,6 @@ seq_t a(idx_t n)
         floor += dir;                       /* move to the next floor */
     }
 
-    free(counters);
+    mem_free(counters);
     return floor;                            /* a(n) */
 }

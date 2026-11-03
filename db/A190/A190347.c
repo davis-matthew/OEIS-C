@@ -7,13 +7,49 @@
  * Formula:   a(n) = n + ⌊n*sqrt(5/3)⌋ + ⌊n*sqrt(3/5)⌋
  * Range:     u8 n <= 6, u16 n <= 390, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt_coeff
+ * Validated: standard, pass, 90 terms through n = 9933 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_sqrt_coeff.h"
+
+/*
+ * Return the largest integer k such that a*k^2 <= b*n^2.
+ * Used to compute ⌊n*sqrt(b/a)⌋ exactly with integer arithmetic.
+ */
+static inline seq_t floor_sqrt_coeff(seq_t n, seq_t a, seq_t b)
+{
+    seq_t low  = 0;
+    seq_t high = n;            /* initial bound – will be increased if necessary */
+    const seq_t one = 1;
+
+    /* Expand high until the inequality fails */
+    while (1) {
+        seq_t next = high + one;
+        seq_t rhs  = a * next * next;      /* a*(k+1)^2   */
+        seq_t lhs  = b * n * n;            /* b*n^2       */
+        if (rhs <= lhs)
+            high = next;
+        else
+            break;
+    }
+
+    /* Binary search for the maximal k */
+    while (low <= high) {
+        seq_t mid = (low + high) >> 1;     /* average */
+        seq_t rhs = a * mid * mid;
+        seq_t lhs = b * n * n;
+        if (rhs <= lhs) {
+            low = mid + one;
+        } else {
+            if (mid == 0) return 0;
+            high = mid - one;
+        }
+    }
+    return high;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 161, u16 n <= 6151, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, pow10
+ * Validated: standard, pass, 81 terms through n = 9900 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,18 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"   /* provides gcd(seq_t, seq_t) */
-#include "../utils/pow10.h" /* provides pow10(idx_t) -> seq_t */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Local helper: count decimal digits of a seq_t value. */
 static idx_t digits_seq(seq_t x)
@@ -62,8 +73,7 @@ static void ensure_cache(idx_t need)
         if (gcd(last_checked, comp) == 1) {
             if (size == cap) {                  /* allocate more space */
                 cap = cap ? cap * 2 : 64;
-                terms = (seq_t *)realloc(terms,
-                                          cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[size++] = last_checked;        /* store valid term */
         }

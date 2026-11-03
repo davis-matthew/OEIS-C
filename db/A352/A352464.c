@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 6660, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, digit_product, pow10
+ * Validated: standard, pass, 86 terms through n = 9901 (2026-11-03)
+ * Helpers:   digit_product, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/digit_product.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Static state for memoization */
 static seq_t *terms = NULL;      /* array of found terms */
@@ -37,7 +49,7 @@ static void ensure_terms_cap(size_t needed)
     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     terms = tmp;
     terms_cap = new_cap;
 }
@@ -46,7 +58,7 @@ static void ensure_terms_cap(size_t needed)
 static bool is_good(seq_t k)
 {
     seq_t prod = digit_product(k);     /* product of digits */
-    int d = digit_len(prod);           /* number of decimal digits of prod */
+    int d = num_digits(prod);           /* number of decimal digits of prod */
     if (prod == 0 || d == 0)
         d = 1;                         /* ensure at least one digit for 0 */
     seq_t mod = pow10((idx_t)d);        /* 10^d as seq_t */

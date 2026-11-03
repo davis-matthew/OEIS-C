@@ -7,12 +7,15 @@
  * Formula:   a(n) = 3^n*(n^4 + 42*n^3 + 515*n^2 + 2034*n + 1944)/1944
  * Range:     u8 none, u16 n <= 3, u32 n <= 15, u64 n <= 33, u128 n <= 71,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 42 terms through n = 999 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,11 +38,11 @@ seq_t a(idx_t n)
 
     if (n >= 5) {
         /* replace 3^n / 3^5 = 3^(n-5) */
-        seq_t pow3 = big_pow((seq_t)3, (seq_t)(n - 5));
+        seq_t pow3 = ipow((seq_t)3, (seq_t)(n - 5));
         return pow3 * poly_div8;
     } else {
         /* for n < 5 perform the division by 3^5 = 243 */
-        seq_t pow3 = big_pow((seq_t)3, n_seq);
+        seq_t pow3 = ipow((seq_t)3, n_seq);
         seq_t numerator = pow3 * poly_div8;
         return numerator / (seq_t)243;
     }

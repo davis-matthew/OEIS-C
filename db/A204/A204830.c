@@ -8,9 +8,10 @@
  * Formula:   A204830: numbers k whose set of positive divisors can be
  *            partitioned into three disjoint subsets with equal sum σ(k)/3.
  *            The function produces the n-th term (a(1) = 120, a(2) = 180, …)
- * Range:     u8 n <= 3, u16 n <= 1215, u32 n <= 8925, u64 n <= 8925,
- *            u128 n <= 8925, big any n
- * Helpers:   cmp_int_desc, subset_rec
+ * Range:     u8 n <= 3, u16 n <= 1215, u32 n <= 10296, u64 n <= 10296,
+ *            u128 n <= 10296, big any n
+ * Validated: standard, pass, 63 terms through n = 8925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,28 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/cmp_int_desc.h"
-#include "../utils/subset_rec.h"
+#include "../utils/mem.h"
+
+/* ----------  subset–sum search ------------------------------------------*/
+static int cmp_int_desc(const void *a, const void *b)
+{
+    int ia = *(const int *)a;
+    int ib = *(const int *)b;
+    return (ib > ia) - (ib < ia);
+}
+
+static bool subset_rec(const int *divs, const int *suff, size_t idx,
+                       int sum, int target, size_t cnt)
+{
+    if (sum == target) return true;
+    if (idx == cnt) return false;
+    if (sum > target) return false;
+    if (sum + suff[idx] < target) return false;
+
+    if (subset_rec(divs, suff, idx + 1, sum + divs[idx], target, cnt))
+        return true;
+    return subset_rec(divs, suff, idx + 1, sum, target, cnt);
+}
 
 /* ----------  global data --------------------------------------------------- */
 
@@ -183,7 +204,7 @@ static void seq_push(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_t *newp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, seq_vals, new_cap);
         if (!newp) abort();
         seq_vals = newp;
         seq_cap = new_cap;

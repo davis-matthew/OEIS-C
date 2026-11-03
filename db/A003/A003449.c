@@ -12,8 +12,8 @@
  *            m*(C(m-1) + K3(m-3)) + m*C(m-2) + [4|n] * 2*(n/4)*C(n/4-1)...
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 22, u64 n <= 39, u128 n <= 72,
  *            big any n
- * Helpers:   a3449_add, a3449_binom, a3449_cat, a3449_div, a3449_k3,
- *            a3449_mul
+ * Validated: standard, pass, 43 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +21,63 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a3449_add.h"
-#include "../utils/a3449_binom.h"
-#include "../utils/a3449_cat.h"
-#include "../utils/a3449_div.h"
-#include "../utils/a3449_k3.h"
-#include "../utils/a3449_mul.h"
+
+static void a3449_add(uint32_t *acc, const uint32_t *x, size_t L)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        c += (uint64_t)acc[i] + x[i];
+        acc[i] = (uint32_t)c;
+        c >>= 32;
+    }
+}
+
+static void a3449_div(uint32_t *x, size_t L, uint32_t d)
+{
+    uint64_t r = 0;
+    size_t i = L;
+    while (i--) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static void a3449_mul(uint32_t *x, size_t L, uint32_t m)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        c += (uint64_t)x[i] * m;
+        x[i] = (uint32_t)c;
+        c >>= 32;
+    }
+}
+
+static void a3449_binom(uint32_t *x, size_t L, uint64_t N, uint64_t k)
+{
+    uint64_t i;
+    memset(x, 0, L * sizeof(uint32_t));
+    x[0] = 1;
+    for (i = 1; i <= k; i++) {
+        a3449_mul(x, L, (uint32_t)(N - k + i));
+        a3449_div(x, L, (uint32_t)i);
+    }
+}
+
+static void a3449_cat(uint32_t *x, size_t L, uint64_t k)
+{
+    a3449_binom(x, L, 2 * k, k);
+    a3449_div(x, L, (uint32_t)(k + 1));
+}
+
+static void a3449_k3(uint32_t *x, size_t L, uint64_t N)
+{
+    a3449_binom(x, L, 2 * N + 3, N);
+    a3449_mul(x, L, 3);
+    a3449_div(x, L, (uint32_t)(2 * N + 3));
+}
 
 seq_t a(idx_t n)
 {

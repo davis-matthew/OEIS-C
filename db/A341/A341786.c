@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 54, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, floor_sqrt
+ * Validated: standard, pass, 70 terms through n = 8752 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,26 @@
 #include <stdlib.h>
 
 #include "../utils/build_primes_upto.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* residues for which a prime p gives a prime ideal of norm p */
 static const unsigned char prime_ok[15] = {
@@ -94,7 +114,7 @@ seq_t a(idx_t n)
 
         /* dynamic array to hold the set of norms */
         size_t cap = prime_cnt * 2 + 10;
-        seq_t *vals = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *vals = mem_new(seq_t, cap);
         if (!vals) abort();
 
         size_t len = 0;
@@ -105,7 +125,7 @@ seq_t a(idx_t n)
             if (prime_ok[r]) {
                 if (len == cap) {
                     cap *= 2;
-                    vals = (seq_t *)realloc(vals, cap * sizeof(seq_t));
+                    vals = mem_resize(seq_t, vals, cap);
                     if (!vals) abort();
                 }
                 vals[len++] = (seq_t)p;
@@ -114,7 +134,7 @@ seq_t a(idx_t n)
             if (square_ok[r] && p <= sqrt_limit) {
                 if (len == cap) {
                     cap *= 2;
-                    vals = (seq_t *)realloc(vals, cap * sizeof(seq_t));
+                    vals = mem_resize(seq_t, vals, cap);
                     if (!vals) abort();
                 }
                 vals[len++] = (seq_t)p * (seq_t)p;
@@ -123,16 +143,16 @@ seq_t a(idx_t n)
         free(primes);
 
         if (len < n) {
-            free(vals);
+            mem_free(vals);
             /* increase limit and try again */
             limit *= 2;
             continue;
         }
 
         /* we now have at least n values; sort and pick the nth smallest */
-        qsort(vals, len, sizeof(seq_t), compare_seq);
+        mem_qsort(vals, len, sizeof(seq_t), compare_seq);
         seq_t result = vals[n - 1];
-        free(vals);
+        mem_free(vals);
         return result;
     }
 }

@@ -10,6 +10,7 @@
  *            is the column offset (0‑based)
  * Range:     u8 n <= 24, u16 n <= 51, u32 n <= 102, u64 n <= 249,
  *            u128 n <= 660, big any n
+ * Validated: standard, pass, 71 terms through n = 5073 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

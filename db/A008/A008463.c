@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of squares of the decimal digits of a(n‑1); a(1) = 9
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   digit_square_sum_generic
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/digit_square_sum_generic.h"
+
+/* compute sum of squares of decimal digits of a small integer value */
+static inline seq_t digit_square_sum_generic(seq_t v)
+{
+    uint64_t w = (uint64_t)v;
+    uint64_t sum = 0;
+    while (w > 0)
+    {
+        uint64_t d = w % 10;
+        sum += d * d;
+        w /= 10;
+    }
+    return (seq_t)sum;
+}
 
 /* recurrence for A008463 */
 seq_t a(idx_t n)

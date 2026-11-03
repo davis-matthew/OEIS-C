@@ -8,7 +8,8 @@
  * Formula:   a(n) = round(sqrt(n^3 - Sum_{i=1..n-1} a(i)^2))
  * Range:     u8 n <= 5, u16 n <= 65, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 81 terms through n = 9774 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,27 @@
    using a simple memoized O(n) algorithm.               */
 
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *a_cache = NULL;   /* a_cache[1] = a(1), a_cache[0] unused */
 static seq_t *cum_cache = NULL; /* cum_cache[i] = Σ_{k=1..i} a(k)^2, cum_cache[0] = 0 */
@@ -35,8 +56,8 @@ static void ensure_up_to(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    seq_t *new_a  = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-    seq_t *new_cum = (seq_t *)realloc(cum_cache, new_cap * sizeof(seq_t));
+    seq_t *new_a  = mem_resize(seq_t, a_cache, new_cap);
+    seq_t *new_cum = mem_resize(seq_t, cum_cache, new_cap);
     a_cache = new_a;
     cum_cache = new_cum;
     cache_cap = new_cap;

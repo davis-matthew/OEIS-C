@@ -9,9 +9,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 22, u16 n <= 52, u32 n <= 58, u64 n <= 58, u128 n <= 58,
+ * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static inline seq_t absdiff_seq(seq_t a, seq_t b)
 {
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
      * 4. Collect first M primes into an array.
      *------------
      */
-    seq_t *seq = (seq_t *)malloc(M * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, M);
     if (!seq) { free(isPrime); return 0; }
     idx_t cnt = 0;
     for (idx_t i = 2; cnt < M && i <= limit; ++i) {
@@ -131,6 +133,6 @@ seq_t a(idx_t n)
      *------------
      */
     seq_t result = seq[n - 1];
-    free(seq);
+    mem_free(seq);
     return result;
 }

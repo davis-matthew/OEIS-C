@@ -9,6 +9,7 @@
  *            m^3 % sum_of_decimal_digits(m^3) == 0
  * Range:     u8 n <= 4, u16 n <= 18, u32 n <= 308, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 51 terms through n = 8840 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,14 +8,17 @@
  *            k-1)*a(k)*A003024(n-k) with a(0) = 0
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   binomial, pow2
+ * Validated: standard, pass, 30 terms through n = 50 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +31,8 @@ seq_t a(idx_t n)
     /* initialise arrays if first call */
     if (capacity == 0) {
         capacity = 1;
-        D = (seq_t *)malloc(sizeof(seq_t));
-        A = (seq_t *)malloc(sizeof(seq_t));
+        D = mem_new(seq_t, 1);
+        A = mem_new(seq_t, 1);
         if (!D || !A) return (seq_t)0;   /* allocation failure */
         D[0] = (seq_t)1;                  /* one acyclic digraph on 0 vertices */
         A[0] = (seq_t)0;                  /* a(0) by definition */
@@ -39,11 +42,11 @@ seq_t a(idx_t n)
     if (n + 1 > capacity) {
         idx_t new_cap = capacity * 2;
         if (new_cap < n + 1) new_cap = n + 1;
-        seq_t *D2 = (seq_t *)realloc(D, new_cap * sizeof(seq_t));
-        seq_t *A2 = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        seq_t *D2 = mem_resize(seq_t, D, new_cap);
+        seq_t *A2 = mem_resize(seq_t, A, new_cap);
         if (!D2 || !A2) {
-            free(D2);
-            free(A2);
+            mem_free(D2);
+            mem_free(A2);
             return (seq_t)0;
         }
         D = D2;

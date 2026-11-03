@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   _triangular
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_triangular.h"
+#include "../utils/triangular.h"
+#include "../utils/mem.h"
 
 static seq_t **_t_rows = NULL;          /* array of pointers to each row */
 static size_t _t_rows_allocated = 0;    /* number of rows allocated */
@@ -48,7 +50,7 @@ static void _compute_row(size_t r) {
 
     size_t len = r + 1;
     /* allocate memory for the row; cast from void* for C++ */
-    seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, len);
     if (!row) abort();
 
     row[0] = (seq_t)1;
@@ -67,14 +69,14 @@ static void _compute_row(size_t r) {
 static idx_t _row_from_index(idx_t n) {
     idx_t low = 0, high = 1;
     /* double high until triangular(high) > n */
-    while (_triangular(high) <= n) {
+    while (triangular(high) <= n) {
         high <<= 1;
         if (high == 0) break;        /* overflow guard, though unlikely here */
     }
     /* binary search between low and high */
     while (low < high) {
         idx_t mid = (low + high + 1) >> 1;
-        if (_triangular(mid) <= n)
+        if (triangular(mid) <= n)
             low = mid;
         else
             high = mid - 1;
@@ -85,7 +87,7 @@ static idx_t _row_from_index(idx_t n) {
 /* Main entry function required by the judge */
 seq_t a(idx_t n) {
     idx_t r = _row_from_index(n);
-    idx_t before = _triangular(r);
+    idx_t before = triangular(r);
     idx_t c = n - before;          /* column within the row */
 
     _compute_row((size_t)r);

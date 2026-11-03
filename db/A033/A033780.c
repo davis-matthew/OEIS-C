@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 765, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,8 +52,8 @@ seq_t a(idx_t n)
 
     /* Temporary arrays for convolution */
     idx_t size = n + 1;
-    seq_t *cur  = (seq_t*)calloc(size, sizeof(seq_t));
-    seq_t *next = (seq_t*)calloc(size, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, size);
+    seq_t *next = mem_new(seq_t, size);
 
     /* cur[0] = 1 represents choosing the zero term from the empty product */
     cur[0] = (seq_t)1;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     /* Convolve with each factor one after another */
     for (int f = 0; f < num_factors; ++f) {
         idx_t d = factors[f];
-        memset(next, 0, size * sizeof(seq_t));
+        mem_set(next, 0, size * sizeof(seq_t));
 
         for (idx_t ti = 0; ti < max_tri; ++ti) {
             idx_t t_scaled = d * tri[ti];          /* integer arithmetic, safe */
@@ -76,15 +78,15 @@ seq_t a(idx_t n)
     }
 
     /* ---------- Store computed values in the cache ---------- */
-    free(cache);                   /* free any previous cache */
-    cache = (seq_t*)malloc(size * sizeof(seq_t));
-    memcpy(cache, cur, size * sizeof(seq_t));
+    mem_free(cache);                   /* free any previous cache */
+    cache = mem_new(seq_t, size);
+    mem_copy(cache, cur, size * sizeof(seq_t));
     cache_size = size;
 
     /* Clean up temporary memory */
     free(tri);
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
 
     /* Return the requested value */
     return cache[n];

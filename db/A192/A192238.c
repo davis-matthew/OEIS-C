@@ -9,12 +9,14 @@
  *            (n^2-3n+1)*a(n-2) (recurrence from OEIS)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array of terms, 1‑based */
 static idx_t cap   = 0;          /* allocated capacity of cache   */
@@ -29,7 +31,7 @@ static void ensure(idx_t n)
     /* grow array if needed */
     if ((idx_t)(n + 1) > cap) {
         idx_t newcap = (n + 1) * 2;      /* over‑allocate a bit */
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) exit(1);               /* out of memory */
         cache = tmp;
         cap   = newcap;

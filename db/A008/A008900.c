@@ -8,12 +8,14 @@
  *            a(n) = 3*a(n‑1)‑1
  * Range:     u8 n <= 0, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* array holding computed terms */
 static size_t cache_cap = 0;       /* current allocated capacity (number of elements) */
@@ -24,7 +26,7 @@ static void ensure_cache(idx_t n)
 {
     if (!cache) {
         /* first allocation with a(0) = 89 */
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();          /* allocation failure */
         cache[0] = (seq_t)89;
         cache_cap = 1;
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
 
     /* extend the array to hold indices up to n */
     size_t new_cap = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                    /* allocation failure */
     cache = tmp;
     cache_cap = new_cap;

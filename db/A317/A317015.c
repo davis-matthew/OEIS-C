@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 8076, u16 n <= 8076, u32 n <= 8076, u64 n <= 8076,
- *            u128 n <= 8076, big any n
- * Helpers:   none
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 113 terms through n = 8076 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>          /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;       /* stored a(0)…a(k)       */
 static size_t seq_len = 0;      /* number of stored terms */
@@ -38,7 +40,7 @@ static void ensure_seq_capacity(size_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 1;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp)
         abort();
     seq = tmp;

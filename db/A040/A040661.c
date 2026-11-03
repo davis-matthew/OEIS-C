@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    4, 2, 1, 5, 7, 3, 7, 5, 1, 2, 4, 52.
    The period is computed on first use and cached for subsequent calls. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         period_len = i;
 
         /* allocate exact storage and copy the period */
-        period = (seq_t *)malloc(period_len * sizeof(seq_t));
+        period = mem_new(seq_t, period_len);
         if (!period) abort();
         for (i = 0; i < period_len; ++i)
             period[i] = buffer[i];

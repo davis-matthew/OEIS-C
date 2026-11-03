@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{k=0..prime(n)} k!
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   alloc_grow
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,41 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_grow.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Helper: expand a pointer array, casting to the proper type */
+#ifdef __cplusplus
+template <class T>
+static T *alloc_grow(T *ptr, size_t *cap, size_t needed, size_t elem_size)
+{
+    if (needed <= *cap) return ptr;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 8;
+    while (new_cap < needed) new_cap *= 2;
+    ptr = mem_resize(T, ptr, (new_cap * elem_size) / sizeof(T));
+    if (!ptr) abort();          /* out‑of‑memory */
+    *cap = new_cap;
+    return ptr;
+}
+#else
+static void *alloc_grow(void *ptr, size_t *cap, size_t needed, size_t elem_size)
+{
+    if (needed <= *cap) return ptr;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 8;
+    while (new_cap < needed) new_cap *= 2;
+    ptr = realloc(ptr, new_cap * elem_size);
+    if (!ptr) abort();          /* out‑of‑memory */
+    *cap = new_cap;
+    return ptr;
+}
+#endif
 
 /* Cached sequence values (offset 1, so a(1) is prod_cache[0]) */
 static seq_t *prod_cache = NULL;

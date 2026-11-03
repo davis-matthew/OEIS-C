@@ -10,7 +10,8 @@
  *            at least n terms
  * Range:     u8 n <= 31, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3346_shift_or
+ * Validated: standard, pass, 71 terms through n = 9656 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a3346_shift_or.h"
+
+static void a3346_shift_or(uint64_t *dst, const uint64_t *src, size_t W, uint64_t s)
+{
+    size_t w = (size_t)(s / 64);
+    unsigned b = (unsigned)(s % 64);
+    size_t i;
+    for (i = w; i < W; i++) {
+        uint64_t v = src[i - w] << b;
+        if (b && i - w >= 1) v |= src[i - w - 1] >> (64 - b);
+        dst[i] |= v;
+    }
+}
 
 static uint64_t *a3346_terms = NULL;
 static idx_t a3346_cnt = 0;

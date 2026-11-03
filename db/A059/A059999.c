@@ -8,6 +8,7 @@
  * Formula:   a(n) = (4*n^5 - 57*n^4 + 306*n^3 - 759*n^2 + 890*n - 336)/24
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 123, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 53 terms through n = 954 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

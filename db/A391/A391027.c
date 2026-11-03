@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 22, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@ the arbitrary‑precision build.
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static cache of computed terms */
 static seq_t *cache = NULL;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
 {
     /* Ensure the cache has enough capacity to store terms up to n */
     if (n > cache_cap) {
-        seq_t *new_cache = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)n);
         if (!new_cache) {
             /* Out‑of‑memory: return 0 (unlikely in the problem setting) */
             return (seq_t)0;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             new_cache[i] = cache[i];
         }
         /* Free old cache */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = (size_t)n;
     }

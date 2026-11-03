@@ -12,13 +12,14 @@
  *            denotes the binomial coefficient
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n < 3) return (seq_t)0;
@@ -30,7 +31,7 @@ seq_t a(idx_t n) {
     for (int i = 0; i < 8; ++i) {
         if ((idx_t)i > diff) break;          /* term would use negative binomial */
         idx_t k = diff - (idx_t)i;           /* k = n-3-i  (≥0) */
-        seq_t bin = binom(k + 10, 10);       /* C(k+10,10)  */
+        seq_t bin = binomial(k + 10, 10);       /* C(k+10,10)  */
         seq_t mult = (seq_t)(coeffs[i] >= 0 ? coeffs[i] : -coeffs[i]) * bin;
         if (coeffs[i] >= 0)
             positive += mult;

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   passes
+ * Validated: standard, pass, 77 terms through n = 967 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,43 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/passes.h"
+
+/* ------------------------------------------------------------- */
+static bool passes(idx_t k)
+{
+    if (k == 0)                /* binary “0” : LR0 = 1 > LR1 = 0   */
+        return true;
+
+    seq_t x = (seq_t)k;        /* convert to seq_t for bit ops     */
+    bool prev_bit = (bool)(x & 1);
+    idx_t run      = 1;
+    idx_t max0     = 0;
+    idx_t max1     = 0;
+
+    x >>= 1;
+    while (x != (seq_t)0) {
+        bool bit = (bool)(x & 1);
+        if (bit == prev_bit)
+            run++;
+        else {
+            if (prev_bit) {
+                if (run > max1) max1 = run;
+            } else {
+                if (run > max0) max0 = run;
+            }
+            prev_bit = bit;
+            run = 1;
+        }
+        x >>= 1;
+    }
+    /* final run */
+    if (prev_bit) {
+        if (run > max1) max1 = run;
+    } else {
+        if (run > max0) max0 = run;
+    }
+    return max0 > max1;
+}
 
 /* ------------------------------------------------------------- */
 /* Test whether k satisfies LR0(k) > LR1(k)                        */

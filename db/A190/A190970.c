@@ -7,6 +7,7 @@
  * Formula:   a(0) = 0, a(1) = 1, a(n) = 5*a(n-1) - 9*a(n-2)
  * Range:     i8 n <= 5, i16 n <= 11, i32 n <= 21, i64 n <= 40, i128 n <= 81,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 945 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

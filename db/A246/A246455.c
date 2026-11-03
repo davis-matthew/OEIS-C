@@ -9,12 +9,14 @@
  *            k)^2 * 2^j
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     /* outer sum over k */
     for (idx_t k = 0; k <= n / 2; ++k) {
         /* initial binomial coefficients for j = 0 */
-        seq_t r = binom(n - k, k);     /* C(n-k, k)   */
+        seq_t r = binomial(n - k, k);     /* C(n-k, k)   */
         seq_t s = 1;                   /* C(k, k)     */
 
         idx_t maxj = n - 2 * k;

@@ -10,6 +10,7 @@
  *            (k-j)^(2n) (index n starts at 0, a(0)=1)
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 33, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

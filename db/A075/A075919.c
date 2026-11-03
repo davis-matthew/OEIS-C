@@ -8,12 +8,14 @@
  *            second kind (OEIS A075919 – Sixth column of triangle A075501)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 /* Helper: multiply a seq_t by a small integer (1–10).  Works for native integer
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     {
         cache_cap  = 16;
         cache_size = 0;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
 
         /* S(0,0)=1, all other S(0,k)=0 */
         st[0] = 1;
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
         if (cache_size == cache_cap)
         {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_size] = val;
         ++cache_size;

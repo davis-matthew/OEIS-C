@@ -11,12 +11,14 @@
  *            binomial coefficients)
  * Range:     u8 n <= 12, u16 n <= 26, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
     for (idx_t j = 0; j < k; ++j) {
         idx_t j1   = j + 1;
         seq_t term = pow2;
-        term = term * binom(k, j1);
-        term = term * binom(r + k, j);
+        term = term * binomial(k, j1);
+        term = term * binomial(r + k, j);
         sum += term;
         pow2 = pow2 + pow2;          /* multiply by 2 for the next j */
     }

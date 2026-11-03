@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of partitions of n into parts 4, 6, 9 and 10
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
 
     /* grow cache if necessary */
     if (capacity <= n) {
-        seq_t *tmp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (n + 1));
         if (!tmp) return 0;          /* allocation failed – return 0 */
         dp = tmp;
         capacity = n + 1;

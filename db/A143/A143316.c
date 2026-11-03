@@ -9,12 +9,14 @@
  *            if col < row (phi is the Euler totient function)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   phi
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (r % k != 0)
         return (seq_t)0;
 
-    seq_t t = phi(r / k);   /* phi is defined for idx_t arguments */
+    seq_t t = totient(r / k);   /* phi is defined for idx_t arguments */
 
     if (k == r)
         return t;           /* last element of each row is 1 */

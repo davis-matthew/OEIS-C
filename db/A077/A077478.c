@@ -7,14 +7,17 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = τ(gcd(i,j)) where (i,j) is the nth element in the array
  *            read by antidiagonals; τ(m) is the number of divisors of m
- * Range:     u8 n <= 9847, u16 n <= 9847, u32 n <= 9847, u64 n <= 9847,
- *            u128 n <= 9847, big any n
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 121 terms through n = 9847 (2026-11-01)
  * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/gcd_u64.h"
 
 static inline seq_t divisor_count_u64(uint64_t n) {

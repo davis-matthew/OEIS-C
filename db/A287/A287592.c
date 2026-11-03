@@ -7,6 +7,7 @@
  * Formula:   a(n) = (-1 + 2^n)^2 - ( n * ( -7 + 2^(1+n) + n )) / 2
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* Uses the closed‑form expression, with a small special‑case for n = 0,1
    to avoid signed intermediate problems. */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

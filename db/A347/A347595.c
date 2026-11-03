@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 34, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #ifdef __SIZEOF_INT128__
 typedef unsigned __int128 u128;
@@ -54,7 +56,7 @@ static void ensure_seq(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, new_cap);
     seq_cap = new_cap;
 }
 
@@ -63,7 +65,7 @@ static void ensure_used(size_t needed)
     if (needed <= used_cap) return;
     size_t new_cap = used_cap ? used_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    used_arr = (seq_t *)realloc(used_arr, new_cap * sizeof(seq_t));
+    used_arr = mem_resize(seq_t, used_arr, new_cap);
     used_cap = new_cap;
 }
 

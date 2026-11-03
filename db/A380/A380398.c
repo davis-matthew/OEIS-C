@@ -8,15 +8,18 @@
  * Formula:   a(n) = Sum_{d|n, gcd(d, n/d) == 1} [d in A001597]
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd_int
+ * Validated: standard, pass, 103 terms through n = 9784 (2026-11-01)
+ * Helpers:   factor_u64, gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/gcd_int.h"
+#include "../utils/gcd_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
                 if (g == 0)
                     g = e;
                 else {
-                    g = gcd_int(g, e);
+                    g = gcd_i32(g, e);
                     if (g == 1) break;   /* cannot become a perfect power */
                 }
             }

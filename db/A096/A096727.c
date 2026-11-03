@@ -8,14 +8,35 @@
  *            σ(k) = 0 for non‑integral k). a(0) = 1
  * Range:     i8 n <= 9, i16 n <= 1469, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   sigma_helper
+ * Validated: standard, pass, 73 terms through n = 9439 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sigma_helper.h"
+#include "../utils/mem.h"
+
+/* Sum of divisors of a positive integer.  n is guaranteed to fit in
+   idx_t.  The result is returned as seq_t; for large n the value will
+   still fit in seq_t as required by the tests. */
+static seq_t sigma_helper(idx_t n)
+{
+    if (n == 0) return (seq_t)0;
+
+    uint64_t sum = 1;          /* divisor 1 */
+    if (n > 1) sum += (uint64_t)n;   /* divisor n itself */
+
+    for (idx_t d = 2; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (uint64_t)d;
+            idx_t other = n / d;
+            if (other != d) sum += (uint64_t)other;
+        }
+    }
+    return (seq_t)sum;
+}
 
 /* --------------------------------------------------------------------- */
 
@@ -33,7 +54,7 @@ static idx_t sigma_max   = 0;       /* highest index computed (>=0) */
    The old data remains valid. */
 static void grow_cache(idx_t new_len)
 {
-    seq_t *new_cache = (seq_t *)realloc(sigma_cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, sigma_cache, new_len);
     if (!new_cache) exit(1);
     sigma_cache = new_cache;
     sigma_cap   = new_len;

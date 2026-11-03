@@ -8,6 +8,7 @@
  * Formula:   Let k = 5*(n/4)+{0,1,2,4}[n%4]; then a(n) = k(k+1)(k+3)(k+4)/5
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

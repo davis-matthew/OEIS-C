@@ -10,7 +10,8 @@
  *            and even numbers, and a linear search otherwise
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, lpf
+ * Validated: standard, pass, 77 terms through n = 9277 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 /* Provided utilities */
-#include "../utils/lpf.h"     /* lpf(idx_t n) */
-#include "../utils/is_prime.h" /* is_prime(idx_t n) – optional, not used */
+#include <stdbool.h>
+#include "../utils/is_prime.h"
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 
 seq_t a(idx_t n)
 {

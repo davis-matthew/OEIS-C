@@ -12,6 +12,7 @@
  *            evaluated at n
  * Range:     u8 n <= 36, u16 n <= 67, u32 n <= 155, u64 n <= 381,
  *            u128 n <= 996, big any n
+ * Validated: standard, pass, 82 terms through n = 9675 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,8 @@
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/binomial.h"  /* binomial(idx_t, idx_t) -> seq_t */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 /* helper: floor of rational k*(k+1)/2 for idx_t k */
 static inline unsigned __int128 cum(idx_t k)

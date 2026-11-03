@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper: does x contain the pair 49 or 94? */
 static bool has_pair(seq_t x)
@@ -56,13 +58,13 @@ seq_t a(idx_t n)
         if (cap < (size_t)n) {
             size_t new_cap = cap ? cap << 1 : 16;
             if (new_cap < (size_t)n) new_cap = n;
-            seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_new(seq_t, new_cap);
             if (tmp == NULL) { /* allocation failure; safe fallback */
                 return 0;
             }
             if (cache) {
                 for (size_t i = 0; i < len; ++i) tmp[i] = cache[i];
-                free(cache);
+                mem_free(cache);
             }
             cache = tmp;
             cap   = new_cap;

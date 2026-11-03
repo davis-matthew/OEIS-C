@@ -8,14 +8,17 @@
  *            = sum of divisors d of n for which d is not a perfect square.
  *            Implementation uses prime factorization and multiplicative
  *            formulas
- * Range:     u8 n <= 119, u16 n <= 9809, u32 n <= 9809, u64 n <= 9809,
- *            u128 n <= 9809, big any n
+ * Range:     u8 n <= 119, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 91 terms through n = 9809 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

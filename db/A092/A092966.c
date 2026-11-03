@@ -7,7 +7,8 @@
  * Formula:   a(n) = (1/6)*(n-1)*(23*n^2-19*n+6)
  * Range:     u8 n <= 4, u16 n <= 26, u32 n <= 1039, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 1809 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(n) = 4*a(n-1) - 6*a(n-2) + 4*a(n-3) - a(n-4);  a(1)=0,a(2)=10,a(3)=52,a(4)=149 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialize cache with base values */
     if (cache == NULL) {
         cache_size = 8;                     /* initial capacity */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0; /* allocation failure, return 0 */
         /* zero the whole array for safety */
         for (idx_t i = 0; i < cache_size; ++i)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         idx_t new_size = cache_size;
         while (new_size <= n)
             new_size <<= 1;
-        seq_t *temp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *temp = mem_resize(seq_t, cache, new_size);
         if (!temp) return 0; /* allocation failure */
         cache = temp;
         cache_size = new_size;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   cmp_ulongs
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,14 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/cmp_ulongs.h"
+
+/* helper: comparison for qsort on unsigned long long */
+static int cmp_ulongs(const void *p1, const void *p2)
+{
+    unsigned long long a = *(const unsigned long long *)p1;
+    unsigned long long b = *(const unsigned long long *)p2;
+    return (a > b) - (a < b);
+}
 
 /* helper: binary search in sorted array */
 static bool contains(const unsigned long long *arr, size_t len, unsigned long long val)

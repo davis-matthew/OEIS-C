@@ -9,13 +9,23 @@
  *            digital_root(k) have opposite parity
  * Range:     u8 n <= 122, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   parity_of_digit_sum
+ * Validated: standard, pass, 78 terms through n = 9928 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/parity_of_digit_sum.h"
+
+/* Compute the parity (0 even, 1 odd) of the digital sum of an idx_t number. */
+static unsigned parity_of_digit_sum(idx_t x) {
+    unsigned sum = 0;
+    while (x) {
+        sum += (unsigned)(x % 10);
+        x /= 10;
+    }
+    return sum & 1U;
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;

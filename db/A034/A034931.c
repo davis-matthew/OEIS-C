@@ -8,13 +8,15 @@
  *            = n - r*(r + 1)/2
  * Range:     u8 n <= 7380, u16 n <= 7380, u32 n <= 7380, u64 n <= 7380,
  *            u128 n <= 7380, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 7243 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,10 +30,10 @@ seq_t a(idx_t n)
 
     /* Dynamic programming for binomial(r, j) mod 4 for j = 0..r */
     size_t size = (size_t)(r + 1);
-    seq_t *dp = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
     if (!dp) return 0;              /* should never happen                */
 
-    memset(dp, 0, size * sizeof(seq_t));
+    mem_set(dp, 0, size * sizeof(seq_t));
     dp[0] = 1;                       /* C(r,0) = 1                         */
 
     for (idx_t i = 1; i <= r; ++i)
@@ -45,6 +47,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[k];
-    free(dp);
+    mem_free(dp);
     return result;
 }

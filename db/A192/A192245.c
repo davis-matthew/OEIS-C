@@ -8,13 +8,15 @@
  * Formula:   a(n) = Sum_{k=0..n-1} A000217(k+1)*Fibonacci(k)
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 33, u64 n <= 76, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static state for memoisation */
 static size_t a_cache_size = 0;
@@ -31,7 +33,7 @@ static void a_ensure_capacity(size_t needed)
     size_t new_cap = a_cache_cap ? a_cache_cap << 1 : 8;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     a_cache = tmp;
     a_cache_cap = new_cap;
 }

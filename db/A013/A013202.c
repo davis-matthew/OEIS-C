@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 19, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    expansion of log(sech(x) + sin(x)), i.e.
    log(sech(x)+sin(x)) = Σ_{n≥1} a(n) · x^n / n! */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Auxiliary macro: absolute value for seq_t (works for signed integer types) */
 #define ABS_SEQ_T(x) ((x) < 0 ? -(x) : (x))
@@ -27,13 +29,13 @@ seq_t a(idx_t n)
 
     /* Allocate space for all auxiliary sequences up to n */
     size_t N = (size_t)n + 1;     /* indices 0 … n */
-    seq_t *e      = (seq_t *)malloc(N * sizeof(seq_t));   /* Euler numbers (sech) */
-    seq_t *s      = (seq_t *)malloc(N * sizeof(seq_t));   /* h(x)=sech+sin coeffs */
-    seq_t *invH   = (seq_t *)malloc(N * sizeof(seq_t));   /* 1 / h(x) coeffs */
-    seq_t *a_arr  = (seq_t *)malloc(N * sizeof(seq_t));   /* desired a(n) coeffs */
+    seq_t *e      = mem_new(seq_t, N);   /* Euler numbers (sech) */
+    seq_t *s      = mem_new(seq_t, N);   /* h(x)=sech+sin coeffs */
+    seq_t *invH   = mem_new(seq_t, N);   /* 1 / h(x) coeffs */
+    seq_t *a_arr  = mem_new(seq_t, N);   /* desired a(n) coeffs */
 
     if (!e || !s || !invH || !a_arr) {       /* allocation failed */
-        free(e); free(s); free(invH); free(a_arr);
+        mem_free(e); mem_free(s); mem_free(invH); mem_free(a_arr);
         return (seq_t)0;
     }
 
@@ -98,10 +100,10 @@ seq_t a(idx_t n)
 
     seq_t result = a_arr[n];
 
-    free(e);
-    free(s);
-    free(invH);
-    free(a_arr);
+    mem_free(e);
+    mem_free(s);
+    mem_free(invH);
+    mem_free(a_arr);
 
     return result;
 }

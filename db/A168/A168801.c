@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 492 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoised values */
 static size_t cache_len = 0;  /* highest index allocated (exclusive) */
@@ -32,10 +34,10 @@ seq_t a(idx_t n)
     if ((idx_t)cache_len <= n) {
         size_t new_len = (size_t)n + 1;
         /* Reallocate to accommodate up to n. */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) {
             /* Allocation failed – ensure no leak and return 0. */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_len = 0;
             return (seq_t)0;

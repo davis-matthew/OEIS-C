@@ -9,15 +9,32 @@
  *            = φ(A356193(n))
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 1626, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _factor_contrib, _prime_pow
+ * Validated: standard, pass, 64 terms through n = 8239 (2026-11-01)
+ * Helpers:   ipow_u64_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_factor_contrib.h"
-#include "../utils/_prime_pow.h"
+#include "../utils/ipow_u64_i32.h"
+
+/* factor contribution for prime power p^e */
+static seq_t _factor_contrib(uint64_t p, int e)
+{
+    seq_t part = (seq_t)p - 1;
+    if (e < 3)
+    {
+        /* (p-1) * p² */
+        return part * (seq_t)p * (seq_t)p;
+    }
+    else
+    {
+        /* (p-1) * p^(e-1) */
+        seq_t powp = ipow_u64_i32(p, e - 1);
+        return part * powp;
+    }
+}
 
 seq_t a(idx_t n)
 {

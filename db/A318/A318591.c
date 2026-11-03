@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,12 +37,13 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate array of binomial coefficients C(n,k), 0 ≤ k ≤ n */
     size_t len = (size_t)(n + 1);
-    seq_t *C = (seq_t*)calloc(len, sizeof(seq_t));
+    seq_t *C = mem_new(seq_t, len);
     if (!C) return 0;                         /* allocation failure */
 
     C[0] = 1;
@@ -61,6 +63,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(C);
+    mem_free(C);
     return ans;
 }

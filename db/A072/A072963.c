@@ -8,6 +8,7 @@
  * Formula:   a(n) = Π_{p^e || n} (p^e if p±2 is prime else 1)
  * Range:     u8 n <= 260, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 97 terms through n = 9634 (2026-11-01)
  * Helpers:   factor_uint64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
 #include "../utils/factor_uint64.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {

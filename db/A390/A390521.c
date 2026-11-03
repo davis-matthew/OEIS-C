@@ -8,14 +8,16 @@
  * Formula:   a(n) = limiting prime of the recurrence * x(k) = 1 +
  *            (phi(x(k-1)) + phi(x(k-2))) / 2 * with initial values x(0) =
  *            x(1) = n * This function returns the converged prime a(n)
- * Range:     u8 n <= 248, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
+ * Range:     u8 n <= 255, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 99 terms through n = 4739 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
     seq_t x1 = x0;         /* x(1) */
 
     while (1) {
-        seq_t phi0 = calc_phi(x0);
-        seq_t phi1 = calc_phi(x1);
+        seq_t phi0 = totient_seq(x0);
+        seq_t phi1 = totient_seq(x1);
         seq_t sum  = phi0 + phi1;   /* sum fits in seq_t */
         seq_t x2   = 1 + sum / 2;   /* integer division */
 

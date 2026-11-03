@@ -9,14 +9,16 @@
  *            (p^(e+1) − 1)/(p − 1) for odd primes p
  * Range:     u8 n <= 16, u16 n <= 586, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow2, pow_seq
+ * Validated: standard, pass, 82 terms through n = 9620 (2026-11-01)
+ * Helpers:   ipow_i32, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_i32.h"
 #include "../utils/pow2.h"
-#include "../utils/pow_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
                 odd /= p;
                 ++e;
             }
-            seq_t p_pow   = pow_seq((seq_t)p, (int)(e + 1)); /* p^(e+1) */
+            seq_t p_pow   = ipow_i32((seq_t)p, (int)(e + 1)); /* p^(e+1) */
             seq_t factor  = (p_pow - (seq_t)1) / ((seq_t)p - (seq_t)1);
             result *= factor;
         }
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
 
     if (odd > 1) {    /* remaining prime factor */
         seq_t p = (seq_t)odd;
-        seq_t factor = (pow_seq(p, 2) - (seq_t)1) / ((seq_t)odd - (seq_t)1);
+        seq_t factor = (ipow_i32(p, 2) - (seq_t)1) / ((seq_t)odd - (seq_t)1);
         result *= factor;
     }
 

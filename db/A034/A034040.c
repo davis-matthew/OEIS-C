@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* gcd for 64‑bit unsigned integers */
 static inline uint64_t gcd_u64(uint64_t a, uint64_t b)
@@ -93,7 +95,7 @@ static void add_term(seq_t v)
 {
     if (found_len >= found_cap) {
         found_cap = found_cap ? found_cap * 2 : 64;
-        found = (seq_t*)realloc(found, found_cap * sizeof(seq_t));
+        found = mem_resize(seq_t, found, found_cap);
     }
     found[found_len++] = v;
 }

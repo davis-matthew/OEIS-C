@@ -7,7 +7,8 @@
  * Formula:   a(n) = (2^(2p) + 1)/5 where p is the nth prime >5 (OEIS A293626)
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   next_prime, pow_seq
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   ipow_i32, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* cache of computed terms */
 static seq_t *cache = NULL;
@@ -63,7 +65,7 @@ static void ensure_cache(size_t n)
     /* grow cache if needed */
     if (cache_size == cache_cap) {
         cache_cap = cache_cap ? cache_cap * 2 : 16;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* ensure primes */
@@ -72,7 +74,7 @@ static void ensure_cache(size_t n)
     /* compute missing terms */
     for (size_t i = cache_size; i < n; ++i) {
         uint64_t p = prime_cache[i];                    /* prime index i+1 */
-        seq_t pow = pow_seq((seq_t)2, (idx_t)(2U * (idx_t)p));
+        seq_t pow = ipow_i32((seq_t)2, (idx_t)(2U * (idx_t)p));
         seq_t val = (pow + (seq_t)1) / (seq_t)5;
         cache[i] = val;
     }

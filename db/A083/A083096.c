@@ -7,13 +7,34 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 320, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   binom2_mod3
+ * Validated: standard, pass, 64 terms through n = 6347 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom2_mod3.h"
+
+static inline int binom2_mod3(idx_t j)
+{
+    static const int C[3][3] = {
+        {1,0,0},
+        {1,1,0},
+        {1,2,1}
+    };
+    idx_t two_j = j << 1;        /* 2*j */
+    int prod = 1;
+    while (j || two_j) {
+        int j_digit  = j % 3;
+        int two_digit = two_j % 3;
+        if (j_digit > two_digit)
+            return 0;
+        prod = (prod * C[two_digit][j_digit]) % 3;
+        j     /= 3;
+        two_j /= 3;
+    }
+    return prod;
+}
 
 /* Test that C(2j,k) = C(2j,j) mod 3 can be computed by Lucas’ theorem.
    We generate the sequence by accumulating the partial sums modulo 3

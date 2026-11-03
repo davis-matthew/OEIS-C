@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} (2*k)!
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Static cache of a(i) values and current factorial */
 static seq_t *cache = NULL;      /* array of a(i) */
@@ -29,7 +31,7 @@ static void ensure_cache_capacity(idx_t N)
     while (new_cap <= (size_t)(N + 1))
         new_cap <<= 1;                 /* double until enough */
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     cache = new_cache;
     cache_cap = new_cap;
 }
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;   /* allocation failure: return 0 */
         cache[0] = (seq_t)1;          /* a(0) = 0! = 1 */
         cache_max = 0;

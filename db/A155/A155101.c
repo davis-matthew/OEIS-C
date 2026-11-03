@@ -10,7 +10,8 @@
  *            a(5) = 10, a(6) = 12,
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- Basic helpers ------------------------------------------------------- */
 
@@ -79,7 +81,7 @@ static void ensure_cache(size_t needed)
     if (needed <= terms_cap) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 8;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) { terms = NULL; terms_cap = 0; } else { terms = tmp; terms_cap = new_cap; }
 }
 

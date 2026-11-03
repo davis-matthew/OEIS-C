@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 75 terms through n = 1977 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* static storage for sequence terms */
 static seq_t *terms = NULL;     /* array of found terms */
@@ -31,7 +33,7 @@ static bool initialized = false;   /* initialization flag */
 /* enlarge the terms array when necessary */
 static void grow_terms(void) {
     terms_cap = terms_cap ? terms_cap * 2 : 16;
-    seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
     if (!tmp) abort();
     terms = tmp;
 }
@@ -41,7 +43,7 @@ static void ensure(void) {
     if (initialized) return;
 
     terms_cap = 16;
-    terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     if (!terms) abort();
 
     terms_len = 0;
@@ -55,9 +57,9 @@ static void compute_more_terms(size_t target_len) {
         /* search forward for the next qualifying integer */
         for (;;) {
             ++last_checked;
-            uint64_t d1 = divisor_count_u64(last_checked);
+            uint64_t d1 = num_divisors(last_checked);
             uint64_t m  = last_checked + d1;
-            uint64_t d2 = divisor_count_u64(m);
+            uint64_t d2 = num_divisors(m);
             if (d2 < d1) {
                 /* store the found term */
                 if (terms_len == terms_cap) grow_terms();

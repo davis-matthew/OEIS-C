@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 8, i64 n <= 16, i128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 290 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,14 @@
    Using symmetry the sum is computed in half the time. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for computed terms */
     static seq_t *cache = NULL;
     static size_t cap = 0;           /* number of elements in cache */
     if (cap == 0) {                  /* first call: initialise cache */
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) exit(1);
         cache[0] = 1;                /* a(0) = 1 */
         cap = 1;
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     /* extend cache up to index n if necessary */
     if ((size_t)n >= cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) exit(1);
         cache = new_cache;
 

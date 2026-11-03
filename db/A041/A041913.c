@@ -7,7 +7,8 @@
  * Formula:   a(n) = denominator of the n‑th convergent of sqrt(478)
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 24, u64 n <= 45, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- global cache for denominators ----------------- */
 static seq_t *q_cache   = NULL;   /* array of denominators q_k  */
@@ -43,7 +45,7 @@ static void ensure_cache_cap(idx_t needed)
     if (needed <= (idx_t)cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap : 64;
     while ((idx_t)new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(q_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, q_cache, new_cap);
     if (!tmp) abort();                  /* OOM – stop execution */
     q_cache = tmp;
     cache_cap = new_cap;
@@ -63,7 +65,7 @@ static void init_cf_coeff(void)
     size_t   idx = 0;                    /* number of coefficients gathered */
 
     size_t cap = 32;
-    cf_coeff = (seq_t*)malloc(cap * sizeof(seq_t));
+    cf_coeff = mem_new(seq_t, cap);
     if (!cf_coeff) abort();
 
     while (true) {
@@ -74,7 +76,7 @@ static void init_cf_coeff(void)
         /* store the coefficient a_next (this is a_(idx+1) ) */
         if (idx >= cap) {
             cap *= 2;
-            seq_t *tmp = (seq_t*)realloc(cf_coeff, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cf_coeff, cap);
             if (!tmp) abort();
             cf_coeff = tmp;
         }

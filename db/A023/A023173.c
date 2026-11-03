@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 5030, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_mul
+ * Validated: standard, pass, 74 terms through n = 9594 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/mod_mul.h"   /* mod_mul(a,b,mod)  */
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 static uint64_t fib_mod_u64(idx_t n, uint64_t mod)
 {
@@ -39,12 +41,12 @@ static uint64_t fib_mod_u64(idx_t n, uint64_t mod)
         uint64_t g2 = g;
 
         /* F(2k) = F(k) * (2*F(k+1) – F(k)) */
-        uint64_t two_g   = mod_mul(g2, 2u, mod);
+        uint64_t two_g   = mulmod(g2, 2u, mod);
         uint64_t diff    = (two_g + mod - f2) % mod;
-        uint64_t c       = mod_mul(f2, diff, mod);
+        uint64_t c       = mulmod(f2, diff, mod);
 
         /* F(2k+1) = F(k)^2 + F(k+1)^2 */
-        uint64_t d       = (mod_mul(f2, f2, mod) + mod_mul(g2, g2, mod)) % mod;
+        uint64_t d       = (mulmod(f2, f2, mod) + mulmod(g2, g2, mod)) % mod;
 
         if ((n >> i) & 1) {
             f = d;
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
 
     if (s_cache == NULL) {
         s_cache_cap = 64;
-        s_cache = (seq_t *)malloc(sizeof(seq_t) * s_cache_cap);
+        s_cache = mem_new(seq_t, s_cache_cap);
         s_cache[0] = (seq_t)1;   /* first term is always 1 */
         s_cache_len = 1;
     }
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
             if (fib_mod_u64(s_next_k, modv) == 1) {
                 if (s_cache_len >= s_cache_cap) {
                     s_cache_cap *= 2;
-                    s_cache = (seq_t *)realloc(s_cache, sizeof(seq_t) * s_cache_cap);
+                    s_cache = mem_resize(seq_t, s_cache, s_cache_cap);
                 }
                 s_cache[s_cache_len++] = (seq_t)s_next_k;
                 s_next_k++;

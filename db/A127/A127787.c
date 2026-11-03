@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   mul_mod_64
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mul_mod_64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* Multiply two 64‑bit values modulo mod using unsigned __int128
    to avoid overflow.  This works on C++17 and supported C11 compilers. */
@@ -48,8 +50,8 @@ static uint64_t fib_mod_uint64(uint64_t n, uint64_t mod)
         else
             two_b_minus_a = two_b + mod - a;
 
-        uint64_t c = mul_mod_64(a, two_b_minus_a, mod);
-        uint64_t d = mul_mod_64(a, a, mod) + mul_mod_64(b, b, mod);
+        uint64_t c = mulmod(a, two_b_minus_a, mod);
+        uint64_t d = mulmod(a, a, mod) + mulmod(b, b, mod);
         if (d >= mod) d -= mod;
 
         if ((n >> i) & 1ULL) {           /* odd exponent bit */
@@ -76,7 +78,7 @@ static void grow_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 8;
     while (new_cap < needed) new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

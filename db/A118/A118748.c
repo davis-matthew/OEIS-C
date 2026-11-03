@@ -9,7 +9,8 @@
  *            2*k (offset 1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 17,
  *            big any n
- * Helpers:   is_prime, seq_mul
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,14 @@
 #include <stdbool.h>
 
 /* Provided utility functions */
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
-#include "../utils/seq_mul.h"    /* seq_t seq_mul(seq_t a, seq_t b); */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +43,7 @@ seq_t a(idx_t n)
     if (n > (idx_t)cap) {
         size_t new_cap = (size_t)n;
         /* realloc may return NULL on failure; let caller handle */
-        cache = (seq_t *)realloc((void *)cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap   = new_cap;
     }
 

@@ -9,8 +9,9 @@
  *            exponent of 2 in the prime factorisation of k, and sigma(k) is
  *            the sum of the divisors of k. The function returns 1 if the
  *            2‑adic valuation of sigma(n) is at least that of n, otherwise 0
- * Range:     u8 n <= 9357, u16 n <= 9357, u32 n <= 9357, u64 n <= 9357,
- *            u128 n <= 9357, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 136 terms through n = 9357 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

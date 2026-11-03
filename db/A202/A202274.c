@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2^(n‑1) for 1 ≤ n ≤ 5, a(6)=25, a(n) = 2^(n‑2) for n ≥ 7
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   pow2_loop
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,13 +16,13 @@
 /* This implements the OEIS A202274: numbers k such that sigma(k) is a Mersenne number. */
 
 #include <stdbool.h>
-#include "../utils/pow2_loop.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
     if (n <= 5)
-        return pow2_loop(n - 1);
+        return pow2(n - 1);
     if (n == 6)
         return (seq_t)25;
-    return pow2_loop(n - 2);
+    return pow2(n - 2);
 }

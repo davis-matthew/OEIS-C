@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* cache of Fibonacci numbers, 1‑indexed.  F[0] unused. */
 static seq_t *fib_cache = NULL;   /* pointer to array of seq_t */
@@ -38,7 +40,7 @@ static void ensure_fib(idx_t n)
     if (target < 4)
         target = 4;
 
-    seq_t *tmp = (seq_t *)realloc(fib_cache, sizeof(seq_t) * (target + 1));
+    seq_t *tmp = mem_resize(seq_t, fib_cache, (target + 1));
     if (!tmp)
         abort();  /* allocation failure */
 

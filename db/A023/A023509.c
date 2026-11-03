@@ -7,6 +7,7 @@
  * Formula:   a(n) = gpf(prime(n)+1) (gpf = greatest prime divisor)
  * Range:     u8 n <= 99, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 93 terms through n = 9002 (2026-11-01)
  * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

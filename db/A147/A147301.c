@@ -10,7 +10,8 @@
  * Formula:   a(n) = smallest m, 0 < m < n, that maximizes rad(m*n*(n-m))
  * Range:     u8 n <= 10, u16 n <= 64, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   rad
+ * Validated: partial, pass, 76 terms through n = 77 (2026-11-01)
+ * Helpers:   radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/rad.h"
+#include "../utils/radical.h"
 
 /* idx_t and seq_t are defined by the build environment. */
 seq_t a(idx_t n)
@@ -39,7 +40,7 @@ seq_t a(idx_t n)
 
         /* rad(product) returns a seq_t, but the value is guaranteed to
            be ≤ product ≤ 10^12 when n ≤ 10^4, so it fits in uint64_t. */
-        uint64_t rad_val = (uint64_t)rad(product);
+        uint64_t rad_val = (uint64_t)radical(product);
 
         if (rad_val > best_rad) {
             best_rad = rad_val;

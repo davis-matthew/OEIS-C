@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 684 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 /* Note: seq_t, idx_t are supplied by the build; do NOT define them here. */
 
 static void ensure_cache_size(size_t needed, seq_t **c, size_t *cap)
@@ -27,7 +29,7 @@ static void ensure_cache_size(size_t needed, seq_t **c, size_t *cap)
     if (needed <= *cap) return;
     size_t new_cap = (*cap > 0) ? *cap : 8;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*c, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *c, new_cap);
     if (!tmp) abort();           /* out of memory */
     *c     = tmp;
     *cap   = new_cap;

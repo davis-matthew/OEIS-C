@@ -7,7 +7,8 @@
  * Formula:   numbers k such that A078142(k)=A006530(k)
  * Range:     u8 n <= 29, u16 n <= 277, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _floor_isqrt_u64, _smallest_prime_factor, gpf, seq_realloc
+ * Validated: standard, pass, 72 terms through n = 988 (2026-11-01)
+ * Helpers:   isqrt, largest_prime_factor, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/gpf.h"
-#include "../utils/seq_realloc.h"
+#include <stddef.h>
+#include "../utils/isqrt.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Test whether a given uint64_t k satisfies the defining condition.  */
 static bool is_valid_num(uint64_t k)
@@ -28,11 +41,11 @@ static bool is_valid_num(uint64_t k)
     seq_t sum = 0;
 
     while (tmp > 1) {
-        uint64_t p = _smallest_prime_factor(tmp);
+        uint64_t p = smallest_prime_factor(tmp);
         /* largest prime factor will be found at the end via gpf(k)  */
 
         /* Differences of distinct prime factor p and the next square larger than p */
-        seq_t sp = (seq_t)(_floor_isqrt_u64(p) + 1);
+        seq_t sp = (seq_t)(isqrt(p) + 1);
         seq_t diff = sp * sp - (seq_t)p;
         sum += diff;
 
@@ -41,7 +54,7 @@ static bool is_valid_num(uint64_t k)
             tmp /= p;
     }
     /* Compare sum with the largest prime factor of k */
-    return sum == (seq_t)gpf(k);
+    return sum == (seq_t)largest_prime_factor(k);
 }
 
 /* Cached sequence */

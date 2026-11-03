@@ -9,8 +9,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf, nice, look
  * Formula:   not stated
- * Range:     u8 n <= 381, u16 n <= 9154, u32 n <= 9154, u64 n <= 9154,
- *            u128 n <= 9154, big any n
+ * Range:     u8 n <= 381, u16 n <= 24573, u32 n <= 24573, u64 n <= 24573,
+ *            u128 n <= 24573, big any n
+ * Validated: standard, pass, 93 terms through n = 9154 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

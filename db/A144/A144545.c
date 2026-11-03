@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2^(n*(n-1))*(2^n + 1)*Product_{i=1}^{n-1} (4^i - 1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 8,
  *            big any n
+ * Validated: standard, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The implementation uses the provided pow2 utility to compute 2^k efficiently. */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

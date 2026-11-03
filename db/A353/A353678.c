@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 2512, u16 n <= 8862, u32 n <= 8862, u64 n <= 8862,
- *            u128 n <= 8862, big any n
- * Helpers:   calc_phi, factor_u64, gcd, pow_uint
+ * Range:     u8 n <= 2512, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 141 terms through n = 8862 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,10 +26,12 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
-#include "../utils/pow_uint.h"
-#include "../utils/calc_phi.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/totient_seq.h"
 
 /* Compute Carmichael's function λ(n) for n > 0 */
 static seq_t lambda_of(uint64_t n)
@@ -56,7 +59,7 @@ static seq_t lambda_of(uint64_t n)
                 comp = ((seq_t)1 << (exps[i] - 2));   /* 2^{k-2} */
         } else {                           /* odd prime powers */
             /* λ(p^e) = p^{e-1} * (p-1)  for odd p */
-            seq_t powp = pow_uint(primes[i], exps[i] - 1);
+            seq_t powp = ipow_u64_idx(primes[i], exps[i] - 1);
             comp = powp * ((seq_t)primes[i] - 1);
         }
 
@@ -73,7 +76,7 @@ seq_t a(idx_t n)
     if (n == 0)
         return 0;                    /* sequence is defined for n ≥ 1 */
 
-    seq_t phi = calc_phi((seq_t)n);          /* Euler's totient */
+    seq_t phi = totient_seq((seq_t)n);          /* Euler's totient */
     seq_t lam = lambda_of((uint64_t)n);      /* Carmichael's lambda */
 
     return (phi == lam * 2) ? 1 : 0;

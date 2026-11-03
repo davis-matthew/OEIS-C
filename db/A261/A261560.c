@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 5144, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, count_prime_factors, digit_product, digit_sum
+ * Validated: standard, pass, 71 terms through n = 9993 (2026-11-03)
+ * Helpers:   bigomega_seq, digit_product, digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,30 @@
 */
 
 #include <stddef.h>
-#include "../utils/count_prime_factors.h"
-#include "../utils/digit_sum.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/bigomega_seq.h"
 #include "../utils/digit_product.h"
-#include "../utils/append_candidate.h"
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,12 +62,12 @@ seq_t a(idx_t n)
 
     /* search for more terms until we have at least n */
     for (seq_t cand = tested_before; ; ++cand) {
-        if ((int)count_prime_factors(cand) == 2) {           /* semiprime?          */
+        if ((int)bigomega_seq(cand) == 2) {           /* semiprime?          */
             seq_t sum  = digit_sum(cand);
             seq_t prod = digit_product(cand);
             seq_t target = sum + prod;
 
-            if ((int)count_prime_factors(target) == 2) {     /* target also semiprime */
+            if ((int)bigomega_seq(target) == 2) {     /* target also semiprime */
                 append_candidate(&terms, &terms_len, &terms_cap, cand);
 
                 if ((size_t)n <= terms_len) {

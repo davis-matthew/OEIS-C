@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 1, u128 n <= 2,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 21 terms through n = 42 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
    arbitrary‑precision integers. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* Scaling constants for a fixed‑point approximation of log10(9). */
 #define LOG10_9_SCALE 10000000000000000ULL          /* 1e16   */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
             ++count;
             if (count == n) {
                 /* Return 9^k.  seq_pow handles arbitrary precision if needed. */
-                return seq_pow((seq_t)9, k);
+                return ipow_idx((seq_t)9, k);
             }
         }
         /* Advance to the next exponent. */

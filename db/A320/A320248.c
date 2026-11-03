@@ -12,12 +12,14 @@
  *            all non‑negative n in O(24·n·√n) * time and O(n) space
  * Range:     u8 n <= 13, u16 n <= 38, u32 n <= 127, u64 n <= 958,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Count of solutions for a given n. */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Allocate the DP array for the current state.  We always use a
        freshly allocated array for the next state to avoid corrupted
        double‑free problems that can arise when swapping pointers. */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return (seq_t)0;          /* allocation failure */
 
     dp[0] = (seq_t)1;                  /* coefficient for sum 0 */
@@ -38,9 +40,9 @@ seq_t a(idx_t n)
        1 + 2*q^{k*1^2} + 2*q^{k*2^2} + … .  The factor 2 accounts
        for the ±m solutions when m ≠ 0. */
     for (idx_t k = 1; k <= 24; ++k) {
-        seq_t *newdp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, (size_t)(n + 1));
         if (!newdp) {
-            free(dp);
+            mem_free(dp);
             return (seq_t)0;          /* allocation failure */
         }
 
@@ -61,11 +63,11 @@ seq_t a(idx_t n)
             }
         }
 
-        free(dp);          /* old state no longer needed */
+        mem_free(dp);          /* old state no longer needed */
         dp = newdp;        /* proceed with the new state */
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

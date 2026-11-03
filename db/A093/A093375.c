@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 142, u32 n <= 510, u64 n <= 2044,
  *            u128 n <= 4950, big any n
+ * Validated: standard, pass, 83 terms through n = 4919 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,7 +24,8 @@
    search, O(1) otherwise.  Works for any seq_t width because all
    arithmetic is performed in the supplied integer types. */
 #include <stdint.h>
-#include "../utils/binomial.h" /* binomial(idx_t a, idx_t b) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

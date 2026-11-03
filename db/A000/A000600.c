@@ -13,15 +13,22 @@
  *            M2[w-1] + M3[w...
  * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 28, u64 n <= 50, u128 n <= 94,
  *            big any n
- * Helpers:   alloc_zero, tri_half
+ * Validated: standard, pass, 48 terms through n = 885 (2026-11-03)
+ * Helpers:   mem, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/tri_half.h"
+#include "../utils/triangular_seq.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *Cc = 0, *Q2 = 0, *Q3 = 0;
 static idx_t have = 0, cap = 0;
@@ -71,7 +78,7 @@ static void ensure(idx_t need) {
 
         seq_t s2 = 0;
         for (i = 1; 2 * i < w; i++) s2 += Cc[i] * Cc[w - i];
-        if (w % 2 == 0) s2 += tri_half(Cc[w / 2]);
+        if (w % 2 == 0) s2 += triangular_seq(Cc[w / 2]);
         Q2[w] = s2;
 
         seq_t s3 = 0;

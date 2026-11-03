@@ -9,17 +9,19 @@
  *            counting signs separately
  * Range:     u8 n <= 20, u16 n <= 95, u32 n <= 1485, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9536 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate array for partial convolution sums. */
-    seq_t *res = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *res = mem_new(seq_t, (size_t)(n + 1));
     if (!res) return (seq_t)0;
     res[0] = 1;
 
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
 
     for (size_t di = 0; di < divcnt; ++di) {
         idx_t d = divisors[di];
-        seq_t *next = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-        if (!next) { free(res); return (seq_t)0; }
+        seq_t *next = mem_new(seq_t, (size_t)(n + 1));
+        if (!next) { mem_free(res); return (seq_t)0; }
 
         for (idx_t k = 0; k <= n; ++k) {
             seq_t r = res[k];
@@ -45,11 +47,11 @@ seq_t a(idx_t n)
                     next[idx] += r * 2;
             }
         }
-        free(res);
+        mem_free(res);
         res = next;
     }
 
     seq_t ans = res[n];
-    free(res);
+    mem_free(res);
     return ans;
 }

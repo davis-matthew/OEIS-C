@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    (OEIS A169922).  The sequence consists of all numbers d‑10
    where d is a divisor of 360 and d ≥ 10. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached list of terms */
 static idx_t cache_size = 0;
@@ -33,7 +35,7 @@ static void build_cache(void)
         if (limit % d == 0)
             ++count;
 
-    cache = (seq_t *)malloc(count * sizeof(seq_t));  /* cast needed for C++ */
+    cache = mem_new(seq_t, count);  /* cast needed for C++ */
     cache_size = count;
 
     idx_t pos = 0;

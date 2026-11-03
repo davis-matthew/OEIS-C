@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(1+a(n-2)) + a(n-1-a(n-2)), a(1)=0, a(2)=1
  * Range:     u8 n <= 668, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 4995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stddef.h>   /* for NULL */
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Allocate or extend the cache to support index n. */
     if (n > cache_size) {
         /* Allocate new storage of size n+1 (indices 0..n). */
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
         if (!new_cache)
             return (seq_t)0; /* allocation failed – return 0 as fallback */
 
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
             new_cache[i] = cache[i];
 
         /* Free old cache and replace it. */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
 
         /* Compute new terms in increasing order, so all dependencies are ready. */

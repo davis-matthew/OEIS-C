@@ -10,7 +10,8 @@
  *            ascending)
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9810 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Build a list of primes up to 'limit' (inclusive).  The result
    is allocated and must be freed by the caller. */
@@ -113,7 +115,7 @@ static void build_sequence(void)
        reasonable buffer.  For 20 M the number of qualifying semiprimes is
        well below 200 000. */
     size_t semis_cap = 200000;
-    seq_t *semis = (seq_t*)malloc(semis_cap * sizeof(seq_t));
+    seq_t *semis = mem_new(seq_t, semis_cap);
     if (!semis) { free(primes); return; }
 
     size_t semis_len = 0;
@@ -121,8 +123,8 @@ static void build_sequence(void)
     #define GROW_SEMIS()                                         \
         do {                                                     \
             semis_cap *= 2;                                      \
-            seq_t *tmp = (seq_t*)realloc(semis, semis_cap * sizeof(seq_t)); \
-            if (!tmp) { free(primes); free(semis); return; }     \
+            seq_t *tmp = mem_resize(seq_t, semis, semis_cap); \
+            if (!tmp) { mem_free(primes); mem_free(semis); return; }     \
             semis = tmp;                                         \
         } while (0)
 
@@ -153,7 +155,7 @@ static void build_sequence(void)
     free(primes);
 
     /* Sort the array so that it is in ascending order */
-    qsort(semis, semis_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(semis, semis_len, sizeof(seq_t), cmp_seq);
 
     /* Cache the result */
     g_seq     = semis;

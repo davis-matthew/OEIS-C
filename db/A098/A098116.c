@@ -7,14 +7,18 @@
  * Formula:   a(n) = 4*3^(p-1) - 1 where p is the n-th prime
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   pow_int_seq, sieve_first_n_primes
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_idx, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/sieve_first_n_primes.h"
-#include "../utils/pow_int_seq.h"
 
 seq_t a(idx_t n) {
     /* Undefined behavior for n < 1 (offset is 1). */
@@ -56,7 +60,7 @@ seq_t a(idx_t n) {
     } else {
         /* n <= last_computed but not the last one; recompute 3^(p-1) from scratch. */
         idx_t p = prime_list[n - 1];
-        term = pow_int_seq((seq_t)3, p - 1);
+        term = ipow_idx((seq_t)3, p - 1);
     }
 
     term *= 4;   /* 4 * 3^(p-1) */

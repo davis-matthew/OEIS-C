@@ -7,7 +7,8 @@
  * Formula:   a(0)=1, a(1..14)=0; for n>=15: a(n)=a(n-1)+a(n-15)
  * Range:     u8 n <= 63, u16 n <= 103, u32 n <= 184, u64 n <= 346,
  *            u128 n <= 670, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    parts ≥15. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,22 +33,20 @@ seq_t a(idx_t n)
         size_t newcap = idx + 1;
         if (newcap < 16) newcap = 16;
         if (newcap < cache_cap * 2) newcap = cache_cap * 2;
-        seq_t *newptr = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cache, newcap);
         if (!newptr)
             return 0;                 /* allocation failed */
         /* zero newly allocated part */
         if (newptr != cache) {
             /* If realloc moved the block, clear from old capacity */
-            memset(newptr + cache_cap, 0,
-                   (newcap - cache_cap) * sizeof(seq_t));
+            mem_set(newptr + cache_cap, 0, (newcap - cache_cap) * sizeof(seq_t));
         }
         cache = newptr;
         /* If we expanded beyond previous capacity, initialise new area */
         if (cache_cap == 0) {
-            memset(cache, 0, newcap * sizeof(seq_t));
+            mem_set(cache, 0, newcap * sizeof(seq_t));
         } else if (cache_cap < newcap) {
-            memset(cache + cache_cap, 0,
-                   (newcap - cache_cap) * sizeof(seq_t));
+            mem_set(cache + cache_cap, 0, (newcap - cache_cap) * sizeof(seq_t));
         }
         cache_cap = newcap;
     }

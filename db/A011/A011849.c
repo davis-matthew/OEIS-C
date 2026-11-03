@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor(binomial(n,3)/3) = floor(n*(n-1)*(n-2)/18)
  * Range:     u8 n <= 17, u16 n <= 106, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 68 terms through n = 965 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

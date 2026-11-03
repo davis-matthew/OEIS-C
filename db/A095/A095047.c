@@ -9,12 +9,14 @@
  *            mod 107, * sorted in increasing order
  * Range:     u8 n <= 53, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t residues[53];
 static int residues_initialized = 0;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
             seq_t val = (seq_t)i * (seq_t)i % 107;
             residues[i - 1] = val;
         }
-        qsort(residues, 53, sizeof(seq_t), cmp_seq);
+        mem_qsort(residues, 53, sizeof(seq_t), cmp_seq);
         residues_initialized = 1;
     }
 

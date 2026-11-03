@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = Number of partitions of n into Catalan numbers, where
  *            every used part appears at least 7 times
- * Range:     u8 n <= 41, u16 n <= 488, u32 n <= 1000, u64 n <= 1000,
+ * Range:     u8 n <= 112, u16 n <= 488, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   catalan
+ * Validated: standard, pass, 101 terms through n = 991 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,17 +33,19 @@
    class).  All allocations are cast to seq_t* where required. */
 
 #include <stdlib.h>
+#include <stddef.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate DP tables; casting to seq_t* is allowed in both C and C++. */
     size_t sz = (size_t)n + 1;
-    seq_t *dp   = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *pre  = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *add  = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, sz);
+    seq_t *pre  = mem_new(seq_t, sz);
+    seq_t *add  = mem_new(seq_t, sz);
     if (!dp || !pre || !add) {
-        free(dp); free(pre); free(add);
+        mem_free(dp); mem_free(pre); mem_free(add);
         return (seq_t)0;
     }
 
@@ -82,6 +85,6 @@ seq_t a(idx_t n)
 
     seq_t result = dp[n];
 
-    free(dp); free(pre); free(add);
+    mem_free(dp); mem_free(pre); mem_free(add);
     return result;
 }

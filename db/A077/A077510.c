@@ -7,6 +7,7 @@
  * Formula:   a(n) is the n-th integer k such that k+pi(k) is prime
  * Range:     u8 n <= 48, u16 n <= 6486, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 74 terms through n = 9218 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

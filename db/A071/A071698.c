@@ -7,7 +7,8 @@
  * Formula:   a(n) is the n‑th lesser member of twin prime pairs (4k+3,4k+5)
  * Range:     u8 n <= 9, u16 n <= 437, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 59 terms through n = 9953 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* State for incremental computation */
 static idx_t  last_k  = 0;          /* next k to try for 4k+3 */
@@ -32,7 +34,7 @@ static void push_term(seq_t v)
 {
     if (terms_cap <= terms_len) {
         terms_cap = (terms_cap == 0) ? 4 : terms_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
         terms = tmp;                /* assume memory allocation never fails */
     }
     terms[terms_len++] = v;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     while (terms_len < n) {
         idx_t candidate = 4 * last_k + 3;   /* 4k+3 */
         /* Check twin prime condition using the 64‑bit primality routine. */
-        if (isPrime(candidate) && isPrime(candidate + 2))
+        if (is_prime(candidate) && is_prime(candidate + 2))
             push_term((seq_t)candidate);     /* store as a(n)            */
         ++last_k;
     }

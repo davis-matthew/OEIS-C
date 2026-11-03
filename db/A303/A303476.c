@@ -13,7 +13,8 @@
  *            and computes each T(i,j) by enumerating all binary...
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   count_shuffles, get_bits
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,55 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/count_shuffles.h"
-#include "../utils/get_bits.h"
+#include "../utils/mem.h"
+
+/* ----- helpers for binary representation ----- */
+static void get_bits(idx_t x, unsigned char *buf, int *len)
+{
+    int l = 0;
+    idx_t t = x;
+    while (t > 0) {
+        t >>= 1;
+        l++;
+    }
+    *len = l;
+    for (int i = 0; i < l; ++i)
+        buf[i] = (x >> (l - 1 - i)) & 1;
+}
+
+/* ----- enumerate and count distinct shuffles of binary strings a,b ----- */
+static seq_t count_shuffles(idx_t a, idx_t b)
+{
+    unsigned char bits_a[64], bits_b[64];
+    int len_a, len_b;
+    get_bits(a, bits_a, &len_a);
+    get_bits(b, bits_b, &len_b);
+    int L = len_a + len_b;                /* total length of resulting strings */
+    if (L == 0) return 1;                 /* unreachable for our n ≥ 1 */
+
+    size_t seen_size = 1u << L;            /* L ≤ 16 for n ≤ 10 000 */
+    uint8_t *seen = (uint8_t *)calloc(seen_size, 1u);
+    if (!seen) exit(1);                    /* out of memory */
+    seq_t cnt = 0;
+
+    for (size_t mask = 0; mask < seen_size; ++mask) {
+        if (__builtin_popcount((unsigned)mask) != (unsigned)len_a)
+            continue;                     /* mask must contain exactly len_a bits from a */
+        uint16_t val = 0;
+        int ai = 0, bi = 0;
+        for (int pos = 0; pos < L; ++pos) {
+            int use_a = (mask >> pos) & 1;
+            int bit  = use_a ? bits_a[ai++] : bits_b[bi++];
+            val = (val << 1) | (uint16_t)bit;
+        }
+        if (!seen[val]) {
+            seen[val] = 1;
+            ++cnt;
+        }
+    }
+    free(seen);
+    return cnt;
+}
 
 /* ----- simple cache for T(i,j) (i ≤ j) ----- */
 struct cache_entry {
@@ -55,7 +103,7 @@ static void add_cache(idx_t a, idx_t b, seq_t val)
     if (cache_sz == cache_cap) {
         size_t new_cap = cache_cap == 0 ? 8 : cache_cap * 2;
         struct cache_entry *new_arr =
-            (struct cache_entry *)realloc(cache_arr, new_cap * sizeof(struct cache_entry));
+            mem_resize(struct cache_entry, cache_arr, new_cap);
         if (!new_arr) exit(1);          /* out of memory */
         cache_arr = new_arr;
         cache_cap = new_cap;

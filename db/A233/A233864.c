@@ -11,7 +11,8 @@
  *            divisors of k)
  * Range:     u8 n <= 6737, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_trivial
+ * Validated: standard, pass, 116 terms through n = 9851 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/is_prime_trivial.h"
+#include "../utils/is_prime_u64.h"
 
 /* -- simple primality test for 64 bit values -------------------------------- */
 
@@ -82,7 +83,7 @@ seq_t a(idx_t n)
         unsigned long long p1 = base - m;
         unsigned long long p2 = base + m;
 
-        if (!is_prime_trivial(p1) || !is_prime_trivial(p2))
+        if (!is_prime_u64(p1) || !is_prime_u64(p2))
             continue;
 
         if (!seen_cache[(size_t)m]) {

@@ -7,6 +7,7 @@
  * Formula:   a(n) = C(74,n) for 0 ≤ n ≤ 74, otherwise a(n) = 0
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 24, u128 n <= 74,
  *            big any n
+ * Validated: full, pass, 75 terms through n = 74 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

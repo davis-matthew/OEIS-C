@@ -9,7 +9,8 @@
  *            repeated letters
  * Range:     u8 n <= 10, u16 n <= 24, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Mapping of numbers to their Spanish word representations without accents. */
 static const char *const unit_words[20] = {
@@ -113,14 +115,13 @@ static idx_t next_candidate = 1;
 seq_t a(idx_t n) {
     if (!seq_cache) {
         seq_cache_cap = 128;
-        seq_cache = (seq_t *)malloc(seq_cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cache_cap);
     }
     while (seq_cache_cnt < n) {
         if (has_unique_letters_idx(next_candidate)) {
             if (seq_cache_cnt == seq_cache_cap) {
                 seq_cache_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(seq_cache,
-                                              seq_cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_cache, seq_cache_cap);
                 if (!tmp) exit(1);
                 seq_cache = tmp;
             }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 22, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 283 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,6 +39,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -54,14 +56,14 @@ seq_t a(idx_t n)
         size_t new_cap = (n + 1) * 2;
         if (cap == 0) {
             cap = new_cap;
-            R = (seq_t*)calloc(cap, sizeof(seq_t));
-            B = (seq_t*)calloc(cap, sizeof(seq_t));
-            G = (seq_t*)calloc(cap, sizeof(seq_t));
+            R = mem_new(seq_t, cap);
+            B = mem_new(seq_t, cap);
+            G = mem_new(seq_t, cap);
         } else {
             cap = new_cap;
-            R = (seq_t*)realloc(R, cap * sizeof(seq_t));
-            B = (seq_t*)realloc(B, cap * sizeof(seq_t));
-            G = (seq_t*)realloc(G, cap * sizeof(seq_t));
+            R = mem_resize(seq_t, R, cap);
+            B = mem_resize(seq_t, B, cap);
+            G = mem_resize(seq_t, G, cap);
             /* new elements are zeroed by realloc by standard? It does not guarantee.  */
             for (size_t i = computed + 1; i < cap; ++i) {
                 R[i] = B[i] = G[i] = (seq_t)0;

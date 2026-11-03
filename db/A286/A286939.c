@@ -11,12 +11,14 @@
  *            sequence a(n) is the nth symbol of the fixed po...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 8266 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *buffer = NULL;   /* dynamically grown word */
 static idx_t  buf_len = 0;     /* current number of stored bits */
@@ -26,7 +28,7 @@ static idx_t  buf_cap = 0;     /* allocated capacity */
 static void init_buffer(void) {
     if (buffer == NULL) {
         buf_cap = 4;
-        buffer = (seq_t *)malloc(sizeof(seq_t) * buf_cap);
+        buffer = mem_new(seq_t, buf_cap);
         buffer[0] = (seq_t)0;
         buffer[1] = (seq_t)0;
         buf_len = 2;
@@ -39,7 +41,7 @@ static void grow_to(idx_t target) {
     while (buf_len < target) {
         /* generate the next word by the rules described above */
         idx_t new_cap = buf_len * 3 + 10;
-        seq_t *new_buf = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        seq_t *new_buf = mem_new(seq_t, new_cap);
         idx_t new_len = 0;
         idx_t i;
         for (i = 0; i < buf_len; ++i) {
@@ -60,7 +62,7 @@ static void grow_to(idx_t target) {
                 new_buf[new_len++] = (seq_t)0;
             }
         }
-        free(buffer);
+        mem_free(buffer);
         buffer   = new_buf;
         buf_len  = new_len;
         buf_cap  = new_cap;

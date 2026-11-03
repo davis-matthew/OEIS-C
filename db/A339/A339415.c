@@ -12,9 +12,10 @@
  *            (n+1)-th element of A098058 (primes p whose next * prime q
  *            satisfies (p+q) ≡ 0 (mod 4)), r = (p+q)/2, * and s, r‑s are
  *            primes. * The sequence is obtained by listing the areas...
- * Range:     u8 n <= 69, u16 n <= 9216, u32 n <= 9216, u64 n <= 9216,
- *            u128 n <= 9216, big any n
- * Helpers:   none
+ * Range:     u8 n <= 69, u16 n <= 10020, u32 n <= 10020, u64 n <= 10020,
+ *            u128 n <= 10020, big any n
+ * Validated: standard, pass, 89 terms through n = 9216 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external types provided by the build system */
 typedef idx_t idx_t;
@@ -127,7 +129,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort ascending */
-        qsort(area_buf, area_cnt, sizeof(seq_t), cmp_seq_t_const);
+        mem_qsort(area_buf, area_cnt, sizeof(seq_t), cmp_seq_t_const);
 
         /* Append to global cache, ensuring no duplicate due to symmetry */
         for (size_t i = 0; i < area_cnt; ++i) {

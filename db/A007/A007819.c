@@ -8,13 +8,14 @@
  *            binomial(n^2, j-1) * (n^2 - j + 1) / j
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 22,
  *            big any n
- * Helpers:   a007819_gcd
+ * Validated: standard, pass, 31 terms through n = 329 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a007819_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     idx_t m = n * n;
@@ -22,7 +23,7 @@ seq_t a(idx_t n) {
     seq_t result = 0;
     for (idx_t j = 1; j <= n; j++) {
         uint64_t r = (uint64_t)(term % j);
-        uint64_t g = a007819_gcd(r, j);
+        uint64_t g = gcd_u64(r, j);
         if (g == 0) g = j;
         uint64_t jj = j / g;
         uint64_t f = (m - j + 1) / jj;

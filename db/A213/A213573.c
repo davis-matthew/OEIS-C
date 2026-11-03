@@ -11,6 +11,7 @@
  *            first). * Thus a(1)=T(1,1), a(2)=T(2,1), a(3)=T(1,2), …
  * Range:     u8 n <= 15, u16 n <= 91, u32 n <= 435, u64 n <= 1830,
  *            u128 n <= 1830, big any n
+ * Validated: standard, pass, 67 terms through n = 1825 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 15, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* external types supplied by the build */
 seq_t phi(idx_t m);
@@ -72,7 +74,7 @@ static void heap_init(void)
 {
     if (!heap_cap) {
         heap_cap = 64;
-        heap = (Node *)malloc(heap_cap * sizeof(Node));
+        heap = mem_new(Node, heap_cap);
     }
 }
 
@@ -88,7 +90,7 @@ static void heap_push(Node n)
     heap_init();
     if (heap_size == heap_cap) {
         heap_cap <<= 1;
-        heap = (Node *)realloc(heap, heap_cap * sizeof(Node));
+        heap = mem_resize(Node, heap, heap_cap);
     }
     size_t k = heap_size++;
     heap[k] = n;
@@ -131,7 +133,7 @@ static void family_append(seq_t v)
 {
     if (family_len == family_cap) {
         family_cap = family_cap ? family_cap << 1 : 16;
-        family = (seq_t *)realloc(family, family_cap * sizeof(seq_t));
+        family = mem_resize(seq_t, family, family_cap);
     }
     family[family_len++] = v;
 }

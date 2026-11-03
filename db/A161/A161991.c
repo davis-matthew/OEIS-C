@@ -7,6 +7,7 @@
  * Formula:   a(n) = [x^n] ∏_{k=1..34} (1 + x + … + x^(2k-1))
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 19, u128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

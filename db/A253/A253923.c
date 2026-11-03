@@ -10,13 +10,27 @@
  *            a(5)=51059956641
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 15,
  *            big any n
- * Helpers:   mul232322
+ * Validated: standard, pass, 29 terms through n = 337 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for uint64_t, etc. */
-#include "../utils/mul232322.h"
+
+/* Helper to multiply by 232322 with correct overflow behaviour.
+   For small-width seq_t we use an unsigned 64‑bit intermediate
+   (guaranteed to hold the full product before truncation).
+   For larger seq_t (uint128_t or arbitrary‑precision) we use
+   the native seq_t multiplication. */
+static inline seq_t mul232322(seq_t x)
+{
+    if (sizeof(seq_t) <= sizeof(unsigned long long)) {
+        return (seq_t)((unsigned long long)x * 232322ULL);
+    } else {
+        return (seq_t)232322 * x;
+    }
+}
 
 seq_t a(idx_t n)
 {

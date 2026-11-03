@@ -9,7 +9,8 @@
  *            n is even
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -27,12 +29,12 @@ seq_t a(idx_t n) {
     /* Ensure cache can hold indices up to n */
     size_t needed = (size_t)n + 1;        /* indices start at 1 */
     if (needed > cap) {
-        seq_t *tmp = (cap == 0) ? (seq_t*)malloc(needed * sizeof(seq_t))
-                                : (seq_t*)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = (cap == 0) ? mem_new(seq_t, needed)
+                                : mem_resize(seq_t, cache, needed);
         if (!tmp) abort();                /* out of memory */
         /* initialize newly allocated part to 0 */
         if (cap < needed)
-            memset(tmp + cap, 0, (needed - cap) * sizeof(seq_t));
+            mem_set(tmp + cap, 0, (needed - cap) * sizeof(seq_t));
         cache = tmp;
         cap   = needed;
     }

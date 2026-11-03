@@ -11,14 +11,30 @@
  *            complementary sequences
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 42, u64 n <= 88, u128 n <= 180,
  *            big any n
- * Helpers:   seq_in
+ * Validated: standard, pass, 52 terms through n = 1744 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/seq_in.h"
+#include "../utils/mem.h"
+
+/* binary search: return 1 if key is in arr[0..len-1], else 0 */
+static int seq_in(const seq_t *arr, size_t len, seq_t key)
+{
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = lo + (hi - lo) / 2;
+        if (arr[mid] == key) return 1;
+        if (arr[mid] < key)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return 0;
+}
 
 /* ensure that array has space for needed items */
 static void ensure_cap(seq_t **arr, size_t *cap, size_t needed)
@@ -26,7 +42,7 @@ static void ensure_cap(seq_t **arr, size_t *cap, size_t needed)
     if (*cap >= needed) return;
     size_t new_cap = (*cap == 0) ? 1 : *cap;
     while (new_cap < needed) new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 
@@ -42,13 +58,13 @@ seq_t a(idx_t n)
     /* initialise if first call */
     if (a_len == 0) {
         a_cap = 2;
-        a_vals = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
         a_vals[0] = (seq_t)1;
         a_vals[1] = (seq_t)5;
         a_len = 2;
         /* initialise b */
         b_cap = 3;
-        b_vals = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_vals = mem_new(seq_t, b_cap);
         b_vals[0] = (seq_t)2;
         b_vals[1] = (seq_t)3;
         b_vals[2] = (seq_t)4;

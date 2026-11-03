@@ -7,14 +7,26 @@
  * Formula:   a(n) = (a(n-1) mod a(n-3)) + a(n-2) + 1; a(1)=a(2)=a(3)=1
  * Range:     u8 n <= 37, u16 n <= 517, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_cache, free_cache
+ * Validated: standard, pass, 76 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
-#include "../utils/alloc_cache.h"
-#include "../utils/free_cache.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +48,7 @@ seq_t a(idx_t n)
             new_cap <<= 1;
         seq_t *new_cache = alloc_cache(new_cap);
         if (cache) {
-            memcpy(new_cache, cache, cache_count * sizeof(seq_t));
+            mem_copy(new_cache, cache, cache_count * sizeof(seq_t));
             free_cache(cache);
         }
         cache = new_cache;

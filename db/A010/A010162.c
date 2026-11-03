@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, cofr
  * Formula:   not stated
- * Range:     u8 n <= 9399, u16 n <= 9399, u32 n <= 9399, u64 n <= 9399,
- *            u128 n <= 9399, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 94 terms through n = 9399 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoised terms */
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     /* initialise on first call */
     if (!initialized) {
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         cache[0] = a_cur;                 /* a(0) = 9 */
         initialized = true;
     }
@@ -64,7 +66,7 @@ seq_t a(idx_t n) {
         seq_t a_next = (A0 + m_next) / d_next;
 
         /* extend cache */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (cache_len + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (cache_len + 1));
         if (!tmp) {
             /* allocation failure – very unlikely for the given limits */
             abort();

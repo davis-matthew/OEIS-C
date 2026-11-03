@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 339, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 8712 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    φ(k) divided by the Carmichael λ(k) equals 18. */
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* type aliases supplied by the build */
 typedef seq_t a_value_t;
@@ -107,7 +109,7 @@ static void ensure_terms(a_index_t n_needed)
         a_value_t phi = phi_uint64(last_enum);
         a_value_t lam = lambda_uint64(last_enum);
         if (phi == 18ULL * lam) {
-            terms = (a_value_t*)realloc(terms, sizeof(a_value_t) * (terms_cnt + 1));
+            terms = mem_resize(a_value_t, terms, (terms_cnt + 1));
             terms[terms_cnt++] = (a_value_t)last_enum;
         }
     }

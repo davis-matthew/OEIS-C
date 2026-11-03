@@ -7,7 +7,8 @@
  * Formula:   a(n) = product over prime powers p^e | n of (p+3)^e
  * Range:     u8 n <= 15, u16 n <= 127, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_one
+ * Validated: standard, pass, 74 terms through n = 9634 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,11 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_one.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n) {
     if (n == 0) return seq_one(); /* offset handling: a(1) for n=1 */

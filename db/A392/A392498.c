@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   build_spf
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_spf.h"   /* provides void build_spf(idx_t limit, idx_t **spf_out) */
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 static idx_t *spf = NULL;          /* array of smallest prime factors, indexed by value */
 static size_t spf_len = 0;         /* length of the spf array (valid indices: 0 .. spf_len-1) */
@@ -61,8 +63,8 @@ static void append_term(seq_t val)
 {
     if (terms_len >= terms_cap) {
         size_t new_cap = terms_cap == 0 ? 8 : terms_cap * 2;
-        seq_t *new_terms = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        if (terms) { memcpy(new_terms, terms, terms_len * sizeof(seq_t)); free(terms); }
+        seq_t *new_terms = mem_new(seq_t, new_cap);
+        if (terms) { mem_copy(new_terms, terms, terms_len * sizeof(seq_t)); mem_free(terms); }
         terms = new_terms;
         terms_cap = new_cap;
     }

@@ -11,13 +11,45 @@
  *            subsequent calls
  * Range:     u8 n <= 11, u16 n <= 74, u32 n <= 3044, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _ensure_phi_upto
+ * Validated: standard, pass, 67 terms through n = 9821 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_ensure_phi_upto.h"
+#include "../utils/mem.h"
+
+/* compute phi up to 'limit', increasing the cached array as needed */
+static void _ensure_phi_upto(idx_t limit, seq_t **phi_cache, idx_t *cache_len)
+{
+    if (*cache_len > limit) return;                 /* already sufficient */
+
+    seq_t *new_cache = mem_resize(seq_t, *phi_cache, (limit + 1));
+    if (!new_cache) {                               /* allocation failed */
+        *phi_cache = NULL;
+        *cache_len = 0;
+        return;
+    }
+    *phi_cache = new_cache;
+
+    /* initialise with φ(n) = n */
+    for (idx_t i = 0; i <= limit; ++i)
+        (*phi_cache)[i] = (seq_t)i;
+
+    /* sieve for φ */
+    for (idx_t p = 2; p <= limit; ++p) {
+        if ((*phi_cache)[p] == (seq_t)p) {          /* p is prime */
+            seq_t sp = (seq_t)p;
+            for (idx_t j = p; j <= limit; j += p) {
+                (*phi_cache)[j] = (*phi_cache)[j] -
+                                  (*phi_cache)[j] / sp;
+            }
+        }
+    }
+
+    *cache_len = limit + 1;
+}
 
 seq_t a(idx_t n)
 {

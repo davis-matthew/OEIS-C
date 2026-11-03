@@ -7,13 +7,16 @@
  * Formula:   a(n) = n! * [x^n] exp( Sum_{k=1..n, gcd(n,k)=1} x^k / k )
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 12, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 39 terms through n = 399 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     }
 
     /* factorials 0! .. n! */
-    seq_t *fact = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (size_t)(n + 1));
     if (!fact) exit(EXIT_FAILURE);
     fact[0] = (seq_t)1;
     for (idx_t i = 1; i <= n; ++i) {
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
     }
 
     /* DP array for a[0..n] */
-    seq_t *dp = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) exit(EXIT_FAILURE);
     dp[0] = (seq_t)1;
 
@@ -59,8 +62,8 @@ seq_t a(idx_t n)
 
     seq_t result = dp[n];
 
-    free(dp);
-    free(fact);
+    mem_free(dp);
+    mem_free(fact);
     free(allowed);
 
     return result;

@@ -7,8 +7,9 @@
  * Formula:   a(n) = the n-th positive integer k such that the sum of decimal
  *            digits of 9*k equals 18. This is computed by a simple exhaustive
  *            search
- * Range:     u8 n <= 130, u16 n <= 9988, u32 n <= 9988, u64 n <= 9988,
- *            u128 n <= 9988, big any n
+ * Range:     u8 n <= 130, u16 n <= 21096, u32 n <= 25212, u64 n <= 25212,
+ *            u128 n <= 25212, big any n
+ * Validated: standard, pass, 77 terms through n = 9988 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

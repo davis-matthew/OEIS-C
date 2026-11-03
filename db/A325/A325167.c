@@ -12,7 +12,8 @@
  *            corresponding to the parts of the internal partition
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   build_primes_upto, prime_pos
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/prime_pos.h"
+
+static inline idx_t prime_pos(uint64_t p, idx_t cnt, uint64_t *primes) {
+    idx_t lo = 0, hi = cnt;
+    while (lo < hi) {
+        idx_t mid = (lo + hi) >> 1;
+        if (primes[mid] < p) lo = mid + 1;
+        else if (primes[mid] > p) hi = mid;
+        else return mid + 1;                /* 1‑based index */
+    }
+    return 0; /* should never happen for valid input */
+}
 
 seq_t a(idx_t n) {
     if (n < 1) return (seq_t)0;   /* out of range, not used by tests */

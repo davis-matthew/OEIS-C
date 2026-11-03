@@ -9,7 +9,8 @@
  *            integer 1 is treated as a prime)
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     /* DP table: dp[k][s] – ways to partition s using k distinct primes. */
     size_t rows = limit + 1;
     size_t dp_size = rows * 5;                /* k = 0..4 */
-    seq_t *dp = (seq_t *)calloc(dp_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) { free(primes); return 0; }
 
     dp[0] = 1;                                /* base: 0 sum with 0 primes */
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[4 * rows + (size_t)n];
-    free(dp);
+    mem_free(dp);
     free(primes);
     return result;
 }

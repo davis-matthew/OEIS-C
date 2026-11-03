@@ -11,7 +11,8 @@
  *            m until there are enough terms
  * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 34, u64 n <= 46, u128 n <= 86,
  *            big any n
- * Helpers:   bn_cmp_sh, bn_sub_sh, sh_limb, to_seq
+ * Validated: standard, pass, 63 terms through n = 496 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,49 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/bn_cmp_sh.h"
-#include "../utils/bn_sub_sh.h"
-#include "../utils/sh_limb.h"
-#include "../utils/to_seq.h"
+
+/* limb i of (b << (32*w + r)) */
+static uint32_t sh_limb(const uint32_t *b, size_t blen, size_t w, unsigned r, size_t i) {
+    uint32_t v = 0;
+    if (i >= w && i - w < blen) v = b[i - w] << r;
+    if (r && i >= w + 1 && i - w - 1 < blen) v |= b[i - w - 1] >> (32 - r);
+    return v;
+}
+
+static int bn_cmp_sh(const uint32_t *a, size_t alen, const uint32_t *b, size_t blen, size_t j) {
+    size_t w = j / 32, top, i;
+    unsigned r = (unsigned)(j % 32);
+    top = blen + w + 1;
+    if (alen > top) top = alen;
+    for (i = top; i-- > 0;) {
+        uint32_t x = i < alen ? a[i] : 0;
+        uint32_t y = sh_limb(b, blen, w, r, i);
+        if (x != y) return x > y ? 1 : -1;
+    }
+    return 0;
+}
+
+static void bn_sub_sh(uint32_t *a, size_t alen, const uint32_t *b, size_t blen, size_t j) {
+    size_t w = j / 32, i;
+    unsigned r = (unsigned)(j % 32);
+    uint64_t borrow = 0;
+    for (i = 0; i < alen; i++) {
+        uint64_t t = (uint64_t)a[i] - (uint64_t)sh_limb(b, blen, w, r, i) - borrow;
+        a[i] = (uint32_t)t;
+        borrow = (t >> 63) & 1;
+    }
+}
+
+static seq_t to_seq(const uint32_t *q, size_t ql) {
+    seq_t v = 0;
+    size_t i;
+    for (i = ql; i-- > 0;) {
+        v = v * 65536;
+        v = v * 65536;
+        v += (idx_t)q[i];
+    }
+    return v;
+}
 
 static size_t bn_norm(const uint32_t *a, size_t len) {
     while (len && a[len - 1] == 0) len--;

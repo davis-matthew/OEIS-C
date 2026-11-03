@@ -9,7 +9,8 @@
  *            by the run length
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   is_squarefree
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static idx_t computed = 0;
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
         cap = 16;
         start_arr = (idx_t *)malloc(cap * sizeof(idx_t));
         len_arr   = (idx_t *)malloc(cap * sizeof(idx_t));
-        value_arr = (seq_t *)malloc(cap * sizeof(seq_t));
+        value_arr = mem_new(seq_t, cap);
     }
 
     while (computed <= target) {
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
             idx_t newcap = cap * 2;
             start_arr = (idx_t *)realloc(start_arr, newcap * sizeof(idx_t));
             len_arr   = (idx_t *)realloc(len_arr,   newcap * sizeof(idx_t));
-            value_arr = (seq_t *)realloc(value_arr, newcap * sizeof(seq_t));
+            value_arr = mem_resize(seq_t, value_arr, newcap);
             cap = newcap;
         }
         start_arr[computed] = start;

@@ -11,12 +11,14 @@
  *            a(9)=1632, a(10)=4351, a(11)=10773 Sequence index starts at 1
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 25, u64 n <= 50, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 1‑based array: cache[1] = a(1) */
 static idx_t cache_cap = 0;   /* number of pre‑allocated elements */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t need)
     if (cache_cap >= need) return;
     /* grow to a bit more than needed to reduce reallocs */
     size_t new_cap = need + 10;
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
     if (!new_cache) {
         /* Allocation failed – abort the program (no diagnostic output allowed). */
         exit(1);

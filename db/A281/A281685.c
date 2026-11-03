@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 76 terms through n = 973 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* ---------- sieve for smallest prime factors ---------- */
 static idx_t sieve_limit = 0;
@@ -71,7 +73,7 @@ ensure_seq_cap(size_t need)
         seq_cap = (seq_cap == 0) ? 8 : seq_cap * 2;
         if (seq_cap < need)
             seq_cap = need;
-        seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
     }
 }
 
@@ -115,7 +117,7 @@ a(idx_t n)
         }
 
         /* distinct prime factors of the derivative   */
-        int omega_deriv = count_distinct_primes(derivative);
+        int omega_deriv = omega(derivative);
 
         /* if condition holds, store the term */
         if (omega_k == (size_t)omega_deriv) {

@@ -13,16 +13,49 @@
  *            Here f(-x)^6 f(-x^3)^6 = J(x)^2 J(x^3)^2 with J(x) = Sum_{k>...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 18, u64 n <= 437, u128 n <= 1000,
  *            big any n
- * Helpers:   from_i128, pow7, sigma7
+ * Validated: standard, pass, 42 terms through n = 963 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/from_i128.h"
-#include "../utils/pow7.h"
-#include "../utils/sigma7.h"
+#include <string.h>
+
+static seq_t from_i128(__int128 v)
+{
+    if (v >= -(__int128)4000000000000000000LL && v <= (__int128)4000000000000000000LL)
+        return (seq_t)(long long)v;
+    {
+        __int128 q = v / ((__int128)1 << 32);
+        long long rem = (long long)(v - q * ((__int128)1 << 32));
+        return from_i128(q) * (seq_t)4294967296LL + (seq_t)rem;
+    }
+}
+
+static seq_t pow7(idx_t d)
+{
+    seq_t r = 1, b = (seq_t)d;
+    int k;
+    for (k = 0; k < 7; k++)
+        r *= b;
+    return r;
+}
+
+static seq_t sigma7(idx_t m)
+{
+    seq_t s = 0;
+    idx_t d;
+    for (d = 1; d * d <= m; d++) {
+        if (m % d == 0) {
+            s += pow7(d);
+            if (d != m / d)
+                s += pow7(m / d);
+        }
+    }
+    return s;
+}
 
 static int64_t *Cc = NULL;
 static int64_t *A2c = NULL;

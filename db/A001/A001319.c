@@ -11,13 +11,19 @@
  *            1/((1-x^2)(1-x^5)(1-x^10)(1-x^20)(1-x^50)))
  * Range:     u8 n <= 109, u16 n <= 589, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a001319_c25
+ * Validated: standard, pass, 89 terms through n = 979 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001319_c25.h"
+
+static uint64_t a001319_c25(uint64_t r) {
+    uint64_t q = r / 5, p = r % 2;
+    if (q < p) return 0;
+    return (q - p) / 2 + 1;
+}
 
 seq_t a(idx_t n) {
     seq_t total = 0;

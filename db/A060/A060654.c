@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 1884, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, sort_seq_t
+ * Validated: standard, pass, 97 terms through n = 9637 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/sort_seq_t.h"
+
+/* Simple insertion sort on seq_t array */
+static void sort_seq_t(seq_t *array, size_t n)
+{
+    for (size_t i = 1; i < n; ++i) {
+        seq_t key = array[i];
+        size_t j = i;
+        while (j > 0 && array[j - 1] > key) {
+            array[j] = array[j - 1];
+            --j;
+        }
+        array[j] = key;
+    }
+}
 
 /* Prime factorisation of a 64‑bit unsigned integer.
    Works for both 64‑bit and big‑int builds; the result is always

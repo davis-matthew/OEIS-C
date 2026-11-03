@@ -8,13 +8,15 @@
  *            decimal point)
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *digits = NULL;
 static idx_t period = 0;
@@ -27,7 +29,7 @@ static void init_digits(void) {
     uint64_t r = 1ull % denom;          /* initial remainder */
     /* 1/527 has period 240 (known). Allocate a temporary buffer long enough for the cycle. */
     const idx_t temp_cap = 240;
-    seq_t *tmp = (seq_t*)malloc(temp_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, temp_cap);
     idx_t len = 0;
 
     do {
@@ -38,10 +40,10 @@ static void init_digits(void) {
     } while (r != 1ull);               /* stop when the cycle restarts */
 
     period = len;
-    digits = (seq_t*)malloc(period * sizeof(seq_t));
+    digits = mem_new(seq_t, period);
     for (idx_t i = 0; i < period; ++i) digits[i] = tmp[i];
 
-    free(tmp);
+    mem_free(tmp);
     initialized = true;
 }
 

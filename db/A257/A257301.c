@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 300, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _pow_seq_uint
+ * Validated: standard, pass, 96 terms through n = 8386 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_pow_seq_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Small integer gcd for seq_t values */
 static seq_t _seq_gcd(seq_t a, seq_t b)
@@ -40,7 +41,7 @@ static seq_t _cubic_residues_prime_power(uint64_t p, idx_t e)
     for (idx_t s = 0; 3 * s < e; ++s) {
         idx_t exp = e - 3 * s;          /* modulus exponent for the unit part */
         /* phi(p^exp) = p^(exp-1) * (p-1) */
-        seq_t phi = (exp == 0) ? 1 : _pow_seq_uint(p, exp - 1) * (seq_t)(p - 1);
+        seq_t phi = (exp == 0) ? 1 : ipow_u64_idx(p, exp - 1) * (seq_t)(p - 1);
         seq_t g = _seq_gcd(phi, (seq_t)3);
         seq_t add = phi / g;            /* number of distinct residues of valuation 3*s */
         total += add;

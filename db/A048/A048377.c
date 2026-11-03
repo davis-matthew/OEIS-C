@@ -7,6 +7,7 @@
  * Formula:   a(n) = concat over decimal digits d of d repeated (d+1) times
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 98, u128 n <= 8998,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 9662 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

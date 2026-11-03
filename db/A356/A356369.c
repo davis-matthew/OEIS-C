@@ -12,7 +12,8 @@
  *            {1^1,2^2,…,m^m}
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 9304, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_from_str
+ * Validated: standard, pass, 52 terms through n = 9845 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_from_str.h"
+#include <stdlib.h>
+#include <string.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 /* --------------------------------------------------------------------- */
 /* binomial coefficient (small parameters, fits in 64 bits)              */

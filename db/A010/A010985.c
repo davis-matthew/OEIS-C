@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(n,32) = n!/(32!(n-32)!)
  * Range:     u8 n <= 32, u16 none, u32 n <= 34, u64 n <= 67, u128 n <= 220,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 853 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
    Cancellation is performed with the supplied gcd routine to avoid
    overflow on 64‑bit builds while still working with arbitrary‑precision
    seq_t when the type is larger. */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

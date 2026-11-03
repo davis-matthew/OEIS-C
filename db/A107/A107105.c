@@ -12,12 +12,14 @@
  *            coefficient is obtained with the provided binom() helper
  * Range:     u8 n <= 30, u16 n <= 70, u32 n <= 217, u64 n <= 681,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 79 terms through n = 946 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     idx_t c = n - r * (r + 1) / 2;
 
     /* Compute binomial coefficient C(r,c) using the helper */
-    seq_t comb = binom(r, c);
+    seq_t comb = binomial(r, c);
 
     /* Compute comb*(comb+1)/2 avoiding overflow when possible */
     seq_t val;

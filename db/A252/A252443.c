@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 14, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* 3^k for k = 0..4 */
 static const int powers3[5] = { 1, 3, 9, 27, 81 };
@@ -175,9 +177,9 @@ seq_t a(idx_t n)
 
     /* DP arrays over pairs of last two rows. */
     size_t sz = R * R;
-    seq_t *dp   = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(sz, sizeof(seq_t));
-    if (!dp || !next) { free(dp); free(next); exit(1); }
+    seq_t *dp   = mem_new(seq_t, sz);
+    seq_t *next = mem_new(seq_t, sz);
+    if (!dp || !next) { mem_free(dp); mem_free(next); exit(1); }
 
     /* Base: any pair of valid rows is allowed before we have a third row */
     for (size_t p = 0; p < sz; ++p) dp[p] = (seq_t)1;
@@ -209,7 +211,7 @@ seq_t a(idx_t n)
     seq_t ans = (seq_t)0;
     for (size_t p = 0; p < sz; ++p) ans += dp[p];
 
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return ans;
 }

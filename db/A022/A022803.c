@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   reaches7
+ * Validated: standard, pass, 72 terms through n = 926 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
  *  counted. */
 
 #include <stdbool.h>
-#include "../utils/reaches7.h"
+
+static inline bool reaches7(seq_t x)
+{
+    /*  Returns true iff the forward orbit of x under f eventually hits 7.
+     *  The orbit stops when it reaches 7 (success) or the 1‑2 cycle
+     *  (failure).  All other integers eventually fall into that cycle. */
+    for (;;) {
+        if (x == (seq_t)7) return true;
+        if (x == (seq_t)1 || x == (seq_t)2) return false;
+
+        /*  using modulo to test parity; this works for all seq_t variants. */
+        if ((x % (seq_t)2) == (seq_t)0)
+            x = x / (seq_t)2;      /* even: divide by 2 */
+        else
+            x = x + (seq_t)1;      /* odd : add 1 */
+    }
+}
 
 /*  seq_t  and  idx_t  are supplied by the build system. */
 

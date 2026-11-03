@@ -9,16 +9,36 @@
  *            the generating function row n = (d^n/dx^n)(1+x+x^2)^n / n! * row
  *            n has n+1 terms. a(0)=1; a(1)=1,2; a(2)=3,6,6; * this function
  *            computes a(n) for any non‑negative n
- * Range:     u8 n <= 13, u16 n <= 38, u32 n <= 111, u64 n <= 388,
+ * Range:     u8 n <= 15, u16 n <= 38, u32 n <= 111, u64 n <= 388,
  *            u128 n <= 1348, big any n
- * Helpers:   binomial, find_row_col
+ * Validated: standard, pass, 71 terms through n = 4040 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>   /* For bool if needed */
-#include "../utils/binomial.h"  /* binomial(idx_t n, idx_t k) returns seq_t */
-#include "../utils/find_row_col.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+/* Find the row and column of the flattened index n.
+ * row is the index of the triangle row (starting from 0),
+ * col is the position inside that row (starting from 0). */
+static void find_row_col(idx_t n, idx_t *row, idx_t *col) {
+    idx_t r = 0;
+    idx_t count = 0;   /* number of terms before the current row */
+
+    while (true) {
+        idx_t next = count + r + 1;   /* terms up to and including this row */
+        if (n < next) {               /* n belongs to row r */
+            *row = r;
+            *col = n - count;
+            return;
+        }
+        count = next;
+        ++r;
+    }
+}
 
 /* Compute the coefficient a(row, col) of the triangle.
  * row >= 0, col in [0, row]. */

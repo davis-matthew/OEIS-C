@@ -8,13 +8,28 @@
  *            (mod 20)
  * Range:     u8 n <= 21, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   is_alternating
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_alternating.h"
+
+/* Return true if x has alternating digit parities in base‑10. */
+static bool is_alternating(seq_t x)
+{
+    int last_parity = -1;                /* parity of previously examined digit, -1 means none yet */
+    while (x != 0) {
+        int digit   = (int)(x % 10);     /* current least‑significant digit */
+        int parity  = digit & 1;         /* 0 for even, 1 for odd                  */
+        if (last_parity != -1 && parity == last_parity)
+            return false;                /* two consecutive parity same → not alternating */
+        last_parity = parity;
+        x /= 10;
+    }
+    return true;                         /* all adjacent digits alternate */
+}
 
 seq_t a(idx_t n)
 {

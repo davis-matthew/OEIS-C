@@ -8,13 +8,15 @@
  *            d == 0] · φ(n/d – 1) (for n>0), a(0)=1
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ensure_phi up to n, returning pointer to array phi[0..n] */
 static seq_t *phi_cache = NULL;
@@ -23,7 +25,7 @@ static size_t phi_cache_size = 0;
 static void ensure_phi(idx_t n) {
     if (phi_cache_size > (size_t)n) return;
     size_t new_size = (size_t)n + 1;
-    seq_t *new_phi = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *new_phi = mem_new(seq_t, new_size);
     if (!new_phi) exit(1);          /* abort on memory failure */
     for (size_t i = 0; i < new_size; ++i) new_phi[i] = (seq_t)i;
     for (size_t i = 2; i < new_size; ++i) {
@@ -33,7 +35,7 @@ static void ensure_phi(idx_t n) {
             }
         }
     }
-    free(phi_cache);
+    mem_free(phi_cache);
     phi_cache = new_phi;
     phi_cache_size = new_size;
 }

@@ -10,13 +10,15 @@
  *            Σ_{k>=1} k*x^(k^2)/Π_{i=1..k}(1-x^i)
  * Range:     u8 n <= 27, u16 n <= 76, u32 n <= 249, u64 n <= 879,
  *            u128 n <= 3272, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9255 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Integer square‑root: floor(sqrt(x)) for unsigned 64‑bit values.     */
@@ -62,7 +64,7 @@ static void ensure_table(idx_t N)
 
     /* Free old table */
     if (dp != NULL) {
-        for (idx_t i = 0; i <= dp_k; ++i) free(dp[i]);
+        for (idx_t i = 0; i <= dp_k; ++i) mem_free(dp[i]);
         free(dp);
     }
 
@@ -76,13 +78,13 @@ static void ensure_table(idx_t N)
     }
 
     /* row 0 : only the empty partition */
-    dp[0] = (seq_t *)calloc(dp_n + 1, sizeof(seq_t));
+    dp[0] = mem_new(seq_t, dp_n + 1);
     if (!dp[0]) { free(dp); dp = NULL; dp_n = dp_k = 0; return; }
     dp[0][0] = (seq_t)1;
 
     /* build rows 1..dp_k */
     for (idx_t k = 1; k <= dp_k; ++k) {
-        dp[k] = (seq_t *)calloc(dp_n + 1, sizeof(seq_t));
+        dp[k] = mem_new(seq_t, dp_n + 1);
         if (!dp[k]) { /* allocation failed – abort further rows */ break; }
         seq_t *row = dp[k];
         seq_t *prev = dp[k - 1];

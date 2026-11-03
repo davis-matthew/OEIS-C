@@ -12,13 +12,29 @@
  *            tests 2^k modulo that digit count
  * Range:     u8 n <= 25, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   pow_mod2_uint64
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_mod2_uint64.h"
+
+/* fast modular exponentiation: returns (2^exp) mod mod, where mod >= 1 */
+static inline uint64_t pow_mod2_uint64(uint64_t exp, uint64_t mod)
+{
+    if (mod == 1) return 0;
+    uint64_t base = 2 % mod;
+    uint64_t result = 1 % mod;
+    while (exp)
+    {
+        if (exp & 1ULL)
+            result = (unsigned __int128)result * base % mod;
+        base = (unsigned __int128)base * base % mod;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /*  log10(2) ≈ 0.3010299956639811952137389  (25 decimal places)
     represented as NUM/10^25 where NUM fits in unsigned __int128.  */

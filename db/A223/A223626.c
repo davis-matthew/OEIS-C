@@ -11,6 +11,7 @@
  *            Then a(n) = Σ_{u=0..n} f(u,n) * A(u)
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 26, u64 n <= 57, u128 n <= 120,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 209 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

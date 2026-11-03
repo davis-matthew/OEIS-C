@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 22,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* Sequence A344298 */
 /* Dirichlet g.f.: ∏_{k≥2} (1 + k^(-s))^(9^(k-1)) */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n);
 
@@ -60,9 +63,9 @@ static seq_t dfs(idx_t n, idx_t min_k)
             /* compute binomial coefficient C(9^(d-1), e) */
             seq_t binom;
             if (e == 1) {
-                binom = big_pow((seq_t)9, (seq_t)(d - 1));
+                binom = ipow((seq_t)9, (seq_t)(d - 1));
             } else {
-                seq_t N = big_pow((seq_t)9, (seq_t)(d - 1));
+                seq_t N = ipow((seq_t)9, (seq_t)(d - 1));
 
                 /* numerator: N * (N-1) * ... * (N-e+1) */
                 seq_t numer = (seq_t)1;

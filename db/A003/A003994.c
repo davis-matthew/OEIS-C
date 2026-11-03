@@ -9,13 +9,15 @@
  *            3^(n-3)*(32*n-80), with a(1)=a(2)=0
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 13, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n) {
@@ -27,11 +29,11 @@ seq_t a(idx_t n) {
     
     if (memo == NULL || memo_len <= n) {
         idx_t new_len = (n < 100) ? 100 : (n + 100);
-        seq_t *new_memo = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_len);
         
         if (memo != NULL) {
-            memcpy(new_memo, memo, memo_len * sizeof(seq_t));
-            free(memo);
+            mem_copy(new_memo, memo, memo_len * sizeof(seq_t));
+            mem_free(memo);
         }
         
         for (idx_t i = (memo == NULL ? 0 : memo_len); i < new_len; i++) {

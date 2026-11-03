@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{i=1..9} ((-10)^(n-i+1)-1)/((-10)^i-1)
  * Range:     i8 n <= 9, i16 n <= 9, i32 n <= 10, i64 n <= 11, i128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 23 terms through n = 119 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /*                      Gaussian binomial coefficient [n,9] for q = -10, offset 9 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pow_arr  = NULL;   /* (-10)^e for e = 0..max_exp */
 static size_t pow_cap  = 0;
@@ -30,7 +32,7 @@ static void ensure_pow(idx_t max_exp) {
     if ((size_t)max_exp + 1 <= pow_cap) return;
 
     size_t new_cap = (size_t)max_exp + 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) abort();
 
     /* copy existing entries */
@@ -47,7 +49,7 @@ static void ensure_pow(idx_t max_exp) {
         new_arr[i] = new_arr[i - 1] * base;
     }
 
-    free(pow_arr);
+    mem_free(pow_arr);
     pow_arr = new_arr;
     pow_cap = new_cap;
 }
@@ -57,12 +59,12 @@ static void ensure_cache(idx_t max_n) {
     if ((size_t)max_n + 1 <= cache_cap) return;
 
     size_t new_cap = (size_t)max_n + 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) abort();
 
     for (size_t i = 0; i < cache_cap; ++i) new_arr[i] = cache[i];
 
-    free(cache);
+    mem_free(cache);
     cache = new_arr;
     cache_cap = new_cap;
 }

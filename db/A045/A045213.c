@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 35, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   pow3_int128
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
    using combinatorial ranking. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow3_int128.h"
+
+/* power of 3: 3^e, e >= 0 */
+static __int128 pow3_int128(int e)
+{
+    __int128 r = 1;
+    for (int i = 0; i < e; ++i)
+        r *= 3;
+    return r;
+}
 
 /* binomial coefficient C(n,k) in unsigned __int128 */
 static __int128 binom_int128(int n, int k)

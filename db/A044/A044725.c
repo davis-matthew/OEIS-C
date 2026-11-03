@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* return true iff decimal representation of x contains the pair 1 followed by 2 */
 static bool has12(seq_t x)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         initialized        = true;
         cache_cap          = 64;
-        cache              = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache              = mem_new(seq_t, cache_cap);
         next_candidate     = (seq_t)1;      /* start checking from 1       */
     }
 
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         if (has12(next_candidate) && !has12(next_candidate + (seq_t)1)) {
             if (cache_len >= cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = next_candidate;
         }

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   divisor_greater_than_s, factor_unique_primes, in_A024619
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,9 +43,86 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_greater_than_s.h"
-#include "../utils/factor_unique_primes.h"
-#include "../utils/in_A024619.h"
+
+/* auxiliary: check whether t has a divisor > s coprime with s */
+static bool divisor_greater_than_s(uint64_t t, uint64_t s,
+                                   const uint64_t *s_primes, int s_cnt)
+{
+    uint64_t product = 1;          /* product of selected prime powers */
+    uint64_t temp = t;
+
+    /* trial division up to √t */
+    for (uint64_t p = 2; p * p <= temp; ++p) {
+        if (temp % p == 0) {
+            int exp = 0;
+            while (temp % p == 0) {
+                temp /= p;
+                ++exp;
+            }
+            /* skip if p divides s */
+            bool skip = false;
+            for (int i = 0; i < s_cnt; ++i)
+                if (s_primes[i] == p) { skip = true; break; }
+            if (!skip) {
+                /* multiply p^exp into product, abort if already > s */
+                for (int k = 0; k < exp; ++k) {
+                    if (product > s / p) { product = s + 1; break; }
+                    product *= p;
+                    if (product > s) break;
+                }
+                if (product > s) return true;
+            }
+        }
+    }
+
+    /* remaining prime factor > √t */
+    if (temp > 1) {
+        uint64_t p = temp;
+        bool skip = false;
+        for (int i = 0; i < s_cnt; ++i)
+            if (s_primes[i] == p) { skip = true; break; }
+
+        if (!skip) {
+            if (product > s / p) product = s + 1;
+            else product *= p;
+        }
+    }
+
+    return product > s;
+}
+
+/* auxiliary: factorise n and store unique prime factors in primes[] */
+static void factor_unique_primes(uint64_t n, uint64_t primes[], int *cnt)
+{
+    *cnt = 0;
+    for (uint64_t p = 2; p * p <= n; ++p) {
+        if (n % p == 0) {
+            primes[(*cnt)++] = p;
+            while (n % p == 0) n /= p;
+        }
+    }
+    if (n > 1) primes[(*cnt)++] = n;
+}
+
+/* test whether k belongs to A024619 */
+static bool in_A024619(uint64_t k)
+{
+    /* iterate over divisors s (2 ≤ s < √k) */
+    for (uint64_t s = 2; s * s < k; ++s) {
+        if (k % s) continue;
+
+        uint64_t t = k / s;
+
+        /* factor s once per candidate */
+        uint64_t primes_s[16];
+        int cnt_s;
+        factor_unique_primes(s, primes_s, &cnt_s);
+
+        if (divisor_greater_than_s(t, s, primes_s, cnt_s))
+            return true;
+    }
+    return false;
+}
 
 /* Main routine requested by the problem statement */
 seq_t a(idx_t n)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   digit_sum, factor_u64, is_prime_small
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   digit_sum, factor_u64, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,15 +23,16 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/factor_u64.h"          /* factor_u64(uint64_t, uint64_t*, uint64_t*, size_t*) */
-#include "../utils/digit_sum.h"           /* digit_sum(seq_t) */
-#include "../utils/is_prime_small.h"      /* is_prime_small(uint64_t) */
+#include "../utils/digit_sum.h"
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Return true if x is a Smith number.  x must fit in uint64_t. */
 static bool is_smith_uint64(uint64_t x)
 {
     if (x <= 1) return false;                    /* Smith numbers are composite > 1 */
-    if (is_prime_small(x)) return false;
+    if (is_prime_seq(x)) return false;
 
     seq_t digit_sum_x = digit_sum((seq_t)x);
 
@@ -66,12 +68,12 @@ static void ensure_cache(size_t needed, seq_t **cache, size_t *cap)
 {
     if (*cache == NULL) {
         size_t init = needed > 1024 ? needed : 1024;
-        *cache = (seq_t *)malloc(init * sizeof(seq_t));
+        *cache = mem_new(seq_t, init);
         *cap   = init;
     } else if (needed > *cap) {
         size_t newcap = *cap * 2;
         if (newcap < needed) newcap = needed;
-        *cache = (seq_t *)realloc(*cache, newcap * sizeof(seq_t));
+        *cache = mem_resize(seq_t, *cache, newcap);
         *cap   = newcap;
     }
 }
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
 
         /* Skip 0,1 and primes */
         if (last_checked <= 1ULL) continue;
-        if (is_prime_small(last_checked)) continue;
+        if (is_prime_seq(last_checked)) continue;
 
         /* Factorise last_checked */
         uint64_t primes[64];

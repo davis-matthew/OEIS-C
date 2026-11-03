@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_omega
+ * Validated: standard, pass, 100 terms through n = 875 (2026-11-03)
+ * Helpers:   mem, omega_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
    where ω(n) is the number of distinct prime divisors of n. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/count_omega.h"
+#include "../utils/omega_u64_to_u32.h"
+#include "../utils/mem.h"
 
 /* ---- static caches for the sequence ----------------------- */
 static seq_t *seq_cache = NULL;   /* holds a(k) for k = 1 .. seq_len */
@@ -35,7 +37,7 @@ static void init_caches(void) {
 
     /* sequence cache: at least one slot for a(1) */
     seq_cap = 1;
-    seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, seq_cap);
     seq_cache[0] = (seq_t)1;                /* a(1) = 1 */
     seq_len = 1;
 
@@ -51,7 +53,7 @@ static void grow_seq_cache(size_t need) {
     if (seq_cap >= need) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 1;
     while (new_cap < need) new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap = new_cap;
 }
 
@@ -76,7 +78,7 @@ seq_t a(idx_t n) {
     size_t up_to = (size_t)n;
     for (size_t cur = seq_len + 1; cur <= up_to; ++cur) {
         /* compute ω(cur) = number of distinct prime divisors */
-        unsigned int omega = count_omega((uint64_t)cur);
+        unsigned int omega = omega_u64_to_u32((uint64_t)cur);
 
         /* current term is the number of previous terms equal to ω(cur) */
         seq_t val = (omega < freq_cap) ? (seq_t)freq[omega] : (seq_t)0;

@@ -10,13 +10,15 @@
  *            a(4)=31, a(5)=-16
  * Range:     i8 n <= 7, i16 n <= 15, i32 n <= 32, i64 n <= 65, i128 n <= 132,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 911 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* cache of computed values */
 static idx_t  cache_size = 0;      /* how many values are valid in cache */
@@ -31,12 +33,12 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* Initial allocation: enough for n+1 elements */
         cache_cap = n + 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (cache_cap <= (size_t)n) {
         /* Grow, at least double the capacity or sufficiently large */
         size_t new_cap = cache_cap * 2;
         if (new_cap <= (size_t)n) new_cap = n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1618, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 108 terms through n = 9960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Sequence: a(n) = pi(n) if n is prime, otherwise 0
    (pi is the prime‑counting function) */
@@ -29,10 +31,10 @@ _build_sieve(idx_t limit)
 {
     /* Allocate new arrays of the required size */
     bool   *prime = (bool*)malloc((limit + 1) * sizeof(bool));
-    seq_t  *pi_arr = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
+    seq_t  *pi_arr = mem_new(seq_t, (limit + 1));
     if (!prime || !pi_arr) {
         free(prime);
-        free(pi_arr);
+        mem_free(pi_arr);
         return;   /* allocation failure – keep old state unchanged */
     }
 
@@ -60,7 +62,7 @@ _build_sieve(idx_t limit)
 
     /* Replace old data with the new arrays */
     free(_is_prime);
-    free(_pi_value);
+    mem_free(_pi_value);
     _is_prime = prime;
     _pi_value = pi_arr;
     _max_limit = limit;

@@ -13,7 +13,8 @@
  *            difference values and the right column of each s...
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 20, u128 n <= 43,
  *            big any n
- * Helpers:   absdiff_int, lower_median_of_four
+ * Validated: standard, pass, 34 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,26 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/absdiff_int.h"
-#include "../utils/lower_median_of_four.h"
+#include <stdlib.h>
+#include <string.h>
+
+static inline int absdiff_int(int a, int b) {
+    return a > b ? a - b : b - a;
+}
+
+/* compute lower median of four values in vals[] (assumed size 4) */
+static inline void lower_median_of_four(int vals[4]) {
+    for (int i = 0; i < 3; ++i) {
+        for (int j = i + 1; j < 4; ++j) {
+            if (vals[j] < vals[i]) {
+                int tmp = vals[i];
+                vals[i] = vals[j];
+                vals[j] = tmp;
+            }
+        }
+    }
+    /* after sorting, vals[1] holds the lower median */
+}
 
 /* precompute difference table for all column pairs */
 static uint8_t diff_table[16][16];

@@ -8,16 +8,29 @@
  *            A001511(d)·A001511(n/d) * Multiplicative: a(1)=1, a(p^e)=e+1 for
  *            odd p, a(2^e)=C(e+3,3) * where C(n,k) is the binomial
  *            coefficient
- * Range:     u8 n <= 31, u16 n <= 9754, u32 n <= 9754, u64 n <= 9754,
- *            u128 n <= 9754, big any n
- * Helpers:   binom_cubic, factor_u64
+ * Range:     u8 n <= 31, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 96 terms through n = 9754 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/binom_cubic.h"
+
+/* Compute binomial coefficient C(e+3,3) for small e  (e≥0) */
+static seq_t binom_cubic(idx_t e)
+{
+    seq_t a = e + 3, b = e + 2, c = e + 1;
+    seq_t r = a * b;
+    r *= c;
+    r /= 6;          /* 3! = 6 */
+    return r;
+}
 
 seq_t a(idx_t n)
 {

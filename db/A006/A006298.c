@@ -9,14 +9,23 @@
  *            intermediate product divides the final value
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 26, u128 n <= 55,
  *            big any n
- * Helpers:   legendre_v
+ * Validated: standard, pass, 37 terms through n = 984 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/legendre_v.h"
+
+static long long legendre_v(uint64_t m, uint64_t p) {
+    long long e = 0;
+    while (m) {
+        m /= p;
+        e += (long long)m;
+    }
+    return e;
+}
 
 seq_t a(idx_t n) {
     uint64_t lim, i, j, m;

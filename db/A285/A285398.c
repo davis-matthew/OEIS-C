@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 691 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const unsigned char CT[4][4] = {
     /*   0   1   2   3 */
@@ -59,12 +61,12 @@ static int ensure_states(idx_t n)
     if (n + 1 > states_cap) {
         size_t new_cap = (size_t)(n + 1);
         if (new_cap < 4) new_cap = 4;               /* minimal capacity */
-        struct State *tmp = (struct State *)calloc(new_cap, sizeof(struct State));
+        struct State *tmp = mem_new(struct State, new_cap);
         if (!tmp)
             return 0;                              /* allocation failure */
         if (states) {
-            memcpy(tmp, states, sizeof(struct State) * states_len);
-            free(states);
+            mem_copy(tmp, states, sizeof(struct State) * states_len);
+            mem_free(states);
         }
         states = tmp;
         states_cap = new_cap;

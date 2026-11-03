@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 9183, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint32_t *primes = NULL;
 static size_t primes_cnt = 0;
@@ -114,8 +116,7 @@ seq_t a(idx_t n)
         uint64_t cand = next_candidate;
         if (satisfies(cand)) {
             /* Store the found term. */
-            seq_t *tmp = (seq_t *)realloc(terms_cache,
-                            (cache_size + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms_cache, (cache_size + 1));
             if (!tmp) return 0;          /* allocation failure – should not happen */
             terms_cache = tmp;
             terms_cache[cache_size] = (seq_t)cand;

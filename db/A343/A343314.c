@@ -11,13 +11,15 @@
  *            a(7)=16,a(8)=19,a(9)=39,a(10)=77,a(11)=103,a(12)=226,a(13)=334
  * Range:     u8 n <= 12, u16 n <= 22, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[14] = {
     0, 0, 1, 1, 2, 7, 5, 16, 19, 39, 77, 103, 226, 334
@@ -38,7 +40,7 @@ static int ensure_cache(size_t need)
     while (new_cap < need)
         new_cap <<= 1;                 /* double until big enough */
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         return 0;                     /* allocation failed */
 

@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum_{k=0..n} Stirling2(n+1,k+1)*k!^2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 20,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 41 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

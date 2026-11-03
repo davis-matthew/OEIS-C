@@ -10,7 +10,8 @@
  *            ascending and duplicates removed. OEIS offset is 1
  * Range:     u8 n <= 9, u16 n <= 28, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   compare_seq
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/compare_seq.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static int compare_seq(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -48,7 +59,7 @@ seq_t a(idx_t n)
         /* Estimate a generous capacity; the actual number of terms is
            far smaller (~600), but this keeps reallocations unlikely. */
         values_cap = 2048;
-        values = (seq_t *)malloc(values_cap * sizeof(seq_t));
+        values = mem_new(seq_t, values_cap);
         values_cnt = 0;
 
         /* Determine the numeric limit that can be represented in seq_t
@@ -78,14 +89,14 @@ seq_t a(idx_t n)
 
                 if (values_cnt >= values_cap) {
                     values_cap *= 2;
-                    values = (seq_t *)realloc(values, values_cap * sizeof(seq_t));
+                    values = mem_resize(seq_t, values, values_cap);
                 }
                 values[values_cnt++] = (seq_t)diff;
             }
         }
 
         /* Sort and deduplicate. */
-        qsort(values, values_cnt, sizeof(seq_t), compare_seq);
+        mem_qsort(values, values_cnt, sizeof(seq_t), compare_seq);
         size_t uniq = 0;
         for (size_t i = 0; i < values_cnt; ++i) {
             if (i == 0 || values[i] != values[i - 1])

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 32, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ends_with_two_identical_digits
+ * Validated: standard, pass, 75 terms through n = 986 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,18 @@
  * and not with a longer run of the same digit.
  */
 #include <stdbool.h>
-#include "../utils/ends_with_two_identical_digits.h"
+
+/* Helper to test if m^2 ends with exactly two equal digits. */
+static bool ends_with_two_identical_digits(idx_t m) {
+    seq_t sq = (seq_t)m * (seq_t)m;
+    seq_t last_two = sq % 100u;          /* last two digits */
+    seq_t d = last_two / 10u;            /* tens digit */
+    seq_t o = last_two % 10u;            /* units digit */
+    if (d != o) return false;            /* they must be equal */
+    seq_t last_three = sq % 1000u;       /* last three digits */
+    seq_t third = (last_three / 100u) % 10u; /* hundreds digit */
+    return third != d;                   /* not a longer run */
+}
 
 static bool initialized = false;
 static seq_t base[63];

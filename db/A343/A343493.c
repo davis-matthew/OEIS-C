@@ -7,12 +7,14 @@
  * Formula:   a(n) = 1 - Sum_{d|n, d < n} a(d - 1)
  * Range:     i8 n <= 90, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* a(n) with 0‑based indexing,  n >= 0  */
 seq_t a(idx_t n)
@@ -26,12 +28,12 @@ seq_t a(idx_t n)
         /* allocate or grow cache */
         if (cap == 0) {
             /* first allocation for a(0) */
-            cache = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+            cache = mem_new(seq_t, (size_t)(n + 1));
             if (cache == NULL) return 0; /* fallback on allocation failure */
             /* we will fill entries progressively below */
         } else {
             if (cap < (size_t)n + 1) {
-                seq_t *tmp = (seq_t*)realloc(cache, ((size_t)n + 1) * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, ((size_t)n + 1));
                 if (tmp == NULL) return 0;
                 cache = tmp;
             }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = sign(A005132(n) - A005132(n-1))
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9009 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 
 static idx_t *rec_seq   = NULL;    /* Recamán sequence values */
@@ -44,7 +46,7 @@ static void grow_a(idx_t need) {
     if (a_cap < need) {
         size_t new_cap = a_cap ? a_cap * 2 : 8;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
         a_vals = tmp;
         a_cap  = new_cap;
     }
@@ -75,7 +77,7 @@ seq_t a(idx_t n) {
         rec_len    = 1;
 
         a_cap = 8;
-        a_vals = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
         a_vals[0] = (seq_t)1;     /* a(0) = 1 */
         a_len  = 1;
 

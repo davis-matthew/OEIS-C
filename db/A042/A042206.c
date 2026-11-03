@@ -11,7 +11,8 @@
  *            a(9)=123245001; for n≥10, a(n)=15700*a(n‑5)+a(n‑10)
  * Range:     u8 n <= 0, u16 n <= 4, u32 n <= 9, u64 n <= 21, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached a(i) values */
 static size_t cache_size = 0;    /* number of computed terms (cache_size == last_computed + 1) */
@@ -39,7 +41,7 @@ ensure_cache(idx_t n)
     if (!initialized) {
         /* Initialise the first term a(0) */
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* compute a(0) */
         prev1 = 1;
         prev2 = 0;
@@ -54,7 +56,7 @@ ensure_cache(idx_t n)
     while (cache_size <= (size_t)n) {
         if (cache_size >= cache_cap) {
             cache_cap = cache_cap ? cache_cap * 2 : 64;
-            seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             cache = tmp;
         }
 

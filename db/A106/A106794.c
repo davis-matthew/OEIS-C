@@ -10,7 +10,8 @@
  *            (A141468)
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   is_prime_uint64
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Global static data for caching */
 static seq_t *nonprimes = NULL;       /* table of n-th nonprimes */
@@ -40,7 +42,7 @@ static void ensure_nonprimes(idx_t needed)
 
     if (!nonprimes) {
         nonprimes_cap = 16;
-        nonprimes = (seq_t *)malloc(nonprimes_cap * sizeof(seq_t));
+        nonprimes = mem_new(seq_t, nonprimes_cap);
         nonprimes[0] = (seq_t)0;          /* r(1) = 0 */
         nonprimes[1] = (seq_t)1;          /* r(2) = 1 */
         nonprimes_size = 2;
@@ -48,10 +50,10 @@ static void ensure_nonprimes(idx_t needed)
     }
 
     while (nonprimes_size < needed) {
-        if (!is_prime_uint64(next_checked)) {
+        if (!is_prime_u64(next_checked)) {
             if (nonprimes_size >= nonprimes_cap) {
                 nonprimes_cap *= 2;
-                nonprimes = (seq_t *)realloc(nonprimes, nonprimes_cap * sizeof(seq_t));
+                nonprimes = mem_resize(seq_t, nonprimes, nonprimes_cap);
             }
             nonprimes[nonprimes_size++] = (seq_t)next_checked;
         }
@@ -72,7 +74,7 @@ static void ensure_a_cache_cap(idx_t min_cap)
     if (a_cache_cap >= min_cap) return;
     idx_t new_cap = a_cache_cap ? a_cache_cap * 2 : 16;
     while (new_cap < min_cap) new_cap *= 2;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_cache_cap = new_cap;
 }
 
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
             ensure_a_cache_cap(a_cache_size + 1);
             a_cache[a_cache_size++] = x;
         } else {
-            if (!is_prime_uint64((uint64_t)x)) {
+            if (!is_prime_u64((uint64_t)x)) {
                 ensure_a_cache_cap(a_cache_size + 1);
                 a_cache[a_cache_size++] = x;
             }

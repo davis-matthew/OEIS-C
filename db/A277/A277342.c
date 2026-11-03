@@ -7,6 +7,7 @@
  * Formula:   a(n) = ((n*n-1) mod 99)+1 for n>0, a(0)=0
  * Range:     u8 n <= 15, u16 n <= 990, u32 n <= 990, u64 n <= 990,
  *            u128 n <= 990, big any n
+ * Validated: standard, pass, 115 terms through n = 984 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,13 +10,15 @@
  *            with the same or larger n are efficient
  * Range:     u8 n <= 1602, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 9194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache state */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     /* first call: initialise cache and 2^0 = 1 */
     if (results == NULL) {
         results_alloc = 1;
-        results = (seq_t *)malloc(results_alloc * sizeof(seq_t));
+        results = mem_new(seq_t, results_alloc);
         if (!results) return 0;            /* had better not happen in the tests */
 
         digits_cap = 64;
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
         size_t new_alloc = results_alloc ? results_alloc : 1;
         while (new_alloc <= (size_t)n)
             new_alloc <<= 1;
-        seq_t *tmp = (seq_t *)realloc(results, new_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, results, new_alloc);
         if (!tmp) return 0;
         results = tmp;
         results_alloc = new_alloc;

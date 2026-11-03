@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* integer square root (floor) for a 64‑bit unsigned value */
 static inline idx_t isqrt_u64(idx_t n) {
@@ -61,7 +63,7 @@ static void generate_upto(seq_t bound) {
     idx_t x_max   = isqrt_u64(x_limit);              /* maximal |x| needed   */
 
     size_t cap = (size_t)(2 * x_max + 1) * (size_t)(2 * y_max + 1) + 1;
-    seq_t *temp = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *temp = mem_new(seq_t, cap);
     size_t sz   = 0;
 
     for (long long yi = -(long long)y_max; yi <= (long long)y_max; ++yi) {
@@ -75,7 +77,7 @@ static void generate_upto(seq_t bound) {
     }
 
     /* sort and deduplicate */
-    qsort(temp, sz, sizeof(seq_t), cmp_seq);
+    mem_qsort(temp, sz, sizeof(seq_t), cmp_seq);
     size_t uniq = 0;
     for (size_t i = 0; i < sz; ++i) {
         if (i == 0 || temp[i] != temp[i-1]) {
@@ -84,7 +86,7 @@ static void generate_upto(seq_t bound) {
     }
 
     /* replace cache */
-    if (seq_cache) free(seq_cache);
+    if (seq_cache) mem_free(seq_cache);
     seq_cache      = temp;
     seq_count      = uniq;
     seq_max_val    = bound;

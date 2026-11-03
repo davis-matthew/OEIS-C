@@ -7,6 +7,7 @@
  * Formula:   a(n) = (prime(n+3)+prime(n+1)) - (prime(n+2)+prime(n))
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 99 terms through n = 973 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,10 @@
 /* Computes the sum of two consecutive prime gaps: g_{n+1}+g_{n+2}  */
 /* a(1)=3, a(2)=6, a(3)=4, ...                                         */
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 #include <stdlib.h>
 

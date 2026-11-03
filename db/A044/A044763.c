@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    generates sequence A044763. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: check if decimal representation of x contains "50" */
 static bool has50(seq_t x)
@@ -40,7 +42,7 @@ static void append_cache(seq_t val, seq_t **cache, size_t *len, size_t *cap)
     if (*len >= *cap)
     {
         size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *cache, newcap);
         if (!tmp) exit(EXIT_FAILURE);   /* out of memory */
         *cache = tmp;
         *cap = newcap;

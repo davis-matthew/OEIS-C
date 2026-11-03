@@ -9,7 +9,8 @@
  *            floor(n*sqrt(2)+n+3/2) traversed by anti‑diagonals
  * Range:     u8 none, u16 n <= 15, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define SQRT2_P 1393ULL      /* 1393/985 ≈ 1.414213538... */
 #define SQRT2_Q 985ULL
@@ -58,7 +60,7 @@ static void ensure_t_has(idx_t needed)
                 /* m_cur is a member of t.  Store it. */
                 if (t_len == t_cap) {
                     t_cap = t_cap ? t_cap << 1 : 8;
-                    seq_t *tmp = (seq_t *)realloc(t_vals, t_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, t_vals, t_cap);
                     if (!tmp) abort();
                     t_vals = tmp;
                 }

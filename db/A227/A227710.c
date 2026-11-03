@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 7, u64 n <= 22, u128 n <= 53,
  *            big any n
- * Helpers:   pow2_seq
+ * Validated: standard, pass, 32 terms through n = 950 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow2_seq.h"
+#include "../utils/pow2.h"
 
 /* helper : compute 2^exp   */
 
@@ -36,7 +37,7 @@ static seq_t pow4_seq(idx_t exp)
 seq_t a(idx_t n)
 {
     /* compute 2^n and 4^n  (exact in seq_t, overflow allowed) */
-    seq_t pow2n = pow2_seq(n);
+    seq_t pow2n = pow2(n);
     seq_t pow4n = pow4_seq(n);
 
     /* integer coefficients, fit in 64‑bit signed */

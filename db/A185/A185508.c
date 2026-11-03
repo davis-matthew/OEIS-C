@@ -10,6 +10,7 @@
  *            (1‑based row i, column j) is given by
  * Range:     u8 n <= 12, u16 n <= 83, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 88 terms through n = 1272 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

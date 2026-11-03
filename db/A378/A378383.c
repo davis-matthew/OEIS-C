@@ -9,15 +9,27 @@
  *            n>=3 (with a(0)=a(1)=a(2)=0, a(3)=1)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   fib, pow2
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes Lucas numbers via L(k)=F(k-1)+F(k+1) */
 
-#include "../utils/fib.h"
+#include <stdbool.h>
 #include "../utils/pow2.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static seq_t lucas(idx_t k) {
     // Lucas: L(k) = F(k-1) + F(k+1), works for k >= 0

@@ -8,7 +8,8 @@
  *            a(n-4)
  * Range:     i8 n <= 9, i16 n <= 17, i32 n <= 34, i64 n <= 67, i128 n <= 135,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* the function assumes the types seq_t and idx_t are supplied elsewhere
    (seq_t may be an arbitrary‑precision integer class in a C++ build). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialise the first four terms on first use */
     if (size == 0) {
         cap   = 4;
-        table = (seq_t*)malloc(cap * sizeof(seq_t));
+        table = mem_new(seq_t, cap);
         table[0] = (seq_t)1;
         table[1] = (seq_t)1;
         table[2] = (seq_t)1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         size_t needed = (size_t)n + 1;
         if (cap < needed) {
             cap = needed;
-            table = (seq_t*)realloc(table, cap * sizeof(seq_t));
+            table = mem_resize(seq_t, table, cap);
         }
 
         /* compute missing values up to n */

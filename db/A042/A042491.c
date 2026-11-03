@@ -11,12 +11,14 @@
  *            a(16)=558695559, a(17)=1308099466, a(18)=1866795025...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 32, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base[22] = {
     (seq_t)1, (seq_t)1, (seq_t)5, (seq_t)66, (seq_t)71,
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     /* Allocate or extend cache */
     if (cache_len <= (size_t)n) {
         size_t new_len = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (new_cache == NULL) abort();  /* allocation failure */
 
         /* Copy existing values if any */
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
             size_t copy_len = cache_len < new_len ? cache_len : new_len;
             for (size_t i = 0; i < copy_len; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
 
         /* Ensure base values are present */

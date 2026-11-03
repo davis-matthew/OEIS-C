@@ -9,12 +9,14 @@
  *            transform of A109747
  * Range:     i8 n <= 5, i16 n <= 13, i32 n <= 21, i64 n <= 31, i128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 430 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* grow the cache to accommodate index n */
     idx_t new_cap = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();           /* allocation failed */
     cache = new_cache;
 

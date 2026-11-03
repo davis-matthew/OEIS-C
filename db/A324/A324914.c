@@ -8,13 +8,15 @@
  *            k)
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 29, u64 n <= 60, u128 n <= 124,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 3270 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for partial sums and divisor counts */
 static seq_t *sum_cache = NULL;      /* sum_cache[i] = a(i) for i >= 1, sum_cache[0] = 0 */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t new_n)
         return;
 
     /* Allocate or resize the arrays. */
-    seq_t *new_sum  = (seq_t *)realloc(sum_cache, (new_n + 1) * sizeof(seq_t));
+    seq_t *new_sum  = mem_resize(seq_t, sum_cache, (new_n + 1));
     uint32_t *new_tau = (uint32_t *)realloc(tau_cache, (new_n + 1) * sizeof(uint32_t));
 
     if (!new_sum || !new_tau) {

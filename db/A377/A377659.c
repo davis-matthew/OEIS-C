@@ -7,14 +7,17 @@
  * Formula:   a(n) = Motzkin(n) - 2^(n-1) (for n > 0; a(0) = 0)
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 24, u64 n <= 45, u128 n <= 85,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 48 terms through n = 992 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* realloc, NULL */
-#include "../utils/pow2.h"   /* pow2(seq_t) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
     if (cap <= n) {
         size_t old_cap = cap;
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(M, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, M, new_cap);
         if (!tmp) {
             /* Allocation failed – fail silently */
             return (seq_t)0;

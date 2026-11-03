@@ -10,14 +10,16 @@
  *            return the current integer
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     for (m = 2;; ++m)
     {
-        bool prime = is_prime((uint64_t)m);
+        bool prime = is_prime_u64((uint64_t)m);
         count += prime ? 1 : 2;   /* 1 for primes/1, 2 for composites */
 
         if (count >= n)

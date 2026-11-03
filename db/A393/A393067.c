@@ -11,8 +11,9 @@
  *            exponent-function). This implementation works for any seq_t & *
  *            idx_t defined by the build and is efficient for n up to about 10
  *            000
- * Range:     u8 n <= 9865, u16 n <= 9865, u32 n <= 9865, u64 n <= 9865,
- *            u128 n <= 9865, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 124 terms through n = 9865 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

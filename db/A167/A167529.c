@@ -12,6 +12,7 @@
  *            primes p and p+2)
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
  * Helpers:   build_primes, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,8 +21,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/is_prime.h"
 
 static idx_t *primes = NULL;          /* all primes up to current_limit       */
 static size_t primes_cnt = 0;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 257, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   sigma_uint128
+ * Validated: standard, pass, 73 terms through n = 483 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,53 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sigma_uint128.h"
+
+/* Sum of divisors (σ) for 64‑bit integers, result in unsigned __int128. */
+static unsigned __int128 sigma_uint128(uint64_t n)
+{
+    unsigned __int128 result = 1;
+    uint64_t p = 2;
+    if (n % p == 0) {
+        uint64_t exp = 0;
+        uint64_t t = 1;
+        while (n % p == 0) {
+            n /= p;
+            exp++;
+            t *= p;
+        }
+        /* Σ p^0 .. p^exp = (p^(exp+1)-1)/(p-1) */
+        unsigned __int128 term = 1;
+        unsigned __int128 sum = 1;
+        for (uint64_t i = 0; i < exp; ++i) {
+            term *= p;
+            sum += term;
+        }
+        result *= sum;
+    }
+    for (p = 3; p * p <= n; p += 2) {
+        if (n % p == 0) {
+            uint64_t exp = 0;
+            uint64_t t = 1;
+            while (n % p == 0) {
+                n /= p;
+                exp++;
+                t *= p;
+            }
+            unsigned __int128 term = 1;
+            unsigned __int128 sum = 1;
+            for (uint64_t i = 0; i < exp; ++i) {
+                term *= p;
+                sum += term;
+            }
+            result *= sum;
+        }
+    }
+    if (n > 1) {
+        /* Remaining prime factor. */
+        result *= (1 + (unsigned __int128)n);
+    }
+    return result;
+}
 
 /* Forward declaration of the external types. */
 extern seq_t a(idx_t n);

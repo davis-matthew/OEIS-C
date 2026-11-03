@@ -8,8 +8,9 @@
  *            the prefix 2357 (the prime 2357 itself is not counted). The
  *            function searches numbers in increasing order, testing each for
  *            primality until the n-th such prime is found
- * Range:     u8 none, u16 none, u32 n <= 25, u64 n <= 25, u128 n <= 25,
+ * Range:     u8 none, u16 none, u32 n <= 5823, u64 n <= 5823, u128 n <= 5823,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 5601 (2026-11-03)
  * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

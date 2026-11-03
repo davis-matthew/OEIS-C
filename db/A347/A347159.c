@@ -8,7 +8,8 @@
  *            of n
  * Range:     u8 n <= 48, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   _floor_isqrt_u64, factor_u64
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   factor_u64, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,15 @@
 /* Include the helper utilities used below */
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* Compute the floor of the square‑root of n */
-    idx_t sqrt_n = _floor_isqrt_u64((uint64_t)n);
+    idx_t sqrt_n = isqrt((uint64_t)n);
 
     /* Factor n into distinct primes (exponents are ignored) */
     uint64_t primes[64];

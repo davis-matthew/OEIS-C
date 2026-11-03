@@ -8,7 +8,8 @@
  * Formula:   a(n) = number of subsets of {1,…,⌊n/2⌋} summing to n
  * Range:     u8 n <= 32, u16 n <= 79, u32 n <= 237, u64 n <= 791,
  *            u128 n <= 2821, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* i.e., the coefficient of x^n in ∏_{i=1..⌊n/2⌋} (1 + x^i)          */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     }
 
     /* allocate DP array of size n+1, initialized to 0 */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return (seq_t)0;   /* fallback, should not happen */
 
     dp[0] = (seq_t)1;   /* empty subset sums to 0 */
@@ -40,6 +42,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

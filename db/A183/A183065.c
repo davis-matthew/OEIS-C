@@ -12,13 +12,15 @@
  *            * binom(r+2m, r-2m) * binom(r-2m, k-m). (binom(a,...
  * Range:     i8 n <= 10, i16 n <= 22, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Compute a(n) for OEIS sequence A183065. */
 seq_t a(idx_t n)
@@ -43,13 +45,13 @@ seq_t a(idx_t n)
         idx_t t = k - m;
 
         /* 2b. Compute (4m)!/m!^4 as product of three binomials. */
-        seq_t term = binom(4*m, m);
-        term *= binom(3*m, m);
-        term *= binom(2*m, m);
+        seq_t term = binomial(4*m, m);
+        term *= binomial(3*m, m);
+        term *= binomial(2*m, m);
 
         /* 2c. Multiply by the remaining binomials. */
-        term *= binom(r + 2*m, s);
-        term *= binom(s, t);
+        term *= binomial(r + 2*m, s);
+        term *= binomial(s, t);
 
         /* 2d. Accumulate result. */
         result += term;

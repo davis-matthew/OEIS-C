@@ -12,15 +12,18 @@
  *            (r-1-i)^(r-k)
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 35, u64 n <= 80, u128 n <= 209,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: standard, pass, 52 terms through n = 9472 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Includes the required helper functions for binomial coefficients and
    integer powers. */
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/seq_pow.h"    /* seq_t seq_pow(seq_t base, idx_t exp); */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t i = 0; i <= k; ++i) {
         seq_t term = binomial(k, i) *
-                     seq_pow((seq_t)(row - 1 - i), m);
+                     ipow_idx((seq_t)(row - 1 - i), m);
         if (i & 1)
             sum -= term;                  /* subtract if i is odd */
         else

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   isqrt_local
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/isqrt_local.h"
+#include "../utils/isqrt_seq.h"
 
 /* Return the n‑th term of the continued fraction of sqrt(656). */
 seq_t a(idx_t n)
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         const seq_t N = (seq_t)656;
-        a0 = isqrt_local(N);
+        a0 = isqrt_seq(N);
         /* Start the continued fraction algorithm */
         seq_t m = 0, d = 1, a_cur = a0;
         size_t idx = 0;

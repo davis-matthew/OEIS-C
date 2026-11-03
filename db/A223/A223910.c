@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 129, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   maxrun_even
+ * Validated: standard, pass, 78 terms through n = 9166 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/maxrun_even.h"
+#include "../utils/mem.h"
+
+/* helper: true iff the longest block of consecutive 1‑bits in `x`
+   has even length (0 is considered even). */
+static bool maxrun_even(seq_t x)
+{
+    seq_t cur = 0, maxrun = 0;
+    while (x) {
+        if (x & 1) {
+            ++cur;
+            if (cur > maxrun) maxrun = cur;
+        } else {
+            cur = 0;
+        }
+        x >>= 1;
+    }
+    return (maxrun & 1) == 0;
+}
 
 /* Simple dynamic array for caching the sequence values. */
 static seq_t *seq_cache = NULL;
@@ -31,7 +49,7 @@ static void grow_cache(size_t min_cap)
     size_t new_cap = (seq_cap == 0) ? 4 : seq_cap * 2;
     while (new_cap < min_cap) new_cap *= 2;
 
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);   /* abort on allocation error */
     seq_cache = tmp;
     seq_cap   = new_cap;

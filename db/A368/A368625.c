@@ -6,15 +6,16 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = ceil(n/d(n)) – floor(n/d(n)); equivalently, a(n) = 0 if n
  *            is divisible by its number of divisors d(n), otherwise a(n) = 1
- * Range:     u8 n <= 9457, u16 n <= 9457, u32 n <= 9457, u64 n <= 9457,
- *            u128 n <= 9457, big any n
- * Helpers:   divisor_count_u64
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9457 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>                     /* uint64_t */
-#include "../utils/divisor_count_u64.h"  /* uint64_t divisor_count_u64(uint64_t) */
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* d(n) is guaranteed to fit in 64 bits for the range of n we use. */
-    uint64_t d = divisor_count_u64((uint64_t)n);
+    uint64_t d = num_divisors((uint64_t)n);
 
     /* n % d == 0  →  d divides n  →  integer value → a(n) = 0.
        Otherwise a(n) = 1. */

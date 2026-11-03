@@ -9,6 +9,7 @@
  *            is the largest prime divisor of n (A006530(n))
  * Range:     u8 n <= 46, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-01)
  * Helpers:   factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,8 +20,9 @@
 #include <stdbool.h>
 
 /* Utility headers supplied by the build system */
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/is_prime.h"     /* bool is_prime(idx_t x) */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
 
 /* External linkage as required */
 seq_t a(idx_t n)

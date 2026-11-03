@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 34, u32 n <= 126, u64 n <= 1934,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 9987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  * root ways[0][8] is the desired value.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,11 +31,11 @@ seq_t a(idx_t n)
 
     /* Arrays for subtree sizes and DP table */
     idx_t *size = (idx_t *)malloc(n * sizeof(idx_t));
-    seq_t *ways = (seq_t *)malloc(n * 9 * sizeof(seq_t));  /* k = 0..8 */
+    seq_t *ways = mem_new(seq_t, n * 9);  /* k = 0..8 */
 
     if (!size || !ways) { /* allocation failed */
         free(size);
-        free(ways);
+        mem_free(ways);
         return 0;
     }
 
@@ -87,6 +89,6 @@ seq_t a(idx_t n)
     seq_t ans = ways[8];  /* row 0, column 8 */
 
     free(size);
-    free(ways);
+    mem_free(ways);
     return ans;
 }

@@ -11,6 +11,7 @@
  *            a(0)=1, a(1)=10, a(2)=101, a(3)=1100, a(4)=11101
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 124 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

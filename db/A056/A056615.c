@@ -7,7 +7,8 @@
  * Formula:   a(n) = binom(2*n - 1, n - 1) - 1 (mod n^2)
  * Range:     u8 n <= 15, u16 n <= 271, u32 n <= 1811, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   modpow_seq_t
+ * Validated: standard, pass, 78 terms through n = 8805 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/modpow_seq_t.h"
+
+/* Modular exponentiation for `seq_t` modulo `mod` */
+static seq_t modpow_seq_t(seq_t base, uint64_t exp, seq_t mod)
+{
+    seq_t result = 1 % mod;
+    base %= mod;
+    while (exp) {
+        if (exp & 1)
+            result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* Prime sieve cache ---------------------------------------------------------------- */
 

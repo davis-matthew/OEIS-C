@@ -7,8 +7,9 @@
  * Keywords:  nonn, base, easy, tabf
  * Formula:   a(n) = sum(facrep(r,m)[r-j],j=1..r) where m = n - Σ_{k=0}^{r-1}
  *            k!, r = min{r : n < Σ_{k=0}^{r} k!} (with 0! taken as 1)
- * Range:     u8 n <= 9424, u16 n <= 9424, u32 n <= 9424, u64 n <= 9424,
- *            u128 n <= 9424, big any n
+ * Range:     u8 n <= 46233, u16 n <= 46233, u32 n <= 46233, u64 n <= 46233,
+ *            u128 n <= 46233, big any n
+ * Validated: standard, pass, 121 terms through n = 9424 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

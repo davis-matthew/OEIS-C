@@ -9,13 +9,15 @@
  *            nonnegative integers starting with 3, built greedily
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9318 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static cache for the sequence values. */
 static seq_t *seq_cache = NULL;
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     if (cache_len == 0) {
         cache_len = 1;
         cache_cap = 1;
-        seq_cache = (seq_t *)malloc(sizeof(seq_t));
+        seq_cache = mem_new(seq_t, 1);
         seq_cache[0] = 3;   /* a(1) = 3 */
     }
 
@@ -81,7 +83,7 @@ seq_t a(idx_t n) {
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap == 0 ? 1 : cache_cap * 2;
             if (new_cap < cache_len + 1) new_cap = cache_len + 1;
-            seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             seq_cache = tmp;
             cache_cap = new_cap;
         }

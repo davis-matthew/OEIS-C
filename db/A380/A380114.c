@@ -10,15 +10,17 @@
  *            binom(r-1, k-1)
  * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 178, u64 n <= 611,
  *            u128 n <= 2305, big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 71 terms through n = 9538 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* external types are defined by the build */
 #include <stdint.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t) */
-#include "../utils/binom.h"  /* seq_t binom(idx_t a, idx_t b) */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Compute T(r,k) = 2^r * binom(r-1, k-1) */
-    seq_t bin = binom(r - 1, k - 1);
+    seq_t bin = binomial(r - 1, k - 1);
     seq_t val = bin * pow2(r);
     return val;
 }

@@ -10,13 +10,14 @@
  *            i)
  * Range:     u8 n <= 59, u16 n <= 1169, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree_big
+ * Validated: standard, pass, 78 terms through n = 9338 (2026-11-01)
+ * Helpers:   is_squarefree_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_squarefree_big.h"
+#include "../utils/is_squarefree_idx.h"
 
 /* Test whether m is a prime number (trial division). */
 static inline bool is_prime_small(idx_t m) {
@@ -35,7 +36,7 @@ seq_t a(idx_t n) {
         if (!is_prime_small(i))
             continue;
         idx_t big = n - i;            /* larger part */
-        if (!is_squarefree_big(big))
+        if (!is_squarefree_idx(big))
             continue;
         seq_t term = (seq_t)(n - 2 * i);
         sum += term;

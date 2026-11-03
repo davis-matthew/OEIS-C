@@ -10,17 +10,19 @@
  *            n+k, with k = position within the antidiagonal and n = d - k
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   a004070_isqrt, binom
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   binomial, isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/a004070_isqrt.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t m) {
-    idx_t d = (a004070_isqrt(8 * m + 1) - 1) / 2;
+    idx_t d = (isqrt_u64(8 * m + 1) - 1) / 2;
     while (d * (d + 1) / 2 > m) d--;
     while ((d + 1) * (d + 2) / 2 <= m) d++;
     idx_t k = m - d * (d + 1) / 2;
@@ -29,7 +31,7 @@ seq_t a(idx_t m) {
 
     seq_t result = 0;
     for (idx_t i = 0; i <= top; i++) {
-        result += binom(k, i);
+        result += binomial(k, i);
     }
     return result;
 }

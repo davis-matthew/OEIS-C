@@ -8,22 +8,22 @@
  * Formula:   a(n) = 5^n - (n+1)*4^n + C(n+1,2)*3^n - C(n+1,3)*2^n + C(n+1,4)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 14, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   a000272_ipow
+ * Validated: standard, pass, 35 terms through n = 874 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000272_ipow.h"
-
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     seq_t n_s = (seq_t)(n + 1);
     
     // Compute powers
-    seq_t pow5 = a000272_ipow((seq_t)5, n);
-    seq_t pow4 = a000272_ipow((seq_t)4, n);
-    seq_t pow3 = a000272_ipow((seq_t)3, n);
-    seq_t pow2 = a000272_ipow((seq_t)2, n);
+    seq_t pow5 = ipow_idx((seq_t)5, n);
+    seq_t pow4 = ipow_idx((seq_t)4, n);
+    seq_t pow3 = ipow_idx((seq_t)3, n);
+    seq_t pow2 = ipow_idx((seq_t)2, n);
     
     // Binomial coefficients
     seq_t c2 = n_s * (n_s - 1) / 2;

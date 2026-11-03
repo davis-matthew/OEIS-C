@@ -7,11 +7,13 @@
  * Formula:   a(n) = C(n,38) (binomial coefficient)
  * Range:     u8 n <= 39, u16 n <= 41, u32 n <= 47, u64 n <= 68, u128 n <= 174,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 959 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

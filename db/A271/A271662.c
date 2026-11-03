@@ -8,12 +8,13 @@
  * Formula:   a(n) = (n+1)*(n+2)*(n+3)*(9*n^2 + 21*n + 20)/120
  * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 140, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 53 terms through n = 958 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     seq_t n_seq = (seq_t)n;
@@ -27,7 +28,7 @@ seq_t a(idx_t n) {
     seq_t res = 1;
 
     for (int i = 0; i < 4; ++i) {
-        seq_t g = seq_gcd(factors[i], div);
+        seq_t g = gcd(factors[i], div);
         seq_t part = factors[i] / g;
         div = div / g;
         res = res * part;

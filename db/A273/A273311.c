@@ -10,6 +10,7 @@
  *            is even (8*n^3 + 24*n^2 - 29*n + 27)/6 if n is odd
  * Range:     u8 n <= 2, u16 n <= 19, u32 n <= 128, u64 n <= 128,
  *            u128 n <= 128, big any n
+ * Validated: standard, pass, 58 terms through n = 121 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

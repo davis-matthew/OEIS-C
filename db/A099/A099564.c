@@ -13,6 +13,7 @@
  *            by successive integer divisions
  * Range:     u8 n <= 437, u16 n <= 3120, u32 n <= 3120, u64 n <= 3120,
  *            u128 n <= 3120, big any n
+ * Validated: standard, pass, 122 terms through n = 2900 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

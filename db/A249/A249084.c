@@ -13,7 +13,8 @@
  *            implementation uses * linear‑time dynamic programming...
  * Range:     u8 none, u16 none, u32 n <= 12, u64 n <= 35, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #ifdef __cplusplus
 #  include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Number of possible 5‑tuples of digits 0..7 (3 bits each).  */
 #define STATES (1 << 15)   /* 8^5 = 32768 */
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
             idx_t nextLen = currentLen + 1;          /* length after adding one element */
 
             /* zero nextCnt */
-            memset(nextCnt, 0, STATES * sizeof(seq_t));
+            mem_set(nextCnt, 0, STATES * sizeof(seq_t));
 
             /* transition */
             for (int s = 0; s < STATES; ++s)

@@ -13,6 +13,7 @@
  *            Patterns with more than one horizontal 1‑1 pair are discar...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 38,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 193 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

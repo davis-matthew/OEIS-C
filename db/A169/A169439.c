@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoisation array */
 static size_t cache_cap = 0;     /* allocated capacity */
@@ -37,7 +39,7 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap < need) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) { /* allocation failed – return 0, caller may handle */ return; }
     /* initialise newly allocated part to 0 (valid sentinel for memoisation) */
     for (size_t i = cache_cap; i < new_cap; ++i) tmp[i] = 0;

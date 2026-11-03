@@ -9,13 +9,21 @@
  *            mod 5) - 5) + 4) / 2
  * Range:     i8 n <= 100, i16 n <= 100, i32 n <= 100, i64 n <= 100,
  *            i128 n <= 100, big any n
- * Helpers:   per_exp
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/per_exp.h"
+
+/* compute the value for a single prime‑power exponent e */
+static seq_t per_exp(idx_t e)
+{
+    seq_t r = (seq_t)(e % 5);          /* r ∈ {0,1,2,3,4} */
+    seq_t val = r * r - (seq_t)5 * r + (seq_t)4; /* r^2 - 5r + 4 */
+    return val / (seq_t)2;                 /* integer division */
+}
 
 /* multiplicative sequence A391793 */
 seq_t a(idx_t n)

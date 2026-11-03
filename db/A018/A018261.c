@@ -7,12 +7,14 @@
  * Formula:   a(n) = nth divisor of 48 (sorted increasingly)
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t objects */
 static int cmp_seq_t(const void *a, const void *b) {
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
             }
             pow2 *= 2;
         }
-        qsort(divs, 10, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(divs, 10, sizeof(seq_t), cmp_seq_t);
         initialized = 1;
     }
     if (n == 0 || n > 10) return (seq_t)0;

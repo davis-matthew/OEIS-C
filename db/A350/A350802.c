@@ -8,7 +8,8 @@
  * Formula:   a(0) = 0; for n > 0, a(n) = Σ{k < n | (a(k) & n) == a(k)}
  * Range:     u8 n <= 30, u16 n <= 750, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9490 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stddef.h>   /* size_t, NULL */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* stores a(0)...a(k) */
 static idx_t  cache_len  = 0;       /* number of entries currently valid */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on first use.  a(0) is the only pre‑computed value. */
     if (cache_len == 0) {
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[0] = (seq_t)0;      /* a(0) = 0 */
         cache_len = 1;            /* only a(0) stored so far */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         if ((size_t)n >= cache_cap) {
             size_t new_cap = cache_cap;
             while (new_cap <= (size_t)n) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cache_cap = new_cap;

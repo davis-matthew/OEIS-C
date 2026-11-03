@@ -11,14 +11,41 @@
  *            factors of x (counted with multiplicity), and odd_part(k) is...
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   A237271_val
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/A237271_val.h"
+
+static seq_t A237271_val(idx_t k)
+{
+    /* Even numbers divisible by 3 have value 1 */
+    if (((k & 1ULL) == 0ULL) && (k % 3ULL == 0ULL))
+        return (seq_t)1;
+
+    /* Remove factors of 2 (odd part of k) */
+    idx_t odd = k;
+    while ((odd & 1ULL) == 0ULL)
+        odd >>= 1;
+
+    /* Count prime factors of the odd part (with multiplicity) */
+    int cnt = 0;
+    idx_t temp = odd;
+    for (idx_t p = 2; p * p <= temp; ++p)
+    {
+        while (temp % p == 0ULL)
+        {
+            ++cnt;
+            temp /= p;
+        }
+    }
+    if (temp > 1ULL)
+        ++cnt;
+    return (seq_t)(cnt + 1);
+}
 
 seq_t a(idx_t n)
 {

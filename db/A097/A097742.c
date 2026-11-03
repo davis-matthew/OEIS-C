@@ -8,7 +8,8 @@
  * Formula:   a(n) = 402*a(n-1) - a(n-2), a(0) = 1, a(1) = 401
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 325 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    integer types and with the arbitrary-precision class used in
    the C++ build. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array holding computed values */
 static idx_t cached_len = 0;  /* number of entries already in cache */
@@ -30,7 +32,7 @@ static void cache_up_to(idx_t n)
         return;  /* already computed */
 
     /* Allocate or extend the cache.  Cast the result of realloc to seq_t*.  */
-    seq_t *new_cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(n + 1));
     if (!new_cache)
         exit(1);   /* allocation failed */
     cache = new_cache;

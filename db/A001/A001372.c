@@ -12,14 +12,20 @@
  *            1); i.e. a = Product_{k>=1} 1/(1 - T(x^k)), the Eu...
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 43, u128 n <= 84,
  *            big any n
- * Helpers:   a1372_is_fixed
+ * Validated: standard, pass, 50 terms through n = 2041 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a1372_is_fixed.h"
+
+static int a1372_is_fixed(void) {
+  seq_t x = 1;
+  for (int i = 0; i < 200; i++) x += x;
+  return x == 0;
+}
 
 #define A1372_LIM 10002
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 12, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 171 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compile‑time constants for the width and state dimension. */
 enum { COLS = 8, VALID_CNT = 64, STATE_CNT = VALID_CNT * VALID_CNT };
@@ -89,11 +91,11 @@ seq_t a(idx_t n)
     /* ------------------------------------------------------------------
        3.  Dynamic programming over rows.
        ------------------------------------------------------------------ */
-    seq_t *cur = (seq_t *)calloc(STATE_CNT, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(STATE_CNT, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, STATE_CNT);
+    seq_t *nxt = mem_new(seq_t, STATE_CNT);
     if (!cur || !nxt) {
-        free(cur);
-        free(nxt);
+        mem_free(cur);
+        mem_free(nxt);
         return (seq_t)0;
     }
 
@@ -132,7 +134,7 @@ seq_t a(idx_t n)
     seq_t total = (seq_t)0;
     for (int i = 0; i < STATE_CNT; ++i) total += cur[i];
 
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return total;
 }

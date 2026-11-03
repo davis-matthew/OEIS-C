@@ -6,14 +6,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{d=0..⌊n/5⌋} [ (n‑5d) even ] * binom(2*((n‑5d)/2)+d, d)
  *            * binom(2*((n‑5d)/2), (n‑5d)/2)
- * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 35, u128 n <= 35,
+ * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 34, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
         idx_t rem = n - 5 * d;
         if (rem & 1) continue;          /* skip if (n‑5d) odd */
         idx_t s = rem / 2;              /* s = (n‑5d)/2  */
-        seq_t term1 = binom(2 * s + d, d);
-        seq_t term2 = binom(2 * s, s);
+        seq_t term1 = binomial(2 * s + d, d);
+        seq_t term2 = binomial(2 * s, s);
         result += term1 * term2;
     }
     return result;

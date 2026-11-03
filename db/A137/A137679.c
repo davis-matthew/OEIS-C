@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   isqrt
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,9 @@
 #include <stdlib.h>
 
 /* Utility: floor integer square root of a 64‑bit unsigned value. */
-#include "../utils/isqrt.h"
+#include <stdbool.h>
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
 
 /* Static table of partition numbers p[n][k] for n,k ≤ current maximum. */
 static seq_t **P = NULL;
@@ -49,14 +52,14 @@ static void ensureP(idx_t N)
 
     /* Allocate row 0 if it does not exist yet. */
     if (Pmax == 0) {
-        P[0] = (seq_t*)malloc(sizeof(seq_t));
+        P[0] = mem_new(seq_t, 1);
         if (!P[0]) return;
         P[0][0] = (seq_t)1;     /* p(0,0)=1 */
     }
 
     /* Allocate new rows and compute their values. */
     for (idx_t i = Pmax + 1; i <= N; ++i) {
-        P[i] = (seq_t*)malloc(sizeof(seq_t) * (i + 1));
+        P[i] = mem_new(seq_t, (i + 1));
         if (!P[i]) return;
     }
 

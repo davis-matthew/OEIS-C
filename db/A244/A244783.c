@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(n)) for unsigned 64‑bit n */
 static inline idx_t isqrt_u64(idx_t n)
@@ -47,11 +49,11 @@ seq_t a(idx_t n)
     int off = (int)maxBound;          /* offset to map t to array index */
 
     /* dynamic allocation of DP rows */
-    seq_t *cur = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, sz);
+    seq_t *nxt = mem_new(seq_t, sz);
     if (cur == NULL || nxt == NULL) {
-        free(cur);
-        free(nxt);
+        mem_free(cur);
+        mem_free(nxt);
         return (seq_t)0;
     }
 
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < sz; ++i)
         result += cur[i];
 
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return result;
 }

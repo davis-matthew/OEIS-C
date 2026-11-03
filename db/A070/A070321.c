@@ -10,6 +10,7 @@
  *            square‑free number is found
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 88 terms through n = 8870 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 
 /* Utility that returns 1 iff x is square‑free. */
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
 
 /* Greatest square‑free number ≤ n.

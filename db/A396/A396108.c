@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   binomial, pow4
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,20 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t a, idx_t b) */
-#include "../utils/pow4.h"       /* seq_t pow4(idx_t exp) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +45,7 @@ seq_t a(idx_t n)
     /* Initialize cache if empty */
     if (cap == 0) {
         cap = 1;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = (seq_t)1;          /* a(0) = 1 */
         last_computed = 0;
     }
@@ -43,10 +56,10 @@ seq_t a(idx_t n)
         while (new_cap <= (size_t)(n + 1))
             new_cap <<= 1;
 
-        seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         for (size_t i = 0; i < cap; ++i)
             tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = tmp;
         cap   = new_cap;
     }

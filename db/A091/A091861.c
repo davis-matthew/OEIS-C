@@ -11,15 +11,17 @@
  *            memoized
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 26, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   gcd, seq_gcd_seq
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_gcd_seq.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 
@@ -43,14 +45,14 @@ static void ensure_cache(idx_t n)
         return;
 
     size_t new_cap = (size_t)n;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();
     cache = new_cache;
     cache_cap = new_cap;
 
     /* keep the 'used' buffer in sync (same capacity) */
     if (used_cap < new_cap) {
-        seq_t *new_used = (seq_t *)realloc(used, new_cap * sizeof(seq_t));
+        seq_t *new_used = mem_resize(seq_t, used, new_cap);
         if (!new_used) abort();
         used = new_used;
         used_cap = new_cap;
@@ -85,10 +87,10 @@ seq_t a(idx_t n)
         for (idx_t d = 1; d < idx; ++d) {
             /* a(index - d) is the term that must multiply a(idx) to be a multiple of d */
             seq_t b = cache[(size_t)(idx - 1 - d)];
-            seq_t g1 = seq_gcd_seq((seq_t)d, b);
+            seq_t g1 = gcd((seq_t)d, b);
             seq_t m = (seq_t)d / g1;          /* multiplier needed for this d */
 
-            seq_t g2 = seq_gcd_seq(lcm_val, m);
+            seq_t g2 = gcd(lcm_val, m);
             lcm_val = (lcm_val / g2) * m;     /* update lcm */
         }
 

@@ -8,12 +8,14 @@
  * Formula:   a(1) = 1, a(n) = rev_decimal(a(n-1)) + 59 for n > 1
  * Range:     u8 n <= 4, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   reverse_decimal
+ * Validated: standard, pass, 70 terms through n = 952 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reverse_decimal.h"
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
 
 #ifdef __cplusplus
 #include <vector>
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
             if (i == 0) {
                 cache.push_back((seq_t)1);
             } else {
-                seq_t rev = reverse_decimal(cache[i-1]);
+                seq_t rev = reverse_digits(cache[i-1]);
                 cache.push_back(rev + (seq_t)59);
             }
         }
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
             if (i == 0) {
                 cache[i] = (seq_t)1;
             } else {
-                seq_t rev = reverse_decimal(cache[i-1]);
+                seq_t rev = reverse_digits(cache[i-1]);
                 cache[i] = rev + (seq_t)59;
             }
         }

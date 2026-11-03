@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 22, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 
 #include <stddef.h>   /* size_t, NULL */
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,8 +47,8 @@ seq_t a(idx_t n)
        g   – coefficients of G(z);
        conv – pairwise convolution conv[i] = Σ_{k=1}^{i‑1} g[k]*g[i‑k].
        Size: max_needed + 1 (we ignore index 0).   */
-    seq_t *g = (seq_t *)malloc((max_needed + 1) * sizeof(seq_t));
-    seq_t *conv = (seq_t *)malloc((max_needed + 1) * sizeof(seq_t));
+    seq_t *g = mem_new(seq_t, (max_needed + 1));
+    seq_t *conv = mem_new(seq_t, (max_needed + 1));
     if (g == NULL || conv == NULL) return 0;   /* allocation failure */
 
     /* Initialize
@@ -96,8 +98,8 @@ seq_t a(idx_t n)
     seq_t result = 5 * g[n - 1];
 
     /* Clean up */
-    free(g);
-    free(conv);
+    mem_free(g);
+    mem_free(conv);
 
     return result;
 }

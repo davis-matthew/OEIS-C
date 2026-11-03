@@ -9,15 +9,44 @@
  *            mu(n/d)*2^floor(d/2)) / 2, a(0) = 1
  * Range:     u8 n <= 13, u16 n <= 22, u32 n <= 39, u64 n <= 72, u128 n <= 137,
  *            big any n
- * Helpers:   divpow2, mobius_ull, pow2_s
+ * Validated: standard, pass, 57 terms through n = 972 (2026-11-01)
+ * Helpers:   pow2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow2_s.h"
-#include "../utils/divpow2.h"
-#include "../utils/mobius_ull.h"
+#include "../utils/pow2_u64.h"
+
+/* floor(2^k / m), remainder in *rem, by binary long division */
+static seq_t divpow2(unsigned long long k, unsigned long long m, unsigned long long *rem)
+{
+    seq_t q = 0;
+    unsigned long long r = 1, i;
+    if (r >= m) { r -= m; q = 1; }
+    for (i = 0; i < k; i++) {
+        r <<= 1;
+        q += q;
+        if (r >= m) { r -= m; q += 1; }
+    }
+    *rem = r;
+    return q;
+}
+
+static int mobius_ull(unsigned long long x)
+{
+    int m = 1;
+    unsigned long long p;
+    for (p = 2; p * p <= x; p++) {
+        if (x % p == 0) {
+            x /= p;
+            if (x % p == 0) return 0;
+            m = -m;
+        }
+    }
+    if (x > 1) m = -m;
+    return m;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,8 +69,8 @@ seq_t a(idx_t n)
         }
         {
             int mu = mobius_ull(N / d);
-            if (mu > 0) spos += pow2_s(d / 2);
-            else if (mu < 0) sneg += pow2_s(d / 2);
+            if (mu > 0) spos += pow2_u64(d / 2);
+            else if (mu < 0) sneg += pow2_u64(d / 2);
         }
     }
     long long c = R / (long long)(2ULL * N);

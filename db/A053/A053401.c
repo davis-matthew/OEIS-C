@@ -12,6 +12,7 @@
  *            31556952 = 31556952000 a(10) = 1 000 000 000 · 3...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 8, u64 n <= 10, u128 n <= 10,
  *            big any n
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

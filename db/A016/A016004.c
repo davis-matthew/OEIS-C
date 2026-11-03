@@ -9,7 +9,8 @@
  *            sequence is periodic with period 1995
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* a helper structure for a polynomial */
 typedef struct {
@@ -29,7 +31,7 @@ static Poly poly_mul(const Poly *a, const Poly *b)
 {
     Poly r;
     r.len = a->len + b->len - 1;
-    r.coeff = (seq_t*)calloc(r.len, sizeof(seq_t));
+    r.coeff = mem_new(seq_t, r.len);
     for (size_t i = 0; i < a->len; ++i) {
         for (size_t j = 0; j < b->len; ++j) {
             r.coeff[i + j] += a->coeff[i] * b->coeff[j];
@@ -44,8 +46,8 @@ static Poly poly_div(const seq_t *num, size_t num_len, const Poly *den)
     size_t degN = num_len - 1;
     size_t degD = den->len - 1;
     size_t qlen = degN - degD + 1;
-    seq_t *quot = (seq_t*)calloc(qlen, sizeof(seq_t));
-    seq_t *rem  = (seq_t*)calloc(num_len, sizeof(seq_t));
+    seq_t *quot = mem_new(seq_t, qlen);
+    seq_t *rem  = mem_new(seq_t, num_len);
     for (size_t i = 0; i < num_len; ++i) rem[i] = num[i];
 
     for (int i = (int)(degN - degD); i >= 0; --i) {
@@ -57,7 +59,7 @@ static Poly poly_div(const seq_t *num, size_t num_len, const Poly *den)
             }
         }
     }
-    free(rem);
+    mem_free(rem);
     Poly r = { qlen, quot };
     return r;
 }
@@ -66,7 +68,7 @@ static Poly poly_div(const seq_t *num, size_t num_len, const Poly *den)
 static void poly_free(Poly *p)
 {
     if (p->coeff) {
-        free(p->coeff);
+        mem_free(p->coeff);
         p->coeff = NULL;
     }
     p->len = 0;
@@ -98,14 +100,14 @@ static void build_period(void)
         uint64_t d = divisors[idx];
         if (d == 1) {           /* Φ_1(x) = x - 1 */
             polys[idx].len = 2;
-            polys[idx].coeff = (seq_t*)calloc(2, sizeof(seq_t));
+            polys[idx].coeff = mem_new(seq_t, 2);
             polys[idx].coeff[0] = -1;
             polys[idx].coeff[1] = 1;
             continue;
         }
 
         /* product of all proper divisor polynomials of d */
-        Poly prod = { 1, (seq_t*)calloc(1, sizeof(seq_t)) };
+        Poly prod = { 1, mem_new(seq_t, 1) };
         prod.coeff[0] = 1;   /* start with the constant polynomial 1 */
         for (size_t j = 0; j < idx; ++j) {
             if (d % divisors[j] == 0) {
@@ -117,13 +119,13 @@ static void build_period(void)
 
         /* numerator polynomial x^d - 1 */
         size_t num_len = d + 1;
-        seq_t *numer = (seq_t*)calloc(num_len, sizeof(seq_t));
+        seq_t *numer = mem_new(seq_t, num_len);
         numer[0]  = -1;
         numer[d]  = 1;
 
         /* compute Φ_d as (x^d-1)/prod */
         Poly phi = poly_div(numer, num_len, &prod);
-        free(numer);
+        mem_free(numer);
         poly_free(&prod);
         polys[idx] = phi;
     }
@@ -134,7 +136,7 @@ static void build_period(void)
     size_t deg = phi1995.len - 1;          /* degree of Φ_1995 */
 
     /* compute the first 1995 terms using the recurrence */
-    period = (seq_t*)calloc(1995, sizeof(seq_t));
+    period = mem_new(seq_t, 1995);
     period[0] = 1;                         /* a(0) = 1 */
     for (size_t k = 1; k < 1995; ++k) {
         seq_t sum = 0;

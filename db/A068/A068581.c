@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 132, u32 n <= 132, u64 n <= 132,
  *            u128 n <= 132, big any n
- * Helpers:   none
+ * Validated: full, pass, 132 terms through n = 132 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------------------------------------------------------------------- */
 /*  Prime sieve -------------------------------------------------------- */
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
             /* append to cache */
             if (values_sz == values_cap) {
                 values_cap = values_cap ? values_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(values, values_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, values, values_cap);
                 if (!tmp) return 0;                 /* allocation failure */
                 values = tmp;
             }

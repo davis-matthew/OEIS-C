@@ -10,6 +10,7 @@
  *            24)/48 (This rounds p²/48 for even p and (p+3)²/48 for odd p.)
  * Range:     u8 n <= 14, u16 n <= 59, u32 n <= 371, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 59 terms through n = 9598 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

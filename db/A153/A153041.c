@@ -8,7 +8,8 @@
  *            i.e. a(1)=10, a(2)=14, a(3)=17,... (as listed in the OEIS entry)
  * Range:     u8 n <= 153, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 70 terms through n = 886 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"      /* is_prime(idx_t x) – true if x is prime */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;  /* holds a(1)..a(cache_len−1) */
 static size_t  cache_cap = 0;  /* allocated capacity of cache  */
@@ -29,7 +31,7 @@ static void grow_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 256;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();   /* out of memory */
     cache = tmp;
     cache_cap = new_cap;

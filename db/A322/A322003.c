@@ -8,13 +8,15 @@
  * Formula:   a(n) = Sum_{k=0}^{n-1} A072170(k,10)
  * Range:     u8 n <= 19, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* cache for decibinary representation counts */
 static seq_t *w       = NULL;   /* w[i] = A072170(i,10) */
@@ -32,10 +34,10 @@ static void ensure_up_to(idx_t limit)
     idx_t newCap = limit + 1;            /* indices 0..limit */
 
     /* Temporary DP arrays – cast void* to seq_t* to satisfy C++ */
-    seq_t *curr = (seq_t *)calloc(newCap, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(newCap, sizeof(seq_t));
+    seq_t *curr = mem_new(seq_t, newCap);
+    seq_t *next = mem_new(seq_t, newCap);
     if (!curr || !next) {
-        free(curr); free(next);
+        mem_free(curr); mem_free(next);
         return;                 /* allocation failure – abort silently */
     }
 
@@ -47,7 +49,7 @@ static void ensure_up_to(idx_t limit)
 
     for (idx_t p = 0; p < pos; ++p) {
         idx_t weight = ((idx_t)1 << p);
-        memset(next, 0, newCap * sizeof(seq_t));
+        mem_set(next, 0, newCap * sizeof(seq_t));
 
         for (idx_t old = 0; old <= limit; ++old) {
             seq_t cnt = curr[old];
@@ -66,15 +68,15 @@ static void ensure_up_to(idx_t limit)
     }
 
     /* Copy results into global w array */
-    w = (seq_t *)realloc(w, newCap * sizeof(seq_t));
+    w = mem_resize(seq_t, w, newCap);
     for (idx_t i = 0; i <= limit; ++i) w[i] = curr[i];
     wCap = newCap;
 
-    free(curr);
-    free(next);
+    mem_free(curr);
+    mem_free(next);
 
     /* Build prefix sums */
-    pref = (seq_t *)realloc(pref, (newCap + 1) * sizeof(seq_t));
+    pref = mem_resize(seq_t, pref, (newCap + 1));
     pref[0] = (seq_t)0;
     for (idx_t i = 0; i < newCap; ++i) {
         pref[i + 1] = pref[i] + w[i];

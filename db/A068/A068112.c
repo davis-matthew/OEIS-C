@@ -8,14 +8,29 @@
  * Formula:   a(n) = denominator((3*n)!/(n!*(2*n)!)^3)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 8,
  *            big any n
- * Helpers:   mul_pow_seq
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mul_pow_seq.h"
+
+/* Compute base^exp (exp >= 0) using binary exponentiation.
+   All arithmetic is performed using seq_t, allowing arbitrary size. */
+static inline void mul_pow_seq(seq_t *res, int base, int exp)
+{
+    seq_t r = 1;
+    seq_t a = (seq_t)base;
+    while (exp > 0)
+    {
+        if (exp & 1) r *= a;
+        a *= a;
+        exp >>= 1;
+    }
+    *res *= r;
+}
 
 /* Squared version of the Legendre formula.
    Returns v_p(n!) for prime p. */

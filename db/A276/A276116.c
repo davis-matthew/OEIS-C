@@ -8,6 +8,7 @@
  * Formula:   a(n) = least k such that Ω(k*n) = Ω(k*n+1), return -1 if none
  * Range:     u8 n <= 11, u16 n <= 191, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 91 terms through n = 994 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static seq_t omega_uint64(uint64_t m)

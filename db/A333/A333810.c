@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{d|n , d<√n} { +d if d is odd, –d if d is even }
  * Range:     i8 n <= 80, i16 n <= 80, i32 n <= 80, i64 n <= 80, i128 n <= 80,
  *            big any n
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

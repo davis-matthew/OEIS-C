@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ensure_capacity, mod_pow
+ * Validated: standard, pass, 63 terms through n = 932 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,44 @@
    - If p ≡ 1 (mod 3) then 20 is a cube iff 20^((p‑1)/3) ≡ 1 (mod p). */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
-#include "../utils/ensure_capacity.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 /* Integer square‑root for uint64_t using binary search.  */
 static inline uint64_t isqrt_uint64(uint64_t x)
@@ -46,7 +83,7 @@ static bool prime_satisfies(uint64_t p)
     if (p % 3 == 2) return true;                    /* all residues are cubes */
     /* p % 3 == 1 : check 20^((p-1)/3) ≡ 1 (mod p) */
     uint64_t exp = (p - 1) / 3;
-    seq_t r = mod_pow((seq_t)20, exp, (seq_t)p);
+    seq_t r = powmod((seq_t)20, exp, (seq_t)p);
     return r == 1;
 }
 
@@ -80,13 +117,13 @@ seq_t a(idx_t n)
         if (is_prime) {
             /* Store the new prime. */
             ensure_capacity(primes_size + 1, &primes_cap,
-                            (void **)&primes, sizeof(uint64_t));
+                            OEISC_VPP(&primes), sizeof(uint64_t));
             primes[primes_size++] = cand;
 
             /* Check the cubic residue condition. */
             if (prime_satisfies(cand)) {
                 ensure_capacity(cache_size + 1, &cache_cap,
-                                (void **)&cache, sizeof(seq_t));
+                                OEISC_VPP(&cache), sizeof(seq_t));
                 cache[cache_size++] = (seq_t)cand;
             }
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* --- internal prime storage ----------------------------------------- */
 static uint32_t *prime_list = NULL;    /* list of primes (ascending) */
@@ -36,6 +46,18 @@ static size_t  seq_cap    = 0;     /* capacity of seq_cache */
 static idx_t last_k_processed = 0;  /* last k checked (1‑based) */
 
 /* --------------------------------------------------------------------- */
+#ifdef __cplusplus
+template <class T>
+static void grow_array(T **arr, size_t *cap, size_t new_needed, size_t elem_size)
+{
+    if (*cap >= new_needed) return;
+    size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+    while (newcap < new_needed) newcap <<= 1;
+    T *p = mem_resize(T, *arr, (newcap * elem_size) / sizeof(T));
+    if (!p) abort();              /* out of memory */
+    *arr = p; *cap = newcap;
+}
+#else
 static void grow_array(void **arr, size_t *cap, size_t new_needed, size_t elem_size)
 {
     if (*cap >= new_needed) return;
@@ -45,6 +67,7 @@ static void grow_array(void **arr, size_t *cap, size_t new_needed, size_t elem_s
     if (!p) abort();              /* out of memory */
     *arr = p; *cap = newcap;
 }
+#endif
 
 /* --------------------------------------------------------------------- */
 static bool is_prime_uint32(uint32_t n)
@@ -65,7 +88,7 @@ static void ensure_primes(size_t needed)
     while (prime_cnt < needed) {
         while (!is_prime_uint32(next_candidate)) ++next_candidate;
         /* add prime */
-        grow_array((void**)&prime_list, &prime_cap, prime_cnt + 1, sizeof(uint32_t));
+        grow_array(OEISC_VPP(&prime_list), &prime_cap, prime_cnt + 1, sizeof(uint32_t));
         prime_list[prime_cnt++] = next_candidate;
         ++next_candidate;
     }
@@ -105,7 +128,7 @@ static void extend_to_n(idx_t n)
 
         if (!interval_has_prime_power(low, high)) {
             /* k qualifies; store it */
-            grow_array((void**)&seq_cache, &seq_cap, seq_len + 1,
+            grow_array(OEISC_VPP(&seq_cache), &seq_cap, seq_len + 1,
                        sizeof(seq_t));
             seq_cache[seq_len++] = (seq_t)k;
         }

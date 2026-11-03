@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 8532, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_size
+ * Validated: standard, pass, 77 terms through n = 9981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,40 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/ensure_size.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Ensure that an array of size "needed" is allocated; doubles
+   the capacity whilst keeping the contents. */
+#ifdef __cplusplus
+template <class T>
+static void ensure_size(T **ptr, size_t *cap, size_t needed, size_t element_size) {
+    if (*cap >= needed) return;
+    size_t new_cap = (*cap == 0) ? 8 : *cap;
+    while (new_cap < needed) new_cap <<= 1;
+    T *new_ptr = mem_resize(T, *ptr, (new_cap * element_size) / sizeof(T));
+    if (!new_ptr) abort();
+    *ptr = new_ptr;
+    *cap = new_cap;
+}
+#else
+static void ensure_size(void **ptr, size_t *cap, size_t needed, size_t element_size) {
+    if (*cap >= needed) return;
+    size_t new_cap = (*cap == 0) ? 8 : *cap;
+    while (new_cap < needed) new_cap <<= 1;
+    void *new_ptr = realloc(*ptr, new_cap * element_size);
+    if (!new_ptr) abort();
+    *ptr = new_ptr;
+    *cap = new_cap;
+}
+#endif
 
 /* ---------- Global tables ---------------------------------------- */
 
@@ -99,7 +133,7 @@ static void ensure_primes_for_factor(uint64_t n) {
 
 /* Append a term to the sequence cache. */
 static void push_term(seq_t v) {
-    ensure_size((void **)&terms, &terms_cap, terms_count + 1, sizeof(seq_t));
+    ensure_size(OEISC_VPP(&terms), &terms_cap, terms_count + 1, sizeof(seq_t));
     terms[terms_count++] = v;
 }
 
@@ -166,7 +200,7 @@ static void generate_next_term(void) {
             if (idx >= 0) {
                 caps[idx].remaining -= e;
             } else {
-                ensure_size((void **)&caps, &cap_alloc, cap_count + 1, sizeof(struct CapEntry));
+                ensure_size(OEISC_VPP(&caps), &cap_alloc, cap_count + 1, sizeof(struct CapEntry));
                 caps[cap_count].prime = p;
                 caps[cap_count].remaining = p - e;
                 ++cap_count;

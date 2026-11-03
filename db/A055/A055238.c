@@ -10,14 +10,28 @@
  *            b≥2 (OEIS A055238)
  * Range:     u8 n <= 24, u16 n <= 24, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   has_dividing_digit
+ * Validated: full, pass, 24 terms through n = 24 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_dividing_digit.h"
+
+/* Test whether n has a digit d (d>0) in base 'base' that divides n. */
+static bool has_dividing_digit(uint64_t n, uint64_t base)
+{
+    uint64_t tmp = n;
+    while (tmp > 0) {
+        uint64_t d = tmp % base;
+        if (d > 0 && n % d == 0) {
+            return true;
+        }
+        tmp /= base;
+    }
+    return false;
+}
 
 /* Return true if n meets the OEIS condition for all bases 2 … n. */
 static bool is_good(uint64_t n)

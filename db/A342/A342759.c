@@ -12,7 +12,8 @@
  *            n is odd : a(n) = 3·a(n‑1) – 2·a(n‑2) – 3·2^((n‑7)/2)
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* initialize cache the first time */
     if (cache_size == 0) {
-        cache = (seq_t*)malloc(8 * sizeof(seq_t));
+        cache = mem_new(seq_t, 8);
         if (!cache) abort();          /* allocation failed */
         for (idx_t i = 0; i < 8; ++i) cache[i] = base[i];
         cache_size = 8;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     /* extend cache if necessary */
     if (n >= cache_size) {
-        seq_t *new_cache = (seq_t*)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!new_cache) abort();      /* allocation failed */
         cache = new_cache;
 

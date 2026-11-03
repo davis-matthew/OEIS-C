@@ -9,16 +9,17 @@
  * Formula:   a(n) = (n*(n-1)*(n-2)/384)*(7^(n-3) + 9*5^(n-3) + 3^n + 27)
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 13, u64 n <= 24, u128 n <= 45,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 40 terms through n = 488 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
-
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -28,9 +29,9 @@ seq_t a(idx_t n)
     seq_t n_seq = (seq_t)n;
 
     /* compute powers of the required bases */
-    seq_t pow7 = big_pow((seq_t)7, (seq_t)(n_seq - 3));
-    seq_t pow5 = big_pow((seq_t)5, (seq_t)(n_seq - 3));
-    seq_t pow3 = big_pow((seq_t)3, n_seq);
+    seq_t pow7 = ipow((seq_t)7, (seq_t)(n_seq - 3));
+    seq_t pow5 = ipow((seq_t)5, (seq_t)(n_seq - 3));
+    seq_t pow3 = ipow((seq_t)3, n_seq);
 
     /* sum appearing in the formula */
     seq_t sum = pow7 + (seq_t)9 * pow5 + pow3 + (seq_t)27;

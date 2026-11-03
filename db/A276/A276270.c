@@ -8,14 +8,46 @@
  *            y^2 + 1 ≡ 0 (mod n)
  * Range:     u8 n <= 161, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   count_y_mod_2
+ * Validated: standard, pass, 76 terms through n = 1794 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_y_mod_2.h"
+
+/* number of solutions y^2 ≡ c (mod 2^e) */
+static uint64_t count_y_mod_2(uint64_t c, unsigned e)
+{
+    /* c ≡ 0 (mod 2^e)  */
+    if (c % ((uint64_t)1 << e) == 0)
+        return ((uint64_t)1 << (e >> 1));   /* 2^{floor(e/2)} */
+
+    /* exponent of 2 in c */
+    unsigned v = __builtin_ctzll(c);
+
+    /* odd exponent -> no solutions */
+    if (v & 1)
+        return 0ULL;
+
+    unsigned t = v >> 1;          /* v = 2*t */
+    unsigned e_prime = e - v;     /* remaining exponent after cancelling 2^v */
+
+    uint64_t d = c >> v;          /* odd part */
+
+    unsigned zcnt = 0;            /* number of solutions for z in y = 2^t * z */
+
+    if (e_prime == 1) {
+        zcnt = 1;                  /* any odd z provides a solution */
+    } else if (e_prime == 2) {
+        if (d % 4 == 1) zcnt = 2;
+    } else { /* e_prime >= 3 */
+        if (d % 8 == 1) zcnt = 4;
+    }
+
+    return zcnt << t;              /* multiply by 2^t possibilities for z */
+}
 
 /* modular exponentiation for odd primes */
 static uint64_t mod_pow64(uint64_t base, uint64_t exp, uint64_t mod)

@@ -10,6 +10,7 @@
  *            (n-i-k) (A308140: largest side of square‑free integer triangles)
  * Range:     u8 n <= 44, u16 n <= 310, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 9502 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/build_primes.h"   /* provides build_primes()          */
+#include <stddef.h>
+#include "../utils/build_primes.h"
 
 /* static storage for square‑free flags and prime list */
 static unsigned char *sqfree = NULL;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   gcd64, pow3_saturated
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,18 @@
  * seq_t and idx_t. */
 
 #include <stdint.h>
-#include "../utils/gcd64.h"
-#include "../utils/pow3_saturated.h"
+#include <stdbool.h>
+#include "../utils/gcd_u64.h"
+
+/* 3^e with saturation at limit+1. */
+static uint64_t pow3_saturated(uint64_t e, uint64_t limit) {
+    uint64_t r = 1;
+    for (uint64_t i = 0; i < e; ++i) {
+        if (r > limit / 3) return limit + 1;
+        r *= 3;
+    }
+    return r;
+}
 
 /* GCD for 64‑bit unsigned integers. */
 
@@ -36,9 +47,9 @@ static uint64_t binom_saturated(uint64_t n, uint64_t k, uint64_t limit) {
     for (uint64_t i = 1; i <= k; ++i) {
         uint64_t a = n - k + i;   /* numerator term   */
         uint64_t b = i;           /* denominator term*/
-        uint64_t g = gcd64(a, b);
+        uint64_t g = gcd_u64(a, b);
         a /= g;   b /= g;
-        g = gcd64(result, b);
+        g = gcd_u64(result, b);
         result /= g;   b /= g;
 
         if (b != 1) {      /* should not happen for binomial */

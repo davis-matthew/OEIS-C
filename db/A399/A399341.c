@@ -8,6 +8,7 @@
  * Formula:   a(n) = (n^6 + 9*n^5 + 30*n^4 + 45*n^3 + 29*n^2 + 6*n) / 8
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 55, u64 n <= 2297,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 48 terms through n = 9922 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

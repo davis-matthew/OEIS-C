@@ -12,14 +12,15 @@
  *            rounded to the nearest integer
  * Range:     u8 n <= 7, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   int128_sqrt
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/int128_sqrt.h"
+#include "../utils/isqrt_u128.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
     unsigned __int128 D = tr * tr + (unsigned __int128)4U * neg_det;
 
     /* Integer square root of D */
-    unsigned __int128 s = int128_sqrt(D);
+    unsigned __int128 s = isqrt_u128(D);
 
     /* Largest eigenvalue rounded to nearest integer:
        a(n) = floor( (tr + s + 1) / 2 )  */

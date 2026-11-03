@@ -8,7 +8,8 @@
  * Formula:   a(n) = Concatenate(a(n-1),Lucas(n)) with a(1) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,20 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdlib.h>   /* for abort() */
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Cached sequence values ----------------------------------------------*/
 static seq_t *cache = NULL;        /* array of a(i) values          */
@@ -46,7 +59,7 @@ seq_t a(idx_t n)
     /* ---------------------------------------------------------------- */
     if (computed == 0) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             abort();  /* out of memory */
 
@@ -73,13 +86,13 @@ seq_t a(idx_t n)
         lucas_prev  = luc_next;
 
         /* a(i) = a(i-1) * 10^{digit_len(L_i)} + L_i               */
-        seq_t p10   = pow10(digit_len(luc_next));
+        seq_t p10   = pow10(num_digits(luc_next));
         seq_t a_new = cache[computed - 1] * p10 + luc_next;
 
         /* Resize cache if necessary */
         if (computed >= cache_cap) {
             size_t new_cap = cache_cap << 1;   /* double the capacity */
-            seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache)
                 abort();
             cache = new_cache;

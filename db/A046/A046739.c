@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 40, u32 n <= 84, u64 n <= 219,
  *            u128 n <= 577, big any n
- * Helpers:   global_to_coords
+ * Validated: standard, pass, 67 terms through n = 8005 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,29 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/global_to_coords.h"
+#include "../utils/mem.h"
+
+/* Convert global index n (1‑based) to triangle coordinates (row, col) */
+static void global_to_coords(idx_t m, idx_t *row, idx_t *col)
+{
+    if (m == 1) {
+        *row = 1;
+        *col = 1;
+        return;
+    }
+
+    /* find smallest r with r*(r-1)/2 + 1 >= m */
+    double approx = (1.0 + sqrt(1.0 + 8.0 * (double)(m - 1))) / 2.0;
+    idx_t r = (idx_t)approx;
+    while (r * (r - 1) / 2 + 1 < m)
+        ++r;
+    while (r > 1 && (r - 1) * (r - 2) / 2 + 1 >= m)
+        --r;
+
+    *row = r;
+    idx_t cum_prev = (r - 1) * (r - 2) / 2 + 1; /* total elements before row r */
+    *col = m - cum_prev;
+}
 
 /* static storage for triangle rows */
 static seq_t **ROWS = NULL;        /* ROWS[row] -> array of T(row,*)   */
@@ -49,12 +72,12 @@ static void ensure_rows(idx_t r)
 
     /* initialise first two rows if needed */
     if (!ROWS[1]) {
-        ROWS[1] = (seq_t*)malloc(sizeof(seq_t));
+        ROWS[1] = mem_new(seq_t, 1);
         if (!ROWS[1]) return;
         ROWS[1][0] = (seq_t)0;     /* T(1,1) = 0 */
     }
     if (!ROWS[2]) {
-        ROWS[2] = (seq_t*)malloc(sizeof(seq_t));
+        ROWS[2] = mem_new(seq_t, 1);
         if (!ROWS[2]) return;
         ROWS[2][0] = (seq_t)1;     /* T(2,1) = 1 */
     }
@@ -65,7 +88,7 @@ static void ensure_rows(idx_t r)
             continue;
 
         idx_t len = n - 1;       /* number of entries in row n */
-        seq_t *arr = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *arr = mem_new(seq_t, len);
         if (!arr) return;        /* allocation failed */
 
         for (idx_t idx = 0; idx < len; ++idx) {

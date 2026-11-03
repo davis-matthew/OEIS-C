@@ -14,13 +14,15 @@
  *            -50...
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 50, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 /* seq_t and idx_t are declared elsewhere by the build system. */
 
 /* Static cache of previously computed values.  cache[0] is unused. */
@@ -35,7 +37,7 @@ ensure_cache(idx_t n)
     if (cache == NULL) { /* first-time allocation */
         /* Allocate enough space for the first 17 values; enlarge as needed. */
         cache_cap = n < 17 ? 17 : n;
-        cache = (seq_t *)malloc((size_t)(cache_cap + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(cache_cap + 1));
         if (!cache) abort();              /* unrecoverable memory error */
 
         /* initialise known values */
@@ -64,8 +66,7 @@ ensure_cache(idx_t n)
     if (n > cache_cap) {
         idx_t new_cap = cache_cap;
         while (new_cap < n) new_cap <<= 1; /* double until large enough */
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      (size_t)(new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(new_cap + 1));
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

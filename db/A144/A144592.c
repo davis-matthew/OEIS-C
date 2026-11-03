@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   is_prime, min_digit_of
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/min_digit_of.h"
+#include "../utils/mem.h"
+
+static inline uint64_t min_digit_of(uint64_t n)
+{
+    uint64_t min = 9;
+    while (n != 0) {
+        uint64_t d = n % 10;
+        if (d < min) min = d;
+        n /= 10;
+    }
+    return min;
+}
 
 /*  The static state that is shared between calls to a()  */
 static uint64_t last_checked = 1;          /* number just checked for primality     */
@@ -61,7 +73,7 @@ seq_t a(idx_t n)
         if (!is_prime((idx_t)sum)) {
             if (comps_len == comps_cap) {
                 comps_cap = comps_cap ? comps_cap * 2 : 4;
-                seq_t *tmp = (seq_t*)realloc(comps, comps_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, comps, comps_cap);
                 if (!tmp) abort();
                 comps = tmp;
             }

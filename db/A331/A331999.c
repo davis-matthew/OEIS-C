@@ -8,6 +8,7 @@
  * Formula:   a(n) = n*prime(n)*composite(n)
  * Range:     u8 n <= 4, u16 n <= 22, u32 n <= 777, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 56 terms through n = 9079 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
 
 static idx_t *primes           = NULL;       /* stored primes [0 .. prime_cnt-1] */
 static size_t prime_cap        = 0;          /* allocated capacity for primes */

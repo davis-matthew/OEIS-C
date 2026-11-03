@@ -8,8 +8,9 @@
  * Keywords:  nonn, tabl, easy
  * Formula:   a(n) = 2 * ( (m*(m+1))/2 - n + 1 ), where m =
  *            ceil((√(8n+1)-1)/2) is the row containing n
- * Range:     u8 n <= 8128, u16 n <= 9406, u32 n <= 9406, u64 n <= 9406,
- *            u128 n <= 9406, big any n
+ * Range:     u8 n <= 8128, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 9406 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

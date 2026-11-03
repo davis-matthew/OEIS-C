@@ -12,7 +12,8 @@
  *            under rho followed by negation contains every reduce...
  * Range:     u8 n <= 83, u16 n <= 9709, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3172_isqrt
+ * Validated: standard, pass, 85 terms through n = 9793 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a3172_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 static uint32_t *a3172_spf = NULL;
 static uint64_t a3172_spf_lim = 0;
@@ -77,7 +78,7 @@ static bool a3172_ok(uint64_t d) {
     if (d % 4 == 1) D = d;
     else { D = 4 * d; if (d % 2 == 1) t++; }
     if (t >= 3) return false; /* genus theory: h >= 2 */
-    s = a3172_isqrt(D);
+    s = isqrt_u64(D);
     for (b = (D & 1) ? 1 : 2; b <= s; b += 2) {
         uint64_t m = (D - b * b) / 4;
         uint64_t lo = (s + 1 - b + 1) / 2;

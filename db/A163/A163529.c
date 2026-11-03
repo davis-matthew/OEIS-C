@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, walk
  * Formula:   not stated
- * Range:     u8 n <= 8921, u16 n <= 8921, u32 n <= 8921, u64 n <= 8921,
- *            u128 n <= 8921, big any n
+ * Range:     u8 n <= 59048, u16 n <= 59048, u32 n <= 59048, u64 n <= 59048,
+ *            u128 n <= 59048, big any n
+ * Validated: standard, pass, 118 terms through n = 8921 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

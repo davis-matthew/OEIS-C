@@ -9,7 +9,8 @@
  * Formula:   a(n) = #{(i,j) ∈ ℤ² | i² + i*j + j² ≤ n²/4}
  * Range:     u8 n <= 17, u16 n <= 268, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _isqrt_u64, ceil_div2_int64, floor_div2_int64
+ * Validated: standard, pass, 67 terms through n = 951 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,14 +22,26 @@
 */
 
 #include <stdint.h>
-#include "../utils/_isqrt_u64.h"
-#include "../utils/ceil_div2_int64.h"
-#include "../utils/floor_div2_int64.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/isqrt.h"
+
+static inline int64_t ceil_div2_int64(int64_t a)
+{
+    /* ceil(a/2) for signed 64‑bit integer a */
+    return (a >= 0) ? (a + 1) / 2 : a / 2;
+}
+
+static inline int64_t floor_div2_int64(int64_t a)
+{
+    /* floor(a/2) for signed 64‑bit integer a */
+    return (a >= 0) ? a / 2 : (a - 1) / 2;
+}
 
 seq_t a(idx_t n)
 {
     idx_t n2 = n * n;                 /* n² ≤ 10⁸ for the test constraints  */
-    int64_t jmax = (int64_t)(_isqrt_u64(n2 / 3)); /* floor(n/√3) */
+    int64_t jmax = (int64_t)(isqrt(n2 / 3)); /* floor(n/√3) */
     unsigned long long sum = 0;        /* accumulates the result, fits in 64‑bit */
 
     for (int64_t j = -jmax; j <= jmax; ++j)
@@ -38,7 +51,7 @@ seq_t a(idx_t n)
         unsigned __int128 temp = (unsigned __int128)n * n;
         temp -= (unsigned __int128)3 * (unsigned __int128)jj * jj;
         idx_t m = (idx_t)temp;        /* m ≥ 0 for |j| ≤ jmax */
-        idx_t sqrt_m = _isqrt_u64(m);
+        idx_t sqrt_m = isqrt(m);
 
         int64_t A = -j - (int64_t)sqrt_m;   /* -j - √m   */
         int64_t B = -j + (int64_t)sqrt_m;   /* -j + √m   */

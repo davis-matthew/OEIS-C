@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 47, i64 n <= 47, i128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* 8:1 static table of double factorials d(k) = (2k-1)!!, d(0)=1.  */
 static seq_t *dbl_fact = NULL;   /* index from 0 to current capacity */
@@ -34,7 +36,7 @@ static void ensure_dbl_fact(idx_t max_n)
         return;                      /* already enough */
 
     size_t new_cap = (size_t)max_n + 1;          /* indices 0 … max_n inclusive */
-    seq_t *new_tbl = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_tbl = mem_new(seq_t, new_cap);
     if (!new_tbl) abort();
 
     /* base case */
@@ -51,7 +53,7 @@ static void ensure_dbl_fact(idx_t max_n)
         new_tbl[i] = new_tbl[i-1] * (seq_t)(2*i - 1);
     }
 
-    if (dbl_fact) free(dbl_fact);
+    if (dbl_fact) mem_free(dbl_fact);
     dbl_fact = new_tbl;
     dbl_fact_cap = new_cap - 1;          /* last valid index */
 }

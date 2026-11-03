@@ -12,12 +12,14 @@
  *            (floor(i/4)+1). Then a(n)=T(r,c)
  * Range:     u8 n <= 7, u16 n <= 20, u32 n <= 65, u64 n <= 230, u128 n <= 860,
  *            big any n
+ * Validated: standard, pass, 66 terms through n = 1843 (2026-11-01)
  * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow3.h"
 

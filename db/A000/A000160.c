@@ -11,7 +11,8 @@
  *            with 2f(a)+2f(b)<=n, T31 counts (a,b) with...
  * Range:     u8 n <= 10, u16 n <= 26, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   a160_f
+ * Validated: partial, pass, 38 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include "../utils/a160_f.h"
+
+static double a160_f(uint64_t x)
+{
+    double c = cbrt((double)x);
+    uint64_t k = (uint64_t)(c + 0.5);
+    uint64_t t;
+    for (t = (k > 1 ? k - 1 : 0); t <= k + 1; t++)
+        if (t * t * t == x) return (double)(t * t);
+    return cbrt((double)x * (double)x);
+}
 
 typedef struct { double s; uint64_t w; } a160_pair;
 

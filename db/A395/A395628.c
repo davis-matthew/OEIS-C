@@ -7,7 +7,8 @@
  * Formula:   a(n) = (n+1)*(n-1)*a(n-2) for n >= 2 a(0) = 1, a(1) = 2
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 436 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    calls in arbitrary order are efficient. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoised values */
 static idx_t  cur_max = 0;    /* highest index computed so far */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n) {
     /* Initialise or extend the cache */
     if (cache_cap == 0) {             /* first allocation */
         size_t init = 2;              /* at least hold a(0) and a(1) */
-        cache = (seq_t*)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (!cache) exit(1);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)2;
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n) {
     /* Grow if necessary */
     if (n >= cache_cap) {
         size_t new_cap = (n < 128) ? 128 : (size_t)n + n/10 + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_cap = new_cap;

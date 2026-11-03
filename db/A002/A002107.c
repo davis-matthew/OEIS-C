@@ -8,14 +8,23 @@
  *            (-1)^j if m = j*(3j-1)/2 (generalized pentagonal), else 0
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   a2107_eta, a2107_isqrt
+ * Validated: standard, pass, 94 terms through n = 8629 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a2107_eta.h"
-#include "../utils/a2107_isqrt.h"
+#include "../utils/isqrt_u64.h"
+
+/* coefficient of x^m in Product (1 - x^k): A010815(m) */
+static int a2107_eta(uint64_t m) {
+    uint64_t t = 24 * m + 1;
+    uint64_t s = isqrt_u64(t);
+    if (s * s != t) return 0;
+    uint64_t j = (s % 6 == 5) ? (s + 1) / 6 : (s - 1) / 6;
+    return (j & 1) ? -1 : 1;
+}
 
 seq_t a(idx_t n) {
     seq_t sum = 0;

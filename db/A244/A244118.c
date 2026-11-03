@@ -10,12 +10,15 @@
  *            T(r,k) = (1+k)^(k-1) * (-k)^(r-k)
  * Range:     i8 n <= 17, i16 n <= 33, i32 n <= 64, i64 n <= 167,
  *            i128 n <= 431, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 71 terms through n = 5082 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Find row r such that cumulative lengths up to row r-1 ≤ n < cumulative up to row r.
@@ -33,9 +36,9 @@ seq_t a(idx_t n) {
         return (seq_t)0;             /* 0^r = 0 for r > 0 */
     }
     /* Compute (1+k)^(k-1) */
-    seq_t p1 = big_pow((seq_t)(1 + k), (seq_t)(k - 1));
+    seq_t p1 = ipow((seq_t)(1 + k), (seq_t)(k - 1));
     /* Compute k^(r-k) */
-    seq_t p2 = big_pow((seq_t)(k), (seq_t)(r - k));
+    seq_t p2 = ipow((seq_t)(k), (seq_t)(r - k));
     /* Combine magnitude */
     seq_t term = p1 * p2;
     /* Apply sign from (-k)^(r-k) */

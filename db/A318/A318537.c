@@ -11,7 +11,8 @@
  *            Stirling1(n+1,i+1) * binomial(2^i-1, m)
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 24, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   binomial, factorial, floor_log2_uint64
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
+ * Helpers:   binomial, ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 /* helpers from the utils directory */
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/factorial.h"
+#include "../utils/ilog2.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 static int64_t stirling_table[64][64] = {0};
 
@@ -52,7 +65,7 @@ static void compute_stirling(int64_t up_to)
 seq_t a(idx_t n)
 {
     /* Determine triangle position (row, col) from flattened index n */
-    idx_t row = floor_log2_uint64(n + 1);
+    idx_t row = ilog2(n + 1);
     idx_t row_start = ((idx_t)1 << row) - 1;
     idx_t col = n - row_start;               /* 0 <= col < 2^row */
 

@@ -8,14 +8,28 @@
  * Formula:   a(n) = ceil(10^(n-1) / 3^n)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   pow_uint128
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint128.h"
+
+/* Helper: compute base^exp using unsigned __int128 intermediates.
+   Works for small seq_t types (<=64 bits). */
+static unsigned __int128 pow_uint128 (unsigned int base, idx_t exp)
+{
+    unsigned __int128 result = 1;
+    unsigned __int128 b = base;
+    while (exp) {
+        if (exp & 1) result *= b;
+        b *= b;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* Main sequence function. Works for any seq_t:
    - If seq_t is 64‑bit or smaller, uses 128‑bit arithmetic to avoid

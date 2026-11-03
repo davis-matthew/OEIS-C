@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_vals[18] = {
     1, 5, 9, 13, 17, 24, 27, 34, 35, 44,
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Initialise the cache if it does not exist */
     if (cache == NULL) {
         cache_cap = 18;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (idx_t i = 0; i < 18; ++i) {
             cache[i] = base_vals[i];
         }
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     /* Grow the cache if needed */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) {
             /* Allocation failed – abort gracefully */
             return 0;

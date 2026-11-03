@@ -7,8 +7,9 @@
  * Keywords:  nonn, tabl
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 633, u32 n <= 2350, u64 n <= 8651,
- *            u128 n <= 9029, big any n
- * Helpers:   compute_comp
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 9029 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -47,7 +48,23 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_comp.h"
+#include "../utils/mem.h"
+
+/* Build an array comp[0..maxS] where comp[s] is the number of
+ * compositions of s with all parts ≤ maxPart.  The array is
+ * allocated with calloc, caller must free it.  The routine works for
+ * any seq_t (fixed or big integer). */
+static void compute_comp(seq_t *comp, idx_t maxS, idx_t maxPart)
+{
+    comp[0] = (seq_t)1;                   /* empty composition of 0 */
+    for (idx_t s = 1; s <= maxS; ++s) {
+        seq_t sum = 0;
+        idx_t up = maxPart < s ? maxPart : s;
+        for (idx_t i = 1; i <= up; ++i)
+            sum += comp[s - i];
+        comp[s] = sum;
+    }
+}
 
 /* Compute the row R and column k (1‑based) from the flattened index n.
  * The function is independent of seq_t and works for uint64_t indices.   */
@@ -81,11 +98,11 @@ seq_t a(idx_t n)
     idx_t maxS = R / 2;
 
     /* Allocate workspace for compositions with parts ≤ k and parts ≤ k-1 */
-    seq_t *comp_k   = (seq_t *)calloc((size_t)maxS + 1, sizeof(seq_t));
-    seq_t *comp_km1 = (seq_t *)calloc((size_t)maxS + 1, sizeof(seq_t));
+    seq_t *comp_k   = mem_new(seq_t, (size_t)maxS + 1);
+    seq_t *comp_km1 = mem_new(seq_t, (size_t)maxS + 1);
     if (!comp_k || !comp_km1) {
-        free(comp_k);
-        free(comp_km1);
+        mem_free(comp_k);
+        mem_free(comp_km1);
         return 0;          /* allocation failure – graceful return */
     }
 
@@ -115,7 +132,7 @@ seq_t a(idx_t n)
         result += add;
     }
 
-    free(comp_k);
-    free(comp_km1);
+    mem_free(comp_k);
+    mem_free(comp_km1);
     return result;
 }

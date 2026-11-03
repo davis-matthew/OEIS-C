@@ -11,8 +11,8 @@
  *            a(3) = 2, a(4) = 1, a(5) = 2,
  * Range:     u8 n <= 320, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_seq_array, cmp_seq_t, divisor_count_u64, factor_u64,
- *            free_seq_array, gcd
+ * Validated: standard, pass, 121 terms through n = 844 (2026-11-03)
+ * Helpers:   factor_u64, gcd, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +20,31 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/factor_u64.h"
-#include "../utils/divisor_count_u64.h"
 #include "../utils/gcd.h"
-#include "../utils/cmp_seq_t.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static void gen_divs_rec(size_t idx,
                          uint64_t cur,
@@ -54,7 +73,7 @@ seq_t a(idx_t n)
     uint64_t un = (uint64_t)n;
 
     /* number of divisors of n */
-    size_t dcnt = (size_t)divisor_count_u64(un);
+    size_t dcnt = (size_t)num_divisors(un);
 
     /* allocate array for the divisors */
     seq_t *divs = alloc_seq_array(dcnt);
@@ -71,7 +90,7 @@ seq_t a(idx_t n)
     gen_divs_rec(0, 1, primes, exps, pcnt, divs, &pos);
 
     /* sort divisors ascending */
-    qsort(divs, dcnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(divs, dcnt, sizeof(seq_t), cmp_seq_t);
 
     /* count eligible divisors */
     seq_t count = 0;

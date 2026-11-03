@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto_uint64, mod_pow
+ * Validated: standard, pass, 77 terms through n = 967 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,32 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
-#include "../utils/build_primes_upto_uint64.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Simple Sieve of Eratosthenes up to LIMIT (inclusive). */
+static void build_primes_upto_uint64(uint64_t limit, uint64_t **out, size_t *cnt_out) {
+    bool *is_prime = (bool *)malloc((limit + 1) * sizeof(bool));
+    for (uint64_t i = 0; i <= limit; ++i) is_prime[i] = true;
+    is_prime[0] = is_prime[1] = false;
+    for (uint64_t i = 2; i * i <= limit; ++i) {
+        if (is_prime[i]) {
+            for (uint64_t j = i * i; j <= limit; j += i)
+                is_prime[j] = false;
+        }
+    }
+    size_t count = 0;
+    for (uint64_t i = 2; i <= limit; ++i)
+        if (is_prime[i]) ++count;
+    uint64_t *pr = (uint64_t *)malloc(count * sizeof(uint64_t));
+    size_t idx = 0;
+    for (uint64_t i = 2; i <= limit; ++i)
+        if (is_prime[i]) pr[idx++] = i;
+    *out = pr;
+    *cnt_out = count;
+    free(is_prime);
+}
 
 /* Modular exponentiation for 64‑bit modulus (used for prime checks). */
 static inline seq_t mod_pow_uint64(uint64_t base, uint64_t exp, uint64_t mod) {
@@ -69,7 +94,7 @@ static void init_sequence(void) {
     build_primes_upto_uint64(LIMIT, &prime_list, &prime_count);
 
     indices_capacity = prime_count;     /* safe upper bound */
-    index_list = (seq_t *)malloc(indices_capacity * sizeof(seq_t));
+    index_list = mem_new(seq_t, indices_capacity);
     indices_used = 0;
 
     prime_scan_pos = 1;                 /* start from the prime 3 (index 2) */

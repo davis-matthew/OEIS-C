@@ -9,12 +9,14 @@
  *            a(1)=0, a(2)=2, a(3)=4, a(4)=10
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 26, u64 n <= 50, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values (zero‑based index). */
 static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     if (n > cached_max) {
         /* Allocate a larger array, preserving previous values. */
-        seq_t *new_cache = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)n);
         if (!new_cache) abort();   /* Allocation failed */
 
         for (idx_t i = 0; i < cached_max; ++i)
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
             new_cache[i - 1] = val;
         }
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cached_max = n;
     }

@@ -7,12 +7,13 @@
  * Formula:   a(n) = the leading decimal digit of n^8
  * Range:     u8 n <= 103, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
- * Helpers:   pow10_uint128
+ * Validated: partial, pass, 104 terms through n = 103 (2026-11-01)
+ * Helpers:   pow10_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10_uint128.h"
+#include "../utils/pow10_i32.h"
 
 /* Leading decimal digit of n^8 */
 seq_t a(idx_t n)
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
     }
 
     /* Leading digit = n8 / 10^(len−1) */
-    __uint128_t pow10val = pow10_uint128(len - 1);
+    __uint128_t pow10val = pow10_i32(len - 1);
     unsigned long long lead = (unsigned long long)(n8 / pow10val);
 
     return (seq_t)lead;      /* lead is between 0 and 9 */

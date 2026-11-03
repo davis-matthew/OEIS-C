@@ -8,13 +8,23 @@
  *            digit 4
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   contains_digit_4
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/contains_digit_4.h"
+
+static bool contains_digit_4(seq_t value)
+{
+    while (value != 0) {
+        if (value % 10 == 4)
+            return true;
+        value /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

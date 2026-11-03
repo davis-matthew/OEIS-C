@@ -9,11 +9,13 @@
  *            1*a1 + 2*a2 + … + 7*a7 = 7*n – 7). a(0) = 0
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 50 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #ifdef __cplusplus
 #include <vector>

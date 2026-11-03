@@ -5,13 +5,15 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, nice, easy
  * Formula:   a(n) = binomial(n,3) - floor( n/2 * floor( ((n-1)/2)^2 ) )
- * Range:     u8 n <= 9, u16 n <= 51, u32 n <= 100, u64 n <= 100,
+ * Range:     u8 n <= 16, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
+ * Validated: standard, pass, 69 terms through n = 94 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 101 terms through n = 9818 (2026-11-01)
  * Helpers:   get_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -26,7 +27,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/get_digits.h"   /* provides: void get_digits(seq_t, uint8_t *buf, size_t *len); */
+#include "../utils/get_digits.h"
 
 /* Check whether a decimal number has two equal adjacent digits */
 static bool has_adjacent_identical_digits(seq_t v)

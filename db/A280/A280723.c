@@ -9,14 +9,19 @@
  *            * * (Catalan(k)/(2^(2*k+1)))^2
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 11, u128 n <= 16,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
  * Helpers:   catalan, gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/catalan.h"
 #include "../utils/gcd.h"
 #include "../utils/pow2.h"
-#include "../utils/catalan.h"
 
 seq_t a(idx_t n) {
     /* rational sum: sum_num / sum_den */

@@ -8,14 +8,17 @@
  *            n and gcd(a(n), a(k)) = 1 }
  * Range:     u8 n <= 10, u16 n <= 23, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>  /* size_t */
 #include <stdlib.h>  /* malloc, realloc */
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Static cache for previously computed terms.  The array is 1‑based;
    index 0 is unused. */
@@ -29,10 +32,10 @@ ensure_cache(idx_t n)
 {
     size_t need_cap = (size_t)(n + 1);   /* +1 to ignore index 0 */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(need_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, need_cap);
         cache_cap = need_cap;
     } else if (cache_cap <= n) {
-        seq_t *tmp = (seq_t *)realloc(cache, need_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need_cap);
         cache = tmp;
         cache_cap = need_cap;
     }

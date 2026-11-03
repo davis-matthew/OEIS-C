@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 20, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline seq_t binom3(seq_t k)
 {
@@ -51,11 +53,11 @@ seq_t a(idx_t n)
         size_t new_len  = (size_t)n + 1;
 
         /* extend the arrays */
-        a_vals  = (seq_t*)realloc(a_vals,  new_len * sizeof(seq_t));
-        g_vals  = (seq_t*)realloc(g_vals,  new_len * sizeof(seq_t));
-        g2_vals = (seq_t*)realloc(g2_vals, new_len * sizeof(seq_t));
-        g3_vals = (seq_t*)realloc(g3_vals, new_len * sizeof(seq_t));
-        g4_vals = (seq_t*)realloc(g4_vals, new_len * sizeof(seq_t));
+        a_vals  = mem_resize(seq_t, a_vals, new_len);
+        g_vals  = mem_resize(seq_t, g_vals, new_len);
+        g2_vals = mem_resize(seq_t, g2_vals, new_len);
+        g3_vals = mem_resize(seq_t, g3_vals, new_len);
+        g4_vals = mem_resize(seq_t, g4_vals, new_len);
 
         /* initialise new slots to zero */
         for (size_t i = cache_len; i < new_len; ++i) {

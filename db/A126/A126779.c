@@ -8,12 +8,15 @@
  * Formula:   a(n) = n^n - 3*(n-1)^n + 3*(n-2)^n - (n-3)^n
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 32 terms through n = 381 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,10 +30,10 @@ seq_t a(idx_t n)
     const seq_t sn3  = sn - 3;            /* (n-3) */
 
     /* Compute the required powers */
-    const seq_t pow_n  = big_pow(sn,  sn);
-    const seq_t pow_n1 = big_pow(sn1, sn);
-    const seq_t pow_n2 = big_pow(sn2, sn);
-    const seq_t pow_n3 = big_pow(sn3, sn);
+    const seq_t pow_n  = ipow(sn,  sn);
+    const seq_t pow_n1 = ipow(sn1, sn);
+    const seq_t pow_n2 = ipow(sn2, sn);
+    const seq_t pow_n3 = ipow(sn3, sn);
 
     /* Combine them according to the formula */
     seq_t res = pow_n;

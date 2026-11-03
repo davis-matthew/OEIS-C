@@ -11,7 +11,8 @@
  *            if e even, else 0
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 112 terms through n = 9914 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *partitions = NULL;   /* array of partition numbers */
 static size_t part_max = 0;        /* maximum exponent precomputed */
@@ -27,8 +29,8 @@ static size_t part_max = 0;        /* maximum exponent precomputed */
 static void ensure_partitions(size_t max_exp)
 {
     if (max_exp <= part_max) return;
-    if (partitions) free(partitions);
-    partitions = (seq_t*)malloc((max_exp + 1) * sizeof(seq_t));
+    if (partitions) mem_free(partitions);
+    partitions = mem_new(seq_t, (max_exp + 1));
     if (!partitions) return;   /* allocation failed → a() will return 0 */
 
     partitions[0] = 1;

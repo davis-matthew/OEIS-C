@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 2483, u32 n <= 3531, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 72 terms through n = 9750 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* ---- Fenwick helper : fast doubling Fibonacci modulo m ---- */
 static seq_t fib_mod(idx_t n, seq_t mod)
@@ -68,10 +70,10 @@ static void ensure_cache_capacity(void)
 {
     if (cache_len >= cache_cap) {
         size_t newcap = (cache_cap == 0) ? 8 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, newcap);
         if (cache) {
-            memcpy(tmp, cache, cache_cap * sizeof(seq_t));
-            free(cache);
+            mem_copy(tmp, cache, cache_cap * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = tmp;
         cache_cap = newcap;

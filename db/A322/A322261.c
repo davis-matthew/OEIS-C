@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
    of the binary expansions of i and j, starting with a run of 1s.
 */
 
-#include "../utils/bitlen_seq_t.h" /* for bitlen_seq_t() */
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Extract the run lengths of x into runs[0..max-1].
    Returns the number of runs.  Runs are counted from the most
@@ -33,7 +35,7 @@ static inline int get_runs(seq_t x, int *runs, int max)
 {
     if (x == (seq_t)0) return 0;
 
-    unsigned bl = bitlen_seq_t(x);          /* number of bits in x   */
+    unsigned bl = bit_length(x);          /* number of bits in x   */
     int cur_bit = (int)((x >> (bl - 1)) & 1);
     int count   = 1;
     int idx     = 0;

@@ -9,13 +9,15 @@
  *            values a(1)=0, a(2)=1, a(3)=2, a(4)=4
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 40, u64 n <= 79, u128 n <= 158,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 299 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of computed values */
 static idx_t cache_size = 0;         /* number of slots allocated (index 0..cache_size-1) */
@@ -29,7 +31,7 @@ static void ensure_cache_and_compute(idx_t n) {
     if (cache == NULL) {
         /* index 0 unused, indices 1..4 are needed */
         cache_size = 5;              /* indices [0..4] */
-        cache = (seq_t *)malloc((size_t)cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_size);
         if (!cache) exit(1);
         cache[0] = 0;                /* dummy, not used */
         cache[1] = 0;
@@ -40,7 +42,7 @@ static void ensure_cache_and_compute(idx_t n) {
 
     if (n >= cache_size) {           /* need to grow and compute */
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) exit(1);
         cache = tmp;
         /* Compute new values */

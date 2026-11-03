@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_hex_primes
+ * Validated: standard, pass, 72 terms through n = 916 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,61 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/build_hex_primes.h"
+
+/* Build all qualifying primes up to 'limit' and store them in *out.
+   The array contains uint64_t values that can be cast to seq_t.          */
+static void build_hex_primes(idx_t limit, uint64_t **out, size_t *cnt)
+{
+    /* Sieve of Eratosthenes ------------------------------------------- */
+    uint8_t *comp = (uint8_t *)malloc((size_t)(limit + 1));
+    if (!comp) return;                       /* allocation failed */
+    memset(comp, 0, (size_t)(limit + 1));
+    comp[0] = comp[1] = 1;
+
+    for (idx_t i = 2; i * i <= limit; ++i)
+    {
+        if (!comp[i])
+        {
+            for (idx_t j = i * i; j <= limit; j += i)
+                comp[j] = 1;
+        }
+    }
+
+    /* Collect primes whose hex digits are all ≤ 9 ----------------------- */
+    size_t cap = 64;
+    uint64_t *buf = (uint64_t *)malloc(cap * sizeof(uint64_t));
+    size_t sz = 0;
+
+    for (idx_t i = 2; i <= limit; ++i)
+    {
+        if (!comp[i])
+        {
+            uint64_t tmp = (uint64_t)i;
+            bool ok = true;
+            while (tmp)
+            {
+                uint64_t d = tmp & 0xFull;   /* lowest hex digit */
+                if (d > 9) { ok = false; break; }
+                tmp >>= 4;
+            }
+            if (ok)
+            {
+                if (sz == cap)
+                {
+                    cap <<= 1;
+                    uint64_t *newbuf = (uint64_t *)realloc(buf, cap * sizeof(uint64_t));
+                    if (!newbuf) { free(buf); free(comp); return; }
+                    buf = newbuf;
+                }
+                buf[sz++] = i;
+            }
+        }
+    }
+
+    free(comp);
+    *out = buf;
+    *cnt = sz;
+}
 
 /* The main sequence function ------------------------------------------- */
 seq_t a(idx_t n)

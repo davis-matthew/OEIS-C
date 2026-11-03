@@ -7,7 +7,8 @@
  * Formula:   a(n) = #{k ≤ n : every prime factor of k is a Pierpont prime}
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   is_pierpont_prime
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,16 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_pierpont_prime.h"
+
+/* Helper: true if p is a Pierpont prime (p = 2^u * 3^v + 1, p prime) */
+static inline bool is_pierpont_prime(idx_t p)
+{
+    if (p < 2) return false;
+    idx_t t = p - 1;
+    while ((t & 1ULL) == 0) t >>= 1;      /* remove factors of 2 */
+    while (t % 3ULL == 0) t /= 3;          /* remove factors of 3 */
+    return t == 1ULL;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

@@ -9,12 +9,14 @@
  *            Initial values: a(3)=0, a(4)=1, a(5)=4, a(6)=9, a(7)=12, a(8)=25
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 67, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* cache[i] holds a(i) for i >= 0 */
 static size_t cache_cap = 0;    /* allocated length of cache */
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n)
     /* Ensure cache has room for indices up to n */
     if ((size_t)(n + 1) <= cache_cap) return;
     size_t newcap = (size_t)(n + 1);
-    seq_t *newptr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, cache, newcap);
     if (!newptr) abort();      /* allocation failure: terminate */
     cache = newptr;
     cache_cap = newcap;

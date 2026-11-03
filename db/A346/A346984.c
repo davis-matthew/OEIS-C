@@ -8,13 +8,15 @@
  *            binomial(n-1,k) * a(n-k) (n ≥ 1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 302 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 /* seq_t and idx_t are supplied by the build */
 
 seq_t a(idx_t n)
@@ -30,11 +32,11 @@ seq_t a(idx_t n)
     /* ensure cache is large enough to hold a[n] */
     if (n >= cache_size) {
         size_t new_size = (n < MAX_N ? MAX_N : n) + 1;
-        seq_t *new_cache = (seq_t *)calloc(new_size, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (cache) {
             /* copy existing values */
-            memcpy(new_cache, cache, (next_compute > cache_size ? cache_size : next_compute) * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, (next_compute > cache_size ? cache_size : next_compute) * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
         cache_size = new_size;

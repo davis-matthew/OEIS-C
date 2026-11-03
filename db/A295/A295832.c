@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 28, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,6 +39,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         idx_t newmax = n;
 
         /* allocate or grow seq array */
-        seq = (seq_t *)realloc(seq, (size_t)(newmax + 1) * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (size_t)(newmax + 1));
 
         /* allocate or grow K array */
         Karr = (int64_t *)realloc(Karr, (size_t)(newmax + 1) * sizeof(int64_t));

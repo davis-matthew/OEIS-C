@@ -7,6 +7,7 @@
  * Formula:   a(n) = q^36 * Product_{i=2..9} (q^i - 1), where q = A000961(n+1)
  *            (the (n+1)-th prime power, counting 1)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 2, big any n
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

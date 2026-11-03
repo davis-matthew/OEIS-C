@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   ceil_div_uint64, gcd
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/ceil_div_uint64.h"
+
+/* Compute the ceiling of b/a for positive integers (uint64_t). */
+static inline uint64_t ceil_div_uint64(uint64_t b, uint64_t a)
+{
+    return (b + a - 1) / a;
+}
 
 /* ----------  Helpers ---------- */
 

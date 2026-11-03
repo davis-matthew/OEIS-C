@@ -12,12 +12,14 @@
  *            a(6)=1360328, a(7)=2121734, a(8)=3245653 (Index starts at 1)
  * Range:     u8 none, u16 none, u32 n <= 38, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[8] = {
     (seq_t)130321,
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     if (cache_len < n) {
         idx_t new_len = n;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_len);
         if (!tmp) exit(1);  /* Allocation failure; abort */
         seq_cache = tmp;
 

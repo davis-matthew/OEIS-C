@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 128, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 88 terms through n = 9916 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;      /* array of sequence values (1‑based) */
 static size_t  a_cap   = 0;        /* allocated capacity of a_cache */
@@ -47,7 +49,7 @@ static void ensure_sums_capacity(uint64_t d_needed)
     if (d_needed >= sums_cap) {
         size_t new_cap = sums_cap ? sums_cap : 16;
         while (new_cap <= d_needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(sums_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, sums_arr, new_cap);
         if (!tmp) abort(); /* out of memory – terminate safely */
         sums_arr = tmp;
         /* initialise new entries to zero */
@@ -62,7 +64,7 @@ static void ensure_a_capacity(idx_t n)
     if (n > (idx_t)a_cap) {
         size_t new_cap = a_cap ? a_cap : 16;
         while ((idx_t)new_cap < n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();
         a_cache = tmp;
         a_cap = new_cap;
@@ -76,12 +78,12 @@ seq_t a(idx_t n)
 
     /* initialise static storage on first call */
     if (!a_cache) {
-        a_cache = (seq_t*)malloc(16 * sizeof(seq_t));
+        a_cache = mem_new(seq_t, 16);
         a_cap   = 16;
     }
     if (!sums_arr) {
         sums_cap = 16;
-        sums_arr = (seq_t*)calloc(sums_cap, sizeof(seq_t));
+        sums_arr = mem_new(seq_t, sums_cap);
     }
 
     /* grow the cache if needed */
@@ -98,13 +100,13 @@ seq_t a(idx_t n)
                 sums_arr[d_val] = (seq_t)d_val;  /* sums[1] = 1 after a(1) */
             } else {
                 /* compute a(i) from a(i‑1) */
-                uint64_t d_prev = divisor_count_u64((uint64_t)a_cache[(size_t)(i-2)]);
+                uint64_t d_prev = num_divisors((uint64_t)a_cache[(size_t)(i-2)]);
                 ensure_sums_capacity(d_prev);
                 seq_t val = sums_arr[d_prev];
                 a_cache[(size_t)(i-1)] = val;
 
                 /* update sums for the newly added term */
-                uint64_t d_curr = divisor_count_u64((uint64_t)val);
+                uint64_t d_curr = num_divisors((uint64_t)val);
                 ensure_sums_capacity(d_curr);
                 sums_arr[d_curr] += (seq_t)d_curr;
             }

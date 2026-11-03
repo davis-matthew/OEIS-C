@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 134, u32 n <= 526, u64 n <= 2077,
  *            u128 n <= 8253, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9027 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* statically‑allocated cache for primes and the work table */
 static uint64_t *primes      = NULL;   /* list of primes */
@@ -75,10 +77,10 @@ ensure_table(idx_t S)
     if (tbl_size >= S) return;
 
     /* free old table */
-    if (table) free(table);
+    if (table) mem_free(table);
 
     size_t sz = (S + 1) * (S + 1);
-    table = (seq_t*)malloc(sz * sizeof(seq_t));
+    table = mem_new(seq_t, sz);
     if (!table) exit(EXIT_FAILURE);
     tbl_size = S;
 

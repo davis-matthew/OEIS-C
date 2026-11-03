@@ -11,16 +11,19 @@
  *            divisors of d
  * Range:     u8 n <= 9, u16 n <= 23, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   factor_u64, gcd, pow_uint
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Recursive helper that visits all divisors of n based on its
    prime factorisation.  cur_exp[i] holds the exponent of the
@@ -41,7 +44,7 @@ static void divide_and_sum(size_t idx, size_t pf_cnt,
         for (size_t i = 0; i < pf_cnt; ++i) {
             int e = cur_exp[i];
             if (e == 0) continue;
-            seq_t p_pow = pow_uint(primes[i], (idx_t)(e + 1));
+            seq_t p_pow = ipow_u64_idx(primes[i], (idx_t)(e + 1));
             seq_t term = (p_pow - 1) / (primes[i] - 1);
             sigma *= term;
         }
@@ -52,7 +55,7 @@ static void divide_and_sum(size_t idx, size_t pf_cnt,
             int e = cur_exp[i];
             if (e == 0) continue;
             seq_t exp = (seq_t)e * tau / 2;          /* integer division */
-            pod *= pow_uint(primes[i], (idx_t)exp);
+            pod *= ipow_u64_idx(primes[i], (idx_t)exp);
         }
 
         /* Add σ/pod to the running fraction. */

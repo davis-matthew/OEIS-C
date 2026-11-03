@@ -9,13 +9,15 @@
  *            Σ_{j=0}^{k-1} a(2j+1)*a(2(k-1-j)+1) (k ≥ 0)
  * Range:     i8 n <= 8, i16 n <= 16, i32 n <= 28, i64 n <= 41, i128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Included header for memory operations */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* cache of a(n) values          */
 static idx_t  cache_size = 0;   /* number of elements allocated  */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t needed)
     if (needed <= cache_size) return;
     idx_t new_size = needed * 3 / 2 + 16;
     if (new_size < needed) new_size = needed;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {
         /* In a real program we might handle out‑of‑memory, but the
            judge will provide enough memory for the test cases. */

@@ -11,14 +11,16 @@
  *            recurrence so that no factorials are explicitly fo...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   binom, pow_int
+ * Validated: standard, pass, 29 terms through n = 168 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/pow_int.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     idx_t four_n = two_n + two_n; /* 4*n   */
 
     /* Initial term k = 0  :  T = C(4n,2n) * n^(2n) */
-    seq_t T = binom(four_n, two_n);
-    T = T * pow_int((seq_t)n, two_n);   /* n^ (2n) = n^(2*n) */
+    seq_t T = binomial(four_n, two_n);
+    T = T * ipow_idx((seq_t)n, two_n);   /* n^ (2n) = n^(2*n) */
 
     seq_t sum = T;                 /* sum starts with k = 0 */
     bool term_positive = true;     /* sign of current term */

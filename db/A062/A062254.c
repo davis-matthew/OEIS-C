@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 28, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global tables holding the current row of each level and the
    concatenated sequence of the third level.  The types seq_t and
@@ -45,7 +47,7 @@ static void ensure_a3_capacity(size_t needed)
     if (needed <= a3_cap) return;
     size_t new_cap = a3_cap ? a3_cap * 2 : 8;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a3_concat, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a3_concat, new_cap);
     if (!tmp) abort();          /* out of memory – terminate program */
     a3_concat = tmp;
     a3_cap = new_cap;
@@ -57,9 +59,9 @@ static void init_once(void)
     if (a3_count != 0) return;     /* already initialised */
 
     prev_len = 1;
-    prevA1 = (seq_t *)malloc(prev_len * sizeof(seq_t));
-    prevA2 = (seq_t *)malloc(prev_len * sizeof(seq_t));
-    prevA3 = (seq_t *)malloc(prev_len * sizeof(seq_t));
+    prevA1 = mem_new(seq_t, prev_len);
+    prevA2 = mem_new(seq_t, prev_len);
+    prevA3 = mem_new(seq_t, prev_len);
 
     prevA1[0] = 1;    /* A1(0,0) */
     prevA2[0] = 1;    /* A2(0,0) */
@@ -77,9 +79,9 @@ static void build_next_row(void)
     idx_t m = last_row + 1;        /* new row index */
     idx_t new_len = m + 1;         /* length of the new row */
 
-    seq_t *newA1 = (seq_t *)calloc(new_len, sizeof(seq_t));
-    seq_t *newA2 = (seq_t *)calloc(new_len, sizeof(seq_t));
-    seq_t *newA3 = (seq_t *)calloc(new_len, sizeof(seq_t));
+    seq_t *newA1 = mem_new(seq_t, new_len);
+    seq_t *newA2 = mem_new(seq_t, new_len);
+    seq_t *newA3 = mem_new(seq_t, new_len);
 
     for (idx_t k = 0; k < new_len; ++k) {
         /* --- Level 1: Eulerian numbers A1 --- */
@@ -112,9 +114,9 @@ static void build_next_row(void)
     a3_count += new_len;
 
     /* Free the old row arrays. */
-    free(prevA1);
-    free(prevA2);
-    free(prevA3);
+    mem_free(prevA1);
+    mem_free(prevA2);
+    mem_free(prevA3);
 
     /* Promote the new row to “previous” for the next iteration. */
     prevA1 = newA1;

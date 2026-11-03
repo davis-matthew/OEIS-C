@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the sequence term for index n.  idx_t is an unsigned 64‑bit
  * integer (uint64_t) and seq_t is an unsigned integer type of
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
      * divisors whose used primes are exactly mask.  Empty set is
      * represented by mask = 0 with dp[0] = 1. */
     size_t full = ((size_t)1) << k;
-    seq_t* dp   = (seq_t*)malloc(full * sizeof(seq_t));
+    seq_t* dp   = mem_new(seq_t, full);
     if (!dp)
         return 0;            /* allocation failure → return 0 as fallback */
 
@@ -109,6 +111,6 @@ seq_t a(idx_t n)
         ans += dp[mask] - prod;
     }
 
-    free(dp);
+    mem_free(dp);
     return ans;
 }

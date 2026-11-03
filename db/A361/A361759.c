@@ -12,13 +12,15 @@
  *            final term b(i) that first reaches or exceeds n
  * Range:     u8 n <= 63, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9409 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     do { t++; tmp /= 10; } while (tmp != 0);
 
     /* Allocate array for the rolling window of the last t terms. */
-    seq_t *window = (seq_t*)malloc((size_t)t * sizeof(seq_t));
+    seq_t *window = mem_new(seq_t, (size_t)t);
     if (!window) return 0;  /* allocation failure, return 0 as safe value */
 
     /* Extract digits in order: most significant first. */
@@ -62,6 +64,6 @@ seq_t a(idx_t n)
         pos = (pos + 1) % t;
     }
 
-    free(window);
+    mem_free(window);
     return sum;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 2415, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 90 terms through n = 8970 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,10 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* cache for memoisation; works for both C and C++ */
 struct cache_entry {
@@ -36,7 +40,7 @@ static void ensure_cache_capacity(size_t need)
     if (cache_cap < need) {
         size_t new_cap = cache_cap ? (cache_cap << 1) : 16;
         if (new_cap < need) new_cap = need;
-        struct cache_entry *tmp = (struct cache_entry *)realloc(cache, new_cap * sizeof(*tmp));
+        struct cache_entry *tmp = mem_resize(struct cache_entry, cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         cache_cap = new_cap;
@@ -76,7 +80,7 @@ seq_t a(idx_t n)
         /* modulus = m * n                              */
         seq_t mod   = (seq_t)m * (seq_t)n;
         /* T = 2^m (mod mod)                             */
-        seq_t T     = mod_pow(2, m, mod);    /* relies on utils/mod_pow.h */
+        seq_t T     = powmod(2, m, mod);    /* relies on utils/mod_pow.h */
 
         /* r = T (mod m)                                 */
         seq_t r     = T % (seq_t)m;

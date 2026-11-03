@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Multiply polynomials a (degree na-1) and b (degree nb-1).
    Returns new array of length na+nb-1 with the product coefficients. */
@@ -30,7 +32,7 @@ static seq_t *poly_mul(const seq_t *a, size_t na,
                        size_t *nout)
 {
     size_t len = na + nb - 1;
-    seq_t *res = (seq_t*)calloc(len, sizeof(seq_t));
+    seq_t *res = mem_new(seq_t, len);
     for (size_t i = 0; i < na; ++i)
         for (size_t j = 0; j < nb; ++j)
             res[i + j] += a[i] * b[j];
@@ -44,11 +46,11 @@ static seq_t *poly_div(const seq_t *a, size_t na,
                        const seq_t *b, size_t nb,
                        size_t *nout)
 {
-    seq_t *rem = (seq_t*)malloc(na * sizeof(seq_t));
-    memcpy(rem, a, na * sizeof(seq_t));
+    seq_t *rem = mem_new(seq_t, na);
+    mem_copy(rem, a, na * sizeof(seq_t));
 
     size_t qlen = na - nb + 1;
-    seq_t *quo = (seq_t*)calloc(qlen, sizeof(seq_t));
+    seq_t *quo = mem_new(seq_t, qlen);
 
     for (int i = (int)na - 1; i >= (int)nb - 1; --i) {
         seq_t coeff = rem[i];
@@ -59,7 +61,7 @@ static seq_t *poly_div(const seq_t *a, size_t na,
                 rem[pos + j] -= coeff * b[j];
         }
     }
-    free(rem);
+    mem_free(rem);
     *nout = qlen;
     return quo;
 }
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
         size_t plen[dcnt];
 
         /* Φ_1(x) = x - 1 */
-        seq_t *phi0 = (seq_t*)calloc(2, sizeof(seq_t));
+        seq_t *phi0 = mem_new(seq_t, 2);
         phi0[0] = -1;
         phi0[1] = 1;
         phi[0] = phi0;
@@ -93,14 +95,14 @@ seq_t a(idx_t n)
 
             /* product of Φ_k for k dividing d and k < d */
             size_t prodlen = 1;
-            seq_t *prod = (seq_t*)calloc(1, sizeof(seq_t));
+            seq_t *prod = mem_new(seq_t, 1);
             prod[0] = 1;
 
             for (size_t j = 0; j < i; ++j) {
                 if (d % _divs[j] == 0) {
                     size_t newlen;
                     seq_t *tmp = poly_mul(prod, prodlen, phi[j], plen[j], &newlen);
-                    free(prod);
+                    mem_free(prod);
                     prod = tmp;
                     prodlen = newlen;
                 }
@@ -108,15 +110,15 @@ seq_t a(idx_t n)
 
             /* Φ_d(x) = (x^d - 1) / prod */
             size_t alen = (size_t)d + 1;
-            seq_t *A = (seq_t*)calloc(alen, sizeof(seq_t));
+            seq_t *A = mem_new(seq_t, alen);
             A[0] = -1;
             A[d] = 1;
 
             size_t qlen;
             seq_t *Phi = poly_div(A, alen, prod, prodlen, &qlen);
 
-            free(A);
-            free(prod);
+            mem_free(A);
+            mem_free(prod);
 
             phi[i] = Phi;
             plen[i] = qlen;
@@ -124,13 +126,13 @@ seq_t a(idx_t n)
 
         /* Q(x) = product of all Φ_d for proper divisors. */
         size_t Qlen_temp = 1;
-        seq_t *Qtemp = (seq_t*)calloc(1, sizeof(seq_t));
+        seq_t *Qtemp = mem_new(seq_t, 1);
         Qtemp[0] = 1;
 
         for (size_t i = 0; i < dcnt; ++i) {
             size_t newlen;
             seq_t *newQ = poly_mul(Qtemp, Qlen_temp, phi[i], plen[i], &newlen);
-            free(Qtemp);
+            mem_free(Qtemp);
             Qtemp = newQ;
             Qlen_temp = newlen;
         }
@@ -140,7 +142,7 @@ seq_t a(idx_t n)
 
         /* free φ_d polynomials */
         for (size_t i = 0; i < dcnt; ++i)
-            free(phi[i]);
+            mem_free(phi[i]);
 
         init = true;
     }

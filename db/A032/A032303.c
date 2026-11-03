@@ -10,12 +10,14 @@
  *            x^k)
  * Range:     u8 n <= 26, u16 n <= 74, u32 n <= 230, u64 n <= 778,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of the sequence A032303.  Indexing starts at 0. */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Ensure we have a dp array that can hold indices up to n */
     if (n + 1 > current_max) {
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t*)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, new_size);
         if (!new_dp) return (seq_t)0;        /* unlikely, defensive */
         dp = new_dp;
 

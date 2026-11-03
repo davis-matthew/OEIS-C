@@ -9,7 +9,8 @@
  *            then * a(n)=2*a(j)+2*a(j+1) (add 1 if j==2^i-1)
  * Range:     u8 n <= 58, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: floor(log2(v)) for v>=1 */
 static inline unsigned floor_log2_uint64(idx_t v) {
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n) {
     if (needed <= cache_size) return;
 
     size_t new_cap = needed;
-    seq_t  *c = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t  *c = mem_resize(seq_t, cache, new_cap);
     bool   *s = (bool   *)realloc(seen,  new_cap * sizeof(bool));
     if (!c || !s) abort();                 /* memory failure */
 

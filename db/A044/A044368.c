@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    the results. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true iff x contains the consecutive digits 3 and 6. */
 static bool has36(seq_t x)
@@ -46,7 +48,7 @@ static void grow_cache(size_t needed, seq_t **cache, size_t *cap)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *cache, new_cap);
     if (!tmp)
         abort();                       /* out of memory – cannot recover */
 

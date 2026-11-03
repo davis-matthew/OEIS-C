@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{p^e‖n} e * (floor_log2(index(p)) + 1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, floor_log2_uint64
+ * Validated: standard, pass, 103 terms through n = 6649 (2026-11-01)
+ * Helpers:   build_primes_upto, ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/floor_log2_uint64.h"
+#include "../utils/ilog2.h"
 
 static uint64_t *PRIMES = NULL;     /* array of primes, 1‑based indices used below    */
 static size_t   PRIME_CNT = 0;      /* number of primes in PRIMES                    */
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
         uint64_t p = pr[i];
         uint64_t e = ex[i];
         idx_t idx = prime_index(p);
-        seq_t len = (seq_t)(floor_log2_uint64(idx) + 1); /* binary length of idx */
+        seq_t len = (seq_t)(ilog2(idx) + 1); /* binary length of idx */
         sum += (seq_t)e * len;
     }
     return sum;

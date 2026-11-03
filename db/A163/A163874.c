@@ -7,13 +7,15 @@
  * Formula:   a(n) = n - a(a(n-3)), a(0) = a(1) = a(2) = 0
  * Range:     u8 n <= 411, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 8799 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         while (newcap <= (size_t)n)
             newcap <<= 1;
 
-        seq_t *c = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *c = mem_resize(seq_t, cache, newcap);
         unsigned char *f = (unsigned char *)realloc(found, newcap * sizeof(unsigned char));
         if (!c || !f)
             abort();                       /* memory allocation failure */

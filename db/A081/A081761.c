@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 2047, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   eq_exps, factor_u64, sort_exps_desc
+ * Validated: standard, pass, 86 terms through n = 8862 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,29 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *primes, uint64_t *exps, size_t *count) */
-#include "../utils/eq_exps.h"
-#include "../utils/sort_exps_desc.h"
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+
+/* compare two exponent multisets (already sorted)                       */
+static bool eq_exps(const uint64_t *a, size_t ka, const uint64_t *b, size_t kb)
+{
+    if (ka != kb) return false;
+    for (size_t i = 0; i < ka; ++i)
+        if (a[i] != b[i]) return false;
+    return true;
+}
+
+/* sort an array of exponents in non‑increasing order                     */
+static void sort_exps_desc(uint64_t *exps, size_t k)
+{
+    for (size_t i = 0; i < k; ++i)
+        for (size_t j = i + 1; j < k; ++j)
+            if (exps[i] < exps[j]) {
+                uint64_t t = exps[i];
+                exps[i] = exps[j];
+                exps[j] = t;
+            }
+}
 
 /* --------------------------------------------------------------------- */
 

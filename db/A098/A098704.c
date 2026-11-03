@@ -8,12 +8,14 @@
  * Formula:   a(n) = 16*a(n-1)+2, a(2) = 2 (for n ≥ 2)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 792 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* sequence cache, index 0..N */
 static idx_t  cache_size = 0;  /* number of slots currently allocated */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Allocate or grow cache to length n+1 (indices 0..n). */
     if (!cache) {
         /* First allocation: build all values up to n. */
-        cache = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1));
         if (!cache)
             abort();                 /* out‑of‑memory */
         cache_size = n + 1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         }
     } else if (cache_size <= n) {
         /* Grow the cache to accommodate indices up to n. */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!tmp)
             abort();                 /* out‑of‑memory */
         cache = tmp;

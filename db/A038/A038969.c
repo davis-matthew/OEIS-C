@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, powmod64
+ * Validated: standard, pass, 61 terms through n = 993 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,11 @@
  */
 
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x);          */
-#include "../utils/powmod64.h"   /* uint64_t powmod64(u64,u64,u64); */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +47,7 @@ seq_t a(idx_t n)
     /* --- (2) create initial cache if empty                         */
     if (cap == 0) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* --- (3) extend cache until it contains at least n terms       */
@@ -60,7 +64,7 @@ seq_t a(idx_t n)
         if (cand == 83ULL)
             ok = 1;
         else {
-            uint64_t r = powmod64(83ULL, (cand - 1) >> 1, cand);
+            uint64_t r = powmod_u64(83ULL, (cand - 1) >> 1, cand);
             ok = (r == 1ULL);
         }
 
@@ -68,7 +72,7 @@ seq_t a(idx_t n)
             /* grow the cache if necessary */
             if (len == cap) {
                 cap <<= 1;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = (seq_t)cand;
             if (len >= (size_t)n) {

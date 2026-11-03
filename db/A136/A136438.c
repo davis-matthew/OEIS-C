@@ -11,12 +11,14 @@
  *            equal to 1,2,3,..., traversing each anti‑diagon...
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,12 +41,12 @@ seq_t a(idx_t n)
     size_t sz = (size_t)(m + 1);
 
     /* allocate two rows of size m+1 */
-    seq_t *row1 = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *row2 = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *row1 = mem_new(seq_t, sz);
+    seq_t *row2 = mem_new(seq_t, sz);
     if (!row1 || !row2) {
         /* allocation failure – return 0 as safety */
-        free(row1);
-        free(row2);
+        mem_free(row1);
+        mem_free(row2);
         return 0;
     }
 
@@ -58,8 +60,8 @@ seq_t a(idx_t n)
     /* If we need the first row, we are done */
     if (target_k == 1) {
         seq_t result = row1[offset];
-        free(row1);
-        free(row2);
+        mem_free(row1);
+        mem_free(row2);
         return result;
     }
 
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = row1[offset];
-    free(row1);
-    free(row2);
+    mem_free(row1);
+    mem_free(row2);
     return result;
 }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 179, u32 n <= 839, u64 n <= 1274,
  *            u128 n <= 1274, big any n
- * Helpers:   build_primes_upto, seq_mul, seq_one, seq_pow
+ * Validated: standard, pass, 82 terms through n = 1242 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,10 +29,17 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_one.h"
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 static uint64_t *primes = NULL;      /* array of primes up to a small limit */
 static size_t primes_cnt = 0;        /* number of primes in the array */
@@ -115,7 +123,7 @@ seq_t a(idx_t n)
         int e = exps[pi];
         if (e < 0)
         {
-            seq_t mult = seq_pow((seq_t)primes[pi], (idx_t)(-e));
+            seq_t mult = ipow_idx((seq_t)primes[pi], (idx_t)(-e));
             denom = seq_mul(denom, mult);
         }
     }

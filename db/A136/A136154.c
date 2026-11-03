@@ -9,7 +9,8 @@
  *            and that itself has exactly five distinct prime factors
  * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   count_distinct_primes, is_prime
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   is_prime, mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_distinct_primes.h"
 #include "../utils/is_prime.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 static seq_t *cache     = NULL;   /* memoised sequence values           */
 static size_t cache_len = 0;      /* number of elements already stored  */
@@ -30,7 +32,7 @@ static void ensure_cache_cap(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         while (!is_prime(cur)) ++cur;
         /* cur is prime; test the composite cur+1. */
         uint64_t candidate = (uint64_t)cur + 1;
-        if (count_distinct_primes(candidate) == 5) {
+        if (omega(candidate) == 5) {
             ensure_cache_cap(cache_len + 1);
             cache[cache_len++] = (seq_t)candidate;
         }

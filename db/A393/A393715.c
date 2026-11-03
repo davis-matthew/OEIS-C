@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root for unsigned 64‑bit values. */
 static inline idx_t
@@ -66,7 +68,7 @@ ensure_tau(idx_t n)
         return;
 
     /* Allocate new table. */
-    seq_t *new_tau = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *new_tau = mem_new(seq_t, (size_t)(n + 1));
     if (!new_tau)
         return;                      /* allocation failure → leave old table */
 
@@ -77,7 +79,7 @@ ensure_tau(idx_t n)
     }
 
     /* Replace old table. */
-    free(tau);
+    mem_free(tau);
     tau = new_tau;
     tau_cap = n;
 }

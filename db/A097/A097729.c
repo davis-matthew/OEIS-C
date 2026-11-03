@@ -8,12 +8,14 @@
  * Formula:   a(n) = 146*a(n-1) - a(n-2) (n ≥ 2) with a(0) = 1, a(1) = 147
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 415 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for already computed values */
@@ -24,9 +26,9 @@ seq_t a(idx_t n) {
     if (cached <= n) {
         size_t newsize = (size_t)n + 1;
         if (cache == NULL) {
-            cache = (seq_t *)malloc(newsize * sizeof(seq_t));
+            cache = mem_new(seq_t, newsize);
         } else {
-            cache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, newsize);
         }
         /* initialise base cases if not already done */
         if (cached == 0) {

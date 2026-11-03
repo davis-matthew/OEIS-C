@@ -10,12 +10,14 @@
  *            all parts ≥ 4
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle the two small offset cases directly */
@@ -32,8 +34,8 @@ seq_t a(idx_t n) {
         idx_t new_max = n;               /* need tables up to n */
 
         /* Allocate new tables */
-        seq_t *new_p = (seq_t *)malloc(sizeof(seq_t) * (new_max + 1));
-        seq_t *new_g = (seq_t *)malloc(sizeof(seq_t) * (new_max + 1));
+        seq_t *new_p = mem_new(seq_t, (new_max + 1));
+        seq_t *new_g = mem_new(seq_t, (new_max + 1));
         if (!new_p || !new_g) return (seq_t)0; /* allocation failed */
 
         /* Initialise to zero */
@@ -59,8 +61,8 @@ seq_t a(idx_t n) {
         }
 
         /* Replace old tables */
-        if (p_total) free(p_total);
-        if (g_ge4)   free(g_ge4);
+        if (p_total) mem_free(p_total);
+        if (g_ge4)   mem_free(g_ge4);
         p_total = new_p;
         g_ge4   = new_g;
         max_computed = new_max;

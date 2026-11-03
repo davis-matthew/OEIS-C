@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 65, u32 n <= 485, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 835 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
     every call, so it is valid for any access pattern. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,16 +29,16 @@ seq_t a(idx_t n)
 
     /* Allocate or enlarge the dp array to at least n+1 elements. */
     if (dp_size < n + 1) {
-        seq_t *new_dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (n + 1));
         if (!new_dp) return (seq_t)0;          /* out of memory; should not happen */
-        memset(new_dp, 0, (n + 1) * sizeof(seq_t));
-        free(dp);
+        mem_set(new_dp, 0, (n + 1) * sizeof(seq_t));
+        mem_free(dp);
         dp     = new_dp;
         dp_size = n + 1;
     } else {
         /* For an existing array, clear the entries that will be recomputed. */
         if (n >= 1)
-            memset(dp + 1, 0, n * sizeof(seq_t));
+            mem_set(dp + 1, 0, n * sizeof(seq_t));
     }
 
     /* Base case: there is exactly one way to partition 0. */

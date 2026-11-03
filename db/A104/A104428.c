@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 37, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   has_digit8
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,19 @@
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdbool.h>  /* bool, true, false */
 #include <stdint.h>   /* uint64_t */
-#include "../utils/has_digit8.h"
+
+/* Check whether a value of type seq_t contains the digit 8. */
+static inline bool has_digit8(seq_t x)
+{
+    while (x != (seq_t)0)
+    {
+        seq_t d = x % (seq_t)10;
+        if (d == (seq_t)8)
+            return true;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
  
 

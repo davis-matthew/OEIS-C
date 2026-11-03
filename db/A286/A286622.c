@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, look
  * Formula:   not stated
- * Range:     u8 n <= 9686, u16 n <= 9686, u32 n <= 9686, u64 n <= 9686,
- *            u128 n <= 9686, big any n
- * Helpers:   compute_1run_multiset
+ * Range:     u8 n <= 46810, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 126 terms through n = 9686 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,48 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/compute_1run_multiset.h"
+#include "../utils/mem.h"
+
+/* Compute the sorted multiset of 1‑run lengths for n. */
+static void compute_1run_multiset(uint64_t n, size_t *out_len, uint8_t *out_lens)
+{
+    /* Temporary buffer for collecting run lengths (max 64). */
+    uint8_t tmp[64];
+    size_t len = 0;
+
+    if (n == 0) {
+        *out_len = 0;
+        return;
+    }
+
+    uint64_t m = n;
+    while (m) {
+        /* Skip zeros. */
+        while ((m & 1ULL) == 0)
+            m >>= 1;
+        /* Count consecutive ones. */
+        size_t cnt = 0;
+        while ((m & 1ULL) == 1) {
+            ++cnt;
+            m >>= 1;
+        }
+        tmp[len++] = (uint8_t)cnt;
+    }
+
+    /* Insertion sort for very small arrays. */
+    for (size_t i = 1; i < len; ++i) {
+        uint8_t val = tmp[i];
+        size_t j = i;
+        while (j > 0 && tmp[j - 1] > val) {
+            tmp[j] = tmp[j - 1];
+            --j;
+        }
+        tmp[j] = val;
+    }
+
+    memcpy(out_lens, tmp, len);
+    *out_len = len;
+}
 
 /* Helper data structure for each distinct multiset */
 typedef struct {
@@ -56,7 +98,7 @@ static void ensure_label_cache(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(label_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, label_cache, new_cap);
     if (!tmp)
         abort();                   /* out of memory */
 
@@ -75,7 +117,7 @@ static void ensure_key_cap(void)
         return;
 
     size_t new_cap = key_cap ? key_cap << 1 : 8;
-    Key *tmp = (Key *)realloc(keys, new_cap * sizeof(Key));
+    Key *tmp = mem_resize(Key, keys, new_cap);
     if (!tmp)
         abort();           /* out of memory */
 

@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{d|n} phi(d) * 5^(n/d)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 1418 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t phi_uint64(idx_t m)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;
 
     /* Pre‑compute powers of 5 up to n */
-    seq_t *pow5 = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *pow5 = mem_new(seq_t, (size_t)(n + 1));
     if (!pow5) return (seq_t)0;
     pow5[0] = (seq_t)1;
     for (idx_t i = 1; i <= n; ++i)
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(pow5);
+    mem_free(pow5);
     return sum;
 }

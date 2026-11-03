@@ -10,12 +10,14 @@
  *            arbitrary ordering of n are handled efficiently
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 39, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* grow the table if necessary */
     if (cap <= n) {
-        void *tmp = realloc(cache, (n + 1) * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp)                    /* out‑of‑memory; return 0 as a safe fallback */
             return 0;
         cache = (seq_t *)tmp;

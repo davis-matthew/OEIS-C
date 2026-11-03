@@ -10,12 +10,13 @@
  *            starting at n
  * Range:     u8 n <= 62, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_distinct_u64
+ * Validated: standard, pass, 121 terms through n = 988 (2026-11-01)
+ * Helpers:   omega_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_distinct_u64.h"
+#include "../utils/omega_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -37,5 +38,5 @@ seq_t a(idx_t n)
        For all n in the intended range (up to 10 000 and beyond),
        the maximum value fits in 64 bits.        */
     uint64_t mx64 = (uint64_t)mx;
-    return count_distinct_u64(mx64);
+    return omega_u64(mx64);
 }

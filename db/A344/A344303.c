@@ -9,13 +9,40 @@
  *            p^(6(e‑1))))
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 35, u64 n <= 1319,
  *            u128 n <= 10000, big any n
- * Helpers:   prime_power_contrib
+ * Validated: standard, pass, 44 terms through n = 9567 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/prime_power_contrib.h"
+
+/* Contribution of a single prime power p^e. */
+static seq_t prime_power_contrib(seq_t p, idx_t e)
+{
+    /* Sum 1 + p + … + p^6  */
+    seq_t L1 = 1;
+    seq_t powp = 1;
+    for (idx_t i = 1; i <= 6; ++i) {
+        powp *= p;
+        L1 += powp;
+    }
+
+    /* p^6  */
+    seq_t p6 = 1;
+    for (idx_t i = 1; i <= 6; ++i)
+        p6 *= p;
+
+    /* Sum 1 + p^6 + … + p^(6(e‑1))  */
+    seq_t L2 = 1;
+    seq_t term = 1;
+    for (idx_t k = 1; k < e; ++k) {
+        term *= p6;
+        L2 += term;
+    }
+
+    return 1 + L1 * L2;
+}
 
 seq_t a(idx_t n)
 {

@@ -11,13 +11,15 @@
  *            a(17)=597434111, a(18)=1141354369, a(19)=...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 19, u64 n <= 35, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_values[20] = {
     (seq_t)1,      /* a(0) */
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     /* Initial allocation and seed with known values */
     if (cache == NULL) {
         size_t needed = (n + 1 > 20) ? (n + 1) : 20;
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         for (idx_t i = 0; i < 20; ++i)
             cache[i] = init_values[i];
         cache_size = needed;
@@ -58,7 +60,7 @@ seq_t a(idx_t n) {
     /* Grow cache if necessary and compute missing entries */
     if (n + 1 > cache_size) {
         idx_t old_size = cache_size;
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         cache_size = n + 1;
         for (idx_t i = old_size; i <= n; ++i) {
             /* For i < 20 values are already set to init_values */

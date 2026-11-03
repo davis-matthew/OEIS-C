@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 21, i16 n <= 52, i32 n <= 52, i64 n <= 52, i128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build */
 extern seq_t a(idx_t n);
@@ -43,7 +45,7 @@ static idx_t cache_size = 0;  /* number of cached elements (includes index 0) */
 static void compute_up_to(idx_t N)
 {
     /* Allocate new cache */
-    seq_t *new_cache = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, N + 1);
     if (!new_cache) return;  /* allocation failed; abort silently */
 
     /* Initial term a(0) = 1 */
@@ -60,17 +62,17 @@ static void compute_up_to(idx_t N)
     }
 
     /* p_prev holds coefficients of P_{k-1} */
-    seq_t *p_prev = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *p_prev = mem_new(seq_t, N + 1);
     if (!p_prev) return;
     p_prev[0] = 1;  /* P_0(q) = 1 */
 
     /* Iterate over outer sum index k = 1..max_k */
     for (idx_t k = 1; k <= max_k; ++k) {
         /* Allocate array for P_k coefficients */
-        seq_t *p_cur = (seq_t *)calloc(N + 1, sizeof(seq_t));
+        seq_t *p_cur = mem_new(seq_t, N + 1);
         if (!p_cur) {
-            free(p_prev);
-            free(new_cache);
+            mem_free(p_prev);
+            mem_free(new_cache);
             return;
         }
 
@@ -93,15 +95,15 @@ static void compute_up_to(idx_t N)
         }
 
         /* Prepare for next iteration */
-        free(p_prev);
+        mem_free(p_prev);
         p_prev = p_cur;
     }
 
     /* Free remaining array */
-    free(p_prev);
+    mem_free(p_prev);
 
     /* Replace old cache */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_size = N + 1;
 }

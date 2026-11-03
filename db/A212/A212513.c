@@ -8,6 +8,7 @@
  * Formula:   a(n) = (∑_{x=1}^{n} min(n,2x)) * (∑_{z=1}^{n} min(n,3z))
  * Range:     u8 n <= 4, u16 n <= 17, u32 n <= 287, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 53 terms through n = 946 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

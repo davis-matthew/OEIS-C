@@ -7,111 +7,40 @@
  * Formula:   a(n) = Sum_{k = 3..n} 2^(n-k) * Stirling2(n,k) * Stirling1(k,3)
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 15, i64 n <= 24, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* Stirling1(k,3) = (-1)^(k-3) * unsigned_stirling1(k,3) */
+/* A383166: a(n) = Sum_{k=3..n} 2^(n-k) S2(n,k) s1(k,3), s1 signed.
+ * Stirling rows by their recurrences and plain products only, so exact modulo
+ * the width (the original's caches read entries that realloc had left unset,
+ * or divided values that had wrapped). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
-/* External types defined by the build system */
-seq_t a(idx_t n);
-
-/* Function implementation */
 seq_t a(idx_t n)
 {
-    /* Static caches */
-    static idx_t max_comp = 0;
-    static seq_t *a_cache   = NULL;
-    static seq_t *pow2      = NULL;
-    static seq_t *s1_arr    = NULL;
-    static seq_t *s2_arr    = NULL;
-    static seq_t *s3_arr    = NULL;
-    static seq_t *s2_prev   = NULL;
-    static seq_t *s2_curr   = NULL;
-
-    /* Initialise the caches on the first call (even for n==0) */
-    if (max_comp == 0 && a_cache == NULL)
-    {
-        size_t initSize = 1;
-        a_cache   = (seq_t*)realloc(a_cache,     initSize * sizeof(seq_t));
-        pow2      = (seq_t*)realloc(pow2,        initSize * sizeof(seq_t));
-        s1_arr    = (seq_t*)realloc(s1_arr,      initSize * sizeof(seq_t));
-        s2_arr    = (seq_t*)realloc(s2_arr,      initSize * sizeof(seq_t));
-        s3_arr    = (seq_t*)realloc(s3_arr,      initSize * sizeof(seq_t));
-        s2_prev   = (seq_t*)realloc(s2_prev,     initSize * sizeof(seq_t));
-        s2_curr   = (seq_t*)realloc(s2_curr,     initSize * sizeof(seq_t));
-
-        a_cache[0]  = 0;
-        pow2[0]     = 1;
-        s1_arr[0]   = 0;
-        s2_arr[0]   = 0;
-        s3_arr[0]   = 0;
-        s2_prev[0]  = 1; /* S2(0,0) = 1 */
-    }
-
-    /* Expand the caches if the requested n is larger than what we have */
-    if (n > max_comp)
-    {
-        size_t newSize = (size_t)(n + 1);
-        a_cache   = (seq_t*)realloc(a_cache,   newSize * sizeof(seq_t));
-        pow2      = (seq_t*)realloc(pow2,      newSize * sizeof(seq_t));
-        s1_arr    = (seq_t*)realloc(s1_arr,    newSize * sizeof(seq_t));
-        s2_arr    = (seq_t*)realloc(s2_arr,    newSize * sizeof(seq_t));
-        s3_arr    = (seq_t*)realloc(s3_arr,    newSize * sizeof(seq_t));
-        s2_prev   = (seq_t*)realloc(s2_prev,   newSize * sizeof(seq_t));
-        s2_curr   = (seq_t*)realloc(s2_curr,   newSize * sizeof(seq_t));
-
-        /* Compute missing entries */
-        for (idx_t i = max_comp + 1; i <= n; ++i)
-        {
-            /* powers of two: 2^i = 2 * 2^(i-1) */
-            pow2[i] = pow2[i - 1] * 2;
-
-            /* Stirling numbers of the first kind (unsigned) */
-            if (i == 1)
-            {
-                s1_arr[1] = 1;      /* c(1,1) = 1 */
-                s2_arr[1] = 0;      /* c(1,2) = 0 */
-                s3_arr[1] = 0;      /* c(1,3) = 0 */
-            }
-            else
-            {
-                s1_arr[i] = (seq_t)(i - 1) * s1_arr[i - 1];
-                s2_arr[i] = (seq_t)(i - 1) * s2_arr[i - 1] + s1_arr[i - 1];
-                s3_arr[i] = (seq_t)(i - 1) * s3_arr[i - 1] + s2_arr[i - 1];
-            }
-
-            /* Stirling numbers of the second kind: build current row */
-            s2_curr[0] = 0; /* S2(i,0) = 0 for i > 0 */
-            for (idx_t k = 1; k <= i; ++k)
-            {
-                seq_t term1 = (seq_t)k * s2_prev[k];
-                seq_t term2 = s2_prev[k - 1];
-                s2_curr[k] = term1 + term2;
-            }
-
-            /* Compute a(i) = sum_{k=3..i} 2^(i-k) * S2(i,k) * S1(k,3) */
-            seq_t sum = 0;
-            for (idx_t k = 3; k <= i; ++k)
-            {
-                seq_t s1_signed = s3_arr[k];
-                if (((k - 3) & 1) != 0)   /* (-1)^(k-3) */
-                    s1_signed = -s1_signed;
-                sum += pow2[i - k] * s2_curr[k] * s1_signed;
-            }
-            a_cache[i] = sum;
-
-            /* Prepare for next iteration: swap rows */
-            seq_t *tmp = s2_prev;
-            s2_prev = s2_curr;
-            s2_curr = tmp;
+    const size_t N = (size_t)n;
+    seq_t *S = mem_new(seq_t, N + 1), *s = mem_new(seq_t, N + 1), *c3 = mem_new(seq_t, N + 1);
+    if (!S || !s || !c3) abort();
+    S[0] = s[0] = (seq_t)1;
+    for (size_t m = 1; m <= N; ++m) {
+        for (size_t k = m; k >= 1; --k) {
+            S[k] = S[k - 1] + (seq_t)k * S[k];
+            s[k] = s[k - 1] - (seq_t)(m - 1) * s[k];
         }
-
-        max_comp = n;
+        S[0] = s[0] = (seq_t)0;
+        c3[m] = m >= 3 ? s[3] : (seq_t)0;         /* s1(m,3) */
     }
-
-    return a_cache[n];
+    seq_t sum = (seq_t)0;
+    for (size_t k = 3; k <= N; ++k) {
+        seq_t w = c3[k];
+        for (size_t i = 0; i < N - k; ++i) w *= (seq_t)2;
+        sum += w * S[k];
+    }
+    mem_free(S); mem_free(s); mem_free(c3);
+    return sum;
 }

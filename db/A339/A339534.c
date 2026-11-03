@@ -9,7 +9,8 @@
  *            primes 2, 3, 5, 7, 11 we have b^(p-1) ≡ 1 (mod p²)
  * Range:     u8 none, u16 n <= 1, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -36,10 +39,10 @@ seq_t a(idx_t n)
             if (r % 4 != 1) continue;
 
             /* Conditions for the other primes */
-            if (mod_pow(r, 2,  9) != 1) continue;   /* p = 3 */
-            if (mod_pow(r, 4,  25) != 1) continue;  /* p = 5 */
-            if (mod_pow(r, 6,  49) != 1) continue;  /* p = 7 */
-            if (mod_pow(r, 10, 121) != 1) continue; /* p = 11 */
+            if (powmod(r, 2,  9) != 1) continue;   /* p = 3 */
+            if (powmod(r, 4,  25) != 1) continue;  /* p = 5 */
+            if (powmod(r, 6,  49) != 1) continue;  /* p = 7 */
+            if (powmod(r, 10, 121) != 1) continue; /* p = 11 */
 
             if (r == 1) continue;   /* base 1 is not allowed */
 

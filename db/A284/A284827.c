@@ -9,7 +9,8 @@
  *            into prime parts
  * Range:     u8 n <= 27, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,11 +23,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Allocate arrays for g (partitions) and ans (desired sum). */
-    seq_t *g = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *ans = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *g = mem_new(seq_t, (n + 1));
+    seq_t *ans = mem_new(seq_t, (n + 1));
     if (!g || !ans) return (seq_t)0;        /* fallback in case of OOM */
 
     for (idx_t i = 0; i <= n; ++i) {
@@ -81,7 +83,7 @@ seq_t a(idx_t n) {
 
     free(primes);
     seq_t res = ans[n];
-    free(g);
-    free(ans);
+    mem_free(g);
+    mem_free(ans);
     return res;
 }

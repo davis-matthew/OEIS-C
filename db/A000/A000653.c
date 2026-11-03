@@ -11,15 +11,16 @@
  *            cycle type lambda induces on {0,1}^n: k*c...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   p653_gcd, p653_pow
+ * Validated: standard, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   gcd_u64, ipow_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/p653_gcd.h"
-#include "../utils/p653_pow.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ipow_u64.h"
 
 static int p653_parts[64];
 static seq_t p653_total;
@@ -30,14 +31,14 @@ static void p653_process(int m)
     unsigned long long L = 1;
     int i;
     for (i = 0; i < m; i++)
-        L = L / p653_gcd(L, (unsigned long long)p653_parts[i]) * (unsigned long long)p653_parts[i];
+        L = L / gcd_u64(L, (unsigned long long)p653_parts[i]) * (unsigned long long)p653_parts[i];
 
     long long *p = (long long *)malloc((size_t)(L + 1) * sizeof(long long));
     unsigned long long k, d;
     for (k = 1; k <= L; k++) {
         if (L % k) { p[k] = 0; continue; }
         unsigned long long e = 0;
-        for (i = 0; i < m; i++) e += p653_gcd(k, (unsigned long long)p653_parts[i]);
+        for (i = 0; i < m; i++) e += gcd_u64(k, (unsigned long long)p653_parts[i]);
         long long v = (long long)(1ULL << e);
         for (d = 1; d < k; d++)
             if (k % d == 0) v -= p[d];
@@ -48,7 +49,7 @@ static void p653_process(int m)
     for (k = 1; k <= L; k++) {
         if (p[k] <= 0) continue;
         unsigned long long c = (unsigned long long)p[k] / k;
-        Z *= p653_pow((seq_t)k, c);
+        Z *= ipow_u64((seq_t)k, c);
         unsigned long long j;
         for (j = 2; j <= c; j++) Z *= (seq_t)j;
     }
@@ -60,7 +61,7 @@ static void p653_process(int m)
         int val = p653_parts[i];
         int a = 0;
         while (i < m && p653_parts[i] == val) { a++; i++; }
-        z *= p653_pow((seq_t)val, (unsigned long long)a);
+        z *= ipow_u64((seq_t)val, (unsigned long long)a);
         int j;
         for (j = 2; j <= a; j++) z *= (seq_t)j;
     }

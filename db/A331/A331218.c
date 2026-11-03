@@ -10,8 +10,9 @@
  *            u, v ≤ 999 999 999, and the decimal digit * multisets of u and v
  *            are identical. * Leading zeros are ignored. The function is O(n)
  *            per call
- * Range:     u8 n <= 874, u16 n <= 9895, u32 n <= 9895, u64 n <= 9895,
- *            u128 n <= 9895, big any n
+ * Range:     u8 n <= 874, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 9895 (2026-11-01)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

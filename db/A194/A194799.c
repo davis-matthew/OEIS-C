@@ -11,12 +11,14 @@
  *            numbers). For r-k+1 = 1, return 1
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     if (cap <= (size_t)r) {
         size_t size = (size_t)r + 1;        /* indices 0..r */
-        seq_t *newp = (seq_t *)malloc(size * sizeof(seq_t));
+        seq_t *newp = mem_new(seq_t, size);
         if (!newp) exit(EXIT_FAILURE);
 
         newp[0] = (seq_t)1;                /* p(0) = 1 */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         }
 
         if (p)
-            free(p);
+            mem_free(p);
         p = newp;
         cap = size;
     }

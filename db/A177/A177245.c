@@ -12,6 +12,7 @@
  *            Fibonacci numbers have this property
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 26, u64 n <= 33, u128 n <= 33,
  *            big any n
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
  * Helpers:   get_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,8 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/get_digits.h"   /* void get_digits(seq_t x, uint8_t *buf, size_t *len); */
+#include <stdint.h>
+#include "../utils/get_digits.h"
 
 #define MAX_FOUND 223   /* OEIS A177245 has exactly 223 terms */
 

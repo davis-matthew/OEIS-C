@@ -12,12 +12,14 @@
  *            * a(n-3-i) (empty sums are 0). * This recurr...
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 32, u64 n <= 59, u128 n <= 113,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 2337 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* a(idx_t n) – return the nth term of OEIS A329701 */
 extern seq_t a(idx_t n) {
@@ -28,7 +30,7 @@ extern seq_t a(idx_t n) {
     /* If we haven't computed up to n, extend the cache */
     if (n + 1 > cache_len) {
         /* grow the array */
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         /* initialise the first term if this is the first call */
         if (cache_len == 0) {
             cache[0] = (seq_t)1;

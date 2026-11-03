@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/build_primes_upto.h"   /* provides build_primes_upto() */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
 
 /* static cache of consecutive primes */
 static uint64_t *prime_cache = NULL;

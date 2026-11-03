@@ -9,13 +9,15 @@
  *            …)
  * Range:     u8 n <= 99, u16 n <= 242, u32 n <= 685, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 104 terms through n = 873 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* (Products over positive integers k that are not divisible by 3) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
     {
         idx_t N = n;
         /* allocate new dp array */
-        seq_t *dp = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
-        seq_t *tmp = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, (size_t)(N + 1));
+        seq_t *tmp = mem_new(seq_t, (size_t)(N + 1));
 
         dp[0] = 1;                      /* empty partition */
 
@@ -62,8 +64,8 @@ seq_t a(idx_t n)
         }
 
         /* free old cache and install new one */
-        free(tmp);
-        free(memo);
+        mem_free(tmp);
+        mem_free(memo);
         memo = dp;
         memo_size = N;
     }

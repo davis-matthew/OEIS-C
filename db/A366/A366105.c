@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Allocate array for parts; maximum possible parts is n */
-    seq_t *parts = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *parts = mem_new(seq_t, (size_t)n);
     if (!parts)
         return 0;                /* allocation failure */
 
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     idx_t cnt = 1;               /* number of partitions generated so far */
 
     if (cnt == n) {
-        free(parts);
+        mem_free(parts);
         return 1;
     }
 
@@ -75,6 +77,6 @@ seq_t a(idx_t n)
     }
 
     idx_t result = (idx_t)k;   /* number of parts in the n-th partition */
-    free(parts);
+    mem_free(parts);
     return (seq_t)result;
 }

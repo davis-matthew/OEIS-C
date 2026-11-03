@@ -9,7 +9,8 @@
  *            and if m>0 then m is itself a term of the sequence
  * Range:     u8 n <= 58, u16 n <= 3212, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 71 terms through n = 8848 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;      /* array of sequence terms (sorted ascending) */
 static size_t terms_len = 0;     /* number of terms currently stored   */
@@ -42,7 +45,7 @@ static void ensure_terms_capacity(void)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap << 1 : 4;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         terms = tmp;
         terms_cap = new_cap;
     }

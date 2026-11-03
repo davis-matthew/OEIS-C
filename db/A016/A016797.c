@@ -7,6 +7,7 @@
  * Formula:   a(n) = (3*n + 2)^9
  * Range:     u8 none, u16 n <= 0, u32 n <= 3, u64 n <= 17, u128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   has_alternating_pattern
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,30 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has_alternating_pattern.h"
+#include "../utils/mem.h"
+
+/* Return true if x has the required alternating pattern in base 7. */
+static bool has_alternating_pattern(seq_t x)
+{
+    if (x == 0) return false;            /* 0 is not in the sequence */
+    seq_t t = x;
+    int prev = (int)(t % 7);           /* least significant digit   */
+    t /= 7;
+    int pos = 1;                        /* next digit is position 1 (odd) */
+
+    while (t > 0) {
+        int cur = (int)(t % 7);
+        if (pos & 1) {                  /* odd position: prev <= cur   */
+            if (prev > cur) return false;
+        } else {                       /* even position: prev >= cur */
+            if (prev < cur) return false;
+        }
+        prev = cur;
+        t /= 7;
+        ++pos;
+    }
+    return true;
+}
 
 /* Grow the array (*arr) to hold at least 'needed' elements. */
 static void grow_array(seq_t **arr, size_t *cap, size_t needed)
@@ -27,7 +51,7 @@ static void grow_array(seq_t **arr, size_t *cap, size_t needed)
     if (*cap >= needed) return;
     size_t newcap = (*cap) ? (*cap) << 1 : 16;
     while (newcap < needed) newcap <<= 1;
-    seq_t *newptr = (seq_t *)realloc(*arr, newcap * sizeof(**arr));
+    seq_t *newptr = mem_resize(seq_t, *arr, (newcap * sizeof(**arr)) / sizeof(seq_t));
     *arr = newptr;
     *cap = newcap;
 }

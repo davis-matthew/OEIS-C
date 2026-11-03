@@ -11,13 +11,15 @@
  *            partial product and accumulating * the shifted contributions
  * Range:     u8 n <= 17, u16 n <= 36, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of A206138. */
 seq_t a(idx_t n)
@@ -30,11 +32,11 @@ seq_t a(idx_t n)
      * by explicit assignment, which works for arbitrary
      * integral types and for big‑integer classes. */
     size_t sz = N + 1;
-    seq_t *result = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *cur     = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *next    = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *result = mem_new(seq_t, sz);
+    seq_t *cur     = mem_new(seq_t, sz);
+    seq_t *next    = mem_new(seq_t, sz);
     if (!result || !cur || !next) {
-        free(result); free(cur); free(next);
+        mem_free(result); mem_free(cur); mem_free(next);
         return 0;  /* allocation failure */
     }
     for (size_t i = 0; i < sz; ++i) result[i] = 0, cur[i] = 0, next[i] = 0;
@@ -82,6 +84,6 @@ seq_t a(idx_t n)
     /* Extract the requested term, free the temporary arrays and
      * return the result. */
     seq_t ans = result[N];
-    free(result); free(cur); free(next);
+    mem_free(result); mem_free(cur); mem_free(next);
     return ans;
 }

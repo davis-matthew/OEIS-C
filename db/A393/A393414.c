@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 17, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence A393414: a(n)=a(n-1)+a(n-2) with a(0)=29, a(1)=21 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t * _cache = NULL;     /* cache of already computed values */
 static size_t _cache_cap = 0;     /* current allocated size (in seq_t slots) */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Ensure cache has capacity for indices 0 and 1 */
     if (_cache_cap < 2) {
         _cache_cap = 2;
-        _cache = (seq_t *)realloc(_cache, _cache_cap * sizeof(seq_t));
+        _cache = mem_resize(seq_t, _cache, _cache_cap);
         _cache[0] = 29;
         _cache[1] = 21;
     }
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* If requested index exceeds cache, extend and compute new terms */
     if ((size_t)n >= _cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        _cache = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+        _cache = mem_resize(seq_t, _cache, new_cap);
 
         for (size_t i = _cache_cap; i <= (size_t)n; ++i) {
             _cache[i] = _cache[i - 1] + _cache[i - 2];

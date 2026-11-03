@@ -8,12 +8,14 @@
  * Formula:   a(n) = a(n-1) + a(n-6), a(1..5)=1, a(6)=7
  * Range:     u8 n <= 22, u16 n <= 44, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* array of computed terms, 1‑based indices */
 static idx_t  cache_size = 0;      /* number of slots allocated          */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
     idx_t new_size = cache_size ? cache_size * 2 : 16;
     while (new_size < n)
         new_size <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     cache = tmp;
     cache_size = new_size;
 }

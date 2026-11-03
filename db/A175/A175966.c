@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Runtime globals – built only once */
 static bool _init_done = false;
@@ -59,7 +61,7 @@ static void _build_noncomps(void)
 
     /* Non‑composites = 1 followed by the primes. */
     _noncomp_cnt = prime_cnt + 1;
-    _noncomps = (seq_t*)malloc(_noncomp_cnt * sizeof(seq_t));
+    _noncomps = mem_new(seq_t, _noncomp_cnt);
     if (!_noncomps) exit(1);
 
     _noncomps[0] = (seq_t)1;                /* the number 1 */

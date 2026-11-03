@@ -8,7 +8,8 @@
  * Formula:   a(n) = 1/14*(Pell(4*n)+Pell(2*n))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 591 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Initial values: a(1)=1, a(2)=30, a(3)=995, a(4)=33660 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* Initialise the cache on first use. */
     if (cache == NULL) {
-        cache = (seq_t*)malloc((size_t)5 * sizeof(seq_t));  /* indices 0..4 */
+        cache = mem_new(seq_t, (size_t)5);  /* indices 0..4 */
         cache_len = 4;
         cache[1] = 1;
         cache[2] = 30;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* Extend the cache if needed. */
     if (n > cache_len) {
-        cache = (seq_t*)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         for (idx_t i = (idx_t)(cache_len + 1); i <= n; ++i) {
             /* Compute a(i) using the 4‑term recurrence.         */
             /* Compute additions first to avoid underflow.       */

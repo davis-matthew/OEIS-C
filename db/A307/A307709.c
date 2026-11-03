@@ -9,7 +9,8 @@
  *            (-1)^(k/d+1) d²*a(d) ) * a(n-k+1)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Helper for multiplication with overflow protection on C builds.
  * In C++ (or when seq_t is not an integer), simply use the built‑in *.
@@ -47,8 +49,8 @@ static void ensure_cap(idx_t need)
     if ((size_t)need + 1 <= cap) return;
     size_t newcap = cap ? cap * 2 : 128;
     while ((size_t)need + 1 > newcap) newcap <<= 1;
-    A = (seq_t*)realloc(A, newcap * sizeof(seq_t));
-    S = (seq_t*)realloc(S, newcap * sizeof(seq_t));
+    A = mem_resize(seq_t, A, newcap);
+    S = mem_resize(seq_t, S, newcap);
     cap = newcap;
 }
 

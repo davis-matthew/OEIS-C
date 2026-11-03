@@ -14,14 +14,15 @@
  *            handles all cases correctly for arbitrary index n
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 33,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 44 terms through n = 556 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
     idx_t nm = r * c;        /* total number of cells */
 
     /* Total colorings (identity). */
-    seq_t t_identity = pow_uint(9, nm);
+    seq_t t_identity = ipow_u64_idx(9, nm);
 
     seq_t sum = t_identity;
     int count = 1;  /* identity always present */
@@ -45,9 +46,9 @@ seq_t a(idx_t n)
     if (c > 1) {
         seq_t v;
         if (c % 2 == 0) {
-            v = pow_uint(9, nm / 2);
+            v = ipow_u64_idx(9, nm / 2);
         } else {
-            v = pow_uint(9, (nm + r) / 2);
+            v = ipow_u64_idx(9, (nm + r) / 2);
         }
         sum += v;
         count++;
@@ -57,9 +58,9 @@ seq_t a(idx_t n)
     if (r > 1) {
         seq_t h;
         if (r % 2 == 0) {
-            h = pow_uint(9, nm / 2);
+            h = ipow_u64_idx(9, nm / 2);
         } else {
-            h = pow_uint(9, (nm + c) / 2);
+            h = ipow_u64_idx(9, (nm + c) / 2);
         }
         sum += h;
         count++;
@@ -71,11 +72,11 @@ seq_t a(idx_t n)
     if (r > 1 && c > 1) {
         seq_t rot;
         if ((r % 2 == 0) && (c % 2 == 0)) {
-            rot = pow_uint(9, nm / 2);
+            rot = ipow_u64_idx(9, nm / 2);
         } else if ((r % 2 == 1) && (c % 2 == 1)) {
-            rot = pow_uint(9, (nm + 1) / 2);
+            rot = ipow_u64_idx(9, (nm + 1) / 2);
         } else {
-            rot = pow_uint(9, nm / 2);
+            rot = ipow_u64_idx(9, nm / 2);
         }
         sum += rot;
         count++;

@@ -8,7 +8,8 @@
  *            ((1+q)(1+q^2)...(1+q^{2m+1}))
  * Range:     i8 n <= 61, i16 n <= 195, i32 n <= 663, i64 n <= 2374,
  *            i128 n <= 8844, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9661 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
            new[j] = old[j] - new[j-k]   (j>=k)   or   new[j]=old[j]   (j<k).  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache: a_array holds a(0)...a(max_cache)
    and cache_size is the largest computed index. */
@@ -38,17 +40,17 @@ static void compute_up_to(idx_t N)
 {
     /* Release old cache if larger */
     if (a_array) {
-        free(a_array);
+        mem_free(a_array);
         a_array = NULL;
     }
 
     /* Allocate result array and temporary buffers */
-    seq_t *A = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *S = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *nextS = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *S = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *nextS = mem_new(seq_t, (size_t)(N + 1));
     if (!A || !S || !nextS) {
         /* In case of failure, leave cache empty and return */
-        free(A); free(S); free(nextS);
+        mem_free(A); mem_free(S); mem_free(nextS);
         a_array = NULL;
         cache_size = 0;
         return;
@@ -98,7 +100,7 @@ static void compute_up_to(idx_t N)
     }
 
     /* Free temporary buffers and store result in cache */
-    free(S); free(nextS);
+    mem_free(S); mem_free(nextS);
     a_array = A;
     cache_size = N;
 }

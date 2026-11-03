@@ -10,15 +10,18 @@
  *            primes, gcd(a(m), n)=1 }|
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   gcd, is_prime
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     /* initialise once */
     if (cache == NULL) {
         cap = 256;                           /* small initial buffer */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         is_noncomp = (unsigned char *)malloc(cap * sizeof(unsigned char));
         noncomp_idx = (idx_t *)malloc(cap * sizeof(idx_t));
         /* a(1) = 1 */
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
     if (n > cap) {
         idx_t newcap = cap;
         while (newcap < n) newcap *= 2;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         is_noncomp = (unsigned char *)realloc(is_noncomp, newcap * sizeof(unsigned char));
         noncomp_idx = (idx_t *)realloc(noncomp_idx, newcap * sizeof(idx_t));
         cap = newcap;

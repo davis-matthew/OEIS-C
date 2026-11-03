@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   dfs_find
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,33 @@
    The function returns the decimal representation of the base‑4 palindrome
    (i.e. the digits of the base‑4 number interpreted as decimal digits).  */
 #include <stdbool.h>
-#include "../utils/dfs_find.h"
+
+static bool dfs_find(idx_t n, int len, int pos, uint8_t *digits, seq_t *res)
+{
+    int half = (len + 1) / 2;
+    if (pos == half) {
+        seq_t m_dec = 0;
+        seq_t out   = 0;
+        for (int i = 0; i < len; ++i) {
+            uint8_t d = (i < half) ? digits[i] : digits[len - 1 - i];
+            m_dec = m_dec * 4 + d;
+            out   = out * 10 + d;
+        }
+        if (m_dec >= (seq_t)n) {
+            *res = out;
+            return true;
+        }
+        return false;
+    }
+    int start = 0;
+    if (pos == 0 && len > 1) start = 1;          /* avoid leading zero */
+    for (uint8_t d = start; d <= 3; ++d) {
+        digits[pos] = d;
+        if (dfs_find(n, len, pos + 1, digits, res))
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

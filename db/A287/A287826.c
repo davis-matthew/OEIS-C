@@ -9,13 +9,15 @@
  *            a(2)=84
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static idx_t  a_cache_size = 0;   /* number of values stored */
@@ -38,11 +40,11 @@ static void ensure_a_cache(idx_t n)
     if (a_cache_cap > 0 && (idx_t)(a_cache_cap - 1) >= n) return;
     size_t new_cap = a_cache_cap ? a_cache_cap : 1;
     while (new_cap - 1 <= (size_t)n) new_cap <<= 1;
-    seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);
     if (a_cache && a_cache_size > 0) {
-        memcpy(new_arr, a_cache, a_cache_size * sizeof(seq_t));
-        free(a_cache);
+        mem_copy(new_arr, a_cache, a_cache_size * sizeof(seq_t));
+        mem_free(a_cache);
     }
     a_cache   = new_arr;
     a_cache_cap = new_cap;

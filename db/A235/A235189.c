@@ -9,7 +9,8 @@
  *            prime(p)-p+1 are all prime }|
  * Range:     u8 n <= 426, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, is_prime_small
+ * Validated: standard, pass, 116 terms through n = 8637 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,8 +35,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* Static storage for the prime table. */
 static uint64_t *primes_global = NULL;
@@ -106,11 +108,11 @@ a(idx_t n)
         /* prime(p)  – the p-th prime. */
         seq_t prime_of_p = (seq_t)primes_global[p - 1];
         seq_t t = prime_of_p - (seq_t)p + 1;
-        if (t < (seq_t)2 || !is_prime_small(t))
+        if (t < (seq_t)2 || !is_prime_seq(t))
             continue;
 
         seq_t q = sn - mult * (seq_t)p;
-        if (q < (seq_t)2 || !is_prime_small(q))
+        if (q < (seq_t)2 || !is_prime_seq(q))
             continue;
 
         ++count;

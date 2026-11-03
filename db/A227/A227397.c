@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 125, u32 n <= 125, u64 n <= 125,
  *            u128 n <= 125, big any n
- * Helpers:   factor_u64, gcd, seq_pow
+ * Validated: standard, pass, 64 terms through n = 116 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,9 +28,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <limits.h>
-#include "../utils/gcd.h"
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
 
 static inline void fib_pair_u64(uint64_t n, uint64_t mod, uint64_t *fn,
                                uint64_t *fn1)

@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 103, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 85 terms through n = 9939 (2026-11-01)
  * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -33,7 +34,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/largest_prime_factor.h"   /* provides uint64_t largest_prime_factor(uint64_t) */
+#include "../utils/largest_prime_factor.h"
 
 /* Generate the next lexicographic permutation of an array of uint8_t.
  * Returns false if there is no next permutation (i.e. the array is

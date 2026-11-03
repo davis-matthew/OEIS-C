@@ -11,7 +11,8 @@
  *            the stored prefix sums and subtracts the...
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage */
 static size_t cap = 0;           /* maximum n that has been pre‑computed */
@@ -40,7 +42,7 @@ static void ensure_capacity(idx_t n)
     /* Allocate fresh arrays */
     bool *new_ref = (bool*)malloc((new_cap + 1) * sizeof(bool));
     uint16_t *new_tau = (uint16_t*)malloc((new_cap + 1) * sizeof(uint16_t));
-    seq_t *new_pref = (seq_t*)malloc((new_cap + 1) * sizeof(seq_t));
+    seq_t *new_pref = mem_new(seq_t, (new_cap + 1));
 
     if (!new_ref || !new_tau || !new_pref) {
         /* memory exhaustion: abort safely */
@@ -71,7 +73,7 @@ static void ensure_capacity(idx_t n)
     /* Release old storage */
     free(refarr);
     free(tauarr);
-    free(prefarr);
+    mem_free(prefarr);
 
     /* Install new storage */
     refarr = new_ref;

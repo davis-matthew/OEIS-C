@@ -9,7 +9,8 @@
  *            a(3)=10
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 42, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 888 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* The function caches computed values for reuse. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of cached terms; index 0 unused */
 static idx_t   cache_cap = 0;    /* largest index currently stored */
@@ -28,8 +30,7 @@ static void compute_up_to(idx_t n)
 
     /* enlarge the cache */
     idx_t new_cap = n;
-    seq_t *new_cache = (seq_t *)realloc(cache,
-                                      (new_cap + 1) * sizeof(seq_t)); /* +1 to use 1‑based indexing */
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1)); /* +1 to use 1‑based indexing */
     if (!new_cache) {
         /* allocation failed – abort with a non‑zero exit status */
         abort();

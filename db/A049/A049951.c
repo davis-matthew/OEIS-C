@@ -11,7 +11,8 @@
  *            a(3)=1
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>   /* for uint64_t */
+#include "../utils/mem.h"
 
 static seq_t *val = NULL;          /* a(n) values, 1‑based index */
 static seq_t *pre = NULL;          /* prefix sums: pre[k] = a(1)+…+a(k) */
@@ -38,8 +40,8 @@ static void ensure_capacity(idx_t n)
     seq_t *new_val;
     seq_t *new_pre;
 
-    new_val = (seq_t *)realloc(val, new_cap * sizeof(seq_t));
-    new_pre = (seq_t *)realloc(pre, new_cap * sizeof(seq_t));
+    new_val = mem_resize(seq_t, val, new_cap);
+    new_pre = mem_resize(seq_t, pre, new_cap);
     if (!new_val || !new_pre)
         abort();              /* allocation failed */
 

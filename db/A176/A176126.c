@@ -10,13 +10,15 @@
  *            32
  * Range:     i8 n <= 16, i16 n <= 79, i32 n <= 79, i64 n <= 79, i128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         size_t new_cap = cache_cap ? (cache_cap * 2) : 16;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;          /* out‑of‑memory – unlikely in tests */
         cache = tmp;
         cache_cap = new_cap;

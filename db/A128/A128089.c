@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   gcd, offset_before_row
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,13 @@
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/offset_before_row.h"
+
+/* Return the number of elements before row r (1‑based). */
+static idx_t
+offset_before_row(idx_t r) /* r>=1: offset of first element of row r */
+{
+    return (r - 1) * r / 2;
+}
 
 /* Return the row (1‑based) that contains the nth element. */
 static idx_t

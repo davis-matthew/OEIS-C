@@ -11,15 +11,35 @@
  *            D^5 + 3*D^4*E + 10*D^3*E^2 + 20*D^2*E^3 + 20*D...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   alloc_zero, ch2_s, mul_tr
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/ch2_s.h"
-#include "../utils/mul_tr.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t ch2_s(seq_t t) {
+    if (t % 2 == 0) return (t / 2) * (t - 1);
+    return t * ((t - 1) / 2);
+}
+
+/* z = x*y truncated to N terms (z distinct from x, y) */
+static void mul_tr(const seq_t *x, const seq_t *y, seq_t *z, idx_t N) {
+    idx_t i, j;
+    for (i = 0; i < N; i++) z[i] = 0;
+    for (i = 0; i < N; i++) {
+        if (x[i] == 0) continue;
+        for (j = 0; i + j < N; j++) z[i + j] += x[i] * y[j];
+    }
+}
 
 static seq_t *A_tab = NULL;
 static idx_t A_cap = 0;

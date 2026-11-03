@@ -8,14 +8,27 @@
  *            periodic with period 12
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   spf64
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/spf64.h"
+
+/* Compute the smallest prime factor of a 64‑bit integer.
+   (All values needed here are ≤ 12^12 - 1 < 9·10^12.) */
+static uint64_t spf64(uint64_t n)
+{
+    /* Even numbers */
+    if ((n & 1ULL) == 0ULL) return 2ULL;
+    for (uint64_t d = 3ULL; d * d <= n; d += 2ULL)
+    {
+        if (n % d == 0ULL) return d;
+    }
+    return n; /* n is prime */
+}
 
 /* Precomputed array of a(1) … a(12) */
 static seq_t small_prime[13];

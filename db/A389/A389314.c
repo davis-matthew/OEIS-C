@@ -8,6 +8,7 @@
  *            (a(0) is the first digit after the decimal point)
  * Range:     u8 n <= 1002, u16 n <= 1002, u32 n <= 1002, u64 n <= 1002,
  *            u128 n <= 1002, big any n
+ * Validated: standard, pass, 116 terms through n = 994 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

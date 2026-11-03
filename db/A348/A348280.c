@@ -8,7 +8,8 @@
  *            / p^k)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 #define MAX_PRIMES 16
 
@@ -42,7 +43,7 @@ static void rec_div(int idx, int cnt,
             idx_t prod_other = cur_div / p_pow;
             dprime += f * prod_other;
         }
-        seq_t term = pow_uint((uint64_t)n, dprime);
+        seq_t term = ipow_u64_idx((uint64_t)n, dprime);
         *sum = *sum + term;
         return;
     }

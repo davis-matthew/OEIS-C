@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed values d!!² for d = 0 … 9 (type seq_t is used correctly).
    The values fit comfortably in any reasonable seq_t (they are < 1e6). */
@@ -55,8 +57,7 @@ static void grow_cache(void)
     } else {
         cache_cap *= 2;
     }
-    seq_t *tmp = (seq_t *)realloc((void *)cache_entries,
-                                   cache_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache_entries, cache_cap);
     /* Assign back; if realloc failed tmp will be NULL and the cache stays
        unusable – the caller will detect and terminate via the usual abort
        path of the program. */

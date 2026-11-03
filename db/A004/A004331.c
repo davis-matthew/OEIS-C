@@ -9,12 +9,14 @@
  *            result
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 41,
  *            big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 37 terms through n = 984 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_seq.h"
+#include <stdlib.h>
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     idx_t k = n - 1;
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     for (i = 1; i <= k; i++) {
         seq_t num = (seq_t)(base + i);
         seq_t den = (seq_t)i;
-        seq_t g = gcd_seq(r, den);
+        seq_t g = gcd(r, den);
         r /= g;
         den /= g;
         /* r*num/i is an integer and gcd(r, den) = 1, so den divides num */

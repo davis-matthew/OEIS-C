@@ -7,13 +7,15 @@
  * Formula:   a(n) = n-th smallest divisor of 10! (enumerated and sorted)
  * Range:     u8 none, u16 n <= 130, u32 n <= 270, u64 n <= 270, u128 n <= 270,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 270 terms through n = 270 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* number of divisors of 10! = 2^8 * 3^4 * 5^2 * 7^1 */
 #define DIVISOR_COUNT 270
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* lazy initialization */
     if (!initialized) {
         /* allocate array */
-        divisors = (seq_t *)malloc(DIVISOR_COUNT * sizeof(seq_t));
+        divisors = mem_new(seq_t, DIVISOR_COUNT);
         if (divisors == NULL) {              /* allocation failed */
             /* return 0 on failure; unlikely in tests */
             return 0;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         (void)idx; /* silence unused warning if compiled with warnings */
 
         /* sort ascending */
-        qsort(divisors, DIVISOR_COUNT, sizeof(seq_t), cmp_seq);
+        mem_qsort(divisors, DIVISOR_COUNT, sizeof(seq_t), cmp_seq);
 
         initialized = true;
     }

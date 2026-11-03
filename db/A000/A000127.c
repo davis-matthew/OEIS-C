@@ -9,12 +9,24 @@
  * Formula:   a(n) = C(n-1,0) + C(n-1,1) + C(n-1,2) + C(n-1,3) + C(n-1,4)
  * Range:     u8 n <= 9, u16 n <= 36, u32 n <= 568, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   small_gcd
+ * Validated: standard, pass, 60 terms through n = 958 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/small_gcd.h"
+/* gcd of a value with a small positive integer d */
+static unsigned long long small_gcd(seq_t c, unsigned long long d)
+{
+    unsigned long long x = (unsigned long long)(c % (seq_t)d);
+    unsigned long long y = d;
+    while (x != 0) {
+        unsigned long long t = y % x;
+        y = x;
+        x = t;
+    }
+    return y;
+}
 
 seq_t a(idx_t n)
 {

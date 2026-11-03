@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 4471, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_digit_len
+ * Validated: standard, pass, 118 terms through n = 8056 (2026-11-01)
+ * Helpers:   num_digits_seq_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,7 @@
  */
 
 #include <stdbool.h>
-#include "../utils/seq_digit_len.h"
+#include "../utils/num_digits_seq_to_u32.h"
 
 /* Euclidean algorithm for seq_t */
 static inline seq_t seq_gcd(seq_t a, seq_t b)
@@ -41,7 +42,7 @@ static inline seq_t seq_gcd(seq_t a, seq_t b)
 /* True if all cyclic rotations of x share a common divisor > 1 */
 static inline bool has_common_factor(seq_t x)
 {
-    unsigned int d = seq_digit_len(x);
+    unsigned int d = num_digits_seq_to_u32(x);
     seq_t pow10 = (seq_t)1;
     for (unsigned int i = 1; i < d; ++i)
         pow10 *= (seq_t)10;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
    both a(n)-1 and a(n)+1 are coprime to all earlier terms. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;        /* dynamic array of sequence terms   */
 static size_t  seq_cap = 0;      /* allocated capacity                */
@@ -28,7 +31,7 @@ static void ensure_capacity(size_t need)
     if (seq_cap < need) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
         if (new_cap < need) new_cap = need;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
     /* Initialise the array on first call. */
     if (seq == NULL) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;                /* a(1) = 1 */
         /* seq_size is implicitly 1 now; we avoid an explicit counter. */
     }

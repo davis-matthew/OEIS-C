@@ -9,16 +9,38 @@
  *            in n. The result is the final non‑zero digit of n^n in base 12
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   coprime_m_pow_mod12, pow2mod12, pow3mod12, v3_of
+ * Validated: standard, pass, 100 terms through n = 9889 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/coprime_m_pow_mod12.h"
-#include "../utils/pow2mod12.h"
-#include "../utils/pow3mod12.h"
-#include "../utils/v3_of.h"
+
+/* Return m^n mod 12, where m is coprime with 6 and we only need parity of n */
+static unsigned int coprime_m_pow_mod12(uint64_t n, unsigned int m_mod12) {
+    return ( (n & 1ULL) ? m_mod12 : 1 );
+}
+
+/* Return 2^p mod 12, with p >= 0 */
+static unsigned int pow2mod12(unsigned int p) {
+    if (p == 0) return 1;
+    if (p == 1) return 2;
+    /* p >= 2: cycle 4,8 */
+    return (p & 1) ? 8 : 4;
+}
+
+/* Return 3^q mod 12, with q >= 0 */
+static unsigned int pow3mod12(unsigned int q) {
+    if (q == 0) return 1;
+    return (q & 1) ? 3 : 9;
+}
+
+static unsigned int v3_of(uint64_t x) {
+    unsigned int c = 0;
+    while (x % 3ULL == 0) { c++; x /= 3ULL; }
+    return c;
+}
 
 static unsigned int v2_of(uint64_t x) {
     unsigned int c = 0;

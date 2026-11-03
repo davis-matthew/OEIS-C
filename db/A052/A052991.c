@@ -8,12 +8,14 @@
  *            a(n-2) for n ≥ 3 (Expansion of (1-x-x^2)/(1-3x-x^2))
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 19, u64 n <= 37, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Ensure the cache contains at least the first three terms. */
     if (cache == NULL) {
         cache_sz = 3;              /* indices 0,1,2 */
-        cache = (seq_t *)calloc(cache_sz, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_sz);
         if (!cache) return (seq_t)0; /* fallback on allocation failure */
 
         cache[0] = (seq_t)1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         size_t new_sz = cache_sz * 2;
         while ((idx_t)new_sz <= n)
             new_sz *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (!tmp) return (seq_t)0; /* allocation failure fallback */
         cache = tmp;
         /* Initialize newly allocated slots to 0 */

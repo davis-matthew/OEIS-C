@@ -9,8 +9,9 @@
  *            where a(r,k) = binomial((k+2)*(r-k), r-k) / ((k+1)*(r-k)+1). The
  *            flattening is row‑wise: a(n) = a(row, col) with row =
  *            floor((sqrt(8n+1)-1)/2), col = n - row*(row+1)/2
- * Range:     u8 n <= 9, u16 n <= 28, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

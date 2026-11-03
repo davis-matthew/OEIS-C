@@ -9,13 +9,14 @@
  *            divisors)
  * Range:     u8 n <= 15, u16 n <= 127, u32 n <= 1023, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ipow_uint64
+ * Validated: standard, pass, 121 terms through n = 9918 (2026-11-01)
+ * Helpers:   ipow_u64_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/ipow_uint64.h"
+#include "../utils/ipow_u64_to_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
         tmp >>= 1;
     }
     if (exp > 0)
-        sum += ipow_uint64(exp, exp);
+        sum += ipow_u64_to_seq(exp, exp);
 
     /* trial division by odd numbers */
     for (uint64_t i = 3; i <= tmp / i; i += 2U) {
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
                 ++exp;
                 tmp /= i;
             }
-            sum += ipow_uint64(exp, exp);
+            sum += ipow_u64_to_seq(exp, exp);
         }
     }
 

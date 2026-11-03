@@ -9,7 +9,8 @@
  *            weakly decreasing numbers of distinct prime factors (A001221)
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 48, u64 n <= 96, u128 n <= 193,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 4714 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -60,13 +62,13 @@ seq_t a(idx_t n)
           suff[sum][w] – suffix sums over w of f[sum][w]
           (used to enforce the weakly decreasing ω condition).
        ------------------------------------------------------------ */
-    seq_t *f = (seq_t *)calloc(total, sizeof(seq_t));
-    seq_t *suff = (seq_t *)calloc(total, sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, total);
+    seq_t *suff = mem_new(seq_t, total);
     if (!f || !suff)
     {
         free(omega);
-        free(f);
-        free(suff);
+        mem_free(f);
+        mem_free(suff);
         return (seq_t)0;
     }
 
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
        5. Clean up and return.
        ------------------------------------------------------------ */
     free(omega);
-    free(f);
-    free(suff);
+    mem_free(f);
+    mem_free(suff);
     return result;
 }

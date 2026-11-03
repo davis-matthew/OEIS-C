@@ -7,21 +7,23 @@
  * Formula:   a(n) = binomial(2n+4,n) * binomial(n+4,4)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 24, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 38 terms through n = 1614 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     /* Compute the two binomial coefficients */
     idx_t N1 = 2 * n + 4;          /* 2n + 4 */
-    seq_t c1 = binom(N1, n);      /* binomial(2n+4, n) */
+    seq_t c1 = binomial(N1, n);      /* binomial(2n+4, n) */
 
     idx_t N2 = n + 4;              /* n + 4 */
-    seq_t c2 = binom(N2, 4);       /* binomial(n+4, 4) */
+    seq_t c2 = binomial(N2, 4);       /* binomial(n+4, 4) */
 
     return c1 * c2;                /* product */
 }

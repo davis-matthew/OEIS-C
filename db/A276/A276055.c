@@ -10,13 +10,15 @@
  *            generating function g(z) = (1+z+z²‑z⁵)/(1‑z²‑2z⁴+z⁶))
  * Range:     u8 n <= 19, u16 n <= 37, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* compute a(n) – number of palindromic compositions of n with parts
    in {1,2,4,6,8,10,…}.  The function is memoised, works for any
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (need > cap) {
         size_t new_cap = (need > 6 ? need : 6);
         if (dp == NULL) {
-            dp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            dp = mem_new(seq_t, new_cap);
             if (dp == NULL) exit(1);          /* allocation failed */
             /* initialise first six values */
             dp[0] = 1;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
             dp[5] = 2;
             last  = 5;
         } else {
-            seq_t *tmp = (seq_t*)realloc(dp, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, dp, new_cap);
             if (tmp == NULL) exit(1);          /* allocation failed */
             dp   = tmp;
         }

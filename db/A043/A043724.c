@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static int count_runs(seq_t x) {
     int runs = 1;                    /* at least one run */
@@ -48,10 +50,10 @@ seq_t a(idx_t n) {
         if (count_runs(next_candidate) % 4 == 0) {
             if (stored >= cap) {
                 size_t newcap = cap == 0 ? 16 : cap * 2;
-                seq_t *newptr = (seq_t*)malloc(newcap * sizeof(seq_t));
+                seq_t *newptr = mem_new(seq_t, newcap);
                 if (cache) {
-                    memcpy(newptr, cache, stored * sizeof(seq_t));
-                    free(cache);
+                    mem_copy(newptr, cache, stored * sizeof(seq_t));
+                    mem_free(cache);
                 }
                 cache = newptr;
                 cap = newcap;

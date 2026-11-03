@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 218, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small, seq_alloc_new_array
+ * Validated: standard, pass, 60 terms through n = 979 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/seq_alloc_new_array.h"
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 seq_t a(idx_t n)
 {
@@ -50,7 +57,7 @@ seq_t a(idx_t n)
             last_candidate += 31;
         }
 
-        if (is_prime_small((uint64_t)last_candidate)) {
+        if (is_prime_seq((uint64_t)last_candidate)) {
             prime_cache[cached_cnt] = last_candidate;
             ++cached_cnt;
         }

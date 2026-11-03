@@ -7,12 +7,14 @@
  * Formula:   a(n) = n + min{ a(k) + a(n-k) : 1 ≤ k ≤ n-1 } (OEIS A054248)
  * Range:     u8 n <= 45, u16 n <= 5266, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9836 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,14 +29,14 @@ seq_t a(idx_t n)
     /* Allocate or grow cache on first use or when n exceeds it. */
     if (cache == NULL) {
         cache_size = (n + 1 > 4) ? (n + 1) : 4;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (idx_t i = 0; i < cache_size; ++i) cache[i] = (seq_t)0;
     } else if (n + 1 > cache_size) {
         /* Grow cache to accommodate up to n.
            Doubling strategy keeps allocations amortised O(n). */
         idx_t new_size = cache_size;
         while (n + 1 > new_size) new_size <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0;  /* allocation failure: return 0 */
         cache = tmp;
         for (idx_t i = cache_size; i < new_size; ++i) cache[i] = (seq_t)0;

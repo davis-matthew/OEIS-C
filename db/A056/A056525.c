@@ -9,12 +9,13 @@
  *            is the decimal reverse of n (leading zeros are dropped)
  * Range:     u8 n <= 25, u16 n <= 654, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reverse_idx
+ * Validated: standard, pass, 72 terms through n = 9355 (2026-11-01)
+ * Helpers:   reverse_digits_idx_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reverse_idx.h"
+#include "../utils/reverse_digits_idx_to_seq.h"
 static unsigned digit_count_idx(idx_t n) {
     unsigned count = 0;
     do {
@@ -33,6 +34,6 @@ seq_t a(idx_t n) {
     for (unsigned i = 0; i < d; ++i) {
         pow10 = pow10 * 10;
     }
-    seq_t rev = reverse_idx(n);
+    seq_t rev = reverse_digits_idx_to_seq(n);
     return prefix * pow10 + rev;
 }

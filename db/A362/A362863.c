@@ -7,6 +7,7 @@
  * Formula:   a(n) = 300*n^4 - 600*n^3 + 420*n^2 - 120*n + 1
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

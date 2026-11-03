@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 37, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   binom, factorial, seq_pow
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,9 +29,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 /* utilities */
-#include "../utils/factorial.h"    /* seq_t factorial(idx_t n); */
-#include "../utils/binom.h"        /* seq_t binom(idx_t a, idx_t b); */
-#include "../utils/seq_pow.h"      /* seq_t seq_pow(seq_t base, idx_t exp); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* ------------------------------------------------------------------ */
 /* Integer square‑root for 64‑bit unsigned values (via binary search). */
@@ -65,7 +77,7 @@ a_pair(idx_t n, idx_t m)
     for (idx_t mm = 1; mm <= m; ++mm) {
         if (mm <= n) { /* direct formula for the lower‑left triangle */
             /* 4^(mm-1) */
-            seq_t pow4 = seq_pow((seq_t)4, (idx_t)(mm - 1));
+            seq_t pow4 = ipow_idx((seq_t)4, (idx_t)(mm - 1));
             /* (mm-1)! */
             seq_t fact_m1 = factorial(mm - 1);
             /* product from (2*mm-1) to (n+mm-2)  (empty when start > end) */
@@ -79,7 +91,7 @@ a_pair(idx_t n, idx_t m)
         } else {          /* recurrence for the upper‑right triangle   */
             seq_t term_sum = (seq_t)0;
             for (idx_t k = 1; k <= n - 1; ++k) {
-                seq_t coeff = binom(n - 1, k);
+                seq_t coeff = binomial(n - 1, k);
                 seq_t prod  = coeff * row[mm - k];
                 if (k & 1)      /* (-1)^k ; odd k → subtract */
                     term_sum -= prod;

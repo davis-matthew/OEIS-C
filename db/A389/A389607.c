@@ -9,12 +9,14 @@
  *            odd (n = 2k–1) a(n) = 2 * s_k * s_{k-1} + 2
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 32, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 1356 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *s_table = NULL;
 static size_t s_capacity = 0;   // allocated size
@@ -28,11 +30,11 @@ static void ensure_s(idx_t need_k)
     /* Resize if necessary. */
     size_t new_cap = (size_t)(need_k + 1);
     if (!s_table) {
-        s_table = (seq_t*)malloc(sizeof(seq_t) * new_cap);
+        s_table = mem_new(seq_t, new_cap);
         if (!s_table) exit(1);          /* out of memory */
         s_capacity = new_cap;
     } else if (new_cap > s_capacity) {
-        seq_t *tmp = (seq_t*)realloc(s_table, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, s_table, new_cap);
         if (!tmp) exit(1);
         s_table   = tmp;
         s_capacity = new_cap;

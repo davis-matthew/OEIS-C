@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   same_nonzero_ones_sevens
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/same_nonzero_ones_sevens.h"
+
+static bool same_nonzero_ones_sevens(seq_t x)
+{
+    unsigned int cnt1 = 0, cnt7 = 0;
+    while (x > 0)
+    {
+        seq_t r = x % 8;
+        if (r == 1)
+            cnt1++;
+        else if (r == 7)
+            cnt7++;
+        x = x / 8;
+    }
+    return (cnt1 == cnt7) && (cnt1 > 0);
+}
 
 /* Return the n‑th element of the sequence.  n ≥ 1. */
 seq_t a(idx_t n)

@@ -6,14 +6,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = sum_{k=0..5} binomial(n-k, k) for n ≥ 9; a(5)=1, a(6)=6,
  *            a(7)=17, a(8)=33. (OEIS A038795)
- * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 39, u64 n <= 39, u128 n <= 39,
+ * Range:     u8 n <= 12, u16 n <= 29, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 39 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"   /* declares seq_t binomial(idx_t n, idx_t k); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

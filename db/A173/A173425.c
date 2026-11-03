@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 23, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Internal cache for vertex (V) and genus (h) values. */
 static seq_t *Varr = NULL;          /* vertex values */
@@ -39,8 +41,8 @@ static void ensure_capacity(size_t needed)
     size_t newcap = cap == 0 ? 256 : cap * 2;
     while (newcap < needed)
         newcap *= 2;
-    Varr = (seq_t *)realloc(Varr, newcap * sizeof(seq_t));
-    Harr = (seq_t *)realloc(Harr, newcap * sizeof(seq_t));
+    Varr = mem_resize(seq_t, Varr, newcap);
+    Harr = mem_resize(seq_t, Harr, newcap);
     cap  = newcap;
 }
 

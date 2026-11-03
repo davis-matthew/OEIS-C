@@ -9,7 +9,8 @@
  *            p is prime and k,m are non‑negative integers
  * Range:     u8 n <= 233, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 106 terms through n = 9872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache for primes, powers of 3 and central binomial coefficients */
 static idx_t current_maxN = 0;
@@ -57,8 +59,8 @@ static void recompute(idx_t n)
     }
 
     /* central binomial coefficients C(2*m,m) */
-    if (bino_array) free(bino_array);
-    bino_array = (seq_t *)calloc(64, sizeof(seq_t));  /* ample size */
+    if (bino_array) mem_free(bino_array);
+    bino_array = mem_new(seq_t, 64);  /* ample size */
     bino_count = 0;
     seq_t bino = 1;
     bino_array[bino_count++] = bino;              /* m = 0 */

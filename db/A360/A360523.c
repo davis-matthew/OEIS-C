@@ -9,14 +9,16 @@
  * Formula:   a(n) = product over prime powers p^e||n of (p^e - e)
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 86 terms through n = 8688 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* (Multiplicative definition) */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 #include <stdint.h>
 
 seq_t a(idx_t n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
             m /= 2;
             ++e;
         }
-        seq_t term = pow_uint(2, e) - (seq_t)e;
+        seq_t term = ipow_u64_idx(2, e) - (seq_t)e;
         result *= term;
     }
 
@@ -44,14 +46,14 @@ seq_t a(idx_t n)
                 m /= i;
                 ++e;
             }
-            seq_t term = pow_uint(i, e) - (seq_t)e;
+            seq_t term = ipow_u64_idx(i, e) - (seq_t)e;
             result *= term;
         }
     }
 
     /* Remaining prime factor, if any */
     if (m > 1) {
-        seq_t term = pow_uint(m, 1) - (seq_t)1;
+        seq_t term = ipow_u64_idx(m, 1) - (seq_t)1;
         result *= term;
     }
 

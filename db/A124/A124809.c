@@ -8,7 +8,8 @@
  *            squarefree)
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- utilities (Tonelli–Shanks for uint32_t) ---------- */
 static uint32_t mod_pow32(uint32_t base, uint32_t exp, uint32_t mod)
@@ -120,7 +122,7 @@ static size_t heap_cap = 0;
 static void heap_init(void)
 {
     heap_cap = 16;
-    heap = (Node *)malloc(heap_cap * sizeof(Node));
+    heap = mem_new(Node, heap_cap);
     if (!heap) exit(EXIT_FAILURE);
     heap_size = 0;
 }
@@ -129,7 +131,7 @@ static void heap_push(seq_t k, seq_t step)
 {
     if (heap_size == heap_cap) {
         heap_cap *= 2;
-        heap = (Node *)realloc(heap, heap_cap * sizeof(Node));
+        heap = mem_resize(Node, heap, heap_cap);
         if (!heap) exit(EXIT_FAILURE);
     }
     size_t i = heap_size++;
@@ -174,7 +176,7 @@ static void cache_push(seq_t val)
 {
     if (cache_len == cache_cap) {
         cache_cap = cache_cap ? cache_cap * 2 : 16;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         if (!cache) exit(EXIT_FAILURE);
     }
     cache[cache_len++] = val;

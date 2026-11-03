@@ -10,6 +10,7 @@
  *            starting at 2 (offset 2)
  * Range:     i8 n <= 67, i16 n <= 67, i32 n <= 67, i64 n <= 67, i128 n <= 67,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 67 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

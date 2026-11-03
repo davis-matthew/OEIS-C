@@ -10,14 +10,39 @@
  * Formula:   not stated
  * Range:     i8 n <= 56, i16 n <= 64, i32 n <= 64, i64 n <= 64, i128 n <= 64,
  *            big any n
- * Helpers:   mul_x_minus1_sq, mul_x_plus_one
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mul_x_minus1_sq.h"
-#include "../utils/mul_x_plus_one.h"
+#include "../utils/mem.h"
+
+/* multiply a polynomial by (x - 1)^2 = x^2 - 2x + 1
+   poly has length n  (coefficients a_0..a_{n-1})
+   result has length n+2 */
+static void mul_x_minus1_sq(const seq_t* poly, size_t n, seq_t* result)
+{
+    for (size_t i = 0; i <= n + 1; ++i) result[i] = 0;
+    for (size_t i = 0; i < n; ++i) {
+        result[i]   += poly[i];            /*   +1  * a_i */
+        result[i+1] -= (seq_t)2 * poly[i]; /* -2x * a_i */
+        result[i+2] += poly[i];            /*   +1  * a_i */
+    }
+}
+
+/* multiply a polynomial by (x + 1)
+   poly has length n  (coefficients a_0..a_{n-1})
+   result has length n+1 */
+static void mul_x_plus_one(const seq_t* poly, size_t n, seq_t* result)
+{
+    for (size_t i = 0; i <= n; ++i) result[i] = 0;
+    for (size_t i = 0; i < n; ++i) {
+        result[i]     += poly[i];
+        result[i + 1] += poly[i];
+    }
+}
 
 /* Sequence A231727
    The coefficients are read row by row from the polynomials
@@ -52,7 +77,7 @@ static const seq_t* get_v(size_t r)
         v_cache = new_cache;
         /* allocate new rows */
         for (size_t i = v_cache_size; i < new_size; ++i) {
-            v_cache[i] = (seq_t*)calloc(i + 1, sizeof(seq_t));
+            v_cache[i] = mem_new(seq_t, i + 1);
             if (!v_cache[i]) return NULL;  /* allocation failure */
         }
         /* initialise first two rows */
@@ -69,15 +94,15 @@ static const seq_t* get_v(size_t r)
 
             seq_t* v_prev      = v_cache[i - 1];
             seq_t* v_prevprev  = v_cache[i - 2];
-            seq_t* t1 = (seq_t*)calloc(len, sizeof(seq_t));
-            seq_t* t2 = (seq_t*)calloc(len, sizeof(seq_t));
-            if (!t1 || !t2) { free(t1); free(t2); return NULL; }
+            seq_t* t1 = mem_new(seq_t, len);
+            seq_t* t2 = mem_new(seq_t, len);
+            if (!t1 || !t2) { mem_free(t1); mem_free(t2); return NULL; }
 
             mul_x_plus_one(v_prev,     len1, t1);
             mul_x_minus1_sq(v_prevprev, len2, t2);
             for (size_t j = 0; j < len; ++j) v_cache[i][j] = t1[j] + t2[j];
 
-            free(t1); free(t2);
+            mem_free(t1); mem_free(t2);
         }
         v_cache_size = new_size;
     }

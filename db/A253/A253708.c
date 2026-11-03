@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = (n*(n+1)/2) * ( 4*(2n+1)^4 – 1 )
- * Range:     u8 none, u16 n <= 3, u32 n <= 22, u64 n <= 911, u128 n <= 9459,
+ * Range:     u8 none, u16 n <= 3, u32 n <= 22, u64 n <= 911, u128 n <= 50000,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 9459 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

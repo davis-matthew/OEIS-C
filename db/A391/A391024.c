@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd_int_local, is_prime
+ * Validated: standard, pass, 103 terms through n = 9802 (2026-11-01)
+ * Helpers:   factor_u64, gcd_i32, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,9 +31,11 @@
 */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/gcd_int_local.h"
+#include "../utils/gcd_i32.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -69,7 +72,7 @@ seq_t a(idx_t n)
             all_one = 0;
         if (e < 2)
             all_ge_two = 0;
-        g = gcd_int_local(g, e);
+        g = gcd_i32(g, e);
     }
 
     if (all_one)                 /* squarefree composite  */

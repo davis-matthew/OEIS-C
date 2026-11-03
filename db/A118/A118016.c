@@ -7,13 +7,15 @@
  * Formula:   a(n) = 2^(2^(n-1) - n + 2)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,5 +37,5 @@ seq_t a(idx_t n)
 
     /* Result: 2^exponent.  Use big_pow to accommodate arbitrarily
        large exponents that still fit in seq_t. */
-    return big_pow((seq_t)2, exponent);
+    return ipow((seq_t)2, exponent);
 }

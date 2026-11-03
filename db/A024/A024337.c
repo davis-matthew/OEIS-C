@@ -8,13 +8,15 @@
  *            (harmonic number)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached factorials and corresponding S[n] = n! * H_n. */
 static seq_t *fac = NULL;       /* fac[i] = i! */
@@ -32,8 +34,8 @@ ensure_factorial_and_S(idx_t n)
     }
 
     /* Allocate or grow the arrays */
-    fac = (seq_t *)realloc(fac, needed * sizeof(seq_t));
-    S   = (seq_t *)realloc(S,   needed * sizeof(seq_t));
+    fac = mem_resize(seq_t, fac, needed);
+    S   = mem_resize(seq_t, S, needed);
 
     /* Compute new entries */
     for (size_t i = fac_len; i <= n; ++i) {

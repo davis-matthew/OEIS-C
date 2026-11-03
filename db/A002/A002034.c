@@ -8,13 +8,37 @@
  * Formula:   a(n) = smallest m such that n divides m!
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   min_m_for_prime_power, v_p
+ * Validated: standard, pass, 100 terms through n = 9319 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/min_m_for_prime_power.h"
-#include "../utils/v_p.h"
+static seq_t v_p(seq_t m, seq_t p) {
+    /* Compute the p-adic valuation of m! using Legendre's formula */
+    seq_t result = 0;
+    seq_t power = p;
+    while (power <= m) {
+        result += m / power;
+        if (power > m / p) break;
+        power *= p;
+    }
+    return result;
+}
+
+static seq_t min_m_for_prime_power(seq_t p, seq_t k, seq_t upper_bound) {
+    /* Find smallest m such that v_p(m!) >= k using binary search */
+    seq_t lo = 0, hi = upper_bound;
+    while (lo < hi) {
+        seq_t mid = lo + (hi - lo) / 2;
+        if (v_p(mid, p) >= k) {
+            hi = mid;
+        } else {
+            lo = mid + 1;
+        }
+    }
+    return lo;
+}
 /* Uses Kempner's algorithm: for each prime power p^k in n's factorization,
    find smallest m such that v_p(m!) >= k, where v_p is the p-adic valuation */
 

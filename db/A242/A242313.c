@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Comparator required by qsort */
 static int cmp_seq_t(const void *a, const void *b)
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     size_t cap = max_bases * max_log + 16;
 
     /* Allocate array to hold all candidates ≤ limit. */
-    seq_t *arr = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, cap);
     if (!arr) return 0;                     /* allocation failure */
 
     size_t sz = 0;                          /* number of elements inserted */
@@ -57,8 +59,8 @@ seq_t a(idx_t n)
         while (val <= limit) {
             if (sz >= cap) {                /* safety: grow if needed */
                 size_t newcap = cap * 2;
-                seq_t *tmp = (seq_t *)realloc(arr, newcap * sizeof(seq_t));
-                if (!tmp) { free(arr); return 0; }
+                seq_t *tmp = mem_resize(seq_t, arr, newcap);
+                if (!tmp) { mem_free(arr); return 0; }
                 arr = tmp; cap = newcap;
             }
             arr[sz++] = val;
@@ -68,11 +70,11 @@ seq_t a(idx_t n)
     }
 
     /* Sort the generated numbers. */
-    qsort(arr, sz, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(arr, sz, sizeof(seq_t), cmp_seq_t);
 
     /* Return the (n‑1)‑th element (since a(1) is the first term). */
     seq_t result = (n - 1 < sz) ? arr[n - 1] : (seq_t)0;
 
-    free(arr);
+    mem_free(arr);
     return result;
 }

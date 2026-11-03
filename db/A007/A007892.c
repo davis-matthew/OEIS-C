@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n - 3*floor(n/4))^2
  * Range:     u8 n <= 54, u16 n <= 1014, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 8916 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

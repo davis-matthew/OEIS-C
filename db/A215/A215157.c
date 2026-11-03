@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 68 terms through n = 865 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +49,7 @@ seq_t a(idx_t n)
     while (sel_size < n) {
         /* Primality test by trial division using already found primes */
         bool is_prime = true;
-        uint64_t max_div = int_sqrt(current);
+        uint64_t max_div = isqrt(current);
         for (size_t i = 0; i < primes_size; ++i) {
             uint64_t p = primes[i];
             if (p > max_div) break;

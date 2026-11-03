@@ -7,13 +7,15 @@
  * Formula:   a(n) = n-th smallest divisor of 10000 (sorted ascending)
  * Range:     u8 n <= 7, u16 n <= 25, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t divisors[25];
 static bool initialized = false;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
                 divisors[cnt++] = pow2[i] * pow5[j];
             }
         }
-        qsort(divisors, 25, sizeof(seq_t), cmp_seq);
+        mem_qsort(divisors, 25, sizeof(seq_t), cmp_seq);
         initialized = true;
     }
     if (n == 0 || n > 25) {

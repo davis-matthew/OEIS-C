@@ -11,13 +11,15 @@
  *            Σ_{d|k} (d^2 - d·φ(d)). a(0) = 1
  * Range:     u8 n <= 9, u16 n <= 23, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* cached data, extended lazily on demand */
 static idx_t _a_max_n = 0;      /* largest n already computed        */
@@ -32,13 +34,13 @@ static void _ensure_cache(idx_t n)
 
     /* Resize caches if needed */
     if (_a_max_n == 0) {
-        _a_vals  = (seq_t*)calloc(n + 1, sizeof(seq_t));
-        _phi_vals= (seq_t*)calloc(n + 1, sizeof(seq_t));
-        _B_vals  = (seq_t*)calloc(n + 1, sizeof(seq_t));
+        _a_vals  = mem_new(seq_t, n + 1);
+        _phi_vals= mem_new(seq_t, n + 1);
+        _B_vals  = mem_new(seq_t, n + 1);
     } else {
-        _a_vals  = (seq_t*)realloc(_a_vals,  (n + 1) * sizeof(seq_t));
-        _phi_vals= (seq_t*)realloc(_phi_vals,(n + 1) * sizeof(seq_t));
-        _B_vals  = (seq_t*)realloc(_B_vals,  (n + 1) * sizeof(seq_t));
+        _a_vals  = mem_resize(seq_t, _a_vals, (n + 1));
+        _phi_vals= mem_resize(seq_t, _phi_vals, (n + 1));
+        _B_vals  = mem_resize(seq_t, _B_vals, (n + 1));
     }
 
     /* -------------   compute φ[1..n]   ------------- */

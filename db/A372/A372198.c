@@ -9,12 +9,15 @@
  *            2^A002061(n+1) + 2*2^A014848(n+1))
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,11 +29,11 @@ seq_t a(idx_t n)
     idx_t D = n*(n+1) + (n/2) + 1;           /* A014848(n+1) */
 
     /* 2 to the required powers */
-    seq_t termN = seq_pow((seq_t)2, N);
-    seq_t termA = seq_pow((seq_t)2, A);
-    seq_t termB = seq_pow((seq_t)2, B);
-    seq_t termC = seq_pow((seq_t)2, C);
-    seq_t termD = seq_pow((seq_t)2, D);
+    seq_t termN = ipow_idx((seq_t)2, N);
+    seq_t termA = ipow_idx((seq_t)2, A);
+    seq_t termB = ipow_idx((seq_t)2, B);
+    seq_t termC = ipow_idx((seq_t)2, C);
+    seq_t termD = ipow_idx((seq_t)2, D);
 
     /* Burnside sum: 1*termN + 2*termA + 2*termB + 1*termC + 2*termD */
     seq_t sum = termN;

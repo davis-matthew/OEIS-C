@@ -8,13 +8,15 @@
  * Formula:   a(n) = Sum_{i=1..floor(n/2)} [is_prime(i) == is_prime(n-i)]
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declarations for static helpers */
 static void _extend_primes(idx_t limit);
@@ -56,7 +58,7 @@ static void _extend_cache(idx_t limit)
 {
     if (a_cap >= limit + 1) return;
 
-    seq_t *new_cache = (seq_t *)realloc(a_cache, (limit + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, (limit + 1));
     if (!new_cache) exit(1);
     a_cache = new_cache;
     a_cap = limit + 1;

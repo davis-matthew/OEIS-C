@@ -8,17 +8,18 @@
  *            sqrt(n)) and A007913 is the squarefree part
  * Range:     u8 n <= 240, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a2734_isqrt
+ * Validated: standard, pass, 87 terms through n = 9448 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a2734_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t nn = (uint64_t)n;
-    uint64_t s = a2734_isqrt(nn);
+    uint64_t s = isqrt_u64(nn);
     uint64_t r = (nn - s * s > s) ? s + 1 : s;
     uint64_t m = nn + r;
 

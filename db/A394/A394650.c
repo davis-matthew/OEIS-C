@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 10, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    with a(1) = 20. */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* 1‑based array of computed a(n) */
 static idx_t a_max_n = 0;       /* largest n that has been computed */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
 
     /* Allocate space for indices 0..n (index 0 unused) */
     idx_t new_size = n + 1;
-    a_cache = (seq_t *)realloc(a_cache, (size_t)new_size * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, (size_t)new_size);
 
     /* Compute any missing values */
     for (idx_t i = a_max_n + 1; i <= n; ++i)

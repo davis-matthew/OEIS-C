@@ -12,7 +12,8 @@
  *            and stops searching if no square‑free sum can be found within...
  * Range:     u8 n <= 77, u16 n <= 319, u32 n <= 319, u64 n <= 319,
  *            u128 n <= 319, big any n
- * Helpers:   is_squarefree
+ * Validated: full, pass, 319 terms through n = 319 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 /* External types supplied by the build system */
 extern seq_t a(idx_t n);
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Expand cache if necessary */
     if (n + 1 > cache_size) {
         idx_t new_size = n + 1; /* include zero index */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort(); /* allocation failure */
         cache = tmp;
         cache_size = new_size;

@@ -12,13 +12,22 @@
  *            block. * The function computes the block index and...
  * Range:     u8 n <= 120, u16 n <= 120, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
- * Helpers:   cum_block
+ * Validated: full, pass, 120 terms through n = 120 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/cum_block.h"
+
+static inline seq_t cum_block(uint64_t p) {
+    /* cumulative number of terms after 2p blocks: D(p) = (2/3) * p * (p+1) * (2p+1) */
+    seq_t pp = (seq_t)p;
+    seq_t prod = pp * (pp + 1) * (2 * pp + 1); /* divisible by 3 */
+    prod /= 3;
+    prod *= 2;
+    return prod;
+}
 
 seq_t a(idx_t n) {
     if (n < 1) return 0; /* Offset starts at 1; undefined for n==0 but guard */

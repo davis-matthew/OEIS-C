@@ -9,12 +9,14 @@
  *            a(1) = -1, a(2) = 2, a(3) = 3
  * Range:     i8 n <= 7, i16 n <= 18, i32 n <= 41, i64 n <= 87, i128 n <= 179,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 1740 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL; /* cached sequence values   */
 static size_t cache_cap  = 0;    /* allocated size of cache  */
@@ -26,7 +28,7 @@ static void ensure_cache(size_t n)
     if (n < cache_cap) return;
     size_t newcap = cache_cap ? cache_cap << 1 : 16;
     while (newcap <= n) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp) abort();          /* simple out‑of‑memory handling */
     cache    = tmp;
     cache_cap = newcap;

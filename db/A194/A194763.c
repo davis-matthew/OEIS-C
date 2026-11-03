@@ -13,13 +13,15 @@
  *            preserv...
  * Range:     u8 n <= 16, u16 n <= 1177, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 9916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------
    integer cube root: returns the largest integer x s.t. x³ <= v
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         uint64_t new_M  = (uint64_t)new_size * new_size;
 
         /* Allocate a new array (size+1 to keep 1‑based indexing).  */
-        seq_t *new_f = (seq_t *)realloc(f_cache, (new_size + 1) * sizeof(seq_t));
+        seq_t *new_f = mem_resize(seq_t, f_cache, (new_size + 1));
         if (!new_f)
             return 0; /* allocation failed; return 0 as safe default */
 

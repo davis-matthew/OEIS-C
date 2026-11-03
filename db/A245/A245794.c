@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 26, u64 n <= 35, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 374 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define K 9ULL   /* Minimum elements per rank */
 
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     if (n >= memo_len) {
         /* Allocate space up to n inclusive. */
         size_t new_len = (size_t)n + 1;
-        seq_t *new_mem = (seq_t *)realloc(memo, new_len * sizeof(seq_t));
+        seq_t *new_mem = mem_resize(seq_t, memo, new_len);
         if (!new_mem) abort();          /* allocation error */
         memo = new_mem;
 

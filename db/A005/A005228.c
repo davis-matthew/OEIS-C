@@ -7,9 +7,10 @@
  * Keywords:  nonn, easy, nice
  * Formula:   a(n) = a(n-1) + c(n-1) for n >= 2, a(1) = 1, where c = A030124
  *            is the complement of a
- * Range:     u8 n <= 19, u16 n <= 347, u32 n <= 9487, u64 n <= 9487,
- *            u128 n <= 9487, big any n
- * Helpers:   none
+ * Range:     u8 n <= 19, u16 n <= 347, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 69 terms through n = 9487 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static uint64_t *an = 0;   /* native copy of terms, used to build the complement */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     if (cnt == 0) {
         cap = 64;
         an = (uint64_t *)malloc((size_t)cap * sizeof(uint64_t));
-        av = (seq_t *)malloc((size_t)cap * sizeof(seq_t));
+        av = mem_new(seq_t, (size_t)cap);
         an[1] = 1;
         av[1] = 1;
         cnt = 1;
@@ -40,13 +42,13 @@ seq_t a(idx_t n) {
         idx_t ncap = cap;
         while (ncap < n + 2) ncap *= 2;
         uint64_t *nan = (uint64_t *)malloc((size_t)ncap * sizeof(uint64_t));
-        seq_t *nav = (seq_t *)malloc((size_t)ncap * sizeof(seq_t));
+        seq_t *nav = mem_new(seq_t, (size_t)ncap);
         for (idx_t i = 1; i <= cnt; i++) {
             nan[i] = an[i];
             nav[i] = av[i];
         }
         free(an);
-        free(av);
+        mem_free(av);
         an = nan;
         av = nav;
         cap = ncap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 58, u32 n <= 178, u64 n <= 609,
  *            u128 n <= 1275, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Return the triangular number for n: 1+2+...+n = n(n+1)/2. */
 static inline idx_t triangular(idx_t n)
@@ -64,7 +66,7 @@ static void ensure_rows(idx_t r)
     idx_t needed = triangular(r);
     if (needed > cache_cap)
     {
-        seq_t *tmp = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         cache = tmp;
         cache_cap = needed;
     }

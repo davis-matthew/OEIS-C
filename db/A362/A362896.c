@@ -10,7 +10,8 @@
  *            a(n)=a(n‑1)+d if d is even, otherwise a(n)=a(n‑1)-d
  * Range:     i8 n <= 254, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9797 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --- dynamic array for sequence values ------------------------------------- */
 static seq_t *vals      = NULL;
@@ -35,11 +37,11 @@ static void ensure_vals_capacity(size_t needed)
     if (needed <= vals_cap) return;
     size_t newcap = vals_cap ? vals_cap * 2 : 8;
     if (newcap < needed) newcap = needed;
-    seq_t *newptr = (seq_t *)malloc(newcap * sizeof(seq_t));
+    seq_t *newptr = mem_new(seq_t, newcap);
     if (newptr == NULL) abort();          /* allocation failure */
     if (vals) {
         for (size_t i = 0; i < vals_len; ++i) newptr[i] = vals[i];
-        free(vals);
+        mem_free(vals);
     }
     vals = newptr;
     vals_cap = newcap;

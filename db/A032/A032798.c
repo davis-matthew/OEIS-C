@@ -9,12 +9,14 @@
  *            a(1)=1,a(2)=2,a(3)=3,a(4)=4,a(5)=5,a(6)=6,a(7)=8,a(8)=9,a(9)=10,a(10)=11,a(11)=12,a(12)=14
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached terms */
 static seq_t *cache      = NULL;   /* array of computed terms */
@@ -31,13 +33,13 @@ seq_t a(idx_t n) {
     /* Initialize cache if necessary */
     if (cache == NULL) {
         cache_cap = 16;                   /* initial capacity */
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_size = 0;
     }
     /* Grow cache if needed */
     while (n > cache_cap) {
         size_t new_cap = cache_cap * 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = (idx_t)new_cap;
     }
     /* Compute missing terms up to n */

@@ -8,14 +8,16 @@
  *            multiset of exponents (prime signature) as n²+1
  * Range:     u8 n <= 15, u16 n <= 553, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 123 terms through n = 9864 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 static const seq_t SMALL_PRIMES[12] = {
     (seq_t)2, (seq_t)3, (seq_t)5, (seq_t)7,
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     /* Build the minimal number from the sorted exponents */
     seq_t result = (seq_t)1;
     for (size_t i = 0; i < ecnt; ++i) {
-        result *= seq_pow(SMALL_PRIMES[i], (idx_t)exps[i]);
+        result *= ipow_idx(SMALL_PRIMES[i], (idx_t)exps[i]);
     }
     return result;
 }

@@ -12,7 +12,8 @@
  *            the sequence of min(x(i,j),x(i−1,j)) over j is nondecreasing
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 17, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* number of column states – 4⁶ = 4096 */
 #define NUM_STATES   4096
@@ -95,7 +97,7 @@ static void init(void) {
 
     /* allocate cache for sequence values */
     cache_cap = MAX_CACHE_N + 1;
-    cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[0] = 0;    /* unused, but defined */
     max_cached_n = 0;
 }
@@ -109,7 +111,7 @@ seq_t a(idx_t n) {
     /* grow cache if needed */
     if (n + 1 > cache_cap) {
         size_t new_cap = (n + 1) * 2;
-        seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return 0;      /* allocation failure */
         cache = new_cache;
         cache_cap = new_cap;

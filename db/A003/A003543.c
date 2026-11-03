@@ -7,13 +7,22 @@
  * Formula:   divisors of 2^36 - 1, sorted
  * Range:     u8 n <= 3, u16 n <= 3, u32 none, u64 n <= 512, u128 n <= 512,
  *            big any n
- * Helpers:   cmp_seq
+ * Validated: full, pass, 512 terms through n = 512 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cmp_seq.h"
+#include "../utils/mem.h"
+
+static int cmp_seq(const void *a, const void *b) {
+    seq_t x = *(const seq_t *)a;
+    seq_t y = *(const seq_t *)b;
+    if (x < y) return -1;
+    if (x > y) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n) {
   static seq_t divisors[512];
@@ -32,7 +41,7 @@ seq_t a(idx_t n) {
       }
     }
     
-    qsort(divisors, count, sizeof(seq_t), cmp_seq);
+    mem_qsort(divisors, count, sizeof(seq_t), cmp_seq);
     computed = 1;
   }
   

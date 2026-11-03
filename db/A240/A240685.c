@@ -9,13 +9,16 @@
  *            + 259459200) / 645120 (valid for n ≥ 8)
  * Range:     u8 n <= 9, u16 n <= 11, u32 n <= 14, u64 n <= 20, u128 n <= 30,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 33 terms through n = 166 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -74,9 +77,9 @@ seq_t a(idx_t n)
     /* power part: n^(n-16) (possibly negative exponent) */
     seq_t pow_factor;
     if (n >= 16)
-        pow_factor = big_pow(sn, (seq_t)(n - 16));
+        pow_factor = ipow(sn, (seq_t)(n - 16));
     else
-        pow_factor = big_pow(sn, (seq_t)(16 - n));
+        pow_factor = ipow(sn, (seq_t)(16 - n));
 
     if (n >= 16)
         prod *= pow_factor;   /* positive exponent */

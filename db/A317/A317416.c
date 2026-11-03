@@ -11,9 +11,10 @@
  *            position and a hash set of the square numbers already visited.
  *            For each step it examines the eight possible leaper moves,
  *            chooses the reachable square with the lowest spiral num...
- * Range:     u8 none, u16 none, u32 n <= 9634, u64 n <= 9634, u128 n <= 9634,
- *            big any n
- * Helpers:   number_at_coords
+ * Range:     u8 none, u16 none, u32 n <= 13103, u64 n <= 13103,
+ *            u128 n <= 13103, big any n
+ * Validated: full, pass, 13103 terms through n = 13103 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,32 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/number_at_coords.h"
+#include "../utils/mem.h"
+
+/*  Convert a board coordinate (x, y) to the corresponding spiral number.  */
+static seq_t number_at_coords(int64_t x, int64_t y)
+{
+    if (x == 0 && y == 0) return (seq_t)1;
+
+    int64_t ax = x < 0 ? -x : x;
+    int64_t ay = y < 0 ? -y : y;
+    int64_t r  = ax > ay ? ax : ay;               /* ring number */
+
+    seq_t two_r_minus1 = (seq_t)(2 * r - 1);
+    seq_t min_num = two_r_minus1 * two_r_minus1 + (seq_t)1;  /* first number on this ring */
+
+    seq_t offset;
+    if (x == r && y >= -(r - 1) && y <= r) {           /* right side, moving up   */
+        offset = (seq_t)(y + (r - 1));
+    } else if (y == r && x <= r - 1 && x >= -r) {       /* top side, moving left   */
+        offset = (seq_t)(2 * r + (r - 1 - x));
+    } else if (x == -r && y <= r - 1 && y >= -r) {      /* left side, moving down  */
+        offset = (seq_t)(4 * r + (r - 1 - y));
+    } else {                                            /* bottom side, moving right */
+        offset = (seq_t)(6 * r + (x + r - 1));
+    }
+    return min_num + offset;
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Parameters for the hash set.  The table size is a power of two so that
@@ -55,7 +81,7 @@ static void hash_init(void)
 {
     /* Allocate the key array and used flag array.  Cast from void* to the
        appropriate pointer type so the code compiles under C++ as well. */
-    hash_keys = (seq_t *)malloc(HASH_SIZE * sizeof(seq_t));
+    hash_keys = mem_new(seq_t, HASH_SIZE);
     hash_used = (uint8_t *)calloc(HASH_SIZE, sizeof(uint8_t));
     hash_used_count = 0;
 }
@@ -90,7 +116,7 @@ static void ensure_cache_capacity(size_t cap)
     if (seq_cache_cap >= cap) return;
     size_t new_cap = (seq_cache_cap == 0) ? (cap > 0 ? cap : 1) : seq_cache_cap * 2;
     while (new_cap < cap) new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_cache) abort();
     seq_cache = new_cache;
     seq_cache_cap = new_cap;

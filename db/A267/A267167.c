@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 47, u32 n <= 1917, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq, grow_seq
+ * Validated: standard, pass, 71 terms through n = 8437 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,29 @@
 */
 
 #include <stddef.h>                 /* size_t */
-#include "../utils/alloc_seq.h"    /* alloc_seq(size_t) -> seq_t*   */
-#include "../utils/grow_seq.h"     /* grow_seq(seq_t **, size_t *, size_t) */
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static seq_t *cache      = NULL;   /* stored values a(0)…a(max)               */
 static size_t cache_count = 0;     /* number of values actually computed      */

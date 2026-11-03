@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 17, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   pow2, sigma_of
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,24 @@
    a(n) = (1/n) * Σ_{k=0}^{n-1} a(k) * σ((n−k)·2^(n−k))   where σ(m)=sum of divisors of m */
 
 #include <stdlib.h>
-#include "../utils/sigma_of.h"
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static seq_t *a_cache      = NULL; /* a[n] values, a_cache[0]=1 */
 static seq_t *c_cache      = NULL; /* σ(n·2^n) values, c_cache[0] unused */
@@ -33,16 +50,16 @@ seq_t a(idx_t n)
     /* Allocate or grow cache if necessary */
     if (a_cache == NULL) {
         cache_cap = n + 1;
-        a_cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
-        c_cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        a_cache = mem_new(seq_t, cache_cap);
+        c_cache = mem_new(seq_t, cache_cap);
         if (a_cache == NULL || c_cache == NULL) return (seq_t)0;
         a_cache[0] = (seq_t)1;        /* a(0)=1 */
         c_cache[0] = (seq_t)0;        /* unused */
         cache_max = 0;
     } else if ((idx_t)cache_cap <= n) {
         size_t new_cap = (size_t)(n + 1);
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-        c_cache = (seq_t *)realloc(c_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        c_cache = mem_resize(seq_t, c_cache, new_cap);
         if (a_cache == NULL || c_cache == NULL) return (seq_t)0;
         cache_cap = new_cap;
     }

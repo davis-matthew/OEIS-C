@@ -8,7 +8,8 @@
  *            * n^(n-k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static cache for powers of n */
 static seq_t *pow_cache = NULL;
@@ -26,7 +28,7 @@ static size_t pow_cap = 0;
 static void ensure_pow_cache(size_t needed)
 {
     if (pow_cap < needed) {
-        seq_t *tmp = (seq_t *)realloc(pow_cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow_cache, needed);
         if (!tmp && needed > 0) {
             /* allocation failed – abort, caller will handle */
             pow_cache = NULL;

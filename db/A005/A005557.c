@@ -8,13 +8,14 @@
  * Formula:   a(n) = (n+1)*binomial(n+10,4)/5 = (n+1)(n+7)(n+8)(n+9)(n+10)/120
  * Range:     u8 n <= 1, u16 n <= 17, u32 n <= 213, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a005557_gcd
+ * Validated: standard, pass, 52 terms through n = 939 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005557_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
     f[4] = (uint64_t)n + 10;
 
     for (i = 0; i < 5 && d > 1; i++) {
-        uint64_t g = a005557_gcd(f[i], d);
+        uint64_t g = gcd_u64(f[i], d);
         f[i] /= g;
         d /= g;
     }

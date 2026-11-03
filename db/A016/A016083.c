@@ -10,7 +10,8 @@
  *            2074)
  * Range:     i8 n <= 3000, i16 n <= 3000, i32 n <= 3000, i64 n <= 3000,
  *            i128 n <= 3000, big any n
- * Helpers:   mul_xk_minus_one, poly_divide_exact
+ * Validated: standard, pass, 97 terms through n = 2786 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,38 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mul_xk_minus_one.h"
-#include "../utils/poly_divide_exact.h"
+#include "../utils/mem.h"
+
+/* Multiply a polynomial (poly[0..deg]) by (x^k – 1) into out[0..deg+k].
+   The result is written into out, which must have room for deg+k+1 coeffs. */
+static void mul_xk_minus_one(seq_t *poly, size_t deg, size_t k, seq_t *out)
+{
+    size_t new_deg = deg + k;
+    for (size_t i = 0; i <= new_deg; ++i) out[i] = 0;
+    for (size_t i = 0; i <= deg; ++i) {
+        out[i + k] += poly[i];
+        out[i]     -= poly[i];
+    }
+}
+
+/* Perform exact long division of polynomial numerator (N) by monic
+   denominator (D).  N is modified in place and must be large enough
+   to hold the original degree.  The quotient is written into Q.   */
+static void poly_divide_exact(seq_t *N, size_t N_deg,
+                              seq_t *D, size_t D_deg,
+                              seq_t *Q, size_t Q_deg)
+{
+    for (size_t i = N_deg; i >= D_deg; --i) {
+        seq_t coef = N[i];
+        size_t q_idx = i - D_deg;
+        Q[q_idx] = coef;
+        for (size_t j = 0; j <= D_deg; ++j) {
+            N[i - j] -= coef * D[D_deg - j];
+        }
+        if (i == D_deg) break;   /* avoid underflow of size_t */
+    }
+    /* The remainder in N[0..D_deg-1] should be zero. */
+}
 
 #define PERIOD 2074
 #define MAX_N 2155        /* degree of the numerator polynomial */
@@ -77,8 +108,8 @@ static void init_sequence(void)
     degD += 1;   /* degD should now be 1194 */
 
     /* Allocate memory for φ and a_terms */
-    phi     = (seq_t *)malloc((PHI_DEG + 1) * sizeof(seq_t));
-    a_terms = (seq_t *)malloc(PERIOD     * sizeof(seq_t));
+    phi     = mem_new(seq_t, (PHI_DEG + 1));
+    a_terms = mem_new(seq_t, PERIOD);
 
     /* Exact division: φ = N / D */
     seq_t Q[PHI_DEG + 1];

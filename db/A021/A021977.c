@@ -8,7 +8,8 @@
  *            expansion of 1/973, offset 0)
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache of previously computed digits */
 static seq_t *digits = NULL;          /* array of computed digits */
@@ -30,12 +32,12 @@ static void ensure_cache(idx_t n) {
         initialized = true;
         digits_cap = 256;            /* initial capacity */
         digits_len = 0;
-        digits = (seq_t*)malloc(digits_cap * sizeof(seq_t));
+        digits = mem_new(seq_t, digits_cap);
     }
     while (digits_len <= n) {
         if (digits_len + 1 >= digits_cap) {
             digits_cap *= 2;
-            digits = (seq_t*)realloc(digits, digits_cap * sizeof(seq_t));
+            digits = mem_resize(seq_t, digits, digits_cap);
         }
         /* Generate next digit */
         remainder *= 10ULL;

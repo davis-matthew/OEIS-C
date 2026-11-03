@@ -12,7 +12,8 @@
  *            form is also merged with (-a,b,-c), which gives the w...
  * Range:     u8 n <= 6083, u16 n <= 6083, u32 n <= 6083, u64 n <= 6083,
  *            u128 n <= 6083, big any n
- * Helpers:   sqf, uf_find, uf_union
+ * Validated: standard, pass, 121 terms through n = 5843 (2026-11-01)
+ * Helpers:   is_squarefree_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,16 +21,24 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sqf.h"
-#include "../utils/uf_find.h"
-#include "../utils/uf_union.h"
+#include "../utils/is_squarefree_u64.h"
+
+static long long uf_find(long long *p, long long x) {
+    while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; }
+    return x;
+}
+
+static void uf_union(long long *p, long long x, long long y) {
+    x = uf_find(p, x); y = uf_find(p, y);
+    if (x != y) p[x] = y;
+}
 
 static uint64_t nth_squarefree(idx_t n) {
     idx_t count = 0;
     uint64_t m = 0;
     while (count < n) {
         m++;
-        if (sqf(m)) count++;
+        if (is_squarefree_u64(m)) count++;
     }
     return m;
 }

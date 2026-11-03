@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 5055, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, popcount_idx_t
+ * Validated: standard, pass, 72 terms through n = 9795 (2026-11-03)
+ * Helpers:   is_prime, mem, popcount_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/popcount_idx_t.h"
+#include "../utils/popcount_idx.h"
+#include "../utils/mem.h"
 
 /* popcount for a seq_t (may be an arbitrary precision type) */
 static inline idx_t popcount_seq_t(seq_t x)
@@ -54,11 +56,11 @@ seq_t a(idx_t n)
 
         /* Check weight condition */
         seq_t p = (seq_t)next_candidate;
-        if (popcount_seq_t(p) > popcount_idx_t(prime_index)) {
+        if (popcount_seq_t(p) > popcount_idx(prime_index)) {
             /* store in cache */
             if (cached_len == cached_cap) {
                 cached_cap = cached_cap ? cached_cap << 1 : 8;
-                seq_t *tmp = (seq_t *)realloc(cached_primes, cached_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cached_primes, cached_cap);
                 if (!tmp) abort();   /* allocation failed */
                 cached_primes = tmp;
             }

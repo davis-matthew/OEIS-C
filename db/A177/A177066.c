@@ -8,14 +8,16 @@
  * Formula:   a(n) = product_{k=1..n} phi(2*k-1) (phi is Euler's totient)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache if first call */
     if (prod_cache == NULL) {
-        prod_cache = (seq_t *)malloc(sizeof(seq_t));
+        prod_cache = mem_new(seq_t, 1);
         if (prod_cache == NULL) return 0;          /* allocation failure – unlikely */
         prod_cache[0] = 1;                         /* a(0) */
     }
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* Resize cache to hold values up to n */
     size_t newsize = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(prod_cache, newsize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prod_cache, newsize);
     if (tmp == NULL) return 0;                     /* allocation failure – unlikely */
     prod_cache = tmp;
 
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     seq_t product = prod_cache[max_cached];
     for (idx_t k = max_cached + 1; k <= n; ++k) {
         /* phi of odd 2*k-1 */
-        seq_t phi_val = phi((idx_t)(2 * k - 1));
+        seq_t phi_val = totient((idx_t)(2 * k - 1));
         product *= phi_val;                       /* seq_t multiplication is defined for all builds */
         prod_cache[k] = product;
     }

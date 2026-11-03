@@ -8,7 +8,8 @@
  * Formula:   a(n) = floor(2 * n^2 * cos(Pi/10) * (1 + sin(Pi/10)))
  * Range:     u8 n <= 9, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   cmp_sqrt5
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,23 @@
     The binary search is performed over 0 … 3*m (since k<3). */
 
 #include <stdint.h>
-#include "../utils/cmp_sqrt5.h"
+
+/* Helper: compare X with T*sqrt5.
+   Returns -1 if X < T*sqrt5, +1 otherwise (X > T*sqrt5). */
+static int cmp_sqrt5(__int128 X, __int128 T)
+{
+    if (X <= 0)
+        return -1;                       /* X < positive T*sqrt5 */
+
+    __int128 X2 = X * X;                 /* X^2   */
+    __int128 T2 = T * T;                 /* T^2   */
+    __int128 v  = 5 * T2;                /* 5*T^2 */
+
+    if (X2 < v)
+        return -1;
+    /* equality cannot occur because sqrt5 is irrational */
+    return +1;
+}
 
 /* Sequence function */
 seq_t a(idx_t n)

@@ -10,10 +10,13 @@
  *            T(m,k)=Σ_{i=0}^{min(k,m-1)} T(m-1,k-i) (m≥1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,8 +25,8 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Arrays for consecutive rows of the triangle */
-    seq_t *cur = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *nxt = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, (n + 1));
+    seq_t *nxt = mem_new(seq_t, (n + 1));
     if (!cur || !nxt) return (seq_t)0;   /* Allocation failed – return 0 as a fallback */
 
     /* Initialise row m = 0: T(0,0)=1, others 0   */
@@ -49,7 +52,7 @@ seq_t a(idx_t n)
     /* cur now holds row m = 2n+1; answer is T(2n+1 , n) = cur[n] */
     seq_t result = cur[n];
 
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return result;
 }

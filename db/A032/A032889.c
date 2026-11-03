@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   zigzag
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,30 @@
 */
 
 #include <stdbool.h>
-#include "../utils/zigzag.h"
+
+/* Test whether a number satisfies the alternating pattern. */
+static bool zigzag(seq_t x)
+{
+    /* Single‑digit numbers trivially satisfy the pattern. */
+    if (x < 10) return true;
+
+    seq_t prev = x % 10;   /* d0 */
+    x /= 10;
+    bool expect_inc = true;  /* d1 > d0 */
+
+    while (x > 0) {
+        seq_t d = x % 10;   /* next digit */
+        if (expect_inc) {
+            if (d <= prev) return false;   /* should be greater */
+        } else {
+            if (d >= prev) return false;   /* should be smaller */
+        }
+        prev = d;
+        expect_inc = !expect_inc;
+        x /= 10;
+    }
+    return true;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

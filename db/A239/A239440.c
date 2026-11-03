@@ -7,9 +7,10 @@
  * Formula:   a(n) is the minimal sum of prime factors with multiplicity among
  *            the integers that lie strictly between the nth and (n+1)th
  *            primes
- * Range:     u8 n <= 264, u16 n <= 9795, u32 n <= 9795, u64 n <= 9795,
- *            u128 n <= 9795, big any n
- * Helpers:   _prime_limit_for_idx, build_primes, build_spf
+ * Range:     u8 n <= 264, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 83 terms through n = 9795 (2026-11-03)
+ * Helpers:   build_primes, build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,18 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/_prime_limit_for_idx.h"
+#include <math.h>
 #include "../utils/build_primes.h"
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 static seq_t *min_cache = NULL;      /* a(n) values  (index 0 unused) */
 static size_t min_cap   = 0;         /* capacity of min_cache      */
@@ -46,7 +56,7 @@ extend_tables(idx_t max_size)
     /* Free old data */
     free(prime_list);
     free(spf);
-    free(sum);
+    mem_free(sum);
 
     /* Allocate new prime list and compute primes up to the desired limit. */
     build_primes(limit, &prime_list, &prime_cnt);
@@ -55,7 +65,7 @@ extend_tables(idx_t max_size)
     build_spf(limit, &spf);
 
     /* Build sum-of-prime-factors array. */
-    sum = (seq_t *)calloc((size_t)limit + 1, sizeof(seq_t));
+    sum = mem_new(seq_t, (size_t)limit + 1);
     sum[1] = 0;
     for (idx_t i = 2; i <= limit; ++i)
         sum[i] = sum[i / spf[i]] + (seq_t)spf[i];
@@ -65,8 +75,7 @@ extend_tables(idx_t max_size)
 
     /* Allocate or enlarge the cache for a(n) values. */
     if (min_cap < (size_t)prime_cnt + 5) {
-        seq_t *new_cache = (seq_t *)realloc(min_cache,
-                                            ((size_t)prime_cnt + 5) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, min_cache, ((size_t)prime_cnt + 5));
         if (!new_cache) abort();
         min_cache = new_cache;
         min_cap   = (size_t)prime_cnt + 5;

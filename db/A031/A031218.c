@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 88 terms through n = 8707 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,10 @@
    Computed by sieving primes up to n and marking their powers. */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static idx_t cache_size = 0;
 static seq_t *cache = NULL;
@@ -31,7 +35,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if ((idx_t)cache_size < n) {
         size_t new_len = (size_t)(n + 1);     /* array size = n+1  */
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) return 0;            /* allocation failure */
 
         /* Initialise to zero and set a(1) = 1   */
@@ -62,7 +66,7 @@ seq_t a(idx_t n)
                 new_cache[(idx_t)i] = new_cache[(idx_t)(i-1)];
 
         /* --- Replace old cache --------------------------------- */
-        free(cache);
+        mem_free(cache);
         cache      = new_cache;
         cache_size = n;
     }

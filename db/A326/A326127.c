@@ -8,8 +8,9 @@
  * Formula:   a(n) = σ(n) - sqfree(n) - n where σ(n) is the sum of all
  *            divisors of n, sqfree(n) is the product of the primes that
  *            appear with an odd exponent in the factorization of n
- * Range:     i8 n <= 89, i16 n <= 9879, i32 n <= 9879, i64 n <= 9879,
- *            i128 n <= 9879, big any n
+ * Range:     i8 n <= 89, i16 n <= 12599, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 94 terms through n = 9879 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

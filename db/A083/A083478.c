@@ -10,13 +10,14 @@
  *            The function searches k from 1 upwards
  * Range:     u8 none, u16 n <= 42, u32 n <= 130, u64 n <= 130, u128 n <= 130,
  *            big any n
- * Helpers:   is_pal
+ * Validated: standard, pass, 100 terms through n = 128 (2026-11-01)
+ * Helpers:   is_palindrome
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_pal.h"
+#include "../utils/is_palindrome.h"
 
 /* Helper: precompute powers of ten up to 10^20 */
 static seq_t pow10_cache[21];
@@ -91,7 +92,7 @@ seq_t a(idx_t n) {
     seq_t P = get_pal(n);
     for (idx_t k = 1; ; ++k) {
         seq_t cand = (seq_t)k * P + 1;
-        if (is_pal(cand))
+        if (is_palindrome(cand))
             return (seq_t)k;
     }
 }

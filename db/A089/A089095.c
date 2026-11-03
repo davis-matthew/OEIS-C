@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 22, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static const int q[17] = {
     /* (1 - z - z²)^8  coefficients for the denominator */
@@ -78,8 +80,8 @@ seq_t a(idx_t n)
     /* enlarge the cache if required */
     if ((size_t)k >= cache_len) {
         size_t new_len = (size_t)k + 1;
-        seq_t *new_b = (seq_t*)realloc(b, new_len * sizeof(seq_t));
-        seq_t *new_c = (seq_t*)realloc(c, new_len * sizeof(seq_t));
+        seq_t *new_b = mem_resize(seq_t, b, new_len);
+        seq_t *new_c = mem_resize(seq_t, c, new_len);
         if (!new_b || !new_c) {
             /* Allocation failed – return zero to avoid UB */
             return 0;

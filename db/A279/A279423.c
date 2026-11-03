@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10, u32 n <= 2563, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9260 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    the provided seq_t and idx_t types. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper that counts the decimal digits of a value of type seq_t. */
 static int digit_len_seq(seq_t x)
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     /* Initialise storage lazily */
     if (cache == NULL) {
         cap   = 10;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Generate terms until we have at least n of them */
@@ -75,8 +77,7 @@ seq_t a(idx_t n)
                     /* store the candidate in the cache */
                     if (len == cap) {
                         size_t new_cap = cap * 2;
-                        seq_t *tmp = (seq_t *)realloc(cache,
-                                                       new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                         cache = tmp;
                         cap   = new_cap;
                     }

@@ -12,13 +12,15 @@
  *            T(r,c)=T(r-1,c-1)+2·T(r-1,c) (1 ≤ c ≤ r-2)
  * Range:     u8 n <= 34, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function must be visible to the linker; external linkage is
    guaranteed by omitting 'static'. */
@@ -39,12 +41,12 @@ seq_t a(idx_t n)
     }
 
     /* Allocate the first row (row 0). */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, 1);
     prev[0] = (seq_t)1;
 
     for (idx_t i = 1; i <= r; ++i) {
         size_t len = (size_t)(i + 1);           /* length of current row */
-        seq_t *curr = (seq_t *)malloc(sizeof(seq_t) * len);
+        seq_t *curr = mem_new(seq_t, len);
 
         if (i == 1) {                          /* row 1: [1, 1] */
             curr[0] = (seq_t)1;
@@ -69,11 +71,11 @@ seq_t a(idx_t n)
             curr[i] = pow3;
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 
     seq_t result = prev[col];
-    free(prev);
+    mem_free(prev);
     return result;
 }

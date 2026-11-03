@@ -11,7 +11,8 @@
  *            otherwise a(n) = 3·a(n−1) + 1
  * Range:     u8 n <= 69, u16 n <= 7579, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 8302 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -------------------------- hash table for seen numbers ----------------- */
 
@@ -70,7 +72,7 @@ static bool hash_contains(seq_t v)
 static void hash_expand(void)
 {
     size_t new_cap = (hash_cap == 0 ? 16384 : hash_cap << 1);
-    hentry_t *new_tab = (hentry_t *)malloc(new_cap * sizeof(hentry_t));
+    hentry_t *new_tab = mem_new(hentry_t, new_cap);
     if (!new_tab) exit(EXIT_FAILURE);
     for (size_t i = 0; i < new_cap; ++i) new_tab[i].used = false;
 
@@ -85,7 +87,7 @@ static void hash_expand(void)
             new_tab[h].key  = v;
         }
     }
-    free(hash_table);
+    mem_free(hash_table);
     hash_table = new_tab;
     hash_cap   = new_cap;
 }
@@ -102,11 +104,11 @@ static void seq_ensure(size_t n)
     if (seq_cap >= n + 1) return;
     size_t new_cap = (seq_cap == 0 ? 16 : seq_cap << 1);
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *new_seq = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_new(seq_t, new_cap);
     if (!new_seq) exit(EXIT_FAILURE);
     if (seq) {
         for (size_t i = 0; i < seq_len; ++i) new_seq[i] = seq[i];
-        free(seq);
+        mem_free(seq);
     }
     seq = new_seq;
     seq_cap = new_cap;
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
         seq_len = 1;
 
         hash_cap = 16384;
-        hash_table = (hentry_t *)malloc(hash_cap * sizeof(hentry_t));
+        hash_table = mem_new(hentry_t, hash_cap);
         if (!hash_table) exit(EXIT_FAILURE);
         for (size_t i = 0; i < hash_cap; ++i) hash_table[i].used = false;
         hash_insert((seq_t)0);  /* 0 is seen */

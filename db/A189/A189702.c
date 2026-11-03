@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 120, u16 n <= 120, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
- * Helpers:   none
+ * Validated: partial, pass, 120 terms through n = 120 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    The function a(n) returns the n‑th symbol (1‑based).  For n >= 1.   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t  *word = NULL;      /* Current word buffer                      */
 static size_t  word_len = 0;     /* Number of symbols stored in word         */
@@ -37,7 +39,7 @@ static void ensure_word_len(idx_t n)
         }
         size_t new_len = zeros * 3 + ones * 2;
 
-        seq_t *new_word = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_word = mem_new(seq_t, new_len);
         if (!new_word) {
             /* Out of memory – aborting will cause program to terminate. */
             abort();
@@ -55,7 +57,7 @@ static void ensure_word_len(idx_t n)
         }
         /* Replace old buffer.  The old buffer is freed to keep memory
            footprint small. */
-        free(word);
+        mem_free(word);
         word     = new_word;
         word_len = new_len;
     }
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
 {
     /* Lazy initialization of the starting word "0". */
     if (!word) {
-        word     = (seq_t *)malloc(sizeof(seq_t));
+        word     = mem_new(seq_t, 1);
         word[0]  = 0;
         word_len = 1;
     }

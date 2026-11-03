@@ -9,12 +9,14 @@
  *            a(0)=3, a(1)=1, a(2)=6, a(3)=8
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 35, u64 n <= 72, u128 n <= 145,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* First call: initialise the table to the four known values */
     if (cache == NULL) {
         cache_size = 4;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return (seq_t)0;          /* allocation failure */
         for (idx_t i = 0; i < 4; ++i)
             cache[i] = init[i];
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Grow the cache to hold values up to index n */
     idx_t old_size = cache_size;
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (tmp == NULL) return (seq_t)0;              /* allocation failure */
     cache = tmp;
     cache_size = new_size;

@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 19, u32 n <= 41, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 64 terms through n = 65 (2026-11-02)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* This function implements A088916.
    For a given index n (indexing starts at 2), the function
    returns the triangular‑array value T(i,j), where
@@ -29,7 +31,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t idx)
 {
@@ -49,7 +51,7 @@ seq_t a(idx_t idx)
     seq_t k   = (seq_t)(offset + 2);          /* column number  (base) */
 
     /* ---- compute n^n as a big integer ---- */
-    seq_t pow_val = big_pow(n, n);
+    seq_t pow_val = ipow(n, n);
 
     /* ---- convert pow_val to base‑k digits (big‑endian) ---- */
     /* first determine length */

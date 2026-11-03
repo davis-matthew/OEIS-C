@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 1486, u16 n <= 9332, u32 n <= 9332, u64 n <= 9332,
- *            u128 n <= 9332, big any n
- * Helpers:   compute_rev_and_len
+ * Range:     u8 n <= 1486, u16 n <= 31375, u32 n <= 31375, u64 n <= 31375,
+ *            u128 n <= 31375, big any n
+ * Validated: standard, pass, 91 terms through n = 9332 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compute_rev_and_len.h"
+
+/* Compute reversed bits and its length for a prime. */
+static void compute_rev_and_len(uint32_t p, uint32_t *rev_out, uint8_t *len_out)
+{
+    uint32_t rev = 0;
+    uint8_t  len = 0;
+    while (p) {
+        rev = (rev << 1) | (p & 1U);
+        p >>= 1;
+        ++len;
+    }
+    *rev_out = rev;
+    *len_out = len;
+}
 
 /* ---------- Prime storage (dynamic array) ---------- */
 static uint32_t *prime_list   = NULL;

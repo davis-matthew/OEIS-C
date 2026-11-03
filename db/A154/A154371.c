@@ -8,6 +8,7 @@
  *            of n) - (smallest prime factor of n) is prime
  * Range:     i8 n <= 34, i16 n <= 58, i32 n <= 58, i64 n <= 58, i128 n <= 58,
  *            big any n
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

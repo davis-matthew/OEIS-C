@@ -12,7 +12,8 @@
  *            previous...
  * Range:     u8 n <= 102, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   has_prime_digit_uint64
+ * Validated: standard, pass, 94 terms through n = 4223 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/has_prime_digit_uint64.h"
+#include "../utils/mem.h"
+
+/* Return true if any decimal digit of x is 2, 3, 5 or 7. */
+static bool has_prime_digit_uint64(uint64_t x)
+{
+    if (x == 0) return false;     /* 0 has none of the prime digits   */
+    while (x) {
+        uint8_t d = x % 10;
+        if (d == 2 || d == 3 || d == 5 || d == 7) return true;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Memoisation storage for the sequence. */
 static seq_t *seq_arr       = NULL;   /* array of sequence values   */
@@ -40,11 +53,11 @@ static void ensure_seq_cap(size_t n)
     size_t new_cap = seq_cap ? seq_cap : 8;
     while (new_cap < n) new_cap <<= 1;
 
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);  /* out of memory */
     if (seq_arr) {
         for (size_t i = 0; i < seq_len; ++i) new_arr[i] = seq_arr[i];
-        free(seq_arr);
+        mem_free(seq_arr);
     }
     seq_arr = new_arr;
     seq_cap = new_cap;

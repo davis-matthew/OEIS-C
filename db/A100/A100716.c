@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 179, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cached sequence terms */
 static seq_t  *seq_buf = NULL;
@@ -49,8 +51,7 @@ static void generate_next_prime(void)
             /* enlarge prime power array if necessary */
             if (prime_pw_len == prime_pw_cap) {
                 prime_pw_cap = prime_pw_cap ? prime_pw_cap * 2 : 16;
-                prime_pw_buf = (seq_t *)realloc(prime_pw_buf,
-                                                prime_pw_cap * sizeof(seq_t));
+                prime_pw_buf = mem_resize(seq_t, prime_pw_buf, prime_pw_cap);
                 if (!prime_pw_buf) abort();
             }
             prime_pw_buf[prime_pw_len++] = power;
@@ -80,8 +81,7 @@ static void ensure_cached(idx_t n)
         if (divisible) {
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq_buf = (seq_t *)realloc(seq_buf,
-                                            seq_cap * sizeof(seq_t));
+                seq_buf = mem_resize(seq_t, seq_buf, seq_cap);
                 if (!seq_buf) abort();
             }
             seq_buf[seq_len++] = next_candidate;

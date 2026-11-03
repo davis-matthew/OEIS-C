@@ -11,14 +11,15 @@
  *            n, read row by row
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   is_power_of_two
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
+ * Helpers:   is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
         if (count == target) return cur;
 
         /* if the starting term is already a power of 2, the row ends here */
-        if (is_power_of_two(cur)) continue;
+        if (is_pow2(cur)) continue;
 
         /* generate the rest of the row */
         while (1)
@@ -49,7 +50,7 @@ seq_t a(idx_t n)
             if (count == target) return cur;
 
             /* stop if we hit a power of 2 or a term less than the row start */
-            if (is_power_of_two(cur) || cur < (seq_t)start)
+            if (is_pow2(cur) || cur < (seq_t)start)
                 break;
         }
     }

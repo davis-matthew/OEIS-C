@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   bitlen_seq_t, pow2, seq_pow
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   bit_length, ipow_idx, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/seq_pow.h"      /* seq_pow(seq_t base, idx_t exp)      */
-#include "../utils/pow2.h"        /* pow2(idx_t exp)                     */
-#include "../utils/bitlen_seq_t.h"/* bitlen_seq_t(seq_t x)              */
+#include "../utils/bit_length.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t* seq_cache = NULL;          /* cached terms                     */
 static size_t seq_len  = 0;              /* number of cached terms            */
@@ -49,7 +51,7 @@ static void grow_used(size_t new_cap)
 static void grow_seq(size_t new_cap)
 {
     if (new_cap <= seq_cap) return;
-    seq_t* new_seq = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t* new_seq = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_seq) exit(EXIT_FAILURE);
     seq_cache = new_seq;
     seq_cap   = new_cap;
@@ -61,7 +63,7 @@ static bool is_perfect_power(seq_t x)
     if (x == (seq_t)1) return true;                 /* 1 = 1^r for any r */
     if (x < (seq_t)2) return false;
 
-    unsigned bits = bitlen_seq_t(x);                /* bit length of x */
+    unsigned bits = bit_length(x);                /* bit length of x */
     /* try exponents r = 2 .. bits-1 */
     for (int r = 2; r < (int)bits; ++r) {
         /* compute upper bound for j as 2^ceil(bits/r) */
@@ -71,7 +73,7 @@ static bool is_perfect_power(seq_t x)
         /* binary search for integer j */
         while (low <= high) {
             seq_t mid = (low + high) / (seq_t)2;
-            seq_t mid_pow = seq_pow(mid, (idx_t)r);
+            seq_t mid_pow = ipow_idx(mid, (idx_t)r);
             if (mid_pow == x) return true;
             if (mid_pow < x) {
                 low = mid + (seq_t)1;

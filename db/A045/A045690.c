@@ -8,12 +8,14 @@
  * Formula:   a(1)=1, a(2n)=2*a(2n-1)-a(n), a(2n+1)=2*a(2n)
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 3319 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;          /* undefined offset, harmless */
@@ -24,11 +26,11 @@ seq_t a(idx_t n) {
 
     /* grow cache to hold up to n */
     if (n > cache_size) {
-        seq_t *new_cache = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)n);
         if (!new_cache) return (seq_t)0;  /* allocation failure */
         for (idx_t i = 0; i < cache_size; ++i)
             new_cache[i] = cache[i];
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = new_cache;
         cache_size = n;
     }

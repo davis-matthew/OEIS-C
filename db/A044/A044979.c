@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   comb_u64, count_length, count_seq
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   binomial_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,29 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/comb_u64.h"
-#include "../utils/count_length.h"
-#include "../utils/count_seq.h"
+#include "../utils/binomial_idx.h"
+
+/* Count strings of length rem that still need z zeros and o ones
+ * (the remaining digits automatically fill with twos). */
+static idx_t count_seq(idx_t rem, idx_t z, idx_t o)
+{
+    if (z > rem || o > rem - z)
+        return (idx_t)0;
+    idx_t c1 = binomial_idx(rem, z);
+    idx_t c2 = binomial_idx(rem - z, o);
+    return c1 * c2;
+}
+
+/* Count of strings of length L satisfying the constraints
+ * (the first digit is required to be non‑zero). */
+static idx_t count_length(idx_t L)
+{
+    if (L < 6)
+        return (idx_t)0;
+    /* First digit 2: zeros=2, ones=4   +
+       First digit 1: zeros=2, ones=3   */
+    return count_seq(L - 1, 2, 4) + count_seq(L - 1, 2, 3);
+}
 
 /* Unrank nth (1‑based) string satisfying the constraints and
  * convert it to its numeric value. */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 195, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_adjacent_equal
+ * Validated: standard, pass, 81 terms through n = 9957 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,26 @@
  * condition is automatically satisfied.
  * ------------------------------------------------------------- */
 #include <stdbool.h>
-#include "../utils/has_adjacent_equal.h"
+
+static bool has_adjacent_equal(seq_t v)
+{
+    if (v < 3)                    /* single‑digit numbers: m = 0 */
+        return true;
+
+    int last = -1;                /* previous LSD digit */
+    bool adj = false;
+
+    while (v > 0) {
+        seq_t d = v % 3;          /* current LSD digit */
+        if (last != -1 && d == last) {
+            adj = true;
+            break;
+        }
+        last = (int)d;
+        v /= 3;
+    }
+    return adj;
+}
 
 /* -------------------------------------------------------------
  * Main function required by the build system.

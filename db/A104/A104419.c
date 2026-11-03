@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 42, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   has_zero_digit
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
    for any n ≥ 1. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_zero_digit.h"
+#include "../utils/mem.h"
+
+/* ---------- Check 0‑free in decimal -------------------------------- */
+static inline bool has_zero_digit(seq_t x)
+{
+    while (x) {
+        if ((x % (seq_t)10) == (seq_t)0) return true;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 /* ---------- Prime sieve (enough for n up to about 10000) ---------- */
 static const uint32_t PRIME_LIMIT = 2000000;          /* 2 000 000 */
@@ -60,7 +71,7 @@ static void ensure_seq_capacity(idx_t need)
     if (need <= seq_cap) return;
     size_t newcap = seq_cap ? seq_cap * 2 : 1024;
     while (newcap < (size_t)need) newcap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, newcap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, newcap);
     seq_cap   = newcap;
 }
 

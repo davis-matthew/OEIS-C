@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 
 /* required standard header */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static tables for S, T and suffix sums of T */
 static seq_t **S = NULL;          /* S[n][k] */
@@ -58,24 +60,24 @@ static void compute_up_to(idx_t n)
 
     /* initialise row 0 (used for the recurrence) */
     if (!S[0]) {
-        S[0]    = (seq_t*)calloc(1, sizeof(seq_t));
+        S[0]    = mem_new(seq_t, 1);
         S[0][0] = (seq_t)1;
     }
     if (!T[0]) {
-        T[0]    = (seq_t*)calloc(1, sizeof(seq_t));
+        T[0]    = mem_new(seq_t, 1);
         T[0][0] = (seq_t)0;
     }
     if (!Suff[0]) {
-        Suff[0] = (seq_t*)calloc(2, sizeof(seq_t));   /* index 0..1 */
+        Suff[0] = mem_new(seq_t, 2);   /* index 0..1 */
         Suff[0][1] = (seq_t)0;
     }
 
     /* compute new rows */
     for (idx_t i = max_computed + 1; i <= n; ++i) {
         /* allocate row i */
-        S[i]    = (seq_t*)calloc((size_t)i + 1, sizeof(seq_t));
-        T[i]    = (seq_t*)calloc((size_t)i + 1, sizeof(seq_t));
-        Suff[i] = (seq_t*)calloc((size_t)i + 2, sizeof(seq_t));  /* +1 sentinel */
+        S[i]    = mem_new(seq_t, (size_t)i + 1);
+        T[i]    = mem_new(seq_t, (size_t)i + 1);
+        Suff[i] = mem_new(seq_t, (size_t)i + 2);  /* +1 sentinel */
 
         /* S(n,k) for k = 1..i */
         for (idx_t k = 1; k <= i; ++k) {

@@ -11,7 +11,8 @@
  *            primes (sufficient for n ≤ 10000). It then extracts...
  * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime64
+ * Validated: standard, pass, 68 terms through n = 965 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/is_prime64.h"
+#include "../utils/is_prime_u64.h"
 
 static const idx_t INITIAL_LIMIT = 5000000;   /* 5 million – > 20000 SG primes */
 static uint8_t *is_composite = NULL;          /* sieve bit array */
@@ -69,7 +70,7 @@ static void compute_primes_and_sg(idx_t limit)
         uint32_t p = primes[idx];
         uint64_t up = (uint64_t)p << 1;   /* 2p */
         up += 1;                          /* 2p+1 */
-        if (is_prime64(up)) {
+        if (is_prime_u64(up)) {
             if (sg_cnt >= sg_cap) {
                 sg_cap = (sg_cap == 0) ? 1024 : sg_cap << 1;
                 sg_idx = (uint32_t *)realloc(sg_idx, sg_cap * sizeof(uint32_t));

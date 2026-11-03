@@ -6,8 +6,9 @@
  * Keywords:  sign, mult
  * Formula:   a(n) = μ(n) for odd n; a(n) = μ(m) * 2^(k-1) when n = m * 2^k
  *            with m odd and k ≥ 1
- * Range:     i8 n <= 255, i16 n <= 9447, i32 n <= 9447, i64 n <= 9447,
- *            i128 n <= 9447, big any n
+ * Range:     i8 n <= 255, i16 n <= 65535, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 9447 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* Uses the helper function: seq_t mobius(idx_t n) */
 
 /* Header providing mobius() */
+#include <stdint.h>
 #include "../utils/mobius.h"
 
 seq_t a(idx_t n)

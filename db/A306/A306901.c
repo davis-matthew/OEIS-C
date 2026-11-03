@@ -8,13 +8,15 @@
  *            of n using only parts whose b‑th bit is 1
  * Range:     u8 n <= 21, u16 n <= 69, u32 n <= 225, u64 n <= 773,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 860 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*=====================================================================*/
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--------------------------------------------------------------
  *  a(n) – compute the nth term of OEIS A306901
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         /* free old cache */
         if (p_cache != NULL) {
             for (idx_t i = 0; i <= max_bit; ++i)
-                free(p_cache[i]);
+                mem_free(p_cache[i]);
             free(p_cache);
         }
 
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         p_cache = (seq_t**)malloc((max_bit + 1) * sizeof(seq_t*));
         for (idx_t b = 0; b <= max_bit; ++b) {
             /* each row has indices 0 … max_n */
-            p_cache[b] = (seq_t*)calloc((size_t)(max_n + 1), sizeof(seq_t));
+            p_cache[b] = mem_new(seq_t, (size_t)(max_n + 1));
             if (p_cache[b] == NULL) /* large n may exhaust memory */
                 return (seq_t)0;     /* silently return 0 on failure   */
 

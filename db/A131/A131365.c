@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1060, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_mask_dp
+ * Validated: standard, pass, 85 terms through n = 9589 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,38 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_mask_dp.h"
+#include "../utils/mem.h"
+
+/* compute DP for a specific digit mask (includes digits 1..9; digit 0 is ignored) */
+static void compute_mask_dp(uint16_t mask, size_t Bmax, uint8_t **dp_arr)
+{
+    /* allocate DP array: 0 = not representable, 1 = representable */
+    uint8_t *dp = (uint8_t *)calloc(Bmax + 1, 1);
+    dp[0] = 1;
+
+    /* process each allowed digit d (1..9) */
+    for (int d = 1; d <= 9; ++d)
+    {
+        if (mask & (1U << d))
+        {
+            /* generate all repdigits of digit d not exceeding Bmax */
+            seq_t val = d;
+            seq_t limit = (seq_t)Bmax;
+            while (val <= limit)
+            {
+                size_t v = (size_t)val;          /* value fits into size_t (Bmax <= 200000) */
+                /* subset–sum DP: add value v once */
+                for (size_t s = Bmax; s >= v; --s)
+                    if (dp[s - v])
+                        dp[s] = 1;
+
+                /* next repdigit of same digit */
+                val = val * 10 + d;
+            }
+        }
+    }
+    *dp_arr = dp;
+}
 
 static size_t computed_Bmax = 0;          /* Bmax used for current tables       */
 static seq_t *stored_terms = NULL;        /* array of a(n) values                 */
@@ -52,7 +84,7 @@ static void recompute_terms(size_t newBmax)
     }
     if (stored_terms)
     {
-        free(stored_terms);
+        mem_free(stored_terms);
         stored_terms = NULL;
     }
 
@@ -64,7 +96,7 @@ static void recompute_terms(size_t newBmax)
 
     /* allocate terms array */
     stored_terms_cap = newBmax;                 /* enough for all non‑representable numbers up to Bmax */
-    stored_terms = (seq_t *)malloc(stored_terms_cap * sizeof(seq_t));
+    stored_terms = mem_new(seq_t, stored_terms_cap);
     stored_terms_used = 0;
 
     /* iterate through all numbers up to Bmax and collect non‑representable ones */

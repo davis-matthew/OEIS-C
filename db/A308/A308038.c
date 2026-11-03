@@ -8,6 +8,7 @@
  *            22*n^4)/384
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 125, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 58 terms through n = 863 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

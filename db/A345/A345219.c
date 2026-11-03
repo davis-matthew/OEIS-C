@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{d|n} (pi(d) mod 2)
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   compute_pi, factor_u64
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-01)
+ * Helpers:   factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,15 +18,17 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/compute_pi.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/prime_pi.h"
 
 /* Recursively count divisors with odd pi(d). */
 static seq_t count_odd_pi_divisors(uint64_t cur, int idx,
                                    uint64_t *primes, uint64_t *exps, int cnt)
 {
     if (idx == cnt) {
-        seq_t p = compute_pi(cur);
+        seq_t p = prime_pi(cur);
         return p & 1;
     }
     seq_t sum = 0;

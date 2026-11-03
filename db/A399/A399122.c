@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 40, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   count_prime_factors
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
+ * Helpers:   bigomega_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    It works for any seq_t (byte, word, big integer) and for any idx_t (uint64_t). */
 
 #include <stdbool.h>
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         seq_t val = (seq_t)k * ((seq_t)k - 1) + (seq_t)n;
 
         /* Count total prime factors with multiplicity. */
-        seq_t pf = count_prime_factors(val);
+        seq_t pf = bigomega_seq(val);
 
         if (pf >= 3)
             return (seq_t)k;    /* k is the smallest index that satisfies the condition */

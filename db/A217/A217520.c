@@ -11,13 +11,29 @@
  *            1)
  * Range:     u8 n <= 16, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   multiplicative_order_3
+ * Validated: standard, pass, 69 terms through n = 94 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/multiplicative_order_3.h"
+
+/* Compute the multiplicative order of 3 modulo m (m must be coprime to 3).
+   For m == 1 the order is defined as 1. */
+static idx_t multiplicative_order_3(idx_t m)
+{
+    if (m == 1) return 1;
+    idx_t t = 1;
+    idx_t cur = 3 % m;
+    /* Iterate until cur == 1.  We check from t=1, cur already is 3 mod m. */
+    while (cur != 1) {
+        /* Use 128–bit arithmetic to avoid overflow of cur*3. */
+        cur = (unsigned __int128)cur * 3 % m;
+        ++t;
+    }
+    return t;
+}
 
 seq_t a(idx_t n)
 {

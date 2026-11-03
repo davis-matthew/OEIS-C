@@ -7,20 +7,22 @@
  * Formula:   Expansion of Product_{k>=0} (1+x^(4*k+1))^3
  * Range:     u8 n <= 31, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) where a is the coefficient of x^n
  * in the product ∏_{k>=0} (1 + 3x^(4k+1) + 3x^(2*(4k+1)) + x^(3*(4k+1))) */
 seq_t a(idx_t n) {
     /* Allocate coefficient arrays up to index n. */
     size_t size = (size_t)n + 1;
-    seq_t *coef = (seq_t*)malloc(size * sizeof(seq_t));
-    seq_t *tmp  = (seq_t*)malloc(size * sizeof(seq_t));
+    seq_t *coef = mem_new(seq_t, size);
+    seq_t *tmp  = mem_new(seq_t, size);
     if (!coef || !tmp) abort();
 
     /* Initialize: only the zeroth coefficient is 1. */
@@ -54,7 +56,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = coef[size - 1];
-    free(coef);
-    free(tmp);
+    mem_free(coef);
+    mem_free(tmp);
     return result;
 }

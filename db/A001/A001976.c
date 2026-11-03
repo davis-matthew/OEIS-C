@@ -11,17 +11,19 @@
  *            into parts <= 5
  * Range:     u8 n <= 12, u16 n <= 57, u32 n <= 960, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
     idx_t w = (5 * n) / 2 - 1;
-    seq_t *p = (seq_t *)calloc((size_t)(w + 1), sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)(w + 1));
     p[0] = 1;
     for (idx_t i = 1; i <= 5; i++)
         for (idx_t j = i; j <= w; j++)
@@ -40,6 +42,6 @@ seq_t a(idx_t n) {
         if (cnt % 2 == 0) pos += p[w - shift];
         else neg += p[w - shift];
     }
-    free(p);
+    mem_free(p);
     return pos - neg;
 }

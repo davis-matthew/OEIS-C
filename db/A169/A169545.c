@@ -9,15 +9,29 @@
  *            and a(n)+(-2)*a(n-1)+...+(-2)*a(n-34)+3*a(n-35)=0 for n>35
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   free_seq_array, seq_alloc_array
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <string.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache          = NULL;   /* cached values of a(n) */
 static size_t cache_cap      = 0;      /* current capacity of cache, in elements */
@@ -35,7 +49,7 @@ static void ensure_cache(idx_t n)
         seq_t *new_arr = seq_alloc_array(new_cap);
         if (cache)
         {
-            memcpy(new_arr, cache, cache_cap * sizeof(seq_t));
+            mem_copy(new_arr, cache, cache_cap * sizeof(seq_t));
             free_seq_array(cache);
         }
         cache      = new_arr;
@@ -51,7 +65,7 @@ seq_t a(idx_t n)
     {
         cache_cap = 64;
         cache = seq_alloc_array(cache_cap);
-        memset(cache, 0, cache_cap * sizeof(seq_t));
+        mem_set(cache, 0, cache_cap * sizeof(seq_t));
         cache[0]  = (seq_t)1;
         cache_done = 0;
     }

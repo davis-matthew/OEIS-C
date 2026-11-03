@@ -7,12 +7,14 @@
  * Formula:   a(n+3) = a(n) - a(n+1) - a(n+2); a(0) = -5, a(1) = 6, a(2) = 0
  * Range:     i8 n <= 12, i16 n <= 29, i32 n <= 45, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* initialise the cache with the first three terms */
     if (cache == NULL) {
         capa = 4;                     /* small starting capacity */
-        cache = (seq_t *)malloc(capa * sizeof(seq_t));
+        cache = mem_new(seq_t, capa);
         if (!cache) return (seq_t)0;  /* allocation failed, return 0 */
 
         cache[0] = (seq_t)-5;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         /* grow the buffer if necessary */
         if (size >= capa) {
             capa *= 2;                  /* exponential growth */
-            cache = (seq_t *)realloc(cache, capa * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, capa);
             if (!cache) {
                 /* allocation failed; keep the old buffer to avoid crash */
                 return (seq_t)0;

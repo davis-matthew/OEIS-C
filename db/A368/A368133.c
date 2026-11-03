@@ -15,7 +15,8 @@
  *            smallest prime that does NOT divide j
  * Range:     u8 n <= 33, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool is_prime_small(uint64_t x)
 {
@@ -50,7 +52,7 @@ static void ensure_seq_cap(size_t needed)
     if (needed > seq_cap) {
         size_t ncap = (seq_cap == 0) ? 8 : seq_cap << 1;
         if (ncap < needed) ncap = needed;
-        seq = (seq_t *)realloc(seq, ncap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, ncap);
         seq_cap = ncap;
     }
 }
@@ -61,7 +63,7 @@ static void ensure_primes_cap(size_t needed)
     if (needed > primes_cap) {
         size_t ncap = (primes_cap == 0) ? 8 : primes_cap << 1;
         if (ncap < needed) ncap = needed;
-        primes = (seq_t *)realloc(primes, ncap * sizeof(seq_t));
+        primes = mem_resize(seq_t, primes, ncap);
         primes_cap = ncap;
     }
 }

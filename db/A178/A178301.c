@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 13, u16 n <= 40, u32 n <= 127, u64 n <= 421,
+ * Range:     u8 n <= 16, u16 n <= 40, u32 n <= 127, u64 n <= 421,
  *            u128 n <= 1465, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 71 terms through n = 9188 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
    a(n) = T(r,k) where r satisfies r*(r+1)/2 <= n < (r+1)*(r+2)/2
    and k = n - r*(r+1)/2. */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
     idx_t k = n - (idx_t)start128;
 
     /* compute binomial factors */
-    seq_t first  = binom(r, k);                /* binomial(r,k)   */
-    seq_t second = binom(r + k + 1, r + 1);    /* binomial(r+k+1,r+1) */
+    seq_t first  = binomial(r, k);                /* binomial(r,k)   */
+    seq_t second = binomial(r + k + 1, r + 1);    /* binomial(r+k+1,r+1) */
 
     return first * second;
 }

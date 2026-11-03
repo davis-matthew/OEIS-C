@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    array to answer any query efficiently. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of found numbers   */
 static idx_t  cache_len = 0;     /* current number of entries in cache */
@@ -60,7 +62,7 @@ static void ensure_cache(idx_t n)
             {
                 /* Grow the cache (initial capacity 128). */
                 size_t new_cap = cache_cap ? cache_cap * 2 : 128;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();   /* allocation failed */
                 cache = tmp;
                 cache_cap = new_cap;

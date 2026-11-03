@@ -10,12 +10,15 @@
  *            Barker, 2018)
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 19, u64 n <= 39, u128 n <= 79,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 41 terms through n = 193 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Computes a(n) for the OEIS sequence A235878.
    The sequence is defined with offset 1; a(1) is the first term.
@@ -23,8 +26,8 @@
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;               /* offset protection */
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)(n + 1)); /* 2^(n+1) */
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)n);       /* 3^n   */
+    seq_t pow2 = ipow((seq_t)2, (seq_t)(n + 1)); /* 2^(n+1) */
+    seq_t pow3 = ipow((seq_t)3, (seq_t)n);       /* 3^n   */
     seq_t part = (seq_t)2 + (seq_t)3 * pow2 + pow3;
     return (seq_t)3 * part;
 }

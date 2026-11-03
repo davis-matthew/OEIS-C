@@ -9,7 +9,8 @@
  *            read by antidiagonals downward
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array, index_to_sum_prod
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/index_to_sum_prod.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* Convert a sequence index into the corresponding (sum, product). */
+static inline void index_to_sum_prod(idx_t n, idx_t *sum, idx_t *prod)
+{
+    idx_t t = n - 1;               /* zero‑based index */
+    idx_t d = 1;
+    while ((d * (d + 1)) / 2 <= t) ++d;   /* find smallest d with d(d+1)/2 > t */
+    idx_t prev = (d - 1) * d / 2;
+    idx_t offset = t - prev;      /* 0 ≤ offset < d */
+    *sum = offset;                /* offset is the partition sum */
+    *prod = d - offset;           /* product = d - offset */
+}
 
 /* Memoised dynamic‑programming table */
 static seq_t  *dp_mem = NULL;

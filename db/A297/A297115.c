@@ -9,8 +9,9 @@
  *            d, computes μ(n/d) on the fly during the enumeration, and sums
  *            μ(n/d)*popcount(d). It uses only integer arithmetic and works
  *            for any seq_t/idx_t defined by the build system
- * Range:     i8 n <= 9801, i16 n <= 9801, i32 n <= 9801, i64 n <= 9801,
- *            i128 n <= 9801, big any n
+ * Range:     i8 n <= 16384, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9801 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

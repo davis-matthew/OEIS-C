@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,12 +41,12 @@ seq_t a(idx_t n)
     /* Allocate arrays for pell numbers and sequence values */
     idx_t pell_size = n + 2;               /* need P[0..n+1]          */
     idx_t a_size   = n + 1;               /* need a[0..n]           */
-    seq_t *pell = (seq_t *)malloc(pell_size * sizeof(seq_t));
-    seq_t *a_arr = (seq_t *)malloc(a_size  * sizeof(seq_t));
+    seq_t *pell = mem_new(seq_t, pell_size);
+    seq_t *a_arr = mem_new(seq_t, a_size);
     if (!pell || !a_arr) {
         /* Allocation failure – return 0 as a safe fallback */
-        if (pell) free(pell);
-        if (a_arr) free(a_arr);
+        if (pell) mem_free(pell);
+        if (a_arr) mem_free(a_arr);
         return 0;
     }
 
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_arr[n];
-    free(pell);
-    free(a_arr);
+    mem_free(pell);
+    mem_free(a_arr);
     return result;
 }

@@ -10,13 +10,15 @@
  *            (0‑based column in that row)
  * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 static idx_t row_of(idx_t n)            /* smallest k with k(k+1)/2 >= n */
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     __int128 pref = (__int128)(k - 1) * k / 2;        /* terms before row k */
     idx_t s = (idx_t)(n - pref - 1);                  /* 0‑based column */
 
-    seq_t bin = binom(k + s, 2 * s + 1);               /* binomial part */
+    seq_t bin = binomial(k + s, 2 * s + 1);               /* binomial part */
     seq_t res = bin;
     res *= (seq_t)(2 * k - 1);                        /* (2k-1) */
     res *= (seq_t)(2 * k + 1);                        /* (2k+1) */

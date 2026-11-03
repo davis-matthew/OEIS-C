@@ -12,13 +12,15 @@
  *            a(11)=24669, a(12)=30593, a(13)=40709, a(14)=52461, a(15...
  * Range:     u8 none, u16 n <= 14, u32 n <= 59, u64 n <= 149, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 179 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* zero‑based cache storing a(1)..a(n) */
 static idx_t cache_len = 0;      /* number of cached elements */
@@ -38,10 +40,10 @@ static void ensure_cache(idx_t n)
 
     /* Allocate or enlarge the cache. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)n);
         if (!cache) abort();
     } else if ((size_t)n > cache_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp) abort();
         cache = tmp;
     }

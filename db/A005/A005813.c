@@ -10,18 +10,20 @@
  *            +x^42)/((1-x^3)*(1-x^4)*(1-x^6)*(1-x^7)*(1-x^10)*(1-x^15))
  * Range:     u8 n <= 53, u16 n <= 169, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
         
     // Compute coefficients of Q(x) = (1-x^3)*(1-x^4)*(1-x^6)*(1-x^7)*(1-x^10)*(1-x^15)
     idx_t max_q_degree = 45;
-    seq_t *q = (seq_t *)calloc(max_q_degree + 1, sizeof(seq_t));
+    seq_t *q = mem_new(seq_t, max_q_degree + 1);
     q[0] = 1;
     
     // Multiply by (1-x^k) for k in {3, 4, 6, 7, 10, 15}
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     }
     
     // Compute a(n) using recurrence: a(n) = p(n) - sum_{j=1}^{min(n, max_q_degree)} a(n-j) * q(j)
-    seq_t *a_vals = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *a_vals = mem_new(seq_t, n + 1);
     
     for (idx_t i = 0; i <= n; i++) {
         // Coefficient of x^i in P(x) = 1 -x^3 -x^4 +x^10 +x^11 +x^12 +x^16 -x^19 -x^23 +x^26 +x^30 +x^31 +x^32 -x^38 -x^39 +x^42
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
     }
     
     seq_t result = a_vals[n];
-    free(q);
-    free(a_vals);
+    mem_free(q);
+    mem_free(a_vals);
     return result;
 }

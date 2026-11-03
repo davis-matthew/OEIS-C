@@ -7,8 +7,9 @@
  * Keywords:  sign
  * Formula:   a(n) = Sum_{k=0..floor(n/4)} (-1)^k * binomial(n+3,4*k+3) *
  *            Catalan(k)
- * Range:     i8 n <= 4, i16 n <= 11, i32 n <= 26, i64 n <= 32, i128 n <= 32,
+ * Range:     i8 n <= 7, i16 n <= 15, i32 n <= 29, i64 n <= 32, i128 n <= 32,
  *            big any n
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
  * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
 

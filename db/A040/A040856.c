@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Continued fraction coefficients of sqrt(886). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* ------------------------------------------------------------------ */
     if (cachedlen == 0) {
         cap = 4;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;  /* allocation failed */
         cache[0] = a0;                /* a(0) */
         cachedlen = 1;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         /* Grow cache array if necessary                                 */
         if (cachedlen == cap) {
             size_t newcap = cap * 2;
-            seq_t *newp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *newp = mem_resize(seq_t, cache, newcap);
             if (!newp) return (seq_t)0;  /* allocation failed */
             cache = newp;
             cap = newcap;

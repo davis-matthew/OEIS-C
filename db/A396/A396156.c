@@ -11,12 +11,14 @@
  *            prefix, all transitions avoiding a 7th six
  * Range:     u8 n <= 9, u16 n <= 12, u32 n <= 18, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -45,6 +47,6 @@ seq_t a(idx_t n)
     seq_t S = (seq_t)0;
     for (int k = 0; k < 7; ++k) S += f[k];
 
-    seq_t total = pow_uint((uint64_t)6, n);
+    seq_t total = ipow_u64_idx((uint64_t)6, n);
     return total - S;
 }

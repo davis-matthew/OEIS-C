@@ -9,13 +9,21 @@
  *            starts with digit 1
  * Range:     u8 n <= 11, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   pow9_int
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow9_int.h"
+
+static idx_t pow9_int(int exp)
+{
+    idx_t r = 1;
+    for (int i = 0; i < exp; ++i)
+        r *= 9;
+    return r;
+}
 
 seq_t a(idx_t n)
 {

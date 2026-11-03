@@ -9,7 +9,8 @@
  *            the unique odd x modulo 2^r with x^5 ≡ 2k+1 (mod 2^r)
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* forward declarations */
 static inline idx_t floor_log2_u64(idx_t v);
@@ -42,7 +44,7 @@ static void generate_row(idx_t r)
 {
     /* number of entries in this row is 2^(r-1) */
     idx_t size = (idx_t)1 << (r - 1);
-    seq_t *arr = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, size);
     assert(arr != NULL);
     /* mask for modulus 2^r */
     seq_t mask = ((seq_t)1 << r) - 1;

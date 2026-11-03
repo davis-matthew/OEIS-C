@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 58,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 197 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /*  OEIS A183327 – Number of n×6 binary arrays with each 1 adjacent to exactly two other 1's.
     The values are computed by a linear‑time DP over pairs of consecutive rows.
     The DP state is (previous_row, current_row).  Transitions are precomputed once.

@@ -12,7 +12,8 @@
  *            n−2, then counts the number of square‑free * com...
  * Range:     u8 n <= 110, u16 n <= 110, u32 n <= 110, u64 n <= 110,
  *            u128 n <= 110, big any n
- * Helpers:   build_primes_upto, int_sqrt, is_squarefree
+ * Validated: partial, pass, 111 terms through n = 110 (2026-11-01)
+ * Helpers:   build_primes_upto, is_squarefree, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/build_primes_upto.h"   /* build_primes_upto() */
-#include "../utils/int_sqrt.h"           /* int_sqrt()     */
-#include "../utils/is_squarefree.h"       /* is_squarefree() */
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_squarefree.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
     idx_t limit = n - 2;          /* largest allowed prime power */
 
     /* primes needed to produce p^2 ≤ n → p ≤ √n */
-    idx_t sqrt_n = int_sqrt(n);
+    idx_t sqrt_n = isqrt(n);
     uint64_t *primes = NULL;
     size_t primes_cnt = 0;
     build_primes_upto(sqrt_n, &primes, &primes_cnt);

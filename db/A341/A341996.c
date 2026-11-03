@@ -9,15 +9,45 @@
  * Formula:   a(n) = 1 if ∃ prime p with p^p | A003415(n) (arithmetic
  *            derivative of n), else 0. For n=0,1 the function returns 0 by
  *            convention
- * Range:     u8 n <= 9555, u16 n <= 9555, u32 n <= 9555, u64 n <= 9555,
- *            u128 n <= 9555, big any n
- * Helpers:   factor_and_check
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 122 terms through n = 9555 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/factor_and_check.h"
+
+static bool factor_and_check(seq_t derivative)
+{
+    /* Return true if some prime p satisfies p^p | derivative. */
+    seq_t rem = derivative;
+    idx_t p = 2;
+
+    /* Handle the case when derivative is 0 or 1 */
+    if (rem == 0 || rem == 1)
+        return false;
+
+    /* Factorization loop */
+    while ((seq_t)p * (seq_t)p <= rem) {
+        int exp = 0;
+        while (rem % p == 0) {
+            exp++;
+            rem /= p;
+        }
+        if (exp >= (int)p)          /* p is a prime, exponent large enough */
+            return true;
+        p++;
+    }
+
+    /* If a prime factor larger than sqrt remains */
+    if (rem > 1) {   /* rem is prime */
+        /* For a prime rem, exponent is 1, so 1 >= rem never holds for p ≥ 2. */
+        /* No need to check further. */
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -12,7 +12,8 @@
  *            for any n ≥ 1, memoising results so that repeated calls are fast
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 21, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -58,9 +60,9 @@ seq_t a(idx_t n)
     /* Initialise cache with the first 13 known values on first use. */
     if (cache == NULL) {
         cache_len = 13;
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return (seq_t)0;          /* allocation failure */
-        memcpy(cache, init, cache_len * sizeof(seq_t));
+        mem_copy(cache, init, cache_len * sizeof(seq_t));
     }
 
     /* If the requested n is already in the cache, return it. */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     /* Expand the cache to accommodate up to n.  The growth is done in a
        single reallocation; the new slots are filled using the recurrence. */
     size_t new_len = (size_t)n;
-    seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) return (seq_t)0;              /* allocation failure */
     cache = tmp;
 

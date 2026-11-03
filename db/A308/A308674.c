@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 17, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   antidiagonal_coords, big_pow, pow_seq
+ * Validated: standard, pass, 44 terms through n = 45 (2026-11-01)
+ * Helpers:   ipow, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,19 @@
 /* required utilities */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/antidiagonal_coords.h"
-#include "../utils/big_pow.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow.h"
+#include "../utils/ipow_i32.h"
+
+/* mapping from linear index n to pair (i,j) on the antidiagonals of T */
+static inline void antidiagonal_coords(idx_t n, idx_t *i, idx_t *j)
+{
+    /* find s such that (s+1)(s+2)/2 <= n < (s+2)(s+3)/2 */
+    idx_t s = 0;
+    while (((s + 1) * (s + 2)) / 2 <= n) ++s;
+    idx_t pos = n - (s * (s + 1)) / 2;  /* 0 <= pos <= s */
+    *i = pos;
+    *j = s - pos;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,16 +52,16 @@ seq_t a(idx_t n)
     for (uint64_t d = 1; d <= i / d; ++d) {
         if (i % d == 0) {
             /* exponent d^k */
-            seq_t exp1 = pow_seq((seq_t)d, (int)k);
+            seq_t exp1 = ipow_i32((seq_t)d, (int)k);
             /* term d^(d^k) */
-            seq_t term1 = big_pow((seq_t)d, exp1);
+            seq_t term1 = ipow((seq_t)d, exp1);
             sum += term1;
 
             /* handle the paired divisor i/d if distinct */
             uint64_t d2 = i / d;
             if (d2 != d) {
-                seq_t exp2 = pow_seq((seq_t)d2, (int)k);
-                seq_t term2 = big_pow((seq_t)d2, exp2);
+                seq_t exp2 = ipow_i32((seq_t)d2, (int)k);
+                seq_t term2 = ipow((seq_t)d2, exp2);
                 sum += term2;
             }
         }

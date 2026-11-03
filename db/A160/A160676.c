@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 503, u32 n <= 503, u64 n <= 503,
  *            u128 n <= 503, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 446 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* roman_len_u64 returns the number of characters in the Roman numeral
    representation of the unsigned integer x.  */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             /* grow the array if necessary */
             if (list_len == list_cap) {
                 list_cap = (list_cap == 0) ? 128 : list_cap * 2;
-                list = (seq_t *)realloc(list, list_cap * sizeof(seq_t));
+                list = mem_resize(seq_t, list, list_cap);
             }
             list[list_len++] = next_k;
         }

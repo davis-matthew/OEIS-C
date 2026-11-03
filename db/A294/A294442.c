@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 5468, u16 n <= 9659, u32 n <= 9659, u64 n <= 9659,
- *            u128 n <= 9659, big any n
- * Helpers:   none
+ * Range:     u8 n <= 5468, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 111 terms through n = 9659 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    The sequence consists of the numerators of those fractions in row order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t num;
@@ -39,7 +41,7 @@ ensure_frac_cap(size_t needed, size_t *cap, frac_t **ptr)
     size_t new_cap = *cap ? *cap << 1 : 1;
     while (new_cap < needed)
         new_cap <<= 1;
-    frac_t *tmp = (frac_t *)realloc(*ptr, new_cap * sizeof(frac_t));
+    frac_t *tmp = mem_resize(frac_t, *ptr, new_cap);
     if (!tmp)
         exit(1);               /* allocation failed */
     *ptr = tmp;

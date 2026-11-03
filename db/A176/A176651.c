@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 1954, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 8250 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --- Configuration constants ------------------------------------------------ */
 
@@ -63,7 +65,7 @@ static void grow_seq(void)
 {
     if (seq_len >= seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 256 : seq_cap * 2;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -148,7 +150,7 @@ static void init(void)
     }
 
     /* 3. Generate semiprimes. */
-    semis = (seq_t *)malloc(SEMIS_CAP * sizeof(seq_t));
+    semis = mem_new(seq_t, SEMIS_CAP);
     uint32_t m = 4; /* first semiprime is 4 */
     while (semis_len < SEMIS_CAP && m <= MAX_PRIME) {
         if (is_semiprime(m)) semis[semis_len++] = m;
@@ -157,7 +159,7 @@ static void init(void)
 
     /* 4. Build the sequence from the stored semiprimes. */
     seq_cap = 256;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     seq_len = 0;
 
     for (idx_t k = 1; k < (idx_t)semis_len; ++k) {

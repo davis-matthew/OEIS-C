@@ -9,7 +9,8 @@
  *            * possible numbers is {100·h + m | h = 0..23, m = 0..59}
  * Range:     u8 n <= 60, u16 n <= 414, u32 n <= 414, u64 n <= 414,
  *            u128 n <= 414, big any n
- * Helpers:   none
+ * Validated: full, pass, 414 terms through n = 414 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Helper to test semiprime -------------------------------- */
 
@@ -59,7 +61,7 @@ static void init_cache(void)
     if (initialized) return;
 
     /* maximum possible number of terms is 414, so 500 is a safe cap. */
-    cache = (seq_t*)malloc(500 * sizeof(seq_t));
+    cache = mem_new(seq_t, 500);
     if (!cache) return;             /* allocation failure: leave empty */
 
     cache_len = 0;

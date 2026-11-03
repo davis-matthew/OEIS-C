@@ -12,7 +12,8 @@
  *            with centralizer size Prod_f Q^(Sum lambda'_i^2) Prod_i...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   a1152_gcd, a1152_totient, u128_to_seq
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_u64, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/a1152_gcd.h"
-#include "../utils/a1152_totient.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/totient_u64.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 typedef struct { int d; uint64_t o; } a1152_irr_t;
 
@@ -82,7 +94,7 @@ static void a1152_check(int d, uint64_t o) {
         while (t != 1) { t = t * 2 % o; k++; }
     }
     if (k != d) return;
-    cnt = a1152_totient(o) / (uint64_t)d;
+    cnt = totient_u64(o) / (uint64_t)d;
     for (i = 0; i < cnt; i++) {
         if (a1152_nirr == a1152_cap) {
             a1152_cap = a1152_cap ? 2 * a1152_cap : 64;
@@ -109,7 +121,7 @@ static void a1152_process(void) {
     int maxe = 0, s0 = 0, np = 0, i, t, s, r, row;
     for (r = 0; r < 12; r++) E[r] = 0;
     for (i = 0; i < a1152_nb; i++) {
-        M = M / a1152_gcd(M, a1152_bo[i]) * a1152_bo[i];
+        M = M / gcd_u64(M, a1152_bo[i]) * a1152_bo[i];
         if (a1152_be[i] > maxe) maxe = a1152_be[i];
     }
     while ((1 << s0) < maxe) s0++;

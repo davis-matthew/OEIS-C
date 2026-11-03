@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1783 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Maximum degree we ever need: Φ_1634 has degree 756, the product of all
    proper cyclotomic polynomials has degree 878, and the dividend x^1634-1 has
@@ -40,7 +42,7 @@ static Poly *poly_new(size_t deg)
 {
     Poly *p = (Poly *)malloc(sizeof(Poly));
     if (!p) return NULL;
-    p->c = (seq_t *)calloc(deg + 1, sizeof(seq_t));
+    p->c = mem_new(seq_t, deg + 1);
     p->deg = deg;
     return p;
 }
@@ -49,7 +51,7 @@ static Poly *poly_new(size_t deg)
 static void poly_free(Poly *p)
 {
     if (!p) return;
-    free(p->c);
+    mem_free(p->c);
     free(p);
 }
 

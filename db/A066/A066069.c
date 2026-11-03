@@ -8,6 +8,7 @@
  * Formula:   a(n) = smallest m > 0 such that n | m^m
  * Range:     u8 n <= 256, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 92 terms through n = 902 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,9 @@
 
 /* The condition n | m^m is equivalent to n | (n+m)^m because (n+m) ≡ m (mod n). */
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64 */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 /* Compute a(n) for n >= 1.  n is an idx_t but cast to uint64_t for factorization. */
 seq_t a(idx_t n)

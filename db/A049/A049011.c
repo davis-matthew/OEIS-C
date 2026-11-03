@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   alloc_mem, realloc_mem
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,18 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_mem.h"
-#include "../utils/realloc_mem.h"
+#include "../utils/mem.h"
+
+/* Helper to create memory blocks that work for both C and C++ --------- */
+static void *alloc_mem(size_t size) {
+    /* C++ requires a cast, C does not.  We use a C-style cast, which is
+       standard in both C and C++. */
+    return (void*)malloc(size);
+}
+
+static void *realloc_mem(void *ptr, size_t size) {
+    return (void*)realloc(ptr, size);
+}
 
 /* --------------------------------------------------------------------- */
 /* /!\ The build supplies ⎢seq_t⎥ and ⎢idx_t⎥ types.                       */
@@ -119,7 +130,7 @@ static void ensure_cache_cap(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc_mem(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     seq_cache = tmp;
     cache_cap = new_cap;

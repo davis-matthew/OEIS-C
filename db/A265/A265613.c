@@ -7,7 +7,8 @@
  * Formula:   a(n) = Catalan(n+1)*n*(3*n^2+5*n+2)/((n+4)*(n+3))
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 42 terms through n = 1626 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoised values */
 static idx_t max_cached = 0;         /* highest index stored in cache */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL) {
         /* initialise cache[0] = 0, cache[1] = 1 */
-        cache = (seq_t*)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)1;
         max_cached = 1;
@@ -41,7 +43,7 @@ static void ensure_cache(idx_t n)
         return;
 
     /* grow cache to hold indices up to n */
-    cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (n + 1));
     for (idx_t i = max_cached + 1; i <= n; ++i) {
         /* recurrence for i >= 2 */
         seq_t a = cache[i - 1];

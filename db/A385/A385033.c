@@ -8,12 +8,17 @@
  * Formula:   a(n) = 170 * a(n-1) mod 30323, a(1)=1
  * Range:     u8 n <= 1, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 56 terms through n = 9759 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -22,5 +27,5 @@ seq_t a(idx_t n)
     /* Compute 170^(n-1) mod 30323 */
     seq_t base = 170;
     seq_t mod  = 30323;
-    return mod_pow(base, n-1, mod);
+    return powmod(base, n-1, mod);
 }

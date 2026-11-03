@@ -9,13 +9,34 @@
  *            generating all sums of 11 positive cubes up to 321
  * Range:     u8 n <= 14, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   generate_sums_rec
+ * Validated: standard, pass, 78 terms through n = 8862 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/generate_sums_rec.h"
+#include "../utils/mem.h"
+
+static void generate_sums_rec(int rem, seq_t min_v, seq_t sum, seq_t limit, seq_t *arr, idx_t *count) {
+    if (rem == 0) {
+        arr[*count] = sum;
+        (*count)++;
+        return;
+    }
+    
+    seq_t v = min_v;
+    while (1) {
+        seq_t v_cubed = v * v * v;
+        seq_t new_sum = sum + v_cubed;
+        
+        if (new_sum > limit) break;
+        if (new_sum + (seq_t)(rem - 1) > limit) break;
+        
+        generate_sums_rec(rem - 1, v, new_sum, limit, arr, count);
+        v++;
+    }
+}
 
 static seq_t *cached_sums = NULL;
 static idx_t cached_count = 0;
@@ -33,14 +54,14 @@ static void compute_sums(void) {
     if (computed) return;
     computed = 1;
     
-    seq_t *temp = (seq_t *)malloc(10000 * sizeof(seq_t));
+    seq_t *temp = mem_new(seq_t, 10000);
     idx_t count = 0;
     
     generate_sums_rec(11, (seq_t)1, (seq_t)0, (seq_t)321, temp, &count);
     
-    qsort(temp, (size_t)count, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(temp, (size_t)count, sizeof(seq_t), cmp_seq_t);
     
-    seq_t *unique = (seq_t *)malloc((size_t)count * sizeof(seq_t));
+    seq_t *unique = mem_new(seq_t, (size_t)count);
     idx_t unique_count = 0;
     
     for (idx_t i = 0; i < count; i++) {
@@ -49,7 +70,7 @@ static void compute_sums(void) {
         }
     }
     
-    free(temp);
+    mem_free(temp);
     
     cached_sums = unique;
     cached_count = unique_count;

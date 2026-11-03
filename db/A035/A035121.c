@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 41, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Node type for the priority queue                                   */
@@ -40,7 +42,7 @@ static size_t heap_cap = 0;        /* allocated capacity */
 
 /* Grow the heap array to a new capacity.  The cast is required for C++. */
 static void heap_resize(size_t new_cap) {
-    heap = (struct Node *)realloc(heap, new_cap * sizeof(struct Node));
+    heap = mem_resize(struct Node, heap, new_cap);
     heap_cap = new_cap;
 }
 
@@ -95,7 +97,7 @@ static size_t cache_cap = 0;  /* allocated capacity */
 
 /* Grow the cache array to a given capacity.  The cast is required for C++. */
 static void cache_grow_to(size_t new_cap) {
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -118,11 +120,11 @@ static void ensure_cache(idx_t n) {
     /* initialise structures if this is the first call */
     if (cache_cap == 0) {
         cache_cap = 256;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     if (heap_cap == 0) {
         heap_cap = 256;
-        heap = (struct Node *)malloc(heap_cap * sizeof(struct Node));
+        heap = mem_new(struct Node, heap_cap);
     }
     /* insert the first y‑sequence when the heap is empty */
     static idx_t next_y = 0;

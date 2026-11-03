@@ -9,7 +9,8 @@
  *            ghost component (Witt transform of A029809), a(1) = 1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   big_cbin, grow_zero, seq_is_big
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,27 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/seq_is_big.h"
-#include "../utils/grow_zero.h"
-#include "../utils/big_cbin.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 /* ---------- arbitrary-precision path (seq_t is a big integer) ---------- */
 
@@ -43,7 +62,7 @@ static seq_t ba(idx_t n)
     seq_t w, s;
     idx_t d;
     if (bm[n] != 0) return bm[n];
-    w = big_cbin(4 * n - 1, n - 1) * big_cbin(3 * n - 1, n - 1) * big_cbin(2 * n - 1, n - 1);
+    w = binomial(4 * n - 1, n - 1) * binomial(3 * n - 1, n - 1) * binomial(2 * n - 1, n - 1);
     s = 0;
     for (d = 1; d < n; d++)
         if (n % d == 0)

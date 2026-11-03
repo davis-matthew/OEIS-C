@@ -7,22 +7,25 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = Sum_{d|n} A276150(d) where A276150(d) is the sum of the
  *            digits of d expressed in primorial base
- * Range:     u8 n <= 5039, u16 n <= 8804, u32 n <= 8804, u64 n <= 8804,
- *            u128 n <= 8804, big any n
- * Helpers:   factor_u64, is_prime_small
+ * Range:     u8 n <= 5039, u16 n <= 30030, u32 n <= 30030, u64 n <= 30030,
+ *            u128 n <= 30030, big any n
+ * Validated: standard, pass, 109 terms through n = 8804 (2026-11-01)
+ * Helpers:   factor_u64, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* Return the next prime greater than start (small primes only). */
 static uint64_t next_prime_uint64(uint64_t start)
 {
     uint64_t cand = start + 1;
-    while (!is_prime_small(cand))
+    while (!is_prime_seq(cand))
         ++cand;
     return cand;
 }

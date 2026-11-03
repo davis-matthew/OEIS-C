@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 26, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    initial values: a(1)=0, a(2)=0, a(3)=0, a(4)=1, a(5)=2, a(6)=4 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for n >= 1.  The function is memoised; it can be called
    in any order.  The result fits in seq_t; no larger intermediate value
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t newcap = (size_t)n + 1;
         if (newcap < 8) newcap = 8;          /* start small but accommodate the first few terms */
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof *cache);
+        seq_t *tmp = mem_resize(seq_t, cache, (newcap * sizeof *cache) / sizeof(seq_t));
         if (!tmp) abort();                  /* allocation failed */
         cache = tmp;
         cap   = newcap;

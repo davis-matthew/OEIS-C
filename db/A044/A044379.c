@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains47
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,36 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/contains47.h"
+#include "../utils/mem.h"
+
+/* Check whether the decimal representation of x contains the substring
+   "47".  */
+static bool contains47(idx_t x)
+{
+    seq_t val = (seq_t)x;
+
+    /* Special case when the value is zero. */
+    if (val == 0)
+        return false;
+
+    /* At most 40 decimal digits for 128‑bit numbers; 50 is a safe
+       fixed upper bound for all supported seq_t sizes. */
+    uint8_t buf[50];
+    size_t i = 0;
+
+    /* Extract digits least‑significant first. */
+    while (val > 0) {
+        buf[i++] = (uint8_t)(val % 10);
+        val /= 10;
+    }
+
+    /* Search for the reversed pattern 7,4 in the array of digits. */
+    for (size_t j = 0; j + 1 < i; ++j)
+        if (buf[j] == 7 && buf[j + 1] == 4)
+            return true;
+
+    return false;
+}
 
 /* Memoization state.  */
 static seq_t  *cache     = NULL;   /* array of found terms */
@@ -37,7 +67,7 @@ static void ensure_cache(idx_t n)
     /* Grow the cache array if necessary. */
     while (cache_cap < (size_t)n) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(*newp));
+        seq_t *newp = mem_resize(seq_t, cache, new_cap);
         cache     = newp;
         cache_cap = new_cap;
     }

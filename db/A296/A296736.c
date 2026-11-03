@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   neighbor_count
+ * Validated: standard, pass, 35 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,21 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/neighbor_count.h"
+
+/* Count king neighbors of cell j (0..4) in the current row. */
+static int neighbor_count(int prev, int curr, int next, int j)
+{
+    int cnt = 0;
+    if (j > 0) cnt += (prev >> (j - 1)) & 1;
+    cnt += (prev >> j) & 1;
+    if (j < 4) cnt += (prev >> (j + 1)) & 1;
+    if (j > 0) cnt += (curr >> (j - 1)) & 1;
+    if (j < 4) cnt += (curr >> (j + 1)) & 1;
+    if (j > 0) cnt += (next >> (j - 1)) & 1;
+    cnt += (next >> j) & 1;
+    if (j < 4) cnt += (next >> (j + 1)) & 1;
+    return cnt;
+}
 
 static uint32_t nextMask[32][32];
 static bool lastValid[32][32];

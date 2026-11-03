@@ -10,14 +10,35 @@
  *            rows of decreasing powers of 2 followed by a 0
  * Range:     u8 n <= 45, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
- * Helpers:   _row_from_idx, pow2
+ * Validated: partial, pass, 91 terms through n = 92 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/_row_from_idx.h"
+
+/* Locate the row r containing the index n (n >= 2).
+ * Uses binary search on the cumulative counts:
+ *   cum(r) = r(r+3)/2   (number of terms up to row r inclusive).
+ */
+static idx_t _row_from_idx(idx_t n) {
+    idx_t m = n - 2;          /* zero‑based offset from first term (n=2) */
+    idx_t lo = 1, hi = 1;
+    while ((unsigned __int128)hi * (hi + 3) / 2 <= m)
+        hi <<= 1;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo) / 2;
+        unsigned __int128 val = (unsigned __int128)mid * (mid + 3) / 2;
+        if (val > m)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    return lo; /* smallest r with cumulative count > m */
+}
 
 seq_t a(idx_t n) {
     if (n < 2)

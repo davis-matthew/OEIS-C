@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 14, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,27 @@
    The sequence is generated on demand; previously computed
    A082607 values are cached. */
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +52,7 @@ seq_t a(idx_t n)
        next power of two for efficiency. */
     if (Acap == 0) {
         Acap = 8;
-        A = (seq_t *)malloc(Acap * sizeof(seq_t));
+        A = mem_new(seq_t, Acap);
     }
 
     /* Initialise the first element of A082607 if needed */
@@ -67,7 +88,7 @@ seq_t a(idx_t n)
                 /* Found next term */
                 if (Asize == Acap) {
                     Acap *= 2;
-                    A = (seq_t *)realloc(A, Acap * sizeof(seq_t));
+                    A = mem_resize(seq_t, A, Acap);
                 }
                 A[Asize++] = m;
                 break;

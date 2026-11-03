@@ -9,13 +9,15 @@
  *            Σ_{i=k..m} i! * Stirling2(m,i)
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
     uint64_t k = n - prev;          /* 1‑based column index */
 
     /* Allocate workspaces: Stirling numbers and factorials */
-    seq_t *Sprev = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *Scurr = (seq_t *)malloc((r + 2) * sizeof(seq_t));
-    seq_t *fact  = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *Sprev = mem_new(seq_t, (r + 1));
+    seq_t *Scurr = mem_new(seq_t, (r + 2));
+    seq_t *fact  = mem_new(seq_t, (r + 1));
     if (!Sprev || !Scurr || !fact) {
-        free(Sprev); free(Scurr); free(fact);
+        mem_free(Sprev); mem_free(Scurr); mem_free(fact);
         return (seq_t)0;
     }
 
@@ -68,9 +70,9 @@ seq_t a(idx_t n)
     for (uint64_t i = k; i <= r; ++i)
         T += fact[i] * Sprev[i];
 
-    free(Sprev);
-    free(Scurr);
-    free(fact);
+    mem_free(Sprev);
+    mem_free(Scurr);
+    mem_free(fact);
 
     return T;
 }

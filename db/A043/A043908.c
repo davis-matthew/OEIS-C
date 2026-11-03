@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has34opposite
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,36 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has34opposite.h"
+#include "../utils/mem.h"
+
+/* Return true iff k (in base‑10) contains the adjacent digits 3 and 4
+ * (in either order) in its base‑6 representation. */
+static bool has34opposite(seq_t k)
+{
+    unsigned char digits[80];  /* enough for 128‑bit numbers */
+    size_t cnt = 0;
+
+    if (k == 0)
+    {
+        digits[cnt++] = 0;
+    }
+    else
+    {
+        while (k > 0)
+        {
+            digits[cnt++] = (unsigned char)(k % 6);
+            k /= 6;
+        }
+    }
+
+    /* Look for either "34" or "43" as adjacent digits. */
+    for (size_t i = cnt; i > 1; --i)
+    {
+        if (digits[i - 1] == 3 && digits[i - 2] == 4) return true;  /* 34 */
+        if (digits[i - 1] == 4 && digits[i - 2] == 3) return true;  /* 43 */
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -45,7 +75,7 @@ seq_t a(idx_t n)
                 if (cache_len == cache_cap)
                 {
                     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) return (seq_t)0;   /* allocation failure */
                     cache = tmp;
                     cache_cap = new_cap;

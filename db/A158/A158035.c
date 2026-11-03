@@ -10,7 +10,8 @@
  *            integer
  * Range:     u8 n <= 4, u16 n <= 241, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, modpow128
+ * Validated: standard, pass, 62 terms through n = 856 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,23 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime.h"          /* is_prime(idx_t) */
-#include "../utils/modpow128.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Iterator of modular exponentiation with 128‑bit arithmetic.
+   It can handle moduli larger than the target seq_t. */
+static inline __int128 modpow128(__int128 base, uint64_t exp, __int128 mod)
+{
+    __int128 result = 1;
+    base %= mod;
+    while (exp) {
+        if (exp & 1)
+            result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* Return the n‑th prime that satisfies the property.
    Caching is used so that subsequent calls are O(1). */
@@ -39,7 +55,7 @@ seq_t a(idx_t n)
     /* Grow array if needed */
     if (good == NULL) {
         good_cap = 8;
-        good = (seq_t *)malloc(good_cap * sizeof(seq_t));
+        good = mem_new(seq_t, good_cap);
         if (!good) exit(EXIT_FAILURE);
     }
 
@@ -67,7 +83,7 @@ seq_t a(idx_t n)
         if (numerator == 0) {
             if (good_cnt == good_cap) {                 /* grow array    */
                 good_cap <<= 1;
-                good = (seq_t *)realloc(good, good_cap * sizeof(seq_t));
+                good = mem_resize(seq_t, good, good_cap);
                 if (!good) exit(EXIT_FAILURE);
             }
             good[good_cnt++] = (seq_t)p;

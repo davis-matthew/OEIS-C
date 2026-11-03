@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* cache for a(n) values */
 static seq_t *a_cache = NULL;
@@ -42,14 +44,14 @@ static void ensure_pow3(idx_t n)
         return;
 
     idx_t new_cap = n + 1;            /* we need indices 0..n inclusive */
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (new_arr == NULL)
         return;                       /* out of memory – caller will handle it */
 
     /* copy existing data if any */
     if (pow3 != NULL) {
-        memcpy(new_arr, pow3, pow3_capacity * sizeof(seq_t));
-        free(pow3);
+        mem_copy(new_arr, pow3, pow3_capacity * sizeof(seq_t));
+        mem_free(pow3);
     }
 
     /* if this is the first allocation set 3^0 = 1 */
@@ -73,14 +75,14 @@ static void ensure_a_cache(idx_t n)
         return;
 
     idx_t new_cap = n + 1;            /* indices 0..n inclusive */
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (new_arr == NULL)
         return;                       /* out of memory – caller will handle it */
 
     /* copy existing data if any */
     if (a_cache != NULL) {
-        memcpy(new_arr, a_cache, a_cache_capacity * sizeof(seq_t));
-        free(a_cache);
+        mem_copy(new_arr, a_cache, a_cache_capacity * sizeof(seq_t));
+        mem_free(a_cache);
     }
 
     /* initialise base values */

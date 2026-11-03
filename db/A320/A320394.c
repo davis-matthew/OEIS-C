@@ -7,17 +7,19 @@
  * Formula:   a(n) = popcount(n^5)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
     seq_t x = (seq_t)n;
-    x = pow_seq(x, 5);          /* compute n^5 */
+    x = ipow_i32(x, 5);          /* compute n^5 */
     seq_t count = 0;
     while (x) {
         count += x & 1;

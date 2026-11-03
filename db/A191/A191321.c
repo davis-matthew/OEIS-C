@@ -14,12 +14,14 @@
  *            ascent (0 = even or not in an ascent, 1 = odd...
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 52, u64 n <= 100,
  *            u128 n <= 194, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     size_t array_len = (size_t)(max_h * 2);   /* 2 parity states per height */
 
     /* allocate DP arrays */
-    seq_t *cur = (seq_t *)calloc(array_len, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(array_len, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, array_len);
+    seq_t *nxt = mem_new(seq_t, array_len);
     if (!cur || !nxt) {
         /* allocation failure – return 0 as a safe default */
         return (seq_t)0;
@@ -78,8 +80,8 @@ seq_t a(idx_t n)
     seq_t result = cur[0];  /* (0*2 + 0) */
 
     /* free temporary arrays */
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
 
     return result;
 }

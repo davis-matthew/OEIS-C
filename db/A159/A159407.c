@@ -8,16 +8,18 @@
  *            * (n*n-c1 choose c4) * (n*n-c1-c4 choose c9) * (n*n-c1-c4-c9
  *            choose c16) where c1*1 + c4*4 + c9*9 + c16*16 = 21. The
  *            remaining cells contain 0²
- * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 23,
+ * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 24,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 29 terms through n = 94 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -51,16 +53,16 @@ seq_t a(idx_t n)
         idx_t rem = cells;
         seq_t prod = 1;
 
-        prod = prod * binom(rem, solutions[i].c1);
+        prod = prod * binomial(rem, solutions[i].c1);
         rem -= solutions[i].c1;
 
-        prod = prod * binom(rem, solutions[i].c4);
+        prod = prod * binomial(rem, solutions[i].c4);
         rem -= solutions[i].c4;
 
-        prod = prod * binom(rem, solutions[i].c9);
+        prod = prod * binomial(rem, solutions[i].c9);
         rem -= solutions[i].c9;
 
-        prod = prod * binom(rem, solutions[i].c16);
+        prod = prod * binomial(rem, solutions[i].c16);
 
         total += prod;
     }

@@ -8,6 +8,7 @@
  *            c(1)=0, c(2)=1, and c(n)=c(n‑2)+3·c(n‑3). Then a(n)=n!·c(n)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

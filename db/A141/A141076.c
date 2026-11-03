@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime p such that p < 2310 and 2310 - p is also prime
  * Range:     u8 n <= 29, u16 n <= 228, u32 n <= 228, u64 n <= 228,
  *            u128 n <= 228, big any n
- * Helpers:   is_prime
+ * Validated: full, pass, 228 terms through n = 228 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_table = NULL;
 static size_t prime_count = 0;
@@ -33,7 +35,7 @@ static void build_table(void) {
 
     /* allocate table */
     if (prime_count == 0) return;           /* safety */
-    prime_table = (seq_t *)malloc(prime_count * sizeof(seq_t));
+    prime_table = mem_new(seq_t, prime_count);
     if (!prime_table) return;               /* allocation failed */
 
     /* fill the table */

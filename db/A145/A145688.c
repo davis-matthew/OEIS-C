@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/_floor_isqrt_u64.h"      /* _floor_isqrt_u64(idx_t) */
-#include "../utils/build_primes_upto.h"     /* build_primes_upto(idx_t, uint64_t **, size_t *) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;  /* cached distinct primes */
 static size_t seq_cap  = 0;      /* allocated size of seq_cache */
@@ -134,8 +136,7 @@ static void add_factor_primes(uint64_t n)
                 /* Grow the cache if necessary. */
                 if (seq_len == seq_cap) {
                     size_t new_cap = seq_cap ? seq_cap << 1 : 8;
-                    seq_cache = (seq_t*)realloc(seq_cache,
-                                                new_cap * sizeof(seq_t));
+                    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
                     seq_cap   = new_cap;
                 }
                 seq_cache[seq_len++] = (seq_t)p;
@@ -149,8 +150,7 @@ static void add_factor_primes(uint64_t n)
             seen_insert(p);
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap << 1 : 8;
-                seq_cache = (seq_t*)realloc(seq_cache,
-                                            new_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, new_cap);
                 seq_cap   = new_cap;
             }
             seq_cache[seq_len++] = (seq_t)p;
@@ -168,7 +168,7 @@ seq_t a(idx_t n)
         uint64_t N  = 2 * kk * kk + 1;
 
         /* Ensure we have enough primes to factorise N. */
-        uint64_t sqrtN = _floor_isqrt_u64(N) + 1;
+        uint64_t sqrtN = isqrt(N) + 1;
         ensure_prime_limit(sqrtN);
 
         add_factor_primes(N);

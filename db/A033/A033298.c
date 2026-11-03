@@ -7,14 +7,23 @@
  * Formula:   a(1) = 1, a(n+1) = a(n) + sum of digits of a(n)^2 (OEIS A033298)
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum, seq_mul
+ * Validated: standard, pass, 66 terms through n = 854 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Static cache of already computed terms.  cache[i] = a(i+1). */
 static seq_t *cache      = NULL;  /* dynamically allocated array */
@@ -27,7 +36,7 @@ static void ensure_capacity(idx_t n)
     if (cache == NULL) {
         /* initial allocation: 1 element is enough for a(1) */
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) {
             /* allocation failure – abort (indeterminate behaviour elsewhere) */
             exit(EXIT_FAILURE);
@@ -41,7 +50,7 @@ static void ensure_capacity(idx_t n)
         if (new_cap < cache_cap) {           /* overflow guard – shouldn't happen */
             new_cap = (size_t)n;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) {
             /* reallocation failure – abort */
             exit(EXIT_FAILURE);

@@ -9,7 +9,8 @@
  *            of n into distinct odd parts (d(n)), for n >= 2; a(1) = 1
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
     - d(n) counts partitions of n into distinct odd parts.   */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *p_arr = NULL;   /* partition numbers up to current_max_n */
 static seq_t *d_arr = NULL;   /* distinct odd‐part partitions up to current_max_n */
@@ -28,13 +30,13 @@ static idx_t  current_max_n = 0;  /* highest n for which arrays are valid */
 static void recompute_arrays(idx_t new_max_n)
 {
     /* free previous arrays */
-    free(p_arr);
-    free(d_arr);
+    mem_free(p_arr);
+    mem_free(d_arr);
 
     /* allocate new arrays of size new_max_n + 1 */
     size_t sz = (size_t)(new_max_n + 1);
-    p_arr = (seq_t *)calloc(sz, sizeof(seq_t));
-    d_arr = (seq_t *)calloc(sz, sizeof(seq_t));
+    p_arr = mem_new(seq_t, sz);
+    d_arr = mem_new(seq_t, sz);
 
     /* ---------------------------------- */
     /* 1. Compute partition numbers p[n]  */

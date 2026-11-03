@@ -11,8 +11,9 @@
  *            to m * (i.e. the set bits of m, listed in ascending order).
  *            Thus, if * r is the unique integer such that * * Σ_{i=1}^{r-1}
  *            popcount(i) < n ≤ Σ_{i=1}^{r} popcount(i) * * and offse...
- * Range:     u8 n <= 1024, u16 n <= 9971, u32 n <= 9971, u64 n <= 9971,
- *            u128 n <= 9971, big any n
+ * Range:     u8 n <= 1024, u16 n <= 10870, u32 n <= 10870, u64 n <= 10870,
+ *            u128 n <= 10870, big any n
+ * Validated: standard, pass, 97 terms through n = 9971 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

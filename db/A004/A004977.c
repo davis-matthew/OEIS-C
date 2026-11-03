@@ -11,16 +11,45 @@
  *            = M * cnt_{n-1}, cnt_1 = [atom "1"], and a(n...
  * Range:     u8 n <= 17, u16 n <= 38, u32 n <= 79, u64 n <= 163,
  *            u128 n <= 330, big any n
- * Helpers:   alloc_zero, grow_zero, las
+ * Validated: standard, pass, 61 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/grow_zero.h"
-#include "../utils/las.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static int las(const char *s, int len, char *out, int drop) {
+    int o = 0, j = 0;
+    while (j < len) {
+        int c = 1;
+        while (j + c < len && s[j + c] == s[j]) c++;
+        if (drop && j + c == len) break;
+        out[o++] = (char)('0' + c);
+        out[o++] = s[j];
+        j += c;
+    }
+    return o;
+}
 
 #define MAXA 2048
 #define SCAP 256

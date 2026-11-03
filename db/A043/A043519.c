@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th integer having exactly three decimal 7's
  * Range:     u8 none, u16 n <= 221, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_three_sevens
+ * Validated: standard, pass, 53 terms through n = 9129 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
    computation stays linear in the number of terms needed. */
 #include <stdbool.h>
 #include <stddef.h>   /* for size_t */
-#include "../utils/has_three_sevens.h"
+
+static inline bool has_three_sevens(seq_t x) {
+    unsigned cnt = 0;
+    while (x > 0) {
+        if (x % 10 == 7)
+            ++cnt;
+        x /= 10;
+    }
+    return cnt == 3;
+}
 
 /* A static cache large enough for the typical test range (≥10000 terms). */
 #define CACHE_CAP 20000

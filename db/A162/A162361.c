@@ -9,7 +9,8 @@
  *            prime factors (Ω(m)=3)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 119 terms through n = 9976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Global state                                                    */
@@ -85,7 +87,7 @@ static void ensure_cache(size_t N)
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < N)
             new_cap *= 2;
-        seq_t *new_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, a_cache, new_cap);
         if (!new_cache)
             return;                 /* memory failure not expected           */
         a_cache = new_cache;

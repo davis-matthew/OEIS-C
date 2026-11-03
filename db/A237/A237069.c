@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 8, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   sort4
+ * Validated: standard, pass, 33 terms through n = 203 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
     share the same upper median M).  The computation is performed by
     dynamic programming over the 16 possible row states (x,y), 0≤x,y≤3. */
 #include <stdlib.h>
-#include "../utils/sort4.h"
+
+/* Helper: sort an array of four small integers (0..3). */
+static void sort4(int *v)
+{
+    int i, j, tmp;
+    for (i = 0; i < 3; ++i)
+        for (j = i + 1; j < 4; ++j)
+            if (v[i] > v[j]) { tmp = v[i]; v[i] = v[j]; v[j] = tmp; }
+}
 
 /* adjacency[M][s][t] == 1 iff rows s=(x,y) and t=(u,v) satisfy that
    the upper median of the 2×2 block formed by them equals M.  States

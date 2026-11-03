@@ -10,6 +10,7 @@
  *            the 600-cell graph's diameter)
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
+ * Validated: full, pass, 6 terms through n = 5 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

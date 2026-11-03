@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 21, i16 n <= 45, i32 n <= 105, i64 n <= 233,
  *            i128 n <= 630, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 4639 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,11 +41,11 @@ seq_t a(idx_t n)
     /* initialise on first call --------------------------------------- */
     if (cache_len == 0) {
         /* row 0 : s(0,0)=1   =>  T(0,0)=1+1=2 */
-        cache      = (seq_t *)malloc(sizeof(seq_t));
+        cache      = mem_new(seq_t, 1);
         cache[0]   = (seq_t)2;
         cache_len  = 1;
         /* prevS holds s(0,0) */
-        prevS      = (seq_t *)malloc(sizeof(seq_t));
+        prevS      = mem_new(seq_t, 1);
         prevS[0]   = (seq_t)1;
         prev_len   = 1;
         /* currS will be allocated when row 1 is generated */
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
         /* ensure currS is large enough                                */
         if (curr_len < new_len) {
-            seq_t *tmp = (seq_t *)realloc(currS, new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, currS, new_len);
             currS = tmp;
             curr_len = new_len;
         }
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
         /* ensure cache is large enough for the whole row              */
         size_t need_len = offset + new_len;
         if (cache_len < need_len) {
-            seq_t *tmp = (seq_t *)realloc(cache, need_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, need_len);
             cache = tmp;
             cache_len = need_len;
         }

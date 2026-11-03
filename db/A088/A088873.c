@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   dfs_tau
+ * Validated: standard, pass, 120 terms through n = 9748 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/dfs_tau.h"
+
+/* ---------- recursive enumeration of divisor exponent vectors ---------- */
+static void dfs_tau(const uint64_t *e, size_t k, size_t idx,
+                    uint64_t tau_so_far, bool *seen, int *distinct)
+{
+    if (idx == k) {
+        if (!seen[(size_t)tau_so_far]) {
+            seen[(size_t)tau_so_far] = true;
+            ++(*distinct);
+        }
+        return;
+    }
+    for (uint64_t exp = 0; exp <= e[idx]; ++exp) {
+        dfs_tau(e, k, idx + 1, tau_so_far * (exp + 1), seen, distinct);
+    }
+}
 
 /* ---------- local utility: sieve of primes up to 1e6 ---------- */
 static int sieve_done = 0;

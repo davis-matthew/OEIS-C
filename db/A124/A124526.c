@@ -11,7 +11,8 @@
  *            A049020(⌊r/2⌋,k) * A049020(⌈r/2⌉,k)
  * Range:     u8 n <= 16, u16 n <= 36, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  Handle row start offsets (linear index of first element of
@@ -92,7 +94,7 @@ static void ensure_Bsize(idx_t n) {
     while (Bcache_len <= n) {
         idx_t m = (idx_t)Bcache_len;          /* new row index to compute */
         size_t cur_len = (size_t)(m + 1);
-        seq_t *cur = (seq_t *)malloc(cur_len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, cur_len);
 
         if (m == 0) {                          /* base case */
             cur[0] = (seq_t)1;

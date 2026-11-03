@@ -8,7 +8,8 @@
  *            0. The list is sorted in increasing order, offset 1
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9890 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------------------------- static state ------------------------------ */
 static bool _init = false;
@@ -39,7 +41,7 @@ static void grow_primes(void)
 {
     if (primes_cnt + 1 > primes_cap) {
         size_t newcap = primes_cap == 0 ? 1024 : primes_cap << 1;
-        seq_t *newarr = (seq_t *)realloc(primes, newcap * sizeof(seq_t));
+        seq_t *newarr = mem_resize(seq_t, primes, newcap);
         if (!newarr) abort();          /* out of memory */
         primes = newarr;
         primes_cap = newcap;
@@ -84,7 +86,7 @@ static void init(void)
     }
 
     /* sort the prime list -------------------------------------------- */
-    qsort(primes, primes_cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(primes, primes_cnt, sizeof(seq_t), cmp_seq);
 
     _init = true;
 }

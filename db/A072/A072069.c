@@ -9,14 +9,15 @@
  *            32*z^2 = 2*n-1 (n ≥ 1)
  * Range:     u8 n <= 2780, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   integer_sqrt
+ * Validated: standard, pass, 80 terms through n = 8808 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/integer_sqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
             idx_t rem = remz - (idx_t)2 * x * x;    /* remaining after 2*x^2 */
 
             /* Check whether rem is a perfect square (y^2). */
-            uint64_t y = integer_sqrt((uint64_t)rem);
+            uint64_t y = isqrt_u64((uint64_t)rem);
             if (y * y == (uint64_t)rem) {
                 uint64_t mult_y = (y == 0) ? 1 : 2;  /* y = ±y, y = 0 counted once */
                 total += mult_z * mult_x * mult_y;

@@ -11,7 +11,8 @@
  *            which is member of a twin prime pair, and q < p – q
  * Range:     u8 n <= 15, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   make_is_prime
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/make_is_prime.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static bool *make_is_prime(idx_t limit)
+{
+    size_t sz = (size_t)limit + 1;
+    bool *is_prime = (bool *)calloc(sz, sizeof(bool));
+    if (!is_prime) abort();
+    for (size_t i = 0; i < sz; ++i) is_prime[i] = true;
+    if (sz > 0) is_prime[0] = false;
+    if (sz > 1) is_prime[1] = false;
+    for (uint64_t p = 2; p * p <= limit; ++p) {
+        if (is_prime[p]) {
+            for (uint64_t m = p * p; m <= limit; m += p)
+                is_prime[m] = false;
+        }
+    }
+    return is_prime;
+}
 
 /* ------------------------------------------------------------------ */
 /* Static data for the sequence                                       */
@@ -41,7 +60,7 @@ static void ensure_terms_cap(size_t needed)
     if (needed <= terms_cap) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) abort();
     terms = tmp;
     terms_cap = new_cap;
@@ -56,7 +75,7 @@ static void ensure_terms_cap(size_t needed)
 static void compute_sequence(idx_t limit)
 {
     /* free previous terms */
-    free(terms);
+    mem_free(terms);
     terms      = NULL;
     terms_len  = 0;
     terms_cap  = 0;

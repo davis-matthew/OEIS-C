@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 23, i16 n <= 47, i32 n <= 95, i64 n <= 175,
  *            i128 n <= 351, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 80 terms through n = 6920 (2026-11-03)
+ * Helpers:   factor_u64, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Static cache for computed values */
 static seq_t *cache = NULL;           /* cached values a(n) */
@@ -34,7 +36,7 @@ static void ensure_cap(idx_t n)
     if (n <= cache_cap) return;
     size_t new_cap = n > 256 ? n * 2 : 256;
 
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    cache = mem_resize(seq_t, cache, new_cap);
     computed = (bool *)realloc(computed, sizeof(bool) * new_cap);
     if (!cache || !computed) exit(1);   /* allocation failure */
 
@@ -55,7 +57,7 @@ static void rec_div(idx_t target_n,
         uint64_t d = cur;
         if (d == target_n) return;                     /* skip the divisor n itself */
         seq_t val = compute_a((idx_t)d);
-        seq_t power = big_pow(val, (seq_t)(target_n / d));
+        seq_t power = ipow(val, (seq_t)(target_n / d));
         *sum += power;
         return;
     }

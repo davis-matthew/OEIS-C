@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 12, i16 n <= 18, i32 n <= 29, i64 n <= 51, i128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Multiplicative binomial coefficient using seq_t arithmetic. */
 static seq_t binomial_multiplicative(idx_t n, idx_t k)
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_allocated > (size_t)n) return;
     size_t new_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                  /* unrecoverable */
     cache = tmp;
     cache_allocated = new_cap;

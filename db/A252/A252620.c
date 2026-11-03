@@ -13,7 +13,8 @@
  *            enumeration of all * admissible 7×3 subblock...
  * Range:     u8 none, u16 n <= 3, u32 n <= 11, u64 n <= 26, u128 n <= 58,
  *            big any n
- * Helpers:   encode_col, inS
+ * Validated: standard, pass, 35 terms through n = 204 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/encode_col.h"
-#include "../utils/inS.h"
+
+/* ----------  Helpers ------------------------------------------------ */
+static inline uint16_t encode_col(const uint8_t *c) {
+    uint16_t code = 0;
+    for(int i = 0; i < 7; ++i) code = (code << 2) | (c[i] & 3);
+    return code;
+}
+
+static inline int inS(int x) {
+    return (x==0)||(x==3)||(x==5)||(x==6)||(x==8);
+}
 
 static const int S[5] = {0,3,5,6,8};
 

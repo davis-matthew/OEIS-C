@@ -9,14 +9,53 @@
  *            lengths that strictly decrease from left to right
  * Range:     u8 n <= 30, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   strict_decreasing_base4
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/strict_decreasing_base4.h"
+#include "../utils/mem.h"
+
+/* Helper: check whether a given integer has strictly decreasing run
+   lengths in its base‑4 expansion. */
+static bool strict_decreasing_base4(idx_t x) {
+    if (x == 0) return true;                /* single run for 0 */
+
+    unsigned char digits[64];
+    int pos = 0;
+    idx_t t = x;
+
+    /* convert to base‑4 digits (least significant first) */
+    while (t > 0) {
+        digits[pos++] = t & 3;              /* t % 4 */
+        t >>= 2;                            /* t / 4 */
+    }
+
+    /* scan runs from most significant to least significant digit */
+    unsigned int prev_digit = digits[pos - 1];
+    int prev_run = 0;     /* length of previous (more significant) run   */
+    int curr_run = 1;     /* length of current run                       */
+
+    for (int i = pos - 2; i >= 0; --i) {
+        unsigned int d = digits[i];
+        if (d == prev_digit) {
+            ++curr_run;
+        } else {
+            if (prev_run != 0 && curr_run >= prev_run)
+                return false;
+            prev_run = curr_run;
+            curr_run = 1;
+            prev_digit = d;
+        }
+    }
+    if (prev_run != 0 && curr_run >= prev_run)
+        return false;
+
+    return true;
+}
 
 /* Static cache for the sequence values.  The cache is expanded only as
    needed, so repeated calls to `a(n)` work efficiently. */
@@ -32,7 +71,7 @@ static void extend_cache(idx_t target_index) {
         if (strict_decreasing_base4(next_candidate)) {
             if (cache_size >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();          /* out‑of‑memory */
                 cache = tmp;
                 cache_cap = new_cap;

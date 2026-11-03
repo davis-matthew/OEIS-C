@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 20, i16 n <= 57, i32 n <= 57, i64 n <= 57, i128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -57,6 +58,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build.
  *   seq_t: signed integer of arbitrary width (or arbitrary‑precision class)
@@ -87,12 +89,12 @@ seq_t a(idx_t n)
     /* Allocate arrays for the two most recent rows.  Length r is enough
      * for all rows up to r. */
     size_t len = (size_t)r;
-    seq_t *prev2 = (seq_t *)calloc(len, sizeof(seq_t));   /* row n-2 */
-    seq_t *prev1 = (seq_t *)calloc(len, sizeof(seq_t));   /* row n-1 */
+    seq_t *prev2 = mem_new(seq_t, len);   /* row n-2 */
+    seq_t *prev1 = mem_new(seq_t, len);   /* row n-1 */
 
     if (!prev2 || !prev1) {
         /* Allocation failed – clean up and return 0. */
-        free(prev2); free(prev1);
+        mem_free(prev2); mem_free(prev1);
         return (seq_t)0;
     }
 
@@ -104,9 +106,9 @@ seq_t a(idx_t n)
     /* Compute rows 3 … r iteratively. */
     for (idx_t row = 3U; row <= r; ++row) {
         /* Current row will have indices 0 … row-1. */
-        seq_t *curr = (seq_t *)calloc(len, sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, len);
         if (!curr) {
-            free(prev2); free(prev1);
+            mem_free(prev2); mem_free(prev1);
             return (seq_t)0;
         }
 
@@ -132,7 +134,7 @@ seq_t a(idx_t n)
         }
 
         /* Re‑cycle the arrays. */
-        free(prev2);
+        mem_free(prev2);
         prev2 = prev1;
         prev1 = curr;
     }
@@ -141,8 +143,8 @@ seq_t a(idx_t n)
     seq_t result = prev1[k];
 
     /* Clean up. */
-    free(prev2);
-    free(prev1);
+    mem_free(prev2);
+    mem_free(prev1);
 
     return result;
 }

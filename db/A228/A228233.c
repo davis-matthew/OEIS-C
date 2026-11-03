@@ -8,6 +8,7 @@
  * Formula:   a(n) = 1 + 2*π₁(n²) + 2*π₃(n)
  * Range:     u8 n <= 40, u16 n <= 906, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 73 terms through n = 961 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /*        π₃(m) = #primes ≤ m with p ≡ 3 (mod 4)    */
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 /* Global data for cached primes */

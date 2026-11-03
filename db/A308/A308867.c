@@ -8,12 +8,14 @@
  *            partitions of n into exactly 6 parts
  * Range:     u8 n <= 13, u16 n <= 38, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     size_t rows   = (size_t)n + 1;
     size_t cols   = 7;
     size_t total  = rows * cols;
-    seq_t *p = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, total);
     if (!p) return 0;   /* allocation failure → safe fallback */
 
     /* Initialize all entries to 0. */
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
     seq_t count  = p[(size_t)n * cols + 6];   /* number of 6‑part partitions of n */
     seq_t result = (seq_t)n * count;          /* sum of all parts in those partitions */
 
-    free(p);
+    mem_free(p);
     return result;
 }

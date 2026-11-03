@@ -9,12 +9,14 @@
  *            a(2)=3
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 43, u64 n <= 89, u128 n <= 181,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache = NULL;      /* array of computed values */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) abort();       /* allocation failed */
 
         /* Copy existing values */
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
             new_cache[i] = cache[i];
 
         /* Free old storage and update pointers/capacity */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

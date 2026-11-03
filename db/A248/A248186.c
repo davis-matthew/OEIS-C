@@ -9,13 +9,22 @@
  *            1/18 - Σ_{h=1..k} 1/(h(h+1)(h+2)(h+3)) < 1/n^3)
  * Range:     u8 n <= 5, u16 n <= 37, u32 n <= 1452, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   cond
+ * Validated: standard, pass, 84 terms through n = 1756 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/cond.h"
+
+/* check if k satisfies the inequality */
+static inline bool cond(idx_t k, seq_t rhs)
+{
+    seq_t kk = (seq_t)k;
+    seq_t prod = (kk + 1) * (kk + 2) * (kk + 3);
+    prod *= 3;
+    return prod > rhs;
+}
 
 seq_t a(idx_t n)
 {

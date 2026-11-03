@@ -7,6 +7,7 @@
  * Formula:   a(n) = 3^(n mod 3) * 10^floor(n/3)
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 57, u128 n <= 115,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 814 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

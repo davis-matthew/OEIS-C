@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define ROWS 64                     /* 6‑bit rows   */
 #define STATE (ROWS * ROWS)         /* (prev,row) pairs */
@@ -79,19 +81,19 @@ seq_t a(idx_t n)
     static seq_t *dpn = NULL;
     if (!dp)
     {
-        dp  = (seq_t*)malloc(STATE * sizeof(seq_t));
-        dpn = (seq_t*)malloc(STATE * sizeof(seq_t));
+        dp  = mem_new(seq_t, STATE);
+        dpn = mem_new(seq_t, STATE);
     }
 
     /* Initialise for the first row: prev=0, curr=any. */
-    memset(dp, 0, STATE * sizeof(seq_t));
+    mem_set(dp, 0, STATE * sizeof(seq_t));
     for (int q = 0; q < ROWS; ++q)
         dp[q] = (seq_t)1;      /* state (0,q) */
 
     /* Process subsequent rows. */
     for (idx_t step = 1; step < n; ++step)
     {
-        memset(dpn, 0, STATE * sizeof(seq_t));
+        mem_set(dpn, 0, STATE * sizeof(seq_t));
         for (int p = 0; p < ROWS; ++p)
         {
             for (int q = 0; q < ROWS; ++q)

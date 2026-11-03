@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   has_prime1mod4
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_prime1mod4.h"
+
+/* Test whether x (x≥1) has any prime factor ≡1 (mod 4).
+   The function assumes x fits in uint64_t, which holds for all
+   values tested by the sequence routine. */
+static bool has_prime1mod4(uint64_t x)
+{
+    for (uint64_t p = 3; p * p <= x; p += 2) {
+        if (x % p == 0) {
+            if (p % 4 == 1) return true;
+            do { x /= p; } while (x % p == 0);
+        }
+    }
+    if (x > 1 && x % 4 == 1) return true;
+    return false;
+}
 
 seq_t a(idx_t n)
 {

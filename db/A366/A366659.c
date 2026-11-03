@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n} binom(k+2,3) * (floor(n/k) mod 2)
  * Range:     u8 n <= 7, u16 n <= 34, u32 n <= 572, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 59 terms through n = 8730 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

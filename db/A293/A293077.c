@@ -8,6 +8,7 @@
  * Formula:   a(n) = 2*a(n-1) - a(n-2) + 2*floor(a(n-2)/4) (a(1)=2, a(2)=4)
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

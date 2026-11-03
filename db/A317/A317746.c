@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,12 @@
    in ascending order of k.  The function computes the first
    k that appears at the required position. */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/powmod.h"
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -39,8 +45,8 @@ seq_t a(idx_t n)
             if (m % d == 0) {
                 idx_t k = d;
                 seq_t modv = (seq_t)(k + m);
-                seq_t sum = (mod_pow((seq_t)k, m, modv) +
-                             mod_pow((seq_t)m, k, modv)) % modv;
+                seq_t sum = (powmod((seq_t)k, m, modv) +
+                             powmod((seq_t)m, k, modv)) % modv;
                 if (sum == 0) {
                     ++count;
                     if (count == target) return (seq_t)k;
@@ -54,8 +60,8 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < bigcnt; ++i) {
             idx_t k = big[bigcnt - 1 - i];  /* reverse order */
             seq_t modv = (seq_t)(k + m);
-            seq_t sum = (mod_pow((seq_t)k, m, modv) +
-                         mod_pow((seq_t)m, k, modv)) % modv;
+            seq_t sum = (powmod((seq_t)k, m, modv) +
+                         powmod((seq_t)m, k, modv)) % modv;
             if (sum == 0) {
                 ++count;
                 if (count == target) return (seq_t)k;

@@ -7,9 +7,10 @@
  * Keywords:  nonn, easy, look
  * Formula:   a(n) = number of partitions of n into distinct Fibonacci numbers
  *            > 2
- * Range:     u8 n <= 9274, u16 n <= 9274, u32 n <= 9274, u64 n <= 9274,
- *            u128 n <= 9274, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10946, u16 n <= 10946, u32 n <= 10946, u64 n <= 10946,
+ *            u128 n <= 10946, big any n
+ * Validated: standard, pass, 103 terms through n = 9274 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,20 +19,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* DP array for subset sum counts */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return (seq_t)0;
-    memset(dp, 0, (size_t)(n + 1) * sizeof(seq_t));
+    mem_set(dp, 0, (size_t)(n + 1) * sizeof(seq_t));
     dp[0] = 1;                     /* empty partition */
 
     /* Dynamic array to hold Fibonacci numbers > 2 up to n */
     size_t fib_cap = 8;
     idx_t *fibs = (idx_t *)malloc(fib_cap * sizeof(idx_t));
     if (!fibs) {
-        free(dp);
+        mem_free(dp);
         return (seq_t)0;
     }
     size_t fib_cnt = 0;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
                 idx_t *tmp = (idx_t *)realloc(fibs, fib_cap * sizeof(idx_t));
                 if (!tmp) {
                     free(fibs);
-                    free(dp);
+                    mem_free(dp);
                     return (seq_t)0;
                 }
                 fibs = tmp;
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     free(fibs);
     return result;
 }

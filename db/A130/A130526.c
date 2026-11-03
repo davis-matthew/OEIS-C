@@ -9,13 +9,26 @@
  *            floor(k*φ) (upper Wythoff)
  * Range:     i8 n <= 68, i16 n <= 68, i32 n <= 68, i64 n <= 68, i128 n <= 68,
  *            big any n
- * Helpers:   floor_k_phi
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_k_phi.h"
+
+static inline seq_t floor_k_phi(idx_t k)
+{
+    /*  φ = (1 + √5) / 2  */
+    /*  Use scaled integer arithmetic:  φ ≈ (SCALE + √5_scaled) / (2·SCALE)  */
+    const idx_t SCALE          = ((idx_t)1 << 32);          /* 2^32  */
+    const idx_t SQRT5_SCALED   = 9606324949ULL;             /* floor( √5 · 2^32 )  */
+
+    unsigned __int128 num = (unsigned __int128)k *
+                            ((unsigned __int128)SCALE + SQRT5_SCALED);
+    unsigned __int128 den = (unsigned __int128)2 * SCALE;
+    return (seq_t)(num / den);      /* floor(k * φ)  */
+}
 
 seq_t a(idx_t n)
 {

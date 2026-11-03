@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t a, idx_t b); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;      /* array of pointers to coefficient arrays */
 static size_t *row_len = NULL;   /* number of elements in each row        */
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         row_start[r] = next_start;
 
         /* Allocate space for the row coefficients. */
-        seq_t *row = (seq_t *)malloc(L * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, L);
         rows[r] = row;
 
         /* Compute the row according to the defining recurrences. */

@@ -9,12 +9,14 @@
  *            a(1)=1, a(2)=0, a(3)=-1, a(4)=1
  * Range:     i8 n <= 11, i16 n <= 18, i32 n <= 30, i64 n <= 34, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialise for the first call: store the first four values. */
     if (cache == NULL) {
         cache_size = 5;          /* indices 0..4, index 0 unused */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;    /* allocation failure */
         cache[0] = 0;            /* unused placeholder */
         cache[1] = (seq_t)1;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache if the desired index exceeds its current size. */
     if ((idx_t)(n + 1) > cache_size) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) return 0; /* allocation failure */
         cache      = new_cache;
         cache_size = n + 1;

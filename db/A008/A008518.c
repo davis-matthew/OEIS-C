@@ -11,13 +11,15 @@
  *            (r-k)·A(r-1,k-1) (1≤k≤r-1). * The offset is 0 – a(0)...
  * Range:     u8 n <= 22, u16 n <= 47, u32 n <= 109, u64 n <= 240,
  *            u128 n <= 643, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9701 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration required by the harness. */
 seq_t a(idx_t n);
@@ -33,7 +35,7 @@ static void ensure_rows(size_t r)
     while (rows_needed <= r) {
         size_t i = rows_needed;
         size_t len = (i == 0) ? 1 : i;          /* i+1 entries for row i */
-        seq_t *curr = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, len);
         if (!curr) exit(EXIT_FAILURE);          /* memory exhaustion */
 
         if (i == 0) {

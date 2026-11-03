@@ -11,14 +11,46 @@
  *            b(w+1) = [x^w] Z(S3; B), a(n+1) = [x^n] Z(S4; B), a(0) = 0
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 26, u64 n <= 49, u128 n <= 60,
  *            big any n
- * Helpers:   a678_mc, alloc_zero
+ * Validated: standard, pass, 47 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/a678_mc.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+/* C(b+t-1, t) without intermediate overflow beyond the result */
+static seq_t a678_mc(seq_t b, int t) {
+  seq_t x[4];
+  int i, k = -1;
+  seq_t r;
+  if (t == 0) return 1;
+  if (t == 1) return b;
+  for (i = 0; i < t; i++) x[i] = b + (seq_t)i;
+  if (t >= 3) {
+    for (i = 0; i < t; i++)
+      if (x[i] % 3 == 0) { x[i] /= 3; break; }
+  }
+  if (t == 4) {
+    for (i = 0; i < 4; i++)
+      if (x[i] % 4 == 0) { x[i] /= 4; k = i; break; }
+    for (i = 0; i < 4; i++)
+      if (i != k && x[i] % 2 == 0) { x[i] /= 2; break; }
+  } else {
+    for (i = 0; i < t; i++)
+      if (x[i] % 2 == 0) { x[i] /= 2; break; }
+  }
+  r = x[0];
+  for (i = 1; i < t; i++) r *= x[i];
+  return r;
+}
 
 static seq_t *a678_D[5];
 static idx_t a678_cap = 0;
@@ -27,7 +59,7 @@ static void a678_build(idx_t L) {
   int j, t;
   idx_t w, s;
   for (j = 0; j <= 4; j++) {
-    if (a678_D[j]) free(a678_D[j]);
+    if (a678_D[j]) mem_free(a678_D[j]);
     a678_D[j] = alloc_zero(L);
     a678_D[j][0] = 1;
   }

@@ -8,12 +8,14 @@
  *            (3/2) * T(k,m) ) (for m ≥ 0)
  * Range:     u8 n <= 6, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,13 +29,13 @@ seq_t a(idx_t n)
     /* Helper to grow arrays when needed. */
     if (n >= arr_cap) {
         size_t new_cap = n + 1;
-        arr = (seq_t*)realloc(arr, new_cap * sizeof(seq_t));
+        arr = mem_resize(seq_t, arr, new_cap);
         if (!arr) abort();  /* graceful exit on failure */
         arr_cap = new_cap;
     }
     if (n >= cache_cap) {
         size_t new_cap = n + 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) abort();
         cache_cap = new_cap;
     }

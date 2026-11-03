@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 
  * Formula: a(0)=1, a(1)=0, a(2)=2.
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* initialise table for the first three terms */
     if (memo == NULL) {
         cap  = 4;                          /* indices 0..3 */
-        memo = (seq_t *)malloc(cap * sizeof(seq_t));
+        memo = mem_new(seq_t, cap);
         if (!memo) return (seq_t)0;        /* allocation failed */
         memo[0] = (seq_t)1;
         memo[1] = (seq_t)0;
@@ -52,10 +54,10 @@ seq_t a(idx_t n)
     if (needed > cap) {
         size_t new_cap = cap;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *new_mem = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_mem = mem_new(seq_t, new_cap);
         if (!new_mem) return (seq_t)0;     /* allocation failed */
         for (size_t i = 0; i < cap; ++i) new_mem[i] = memo[i];
-        free(memo);
+        mem_free(memo);
         memo = new_mem;
         cap  = new_cap;
     }

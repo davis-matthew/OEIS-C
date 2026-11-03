@@ -13,12 +13,14 @@
  *            a(n) = P[n] - Σ_{k=1}^{min(14,n)} Q[k] * a...
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 100, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 902 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int Q[15] = {
     1,  /* Q[0] */
@@ -56,7 +58,7 @@ static void ensure_cache(idx_t n)
 {
     size_t needed = (size_t)n + 1;
     if (needed <= CACHE_SIZE) return;
-    seq_t *tmp = (seq_t *)realloc(CACHE, needed * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, CACHE, needed);
     if (!tmp) abort();
     for (size_t i = CACHE_SIZE; i < needed; ++i) tmp[i] = 0;
     CACHE = tmp;

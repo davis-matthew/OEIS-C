@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* forward references to helper routines that are provided elsewhere */
 extern seq_t catalan(idx_t k);
@@ -39,10 +41,10 @@ static void a_ensure_capacity(idx_t need)
     if (a_cap >= need) return;
     idx_t new_cap = a_cap ? a_cap << 1 : 16;
     if (new_cap < need) new_cap = need;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (a_cache) {
-        memcpy(new_cache, a_cache, a_len * sizeof(seq_t));
-        free(a_cache);
+        mem_copy(new_cache, a_cache, a_len * sizeof(seq_t));
+        mem_free(a_cache);
     }
     a_cache = new_cache;
     a_cap   = new_cap;
@@ -54,10 +56,10 @@ static void cat_ensure_capacity(idx_t need)
     if (cat_cap >= need) return;
     idx_t new_cap = cat_cap ? cat_cap << 1 : 16;
     if (new_cap < need) new_cap = need;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (cat_cache) {
-        memcpy(new_cache, cat_cache, cat_len * sizeof(seq_t));
-        free(cat_cache);
+        mem_copy(new_cache, cat_cache, cat_len * sizeof(seq_t));
+        mem_free(cat_cache);
     }
     cat_cache = new_cache;
     cat_cap   = new_cap;

@@ -10,12 +10,14 @@
  *            each expansion recomputes all values up to that n
  * Range:     u8 n <= 43, u16 n <= 212, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Allocate or enlarge the working array if necessary */
     if (dp == NULL || needed > max_n + 1) {
-        dp = (seq_t *)realloc(dp, (size_t)needed * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, (size_t)needed);
 
         /* Initialise to zero and set dp[0] = 1 before the DP loops */
         for (idx_t i = 0; i < needed; ++i)

@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy, mult, changed
  * Formula:   a(n) = ∏p∈P(n) p^(2⋅⌊v_p(n)/2⌋) (product of the largest square
  *            power of each prime factor of n)
- * Range:     u8 n <= 255, u16 n <= 9763, u32 n <= 9763, u64 n <= 9763,
- *            u128 n <= 9763, big any n
+ * Range:     u8 n <= 255, u16 n <= 65535, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 113 terms through n = 9763 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

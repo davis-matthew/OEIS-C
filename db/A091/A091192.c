@@ -9,7 +9,8 @@
  *            abundant numbers and testing each for an abundant proper divisor
  * Range:     u8 none, u16 n <= 1026, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9936 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Parameters (can be tuned). */
 #define INITIAL_LIMIT 20000U          /* initial sieve size */
@@ -122,7 +124,7 @@ static void ensure_processed(uint64_t limit) {
             /* Append to result vector. */
             if (res_size == res_cap) {
                 size_t new_cap = res_cap ? res_cap * 2 : INITIAL_CAP;
-                seq_t *tmp = (seq_t*)realloc(res, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, res, new_cap);
                 if (!tmp) abort();
                 res = tmp;
                 res_cap = new_cap;
@@ -152,7 +154,7 @@ seq_t a(idx_t n) {
     /* Initialise once. */
     if (sieve_limit == 0) {
         build_sieve(INITIAL_LIMIT);
-        res = (seq_t*)malloc(INITIAL_CAP * sizeof(seq_t));
+        res = mem_new(seq_t, INITIAL_CAP);
         if (!res) abort();
         res_cap = INITIAL_CAP;
         res_size = 0;

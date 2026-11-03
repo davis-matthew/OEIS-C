@@ -7,8 +7,9 @@
  * Keywords:  nonn, tabf
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 255, u32 n <= 887, u64 n <= 3439,
- *            u128 n <= 9903, big any n
- * Helpers:   row_terms
+ *            u128 n <= 14608, big any n
+ * Validated: standard, pass, 109 terms through n = 9903 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +21,18 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/row_terms.h"
+#include "../utils/mem.h"
+
+/* sizes for dynamic arrays */
+static inline idx_t row_terms(idx_t r)
+{
+    return (idx_t)((((unsigned __int128)r * (r - 1)) / 2) + 1);
+}
 
 static seq_t *compute_row(idx_t n)
 {
     if (n == 0) {
-        seq_t *row = (seq_t *)malloc(sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, 1);
         if (!row) return NULL;
         row[0] = (seq_t)1;
         return row;
@@ -36,8 +43,8 @@ static seq_t *compute_row(idx_t n)
     size_t dimL   = n + 2;               /* leaders 0 .. n+1, we start from 1 */
     size_t total  = dimL * dimS;
 
-    seq_t *cur = (seq_t *)calloc(total, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(total, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, total);
+    seq_t *nxt = mem_new(seq_t, total);
     if (!cur || !nxt) return NULL;
 
     /* start with element n as the only leader */
@@ -46,7 +53,7 @@ static seq_t *compute_row(idx_t n)
     /* process elements n-1, n-2, … , 1 */
     for (idx_t x = n - 1; x >= 1; --x) {
         /* reset next array */
-        memset(nxt, 0, total * sizeof(seq_t));
+        mem_set(nxt, 0, total * sizeof(seq_t));
 
         for (size_t L = 1; L <= n; ++L) {
             size_t offL  = L * dimS;
@@ -71,7 +78,7 @@ static seq_t *compute_row(idx_t n)
     }
 
     /* create the row array (indices 0 .. maxSum) */
-    seq_t *row = (seq_t *)calloc(dimS, sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, dimS);
     if (!row) return NULL;
 
     for (size_t k = n; k <= maxSum; ++k) {
@@ -81,8 +88,8 @@ static seq_t *compute_row(idx_t n)
         row[k] = sum;
     }
 
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return row;
 }
 

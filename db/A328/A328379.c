@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 52, u16 n <= 2345, u32 n <= 9826, u64 n <= 9826,
- *            u128 n <= 9826, big any n
- * Helpers:   floor_log2_uint64
+ * Range:     u8 n <= 52, u16 n <= 2345, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 76 terms through n = 9826 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,7 +40,9 @@
  * is performed in seq_t, as required.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
     seq_t    last_new_sum[2]   = {0, 0};
 
     /* Iterate over bits from most‑significant to least‑significant */
-    int msb = floor_log2_uint64(n);
+    int msb = ilog2(n);
     for (int pos = msb; pos >= 0; --pos) {
         int bit = (n >> pos) & 1U;            /* current bit (0 or 1) */
 

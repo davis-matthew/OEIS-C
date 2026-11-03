@@ -8,7 +8,8 @@
  *            (mod p)
  * Range:     u8 n <= 52, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   append_candidate, mod_pow
+ * Validated: standard, pass, 74 terms through n = 992 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,27 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../utils/mod_pow.h"
-#include "../utils/append_candidate.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 static seq_t *prime_list   = NULL;   /* array of primes satisfying the condition */
 static size_t prime_count   = 0;      /* number of stored primes */
@@ -60,7 +80,7 @@ static void init_sequence(void)
         else
         {
             uint64_t exp = (p - 1) / 37;
-            seq_t r = mod_pow((seq_t)2, exp, (seq_t)p);
+            seq_t r = powmod((seq_t)2, exp, (seq_t)p);
             if (r == (seq_t)1)
                 include = true;
         }

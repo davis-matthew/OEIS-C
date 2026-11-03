@@ -10,7 +10,8 @@
  *            upper‑left cell must be 0. Uses DP over rows, O(n·16³)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 22, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const bool ALLOWED[9] = {false, false, true, true, true, true, false, false, true};
 
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
        'prev' is row i-1 (verified) and 'curr' is row i (pending).  */
     static seq_t dp[16][16];
     static seq_t next[16][16];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initialize with first two rows */
     for (int r0 = 0; r0 < 16; ++r0) {
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
 
     /* Process remaining rows if any */
     for (idx_t row = 2; row < n; ++row) { /* row indexes start at 2, the third row */
-        memset(next, 0, sizeof(next));
+        mem_set(next, 0, sizeof(next));
         for (int prev = 0; prev < 16; ++prev) {
             for (int curr = 0; curr < 16; ++curr) {
                 seq_t val = dp[prev][curr];
@@ -117,7 +119,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, next, sizeof(dp));
+        mem_copy(dp, next, sizeof(dp));
     }
 
     /* Final boundary: last row must be valid with above=prev, below none */

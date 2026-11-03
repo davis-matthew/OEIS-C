@@ -6,7 +6,8 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = A000142(A045527(n))
  * Range:     u8 none, u16 none, u32 none, u64 n <= 1, u128 n <= 4, big any n
- * Helpers:   factorial
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,18 @@
 
 #include <math.h>
 #include <stddef.h>
-#include "../utils/factorial.h"
+#include <stdint.h>
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Keep a cache of the indices of the factorials that start with 8.
    We only need to handle up to about 10 000 terms, so a 20 000 entry

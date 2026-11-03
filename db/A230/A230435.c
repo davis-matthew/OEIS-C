@@ -8,6 +8,7 @@
  *            r(r+1)/2, T(r,k) = 3^(k+1)*2^(r-k) - 2^(r+1)
  * Range:     u8 n <= 17, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* Use the built‑in utilities for powering */
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
 

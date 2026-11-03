@@ -12,13 +12,15 @@
  *            k-j)*(2*j+1)^{r} ] )
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 69, u64 n <= 176,
  *            u128 n <= 446, big any n
- * Helpers:   binom, pow_seq
+ * Validated: standard, pass, 71 terms through n = 1128 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     idx_t k = n - offset;                /* position within the row (0‑based) */
 
     /* a = -1, b = 1, c = 1 in the defining sums. */
-    seq_t bin_nk = binom(r, k);
+    seq_t bin_nk = binomial(r, k);
 
     seq_t pos_sum = (seq_t)0;   /* accumulates terms with positive sign */
     seq_t neg_sum = (seq_t)0;   /* accumulates terms with negative sign */
@@ -45,13 +47,13 @@ seq_t a(idx_t n)
         idx_t d = k - j;                    /* exponent for the sign factor */
 
         /* term1 = binom(r+2, d) * (j+1)^(r+1) */
-        seq_t term1 = binom(r + 2, d);
-        seq_t pow1  = pow_seq((seq_t)(j + 1), (idx_t)(r + 1));
+        seq_t term1 = binomial(r + 2, d);
+        seq_t pow1  = ipow_i32((seq_t)(j + 1), (idx_t)(r + 1));
         term1 = term1 * pow1;
 
         /* term2 = 2 * binom(r+1, d) * (2*j+1)^r */
-        seq_t term2 = binom(r + 1, d);
-        seq_t pow2  = pow_seq((seq_t)(2 * j + 1), (idx_t)r);
+        seq_t term2 = binomial(r + 1, d);
+        seq_t pow2  = ipow_i32((seq_t)(2 * j + 1), (idx_t)r);
         term2 = term2 * pow2;
         term2 = term2 * ((seq_t)2);
 

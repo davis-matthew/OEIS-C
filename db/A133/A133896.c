@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   eligible
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/eligible.h"
+#include "../utils/mem.h"
+
+/* --- test if binomial(m+6,6) is a multiple of 6 ------------------------ */
+static bool eligible(idx_t m)
+{
+    idx_t n = m + 6ULL;
+
+    /* divisible by 2 ⇔ not both bit 1 and bit 2 of n are set */
+    if ((n & 6ULL) == 6ULL) return false;
+
+    /* divisible by 3 ⇔ the base‑3 digit in the 3’s place of n is not 2 */
+    if (((n / 3ULL) % 3ULL) == 2ULL) return false;
+
+    return true;
+}
 
 /* --- cache for already computed terms ----------------------------------- */
 static seq_t *cache   = NULL;  /* array of found m's */
@@ -35,9 +50,9 @@ static void grow_cache(size_t min_cap)
     if (new_cap < min_cap) new_cap = min_cap;
 
     if (cache == NULL) {
-        cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
     } else {
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
     }
     cache_cap = new_cap;
 }

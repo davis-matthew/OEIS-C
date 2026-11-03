@@ -7,16 +7,21 @@
  * Formula:   a(n) = 1 + \sum_{k=1}^{n} n^{p_k} , where p_k is the k-th prime
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   big_pow, seq_one, sieve_first_n_primes
+ * Validated: standard, pass, 27 terms through n = 70 (2026-11-01)
+ * Helpers:   ipow, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/ipow.h"
 #include "../utils/sieve_first_n_primes.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_one.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n)
 {
@@ -43,7 +48,7 @@ seq_t a(idx_t n)
 
     for (size_t i = 0; i < (size_t)n; ++i) {
         seq_t exp  = (seq_t)primes[i];
-        sum += big_pow(base, exp);
+        sum += ipow(base, exp);
     }
 
     return sum;

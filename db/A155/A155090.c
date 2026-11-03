@@ -10,7 +10,8 @@
  *            the k‑th composite number is odd
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* dynamic array holding the list of composite numbers.
  * composites[i] == the (i+1)-th composite number (1‑based). */
@@ -37,8 +39,7 @@ static void ensure_composites_cnt(size_t target)
             ++m;
         if (composites_cnt >= composites_cap) {
             size_t new_cap = composites_cap ? composites_cap * 2 : 32;
-            seq_t *tmp = (seq_t *)realloc(composites,
-                                          new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, composites, new_cap);
             composites = tmp;
             composites_cap = new_cap;
         }
@@ -65,8 +66,7 @@ static void ensure_a_terms_n(idx_t n)
             if ((composite_k & 1) != 0) {
                 if (a_terms_cnt >= a_terms_cap) {
                     size_t new_cap = a_terms_cap ? a_terms_cap * 2 : 32;
-                    seq_t *tmp = (seq_t *)realloc(a_terms,
-                                                  new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, a_terms, new_cap);
                     a_terms = tmp;
                     a_terms_cap = new_cap;
                 }

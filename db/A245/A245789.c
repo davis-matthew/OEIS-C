@@ -12,7 +12,8 @@
  *            increasing)
  * Range:     u8 n <= 12, u16 n <= 30, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   big_pow, pow2
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t); */
-#include "../utils/big_pow.h" /* seq_t big_pow(seq_t base, seq_t exp); */
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 
     /* Compute base^row.  The exponent is small (row < s <= ~sqrt(2n)),
        but we use big_pow for arbitrary precision support. */
-    seq_t val = big_pow(base, (seq_t)row);
+    seq_t val = ipow(base, (seq_t)row);
 
     return val;
 }

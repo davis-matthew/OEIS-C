@@ -7,14 +7,16 @@
  * Formula:   a(n) = ∏_{i=1..5} ((-4)^(n-i+1)-1)/((-4)^i-1) (q = -4)
  * Range:     i8 n <= 5, i16 n <= 5, i32 n <= 7, i64 n <= 11, i128 n <= 17,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 27 terms through n = 187 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Compute the Gaussian binomial coefficient [n,5] for q = -4.
  * The result is an integer for all n ≥ 5.  Values are
@@ -32,11 +34,11 @@ seq_t a(idx_t n)
     for (idx_t i = 1; i <= 5; ++i) {
         /* factors:  ((-4)^(n-i+1)-1)  /  ((-4)^i-1) */
         seq_t exp1  = (seq_t)(n - i + 1);
-        seq_t pow1  = big_pow((seq_t)-4, exp1);
+        seq_t pow1  = ipow((seq_t)-4, exp1);
         seq_t num_f = pow1 - 1;
 
         seq_t exp2  = (seq_t)i;
-        seq_t pow2  = big_pow((seq_t)-4, exp2);
+        seq_t pow2  = ipow((seq_t)-4, exp2);
         seq_t den_f = pow2 - 1;
 
         /* record sign and use absolute values for gcd */

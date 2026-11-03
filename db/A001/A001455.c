@@ -13,16 +13,65 @@
  *            with...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 40,
  *            big any n
- * Helpers:   a1455_binom, a1455_isfixed, a1455_small
+ * Validated: standard, pass, 36 terms through n = 288 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a1455_binom.h"
-#include "../utils/a1455_isfixed.h"
-#include "../utils/a1455_small.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+static int a1455_isfixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x = x + x;
+    return x == 0;
+}
+
+static seq_t a1455_small(idx_t n) {
+    int N, L, s, l2, l3, l4;
+    size_t sz, i;
+    seq_t *prev, *cur, *tmp, res = 0;
+    if (n > 64) return 0;
+    N = (int)n;
+    L = N / 2 + 2;
+    sz = (size_t)L * L * L;
+    prev = mem_new(seq_t, sz);
+    cur = mem_new(seq_t, sz);
+#define A1455_IX(p, q, r) (((size_t)(p) * L + (size_t)(q)) * L + (size_t)(r))
+    for (i = 0; i < sz; i++) prev[i] = 0;
+    prev[0] = 1;
+    for (s = 1; s <= N; s++) {
+        for (i = 0; i < sz; i++) cur[i] = 0;
+        for (l2 = 0; 2 * l2 <= s; l2++)
+            for (l3 = 0; l3 <= l2; l3++)
+                for (l4 = 0; l4 <= l3; l4++) {
+                    int l1 = s - l2 - l3 - l4;
+                    seq_t f = 0;
+                    if (l1 < l2) continue;
+                    if (l1 - 1 >= l2) f += prev[A1455_IX(l2, l3, l4)];
+                    if (l2 >= 1 && l2 - 1 >= l3) f += prev[A1455_IX(l2 - 1, l3, l4)];
+                    if (l3 >= 1 && l3 - 1 >= l4) f += prev[A1455_IX(l2, l3 - 1, l4)];
+                    if (l4 >= 1) f += prev[A1455_IX(l2, l3, l4 - 1)];
+                    cur[A1455_IX(l2, l3, l4)] = f;
+                }
+        tmp = prev; prev = cur; cur = tmp;
+    }
+    for (l2 = 0; 2 * l2 <= N; l2++)
+        for (l3 = 0; l3 <= l2; l3++)
+            for (l4 = 1; l4 <= l3; l4++) {
+                int l1 = N - l2 - l3 - l4;
+                if (l1 < l2) continue;
+                res += prev[A1455_IX(l2, l3, l4)] * prev[A1455_IX(l2, l3, l4)];
+            }
+#undef A1455_IX
+    mem_free(prev);
+    mem_free(cur);
+    return res;
+}
 
 /* multisets {a,b,c,d} of |i - sigma(i)| over S4, with summed signs */
 static const int a1455_cls[12][5] = {
@@ -44,7 +93,7 @@ static seq_t a1455_big(idx_t n) {
         if (n < h) continue;
         M = n - h;
         Nh = n + h;
-        t = a1455_binom(s1, a) * a1455_binom(2 * M + s2, M + cc) * a1455_binom(Nh, s1);
+        t = binomial(s1, a) * binomial(2 * M + s2, M + cc) * binomial(Nh, s1);
         S = t;
         for (k = 0; k < M; k++) {
             idx_t m = M - k;

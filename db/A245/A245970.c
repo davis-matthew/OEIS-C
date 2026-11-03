@@ -8,7 +8,8 @@
  *            (OEIS A245970)
  * Range:     u8 n <= 267, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   totient64
+ * Validated: standard, pass, 88 terms through n = 8771 (2026-11-03)
+ * Helpers:   mem, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/totient64.h"
+#include "../utils/totient_u64.h"
+#include "../utils/mem.h"
 
 /* Helper: test whether a seq_t value is a power of two. */
 static bool is_power_of_two(seq_t x)
@@ -68,7 +70,7 @@ static void cache_put(idx_t n, seq_t v)
     if (cache_len == cache_cap)
     {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-        cache = (cache_entry *)realloc(cache, new_cap * sizeof(cache_entry));
+        cache = mem_resize(cache_entry, cache, new_cap);
         cache_cap = new_cap;
     }
     cache[cache_len++] = (cache_entry){n, v};
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
     seq_t cached;
     if (cache_get(n, &cached)) return cached;
 
-    uint64_t phi_n = totient64((uint64_t)n);
+    uint64_t phi_n = totient_u64((uint64_t)n);
     seq_t a_phi = a((idx_t)phi_n);
 
     uint64_t exp = phi_n + (uint64_t)a_phi;

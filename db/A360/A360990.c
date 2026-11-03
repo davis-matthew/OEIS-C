@@ -8,15 +8,18 @@
  *            binomial(n,k)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 8, i64 n <= 13, i128 n <= 17,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;        /* cache of computed terms */
@@ -25,7 +28,7 @@ seq_t a(idx_t n) {
     if (n == 0) return 1;              /* a(0) = 1 */
 
     if (cache == NULL) {               /* initialise cache with a(0) */
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = 1;
         max_cached = 0;
     }
@@ -34,7 +37,7 @@ seq_t a(idx_t n) {
         return cache[n];
 
     /* extend cache to contain terms up to n */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) {                   /* allocation failed */
         exit(EXIT_FAILURE);
     }
@@ -48,11 +51,11 @@ seq_t a(idx_t n) {
         for (idx_t k = 1; k <= m; ++k) {
             /* base1 = -3*m + 3*k + 1 */
             seq_t base1 = (seq_t)(-3 * (seq_t)m + 3 * (seq_t)k + 1);
-            seq_t term1 = big_pow(base1, (seq_t)(k - 1));
+            seq_t term1 = ipow(base1, (seq_t)(k - 1));
 
             /* base2 = 3*k */
             seq_t base2 = (seq_t)(3 * (seq_t)k);
-            seq_t term2 = big_pow(base2, (seq_t)(m - k));
+            seq_t term2 = ipow(base2, (seq_t)(m - k));
 
             seq_t bin = binomial(m, k);
 

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 423, u16 n <= 9073, u32 n <= 9073, u64 n <= 9073,
- *            u128 n <= 9073, big any n
- * Helpers:   factor_u64
+ * Range:     u8 n <= 423, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 109 terms through n = 9073 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Key structure: largest prime factor, sorted exponents, and rank. */
 struct seq_key {
@@ -46,7 +48,7 @@ static void grow_keys(size_t need)
     if (keys_cap >= need) return;
     size_t new_cap = keys_cap ? keys_cap * 2 : 16;
     while (new_cap < need) new_cap <<= 1;
-    struct seq_key *tmp = (struct seq_key *)realloc(keys, new_cap * sizeof(struct seq_key));
+    struct seq_key *tmp = mem_resize(struct seq_key, keys, new_cap);
     if (!tmp) abort();                /* out of memory */
     keys = tmp;
     keys_cap = new_cap;
@@ -58,7 +60,7 @@ static void grow_cache(size_t need)
     if (cache_cap > need) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap <= need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

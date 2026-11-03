@@ -10,6 +10,7 @@
  *            size m, * how many times m appears in all compositions of n
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 30, u64 n <= 61, u128 n <= 124,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 3311 (2026-11-01)
  * Helpers:   build_primes_upto, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/pow2.h"
 

@@ -9,14 +9,31 @@
  *            an odd prime and P₂ is a product of at most two primes
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_P2
+ * Validated: standard, pass, 96 terms through n = 9764 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_P2.h"
+
+/* Check whether m is a product of at most two primes (counting multiplicity). */
+static bool is_P2(uint64_t m)
+{
+    if (m == 1) return true;           /* product of zero primes */
+    int cnt = 0;
+    uint64_t temp = m;
+    for (uint64_t d = 2; d * d <= temp; ++d) {
+        while (temp % d == 0) {
+            ++cnt;
+            if (cnt > 2) return false;
+            temp /= d;
+        }
+    }
+    if (temp > 1) ++cnt;               /* remaining prime factor */
+    return cnt <= 2;
+}
 
 /* Integer square‑root for unsigned 64‑bit values. */
 static idx_t isqrt_u64(idx_t n)

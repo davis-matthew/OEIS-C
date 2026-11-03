@@ -11,13 +11,15 @@
  *            (1 - (1-3x)*A(x/(1-3x))). * It uses only integer ar...
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are defined externally. */
 extern seq_t a(idx_t n);
@@ -27,12 +29,12 @@ seq_t a(idx_t n) {
 
     size_t N = (size_t)n;
     /* Allocate working arrays */
-    seq_t *A = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *B = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *POW3 = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (N + 1));
+    seq_t *B = mem_new(seq_t, (N + 1));
+    seq_t *POW3 = mem_new(seq_t, (N + 1));
     if (!A || !B || !POW3) {
         /* Allocation failed – free what we have and return 0 */
-        free(A); free(B); free(POW3);
+        mem_free(A); mem_free(B); mem_free(POW3);
         return (seq_t)0;
     }
 
@@ -80,6 +82,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = A[N];
-    free(A); free(B); free(POW3);
+    mem_free(A); mem_free(B); mem_free(POW3);
     return result;
 }

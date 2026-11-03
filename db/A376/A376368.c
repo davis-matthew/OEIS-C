@@ -8,9 +8,10 @@
  * Formula:   a(n) = least k such that n is a multinomial coefficient of k
  *            (i.e., n = k!/(x1! * … * xj!) for some partition k = x1 + … +
  *            xj)
- * Range:     u8 n <= 33, u16 n <= 1625, u32 n <= 10000, u64 n <= 10000,
+ * Range:     u8 n <= 63, u16 n <= 4799, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom, int_sqrt
+ * Validated: standard, pass, 87 terms through n = 8355 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b); */
-#include "../utils/int_sqrt.h"/* idx_t int_sqrt(idx_t n); */
+#include "../utils/binomial.h"
+#include "../utils/isqrt.h"
 
 /* ------------------------------------------------------------------ */
 /* Direct cache for repeated calls (works for both C and C++).        */
@@ -37,7 +38,7 @@ static bool has_partition(idx_t rem, idx_t last, seq_t coeff, seq_t target_val)
 {
     for (idx_t p = 1; p <= last && p <= rem; ++p) {
         /* binom(rem,p) is the factor added when the next part equals p */
-        seq_t bin = binom(rem, p);
+        seq_t bin = binomial(rem, p);
         seq_t newcoeff = coeff * bin;
         if (newcoeff > target_val)
             continue;                   /* prune – already too big */
@@ -72,7 +73,7 @@ seq_t a(idx_t n)
        For a partition with at least two parts, the smallest non‑trivial coefficient
        is C(k,1)=k.  Any larger k would give coefficients of the order k or
        larger, which already exceeds n for k > √(2n). */
-    idx_t limit = int_sqrt(n + n) + 2;   /* floor sqrt(2*n) + 2  */
+    idx_t limit = isqrt(n + n) + 2;   /* floor sqrt(2*n) + 2  */
     if (limit > n)
         limit = n;
 

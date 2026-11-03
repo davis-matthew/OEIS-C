@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 148, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_power_of_two
+ * Validated: standard, pass, 86 terms through n = 8377 (2026-11-01)
+ * Helpers:   is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Definition: positive integers whose binary popcount is NOT a power of 2. */
-#include "../utils/is_power_of_two.h"
+#include <stdbool.h>
+#include "../utils/is_pow2.h"
 
 /* Efficient popcount for any seq_t type.  Returns the number of set bits as an idx_t. */
 static idx_t popcount_seq(seq_t v)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     while (1) {
         idx_t ones = popcount_seq(num);
-        if (!is_power_of_two((seq_t)ones)) {
+        if (!is_pow2((seq_t)ones)) {
             ++found;
             if (found == n)
                 return num;

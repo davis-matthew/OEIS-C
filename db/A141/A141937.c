@@ -7,14 +7,35 @@
  * Formula:   a(n) = the nth prime such that p ≡ 13 (mod 25)
  * Range:     u8 n <= 1, u16 n <= 44, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 60 terms through n = 949 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *primesAll = NULL;   /* all primes found so far */
 static size_t primesSize = 0, primesCap = 0;
@@ -29,9 +50,9 @@ static idx_t candidateK = 0;       /* k in 25*k+13 */
 static void a_init(void)
 {
     primesCap = 16;
-    primesAll  = (seq_t *)calloc(primesCap, sizeof(seq_t));
+    primesAll  = mem_new(seq_t, primesCap);
     matchesCap = 16;
-    matches    = (seq_t *)calloc(matchesCap, sizeof(seq_t));
+    matches    = mem_new(seq_t, matchesCap);
 
     /* prime 2 */
     primesAll[0] = (seq_t)2;
@@ -45,7 +66,7 @@ static void add_prime_all(seq_t p)
 {
     if (primesSize == primesCap) {
         primesCap <<= 1;
-        primesAll = (seq_t *)realloc(primesAll, primesCap * sizeof(seq_t));
+        primesAll = mem_resize(seq_t, primesAll, primesCap);
     }
     primesAll[primesSize++] = p;
 }
@@ -55,7 +76,7 @@ static void add_match(seq_t p)
 {
     if (matchesSize == matchesCap) {
         matchesCap <<= 1;
-        matches = (seq_t *)realloc(matches, matchesCap * sizeof(seq_t));
+        matches = mem_resize(seq_t, matches, matchesCap);
     }
     matches[matchesSize++] = p;
 }

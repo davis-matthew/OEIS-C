@@ -12,13 +12,15 @@
  *            index of row n
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 48, u64 n <= 140,
  *            u128 n <= 361, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1239 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *triangle = NULL;    /* Stores triangle entries row by row */
 static idx_t last_computed_row = 0;   /* Highest row fully computed */
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     /* Ensure triangle up to row r is computed */
     if (triangle == NULL) {
         /* Allocate first row */
-        triangle = (seq_t *)realloc(NULL, sizeof(seq_t));
+        triangle = mem_resize(seq_t, NULL, 1);
         triangle[0] = (seq_t)1;      /* T(0,0) = 1 */
         last_computed_row = 0;
     }
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
 
         /* Grow array to accommodate new row */
         size_t new_total = curr_offset + next + 1;  /* number of elements after adding row next */
-        triangle = (seq_t *)realloc(triangle, new_total * sizeof(seq_t));
+        triangle = mem_resize(seq_t, triangle, new_total);
 
         /* Compute row 'next' */
         /* k = 0 case */

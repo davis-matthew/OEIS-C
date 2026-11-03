@@ -10,16 +10,36 @@
  *            prime factors using count_distinct_primes(uint64_t)
  * Range:     u8 none, u16 n <= 10, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   count_distinct_primes, pow10, rev_pal_left
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"          /* seq_t pow10(idx_t e);          */
-#include "../utils/count_distinct_primes.h"  /* size_t count_distinct_primes(uint64_t n); */
-#include "../utils/rev_pal_left.h"
+#include "../utils/omega.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+static seq_t rev_pal_left(seq_t left, unsigned half)
+{
+    seq_t rev = 0;
+    seq_t tmp = left;
+    for (unsigned i = 0; i < half; ++i) {
+        rev = rev * 10 + (tmp % 10);
+        tmp /= 10;
+    }
+    return rev;
+}
 
 /* Return the nth element of A373465 */
 seq_t a(idx_t n)
@@ -31,7 +51,7 @@ seq_t a(idx_t n)
 
     /* Special cases: single digit numbers (ignored, but we traverse them) */
     for (uint64_t d = 1; d <= 9; ++d) {
-        if (count_distinct_primes((uint64_t)d) == 5) {
+        if (omega((uint64_t)d) == 5) {
             ++count;
             if (count == target) return (seq_t)d;
         }
@@ -48,7 +68,7 @@ seq_t a(idx_t n)
             for (uint64_t left = start; left < end; ++left) {
                 seq_t rev = rev_pal_left((seq_t)left, half);
                 seq_t val = (seq_t)left * pow_half + rev;
-                if (count_distinct_primes((uint64_t)val) == 5) {
+                if (omega((uint64_t)val) == 5) {
                     ++count;
                     if (count == target) return val;
                 }
@@ -67,7 +87,7 @@ seq_t a(idx_t n)
                     seq_t val = (seq_t)left * pow_half1
                               + (seq_t)mid * pow_half
                               + rev;
-                    if (count_distinct_primes((uint64_t)val) == 5) {
+                    if (omega((uint64_t)val) == 5) {
                         ++count;
                         if (count == target) return val;
                     }

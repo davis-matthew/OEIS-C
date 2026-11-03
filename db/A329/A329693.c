@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 26, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    current altitude and the last step type.  The algorithm runs in
    O(n^2) time and uses O(n) memory. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
 
     /* allocate two work arrays of size (N+1)*3 */
     size_t cap = (N + 1) * 3;
-    seq_t *cur  = (seq_t*)calloc(cap, sizeof(seq_t));
-    seq_t *next = (seq_t*)calloc(cap, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, cap);
+    seq_t *next = mem_new(seq_t, cap);
     if (!cur || !next) abort();    /* allocation failed */
 
     /* step indices: 0 = U, 1 = H, 2 = D */
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     /* sum all ways that end at altitude 0 (height 0) */
     seq_t ans = cur[0 * 3 + U] + cur[0 * 3 + H] + cur[0 * 3 + D];
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return ans;
 }

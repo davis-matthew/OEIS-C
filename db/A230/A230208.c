@@ -13,14 +13,16 @@
  *            Σ_{i=0}^{5} (-1)^{i+1} C(5,i) · C(n-1, k-i), where 1 ≤ n and 0 ≤
  *            k ≤ n+4. This implementation maps the flat index n to (row,
  *            column) and evaluates T(n,k) using a fast binomial rou...
- * Range:     i8 n <= 144, i16 n <= 247, i32 n <= 1032, i64 n <= 1525,
+ * Range:     i8 n <= 144, i16 n <= 346, i32 n <= 1081, i64 n <= 1525,
  *            i128 n <= 1525, big any n
+ * Validated: standard, pass, 88 terms through n = 1239 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

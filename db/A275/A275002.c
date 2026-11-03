@@ -7,12 +7,15 @@
  * Formula:   a(n) = 2*n^(2*n^2 + 2)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -20,6 +23,6 @@ seq_t a(idx_t n)
         return (seq_t)0;
     seq_t base = (seq_t)n;
     seq_t exp  = (seq_t)(2ULL * n * n + 2);
-    seq_t val  = big_pow(base, exp);
+    seq_t val  = ipow(base, exp);
     return (seq_t)(2 * val);
 }

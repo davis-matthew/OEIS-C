@@ -7,12 +7,13 @@
  * Formula:   a(n) = n! * Sum_{k=0..floor(n/3)} ((-n + 3k)^k)/(k! * (n - 3k)!)
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 21, i128 n <= 22,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"          /* pow_int(seq_t base, idx_t exp) */
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= maxk; ++k)
     {
         seq_t base = (seq_t)(- (seq_t)n + (seq_t)(3 * k));
-        seq_t power = pow_int(base, k);
+        seq_t power = ipow_idx(base, k);
         seq_t term = binom * prod_fk * power;
         sum += term;
 

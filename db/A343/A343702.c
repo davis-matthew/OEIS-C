@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 none, u16 none, u32 n <= 9762, u64 n <= 9762, u128 n <= 9762,
- *            big any n
- * Helpers:   none
+ * Range:     u8 none, u16 none, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 81 terms through n = 9762 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static data for memoization */
 static seq_t *term_arr = NULL;      /* array of computed terms   */
@@ -48,7 +50,7 @@ static void ensure_terms(idx_t n)
         /* Allocate cubes array */
         idx_t    max = (idx_t)computed_max;
         size_t   len_cubes = (size_t)(max + 1);
-        seq_t   *cubes   = (seq_t *)malloc(len_cubes * sizeof(seq_t));
+        seq_t   *cubes   = mem_new(seq_t, len_cubes);
         cubes[0] = 0;
         for (idx_t i = 1; i <= max; ++i) {
             seq_t v = (seq_t)i * (seq_t)i * (seq_t)i;
@@ -61,7 +63,7 @@ static void ensure_terms(idx_t n)
 
         /* Count occurrences of each sum */
         uint16_t *cnt = (uint16_t *)calloc(max_sum + 1, sizeof(uint16_t));
-        if (!cnt) { free(cubes); return; }
+        if (!cnt) { mem_free(cubes); return; }
 
         for (idx_t e = 1; e <= max; ++e) {
             seq_t ce = cubes[e];
@@ -83,7 +85,7 @@ static void ensure_terms(idx_t n)
 
         /* Prepare term array */
         if (term_arr == NULL || term_cap < max_sum + 1) {
-            seq_t *tmp = (seq_t *)realloc(term_arr, (max_sum + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, term_arr, (max_sum + 1));
             term_arr = tmp;
             term_cap = max_sum + 1;
         }
@@ -98,7 +100,7 @@ static void ensure_terms(idx_t n)
         term_len = pos;
 
         /* Clean up */
-        free(cubes);
+        mem_free(cubes);
         free(cnt);
 
         /* Increase search limit if needed */

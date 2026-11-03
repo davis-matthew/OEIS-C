@@ -9,7 +9,8 @@
  *            contains all distinct decimal digits of n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digits_have_all
+ * Validated: standard, pass, 97 terms through n = 6502 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/digits_have_all.h"
+
+static inline bool digits_have_all(const uint8_t *digits, size_t len,
+                                   uint32_t mask)
+{
+    uint32_t present = 0;
+    for (size_t i = 0; i < len; ++i)
+        present |= 1u << digits[i];
+    return (present & mask) == mask;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 11, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   digit_sum, pow_uint
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   digit_sum, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 idx_t _floor_isqrt_u64(idx_t);  /* unused; included for compile unit */
-#include "../utils/digit_sum.h"   /* digit_sum(seq_t) */
-#include "../utils/pow_uint.h"    /* pow_uint(uint64_t, idx_t) */
+#include "../utils/digit_sum.h"
+#include "../utils/ipow_u64_idx.h"
 
 static seq_t *seq_cache = NULL;   /* memoized sequence */
 static idx_t  cache_len = 0;      /* number of items stored */
@@ -39,9 +41,9 @@ static bool ok_candidate(uint64_t x)
 {
     /* Convert to seq_t for big‑int operations */
     seq_t n   = (seq_t)x;
-    seq_t n2  = pow_uint((uint64_t)x, 2);
-    seq_t n3  = pow_uint((uint64_t)x, 3);
-    seq_t n4  = pow_uint((uint64_t)x, 4);
+    seq_t n2  = ipow_u64_idx((uint64_t)x, 2);
+    seq_t n3  = ipow_u64_idx((uint64_t)x, 3);
+    seq_t n4  = ipow_u64_idx((uint64_t)x, 4);
 
     seq_t s_n  = digit_sum(n);
     seq_t s_n2 = digit_sum(n2);
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         if (cache_len == cache_cap)
         {
             size_t newcap = cache_cap == 0 ? 16 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(seq_cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, newcap);
             seq_cache = tmp;
             cache_cap = newcap;
         }

@@ -11,7 +11,8 @@
  *            Sequence A333636
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 83 terms through n = 84 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Static state for memoisation */
 static idx_t maxN = 0;
@@ -31,7 +33,7 @@ static size_t prime_count = 0;
 /* Free existing cached data */
 static void free_cache(void)
 {
-    if (best) free(best);
+    if (best) mem_free(best);
     if (reachable) free(reachable);
     if (primes) free(primes);
     best = NULL;
@@ -52,7 +54,7 @@ static void recompute(idx_t n_max)
 
     /* Allocate arrays */
     reachable = (bool*)calloc((size_t)(n_max + 1), sizeof(bool));
-    best      = (seq_t*)calloc((size_t)(n_max + 1), sizeof(seq_t));
+    best      = mem_new(seq_t, (size_t)(n_max + 1));
     if (!reachable || !best) {
         /* Allocation failed – terminate */
         abort();

@@ -12,13 +12,15 @@
  *            is odd, otherwise positive (n=1,2 are always positive)
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 14, i64 n <= 22, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* PRE: seq_t and idx_t are provided by the build system. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 1 || n == 2)
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     /* Initialise on first call */
     if (S_len == 0) {
         S_cap = 4;                    /* initial capacity */
-        S = (seq_t*)malloc(S_cap * sizeof(seq_t));
+        S = mem_new(seq_t, S_cap);
         S[0] = (seq_t)1;              /* 0! */
         S_len = 1;
         last_fact = (seq_t)1;         /* factorial of 0! */
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
                 size_t new_cap = S_cap ? S_cap * 2 : 4;
                 while (new_cap <= (size_t)need) new_cap <<= 1;
                 S_cap = new_cap;
-                S = (seq_t*)realloc(S, S_cap * sizeof(seq_t));
+                S = mem_resize(seq_t, S, S_cap);
             }
             idx_t i = S_len;           /* next factorial index (i≥1) */
             last_fact = last_fact * (seq_t)i;

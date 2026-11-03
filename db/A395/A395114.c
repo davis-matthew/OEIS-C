@@ -12,12 +12,21 @@
  *            of the triangle in order, starting * with row 1
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   _t_value
+ * Validated: standard, pass, 119 terms through n = 9750 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_t_value.h"
+static seq_t _t_value(idx_t n, idx_t k)
+{
+    if (n == 1)                     /* base row: 1,1 */
+        return (seq_t)1;
+    if (k & 1)                     /* odd k */
+        return _t_value(n - 1, (k + 1) / 2);
+    /* even k */
+    return _t_value(n - 1, k / 2 + 1) - _t_value(n - 1, k / 2);
+}
 
 seq_t a(idx_t n)
 {

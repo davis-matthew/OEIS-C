@@ -10,14 +10,27 @@
  *            110
  * Range:     u8 n <= 92, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   coprime110_count
+ * Validated: standard, pass, 76 terms through n = 971 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/coprime110_count.h"
+
+/* Count of integers ≤ x that are not divisible by 2, 5 or 11. */
+static inline idx_t coprime110_count(idx_t x)
+{
+    return x
+        - x / 2
+        - x / 5
+        - x / 11
+        + x / 10
+        + x / 22
+        + x / 55
+        - x / 110;
+}
 
 seq_t a(idx_t n)
 {

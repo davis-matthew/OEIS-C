@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 66,
  *            big any n
- * Helpers:   make_prime_table
+ * Validated: standard, pass, 40 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/make_prime_table.h"
+#include "../utils/mem.h"
+
+/* Local sieve of Eratosthenes up to n, storing results in is_prime[0..n] */
+static void make_prime_table(idx_t n, bool *is_prime)
+{
+    for (size_t i = 0; i <= (size_t)n; ++i)
+        is_prime[i] = true;
+    if (n < 2)
+        return;
+    is_prime[0] = is_prime[1] = false;
+    for (idx_t p = 2; p * p <= n; ++p)
+        if (is_prime[p])
+            for (idx_t q = p * p; q <= n; q += p)
+                is_prime[q] = false;
+}
 
 seq_t a(idx_t n)
 {
@@ -44,13 +59,13 @@ seq_t a(idx_t n)
         return 0;
     }
     for (int v = 0; v < 6; ++v) {
-        dp_cur[v]  = (seq_t *)calloc(layer_size, sizeof(seq_t));
-        dp_next[v] = (seq_t *)calloc(layer_size, sizeof(seq_t));
+        dp_cur[v]  = mem_new(seq_t, layer_size);
+        dp_next[v] = mem_new(seq_t, layer_size);
         if (!dp_cur[v] || !dp_next[v]) {
             free(is_prime);
             for (int w = 0; w <= v; ++w) {
-                free(dp_cur[w]);
-                free(dp_next[w]);
+                mem_free(dp_cur[w]);
+                mem_free(dp_next[w]);
             }
             free(dp_cur);
             free(dp_next);
@@ -67,7 +82,7 @@ seq_t a(idx_t n)
     for (idx_t step = 2; step <= n; ++step) {
         /* Clear next layer */
         for (int v = 0; v < 6; ++v)
-            memset(dp_next[v], 0, layer_size * sizeof(seq_t));
+            mem_set(dp_next[v], 0, layer_size * sizeof(seq_t));
 
         idx_t prev_max = 6 * (step - 1);
 
@@ -105,8 +120,8 @@ seq_t a(idx_t n)
 
     /* Cleanup */
     for (int v = 0; v < 6; ++v) {
-        free(dp_cur[v]);
-        free(dp_next[v]);
+        mem_free(dp_cur[v]);
+        mem_free(dp_next[v]);
     }
     free(dp_cur);
     free(dp_next);

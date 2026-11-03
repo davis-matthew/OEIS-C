@@ -5,9 +5,10 @@
  * Offset:    5    (a(5) is the first term)
  * Keywords:  nonn, tabf, nice
  * Formula:   not stated
- * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 41, u64 n <= 95, u128 n <= 236,
+ * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 41, u64 n <= 95, u128 n <= 236,
  *            big any n
- * Helpers:   binomial, index_to_position
+ * Validated: standard, pass, 56 terms through n = 9462 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,8 +33,23 @@
  */
 
 #include <stddef.h>
-#include "../utils/binomial.h"          /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/index_to_position.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+/* map linearly indexed n (>=5) to triangle coordinates (row,column) */
+static void index_to_position(idx_t n, idx_t *row, idx_t *col)
+{
+    idx_t d = n - 5;      /* offset into the flattened triangle */
+    idx_t m = 5;          /* current row */
+
+    while (d >= m / 5) {  /* subtract row lengths until we land in the correct row */
+        d -= m / 5;
+        ++m;
+    }
+
+    *row = m;
+    *col = d + 1;         /* columns are 1‑based inside a row */
+}
 
 static seq_t **S = NULL;     /* S[n][k]  (k may be 0) */
 static idx_t  computed_max = 0;   /* largest n already computed */

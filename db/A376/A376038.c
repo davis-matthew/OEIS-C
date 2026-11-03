@@ -9,7 +9,8 @@
  *            Offset: 0
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   ensure_cap_ptr
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ensure_cap_ptr.h"
+#include "../utils/mem.h"
+
+/* Ensure that *ptr is allocated with at least new_cap elements.
+   We do not touch the contents of the new cells; program guarantees
+   to write all elements that will be read later. */
+static void ensure_cap_ptr(seq_t **ptr, size_t *cap, size_t new_cap) {
+    if (*cap < new_cap) {
+        seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
+        if (!tmp) abort();
+        *ptr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Return the n‑th term of OEIS A376038.
    The implementation is memoised – calls may arrive in any order. */
@@ -36,14 +49,14 @@ seq_t a(idx_t n) {
 
     /* Initialisation on first call. */
     if (!cache) {
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache) abort();
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)1;
         cache_cap = 2;
         cached_max = 1;
 
-        prev = (seq_t *)malloc(2 * sizeof(seq_t));
+        prev = mem_new(seq_t, 2);
         if (!prev) abort();
         prev[0] = (seq_t)0;
         prev[1] = (seq_t)1;

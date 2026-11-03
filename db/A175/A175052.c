@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 none, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper comparator for qsort on seq_t values. */
 static int cmp_seq_t_local(const void *a, const void *b)
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         const size_t BASE_MAX    = 1000000;                   /* sqrt(LIMIT) */
 
         size_t temp_cap = 1024 * 1024; /* initial guess: 1 048 576 */
-        seq_t *temp = (seq_t *)malloc(temp_cap * sizeof(seq_t));
+        seq_t *temp = mem_new(seq_t, temp_cap);
         size_t temp_cnt = 0;
 
         for (uint64_t base = 2; base <= BASE_MAX; ++base)
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
                 if (temp_cnt == temp_cap)
                 {
                     temp_cap <<= 1; /* double */
-                    temp = (seq_t *)realloc(temp, temp_cap * sizeof(seq_t));
+                    temp = mem_resize(seq_t, temp, temp_cap);
                 }
                 /* store only if it fits into seq_t; we assume seq_t
                    large enough for values up to LIMIT_U64. */
@@ -78,10 +80,10 @@ seq_t a(idx_t n)
         }
 
         /* 2. Sort the list of perfect powers. */
-        qsort(temp, temp_cnt, sizeof(seq_t), cmp_seq_t_local);
+        mem_qsort(temp, temp_cnt, sizeof(seq_t), cmp_seq_t_local);
 
         /* 3. Deduplicate to get unique perfect powers. */
-        perfect = (seq_t *)malloc(temp_cnt * sizeof(seq_t));
+        perfect = mem_new(seq_t, temp_cnt);
         for (size_t i = 0; i < temp_cnt; ++i)
         {
             if (i == 0 || temp[i] != temp[i - 1])
@@ -89,11 +91,11 @@ seq_t a(idx_t n)
                 perfect[perfect_cnt++] = temp[i];
             }
         }
-        free(temp);
+        mem_free(temp);
 
         /* 4. Build the sequence array: include a perfect power
            if its parity matches that of the next perfect power. */
-        seq_arr = (seq_t *)malloc(perfect_cnt * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, perfect_cnt);
         for (size_t i = 0; i + 1 < perfect_cnt; ++i)
         {
             if ((perfect[i] & (seq_t)1) == (perfect[i + 1] & (seq_t)1))

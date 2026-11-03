@@ -11,7 +11,8 @@
  *            the atom decay map
  * Range:     u8 n <= 19, u16 n <= 40, u32 n <= 81, u64 n <= 165,
  *            u128 n <= 332, big any n
- * Helpers:   alloc_zero, grow_zero, look_say
+ * Validated: standard, pass, 65 terms through n = 2873 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,39 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/grow_zero.h"
-#include "../utils/look_say.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static int look_say(const char *in, int len, char *out) {
+    int ol = 0, j = 0;
+    while (j < len) {
+        int r = 1;
+        while (j + r < len && in[j + r] == in[j]) r++;
+        char d[12];
+        int nd = 0, t = r;
+        while (t > 0) { d[nd++] = (char)('0' + t % 10); t /= 10; }
+        while (nd > 0) out[ol++] = d[--nd];
+        out[ol++] = in[j];
+        j += r;
+    }
+    return ol;
+}
 
 #define LS_CAP 120
 #define LS_K 40

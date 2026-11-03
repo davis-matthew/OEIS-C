@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 168, u32 n <= 1032, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 1320 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    a(1)=T(1,0), a(2)=T(1,1), a(3)=T(2,0), …          */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache of partition numbers p(0)…p(N) */
 static seq_t *partitions = NULL;   /* array p[0..N] */
@@ -36,7 +38,7 @@ static void ensure_partitions(idx_t max_n)
     if (partitions == NULL || max_n >= part_cap-1) {
         /* Allocate or reallocate */
         size_t sz = (size_t)(max_n + 1);
-        seq_t *p = (seq_t *)realloc(partitions, sz * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, partitions, sz);
         if (!p) abort();       /* allocation failure */
         partitions = p;
 

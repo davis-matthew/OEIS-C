@@ -6,94 +6,73 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = all numbers of the form (k!)^m (k ≥ 1, m ≥ 1), sorted
  *            strictly increasing
- * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 41, u128 n <= 41,
- *            big any n
- * Helpers:   pow2
+ * Range:     u8 n <= 13, u16 n <= 30, u32 n <= 65, u64 n <= 142,
+ *            u128 n <= 305, big any n
+ * Validated: standard, pass, 57 terms through n = 9026 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include <stddef.h>
-#include "../utils/pow2.h"
+/* A100685: powers of factorials, (j!)^k, in increasing order without
+ * repetition (1 = 1!^k once). All of them up to a bound 2^bits are generated,
+ * sorted and deduplicated; bits doubles until there are n. The values are
+ * exact: 128-bit at the fixed widths (so the order is right for every term
+ * that fits), seq_t for big. (The original's bound 2^n wrapped to 0 at the
+ * fixed widths and it then read past an empty heap.) */
 
-typedef struct { seq_t value; unsigned int idx; } Node;
+#include <stdlib.h>
+#include "../utils/mem.h"
 
-/* Min‑heap push */
-static void heap_push(Node *h, size_t *sz, Node n) {
-    size_t i = (*sz)++;
-    while (i > 0) {
-        size_t p = (i - 1) / 2;
-        if (h[p].value <= n.value) break;
-        h[i] = h[p];
-        i = p;
-    }
-    h[i] = n;
+#ifdef __cplusplus
+typedef seq_t wide_t;
+#else
+typedef unsigned __int128 wide_t;
+#endif
+
+static int cmp_wide(const void *x, const void *y)
+{
+    const wide_t *a = (const wide_t *)x, *b = (const wide_t *)y;
+    return *a < *b ? -1 : (*b < *a ? 1 : 0);
 }
 
-/* Min‑heap pop (removes and returns the smallest element) */
-static Node heap_pop(Node *h, size_t *sz) {
-    Node res = h[0];
-    Node last = h[--(*sz)];
-    size_t i = 0;
-    while (1) {
-        size_t l = i * 2 + 1;
-        if (l >= *sz) break;
-        size_t r = l + 1;
-        size_t best = l;
-        if (r < *sz && h[r].value < h[l].value) best = r;
-        if (last.value <= h[best].value) break;
-        h[i] = h[best];
-        i = best;
-    }
-    h[i] = last;
-    return res;
-}
-
-seq_t a(idx_t n) {
-    if (n == 0) return 0;                 /* protection; sequence is 1‑indexed */
-
-    /* 2^n is an upper bound for a(n) – it will be used to decide which factorials matter */
-    seq_t limit = pow2(n);                /* 2^n */
-
-    /* Pre‑compute factorial bases ≤ limit. 1! = 1 is always included. */
-    const size_t MAX_BASES = 4096;
-    seq_t bases[MAX_BASES];
-    size_t base_cnt = 0;
-    seq_t fac = 1;                        /* 1! */
-    bases[base_cnt++] = fac;
-
-    for (idx_t k = 2; k <= n; ++k) {      /* k no larger than n – grows fast enough */
-        fac = fac * (seq_t)k;
-        if (fac > limit) break;
-        if (base_cnt >= MAX_BASES) break;
-        bases[base_cnt++] = fac;
-    }
-
-    /* Build a min‑heap containing the first power from each base. */
-    Node heap[MAX_BASES];
-    size_t heap_sz = 0;
-    for (size_t i = 0; i < base_cnt; ++i) {
-        heap_push(heap, &heap_sz, (Node){bases[i], (unsigned int)i});
-    }
-
-    seq_t last = 0;
-    size_t count = 0;
-
-    while (1) {
-        Node cur = heap_pop(heap, &heap_sz);
-        seq_t val = cur.value;
-        unsigned int idx = cur.idx;
-
-        if (val != last) {                /* skip duplicates (only 1! causes this) */
-            ++count;
-            if (count == n) return val;
-            last = val;
+seq_t a(idx_t n)
+{
+    if (n < 1) return (seq_t)0;
+    for (unsigned bits = 16;; bits *= 2) {
+#ifndef __cplusplus
+        if (bits > 126) return (seq_t)0;          /* past 128 bits */
+#endif
+        wide_t B = 1;
+        for (unsigned i = 0; i < bits; ++i) B *= 2;
+        size_t cnt = 0, cap = 64;
+        wide_t *v = mem_new(wide_t, cap);
+        if (!v) abort();
+        v[cnt++] = 1;
+        wide_t f = 1;
+        for (unsigned j = 2;; ++j) {
+            if (f > B / j) break;
+            f *= j;                               /* j! <= B */
+            for (wide_t p = f;;) {
+                if (cnt == cap) {
+                    v = mem_resize(wide_t, v, cap * 2);
+                    if (!v) abort();
+                    cap *= 2;
+                }
+                v[cnt++] = p;
+                if (p > B / f) break;
+                p *= f;
+            }
         }
-
-        /* If the base is 1, further powers would repeat 1, so skip it. */
-        if (bases[idx] != 1) {
-            seq_t next = val * bases[idx];
-            heap_push(heap, &heap_sz, (Node){next, idx});
+        mem_qsort(v, cnt, sizeof *v, cmp_wide);
+        size_t u = 0;
+        for (size_t i = 0; i < cnt; ++i)
+            if (!u || !(v[i] == v[u - 1])) v[u++] = v[i];
+        if (u >= (size_t)n) {
+            seq_t r = (seq_t)v[n - 1];
+            mem_free(v);
+            return r;
         }
+        mem_free(v);
     }
 }

@@ -10,13 +10,15 @@
  *            ways[parts][sum]
  * Range:     u8 n <= 23, u16 n <= 125, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
 
     /* Allocate DP arrays.  prev[s] = number of ways to reach sum s
        using part-1 numbers; curr[s] does it for part numbers.  */
-    seq_t *prev = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, N + 1);
+    seq_t *curr = mem_new(seq_t, N + 1);
     if (!prev || !curr) return 0;       /* out of memory → error */
 
     prev[0] = 1;                         /* empty sum for 0 parts */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
 
     seq_t result = prev[N];
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

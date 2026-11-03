@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 8151, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9903 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, realloc */
 #include <stdbool.h>  /* for bool */
+#include "../utils/mem.h"
 
 /* static cache for already computed terms */
 static seq_t *seq_cache = NULL;
@@ -37,7 +39,7 @@ static void ensure_fib_cap(size_t needed) {
     if (needed > fib_cap) {
         size_t new_cap = fib_cap ? fib_cap * 2 : 8;
         if (new_cap < needed) new_cap = needed;
-        seq_t *new_fibs = (seq_t *)realloc(fibs, new_cap * sizeof(seq_t));
+        seq_t *new_fibs = mem_resize(seq_t, fibs, new_cap);
         fibs = new_fibs;
         fib_cap = new_cap;
     }
@@ -96,7 +98,7 @@ static void ensure_cache_capacity(size_t needed) {
     if (needed > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *new_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_cache = new_cache;
         cache_cap = new_cap;
     }

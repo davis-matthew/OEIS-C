@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 6, u64 n <= 14, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
  
 /* */
  
@@ -59,16 +61,16 @@ static void init_seq(void)
             }
 
     /* allocate DP buffers for the 27×27 pairs */
-    cur = (seq_t *)malloc(27 * 27 * sizeof(seq_t));
-    next = (seq_t *)malloc(27 * 27 * sizeof(seq_t));
+    cur = mem_new(seq_t, 27 * 27);
+    next = mem_new(seq_t, 27 * 27);
     /* initially all pairs of rows are allowed for two rows */
     for (size_t i = 0; i < 27 * 27; ++i)
         cur[i] = 1;
 
     /* cache up to n = 10000 (guaranteed by the problem limits) */
     cache_cap = 10050;          /* a little safety margin */
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-    memset(cache, 0, cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
+    mem_set(cache, 0, cache_cap * sizeof(seq_t));
 
     cache_len = 0;              /* no sequence values stored yet */
     current_rows = 2;           /* we have processed two rows so far */
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
         /* extend the DP step by step */
         for (idx_t step = current_rows + 1; step <= target_rows; ++step) {
             /* zero the next buffer */
-            memset(next, 0, 27 * 27 * sizeof(seq_t));
+            mem_set(next, 0, 27 * 27 * sizeof(seq_t));
 
             /* transition from each (a,b) to (b,c) if (a,b,c) valid */
             for (int a = 0; a < 27; ++a) {

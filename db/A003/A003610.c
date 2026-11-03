@@ -11,7 +11,8 @@
  *            P_m truncated to degree <= (N-1)/2. Then a(n) = [x...
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 25, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   a3610_find, a3610_isbig, a3610_list
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,34 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a3610_find.h"
-#include "../utils/a3610_isbig.h"
-#include "../utils/a3610_list.h"
+#include "../utils/mem.h"
+
+static int a3610_find(const idx_t *mv, int c, idx_t m) {
+  int i;
+  for (i = 0; i < c; i++) if (mv[i] == m) return i;
+  return -1;
+}
+
+static int a3610_isbig(void) {
+  seq_t x = 1;
+  int i;
+  for (i = 0; i < 140; i++) x = x + x;
+  return x != 0;
+}
+
+static int a3610_list(idx_t lim, idx_t *mv) {
+  int c = 0, i, j;
+  idx_t p;
+  for (p = 1; p <= lim; p *= 2) mv[c++] = p;
+  for (p = 3; p <= lim; p *= 2) mv[c++] = p;
+  for (i = 1; i < c; i++) {
+    idx_t v = mv[i];
+    j = i - 1;
+    while (j >= 0 && mv[j] > v) { mv[j + 1] = mv[j]; j--; }
+    mv[j + 1] = v;
+  }
+  return c;
+}
 
 #define A3610_MAXM 200
 
@@ -34,11 +60,11 @@ static seq_t *b_P[A3610_MAXM];
 
 static void a3610_big_build(idx_t N) {
   int i;
-  for (i = 0; i < b_nm; i++) free(b_P[i]);
+  for (i = 0; i < b_nm; i++) mem_free(b_P[i]);
   b_nm = a3610_list(2 * N + 2, b_mv);
   for (i = 0; i < b_nm; i++) {
     b_D[i] = (b_mv[i] == 1) ? N / 2 : N / b_mv[i];
-    b_P[i] = (seq_t *)calloc((size_t)(b_D[i] + 1), sizeof(seq_t));
+    b_P[i] = mem_new(seq_t, (size_t)(b_D[i] + 1));
   }
   for (i = b_nm - 1; i >= 0; i--) {
     idx_t m = b_mv[i], D = b_D[i], k, e;

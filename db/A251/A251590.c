@@ -11,14 +11,25 @@
  *            + 1051760172*n^2 + 479277840*n + 100000000)
  * Range:     u8 none, u16 n <= 0, u32 n <= 1, u64 n <= 10, u128 n <= 18,
  *            big any n
- * Helpers:   pow10, seq_pow
+ * Validated: standard, pass, 33 terms through n = 279 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,11 +46,11 @@ seq_t a(idx_t n)
 
     seq_t base_n1 = (seq_t)(n + 1);
     if (n >= 10) {
-        pow_n1_num = seq_pow(base_n1, n - 10);
+        pow_n1_num = ipow_idx(base_n1, n - 10);
         pow_n1_den = (seq_t)1;
     } else {
         pow_n1_num = (seq_t)1;
-        pow_n1_den = seq_pow(base_n1, 10 - n);
+        pow_n1_den = ipow_idx(base_n1, 10 - n);
     }
 
     /* Polynomial P(n) evaluated with Horner's method */

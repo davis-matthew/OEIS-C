@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 8, i16 n <= 8, i32 n <= 8, i64 n <= 8, i128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    –25, –8, –3, 0, 24, 27, 32, 49 arranged in increasing order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *p, const void *q)
 {
@@ -43,7 +45,7 @@ static void init(void)
         seq_t j2 = (seq_t)6 + (seq_t)6 / nd;
         values[idx++] = i2 * j2;
     }
-    qsort(values, 8, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(values, 8, sizeof(seq_t), cmp_seq_t);
     initialized = 1;
 }
 

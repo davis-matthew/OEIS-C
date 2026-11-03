@@ -8,13 +8,27 @@
  *            421)
  * Range:     u8 n <= 1, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   powmod_10
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/powmod_10.h"
+
+static seq_t powmod_10(idx_t exp) {
+    /* Compute 10^exp modulo 4210 using binary exponentiation. */
+    const uint64_t mod = 4210u;
+    uint64_t result = 1u % mod;
+    uint64_t base   = 10u % mod;
+    while (exp) {
+        if (exp & 1u)
+            result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1u;
+    }
+    return (seq_t)result;   /* value < 4210 */
+}
 
 seq_t a(idx_t n) {
     /* Digit number n of the decimal expansion of 1/421. */

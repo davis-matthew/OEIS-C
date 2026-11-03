@@ -8,15 +8,18 @@
  * Formula:   a(n) = (1/1617000)*(2*n+11)*C(n+10,3)*C(n+3,3)*C(n+7,4)^2
  * Range:     u8 none, u16 none, u32 n <= 15, u64 n <= 87, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 964 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Binomial coefficient routine provided by the utilities */
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-/* GCD routine provided by the utilities */
 #include "../utils/gcd.h"
+/* GCD routine provided by the utilities */
 
 /* Compute a(n) for the OEIS sequence A030647 */
 seq_t a(idx_t n)

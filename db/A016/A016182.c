@@ -9,7 +9,8 @@
  *            linear recurrence derived from the cyclotomic polynomial Φ_2173
  * Range:     i8 n <= 3000, i16 n <= 3000, i32 n <= 3000, i64 n <= 3000,
  *            i128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 2978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_seq  = NULL;   /* periodic values, size 2173 */
 static seq_t *phi    = NULL;   /* coefficients of Φ_2173, size 2081 */
@@ -33,14 +35,14 @@ static void init(void)
 
     /* Part 1: build (x^2173-1) */
     const size_t DEG_P = 2173;
-    seq_t *P = (seq_t *)calloc(DEG_P + 1, sizeof(seq_t));
+    seq_t *P = mem_new(seq_t, DEG_P + 1);
     if (!P) abort();
     P[0]  = -(seq_t)1;
     P[DEG_P] = (seq_t)1;
 
     /* Part 2: build denominator (x^53-1)*(x^41-1) = x^94 - x^53 - x^41 + 1 */
     const size_t DEG_D = 94;
-    seq_t *D = (seq_t *)calloc(DEG_D + 1, sizeof(seq_t));
+    seq_t *D = mem_new(seq_t, DEG_D + 1);
     if (!D) abort();
     D[0]   = (seq_t)1;
     D[41]  = -(seq_t)1;
@@ -49,7 +51,7 @@ static void init(void)
 
     /* Part 3: perform long division P = Q * D */
     const size_t DEG_Q = DEG_P - DEG_D;   /* 2079 */
-    seq_t *Q = (seq_t *)calloc(DEG_Q + 1, sizeof(seq_t));
+    seq_t *Q = mem_new(seq_t, DEG_Q + 1);
     if (!Q) abort();
 
     for (size_t i = DEG_P; i >= DEG_D; --i) {
@@ -64,11 +66,11 @@ static void init(void)
         }
     }
     /* After division P should be all zeros; we ignore the remainder. */
-    free(P);
-    free(D);
+    mem_free(P);
+    mem_free(D);
 
     /* Part 4: multiply Q by (x-1) to obtain Φ_2173 = (x-1) * Q */
-    phi = (seq_t *)calloc(DEG_PHI + 1, sizeof(seq_t));
+    phi = mem_new(seq_t, DEG_PHI + 1);
     if (!phi) abort();
 
     /* (x-1)*Q: coeff at x^k is -Q[k] + Q[k-1] (k>=1), 
@@ -79,10 +81,10 @@ static void init(void)
     }
     phi[DEG_PHI] = Q[DEG_Q];
 
-    free(Q);
+    mem_free(Q);
 
     /* Part 5: build the periodic sequence a_seq of length PERIOD (2173) */
-    a_seq = (seq_t *)calloc(PERIOD, sizeof(seq_t));
+    a_seq = mem_new(seq_t, PERIOD);
     if (!a_seq) abort();
 
     a_seq[0] = (seq_t)1;

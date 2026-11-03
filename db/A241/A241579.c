@@ -10,12 +10,14 @@
  *            antidiagonals downwards
  * Range:     u8 n <= 22, u16 n <= 46, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,11 +31,11 @@ seq_t a(idx_t n)
     idx_t j    = D - i;                  /* column index, >=1 */
 
     /* Compute Stirling numbers of the second kind for k = j. */
-    seq_t *S = (seq_t *)malloc((j + 1) * sizeof(seq_t));
-    seq_t *pow = (seq_t *)malloc((j + 1) * sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (j + 1));
+    seq_t *pow = mem_new(seq_t, (j + 1));
     if (!S || !pow) { /* safety check */
-        if (S) free(S);
-        if (pow) free(pow);
+        if (S) mem_free(S);
+        if (pow) mem_free(pow);
         return 0;
     }
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         result += S[t] * pow[exp];
     }
 
-    free(S);
-    free(pow);
+    mem_free(S);
+    mem_free(pow);
     return result;
 }

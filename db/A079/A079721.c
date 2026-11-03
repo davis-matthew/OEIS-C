@@ -8,11 +8,13 @@
  * Formula:   a(n) = (A006567(n) + A006567(n+1))/2
  * Range:     u8 n <= 14, u16 n <= 979, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 65 terms through n = 7613 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* A006567(n) is the n‑th emirp (prime whose reversal is a distinct prime) */
 
 #include <stdint.h>

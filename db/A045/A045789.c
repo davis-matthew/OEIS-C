@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 20, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   leading_digit_is6
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
    found.  No caching is used; each call is independent. */
 
 #include <stdbool.h>
-#include "../utils/leading_digit_is6.h"
+
+/* Test whether the leading decimal digit of x is 6. */
+static inline bool leading_digit_is6(seq_t x)
+{
+    while (x >= 10) {
+        x /= 10;
+    }
+    return x == 6;
+}
 
 seq_t a(idx_t n)
 {

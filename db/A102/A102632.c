@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 70, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   isprime_big
+ * Validated: partial, pass, 104 terms through n = 104 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* Computes a(n): smallest k such that 2^k ± prime(n) is prime.
    n is 1‑based. Returns k as seq_t. */
 #include <stdint.h>
-#include "../utils/isprime_big.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 
 static seq_t nth_prime(idx_t n)
 {
@@ -26,7 +28,7 @@ static seq_t nth_prime(idx_t n)
     idx_t count = 0;
     while (1)
     {
-        if (isprime_big(candidate))
+        if (is_prime_seq(candidate))
         {
             ++count;
             if (count == n)
@@ -48,13 +50,13 @@ seq_t a(idx_t n)
     for (;; ++k)
     {
         seq_t plus = s + p;
-        if (isprime_big(plus))
+        if (is_prime_seq(plus))
             return (seq_t)k;
 
         if (s >= p)
         {
             seq_t minus = s - p;
-            if (isprime_big(minus))
+            if (is_prime_seq(minus))
                 return (seq_t)k;
         }
 

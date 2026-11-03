@@ -11,15 +11,31 @@
  *            A000669(n) = (Sum_{k=1..n-1} c(k)*A000084(n-k) + Sum_{...
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 22, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   a1572_fixed, a1572_regrow
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a1572_fixed.h"
-#include "../utils/a1572_regrow.h"
+#include "../utils/mem.h"
+
+static int a1572_fixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x = x * 2;
+    return x == 0;
+}
+
+static seq_t *a1572_regrow(seq_t *old, idx_t oldlen, idx_t newcap) {
+    seq_t *p = mem_new(seq_t, newcap);
+    idx_t i;
+    for (i = 0; i < newcap; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 /* ---------- fixed-width path: arithmetic mod 2^128 ---------- */
 typedef unsigned __int128 a1572_u;

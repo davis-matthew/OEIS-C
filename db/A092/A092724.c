@@ -9,6 +9,7 @@
  *            (187*k^5 - 1518*k^4 + 4793*k^3 - 6390*k^2 + 2952*k)
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 11, i64 n <= 11, i128 n <= 11,
  *            big any n
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,6 +9,7 @@
  *            antidiagonals of the array T(n,k) = n!·[xⁿ]exp(2x+(k/2)x²)
  * Range:     u8 n <= 32, u16 n <= 73, u32 n <= 165, u64 n <= 399,
  *            u128 n <= 1070, big any n
+ * Validated: standard, pass, 82 terms through n = 1254 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
    T(n,k) = Σ_{t=0..⌊n/2⌋} binomial(n,2t)·2^(n-2t)·k^t·(2t-1)!!      */
 
 /* Include required utility functions */
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

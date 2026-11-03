@@ -12,13 +12,27 @@
  *            subblock rule. The sequence starts with a(1)=110
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 19, u64 n <= 45, u128 n <= 99,
  *            big any n
- * Helpers:   matrix_mult
+ * Validated: standard, pass, 40 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/matrix_mult.h"
+
+static void matrix_mult(const seq_t a[16][16], const seq_t b[16][16],
+                        seq_t res[16][16]) {
+    idx_t i, j, k;
+    for (i = 0; i < 16; ++i) {
+        for (j = 0; j < 16; ++j) {
+            seq_t s = 0;
+            for (k = 0; k < 16; ++k) {
+                s += a[i][k] * b[k][j];
+            }
+            res[i][j] = s;
+        }
+    }
+}
 
 seq_t a(idx_t n) {
     /* Transition matrix M (constant). */

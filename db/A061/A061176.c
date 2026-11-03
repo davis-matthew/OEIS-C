@@ -10,13 +10,16 @@
  *            * has degree r and contains r+1 coefficients. The index n
  *            selects the * coefficient reading off the flattened list of all
  *            polynomials
- * Range:     i8 n <= 37, i16 n <= 159, i32 n <= 508, i64 n <= 1325,
+ * Range:     i8 n <= 59, i16 n <= 160, i32 n <= 509, i64 n <= 1325,
  *            i128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1211 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
 #include <stdint.h>
 

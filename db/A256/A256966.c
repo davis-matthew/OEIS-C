@@ -11,12 +11,14 @@
  *            Σ_{i=1}^{m-1} Fib(i) ) where m is the smallest index wit...
  * Range:     u8 n <= 41, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static tables of Fibonacci numbers and running sums. */
@@ -28,9 +30,9 @@ seq_t a(idx_t n) {
     /* Ensure the tables are initialized (only once). */
     if (cap == 0) {
         cap = 16;                     /* starting capacity, enough for n≈1e7 */
-        fib    = (seq_t*)malloc(cap * sizeof(seq_t));
-        cnt    = (seq_t*)malloc(cap * sizeof(seq_t));
-        weight = (seq_t*)malloc(cap * sizeof(seq_t));
+        fib    = mem_new(seq_t, cap);
+        cnt    = mem_new(seq_t, cap);
+        weight = mem_new(seq_t, cap);
 
         fib[0]      = (seq_t)0;            /* unused */
         fib[1]      = (seq_t)1;
@@ -53,17 +55,17 @@ seq_t a(idx_t n) {
         /* Grow capacity if necessary */
         if (i + 1 >= cap) {
             size_t newcap = cap * 2;
-            seq_t *nfib    = (seq_t*)malloc(newcap * sizeof(seq_t));
-            seq_t *ncnt    = (seq_t*)malloc(newcap * sizeof(seq_t));
-            seq_t *nweight = (seq_t*)malloc(newcap * sizeof(seq_t));
+            seq_t *nfib    = mem_new(seq_t, newcap);
+            seq_t *ncnt    = mem_new(seq_t, newcap);
+            seq_t *nweight = mem_new(seq_t, newcap);
             for (size_t k = 0; k < cap; ++k) {
                 nfib[k]    = fib[k];
                 ncnt[k]    = cnt[k];
                 nweight[k] = weight[k];
             }
-            free(fib);
-            free(cnt);
-            free(weight);
+            mem_free(fib);
+            mem_free(cnt);
+            mem_free(weight);
             fib    = nfib;
             cnt    = ncnt;
             weight = nweight;

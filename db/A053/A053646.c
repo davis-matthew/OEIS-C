@@ -7,6 +7,7 @@
  * Formula:   a(n) = min(n-2^⌊log₂(n)⌋, 2·2^⌊log₂(n)⌋-n)
  * Range:     u8 n <= 766, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 105 terms through n = 8930 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

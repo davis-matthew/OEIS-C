@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 23, i32 n <= 49, i64 n <= 102, i128 n <= 208,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
         a(n) = a(n‑2) – 2*a(n‑3)   for n ≥ 3
    The recurrence follows from (1‑x²+2*x³)*A(x) = (1‑2*x)².  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised storage of previously computed terms. */
 static seq_t *cache      = NULL;   /* Array holding a(k).  */
@@ -37,7 +39,7 @@ ensure_cache(idx_t n)
     if (required > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 128;
         if (new_cap < required) new_cap = required;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {                 /* Allocation failure – abort.  */
             exit(EXIT_FAILURE);
         }

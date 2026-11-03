@@ -9,8 +9,9 @@
  *            digit of n in primorial base at radix p is non‑zero. *
  *            Computation: for each prime p, let w = product of all primes <
  *            p. * The digit is (n / w) mod p. Count p iff digit > 0 and p | n
- * Range:     u8 n <= 9830, u16 n <= 9830, u32 n <= 9830, u64 n <= 9830,
- *            u128 n <= 9830, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 122 terms through n = 9830 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

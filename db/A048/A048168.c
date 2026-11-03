@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1873, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 70 terms through n = 8854 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Static storage for the generated sequence and factorisation buffers. */
 static seq_t *seq_list = NULL;         /* array of found values               */
@@ -36,7 +39,7 @@ static void seq_append(seq_t val)
 {
     if (seq_len >= seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 256 : seq_cap * 2;
-        seq_t *new_ptr = (seq_t *)realloc(seq_list, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, seq_list, new_cap);
         if (!new_ptr) return;                     /* silently abort on OOM   */
         seq_list = new_ptr;
         seq_cap = new_cap;

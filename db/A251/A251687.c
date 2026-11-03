@@ -9,12 +9,15 @@
  * Formula:   G.f. = (1 + x)*(1 + 4*x^3)*(1 - 3*x^2 + 4*x^4) / (1 - 2*x^2)^2
  * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
         idx_t k = diff >> 1;                     /* k = (n - m)/2 */
 
         /* 2^k */
-        seq_t pow2 = seq_pow((seq_t)2, k);
+        seq_t pow2 = ipow_idx((seq_t)2, k);
 
         /* (k+1) * 2^k */
         seq_t pk = pow2 * (seq_t)(k + 1);

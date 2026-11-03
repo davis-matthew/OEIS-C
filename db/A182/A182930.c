@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 55, u32 n <= 136, u64 n <= 351,
  *            u128 n <= 946, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         idx_t *new_tri = (idx_t *)realloc(tri, (new_rows + 1) * sizeof(seq_t *));
         tri = (seq_t **)new_tri;
         for (idx_t i = max_rows + 1; i <= new_rows; i++) {
-            tri[i] = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+            tri[i] = mem_new(seq_t, (i + 1));
             /* 1‑based indexing: tri[i][0] unused */
         }
 

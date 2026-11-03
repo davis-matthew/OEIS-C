@@ -10,7 +10,8 @@
  *            digits {1,9} in p
  * Range:     u8 n <= 13, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   valid_prime
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/valid_prime.h"
+#include "../utils/mem.h"
+
+/* helper: count prime digits 2,3,5,7 and odd non‑prime digits 1,9 */
+static bool valid_prime(seq_t p)
+{
+    int prime_cnt = 0;
+    int odd_nonprime_cnt = 0;
+    seq_t x = p;
+    while (x > 0)
+    {
+        int d = (int)(x % 10);
+        if (d == 2 || d == 3 || d == 5 || d == 7)
+            ++prime_cnt;
+        else if (d == 1 || d == 9)
+            ++odd_nonprime_cnt;
+        x /= 10;
+    }
+    return prime_cnt == odd_nonprime_cnt;
+}
 
 /* main sequence function */
 seq_t a(idx_t n)
@@ -51,7 +70,7 @@ seq_t a(idx_t n)
     {
         size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
         while (new_cap < (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_cap = new_cap;

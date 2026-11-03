@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, tabl
  * Formula:   not stated
- * Range:     i8 n <= 9930, i16 n <= 9930, i32 n <= 9930, i64 n <= 9930,
- *            i128 n <= 9930, big any n
- * Helpers:   none
+ * Range:     i8 n <= 11475, i16 n <= 11475, i32 n <= 11475, i64 n <= 11475,
+ *            i128 n <= 11475, big any n
+ * Validated: standard, pass, 94 terms through n = 9930 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  * combination provided by the build. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for the inverse triangle */
 static seq_t **inv_rows = NULL;
@@ -41,7 +43,7 @@ static void ensure_inv_rows(idx_t up_to) {
             inv_rows = (seq_t**)realloc(inv_rows, inv_rows_cap * sizeof(seq_t*));
         }
         idx_t i = inv_rows_count;          /* row index to compute */
-        seq_t *row = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
 
         idx_t m = (i + 2) / 2;              /* floor((i+2)/2)   */
         idx_t start = (i + 1) / 2;          /* ceil(i/2)        */

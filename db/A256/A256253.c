@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime sieve helpers ---------- */
 static uint32_t *primes      = NULL;   /* primes list (ascending)          */
@@ -120,7 +122,7 @@ ensure_runs_up_to(idx_t target_n)
         cur_run_len = 0;
 
         runs_cap = 16;
-        runs = (seq_t *)malloc(runs_cap * sizeof(seq_t));
+        runs = mem_new(seq_t, runs_cap);
         runs_len = 0;
     }
 
@@ -131,8 +133,7 @@ ensure_runs_up_to(idx_t target_n)
         } else {
             if (runs_len == runs_cap) {
                 runs_cap *= 2;
-                runs = (seq_t *)realloc(runs,
-                    runs_cap * sizeof(seq_t));
+                runs = mem_resize(seq_t, runs, runs_cap);
             }
             runs[runs_len++] = (seq_t)cur_run_len;
             cur_type_prime = !cur_type_prime;

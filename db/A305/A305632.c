@@ -9,7 +9,8 @@
  *            1/(1+(-x)^r)
  * Range:     u8 n <= 29, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* zero‑index offset: a(0)=1 */
@@ -35,10 +37,10 @@ seq_t a(idx_t n) {
     const size_t N = (size_t)n;          /* safe for positive n up to 2⁶⁴-1 */
 
     /* ---- Allocate DP arrays ------------------------------------ */
-    seq_t *even = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *odd  = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *even = mem_new(seq_t, (N + 1));
+    seq_t *odd  = mem_new(seq_t, (N + 1));
     if (!even || !odd) {
-        free(even); free(odd);
+        mem_free(even); mem_free(odd);
         return (seq_t)0;
     }
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
     /* ---- Precompute perfect‑power flags up to N ---------------- */
     bool *isPP = (bool *)calloc(N + 1, sizeof(bool));
     if (!isPP) {
-        free(even); free(odd);
+        mem_free(even); mem_free(odd);
         return (seq_t)0;
     }
 
@@ -94,6 +96,6 @@ seq_t a(idx_t n) {
     }
 
     /* ---- Clean up --------------------------------------------- */
-    free(even); free(odd); free(isPP);
+    mem_free(even); mem_free(odd); free(isPP);
     return result;
 }

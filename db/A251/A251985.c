@@ -10,7 +10,8 @@
  *            to 1 or 5
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 18, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* internal structures */
 #define ROWS_PER_VAL 27       /* 3^3 possible rows */
@@ -101,15 +103,15 @@ static void init_tables(void)
         }
 
     /* allocate DP arrays */
-    dp_cur = (seq_t *)malloc(state_count * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(state_count * sizeof(seq_t));
+    dp_cur = mem_new(seq_t, state_count);
+    dp_next = mem_new(seq_t, state_count);
     /* initialize dp_cur for length 2: every pair of valid rows is allowed */
     for (size_t s = 0; s < state_count; ++s)
         dp_cur[s] = (seq_t)1;
 
     /* initial cache (n=0, length=2) – not used but convenient */
     cache_size = 1;
-    a_cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+    a_cache = mem_new(seq_t, cache_size);
     a_cache[0] = (seq_t)state_count;  /* number of valid rows squared */
 }
 
@@ -119,7 +121,7 @@ static void ensure_cache(size_t need)
     if (need < cache_size) return;
     size_t new_cap = cache_size == 0 ? 1 : cache_size;
     while (new_cap <= need) new_cap <<= 1;
-    seq_t *newc = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *newc = mem_resize(seq_t, a_cache, new_cap);
     if (!newc) abort();  /* allocation failure */
     a_cache = newc;
     cache_size = new_cap;

@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{k=0}^{n-1} prefix_overlap(binary(k),binary(k+1))
  * Range:     u8 n <= 73, u16 n <= 6699, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 79 terms through n = 8994 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

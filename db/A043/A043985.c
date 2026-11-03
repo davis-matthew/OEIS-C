@@ -10,13 +10,26 @@
  *            but the base‑9 digits of k + 1 do not
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_adjacent_38_or_83
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_adjacent_38_or_83.h"
+
+static bool has_adjacent_38_or_83(seq_t x)
+{
+    seq_t prev = 9;                /* sentinel value > any base‑9 digit              */
+    while (x > 0) {
+        seq_t cur = x % 9;
+        if ((prev == 3 && cur == 8) || (prev == 8 && cur == 3))
+            return true;
+        prev = cur;
+        x = x / 9;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{i=0..n} i^(i-2)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <assert.h>
-#include "../utils/big_pow.h"   /* provides seq_t big_pow(seq_t base, seq_t exp); */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +31,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with a(0)=1 */
     if (cache_cap == 0) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         assert(cache != NULL);
         cache[0] = 1;          /* a(0) = 1 */
         cache_cap = 1;
@@ -35,7 +39,7 @@ seq_t a(idx_t n)
 
     /* grow cache if needed */
     if (n >= cache_cap) {
-        seq_t *tmp = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         assert(tmp != NULL);
         cache = tmp;
         for (idx_t i = cache_cap; i <= n; ++i) {
@@ -44,7 +48,7 @@ seq_t a(idx_t n)
                 /* conventionally, 0^(−2),1^(−1),2^0 are taken as 1 for this sequence */
                 term = 1;
             } else {
-                term = big_pow((seq_t)i, (seq_t)(i - 2));
+                term = ipow((seq_t)i, (seq_t)(i - 2));
             }
             cache[i] = cache[i - 1] + term;
         }

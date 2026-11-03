@@ -7,6 +7,7 @@
  * Formula:   a(n) = d(A000961(n+1),6) where, for q = A000961(n+1), d(q,6) =
  *            q^30 * (q^6-1) * Prod_{i=1..5} (q^(2i)-1) / gcd(4, q^6-1)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 2, big any n
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

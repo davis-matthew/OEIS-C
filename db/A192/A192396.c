@@ -10,13 +10,15 @@
  *            (d+1)(d+2)/2, offset t = n - d*(d+1)/2, i = d - t, j = t
  * Range:     u8 n <= 37, u16 n <= 80, u32 n <= 175, u64 n <= 441,
  *            u128 n <= 1138, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 82 terms through n = 999 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         power /= 2;                   /* floor division by 2 */
         result = (seq_t)power;
     } else {                           /* arbitrary‑precision build */
-        seq_t val = big_pow((seq_t)(col + 1), (seq_t)row);
+        seq_t val = ipow((seq_t)(col + 1), (seq_t)row);
         if (parity) val -= parity;    /* subtract 1 when col is even */
         val /= (seq_t)2;               /* floor division by 2 */
         result = val;

@@ -11,13 +11,15 @@
  *            (0‑based column index)
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   calc_phi
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/calc_phi.h"          /* provides seq_t calc_phi(seq_t) */
+#include <stdint.h>
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* --- search for the smallest x with cototient(x) % r == k --- */
     seq_t target = (seq_t)k;
     for (seq_t x = 1; ; ++x) {
-        seq_t phi = calc_phi(x);
+        seq_t phi = totient_seq(x);
         seq_t cototient = x - phi;
         if ((cototient % (seq_t)r) == target)
             return x;

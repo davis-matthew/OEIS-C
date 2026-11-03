@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in 1/((1-x)(1-x^8)(1-x^9)(1-x^11))
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence A029128 – number of partitions of n into parts {1,8,9,11}. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,12 +29,12 @@ seq_t a(idx_t n)
         size_t new_size = (size_t)n + 1;
         if (dp == NULL)
         {
-            dp = (seq_t*)calloc(new_size, sizeof(seq_t));
+            dp = mem_new(seq_t, new_size);
             if (!dp) abort();
         }
         else
         {
-            seq_t *tmp = (seq_t*)realloc(dp, new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, dp, new_size);
             if (!tmp) abort();
             dp = tmp;
         }

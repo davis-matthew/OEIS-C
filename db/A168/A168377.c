@@ -12,14 +12,18 @@
  *            (r+1)(r+2)/2 and k = n - r(r+1)/2
  * Range:     i8 n <= 36, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   offset_row
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/offset_row.h"
+#include <stdint.h>
+#include <math.h>
+#include "../utils/triangular.h"
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;       /* array of rows, each row is a seq_t*  */
 static seq_t *row_sums = NULL;    /* sum of each row */
@@ -46,7 +50,7 @@ static void ensure_sums_cap(size_t needed)
     size_t new_cap = sums_cap ? sums_cap * 2 : 8;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *new_sums = (seq_t *)realloc(row_sums, new_cap * sizeof(seq_t));
+    seq_t *new_sums = mem_resize(seq_t, row_sums, new_cap);
     row_sums = new_sums;
     sums_cap = new_cap;
 }
@@ -57,7 +61,7 @@ static void build_row(idx_t r)
     while (rows_cnt <= r) {
         idx_t i = rows_cnt;
         size_t len = (size_t)(i + 1);
-        seq_t *cur = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, len);
         /* T(i,0) = (-1)^i */
         cur[0] = ((i & 1) == 0) ? (seq_t)1 : (seq_t)-1;
         seq_t sum = cur[0];
@@ -86,6 +90,6 @@ seq_t a(idx_t n)
     while ((r + 1) * (r + 2) / 2 <= n)
         ++r;
     build_row(r);
-    idx_t k = n - offset_row(r);
+    idx_t k = n - triangular(r);
     return rows[r][k];
 }

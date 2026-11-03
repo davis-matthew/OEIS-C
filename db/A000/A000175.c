@@ -12,14 +12,26 @@
  *            D(n)/(n*D(k)*D(n-k)) = Prod_{2<=d<n, (k m...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 15, u128 n <= 23,
  *            big any n
- * Helpers:   a175_c
+ * Validated: standard, pass, 33 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a175_c.h"
+
+static seq_t a175_c(idx_t n, idx_t k)
+{
+    seq_t c = 1;
+    idx_t m = n - k;
+    idx_t d;
+    for (d = 2; d < n; d++) {
+        if (k % d + m % d >= d)
+            c *= (seq_t)d;
+    }
+    return c;
+}
 
 #define A175_MAX 10002
 

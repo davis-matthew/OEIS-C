@@ -6,8 +6,9 @@
  * Keywords:  nonn, nice, easy
  * Formula:   a(n) = sum of nonprime divisors of n (i.e. sum of all divisors
  *            of n excluding the prime ones)
- * Range:     u8 n <= 48, u16 n <= 9405, u32 n <= 9405, u64 n <= 9405,
- *            u128 n <= 9405, big any n
+ * Range:     u8 n <= 48, u16 n <= 17639, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 90 terms through n = 9405 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

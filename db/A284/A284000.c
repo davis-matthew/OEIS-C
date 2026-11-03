@@ -8,9 +8,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = a(a(n-A002828(n))) + a(n-a(n-A002828(n))),
  *            a(1)=a(2)=a(3)=1
- * Range:     u8 n <= 413, u16 n <= 9747, u32 n <= 9747, u64 n <= 9747,
- *            u128 n <= 9747, big any n
- * Helpers:   none
+ * Range:     u8 n <= 413, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 86 terms through n = 9747 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- integer square root for idx_t -------------------------------- */
 static inline idx_t isqrt_u64(idx_t n)
@@ -60,12 +62,11 @@ static void ensure_cache(idx_t n)
     if (n <= cache_cap) return;
     size_t new_cap = (cache_cap == 0) ? 32 : cache_cap;
     while (new_cap < (size_t)n) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
     if (!new_cache) abort();                                   /* out of memory */
     if (new_cap > cache_cap) {
         /* initialise newly allocated entries to zero */
-        memset(new_cache + cache_cap + 1, 0,
-               (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(new_cache + cache_cap + 1, 0, (new_cap - cache_cap) * sizeof(seq_t));
     }
     cache = new_cache;
     cache_cap = new_cap;

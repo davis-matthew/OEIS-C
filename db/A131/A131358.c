@@ -7,6 +7,7 @@
  * Formula:   a(3k)=0; a(3k+1)=k+1; a(3k+2)=-k. Offset 0
  * Range:     i8 n <= 89, i16 n <= 89, i32 n <= 89, i64 n <= 89, i128 n <= 89,
  *            big any n
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

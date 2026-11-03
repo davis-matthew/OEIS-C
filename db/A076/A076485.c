@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 865, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_seq_local
+ * Validated: standard, pass, 70 terms through n = 9861 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/gcd_seq_local.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Small Euclid gcd that works for any integral type seq_t            */
@@ -119,8 +121,8 @@ static bool candidate_ok(uint64_t n) {
         phi_sf   *= (seq_t)(p - 1);
     }
 
-    seq_t g1 = gcd_seq_local(sigma, phi);
-    seq_t g2 = gcd_seq_local(sigma_sf, phi_sf);
+    seq_t g1 = gcd(sigma, phi);
+    seq_t g2 = gcd(sigma_sf, phi_sf);
     return g1 > g2;
 }
 
@@ -142,7 +144,7 @@ seq_t a(idx_t n) {
             if (term_len == term_cap) {
                 size_t new_cap = term_cap ? term_cap * 2 : 64;
                 term_cap = new_cap;
-                term_cache = (seq_t *)realloc(term_cache, term_cap * sizeof(seq_t));
+                term_cache = mem_resize(seq_t, term_cache, term_cap);
             }
             term_cache[term_len++] = (seq_t)next_candidate;
         }

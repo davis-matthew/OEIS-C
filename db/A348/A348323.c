@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into two or more primes
  * Range:     u8 n <= 38, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   build_primes_upto, is_prime
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Allocate DP table for partitions into primes. */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp)
         return 0;                /* allocation failed – return 0 as a safe value */
 
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         ans -= 1;
 
     /* Clean up. */
-    free(dp);
+    mem_free(dp);
     free(primes);
     return ans;
 }

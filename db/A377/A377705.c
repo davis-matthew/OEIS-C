@@ -11,13 +11,15 @@
  *            * B[n] = Sum_{i=0..n} a[i] * a[n-i] (A(x)^2) * C[n...
  * Range:     i8 n <= 7, i16 n <= 11, i32 n <= 19, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The integer types seq_t and idx_t are defined by the build.  */
 
@@ -38,17 +40,17 @@ static void ensure_cache(idx_t n)
         new_cap <<= 1;
 
     /* Reallocate a_vals */
-    seq_t *p = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, a_vals, new_cap);
     if (!p) abort();
     a_vals = p;
 
     /* Reallocate B_vals */
-    p = (seq_t *)realloc(B_vals, new_cap * sizeof(seq_t));
+    p = mem_resize(seq_t, B_vals, new_cap);
     if (!p) abort();
     B_vals = p;
 
     /* Reallocate C_vals */
-    p = (seq_t *)realloc(C_vals, new_cap * sizeof(seq_t));
+    p = mem_resize(seq_t, C_vals, new_cap);
     if (!p) abort();
     C_vals = p;
 

@@ -8,6 +8,7 @@
  * Formula:   a(n) = # { primes p ≡ 3 (mod 4) | 2n – p is also prime }
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides: bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {

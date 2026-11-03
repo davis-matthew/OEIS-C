@@ -7,12 +7,14 @@
  * Formula:   a(n) = 4*a(n-1) - a(n-2) + 2, a(0)=0, a(1)=1
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 34, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 218 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t
 a(idx_t n)
@@ -24,7 +26,7 @@ a(idx_t n)
     /* initialize cache with the first two terms */
     if (cache_len == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL)          /* allocation failure – never happens in tests */
             return (seq_t)0;
         cache[0] = (seq_t)0;        /* a(0) */
@@ -39,7 +41,7 @@ a(idx_t n)
             /* grow if needed */
             if (i + 1 > cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             /* recurrence: a(i) = 4*a(i-1) - a(i-2) + 2 */
             seq_t prev  = cache[i - 1];

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 /* Sequence A097560 – a(n) = number of previous terms coprime to n, a(1)=3.
    The implementation caches computed terms for fast repeated access. */
 #include <stdlib.h>
-#include "../utils/gcd.h"   /* provides seq_t and idx_t definitions */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* A local Euclidean gcd for seq_t (seq_t may be up to 128‑bit). */
 static seq_t gcd_seq_t(seq_t a, seq_t b)
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (cache == NULL) {
         cap = 2;                          /* need space for indices 0 and 1 */
-        cache = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cap);
         if (cache == NULL) return (seq_t)0;    /* OOM → 0 (rare case) */
         cache[0] = 0;
         cache[1] = (seq_t)3;               /* a(1) = 3 */
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
     if (n >= cap) {
         idx_t newcap = cap;
         while (newcap <= n) newcap <<= 1;    /* double until big enough */
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL) return (seq_t)0;    /* OOM → 0 */
         cache = tmp;
         cap = newcap;

@@ -12,6 +12,7 @@
  *            C_{k+1} = C_k * 2*(2*k+1)/(k+2) (k ≥ 0)
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
+ * Validated: partial, pass, 4 terms through n = 3 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,6 +8,7 @@
  * Formula:   a(n) = ∏_{p^e‖n, p>3} (p^e + 1). For primes p≤3 the factor is 1
  * Range:     u8 n <= 214, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 90 terms through n = 9371 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

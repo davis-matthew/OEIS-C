@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* -----  Computation of the first eight terms by DP  ----- */
 static void compute_initial_terms(seq_t init[8])
@@ -48,10 +50,10 @@ static void compute_initial_terms(seq_t init[8])
     }
 
     /* DP arrays for the current and next row.  Initially row 1.       */
-    seq_t *dp0[2] = { (seq_t *)calloc(ST, sizeof(seq_t)),
-                      (seq_t *)calloc(ST, sizeof(seq_t)) };
-    seq_t *dp1[2] = { (seq_t *)calloc(ST, sizeof(seq_t)),
-                      (seq_t *)calloc(ST, sizeof(seq_t)) };
+    seq_t *dp0[2] = { mem_new(seq_t, ST),
+                      mem_new(seq_t, ST) };
+    seq_t *dp1[2] = { mem_new(seq_t, ST),
+                      mem_new(seq_t, ST) };
     int cur = 0, nxt = 1;
 
     /* Row 1: only horizontal adjacency contributes.                 */
@@ -116,7 +118,7 @@ static void compute_initial_terms(seq_t init[8])
         init[row - 1] = cur_sum;                /* a(row) */
     }
 
-    free(dp0[0]); free(dp0[1]); free(dp1[0]); free(dp1[1]);
+    mem_free(dp0[0]); mem_free(dp0[1]); mem_free(dp1[0]); mem_free(dp1[1]);
 }
 
 /* -----  Memoised recurrence computation  ----- */
@@ -131,7 +133,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = cache_cap ? cache_cap : 8;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         exit(1);
     cache = tmp;
@@ -148,7 +150,7 @@ seq_t a(idx_t n)
     /* Initialisation on first call. */
     if (!cache) {
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             exit(1);
         seq_t init[8];

@@ -9,7 +9,8 @@
  *            1, a(2) = 1
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 25, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 1107 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n <= 2) return (seq_t)1;   /* a(1) = a(2) = 1 */
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     if (fib == NULL) {            /* first call – initialise */
         fib_cap = 8;               /* arbitrary small choice */
         fib_len = 2;               /* we know F(0) and F(1) */
-        fib = (seq_t*)malloc(fib_cap * sizeof(seq_t));
+        fib = mem_new(seq_t, fib_cap);
         if (!fib) return (seq_t)0; /* out of memory – unlikely in tests */
         fib[0] = (seq_t)0;
         fib[1] = (seq_t)1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     if (need >= fib_cap) {
         idx_t new_cap = fib_cap;
         while (new_cap <= need) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(fib, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fib, new_cap);
         if (!tmp) return (seq_t)0; /* allocation failure */
         fib = tmp;
         fib_cap = new_cap;

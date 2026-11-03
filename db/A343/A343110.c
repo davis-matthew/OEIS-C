@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 147, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_no_bad_divisor
+ * Validated: standard, pass, 82 terms through n = 9640 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_no_bad_divisor.h"
+
+/* Return true iff x has no divisor congruent to 7 modulo 8. */
+static bool has_no_bad_divisor(uint64_t x)
+{
+    /* Loop over all divisors d <= sqrt(x).  For each divisor, test
+       both d and x/d. */
+    for (uint64_t d = 1; d <= x / d; ++d)
+    {
+        if (x % d == 0)
+        {
+            if (d % 8 == 7)
+                return false;
+            uint64_t q = x / d;
+            if (q != d && q % 8 == 7)
+                return false;
+        }
+    }
+    return true;
+}
 
 /* Return the n-th term of the sequence (offset 1). */
 seq_t a(idx_t n)

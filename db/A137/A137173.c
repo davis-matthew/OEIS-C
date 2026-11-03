@@ -10,12 +10,15 @@
  *            2^{n-1}. This implements the definition of sequence A137173
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +27,8 @@ seq_t a(idx_t n)
 
     idx_t m = n >> 1;              /* m = floor(n/2) */
     /* Compute powers of 2 needed: 2^(2m-1) and 2^(m-1) */
-    seq_t pow1 = big_pow((seq_t)2, (seq_t)(2 * m - 1));
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)(m - 1));
+    seq_t pow1 = ipow((seq_t)2, (seq_t)(2 * m - 1));
+    seq_t pow2 = ipow((seq_t)2, (seq_t)(m - 1));
 
     if ((n & 1) == 0)              /* even index: a(2m)  */
         return pow1 - pow2;

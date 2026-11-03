@@ -7,13 +7,17 @@
  * Formula:   a(n) = n! * Σ_{k=1..n} (3k)^(k-1) * C(n-1,k-1) / k!
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;   /* fact_cache[i] = i!   */
 static size_t fact_size  = 0;      /* current allocated size */
@@ -25,14 +29,14 @@ static size_t pow_size   = 0;      /* current allocated size */
 static void ensure_fact(idx_t n)
 {
     if (fact_cache == NULL) {
-        fact_cache = (seq_t *)malloc(sizeof(seq_t));
+        fact_cache = mem_new(seq_t, 1);
         if (!fact_cache) return;           /* out of memory */
         fact_cache[0] = 1;
         fact_size = 1;
     }
     if ((size_t)n >= fact_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(fact_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact_cache, new_size);
         if (!tmp) return;                  /* out of memory */
         fact_cache = tmp;
         for (size_t i = fact_size; i < new_size; ++i) {
@@ -47,20 +51,20 @@ static void ensure_fact(idx_t n)
 static void ensure_power(idx_t n)
 {
     if (pow_cache == NULL) {
-        pow_cache = (seq_t *)malloc(sizeof(seq_t));
+        pow_cache = mem_new(seq_t, 1);
         if (!pow_cache) return;           /* out of memory */
         pow_cache[0] = 0;                 /* unused slot */
         pow_size = 1;
     }
     if ((size_t)n >= pow_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(pow_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow_cache, new_size);
         if (!tmp) return;                  /* out of memory */
         pow_cache = tmp;
         for (idx_t i = (idx_t)pow_size; i <= n; ++i) {
             seq_t base = (seq_t)(3ULL * (uint64_t)i);
             seq_t exp  = (seq_t)(i - 1);
-            pow_cache[i] = big_pow(base, exp);
+            pow_cache[i] = ipow(base, exp);
         }
         pow_size = new_size;
     }

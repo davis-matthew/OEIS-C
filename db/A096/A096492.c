@@ -10,18 +10,22 @@
  *            of √n. (OEIS A096492)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   _isqrt_u64
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_isqrt_u64.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle square numbers */
-    idx_t a0 = _isqrt_u64(n);
+    idx_t a0 = isqrt(n);
     if (a0 * a0 == n) {
         return 1;
     }
@@ -56,9 +60,9 @@ seq_t a(idx_t n) {
         if (!exists) {
             if (seen_len == seen_cap) {
                 size_t new_cap = seen_cap ? seen_cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(seen, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seen, new_cap);
                 if (!tmp) {            /* allocation failure – return 0 */
-                    free(seen);
+                    mem_free(seen);
                     return 0;
                 }
                 seen = tmp;
@@ -74,6 +78,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = (seq_t)seen_len;
-    free(seen);
+    mem_free(seen);
     return result;
 }

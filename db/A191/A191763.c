@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   all_factors_congruent_1_mod4
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/all_factors_congruent_1_mod4.h"
+#include "../utils/mem.h"
+
+/* Simple prime factor test: all prime factors of x must be ≡1 (mod 4).  */
+static bool all_factors_congruent_1_mod4(uint64_t x)
+{
+    uint64_t t = x;
+    for (uint64_t p = 3; p * p <= t; p += 2) {
+        if (t % p == 0) {
+            if (p % 4 != 1) return false;
+            while (t % p == 0) t /= p;
+        }
+    }
+    if (t > 1 && t % 4 != 1) return false;
+    return true;
+}
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -32,7 +47,7 @@ static void seq_a_init(void)
 {
     if (initialized) return;
     cache_cap = 128;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache_len = 0;
     initialized = true;
 }
@@ -56,7 +71,7 @@ seq_t a(idx_t n)
         /* grow cache if necessary */
         if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = val;
     }

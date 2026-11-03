@@ -9,7 +9,8 @@
  *            generating terms)
  * Range:     u8 n <= 15, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root for unsigned long long: floor(sqrt(n)). */
 static inline unsigned long long isqrt_ull(unsigned long long n)
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
             /* Grow the array if needed. */
             if (len >= cap) {
                 size_t new_cap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);  /* allocation failure */
                 terms = tmp;
                 cap = new_cap;

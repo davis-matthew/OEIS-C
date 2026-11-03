@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 631, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9438 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- configuration ----------
    SIEVE_MAX must be larger than the largest k that is needed to
@@ -171,10 +173,10 @@ seq_t a(idx_t n)
             /* ensure cache has space */
             if (cache_capacity == 0) {
                 cache_capacity = 64;
-                cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+                cache = mem_new(seq_t, cache_capacity);
             } else if (cache_size == cache_capacity) {
                 cache_capacity <<= 1;
-                cache = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_capacity);
             }
             cache[cache_size++] = (seq_t)k;
         }

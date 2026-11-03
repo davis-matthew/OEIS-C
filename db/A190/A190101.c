@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 50, u32 n <= 141, u64 n <= 439,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* the 32‑periodic sequence c(d) */
 static const int8_t PERIOD[32] = {
@@ -75,7 +77,7 @@ static void compute_Q(idx_t M)
 {
     if (M == (idx_t)-1) return;      /* no values needed */
     if (M + 1 > Q_cap) {
-        seq_t *tmp = (seq_t *)realloc(Q, (M + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, Q, (M + 1));
         if (!tmp) abort();
         Q = tmp;
         Q_cap = M + 1;

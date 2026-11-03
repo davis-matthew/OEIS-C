@@ -10,12 +10,14 @@
  *            a(8)=5544, a(9)=30384
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
     /* Initialise cache if this is the first call */
     if (cache_len == 0) {
         size_t init_len = (needed < 10 ? needed : 10);
-        cache = (seq_t *)malloc(init_len * sizeof(seq_t));
+        cache = mem_new(seq_t, init_len);
         if (!cache) exit(EXIT_FAILURE);
         for (size_t i = 0; i < init_len; ++i) cache[i] = base[i];
         cache_len = init_len;
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t n)
 
     /* If we still don't have all base values, fill them now */
     if (cache_len < 10 && needed > cache_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, 10 * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, 10);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         for (size_t i = cache_len; i < 10; ++i) cache[i] = base[i];
@@ -53,7 +55,7 @@ static void ensure_cache(idx_t n)
     /* Extend until we have enough for the requested n */
     if (needed <= cache_len) return;
 
-    seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, needed);
     if (!tmp) exit(EXIT_FAILURE);
     cache = tmp;
 

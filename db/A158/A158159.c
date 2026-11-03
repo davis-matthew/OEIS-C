@@ -10,13 +10,15 @@
  *            exactly k parts
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 44, u64 n <= 172, u128 n <= 263,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 260 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Mutable cache of partitions into exactly k parts, k ≤ 25 */
 static seq_t *p_exact = NULL;          /* flat array of size (max_n+1)*26 */
@@ -30,7 +32,7 @@ static void ensure_partitions(idx_t limit)
     /* Lazily allocate the initial row 0 */
     if (p_exact == NULL) {
         size_t sz = K;
-        p_exact = (seq_t *)calloc(sz, sizeof(seq_t));
+        p_exact = mem_new(seq_t, sz);
         if (!p_exact)
             abort();
         p_exact[0] = 1;                /* p_exact(0,0) = 1 */
@@ -45,7 +47,7 @@ static void ensure_partitions(idx_t limit)
     idx_t new_rows = limit + 1;
     size_t new_size = (size_t)new_rows * K;
 
-    seq_t *tmp = (seq_t *)realloc(p_exact, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, p_exact, new_size);
     if (!tmp)
         abort();
     p_exact = tmp;
@@ -53,7 +55,7 @@ static void ensure_partitions(idx_t limit)
     /* Zero the newly added rows */
     size_t new_bytes = (size_t)(new_rows - old_rows) * K * sizeof(seq_t);
     if (new_bytes)
-        memset(p_exact + (size_t)old_rows * K, 0, new_bytes);
+        mem_set(p_exact + (size_t)old_rows * K, 0, new_bytes);
 
     /* Compute rows from old_rows to limit */
     for (idx_t i = old_rows; i <= limit; ++i) {

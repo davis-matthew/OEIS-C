@@ -8,13 +8,15 @@
  *            partition function (p(0)=1, p(m)=0 for m<0)
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 122, u64 n <= 389,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 807 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
         return 0;          /* offset not defined, return 0 */
 
     idx_t N = n;
-    seq_t *p = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (N + 1));
     if (!p)
         return 0;          /* allocation failed */
 
@@ -49,6 +51,6 @@ seq_t a(idx_t n)
 
     seq_t result = sum1 - sum2;  /* guaranteed non‑negative */
 
-    free(p);
+    mem_free(p);
     return result;
 }

@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 8712, u16 n <= 8712, u32 n <= 8712, u64 n <= 8712,
- *            u128 n <= 8712, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 8712 (2026-11-01)
  * Helpers:   bigomega, build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,9 +21,11 @@
    all primes less than p.  The implementation computes A276085(n) modulo
    bigomega(n) so that no large intermediate products are involved. */
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
-#include "../utils/factor_u64.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 static uint64_t *prime_list = NULL;      /* primes up to current limit */
 static size_t prime_cnt = 0;

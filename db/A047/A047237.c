@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = 6 * floor((n-1)/4) + {0,1,2,4}[(n-1) mod 4]
- * Range:     u8 n <= 171, u16 n <= 7845, u32 n <= 7845, u64 n <= 7845,
- *            u128 n <= 7845, big any n
+ * Range:     u8 n <= 171, u16 n <= 10002, u32 n <= 10002, u64 n <= 10002,
+ *            u128 n <= 10002, big any n
+ * Validated: standard, pass, 82 terms through n = 7845 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

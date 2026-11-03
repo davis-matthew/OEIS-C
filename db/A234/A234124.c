@@ -12,7 +12,8 @@
  *            …
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 11, u64 n <= 25, u128 n <= 52,
  *            big any n
- * Helpers:   uabs_diff
+ * Validated: standard, pass, 35 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,12 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/uabs_diff.h"
+#include "../utils/mem.h"
+
+/* helper: absolute difference of unsigned int */
+static inline uint8_t uabs_diff(uint8_t a, uint8_t b) {
+    return (a > b) ? (a - b) : (b - a);
+}
 
 /* constants */
 #define NUM_STATES 19
@@ -70,8 +76,8 @@ static void init(void) {
     }
 
     /* allocate DP vectors */
-    cur_vec = (seq_t *)malloc(NUM_STATES * sizeof(seq_t));
-    next_vec = (seq_t *)malloc(NUM_STATES * sizeof(seq_t));
+    cur_vec = mem_new(seq_t, NUM_STATES);
+    next_vec = mem_new(seq_t, NUM_STATES);
 
     /* start with one row: one path of length 1 in each state */
     for (size_t i = 0; i < NUM_STATES; ++i)
@@ -79,7 +85,7 @@ static void init(void) {
 
     /* initialise a_values array */
     a_capacity = 8; /* arbitrary start size, will grow */
-    a_values = (seq_t *)malloc((a_capacity + 1) * sizeof(seq_t));
+    a_values = mem_new(seq_t, (a_capacity + 1));
     a_values[0] = 0;      /* unused, as sequence starts at n=1 */
     computed_max = 0;     /* no terms computed yet */
 
@@ -113,7 +119,7 @@ static void ensure_computed(idx_t n) {
         if ((size_t)step >= a_capacity) {
             size_t newcap = a_capacity ? a_capacity * 2 : 8;
             while (newcap <= (size_t)step) newcap *= 2;
-            a_values = (seq_t *)realloc(a_values, (newcap + 1) * sizeof(seq_t));
+            a_values = mem_resize(seq_t, a_values, (newcap + 1));
             a_capacity = newcap;
         }
         a_values[step] = total;

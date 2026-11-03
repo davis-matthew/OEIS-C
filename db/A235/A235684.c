@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 36, u64 n <= 71, u128 n <= 142,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n) = Σ_{k≥0 , 3^k ≤ n} ( a(n-3^k) + a(n-2·3^k) ) */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build. */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise cache for first call */
     if (dp == NULL) {
         size = 1;
-        dp   = (seq_t *)malloc(sizeof(seq_t));
+        dp   = mem_new(seq_t, 1);
         if (dp == NULL) abort();
         dp[0] = (seq_t)1;      /* a(0) = 1 */
     }
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* extend cache if necessary */
     if (n >= size) {
         idx_t new_size = n + 1;
-        seq_t *new_dp  = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *new_dp  = mem_resize(seq_t, dp, new_size);
         if (new_dp == NULL) abort();
         /* initialise newly allocated entries to 0 (uncomputed) */
         for (idx_t i = size; i < new_size; ++i) new_dp[i] = (seq_t)0;

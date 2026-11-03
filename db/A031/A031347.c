@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 745, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 9682 (2026-11-01)
  * Helpers:   digit_product
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* Computation: multiplicative digital root by iterating digit product until single digit */
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/digit_product.h"
 
 seq_t a(idx_t n)

@@ -10,7 +10,8 @@
  *            the coefficient of x^n in (∑_{k≥2} x^{Fib(k)})^4
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9804 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t fib_vals[19] = {
     1, 2, 3, 5, 8, 13, 21, 34, 55, 89,
@@ -36,11 +38,11 @@ seq_t a(idx_t n) {
     struct seq_alloc_struct {
         seq_t *data;
     } arr;
-    arr.data = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    arr.data = mem_new(seq_t, (size_t)(n + 1));
     if (!arr.data) {
         return 0; /* allocation failed – return zero as fallback */
     }
-    memset(arr.data, 0, (size_t)(n + 1) * sizeof(seq_t));
+    mem_set(arr.data, 0, (size_t)(n + 1) * sizeof(seq_t));
 
     const seq_t limit = (seq_t)n;
     const size_t F_LEN = 19;
@@ -60,6 +62,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = arr.data[n];
-    free(arr.data);
+    mem_free(arr.data);
     return result;
 }

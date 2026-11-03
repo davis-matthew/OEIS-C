@@ -11,13 +11,15 @@
  *            a(n)=17*a(n-2)-16*a(n-4) for n>8)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 48 terms through n = 959 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         return (seq_t)95;
 
     /* odd n > 4: a(n) = 2*4^n - 30 */
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)n);    /* compute 4^n */
+    seq_t pow4 = ipow((seq_t)4, (seq_t)n);    /* compute 4^n */
     seq_t val = pow4 + pow4;                     /* multiply by 2 */
     val -= (seq_t)30;
     return val;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 45, u32 n <= 152, u64 n <= 561,
  *            u128 n <= 2082, big any n
- * Helpers:   safe_mul_div
+ * Validated: standard, pass, 71 terms through n = 4943 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,21 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/safe_mul_div.h"
+
+/* Safe multiplication/division:  x * num / den
+   Uses 128‑bit intermediate on 64‑bit seq_t, otherwise ordinary arithmetic. */
+static inline seq_t safe_mul_div(seq_t x, seq_t num, seq_t den)
+{
+#ifdef __SIZEOF_INT128__
+    /* When seq_t is 64‑bit, cast to __uint128_t to avoid overflow. */
+    if (sizeof(seq_t) == 8) {
+        __uint128_t tmp = (__uint128_t)x * (__uint128_t)num;
+        return (seq_t)(tmp / den);
+    }
+#endif
+    /* Generic case: rely on seq_t's own arithmetic (big‑int, 32‑bit, …). */
+    return (x * num) / den;
+}
 
 /* Helper: floor(sqrt(x)) for x < 2^64 */
 static inline idx_t floor_isqrt(idx_t x)

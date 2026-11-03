@@ -9,12 +9,14 @@
  *            Initial values: a(m) = 0 for m < 9; a(9) = 1
  * Range:     i8 n <= 128, i16 n <= 1238, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9631 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int BINOM[10][10] = {
     {1},
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         if (needed > cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 256;
             while (new_cap < needed) new_cap <<= 1;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
         /* compute missing values */

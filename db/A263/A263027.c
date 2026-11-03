@@ -7,6 +7,7 @@
  * Formula:   a(n) = Carmichael lambda(n) + 1
  * Range:     u8 n <= 256, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 88 terms through n = 4940 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 /* Compute a(n) = λ(n) + 1.  λ(n) is the Carmichael function. */
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static inline uint64_t gcd64(uint64_t a, uint64_t b)

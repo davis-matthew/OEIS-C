@@ -7,8 +7,9 @@
  * Keywords:  sign, mult
  * Formula:   a(n) = ∏_{p^e‖n} (-1)^e * Fib(e), where Fib(0)=0, Fib(1)=1,
  *            Fib(k)=Fib(k-1)+Fib(k-2)
- * Range:     i8 n <= 4095, i16 n <= 8920, i32 n <= 8920, i64 n <= 8920,
- *            i128 n <= 8920, big any n
+ * Range:     i8 n <= 4095, i16 n <= 100000, i32 n <= 100000, i64 n <= 100000,
+ *            i128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 8920 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

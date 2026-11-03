@@ -12,13 +12,15 @@
  *            a(6)=137, a(7)=243, a(8)=399, a(9)=619, a(10)=927, a(11...
  * Range:     u8 n <= 7, u16 n <= 29, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     /* initialise cache on first call */
     if (!cache) {
         cap = 20;                          /* indices 0 .. 19 */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;              /* allocation failure */
         for (size_t i = 0; i < cap; ++i) cache[i] = 0;
         for (size_t i = 1; i <= 19; ++i) cache[i] = init[i];
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     /* grow the cache if necessary */
     if (idx >= cap) {
         size_t newCap = idx + 1;
-        seq_t *newCache = (seq_t *)realloc(cache, newCap * sizeof(seq_t));
+        seq_t *newCache = mem_resize(seq_t, cache, newCap);
         if (!newCache) return 0;           /* allocation failure */
         cache = newCache;
         /* initialise new cells to 0 */

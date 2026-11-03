@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 2058, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, is_prime, mod_pow
+ * Validated: standard, pass, 76 terms through n = 9811 (2026-11-01)
+ * Helpers:   gcd, is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/gcd.h"
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* Return the multiplicative order of 2 modulo prime p (p > 2). */
 static uint64_t order_of_2(uint64_t p)
@@ -41,14 +44,14 @@ static uint64_t order_of_2(uint64_t p)
         if (n % d == 0) {
             while (n % d == 0) n /= d;
             while (order % d == 0 &&
-                   mod_pow((seq_t)2, order / d, (seq_t)p) == (seq_t)1)
+                   powmod((seq_t)2, order / d, (seq_t)p) == (seq_t)1)
                 order /= d;
         }
         d += (d == 2) ? 1 : 2;    /* after 2, test only odd d */
     }
     if (n > 1) {
         while (order % n == 0 &&
-               mod_pow((seq_t)2, order / n, (seq_t)p) == (seq_t)1)
+               powmod((seq_t)2, order / n, (seq_t)p) == (seq_t)1)
             order /= n;
     }
     return order;

@@ -13,12 +13,14 @@
  *            a(2)=13906, a(3)=74631, a(4)=383440, a(5)=1848953, * a(6)=847...
  * Range:     u8 none, u16 n <= 2, u32 n <= 10, u64 n <= 26, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_len = 18;
-        cache = (seq_t *)calloc((size_t)(cache_len + 1), sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(cache_len + 1));
         for (idx_t i = 1; i <= cache_len; ++i)
             cache[i] = init[i];
     }
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 
     /* Extend cache up to n. */
     idx_t old_len = cache_len;
-    cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (size_t)(n + 1));
     cache_len = n;
 
     /* Compute missing terms using the recurrence. */

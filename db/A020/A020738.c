@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf, mulmod61
+ * Validated: standard, pass, 118 terms through n = 9995 (2026-11-01)
+ * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,12 @@
 #include <math.h>
 
 #include "../utils/build_spf.h"
-#include "../utils/mulmod61.h"
+
+/* Helper: multiply two 64‑bit unsigned integers modulo a 61‑bit prime.
+   (unused in final version, kept in case of future optimisation) */
+static inline uint64_t mulmod61(uint64_t a, uint64_t b) {
+    return (unsigned __int128)a * b % 2305843009213693951ULL;
+}
 
 /* Count the multiplicity of the maximum divisor count of the binomial
    coefficients in the n‑th row of Pascal's triangle. */

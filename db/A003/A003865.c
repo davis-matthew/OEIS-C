@@ -11,14 +11,19 @@
  *            f(L)/2; a(n) is the n-th smallest of th...
  * Range:     u8 n <= 15, u16 n <= 24, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   an_cmp_u64
+ * Validated: full, pass, 24 terms through n = 24 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/an_cmp_u64.h"
+
+static int an_cmp_u64(const void *x, const void *y) {
+    uint64_t u = *(const uint64_t *)x, v = *(const uint64_t *)y;
+    return (u > v) - (u < v);
+}
 
 #define AN_N 10
 

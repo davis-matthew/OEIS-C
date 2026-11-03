@@ -8,15 +8,18 @@
  *            A196082)
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 /*
  * Computes the a(n) value for OEIS sequence A196082.
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
     seq_t n_minus_1 = mod - 1;
 
     for (idx_t x = 0; x < n; ++x) {
-        seq_t r = mod_pow((seq_t)x, n, mod);
+        seq_t r = powmod((seq_t)x, n, mod);
         if (r > max_res)
             max_res = r;
         if (max_res == n_minus_1)            /* cannot be larger */

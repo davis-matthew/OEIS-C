@@ -10,12 +10,14 @@
  *            < (r+1)*(r+2)/2. This flattens the triangle T row‑by‑row
  * Range:     i8 n <= 65, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"   /* provides static seq_t phi(idx_t m) */
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n) {
     /* Find the row r such that r(r+1)/2 <= n < (r+1)(r+2)/2 */
@@ -27,6 +29,6 @@ seq_t a(idx_t n) {
     idx_t c = n - r * (r + 1) / 2;      /* column within the row, 0 <= c <= r */
 
     /* Compute T(r,c) = -phi(r+1) + phi(c+1) + phi(r-c+1) */
-    seq_t term = -phi(r + 1) + phi(c + 1) + phi(r - c + 1);
+    seq_t term = -totient(r + 1) + totient(c + 1) + totient(r - c + 1);
     return term;
 }

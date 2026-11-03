@@ -9,6 +9,7 @@
  *            n*(n-3)*(n-5)*(2*n-11)/24 for n odd
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 42 terms through n = 44 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

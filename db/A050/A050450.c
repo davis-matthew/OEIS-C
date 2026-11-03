@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n, d ≡ 1 (mod 4)} d²
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_uint64, rec_div
+ * Validated: standard, pass, 81 terms through n = 9365 (2026-11-01)
+ * Helpers:   factor_uint64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,23 @@
 
 #include <stdint.h>
 #include "../utils/factor_uint64.h"
-#include "../utils/rec_div.h"
+
+static void rec_div(int idx, seq_t cur, const uint64_t *pr,
+                    const int *exp, int cnt, seq_t *sum)
+{
+    if (idx == cnt) {
+        if ((cur & (seq_t)3) == (seq_t)1) {
+            seq_t sq = cur * cur;
+            *sum += sq;
+        }
+        return;
+    }
+    seq_t cur_power = 1;
+    for (int e = 0; e <= exp[idx]; ++e) {
+        rec_div(idx + 1, cur * cur_power, pr, exp, cnt, sum);
+        cur_power = cur_power * (seq_t)pr[idx];
+    }
+}
 
 seq_t a(idx_t n)
 {

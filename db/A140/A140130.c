@@ -13,6 +13,7 @@
  *            returns the denominator of c(n)
  * Range:     u8 n <= 65, u16 n <= 1301, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
+ * Validated: standard, pass, 106 terms through n = 7600 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

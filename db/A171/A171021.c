@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   swap_digits
+ * Validated: standard, pass, 72 terms through n = 999 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,24 @@
 /* Sequence A171021: swap 2<->4 in primes (in decimal representation) */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/swap_digits.h"
+
+/* Swap digits 2<->4 in the decimal representation of `x`. */
+static seq_t swap_digits(seq_t x)
+{
+    seq_t result = 0;
+    seq_t mult   = 1;
+    if (x == 0)                     /* only possible for x=0, never happens for primes */
+        return 0;
+    while (x > 0) {
+        seq_t d = x % 10;
+        x      /= 10;
+        if (d == 2) d = 4;
+        else if (d == 4) d = 2;
+        result += d * mult;
+        mult   *= 10;
+    }
+    return result;
+}
 
 /* Helpers to build the prime table ----------------------------------------------------- */
 static uint64_t *prime_cache      = NULL;   /* dynamic array of primes (uint64)          */

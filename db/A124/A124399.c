@@ -7,16 +7,19 @@
  * Formula:   a(n) = 4^(n - A000120(n)) (A124399)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   popcount_u64, pow_uint
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow_u64_idx, popcount
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/popcount_u64.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/popcount.h"
 
 seq_t a(idx_t n) {
-    int pc = popcount_u64(n);           /* bitcount(n), A000120 */
+    int pc = popcount(n);           /* bitcount(n), A000120 */
     idx_t exp = n - (idx_t)pc;          /* exponent = n - bitcount(n) */
-    return pow_uint(4, exp);            /* compute 4^exp in seq_t type */
+    return ipow_u64_idx(4, exp);            /* compute 4^exp in seq_t type */
 }

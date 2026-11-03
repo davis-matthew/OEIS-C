@@ -12,14 +12,21 @@
  *            is the decimal digit reversal
  * Range:     u8 n <= 55, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   msd, rev
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/msd.h"
-#include "../utils/rev.h"
+#include "../utils/reverse_digits_idx.h"
+
+/* return most significant digit of a non‑negative integer */
+static inline idx_t msd(idx_t x)
+{
+    while (x >= 10) x /= 10;
+    return x;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +39,7 @@ seq_t a(idx_t n)
             if (count == n) {
                 /* found the nth valid integer */
                 seq_t mm  = (seq_t)m;
-                seq_t rr  = (seq_t)rev(m);
+                seq_t rr  = (seq_t)reverse_digits_idx(m);
                 return (mm + rr) / 2;
             }
             ++count;

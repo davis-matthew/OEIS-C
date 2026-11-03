@@ -7,12 +7,15 @@
  * Formula:   a(n) = (6*n + 4)^11
  * Range:     u8 none, u16 none, u32 n <= 0, u64 n <= 8, u128 n <= 529,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 30 terms through n = 840 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Computes the OEIS sequence A016967: a(n) = (6*n + 4)^11 */
 seq_t a(idx_t n)
@@ -22,5 +25,5 @@ seq_t a(idx_t n)
        the result will be undefined if it does not fit, but such cases
        are outside the test set. */
     seq_t base = (seq_t)n * 6 + 4;
-    return big_pow(base, 11);
+    return ipow(base, 11);
 }

@@ -9,21 +9,23 @@
  *            2
  * Range:     u8 n <= 6, u16 n <= 23, u32 n <= 363, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 56 terms through n = 864 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     /* For n < 1 the definition is not required; return 0. */
     if (n < 1) return 0;
     seq_t sn = (seq_t)n;
-    seq_t c2 = binom(n, 2);
-    seq_t c3 = binom(n, 3);
-    seq_t c4 = binom(n, 4);
+    seq_t c2 = binomial(n, 2);
+    seq_t c3 = binomial(n, 3);
+    seq_t c4 = binomial(n, 4);
     seq_t res = 0;
     res += 6 * c4;
     res += 3 * c3;

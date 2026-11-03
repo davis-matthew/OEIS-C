@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define STATE_REMS 9
 #define STATE_ROWS 4
@@ -74,10 +76,10 @@ seq_t a(idx_t n) {
 
     /* Allocate DP buffers once */
     if (dp_buf_size < STATE_COUNT) {
-        if (dp_buf) free(dp_buf);
-        if (newdp_buf) free(newdp_buf);
-        dp_buf = (seq_t*)malloc(sizeof(seq_t) * STATE_COUNT);
-        newdp_buf = (seq_t*)malloc(sizeof(seq_t) * STATE_COUNT);
+        if (dp_buf) mem_free(dp_buf);
+        if (newdp_buf) mem_free(newdp_buf);
+        dp_buf = mem_new(seq_t, STATE_COUNT);
+        newdp_buf = mem_new(seq_t, STATE_COUNT);
         dp_buf_size = STATE_COUNT;
     }
 

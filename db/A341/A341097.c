@@ -9,7 +9,8 @@
  *            dynamic‑programming * table up to the requested n
  * Range:     u8 n <= 88, u16 n <= 113, u32 n <= 113, u64 n <= 113,
  *            u128 n <= 113, big any n
- * Helpers:   sieve_primes_up_to
+ * Validated: partial, pass, 56 terms through n = 113 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,50 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sieve_primes_up_to.h"
+#include "../utils/mem.h"
+
+/* ----------------------------------------------------------------------- */
+static void sieve_primes_up_to(idx_t limit, uint32_t **primes, size_t *cnt)
+{
+    if (limit < 2) {
+        *primes = NULL;
+        *cnt = 0;
+        return;
+    }
+    uint8_t *is_prime = (uint8_t*)calloc((size_t)limit + 1, sizeof(uint8_t));
+    if (!is_prime) {
+        *primes = NULL;
+        *cnt = 0;
+        return;
+    }
+    for (size_t i = 2; i <= (size_t)limit; ++i)
+        is_prime[i] = 1;
+    for (size_t i = 2; i * i <= (size_t)limit; ++i) {
+        if (is_prime[i]) {
+            for (size_t j = i * i; j <= (size_t)limit; j += i)
+                is_prime[j] = 0;
+        }
+    }
+    size_t prime_cnt = 0;
+    for (size_t i = 2; i <= (size_t)limit; ++i)
+        if (is_prime[i])
+            ++prime_cnt;
+    uint32_t *p = NULL;
+    if (prime_cnt > 0) {
+        p = (uint32_t*)malloc(prime_cnt * sizeof(uint32_t));
+        if (p) {
+            size_t k = 0;
+            for (size_t i = 2; i <= (size_t)limit; ++i)
+                if (is_prime[i])
+                    p[k++] = (uint32_t)i;
+        } else {
+            prime_cnt = 0;
+        }
+    }
+    free(is_prime);
+    *primes = p;
+    *cnt = prime_cnt;
+}
 
 /* ----------------------------------------------------------------------- */
 /* Helper: integer square root (floor) for idx_t                           */
@@ -93,7 +137,7 @@ static void recompute(idx_t limit)
     size_t rows = K + 1;
     size_t cols = (size_t)limit + 1;
     size_t sz = rows * cols;
-    seq_t *new_dp = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, sz);
     if (!new_dp) {
         free(sf_list);
         free(squarefree);
@@ -129,7 +173,7 @@ static void recompute(idx_t limit)
     dp_mem = new_dp;
     dp_cols = (size_t)limit + 1;
     initialized = true;
-    if (old_dp) free(old_dp);
+    if (old_dp) mem_free(old_dp);
 }
 
 /* ----------------------------------------------------------------------- */

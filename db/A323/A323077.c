@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of iterations of x -> x - (largest divisor d < x)
  *            until x becomes 1 or a prime, starting from x = n, with a(1)=0
- * Range:     u8 n <= 454, u16 n <= 9665, u32 n <= 9665, u64 n <= 9665,
- *            u128 n <= 9665, big any n
+ * Range:     u8 n <= 454, u16 n <= 12005, u32 n <= 12005, u64 n <= 12005,
+ *            u128 n <= 12005, big any n
+ * Validated: standard, pass, 121 terms through n = 9665 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

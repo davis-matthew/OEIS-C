@@ -9,13 +9,14 @@
  * Formula:   a(n) = Sum_{k|n, k<=sqrt(n)} phi(k)
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   calc_phi
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
 
 /* Floor integer square root (only idx_t inputs) */
 static idx_t isqrt_u64(idx_t n)
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= limit; ++k)
     {
         if (n % k == 0)
-            sum += calc_phi((seq_t)k);
+            sum += totient_seq((seq_t)k);
     }
     return sum;
 }

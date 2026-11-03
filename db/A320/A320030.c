@@ -10,7 +10,8 @@
  *            The function returns the sum of all cell values at generation n
  * Range:     u8 n <= 17, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   hash_int64
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/hash_int64.h"
+
+/* 64‑bit multiplicative hash */
+static inline size_t hash_int64(int64_t key)
+{
+    return (size_t)((uint64_t)key * 11400714819323198485ull) & ((1ull << 63) - 1);
+}
 
 /* ---------------------------------------------------------------------- */
 

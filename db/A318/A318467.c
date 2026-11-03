@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   a(n) = 2*n XOR σ(n) (σ(n) = sum of all positive divisors of n)
- * Range:     u8 n <= 16, u16 n <= 1366, u32 n <= 9837, u64 n <= 9837,
- *            u128 n <= 9837, big any n
- * Helpers:   factor_u64, pow_seq
+ * Range:     u8 n <= 16, u16 n <= 1366, u32 n <= 65536, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 96 terms through n = 9837 (2026-11-03)
+ * Helpers:   factor_u64, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/pow_seq.h"      /* seq_t pow_seq(seq_t base, unsigned int exp) */
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 /* Cache for σ(n).  sigma_cache[0] is unused. */
 static seq_t *sigma_cache = NULL;
@@ -46,7 +48,7 @@ static seq_t sigma_of(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         seq_t p  = (seq_t)primes[i];
         unsigned int exp = (unsigned int)(exps[i] + 1);
-        seq_t p_pow = pow_seq(p, exp);                 /* p^(e+1) */
+        seq_t p_pow = ipow_i32(p, exp);                 /* p^(e+1) */
         seq_t term  = (p_pow - (seq_t)1) / (p - (seq_t)1); /* (p^(e+1)-1)/(p-1) */
         result *= term;
     }
@@ -59,7 +61,7 @@ static void ensure_sigma_cache(idx_t n)
     if (cache_cap > (size_t)n) return;
 
     size_t new_cap = (size_t)n + 1;          /* include index n */
-    seq_t *tmp = (seq_t *)realloc(sigma_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, sigma_cache, new_cap);
     if (tmp == NULL) abort();                /* out of memory */
     sigma_cache = tmp;
 

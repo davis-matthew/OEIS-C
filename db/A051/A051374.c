@@ -8,7 +8,8 @@
  *            any k
  * Range:     u8 n <= 10, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state for memoisation */
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
                 /* grow uncovered array if necessary */
                 if (uncovered_len >= uncovered_cap) {
                     size_t new_cap = uncovered_cap ? uncovered_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(uncovered, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, uncovered, new_cap);
                     if (!tmp) return (seq_t)0;   /* allocation failure */
                     uncovered = tmp;
                     uncovered_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   a(0)=5; for n≥1, a(n)=2+∏_{i=0}^{n-1}a(i)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array, seq_mul
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,25 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"      /* seq_mul(seq_t, seq_t) -> seq_t */
-#include "../utils/alloc_seq_array.h"  /* alloc_seq_array(size_t) -> seq_t* */
-#include "../utils/free_seq_array.h"   /* free_seq_array(seq_t*) */
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;          /* memoised terms */
 static idx_t cache_cap = 0;          /* allocated capacity of cache */

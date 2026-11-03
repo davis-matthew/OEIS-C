@@ -11,8 +11,8 @@
  *            coefficients of Product_{k}(u + k^2), A_m = S...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   z2682_add, z2682_alt, z2682_bitlen, z2682_cmp, z2682_divs,
- *            z2682_iszero, z2682_leg, z2682_mods, z2682_muls, z2682_sub
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
+ * Helpers:   bit_length_u64_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,16 +20,92 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/z2682_add.h"
-#include "../utils/z2682_alt.h"
-#include "../utils/z2682_bitlen.h"
-#include "../utils/z2682_cmp.h"
-#include "../utils/z2682_divs.h"
-#include "../utils/z2682_iszero.h"
-#include "../utils/z2682_leg.h"
-#include "../utils/z2682_mods.h"
-#include "../utils/z2682_muls.h"
-#include "../utils/z2682_sub.h"
+#include "../utils/bit_length_u64_to_u64.h"
+
+static void z2682_add(uint32_t *x, const uint32_t *y, size_t L) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] + y[i] + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+}
+
+static void z2682_sub(uint32_t *x, const uint32_t *y, size_t L) {
+    int64_t b = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        int64_t t = (int64_t)x[i] - (int64_t)y[i] - b;
+        if (t < 0) { t += ((int64_t)1 << 32); b = 1; } else b = 0;
+        x[i] = (uint32_t)t;
+    }
+}
+
+/* out = Sum_{j=0..k} (-1)^j g_j */
+static void z2682_alt(const uint32_t *g, idx_t k, size_t W, uint32_t *out, uint32_t *neg) {
+    idx_t j;
+    memset(out, 0, W * sizeof(uint32_t));
+    memset(neg, 0, W * sizeof(uint32_t));
+    for (j = 0; j <= k; j++) {
+        if (j % 2 == 0) z2682_add(out, g + (size_t)j * W, W);
+        else z2682_add(neg, g + (size_t)j * W, W);
+    }
+    z2682_sub(out, neg, W);
+}
+
+static int z2682_cmp(const uint32_t *x, const uint32_t *y, size_t L) {
+    size_t i = L;
+    while (i > 0) {
+        i--;
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+static void z2682_divs(uint32_t *x, size_t L, uint32_t d) {
+    uint64_t r = 0;
+    size_t i = L;
+    while (i > 0) {
+        uint64_t cur;
+        i--;
+        cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static int z2682_iszero(const uint32_t *x, size_t L) {
+    size_t i;
+    for (i = 0; i < L; i++) if (x[i]) return 0;
+    return 1;
+}
+
+static uint64_t z2682_leg(uint64_t m, uint64_t p) {
+    uint64_t s = 0;
+    while (m) { m /= p; s += m; }
+    return s;
+}
+
+static uint32_t z2682_mods(const uint32_t *x, size_t L, uint32_t d) {
+    uint64_t r = 0;
+    size_t i = L;
+    while (i > 0) {
+        i--;
+        r = ((r << 32) | x[i]) % d;
+    }
+    return (uint32_t)r;
+}
+
+static void z2682_muls(uint32_t *x, size_t L, uint32_t m) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+}
 
 seq_t a(idx_t n) {
     idx_t m = n + 1, k, j, i;
@@ -39,8 +115,8 @@ seq_t a(idx_t n) {
     unsigned char *comp;
     seq_t den = 1;
 
-    for (k = 1; k <= m; k++) bits += 2 * z2682_bitlen(k) + 1;
-    for (i = 1; i <= n + 2; i++) { bits += z2682_bitlen(i); fbits += z2682_bitlen(i); }
+    for (k = 1; k <= m; k++) bits += 2 * bit_length_u64_to_u64(k) + 1;
+    for (i = 1; i <= n + 2; i++) { bits += bit_length_u64_to_u64(i); fbits += bit_length_u64_to_u64(i); }
     W = bits / 32 + 2;
 
     g = (uint32_t *)calloc((size_t)(m + 1) * W, sizeof(uint32_t));
@@ -57,7 +133,7 @@ seq_t a(idx_t n) {
 
     for (k = 0; k <= m; k++) {
         if (k > 0) {
-            fbits += 2 * z2682_bitlen(k) + 1;
+            fbits += 2 * bit_length_u64_to_u64(k) + 1;
             cur = fbits / 32 + 2;
             if (cur > W) cur = W;
             for (j = k; j >= 1; j--) {

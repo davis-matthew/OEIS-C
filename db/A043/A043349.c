@@ -8,14 +8,23 @@
  *            contains exactly one 0 digit
  * Range:     u8 n <= 53, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   pow4_fn
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow4_fn.h"
+
+/* compute 4^exp as seq_t */
+static inline seq_t pow4_fn(idx_t exp) {
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i) {
+        res *= (seq_t)4;
+    }
+    return res;
+}
 
 /* number of ways to fill the remaining ‘pos’ positions when zero_used indicates
    whether the zero digit has already been placed. */

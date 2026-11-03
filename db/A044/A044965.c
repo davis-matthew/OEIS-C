@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 1635, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   distinct_hex_digit_frequencies
+ * Validated: standard, pass, 76 terms through n = 9904 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,31 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>   /* for size_t */
-#include "../utils/distinct_hex_digit_frequencies.h"
+#include "../utils/mem.h"
+
+/* Helper to determine whether an integer has distinct non‑zero
+ * base‑16 digit frequencies.  We work in idx_t (uint64_t).         */
+static bool distinct_hex_digit_frequencies(idx_t v)
+{
+    uint8_t freq[16] = {0};
+
+    /* Count the frequencies of each hex digit. */
+    while (v != 0) {
+        /* v & 0xF gives the low hex digit; v >>= 4 discards it. */
+        int d = (int)(v & 0xF);
+        freq[d]++;
+        v >>= 4;
+    }
+
+    /* Check that all non‑zero frequencies are unique. */
+    bool used[17] = {0};                 /* frequencies range 1..16 */
+    for (int i = 0; i < 16; ++i) {
+        if (freq[i] == 0) continue;
+        if (used[freq[i]]) return false;/* duplicate frequency found */
+        used[freq[i]] = true;
+    }
+    return true;
+}
 
 /* ------------------------------------------------------------------ */
 
@@ -56,7 +81,7 @@ seq_t a(idx_t n)
         /* Resize the cache if necessary. */
         if (cache_len == cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();            /* unrecoverable allocation failure */
             cache = tmp;
             cache_cap = new_cap;

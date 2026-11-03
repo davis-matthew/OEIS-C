@@ -9,12 +9,14 @@
  *            (these values are computed by the recurrence itself)
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* Cache of computed terms a(0)…a(k) */
 static size_t cache_cap = 0;       /* Current capacity of the cache      */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialize cache with the first seven terms if this is the first call. */
     if (cache_last == (idx_t)-1) {
         cache_cap = 7;                      /* store up to a(6) inclusive */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;         /* malloc failure → zero (unlikely) */
 
         cache[0] = (seq_t)0;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary to hold up to a(n). */
     if ((size_t)(n + 1) > cache_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;      /* realloc failure → zero (unlikely) */
         cache = tmp;
         cache_cap = new_cap;

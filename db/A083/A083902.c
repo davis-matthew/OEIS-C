@@ -8,14 +8,23 @@
  * Formula:   a(n) = number of divisors d of n with all decimal digits ≤ 7
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   digits_le7
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/digits_le7.h"
+
+static bool digits_le7(uint64_t x) {
+    if (x == 0) return true;          /* 0 has digit 0 ≤ 7 */
+    while (x > 0) {
+        if ((x % 10) > 7) return false;
+        x /= 10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;                 /* undefined for n < 1 */

@@ -7,7 +7,8 @@
  * Formula:   sequence of nonprimes m such that 8^m == 8 (mod m)
  * Range:     u8 n <= 16, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,10 +39,10 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < target)
             new_cap *= 2;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (cache) {
-            memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = new_cap;
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
         if (next_m == 1) {
             ok = true;                          /* 1 is the first term */
         } else if (!is_prime((idx_t)next_m)) {
-            seq_t mod_res = mod_pow((seq_t)8, (idx_t)next_m, (seq_t)next_m);
+            seq_t mod_res = powmod((seq_t)8, (idx_t)next_m, (seq_t)next_m);
             seq_t mod_8 = ((seq_t)8) % (seq_t)next_m;
             ok = (mod_res == mod_8);
         }

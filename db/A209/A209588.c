@@ -8,12 +8,13 @@
  * Formula:   a(n) = 4 ^ (2*n-(n modulo 2)) * 28 ^ ((n*n-2*n+(n modulo 2))/4)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 25 terms through n = 29 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +29,8 @@ seq_t a(idx_t n)
     idx_t exp2 = (tmp - 2*n + mod) / 4;
 
     /* compute the powers using the provided helper */
-    seq_t pow4  = pow_int((seq_t)4,  exp1);
-    seq_t pow28 = pow_int((seq_t)28, exp2);
+    seq_t pow4  = ipow_idx((seq_t)4,  exp1);
+    seq_t pow28 = ipow_idx((seq_t)28, exp2);
 
     /* final product */
     return pow4 * pow28;

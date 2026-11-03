@@ -12,16 +12,54 @@
  *            at a diagonal), Q(n) = [x^(n-1)]F^5 - [x^(n-1)]F^4 (pe...
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 45,
  *            big any n
- * Helpers:   a005038_coef, seq_is_fixed_width, u128_to_seq
+ * Validated: standard, pass, 37 terms through n = 924 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/a005038_coef.h"
+#include <stdlib.h>
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+/* [x^m] F(x)^r = r * C(4m+r, m) / (4m+r), exact */
+static seq_t a005038_coef(idx_t m, idx_t r)
+{
+    idx_t N = 4 * m + r;
+    seq_t c = 1;
+    idx_t i;
+    for (i = 1; i <= m; i++) {
+        c = c * (seq_t)(N - m + i);
+        c = c / (seq_t)i;
+    }
+    c = c * (seq_t)r;
+    c = c / (seq_t)N;
+    return c;
+}
 
 typedef unsigned __int128 a005038_u128;
 

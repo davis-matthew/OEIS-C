@@ -9,7 +9,8 @@
  *            limbs
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3076_cmp
+ * Validated: standard, pass, 121 terms through n = 9534 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a3076_cmp.h"
+
+static int a3076_cmp(const uint32_t *x, size_t lx, const uint32_t *y, size_t ly) {
+    size_t i;
+    if (lx != ly) return lx < ly ? -1 : 1;
+    for (i = lx; i-- > 0;) {
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    }
+    return 0;
+}
 
 #define A3076_BASE 1000000000u
 

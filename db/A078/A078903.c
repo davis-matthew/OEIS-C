@@ -10,12 +10,14 @@
  *            run in O(log n)
  * Range:     u8 n <= 110, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 8252 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 static seq_t *cache = NULL;     /* cache array, cache[0] unused, cache[1]..cache[n] contain results */
 static size_t cache_size = 0;   /* current allocated size (cache_size >= n+1 when accessed) */
 
@@ -24,7 +26,7 @@ static void ensure_cache(idx_t n)
 {
     size_t needed = (size_t)n + 1;          /* we need indices 0..n inclusive */
     if (cache_size < needed) {
-        seq_t *tmp = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();                  /* out of memory */
         /* initialize newly allocated slots to 0 */
         for (size_t i = cache_size; i < needed; ++i)

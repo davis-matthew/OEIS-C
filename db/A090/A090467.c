@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 103, u16 n <= 9452, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_polygonal
+ * Validated: standard, pass, 81 terms through n = 9453 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,29 @@
    candidate for polygonality.  The test runs in O(√n) time per number.   */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_polygonal.h"
+#include "../utils/mem.h"
+
+/* ---------------- Helper: test whether a value is k‑gonal with k>2, m>2 --------- */
+static bool is_polygonal(seq_t n)
+{
+    /* We only need to consider m up to roughly 4·sqrt(n); this guarantees
+       that left/ t can never reach 3 again, hence no larger m can produce
+       k ≥ 3.  The loop terminates when (m−1)² > 4·n. */
+    for (idx_t m = 3; ; ++m) {
+        seq_t m1 = (seq_t)m - 1;
+        /* Break early when (m−1)² > 4·n. */
+        if (m1 * m1 > (n << 2)) break;
+
+        seq_t t    = (seq_t)m * m1 / 2;          /* m·(m−1)/2   */
+        seq_t left = n + m1 * m1 - 1;            /* n + (m−1)² −1 */
+
+        if (left % t == 0) {
+            seq_t k = left / t;
+            if (k > 2) return true;             /* k ≥ 3 found */
+        }
+    }
+    return false;                                 /* no suitable (k,m) */
+}
 
 /* ---------------- Cache for irregular numbers -------------------------------- */
 static seq_t *irreg_cache = NULL;   /* array of computed terms   */
@@ -36,7 +59,7 @@ static void ensure_irreg_capacity(size_t needed)
     if (irreg_cap < needed) {
         size_t new_cap = irreg_cap ? irreg_cap * 2 : 64;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(irreg_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, irreg_cache, new_cap);
         if (!tmp) exit(1);   /* out of memory */
         irreg_cache = tmp;
         irreg_cap = new_cap;

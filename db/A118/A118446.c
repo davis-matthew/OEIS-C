@@ -13,11 +13,14 @@
  *            seq_t
  * Range:     u8 none, u16 none, u32 n <= 9, u64 n <= 16, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 20 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

@@ -8,7 +8,8 @@
  *            binomial(10*n,n) * binomial(6*n,n) / binomial(2*n,n)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   build_primes, factorial_prime_exp, pow_seq_large, seq_mul
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   build_primes, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/seq_mul.h"
-#include "../utils/pow_seq_large.h"
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes.h"
-#include "../utils/factorial_prime_exp.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static idx_t factorial_prime_exp(idx_t m, idx_t p)
+{
+    /* exponent of prime p in m! (Legendre's formula) */
+    idx_t e = 0;
+    while (m) { m /= p; e += m; }
+    return e;
+}
 
 static void ensure_primes(idx_t limit, idx_t **primes, size_t *cnt)
 {
@@ -76,7 +90,7 @@ seq_t a(idx_t n)
                     factorial_prime_exp(five_n, p)   -
                     factorial_prime_exp(two_n, p);
         if (exp > 0) {
-            seq_t powp = pow_seq_large((seq_t)p, (seq_t)exp);
+            seq_t powp = ipow((seq_t)p, (seq_t)exp);
             result = seq_mul(result, powp);
         }
     }

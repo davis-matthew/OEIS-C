@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, frac, nonn
  * Formula:   a(n) = d(n)/gcd(d(n), n)
- * Range:     u8 n <= 1824, u16 n <= 9395, u32 n <= 9395, u64 n <= 9395,
- *            u128 n <= 9395, big any n
+ * Range:     u8 n <= 1824, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9395 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

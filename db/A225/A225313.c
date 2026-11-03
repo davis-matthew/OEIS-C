@@ -15,7 +15,8 @@
  *            a(8)=8221, a(9)=0, a(10)=22351, … (as listed in OEIS A225313)
  * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 125, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   compute_small
+ * Validated: standard, pass, 61 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,44 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>   /* for abort() */
-#include "../utils/compute_small.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static seq_t compute_small(idx_t n)
+{
+    if (n & 1) /* odd n → no solutions */
+        return 0;
+
+    idx_t half = (21 * n) / 2;   /* target sum of i·kᵢ */
+    size_t len = (size_t)half + 1;
+
+    /* 21*42/2 = 441 → len ≤ 442; we keep a static buffer larger than needed */
+    static seq_t dp[883];
+    static seq_t nxt[883];
+
+    for (size_t i = 0; i < len; ++i) {
+        dp[i] = 0;
+        nxt[i] = 0;
+    }
+    dp[0] = 1;   /* empty selection */
+
+    for (int i = 1; i <= 6; ++i) {
+        for (size_t sum = 0; sum < len; ++sum) {
+            seq_t val = dp[sum];
+            if (!val) continue;
+            for (int k = 0; k <= (int)n; ++k) {
+                size_t ns = sum + (size_t)(i * k);
+                if (ns < len)
+                    nxt[ns] += val;
+            }
+        }
+        for (size_t j = 0; j < len; ++j) {
+            dp[j] = nxt[j];
+            nxt[j] = 0;
+        }
+    }
+    return dp[half];
+}
 
 /* --------------------------------------------------------------------- */
 /*  Compute a(n) for n ≤ 42 by dynamic programming over the 6×n−1,1 matrix */
@@ -76,7 +114,7 @@ seq_t a(idx_t n)
     if (N > dyn_cap) {
         size_t new_cap = dyn_cap ? dyn_cap * 2 : 64;
         if (new_cap < N) new_cap = N;
-        seq_t *c   = (seq_t  *)realloc(dyn_cache,   new_cap * sizeof(seq_t));
+        seq_t *c   = mem_resize(seq_t, dyn_cache, new_cap);
         bool  *pc  = (bool  *)realloc(dyn_computed,new_cap * sizeof(bool));
         if (!c || !pc) abort();          /* unrecoverable error */
         for (size_t i = dyn_cap; i < new_cap; ++i) {

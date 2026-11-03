@@ -11,6 +11,7 @@
  *            a(4)=111, a(5)=311, a(6)=874, a(7)=2454, a(8)=6906
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 20, u64 n <= 42, u128 n <= 85,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 210 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,13 +9,15 @@
  *            a(6)=3
  * Range:     u8 n <= 478, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 8245 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static memoization tables */
@@ -27,10 +29,10 @@ seq_t a(idx_t n) {
     if (n > cache_size) {
         idx_t new_size = n * 2;  /* Grow roughly twice the size */
         if (new_size < 16) new_size = 16;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) { /* allocation failed */
             /* In the unlikely event of failure, reset cache to zero */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_size = 0;
             computed = 0;

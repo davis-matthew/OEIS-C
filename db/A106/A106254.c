@@ -9,6 +9,7 @@
  *            square * partition table
  * Range:     u8 n <= 305, u16 n <= 406, u32 n <= 406, u64 n <= 406,
  *            u128 n <= 406, big any n
+ * Validated: standard, pass, 107 terms through n = 371 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

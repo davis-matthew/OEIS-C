@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 324, u32 n <= 324, u64 n <= 324, u128 n <= 324,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 294 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool is_valid(seq_t val) {
     uint8_t cnt[10] = {0};
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
     if (!cache) {
         /* precompute all terms – 324 terms known */
         size_t cap = 350;            /* enough for all terms */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0; /* allocation failure */
         size_t idx = 0;
         for (uint64_t num = 1000; num <= 9999 && idx < cap; ++num) {

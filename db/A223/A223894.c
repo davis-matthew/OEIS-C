@@ -11,7 +11,8 @@
  *            Here c(k) is the number of connected labeled graphs on k nodes
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 44, u64 n <= 77, u128 n <= 152,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 61 terms through n = 902 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t a, idx_t b); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Integer square root for idx_t (works up to 64-bit values). */
 static inline idx_t isqrt_u64(idx_t n)
@@ -58,7 +60,7 @@ static void ensure_seq_cap(size_t need, size_t *cap, seq_t **ptr)
     size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
     if (new_cap < need)
         new_cap = need;
-    void *tmp = realloc(*ptr, new_cap * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, *ptr, new_cap);
     *ptr = (seq_t *)tmp;
     *cap = new_cap;
 }

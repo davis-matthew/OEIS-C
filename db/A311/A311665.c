@@ -13,12 +13,14 @@
  *            array. Works for any seq_t that fits in signed 64‑...
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
             if (!dyn || dyn_cap <= (size_t)n) {
                 size_t new_cap = dyn_cap ? dyn_cap*2 : 256;
                 while (new_cap <= (size_t)n) new_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(dyn, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, dyn, new_cap);
                 if (!tmp) return 0;  /* allocation failed; caller may handle */
                 dyn = tmp;
                 dyn_cap = new_cap;

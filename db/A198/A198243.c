@@ -6,16 +6,19 @@
  * Keywords:  sign
  * Formula:   a(n) = coefficient of x^n in * Σ_{m≥0} x^{(m+1)(2m+1)} (1+x) /
  *            Π_{k=1}^{2m+1} (1-(-x)^k)
- * Range:     i8 n <= 48, i16 n <= 67, i32 n <= 67, i64 n <= 67, i128 n <= 67,
+ * Range:     i8 n <= 61, i16 n <= 67, i32 n <= 67, i64 n <= 67, i128 n <= 67,
  *            big any n
- * Helpers:   binom_n_k
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/binom_n_k.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static idx_t cache_max = 0;
 static seq_t *cache = NULL;
@@ -24,7 +27,7 @@ static seq_t *cache = NULL;
 static void compute_cache(idx_t limit)
 {
     /* Allocate a fresh cache array (zeroed) */
-    seq_t *new_cache = (seq_t*)calloc((size_t)(limit + 1), sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)(limit + 1));
     if (!new_cache) abort();                 /* should not happen */
 
     /* Loop over all possible m (here r = m) with (m+1)(2m+1) ≤ limit */
@@ -36,9 +39,9 @@ static void compute_cache(idx_t limit)
         idx_t K = 2 * r + 1;                /* number of factors in F   */
 
         /* Temporary arrays for the generating function of 1 / Π(1-(-x)^k)   */
-        seq_t *f   = (seq_t*)calloc((size_t)(maxdeg + 1), sizeof(seq_t));
-        seq_t *tmp = (seq_t*)calloc((size_t)(maxdeg + 1), sizeof(seq_t));
-        seq_t *gconv = (seq_t*)calloc((size_t)(maxdeg + 1), sizeof(seq_t));
+        seq_t *f   = mem_new(seq_t, (size_t)(maxdeg + 1));
+        seq_t *tmp = mem_new(seq_t, (size_t)(maxdeg + 1));
+        seq_t *gconv = mem_new(seq_t, (size_t)(maxdeg + 1));
         if (!f || !tmp || !gconv) abort();
 
         /* f[0] = 1, others already zero by calloc */
@@ -63,11 +66,11 @@ static void compute_cache(idx_t limit)
         /* After the loop 'cur' contains F(x) up to degree maxdeg */
 
         /* Binomial coefficients for (1+x)^K   */
-        seq_t *binom = (seq_t*)malloc((size_t)(K + 1) * sizeof(seq_t));
+        seq_t *binom = mem_new(seq_t, (size_t)(K + 1));
         if (!binom) abort();
 
         for (idx_t m = 0; m <= K; ++m)
-            binom[m] = binom_n_k(K, m);
+            binom[m] = binomial(K, m);
 
         /* Convolution F(x) * (1+x)^K  (stored in gconv)   */
         for (idx_t i = 0; i <= maxdeg; ++i) gconv[i] = (seq_t)0;
@@ -89,14 +92,14 @@ static void compute_cache(idx_t limit)
         }
 
         /* Free temporary arrays */
-        free(f);
-        free(tmp);
-        free(gconv);
-        free(binom);
+        mem_free(f);
+        mem_free(tmp);
+        mem_free(gconv);
+        mem_free(binom);
     }
 
     /* Replace the old cache with the new one */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_max = limit;
 }

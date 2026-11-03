@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 17, u64 n <= 30, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const uint64_t D = 911;             /* the number under the square root */
 static const uint64_t A0 = 30;             /* floor(sqrt(911)) */
@@ -39,7 +41,7 @@ static void init_period(void)
 
     /* a small initial capacity; it will grow if needed. */
     size_t cap = 64;
-    period = (seq_t *)malloc(cap * sizeof(seq_t));
+    period = mem_new(seq_t, cap);
     size_t len = 0;
 
     uint64_t m = 0;
@@ -55,7 +57,7 @@ static void init_period(void)
         /* Store a_i into the period vector */
         if (len == cap) {
             cap *= 2;
-            period = (seq_t *)realloc(period, cap * sizeof(seq_t));
+            period = mem_resize(seq_t, period, cap);
         }
         period[len++] = (seq_t)a;
 
@@ -77,7 +79,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = cache_cap == 0 ? 16 : cache_cap;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

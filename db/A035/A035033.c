@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Static storage for the pre‑computed table of qualifying numbers   */
@@ -56,7 +58,7 @@ static void build_sequence(void)
 
     /* Temporary dynamic array for qualifying numbers. */
     size_t cap = 128;                     /* initial capacity */
-    seq_t *tmp = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, cap);
     if (!tmp) {
         free(divcnt);
         return;
@@ -70,9 +72,9 @@ static void build_sequence(void)
         if ((uint64_t)k <= dsq) {
             if (cnt == cap) {
                 cap <<= 1;
-                seq_t *newptr = (seq_t *)realloc(tmp, cap * sizeof(seq_t));
+                seq_t *newptr = mem_resize(seq_t, tmp, cap);
                 if (!newptr) {
-                    free(tmp);
+                    mem_free(tmp);
                     free(divcnt);
                     return;   /* allocation failure – abort */
                 }

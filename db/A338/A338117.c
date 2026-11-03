@@ -9,8 +9,9 @@
  *            * (t-s) divides n. Equivalently: * a(n) = divisors(n) – 1 if n
  *            is odd * a(n) = divisors(n) – divisors(odd_part(n)) – 1
  *            otherwise * where odd_part(n) = n with all factors of 2 removed
- * Range:     u8 n <= 9601, u16 n <= 9601, u32 n <= 9601, u64 n <= 9601,
- *            u128 n <= 9601, big any n
+ * Range:     u8 n <= 20160, u16 n <= 20160, u32 n <= 20160, u64 n <= 20160,
+ *            u128 n <= 20160, big any n
+ * Validated: standard, pass, 109 terms through n = 9601 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

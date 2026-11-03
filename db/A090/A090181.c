@@ -10,6 +10,7 @@
  *            T(r,k) where n = r(r+1)/2 + k (rows are 0‑based)
  * Range:     u8 n <= 39, u16 n <= 95, u32 n <= 240, u64 n <= 758,
  *            u128 n <= 2588, big any n
+ * Validated: standard, pass, 88 terms through n = 4091 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

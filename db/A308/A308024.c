@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 12, i32 n <= 19, i64 n <= 28, i128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage for memoisation */
 static seq_t *a_cache   = NULL;      /* a[1..]   */
@@ -51,8 +53,8 @@ static void ensure_capacity(idx_t n)
 
     size_t new_cap = (size_t)n + 1;            /* indices 0..n */
 
-    a_cache  = (seq_t *)realloc(a_cache,  new_cap * sizeof(seq_t));
-    div_sum  = (seq_t *)realloc(div_sum,  new_cap * sizeof(seq_t));
+    a_cache  = mem_resize(seq_t, a_cache, new_cap);
+    div_sum  = mem_resize(seq_t, div_sum, new_cap);
 
     /* Initialise the new elements to zero */
     for (size_t i = cache_cap; i < new_cap; ++i)

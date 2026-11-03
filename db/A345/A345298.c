@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∑_{p‖n} 2^π(p) (sum over distinct prime divisors p of n)
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for primes */
 static uint64_t *primes = NULL;
@@ -74,7 +76,7 @@ static void ensure_pow2_up_to(size_t limit) {
 
     if (!pow2) {
         pow2_cap = 64;
-        pow2 = (seq_t *)malloc(pow2_cap * sizeof(seq_t));
+        pow2 = mem_new(seq_t, pow2_cap);
         pow2_cnt = 0;
     }
 
@@ -82,7 +84,7 @@ static void ensure_pow2_up_to(size_t limit) {
         size_t new_cap = pow2_cap;
         while (new_cap <= limit)
             new_cap <<= 1;
-        pow2 = (seq_t *)realloc(pow2, new_cap * sizeof(seq_t));
+        pow2 = mem_resize(seq_t, pow2, new_cap);
         pow2_cap = new_cap;
     }
 

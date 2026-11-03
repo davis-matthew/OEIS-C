@@ -8,15 +8,29 @@
  *            (n > 0)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   free_seq_array, seq_alloc_array
+ * Validated: standard, pass, 39 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <string.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +51,7 @@ seq_t a(idx_t n)
     } else if (need > cache_cap) {
         seq_t *new_cache = seq_alloc_array(need);
         if (!new_cache) return 0;
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
         free_seq_array(cache);
         cache = new_cache;
         cache_cap = need;

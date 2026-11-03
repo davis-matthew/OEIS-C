@@ -8,13 +8,15 @@
  *            a(n) = 11*a(n-1) - 98*(n-1)*a(n-2) (n ≥ 2)
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 7, i64 n <= 14, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 423 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         cache_cap  = 2;
         cache_size = 2;
-        cache      = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache      = mem_new(seq_t, cache_cap);
         if (cache == NULL) {
             /* allocation failure: fall back to returning 0 (should never happen) */
             return (seq_t)0;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         while ((size_t)(n + 1) > new_cap)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) {
             /* realloc failure: keep old cache, do nothing */
             return (seq_t)0;

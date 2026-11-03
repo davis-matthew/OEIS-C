@@ -7,14 +7,22 @@
  * Formula:   a(n) = a(n-1) - (n-1)*a(n-2), a(0)=1, a(1)=2
  * Range:     i8 n <= 7, i16 n <= 12, i32 n <= 20, i64 n <= 33, i128 n <= 57,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: standard, pass, 45 terms through n = 785 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Cached sequence values: cache[i] holds a(i) */
 static seq_t *cache = NULL;
@@ -38,7 +46,7 @@ static void grow_cache(idx_t needed)
     if (cache) {
         for (idx_t i = 0; i <= last; ++i)
             newc[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = newc;
     cap   = new_cap;

@@ -9,8 +9,9 @@
  *            1) of the rightmost digit equal to 1 in the factorial base
  *            (A007623) representation of n; it is 0 if the representation
  *            contains no 1
- * Range:     u8 n <= 9972, u16 n <= 9972, u32 n <= 9972, u64 n <= 9972,
- *            u128 n <= 9972, big any n
+ * Range:     u8 n <= 10081, u16 n <= 10081, u32 n <= 10081, u64 n <= 10081,
+ *            u128 n <= 10081, big any n
+ * Validated: standard, pass, 137 terms through n = 9972 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,14 +11,57 @@
  *            corresponding word lengths
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   len_1_99, len_1_999
+ * Validated: standard, pass, 94 terms through n = 8995 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/len_1_99.h"
-#include "../utils/len_1_999.h"
+
+/* Length of the English name of a number 1–99 (x > 0).  */
+static seq_t len_1_99(idx_t num)
+{
+    /* lengths of the unit words (0 unused) */
+    static const uint32_t unit_len[10]   = {0, 3, 3, 5, 4, 4, 3, 5, 5, 4};
+    /* lengths of the teen words 10–19 */
+    static const uint32_t teen_len[10]   = {3, 6, 6, 8, 8, 7, 7, 9, 8, 8};
+    /* lengths of the tens words 20,30,…,90 */
+    static const uint32_t tens_len[10]   = {0, 0, 6, 6, 5, 5, 5, 7, 6, 6};
+
+    if (num < 10)
+        return (seq_t)unit_len[num];
+    if (num < 20)
+        return (seq_t)teen_len[num - 10];
+
+    /* 20–99 */
+    int tens  = num / 10;
+    int unit  = num % 10;
+    seq_t len = (seq_t)tens_len[tens];
+    if (unit)
+        len += (seq_t)1 + (seq_t)unit_len[unit];   /* hyphen + unit word */
+    return len;
+}
+
+/* Length of the English name of a number 1–999 (x > 0).  */
+static seq_t len_1_999(idx_t num)
+{
+    /* lengths of the unit words (0 unused) */
+    static const uint32_t unit_len[10] = {0, 3, 3, 5, 4, 4, 3, 5, 5, 4};
+
+    seq_t total = 0;
+    int h   = num / 100;       /* hundreds digit */
+    int rem = num % 100;       /* remainder */
+
+    if (h) {
+        total += (seq_t)unit_len[h] + (seq_t)1 + (seq_t)7; /* unit + space + "hundred" */
+        if (rem)
+            total += (seq_t)1 + len_1_99(rem);           /* space + remainder */
+    } else if (rem) {
+        total += len_1_99(rem);
+    }
+    return total;
+}
 
  
 

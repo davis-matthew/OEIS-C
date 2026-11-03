@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (k^k / k!) * binomial(n,k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 35 terms through n = 187 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     static idx_t fact_cap = 0;      /* number of entries currently stored */
 
     if (fact == NULL) {
-        fact = (seq_t *)malloc(sizeof(seq_t));
+        fact = mem_new(seq_t, 1);
         if (fact == NULL) return (seq_t)0;   /* allocation failure */
         fact[0] = (seq_t)1;
         fact_cap = 1;
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
     /* Grow the factorial cache up to n */
     while (n >= fact_cap) {
         idx_t i = fact_cap;
-        seq_t *tmp = (seq_t *)realloc(fact, (i + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, (i + 1));
         if (tmp == NULL) return (seq_t)0;   /* allocation failure */
         fact = tmp;
         fact[i] = fact[i - 1] * ((seq_t)i);
@@ -53,7 +56,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= n; ++k) {
         /* Compute k^k, with 0^0 taken as 1 */
-        seq_t pow_kk = (k == 0) ? (seq_t)1 : seq_pow((seq_t)k, k);
+        seq_t pow_kk = (k == 0) ? (seq_t)1 : ipow_idx((seq_t)k, k);
 
         /* term = binom * k^k * fac_ratio  (integer arithmetic only) */
         seq_t term = binom * pow_kk;

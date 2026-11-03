@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/2⌋} n^k * |Stirling1(n,2k)|
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The integer types seq_t and idx_t are supplied by the build. */
 
@@ -28,13 +30,13 @@ seq_t a(idx_t n)
 
     /* Initialise on first call */
     if (memo == NULL) {
-        memo = (seq_t*)malloc(sizeof(seq_t));
+        memo = mem_new(seq_t, 1);
         if (memo == NULL) return (seq_t)0;   /* allocation failure */
         memo[0] = (seq_t)1;                  /* a(0) = 1              */
         memo_cap = 1;
         max_computed = 0;
 
-        prev = (seq_t*)malloc(sizeof(seq_t));
+        prev = mem_new(seq_t, 1);
         if (prev == NULL) return (seq_t)0;
         prev[0] = (seq_t)1;                  /* Stirling1(0,0) = 1    */
         prev_size = 1;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Grow memo array if needed */
     if ((size_t)(n + 1) > memo_cap) {
         size_t new_cap = n + 1;
-        seq_t *tmp = (seq_t*)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (tmp == NULL) return (seq_t)0;
         memo = tmp;
         memo_cap = new_cap;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     /* Compute Stirling rows incrementally up to n */
     for (idx_t cur = max_computed + 1; cur <= n; ++cur) {
         size_t cur_size = (size_t)cur + 1;
-        seq_t *curr = (seq_t*)malloc(cur_size * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, cur_size);
         if (curr == NULL) return (seq_t)0;   /* allocation failure */
 
         curr[0] = (seq_t)0;   /* Stirling1(cur,0) = 0 for cur > 0 */
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         memo[cur] = sum;
 
         /* Prepare next iteration: free old row, keep current row */
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prev_size = cur_size;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 57, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 74 terms through n = 9900 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Node in the min‑heap: current power, its prime, and exponent. */
 typedef struct {
@@ -66,7 +68,7 @@ static void heap_push(node_t node)
     /* Grow heap capacity if necessary. */
     if (heap_size >= heap_cap) {
         size_t new_cap = (heap_cap == 0) ? 16 : heap_cap << 1;
-        node_t *new_heap = (node_t *)realloc(heap, new_cap * sizeof(node_t));
+        node_t *new_heap = mem_resize(node_t, heap, new_cap);
         if (!new_heap) abort();          /* allocation failure */
         heap = new_heap;
         heap_cap = new_cap;
@@ -117,7 +119,7 @@ static void ensure_cache_capacity(size_t need)
     if (cache_cap >= need) return;
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();
     cache = new_cache;
     cache_cap = new_cap;
@@ -132,7 +134,7 @@ static void init_once(void)
     build_primes_upto(PRIME_LIMIT, &prime_list, &prime_cnt);
 
     heap_cap = prime_cnt;
-    heap = (node_t *)malloc(heap_cap * sizeof(node_t));
+    heap = mem_new(node_t, heap_cap);
     if (!heap) abort();
 
     /* Insert the first power p² for each prime. */

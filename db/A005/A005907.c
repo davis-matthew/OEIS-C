@@ -11,14 +11,36 @@
  *            comparison tau*P > Q is exact: either P^2 + P*Q > Q^2, or a E...
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   grow_zero, seq_is_big
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/grow_zero.h"
-#include "../utils/seq_is_big.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
 
 /* returns 1 iff tau*p > q (p, q >= 0; equality only when p = q = 0) */
 static int phi_gt(seq_t p, seq_t q) {

@@ -11,16 +11,38 @@
  *            sec(t)+tan(t), using u' = (1+u^2)/2, so u^2 = 2u...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   a1760_fixed, a1760_mul, alloc_zero
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/a1760_fixed.h"
-#include "../utils/a1760_mul.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static int a1760_fixed(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) {
+        x <<= 1;
+        if (x == 0)
+            return 1;
+    }
+    return 0;
+}
+
+static seq_t a1760_mul(seq_t x, seq_t y)
+{
+    return (seq_t)(1u * x * y);
+}
 
 static seq_t *a1760_E = 0;
 static seq_t *a1760_rowA = 0;

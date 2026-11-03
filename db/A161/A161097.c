@@ -9,12 +9,14 @@
  *            appears at least 9 times
  * Range:     u8 n <= 227, u16 n <= 704, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 117 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The sequence is computed by dynamic programming on the generating function
    G(x) = Π_{k≥1} (1 + x^(9*k^2) / (1 - x^(k^2)))
@@ -22,7 +24,7 @@
 seq_t a(idx_t n)
 {
     /* Allocate the DP array (size n+1) */
-    seq_t *dp = (seq_t *)calloc((size_t)(n) + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n) + 1);
     if (!dp)
         return (seq_t)0;          /* fallback, should not happen */
 
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
     dp[0] = (seq_t)1;
 
     /* Temporary array to hold a copy of dp from the previous iteration */
-    seq_t *dp_old = (seq_t *)calloc((size_t)(n) + 1, sizeof(seq_t));
+    seq_t *dp_old = mem_new(seq_t, (size_t)(n) + 1);
     if (!dp_old) {
-        free(dp);
+        mem_free(dp);
         return (seq_t)0;
     }
 
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
     }
 
     seq_t ans = dp[n];
-    free(dp);
-    free(dp_old);
+    mem_free(dp);
+    mem_free(dp_old);
     return ans;
 }

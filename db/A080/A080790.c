@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 2194, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rev_bin_uint64
+ * Validated: standard, pass, 71 terms through n = 9528 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/rev_bin_uint64.h"
+
+/* Reverse the binary representation of a 64‑bit integer.
+ * Leading zeros are naturally omitted because the loop stops when x becomes 0. */
+static inline uint64_t rev_bin_uint64(uint64_t x)
+{
+    uint64_t r = 0;
+    while (x)
+    {
+        r = (r << 1) | (x & 1);
+        x >>= 1;
+    }
+    return r;
+}
 
 /* 128‑bit modular multiplication (GCC/Clang extension, also available in
  * C++17).  It works for 64‑bit bases on any platform that supports __uint128_t. */

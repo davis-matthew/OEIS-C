@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 136, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_x_log_smooth
+ * Validated: standard, pass, 79 terms through n = 9540 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/is_x_log_smooth.h"
+#include "../utils/mem.h"
+
+/* Test whether x satisfies the x/log(x) smoothness condition.
+   spf[i] holds the smallest prime factor of i (i > 1). */
+static bool
+is_x_log_smooth(uint64_t x, const uint64_t *spf)
+{
+    if (x <= 2) return true;          /* 1 and 2 are always smooth */
+
+    double denom = log((double)x);
+    if (denom <= 0.0) return false;   /* safety guard for x==1 */
+
+    uint64_t threshold = (uint64_t)(x / denom);   /* floor(x/log(x)) */
+
+    uint64_t v = x;
+    while (v > 1) {
+        uint64_t p = spf[v];
+        if (p > threshold) return false;
+        /* skip repeated factors */
+        while (v % p == 0) v /= p;
+    }
+    return true;
+}
 
 /* Fill an already allocated array with smallest prime factors for
    all integers up to `limit`. */
@@ -67,7 +90,7 @@ a(idx_t n)
             uint64_t *new_spf = (uint64_t *)malloc((new_limit + 1) * sizeof(uint64_t));
             if (!new_spf) abort();
             fill_spf(new_limit, new_spf);
-            free((void *)spf);
+            free(spf);
             spf = new_spf;
             spf_limit = new_limit;
         }
@@ -77,10 +100,10 @@ a(idx_t n)
             /* Ensure sufficient space in the cache. */
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_new(seq_t, new_cap);
                 if (!new_cache) abort();
                 for (size_t i = 0; i < cache_len; ++i) new_cache[i] = cache[i];
-                free((void *)cache);
+                mem_free(cache);
                 cache = new_cache;
                 cache_cap = new_cap;
             }

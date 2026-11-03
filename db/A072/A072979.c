@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1}^{n-1} gcd(k,n)*a(k) , a(1)=1
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 29, u64 n <= 55, u128 n <= 108,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 904 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Small Euclidean GCD for idx_t values (≤ 64 bit).  */
 static inline idx_t gcd_idx(idx_t a, idx_t b)
@@ -55,7 +57,7 @@ static void ensure_cache(idx_t n)
        allocation behaviour deterministic. */
     size_t needed = (size_t)(n + 1);          /* 1‑based index */
     if (cache_size < needed) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();                    /* out of memory */
         cache = tmp;
         cache_size = needed;

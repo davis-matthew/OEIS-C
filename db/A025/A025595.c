@@ -9,7 +9,8 @@
  *            of an 8×8 board, summed over all destination squares
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache     = NULL;   /* a_cache[k] = a(k) */
 static size_t cache_len   = 0;      /* number of terms cached */
@@ -50,11 +52,11 @@ static void build_neigh(void)
         }
     }
     /* initialize base vector cur_vec for n=0 */
-    cur_vec = (seq_t *)calloc(64, sizeof(seq_t));
+    cur_vec = mem_new(seq_t, 64);
     cur_vec[0] = 1;                     /* corner (0,0) */
     /* initialize cache with a(0) */
     cache_cap = 16;
-    a_cache   = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    a_cache   = mem_new(seq_t, cache_cap);
     cache_len = 1;
     a_cache[0] = 1;
     cur_n = 0;
@@ -68,7 +70,7 @@ static void ensure_cache(idx_t n)
     if (n >= cache_cap) {
         size_t newcap = cache_cap * 2;
         if (newcap < n + 1) newcap = n + 1;
-        a_cache = (seq_t *)realloc(a_cache, newcap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, newcap);
         cache_cap = newcap;
     }
 

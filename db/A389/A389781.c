@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = number of divisors d of n such that d^(n/d) ≡ d (mod n)
- * Range:     u8 n <= 2419, u16 n <= 9115, u32 n <= 9115, u64 n <= 9115,
- *            u128 n <= 9115, big any n
- * Helpers:   factor_u64, mod_pow
+ * Range:     u8 n <= 2419, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 112 terms through n = 9115 (2026-11-01)
+ * Helpers:   factor_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* recursive divisor enumeration with direct testing */
 static void test_divisors(size_t idx, uint64_t cur,
@@ -28,7 +30,7 @@ static void test_divisors(size_t idx, uint64_t cur,
         seq_t d = (seq_t)cur;
         seq_t mod = (seq_t)n;
         uint64_t exp = n / cur;           /* n/d  */
-        seq_t r = mod_pow(d, exp, mod);
+        seq_t r = powmod(d, exp, mod);
 
         /* d % n == d if d < n, otherwise 0 if d == n */
         seq_t dmod = d % mod;

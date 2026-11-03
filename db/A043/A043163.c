@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_adjacent_1_6
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,14 +22,31 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent_1_6.h"
+#include "../utils/mem.h"
+
+/* Return true iff x (in base‑8) contains the adjacent digit pair (1,6)
+   or (6,1). */
+static bool has_adjacent_1_6(seq_t x)
+{
+    if (x < 8) return false;            /* only one digit → no adjacency */
+    seq_t prev = x % 8;
+    x /= 8;
+    while (x > 0) {
+        seq_t cur = x % 8;
+        if ((cur == 1 && prev == 6) || (cur == 6 && prev == 1))
+            return true;
+        prev = cur;
+        x /= 8;
+    }
+    return false;
+}
 
 /* Append a value to the dynamic cache, resizing it if necessary. */
 static void append_to_cache(seq_t **c, size_t *len, size_t *cap, seq_t val)
 {
     if (*len == *cap) {
         size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*c, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *c, new_cap);
         if (!tmp) abort();
         *c   = tmp;
         *cap = new_cap;

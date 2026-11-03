@@ -8,6 +8,7 @@
  * Formula:   a(n) = 3*n^4 - 12*n^2
  * Range:     i8 n <= 2, i16 n <= 10, i32 n <= 163, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 51 terms through n = 9195 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

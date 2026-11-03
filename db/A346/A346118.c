@@ -7,7 +7,8 @@
  * Formula:   a(n+1) = 1 + Sum_{d|n} mu(n/d) * a(d), a(1) = 1
  * Range:     i8 n <= 64, i16 n <= 70, i32 n <= 70, i64 n <= 70, i128 n <= 70,
  *            big any n
- * Helpers:   mobius
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mobius.h"          /* provides seq_t mobius(idx_t m) */
+#include <stdint.h>
+#include "../utils/mobius.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache[1..] contains a(i) */
 static size_t cache_cap = 0;         /* number of allocated slots (>= max i+1) */
@@ -31,7 +34,7 @@ static void ensure_capacity(idx_t n)
         return;                      /* already enough */
 
     /* Reallocate to the required size.  Cast the result of realloc. */
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
     if (!tmp)                        /* allocation failed */
         abort();
 

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   _T_value
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,23 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_T_value.h"
+
+/* ---------- Evaluate T(n,k) ------------------------------------- */
+static inline seq_t _T_value(idx_t n, idx_t k)
+{
+    /* promote to seq_t before any arithmetic */
+    seq_t sn = (seq_t)n;
+    seq_t sk = (seq_t)k;
+    seq_t two = (seq_t)2;
+    seq_t term = two * (two * sk - sn - (seq_t)1) *
+                   ( (seq_t)3
+                   + (seq_t)8 * sk * (sk - sn - (seq_t)1)
+                   + (seq_t)4 * sn );
+    /* Add n^2 only when n is odd and k is the central column */
+    if ( (n & 1U) && (k * two == n + 1U) )
+        term += sn * sn;
+    return term;
+}
 
 /* ---------- Integer square root for unsigned long long ---------- */
 static inline idx_t _floor_isqrt_u64(idx_t v)

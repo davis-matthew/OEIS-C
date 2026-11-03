@@ -10,13 +10,32 @@
  *            n=1 the empty factorization counts as 1
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   dfs_k
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/dfs_k.h"
+
+/* Recursive generator: count factorizations of rem into (k−depth) factors
+   chosen from an ascending array `divs[divcnt]`.  `start` ensures
+   non‑decreasing order (unordered multiset). */
+static seq_t dfs_k(seq_t rem, idx_t depth, const idx_t *divs, size_t divcnt,
+                   size_t start, idx_t k)
+{
+    if (depth == k)
+        return rem == 1 ? 1 : 0;
+    seq_t total = 0;
+    for (size_t i = start; i < divcnt; ++i) {
+        idx_t d = divs[i];
+        if ((seq_t)d > rem) break;
+        if (rem % (seq_t)d != 0) continue;
+        total += dfs_k(rem / (seq_t)d, depth + 1, divs, divcnt,
+                       i, k);
+    }
+    return total;
+}
 
 seq_t a(idx_t n)
 {

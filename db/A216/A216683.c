@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 15, i16 n <= 27, i32 n <= 46, i64 n <= 83, i128 n <= 158,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 481 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- Internal cache data ------------------------------------------- */
 static seq_t *a_cache = NULL;   /* a[0..N]      */
@@ -48,8 +50,8 @@ ensure_cache(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-    s_cache = (seq_t *)realloc(s_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
+    s_cache = mem_resize(seq_t, s_cache, new_cap);
 
     for (size_t i = cache_cap; i < new_cap; ++i) {
         a_cache[i] = 0;

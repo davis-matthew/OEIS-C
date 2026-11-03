@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   digit_product, is_prime, largest_prime_divisor, next_prime
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   digit_product, is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,31 @@
 #include <stdint.h>
 
 #include "../utils/digit_product.h"
-#include "../utils/next_prime.h"
 #include "../utils/is_prime.h"
-#include "../utils/largest_prime_divisor.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* Return the largest prime divisor of m (m >= 2). */
+static uint64_t largest_prime_divisor(uint64_t m)
+{
+    uint64_t largest = 0;
+    /* factor 2 */
+    while ((m & 1ULL) == 0) {
+        largest = 2;
+        m >>= 1;
+    }
+    /* odd factors */
+    for (uint64_t f = 3; f <= m / f; f += 2) {
+        if (m % f == 0) {
+            largest = f;
+            while (m % f == 0)
+                m /= f;
+        }
+    }
+    if (m > 1)            /* remaining m is prime */
+        largest = m;
+    return largest;
+}
 
 #define MAP_SIZE 2000000          /* maximum index (product) we pre‑compute */
 #define SIEVE_LIMIT 10000000      /* primes up to this limit will be pre‑computed */
@@ -39,7 +62,7 @@ static uint64_t last_prime = 0;       /* last prime processed for on‑the‑fly
 static void init_map(void)
 {
     /* allocate mapping array (zeroed) */
-    prod_to_prime = (seq_t *)calloc(MAP_SIZE, sizeof(seq_t));
+    prod_to_prime = mem_new(seq_t, MAP_SIZE);
 
     /* sieve for primes up to SIEVE_LIMIT */
     bool *is_comp = (bool *)calloc(SIEVE_LIMIT + 1, sizeof(bool));

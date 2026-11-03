@@ -7,12 +7,30 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   get_t
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/get_t.h"
+static seq_t get_t(idx_t i)
+{
+    /* returns the i-th element of the complement sequence t */
+    idx_t k_s = 1;                         /* index into s */
+    seq_t s_val = ((seq_t)8 * k_s) / 3;    /* s(k_s) */
+    idx_t missing = 0;                     /* how many missing numbers seen */
+
+    for (idx_t m = 1;; ++m) {
+        if (m == s_val) {                  /* m belongs to s */
+            ++k_s;
+            s_val = ((seq_t)8 * k_s) / 3;  /* next s value */
+        } else {                           /* m is missing */
+            ++missing;
+            if (missing == i)
+                return (seq_t)m;
+        }
+    }
+}
 /* A191543: Dispersion of floor(8*n/3) by antidiagonals.
    The array D is defined by D[row i , col j] =
    (t[i], s(t[i]), s(s(t[i])), ...), where

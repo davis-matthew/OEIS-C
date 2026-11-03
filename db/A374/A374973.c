@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n-1} tau(k) * sigma_2(n-k)
  * Range:     u8 n <= 7, u16 n <= 37, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for divisor statistics */
 static seq_t *tau = NULL;
@@ -29,8 +31,8 @@ static void re_compute(idx_t limit)
     /* allocate or grow the arrays */
     size_t needed = (size_t)limit + 1;        /* +1 to use indices directly */
     if (needed > max_pre) {
-        seq_t *t = (seq_t *)realloc(tau, needed * sizeof(seq_t));
-        seq_t *s = (seq_t *)realloc(sigma2, needed * sizeof(seq_t));
+        seq_t *t = mem_resize(seq_t, tau, needed);
+        seq_t *s = mem_resize(seq_t, sigma2, needed);
         if (!t || !s) {
             /* allocation failed – abort program (not expected in the test harness) */
             abort();

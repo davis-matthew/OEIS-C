@@ -12,12 +12,14 @@
  *            values for all n ≥ 5, so unsigned arithmetic is saf...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 35, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 1639 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     if (max_n == 0) {
         /* Initialise for n = 1 .. 4.  Allocate space for indices 0..4. */
-        cache = (seq_t *)malloc(5 * sizeof(seq_t));
+        cache = mem_new(seq_t, 5);
         if (!cache) return (seq_t)0;          /* Out of memory: return zero. */
         cache[0] = 0;                         /* unused sentinel */
         cache[1] = (seq_t)1;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* Grow cache to accommodate n. */
     idx_t new_len = n + 1;          /* we need indices 0 .. n */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache) {
         /* Realloc failed, keep existing cache and return zero. */
         return (seq_t)0;

@@ -11,6 +11,7 @@
  *            C(r) is the * total number of entries up to row r...
  * Range:     u8 n <= 2549, u16 n <= 2549, u32 n <= 2549, u64 n <= 2549,
  *            u128 n <= 2549, big any n
+ * Validated: standard, pass, 95 terms through n = 2363 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

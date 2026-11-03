@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 44, u64 n <= 90, u128 n <= 183,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    for n>1, a(n)=a(n-1)+a(n-2)+floor(n/2)  (n is unsigned) */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise cache on first use */
     if (cache == NULL) {
         cache_len = 2;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = 1;
         cache[1] = 1;
     }
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* extend cache if necessary */
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        seq_t *new_cache = (seq_t *)malloc((size_t)new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)new_len);
 
         /* copy existing values */
         for (idx_t i = 0; i < cache_len; ++i)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
             new_cache[i] = new_cache[i-1] + new_cache[i-2] + (seq_t)(i / 2);
         }
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
     }

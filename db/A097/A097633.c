@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    by brute‑force enumeration of all triples (x, y, z). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- static storage --- */
 static idx_t          limit            = 0;      /* largest integer considered   */
@@ -44,7 +46,7 @@ static void ensure_nonrep_capacity(idx_t up_to)
 {
     size_t new_cap = (size_t)up_to + 1;
     if (nonrep_cap < new_cap) {
-        seq_t *tmp = (seq_t *)realloc(nonrep, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, nonrep, new_cap);
         if (!tmp) abort();
         nonrep = tmp;
         nonrep_cap = new_cap;

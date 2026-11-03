@@ -7,6 +7,7 @@
  * Formula:   a(n) = sign( cos( (n+1) * arctan( π / ln(π/2) ) ) )
  * Range:     i8 n <= 74, i16 n <= 74, i32 n <= 74, i64 n <= 74, i128 n <= 74,
  *            big any n
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,10 +22,10 @@
 seq_t a(idx_t n)
 {
     /* High‑precision π constant */
-    static const long double pi = 3.1415926535897932384626433832795028841971693993751L;
+    const long double pi = 3.1415926535897932384626433832795028841971693993751L;
 
     /* Compute the fixed irrational angle θ = atan(π / ln(π/2)) */
-    static const long double theta = atanl(pi / logl(pi / 2.0L));
+    const long double theta = atanl(pi / logl(pi / 2.0L));
 
     /* Multiply by (n+1) and evaluate cosine */
     long double v = cosl((long double)(n + 1) * theta);

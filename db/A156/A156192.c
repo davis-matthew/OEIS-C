@@ -7,7 +7,8 @@
  * Formula:   a(n) = 7^n * 2^{v2(n+1)}
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,15 @@
 /*  v2(k) = exponent of 2 dividing k          */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Count trailing zeros in the binary representation of x.  */
 static idx_t _v2(idx_t x)
@@ -33,11 +41,11 @@ static idx_t _v2(idx_t x)
 seq_t a(idx_t n)
 {
     /* 7^n */
-    seq_t pow7 = big_pow((seq_t)7, (seq_t)n);
+    seq_t pow7 = ipow((seq_t)7, (seq_t)n);
 
     /* 2^{v2(n+1)} */
     idx_t v = _v2(n + 1);              /* v2(n+1) */
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)v);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)v);
 
     /* product */
     return seq_mul(pow7, pow2);

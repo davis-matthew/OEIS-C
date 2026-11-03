@@ -9,12 +9,15 @@
  *            (n-1)^(n-1))
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 3, i64 n <= 5, i128 n <= 6,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +27,8 @@ seq_t a(idx_t n)
         return 3;               /* D = 1, f(1) = 3 */
 
     /* Compute n^n and (n-1)^(n-1) */
-    seq_t S1 = big_pow((seq_t)n, (seq_t)n);
-    seq_t S2 = big_pow((seq_t)(n - 1), (seq_t)(n - 1));
+    seq_t S1 = ipow((seq_t)n, (seq_t)n);
+    seq_t S2 = ipow((seq_t)(n - 1), (seq_t)(n - 1));
 
     /* sign1 = (-1)^(n(n-1)/2) */
     int sign1;
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
     seq_t D = (sign1 == -1) ? -temp : temp;
 
     /* Compute D^n */
-    seq_t D_pow = big_pow(D, (seq_t)n);
+    seq_t D_pow = ipow(D, (seq_t)n);
 
     /* a(n) = D_pow + D + 1 */
     seq_t result = D_pow + D + (seq_t)1;

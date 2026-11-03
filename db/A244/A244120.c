@@ -11,13 +11,22 @@
  *            r+1 entries
  * Range:     u8 n <= 22, u16 n <= 39, u32 n <= 83, u64 n <= 217,
  *            u128 n <= 542, big any n
- * Helpers:   pow_int, seq_mul
+ * Validated: standard, pass, 82 terms through n = 4645 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_mul.h"
-#include "../utils/pow_int.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -55,8 +64,8 @@ seq_t a(idx_t n)
     seq_t base2 = (seq_t)c;
     idx_t  exp2 = r - c;
 
-    seq_t pow1  = pow_int(base1, exp1);   /* (r-c)^(c-1) */
-    seq_t pow2  = pow_int(base2, exp2);   /*  c   ^(r-c)  */
+    seq_t pow1  = ipow_idx(base1, exp1);   /* (r-c)^(c-1) */
+    seq_t pow2  = ipow_idx(base2, exp2);   /*  c   ^(r-c)  */
     seq_t prod  = seq_mul(pow1, pow2);
     seq_t result = seq_mul(row_val, prod);
 

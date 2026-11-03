@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   has_mdr2
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,24 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_mdr2.h"
+#include "../utils/mem.h"
+
+/* Check whether the multiplicative digital root of x (ignoring 0‑digits)
+ * equals the single digit 2. */
+static bool has_mdr2(seq_t x)
+{
+    while (x >= (seq_t)10) {          /* more than one digit */
+        seq_t prod = (seq_t)1;
+        while (x != (seq_t)0) {       /* process each decimal digit */
+            seq_t d = x % (seq_t)10;  /* current rightmost digit */
+            if (d != (seq_t)0)
+                prod *= d;
+            x /= (seq_t)10;
+        }
+        x = prod;                     /* continue with the product */
+    }
+    return x == (seq_t)2;
+}
 
 /* Return the nth term of A051804 (1‑based indexing).  Calls may arrive
  * in any order; the results are cached for efficiency. */
@@ -41,7 +59,7 @@ seq_t a(idx_t n)
     /* Initialise cache lazily. */
     if (!cache) {
         cache_cap = 128;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Generate terms until we have at least n of them. */
@@ -50,7 +68,7 @@ seq_t a(idx_t n)
         if (has_mdr2((seq_t)last_checked)) {
             if (cache_size == cache_cap) {   /* grow cache when full */
                 cache_cap *= 2;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = (seq_t)last_checked;
         }

@@ -10,14 +10,15 @@
  *            ) ) }, where v₂(m) is the exponent of 2 in m
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   tz_idx
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   ctz_idx_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/tz_idx.h"
+#include "../utils/ctz_idx_to_i32.h"
 
 static inline int popcnt_idx(idx_t x)
 {
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
     /* offset is 1; n≥1 */
     idx_t m = n >> 1;            /* floor(n/2) */
     idx_t n1 = n - 1;
-    int v2_n   = tz_idx(n);                                 /* v₂(n) */
+    int v2_n   = ctz_idx_to_i32(n);                                 /* v₂(n) */
     int v2_binom = popcnt_idx(m) + popcnt_idx(n1 - m) - popcnt_idx(n1);
     int exp = (int)n - (v2_n + v2_binom);        /* exponent of 2 in denominator */
 

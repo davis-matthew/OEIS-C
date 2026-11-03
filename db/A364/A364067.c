@@ -7,6 +7,7 @@
  * Formula:   a(n) = (1/3) * Sum_{d | 3n-2, d==2 (mod 3)} (d+1)
  * Range:     u8 n <= 293, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 104 terms through n = 9915 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

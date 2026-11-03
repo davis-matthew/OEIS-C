@@ -10,6 +10,7 @@
  *            triangle is read by rows: T(n,k) = 2^n*(2^k-1)*(2^(n-k)-1)+1
  * Range:     u8 n <= 15, u16 n <= 45, u32 n <= 153, u64 n <= 561,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 71 terms through n = 1318 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp); */
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

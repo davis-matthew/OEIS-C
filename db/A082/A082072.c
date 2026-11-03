@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 288, u16 n <= 8918, u32 n <= 8918, u64 n <= 8918,
- *            u128 n <= 8918, big any n
- * Helpers:   gcd64
+ * Range:     u8 n <= 288, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 118 terms through n = 8918 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
 
 /* Euclidean algorithm for 64‑bit unsigned integers. */
 
@@ -63,7 +64,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute gcd and its smallest prime factor. */
-    uint64_t g = gcd64(sigma1, sigma2);
+    uint64_t g = gcd_u64(sigma1, sigma2);
     if (g <= 1u) /* coprime case */
         return (seq_t)1u;
 

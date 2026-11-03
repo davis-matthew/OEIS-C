@@ -8,12 +8,14 @@
  *            * a(n-k) a(0) = 1, a(1) = -1, a(2) = 0
  * Range:     i8 n <= 7, i16 n <= 11, i32 n <= 19, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Extend the cache if necessary and compute missing values */
     if ((idx_t)cache_size <= n) {
         size_t new_size = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         /* Compute all terms from the current size up to n */
         for (size_t idx = cache_size; idx <= n; ++idx) {
             idx_t i = (idx_t)idx;

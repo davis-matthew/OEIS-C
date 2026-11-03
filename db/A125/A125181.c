@@ -12,45 +12,46 @@
  *            For a partition p = [a(1)^{e(1)}, …, a(j)^{e(j)}] with k =
  *            e(1)+…+e(j) the corresponding triangle entry is (P) T(m,k) = m!
  *            / [ (m‑k+1)! · e(1)! e(2)! … e(j)! ]. The funct...
- * Range:     u8 n <= 27, u16 n <= 452, u32 n <= 5562, u64 n <= 9222,
- *            u128 n <= 9222, big any n
- * Helpers:   binom_n_k
+ * Range:     u8 n <= 59, u16 n <= 453, u32 n <= 5563, u64 n <= 11731,
+ *            u128 n <= 11731, big any n
+ * Validated: standard, pass, 95 terms through n = 9222 (2026-11-03)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Required definitions (provided by the build system) */
 #include <stdbool.h>
-#include "../utils/binom_n_k.h"
 
-/* Local helper: factorial for small m (m ≤ n). */
-static seq_t fact_small(idx_t m)
+/* v_p(m!), by Legendre */
+static idx_t vfact(idx_t m, idx_t p)
 {
-    seq_t r = 1;
-    for (idx_t i = 2; i <= m; ++i) r *= i;
-    return r;
+    idx_t e = 0;
+    while (m) { m /= p; e += m; }
+    return e;
 }
 
-/* Compute T(m,k) for a partition given by parts[0..k-1] (non‑increasing). */
+/* T(m,k) = C(m,k-1) (k-1)! / prod mult_i! = m! / ((m-k+1)! prod mult_i!) for a
+   partition parts[0..k-1] (non-increasing) with part multiplicities mult_i. It
+   is computed from its prime exponents as a plain product, so it is exact
+   modulo the width (dividing after the products had wrapped was not). */
 static seq_t compute_T(idx_t m, idx_t k, int *parts)
 {
-    seq_t res = binom_n_k(m, k - 1);          /* C(m, k-1) */
-    /* multiply by (k-1)! */
-    for (idx_t i = 2; i <= k - 1; ++i) res *= i;
-
-    /* divide by factorials of multiplicities */
-    idx_t curr = parts[0];
-    idx_t cnt  = 1;
-    for (idx_t i = 1; i < (idx_t)k; ++i) {
-        if (parts[i] == curr) {
-            ++cnt;
-        } else {
-            for (idx_t j = 2; j <= cnt; ++j) res /= j;
-            curr = parts[i];
-            cnt  = 1;
-        }
+    idx_t mult[128], nm = 0, cnt = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        if (i < k && parts[i] == parts[i - 1]) { ++cnt; continue; }
+        mult[nm++] = cnt;
+        cnt = 1;
     }
-    for (idx_t j = 2; j <= cnt; ++j) res /= j;
+    seq_t res = 1;
+    for (idx_t p = 2; p <= m; ++p) {
+        bool prime = true;
+        for (idx_t d = 2; d * d <= p; ++d) if (p % d == 0) { prime = false; break; }
+        if (!prime) continue;
+        idx_t e = vfact(m, p) - vfact(m - k + 1, p);
+        for (idx_t i = 0; i < nm; ++i) e -= vfact(mult[i], p);
+        while (e--) res *= (seq_t)p;
+    }
     return res;
 }
 

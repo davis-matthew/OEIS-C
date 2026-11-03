@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 896 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,13 +33,14 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;
 
     /* temporary array for the A values, reused for each k */
-    seq_t *A = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (size_t)n + 1);
     if (!A) return 0;  /* allocation failed – returning 0 as fallback */
 
     seq_t sum = 0;
@@ -63,6 +65,6 @@ seq_t a(idx_t n)
         sum += A[n] + Bprev;      /* f_k(n) = A[n] + B[n] */
     }
 
-    free(A);
+    mem_free(A);
     return sum - (seq_t)n;        /* subtract the n words with no 0's   */
 }

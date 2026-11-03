@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 139, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   sum_even_digits_idx
+ * Validated: standard, pass, 91 terms through n = 4429 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/sum_even_digits_idx.h"
+#include "../utils/mem.h"
+
+/* Sum of all even decimal digits of an unsigned integer x */
+static inline seq_t sum_even_digits_idx(idx_t x)
+{
+    seq_t sum = 0;
+    while (x > 0) {
+        uint8_t d = x % 10;
+        if ((d & 1) == 0) sum += (seq_t)d;
+        x /= 10;
+    }
+    return sum;   /* for x==0 the loop is skipped; digit 0 contributes 0  */
+}
 
 static seq_t *seq = NULL;          /* sequence values, 0‑based */
 static size_t seq_cap = 0;         /* allocated capacity of seq   */
@@ -39,7 +52,7 @@ static inline void ensure_seq_cap(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 4;
     while (new_cap < needed) new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 

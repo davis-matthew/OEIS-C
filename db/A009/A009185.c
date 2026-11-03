@@ -8,7 +8,8 @@
  *            two distinct Pythagorean triples
  * Range:     u8 n <= 45, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* gcd for 64‑bit values */
 static inline uint64_t gcd_uint64(uint64_t a, uint64_t b) {
@@ -37,7 +39,7 @@ static size_t   seq_len   = 0;
 static void add_value(uint64_t v) {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 128;
-        seq_t *tmp = (seq_t *)realloc(seq_values, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_values, new_cap);
         if (!tmp) exit(1);
         seq_values = tmp;
         seq_cap    = new_cap;

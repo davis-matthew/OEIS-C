@@ -9,13 +9,16 @@
  *            (x_k)^2 * ceil(x_k); then a(n) is the numerator of x_n
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *num_cache = NULL;
 static seq_t *den_cache = NULL;
@@ -30,8 +33,8 @@ seq_t a(idx_t n)
         idx_t new_size = n;
 
         /* Reallocate the arrays */
-        seq_t *num_new = (seq_t *)realloc(num_cache, new_size * sizeof(seq_t));
-        seq_t *den_new = (seq_t *)realloc(den_cache, new_size * sizeof(seq_t));
+        seq_t *num_new = mem_resize(seq_t, num_cache, new_size);
+        seq_t *den_new = mem_resize(seq_t, den_cache, new_size);
         if (!num_new || !den_new) abort();
 
         num_cache = num_new;

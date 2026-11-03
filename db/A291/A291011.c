@@ -8,12 +8,14 @@
  *            precomputed power tables to keep each call O(1) after the first
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 38, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,17 +30,17 @@ seq_t a(idx_t n)
         idx_t new_cap = (max_pow + 1) * 2;
         if (new_cap <= n) new_cap = n + 1;
 
-        pow3 = (seq_t *)realloc(pow3, sizeof(seq_t) * new_cap);
+        pow3 = mem_resize(seq_t, pow3, new_cap);
         if (!pow3) abort();
-        pow2 = (seq_t *)realloc(pow2, sizeof(seq_t) * new_cap);
+        pow2 = mem_resize(seq_t, pow2, new_cap);
         if (!pow2) abort();
     }
     else if (max_pow == (idx_t)-1) {
         /* first time: allocate and init with base cases pow3[0] = 1, pow2[0] = 1 */
         idx_t init_cap = (n + 1) < 4 ? 4 : n + 1;
-        pow3 = (seq_t *)realloc(pow3, sizeof(seq_t) * init_cap);
+        pow3 = mem_resize(seq_t, pow3, init_cap);
         if (!pow3) abort();
-        pow2 = (seq_t *)realloc(pow2, sizeof(seq_t) * init_cap);
+        pow2 = mem_resize(seq_t, pow2, init_cap);
         if (!pow2) abort();
         pow3[0] = (seq_t)1;
         pow2[0] = (seq_t)1;

@@ -7,13 +7,15 @@
  * Formula:   a(1)=a(2)=1; for n>2 a(n)=a(ceil(n/2))-a(floor(n/2))
  * Range:     i8 n <= 101, i16 n <= 101, i32 n <= 101, i64 n <= 101,
  *            i128 n <= 101, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoization */
 static seq_t *cache   = NULL;
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     if (new_cap == 0)
         new_cap = 1;
 
-    cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (new_cap + 1));
     if (!cache)
         exit(1); /* OOM – abort */
 

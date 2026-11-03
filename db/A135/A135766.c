@@ -11,7 +11,8 @@
  *            prime ≥7
  * Range:     u8 n <= 12, u16 n <= 34, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----  caching of A007775 and prime generation  ---- */
 static seq_t *A007775_cache = NULL;   /* 1‑based indexing, A007775(1)=1 */
@@ -31,7 +33,7 @@ static void ensure_A007775(idx_t idx)
     if (idx <= A007775_cache_size) return;
 
     size_t new_size = (size_t)(idx + 1);    /* allocate space for indices 0..idx */
-    seq_t *new_cache = (seq_t *)realloc(A007775_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, A007775_cache, new_size);
     if (!new_cache) abort();                  /* out of memory */
     A007775_cache = new_cache;
     for (idx_t i = A007775_cache_size + 1; i <= idx; ++i)

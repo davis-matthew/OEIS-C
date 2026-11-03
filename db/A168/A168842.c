@@ -9,12 +9,14 @@
  *            2≤i≤19, and for i≥20: 10·a(i) = a(i‑1)+…+a(i‑20)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -29,7 +31,7 @@ static void extend_cache(idx_t n)
     /* if not initialized, start with capacity 20 */
     if (cache_cap == 0) {
         cache_cap = 20;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* resize if necessary */
@@ -37,7 +39,7 @@ static void extend_cache(idx_t n)
         size_t new_cap = cache_cap * 2;
         while ((size_t)n + 1 > new_cap)
             new_cap *= 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

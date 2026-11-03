@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 105, u32 n <= 370, u64 n <= 1385,
  *            u128 n <= 5354, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9775 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ----------  Cached state  --------------------------------- */
 
@@ -87,7 +89,7 @@ static void grow_cache(idx_t new_cap)
 
     ex2      = (idx_t *)realloc(ex2,      cap * sizeof(idx_t));
     ex3      = (idx_t *)realloc(ex3,      cap * sizeof(idx_t));
-    phiCache = (seq_t *)realloc(phiCache, cap * sizeof(seq_t));
+    phiCache = mem_resize(seq_t, phiCache, cap);
 }
 
 /* Extend the cache so that it contains at least 'target' terms. */

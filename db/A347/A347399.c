@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=1..n, k^k | n^n} k^k
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* static sieve of smallest prime factors (spf) */
 #define MAX_SPF 200000
@@ -51,13 +53,13 @@ ensure_pow_cache(size_t max_n)
 {
     if (max_n <= pow_cache_cap) return;
     size_t new_cap = max_n + 1;          /* index 0 .. max_n */
-    seq_t *new_cache = (seq_t *)realloc(pow_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, pow_cache, new_cap);
     if (!new_cache) exit(1);             /* out of memory */
     for (size_t i = pow_cache_cap + 1; i <= max_n; ++i) {
         if (i == 0)
             new_cache[i] = (seq_t)0;     /* unused */
         else
-            new_cache[i] = big_pow((seq_t)i, (seq_t)i);
+            new_cache[i] = ipow((seq_t)i, (seq_t)i);
     }
     /* Zero or keep old value for indices <= pow_cache_cap */
     pow_cache = new_cache;

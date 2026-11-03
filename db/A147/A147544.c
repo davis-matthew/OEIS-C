@@ -9,14 +9,18 @@
  *            x^j)
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 41, u64 n <= 109, u128 n <= 303,
  *            big any n
- * Helpers:   sieve_first_n_primes
+ * Validated: standard, pass, 55 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +35,7 @@ seq_t a(idx_t n)
     sieve_first_n_primes(m, &prime_list, &prime_cnt);
 
     /* Allocate array for polynomial coefficients up to degree m */
-    seq_t *coef = (seq_t *)calloc(m + 1, sizeof(seq_t));
+    seq_t *coef = mem_new(seq_t, m + 1);
     if (!coef) {
         free(prime_list);
         return 0;
@@ -52,7 +56,7 @@ seq_t a(idx_t n)
     seq_t result = coef[m];        /* coefficient of x^n */
 
     /* Clean up allocated memory */
-    free(coef);
+    mem_free(coef);
     free(prime_list);
 
     return result;

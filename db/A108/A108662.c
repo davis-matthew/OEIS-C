@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sumsq_digits
+ * Validated: standard, pass, 74 terms through n = 9460 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,19 @@
 /* Generating A108662: numbers whose sum of squares of decimal digits is prime */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/sumsq_digits.h"
+#include "../utils/mem.h"
+
+/* Sum of squares of decimal digits of x. */
+static inline unsigned sumsq_digits(seq_t x)
+{
+    unsigned sum = 0;
+    while (x) {
+        unsigned d = (unsigned)(x % 10);
+        sum += d * d;
+        x /= (seq_t)10;
+    }
+    return sum;
+}
 
 /* Small primality test for the small sums (maximum ≈ 3200). */
 static inline bool is_prime_small(unsigned n)
@@ -45,7 +58,7 @@ seq_t a(idx_t n)
         if (is_prime_small(sumsq_digits(val))) {
             if (cache_size >= cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 64;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = val;
         }

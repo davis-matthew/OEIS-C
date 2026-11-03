@@ -11,12 +11,14 @@
  *            This is sufficient for n ≤ 10 000
  * Range:     u8 n <= 65, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external types supplied by the build */
 extern seq_t a(idx_t);
@@ -31,10 +33,10 @@ seq_t a(idx_t n)
     /* allocate or grow cache when necessary */
     if (dp == NULL || n > max_n) {
         /* free old cache if it exists */
-        if (dp != NULL) free(dp);
+        if (dp != NULL) mem_free(dp);
 
         /* allocate new array */
-        dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        dp = mem_new(seq_t, (size_t)(n + 1));
         if (dp == NULL) return 0;   /* out of memory */
 
         /* initialise dp[0] */

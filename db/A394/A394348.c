@@ -10,7 +10,8 @@
  *            obtained from the generating function:
  * Range:     u8 n <= 28, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   min_sum_of_k
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,13 +19,19 @@
 /*  G(q) = Sum_{k>=1} q^(3*k*(k+3)/2) * Prod_{i=1..3} Prod_{j=1..k} 1/(1-q^(i+j-1)) */
 
 #include <stdlib.h>
-#include "../utils/min_sum_of_k.h"
+#include "../utils/mem.h"
+
+static idx_t min_sum_of_k(idx_t k)
+{
+    /* 3*k*(k+3)/2 fits in idx_t for k up to about 80 (needed for n<=10000) */
+    return (idx_t)((seq_t)3 * (seq_t)k * ((seq_t)k + 3) / 2);
+}
 
 /* Main function requested by the build system */
 seq_t a(idx_t n)
 {
     /* Allocate the sequence array 0 .. n */
-    seq_t *seq = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (size_t)(n + 1));
     if (!seq) exit(1);   /* out of memory */
 
     for (idx_t k = 1; ; ++k)
@@ -37,8 +44,8 @@ seq_t a(idx_t n)
         size_t ne = (size_t)(max_extra + 1);
 
         /* ways[x] = number of ways to add extra sum x to this shape */
-        seq_t *ways = (seq_t *)calloc(ne, sizeof(seq_t));
-        if (!ways) { free(seq); exit(1); }
+        seq_t *ways = mem_new(seq_t, ne);
+        if (!ways) { mem_free(seq); exit(1); }
         ways[0] = 1;          /* one way to reach 0 extra */
 
         /* For each possible weight m = i + j - 1 (1 <= i <= 3, 1 <= j <= k) */
@@ -65,10 +72,10 @@ seq_t a(idx_t n)
         for (size_t e = 0; e < ne; ++e)
             seq[(size_t)base + e] += ways[e];
 
-        free(ways);
+        mem_free(ways);
     }
 
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence coefficients (index 0 → a(n-1), index 6 → a(n-7)) */
 static const int coeffs[7] = {23, -153, 217, 258, -456, -104, 192};
@@ -45,13 +47,13 @@ static size_t cache_size = 0;
 static seq_t *alloc_seq(size_t len)
 {
     /* In C++ the cast is required; in C it is implicit. */
-    return (seq_t *)malloc(len * sizeof(seq_t));
+    return mem_new(seq_t, len);
 }
 
 /* Helper: reallocate an array of seq_t to a new length (C/C++ compatible) */
 static seq_t *grow_seq(seq_t *ptr, size_t new_len)
 {
-    return (seq_t *)realloc(ptr, new_len * sizeof(seq_t));
+    return mem_resize(seq_t, ptr, new_len);
 }
 
 /* Main function */

@@ -7,12 +7,14 @@
  * Formula:   a(n) = (4*5^n - 3*4^n - 2^n)/6
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence: a(0)=0, a(1)=1, a(2)=8,
    a(n) = 11*a(n-1) - 38*a(n-2) + 40*a(n-3)  (n > 2) */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Initial allocation and seed values */
     if (buf == NULL) {
         buf_size = (n > 2 ? n + 1 : 3);
-        buf = (seq_t*)malloc(buf_size * sizeof(seq_t));
+        buf = mem_new(seq_t, buf_size);
         buf[0] = (seq_t)0;
         if (buf_size > 1) buf[1] = (seq_t)1;
         if (buf_size > 2) buf[2] = (seq_t)8;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Grow the buffer if needed */
     else if (n + 1 > buf_size) {
         idx_t new_size = n + 1;
-        buf = (seq_t*)realloc(buf, new_size * sizeof(seq_t));
+        buf = mem_resize(seq_t, buf, new_size);
         buf_size = new_size;
     }
 

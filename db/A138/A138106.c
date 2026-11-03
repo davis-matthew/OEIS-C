@@ -11,14 +11,16 @@
  *            within that row (0‑based)
  * Range:     i8 n <= 22, i16 n <= 69, i32 n <= 258, i64 n <= 915,
  *            i128 n <= 3509, big any n
- * Helpers:   big_pow, binom
+ * Validated: standard, pass, 82 terms through n = 4905 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 static inline idx_t find_row(idx_t idx) {
     idx_t m = 0;
@@ -36,9 +38,9 @@ seq_t a(idx_t n) {
     idx_t k = n - start;                  /* position within the row (0‑based) */
     idx_t e = m - k;                      /* exponent in the inner expression */
 
-    seq_t bin = binom(m, k);              /* binomial coefficient binom(m,k) */
+    seq_t bin = binomial(m, k);              /* binomial coefficient binom(m,k) */
 
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)e); /* 2^e  (seq_t type) */
+    seq_t pow2 = ipow((seq_t)2, (seq_t)e); /* 2^e  (seq_t type) */
     seq_t inner = pow2 - (seq_t)2;              /* 2^e - 2          */
     if (e & 1) inner = -inner;                  /* apply (-1)^e factor */
 

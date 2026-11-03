@@ -8,13 +8,14 @@
  *            (i.e., write 51 in base n, then concatenate the base‑n digits as
  *            * decimal digits)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
- * Helpers:   dec_len
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   num_digits_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/dec_len.h"
+#include "../utils/num_digits_i32.h"
 
 seq_t a(idx_t n) {
     /* Handle unary base n == 1 : 51 ones (unary representation). */
@@ -44,7 +45,7 @@ seq_t a(idx_t n) {
     seq_t result = 0;
     for (int i = sz - 1; i >= 0; --i) {
         int d = digits[i];
-        int len = dec_len(d);
+        int len = num_digits_i32(d);
         seq_t mult = 1;
         for (int k = 0; k < len; ++k)
             mult *= (seq_t)10;

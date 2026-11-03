@@ -8,6 +8,7 @@
  *            (x^5+3x^4-x^3+2x^2+2x+3)/(1-x^2)^3
  * Range:     i8 n <= 12, i16 n <= 52, i32 n <= 52, i64 n <= 52, i128 n <= 52,
  *            big any n
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

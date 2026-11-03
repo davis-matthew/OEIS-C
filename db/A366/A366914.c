@@ -9,7 +9,8 @@
  *            raised to natural exponents
  * Range:     u8 n <= 85, u16 n <= 6877, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   backtrack_rec, factor_u64
+ * Validated: standard, pass, 78 terms through n = 9854 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,37 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#include "../utils/factor_u64.h"   /* provides factor_u64() */
-#include "../utils/backtrack_rec.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+/* Helper: backtracking search for exponents */
+static bool backtrack_rec(const uint64_t *pr, size_t k, size_t idx,
+                          unsigned __int128 rem,
+                          const unsigned __int128 *minRem)
+{
+    if (rem < minRem[idx])
+        return false;          /* minimal possible sum too large */
+
+    if (idx == k)
+        return rem == 0;       /* all primes processed */
+
+    uint64_t p = pr[idx];
+    unsigned __int128 minNext = minRem[idx + 1];
+
+    unsigned __int128 val = p;          /* p^1 */
+    while (1) {
+        if (val > rem - minNext)
+            break;
+
+        if (backtrack_rec(pr, k, idx + 1, rem - val, minRem))
+            return true;
+
+        if (val > rem / p)   /* avoid overflow of val *= p */
+            break;
+        val *= p;            /* next exponent */
+    }
+    return false;
+}
 
 /* Check whether m satisfies the condition */
 static bool canRepresent(uint64_t m)
@@ -62,8 +92,7 @@ seq_t a(idx_t n)
         if (canRepresent(next_val)) {
             if (seq_len == seq_cap) { /* grow array if needed */
                 size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(seq_cache,
-                                               new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
                 if (!tmp)
                     abort();         /* allocation failure */
                 seq_cache = tmp;

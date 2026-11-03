@@ -8,6 +8,7 @@
  * Formula:   a(n) = A054036(n)^2
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 959 (2026-11-01)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/digit_counts.h"
 
 /* Return true if val has exactly eight distinct decimal digits. */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 116, u32 n <= 7103, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_alloc, seq_realloc, square_to_seq
+ * Validated: standard, pass, 69 terms through n = 9881 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,56 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/square_to_seq.h"
+#include <stdlib.h>
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Convert a square (given as idx_t) to a seq_t value if all its decimal
+   digits are ≤5.  If the condition fails, returns false. */
+static bool square_to_seq(idx_t sq, seq_t *out)
+{
+    idx_t tmp = sq;
+    uint8_t digits[20];      /* enough for 64‑bit numbers */
+    size_t len = 0;
+
+    if (tmp == 0) {
+        *out = 0;
+        return true;
+    }
+
+    while (tmp > 0) {
+        uint8_t d = (uint8_t)(tmp % 10);
+        if (d > 5) return false;
+        digits[len++] = d;
+        tmp /= 10;
+    }
+
+    seq_t val = 0;
+    for (int i = (int)len - 1; i >= 0; --i) {
+        val = val * 6 + digits[i];
+    }
+    *out = val;
+    return true;
+}
 
 /* Cached sequence storage (static state). */
 static seq_t *cached_seq  = NULL; /* pointer to array of values */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*----- helper: integer sqrt for 128‑bit numbers ----------------------------*/
 static unsigned __int128 isqrt128(unsigned __int128 v)
@@ -79,7 +81,7 @@ static void heap_push(const HeapNode *node)
 {
     if (heapSize >= capHeap) {
         size_t newCap = (capHeap == 0) ? 8 : capHeap * 2;
-        HeapNode *tmp = (HeapNode *)realloc(heap, newCap * sizeof(HeapNode));
+        HeapNode *tmp = mem_resize(HeapNode, heap, newCap);
         heap = tmp;
         capHeap = newCap;
     }
@@ -123,7 +125,7 @@ static void ensureBeattyUpTo(idx_t idx) /* idx is 0‑based index, ensure lenA>i
         seq_t val = beatty_term(k);
         if (lenA >= capA) {
             size_t newCap = (capA == 0) ? 8 : capA * 2;
-            seq_t *tmp = (seq_t *)realloc(A, newCap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, A, newCap);
             A = tmp;
             capA = newCap;
         }
@@ -157,7 +159,7 @@ seq_t a(idx_t n)
         if (!haveLast || val != lastSum) {
             if (lenData >= capData) {
                 size_t newCap = (capData == 0) ? 8 : capData * 2;
-                seq_t *tmp = (seq_t *)realloc(data, newCap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, data, newCap);
                 data = tmp;
                 capData = newCap;
             }

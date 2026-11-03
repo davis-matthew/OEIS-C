@@ -9,15 +9,28 @@
  *            prevprime(a(n))
  * Range:     u8 n <= 53, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime, prev_prime
+ * Validated: standard, pass, 74 terms through n = 913 (2026-11-03)
+ * Helpers:   is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
-#include "../utils/prev_prime.h"
+#include "../utils/mem.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 /* External function required by the build system */
 seq_t a(idx_t n)
@@ -34,7 +47,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         cache_cap = 4;
         /* cast malloc to seq_t* for C++ compatibility */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;                /* out of memory – caller will see 0 */
         cache[0] = (seq_t)3;                /* a(1) */
         cache_len = 1;
@@ -52,7 +65,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         while ((idx_t)new_cap < n)
             new_cap <<= 1;                /* double until it fits */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                /* out of memory – caller will see 0 */
         cache = tmp;
         cache_cap = new_cap;

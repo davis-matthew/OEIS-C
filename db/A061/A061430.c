@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 82, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   big_pow, digit_len, digit_product
+ * Validated: standard, pass, 79 terms through n = 4837 (2026-11-03)
+ * Helpers:   digit_product, ipow, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
 #include "../utils/digit_product.h"
-#include "../utils/digit_len.h"
+#include "../utils/ipow.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 /* Integer k‑th root (floor) for non‑negative big integers, using binary search. */
 static seq_t kth_root(seq_t v, unsigned int k)
@@ -35,7 +37,7 @@ static seq_t kth_root(seq_t v, unsigned int k)
 
     /* Find an upper bound high such that high^k > v. */
     while (true) {
-        seq_t p = big_pow(high, (seq_t)k);
+        seq_t p = ipow(high, (seq_t)k);
         if (p > v || p == 0)          /* p == 0 indicates overflow */
             break;
         if (p == v) return high;
@@ -45,7 +47,7 @@ static seq_t kth_root(seq_t v, unsigned int k)
     /* Binary search between low (inclusive) and high (exclusive). */
     while (low + 1 < high) {
         seq_t mid = (low + high) >> 1;
-        seq_t p   = big_pow(mid, (seq_t)k);
+        seq_t p   = ipow(mid, (seq_t)k);
         if (p <= v)
             low = mid;
         else
@@ -61,9 +63,9 @@ static bool good_number(seq_t num)
     if (prod == 0)            /* any zero digit yields 0^k */
         return true;
 
-    unsigned int k = (unsigned int)digit_len(num);
+    unsigned int k = (unsigned int)num_digits(num);
     seq_t m = kth_root(prod, k);
-    return big_pow(m, (seq_t)k) == prod;
+    return ipow(m, (seq_t)k) == prod;
 }
 
 /* Main entry: return the n‑th term (1‑indexed). */
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
         if (good_number(next)) {
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     return 0;             /* allocation failure */
                 cache     = tmp;

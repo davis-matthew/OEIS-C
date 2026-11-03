@@ -9,15 +9,28 @@
  *            deduplicate, grow B as needed
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 274, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3392_p9, a3392_ucmp
+ * Validated: standard, pass, 51 terms through n = 9560 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a3392_p9.h"
-#include "../utils/a3392_ucmp.h"
+
+static uint64_t a3392_p9(uint64_t x)
+{
+    uint64_t p = 1;
+    int i;
+    for (i = 0; i < 9; i++) p *= x;
+    return p;
+}
+
+static int a3392_ucmp(const void *p, const void *q)
+{
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
 
 seq_t a(idx_t n)
 {

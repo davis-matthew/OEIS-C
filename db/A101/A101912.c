@@ -10,12 +10,14 @@
  *            – 1) (OEIS A101912)
  * Range:     i8 n <= 26, i16 n <= 48, i32 n <= 57, i64 n <= 57, i128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (n >= used) {
         /* enlarge cache to hold up to n */
         idx_t newsize = n + 1;
-        void *p = realloc(cache, newsize * sizeof(seq_t));
+        void *p = mem_resize(seq_t, cache, newsize);
         if (!p) return 0;        /* allocation failed – return 0 as a fallback */
         cache = (seq_t *)p;
 

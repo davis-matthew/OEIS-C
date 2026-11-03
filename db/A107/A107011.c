@@ -8,7 +8,8 @@
  *            integers)
  * Range:     u8 n <= 7, u16 n <= 875, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_mul64
+ * Validated: standard, pass, 62 terms through n = 9911 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/mod_mul64.h"
+#include "../utils/mulmod.h"
 
 /* ---------------- Miller–Rabin for 64‑bit integers ----------------- */
 
@@ -25,8 +26,8 @@ static uint64_t mod_pow64(uint64_t base, uint64_t exp, uint64_t mod)
 {
     uint64_t res = 1;
     while (exp > 0) {
-        if (exp & 1) res = mod_mul64(res, base, mod);
-        base = mod_mul64(base, base, mod);
+        if (exp & 1) res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return res;
@@ -50,7 +51,7 @@ static bool is_prime_uint64(uint64_t n)
         if (x == 1 || x == n-1) continue;
         bool cont = false;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mod_mul64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { cont = true; break; }
         }
         if (!cont) return false;

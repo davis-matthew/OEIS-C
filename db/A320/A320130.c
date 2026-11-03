@@ -7,13 +7,15 @@
  * Formula:   a(n) = #{(a,b,c,d)∈ℤ⁴ | a² + b² + 2c² + 8d² = n}
  * Range:     u8 n <= 59, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9470 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     }
 
     size_t len = (size_t)n + 1;
-    seq_t *r2 = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *r2 = mem_new(seq_t, len);
     if (!r2) return (seq_t)0;    /* allocation failure */
 
     for (idx_t a = 0; ; ++a) {
@@ -55,6 +57,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(r2);
+    mem_free(r2);
     return total;
 }

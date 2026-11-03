@@ -13,7 +13,8 @@
  *            may move only to the right. The function counts al...
  * Range:     u8 n <= 39, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static inline int bitlen_uint64(uint64_t x)
 {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* DP over subsets: dp[mask * m + last] = number of tours that
        visit cells in 'mask' and end at cell 'last'. */
     size_t dp_size = ((size_t)1 << m) * (size_t)m;
-    seq_t *dp = (seq_t *)malloc(dp_size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) return (seq_t)0;  /* allocation failure, return 0 */
 
     for (size_t i = 0; i < dp_size; ++i) dp[i] = 0;
@@ -88,6 +90,6 @@ seq_t a(idx_t n)
         result += dp[full_mask * (size_t)m + (size_t)last];
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

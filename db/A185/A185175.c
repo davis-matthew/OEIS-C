@@ -9,7 +9,8 @@
  *            x^k)^{-c_{k-1}} = Σ a(n)x^n
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   seq_alloc_array, seq_free_array
+ * Validated: standard, pass, 121 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,20 @@
    management to avoid issues with non‑POD types in the C++ build. */
 
 #include <stdbool.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* 7‑periodic sequence c_k;  c[(k‑1)%7] gives the exponent factor. */
 static const int period[7] = { -1, 0, 1, 1, 0, -1, -1 };

@@ -9,13 +9,15 @@
  *            0..17): 1,5,8,8,11,17,25,27,24,30,38,46,47,44,46,50,64,68
  * Range:     u8 n <= 70, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t init_terms[] = {
     1, 5, 8, 8, 11, 17, 25, 27,
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough to hold the required terms. */
     if (!cache || cache_size < init_len) {
         cache_size = init_len;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (size_t i = 0; i < init_len; ++i) {
             cache[i] = init_terms[i];
         }
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Extend the cache up to n (inclusive). */
     if ((size_t)n >= cache_size) {
         size_t new_cap = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         for (size_t i = cache_size; i <= (size_t)n; ++i) {
             /* The first 18 terms are already in init_terms. */
             if (i < init_len) {

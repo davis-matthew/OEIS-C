@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 24, u128 n <= 32,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *tangent_cache = NULL;
 static size_t tangent_cap   = 0;
@@ -29,7 +31,7 @@ static void ensure_tangent_cap(size_t needed)
     if (tangent_cap >= needed) return;
     size_t new_cap = tangent_cap ? tangent_cap : 8;
     while (new_cap < needed) new_cap <<= 1;
-    tangent_cache = (seq_t *)realloc(tangent_cache, new_cap * sizeof(seq_t));
+    tangent_cache = mem_resize(seq_t, tangent_cache, new_cap);
     tangent_cap = new_cap;
 }
 

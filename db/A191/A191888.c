@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   mul_small, seq_cmp
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,30 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mul_small.h"   /* seq_t mul_small(seq_t, unsigned int) */
-#include "../utils/seq_cmp.h"     /* int seq_cmp(const void *, const void *) */
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 static seq_t *cache   = NULL;    /* sorted unique values */
 static size_t cache_len = 0;     /* number of valid elements */
@@ -37,7 +60,7 @@ static void build_cache(void)
 
     /* --- Fibonacci array ------------------------------------------- */
     size_t fib_cap = 16;
-    seq_t *fib = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+    seq_t *fib = mem_new(seq_t, fib_cap);
     fib[0] = 0;
     fib[1] = 1;
     fib[2] = 1;
@@ -45,7 +68,7 @@ static void build_cache(void)
 
     /* --- Temporary cache ------------------------------------------- */
     size_t cache_cap = 4096;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache_len = 0;
 
     /* Number of Fibonacci indices to explore.
@@ -62,7 +85,7 @@ static void build_cache(void)
                 break;
             if (fib_len >= fib_cap) {
                 fib_cap <<= 1;
-                fib = (seq_t *)realloc(fib, fib_cap * sizeof(seq_t));
+                fib = mem_resize(seq_t, fib, fib_cap);
             }
             fib[fib_len++] = next;
         }
@@ -87,7 +110,7 @@ static void build_cache(void)
 
             if (cache_len >= cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = val;
         }
@@ -95,7 +118,7 @@ static void build_cache(void)
 
     /* -------------------------------------------------------------- */
     /* Sort cache and remove duplicates */
-    qsort(cache, cache_len, sizeof(seq_t), seq_cmp);
+    mem_qsort(cache, cache_len, sizeof(seq_t), seq_cmp);
     size_t uniq_len = 0;
     for (size_t k = 0; k < cache_len; ++k) {
         if (k == 0 || cache[k] != cache[uniq_len - 1]) {
@@ -103,7 +126,7 @@ static void build_cache(void)
         }
     }
     cache_len = uniq_len;
-    cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_len);
 }
 
 /* Public function required by the exercise */

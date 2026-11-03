@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 841, u32 n <= 841, u64 n <= 841, u128 n <= 841,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 819 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Size limits – determined from the OEIS entry. */
 #define MAX_CUBE_ROOT 26            /* 26^3 = 17576 <= 19417 < 27^3 */
@@ -60,7 +62,7 @@ static void build_sequence(seq_t **out_seq, idx_t *out_len)
             ++cnt;
 
     /* Allocate storage and fill it. */
-    seq_t *seq = (seq_t *)malloc(cnt * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, cnt);
     idx_t idx = 0;
     for (idx_t s = 1; s <= MAX_SUM; ++s)
         if (sum_count[s] == 1)

@@ -11,6 +11,7 @@
  *            1,1,2,2,1,2,4,6,6,1,2,4,8,14,20,20,1,2,4,8,16,30,50,70 …
  * Range:     u8 n <= 24, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

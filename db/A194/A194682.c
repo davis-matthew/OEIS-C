@@ -11,13 +11,15 @@
  *            floor(k·√2) + floor(n·√2)
  * Range:     u8 n <= 267, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 4517 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute floor(√x) for 0 ≤ x ≤ 2^63 – 1 using binary search.
    This function never uses floating point operations. */
@@ -71,7 +73,7 @@ static void build_t_cache(size_t limit)
 static void build_a_cache(void)
 {
     if (a_cache != NULL) return;
-    a_cache = (seq_t *)malloc((MAX_N + 1) * sizeof(seq_t));
+    a_cache = mem_new(seq_t, (MAX_N + 1));
     /* We need t[k] for k up to 2*MAX_N */
     build_t_cache(2 * MAX_N);
     for (idx_t n = 1; n <= MAX_N; ++n) {

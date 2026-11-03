@@ -9,7 +9,8 @@
  *            p^2)
  * Range:     u8 n <= 48, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, int_sqrt
+ * Validated: standard, pass, 83 terms through n = 9965 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
     factorization.  */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     /* build list of primes up to sqrt(m) */
     size_t prime_cnt = 0;
     uint64_t *primes = NULL;
-    size_t limit = (size_t)int_sqrt(n);
+    size_t limit = (size_t)isqrt(n);
     build_primes_upto(limit, &primes, &prime_cnt);
 
     for (size_t i = 0; i < prime_cnt && m > 1; ++i) {

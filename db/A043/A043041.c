@@ -7,13 +7,26 @@
  * Formula:   a(n) = nth base‑10 palindrome whose first digit is 6
  * Range:     u8 n <= 2, u16 n <= 77, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow10, reverse
+ * Validated: standard, pass, 59 terms through n = 9472 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
-#include "../utils/reverse.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/reverse_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Return the n‑th palindromic number (in decimal) that starts with the digit 6. */
 seq_t a(idx_t n)
@@ -38,10 +51,10 @@ seq_t a(idx_t n)
 
             seq_t palindrome;
             if (len % 2 == 0) {                          /* even length */
-                palindrome = first_half * pow10(half_len) + reverse(first_half);
+                palindrome = first_half * pow10(half_len) + reverse_digits(first_half);
             } else {                                    /* odd length */
                 palindrome = first_half * pow10(half_len - 1)
-                            + reverse(first_half / 10);
+                            + reverse_digits(first_half / 10);
             }
             return palindrome;
         } else {

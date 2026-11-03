@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,33 @@
    in a static table so that queries in any order are answered quickly. */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Ensure that an array of element size 'elem_size' has capacity at least
    'needed'.  It reallocates the array if necessary.  The array pointer
    should be of type 'void **' so that it can be cast appropriately. */
+#ifdef __cplusplus
+template <class T>
+static void _ensure_capacity(size_t needed, size_t *cap,
+                             T **ptr, size_t elem_size) {
+    if (needed > *cap) {
+        size_t new_cap = (*cap) ? (*cap << 1) : 16;
+        while (new_cap < needed) new_cap <<= 1;
+        T *new_ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        if (!new_ptr) abort();   /* allocation failed */
+        *ptr = new_ptr;
+        *cap = new_cap;
+    }
+}
+#else
 static void _ensure_capacity(size_t needed, size_t *cap,
                              void **ptr, size_t elem_size) {
     if (needed > *cap) {
@@ -33,6 +57,7 @@ static void _ensure_capacity(size_t needed, size_t *cap,
         *cap = new_cap;
     }
 }
+#endif
 
 /* Integer square‐root for 64‑bit values, no floating point used. */
 static uint64_t _isqrt_u64(uint64_t n) {
@@ -58,11 +83,11 @@ static size_t special_cnt = 0, special_cap = 0;
 /* Populate the initial primes list (2, 3, 5) and the special list. */
 static void _initialize(void) {
     if (special_cnt) return;     /* already initialized */
-    _ensure_capacity(3, &primes_cap, (void **)&primes, sizeof(uint64_t));
+    _ensure_capacity(3, &primes_cap, OEISC_VPP(&primes), sizeof(uint64_t));
     primes[0] = 2; primes[1] = 3; primes[2] = 5;
     primes_cnt = 3;
 
-    _ensure_capacity(3, &special_cap, (void **)&special, sizeof(seq_t));
+    _ensure_capacity(3, &special_cap, OEISC_VPP(&special), sizeof(seq_t));
     special[0] = (seq_t)2;
     special[1] = (seq_t)3;
     special[2] = (seq_t)5;
@@ -91,14 +116,14 @@ static void _ensure_special(idx_t n) {
         if (_is_prime(candidate)) {
             /* Store new prime */
             _ensure_capacity(primes_cnt + 1, &primes_cap,
-                             (void **)&primes, sizeof(uint64_t));
+                             OEISC_VPP(&primes), sizeof(uint64_t));
             primes[primes_cnt++] = candidate;
 
             /* Check if it is a special prime (6 quadratic residue) */
             uint64_t r = candidate % 24;
             if (r == 1 || r == 5 || r == 19 || r == 23) {
                 _ensure_capacity(special_cnt + 1, &special_cap,
-                                 (void **)&special, sizeof(seq_t));
+                                 OEISC_VPP(&special), sizeof(seq_t));
                 special[special_cnt++] = (seq_t)candidate;
             }
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1790, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_nonn
+ * Validated: standard, pass, 89 terms through n = 9867 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_nonn.h"
+#include "../utils/mem.h"
+
+/* Test whether x is divisible by each of its non‑zero decimal digits. */
+static bool is_nonn(seq_t x)
+{
+    seq_t original = x;        /* keep the original value for the mod tests */
+    const seq_t zero = 0;
+    const seq_t ten  = 10;
+    while (x > zero) {
+        seq_t rem = x % ten;          /* current least‑significant digit */
+        if (rem == zero)              /* a zero digit fails */
+            return false;
+        if (original % rem != zero)   /* digit does not divide the original number */
+            return false;
+        x = x / ten;                  /* move to next digit */
+    }
+    return true;
+}
 
 /* Cache of cumulative counts: cache[i] = a(i); cache[0] = 0. */
 static seq_t *cache     = NULL;   /* cache array */
@@ -36,7 +54,7 @@ seq_t a(idx_t n)
     /* Ensure cache array is large enough. */
     if (cache_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;                     /* +1 for index 0 */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache)                                    /* allocation failure */
             return 0;
         cache = new_cache;

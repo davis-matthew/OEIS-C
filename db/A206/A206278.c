@@ -9,12 +9,14 @@
  *            a(7)=6656
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 24, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cap = 8; /* indices 0..7 inclusive */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         /* values 0..2 are 0 by definition */
         cache[0] = cache[1] = cache[2] = (seq_t)0;
         /* initial terms */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     if ((size_t)(n + 1) > cap) {
         while ((size_t)(n + 1) > cap)
             cap <<= 1;
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
     }
 
     /* compute missing terms up to n */

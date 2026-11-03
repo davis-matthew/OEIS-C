@@ -15,7 +15,8 @@
  *            36*a(n-9) - 8*a(n-10) for n > 11 (OEIS A231051) The implemen...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* 1‑based cache, cache[0] unused */
 static idx_t cache_size = 0;    /* highest index currently cached */
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
     idx_t new_size = n;
 
     /* Reallocate the cache to hold indices 0 … new_size */
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * (new_size + 1));
+    cache = mem_resize(seq_t, cache, (new_size + 1));
 
     /* Initialise the first 11 terms (the recurrence is only valid for n>11) */
     static const seq_t init[12] = {

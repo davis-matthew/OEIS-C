@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 32, u64 n <= 63, u128 n <= 126,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 959 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
    Formula: a(n) = (n/2) * binomial(n-1, floor((n-1)/2)) - 2^(n-2)
    (the division by 2 is exact: either n or the binomial coefficient is even) */
 
+#include <stdint.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

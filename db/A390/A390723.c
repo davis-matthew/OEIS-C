@@ -12,14 +12,16 @@
  *            T(0,0)=1, otherwise T(r,k)=c(r,k)*Catalan(k)
  * Range:     u8 n <= 22, u16 n <= 38, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   catalan_calc
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/catalan_calc.h"
+#include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 static seq_t *stirling = NULL;      /* triangular array of unsigned Stirling numbers of the first kind */
 static idx_t  stirling_rows = 0;    /* number of rows currently stored (rows 0..stirling_rows-1) */
@@ -49,11 +51,11 @@ static void ensure_stirling(idx_t n)
     idx_t new_rows = n + 1;                  /* rows needed */
     size_t new_cap = (size_t)new_rows * (new_rows + 1) / 2;  /* triangular number */
 
-    seq_t *new_arr = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (stirling_rows > 0) {
         size_t old_cap = (size_t)stirling_rows * (stirling_rows + 1) / 2;
-        memcpy(new_arr, stirling, old_cap * sizeof(seq_t));
-        free(stirling);
+        mem_copy(new_arr, stirling, old_cap * sizeof(seq_t));
+        mem_free(stirling);
     }
     stirling = new_arr;
 
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
     idx_t k = n - (idx_t)start;
 
     ensure_stirling(r);
-    seq_t cat = catalan_calc(k);
+    seq_t cat = catalan(k);
 
     if (r == 0 && k == 0)               /* special case: a(0)=1 */
         return cat;

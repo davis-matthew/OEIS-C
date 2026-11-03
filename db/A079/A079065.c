@@ -6,8 +6,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = 2^{v2(n)} * 3^{sum of exponents of odd primes in n} (a is
  *            multiplicative, with a(2)=2 and a(p)=3 for odd primes)
- * Range:     u8 n <= 255, u16 n <= 9557, u32 n <= 9557, u64 n <= 9557,
- *            u128 n <= 9557, big any n
+ * Range:     u8 n <= 255, u16 n <= 65535, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 105 terms through n = 9557 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

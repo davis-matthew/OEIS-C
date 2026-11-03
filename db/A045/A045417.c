@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 911 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *all_primes   = NULL;   /* all primes found so far          */
 static size_t all_len      = 0;
@@ -35,7 +37,7 @@ static void grow_seq(seq_t **arr, size_t *len, size_t *cap)
 {
     if (*len >= *cap) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -59,11 +61,11 @@ static void ensure_filtered(idx_t n)
 
     /* Initialise arrays if not already. */
     if (all_cap == 0) {
-        all_primes = (seq_t *)malloc(16 * sizeof(seq_t));
+        all_primes = mem_new(seq_t, 16);
         all_cap = 16;
     }
     if (filt_cap == 0) {
-        filtered = (seq_t *)malloc(16 * sizeof(seq_t));
+        filtered = mem_new(seq_t, 16);
         filt_cap = 16;
     }
 

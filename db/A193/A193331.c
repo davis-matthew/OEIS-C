@@ -9,14 +9,15 @@
  *            T(n,k) = floor((k-1)*n^2 / (2*k)) for n, k ≥ 1
  * Range:     u8 n <= 284, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 94 terms through n = 5038 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Compatible with any seq_t / idx_t provided by the build.  */
 #include <stdint.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
 
     /* Find the row r such that r(r+1)/2 ≥ n.  */
     idx_t tmp   = 1 + 8 * n;              /* 8*n fits in uint64_t for any n ≥ 1 */
-    idx_t sq    = int_sqrt(tmp);          /* floor( sqrt(8*n+1) ) */
+    idx_t sq    = isqrt(tmp);          /* floor( sqrt(8*n+1) ) */
     idx_t r     = (sq - 1) / 2;           /* candidate row */
 
     /* Ensure the row is large enough.  */

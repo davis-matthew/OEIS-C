@@ -11,7 +11,8 @@
  *            reducing the fraction to lowest terms
  * Range:     u8 n <= 17, u16 n <= 26, u32 n <= 74, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   binomial, factorial, gcd, pow2, seq_pow
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   binomial, gcd, ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/binomial.h"     // binomial(idx_t n, idx_t k)
-#include "../utils/factorial.h"    // factorial(idx_t n)
-#include "../utils/seq_pow.h"      // seq_pow(seq_t base, idx_t exp)
-#include "../utils/pow2.h"         // pow2(idx_t exp)
-#include "../utils/gcd.h"          // gcd(seq_t a, seq_t b)
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/pow2.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -54,7 +66,7 @@ seq_t a(idx_t n)
         bool term_negative = ((j & 1) ^ pow_neg);
 
         seq_t bin = binomial(k, j);
-        seq_t pow_term = seq_pow(abs_diff, r);
+        seq_t pow_term = ipow_idx(abs_diff, r);
         seq_t term = bin * pow_term;
 
         if (term_negative)

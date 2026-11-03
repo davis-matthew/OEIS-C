@@ -8,14 +8,16 @@
  * Formula:   a(n) is the reverse of r·k, where r is the smallest integer with
  *            r(r+1)/2 ≥ n (the row containing the n‑th term) and k = n –
  *            r(r–1)/2 is the position within that row
- * Range:     u8 n <= 74, u16 n <= 5249, u32 n <= 9708, u64 n <= 9708,
- *            u128 n <= 9708, big any n
- * Helpers:   rev
+ * Range:     u8 n <= 74, u16 n <= 5249, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 9708 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/rev.h"
+#include <stdbool.h>
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -51,5 +53,5 @@ seq_t a(idx_t n)
 
     /* Value is the product r·k, reversed */
     seq_t term = (seq_t)r * (seq_t)k;
-    return rev(term);
+    return reverse_digits(term);
 }

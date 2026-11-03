@@ -6,15 +6,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of ways to write n as a sum of exactly 4 powers of
  *            2 (powers may repeat, order is ignored)
- * Range:     u8 n <= 9719, u16 n <= 9719, u32 n <= 9719, u64 n <= 9719,
- *            u128 n <= 9719, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9719 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: floor(log2(n)) for unsigned 64‑bit integers */
 static unsigned _floor_log2_uint64(idx_t n)
@@ -37,7 +39,7 @@ static void _extend_cache(idx_t max_n)
         return;                     /* already covered */
 
     /* Allocate new array, zero‑initialized */
-    seq_t *new_cache = (seq_t*)calloc((size_t)(max_n + 1), sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)(max_n + 1));
     if (!new_cache)
         return;                     /* allocation failed – leave cache unchanged */
 
@@ -50,7 +52,7 @@ static void _extend_cache(idx_t max_n)
     /* Pre‑compute powers of two: pow2[e] = 2^e */
     idx_t *pow2 = (idx_t*)malloc((size_t)(max_exp + 1) * sizeof(idx_t));
     if (!pow2) {                      /* allocation failed – clean up */
-        free(new_cache);
+        mem_free(new_cache);
         return;
     }
     pow2[0] = (idx_t)1;
@@ -80,7 +82,7 @@ static void _extend_cache(idx_t max_n)
 
     /* Replace old cache */
     free(pow2);
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_size = max_n + 1;
 }

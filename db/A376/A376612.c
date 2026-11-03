@@ -8,6 +8,7 @@
  * Formula:   a(n) is the largest divisor of binomial(r,k) that is < k,
  * Range:     u8 n <= 5051, u16 n <= 5051, u32 n <= 5051, u64 n <= 5051,
  *            u128 n <= 5051, big any n
+ * Validated: standard, pass, 107 terms through n = 4539 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

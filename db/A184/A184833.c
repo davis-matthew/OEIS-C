@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 156, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree
+ * Validated: standard, pass, 82 terms through n = 9588 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 static seq_t *sqfree = NULL;          /* 1‑based array: sqfree[1] = 1 */
 static idx_t  sqfree_capacity = 0;    /* allocated size – 1 */
@@ -42,7 +44,7 @@ static void ensure_squarefree(idx_t target_index)
     /* initial allocation */
     if (sqfree == NULL) {
         sqfree_capacity = 16;
-        sqfree = (seq_t *)malloc((sqfree_capacity + 1) * sizeof(seq_t));
+        sqfree = mem_new(seq_t, (sqfree_capacity + 1));
         if (!sqfree) abort();
         sqfree[1] = (seq_t)1;              /* first square‑free number */
         sqfree_count = 1;
@@ -52,7 +54,7 @@ static void ensure_squarefree(idx_t target_index)
     /* expand array if needed */
     if (sqfree_count * 2 > sqfree_capacity) {
         size_t newcap = sqfree_capacity * 2;
-        seq_t *tmp = (seq_t *)realloc(sqfree, (newcap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, sqfree, (newcap + 1));
         if (!tmp) abort();
         sqfree = tmp;
         sqfree_capacity = newcap;
@@ -65,7 +67,7 @@ static void ensure_squarefree(idx_t target_index)
         sqfree_count++;
         if (sqfree_count >= sqfree_capacity) {
             size_t newcap = sqfree_capacity * 2;
-            seq_t *tmp = (seq_t *)realloc(sqfree, (newcap + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, sqfree, (newcap + 1));
             if (!tmp) abort();
             sqfree = tmp;
             sqfree_capacity = newcap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 5, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   eval_ok
+ * Validated: standard, pass, 30 terms through n = 189 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,20 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/eval_ok.h"
+
+/* Check if two 6‑bit rows s (top) and t (bottom) satisfy the constraint. */
+static bool eval_ok(int s, int t)
+{
+    for (int k = 0; k < 5; ++k) {
+        int a = (s >> k) & 1;
+        int b = (s >> (k + 1)) & 1;
+        int c = (t >> k) & 1;
+        int d = (t >> (k + 1)) & 1;
+        int sum = a + b + c + d;
+        if (sum == 1) return false;
+    }
+    return true;
+}
 
 /* Pre‑computed adjacency bitmask for each of the 64 row states. */
 static uint64_t adj_mask[64];

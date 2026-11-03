@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 12, u16 n <= 117, u32 n <= 9781, u64 n <= 9781,
- *            u128 n <= 9781, big any n
- * Helpers:   none
+ * Range:     u8 n <= 12, u16 n <= 117, u32 n <= 14417, u64 n <= 15437,
+ *            u128 n <= 15437, big any n
+ * Validated: standard, pass, 64 terms through n = 9781 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* return the sum of decimal digits of x */
 static seq_t digit_sum_seq(seq_t x) {
@@ -50,7 +52,7 @@ seq_t a(idx_t n) {
             /* grow cache if necessary */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap << 1 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

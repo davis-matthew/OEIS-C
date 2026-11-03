@@ -9,12 +9,27 @@
  *            representation of k is congruent to 0 modulo 5
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   runcount_base4
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/runcount_base4.h"
+static int runcount_base4(seq_t x) {
+    int runs = 0;
+    seq_t prev = 4;          /* sentinel value – not a valid base‑4 digit */
+    while (x != 0) {
+        seq_t digit = x % (seq_t)4;
+        if (digit != prev) {
+            runs++;
+            prev = digit;
+        }
+        x /= (seq_t)4;
+    }
+    if (runs == 0)           /* handle x == 0, which has one run */
+        runs = 1;
+    return runs;
+}
 
 seq_t a(idx_t n) {
     idx_t found = 0;

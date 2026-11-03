@@ -11,7 +11,8 @@
  *            odd divisors of s. (x^r+1) divides (x^s+1) iff s/r is odd
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- static state ---------- */
 static uint8_t  *prime_sieve = NULL;   /* intermediate sieve buffer */
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
         if (term_cap < need) {
             size_t new_cap = term_cap ? term_cap * 2 : 64;
             while (new_cap < need) new_cap *= 2;
-            term_array = (seq_t*)realloc(term_array, new_cap * sizeof(seq_t));
+            term_array = mem_resize(seq_t, term_array, new_cap);
             if (!term_array) exit(EXIT_FAILURE);
             term_cap = new_cap;
         }

@@ -9,14 +9,17 @@
  *            Thus a(n) = p_n – 2*n with p_n as described
  * Range:     u8 n <= 39, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 74 terms through n = 999 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h> /* malloc, free */
 #include <stdint.h> /* uint64_t, size_t */
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* typed integer declarations (supplied by the build) */
 extern seq_t      a(idx_t n);   /* forward declaration for the compiler */
@@ -50,7 +53,7 @@ ensure_twin_primes(idx_t n)
 
         /* Allocate a temporary array large enough to hold all
            twin‑related primes (worst case: each prime is counted). */
-        seq_t *tmp = (seq_t *)malloc(2 * prime_cnt * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, 2 * prime_cnt);
         if (tmp == NULL) {
             /* Allocation failure – abort with diagnostic (not expected). */
             abort();
@@ -74,7 +77,7 @@ ensure_twin_primes(idx_t n)
         /* Replace the old array.  We free the temporary array if
            we have already allocated a previous one. */
         if (twin_primes != NULL)
-            free(twin_primes);
+            mem_free(twin_primes);
         twin_primes = tmp;
         twin_count  = tcnt;
 

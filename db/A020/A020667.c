@@ -8,17 +8,30 @@
  *            has all decimal digits 0–9)
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 16, u128 n <= 53,
  *            big any n
- * Helpers:   digit_counts, pow2, seq_from_str, seq_pow
+ * Validated: standard, pass, 31 terms through n = 3218 (2026-11-01)
+ * Helpers:   digit_counts, ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
-#include "../utils/seq_from_str.h"
+#include "../utils/ipow_idx.h"
 #include "../utils/pow2.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,7 +54,7 @@ seq_t a(idx_t n)
 
     for (;; ++base)
     {
-        power = seq_pow((seq_t)base, n);
+        power = ipow_idx((seq_t)base, n);
         digit_counts(power, cnt);
 
         bool all = true;

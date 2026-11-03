@@ -12,13 +12,15 @@
  *            for...
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   binom, pow3
+ * Validated: standard, pass, 44 terms through n = 871 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow3.h"
-#include "../utils/binom.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         binom_arg = 0;          // all terms are zero when n==0
     else
         binom_arg = ( (3 * n) - 1 ) / 2;
-    seq_t term3 = (seq_t)7 * nn * binom(binom_arg, 2);
+    seq_t term3 = (seq_t)7 * nn * binomial(binom_arg, 2);
 
     // 4*n * Σ_{k=0..floor(n/2)-1} ((floor(3*n/2)-3*k-3)^2 + (3*n-3*k-4)) * 3^k
     idx_t maxk = n / 2;                 // floor(n/2)

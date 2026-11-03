@@ -7,12 +7,14 @@
  * Formula:   a(n) = 100*a(n-1) + 21, with a(0) = 1, a(1) = 121
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute A137466: 1 followed by n copies of "21" */
 seq_t a(idx_t n)
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Ensure the cache has enough space for indices up to n */
     if (cache_cap == 0) {
         cache_cap = (n >= 2) ? n + 1 : 2;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* In an unlikely failure we just return 0 – the caller will
            compare 0 against the true value and fail the test. */
         if (!cache) return 0;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         /* Grow capacity (doubling strategy) */
         idx_t new_cap = cache_cap;
         while (new_cap <= n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return cache[n];   /* keep old data if realloc fails */
         cache = tmp;
         cache_cap = new_cap;

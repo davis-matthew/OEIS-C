@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 118 terms through n = 9293 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    Returns 0 if no such digit occurs. */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Initialise for n == 0 */
     if (!vals) {
-        vals = (seq_t *)malloc(sizeof(seq_t) * 1);
+        vals = mem_new(seq_t, 1);
         if (!vals) return 0;            /* allocation failure */
         vals[0] = 0;                    /* a(0) = 0 */
         max_n = 0;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Extend the cache up to n if necessary */
     if (n > max_n) {
         /* increase storage for vals */
-        seq_t *new_vals = (seq_t *)realloc(vals, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_vals = mem_resize(seq_t, vals, (size_t)(n + 1));
         if (!new_vals) return 0;       /* allocation failure */
         vals = new_vals;
 

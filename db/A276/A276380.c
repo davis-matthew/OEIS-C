@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf, easy
  * Formula:   not stated
- * Range:     u8 n <= 581, u16 n <= 9502, u32 n <= 9502, u64 n <= 9502,
- *            u128 n <= 9502, big any n
- * Helpers:   alloc_seq, largest_double_base_leq, seq_free
+ * Range:     u8 n <= 581, u16 n <= 11006, u32 n <= 11006, u64 n <= 11006,
+ *            u128 n <= 11006, big any n
+ * Validated: standard, pass, 104 terms through n = 9502 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,11 +29,36 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 /* Use the allocator helpers that are available in the build environment
    (these are defined in the utils directory).  */
-#include "../utils/alloc_seq.h"
-#include "../utils/seq_free.h"
-#include "../utils/largest_double_base_leq.h"
+#include <stdlib.h>
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
+
+/* Return the largest number ≤ r that has only prime factors 2 or 3. */
+static inline seq_t largest_double_base_leq(idx_t r)
+{
+    seq_t limit = (seq_t)r;
+    seq_t best = 1;
+    for (seq_t p = 1; p <= limit; ) {
+        seq_t val = p;
+        for (; val <= limit; ) {
+            if (val > best) best = val;
+            if (val > limit / 3) break;
+            val *= 3;
+        }
+        if (p > limit / 2) break;
+        p <<= 1;
+    }
+    return best;
+}
 
 /* Append a single row to the global sequence array. */
 static void build_row(idx_t row,

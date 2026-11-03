@@ -9,7 +9,8 @@
  *            of the form 2^k + 1 (k ≥ 0)
  * Range:     u8 n <= 32, u16 n <= 7301, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9603 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache of computed terms          */
 static size_t cache_size = 0;        /* number of stored terms           */
@@ -37,7 +39,7 @@ static void ensure_fermat_upto(seq_t limit)
         last_f = 3; /* 2^1 + 1 */
         if (fermat_cap == 0) {
             fermat_cap = 16;
-            fermat = (seq_t*)malloc(fermat_cap * sizeof(seq_t));
+            fermat = mem_new(seq_t, fermat_cap);
         }
         fermat[fermat_size++] = last_f;
     }
@@ -48,7 +50,7 @@ static void ensure_fermat_upto(seq_t limit)
         /* Grow the array if needed */
         if (fermat_cap <= fermat_size) {
             fermat_cap *= 2;
-            fermat = (seq_t*)realloc(fermat, fermat_cap * sizeof(seq_t));
+            fermat = mem_resize(seq_t, fermat, fermat_cap);
         }
         fermat[fermat_size++] = last_f = next_f;
         if (next_f > limit) break;          /* guard against overflow cycles */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         /* Grow cache if needed */
         if (cache_cap <= cache_size) {
             cache_cap = cache_cap ? cache_cap * 2 : 16;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* Candidate to test */

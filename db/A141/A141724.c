@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 57, u32 n <= 175, u64 n <= 638,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1026 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,6 +23,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* return the n-th flattened triangle term */

@@ -10,13 +10,15 @@
  *            defined to be 1
  * Range:     u8 n <= 23, u16 n <= 32, u32 n <= 60, u64 n <= 97, u128 n <= 162,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 71 terms through n = 949 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 static seq_t pow_seq(seq_t base, idx_t exp)
 {
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
     if (c == 0)
         return (seq_t)1;               /* binom(r,0)^(−1) is defined as 1 */
 
-    seq_t bin = binom(r, c);           /* C(r, c) */
+    seq_t bin = binomial(r, c);           /* C(r, c) */
     return pow_seq(bin, c - 1);        /* raise to (c-1) */
 }

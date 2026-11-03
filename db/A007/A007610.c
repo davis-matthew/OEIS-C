@@ -10,7 +10,8 @@
  *            even n)
  * Range:     u8 n <= 2544, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 112 terms through n = 9355 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_prime.h"
-
+#include "../utils/is_prime_u64.h"
 
 static uint64_t *primes = NULL;
 static idx_t prime_count = 0;
@@ -70,7 +70,7 @@ seq_t a(idx_t n) {
             sum += primes[i];
         }
         
-        if (is_prime(sum)) {
+        if (is_prime_u64(sum)) {
             return 2;
         } else {
             return 0;
@@ -82,13 +82,13 @@ seq_t a(idx_t n) {
         sum += primes[j];
     }
     
-    if (is_prime(sum)) {
+    if (is_prime_u64(sum)) {
         return (seq_t)primes[0];
     }
     
     for (idx_t i = 1; i + n <= prime_count; i++) {
         sum = sum - primes[i - 1] + primes[i + n - 1];
-        if (is_prime(sum)) {
+        if (is_prime_u64(sum)) {
             return (seq_t)primes[i];
         }
     }

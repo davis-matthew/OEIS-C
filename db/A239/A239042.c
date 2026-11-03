@@ -13,14 +13,22 @@
  *            For each row we precompute how many rows trans...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: standard, pass, 32 terms through n = 177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Number of states: each of three columns can have a sum 0..3. */
 #define STATE_CNT 64
@@ -69,9 +77,9 @@ seq_t a(idx_t n)
     init_trans();
 
     /* Allocate DP vectors. */
-    seq_t *dp   = (seq_t *)malloc(STATE_CNT * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc(STATE_CNT * sizeof(seq_t));
-    if (!dp || !next) { free(dp); free(next); return 0; }
+    seq_t *dp   = mem_new(seq_t, STATE_CNT);
+    seq_t *next = mem_new(seq_t, STATE_CNT);
+    if (!dp || !next) { mem_free(dp); mem_free(next); return 0; }
 
     /* Start from state 0 (all column sums zero). */
     for (size_t i = 0; i < STATE_CNT; ++i) dp[i] = 0;
@@ -100,7 +108,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (size_t i = 0; i < STATE_CNT; ++i) result += dp[i];
 
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

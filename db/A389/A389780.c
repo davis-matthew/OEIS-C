@@ -9,6 +9,7 @@
  *            gcd((n/d)^2-1, n) != 1
  * Range:     u8 n <= 23, u16 n <= 534, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 112 terms through n = 9429 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 9363, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 73 terms through n = 8611 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,19 @@
    search. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t *seq_cache = NULL;
 static size_t cache_cap = 0;
@@ -34,7 +46,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     seq_cache = tmp;
     cache_cap = new_cap;
 }
@@ -42,7 +54,7 @@ static void ensure_capacity(size_t needed)
 /* Return true if x satisfies the defining property of the sequence. */
 static bool good(seq_t x)
 {
-    int len = digit_len(x);                          /* number of decimal digits */
+    int len = num_digits(x);                          /* number of decimal digits */
     seq_t pow10k = pow10((idx_t)(len - 1));          /* 10^(len-1) */
     seq_t d = x / pow10k;                           /* leftmost digit   */
     seq_t r = x % pow10k;                           /* remainder        */

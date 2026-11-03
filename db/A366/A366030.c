@@ -10,6 +10,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -26,7 +27,8 @@
 
 #include <stddef.h>      /* size_t */
 #include <stdbool.h>     /* bool */
-#include "../utils/gcd.h"/* gcd(seq_t,seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 #define MAX_DIM   400           /* > sqrt(2*MAX_N) for n up to 1e4 */
 #define MAX_TERMS 40000         /* enough for n=1e4 (triangular≈8k) */

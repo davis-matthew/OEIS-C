@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 96, i16 n <= 96, i32 n <= 96, i64 n <= 96, i128 n <= 96,
  *            big any n
- * Helpers:   poly_div_shift, poly_mul_shift
+ * Validated: full, pass, 97 terms through n = 96 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,40 @@
  */
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/poly_div_shift.h"
-#include "../utils/poly_mul_shift.h"
+
+/* divide polynomial coeff[] by (x^d - 1) */
+static void poly_div_shift(seq_t *coeff, size_t *deg, size_t d)
+{
+    size_t old_deg = *deg;
+    size_t new_deg = old_deg - d;
+    seq_t q[305];
+
+    for (size_t k = 0; k <= new_deg; ++k) {
+        if (k < d)
+            q[k] = -coeff[k];
+        else
+            q[k] = q[k - d] - coeff[k];
+    }
+
+    for (size_t i = 0; i <= new_deg; ++i) coeff[i] = q[i];
+    *deg = new_deg;
+}
+
+/* multiply polynomial coeff[] by (x^d - 1) */
+static void poly_mul_shift(seq_t *coeff, size_t *deg, size_t d)
+{
+    size_t new_deg = *deg + d;
+    seq_t tmp[305]; /* 305 > maximum possible degree (300) */
+    for (size_t i = 0; i <= new_deg; ++i) tmp[i] = 0;
+
+    for (size_t i = 0; i <= *deg; ++i) {
+        tmp[i] += coeff[i];        /* copy the -1 part */
+        tmp[i + d] -= coeff[i];    /* shift and subtract */
+    }
+
+    for (size_t i = 0; i <= new_deg; ++i) coeff[i] = tmp[i];
+    *deg = new_deg;
+}
 
 seq_t a(idx_t n)
 {

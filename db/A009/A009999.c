@@ -10,6 +10,7 @@
  *            j = n - i*(i+1)/2. 3. a(n) = (i+1-j)^j
  * Range:     u8 n <= 31, u16 n <= 72, u32 n <= 181, u64 n <= 452,
  *            u128 n <= 1159, big any n
+ * Validated: standard, pass, 82 terms through n = 7674 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

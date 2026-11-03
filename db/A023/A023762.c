@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 925, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   Binom, CountLen
+ * Validated: standard, pass, 76 terms through n = 978 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,14 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/Binom.h"
-#include "../utils/CountLen.h"
+#include "../utils/binomial.h"
+
+/* --- Count of k‑digit base‑6 numbers whose digits are non‑increasing --------- */
+static inline seq_t CountLen(idx_t k)
+{
+    if (k == 1) return 6;                 /* 0 … 5 */
+    return binomial(k + 5, 5) - 1;             /* omit all‑zero string */
+}
 
 /* --- Main sequence function --------------------------------------------------- */
 seq_t a(idx_t n)
@@ -53,7 +60,7 @@ seq_t a(idx_t n)
     while (rem > 0) {
         if (first_digit) {
             for (int d = 1; d <= 5; ++d) {
-                seq_t ways = Binom(k - 1 + d, d);
+                seq_t ways = binomial(k - 1 + d, d);
                 if (pos < ways) {
                     value = value * 6 + d;
                     cur_max = d;
@@ -65,7 +72,7 @@ seq_t a(idx_t n)
             }
         } else {
             for (int d = 0; d <= cur_max; ++d) {
-                seq_t ways = Binom(rem - 1 + d, d);
+                seq_t ways = binomial(rem - 1 + d, d);
                 if (pos < ways) {
                     value = value * 6 + d;
                     cur_max = d;

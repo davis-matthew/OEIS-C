@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(41) = 5 * sum_{k=1}^{40} a(k) - 14
    For n >= 42:      a(n) = 15 * a(n-41) - 5 * sum_{k=n-40}^{n-1} a(k)   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         /* Allocate or grow the cache.  */
         size_t newsize = (size_t)(n + 1);
         if (cap < newsize) {
-            cache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, newsize);
             if (!cache) return 0;    /* allocation failed – return 0 */
             cap = newsize;
         }

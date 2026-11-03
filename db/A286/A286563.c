@@ -8,8 +8,9 @@
  * Formula:   a(n) is the sequence obtained by reading the triangular table
  *            T(row,k) row‑wise. T(row,1) = 1 For k>1, T(row,k) = max e≥0 such
  *            that k^e divides row
- * Range:     u8 n <= 8078, u16 n <= 8078, u32 n <= 8078, u64 n <= 8078,
- *            u128 n <= 8078, big any n
+ * Range:     u8 n <= 10585, u16 n <= 10585, u32 n <= 10585, u64 n <= 10585,
+ *            u128 n <= 10585, big any n
+ * Validated: standard, pass, 136 terms through n = 8078 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

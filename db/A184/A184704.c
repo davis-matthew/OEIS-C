@@ -10,12 +10,14 @@
  *            a(7)=107,a(8)=154,a(9)=208,a(10)=278
  * Range:     u8 n <= 9, u16 n <= 67, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Lazy initialization: set up initial 10 terms. */
     if (!cache) {
         cap = 10;
-        cache = (seq_t *)malloc((cap + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cap + 1));
         if (!cache) return (seq_t)0;          /* allocation failure */
         cache[0] = 0; /* unused */
         cache[1] = (seq_t)2;   cache[2] = (seq_t)7;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cap) {
         size_t newcap = cap;
         while (newcap < (size_t)n) newcap <<= 1;
-        cache = (seq_t *)realloc(cache, (newcap + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (newcap + 1));
         if (!cache) return (seq_t)0;  /* allocation failure */
         /* Compute missing terms using the recurrence. */
         for (size_t i = cap + 1; i <= newcap; ++i) {

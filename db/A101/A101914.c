@@ -9,10 +9,13 @@
  * Formula:   a(n) = - Sum_{k=0..⌊(n-1)/4⌋} a(k) * a(n-4*k-1), a(0)=1
  * Range:     i8 n <= 30, i16 n <= 62, i32 n <= 62, i64 n <= 62, i128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 /* Computes terms of OEIS A101914 for any idx_t n, with memoisation. */
 #if defined(__cplusplus)
@@ -30,12 +33,12 @@ seq_t a(idx_t n) {
 
     if (n >= buflen) {                     /* need to grow array */
         idx_t newlen = n + 1;                /* inclusive of n */
-        seq_t *newbuf = (seq_t*)malloc(newlen * sizeof(seq_t));
+        seq_t *newbuf = mem_new(seq_t, newlen);
         if (newbuf == NULL) return 0;       /* allocation failure unlikely */
 
         /* copy any existing values */
         if (buf != NULL) {
-            memcpy(newbuf, buf, buflen * sizeof(seq_t));
+            mem_copy(newbuf, buf, buflen * sizeof(seq_t));
         }
 
         /* initialise from the first new index */
@@ -55,7 +58,7 @@ seq_t a(idx_t n) {
         }
 
         /* replace old buffer */
-        if (buf != NULL) free(buf);
+        if (buf != NULL) mem_free(buf);
         buf = newbuf;
         buflen = newlen;
     }

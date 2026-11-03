@@ -11,14 +11,25 @@
  *            1≤k≤m * The sequence a(n) is a(m,k) where the index n ma...
  * Range:     i8 n <= 5, i16 n <= 20, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
- * Helpers:   compute_row_first
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/compute_row_first.h"
+
+/* Compute the first element a(m,0) of row m. */
+static inline seq_t compute_row_first(idx_t m)
+{
+    seq_t a = 1;
+    for (idx_t i = 1; i <= m; ++i) {
+        /* a(m,0) = a(m-1,0) * 3*(3*i-1)/i */
+        a = a * (seq_t)3 * (seq_t)(3*i - 1) / (seq_t)i;
+    }
+    return a;
+}
 
 seq_t a(idx_t n)
 {

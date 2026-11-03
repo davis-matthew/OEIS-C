@@ -10,18 +10,44 @@
  * Formula:   a(n) = k * (1 - 1/n)^(k-1) read by anti‑diagonals
  * Range:     u8 n <= 31, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   nk_from_index, seq_mul, seq_one, seq_pow
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_one.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Convert index to (n,k) pair read by anti‑diagonals. */
+static void nk_from_index(idx_t idx, idx_t *n, idx_t *k)
+{
+    idx_t m = 0;
+    idx_t sum = 0;
+    while (sum < idx) {
+        ++m;
+        sum += m;
+    }
+    /* sum is triangular_m.  triangular_{m-1} = sum - m */
+    idx_t prev_sum = sum - m;
+    idx_t offset = idx - prev_sum;           /* 1‑based within diagonal */
+    *n = m - offset + 1;
+    *k = offset;
+}
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/nk_from_index.h"
 
 typedef struct {
     uint64_t p;
@@ -92,12 +118,12 @@ seq_t a(idx_t pos)
 
         uint32_t keep_exp = e_k - (uint32_t)cancel_exp;
         if (keep_exp > 0) {
-            result = seq_mul(result, seq_pow((seq_t)p, (idx_t)keep_exp));
+            result = seq_mul(result, ipow_idx((seq_t)p, (idx_t)keep_exp));
         }
     }
 
     /* Multiply by (n-1)^(k-1).  (n-1) and n are coprime. */
-    result = seq_mul(result, seq_pow((seq_t)(n - 1), (idx_t)(k - 1)));
+    result = seq_mul(result, ipow_idx((seq_t)(n - 1), (idx_t)(k - 1)));
 
     return result;
 }

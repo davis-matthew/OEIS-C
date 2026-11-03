@@ -10,15 +10,18 @@
  *            factors of n (with multiplicity) sorted in descending order
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 16, u64 n <= 28, u128 n <= 58,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 45 terms through n = 851 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* First 64 primes congruent to 1 modulo 4.  */
 static const seq_t base1mod4[64] = {
@@ -73,7 +76,7 @@ seq_t a(idx_t n)
         seq_t p = factors[i];
         seq_t base = base1mod4[i];
         seq_t exp = p - 1;
-        seq_t part = big_pow(base, exp);
+        seq_t part = ipow(base, exp);
         result *= part;       /* safe for values that fit in seq_t */
     }
 

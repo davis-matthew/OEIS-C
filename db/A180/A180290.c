@@ -7,15 +7,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = g(n,10) - g(n,9) where g(n,B) = ∑_{k=0}^{⌊n/(B+1)⌋}
  *            (-1)^k · C(n,k) · C(2n-1-k(B+1), n-1)
- * Range:     u8 n <= 11, u16 n <= 14, u32 n <= 21, u64 n <= 37, u128 n <= 68,
+ * Range:     u8 n <= 11, u16 n <= 14, u32 n <= 21, u64 n <= 37, u128 n <= 69,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 39 terms through n = 1403 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Count weak compositions of n into n parts with each part ≤ B. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static seq_t g(idx_t n, idx_t B)
 {
@@ -25,9 +27,9 @@ static seq_t g(idx_t n, idx_t B)
     seq_t sum = 0;
     for (idx_t k = 0; k <= maxk; ++k)
     {
-        seq_t c1 = binom(n, k);
+        seq_t c1 = binomial(n, k);
         idx_t rem = 2 * n - 1 - k * (B + 1);
-        seq_t c2 = binom(rem, n - 1);
+        seq_t c2 = binomial(rem, n - 1);
         seq_t prod = c1 * c2;
         if (k & 1)
             sum -= prod;

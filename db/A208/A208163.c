@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 22, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Number of allowed 7‑bit rows. */
 #define ROWS 28
@@ -76,8 +78,8 @@ static void init_tables(void) {
     }
 
     /* Allocate DP arrays. */
-    curDp  = (seq_t*)malloc(STATES * sizeof(seq_t));
-    nextDp = (seq_t*)malloc(STATES * sizeof(seq_t));
+    curDp  = mem_new(seq_t, STATES);
+    nextDp = mem_new(seq_t, STATES);
 
     initialized = true;
 }

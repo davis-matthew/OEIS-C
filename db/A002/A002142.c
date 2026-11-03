@@ -12,8 +12,8 @@
  *            h...
  * Range:     u8 n <= 2, u16 n <= 12, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   a2142_e1, a2142_isprime, a2142_isqrt, a2142_jacobi,
- *            a2142_mulmod, a2142_powmod, a2142_reg
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt_u64, jacobi, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,13 +22,69 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/a2142_e1.h"
-#include "../utils/a2142_isprime.h"
-#include "../utils/a2142_isqrt.h"
-#include "../utils/a2142_jacobi.h"
-#include "../utils/a2142_mulmod.h"
-#include "../utils/a2142_powmod.h"
-#include "../utils/a2142_reg.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/jacobi.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+
+static double a2142_e1(double x) {
+  if (x <= 1.0) {
+    double sum = 0.0, term = 1.0;
+    int k;
+    for (k = 1; k < 200; k++) {
+      term *= -x / k;
+      double t = term / k;
+      sum += t;
+      if (fabs(t) < 1e-18) break;
+    }
+    return -0.57721566490153286061 - log(x) - sum;
+  } else {
+    const double tiny = 1e-300;
+    double b = x + 1.0, c = 1.0 / tiny, d = 1.0 / b, h = d;
+    int i;
+    for (i = 1; i < 1000; i++) {
+      double an = -(double)i * i;
+      b += 2.0;
+      d = 1.0 / (an * d + b);
+      c = b + an / c;
+      double del = c * d;
+      h *= del;
+      if (fabs(del - 1.0) < 1e-16) break;
+    }
+    return h * exp(-x);
+  }
+}
+
+/* returns regulator, or -1 if it exceeds T */
+static double a2142_reg(uint64_t p, double T) {
+  long long D = (long long)p, s = (long long)isqrt_u64(p);
+  double sd = sqrt((double)p);
+  long long P = 1, Q = 2, a0;
+  a0 = (P + s) / Q;
+  P = a0 * Q - P;
+  Q = (D - P * P) / Q;
+  long long P1 = P, Q1 = Q;
+  double R = 0.0, prod = 1.0;
+  double lim = T > 230.0 ? 1e100 : exp(T);
+  do {
+    double xi = ((double)P + sd) / (double)Q;
+    prod *= xi;
+    if (prod > lim) {
+      R += log(prod);
+      prod = 1.0;
+      if (R > T) return -1.0;
+      double r = T - R;
+      lim = r > 230.0 ? 1e100 : exp(r);
+    }
+    long long aa = (P + s) / Q;
+    long long Pn = aa * Q - P;
+    long long Qn = (D - Pn * Pn) / Q;
+    P = Pn; Q = Qn;
+  } while (P != P1 || Q != Q1);
+  R += log(prod);
+  return R;
+}
 
 static const double A2142_PI = 3.14159265358979323846;
 
@@ -39,7 +95,7 @@ static long long a2142_classno(uint64_t p, double R) {
   for (n = 1;; n++) {
     double x = A2142_PI * (double)n * (double)n / (double)p;
     if (x > 50.0) break;
-    int chi = a2142_jacobi(n % p, p);
+    int chi = jacobi(n % p, p);
     if (chi == 0) continue;
     double t = sp / (double)n * erfc((double)n * c) + a2142_e1(x);
     S += chi * t;
@@ -57,7 +113,7 @@ seq_t a(idx_t n) {
   while (a2142_cnt < n) {
     uint64_t p = a2142_next;
     a2142_next += 4;
-    if (!a2142_isprime(p)) continue;
+    if (!is_prime_u64(p)) continue;
     double lp = log((double)p);
     double T = sqrt((double)p) * (0.5 * lp + 0.5) / (2.0 * (double)(a2142_best + 1)) + 1e-9;
     double R = a2142_reg(p, T);

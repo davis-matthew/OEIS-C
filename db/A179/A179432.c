@@ -7,14 +7,26 @@
  * Formula:   a(n) = C(2*3^(n-1), n)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   gcd, mul_seq_safe, pow3
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-01)
+ * Helpers:   gcd, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow3.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/mul_seq_safe.h"
+#include "../utils/pow3.h"
+
+static inline seq_t mul_seq_safe(seq_t a, seq_t b)
+{
+#if defined(__INT128__) && (__SIZEOF_INT128__ == 16)
+    /* Use 128‑bit arithmetic for 64‑bit seq_t to avoid overflow */
+    if (sizeof(seq_t) <= 8) {
+        return (seq_t)((unsigned __int128)a * b);
+    }
+#endif
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {

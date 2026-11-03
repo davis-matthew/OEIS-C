@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
    The antidiagonal reading starts with a(0) = A(0,1), a(1) = A(0,2),
    a(2) = A(1,2), and so on. */
 
-#include "../utils/bitlen_seq_t.h"   /* provides unsigned bitlen_seq_t(seq_t) */
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Remainder of the polynomial P(n) divided by P(k) over GF(2). */
 static seq_t poly_rem(idx_t n, idx_t k)
@@ -32,10 +34,10 @@ static seq_t poly_rem(idx_t n, idx_t k)
     seq_t d = (seq_t)k;           /* divisor polynomial */
     if (d == 0) return r;         /* k > 0 in the sequence but guard anyway */
 
-    unsigned deg_d = bitlen_seq_t(d);
+    unsigned deg_d = bit_length(d);
 
     while (r != 0) {
-        unsigned deg_r = bitlen_seq_t(r);
+        unsigned deg_r = bit_length(r);
         if (deg_r < deg_d) break;             /* division finished */
         unsigned shift = deg_r - deg_d;
         r ^= (d << shift);                    /* cancel the leading term */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,14 +28,15 @@
 */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Allocate three rows of size n+1 */
     size_t sz = (size_t)n + 1;
     seq_t *rows[3];
-    rows[0] = (seq_t *)malloc(sz * sizeof(seq_t));
-    rows[1] = (seq_t *)malloc(sz * sizeof(seq_t));
-    rows[2] = (seq_t *)malloc(sz * sizeof(seq_t));
+    rows[0] = mem_new(seq_t, sz);
+    rows[1] = mem_new(seq_t, sz);
+    rows[2] = mem_new(seq_t, sz);
     if (!rows[0] || !rows[1] || !rows[2]) {
         /* Allocation failed – return 0 as a failure indicator. */
         return (seq_t)0;
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
 
     if (n == 0) {
         seq_t res = rows[0][0];
-        free(rows[0]); free(rows[1]); free(rows[2]);
+        mem_free(rows[0]); mem_free(rows[1]); mem_free(rows[2]);
         return res;
     }
 
@@ -66,7 +68,7 @@ seq_t a(idx_t n) {
 
     if (n == 1) {
         seq_t res = rows[1][1];
-        free(rows[0]); free(rows[1]); free(rows[2]);
+        mem_free(rows[0]); mem_free(rows[1]); mem_free(rows[2]);
         return res;
     }
 
@@ -91,6 +93,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t res = rows[n % 3][n];
-    free(rows[0]); free(rows[1]); free(rows[2]);
+    mem_free(rows[0]); mem_free(rows[1]); mem_free(rows[2]);
     return res;
 }

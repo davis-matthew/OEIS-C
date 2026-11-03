@@ -7,13 +7,15 @@
  * Formula:   a(n) = 2*a(n-1) + a(n-2) + 4; a(0)=1, a(1)=6
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 23, u64 n <= 48, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached sequence storage */
 static seq_t *a_cache   = NULL;      /* pointer to stored terms */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
     /* First allocation */
     if (a_cache == NULL) {
         cache_cap = 2;
-        a_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, cache_cap);
         if (!a_cache) exit(EXIT_FAILURE);
         a_cache[0] = (seq_t)1;
         a_cache[1] = (seq_t)6;
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
     if ((idx_t)cache_cap <= n) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 2;
         while ((idx_t)new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         a_cache   = tmp;
         cache_cap = new_cap;

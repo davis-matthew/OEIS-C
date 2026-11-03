@@ -10,15 +10,17 @@
  *            numbers 1..r according to f(k) = Σ_{p|k} Σ_{i=1..v_p(k)} 1/p^i
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   gcd, pow_uint
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   gcd, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow_uint.h"
 #include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t num;
@@ -32,8 +34,8 @@ static idx_t  f_table_size = 0;
 static void init_f_table(idx_t max_k)
 {
     if (max_k <= f_table_size) return;
-    free(f_table);
-    f_table = (frac_t *)malloc((size_t)(max_k + 1) * sizeof(frac_t));
+    mem_free(f_table);
+    f_table = mem_new(frac_t, (size_t)(max_k + 1));
     f_table_size = max_k;
 
     for (idx_t k = 1; k <= max_k; ++k) {
@@ -54,7 +56,7 @@ static void init_f_table(idx_t max_k)
                     n /= p;
                     ++cnt;
                 }
-                seq_t p_pow = pow_uint(p, (idx_t)cnt);
+                seq_t p_pow = ipow_u64_idx(p, (idx_t)cnt);
                 seq_t term_num = p_pow - 1;
                 seq_t term_den = (p - 1) * p_pow;
 
@@ -67,7 +69,7 @@ static void init_f_table(idx_t max_k)
         }
         if (n > 1) {            /* remaining prime factor */
             uint64_t p = n;
-            seq_t p_pow = pow_uint(p, 1);
+            seq_t p_pow = ipow_u64_idx(p, 1);
             seq_t term_num = p_pow - 1;
             seq_t term_den = (p - 1) * p_pow;
 

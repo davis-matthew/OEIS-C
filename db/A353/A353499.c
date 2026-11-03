@@ -7,16 +7,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = 1 if n is squarefree and v₂(φ(n)) ≤ v₂(n–1), else 0
- * Range:     u8 n <= 349, u16 n <= 9649, u32 n <= 9649, u64 n <= 9649,
- *            u128 n <= 9649, big any n
- * Helpers:   is_squarefree, phi
+ * Range:     u8 n <= 349, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9649 (2026-11-01)
+ * Helpers:   is_squarefree, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
     }
 
     /* 2‑adic valuation of φ(n) */
-    seq_t phi_n = phi(n);
+    seq_t phi_n = totient(n);
     seq_t tmp   = phi_n;
     int   v2_phi = 0;
     while ((tmp & 1) == 0) {

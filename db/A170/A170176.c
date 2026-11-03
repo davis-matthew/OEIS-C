@@ -10,14 +10,24 @@
  *            n ≥ 40: a(n) = 21 * Σ_{i=1}^{38} a(n-i) - 231 * a(n-39)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 15,
  *            big any n
- * Helpers:   w_term
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/w_term.h"
+#include "../utils/mem.h"
+
+/* Helper to compute the inhomogeneous term w(n) from the numerator. */
+static inline seq_t w_term(idx_t k)
+{
+    /* From the numerator t^39 + 2 t^38 + … + 2 t + 1 */
+    if (k == 0 || k == 39) return (seq_t)1;
+    if (k <= 38)            return (seq_t)2;
+    return (seq_t)0;        /* not used for k > 39 */
+}
 
 /* External integer types as defined by the build. */
 extern seq_t a(idx_t n);
@@ -32,7 +42,7 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache if necessary. */
     size_t target = (size_t)(n + 1);
     if (target > cache_size) {
-        seq_t *new_cache = (seq_t *)realloc(cache, target * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, target);
         if (!new_cache) { /* allocation failure – abort */
             abort();
         }

@@ -10,14 +10,26 @@
  *            x(x+1)...(x+n-1) dx)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 27,
  *            big any n
- * Helpers:   a002401_ppbase
+ * Validated: standard, pass, 37 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a002401_ppbase.h"
+
+/* returns p if m is a power of the prime p, else 1 */
+static uint64_t a002401_ppbase(uint64_t m) {
+    uint64_t p = 0, d;
+    if (m < 2) return 1;
+    for (d = 2; d * d <= m; d++) {
+        if (m % d == 0) { p = d; break; }
+    }
+    if (p == 0) return m;
+    while (m % p == 0) m /= p;
+    return (m == 1) ? p : 1;
+}
 
 #define A002401_MAXN 20002
 

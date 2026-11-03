@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,10 +41,10 @@ seq_t a(idx_t n)
     if (A == NULL) {
         /* start with space for index 0 only */
         max_n = 0;
-        A      = (seq_t *)malloc(sizeof(seq_t) * 1);
-        fac    = (seq_t *)malloc(sizeof(seq_t) * 1);
-        pow3   = (seq_t *)malloc(sizeof(seq_t) * 1);
-        a_arr  = (seq_t *)malloc(sizeof(seq_t) * 1);
+        A      = mem_new(seq_t, 1);
+        fac    = mem_new(seq_t, 1);
+        pow3   = mem_new(seq_t, 1);
+        a_arr  = mem_new(seq_t, 1);
         if (!A || !fac || !pow3 || !a_arr) return (seq_t)0;  /* allocation failed */
 
         A[0]    = (seq_t)0;     /* defined so later loops never read it */
@@ -56,10 +58,10 @@ seq_t a(idx_t n)
         idx_t new_n = n;
 
         /* reallocate arrays to accommodate indices up to new_n */
-        A      = (seq_t *)realloc(A,      sizeof(seq_t) * (new_n + 1));
-        fac    = (seq_t *)realloc(fac,    sizeof(seq_t) * (new_n + 1));
-        pow3   = (seq_t *)realloc(pow3,   sizeof(seq_t) * (new_n + 1));
-        a_arr  = (seq_t *)realloc(a_arr,  sizeof(seq_t) * (new_n + 1));
+        A      = mem_resize(seq_t, A, (new_n + 1));
+        fac    = mem_resize(seq_t, fac, (new_n + 1));
+        pow3   = mem_resize(seq_t, pow3, (new_n + 1));
+        a_arr  = mem_resize(seq_t, a_arr, (new_n + 1));
         if (!A || !fac || !pow3 || !a_arr) return (seq_t)0;   /* allocation failed */
 
         /* fill missing values for indices max_n+1 .. new_n ---------------- */

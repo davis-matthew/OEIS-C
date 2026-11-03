@@ -8,7 +8,8 @@
  *            C_{k-1} (standard Catalan sequence offset 1)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached values */
 static seq_t *phi_cache = NULL;   /* phi_cache[i] = φ(i) for 0 <= i <= cache_size */
@@ -29,8 +31,8 @@ static void init_caches(idx_t n)
         return;                      /* already prepared */
 
     /* Allocate the arrays.  cat_cache needs an extra slot because we index up to n. */
-    phi_cache = (seq_t *)realloc(phi_cache, ((size_t)n + 1) * sizeof(seq_t));
-    cat_cache = (seq_t *)realloc(cat_cache, ((size_t)n + 2) * sizeof(seq_t));
+    phi_cache = mem_resize(seq_t, phi_cache, ((size_t)n + 1));
+    cat_cache = mem_resize(seq_t, cat_cache, ((size_t)n + 2));
 
     /* --- Compute Euler’s totient φ(i) for 1 <= i <= n --- */
     for (idx_t i = 0; i <= n; ++i)

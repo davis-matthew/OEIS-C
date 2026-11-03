@@ -9,7 +9,8 @@
  *            rejects n from the Ludic sieve
  * Range:     u8 n <= 2496, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 9971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t * _reject = NULL;
 static idx_t   _max_n   = 0;
@@ -26,12 +28,12 @@ static idx_t   _max_n   = 0;
                  k  otherwise, where k is the Ludic number that removes x. */
 static void _build_ludic(idx_t N)
 {
-    seq_t *new_table = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *new_table = mem_new(seq_t, (size_t)(N + 1));
     if (!new_table) return;                     /* allocation failed */
 
     /* list of survivors; indices range 0 .. list_len-1 */
     idx_t *list = (idx_t *)malloc((size_t)(N + 1) * sizeof(idx_t));
-    if (!list) { free(new_table); return; }
+    if (!list) { mem_free(new_table); return; }
 
     for (idx_t i = 1; i <= N; ++i) list[i - 1] = i;
     idx_t list_len = N;
@@ -72,7 +74,7 @@ static void _build_ludic(idx_t N)
 
     free(list);
 
-    free(_reject);
+    mem_free(_reject);
     _reject = new_table;
     _max_n  = N;
 }

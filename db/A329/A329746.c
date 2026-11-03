@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 213, u16 n <= 1133, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   recPartitions, resistance
+ * Validated: standard, pass, 94 terms through n = 1181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,62 @@
    number of steps required to reach a singleton via run‑lengths. */
 
 #include <stdlib.h>
-#include "../utils/recPartitions.h"
-#include "../utils/resistance.h"
+#include "../utils/mem.h"
+
+/*  Compute the runs‑resistance of a partition given as a flat array.
+   parts[0..len-1] contain the parts in non‑increasing order.
+   The function works purely on int arrays; the resulting count fits
+   easily in an int because the number of steps is < log₂(len)+1.       */
+static int resistance(const int parts[], int len)
+{
+    /* Two temporary target arrays – sized generously. */
+    /* The max number of parts for n <= 200 is 200; 200 suffices. */
+    int cur[200];
+    int nxt[200];
+    int cur_len = len;
+    int i, j, nxt_len;
+    int steps = 0;
+
+    for (i = 0; i < len; ++i) cur[i] = parts[i];
+
+    while (cur_len > 1) {
+        nxt_len = 0;
+        for (i = 0; i < cur_len; ) {
+            j = i + 1;
+            while (j < cur_len && cur[j] == cur[i]) ++j;
+            nxt[nxt_len++] = j - i;   /* run length of identical parts */
+            i = j;
+        }
+        for (i = 0; i < nxt_len; ++i) cur[i] = nxt[i];
+        cur_len = nxt_len;
+        ++steps;
+    }
+    return steps;
+}
+
+/*  Recursive partition generator.
+    remaining : sum still to be partitioned
+    maxPart   : largest part allowed (enforces non‑increasing order)
+    parts     : current partial partition
+    len       : number of parts currently stored
+    row       : array of counters for this row  (length 'n')
+*/
+static void recPartitions(int remaining, int maxPart,
+                          int *parts, int len, seq_t *row, int n)
+{
+    if (remaining == 0) {
+        int steps = resistance(parts, len);
+        if (steps < n) row[steps]++;   /* store T(n, steps) */
+        return;
+    }
+    for (int part = (remaining <= maxPart ? remaining : maxPart);
+         part >= 1;
+         --part)
+    {
+        parts[len] = part;
+        recPartitions(remaining - part, part, parts, len + 1, row, n);
+    }
+}
 
 /* Static cache of triangle rows.
    triangle[r][k] holds T(r, k), 0 <= k <= r-1. */
@@ -39,7 +94,7 @@ static size_t  triangle_size = 1;  /* highest row currently stored (row 0 unused
 static void generate_row(size_t n)
 {
     /* Allocate space for the row and initialise to zero. */
-    seq_t *row = (seq_t *)calloc((size_t)n, sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)n);
     if (!row) return;   /* silently fail – the calling function will return 0 */
 
     int parts[200];     /* temporary buffer for a partition                */

@@ -9,7 +9,8 @@
  *            memoized)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sq5_cmp, sq5_muladd, sq5_mulsmall, sq5_sub
+ * Validated: standard, pass, 115 terms through n = 9486 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,47 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/sq5_cmp.h"
-#include "../utils/sq5_muladd.h"
-#include "../utils/sq5_mulsmall.h"
-#include "../utils/sq5_sub.h"
+
+static int sq5_cmp(const uint32_t *x, const uint32_t *y, size_t L) {
+    size_t i = L;
+    while (i > 0) {
+        i--;
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+/* x = x*m + add */
+static void sq5_muladd(uint32_t *x, size_t L, uint32_t m, uint32_t add) {
+    uint64_t carry = add;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+}
+
+/* q = y*d + d*d */
+static void sq5_mulsmall(uint32_t *q, const uint32_t *y, size_t L, uint32_t d) {
+    uint64_t carry = (uint64_t)d * d;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)y[i] * d + carry;
+        q[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+}
+
+static void sq5_sub(uint32_t *r, const uint32_t *q, size_t L) {
+    uint64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)r[i] - q[i] - borrow;
+        r[i] = (uint32_t)t;
+        borrow = (t >> 63) & 1;
+    }
+}
 
 static unsigned char *sq5_dig = NULL;
 static idx_t sq5_ndig = 0;

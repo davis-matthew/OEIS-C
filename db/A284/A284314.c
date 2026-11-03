@@ -8,12 +8,14 @@
  *            A284314)
  * Range:     i8 n <= 143, i16 n <= 396, i32 n <= 1226, i64 n <= 4121,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 8661 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised coefficients */
 static seq_t *cache   = NULL;   /* cache[0..cache_cap-1] */
@@ -24,7 +26,7 @@ static void recompute(idx_t n)
 {
     /* Allocate new array */
     size_t sz = (size_t)(n + 1U);
-    seq_t *new_cache = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, sz);
     if (!new_cache) {
         /* In a rare OOM situation abort – the harness will not try
            to recover from this. */
@@ -44,7 +46,7 @@ static void recompute(idx_t n)
     }
 
     /* Replace old cache */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_cap = n + 1U;
 }

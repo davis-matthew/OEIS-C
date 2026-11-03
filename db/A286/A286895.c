@@ -14,13 +14,15 @@
  *            read by rows; a(0)=T(0,0)=1. The function accep...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 34,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 44 terms through n = 592 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -44,30 +46,30 @@ seq_t a(idx_t n)
     bool n_even = ((r & 1) == 0);
     bool m_even = ((c & 1) == 0);
 
-    seq_t term1 = big_pow((seq_t)7, (seq_t)mn);   /* 7^(mn) */
+    seq_t term1 = ipow((seq_t)7, (seq_t)mn);   /* 7^(mn) */
 
     if (n_even) {
         if (m_even) {
             /* even n, even m: (7^(mn) + 3*7^(mn/2)) / 4 */
-            seq_t term2 = big_pow((seq_t)7, (seq_t)(mn / 2));
+            seq_t term2 = ipow((seq_t)7, (seq_t)(mn / 2));
             return (term1 + 3 * term2) / 4;
         } else {
             /* even n, odd m: (7^(mn) + 7^((mn+n)/2) + 2*7^(mn/2)) / 4 */
-            seq_t term2 = big_pow((seq_t)7, (seq_t)( (mn + r) / 2));
-            seq_t term3 = big_pow((seq_t)7, (seq_t)(mn / 2));
+            seq_t term2 = ipow((seq_t)7, (seq_t)( (mn + r) / 2));
+            seq_t term3 = ipow((seq_t)7, (seq_t)(mn / 2));
             return (term1 + term2 + 2 * term3) / 4;
         }
     } else {   /* n is odd */
         if (m_even) {
             /* odd n, even m: (7^(mn) + 7^((mn+m)/2) + 2*7^(mn/2)) / 4 */
-            seq_t term2 = big_pow((seq_t)7, (seq_t)( (mn + c) / 2));
-            seq_t term3 = big_pow((seq_t)7, (seq_t)(mn / 2));
+            seq_t term2 = ipow((seq_t)7, (seq_t)( (mn + c) / 2));
+            seq_t term3 = ipow((seq_t)7, (seq_t)(mn / 2));
             return (term1 + term2 + 2 * term3) / 4;
         } else {
             /* odd n, odd m: (7^(mn) + 7^((mn+n)/2) + 7^((mn+m)/2) + 7^((mn+1)/2))/4 */
-            seq_t term2 = big_pow((seq_t)7, (seq_t)( (mn + r) / 2));
-            seq_t term3 = big_pow((seq_t)7, (seq_t)( (mn + c) / 2));
-            seq_t term4 = big_pow((seq_t)7, (seq_t)( (mn + 1) / 2));
+            seq_t term2 = ipow((seq_t)7, (seq_t)( (mn + r) / 2));
+            seq_t term3 = ipow((seq_t)7, (seq_t)( (mn + c) / 2));
+            seq_t term4 = ipow((seq_t)7, (seq_t)( (mn + 1) / 2));
             return (term1 + term2 + term3 + term4) / 4;
         }
     }

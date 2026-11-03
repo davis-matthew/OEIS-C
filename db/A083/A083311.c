@@ -13,14 +13,60 @@
  *            the decimal representation) and levenshtein (to compute the e...
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   levenshtein, seq_to_str
+ * Validated: partial, pass, 106 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_to_str.h"
-#include "../utils/levenshtein.h"
+#include <stddef.h>
+#include <stdint.h>
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+/* Levenshtein distance between two bit arrays of lengths len1 and len2. */
+static int levenshtein(const uint8_t *a, int len1, const uint8_t *b, int len2)
+{
+    /* Two rows of DP, indices 0..len2.  Size is small (≪128). */
+    int prev[128] = {0};
+    int curr[128] = {0};
+
+    for (int j = 0; j <= len2; ++j) prev[j] = j;
+
+    for (int i = 1; i <= len1; ++i) {
+        curr[0] = i;
+        for (int j = 1; j <= len2; ++j) {
+            int cost = (a[i-1] == b[j-1]) ? 0 : 1;
+            int del = prev[j] + 1;
+            int ins = curr[j-1] + 1;
+            int sub = prev[j-1] + cost;
+            int val = del < ins ? del : ins;
+            val = sub < val ? sub : val;
+            curr[j] = val;
+        }
+        for (int j = 0; j <= len2; ++j) prev[j] = curr[j];
+    }
+    return prev[len2];
+}
 
 /* maximum number of decimal digits needed for any seq_t value in the test
    range.  128 is comfortably larger than 39 digits of a 128‑bit integer. */

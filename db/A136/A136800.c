@@ -8,7 +8,8 @@
  * Formula:   a(n) = A136799(n)-A136798(n)+1
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   grow_primes_array
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/grow_primes_array.h"
+#include "../utils/mem.h"
+
+/* Grow a uint64_t array to hold at least `need` elements    */
+static void grow_primes_array(uint64_t **arr, size_t *cap, size_t need) {
+    if (*cap < need) {
+        size_t newcap = (*cap) ? (*cap) << 1 : 16;
+        while (newcap < need) newcap <<= 1;
+        *arr = (uint64_t*)realloc(*arr, newcap * sizeof(uint64_t));
+        *cap = newcap;
+    }
+}
 
 /* ---- static storage for gaps, primes and sieve ----------- */
 static seq_t   *gap_lengths  = NULL;   /* lengths of qualifying gaps (≥3)          */
@@ -39,7 +50,7 @@ static void grow_seq_t_array(seq_t **arr, size_t *cap, size_t need) {
     if (*cap < need) {
         size_t newcap = (*cap) ? (*cap) << 1 : 16;
         while (newcap < need) newcap <<= 1;
-        *arr = (seq_t*)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }

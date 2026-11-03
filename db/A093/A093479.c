@@ -8,6 +8,7 @@
  * Formula:   a(0)=0; a(1)=1; a(2)=6; a(3)=8; a(4)=18; a(n)=8 for n>4
  * Range:     u8 n <= 112, u16 n <= 112, u32 n <= 112, u64 n <= 112,
  *            u128 n <= 112, big any n
+ * Validated: partial, pass, 113 terms through n = 112 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

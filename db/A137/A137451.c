@@ -12,7 +12,8 @@
  *            a(k) (k < n) and selects the * smallest candid...
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <limits.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t * _cache   = NULL;      /* cache[1..n] of a(n) */
 static size_t _cache_cap = 0;        /* allocated capacity for _cache */
@@ -34,7 +37,7 @@ static void _ensure_cache(idx_t n)
 {
     if (_cache_cap >= n + 1) return;
     size_t new_cap = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, _cache, new_cap);
     _cache   = new_cache;
     _cache_cap = new_cap;
 }

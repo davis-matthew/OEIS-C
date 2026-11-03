@@ -7,12 +7,14 @@
  * Formula:   a(n+2) = 2030*a(n+1) - a(n) + 1014, a(1)=6, a(2)=13201
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 6, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* ensure enough space in cache; use explicit cast to satisfy C++ */
     if (n > cached) {
         idx_t newsize = n + 1; /* include index 0 which stays unused */
-        seq_t *p = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, newsize);
         if (!p)
             return (seq_t)0;  /* allocation failure */
         cache = p;

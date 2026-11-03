@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   compose_from_k, is_rev_co_necklace
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,8 +33,56 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/compose_from_k.h"
-#include "../utils/is_rev_co_necklace.h"
+#include "../utils/mem.h"
+
+/* Convert non‑negative integer k to its composition in
+   standard order.
+   The resulting parts are stored in out[0..cnt-1].
+   The array is reversed at the end so that out
+   represents the composition (first differences of
+   the positions of 1 bits in the reversed binary
+   representation of k).  Return the number of parts. */
+static size_t compose_from_k(idx_t k, size_t *out, size_t *cnt)
+{
+    size_t pos = 1, prev = 0;
+    size_t len = 0;
+    while (k) {
+        if (k & 1ULL) {
+            out[len++] = pos - prev;
+            prev = pos;
+        }
+        ++pos;
+        k >>= 1;
+    }
+    /* Reverse to obtain the actual composition. */
+    for (size_t i = 0; i < len / 2; ++i) {
+        size_t tmp = out[i];
+        out[i] = out[len - 1 - i];
+        out[len - 1 - i] = tmp;
+    }
+    *cnt = len;
+    return len;
+}
+
+/* Test whether the reverse of a composition is a co‑necklace:
+   the reversed composition must be lexicographically >=
+   any of its cyclic rotations. */
+static bool is_rev_co_necklace(const size_t *p, size_t len)
+{
+    if (len == 0) return true;
+    size_t rev[64];
+    for (size_t i = 0; i < len; ++i) rev[i] = p[len - 1 - i];
+
+    for (size_t s = 1; s < len; ++s) {
+        for (size_t i = 0; i < len; ++i) {
+            size_t a = rev[i];
+            size_t b = rev[(i + s) % len];
+            if (a > b) break;          /* rev > rotation => OK */
+            if (a < b) return false;   /* rev < rotation => fail */
+        }
+    }
+    return true;
+}
 
 /* Test whether a composition is a necklace:
    it must be lexicographically <= any cyclic rotation. */
@@ -70,10 +119,10 @@ seq_t a(idx_t n)
         if (is_necklace(comp, len) && is_rev_co_necklace(comp, len)) {
             if (matches_len == matches_cap) {
                 size_t new_cap = matches_cap == 0 ? 64 : matches_cap * 2;
-                seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_new(seq_t, new_cap);
                 if (tmp == NULL) exit(1);          /* allocation failed */
-                if (matches) memcpy(tmp, matches, matches_len * sizeof(seq_t));
-                free(matches);
+                if (matches) mem_copy(tmp, matches, matches_len * sizeof(seq_t));
+                mem_free(matches);
                 matches = tmp;
                 matches_cap = new_cap;
             }

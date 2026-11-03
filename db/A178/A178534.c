@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 276, u32 n <= 1081, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 1190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root (floor) using binary search on uint64_t */
 static uint64_t isqrt_uint64(uint64_t n)
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         if (fib_len < r + 2) {
             size_t old_fib = fib_len;
             fib_len = r + 2;
-            fib = (seq_t*)realloc(fib, fib_len * sizeof(seq_t));
+            fib = mem_resize(seq_t, fib, fib_len);
             if (old_fib == 0) {
                 fib[0] = (seq_t)0;
                 fib[1] = (seq_t)1;
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         }
         /* Build new rows one by one */
         for (size_t row = old + 1; row <= max_row; ++row) {
-            triangle[row] = (seq_t*)calloc(row + 1, sizeof(seq_t));
+            triangle[row] = mem_new(seq_t, row + 1);
             /* First column */
             triangle[row][1] = fib[row + 1];
             /* Remaining columns */

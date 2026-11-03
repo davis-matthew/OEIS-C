@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *P      = NULL;
 static size_t p_len = 0, p_cap = 0;
@@ -88,7 +90,7 @@ static inline void append_seq(seq_t **arr, size_t *len, size_t *cap, seq_t val)
 {
     if (*len == *cap) {
         size_t newcap = (*cap == 0) ? 4 : (*cap << 1);
-        seq_t *p = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, *arr, newcap);
         if (!p) exit(EXIT_FAILURE);
         *arr = p;
         *cap = newcap;
@@ -107,7 +109,7 @@ static void init_once(void)
 
     /* P: 1,3,9 */
     p_cap = 4;
-    P     = (seq_t *)malloc(p_cap * sizeof(seq_t));
+    P     = mem_new(seq_t, p_cap);
     if (!P) exit(EXIT_FAILURE);
     p_len = 3;
     P[0] = (seq_t)1;
@@ -116,7 +118,7 @@ static void init_once(void)
 
     /* Q: 2,6 */
     q_cap = 4;
-    Q     = (seq_t *)malloc(q_cap * sizeof(seq_t));
+    Q     = mem_new(seq_t, q_cap);
     if (!Q) exit(EXIT_FAILURE);
     q_len = 2;
     Q[0] = (seq_t)2;

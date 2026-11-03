@@ -8,12 +8,13 @@
  *            Catalan(k)*2*(2k+1)/(k+2), Catalan(0) = 1
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   a000777_gcd_idx
+ * Validated: standard, pass, 43 terms through n = 189 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000777_gcd_idx.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n) {
     seq_t c = 1;
@@ -21,7 +22,7 @@ seq_t a(idx_t n) {
     for (k = 0; k < n; k++) {
         idx_t num = 2 * (2 * k + 1);
         idx_t den = k + 2;
-        idx_t g = a000777_gcd_idx(num, den);
+        idx_t g = gcd_idx(num, den);
         num /= g;
         den /= g;
         /* den divides c exactly since gcd(num, den) = 1 and the result is integral */

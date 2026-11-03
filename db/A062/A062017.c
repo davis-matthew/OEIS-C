@@ -9,8 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 910, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   all_even_digits_uint64, all_odd_digits_uint64,
- *            has_valid_factorization_uint64
+ * Validated: standard, pass, 72 terms through n = 9832 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +22,48 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/all_even_digits_uint64.h"
-#include "../utils/all_odd_digits_uint64.h"
-#include "../utils/has_valid_factorization_uint64.h"
+#include "../utils/mem.h"
+
+/* test whether all decimal digits of x are even (0,2,4,6,8)   */
+static inline bool all_even_digits_uint64(uint64_t x)
+{
+    if (x == 0) return true;
+    while (x) {
+        if ((x % 10) & 1) return false;   /* odd digit               */
+        x /= 10;
+    }
+    return true;
+}
+
+/* test whether all decimal digits of x are odd (1,3,5,7,9)   */
+static inline bool all_odd_digits_uint64(uint64_t x)
+{
+    if (x == 0) return false;              /* zero has even digit     */
+    while (x) {
+        if (!((x % 10) & 1)) return false; /* non‑odd digit           */
+        x /= 10;
+    }
+    return true;
+}
+
+/* test whether n (>0) has a factorization n = a * b
+   with a>1, b>1, a all odd digits and b all even digits
+   (either order)                                            */
+static bool has_valid_factorization_uint64(uint64_t n)
+{
+    /* special case: 0 counts as a term by definition */
+    if (n == 0) return true;
+
+    /* try all divisors up to sqrt(n) */
+    for (uint64_t a = 2; a <= n / a; ++a) {
+        if (n % a) continue;
+        uint64_t b = n / a;
+        if ( (all_odd_digits_uint64(a) && all_even_digits_uint64(b)) ||
+             (all_even_digits_uint64(a) && all_odd_digits_uint64(b)) )
+            return true;
+    }
+    return false;
+}
 
 static seq_t *seq_table = NULL;    /* array of found terms          */
 static idx_t  seq_size  = 0;       /* allocated capacity            */
@@ -36,7 +75,7 @@ static void append_term(idx_t val)
 {
     if (seq_count >= seq_size) {
         size_t new_size = (seq_size == 0) ? 16 : seq_size * 2;
-        seq_t *tmp = (seq_t *)realloc(seq_table, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_table, new_size);
         seq_table = tmp;
         seq_size = (idx_t)new_size;
     }

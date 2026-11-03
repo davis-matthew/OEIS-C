@@ -7,22 +7,24 @@
  * Formula:   a(n) = binomial(n+4,4) * 6^n
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 19, u128 n <= 42,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: standard, pass, 36 terms through n = 375 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Compute the binomial coefficient (n+4 choose 4)   */
-    seq_t bin = binom(n + 4, 4);
+    seq_t bin = binomial(n + 4, 4);
 
     /* Compute 6^n                                 */
-    seq_t pow6 = big_pow((seq_t)6, (seq_t)n);
+    seq_t pow6 = ipow((seq_t)6, (seq_t)n);
 
     /* Result is the product of the two parts      */
     return bin * pow6;

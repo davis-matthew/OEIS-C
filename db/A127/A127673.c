@@ -8,8 +8,9 @@
  * Formula:   a(n) = binomial(2*r, k) where r is the row index such that *
  *            r(r+1)/2 <= n < (r+1)(r+2)/2, k = n - r(r+1)/2; if k = r and r >
  *            0 * divide the binomial by 2. Special case: a(0) = 1 (not 1/2)
- * Range:     u8 n <= 13, u16 n <= 42, u32 n <= 57, u64 n <= 57, u128 n <= 57,
+ * Range:     u8 n <= 24, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

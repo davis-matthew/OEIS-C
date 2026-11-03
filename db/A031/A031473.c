@@ -8,7 +8,8 @@
  *            exactly 3 more 0’s than 4’s
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper to test whether a number satisfies the condition. */
 static bool satisfies(seq_t x) {
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
         if (cache_cap == 0) cache_cap = 64;
         while (cache_cap < n) cache_cap <<= 1;
 
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (!tmp) exit(EXIT_FAILURE);   /* allocation error */
         cache = tmp;
 

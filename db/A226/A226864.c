@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    seq_t – signed integer type, may be an arbitrary‑precision class
    idx_t – unsigned 64‑bit integer (uint64_t).   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,9 +29,9 @@ seq_t a(idx_t n)
        required when seq_t is a class type.  The memory is only
        zero‑initialized; no constructor is called, which is permitted
        by the build environment. */
-    seq_t *P = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *S = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *A = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *P = mem_new(seq_t, (size_t)n + 1);
+    seq_t *S = mem_new(seq_t, (size_t)n + 1);
+    seq_t *A = mem_new(seq_t, (size_t)n + 1);
     if (!P || !S || !A)  /* allocation failure */
         return 0;
 
@@ -69,9 +71,9 @@ seq_t a(idx_t n)
 
     /* Release memory.  Since seq_t is a POD type (or a type that
        has no destructor to run), free is sufficient. */
-    free(P);
-    free(S);
-    free(A);
+    mem_free(P);
+    mem_free(S);
+    mem_free(A);
 
     return result;
 }

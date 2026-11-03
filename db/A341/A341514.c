@@ -6,8 +6,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n)=0 for odd n; for even n, a(n)=max{k: A(k)|n} - 1, where
  *            A(1)=1, A(2)=2 and A(k)=A(k-1)*(odd integer starting at 3)
- * Range:     u8 n <= 9943, u16 n <= 9943, u32 n <= 9943, u64 n <= 9943,
- *            u128 n <= 9943, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9943 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    in any order, and each value is computed only once.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised cache of the sequence */
 static seq_t *cache = NULL;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         capacity = 2;
-        cache    = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache    = mem_new(seq_t, capacity);
         if (cache == NULL) return 0;   /* out of memory */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
@@ -57,9 +59,9 @@ seq_t a(idx_t n)
             last = last + m;                     /* new term */
             if (cache_len == capacity) {
                 capacity = capacity ? capacity << 1 : 2;
-                seq_t *tmp = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, capacity);
                 if (tmp == NULL) {               /* out of memory */
-                    free(cache);
+                    mem_free(cache);
                     cache = NULL;
                     return 0;
                 }

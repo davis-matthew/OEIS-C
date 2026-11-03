@@ -13,14 +13,16 @@
  *            of bits needed to represent x
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 9, u128 n <= 10,
  *            big any n
- * Helpers:   bitlen_seq_t_dummy
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/bitlen_seq_t_dummy.h"
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* external linkage as required */
 seq_t a(idx_t n)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         if (cap < needed) {
             size_t newcap = cap ? cap : 2;
             while (newcap < needed) newcap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             cache = tmp;
             cap = newcap;
         }
@@ -55,8 +57,8 @@ seq_t a(idx_t n)
             } else {
                 seq_t a1 = cache[i - 1];
                 seq_t a2 = cache[i - 2];
-                unsigned len1 = bitlen_seq_t_dummy(a1);
-                unsigned len2 = bitlen_seq_t_dummy(a2);
+                unsigned len1 = bit_length(a1);
+                unsigned len2 = bit_length(a2);
                 seq_t v1 = (a1 << len2) | a2;
                 seq_t v2 = (a2 << len1) | a1;
                 cache[i] = v1 > v2 ? v1 : v2;

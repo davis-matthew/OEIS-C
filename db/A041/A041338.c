@@ -7,12 +7,19 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 17, u64 n <= 37, u128 n <= 76,
  *            big any n
- * Helpers:   get_a
+ * Validated: standard, pass, 42 terms through n = 200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/get_a.h"
+/* Helper: return the k‑th coefficient of the continued fraction expansion of sqrt(183). */
+static seq_t get_a(idx_t k)
+{
+    /* partial quotients: a_0 followed by the periodic part of length 6 */
+    static const seq_t period[6] = {1, 1, 8, 1, 1, 26};
+    return (k == 0) ? (seq_t)13 : period[(k - 1) % 6];
+}
 /* 
  * Sequence: A041338 – Numerators of continued fraction convergents to sqrt(183).
  * Computation method:

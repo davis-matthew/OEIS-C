@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 8778 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* 0-limiting word of the morphism 0->10, 1->0010 (even iterations) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* initialise on first call */
     if (len == 0) {
-        buf = (seq_t *)malloc(sizeof(seq_t));
+        buf = mem_new(seq_t, 1);
         if (buf == NULL) return (seq_t)0;  /* safety, should never happen */
         buf[0] = (seq_t)0;
         len = (size_t)1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < len; ++i)
             new_len += (buf[i] == (seq_t)0) ? 2 : 4;
 
-        seq_t *new_buf = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_buf = mem_new(seq_t, new_len);
         if (new_buf == NULL) return (seq_t)0;  /* safety */
         size_t p = 0;
         for (size_t i = 0; i < len; ++i) {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
                 new_buf[p++] = (seq_t)0;
             }
         }
-        free(buf);
+        mem_free(buf);
         buf = new_buf;
         len = new_len;
         ++iter;

@@ -7,14 +7,16 @@
  * Formula:   a(n) = the nth prime p such that p mod 7 ∈ {0,2,4,6}
  * Range:     u8 n <= 27, u16 n <= 1001, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 61 terms through n = 776 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"       /* Prototypes for is_prime() */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Static cache for computed terms */
 static seq_t *cache = NULL;      /* Dynamic array holding the terms */
@@ -26,7 +28,7 @@ static idx_t  next_candidate = 2; /* Next integer to test for primality */
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) { /* allocation failed */
         exit(EXIT_FAILURE);
     }

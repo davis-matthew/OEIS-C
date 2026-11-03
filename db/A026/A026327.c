@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 43, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 937 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static idx_t last_computed_step = 0;     /* largest n already processed */
 static seq_t *dp_prev = NULL;            /* values after step k-1 */
@@ -41,25 +43,25 @@ static void ensure_capacity(idx_t target)
 
     /* Resize DP tables if needed */
     if (dp_prev == NULL) {
-        dp_prev = (seq_t *)calloc(needed_dp, sizeof(seq_t));
-        dp_cur  = (seq_t *)calloc(needed_dp, sizeof(seq_t));
+        dp_prev = mem_new(seq_t, needed_dp);
+        dp_cur  = mem_new(seq_t, needed_dp);
         dp_capacity = needed_dp;
     } else if (dp_capacity < needed_dp) {
-        dp_prev = (seq_t *)realloc(dp_prev, needed_dp * sizeof(seq_t));
-        dp_cur  = (seq_t *)realloc(dp_cur,  needed_dp * sizeof(seq_t));
+        dp_prev = mem_resize(seq_t, dp_prev, needed_dp);
+        dp_cur  = mem_resize(seq_t, dp_cur, needed_dp);
         /* Zero the newly added part */
-        memset(dp_prev + dp_capacity, 0, (needed_dp - dp_capacity) * sizeof(seq_t));
-        memset(dp_cur  + dp_capacity, 0, (needed_dp - dp_capacity) * sizeof(seq_t));
+        mem_set(dp_prev + dp_capacity, 0, (needed_dp - dp_capacity) * sizeof(seq_t));
+        mem_set(dp_cur  + dp_capacity, 0, (needed_dp - dp_capacity) * sizeof(seq_t));
         dp_capacity = needed_dp;
     }
 
     /* Resize memo array if needed */
     if (memo == NULL) {
-        memo = (seq_t *)calloc(needed_memo, sizeof(seq_t));
+        memo = mem_new(seq_t, needed_memo);
         memo_capacity = needed_memo;
     } else if (memo_capacity < needed_memo) {
-        memo = (seq_t *)realloc(memo, needed_memo * sizeof(seq_t));
-        memset(memo + memo_capacity, 0, (needed_memo - memo_capacity) * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, needed_memo);
+        mem_set(memo + memo_capacity, 0, (needed_memo - memo_capacity) * sizeof(seq_t));
         memo_capacity = needed_memo;
     }
 }
@@ -83,7 +85,7 @@ static void compute_up_to(idx_t target)
         size_t prev_len = next_len - 1;            /* indices 0 .. 2+step-1 */
 
         /* Zero dp_cur for the part that will be used */
-        memset(dp_cur, 0, next_len * sizeof(seq_t));
+        mem_set(dp_cur, 0, next_len * sizeof(seq_t));
 
         /* Transition from dp_prev to dp_cur */
         for (size_t idx = 0; idx < prev_len; ++idx) {

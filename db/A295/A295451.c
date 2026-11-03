@@ -7,7 +7,8 @@
  * Formula:   a(n) = (14*n)!*n! / ((7*n)!*(5*n)!*(3*n)!)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 7,
  *            big any n
- * Helpers:   count_factor, seq_pow
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,8 +38,19 @@ static void init_primes(void) {
 }
 
 /* exponentiation for seq_t; assumes seq_pow is declared in utils */
-#include "../utils/seq_pow.h"
-#include "../utils/count_factor.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+
+/* Legendre's formula: exponent of prime p in N! */
+static idx_t count_factor(idx_t N, idx_t p) {
+    idx_t cnt = 0;
+    while (N) {
+        N /= p;
+        cnt += N;
+    }
+    return cnt;
+}
 
 /* compute a(n) */
 seq_t a(idx_t n) {
@@ -57,7 +69,7 @@ seq_t a(idx_t n) {
                     - count_factor(5  * n, p)
                     - count_factor(3  * n, p);
         if (exp == 0) continue;
-        result *= seq_pow((seq_t)p, exp);
+        result *= ipow_idx((seq_t)p, exp);
     }
     return result;
 }

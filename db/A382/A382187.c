@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
     /* first call: initialise a(0) & c(0) */
     if (last == (idx_t)-1) {
         cap  = 1;
-        A    = (seq_t *)malloc(cap * sizeof(seq_t));
-        C    = (seq_t *)malloc(cap * sizeof(seq_t));
+        A    = mem_new(seq_t, cap);
+        C    = mem_new(seq_t, cap);
         A[0] = (seq_t)1;
         C[0] = (seq_t)1;
         last = 0;
@@ -52,8 +54,8 @@ seq_t a(idx_t n)
         size_t newcap = cap > 0 ? cap : 1;
         while (newcap < need)
             newcap <<= 1;
-        A = (seq_t *)realloc(A, newcap * sizeof(seq_t));
-        C = (seq_t *)realloc(C, newcap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, newcap);
+        C = mem_resize(seq_t, C, newcap);
         cap = newcap;
     }
 

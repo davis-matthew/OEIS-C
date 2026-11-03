@@ -12,7 +12,8 @@
  *            flattening of T, with offset 2
  * Range:     u8 n <= 15, u16 n <= 35, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   binomial, offset_row
+ * Validated: partial, pass, 55 terms through n = 56 (2026-11-03)
+ * Helpers:   binomial, mem, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/offset_row.h"   /* returns seq_t */
-#include "../utils/binomial.h"    /* returns seq_t */
+#include <stdint.h>
+#include <math.h>
+#include "../utils/binomial.h"
+#include "../utils/triangular.h"
+#include "../utils/mem.h"
 
 /* Static cache for computed values of the sequence. */
 static seq_t *data      = NULL;   /* flattened triangle, linear index 0 ↔ a(2) */
@@ -35,7 +39,7 @@ static void ensure_capacity(size_t needed)
     {
         size_t new_cap = data_cap ? (data_cap << 1) : 32;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(data, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, data, new_cap);
         if (!tmp) exit(1);
         data = tmp;
         data_cap = new_cap;

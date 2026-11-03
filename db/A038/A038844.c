@@ -9,15 +9,40 @@
  *            congruence 2^k ≡ 1 (mod 6*k+1) by modular exponentiation
  * Range:     u8 n <= 3, u16 n <= 638, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   cmp_seq_t, mod_pow, seq_realloc
+ * Validated: standard, pass, 69 terms through n = 993 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/cmp_seq_t.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 static seq_t *terms = NULL;     /* stored terms */
 static size_t terms_len = 0;    /* number of terms stored */
@@ -35,7 +60,7 @@ static void ensure_terms(idx_t n_target)
         /* m = 6*k+1 */
         seq_t m = (seq_t)k * 6 + 1;
         /* check 2^k ≡ 1 (mod m) */
-        seq_t rem = mod_pow((seq_t)2, k, m);
+        seq_t rem = powmod((seq_t)2, k, m);
 
         seq_t one = 1;
         if (cmp_seq_t(&rem, &one) == 0) {

@@ -9,20 +9,41 @@
  *            B(x) is g.f. for rooted trees (A000081)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 34, u128 n <= 73,
  *            big any n
- * Helpers:   multiply_series, power_series_power
+ * Validated: standard, pass, 37 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/multiply_series.h"
-#include "../utils/power_series_power.h"
+#include "../utils/mem.h"
+
+static void multiply_series(const seq_t *a, const seq_t *b, seq_t *result, idx_t n) {
+    mem_set(result, 0, (n + 1) * sizeof(seq_t));
+    for (idx_t i = 0; i <= n; i++) {
+        for (idx_t j = 0; j <= n - i; j++) {
+            result[i + j] += a[i] * b[j];
+        }
+    }
+}
+
+static void power_series_power(const seq_t *a, idx_t p, seq_t *result, idx_t n) {
+    mem_set(result, 0, (n + 1) * sizeof(seq_t));
+    result[0] = 1;
+    
+    seq_t *temp = mem_new(seq_t, (n + 1));
+    for (idx_t k = 0; k < p; k++) {
+        multiply_series(result, a, temp, n);
+        mem_copy(result, temp, (n + 1) * sizeof(seq_t));
+    }
+    mem_free(temp);
+}
 
 seq_t a(idx_t n) {
     if (n < 4) return 0;
     
-    seq_t *b = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, n + 1);
     b[1] = 1;
     
     for (idx_t i = 2; i <= n; i++) {
@@ -42,12 +63,12 @@ seq_t a(idx_t n) {
         b[i] = sum / (seq_t)(i - 1);
     }
     
-    seq_t *b2 = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *b3 = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *b4 = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *b5 = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *b6 = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *b7 = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *b2 = mem_new(seq_t, (n + 1));
+    seq_t *b3 = mem_new(seq_t, (n + 1));
+    seq_t *b4 = mem_new(seq_t, (n + 1));
+    seq_t *b5 = mem_new(seq_t, (n + 1));
+    seq_t *b6 = mem_new(seq_t, (n + 1));
+    seq_t *b7 = mem_new(seq_t, (n + 1));
     
     power_series_power(b, 2, b2, n);
     power_series_power(b, 3, b3, n);
@@ -56,21 +77,21 @@ seq_t a(idx_t n) {
     multiply_series(b5, b, b6, n);
     multiply_series(b6, b, b7, n);
     
-    seq_t *num = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *num = mem_new(seq_t, (n + 1));
     for (idx_t i = 0; i <= n; i++) {
         num[i] = (seq_t)64 * b4[i] - (seq_t)79 * b5[i] + (seq_t)36 * b6[i] - (seq_t)6 * b7[i];
     }
     
-    seq_t *one_minus_b = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *one_minus_b = mem_new(seq_t, n + 1);
     one_minus_b[0] = 1;
     for (idx_t i = 1; i <= n; i++) {
         one_minus_b[i] = -(b[i]);
     }
     
-    seq_t *denom = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *denom = mem_new(seq_t, (n + 1));
     power_series_power(one_minus_b, 7, denom, n);
     
-    seq_t *q = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *q = mem_new(seq_t, n + 1);
     for (idx_t i = 0; i <= n; i++) {
         q[i] = num[i];
         for (idx_t j = 1; j < i; j++) {
@@ -81,17 +102,17 @@ seq_t a(idx_t n) {
     
     seq_t result = q[n];
     
-    free(b);
-    free(b2);
-    free(b3);
-    free(b4);
-    free(b5);
-    free(b6);
-    free(b7);
-    free(num);
-    free(one_minus_b);
-    free(denom);
-    free(q);
+    mem_free(b);
+    mem_free(b2);
+    mem_free(b3);
+    mem_free(b4);
+    mem_free(b5);
+    mem_free(b6);
+    mem_free(b7);
+    mem_free(num);
+    mem_free(one_minus_b);
+    mem_free(denom);
+    mem_free(q);
     
     return result;
 }

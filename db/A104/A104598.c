@@ -9,13 +9,15 @@
  *            (1-z-sqrt(1-4z))/(1-4z)^2)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 61,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 37 terms through n = 185 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     seq_t term = pow * ((seq_t)3 * n + (seq_t)4);
 
     /* Compute binomial coefficient C(2*n+1, n) */
-    seq_t bin = binom(2 * n + 1, n);
+    seq_t bin = binomial(2 * n + 1, n);
 
     /* Subtract (n+1) * bin from term */
     term -= ((seq_t)(n + 1)) * bin;

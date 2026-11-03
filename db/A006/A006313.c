@@ -11,7 +11,8 @@
  *            probable-prime test to bases 3, 5, 7 in mult...
  * Range:     u8 n <= 12, u16 n <= 1497, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mp_eq, mp_ge, pm32
+ * Validated: standard, pass, 68 terms through n = 9511 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,29 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/mp_eq.h"
-#include "../utils/mp_ge.h"
-#include "../utils/pm32.h"
+
+static int mp_eq(const uint64_t *x, const uint64_t *y, int L) {
+    for (int i = 0; i < L; i++)
+        if (x[i] != y[i]) return 0;
+    return 1;
+}
+
+static int mp_ge(const uint64_t *x, const uint64_t *y, int L) {
+    for (int i = L - 1; i >= 0; i--)
+        if (x[i] != y[i]) return x[i] > y[i];
+    return 1;
+}
+
+static uint64_t pm32(uint64_t b, uint64_t e, uint64_t p) {
+    uint64_t r = 1;
+    b %= p;
+    while (e) {
+        if (e & 1) r = r * b % p;
+        b = b * b % p;
+        e >>= 1;
+    }
+    return r;
+}
 
 #define ML 10
 #define SIEVE_B (1u << 23)

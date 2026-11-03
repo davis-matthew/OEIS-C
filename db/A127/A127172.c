@@ -11,13 +11,37 @@
  *            where p is prime and e≥1. For n=1, A007425(1)=1
  * Range:     u8 n <= 1275, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   seq_A007425
+ * Validated: standard, pass, 107 terms through n = 1136 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_A007425.h"
+
+/* compute A007425(m) for m ≥ 1 */
+static inline seq_t seq_A007425(idx_t m)
+{
+    if (m == 1) return (seq_t)1;
+    seq_t result = 1;
+    idx_t temp = m;
+
+    for (idx_t p = 2; p * p <= temp; ++p) {
+        if (temp % p == 0) {
+            idx_t exp = 0;
+            while (temp % p == 0) {
+                temp /= p;
+                ++exp;
+            }
+            seq_t comb = (seq_t)(exp + 2) * (seq_t)(exp + 1) / 2;
+            result *= comb;
+        }
+    }
+    if (temp > 1) {                 /* remaining prime factor with exp = 1 */
+        result *= (seq_t)3;          /* C(1+2,2) = 3 */
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

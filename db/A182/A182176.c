@@ -8,6 +8,7 @@
  *            k]_2 = Gaussian binomial coefficient over GF(2)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 14, u128 n <= 21,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 95 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
    arithmetic provided by the seq_t type. */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* seq_t a(idx_t n) – number of affine subspaces of GF(2)^n */

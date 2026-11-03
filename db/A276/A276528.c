@@ -8,7 +8,8 @@
  * Formula:   a(n) = least number with same prime signature as sigma(n)
  * Range:     u8 n <= 16, u16 n <= 1068, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, build_primes_upto, factor_u64
+ * Validated: standard, pass, 97 terms through n = 9199 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 #include <string.h>
 
 /* Required helper functions */
-#include "../utils/factor_u64.h"     /* size_t factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/big_pow.h"       /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/build_primes_upto.h" /* void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 static uint64_t *primes = NULL;
 static size_t prime_cnt = 0;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
 
     seq_t sigma = 1;
     for (size_t i = 0; i < cnt1; ++i) {
-        seq_t term_num = big_pow((seq_t)pr1[i], (seq_t)(ex1[i] + 1));
+        seq_t term_num = ipow((seq_t)pr1[i], (seq_t)(ex1[i] + 1));
         term_num -= 1;
         seq_t term_den = (seq_t)pr1[i] - 1;
         seq_t term = term_num / term_den;
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
     seq_t result = 1;
     for (size_t i = 0; i < cnt2; ++i) {
         seq_t base = (seq_t)primes[i];
-        seq_t pow_val = big_pow(base, (seq_t)exps[i]);
+        seq_t pow_val = ipow(base, (seq_t)exps[i]);
         result *= pow_val;
     }
 

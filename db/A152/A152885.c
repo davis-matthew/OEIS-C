@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 */
 
 #include <stdlib.h>           /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Cache for factorials: fact_cache[i] = i! */
 static seq_t *fact_cache = NULL;
@@ -30,15 +32,14 @@ static idx_t  fact_cache_size = 0;   /* largest i computed */
 static void ensure_fact_cache(idx_t n)
 {
     if (fact_cache == NULL) {                     /* first allocation */
-        fact_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        fact_cache = mem_new(seq_t, (n + 1));
         if (!fact_cache) return;
         fact_cache[0] = (seq_t)1;
         fact_cache_size = 0;
     } else if (fact_cache_size >= n) {            /* already have up to n */
         return;
     } else {                                     /* grow the cache */
-        seq_t *tmp = (seq_t *)realloc(fact_cache,
-                                      (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact_cache, (n + 1));
         if (!tmp) return;
         fact_cache = tmp;
     }

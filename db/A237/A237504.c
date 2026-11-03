@@ -12,12 +12,14 @@
  *            a(9)=7044600, a(10)=29290848, a(11)=121938192, a(12)=507239832
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 29, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t INIT[13] = {
     0ULL,                 /* unused index 0 */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Allocate or grow cache to hold indices up to n (inclusive) */
     if (cache_size <= n) {
         idx_t new_size = n + 1;  /* need room for index n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) {            /* allocation failure – terminate program */
             exit(1);
         }

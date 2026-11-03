@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 44, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Computes the n‑th term of sequence A141760. */
 seq_t a(idx_t n)
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     {
         size_t cur = rows_count;                       /* current row number */
         size_t len = cur + 1U;                         /* number of entries in this row */
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) abort();                             /* fatal if allocation fails */
 
         for (size_t k = 0; k < len; ++k)

@@ -7,7 +7,8 @@
  * Formula:   a(n) = p(d(n)) – the partition number of the divisor count of n
  * Range:     u8 n <= 179, u16 n <= 2519, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, seq_realloc_safe
+ * Validated: standard, pass, 100 terms through n = 9719 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,13 +16,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/seq_realloc_safe.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* allocate or reallocate a seq_t array */
+static seq_t* seq_realloc_safe(seq_t* old, size_t old_cap, size_t new_cap)
+{
+    seq_t* newp = mem_resize(seq_t, old, new_cap);
+    if (!newp) abort();                 /* memory exhaustion – abort */
+    return newp;
+}
 
 seq_t a(idx_t n)
 {
     /* 1. compute the divisor count d(n) */
-    uint64_t d64 = divisor_count_u64((uint64_t)n);
+    uint64_t d64 = num_divisors((uint64_t)n);
     idx_t d = (idx_t)d64;                /* fits in idx_t */
 
     /* 2. static cache for partition values p(0 .. d)   */
@@ -32,7 +41,7 @@ seq_t a(idx_t n)
     /* 3. initialise cache if first call */
     if (!p_cache) {
         cache_cap = 1;                   /* need element 0 */
-        p_cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        p_cache = mem_new(seq_t, cache_cap);
         if (!p_cache) abort();
         p_cache[0] = 1;                  /* p(0) = 1  */
         cache_size = 1;

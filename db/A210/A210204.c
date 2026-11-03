@@ -9,16 +9,25 @@
  *            Recurrence (OEIS): u(1,x)=1, v(1,x)=1 u(n,x)=u(n-1,x)+v(n-1,x)+1
  *            v(n,x)=(x+1)*u(n-1,x)+(x+1)*v(n-1,x)+1 The sequence a(n) is the
  *            flattened list of the entries of v(n,x)
- * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 56, u128 n <= 56,
+ * Range:     u8 n <= 22, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_free_array
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static idx_t max_computed_row = 0;     /* rows already processed (1‑based) */
 static seq_t *prev_u = NULL;           /* u array of last processed row */

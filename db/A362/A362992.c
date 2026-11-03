@@ -8,7 +8,8 @@
  * Formula:   a(n) = (n + 1)^(n - 1) * lcm{k + 1 : 0 <= k <= n}
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow, build_primes_upto, gcd, seq_mul
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,16 @@
 #include <stddef.h>
 
 /* Helper imports from utils (assumed available) */
-#include "../utils/gcd.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static uint64_t *prime_buf = NULL;   /* cached sieve array */
 static size_t prime_cnt   = 0;       /* number of primes in buffer */
@@ -60,14 +67,14 @@ seq_t a(idx_t n)
             ++e;
         }
         /* Multiply lcm by p^e */
-        seq_t pe = big_pow((seq_t)p, (seq_t)e);
+        seq_t pe = ipow((seq_t)p, (seq_t)e);
         lcm = seq_mul(lcm, pe);
     }
 
     /* Compute (n + 1)^(n - 1) */
     seq_t base   = (seq_t)(n + 1);
     seq_t exp    = (seq_t)(n - 1);
-    seq_t pownum = big_pow(base, exp);
+    seq_t pownum = ipow(base, exp);
 
     /* Final result: pownum * lcm */
     seq_t result = seq_mul(pownum, lcm);

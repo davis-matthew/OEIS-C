@@ -12,14 +12,26 @@
  *            denominators
  * Range:     u8 n <= 11, u16 n <= 41, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* Greatest common divisor for seq_t values. */
+static seq_t gcd(seq_t a, seq_t b)
+{
+    while (b != 0) {
+        seq_t t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
 
 /* external types supplied by the build */
 extern seq_t a(idx_t n);
@@ -36,11 +48,11 @@ static void ensure_harmonic(idx_t m)
 
     /* allocate or grow arrays */
     if (h_max == 0) {
-        h_num = (seq_t *)malloc( (size_t)(m+1) * sizeof(seq_t) );
-        h_den = (seq_t *)malloc( (size_t)(m+1) * sizeof(seq_t) );
+        h_num = mem_new(seq_t, (size_t)(m+1));
+        h_den = mem_new(seq_t, (size_t)(m+1));
     } else if (m > h_max) {
-        h_num = (seq_t *)realloc( h_num, (size_t)(m+1) * sizeof(seq_t) );
-        h_den = (seq_t *)realloc( h_den, (size_t)(m+1) * sizeof(seq_t) );
+        h_num = mem_resize(seq_t, h_num, (size_t)(m+1));
+        h_den = mem_resize(seq_t, h_den, (size_t)(m+1));
     }
     if (!h_num || !h_den) return;   /* allocation failure → leave cache empty */
 

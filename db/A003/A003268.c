@@ -8,12 +8,13 @@
  *            = floor((n+2)/2)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   a3268_g
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a3268_g.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     idx_t m = n + 2;
@@ -33,7 +34,7 @@ seq_t a(idx_t n) {
     seq_t r = 1;
     for (idx_t i = 1; i <= k; i++) {
         /* r * ft / fb is an exact integer; cancel first to avoid overflow */
-        seq_t g = a3268_g(r, fb);
+        seq_t g = gcd(r, fb);
         seq_t q = fb / g;
         r = (r / g) * (ft / q);
 

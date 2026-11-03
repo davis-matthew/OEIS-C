@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 20, i32 n <= 34, i64 n <= 66, i128 n <= 130,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 50 terms through n = 196 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,26 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +58,7 @@ seq_t a(idx_t n)
     idx_t m = n - 1;                /* number of forward differences needed */
 
     /* Allocate array of length m+1 for the first differences d[0..m] */
-    seq_t *d = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+    seq_t *d = mem_new(seq_t, (m + 1));
     if (!d) return 0;               /* allocation failure - should not happen */
 
     /* The first difference d[0] = -ceil(sqrt(6)) = -(floor(sqrt(6))+1) = -3 */
@@ -59,6 +79,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = d[0];
-    free(d);
+    mem_free(d);
     return result;
 }

@@ -7,8 +7,9 @@
  * Formula:   a(n) = the n-th digit when all rows of the factorial * number
  *            system representation of 0,1,2,3,… are concatenated *
  *            left‑to‑right. Row n is the factorial base digits of n
- * Range:     u8 n <= 9633, u16 n <= 9633, u32 n <= 9633, u64 n <= 9633,
- *            u128 n <= 9633, big any n
+ * Range:     u8 n <= 11133, u16 n <= 11133, u32 n <= 11133, u64 n <= 11133,
+ *            u128 n <= 11133, big any n
+ * Validated: standard, pass, 122 terms through n = 9633 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

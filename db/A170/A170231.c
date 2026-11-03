@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     }
 
     /* Allocate an array large enough to hold all terms up to n. */
-    seq_t *arr = (seq_t *)malloc((n + 1ULL) * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (n + 1ULL));
     if (!arr) {
         /* In case malloc fails, return zero (should never happen). */
         return (seq_t)0;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     }
     if (i > n) {    /* n <= 39 */
         seq_t result = arr[n];
-        free(arr);
+        mem_free(arr);
         return result;
     }
 
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 
     if (n == 40ULL) {
         seq_t result = arr[40];
-        free(arr);
+        mem_free(arr);
         return result;
     }
 
@@ -85,6 +87,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

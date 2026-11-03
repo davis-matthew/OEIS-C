@@ -8,16 +8,20 @@
  * Formula:   * a(0) = 0, a(1) = 1 * for n > 1: * a(n) =
  *            (a(n-1)*A062383(a(n-2)) + a(n-2)) mod n * where A062383(k) = bit
  *            length of k in binary (0 if k = 0)
- * Range:     u8 n <= 211, u16 n <= 9257, u32 n <= 9257, u64 n <= 9257,
- *            u128 n <= 9257, big any n
- * Helpers:   bitlen_seq_t, powmod64
+ * Range:     u8 n <= 211, u16 n <= 32768, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 89 terms through n = 9257 (2026-11-03)
+ * Helpers:   bit_length, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/powmod64.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/bit_length.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;   /* allocated capacity of cache */
@@ -33,7 +37,7 @@ seq_t a(idx_t n)
     /* Initialize cache for the trivial first two values. */
     if (cache_next == 0) {
         cache_cap = 2;
-        cache    = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache    = mem_resize(seq_t, cache, cache_cap);
         if (!cache) abort();
         cache[0] = 0;
         cache[1] = 1;
@@ -44,7 +48,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 2;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;
@@ -56,10 +60,10 @@ seq_t a(idx_t n)
         seq_t a_prev2 = cache[i - 2];
 
         /* Number of bits in a_prev2 (ignoring leading zeros). */
-        unsigned bl = bitlen_seq_t(a_prev2);
+        unsigned bl = bit_length(a_prev2);
 
         /* Compute 2^bl (mod i) using the supplied modular exponent. */
-        uint64_t pow2 = powmod64(2, bl, (uint64_t)i);
+        uint64_t pow2 = powmod_u64(2, bl, (uint64_t)i);
 
         /* Combine according to the recurrence and reduce modulo i. */
         seq_t term = (a_prev * (seq_t)pow2 + a_prev2) % (seq_t)i;

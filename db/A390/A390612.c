@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{k=0..n} (k+1) * 2^k * binomial(k, n-k)^2
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 59,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 946 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 /* We use the provided utility binomial() and pow2() functions. */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

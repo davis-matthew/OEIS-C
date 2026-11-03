@@ -12,6 +12,7 @@
  *            processed string which is also a prefix of...
  * Range:     u8 n <= 10, u16 n <= 23, u32 n <= 48, u64 n <= 98, u128 n <= 198,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 497 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

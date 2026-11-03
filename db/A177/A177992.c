@@ -8,14 +8,16 @@
  *            = binomial(r,k) if k is even = Σ_{j=0}^{r−k} 2^j *
  *            binomial(r−j−1, k−1) if k is odd where r is the row such that
  *            r*(r+1)/2 ≤ n < (r+1)*(r+2)/2 and k = n − r*(r+1)/2
- * Range:     u8 n <= 39, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
+ * Range:     u8 n <= 45, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = least positive k such that n^2 divides k! (A215454)
  * Range:     u8 n <= 130, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sumpowers
+ * Validated: standard, pass, 84 terms through n = 9645 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sumpowers.h"
+
+/* Helper: sum_{i>=1} floor(m / p^i) */
+static inline idx_t sumpowers(idx_t m, idx_t p) {
+    idx_t s = 0;
+    while (m) {
+        m /= p;
+        s += m;
+    }
+    return s;
+}
 
 /* Helper: integer square root (floor) */
 static inline idx_t int_sqrt(idx_t n) {

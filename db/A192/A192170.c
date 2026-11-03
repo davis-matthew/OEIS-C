@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 27, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Compare two seq_t values – use the supplied routine if available,
    otherwise fall back to the built‑in operators. */
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort and deduplicate.  */
-        qsort(tmp, tlen, sizeof(seq_t), seq_cmp);
+        mem_qsort(tmp, tlen, sizeof(seq_t), seq_cmp);
 
         term_count = 0;
         for (size_t k = 0; k < tlen; ++k) {

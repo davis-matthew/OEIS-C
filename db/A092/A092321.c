@@ -9,7 +9,8 @@
  *            where P_{j}(s) is the number of partitions of s with parts ≤ j
  * Range:     u8 n <= 10, u16 n <= 30, u32 n <= 99, u64 n <= 353,
  *            u128 n <= 1317, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9552 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,13 +18,14 @@
 /* Computes the sequence A092321: Sum of largest parts (counted with multiplicity)
    of all partitions of n. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == (idx_t)0) return (seq_t)0;
 
     /* Allocate array holding partition counts for parts ≤ current size. */
     size_t N = (size_t)n;
-    seq_t *dp = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, N + 1);
     if (!dp) return (seq_t)0;           /* allocation failed */
 
     dp[0] = (seq_t)1;                   /* only one way to partition zero */
@@ -51,6 +53,6 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(dp);
+    mem_free(dp);
     return ans;
 }

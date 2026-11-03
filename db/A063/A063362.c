@@ -12,12 +12,14 @@
  *            computed values; it works for any order of calls and...
  * Range:     i8 n <= 2, i16 n <= 39, i32 n <= 39, i64 n <= 39, i128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *buf = NULL;      /* Cached values */
 static idx_t buf_size = 0;     /* Current allocated size */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Expand the cache if needed */
     if (n + 1 > buf_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(buf, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, buf, new_size);
         if (!tmp) {
             /* Allocation failed – fallback to zero (unlikely in tests) */
             return (seq_t)0;

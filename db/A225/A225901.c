@@ -10,6 +10,7 @@
  *            The sum runs over all k with k! ≤ n. a(0) = 0
  * Range:     u8 n <= 119, u16 n <= 5039, u32 n <= 5039, u64 n <= 5039,
  *            u128 n <= 5039, big any n
+ * Validated: standard, pass, 99 terms through n = 5018 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

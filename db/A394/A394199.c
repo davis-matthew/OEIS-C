@@ -12,24 +12,26 @@
  *            the recurrence * * new_a[n] = old_a[n] + 2 * Σ_{m=1....
  * Range:     u8 n <= 42, u16 n <= 127, u32 n <= 475, u64 n <= 2159,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9278 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free, calloc */
 #include <stdint.h>   /* uint64_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate two work arrays of size n+1, zero‑initialized */
     size_t size = (size_t)(n + 1);
-    seq_t *cur = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, size);
+    seq_t *nxt = mem_new(seq_t, size);
     if (!cur || !nxt) {
         /* memory allocation failed – return 0 as a safe default */
-        free(cur);
-        free(nxt);
+        mem_free(cur);
+        mem_free(nxt);
         return (seq_t)0;
     }
 
@@ -65,8 +67,8 @@ seq_t a(idx_t n)
     seq_t result = cur[n];
 
     /* free temporary arrays */
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
 
     return result;
 }

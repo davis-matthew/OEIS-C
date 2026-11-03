@@ -11,18 +11,20 @@
  *            phi(x)
  * Range:     i8 n <= 4, i16 n <= 12, i32 n <= 38, i64 n <= 131, i128 n <= 469,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 8902 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t len = n + 1;
-    seq_t *B = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *C = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *A = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *B = mem_new(seq_t, len);
+    seq_t *C = mem_new(seq_t, len);
+    seq_t *A = mem_new(seq_t, len);
     idx_t i, j, k;
     seq_t result;
 
@@ -59,8 +61,8 @@ seq_t a(idx_t n) {
     }
 
     result = A[n];
-    free(B);
-    free(C);
-    free(A);
+    mem_free(B);
+    mem_free(C);
+    mem_free(A);
     return result;
 }

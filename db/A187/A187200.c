@@ -11,7 +11,8 @@
  *            returns the length of the n‑th phrase
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*** node for a binary trie **********************************************/
 struct Node
@@ -98,7 +100,7 @@ static void init_global_state(void)
     }
     if (!cache) {
         cache_cap   = 128;
-        cache       = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_cap);
         cache_used  = 0;
     }
 }
@@ -134,8 +136,7 @@ static void ensure_parsed_upto(idx_t n)
                 /* grow cache if needed */
                 if (cache_used >= cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 128;
-                    cache = (seq_t*)realloc(cache,
-                        cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_used++] = (seq_t)phrase_len;
                 break;

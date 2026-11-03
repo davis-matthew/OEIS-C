@@ -6,8 +6,9 @@
  * Offset:    3    (a(3) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 15, u16 n <= 911, u32 n <= 9904, u64 n <= 9904,
- *            u128 n <= 9904, big any n
+ * Range:     u8 n <= 15, u16 n <= 911, u32 n <= 10002, u64 n <= 10002,
+ *            u128 n <= 10002, big any n
+ * Validated: standard, pass, 68 terms through n = 9904 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

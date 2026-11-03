@@ -8,12 +8,14 @@
  *            values: a(0)=1, a(1)=26, a(2)=256, a(3)=2472
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (buf == NULL)
     {
         cap = 4;
-        buf = (seq_t *)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         if (!buf)
             return (seq_t)0;    /* out of memory; unlikely in tests */
         buf[0] = (seq_t)1;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         if ((size_t)(last + 1) >= cap)
         {
             size_t newcap = cap * 2;
-            seq_t *tmp = (seq_t *)realloc(buf, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, buf, newcap);
             if (!tmp)
                 return (seq_t)0;    /* allocation failure */
             buf = tmp;

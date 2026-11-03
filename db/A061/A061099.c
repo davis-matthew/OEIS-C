@@ -10,6 +10,7 @@
  *            digital root is 1
  * Range:     u8 n <= 3, u16 n <= 57, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
+ * Validated: standard, pass, 58 terms through n = 907 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

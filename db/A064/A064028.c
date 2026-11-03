@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{p ≤ n} (1 + p^{∑_{k≥1} ⌊n/p^k⌋})
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 375 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_primes.h"
 
 static idx_t *prime_list = NULL;

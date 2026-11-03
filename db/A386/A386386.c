@@ -9,8 +9,9 @@
  * Formula:   a(n) = (k - 2^m) * 2^(m-1) - 1, where k runs over odd integers
  *            >1 and for each k, m runs from 1 to ⌊log₂(k‑1)⌋. The terms are
  *            sorted by k then by m
- * Range:     u8 n <= 91, u16 n <= 2951, u32 n <= 9001, u64 n <= 9001,
- *            u128 n <= 9001, big any n
+ * Range:     u8 n <= 91, u16 n <= 2951, u32 n <= 11702, u64 n <= 11702,
+ *            u128 n <= 11702, big any n
+ * Validated: standard, pass, 85 terms through n = 9001 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

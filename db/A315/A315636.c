@@ -12,12 +12,14 @@
  *            a(n-12) This implements the OEIS sequence A315636
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[13] = {
     (seq_t)1,  /* a(0) */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Ensure cache is at least large enough for the first 13 values */
     if (cache_size < 13) {
         size_t newsize = 13;
-        seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         if (!tmp)
             abort();              /* out of memory */
         cache = tmp;
@@ -59,8 +61,7 @@ seq_t a(idx_t n)
     /* Expand cache if needed */
     size_t target = (size_t)n;
     if (target + 1 > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      (target + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (target + 1));
         if (!tmp)
             abort();              /* out of memory */
         cache = tmp;

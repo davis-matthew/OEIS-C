@@ -9,7 +9,8 @@
  *            floor(n/2) }
  * Range:     u8 n <= 43, u16 n <= 721, u32 n <= 1999, u64 n <= 1999,
  *            u128 n <= 1999, big any n
- * Helpers:   splitmix64
+ * Validated: standard, pass, 75 terms through n = 1831 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/splitmix64.h"
+
+/* splitmix64 pseudo random generator for deterministic 64‑bit constants */
+static uint64_t splitmix64(uint64_t x)
+{
+    x += 0x9e3779b97f4a7c15ULL;
+    x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9ULL;
+    x = (x ^ (x >> 27)) * 0x94d049bb133111ebULL;
+    return x ^ (x >> 31);
+}
 
 /* comparison for qsort on the two 64‑bit hash pair */
 typedef struct { uint64_t h1; uint64_t h2; } HashPair;

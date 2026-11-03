@@ -7,12 +7,14 @@
  * Formula:   a(n) = ceil(n/(n-4) * a(n-1)), a(6)=3
  * Range:     u8 n <= 9, u16 n <= 25, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of OEIS A036830 (Schoenheim bound L_1).  */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Ensure cache can hold up to index n */
     if (cache_size <= n) {
         idx_t new_size   = n + 1;                 /* include index n */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache)          /* out of memory: fall back to 0 */
             return (seq_t)0;
         /* Zero the newly allocated entries (0 is never a real value). */

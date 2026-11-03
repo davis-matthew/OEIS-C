@@ -10,7 +10,8 @@
  *            T([n/2],k-1) with T(n,0)=1 and T(0,k)=0 for k>0
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 95 terms through n = 94 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* table[ row ][ col ]  (col ≤ row) */
 static seq_t **table = NULL;      /* pointers to rows */
@@ -34,7 +36,7 @@ ensure_rows(size_t r)
         for (size_t i = 0; i < cap_rows; ++i) table[i] = NULL;
 
         /* row 0 : T(0,0)=1 */
-        table[0] = (seq_t *)malloc(sizeof(seq_t));
+        table[0] = mem_new(seq_t, 1);
         table[0][0] = (seq_t)1;
         max_row = 0;
     }
@@ -52,7 +54,7 @@ ensure_rows(size_t r)
 
     /* compute the new rows */
     for (size_t n = max_row + 1; n <= r; ++n) {
-        table[n] = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        table[n] = mem_new(seq_t, (n + 1));
         /* k = 0 */
         table[n][0] = (seq_t)1;
         /* other columns */

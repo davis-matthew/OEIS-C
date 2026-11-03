@@ -7,16 +7,28 @@
  * Formula:   a(n) = the nth prime whose decimal digit sum = 17
  * Range:     u8 n <= 3, u16 n <= 518, u32 n <= 3500, u64 n <= 3500,
  *            u128 n <= 3500, big any n
- * Helpers:   digit_sum_uint64, is_prime_uint64, seq_realloc
+ * Validated: standard, pass, 62 terms through n = 3434 (2026-11-03)
+ * Helpers:   digit_sum_u64, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_prime_uint64.h"
-#include "../utils/digit_sum_uint64.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/digit_sum_u64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -35,8 +47,8 @@ seq_t a(idx_t n)
         /* Find the next qualifying prime. */
         for (;; candidate++)
         {
-            if (is_prime_uint64(candidate) &&
-                digit_sum_uint64(candidate) == (seq_t)17)
+            if (is_prime_u64(candidate) &&
+                digit_sum_u64(candidate) == (seq_t)17)
                 break;
         }
 

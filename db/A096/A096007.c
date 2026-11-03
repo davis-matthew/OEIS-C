@@ -10,6 +10,7 @@
  *            at r = 2 and columns k = 1 … r‑1
  * Range:     u8 n <= 1276, u16 n <= 1276, u32 n <= 1276, u64 n <= 1276,
  *            u128 n <= 1276, big any n
+ * Validated: standard, pass, 120 terms through n = 1243 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

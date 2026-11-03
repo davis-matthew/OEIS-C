@@ -7,7 +7,8 @@
  * Formula:   a(n) = 1 + Sum_{k=1..n} binomial(n,k) * 3^k * k^k
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   binomial, pow3, pow_uint
+ * Validated: standard, pass, 33 terms through n = 326 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,10 @@
 /* Required helpers */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/pow3.h"       /* seq_t pow3(idx_t exp); */
-#include "../utils/pow_uint.h"   /* seq_t pow_uint(uint64_t base, idx_t exp); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     {
         seq_t bin = binomial(n, k);          /* C(n,k) */
         seq_t p3  = pow3(k);                 /* 3^k */
-        seq_t pk  = pow_uint((uint64_t)k, k);/* k^k */
+        seq_t pk  = ipow_u64_idx((uint64_t)k, k);/* k^k */
 
         seq_t term = bin * p3;
         term = term * pk;

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{d|n} mu(d) * A325974(n/d)
- * Range:     u8 n <= 71, u16 n <= 9921, u32 n <= 9921, u64 n <= 9921,
- *            u128 n <= 9921, big any n
- * Helpers:   none
+ * Range:     u8 n <= 71, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 112 terms through n = 9921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state for memoised precomputation */
 static seq_t *A_arr = NULL;          /* A325974 values */
@@ -33,7 +35,7 @@ static void precompute(idx_t N)
         return;
 
     /* grow arrays to size N+1 */
-    seq_t *newA = (seq_t *)calloc((size_t)N + 1, sizeof(seq_t));
+    seq_t *newA = mem_new(seq_t, (size_t)N + 1);
     int8_t *newMu = (int8_t *)calloc((size_t)N + 1, sizeof(int8_t));
     uint64_t *newSpf = (uint64_t *)calloc((size_t)N + 1, sizeof(uint64_t));
 
@@ -89,7 +91,7 @@ static void precompute(idx_t N)
     free(primes);
 
     /* release old buffers */
-    free(A_arr);
+    mem_free(A_arr);
     free(mu_arr);
     free(spf_arr);
 

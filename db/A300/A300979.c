@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 70, u32 n <= 222, u64 n <= 820,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) = number of partitions of n into parts whose number of
    distinct prime divisors equals ω(n) (number of distinct prime
@@ -38,7 +40,7 @@ ensure_omega_cache(idx_t n)
 
     /* Allocate a fresh array and initialise to 0. */
     size_t cap = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)calloc(cap, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, cap);
     if (!new_cache)
         exit(EXIT_FAILURE);
 
@@ -50,7 +52,7 @@ ensure_omega_cache(idx_t n)
         }
     }
 
-    free(omega_cache);
+    mem_free(omega_cache);
     omega_cache = new_cache;
     omega_cap   = cap;
 }
@@ -69,7 +71,7 @@ a(idx_t n)
     idx_t omega_n = (idx_t)omega_cache[n];
 
     /* Dynamic programming array for partition counts. */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp)
         exit(EXIT_FAILURE);
 
@@ -85,6 +87,6 @@ a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

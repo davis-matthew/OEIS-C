@@ -9,13 +9,15 @@
  *            a(n-k) * E(k) where E(k) = sum_{d|k} (-1)^{k/d-1} * 5^d
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *A        = NULL; /* a(n) values          */
 static seq_t *E        = NULL; /* E(k) values          */
@@ -30,9 +32,9 @@ static void ensure_arrays(idx_t n)
         return;                     /* already big enough */
 
     /* reallocate memory for the new size */
-    pow5 = (seq_t*)realloc(pow5, need * sizeof(seq_t));
-    E   = (seq_t*)realloc(E,   need * sizeof(seq_t));
-    A   = (seq_t*)realloc(A,   need * sizeof(seq_t));
+    pow5 = mem_resize(seq_t, pow5, need);
+    E   = mem_resize(seq_t, E, need);
+    A   = mem_resize(seq_t, A, need);
 
     /* initialise the newly added entries */
     for (size_t i = A_size; i < need; ++i)

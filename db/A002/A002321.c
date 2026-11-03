@@ -8,17 +8,18 @@
  * Formula:   a(n) = Sum_{k=1..n} mu(k), where mu is the Moebius function
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   moebius
+ * Validated: standard, pass, 97 terms through n = 9203 (2026-11-01)
+ * Helpers:   mobius_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/moebius.h"
+#include "../utils/mobius_u64.h"
 
 seq_t a(idx_t n) {
     seq_t result = 0;
     for (idx_t k = 1; k <= n; k++) {
-        result += (seq_t)moebius(k);
+        result += (seq_t)mobius_u64(k);
     }
     return result;
 }

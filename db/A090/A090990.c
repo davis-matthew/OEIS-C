@@ -8,13 +8,15 @@
  * Formula:   a(n+3) = a(n+2) + 2*a(n+1) - a(n), a(1)=5, a(2)=9, a(3)=16
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 35, u64 n <= 73, u128 n <= 148,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* initialise the first three terms */
     if (cap == 0) {
-        cache = (seq_t*)malloc(3 * sizeof(seq_t));
+        cache = mem_new(seq_t, 3);
         if (!cache) return 0;
         cache[0] = 5;          /* a(1) */
         cache[1] = 9;          /* a(2) */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         return cache[n - 1];
 
     /* grow the cache to hold up to n */
-    seq_t *tmp = (seq_t*)realloc(cache, n * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, n);
     if (!tmp) return 0;
     cache = tmp;
 

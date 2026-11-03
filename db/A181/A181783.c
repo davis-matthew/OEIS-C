@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 47, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
     antidiagonals (s = i+j) and, for each diagonal, listing the cells
     from i = s down to 0 (i.e. from higher row to lower row).  */
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *dp = NULL;  /* 2‑D table stored row‑wise, dp[i*width + j] */
 static idx_t width = 0;   /* current table width = max_s + 1 */
@@ -51,7 +60,7 @@ static void ensure_table(idx_t max_s)
     }
 
     /* replace old table */
-    if (dp) free(dp);
+    if (dp) mem_free(dp);
     dp = newdp;
     width = new_size;
 }

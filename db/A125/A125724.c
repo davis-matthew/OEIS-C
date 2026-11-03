@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   sumdigit_pow_uint
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,35 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sumdigit_pow_uint.h"
+#include "../utils/mem.h"
+
+/* ---------- big‑integer helper: multiply decimal number by a small int ---------- */
+static uint64_t sumdigit_pow_uint(unsigned s)
+{
+    /* calculate s^s using a decimal array, then sum its digits */
+    static uint8_t digits[1200];   /* enough for 200^200 (~460 digits) */
+    size_t len = 1;
+    digits[0] = 1;                 /* start with 1 */
+
+    for (unsigned i = 0; i < s; ++i) {
+        uint32_t carry = 0;
+        for (size_t j = 0; j < len; ++j) {
+            uint32_t prod = (uint32_t)digits[j] * s + carry;
+            digits[j] = (uint8_t)(prod % 10);
+            carry   = prod / 10;
+        }
+        while (carry) {
+            digits[len++] = (uint8_t)(carry % 10);
+            carry /= 10;
+        }
+    }
+
+    /* sum digits of the result */
+    uint64_t sum = 0;
+    for (size_t j = 0; j < len; ++j)
+        sum += digits[j];
+    return sum;
+}
 
 /* ---------- solution storage ---------- */
 #define MAX_SOL 512
@@ -56,7 +85,7 @@ static void compute_solutions(void)
 
     /* sort solutions */
     if (sol_len > 1)
-        qsort(sol, sol_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(sol, sol_len, sizeof(seq_t), cmp_seq);
 
     done = true;
 }

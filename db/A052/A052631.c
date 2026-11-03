@@ -11,12 +11,14 @@
  *            without storing it beyond the call. * The routine wor...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h> /* for size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
 
     /* Allocate once for the static cache */
     if (A == NULL) {
-        A     = (seq_t *)malloc((MAX_PRECOMPUTE + 1) * sizeof(seq_t));
-        Pell  = (seq_t *)malloc((MAX_PRECOMPUTE + 1) * sizeof(seq_t));
-        Fact  = (seq_t *)malloc((MAX_PRECOMPUTE + 1) * sizeof(seq_t));
+        A     = mem_new(seq_t, (MAX_PRECOMPUTE + 1));
+        Pell  = mem_new(seq_t, (MAX_PRECOMPUTE + 1));
+        Fact  = mem_new(seq_t, (MAX_PRECOMPUTE + 1));
         /* Initialise the base cases */
         Fact[0] = (seq_t)1;  /* 0! = 1 */
         Pell[0] = (seq_t)0;  /* Pell(0) */

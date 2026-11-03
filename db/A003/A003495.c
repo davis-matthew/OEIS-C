@@ -12,12 +12,14 @@
  *            = 0. So chi = t/(K(1-12t)), i.e. a(n) = Sum_...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a3495_cache = NULL;
 static idx_t a3495_have = 0; /* number of cached terms */
@@ -25,11 +27,11 @@ static idx_t a3495_have = 0; /* number of cached terms */
 static void a3495_compute(idx_t n)
 {
     idx_t N = n + 1, W = N + 1, p, j, i, m, q;
-    seq_t *B = (seq_t *)calloc((size_t)(W * W), sizeof(seq_t));
-    seq_t *c = (seq_t *)calloc((size_t)W, sizeof(seq_t));
-    seq_t *TP = (seq_t *)calloc((size_t)(W * W), sizeof(seq_t));
-    seq_t *TN = (seq_t *)calloc((size_t)(W * W), sizeof(seq_t));
-    seq_t *res = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *B = mem_new(seq_t, (size_t)(W * W));
+    seq_t *c = mem_new(seq_t, (size_t)W);
+    seq_t *TP = mem_new(seq_t, (size_t)(W * W));
+    seq_t *TN = mem_new(seq_t, (size_t)(W * W));
+    seq_t *res = mem_new(seq_t, (size_t)(n + 1));
 
     /* Pascal triangle (additions only, exact modulo 2^w) */
     for (i = 0; i <= N; i++) {
@@ -94,14 +96,14 @@ static void a3495_compute(idx_t n)
         res[q] = sp - sn;
     }
 
-    if (a3495_cache) free(a3495_cache);
+    if (a3495_cache) mem_free(a3495_cache);
     a3495_cache = res;
     a3495_have = n + 1;
 
-    free(B);
-    free(c);
-    free(TP);
-    free(TN);
+    mem_free(B);
+    mem_free(c);
+    mem_free(TP);
+    mem_free(TN);
 }
 
 seq_t a(idx_t n)

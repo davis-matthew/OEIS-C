@@ -11,7 +11,8 @@
  *            with a 1: A215928(1)=1, A215928(2)=1, A215928(n)=Pell...
  * Range:     u8 n <= 44, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *fib_cache = NULL;
 static size_t fib_cap = 0;
@@ -35,7 +37,7 @@ static void ensure_fib(idx_t need) {
     /* grow cache */
     size_t new_cap = fib_cap ? fib_cap * 2 : 4;
     while (new_cap <= need) new_cap *= 2;
-    seq_t *new_buf = (seq_t *)realloc(fib_cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, fib_cache, new_cap);
     if (!new_buf) { /* allocation failed: abort */
         exit(EXIT_FAILURE);
     }
@@ -53,7 +55,7 @@ static void ensure_pell(idx_t need) {
     if (need < pell_next) return;
     size_t new_cap = pell_cap ? pell_cap * 2 : 4;
     while (new_cap <= need + 1) new_cap *= 2; /* store up to need index */
-    seq_t *new_buf = (seq_t *)realloc(pell_cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, pell_cache, new_cap);
     if (!new_buf) {
         exit(EXIT_FAILURE);
     }
@@ -69,7 +71,7 @@ static void ensure_pell(idx_t need) {
 /* Initialize caches on first call */
 static void init_cache(void) {
     if (!fib_cache) {
-        fib_cache = (seq_t *)malloc(4 * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, 4);
         if (!fib_cache) exit(EXIT_FAILURE);
         fib_cache[0] = 0;          /* unused */
         fib_cache[1] = 1;
@@ -78,7 +80,7 @@ static void init_cache(void) {
         fib_next = 3;
     }
     if (!pell_cache) {
-        pell_cache = (seq_t *)malloc(4 * sizeof(seq_t));
+        pell_cache = mem_new(seq_t, 4);
         if (!pell_cache) exit(EXIT_FAILURE);
         pell_cache[0] = 0;           /* Pell(0) */
         pell_cache[1] = 1;           /* Pell(1) */

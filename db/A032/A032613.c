@@ -7,13 +7,25 @@
  * Formula:   a(n) = n*10^digits(n+8) + (n+8)
  * Range:     u8 n <= 2, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   digits, pow10
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
-#include "../utils/digits.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -21,7 +33,7 @@ seq_t a(idx_t n)
     idx_t n_plus = n + (idx_t)8;
 
     /* Number of decimal digits of n+8 */
-    int d = digits(n_plus);
+    int d = num_digits_idx(n_plus);
 
     /* 10^digits(n+8) as seq_t */
     seq_t shift = pow10((idx_t)d);

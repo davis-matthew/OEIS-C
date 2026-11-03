@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = 1 if binary weights of n and 3*n have the same parity, 0
  *            otherwise
- * Range:     u8 n <= 85, u16 n <= 8797, u32 n <= 8797, u64 n <= 8797,
- *            u128 n <= 8797, big any n
+ * Range:     u8 n <= 85, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 137 terms through n = 8797 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

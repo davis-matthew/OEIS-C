@@ -12,20 +12,40 @@
  *            B_{n/k}. Fixed-width builds compute modulo several prim...
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 24, u64 n <= 45, u128 n <= 86,
  *            big any n
- * Helpers:   a001028_grow, a001028_z, a2862_fixed, a2862_mm, a2862_phi,
- *            a2862_pw
+ * Validated: standard, pass, 46 terms through n = 667 (2026-11-03)
+ * Helpers:   mem, mulmod, powmod_u64, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a001028_grow.h"
-#include "../utils/a001028_z.h"
-#include "../utils/a2862_fixed.h"
-#include "../utils/a2862_mm.h"
-#include "../utils/a2862_phi.h"
-#include "../utils/a2862_pw.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/totient_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *a001028_z(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *a001028_grow(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = a001028_z(newlen);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+static int a2862_fixed(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) x = x + x;
+    return x == 0;
+}
 
 #define A2862_MAXF 200
 
@@ -40,13 +60,13 @@ static uint64_t a2862_modval(idx_t n, uint64_t p)
             r[1] = 1;
         } else {
             uint64_t t = 0;
-            for (k = 1; k <= m - 1; k++) t = (t + a2862_mm(s[k], r[m - k], p)) % p;
-            r[m] = a2862_mm(t, a2862_pw((uint64_t)(m - 1), p - 2, p), p);
+            for (k = 1; k <= m - 1; k++) t = (t + mulmod(s[k], r[m - k], p)) % p;
+            r[m] = mulmod(t, powmod_u64((uint64_t)(m - 1), p - 2, p), p);
         }
         {
             uint64_t t = 0;
             for (d = 1; d <= m; d++)
-                if (m % d == 0) t = (t + a2862_mm((uint64_t)d % p, r[d], p)) % p;
+                if (m % d == 0) t = (t + mulmod((uint64_t)d % p, r[d], p)) % p;
             s[m] = t;
         }
     }
@@ -54,16 +74,16 @@ static uint64_t a2862_modval(idx_t n, uint64_t p)
     for (m = 1; m <= n; m++) {
         uint64_t tq = 0, tb = 0;
         for (k = 1; k <= m; k++) {
-            uint64_t rq = a2862_mm(r[k], Q[m - k], p);
+            uint64_t rq = mulmod(r[k], Q[m - k], p);
             tq = (tq + rq) % p;
-            tb = (tb + a2862_mm((uint64_t)k % p, rq, p)) % p;
+            tb = (tb + mulmod((uint64_t)k % p, rq, p)) % p;
         }
         Q[m] = tq;
         B[m] = tb;
     }
     for (k = 1; k <= n; k++)
-        if (n % k == 0) S = (S + a2862_mm(a2862_phi(k) % p, B[n / k], p)) % p;
-    A = a2862_mm(S, a2862_pw((uint64_t)n % p, p - 2, p), p);
+        if (n % k == 0) S = (S + mulmod(totient_u64(k) % p, B[n / k], p)) % p;
+    A = mulmod(S, powmod_u64((uint64_t)n % p, p - 2, p), p);
     return (A + p - r[n]) % p;
 }
 
@@ -134,10 +154,10 @@ seq_t a(idx_t n)
             uint64_t v = a2862_modval(n, p);
             uint64_t cur = 0, mult = 1;
             for (j = 0; j < i; j++) {
-                cur = (cur + a2862_mm(c[j] % p, mult, p)) % p;
-                mult = a2862_mm(mult, P[j] % p, p);
+                cur = (cur + mulmod(c[j] % p, mult, p)) % p;
+                mult = mulmod(mult, P[j] % p, p);
             }
-            c[i] = a2862_mm((v + p - cur) % p, a2862_pw(mult, p - 2, p), p);
+            c[i] = mulmod((v + p - cur) % p, powmod_u64(mult, p - 2, p), p);
         }
         for (i = 0; i < 5; i++) {
             res += M * (seq_t)c[i];
@@ -149,7 +169,7 @@ seq_t a(idx_t n)
         idx_t k;
         a2862_ensure(n);
         for (k = 1; k <= n; k++)
-            if (n % k == 0) S += a2862_B[n / k] * (seq_t)a2862_phi(k);
+            if (n % k == 0) S += a2862_B[n / k] * (seq_t)totient_u64(k);
         return S / n - a2862_R[n];
     }
 }

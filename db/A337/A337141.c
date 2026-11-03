@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has6
+ * Validated: standard, pass, 77 terms through n = 9886 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
    well below the 2 second limit for n ≤ 10 000. */
 
 #include <stdbool.h>
-#include "../utils/has6.h"
+
+/* Return true if x, written in base 7, contains at least one digit 6. */
+static bool has6(seq_t x)
+{
+    if (x == 0) return false;          /* 0 has no digits 6 */
+    while (x > 0) {
+        if (x % 7 == 6) return true;   /* found a 6 */
+        x /= 7;
+    }
+    return false;
+}
 
 /* External function required by the test harness. */
 seq_t a(idx_t n)

@@ -9,16 +9,17 @@
  *            n-k)*(n^2+n*k-k^2-k)/((2*n-k)*(2*n-k-1)). This is equivalent to
  *            the row‑by‑row enumeration of the Riordan matrix
  *            (1+x/√(1-4x),(1-√(1-4x))/2)
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static idx_t triangular_row(idx_t n)
 {
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
     /* Compute the binomial coefficient C(2r-k, r-k). */
     idx_t a_val = 2ULL * r - k;
     idx_t b_val = r - k;
-    seq_t bin = binom(a_val, b_val);
+    seq_t bin = binomial(a_val, b_val);
 
     /* Numerator part: r^2 + r*k - k^2 - k. */
     seq_t sr = (seq_t)r;

@@ -12,12 +12,14 @@
  *            memoised; subsequent calls are O(1)
  * Range:     u8 n <= 11, u16 n <= 65, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* binomial coefficients using 64‑bit intermediate arithmetic */
 static inline seq_t binom2(idx_t x)
@@ -42,11 +44,11 @@ static void a_ensure(idx_t n)
 {
     if (n < a_cap) return;
     size_t new_cap = n + 1;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     if (!a_cache) abort();               /* out of memory */
     /* initialise newly allocated elements to 0 */
     if (new_cap > a_cap)
-        memset(a_cache + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
+        mem_set(a_cache + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
     a_cap = new_cap;
 }
 

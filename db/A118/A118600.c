@@ -8,6 +8,7 @@
  *            as a decimal integer (the digits are taken as base‑10 digits)
  * Range:     u8 n <= 32, u16 n <= 616, u32 n <= 1457, u64 n <= 1457,
  *            u128 n <= 1457, big any n
+ * Validated: standard, pass, 74 terms through n = 1444 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

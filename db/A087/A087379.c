@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   _mul_mod64, _pow_mod64
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
+ * Helpers:   mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/_mul_mod64.h"
-#include "../utils/_pow_mod64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 /* ------------------------------------------------------------ */
 /* small prime table for quick divisibility checks              */
@@ -59,11 +60,11 @@ static bool _is_prime64(uint64_t n)
     for (size_t i = 0; i < sizeof(_bases)/sizeof(_bases[0]); ++i) {
         uint64_t a = _bases[i] % n;
         if (a == 0) continue;
-        uint64_t x = _pow_mod64(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = _mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;

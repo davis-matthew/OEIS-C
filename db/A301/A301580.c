@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 8, u128 n <= 11,
  *            big any n
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,7 +23,8 @@
    relies on the utility function pow2 defined in "../utils/pow2.h".  */
 
 #include <stddef.h>
-#include "../utils/pow2.h"   /* pow2(seq_t exp) returns 2^exp */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 static const idx_t mersenne_exponents[] = {
     2U, 3U, 5U, 7U, 13U, 17U, 19U, 31U, 61U, 89U,

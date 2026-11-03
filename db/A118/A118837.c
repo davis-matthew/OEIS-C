@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,20 @@
    a(n) = (y * 10 + d) + 4;
 */
 #include <stdlib.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +48,7 @@ seq_t a(idx_t n)
     /* allocate or grow cache if needed */
     if (cached < n) {
         /* allocate array of size n+1 (index 0 unused) */
-        seq_t *new_buf = (seq_t *)realloc(cache, (n + 1) * sizeof *new_buf);
+        seq_t *new_buf = mem_resize(seq_t, cache, ((n + 1) * sizeof *new_buf) / sizeof(seq_t));
         if (!new_buf) return 0;  /* allocation failed */
         cache = new_buf;
 
@@ -49,7 +62,7 @@ seq_t a(idx_t n)
         idx_t start = (cached < 1) ? 2 : cached + 1;
         for (idx_t i = start; i <= n; ++i) {
             seq_t prev = cache[i - 1];
-            int k = digit_len(prev);                 /* number of digits of prev */
+            int k = num_digits(prev);                 /* number of digits of prev */
             seq_t p10 = pow10((idx_t)(k - 1));        /* 10^(k-1) */
             seq_t d   = prev / p10;                  /* first digit  */
             seq_t y   = prev % p10;                  /* remainder     */

@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = n + 2*A003415(n) where A003415(n) is the arithmetic
  *            derivative of n: if n = ∏ p_i^e_i then n' = n * Σ e_i/p_i
- * Range:     u8 n <= 47, u16 n <= 6143, u32 n <= 9762, u64 n <= 9762,
- *            u128 n <= 9762, big any n
+ * Range:     u8 n <= 47, u16 n <= 6143, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 74 terms through n = 9762 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

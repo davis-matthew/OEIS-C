@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 15, i16 n <= 712, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 878 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache for computed terms of the sequence */
 static seq_t *a_cache = NULL;
@@ -38,7 +40,7 @@ static void ensure_a_capacity(idx_t idx)
         return;
 
     size_t new_cap = (size_t)idx + 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) /* allocation failed – caller will treat as error */ return;
 
     a_cache = tmp;
@@ -49,7 +51,7 @@ static void ensure_a_capacity(idx_t idx)
 static void recompute_sigma(idx_t new_max)
 {
     size_t new_cap = (size_t)new_max + 1;
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) return;
 
     /* initialise all to 0 */
@@ -62,7 +64,7 @@ static void recompute_sigma(idx_t new_max)
             tmp[m] += (seq_t)d;
     }
 
-    if (sigma_cache) free(sigma_cache);
+    if (sigma_cache) mem_free(sigma_cache);
     sigma_cache = tmp;
     sigma_cap   = new_cap;
     sigma_len   = new_max + 1;

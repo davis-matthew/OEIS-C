@@ -9,11 +9,13 @@
  *            r*(r+1)/2
  * Range:     u8 n <= 43, u16 n <= 151, u32 n <= 559, u64 n <= 2143,
  *            u128 n <= 5150, big any n
+ * Validated: standard, pass, 94 terms through n = 4491 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Find the row index r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2.  */

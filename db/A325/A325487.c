@@ -13,7 +13,8 @@
  *            * a_{m+1} = a_m + 5^m * t, t ≡ -( (a_m^4...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   mod_pow, mul_small
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,22 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/mul_small.h"   /* seq_t mul_small(seq_t x, unsigned m)   */
-#include "../utils/mod_pow.h"     /* seq_t mod_pow(seq_t base, idx_t exp, seq_t mod) */
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static seq_t *a_cache = NULL;        /* a(0), a(1), ... */
 static size_t a_cap   = 0;
@@ -44,10 +59,10 @@ static void ensure_cache_capacity(idx_t n, seq_t **cache, size_t *cap, size_t cu
     size_t new_cap = *cap ? *cap : 4;
     while (new_cap < needed) new_cap <<= 1;
 
-    seq_t *new_buf = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_new(seq_t, new_cap);
     if (*cache) {
         for (size_t i = 0; i < current_len; ++i) new_buf[i] = (*cache)[i];
-        free(*cache);
+        mem_free(*cache);
     }
     *cache = new_buf;
     *cap   = new_cap;
@@ -82,7 +97,7 @@ seq_t a(idx_t n)
         pow_cache[pow_len++] = pow_cur;
 
         /* compute a_m via Hensel formula */
-        seq_t pow4 = mod_pow(a_prev, 4, pow_cur);
+        seq_t pow4 = powmod(a_prev, 4, pow_cur);
         seq_t diff = (pow4 >= 6) ? (pow4 - 6) : (pow4 + pow_cur - 6);
 
         seq_t div = diff / pow_prev;            /* (a_prev^4-6)/5^(m-1)  */

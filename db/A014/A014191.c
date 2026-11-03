@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Structure to cache a computed cyclotomic polynomial */
 typedef struct {
@@ -63,7 +65,7 @@ static seq_t *compute_phi(int n, size_t *deg_out)
 
     /* Base case: Φ_1(x) = x – 1 */
     if (n == 1) {
-        seq_t *c = (seq_t*)calloc(2, sizeof(seq_t));
+        seq_t *c = mem_new(seq_t, 2);
         c[0] = (seq_t)-1;
         c[1] = (seq_t)1;
         *deg_out = 1;
@@ -73,7 +75,7 @@ static seq_t *compute_phi(int n, size_t *deg_out)
     }
 
     /* Step 1: start with A(x) = x^n – 1 */
-    seq_t *A = (seq_t*)calloc(n + 1, sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, n + 1);
     A[0] = (seq_t)-1;
     A[n] = (seq_t)1;
     size_t degA = n;
@@ -86,10 +88,10 @@ static seq_t *compute_phi(int n, size_t *deg_out)
 
         /* Polynomial long division: A <- A / B (exact division) */
         size_t qdeg = degA - degB;          /* degree of the quotient   */
-        seq_t *tmp = (seq_t*)malloc((degA + 1) * sizeof(seq_t));
-        memcpy(tmp, A, (degA + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, (degA + 1));
+        mem_copy(tmp, A, (degA + 1) * sizeof(seq_t));
 
-        seq_t *Q = (seq_t*)calloc(qdeg + 1, sizeof(seq_t));
+        seq_t *Q = mem_new(seq_t, qdeg + 1);
 
         /* Reverse loop over coefficients (highest degree first) */
         for (int i = (int)degA; i >= (int)degB; --i) {
@@ -103,8 +105,8 @@ static seq_t *compute_phi(int n, size_t *deg_out)
             }
         }
 
-        free(tmp);
-        free(A);
+        mem_free(tmp);
+        mem_free(A);
         A = Q;
         degA = qdeg;
     }
@@ -128,7 +130,7 @@ static void init_rev_cache(void)
     seq_t *phi = compute_phi(182, &deg182);   /* phi[0..deg182], phi[deg182] == 1 */
 
     /* Allocate array for inverse coefficients (period 182) */
-    rev_cache = (seq_t*)calloc(182, sizeof(seq_t));
+    rev_cache = mem_new(seq_t, 182);
     rev_cache[0] = (seq_t)1;                  /* r_0 = 1 */
 
     /* Recurrence: r_m = -sum_{k=1}^{min(m,deg182)} phi[k] * r_{m-k} */
@@ -143,7 +145,7 @@ static void init_rev_cache(void)
 
     /* Free temporary polynomial data (except the needed rev_cache) */
     for (size_t i = 0; i < poly_cache_size; ++i)
-        free(poly_cache[i].coeffs);
+        mem_free(poly_cache[i].coeffs);
 
     rev_cache_inited = 1;
 }

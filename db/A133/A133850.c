@@ -11,6 +11,7 @@
  *            4)
  * Range:     u8 n <= 206, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 95 terms through n = 4411 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -35,9 +36,9 @@ static void _ensure_state(idx_t limit)
     if (limit <= _state.limit) return;
 
     /* free existing data */
-    free((void*)_state.is_prime);
-    free((void*)_state.is_semiprime);
-    free((void*)_state.primes);
+    free(_state.is_prime);
+    free(_state.is_semiprime);
+    free(_state.primes);
 
     /* allocate new arrays */
     _state.is_prime = (bool*)malloc((size_t)(limit + 1) * sizeof(bool));
@@ -62,7 +63,7 @@ static void _ensure_state(idx_t limit)
     for (idx_t i = 2; i <= limit; ++i)
         if (_state.is_prime[i]) _state.pcount++;
     /* reallocate primes array with correct size */
-    free((void*)_state.primes);
+    free(_state.primes);
     _state.primes = (uint32_t*)malloc(_state.pcount * sizeof(uint32_t));
     if (!_state.primes) abort();
 

@@ -11,12 +11,14 @@
  *            a(4)=81, a(5)=392, a(6)=2500, a(7)=14112, a(8)=83521
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 26, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Internal cache */
 static seq_t *cache      = NULL;
@@ -31,13 +33,13 @@ static void ensure_cache(idx_t n) {
     idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
 
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) return; /* out of memory – caller will not use the result */
 
 #ifdef __cplusplus
     /* Default‑construct all new elements (C++ case). */
     for (idx_t i = 0; i < new_cap; ++i)
-        new(&new_cache[i]) seq_t();
+        *(&new_cache[i]) = (seq_t)0;
 #endif
 
     /* Copy existing values */
@@ -52,10 +54,10 @@ static void ensure_cache(idx_t n) {
     /* Properly destroy old objects (C++ case). */
 #ifdef __cplusplus
     for (idx_t i = 0; i < cache_cap; ++i)
-        cache[i].~seq_t();
+(void)0;  /* mem_free destroys the elements */
 #endif
 
-    free(cache);
+    mem_free(cache);
     cache     = new_cache;
     cache_cap = new_cap;
 }

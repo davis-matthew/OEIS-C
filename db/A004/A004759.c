@@ -7,6 +7,7 @@
  * Formula:   a(2^m + k) = 7 * 2^m + k, m >= 0, 0 <= k < 2^m
  * Range:     u8 n <= 63, u16 n <= 4095, u32 n <= 4095, u64 n <= 4095,
  *            u128 n <= 4095, big any n
+ * Validated: standard, pass, 72 terms through n = 4084 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

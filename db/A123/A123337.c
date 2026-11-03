@@ -8,6 +8,7 @@
  * Formula:   a(n) = # of ordered 5‑tuples (x1,…,x5) with 0≤xi≤4 and ∑xi² = n
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
+ * Validated: full, pass, 81 terms through n = 80 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

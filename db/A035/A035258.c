@@ -8,7 +8,8 @@
  *            17)
  * Range:     u8 none, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Node in the min‑heap: value, current coordinates (x,y) and which side
    of the parabola (0 = left, 1 = right).  */
@@ -129,7 +131,7 @@ static void precompute_cache(void) {
 
     init_heap();
 
-    cache = (seq_t*)malloc(MAX_TERMS * sizeof(seq_t));
+    cache = mem_new(seq_t, MAX_TERMS);
     if (!cache) return;        /* allocation failure – give up */
 
     seq_t last_val = 0;
@@ -181,7 +183,7 @@ seq_t a(idx_t n) {
 
         seq_t val = cur.val;
         if (val != last_val) {
-            cache = (seq_t*)realloc(cache, (cache_sz + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (cache_sz + 1));
             cache[cache_sz++] = val;
             last_val = val;
         }

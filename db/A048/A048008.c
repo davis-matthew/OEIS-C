@@ -10,13 +10,17 @@
  *            k)*binom(n-floor((n-1)/3), 3*k)
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
 #include <stdlib.h>
+#include "../utils/binomial.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +38,7 @@ seq_t a(idx_t n)
     /* Precompute binom(N, j) for j up to 3*kmax where N = n-L */
     idx_t N = n - L;
     size_t lenN = (size_t)(3 * kmax);
-    seq_t *bn = (seq_t *)malloc((lenN + 1) * sizeof(seq_t));
+    seq_t *bn = mem_new(seq_t, (lenN + 1));
     if (bn == NULL) return 0;              /* allocation failed */
     bn[0] = 1;
     for (idx_t j = 0; j < lenN; ++j) {
@@ -48,6 +52,6 @@ seq_t a(idx_t n)
         sum += term;
     }
 
-    free(bn);
+    mem_free(bn);
     return sum;
 }

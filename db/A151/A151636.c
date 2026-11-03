@@ -7,15 +7,19 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{j=0..8} (-1)^j*binomial(3*n+1, 8-j)*(binomial(j+1,
  *            3))^n
- * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 10, u128 n <= 20,
+ * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 31 terms through n = 182 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +34,7 @@ seq_t a(idx_t n)
         idx_t base_i = ((idx_t)(j + 1) * j * (j - 1)) / 6;
         if (base_i == 0) continue;
         seq_t base = (seq_t)base_i;
-        seq_t pow_val = big_pow(base, (seq_t)n);
+        seq_t pow_val = ipow(base, (seq_t)n);
         seq_t term = binom_coeff * pow_val;
         if ((j & 1) == 0) {         /* even j: (+) */
             sum_pos += term;

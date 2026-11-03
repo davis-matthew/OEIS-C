@@ -9,7 +9,8 @@
  *            p^k ≡ p (mod k). The implementation searches k from 4 up to 561
  * Range:     u8 n <= 1, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, is_prime_small, mod_pow
+ * Validated: standard, pass, 78 terms through n = 9137 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime_seq, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,11 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod.h"
 
 /* Global prime table used for factoring */
 static uint64_t *s_primes = NULL;
@@ -83,13 +86,13 @@ seq_t a(idx_t n)
 
     /* Search for the smallest composite k (≤ 561) satisfying p^k ≡ p (mod k) */
     for (uint64_t k = 4; k <= 561; ++k) {
-        if (is_prime_small((idx_t)k))        /* skip prime k */
+        if (is_prime_seq((idx_t)k))        /* skip prime k */
             continue;
 
         bool ok = true;
         for (size_t j = 0; j < pf_cnt && ok; ++j) {
             uint64_t p = pf[j];
-            seq_t lhs = mod_pow((seq_t)p, k, (seq_t)k);
+            seq_t lhs = powmod((seq_t)p, k, (seq_t)k);
             seq_t rhs = (seq_t)(p % k);
             if (lhs != rhs)
                 ok = false;

@@ -7,12 +7,22 @@
  * Formula:   a(n) = Stern(n) * Stern(n+1) * Stern(n+2) / 2
  * Range:     u8 n <= 20, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   _stern
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_stern.h"
+static seq_t _stern(idx_t m) {
+    if (m == 0) return (seq_t)0;
+    if (m == 1) return (seq_t)1;
+    if ((m & (idx_t)1) == 0) {        /* even */
+        return _stern(m >> 1);
+    } else {                          /* odd */
+        idx_t k = m >> 1;              /* k = floor(m/2) */
+        return _stern(k) + _stern(k + 1);
+    }
+}
 /* Stern's diatomic (OEIS A002487): s(0)=0, s(1)=1, s(2n)=s(n), s(2n+1)=s(n)+s(n+1) */
 
 seq_t a(idx_t n) {

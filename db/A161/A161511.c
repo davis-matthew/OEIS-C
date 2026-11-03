@@ -7,7 +7,8 @@
  * Formula:   a(2n)=a(n)+A000120(n); a(2n+1)=a(n)+1; a(0)=0
  * Range:     u8 n <= 8192, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 109 terms through n = 7929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap : 128;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *tmpc = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmpc = mem_resize(seq_t, cache, new_cap);
     bool  *tmpb = (bool  *)realloc(seen , new_cap * sizeof(bool ));
     /* initialise newly allocated slots as unseen */
     for (idx_t i = cache_cap; i < new_cap; ++i) tmpb[i] = false;

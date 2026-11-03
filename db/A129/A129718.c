@@ -15,13 +15,15 @@
  *            T(2,0),T(2,1), etc
  * Range:     u8 n <= 66, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of helper functions */
 static void ensure_rows(idx_t need_row);
@@ -71,7 +73,7 @@ static void ensure_rows(idx_t need_row)
         T_len  = (size_t*)malloc(T_cap * sizeof(size_t));
 
         /* Row 0: [1] */
-        T_rows[0] = (seq_t*)malloc(sizeof(seq_t));
+        T_rows[0] = mem_new(seq_t, 1);
         T_rows[0][0] = 1;
         T_len[0] = 1;
         last_row = 0;
@@ -86,7 +88,7 @@ static void ensure_rows(idx_t need_row)
         idx_t n = last_row + 1;          /* next row index */
         size_t len = 1 + ((n + 1) / 2);  /* length of the new row */
 
-        seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
 
         if (n == 1) {
             /* Row 1: [1, 1] */
@@ -94,10 +96,10 @@ static void ensure_rows(idx_t need_row)
             row[1] = 1;
 
             /* Set up A and B arrays for row 1 */
-            if (prev_a) free(prev_a);
-            if (prev_b) free(prev_b);
-            prev_a = (seq_t*)malloc(len * sizeof(seq_t));
-            prev_b = (seq_t*)malloc(len * sizeof(seq_t));
+            if (prev_a) mem_free(prev_a);
+            if (prev_b) mem_free(prev_b);
+            prev_a = mem_new(seq_t, len);
+            prev_b = mem_new(seq_t, len);
             for (size_t i = 0; i < len; ++i) {
                 prev_a[i] = 0;
                 prev_b[i] = 0;
@@ -107,8 +109,8 @@ static void ensure_rows(idx_t need_row)
             prev_len = len;
         } else {
             /* Row n (n >= 2): compute using recurrence */
-            seq_t *curr_a = (seq_t*)calloc(len, sizeof(seq_t));
-            seq_t *curr_b = (seq_t*)calloc(len, sizeof(seq_t));
+            seq_t *curr_a = mem_new(seq_t, len);
+            seq_t *curr_b = mem_new(seq_t, len);
 
             for (size_t k = 0; k < len; ++k) {
                 /* A[n][k] = B[n-1][k] */
@@ -121,8 +123,8 @@ static void ensure_rows(idx_t need_row)
                 curr_b[k] = term;
                 row[k] = curr_a[k] + curr_b[k];
             }
-            free(prev_a);
-            free(prev_b);
+            mem_free(prev_a);
+            mem_free(prev_b);
             prev_a = curr_a;
             prev_b = curr_b;
             prev_len = len;

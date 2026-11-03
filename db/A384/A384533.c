@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 771, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors
+ * Validated: standard, pass, 98 terms through n = 8540 (2026-11-03)
+ * Helpers:   bigomega_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static state for memoisation */
@@ -45,13 +48,13 @@ seq_t a(idx_t n) {
 
         /* initialise sequence with a(1) = 1 */
         seq_cap = 1;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;
         seq_len = 1;
 
         /* initialise counter array for omega = 0 */
         cnt_cap = 1;
-        cnt = (seq_t *)malloc(cnt_cap * sizeof(seq_t));
+        cnt = mem_new(seq_t, cnt_cap);
         cnt[0] = (seq_t)1;      /* one term (the initial 1) has 0 prime factors */
         cnt_len = 1;
 
@@ -69,7 +72,7 @@ seq_t a(idx_t n) {
         /* Append the new term to the sequence */
         if (seq_len == seq_cap) {
             size_t new_cap = seq_cap ? seq_cap * 2 : 1;
-            seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
             seq_cap = new_cap;
         }
         seq[seq_len] = next_val;
@@ -77,7 +80,7 @@ seq_t a(idx_t n) {
 
         /* Update counter for this term if it is non‑zero */
         if (next_val != (seq_t)0) {
-            idx_t omega = (idx_t)count_prime_factors(next_val);
+            idx_t omega = (idx_t)bigomega_seq(next_val);
 
             /* Ensure the counter array can hold omega */
             if ((size_t)omega >= cnt_len) {
@@ -85,7 +88,7 @@ seq_t a(idx_t n) {
                 /* Grow capacity if necessary */
                 while (cnt_cap <= new_len)
                     cnt_cap = cnt_cap ? cnt_cap * 2 : 1;
-                cnt = (seq_t *)realloc(cnt, cnt_cap * sizeof(seq_t));
+                cnt = mem_resize(seq_t, cnt, cnt_cap);
                 /* Initialise new entries to 0 */
                 for (size_t i = cnt_len; i < new_len; ++i)
                     cnt[i] = (seq_t)0;

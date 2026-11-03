@@ -8,14 +8,15 @@
  *            n-th such prime
  * Range:     u8 n <= 28, u16 n <= 3301, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   a003626_isprime
+ * Validated: standard, pass, 71 terms through n = 4712 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a003626_isprime.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     idx_t count = 0;
@@ -25,7 +26,7 @@ seq_t a(idx_t n) {
         uint64_t r;
         candidate += 2;
         r = candidate % 20;
-        if ((r == 11 || r == 13 || r == 17 || r == 19) && a003626_isprime(candidate)) {
+        if ((r == 11 || r == 13 || r == 17 || r == 19) && is_prime_u64(candidate)) {
             count++;
         }
     }

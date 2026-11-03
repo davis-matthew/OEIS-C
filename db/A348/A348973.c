@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, frac
  * Formula:   a(n) = A129283(n) / gcd(A003959(n), A129283(n))
- * Range:     u8 n <= 63, u16 n <= 9931, u32 n <= 9931, u64 n <= 9931,
- *            u128 n <= 9931, big any n
+ * Range:     u8 n <= 63, u16 n <= 16383, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 101 terms through n = 9931 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

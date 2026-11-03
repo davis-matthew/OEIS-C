@@ -9,13 +9,15 @@
  *            >= 5 Initial values: a(0)=1, a(1)=5, a(2)=21, a(3)=88, a(4)=369
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External linkage function required by the build system */
 seq_t a(idx_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         if ((size_t)n + 1 > init_cap)
             init_cap = (size_t)n + 1;
         cap = init_cap;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL)
             abort();              /* allocation failure */
         /* fill the first five values */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap;
         while ((size_t)n >= new_cap)
             new_cap <<= 1;   /* double until it fits */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)
             abort();         /* allocation failure */
         cache = tmp;

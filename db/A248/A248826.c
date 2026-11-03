@@ -11,14 +11,15 @@
  *            number, k the column index in that row)
  * Range:     i8 n <= 16, i16 n <= 47, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   binom, pow_seq
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/pow_seq.h"
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
 
 /* Compute a(n) using the closed‑form formula above. */
 seq_t a(idx_t n)
@@ -47,10 +48,10 @@ seq_t a(idx_t n)
     }
 
     /* binomial coefficient binom(r+1, k+1). */
-    seq_t bin = binom(r + 1, k + 1);
+    seq_t bin = binomial(r + 1, k + 1);
 
     /* k^(r-k) - compute using provided big‑integer power routine. */
-    seq_t pw = pow_seq((seq_t)k, (idx_t)(r - k));
+    seq_t pw = ipow_i32((seq_t)k, (idx_t)(r - k));
 
     /* Apply the sign (-1)^(r-k). */
     seq_t val = bin * pw;

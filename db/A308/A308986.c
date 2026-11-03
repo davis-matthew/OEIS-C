@@ -7,14 +7,17 @@
  * Formula:   a(0) = 1; a(n) = -∑_{k=1}^n 2^popcount(k) * a(n-k)
  * Range:     i8 n <= 7, i16 n <= 15, i32 n <= 31, i64 n <= 63, i128 n <= 127,
  *            big any n
- * Helpers:   popcount_u64
+ * Validated: standard, pass, 50 terms through n = 2965 (2026-11-03)
+ * Helpers:   mem, popcount
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/popcount_u64.h"
+#include <stdbool.h>
+#include "../utils/popcount.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -27,7 +30,7 @@ static void grow_cache(size_t min_cap)
     size_t new_cap = cache_cap ? cache_cap * 2 : 4;
     while (new_cap < min_cap)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();
     cache = tmp;
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
         for (idx_t i = cache_cnt; i <= n; ++i) {
             seq_t sum = (seq_t)0;
             for (idx_t k = 1; k <= i; ++k) {
-                int pc = popcount_u64((uint64_t)k);
+                int pc = popcount((uint64_t)k);
                 seq_t coeff = ((seq_t)1) << pc;          /* 2^popcount(k) */
                 sum -= coeff * cache[(size_t)(i - k)];
             }

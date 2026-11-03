@@ -8,7 +8,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k>0} (1−x^k)(1−x^{9k})
  * Range:     i8 n <= 2500, i16 n <= 2500, i32 n <= 2500, i64 n <= 2500,
  *            i128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 2308 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* dynamic array holding coefficients of ∏_{k>0}(1−x^k) */
 static seq_t *d = NULL;
@@ -35,7 +37,7 @@ static void ensure_d(idx_t n)
     if (d_cap < (size_t)(n + 1)) {
         size_t new_cap = d_cap ? d_cap * 2 : 16;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(d, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, d, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         d = tmp;
         d_cap = new_cap;

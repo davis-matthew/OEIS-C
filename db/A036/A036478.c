@@ -7,13 +7,15 @@
  * Formula:   a(n) = partition(11*n+4) mod 11
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 114 terms through n = 9742 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache of partition values modulo 11 */
 static seq_t *p_cache = NULL;
@@ -27,7 +29,7 @@ static void ensure_partition_cache(size_t need)
     size_t new_size = p_cache_size == 0 ? 16 : p_cache_size * 2;
     while (new_size <= need)
         new_size *= 2;
-    seq_t *new_cache = (seq_t*)realloc(p_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, p_cache, new_size);
     if (!new_cache) {
         /* Allocation failed – aborting; caller will handle error */
         abort();

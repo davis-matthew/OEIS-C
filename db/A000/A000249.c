@@ -11,7 +11,8 @@
  *            (z/2)^(n+2k) / (k! (n+k)!). It is evaluated in bina...
  * Range:     u8 n <= 12, u16 n <= 15, u32 n <= 21, u64 n <= 30, u128 n <= 46,
  *            big any n
- * Helpers:   fx_add, fx_cmp, fx_div, fx_div2, fx_mul, fx_norm, fx_sub
+ * Validated: standard, pass, 46 terms through n = 481 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,87 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/fx_add.h"
-#include "../utils/fx_cmp.h"
-#include "../utils/fx_div.h"
-#include "../utils/fx_div2.h"
-#include "../utils/fx_mul.h"
-#include "../utils/fx_norm.h"
-#include "../utils/fx_sub.h"
+
+static void fx_add(uint32_t *a, size_t *alen, const uint32_t *b, size_t blen)
+{
+    size_t m = *alen > blen ? *alen : blen, i;
+    uint64_t c = 0;
+    for (i = 0; i < m; i++) {
+        uint64_t t = (uint64_t)a[i] + (i < blen ? b[i] : 0) + c;
+        a[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    if (c) a[m++] = (uint32_t)c;
+    *alen = m;
+}
+
+static int fx_cmp(const uint32_t *a, size_t al, const uint32_t *b, size_t bl)
+{
+    if (al != bl) return al > bl ? 1 : -1;
+    while (al > 0) {
+        al--;
+        if (a[al] != b[al]) return a[al] > b[al] ? 1 : -1;
+    }
+    return 0;
+}
+
+static void fx_norm(const uint32_t *a, size_t *len)
+{
+    while (*len > 0 && a[*len - 1] == 0) (*len)--;
+}
+
+static void fx_div(uint32_t *a, size_t *len, uint32_t d)
+{
+    uint64_t r = 0;
+    size_t i = *len;
+    while (i > 0) {
+        i--;
+        uint64_t t = (r << 32) | a[i];
+        a[i] = (uint32_t)(t / d);
+        r = t % d;
+    }
+    fx_norm(a, len);
+}
+
+static void fx_div2(uint32_t *a, size_t *len, uint64_t x, uint64_t y)
+{
+    if (x * y <= 0xFFFFFFFFull) {
+        fx_div(a, len, (uint32_t)(x * y));
+    } else {
+        fx_div(a, len, (uint32_t)x);
+        fx_div(a, len, (uint32_t)y);
+    }
+}
+
+static void fx_mul(uint32_t *a, size_t *len, uint32_t m)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < *len; i++) {
+        uint64_t t = (uint64_t)a[i] * m + c;
+        a[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    if (c) a[(*len)++] = (uint32_t)c;
+}
+
+/* a -= b, requires a >= b */
+static void fx_sub(uint32_t *a, size_t *alen, const uint32_t *b, size_t blen)
+{
+    uint64_t br = 0;
+    size_t i;
+    for (i = 0; i < *alen; i++) {
+        uint64_t bi = (uint64_t)(i < blen ? b[i] : 0) + br;
+        if ((uint64_t)a[i] >= bi) {
+            a[i] = (uint32_t)(a[i] - bi);
+            br = 0;
+        } else {
+            a[i] = (uint32_t)((uint64_t)a[i] + 0x100000000ull - bi);
+            br = 1;
+        }
+    }
+    fx_norm(a, alen);
+}
 
 #define FB 5   /* fraction limbs (32 bits each) */
 #define SC 24  /* limbs for the small correction quantities */

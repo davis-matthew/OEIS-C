@@ -10,7 +10,8 @@
  *            Fibonacci number
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* cached data */
 static uint64_t *primes = NULL;          /* odd primes > 2 */
@@ -106,7 +108,7 @@ static void extend_cache(idx_t limit)
     /* ---- Memoisation arrays ---- */
     if (cache_limit + 1 > memo_len) {
         size_t new_len = (size_t)cache_limit + 1;
-        seq_t *mtmp = (seq_t*)realloc(memo, new_len * sizeof(seq_t));
+        seq_t *mtmp = mem_resize(seq_t, memo, new_len);
         if (mtmp == NULL) abort();
         memo = mtmp;
 

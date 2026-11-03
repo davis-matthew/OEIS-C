@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    A(n)=2*A(n-2)+A(n-3) for n≥3. */
 /* External types should be defined by the build: */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *diag = NULL;          /* diagonal entries A066983 */
 static size_t diag_len = 0;         /* number of entries stored so far */
@@ -33,7 +35,7 @@ static void ensure_diag_cap(size_t need)
     if (need <= diag_cap) return;
     size_t new_cap = diag_cap ? diag_cap << 1 : 8;
     while (new_cap < need) new_cap <<= 1;
-    diag = (seq_t *)realloc(diag, new_cap * sizeof(seq_t));
+    diag = mem_resize(seq_t, diag, new_cap);
     diag_cap = new_cap;
 }
 

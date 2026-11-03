@@ -11,7 +11,8 @@
  *            and independent of call order
  * Range:     u8 n <= 59, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Note: seq_t and idx_t are provided by the build system. */
 
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Initialise the memoisation array the first time this function is called. */
     if (memo_len == 0) {
         memo_cap = 16;
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         if (!memo) return 0;          /* out of memory: return 0 as sentinel */
         memo[0] = 0;                  /* dummy value for 1‑based indexing */
         memo_len = 1;
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
         if (has1mod4) {
             if (memo_len == memo_cap) {
                 memo_cap <<= 1;
-                memo = (seq_t *)realloc(memo, memo_cap * sizeof(seq_t));
+                memo = mem_resize(seq_t, memo, memo_cap);
                 if (!memo) return 0;      /* out of memory */
             }
             memo[memo_len++] = x;

@@ -9,9 +9,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if A113177(n) and A328845(n) are both multiples of 3,
  *            otherwise 0
- * Range:     u8 n <= 9156, u16 n <= 9156, u32 n <= 9156, u64 n <= 9156,
- *            u128 n <= 9156, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 141 terms through n = 9156 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
 
 static const int FibMod3[8] = {0, 1, 1, 2, 0, 2, 2, 1};
 
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
     idx_t N = n;            /* keep original n for later use */
 
     /* Ensure we have primes up to sqrt(N) */
-    idx_t need = _floor_isqrt_u64(N) + 1;
+    idx_t need = isqrt(N) + 1;
     if (need > primes_limit) {
         if (primes) free(primes);   /* release old table */
         build_primes_upto(need, &primes, &primes_cnt);

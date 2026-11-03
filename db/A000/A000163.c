@@ -10,15 +10,23 @@
  *            1/(1-x^k)^b(k). Here a(n) = [x^(n-2)] 2*(1+S)/(1-S)^3
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 35, u128 n <= 69,
  *            big any n
- * Helpers:   detect_fixed, gcd_idx
+ * Validated: standard, pass, 40 terms through n = 489 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/detect_fixed.h"
 #include "../utils/gcd_idx.h"
+
+static int detect_fixed(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 200; i++) t *= 2;
+    return t == 0;
+}
 
 #define MAXN 20010
 #define FMAX 160

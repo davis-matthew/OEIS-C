@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   gen_comp
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,25 @@
  *  initialized to (1, 2, 3, …), using the transpose update strategy.
  */
 #include <stddef.h>
-#include "../utils/gen_comp.h"
+
+static void gen_comp(idx_t sum, idx_t k, idx_t *buf, idx_t *plen)
+{
+    if (sum == 0) {
+        *plen = 0;
+        return;
+    }
+    for (int fp = (int)sum; fp >= 1; --fp) {
+        idx_t rem = sum - (idx_t)fp;
+        idx_t cnt = (rem == 0) ? 1 : ((idx_t)1ULL << (rem - 1));
+        if (k <= cnt) {
+            buf[0] = (idx_t)fp;
+            gen_comp(rem, k, buf + 1, plen);
+            *plen = 1 + *plen;
+            return;
+        }
+        k -= cnt;
+    }
+}
 
 seq_t a(idx_t n)
 {

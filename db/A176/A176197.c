@@ -9,7 +9,8 @@
  *            best‑first search with a priority queue
  * Range:     u8 none, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Small utilities --------------------------------------------------- */
@@ -94,14 +96,14 @@ static void heap_init(heap_t *h)
 {
     h->cap = 16;
     h->sz  = 0;
-    h->data = (node_t*)calloc(h->cap, sizeof(node_t));
+    h->data = mem_new(node_t, h->cap);
 }
 
 static void heap_push(heap_t *h, node_t n)
 {
     if (h->sz == h->cap) {
         h->cap <<= 1;
-        h->data = (node_t*)realloc(h->data, h->cap * sizeof(node_t));
+        h->data = mem_resize(node_t, h->data, (h->cap * sizeof(node_t)) / sizeof(node_t));
     }
     size_t i = h->sz++;
     while (i) {
@@ -139,14 +141,14 @@ typedef struct {
 static void p4_init(p4_tab_t *t)
 {
     t->len = 1;                   /* allocate index 0 unused */
-    t->data = (seq_t*)calloc(2, sizeof(seq_t));
+    t->data = mem_new(seq_t, 2);
 }
 
 static void p4_ensure(p4_tab_t *t, idx_t idx)
 {
     if (t->len > idx) return;
     size_t newlen = (size_t)idx + 1;   /* allocate up to idx (inclusive) */
-    t->data = (seq_t*)realloc(t->data, newlen * sizeof(seq_t));
+    t->data = mem_resize(seq_t, t->data, newlen);
     for (idx_t i = (idx_t)t->len; i <= idx; ++i)
         t->data[i] = fourth_power(i);
     t->len = newlen;
@@ -159,7 +161,7 @@ static void cache_ensure(seq_t **cache, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t newcap = *cap ? *cap : 16;
     while (newcap < need) newcap <<= 1;
-    *cache = (seq_t*)realloc(*cache, newcap * sizeof(seq_t));
+    *cache = mem_resize(seq_t, *cache, newcap);
     *cap = newcap;
 }
 

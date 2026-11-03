@@ -10,14 +10,43 @@
  *            a(0)=1, a(1)=7, a(2)=1, a(3)=49, …)
  * Range:     i8 n <= 5, i16 n <= 17, i32 n <= 17, i64 n <= 17, i128 n <= 17,
  *            big any n
- * Helpers:   triangular_floor
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/triangular_floor.h"
+
+/* Compute the largest k such that k*(k+1)/2 <= n
+ * Using binary search with 128-bit arithmetic to avoid overflow. */
+static idx_t triangular_floor(idx_t n)
+{
+    idx_t low = 0;
+    idx_t high = 1;
+    /* Grow high until triangular(high) > n */
+    while (true) {
+        __int128 prod = (__int128)high * (high + 1) / 2;
+        if (prod > n)
+            break;
+        if (high > (idx_t)(~0ULL >> 1))   /* avoid infinite loop if high overflows */
+            break;
+        high <<= 1;
+    }
+
+    /* Binary search between low=high/2 and high */
+    low = high >> 1;
+    while (low < high) {
+        idx_t mid = low + (high - low + 1) / 2;
+        __int128 prod = (__int128)mid * (mid + 1) / 2;
+        if (prod <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 /* Binomial coefficient C(n,k) using multiplicative formula.
  * Assumes seq_t supports +,-,*,/ on signed integers. */

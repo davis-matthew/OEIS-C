@@ -9,7 +9,8 @@
  *            x^{F_j}) is zero
  * Range:     u8 n <= 138, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9415 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    enough zeros are found. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static state for memoisation */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
 
     if (!initialized) {
         zeros_cap = 256;
-        zeros = (seq_t *)malloc(zeros_cap * sizeof(seq_t));
+        zeros = mem_new(seq_t, zeros_cap);
         zeros_len = 0;
         initialized = 1;
     }
@@ -68,7 +70,7 @@ seq_t a(idx_t n) {
         /* Ensure zeros array is large enough */
         if (zeros_cap < Kmax + 1) {
             size_t new_cap = Kmax + 1;
-            seq_t *tmp = (seq_t *)realloc(zeros, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, zeros, new_cap);
             if (!tmp) {
                 free(dp);
                 return 0; /* allocation failure */
@@ -80,7 +82,7 @@ seq_t a(idx_t n) {
             if (dp[k] == 0) {
                 if (count == zeros_cap) {
                     size_t new_cap = zeros_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(zeros, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, zeros, new_cap);
                     if (!tmp) {
                         free(dp);
                         return 0; /* allocation failure */

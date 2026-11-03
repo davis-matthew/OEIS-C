@@ -12,7 +12,8 @@
  *            equivalently a(n)=min{2*c0, 2*c1+1} that exceeds a(n−1)
  * Range:     u8 n <= 31, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   popcnt
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem, popcount_seq_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/popcnt.h"
+#include "../utils/popcount_seq_to_seq.h"
+#include "../utils/mem.h"
 
 /* length of binary representation of x (number of bits) */
 static seq_t bitlen(seq_t x)
@@ -40,12 +42,12 @@ seq_t a(idx_t n)
     /* initialisation on first call */
     if (max_index == (idx_t)-1) {
         alloc_size = 1;
-        values = (seq_t *)malloc(alloc_size * sizeof(seq_t));
+        values = mem_new(seq_t, alloc_size);
         if (!values) exit(1);
         values[0] = (seq_t)1;               /* a(0) */
         /* update counts with a(0)=1 */
         seq_t len = bitlen(values[0]);
-        seq_t ones = popcnt(values[0]);
+        seq_t ones = popcount_seq_to_seq(values[0]);
         seq_t zeros = len - ones;
         c0 = zeros;
         c1 = ones;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     /* enlarge storage if necessary */
     if ((size_t)(n + 1) > alloc_size) {
         size_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(values, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, values, new_size);
         if (!tmp) exit(1);
         values = tmp;
         alloc_size = new_size;
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
 
         /* update counts with new term */
         seq_t len   = bitlen(next);
-        seq_t ones  = popcnt(next);
+        seq_t ones  = popcount_seq_to_seq(next);
         seq_t zeros = len - ones;
         c1 += ones;
         c0 += zeros;

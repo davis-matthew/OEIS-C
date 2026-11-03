@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*(n+1)*(3 - 4*n + 4*n^2)/6
  * Range:     u8 n <= 4, u16 n <= 17, u32 n <= 182, u64 n <= 200,
  *            u128 n <= 200, big any n
+ * Validated: standard, pass, 53 terms through n = 195 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

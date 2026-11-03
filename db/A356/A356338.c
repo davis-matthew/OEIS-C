@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} binomial(2*n, n-k) * sigma(k)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build; we rely only on the
    basic arithmetic operators and the functions listed in the
@@ -35,7 +37,7 @@ static void recompute_sigma(idx_t n)
     if (n + 1 <= sigma_size) return;         /* already computed up to n */
 
     /* Allocate new array */
-    seq_t *newa = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *newa = mem_new(seq_t, (n + 1));
     if (!newa) abort();                      /* out of memory */
 
     /* Initialise: sigma[0] = 0, sigma[1..n] = 1 (divisor 1) */
@@ -51,7 +53,7 @@ static void recompute_sigma(idx_t n)
     }
 
     /* Replace old cache */
-    free(sigma_cache);
+    mem_free(sigma_cache);
     sigma_cache = newa;
     sigma_size   = n + 1;
 }

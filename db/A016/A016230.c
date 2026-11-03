@@ -7,12 +7,14 @@
  * Formula:   a(0)=1, a(1)=13, a(n)=12*a(n-1)-35*a(n-2)+1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for the sequence values */
 static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ static void _ensure_capacity(size_t n)
     size_t newcap = capacity ? capacity * 2 : 4;
     while (newcap < n + 1)
         newcap *= 2;
-    cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newcap);
     capacity = newcap;
 }
 
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Prime initialization of the cache */
     if (cache == NULL) {
         capacity = 4;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         cache[0] = 1;      /* a(0) */
         cache[1] = 13;     /* a(1) */
         cached = 2;

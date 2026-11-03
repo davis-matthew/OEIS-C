@@ -8,14 +8,16 @@
  * Keywords:  nonn, tabf
  * Formula:   a(1) = 1; a(n) = (a(n-1) == 1) ? (max_{i<n} a(i) + 1) :
  *            floor(a(n-1)/2)
- * Range:     u8 n <= 1793, u16 n <= 8183, u32 n <= 8183, u64 n <= 8183,
- *            u128 n <= 8183, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1793, u16 n <= 20493, u32 n <= 20493, u64 n <= 20493,
+ *            u128 n <= 20493, big any n
+ * Validated: standard, pass, 111 terms through n = 8183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         size_t new_size = (size_t)n + 1;
         seq_t *tmp;
         if (!cache) {
-            tmp = (seq_t *)calloc(new_size, sizeof(seq_t));
+            tmp = mem_new(seq_t, new_size);
             if (!tmp) abort();
             cache      = tmp;
             alloc_size = new_size;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
             /* grow to at least new_size (power‑of‑two growth)   */
             size_t power = alloc_size;
             while (power < new_size) power <<= 1;
-            tmp = (seq_t *)realloc(cache, power * sizeof(seq_t));
+            tmp = mem_resize(seq_t, cache, power);
             if (!tmp) abort();
             cache      = tmp;
             alloc_size = power;

@@ -10,7 +10,8 @@
  *            the j‑th derangement number
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    function binomial(n,k) (./../utils/binomial.h) is available */
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise for the first call or when n == 0 (ignored by the OEIS offset) */
     if (der_len == 0) {
         der_len = 1;            /* we need at least d(0) */
-        der = (seq_t *)malloc(der_len * sizeof(seq_t));
+        der = mem_new(seq_t, der_len);
         if (!der) return 0;     /* out of memory: silently return 0 */
         der[0] = 1;             /* d(0) = 1 */
     }
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* extend der array if we need d values up to n-1 */
     if (der_len <= (size_t)(n - 1)) {
         size_t new_len = (size_t)n;   /* indices 0 .. n-1 inclusive */
-        seq_t *tmp = (seq_t *)realloc(der, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, der, new_len);
         if (!tmp) return 0;           /* out of memory */
         der = tmp;
 

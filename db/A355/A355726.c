@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-2) + prime(n-1); a(0)=a(1)=0
  * Range:     u8 n <= 18, u16 n <= 215, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9442 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime generation helpers ---------- */
 
@@ -83,10 +85,10 @@ static void ensure_seq_cache_cap(size_t cap)
 {
     if (seq_cap >= cap) return;
 
-    seq_t *new_cache = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, cap);
     if (seq_cache && seq_len > 0) {
-        memcpy(new_cache, seq_cache, seq_len * sizeof(seq_t));
-        free(seq_cache);
+        mem_copy(new_cache, seq_cache, seq_len * sizeof(seq_t));
+        mem_free(seq_cache);
     }
     seq_cache = new_cache;
     seq_cap   = cap;

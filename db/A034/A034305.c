@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 72 terms through n = 9527 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Return true iff x is a “zeroless nonprime that remains nonprime after any
    single digit is deleted”. */
@@ -46,7 +48,7 @@ static bool is_candidate(seq_t x)
         if (buf[i] == 0) return false;
 
     /* x must be composite (or 1). */
-    if (isPrimeTrial(x)) return false;
+    if (is_prime_seq(x)) return false;
 
     /* Removing any single digit must leave a composite number. */
     for (size_t del = 0; del < len; ++del) {
@@ -56,7 +58,7 @@ static bool is_candidate(seq_t x)
             /* Reconstruct in normal order: buf[len-1-i] is the original digit. */
             y = y * 10 + buf[len - 1 - i];
         }
-        if (isPrimeTrial(y)) return false;
+        if (is_prime_seq(y)) return false;
     }
     return true;
 }
@@ -67,7 +69,7 @@ static void ensure_cache_capacity(size_t needed, size_t *cap, seq_t **arr)
     if (needed <= *cap) return;
     size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
     while (new_cap < needed) new_cap <<= 1;
-    *arr = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 

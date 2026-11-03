@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 7701, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log3
+ * Validated: standard, pass, 77 terms through n = 9495 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,16 @@
 /* Computes a(n) as the nth integer m ≥ 3 satisfying m % floor(log_3(m)) == 0 */
 
 #include <stddef.h>
-#include "../utils/floor_log3.h"
+
+static inline seq_t floor_log3(seq_t x)
+{
+    seq_t k = 0;
+    while (x >= 3) {
+        x /= 3;
+        k++;
+    }
+    return k;        /* for x ≥ 1, k ≥ 0; when x ≥ 3, k ≥ 1 */
+}
 
 seq_t a(idx_t n)
 {

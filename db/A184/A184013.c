@@ -7,6 +7,7 @@
  * Formula:   a(n) = n - 1 + ceil((n^2 + 4)/5) = n - 1 + (n^2 + 8)/5
  * Range:     u8 n <= 33, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

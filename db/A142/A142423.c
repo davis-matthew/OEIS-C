@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 155, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 869 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    integer vectors if desired, otherwise use plain malloc. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for the pre‑computed sequence */
 static seq_t *congruent = NULL;
@@ -34,8 +36,7 @@ static void push_congruent(seq_t val)
     if (congruent_sz == congruent_cap) {
         size_t new_cap = congruent_cap ? congruent_cap * 2 : 1024;
         /* cast realloc result to the correct type for C++ */
-        seq_t *new_arr = (seq_t *)realloc(congruent,
-                                          new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, congruent, new_cap);
         if (!new_arr) abort();          /* out of memory */
         congruent = new_arr;
         congruent_cap = new_cap;

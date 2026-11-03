@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
     on demand and is valid for any build using seq_t and idx_t
     defined by the surrounding framework. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -57,10 +59,10 @@ seq_t a(idx_t n)
     if (A_cap <= needed) {
         idx_t new_cap = needed + 1;
         if (A == NULL) {
-            A = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            A = mem_new(seq_t, new_cap);
             if (A == NULL) return 0;   /*  allocation failure   */
         } else {
-            seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, A, new_cap);
             if (tmp == NULL) return 0;   /*  allocation failure   */
             A = tmp;
         }

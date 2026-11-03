@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A001221(n) - 1 for n > 1; a(1) = a(2) = 0
- * Range:     u8 n <= 9973, u16 n <= 9973, u32 n <= 9973, u64 n <= 9973,
- *            u128 n <= 9973, big any n
+ * Range:     u8 n <= 12000, u16 n <= 12000, u32 n <= 12000, u64 n <= 12000,
+ *            u128 n <= 12000, big any n
+ * Validated: standard, pass, 121 terms through n = 9973 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

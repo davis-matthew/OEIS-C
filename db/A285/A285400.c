@@ -10,12 +10,14 @@
  * Formula:   a(0) = 1, a(1) = 18, a(n) = 21 * a(n-1) for n ≥ 2
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 685 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pow21 = NULL;
 static idx_t pow21_max = 0;
@@ -26,7 +28,7 @@ static void ensure_pow21(idx_t need)
         return;
 
     idx_t new_max = need;
-    seq_t *tmp = (seq_t *)realloc(pow21, new_max * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pow21, new_max);
     if (!tmp)
         abort();
 

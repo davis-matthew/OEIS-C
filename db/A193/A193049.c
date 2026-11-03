@@ -11,7 +11,8 @@
  *            a(7)=105
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
        allocation also copies the initial values into cache. */
     if (cache == NULL) {
         const size_t INIT = 8;
-        cache = (seq_t*)malloc(INIT * sizeof(seq_t));
+        cache = mem_new(seq_t, INIT);
         for (size_t i = 0; i < INIT; ++i)
             cache[i] = init_vals[i];
         cache_size = INIT;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         size_t new_size = n + 1;
         if (new_size < cache_size * 2)
             new_size = cache_size * 2;
-        cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         cache_size = new_size;
     }
 

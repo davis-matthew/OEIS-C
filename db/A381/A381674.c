@@ -8,6 +8,7 @@
  * Formula:   a(n) = product{k < n : 1 < gcd(k,n) and rad(k) != rad(n)}
  * Range:     u8 n <= 9, u16 n <= 13, u32 n <= 21, u64 n <= 29, u128 n <= 53,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 586 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 static seq_t rad_of_uint64(uint64_t m)
 {

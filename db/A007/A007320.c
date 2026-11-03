@@ -11,7 +11,8 @@
  *            since trajectories exceed 64 bits
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   jb_clz32
+ * Validated: standard, pass, 113 terms through n = 9850 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/jb_clz32.h"
+
+static int jb_clz32(uint32_t x) {
+    int s = 0;
+    while (!(x & 0x80000000u)) { x <<= 1; s++; }
+    return s;
+}
 
 typedef struct { uint32_t *d; size_t n; } jbig;
 

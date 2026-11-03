@@ -8,8 +8,9 @@
  * Formula:   a(n) = interpret the factorial‑base representation of n * with
  *            all nonzero digits replaced by 1 (i.e. a(n) =
  *            A059590(A275727(n)))
- * Range:     u8 n <= 297, u16 n <= 9466, u32 n <= 9466, u64 n <= 9466,
- *            u128 n <= 9466, big any n
+ * Range:     u8 n <= 297, u16 n <= 40319, u32 n <= 40319, u64 n <= 40319,
+ *            u128 n <= 40319, big any n
+ * Validated: standard, pass, 113 terms through n = 9466 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

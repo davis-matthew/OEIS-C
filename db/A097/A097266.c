@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 702, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_uint64
+ * Validated: standard, pass, 97 terms through n = 9898 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
    d = 2n+1 odd, gcd(a,b,c,d) = 1, and a ≤ b ≤ c.  */
 #include <stdint.h>
 #include <math.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -52,7 +53,7 @@ seq_t a(idx_t n)
             if (c < b) continue;             /* keep ordering a ≤ b ≤ c         */
 
             /*  Primitive check: gcd(a,b,c) must be 1                       */
-            uint64_t g = gcd_uint64(a, gcd_uint64(b, c));
+            uint64_t g = gcd_u64(a, gcd_u64(b, c));
             if (g == 1u) ++count;
         }
     }

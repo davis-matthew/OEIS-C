@@ -9,7 +9,8 @@
  *            A257232 equals m
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static data used by the function */
 static bool          g_init          = false;
@@ -70,16 +72,16 @@ ensure_counts_capacity (idx_t min_cap)
     while (new_cap <= min_cap)
         new_cap <<= 1;
 
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr)
         return;                       /* allocation failure – let the caller fail */
 
-    memset(new_arr, 0, new_cap * sizeof(seq_t));
+    mem_set(new_arr, 0, new_cap * sizeof(seq_t));
 
     if (g_counts) {
         for (idx_t i = 0; i < g_cnt_cap; ++i)
             new_arr[i] = g_counts[i];
-        free(g_counts);
+        mem_free(g_counts);
     }
 
     g_counts = new_arr;

@@ -9,7 +9,8 @@
  * Formula:   a(n) = n*a(n-1) + (-1)^n * n, a(1) = 1
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 359 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache of previously computed terms; cache[i] holds a(i+1) */
 static seq_t *cache = NULL;     /* pointer to array of seq_t   */
@@ -35,7 +37,7 @@ ensure_cache_capacity(idx_t need)
     idx_t new_cap = (cache_cap == 0) ? 16 : cache_cap;
     while (new_cap < need)
         new_cap <<= 1;                       /* double until large enough */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();                              /* out of memory */
     cache = new_cache;

@@ -9,13 +9,15 @@
  *            (mod 7^n)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* helper: modular multiplication without overflow for 64‑bit seq_t */
 static inline seq_t mod_mul_seq(seq_t a, seq_t b, seq_t mod)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_capacity = (size_t)(n >= 1 ? n + 1 : 2);
-        cache = (seq_t*)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         for (size_t i = 0; i < cache_capacity; ++i) cache[i] = 0;
         cache[0] = 0;
         cache[1] = 5;          /* a(1) */
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
             /* grow cache if necessary */
             if ((size_t)i >= cache_capacity) {
                 cache_capacity = (size_t)i + 1;
-                cache = (seq_t*)realloc(cache, cache_capacity * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_capacity);
             }
             cache[i] = cur_k;
         }

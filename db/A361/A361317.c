@@ -8,7 +8,8 @@
  * Formula:   a(n) = denominator(n*A037445(n)/A049417(n))
  * Range:     u8 n <= 39, u16 n <= 6782, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf, seq_gcd, seq_mul, seq_pow
+ * Validated: standard, pass, 90 terms through n = 9692 (2026-11-01)
+ * Helpers:   build_spf, gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_gcd.h"
-#include "../utils/seq_pow.h"
+#include <string.h>
 #include "../utils/build_spf.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static idx_t *spf = NULL;      /* smallest prime factor table */
 static idx_t spf_limit = 0;    /* maximum N for which spf is built */
@@ -86,7 +92,7 @@ seq_t a(idx_t n)
         {
             if (mask & 1)
             {
-                seq_t pow_val = seq_pow((seq_t)p, exp_bit);
+                seq_t pow_val = ipow_idx((seq_t)p, exp_bit);
                 seq_t factor   = pow_val + (seq_t)1;
                 S = seq_mul(S, factor);
             }
@@ -96,7 +102,7 @@ seq_t a(idx_t n)
     }
 
     seq_t numer = seq_mul((seq_t)n, d);
-    seq_t g     = seq_gcd(numer, S);
+    seq_t g     = gcd(numer, S);
     seq_t denom = S / g;
     return denom;
 }

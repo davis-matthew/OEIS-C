@@ -9,7 +9,8 @@
  *            is the number of divisors of k
  * Range:     u8 n <= 16, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdlib.h>
 
 /* Helper declaration: greatest common divisor for seq_t */
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* ---------------- Cache structures ---------------- */
 static seq_t *d_cache = NULL;     /* divisor counts, 1‑indexed */
@@ -51,7 +54,7 @@ static void ensure_divisor_cache(idx_t n)
 
     /* Allocate new space */
     idx_t *new_spf = (idx_t *)calloc((size_t)n + 1, sizeof(idx_t));
-    seq_t *new_d   = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *new_d   = mem_new(seq_t, (size_t)n + 1);
     if (!new_spf || !new_d) return; /* allocation failure: abort silently */
 
     /* Build smallest‑prime‑factor table */
@@ -72,7 +75,7 @@ static void ensure_divisor_cache(idx_t n)
     }
 
     /* Replace old cache */
-    free(d_cache);
+    mem_free(d_cache);
     free(spf_cache);
     d_cache     = new_d;
     spf_cache   = new_spf;

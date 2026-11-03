@@ -11,13 +11,15 @@
  *            order are efficient
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper: count runs in base‑4 representation of x. */
 static inline int runs_in_base4(seq_t x)
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
                 /* Ensure capacity. */
                 if (cache_size == cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 64;
-                    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                     if (!tmp) {
                         /* Allocation failed – return 0 as a sentinel. */
                         return (seq_t)0;

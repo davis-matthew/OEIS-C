@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_K 70  /* sufficient for n up to 64‑bit (popcount+2) */
 
@@ -97,8 +99,7 @@ ensure_mem_size(idx_t n)
     mem_size = (mem_size == 0) ? 16 : mem_size << 1;
     while (mem_size <= n) mem_size <<= 1;
 
-    T_mem = (seq_t (*)[MAX_K])realloc(T_mem,
-                                      mem_size * sizeof(*T_mem));
+    T_mem = mem_resize(seq_t[MAX_K], T_mem, mem_size);
     T_vis = (uint8_t (*)[MAX_K])realloc(T_vis,
                                       mem_size * sizeof(*T_vis));
 

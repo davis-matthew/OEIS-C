@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   is_prime, next_prime
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,8 +33,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/next_prime.h"        /* next_prime(uint64_t) */
-#include "../utils/is_prime.h"          /* is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *tree_terms   = NULL;      /* array of found terms   */
 static size_t tree_count   = 0;          /* number of terms cached */
@@ -46,7 +48,7 @@ static void ensure_terms_cap(size_t need)
     if (need <= tree_cap) return;
     size_t new_cap = tree_cap ? tree_cap * 2 : 64;
     while (new_cap < need) new_cap *= 2;
-    tree_terms = (seq_t *)realloc(tree_terms, new_cap * sizeof(seq_t));
+    tree_terms = mem_resize(seq_t, tree_terms, new_cap);
     tree_cap   = new_cap;
 }
 

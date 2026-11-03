@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 135 terms through n = 9699 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n) = label assigned to d(n) (A000005) in order of first appearance. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         idx_t new_max = n;
 
         d_counts = (idx_t *)realloc(d_counts, (new_max + 1) * sizeof(idx_t));
-        labels   = (seq_t *)realloc(labels,   (new_max + 1) * sizeof(seq_t));
+        labels   = mem_resize(seq_t, labels, (new_max + 1));
         if (!d_counts || !labels) abort(); /* allocation failure */
 
         /* initialise divisor counts */

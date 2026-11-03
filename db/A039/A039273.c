@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 192, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   equal_9_11
+ * Validated: standard, pass, 86 terms through n = 801 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/equal_9_11.h"
+#include "../utils/mem.h"
+
+static inline bool equal_9_11(seq_t x)
+{
+    if (x == 0)        /* 0 is counted: 0 9's and 0 11's */
+        return true;
+
+    int c9 = 0, c11 = 0;
+    while (x != 0) {
+        int d = (int)(x % 12);
+        if (d == 9)  ++c9;
+        else if (d == 11) ++c11;
+        x /= 12;
+    }
+    return c9 == c11;
+}
 
 /* Cached sequence values: cache[i] holds a(i+1) */
 static seq_t *cache     = NULL;
@@ -38,7 +54,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         cache_cap = 16;
         cache_sz  = 0;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return 0;   /* allocation failure, return 0 */
     }
 
@@ -47,7 +63,7 @@ seq_t a(idx_t n)
         if (equal_9_11(next_val)) {
             if (cache_sz >= cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (cache == NULL) return 0;   /* allocation failure */
             }
             cache[cache_sz++] = next_val;

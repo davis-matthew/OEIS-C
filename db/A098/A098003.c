@@ -13,19 +13,21 @@
  *            a(n)
  * Range:     u8 n <= 191, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9711 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* The sequence is fixed after the n‑th step, so we only need
        indices up to 2n‑1.  Use 1‑based indexing for clarity. */
     idx_t limit = 2 * n - 1;
-    seq_t *seq = (seq_t *)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (size_t)(limit + 1));
     if (!seq) return 0;                     /* allocation failure */
 
     for (idx_t i = 1; i <= limit; ++i)
@@ -43,6 +45,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

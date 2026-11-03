@@ -9,12 +9,36 @@
  * Formula:   a(n) = 6*A138591(n-1) for n > 1; a(0) = 1, a(1) = 6
  * Range:     u8 n <= 38, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   A138591
+ * Validated: standard, pass, 73 terms through n = 2406 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/A138591.h"
+static seq_t A138591(idx_t m)
+{
+    /* Return the m-th term of the sequence
+       1, 1, 3, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, ...   */
+    if (m <= 1)
+        return (seq_t)1;          /* m = 0 or m = 1 -> 1 */
+
+    idx_t target = m - 2;          /* index among numbers > 1 that are not powers of 2 */
+    idx_t val = 2;                 /* start scanning from 2 */
+
+    while (1) {
+        /* Skip powers of two */
+        if ((val & (val - 1)) == 0) {
+            val++;
+            continue;
+        }
+
+        if (target == 0)
+            return (seq_t)val;    /* found the desired term */
+
+        target--;
+        val++;
+    }
+}
 
 seq_t a(idx_t n)
 {

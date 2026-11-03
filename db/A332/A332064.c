@@ -12,13 +12,15 @@
  *            terms are treated as having 1 bit
  * Range:     i8 n <= 12, i16 n <= 50, i32 n <= 50, i64 n <= 50, i128 n <= 50,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0; /* undefined, but return 0 for safety */
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     /* Add bits of a(1) to sum_bits */
     seq_t abs_a = a_curr;
     if (abs_a < 0) abs_a = -abs_a;
-    unsigned bits = (abs_a == 0) ? 1 : bitlen_seq_t(abs_a);
+    unsigned bits = (abs_a == 0) ? 1 : bit_length(abs_a);
     sum_bits += bits;
 
     if (n == 1) return a_curr;
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
         /* Add bits of the new term to sum_bits for the next iteration */
         abs_a = a_curr;
         if (abs_a < 0) abs_a = -abs_a;
-        bits = (abs_a == 0) ? 1 : bitlen_seq_t(abs_a);
+        bits = (abs_a == 0) ? 1 : bit_length(abs_a);
         sum_bits += bits;
     }
 

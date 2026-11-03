@@ -11,6 +11,7 @@
  *            are included, * then counts the pairs
  * Range:     u8 n <= 36, u16 n <= 1150, u32 n <= 1150, u64 n <= 1150,
  *            u128 n <= 1150, big any n
+ * Validated: standard, pass, 77 terms through n = 1125 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

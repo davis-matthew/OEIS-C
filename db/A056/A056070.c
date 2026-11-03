@@ -9,16 +9,17 @@
  *            coefficients computed via inclusion–exclusion on the 32 possible
  *            hyperedge types (subsets of the 5 nodes). The computation is
  *            done once and reused for every call
- * Range:     u8 none, u16 none, u32 n <= 9, u64 n <= 23, u128 n <= 23,
+ * Range:     u8 none, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 20 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static int pair_id[5][5];
 static long long coeff[33];
@@ -102,7 +103,7 @@ seq_t a(idx_t n)
         if (ck == 0) continue;
 
         /* Compute binomial term: C(n + k - 1, n) */
-        seq_t bin = binom(n + k - 1, n);
+        seq_t bin = binomial(n + k - 1, n);
 
         if (ck > 0)
         {

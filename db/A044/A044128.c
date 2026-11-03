@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* True if the base‑6 representation of x contains consecutive 4‑followed‑by‑2.
    The check scans the number from least–significant digit upwards. */
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
                 while (new_cap <= len)
                     new_cap <<= 1;
 
-            seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, new_cap);
             if (!tmp)          /* allocation failure – give up */
                 return (seq_t)0;
             terms = tmp;

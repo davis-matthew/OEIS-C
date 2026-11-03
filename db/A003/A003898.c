@@ -10,6 +10,7 @@
  *            (x1), q(q^2+q+1) (x(q-2)), (q+1)(q^2+q+1) (x(q-2)(q-3)/6)
  * Range:     u8 n <= 8, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
+ * Validated: full, pass, 72 terms through n = 72 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

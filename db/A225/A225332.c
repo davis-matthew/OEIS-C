@@ -11,12 +11,14 @@
  *            process indefinitely generates the whole sequence. Th...
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;      /* array holding the generated sequence   */
 static size_t seq_len = 0;     /* number of elements currently stored   */
@@ -25,7 +27,7 @@ static idx_t  proc_pos = 0;    /* position of next unprocessed run head */
 
 static void init_seq(void) {
     seq_cap = 64;
-    seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     seq[0] = (seq_t)2;         /* seed value                      */
     seq_len = 1;
     proc_pos = 0;
@@ -35,7 +37,7 @@ static void ensure_cap(size_t need) {
     if (need > seq_cap) {
         size_t new_cap = seq_cap;
         while (new_cap < need) new_cap <<= 1;
-        seq = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }

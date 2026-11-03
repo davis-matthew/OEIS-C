@@ -11,15 +11,26 @@
  *            applied to permutation-complementation: only p...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 9, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   a3086_gcd, a3086_pow2mod
+ * Validated: standard, pass, 32 terms through n = 78 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a3086_gcd.h"
-#include "../utils/a3086_pow2mod.h"
+#include "../utils/gcd_u64.h"
+
+static uint64_t a3086_pow2mod(uint64_t e, uint64_t m)
+{
+    unsigned __int128 r = 1 % m, b = 2 % m;
+    while (e) {
+        if (e & 1) r = r * b % m;
+        b = b * b % m;
+        e >>= 1;
+    }
+    return (uint64_t)r;
+}
 
 static int a3086_isfixed, a3086_W;
 static int a3086_odd;
@@ -72,7 +83,7 @@ static void a3086_rec(idx_t rem, idx_t maxj, uint64_t e, uint64_t zf, const seq_
     for (idx_t j = j0; j >= 1; j--) {
         uint64_t cross = 0;
         for (int i = 0; i < a3086_k; i++)
-            cross += 4 * a3086_ts[i] * a3086_gcd(j, a3086_js[i]);
+            cross += 4 * a3086_ts[i] * gcd_u64(j, a3086_js[i]);
         uint64_t zf2 = zf;
         seq_t zb2 = 0;
         if (!a3086_isfixed) zb2 = *zb;

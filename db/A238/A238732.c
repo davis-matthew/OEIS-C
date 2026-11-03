@@ -7,17 +7,19 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 96 terms through n = 7937 (2026-11-02)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /* Computes a(n) = #{ primes p < n | floor((n - p) / 3) is a perfect square } */
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/_floor_isqrt_u64.h"   /* _floor_isqrt_u64 works on idx_t (uint64_t) */
+#include "../utils/isqrt.h"
 
 static uint32_t *g_primes   = NULL;   /* array of primes up to current sieve limit */
 static size_t   g_prime_cnt = 0;      /* number of primes stored */
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
             break;
 
         idx_t m = (n - p) / 3;
-        idx_t s = _floor_isqrt_u64(m);
+        idx_t s = isqrt(m);
         if (s * s == m)
             ++count;
     }

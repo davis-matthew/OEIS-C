@@ -12,14 +12,32 @@
  *            A(i,j). * * This implementation is fully gene...
  * Range:     u8 n <= 50, u16 n <= 96, u32 n <= 162, u64 n <= 311,
  *            u128 n <= 578, big any n
- * Helpers:   big_pow, triangular_least
+ * Validated: standard, pass, 94 terms through n = 8979 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
-#include "../utils/triangular_least.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+/* Return the smallest integer s such that s*(s+1)/2 ≥ N */
+static idx_t triangular_least(idx_t N)
+{
+    idx_t low = 1, high = N;          /* high is a safe upper bound */
+    while (low < high)
+    {
+        idx_t mid = (low + high) >> 1;
+        /* Compute mid*(mid+1)/2 with 128‑bit to avoid overflow */
+        __uint128_t t = (__uint128_t)mid * (mid + 1) / 2;
+        if (t >= N)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t N)
 {
@@ -42,7 +60,7 @@ seq_t a(idx_t N)
         {
             idx_t n_over_d = i / d;
             idx_t exp = j * (n_over_d - 1);          /* exponent fits in idx_t */
-            seq_t pw = big_pow((seq_t)d, (seq_t)exp);/* compute d^exp */
+            seq_t pw = ipow((seq_t)d, (seq_t)exp);/* compute d^exp */
             sum += pw;
         }
     }

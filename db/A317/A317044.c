@@ -11,7 +11,8 @@
  *            memoising the indices found
  * Range:     u8 n <= 52, u16 n <= 1661, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- static cache for sequence terms ---------- */
 static size_t a_len  = 0, a_cap = 0;
@@ -120,7 +122,7 @@ static void append_a_val(seq_t val)
 {
     if (a_len == a_cap) {
         a_cap = a_cap ? a_cap * 2 : 4;
-        seq_t *tmp = (seq_t *)realloc(a_arr, a_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_arr, a_cap);
         if (!tmp) exit(EXIT_FAILURE);
         a_arr = tmp;
     }

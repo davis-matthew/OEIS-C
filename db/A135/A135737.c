@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   allocate_seq_array
+ * Validated: standard, pass, 93 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/allocate_seq_array.h"
+#include <assert.h>
+#include "../utils/mem.h"
+
+static seq_t *allocate_seq_array(size_t n)
+{
+#ifdef __cplusplus
+    return new seq_t[n];
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
 
 /* Compare two seq_t values for qsort */
 static int cmp_seq(const void *p1, const void *p2) {
@@ -66,7 +77,7 @@ static seq_t ulam1_additive(idx_t row, idx_t k) {
                 sums[idx++] = u[i] + u[j];
 
         /* sort to detect duplicates */
-        qsort(sums, pair_cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(sums, pair_cnt, sizeof(seq_t), cmp_seq);
 
         /* find smallest sum > last that occurs exactly once */
         seq_t next = last;

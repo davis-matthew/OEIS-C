@@ -10,7 +10,8 @@
  *            (mod 2), y ≤ z, x,y,z≥0 }|
  * Range:     u8 n <= 10, u16 n <= 469, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isqrt_seq
+ * Validated: standard, pass, 117 terms through n = 7971 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isqrt_seq.h"        /* isqrt_seq(seq_t) → seq_t */
+
+/* Integer square root (floor) of a non‑negative seq_t value. */
+static seq_t isqrt_seq(seq_t v)
+{
+    seq_t lo = 0, hi = v;
+    while (lo <= hi) {
+        seq_t mid = lo + ((hi - lo) >> 1);
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
 
 /* Integer square root for idx_t (uint64_t). */
 static inline idx_t u64_isqrt(idx_t n)

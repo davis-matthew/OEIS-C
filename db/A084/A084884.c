@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 76, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   index_to_rowcol
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/index_to_rowcol.h"
+
+/* Convert global index n (1‑based) to (row, col) in the triangular array. */
+static void index_to_rowcol(idx_t n, idx_t *row, idx_t *col)
+{
+    idx_t r = 1;
+    /* Linear search is trivial because r never exceeds ~150 for n <= 10000. */
+    while (r * (r + 1) / 2 < n) {
+        ++r;
+    }
+    *row = r;
+    idx_t before = r * (r - 1) / 2;
+    *col = n - before;
+}
 
 /* Small list of primes sufficient for numbers up to 200. */
 static const uint64_t primes[] = {

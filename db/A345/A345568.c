@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ecdfs
+ * Validated: standard, pass, 63 terms through n = 8671 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,30 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ecdfs.h"
+#include "../utils/mem.h"
+
+/* depth   : number of numbers chosen so far
+   start   : smallest value allowed for the next number (enforces nondecreasing)
+   sum     : current sum of chosen fourth powers
+   M       : maximum base value considered
+   pow4    : precomputed array of i^4 values (index 0 unused)
+   counts  : array of counters for each sum
+   max_sum : maximum possible sum for this M                    */
+static void ecdfs(int depth, int start, unsigned int sum,
+                  int M, const unsigned int *pow4,
+                  unsigned int *counts, unsigned int max_sum)
+{
+    if (depth == 7) {
+        ++counts[sum];
+        return;
+    }
+    for (int i = start; i <= M; ++i) {
+        unsigned int v = pow4[i];
+        unsigned int ns = sum + v;
+        if (ns > max_sum) break;               /* further i will yield even larger v */
+        ecdfs(depth + 1, i, ns, M, pow4, counts, max_sum);
+    }
+}
 
 /* ---------- static data --------------------------------------------------- */
 
@@ -57,7 +81,7 @@ static void build_cache(void)
 
         if (total >= REQUIRED_MAX) {          /* we have enough terms */
             seq_cache_len = total;
-            seq_cache = (seq_t *)malloc(seq_cache_len * sizeof(seq_t));
+            seq_cache = mem_new(seq_t, seq_cache_len);
             if (!seq_cache) exit(1);
 
             size_t idx = 0;

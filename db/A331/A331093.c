@@ -11,7 +11,8 @@
  *            3) in increasing order
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   digit_sum, is_prime
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   digit_sum, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"     /* bool is_prime(idx_t n); */
-#include "../utils/digit_sum.h"    /* seq_t digit_sum(seq_t v); */
+#include "../utils/digit_sum.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache    = NULL; /* array of computed terms               */
 static size_t cache_len    = 0;     /* number of terms stored                 */
@@ -31,7 +33,7 @@ static void grow_cache(void)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *new_ptr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_ptr) {
             /* allocation failed – terminate */
             abort();

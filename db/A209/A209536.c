@@ -9,17 +9,19 @@
  *            via Euler's pentagonal recurrence
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 39, u64 n <= 120, u128 n <= 398,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 4759 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate array for partition numbers p[0..n] */
-    seq_t *p = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (n + 1));
     if (!p) return (seq_t)0;          /* allocation failed */
 
     p[0] = (seq_t)1;                  /* p(0) = 1 */
@@ -52,6 +54,6 @@ seq_t a(idx_t n)
         acc += sum * sum;                    /* add square to total */
     }
 
-    free(p);
+    mem_free(p);
     return acc;
 }

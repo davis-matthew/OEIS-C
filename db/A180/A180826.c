@@ -11,7 +11,8 @@
  *            three pairs and order within each pair
  * Range:     u8 n <= 9, u16 n <= 22, u32 n <= 186, u64 n <= 444,
  *            u128 n <= 444, big any n
- * Helpers:   comb2_repeat, comb3_repeat
+ * Validated: standard, pass, 55 terms through n = 432 (2026-11-01)
+ * Helpers:   triangular_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,12 @@
 /* Implementation: O(n²) time, O(n) memory. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/comb2_repeat.h"
-#include "../utils/comb3_repeat.h"
+#include "../utils/triangular_idx.h"
+
+static inline seq_t comb3_repeat(idx_t n) {
+    /* number of multisets of size 3 from n distinct types: C(n+2,3) */
+    return ((seq_t)n * ((seq_t)n + 1) * ((seq_t)n + 2)) / 6;
+}
 
 seq_t a(idx_t n) {
     if (n <= 4) {
@@ -64,7 +69,7 @@ seq_t a(idx_t n) {
         if (b == a) continue;              /* need distinct residues */
         if (freq[b] == 0) continue;
 
-        seq_t ways_a = comb2_repeat(freq[a]);   /* ways to pick two from residue a (with repetition) */
+        seq_t ways_a = triangular_idx(freq[a]);   /* ways to pick two from residue a (with repetition) */
         seq_t ways   = ways_a * (seq_t)freq[b];
         result += ways;
     }

@@ -9,12 +9,14 @@
  *            a(n-17) , n ≥ 18 (The first 18 terms are listed below.)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 498 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     }
 
     /* Allocate an array to hold the computed values up to n. */
-    seq_t *a = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, (size_t)(n + 1));
     if (a == NULL) {
         /* Allocation failure – return 0 as a sentinel. */
         return (seq_t)0;
@@ -69,6 +71,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a[n];
-    free(a);
+    mem_free(a);
     return result;
 }

@@ -9,7 +9,8 @@
  *            rad(k) | a(n-1) (rad is the product of distinct prime factors)
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   rad
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/rad.h"
+#include "../utils/radical.h"
+#include "../utils/mem.h"
 
 /* Cached values of the sequence, 0‑based: cache[0] = a(1) */
 static seq_t *cache = NULL;
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
     if (cache_used < (size_t)n && cache_cap < (size_t)n) {
         size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
         if (new_cap < (size_t)n) new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* allocation failed */
         cache = tmp;
         cache_cap = new_cap;
@@ -51,7 +53,7 @@ static void ensure_cache(idx_t n)
 
             /* Find the least k > prev with rad(k) | prev */
             for (;;) {
-                seq_t radk = rad(k);   /* rad(k) as seq_t */
+                seq_t radk = radical(k);   /* rad(k) as seq_t */
                 if (prev % radk == 0)
                     break;
                 ++k;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   big_pow, pow2
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-02)
+ * Helpers:   ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
    This follows from the characterization of constructible
    (k^3-k)-gons: the only admissible k are 3,5 and k=2^(2^m)
    for m≥0. */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow.h"
 #include "../utils/pow2.h"
-#include "../utils/big_pow.h"
 
 seq_t a(idx_t n)
 {
@@ -32,6 +35,6 @@ seq_t a(idx_t n)
     /* n >= 5 */
     idx_t m = n - 3;            /* exponent for the inner power of two  */
     seq_t inner = pow2(m);      /* compute 2^m                             */
-    seq_t result = big_pow((seq_t)2, inner);  /* 2^(2^m) = 2^(2^(n-3)) */
+    seq_t result = ipow((seq_t)2, inner);  /* 2^(2^m) = 2^(2^(n-3)) */
     return result;
 }

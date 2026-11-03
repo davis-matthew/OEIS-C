@@ -9,13 +9,15 @@
  *            Lucas(1)=1 and Lucas(k)=Lucas(k-1)+Lucas(k-2)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* initialise the table on first call */
     if (L == NULL) {
         Lcap = 4;                  /* start with a small capacity */
-        L = (seq_t *)malloc(Lcap * sizeof(seq_t));
+        L = mem_new(seq_t, Lcap);
         L[0] = (seq_t)2;
         L[1] = (seq_t)1;
         Lmax = 1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         if ((idx_t)Lcap <= lucas_idx) {
             while ((idx_t)Lcap <= lucas_idx)
                 Lcap <<= 1;
-            L = (seq_t *)realloc(L, Lcap * sizeof(seq_t));
+            L = mem_resize(seq_t, L, Lcap);
         }
         /* compute missing Lucas numbers */
         for (idx_t i = Lmax + 1; i <= lucas_idx; ++i)

@@ -9,6 +9,7 @@
  *            a(n) is odd. The sequence enters the cycle 4,2,1 after 437 steps
  * Range:     u8 n <= 5, u16 n <= 27, u32 n <= 437, u64 n <= 437,
  *            u128 n <= 437, big any n
+ * Validated: standard, pass, 56 terms through n = 434 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = the nth odd composite number of the form p+2 with p prime
- * Range:     u8 n <= 36, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 36, u16 n <= 5681, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 72 terms through n = 9386 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* static storage for sieve and sequence */
 static unsigned char *isPrimeBool = NULL;   /* 1 = prime, 0 = composite */
@@ -53,7 +55,7 @@ static void ensure_term_cap(idx_t need) {
     if (term_cnt == 0 || term_cnt < need) {
         idx_t new_cap = (term_cnt == 0) ? 256 : term_cnt * 2;
         if (new_cap < need) new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(term_list, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, term_list, new_cap);
         if (!tmp) exit(1);
         term_list = tmp;
     }

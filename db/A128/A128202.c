@@ -12,13 +12,33 @@
  *            significant digit for the smallest disc
  * Range:     u8 n <= 32, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   hanoi_rec
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/hanoi_rec.h"
+
+/* Recursive helper that fills pos[] with the peg (0,1,2) of each disk,
+   for a puzzle with N disks.  The argument m is a 0‑based step number
+   (0 <= m <= 2^N-1).  The set of pegs to use is determined by the
+   parity of N (odd -> target=2, even -> target=1).  src is always 0. */
+static void hanoi_rec(int N, int src, int dst, int aux, idx_t m, unsigned char pos[])
+{
+    if (N == 0) return;
+    idx_t mid = ((idx_t)1 << (N - 1));      /* 2^(N-1) */
+    if (m < mid) {                          /* disk N not moved yet */
+        pos[N - 1] = (unsigned char)src;
+        hanoi_rec(N - 1, src, aux, dst, m, pos);
+    } else if (m == mid) {                  /* just moved disk N */
+        pos[N - 1] = (unsigned char)dst;
+        hanoi_rec(N - 1, src, aux, dst, mid - 1, pos);
+    } else {                                /* disk N already on dst */
+        pos[N - 1] = (unsigned char)dst;
+        hanoi_rec(N - 1, aux, dst, src, m - mid, pos);
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -12,7 +12,8 @@
  *            r*(r-1)/2
  * Range:     u8 n <= 9, u16 n <= 24, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   power_kk
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
  * works for any n>=1.  Values that fit into seq_t are computed exactly. */
 
 #include <stdbool.h>
-#include "../utils/power_kk.h"
+#include "../utils/ipow_idx.h"
 
 #define MAX_R 200                     /* enough for n up to >20000   */
 
@@ -75,6 +76,6 @@ seq_t a(idx_t n)
     }
 
     seq_t stir = Stirling[r][k];      /* |S1(r,k)| */
-    seq_t pk   = power_kk((seq_t)k, k); /* k^k      */
+    seq_t pk   = ipow_idx((seq_t)k, k); /* k^k      */
     return stir * pk;
 }

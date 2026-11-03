@@ -13,6 +13,7 @@
  *            terms and looks up the wanted term in O(n) time. It w...
  * Range:     i8 n <= 245, i16 n <= 6560, i32 n <= 6560, i64 n <= 6560,
  *            i128 n <= 6560, big any n
+ * Validated: standard, pass, 76 terms through n = 6121 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

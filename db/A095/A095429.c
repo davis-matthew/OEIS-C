@@ -7,6 +7,7 @@
  * Formula:   a(n) = decimal representation of 14 written in base n
  * Range:     u8 none, u16 none, u32 none, u64 n <= 14, u128 n <= 14,
  *            big any n
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

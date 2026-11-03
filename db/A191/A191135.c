@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 187, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   heap_swap
+ * Validated: standard, pass, 76 terms through n = 8228 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,33 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/heap_swap.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+static void heap_swap(seq_t *a, seq_t *b) {
+    seq_t t = *a; *a = *b; *b = t;
+}
 
 /* --- dynamic array helper ------------------------------------------------ */
+#ifdef __cplusplus
+template <class T>
+static T *grow_array(T **p, size_t *cap, size_t need, size_t elem_size) {
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap * 3) / 2;
+        if (new_cap < need) new_cap = need;
+        *p = mem_resize(T, *p, (new_cap * elem_size) / sizeof(T));
+        *cap = new_cap;
+    }
+    return *p;
+}
+#else
 static void *grow_array(void **p, size_t *cap, size_t need, size_t elem_size) {
     if (*cap < need) {
         size_t new_cap = (*cap == 0) ? 64 : (*cap * 3) / 2;
@@ -37,13 +62,14 @@ static void *grow_array(void **p, size_t *cap, size_t need, size_t elem_size) {
     }
     return *p;
 }
+#endif
 
 /* --- min‑heap ---------------------------------------------------------------- */
 static seq_t *heap_arr = NULL;      /* min‑heap array */
 static size_t heap_cap = 0, heap_len = 0;
 
 static void heap_push(seq_t val) {
-    heap_arr = (seq_t *)grow_array((void**)&heap_arr, &heap_cap,
+    heap_arr = (seq_t *)grow_array(OEISC_VPP(&heap_arr), &heap_cap,
                                    heap_len + 1, sizeof(seq_t));
     size_t i = heap_len++;
     heap_arr[i] = val;
@@ -83,7 +109,7 @@ static bool seen_contains(seq_t val) {
 }
 
 static void seen_append(seq_t val) {
-    seen_arr = (seq_t *)grow_array((void**)&seen_arr, &seen_cap,
+    seen_arr = (seq_t *)grow_array(OEISC_VPP(&seen_arr), &seen_cap,
                                    seen_len + 1, sizeof(seq_t));
     seen_arr[seen_len++] = val;
 }
@@ -110,7 +136,7 @@ seq_t a(idx_t n) {
 
     while (seq_len < (size_t)n) {
         seq_t x = heap_pop();
-        seq_arr = (seq_t *)grow_array((void**)&seq_arr, &seq_cap,
+        seq_arr = (seq_t *)grow_array(OEISC_VPP(&seq_arr), &seq_cap,
                                       seq_len + 1, sizeof(seq_t));
         seq_arr[seq_len++] = x;
 

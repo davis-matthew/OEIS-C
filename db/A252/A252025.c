@@ -10,14 +10,44 @@
  *            anti‑diagonal sums different from 0, 2 and 4
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 22, u64 n <= 47, u128 n <= 99,
  *            big any n
- * Helpers:   block_valid
+ * Validated: standard, pass, 41 terms through n = 198 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/block_valid.h"
+
+/* Check if a 3×3 block satisfies the sum constraints. */
+static inline bool block_valid(const uint8_t r1[3], const uint8_t r2[3],
+                               const uint8_t r3[3]) {
+    int s;
+
+    /* Row sums */
+    s = r1[0] + r1[1] + r1[2];
+    if (s == 0 || s == 2 || s == 4) return false;
+    s = r2[0] + r2[1] + r2[2];
+    if (s == 0 || s == 2 || s == 4) return false;
+    s = r3[0] + r3[1] + r3[2];
+    if (s == 0 || s == 2 || s == 4) return false;
+
+    /* Column sums */
+    for (int c = 0; c < 3; ++c) {
+        s = r1[c] + r2[c] + r3[c];
+        if (s == 0 || s == 2 || s == 4) return false;
+    }
+
+    /* Main diagonal */
+    s = r1[0] + r2[1] + r3[2];
+    if (s == 0 || s == 2 || s == 4) return false;
+
+    /* Anti‑diagonal */
+    s = r1[2] + r2[1] + r3[0];
+    if (s == 0 || s == 2 || s == 4) return false;
+
+    return true;
+}
 
 /* 3³ possible rows, 27*27 states for two consecutive rows */
 enum { ROWS   = 27,            /* number of distinct 3‑digit rows */

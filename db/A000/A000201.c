@@ -9,18 +9,19 @@
  *            isqrt(5*n^2))/2
  * Range:     u8 n <= 158, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a201_isqrt128
+ * Validated: standard, pass, 84 terms through n = 8867 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a201_isqrt128.h"
+#include "../utils/isqrt_u128.h"
 
 seq_t a(idx_t n)
 {
     unsigned __int128 N = (unsigned __int128)n;
-    unsigned __int128 r = a201_isqrt128(5 * N * N);
+    unsigned __int128 r = isqrt_u128(5 * N * N);
     /* sqrt(5)*n is irrational for n>=1, so floor((n+sqrt(5n^2))/2) = floor((n+isqrt)/2) */
     uint64_t v = (uint64_t)(N + (r - N) / 2);
     return (seq_t)v;

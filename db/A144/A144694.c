@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 1, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 9541 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Recurrence: a(0) = 0; a(n+1) = (a(n) * 7202161 + 1234567) mod 277945762500 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline seq_t mul_mod_seq(seq_t a, seq_t b, seq_t mod)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     /* Initialize cache for n = 0 if it hasn't been done yet */
     if (cache_size == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) exit(1);          /* abort on allocation failure */
         cache[0] = (seq_t)0;
         cache_size = 1;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
 
     /* Increase cache size to accommodate up to n */
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) exit(1);                  /* abort on allocation failure */
     cache = tmp;
 

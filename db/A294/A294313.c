@@ -9,15 +9,18 @@
  *            a(1)=0, a(2)=-1, … (as in OEIS A294313)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 19, i128 n <= 21,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   binomial, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
 
     /* initialise cache if needed */
     if (euler_len == 0) {
-        euler = (seq_t *)malloc(sizeof(seq_t));
+        euler = mem_new(seq_t, 1);
         if (!euler) return 0;          /* out‑of‑memory fallback */
         euler[0] = 1;                  /* E0 = 1 */
         euler_len = 1;
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
     /* extend cache to include E_{2m} up to m_max */
     if (euler_len <= (size_t)m_max) {
         size_t new_len = (size_t)(m_max + 1);
-        seq_t *tmp = (seq_t *)realloc(euler, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, euler, new_len);
         if (!tmp) return 0;            /* out‑of‑memory fallback */
         euler = tmp;
 
@@ -61,7 +64,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (idx_t m = 1; m <= m_max; ++m) {   /* m=0 contributes only to a(0) */
         seq_t bin  = binomial(n, 2 * m);
-        seq_t pow  = seq_pow((seq_t)(2 * m), n - 2 * m);
+        seq_t pow  = ipow_idx((seq_t)(2 * m), n - 2 * m);
         seq_t term = euler[m] * bin;
         term = term * pow;
         result = result + term;

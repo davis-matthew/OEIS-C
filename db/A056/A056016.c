@@ -7,12 +7,14 @@
  * Formula:   a(n) = -2*a(n - 1) - a(n - 2) - a(n - 3), a(0) = a(1) = a(2) = 1
  * Range:     i8 n <= 9, i16 n <= 19, i32 n <= 37, i64 n <= 37, i128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 3) {
@@ -27,13 +29,13 @@ seq_t a(idx_t n) {
     /* initialise or grow storage */
     if (memo == NULL) {
         memo_cap = (size_t)n + 1;
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         memo[0] = memo[1] = memo[2] = (seq_t)1;
         memo_len = 3;
     } else if ((size_t)n >= memo_cap) {
         size_t new_cap = memo_cap;
         while ((size_t)n >= new_cap) new_cap <<= 1;
-        memo = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, new_cap);
         memo_cap = new_cap;
     }
 

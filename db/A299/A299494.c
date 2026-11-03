@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- used‑value bitset ---------- */
 static uint64_t *used_bits = NULL;   /* dynamic bit array */
@@ -99,11 +101,10 @@ static void grow_arr(seq_t **arr, size_t *cap, size_t idx)
     size_t new_cap = *cap ? *cap * 2 : 3;
     while (new_cap <= (size_t)idx)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, *arr, new_cap);
     if (!new_arr) abort();
     if (*arr)
-        memset(new_arr + *cap, 0,
-               (new_cap - *cap) * sizeof(seq_t));
+        mem_set(new_arr + *cap, 0, (new_cap - *cap) * sizeof(seq_t));
     *arr = new_arr;
     *cap = new_cap;
 }
@@ -113,8 +114,8 @@ static void init(void)
     /* initialise arrays */
     a_cap = 3;
     b_cap = 3;
-    a_arr = (seq_t*)calloc(a_cap, sizeof(seq_t));
-    b_arr = (seq_t*)calloc(b_cap, sizeof(seq_t));
+    a_arr = mem_new(seq_t, a_cap);
+    b_arr = mem_new(seq_t, b_cap);
     if (!a_arr || !b_arr) abort();
 
     /* base values of a(n) */

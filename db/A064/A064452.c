@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime list, built incrementally ---------- */
 static uint32_t *prime_list = NULL;
@@ -119,8 +121,7 @@ static void generate_next_term(void)
         if ((__int128)phi * best_n > (__int128)best_phi * n) {
             if (term_len == term_cap) {
                 size_t newcap = term_cap ? term_cap * 2 : 8;
-                term_table = (seq_t *)realloc(term_table,
-                                              newcap * sizeof(seq_t));
+                term_table = mem_resize(seq_t, term_table, newcap);
                 term_cap   = newcap;
             }
             term_table[term_len++] = (seq_t)n;

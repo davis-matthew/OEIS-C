@@ -9,13 +9,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*
  * Formula: a(n) is the n‑th decimal digit (1‑based) of the number 171/93,
@@ -38,7 +40,7 @@ static void ensure_capacity(idx_t needed)
     if (digits_cap >= (size_t)needed) return;
     size_t new_cap = digits_cap ? digits_cap * 2 : 128;
     while (new_cap < (size_t)needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(digits, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, digits, new_cap);
     if (!tmp) abort();        /* allocation failed */
     digits = tmp;
     digits_cap = new_cap;

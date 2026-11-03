@@ -10,22 +10,24 @@
  * Formula:   a(n) = sum_{k=0}^{n} C(n, k) * 2^(k*(k-1)/2)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   binom, pw2
+ * Validated: standard, pass, 33 terms through n = 79 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/pw2.h"
-
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     seq_t result = 0;
     
     for (idx_t k = 0; k <= n; k++) {
-        seq_t binom_nk = binom(n, k);
+        seq_t binom_nk = binomial(n, k);
         idx_t exponent = k * (k - 1) / 2;
-        seq_t power_of_2 = pw2(exponent);
+        seq_t power_of_2 = pow2(exponent);
         result += binom_nk * power_of_2;
     }
     

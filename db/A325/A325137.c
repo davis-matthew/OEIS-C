@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
    Sum_{j=0..n-k} binomial(j+k,k)*|Stirling1(n,j+k)|*(k+1)^j   */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"      /* binomial */
-#include "../utils/big_pow.h"      /* big_pow */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* Maximum n for which we need Stirling numbers.  For n <= 10000
    the corresponding row index never exceeds 140, so 200 is safe. */
@@ -58,7 +60,7 @@ static seq_t T_value(idx_t m, idx_t r)
     for (idx_t j = 0; j <= maxj; ++j) {
         seq_t binom = binomial(j + r, r);
         seq_t stir  = stirling1[m][j + r];
-        seq_t powv  = big_pow((seq_t)(r + 1), j);
+        seq_t powv  = ipow((seq_t)(r + 1), j);
 
         /* Use 128–bit intermediates to avoid overflow when seq_t is small. */
         unsigned __int128 prod = (unsigned __int128)binom * (unsigned __int128)stir;

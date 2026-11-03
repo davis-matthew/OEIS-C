@@ -12,7 +12,8 @@
  *            x^{2j-1}) at x^k
  * Range:     u8 n <= 62, u16 n <= 158, u32 n <= 550, u64 n <= 2218,
  *            u128 n <= 2870, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 2761 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 typedef struct {
     size_t len;
@@ -34,7 +36,7 @@ static int initialized = 0;
 static void init_rows(void) {
     rows_count = 1;
     rows[1].len = 1;
-    rows[1].data = (seq_t*)malloc(sizeof(seq_t));
+    rows[1].data = mem_new(seq_t, 1);
     rows[1].data[0] = (seq_t)1;
     initialized = 1;
 }
@@ -58,7 +60,7 @@ seq_t a(idx_t n) {
         size_t factor_len = 2 * cur;           /* length of new factor (all ones) */
         size_t new_len = prev_len + factor_len - 1;
 
-        seq_t *new_data = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *new_data = mem_new(seq_t, new_len);
         for (size_t k = 0; k < new_len; ++k) {
             seq_t sum = 0;
             size_t i_min = (k >= factor_len - 1) ? k - (factor_len - 1) : 0;

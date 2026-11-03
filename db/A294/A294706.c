@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   avoid_patterns
+ * Validated: full, pass, 10 terms through n = 9 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,43 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/avoid_patterns.h"
+
+/* Helper: test whether a permutation of length n avoids all forbidden patterns */
+static bool avoid_patterns(int n, const int *perm)
+{
+    if (n < 4)
+        return true;  /* No 4‑letter pattern can appear */
+
+    for (int i = 0; i < n - 3; ++i) {
+        int a = perm[i];
+        for (int j = i + 1; j < n - 2; ++j) {
+            int b = perm[j];
+            for (int k = j + 1; k < n - 1; ++k) {
+                int c = perm[k];
+                for (int l = k + 1; l < n; ++l) {
+                    int d = perm[l];
+
+                    /* 1234 pattern: strictly increasing */
+                    if (a < b && b < c && c < d)
+                        return false;
+
+                    /* 4321 pattern: strictly decreasing */
+                    if (a > b && b > c && c > d)
+                        return false;
+
+                    /* 3412 pattern: ranks 3,4,1,2 in relative order */
+                    /* Equivalent conditions:  b is largest, a second largest,
+                       d second smallest, c smallest. */
+                    if (b > a && b > c && b > d &&
+                        a > c && a > d &&
+                        d > c)
+                        return false;
+                }
+            }
+        }
+    }
+    return true;
+}
 
 #define MAX_N 9  /* Maximum n for which non‑zero terms exist */
 

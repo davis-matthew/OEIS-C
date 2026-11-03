@@ -9,7 +9,8 @@
  *            n even >=6 where v(p,n) is the p-adic valuation of n
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 47, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   build_primes_upto, gcd, pow_uint
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/gcd.h"
-#include "../utils/pow_uint.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
 
         /* multiply by p^exp (exp may be 0) */
         if (exp > 0) {
-            result *= pow_uint(p, (idx_t)exp);
+            result *= ipow_u64_idx(p, (idx_t)exp);
         }
     }
 

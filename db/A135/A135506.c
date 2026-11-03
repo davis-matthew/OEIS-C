@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = x(n+1)/x(n) - 1 where x(1)=1, x(k)=x(k-1)+lcm(x(k-1),k).
  *            See OEIS A135506
- * Range:     u8 n <= 254, u16 n <= 9589, u32 n <= 9589, u64 n <= 9589,
- *            u128 n <= 9589, big any n
+ * Range:     u8 n <= 254, u16 n <= 65534, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 104 terms through n = 9589 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

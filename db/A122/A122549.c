@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
      a(3k+3) = a(3k+1) – a(3k+2)
    where digit_sum(x) is the sum of the decimal digits of x.
 */
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
 
 seq_t a(idx_t n)

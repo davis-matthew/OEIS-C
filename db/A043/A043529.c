@@ -6,8 +6,9 @@
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = 1 if (n & (n+1)) == 0, else 2. Equivalent to 2 -
  *            A036987(n)
- * Range:     u8 n <= 9992, u16 n <= 9992, u32 n <= 9992, u64 n <= 9992,
- *            u128 n <= 9992, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 107 terms through n = 9992 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

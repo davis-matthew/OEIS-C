@@ -10,15 +10,42 @@
  *            of n
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   binary_substring, floor_log2_uint64
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"
-#include "../utils/binary_substring.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
+
+/* Check if the binary representation of 'pat' (len=plen bits) occurs
+   as a contiguous substring in the binary representation of 'n'
+   (len=nlen bits).  All lengths are <= 64. */
+static bool binary_substring(idx_t n, uint8_t nlen, uint64_t pat, uint8_t plen)
+{
+    if (plen > nlen)
+        return false;
+
+    /* Special case: 64‑bit pattern (no shift possible). */
+    if (plen == 64)
+        return n == pat;
+
+    /* Mask to isolate a plen‑bit slice. */
+    uint64_t mask = ((uint64_t)1 << plen) - 1ULL;
+
+    idx_t shift_start = (idx_t)nlen - (idx_t)plen;
+
+    for (idx_t off = 0; off <= shift_start; ++off) {
+        idx_t shift = shift_start - off;
+        uint64_t extracted = (n >> shift) & mask;
+        if (extracted == pat)
+            return true;
+    }
+    return false;
+}
 
 enum { MAX_FIB_COUNT = 93 };            /* F(94) > 2^64 - 1 */
 
@@ -55,12 +82,12 @@ seq_t a(idx_t n)
     init_fib_values();
 
     /* Binary length of n. */
-    uint8_t nlen = (uint8_t)(floor_log2_uint64(n) + 1);
+    uint8_t nlen = (uint8_t)(ilog2(n) + 1);
 
     /* Scan Fibonacci numbers from largest to smallest. */
     for (size_t ii = fib_count; ii-- > 0; ) {
         uint64_t fib   = fib_values[ii];
-        uint8_t flen   = (uint8_t)(floor_log2_uint64(fib) + 1);
+        uint8_t flen   = (uint8_t)(ilog2(fib) + 1);
 
         if (flen > nlen)               /* cannot fit as substring */
             continue;

@@ -10,12 +10,14 @@
  *            a(n) is the row‑major listing of these rows
  * Range:     i8 n <= 20, i16 n <= 43, i32 n <= 49, i64 n <= 49, i128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         if (cached_rows == 0) {
             /* ensure at least one row of capacity */
             if (cap_rows == 0) cap_rows = 1;
-            cache = (seq_t *)malloc(sizeof(seq_t) * cap_rows * COLS);
+            cache = mem_new(seq_t, cap_rows * COLS);
             /* base row */
             cache[0] = (seq_t)0;          /* T(0,1) */
             cache[1] = (seq_t)0;          /* T(0,2) */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         if (cached_rows >= cap_rows) {
             idx_t new_cap = cap_rows == 0 ? 1 : cap_rows * 2;
             while (new_cap <= cached_rows * 2) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap * COLS);
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap * COLS);
             cache = tmp;
             cap_rows = new_cap;
         }

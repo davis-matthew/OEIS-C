@@ -9,7 +9,8 @@
  *            bignum
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_words, shl_into, sub_words
+ * Validated: standard, pass, 115 terms through n = 9426 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/cmp_words.h"
-#include "../utils/shl_into.h"
-#include "../utils/sub_words.h"
+
+static int cmp_words(const uint32_t *x, const uint32_t *y, size_t w) {
+    size_t i = w;
+    while (i > 0) {
+        i--;
+        if (x[i] != y[i]) return x[i] > y[i] ? 1 : -1;
+    }
+    return 0;
+}
+
+static void shl_into(uint32_t *dst, const uint32_t *src, size_t w, int k) {
+    uint32_t carry = 0;
+    for (size_t i = 0; i < w; i++) {
+        uint32_t v = src[i];
+        dst[i] = (v << k) | carry;
+        carry = v >> (32 - k);
+    }
+}
+
+static void sub_words(uint32_t *x, const uint32_t *y, size_t w) {
+    uint64_t borrow = 0;
+    for (size_t i = 0; i < w; i++) {
+        uint64_t d = (uint64_t)x[i] - (uint64_t)y[i] - borrow;
+        x[i] = (uint32_t)d;
+        borrow = (d >> 63) & 1;
+    }
+}
 
 static uint32_t *Rw = NULL, *Mw = NULL, *Tw = NULL;
 static size_t capw = 0;

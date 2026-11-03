@@ -9,14 +9,17 @@
  *            the arithmetic derivatives). The function computes the
  *            derivatives using prime factorization of the integer n, which is
  *            sufficient for n up to 10 000 (and thus for all tests)
- * Range:     u8 n <= 9442, u16 n <= 9442, u32 n <= 9442, u64 n <= 9442,
- *            u128 n <= 9442, big any n
+ * Range:     u8 n <= 100023, u16 n <= 100023, u32 n <= 100023,
+ *            u64 n <= 100023, u128 n <= 100023, big any n
+ * Validated: standard, pass, 137 terms through n = 9442 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static uint64_t derivative_uint64(uint64_t x)

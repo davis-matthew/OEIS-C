@@ -13,7 +13,8 @@
  *            the...
  * Range:     u8 n <= 126, u16 n <= 388, u32 n <= 1346, u64 n <= 4890,
  *            u128 n <= 5150, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 4817 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for the flattened triangle (a[0], a[1], …), zero‑based.  */
 static seq_t *flat      = NULL;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         idx_t row     = next_row;
         idx_t cur_len = row + 1;
 
-        seq_t *cur = (seq_t *)calloc((size_t)cur_len, sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, (size_t)cur_len);
         if (!cur) {
             /* Out of memory – return zero (should not happen in test cases). */
             return (seq_t)0;
@@ -79,9 +81,9 @@ seq_t a(idx_t n)
         if (needed > flat_cap) {
             idx_t new_cap = (flat_cap > 0) ? flat_cap * 2 : 16;
             while (new_cap < needed) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(flat, (size_t)new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, flat, (size_t)new_cap);
             if (!tmp) {
-                free(cur);
+                mem_free(cur);
                 /* Out of memory – return zero. */
                 return (seq_t)0;
             }
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
         prev1 = cur;
         prev1_len = cur_len;
 
-        if (old_prev2) free(old_prev2);
+        if (old_prev2) mem_free(old_prev2);
 
         ++next_row;
     }

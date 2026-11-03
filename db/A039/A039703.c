@@ -7,6 +7,7 @@
  * Formula:   a(n) = n-th prime modulo 5 (OEIS A039703)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 121 terms through n = 941 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,10 @@
 /* Uses a sieve to generate the first n primes on demand. */
 
 #include <stdlib.h>           /* free */
-#include "../utils/sieve_first_n_primes.h"   /* sieve_first_n_primes */
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/sieve_first_n_primes.h"
 
 seq_t a(idx_t n)
 {

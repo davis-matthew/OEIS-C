@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 12, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 175 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* There are 3^5 = 243 possible rows of length 5 over {0,1,2}. */
 #define STATE_COUNT 243
@@ -88,8 +90,8 @@ seq_t a(idx_t n)
 {
     /* Lazily build graph and buffers. */
     if (!graph_built) {
-        dp      = (seq_t *)malloc(sizeof(seq_t) * STATE_COUNT);
-        dp_next = (seq_t *)malloc(sizeof(seq_t) * STATE_COUNT);
+        dp      = mem_new(seq_t, STATE_COUNT);
+        dp_next = mem_new(seq_t, STATE_COUNT);
         build_graph();
         graph_built = true;
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 1823, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, count_le
+ * Validated: standard, pass, 78 terms through n = 7598 (2026-11-01)
+ * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,20 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/build_primes.h"   /* provides build_primes */
-#include "../utils/count_le.h"
+#include <stdint.h>
+#include "../utils/build_primes.h"
+
+/* Count how many elements of the sorted array arr[0..len-1] are ≤ val. */
+static inline size_t count_le(const idx_t *arr, size_t len, idx_t val)
+{
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] <= val) lo = mid + 1;
+        else                 hi = mid;
+    }
+    return lo; /* number of elements ≤ val */
+}
 
 static idx_t *primes = NULL;      /* array of primes */
 static size_t primes_cnt = 0;     /* number of primes stored */

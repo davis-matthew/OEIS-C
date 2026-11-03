@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 39, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
     /* Initialise at first call */
     if (cur_L == 0) {
-        memset(dp_prev, 0, sizeof(dp_prev));
+        mem_set(dp_prev, 0, sizeof(dp_prev));
         /* After the first element (which must be 0),
            the last two elements are both 0 and the maximum is 0. */
         dp_prev[0][0][0] = 1;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* Extend DP up to the required length */
     while (cur_L < L_needed) {
         /* Clear next state */
-        memset(dp_curr, 0, sizeof(dp_curr));
+        mem_set(dp_curr, 0, sizeof(dp_curr));
 
         /* Transition from dp_prev to dp_curr */
         for (int a = 0; a < 10; ++a) {
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         }
 
         /* Prepare for next iteration */
-        memcpy(dp_prev, dp_curr, sizeof(dp_prev));
+        mem_copy(dp_prev, dp_curr, sizeof(dp_prev));
         ++cur_L;
 
         /* Store a(n) when cur_L corresponds to n = cur_L - 2 */
@@ -93,14 +95,12 @@ seq_t a(idx_t n)
                 size_t new_cap = vals_cap ? (vals_cap << 1) : 16;
                 while (new_cap < idx)
                     new_cap <<= 1;
-                seq_t *new_arr = (seq_t *)realloc(vals,
-                                                  (new_cap + 1) * sizeof(seq_t));
+                seq_t *new_arr = mem_resize(seq_t, vals, (new_cap + 1));
                 if (!new_arr) return 0; /* allocation failure */
                 if (!vals)
-                    memset(new_arr, 0, (new_cap + 1) * sizeof(seq_t));
+                    mem_set(new_arr, 0, (new_cap + 1) * sizeof(seq_t));
                 else
-                    memset(new_arr + vals_cap + 1,
-                           0, (new_cap - vals_cap) * sizeof(seq_t));
+                    mem_set(new_arr + vals_cap + 1, 0, (new_cap - vals_cap) * sizeof(seq_t));
                 vals = new_arr;
                 vals_cap = new_cap;
             }

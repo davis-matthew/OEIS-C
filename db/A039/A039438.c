@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache   = 0;   /* cache of computed terms           */
 static size_t cache_len   = 0;   /* number of cached terms            */
@@ -29,7 +31,7 @@ static idx_t  next_gen_len = 2;  /* next base‑11 length to generate   */
 static void push_back(seq_t val) {
     if (cache_len >= cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-        seq_t *p = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, seq_cache, new_cap);
         seq_cache = p;
         cache_cap = new_cap;
     }
@@ -73,8 +75,7 @@ seq_t a(idx_t n) {
         /* The newly added segment is already all larger than previous
            terms (because it has longer base‑11 representation), so only
            the new segment needs sorting. */
-        qsort(&seq_cache[old_len], cache_len - old_len,
-              sizeof(seq_t), seq_compare);
+        mem_qsort(&seq_cache[old_len], cache_len - old_len, sizeof(seq_t), seq_compare);
         next_gen_len++;
     }
     return seq_cache[n - 1];

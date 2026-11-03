@@ -7,6 +7,7 @@
  * Formula:   a(n) = round(n * 1250 / 1143)
  * Range:     u8 n <= 0, u16 n <= 9144, u32 n <= 9144, u64 n <= 9144,
  *            u128 n <= 9144, big any n
+ * Validated: standard, pass, 84 terms through n = 8709 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

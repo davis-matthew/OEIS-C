@@ -9,7 +9,8 @@
  *            primorial
  * Range:     u8 n <= 64, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9812 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool seq_a_initialized = false;   /* flag */
 static seq_t *seq_terms      = NULL;     /* array of found terms */
@@ -49,7 +51,7 @@ static void init_seq_a(void)
 
     /* Allocate the results array. */
     seq_terms_cap = INIT_CAP;
-    seq_terms = (seq_t*)malloc(seq_terms_cap * sizeof(seq_t));
+    seq_terms = mem_new(seq_t, seq_terms_cap);
     seq_terms_len = 0;
 
     /* List of primorials up to LIMIT for exclusion. */
@@ -93,7 +95,7 @@ static void init_seq_a(void)
         if (seq_terms_len == seq_terms_cap)
         {
             seq_terms_cap *= 2;
-            seq_terms = (seq_t*)realloc(seq_terms, seq_terms_cap * sizeof(seq_t));
+            seq_terms = mem_resize(seq_t, seq_terms, seq_terms_cap);
             if (!seq_terms) return; /* allocation failed – not expected */
         }
         seq_terms[seq_terms_len++] = (seq_t)k;

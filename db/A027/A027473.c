@@ -7,12 +7,15 @@
  * Formula:   a(n) = n*7^(n-1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 44,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 38 terms through n = 297 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,6 +24,6 @@ seq_t a(idx_t n)
         return (seq_t)0;
     }
     seq_t exponent = (seq_t)(n - 1);
-    seq_t power = big_pow((seq_t)7, exponent);
+    seq_t power = ipow((seq_t)7, exponent);
     return (seq_t)n * power;
 }

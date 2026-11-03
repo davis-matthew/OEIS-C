@@ -7,13 +7,22 @@
  * Formula:   a(n) = floor(15^(n/4))
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   pow15_q
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/pow15_q.h"
+
+/* auxiliary: power of 15 for an exponent q (q≥0) */
+static seq_t pow15_q(idx_t q)
+{
+    seq_t res = 1;
+    for (idx_t i = 0; i < q; ++i)
+        res *= (seq_t)15;
+    return res;
+}
 
 /* sequence value */
 seq_t a(idx_t n)

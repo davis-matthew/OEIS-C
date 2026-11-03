@@ -11,7 +11,8 @@
  *            p_k*q_(k-1) + q_(k-2)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint64_t *period_terms = NULL;  /* periodic partial quotients after a0 */
 static size_t period_len = 0;
@@ -58,7 +60,7 @@ static void ensure_size(idx_t n) {
     if (!initialized) {
         compute_period();
         denoms_cap = 64;
-        denoms = (seq_t *)malloc(denoms_cap * sizeof(seq_t));
+        denoms = mem_new(seq_t, denoms_cap);
         denoms[0] = (seq_t)1;   /* q_0 = 1 */
         denoms_len = 1;
         initialized = true;
@@ -74,7 +76,7 @@ static void ensure_size(idx_t n) {
 
         if (denoms_len >= denoms_cap) {
             denoms_cap *= 2;
-            denoms = (seq_t *)realloc(denoms, denoms_cap * sizeof(seq_t));
+            denoms = mem_resize(seq_t, denoms, denoms_cap);
         }
         denoms[denoms_len++] = q_k;
     }

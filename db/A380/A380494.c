@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 131, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 82 terms through n = 9336 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* indexed starting at 1, seq[0] unused */
 static size_t seq_cap = 0;         /* maximum index currently allocated for */
@@ -34,7 +36,7 @@ static void ensure_seq_cap(size_t n)
     if (seq_cap >= n) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 4;
     while (new_cap < n) new_cap *= 2;
-    seq = (seq_t *)realloc(seq, sizeof(seq_t) * (new_cap + 1));   /* +1 for index 0 */
+    seq = mem_resize(seq_t, seq, (new_cap + 1));   /* +1 for index 0 */
     seq_cap = new_cap;
 }
 

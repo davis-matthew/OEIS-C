@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 259, u32 n <= 793, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   _tri128, gcd
+ * Validated: standard, pass, 94 terms through n = 1227 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,7 +39,12 @@
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/_tri128.h"
+
+/* 128‑bit triangular value: (s+1)*(s+2)/2 */
+static __inline unsigned __int128 _tri128(idx_t s)
+{
+    return (unsigned __int128)(s + 1) * (s + 2) / 2;
+}
 
 /* Univariate binomial coefficient with safe multiplicative steps */
 static seq_t _binom(idx_t n, idx_t k)

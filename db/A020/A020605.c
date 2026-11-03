@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   _cmp_uint64, _gcd_u64, _mul_mod_u64, _pow_mod_u64
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-02)
+ * Helpers:   gcd_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,10 +26,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_cmp_uint64.h"
-#include "../utils/_gcd_u64.h"
-#include "../utils/_mul_mod_u64.h"
-#include "../utils/_pow_mod_u64.h"
+#include <stddef.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+
+static int _cmp_uint64(const void *a, const void *b)
+{
+    uint64_t va = *(const uint64_t *)a;
+    uint64_t vb = *(const uint64_t *)b;
+    return (va > vb) - (va < vb);
+}
 
 /* ---------- Small arithmetic utilities ---------- */
 
@@ -64,11 +72,11 @@ static bool _is_prime_u64(uint64_t n)
     for (size_t i = 0; i < sizeof(bases)/sizeof(bases[0]); ++i) {
         uint64_t a = bases[i] % n;
         if (a == 0) continue;
-        uint64_t x = _pow_mod_u64(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1 || x == n - 1) continue;
         bool cont = false;
         for (uint64_t r = 1; r < s; ++r) {
-            x = _mul_mod_u64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { cont = true; break; }
         }
         if (!cont) return false;
@@ -97,10 +105,10 @@ static uint64_t _pollard_rho(uint64_t n)
     uint64_t y = x;
     uint64_t d = 1;
     while (d == 1) {
-        x = (_mul_mod_u64(x, x, n) + c) % n;
-        y = (_mul_mod_u64(y, y, n) + c) % n;
-        y = (_mul_mod_u64(y, y, n) + c) % n;
-        d = _gcd_u64(x > y ? x - y : y - x, n);
+        x = (mulmod(x, x, n) + c) % n;
+        y = (mulmod(y, y, n) + c) % n;
+        y = (mulmod(y, y, n) + c) % n;
+        d = gcd_u64(x > y ? x - y : y - x, n);
         if (d == n) return _pollard_rho(n); /* retry with different params */
     }
     return d;

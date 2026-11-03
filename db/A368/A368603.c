@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Constants */
 #define SIEVE_LIMIT   50000   /* enough to cover all needed primes */
@@ -94,7 +96,7 @@ static void init(void)
 
     /* 4. initialise sequence array with a(1)=1 */
     seq_cap = 16;
-    seq_a   = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_a   = mem_new(seq_t, seq_cap);
     seq_a[0] = (seq_t)1;
     seq_len  = 1;
 
@@ -119,7 +121,7 @@ static void grow_seq(idx_t n)
         /* store */
         if (seq_len == seq_cap) {
             seq_cap *= 2;
-            seq_a = (seq_t *)realloc(seq_a, seq_cap * sizeof(seq_t));
+            seq_a = mem_resize(seq_t, seq_a, seq_cap);
         }
         seq_a[seq_len++] = next_val;
         /* move pointers that produced the minimum */

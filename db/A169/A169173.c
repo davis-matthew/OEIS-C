@@ -10,10 +10,13 @@
  *            (a(n-1)+a(n-2)+...+a(n-26)) – 104 * a(n-27)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Allocate array to hold the values up to n.  n ≤ 10 000 for the tests, */
     /* so this memory consumption is trivial. */
-    seq_t *a_val = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *a_val = mem_new(seq_t, (n + 1));
     if (!a_val) return (seq_t)0;   /* out of memory – unlikely in tests */
 
     /* Initialize the first 27 terms. */
@@ -49,6 +52,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_val[n];
-    free(a_val);
+    mem_free(a_val);
     return result;
 }

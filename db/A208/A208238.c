@@ -9,7 +9,8 @@
  *            representation of n as a contiguous substring
  * Range:     u8 n <= 37, u16 n <= 4179, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bin_contains, next_prime
+ * Validated: standard, pass, 76 terms through n = 9262 (2026-11-01)
+ * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,28 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/next_prime.h"
-#include "../utils/bin_contains.h"
+
+/* Check whether the binary representation of pattern (with bit length len)
+   occurs as a contiguous substring in the binary representation of cand. */
+static bool bin_contains(uint64_t cand, uint64_t pattern, unsigned len)
+{
+    /* Binary length of cand (cand > 0 because it is a prime). */
+    unsigned len_c = 64 - __builtin_clzll(cand);
+
+    if (len > len_c)
+        return false;
+
+    /* Mask for len bits, avoiding a shift by 64. */
+    uint64_t mask = (len == 64) ? ~0ULL : ((1ULL << len) - 1ULL);
+
+    /* Scan all possible starting positions. */
+    for (unsigned pos = 0; pos + len <= len_c; ++pos) {
+        uint64_t part = (cand >> pos) & mask;
+        if (part == pattern)
+            return true;
+    }
+    return false;
+}
 
 /* External function required by the build. */
 seq_t a(idx_t n)

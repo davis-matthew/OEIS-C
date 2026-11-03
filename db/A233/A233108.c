@@ -12,7 +12,8 @@
  *            a(4)=2154065, a(5)=189286871
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    seq_t the compiler will use the appropriate overloads.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* allocate space for indices 0..5 (index 0 unused) */
         cache_size = 6;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) {          /* allocation failed – give up */
             return (seq_t)0;
         }
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         idx_t new_size = cache_size;
         while (new_size <= n) new_size <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) { /* realloc failed – give up */
             return (seq_t)0;
         }

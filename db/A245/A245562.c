@@ -11,14 +11,30 @@
  *            for 0. The first element (n = 0) is a sentinel 0
  * Range:     u8 n <= 2770, u16 n <= 2770, u32 n <= 2770, u64 n <= 2770,
  *            u128 n <= 2770, big any n
- * Helpers:   count_runs
+ * Validated: standard, pass, 104 terms through n = 2654 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_runs.h"
+
+static inline uint64_t count_runs(uint64_t x)
+{
+    /* number of runs of 1's in binary representation of x,
+       scanning least significant bits (count is independent of order) */
+    uint64_t cnt = 0;
+    bool prev_one = false;
+    while (x)
+    {
+        bool is_one = x & 1ull;
+        if (is_one && !prev_one) cnt++;
+        prev_one = is_one;
+        x >>= 1;
+    }
+    return cnt;
+}
 
 static inline uint64_t bitlen(uint64_t x)
 {

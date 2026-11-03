@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=1..n} pi(k) * ceil(n/k)
  * Range:     u8 n <= 21, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- internal prime sieve & pi cache ---------- */
 static uint8_t *prime_flag = NULL;     /* 1 => prime, 0 => composite */
@@ -63,7 +65,7 @@ static void extend_pi(idx_t new_n)
     extend_sieve(new_n);
 
     size_t new_size = (size_t)new_n + 1;
-    seq_t *new_pi = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_pi = mem_new(seq_t, new_size);
     if (!new_pi)
         return;          /* allocation failure – unlikely for the intended n */
 
@@ -71,7 +73,7 @@ static void extend_pi(idx_t new_n)
     for (idx_t i = 1; i <= new_n; ++i)
         new_pi[i] = new_pi[i - 1] + (seq_t)prime_flag[i];
 
-    free(pi_cache);
+    mem_free(pi_cache);
     pi_cache = new_pi;
     pi_size  = new_n;
 }

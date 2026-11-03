@@ -12,14 +12,35 @@
  *            with L = max(r,k) * • otherwise (r>2, k>2) → ⌈r·k...
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   independence
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/independence.h"
+
+static inline seq_t independence(idx_t r, idx_t k)
+{
+    if (r == 1 || k == 1)
+        return (seq_t)r * k;
+
+    if (r == 2 || k == 2) {
+        idx_t L = (r > k) ? r : k;
+        idx_t blocks = L / 4;
+        idx_t rem = L % 4;
+        idx_t add = 0;
+        if (rem == 1)
+            add = 2;
+        else if (rem >= 2)
+            add = 4;
+        return (seq_t)(4 * blocks + add);
+    }
+
+    unsigned __int128 prod = (unsigned __int128)r * k;
+    return (seq_t)((prod + 1) / 2);  /* ceil division by 2 */
+}
 
 static inline idx_t row_index(idx_t n)
 {

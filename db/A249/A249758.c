@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 69, u32 n <= 257, u64 n <= 915,
  *            u128 n <= 3509, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 4756 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------*/
 /*  Static state – cache of all computed rows.                */
@@ -53,7 +55,7 @@ static void ensure_row(idx_t r)
     while (rows_cnt <= r) {
         if (rows_cnt == 0) {
             /* Row 0: single coefficient 1. */
-            seq_t *row0 = (seq_t*)malloc(sizeof(seq_t));
+            seq_t *row0 = mem_new(seq_t, 1);
             row0[0] = (seq_t)1;
             rows[0] = row0;
             rows_cnt = 1;
@@ -63,7 +65,7 @@ static void ensure_row(idx_t r)
             seq_t *prev    = rows[prev_r];    /* pointer to previous row */
             idx_t new_r    = rows_cnt;        /* index of new row (r)    */
             size_t new_len = new_r + 1;       /* number of coefficients  */
-            seq_t *new_row = (seq_t*)malloc(new_len * sizeof(seq_t));
+            seq_t *new_row = mem_new(seq_t, new_len);
 
             /* First coefficient (degree 0). */
             new_row[0] = (seq_t)2 * prev[0];

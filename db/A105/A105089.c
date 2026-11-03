@@ -7,7 +7,8 @@
  * Formula:   a(n) = p(9n-8) + p(9n-7) + … + p(9n) (sum of a 3×3 prime square)
  * Range:     u8 n <= 1, u16 n <= 103, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   estimate_prime_upper_bound, simple_sieve
+ * Validated: standard, pass, 54 terms through n = 901 (2026-11-01)
+ * Helpers:   simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/estimate_prime_upper_bound.h"
+#include <math.h>
 #include "../utils/simple_sieve.h"
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 /* Compute a(n) for n >= 1.  For n < 1 the function returns 0.          */
 seq_t a(idx_t n)

@@ -11,15 +11,34 @@
  *            circle condition in the OEIS definition
  * Range:     u8 n <= 16, u16 n <= 268, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ceil_div128, floor_div128
+ * Validated: standard, pass, 67 terms through n = 908 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/ceil_div128.h"
-#include "../utils/floor_div128.h"
+
+static __int128 ceil_div128(__int128 p, __int128 q)
+/* q > 0 */
+{
+    if (p >= 0) {
+        return (p + q - 1) / q;
+    } else {
+        return p / q;   /* truncates toward zero, which is ceil for negatives */
+    }
+}
+
+static __int128 floor_div128(__int128 p, __int128 q)
+/* q > 0 */
+{
+    if (p >= 0) {
+        return p / q;
+    } else {
+        return -((__int128)((-p + q - 1) / q));
+    }
+}
 
 /* Helper functions for 128‑bit integer arithmetic */
 

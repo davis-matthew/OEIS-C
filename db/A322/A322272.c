@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 32, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   is_sq5, is_sq8
+ * Validated: full, pass, 32 terms through n = 32 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,19 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_sq5.h"
-#include "../utils/is_sq8.h"
+
+/* helper: check if x (mod 5) is a non‑zero quadratic residue. */
+static inline bool is_sq5(uint8_t x)
+{
+    return x == 1 || x == 4;
+}
+
+/* helper: check if x (mod 8) is a non‑zero quadratic residue.
+ * For odd numbers the only possible residue is 1. */
+static inline bool is_sq8(uint8_t x)
+{
+    return x == 1;
+}
 
 /* the 32 residues 1 ≤ x ≤ 120 that are coprime to 120, in order */
 static const uint8_t residues[32] = {

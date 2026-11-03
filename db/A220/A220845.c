@@ -11,13 +11,15 @@
  *            nodes
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Allocate an array to hold the height of every node.
        For n up to about 10 000 the heights are very small, but we store them in seq_t
        to keep the code simple and type‑consistent. */
-    seq_t *height = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *height = mem_new(seq_t, (size_t)n);
     if (!height) return 0;       /* allocation failure: return 0 as a fallback */
 
     seq_t sum = 0;
@@ -65,6 +67,6 @@ seq_t a(idx_t n)
         sum += height[i];
     }
 
-    free(height);
+    mem_free(height);
     return sum;
 }

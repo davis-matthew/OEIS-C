@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 21, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   rev
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,14 +22,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/rev.h"          /* seq_t rev(seq_t) */
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 /* factorials of decimal digits 0‑9 as seq_t constants */
 static const seq_t fact[10] = {1,1,2,6,24,120,720,5040,40320,362880};
 
 /* true if x is not a palindrome */
 static bool is_nonpal(seq_t x) {
-    return rev(x) != x;
+    return reverse_digits(x) != x;
 }
 
 /* largest prime factor of k that is not a palindrome; 0 if none */
@@ -59,7 +61,7 @@ static bool good_k(seq_t k) {
     }
     seq_t f = largest_nonpal_prime(k);
     if (f == 0) return false;
-    return sum == rev(f);
+    return sum == reverse_digits(f);
 }
 
 /* ----- caching mechanism ------------------------------------------------- */
@@ -74,7 +76,7 @@ static void ensure_cache_cap(idx_t required) {
     if (cache_cap >= required) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 64;
     if (new_cap < required) new_cap = required;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);                  /* out of memory */
     cache     = tmp;
     cache_cap = new_cap;

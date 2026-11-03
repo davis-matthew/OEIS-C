@@ -12,7 +12,8 @@
  *            non‑negative values, and then generating non‑re...
  * Range:     u8 none, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define TOTAL_COMB 6561U /* 3^8 */
 
@@ -108,7 +110,7 @@ static void ensure_cache_capacity(size_t needed)
 #endif
         if (!newArr) exit(1);
         if (cache) {
-            memcpy(newArr, cache, cacheSize * sizeof(seq_t));
+            mem_copy(newArr, cache, cacheSize * sizeof(seq_t));
 #ifdef __cplusplus
             delete[] cache;
 #else

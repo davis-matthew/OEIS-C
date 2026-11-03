@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 824 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
     /* 1. Allocate or grow array to size n+1 if necessary */
     if (n >= cap) {
         idx_t newCap = n + 1;
-        seq_t *Anew  = (seq_t *)realloc(A, newCap * sizeof(seq_t));
-        seq_t *SUFnew= (seq_t *)realloc(SUF, newCap * sizeof(seq_t));
+        seq_t *Anew  = mem_resize(seq_t, A, newCap);
+        seq_t *SUFnew= mem_resize(seq_t, SUF, newCap);
         if (!Anew || !SUFnew) return 0; /* allocation failure -- unlikely */
 
         /* Construct the newly created elements (C++ only) */

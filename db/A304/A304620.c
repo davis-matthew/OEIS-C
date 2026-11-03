@@ -9,7 +9,8 @@
  *            Σ_{k≥0} x^{2k} / ∏_{j=1}^{2k} (1 - x^j)
  * Range:     u8 n <= 14, u16 n <= 37, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,20 +20,21 @@
    exceeds that needed for the final result, so it works for the
    64‑bit build for all n whose a(n) fits 64 bits. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate all arrays of size n+1.  The temporary array 'pref'
        holds the cumulative sums of f for the current part size. */
     idx_t N = n;
-    seq_t *f    = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *pref = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *res  = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *f    = mem_new(seq_t, (N + 1));
+    seq_t *pref = mem_new(seq_t, (N + 1));
+    seq_t *res  = mem_new(seq_t, (N + 1));
 
     if (!f || !pref || !res) {
         /* In practice this should never happen for the limits
            considered; on failure return zero. */
-        free(f); free(pref); free(res);
+        mem_free(f); mem_free(pref); mem_free(res);
         return (seq_t)0;
     }
 
@@ -72,6 +74,6 @@ seq_t a(idx_t n)
 
     seq_t answer = res[N];
 
-    free(f); free(pref); free(res);
+    mem_free(f); mem_free(pref); mem_free(res);
     return answer;
 }

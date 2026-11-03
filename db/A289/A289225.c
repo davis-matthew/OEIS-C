@@ -10,6 +10,7 @@
  *            +17914*n^2 +86648*n -198528)/24 (valid for n >= 5; a(4)=0)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 17, u64 n <= 100, u128 n <= 100,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 99 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,6 +12,7 @@
  *            constant–antidiagonal * entries of the mat...
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -5,15 +5,24 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = number of integers m such that m^3 lies in [n^2, (n+1)^2]
- * Range:     u8 n <= 13, u16 n <= 104, u32 n <= 104, u64 n <= 104,
+ * Range:     u8 n <= 15, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   ceil_cube_root, cube_root_floor
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   icbrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/ceil_cube_root.h"
-#include "../utils/cube_root_floor.h"
+#include "../utils/icbrt_seq.h"
+
+static seq_t ceil_cube_root(seq_t x)
+{
+    seq_t r = icbrt_seq(x);
+    if (r * r * r < x) {
+        return r + 1;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {
@@ -25,7 +34,7 @@ seq_t a(idx_t n)
     seq_t lower = ceil_cube_root(nsq);
 
     /* upper bound: last integer m with m^3 <= (n+1)^2 */
-    seq_t upper = cube_root_floor(n1sq);
+    seq_t upper = icbrt_seq(n1sq);
 
     if (upper < lower) {
         return 0;

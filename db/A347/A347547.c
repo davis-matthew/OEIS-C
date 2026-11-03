@@ -9,12 +9,14 @@
  *            9 parts. The values are computed by dynamic programming
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,14 +32,14 @@ seq_t a(idx_t n)
     size_t needed = (size_t)n + 1;
 
     if (dp_total_cap < needed) {
-        free(dp_total);
-        dp_total = (seq_t *)malloc(needed * sizeof(seq_t));
+        mem_free(dp_total);
+        dp_total = mem_new(seq_t, needed);
         if (!dp_total) abort();
         dp_total_cap = needed;
     }
     if (dp9_cap < needed) {
-        free(dp9);
-        dp9 = (seq_t *)malloc(needed * sizeof(seq_t));
+        mem_free(dp9);
+        dp9 = mem_new(seq_t, needed);
         if (!dp9) abort();
         dp9_cap = needed;
     }

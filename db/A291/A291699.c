@@ -7,13 +7,18 @@
  * Formula:   a(n) = n^n * Catalan(n) = n^n * binomial(2*n,n)/(n+1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow, catalan
+ * Validated: standard, pass, 34 terms through n = 305 (2026-11-01)
+ * Helpers:   catalan, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +26,7 @@ seq_t a(idx_t n)
         return (seq_t)1;              /* 0^0 is defined as 1 in this sequence. */
 
     /* Compute n^n.  Use big_pow for efficient exponentiation. */
-    seq_t pow_val = big_pow((seq_t)n, (seq_t)n);
+    seq_t pow_val = ipow((seq_t)n, (seq_t)n);
 
     /* Catalan number C_n = binomial(2*n,n)/(n+1).  The utility
        function catalan(n) returns this value as seq_t. */

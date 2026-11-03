@@ -8,7 +8,8 @@
  * Formula:   a(n) = a(n-a(n-1)) + a(n-a(n-2)) + a(n-a(n-3)) (n > 0)
  * Range:     u8 n <= 1, u16 n <= 3725, u32 n <= 3725, u64 n <= 3725,
  *            u128 n <= 3725, big any n
- * Helpers:   _base_nonpos
+ * Validated: full, pass, 3725 terms through n = 3725 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_base_nonpos.h"
+#include "../utils/mem.h"
+
+/* returns max(0, m+3201) for integer m (used for n ≤ 0) */
+static inline seq_t
+_base_nonpos(int64_t m)
+{
+    int64_t v = m + 3201;
+    return (v > 0 ? (seq_t)v : (seq_t)0);
+}
 
 /* cached sequence values for n ≥ 0.  memo[0] holds a(0).  */
 static seq_t *memo = NULL;
@@ -48,11 +57,11 @@ a(idx_t n)
     if (n >= memo_size) {
         idx_t new_size = n + 1;
         if (!memo) {
-            memo = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+            memo = mem_new(seq_t, (size_t)new_size);
             if (!memo) return (seq_t)0;   /* allocation failure */
             memo[0] = _base_nonpos(0);
         } else {
-            seq_t *tmp = (seq_t *)realloc(memo, (size_t)new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, memo, (size_t)new_size);
             if (!tmp) return (seq_t)0;
             memo = tmp;
         }

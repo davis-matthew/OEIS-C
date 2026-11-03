@@ -12,13 +12,15 @@
  *            com...
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 378 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Computes the alternating factorial sum a(n) = Σ_{k=0..n} (-1)^k * k! */
 seq_t a(idx_t n)
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
     /* Initialisation on first call. */
     if (cache_sz == 0) {
         cache_sz = 1; /* at least space for a(0) */
-        a_cache  = (seq_t*)malloc(sizeof(seq_t) * cache_sz);
-        fact     = (seq_t*)malloc(sizeof(seq_t) * cache_sz);
+        a_cache  = mem_new(seq_t, cache_sz);
+        fact     = mem_new(seq_t, cache_sz);
         a_cache[0] = (seq_t)1;   /* a(0) = 0! = 1  */
         fact[0]    = (seq_t)1;   /* 0! = 1          */
         up_to      = 0;
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
     if (n >= cache_sz) {
         idx_t new_sz = cache_sz * 2;
         if (n + 1 > new_sz) new_sz = n + 1;
-        a_cache = (seq_t*)realloc(a_cache, sizeof(seq_t) * new_sz);
-        fact    = (seq_t*)realloc(fact,    sizeof(seq_t) * new_sz);
+        a_cache = mem_resize(seq_t, a_cache, new_sz);
+        fact    = mem_resize(seq_t, fact, new_sz);
         cache_sz = new_sz;
     }
 

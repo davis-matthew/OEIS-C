@@ -7,12 +7,14 @@
  * Formula:   a(n) = 1 + a(floor(n/2)) * a(ceiling(n/2))
  * Range:     u8 n <= 13, u16 n <= 27, u32 n <= 55, u64 n <= 111,
  *            u128 n <= 223, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 5730 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
+#include "../utils/mem.h"
 
 #define CACHE_SIZE 100000
 
@@ -72,7 +74,7 @@ static seq_t a_impl(idx_t n) {
 
 seq_t a(idx_t n) {
     if (!cache_init) {
-        memset(cache, 0, sizeof(cache));
+        mem_set(cache, 0, sizeof(cache));
         cache_init = 1;
     }
     return a_impl(n);

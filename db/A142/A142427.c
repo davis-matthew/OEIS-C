@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 153, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 58 terms through n = 896 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
             size_t new_cap = cap ? cap * 2 : 16;
             if (new_cap < (size_t)n) new_cap = n;
             /* cast from void* to seq_t* so the code is valid in C++ */
-            seq_t *tmp = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, vals, new_cap);
             vals = tmp;
             cap = new_cap;
         }

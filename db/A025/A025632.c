@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 19, u32 n <= 66, u64 n <= 241, u128 n <= 921,
  *            big any n
- * Helpers:   mul_checked
+ * Validated: standard, pass, 52 terms through n = 9887 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,37 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mul_checked.h"
+#include "../utils/mem.h"
+
+/* The result is written in *ret; *ofl is set true if the product
+   would exceed the maximum value representable by seq_t.           */
+static inline void mul_checked(seq_t a, unsigned int b, seq_t *ret, bool *ofl)
+{
+#if defined(__cplusplus)
+    if constexpr (sizeof(seq_t) <= sizeof(unsigned long long)) {
+        seq_t max_val = (seq_t)-1;
+        if (a > max_val / b) {
+            *ofl = true;
+            *ret = (seq_t)0;
+        } else {
+            *ofl = false;
+            *ret = a * (seq_t)b;
+        }
+    } else { /* too large to overflow in this build */
+        *ofl = false;
+        *ret = a * (seq_t)b;
+    }
+#else
+    seq_t max_val = (seq_t)-1;
+    if (a > max_val / b) {
+        *ofl = true;
+        *ret = (seq_t)0;
+    } else {
+        *ofl = false;
+        *ret = a * (seq_t)b;
+    }
+#endif
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper to multiply two unsigned values with overflow detection.    */
@@ -82,7 +113,7 @@ static void heap_push(idx_t i, idx_t j, seq_t val)
 {
     if (heap_len == heap_cap) {
         heap_cap = heap_cap ? heap_cap * 2 : 8;
-        heap = (Node *)realloc(heap, heap_cap * sizeof(Node));
+        heap = mem_resize(Node, heap, heap_cap);
     }
     heap[heap_len].i = i;
     heap[heap_len].j = j;
@@ -144,7 +175,7 @@ seq_t a(idx_t n)
         /* Store value in cache */
         if (cache_len == cache_cap) {
             cache_cap = cache_cap ? cache_cap * 2 : 8;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = cur.val;
 

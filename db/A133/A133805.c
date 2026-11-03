@@ -9,14 +9,16 @@
  *            binomial(r,k+2) : 0) * where r = floor( (sqrt(8*n+1) - 1)/2 )
  *            and k = n - r*(r+1)/2 * (r is the row index, k is the column
  *            index in that row)
- * Range:     u8 n <= 37, u16 n <= 159, u32 n <= 607, u64 n <= 1325,
+ * Range:     u8 n <= 48, u16 n <= 160, u32 n <= 608, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 94 terms through n = 1248 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Find the row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2 */

@@ -11,13 +11,14 @@
  *            (k+1)k/2. a(0) = 0
  * Range:     u8 n <= 50, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count_idx_t
+ * Validated: standard, pass, 76 terms through n = 996 (2026-11-01)
+ * Helpers:   num_divisors_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_idx_t.h"
+#include "../utils/num_divisors_idx.h"
 
 /* -------------------------------------------------- */
 /* Integer square‑root for idx_t (n ≤ ~1e4 in practice) */
@@ -44,7 +45,7 @@ a(idx_t n)
         return 0;        /* by definition */
 
     /* number of divisors of n */
-    seq_t tau = divisor_count_idx_t(n);
+    seq_t tau = num_divisors_idx(n);
 
     /* compute Kmax = floor((√(8n+1)-1)/2) */
     idx_t sq = isqrt_idx_t(1 + 8 * n);

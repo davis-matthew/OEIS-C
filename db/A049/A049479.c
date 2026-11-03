@@ -7,17 +7,20 @@
  * Formula:   a(n) = smallest prime divisor of (2^n - 1)
  * Range:     u8 n <= 12, u16 n <= 16, u32 n <= 60, u64 n <= 88, u128 n <= 520,
  *            big any n
- * Helpers:   build_primes_upto, is_prime, mod_pow, seq_pow
+ * Validated: standard, pass, 80 terms through n = 1203 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx, is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"        /* seq_pow(seq_t, idx_t)      */
-#include "../utils/mod_pow.h"        /* mod_pow(seq_t, idx_t, seq_t) */
-#include "../utils/is_prime.h"       /* is_prime(idx_t)            */
-#include "../utils/build_primes_upto.h" /* build_primes_upto(...) */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 static uint64_t *prime_list = NULL;
 static size_t prime_cnt   = 0;
@@ -53,7 +56,7 @@ seq_t a(idx_t n)
         if (p == 2) {
             continue;                 /* 2 never divides 2ⁿ‑1 for n ≥ 1 */
         }
-        if (mod_pow((seq_t)2, n, (seq_t)p) == (seq_t)1) {
+        if (powmod((seq_t)2, n, (seq_t)p) == (seq_t)1) {
             return (seq_t)p;          /* smallest divisor found */
         }
     }
@@ -63,7 +66,7 @@ seq_t a(idx_t n)
        case the smallest prime divisor equals the whole number.   */
 
     if (is_prime(n)) {
-        seq_t M = seq_pow((seq_t)2, n);
+        seq_t M = ipow_idx((seq_t)2, n);
         M -= (seq_t)1;
         return M;
     }
@@ -73,7 +76,7 @@ seq_t a(idx_t n)
        correctness if an uncommon large factor occurs.           */
     uint64_t candidate = prime_list[prime_cnt - 1] + 2;
     while (candidate < UINT64_MAX) {
-        if (mod_pow((seq_t)2, n, (seq_t)candidate) == (seq_t)1) {
+        if (powmod((seq_t)2, n, (seq_t)candidate) == (seq_t)1) {
             return (seq_t)candidate;
         }
         candidate += 2;  /* only odd candidates */

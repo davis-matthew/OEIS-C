@@ -10,7 +10,8 @@
  *            1 … 12 are hard‑coded
  * Range:     u8 none, u16 n <= 8, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_free_array
+ * Validated: standard, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,14 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdint.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* The first 12 terms of the sequence. */
 static const seq_t init_vals[12] = {

@@ -11,7 +11,8 @@
  *            S(n‑1) = ∑_{k=1}^{n‑1} σ(k)
  * Range:     u8 n <= 18, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- static data -------------------------------------------- */
 static seq_t *sequence = NULL;   /* a(1) stored at index 0        */
@@ -58,7 +60,7 @@ static void ensure_seq_capacity(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = (seq_cap > 0) ? seq_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(sequence, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, sequence, new_cap);
     if (!tmp) abort();
     sequence = tmp;
     seq_cap   = new_cap;
@@ -68,7 +70,7 @@ static void ensure_used_capacity(void)
 {
     if (used_cap > used_len) return;
     size_t new_cap = (used_cap > 0) ? used_cap << 1 : 16;
-    seq_t *tmp = (seq_t*)realloc(used, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, used, new_cap);
     if (!tmp) abort();
     used = tmp;
     used_cap = new_cap;

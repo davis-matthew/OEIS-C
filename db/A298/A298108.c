@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>   /* malloc, realloc, abort */
 #include <string.h>   /* memset */
+#include "../utils/mem.h"
 
 /*--- global state -----------------------------------------------------*/
 static seq_t *a_seq    = NULL;      /* a sequence (elements of sequence a) */
@@ -56,13 +58,13 @@ static void ensure_seq_cap(idx_t limit) {
     if (limit <= a_cap && limit <= b_cap) return;
     idx_t new_cap = limit + 16;
     if (new_cap > a_cap) {
-        seq_t *tmp = (seq_t *)realloc(a_seq, new_cap * sizeof(*a_seq));
+        seq_t *tmp = mem_resize(seq_t, a_seq, new_cap);
         if (!tmp) abort();
         a_seq = tmp;
         a_cap = new_cap;
     }
     if (new_cap > b_cap) {
-        seq_t *tmp = (seq_t *)realloc(b_seq, new_cap * sizeof(*b_seq));
+        seq_t *tmp = mem_resize(seq_t, b_seq, new_cap);
         if (!tmp) abort();
         b_seq = tmp;
         b_cap = new_cap;

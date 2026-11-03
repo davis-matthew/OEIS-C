@@ -10,12 +10,14 @@
  * Formula:   a(n) = (n-1)*a(n-1)+a(n-3) for n>=3; a(1)=1, a(2)=1, a(3)=2
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (idx >= cap) {
         size_t new_cap = cap > 0 ? cap << 1 : 4;   /* double or start from 4 */
         while (new_cap <= idx) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         /* initialise new entries to zero (meaning "not computed") */
         for (size_t i = cap; i < new_cap; ++i) cache[i] = 0;
         cap = new_cap;

@@ -7,14 +7,26 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥0} (1 + x^(5^k))^(5^(k+1))
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   new_array
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/new_array.h"
+
+/* helper functions for allocation that work in both C and C++ */
+static seq_t *new_array(idx_t size) {
+#ifdef __cplusplus
+    return new seq_t[size]();          /* value‑initialize each element */
+#else
+    seq_t *arr = (seq_t*)malloc(size * sizeof(seq_t));
+    if (arr)
+        memset(arr, 0, size * sizeof(seq_t));   /* zero‑initialise */
+    return arr;
+#endif
+}
 
 static void delete_array(seq_t *arr) {
     if (!arr) return;

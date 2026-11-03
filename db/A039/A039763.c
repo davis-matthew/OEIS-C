@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 16, i16 n <= 31, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  * requested index n and returns the corresponding coefficient. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* find row r such that sum_{i=0}^{r-1} (i+1) <= n < sum_{i=0}^{r} (i+1) */
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     }
 
     /* allocate an array for the polynomial coefficients */
-    seq_t *coeff = (seq_t *)calloc(r + 1, sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, r + 1);
     if (coeff == NULL) {
         /* out of memory – return 0 as a safe fallback */
         return (seq_t)0;
@@ -74,6 +76,6 @@ seq_t a(idx_t n) {
 
     /* coefficient of x^(r-k) is at index r-k */
     seq_t result = coeff[r - k];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

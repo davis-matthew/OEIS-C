@@ -9,12 +9,14 @@
  *            (r+1)*(r+2)/2 * and k = n - r*(r+1)/2 (0‑based column in row r)
  * Range:     u8 n <= 16, u16 n <= 38, u32 n <= 95, u64 n <= 260,
  *            u128 n <= 751, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 68 terms through n = 1096 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     idx_t k = n - start;       // column in this row (0‑based)
 
     // Compute binomial(r+1, k+1)
-    seq_t res = binom(r + 1, k + 1);
+    seq_t res = binomial(r + 1, k + 1);
 
     /* Multiply by (k+1)^(r-k).  The exponent r-k is at most r
        and r is small (≈ sqrt(2*n)), so a simple loop is fast and

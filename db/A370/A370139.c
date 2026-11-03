@@ -9,7 +9,8 @@
  *            7 consecutive primes starting with p are all prime
  * Range:     u8 n <= 1, u16 n <= 33, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, is_prime
+ * Validated: standard, pass, 59 terms through n = 949 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"          /* is_prime(idx_t) */
-#include "../utils/build_primes_upto.h" /* build_primes_upto(idx_t, uint64_t **, size_t *) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static uint64_t *g_primes = NULL;          /* array of primes computed so far */
 static size_t     g_prime_cnt = 0;          /* number of primes in g_primes      */
@@ -56,7 +58,7 @@ static void cache_term(seq_t val)
 {
     if (g_seq_len >= g_seq_cap) {
         idx_t new_cap = (g_seq_cap == 0) ? 128 : g_seq_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(g_seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, g_seq, new_cap);
         g_seq = tmp;
         g_seq_cap = new_cap;
     }

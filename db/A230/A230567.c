@@ -13,14 +13,28 @@
  *            a(6)=5130, a(7)=58474.)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 20, u128 n <= 39,
  *            big any n
- * Helpers:   mul_small
+ * Validated: standard, pass, 35 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* Forward declaration of seq_t and idx_t defined by the build */
 seq_t a(idx_t n) {
@@ -31,7 +45,7 @@ seq_t a(idx_t n) {
     /* Allocate or extend cache if necessary */
     if (n > cache_size) {
         idx_t new_size = n + 1; /* store up to index n */
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) {
             /* Allocation failed – terminate with error */
             abort();

@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} 1/(1 + prime(k)·x^prime(k))
  * Range:     i8 n <= 14, i16 n <= 26, i32 n <= 56, i64 n <= 116,
  *            i128 n <= 237, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 5986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>   /* for size_t, idx_t, seq_t are defined by the build */
 #include <stdint.h>   /* for uint8_t, uint32_t */
 #include <stdlib.h>   /* for malloc, free, calloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate the coefficient array a[0..n], zero‑initialized.  */
-    seq_t *coeff = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (size_t)(n + 1));
     if (!coeff)
         return (seq_t)0;                /* allocation failed – unlikely in tests */
     coeff[0] = (seq_t)1;                 /* a(0) = 1 */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     size_t limit = (size_t)n;
     uint8_t *is_composite = (uint8_t *)calloc(limit + 1, sizeof(uint8_t));
     if (!is_composite) {
-        free(coeff);
+        mem_free(coeff);
         return (seq_t)0;
     }
 
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     uint32_t *primes = (uint32_t *)malloc(primes_cap * sizeof(uint32_t));
     if (!primes) {
         free(is_composite);
-        free(coeff);
+        mem_free(coeff);
         return (seq_t)0;
     }
     size_t primes_cnt = 0;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
                 uint32_t *tmp = (uint32_t *)realloc(primes, primes_cap * sizeof(uint32_t));
                 if (!tmp) {
                     free(is_composite);
-                    free(coeff);
+                    mem_free(coeff);
                     free(primes);
                     return (seq_t)0;
                 }
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
 
     /* Retrieve the requested coefficient and release memory. */
     seq_t result = coeff[n];
-    free(coeff);
+    mem_free(coeff);
     free(is_composite);
     free(primes);
     return result;

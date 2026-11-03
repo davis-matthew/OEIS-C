@@ -7,7 +7,8 @@
  * Formula:   a(n) = 5*binomial(n,5)*(454 - 409*n + 66*n^2 + n^3)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 21, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*   a(n) = 5*binomial(n,5)*(454 - 409*n + 66*n^2 + n^3)
     Rewritten recurrence (valid for n ≥ 10):
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Allocate array of size n+1.  Index 0 is unused.  */
-    seq_t *a = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, (size_t)(n + 1));
     if (!a)
         return (seq_t)0;      /* allocation failure → zero */
 
@@ -84,6 +86,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a[n];
-    free(a);
+    mem_free(a);
     return result;
 }

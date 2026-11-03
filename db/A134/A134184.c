@@ -8,13 +8,15 @@
  *            binomial(n-k,floor((n-k)/2)) (OEIS A134184)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Use the helper for binomial coefficients */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -22,8 +24,8 @@ seq_t a(idx_t n)
     idx_t maxk = n / 2;                     /* floor(n/2) */
     for (idx_t k = 0; k <= maxk; ++k) {
         idx_t nmk = n - k;                   /* n - k */
-        seq_t t1 = binom(nmk, k);            /* C(n-k, k) */
-        seq_t t2 = binom(nmk, nmk / 2);      /* C(n-k, floor((n-k)/2)) */
+        seq_t t1 = binomial(nmk, k);            /* C(n-k, k) */
+        seq_t t2 = binomial(nmk, nmk / 2);      /* C(n-k, floor((n-k)/2)) */
         sum += t1 * t2;
     }
     return sum;

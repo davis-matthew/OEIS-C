@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   legendre_form
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,14 @@
 */
 
 #include <stdbool.h>
-#include "../utils/legendre_form.h"
+
+/* Legendre check: returns true iff N is of the form 4^a(8b+7). */
+static bool legendre_form(seq_t N)
+{
+    while (N % (seq_t)4 == (seq_t)0)
+        N /= (seq_t)4;
+    return (N % (seq_t)8 == (seq_t)7);
+}
 
 /* Sequence generator */
 seq_t a(idx_t n)

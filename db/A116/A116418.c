@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 109, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 912 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    capacity increases.  All operations are integer arithmetic.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;   /* coefficient cache, A[i] = a(i) */
 static seq_t *S = NULL;   /* divisor‑sum array, S[k] = Σ_{d|k} d·e(d) */
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
     if (need > cap) {                   /* grow arrays and recompute */
         size_t new_cap = need < 2 ? 2 : need * 2;
         if (new_cap < need) new_cap = need;
-        A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-        S = (seq_t *)realloc(S, new_cap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_cap);
+        S = mem_resize(seq_t, S, new_cap);
 
         /* recompute the divisor‑sum array S[1..new_cap-1] */
         for (size_t i = 0; i < new_cap; ++i) S[i] = (seq_t)0;

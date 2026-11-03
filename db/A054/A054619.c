@@ -7,13 +7,15 @@
  * Formula:   T(n,k) = Σ_{d|k} φ(d) * n^(k/d) (triangle read row‑wise)
  * Range:     u8 n <= 9, u16 n <= 26, u32 n <= 54, u64 n <= 135, u128 n <= 377,
  *            big any n
- * Helpers:   phi, pow_uint
+ * Validated: standard, pass, 61 terms through n = 9808 (2026-11-01)
+ * Helpers:   ipow_u64_idx, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -34,9 +36,9 @@ seq_t a(idx_t n)
     {
         if (k % d == 0)
         {
-            seq_t phi_d = phi(d);                     /* φ(d)   */
+            seq_t phi_d = totient(d);                     /* φ(d)   */
             idx_t exp   = k / d;                       /* exponent */
-            seq_t pow    = pow_uint((uint64_t)r, exp); /* r^(k/d) */
+            seq_t pow    = ipow_u64_idx((uint64_t)r, exp); /* r^(k/d) */
             result += phi_d * pow;                     /* add term */
         }
     }

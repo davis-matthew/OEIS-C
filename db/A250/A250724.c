@@ -11,7 +11,8 @@
  *            a(6)=942
  * Range:     u8 n <= 3, u16 n <= 22, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cache[ n ] holds a(n)  (n>=0, cache[0] unused) */
 static size_t  seq_cap   = 0;      /* allocated size (>= n+1) */
@@ -30,7 +32,7 @@ static void ensure_capacity(idx_t n)
     if (n < seq_cap) return;
     size_t newCap = seq_cap ? seq_cap * 2 : 16;
     while (newCap <= (size_t)n) newCap <<= 1;
-    seq_t *p = (seq_t*)realloc(seq_cache, newCap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, seq_cache, newCap);
     assert(p != NULL);               /* abort on out‑of‑memory */
     if (seq_cap == 0) {
         /* first allocation: zero all entries then set base values */

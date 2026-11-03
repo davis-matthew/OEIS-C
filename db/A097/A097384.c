@@ -13,19 +13,21 @@
  *            works for any integer or arbitrary‑precision seq...
  * Range:     u8 n <= 56, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;          /* safety for internal use */
     /* allocate temporary array of size n+1; type seq_t is integer or
        arbitrary‑precision class, which is trivially copyable.  */
-    seq_t *tmp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, (size_t)(n + 1));
     if (!tmp) return (seq_t)0;            /* allocation failure → 0 */
     tmp[0] = (seq_t)0;
     tmp[1] = (seq_t)0;
@@ -36,6 +38,6 @@ seq_t a(idx_t n) {
         tmp[i] = val;
     }
     seq_t result = tmp[n];
-    free(tmp);
+    mem_free(tmp);
     return result;
 }

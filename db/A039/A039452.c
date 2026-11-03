@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
     and memoizes the results.  No external libraries are required.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         if (cnt1 > 0 && cnt1 == cnt6) {
             if (len == cap) {
                 size_t newcap = (cap == 0) ? 4 : cap * 2;
-                seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, newcap);
                 cap = newcap;
             }
             seq[len++] = cur;

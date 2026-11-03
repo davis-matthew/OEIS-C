@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   order_mod_u, phi_u, pow_mod_idx
+ * Validated: partial, pass, 55 terms through n = 57 (2026-11-01)
+ * Helpers:   totient_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,9 +36,42 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/order_mod_u.h"
-#include "../utils/phi_u.h"
-#include "../utils/pow_mod_idx.h"
+#include "../utils/totient_idx.h"
+
+/* modular exponentiation (idx_t) */
+static idx_t pow_mod_idx(idx_t base, idx_t exp, idx_t mod)
+{
+    idx_t res = 1 % mod;
+    base %= mod;
+    while (exp) {
+        if (exp & 1) res = (base * res) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return res;
+}
+
+/* multiplicative order of u modulo mod (mod > 1) */
+static idx_t order_mod_u(idx_t u, idx_t mod)
+{
+    if (mod == 1) return 1;
+    idx_t phi = totient_idx(mod);
+    idx_t ord = phi;
+    idx_t tmp = phi;
+    for (idx_t p = 2; p * p <= tmp; ++p) {
+        if (tmp % p == 0) {
+            while (tmp % p == 0) tmp /= p;
+            while (ord % p == 0 && pow_mod_idx(u, ord / p, mod) == 1)
+                ord /= p;
+        }
+    }
+    if (tmp > 1) {
+        idx_t p = tmp;
+        while (ord % p == 0 && pow_mod_idx(u, ord / p, mod) == 1)
+            ord /= p;
+    }
+    return ord;
+}
 
 /* Euclidean greatest common divisor for idx_t */
 static idx_t gcd_idx(idx_t a, idx_t b)
@@ -81,7 +115,7 @@ seq_t a(idx_t n)
         for (size_t ki = 0; ki < divcnt; ++ki) {
             idx_t d = divs[ki];
             idx_t m = n / d;            /* modulus for this block */
-            idx_t phi_m = phi_u(m);     /* number of elements in the block */
+            idx_t phi_m = totient_idx(m);     /* number of elements in the block */
 
             if (m == 1) {               /* only element 0, always fixed */
                 t += 1;

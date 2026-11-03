@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 27, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   digit_product, n_is_invalid
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   digit_product
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,25 @@
    Formula: a(n) = A085124(7*n) */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/digit_product.h"
-#include "../utils/n_is_invalid.h"
+
+/* helper: return true if n has a prime factor > 9 or contains 10 as divisor */
+static bool n_is_invalid(idx_t n)
+{
+    /* divisible by 10 => no solution */
+    if ((n % 10) == 0)
+        return true;
+
+    /* factor out 2,3,5,7; if anything remains it's a prime > 9 */
+    idx_t rem = n;
+    while ((rem % 2) == 0) rem /= 2;
+    while ((rem % 3) == 0) rem /= 3;
+    while ((rem % 5) == 0) rem /= 5;
+    while ((rem % 7) == 0) rem /= 7;
+
+    return rem > 1;   /* remaining factor > 9 */
+}
 
 static bool has_zero_digit(seq_t x)
 {

@@ -14,7 +14,8 @@
  *            brute‑force search of block lengths, but with a si...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 9207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,16 +23,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;               /* not used, harmless */
     /* allocate space for the sequence up to n terms */
-    seq_t *seq = (seq_t *)malloc(n * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, n);
     if (!seq) return 0;                  /* allocation failed (unlikely) */
 
     seq[0] = 2;                          /* a(1)=2 */
-    if (n == 1) { free(seq); return 2; }
+    if (n == 1) { mem_free(seq); return 2; }
 
     /* compute subsequent terms */
     for (idx_t i = 1; i < n; ++i) {      /* i is current length of known prefix */
@@ -66,6 +68,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n-1];
-    free(seq);
+    mem_free(seq);
     return result;
 }

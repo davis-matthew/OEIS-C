@@ -11,15 +11,26 @@
  *            (p^2*s - 1)
  * Range:     i8 n <= 4, i16 n <= 16, i32 n <= 1915, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   factor_u64, kronecker_minus3
+ * Validated: standard, pass, 66 terms through n = 9680 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/kronecker_minus3.h"
+
+static int kronecker_minus3(uint64_t p) /* p is an odd prime > 3 */
+{
+    /* Legendre symbol (−1/p) */
+    int l1 = (p % 4 == 1) ? 1 : -1;
+    /* Legendre symbol (3/p) using quadratic reciprocity */
+    int l3 = (p % 12 == 1 || p % 12 == 11) ? 1 : -1;
+    return l1 * l3; /* product gives (−3/p) */
+}
 
 static seq_t b_of_uint64(uint64_t n)
 {

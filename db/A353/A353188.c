@@ -10,13 +10,15 @@
  *            function returns that value
  * Range:     u8 n <= 17, u16 n <= 43, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: compute partitions of all numbers up to n using the
    pentagonal‑number recurrence (O(n √n)).  The result is stored
@@ -48,10 +50,10 @@ seq_t a(idx_t n)
 {
     /* Allocate arrays for partitions p and q */
     size_t sz = (size_t)(n + 1);
-    seq_t *p = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, sz);
     if (!p) return 0;
-    seq_t *q = (seq_t *)calloc(sz, sizeof(seq_t));
-    if (!q) { free(p); return 0; }
+    seq_t *q = mem_new(seq_t, sz);
+    if (!q) { mem_free(p); return 0; }
 
     /* Compute p(n) using recurrence */
     compute_partitions(n, p);
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
 
     /* Sieve of Eratosthenes to find primes up to n */
     bool *is_prime = (bool *)calloc(sz, sizeof(bool));
-    if (!is_prime) { free(p); free(q); return 0; }
+    if (!is_prime) { mem_free(p); mem_free(q); return 0; }
     for (idx_t i = 2; i <= n; ++i) is_prime[i] = true;
     for (idx_t i = 2; i * i <= n; ++i) {
         if (is_prime[i]) {
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
 
     /* Free temporary arrays */
     free(is_prime);
-    free(q);
-    free(p);
+    mem_free(q);
+    mem_free(p);
     return result;
 }

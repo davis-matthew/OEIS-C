@@ -8,13 +8,46 @@
  *            Computation via repeated convolution with the sparse base series
  * Range:     i8 n <= 17, i16 n <= 24, i32 n <= 251, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   build_base
+ * Validated: standard, pass, 47 terms through n = 9438 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/build_base.h"
+#include "../utils/mem.h"
+
+/* Helper to build the sparse base series up to degree N.
+   The base is ∏(1-(-x)^j) - 1, whose non‑zero coefficients are ±1
+   at generalized pentagonal numbers. */
+static void build_base(idx_t N, int **exp_ptr, int **sign_ptr, size_t *count_ptr) {
+    int *exps = NULL;
+    int *signs = NULL;
+    size_t count = 0, cap = 16;
+
+    exps = (int*)malloc(cap * sizeof(int));
+    signs = (int*)malloc(cap * sizeof(int));
+    if (!exps || !signs) exit(EXIT_FAILURE);
+
+    for (int k = 1; ; ++k) {
+        int64_t p1 = (int64_t)k * (3 * k - 1) / 2;
+        if (p1 > (int64_t)N) break;
+        if (count == cap) { cap *= 2; exps = (int*)realloc(exps, cap * sizeof(int)); signs = (int*)realloc(signs, cap * sizeof(int)); }
+        exps[count] = (int)p1;
+        signs[count] = ((p1 + k) & 1) ? -1 : 1;   /* sign for exponent p1   */
+        ++count;
+
+        int64_t p2 = (int64_t)k * (3 * k + 1) / 2;
+        if (p2 > (int64_t)N) continue;
+        if (count == cap) { cap *= 2; exps = (int*)realloc(exps, cap * sizeof(int)); signs = (int*)realloc(signs, cap * sizeof(int)); }
+        exps[count] = (int)p2;
+        signs[count] = ((p2 - k) & 1) ? -1 : 1;    /* sign for exponent p2   */
+        ++count;
+    }
+    *exp_ptr   = exps;
+    *sign_ptr  = signs;
+    *count_ptr = count;
+}
 
 /* Global cache for computed values */
 static seq_t *poly = NULL;       /* polynomial coefficients up to current max_n */
@@ -29,11 +62,11 @@ static void recompute(idx_t N) {
     build_base(N, &exp, &sign, &base_count);
 
     /* Temporary arrays for convolution */
-    seq_t *res_cur = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *res_cur = mem_new(seq_t, N + 1);
     if (!res_cur) exit(EXIT_FAILURE);
     res_cur[0] = 1;                /* start with 1 */
 
-    seq_t *res_next = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *res_next = mem_new(seq_t, N + 1);
     if (!res_next) exit(EXIT_FAILURE);
 
     /* Multiply 15 times by the sparse base */
@@ -59,14 +92,14 @@ static void recompute(idx_t N) {
     }
 
     /* Free old polynomial if needed */
-    if (poly) free(poly);
+    if (poly) mem_free(poly);
     poly = res_cur;      /* res_cur now holds the final coefficients   */
     poly_size = (size_t)N + 1;
 
     /* Clean up base arrays */
     free(exp);
     free(sign);
-    free(res_next);      /* this buffer is unused after the last swap */
+    mem_free(res_next);      /* this buffer is unused after the last swap */
 }
 
 /* Public function requested by the task */

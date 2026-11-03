@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2^(n*(n-1)/2) - A001187(n)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 /*     number of distinct arguments evaluated.                         */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The build supplies the following typedefs */
 /* extern typedef unsigned long long idx_t;   */
@@ -38,9 +40,9 @@ static void ensure_size(idx_t n)
     if (n < (idx_t)Csize) return;          /* already computed */
 
     size_t new_size = (size_t)(n + 1);
-    Ctotal = (seq_t *)realloc(Ctotal, new_size * sizeof(seq_t));
-    Cconn  = (seq_t *)realloc(Cconn,  new_size * sizeof(seq_t));
-    Cdisc  = (seq_t *)realloc(Cdisc,  new_size * sizeof(seq_t));
+    Ctotal = mem_resize(seq_t, Ctotal, new_size);
+    Cconn  = mem_resize(seq_t, Cconn, new_size);
+    Cdisc  = mem_resize(seq_t, Cdisc, new_size);
 
     /* If allocation failed, the program may terminate now. */
     if (!Ctotal || !Cconn || !Cdisc) exit(1);

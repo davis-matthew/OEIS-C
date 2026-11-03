@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   avoid_pattern, generate
+ * Validated: full, pass, 10 terms through n = 9 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,42 @@
 */
 
 #include <stdbool.h>
-#include "../utils/avoid_pattern.h"
-#include "../utils/generate.h"
+
+/* check whether a permutation of length n avoids the three patterns   */
+static bool avoid_pattern(const int *p, int n)
+{
+    for (int i = 0; i <= n - 4; ++i)
+        for (int j = i + 1; j <= n - 3; ++j)
+            for (int k = j + 1; k <= n - 2; ++k)
+                for (int l = k + 1; l <= n - 1; ++l) {
+                    int a = p[i], b = p[j], c = p[k], d = p[l];
+                    /* pattern 1234 */
+                    if (a < b && b < c && c < d) return false;
+                    /* pattern 4321 */
+                    if (a > b && b > c && c > d) return false;
+                    /* pattern 3142 :  small < second small < second big < big */
+                    if (b < d && d < a && a < c) return false;
+                }
+    return true;
+}
+
+/* ones that avoid the forbidden patterns.                            */
+static void generate(int n, int pos, int *perm, bool *used, seq_t *cnt)
+{
+    if (pos == n) {
+        if (avoid_pattern(perm, n))
+            (*cnt)++;
+    } else {
+        for (int v = 1; v <= n; ++v) {
+            if (!used[v]) {
+                used[v] = true;
+                perm[pos] = v;
+                generate(n, pos + 1, perm, used, cnt);
+                used[v] = false;
+            }
+        }
+    }
+}
 
 /* maximum n for non‑zero values (+1 for zero index) */
 #define MAX_PRECAL 10

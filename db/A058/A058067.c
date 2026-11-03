@@ -7,14 +7,16 @@
  * Formula:   a(n) = ∏_{k=0}^{n-1} n / gcd(n, k!) (OEIS A058067)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 40 terms through n = 380 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
         uint64_t exp_p = (uint64_t)n * e - sum_min;
 
         /* Multiply the result by p^exp_p */
-        seq_t mult = big_pow((seq_t)p, (seq_t)exp_p);
+        seq_t mult = ipow((seq_t)p, (seq_t)exp_p);
         result *= mult;
     }
 

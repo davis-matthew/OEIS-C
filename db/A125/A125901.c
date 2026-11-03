@@ -10,13 +10,16 @@
  *            the row containing index n and c is the column (1 ≤ c ≤ m)
  * Range:     u8 n <= 12, u16 n <= 54, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *lcm_arr = NULL;    /* lcm_arr[m] = lcm(1..m)   */
 static seq_t *num_arr = NULL;    /* num_arr[m] = numerator of H_m with denominator lcm_arr[m] */
@@ -27,15 +30,15 @@ static void ensure_computed(idx_t m)
     if (max_m_computed >= m) return;
     /* allocate enough space */
     if (!lcm_arr) {
-        lcm_arr = (seq_t*)malloc(sizeof(seq_t) * (m + 1));
-        num_arr = (seq_t*)malloc(sizeof(seq_t) * (m + 1));
+        lcm_arr = mem_new(seq_t, (m + 1));
+        num_arr = mem_new(seq_t, (m + 1));
         /* row 0 is unused */
         lcm_arr[1] = 1;   /* lcm(1) = 1 */
         num_arr[1] = 1;   /* H1 = 1/1 -> numerator 1 */
         max_m_computed = 1;
     } else if (max_m_computed < m) {
-        lcm_arr = (seq_t*)realloc(lcm_arr, sizeof(seq_t) * (m + 1));
-        num_arr = (seq_t*)realloc(num_arr, sizeof(seq_t) * (m + 1));
+        lcm_arr = mem_resize(seq_t, lcm_arr, (m + 1));
+        num_arr = mem_resize(seq_t, num_arr, (m + 1));
     }
 
     for (idx_t k = max_m_computed + 1; k <= m; ++k) {

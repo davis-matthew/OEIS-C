@@ -10,13 +10,15 @@
  *            The index n counts through the rows left‑to‑right, row by row
  * Range:     i8 n <= 831, i16 n <= 8525, i32 n <= 9950, i64 n <= 9950,
  *            i128 n <= 9950, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 8498 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* seq_t and idx_t are defined by the build system. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         idx_t len = r * (r + 1) + 1;
 
         /* Allocate and zero‑initialise the new row. */
-        seq_t *new_row = (seq_t *)calloc((size_t)len, sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, (size_t)len);
         if (!new_row) return 0;      /* OOM: return 0 (will never happen in tests) */
 
         if (r == 0) {

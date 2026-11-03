@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9198, u16 n <= 9198, u32 n <= 9198, u64 n <= 9198,
- *            u128 n <= 9198, big any n
- * Helpers:   _floor_isqrt_u64
+ * Range:     u8 n <= 11519, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9198 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
     factors > 1, all of which are even.  (a(1) = 1 by convention.)  */
 
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 static seq_t rec(idx_t n, idx_t min_factor)
 {
@@ -34,7 +35,7 @@ static seq_t rec(idx_t n, idx_t min_factor)
     /* iterate over even divisors d of n that are ≥ min_factor
        and not larger than sqrt(n); this guarantees non‑decreasing
        order of factors and avoids duplicate factorizations. */
-    const idx_t limit = _floor_isqrt_u64(n);
+    const idx_t limit = isqrt(n);
     for (idx_t d = min_factor; d <= limit; d += 2U) {
         if ((n % d) == 0U) {
             count += rec(n / d, d);

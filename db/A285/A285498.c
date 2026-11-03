@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_word
+ * Validated: standard, pass, 102 terms through n = 9791 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,29 @@
    symbol (1‑based index). */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/next_word.h"
+
+static void next_word(const unsigned char *src, size_t src_len,
+                      unsigned char **dst, size_t *dst_len)
+{
+    size_t len = 0;
+    for (size_t i = 0; i < src_len; ++i)
+        len += (src[i] == 0) ? 2 : 4;
+    unsigned char *buf = (unsigned char *)malloc(len);
+    size_t pos = 0;
+    for (size_t i = 0; i < src_len; ++i) {
+        if (src[i] == 0) {
+            buf[pos++] = 1;
+            buf[pos++] = 1;
+        } else {
+            buf[pos++] = 0;
+            buf[pos++] = 0;
+            buf[pos++] = 1;
+            buf[pos++] = 0;
+        }
+    }
+    *dst = buf;
+    *dst_len = len;
+}
 
 static unsigned char *odd_word = NULL;
 static size_t odd_len = 0;

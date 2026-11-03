@@ -9,6 +9,7 @@
  *            36*m*m + 28*m + 5 a(3m+2) = 36*m*m + 52*m + 19
  * Range:     u8 n <= 7, u16 n <= 127, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 63 terms through n = 977 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

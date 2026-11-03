@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Test whether a given integer satisfies the definition. */
 static bool is_valid(idx_t num)
@@ -79,7 +81,7 @@ static void ensure_cache(size_t n)
     if (cache_cap < n) {
         size_t newcap = cache_cap ? cache_cap << 1 : 4;
         while (newcap < n) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_cap = newcap;

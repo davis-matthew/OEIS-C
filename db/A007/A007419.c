@@ -12,7 +12,8 @@
  *            later polygonal extends
  * Range:     u8 n <= 5, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   poly_k, shift_or, top_unset
+ * Validated: partial, pass, 42 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,44 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/poly_k.h"
-#include "../utils/shift_or.h"
-#include "../utils/top_unset.h"
+
+static uint64_t poly_k(uint64_t n, uint64_t k) {
+    return k + k * (k - 1) / 2 * (n - 2);
+}
+
+static void shift_or(uint64_t *w, uint64_t nw, uint64_t p) {
+    uint64_t q = p >> 6, r = p & 63, i;
+    if (q >= nw) return;
+    if (r == 0) {
+        for (i = nw - 1; i >= q; i--) {
+            w[i] |= w[i - q];
+            if (i == q) break;
+        }
+    } else {
+        for (i = nw - 1; i > q; i--)
+            w[i] |= (w[i - q] << r) | (w[i - q - 1] >> (64 - r));
+        w[q] |= w[0] << r;
+    }
+}
+
+/* largest unset bit index in [0, L], or -1 if none */
+static long long top_unset(const uint64_t *w, uint64_t L) {
+    uint64_t nw = (L >> 6) + 1;
+    uint64_t i = nw;
+    while (i > 0) {
+        uint64_t mask, inv;
+        i--;
+        if (i == nw - 1) {
+            uint64_t bits = (L & 63) + 1;
+            mask = bits == 64 ? ~(uint64_t)0 : (((uint64_t)1 << bits) - 1);
+        } else {
+            mask = ~(uint64_t)0;
+        }
+        inv = ~w[i] & mask;
+        if (inv) return (long long)(i * 64 + 63 - (uint64_t)__builtin_clzll(inv));
+    }
+    return -1;
+}
 
 seq_t a(idx_t n) {
     uint64_t nn = (uint64_t)n;

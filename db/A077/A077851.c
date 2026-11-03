@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    This implementation memoises the b and a arrays,
    expanding them only when a larger n is requested. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
 
     /* Reallocate storage if necessary (or on first call). */
     if (b_arr == NULL || n > max_computed) {
-        seq_t *new_b = (seq_t *)realloc(b_arr, (n + 1) * sizeof(seq_t));
-        seq_t *new_a = (seq_t *)realloc(a_arr, (n + 1) * sizeof(seq_t));
+        seq_t *new_b = mem_resize(seq_t, b_arr, (n + 1));
+        seq_t *new_a = mem_resize(seq_t, a_arr, (n + 1));
         if (!new_b || !new_a)   /* allocation failure → return 0 */
             return (seq_t)0;
         b_arr = new_b;

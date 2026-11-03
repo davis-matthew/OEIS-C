@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{i≥0} ( (n >> i) & 1 ) * 2^{evil[i]}
  * Range:     u8 n <= 15, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   is_evil_uint64
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,11 @@
    of 1-bits in its binary expansion. */
 
 #include <stdint.h>
-#include "../utils/is_evil_uint64.h"
+
+static inline int is_evil_uint64(uint64_t x) {
+    /* Return 1 if x has an even popcount (i.e., is evil). */
+    return ((__builtin_popcountll(x) & 1) == 0);
+}
 
 seq_t a(idx_t n) {
     /* Compute a(n) for the A380009 sequence. */

@@ -11,13 +11,15 @@
  *            Complexity: O(n²) time, O(n²) memory
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Size of the array needed */
     size_t prod_size = (size_t)n * (size_t)n + 1; /* +1 for index 0 */
-    seq_t *prod = (seq_t *)malloc(prod_size * sizeof(seq_t));
+    seq_t *prod = mem_new(seq_t, prod_size);
     if (!prod) return 0; /* allocation failure, return 0 as safe fallback */
 
     /* initialise to zero */
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(prod);
+    mem_free(prod);
     return result;
 }

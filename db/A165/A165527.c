@@ -11,12 +11,14 @@
  *            a(2)=2, a(3)=6, a(4)=22, a(5)=86, a(6)=335, a(7)=1271, a(8)=4680
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 39, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of computed terms */
 static seq_t *cache = NULL;          /* pointer to the cache array          */
@@ -29,7 +31,7 @@ static void init_state(void)
     if (cache != NULL) return;
 
     cache_len = 9;
-    cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_len);
     if (!cache) abort();
 
     cache[0] = (seq_t)1;
@@ -51,7 +53,7 @@ static void ensure_capacity(idx_t n)
     if (n < cache_len) return;
     size_t new_len = cache_len;
     while (new_len <= (size_t)n) new_len <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) abort();
     cache = tmp;
     cache_len = new_len;

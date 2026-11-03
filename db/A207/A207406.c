@@ -11,14 +11,28 @@
  *            (vertical safe) and states that are ordered pairs of columns
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 27, u64 n <= 208, u128 n <= 210,
  *            big any n
- * Helpers:   vertical_safe
+ * Validated: standard, pass, 41 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/vertical_safe.h"
+
+/* Checks whether a 6‑bit column satisfies the vertical constraints:
+   It must not contain a triple (b[i],b[i+1],b[i+2]) that is 001 or 110. */
+static bool vertical_safe(int bits)
+{
+    for (int t = 0; t <= 3; ++t) {            /* 6 bits → 4 triples */
+        int a = (bits >> t) & 1;
+        int b = (bits >> (t + 1)) & 1;
+        int c = (bits >> (t + 2)) & 1;
+        if (a == b && a != c)                /* 001 or 110 */
+            return false;
+    }
+    return true;
+}
 
 #define VMAX 64
 #define SMAX 144  /* V*V where V=12 */

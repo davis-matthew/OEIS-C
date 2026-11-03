@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, seq_malloc, seq_realloc
+ * Validated: standard, pass, 74 terms through n = 993 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,28 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/seq_malloc.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 /* Resize the cache array to at least new_cap elements.
    If the cache is NULL, allocate a new array. */
@@ -58,7 +78,7 @@ seq_t a(idx_t n)
     while (sz < n)
     {
         uint64_t m = (uint64_t)cand;          /*  candidate as 64‑bit      */
-        if (is_prime(m * 5ULL + 8ULL))
+        if (is_prime_u64(m * 5ULL + 8ULL))
         {
             ensure_cache_size(sz + 1, &cache, &cap);
             cache[sz++] = (seq_t)cand;        /* store the candidate      */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* coefficient of the numerator generating function */
 static inline seq_t coeff(idx_t n)
@@ -43,11 +45,11 @@ static void ensure_cache(idx_t n)
     if (cache_len > n) return;
     idx_t new_len = cache_len ? cache_len : 1;
     while (new_len <= n) new_len <<= 1;
-    seq_t *new_cache = (seq_t*)malloc(new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache) return;                      /* allocation failed – leave cache unchanged */
     if (cache) {
         for (idx_t i = 0; i < cache_len; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_len = new_len;

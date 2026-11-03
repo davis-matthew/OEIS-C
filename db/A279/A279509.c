@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   _a_compute_spf
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_a_compute_spf.h"
+#include "../utils/mem.h"
+
+static void _a_compute_spf(size_t limit, uint32_t *spf)
+{
+    for (size_t i = 0; i <= limit; ++i)
+        spf[i] = (uint32_t)i;
+
+    for (size_t i = 2; i * i <= limit; ++i) {
+        if (spf[i] == (uint32_t)i) {              /* i is prime */
+            for (size_t j = i * i; j <= limit; j += i)
+                if (spf[j] == (uint32_t)j)
+                    spf[j] = (uint32_t)i;
+        }
+    }
+}
 
 /* --- configuration ------------------------------------------------------- */
 
@@ -59,7 +74,7 @@ static void _a_init(void)
 
     /* allocate answer array */
     _a_max_k_for_floor_size = _A_MAX_FLOOR + 1;
-    _a_max_k_for_floor = (seq_t *)calloc(_a_max_k_for_floor_size, sizeof(seq_t));
+    _a_max_k_for_floor = mem_new(seq_t, _a_max_k_for_floor_size);
     if (! _a_max_k_for_floor)
         abort();
 

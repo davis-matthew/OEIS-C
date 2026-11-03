@@ -7,6 +7,7 @@
  * Formula:   a(n) = [x^n] (1 - x^17)(1 - x^53)/((1 - x)(1 - x^901))
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 95 terms through n = 950 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

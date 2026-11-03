@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9312 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,13 +38,13 @@ seq_t a(idx_t n)
     /* initialise caches on first call */
     if (!cache) {
         cache_cap = 32;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
 
     if (!trib) {
         trib_cap = 8;
-        trib = (seq_t*)malloc(trib_cap * sizeof(seq_t));
+        trib = mem_new(seq_t, trib_cap);
         trib[0] = (seq_t)0;
         trib[1] = (seq_t)1;
         trib[2] = (seq_t)1;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         while (trib_len > 0 && trib[trib_len-1] <= m) {
             if (trib_len == trib_cap) {
                 trib_cap <<= 1;
-                trib = (seq_t*)realloc(trib, trib_cap * sizeof(seq_t));
+                trib = mem_resize(seq_t, trib, trib_cap);
             }
             trib[trib_len] = trib[trib_len-1] + trib[trib_len-2] + trib[trib_len-3];
             ++trib_len;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         if (m == (seq_t)0) {
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = m;
             continue;
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
         if ((min_idx & 1) != 0) {
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = m;
         }

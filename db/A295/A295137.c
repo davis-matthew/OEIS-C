@@ -13,7 +13,8 @@
  *            greater than b(n-1)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper: binary search for seq_t in a sorted array */
 static bool in_array(const seq_t *arr, idx_t count, seq_t val)
@@ -63,8 +65,8 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (A == NULL) {
         a_cap = 128;  b_cap = 128;
-        A = (seq_t *)malloc(a_cap * sizeof(seq_t));
-        B = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        A = mem_new(seq_t, a_cap);
+        B = mem_new(seq_t, b_cap);
 
         /* base terms */
         A[0] = (seq_t)1;      /* a(0) */
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     if (n + 1 > a_cap) {
         size_t newcap = a_cap ? a_cap * 2 : 128;
         if (newcap < n + 1) newcap = n + 1;
-        A = (seq_t *)realloc(A, newcap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, newcap);
         a_cap = newcap;
     }
 
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
             if (b_cnt >= b_cap) {
                 size_t newcap = b_cap ? b_cap * 2 : 128;
                 if (newcap < b_cnt + 1) newcap = b_cnt + 1;
-                B = (seq_t *)realloc(B, newcap * sizeof(seq_t));
+                B = mem_resize(seq_t, B, newcap);
                 b_cap = newcap;
             }
             B[b_cnt++] = newb;
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
         if (a_cnt >= a_cap) {
             size_t newcap = a_cap ? a_cap * 2 : 128;
             if (newcap < a_cnt + 1) newcap = a_cnt + 1;
-            A = (seq_t *)realloc(A, newcap * sizeof(seq_t));
+            A = mem_resize(seq_t, A, newcap);
             a_cap = newcap;
         }
         A[a_cnt++] = ak;

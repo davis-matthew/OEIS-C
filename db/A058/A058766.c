@@ -9,12 +9,14 @@
  *            a(1) = 2 where μ(d) is the Möbius function
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Möbius function μ(d) for d ≥ 1 */
 static int mu_of(idx_t d)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (n == 1) return (seq_t)2;
 
     /* Allocate array for powers of two up to 2^n */
-    seq_t *pow2 = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *pow2 = mem_new(seq_t, (n + 1));
     if (!pow2) return (seq_t)0;        /* allocation failure (unlikely) */
 
     pow2[0] = (seq_t)1;
@@ -70,6 +72,6 @@ seq_t a(idx_t n)
     /* Desired number of reducible monic polynomials of degree n over GF(2) */
     seq_t reducible = pow2[n] - irreducible;
 
-    free(pow2);                            /* clean up */
+    mem_free(pow2);                            /* clean up */
     return reducible;
 }

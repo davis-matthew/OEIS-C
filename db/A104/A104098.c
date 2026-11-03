@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=1..n} binomial(n-1,k-1) * A008292(n,k)
- * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 20,
+ * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   seq_malloc
+ * Validated: standard, pass, 36 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,18 @@
 /* Computes a(n) = Σ_{j=0}^{n-1} C(n-1,j) * Eulerian(n,j)       */
 
 #include <stdlib.h>
-#include "../utils/seq_malloc.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -50,8 +62,8 @@ seq_t a(idx_t n)
                 if (j < m - 1)
                     bin = bin * (seq_t)(m - 1 - j) / (seq_t)(j + 1);
             }
-            free(prev);
-            free(curr);
+            mem_free(prev);
+            mem_free(curr);
             return sum;
         }
 
@@ -62,7 +74,7 @@ seq_t a(idx_t n)
     }
 
     /* Should never reach here. */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return 0;
 }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = phi(lambda(n))
  * Range:     u8 n <= 556, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, factor_u64, gcd, pow_int
+ * Validated: standard, pass, 97 terms through n = 9541 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_idx, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,11 @@
 #include <stdbool.h>
 
 /* Utility headers – adjust names if needed */
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_int.h"
 #include "../utils/gcd.h"
-#include "../utils/calc_phi.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/totient_seq.h"
 
 static seq_t lcm_seq(seq_t a, seq_t b)
 {
@@ -53,14 +55,14 @@ seq_t a(idx_t n)
         if (p == 2) {
             if (e == 1)          lpow = 1;
             else if (e == 2)     lpow = 2;
-            else                 lpow = pow_int(2U, e - 2);
+            else                 lpow = ipow_idx(2U, e - 2);
         } else {
-            seq_t p_pow = pow_int((seq_t)p, (idx_t)(e - 1));
+            seq_t p_pow = ipow_idx((seq_t)p, (idx_t)(e - 1));
             lpow = p_pow * ((seq_t)(p - 1));
         }
 
         lambda = lcm_seq(lambda, lpow);
     }
 
-    return calc_phi(lambda);
+    return totient_seq(lambda);
 }

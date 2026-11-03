@@ -8,8 +8,9 @@
  * Formula:   a(n) counts the unordered pairs (i , j) with i > 0, j > 1 such
  *            that n = i^j. Equivalently, a(n) is the number of distinct bases
  *            i for which n is a non‑trivial perfect power
- * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
+ * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
+ *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 103 terms through n = 4653 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,6 +23,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static uint64_t local_gcd(uint64_t a, uint64_t b)

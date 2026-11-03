@@ -10,14 +10,15 @@
  *            i.e. A187273(n) = n*3^((n+1)/2) for odd n, 2n*3^(n/2) for even n
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 33, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   phi_u
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/phi_u.h"
+#include "../utils/totient_u64.h"
 
 #define MEMO_N 20001
 
@@ -57,7 +58,7 @@ static seq_t a_calc(idx_t n) {
     seq_t result = A187273(n);
     for (idx_t d = 1; d <= n / 2; d++) {
         if (n % d == 0) {
-            result -= (seq_t)phi_u(n / d) * a_get(d);
+            result -= (seq_t)totient_u64(n / d) * a_get(d);
         }
     }
     return result;

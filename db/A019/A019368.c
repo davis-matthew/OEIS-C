@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, mod_pow, next_prime
+ * Validated: standard, pass, 73 terms through n = 948 (2026-11-03)
+ * Helpers:   factor_u64, mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,11 @@
 #include <stdint.h>
 
 /* Utility functions supplied by the build. */
-#include "../utils/mod_pow.h"      /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start); */
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Cache of computed terms. */
 static seq_t *cache      = NULL;   /* array of found primes */
@@ -38,7 +41,7 @@ static void ensure_cache_cap(idx_t min_cap)
     if ((size_t)min_cap <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < (size_t)min_cap) new_cap = (size_t)min_cap;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();               /* unrecoverable failure */
     cache = tmp;
     cache_cap = new_cap;
@@ -61,7 +64,7 @@ static bool is_primitive_root43(uint64_t p)
     /* For every distinct prime factor q of m, check 43^(m/q) mod p != 1. */
     for (size_t i = 0; i < fcnt; ++i)
     {
-        seq_t r = mod_pow((seq_t)43, m / pf[i], (seq_t)p);
+        seq_t r = powmod((seq_t)43, m / pf[i], (seq_t)p);
         if (r == (seq_t)1) return false;
     }
     return true;

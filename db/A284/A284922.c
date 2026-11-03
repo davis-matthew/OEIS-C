@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2 * A032822(n) (numbers with digits 2 and 8 only)
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

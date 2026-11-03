@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 21,
+ * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   allocate_seq_t_array, free_seq_t_array
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,24 @@
 */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/allocate_seq_t_array.h"
-#include "../utils/free_seq_t_array.h"
+
+/* helpers for allocating and freeing arrays of type seq_t */
+static seq_t *allocate_seq_t_array(size_t sz) {
+#ifdef __cplusplus
+    return new seq_t[sz];
+#else
+    return (seq_t*)malloc(sz * sizeof(seq_t));
+#endif
+}
+
+static void free_seq_t_array(seq_t *p) {
+    if (!p) return;
+#ifdef __cplusplus
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 static void grow_seq_t_array(seq_t **arr, size_t *cap, size_t new_cap) {
     if (new_cap <= *cap) return;

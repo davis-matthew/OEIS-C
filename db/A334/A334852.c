@@ -9,7 +9,8 @@
  *            a(n-1)/g else a(n) = a(n-1)+2
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 /* This function memoises previous values so that calls may be made in any order. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     if (n > cache_size) {
         idx_t new_size = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) exit(1);        /* allocation failure */
         cache = tmp;
 
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
                 cache[0] = (seq_t)1;
             } else {
                 seq_t prev = cache[i - 2];
-                seq_t g = seq_gcd(prev, (seq_t)i);
+                seq_t g = gcd(prev, (seq_t)i);
                 if (g > 1)
                     cache[i - 1] = prev / g;
                 else

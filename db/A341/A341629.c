@@ -11,8 +11,9 @@
  *            factors of n; if the smallest factor is 2 and each subsequent
  *            factor is the next prime after the previous one, a(n)=1, else
  *            a(n)=0
- * Range:     u8 n <= 9290, u16 n <= 9290, u32 n <= 9290, u64 n <= 9290,
- *            u128 n <= 9290, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9290 (2026-11-01)
  * Helpers:   factor_u64, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/next_prime.h"
 

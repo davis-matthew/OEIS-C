@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 16, u16 n <= 1542, u32 n <= 9720, u64 n <= 9720,
- *            u128 n <= 9720, big any n
- * Helpers:   factor_u64, is_power_of_two
+ * Range:     u8 n <= 16, u16 n <= 1542, u32 n <= 65536, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9720 (2026-11-01)
+ * Helpers:   factor_u64, is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
 
 /* Compute σ(m) for m ≤ 2^64‑1 using its prime factorisation. */
 static seq_t sigma_u64(uint64_t m)
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     seq_t sn = (seq_t)n;
 
     /* By definition a power of two has value 0. */
-    if (is_power_of_two(sn))
+    if (is_pow2(sn))
         return 0;
 
     seq_t current = sn;

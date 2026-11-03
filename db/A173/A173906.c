@@ -7,7 +7,8 @@
  * Formula:   a(n) = (9/5)*n*10^n - ceil((sqrt(10)-1)*10^(n-1)), a(1)=16
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   mul_small, pow10
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,31 @@
    used, so it works for every supported seq_t type. */
 
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/mul_small.h"
+#include <stdint.h>
+#include <stdlib.h>
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static seq_t floor_sqrt10_times_pow10(idx_t n)
 {

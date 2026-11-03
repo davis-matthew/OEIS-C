@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 2 if n is even; 3 if n is odd and divisible by 3; 4
  *            otherwise
- * Range:     u8 n <= 9617, u16 n <= 9617, u32 n <= 9617, u64 n <= 9617,
- *            u128 n <= 9617, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9617 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

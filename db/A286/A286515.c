@@ -11,7 +11,8 @@
  *            polynomial, * provided that p does not divide the...
  * Range:     u8 n <= 20, u16 n <= 60, u32 n <= 180, u64 n <= 420,
  *            u128 n <= 1800, big any n
- * Helpers:   binom_divisible_by_p
+ * Validated: standard, pass, 80 terms through n = 5728 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binom_divisible_by_p.h"
+
+/* return true if prime p divides C(n,k)  (Lucas' theorem) */
+static bool binom_divisible_by_p(idx_t n, idx_t k, uint64_t p)
+{
+    while (n || k) {
+        idx_t ni = n % (idx_t)p;
+        idx_t ki = k % (idx_t)p;
+        if (ki > ni)
+            return true;                /* C(n,k) ≡ 0 (mod p) */
+        n /= (idx_t)p;
+        k /= (idx_t)p;
+    }
+    return false;                       /* non‑zero (mod p) */
+}
 
 /* simple prime sieve up to `limit`; result stored in *primes_out */
 /* the array is reallocated if `limit` grows; it is freed on next rebuild */

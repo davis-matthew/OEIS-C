@@ -9,12 +9,15 @@
  *            where d is the number of decimal digits of n
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"   /* provides big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -31,5 +34,5 @@ seq_t a(idx_t n)
     }
 
     /* All digits are in {2..9}.  Compute 3^d. */
-    return big_pow(3, (seq_t)d);
+    return ipow(3, (seq_t)d);
 }

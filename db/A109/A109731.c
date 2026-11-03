@@ -8,12 +8,14 @@
  * Formula:   a(n) = -4*a(n-2) - a(n-4) (a(0)=1, a(1)=-4, a(2)=-6, a(3)=15)
  * Range:     i8 n <= 6, i16 n <= 14, i32 n <= 29, i64 n <= 29, i128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Initialise base values once */
     if (memo == NULL) {
         memo_size = 4;
-        memo = (seq_t *)malloc(memo_size * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_size);
         if (memo == NULL)
             return (seq_t)0;               /* allocation failed – return 0 */
         memo[0] = (seq_t)1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Expand the table to contain all indices up to n */
     size_t required = (size_t)n + 1;
     if (required > memo_size) {
-        seq_t *tmp = (seq_t *)realloc(memo, required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, required);
         if (tmp == NULL)
             return memo[(size_t)n];   /* allocation failed – return the last known value */
         memo = tmp;

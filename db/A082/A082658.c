@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9147 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Minimum limit to start the search; can be increased later. */
 static const idx_t START_LIMIT = 2000;
@@ -71,7 +73,7 @@ static void build_until(idx_t needed)
                 ++valid;
 
         /* Allocate new sequence array and fill it. */
-        seq_t *new_seq = (seq_t *)malloc((size_t)valid * sizeof(seq_t));
+        seq_t *new_seq = mem_new(seq_t, (size_t)valid);
         if (!new_seq)
             exit(1);
 
@@ -83,7 +85,7 @@ static void build_until(idx_t needed)
         free(cnt);
 
         /* Replace old cache. */
-        free(sequence);
+        mem_free(sequence);
         sequence = new_seq;
         seq_len   = valid;
         limit_used = lim;

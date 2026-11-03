@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 39, u64 n <= 85, u128 n <= 177,
  *            big any n
- * Helpers:   a_contains
+ * Validated: standard, pass, 51 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a_contains.h"
+#include "../utils/mem.h"
+
+static bool a_contains(const seq_t *arr, size_t size, seq_t val) {
+    size_t low = 0, high = size;
+    while (low < high) {
+        size_t mid = (low + high) >> 1;
+        if (arr[mid] < val)
+            low = mid + 1;
+        else
+            high = mid;
+    }
+    return (low < size && arr[low] == val);
+}
 
 static void ensure_capacity(seq_t **arr, size_t *cap, size_t min_cap) {
     if (*cap < min_cap) {
         size_t new_cap = (*cap == 0) ? 2 : (*cap << 1);
         while (new_cap < min_cap) new_cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

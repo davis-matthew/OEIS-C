@@ -5,15 +5,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = 3*a(n-1) + 5*a(n-2); a(0) = 1, a(1) = 5
- * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 22, u128 none,
+ * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>  /* memcpy */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,14 +25,14 @@ seq_t a(idx_t n)
     static idx_t cache_len = 0;       /* number of terms stored    */
 
     /* grow the cache when needed */
-    if ((size_t)(n + 1) > cache_cap) {
-        size_t new_cap = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    if ((size_t)(n + 1) > cache_cap || cache_cap < 2) {
+        size_t new_cap = (size_t)(n + 1) < 2 ? 2 : (size_t)(n + 1);
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) return 0; /* failure; should never happen for contest builds */
 
         if (cache) {
-            memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = new_cap;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     for (idx_t i = cache_len; i <= n; ++i) {
         cache[i] = cache[i - 1] * (seq_t)3 + cache[i - 2] * (seq_t)5;
     }
-    cache_len = n + 1;   /* now all terms up to n are stored */
+    if (n + 1 > cache_len) cache_len = n + 1;   /* now all terms up to n are stored */
 
     return cache[n];
 }

@@ -9,14 +9,26 @@
  *            ⌊log₃(n)⌋, ⌊log₃⌊log₃(n)⌋⌋, …, 0) (OEIS A028424)
  * Range:     u8 n <= 26, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   floor_log3_u64
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/floor_log3_u64.h"
+
+/* Compute ⌊log₃(n)⌋ for n ≥ 1.  */
+static inline idx_t floor_log3_u64(idx_t n)
+{
+    idx_t p = 1;   /* 3⁰ */
+    idx_t k = 0;
+    while (p <= n / 3) {
+        p *= 3;
+        ++k;
+    }
+    return k;
+}
 
 /* Number of base‑3 digits of x (x ≥ 0).  */
 static inline unsigned digits_of(idx_t x)

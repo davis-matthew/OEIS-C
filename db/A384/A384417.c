@@ -8,6 +8,7 @@
  *            4096*n^4)*(2*n)!/(105*(n!)^2)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 8, u128 n <= 14,
  *            big any n
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
  * Helpers:   binomial, gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,9 +16,12 @@
 
 /* implemented as a(n) = (C(2n,n) * 16^n * P(n)) / 105 */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow2.h"
 #include "../utils/gcd.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

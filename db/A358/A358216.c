@@ -7,8 +7,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = ∑_{d|n} A327936(d); Multiplicative with a(p^e) = e+1 if
  *            e<p, = p*(e-p+2) otherwise
- * Range:     u8 n <= 9993, u16 n <= 9993, u32 n <= 9993, u64 n <= 9993,
- *            u128 n <= 9993, big any n
+ * Range:     u8 n <= 22680, u16 n <= 22680, u32 n <= 22680, u64 n <= 22680,
+ *            u128 n <= 22680, big any n
+ * Validated: standard, pass, 116 terms through n = 9993 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

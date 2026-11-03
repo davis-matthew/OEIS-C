@@ -12,7 +12,8 @@
  *            a_1 = 1, a_n = 2*a_{n-1} + a_{n-2} (n>=2)
  * Range:     u8 n <= 35, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* === utility to compute 2^exp in seq_t === */
 static seq_t pow_two(idx_t exp)
@@ -46,7 +48,7 @@ static void ensure_A001333(size_t need)
     if (A001333_cache == NULL)
     {
         size_t init = 2;
-        A001333_cache = (seq_t*)malloc(init * sizeof(seq_t));
+        A001333_cache = mem_new(seq_t, init);
         if (!A001333_cache) return;                 /* out of memory – caller will fail */
         A001333_cache[0] = (seq_t)1;
         A001333_cache[1] = (seq_t)1;
@@ -57,7 +59,7 @@ static void ensure_A001333(size_t need)
     {
         size_t new_cap = A001333_cap;
         while (new_cap <= need) new_cap <<= 1;      /* double until large enough */
-        seq_t *tmp = (seq_t*)realloc(A001333_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A001333_cache, new_cap);
         if (!tmp) return;                           /* out of memory – caller will fail */
         A001333_cache = tmp;
         /* compute new elements */

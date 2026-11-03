@@ -9,7 +9,8 @@
  *            generating function of a is 1/(1‑x)/(1+x+2x³)
  * Range:     i8 n <= 11, i16 n <= 21, i32 n <= 39, i64 n <= 39, i128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* static cache of computed terms */
 static seq_t *a_cache = NULL;          /* a(n) values   */
@@ -30,8 +32,8 @@ static void ensure_cache(idx_t n)
 
     idx_t new_size = n + 1;            /* we need indices 0..n inclusive */
 
-    seq_t *ta = (seq_t*)realloc(a_cache, new_size * sizeof(seq_t));
-    seq_t *tb = (seq_t*)realloc(b_cache, new_size * sizeof(seq_t));
+    seq_t *ta = mem_resize(seq_t, a_cache, new_size);
+    seq_t *tb = mem_resize(seq_t, b_cache, new_size);
     if (ta == NULL || tb == NULL)
         abort();                      /* allocation failed */
 

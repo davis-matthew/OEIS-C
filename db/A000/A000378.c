@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 214, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_sum_of_three_squares
+ * Validated: standard, pass, 88 terms through n = 8633 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,14 @@
 /* Search: iterate through nonnegative integers and count those that are sums of three squares */
 
 #include <stdbool.h>
-#include "../utils/is_sum_of_three_squares.h"
+
+static bool is_sum_of_three_squares(seq_t n) {
+    seq_t m = n;
+    while ((m & 3) == 0 && m > 0) {
+        m >>= 2;
+    }
+    return (m % 8) != 7;
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;

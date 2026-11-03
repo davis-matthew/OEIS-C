@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   sum_sq_base27_idx
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/sum_sq_base27_idx.h"
+#include "../utils/mem.h"
+
+/* Sum of the squares of the digits of x written in base 27.   The
+   argument is an idx_t; the running total is seq_t. */
+static seq_t sum_sq_base27_idx(idx_t x)
+{
+    seq_t sum = 0;
+    while (x) {
+        idx_t d = x % 27;
+        sum += (seq_t)d * (seq_t)d;
+        x  /= 27;
+    }
+    return sum;
+}
 
 /* Search bound.  For every seq_t the largest solution is < 20 000, so
    this fixed limit guarantees all terms are found. */
@@ -47,7 +61,7 @@ static void init_sequence(void)
 
     seq_initialized = true;
     seq_cap = (size_t)MAX_SEARCH;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     if (!seq)
         return;               /* OOM – the caller will simply return 0 */
 

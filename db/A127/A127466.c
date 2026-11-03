@@ -12,13 +12,14 @@
  *            the triangle row‑wise
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 static idx_t triangle_row(idx_t n) {
     /* Find the smallest r such that r*(r+1)/2 ≥ n */
@@ -44,7 +45,7 @@ seq_t a(idx_t n) {
     if (j == 0 || j > r) return (seq_t)0;   /* safety */
 
     if (r % j == 0) {
-        seq_t phi_j = phi(j);
+        seq_t phi_j = totient(j);
         return (seq_t)r * phi_j;
     }
     return (seq_t)0;

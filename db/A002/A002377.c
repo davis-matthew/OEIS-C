@@ -6,8 +6,9 @@
  * Keywords:  nonn, nice
  * Formula:   a(n) = min_{k>=1, k^4<=n} a(n - k^4) + 1, a(0) = 0 (dynamic
  *            programming over n)
- * Range:     u8 n <= 9788, u16 n <= 9788, u32 n <= 9788, u64 n <= 9788,
- *            u128 n <= 9788, big any n
+ * Range:     u8 n <= 14000, u16 n <= 14000, u32 n <= 14000, u64 n <= 14000,
+ *            u128 n <= 14000, big any n
+ * Validated: standard, pass, 99 terms through n = 9788 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

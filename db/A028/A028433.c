@@ -12,6 +12,7 @@
  *            "1""0"_3 = 3 a(3) = "10""1"_3 = 10 a(9) = "100""2""0"_3 = 87
  * Range:     u8 n <= 26, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

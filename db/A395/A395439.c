@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, fini, full
  * Formula:   not stated
- * Range:     u8 n <= 132, u16 n <= 4526, u32 n <= 4526, u64 n <= 4526,
+ * Range:     u8 n <= 122, u16 n <= 4526, u32 n <= 4526, u64 n <= 4526,
  *            u128 n <= 4526, big any n
- * Helpers:   xy_to_num
+ * Validated: full, pass, 4526 terms through n = 4526 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,31 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/xy_to_num.h"
+#include "../utils/mem.h"
+
+static inline seq_t xy_to_num(int x, int y)
+{
+    int k = (abs(x) > abs(y)) ? abs(x) : abs(y);
+    if (k == 0) return (seq_t)1;
+
+    int t = 2 * k + 1;
+    seq_t nprev = (seq_t)(t - 2) * (seq_t)(t - 2);   /* (2k-1)^2   */
+    seq_t base  = nprev + 1;                         /* first num of this layer */
+
+    if (x == k && y != -k) {                 /* right side */
+        seq_t off = (seq_t)(y + k - 1);
+        return base + off;
+    } else if (y == k) {                    /* top side */
+        seq_t off = (seq_t)(2 * k) + (seq_t)(k - 1 - x);
+        return base + off;
+    } else if (x == -k) {                   /* left side */
+        seq_t off = (seq_t)(4 * k) + (seq_t)(k - 1 - y);
+        return base + off;
+    } else {                                /* bottom side */
+        seq_t off = (seq_t)(6 * k) + (seq_t)(x + k - 1);
+        return base + off;
+    }
+}
 
 static seq_t *seq_buf     = NULL;   /* visited squares (1‑based) */
 static size_t seq_len     = 0;      /* number of elements stored */
@@ -53,7 +78,7 @@ static void ensure_seq_capacity(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(seq_buf, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_buf, new_cap);
     if (!tmp) exit(1);
     seq_buf = tmp;
     seq_cap = new_cap;
@@ -70,7 +95,7 @@ static void build_sequence(void)
     visited[1] = 1;
     visited_cap = INIT_VIS;
 
-    seq_buf   = (seq_t*)malloc(INIT_SEQ * sizeof(seq_t));
+    seq_buf   = mem_new(seq_t, INIT_SEQ);
     if (!seq_buf) exit(1);
     seq_buf[0] = (seq_t)1;
     seq_len = 1;

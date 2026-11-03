@@ -8,6 +8,7 @@
  *            = 1 where μ is the Möbius function
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 49 (2026-11-01)
  * Helpers:   mobius, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mobius.h"   /* seq_t mobius(idx_t)      */
-#include "../utils/pow2.h"     /* seq_t pow2(idx_t)        */
+#include "../utils/mobius.h"
+#include "../utils/pow2.h"
 
 /* Compute a(n) for n >= 0.  The function is memoized to avoid repeated work
    if called many times, but memoization is optional since the computation is

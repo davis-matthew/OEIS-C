@@ -10,14 +10,17 @@
  *            of [n,k]_{22} left‑to‑right
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 22, u64 n <= 38, u128 n <= 70,
  *            big any n
- * Helpers:   gcd, seq_pow
+ * Validated: standard, pass, 48 terms through n = 1325 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/gcd.h"      /* gcd(seq_t, seq_t) */
-#include "../utils/seq_pow.h"   /* seq_pow(seq_t, idx_t) */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
 
 /* Compute [n,k]_{q} for q = 22. */
 static seq_t gaussian_binom(idx_t n, idx_t k)
@@ -31,11 +34,11 @@ static seq_t gaussian_binom(idx_t n, idx_t k)
     for (idx_t i = 1; i <= k; ++i)
     {
         /* numerator = q^(n+1-i) - 1 */
-        seq_t num = seq_pow(q, n + 1 - i);
+        seq_t num = ipow_idx(q, n + 1 - i);
         num -= (seq_t)1;
 
         /* denominator = q^i - 1 */
-        seq_t den = seq_pow(q, i);
+        seq_t den = ipow_idx(q, i);
         den -= (seq_t)1;
 
         /* Cancel common factors between result and the denominator. */

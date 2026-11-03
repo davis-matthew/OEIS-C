@@ -10,12 +10,13 @@
  *            C(2e+7, e+7) · C((n‑(3e+7))/2 + (2e+7) – 1, (2e+7) – 1)
  * Range:     u8 n <= 13, u16 n <= 20, u32 n <= 36, u64 n <= 69, u128 n <= 135,
  *            big any n
- * Helpers:   nCk
+ * Validated: standard, pass, 49 terms through n = 978 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/nCk.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
         idx_t diff = n - M;
         if ((diff & 1u) != 0u) continue; /* n-M must be even */
         idx_t R = diff >> 1;            /* remaining units of 2 after minimal */
-        seq_t term = nCk(k, o) * nCk(R + k - 1, k - 1);
+        seq_t term = binomial(k, o) * binomial(R + k - 1, k - 1);
         total += term;
     }
     return total;

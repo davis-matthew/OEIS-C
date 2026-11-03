@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 39, u32 n <= 7169, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   polygonal
+ * Validated: standard, pass, 116 terms through n = 9911 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,14 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/polygonal.h"
+
+/* compute the m‑gonal number p(m,k) = (m-2)k(k-1)/2 + k
+   m is 99 or 100, k > 0 */
+static inline seq_t polygonal(int m, idx_t k)
+{
+    seq_t term1 = ((seq_t)(m - 2) * (seq_t)k * (seq_t)(k - 1)) / 2;
+    return term1 + (seq_t)k;
+}
 
 /* fast 64‑bit modular multiplication (uses the optional 128‑bit type */
 static inline uint64_t mod_mul64(uint64_t a, uint64_t b, uint64_t mod)

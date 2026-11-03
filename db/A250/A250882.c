@@ -9,6 +9,7 @@
  * Formula:   a(n) = 5328*n^3 + 14468*n^2 + 13238*n + 4096
  * Range:     u8 none, u16 n <= 1, u32 n <= 92, u64 n <= 156, u128 n <= 156,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 135 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

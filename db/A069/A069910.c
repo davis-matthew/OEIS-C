@@ -8,13 +8,15 @@
  *            partitions of 2*n into distinct odd parts)
  * Range:     u8 n <= 31, u16 n <= 82, u32 n <= 243, u64 n <= 802,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cache of computed a(n) values, up to current maximum n */
 static seq_t *a_cache = NULL;
@@ -24,7 +26,7 @@ static idx_t cache_len = 0;
 static void compute_upto(idx_t n)
 {
     idx_t sums = 2 * n;                 /* maximum exponent needed */
-    seq_t *dp = (seq_t *)calloc(sums + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sums + 1);
     dp[0] = 1;                          /* empty partition */
 
     /* Distinct odd parts: product over odd k */
@@ -37,15 +39,15 @@ static void compute_upto(idx_t n)
     }
 
     /* Store results in cache */
-    seq_t *new_cache = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, n + 1);
     for (idx_t i = 0; i <= n; ++i)
         new_cache[i] = dp[2 * i];
 
     /* Free temporary dp array */
-    free(dp);
+    mem_free(dp);
 
     /* Replace old cache */
-    free(a_cache);
+    mem_free(a_cache);
     a_cache = new_cache;
     cache_len = n + 1;
 }

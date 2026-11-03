@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 37, i16 n <= 97, i32 n <= 231, i64 n <= 623,
  *            i128 n <= 1896, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 8577 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The types idx_t and seq_t are supplied by the build environment */
 static seq_t *partitions = NULL;    /* partitions[0 … current_max]          */
@@ -37,7 +39,7 @@ static void ensure_partitions(idx_t N)
     /* Allocate or grow the array if required. */
     if (part_capacity == 0) {
         part_capacity = 64;
-        partitions = (seq_t *)realloc(partitions, part_capacity * sizeof(seq_t));
+        partitions = mem_resize(seq_t, partitions, part_capacity);
         if (!partitions) return;      /* allocation failed – keep old data */
         /* initialise base case */
         partitions[0] = (seq_t)1;
@@ -46,7 +48,7 @@ static void ensure_partitions(idx_t N)
     } else if (N + 1 > part_capacity) {
         size_t new_cap = part_capacity * 2;
         if (new_cap < (size_t)(N + 1)) new_cap = (size_t)(N + 1);
-        seq_t *tmp = (seq_t *)realloc(partitions, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, partitions, new_cap);
         if (!tmp) return;          /* allocation failed – keep old data */
         partitions = tmp;
         part_capacity = new_cap;

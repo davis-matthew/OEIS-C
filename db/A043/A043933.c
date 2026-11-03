@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_adjacent_zero_two
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
    The function performs a simple linear search. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_adjacent_zero_two.h"
+
+static bool has_adjacent_zero_two(seq_t num)
+{
+    int prev = -1;
+    seq_t x = num;
+    while (x > 0) {
+        uint64_t digit = (uint64_t)(x % 8);
+        if ((prev == 0 && digit == 2) || (prev == 2 && digit == 0))
+            return true;
+        prev = (int)digit;
+        x /= 8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

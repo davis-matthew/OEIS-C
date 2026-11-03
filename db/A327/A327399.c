@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,7 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/gcd.h"   /* gcd(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
 
 /* Recursive helper that enumerates unordered factorizations of n with factors ≥ min_factor.
    fac[] holds the current partial factor list, sz is its length.

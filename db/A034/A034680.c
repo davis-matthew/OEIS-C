@@ -8,15 +8,18 @@
  *            unitary divisors)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 40, u64 n <= 1621,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 42 terms through n = 9937 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
         uint64_t k      = exps[i];
         idx_t    expo   = (idx_t)(6ULL * k);   /* 6*k fits into idx_t for 64-bit n */
 
-        seq_t powv = pow_uint(p, expo);   /* p^(6*k) in seq_t */
+        seq_t powv = ipow_u64_idx(p, expo);   /* p^(6*k) in seq_t */
         powv += 1;                        /* 1 + p^(6*k) */
         result *= powv;                   /* product over all prime powers */
     }

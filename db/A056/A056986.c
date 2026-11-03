@@ -9,6 +9,7 @@
  *            binomial(2n,n)/(n+1)). For n < 3 the result is 0
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 146 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            a(n)=a(n-1)+a(n-3)+a(n-5)+a(n-7)+a(n-9)+a(n-11)
  * Range:     u8 n <= 15, u16 n <= 26, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
     The function can be called in any order and will memoise
     computed values in a static array.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[12] = {
     0,                      /* 0th element unused */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* First call – allocate and initialise base terms. */
     if (!cache) {
         cache_cap = (n > 20 ? n + (n >> 1) : 20);
-        cache = (seq_t*) calloc(cache_cap + 1, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap + 1);
         for (idx_t i = 1; i < 12; ++i) cache[i] = init_vals[i];
         cache_len = 11;
     }
@@ -47,8 +49,7 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         idx_t new_cap = cache_cap;
         while (new_cap < n) new_cap <<= 1; /* grow by factor 2 */
-        seq_t *tmp = (seq_t*) realloc(cache,
-                                     (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) return 0;                /* allocation failure */
         for (idx_t i = cache_cap + 1; i <= new_cap; ++i) tmp[i] = 0;
         cache = tmp;

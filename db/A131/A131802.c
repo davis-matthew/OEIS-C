@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1439, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 104 terms through n = 9894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ensure_cache helper is not used; a custom dynamic cache is implemented below. */
 
@@ -46,7 +48,7 @@ ensure_A001055_cache(idx_t n)
     size_t new_cap = A001055_cache_cap ? A001055_cache_cap : 16;
     while (new_cap <= n)
         new_cap <<= 1;                     /* double until big enough */
-    seq_t *tmp = (seq_t *)realloc(A001055_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A001055_cache, new_cap);
     if (!tmp) {
         /* allocation failed – abort execution (undefined behaviour in OEIS eval) */
         abort();

@@ -11,7 +11,8 @@
  *            nor k+1 divides m)
  * Range:     u8 n <= 42, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recursive memoised evaluation of A133564 */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         while (newcap <= (size_t)n) newcap <<= 1;
 
         /* realloc cache entries, keeping previous values */
-        seq_t *tmp_cache    = (seq_t *)realloc(cache,    newcap * sizeof(seq_t));
+        seq_t *tmp_cache    = mem_resize(seq_t, cache, newcap);
         bool   *tmp_computed = (bool *)realloc(computed, newcap * sizeof(bool));
 
         if (tmp_cache    == NULL || tmp_computed == NULL) {

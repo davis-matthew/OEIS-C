@@ -8,11 +8,13 @@
  * Formula:   a(n) = 2^(n - valuation(2^(n-1)+n,2))
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 40, u128 n <= 40,
  *            big any n
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static inline idx_t v2_uint64(idx_t n)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has_adjacent_0_3
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
     The function scans sequentially for the nth such number. */
 
 #include <stdbool.h>
-#include "../utils/has_adjacent_0_3.h"
+
+/* Return true if the base-6 representation of x contains the digits
+   0 and 3 adjacent (in either order). */
+static bool has_adjacent_0_3(seq_t x)
+{
+    if (x == 0)
+        return false;
+
+    seq_t prev = x % 6;     /* least significant digit */
+    x /= 6;
+    while (x > 0)
+    {
+        seq_t cur = x % 6;
+        if ((prev == 0 && cur == 3) || (prev == 3 && cur == 0))
+            return true;
+        prev = cur;
+        x /= 6;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

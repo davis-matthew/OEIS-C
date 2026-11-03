@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2*(n-1)*(2*n-1) + 2*Σ_{i=2}^{n-1} (n-i)*(2*n-i)*phi(i)
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 344, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 9554 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* with a(1) = 0 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Caches Φ(i) values up to the largest n requested so far. */
 static seq_t *phi_cache = NULL;
@@ -29,8 +31,8 @@ static void ensure_phi(idx_t limit)
 
     /* Allocate space for Φ[0..limit] */
     if (phi_cache != NULL)
-        free(phi_cache);
-    phi_cache = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+        mem_free(phi_cache);
+    phi_cache = mem_new(seq_t, (limit + 1));
     if (phi_cache == NULL)
         exit(1);    /* out of memory (unlikely for n ≤ 10000) */
 

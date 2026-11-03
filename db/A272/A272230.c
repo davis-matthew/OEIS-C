@@ -8,15 +8,18 @@
  *            a(0) = 1
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 17, i128 n <= 30,
  *            big any n
- * Helpers:   binomial, pow2
+ * Validated: standard, pass, 38 terms through n = 333 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/pow2.h"     /* seq_t pow2(idx_t exp) */
-#include "../utils/binomial.h" /* seq_t binom(idx_t a, idx_t b) */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise cache for first call */
     if (cache == NULL) {
         cap = 16;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         sz = 0;
     }
 
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap ? cap << 1 : 16;
         while (new_cap < (size_t)(n + 1))
             new_cap <<= 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 

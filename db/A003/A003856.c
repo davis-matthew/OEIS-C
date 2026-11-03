@@ -11,7 +11,8 @@
  *            Dixon's method mod p to get the central characters. Each d...
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   fld_inv, gcd_ll, key5, mapS, mapT, prime_ll
+ * Validated: full, pass, 15 terms through n = 15 (2026-11-02)
+ * Helpers:   gcd_i64, is_prime_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +20,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/fld_inv.h"
-#include "../utils/gcd_ll.h"
-#include "../utils/key5.h"
-#include "../utils/mapS.h"
-#include "../utils/mapT.h"
-#include "../utils/prime_ll.h"
+#include "../utils/gcd_i64.h"
+#include "../utils/is_prime_i64.h"
+
+static int fld_inv(int x) {
+    int y;
+    for (y = 1; y < 11; y++) if (x * y % 11 == 1) return y;
+    return 0;
+}
+
+static int key5(const int *p) {
+    return (((p[0] * 12 + p[1]) * 12 + p[2]) * 12 + p[3]) * 12 + p[4];
+}
+
+static int mapS(int x) {
+    if (x == 11) return 0;
+    if (x == 0) return 11;
+    return (11 - fld_inv(x)) % 11;
+}
+
+static int mapT(int x) { return x == 11 ? 11 : (x + 1) % 11; }
 
 #define NPT 12
 #define GMAX 95040
@@ -228,7 +243,7 @@ static void init_all(void) {
             for (i = 0; i < NPT; i++) y[i] = yn[i];
             ord++;
         }
-        expo = expo / gcd_ll(expo, ord) * ord;
+        expo = expo / gcd_i64(expo, ord) * ord;
     }
 
     memset(cst, 0, sizeof(cst));
@@ -248,7 +263,7 @@ static void init_all(void) {
     while (bound * bound <= G) bound++;
     bound = 2 * bound + 2;
     for (p = expo + 1;; p += expo)
-        if (p > bound && prime_ll(p)) break;
+        if (p > bound && is_prime_i64(p)) break;
     PR = p;
 
     ns = 1;

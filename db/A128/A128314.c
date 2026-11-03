@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 39, i16 n <= 55, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   small_mobius
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   mobius_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/small_mobius.h"
+#include "../utils/mobius_idx.h"
 
 /* Compute binomial coefficient binom(n,k) for 0 ≤ k ≤ n ≤ 200.
    Uses multiplicative formula to avoid intermediate overflow. */
@@ -53,7 +54,7 @@ seq_t a(idx_t n) {
     seq_t sum_total = (seq_t)0;
 
     for (idx_t d = 1; d <= i; ++d) {
-        int mu = small_mobius(d);    /* -1, 0, or 1 */
+        int mu = mobius_idx(d);    /* -1, 0, or 1 */
         if (mu == 0) continue;
         seq_t mu_seq = (seq_t)mu;
 

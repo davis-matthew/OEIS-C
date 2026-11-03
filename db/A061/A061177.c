@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, easy, tabl
  * Formula:   not stated
- * Range:     i8 n <= 28, i16 n <= 124, i32 n <= 445, i64 n <= 1325,
+ * Range:     i8 n <= 38, i16 n <= 125, i32 n <= 446, i64 n <= 1325,
  *            i128 n <= 1325, big any n
+ * Validated: standard, pass, 75 terms through n = 1316 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -28,6 +29,7 @@
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Find the largest row m such that the cumulative number of terms up to

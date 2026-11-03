@@ -8,14 +8,28 @@
  * Formula:   a(n) = -7*a(n-1) + 49*a(n-3) with a(0)=3, a(1)=-7, a(2)=49
  * Range:     i8 n <= 2, i16 n <= 6, i32 n <= 13, i64 n <= 26, i128 n <= 53,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq
+ * Validated: standard, pass, 41 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for size_t, NULL */
-#include "../utils/alloc_seq_array.h"   /* alloc_seq_array(size_t) */
-#include "../utils/free_seq.h"          /* free_seq(seq_t*) */
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n) {
     /* static cache of previously computed terms */

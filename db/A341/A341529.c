@@ -12,15 +12,18 @@
  *            is multiplicative, so we compute it by factoring n
  * Range:     u8 n <= 7, u16 n <= 63, u32 n <= 4095, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   factor_u64, next_prime, pow_uint
+ * Validated: standard, pass, 72 terms through n = 7463 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
 #include "../utils/next_prime.h"
-#include "../utils/pow_uint.h"
 
 seq_t a(idx_t n)
 {
@@ -43,12 +46,12 @@ seq_t a(idx_t n)
         uint64_t e = ex[i];
 
         /* σ part: (p^(e+1)-1)/(p-1) */
-        seq_t term = (pow_uint(p, (idx_t)(e + 1)) - (seq_t)1) / (seq_t)(p - 1);
+        seq_t term = (ipow_u64_idx(p, (idx_t)(e + 1)) - (seq_t)1) / (seq_t)(p - 1);
         sigma *= term;
 
         /* A003961 part: next_prime(p)^e */
         uint64_t q = next_prime(p);
-        seq_t term2 = pow_uint(q, (idx_t)e);
+        seq_t term2 = ipow_u64_idx(q, (idx_t)e);
         a003961 *= term2;
     }
 

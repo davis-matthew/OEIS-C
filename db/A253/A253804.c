@@ -12,7 +12,8 @@
  *            a(n) is the larger of these two odd legs
  * Range:     u8 n <= 3, u16 n <= 25, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   build_primes_upto, floor_sqrt, mod_pow
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/powmod.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* cache of primes ≡ 1 (mod 4) */
 static uint64_t *primes1 = NULL;
@@ -66,10 +86,10 @@ static seq_t sqrt_minus_one_mod(uint64_t p)
 {
     /* find a quadratic non‑residue a modulo p */
     for (uint64_t a = 2; ; ++a) {
-        seq_t leg = mod_pow((seq_t)a, (p - 1) / 2, (seq_t)p);
+        seq_t leg = powmod((seq_t)a, (p - 1) / 2, (seq_t)p);
         if (leg == (seq_t)(p - 1)) {          /* Legendre symbol = –1 */
             /* then a^((p–1)/4) is a square root of –1 */
-            return mod_pow((seq_t)a, (p - 1) / 4, (seq_t)p);
+            return powmod((seq_t)a, (p - 1) / 4, (seq_t)p);
         }
     }
 }

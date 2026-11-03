@@ -12,13 +12,15 @@
  *            T(n,k)
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 /* Find the row index (1‑based) containing the flattened term n.
@@ -48,8 +50,8 @@ seq_t a(idx_t n)
     idx_t col = (idx_t)(n - prev_tri - 1);
 
     seq_t result = (seq_t)row;
-    result *= binom(row - 1, col);
-    result *= pow2((idx_t)binom(row - 1, 2));
+    result *= binomial(row - 1, col);
+    result *= pow2((idx_t)binomial(row - 1, 2));
 
     return result;
 }

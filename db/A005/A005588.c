@@ -11,20 +11,32 @@
  *            with eccentricity n can be a binary root. Both co...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   alloc_zero, m2, release
+ * Validated: standard, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/m2.h"
+#include <stdlib.h>
+#include "../utils/triangular_seq.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 /* multisets of size 3 from b items: C(b+2,3) */
 static seq_t c3(seq_t b)
 {
-    seq_t t = m2(b);
+    seq_t t = triangular_seq(b);
     if ((b + 2) % 3 == 0) return t * ((b + 2) / 3);
     return t / 3 * (b + 2);
 }
@@ -43,11 +55,11 @@ static seq_t G(long long k, long long h)
     long long h0 = h - k, j;
     seq_t v;
     if (h0 <= 0) v = (seq_t)0;
-    else v = m2(Nh(h0 - 1));
+    else v = triangular_seq(Nh(h0 - 1));
     for (j = 1; j <= k; j++) {
         long long hh = h0 + j;
         if (hh < 0) v = (seq_t)0;
-        else v = m2(v + 1);
+        else v = triangular_seq(v + 1);
     }
     return v;
 }
@@ -60,30 +72,30 @@ seq_t a(idx_t n)
     Nt[0] = 0;
     for (h = 0; h <= nn; h++) {
         seq_t p = Nt[h];
-        Nt[h + 1] = m2(p) + p + 1;
+        Nt[h + 1] = triangular_seq(p) + p + 1;
     }
     for (d = nn; d <= 2 * nn; d++) {
         seq_t tot, bad = 0;
         if (d % 2 == 1) {
             long long r = (d + 1) / 2, k = nn - r;
             seq_t b = Nh(r - 1) - Nh(r - 2);
-            tot = m2(b);
+            tot = triangular_seq(b);
             if (k <= r - 2) {
                 seq_t g = G(k, r - 1) - G(k, r - 2);
-                bad = m2(g);
+                bad = triangular_seq(g);
             }
         } else {
             long long r = d / 2, k = nn - r;
             seq_t b = Nh(r - 1) - Nh(r - 2);
             seq_t A = Nh(r - 2) + 1;
-            tot = m2(b) * A + c3(b);
+            tot = triangular_seq(b) * A + c3(b);
             if (k <= r - 1) {
                 if (k == 0) {
-                    bad = m2(b) * Nh(r - 2) + c3(b);
+                    bad = triangular_seq(b) * Nh(r - 2) + c3(b);
                 } else {
                     seq_t lo = G(k - 1, r - 2);
                     seq_t B = G(k - 1, r - 1) - lo;
-                    bad = m2(B) * (lo + 1) + c3(B);
+                    bad = triangular_seq(B) * (lo + 1) + c3(B);
                 }
             }
         }

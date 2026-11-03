@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 678, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exp_in_fact, push_seq, simple_sieve
+ * Validated: standard, pass, 68 terms through n = 9917 (2026-11-03)
+ * Helpers:   mem, simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,32 @@
 #include <stdlib.h>
 
 /* Utility functions provided by the build system */
-#include "../utils/push_seq.h"
 #include "../utils/simple_sieve.h"
-#include "../utils/exp_in_fact.h"
+#include "../utils/mem.h"
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
+
+/* Exponent of prime q in p! ------------------------------------------ */
+static uint32_t exp_in_fact(uint32_t p, uint32_t q)
+{
+    uint32_t sum = 0;
+    uint64_t power = q;
+    while (power <= p) {
+        sum += (uint32_t)(p / power);
+        power *= (uint64_t)q;
+    }
+    return sum;
+}
 
 /* --------------------------------------------------------------------- */
 /* Prime sieve (executed once) ----------------------------------------- */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   runs_base3
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,24 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/runs_base3.h"
+#include "../utils/mem.h"
+
+/* Count the number of runs in the base‑3 representation of x. */
+static int runs_base3(seq_t x)
+{
+    if (x == 0) return 1;                /* representation “0” */
+    int runs  = 0;
+    int prev  = -1;
+    while (x != 0) {
+        int d = (int)(x % (seq_t)3);     /* digit 0,1,2 */
+        if (runs == 0 || d != prev) {
+            runs++;
+            prev = d;
+        }
+        x /= (seq_t)3;
+    }
+    return runs;
+}
 
 /* Sequence generator. */
 seq_t a(idx_t n)
@@ -33,7 +51,7 @@ seq_t a(idx_t n)
     /* Grow the cache when necessary. */
     if (cache_size >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-        seq_t *tmp = (seq_t *)realloc((void *)cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;            /* allocation failure → sentinel */
         cache = tmp;
         cache_cap = new_cap;

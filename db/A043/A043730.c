@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_runs_in_binary
+ * Validated: standard, pass, 75 terms through n = 9861 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,33 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_runs_in_binary.h"
+#include "../utils/mem.h"
+
+/* count_runs_in_binary: counts the number of runs in the binary
+ * representation of x.  A run is a maximal substring of equal
+ * consecutive bits.  For example, 11011100 has runs: 11 | 0 | 111 | 00
+ * → 4 runs.  The function works for any unsigned integer type that
+ * supports the usual bitwise operations. */
+static inline unsigned int count_runs_in_binary(seq_t x)
+{
+    unsigned int runs = 0;
+    bool prev_bit = false;
+    bool first_bit = true;
+
+    while (x != 0) {
+        bool bit = ((x & 1) != 0);
+        if (first_bit) {
+            runs = 1;
+            prev_bit = bit;
+            first_bit = false;
+        } else if (bit != prev_bit) {
+            ++runs;
+            prev_bit = bit;
+        }
+        x >>= 1;
+    }
+    return runs;
+}
 
 /* ------------------------------------------------------------------ */
 
@@ -46,7 +73,7 @@ seq_t a(idx_t n)
         /* Grow the cache if necessary. */
         if (cap <= size) {
             size_t new_cap = cap ? cap * 2 : 4;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return 0;          /* allocation failed */
             cache = tmp;
             cap   = new_cap;

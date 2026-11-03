@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 884, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9655 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    static cache so that calls with arbitrary order of n work correctly. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool all_odd_digits_seq_t(seq_t x) {
     if (x == 0) return false;          /* 0 is not a term of the sequence */
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
     if (len < n) {
         if (!cache) {
             cap = 16;
-            cache = (seq_t*)malloc(cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cap);
         }
         while (len < n) {
             /* Advance candidate until it satisfies the conditions */
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
             /* Grow cache if needed */
             if (len == cap) {
                 cap *= 2;
-                cache = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
 
             cache[len++] = candidate;   /* store found term */

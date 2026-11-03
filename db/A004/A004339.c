@@ -7,13 +7,14 @@
  * Formula:   a(n) = binomial(4*n, n-9)
  * Range:     u8 n <= 10, u16 n <= 12, u32 n <= 16, u64 n <= 26, u128 n <= 45,
  *            big any n
- * Helpers:   a004339_gcd
+ * Validated: standard, pass, 36 terms through n = 940 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a004339_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     idx_t k = n - 9;
@@ -23,7 +24,7 @@ seq_t a(idx_t n) {
     for (i = 1; i <= k; i++) {
         uint64_t x = (uint64_t)(base + i);
         uint64_t rm = (uint64_t)(r % (seq_t)i);
-        uint64_t g = a004339_gcd(rm, (uint64_t)i);
+        uint64_t g = gcd_u64(rm, (uint64_t)i);
         uint64_t d = (uint64_t)i / g;
         r = (r / (seq_t)g) * (seq_t)(x / d);
     }

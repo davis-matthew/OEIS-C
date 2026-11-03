@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 220, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reverse
+ * Validated: standard, pass, 49 terms through n = 9962 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/reverse.h"   /* seq_t reverse(seq_t v); */
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,12 +36,12 @@ seq_t a(idx_t n)
     /* Grow the cache until it contains at least n terms. */
     while (cache_len < (size_t)n) {
         seq_t cand = (seq_t)17 * (seq_t)next_k;
-        seq_t rev  = reverse(cand);
+        seq_t rev  = reverse_digits(cand);
         /* Compute (rev + 1) % 17 directly. */
         if (((rev + (seq_t)1) % (seq_t)17) == 0) {
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 128;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp)
                     return (seq_t)0;   /* allocation failure – return 0 */
                 cache = tmp;

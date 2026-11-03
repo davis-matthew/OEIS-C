@@ -7,7 +7,8 @@
  * Formula:   a(n) = Catalan(n) * ((n+1)! - 1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 16,
  *            big any n
- * Helpers:   catalan
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 /* Compute A089833: a(n) = Catalan(n) * ((n+1)! – 1)   */
 // The function is memoised; it works for any seq_t type provided by the build.
@@ -33,14 +35,14 @@ seq_t a(idx_t n)
     if (!fact_cache) {
         /* First allocation – store 0! = 1 */
         fact_cap = needed + 1;
-        fact_cache = (seq_t *)malloc(fact_cap * sizeof(seq_t));
+        fact_cache = mem_new(seq_t, fact_cap);
         if (!fact_cache) return (seq_t)0;      /* out of memory – unlikely */
         fact_cache[0] = (seq_t)1;
         fact_max   = 0;
     } else if (fact_cap <= needed) {
         /* Grow the table to hold the needed index */
         fact_cap = needed + 1;
-        fact_cache = (seq_t *)realloc(fact_cache, fact_cap * sizeof(seq_t));
+        fact_cache = mem_resize(seq_t, fact_cache, fact_cap);
         if (!fact_cache) return (seq_t)0;
         /* newly allocated slots are uninitialised – we will fill them below */
     }

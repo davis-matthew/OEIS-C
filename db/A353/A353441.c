@@ -12,7 +12,8 @@
  *            builds (including the arbitrary‑precision...
  * Range:     u8 n <= 194, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_digit_5
+ * Validated: standard, pass, 87 terms through n = 9938 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_digit_5.h"
+
+/* Check whether the decimal expansion of 1/m contains the digit 5.
+   We cast the seq_t value to idx_t for efficient arithmetic; this
+   is safe because for all n we are interested in m fits within
+   uint64_t. */
+static bool has_digit_5(seq_t m)
+{
+    idx_t M = (idx_t)m;
+    if (M == 0)
+        return false;
+    /* remainder of current division by M (starts with 1/M). */
+    uint64_t rem = 1 % M;
+    for (idx_t i = 0; i < M; ++i)
+    {
+        uint64_t prod = rem * 10ULL;
+        uint64_t digit = prod / M;
+        if (digit == 5ULL)
+            return true;
+        rem = prod % M;
+        if (rem == 0)
+            break;            /* terminating decimal – no 5 found */
+    }
+    return false;
+}
 
 /* Static cache of found terms, stored as idx_t to avoid constructor
    issues in the arbitrary‑precision build. */

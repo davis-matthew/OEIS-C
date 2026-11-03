@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 3254, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 73 terms through n = 9970 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,7 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"          /* provides uint64_t next_prime(uint64_t) */
+#include "../utils/next_prime.h"
 
 /* residue classes modulo 52 that correspond to splitting primes */
 static const uint8_t residue_classes[12] = {

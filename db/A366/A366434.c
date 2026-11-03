@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 23, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,8 +47,8 @@ seq_t a(idx_t n)
     /* initialise the cache on first call */
     if (max_computed == 0) {
         cache_size = 1;
-        a_cache = (seq_t*)malloc(sizeof(seq_t) * cache_size);
-        c_cache = (seq_t*)malloc(sizeof(seq_t) * cache_size);
+        a_cache = mem_new(seq_t, cache_size);
+        c_cache = mem_new(seq_t, cache_size);
         /* a(0) = 1 */
         a_cache[0] = 1;
         c_cache[0] = 1;   /* a(0)*a(0) */
@@ -56,8 +58,8 @@ seq_t a(idx_t n)
     /* enlarge cache if needed */
     if (n + 1 > cache_size) {
         size_t new_size = (size_t)(n + 1);
-        a_cache = (seq_t*)realloc(a_cache, new_size * sizeof(seq_t));
-        c_cache = (seq_t*)realloc(c_cache, new_size * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_size);
+        c_cache = mem_resize(seq_t, c_cache, new_size);
         cache_size = new_size;
     }
 

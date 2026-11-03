@@ -13,7 +13,8 @@
  *            row‑by‑row. Each call is memoised so that any or...
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   idx_at
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,13 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/idx_at.h"
+#include "../utils/mem.h"
+
+/* convert row and column to linear index in the flattened array */
+static inline idx_t idx_at(idx_t row, idx_t col)
+{
+    return row * (row + 1) / 2 + col;
+}
 
 static seq_t *triangle = NULL;          /* flattened triangle */
 static size_t  triangle_cap = 0;        /* allocated capacity in elements   */
@@ -51,7 +58,7 @@ static void ensure_row(idx_t row_needed)
             size_t new_cap = triangle_cap ? triangle_cap * 2 : 128;
             while (new_cap < needed)
                 new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(triangle, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, triangle, new_cap);
             triangle = tmp;
             triangle_cap = new_cap;
         }

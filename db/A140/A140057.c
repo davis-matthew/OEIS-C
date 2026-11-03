@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 16, u32 n <= 257, u64 n <= 8032,
  *            u128 n <= 8032, big any n
- * Helpers:   pow10
+ * Validated: standard, pass, 49 terms through n = 7692 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
-#include "../utils/pow10.h"
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Global storage for generated terms */
 static seq_t *seq = NULL;          /* array of terms */
@@ -48,7 +58,7 @@ static void ensure_seq_cap(size_t needed)
     if (seq_cap < needed) {
         size_t new_cap = seq_cap == 0 ? 16 : seq_cap;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         seq = tmp;
         seq_cap = new_cap;
@@ -60,7 +70,7 @@ static void ensure_temp_cap(size_t needed)
     if (temp_cap < needed) {
         size_t new_cap = temp_cap == 0 ? 16 : temp_cap;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(temp, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, temp, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         temp = tmp;
         temp_cap = new_cap;
@@ -139,7 +149,7 @@ static void generate_len(idx_t len)
     dfs(len, -1, (seq_t)0);
 
     if (temp_len > 1)
-        qsort(temp, temp_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(temp, temp_len, sizeof(seq_t), cmp_seq);
 
     for (size_t i = 0; i < temp_len; ++i)
         seq_push(temp[i]);

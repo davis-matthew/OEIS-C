@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 247, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9588 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Sequence: A085888 */
 /* a(n) = min_{r+s=n} (σ(r)+σ(s))  with offset 2  (n ≥ 2) */
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* bring the σ table up to at least n */
     if (n > current_cap) {
         /* Allocate a new table and compute divisor sums */
-        seq_t *new_sigma = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_sigma = mem_new(seq_t, (n + 1));
         if (!new_sigma)
             return 0;        /* allocation failure – caller handles */
 
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         }
 
         /* replace old table */
-        free(sigma);
+        mem_free(sigma);
         sigma = new_sigma;
         current_cap = n;
     }

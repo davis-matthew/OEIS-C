@@ -8,7 +8,8 @@
  * Formula:   a(n) = A022559(5*n) - 2*A022559(3*n) + A022559(n)
  * Range:     u8 n <= 1524, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega
+ * Validated: standard, pass, 101 terms through n = 9256 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 /* Cached cumulative sums of A022559(k) up to the current maximum k */
 static seq_t *cum = NULL;
@@ -28,7 +30,7 @@ static void ensure_cum(idx_t k)
     if (cum_len == 0) {
         /* Create array with at least k+1 elements */
         size_t new_len = (size_t)k + 1;
-        seq_t *tmp = (seq_t *)realloc(cum, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cum, new_len);
         if (!tmp) abort();           /* memory allocation failed */
         cum = tmp;
         cum[0] = 0;                  /* A022559(0) = 0 */
@@ -38,7 +40,7 @@ static void ensure_cum(idx_t k)
     if (cum_len <= k) {
         size_t old_len = (size_t)cum_len;
         size_t new_len = (size_t)k + 1;
-        seq_t *tmp = (seq_t *)realloc(cum, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cum, new_len);
         if (!tmp) abort();
         cum = tmp;
         for (idx_t i = old_len; i <= k; ++i) {

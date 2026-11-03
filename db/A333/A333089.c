@@ -9,12 +9,14 @@
  *            1/(Fibonacci(2i-1) * Fibonacci(2i))
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
+ * Validated: standard, pass, 29 terms through n = 62 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Return the n-th term of sequence A333089.  The function works for

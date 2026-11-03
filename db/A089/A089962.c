@@ -9,14 +9,17 @@
  *            the triangle T(n,k) with T(0,0)=1 and T(n,n)=1
  * Range:     i8 n <= 16, i16 n <= 38, i32 n <= 61, i64 n <= 61, i128 n <= 61,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static idx_t row_from_index(idx_t n)
 {
@@ -49,7 +52,7 @@ static seq_t compute_T(idx_t n, idx_t k)
     /* general case: 0 < k < n */
     seq_t res = binomial(n, k);                   /* C(n,k)                       */
     res = res * (seq_t)n;                         /* multiply by n                */
-    seq_t pw  = big_pow((seq_t)k, (seq_t)(n - k - 1)); /* k^(n-k-1)   */
+    seq_t pw  = ipow((seq_t)k, (seq_t)(n - k - 1)); /* k^(n-k-1)   */
     res = res * pw;
     if (((n - k) & 1) == 1) res = -res;          /* apply sign (-1)^(n-k)       */
     return res;

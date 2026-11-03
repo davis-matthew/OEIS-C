@@ -12,7 +12,8 @@
  *            values, where *used* counts how many position...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline seq_t binom4(idx_t n, idx_t k)
 {
@@ -39,10 +41,10 @@ seq_t a(idx_t n)
     if (n == 0) return 0;      /* offset 1: a(1) is first term */
 
     /* allocate DP arrays */
-    seq_t *dp   = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *next = mem_new(seq_t, (size_t)(n + 1));
     if (!dp || !next) {
-        free(dp); free(next);
+        mem_free(dp); mem_free(next);
         return 0;
     }
 
@@ -71,12 +73,12 @@ seq_t a(idx_t n)
         seq_t *tmp = dp; dp = next; next = tmp;
         /* zero out next for reuse */
         size_t clearSize = (size_t)(n + 1) * sizeof(seq_t);
-        memset(next, 0, clearSize);
+        mem_set(next, 0, clearSize);
 
         if (v == 0) break;   /* finished all values */
     }
 
     seq_t result = dp[n];
-    free(dp); free(next);
+    mem_free(dp); mem_free(next);
     return result;
 }

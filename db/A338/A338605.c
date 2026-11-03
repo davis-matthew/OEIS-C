@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   cmp_seq_t, gcd, seq_alloc
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,9 +35,28 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/gcd.h"
-#include "../utils/cmp_seq_t.h"
-#include "../utils/seq_alloc.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 typedef struct { uint64_t num, den; } Fraction;
 
@@ -159,7 +179,7 @@ seq_t a(idx_t n)
         arr_len = sz_final;
 
         /* Sort the results. */
-        qsort(arr, arr_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(arr, arr_len, sizeof(seq_t), cmp_seq_t);
     }
 
     return (n - 1 < arr_len) ? arr[n - 1] : (seq_t)0;

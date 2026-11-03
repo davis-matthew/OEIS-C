@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 26, u128 n <= 46,
  *            big any n
- * Helpers:   compute_term
+ * Validated: standard, pass, 41 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,41 @@
  */
 
 #include <stdlib.h>
-#include "../utils/compute_term.h"
+#include "../utils/mem.h"
+
+/* ----------------------------------------------------------- */
+static seq_t compute_term(idx_t k, const seq_t *c)
+{
+    seq_t a1 = c[k-1];
+    seq_t a2 = c[k-2];
+    seq_t a3 = c[k-3];
+    seq_t result;
+
+    /*  Very small `seq_t` values (≤ 8 bytes) use 128‑bit arithmetic   */
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 i = (unsigned __int128)k;
+        unsigned __int128 coeff1 = 8*i*i + 7*i - 3;
+        unsigned __int128 coeff2 = 13*i*i - 17*i - 6;
+        unsigned __int128 coeff3 = 2*(i-3)*(i+1);
+
+        unsigned __int128 num1 = coeff1 * (unsigned __int128)a1;
+        unsigned __int128 num2 = coeff2 * (unsigned __int128)a2;
+        unsigned __int128 num3 = coeff3 * (unsigned __int128)a3;
+
+        unsigned __int128 numerator   = num1 - num2 + num3;
+        unsigned __int128 denominator = i * (i + 2);
+        result = (seq_t)(numerator / denominator);
+    } else { /*  arbitrary‑precision seq_t (C++ build)                */
+        seq_t c1 = (seq_t)8 * (seq_t)k * (seq_t)k + (seq_t)7 * (seq_t)k - (seq_t)3;
+        seq_t c2 = (seq_t)13 * (seq_t)k * (seq_t)k - (seq_t)17 * (seq_t)k - (seq_t)6;
+        seq_t c3 = (seq_t)2 * (seq_t)(k-3) * (seq_t)(k+1);
+
+        seq_t numerator   = c1 * a1 - c2 * a2 + c3 * a3;
+        seq_t denominator = (seq_t)k * (seq_t)(k+2);
+        result = numerator / denominator;
+    }
+    return result;
+}
 
 static seq_t *cache = NULL;          /* pointer to memoised terms           */
 static size_t cache_capacity = 0;    /* current allocated size of cache     */
@@ -44,7 +79,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold indices 0 … n (inclusive) */
     if (n + 1 > cache_capacity) {
         size_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache)          /* allocation failure – abort */
             abort();
         cache = new_cache;

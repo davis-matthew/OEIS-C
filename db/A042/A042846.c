@@ -8,13 +8,15 @@
  *            a(0)…a(27) are numerators of convergents of sqrt(954)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 15, u64 n <= 32, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage for the generated sequence */
 static seq_t *cache = NULL;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     if (required > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 32;
         if (new_cap < required) new_cap = required;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();
         cache = tmp;
         cache_cap = new_cap;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
 
     /* initialise with the first 28 terms if the cache is empty */
     if (cache_len == 0) {
-        cache = (seq_t *)calloc(28, sizeof(seq_t));
+        cache = mem_new(seq_t, 28);
         if (cache == NULL) abort();
         init_initial_terms();
     }

@@ -12,14 +12,32 @@
  *            60‑periodic sequence b(k)
  * Range:     u8 n <= 86, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   periodic_b, seq_alloc
+ * Validated: standard, pass, 103 terms through n = 4875 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/periodic_b.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+/* periodic contribution b(d) – 60‑periodic */
+static inline int periodic_b(int d) {
+    int b = 2;
+    if (d % 2 == 0)   b -= 5;          /* d even          */
+    if (d % 4 == 0)   b += 2;          /* d divisible by 4 */
+    if (d % 30 == 0)  b += 1;          /* d divisible by 30 */
+    if (d % 60 == 0)  b -= 2;          /* d divisible by 60 */
+    return b;
+}
 
 static seq_t *a_cache = NULL;          /* cache of computed a(n)   */
 static size_t a_cap  = 20001;          /* initial cache capacity   */

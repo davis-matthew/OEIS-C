@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 719, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_alloc_new_array, seq_free_array
+ * Validated: standard, pass, 103 terms through n = 9721 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,15 @@
 /* Include utilities for dynamic array allocation and deallocation. */
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_alloc_new_array.h"   /* seq_alloc_new_array(size_t) -> seq_t*   */
-#include "../utils/seq_free_array.h"        /* seq_free_array(seq_t*)                 */
+#include <stdint.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *cache = NULL;      /* cache[0] unused, cache[1] = a(1) */
 static size_t cache_cap = 0;     /* number of elements allocated (>= index+1) */
@@ -34,7 +42,7 @@ static void ensure_cache(idx_t n)
     if (!new_cache) abort(); /* Out of memory */
 
     /* Zero all entries – works for integral as well as arbitrary‑precision types. */
-    memset(new_cache, 0, ((size_t)n + 1) * sizeof(seq_t));
+    mem_set(new_cache, 0, ((size_t)n + 1) * sizeof(seq_t));
 
     /* Base case. */
     new_cache[1] = (seq_t)1;   /* a(1) = 1 */

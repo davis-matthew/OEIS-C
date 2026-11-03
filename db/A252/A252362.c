@@ -10,13 +10,15 @@
  *            a(5)=1482, a(6)=3188, a(7)=6954, a(8)=15432
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 23, u64 n <= 51, u128 n <= 108,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,9 +42,9 @@ seq_t a(idx_t n)
     if (n > max_n) {
         idx_t new_size = n;
         if (data == NULL) {
-            data = (seq_t *)malloc(new_size * sizeof(seq_t));
+            data = mem_new(seq_t, new_size);
         } else {
-            data = (seq_t *)realloc(data, new_size * sizeof(seq_t));
+            data = mem_resize(seq_t, data, new_size);
         }
         if (data == NULL)
             abort();              /* memory allocation failed */

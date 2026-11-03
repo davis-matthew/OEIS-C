@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 121 terms through n = 9981 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* static cache of run lengths */
 static seq_t *runs      = NULL;
@@ -38,7 +40,7 @@ static void add_run(size_t len)
 {
     if (runs_cnt >= runs_cap) {
         size_t new_cap = runs_cap ? runs_cap * 2 : 16;
-        void *tmp = realloc(runs, new_cap * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, runs, new_cap);
         if (!tmp) exit(1);           /* allocation failure; abort */
         runs = (seq_t *)tmp;
         runs_cap = new_cap;

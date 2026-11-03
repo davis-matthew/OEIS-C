@@ -8,9 +8,10 @@
  * Keywords:  nonn, look, tabf
  * Formula:   a(n) is the flattened triangle T(n,k) where * T(n,k) = (1/k) ·
  *            sum_{ S ⊆ [1..n], sum(S) ≡ 0 (mod k) } sum(S)
- * Range:     u8 n <= 35, u16 n <= 220, u32 n <= 2600, u64 n <= 9073,
- *            u128 n <= 9073, big any n
- * Helpers:   free_seq_arr
+ * Range:     u8 n <= 35, u16 n <= 220, u32 n <= 2600, u64 n <= 22100,
+ *            u128 n <= 22100, big any n
+ * Validated: standard, pass, 100 terms through n = 9073 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/free_seq_arr.h"
+
+static inline void free_seq_arr(seq_t* p)
+{
+#if defined(__cplusplus)
+    delete[] p;
+#else
+    free(p);
+#endif
+}
  
 /* Helper: allocate an array of seq_t of given size, construct it in C++,
  * or just calloc in C.  Must be freed by matching free_seq. */

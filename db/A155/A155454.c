@@ -8,13 +8,25 @@
  *            r(r+1)/2; t(r,k) = k! + (1 - k!)*(r-k)! for 0 <= k <= r
  * Range:     i8 n <= 37, i16 n <= 56, i32 n <= 60, i64 n <= 60, i128 n <= 60,
  *            big any n
- * Helpers:   factorial
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/factorial.h"
+#include <stdint.h>
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {

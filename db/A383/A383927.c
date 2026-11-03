@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 449, u32 n <= 3158, u64 n <= 3158,
  *            u128 n <= 3158, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 69 terms through n = 2615 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,7 @@
 
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 /* Compute bit length of a 64‑bit integer.  */
 static inline unsigned bitlen_uint64(uint64_t x)
@@ -45,7 +46,7 @@ seq_t a(idx_t n)
     uint64_t k     = 3;                  /* first odd candidate > 1 */
 
     for (;;) {
-        uint64_t g = gpf(k - 1);         /* largest prime factor of k-1 */
+        uint64_t g = largest_prime_factor(k - 1);         /* largest prime factor of k-1 */
 
         /* If g == 2, its binary form ends in '10', which cannot be a
            suffix of an odd k (whose last bit is 1).  Skip such k. */

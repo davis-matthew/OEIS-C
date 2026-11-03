@@ -8,7 +8,8 @@
  *            a(n-k)/(n-k)! for n > 0
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 408 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static idx_t seq_cap  = 0;
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
     if (n < seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : (size_t)n + 1;
     while (new_cap <= (size_t)n) new_cap *= 2;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap  = new_cap;
 }
 

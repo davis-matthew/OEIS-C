@@ -9,7 +9,8 @@
  *            1) that sum to n
  * Range:     u8 n <= 15, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External linkage required by the build */
 seq_t a(idx_t n)
@@ -34,30 +36,30 @@ seq_t a(idx_t n)
     /* Rebuild all tables if a larger n is requested. */
     if (n > max_n) {
         /* Free existing arrays if any. */
-        free(dp1);
-        free(dp2);
-        free(dp3);
-        free(dp4);
+        mem_free(dp1);
+        mem_free(dp2);
+        mem_free(dp3);
+        mem_free(dp4);
         free(prime_power);
 
         max_n = n;
 
         /* Allocate DP arrays.  Use calloc to initialise to zero. */
-        dp1 = (seq_t *)calloc((size_t)(max_n + 1), sizeof(seq_t));
-        dp2 = (seq_t *)calloc((size_t)(max_n + 1), sizeof(seq_t));
-        dp3 = (seq_t *)calloc((size_t)(max_n + 1), sizeof(seq_t));
-        dp4 = (seq_t *)calloc((size_t)(max_n + 1), sizeof(seq_t));
+        dp1 = mem_new(seq_t, (size_t)(max_n + 1));
+        dp2 = mem_new(seq_t, (size_t)(max_n + 1));
+        dp3 = mem_new(seq_t, (size_t)(max_n + 1));
+        dp4 = mem_new(seq_t, (size_t)(max_n + 1));
         if (!dp1 || !dp2 || !dp3 || !dp4) {
             /* Out of memory – return 0.  The build environment will
                report a runtime failure if this occurs. */
-            free(dp1); free(dp2); free(dp3); free(dp4);
+            mem_free(dp1); mem_free(dp2); mem_free(dp3); mem_free(dp4);
             return 0;
         }
 
         /* Sieve of Eratosthenes for primes up to max_n. */
         bool *is_prime = (bool *)calloc((size_t)(max_n + 1), sizeof(bool));
         if (!is_prime) {
-            free(dp1); free(dp2); free(dp3); free(dp4);
+            mem_free(dp1); mem_free(dp2); mem_free(dp3); mem_free(dp4);
             return 0;
         }
         for (idx_t i = 2; i <= max_n; ++i)
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         pp_cap = 64;
         prime_power = (idx_t *)malloc(pp_cap * sizeof(idx_t));
         if (!prime_power) {
-            free(is_prime); free(dp1); free(dp2); free(dp3); free(dp4);
+            free(is_prime); mem_free(dp1); mem_free(dp2); mem_free(dp3); mem_free(dp4);
             return 0;
         }
         pp_cnt = 0;
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
                     idx_t *tmp = (idx_t *)realloc(prime_power, pp_cap * sizeof(idx_t));
                     if (!tmp) {
                         free(is_prime);
-                        free(dp1); free(dp2); free(dp3); free(dp4);
+                        mem_free(dp1); mem_free(dp2); mem_free(dp3); mem_free(dp4);
                         free(prime_power);
                         return 0;
                     }

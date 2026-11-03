@@ -12,14 +12,31 @@
  *            are efficient
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   has_equal_zeros_and_twos
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has_equal_zeros_and_twos.h"
+#include "../utils/mem.h"
+
+/* Count zeros and twos in the base-8 representation of x.
+   Returns 1 if they are equal, 0 otherwise. */
+static int has_equal_zeros_and_twos(seq_t x)
+{
+    int zeros = 0, twos = 0;
+    if (x == (seq_t)0) return 0;   /* the number 0 is not in the sequence */
+
+    while (x != (seq_t)0) {
+        int d = (int)(x % (seq_t)8);
+        if (d == 0)      zeros++;
+        else if (d == 2) twos++;
+        x /= (seq_t)8;
+    }
+    return zeros == twos;
+}
 
 static seq_t *seq_cache = NULL;      /* memoised sequence values          */
 static idx_t   cache_len  = 0;       /* number of stored terms            */
@@ -32,7 +49,7 @@ static void ensure_cache_capacity(idx_t n)
     if (n <= cache_cap) return;
     idx_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
     while (new_cap < n) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     seq_cache = tmp;
     cache_cap = new_cap;
 }

@@ -9,12 +9,14 @@
  * Formula:   a(n) = sum_{k=0..n} C(2k+2,k)/(k+1) * C(3n,n-k) * k/n (a(0)=1)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,12 +25,12 @@ seq_t a(idx_t n)
 
     /* Allocate arrays for the needed binomial coefficients */
     idx_t len = n + 1;
-    seq_t *b3 = (seq_t *)malloc(sizeof(seq_t) * len); /* C(3n, m), 0<=m<=n */
-    seq_t *b2 = (seq_t *)malloc(sizeof(seq_t) * len); /* C(2k+2, k), 0<=k<=n */
+    seq_t *b3 = mem_new(seq_t, len); /* C(3n, m), 0<=m<=n */
+    seq_t *b2 = mem_new(seq_t, len); /* C(2k+2, k), 0<=k<=n */
 
     if (!b3 || !b2) {               /* Allocation failure */
-        free(b3);
-        free(b2);
+        mem_free(b3);
+        mem_free(b2);
         return (seq_t)0;
     }
 
@@ -60,8 +62,8 @@ seq_t a(idx_t n)
     }
 
     /* Clean up */
-    free(b3);
-    free(b2);
+    mem_free(b3);
+    mem_free(b2);
 
     return sum;
 }

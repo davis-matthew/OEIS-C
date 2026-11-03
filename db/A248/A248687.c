@@ -11,14 +11,29 @@
  *            exponentiation by squaring on seq_t
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   pow_seq_simple
+ * Validated: standard, pass, 38 terms through n = 420 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_seq_simple.h"
+#include "../utils/mem.h"
+
+/* compute base^exp (exp >= 0) using exponentiation by squaring */
+static seq_t pow_seq_simple(seq_t base, int exp)
+{
+    seq_t result = (seq_t)1;
+    while (exp > 0) {
+        if (exp & 1)
+            result = result * base;
+        exp >>= 1;
+        if (exp)
+            base = base * base;
+    }
+    return result;
+}
 
 /* static cache for factorials */
 static seq_t *fact_cache = NULL;
@@ -30,7 +45,7 @@ static void ensure_fact_cache(idx_t n)
     if (n + 1 <= fact_cap)          /* already enough */
         return;
     size_t new_cap = (size_t)(n + 1);
-    seq_t *tmp = (seq_t*)realloc(fact_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact_cache, new_cap);
     if (!tmp) {
         /* allocation failed – abort the program (should not happen in tests) */
         abort();

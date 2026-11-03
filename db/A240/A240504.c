@@ -10,12 +10,15 @@
  *            first) as a base-2 integer
  * Range:     u8 n <= 22, u16 n <= 61, u32 n <= 137, u64 n <= 313,
  *            u128 n <= 727, big any n
+ * Validated: standard, pass, 70 terms through n = 9259 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 /* Static cache for primes up to the largest request so far. */

@@ -10,7 +10,8 @@
  *            programming
  * Range:     u8 n <= 27, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* External linkage as required */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *dp0 = NULL;         /* partitions using parts 2,3 (mod5) */
 static seq_t *a_arr = NULL;       /* final sequence values */
@@ -27,8 +29,8 @@ static idx_t   max_computed = 0;  /* maximum n for which arrays are filled */
 static void recompute_upto(idx_t N)
 {
     /* Allocate new arrays */
-    seq_t *dp = (seq_t *)malloc(sizeof(seq_t) * (N + 1));
-    seq_t *a  = (seq_t *)malloc(sizeof(seq_t) * (N + 1));
+    seq_t *dp = mem_new(seq_t, (N + 1));
+    seq_t *a  = mem_new(seq_t, (N + 1));
     if (!dp || !a) {
         /* memory allocation failed */
         exit(1);
@@ -61,8 +63,8 @@ static void recompute_upto(idx_t N)
     }
 
     /* Replace old arrays */
-    free(dp0);
-    free(a_arr);
+    mem_free(dp0);
+    mem_free(a_arr);
     dp0 = dp;
     a_arr = a;
     max_computed = N;

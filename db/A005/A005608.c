@@ -11,14 +11,15 @@
  *            (-1)^k * binomial(i,k) * binomial((i-k)^r,j)
  * Range:     u8 none, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
@@ -30,7 +31,7 @@ seq_t a(idx_t n) {
     for (idx_t i = 1; i <= 3; i++) {
         seq_t sum = 0;
         for (idx_t k = 0; k <= i; k++) {
-            seq_t binom_i_k = binom(i, k);
+            seq_t binom_i_k = binomial(i, k);
             seq_t base = (seq_t)(i - k);
             seq_t base_sq = base * base;
             seq_t base_pow6 = base_sq * base_sq * base_sq;
@@ -42,7 +43,7 @@ seq_t a(idx_t n) {
                 sum -= term;
             }
         }
-        S_prev[i] = binom(3, i) * sum;
+        S_prev[i] = binomial(3, i) * sum;
     }
     
     if (n == 1) {
@@ -55,16 +56,16 @@ seq_t a(idx_t n) {
             seq_t s_sum = 0;
             
             for (idx_t j = 1; j <= 3; j++) {
-                seq_t binom_3_j = binom(3, j);
+                seq_t binom_3_j = binomial(3, j);
                 seq_t quotient = S_prev[j] / binom_3_j;
-                seq_t binom_3_i = binom(3, i);
+                seq_t binom_3_i = binomial(3, i);
                 
                 seq_t inner_sum = 0;
                 for (idx_t k = 0; k < i; k++) {
-                    seq_t binom_i_k = binom(i, k);
+                    seq_t binom_i_k = binomial(i, k);
                     seq_t base = (seq_t)(i - k);
                     seq_t base_sq = base * base;
-                    seq_t binom_base_sq_j = binom((idx_t)base_sq, j);
+                    seq_t binom_base_sq_j = binomial((idx_t)base_sq, j);
                     
                     seq_t term = binom_i_k * binom_base_sq_j;
                     if (k % 2 == 0) {

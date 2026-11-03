@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 46, u32 n <= 350, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence A288341: coefficients of 1/((1-x)^2*(1-x^2)*(1-x^3)*(1-x^4)*(1-x^5)*(1-x^6)) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for computed values up to the largest n requested */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* if the cache is not large enough, grow it and recompute all values up to n */
     if (n + 1 > dp_size) {
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, new_size);
         if (!new_dp) return 0;   /* unlikely, but guard against OOM */
 
         for (idx_t i = 0; i < new_size; ++i) new_dp[i] = 0;
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
         }
 
         /* replace old cache */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp = new_dp;
         dp_size = new_size;
     }

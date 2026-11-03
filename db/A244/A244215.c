@@ -8,8 +8,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 41, u16 n <= 4862, u32 n <= 4862, u64 n <= 4862,
+ * Range:     u8 n <= 596, u16 n <= 4862, u32 n <= 4862, u64 n <= 4862,
  *            u128 n <= 4862, big any n
+ * Validated: standard, pass, 149 terms through n = 4862 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,9 @@
 
 /* OEIS A244215:  a(n) = n==Catalan(k)? k : A244160(n)-A244160(n-A081290(n))
    a(0)=0, a(1)=1, a(2)=2, … */
-#include "../utils/catalan.h"   /* provides seq_t catalan(idx_t k) */
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/catalan.h"
 
 /* Return the index k of the largest Catalan number <= n_val.
    For n_val < 1 the result is 0, which matches a(0)=0. */

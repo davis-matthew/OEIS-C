@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 1129, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 75 terms through n = 9473 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 /* Sequence A050622: numbers divisible by 2^k where k is the digit length of the number. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     if (cache_cap < (size_t)n) {
         size_t new_cap = (size_t)n * 2;
         if (new_cap == 0) new_cap = 64;
-        seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, new_cap);
         if (!newp) exit(1);          /* allocation failure */
         cache     = newp;
         cache_cap = new_cap;
@@ -42,8 +45,8 @@ seq_t a(idx_t n)
 
     /* Initialise next_val for the first time. */
     if (!initialized) {
-        seq_t lower = pow_uint(10ULL, current_k - 1); /* 10^(k-1)        */
-        seq_t mult  = pow_uint(2ULL,  current_k);    /* 2^k              */
+        seq_t lower = ipow_u64_idx(10ULL, current_k - 1); /* 10^(k-1)        */
+        seq_t mult  = ipow_u64_idx(2ULL,  current_k);    /* 2^k              */
         seq_t rem   = lower % mult;
         next_val    = lower + (rem == 0 ? 0 : (mult - rem));
         initialized = true;
@@ -51,9 +54,9 @@ seq_t a(idx_t n)
 
     /* Generate terms until we have at least n of them. */
     while (cache_len < (size_t)n) {
-        seq_t mult  = pow_uint(2ULL,  current_k);
-        seq_t lower = pow_uint(10ULL, current_k - 1);
-        seq_t upper = pow_uint(10ULL, current_k) - 1; /* 10^k-1         */
+        seq_t mult  = ipow_u64_idx(2ULL,  current_k);
+        seq_t lower = ipow_u64_idx(10ULL, current_k - 1);
+        seq_t upper = ipow_u64_idx(10ULL, current_k) - 1; /* 10^k-1         */
 
         cache[cache_len++] = next_val;   /* store current term   */
         next_val += mult;                /* advance to next one  */
@@ -62,8 +65,8 @@ seq_t a(idx_t n)
          * move to the next digit length. */
         if (next_val > upper) {
             current_k++;                                 /* new k        */
-            seq_t lower_new = pow_uint(10ULL, current_k - 1);
-            seq_t mult_new  = pow_uint(2ULL,  current_k);
+            seq_t lower_new = ipow_u64_idx(10ULL, current_k - 1);
+            seq_t mult_new  = ipow_u64_idx(2ULL,  current_k);
             seq_t rem = lower_new % mult_new;
             next_val = lower_new + (rem == 0 ? 0 : (mult_new - rem));
         }

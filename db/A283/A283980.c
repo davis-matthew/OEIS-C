@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   a(n) = A003961(n)*A006519(n)
- * Range:     u8 n <= 15, u16 n <= 127, u32 n <= 8191, u64 n <= 9305,
- *            u128 n <= 9305, big any n
+ * Range:     u8 n <= 15, u16 n <= 127, u32 n <= 8191, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 91 terms through n = 9305 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

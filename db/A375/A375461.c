@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 8034, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9366 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n‑th term of A375461.  The sequence is generated lazily; on
    each call, it scans ascending numbers until it has found at least n
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
             /* Grow storage if necessary */
             if (terms_len == terms_cap) {
                 terms_cap = terms_cap ? terms_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                 if (!tmp) exit(1);              /* out of memory */
                 terms = tmp;
             }

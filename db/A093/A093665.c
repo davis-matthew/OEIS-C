@@ -11,7 +11,8 @@
  *            that a(n) can be requested in any order
  * Range:     u8 n <= 8, u16 n <= 32, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* The cache holds already computed terms of the sequence. */
 static seq_t *cache = NULL;
@@ -85,7 +87,7 @@ static bool satisfies(uint64_t k)
     uint64_t k2 = (__uint128_t)km * km % phi_k;
     uint64_t e = (__uint128_t)k2 * km % phi_k;
 
-    seq_t pow_val = mod_pow((seq_t)2, e, (seq_t)k);
+    seq_t pow_val = powmod((seq_t)2, e, (seq_t)k);
     seq_t sum = pow_val + (seq_t)1;
     return (sum % (seq_t)k == 0);
 }
@@ -98,7 +100,7 @@ static void grow_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need) new_cap <<= 1;
-    cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
 
     /* initialise static structures on first call */
     if (cache == NULL) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache_cap = 1;
         cache_len = 0;
     }

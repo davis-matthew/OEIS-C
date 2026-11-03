@@ -10,7 +10,8 @@
  *            consecutive subsequences whose sums are weakly decreasing
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64, split_rec
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,24 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/factor_u64.h"            /* factor_u64 */
-#include "../utils/build_primes_upto.h"     /* build_primes_upto */
-#include "../utils/split_rec.h"
+#include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+
+/* parts[] holds the decreasing sequence of prime indices. */
+static seq_t split_rec(const unsigned *parts, size_t m, size_t pos, seq_t prevSum)
+{
+    if (pos == m)
+        return (seq_t)1;      /* finished a valid split */
+
+    seq_t total = 0;
+    seq_t sum   = 0;
+    for (size_t j = pos; j < m; ++j) {
+        sum = sum + (seq_t)parts[j];
+        if (prevSum == 0 || sum <= prevSum)
+            total = total + split_rec(parts, m, j + 1, sum);
+    }
+    return total;
+}
 
 static uint64_t *global_prime_list = NULL;
 static size_t   global_prime_cnt   = 0;

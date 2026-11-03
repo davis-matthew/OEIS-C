@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + a(n-2), a(0)=3, a(1)=10
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the oeis sequence A022122: Fibonacci sequence beginning 3, 10 */
 seq_t a(idx_t n)
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Ensure the cache contains at least the first two terms */
     if (cache == NULL) {
         cap = 2;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) {
             /* In an embedded environment a failed allocation is fatal */
             return (seq_t)0;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Extend the cache if necessary */
     while (n + 1 > cap) {
         size_t newcap = cap ? cap * 2 : 2;
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL) {
             return (seq_t)0;
         }

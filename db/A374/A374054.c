@@ -9,15 +9,36 @@
  *            base‑3 digit sum
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _digit_sum_ternary, _floor_log3_uint64
+ * Validated: standard, pass, 94 terms through n = 9774 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_digit_sum_ternary.h"
-#include "../utils/_floor_log3_uint64.h"
+
+static inline seq_t _digit_sum_ternary(idx_t n)
+{
+    seq_t sum = 0;
+    while (n) {
+        sum += n % 3;
+        n /= 3;
+    }
+    return sum;
+}
+
+static inline unsigned _floor_log3_uint64(idx_t n)
+{
+    /* n >= 1 */
+    unsigned cnt = 0;
+    idx_t pow = 1;
+    while (pow <= n / 3) {
+        pow *= 3;
+        ++cnt;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

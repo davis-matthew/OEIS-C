@@ -15,7 +15,8 @@
  *            for the computation. O(n·S²) time where S=144 is the num...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------------------------------------------------------- */
 /*  graph and state data                                       */
@@ -93,16 +95,16 @@ static void init(void)
     }
 
     /* allocate DP vectors */
-    dp_curr = (seq_t*)malloc(S * sizeof(seq_t));
-    dp_next = (seq_t*)malloc(S * sizeof(seq_t));
-    memset(dp_curr, 0, S * sizeof(seq_t));
-    memset(dp_next, 0, S * sizeof(seq_t));
+    dp_curr = mem_new(seq_t, S);
+    dp_next = mem_new(seq_t, S);
+    mem_set(dp_curr, 0, S * sizeof(seq_t));
+    mem_set(dp_next, 0, S * sizeof(seq_t));
     for (size_t i = 0; i < S; ++i)
         dp_curr[i] = 1;   /* every state is allowed as the first column */
 
     /* initialise answer cache */
     ans_cap = 16;
-    ans = (seq_t*)malloc(ans_cap * sizeof(seq_t));
+    ans = mem_new(seq_t, ans_cap);
     ans[0] = 0;            /* a(0) is undefined */
     ans[1] = (seq_t)S;     /* a(1) = number of admissible rows = 144 */
     ans_cnt = 1;
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
     /* extend cache up to requested n */
     while (ans_cnt < (size_t)n) {
         /* initialise next column to zero */
-        memset(dp_next, 0, S * sizeof(seq_t));
+        mem_set(dp_next, 0, S * sizeof(seq_t));
 
         /* DP transition */
         for (size_t i = 0; i < S; ++i) {
@@ -147,7 +149,7 @@ seq_t a(idx_t n)
         /* grow answer cache if necessary */
         if (ans_cnt + 1 >= ans_cap) {
             size_t new_cap = ans_cap << 1;
-            ans = (seq_t*)realloc(ans, new_cap * sizeof(seq_t));
+            ans = mem_resize(seq_t, ans, new_cap);
             ans_cap = new_cap;
         }
 

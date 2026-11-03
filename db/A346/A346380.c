@@ -11,13 +11,15 @@
  *            2*C2[n-1] + δ_{n+1,3} + 3*C2[n], where C2[k] = Σ_{i...
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 21, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static idx_t maxComputed = 1;          /* last index that has been computed */
 static size_t cap = 0;                 /* current allocated capacity */
@@ -34,26 +36,26 @@ static void ensure_capacity(idx_t need)
         size_t newCap = (cap == 0) ? (need + 4) : (cap * 2);
         if (newCap <= (size_t)need) newCap = need + 4;
 
-        seq_t *newA  = (seq_t *)malloc(newCap * sizeof(seq_t));
-        seq_t *newC2 = (seq_t *)malloc(newCap * sizeof(seq_t));
-        seq_t *newC3 = (seq_t *)malloc(newCap * sizeof(seq_t));
-        seq_t *newC4 = (seq_t *)malloc(newCap * sizeof(seq_t));
+        seq_t *newA  = mem_new(seq_t, newCap);
+        seq_t *newC2 = mem_new(seq_t, newCap);
+        seq_t *newC3 = mem_new(seq_t, newCap);
+        seq_t *newC4 = mem_new(seq_t, newCap);
 
-        if (A)  memcpy(newA,  A,  cap * sizeof(seq_t));
-        if (C2) memcpy(newC2, C2, cap * sizeof(seq_t));
-        if (C3) memcpy(newC3, C3, cap * sizeof(seq_t));
-        if (C4) memcpy(newC4, C4, cap * sizeof(seq_t));
+        if (A)  mem_copy(newA, A, cap * sizeof(seq_t));
+        if (C2) mem_copy(newC2, C2, cap * sizeof(seq_t));
+        if (C3) mem_copy(newC3, C3, cap * sizeof(seq_t));
+        if (C4) mem_copy(newC4, C4, cap * sizeof(seq_t));
 
-        if (A)  free(A);
-        if (C2) free(C2);
-        if (C3) free(C3);
-        if (C4) free(C4);
+        if (A)  mem_free(A);
+        if (C2) mem_free(C2);
+        if (C3) mem_free(C3);
+        if (C4) mem_free(C4);
 
         /* Zero out the newly allocated region */
-        memset(newA  + cap, 0, (newCap - cap) * sizeof(seq_t));
-        memset(newC2 + cap, 0, (newCap - cap) * sizeof(seq_t));
-        memset(newC3 + cap, 0, (newCap - cap) * sizeof(seq_t));
-        memset(newC4 + cap, 0, (newCap - cap) * sizeof(seq_t));
+        mem_set(newA  + cap, 0, (newCap - cap) * sizeof(seq_t));
+        mem_set(newC2 + cap, 0, (newCap - cap) * sizeof(seq_t));
+        mem_set(newC3 + cap, 0, (newCap - cap) * sizeof(seq_t));
+        mem_set(newC4 + cap, 0, (newCap - cap) * sizeof(seq_t));
 
         A   = newA;
         C2  = newC2;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 32, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
 
         /* allocate and compute any new rows */
         for (idx_t i = rows_allocated; i <= r; ++i) {
-            triangle[i] = (seq_t *)malloc((i + 1) * sizeof *triangle[i]);
+            triangle[i] = mem_new(seq_t, ((i + 1) * sizeof *triangle[i]) / sizeof(seq_t));
             if (!triangle[i]) return 0;  /* out of memory – return 0 */
 
             /* first column */

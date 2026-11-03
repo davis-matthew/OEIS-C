@@ -7,6 +7,7 @@
  * Formula:   a(n) = 512*n^10 - 1280*n^8 + 1120*n^6 - 400*n^4 + 50*n^2 - 1
  * Range:     i8 n <= 1, i16 n <= 1, i32 n <= 4, i64 n <= 42, i128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 893 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

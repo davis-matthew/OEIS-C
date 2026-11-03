@@ -8,6 +8,7 @@
  * Formula:   a(n) = sum_{i=1}^{m} |d_i - d_{i-1}|, where n = Σ d_i·3^i
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 106 terms through n = 9591 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

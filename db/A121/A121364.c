@@ -7,12 +7,14 @@
  * Formula:   a(n) = F(n) – F(⌊(n‑1)/2⌋ + 1) (F = Fibonacci)
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 47, u64 n <= 93, u128 n <= 186,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fib_cache = NULL;   /* Fibonacci numbers */
 static idx_t fib_last = 0;        /* highest Fibonacci index cached */
@@ -23,14 +25,14 @@ static void ensure_fib(idx_t n)
     if (fib_cache == NULL) {
         size_t sz = (size_t)(n + 1);
         if (sz < 2) sz = 2;
-        fib_cache = (seq_t *)malloc(sz * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, sz);
         if (fib_cache == NULL) { exit(1); }
         fib_cache[0] = 0;          /* F(0) */
         fib_cache[1] = 1;          /* F(1) */
         fib_last = 1;
     } else if (fib_last < n) {
         size_t sz = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(fib_cache, sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fib_cache, sz);
         if (tmp == NULL) { exit(1); }
         fib_cache = tmp;
         for (idx_t i = fib_last + 1; i <= n; ++i) {

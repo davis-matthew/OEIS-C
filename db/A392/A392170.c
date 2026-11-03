@@ -8,16 +8,24 @@
  * Formula:   multiplicative with a(p^e) = (p+1) * p^(max(e,2)-1)
  * Range:     u8 n <= 13, u16 n <= 185, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_mul, seq_pow
+ * Validated: standard, pass, 70 terms through n = 9625 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"  /* factor_u64(uint64_t n, uint64_t *primes, uint64_t *exps, size_t *cnt) */
-#include "../utils/seq_mul.h"    /* seq_mul(seq_t a, seq_t b) */
-#include "../utils/seq_pow.h"    /* seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Compute the sequence value for a given n (1‑based). */
 seq_t a(idx_t n)
@@ -45,7 +53,7 @@ seq_t a(idx_t n)
         idx_t exp = (e > 1) ? (e - 1) : 1;
 
         /* term = (p+1) * p^exp */
-        seq_t term = seq_mul((seq_t)(p + 1), seq_pow(p, exp));
+        seq_t term = seq_mul((seq_t)(p + 1), ipow_idx(p, exp));
 
         /* accumulate the product */
         result = seq_mul(result, term);

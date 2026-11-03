@@ -8,14 +8,24 @@
  * Formula:   a(0)=1, a(1)=2; a(2^i + j) = a(j) + 3*a(j + 1) for 0 <= j < 2^i
  * Range:     u8 n <= 26, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   greatest_pow2_leq
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/greatest_pow2_leq.h"
+#include "../utils/mem.h"
+
+/* Helper: return the greatest power of two not exceeding x (x > 0). */
+static inline idx_t greatest_pow2_leq(idx_t x)
+{
+    idx_t p = 1;
+    while ((p << 1) > 0 && (p << 1) <= x)
+        p <<= 1;
+    return p;
+}
 
 /* Cache for memoisation */
 static seq_t *cache      = NULL;   /* values of a(k) */
@@ -31,7 +41,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough */
     size_t needed_cap = (size_t)n + 1;
     if (cache_cap < needed_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed_cap);
         if (!tmp) return (seq_t)0;  /* allocation failure: return 0 */
         cache     = tmp;
         cache_cap = needed_cap;

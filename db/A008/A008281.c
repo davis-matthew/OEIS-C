@@ -9,12 +9,14 @@
  *            T(n,0) = 0 (n > 0) * T(n,k) = T(n,k-1) + T(n-1, n-k) (k > 0)
  * Range:     u8 n <= 32, u16 n <= 67, u32 n <= 138, u64 n <= 326,
  *            u128 n <= 795, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global state for memoisation – a flat array containing all rows
  * of the triangle concatenated.  flat_len holds the number of elements
@@ -37,7 +39,7 @@ ensure_rows_up_to(idx_t r)
         if (flat_len + cols > flat_cap) {
             size_t new_cap = flat_cap ? flat_cap * 2 : 1;
             while (flat_len + cols > new_cap) new_cap <<= 1;
-            flat_vals = (seq_t *)realloc(flat_vals, new_cap * sizeof(seq_t));
+            flat_vals = mem_resize(seq_t, flat_vals, new_cap);
             flat_cap  = new_cap;
         }
 

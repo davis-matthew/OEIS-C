@@ -7,6 +7,7 @@
  * Formula:   a(n) = 30240*n^5-25200*n^4+5040*n^3+7320*n^2-2638*n+1
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 10, u64 n <= 906, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 937 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

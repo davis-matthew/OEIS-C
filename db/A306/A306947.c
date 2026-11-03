@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,13 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate arrays for factorials and the current coefficients */
-    seq_t *fact = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
-    seq_t *coef = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *coef = mem_new(seq_t, (size_t)(n + 1));
     if (!fact || !coef) return (seq_t)0;          /* out of memory */
 
     /* factorial[0] = 1, factorial[i] = i! */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
 
     /* Result stored in coef[n] */
     seq_t result = coef[n];
-    free(fact);
-    free(coef);
+    mem_free(fact);
+    mem_free(coef);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 43, u64 n <= 131, u128 n <= 199,
  *            big any n
- * Helpers:   seq_alloc_array
+ * Validated: standard, pass, 49 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,13 @@
  * builds and arbitrary‑precision builds. */
 
 #include <stdlib.h>
-#include "../utils/seq_alloc_array.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Partition count DP with part-count constraint: 0 ≤ k ≤ 48 */
 #define MAX_PARTS 48

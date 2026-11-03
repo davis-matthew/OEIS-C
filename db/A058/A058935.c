@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 7, u128 n <= 12,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 29 terms through n = 147 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    A007088(n) = decimal value of the binary representation of n.  */
 
 #include <stdlib.h>
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         }
 
         /* a(k) = a(k-1) * 10^bits + bin_dec */
-        seq_t pow10bits = pow_uint(10, bits);
+        seq_t pow10bits = ipow_u64_idx(10, bits);
         acc = acc * pow10bits + bin_dec;
     }
 

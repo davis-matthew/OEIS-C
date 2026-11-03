@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;  /* guard for one‑time precomputation */
 static seq_t  *seq  = NULL;        /* array of sequence values   */
@@ -74,7 +76,7 @@ static void precompute(void)
     }
 
     /* Allocate array for the resulting sequence values (including 0). */
-    seq = (seq_t *)malloc((size_t)(LIMIT + 1U) * sizeof(seq_t));
+    seq = mem_new(seq_t, (size_t)(LIMIT + 1U));
     if (!seq) exit(1);
     seq_len = 0U;
 

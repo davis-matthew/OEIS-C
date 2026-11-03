@@ -7,12 +7,15 @@
  * Formula:   a(n) = floor(n/2)^floor(n/3)
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 26, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 28 terms through n = 29 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -21,5 +24,5 @@ seq_t a(idx_t n)
     /* floor division on unsigned types is just C integer division */
     seq_t base = (seq_t)(n / 2);
     idx_t   exp  = (idx_t)(n / 3);
-    return seq_pow(base, exp);
+    return ipow_idx(base, exp);
 }

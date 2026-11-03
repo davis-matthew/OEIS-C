@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{S⊆{3,6,9,12}} (-1)^{|S|} * binom(n - sum(S) + 3, 3)
  * Range:     u8 n <= 26, u16 n <= 26, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
+ * Validated: full, pass, 27 terms through n = 26 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_K   200      /* number of octagonal numbers processed      */
 #define MAX_N   20000    /* maximum n for which we precompute a(n)   */
@@ -71,7 +73,7 @@ static void init(void)
     }
 
     /* allocate answer array */
-    ans = (seq_t *)calloc((size_t)(MAX_N + 1), sizeof(seq_t));
+    ans = mem_new(seq_t, (size_t)(MAX_N + 1));
     if (!ans) return;           /* allocation error – should not happen */
 
     /* for each sum, record the smallest integer with that count */

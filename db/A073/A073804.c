@@ -10,7 +10,8 @@
  *            positive divisors of x
  * Range:     u8 n <= 24, u16 n <= 1069, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_uint64
+ * Validated: standard, pass, 71 terms through n = 9846 (2026-11-03)
+ * Helpers:   factor_uint64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/factor_uint64.h"
+#include "../utils/mem.h"
 
 /*  Static storage for memoisation  */
 static seq_t *terms = NULL;         /* array of found terms */
@@ -33,7 +35,7 @@ ensure_terms(idx_t n_needed)
 
     if (!terms) {
         terms_alloc = 256;
-        terms = (seq_t *)malloc(terms_alloc * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_alloc);
     }
 
     uint64_t fac[20];
@@ -78,7 +80,7 @@ ensure_terms(idx_t n_needed)
         if (tau_k > tau_sigma) {
             if (terms_len >= terms_alloc) {
                 terms_alloc <<= 1;
-                terms = (seq_t *)realloc(terms, terms_alloc * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_alloc);
             }
             terms[terms_len++] = (seq_t)k;
         }

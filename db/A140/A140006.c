@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 204, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 57 terms through n = 9992 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Helper: does p mod 1320 belong to the known residue classes? */
 static bool matches_residue(idx_t p)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Grow cache as needed */
     if (cnt == 0) {
         cap = 64;
-        cache = (seq_t *)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Generate primes until we have at least n of them */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
             /* Store prime into cache */
             if (cnt == cap) {
                 cap <<= 1;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[cnt++] = (seq_t)next_candidate;
         }

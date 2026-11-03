@@ -8,14 +8,16 @@
  *            Search-based implementation
  * Range:     u8 n <= 27, u16 n <= 1636, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 72 terms through n = 8388 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         }
 
         /* Test primality of the candidate. */
-        if (isPrimeTrial((seq_t)current))
+        if (is_prime_seq((seq_t)current))
         {
             idx_t x = current;
             bool ok = true;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
             {
                 x /= 10;
                 if (x == 0) break;
-                if (isPrimeTrial((seq_t)x))
+                if (is_prime_seq((seq_t)x))
                 {
                     ok = false;
                     break;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
                 if (cache_sz == cache_cap)
                 {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) abort();
                     cache = tmp;
                     cache_cap = new_cap;

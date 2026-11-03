@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   tri
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <limits.h>
-#include "../utils/tri.h"
+#include "../utils/triangular.h"
 
 /* 64‑bit unsigned integer type used for indices */
 typedef uint64_t idx_t;
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
     idx_t high = 1;
 
     /* Increase high until tri(high) > n */
-    while (tri(high) <= n) {
+    while (triangular(high) <= n) {
         /* Prevent overflow of high when it gets very large */
         if (high > (UINT64_MAX >> 1)) {
             break;
@@ -48,7 +49,7 @@ seq_t a(idx_t n)
     /* Binary search on [low, high) to find r = low */
     while (low + 1 < high) {
         idx_t mid = low + (high - low) / 2;
-        if (tri(mid) <= n) {
+        if (triangular(mid) <= n) {
             low = mid;
         } else {
             high = mid;
@@ -56,7 +57,7 @@ seq_t a(idx_t n)
     }
 
     idx_t r = low;
-    idx_t k = n - tri(r);      /* column within the row (0 ≤ k ≤ r) */
+    idx_t k = n - triangular(r);      /* column within the row (0 ≤ k ≤ r) */
 
     /* Retrieve the k‑th least significant bit of r.  The shift operates on
        a 64‑bit type (idx_t), which guarantees a defined result because

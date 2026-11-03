@@ -11,7 +11,8 @@
  *            over bitmasks of small primes); p = prime...
  * Range:     u8 n <= 14, u16 n <= 36, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   ccp_isprime, ccp_nth_prime
+ * Validated: standard, pass, 60 terms through n = 62 (2026-11-03)
+ * Helpers:   is_prime_u64, nth_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/ccp_isprime.h"
-#include "../utils/ccp_nth_prime.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/nth_prime.h"
 
 #define CCP_MAXK 14
 #define CCP_SZ (1u << CCP_MAXK)
@@ -58,13 +59,13 @@ static void ccp_gen(const uint64_t *S, int k, int idx, uint64_t m, unsigned mask
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;
-    uint64_t p = ccp_nth_prime(n);
+    uint64_t p = nth_prime(n);
     uint64_t lim = p - 1;
 
     uint64_t S[64];
     int k = 0;
     for (uint64_t r = 2; r * r < p; r++)
-        if (ccp_isprime(r)) S[k++] = r;
+        if (is_prime_u64(r)) S[k++] = r;
     if (k > CCP_MAXK) return 0;
 
     unsigned full = (1u << k) - 1;
@@ -99,7 +100,7 @@ seq_t a(idx_t n) {
     for (uint64_t q = 2; q < p; q++) {
         if (q * q < p) continue;
         if (lim / q < 2) break;
-        if (!ccp_isprime(q)) continue;
+        if (!is_prime_u64(q)) continue;
         uint64_t bound = lim / q;
         for (size_t i = 0; i < sz; i++) d[i] = 0;
         for (size_t i = 0; i < sm_cnt; i++)

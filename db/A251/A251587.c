@@ -9,13 +9,15 @@
  *            + 50665*n^2 + 44621*n + 16807)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 7, u64 n <= 11, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 298 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -44,10 +46,10 @@ seq_t a(idx_t n)
     idx_t exp1_den = (n < 7)  ? 7 - n : (idx_t)0;
 
     /* compute powers (use big_pow for safety with large exponents) */
-    seq_t pow7_num = exp7_num ? big_pow((seq_t)7, exp7_num) : (seq_t)1;
-    seq_t pow7_den = exp7_den ? big_pow((seq_t)7, exp7_den) : (seq_t)1;
-    seq_t pow1_num = exp1_num ? big_pow(n1, exp1_num) : (seq_t)1;
-    seq_t pow1_den = exp1_den ? big_pow(n1, exp1_den) : (seq_t)1;
+    seq_t pow7_num = exp7_num ? ipow((seq_t)7, exp7_num) : (seq_t)1;
+    seq_t pow7_den = exp7_den ? ipow((seq_t)7, exp7_den) : (seq_t)1;
+    seq_t pow1_num = exp1_num ? ipow(n1, exp1_num) : (seq_t)1;
+    seq_t pow1_den = exp1_den ? ipow(n1, exp1_den) : (seq_t)1;
 
     /* numerator: poly * 7^(n-5) * (n+1)^(n-7) */
     seq_t num = poly * pow7_num;

@@ -9,14 +9,17 @@
  *            of the form 4k+1
  * Range:     u8 n <= 24, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 static inline seq_t mulmod(seq_t a, seq_t b, seq_t mod)
 {
@@ -101,7 +104,7 @@ seq_t a(idx_t n)
         num = mulmod(num, k + i, mod);
         den = mulmod(den, i, mod);
     }
-    seq_t den_inv  = mod_pow(den, (uint64_t)(mod - 2), mod);
+    seq_t den_inv  = powmod(den, (uint64_t)(mod - 2), mod);
     seq_t binom    = mulmod(num, den_inv, mod);
 
     /* Multiply by inverse of 2 modulo p (p is odd prime). */

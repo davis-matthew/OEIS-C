@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (!init_done) {
         /* reserve some space for the answers */
         vals_cap = 16;
-        vals = (seq_t *)malloc(vals_cap * sizeof(seq_t));
+        vals = mem_new(seq_t, vals_cap);
         if (!vals) abort();
 
         /* enumerate all 6‑digit numbers (first digit non‑zero) */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
             if (prod == (seq_t)num) {
                 if (vals_len == vals_cap) {
                     vals_cap <<= 1;
-                    vals = (seq_t *)realloc(vals, vals_cap * sizeof(seq_t));
+                    vals = mem_resize(seq_t, vals, vals_cap);
                     if (!vals) abort();
                 }
                 vals[vals_len++] = (seq_t)num;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 5795, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9547 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* sequence and index types are supplied by the build system */
 extern seq_t a(idx_t);
@@ -104,7 +106,7 @@ static void ensure_sequence(idx_t required_n)
             if (ways[s] == 1)
                 ++count;
 
-        seq_t *new_seq = (seq_t*)malloc(count * sizeof(seq_t));
+        seq_t *new_seq = mem_new(seq_t, count);
         if (!new_seq) {            /* allocation failure – clean up */
             free(ways);
             return;
@@ -119,7 +121,7 @@ static void ensure_sequence(idx_t required_n)
 
         /* Replace the old list with the new one. */
         if (g_seq)
-            free(g_seq);
+            mem_free(g_seq);
         g_seq = new_seq;
         g_len = count;
         g_curr_bound = bound;

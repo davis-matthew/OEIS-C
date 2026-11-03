@@ -9,7 +9,8 @@
  *            25*a(n-1) - 218*a(n-2) + 776*a(n-3) - 960*a(n-4) (n>=4)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    It works with any seq_t that supports +, -, *, / and assignment.   */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;     /* cached values */
 static idx_t seq_cache_size = 0;    /* number of elements currently cached */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
 
     /* Grow the cache to hold indices 0..n.  Use realloc to preserve existing data. */
     size_t new_cap = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_cache) {                        /* allocation failed */
         /* In a real program we might handle this differently; here we simply exit. */
         /* exit is allowed in C/C++ for fatal errors. */

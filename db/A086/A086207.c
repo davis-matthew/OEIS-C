@@ -8,7 +8,8 @@
  *            [Product_{i=0}^{r-1} (4^r - 4^i)]
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,11 +17,12 @@
 /* (q=4) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Precompute powers of 4 up to n: pow_q[i] = 4^i */
-    seq_t *pow_q = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *pow_q = mem_new(seq_t, (size_t)(n + 1));
     if (!pow_q) return 0;          /* Allocation failure: return 0 */
     pow_q[0] = (seq_t)1;
     for (idx_t i = 1; i <= n; ++i)
@@ -51,6 +53,6 @@ seq_t a(idx_t n)
         sum += ((seq_t)r) * N;
     }
 
-    free(pow_q);
+    mem_free(pow_q);
     return sum;
 }

@@ -12,12 +12,14 @@
  *            memoises previously computed terms in a static ar...
  * Range:     u8 n <= 44, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache   = NULL;   /* array of already computed values   */
 static size_t seq_cap    = 0;       /* current capacity of seq_cache      */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     /* Initialise cache on first call */
     if (seq_cache == NULL) {
         seq_cap = 8;
-        seq_cache = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         if (!seq_cache) return 0; /* Allocation failed – program should abort */
         for (size_t i = 0; i < 8; ++i) seq_cache[i] = base[i];
         seq_size = 8;
@@ -41,9 +43,9 @@ seq_t a(idx_t n) {
     /* Grow cache if needed */
     if ((size_t)n + 1 > seq_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) {
-            free(seq_cache);
+            mem_free(seq_cache);
             seq_cache = NULL;
             seq_cap   = 0;
             seq_size  = 0;

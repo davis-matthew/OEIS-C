@@ -8,12 +8,14 @@
  *            a(n) is the coefficient of x^n in Φ407(x)
  * Range:     i8 n <= 360, i16 n <= 360, i32 n <= 360, i64 n <= 360,
  *            i128 n <= 360, big any n
- * Helpers:   none
+ * Validated: full, pass, 361 terms through n = 360 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Multiply two polynomials a (degree la‑1) and b (degree lb‑1);
    result = a * b.  Assumes monic leading coefficients are not
@@ -22,7 +24,7 @@ static seq_t *poly_mul(const seq_t *a, size_t la,
                       const seq_t *b, size_t lb, size_t *lr)
 {
     size_t len = la + lb - 1;
-    seq_t *res = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *res = mem_new(seq_t, len);
     for (size_t i = 0; i < len; ++i) res[i] = 0;
     for (size_t i = 0; i < la; ++i) {
         for (size_t j = 0; j < lb; ++j) {
@@ -57,18 +59,18 @@ static void compute_coeffs(void)
     seq_t *temp = poly_mul(x_minus_1, len_x_minus_1,
                            phi11, len_phi11, &len_temp);   /* 12 coeffs */
     seq_t *M = poly_mul(temp, len_temp, phi37, len_phi37, &len_M); /* 48 coeffs */
-    free(temp);
+    mem_free(temp);
 
     /* N(x) = x⁴⁰⁷ − 1   (degree 407) */
     size_t len_N = 408;
-    seq_t *N = (seq_t *)malloc(len_N * sizeof(seq_t));
+    seq_t *N = mem_new(seq_t, len_N);
     for (size_t i = 0; i < len_N; ++i) N[i] = 0;
     N[0] = -1;
     N[407] = 1;
 
     /* Quotient Q(x) = N(x) / M(x)   (degree 360) */
     size_t q_len = 361;
-    seq_t *Q = (seq_t *)malloc(q_len * sizeof(seq_t));
+    seq_t *Q = mem_new(seq_t, q_len);
     for (size_t i = 0; i < q_len; ++i) Q[i] = 0;
 
     /* Polynomial long division.  M is monic, so the division is trivial. */
@@ -87,8 +89,8 @@ static void compute_coeffs(void)
     coeffs = Q;
 
     /* Clean up temporary data. */
-    free(M);
-    free(N);
+    mem_free(M);
+    mem_free(N);
 }
 
 /* Sequence function.  Returns the coefficient of xⁿ in Φ407(x). */

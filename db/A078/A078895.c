@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 static seq_t *pal_list   = NULL;
 static size_t pal_len   = 0;
@@ -78,7 +80,7 @@ static bool has_three_pal_factors(seq_t m)
             if (rem % b != 0) continue;
             seq_t c = rem / b;
             if (c <= 1) continue;
-            if (is_palindrome(c, 10)) return true;
+            if (is_palindrome_base(c, 10)) return true;
         }
     }
     return false;
@@ -90,9 +92,9 @@ seq_t a(idx_t n)
     static bool initialized = false;
     if (!initialized) {
         pal_cap = 16;
-        pal_list = (seq_t *)malloc(pal_cap * sizeof(seq_t));
+        pal_list = mem_new(seq_t, pal_cap);
         seq_cap = 16;
-        seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
         /* start with 1‑digit palindromes */
         cur_len = 1;
         cur_odd = true;
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
         /* store for future factor checks */
         if (pal_len == pal_cap) {
             pal_cap *= 2;
-            pal_list = (seq_t *)realloc(pal_list, pal_cap * sizeof(seq_t));
+            pal_list = mem_resize(seq_t, pal_list, pal_cap);
         }
         pal_list[pal_len++] = pal;
 
@@ -117,7 +119,7 @@ seq_t a(idx_t n)
         if (pal > 1 && has_three_pal_factors(pal)) {
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq_vals = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+                seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
             }
             seq_vals[seq_len++] = pal;
         }

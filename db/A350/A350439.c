@@ -11,12 +11,14 @@
  *            a(8)=35,a(9)=58,a(10)=116,a(11)=180,a(12)=329,a(13)=560
  * Range:     u8 n <= 11, u16 n <= 21, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* array of already computed values   */
 static idx_t  cap     = 0;       /* allocated size of cache            */
@@ -33,7 +35,7 @@ static void init_cache(void)
     /* allocate space for at least 14 elements.  If a larger n is
        requested later, ensure_cache will enlarge it. */
     cap = 14;
-    cache = (seq_t *)malloc(cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cap);
     if (!cache) exit(1);
     for (idx_t i = 0; i < 14; ++i) cache[i] = init_vals[i];
 }
@@ -50,7 +52,7 @@ static void ensure_cache(idx_t n)
     if (n + 1 > cap)
     {
         idx_t new_cap = (n + 1) * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cap = new_cap;

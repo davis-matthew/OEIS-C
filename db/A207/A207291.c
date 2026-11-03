@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   compute_pv_for_prime
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,39 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/compute_pv_for_prime.h"
+
+/*---------------------------------------------------------------*/
+static seq_t compute_pv_for_prime(uint64_t p)
+{
+    /* Allocate an array to mark quadratic residues.  Size p is safe because
+       the symbol 0 never appears in the sum (index 0 is never used). */
+    unsigned char *residue = (unsigned char*)malloc((size_t)p);
+    if (!residue)
+        return 0;   /* allocation failure, return 0 as safe default */
+
+    memset(residue, 0, (size_t)p);
+
+    /* Mark all squares mod p. */
+    uint64_t half = (p - 1) / 2;
+    for (uint64_t j = 1; j <= half; ++j) {
+        uint64_t r = (j * j) % p;
+        residue[(size_t)r] = 1;
+    }
+
+    /* Scan partial sums of Legendre symbols. */
+    long long sum = 0;
+    long long max_abs = 0;
+    for (uint64_t i = 1; i < p; ++i) {
+        int val = residue[(size_t)i] ? 1 : -1;
+        sum += (long long)val;
+        long long abs_val = sum < 0 ? -sum : sum;
+        if (abs_val > max_abs)
+            max_abs = abs_val;
+    }
+
+    free(residue);
+    return (seq_t)max_abs;
+}
 
 /*---------------------------------------------------------------*/
 /*  Global storage for primes                                          */

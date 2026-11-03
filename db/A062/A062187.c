@@ -7,12 +7,14 @@
  * Formula:   A062187, a(n+1) = a(n) - a(floor(n/2)), a(0) = 0, a(1) = 1
  * Range:     i8 n <= 37, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for previously computed terms. */
 static seq_t *cache      = NULL;
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
 
     /* Reallocate memory.  The cast is required for C++ builds where
        seq_t may be a non-POD type. */
-    seq_t *tmp = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, capacity);
     if (tmp == NULL) {
         /* Out of memory – leave cache unchanged; subsequent calls will
            return 0. */

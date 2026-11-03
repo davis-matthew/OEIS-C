@@ -7,8 +7,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, look
  * Formula:   a(n) = gcd(A276086(n), A003958(A276086(n)))
- * Range:     u8 n <= 496, u16 n <= 9772, u32 n <= 9772, u64 n <= 9772,
- *            u128 n <= 9772, big any n
+ * Range:     u8 n <= 496, u16 n <= 11550, u32 n <= 11550, u64 n <= 11550,
+ *            u128 n <= 11550, big any n
+ * Validated: standard, pass, 118 terms through n = 9772 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

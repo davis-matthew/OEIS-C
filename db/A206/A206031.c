@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∏ { σ(d) | d divides n } over distinct values of σ(d)
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 47, u64 n <= 119, u128 n <= 479,
  *            big any n
- * Helpers:   sigma_of
+ * Validated: standard, pass, 61 terms through n = 4012 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,22 @@
 /*  (σ = sum of divisors, A000203) */
 
 #include <stdlib.h>
-#include "../utils/sigma_of.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Helper: compare two seq_t values for qsort; must not be named seq_cmp. */
 static int seq_t_compare(const void *p, const void *q)
@@ -33,7 +49,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;                 /* safety, offset is 1 */
 
     /* allocate space for all divisors of n (worst case n divisors) */
-    seq_t *vals = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *vals = mem_new(seq_t, (size_t)n);
     if (!vals) return 0;                 /* allocation failure */
 
     size_t cnt = 0;
@@ -46,7 +62,7 @@ seq_t a(idx_t n)
     }
 
     /* Sort the sigma values to allow duplicate detection */
-    qsort(vals, cnt, sizeof(seq_t), seq_t_compare);
+    mem_qsort(vals, cnt, sizeof(seq_t), seq_t_compare);
 
     /* Multiply only distinct sigma values */
     seq_t prod = 1;
@@ -58,6 +74,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(vals);
+    mem_free(vals);
     return prod;
 }

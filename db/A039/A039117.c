@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   has_equal_zeros_and_sixes
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_equal_zeros_and_sixes.h"
+#include "../utils/mem.h"
+
+/* check whether a number has the same number of 0's and 6's */
+static inline bool has_equal_zeros_and_sixes(seq_t x) {
+    int zeros = 0;
+    int sixes = 0;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (d == 0)
+            ++zeros;
+        else if (d == 6)
+            ++sixes;
+        x /= 10;
+    }
+    return zeros == sixes;
+}
 
 /* static cache of the found terms */
 static seq_t *cache = NULL;
@@ -33,7 +49,7 @@ static void ensure_cache_capacity(size_t needed) {
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr)
         abort();               /* allocation failed */
     cache = new_ptr;

@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 9630, u16 n <= 9630, u32 n <= 9630, u64 n <= 9630,
- *            u128 n <= 9630, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9630 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 static seq_t *word = NULL;      /* cached word w_k  */
 static size_t word_len = 0;     /* current length */
@@ -40,7 +42,7 @@ static void ensure_word(idx_t n)
     /* initialisation */
     if (!word) {
         word_len = 1;
-        word = (seq_t *)malloc(word_len * sizeof(seq_t));
+        word = mem_new(seq_t, word_len);
         word[0] = (seq_t)0;
     }
 
@@ -53,7 +55,7 @@ static void ensure_word(idx_t n)
 
         /* new length: 0→2 symbols, 1→3 symbols */
         size_t newlen = 2 * cnt0 + 3 * cnt1;
-        seq_t *next = (seq_t *)malloc(newlen * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, newlen);
 
         /* expand each symbol */
         size_t pos = 0;
@@ -68,7 +70,7 @@ static void ensure_word(idx_t n)
             }
         }
 
-        free(word);
+        mem_free(word);
         word      = next;
         word_len  = newlen;
     }

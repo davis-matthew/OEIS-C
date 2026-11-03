@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 900, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 61 terms through n = 6771 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Cache of discovered third primes. */
 static seq_t *threes = NULL;
@@ -42,7 +44,7 @@ ensure_cache_capacity(size_t need)
     size_t new_cap = threes_cap ? threes_cap * 2 : 8;
     if (new_cap < need)
         new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(threes, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, threes, new_cap);
     threes = tmp;
     threes_cap = new_cap;
 }

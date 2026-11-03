@@ -9,7 +9,8 @@
  *            pair * {p,q} such that P = 2p + q and Q = 2q + p are both prime
  * Range:     u8 n <= 8, u16 n <= 172, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 63 terms through n = 2890 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Static data used for memoisation across calls. */
 static idx_t          prevPrime       = 2;         /* previous prime in the scan   */
@@ -33,7 +35,7 @@ static void ensure_res_capacity(size_t need) {
     if (need <= res_cap) return;
     size_t new_cap = res_cap == 0 ? 16 : res_cap * 2;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, results, new_cap);
     if (!tmp) abort();      /* memory failure */
     results   = tmp;
     res_cap   = new_cap;

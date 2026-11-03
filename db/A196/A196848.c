@@ -11,13 +11,15 @@
  *            Σ_{j=1}^{2r+1} (–1)^{j+1} j^k ) x^k/k!
  * Range:     i8 n <= 10, i16 n <= 19, i32 n <= 44, i64 n <= 48, i128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* integer square root: floor(sqrt(n)) */
 static idx_t isqrt(idx_t n)
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     idx_t len = 2 * r + 1;            /* number of columns (2r+1)         */
 
     /* e[k] = Σ_{j=1}^{len} (-1)^{j+1} j^k      (k = 0 … len-1)   */
-    seq_t *e = (seq_t *)malloc(sizeof(seq_t) * len);
+    seq_t *e = mem_new(seq_t, len);
     if (!e) return (seq_t)0;          /* out of memory, return 0          */
     for (idx_t k = 0; k < len; ++k) e[k] = 0;
 
@@ -64,8 +66,8 @@ seq_t a(idx_t n)
     }
 
     /* d[t] = coefficients of D(t)=Π_{j=1}^{len}(1-j t)   (t = 0 … len)   */
-    seq_t *d = (seq_t *)malloc(sizeof(seq_t) * (len + 1));
-    if (!d) { free(e); return (seq_t)0; }
+    seq_t *d = mem_new(seq_t, (len + 1));
+    if (!d) { mem_free(e); return (seq_t)0; }
     for (idx_t i = 0; i <= len; ++i) d[i] = 0;
     d[0] = 1;                         /* initial polynomial 1            */
     idx_t cur_deg = 0;                 /* current degree of d            */
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
         result += d[t] * e[m - t];
     }
 
-    free(e);
-    free(d);
+    mem_free(e);
+    mem_free(d);
     return result;
 }

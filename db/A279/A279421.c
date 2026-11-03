@@ -9,13 +9,17 @@
  *            the middle digit of k^2 is 1
  * Range:     u8 n <= 1, u16 n <= 14, u32 n <= 2499, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, seq_pow
+ * Validated: standard, pass, 63 terms through n = 9449 (2026-11-01)
+ * Helpers:   ipow_idx, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/digit_len.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/num_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -25,13 +29,13 @@ seq_t a(idx_t n)
     for (;;) {
         k += 1;                               /* candidate k */
 
-        seq_t sq = seq_pow(k, 2);              /* k² */
-        int L   = digit_len(sq);              /* number of decimal digits of k² */
+        seq_t sq = ipow_idx(k, 2);              /* k² */
+        int L   = num_digits(sq);              /* number of decimal digits of k² */
 
         if ((L & 1) == 0)                     /* even number of digits → skip */
             continue;
 
-        seq_t pow10_m = seq_pow(10, L / 2);   /* 10^(L/2) */
+        seq_t pow10_m = ipow_idx(10, L / 2);   /* 10^(L/2) */
         seq_t mid     = (sq / pow10_m) % 10;   /* middle digit */
 
         if (mid == 1) {                       /* found a valid k */

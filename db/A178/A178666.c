@@ -6,9 +6,10 @@
  * Offset:    -1    (a(-1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 1109, u16 n <= 4573, u32 n <= 9871, u64 n <= 9871,
- *            u128 n <= 9871, big any n
- * Helpers:   prefix_rowsum
+ * Range:     u8 n <= 1109, u16 n <= 4573, u32 n <= 22903, u64 n <= 23861,
+ *            u128 n <= 23861, big any n
+ * Validated: standard, pass, 164 terms through n = 9871 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/prefix_rowsum.h"
+
+/* cumulative length of rows up to row r‑1 (including row –1) */
+static inline idx_t prefix_rowsum(idx_t r)
+{
+    if (r <= -1)
+        return 0; /* up to row –2 */
+    idx_t m = r; /* m = r */
+    /* sum_{i=0}^{m-1} ((i+1)^2 + 1) + 1 (row –1) */
+    return m * (m + 1) * (2 * m + 1) / 6 + (m + 1);
+}
 
 /* memoised rows: row_coeffs[0] is row 0, etc. */
 static seq_t **row_coeffs   = NULL;

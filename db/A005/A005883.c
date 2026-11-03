@@ -8,13 +8,14 @@
  *            G.f. 4*psi(x)^2
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a005883_isqrt
+ * Validated: standard, pass, 113 terms through n = 986 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005883_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t count = 0;
@@ -27,7 +28,7 @@ seq_t a(idx_t n) {
         uint64_t remainder = (uint64_t)n - ti;
         /* remainder is triangular iff 8*remainder + 1 is an odd perfect square */
         uint64_t disc = 8 * remainder + 1;
-        uint64_t s = a005883_isqrt(disc);
+        uint64_t s = isqrt_u64(disc);
         if (s * s == disc) count++;
 
         i++;

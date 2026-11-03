@@ -12,7 +12,8 @@
  *            by 2
  * Range:     u8 n <= 158, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9851 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *pos = NULL;          /* position → current value (1‑based)   */
 static size_t pos_cap = 0;         /* capacity of pos array              */
@@ -37,7 +39,7 @@ static void ensure_pos(size_t n)
     if (n < pos_cap) return;
     size_t new_cap = pos_cap == 0 ? 256 : pos_cap;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *new_pos = (seq_t *)realloc(pos, new_cap * sizeof(seq_t));
+    seq_t *new_pos = mem_resize(seq_t, pos, new_cap);
     if (!new_pos) abort();
     pos = new_pos;
     for (size_t i = pos_cap; i < new_cap; ++i)
@@ -66,7 +68,7 @@ static void ensure_a(size_t n)
     if (n < a_cap) return;
     size_t new_cap = a_cap == 0 ? 256 : a_cap;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *new_a = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_vals, new_cap);
     if (!new_a) abort();
     a_vals = new_a;
     a_cap = new_cap;

@@ -10,8 +10,9 @@
  *            n, * i = n - k*(k-1)/2, * m = k*(k-1)/2 + (i-1) for even k, * m
  *            = (k-1)^2/2 + 1 + 2*(i-1) for odd k. * All arithmetic performed
  *            in seq_t
- * Range:     u8 n <= 32, u16 n <= 1293, u32 n <= 9809, u64 n <= 9809,
- *            u128 n <= 9809, big any n
+ * Range:     u8 n <= 32, u16 n <= 1293, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 78 terms through n = 9809 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

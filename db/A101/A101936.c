@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 4, u16 n <= 35, u32 n <= 35, u64 n <= 35, u128 n <= 35,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 4, u16 n <= 45, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 51 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *centres = NULL;          /* sequence terms */
 static size_t centre_count = 0;        /* how many have been found */
@@ -47,7 +49,7 @@ static void compute_centres(void)
         }
     }
 
-    centres = (seq_t *)malloc(MAX_CENTRES * sizeof(seq_t));
+    centres = mem_new(seq_t, MAX_CENTRES);
     if (!centres) { free(omega); return; }
     centre_capacity = MAX_CENTRES;
 
@@ -61,7 +63,7 @@ static void compute_centres(void)
         if (ok) {
             if (centre_count == centre_capacity) {
                 size_t newcap = centre_capacity * 2;
-                seq_t *tmp = (seq_t *)realloc(centres, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, centres, newcap);
                 if (!tmp) break;                /* abort on failure */
                 centres = tmp;
                 centre_capacity = newcap;

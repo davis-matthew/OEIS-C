@@ -8,14 +8,25 @@
  * Formula:   a(1)=1; for n>1, a(n) = n*rev(concat_{i=1}^{n-1} a(i))
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   pow10_of, rev_num
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow10_of.h"
-#include "../utils/rev_num.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
+
+/* return 10^e as a seq_t */
+static seq_t pow10_of(idx_t e)
+{
+    seq_t p = 1;
+    for (idx_t i = 0; i < e; ++i) {
+        p *= 10;
+    }
+    return p;
+}
 
 /* return the number of decimal digits of x */
 static idx_t digit_count(seq_t x)
@@ -44,7 +55,7 @@ seq_t a(idx_t n)
     /* allocate terms array if first call */
     if (!terms) {
         terms_cap = 16;
-        terms = (seq_t*)malloc(sizeof(seq_t) * terms_cap);
+        terms = mem_new(seq_t, terms_cap);
     }
 
     /* compute terms up to n if needed */
@@ -53,7 +64,7 @@ seq_t a(idx_t n)
             terms[1] = 1;          /* a(1) = 1 */
         } else {
             /* rev(concat_{i=1}^{k-1} a(i)) = rev(a(k-1)) * 10^{digits_rev} + rev_concat */
-            seq_t rev_prev = rev_num(terms[k-1]);
+            seq_t rev_prev = reverse_digits(terms[k-1]);
             idx_t d_prev   = digit_count(terms[k-1]);
 
             rev_concat      = rev_prev * pow10 + rev_concat;
@@ -68,7 +79,7 @@ seq_t a(idx_t n)
 
         if (k >= terms_cap) {
             terms_cap <<= 1;
-            terms = (seq_t*)realloc(terms, sizeof(seq_t) * terms_cap);
+            terms = mem_resize(seq_t, terms, terms_cap);
         }
         terms_len = k;
     }

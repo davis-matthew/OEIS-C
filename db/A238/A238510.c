@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 19, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    a(1) = 4,  a(2) = 25,  a(3) = 295,  a(4) = 3113,  a(5) = 33837,
    a(n) = 10*a(n-1) + 13*a(n-2) - 44*a(n-3) - 7*a(n-4) + 14*a(n-5)   for n > 5. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;   /* memoised sequence values */
 static idx_t memo_size = 0;  /* largest index currently stored (0 = none) */
@@ -27,7 +29,7 @@ static void ensure_memo(idx_t up_to)
 {
     if (up_to <= memo_size) return;
     idx_t new_size = up_to + 1;              /* indices 0..up_to */
-    seq_t *new_mem = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_mem = mem_new(seq_t, new_size);
     if (!new_mem) abort();                  /* out of memory */
 
     /* copy old contents */
@@ -35,7 +37,7 @@ static void ensure_memo(idx_t up_to)
         for (idx_t i = 0; i <= memo_size; ++i)
             new_mem[i] = memo[i];
     }
-    free(memo);
+    mem_free(memo);
     memo = new_mem;
     /* memo_size is updated by the caller after computing new terms */
 }

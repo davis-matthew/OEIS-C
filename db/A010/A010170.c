@@ -6,8 +6,9 @@
  * Keywords:  nonn, cofr, easy, mult
  * Formula:   a(0)=9; for n>0, a(n)=18^(n-1) mod 19 (period 2 after the
  *            initial 9)
- * Range:     u8 n <= 9804, u16 n <= 9804, u32 n <= 9804, u64 n <= 9804,
- *            u128 n <= 9804, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 82 terms through n = 9804 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,12 +9,14 @@
  *            is >= a(n-1), where d(n) = number of positive divisors of n
  * Range:     u8 n <= 229, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Local helper: number of divisors of n   (n <= 10000 in practice) */
 static inline uint32_t divisor_count(idx_t n) {
@@ -43,7 +45,7 @@ static size_t cache_cap   = 0;     /* current allocation capacity */
 static void ensure_cache_cap(idx_t n) {
     if ((size_t)n < cache_cap) return;
     size_t new_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();               /* out of memory */
     cache = tmp;
     cache_cap = new_cap;

@@ -8,7 +8,8 @@
  *            3, a(2) = 7, a(3) = 15
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 57, u128 n <= 115,
  *            big any n
- * Helpers:   ensure_cache_capacity, mul3
+ * Validated: standard, pass, 46 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,27 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/ensure_cache_capacity.h"
-#include "../utils/mul3.h"
+#include "../utils/mem.h"
+
+/* Dynamically grow the cache array to fit at least `min_cap` entries. */
+static void ensure_cache_capacity(idx_t *cap, idx_t min_cap, seq_t **buf)
+{
+    if (*cap >= min_cap)
+        return;
+    idx_t new_cap = (*cap == 0) ? 4 : *cap;
+    while (new_cap < min_cap)
+        new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *buf, (size_t)new_cap);
+    *buf = tmp;
+    *cap = new_cap;
+}
+
+/* multiply by 3 using only additions (safe as long as the product fits
+   in the result type, which is guaranteed by the problem statement). */
+static inline seq_t mul3(seq_t x)
+{
+    return (x + x) + x;
+}
 
 seq_t a(idx_t n)
 {

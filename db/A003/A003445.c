@@ -12,7 +12,8 @@
  *            rotations of order 2 and 5 fix such a dissection)
  * Range:     u8 n <= 9, u16 n <= 13, u32 n <= 21, u64 n <= 37, u128 n <= 69,
  *            big any n
- * Helpers:   a3445_add, a3445_div, a3445_mul
+ * Validated: standard, pass, 42 terms through n = 195 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,49 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a3445_add.h"
-#include "../utils/a3445_div.h"
-#include "../utils/a3445_mul.h"
+
+static void a3445_add(uint32_t *x, size_t *xl, const uint32_t *y, size_t yl)
+{
+    uint64_t c = 0;
+    size_t i;
+    size_t L = *xl > yl ? *xl : yl;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)(i < *xl ? x[i] : 0) + (uint64_t)(i < yl ? y[i] : 0) + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    if (c) x[L++] = (uint32_t)c;
+    *xl = L;
+}
+
+static void a3445_div(uint32_t *x, size_t *len, uint64_t d)
+{
+    uint64_t r = 0;
+    size_t i = *len;
+    while (i > 0) {
+        uint64_t cur;
+        i--;
+        cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+    while (*len > 1 && x[*len - 1] == 0) (*len)--;
+}
+
+static void a3445_mul(uint32_t *x, size_t *len, uint64_t m)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < *len; i++) {
+        uint64_t t = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    while (c) {
+        x[(*len)++] = (uint32_t)c;
+        c >>= 32;
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,27 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *seq = NULL;      /* a(0), a(1), … stored */
 static size_t seq_len = 0;     /* number of stored terms */
@@ -43,11 +64,11 @@ static void ensure_seq_capacity(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_seq = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_new(seq_t, new_cap);
     if (!new_seq) return;    /* allocation failure: caller will crash */
     if (seq) {
-        memcpy(new_seq, seq, seq_len * sizeof(seq_t));
-        free(seq);
+        mem_copy(new_seq, seq, seq_len * sizeof(seq_t));
+        mem_free(seq);
     }
     seq = new_seq;
     seq_cap = new_cap;

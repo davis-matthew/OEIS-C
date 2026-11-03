@@ -15,6 +15,7 @@
  *            n. * Let d = k + 1; // diagonal number (sum m+n) *...
  * Range:     u8 n <= 647, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 98 terms through n = 1243 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

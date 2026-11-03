@@ -12,12 +12,14 @@
  *            handled in O(1) amortised time after the first calculation
  * Range:     u8 none, u16 n <= 6, u32 n <= 17, u64 n <= 37, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[6] = {
     (seq_t)8501,  (seq_t)9679,  (seq_t)11937,
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     /* Ensure sufficient capacity for n elements. */
     if (cache_cap < n) {
         idx_t new_cap = n > 6 ? n : 6;   /* at least 6 for initial values */
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!new_cache)
             return (seq_t)0;   /* failed allocation – unlikely in tests */
         cache = new_cache;

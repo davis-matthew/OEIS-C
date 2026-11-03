@@ -8,7 +8,8 @@
  *            A000307(n-k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 19,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 18 terms through n = 19 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 extern seq_t binomial(idx_t n, idx_t k);
 
@@ -36,9 +38,9 @@ seq_t a(idx_t n)
         max_n_global = n;
 
         /* reallocate tables */
-        B = (seq_t*)realloc(B, (max_n_global + 1) * sizeof(seq_t));
-        C = (seq_t*)realloc(C, (max_n_global + 1) * sizeof(seq_t));
-        D = (seq_t*)realloc(D, (max_n_global + 1) * sizeof(seq_t));
+        B = mem_resize(seq_t, B, (max_n_global + 1));
+        C = mem_resize(seq_t, C, (max_n_global + 1));
+        D = mem_resize(seq_t, D, (max_n_global + 1));
 
         /* initialise new entries to zero */
         for (idx_t i = old_n + 1; i <= max_n_global; ++i) {

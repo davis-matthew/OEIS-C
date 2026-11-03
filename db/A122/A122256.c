@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9745 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    computes this by sieving Euler's totient function up to n and then
    counting the smooth values. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Allocate array for φ(0..n).  φ[0] unused. */
-    seq_t *phi = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, (size_t)(n + 1));
     if (!phi) return 0;  /* fallback on allocation failure */
 
     /* Initialise φ[i] = i. */
@@ -51,6 +53,6 @@ seq_t a(idx_t n)
             ++count;
     }
 
-    free(phi);
+    mem_free(phi);
     return count;
 }

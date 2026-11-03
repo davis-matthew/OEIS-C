@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   equal_threes_nines
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/equal_threes_nines.h"
+#include "../utils/mem.h"
+
+/* Test whether x has the same number of 3's and 9's in its decimal
+   representation.  0 trivially satisfies the condition. */
+static bool equal_threes_nines(seq_t x)
+{
+    seq_t cnt3 = 0, cnt9 = 0;
+    if (x == 0)
+        return true;
+    while (x > 0) {
+        int d = (int)(x % 10);   /* digit, guaranteed small */
+        if (d == 3)
+            ++cnt3;
+        else if (d == 9)
+            ++cnt9;
+        x /= 10;
+    }
+    return cnt3 == cnt9;
+}
 
 static seq_t *cache = NULL;         /* stored terms */
 static size_t  cache_len = 0;       /* number of stored terms  */
@@ -37,7 +56,7 @@ static void ensure_capacity(size_t new_cap)
     size_t cap = cache_cap ? cache_cap * 2 : 4;
     while (cap < new_cap)
         cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cap);
     if (!tmp)
         abort();
     cache = tmp;

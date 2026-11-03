@@ -7,14 +7,16 @@
  * Keywords:  sign, look
  * Formula:   a(0) = 0; for n>0: a(n) = -5*a(n/3) if n is divisible by 3, n +
  *            a(n-1) otherwise
- * Range:     i8 n <= 29, i16 n <= 901, i32 n <= 9027, i64 n <= 9027,
- *            i128 n <= 9027, big any n
- * Helpers:   none
+ * Range:     i8 n <= 29, i16 n <= 901, i32 n <= 19682, i64 n <= 19682,
+ *            i128 n <= 19682, big any n
+ * Validated: standard, pass, 83 terms through n = 9027 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (next == 0) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;       /* out‑of‑memory fallback, unlikely in tests */
         cache[0] = (seq_t)0;
         next = 1;                  /* next index to compute */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap ? cap << 1 : 16;
         while (new_cap < (size_t)(n + 1))
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;          /* allocation failure fallback */
         cache = tmp;
         cap = new_cap;

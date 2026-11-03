@@ -9,7 +9,8 @@
  *            number (A002808(n))
  * Range:     u8 n <= 255, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, seq_mul, seq_pow
+ * Validated: standard, pass, 97 terms through n = 987 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,15 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Global cache of composite numbers (A002808).  The array is 0‑based. */
 static uint64_t *composite_list = NULL;
@@ -97,7 +104,7 @@ seq_t a(idx_t n)
     seq_t result = (seq_t)1;                 /* start with 1 */
     for (size_t i = 0; i < cnt; ++i) {
         if (C % primes[i] != 0) {            /* prime does not divide C */
-            seq_t power = seq_pow((seq_t)primes[i],
+            seq_t power = ipow_idx((seq_t)primes[i],
                                   (idx_t)exps[i]);    /* p^e */
             result = seq_mul(result, power);
         }

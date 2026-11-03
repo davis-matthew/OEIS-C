@@ -11,7 +11,8 @@
  *            ways to choose such a cycle is (n‑1)!/(n‑L)!. The...
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 15, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static idx_t maxComputed = 0;
 static idx_t dpCap = 0;
@@ -30,12 +32,12 @@ static void ensure_array(idx_t size)
 
     idx_t newCap = size + 1;   /* also store dp[0] */
     if (dp == NULL) {
-        dp = (seq_t*)calloc(newCap * 5, sizeof(seq_t));
+        dp = mem_new(seq_t, newCap * 5);
         dpCap = newCap;
     } else if (newCap > dpCap) {
-        dp = (seq_t*)realloc(dp, newCap * 5 * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, newCap * 5);
         /* zero new entries */
-        memset(dp + dpCap * 5, 0, (newCap - dpCap) * 5 * sizeof(seq_t));
+        mem_set(dp + dpCap * 5, 0, (newCap - dpCap) * 5 * sizeof(seq_t));
         dpCap = newCap;
     }
 

@@ -11,7 +11,8 @@
  *            that ends when a_k = 2*a0
  * Range:     u8 none, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of types supplied by the build */
 typedef uint64_t idx_t; /* assumed definition, not redefined here */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         seq_t d = 1;
         seq_t a = a0;
         size_t cap = 8;             /* initial allocation size */
-        period = (seq_t *)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         if (!period) return 0;      /* allocation failure, return 0 as a fallback */
 
         while (1) {
@@ -54,8 +56,8 @@ seq_t a(idx_t n)
             /* store a as the next period term */
             if (period_len == cap) {
                 cap <<= 1;          /* double the capacity */
-                seq_t *tmp = (seq_t *)realloc(period, cap * sizeof(seq_t));
-                if (!tmp) { free(period); period = NULL; return 0; }
+                seq_t *tmp = mem_resize(seq_t, period, cap);
+                if (!tmp) { mem_free(period); period = NULL; return 0; }
                 period = tmp;
             }
             period[period_len++] = a;

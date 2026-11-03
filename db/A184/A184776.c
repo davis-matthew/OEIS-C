@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 178, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 119 terms through n = 9078 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the required symbol.  No other helper functions
  * are used. */
@@ -113,11 +115,10 @@ static inline void push_good(idx_t m)
 {
     if (good_cap == 0) {
         good_cap = 64;
-        good_indices = (seq_t*)malloc(good_cap * sizeof(seq_t));
+        good_indices = mem_new(seq_t, good_cap);
     } else if (good_len == good_cap) {
         good_cap <<= 1;
-        good_indices = (seq_t*)realloc(good_indices,
-                                       good_cap * sizeof(seq_t));
+        good_indices = mem_resize(seq_t, good_indices, good_cap);
     }
     good_indices[good_len++] = (seq_t)m;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 80, u32 n <= 864, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 1935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     idx_t max = 2 * n;
     size_t len = (size_t)(max + 1);
 
-    seq_t *dp = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp) abort();                     /* Out of memory */
 
     /* initialise dp[0] = 1, others 0 */
@@ -51,6 +53,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[max];
-    free(dp);
+    mem_free(dp);
     return result;
 }

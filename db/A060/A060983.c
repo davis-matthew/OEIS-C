@@ -12,12 +12,15 @@
  *            (p^{e-k+1}-1)/(p-1)
  * Range:     u8 n <= 11, u16 n <= 143, u32 n <= 3220, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 62 terms through n = 9558 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* multiplicative contribution of a prime power p^e */
 static seq_t prime_power_contrib(idx_t p, idx_t e)
@@ -28,7 +31,7 @@ static seq_t prime_power_contrib(idx_t p, idx_t e)
     seq_t p_sq  = p_seq * p_seq;
     seq_t p_minus1 = p_seq - 1;
 
-    seq_t tmp  = big_pow(p_seq, e + 1);   /* p^(e+1) */
+    seq_t tmp  = ipow(p_seq, e + 1);   /* p^(e+1) */
     seq_t pow2k = (seq_t)1;
 
     for (idx_t k = 0; k <= e; ++k) {
@@ -44,7 +47,7 @@ static seq_t prime_power_contrib(idx_t p, idx_t e)
     seq_t sum_e3 = 0;
     if (e >= 3) {
         idx_t e3 = e - 3;
-        seq_t tmp3  = big_pow(p_seq, e3 + 1);
+        seq_t tmp3  = ipow(p_seq, e3 + 1);
         seq_t pow2k3 = (seq_t)1;
 
         for (idx_t k = 0; k <= e3; ++k) {

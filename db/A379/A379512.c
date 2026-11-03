@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,8 @@
    process is repeated until no digits are removed; the final number
    (or 0 if nothing survives) is returned as a `seq_t`. */
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
 #include <stdbool.h>
 

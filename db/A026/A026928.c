@@ -10,13 +10,15 @@
  *            with each part ≤ 4 and at least one part equal to 4
  * Range:     u8 n <= 40, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*  Static DP arrays for partitions with parts ≤ 3 (no 4) and with parts ≤ 4
     where at least one part is 4.  Two parity tables (even/odd parts) are
@@ -42,16 +44,16 @@ static void ensure_size(idx_t n)
         if (dp_cap == 0) dp_cap = 1;
         while (dp_cap <= n) dp_cap <<= 1;
 
-        e_no4 = (seq_t *)realloc(e_no4, dp_cap * sizeof(seq_t));
-        o_no4 = (seq_t *)realloc(o_no4, dp_cap * sizeof(seq_t));
-        e_with4 = (seq_t *)realloc(e_with4, dp_cap * sizeof(seq_t));
-        o_with4 = (seq_t *)realloc(o_with4, dp_cap * sizeof(seq_t));
+        e_no4 = mem_resize(seq_t, e_no4, dp_cap);
+        o_no4 = mem_resize(seq_t, o_no4, dp_cap);
+        e_with4 = mem_resize(seq_t, e_with4, dp_cap);
+        o_with4 = mem_resize(seq_t, o_with4, dp_cap);
         if (!e_no4 || !o_no4 || !e_with4 || !o_with4) abort();
 
-        memset(e_no4 + old_cap, 0, (dp_cap - old_cap) * sizeof(seq_t));
-        memset(o_no4 + old_cap, 0, (dp_cap - old_cap) * sizeof(seq_t));
-        memset(e_with4 + old_cap, 0, (dp_cap - old_cap) * sizeof(seq_t));
-        memset(o_with4 + old_cap, 0, (dp_cap - old_cap) * sizeof(seq_t));
+        mem_set(e_no4 + old_cap, 0, (dp_cap - old_cap) * sizeof(seq_t));
+        mem_set(o_no4 + old_cap, 0, (dp_cap - old_cap) * sizeof(seq_t));
+        mem_set(e_with4 + old_cap, 0, (dp_cap - old_cap) * sizeof(seq_t));
+        mem_set(o_with4 + old_cap, 0, (dp_cap - old_cap) * sizeof(seq_t));
     }
 
     /* Zero all values up to n – we will recompute from scratch for this N */

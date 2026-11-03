@@ -7,14 +7,18 @@
  * Formula:   a(n) = 2^(A018252(n)-1) mod A018252(n+1) (OEIS A175802)
  * Range:     u8 n <= 215, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 90 terms through n = 948 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* Return the nth term of A175802 (offset 1).  n is a (1 …)
  * positive integer. */
@@ -45,5 +49,5 @@ seq_t a(idx_t n)
 
     /* Compute 2^(m-1) modulo p.  m−1 fits in uint64_t for all
      * n requested (<= 10 000). */
-    return mod_pow((seq_t)2, (uint64_t)(m > 0 ? m - 1 : 0), (seq_t)p);
+    return powmod((seq_t)2, (uint64_t)(m > 0 ? m - 1 : 0), (seq_t)p);
 }

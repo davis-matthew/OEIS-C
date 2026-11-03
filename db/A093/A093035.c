@@ -7,8 +7,9 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = #{(d1,d2,d3) | each di | n and d1 + d2 + d3 ≤ n} (ordered
  *            triples of divisors of n whose sum does not exceed n)
- * Range:     u8 n <= 23, u16 n <= 2519, u32 n <= 8175, u64 n <= 8175,
- *            u128 n <= 8175, big any n
+ * Range:     u8 n <= 23, u16 n <= 2519, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 78 terms through n = 8175 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

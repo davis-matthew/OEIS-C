@@ -10,7 +10,8 @@
  *            successive differences
  * Range:     u8 n <= 37, u16 n <= 2528, u32 n <= 2528, u64 n <= 2528,
  *            u128 n <= 2528, big any n
- * Helpers:   none
+ * Validated: full, pass, 2528 terms through n = 2528 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static state – built on first call */
 static seq_t *diffs = NULL;        /* array of differences          */
@@ -64,7 +66,7 @@ static void init_sequence(void)
     /* compute differences */
     diffs_len = (primes_cnt > 0) ? (idx_t)(primes_cnt - 1) : 0;
     if (diffs_len > 0) {
-        diffs = (seq_t*)malloc(diffs_len * sizeof(seq_t));
+        diffs = mem_new(seq_t, diffs_len);
         if (diffs) {
             for (size_t i = 1; i < primes_cnt; ++i) {
                 diffs[i - 1] = temp_primes[i] - temp_primes[i - 1];

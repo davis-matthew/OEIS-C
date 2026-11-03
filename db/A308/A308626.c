@@ -8,7 +8,8 @@
  *            of OEIS A308626)
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state */
 static seq_t *aseq = NULL;   /* sequence values, 1‑based */
@@ -37,7 +39,7 @@ static void ensure_capacity(size_t need)
     if (need <= cap) return;
     size_t new_cap = cap ? cap * 2 : 16;
     while (new_cap < need) new_cap <<= 1;
-    aseq = (seq_t *)realloc(aseq, new_cap * sizeof(seq_t));
+    aseq = mem_resize(seq_t, aseq, new_cap);
     ax   = (int   *)realloc(ax,   new_cap * sizeof(int));
     ay   = (int   *)realloc(ay,   new_cap * sizeof(int));
     cap  = new_cap;

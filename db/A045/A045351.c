@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* static state for caching primes and results */
 static seq_t *cache       = NULL;
@@ -29,6 +39,19 @@ static size_t prime_cap     = 0;
 static uint64_t last_checked = 1;
 
 /* Ensure capacity of dynamic array */
+#ifdef __cplusplus
+template <class T>
+static void ensure_cap(size_t *cap, size_t *len, T **data, size_t elem_size)
+{
+    if (*len < *cap) return;
+    /* double the capacity, start from 8 */
+    size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
+    T *new_data = mem_resize(T, *data, (new_cap * elem_size) / sizeof(T));
+    if (!new_data) abort();     /* out of memory */
+    *data = new_data;
+    *cap  = new_cap;
+}
+#else
 static void ensure_cap(size_t *cap, size_t *len, void **data, size_t elem_size)
 {
     if (*len < *cap) return;
@@ -39,6 +62,7 @@ static void ensure_cap(size_t *cap, size_t *len, void **data, size_t elem_size)
     *data = new_data;
     *cap  = new_cap;
 }
+#endif
 
 /* Test if n is prime using the primes found so far */
 static bool is_prime_uint64(uint64_t n)
@@ -65,13 +89,13 @@ static void ensure_cache(idx_t n)
         /* Check primality */
         if (is_prime_uint64(candidate)) {
             /* Add candidate to prime list */
-            ensure_cap(&prime_cap, &prime_len, (void **)&prime_list, sizeof(uint64_t));
+            ensure_cap(&prime_cap, &prime_len, OEISC_VPP(&prime_list), sizeof(uint64_t));
             prime_list[prime_len++] = candidate;
 
             /* Accept if it satisfies the required residue condition */
             if (candidate == 7 || candidate % 7 == 2 || candidate % 7 == 4 ||
                 candidate % 7 == 5) {
-                ensure_cap(&cache_cap, &cache_len, (void **)&cache, sizeof(seq_t));
+                ensure_cap(&cache_cap, &cache_len, OEISC_VPP(&cache), sizeof(seq_t));
                 cache[cache_len++] = (seq_t)candidate;
             }
         }

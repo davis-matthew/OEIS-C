@@ -8,12 +8,15 @@
  *            if n is even
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 11, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +24,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Compute 6^n as a big integer. */
-    seq_t pow6 = big_pow((seq_t)6, (seq_t)n);
+    seq_t pow6 = ipow((seq_t)6, (seq_t)n);
 
     /* If n is odd, a(n) = 6^n. */
     if (n & 1)

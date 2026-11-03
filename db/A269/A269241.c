@@ -9,11 +9,15 @@
  *            expansion of n³
  * Range:     u8 n <= 7, u16 n <= 40, u32 n <= 2030, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 112 terms through n = 9689 (2026-11-01)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
 
 seq_t a(idx_t n)

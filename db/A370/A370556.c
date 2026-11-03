@@ -12,6 +12,7 @@
  *            v_p(∏_{k=1..n}(1+k²)) )
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 17, u128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static inline seq_t pow_seq_t(seq_t base, idx_t exp)

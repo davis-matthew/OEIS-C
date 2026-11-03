@@ -7,14 +7,28 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_square_sum
+ * Validated: standard, pass, 85 terms through n = 982 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(1)=15; a(n)=sum of squares of digits of a(n-1) */
 #include <stdint.h>
-#include "../utils/digit_square_sum.h"
+#include <stdbool.h>
+#include <stdlib.h>
+
+/* Helper: sum of squares of decimal digits of a 64‑bit integer. */
+static uint64_t digit_square_sum(uint64_t x)
+{
+    uint64_t sum = 0;
+    while (x > 0) {
+        uint64_t d = x % 10;
+        sum += d * d;
+        x /= 10;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

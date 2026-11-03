@@ -11,12 +11,14 @@
  *            a(8)=1747, a(9)=4931
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 45, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_cap = 0;
@@ -25,7 +27,7 @@ static idx_t cache_max = 0;
 static void grow_cache(idx_t need) {
     idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (new_cap + 1));
     cache_cap = new_cap;
 }
 

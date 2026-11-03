@@ -10,14 +10,21 @@
  *            a(1) = a(2) = 1
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 15, u64 n <= 22, u128 n <= 36,
  *            big any n
- * Helpers:   a939_mulk, a939_phi
+ * Validated: standard, pass, 40 terms through n = 444 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a939_mulk.h"
-#include "../utils/a939_phi.h"
+#include "../utils/totient_u64.h"
+
+/* value represented as q*D + r with 0 <= r < D; multiply it by k */
+static void a939_mulk(seq_t *q, uint64_t *r, uint64_t k, uint64_t D) {
+    uint64_t t = *r * k;
+    *q = *q * (seq_t)k + (seq_t)(t / D);
+    *r = t % D;
+}
 
 seq_t a(idx_t n) {
     if (n <= 2) return 1;
@@ -28,7 +35,7 @@ seq_t a(idx_t n) {
     for (uint64_t d = 1; d <= N; d++) {
         if (N % d != 0) continue;
         uint64_t m = N / d;
-        uint64_t ph = a939_phi(m);
+        uint64_t ph = totient_u64(m);
         seq_t q = 0;
         uint64_t r = ph * ph;
         for (uint64_t i = 2; i <= d; i++) a939_mulk(&q, &r, i, D);

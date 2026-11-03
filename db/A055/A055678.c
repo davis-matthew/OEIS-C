@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1495, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   my_malloc, my_realloc, tau_large
+ * Validated: standard, pass, 68 terms through n = 9371 (2026-11-03)
+ * Helpers:   mem, num_divisors_idx_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/my_malloc.h"
-#include "../utils/my_realloc.h"
-#include "../utils/tau_large.h"
+#include "../utils/num_divisors_idx_to_u32.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Simple wrapper for malloc/realloc – valid in C and C++ */
+static inline void *my_malloc(size_t sz) { return malloc(sz); }
+
+#ifdef __cplusplus
+template <class T>
+static inline T *my_realloc(T *ptr, size_t sz) { return mem_resize(T, ptr, (sz) / sizeof(T)); }
+#else
+static inline void *my_realloc(void *ptr, size_t sz) { return realloc(ptr, sz); }
+#endif
 
 /*  The build supplies the types  seq_t  (unsigned integer or big class)
  *  and idx_t  (unsigned, e.g. uint64_t).  We do not define them here. */
@@ -57,7 +75,7 @@ static void init(void)
 
     /* Allocate initial space for sequence values. */
     seq_cap = 16384U;
-    seq_values = (seq_t*)my_malloc(seq_cap * sizeof(seq_t));
+    seq_values = mem_new(seq_t, seq_cap);
     if (!seq_values) exit(1);
 
     /* Generate the sequence up to the sieve limit. */
@@ -93,7 +111,7 @@ static void extend_to(idx_t n)
         if (cand % 6U != 0U)
         {
             uint32_t tau = (cand <= MAX_TAU_LIMIT) ?
-                           tau_table[cand] : tau_large(cand);
+                           tau_table[cand] : num_divisors_idx_to_u32(cand);
             if (cand % (idx_t)tau == 0U)
             {
                 if (seq_len == seq_cap)

@@ -12,7 +12,8 @@
  *            4), (p-1) | 4n} p (Hurwitz)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 14,
  *            big any n
- * Helpers:   hz_bstep, hz_is_fixed, hz_isprime, hz_pf_next
+ * Validated: standard, pass, 29 terms through n = 149 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,34 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/hz_bstep.h"
-#include "../utils/hz_is_fixed.h"
-#include "../utils/hz_isprime.h"
-#include "../utils/hz_pf_next.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+static void hz_bstep(seq_t *row, idx_t r)
+{
+    idx_t k;
+    row[r] = 0;
+    for (k = r; k > 0; k--) row[k] = row[k] + row[k - 1];
+}
+
+static int hz_is_fixed(void)
+{
+    seq_t x = 1;
+    int k;
+    for (k = 0; k < 200; k++) x = x * 2;
+    return x == 0;
+}
+
+/* product of primes p == 1 mod 4 with (p-1) | 4n */
+static uint64_t hz_pf_next(uint64_t n, uint64_t *d)
+{
+    while (*d <= 4 * n) {
+        uint64_t q = *d;
+        *d += 4;
+        if ((4 * n) % q == 0 && is_prime_u64(q + 1)) return q + 1;
+    }
+    return 0;
+}
 
 typedef unsigned __int128 hz_u128;
 
@@ -102,10 +127,10 @@ static void hz_big_build(idx_t N)
     uint64_t p;
     M = 1;
     for (p = 5; p <= 4 * N + 1; p += 4)
-        if (hz_isprime(p)) M *= (seq_t)p;
-    if (bt) free(bt);
-    bt = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    row = (seq_t *)calloc((size_t)(4 * N + 1), sizeof(seq_t));
+        if (is_prime_u64(p)) M *= (seq_t)p;
+    if (bt) mem_free(bt);
+    bt = mem_new(seq_t, (size_t)(N + 1));
+    row = mem_new(seq_t, (size_t)(4 * N + 1));
     row[0] = 1;
     for (m = 1; m <= N; m++) {
         seq_t mid, S, den;
@@ -130,7 +155,7 @@ static void hz_big_build(idx_t N)
         S = S / den;
         bt[m] = S / M;
     }
-    free(row);
+    mem_free(row);
     bM = M;
     bN = N;
 }

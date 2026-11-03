@@ -9,7 +9,8 @@
  *            into 8 parts
  * Range:     u8 n <= 18, u16 n <= 46, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    where p_k(m) is the number of partitions of m into exactly k parts. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of seq_t and idx_t types – provided by the build system */
 typedef uint64_t idx_t;   /* placeholder, real type may differ */
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
     if (n == 0) return 0;          /* offset 1, but safe handling */
     /* Allocate DP table: p[k][m] for k=0..7, m=0..n */
     size_t sz = (size_t)(n + 1);
-    seq_t *p = (seq_t *)malloc(8 * sz * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, 8 * sz);
     if (!p) return 0;              /* allocation failure */
 
     /* Initialize p[0][0] = 1 */
@@ -73,6 +75,6 @@ seq_t a(idx_t n) {
         total += subtotal;
     }
 
-    free(p);
+    mem_free(p);
     return total;
 }

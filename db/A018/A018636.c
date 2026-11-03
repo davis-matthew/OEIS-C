@@ -7,14 +7,24 @@
  * Formula:   a(n) = n-th divisor of 770 in increasing order
  * Range:     u8 n <= 2, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   compare_div
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/compare_div.h"
+#include "../utils/mem.h"
+
+static int compare_div(const void *p1, const void *p2)
+{
+    const seq_t *a = (const seq_t *)p1;
+    const seq_t *b = (const seq_t *)p2;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 #define DIV_COUNT 16
 
@@ -34,7 +44,7 @@ seq_t a(idx_t n)
             }
             divisors[mask] = prod;
         }
-        qsort(divisors, DIV_COUNT, sizeof(seq_t), compare_div);
+        mem_qsort(divisors, DIV_COUNT, sizeof(seq_t), compare_div);
         initialized = 1;
     }
 

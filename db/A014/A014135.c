@@ -10,7 +10,8 @@
  *            cyclotomic polynomial
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   zero_seq_arr
+ * Validated: standard, pass, 97 terms through n = 948 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,11 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/zero_seq_arr.h"
+
+/* Initialise an array of seq_t to zero */
+static void zero_seq_arr(seq_t *arr, int len) {
+    for (int i = 0; i < len; ++i) arr[i] = 0;
+}
 
 typedef idx_t  idx_t;
 typedef seq_t  seq_t;

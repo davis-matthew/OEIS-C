@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* seq_t, idx_t are defined by the build system */
 seq_t a(idx_t n)
@@ -43,7 +54,7 @@ seq_t a(idx_t n)
         ++last_N;
         seq_t N = (seq_t)last_N;
 
-        int d = digit_len(N);           /* number of decimal digits */
+        int d = num_digits(N);           /* number of decimal digits */
 
         bool ok = false;
         for (int k = 1; k < d && !ok; ++k)
@@ -77,7 +88,7 @@ seq_t a(idx_t n)
             /* store the term */
             if (cache_len == cache_cap) {
                 cache_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = N;
         }

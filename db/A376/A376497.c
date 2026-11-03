@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1052, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_int64
+ * Validated: standard, pass, 91 terms through n = 9982 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd_int64.h"
+
+/* Greatest common divisor for signed 64‑bit values. */
+static inline int64_t gcd_int64(int64_t a, int64_t b)
+{
+    if (a < 0) a = -a;
+    if (b < 0) b = -b;
+    while (b) {
+        int64_t t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
 
 /* ---------- prime cache ---------- */
 static uint64_t *prime_cache   = NULL;   /* array of primes (0‑based) */

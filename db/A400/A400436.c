@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 3153, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9626 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #ifdef __cplusplus
 #include <algorithm>
 #endif
+#include "../utils/mem.h"
 
 /* ---------- helpers for sorting (C only) ---------- */
 static void swap_seq(seq_t *a, seq_t *b) {
@@ -77,16 +79,16 @@ static void init_sequence(void) {
     const size_t TOTAL = binomial_cnk(TYPES + 4, 5);     /* number of 5‑multisets */
 
     /* compute factorials 0! … FACT_LIMIT! */
-    seq_t *fact = (seq_t *)malloc((FACT_LIMIT + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (FACT_LIMIT + 1));
     if (!fact) return;
     fact[0] = (seq_t)1;
     for (int i = 1; i <= FACT_LIMIT; ++i)
         fact[i] = fact[i - 1] * (seq_t)i;
 
     /* generate all sums of 5 factorials (with repetition). */
-    seq_t *tmp = (seq_t *)malloc(TOTAL * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, TOTAL);
     if (!tmp) {
-        free(fact); return;
+        mem_free(fact); return;
     }
     size_t idx = 0;
     for (int i = 0; i <= FACT_LIMIT; ++i)
@@ -108,9 +110,9 @@ static void init_sequence(void) {
         sums_unique = NULL;
         sums_count  = 0;
     } else {
-        seq_t *unique = (seq_t *)malloc(idx * sizeof(seq_t));
+        seq_t *unique = mem_new(seq_t, idx);
         if (!unique) {
-            free(tmp); free(fact); return;
+            mem_free(tmp); mem_free(fact); return;
         }
         size_t uniq_i = 0;
         unique[uniq_i++] = tmp[0];
@@ -118,14 +120,14 @@ static void init_sequence(void) {
             if (cmp_seq(&tmp[s], &tmp[s - 1]) != 0)
                 unique[uniq_i++] = tmp[s];
         }
-        seq_t *shrinked = (seq_t *)realloc(unique, uniq_i * sizeof(seq_t));
+        seq_t *shrinked = mem_resize(seq_t, unique, uniq_i);
         sums_unique = shrinked ? shrinked : unique;
         sums_count  = uniq_i;
     }
 
     /* free temporary buffers */
-    free(tmp);
-    free(fact);
+    mem_free(tmp);
+    mem_free(fact);
 }
 
 /* ---------- public function ---------- */

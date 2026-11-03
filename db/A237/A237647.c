@@ -12,13 +12,15 @@
  *            n≤10...
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Auxiliary: binomial(n,k) with n,k small enough that the result
    fits in seq_t (or is truncated if not). */
@@ -67,8 +69,8 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)1;
 
     /* allocate two polynomials of degree n */
-    seq_t *cur = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, (n + 1));
+    seq_t *next = mem_new(seq_t, (n + 1));
     for (idx_t i = 0; i <= n; ++i) cur[i] = (seq_t)0;
     cur[0] = (seq_t)1;
 
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
         idx_t maxm = n / w;
         if (maxm > 2 * e) maxm = 2 * e;
         size_t fsize = (size_t)(maxm + 1);
-        seq_t *f = (seq_t *)malloc(fsize * sizeof(seq_t));
+        seq_t *f = mem_new(seq_t, fsize);
         local_factor(w, e, n, f);
 
         /* zero the next polynomial */
@@ -97,14 +99,14 @@ seq_t a(idx_t n)
         }
 
         /* free factor buffer and swap arrays for next round */
-        free(f);
+        mem_free(f);
         seq_t *tmp = cur;
         cur = next;
         next = tmp;
     }
 
     seq_t result = cur[n];
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

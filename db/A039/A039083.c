@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 163, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   good_base9
+ * Validated: standard, pass, 85 terms through n = 9518 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,25 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/good_base9.h"
+#include "../utils/mem.h"
+
+/* Helper: check whether a number has the same count of 0's and 7's in base‑9. */
+static bool good_base9(seq_t x)
+{
+    seq_t cnt0 = 0, cnt7 = 0;
+    seq_t tmp  = x;
+    /* The base‑9 digits are obtained by successive mod‑9 / division. */
+    while (tmp > (seq_t)0) {
+        seq_t digit = tmp % (seq_t)9;
+        if (digit == (seq_t)0) {
+            cnt0++;
+        } else if (digit == (seq_t)7) {
+            cnt7++;
+        }
+        tmp = tmp / (seq_t)9;
+    }
+    return cnt0 == cnt7;
+}
 
 /* Main sequence function.  External linkage as required. */
 seq_t a(idx_t n)
@@ -37,7 +56,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap ? cap : 16;
         while (new_cap < (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {        /* allocation failure – give up */
             return (seq_t)0;
         }

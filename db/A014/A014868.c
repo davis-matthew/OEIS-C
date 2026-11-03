@@ -11,6 +11,7 @@
  *            (mod k). T(k) is computed modulo k by working modulo M...
  * Range:     u8 n <= 18, u16 n <= 118, u32 n <= 230, u64 n <= 230,
  *            u128 n <= 230, big any n
+ * Validated: standard, pass, 65 terms through n = 207 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

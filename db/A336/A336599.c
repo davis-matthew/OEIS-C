@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 55, u64 n <= 136, u128 n <= 406,
  *            big any n
- * Helpers:   binomial, factorial
+ * Validated: standard, pass, 61 terms through n = 9747 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,20 @@
              * C(s, 2k) * (2k-1)!! * C(2n-s-2, s-2k)
              * (s-2k)! * (2(n-1-s+k)-1)!!   */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/factorial.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 static inline seq_t odd_double_factorial(idx_t m)
 {

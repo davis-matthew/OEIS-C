@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 119, u16 n <= 119, u32 n <= 119, u64 n <= 119,
  *            u128 n <= 119, big any n
- * Helpers:   mask_of_string, popcnt32
+ * Validated: partial, pass, 120 terms through n = 119 (2026-11-01)
+ * Helpers:   popcount_u32_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mask_of_string.h"
-#include "../utils/popcnt32.h"
+#include "../utils/popcount_u32_to_u32.h"
+
+/* ----- helper: build a bitmask of the letters in a C string ----- */
+static uint32_t mask_of_string(const char *s)
+{
+    uint32_t mask = 0;
+    while (*s) {
+        char c = *s++;
+        if (c >= 'a' && c <= 'z')
+            mask |= 1u << (c - 'a');
+    }
+    return mask;
+}
 
 /* ----- English number name tables (lower‑case, no spaces/hyphens) ----- */
 static const char *ords[] = {
@@ -144,7 +156,7 @@ seq_t a(idx_t n)
     uint32_t mask_i = letter_masks[(size_t)i];
     uint32_t mask_j = letter_masks[(size_t)j];
     uint32_t common  = mask_i & mask_j;
-    unsigned int count = popcnt32(common);
+    unsigned int count = popcount_u32_to_u32(common);
 
     return (seq_t)count;
 }

@@ -12,6 +12,7 @@
  *            uint64_t, unsigned __int128, or arbitrary‑precisi...
  * Range:     u8 n <= 39, u16 n <= 2159, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 78 terms through n = 9880 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

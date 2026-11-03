@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has_60
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_60.h"
+#include "../utils/mem.h"
+
+/* Auxiliary: test whether a base‑9 number contains the substring 6,0. */
+static bool has_60(seq_t x) {
+    unsigned char digits[256];      /* enough for any seq_t (base‑9). */
+    size_t len = 0;
+
+    if (x == 0) return false;      /* “0” has no 60. */
+
+    seq_t nine = (seq_t)9;
+    while (x > 0) {
+        digits[len++] = (unsigned char)(x % nine);
+        x /= nine;
+    }
+
+    for (size_t i = 1; i < len; ++i)
+        if (digits[i] == 6 && digits[i - 1] == 0)
+            return true;
+    return false;
+}
 
 /* Cache of previously computed terms to speed repeated calls. */
 static seq_t *cache      = NULL;
@@ -31,7 +51,7 @@ static void ensure_cache(size_t need) {
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

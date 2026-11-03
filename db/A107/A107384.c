@@ -8,12 +8,14 @@
  *            a(3)=2
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* Initialize base values */
     if (size == 0) {
         size = 4;                /* we store indices 0..3 */
-        dp = (seq_t *)malloc(sizeof(seq_t) * size);
+        dp = mem_new(seq_t, size);
         if (!dp) return 0;       /* allocation failure (unlikely) */
         dp[0] = 0;
         dp[1] = 1;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Extend the table if the requested index is beyond what we have */
     if (n >= size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(dp, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, dp, new_size);
         if (!tmp) return 0;     /* allocation failure (unlikely) */
         dp = tmp;
         for (idx_t i = size; i <= n; ++i) {

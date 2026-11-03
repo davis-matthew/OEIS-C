@@ -8,7 +8,8 @@
  *            ⌊n/p^k⌋
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 33, u128 n <= 58,
  *            big any n
- * Helpers:   build_primes_upto, pow_seq
+ * Validated: standard, pass, 42 terms through n = 971 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 /* Computes the greatest 6th‑power‑free divisor of n!. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_seq.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n) {
     static uint64_t *primes = NULL;
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
         if (mod == 0)
             continue;
 
-        seq_t p_pow = pow_seq((seq_t)p, mod); /* p^mod */
+        seq_t p_pow = ipow_i32((seq_t)p, mod); /* p^mod */
         result *= p_pow;
     }
     return result;

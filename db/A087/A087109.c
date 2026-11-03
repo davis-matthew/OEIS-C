@@ -14,17 +14,19 @@
  *            row‑major enumeration of the table * (row index = p ≥ 1, column
  *            index = i = 1 … 5p-4), * with offset 1 (a(1) is the first
  *            element of the first row)
- * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 40, u64 n <= 90, u128 n <= 206,
+ * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 40, u64 n <= 90, u128 n <= 206,
  *            big any n
- * Helpers:   binom, pow_seq_int
+ * Validated: standard, pass, 53 terms through n = 6056 (2026-11-03)
+ * Helpers:   binomial, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binom.h"          /* seq_t binom(idx_t a, idx_t b) */
-#include "../utils/pow_seq_int.h"
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* a(i,p) according to the OEIS formula */
 static seq_t a_ip(idx_t p, idx_t i)
@@ -38,24 +40,24 @@ static seq_t a_ip(idx_t p, idx_t i)
         /* Term 1: requires i ≥ 2*k-1 */
         if (i >= 2 * k - 1) {
             idx_t j1   = 2 * k - 2;                   /* binomial index for C(i-1,…) */
-            seq_t c1   = binom(i - 1, j1);
+            seq_t c1   = binomial(i - 1, j1);
 
             idx_t n1   = i - 2 * k + 6;               /* upper index for C(…,…)   */
             idx_t r1   = i - 2 * k + 1;               /* lower index for C(…,…)   */
-            seq_t coeff1 = binom(n1, r1);
-            seq_t pow1 = pow_seq_int(coeff1, p - 1);
+            seq_t coeff1 = binomial(n1, r1);
+            seq_t pow1 = ipow_idx(coeff1, p - 1);
             sum += c1 * pow1;
         }
 
         /* Term 2: requires i ≥ 2*k */
         if (i >= 2 * k) {
             idx_t j2   = 2 * k - 1;
-            seq_t c2   = binom(i - 1, j2);
+            seq_t c2   = binomial(i - 1, j2);
 
             idx_t n2   = i - 2 * k + 5;
             idx_t r2   = i - 2 * k;
-            seq_t coeff2 = binom(n2, r2);
-            seq_t pow2 = pow_seq_int(coeff2, p - 1);
+            seq_t coeff2 = binomial(n2, r2);
+            seq_t pow2 = ipow_idx(coeff2, p - 1);
             sum -= c2 * pow2;
         }
     }
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
             size_t newcap = (cached_cap ? cached_cap * 2 : 16);
             while (newcap < (size_t)n)
                 newcap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) abort();
             cache = tmp;
             cached_cap = newcap;

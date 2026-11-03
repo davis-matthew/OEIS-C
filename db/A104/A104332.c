@@ -10,15 +10,22 @@
  *            numbers)
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   digit_len, is_prime_seq, pow10
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   is_prime_seq, num_digits0_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/is_prime_seq.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include "../utils/num_digits0_seq.h"
+
+static seq_t pow10(idx_t exp) {
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i) res *= (seq_t)10;
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,7 +34,7 @@ seq_t a(idx_t n)
 
     for (;;) {
         seq_t k2 = k + 2;                         /* next odd */
-        idx_t d   = digit_len(k);                 /* digits of k      */
+        idx_t d   = num_digits0_seq(k);                 /* digits of k      */
         seq_t p   = k2 * pow10(d) + k;             /* concat(k+2, k)  */
 
         if (is_prime_seq(p)) {

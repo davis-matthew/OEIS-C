@@ -8,7 +8,8 @@
  *            prime contains no 0s and its smallest digit equals 1)
  * Range:     u8 n <= 28, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   has_min_digit_one
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_min_digit_one.h"
+
+/* Return true iff the decimal representation of x contains no 0 and
+   the smallest digit equals 1 (i.e. it contains at least one '1'). */
+static bool has_min_digit_one(uint64_t x)
+{
+    bool any_one = false;
+    while (x > 0) {
+        uint64_t d = x % 10;
+        if (d == 0) return false;
+        if (d == 1) any_one = true;
+        x /= 10;
+    }
+    return any_one;
+}
 
 /* Simple deterministic primality test for 64‑bit integers. */
 static bool isPrime64(uint64_t x)

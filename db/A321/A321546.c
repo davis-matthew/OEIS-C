@@ -7,13 +7,14 @@
  * Formula:   a(n) = Sum_{d|n} (-1)^(d-1) * d^7
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 21, i64 n <= 511,
  *            i128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 45 terms through n = 9025 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Integer square‑root: floor(sqrt(n)) using only integer arithmetic. */
 static inline idx_t floor_sqrt_u64(idx_t n)
@@ -41,13 +42,13 @@ seq_t a(idx_t n)
         idx_t e = n / d;  /* paired divisor */
 
         /* Process divisor d */
-        seq_t d_pow   = pow_uint((uint64_t)d, (idx_t)7);
+        seq_t d_pow   = ipow_u64_idx((uint64_t)d, (idx_t)7);
         seq_t sign_d  = (d & 1) ? 1 : -1;   /* (-1)^(d-1) */
         sum += sign_d * d_pow;
 
         /* If e is distinct, process it too */
         if (e != d) {
-            seq_t e_pow   = pow_uint((uint64_t)e, (idx_t)7);
+            seq_t e_pow   = ipow_u64_idx((uint64_t)e, (idx_t)7);
             seq_t sign_e  = (e & 1) ? 1 : -1;
             sum += sign_e * e_pow;
         }

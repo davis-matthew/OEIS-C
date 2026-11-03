@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 37, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Sequence: a(n) = the nth multiple of 28 that contains both digits 4 and 7 */
 /* (OEIS A171077) */
 #include <stddef.h>

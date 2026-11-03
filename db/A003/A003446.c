@@ -13,7 +13,8 @@
  *            + 2z*G(z^3)) / 6 with G(z) = 1 + z*G(z)^2. Exac...
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 20, u64 n <= 36, u128 n <= 69,
  *            big any n
- * Helpers:   a3446_add, a3446_catalan, a3446_div, a3446_mul, a3446_sub
+ * Validated: standard, pass, 44 terms through n = 191 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,11 +22,67 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/a3446_add.h"
-#include "../utils/a3446_catalan.h"
-#include "../utils/a3446_div.h"
-#include "../utils/a3446_mul.h"
-#include "../utils/a3446_sub.h"
+
+static void a3446_add(uint32_t *x, size_t *xl, const uint32_t *y, size_t yl) {
+    uint64_t c = 0;
+    size_t i;
+    size_t L = (*xl > yl) ? *xl : yl;
+    for (i = *xl; i < L; i++) x[i] = 0;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] + (i < yl ? y[i] : 0) + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    if (c) x[L++] = (uint32_t)c;
+    *xl = L;
+}
+
+static void a3446_div(uint32_t *x, size_t *len, uint32_t d) {
+    uint64_t r = 0;
+    size_t i = *len;
+    while (i-- > 0) {
+        uint64_t t = (r << 32) | x[i];
+        x[i] = (uint32_t)(t / d);
+        r = t % d;
+    }
+    while (*len > 1 && x[*len - 1] == 0) (*len)--;
+}
+
+static void a3446_mul(uint32_t *x, size_t *len, uint32_t m) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < *len; i++) {
+        uint64_t t = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    while (c) {
+        x[(*len)++] = (uint32_t)c;
+        c >>= 32;
+    }
+}
+
+static void a3446_catalan(idx_t k, uint32_t *x, size_t *len) {
+    idx_t i;
+    x[0] = 1;
+    *len = 1;
+    for (i = 0; i < k; i++) {
+        a3446_mul(x, len, (uint32_t)(2 * (2 * i + 1)));
+        a3446_div(x, len, (uint32_t)(i + 2));
+    }
+}
+
+/* x -= y, requires x >= y */
+static void a3446_sub(uint32_t *x, size_t *xl, const uint32_t *y, size_t yl) {
+    int64_t b = 0;
+    size_t i;
+    for (i = 0; i < *xl; i++) {
+        int64_t t = (int64_t)x[i] - (int64_t)(i < yl ? y[i] : 0) - b;
+        if (t < 0) { t += ((int64_t)1 << 32); b = 1; } else b = 0;
+        x[i] = (uint32_t)t;
+    }
+    while (*xl > 1 && x[*xl - 1] == 0) (*xl)--;
+}
 
 seq_t a(idx_t n) {
     size_t cap, xl, tl, i;

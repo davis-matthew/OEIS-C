@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 3560, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   v2_factorial
+ * Validated: standard, pass, 74 terms through n = 9540 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,20 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/v2_factorial.h"
+#include "../utils/mem.h"
+
+/* Compute v2(k!) = sum_{i>=1} floor(k/2^i).  This works for any size
+   of k that fits into idx_t. */
+static idx_t v2_factorial(idx_t k)
+{
+    idx_t res = 0;
+    idx_t t = k;
+    while (t > 0) {
+        t >>= 1;
+        res += t;
+    }
+    return res;
+}
 
 /* Global storage for the computed terms. */
 static seq_t *terms = NULL;
@@ -45,7 +59,7 @@ static void ensure_terms_cap(size_t needed)
     size_t new_cap = term_cap ? term_cap * 2 : 64;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, terms, new_cap);
     if (!new_ptr)
         exit(EXIT_FAILURE);
     terms = new_ptr;

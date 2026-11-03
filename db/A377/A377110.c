@@ -10,12 +10,14 @@
  *            23*a(n-4) initial terms: a(0)=0, a(1)=1, a(2)=4, a(3)=23
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t cache[10001];
 static idx_t computed = 0;
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
        about 10 000, so this path is only a safeguard. */
     if (n >= 10001) {
         idx_t m = n + 1;
-        seq_t *ext = (seq_t *)malloc(m * sizeof(seq_t));
+        seq_t *ext = mem_new(seq_t, m);
         if (!ext) abort();
         ext[0] = (seq_t)0;
         ext[1] = (seq_t)1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
             ext[i] = 8 * ext[i-1] - 14 * ext[i-2] - 8 * ext[i-3] + 23 * ext[i-4];
         }
         seq_t res = ext[n];
-        free(ext);
+        mem_free(ext);
         return res;
     }
 

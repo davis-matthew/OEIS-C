@@ -9,7 +9,8 @@
  *            a(n-3)^2 + a(n-1)+a(n-2)+a(n-3)) / a(n-4)
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 8, u128 n <= 9,
  *            big any n
- * Helpers:   alloc_cache, free_cache
+ * Validated: standard, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,18 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
-#include "../utils/alloc_cache.h"
-#include "../utils/free_cache.h"
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n) {
     /* static cache of already computed terms */

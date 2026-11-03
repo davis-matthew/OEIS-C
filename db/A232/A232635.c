@@ -11,13 +11,15 @@
  *            * b(d)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 909 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL;
 static int64_t *S_cache = NULL;
@@ -30,7 +32,7 @@ static void ensure_capacity(size_t n)
 {
     if (cache_cap > n) return;
     size_t new_cap = n + 1;            /* include index 0 */
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     S_cache = (int64_t *)realloc(S_cache, new_cap * sizeof(int64_t));
     if (!a_cache || !S_cache) abort();
     cache_cap = new_cap;

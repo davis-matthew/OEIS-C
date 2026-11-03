@@ -10,7 +10,8 @@
  *            admissible column states
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 16, u64 n <= 34, u128 n <= 70,
  *            big any n
- * Helpers:   horiz_valid, seq_alloc_new_array
+ * Validated: standard, pass, 39 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,29 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/horiz_valid.h"
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+/* Test whether the triple of columns (prev,cur,next) satisfies the
+ * horizontal constraints (no 001 or 010 in any row).
+ */
+static bool horiz_valid(int p, int c, int n)
+{
+    for (int r = 0; r < 5; ++r) {
+        int a = (p >> r) & 1;
+        int b = (c >> r) & 1;
+        int d = (n >> r) & 1;
+        int tri = (a << 2) | (b << 1) | d;
+        if (tri == 0x1 || tri == 0x2)
+            return false;
+    }
+    return true;
+}
 
 /* ------------------------------------------------------------------ */
 
@@ -112,7 +134,7 @@ static void expand_cache(size_t new_len)
     seq_t *tmp = seq_alloc_new_array(new_len + 1);
     for (size_t i = 0; i <= cache_len; ++i)
         tmp[i] = cached[i];
-    free(cached);
+    mem_free(cached);
     cached = tmp;
     cache_len = new_len;
 }

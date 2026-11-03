@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 1272 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;
 static size_t cache_cap = 0, cache_len = 0;
@@ -39,7 +41,7 @@ static void push_cache(seq_t v)
 {
     if (cache_len == cache_cap) {
         cache_cap = cache_cap ? cache_cap << 1 : 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_len++] = v;
 }
@@ -48,7 +50,7 @@ static void push_A(seq_t v)
 {
     if (A_len == A_cap) {
         A_cap = A_cap ? A_cap << 1 : 1;
-        A = (seq_t *)realloc(A, A_cap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, A_cap);
     }
     A[A_len++] = v;
 }
@@ -57,7 +59,7 @@ static void push_B(seq_t v)
 {
     if (B_len == B_cap) {
         B_cap = B_cap ? B_cap << 1 : 1;
-        B = (seq_t *)realloc(B, B_cap * sizeof(seq_t));
+        B = mem_resize(seq_t, B, B_cap);
     }
     B[B_len++] = v;
 }
@@ -83,8 +85,8 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* Allocate small initial capacity */
         A_cap = B_cap = 4;
-        A = (seq_t *)malloc(A_cap * sizeof(seq_t));
-        B = (seq_t *)malloc(B_cap * sizeof(seq_t));
+        A = mem_new(seq_t, A_cap);
+        B = mem_new(seq_t, B_cap);
 
         push_A((seq_t)4);
         push_A((seq_t)52);

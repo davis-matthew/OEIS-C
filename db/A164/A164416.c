@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 39, u64 n <= 79, u128 n <= 160,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 385 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache for already computed a(n).  cache[i] holds a(i). */
 static seq_t *cache = NULL;       /* pointer to array of seq_t values   */
@@ -38,7 +40,7 @@ static void
 init_cache(void)
 {
     cache_cap = 9;                       /* indices 0 … 8 are allocated */
-    cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) exit(1);
 
     /* a(n) = 0 for n < 4 (unused by final user, but kept for completeness). */
@@ -61,12 +63,12 @@ ensure_cache(idx_t req)
     idx_t new_cap = req + 1;             /* exact size needed */
     if (new_cap < 2 * cache_cap) new_cap = 2 * cache_cap; /* grow a bit */
 
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);
 
     /* Zero the newly allocated part if any. */
     if (new_cap > cache_cap)
-        memset(tmp + cache_cap, 0, sizeof(seq_t) * (new_cap - cache_cap));
+        mem_set(tmp + cache_cap, 0, sizeof(seq_t) * (new_cap - cache_cap));
 
     cache     = tmp;
     cache_cap = new_cap;

@@ -14,13 +14,15 @@
  *            = 2537610573 * a(14) = 7591819430 * a(15) = 2...
  * Range:     u8 none, u16 none, u32 n <= 13, u64 n <= 33, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Built‑in initial values (indices 0..14 correspond to a(1)..a(15)) */
 static const seq_t init[15] = {
@@ -51,7 +53,7 @@ static void ensure_cache_cap(size_t needed) {
     if (cache_cap < needed) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         if (new_cap < needed) new_cap = needed;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 9904, u32 n <= 9904, u64 n <= 9904,
- *            u128 n <= 9904, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1, u16 n <= 35983, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 54 terms through n = 9904 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* cache[0] unused, cache[1..] holds a(1..). */
 static size_t cache_len = 0;      /* highest n computed so far. */
@@ -57,7 +59,7 @@ static inline seq_t get_val(int64_t pos)
         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
         if (new_cap < needed)
             new_cap = needed;
-        void *tmp = realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp)                /* allocation failed */
             return (seq_t)0;
         cache = (seq_t *)tmp;    /* cast safe in C and C++ */

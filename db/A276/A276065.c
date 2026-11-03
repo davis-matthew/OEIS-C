@@ -8,13 +8,15 @@
  * Formula:   a(n) = Sum_{v=1}^{⌊n/5⌋} 2 * ⌊(n-4v)/2⌋ * C(n-4v-2, v-1)
  * Range:     u8 n <= 19, u16 n <= 37, u32 n <= 74, u64 n <= 150,
  *            u128 n <= 306, big any n
+ * Validated: standard, pass, 64 terms through n = 860 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/gcd.h"          /* seq_t gcd(seq_t a, seq_t b) */
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 static seq_t binom(idx_t n, idx_t k)
 {

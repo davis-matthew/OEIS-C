@@ -9,15 +9,17 @@
  *            count)
  * Range:     u8 n <= 68, u16 n <= 8990, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   popcount_uint, pow2_of
+ * Validated: standard, pass, 76 terms through n = 9175 (2026-11-03)
+ * Helpers:   mem, popcount_u32, pow2_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/popcount_uint.h"
-#include "../utils/pow2_of.h"
+#include "../utils/popcount_u32.h"
+#include "../utils/pow2_i32.h"
+#include "../utils/mem.h"
 
 static idx_t max_n = 0;          /* highest n for which data is ready */
 static seq_t *cum = NULL;        /* cumulative sums a(k) */
@@ -31,7 +33,7 @@ static void ensure_precompute(idx_t n)
 
     size_t sz = (size_t)(n + 1);
     idx_t *new_spf = (idx_t *)realloc(spf, sz * sizeof(idx_t));
-    seq_t *new_cum = (seq_t *)realloc(cum, sz * sizeof(seq_t));
+    seq_t *new_cum = mem_resize(seq_t, cum, sz);
     if (!new_spf || !new_cum)          /* allocation failed – keep old data */
         return;
     spf = new_spf;
@@ -65,8 +67,8 @@ static void ensure_precompute(idx_t n)
                 x /= p;
                 ++exp;
             } while (x % p == 0);
-            int pc = popcount_uint((unsigned int)exp);
-            val *= pow2_of(pc);
+            int pc = popcount_u32((unsigned int)exp);
+            val *= pow2_i32(pc);
         }
         cum[i] = cum[i - 1] + val;
     }

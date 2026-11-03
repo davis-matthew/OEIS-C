@@ -7,18 +7,22 @@
  * Formula:   a(n) = Σ_{d|n} (n/d)^d * binomial(d+3,3)
  * Range:     u8 n <= 5, u16 n <= 17, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"    /* big_pow(seq_t base, seq_t exp) */
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 static inline seq_t term_for_divisor(idx_t n, idx_t d)
 {
     seq_t base   = (seq_t)n / (seq_t)d;                 /* (n/d) */
-    seq_t pow_val= big_pow(base, (seq_t)d);             /* (n/d)^d */
+    seq_t pow_val= ipow(base, (seq_t)d);             /* (n/d)^d */
     seq_t bin_val= binomial((idx_t)d + 3, 3);           /* C(d+3,3) */
     return pow_val * bin_val;
 }

@@ -7,12 +7,41 @@
  * Formula:   a(n) = sigma(n)*sigma(n+1)/gcd(sigma(n+1), sigma(n))^2
  * Range:     u8 n <= 13, u16 n <= 142, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sigma_of_idx
+ * Validated: standard, pass, 75 terms through n = 9955 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sigma_of_idx.h"
+/* Compute the sum of divisors of n.  n ≥ 1. */
+static seq_t sigma_of_idx(idx_t n)
+{
+    if (n == 0) return 0;          /* unused, but keeps the compiler happy */
+
+    seq_t result = 1;
+    idx_t m = n;
+
+    for (idx_t p = 2; p * p <= m; ++p) {
+        if (m % p == 0) {
+            /* compute the factor (p^(e+1)-1)/(p-1) without overflow */
+            seq_t term = 1;
+            seq_t pow  = 1;
+            while (m % p == 0) {
+                m   /= p;
+                pow  *= (seq_t)p;
+                term += pow;
+            }
+            result *= term;
+        }
+    }
+
+    /* if a prime factor larger than sqrt(n) remains */
+    if (m > 1) {
+        result *= (seq_t)1 + (seq_t)m;
+    }
+
+    return result;
+}
 
 /* Euclidean algorithm on seq_t.  Works for any sized unsigned type. */
 static seq_t gcd_seq_t(seq_t a, seq_t b)

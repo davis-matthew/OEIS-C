@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   has06_uint64
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has06_uint64.h"
+#include "../utils/mem.h"
+
+/* Check whether an unsigned integer (64‑bit) contains the substring 06. */
+static bool has06_uint64(uint64_t x)
+{
+    uint8_t prev = 10;                 /* sentinel value >9 */
+    while (x > 0) {
+        uint8_t d = x % 10;
+        if (d == 0 && prev == 6)       /* low→high scan sees “06” as “60” */
+            return true;
+        prev = d;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Cached sequence values.  Static state allows unordered calls. */
 static seq_t *cache = NULL;
@@ -39,7 +54,7 @@ seq_t a(idx_t n)
         /* Store the found term into the cache. */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)                /* allocation failure – stop execution */
                 abort();
             cache = tmp;

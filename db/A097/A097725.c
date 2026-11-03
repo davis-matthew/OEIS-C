@@ -8,12 +8,14 @@
  *            in the recurrence)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 479 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached terms so that each term is computed at most once. */
 static seq_t   *a_cache   = NULL;     /* array of computed a(n) values */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
      */
     if (cache_len == 0) {
         /* Allocate space for the first two terms. */
-        a_cache = (seq_t *)realloc(a_cache, 2 * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, 2);
         a_cache[0] = 1;           /* a(0)   = 1 */
         a_cache[1] = 102;         /* a(1)   = 102*1 - a(-1) = 102 */
         cache_len = 2;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     /* Extend the cache up to the requested index, if necessary. */
     if (limit + 1 > cache_len) {
-        a_cache = (seq_t *)realloc(a_cache, (limit + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (limit + 1));
         /* Compute new terms iteratively.  For i ≥ 2 we use the recurrence. */
         for (i = cache_len; i <= limit; ++i) {
             if (i == 0) {

@@ -12,14 +12,21 @@
  *            digit d and a_{k+1}(d) = Σ_{e: |e-d|≤2...
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 26, u128 n <= 54,
  *            big any n
- * Helpers:   seq_alloc_array
+ * Validated: standard, pass, 37 terms through n = 914 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc_array.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *sum_cache = NULL;        /* cache for a(n) */
 static size_t cache_max = 0;           /* largest n cached */

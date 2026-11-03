@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, easy, look, tabl
  * Formula:   not stated
- * Range:     u8 n <= 100, u16 n <= 8673, u32 n <= 8673, u64 n <= 8673,
- *            u128 n <= 8673, big any n
- * Helpers:   digits_of, pow10
+ * Range:     u8 n <= 100, u16 n <= 11475, u32 n <= 11475, u64 n <= 11475,
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 94 terms through n = 8673 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,19 @@
    row * 10^{digits(col)} + col, where digits(0)=1. */
 
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/digits_of.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Find the diagonal index d for a given n */
 static inline idx_t diagonal_of(idx_t n)
@@ -60,7 +72,7 @@ seq_t a(idx_t n)
     idx_t col  = offset;                   /* j */
 
     seq_t base = (seq_t)row;
-    seq_t pow  = pow10(digits_of(col));
+    seq_t pow  = pow10(num_digits_idx(col));
     seq_t val  = base * pow + (seq_t)col;
     return val;
 }

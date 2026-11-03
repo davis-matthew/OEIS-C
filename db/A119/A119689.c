@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _smallest_prime_factor, gpf, is_prime_small
+ * Validated: standard, pass, 75 terms through n = 792 (2026-11-03)
+ * Helpers:   is_prime_seq, largest_prime_factor, mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/gpf.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* Return the n-th term of A119689 (offset 1). */
 seq_t a(idx_t n)
@@ -40,16 +42,16 @@ seq_t a(idx_t n)
 
         /* Skip 0 and 1, they have no prime divisors. */
         if (cand >= 2) {
-            uint64_t spf = _smallest_prime_factor(cand);
+            uint64_t spf = smallest_prime_factor(cand);
             if (spf == 0)  /* cand is prime */
                 spf = cand;
-            uint64_t lpf = gpf(cand);
+            uint64_t lpf = largest_prime_factor(cand);
 
             /* Check if the sum of the distinct prime divisors is prime. */
-            if (is_prime_small((seq_t)spf + (seq_t)lpf)) {
+            if (is_prime_seq((seq_t)spf + (seq_t)lpf)) {
                 if (len == cap) {
                     cap = cap ? (cap << 1) : 8;
-                    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cap);
                 }
                 cache[len++] = (seq_t)cand;
             }

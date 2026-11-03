@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 370 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation of computed values */
 static seq_t *cache = NULL;      /* array of cached terms             */
@@ -35,8 +37,7 @@ static idx_t max_computed = 0;   /* next index that has not been computed */
 static void ensure_cache_size(idx_t needed)
 {
     if (needed > cache_cap) {
-        seq_t *new_cache = (seq_t *)realloc(cache,
-                                            (size_t)needed * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)needed);
         if (!new_cache) abort();          /* critical failure – terminate */
         cache = new_cache;
         cache_cap = needed;

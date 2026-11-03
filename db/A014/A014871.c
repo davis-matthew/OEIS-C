@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   _divides_s, _gcd_idx
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,28 @@
     The function returns the n‑th such k (1‑based). */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_divides_s.h"
-#include "../utils/_gcd_idx.h"
+#include <stdbool.h>
+#include "../utils/gcd_idx.h"
+
+/* Test whether k divides s(k).  Uses the equivalence: k | s(k)
+   ⇔ s(k-1) ≡ 0 (mod k / gcd(k,20)). */
+static inline int _divides_s(idx_t k)
+{
+    if (k == 1) return 1;                  /* s(1) = 1 is divisible by 1 */
+
+    idx_t g = gcd_idx(k, (idx_t)20);
+    idx_t m = k / g;                       /* modulus to test */
+
+    if (m == 1) return 1;                  /* always satisfied */
+
+    idx_t rem = 1 % m;                     /* s(1) modulo m */
+    for (idx_t j = 2; j <= k-1; ++j) {
+        /* rem = (20*rem + j) mod m */
+        unsigned __int128 tmp = (unsigned __int128)rem * 20 + j;
+        rem = (idx_t)(tmp % m);
+    }
+    return rem == 0;
+}
 
 /* --------------------------------------------------------------------- */
 /* Helper: greatest common divisor for idx_t (uint64_t). */

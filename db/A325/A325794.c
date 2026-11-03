@@ -7,12 +7,15 @@
  * Formula:   a(n) = A000005(n) - A056239(n)
  * Range:     i8 n <= 738, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 85 terms through n = 8347 (2026-11-01)
  * Helpers:   factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/prime_pi.h"
 

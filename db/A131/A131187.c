@@ -8,20 +8,22 @@
  * Formula:   a(n) = n + 2 - d(n) - d(n+1)
  * Range:     u8 n <= 261, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 90 terms through n = 9294 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* d(n) – number of positive divisors of n */
 
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
     /* number of divisors of n and n+1 */
-    seq_t dn  = (seq_t)divisor_count_u64(n);
-    seq_t dn1 = (seq_t)divisor_count_u64(n + 1);
+    seq_t dn  = (seq_t)num_divisors(n);
+    seq_t dn1 = (seq_t)num_divisors(n + 1);
 
     /* compute a(n) using the formula */
     return (seq_t)n + (seq_t)2 - dn - dn1;

@@ -7,14 +7,30 @@
  * Formula:   a(n) = binomial(2*binomial(2*n,n-1),binomial(2*n,n-1)-1)
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   binom_big, binom_uint64
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
+ * Helpers:   binomial_u64_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_big.h"
-#include "../utils/binom_uint64.h"
+#include "../utils/binomial_u64_to_seq.h"
+
+static seq_t binom_big(seq_t m, seq_t k)
+{
+    if (k > m) return 0;
+    /* use symmetry to reduce k */
+    if (k > m - k) k = m - k;
+    /* if k fits into uint64_t, iterate */
+    if (k > (seq_t)UINT64_MAX) return 0; /* too large to compute iteratively */
+    seq_t res = 1;
+    for (idx_t i = 1; i <= (idx_t)k; ++i)
+    {
+        res = res * (m - k + (seq_t)i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

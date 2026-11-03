@@ -12,14 +12,17 @@
  *            parts over all partitions of i For each s in S: dp[i] += dp[i...
  * Range:     u8 n <= 18, u16 n <= 49, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   build_primes
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* number of partitions */
 static seq_t *parts = NULL;       /* total number of parts */
@@ -31,8 +34,8 @@ static idx_t current_limit = 0;   /* largest n for which dp/parts are valid */
 static void recompute(idx_t new_limit)
 {
     /* Resize dp and parts arrays */
-    dp     = (seq_t*)realloc(dp,     (new_limit + 1) * sizeof(seq_t));
-    parts  = (seq_t*)realloc(parts,  (new_limit + 1) * sizeof(seq_t));
+    dp     = mem_resize(seq_t, dp, (new_limit + 1));
+    parts  = mem_resize(seq_t, parts, (new_limit + 1));
 
     /* Initialise arrays */
     for (idx_t i = 0; i <= new_limit; ++i) {

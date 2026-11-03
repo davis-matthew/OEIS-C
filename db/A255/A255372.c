@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 20, u128 n <= 39,
  *            big any n
- * Helpers:   pow10
+ * Validated: standard, pass, 37 terms through n = 944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
             a(n)=9*(10^(n-3)-a(n-3)+∑_{i=2}^{n-1}a(i))   for n≥3.   */
 
 #include <stdlib.h>
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t *a_cache = NULL;          /* array of a(i) values */
 static seq_t *pref_cache = NULL;      /* prefix sums: pref[i] = Σ_{k=0}^{i} a(k) */
@@ -33,8 +45,8 @@ static void ensure_cache_n(idx_t n)
     if (!initialized) {
         /* Allocate an initial capacity sufficient for indices 0..2. */
         cache_cap = 3;
-        a_cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-        pref_cache  = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        a_cache     = mem_new(seq_t, cache_cap);
+        pref_cache  = mem_new(seq_t, cache_cap);
         /* Initial conditions: a(0)=0, a(1)=0, a(2)=1 */
         a_cache[0] = (seq_t)0;
         pref_cache[0] = a_cache[0];
@@ -51,8 +63,8 @@ static void ensure_cache_n(idx_t n)
     /* Grow the allocated capacity if necessary. */
     while (cache_cap <= n) {
         size_t new_cap = cache_cap * 2;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-        pref_cache = (seq_t *)realloc(pref_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        pref_cache = mem_resize(seq_t, pref_cache, new_cap);
         cache_cap = new_cap;
     }
 

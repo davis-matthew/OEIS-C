@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 1171, u16 n <= 9306, u32 n <= 9306, u64 n <= 9306,
- *            u128 n <= 9306, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1171, u16 n <= 131072, u32 n <= 131072, u64 n <= 131072,
+ *            u128 n <= 131072, big any n
+ * Validated: standard, pass, 92 terms through n = 9306 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    (popcount = number of 1's in binary representation of n) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* dynamic array of computed values   */
 static idx_t  computed = 0;   /* number of entries currently computed (>=1 when cache[0] is valid) */
@@ -29,7 +31,7 @@ static void ensure_computed(idx_t n) {
     if (computed == 0) {
         if (allocated == 0) {
             allocated = 1;
-            cache = (seq_t *)malloc(allocated * sizeof(seq_t));
+            cache = mem_new(seq_t, allocated);
             if (!cache) abort();           /* allocation failed */
         }
         cache[0] = 0;                      /* a(0)=0 */
@@ -40,7 +42,7 @@ static void ensure_computed(idx_t n) {
     if (n + 1 > allocated) {
         idx_t new_alloc = allocated ? allocated << 1 : 1;
         while (new_alloc <= n) new_alloc <<= 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_alloc);
         if (!new_cache) abort();
         cache = new_cache;
         allocated = new_alloc;

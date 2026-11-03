@@ -11,7 +11,8 @@
  *            a(n-28) for n > 27. The first 28 terms are ob...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 15, u64 n <= 31, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdint.h>   /* uint64_t */
 #include <stdlib.h>   /* malloc, realloc, free, exit */
+#include "../utils/mem.h"
 
 /* helper definitions --------------------------------------------------- */
 static seq_t *cache = NULL;      /* cache of computed terms */
@@ -36,8 +38,7 @@ ensure_capacity(idx_t need)
         if (new_cap <= (size_t)need + 1)
             new_cap = (size_t)need + 1;
 
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             exit(EXIT_FAILURE);   /* out of memory */
         cache = tmp;

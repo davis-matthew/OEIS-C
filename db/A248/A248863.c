@@ -11,14 +11,16 @@
  *            least‑significant bit
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 108, u64 n <= 108,
  *            u128 n <= 108, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 108 terms through n = 108 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 static const char pi_digits[] =
     "314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706792148086513282306647093844609550582231725359408128481117450284102701939852110555964462294895493038196442881097566593344612";
@@ -47,7 +49,7 @@ static void ensure_bit_capacity(size_t need)
 /* Append binary bits of 'val' (MSB first) to bit_buffer. */
 static void append_bits(seq_t val)
 {
-    unsigned bitlen = bitlen_seq_t(val);
+    unsigned bitlen = bit_length(val);
     for (int i = (int)bitlen - 1; i >= 0; --i) {
         seq_t mask = ((seq_t)1) << i;
         unsigned bit = (val & mask) ? 1 : 0;

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10, u32 n <= 21, u64 n <= 43, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Base values for indices 1..8 */
 static const seq_t base[9] = {
@@ -46,16 +48,16 @@ seq_t a(idx_t n)
     if (!cache) {
         /* Allocate space for indices 0..8 */
         cache_cap = 8;
-        cache = (seq_t *)malloc((cache_cap + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_cap + 1));
         if (!cache) return 0;       /* allocation failed */
-        memcpy(cache, base, (cache_cap + 1) * sizeof(seq_t));
+        mem_copy(cache, base, (cache_cap + 1) * sizeof(seq_t));
         /* cache[0] is already zeroed by malloc */
     }
 
     /* Grow the cache if the requested index is beyond the current maximum */
     if ((size_t)n > cache_cap) {
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) return 0;   /* realloc failed */
         /* Initialise the newly allocated region (optional, not needed for recurrence) */
         cache = tmp;

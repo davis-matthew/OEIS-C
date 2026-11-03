@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 78, u32 n <= 347, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_log2_u64
+ * Validated: standard, pass, 71 terms through n = 917 (2026-11-03)
+ * Helpers:   ilog2_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,14 +25,15 @@
  * 13·10 001 entries – easily within the limits.
  */
 #include <stdlib.h>
-#include "../utils/floor_log2_u64.h"
+#include "../utils/ilog2_idx.h"
+#include "../utils/mem.h"
 
 /* Exported sequence (sequence number 097355) */
 seq_t
 a(idx_t n)
 {
     /* Compute the maximum part allowed for this n. */
-    idx_t m = floor_log2_u64(n);
+    idx_t m = ilog2_idx(n);
 
     /* Static storage of the DP table.  All dimensions are kept for
      * use on subsequent calls. */
@@ -48,7 +50,7 @@ a(idx_t n)
         idx_t  stride = new_m + 1;
         size_t size   = (size_t)(new_n + 1) * (size_t)stride;
 
-        seq_t *new_dp = (seq_t *)realloc(dp, size * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, size);
         if (!new_dp)          /* out of memory – return 0 as a safe
                                * fallback (unlikely in the judge). */
             return (seq_t)0;

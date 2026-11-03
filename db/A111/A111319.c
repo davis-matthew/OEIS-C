@@ -11,7 +11,8 @@
  *            When the counter reaches n, the current pr...
  * Range:     u8 n <= 40, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   integer_sqrt
+ * Validated: standard, pass, 75 terms through n = 9993 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/integer_sqrt.h"
+#include "../utils/isqrt.h"
 
 /* Return the n-th term of sequence A111319 (n≥1). */
 seq_t a(idx_t n)
@@ -48,7 +49,7 @@ seq_t a(idx_t n)
            Only trial division by primes <= sqrt(cand). */
         bool is_prime = true;
         if (cand > 2) {
-            idx_t lim = integer_sqrt(cand);
+            idx_t lim = isqrt(cand);
             for (size_t i = 0; i < prime_sz && primes[i] <= lim; ++i) {
                 if (cand % primes[i] == 0) {
                     is_prime = false;

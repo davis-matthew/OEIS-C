@@ -9,7 +9,8 @@
  *            entries of row n of Pascal's triangle)
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, v_p_uint
+ * Validated: standard, pass, 91 terms through n = 9757 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 #include <limits.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/v_p_uint.h"
+
+/* Return the exponent of prime p in the factorization of x (x>0). */
+static unsigned int v_p_uint(uint64_t x, uint64_t p)
+{
+    unsigned int v = 0;
+    while (x % p == 0) {
+        ++v;
+        x /= p;
+    }
+    return v;
+}
 
 seq_t a(idx_t n)
 {

@@ -13,14 +13,25 @@
  *            T(0, 0)
  * Range:     i8 n <= 12, i16 n <= 39, i32 n <= 113, i64 n <= 394,
  *            i128 n <= 1274, big any n
- * Helpers:   binomial, pow4_const
+ * Validated: standard, pass, 70 terms through n = 1204 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow4_const.h"
+
+/* Compute 4^exp for an unsigned exp, using a simple
+   repeated‑multiplication loop. Works for exp <= 10000. */
+static inline seq_t
+pow4_const(idx_t exp)
+{
+    seq_t r = 1;
+    for (idx_t i = 0; i < exp; ++i) r *= 4;
+    return r;
+}
 
 /* Integer square root for an unsigned 64‑bit integer.
    The function returns floor(sqrt(x)). */

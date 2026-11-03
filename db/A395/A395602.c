@@ -11,7 +11,8 @@
  *            sum below
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 41, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   binomial, index_to_ak
+ * Validated: partial, pass, 45 terms through n = 46 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,32 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
-#include "../utils/index_to_ak.h"
+#include "../utils/mem.h"
+
+/*  Convert global index (n≥2) into (row, col) using antidiagonal
+    rules: diagonals with sum s=n+k start at s=3.
+    For a given s the entries are ordered with increasing n
+    (i.e., decreasing k). */
+static void index_to_ak(idx_t idx, idx_t *row, idx_t *col)
+{
+    /* idx is the overall index (>=2) */
+    idx_t offset = idx - 2;            /* zero‑based within the enumeration */
+
+    /* Find smallest s such that (s‑1)(s‑2)/2 > offset */
+    idx_t s = 3;
+    idx_t cum = 0;                     /* cumulative count up to previous diagonal */
+    while (true) {
+        idx_t next = s - 1;
+        idx_t diag_count = next - 1;    /* s-2 elements in current diagonal */
+        if (cum + diag_count > offset) break;
+        cum += diag_count;
+        ++s;
+    }
+    /* position inside current diagonal */
+    idx_t pos = offset - cum;          /* 0‑based; 0 ≤ pos < s-2 */
+    *row = 2 + pos;                    /* n */
+    *col = s - *row;                   /* k = s - n */
+}
 
 /* ------------------------------------------------------------------ */
 /*  Signed binomial: C(top,k) where top may be negative.
@@ -129,7 +155,7 @@ seq_t a(idx_t n)
     if (n >= a_cache_size) {
         /* grow cache up to n */
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, a_cache, new_size);
         if (!new_cache) { /* allocation failed; fall back to single computation */
             return single_a(n);
         }

@@ -9,12 +9,18 @@
  *            <= 8), and a(n) = 81*a(n-5) for n >= 21
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 26, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   a005348_h
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a005348_h.h"
+static seq_t a005348_h(idx_t k) {
+    seq_t p = (seq_t)1;
+    idx_t i;
+    for (i = 1; i < k; i++) p = p * 2;
+    return (seq_t)k * p + 1;
+}
 
 seq_t a(idx_t n) {
     seq_t b[32];

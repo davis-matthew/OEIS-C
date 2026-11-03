@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 17, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   binomial_mult
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
                  binom(n+1-j,3j+3k+1) * (-1)^k * 2^(n-4j-3k) */
 
 #include <stdlib.h>
-#include "../utils/binomial_mult.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* cache for powers of two up to the largest exponent needed */
 static seq_t *pow2_cache = NULL;
@@ -28,7 +30,7 @@ static void ensure_pow2(idx_t max_exp)
 {
     if (max_exp < pow2_cap) return;
     size_t new_cap = (size_t)max_exp + 1;
-    seq_t *new_cache = (seq_t *)realloc(pow2_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, pow2_cache, new_cap);
     if (pow2_cap == 0) {
         new_cache[0] = (seq_t)1;
         pow2_cap = 1;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     idx_t max_j = n / 4;
 
     for (idx_t j = 0; j <= max_j; ++j) {
-        seq_t Cn1j = binomial_mult(n + 1, j);
+        seq_t Cn1j = binomial(n + 1, j);
 
         idx_t m = n + 1 - j;               /* for second binomial */
         idx_t r0 = 3 * j + 1;              /* initial r = 3j+1  */

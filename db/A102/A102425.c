@@ -13,7 +13,8 @@
  *            popcount total * For each part size p we update th...
  * Range:     u8 n <= 19, u16 n <= 47, u32 n <= 134, u64 n <= 428,
  *            u128 n <= 1000, big any n
- * Helpers:   popcnt_parity
+ * Validated: standard, pass, 64 terms through n = 861 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/popcnt_parity.h"
+
+/* Popcount parity: 0 if the number of 1‑bits is even, 1 otherwise. */
+static int popcnt_parity(uint64_t x)
+{
+#if defined(__GNUC__) || defined(__clang__)
+    return __builtin_popcountll(x) & 1;
+#else
+    x ^= x >> 32;
+    x ^= x >> 16;
+    x ^= x >> 8;
+    x ^= x >> 4;
+    x ^= x >> 2;
+    x ^= x >> 1;
+    return x & 1;
+#endif
+}
 
 /* External linkage function required by the build. */
 seq_t a(idx_t n)

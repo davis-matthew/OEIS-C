@@ -9,9 +9,10 @@
  *            smallest value repeatedly. Each stream increases its x
  *            coordinate and produces the next value of the quadratic for that
  *            y. Primes are collected in order of appearance
- * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 50, u64 n <= 50, u128 n <= 50,
- *            big any n
- * Helpers:   isprime_big
+ * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 9746 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
   ====================================================================*/
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isprime_big.h"
+#include <stdint.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /*======================================================================
   Stream structure – one entry per y
@@ -44,7 +47,7 @@ static void heap_ensure_cap(size_t need)
     if (heap_cap < need) {
         size_t new_cap = heap_cap ? heap_cap * 2 : 16;
         if (new_cap < need) new_cap = need;
-        heap = (Stream *)realloc(heap, new_cap * sizeof(Stream));
+        heap = mem_resize(Stream, heap, new_cap);
         heap_cap = new_cap;
     }
 }
@@ -91,7 +94,7 @@ static void add_prime(seq_t p)
 {
     if (primes_size == primes_cap) {
         size_t new_cap = primes_cap ? primes_cap * 2 : 16;
-        primes = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+        primes = mem_resize(seq_t, primes, new_cap);
         primes_cap = new_cap;
     }
     primes[primes_size++] = p;
@@ -137,7 +140,7 @@ seq_t a(idx_t n)
         Stream cur = heap_pop();
 
         /* Test current value for primality */
-        if (isprime_big(cur.val)) {
+        if (is_prime_seq(cur.val)) {
             if (primes_size == 0 || cur.val != primes[primes_size - 1])
                 add_prime(cur.val);
         }

@@ -9,8 +9,9 @@
  *            divisors of n congruent to 1 mod 3, d2(n) is the number of
  *            divisors of n congruent to 2 mod 3. Derived from the
  *            representation j^2 + j*k + k^2 = n
- * Range:     i8 n <= 8859, i16 n <= 8859, i32 n <= 8859, i64 n <= 8859,
- *            i128 n <= 8859, big any n
+ * Range:     i8 n <= 16384, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 91 terms through n = 8859 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

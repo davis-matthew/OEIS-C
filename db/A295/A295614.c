@@ -12,7 +12,8 @@
  *            complementary sequences
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for sequences */
 static seq_t *a_seq = NULL;
@@ -31,7 +33,7 @@ static size_t b_cap = 0, b_len = 0;
 static void grow_seq(seq_t **arr, size_t *cap, size_t need) {
     if (*cap >= need) return;
     *cap = (*cap == 0) ? 4 : (*cap << 1);
-    *arr = (seq_t *)realloc(*arr, *cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
 }
 
 /* binary search for val in a_seq[0..limit-1] */
@@ -52,8 +54,8 @@ seq_t a(idx_t n) {
     /* Initialise on first call */
     if (a_seq == NULL) {
         a_cap = 16; b_cap = 16;
-        a_seq = (seq_t *)malloc(a_cap * sizeof(seq_t));
-        b_seq = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        a_seq = mem_new(seq_t, a_cap);
+        b_seq = mem_new(seq_t, b_cap);
         /* base values */
         a_seq[0] = (seq_t)1;
         a_seq[1] = (seq_t)3;

@@ -8,7 +8,8 @@
  * Formula:   a(n) = 3^(n - A007949(n)) - (-1)^n
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 21, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   _v3_of, pow3
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
+ * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,17 @@
 /* Here A007949(n) is the exponent of 3 dividing n.             */
 /* The function uses the provided pow3(idx_t exp) to compute 3^exp. */
 
+#include <stdint.h>
 #include "../utils/pow3.h"
-#include "../utils/_v3_of.h"
+
+static inline idx_t _v3_of(idx_t n) {
+    idx_t v = 0;
+    while (n % 3 == 0) {
+        ++v;
+        n /= 3;
+    }
+    return v;
+}
 
 seq_t a(idx_t n) {
     /* n ≥ 1 */

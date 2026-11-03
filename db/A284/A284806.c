@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   pow7_int
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,14 @@
  * time where L is the number of base‑7 digits (≤10 for n ≤ 10 000). */
 
 #include <stdint.h>
-#include "../utils/pow7_int.h"
+
+static seq_t pow7_int(idx_t exp)
+{
+    seq_t r = 1;
+    for (idx_t i = 0; i < exp; ++i)
+        r *= 7;
+    return r;
+}
 
 seq_t a(idx_t n)
 {

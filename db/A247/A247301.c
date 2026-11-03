@@ -11,13 +11,15 @@
  *            a(9)=1, a(10)=2, a(11)=2, a(12)=2, a(13)=4, a(14)=3
  * Range:     u8 n <= 36, u16 n <= 66, u32 n <= 123, u64 n <= 240,
  *            u128 n <= 474, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of OEIS A247301 */
 seq_t a(idx_t n)
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* On first call, allocate cache and copy the initial terms */
     if (cache_len == 0) {
         cache_len = init_len;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return 0;
         for (size_t i = 0; i < init_len; ++i) cache[i] = init[i];
     }
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_len) {
         /* new length should be exactly n+1 (since n is unsigned) */
         size_t new_len = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) return 0;  /* allocation failed */
         cache = new_cache;
         /* compute new terms from current len up to n */

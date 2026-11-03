@@ -7,15 +7,17 @@
  * Formula:   a(n) = Sum_{k=1..n} prime(k)^17
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 6, u128 n <= 40,
  *            big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: standard, pass, 28 terms through n = 998 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
      * ------------------------------------------------------------------ */
     for (idx_t i = current_n + 1; i <= n; ++i) {
         seq_t p   = (seq_t)primes[(size_t)i - 1]; /* prime(i) */
-        seq_t pow = big_pow(p, (seq_t)17);         /* prime(i)^17 */
+        seq_t pow = ipow(p, (seq_t)17);         /* prime(i)^17 */
         cum[(size_t)i] = cum[(size_t)i - 1] + pow;
     }
     current_n = n;

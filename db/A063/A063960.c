@@ -10,13 +10,15 @@
  *            the primes that occur with exponent ≥ 2 in n!)
  * Range:     u8 n <= 85, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  STORE
  *  The limits and temporary arrays are kept static so that repeated calls
@@ -34,12 +36,12 @@ static void sieve_up_to(idx_t limit)
 
     /* free old storage if present (small number of reallocs for the test data) */
     if (is_comp)    free(is_comp);
-    if (prime_cum)  free(prime_cum);
+    if (prime_cum)  mem_free(prime_cum);
 
     /* allocate new storage */
     is_comp  = (bool *)calloc((size_t)(limit + 1), sizeof(bool));
     if (!is_comp) exit(1);                   /* abort on allocation failure */
-    prime_cum = (seq_t *)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    prime_cum = mem_new(seq_t, (size_t)(limit + 1));
     if (!prime_cum) exit(1);
 
     /* simple Eratosthenes sieve */

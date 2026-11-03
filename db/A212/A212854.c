@@ -10,13 +10,16 @@
  *            1*5040^n (offset 1, so a(1) is the first term above)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 5, u128 n <= 10,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 25 terms through n = 185 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < count; ++i)
     {
         /* Compute base^n. */
-        seq_t pow_val = big_pow((seq_t)bases[i], exp);
+        seq_t pow_val = ipow((seq_t)bases[i], exp);
 
         /* Apply the signed coefficient.  Avoid overflow by building
            the signed product in two steps: multiply by the absolute

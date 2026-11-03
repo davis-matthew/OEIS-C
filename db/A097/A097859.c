@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 84 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Helpers for prime generation */
 static uint64_t *prime_list = NULL;
@@ -99,7 +101,7 @@ static void ensure_triangle_up_to(idx_t target_m)
 {
     if (triangle == NULL) {
         /* initial allocation for row 0 */
-        triangle = (seq_t *)malloc(sizeof(seq_t));
+        triangle = mem_new(seq_t, 1);
         triangle[0] = (seq_t)2;
         max_m = 0;
     }
@@ -110,7 +112,7 @@ static void ensure_triangle_up_to(idx_t target_m)
     unsigned __int128 new_size128 = (unsigned __int128)(target_m + 1) * (target_m + 2) / 2;
     size_t new_size = (size_t)new_size128;
 
-    triangle = (seq_t *)realloc(triangle, new_size * sizeof(seq_t));
+    triangle = mem_resize(seq_t, triangle, new_size);
 
     /* Compute new rows */
     for (idx_t m = max_m + 1; m <= target_m; ++m) {

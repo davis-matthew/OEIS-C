@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{i=1..n} prime(i)^2 Initial condition: a(1) = 2^2 = 4
  * Range:     u8 n <= 5, u16 n <= 24, u32 n <= 637, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 4732 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ========= static storage ========= */
 static uint32_t *primes      = NULL;   /* primes[0] = 2 */
@@ -73,8 +75,8 @@ static void ensure_cache(idx_t n)
     size_t capacity = sum_cache ? cache_size * 2 : 16;
     while (capacity < required)
         capacity <<= 1;
-    seq_t *tmp = (seq_t *)realloc(sum_cache, capacity * sizeof(seq_t));
-    if (!tmp) { free(sum_cache); exit(1); }
+    seq_t *tmp = mem_resize(seq_t, sum_cache, capacity);
+    if (!tmp) { mem_free(sum_cache); exit(1); }
     sum_cache = tmp;
 
     /* Compute missing cumulative sums */

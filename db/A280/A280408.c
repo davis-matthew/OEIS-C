@@ -11,7 +11,8 @@
  *            order * they first appear
  * Range:     u8 n <= 98, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 103 terms through n = 9952 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_seq = NULL;    /* array of primes collected so far */
 static size_t prime_len = 0;       /* number of primes stored                */
@@ -31,7 +33,7 @@ static idx_t next_n = 1;           /* next integer whose row is to be computed *
 static void append_prime(seq_t p) {
     if (prime_len == prime_cap) {
         size_t new_cap = (prime_cap == 0) ? 16 : prime_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(prime_seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_seq, new_cap);
         if (!tmp) abort();
         prime_seq = tmp;
         prime_cap = new_cap;

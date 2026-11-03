@@ -7,8 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 896, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, big_pow, build_primes_upto, cmp_seq_t,
- *            isPrimeGeneric, seq_mul
+ * Validated: standard, pass, 79 terms through n = 9614 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow, is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,12 +22,65 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/append_candidate.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/cmp_seq_t.h"
+#include <string.h>
+#include <limits.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* Node representing a prime power p^e */
 typedef struct {
@@ -52,7 +105,7 @@ static void heap_push(Node v)
 {
     if (heap_size == heap_cap) {
         heap_cap = heap_cap ? heap_cap * 2 : 8;
-        heap = (Node *)realloc(heap, heap_cap * sizeof(Node));
+        heap = mem_resize(Node, heap, heap_cap);
     }
     size_t i = heap_size++;
     while (i > 0) {
@@ -102,7 +155,7 @@ seq_t a(idx_t n)
 
         /* Allocate and fill the heap with the first powers (p^1). */
         heap_cap  = prime_cnt;
-        heap      = (Node *)malloc(heap_cap * sizeof(Node));
+        heap      = mem_new(Node, heap_cap);
         heap_size = 0;
         for (size_t i = 0; i < prime_cnt; ++i)
             heap_push((Node){(seq_t)primes[i], primes[i], 1});
@@ -122,7 +175,7 @@ seq_t a(idx_t n)
 
         /* σ(p^(2e)) = (p^(2e+1)−1)/(p−1) */
         seq_t exp   = (seq_t)(2ULL * e + 1);
-        seq_t pow   = big_pow((seq_t)p, exp);
+        seq_t pow   = ipow((seq_t)p, exp);
         seq_t numer = pow - (seq_t)1;
         seq_t denom = (seq_t)(p - 1);
         seq_t sigma = numer / denom;

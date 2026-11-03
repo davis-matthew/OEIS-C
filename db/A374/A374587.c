@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_seq_t, max_exponent
+ * Validated: standard, pass, 103 terms through n = 9655 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,41 @@
    gcd(m, max_exponent(m)) > 1, and returns its maximum exponent.  */
 
 #include <stdbool.h>
-#include "../utils/gcd_seq_t.h"
-#include "../utils/max_exponent.h"
+#include "../utils/gcd.h"
+
+static inline seq_t max_exponent(idx_t n)
+{
+    seq_t maxe = 0;
+    idx_t temp = n;
+    idx_t exp = 0;
+
+    /* factor out powers of 2 */
+    while ((temp & 1ULL) == 0) {
+        exp++;
+        temp >>= 1;
+    }
+    if (exp > 0)
+        maxe = exp;
+
+    /* factor odd primes up to sqrt(temp) */
+    for (idx_t p = 3; p <= temp / p; p += 2) {
+        if (temp % p == 0) {
+            exp = 0;
+            while (temp % p == 0) {
+                exp++;
+                temp /= p;
+            }
+            if (exp > maxe)
+                maxe = exp;
+        }
+    }
+
+    if (temp > 1) {          /* remaining prime factor with exponent 1 */
+        if (maxe < 1)
+            maxe = 1;
+    }
+    return maxe;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +68,7 @@ seq_t a(idx_t n)
         if (e <= 1)            /* gcd(m,1)=1, skip */
             continue;
 
-        if (gcd_seq_t(m, e) > 1) {
+        if (gcd(m, e) > 1) {
             count++;
             if (count == n)
                 return e;

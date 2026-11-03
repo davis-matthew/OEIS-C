@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor( n / (log n * log log n) )
  * Range:     i8 n <= 99, i16 n <= 99, i32 n <= 99, i64 n <= 99, i128 n <= 99,
  *            big any n
+ * Validated: partial, pass, 98 terms through n = 99 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,12 +7,14 @@
  * Formula:   a(1)=4; a(2n)=a(2n-1)-4; a(2n+1)=a(2n)*(-2)
  * Range:     i8 n <= 14, i16 n <= 30, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (cache_len == 0) {
         cache_cap = 2;                      /* enough for indices 0 and 1 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;        /* out of memory – unlikely in tests */
         cache[0] = (seq_t)0;                /* unused */
         cache[1] = (seq_t)4;                /* a(1) */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap : 1;
         while (n >= new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;          /* out of memory */
         cache = tmp;
         cache_cap = new_cap;

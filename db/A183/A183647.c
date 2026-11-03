@@ -8,12 +8,15 @@
  * Formula:   a(n) = 5*5^n + 120*4^n + 540*3^n + 1140*2^n + 1320
  * Range:     u8 none, u16 n <= 3, u32 n <= 12, u64 n <= 26, u128 n <= 54,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 39 terms through n = 929 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,10 +24,10 @@ seq_t a(idx_t n)
     if (n == 0)
         return (seq_t)0;
 
-    seq_t pow5 = big_pow((seq_t)5, (seq_t)n);
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)n);
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)n);
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)n);
+    seq_t pow5 = ipow((seq_t)5, (seq_t)n);
+    seq_t pow4 = ipow((seq_t)4, (seq_t)n);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)n);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)n);
 
     seq_t res = 5 * pow5;
     res += 120 * pow4;

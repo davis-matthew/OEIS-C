@@ -10,13 +10,41 @@
  *            there is no closed formula
  * Range:     u8 n <= 2, u16 n <= 1367, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   luhn_checksum_mod10
+ * Validated: standard, pass, 70 terms through n = 9331 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/luhn_checksum_mod10.h"
+
+/* Compute Luhn checksum modulo 10 of a number given as seq_t.  The
+   returned value is in the range 0–9. */
+static inline unsigned luhn_checksum_mod10(seq_t x)
+{
+    seq_t sum = 0;
+    bool double_flag = false;  /* rightmost digit has weight 1 */
+
+    while (x > 0)
+    {
+        unsigned digit = (unsigned)(x % (seq_t)10);
+
+        if (double_flag)
+        {
+            unsigned doubled = digit * 2;
+            sum += (doubled > 9 ? doubled - 9 : doubled);
+        }
+        else
+        {
+            sum += digit;
+        }
+
+        double_flag = !double_flag;
+        x /= (seq_t)10;
+    }
+
+    return (unsigned)(sum % 10);
+}
 
 /* a(n) returns the n‑th index (1‑based) of A093019 whose term is 7. */
 seq_t a(idx_t n)

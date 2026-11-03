@@ -11,10 +11,13 @@
  *            3=(3,1), 4=(3,2), 5=(3,3)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 46, u128 n <= 93,
  *            big any n
- * Helpers:   seq_free
+ * Validated: standard, pass, 46 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 #if !defined(__cplusplus)
 # include <stddef.h>
@@ -24,16 +27,19 @@
 # include <cstddef>
 # include <cstdlib>
 # include <cstring>
-#include "../utils/seq_free.h"
+#include <stdbool.h>
+#include <stdint.h>
+
+static void seq_free(seq_t *p) { mem_free(p); }
 #endif
 
 static seq_t* seq_alloc(size_t cap) {
-    return (seq_t*)malloc(cap * sizeof(seq_t));
+    return mem_new(seq_t, cap);
 }
 
 static seq_t* seq_realloc(seq_t* p, size_t old_cap, size_t new_cap) {
     if (new_cap <= old_cap) return p;
-    return (seq_t*)realloc(p, new_cap * sizeof(seq_t));
+    return mem_resize(seq_t, p, new_cap);
 }
 
 seq_t a(idx_t n) {
@@ -71,7 +77,7 @@ seq_t a(idx_t n) {
 
     /* grow cache up to requested n */
     for (idx_t len = cur_len; len < n; ++len) {
-        memset(next_dp, 0, sizeof(next_dp));
+        mem_set(next_dp, 0, sizeof(next_dp));
 
         /* transition from each state */
         for (int i = 0; i < 6; ++i) {
@@ -112,7 +118,7 @@ seq_t a(idx_t n) {
             }
         }
 
-        memcpy(dp, next_dp, sizeof(dp));
+        mem_copy(dp, next_dp, sizeof(dp));
 
         /* sum current states for total[n] */
         seq_t sum = 0;

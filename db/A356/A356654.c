@@ -10,7 +10,8 @@
  *            is Stirling2(n,k)
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  * arbitrary‑precision C++ types (hence all realloc calls are cast). */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /*--- state for memoisation -------------------------------------------*/
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
         idx_t r = computed_rows;              /* next row to compute              */
 
         /*--- factorials ---------------------------------------------------*/
-        fact = (seq_t *)realloc(fact, (size_t)(r + 1) * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, (size_t)(r + 1));
         if (!fact) return 0;                 /* allocation failed                 */
         if (r == 0)
             fact[0] = (seq_t)1;
@@ -51,8 +53,8 @@ seq_t a(idx_t n) {
             fact[r] = fact[r - 1] * (seq_t)r;
 
         /*--- allocate arrays for this row ---------------------------------*/
-        seq_t *S_row = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
-        seq_t *L_row = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
+        seq_t *S_row = mem_new(seq_t, (size_t)(r + 1));
+        seq_t *L_row = mem_new(seq_t, (size_t)(r + 1));
         if (!S_row || !L_row) return 0;     /* allocation failed                 */
 
         /*--- Stirling numbers of the second kind S[r][k] ------------------*/
@@ -93,7 +95,7 @@ seq_t a(idx_t n) {
         if (needed > seq_cap) {
             size_t new_cap = seq_cap ? seq_cap * 2 : 1024;
             while (new_cap < needed) new_cap *= 2;
-            seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
             if (!seq) return 0;               /* allocation failed                 */
             seq_cap = new_cap;
         }

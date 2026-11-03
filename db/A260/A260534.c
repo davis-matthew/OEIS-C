@@ -12,6 +12,7 @@
  *            T(m,k) = sum_{j=0..k} m^j * (binom(k-j,j) mod 2), wher...
  * Range:     u8 n <= 85, u16 n <= 199, u32 n <= 482, u64 n <= 1207,
  *            u128 n <= 3295, big any n
+ * Validated: standard, pass, 97 terms through n = 9827 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

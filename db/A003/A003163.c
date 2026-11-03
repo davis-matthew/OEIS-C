@@ -11,8 +11,8 @@
  *            factored form. Binomial sums come from a Pascal antidi...
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 87,
  *            big any n
- * Helpers:   vdp_add, vdp_div, vdp_factor, vdp_isneg, vdp_mod, vdp_muls,
- *            vdp_neg, vdp_putf, vdp_sub, vdp_trim, vdp_used
+ * Validated: standard, pass, 43 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,17 +20,79 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/vdp_add.h"
-#include "../utils/vdp_div.h"
-#include "../utils/vdp_factor.h"
-#include "../utils/vdp_isneg.h"
-#include "../utils/vdp_mod.h"
-#include "../utils/vdp_muls.h"
-#include "../utils/vdp_neg.h"
-#include "../utils/vdp_putf.h"
-#include "../utils/vdp_sub.h"
-#include "../utils/vdp_trim.h"
-#include "../utils/vdp_used.h"
+
+static void vdp_add(uint32_t *d, const uint32_t *s, size_t w) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < w; i++) { c += (uint64_t)d[i] + s[i]; d[i] = (uint32_t)c; c >>= 32; }
+}
+
+static void vdp_div(uint32_t *x, size_t L, uint32_t p) {
+    uint64_t r = 0;
+    size_t i = L;
+    while (i > 0) {
+        uint64_t cur;
+        i--;
+        cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / p);
+        r = cur % p;
+    }
+}
+
+static void vdp_putf(uint64_t *ps, uint32_t *es, int *np, uint64_t p) {
+    int i;
+    for (i = 0; i < *np; i++) if (ps[i] == p) { es[i]++; return; }
+    ps[*np] = p; es[*np] = 1; (*np)++;
+}
+
+static void vdp_factor(uint64_t *ps, uint32_t *es, int *np, uint64_t x) {
+    uint64_t p;
+    for (p = 2; p * p <= x; p++)
+        while (x % p == 0) { vdp_putf(ps, es, np, p); x /= p; }
+    if (x > 1) vdp_putf(ps, es, np, x);
+}
+
+static int vdp_isneg(const uint32_t *x, size_t w) { return (int)(x[w - 1] >> 31); }
+
+static uint32_t vdp_mod(const uint32_t *x, size_t L, uint32_t p) {
+    uint64_t r = 0;
+    size_t i = L;
+    while (i > 0) { i--; r = ((r << 32) | x[i]) % p; }
+    return (uint32_t)r;
+}
+
+static void vdp_muls(uint32_t *x, size_t w, uint32_t m) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < w; i++) { c += (uint64_t)x[i] * m; x[i] = (uint32_t)c; c >>= 32; }
+}
+
+static void vdp_neg(uint32_t *x, size_t w) {
+    size_t i;
+    uint64_t c = 1;
+    for (i = 0; i < w; i++) { c += (uint64_t)(uint32_t)~x[i]; x[i] = (uint32_t)c; c >>= 32; }
+}
+
+static void vdp_sub(uint32_t *d, const uint32_t *s, size_t w) {
+    uint64_t b = 0;
+    size_t i;
+    for (i = 0; i < w; i++) {
+        uint64_t v = (uint64_t)d[i] - s[i] - b;
+        d[i] = (uint32_t)v; b = (v >> 63) & 1;
+    }
+}
+
+static size_t vdp_trim(const uint32_t *x, size_t L) {
+    while (L > 0 && x[L - 1] == 0) L--;
+    return L;
+}
+
+static size_t vdp_used(const uint32_t *x, size_t w) {
+    uint32_t s = vdp_isneg(x, w) ? 0xFFFFFFFFu : 0u;
+    size_t i = w;
+    while (i > 0 && x[i - 1] == s) i--;
+    return i + 1;
+}
 
 static uint32_t *vdp_ad = NULL;
 static size_t vdp_W = 0, vdp_adcap = 0;

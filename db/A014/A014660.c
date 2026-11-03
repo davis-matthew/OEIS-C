@@ -7,7 +7,8 @@
  * Formula:   a(n) = –[xⁿ]∏_{d∣651,d<651}Φ_d(x)
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 typedef struct { size_t deg; seq_t *c; } Poly;
 
@@ -27,14 +29,14 @@ typedef struct { size_t deg; seq_t *c; } Poly;
 static Poly *poly_new(size_t deg) {
     Poly *p = (Poly*)malloc(sizeof(Poly));
     p->deg = deg;
-    p->c = (seq_t*)calloc(deg + 1, sizeof(seq_t));
+    p->c = mem_new(seq_t, deg + 1);
     return p;
 }
 
 /* free a polynomial */
 static void poly_free(Poly *p) {
     if (!p) return;
-    free(p->c);
+    mem_free(p->c);
     free(p);
 }
 
@@ -68,8 +70,8 @@ static Poly *poly_div(const Poly *A, const Poly *B) {
     }
     size_t qdeg = n - m;
     Poly *Q = poly_new(qdeg);
-    seq_t *rem = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    memcpy(rem, A->c, (n + 1) * sizeof(seq_t));
+    seq_t *rem = mem_new(seq_t, (n + 1));
+    mem_copy(rem, A->c, (n + 1) * sizeof(seq_t));
     for (int i = (int)n; i >= (int)m; --i) {
         seq_t coeff = rem[i];
         if (coeff != 0) {
@@ -79,7 +81,7 @@ static Poly *poly_div(const Poly *A, const Poly *B) {
             }
         }
     }
-    free(rem);
+    mem_free(rem);
     while (qdeg > 0 && Q->c[qdeg] == 0) --qdeg;
     Q->deg = qdeg;
     return Q;

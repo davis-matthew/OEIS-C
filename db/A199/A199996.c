@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   digit_product, is_prime, seq_realloc
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
+ * Helpers:   digit_product, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,21 @@
 */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"      /* is_prime(idx_t) */
-#include "../utils/digit_product.h" /* digit_product(seq_t) */
-#include "../utils/seq_realloc.h"   /* seq_realloc(seq_t *, size_t, size_t) */
+#include <stdlib.h>
+#include "../utils/digit_product.h"
+#include "../utils/is_prime.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* ------------------------------------------------------------------ */
 /* Memoisation structure                                             */

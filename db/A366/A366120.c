@@ -11,13 +11,15 @@
  *            those rows
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 255, u64 n <= 2047,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9375 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Count how many bits in idx_t */
 static unsigned floor_log2_uint64(idx_t v)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     idx_t K = floor_log2_uint64(n);          /* rows 0..K inclusive */
     size_t size = (size_t)n + 1;
 
-    seq_t *dp = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
     if (!dp) return 0; /* allocation failure, return 0 as safe default */
 
     for (size_t i = 0; i < size; ++i)
@@ -69,6 +71,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   numbers k such that d(k) < d(k‑1) and d(k) < d(k+1)
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----------  dynamic storage for the sequence and its sieve ---------- */
 
@@ -46,7 +48,7 @@ static void grow_terms(size_t need)
     if (terms_cap < need) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 8;
         if (new_cap < need) new_cap = need;
-        terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         terms_cap = new_cap;
     }
 }

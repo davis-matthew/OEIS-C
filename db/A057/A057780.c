@@ -10,6 +10,7 @@
  *            next multiple of 3 that is one less than a perfect square
  * Range:     u8 n <= 11, u16 n <= 171, u32 n <= 2001, u64 n <= 2001,
  *            u128 n <= 2001, big any n
+ * Validated: standard, pass, 64 terms through n = 1806 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,13 +10,15 @@
  *            = {12, 18, 24, 36}
  * Range:     u8 none, u16 n <= 8, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 
 /* Multipliers for the four terms in each block. */
@@ -37,7 +39,7 @@ static seq_t power_37(idx_t k)
     /* Grow the cache so that it contains all powers up to k. */
     if (cache_size < k) {
         idx_t new_size = k + 1;            /* indices 0..k   */
-        seq_t *new_cache = (seq_t*)realloc(pow_cache, sizeof(seq_t) * new_size);
+        seq_t *new_cache = mem_resize(seq_t, pow_cache, new_size);
         if (!new_cache) return (seq_t)0;   /* allocation failure */
 
         pow_cache = new_cache;

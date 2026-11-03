@@ -7,20 +7,22 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(n) = least refactorable number > n (a number m such that m % τ(m) == 0) */
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 /* Return true if m is refactorable: m divisible by its divisor count τ(m). */
 static inline bool is_refactorable(seq_t m) {
     /* a number of zero divisors is not defined; 0 is not refactorable */
     if (m == (seq_t)0) return false;
-    uint64_t tau = divisor_count_u64((uint64_t)m);
+    uint64_t tau = num_divisors((uint64_t)m);
     return ((m % (seq_t)tau) == (seq_t)0);
 }
 

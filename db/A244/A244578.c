@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum_{k=1}^{prime(n)} (sigma(k) - k)
  * Range:     u8 n <= 10, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state */
 static uint64_t *primes = NULL;   /* primes[0] is the 1st prime          */
@@ -59,8 +61,8 @@ static void init(void) {
     if (prime_cnt == 0) return;          /* safety, should never happen */
     max_limit = limit;
     /* allocate sigma array */
-    sigma = (seq_t*)malloc((size_t)(max_limit + 1) * sizeof(seq_t));
-    pref  = (seq_t*)malloc((size_t)(max_limit + 1) * sizeof(seq_t));
+    sigma = mem_new(seq_t, (size_t)(max_limit + 1));
+    pref  = mem_new(seq_t, (size_t)(max_limit + 1));
     if (!sigma || !pref) return;
     sigma[0] = 0;
     sigma[1] = 1;

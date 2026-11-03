@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* DP table storing the best number of distinct primes for each n.
    best[0] = 0; for n > 0, best[n] = 0 if n cannot be represented
@@ -58,7 +60,7 @@ static uint64_t *build_primes_upto(idx_t max_val, size_t *cnt_out) {
 
 /* Recompute the DP table up to new_max_n (inclusive). */
 static void recompute_dp(idx_t new_max_n) {
-    seq_t *new_best = (seq_t *)realloc(best, (size_t)(new_max_n + 1) * sizeof(seq_t));
+    seq_t *new_best = mem_resize(seq_t, best, (size_t)(new_max_n + 1));
     best = new_best;
     /* initialise all entries to 0 */
     for (idx_t i = 0; i <= new_max_n; ++i) best[i] = 0;

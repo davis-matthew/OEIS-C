@@ -9,12 +9,14 @@
  *            function generates terms incrementally and caches them
  * Range:     u8 n <= 86, u16 n <= 3465, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9287 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Count the runs in the base‑3 expansion of x. */
 static inline int count_runs(seq_t x)
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 size_t new_cap = cache_cap ? (cache_cap << 1) : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)           /* allocation failed – abort */
                     abort();
                 cache = tmp;

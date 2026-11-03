@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- polynomial helpers ------------------------------------ */
 
@@ -39,7 +41,7 @@ static void poly_div(const seq_t *num, size_t ndeg,
                      seq_t *quot)
 {
     size_t qdeg = ndeg - ddeg;
-    seq_t *rem = (seq_t*)malloc((ndeg + 1) * sizeof(seq_t));
+    seq_t *rem = mem_new(seq_t, (ndeg + 1));
     for (size_t i = 0; i <= ndeg; ++i) rem[i] = num[i];
 
     for (long i = (long)ndeg; i >= (long)ddeg; --i) {
@@ -49,7 +51,7 @@ static void poly_div(const seq_t *num, size_t ndeg,
         for (size_t j = 0; j <= ddeg; ++j)
             rem[qpos + j] -= coeff * den[j];
     }
-    free(rem);
+    mem_free(rem);
 }
 
 /* ---------- sequence implementation -------------------------------- */
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         for (int idx = 0; idx < nd; ++idx) {
             int d = divs[idx];
             if (d == 1) {            /* Φ₁(x) = x – 1 */
-                polys[idx] = (seq_t*)malloc(2 * sizeof(seq_t));
+                polys[idx] = mem_new(seq_t, 2);
                 polys[idx][0] = -1;
                 polys[idx][1] = 1;
                 degs[idx] = 1;
@@ -81,13 +83,13 @@ seq_t a(idx_t n)
             }
 
             /* numerator: x^d – 1 */
-            seq_t *num = (seq_t*)calloc(d + 1, sizeof(seq_t));
+            seq_t *num = mem_new(seq_t, d + 1);
             num[0] = -1;
             num[d] = 1;
             size_t num_deg = d;
 
             /* product of earlier Φ_e where e|d */
-            seq_t *prod = (seq_t*)malloc(1 * sizeof(seq_t));
+            seq_t *prod = mem_new(seq_t, 1);
             prod[0] = 1;
             size_t prod_deg = 0;
 
@@ -95,9 +97,9 @@ seq_t a(idx_t n)
                 int e = divs[j];
                 if (d % e == 0) {
                     size_t new_deg = prod_deg + degs[j];
-                    seq_t *tmp = (seq_t*)calloc(new_deg + 1, sizeof(seq_t));
+                    seq_t *tmp = mem_new(seq_t, new_deg + 1);
                     poly_mul(prod, prod_deg, polys[j], degs[j], tmp);
-                    free(prod);
+                    mem_free(prod);
                     prod = tmp;
                     prod_deg = new_deg;
                 }
@@ -105,15 +107,15 @@ seq_t a(idx_t n)
 
             /* divide numerator by product to get Φ_d */
             size_t phi_len = num_deg - prod_deg + 1;
-            seq_t *phi_d = (seq_t*)malloc(phi_len * sizeof(seq_t));
+            seq_t *phi_d = mem_new(seq_t, phi_len);
             poly_div(num, num_deg, prod, prod_deg, phi_d);
 
             /* store */
             polys[idx] = phi_d;
             degs[idx] = num_deg - prod_deg;
 
-            free(num);
-            free(prod);
+            mem_free(num);
+            mem_free(prod);
         }
 
         /* The last entry is Φ_1677 */
@@ -132,10 +134,10 @@ seq_t a(idx_t n)
 
         /* free all Φ_d except the last one (which is no longer needed) */
         for (int idx = 0; idx < nd - 1; ++idx)
-            free(polys[idx]);
+            mem_free(polys[idx]);
 
         /* do not keep phi, all coefficients used already */
-        free(phi);
+        mem_free(phi);
         initialized = true;
     }
 

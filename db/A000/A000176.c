@@ -11,14 +11,28 @@
  *            chi(p)/p^4), where B_{4,chi} = (1/F) * Sum_{r=1...
  * Range:     u8 n <= 4, u16 n <= 23, u32 n <= 567, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a176_jacobi, a176_kron
+ * Validated: standard, pass, 52 terms through n = 9576 (2026-11-01)
+ * Helpers:   jacobi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a176_jacobi.h"
-#include "../utils/a176_kron.h"
+#include "../utils/jacobi.h"
+
+static int a176_kron(uint64_t D0, uint64_t r)
+{
+    int res = 1;
+    while ((r & 1) == 0) {
+        uint64_t m8;
+        if ((D0 & 1) == 0) return 0;
+        m8 = D0 & 7;
+        if (m8 == 3 || m8 == 5) res = -res;
+        r >>= 1;
+    }
+    if (r == 1) return res;
+    return res * jacobi(D0, r);
+}
 
 typedef __int128 a176_i128;
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 822, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isprime
+ * Validated: standard, pass, 61 terms through n = 7662 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/isprime.h"   /* provides bool isprime(uint64_t) */
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
             uint64_t r = last % 120U;
             if (r != 5U && r != 11U && r != 29U && r != 59U && r != 101U)
                 continue;
-            if (isprime(last))
+            if (is_prime_u64(last))
                 break;   /* last is now the next prime of the desired form */
         }
 

@@ -11,7 +11,8 @@
  *            function x*(2+3x+4x²+5x³+6x⁴+9x⁵+2x⁶)/(1‑5x⁶)
  * Range:     u8 n <= 18, u16 n <= 39, u32 n <= 80, u64 n <= 163,
  *            u128 n <= 329, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for previously computed terms.
    cache[0] stores a(1), cache[1] stores a(2), etc. */
@@ -33,7 +35,7 @@ static void ensure_cache_cap(idx_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 128;
     if (new_cap < (size_t)need) new_cap = need;
-    seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
     if (!new_buf) return;          /* allocation failed – keep old cache */
     cache = new_buf;
     cache_cap = new_cap;

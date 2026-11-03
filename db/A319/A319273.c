@@ -7,8 +7,9 @@
  * Formula:   a(n) = Σ_{i≥1} (-1)^{i-1} * exp_i, where exp_i are the exponents
  *            in the prime factorization of n sorted by increasing primes.
  *            a(1) is defined to be 1
- * Range:     i8 n <= 9895, i16 n <= 9895, i32 n <= 9895, i64 n <= 9895,
- *            i128 n <= 9895, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9895 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

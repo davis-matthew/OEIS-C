@@ -9,12 +9,14 @@
  *            a(1)=a(2)=1 and a(3)=6
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 28, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* -----  Cache for computed values  ----- */
 static seq_t *cache       = NULL;   /* array of a(i), 0..max_index   */
@@ -30,7 +32,7 @@ static void _ensure_cache(idx_t needed)
     /* Resize the cache if required */
     size_t new_cap = (size_t)(needed + 1);   /* need indices 0..needed */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
         if (!cache) exit(EXIT_FAILURE);   /* out of memory */
         cache_cap = new_cap;
         /* initialise the first few known terms */
@@ -40,7 +42,7 @@ static void _ensure_cache(idx_t needed)
         if (needed >= 3) cache[3] = 6;
         cache_max = (needed < 3) ? needed : 3;
     } else if (new_cap > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);   /* out of memory */
         cache = tmp;
         cache_cap = new_cap;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2*n^2 - 108*n + 1259
  * Range:     i8 none, i16 n <= 155, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 68 terms through n = 959 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

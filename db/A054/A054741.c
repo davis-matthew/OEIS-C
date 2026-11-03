@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 123, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _phi
+ * Validated: standard, pass, 78 terms through n = 9871 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
  * (i.e. φ(m) < m − φ(m), or m/φ(m) > 2).
  */
 #include <stdlib.h>
-#include "../utils/_phi.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 /* dynamic array storing the sequence terms */
 static seq_t   *terms = NULL;
@@ -31,7 +33,7 @@ static void grow_terms(size_t new_cap)
     if (term_cap >= new_cap) return;
     size_t cap = term_cap ? term_cap*2 : 64;
     while (cap < new_cap) cap *= 2;
-    terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, cap);
     term_cap = cap;
 }
 
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* extend the stored table until we have at least n terms */
     while (term_count < (size_t)n) {
         seq_t m_val   = (seq_t)next_m;
-        seq_t phi_val = _phi(next_m);
+        seq_t phi_val = totient(next_m);
         /* φ(m) < m – φ(m)  ⇔  φ(m) < m/2  */
         if (phi_val < m_val - phi_val) {
             grow_terms(term_count + 1);

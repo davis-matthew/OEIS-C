@@ -13,13 +13,23 @@
  *            a(6)=8872, a(7)=40080, a(8)=181116, a(9)...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 static const seq_t init[18] = {
     0ULL, /* unused index 0 */
@@ -45,6 +55,17 @@ static const term_t neg_terms[] = {
 static const size_t neg_n = sizeof(neg_terms)/sizeof(neg_terms[0]);
 
 /* Ensure the cache has room for elements 0..needed-1   */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(idx_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if ((idx_t)(*cap) >= needed) return;
+    size_t new_cap = (*cap) ? (*cap)*2 : 16;
+    if (new_cap < (size_t)needed) new_cap = needed;
+    *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    *cap = new_cap;
+}
+#else
 static void ensure_capacity(idx_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if ((idx_t)(*cap) >= needed) return;
@@ -53,6 +74,7 @@ static void ensure_capacity(idx_t needed, size_t *cap, void **ptr, size_t elem_s
     *ptr = realloc(*ptr, new_cap * elem_size);
     *cap = new_cap;
 }
+#endif
 
 seq_t a(idx_t n)
 {
@@ -65,14 +87,14 @@ seq_t a(idx_t n)
 
     /* first time: initialise cache with the fixed initial values */
     if (cache == NULL) {
-        ensure_capacity(18, &cap, (void**)&cache, sizeof(seq_t));
+        ensure_capacity(18, &cap, OEISC_VPP(&cache), sizeof(seq_t));
         for (idx_t i = 0; i < 18; ++i) cache[i] = init[i];
         last = 17;
     }
 
     /* if needed compute up to n */
     if (n > last) {
-        ensure_capacity(n + 1, &cap, (void**)&cache, sizeof(seq_t));
+        ensure_capacity(n + 1, &cap, OEISC_VPP(&cache), sizeof(seq_t));
         for (idx_t i = last + 1; i <= n; ++i) {
             seq_t pos_sum = 0;
             seq_t neg_sum = 0;

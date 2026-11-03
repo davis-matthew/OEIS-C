@@ -9,7 +9,8 @@
  *            Σ_{c∈C^+, c≤m} f_n(m–c), where C^+ = {1,8,27,…}. a(n)=f_n(n)
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 17, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static helper tables --------------------------------------------------- */
 static idx_t *cube_vals = NULL;
@@ -64,7 +66,7 @@ static void ensure_cache(idx_t nmax)
 
     /* enlarge answer cache if necessary */
     if (N + 1 > cache_cap) {
-        seq_t *p = (seq_t *)realloc(answer_cache, (N + 1) * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, answer_cache, (N + 1));
         if (!p) abort();
         answer_cache = p;
         cache_cap = N + 1;
@@ -72,8 +74,8 @@ static void ensure_cache(idx_t nmax)
 
     /* enlarge working rows if necessary */
     if (N + 1 > row_cap) {
-        seq_t *p1 = (seq_t *)realloc(row_prev, (N + 1) * sizeof(seq_t));
-        seq_t *p2 = (seq_t *)realloc(row_curr, (N + 1) * sizeof(seq_t));
+        seq_t *p1 = mem_resize(seq_t, row_prev, (N + 1));
+        seq_t *p2 = mem_resize(seq_t, row_curr, (N + 1));
         if (!p1 || !p2) abort();
         row_prev = p1;
         row_curr = p2;

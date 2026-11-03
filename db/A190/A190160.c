@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 28, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
    a(0)=1,a(1)=1,a(2)=1,a(3)=2,a(4)=4,a(5)=8,a(6)=15,a(7)=28,a(8)=53,a(9)=102.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached sequence values */
 static size_t cache_cap = 0;         /* allocated capacity */
@@ -42,7 +44,7 @@ static void ensure_capacity(size_t size)
     size_t new_cap = cache_cap? cache_cap * 2 : 16;
     while (new_cap <= size)
         new_cap <<= 1;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     cache = new_ptr;
     cache_cap = new_cap;
 }

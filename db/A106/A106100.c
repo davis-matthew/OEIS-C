@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 22, u32 n <= 2282, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 50 terms through n = 9410 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    (a(1) = 2). */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(uint64_t) */
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 static bool dfs_generate(seq_t current, int pos, int len,
                          bool has2, idx_t *count,
@@ -26,7 +29,7 @@ static bool dfs_generate(seq_t current, int pos, int len,
 {
     /* When the full length is reached, check primality and digit rule. */
     if (pos == len) {
-        if (has2 && is_prime((uint64_t)current)) {
+        if (has2 && is_prime_u64((uint64_t)current)) {
             (*count)++;
             if (*count == target) {
                 *out = current;

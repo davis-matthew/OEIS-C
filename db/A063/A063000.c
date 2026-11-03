@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   ctz, popcnt16
+ * Validated: full, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   ctz_u32, mem, popcount_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/ctz.h"
-#include "../utils/popcnt16.h"
+#include "../utils/ctz_u32.h"
+#include "../utils/popcount_u32.h"
+#include "../utils/mem.h"
 
 #define N     16                      /* number of vertices of a 4×4 board          */
 #define FULL  (1u << N)              /* number of vertex subsets (0 … 65535)       */
@@ -55,7 +57,7 @@ static void init_sequence(void)
     /* dp[mask][v] – number of simple paths that visit exactly
        the vertices in ‘mask’ and end at vertex ‘v’.               */
     static seq_t dp[FULL][N];      /* static to avoid stack overflow */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* start at corner vertex 0 (top‑left)                            */
     dp[1u << 0][0] = 1;
@@ -68,7 +70,7 @@ static void init_sequence(void)
             unsigned avail = neighbor_mask[v] & ~mask;
             while (avail) {
                 unsigned bit  = avail & -avail;   /* lowest set bit */
-                int next = ctz(bit);
+                int next = ctz_u32(bit);
                 dp[mask | (1u << next)][next] += cur;
                 avail -= bit;
             }
@@ -76,9 +78,9 @@ static void init_sequence(void)
     }
 
     /* accumulate totals for each visited‑vertex count (m)             */
-    memset(totals, 0, sizeof(totals));                 /* just in case  */
+    mem_set(totals, 0, sizeof(totals));                 /* just in case  */
     for (unsigned mask = 0; mask < FULL; ++mask) {
-        int m = popcnt16(mask);
+        int m = popcount_u32(mask);
         if (m < 2) continue;          /* need at least two vertices (path length ≥ 2) */
         seq_t sum = 0;
         for (int v = 0; v < N; ++v) sum += dp[mask][v];

@@ -8,7 +8,8 @@
  *            shortest addition chain for n
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   dfs_depth
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,63 @@
    using iterative deepening DFS, caching results for future calls. */
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/dfs_depth.h"
+#include "../utils/mem.h"
+
+/* recursive DFS used in iterative deepening */
+static int dfs_depth(idx_t target, int max_depth, int depth, idx_t *chain)
+{
+    if (depth == max_depth)
+        return chain[depth] == target;
+
+    /* prune: the maximal reachable value after the remaining steps
+       is chain[depth] * 2^(remaining). If this is still less than the target,
+       no chain of this depth can reach target. */
+    int remaining = max_depth - depth;
+    if ((chain[depth] * ((idx_t)1 << remaining)) < target)
+        return 0;
+
+    /* generate next possible values (sums of two previous terms)
+       ensuring the chain stays increasing and no duplicates. */
+    idx_t cand[512];
+    int cnt = 0;
+    idx_t prev = chain[depth];
+
+    for (int i = depth; i >= 0; --i) {
+        for (int j = i; j >= 0; --j) {
+            idx_t sum = chain[i] + chain[j];
+            if (sum > target || sum <= prev)
+                continue;
+            /* skip duplicates */
+            int dup = 0;
+            for (int k = 0; k < cnt; ++k) {
+                if (cand[k] == sum) {
+                    dup = 1;
+                    break;
+                }
+            }
+            if (!dup)
+                cand[cnt++] = sum;
+        }
+    }
+
+    /* try larger sums first (descending order) */
+    for (int a = 0; a < cnt - 1; ++a) {
+        for (int b = a + 1; b < cnt; ++b) {
+            if (cand[a] < cand[b]) {
+                idx_t tmp = cand[a];
+                cand[a] = cand[b];
+                cand[b] = tmp;
+            }
+        }
+    }
+
+    for (int i = 0; i < cnt; ++i) {
+        chain[depth + 1] = cand[i];
+        if (dfs_depth(target, max_depth, depth + 1, chain))
+            return 1;
+    }
+    return 0;
+}
 
 /* static cache for already computed chain lengths (steps) */
 static seq_t *len_cache = NULL;
@@ -31,8 +88,8 @@ static void ensure_len_cache(idx_t n)
     idx_t new_cap = len_cache_cap ? len_cache_cap : 1;
     while (new_cap <= n)
         new_cap <<= 1;
-    len_cache = (seq_t *)realloc(len_cache, (new_cap + 1) * sizeof(seq_t));
-    memset(len_cache + len_cache_cap, 0, (new_cap + 1 - len_cache_cap) * sizeof(seq_t));
+    len_cache = mem_resize(seq_t, len_cache, (new_cap + 1));
+    mem_set(len_cache + len_cache_cap, 0, (new_cap + 1 - len_cache_cap) * sizeof(seq_t));
     len_cache_cap = new_cap;
     /* empty slots are zero; length for n=1 is zero steps by definition */
 }

@@ -12,6 +12,7 @@
  *            satisfying k1 + k2 + k3 = c (number of parts) k1 +...
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 /* Note: pow2() is provided by the utilities library. */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {

@@ -8,13 +8,16 @@
  * Formula:   a(n) = |{ j < n : bigomega(j) = bigomega(n) }|
  * Range:     u8 n <= 850, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 96 terms through n = 8067 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* Return a(n) for the OEIS sequence A335097. */
 seq_t a(idx_t n)
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
     if (cache_size < n)
     {
         /* Allocate new cache (index 0..n). */
-        seq_t *new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
         if (!new_cache)
             return (seq_t)0;                 /* allocation failure */
 
@@ -51,7 +54,7 @@ seq_t a(idx_t n)
         free(spf);                   /* free the temporary spf array */
 
         /* Replace old cache. */
-        free(bigomega_cache);
+        mem_free(bigomega_cache);
         bigomega_cache = new_cache;
         cache_size     = n;
     }

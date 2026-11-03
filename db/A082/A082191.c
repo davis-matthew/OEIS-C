@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ configuration */
 #define MAX_DIM 200   /* sufficient for n up to ~10000 */
@@ -71,7 +73,7 @@ static void ensure_values_capacity(size_t needed)
     if (valuesCap >= needed) return;
     size_t nc = valuesCap ? valuesCap * 2 : 128;
     while (nc < needed) nc *= 2;
-    seq_t *newp = (seq_t *)realloc(values, nc * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, values, nc);
     if (!newp) abort();
     values = newp;
     valuesCap = nc;
@@ -85,7 +87,7 @@ static void init_storage(void)
     initialized = true;
 
     /* grid */
-    grid = (seq_t *)calloc((size_t)MAX_DIM * MAX_DIM, sizeof(seq_t));
+    grid = mem_new(seq_t, (size_t)MAX_DIM * MAX_DIM);
     if (!grid) abort();
 
     /* used numbers */
@@ -94,7 +96,7 @@ static void init_storage(void)
     used[1] = 1;                          /* number 1 is used at (1,1) */
 
     /* sequence values cache */
-    values = (seq_t *)malloc(sizeof(seq_t) * 128);
+    values = mem_new(seq_t, 128);
     if (!values) abort();
     valuesCap = 128;
     valuesLen = 0;

@@ -8,13 +8,21 @@
  * Formula:   a(n) = 2^(n^2+2*n+2) * \prod_{j=1..n} (4^j-1) (OEIS A027638)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 7,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: standard, pass, 25 terms through n = 38 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Computes the nth term of OEIS A027638. */
 seq_t a(idx_t n)

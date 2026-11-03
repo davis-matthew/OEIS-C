@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 79, i16 n <= 79, i32 n <= 79, i64 n <= 79, i128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
  */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* integer square root: floor(sqrt(n)) */
 static inline idx_t floor_sqrt_u64(idx_t n)
@@ -69,7 +71,7 @@ static void ensure_rows(idx_t required_row)
     /* build missing rows */
     for (idx_t n = max_row_computed + 1; n <= required_row; ++n) {
         size_t len = 2 * (size_t)n - 1;          /* 2n-1 coefficients */
-        seq_t *new_poly = (seq_t *)calloc(len, sizeof(seq_t));
+        seq_t *new_poly = mem_new(seq_t, len);
         if (!new_poly) abort();
 
         if (n == 1) {                    /* R_1(x) = 1 */

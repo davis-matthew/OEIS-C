@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 121, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_sqfree
+ * Validated: standard, pass, 81 terms through n = 971 (2026-11-01)
+ * Helpers:   is_squarefree_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* Sequence A077337: numbers k such that k and its decimal reversal R(k) are both square‑free */
 
 #include <stdbool.h>
-#include "../utils/is_sqfree.h"
+#include "../utils/is_squarefree_idx.h"
 
 /* Compute the decimal reversal of an idx_t number, dropping leading zeros. */
 static idx_t rev_decimal(idx_t x)
@@ -40,11 +41,11 @@ extern seq_t a(idx_t n)
     while (found < n) {
         ++k;                            /* candidate k */
 
-        if (!is_sqfree(k))              /* k itself not square‑free */
+        if (!is_squarefree_idx(k))              /* k itself not square‑free */
             continue;
 
         idx_t r = rev_decimal(k);       /* reversed number */
-        if (!is_sqfree(r))              /* reversal not square‑free */
+        if (!is_squarefree_idx(r))              /* reversal not square‑free */
             continue;
 
         ++found;                        /* one more term found */

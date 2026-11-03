@@ -11,7 +11,8 @@
  *            numbers: for the prime factorisation sorted increasingly p₁<...
  * Range:     u8 n <= 22, u16 n <= 408, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sigma_pow
+ * Validated: standard, pass, 76 terms through n = 9984 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sigma_pow.h"
+
+/* ----------------------------------------------------------------- */
+static unsigned __int128 sigma_pow(uint64_t p, uint64_t e)
+{
+    unsigned __int128 sum = 1;
+    unsigned __int128 term = 1;
+    for (uint64_t i = 0; i < e; ++i) {
+        term *= p;
+        sum += term;
+    }
+    return sum;
+}
 
 static uint64_t *prime_list = NULL;
 static size_t prime_cnt = 0;

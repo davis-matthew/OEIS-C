@@ -9,12 +9,14 @@
  *            internally * (though a(0) is never returned directly)
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t  cache_size = 0;
@@ -27,7 +29,7 @@ ensure_cache(idx_t n)
         return;                     /* already large enough */
 
     idx_t new_size = n + 1;          /* need indices 0..n inclusive   */
-    seq_t *new_cache = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)new_size);
     if (!new_cache)                 /* out‑of‑memory; in production abort */
         return;
 
@@ -35,7 +37,7 @@ ensure_cache(idx_t n)
     if (cache) {
         for (idx_t i = 0; i < cache_size; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     /* Initialise new slots to zero. */

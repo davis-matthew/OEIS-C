@@ -7,12 +7,21 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 39, u64 n <= 71, u128 n <= 128,
  *            big any n
- * Helpers:   binom_seq_Nk
+ * Validated: standard, pass, 61 terms through n = 1279 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_seq_Nk.h"
+static seq_t binom_seq_Nk(seq_t N, idx_t k) {
+    if (k == 0) return 1;
+    seq_t result = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        result = result * (N - (seq_t)(k - i));
+        result = result / (seq_t)i;
+    }
+    return result;
+}
 /* The AC-Leet sequence A157108:  T(n,k) = binomial(n*binomial(n,k),k),
  * flattened row‑by‑row (offset 0).  The function computes a(n),
  * where n is the flattened index. */

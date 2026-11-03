@@ -8,13 +8,16 @@
  *            floor((sqrt(8n+1)-1)/2) and j = n - i*(i+1)/2
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +32,8 @@ seq_t a(idx_t n)
 
     /* compute the entry: binomial(i,j) * 9^(i-j) * 10^j */
     seq_t bin   = binomial(i, j);
-    seq_t pow9  = seq_pow((seq_t)9, i - j);
-    seq_t pow10 = seq_pow((seq_t)10, j);
+    seq_t pow9  = ipow_idx((seq_t)9, i - j);
+    seq_t pow10 = ipow_idx((seq_t)10, j);
 
     return bin * pow9 * pow10;
 }

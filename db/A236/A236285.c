@@ -10,16 +10,18 @@
  *            divisors)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   big_pow, build_primes_upto, seq_pow
+ * Validated: standard, pass, 36 terms through n = 98 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_pow.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/ipow_idx.h"
 
 static bool primes_inited = false;
 static uint64_t *primes = NULL;
@@ -54,7 +56,7 @@ static void tau_sigma(uint64_t n, seq_t *tau_out, seq_t *sigma_out) {
             tau *= (seq_t)(exp + 1);
 
             /* sigma term = (p^(exp+1)-1)/(p-1) */
-            seq_t p_pow = seq_pow((seq_t)p, (idx_t)(exp + 1));
+            seq_t p_pow = ipow_idx((seq_t)p, (idx_t)(exp + 1));
             seq_t term = (p_pow - (seq_t)1) / ((seq_t)p - (seq_t)1);
             sigma *= term;
         }
@@ -79,5 +81,5 @@ seq_t a(idx_t n) {
 
     seq_t tau, sigma;
     tau_sigma((uint64_t)n, &tau, &sigma);
-    return big_pow(tau, sigma);
+    return ipow(tau, sigma);
 }

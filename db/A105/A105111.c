@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +22,13 @@
  * The sequence a(n) is the flattened list of rows, starting at a(0)=1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void ensure_cap(size_t needed, seq_t **arr, size_t *cap) {
     if (needed <= *cap) return;
     size_t new_cap = (*cap) ? (*cap) * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 
@@ -43,10 +45,10 @@ seq_t a(idx_t n) {
     if (prev_row == NULL) {
         /* The very first row is simply [1] */
         prev_len = 1;
-        prev_row = (seq_t *)malloc(prev_len * sizeof(seq_t));
+        prev_row = mem_new(seq_t, prev_len);
         prev_row[0] = (seq_t)1;
 
-        seq_arr = (seq_t *)malloc(16 * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, 16);
         seq_cap = 16;
         seq_len = 0;
     }
@@ -62,7 +64,7 @@ seq_t a(idx_t n) {
         size_t next_len = 0;
         /* worst‑case bound: every symbol could expand to 3 symbols */
         size_t est_next_len = prev_len * 3;
-        seq_t *next_row = (seq_t *)malloc(est_next_len * sizeof(seq_t));
+        seq_t *next_row = mem_new(seq_t, est_next_len);
 
         for (idx_t i = 0; i < (idx_t)prev_len; ++i) {
             unsigned int v = (unsigned int)prev_row[i];
@@ -87,7 +89,7 @@ seq_t a(idx_t n) {
 
         /* --- Build the new row: concatenate prev_row and next_row --- */
         size_t new_len = prev_len + next_len;
-        seq_t *new_row = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
 
         for (idx_t i = 0; i < (idx_t)prev_len; ++i)
             new_row[i] = prev_row[i];
@@ -95,8 +97,8 @@ seq_t a(idx_t n) {
             new_row[prev_len + i] = next_row[i];
 
         /* --- Clean up temporary structures --- */
-        free(prev_row);
-        free(next_row);
+        mem_free(prev_row);
+        mem_free(next_row);
 
         /* --- Prepare for next iteration --- */
         prev_row = new_row;

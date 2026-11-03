@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9814 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* -----------------------------------------------------------------
  *  Static data and helper declarations
@@ -56,7 +58,7 @@ static void add_record(size_t k)
 {
     if (record_cnt == record_cap) {
         record_cap = (record_cap == 0) ? 64 : record_cap << 1;
-        records = (seq_t *)realloc(records, record_cap * sizeof(seq_t));
+        records = mem_resize(seq_t, records, record_cap);
     }
     records[record_cnt++] = (seq_t)(k);
 }
@@ -140,7 +142,7 @@ static void init_sequence(void)
 {
     build_primes();
     record_cap = 64;
-    records = (seq_t *)malloc(record_cap * sizeof(seq_t));
+    records = mem_new(seq_t, record_cap);
     add_record(1);          /* a(1) = 1 (k = 1) */
     next_pidx = 1;          /* next prime index to process (index 1 → prime 3) */
     initialized = true;

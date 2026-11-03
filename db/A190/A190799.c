@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(seq_t num); */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* --- Static state ----------------------------------------------------- */
 static uint64_t prime_buf[5];     /* last five primes (index 0 is earliest) */
@@ -41,7 +43,7 @@ static bool initialized = false;
 static void grow_seq(void)
 {
     size_t new_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-    seq_vals = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, new_cap);
     seq_cap = new_cap;
 }
 
@@ -81,7 +83,7 @@ static void ensure_seq(idx_t n)
     init();
     while (seq_len < (size_t)n) {
         /* Test current candidate */
-        if (is_prime_small((seq_t)cand)) {
+        if (is_prime_seq((seq_t)cand)) {
             add_prime(cand);
         }
         cand += 2;           /* only odd numbers after 2 */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 25, i16 n <= 134, i32 n <= 409, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 88 terms through n = 887 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_spf.h"   /* provides void build_spf(idx_t limit, idx_t **spf_out); */
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 static idx_t   max_prepared = 0;   /* largest n for which the arrays are ready */
 static seq_t  *a_arr  = NULL;      /* a[0..max_prepared]          */
@@ -70,8 +72,8 @@ static void compute_s_array(idx_t n)
 /* --- Helper to compute f_k = Σ_{d|k} d·s_d for 1 <= k <= n -------------- */
 static void compute_f_array(idx_t n)
 {
-    if (f_arr) free(f_arr);
-    f_arr = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
+    if (f_arr) mem_free(f_arr);
+    f_arr = mem_new(seq_t, (size_t)n + 1);
     if (!f_arr) exit(1);
 
     for (idx_t k = 1; k <= n; ++k) {
@@ -85,8 +87,8 @@ static void compute_f_array(idx_t n)
 /* --- Helper to compute a[n] via the recurrence ----------------------- */
 static void compute_a_array(idx_t max_n)
 {
-    if (a_arr) free(a_arr);
-    a_arr = (seq_t*)calloc((size_t)max_n + 1, sizeof(seq_t));
+    if (a_arr) mem_free(a_arr);
+    a_arr = mem_new(seq_t, (size_t)max_n + 1);
     if (!a_arr) exit(1);
 
     a_arr[0] = (seq_t)1;

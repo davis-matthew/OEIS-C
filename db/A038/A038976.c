@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 61 terms through n = 876 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Return the n-th prime p such that 87 is not a quadratic residue mod p.
    n >= 1 maps to the first element (5). */
@@ -48,14 +51,14 @@ seq_t a(idx_t n)
 
         /* Euler's criterion: 87^((p-1)/2) mod p ≡ –1 ⇔ 87 a quadratic non‑residue */
         uint64_t exp = (p - 1) >> 1;          /* (p-1)/2 */
-        seq_t r      = mod_pow((seq_t)87, exp, (seq_t)p);
+        seq_t r      = powmod((seq_t)87, exp, (seq_t)p);
         seq_t target = (seq_t)p - 1;          /* –1 mod p */
 
         if (r == target) {
             /* Grow cache if necessary */
             if (count == cache_size) {
                 size_t new_size = cache_size ? cache_size * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_size);
                 if (!tmp) return 0;          /* allocation error: return 0 as placeholder */
                 cache = tmp;
                 cache_size = new_size;

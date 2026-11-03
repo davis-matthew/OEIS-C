@@ -8,14 +8,27 @@
  *            + n divides 28800)
  * Range:     u8 n <= 1, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   cmp_seq
+ * Validated: full, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cmp_seq.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* comparison helper for qsort on seq_t values */
+static int cmp_seq(const void *a, const void *b)
+{
+    seq_t v1 = *(const seq_t *)a;
+    seq_t v2 = *(const seq_t *)b;
+    if (v1 < v2) return -1;
+    if (v1 > v2) return 1;
+    return 0;
+}
 
 /* Static storage for the pre‑computed values.  Number of
    needed terms is 53 (divisors of 28800 greater than 120). */
@@ -54,7 +67,7 @@ static void init_seq(void)
     }
 
     /* Sort the resulting sequence. */
-    qsort(seq_values, ncnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(seq_values, ncnt, sizeof(seq_t), cmp_seq);
     seq_len = ncnt;
     seq_init = true;
 }

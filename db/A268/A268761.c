@@ -12,6 +12,7 @@
  *            such arrays by dynamic programming over the rows
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 39, u128 n <= 81,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 205 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

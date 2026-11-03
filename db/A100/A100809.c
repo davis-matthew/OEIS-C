@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   integer_sqrt
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,19 +19,21 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/integer_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* Test whether an integer n can be written as a^2 + b^2 with a>0 and b>0. */
 static bool has_positive_sum_of_two_squares(idx_t n)
 {
     if (n < 2)                /* 0,1 cannot be represented with two positive squares */
         return false;
-    idx_t max_a = integer_sqrt(n - 1);        /* a^2 must be < n, so a <= sqrt(n-1) */
+    idx_t max_a = isqrt(n - 1);        /* a^2 must be < n, so a <= sqrt(n-1) */
     for (idx_t a = 1; a <= max_a; ++a)
     {
         idx_t a_sq = a * a;                   /* a^2 fits in idx_t (n <= 2^64-1) */
         idx_t b_sq = n - a_sq;
-        idx_t b = integer_sqrt(b_sq);
+        idx_t b = isqrt(b_sq);
         if (b * b == b_sq && b > 0)           /* found a positive b */
             return true;
     }
@@ -51,7 +54,7 @@ static void grow_terms(idx_t required)
     size_t new_cap = capacity ? capacity << 1 : 4;
     while (new_cap < required)
         new_cap <<= 1;
-    seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
     if (!new_terms)
         abort();                      /* out of memory */
     terms = new_terms;

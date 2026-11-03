@@ -9,8 +9,9 @@
  *            ... < cL = n, with pruning c_k * 2^(L-k) >= n, starting from the
  *            proven lower bound floor(log_2 n) + [v(n) >= 2] + [v(n) >= 3],
  *            where v(n) = A000120(n)
- * Range:     u8 n <= 9550, u16 n <= 9550, u32 n <= 9550, u64 n <= 9550,
- *            u128 n <= 9550, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 116 terms through n = 9550 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

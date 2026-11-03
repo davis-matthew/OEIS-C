@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   is_prime, next_prime
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"
 #include "../utils/is_prime.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Memoised terms */
 static seq_t *terms = NULL;          /* array of found terms */
@@ -41,7 +43,7 @@ static void append_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) exit(1); /* allocation failure – abort */
         terms = tmp;
         terms_cap = new_cap;

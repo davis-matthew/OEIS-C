@@ -9,13 +9,18 @@
  * Formula:   a(n) = 41^(n+27) (mod 81), period = 54
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 83 terms through n = 989 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* use the generic modular exponentiation helper from the utils */
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -27,5 +32,5 @@ seq_t a(idx_t n)
     seq_t base = (seq_t)41;
     seq_t mod  = (seq_t)81;
 
-    return mod_pow(base, e, mod);
+    return powmod(base, e, mod);
 }

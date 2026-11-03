@@ -11,6 +11,7 @@
  *            (n-5)/2; a(n) = [8*m*m + 60*m + 112]²
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 68 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

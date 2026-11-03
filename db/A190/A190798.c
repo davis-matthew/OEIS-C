@@ -10,6 +10,7 @@
  *            (2*m-1)^2 This follows directly from the OEIS entry
  * Range:     u8 n <= 11, u16 n <= 76, u32 n <= 3071, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 77 terms through n = 3972 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

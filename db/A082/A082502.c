@@ -10,12 +10,14 @@
  *            following implementation reproduces that erroneous entry.)
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 3, i64 n <= 5, i128 n <= 5,
  *            big any n
- * Helpers:   pow_big
+ * Validated: partial, pass, 6 terms through n = 5 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_big.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -25,5 +27,5 @@ seq_t a(idx_t n)
 
     seq_t base = (seq_t)(4 * (n + 1));
     idx_t exp  = 2 * n;
-    return pow_big(base, exp);
+    return ipow_idx(base, exp);
 }

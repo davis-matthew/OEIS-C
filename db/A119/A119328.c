@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 48, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,13 +28,14 @@
 
 #include <stddef.h>
 #include <math.h>
-#include "../utils/binom.h"   /* binom(idx_t a, idx_t b) returns seq_t */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t idx)
 {
     /* Determine (n,k) for the linear index idx. */
     if (idx == 0)  /* special case at the very beginning */
-        return binom(0, 0);   /* T(0,0) = 1 */
+        return binomial(0, 0);   /* T(0,0) = 1 */
 
     /* Solve (n+1)(n+2)/2 > idx for n. */
     long double tmp = sqrtl(8.0L * idx + 1.0L);
@@ -47,7 +49,7 @@ seq_t a(idx_t idx)
     idx_t k = idx - start;           /* column within the row */
 
     /* Handle the exceptional value T(0,0) explicitly. */
-    if (n == 0 && k == 0) return binom(0, 0);
+    if (n == 0 && k == 0) return binomial(0, 0);
 
     seq_t result = 0;
     /* Sum over j where 2j <= k and n-k-2j >= 0. */
@@ -59,8 +61,8 @@ seq_t a(idx_t idx)
         if (s > n) continue;          /* s cannot exceed n, safety */
         if (s >= 0)
         {
-            seq_t t1 = binom(k, twoj);               /* C(k,2j)           */
-            seq_t t2 = binom(k + s - 1, s);           /* C(k+s-1, s)        */
+            seq_t t1 = binomial(k, twoj);               /* C(k,2j)           */
+            seq_t t2 = binomial(k + s - 1, s);           /* C(k+s-1, s)        */
             seq_t term = t1 * t2;
             if (s & 1) term = -term;                 /* (-1)^s factor      */
             result += term;

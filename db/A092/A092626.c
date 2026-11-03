@@ -8,7 +8,8 @@
  *            digit that is not a prime digit (i.e. not in {2,3,5,7})
  * Range:     u8 n <= 19, u16 n <= 854, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   one_nonprime_digit
+ * Validated: standard, pass, 70 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/one_nonprime_digit.h"
+#include "../utils/mem.h"
+
+/* Test whether x has exactly one non‑prime decimal digit.  */
+static bool one_nonprime_digit(uint64_t x)
+{
+    unsigned int cnt = 0;
+    while (x > 0U) {
+        uint32_t d = x % 10U;
+        if (d != 2U && d != 3U && d != 5U && d != 7U) {
+            ++cnt;
+            if (cnt > 1)
+                return false;
+        }
+        x /= 10U;
+    }
+    return cnt == 1;
+}
 
 /* ---------- Dynamic container for primes -------------------------------- */
 static uint64_t *prime_list = NULL;   /* array of primes found so far   */
@@ -47,7 +64,7 @@ static void add_cache(seq_t value)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp)
             abort();
         seq_cache = tmp;

@@ -9,11 +9,13 @@
  *            T(r,k) from the given triangle
  * Range:     u8 n <= 19, u16 n <= 86, u32 n <= 394, u64 n <= 1743,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 69 terms through n = 5013 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

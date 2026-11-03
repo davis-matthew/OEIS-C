@@ -7,7 +7,8 @@
  * Formula:   a(n) = pi(10*n-1) (number of primes < 10n)
  * Range:     u8 n <= 161, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9145 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The build supplies seq_t and idx_t types. */
 static idx_t    sieve_limit = 0;   /* largest n for which the sieve has been built */
@@ -46,7 +48,7 @@ static void build_sieve(idx_t up_to)
     }
 
     /* build prefix counts */
-    seq_t *counts = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *counts = mem_new(seq_t, len);
     if (!counts) {
         free(is_prime);
         return;                      /* allocation failure */
@@ -61,7 +63,7 @@ static void build_sieve(idx_t up_to)
     free(is_prime);
 
     /* replace previous cache */
-    if (prime_counts) free(prime_counts);
+    if (prime_counts) mem_free(prime_counts);
     prime_counts  = counts;
     sieve_limit   = up_to;
 }

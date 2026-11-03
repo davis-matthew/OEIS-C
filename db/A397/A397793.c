@@ -9,7 +9,8 @@
  *            a(0)=0, a(1)=0, a(2)=2, a(3)=4, a(4)=19, a(5)=58, a(6)=214
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -27,10 +29,10 @@ static void ensure_capacity(idx_t needed)
 {
     if (needed < cache_size) return;
     idx_t new_size = needed + 1;
-    seq_t *new_cache = (seq_t*)calloc(new_size, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (cache) {
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_size = new_size;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 2567, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   good_zero_runs
+ * Validated: standard, pass, 72 terms through n = 9362 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,38 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/good_zero_runs.h"
+#include "../utils/mem.h"
+
+/* Test whether a given integer x meets the even‑zero‑run condition. */
+static bool good_zero_runs(seq_t x)
+{
+    bool hasZero = false;
+    size_t run = 0;
+
+    while (x)
+    {
+        if (x & 1)
+        {
+            if (run)
+            {
+                if (run & 1)        /* odd length -> reject */
+                    return false;
+                run = 0;
+            }
+        }
+        else
+        {
+            hasZero = true;
+            run++;
+        }
+        x >>= 1;
+    }
+
+    if (run & 1)                /* trailing zero run odd -> reject */
+        return false;
+
+    return hasZero;             /* must contain at least one zero */
+}
 
 /* Return the n-th term of A383668 (offset 1). */
 seq_t a(idx_t n)
@@ -40,7 +72,7 @@ seq_t a(idx_t n)
         if (!cache)
         {
             cap = 16;
-            cache = (seq_t *)malloc(cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cap);
         }
 
         while (size < n)
@@ -53,7 +85,7 @@ seq_t a(idx_t n)
             if (size == cap)
             {
                 cap <<= 1;   /* double capacity */
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
 
             cache[size++] = (seq_t)cand; /* store term */

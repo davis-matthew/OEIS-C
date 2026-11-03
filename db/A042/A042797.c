@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 35, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *period = NULL;
 static idx_t period_len = 0;
@@ -40,7 +42,7 @@ static void compute_period(void)
     int a   = a0;
 
     idx_t cap = 16;
-    period = (seq_t*)malloc(cap * sizeof(seq_t));
+    period = mem_new(seq_t, cap);
     period_len = 0;
 
     while (1) {
@@ -50,7 +52,7 @@ static void compute_period(void)
 
         if (period_len == cap) {
             cap <<= 1;
-            period = (seq_t*)realloc(period, cap * sizeof(seq_t));
+            period = mem_resize(seq_t, period, cap);
         }
         period[period_len++] = (seq_t)a_next;
 

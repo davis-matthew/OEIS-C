@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* offset starts at 1 */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* current polynomial coefficients in ascending degree order:
        coeff[0] is constant term, coeff[deg] is leading coefficient (1)   */
     idx_t deg = 1;                 /* degree of row 1 */
-    seq_t *coeff = (seq_t *)malloc((deg + 1) * sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (deg + 1));
     coeff[0] = 2;                  /* constant term  */
     coeff[1] = 1;                  /* coefficient of x^1        */
 
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
             /* coefficient in descending order */
             idx_t idx_in_poly = deg - (pos - 1);
             seq_t result = coeff[idx_in_poly];
-            free(coeff);
+            mem_free(coeff);
             return result;
         }
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n) {
         /* compute next polynomial (square plus 2) */
         idx_t next_deg = 2 * deg;
         idx_t next_sz  = next_deg + 1;
-        seq_t *next = (seq_t *)malloc(next_sz * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, next_sz);
 
         /* initialize to zero */
         for (idx_t i = 0; i < next_sz; ++i)
@@ -66,7 +68,7 @@ seq_t a(idx_t n) {
         /* add the constant 2 to the constant term */
         next[0] += 2;
 
-        free(coeff);
+        mem_free(coeff);
         coeff = next;
         deg = next_deg;
     }

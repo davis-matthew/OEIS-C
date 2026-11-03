@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial coefficient C(29,n)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: full, pass, 30 terms through n = 29 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

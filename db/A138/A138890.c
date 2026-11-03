@@ -8,12 +8,14 @@
  *            sequence (Padovan: P(0)=P(1)=P(2)=1, P(k)=P(k-2)+P(k-3))
  * Range:     u8 n <= 236, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 8838 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of known Padovan numbers.
    The array grows as needed and is shared across calls. */
@@ -31,7 +33,7 @@ static void pad_generate_until(seq_t limit)
         while (pad_len < 3) {
             if (pad_cap <= pad_len) {
                 size_t new_cap = (pad_cap == 0) ? 8 : pad_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(pad, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, pad, new_cap);
                 if (!tmp) abort();
                 pad = tmp;
                 pad_cap = new_cap;
@@ -43,7 +45,7 @@ static void pad_generate_until(seq_t limit)
     while (pad_len == 0 || limit > pad[pad_len - 1]) {
         if (pad_cap <= pad_len) {
             size_t new_cap = (pad_cap == 0) ? 8 : pad_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(pad, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, pad, new_cap);
             if (!tmp) abort();
             pad = tmp;
             pad_cap = new_cap;

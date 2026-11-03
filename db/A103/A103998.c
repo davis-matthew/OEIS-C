@@ -9,12 +9,14 @@
  *            n=4 includes an additional -3 from the generating function)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialise base values */
     if (tbl == NULL) {
         /* allocate space for indices 0..3 (base) */
-        tbl = (seq_t *)malloc(4 * sizeof(seq_t));
+        tbl = mem_new(seq_t, 4);
         if (tbl == NULL) abort();
         tbl[0] = (seq_t)1;
         tbl[1] = (seq_t)11;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* expand table if needed */
     if (tbl_size <= n) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(tbl, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, tbl, new_size);
         if (tmp == NULL) abort();
         tbl = tmp;
         tbl_size = new_size;

@@ -9,6 +9,7 @@
  *            2079892*n - 555731
  * Range:     i8 none, i16 none, i32 n <= 8, i64 n <= 597, i128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 898 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

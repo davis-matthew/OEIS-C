@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   is_prime_uint64
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- nonprime list (r(k)) ---------- */
 static seq_t *nonprimes = NULL;   /* array of nonprime values      */
@@ -37,7 +39,7 @@ static void ensure_nonprimes_cap(idx_t cap)
     if (cap <= nonprimes_cap) return;
     idx_t newcap = nonprimes_cap ? nonprimes_cap * 2 : 1024;
     if (newcap < cap) newcap = cap;
-    nonprimes = (seq_t *)realloc(nonprimes, newcap * sizeof(seq_t));
+    nonprimes = mem_resize(seq_t, nonprimes, newcap);
     nonprimes_cap = newcap;
 }
 
@@ -46,7 +48,7 @@ static void ensure_nonprimes_upto(idx_t k)
 {
     if (k <= nonprimes_sz) return;
     while (nonprimes_sz < k) {
-        if (!is_prime_uint64((uint64_t)next_nonprime_int)) {
+        if (!is_prime_u64((uint64_t)next_nonprime_int)) {
             ensure_nonprimes_cap(nonprimes_sz + 1);
             nonprimes[nonprimes_sz++] = next_nonprime_int;
         }
@@ -73,14 +75,14 @@ static void ensure_primes_cap(idx_t cap)
     if (cap <= primes_cap) return;
     idx_t newcap = primes_cap ? primes_cap * 2 : 128;
     if (newcap < cap) newcap = cap;
-    primes = (seq_t *)realloc(primes, newcap * sizeof(seq_t));
+    primes = mem_resize(seq_t, primes, newcap);
     primes_cap = newcap;
 }
 
 /* Check primality of a seq_t value that fits in 64 bits. */
 static bool is_prime_seq(seq_t x)
 {
-    return is_prime_uint64((uint64_t)x);
+    return is_prime_u64((uint64_t)x);
 }
 
 /* Return the nth term of the sequence.  Calls are memoised. */

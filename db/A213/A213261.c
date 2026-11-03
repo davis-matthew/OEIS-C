@@ -8,13 +8,15 @@
  * Formula:   a(n) = p(7*n + 5) where p(k) is the partition number of k
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 17, u64 n <= 58, u128 n <= 207,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation of partition numbers */
 static seq_t *part = NULL;          /* array of partitions, indexed by non‑negative integer */
@@ -27,7 +29,7 @@ static void grow_part(idx_t new_size)
     if (new_size <= part_capacity)
         return;
 
-    seq_t *new_part = (seq_t *)realloc(part, new_size * sizeof(seq_t));
+    seq_t *new_part = mem_resize(seq_t, part, new_size);
     /* initialise the new slots to zero (leaving the existing values untouched) */
     for (idx_t i = part_capacity; i < new_size; ++i)
         new_part[i] = 0;

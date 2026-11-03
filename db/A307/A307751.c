@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 22, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    The algorithm produces the sequence incrementally, caching previously computed
    terms so that repeated calls are fast. */
 #include <stdlib.h>       /* for malloc, realloc */
+#include "../utils/mem.h"
 
 static const seq_t SPECIALS[] = {
     (seq_t)0,   (seq_t)5,   (seq_t)6,
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         /* Allocate or grow the cache array */
         if (cache_len == cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cache_cap = new_cap;
         }

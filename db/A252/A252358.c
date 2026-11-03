@@ -8,7 +8,8 @@
  * Formula:   a(n) = smallest prime p such that (2^n)^(p-1) ≡ 1 (mod p^2)
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 87 terms through n = 8829 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 /* Precomputed list of all primes ≤ 1093 (the known bound for the sequence) */
 static uint64_t primes[200];
@@ -53,7 +56,7 @@ seq_t a(idx_t n)
         uint64_t p   = primes[k];
         uint64_t exp = (uint64_t)n * (p - 1);
         seq_t    mod = (seq_t)p * (seq_t)p;
-        seq_t    res = mod_pow((seq_t)2, exp, mod);
+        seq_t    res = powmod((seq_t)2, exp, mod);
         if (res == (seq_t)1) return (seq_t)p;
     }
 

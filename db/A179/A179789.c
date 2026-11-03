@@ -10,7 +10,8 @@
  *            prime table and prefix sums so that any call order is supported
  * Range:     u8 n <= 14, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* static cache for primes (uint64_t) and prefix sums (seq_t) */
 static uint64_t *prime_list       = NULL;   /* primes[0] = 2, primes[1] = 3, … */
@@ -37,7 +40,7 @@ static void extend_primes_to_limit(idx_t LIMIT)
 
     /* free old arrays */
     free(prime_list);
-    free(prime_prefix);
+    mem_free(prime_prefix);
     prime_list   = NULL;
     prime_prefix = NULL;
     prime_count  = 0;
@@ -52,7 +55,7 @@ static void extend_primes_to_limit(idx_t LIMIT)
     prime_limit  = LIMIT;
 
     /* build prefix sums of type seq_t */
-    prime_prefix = (seq_t*)malloc((prime_count + 1) * sizeof(seq_t));
+    prime_prefix = mem_new(seq_t, (prime_count + 1));
     if (!prime_prefix) { /* caller will not check memory failure – abort */
         abort();
     }

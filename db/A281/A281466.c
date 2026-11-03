@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 27, u64 n <= 57, u128 n <= 117,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    a(12)=45098, a(13)=94623, a(14)=198599, a(15)=416401.
    (Offset 1 – a(1) is the first term.)  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base[15] = {
     (seq_t)16,   (seq_t)78,   (seq_t)57,   (seq_t)130,
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* initialise cache once with the known 15 terms */
     if (!cache) {
         cache_cap = 16;                         /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (idx_t i = 0; i < 15; ++i) cache[i] = base[i];
         cached_len = 15;
     }
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* grow storage if necessary */
     if ((size_t)n > cache_cap) {
         cache_cap = (size_t)n;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* return memoised value if already computed */

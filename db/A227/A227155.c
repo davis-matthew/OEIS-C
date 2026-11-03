@@ -10,7 +10,8 @@
  *            of Eratosthenes up to 10⁷. For n beyond the last prime, * a(n)=0
  * Range:     u8 none, u16 none, u32 n <= 446, u64 n <= 446, u128 n <= 446,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 445 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Closed upper limit used in the definition of the sequence. */
 static const idx_t N_CONST = 10000000ULL;
@@ -47,7 +49,7 @@ static void init_sieve(void)
 
     /* Allocate the tables.  The bounds are chosen conservatively. */
     primes = (uint32_t *)malloc(MAX_PRIME_COUNT * sizeof(uint32_t));
-    counts = (seq_t   *)malloc(MAX_PRIME_COUNT * sizeof(seq_t));
+    counts = mem_new(seq_t, MAX_PRIME_COUNT);
     lpf    = (uint32_t *)calloc((size_t)(N_CONST + 1), sizeof(uint32_t));
     if (!primes || !counts || !lpf) {
         /* In a production environment you would handle this more gracefully. */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 8, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *x = NULL;          /* A270121 values, 1‑indexed */
 static idx_t  x_cap = 0;          /* largest index currently filled */
@@ -48,7 +50,7 @@ static void ensure_x_upto(idx_t m)
 
     /* Resize array to hold indices 0 .. m+1 (0 unused). */
     size_t new_cap = (size_t)m + 2;
-    seq_t *tmp = (seq_t *)realloc(x, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, x, new_cap);
     if (!tmp && new_cap > 0) abort();         /* out of memory */
     x = tmp;
 

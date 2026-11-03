@@ -10,13 +10,15 @@
  *            with w < x, y < z and w*x + y*z = n
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
 
     /* ----- prepare an array to count products y*z for y<z. ----- */
     size_t size_arr = (size_t)n + 1;      /* indices 0..n                      */
-    seq_t *prodCount = (seq_t *)calloc(size_arr, sizeof(seq_t));
+    seq_t *prodCount = mem_new(seq_t, size_arr);
     if (!prodCount) { free(uniq); return (seq_t)0; }
 
     for (size_t i = 0; i < uniq_len; ++i) {
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(prodCount);
+    mem_free(prodCount);
     free(uniq);
     return result;
 }

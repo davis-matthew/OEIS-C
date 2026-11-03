@@ -7,6 +7,7 @@
  * Formula:   a(n) = (-1)^n * 240 * binomial(n+5,5) - 504 * binomial(n+3,3)
  * Range:     i8 none, i16 n <= 4, i32 n <= 60, i64 n <= 5401, i128 n <= 10000,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 9579 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,7 +15,6 @@
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-
 
 /* Compute binomial(n+k, k) with small k using safe reduction. */
 static seq_t binom_small(idx_t n, idx_t k)

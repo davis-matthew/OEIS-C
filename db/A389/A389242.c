@@ -11,7 +11,8 @@
  *            F(x)=∑_{k≥1} f_k x^k/k! and f_k=binom(k,5) for odd k≥5,...
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 18, u64 n <= 28, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,10 +32,10 @@ seq_t a(idx_t n)
     /* initialise for n==0 or first call */
     if (n == 0) {
         if (!a_cache) {
-            a_cache = (seq_t*)malloc(sizeof(seq_t));
+            a_cache = mem_new(seq_t, 1);
             if (!a_cache) return 0;            /* out of memory */
             a_cache[0] = (seq_t)1;
-            g_cache = (seq_t*)malloc(sizeof(seq_t));
+            g_cache = mem_new(seq_t, 1);
             if (!g_cache) return 0;
             g_cache[0] = (seq_t)0;
             cached_n = 0;
@@ -44,10 +46,10 @@ seq_t a(idx_t n)
     /* enlarge caches if needed */
     if (n > cached_n) {
         idx_t new_size = n + 1;
-        seq_t *new_a = (seq_t*)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_cache, new_size);
         if (!new_a) return 0;
         a_cache = new_a;
-        seq_t *new_g = (seq_t*)realloc(g_cache, new_size * sizeof(seq_t));
+        seq_t *new_g = mem_resize(seq_t, g_cache, new_size);
         if (!new_g) return 0;
         g_cache = new_g;
 

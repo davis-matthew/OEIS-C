@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   has_repeated_two_letters
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/has_repeated_two_letters.h"
+
+/* Return true if the zero‑terminated string s contains any 2‑letter
+   substring that appears at least twice. */
+static bool has_repeated_two_letters(const char *s)
+{
+    size_t len = strlen(s);
+    if (len < 2) return false;
+
+    bool seen[26 * 26];
+    memset(seen, 0, sizeof(seen));
+
+    for (size_t i = 0; i + 1 < len; ++i) {
+        int a = s[i] - 'a';
+        int b = s[i + 1] - 'a';
+        int idx = a * 26 + b;
+        if (seen[idx]) return true;
+        seen[idx] = true;
+    }
+    return false;
+}
 
 /* English words for 0–19 and tens multiples. */
 static const char *const small[] = {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* external integer types (supplied by the build) */
 extern seq_t   a(idx_t n);  /* declaration requested by the problem   */
@@ -33,7 +35,7 @@ static seq_t get_pow2(idx_t n)
     if (n == 0) return 1; /* unused but harmless */
     if (pow2_size < n) {
         size_t new_size = (size_t)n;
-        pow2_cache = (seq_t *)realloc(pow2_cache, new_size * sizeof(seq_t));
+        pow2_cache = mem_resize(seq_t, pow2_cache, new_size);
         size_t i;
         if (pow2_size == 0) {           /* first term: 2^1 */
             pow2_cache[0] = (seq_t)2;
@@ -57,7 +59,7 @@ static seq_t get_pow3(idx_t n)
     if (n == 0) return 1; /* unused but harmless */
     if (pow3_size < n) {
         size_t new_size = (size_t)n;
-        pow3_cache = (seq_t *)realloc(pow3_cache, new_size * sizeof(seq_t));
+        pow3_cache = mem_resize(seq_t, pow3_cache, new_size);
         size_t i;
         if (pow3_size == 0) {           /* first term: 3^1 */
             pow3_cache[0] = (seq_t)3;

@@ -10,13 +10,14 @@
  *            flattening of the triangle row‑by‑row
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -36,5 +37,5 @@ seq_t a(idx_t n)
     idx_t e = (r + k - 1) / k;
 
     /* Compute k^e as seq_t */
-    return pow_uint((uint64_t)k, e);
+    return ipow_u64_idx((uint64_t)k, e);
 }

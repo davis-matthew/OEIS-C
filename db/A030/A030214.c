@@ -7,13 +7,23 @@
  * Formula:   a(n) = coefficient of x^n in x * ∏_{k≥1}(1-x^(7k))(1-x^(17k))
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   alloc_seq
+ * Validated: standard, pass, 97 terms through n = 9220 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq.h"   /* provides: seq_t *alloc_seq(size_t n) */
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -45,6 +55,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[size - 1];  /* coefficient of x^(n‑1) in the product */
-    free(dp);                     /* deallocate the auxiliary array */
+    mem_free(dp);                     /* deallocate the auxiliary array */
     return result;
 }

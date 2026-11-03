@@ -9,17 +9,29 @@
  *            * n-th term (rows are numbered 1,2,3,…) and k = n - r(r-1)/2 is
  *            the * position within that row. Thus n runs through the
  *            triangular array * read by rows. (See A094435.)
- * Range:     u8 n <= 31, u16 n <= 99, u32 n <= 339, u64 n <= 1251,
+ * Range:     u8 n <= 32, u16 n <= 99, u32 n <= 339, u64 n <= 1251,
  *            u128 n <= 4615, big any n
- * Helpers:   binomial, fib
+ * Validated: standard, pass, 82 terms through n = 4826 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/fib.h"      /* seq_t fib(idx_t n);           */
-#include "../utils/binomial.h" /* seq_t binomial(idx_t n, idx_t k); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static inline idx_t triangular_row(idx_t idx)
 {

@@ -10,7 +10,8 @@
  *            largest k with k(k+1)/2≤n. a(n) is the triangle read by rows
  * Range:     u8 n <= 52, u16 n <= 201, u32 n <= 1054, u64 n <= 6193,
  *            u128 n <= 9981, big any n
- * Helpers:   get_kmax, grow_pointer_array, grow_uchar_array
+ * Validated: standard, pass, 88 terms through n = 9806 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,41 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/get_kmax.h"
-#include "../utils/grow_pointer_array.h"
-#include "../utils/grow_uchar_array.h"
+
+/* --------------------------------------------------------------- */
+static inline uint32_t get_kmax(size_t n)
+{
+    uint32_t k = 0;
+    /* (k+1)(k+2)/2 ≤ n  →  k is maximal integer satisfying this. */
+    while ((uint64_t)(k + 1) * (k + 2) / 2 <= n)
+        ++k;
+    return k;
+}
+
+/* --------------------------------------------------------------- */
+static void grow_pointer_array(void ***arr_p, size_t *cap_p, size_t needed)
+{
+    if (*cap_p < needed) {
+        size_t newcap = (*cap_p == 0) ? 16 : (*cap_p << 1);
+        while (newcap < needed) newcap <<= 1;
+        void **newptr = (void **)realloc(*arr_p, newcap * sizeof(void *));
+        if (!newptr) abort();
+        *arr_p = newptr;
+        *cap_p = newcap;
+    }
+}
+
+static void grow_uchar_array(uint32_t **arr_p, size_t *cap_p, size_t needed)
+{
+    if (*cap_p < needed) {
+        size_t newcap = (*cap_p == 0) ? 16 : (*cap_p << 1);
+        while (newcap < needed) newcap <<= 1;
+        uint32_t *newptr = (uint32_t *)realloc(*arr_p, newcap * sizeof(uint32_t));
+        if (!newptr) abort();
+        *arr_p = newptr;
+        *cap_p = newcap;
+    }
+}
 
 #ifdef __cplusplus
 /* Allocate and free arrays of seq_t in C++ (ensures proper construction).

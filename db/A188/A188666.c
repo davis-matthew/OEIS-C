@@ -7,7 +7,8 @@
  * Formula:   a(n) = smallest prime power > floor(n/2)
  * Range:     u8 n <= 501, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _upper_bound_uint64
+ * Validated: standard, pass, 85 terms through n = 9228 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_upper_bound_uint64.h"
+
+/* Binary search on a sorted array of uint64_t values. */
+static size_t _upper_bound_uint64(const uint64_t *arr, size_t len,
+                                  uint64_t value)
+{
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] <= value)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo;   /* first index with arr[i] > value */
+}
 
 /* Comparator for qsort on uint64_t. */
 static int _cmp_uint64(const void *a, const void *b)

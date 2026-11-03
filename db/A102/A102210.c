@@ -7,7 +7,8 @@
  * Formula:   a(n) = #{p prime ≤ n | (p & n) = p}
  * Range:     u8 n <= 2046, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   add_prime, is_prime
+ * Validated: standard, pass, 118 terms through n = 9572 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,21 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* is_prime(uint64_t) */
-#include "../utils/add_prime.h"  /* add_prime(uint64_t **, size_t *, size_t *, uint64_t) */
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+
+/* Dynamically grow the array of found primes */
+static void add_prime(uint64_t **arr, size_t *cap, size_t *cnt, uint64_t val)
+{
+    if (*cnt >= *cap) {
+        size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(**arr));
+        if (!tmp) return;           /* allocation failed – caller will free on exit */
+        *arr = tmp;
+        *cap = new_cap;
+    }
+    (*arr)[(*cnt)++] = val;
+}
 
 static uint64_t *prime_arr   = NULL;   /* dynamic array of primes */
 static size_t      prime_cap = 0;      /* array capacity */
@@ -31,7 +45,7 @@ ensure_primes(idx_t n)
 {
     /* Generate primes from last_checked+1 up to n by trial division. */
     for (idx_t i = last_checked + 1; i <= n; ++i) {
-        if (is_prime(i))
+        if (is_prime_u64(i))
             add_prime(&prime_arr, &prime_cap, &prime_cnt, (uint64_t)i);
     }
     last_checked = n;

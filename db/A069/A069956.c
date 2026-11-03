@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 24, u32 n <= 166, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *seq      = NULL;      /* memoised values */
 static size_t seq_len  = 0;         /* number of values stored */
@@ -130,10 +132,10 @@ static void ensure_capacity(size_t n)
     if (seq_cap <= n) {
         size_t new_cap = n + 1;
         if (new_cap < 4) new_cap = 4;
-        seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (seq != NULL) {
-            memcpy(new_arr, seq, seq_len * sizeof(seq_t));
-            free(seq);
+            mem_copy(new_arr, seq, seq_len * sizeof(seq_t));
+            mem_free(seq);
         }
         for (size_t i = seq_len; i < new_cap; ++i)
             new_arr[i] = 0;

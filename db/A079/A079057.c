@@ -7,14 +7,16 @@
  * Formula:   a(n) = Σ_{k=1..n} Ω( τ(k) ) (OEIS A079057)
  * Range:     u8 n <= 134, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bigomega
+ * Validated: standard, pass, 85 terms through n = 986 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>      /* for uint32_t */
 #include <stdlib.h>      /* for calloc, realloc */
-#include "../utils/bigomega.h"   /* provides seq_t bigomega(idx_t) */
+#include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 /* cached data */
 static uint32_t *tau_cache   = NULL;  /* divisor count up to n */
@@ -36,7 +38,7 @@ static void recompute_until(idx_t n)
 
     /* allocate or reallocate cum_cache */
     {
-        seq_t *new_cum = (seq_t *)realloc(cum_cache, size * sizeof(seq_t));
+        seq_t *new_cum = mem_resize(seq_t, cum_cache, size);
         if (!new_cum) return;
         cum_cache = new_cum;
     }

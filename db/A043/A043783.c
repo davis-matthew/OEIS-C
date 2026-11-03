@@ -12,13 +12,32 @@
  *            required, and it works for any * seq_t and idx_t that conform...
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   runs_mod5_base3
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
-#include "../utils/runs_mod5_base3.h"
+
+/* Compute (number of runs in base‑3 representation of m) mod 5.
+  *  A run is a maximal consecutive block of identical digits.
+  *  Example: 110220 -> runs = 4 (11, 0, 22, 0). */
+static inline int runs_mod5_base3(idx_t m)
+{
+    int rem = 0;          /* remainder of run count modulo 5 */
+    int prev = -1;        /* previous digit, -1 indicates none yet */
+
+    while (m > 0) {
+        int d = m % 3;
+        if (d != prev) {
+            rem = (rem + 1) % 5;
+            prev = d;
+        }
+        m /= 3;
+    }
+    return rem;
+}
 
  
 

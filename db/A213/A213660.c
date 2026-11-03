@@ -11,18 +11,39 @@
  *            k ≤ 2m+1; the triangle is read row‑by‑row starting at n=1. The
  *            function computes the row index m and the column index k from n
  *            and then applies the above closed‑form
- * Range:     u8 n <= 19, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
+ * Range:     u8 n <= 29, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   binomial, floor_sqrt, pow2
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   binomial, ipow_i32, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/floor_sqrt.h"
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
 #include "../utils/pow2.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Find the row m such that the (m‑1)‑st row ends before position n
    and the m‑th row contains position n.  The cumulative count up to

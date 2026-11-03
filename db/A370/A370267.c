@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   count_non_pm1_factors
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,39 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_non_pm1_factors.h"
+#include "../utils/mem.h"
+
+/* Count prime factors of x that are NOT of the form 8k±1.
+   2 is always counted.  Odd primes are counted only if p%8 is 3 or 5. */
+static int count_non_pm1_factors(uint64_t x)
+{
+    int cnt = 0;
+    /* factor 2 */
+    while ((x & 1ULL) == 0ULL) {
+        ++cnt;
+        x >>= 1U;
+    }
+    /* odd factors */
+    for (uint64_t p = 3ULL; p * p <= x; p += 2ULL) {
+        if (x % p == 0ULL) {
+            if (p % 8ULL == 3ULL || p % 8ULL == 5ULL) {
+                while (x % p == 0ULL) {
+                    ++cnt;
+                    x /= p;
+                }
+            } else {
+                while (x % p == 0ULL) {
+                    x /= p;
+                }
+            }
+        }
+    }
+    if (x > 1ULL) {                 /* remaining prime factor */
+        if (x % 8ULL == 3ULL || x % 8ULL == 5ULL)
+            ++cnt;
+    }
+    return cnt;
+}
 
 /* Cache of computed sequence terms.  seq_cache[0] holds a(1). */
 static seq_t *seq_cache = NULL;
@@ -37,7 +70,7 @@ static void ensure_cache(idx_t n)
     /* Grow the array if necessary. */
     if (seq_len == seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         seq_cache = tmp;
         seq_cap   = new_cap;
     }
@@ -51,7 +84,7 @@ static void ensure_cache(idx_t n)
             seq_cache[seq_len++] = next;
             if (seq_len == seq_cap) {          /* ensure capacity for next insertion */
                 size_t new_cap = seq_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
                 seq_cache = tmp;
                 seq_cap   = new_cap;
             }

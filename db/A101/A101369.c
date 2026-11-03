@@ -12,7 +12,8 @@
  *            therefore ⌊k/√2⌋ = isqrt(2·k²) >> 1
  * Range:     u8 n <= 12, u16 n <= 399, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isqrt
+ * Validated: standard, pass, 86 terms through n = 8972 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
    routine isqrt from the utils library. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isqrt.h"
+#include "../utils/isqrt_seq.h"
 
 extern seq_t a(idx_t n)
 {
@@ -39,7 +40,7 @@ extern seq_t a(idx_t n)
     /* Δ = ⌊k/√2⌋ = isqrt(2·k²) >> 1 */
     seq_t kk  = k * k;            /* k²  */
     seq_t t   = (seq_t)2 * kk;    /* 2·k² */
-    seq_t delta = isqrt(t) >> 1;  /* divide by 2 */
+    seq_t delta = isqrt_seq(t) >> 1;  /* divide by 2 */
 
     if (n & 1U) {        /* odd n */
         return (seq_t)1 + delta;

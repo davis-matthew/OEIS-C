@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   degree_uint64, nth_poly
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   ilog2_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,17 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/degree_uint64.h"
-#include "../utils/nth_poly.h"
+#include "../utils/ilog2_u64_to_u32.h"
+
+/* Return the polynomial (as a uint64_t) corresponding to
+ * the m‑th monic GF(2)[x] polynomial in the enumeration. */
+static inline uint64_t nth_poly(idx_t m)
+{
+    /* m >= 1 */
+    unsigned int d = 63 - __builtin_clzll((uint64_t)m); /* floor(log2 m) */
+    idx_t offset = m - ((idx_t)1 << d);                 /* offset 0‑based */
+    return (((uint64_t)1) << d) | ((uint64_t)offset);
+}
 
 /* multiply two polynomials over GF(2), results fit in 64 bits
  * (the degrees we need are < 64).  Works for any seq_t,
@@ -41,9 +51,9 @@ static inline uint64_t poly_mul(uint64_t a, uint64_t b)
 /* remainder of a divided by mod (both monic). */
 static inline uint64_t poly_mod(uint64_t a, uint64_t mod)
 {
-    unsigned int dmod = degree_uint64(mod);
+    unsigned int dmod = ilog2_u64_to_u32(mod);
     while (a) {
-        unsigned int da = degree_uint64(a);
+        unsigned int da = ilog2_u64_to_u32(a);
         if (da < dmod) break;
         uint64_t shift = da - dmod;
         a ^= (mod << shift);
@@ -67,7 +77,7 @@ static bool is_reducible(uint64_t f)
 {
     /* constant polynomials (1) are considered irreducible */
     if (f <= 1u) return false;
-    unsigned int d = degree_uint64(f);
+    unsigned int d = ilog2_u64_to_u32(f);
     if (d <= 1) return false;   /* linear polynomials are irreducible */
 
     uint64_t xpow = 2u; /* x */

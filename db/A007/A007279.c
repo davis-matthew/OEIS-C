@@ -8,18 +8,20 @@
  *            using only partition numbers as parts
  * Range:     u8 n <= 23, u16 n <= 80, u32 n <= 386, u64 n <= 2741,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n) {
     // Compute partition numbers p(k) for k >= 1
-    seq_t *partition_counts = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *partition_counts = mem_new(seq_t, n + 1);
     partition_counts[0] = 1;
     
     for (idx_t i = 1; i <= n; i++) {
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     }
     
     // Collect partition numbers p(k) where p(k) <= n
-    seq_t *partition_nums = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *partition_nums = mem_new(seq_t, (n + 1));
     idx_t num_partition_nums = 0;
     
     for (idx_t k = 1; k <= n; k++) {
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     }
     
     // Count partitions of n using partition numbers
-    seq_t *dp = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, n + 1);
     dp[0] = 1;
     
     for (idx_t i = 0; i < num_partition_nums; i++) {
@@ -53,8 +55,8 @@ seq_t a(idx_t n) {
     }
     
     seq_t result = dp[n];
-    free(partition_counts);
-    free(partition_nums);
-    free(dp);
+    mem_free(partition_counts);
+    mem_free(partition_nums);
+    mem_free(dp);
     return result;
 }

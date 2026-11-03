@@ -10,14 +10,16 @@
  *            at n = 4 (offset 4). a(4)=1, a(5)=10, a(6)=60, etc
  * Range:     u8 n <= 7, u16 n <= 20, u32 n <= 69, u64 n <= 266,
  *            u128 n <= 1072, big any n
+ * Validated: standard, pass, 52 terms through n = 2258 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k);   */
-#include "../utils/pow2.h"       /* seq_t pow2(idx_t exp);             */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

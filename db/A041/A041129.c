@@ -10,12 +10,14 @@
  *            a(12)=145249, a(13)=267000
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 20, u64 n <= 41, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* Allocate space for the sequence up to n. */
     idx_t len = (idx_t)n + 1U;
-    seq_t *seq = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, len);
     if (!seq) {
         /* In a real implementation we would handle allocation failure. */
         return (seq_t)0;
@@ -51,6 +53,6 @@ seq_t a(idx_t n)
 
     /* Fetch the requested value and free temporary storage. */
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

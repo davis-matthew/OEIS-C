@@ -9,7 +9,8 @@
  *            a(n-1) have opposite parity
  * Range:     u8 n <= 55, u16 n <= 6400, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 6809 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global variables for the sequence and the SPF sieve */
 static seq_t *seq = NULL;          /* memoized sequence values */
@@ -85,7 +87,7 @@ static void seq_ensure(size_t needed)
     size_t new_cap = seq_cap ? (seq_cap << 1) : 8;
     while (new_cap < needed) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (tmp == NULL) abort();   /* out of memory */
 
     seq = tmp;

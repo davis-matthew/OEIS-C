@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 399, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Initialisation on first call */
     if (len == 0) {
         cap = 64;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         if (!seq) abort();
         seq[0] = (seq_t)1;
         len  = 1;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* Grow the cache as needed */
     if (n > cap) {
         while (cap < n) cap <<= 1;
-        seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, cap);
         if (!seq) abort();
     }
 
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         if (!seen) {
             if (len == cap) {
                 cap <<= 1;
-                seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
                 if (!seq) abort();
             }
             seq[len++] = c1;
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
         if (!seen) {
             if (len == cap) {
                 cap <<= 1;
-                seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
                 if (!seq) abort();
             }
             seq[len++] = c2;

@@ -9,13 +9,15 @@
  *            series has offset -1, i.e. a(-1) is the first listed term
  * Range:     i8 n <= 29, i16 n <= 88, i32 n <= 279, i64 n <= 957,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* constants for the η–product */
 static const idx_t NUM_K[4] = {1, 6, 10, 15};   /* numerator ks   */
@@ -32,7 +34,7 @@ static void build_P(idx_t max_n, seq_t **P_out)
     idx_t deg = max_n + 1;              /* highest exponent needed   */
     size_t len = (size_t)(deg + 1);     /* array length              */
 
-    seq_t *P = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *P = mem_new(seq_t, len);
     if (!P) exit(1);                     /* out–of–memory            */
 
     /* initialise P(q) = 1 */
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
 
     /* Rebuild cache if we need higher indices */
     if (n > cache_max_n) {
-        if (P_cache) free(P_cache);
+        if (P_cache) mem_free(P_cache);
         build_P(n, &P_cache);
         cache_max_n = n;
     }

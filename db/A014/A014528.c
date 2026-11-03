@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Return true if x is a power of 3 with exponent ≥ 1 (1 itself is not treated as a power). */
 static bool is_power_of_3(seq_t x)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (cap == 0) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Generate terms until we have at least n + 1 cached values. */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
             if (cand % (seq_t)4 != (seq_t)0 && !is_power_of_3(cand)) {
                 if (len == cap) {                 /* grow capacity when needed */
                     cap *= 2;
-                    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cap);
                 }
                 cache[len++] = cand;
                 if (len > n) return cache[(size_t)n];

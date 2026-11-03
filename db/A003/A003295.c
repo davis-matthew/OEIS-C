@@ -11,15 +11,83 @@
  *            = eta(q^3)eta(q^33)/(eta(q)eta(q^11)) (A128663)
  * Range:     i8 n <= 3, i16 n <= 12, i32 n <= 44, i64 n <= 163, i128 n <= 612,
  *            big any n
- * Helpers:   eta_apply, gpow, zalloc_vals
+ * Validated: standard, pass, 48 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/eta_apply.h"
-#include "../utils/gpow.h"
-#include "../utils/zalloc_vals.h"
+#include "../utils/mem.h"
+
+/* multiply (div=0) or divide (div=1) series f (length L) by eta(q^m) without the q^(m/24) factor */
+static void eta_apply(seq_t *f, idx_t L, idx_t m, int div) {
+    idx_t cap = 8, cnt = 0, k;
+    idx_t *ex;
+    int *sg;
+    for (k = 1; m * k * (3 * k - 1) / 2 < L; k++) cap += 2;
+    ex = (idx_t *)malloc(cap * sizeof(idx_t));
+    sg = (int *)malloc(cap * sizeof(int));
+    for (k = 1;; k++) {
+        idx_t e1 = m * k * (3 * k - 1) / 2, e2 = m * k * (3 * k + 1) / 2;
+        int s = (k & 1) ? -1 : 1;
+        if (e1 >= L) break;
+        ex[cnt] = e1; sg[cnt] = s; cnt++;
+        if (e2 < L) { ex[cnt] = e2; sg[cnt] = s; cnt++; }
+    }
+    if (!div) {
+        idx_t i;
+        for (i = L - 1; i >= 0; i--) {
+            seq_t s = f[i];
+            idx_t j;
+            for (j = 0; j < cnt && ex[j] <= i; j++) {
+                if (sg[j] > 0) s += f[i - ex[j]];
+                else s -= f[i - ex[j]];
+            }
+            f[i] = s;
+        }
+    } else {
+        idx_t i;
+        for (i = 0; i < L; i++) {
+            seq_t s = f[i];
+            idx_t j;
+            for (j = 0; j < cnt && ex[j] <= i; j++) {
+                if (sg[j] > 0) s -= f[i - ex[j]];
+                else s += f[i - ex[j]];
+            }
+            f[i] = s;
+        }
+    }
+    free(ex);
+    free(sg);
+}
+
+static seq_t *zalloc_vals(idx_t len) {
+    /* zero-filled storage: an all-zero object is a valid zero value */
+    return mem_new(seq_t, (size_t)len);
+}
+
+static seq_t *gpow(idx_t L, int p) {
+    seq_t *f = zalloc_vals(L);
+    int t;
+    f[0] = 1;
+    if (p > 0) {
+        for (t = 0; t < p; t++) {
+            eta_apply(f, L, 3, 0);
+            eta_apply(f, L, 33, 0);
+            eta_apply(f, L, 1, 1);
+            eta_apply(f, L, 11, 1);
+        }
+    } else {
+        for (t = 0; t < -p; t++) {
+            eta_apply(f, L, 1, 0);
+            eta_apply(f, L, 11, 0);
+            eta_apply(f, L, 3, 1);
+            eta_apply(f, L, 33, 1);
+        }
+    }
+    return f;
+}
 
 static seq_t *cache = NULL;
 static idx_t clen = 0;

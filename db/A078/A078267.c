@@ -8,7 +8,8 @@
  * Formula:   a(n) = 10^digits(n) / gcd(n, 10^digits(n))
  * Range:     u8 n <= 99, u16 n <= 9999, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _digit_count
+ * Validated: standard, pass, 81 terms through n = 9646 (2026-11-01)
+ * Helpers:   num_digits_idx_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* A078267 – smallest k such that k * 0.n is an integer */
 
 #include <stdint.h>
-#include "../utils/_digit_count.h"
+#include "../utils/num_digits_idx_to_idx.h"
 
 /* Euclidean algorithm for seq_t (works for all supported integer types). */
 static inline seq_t _gcd_seq_local(seq_t a, seq_t b)
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
     seq_t n_seq = (seq_t)n;
 
     /* Number of decimal digits of n. */
-    idx_t d = _digit_count(n);
+    idx_t d = num_digits_idx_to_idx(n);
 
     /* Compute 10^d in seq_t. */
     seq_t pow10 = 1;

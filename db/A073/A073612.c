@@ -11,13 +11,15 @@
  * Formula:   a(n) = sum_{i=1}^{n-1} prime(i) + 1 + (prime(n)-1)/2 (n ≥ 2)
  * Range:     u8 n <= 13, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for primes and their cumulative sums */
 static idx_t *primes = NULL;      /* primes[0] = 2, primes[1] = 3, … */
@@ -36,10 +38,10 @@ static void ensure_primes(idx_t needed)
 
     if (!primes) {
         primes = (idx_t *)malloc(cap * sizeof(idx_t));
-        cum    = (seq_t *)malloc(cap * sizeof(seq_t));
+        cum    = mem_new(seq_t, cap);
     } else {
         primes = (idx_t *)realloc(primes, cap * sizeof(idx_t));
-        cum    = (seq_t *)realloc(cum,    cap * sizeof(seq_t));
+        cum    = mem_resize(seq_t, cum, cap);
     }
 
     while (prime_cnt < needed) {

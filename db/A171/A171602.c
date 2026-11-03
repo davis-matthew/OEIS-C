@@ -10,7 +10,8 @@
  *            (not necessarily distinct) primes)
  * Range:     u8 n <= 17, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* The sequence type and index type are supplied by the build. */
 static seq_t *terms = NULL;          /* stored results, a(1) at index 0 */
@@ -45,7 +47,7 @@ static void grow_terms(void)
 {
     if (terms_len >= terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *new_arr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
         if (!new_arr) exit(1);   /* out of memory */
         terms = new_arr;
         terms_cap = new_cap;

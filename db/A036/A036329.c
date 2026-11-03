@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, fini, full, easy
  * Formula:   not stated
- * Range:     u8 n <= 28, u16 n <= 9840, u32 n <= 8932, u64 n <= 8932,
- *            u128 n <= 8932, big any n
- * Helpers:   digit_count, factor_u64
+ * Range:     u8 n <= 28, u16 n <= 9840, u32 n <= 10077, u64 n <= 10077,
+ *            u128 n <= 10077, big any n
+ * Validated: full, pass, 10077 terms through n = 10077 (2026-11-03)
+ * Helpers:   factor_u64, mem, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/digit_count.h"
+#include <math.h>
 #include "../utils/factor_u64.h"
+#include "../utils/num_digits0.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array of found terms */
 static size_t cache_len = 0;  /* number of terms currently stored   */
@@ -36,14 +39,14 @@ static void ensure_cache(size_t need)
     if (cache_len < need) {
         if (cache == NULL) {
             cache_cap = (need > 8) ? need : 8;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
             if (!cache)
                 exit(EXIT_FAILURE);
         } else if (cache_cap < need) {
             size_t new_cap = cache_cap * 2;
             if (new_cap < need)
                 new_cap = need;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)
                 exit(EXIT_FAILURE);
             cache = tmp;
@@ -65,7 +68,7 @@ static void ensure_cache(size_t need)
             if (!(pcnt == 1 && exps[0] == 1ULL)) {
                 unsigned total_len = 0;
                 for (size_t i = 0; i < pcnt; ++i) {
-                    unsigned d = digit_count(primes[i]);      /* digits of the prime */
+                    unsigned d = num_digits0(primes[i]);      /* digits of the prime */
                     total_len += d * (unsigned)exps[i];       /* each occurrence */
                     if (total_len > 5)                        /* early exit */
                         break;

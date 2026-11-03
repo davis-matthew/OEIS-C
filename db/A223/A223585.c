@@ -10,15 +10,34 @@
  *            with U(t) = (t^6+15t^5+115t^4+405t^3+964t^2+660t+720)/720
  * Range:     u8 none, u16 n <= 11, u32 n <= 30, u64 n <= 69, u128 n <= 159,
  *            big any n
- * Helpers:   U_value, big_pow
+ * Validated: standard, pass, 47 terms through n = 995 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/U_value.h"
+#include "../utils/ipow.h"
+
+static seq_t
+U_value(idx_t t)                         /* t ≥ 1 */
+{
+    seq_t tt = (seq_t)t;
+    seq_t u2 = tt * tt;
+    seq_t u3 = u2 * tt;
+    seq_t u4 = u3 * tt;
+    seq_t u5 = u4 * tt;
+    seq_t u6 = u5 * tt;
+    seq_t num = u6
+              + (seq_t)15 * u5
+              + (seq_t)115 * u4
+              + (seq_t)405 * u3
+              + (seq_t)964 * u2
+              + (seq_t)660 * tt
+              + (seq_t)720;
+    return num / (seq_t)720;
+}
 
 seq_t
 a(idx_t n)
@@ -40,7 +59,7 @@ a(idx_t n)
     idx_t M = (i > j) ? i : j;              /* max(i,j)  */
 
     /* Compute the power part U(m)^(M-m+1) */
-    seq_t upower = big_pow(U_value(m), (seq_t)(M - m + 1));
+    seq_t upower = ipow(U_value(m), (seq_t)(M - m + 1));
 
     /* Compute the product ∏_{l=1}^{m-1} U(l)^2 */
     seq_t prod = 1;

@@ -8,7 +8,8 @@
  *            schoolbook digit-by-digit square root in base 7
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a4560_addsmall, a4560_cmp, a4560_sub
+ * Validated: standard, pass, 115 terms through n = 9943 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,38 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/a4560_addsmall.h"
-#include "../utils/a4560_cmp.h"
-#include "../utils/a4560_sub.h"
+
+static void a4560_addsmall(int *s, idx_t *sl, int v) {
+    idx_t i = 0;
+    s[0] += v;
+    while (s[i] >= 7) {
+        s[i] -= 7;
+        if (i + 1 == *sl) { s[*sl] = 0; (*sl)++; }
+        s[i + 1]++;
+        i++;
+    }
+}
+
+static int a4560_cmp(const int *a, idx_t la, const int *b, idx_t lb) {
+    idx_t i;
+    if (la != lb) return la < lb ? -1 : 1;
+    for (i = la; i > 0; i--) {
+        if (a[i - 1] != b[i - 1]) return a[i - 1] < b[i - 1] ? -1 : 1;
+    }
+    return 0;
+}
+
+static void a4560_sub(int *a, idx_t *la, const int *b, idx_t lb) {
+    idx_t i;
+    int borrow = 0;
+    for (i = 0; i < *la; i++) {
+        int v = a[i] - borrow - (i < lb ? b[i] : 0);
+        if (v < 0) { v += 7; borrow = 1; } else borrow = 0;
+        a[i] = v;
+        if (i >= lb && borrow == 0) break;
+    }
+    while (*la > 1 && a[*la - 1] == 0) (*la)--;
+}
 
 static unsigned char *a4560_dig = NULL;
 static idx_t a4560_len = 0;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 119, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 733 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    a(8)=4, a(9)=4, a(10)=4, a(11)=4, a(12)=6. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for computed values */
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
     if (len == 0) {
         size_t init_cap = 64;               /* arbitrary start size */
         if (init_cap < 13) init_cap = 13;
-        cache = (seq_t*)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (cache == NULL) abort();         /* allocation failure */
         for (size_t i = 0; i < 13; ++i) cache[i] = seed[i];
         len = 13;
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     if ((size_t)n + 1 > capacity) {
         size_t new_cap = capacity ? capacity * 2 : 64;
         if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();           /* allocation failure */
         cache = tmp;
         capacity = new_cap;

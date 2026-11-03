@@ -7,14 +7,17 @@
  * Formula:   a(n) = (-1)^n * Sum_{k=0..n} (-2*k)^k * binomial(n,k)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) */
-#include "../utils/big_pow.h"    /* big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* Sequence calculation */
 seq_t a(idx_t n)
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
             powk = 1;                       /* 0^0 is defined as 1 in this formula */
         } else {
             seq_t base = 2 * ((seq_t)k);    /* base = 2*k   */
-            powk = big_pow(base, k);        /* (2*k)^k       */
+            powk = ipow(base, k);        /* (2*k)^k       */
         }
 
         seq_t term = bin * powk;            /* current summand */

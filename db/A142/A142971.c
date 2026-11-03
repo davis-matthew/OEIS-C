@@ -10,6 +10,7 @@
  *            prime, then a(n) = –p; otherwise a(n) = 0
  * Range:     i8 n <= 117, i16 n <= 117, i32 n <= 117, i64 n <= 117,
  *            i128 n <= 117, big any n
+ * Validated: partial, pass, 117 terms through n = 117 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

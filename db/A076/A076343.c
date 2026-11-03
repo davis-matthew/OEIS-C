@@ -12,7 +12,8 @@
  *            is performed in the complex plane: * real = x1*...
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   ensure_capacity, int_sqrt, map_prime
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,58 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/ensure_capacity.h"
-#include "../utils/int_sqrt.h"
-#include "../utils/map_prime.h"
+#include <stdlib.h>
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
+
+/*  map a prime to a complex pair (x, y) as described above */
+static inline void map_prime(uint64_t r, seq_t *x, int *y)
+{
+    if (r == 2) {
+        *x = 2;
+        *y = 0;
+    } else if (r % 4 == 1) {
+        *x = r - 1;
+        *y = 1;
+    } else {
+        *x = r + 1;
+        *y = -1;
+    }
+}
 
 /* global state for memoisation */
 static seq_t *cache      = NULL;
@@ -42,7 +92,7 @@ static void ensure_primes_up_to(uint64_t limit)
     while (prime_next <= limit) {
         /* primality test using already known primes */
         bool is_prime = true;
-        uint64_t r = int_sqrt(prime_next);
+        uint64_t r = isqrt(prime_next);
         for (size_t i = 0; i < primes_len && primes[i] <= r; ++i) {
             if (prime_next % primes[i] == 0) {
                 is_prime = false;
@@ -50,7 +100,7 @@ static void ensure_primes_up_to(uint64_t limit)
             }
         }
         if (is_prime) {
-            ensure_capacity(primes_len + 1, &primes_cap, (void **)&primes,
+            ensure_capacity(primes_len + 1, &primes_cap, OEISC_VPP(&primes),
                             sizeof(uint64_t));
             primes[primes_len++] = prime_next;
         }
@@ -106,7 +156,7 @@ static void extend_cache(idx_t n)
 {
     while (cache_len < (size_t)n) {
         /* ensure primes enough for factorisation of cur_num */
-        uint64_t limit = int_sqrt(cur_num);
+        uint64_t limit = isqrt(cur_num);
         ensure_primes_up_to(limit);
 
         /* check whether cur_num is a semiprime */
@@ -128,7 +178,7 @@ static void extend_cache(idx_t n)
             else
                 a_val = ac;
 
-            ensure_capacity(cache_len + 1, &cache_cap, (void **)&cache,
+            ensure_capacity(cache_len + 1, &cache_cap, OEISC_VPP(&cache),
                             sizeof(seq_t));
             cache[cache_len++] = a_val;
         }

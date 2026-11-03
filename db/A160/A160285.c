@@ -8,12 +8,14 @@
  *            a(n) = 46*a(n-1) - 1682*(n-1)*a(n-2) (n >= 2)
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 9, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 364 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* dynamic array of computed terms */
 static idx_t cache_size = 0;     /* number of elements already computed (last index + 1) */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     while (new_cap <= n)
         new_cap <<= 1;   /* double until large enough */
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                /* memory allocation failed */
     cache = tmp;

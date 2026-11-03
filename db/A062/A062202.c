@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* flattened array dp[n][m] → dp[n*4 + m] */
 static size_t dp_cap = 0;         /* number of n values currently stored (0..dp_cap-1) */
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n)
     size_t needed = (size_t)n + 1;      /* we want entries for 0 .. n inclusive */
     if (needed <= dp_cap) return;       /* already computed */
 
-    seq_t *tmp = (seq_t*)realloc(dp, needed * 4 * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, needed * 4);
     if (!tmp) exit(1);
     dp = tmp;
 

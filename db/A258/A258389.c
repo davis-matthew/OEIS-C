@@ -7,12 +7,15 @@
  * Formula:   a(n) = (n^(n+1)-(n-1)^n) + ((n+1)^n-n^(n-1))
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,9 +26,9 @@ seq_t a(idx_t n)
     seq_t n_plus_1  = nseq + 1;
 
     /* Compute the required powers */
-    seq_t pow_n_minus1_n = big_pow(n_minus_1, (seq_t)n);        /* (n-1)^n          */
-    seq_t pow_n_inv1     = big_pow(nseq,       (seq_t)(n-1));   /* n^(n-1)          */
-    seq_t pow_np1_n      = big_pow(n_plus_1,   (seq_t)n);        /* (n+1)^n          */
+    seq_t pow_n_minus1_n = ipow(n_minus_1, (seq_t)n);        /* (n-1)^n          */
+    seq_t pow_n_inv1     = ipow(nseq,       (seq_t)(n-1));   /* n^(n-1)          */
+    seq_t pow_np1_n      = ipow(n_plus_1,   (seq_t)n);        /* (n+1)^n          */
     seq_t pow_n_n1       = pow_n_inv1 * nseq * nseq;            /* n^(n+1) = n^(n-1)*n^2 */
 
     /* Combine according to the formula */

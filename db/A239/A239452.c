@@ -7,14 +7,18 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 93 terms through n = 9720 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(n) = smallest m > 1 such that m^n == m (mod n) */
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +30,7 @@ seq_t a(idx_t n)
        (OEIS note: for n>1, a(n) <= n) */
     for (uint64_t m = 2; m <= (uint64_t)n; ++m)
     {
-        seq_t mod_result = mod_pow((seq_t)m, (uint64_t)n, (seq_t)n);
+        seq_t mod_result = powmod((seq_t)m, (uint64_t)n, (seq_t)n);
         if (mod_result == (seq_t)m)
             return (seq_t)m;
     }

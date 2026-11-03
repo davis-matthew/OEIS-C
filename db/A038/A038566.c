@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, frac, core, nice, tabf
  * Formula:   not stated
- * Range:     u8 n <= 80, u16 n <= 9627, u32 n <= 9627, u64 n <= 9627,
- *            u128 n <= 9627, big any n
- * Helpers:   gcd
+ * Range:     u8 n <= 80, u16 n <= 100001, u32 n <= 100001, u64 n <= 100001,
+ *            u128 n <= 100001, big any n
+ * Validated: standard, pass, 112 terms through n = 9627 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
    and works for any seq_t type provided by the build.  It does not
    require acceleration beyond the sieve. */
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,8 +44,7 @@ seq_t a(idx_t n)
         /* allocate new arrays */
         uint64_t *new_phi = (uint64_t *)malloc((new_limit + 1) *
                                                 sizeof(uint64_t));
-        seq_t    *new_cum = (seq_t    *)malloc((new_limit + 1) *
-                                                sizeof(seq_t));
+        seq_t    *new_cum = mem_new(seq_t, (new_limit + 1));
         if (!new_phi || !new_cum) {
             exit(1); /* allocation failure */
         }
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
 
         /* replace old arrays */
         free(phi);
-        free(cum);
+        mem_free(cum);
         phi   = new_phi;
         cum   = new_cum;
         limit = new_limit;

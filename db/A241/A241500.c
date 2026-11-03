@@ -12,7 +12,8 @@
  *            a(1)=T(1,1), a(2)=T(2,1), a(3)=T(2,2), * a(4)=T(3,1), …
  * Range:     u8 n <= 30, u16 n <= 58, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global cache for Stirling numbers */
 static seq_t *S = NULL;           /* pointer to 2‑D array stored linearly */
@@ -41,7 +43,7 @@ static void ensureS(size_t up_to)
         return;
 
     size_t new_sz = up_to + 1;          /* we need indices 0…up_to */
-    seq_t *new_S = (seq_t *)malloc(new_sz * new_sz * sizeof(seq_t));
+    seq_t *new_S = mem_new(seq_t, new_sz * new_sz);
     if (!new_S) /* allocation failed */
         return;
 
@@ -60,7 +62,7 @@ static void ensureS(size_t up_to)
         }
     }
 
-    free(S);
+    mem_free(S);
     S = new_S;
     S_sz = new_sz;
     S_max = up_to;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 22, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 522 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  *  where t_k = 1 (k=1), 3 (k=2), and t_k = k (k ≥ 3).
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache for the first call. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         if (cache == NULL) return 0; /* allocation failure */
         cache[0] = 1;                /* a(0) = 1 */
         last_cached = 0;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* Grow cache if the requested n is beyond the current maximum. */
     if (n > last_cached) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (new_cache == NULL) return 0; /* allocation failure */
         cache = new_cache;
 

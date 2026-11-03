@@ -12,13 +12,14 @@
  *            upwards)
  * Range:     u8 n <= 29, u16 n <= 46, u32 n <= 57, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -44,5 +45,5 @@ seq_t a(idx_t n)
     uint64_t exp = (i == 0) ? 0 : i * (i - 1) / 2;
 
     /* Evaluate k^exp, using the provided utility */
-    return pow_uint(k, exp);
+    return ipow_u64_idx(k, exp);
 }

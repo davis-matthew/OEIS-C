@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1136, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has37_oct
+ * Validated: standard, pass, 57 terms through n = 9875 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has37_oct.h"
+#include "../utils/mem.h"
+
+/* Helper that returns true iff the octal representation of x contains
+ * the adjacent digits 3 followed by 7 (most significant → least).   */
+static bool has37_oct(seq_t x)
+{
+    if (x == 0) return false;          /* 0 has no digits 3,7 */
+    seq_t prev = x % 8;                /* least significant digit */
+    x /= 8;
+    while (x > 0) {
+        seq_t digit = x % 8;
+        if (digit == 3 && prev == 7)   /* pattern 3,7 detected */
+            return true;
+        prev = digit;
+        x /= 8;
+    }
+    return false;
+}
 
 /* Return the n‑th term of OEIS A044218.  The function is memoised so that
  * repeated calls are fast even when n is supplied in arbitrary order. */
@@ -39,7 +57,7 @@ seq_t a(idx_t n)
             /* Grow cache if needed */
             if (cached_terms == capacity) {
                 size_t new_cap = capacity ? capacity * 2 : 128;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 cache = new_cache;
                 capacity = new_cap;
             }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = (20*n)!*(7*n)!*(2*n)!/((14*n)!*(10*n)!*(4*n)!*n!)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 9,
  *            big any n
- * Helpers:   build_primes_upto, seq_pow
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* static state for prime lookup */
 static uint64_t *primes = NULL;   /* array of primes */
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
             exp_in_factorial((idx_t)4 * n, p) -
             exp_in_factorial(n, p);
         if (exp > 0) {
-            seq_t pw = seq_pow((seq_t)p, exp);
+            seq_t pw = ipow_idx((seq_t)p, exp);
             result *= pw;
         }
     }

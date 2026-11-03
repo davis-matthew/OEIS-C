@@ -10,13 +10,15 @@
  *            Portuguese digit names: * 5,2,9,8,4,6,7,3,1,0
  * Range:     u8 n <= 2, u16 n <= 13, u32 n <= 1022, u64 n <= 1023,
  *            u128 n <= 1023, big any n
- * Helpers:   none
+ * Validated: full, pass, 1023 terms through n = 1023 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *a, const void *b)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     static seq_t *cache = NULL;
 
     if (!cache) {
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return 0;  /* Allocation failure – unlikely in tests */
 
         /* Digit order from the OEIS entry */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
             }
             cache[mask - 1] = v;
         }
-        qsort(cache, cache_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(cache, cache_len, sizeof(seq_t), cmp_seq_t);
     }
 
     if (n >= 1 && n <= cache_len)

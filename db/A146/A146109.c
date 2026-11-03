@@ -7,12 +7,14 @@
  * Formula:   a(n) = Bell(n) mod 19 (Bell numbers, A000110)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 9700 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----- static state ----------------------------------------------------- */
 static seq_t *bell = NULL;        /* bell[n] = B_n mod 19                 */
@@ -28,7 +30,7 @@ static void ensure_bell_cap(idx_t n)
 {
     if (bell_cap <= (size_t)n) {
         size_t new_cap = ((size_t)n + 1) * 2;
-        bell = (seq_t *)realloc(bell, new_cap * sizeof(seq_t));
+        bell = mem_resize(seq_t, bell, new_cap);
         bell_cap = new_cap;
     }
 }

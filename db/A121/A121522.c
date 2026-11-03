@@ -16,7 +16,8 @@
  *            N...
  * Range:     u8 n <= 39, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* multiply a seq_t value by a small unsigned integer in a
    portable way (works for builtin integral seq_t and arbitrary‑precision). */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
 
     /* --------------------------------- allocate circular buffer --------------------------------- */
     seq_t *rows[7] = {0};
-    rows[0] = (seq_t*)calloc(1, sizeof(seq_t));   /* G_0(t) = 0 */
+    rows[0] = mem_new(seq_t, 1);   /* G_0(t) = 0 */
     if (!rows[0]) return 0;                      /* out of memory */
 
     /* --------------------------------- build rows up to r --------------------------------- */
@@ -60,11 +62,11 @@ seq_t a(idx_t n)
     {
         size_t idx = (size_t)(i % 7);
         /* free old row in the slot (except row 0 which is special) */
-        if (rows[idx]) free(rows[idx]);
+        if (rows[idx]) mem_free(rows[idx]);
 
         /* current and temporary negative buffers */
-        seq_t *cur  = (seq_t*)calloc((size_t)(i + 1), sizeof(seq_t));
-        seq_t *sub  = (seq_t*)calloc((size_t)(i + 1), sizeof(seq_t));
+        seq_t *cur  = mem_new(seq_t, (size_t)(i + 1));
+        seq_t *sub  = mem_new(seq_t, (size_t)(i + 1));
         if (!cur || !sub) return 0;          /* out of memory */
 
         /* ------------ numerator terms N_i(t) ------------ */
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
 
         /* store current row in the circular buffer */
         rows[idx] = cur;
-        free(sub);
+        mem_free(sub);
     }
 
     /* --------------------------------- fetch answer --------------------------------- */
@@ -126,7 +128,7 @@ seq_t a(idx_t n)
 
     /* --------------------------------- clean up --------------------------------- */
     for (int j = 0; j < 7; ++j)
-        if (rows[j]) free(rows[j]);
+        if (rows[j]) mem_free(rows[j]);
 
     return result;
 }

@@ -8,7 +8,8 @@
  *            3‑smooth number (numbers of the form 2^i·3^j)
  * Range:     u8 n <= 11, u16 n <= 26, u32 n <= 92, u64 n <= 331,
  *            u128 n <= 1256, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 9101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *smooth = NULL;          /* cache of 3‑smooth numbers   */
 static size_t smooth_len = 0;         /* number of cached terms      */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Lazy initialization of the cache. */
     if (!initialized) {
         smooth_cap = 1;
-        smooth = (seq_t *)malloc(smooth_cap * sizeof(seq_t));
+        smooth = mem_new(seq_t, smooth_cap);
         if (!smooth)
             return (seq_t)0;  /* allocation failure – return 0 */
         smooth[0] = (seq_t)1;            /* 2^0·3^0                     */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
             size_t new_cap = smooth_cap ? smooth_cap * 2 : 1;
             if (new_cap < smooth_len + 1)
                 new_cap = smooth_len + 1;
-            seq_t *tmp = (seq_t *)realloc(smooth, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, smooth, new_cap);
             if (!tmp)  /* allocation failure – abort with 0 */
                 return (seq_t)0;
             smooth = tmp;

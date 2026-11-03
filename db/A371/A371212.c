@@ -7,14 +7,16 @@
  * Formula:   a(n) = Sum_{d|n, n/d > 4} a(d), with a(1)=1 and
  *            a(2)=a(3)=a(4)=0. The function computes the sequence on demand,
  *            memoizing values in a static dynamic array
- * Range:     u8 n <= 2519, u16 n <= 9810, u32 n <= 9810, u64 n <= 9810,
- *            u128 n <= 9810, big any n
- * Helpers:   none
+ * Range:     u8 n <= 2519, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 124 terms through n = 9810 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for realloc, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,7 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary */
     if (n >= cache_size) {
         idx_t new_size = n + 1;                    /* index 0 unused */
-        seq_t *tmp = (seq_t *)realloc(cache,
-                           (size_t)new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_size);
         if (!tmp) abort();                         /* out of memory */
         cache = tmp;
         for (idx_t i = cache_size; i < new_size; ++i)

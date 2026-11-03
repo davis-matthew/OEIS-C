@@ -12,7 +12,8 @@
  *            uses only integer operations
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   binomial, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binomial.h"    /* binomial(idx_t n, idx_t k) -> seq_t */
-#include "../utils/pow_uint.h"    /* pow_uint(uint64_t base, idx_t exp) -> seq_t */
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *connected = NULL;  /* c[n]  */
 static seq_t *f1_cache  = NULL;  /* f1[n] */
@@ -39,10 +41,10 @@ static void ensure_capacity(idx_t need)
     if (new_cap < 2 * cap) new_cap = 2 * cap;
     if (new_cap == 0) new_cap = 1;
 
-    connected = (seq_t*)realloc(connected, new_cap * sizeof(seq_t));
-    f1_cache  = (seq_t*)realloc(f1_cache,  new_cap * sizeof(seq_t));
-    f12_cache = (seq_t*)realloc(f12_cache, new_cap * sizeof(seq_t));
-    ftotal    = (seq_t*)realloc(ftotal,    new_cap * sizeof(seq_t));
+    connected = mem_resize(seq_t, connected, new_cap);
+    f1_cache  = mem_resize(seq_t, f1_cache, new_cap);
+    f12_cache = mem_resize(seq_t, f12_cache, new_cap);
+    ftotal    = mem_resize(seq_t, ftotal, new_cap);
 
     /* Initialise the new slots to zero to avoid garbage. */
     for (size_t i = cap; i < new_cap; ++i) {
@@ -60,10 +62,10 @@ static void init_base(void)
     if (connected == NULL) {
         /* Allocate for at least one element. */
         cap = 1;
-        connected = (seq_t*)malloc(cap * sizeof(seq_t));
-        f1_cache  = (seq_t*)malloc(cap * sizeof(seq_t));
-        f12_cache = (seq_t*)malloc(cap * sizeof(seq_t));
-        ftotal    = (seq_t*)malloc(cap * sizeof(seq_t));
+        connected = mem_new(seq_t, cap);
+        f1_cache  = mem_new(seq_t, cap);
+        f12_cache = mem_new(seq_t, cap);
+        ftotal    = mem_new(seq_t, cap);
 
         /* Base values for n = 0. */
         connected[0] = 0;  /* no connected endofunction on 0 nodes */
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
     /* Compute all values up to n that have not been computed yet. */
     for (idx_t i = last_computed + 1; i <= n; ++i) {
         /* ftotal[i] = i^i */
-        seq_t pow_ii = pow_uint((uint64_t)i, i);
+        seq_t pow_ii = ipow_u64_idx((uint64_t)i, i);
         ftotal[(size_t)i] = pow_ii;
 
         /* connected[i] = i^i – Σ_{k=1}^{i-1} C(i-1,k-1)*connected[k]*ftotal[i-k] */

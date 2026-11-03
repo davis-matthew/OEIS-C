@@ -10,14 +10,16 @@
  *            in increasing order, and the rows are concatenated in order
  * Range:     u8 n <= 1467, u16 n <= 7069, u32 n <= 7069, u64 n <= 7069,
  *            u128 n <= 7069, big any n
- * Helpers:   count_divisors, phi
+ * Validated: standard, pass, 116 terms through n = 6963 (2026-11-01)
+ * Helpers:   num_divisors_idx, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/phi.h"
-#include "../utils/count_divisors.h"
+#include <stdint.h>
+#include "../utils/num_divisors_idx.h"
+#include "../utils/totient.h"
 
 /* static state for caching cumulative divisor counts   */
 static idx_t *cum = NULL;      /* cum[r] = total terms up to row r */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* extend cumulative data until it covers index n */
     while (cum[rows_filled] < n) {
         idx_t row = rows_filled + 1;                    /* row number to add */
-        idx_t tau = (idx_t)count_divisors(row);          /* number of divisors of 'row' */
+        idx_t tau = (idx_t)num_divisors_idx(row);          /* number of divisors of 'row' */
 
         ensure_cum_capacity(rows_filled + 1);            /* room for cum[row] */
         cum[row] = cum[rows_filled] + tau;
@@ -101,5 +103,5 @@ seq_t a(idx_t n)
     free(div);
 
     /* return its totient */
-    return phi(divisor);
+    return totient(divisor);
 }

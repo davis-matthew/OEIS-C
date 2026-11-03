@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
    If d is divisible by 2^n   -> a(n) = a(n-1),
    else                        -> a(n) = a(n-1) + 2^(n-1). */
 
-#include "../utils/big_pow.h"   /* seq_t big_pow(seq_t base, seq_t exp); */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
         return cur;
 
     for (idx_t i = 1; i <= n; ++i) {
-        seq_t pow5 = big_pow(cur, 5);      /* cur^5 */
+        seq_t pow5 = ipow(cur, 5);      /* cur^5 */
         seq_t diff = pow5 - (seq_t)9;      /* unsigned wrap handles negative numbers */
 
         /* Test whether diff is divisible by 2^i by checking lower i bits. */

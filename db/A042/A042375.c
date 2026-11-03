@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 27, u64 n <= 49, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
     of calls.  It works for any seq_t and idx_t supplied by the build.    */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /*  Compute terms up to n using the recurrence.
         Allocate an array large enough for indices 0..n.  */
     size_t sz = (size_t)(n + 1);
-    seq_t *buf = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, sz);
     if (!buf)
         return (seq_t)0;   /*  Allocation failed – return zero.  */
 
@@ -54,6 +56,6 @@ seq_t a(idx_t n)
         buf[i] = (seq_t)8230 * buf[i - 10] - buf[i - 20];
 
     seq_t result = buf[n];
-    free(buf);
+    mem_free(buf);
     return result;
 }

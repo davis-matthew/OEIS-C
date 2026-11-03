@@ -12,7 +12,8 @@
  *            digit sum)
  * Range:     u8 n <= 110, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a7603_test
+ * Validated: standard, pass, 89 terms through n = 9808 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,58 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a7603_test.h"
+
+static bool a7603_test(long long m) {
+    int dig[24];
+    int nd = 0, maxd = 0;
+    long long s1 = 0, t = m;
+    while (t > 0) {
+        dig[nd] = (int)(t % 10);
+        s1 += dig[nd];
+        if (dig[nd] > maxd) maxd = dig[nd];
+        nd++;
+        t /= 10;
+    }
+    if (s1 == 0) return false;
+    if (m % s1 == 0) return true;
+    if (maxd <= 1) return false;
+
+    long long coins[64];
+    int nc = 0;
+    long long pw[24];
+    for (int j = 0; j < nd; j++) pw[j] = dig[j];
+    for (;;) {
+        long long s = 0;
+        for (int j = 0; j < nd; j++) {
+            pw[j] *= dig[j];
+            s += pw[j];
+        }
+        if (s > m) break;
+        coins[nc++] = s;
+    }
+    if (nc == 0) return false;
+
+    /* Dijkstra over residues mod s1 */
+    long long dist[256];
+    bool done[256];
+    const long long INF = (long long)1 << 60;
+    for (long long r = 0; r < s1; r++) { dist[r] = INF; done[r] = false; }
+    dist[0] = 0;
+    for (;;) {
+        long long best = -1;
+        for (long long r = 0; r < s1; r++)
+            if (!done[r] && dist[r] < INF && (best < 0 || dist[r] < dist[best])) best = r;
+        if (best < 0) break;
+        done[best] = true;
+        if (dist[best] > m) break;
+        for (int c = 0; c < nc; c++) {
+            long long nv = dist[best] + coins[c];
+            long long nr = nv % s1;
+            if (nv < dist[nr]) dist[nr] = nv;
+        }
+    }
+    return dist[m % s1] <= m;
+}
 
 static long long *a7603_cache = NULL;
 static idx_t a7603_cnt = 0, a7603_cap = 0;

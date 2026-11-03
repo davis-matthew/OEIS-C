@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Sieve range – sufficient for the first 10 000 terms of the sequence. */
 static const uint32_t SIEVE_LIMIT = 10000000U;
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
 
     if (!term_cache) {
         cache_cap = 128;
-        term_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        term_cache = mem_new(seq_t, cache_cap);
         if (!term_cache) exit(EXIT_FAILURE);
     }
 
@@ -139,7 +141,7 @@ seq_t a(idx_t n)
         if (is_valid((seq_t)last_checked)) {
             if (term_count == cache_cap) {
                 cache_cap <<= 1;
-                term_cache = (seq_t *)realloc(term_cache, cache_cap * sizeof(seq_t));
+                term_cache = mem_resize(seq_t, term_cache, cache_cap);
                 if (!term_cache) exit(EXIT_FAILURE);
             }
             term_cache[term_count++] = (seq_t)last_checked;

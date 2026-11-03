@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 6491, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree_uint32
+ * Validated: standard, pass, 57 terms through n = 8436 (2026-11-01)
+ * Helpers:   is_squarefree_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_squarefree_uint32.h"
+#include "../utils/is_squarefree_u32.h"
 
 /* Compile‑time constants ------------------------------------------------- */
 #define SIEVE_LIMIT   5000000      /* upper bound for sieve (5 million)     */
@@ -53,13 +54,13 @@ static void init(void)
         if (!is_prime[p]) continue;              /* not a prime */
         /* p + 1 candidate */
         uint32_t n1 = p + 1;
-        if (n1 <= SIEVE_LIMIT && !is_prime[n1] && is_squarefree_uint32(n1)) {
+        if (n1 <= SIEVE_LIMIT && !is_prime[n1] && is_squarefree_u32(n1)) {
             terms[terms_len++] = (seq_t)p * (seq_t)n1;
             if (terms_len >= MAX_TERMS) break;
         }
         /* p + 2 candidate */
         uint32_t n2 = p + 2;
-        if (n2 <= SIEVE_LIMIT && !is_prime[n2] && is_squarefree_uint32(n2)) {
+        if (n2 <= SIEVE_LIMIT && !is_prime[n2] && is_squarefree_u32(n2)) {
             terms[terms_len++] = (seq_t)p * (seq_t)n2;
             if (terms_len >= MAX_TERMS) break;
         }

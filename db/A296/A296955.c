@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = sum of the divisors d of n with 2*d < n
- * Range:     u8 n <= 179, u16 n <= 9843, u32 n <= 9843, u64 n <= 9843,
- *            u128 n <= 9843, big any n
+ * Range:     u8 n <= 179, u16 n <= 27719, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 113 terms through n = 9843 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

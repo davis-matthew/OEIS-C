@@ -9,11 +9,13 @@
  *            (m>=2, k=1..m-1)
  * Range:     u8 n <= 120, u16 n <= 1226, u32 n <= 1226, u64 n <= 1226,
  *            u128 n <= 1226, big any n
+ * Validated: standard, pass, 82 terms through n = 1214 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

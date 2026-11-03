@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   matches_ensure_cap
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/matches_ensure_cap.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static void matches_ensure_cap(size_t needed) {
+    static size_t cap = 0;
+    static idx_t *matches = NULL;
+    if (needed <= cap) return;
+    size_t new_cap = cap ? cap * 2 : 64;
+    while (new_cap < needed) new_cap <<= 1;
+    /* C requires a cast; the cast also works in C++ */
+    idx_t *tmp = (idx_t*)realloc(matches, new_cap * sizeof(idx_t));
+    if (!tmp) abort();
+    matches = tmp;
+    cap = new_cap;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Helper to ensure dynamic array capacity (matches array)           */
@@ -58,8 +73,8 @@ static void init_sequence(void) {
         else /* i % 3 == 2 */ ++noncuban_cnt;
     }
 
-    seq_t *cuban    = (seq_t*)malloc(cuban_cnt * sizeof(seq_t));
-    seq_t *noncuban = (seq_t*)malloc(noncuban_cnt * sizeof(seq_t));
+    seq_t *cuban    = mem_new(seq_t, cuban_cnt);
+    seq_t *noncuban = mem_new(seq_t, noncuban_cnt);
     if (!cuban || !noncuban) abort();
 
     /* Fill the two prime lists */
@@ -143,8 +158,8 @@ seq_t a(idx_t n) {
             if (i == 3 || i % 3 == 1) ++cuban_cnt;
             else ++noncuban_cnt;
         }
-        seq_t *cuban    = (seq_t*)malloc(cuban_cnt * sizeof(seq_t));
-        seq_t *noncuban = (seq_t*)malloc(noncuban_cnt * sizeof(seq_t));
+        seq_t *cuban    = mem_new(seq_t, cuban_cnt);
+        seq_t *noncuban = mem_new(seq_t, noncuban_cnt);
         size_t ic = 0, in = 0;
         for (idx_t i = 2; i <= LIMIT; ++i) if (is_prime[i]) {
             if (i == 3 || i % 3 == 1) cuban[ic++] = (seq_t)(unsigned long long)i;
@@ -167,8 +182,8 @@ seq_t a(idx_t n) {
                 matches[match_cnt++] = k;
             }
         }
-        free(cuban);
-        free(noncuban);
+        mem_free(cuban);
+        mem_free(noncuban);
         init_done = true;
     }
 

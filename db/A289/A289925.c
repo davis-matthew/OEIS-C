@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: integer square root of a 64‑bit unsigned integer. */
 static uint64_t _isqrt_u64(uint64_t n)
@@ -70,9 +72,9 @@ seq_t a(idx_t n)
         while (newcap < need)
             newcap <<= 1;
 
-        seq_t *news = (seq_t*)realloc(S, newcap * sizeof(seq_t));
-        seq_t *newb = (seq_t*)realloc(B, newcap * sizeof(seq_t));
-        seq_t *newa = (seq_t*)realloc(A, newcap * sizeof(seq_t));
+        seq_t *news = mem_resize(seq_t, S, newcap);
+        seq_t *newb = mem_resize(seq_t, B, newcap);
+        seq_t *newa = mem_resize(seq_t, A, newcap);
         if (!news || !newb || !newa) { /* allocation failure */
             exit(EXIT_FAILURE);
         }

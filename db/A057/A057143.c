@@ -10,8 +10,9 @@
  *            array of 16‑bit counters (one per possible product) and finds
  *            the product with the largest count, returning the largest such
  *            product
- * Range:     u8 n <= 44, u16 n <= 1759, u32 n <= 9487, u64 n <= 9487,
- *            u128 n <= 9487, big any n
+ * Range:     u8 n <= 44, u16 n <= 1759, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 74 terms through n = 9487 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

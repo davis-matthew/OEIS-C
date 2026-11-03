@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th smallest divisor of 616 (1-indexed)
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes the sequence of divisors of 616 in ascending order. */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define N_DIVISORS 16
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the divisors in ascending order. */
-        qsort(divisors, N_DIVISORS, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(divisors, N_DIVISORS, sizeof(seq_t), cmp_seq_t);
 
         initialized = true;
     }

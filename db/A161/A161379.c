@@ -8,7 +8,8 @@
  *            letters
  * Range:     u8 n <= 30, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* Letter counts for basic Spanish words */
 static const int unit_len[10]   = {0,3,3,4,6,5,4,5,4,5};        /* 0..9 */
@@ -103,11 +104,11 @@ seq_t a(idx_t n)
     uint64_t candidate = 2;                /* first prime to test */
 
     for (;; ++candidate) {
-        if (!is_prime_small((seq_t)candidate))
+        if (!is_prime_seq((seq_t)candidate))
             continue;
 
         int lcnt = count_letters(candidate);
-        if (is_prime_small((seq_t)lcnt)) {
+        if (is_prime_seq((seq_t)lcnt)) {
             ++found;
             if (found == n)
                 return (seq_t)candidate;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 1468, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9174 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The following constants can be tuned if more terms are required. */
 static const size_t SIEVE_LIMIT = 20000000U;   /* 20 million – ample for 10 000 terms */
@@ -52,7 +54,7 @@ static void init_sieve(void)
     }
 
     /* Allocate array for qualifying primes */
-    qual_primes = (seq_t*)malloc(INITIAL_QCAP * sizeof(seq_t));
+    qual_primes = mem_new(seq_t, INITIAL_QCAP);
     if (!qual_primes) exit(EXIT_FAILURE);
     qual_count = 0;
     size_t qcap   = INITIAL_QCAP;
@@ -68,8 +70,7 @@ static void init_sieve(void)
 
                 if (qual_count == qcap) {            /* grow if needed */
                     qcap *= 2U;
-                    seq_t *tmp = (seq_t*)realloc(qual_primes,
-                                                qcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, qual_primes, qcap);
                     if (!tmp) exit(EXIT_FAILURE);
                     qual_primes = tmp;
                 }

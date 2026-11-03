@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   is_lyndon_vec, rec_lnds
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,62 @@
  */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_lyndon_vec.h"
-#include "../utils/rec_lnds.h"
+
+/* Determine if w[0..len-1] is a Lyndon word (primitive and 
+ * lexicographically smallest among all its cyclic shifts).         */
+static bool is_lyndon_vec(const int *w, idx_t len)
+{
+    /* Primitive check: no proper period divides the word. */
+    for (idx_t d = 1; d * 2 <= len; ++d) {
+        if (len % d != 0) continue;
+        bool same = true;
+        for (idx_t i = 0; i < len; ++i) {
+            if (w[i] != w[i % d]) { same = false; break; }
+        }
+        if (same) return false;      /* periodic */
+    }
+
+    /* Lexicographic minimality: w < every nontrivial rotation. */
+    for (idx_t shift = 1; shift < len; ++shift) {
+        for (idx_t i = 0; i < len; ++i) {
+            int a = w[i];
+            int b = w[(i + shift) % len];
+            if (a < b) break;           /* rotation is greater */
+            if (a > b) return false;    /* rotation is smaller */
+        }
+    }
+    return true;
+}
+
+/* Recursive generation of all compositions of 'target'.
+ * cur holds the current partial composition (length 'len').
+ * When a complete composition equals 'target', it is tested for
+ * the Lyndon property; if it is Lyndon we either return the desired
+ * element or subtract its length from 'rem'.
+ */
+static void rec_lnds(idx_t target, idx_t sum, int *cur, idx_t len,
+                     idx_t *rem, seq_t *out, bool *found)
+{
+    if (*found) return;
+
+    if (sum == target) {
+        if (is_lyndon_vec(cur, len)) {
+            if (*rem <= len) {
+                *out = (seq_t)cur[*rem - 1];
+                *found = true;
+            } else {
+                *rem -= len;
+            }
+        }
+        return;
+    }
+
+    for (idx_t part = 1; part <= target - sum; ++part) {
+        cur[len] = (int)part;
+        rec_lnds(target, sum + part, cur, len + 1, rem, out, found);
+        if (*found) return;
+    }
+}
 
 /* Main sequence function.  n is 1‑based. */
 seq_t a(idx_t n)

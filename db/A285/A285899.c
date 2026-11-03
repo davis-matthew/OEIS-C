@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    For n ≥ 1, a(1)=1, a(2)=2, a(3)=5, … as in the OEIS entry.   */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*----- utility: integer square root (floor) for unsigned 64‑bit values -----*/
 static inline idx_t isqrt(idx_t n)
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     if (pref_size == 0) {
         pref_size = 1;
         /* cast is required for C++ compatibility */
-        prefix = (seq_t *)malloc(sizeof(seq_t));
+        prefix = mem_new(seq_t, 1);
         if (!prefix) return 0;          /* allocation failure – unlikely */
         prefix[0] = 0;                  /* a(0) = 0 */
     }
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     /* Extend the cache up to the requested n */
     if (pref_size <= n) {
         /* Allocate space for indices 0 … n */
-        seq_t *tmp = (seq_t *)realloc(prefix, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prefix, (size_t)(n + 1));
         if (!tmp) return 0;            /* allocation failure – unlikely */
         prefix = tmp;
 

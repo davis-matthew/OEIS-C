@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9678 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes the Kolakoski sequence A000002 at index 5*n. */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 seq_t a(idx_t n)
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     idx_t needed = n * 5;
 
     /* Allocate a buffer large enough for the first `needed` terms. */
-    seq_t *buf = (seq_t *)malloc((size_t)needed * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, (size_t)needed);
     if (!buf)
         return (seq_t)0;               /* allocation failure */
 
@@ -55,6 +57,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = buf[(size_t)needed - 1];
-    free(buf);
+    mem_free(buf);
     return result;
 }

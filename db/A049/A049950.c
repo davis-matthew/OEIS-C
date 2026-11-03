@@ -10,13 +10,15 @@
  *            a(n-1-2^p), where 2^p < n-1 ≤ 2^(p+1)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_arr = NULL;
 static seq_t *S_arr = NULL;
@@ -28,8 +30,8 @@ static void ensure_capacity(idx_t n)
     if (a_arr == NULL) {
         /* initial allocation */
         capacity = 8;
-        a_arr = (seq_t *)malloc(capacity * sizeof(seq_t));
-        S_arr = (seq_t *)malloc(capacity * sizeof(seq_t));
+        a_arr = mem_new(seq_t, capacity);
+        S_arr = mem_new(seq_t, capacity);
         if (!a_arr || !S_arr) return; /* out‑of‑memory scenario */
 
         /* base values (index 0 unused) */
@@ -47,8 +49,8 @@ static void ensure_capacity(idx_t n)
     idx_t need = n + 1;  /* we use indices 0..n */
     if ((size_t)need > capacity) {
         size_t new_cap = need * 2;
-        a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
-        S_arr = (seq_t *)realloc(S_arr, new_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
+        S_arr = mem_resize(seq_t, S_arr, new_cap);
         if (!a_arr || !S_arr) return;
         capacity = new_cap;
     }

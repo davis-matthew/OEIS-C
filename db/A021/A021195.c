@@ -7,13 +7,15 @@
  * Formula:   a(n) = n‑th decimal digit of 1/191 (0‑based)
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         if (need > cap) {
             size_t new_cap = cap ? (cap << 1) : 16;
             while (new_cap < need) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(digits, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, digits, new_cap);
             if (!tmp) return 0;            /* allocation failure -> zero */
             digits = tmp;
             cap    = new_cap;

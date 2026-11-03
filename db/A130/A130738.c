@@ -12,7 +12,8 @@
  *            `1/d <= 1 - sum_num/sum_den`. The sequence is...
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 9, u64 n <= 10, u128 n <= 11,
  *            big any n
- * Helpers:   gcd, seq_alloc_array, seq_realloc
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+    /* one allocation scheme for every width (the C++ branch here used
+       new[]/delete[] on memory from mem_new) */
+    (void)old_cap;
+    seq_t *p = mem_resize(seq_t, old, new_cap ? new_cap : 1);
+    if (!p) abort();
+    return p;
+}
 
 /* cache of already computed denominators */
 static seq_t *den_cache = NULL;
@@ -61,6 +76,8 @@ seq_t a(idx_t n)
         while (den_count < (size_t)n) {
             /* remaining fraction R = 1 - sum = (sum_den - sum_num)/sum_den */
             seq_t denom_rem = sum_den - sum_num;   /* > 0 */
+            if (denom_rem == (seq_t)0)             /* the sum is 1: there is no */
+                return (seq_t)0;                   /* a(n) (it divided by zero) */
 
             /* ceil( sum_den / denom_rem ) */
             seq_t t = sum_den / denom_rem;

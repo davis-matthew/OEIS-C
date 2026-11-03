@@ -8,12 +8,15 @@
  *            (coefficients of the expansion of ((1-x)/(1-2x))^7)
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 19, u64 n <= 45, u128 n <= 103,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 43 terms through n = 981 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
     for (idx_t j = 0; j <= maxj; ++j) {
         /* C(n-j+6,6) – the binomial with fixed k=6 */
         idx_t N = n - j + 6;
-        seq_t bin_n = binom(N, 6);
+        seq_t bin_n = binomial(N, 6);
 
         /* term = C(7,j) * C(n-j+6,6) * 2^(n-j) */
         seq_t term = comb7[j] * bin_n * pow2(n - j);

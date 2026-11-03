@@ -8,15 +8,16 @@
  * Formula:   a(n) = binomial(r + k, k) - binomial(r - k, k) * where r is the
  *            smallest integer with r(r+1)/2 ≥ n, * and k = n - (r-1)r/2 (the
  *            position inside that row)
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 55, u64 n <= 55, u128 n <= 55,
+ * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
     idx_t k = n - (cum - r);       /* because cum - r = sum of rows 1..r-1 */
 
     /* Compute the triangle entry and return it. */
-    seq_t t1 = binom(r + k, k);    /* C(r+k, k) */
-    seq_t t2 = binom(r - k, k);    /* C(r-k, k), zero if r-k < k */
+    seq_t t1 = binomial(r + k, k);    /* C(r+k, k) */
+    seq_t t2 = binomial(r - k, k);    /* C(r-k, k), zero if r-k < k */
     return t1 - t2;
 }

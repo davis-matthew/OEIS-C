@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,10 +40,10 @@ seq_t a(idx_t n)
     idx_t k    = n - prev;          /* 1‑based index inside the row */
 
     /* Allocate arrays large enough for the largest needed row */
-    seq_t *u_prev = (seq_t *)malloc(sizeof(seq_t) * (size_t)r);
-    seq_t *u_curr = (seq_t *)malloc(sizeof(seq_t) * (size_t)r);
-    seq_t *v_prev = (seq_t *)malloc(sizeof(seq_t) * (size_t)r);
-    seq_t *v_curr = (seq_t *)malloc(sizeof(seq_t) * (size_t)r);
+    seq_t *u_prev = mem_new(seq_t, (size_t)r);
+    seq_t *u_curr = mem_new(seq_t, (size_t)r);
+    seq_t *v_prev = mem_new(seq_t, (size_t)r);
+    seq_t *v_curr = mem_new(seq_t, (size_t)r);
     if (!u_prev || !u_curr || !v_prev || !v_curr)
         return 0;  /* Allocation failure – undefined for the problem */
 
@@ -71,10 +73,10 @@ seq_t a(idx_t n)
     seq_t result = u_prev[k - 1];
 
     /* Free allocated memory */
-    free(u_prev);
-    free(u_curr);
-    free(v_prev);
-    free(v_curr);
+    mem_free(u_prev);
+    mem_free(u_curr);
+    mem_free(v_prev);
+    mem_free(v_curr);
 
     return result;
 }

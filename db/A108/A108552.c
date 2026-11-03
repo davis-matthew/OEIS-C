@@ -9,14 +9,16 @@
  *            that k==1 or k+1 is composite (i.e., k+1 is not prime)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     idx_t k = 1;
     while (1)
     {
-        if (k == 1 || !is_prime(k + 1))
+        if (k == 1 || !is_prime_u64(k + 1))
         {
             ++count;
             if (count == n)

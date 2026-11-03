@@ -11,12 +11,14 @@
  *            from the rational generating function given in the OEIS entry
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for previously computed terms */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* Allocate or grow the cache as needed */
     if (n >= cache_len) {
         size_t new_len = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         /* Compute terms sequentially from the previous length up to n */
         for (idx_t i = cache_len; i <= n; ++i) {
             seq_t sum = 0;

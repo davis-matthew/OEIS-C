@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   digit_len, gcd, pow10
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   gcd, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,9 +28,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/gcd.h"        /* gcd(seq_t, seq_t)       */
-#include "../utils/pow10.h"      /* pow10(idx_t) -> seq_t   */
-#include "../utils/digit_len.h"  /* digit_len(seq_t) -> int */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -46,8 +58,8 @@ seq_t a(idx_t n)
     /* initialise caches to store at least index 1 */
     if (cache_sz == 0) {
         cache_sz   = 2;            /* indices 0 and 1 */
-        a_cache   = (seq_t*)calloc(cache_sz, sizeof(seq_t));
-        lcm_cache = (seq_t*)calloc(cache_sz, sizeof(seq_t));
+        a_cache   = mem_new(seq_t, cache_sz);
+        lcm_cache = mem_new(seq_t, cache_sz);
         a_cache[1]   = (seq_t)1;   /* a(1) = 1 */
         lcm_cache[1] = (seq_t)1;   /* lcm(1) = 1 */
     }
@@ -55,8 +67,8 @@ seq_t a(idx_t n)
     /* resize caches if needed */
     if (n >= cache_sz) {
         size_t new_sz = (size_t)n + 1;
-        a_cache   = (seq_t*)realloc(a_cache,   new_sz * sizeof(seq_t));
-        lcm_cache = (seq_t*)realloc(lcm_cache, new_sz * sizeof(seq_t));
+        a_cache   = mem_resize(seq_t, a_cache, new_sz);
+        lcm_cache = mem_resize(seq_t, lcm_cache, new_sz);
 
         /* compute new terms up to index n */
         for (size_t i = cache_sz; i <= (size_t)n; ++i) {
@@ -77,7 +89,7 @@ seq_t a(idx_t n)
 
             while (!found) {
                 k_seq    = (seq_t)k;
-                pow10_k  = pow10((idx_t)digit_len(k_seq));
+                pow10_k  = pow10((idx_t)num_digits(k_seq));
                 cand     = prev_a * pow10_k + k_seq;
                 if ((cand % cur_lcm) == (seq_t)0) {
                     found = true;
@@ -87,7 +99,7 @@ seq_t a(idx_t n)
             }
 
             /* store the computed a[i] */
-            a_cache[i] = prev_a * pow10((idx_t)digit_len(k_seq)) + k_seq;
+            a_cache[i] = prev_a * pow10((idx_t)num_digits(k_seq)) + k_seq;
         }
 
         cache_sz = new_sz;

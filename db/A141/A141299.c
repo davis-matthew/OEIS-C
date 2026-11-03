@@ -7,13 +7,15 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9941, u16 n <= 9941, u32 n <= 9941, u64 n <= 9941,
- *            u128 n <= 9941, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 99 terms through n = 9941 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Computation: For a given integer n, count all contiguous binary
    substrings that occur at least twice in the binary representation
    of n.  Each occurrence of such a substring contributes one to the

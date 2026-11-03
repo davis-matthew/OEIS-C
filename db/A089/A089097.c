@@ -9,7 +9,8 @@
  *            z^10)^2 + coeff of z^{n-1} in (1 - z^10 - z^20) )
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 19, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   mul_small, poly_pow
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,8 +32,43 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mul_small.h"
-#include "../utils/poly_pow.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+static void poly_pow(const int64_t *base, int base_deg, int exp,
+                     int64_t *res, int *res_deg)
+{
+    int64_t temp[21] = {0};
+    temp[0] = 1;
+    int temp_deg = 0;
+    for (int c = 0; c < exp; ++c) {
+        int64_t newt[21] = {0};
+        for (int i = 0; i <= temp_deg; ++i) {
+            if (temp[i] == 0) continue;
+            for (int j = 0; j <= base_deg; ++j) {
+                if (base[j] == 0) continue;
+                newt[i + j] += temp[i] * base[j];
+            }
+        }
+        for (int k = 0; k <= temp_deg + base_deg && k < 21; ++k)
+            temp[k] = newt[k];
+        temp_deg += base_deg;
+    }
+    for (int k = 0; k <= temp_deg; ++k) res[k] = temp[k];
+    *res_deg = temp_deg;
+}
 
 static void compute_series(seq_t *arr, size_t needed,
                            const int64_t *coeff, int deg)
@@ -92,10 +128,10 @@ seq_t a(idx_t n)
 
     size_t len = (size_t)n;   /* need indices 0 .. n-1 */
 
-    seq_t *A = (seq_t*)malloc(len * sizeof(seq_t));
-    seq_t *B = (seq_t*)malloc(len * sizeof(seq_t));
-    seq_t *C = (seq_t*)malloc(len * sizeof(seq_t));
-    seq_t *D = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, len);
+    seq_t *B = mem_new(seq_t, len);
+    seq_t *C = mem_new(seq_t, len);
+    seq_t *D = mem_new(seq_t, len);
 
     compute_series(A, len, coeffA, degA);
     compute_series(B, len, coeffB, degB);
@@ -108,10 +144,10 @@ seq_t a(idx_t n)
     val = val + D[len - 1];
     seq_t result = val / 10;
 
-    free(A);
-    free(B);
-    free(C);
-    free(D);
+    mem_free(A);
+    mem_free(B);
+    mem_free(C);
+    mem_free(D);
 
     return result;
 }

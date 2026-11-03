@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, fini, full
  * Formula:   not stated
- * Range:     u8 none, u16 none, u32 n <= 9140, u64 n <= 9140, u128 n <= 9140,
- *            big any n
- * Helpers:   none
+ * Range:     u8 none, u16 none, u32 n <= 13272, u64 n <= 13272,
+ *            u128 n <= 13272, big any n
+ * Validated: full, pass, 13272 terms through n = 13272 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 /* Necessary includes – valid for both C11 and C++17 */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: swap two seq_t values */
 static void swap_seq(seq_t *a, seq_t *b) {
@@ -83,7 +85,7 @@ static bool   seq_built  = false;
 static void build_sequence(void) {
     /* Number of all permutations of subsets of digits 1–9: Σ P(9,k) = 986409 */
     const size_t MAX_CAND = 986409;
-    seq_vals = (seq_t *)malloc(MAX_CAND * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, MAX_CAND);
     seq_len = 0;
     generate_rec(0, 0, seq_vals, &seq_len, MAX_CAND);
     if (seq_len > 0) quicksort(seq_vals, 0, (int)seq_len - 1);

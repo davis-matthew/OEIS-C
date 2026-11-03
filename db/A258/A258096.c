@@ -10,7 +10,8 @@
  *            c[d] ) * a(n-k) (for n ≥ 1). This generates the sequence A258096
  * Range:     u8 n <= 107, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 915 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *b = NULL;             /* cached values a(0)…a(max_n) */
 static int64_t *sint = NULL;        /* cached s(k) = Σ_{d|k} d*c[d] */
@@ -39,9 +41,9 @@ static void ensure_cache(idx_t n)
     int64_t *new_sint = NULL;
 
     if (b == NULL)
-        new_b = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        new_b = mem_new(seq_t, new_cap);
     else
-        new_b = (seq_t *)realloc(b, new_cap * sizeof(seq_t));
+        new_b = mem_resize(seq_t, b, new_cap);
 
     if (sint == NULL)
         new_sint = (int64_t *)malloc(new_cap * sizeof(int64_t));

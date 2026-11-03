@@ -11,12 +11,14 @@
  *            a(9)=1, a(10)=1, a(11)=5, a(12)=5, a(13)=6, a(14)=8, a(15)=11
  * Range:     u8 n <= 24, u16 n <= 40, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[16] = {
     1, 0, 0, 0, 0, 1,
@@ -34,7 +36,7 @@ static void ensure_cache(size_t n)
     /* allocate or grow cache if necessary */
     if (cache == NULL) {
         cache_size = (n < 32) ? 32 : n * 2;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) exit(EXIT_FAILURE);   /* abort on allocation failure */
         /* initialise with base values up to 15 */
         for (size_t i = 0; i < 16; ++i) cache[i] = init_vals[i];
@@ -42,7 +44,7 @@ static void ensure_cache(size_t n)
     } else if (n > cache_size - 1) {
         size_t new_size = cache_size;
         while (new_size <= n) new_size <<= 1;      /* double until large enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) exit(EXIT_FAILURE);
         cache = tmp;
         cache_size = new_size;

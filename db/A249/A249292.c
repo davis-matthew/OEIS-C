@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 83, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   forbidden_quad
+ * Validated: standard, pass, 45 terms through n = 206 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,18 @@
  */
 
 #include <stdbool.h>
-#include "../utils/forbidden_quad.h"
+
+/* 4‑term forbidden test: return true if any one of the four terms equals
+   the average of the other three (i.e. the sum of any three equals
+   three times the remaining one). */
+static bool forbidden_quad(int a, int b, int c, int d)
+{
+    int sum = a + b + c + d;
+    return (sum - a == 3 * a) ||
+           (sum - b == 3 * b) ||
+           (sum - c == 3 * c) ||
+           (sum - d == 3 * d);
+}
 
 /* Recurrence coefficients: a(n) = Σ coef[i]*a(n-i-1), i=0…31 */
 static const int coef[32] = {

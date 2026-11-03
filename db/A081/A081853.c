@@ -9,14 +9,26 @@
  *            exponent of 2 in 2n plus 2. Equivalently, i = v₂(n)+2
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   tz64
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/tz64.h"
+
+/* trailing zero count of a 64‑bit unsigned integer */
+static inline uint64_t tz64(uint64_t x)
+{
+    uint64_t c = 0;
+    while ((x & 1ULL) == 0ULL)
+    {
+        ++c;
+        x >>= 1;
+    }
+    return c;
+}
 
 seq_t a(idx_t n)
 {

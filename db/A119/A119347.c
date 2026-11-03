@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of non‑empty distinct sums that can be * formed by
  *            adding distinct divisors of n. Excludes the sum 0
- * Range:     u8 n <= 107, u16 n <= 9582, u32 n <= 9582, u64 n <= 9582,
- *            u128 n <= 9582, big any n
+ * Range:     u8 n <= 107, u16 n <= 17639, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 92 terms through n = 9582 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

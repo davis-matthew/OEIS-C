@@ -11,12 +11,14 @@
  *            a(12) = 552, a(13) = 607
  * Range:     i8 n <= 4, i16 n <= 44, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Helper to grow cache to at least 'size' elements */
     if (!cache) {
         /* Allocate initial space for terms up to n=13 (12 elements) */
-        cache = (seq_t*)malloc(12 * sizeof(seq_t));
+        cache = mem_new(seq_t, 12);
         if (!cache) return 0; /* Allocation failure */
         cache[0] = (seq_t)-1;   /* a(2) */
         cache[1] = (seq_t)40;   /* a(3) */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Compute terms up to requested n if necessary */
     if (n-2 >= cache_size) {
         idx_t new_size = n-1;  /* number of terms up to n (inclusive) */
-        seq_t *temp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *temp = mem_resize(seq_t, cache, new_size);
         if (!temp) return 0;   /* Allocation failure */
         cache = temp;
         /* Compute new entries */

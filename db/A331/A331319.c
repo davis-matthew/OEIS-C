@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 42, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    function.) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence. */
 static seq_t *a_vals = NULL;
@@ -35,13 +37,13 @@ ensure_cache(idx_t n)
 
     /* Allocate or grow the cache to hold indices 0 .. n. */
     if (!a_vals) {
-        a_vals = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        a_vals = mem_new(seq_t, (size_t)(n + 1));
         if (!a_vals) {
             /* Out of memory – abort the program in a portable way. */
             abort();
         }
     } else {
-        a_vals = (seq_t *)realloc(a_vals, (size_t)(n + 1) * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, (size_t)(n + 1));
         if (!a_vals) {
             abort();
         }

@@ -8,6 +8,7 @@
  *            = 1: a(1)=1 a(2)=1+2³=9 a(3)=9+3=12 a(4)=12+4³=76
  * Range:     u8 n <= 5, u16 n <= 25, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

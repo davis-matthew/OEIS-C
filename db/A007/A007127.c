@@ -12,7 +12,8 @@
  *            cycle of length k (floor); one more orbit...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 9, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   gcdll, seq_is_fixed_width
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   gcd_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/gcdll.h"
+#include "../utils/gcd_i64.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 typedef unsigned long long u64;
 typedef unsigned __int128 u128;
@@ -70,7 +82,7 @@ static void rec(int j, int T, long long a)
             long long add = k * ((long long)b * (b - 1) / 2 + (m - b) * (m - b - 1) / 2) + (m - b) * WC[i];
             for (jj = 0; jj < j; jj++) {
                 int i2 = CLS[jj];
-                add += gcdll(k, LEN[i2]) * ((long long)b * BS[jj] + (m - b) * (MUL[i2] - BS[jj]));
+                add += gcd_i64(k, LEN[i2]) * ((long long)b * BS[jj] + (m - b) * (MUL[i2] - BS[jj]));
             }
             BS[j] = b;
             for (q = 0; q < NP; q++) {
@@ -111,7 +123,7 @@ static void process(void)
             int ii = CLS[l], j;
             long long w = (LEN[ii] % 2 == 0) ? 1 : 0;
             for (j = 0; j < D; j++)
-                if (V2[j] < v) w += (long long)MUL[j] * gcdll(LEN[ii], LEN[j]);
+                if (V2[j] < v) w += (long long)MUL[j] * gcd_i64(LEN[ii], LEN[j]);
             WC[ii] = w;
         }
         for (q = 0; q < NP; q++) { SV[q] = 0; COEF[q] = 1; }

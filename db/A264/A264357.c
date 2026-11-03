@@ -11,7 +11,8 @@
  *            r ranges from 2..k+1 in row k and m = k - r + 2
  * Range:     u8 n <= 47, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 /*--- standard includes ----------------------------------------------*/
 #include <stdint.h>
 /*--- utilities ------------------------------------------------------*/
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 /*--- small integer sqrt (floor) -------------------------------------*/
 static idx_t isqrt(idx_t v)
@@ -55,10 +56,10 @@ static seq_t binomial(idx_t N, idx_t K)
     for (idx_t i = 1; i <= K; ++i) {
         seq_t num = (seq_t)(N - K + i);
         seq_t den = (seq_t)i;
-        seq_t g1 = seq_gcd(num, den);   /* reduce numerator/denominator */
+        seq_t g1 = gcd(num, den);   /* reduce numerator/denominator */
         num /= g1;
         den /= g1;
-        seq_t g2 = seq_gcd(result, den);/* reduce result/denominator */
+        seq_t g2 = gcd(result, den);/* reduce result/denominator */
         result /= g2;
         den /= g2;
         result *= num;                 /* den should now be 1 */

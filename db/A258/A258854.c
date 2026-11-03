@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 207, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, compute_pi, floor_sqrt
+ * Validated: standard, pass, 80 terms through n = 9722 (2026-11-01)
+ * Helpers:   build_primes, ipow_i32, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,9 +36,28 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_primes.h"
-#include "../utils/compute_pi.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/prime_pi.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Dynamically maintained list of primes up to the current limit.  */
 static idx_t *prime_list   = NULL;   /* array of primes (idx_t -> uint64_t) */
@@ -86,7 +106,7 @@ pi_based_derivative(seq_t m)
                 m /= p;
                 ++e;
             }
-            seq_t pi_p = compute_pi((idx_t)p);
+            seq_t pi_p = prime_pi((idx_t)p);
             result += ((n / p) * (seq_t)e) * pi_p;
             sqrt_m   = floor_sqrt(m);
         }
@@ -95,7 +115,7 @@ pi_based_derivative(seq_t m)
     /* Remaining factor, if any, must be a prime > sqrt(m).  */
     if (m > 1) {
         seq_t p     = m;
-        seq_t pi_p  = compute_pi((idx_t)p);
+        seq_t pi_p  = prime_pi((idx_t)p);
         result += (n / p) * pi_p;  /* exponent e = 1 */
     }
 

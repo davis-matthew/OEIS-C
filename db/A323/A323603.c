@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdint.h>
 #include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static void ensure_used_capacity(size_t need_bytes);
 static inline bool is_used(size_t b);
@@ -94,7 +96,7 @@ static void ensure_a_capacity(size_t need)
     if (need <= a_cap) return;
     size_t new_cap = a_cap ? a_cap << 1U : 8;
     while (new_cap < need) new_cap <<= 1U;
-    seq_t *p = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, a_cache, new_cap);
     a_cache = p;
     a_cap   = new_cap;
 }
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
             idx_t b = 2;
             for (;;) {
                 if (!is_used((size_t)b)) {
-                    seq_t r = mod_pow((seq_t)b, (uint64_t)(c - 1), mod_val);
+                    seq_t r = powmod((seq_t)b, (uint64_t)(c - 1), mod_val);
                     if (r == (seq_t)1) {
                         set_used((size_t)b);
                         ensure_a_capacity(a_len + 1);

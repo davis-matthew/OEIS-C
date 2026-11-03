@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 413, u16 n <= 2354, u32 n <= 2354, u64 n <= 2354,
  *            u128 n <= 2354, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 2343 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static memoisation table (1‑based indexing; table[0] unused).  */
 static seq_t *cache = NULL;    /* Array of computed a(n) values.   */
@@ -36,7 +38,7 @@ static void ensure_capacity(size_t need)
     while (new_cap < need)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();          /* out of memory */
     cache = tmp;
     cache_cap = new_cap;

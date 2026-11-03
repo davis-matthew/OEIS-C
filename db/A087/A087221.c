@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k ≥ 0, 4^k ≤ n} a(n – 4^k) with a(0) = 1
  * Range:     u8 n <= 19, u16 n <= 36, u32 n <= 70, u64 n <= 138,
  *            u128 n <= 274, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 500 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    lazily on demand.  It works for any integer type seq_t
    supplied by the build. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Ensure at least one slot for a(0) */
     if (capacity == 0) {
         capacity = 1;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) return 0;           /* allocation failed – return 0 */
         cache[0] = (seq_t)1;            /* a(0) = 1   */
         limit = 1;                      /* next index to fill */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         size_t new_cap = capacity;
         while (new_cap <= (size_t)(n + 1))
             new_cap = new_cap * 2 + 1;   /* exponential growth */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;              /* allocation failed */
         cache = tmp;
         capacity = new_cap;

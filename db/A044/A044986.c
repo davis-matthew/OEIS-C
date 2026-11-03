@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   allocate_seq_array, cnt_len
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,30 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/allocate_seq_array.h"
-#include "../utils/cnt_len.h"
+#include <assert.h>
+#include "../utils/mem.h"
+
+static seq_t *allocate_seq_array(size_t n)
+{
+#ifdef __cplusplus
+    return new seq_t[n];
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+/* Number of candidates of length len (len ≥ 5). */
+static inline size_t cnt_len(int len)
+{
+    if (len < 5) return 0U;
+    /* C(len‑1,4) * (len‑4) */
+    size_t a = (size_t)(len - 1);
+    size_t b = (size_t)(len - 2);
+    size_t c = (size_t)(len - 3);
+    size_t d = (size_t)(len - 4);
+    size_t comb = a * b * c * d / 24U;
+    return comb * (size_t)(len - 4);
+}
 
 /* Allocate an array of seq_t that is safe in C and C++. */
 
@@ -97,7 +120,7 @@ seq_t a(idx_t n)
         return 0;
     }
 
-    qsort(arr, total, sizeof(seq_t), seq_compare);
+    mem_qsort(arr, total, sizeof(seq_t), seq_compare);
 
     seq_t result = arr[n - 1];
 

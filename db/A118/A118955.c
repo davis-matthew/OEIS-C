@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 181, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 88 terms through n = 9483 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static idx_t primes_limit = 0;
 static uint64_t *primes = NULL;
@@ -82,8 +84,7 @@ static void ensure_terms(idx_t n)
             if (visited[i]) {
                 if (term_count == terms_cap) {
                     size_t new_cap = terms_cap ? terms_cap * 2 : 4;
-                    terms = (seq_t *)realloc(terms,
-                                             new_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, new_cap);
                     terms_cap = new_cap;
                 }
                 terms[term_count++] = (seq_t)i;

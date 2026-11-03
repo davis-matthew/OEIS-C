@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor(6*n*Pi) - 2*floor(3*n*Pi)
  * Range:     u8 n <= 122, u16 n <= 122, u32 n <= 122, u64 n <= 122,
  *            u128 n <= 122, big any n
+ * Validated: partial, pass, 122 terms through n = 122 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

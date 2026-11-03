@@ -9,15 +9,40 @@
  *            digits in common
  * Range:     u8 n <= 66, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mask_base4, mask_base9_upto3
+ * Validated: standard, pass, 74 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mask_base4.h"
-#include "../utils/mask_base9_upto3.h"
+#include "../utils/mem.h"
+
+/*  Return a bit mask of the digits appearing in the base‑4 representation of x. */
+static inline unsigned char mask_base4(seq_t x)
+{
+    unsigned char mask = 0;
+    while (x > 0) {
+        unsigned d = (unsigned)(x % 4);
+        mask |= 1u << d;
+        x /= 4;
+    }
+    return mask;
+}
+
+/*  Return a bit mask of the digits 0‑3 that appear in the base‑9 representation of x. */
+static inline unsigned char mask_base9_upto3(seq_t x)
+{
+    unsigned char mask = 0;
+    while (x > 0) {
+        unsigned d = (unsigned)(x % 9);
+        if (d < 4)
+            mask |= 1u << d;
+        x /= 9;
+    }
+    return mask;
+}
 
 /*  True if x has no common digit 0‑3 in its base‑4 and base‑9 representations. */
 static inline bool has_no_common_digits(seq_t v)
@@ -45,7 +70,7 @@ seq_t a(idx_t n)
         if (newcap < (size_t)n)
             newcap = n;
         /* cast required for C++ compilers; harmless for C */
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp)
             abort();          /* allocation failed */
         cache = tmp;

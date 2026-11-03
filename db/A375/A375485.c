@@ -8,6 +8,7 @@
  * Formula:   a(n) = #{ k | 0 ≤ k ≤ n , is_prime(n XOR k) }
  * Range:     u8 n <= 1749, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 91 terms through n = 7870 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

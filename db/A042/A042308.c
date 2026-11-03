@@ -8,6 +8,7 @@
  *            continued fraction expansion
  * Range:     u8 n <= 0, u16 n <= 7, u32 n <= 15, u64 n <= 32, u128 n <= 69,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 196 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

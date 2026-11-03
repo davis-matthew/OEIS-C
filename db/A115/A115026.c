@@ -12,14 +12,39 @@
  *            stabilizes
  * Range:     u8 n <= 13, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   digit_power_sum
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/digit_power_sum.h"
+
+/* Compute f(x) = sum of (each decimal digit)^k,   k = number of digits of x */
+static seq_t digit_power_sum(seq_t x)
+{
+    /* Count the digits of x (at least one).*/
+    size_t k = 0;
+    seq_t tmp = x;
+    do {
+        tmp /= 10;
+        ++k;
+    } while (tmp > 0);
+
+    /* Sum the k‑th powers of the digits. */
+    seq_t sum = 0;
+    tmp = x;
+    while (tmp > 0) {
+        uint8_t d = (uint8_t)(tmp % 10);
+        seq_t power = 1;
+        for (size_t i = 0; i < k; ++i)
+            power *= d;
+        sum += power;
+        tmp /= 10;
+    }
+    return sum;
+}
 
 /* Main sequence function.  Uses Floyd’s cycle detection to avoid
  * dynamic memory allocation and to support arbitrary–precision seq_t. */

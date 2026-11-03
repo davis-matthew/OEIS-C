@@ -12,21 +12,23 @@
  *            n - (d−1)d/2 − 1 (0‑based in that diagonal)....
  * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 73, u64 n <= 184,
  *            u128 n <= 520, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 61 terms through n = 1138 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static seq_t compute_T(idx_t i, idx_t k)
 {
     seq_t sum = 0;
     for (idx_t j = 0; j <= k; ++j) {
-        seq_t term = binom(k, j);
+        seq_t term = binomial(k, j);
         idx_t a = (i + 1) * k - j - 1;
         idx_t b = i * k - j;
-        term = term * binom(a, b);
+        term = term * binomial(a, b);
         sum += term;
     }
     return sum;

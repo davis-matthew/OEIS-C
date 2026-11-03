@@ -8,6 +8,7 @@
  *            period 10: a(5..14) = 2,2,2,2,4,4,1,1,1,1 and repeats thereafter
  * Range:     u8 n <= 103, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
+ * Validated: partial, pass, 103 terms through n = 103 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

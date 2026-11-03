@@ -10,7 +10,8 @@
  *            n }
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Euclidean algorithm for arbitrary unsigned types. */
 static inline seq_t gcd_seq_t(seq_t a, seq_t b) {
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     if (cache_size == 0) {
         /* Reserve space for lcm_cache[0] which holds the identity 1. */
         cache_size = 1;
-        lcm_cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        lcm_cache = mem_new(seq_t, cache_size);
         if (!lcm_cache) abort();
         lcm_cache[0] = (seq_t)1;
     }
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
      * using the recurrence  lcm(i) = lcm(i‑1) * i / gcd(lcm(i‑1), i). */
     if (cache_size <= n) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(lcm_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, lcm_cache, new_size);
         if (!tmp) abort();
         lcm_cache = tmp;
         for (idx_t i = cache_size; i <= n; ++i) {

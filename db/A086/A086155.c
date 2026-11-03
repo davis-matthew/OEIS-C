@@ -9,13 +9,15 @@
  *            prime and q = p+2n. That is, a(n) = |{p < r < p+2n : r prime}|
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   is_prime_small, next_prime
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   is_prime_seq, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 #include "../utils/next_prime.h"
 
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Find the least prime p such that p and p+d are both primes. */
     while (1) {
-        if (is_prime_small((seq_t)(p + d)))
+        if (is_prime_seq((seq_t)(p + d)))
             break;
         last:
         if (p == 2)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Count primes strictly between p and q = p+d. */
     seq_t cnt = 0;
     for (idx_t m = p + 1; m < p + d; ++m) {
-        if (is_prime_small((seq_t)m))
+        if (is_prime_seq((seq_t)m))
             ++cnt;
     }
     return cnt;

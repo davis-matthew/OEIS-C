@@ -8,7 +8,8 @@
  *            a(1)=0
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   grow
+ * Validated: standard, pass, 35 terms through n = 383 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,39 @@
    the seq_t type as required. */
 
 #include <stdlib.h>
-#include "../utils/grow.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array to at least 'need' elements */
+#ifdef __cplusplus
+template <class T>
+static T *grow(T *ptr, idx_t *cap, idx_t need, size_t elem_size)
+{
+    if (*cap >= need) return ptr;
+    idx_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < need) new_cap <<= 1;
+    ptr = mem_resize(T, ptr, (new_cap * elem_size) / sizeof(T));
+    *cap = new_cap;
+    return ptr;
+}
+#else
+static void *grow(void *ptr, idx_t *cap, idx_t need, size_t elem_size)
+{
+    if (*cap >= need) return ptr;
+    idx_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < need) new_cap <<= 1;
+    ptr = realloc(ptr, new_cap * elem_size);
+    *cap = new_cap;
+    return ptr;
+}
+#endif
 
 /* Forward declarations */
 static void ensure_fact(idx_t n);
@@ -105,17 +138,17 @@ seq_t a(idx_t n)
     /* Initialise arrays on first call */
     if (A == NULL) {
         A_cap = 4;
-        A = (seq_t *)malloc(A_cap * sizeof(seq_t));
+        A = mem_new(seq_t, A_cap);
         A_len = 0;
     }
     if (c == NULL) {
         c_cap = 4;
-        c = (seq_t *)malloc(c_cap * sizeof(seq_t));
+        c = mem_new(seq_t, c_cap);
         c_len = 0;
     }
     if (fact == NULL) {
         fact_cap = 4;
-        fact = (seq_t *)malloc(fact_cap * sizeof(seq_t));
+        fact = mem_new(seq_t, fact_cap);
         fact_len = 0;
     }
 

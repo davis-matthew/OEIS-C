@@ -9,11 +9,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   value_used
+ * Validated: standard, pass, 77 terms through n = 926 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Implementation of OEIS A258136: the lexicographically earliest
    sequence of odd positive integers such that all terms and all
    their absolute first differences are distinct.
@@ -22,7 +24,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/value_used.h"
+
+/* Linear search for a value in an array of size 'len'. */
+static bool value_used(const seq_t *arr, size_t len, const seq_t val) {
+    for (size_t i = 0; i < len; ++i) {
+        if (arr[i] == val)
+            return true;
+    }
+    return false;
+}
 
 #define MAX_TERMS 200000  /* large enough for n up to ~10 000 */
 

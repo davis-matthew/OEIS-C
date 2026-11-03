@@ -11,6 +11,7 @@
  *            symmetric: a(n) = a(231-n)
  * Range:     u8 n <= 231, u16 n <= 231, u32 n <= 231, u64 n <= 231,
  *            u128 n <= 231, big any n
+ * Validated: full, pass, 232 terms through n = 231 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

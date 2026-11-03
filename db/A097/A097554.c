@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 17, u64 n <= 36, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 857 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    The first seven terms are provided below and are used as seeds. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         /* ensure cache contains the first seven terms */
         if (cache == NULL || cache_cap < 7) {
             size_t need = 7;
-            cache = (seq_t *)malloc(need * sizeof(seq_t));
+            cache = mem_new(seq_t, need);
             if (!cache) return 0;                 /* allocation failure – unlikely for these limits */
             cache[0] = (seq_t)1;
             cache[1] = (seq_t)7;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         size_t need = N + 1;
         if (need < 64) need = 64;
-        cache = (seq_t *)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
         if (!cache) return 0;
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)7;
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     }
     else if (N + 1 > cache_cap) {
         cache_cap = N + 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         if (!cache) return 0;
     }
 

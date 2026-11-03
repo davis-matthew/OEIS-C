@@ -10,12 +10,14 @@
  *            the period of sqrt(417) (period length = 18)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 23, u64 n <= 44, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of already computed terms */
 static seq_t *cache       = NULL;
@@ -45,7 +47,7 @@ static void init_cache(void)
 
     /* allocate space for 36 values (indices 0..35) */
     cache_capacity = 36;
-    cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_capacity);
     cache_size  = 36;
 
     /* compute convergents: p_{-2}=0, p_{-1}=1; q_{-2}=1, q_{-1}=0 */
@@ -76,7 +78,7 @@ static void extend_cache(idx_t n)
     /* enlarge allocation if necessary */
     if (n + 1 > cache_capacity) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_capacity = new_cap;
     }

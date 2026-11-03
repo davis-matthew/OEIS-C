@@ -7,15 +7,27 @@
  * Formula:   a(n+2) = Sum_{k=1..n} Stirling2(n,k)*a(k), a(1) = a(2) = 1
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 15, u64 n <= 22, u128 n <= 34,
  *            big any n
- * Helpers:   alloc_zero, release
+ * Validated: standard, pass, 40 terms through n = 124 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t *vals = NULL;   /* vals[i] = a(i) for 1 <= i <= have */
 static seq_t *srow = NULL;   /* srow[k] = Stirling2(have-2, k) once have >= 3 */

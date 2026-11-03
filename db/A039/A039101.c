@@ -9,7 +9,8 @@
  *            contains an equal number of 3's and 8's
  * Range:     u8 n <= 154, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9681 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Count the number of 3's and 8's in the base‑9 representation of x.
    Returns true iff the counts are equal. */
@@ -49,13 +51,13 @@ static void grow_cache(size_t new_cap)
     size_t old_cap = cap;
     cap = new_cap;
     /* Use realloc; cast its result appropriately. */
-    seq_t *tmp = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cap);
     if (!tmp) abort();
     cache = tmp;
 #ifdef __cplusplus
     /* Construct any new seq_t objects that were not previously initialized. */
     for (size_t i = old_cap; i < cap; ++i)
-        new(&cache[i]) seq_t();
+        *(&cache[i]) = (seq_t)0;
 #endif
 }
 

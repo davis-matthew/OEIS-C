@@ -7,7 +7,8 @@
  * Formula:   a(n) = 4*a(n-1) + Bell(n-1) - 2^(n-2), a(4) = 1
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Dynamic array helper (reallocates growing by factor 2).            */
@@ -26,7 +28,7 @@ ensure_cap(seq_t **arr, size_t *cap, size_t needed)
     if (*cap <= needed) {
         size_t new_cap = (*cap == 0) ? 1 : *cap << 1;
         while (new_cap <= needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) exit(1);               /* allocation failure */
         *arr = tmp;
         *cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = (6*n)! / ((4*n)! * n!) * (n/2)! / (3*n/2)!
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 5, u64 n <= 11, u128 n <= 13,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,9 @@
 /*   a(2*k+1) = 216*(9*k^2-1)*(144*k^2-1)*(144*k^2-25)             */
 /*              / [k*(2*k+1)*(64*k^2-1)*(64*k^2-9)] * a(2*k-1)          */
 
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
-static seq_t gcd_local(seq_t a, seq_t b) { return seq_gcd(a, b); }
+static seq_t gcd_local(seq_t a, seq_t b) { return gcd(a, b); }
 
 seq_t a(idx_t n)
 {

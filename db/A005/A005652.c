@@ -10,7 +10,8 @@
  *            floor(k*sqrt(5))); computed by a search
  * Range:     u8 n <= 128, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a005652_in_seq, a005652_isqrt
+ * Validated: standard, pass, 81 terms through n = 941 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a005652_in_seq.h"
-#include "../utils/a005652_isqrt.h"
+#include "../utils/isqrt_u64.h"
+
+static bool a005652_in_seq(uint64_t k) {
+    return ((k + isqrt_u64(5 * k * k)) & 1) == 1;
+}
 
 static uint64_t *a005652_cache = NULL;
 static idx_t a005652_len = 0;

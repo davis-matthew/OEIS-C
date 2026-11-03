@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of primes ≤ n that end in the digit 1
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 136 terms through n = 4979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,14 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper to build cumulative array of counts up to a given limit. */
 static void build_cache(idx_t limit, seq_t **cache, idx_t *cap)
 {
     /* Allocate new cache array (indices start at 0, but we ignore 0). */
-    seq_t *new_cache = (seq_t*)calloc(limit + 1, sizeof(seq_t));
-    if (*cache) free(*cache);
+    seq_t *new_cache = mem_new(seq_t, limit + 1);
+    if (*cache) mem_free(*cache);
     *cache = new_cache;
 
     /* Basic sieve of Eratosthenes up to 'limit'. */

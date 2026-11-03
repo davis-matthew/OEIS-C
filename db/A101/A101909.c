@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1024, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   lower_bound_uint64
+ * Validated: standard, pass, 92 terms through n = 9777 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/lower_bound_uint64.h"
+
+/*  Binary search for first element >= key in a sorted uint64_t array.  */
+static size_t lower_bound_uint64(const uint64_t *arr, size_t n, uint64_t key)
+{
+    size_t lo = 0, hi = n;
+    while (lo < hi) {
+        size_t mid = lo + ((hi - lo) >> 1);
+        if (arr[mid] < key)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo;
+}
 
 /*  Memoised sieve data  */
 static uint64_t *prime_list  = NULL;   /* array of primes */

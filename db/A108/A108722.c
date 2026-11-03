@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 31, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   digit_len
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
+ * Helpers:   num_digits0_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_len.h"
+#include "../utils/num_digits0_seq.h"
 
 #define CACHE_MAX 100001          /* cache up to 100000 terms */
 static seq_t cache[CACHE_MAX];
@@ -33,7 +34,7 @@ static idx_t cache_len = 0;      /* last index computed and stored */
 static seq_t compute_next(idx_t k)
 {
     seq_t prev = cache[k - 1];
-    idx_t d = digit_len(prev);   /* number of decimal digits */
+    idx_t d = num_digits0_seq(prev);   /* number of decimal digits */
 
     /* powers of 10 up to 10^d stored in a local array */
     static seq_t pow10[50];

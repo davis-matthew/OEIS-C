@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 15, i16 n <= 29, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 /* External integer types supplied by the build */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for coefficient rows
    coeff_rows[n] points to an array of n+1 seq_t elements,
@@ -35,7 +37,7 @@ ensure_polys_up_to(idx_t n)
     /* Initialise the first row if needed */
     if (coeff_rows == NULL) {
         coeff_rows = (seq_t**)calloc(1, sizeof(seq_t*));
-        coeff_rows[0] = (seq_t*)calloc(1, sizeof(seq_t));
+        coeff_rows[0] = mem_new(seq_t, 1);
         coeff_rows[0][0] = (seq_t)1;   /* P(0,x) = 1 */
         max_poly = 0;
     }
@@ -50,7 +52,7 @@ ensure_polys_up_to(idx_t n)
     /* Compute new rows in increasing order */
     for (idx_t m = max_poly + 1; m <= n; ++m) {
         /* Allocate array for coefficients of P(m,x) */
-        seq_t *row = (seq_t*)calloc((size_t)(m + 1), sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(m + 1));
 
         if (m == 0) {                /* base case already set, keep as 1 */
             row[0] = (seq_t)1;

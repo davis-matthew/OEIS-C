@@ -12,14 +12,17 @@
  *            The total for n is the sum of these contributions plus...
  * Range:     u8 n <= 20, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
         size_t new_len = req + 1;    /* length of array needed */
 
         /* Reallocate cache to hold values up to req */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) {            /* allocation failed */
             /* for safety return 0 on failure */
             return 0;
@@ -55,9 +58,9 @@ seq_t a(idx_t n)
         for (size_t m = 2; m < new_len; ++m) {
             size_t limit = new_len - m - 1;          /* maximum remaining sum */
             /* Allocate DP array for partitions of sum up to 'limit' */
-            seq_t *dp = (seq_t *)calloc(limit + 1, sizeof(seq_t));
+            seq_t *dp = mem_new(seq_t, limit + 1);
             if (!dp) {                               /* allocation failed */
-                free(cache);
+                mem_free(cache);
                 cache = NULL;
                 cached_n = 0;
                 return 0;
@@ -78,7 +81,7 @@ seq_t a(idx_t n)
                 cache[m + k] += dp[k];
             }
 
-            free(dp);
+            mem_free(dp);
         }
 
         cached_n = new_len;   /* cache now valid up to 'req' */

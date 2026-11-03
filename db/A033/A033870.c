@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 18, u32 n <= 231, u64 n <= 246,
  *            u128 n <= 246, big any n
- * Helpers:   none
+ * Validated: full, pass, 246 terms through n = 246 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t cache[250];
 static idx_t cache_count = 0;
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
             }
         }
 
-        qsort(cache, cache_count, sizeof(seq_t), cmp_seq);
+        mem_qsort(cache, cache_count, sizeof(seq_t), cmp_seq);
         cache_ready = 1;
     }
 

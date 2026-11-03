@@ -14,7 +14,8 @@
  *            dynamic * programming over rows. The table...
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 16, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Constants for the 3×3 grid */
 #define ROWS          27            /* 3^3 possible rows */
@@ -178,8 +180,8 @@ seq_t a(idx_t n)
     static seq_t dp_next[STATE_COUNT * MASK_COUNT];
 
     const size_t dim = STATE_COUNT * MASK_COUNT;
-    memset(dp_cur, 0, sizeof(dp_cur));
-    memset(dp_next, 0, sizeof(dp_next));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_next, 0, sizeof(dp_next));
 
     /* --- Initialise with the first two rows --- */
     for (int r1 = 0; r1 < ROWS; ++r1) {
@@ -200,7 +202,7 @@ seq_t a(idx_t n)
 
     /* --- Process remaining rows --- */
     for (idx_t step = 0; step < transitions; ++step) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         for (int state = 0; state < STATE_COUNT; ++state) {
             int r1 = state / ROWS;
@@ -222,7 +224,7 @@ seq_t a(idx_t n)
             }
         }
         /* swap dp_cur and dp_next for next iteration */
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     }
 
     /* --- Sum all possible final states --- */

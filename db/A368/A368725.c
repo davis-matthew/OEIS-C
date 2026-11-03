@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (-1)^(n-k) * k^n / k!
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 9, i64 n <= 15, i128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
     function big_pow.  All arithmetic is performed in the seq_t type. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static seq_t factorial_u64(idx_t n)
 {
@@ -51,7 +52,7 @@ seq_t a(idx_t n)
         }
         else
         {
-            pow_k_n = big_pow((seq_t)k, (seq_t)n);
+            pow_k_n = ipow((seq_t)k, (seq_t)n);
         }
 
         seq_t term = pow_k_n * ratio;

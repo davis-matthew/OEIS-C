@@ -6,15 +6,18 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 5*k^3 + 9 where k is the nth integer such that 5*k^3+9 is
  *            prime
- * Range:     u8 none, u16 n <= 3, u32 n <= 24, u64 n <= 24, u128 n <= 24,
+ * Range:     u8 none, u16 n <= 3, u32 n <= 52, u64 n <= 2200, u128 n <= 2200,
  *            big any n
- * Helpers:   is_prime_seq
+ * Validated: standard, pass, 40 terms through n = 2183 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Find the nth prime of the form 5k^3+9. */
 seq_t a(idx_t n)
@@ -24,15 +27,6 @@ seq_t a(idx_t n)
     static idx_t  sz      = 0;          /* number of primes stored */
     static idx_t  cap     = 0;          /* capacity of the array */
     static idx_t  next_k  = 10;         /* next k to test (start at 10) */
-
-    /* Grow the primes array if necessary. */
-    if (sz >= cap) {
-        idx_t new_cap = (cap == 0) ? 4 : cap << 1;
-        seq_t *new_ptr = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
-        if (!new_ptr) abort();          /* allocation failed */
-        primes = new_ptr;
-        cap    = new_cap;
-    }
 
     /* Generate primes until we have at least n of them. */
     while (sz < n) {
@@ -44,6 +38,13 @@ seq_t a(idx_t n)
         const seq_t candidate = five * kCUBE + nine;
 
         if (is_prime_seq(candidate)) {
+            if (sz >= cap) {            /* grow the primes array */
+                idx_t new_cap = (cap == 0) ? 4 : cap << 1;
+                seq_t *new_ptr = mem_resize(seq_t, primes, new_cap);
+                if (!new_ptr) abort();
+                primes = new_ptr;
+                cap    = new_cap;
+            }
             primes[sz++] = candidate;
         }
         next_k++;

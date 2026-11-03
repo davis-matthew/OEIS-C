@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 14, u128 n <= 30,
  *            big any n
- * Helpers:   matrix_commutes
+ * Validated: standard, pass, 30 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,26 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/matrix_commutes.h"
+#include "../utils/mem.h"
+
+/* ----------------- Helper: matrix commutation check ----------------- */
+static bool matrix_commutes(const int *A, const int *B)
+{
+    int AB[9], BA[9];
+    for (int i = 0; i < 3; ++i)
+        for (int j = 0; j < 3; ++j) {
+            int sumAB = 0, sumBA = 0;
+            for (int k = 0; k < 3; ++k) {
+                sumAB += A[i*3 + k] * B[k*3 + j];
+                sumBA += B[i*3 + k] * A[k*3 + j];
+            }
+            AB[i*3 + j] = sumAB;
+            BA[i*3 + j] = sumBA;
+        }
+    for (int idx = 0; idx < 9; ++idx)
+        if (AB[idx] != BA[idx]) return false;
+    return true;
+}
 
 /* External integer types supplied by the build.  Do NOT modify. */
 typedef uint64_t idx_t;   /* index type */
@@ -129,8 +149,8 @@ static void init_states(void)
     init_done = true;
 
     /* Allocate DP arrays and initial cache */
-    dp_cur  = (seq_t *)malloc(NumStates * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(NumStates * sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, NumStates);
+    dp_next = mem_new(seq_t, NumStates);
 
     /* a(1) – all admissible 3‑row windows */
     for (size_t i = 0; i < NumStates; ++i) dp_cur[i] = 1;
@@ -139,7 +159,7 @@ static void init_states(void)
 
     /* Initialise cache (indices 0 unused) */
     cache_cap = 2;                 /* capacity for indices 0 … 1 */
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[1] = first;
     max_computed = 1;
 }
@@ -157,7 +177,7 @@ seq_t a(idx_t n)
         if ((size_t)n + 1 > cache_cap) {
             size_t newcap = cache_cap ? cache_cap * 2 : 128;
             while (newcap <= (size_t)n + 1) newcap <<= 1;
-            cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, newcap);
             cache_cap = newcap;
         }
 

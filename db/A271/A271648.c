@@ -9,6 +9,7 @@
  *            16*n^3 + 38*n^2 + 59*n)/3) + 32*n^5 + 13
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

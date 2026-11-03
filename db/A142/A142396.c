@@ -7,14 +7,16 @@
  * Formula:   a(n) = n-th prime congruent to 45 mod 47
  * Range:     u8 n <= 2, u16 n <= 150, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 58 terms through n = 958 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,20 +35,20 @@ seq_t a(idx_t n)
     if (!cache)
     {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Generate terms until we have at least n of them */
     while (cache_size < n)
     {
         /* Test the current candidate for primality */
-        if (is_prime_small((seq_t)last_candidate))
+        if (is_prime_seq((seq_t)last_candidate))
         {
             /* Grow cache if needed */
             if (cache_size == cache_cap)
             {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             /* Store the found prime */
             cache[cache_size++] = (seq_t)last_candidate;

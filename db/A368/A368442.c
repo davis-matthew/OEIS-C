@@ -9,13 +9,15 @@
  *            order of calls
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0, cache_cap = 0;
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* ensure cache holds at least a[0] */
     if (cache_len == 0) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 1;
         cache_len = 1;
     }
@@ -35,21 +37,21 @@ seq_t a(idx_t n)
     if (cache_cap <= (size_t)n) {
         size_t new_cap = (cache_cap < 4) ? 4 : cache_cap * 2;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
     /* ensure pow2 array covers at least n */
     if (pow2_len == 0) {
         pow2_cap = 1;
-        pow2 = (seq_t *)malloc(sizeof(seq_t) * pow2_cap);
+        pow2 = mem_new(seq_t, pow2_cap);
         pow2[0] = 1;
         pow2_len = 1;
     }
     if (pow2_cap <= (size_t)n) {
         size_t new_cap = (pow2_cap < 4) ? 4 : pow2_cap * 2;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(pow2, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow2, new_cap);
         pow2 = tmp;
         pow2_cap = new_cap;
     }

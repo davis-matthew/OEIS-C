@@ -12,13 +12,25 @@
  *            ord_2(1) = 1) → a(n) = 2^(v2(n)+1) – 1. - If...
  * Range:     u8 n <= 18, u16 n <= 128, u32 n <= 128, u64 n <= 128,
  *            u128 n <= 128, big any n
- * Helpers:   order2_odd
+ * Validated: standard, pass, 69 terms through n = 121 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/order2_odd.h"
+
+static unsigned long long order2_odd(unsigned long long mod)
+{
+    /* mod is odd, mod >= 3 */
+    unsigned long long pow = 2 % mod;
+    unsigned long long k = 1;
+    while (pow != 1ULL) {
+        pow = (pow * 2ULL) % mod;
+        ++k;
+    }
+    return k;
+}
 
 seq_t a(idx_t n)
 {

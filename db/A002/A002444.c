@@ -11,13 +11,24 @@
  *            (equivalently, the denominator of unsigned Bernoulli |B_{2n}|)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 35, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   vp
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/vp.h"
+
+static uint64_t vp(uint64_t N, uint64_t p) {
+    uint64_t result = 0;
+    uint64_t pk = p;
+    while (pk <= N) {
+        result += N / pk;
+        if (pk > N / p) break;
+        pk *= p;
+    }
+    return result;
+}
 
 static bool is_prime(uint64_t n) {
     if (n < 2) return false;

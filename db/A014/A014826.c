@@ -11,13 +11,15 @@
  *            using them in the recurrence a(0) = 1 a(n) = -∑...
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,9 +34,9 @@ seq_t a(idx_t n)
         const size_t den_deg = 62;           /* degree of (x^19-1)(x^43-1) */
         const size_t q_deg  = num_deg - den_deg;   /* 756 */
 
-        seq_t *num   = (seq_t*)malloc((num_deg + 1) * sizeof(seq_t));
-        seq_t *den   = (seq_t*)malloc((den_deg + 1) * sizeof(seq_t));
-        seq_t *temp  = (seq_t*)malloc((num_deg + 1) * sizeof(seq_t));
+        seq_t *num   = mem_new(seq_t, (num_deg + 1));
+        seq_t *den   = mem_new(seq_t, (den_deg + 1));
+        seq_t *temp  = mem_new(seq_t, (num_deg + 1));
 
         /* initialise to zero */
         for (size_t i = 0; i <= num_deg;  i++) num[i]  = 0;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         /* copy numerator to temp for division */
         for (size_t i = 0; i <= num_deg; i++) temp[i] = num[i];
 
-        phi_coeff = (seq_t*)malloc((q_deg + 1) * sizeof(seq_t));
+        phi_coeff = mem_new(seq_t, (q_deg + 1));
 
         for (size_t i = 0; i <= q_deg; i++) {
             seq_t coeff = temp[i];                /* denom[0] = 1 */
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         /* ------------------------------------------
            Compute the first 817 terms of a(n)
         ------------------------------------------ */
-        a_vals = (seq_t*)malloc(817 * sizeof(seq_t));
+        a_vals = mem_new(seq_t, 817);
         a_vals[0] = 1;   /* a(0) = 1 */
 
         for (size_t n_idx = 1; n_idx < 817; n_idx++) {
@@ -84,9 +86,9 @@ seq_t a(idx_t n)
         }
 
         /* free temporary arrays */
-        free(num);
-        free(den);
-        free(temp);
+        mem_free(num);
+        mem_free(den);
+        mem_free(temp);
     }
 
     /* the sequence is periodic of length 817 */

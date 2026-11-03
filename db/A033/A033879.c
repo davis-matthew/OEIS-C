@@ -6,8 +6,9 @@
  * Keywords:  sign, nice, easy
  * Formula:   a(n) = 2*n - sigma(n) (sigma(n) = sum of all positive divisors
  *            of n)
- * Range:     i8 n <= 130, i16 n <= 9649, i32 n <= 9649, i64 n <= 9649,
- *            i128 n <= 9649, big any n
+ * Range:     i8 n <= 130, i16 n <= 18479, i32 n <= 25000, i64 n <= 25000,
+ *            i128 n <= 25000, big any n
+ * Validated: standard, pass, 88 terms through n = 9649 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

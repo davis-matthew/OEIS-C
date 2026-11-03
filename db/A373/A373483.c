@@ -10,9 +10,10 @@
  * Formula:   a(n) = 1 iff both A083345(n) and A276085(n) are multiples of 3,
  *            otherwise 0. Computes the conditions using only modular
  *            arithmetic modulo 3 and 9
- * Range:     u8 n <= 9471, u16 n <= 9471, u32 n <= 9471, u64 n <= 9471,
- *            u128 n <= 9471, big any n
- * Helpers:   _factorize_uint64
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 141 terms through n = 9471 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,44 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/_factorize_uint64.h"
+
+/* sort of tiny trial division factorizer, no external utils needed */
+static void _factorize_uint64(uint64_t n, uint64_t *pr, int *exp, size_t *cnt)
+{
+    size_t c = 0;
+    int e = 0;
+    /* factor 2 */
+    while ((n & 1ULL) == 0ULL) {
+        e++;
+        n >>= 1;
+    }
+    if (e > 0) {
+        pr[c] = 2ULL;
+        exp[c] = e;
+        c++;
+    }
+    /* odd factors */
+    uint64_t f = 3ULL;
+    while (f * f <= n) {
+        if (n % f == 0ULL) {
+            e = 0;
+            while (n % f == 0ULL) {
+                n /= f;
+                e++;
+            }
+            pr[c] = f;
+            exp[c] = e;
+            c++;
+        }
+        f += 2;
+    }
+    if (n > 1ULL) {
+        pr[c] = n;
+        exp[c] = 1;
+        c++;
+    }
+    *cnt = c;
+}
 
 seq_t a(idx_t n)
 {

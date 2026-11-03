@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   mul_saturate
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,14 @@
  * with 1, 2, 3, 4, 5, 6, 7, 9, 11, … as given in the OEIS entry A033059.*/
 
 #include <stdint.h>
-#include "../utils/mul_saturate.h"
+
+/* multiply two uint64_t values with saturation at UINT64_MAX to avoid overflow */
+static uint64_t mul_saturate(uint64_t a, uint64_t b)
+{
+    if (a == 0 || b == 0) return 0;
+    if (a > UINT64_MAX / b) return UINT64_MAX;
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {

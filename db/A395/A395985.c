@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compare_repunit_sum
+ * Validated: standard, pass, 90 terms through n = 8755 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,33 @@
    b = n‑1.  The function is O(log n * log n) per call. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compare_repunit_sum.h"
+
+/* Return -1 if sum < target, 0 if sum == target,
+   1 if sum > target.  No overflow occurs in calculation. */
+static int compare_repunit_sum(seq_t b, idx_t L, seq_t target)
+{
+    seq_t sum   = (seq_t)1;   /* first term 1 */
+    seq_t power = (seq_t)1;   /* current power of b: b^k */
+
+    for (idx_t i = 1; i < L; ++i) {
+        /* If next power would overflow the limit, we can stop:
+           the full sum would exceed target. */
+        if (power > target / b)
+            return 1;
+
+        power *= b;                /* compute b^i safely */
+
+        /* Adding power to sum would exceed target? */
+        if (sum > target - power)
+            return 1;
+
+        sum += power;
+    }
+
+    if (sum < target) return -1;
+    if (sum > target) return 1;
+    return 0;                       /* sum == target */
+}
 
 seq_t a(idx_t n)
 {

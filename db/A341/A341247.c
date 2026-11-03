@@ -10,7 +10,8 @@
  *            distinct odd parts
  * Range:     u8 n <= 14, u16 n <= 24, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_free
+ * Validated: partial, pass, 37 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,15 @@
 #include <stdint.h>
 #include <string.h>              /* for memset */
 
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free.h"
+#include <stdlib.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 /* Cache for the computed values of a(n).  A_seq[0..cache_max] are valid. */
 static seq_t *A_seq = NULL;
@@ -35,7 +43,7 @@ static idx_t cache_max = 0;
 static seq_t *alloc_zeroed(idx_t sz)
 {
     seq_t *p = seq_alloc_new_array(sz);
-    memset(p, 0, sz * sizeof(seq_t));
+    mem_set(p, 0, sz * sizeof(seq_t));
     return p;
 }
 
@@ -63,7 +71,7 @@ static void recompute_cache(idx_t n)
     seq_t *tmp = alloc_zeroed(n + 1);
 
     for (int iter = 0; iter < 8; ++iter) {
-        memset(tmp, 0, (n + 1) * sizeof(seq_t));
+        mem_set(tmp, 0, (n + 1) * sizeof(seq_t));
         for (idx_t i = 1; i <= n; ++i) {
             seq_t gi = g[i];
             if (gi == 0) continue;
@@ -72,12 +80,12 @@ static void recompute_cache(idx_t n)
             }
         }
         /* copy tmp back to w for the next iteration */
-        memcpy(w, tmp, (n + 1) * sizeof(seq_t));
+        mem_copy(w, tmp, (n + 1) * sizeof(seq_t));
     }
 
     /* 3. Store the result into the new cache. */
     seq_t *new_cache = alloc_zeroed(n + 1);
-    memcpy(new_cache, w, (n + 1) * sizeof(seq_t));
+    mem_copy(new_cache, w, (n + 1) * sizeof(seq_t));
 
     /* Clean up temporaries. */
     seq_free(f);

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static uint8_t *bitset = NULL;   /* bitset marks used integers */
 static idx_t   bitset_cap = 0;   /* capacity in bytes */
@@ -70,10 +72,10 @@ static void ensure_capacity(idx_t needed)
     if (needed < a_cap) return;
     idx_t new_cap = a_cap ? a_cap : 4;
     while (needed >= new_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_arr, new_cap * sizeof(*a_arr));
+    seq_t *tmp = mem_resize(seq_t, a_arr, new_cap);
     if (!tmp) abort();
     a_arr = tmp;
-    tmp = (seq_t *)realloc(b_arr, new_cap * sizeof(*b_arr));
+    tmp = mem_resize(seq_t, b_arr, new_cap);
     if (!tmp) abort();
     b_arr = tmp;
     a_cap = new_cap;

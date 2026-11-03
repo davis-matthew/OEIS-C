@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  base, easy, look, nonn
  * Formula:   a(n) = n*(n+1)/2 + reverse_decimal(n*(n+1)/2)
- * Range:     u8 n <= 13, u16 n <= 142, u32 n <= 9945, u64 n <= 9945,
- *            u128 n <= 9945, big any n
+ * Range:     u8 n <= 13, u16 n <= 142, u32 n <= 14141, u64 n <= 14141,
+ *            u128 n <= 14141, big any n
+ * Validated: standard, pass, 66 terms through n = 9945 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

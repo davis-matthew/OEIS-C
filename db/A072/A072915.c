@@ -9,6 +9,7 @@
  *            digits 2‑6 are 8,0,6,6,5 respectively, and a(n)=0 for n>6
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

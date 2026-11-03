@@ -8,7 +8,8 @@
  * Formula:   a(n) = (A047726(n))^(A047726(n))
  * Range:     u8 n <= 101, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 103 terms through n = 102 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     unsigned nonzero = 0;
     for (int d = 1; d < 10; ++d) nonzero += cnt[d];
     if (nonzero == 0) {
-        return big_pow((seq_t)1, (seq_t)1);  /* 1^1 = 1 */
+        return ipow((seq_t)1, (seq_t)1);  /* 1^1 = 1 */
     }
 
     /* Pre‑compute factorials up to len */
@@ -80,5 +82,5 @@ seq_t a(idx_t n)
         }
     }
 
-    return big_pow(f, f);
+    return ipow(f, f);
 }

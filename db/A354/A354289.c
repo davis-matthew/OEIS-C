@@ -10,7 +10,8 @@
  *            A335531(m-i)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    arbitrary‑precision support of seq_t (if provided by the build).  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) {
@@ -27,8 +29,8 @@ seq_t a(idx_t n) {
     }
 
     /* Allocate arrays for A335531 and a(n) values up to n.  */
-    seq_t *A = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *an = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (n + 1));
+    seq_t *an = mem_new(seq_t, (n + 1));
 
     A[0] = (seq_t)1;      /* A335531(0) = 1 */
     an[0] = (seq_t)1;     /* a(0) = 1 */
@@ -89,7 +91,7 @@ seq_t a(idx_t n) {
 
     seq_t result = an[n];
 
-    free(A);
-    free(an);
+    mem_free(A);
+    mem_free(an);
     return result;
 }

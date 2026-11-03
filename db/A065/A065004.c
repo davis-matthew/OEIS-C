@@ -9,6 +9,7 @@
  *            -1 if any digit ≥10 and therefore cannot be expressed with
  *            decimal * digits 0–9
  * Range:     i8 none, i16 none, i32 none, i64 none, i128 none, big any n
+ * Validated: full, pass, 100 terms through n = 100 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

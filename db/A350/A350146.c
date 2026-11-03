@@ -9,19 +9,21 @@
  *            is sum of divisors
  * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n < 1) return 0;                   /* safety for unexpected input */
 
     /* Allocate array for sum‑of‑divisors values (sigma) up to n. */
-    seq_t *sigma = (seq_t*)malloc(sizeof(seq_t) * (n + 1));
+    seq_t *sigma = mem_new(seq_t, (n + 1));
     if (!sigma) return 0;                    /* allocation failure (unlikely) */
 
     for (idx_t i = 1; i <= n; ++i) sigma[i] = 0;
@@ -49,6 +51,6 @@ seq_t a(idx_t n)
         sum += term;
     }
 
-    free(sigma);
+    mem_free(sigma);
     return sum;
 }

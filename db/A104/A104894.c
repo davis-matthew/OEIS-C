@@ -8,8 +8,9 @@
  * Formula:   a(n) = A010060( (d - (n - d(d+1)/2)) mod 2^((n - d(d+1)/2)+1) ),
  *            where d = ⌊(√(8·n + 1) – 1)/2⌋. This is equivalent to a(n) =
  *            A010060(c mod 2^(r+1)) with r = n – d(d+1)/2 , c = d – r
- * Range:     u8 n <= 9488, u16 n <= 9488, u32 n <= 9488, u64 n <= 9488,
- *            u128 n <= 9488, big any n
+ * Range:     u8 n <= 11324, u16 n <= 11324, u32 n <= 11324, u64 n <= 11324,
+ *            u128 n <= 11324, big any n
+ * Validated: standard, pass, 120 terms through n = 9488 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

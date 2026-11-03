@@ -7,13 +7,15 @@
  * Formula:   a(0)=a(1)=1; a(n) = a(n-2) + a(a(n-1) mod n)
  * Range:     u8 n <= 30, u16 n <= 84, u32 n <= 308, u64 n <= 1153,
  *            u128 n <= 4636, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9613 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache for computed terms */
 static seq_t *cache = NULL;          /* array of values            */
@@ -27,7 +29,7 @@ static void ensure_capacity(idx_t n)
         size_t newcap = cap ? cap * 2 : 16;
         while ((idx_t)newcap <= n) newcap <<= 1;
 
-        seq_t *new_cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, newcap);
         unsigned char *new_init = (unsigned char *)realloc(init,
                                                           newcap * sizeof(unsigned char));
         if (!new_cache || !new_init) abort();

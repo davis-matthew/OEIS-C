@@ -7,7 +7,8 @@
  * Formula:   a(n) = 5*a(n-2) + 2, a(0) = 1, a(1) = 2
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 27, u64 n <= 54, u128 n <= 109,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #else
     #define OBJ_PTR(x) ((seq_t*)(x))
 #endif
+#include "../utils/mem.h"
 
 /* cache of previously computed terms */
 static seq_t *cache = NULL;   /* pointer to array of seq_t */
@@ -41,10 +43,10 @@ seq_t a(idx_t n)
         size_t old_cap = cap;
         size_t new_cap = N + 1;
 
-        seq_t *new_cache = OBJ_PTR(realloc(cache, new_cap * sizeof(seq_t)));
+        seq_t *new_cache = OBJ_PTR(mem_resize(seq_t, cache, new_cap));
         if (!new_cache) {
             /* Allocation failure – return zero (undefined behaviour otherwise) */
-            if (cache) free(cache);
+            if (cache) mem_free(cache);
             cache = NULL;
             cap   = 0;
             return (seq_t)0;

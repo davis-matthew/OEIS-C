@@ -8,13 +8,15 @@
  *            A000593(k) is the sum of odd divisors of k
  * Range:     i8 n <= 6, i16 n <= 13, i32 n <= 28, i64 n <= 59, i128 n <= 122,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static buffers for A000593 values and memoised a(n) results. */
 static seq_t *odd_div_sum = NULL;   /* odd_div_sum[k] = A000593(k) */
@@ -28,8 +30,8 @@ static void ensure_buffers(idx_t n)
     size_t N = (size_t)n;
     if (N >= odd_div_sum_cap) {
         /* Reallocate and recompute odd_div_sum. */
-        free(odd_div_sum);
-        odd_div_sum = (seq_t*)calloc(N + 1, sizeof(seq_t));
+        mem_free(odd_div_sum);
+        odd_div_sum = mem_new(seq_t, N + 1);
         if (!odd_div_sum) abort();
         for (size_t d = 1; d <= N; d += 2) {        /* only odd d */
             for (size_t m = d; m <= N; m += d) {
@@ -40,8 +42,8 @@ static void ensure_buffers(idx_t n)
     }
 
     if (N >= a_cache_cap) {
-        free(a_cache);
-        a_cache = (seq_t*)calloc(N + 1, sizeof(seq_t));
+        mem_free(a_cache);
+        a_cache = mem_new(seq_t, N + 1);
         if (!a_cache) abort();
         a_cache_cap = N + 1;
     }

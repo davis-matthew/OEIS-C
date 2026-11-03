@@ -9,7 +9,8 @@
  *            runs congruent to 6 modulo 9
  * Range:     u8 n <= 28, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Allocate more space for the cache when needed. */
 static void ensure_capacity(size_t needed, seq_t **arr, size_t *cap)
@@ -30,7 +32,7 @@ static void ensure_capacity(size_t needed, seq_t **arr, size_t *cap)
     size_t new_cap = (*cap) ? (*cap) * 2 : 64;
     if (needed > new_cap)
         new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp)
         abort();                     /* memory allocation failed */
     *arr = tmp;

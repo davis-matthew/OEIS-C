@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥0} (1 + x^(3k+1))^3
  * Range:     u8 n <= 24, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,16 +18,17 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* local variables */
     size_t N = (size_t)n;                  /* array bounds fit in size_t */
-    seq_t *dp0 = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *dp1 = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp0 = mem_new(seq_t, (N + 1));
+    seq_t *dp1 = mem_new(seq_t, (N + 1));
     if (!dp0 || !dp1) { /* fall back to zero if allocation fails */
-        if (dp0) free(dp0);
-        if (dp1) free(dp1);
+        if (dp0) mem_free(dp0);
+        if (dp1) mem_free(dp1);
         return (seq_t)0;
     }
 
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp0[N];
-    free(dp0);
-    free(dp1);
+    mem_free(dp0);
+    mem_free(dp1);
     return result;
 }

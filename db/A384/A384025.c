@@ -7,13 +7,15 @@
  * Formula:   a(n) = coefficient of x^(2*n) in ∏_{k=0}^{n} (1 + k⋅x)^3
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,13 +29,13 @@ seq_t a(idx_t n)
 
     /* first call – initialise arrays and a(0) = 1 */
     if (coeff == NULL) {
-        coeff = (seq_t *)malloc(sizeof(seq_t));
+        coeff = mem_new(seq_t, 1);
         if (!coeff) abort();
         coeff[0] = (seq_t)1;            /* product of the empty set is 1 */
         coeff_len = 1;
     }
     if (a_cache == NULL) {
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         if (!a_cache) abort();
         a_cache[0] = coeff[0];
         a_cache_len = 1;
@@ -58,10 +60,10 @@ seq_t a(idx_t n)
 
         /* enlarge coeff array if necessary, zeroing new slots */
         if (new_len > coeff_len) {
-            seq_t *tmp = (seq_t *)realloc(coeff, new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, coeff, new_len);
             if (!tmp) abort();
             if (new_len > coeff_len)
-                memset(tmp + coeff_len, 0, (new_len - coeff_len) * sizeof(seq_t));
+                mem_set(tmp + coeff_len, 0, (new_len - coeff_len) * sizeof(seq_t));
             coeff = tmp;
             coeff_len = new_len;
         }
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
 
         /* store a(k) = coeff[2*k] */
         if (a_cache_len <= (size_t)k) {
-            seq_t *tmp = (seq_t *)realloc(a_cache, ((size_t)k + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_cache, ((size_t)k + 1));
             if (!tmp) abort();
             a_cache = tmp;
             a_cache_len = (size_t)k + 1;

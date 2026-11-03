@@ -12,14 +12,34 @@
  *            binomial(|i-j|,m) * s^(|i-j|-m) * M(min(i,j)+m) *...
  * Range:     u8 n <= 20, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binomial, coords_from_n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binomial.h"          /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/coords_from_n.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+static void coords_from_n(idx_t n, idx_t *i, idx_t *j)
+{
+    /* Find the smallest d such that (d+1)(d+2)/2 > n. */
+    idx_t d = 0;
+    for (;;) {
+        idx_t tri = (d + 1) * (d + 2) / 2;
+        if (tri > n)
+            break;
+        ++d;
+    }
+
+    /* Number of elements before diagonal d */
+    idx_t prev = d * (d + 1) / 2;
+
+    idx_t p = n - prev;         /* position within the diagonal   */
+    *i = d - p;
+    *j = p;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Helper: Motzkin numbers M(n)                                      */
@@ -35,13 +55,13 @@ static void ensure_motzkin(idx_t n)
 
     /* Allocate a new array large enough */
     idx_t new_len = n + 1;
-    seq_t *new_arr = (seq_t *)malloc((size_t)new_len * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, (size_t)new_len);
     if (!new_arr) exit(1); /* out of memory */
 
     /* Copy already computed values */
     if (motzkin) {
-        memcpy(new_arr, motzkin, (size_t)motzkin_len * sizeof(seq_t));
-        free(motzkin);
+        mem_copy(new_arr, motzkin, (size_t)motzkin_len * sizeof(seq_t));
+        mem_free(motzkin);
     }
 
     /* Compute the new entries (indices >= motzkin_len) */

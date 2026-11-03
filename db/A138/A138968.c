@@ -9,7 +9,8 @@
  *            when all primes except 3 are listed in order
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Test whether x is prime using the primes stored in primes[0 .. size-1] */
 static bool is_prime_candidate(uint64_t x, uint64_t *primes, size_t size)
@@ -50,10 +52,10 @@ seq_t a(idx_t n)
         /* allocate or grow cache */
         if (cache == NULL) {
             cacheCap = 128;
-            cache = (seq_t *)malloc(cacheCap * sizeof(seq_t));
+            cache = mem_new(seq_t, cacheCap);
         } else if (cacheSize >= cacheCap) {
             cacheCap *= 2;
-            cache = (seq_t *)realloc(cache, cacheCap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cacheCap);
         }
 
         /* initialise primes array if empty */

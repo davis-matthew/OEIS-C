@@ -8,13 +8,16 @@
  *            6*26^n - 36*18^n + 36*14^n + 11*9^n - 22*6^n + 6*3^n) / 24
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 32 terms through n = 511 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/big_pow.h"  /* big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     seq_t neg_sum = 0;   /* sum of terms with negative coefficient   */
 
     for (idx_t i = 0; i < (idx_t)12; ++i) {
-        seq_t p = big_pow((seq_t)bases[i], (seq_t)n); /* compute base^n */
+        seq_t p = ipow((seq_t)bases[i], (seq_t)n); /* compute base^n */
 
         if (coeffs[i] > 0) {
             pos_sum += p * (unsigned)coeffs[i];

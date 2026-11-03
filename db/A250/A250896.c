@@ -10,13 +10,15 @@
  *            36*(145+33*2^(1+n))*n^2) / 4 (for n > 2), a(1)=10875, a(2)=31215
  * Range:     u8 none, u16 n <= 2, u32 n <= 13, u64 n <= 33, u128 n <= 73,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 36 terms through n = 207 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -70,10 +72,10 @@ seq_t a(idx_t n)
         seq_t two = (seq_t)2;
         seq_t three = (seq_t)3;
 
-        seq_t pow2_n   = seq_pow(two, n);
-        seq_t pow2_1n  = seq_pow(two, n + 1);
-        seq_t pow2_4n  = seq_pow(two, n + 4);
-        seq_t pow3_n3  = seq_pow(three, n + 3);
+        seq_t pow2_n   = ipow_idx(two, n);
+        seq_t pow2_1n  = ipow_idx(two, n + 1);
+        seq_t pow2_4n  = ipow_idx(two, n + 4);
+        seq_t pow3_n3  = ipow_idx(three, n + 3);
 
         seq_t n_seq = (seq_t)n;
         seq_t n_sq  = n_seq * n_seq;

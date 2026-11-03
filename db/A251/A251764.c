@@ -8,13 +8,20 @@
  *            a(4)=0,…,a(9)=0
  * Range:     u8 n <= 18, u16 n <= 26, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   alloc_cap
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_cap.h"
+#include "../utils/mem.h"
+
+/* Allocate an array of the requested capacity and zero‑initialise it. */
+static seq_t *alloc_cap(size_t new_cap)
+{
+    return mem_new(seq_t, new_cap);
+}
 
 static seq_t *cache = NULL;       /* stored values */
 static size_t cache_cap = 0;      /* allocated capacity */
@@ -29,7 +36,7 @@ static void grow_cache(size_t new_cap)
     if (cache == NULL) {
         cache = alloc_cap(cache_cap);
     } else {
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (tmp == NULL) return; /* allocation failure – silently ignore */
         cache = tmp;
     }

@@ -7,18 +7,21 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = gcd(n-1, uphi(n)) * where uphi(n) = product_{p^a||n} (p^a
  *            - 1)
- * Range:     u8 n <= 256, u16 n <= 9807, u32 n <= 9807, u64 n <= 9807,
- *            u128 n <= 9807, big any n
- * Helpers:   factor_u64, gcd, pow_seq
+ * Range:     u8 n <= 256, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 113 terms through n = 9807 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_seq.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n) {
     /* n-1 as seq_t */
@@ -36,7 +39,7 @@ seq_t a(idx_t n) {
     seq_t uphi = 1;
     for (size_t i = 0; i < cnt; ++i) {
         /* p^a as seq_t */
-        seq_t pa = pow_seq((seq_t)primes[i], (int)exps[i]);
+        seq_t pa = ipow_i32((seq_t)primes[i], (int)exps[i]);
         /* (p^a - 1) */
         pa -= 1;
         uphi *= pa;

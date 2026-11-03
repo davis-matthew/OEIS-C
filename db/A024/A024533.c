@@ -10,7 +10,8 @@
  *            p(n-1)} and p(k) is the k‑th prime
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 20, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t total = 0;              /* number of elements added to P(n) so far */
 static seq_t e[5] = {1, 0, 0, 0, 0}; /* elementary symmetric sums;
@@ -73,7 +75,7 @@ static void ensure_a_cap(size_t need) {
     if (new_cap < need) new_cap = need;
 #ifdef __cplusplus
     seq_t *p = reinterpret_cast<seq_t *>(
-        realloc(a_cache, new_cap * sizeof(seq_t)));
+        mem_resize(seq_t, a_cache, new_cap));
 #else
     seq_t *p = realloc(a_cache, new_cap * sizeof(seq_t));
 #endif

@@ -7,14 +7,15 @@
  * Formula:   a(n) = prime(n) * 3^prime(n) - 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* incremental storage of prime numbers */
 static uint64_t *primes      = NULL;
@@ -65,6 +66,6 @@ seq_t a(idx_t n)
         return 0;   /* undefined for n <= 0 */
     ensure_primes(n);
     uint64_t p       = primes[n - 1];   /* nth prime, 1‑based */
-    seq_t pow3       = seq_pow((seq_t)3, (idx_t)p);
+    seq_t pow3       = ipow_idx((seq_t)3, (idx_t)p);
     return (seq_t)p * pow3 - 1;
 }

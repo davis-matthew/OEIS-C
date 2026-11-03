@@ -9,7 +9,8 @@
  *            concatenated triangular numbers, with d(1)=0
  * Range:     u8 n <= 11, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   pow2, seq_to_str
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,29 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_to_str.h"
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 static seq_t *a_cache = NULL;        /* partial sums a(1)..a(len) */
 static size_t a_cache_cap = 0;       /* allocated capacity */
@@ -55,7 +77,7 @@ seq_t a(idx_t n) {
 
             if (a_cache_len >= a_cache_cap) {      /* grow cache if needed */
                 size_t new_cap = a_cache_cap ? 2 * a_cache_cap : 4;
-                seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
                 if (!tmp) abort();
                 a_cache = tmp;
                 a_cache_cap = new_cap;

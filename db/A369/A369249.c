@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 19, u16 n <= 924, u32 n <= 8553, u64 n <= 8553,
- *            u128 n <= 8553, big any n
- * Helpers:   build_primes_upto, grow_seq, is_prime
+ * Range:     u8 n <= 19, u16 n <= 924, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 78 terms through n = 8553 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,23 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime.h"
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/grow_seq.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* global data */
 static uint64_t *g_primes = NULL;
@@ -79,7 +94,7 @@ seq_t a(idx_t n)
     /* Initialise once */
     if (cache == NULL) {
         cache_cap = 256;
-        cache = (seq_t*)calloc(cache_cap, sizeof(seq_t)); /* cast void* to seq_t* */
+        cache = mem_new(seq_t, cache_cap); /* cast void* to seq_t* */
         build_primes_upto(LIMIT, &g_primes, &g_primes_cnt);
     }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   free_seq_array, phi, seq_alloc_new_array, seq_gcd, sigma_of
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   gcd, mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +19,37 @@
    is an integer. */
 
 #include <stddef.h>
-#include "../utils/seq_gcd.h"
-#include "../utils/sigma_of.h"
-#include "../utils/phi.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/gcd.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -40,17 +67,17 @@ seq_t a(idx_t n)
 
         /* Compute σ(k) and φ(k) */
         seq_t sigma = sigma_of(current_k);
-        seq_t phi_val = phi(current_k);
+        seq_t phi_val = totient(current_k);
 
         /* Cancel common factors between σ(k) and the current denominator */
-        seq_t g1 = seq_gcd(sigma, den);
+        seq_t g1 = gcd(sigma, den);
         if (g1 > 1) {
             sigma /= g1;
             den   /= g1;
         }
 
         /* Cancel common factors between φ(k) and the current numerator */
-        seq_t g2 = seq_gcd(phi_val, num);
+        seq_t g2 = gcd(phi_val, num);
         if (g2 > 1) {
             phi_val /= g2;
             num      /= g2;
@@ -61,7 +88,7 @@ seq_t a(idx_t n)
         den *= phi_val;
 
         /* Reduce the fraction to lowest terms */
-        seq_t g = seq_gcd(num, den);
+        seq_t g = gcd(num, den);
         if (g > 1) {
             num /= g;
             den /= g;

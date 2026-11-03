@@ -11,7 +11,8 @@
  *            exists
  * Range:     u8 n <= 54, u16 n <= 7015, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, mod_pow
+ * Validated: standard, pass, 96 terms through n = 9310 (2026-11-01)
+ * Helpers:   build_primes_upto, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(...)  */
-#include "../utils/mod_pow.h"           /* mod_pow(seq_t, uint64_t, seq_t) */
+#include <string.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/powmod.h"
 
 static uint64_t *prime_list = NULL;   /* primes as uint64_t for safety   */
 static size_t prime_count = 0;        /* number of primes available      */
@@ -75,7 +77,7 @@ static bool is_primitive_root(seq_t g, seq_t p, const uint32_t *factors, size_t 
     seq_t p_minus1 = p - 1;
     for (size_t i = 0; i < fc; ++i) {
         uint64_t exp = (uint64_t)(p_minus1 / (seq_t)factors[i]);
-        if (mod_pow(g, exp, p) == 1)
+        if (powmod(g, exp, p) == 1)
             return false;
     }
     return true;

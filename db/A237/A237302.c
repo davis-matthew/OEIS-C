@@ -9,6 +9,7 @@
  *            the upper median of every 2×2 subblock is equal
  * Range:     u8 none, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 34,
  *            big any n
+ * Validated: standard, pass, 31 terms through n = 197 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            primes, of which at least one is a twin prime
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External types (supplied by the build system) */
 /* #define SEQ_T_DEFINED   // used internally to exclude redefinition */
@@ -94,12 +96,12 @@ static void ensure_cache_size(idx_t needed)
 {
     if (needed <= cache_size) return;
     size_t new_size = (size_t)needed;
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache) return;   /* allocation failure */
 
     if (cache) {
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
     cache        = new_cache;
     cache_size   = new_size;

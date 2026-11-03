@@ -11,16 +11,43 @@
  *            2 liters in jug A (or –1 if impossible). A≥B≥1. Indexed by the
  *            standard OEIS antidiagonal numbering: 1⇒(A=1,B=1), 2⇒(A=2,B=1),
  *            3⇒(A=2,B=2), etc
- * Range:     i8 n <= 2273, i16 n <= 9647, i32 n <= 9647, i64 n <= 9647,
- *            i128 n <= 9647, big any n
- * Helpers:   steps_start_from_A, steps_start_from_B
+ * Range:     i8 n <= 2273, i16 n <= 10011, i32 n <= 10011, i64 n <= 10011,
+ *            i128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 9647 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/steps_start_from_A.h"
-#include "../utils/steps_start_from_B.h"
+
+/* minimal steps when we first fill jug A (source) and pour into B
+   (dest).  We keep pouring until jug A contains 2 liters. */
+static inline int steps_start_from_A(int A, int B, int target) {
+    int src = A, dst = 0, steps = 1; /* fill A */
+    while (src != target) {
+        int transfer = (src < B - dst) ? src : B - dst;
+        dst += transfer; src -= transfer; steps++; /* pour */
+        if (src == target) break;
+        if (src == 0) { src = A; steps++; }      /* refill source */
+        if (dst == B) { dst = 0; steps++; }      /* empty dest   */
+    }
+    return steps;
+}
+
+/* minimal steps when we first fill jug B (source) and pour into A
+   (dest).  We keep pouring until jug A contains 2 liters. */
+static inline int steps_start_from_B(int A, int B, int target) {
+    int src = B, dst = 0, steps = 1; /* fill B */
+    while (dst != target) {
+        int transfer = (src < A - dst) ? src : A - dst;
+        dst += transfer; src -= transfer; steps++; /* pour */
+        if (dst == target) break;
+        if (src == 0) { src = B; steps++; }       /* refill source */
+        if (dst == A) { dst = 0; steps++; }       /* empty dest   */
+    }
+    return steps;
+}
 
 /* --- local helpers ---------------------------------------------- */
 

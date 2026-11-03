@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MASKS 32   // 5 bits
 
@@ -68,14 +70,14 @@ seq_t a(idx_t n)
 
     /* dp[cur][prev][cur] */
     seq_t dp[2][MASKS][MASKS];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* start with both previous rows 0 */
     dp[0][0][0] = 1;
 
     int cur = 0, next = 1;
     for (idx_t i = 0; i < n; ++i) {
-        memset(dp[next], 0, sizeof(dp[next]));
+        mem_set(dp[next], 0, sizeof(dp[next]));
         for (int a = 0; a < MASKS; ++a) {
             for (int b = 0; b < MASKS; ++b) {
                 if (!dp[cur][a][b]) continue;

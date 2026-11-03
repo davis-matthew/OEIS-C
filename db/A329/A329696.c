@@ -6,13 +6,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, walk
  * Formula:   a(n) = 1 for n odd; a(0)=1; a(n) = catalan(n/2)+1 for n>0 even
- * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 49, u128 n <= 49,
+ * Range:     u8 n <= 13, u16 n <= 23, u32 n <= 39, u64 n <= 49, u128 n <= 49,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)

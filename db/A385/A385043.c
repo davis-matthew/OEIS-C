@@ -9,14 +9,16 @@
  *            factor contributes 1
  * Range:     u8 n <= 137, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 85 terms through n = 9858 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         uint64_t e = exps[i];
         /* contribute only if e is a power of two */
         if (e && ((e & (e - 1ULL)) == 0ULL)) {
-            seq_t term = seq_pow((seq_t)primes[i], (idx_t)e);
+            seq_t term = ipow_idx((seq_t)primes[i], (idx_t)e);
             term += (seq_t)1;
             result *= term;
         }

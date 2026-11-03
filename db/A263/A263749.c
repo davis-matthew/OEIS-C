@@ -11,7 +11,8 @@
  *            consecutive elements having its maximum within 5 of its minimum
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 47, u128 n <= 95,
  *            big any n
- * Helpers:   mask_from_code, rem1_from_code, rem2_from_code
+ * Validated: standard, pass, 44 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,22 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mask_from_code.h"
-#include "../utils/rem1_from_code.h"
-#include "../utils/rem2_from_code.h"
+#include "../utils/mem.h"
+
+static inline uint32_t mask_from_code(unsigned int code)
+{
+    return code >> 8;
+}
+
+static inline uint8_t rem1_from_code(unsigned int code)
+{
+    return (code >> 4) & 0xFu;
+}
+
+static inline uint8_t rem2_from_code(unsigned int code)
+{
+    return code & 0xFu;
+}
 
 #define K 5
 #define MASK_BITS (2 * K + 1)
@@ -41,15 +55,15 @@ seq_t a(idx_t n)
         return (seq_t)0; /* offset is 1 */
 
     /* Allocate DP arrays */
-    seq_t *cur_counts = (seq_t *)calloc(STATE_CAP, sizeof(seq_t));
-    seq_t *nxt_counts = (seq_t *)calloc(STATE_CAP, sizeof(seq_t));
+    seq_t *cur_counts = mem_new(seq_t, STATE_CAP);
+    seq_t *nxt_counts = mem_new(seq_t, STATE_CAP);
     if (!cur_counts || !nxt_counts)
         return (seq_t)0; /* allocation failure */
 
     unsigned int *cur_vec = (unsigned int *)malloc(STATE_CAP * sizeof(unsigned int));
     unsigned int *nxt_vec = (unsigned int *)malloc(STATE_CAP * sizeof(unsigned int));
     if (!cur_vec || !nxt_vec) {
-        free(cur_counts); free(nxt_counts);
+        mem_free(cur_counts); mem_free(nxt_counts);
         return (seq_t)0;
     }
     size_t cur_len = 0, nxt_len = 0;
@@ -159,8 +173,8 @@ seq_t a(idx_t n)
             result += cur_counts[code];
     }
 
-    free(cur_counts);
-    free(nxt_counts);
+    mem_free(cur_counts);
+    mem_free(nxt_counts);
     free(cur_vec);
     free(nxt_vec);
 

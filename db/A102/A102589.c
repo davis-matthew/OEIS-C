@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   is_prime_seq
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;          /* cached sequence terms            */
 static idx_t terms_size = 0;         /* number of cached terms           */
@@ -53,7 +55,7 @@ static void ensure_capacity(idx_t new_cap)
     if (new_cap <= terms_capacity) return;
     idx_t cap = terms_capacity ? terms_capacity << 1 : 4;
     if (cap < new_cap) cap = new_cap;
-    seq_t *tmp = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, cap);
     terms = tmp;
     terms_capacity = cap;
 }

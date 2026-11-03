@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   compute_coeffs
+ * Validated: standard, pass, 97 terms through n = 961 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,52 @@
    polynomial (c_0 = 1).  The sequence is periodic with period 209. */
 
 #include <stddef.h>   /* size_t */
-#include "../utils/compute_coeffs.h"
+
+static void compute_coeffs(int coeff[181])
+{
+    /* Degree of (x^11−1)(x^19−1) */
+    const int DEG_D = 30;
+    /* Degree of x^210−x^209−x+1 */
+    const int DEG_N = 210;
+    /* Degree of Φ_209(x) */
+    const int DEG_Q = 180;
+
+    /* Build D(x) = (x^11−1)(x^19−1) */
+    int D[DEG_D + 1];
+    for (int i = 0; i <= DEG_D; ++i) D[i] = 0;
+    D[0]    = 1;
+    D[11]   = -1;
+    D[19]   = -1;
+    D[30]   = 1;
+
+    /* Build N(x) = (x − 1)(x^209 − 1) = x^210 − x^209 − x + 1 */
+    int N[DEG_N + 1];
+    for (int i = 0; i <= DEG_N; ++i) N[i] = 0;
+    N[0]    = 1;
+    N[1]    = -1;
+    N[209]  = -1;
+    N[210]  = 1;
+
+    /* Long division N / D → Q = Φ_209 */
+    int A[DEG_N + 1];
+    for (int i = 0; i <= DEG_N; ++i) A[i] = N[i];
+
+    int Q[DEG_Q + 1];
+    for (int i = 0; i <= DEG_Q; ++i) Q[i] = 0;
+
+    for (int i = DEG_N; i >= DEG_D; --i) {
+        int q = A[i];
+        if (q != 0) {
+            Q[i - DEG_D] = q;          /* coefficient for x^(i-DEG_D) */
+            for (int t = 0; t <= DEG_D; ++t) {
+                A[i - DEG_D + t] -= q * D[t];
+            }
+        }
+    }
+
+    /* Store the coefficients (c_0 … c_180). */
+    for (int i = 0; i <= DEG_Q; ++i) coeff[i] = Q[i];
+}
 
 /* ------------------------------------------------------------------ */
 /* Compute the coefficients c_k of Φ_209(x) (k = 0 … 180) once.  The

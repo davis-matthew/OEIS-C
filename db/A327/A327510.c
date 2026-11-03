@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 12, u32 n <= 16, u64 n <= 26, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 467 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Static data for caching a(n)                                         */
@@ -41,7 +43,7 @@ static void ensure_s_cache(idx_t n)
 {
     if (S_cache == NULL) {
         S_cap = 1;
-        S_cache = (seq_t *)malloc(sizeof(seq_t));
+        S_cache = mem_new(seq_t, 1);
         if (!S_cache) abort();
         S_cache[0] = 0;
         S_max = 0;
@@ -51,9 +53,9 @@ static void ensure_s_cache(idx_t n)
 
     if ((size_t)(n + 1) > S_cap) {
         size_t newcap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(S_cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, S_cache, newcap);
         if (!tmp) abort();
-        memset(tmp + S_cap, 0, (newcap - S_cap) * sizeof(seq_t));
+        mem_set(tmp + S_cap, 0, (newcap - S_cap) * sizeof(seq_t));
         S_cache = tmp;
         S_cap = newcap;
     }
@@ -74,7 +76,7 @@ static void ensure_a_cache(idx_t n)
 {
     if (a_cache == NULL) {
         a_cap = 1;
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         if (!a_cache) abort();
         a_cache[0] = 1;      /* a(0) = 1 */
         a_max = 0;
@@ -83,9 +85,9 @@ static void ensure_a_cache(idx_t n)
 
     if ((size_t)(n + 1) > a_cap) {
         size_t newcap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, newcap);
         if (!tmp) abort();
-        memset(tmp + a_cap, 0, (newcap - a_cap) * sizeof(seq_t));
+        mem_set(tmp + a_cap, 0, (newcap - a_cap) * sizeof(seq_t));
         a_cache = tmp;
         a_cap = newcap;
     }

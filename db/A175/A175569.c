@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Global static data ---------- */
 static seq_t *seq_g = NULL;          /* sequence storage */
@@ -42,7 +44,7 @@ static void ensure_seq_cap_g(size_t need) {
     if (need <= seq_cap_g) return;
     size_t newcap = seq_cap_g ? seq_cap_g << 1 : 8;
     while (newcap < need) newcap <<= 1;
-    seq_g = (seq_t *)realloc(seq_g, newcap * sizeof(seq_t));
+    seq_g = mem_resize(seq_t, seq_g, newcap);
     seq_cap_g = newcap;
 }
 

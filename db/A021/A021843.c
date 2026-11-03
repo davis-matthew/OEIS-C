@@ -8,12 +8,14 @@
  *            expansion of 1/839, with a(0) being the first digit
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *digits = NULL;   /* array containing one full period of digits */
 static idx_t period = 0;       /* period length of the expansion */
@@ -29,7 +31,7 @@ static void init_digits(void)
     for (idx_t i = 0; i < modulus; ++i)
         seen[i] = -1;
 
-    seq_t *buf = (seq_t *)malloc(modulus * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, modulus);
     if (buf == NULL)
         return;                  /* allocation failure; all future calls return 0 */
 

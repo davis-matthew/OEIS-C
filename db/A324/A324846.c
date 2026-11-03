@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 116, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, build_spf
+ * Validated: standard, pass, 78 terms through n = 9236 (2026-11-03)
+ * Helpers:   build_primes_upto, build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stdbool.h>
 
 /* Utility functions provided by the build environment. */
-#include "../utils/build_spf.h"
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 static bool _initialized = false;
 static const idx_t _LIMIT = 2000000;        /* sufficient for n <= 10 000 */
@@ -88,8 +91,7 @@ seq_t a(idx_t n)
             /* store into cache */
             if (_found >= _cache_cap) {
                 size_t new_cap = _cache_cap ? _cache_cap * 2 : 128;
-                seq_t *new_arr = (seq_t *)realloc(_cache,
-                                                  new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_resize(seq_t, _cache, new_cap);
                 _cache = new_arr;
                 _cache_cap = new_cap;
             }

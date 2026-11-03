@@ -9,6 +9,7 @@
  *            6690*n + 10884), n>=5 a(1)=0, a(2)=0, a(3)=0, a(4)=32
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 16, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

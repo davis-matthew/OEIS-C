@@ -11,12 +11,14 @@
  *            = Σ_{j=0}^{⌊r/2⌋} binomial(r,2j) * binomial(2j,j)
  * Range:     u8 n <= 16, u16 n <= 39, u32 n <= 124, u64 n <= 415,
  *            u128 n <= 1451, big any n
+ * Validated: standard, pass, 61 terms through n = 9883 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t compute_A002426(idx_t n) {

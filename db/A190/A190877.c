@@ -8,7 +8,8 @@
  *            a(0)=1, a(1)=1, a(2)=1, a(3)=1, a(4)=1
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 21, u128 n <= 36,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 37 terms through n = 469 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* array of computed terms            */
 static size_t cache_len = 0;          /* number of elements currently stored */
@@ -29,13 +31,13 @@ static void ensure_cache(idx_t n)
         size_t newcap = cache_cap ? cache_cap << 1 : 16;
         while (newcap <= (size_t)n)
             newcap <<= 1;
-        seq_t *newcache = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *newcache = mem_new(seq_t, newcap);
         if (!newcache) exit(1);               /* abort on allocation failure */
 
         if (cache) {
             for (size_t i = 0; i < cache_len; ++i)
                 newcache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache     = newcache;
         cache_cap = newcap;

@@ -7,6 +7,7 @@
  * Formula:   a(2*n-1) = A000040(n) (prime), a(2*n) = A001358(n) (semiprime)
  * Range:     u8 n <= 108, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 85 terms through n = 8965 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

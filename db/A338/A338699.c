@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 453, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t, is_prime, pow2
+ * Validated: standard, pass, 77 terms through n = 9475 (2026-11-03)
+ * Helpers:   bit_length, is_prime, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -45,15 +46,16 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow2.h"
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 #include "../utils/is_prime.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Helper: smallest power of two ≥ x, x > 0 */
 static seq_t next_pow2_upper(seq_t x)
 {
     if (x <= (seq_t)1) return (seq_t)1;
-    return pow2((idx_t)bitlen_seq_t(x - (seq_t)1));
+    return pow2((idx_t)bit_length(x - (seq_t)1));
 }
 
 /* Main sequence function */
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
         if (cache_cap < (size_t)n) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 8;
             while (new_cap < (size_t)n) new_cap <<= 1;
-            cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 

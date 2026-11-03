@@ -11,7 +11,8 @@
  *            26 with a(1)…a(25) given by direct enumeration
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 73, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   exact_compute
+ * Validated: standard, pass, 45 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,48 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/exact_compute.h"
+#include "../utils/mem.h"
+
+/* of 5 elements in [-n..n] that satisfy the differences constraints.  */
+static seq_t exact_compute(idx_t n)
+{
+    int N = (int)n;           /* n <= 25, so int is safe */
+    int neg = -N, pos = N;
+    seq_t count = 0;
+
+    for (int a0 = neg; a0 <= pos; ++a0) {
+        for (int a1 = neg; a1 <= pos; ++a1) {
+            int d1 = a1 - a0;
+            if (d1 < -N || d1 > N) continue;
+            for (int a2 = neg; a2 <= pos; ++a2) {
+                int d2 = a2 - a1;
+                if (d2 < -N || d2 > N) continue;
+                int f2_0 = d2 - d1;
+                if (f2_0 < -N || f2_0 > N) continue;
+                for (int a3 = neg; a3 <= pos; ++a3) {
+                    int d3 = a3 - a2;
+                    if (d3 < -N || d3 > N) continue;
+                    int f2_1 = d3 - d2;
+                    if (f2_1 < -N || f2_1 > N) continue;
+                    int f3_0 = f2_1 - f2_0;
+                    if (f3_0 < -N || f3_0 > N) continue;
+                    for (int a4 = neg; a4 <= pos; ++a4) {
+                        int d4 = a4 - a3;
+                        if (d4 < -N || d4 > N) continue;
+                        int f2_2 = d4 - d3;
+                        if (f2_2 < -N || f2_2 > N) continue;
+                        int f3_1 = f2_2 - f2_1;
+                        if (f3_1 < -N || f3_1 > N) continue;
+                        int f4   = f3_1 - f3_0;
+                        if (f4 < -N || f4 > N) continue;
+                        ++count;
+                    }
+                }
+            }
+        }
+    }
+    return count;
+}
 
 /* static cache of computed values, 1‑based */
 static seq_t *cache = NULL;
@@ -64,7 +106,7 @@ static void grow_cache(idx_t needed)
 
     size_t new_cap = (size_t)(needed + 1);   /* indices 0..needed */
     if (new_cap > cache_cap) {
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();            /* out of memory */
         cache = new_cache;
         cache_cap = new_cap;

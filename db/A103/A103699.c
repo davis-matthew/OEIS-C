@@ -11,12 +11,14 @@
  *            this level‑order traversal
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialisation */
     if (buf == NULL) {
         cap = 64;
-        buf = (seq_t *)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         sz  = 1;
         buf[0] = 0;
     }
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
             /* child 8 */
             if (sz == cap) {
                 cap *= 2;
-                buf = (seq_t *)realloc(buf, cap * sizeof(seq_t));
+                buf = mem_resize(seq_t, buf, cap);
             }
             buf[sz++] = 8;
         } else {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
                 /* single digit child */
                 if (sz == cap) {
                     cap *= 2;
-                    buf = (seq_t *)realloc(buf, cap * sizeof(seq_t));
+                    buf = mem_resize(seq_t, buf, cap);
                 }
                 buf[sz++] = (seq_t)(u + 8);
             } else {
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
 
                 if (sz + 1 >= cap) {   /* need space for 2 children */
                     cap = (cap * 2) > (sz + 2) ? cap * 2 : sz + 2;
-                    buf = (seq_t *)realloc(buf, cap * sizeof(seq_t));
+                    buf = mem_resize(seq_t, buf, cap);
                 }
                 buf[sz++] = high;
                 buf[sz++] = low;

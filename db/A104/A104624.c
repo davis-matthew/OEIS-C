@@ -6,8 +6,9 @@
  * Keywords:  easy, sign
  * Formula:   coefficients of sqrt(1+4*x^2)-2*x. a(0)=1, a(1)=-2,
  *            a(2k)=2*(-1)^{k-1}*C(2k-2,k-1)/k, a(odd>1)=0
- * Range:     i8 n <= 11, i16 n <= 19, i32 n <= 31, i64 n <= 49, i128 n <= 49,
+ * Range:     i8 n <= 11, i16 n <= 19, i32 n <= 31, i64 n <= 73, i128 n <= 137,
  *            big any n
+ * Validated: standard, pass, 66 terms through n = 993 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *solutions = NULL;
 static size_t solution_count = 0;
@@ -31,7 +33,7 @@ init_solutions(void)
 
     /* Allocate initial space for solutions. */
     size_t cap = 1024;
-    solutions = (seq_t *)calloc(cap, sizeof(seq_t));
+    solutions = mem_new(seq_t, cap);
     if (solutions == NULL)
         return; /* allocation failure – results remain unavailable */
 
@@ -78,7 +80,7 @@ init_solutions(void)
         if (solution_count == cap)
         {
             cap *= 2;
-            seq_t *new_ptr = (seq_t *)realloc(solutions, cap * sizeof(seq_t));
+            seq_t *new_ptr = mem_resize(seq_t, solutions, cap);
             if (new_ptr == NULL)
                 return; /* allocation failure – cannot store more solutions */
             solutions = new_ptr;

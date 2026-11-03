@@ -8,12 +8,14 @@
  *            -6*a(n-1) + 16*a(n-2) for n≥2
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 11, i64 n <= 21, i128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 289 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached terms: cache_max = number of terms already computed (n+1) */
 static idx_t cache_alloc = 0;      /* allocated size of cache */
@@ -28,7 +30,7 @@ static void ensure_cache_alloc(idx_t n)
         idx_t new_alloc = (cache_alloc == 0) ? 1 : cache_alloc;
         while (new_alloc < needed)
             new_alloc <<= 1;      /* double until big enough */
-        cache = (seq_t*)realloc(cache, new_alloc * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_alloc);
         cache_alloc = new_alloc;
     }
 }

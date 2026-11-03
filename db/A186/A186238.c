@@ -13,13 +13,29 @@
  *            n*(5*n-3)/2
  * Range:     u8 n <= 5, u16 n <= 27, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   triangular_count_leq
+ * Validated: partial, pass, 96 terms through n = 96 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/triangular_count_leq.h"
+
+/* Return the count of triangular numbers ≤ X (i.e. k*(k+1)/2 ≤ X). */
+static seq_t triangular_count_leq(seq_t X)
+{
+    seq_t low = 0;
+    seq_t high = X;
+    while (low < high) {
+        seq_t mid = (low + high + 1) / 2;          /* ceil((low+high)/2) */
+        seq_t tri = mid * (mid + 1) / 2;           /* triangular(mid) */
+        if (tri <= X)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {

@@ -10,7 +10,8 @@
  *            integers coprime to n is at least n
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* cache for precomputed values */
 static idx_t  a_cache_cap = 0;  /* current cache capacity */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if (n > a_cache_cap) {
         idx_t new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) return 0; /* allocation failure */
         /* initialize newly added cache entries to 0 (meaning "not yet computed") */
         for (idx_t i = a_cache_cap; i < new_cap; ++i) tmp[i] = 0;

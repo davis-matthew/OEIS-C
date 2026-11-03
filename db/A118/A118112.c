@@ -7,7 +7,8 @@
  * Formula:   a(n) = binomial(3n,n) mod (n+1) (offset 1)
  * Range:     u8 n <= 512, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exp_p_factorial, fact_no_p_mod
+ * Validated: standard, pass, 117 terms through n = 9819 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,31 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/exp_p_factorial.h"
-#include "../utils/fact_no_p_mod.h"
+
+/* exponent of prime p in n!  */
+static unsigned
+exp_p_factorial(unsigned n, unsigned p)
+{
+    unsigned e = 0;
+    while (n) {
+        n /= p;
+        e += n;
+    }
+    return e;
+}
+
+/* product of numbers ≤ n that are not divisible by p, modulo mod   (mod = p^e, small) */
+static uint64_t
+fact_no_p_mod(unsigned n, unsigned p, uint64_t mod)
+{
+    uint64_t prod = 1;
+    for (unsigned i = 1; i <= n; ++i) {
+        if ((i % p) != 0) {
+            prod = (prod * (i % mod)) % mod;
+        }
+    }
+    return prod;
+}
 
 /* extended Euclidean algorithm for unsigned 64‑bit, returns inverse of a mod m  (gcd(a,m)=1) */
 static uint64_t

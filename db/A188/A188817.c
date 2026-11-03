@@ -9,19 +9,21 @@
  *            interval with the supplied primality test
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, is_prime
+ * Validated: standard, pass, 136 terms through n = 9852 (2026-11-01)
+ * Helpers:   is_prime, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* Compute the integer square root of n. */
-    idx_t sq = _floor_isqrt_u64(n);
+    idx_t sq = isqrt(n);
 
     /* Determine the interval limits. */
     idx_t start = (n > sq) ? (n - sq) : 0;

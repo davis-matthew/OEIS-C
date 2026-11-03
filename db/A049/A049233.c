@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 4911, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, squarefree_u64
+ * Validated: standard, pass, 72 terms through n = 9922 (2026-11-03)
+ * Helpers:   is_prime, is_squarefree_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
-#include "../utils/squarefree_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/is_squarefree_u64.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Helper: test whether n is squarefree (no prime divides n twice).  */
@@ -48,7 +50,7 @@ static void ensure_terms(idx_t n)
     /* initial allocation if necessary */
     if (terms == NULL) {
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms)
             abort();                /* allocation failure */
     }
@@ -57,10 +59,10 @@ static void ensure_terms(idx_t n)
     while (terms_size < (size_t)n) {
         if (is_prime(cand)) {
             uint64_t plus2 = cand + 2ull;
-            if (squarefree_u64(plus2)) {
+            if (is_squarefree_u64(plus2)) {
                 if (terms_size == terms_cap) {
                     size_t new_cap = terms_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                     if (!tmp)
                         abort();
                     terms = tmp;

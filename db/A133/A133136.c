@@ -9,13 +9,15 @@
  *            list lazily and memoises it
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 20, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* In the OEIS test harness the type seq_t is defined elsewhere; it is an
    unsigned integer type or a big‑integer class that supports the normal
@@ -64,12 +66,12 @@ seq_t a(idx_t n)
         /* Grow the underlying array when needed. */
         if (val_size == val_cap) {
             size_t new_cap = (val_cap == 0 ? 16 : val_cap << 1);
-            seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_new(seq_t, new_cap);
             if (!tmp) {   /* allocation failed – return zero (unlikely in tests) */
                 return 0;
             }
-            if (values) memcpy(tmp, values, val_size * sizeof(seq_t));
-            free(values);
+            if (values) mem_copy(tmp, values, val_size * sizeof(seq_t));
+            mem_free(values);
             values = tmp;
             val_cap = new_cap;
         }
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
 
     /* Ensure the array is sorted before indexing. */
     if (!sorted) {
-        qsort(values, val_size, sizeof(seq_t), seq_compare);
+        mem_qsort(values, val_size, sizeof(seq_t), seq_compare);
         sorted = 1;
     }
 

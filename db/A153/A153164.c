@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   build_primes_upto, is_prime
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Static state: list of qualifying primes */
 static seq_t *matches = NULL;
@@ -51,7 +54,7 @@ static void init(void) {
             /* Grow array if necessary */
             if (matches_len == matches_cap) {
                 size_t new_cap = matches_cap ? matches_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(matches, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, matches, new_cap);
                 if (!tmp) { /* allocation failed, abort safely */
                     free(primes);
                     abort();

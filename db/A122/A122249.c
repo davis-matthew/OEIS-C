@@ -7,6 +7,7 @@
  * Formula:   a(n) = 4^e(n), where e(n) = n*(n+1) - sum_{k=1}^n popcount(k)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 5, u128 n <= 8,
  *            big any n
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* Computation uses the identity sum_{j>=0} floor(k/2^j) = 2k - popcount(k) */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

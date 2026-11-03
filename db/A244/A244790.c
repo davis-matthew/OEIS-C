@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 209, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   _max_w
+ * Validated: standard, pass, 71 terms through n = 194 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,24 @@
           6*(x + y - n)^2 <= n*(n+2)         (k = 2)
 */
 #include <stdint.h>
-#include "../utils/_max_w.h"
+
+static seq_t _max_w(idx_t n)
+{
+    seq_t N = (seq_t)n * ((seq_t)n + 2);       /* N = n*(n+2) */
+    seq_t low = 0, high = n, ans = 0;
+    while (low <= high) {
+        seq_t mid = (low + high) / 2;
+        seq_t lhs = 6 * mid * mid;            /* 6*w^2 */
+        if (lhs <= N) {
+            ans = mid;
+            low = mid + 1;
+        } else {
+            if (mid == 0) break;
+            high = mid - 1;
+        }
+    }
+    return ans;
+}
 
 seq_t a(idx_t n)
 {

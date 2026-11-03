@@ -9,7 +9,8 @@
  *            common prime factors p <= n from N (exact multi-limb arithmetic)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 46,
  *            big any n
- * Helpers:   bn_mod_small, prime_power_base
+ * Validated: standard, pass, 39 terms through n = 1135 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/bn_mod_small.h"
-#include "../utils/prime_power_base.h"
+
+static uint32_t bn_mod_small(const uint32_t *x, size_t len, uint32_t d) {
+    uint64_t rem = 0;
+    size_t i = len;
+    while (i > 0) {
+        i--;
+        rem = ((rem << 32) | x[i]) % d;
+    }
+    return (uint32_t)rem;
+}
+
+static uint32_t prime_power_base(uint32_t k) {
+    uint32_t p = 0, d, m;
+    for (d = 2; (uint64_t)d * d <= k; d++)
+        if (k % d == 0) { p = d; break; }
+    if (p == 0) return k; /* k is prime */
+    m = k;
+    while (m % p == 0) m /= p;
+    return m == 1 ? p : 0;
+}
 
 static void bn_mul_small(uint32_t *x, size_t *len, uint32_t m) {
     uint64_t c = 0;

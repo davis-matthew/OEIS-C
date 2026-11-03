@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn, base
  * Formula:   a(0) = 6; for n > 0, a(n) = 6*bitlen(n) - 4*popcount(n)
- * Range:     u8 n <= 9520, u16 n <= 9520, u32 n <= 9520, u64 n <= 9520,
- *            u128 n <= 9520, big any n
+ * Range:     u8 n <= 32768, u16 n <= 32768, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 95 terms through n = 9520 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

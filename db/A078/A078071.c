@@ -8,7 +8,8 @@
  *            n>2
  * Range:     i8 n <= 10, i16 n <= 23, i32 n <= 40, i64 n <= 40, i128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Expands (1 - x)/(1 + 2x + 2x² + 2x³). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialisation: set first three values and allocate memory */
     if (size == 0) {
         capacity = (n < 16 ? 16 : n + 1);          /* enough for current n */
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)-3;
         cache[2] = (seq_t)4;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if (capacity <= n) {
         idx_t new_cap = capacity * 2;
         if (new_cap <= n) new_cap = n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         capacity = new_cap;
     }
 

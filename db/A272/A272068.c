@@ -7,12 +7,23 @@
  * Formula:   a(n) = (10^n - 1)^5
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 1, u64 n <= 3, u128 n <= 7,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
+#include <stdint.h>
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Computes the nth term of OEIS A272068: a(n) = (10^n-1)^5.
  * This works for any seq_t type (fixed-width or arbitrary-precision)

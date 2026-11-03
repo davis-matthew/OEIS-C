@@ -8,12 +8,14 @@
  *            a(2)=-7, a(3)=-7 (Recurrence is valid for n > 3)
  * Range:     i8 n <= 61, i16 n <= 61, i32 n <= 61, i64 n <= 61, i128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache to store computed values for any order of calls */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* If we need to compute up to n, grow the cache */
     if (n + 1 > cache_len) {
         idx_t new_len = n + 1;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         /* Compute all missing entries */
         for (idx_t i = cache_len; i <= n; ++i) {
             if (i == 0)       cache[0] = 1;

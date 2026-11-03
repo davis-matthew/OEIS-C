@@ -7,12 +7,17 @@
  * Formula:   a(n) = n^n mod 100
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -24,5 +29,5 @@ seq_t a(idx_t n)
     seq_t base = (seq_t)(n % 100);
 
     /* Compute base^n mod 100 using efficient modular exponentiation. */
-    return mod_pow(base, (uint64_t)n, (seq_t)100);
+    return powmod(base, (uint64_t)n, (seq_t)100);
 }

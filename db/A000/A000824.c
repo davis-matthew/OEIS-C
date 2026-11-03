@@ -11,13 +11,20 @@
  *            (X-1)*(2^(3X/2+1-n) + 2^(X/2-n))
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   a824_fixed, a824_pow2
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   pow2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a824_fixed.h"
-#include "../utils/a824_pow2.h"
+#include "../utils/pow2_u64.h"
+
+static int a824_fixed(void) {
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 200; i++) t *= 2;
+    return t == 0;
+}
 
 seq_t a(idx_t n) {
     int fixed = a824_fixed();
@@ -26,10 +33,10 @@ seq_t a(idx_t n) {
     if (fixed && n > 7) return 0; /* value cannot fit any fixed width */
     X = (uint64_t)1 << n;
     h = X / 2;
-    s = a824_pow2(3 * X - 1 - n);
-    s += 3 * a824_pow2(2 * X - 1 - n);
-    s += a824_pow2(X - n);
-    s += (seq_t)(X - 1) * (a824_pow2(3 * h + 1 - n) + a824_pow2(h - n));
+    s = pow2_u64(3 * X - 1 - n);
+    s += 3 * pow2_u64(2 * X - 1 - n);
+    s += pow2_u64(X - n);
+    s += (seq_t)(X - 1) * (pow2_u64(3 * h + 1 - n) + pow2_u64(h - n));
     if (fixed) {
         /* exact division by 3 modulo 2^w via inverse of 3 */
         seq_t inv = 3;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 10, u128 n <= 23,
  *            big any n
- * Helpers:   block_value
+ * Validated: standard, pass, 29 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/block_value.h"
+#include "../utils/mem.h"
+
+/*--------------------------------------------------------------------
+ *  Computes the value of a 2×2 block.
+ *  Input digits are 0–3 in already sorted order.
+ *--------------------------------------------------------------------*/
+static inline int block_value(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+{
+    uint8_t v[4] = { a, b, c, d };
+    /* three comparison stages – the data is tiny, so a fast
+       manual insertion sort is cheaper than any library routine */
+    if (v[1] < v[0]) { uint8_t t = v[0]; v[0] = v[1]; v[1] = t; }
+    if (v[2] < v[0]) { uint8_t t = v[0]; v[0] = v[2]; v[2] = t; }
+    if (v[3] < v[0]) { uint8_t t = v[0]; v[0] = v[3]; v[3] = t; }
+    if (v[2] < v[1]) { uint8_t t = v[1]; v[1] = v[2]; v[2] = t; }
+    if (v[3] < v[1]) { uint8_t t = v[1]; v[1] = v[3]; v[3] = t; }
+    if (v[3] < v[2]) { uint8_t t = v[2]; v[2] = v[3]; v[3] = t; }
+    /* v[0] = min, v[1] = second smallest, v[3] = max */
+    return (int)v[3] + (int)v[1] - (int)v[0];
+}
 
 /* Constants describing the board */
 #define ROWS   1024          /* 4^5 rows (5 columns, digits 0…3) */
@@ -136,10 +156,10 @@ seq_t a(idx_t n)
         if (!has_edge) continue;
 
         /* Allocate DP arrays */
-        seq_t *cur  = (seq_t *)calloc(ROWS, sizeof(seq_t));
-        seq_t *next = (seq_t *)calloc(ROWS, sizeof(seq_t));
+        seq_t *cur  = mem_new(seq_t, ROWS);
+        seq_t *next = mem_new(seq_t, ROWS);
         if (!cur || !next) {
-            free(cur); free(next);
+            mem_free(cur); mem_free(next);
             return total;               /* unlikely, but safe */
         }
 
@@ -169,8 +189,8 @@ seq_t a(idx_t n)
         /* Sum all possible ending rows */
         for (int r = 0; r < ROWS; ++r) total += cur[r];
 
-        free(cur);
-        free(next);
+        mem_free(cur);
+        mem_free(next);
     }
 
     return total;

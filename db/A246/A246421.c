@@ -10,7 +10,8 @@
  *            n. * The function uses lazy, incremental search with memoisation
  * Range:     u8 none, u16 n <= 6, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   digit_frequencies, digit_len, digit_product, digit_sum
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   digit_frequencies, digit_product, digit_sum, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/digit_frequencies.h"
-#include "../utils/digit_sum.h"
 #include "../utils/digit_product.h"
-#include "../utils/digit_len.h"
+#include "../utils/digit_sum.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array of found terms */
 static size_t cache_len = 0;    /* number of cached terms */
@@ -33,12 +35,12 @@ static void cache_append(seq_t v)
 {
     if (cache_len == 0)
     {
-        cache = (seq_t *)malloc(4 * sizeof(seq_t));
+        cache = mem_new(seq_t, 4);
         if (!cache) abort();
     }
     else if (cache_len % 2 == 0)
     {
-        cache = (seq_t *)realloc(cache, (cache_len * 2) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (cache_len * 2));
         if (!cache) abort();
     }
     cache[cache_len++] = v;
@@ -61,8 +63,8 @@ static bool satisfies(seq_t cand)
     seq_t x2 = cand + prod;
 
     /* all three numbers must have the same number of digits */
-    int len = digit_len(cand);
-    if (digit_len(x1) != len || digit_len(x2) != len)
+    int len = num_digits(cand);
+    if (num_digits(x1) != len || num_digits(x2) != len)
         return false;
 
     unsigned int freq_x1[10];

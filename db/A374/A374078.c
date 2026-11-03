@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 75, i16 n <= 75, i32 n <= 75, i64 n <= 75, i128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache_prev = NULL;   /* array holding f_prev  */
 static seq_t *cache_next = NULL;   /* array holding f_next  */
@@ -36,10 +38,10 @@ seq_t a(idx_t n)
     /* ensure buffers are large enough */
     if (cache_cap < len) {
         /* free old buffers before reallocating */
-        if (cache_prev) free(cache_prev);
-        if (cache_next) free(cache_next);
-        cache_prev = (seq_t *)malloc(len * sizeof(seq_t));
-        cache_next = (seq_t *)malloc(len * sizeof(seq_t));
+        if (cache_prev) mem_free(cache_prev);
+        if (cache_next) mem_free(cache_next);
+        cache_prev = mem_new(seq_t, len);
+        cache_next = mem_new(seq_t, len);
         cache_cap  = len;
         if (!cache_prev || !cache_next) {   /* allocation failed */
             /* return 0 on allocation error – the tests never hit this */
@@ -48,14 +50,14 @@ seq_t a(idx_t n)
     }
 
     /* initialise f_prev: f_prev[0] = 1, others 0 */
-    memset(cache_prev, 0, len * sizeof(seq_t));
+    mem_set(cache_prev, 0, len * sizeof(seq_t));
     cache_prev[0] = (seq_t)1;
 
     /* iterate over all part sizes m = 5k-3  (2, 7, 12, … ≤ n) */
     for (idx_t m = 2; m <= n; m += 5) {
         size_t ms = (size_t)m;
         /* reset f_next */
-        memset(cache_next, 0, len * sizeof(seq_t));
+        mem_set(cache_next, 0, len * sizeof(seq_t));
 
         /* compute f_next from f_prev */
         for (idx_t i = 0; i <= n; ++i) {

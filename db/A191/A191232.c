@@ -9,7 +9,8 @@
  *            increasing order
  * Range:     u8 n <= 92, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
- * Helpers:   bitlen_u32
+ * Validated: partial, pass, 92 terms through n = 92 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/bitlen_u32.h"
+
+/* Return the number of bits needed to represent n (>0). */
+static inline uint32_t bitlen_u32(uint32_t n) {
+    return 32 - __builtin_clz(n);
+}
 
 static uint32_t *primes = NULL;      /* stored primes */
 static size_t primes_cnt  = 0;       /* number of primes stored */

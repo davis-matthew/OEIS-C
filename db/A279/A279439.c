@@ -10,12 +10,14 @@
  *            +96*n^2)/120
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 15, u64 n <= 136, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary and compute any missing terms. */
     if (n > cache_size) {
         /* allocate space for all terms up to n */
-        cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, n);
 
         /* base values for n = 1..11 */
         static const seq_t base[11] = {

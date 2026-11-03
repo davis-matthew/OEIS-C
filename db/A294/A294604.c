@@ -8,6 +8,7 @@
  *            18) : (1/18)*(7*n^4 - 24*n^3 + 37*n^2 - 30*n + 10))
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 325, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 57 terms through n = 9300 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

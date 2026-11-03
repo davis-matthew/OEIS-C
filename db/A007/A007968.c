@@ -11,17 +11,18 @@
  *            Q | n and Q | p
  * Range:     u8 n <= 300, u16 n <= 300, u32 n <= 300, u64 n <= 300,
  *            u128 n <= 300, big any n
- * Helpers:   a7968_isqrt
+ * Validated: standard, pass, 121 terms through n = 297 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a7968_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t N = (uint64_t)n;
-    uint64_t a0 = a7968_isqrt(N);
+    uint64_t a0 = isqrt_u64(N);
     if (a0 * a0 == N) return (seq_t)0;
 
     uint64_t m = 0, d = 1, ak = a0;

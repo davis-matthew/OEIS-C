@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*--- Helper: binary search in increasing array -----------------------------------*/
 static bool contains(const seq_t *arr, idx_t len, seq_t target)
@@ -41,7 +43,7 @@ static void ensure_capacity(idx_t *cap, idx_t need, seq_t **arr)
     if (*cap <= need) {
         idx_t new_cap = (*cap == 0 ? 4 : *cap);
         while (new_cap <= need) new_cap <<= 1;
-        *arr = (seq_t*)realloc(*arr, (size_t)new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, (size_t)new_cap);
         *cap = new_cap;
     }
 }
@@ -59,8 +61,8 @@ seq_t a(idx_t n)
     /* Initialise first two terms of each sequence on first call    */
     if (len == 0) {
         a_cap = 4;  b_cap = 4;
-        a_seq = (seq_t*)malloc((size_t)a_cap * sizeof(seq_t));
-        b_seq = (seq_t*)malloc((size_t)b_cap * sizeof(seq_t));
+        a_seq = mem_new(seq_t, (size_t)a_cap);
+        b_seq = mem_new(seq_t, (size_t)b_cap);
         a_seq[0] = (seq_t)1;  a_seq[1] = (seq_t)3;
         b_seq[0] = (seq_t)2;  b_seq[1] = (seq_t)4;
         len = 2;              /* we have a[0] and a[1] */

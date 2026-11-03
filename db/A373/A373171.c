@@ -9,13 +9,40 @@
  *            decimal zero digits from n
  * Range:     u8 n <= 14, u16 n <= 1353, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   remove_zeros
+ * Validated: standard, pass, 70 terms through n = 9973 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/remove_zeros.h"
+
+/* Remove all zero digits from a decimal representation.
+   The result keeps the order of the remaining digits. */
+static seq_t remove_zeros(seq_t x)
+{
+    seq_t res = 0;
+    if (x == 0)
+        return 0;
+
+    /* Process the number from most significant to least significant
+       digit.  For small seq_t types this is safe because the
+       intermediate values never overflow seq_t.  */
+    seq_t div = 1;
+    while (div <= x / 10)
+        div *= 10;
+
+    while (x > 0) {
+        seq_t digit = x / div;
+        x %= div;
+        if (digit != 0) {
+            res = res * 10 + digit;
+        }
+        if (div > 1)
+            div /= 10;
+    }
+    return res;
+}
 
 #ifdef __cplusplus
 /* For C++, use operator new/delete to allocate the array of seq_t,

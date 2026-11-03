@@ -10,7 +10,8 @@
  *            A220754)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The function is required to have external linkage */
 seq_t a(idx_t n) {
@@ -30,8 +32,8 @@ seq_t a(idx_t n) {
     /* resize cache if necessary */
     if (n >= cache_cap) {
         size_t new_cap = (n + 1) * 2;
-        seq_t *new_fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
-        seq_t *new_an   = (seq_t *)realloc(an,   new_cap * sizeof(seq_t));
+        seq_t *new_fact = mem_resize(seq_t, fact, new_cap);
+        seq_t *new_an   = mem_resize(seq_t, an, new_cap);
         if (!new_fact || !new_an) return 0; /* allocation failed */
         /* initialise new entries if we are extending beyond previous limit */
         for (size_t i = cache_cap; i < new_cap; ++i) {

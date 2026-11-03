@@ -7,13 +7,15 @@
  * Formula:   a(n+1) = n + (n-th digit of the sequence), a(1)=1
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper functions */
 static void ensure_terms_capacity(idx_t needed);
@@ -34,7 +36,7 @@ static void init_storage(void) {
     if (terms != NULL) return;       /* already initialised */
     /* initial capacities */
     terms_size = 16;
-    terms = (seq_t *)malloc(terms_size * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_size);
     digits_size = 256;
     digits = (char *)malloc(digits_size * sizeof(char));
     /* a(1) = 1 */
@@ -49,7 +51,7 @@ static void ensure_terms_capacity(idx_t needed) {
     if (needed <= terms_size) return;
     idx_t new_size = terms_size ? terms_size << 1 : 16;
     while (new_size < needed) new_size <<= 1;
-    seq_t *new_ptr = (seq_t *)realloc(terms, new_size * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, terms, new_size);
     if (!new_ptr) exit(1);
     terms = new_ptr;
     terms_size = new_size;

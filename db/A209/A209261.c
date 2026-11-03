@@ -7,12 +7,15 @@
  * Formula:   a(n) = n^13 + 13*n + 13^n
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 33 terms through n = 772 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +25,7 @@ seq_t a(idx_t n)
         n13 *= base_n;
     }
     seq_t term13 = (seq_t)13 * base_n;
-    seq_t pow13  = big_pow((seq_t)13, (seq_t)n);
+    seq_t pow13  = ipow((seq_t)13, (seq_t)n);
     seq_t result = n13;
     result += term13;
     result += pow13;

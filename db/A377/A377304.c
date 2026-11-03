@@ -9,19 +9,21 @@
  *            2*tau(n))/6
  * Range:     u8 n <= 59, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 84 terms through n = 8970 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include the utility that provides a fast divisor-count routine */
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 /* Compute a(n) for the sequence A377304 */
 seq_t a(idx_t n)
 {
     /* tau(n) – number of divisors of n */
-    uint64_t tau = divisor_count_u64((uint64_t)n);
+    uint64_t tau = num_divisors((uint64_t)n);
 
     /* Work in seq_t to allow arbitrary-precision if required */
     seq_t t = (seq_t)tau;

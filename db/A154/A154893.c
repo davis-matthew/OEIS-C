@@ -10,7 +10,8 @@
  *            calls in any order stay fast
  * Range:     u8 n <= 73, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 77 terms through n = 9793 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"   /* provides uint64_t divisor_count_u64(uint64_t) */
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* helper to test primality of a small 64‑bit number */
 static bool is_small_prime(uint64_t x)
@@ -41,13 +43,13 @@ seq_t a(idx_t n)
     /* generate terms until we have at least n entries */
     while (len < (size_t)n) {
         uint64_t cand = ++tested_up_to;                 /* candidate integer to test */
-        uint64_t d    = divisor_count_u64(cand);          /* total number of divisors   */
+        uint64_t d    = num_divisors(cand);          /* total number of divisors   */
         uint64_t proper = d - 1;                        /* proper divisors count     */
 
         if (!is_small_prime(proper)) {                  /* keep if not prime         */
             if (len >= cap) {                           /* grow cache if needed      */
                 size_t newcap = cap ? cap * 2 : 8;
-                seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) return cache[len - 1];         /* allocation failed          */
                 cache = tmp;
                 cap = newcap;

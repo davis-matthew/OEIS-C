@@ -11,13 +11,24 @@
  *            palindromes. The nth term is found by determining its...
  * Range:     u8 n <= 24, u16 n <= 546, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_from_index
+ * Validated: standard, pass, 72 terms through n = 750 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digit_from_index.h"
+
+static inline int digit_from_index(int prev, int idx) {
+    /* Return the digit (0‑9) that is the idx‑th in sorted order among
+       digits 0‑9 excluding prev.  idx ∈ [0,8]. */
+    for (int d = 0; d <= 9; ++d) {
+        if (d == prev) continue;
+        if (idx == 0) return d;
+        --idx;
+    }
+    return 0;  /* unreachable */
+}
 
 seq_t a(idx_t n) {
     static seq_t pow9[64];      /* pow9[i] = 9^i, i up to 63 */

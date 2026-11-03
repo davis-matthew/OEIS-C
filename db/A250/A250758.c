@@ -9,6 +9,7 @@
  * Formula:   a(n) = ((173 * n^2 + 329 * n) / 2) + 81
  * Range:     u8 none, u16 n <= 18, u32 n <= 210, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 181 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

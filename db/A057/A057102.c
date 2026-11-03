@@ -8,7 +8,8 @@
  *            ascending order. (The first term corresponds to x=2, y=1.)
  * Range:     u8 none, u16 none, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the comparison callback used by qsort. */
 static int cmp_seq(const void *a, const void *b);
@@ -33,7 +35,7 @@ static void append_val(seq_t x)
 {
     if (val_len == val_cap) {
         size_t new_cap = (val_cap == 0) ? 1024 : val_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(val_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, val_arr, new_cap);
         if (!tmp) abort();                /* allocation failure; terminate */
         val_arr = tmp;
         val_cap = new_cap;
@@ -64,7 +66,7 @@ static void generate_up_to(idx_t upper)
 static void sort_and_unique(void)
 {
     if (val_len == 0) return;
-    qsort(val_arr, val_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(val_arr, val_len, sizeof(seq_t), cmp_seq);
     /* In‑place removal of duplicates. */
     size_t new_len = 1;
     for (size_t i = 1; i < val_len; ++i) {

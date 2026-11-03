@@ -12,14 +12,15 @@
  *            count of integers ≤ m that are coprime to n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_idx_t
+ * Validated: standard, pass, 100 terms through n = 9925 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd_idx_t.h"
+#include "../utils/gcd_idx.h"
 
 /* factorize n into distinct prime factors, stored in primes[0..cnt-1] */
 static void factorize(idx_t n, uint64_t *primes, size_t *cnt)
@@ -94,7 +95,7 @@ seq_t a(idx_t n)
     idx_t i = S - offset;
     idx_t j = offset;
 
-    if (gcd_idx_t(i, j) != 1)
+    if (gcd_idx(i, j) != 1)
         return (seq_t)0;
 
     uint64_t val = count_coprime(i, j);

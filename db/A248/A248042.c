@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 5 terms through n = 4 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,9 @@
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,8 +43,8 @@ seq_t a(idx_t n)
     /* Initialise the sequences with the first term.  */
     if (max_n == (idx_t)-1) {
         max_n = 0;
-        num = (seq_t*)malloc(sizeof(seq_t));
-        den = (seq_t*)malloc(sizeof(seq_t));
+        num = mem_new(seq_t, 1);
+        den = mem_new(seq_t, 1);
         if (!num || !den) return (seq_t)0;
         num[0] = (seq_t)1;
         den[0] = (seq_t)1;
@@ -53,11 +56,11 @@ seq_t a(idx_t n)
     size_t new_len = (size_t)(n + 1);
     seq_t *tmp;
 
-    tmp = (seq_t*)realloc(num, new_len * sizeof(seq_t));
+    tmp = mem_resize(seq_t, num, new_len);
     if (!tmp) return (seq_t)0;
     num = tmp;
 
-    tmp = (seq_t*)realloc(den, new_len * sizeof(seq_t));
+    tmp = mem_resize(seq_t, den, new_len);
     if (!tmp) return (seq_t)0;
     den = tmp;
 

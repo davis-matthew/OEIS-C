@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
         P(x) = 25x^4 + 15x^3 - 4x^2 + 3x + 1   (x not divisible by 5).
    The formula is applied directly, keeping all arithmetic in seq_t. */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     /* For n >= 6 use the polynomial evaluated at 5^(n-2). */
     /* x = 5^(n-2) */
     seq_t exp = (seq_t)(n - 2);
-    seq_t x   = big_pow((seq_t)5, exp);
+    seq_t x   = ipow((seq_t)5, exp);
 
     /* Compute successive powers of x. */
     seq_t x2  = x * x;

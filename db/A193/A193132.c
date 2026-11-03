@@ -7,19 +7,21 @@
  * Formula:   a(n) = 3*n*4^(2*n-1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 33 terms through n = 292 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     /* Compute exponent: 2*n - 1 */
     idx_t exp = (idx_t)(2 * n - 1);
     /* Calculate 4^(2*n-1) */
-    seq_t pow4 = pow_uint(4, exp);
+    seq_t pow4 = ipow_u64_idx(4, exp);
     /* Multiply by n and 3 */
     seq_t result = pow4;
     result *= (seq_t)n;

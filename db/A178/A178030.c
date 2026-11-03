@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
    T(n,m) = (T(n-1,m)^2 + (4*m + 1)*(-1)^n) / T(n-2,m) for n>=2. */
 
 #include <stddef.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 /* compute T(r, c) for a given column c (m) and row r (n) */
 static seq_t compute_T(idx_t row, idx_t col)
@@ -56,7 +57,7 @@ static seq_t compute_T(idx_t row, idx_t col)
 seq_t a(idx_t n)
 {
     /* find diagonal d such that d*(d+1)/2 <= n < (d+1)*(d+2)/2 */
-    idx_t d = (( _floor_isqrt_u64(8 * n + 1) - 1 ) >> 1);
+    idx_t d = (( isqrt(8 * n + 1) - 1 ) >> 1);
     while (d * (d + 1) / 2 > n) d--;
     while ((d + 1) * (d + 2) / 2 <= n) d++;
 

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   alloc_seq, realloc_seq
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,22 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/realloc_seq.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Create/expand an array of seq_t, casting the void* properly so that
+   the code compiles both in C and C++ (where seq_t may be a class). */
+static seq_t *realloc_seq(seq_t *p, size_t count)
+{
+    return mem_resize(seq_t, p, count);
+}
 
 /* Stored initial values */
 static const seq_t base_vals[11] = {

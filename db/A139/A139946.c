@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 411, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 58 terms through n = 9167 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static const uint16_t RESIDUES[24] = {
     29,65,113,197,233,317,401,449,473,533,
@@ -56,7 +58,7 @@ seq_t a(idx_t n) {
 
         if (cache_len + 1 > cache_cap) {
             cache_cap = cache_cap ? cache_cap * 2 : 16;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = (seq_t)p;
     }

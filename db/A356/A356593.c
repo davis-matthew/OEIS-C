@@ -7,14 +7,17 @@
  * Formula:   a(n) = smallest k such that primorial(k) > n^2
  * Range:     u8 n <= 14, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (sz == 0) {
         cap = 8;                         /* initial capacity */
-        primorials = (seq_t *)malloc(sizeof(seq_t) * cap);
+        primorials = mem_new(seq_t, cap);
         if (!primorials)
             return (seq_t)0;              /* allocation error */
         primorials[0] = (seq_t)2;        /* 2# = 2 */
@@ -47,14 +50,14 @@ seq_t a(idx_t n)
         else {
             if (p % 2ULL == 0ULL)
                 ++p;
-            while (!is_prime_small(p))
+            while (!is_prime_seq(p))
                 p += 2ULL;
         }
 
         /* Grow storage if necessary. */
         if (sz == cap) {
             cap <<= 1; /* double capacity */
-            seq_t *tmp = (seq_t *)realloc(primorials, sizeof(seq_t) * cap);
+            seq_t *tmp = mem_resize(seq_t, primorials, cap);
             if (!tmp)
                 return (seq_t)0;              /* allocation error */
             primorials = tmp;

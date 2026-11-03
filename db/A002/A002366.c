@@ -8,7 +8,8 @@
  *            with a < b (primes p == 1 mod 4 are found with a growing sieve)
  * Range:     u8 n <= 41, u16 n <= 4565, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a2366_isqrt
+ * Validated: standard, pass, 77 terms through n = 9498 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2366_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 static uint64_t *a2366_pr = NULL;
 static size_t a2366_cnt = 0;
@@ -55,7 +56,7 @@ seq_t a(idx_t n)
     p = a2366_pr[n - 1];
     for (s = 1; 2 * s * s < p; s++) {
         uint64_t r = p - s * s;
-        t = a2366_isqrt(r);
+        t = isqrt_u64(r);
         if (t * t == r) {
             av = s;
             bv = t;

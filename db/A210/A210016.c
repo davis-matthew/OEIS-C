@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   prod_base5
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,21 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/prod_base5.h"
+#include "../utils/mem.h"
+
+/* convert prod (0–16) to base‑5 digits (most significant first);
+   digits is a 2‑byte array, len is set to 1 or 2. */
+static void prod_base5(int prod, unsigned char *digits, int *len)
+{
+    if (prod >= 5) {
+        digits[0] = prod / 5;
+        digits[1] = prod % 5;
+        *len = 2;
+    } else {
+        digits[0] = prod;
+        *len = 1;
+    }
+}
 
 /* test whether the digit pattern prod_digits[0..len-1] occurs as a
    contiguous substring of the permutation perm[0..4]. */
@@ -114,7 +129,7 @@ static void init_seq(void)
     }
 
     /* sort in increasing decimal value */
-    qsort(_seq, _seq_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(_seq, _seq_len, sizeof(seq_t), cmp_seq);
     _seq_ready = true;
 }
 

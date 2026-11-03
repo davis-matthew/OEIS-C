@@ -9,6 +9,7 @@
  *            12*binomial(n,4)*binomial(n,2) for n > 2
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 47, u64 n <= 500, u128 n <= 500,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 450 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 #if defined(__SIZEOF_INT128__)
 // 128‑bit integer type is available.
 typedef __int128  int128_t;
@@ -46,7 +48,7 @@ static void ensure_capacity(size_t need)
     if (need <= capacity) return;
     size_t new_cap = (capacity == 0) ? 16 : capacity * 2;
     while (new_cap <= need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return;                     /* allocation failure – keep old array */
     cache = tmp;
     capacity = new_cap;

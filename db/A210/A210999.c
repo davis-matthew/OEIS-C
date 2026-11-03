@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
 
         /* Collect composites between odd‑even prime pairs ------------------*/
         terms_cap = LIMIT / 5 + 10;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         for (size_t idx = 0; idx + 1 < primes_cnt; idx += 2) {
             uint64_t p1 = primes[idx];
             uint64_t p2 = primes[idx + 1];
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
                 if (!is_prime[v]) {                     /* v is composite */
                     if (terms_cnt == terms_cap) {
                         terms_cap *= 2;
-                        terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                        terms = mem_resize(seq_t, terms, terms_cap);
                     }
                     terms[terms_cnt++] = (seq_t)v;
                 }

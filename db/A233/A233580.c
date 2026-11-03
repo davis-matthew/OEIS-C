@@ -9,13 +9,15 @@
  *            palindromes or sign‑reversed palindromes, in increasing order
  * Range:     u8 n <= 8, u16 n <= 98, u32 n <= 3078, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort over seq_t values. */
 static int cmp_seq_t(const void *pa, const void *pb)
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
 
         /* Sort the candidates for the current length. They are not necessarily
          * already sorted because we merged two types of fragments. */
-        qsort(buf, pos, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(buf, pos, sizeof(seq_t), cmp_seq_t);
 
         /* Scan through the sorted list and return when we reach the nth term. */
         for (size_t i = 0; i < pos; ++i)

@@ -5,14 +5,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = floor(n*(3 + sqrt(3)))
- * Range:     u8 n <= 4, u16 n <= 31, u32 n <= 6232, u64 n <= 10000,
+ * Range:     u8 n <= 9, u16 n <= 283, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sqrt_floor
+ * Validated: standard, pass, 70 terms through n = 9101 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sqrt_floor.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
 
 /* Compute the Beatty sequence for 3 + sqrt(3) */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     t = (seq_t)3 * t;            /* 3*n^2 */
 
     /* floor(n*sqrt(3)) == floor(sqrt(3*n^2)) */
-    seq_t sqrt_val = sqrt_floor(t);
+    seq_t sqrt_val = isqrt_seq(t);
 
     /* a(n) = 3*n + floor(n*sqrt(3)) */
     return (seq_t)3 * nn + sqrt_val;

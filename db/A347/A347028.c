@@ -7,13 +7,15 @@
  * Formula:   a(1) = 1; a(n+1) = -∑_{k=1}^{n} a(floor(n/k)) (OEIS A347028)
  * Range:     i8 n <= 48, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of the sequence.  idx_t is an unsigned 64‑bit
    type, seq_t is a signed integer type or an arbitrary‑precision class. */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         idx_t new_size = (cache_size == 0 ? 16 : cache_size * 2);
         if (new_size < n + 1) new_size = n + 1;
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;          /* allocation failure – shouldn't happen */
         cache = tmp;
         cache_size = new_size;

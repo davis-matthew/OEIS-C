@@ -7,7 +7,8 @@
  * Formula:   a(n) = (5*5^n + (-1)^n)/6
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 886 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(0)=1, a(1)=4, a(n)=4*a(n-1)+5*a(n-2) for n≥2 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache_len == 0) {
         cache_cap = (n < 2 ? 2 : n * 2);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;        /* allocation failure – abort */
         cache[0] = 1;               /* a(0) */
         cache_len = 1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         idx_t new_cap = n + 1;
         if (new_cap > cache_cap) {
             cache_cap = new_cap;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
             if (!cache) return 0;  /* allocation failure – abort */
         }
         if (cache_len == 1 && n >= 1) {

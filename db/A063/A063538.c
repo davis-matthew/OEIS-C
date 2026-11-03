@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 184, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   lpf_seq_t
+ * Validated: standard, pass, 81 terms through n = 7809 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,28 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/lpf_seq_t.h"
+#include "../utils/mem.h"
+
+/* Compute the largest prime factor of x.  Works for any unsigned
+   integer type seq_t.  Returns 1 for x = 0 or 1, but those values
+   are never used. */
+static seq_t lpf_seq_t(seq_t x)
+{
+    seq_t maxp = 1;
+    while ((x & 1) == 0) {          /* factor out 2 */
+        maxp = 2;
+        x >>= 1;
+    }
+    for (seq_t p = 3; p <= x / p; p += 2) {
+        while (x % p == 0) {
+            maxp = p;
+            x /= p;
+        }
+    }
+    if (x > 1)  /* remaining prime */
+        maxp = x;
+    return maxp;
+}
 
 /* Dynamic array storing the sequence values already generated. */
 static seq_t *seq_cache = NULL;   /* array of terms */
@@ -31,7 +53,7 @@ static void seq_append(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) { /* allocation failed; abort */
             abort();
         }

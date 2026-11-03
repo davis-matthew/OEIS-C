@@ -9,13 +9,16 @@
  *            else a(n) = gcd(a(n-1),n)*2+1
  * Range:     u8 n <= 349, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 94 terms through n = 973 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t capacity = 0;
@@ -26,7 +29,7 @@ static void ensure_capacity(idx_t needed)
     if (needed <= capacity) return;
     size_t new_cap = needed > capacity ? (capacity == 0 ? 4 : capacity * 2) : needed;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         /* allocation failure – abort (no other recovery possible in this context) */
         abort();

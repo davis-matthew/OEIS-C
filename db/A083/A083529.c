@@ -7,12 +7,21 @@
  * Formula:   a(n) = 5^n mod (3*n)
  * Range:     u8 n <= 94, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mul_mod
+ * Validated: standard, pass, 95 terms through n = 995 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mul_mod.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+/* multiply a and b modulo mod, using the seq_t type’s operators   */
+static inline seq_t mul_mod(seq_t a, seq_t b, seq_t mod)
+{
+    return (a * b) % mod;
+}
 
 seq_t a(idx_t n)
 {

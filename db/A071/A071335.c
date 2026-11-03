@@ -9,13 +9,15 @@
  *            (coin‑change style)
  * Range:     u8 n <= 376, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9240 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Memoised state */
 static idx_t          computed_max = 0;
@@ -64,7 +66,7 @@ static void recompute(idx_t N)
 
     /* ---------- DP table ---------- */
     idx_t size_dp = (N + 1) * 4;
-    seq_t *new_dp = (seq_t*)malloc(size_dp * sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, size_dp);
     if (!new_dp) abort();
     for (idx_t i = 0; i < size_dp; ++i) new_dp[i] = 0;
     new_dp[0] = 1;                       /* dp[0][0] = 1 */
@@ -81,7 +83,7 @@ static void recompute(idx_t N)
     }
 
     /* replace old tables */
-    if (dp) free(dp);
+    if (dp) mem_free(dp);
     dp = new_dp;
     computed_max = N;
 }

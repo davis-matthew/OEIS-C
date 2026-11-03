@@ -10,19 +10,77 @@
  *            64*(n-1)*(4*n-7)*(4*n-5)*(28*n^2-21*n+3)*a(n-2)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 25,
  *            big any n
- * Helpers:   denom_int128, denom_seq_t, poly_p1_int128, poly_p1_seq_t,
- *            poly_p2_int128, poly_p2_seq_t
+ * Validated: standard, pass, 34 terms through n = 594 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/denom_int128.h"
-#include "../utils/denom_seq_t.h"
-#include "../utils/poly_p1_int128.h"
-#include "../utils/poly_p1_seq_t.h"
-#include "../utils/poly_p2_int128.h"
-#include "../utils/poly_p2_seq_t.h"
+#include "../utils/mem.h"
+
+/* Helper: compute denominator den(n) = 3*n*(3*n-2)*(3*n-1)*(28*n^2-77*n+52) */
+static __int128 denom_int128(idx_t n)
+{
+    __int128 N = n;
+    return (3 * N) * (3 * N - 2) * (3 * N - 1) *
+           (28 * N * N - 77 * N + 52);
+}
+
+static seq_t denom_seq_t(idx_t n)
+{
+    seq_t ii = (seq_t)n;
+    seq_t term1 = (seq_t)(3 * n);
+    seq_t term2 = (seq_t)(3 * n - 2);
+    seq_t term3 = (seq_t)(3 * n - 1);
+    seq_t term4 = (seq_t)(28 * n * n - 77 * n + 52);
+    return term1 * term2 * term3 * term4;
+}
+
+/* Helper: compute polynomial p1(n) = 1456*n^5 - 6188*n^4 + 9690*n^3 - 6844*n^2 + 2105*n - 210  */
+static __int128 poly_p1_int128(idx_t n)
+{
+    __int128 N = n;
+    return (__int128)1456 * N * N * N * N * N
+         - (__int128)6188 * N * N * N * N
+         + (__int128)9690 * N * N * N
+         - (__int128)6844 * N * N
+         + (__int128)2105 * N
+         - (__int128)210;
+}
+
+static seq_t poly_p1_seq_t(idx_t n)
+{
+    seq_t ii = (seq_t)n;
+    seq_t ii2 = ii * ii;
+    seq_t ii3 = ii2 * ii;
+    seq_t ii4 = ii3 * ii;
+    seq_t ii5 = ii4 * ii;
+    return (seq_t)1456 * ii5
+         - (seq_t)6188 * ii4
+         + (seq_t)9690 * ii3
+         - (seq_t)6844 * ii2
+         + (seq_t)2105 * ii
+         - (seq_t)210;
+}
+
+/* Helper: compute polynomial p2(n) = (n-1)*(4*n-7)*(4*n-5)*(28*n^2-21*n+3) */
+static __int128 poly_p2_int128(idx_t n)
+{
+    __int128 N = n;
+    return (N - 1) * (4 * N - 7) * (4 * N - 5) *
+           (28 * N * N - 21 * N + 3);
+}
+
+static seq_t poly_p2_seq_t(idx_t n)
+{
+    seq_t ii = (seq_t)n;
+    seq_t term1 = (seq_t)(n - 1);
+    seq_t term2 = (seq_t)(4 * n - 7);
+    seq_t term3 = (seq_t)(4 * n - 5);
+    seq_t term4 = (seq_t)(28 * n * n - 21 * n + 3);
+    return term1 * term2 * term3 * term4;
+}
 
 static seq_t *cache = NULL;     /* cache of computed a(n) values   */
 static size_t cache_cap = 0;    /* allocated capacity in cache     */
@@ -36,7 +94,7 @@ seq_t a(idx_t n)
     /* initialise cache on first use */
     if (last_computed == (idx_t)-1) {
         cache_cap = 2;
-        cache = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_cap);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)8;
         last_computed = 1;
@@ -48,7 +106,7 @@ seq_t a(idx_t n)
         if (need > cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 1;
             if (new_cap < need) new_cap = need;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 

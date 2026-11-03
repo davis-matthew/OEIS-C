@@ -10,7 +10,8 @@
  *            a(n) = T(r,k) with r = ceil(log2(n+1)), k = n - 2^(r-1)
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,10 @@
 /* Uses mod_pow utility from the build. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t **row_cache = NULL;                    /* cached rows: index 1 .. r */
 static size_t  max_cached = 0;                      /* largest r cached */
@@ -38,14 +42,14 @@ static void compute_row(unsigned r) {
     uint64_t mod_val   = (uint64_t)1 << r;
     seq_t   mod_seq    = (seq_t)mod_val;          /* modulus for mod_pow */
 
-    seq_t *row = (seq_t *)malloc(row_len * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, row_len);
     if (!row) exit(1);                           /* abort on OOM */
 
     for (uint64_t k = 0; k < row_len; ++k) {
         uint64_t base = 1 + 2 * k;               /* 2*k + 1, odd */
         seq_t    m_val = 0;
         for (uint64_t m = 1; m < mod_val; m += 2) {
-            seq_t p = mod_pow((seq_t)base, m, mod_seq);
+            seq_t p = powmod((seq_t)base, m, mod_seq);
             if (p == (seq_t)m) { m_val = (seq_t)m; break; }
         }
         row[k] = m_val;

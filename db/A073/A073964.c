@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
    intermediate values so calls in any order are fast. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t cur_len = 0;            /* longest n already built */
 static seq_t dp_cur[25];            /* DP state for current length */
@@ -51,13 +53,13 @@ static void extend_cache(idx_t n)
 {
     if (cache_size >= n + 1) return;
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (new_cache == NULL) abort();   /* out of memory */
     /* copy existing elements */
     for (idx_t i = 0; i < cache_size; ++i) new_cache[i] = a_cache[i];
     /* initialise new entries to 0 */
     for (idx_t i = cache_size; i < new_size; ++i) new_cache[i] = (seq_t)0;
-    free(a_cache);
+    mem_free(a_cache);
     a_cache = new_cache;
     cache_size = new_size;
 }

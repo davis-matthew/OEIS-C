@@ -11,13 +11,36 @@
  *            number of proper divisors of n plus 1
  * Range:     u8 n <= 167, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sigma_minus_n_and_divisors
+ * Validated: standard, pass, 96 terms through n = 972 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sigma_minus_n_and_divisors.h"
+
+/* Compute sigma(n) and d(n) in a single pass.  Complexity O(sqrt(n)). */
+static inline seq_t sigma_minus_n_and_divisors(idx_t n, seq_t *d_out)
+{
+    seq_t sum = 0;          /* sigma(n) */
+    idx_t  d   = 0;         /* number of divisors */
+    idx_t   i;
+    for (i = 1; i * i <= n; ++i) {
+        if (n % i == 0) {
+            /* i is a divisor */
+            ++d;
+            sum += (seq_t)i;
+            /* n/i is another divisor unless i==n/i */
+            if (i != n / i) {
+                ++d;
+                sum += (seq_t)(n / i);
+            }
+        }
+    }
+    *d_out = (seq_t)d;
+    /* return sigma(n) */
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

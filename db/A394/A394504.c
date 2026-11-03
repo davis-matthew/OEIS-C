@@ -11,7 +11,8 @@
  *            values
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build.  No other types are used. */
 static int initialized = 0;
@@ -35,13 +37,13 @@ typedef struct {
 static void vec_init(Vec *v, size_t cap) {
     v->cap = cap;
     v->size = 0;
-    v->data = (seq_t *)malloc(cap * sizeof(seq_t));
+    v->data = mem_new(seq_t, cap);
 }
 
 static void vec_push(Vec *v, seq_t val) {
     if (v->size == v->cap) {
         v->cap = (v->cap == 0) ? 64 : v->cap * 2;
-        v->data = (seq_t *)realloc(v->data, v->cap * sizeof(seq_t));
+        v->data = mem_resize(seq_t, v->data, (v->cap * sizeof(seq_t)) / sizeof(seq_t));
     }
     v->data[v->size++] = val;
 }
@@ -106,10 +108,10 @@ static void init_sequence(void) {
     if (tmp.size == 0) {
         values = NULL;
         value_count = 0;
-        free(tmp.data);
+        mem_free(tmp.data);
         return;
     }
-    qsort(tmp.data, tmp.size, sizeof(seq_t), cmp_seq);
+    mem_qsort(tmp.data, tmp.size, sizeof(seq_t), cmp_seq);
 
     size_t uniq = 1;
     for (size_t i = 1; i < tmp.size; ++i) {

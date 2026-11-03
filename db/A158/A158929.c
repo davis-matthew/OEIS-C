@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- sequence storage ---------- */
 static seq_t *seq      = NULL;   /* array of terms          */
@@ -36,10 +38,10 @@ static void seq_grow(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 4;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (seq) {
-        memcpy(new_arr, seq, seq_len * sizeof(seq_t));
-        free(seq);
+        mem_copy(new_arr, seq, seq_len * sizeof(seq_t));
+        mem_free(seq);
     }
     seq = new_arr;
     seq_cap = new_cap;

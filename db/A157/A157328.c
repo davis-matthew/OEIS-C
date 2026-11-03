@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2^n*A064062(n)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n)=2*∑_{k=0}^{n-1} Catalan(k)*4^k*a(n-1-k)   (n≥1)   */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
     /* Ensure tables are large enough for indices 0…n */
     size_t needed = (size_t)n + 1;
     if (allocated < needed) {
-        seq_t *newA      = (seq_t *)realloc(A, needed * sizeof(seq_t));
-        seq_t *newCatal = (seq_t *)realloc(Catalan, needed * sizeof(seq_t));
-        seq_t *newP4     = (seq_t *)realloc(P4, needed * sizeof(seq_t));
+        seq_t *newA      = mem_resize(seq_t, A, needed);
+        seq_t *newCatal = mem_resize(seq_t, Catalan, needed);
+        seq_t *newP4     = mem_resize(seq_t, P4, needed);
         if (!newA || !newCatal || !newP4) return 0; /* allocation failure */
 
         A       = newA;

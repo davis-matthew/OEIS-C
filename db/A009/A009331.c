@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 23, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t val;      /* candidate value a*b+8 */
@@ -46,7 +48,7 @@ static void heap_push(seq_t val, size_t i)
 {
     if (heap_size >= heap_cap) {
         size_t new_cap = heap_cap ? heap_cap << 1 : 16;
-        heap = (HeapNode*)realloc(heap, new_cap * sizeof(HeapNode));
+        heap = mem_resize(HeapNode, heap, new_cap);
         heap_cap = new_cap;
     }
     HeapNode node = { val, i };
@@ -96,7 +98,7 @@ static void init_sequence(void)
 {
     /* allocate initial storage */
     seq_cap = 16;
-    seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     j_cap  = 16;
     j_idx  = (size_t*)malloc(j_cap * sizeof(size_t));
 
@@ -123,7 +125,7 @@ static void ensure_n(size_t target)
             /* grow seq array if necessary */
             if (seq_len + 1 > seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-                seq = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, new_cap);
                 seq_cap = new_cap;
             }
             seq[seq_len] = val;

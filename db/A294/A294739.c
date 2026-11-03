@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 /* Type names are supplied by the build environment. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_N 5408          /* largest n that may occur in the sequence */
 
@@ -59,12 +61,12 @@ static void init_sequence(void)
 
     /* collect all numbers that have exactly five representations */
     size_t cap = 32;
-    terms = (seq_t *)malloc(cap * sizeof(seq_t));
+    terms = mem_new(seq_t, cap);
     for (int n = 1; n <= MAX_N; ++n) {
         if (dp[5][n] == 5) {
             if (term_count == cap) {
                 cap <<= 1;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[term_count++] = (seq_t)n;
         }

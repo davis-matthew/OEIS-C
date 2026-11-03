@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into evil numbers (A001969)
  * Range:     u8 n <= 43, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for dynamic programming table */
 static seq_t *dp_table = NULL;
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 {
     /* Ensure we have at least one entry for n = 0 */
     if (max_n_computed == 0 && dp_table == NULL) {
-        dp_table = (seq_t *)malloc(sizeof(seq_t));
+        dp_table = mem_new(seq_t, 1);
         if (dp_table == NULL) return (seq_t)0;
         dp_table[0] = (seq_t)1;
         max_n_computed = 0;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     if (n > max_n_computed) {
         idx_t new_size = n + 1;
-        seq_t *new_table = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_table = mem_new(seq_t, new_size);
         if (new_table == NULL) return (seq_t)0;
 
         /* initialize the new table to zero */
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
         /* free old table if it exists */
         if (dp_table != NULL)
-            free(dp_table);
+            mem_free(dp_table);
 
         dp_table = new_table;
         max_n_computed = n;

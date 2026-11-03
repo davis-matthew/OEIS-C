@@ -9,7 +9,8 @@
  *            partition * whose Heinz number is n
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,10 @@
 #include <stdlib.h>
 
 /* include the utilities that provide the prime factors and prime tables */
-#include "../utils/factor_u64.h"          /* factor_u64 */
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------------- */
 /* static helper: get prime index (1‑based) of a prime number p.  The prime
@@ -98,7 +101,7 @@ seq_t a(idx_t n)
      * indices run from 1 to max_idx inclusive.  `freq[i]` stores how many
      * parts in λ have value i (i.e. how many times the prime index i
      * occurs in the factorization). */
-    seq_t *freq = (seq_t *)calloc(max_idx + 1, sizeof(seq_t));
+    seq_t *freq = mem_new(seq_t, max_idx + 1);
     if (!freq) {
         free(idx_arr);
         return 0;
@@ -120,6 +123,6 @@ seq_t a(idx_t n)
             ++count_even;
     }
 
-    free(freq);
+    mem_free(freq);
     return count_even;
 }

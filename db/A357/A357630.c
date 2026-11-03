@@ -11,7 +11,8 @@
  *            two negatives followed by two positives)
  * Range:     i8 n <= 71, i16 n <= 71, i32 n <= 71, i64 n <= 71, i128 n <= 71,
  *            big any n
- * Helpers:   sign_at
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/sign_at.h"
+
+/* sign of position pos (1‑based) in the skew‑alternating pattern:
+   pos == 1 -> +1
+   pos >= 2 -> if ((pos-2) % 4 < 2) -> -1 else +1 */
+static inline int sign_at(idx_t pos) {
+    if (pos == 1) return 1;
+    return (((pos - 2) & 3) < 2) ? -1 : 1;
+}
 
 struct {
     bool     inited;

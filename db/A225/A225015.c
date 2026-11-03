@@ -9,13 +9,14 @@
  *            (2n), where C_k = binom(2k, k) (central binomial coefficient)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 34, u128 n <= 66,
  *            big any n
- * Helpers:   central_binom
+ * Validated: standard, pass, 44 terms through n = 937 (2026-11-01)
+ * Helpers:   central_binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/central_binom.h"
+#include "../utils/central_binomial.h"
 
 /* Computes the greatest‑common divisor of two seq_t values. */
 static inline seq_t seq_gcd(seq_t a, seq_t b)
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
     if (n == 1) return (seq_t)1;
     if (n == 2) return (seq_t)1;
 
-    seq_t C      = central_binom(n - 2);            /* C_{n-2}    */
+    seq_t C      = central_binomial(n - 2);            /* C_{n-2}    */
     seq_t factor = (seq_t)9 * (seq_t)n - (seq_t)12;/* 9n-12      */
     seq_t denom  = (seq_t)2 * (seq_t)n;             /* 2n         */
 

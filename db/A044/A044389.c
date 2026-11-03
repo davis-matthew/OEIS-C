@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool has_57(uint64_t x)
 /* Returns true iff the decimal representation of x contains the
@@ -59,11 +61,11 @@ seq_t a(idx_t n)
         /* Ensure room in the cache */
         if (cache_len == cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
-            seq_t *new_buf = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_buf = mem_new(seq_t, new_cap);
             if (!new_buf) { abort(); }          /* allocation failed */
             if (cache) {
-                memcpy(new_buf, cache, cache_len * sizeof(seq_t));
-                free(cache);
+                mem_copy(new_buf, cache, cache_len * sizeof(seq_t));
+                mem_free(cache);
             }
             cache = new_buf;
             cache_cap = new_cap;

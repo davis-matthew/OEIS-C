@@ -11,12 +11,14 @@
  *            (partition(k) is the number of integer partitions of k)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 110 terms through n = 7906 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     }
 
     /* --- compute partition numbers up to max_e --- */
-    seq_t *part = (seq_t *)malloc((max_e + 1) * sizeof(seq_t));
+    seq_t *part = mem_new(seq_t, (max_e + 1));
     if (!part) return 0;            /* allocation failed, return 0 as fallback */
     part[0] = (seq_t)1;
     for (idx_t nidx = 1; nidx <= max_e; ++nidx) {
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
             contrib = part[e];
         } else if (p % 3 == 2) {
             if (e & 1ULL) {          /* odd exponent => impossible */
-                free(part);
+                mem_free(part);
                 return (seq_t)0;
             }
             contrib = part[e / 2];
@@ -111,6 +113,6 @@ seq_t a(idx_t n)
         result *= contrib;
     }
 
-    free(part);
+    mem_free(part);
     return result;
 }

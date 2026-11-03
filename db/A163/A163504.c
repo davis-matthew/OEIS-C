@@ -7,7 +7,8 @@
  * Formula:   a(n) = abs(A000040(n)-A014076(n))
  * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 88 terms through n = 992 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static size_t prime_cap = 0;           /* current capacity of prime_list */
 static seq_t *prime_list = NULL;       /* array of primes, type seq_t */
@@ -41,7 +43,7 @@ ensure_primes(idx_t n)
     if (!primes_initialized) {
         /* include the first prime, 2 */
         prime_cap = 16;
-        prime_list = (seq_t *)malloc(prime_cap * sizeof(seq_t));
+        prime_list = mem_new(seq_t, prime_cap);
         prime_list[0] = (seq_t)2;
         prime_count = 1;
         next_prime_candidate = 3;
@@ -52,8 +54,7 @@ ensure_primes(idx_t n)
         if (is_prime(next_prime_candidate)) {
             if (prime_count == prime_cap) {
                 prime_cap = prime_cap * 2;
-                prime_list = (seq_t *)realloc(prime_list,
-                                              prime_cap * sizeof(seq_t));
+                prime_list = mem_resize(seq_t, prime_list, prime_cap);
             }
             prime_list[prime_count++] = (seq_t)next_prime_candidate;
         }
@@ -70,7 +71,7 @@ ensure_odd_nonprimes(idx_t n)
 {
     if (!odd_np_initialized) {
         odd_np_cap = 16;
-        odd_np_list = (seq_t *)malloc(odd_np_cap * sizeof(seq_t));
+        odd_np_list = mem_new(seq_t, odd_np_cap);
         odd_np_list[0] = (seq_t)1;      /* 1 is the first odd non‑prime */
         odd_np_count = 1;
         odd_np_candidate = 3;
@@ -81,8 +82,7 @@ ensure_odd_nonprimes(idx_t n)
         if (!is_prime(odd_np_candidate)) {
             if (odd_np_count == odd_np_cap) {
                 odd_np_cap = odd_np_cap * 2;
-                odd_np_list = (seq_t *)realloc(odd_np_list,
-                                               odd_np_cap * sizeof(seq_t));
+                odd_np_list = mem_resize(seq_t, odd_np_list, odd_np_cap);
             }
             odd_np_list[odd_np_count++] = (seq_t)odd_np_candidate;
         }

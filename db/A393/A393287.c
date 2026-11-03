@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 498, u64 n <= 498, u128 n <= 498,
  *            big any n
- * Helpers:   reverse64
+ * Validated: standard, pass, 93 terms through n = 463 (2026-11-01)
+ * Helpers:   reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/reverse64.h"
+#include "../utils/reverse_digits_u64.h"
 
 /* Integer square root of an unsigned 64‑bit integer: floor(sqrt(x)). */
 static unsigned long long
@@ -60,7 +61,7 @@ seq_t a(idx_t n)
             continue;
         }
 
-        unsigned long long rev = reverse64(val);
+        unsigned long long rev = reverse_digits_u64(val);
         unsigned long long s   = isqrt64(rev);
         if (s * s == rev)        /* rev is a perfect square */
             return (seq_t)k;     /* smallest k found */

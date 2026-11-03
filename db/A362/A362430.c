@@ -8,14 +8,16 @@
  *            (n-3k)!)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 18, i128 n <= 20,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
             /* (k+1) = 1, so 1^d = 1 for all d */
             pow_term = 1;
         } else {
-            pow_term = big_pow((seq_t)(k + 1), (seq_t)d);
+            pow_term = ipow((seq_t)(k + 1), (seq_t)d);
         }
 
         /* prod = (3*k)! / k!  (product from k+1 to 3*k) */

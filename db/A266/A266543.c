@@ -13,13 +13,15 @@
  *            a(10)=114, a(11)=149, a(12)=213, a(13)=276, a(14...
  * Range:     u8 n <= 12, u16 n <= 44, u32 n <= 179, u64 n <= 179,
  *            u128 n <= 179, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 168 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Dynamic cache for computed terms */
 static seq_t *cache = NULL;     /* array a(1)..a(cache_size) */
@@ -36,7 +38,7 @@ static void init_cache(void)
         return;                /* already initialised */
 
     cache_cap = 32;             /* initial capacity */
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) abort();
 
     /* 17 known terms, 1‑based */
@@ -60,7 +62,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

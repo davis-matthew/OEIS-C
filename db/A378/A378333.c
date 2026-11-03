@@ -7,7 +7,8 @@
  * Formula:   a(n) = decimal expansion of base‑9 Champernowne constant
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   next_base9_digit_slow
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,30 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/next_base9_digit_slow.h"
+#include "../utils/mem.h"
+
+/* ---- generator of Champernowne base‑9 digits ----  */
+static inline uint8_t next_base9_digit_slow(uint64_t *next_num,
+                                           uint8_t *buf, size_t *len, size_t *pos)
+{
+    if (*pos == *len) {
+        uint64_t t = *next_num;
+        size_t i = 0;
+        do {
+            buf[i++] = (uint8_t)(t % 9);
+            t /= 9;
+        } while (t);
+        for (size_t j = 0, k = i; j < k / 2; ++j) {
+            uint8_t tmp = buf[j];
+            buf[j] = buf[k - 1 - j];
+            buf[k - 1 - j] = tmp;
+        }
+        *len = i;
+        *pos = 0;
+        ++(*next_num);
+    }
+    return buf[(*pos)++];
+}
 
 /*  ---- Big integer (base 1e9) for intermediate calculations  ----  */
 typedef struct {
@@ -126,9 +150,9 @@ static void compute_up_to(idx_t n)
     size_t new_cap = need;
     if (cached_digits) {
         if (new_cap <= cached_len) return;   /* already done */
-        cached_digits = (seq_t*)realloc(cached_digits, new_cap * sizeof(seq_t));
+        cached_digits = mem_resize(seq_t, cached_digits, new_cap);
     } else {
-        cached_digits = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        cached_digits = mem_new(seq_t, new_cap);
     }
     cached_len = new_cap;
 

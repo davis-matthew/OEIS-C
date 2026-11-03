@@ -9,7 +9,8 @@
  *            binom(n,k)*Fibonacci(m*k))
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Includes */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Constants for the linear recurrence (see: X^5 - 23105*X^4 + 37360785*X^3 - 4520654985*X^2 + 40931916905*X - 25937424601 = 0) */
 static const seq_t C1 = (seq_t)23105ULL;
@@ -72,9 +74,9 @@ seq_t a(idx_t n) {
     if (memo_len < (size_t)n) {
         size_t new_len = (size_t)n;
         if (memo == NULL) {
-            memo = (seq_t *)malloc(new_len * sizeof(seq_t));
+            memo = mem_new(seq_t, new_len);
         } else {
-            memo = (seq_t *)realloc(memo, new_len * sizeof(seq_t));
+            memo = mem_resize(seq_t, memo, new_len);
         }
         /* Fill new entries */
         for (size_t i = memo_len; i < (size_t)n; ++i) {

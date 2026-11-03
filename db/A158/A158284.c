@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static inline bool is_prime_digit(unsigned d)
 {
@@ -53,7 +55,7 @@ static void grow_terms(size_t need)
     if (need <= terms_cap) return;
     size_t newcap = terms_cap ? terms_cap * 2 : 64;
     while (newcap < need) newcap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(terms, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, newcap);
     if (!tmp) abort();
     terms = tmp;
     terms_cap = newcap;

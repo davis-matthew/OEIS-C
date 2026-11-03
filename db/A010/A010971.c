@@ -7,11 +7,13 @@
  * Formula:   a(n) = binomial(n,18)
  * Range:     u8 n <= 20, u16 n <= 23, u32 n <= 34, u64 n <= 97,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 42 terms through n = 961 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 100, u32 n <= 317, u64 n <= 1069,
  *            u128 n <= 3811, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 6283 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         seq_t **tmp = (seq_t **)realloc(rows, new_count * sizeof(seq_t *));
         rows = tmp;
         for (size_t i = rows_count; i < new_count; ++i) {
-            rows[i] = (seq_t *)calloc((size_t)i + 1, sizeof(seq_t));
+            rows[i] = mem_new(seq_t, (size_t)i + 1);
             /* T(i,0) = 1  and (when i>=1) T(i,i) defined below */
             rows[i][0] = 1;
             if (i >= 1) {

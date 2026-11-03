@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9749 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * a(n) is the n‑th bit (0 or 1) of the limit string, 1‑indexed.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (seq == NULL) {
         seq_cap = 2;
         seq_len = 2;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = 0;
         seq[1] = 0;
     }
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     while (seq_len < n) {
         /* next string will never be longer than 3 * seq_len */
         idx_t new_cap = seq_len * 3 + 10;
-        seq_t *new_seq = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_seq = mem_new(seq_t, new_cap);
         idx_t new_len = 0;
         idx_t i = 0;
         while (i < seq_len) {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        free(seq);
+        mem_free(seq);
         seq = new_seq;
         seq_len = new_len;
         seq_cap = new_cap;

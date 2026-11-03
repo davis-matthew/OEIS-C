@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   is_valid_rows, precompute_masks
+ * Validated: standard, pass, 32 terms through n = 194 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,52 @@
  * neighbour. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is_valid_rows.h"
-#include "../utils/precompute_masks.h"
+
+/* Helper: check if all 1s in 'prev' are valid when the row above is 'prevPrev'
+ * and the row below is 'curr'.  The adjacencies are counted with king moves.
+ * Returns 1 if valid, 0 otherwise. */
+static int
+is_valid_rows(uint64_t prevPrev, uint64_t prev, uint64_t curr)
+{
+    /* iterate over all columns j=0..5 */
+    for (int j = 0; j < 6; ++j) {
+        if (!((prev >> j) & 1ULL))
+            continue;          /* nothing to check */
+        int count = 0;
+        /* horizontal neighbors in the same row */
+        if (j > 0 && ((prev >> (j - 1)) & 1ULL)) count++;
+        if (j + 1 < 6 && ((prev >> (j + 1)) & 1ULL)) count++;
+        /* vertical and diagonal neighbors from the row above */
+        if ((prevPrev >> j) & 1ULL) count++;                           /* up */
+        if (j > 0 && ((prevPrev >> (j - 1)) & 1ULL)) count++;          /* up‑left */
+        if (j + 1 < 6 && ((prevPrev >> (j + 1)) & 1ULL)) count++;      /* up‑right */
+        /* vertical and diagonal neighbors from the row below */
+        if ((curr >> j) & 1ULL) count++;                             /* down */
+        if (j > 0 && ((curr >> (j - 1)) & 1ULL)) count++;              /* down‑left */
+        if (j + 1 < 6 && ((curr >> (j + 1)) & 1ULL)) count++;          /* down‑right */
+        /* allowed totals are 0, 1 or 3 */
+        if (count != 0 && count != 1 && count != 3)
+            return 0;
+    }
+    return 1;
+}
+
+/* Precomputation for UI: next masks and final validity check. */
+static void
+precompute_masks(uint64_t nextMask[4096], unsigned char finalGood[4096])
+{
+    for (uint64_t prevPrev = 0; prevPrev < 64; ++prevPrev) {
+        for (uint64_t prev = 0; prev < 64; ++prev) {
+            uint64_t mask = 0;
+            for (uint64_t curr = 0; curr < 64; ++curr) {
+                if (is_valid_rows(prevPrev, prev, curr))
+                    mask |= 1ULL << curr;
+            }
+            nextMask[prevPrev * 64 + prev] = mask;
+            finalGood[prevPrev * 64 + prev] = (uint64_t)is_valid_rows(prevPrev, prev, 0);
+        }
+    }
+}
 
 /* Forward declare the helper that is provided by the framework.  All
  * seq_t / idx_t types are defined externally. */

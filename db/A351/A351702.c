@@ -9,6 +9,7 @@
  *            of n except the most significant digit
  * Range:     u8 n <= 123, u16 n <= 9841, u32 n <= 9841, u64 n <= 9841,
  *            u128 n <= 9841, big any n
+ * Validated: standard, pass, 83 terms through n = 9090 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

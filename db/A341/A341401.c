@@ -10,13 +10,15 @@
  *            quantity for any 0 ≤ n
  * Range:     u8 n <= 7, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root of a 64‑bit unsigned integer.
  * Returns the largest k such that k² ≤ n. */
@@ -56,12 +58,12 @@ seq_t a(idx_t n)
 
     /* DP arrays: counts of tuples giving exact sum s. */
     size_t size = (size_t)(n + (idx_t)1);
-    seq_t *dp_prev = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *dp_curr = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, size);
+    seq_t *dp_curr = mem_new(seq_t, size);
     if (!dp_prev || !dp_curr) {
         free(squares);
-        free(dp_prev);
-        free(dp_curr);
+        mem_free(dp_prev);
+        mem_free(dp_curr);
         return (seq_t)0;                    /* allocation failure */
     }
 
@@ -94,8 +96,8 @@ seq_t a(idx_t n)
 
     /* Clean up. */
     free(squares);
-    free(dp_prev);
-    free(dp_curr);
+    mem_free(dp_prev);
+    mem_free(dp_curr);
 
     return total;
 }

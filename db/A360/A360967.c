@@ -7,12 +7,14 @@
  * Formula:   a(n) = (2^(m*(2*n+1)) + 1) / (2^m + 1), read by antidiagonals
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 23, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The function computes the nth term of OEIS A360967. */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

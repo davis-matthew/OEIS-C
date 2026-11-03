@@ -9,24 +9,26 @@
  *            GF(2)[x1,…,xn]
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   binom, pow_int
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/pow_int.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     /* Binomial coefficients */
-    seq_t c_n3_3 = binom(n + 3, 3);
-    seq_t c_n2_2 = binom(n + 2, 2);
+    seq_t c_n3_3 = binomial(n + 3, 3);
+    seq_t c_n2_2 = binomial(n + 2, 2);
 
     /* Powers of two with potentially large exponents */
-    seq_t pow1   = pow_int((seq_t)2, (idx_t)c_n3_3);      /* 2^(C(n+3,3))      */
-    seq_t pow2   = pow_int((seq_t)2, (idx_t)c_n2_2);      /* 2^(C(n+2,2))      */
-    seq_t pow_n1 = pow_int((seq_t)2, n + 1);             /* 2^(n+1)           */
+    seq_t pow1   = ipow_idx((seq_t)2, (idx_t)c_n3_3);      /* 2^(C(n+3,3))      */
+    seq_t pow2   = ipow_idx((seq_t)2, (idx_t)c_n2_2);      /* 2^(C(n+2,2))      */
+    seq_t pow_n1 = ipow_idx((seq_t)2, n + 1);             /* 2^(n+1)           */
 
     /* Exact‑degree counts */
     seq_t N3 = pow1 - pow2;              /* monic polynomials of total degree 3 */

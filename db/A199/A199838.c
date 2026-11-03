@@ -12,12 +12,14 @@
  *            a(9)=4719970500
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 8, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[9] = {
     66ULL,        /* a(1) */
@@ -52,7 +54,7 @@ static void ensure_cache(idx_t upto)
     if (new_cap < upto)
         new_cap = upto;
 
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();           /* unrecoverable allocation failure */
 
     /* if this is the first allocation, copy the first 9 terms */

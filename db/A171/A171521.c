@@ -11,7 +11,8 @@
  *            the k‑th composite number
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *excluded = NULL;   /* sorted excluded numbers (products) */
 static size_t excl_len = 0;
@@ -53,7 +55,7 @@ static void init_excluded(void)
 
     /* Compute excluded products k * c_k up to BOUND. */
     excl_len = 0;
-    excluded = (seq_t *)malloc(comp_len * sizeof(seq_t));
+    excluded = mem_new(seq_t, comp_len);
     for (size_t k = 0; k < comp_len; ++k) {
         seq_t prod = (seq_t)(k + 1) * (seq_t)composite[k];
         if (prod > BOUND)

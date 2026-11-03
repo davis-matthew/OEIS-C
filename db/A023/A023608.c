@@ -8,7 +8,8 @@
  *            Prime(1)=2, Prime(2)=3, ... (OEIS A023608)
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached Fibonacci values: fib_cache[i] = Fib(i+1)  (i = 0 ..) */
 static seq_t *fib_cache = NULL;
@@ -33,7 +35,7 @@ static size_t a_len = 0;
 static void ensure_fib(size_t n)
 {
     if (fib_len == 0) {
-        fib_cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, 2);
         if (!fib_cache) abort();
         fib_cache[0] = (seq_t)1;   /* Fib(1) */
         fib_cache[1] = (seq_t)1;   /* Fib(2) */
@@ -41,7 +43,7 @@ static void ensure_fib(size_t n)
     }
     while (fib_len <= n) {
         seq_t next = fib_cache[fib_len - 1] + fib_cache[fib_len - 2];
-        seq_t *tmp = (seq_t *)realloc(fib_cache, (fib_len + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fib_cache, (fib_len + 1));
         if (!tmp) abort();
         fib_cache = tmp;
         fib_cache[fib_len] = next;
@@ -83,14 +85,14 @@ static void ensure_primes(size_t n)
 static void ensure_a(size_t n)
 {
     if (a_len == 0) {
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         if (!a_cache) abort();
         a_cache[0] = (seq_t)1;   /* a(0) = 1 */
         a_len = 1;
     }
     if (a_len > n) return;   /* already computed */
 
-    seq_t *tmp = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, (n + 1));
     if (!tmp) abort();
     a_cache = tmp;
 

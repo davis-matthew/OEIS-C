@@ -9,15 +9,36 @@
  *            contains the n‑th letter of the US alphabet, or -1 if no such
  *            integer exists
  * Range:     i8 none, i16 none, i32 none, i64 n <= 2, i128 n <= 26, big any n
- * Helpers:   contains_letter, pow10seq
+ * Validated: full, pass, 26 terms through n = 26 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <ctype.h>
 #include <stdio.h>
-#include "../utils/contains_letter.h"
-#include "../utils/pow10seq.h"
+
+/* Check if the string s contains the letter c (case insensitive). */
+static int contains_letter(const char *s, char c)
+{
+    c = (char)tolower((unsigned char)c);
+    while (*s) {
+        if ((char)tolower((unsigned char)*s) == c)
+            return 1;
+        ++s;
+    }
+    return 0;
+}
+
+/* The utility to build a large power of ten when needed (seq_from_str is
+   provided by the utilities for arbitrary precision builds). */
+static seq_t pow10seq(idx_t e)
+{
+    seq_t x = 1;
+    for (idx_t i = 0; i < e; ++i)
+        x *= 10;
+    return x;
+}
 
 seq_t a(idx_t n)
 {

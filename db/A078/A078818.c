@@ -8,6 +8,7 @@
  *            a(n-1)*(4*n^2 + 6*n - 4)/(n^2 + 3*n)
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 17, u64 n <= 33, u128 n <= 66,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 284 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

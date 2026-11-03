@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Storage for the sequence values */
 static seq_t *seq_vals = NULL;
@@ -52,7 +54,7 @@ static void seq_append(seq_t val)
     if (seq_len == seq_cap)
     {
         size_t new_cap = seq_cap ? seq_cap * 2 : 4;
-        seq_t *tmp = (seq_t*)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
         if (!tmp) { exit(1); }
         seq_vals = tmp;
         seq_cap  = new_cap;
@@ -72,7 +74,7 @@ static void ratio_append(seq_t r)
     if (big_len == big_cap)
     {
         size_t new_cap = big_cap ? big_cap * 2 : 4;
-        seq_t *tmp = (seq_t*)realloc(big_ratios, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, big_ratios, new_cap);
         if (!tmp) { exit(1); }
         big_ratios = tmp;
         big_cap    = new_cap;

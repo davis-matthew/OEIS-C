@@ -8,8 +8,9 @@
  * Formula:   a(n) = A032742(n) XOR A227320(n) a(1) = 0 by convention. The
  *            function returns the XOR of all divisors of n except the second
  *            largest (A032742(n)) and the largest (n)
- * Range:     u8 n <= 767, u16 n <= 9421, u32 n <= 9421, u64 n <= 9421,
- *            u128 n <= 9421, big any n
+ * Range:     u8 n <= 767, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9421 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

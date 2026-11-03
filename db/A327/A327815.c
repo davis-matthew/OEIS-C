@@ -8,7 +8,8 @@
  * Formula:   a(n) = phi(n) / ord(7, s), where n = 7^e * s , gcd(7,s)=1
  * Range:     u8 n <= 341, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, factor_u64, mod_pow
+ * Validated: standard, pass, 106 terms through n = 9931 (2026-11-01)
+ * Helpers:   factor_u64, powmod, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/calc_phi.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
     idx_t s = temp;                              /* s is coprime with 7 */
 
     /* φ(n) and φ(s) */
-    seq_t phi_n = calc_phi((seq_t)n);
-    seq_t phi_s = calc_phi((seq_t)s);
+    seq_t phi_n = totient_seq((seq_t)n);
+    seq_t phi_s = totient_seq((seq_t)s);
 
     /* compute multiplicative order of 7 modulo s */
     seq_t ord_seq = phi_s;                      /* initial order = φ(s) */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < cnt; ++i) {
             uint64_t p = primes[i];
             while (ord64 % p == 0) {
-                seq_t r = mod_pow((seq_t)7, ord64 / p, (seq_t)s);
+                seq_t r = powmod((seq_t)7, ord64 / p, (seq_t)s);
                 if (r == (seq_t)1) {
                     ord64 /= p;
                 } else {

@@ -8,12 +8,14 @@
  *            (A002473(n))
  * Range:     u8 n <= 76, u16 n <= 1697, u32 n <= 6719, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for the sequence of 7‑smooth numbers */
 static seq_t *h = NULL;          /* array of Hamming numbers            */
@@ -31,7 +33,7 @@ static void ensure_n(idx_t n)
     if (h_capacity < n) {
         size_t newcap = h_capacity ? h_capacity << 1 : 1;
         while (newcap < (size_t)n) newcap <<= 1;
-        h = (seq_t *)realloc(h, newcap * sizeof(seq_t));
+        h = mem_resize(seq_t, h, newcap);
         h_capacity = newcap;
     }
 

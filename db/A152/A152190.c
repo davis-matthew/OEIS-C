@@ -11,13 +11,35 @@
  *            number L_n satisfies L_n = 2*F_{n+1} - F_n
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   fibpair
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h> /* for idx_t, seq_t are defined by the build */
-#include "../utils/fibpair.h"
+
+static void fibpair(idx_t n, seq_t *f, seq_t *f_next)
+{
+    if (n == 0) {
+        *f      = 0;
+        *f_next = 1;
+        return;
+    }
+    seq_t a, b, c, d;
+    fibpair(n >> 1, &a, &b);            /* a = F_k,   b = F_{k+1}   */
+    seq_t two_b          = b + b;        /* 2*F_{k+1}       */
+    seq_t two_b_minus_a = two_b - a;    /* 2*F_{k+1} - F_k */
+    c = a * two_b_minus_a;              /* F_{2k}          */
+    d = a * a + b * b;                  /* F_{2k+1}        */
+    if ((n & 1) == 0) {
+        *f      = c;
+        *f_next = d;
+    } else {
+        *f      = d;
+        *f_next = c + d;
+    }
+}
 
 seq_t a(idx_t n)
 {

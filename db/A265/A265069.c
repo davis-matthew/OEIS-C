@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 51, u64 n <= 105,
  *            u128 n <= 214, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
      a(0)=1, a(1)=3, a(2)=5, a(3)=8, a(4)=13, a(5)=21, a(6)=32
    The function caches computed values for efficiency. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* cache of computed terms */
 static idx_t  cache_size = 0;   /* number of entries currently stored */
@@ -29,7 +31,7 @@ static void extend_cache(idx_t upto)
         return;  /* nothing to do */
 
     idx_t new_size = upto + 1;
-    seq_t *mem = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *mem = mem_resize(seq_t, cache, new_size);
     if (!mem) abort();  /* allocation failure */
     cache = mem;
 

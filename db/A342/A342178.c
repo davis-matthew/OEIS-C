@@ -8,7 +8,8 @@
  *            Delannoy numbers)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   central_delannoy
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,28 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/central_delannoy.h"
+#include "../utils/mem.h"
+
+/* Compute the k‑th central Delannoy number via the sum of binomials.
+   D(k) = Σ_{i=0..k} C(k,i) * C(k+i,i)                                 */
+static seq_t central_delannoy(idx_t k)
+{
+    seq_t sum = 0;
+    seq_t c   = 1;  /* C(k,0) */
+    seq_t d   = 1;  /* C(k+0,0) = 1 */
+    for (idx_t i = 0; i <= k; ++i)
+    {
+        if (i > 0)
+        {
+            /* C(k,i) = C(k,i-1) * (k-i+1) / i */
+            c = c * (seq_t)(k - i + 1) / (seq_t)i;
+            /* C(k+i,i) = C(k+i-1,i-1) * (k+i) / i */
+            d = d * (seq_t)(k + i) / (seq_t)i;
+        }
+        sum += c * d;
+    }
+    return sum;
+}
 
 /* Cache for a(n) values.  Implements an expanding array. */
 static seq_t *cache      = NULL; /* cached a(0) … a(cache_used-1) */
@@ -32,7 +54,7 @@ seq_t a(idx_t n)
     if (cache_cap == 0)
     {
         cache_cap = 1;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(1);          /* out of memory – abort */
         cache[0] = 1;                 /* a(0) = 1 */
         cache_used = 1;
@@ -43,7 +65,7 @@ seq_t a(idx_t n)
     {
         size_t new_cap = cache_cap ? cache_cap * 2 : 1;
         while (new_cap <= N) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);            /* out of memory – abort */
         cache = tmp;
         /* Zero any new slots (they will be overwritten). */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 172, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9846 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Test whether a number is prime.  Works for native integer types
    and for arbitrary‑precision integer classes that overload the
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cachecap = 64;
-        cache = (seq_t *)malloc(cachecap * sizeof(seq_t));
+        cache = mem_new(seq_t, cachecap);
         if (!cache) return 0;     /* allocation failure */
     }
 
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
         /* Resize the cache if necessary. */
         if (cachelen >= cachecap) {
             size_t newcap = cachecap << 1;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) return 0;  /* allocation failure */
             cache = tmp;
             cachecap = newcap;

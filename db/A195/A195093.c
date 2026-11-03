@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 47, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_uint32, alloc_uint8
+ * Validated: standard, pass, 50 terms through n = 9952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/alloc_uint32.h"
-#include "../utils/alloc_uint8.h"
+#include "../utils/mem.h"
+
+/* helper: allocate a zeroed array of uint32_t -------------------------------- */
+static uint32_t *alloc_uint32(size_t N)
+{
+    uint32_t *p = (uint32_t *)malloc((N + 1) * sizeof(uint32_t));
+    if (p) {
+        for (size_t i = 0; i <= N; ++i) p[i] = 0;
+    }
+    return p;
+}
+
+/* helper: allocate a zeroed array of uint8_t -------------------------------- */
+static uint8_t *alloc_uint8(size_t N)
+{
+    uint8_t *p = (uint8_t *)malloc((N + 1) * sizeof(uint8_t));
+    if (p) {
+        for (size_t i = 0; i <= N; ++i) p[i] = 0;
+    }
+    return p;
+}
 
 /* local constants ------------------------------------------------------- */
 static const size_t LIMIT = 20000000;   /* adjust if more terms are needed  */
@@ -56,7 +76,7 @@ seq_t a(idx_t n)
         if (!diff) { free(spf); return 0; }
 
         diff[1] = 0;
-        seq = (seq_t *)malloc(INIT_CAP * sizeof(seq_t));
+        seq = mem_new(seq_t, INIT_CAP);
         if (!seq) { free(spf); free(diff); return 0; }
 
         seq_len = 0;
@@ -75,7 +95,7 @@ seq_t a(idx_t n)
             if (d == 9) {
                 if (seq_len == seq_cap) {
                     seq_cap <<= 1;
-                    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_cap);
                 }
                 seq[seq_len++] = (seq_t)x;
             }

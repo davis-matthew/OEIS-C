@@ -8,7 +8,8 @@
  *            sums of triangle A179943)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 26, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 473 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The function a(idx_t n) must be defined with external linkage. */
 seq_t a(idx_t n)
@@ -27,9 +29,9 @@ seq_t a(idx_t n)
     /* extend cache if needed */
     if (cache_size <= n) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return (seq_t)0;   /* out of memory */
-        memset(new_cache, 0, new_size * sizeof(seq_t));
+        mem_set(new_cache, 0, new_size * sizeof(seq_t));
 
         /* compute values up to n */
         for (idx_t k = 0; k <= n; ++k) {
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         }
 
         /* replace old cache */
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

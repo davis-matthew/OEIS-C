@@ -9,14 +9,15 @@
  *            least (OEIS A023764)
  * Range:     u8 n <= 62, u16 n <= 1001, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   choose_idx
+ * Validated: standard, pass, 79 terms through n = 954 (2026-11-01)
+ * Helpers:   binomial_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Pick the smallest n‑th number whose base‑8 digits never increase.  */
 #include <stdint.h>
-#include "../utils/choose_idx.h"
+#include "../utils/binomial_idx.h"
 
 /* Main sequence function.  */
 seq_t a(idx_t n) {
@@ -38,7 +39,7 @@ seq_t a(idx_t n) {
     int len = 2;                  /* length >=2 now */
     while (1) {
         /* Number of length‑len nialpdromes (first digit >0).  */
-        idx_t cnt = choose_idx((idx_t)len + 7, (idx_t)len) - 1ULL;
+        idx_t cnt = binomial_idx((idx_t)len + 7, (idx_t)len) - 1ULL;
         if (rank < cnt) break;
         rank -= cnt;
         ++len;
@@ -55,7 +56,7 @@ seq_t a(idx_t n) {
         for (int d = start; d <= prev; ++d) {
             /* Count of non‑increasing sequences of length `remaining`
                where each digit <= d (digits allowed: 0…d).  */
-            idx_t ways = choose_idx((idx_t)remaining + (idx_t)d, (idx_t)remaining);
+            idx_t ways = binomial_idx((idx_t)remaining + (idx_t)d, (idx_t)remaining);
 
             if (rank < ways) {
                 /* Choose digit d for this position.  */

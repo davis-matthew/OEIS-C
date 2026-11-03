@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 16, u32 n <= 697, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   mul64_mod, pow64_mod
+ * Validated: standard, pass, 48 terms through n = 1999 (2026-11-03)
+ * Helpers:   mem, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul64_mod.h"
-#include "../utils/pow64_mod.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* deterministic Miller–Rabin for 64‑bit integers */
 
@@ -47,11 +49,11 @@ static bool isPrime64(uint64_t n)
     for (size_t i = 0; i < sizeof small/sizeof small[0]; ++i) {
         uint64_t a = small[i] % n;
         if (a == 0) continue;
-        uint64_t x = pow64_mod(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1 || x == n - 1) continue;
         bool cont = false;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul64_mod(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { cont = true; break; }
         }
         if (!cont) return false;
@@ -77,7 +79,7 @@ static void append_term(seq_t v)
 {
     if (terms_len + 1 > terms_cap) {
         size_t newcap = terms_cap ? terms_cap * 2 : 8;
-        terms = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, newcap);
         terms_cap = newcap;
     }
     terms[terms_len++] = v;

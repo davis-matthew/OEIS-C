@@ -9,8 +9,9 @@
  *            odd (>=5) → let x be the power of 2 closest to n; if n > x →
  *            a(n) = 4 else → a(n) = 3 (This matches the recurrence
  *            a(n)=a(2n-1)=a(2n+1) for odd n>=5.)
- * Range:     u8 n <= 8703, u16 n <= 8703, u32 n <= 8703, u64 n <= 8703,
- *            u128 n <= 8703, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 8703 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

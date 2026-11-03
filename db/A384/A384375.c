@@ -9,12 +9,17 @@
  * Formula:   a(1) = 1; a(n) = 950706376 * a(n-1) mod (2^31-1) for n > 1
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 39 terms through n = 9909 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 static const seq_t MODULUS     = (seq_t)2147483647ULL;   /* 2^31-1 */
 static const seq_t MULTIPLIER  = (seq_t)950706376ULL;
@@ -30,5 +35,5 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* For n > 1, a(n) = MULTIPLIER^(n-1) mod MODULUS. */
-    return mod_pow(MULTIPLIER, (uint64_t)(n - 1), MODULUS);
+    return powmod(MULTIPLIER, (uint64_t)(n - 1), MODULUS);
 }

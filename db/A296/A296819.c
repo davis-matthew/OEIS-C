@@ -7,6 +7,7 @@
  * Formula:   a(2*n-1) = 4*(n-1)^3, a(2*n) = n*(4*n^2 - 5*n + 2)
  * Range:     u8 n <= 8, u16 n <= 51, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 60 terms through n = 945 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

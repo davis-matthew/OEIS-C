@@ -8,7 +8,8 @@
  * Formula:   a(n) = #k with 0 ≤ k ≤ n for which C(n,k) is not divisible by 6
  * Range:     u8 n <= 254, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exp2_of, exp3_of
+ * Validated: standard, pass, 97 terms through n = 9795 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,30 @@
 /* (i.e. C(n,k) is not simultaneously even and divisible by 3). */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/exp2_of.h"
-#include "../utils/exp3_of.h"
+
+/* Return the exponent of 2 in the prime factorisation of x.  */
+static inline uint8_t exp2_of(idx_t x)
+{
+    uint8_t e = 0;
+    while (x && !(x & 1))
+    {
+        e++;
+        x >>= 1;
+    }
+    return e;
+}
+
+/* Return the exponent of 3 in the prime factorisation of x.  */
+static inline uint8_t exp3_of(idx_t x)
+{
+    uint8_t e = 0;
+    while (x && (x % 3 == 0))
+    {
+        e++;
+        x /= 3;
+    }
+    return e;
+}
 
 seq_t a(idx_t n)
 {

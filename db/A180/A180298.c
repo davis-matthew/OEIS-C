@@ -9,9 +9,10 @@
  *            n-8. This is computed as a(n) = F(n,n-8) – F(n,n-9), where
  *            F(n,m) = Σ_{k=0}^{⌊n/(m+1)⌋} (-1)^k · C(n,k) · C(n – k(m+1)+n-1
  *            , n-1)
- * Range:     u8 none, u16 none, u32 n <= 36, u64 n <= 59, u128 n <= 59,
+ * Range:     u8 none, u16 n <= 10, u32 n <= 36, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 40 terms through n = 59 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 /* OEIS: A180298 */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static seq_t count_leq(idx_t boxes, idx_t N, idx_t max_val)
 /* Count #solutions to x_1+…+x_boxes = N, 0≤x_i≤max_val. */
@@ -28,10 +29,10 @@ static seq_t count_leq(idx_t boxes, idx_t N, idx_t max_val)
     idx_t max_k = N / bucket;             /* floor division     */
     seq_t sum_even = 0, sum_odd = 0;
     for (idx_t k = 0; k <= max_k; ++k) {
-        seq_t term = binom(boxes, k);
+        seq_t term = binomial(boxes, k);
         idx_t rem = N - k * bucket;
         /* rem + boxes - 1 choose boxes - 1  */
-        term *= binom(rem + boxes - 1, boxes - 1);
+        term *= binomial(rem + boxes - 1, boxes - 1);
         if (k & 1U)
             sum_odd += term;
         else

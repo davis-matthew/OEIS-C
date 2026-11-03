@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 5039, u16 n <= 8977, u32 n <= 8977, u64 n <= 8977,
- *            u128 n <= 8977, big any n
- * Helpers:   none
+ * Range:     u8 n <= 5039, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 124 terms through n = 8977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Formula: a(1) = 1; for n > 1,
    a(n) = Σ_{d|n, n/d > 5} a(d)                           */
 #include <stdlib.h>   /* malloc, free, abort */
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cache[0] unused, cache[1] = 1      */
 static idx_t cache_cap = 0;       /* number of allocated elements       */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n) {
 
     idx_t old_cap = cache_cap;
     idx_t new_cap = n + 1;                    /* indices 0..n inclusive      */
-    seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) abort();                   /* allocation failure          */
 
     /* initialise new array with zero and copy old values */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n) {
     for (idx_t i = 0; i < old_cap; ++i) new_arr[i] = seq_cache[i];
 
     /* free old buffer */
-    free(seq_cache);
+    mem_free(seq_cache);
     seq_cache = new_arr;
     cache_cap = new_cap;
 

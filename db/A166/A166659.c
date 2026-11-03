@@ -8,15 +8,22 @@
  *            A166659)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 255, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: standard, pass, 59 terms through n = 9933 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +38,7 @@ seq_t a(idx_t n)
                 ++e;
             } while (m % p == 0);
             seq_t base = (seq_t)(10 * (seq_t)p - (seq_t)1);
-            seq_t term = big_pow(base, (seq_t)e);
+            seq_t term = ipow(base, (seq_t)e);
             result = seq_mul(result, term);
         }
     }

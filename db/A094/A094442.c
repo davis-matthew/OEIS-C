@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 95, u32 n <= 332, u64 n <= 1239,
  *            u128 n <= 4592, big any n
- * Helpers:   binom_id, fib_id
+ * Validated: standard, pass, 82 terms through n = 4760 (2026-11-01)
+ * Helpers:   binomial, fibonacci
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
    The flattened index is: a(0) = T(0,0), a(1) = T(1,0), a(2) = T(1,1), … */
 
 #include <stdint.h>
-#include "../utils/binom_id.h"
-#include "../utils/fib_id.h"
+#include "../utils/binomial.h"
+#include "../utils/fibonacci.h"
 
 /* ---------- Find the row r that contains the flattened index n -------- */
 static idx_t find_row(idx_t n)
@@ -41,10 +42,10 @@ seq_t a(idx_t n)
 
     /* Compute the needed Fibonacci number: Fib(r + 2 – k) */
     idx_t fib_index = r + 2 - k;
-    seq_t fib_val = fib_id(fib_index);
+    seq_t fib_val = fibonacci(fib_index);
 
     /* Compute the binomial coefficient C(r,k) */
-    seq_t binom_val = binom_id(r, k);
+    seq_t binom_val = binomial(r, k);
 
     /* Return the product as defined for T(r,k) */
     return fib_val * binom_val;

@@ -8,14 +8,17 @@
  *            number, sorted increasingly (a(1)=2)
  * Range:     u8 n <= 10, u16 n <= 1102, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 77 terms through n = 9297 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t prod;   /* current product p * T_k           */
@@ -65,7 +68,7 @@ seq_t a(idx_t n) {
     if (kmax == 0)              /* protect against n = 0, though handled above */
         kmax = 1;
 
-    node_t *heap = (node_t *)malloc(kmax * sizeof(node_t));
+    node_t *heap = mem_new(node_t, kmax);
     if (!heap)
         return 0;               /* allocation failure – unlikely for small n */
 
@@ -108,6 +111,6 @@ seq_t a(idx_t n) {
         sift_up(heap, heap_size - 1);
     }
 
-    free(heap);
+    mem_free(heap);
     return last;
 }

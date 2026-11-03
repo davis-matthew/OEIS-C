@@ -9,8 +9,9 @@
  *            Eratosthenes (0 if n is prime). For composite n, a(n) = π(p) +
  *            1, where p is the smallest prime factor of n. For n = 1, a(1) =
  *            1
- * Range:     u8 n <= 9718, u16 n <= 9718, u32 n <= 9718, u64 n <= 9718,
- *            u128 n <= 9718, big any n
+ * Range:     u8 n <= 15000, u16 n <= 15000, u32 n <= 15000, u64 n <= 15000,
+ *            u128 n <= 15000, big any n
+ * Validated: standard, pass, 143 terms through n = 9718 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

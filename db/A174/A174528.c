@@ -9,7 +9,8 @@
  *            q=4)
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 38, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   binomial, pow4
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,20 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow4.h"       /* seq_t pow4(idx_t exp) */
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 /* Gaussian binomial coefficient [n over k]_4, 0≤k≤n. */
 static seq_t gauss_q4(idx_t n, idx_t k)

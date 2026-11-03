@@ -10,13 +10,17 @@
  *            k-1)*(k-1)^(k-1)*k*(r-k+1)^(r-k) For k = 0, T(r,0) = 0
  * Range:     u8 n <= 13, u16 n <= 26, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +40,8 @@ seq_t a(idx_t n)
 
     /* Compute the terms of the formula */
     seq_t bin = binomial(r, k - 1);
-    seq_t pow1 = big_pow((seq_t)(k - 1), (seq_t)(k - 1));
-    seq_t pow2 = big_pow((seq_t)(r - k + 1), (seq_t)(r - k));
+    seq_t pow1 = ipow((seq_t)(k - 1), (seq_t)(k - 1));
+    seq_t pow2 = ipow((seq_t)(r - k + 1), (seq_t)(r - k));
 
     /* Multiply all parts together */
     seq_t result = bin;

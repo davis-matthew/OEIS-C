@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, cofr
  * Formula:   a(0)=7; a(n)=period[(n-1)%6] for n>0, period={1,1,4,1,1,14}
- * Range:     u8 n <= 9878, u16 n <= 9878, u32 n <= 9878, u64 n <= 9878,
- *            u128 n <= 9878, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 91 terms through n = 9878 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

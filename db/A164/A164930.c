@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Cache for the a(n) sequence. */
 static seq_t *a_cache = NULL;
@@ -85,7 +87,7 @@ static void grow_cache(size_t min_cap) {
     if (a_cache_cap >= min_cap) return;
     size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 256;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) abort();
     a_cache = tmp;
     a_cache_cap = new_cap;

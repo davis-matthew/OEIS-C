@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum_{k=1}^{n} (p_k mod 7) where p_k is the k‑th prime > 5
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   is_prime_candidate
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
    guarantees correct results for any order of calls and works
    efficiently for n up to about 10 000.  */
 #include <stdbool.h>
-#include "../utils/is_prime_candidate.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n) {
     static idx_t primes_found = 0;          /* count of primes > 5 seen */
@@ -30,7 +31,7 @@ seq_t a(idx_t n) {
     while (primes_found < n) {
         /* Find next prime > last_prime */
         idx_t cand = last_prime + 1;
-        while (!is_prime_candidate(cand)) {
+        while (!is_prime(cand)) {
             cand++;
         }
         last_prime = cand;

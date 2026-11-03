@@ -8,7 +8,8 @@
  * Formula:   a(n) = n! * Σ_{k=0..⌊n/2⌋} (-1)^k * (k+1)^(k-1) / (k! (n-2k)!)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 18, i128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,10 @@
 #include <stdlib.h>
 
 /* Big‑integer helper – pre‑declared in the build environment */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +34,7 @@ seq_t a(idx_t n)
 
     /* ensure fact[0]==1 even if n==1 (first resize occurs here) */
     if (fact_cap == 0 && fact == NULL) {
-        fact = (seq_t*)realloc(NULL, sizeof(seq_t) * 1);
+        fact = mem_resize(seq_t, NULL, 1);
         if (!fact) return 0;
         fact[0] = (seq_t)1;
         fact_cap = 0;
@@ -38,7 +42,7 @@ seq_t a(idx_t n)
 
     if (n > fact_cap) {
         idx_t need = 2 * n;                /* factorials needed up to 2*n */
-        seq_t *tmp = (seq_t*)realloc(fact, sizeof(seq_t) * (need + 1));
+        seq_t *tmp = mem_resize(seq_t, fact, (need + 1));
         if (!tmp) return 0;                /* allocation failure – abort */
         fact = tmp;
 
@@ -54,7 +58,7 @@ seq_t a(idx_t n)
 
     /* Ensure that powk[0] is defined (1^(-1) is treated as 1) */
     if (pow_cap == 0 && powk == NULL) {
-        powk = (seq_t*)realloc(NULL, sizeof(seq_t) * 1);
+        powk = mem_resize(seq_t, NULL, 1);
         if (!powk) return 0;
         powk[0] = (seq_t)1;
         pow_cap = 0;
@@ -62,13 +66,13 @@ seq_t a(idx_t n)
 
     idx_t maxk = n / 2;                 /* floor(n/2) */
     if (maxk > pow_cap) {
-        seq_t *tmp = (seq_t*)realloc(powk, sizeof(seq_t) * (maxk + 1));
+        seq_t *tmp = mem_resize(seq_t, powk, (maxk + 1));
         if (!tmp) return 0;
         powk = tmp;
 
         for (idx_t k = pow_cap + 1; k <= maxk; ++k) {
             /* big_pow accepts non‑negative exponents – k==0 handled above */
-            powk[k] = big_pow((seq_t)(k + 1), (seq_t)(k - 1));
+            powk[k] = ipow((seq_t)(k + 1), (seq_t)(k - 1));
         }
         pow_cap = maxk;
     }

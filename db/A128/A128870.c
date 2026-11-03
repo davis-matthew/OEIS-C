@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   append_candidate, big_pow, digit_sum
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   digit_sum, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,27 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdlib.h>
 #include "../utils/digit_sum.h"
-#include "../utils/append_candidate.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 #define MAX_DIGITS 2000                       /* maximum digit count pre‑computed */
 
@@ -37,7 +56,7 @@ static void ensure_sum_pow(size_t k)
     if (k > MAX_DIGITS) return;              /* safety guard */
     for (size_t cur = sum_pow_max + 1; cur <= k; ++cur) {
         for (int d = 0; d < 10; ++d) {
-            sum_pow[cur][d] = (uint16_t)digit_sum(big_pow((seq_t)d, (seq_t)cur));
+            sum_pow[cur][d] = (uint16_t)digit_sum(ipow((seq_t)d, (seq_t)cur));
         }
     }
     sum_pow_max = k;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-2) + a(n-7), a(0)=1, a(1)=0, a(2)=1
  * Range:     u8 n <= 38, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoized computation of A369813: number of compositions of n into 2s and 7s. */
 seq_t a(idx_t n)
@@ -29,14 +31,14 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold up to n */
     if (n + 1 > max_cached) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return (seq_t)0;   /* allocation failed – return 0 as a safe fallback */
 
         /* Copy existing cached values, if any */
         if (cache) {
             for (idx_t i = 0; i < max_cached; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         max_cached = new_size;

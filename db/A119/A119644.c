@@ -8,7 +8,8 @@
  * Formula:   a(n) = prime(n + ω(composite(n)))
  * Range:     u8 n <= 52, u16 n <= 6539, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes, is_prime
+ * Validated: standard, pass, 74 terms through n = 9843 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,44 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t n); */
-#include "../utils/count_distinct_primes.h" /* size_t count_distinct_primes(uint64_t n); */
+
+/* Return true if x >= 2 is prime (deterministic trial division) */
+static inline bool is_prime(idx_t x)
+{
+    if (x < 2)                         return false;
+    if (x == 2 || x == 3)              return true;
+    if (x % 2 == 0)                    return false;
+    for (idx_t i = 3; i <= x / i; i += 2)
+        if (x % i == 0)                return false;
+    return true;
+}
+
+/* Count distinct prime factors of an unsigned 64-bit integer n.
+   The result fits in a signed int for all n that may be passed. */
+static int count_distinct_primes(uint64_t n)
+{
+    if (n <= 1)
+        return 0;
+
+    int cnt = 0;
+    /* Handle factor 2 separately. */
+    if (n % 2 == 0) {
+        cnt++;
+        while (n % 2 == 0)
+            n /= 2;
+    }
+    /* Test odd divisors up to sqrt(n). */
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            cnt++;
+            while (n % p == 0)
+                n /= p;
+        }
+    }
+    if (n > 1)   /* Remaining prime factor. */
+        cnt++;
+    return cnt;
+}
 
 /* ---------- static data ---------- */
 

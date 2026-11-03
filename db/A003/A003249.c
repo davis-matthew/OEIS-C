@@ -11,17 +11,24 @@
  *            + isqrt(5m^2))/2
  * Range:     u8 n <= 26, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   w_B, w_L, w_U, w_isqrt
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/w_B.h"
-#include "../utils/w_L.h"
-#include "../utils/w_U.h"
-#include "../utils/w_isqrt.h"
+#include "../utils/isqrt_u64.h"
+
+/* A000201: floor(m*phi) */
+static uint64_t w_L(uint64_t m) { return (m + isqrt_u64(5 * m * m)) / 2; }
+
+/* A003231: floor(m*(5+sqrt5)/2) */
+static uint64_t w_B(uint64_t m) { return w_L(m) + 2 * m; }
+
+/* A001950: floor(m*phi^2) */
+static uint64_t w_U(uint64_t m) { return w_L(m) + m; }
 
 static uint64_t *w_list = NULL;
 static idx_t w_cnt = 0, w_cap = 0;

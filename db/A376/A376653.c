@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   seq_cmp
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_cmp.h"      /* provides:  int seq_cmp(const void*,const void*); */
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Data structures                                                    */
@@ -90,7 +101,7 @@ static void recompute_positions(idx_t limit)
     /* 2. Generate all prime powers <= limit. */
     size_t pp_cap = primes_cnt * 4;   /* rough upper bound */
     if (pp_cap < 16) pp_cap = 16;
-    seq_t *pp = (seq_t *)malloc(pp_cap * sizeof(seq_t));
+    seq_t *pp = mem_new(seq_t, pp_cap);
     if (!pp) abort();
     size_t pp_len = 0;
     pp[pp_len++] = (seq_t)1;          /* 1 = p^0 */
@@ -100,7 +111,7 @@ static void recompute_positions(idx_t limit)
         while (1) {
             if (pp_len >= pp_cap) {
                 pp_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(pp, pp_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, pp, pp_cap);
                 if (!tmp) abort();
                 pp = tmp;
             }
@@ -115,11 +126,11 @@ static void recompute_positions(idx_t limit)
 
     /* 3. Sort prime powers. */
     if (pp_len > 1)
-        qsort(pp, pp_len, sizeof(seq_t), (int (*)(const void *, const void *))seq_cmp);
+        mem_qsort(pp, pp_len, sizeof(seq_t), (int (*)(const void *, const void *))seq_cmp);
 
     /* 4. Compute second differences. */
     if (pp_len < 3) {            /* not enough data */
-        free(pp);
+        mem_free(pp);
         return;
     }
     size_t diffs_cnt = pp_len - 2;
@@ -132,7 +143,7 @@ static void recompute_positions(idx_t limit)
         diffs[i].val = c - 2 * b + a;
         diffs[i].pos = (idx_t)(i + 1);          /* positions are 1‑based */
     }
-    free(pp);
+    mem_free(pp);
 
     /* 5. Find first occurrence of each distinct value. */
     qsort(diffs, diffs_cnt, sizeof(struct DiffEntry), cmp_diff_entry);

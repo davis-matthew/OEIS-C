@@ -11,7 +11,8 @@
  *            2*a(n-7) + a(n-8) for n > 16
  * Range:     u8 n <= 10, u16 n <= 153, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, free */
 #include <string.h>   /* memcpy */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache of computed values */
 static size_t cache_cap = 0;          /* allocated capacity of cache */
@@ -37,15 +39,15 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold index n */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) {
             /* In practice use an assertion or error handler;
                for simplicity we abort here. */
             abort();
         }
         if (cache) {
-            memcpy(new_cache, cache, cache_filled * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_filled * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = new_cap;

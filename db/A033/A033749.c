@@ -7,13 +7,31 @@
  * Formula:   a(n) = number of integer solutions to i^2 + 37 j^2 = n (i,j ∈ ℤ)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isqrt_uint16
+ * Validated: standard, pass, 97 terms through n = 9642 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for uint16_t, if not already defined */
-#include "../utils/isqrt_uint16.h"
+
+/* integer square root, floor of sqrt(x) for 0 ≤ x < 65536 */
+static inline uint16_t isqrt_uint16(uint16_t x)
+{
+    uint16_t low = 0, high = 65535, mid, res = 0;
+    while (low <= high) {
+        mid = (low + high) >> 1;
+        uint32_t sq = (uint32_t)mid * (uint32_t)mid;
+        if (sq <= x) {
+            res = mid;
+            low = mid + 1;
+        } else {
+            if (mid == 0) break;
+            high = mid - 1;
+        }
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

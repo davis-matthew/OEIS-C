@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * partitions of n, sorted in Mathematica (lexicographic) order.
  * The sequence a(n) is formed by flattening these rows row‑by‑row. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* -------------- Global state -------------- */
 static seq_t   *values     = NULL;  /* flattened array of positions   */
@@ -35,7 +37,7 @@ static void ensure_values_cap(size_t needed)
     if (needed <= values_cap) return;
     size_t new_cap = values_cap ? values_cap * 2 : 8;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t*)realloc(values, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, values, new_cap);
     if (!tmp) exit(1);
     values = tmp;
     values_cap = new_cap;
@@ -46,7 +48,7 @@ static void recompute_dp(int n)
 {
     if (n <= dp_n) return;            /* already computed up to this n   */
     size_t size  = (size_t)(n + 1) * (n + 1);
-    seq_t *new_dp = (seq_t*)malloc(size * sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, size);
     if (!new_dp) exit(1);
 
     int width = n + 1;
@@ -60,7 +62,7 @@ static void recompute_dp(int n)
             new_dp[m * width + j] = val;
         }
     }
-    if (dp) free(dp);
+    if (dp) mem_free(dp);
     dp   = new_dp;
     dp_n = n;
 }

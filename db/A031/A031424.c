@@ -8,25 +8,26 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 112 terms through n = 9904 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Least term in the period of the continued fraction of sqrt(D),
    where D is the n‑th non‑square number. */
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* --- Find the n-th non‑square D ---------------------------------- */
     idx_t low  = n;
-    idx_t high = n + _floor_isqrt_u64(n) + 5;
+    idx_t high = n + isqrt(n) + 5;
     if (high <= low) high = low + 10;
 
     while (low < high) {
         idx_t mid = low + ((high - low) >> 1);
-        idx_t s   = _floor_isqrt_u64(mid);
+        idx_t s   = isqrt(mid);
         idx_t nonsq = mid - s;         /* # of non‑squares ≤ mid        */
         if (nonsq < n)
             low = mid + 1;
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
     idx_t D = low;                          /* the desired non‑square      */
 
     /* --- Continued‑fraction expansion of sqrt(D) --------------------- */
-    idx_t a0 = _floor_isqrt_u64(D);          /* integer part of sqrt(D)    */
+    idx_t a0 = isqrt(D);          /* integer part of sqrt(D)    */
 
     /*  Initial triple (m_k, d_k, a_k) for k = 0.                      */
     idx_t prev_m = 0, prev_d = 1, prev_a = a0;

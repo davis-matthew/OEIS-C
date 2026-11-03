@@ -8,14 +8,17 @@
  *            this equals 65535 * Π_{p^e||n} p^{(e-1)*14} * (1 + p + … + p^14)
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 10, u128 n <= 239,
  *            big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 30 terms through n = 9078 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
         uint64_t e = exps[i];
 
         /* compute S_p = (p^15 - 1) / (p - 1) = 1 + p + ... + p^14 */
-        seq_t pow15 = pow_uint(p, (idx_t)15);   /* p^15 */
+        seq_t pow15 = ipow_u64_idx(p, (idx_t)15);   /* p^15 */
         seq_t sum   = (pow15 - (seq_t)1) / ((seq_t)(p - 1));
 
         result *= sum;                /* multiply by S_p */
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
         /* multiply by p^{(e-1)*14} if e >= 1 */
         if (e >= 1) {
             idx_t exp14 = (idx_t)(e - 1) * (idx_t)14;
-            seq_t pow_p = pow_uint(p, exp14);
+            seq_t pow_p = ipow_u64_idx(p, exp14);
             result *= pow_p;
         }
     }

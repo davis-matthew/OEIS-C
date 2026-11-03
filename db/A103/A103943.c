@@ -8,15 +8,16 @@
  * Formula:   a(n) = (2^(2n-1) - C(2n-1,n-1) + C(n-1,⌊n/2⌋)) / 2
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 64,
  *            big any n
- * Helpers:   binom_big_u128, binomial, pow2
+ * Validated: standard, pass, 40 terms through n = 986 (2026-11-01)
+ * Helpers:   binomial, binomial_idx_to_u128, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow2.h"
 #include "../utils/binomial.h"
-#include "../utils/binom_big_u128.h"
+#include "../utils/binomial_idx_to_u128.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +32,8 @@ seq_t a(idx_t n)
         if (2 * n - 1 >= 128) return 0;   /* safety guard */
 
         unsigned __int128 pow2val = ((unsigned __int128)1) << (2 * n - 1);
-        unsigned __int128 c1 = binom_big_u128(2 * n - 1, n - 1);
-        unsigned __int128 c2 = binom_big_u128(n - 1, n / 2);
+        unsigned __int128 c1 = binomial_idx_to_u128(2 * n - 1, n - 1);
+        unsigned __int128 c2 = binomial_idx_to_u128(n - 1, n / 2);
         unsigned __int128 value = (pow2val - c1 + c2) >> 1; /* divide by 2 */
         return (seq_t)value;
     } else {

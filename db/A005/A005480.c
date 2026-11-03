@@ -7,8 +7,9 @@
  * Formula:   a(n) = floor(4^(1/3) * 10^(n-1)) mod 10, computed by the
  *            digit-by-digit integer cube root algorithm (base-10^9 limb
  *            bignums, state kept between calls)
- * Range:     u8 n <= 9709, u16 n <= 9709, u32 n <= 9709, u64 n <= 9709,
- *            u128 n <= 9709, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 124 terms through n = 9709 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

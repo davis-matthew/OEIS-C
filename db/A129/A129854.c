@@ -7,7 +7,8 @@
  * Formula:   a(n) = A001358(1 + A003188(n))
  * Range:     u8 n <= 40, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
 
         /* Allocate space for semiprimes. */
         semicap = REQUIRED;
-        semiprimes = (seq_t*)malloc(semicap * sizeof(seq_t));
+        semiprimes = mem_new(seq_t, semicap);
         if (!semiprimes) { free(spf); return (seq_t)0; }
 
         /* Scan numbers to collect semiprimes. */

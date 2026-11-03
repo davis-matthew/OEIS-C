@@ -9,12 +9,14 @@
  *            C(k+2,2)·C( n-2m-k·(m+1)+k-1 , k-1 ) )
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 41, u64 n <= 84, u128 n <= 174,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 978 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute C(n,k) using a multiplicative algorithm with gcd‑reduction.

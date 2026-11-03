@@ -11,15 +11,19 @@
  *            for m > 0, Bell[m] = Σ_{k=0}^{m-1} binom(m-1,k) * Bell[k]
  * Range:     u8 n <= 212, u16 n <= 1705, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   binom_n_k, seq_one
+ * Validated: standard, pass, 101 terms through n = 6614 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom_n_k.h"
-#include "../utils/seq_one.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 static seq_t *bell_cache = NULL;
 static idx_t bell_cache_size = 0;
@@ -34,19 +38,19 @@ static void _ensure_bell(idx_t upto)
     while (new_cap <= upto) new_cap <<= 1;
 
     if (bell_cache == NULL) {
-        bell_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        bell_cache = mem_new(seq_t, new_cap);
         if (!bell_cache) { bell_cache_size = 0; return; }
         bell_cache[0] = seq_one();
         bell_cache_size = 1;
     } else {
-        bell_cache = (seq_t *)realloc(bell_cache, new_cap * sizeof(seq_t));
+        bell_cache = mem_resize(seq_t, bell_cache, new_cap);
         if (!bell_cache) { bell_cache_size = 0; return; }
     }
 
     for (idx_t m = bell_cache_size; m <= upto; ++m) {
         seq_t sum = 0;
         for (idx_t k = 0; k < m; ++k) {
-            sum += binom_n_k(m - 1, k) * bell_cache[k];
+            sum += binomial(m - 1, k) * bell_cache[k];
         }
         bell_cache[m] = sum;
     }

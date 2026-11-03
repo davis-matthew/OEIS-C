@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* Primes not of form |3^a ± 2^b|; search through primes and filter */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 static bool is_power_of_2(uint64_t x) {
     return x > 0 && (x & (x - 1)) == 0;
@@ -52,7 +53,7 @@ seq_t a(idx_t n) {
     uint64_t candidate = 2;
     
     while (true) {
-        if (is_prime(candidate) && !is_forbidden_form(candidate)) {
+        if (is_prime_u64(candidate) && !is_forbidden_form(candidate)) {
             count++;
             if (count == n) {
                 return (seq_t)candidate;

@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 111, u32 n <= 447, u64 n <= 1856,
  *            u128 n <= 5150, big any n
+ * Validated: standard, pass, 82 terms through n = 4923 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -24,6 +25,7 @@
  *  Offset: 0   (a(0) is the first term)
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Return C(n,k) if 0 <= k <= n, otherwise 0 */

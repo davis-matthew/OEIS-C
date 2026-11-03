@@ -8,13 +8,34 @@
  * Formula:   a(n) = n(n+1)/2 - sum_{k=1}^{floor(n^(1/6))} k^6
  * Range:     u8 n <= 22, u16 n <= 361, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow6_seq, sum_sixth_powers
+ * Validated: standard, pass, 70 terms through n = 8390 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow6_seq.h"
-#include "../utils/sum_sixth_powers.h"
+/* Raise a number to the sixth power (seq_t version) */
+static seq_t pow6_seq(seq_t x)
+{
+    seq_t x2 = x * x;     /* x²    */
+    seq_t x4 = x2 * x2;   /* x⁴    */
+    return x4 * x2;       /* x⁶    */
+}
+
+/* Compute the sum of sixth powers up to r */
+static seq_t sum_sixth_powers(idx_t r)
+{
+    seq_t sum = 0;
+    for (idx_t i = 1; i <= r; ++i)
+    {
+        seq_t k = (seq_t)i;          /* k      */
+        seq_t k2 = k * k;            /* k²     */
+        seq_t k4 = k2 * k2;          /* k⁴     */
+        seq_t k6 = k4 * k2;          /* k⁶     */
+        sum += k6;
+    }
+    return sum;
+}
 
 /* Integer floor of the sixth root of n */
 static idx_t floor_sixth_root(idx_t n)

@@ -8,8 +8,9 @@
  * Formula:   a(n) = T(row, col) where T(n,k) = Σ_{c|n, d|k} gcd(c,d) * (row,
  *            col) are obtained by reading the lower‑triangular array
  *            row‑by‑row
- * Range:     u8 n <= 665, u16 n <= 9898, u32 n <= 9898, u64 n <= 9898,
- *            u128 n <= 9898, big any n
+ * Range:     u8 n <= 665, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 92 terms through n = 9898 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

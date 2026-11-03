@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   has_equal_min_freq_two
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,33 @@
  * (8, 16, 32, 64, 128 bits or an arbitrary–precision class). */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_equal_min_freq_two.h"
+#include "../utils/mem.h"
+
+/* internal helper: test whether a value has all non‑zero digit
+ * frequencies equal and at least 2 */
+static bool
+has_equal_min_freq_two(seq_t val)
+{
+    unsigned char freq[10] = {0};
+    seq_t x = val;
+    if (x == 0)
+        return false;            /* k=0 never used */
+    while (x != 0) {
+        unsigned d = (unsigned)(x % 10);
+        freq[d]++;
+        x /= 10;
+    }
+    int common = -1;
+    for (int d = 0; d < 10; d++) {
+        if (freq[d] == 0)
+            continue;
+        if (common == -1)
+            common = freq[d];
+        else if (common != freq[d])
+            return false;
+    }
+    return common >= 2;
+}
 
 /* static state for on‑demand generation */
 static seq_t *terms   = NULL;
@@ -39,7 +66,7 @@ ensure_capacity(idx_t need)
     idx_t new_cap = tcap ? tcap << 1 : 1;
     if (new_cap < need)
         new_cap = need;
-    seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
     if (!new_terms)
         abort();                /* out of memory – terminate */
     terms = new_terms;

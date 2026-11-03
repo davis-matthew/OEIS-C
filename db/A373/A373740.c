@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached values 0..cache_last */
 static idx_t  cache_last = 2;    /* highest n that is already computed */
@@ -29,14 +31,14 @@ static void ensure_cache_size(idx_t need)
     idx_t required = (need > 2 ? need : 2);   /* at least 2 for base cases */
 
     if (cache == NULL) {
-        cache = (seq_t*)malloc((required + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (required + 1));
         if (cache == NULL) return;           /* allocation failure – not expected */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)0;
         cache[2] = (seq_t)1;
         /* cache_last remains 2 until computed values are produced */
     } else if (cache_last < required) {
-        cache = (seq_t*)realloc(cache, (required + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (required + 1));
         if (cache == NULL) return;
         for (idx_t i = cache_last + 1; i <= required; ++i)
             cache[i] = (seq_t)0;

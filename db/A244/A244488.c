@@ -11,7 +11,8 @@
  *            * / (1-x^2)(1-x^3)(1-x^4)(1-x^5)
  * Range:     u8 n <= 18, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #ifndef SEQ_T_DEFINED
 /* The type seq_t is supplied by the build; do not define it here. */
 #endif
+#include "../utils/mem.h"
 
 /* exported function */
 extern seq_t a(idx_t n);
@@ -72,11 +74,11 @@ static void ensure_capacity(idx_t n)
 {
     if (cache == NULL) {
         cap = (size_t)n + 1;
-        cache = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cap);
         if (!cache) abort();
     } else if (cap <= (size_t)n) {
         cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cap);
         if (!tmp) abort();
         cache = tmp;
     }

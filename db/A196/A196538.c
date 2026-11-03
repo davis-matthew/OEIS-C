@@ -13,12 +13,14 @@
  *            a(10)=31718...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* initialise buffer on the first call */
     if (len == 0) {
         cap = 64; /* arbitrary initial capacity */
-        buf = (seq_t *)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         for (int i = 0; i < 15; ++i)
             buf[i] = init[i];
         len = 15;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             /* grow capacity to at least n */
             while (cap < n)
                 cap <<= 1;
-            buf = (seq_t *)realloc(buf, cap * sizeof(seq_t));
+            buf = mem_resize(seq_t, buf, cap);
         }
         /* compute terms from current len+1 up to n */
         for (idx_t cur = len + 1; cur <= n; ++cur) {

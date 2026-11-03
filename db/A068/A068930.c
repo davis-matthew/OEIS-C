@@ -11,12 +11,14 @@
  *            12 the recurrence applies.)
  * Range:     u8 n <= 25, u16 n <= 45, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--- internal state ----------------------------------------------*/
 static seq_t *seq = NULL;          /* array of computed terms */
@@ -30,7 +32,7 @@ static void ensure_capacity(idx_t n)
 
     idx_t new_cap = (max_alloc > 0) ? max_alloc : 64;
     while (new_cap <= n) new_cap <<= 1;        /* grow geometrically */
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     max_alloc = new_cap;
 }
 
@@ -41,7 +43,7 @@ static void init_terms(void)
 
     /* Allocate initial capacity */
     max_alloc = 64;
-    seq = (seq_t *)malloc(max_alloc * sizeof(seq_t));
+    seq = mem_new(seq_t, max_alloc);
 
     /* dummy zero at index 0 for easier indexing */
     seq[0] = 0;

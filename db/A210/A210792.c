@@ -12,12 +12,14 @@
  *            T(n,k) is: T(n,k) = 3*T(n-1,k) + T(n-1,k-1) - 2*T(n-2,...
  * Range:     u8 n <= 30, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;      /* below offset, not used by tests */
@@ -38,9 +40,9 @@ seq_t a(idx_t n) {
 
     /* allocate arrays of length r+1 for rows up to r */
     size_t len = (size_t)(r + 1);
-    seq_t *prev2 = (seq_t*)calloc(len, sizeof(seq_t));   /* row n-2  */
-    seq_t *prev1 = (seq_t*)calloc(len, sizeof(seq_t));   /* row n-1  */
-    seq_t *curr  = (seq_t*)calloc(len, sizeof(seq_t));    /* current row */
+    seq_t *prev2 = mem_new(seq_t, len);   /* row n-2  */
+    seq_t *prev1 = mem_new(seq_t, len);   /* row n-1  */
+    seq_t *curr  = mem_new(seq_t, len);    /* current row */
 
     /* initialise the first two rows */
     prev2[0] = (seq_t)1;          /* row 1: 1 */
@@ -68,9 +70,9 @@ seq_t a(idx_t n) {
     seq_t result = prev1[(size_t)k];
 
     /* free allocated memory */
-    free(prev2);
-    free(prev1);
-    free(curr);
+    mem_free(prev2);
+    mem_free(prev1);
+    mem_free(curr);
 
     return result;
 }

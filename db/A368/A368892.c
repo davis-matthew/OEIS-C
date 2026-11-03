@@ -7,13 +7,17 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/3)} n^(n-3*k) * binomial(n-2*k,k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 35 terms through n = 377 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +27,8 @@ seq_t a(idx_t n)
 
     seq_t sum = 0;
     seq_t base = (seq_t)n;
-    seq_t pow = big_pow(base, (seq_t)n);           /* n^n */
-    seq_t step = big_pow(base, (seq_t)3);          /* n^3 */
+    seq_t pow = ipow(base, (seq_t)n);           /* n^n */
+    seq_t step = ipow(base, (seq_t)3);          /* n^3 */
     idx_t maxk = n / 3;
 
     for (idx_t k = 0; k <= maxk; ++k) {

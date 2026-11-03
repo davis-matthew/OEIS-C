@@ -12,13 +12,15 @@
  *            m) = 3·4·…·(m+2) (empty product = 1). This rea...
  * Range:     u8 n <= 30, u16 n <= 59, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
+ * Validated: partial, pass, 60 terms through n = 62 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/binomial.h"   /* binomial(idx_t a, idx_t b) returns seq_t */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n < 6) return 0;                /* <6 rows give 0 because r=0 or block empty */

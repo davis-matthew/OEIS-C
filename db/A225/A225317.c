@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 17, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* internal dynamic arrays for partition numbers and the sequence terms */
 static seq_t *p_arr = NULL;  /* partitions p[0], p[1], ... ,  p(p_len-1) */
@@ -35,7 +37,7 @@ static void grow_p_arr(size_t new_cap)
     if (new_cap <= p_cap) return;
     size_t nc = p_cap ? p_cap : 16;
     while (nc < new_cap) nc <<= 1;
-    seq_t *tmp = (seq_t *)realloc(p_arr, sizeof(seq_t) * nc);
+    seq_t *tmp = mem_resize(seq_t, p_arr, nc);
     p_arr = tmp;
     p_cap = nc;
 }
@@ -46,7 +48,7 @@ static void grow_k_arr(size_t new_cap)
     if (new_cap <= k_cap) return;
     size_t nc = k_cap ? k_cap : 16;
     while (nc < new_cap) nc <<= 1;
-    seq_t *tmp = (seq_t *)realloc(k_arr, sizeof(seq_t) * nc);
+    seq_t *tmp = mem_resize(seq_t, k_arr, nc);
     k_arr = tmp;
     k_cap = nc;
 }

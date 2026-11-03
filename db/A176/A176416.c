@@ -9,6 +9,7 @@
  *            * of (n+1) is 1 or 6; +1 if it is 2 or 3; -1 if it is 4 or 5
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 95 terms through n = 9967 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

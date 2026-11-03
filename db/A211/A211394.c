@@ -10,6 +10,7 @@
  *            (1,1), (1,2),(2,1),(1,3),(2,2),(3,1), …
  * Range:     u8 n <= 232, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
+ * Validated: standard, pass, 83 terms through n = 9856 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

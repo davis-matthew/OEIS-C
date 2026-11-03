@@ -10,7 +10,8 @@
  *            a(n-k) – 66⋅a(n-37)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
         /* New size */
         idx_t newlen = n + 1;
         /* Allocate / reallocate */
-        seq    = (seq_t*)realloc(seq,    newlen * sizeof(seq_t));
-        cumul = (seq_t*)realloc(cumul, newlen * sizeof(seq_t));
+        seq    = mem_resize(seq_t, seq, newlen);
+        cumul = mem_resize(seq_t, cumul, newlen);
         if (!seq || !cumul) return (seq_t)0;  /* allocation failed – return 0 */
 
         /* Compute missing entries from the old last index up to n */

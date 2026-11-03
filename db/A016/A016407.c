@@ -8,6 +8,7 @@
  *            Φ_427(x)
  * Range:     i8 n <= 360, i16 n <= 360, i32 n <= 360, i64 n <= 360,
  *            i128 n <= 360, big any n
+ * Validated: full, pass, 361 terms through n = 360 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

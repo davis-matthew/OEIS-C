@@ -10,13 +10,14 @@
  *            k) = #{d | k : d <= r and (k/d) <= r} (ordered factor pairs)
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   floor_isqrt_u64
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 static inline idx_t cum_terms(idx_t r)
 {
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
     idx_t k    = n - prev;           /* 1‑based position inside the row    */
 
     seq_t count = 0;
-    idx_t limit = floor_isqrt_u64(k); /* ⌊√k⌋ */
+    idx_t limit = isqrt(k); /* ⌊√k⌋ */
     for (idx_t d = 1; d <= limit; ++d)
     {
         if (k % d == 0)

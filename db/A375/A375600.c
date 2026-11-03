@@ -10,13 +10,15 @@
  *            * (n-k+m)! * 3^m * 2^{k-m}
  * Range:     u8 n <= 8, u16 n <= 24, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find (row r, column k) from flattened index n */
@@ -26,18 +28,18 @@ seq_t a(idx_t n) {
     idx_t k = N - tri;                /* 0 <= k <= r */
 
     /* Precompute factorials up to r */
-    seq_t *fact = (seq_t*)malloc((size_t)(r + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (size_t)(r + 1));
     if (!fact) return 0;              /* out of memory -> return 0 */
     fact[0] = 1;
     for (idx_t i = 1; i <= r; ++i)
         fact[i] = fact[i - 1] * (seq_t)i;
 
     /* Precompute powers of 2 and 3 up to k */
-    seq_t *pow2 = (seq_t*)malloc((size_t)(k + 1) * sizeof(seq_t));
-    seq_t *pow3 = (seq_t*)malloc((size_t)(k + 1) * sizeof(seq_t));
+    seq_t *pow2 = mem_new(seq_t, (size_t)(k + 1));
+    seq_t *pow3 = mem_new(seq_t, (size_t)(k + 1));
     if (!pow2 || !pow3) {
-        free(fact);
-        free(pow2); free(pow3);
+        mem_free(fact);
+        mem_free(pow2); mem_free(pow3);
         return 0;
     }
     pow2[0] = 1; pow3[0] = 1;
@@ -61,8 +63,8 @@ seq_t a(idx_t n) {
         sum += term;
     }
 
-    free(fact);
-    free(pow2);
-    free(pow3);
+    mem_free(fact);
+    mem_free(pow2);
+    mem_free(pow3);
     return sum;
 }

@@ -9,7 +9,8 @@
  *            binomial(floor((n-9)/2), j) * (n-j)!
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* factorial cache */
@@ -24,13 +26,13 @@ seq_t a(idx_t n) {
     static idx_t fact_size = 0;    /* number of stored entries, indices 0..fact_size-1 */
 
     if (fact_size == 0) {
-        fact = (seq_t*)calloc(1, sizeof(seq_t));
+        fact = mem_new(seq_t, 1);
         fact[0] = 1;
         fact_size = 1;
     }
     if ((idx_t)n >= fact_size) {
         idx_t new_size = (idx_t)n + 1;
-        fact = (seq_t*)realloc(fact, new_size * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_size);
         for (idx_t i = fact_size; i <= n; ++i) {
             fact[i] = fact[i - 1] * (seq_t)i;
         }

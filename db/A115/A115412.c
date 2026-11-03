@@ -10,13 +10,15 @@
  *            a(3)=0, a(4)=1
  * Range:     i8 n <= 32, i16 n <= 66, i32 n <= 134, i64 n <= 270,
  *            i128 n <= 541, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Includes */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache for memoised values */
 static seq_t *a_cache = NULL;      /* array of values */
@@ -28,7 +30,7 @@ static void ensure_a_cache(idx_t n)
     if (n < a_cache_len) return;              /* already computed */
 
     /* Grow the cache to hold values up to n */
-    seq_t *new_cache = (seq_t *)realloc(a_cache, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, (size_t)(n + 1));
     if (!new_cache) {                          /* allocation failure -- abort */
         exit(1);
     }

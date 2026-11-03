@@ -11,14 +11,16 @@
  *            2^(2d) + 2^(n+1) ] where φ is Euler's totient function
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   phi, pow2
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   pow2, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi.h"
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/totient.h"
 
 /* Compute the n‑th term of sequence A161221. */
 seq_t a(idx_t n)
@@ -32,14 +34,14 @@ seq_t a(idx_t n)
     for (idx_t d = 1; d * d <= n; ++d) {
         if (n % d == 0) {
             /* divisor d */
-            seq_t phi_val = phi(n / d);
+            seq_t phi_val = totient(n / d);
             seq_t term    = phi_val * pow2(2 * d);
             sum += term;
 
             /* the paired divisor n/d, if distinct */
             idx_t d2 = n / d;
             if (d2 != d) {
-                seq_t phi_val2 = phi(n / d2);
+                seq_t phi_val2 = totient(n / d2);
                 seq_t term2    = phi_val2 * pow2(2 * d2);
                 sum += term2;
             }

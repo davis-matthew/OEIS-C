@@ -10,7 +10,8 @@
  *            T(r,k) = (-1)^((r+k)/2) * r! * binomial(r+1, k) otherwise
  * Range:     i8 n <= 11, i16 n <= 28, i32 n <= 68, i64 n <= 159,
  *            i128 n <= 445, big any n
- * Helpers:   binomial_u64, factorial_u64
+ * Validated: standard, pass, 71 terms through n = 1143 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/binomial_u64.h"
-#include "../utils/factorial_u64.h"
+#include "../utils/binomial.h"
+
+/* Compute factorial of r using seq_t */
+static inline seq_t factorial_u64(idx_t r)
+{
+    seq_t f = 1;
+    for (idx_t i = 2; i <= r; ++i)
+        f *= (seq_t)i;
+    return f;
+}
 
 seq_t a(idx_t n)
 {
@@ -51,7 +60,7 @@ seq_t a(idx_t n)
 
     /* Compute factorial(r) and binomial(r+1, k) */
     seq_t fact = factorial_u64(r);
-    seq_t comb = binomial_u64(r + 1, k);
+    seq_t comb = binomial(r + 1, k);
 
     seq_t val = fact * comb;
     return sign * val;

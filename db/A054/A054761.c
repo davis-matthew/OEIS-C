@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 49, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(0..9) = {1,4,13,37,99,254,636,1567,3822,9261}. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[10] = {
     (seq_t)1,  (seq_t)4,  (seq_t)13, (seq_t)37,
@@ -32,10 +34,10 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold indices 0..n. */
     idx_t needed = n + 1;
     if (cache == NULL) {
-        cache = (seq_t*)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         cache_len = 0;
     } else if (needed > cache_len) {
-        cache = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, needed);
     }
 
     /* Initialize any new slots that correspond to the first 10 terms. */

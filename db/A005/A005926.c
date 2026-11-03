@@ -10,14 +10,26 @@
  *            onto each other under negation). Computed by enumerating u, v
  * Range:     u8 n <= 1600, u16 n <= 1600, u32 n <= 1600, u64 n <= 1600,
  *            u128 n <= 1600, big any n
- * Helpers:   a005926_isqrt, a005926_mod
+ * Validated: standard, pass, 119 terms through n = 1422 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005926_isqrt.h"
-#include "../utils/a005926_mod.h"
+
+static long long a005926_isqrt(long long x) {
+  if (x < 0) return -1;
+  long long r = 0;
+  while ((r + 1) * (r + 1) <= x) r++;
+  return r;
+}
+
+static int a005926_mod(long long x, long long m) {
+  long long r = x % m;
+  if (r < 0) r += m;
+  return (int)r;
+}
 
 static long long a005926_isqrt_fast(long long x) {
   if (x < 0) return -1;

@@ -11,13 +11,34 @@
  *            classical recurrence (m_k, d_k, a_k). The sequ...
  * Range:     u8 none, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +59,7 @@ seq_t a(idx_t n)
 
         /* build the periodic part */
         size_t cap = 16;
-        period = (seq_t *)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         if (!period) exit(EXIT_FAILURE);
         period_cap = cap;
 
@@ -54,9 +75,9 @@ seq_t a(idx_t n)
             /* store the periodic term a_{k+1} */
             if (period_len == period_cap) {
                 period_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(period, period_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, period, period_cap);
                 if (!tmp) {
-                    free(period);
+                    mem_free(period);
                     exit(EXIT_FAILURE);
                 }
                 period = tmp;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 21, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(0)=2, a(1)=8, a(2)=27, a(3)=84,
    a(n) = 4*a(n‑1) – 2*a(n‑2) – 4*a(n‑3) – a(n‑4), for n ≥ 4   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cache of computed terms */
 static size_t cache_cap = 0;      /* allocated size of cache      */
@@ -26,7 +28,7 @@ static void ensure_seq(idx_t n)
     /* First call – allocate and initialise the first four terms */
     if (cache_cap == 0) {
         cache_cap = n + 1 > 4 ? (n + 1) : 4;
-        seq_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
         if (!seq_cache) exit(1);
         seq_cache[0] = 2;
         if (cache_cap > 1) seq_cache[1] = 8;
@@ -40,8 +42,8 @@ static void ensure_seq(idx_t n)
         size_t needed = n + 1;
         if (needed > cache_cap) {
             cache_cap = needed;
-            void *tmp = realloc(seq_cache, cache_cap * sizeof(seq_t));
-            if (!tmp) { free(seq_cache); exit(1); }
+            void *tmp = mem_resize(seq_t, seq_cache, cache_cap);
+            if (!tmp) { mem_free(seq_cache); exit(1); }
             seq_cache = (seq_t *)tmp;
         }
 

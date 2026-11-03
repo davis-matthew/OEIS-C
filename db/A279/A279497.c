@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = number of pentagonal numbers that divide n, computed by
  *            enumerating pentagonal numbers up to n
- * Range:     u8 n <= 2859, u16 n <= 9308, u32 n <= 9308, u64 n <= 9308,
- *            u128 n <= 9308, big any n
+ * Range:     u8 n <= 2859, u16 n <= 101269, u32 n <= 101270, u64 n <= 101270,
+ *            u128 n <= 101270, big any n
+ * Validated: standard, pass, 136 terms through n = 9308 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

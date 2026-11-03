@@ -8,13 +8,15 @@
  * Formula:   a(n) = n - A031218(n) (greatest prime power <= n, 1 allowed)
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache of greatest prime powers up to the largest n cached. */
 static seq_t *gp_cache = NULL;   /* gp_cache[k] = greatest prime power <= k */
@@ -24,7 +26,7 @@ static idx_t  cache_cap = 0;     /* highest index cached */
 static void recompute_gp_cache(idx_t n)
 {
     /* Allocate new array.  Explicit cast required for C++. */
-    seq_t *new_gp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_gp = mem_new(seq_t, (n + 1));
     if (!new_gp) exit(1);          /* unrecoverable memory error */
 
     /* Initialise: 1 is a prime power, others set to 1 (will be overridden). */
@@ -35,7 +37,7 @@ static void recompute_gp_cache(idx_t n)
 
     /* Sieve of Eratosthenes for primes up to n.  Explicit cast for C++. */
     bool *is_prime = (bool *)malloc((n + 1) * sizeof(bool));
-    if (!is_prime) { free(new_gp); exit(1); }
+    if (!is_prime) { mem_free(new_gp); exit(1); }
 
     for (idx_t i = 0; i <= n; ++i) is_prime[i] = true;
     if (n >= 0) is_prime[0] = false;
@@ -66,7 +68,7 @@ static void recompute_gp_cache(idx_t n)
 
     /* Replace old cache. */
     free(is_prime);
-    free(gp_cache);
+    mem_free(gp_cache);
     gp_cache = new_gp;
     cache_cap = n;
 }

@@ -9,14 +9,32 @@
  *            antidiagonal coordinate pair for index n (computed below)
  * Range:     u8 n <= 23, u16 n <= 217, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   binom, find_S
+ * Validated: standard, pass, 121 terms through n = 1242 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/find_S.h"
+#include "../utils/binomial.h"
+
+/* Find the diagonal S such that the cumulative count up to S-1 is
+   strictly less than n and up to S is at least n.  Num(1..S-1)=S*(S-1)/2*/
+static idx_t find_S(idx_t n)
+{
+    idx_t low = 2;            /* S is at least 2 (diagonal of size 1) */
+    idx_t high = n + 1;       /* high is a safe upper bound for S */
+
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        __int128 val = (__int128)mid * (mid - 1) / 2;
+        if (val >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,8 +56,8 @@ seq_t a(idx_t n)
     idx_t j = S - i;
 
     /* Tetrahedral numbers for i and j */
-    seq_t ti = binom((idx_t)(i + 2), (idx_t)3);
-    seq_t tj = binom((idx_t)(j + 2), (idx_t)3);
+    seq_t ti = binomial((idx_t)(i + 2), (idx_t)3);
+    seq_t tj = binomial((idx_t)(j + 2), (idx_t)3);
 
     return ti * tj;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 70 terms through n = 882 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* Greatest‑common divisor for unsigned 64‑bit integers. */
 static inline uint64_t gcd_u64(uint64_t a, uint64_t b)
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
             uint64_t g   = gcd_u64(62ULL, p - 1ULL);
             uint64_t exp = (p - 1ULL) / g;
             seq_t base   = (seq_t)(p - 2ULL);          /* (-2 mod p) */
-            seq_t v      = mod_pow(base, exp, (seq_t)p);
+            seq_t v      = powmod(base, exp, (seq_t)p);
 
             if (v != (seq_t)1) {               /* no 62nd‑power solution */
                 ++found;

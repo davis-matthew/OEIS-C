@@ -9,14 +9,16 @@
  *            176, 4341, 30221, 76141, 76141, 30221, 4341, 176, 1]
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 10, u64 n <= 74, u128 n <= 3080,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 38 terms through n = 8127 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The binomial coefficient function binom(idx_t a, idx_t b) is provided in
    the utilities; it returns a seq_t value equal to (a choose b). */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= limit; ++k)
     {
         /* Compute binomial coefficient C(n - k + 12, 12) */
-        seq_t bin = binom(n - k + 12, 12);
+        seq_t bin = binomial(n - k + 12, 12);
         /* Add q[k] * bin to result */
         result += (seq_t)q[k] * bin;
     }

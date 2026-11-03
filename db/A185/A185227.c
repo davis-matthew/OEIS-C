@@ -9,7 +9,8 @@
  *            least two parts (i.e., A185327(n) – A185117(n))
  * Range:     u8 n <= 47, u16 n <= 97, u32 n <= 234, u64 n <= 641,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Forward declaration of the external function. */
 seq_t a(idx_t n);
@@ -36,16 +38,16 @@ ensure_dp(idx_t n)
 #ifdef __cplusplus
     /* Destroy old objects if any. */
     for (idx_t i = 0; i < dp_max; ++i)
-        dp[i].~seq_t();
+(void)0;  /* mem_free destroys the elements */
 
-    free(dp);
-    dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    mem_free(dp);
+    dp = mem_new(seq_t, (n + 1));
     if (!dp)
         exit(1);
 
     /* Construct seq_t objects. */
     for (idx_t i = 0; i <= n; ++i)
-        new(&dp[i]) seq_t();
+        *(&dp[i]) = (seq_t)0;
 #else
     free(dp);
     dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));

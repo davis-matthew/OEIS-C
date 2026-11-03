@@ -12,7 +12,8 @@
  *            be answered efficiently
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   upper_bound_idx
+ * Validated: standard, pass, 67 terms through n = 9244 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/upper_bound_idx.h"
+#include "../utils/mem.h"
+
+static size_t upper_bound_idx(const uint32_t *a, size_t n, uint32_t val) {
+    size_t l = 0, r = n;
+    while (l < r) {
+        size_t m = (l + r) >> 1;
+        if (a[m] <= val) l = m + 1;
+        else r = m;
+    }
+    return l;
+}
 
 /* dynamic array for seq_t values */
 typedef struct {
@@ -35,7 +46,7 @@ static void dynarr_init(dynarr_t *a) {
     a->cap  = 0;
 }
 static void dynarr_free(dynarr_t *a) {
-    free(a->data);
+    mem_free(a->data);
     a->data = NULL;
     a->size = 0;
     a->cap  = 0;
@@ -43,7 +54,7 @@ static void dynarr_free(dynarr_t *a) {
 static void dynarr_push(dynarr_t *a, seq_t v) {
     if (a->size == a->cap) {
         size_t newcap = (a->cap == 0) ? 16 : a->cap * 2;
-        seq_t *tmp = (seq_t *)realloc(a->data, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a->data, newcap);
         if (!tmp) exit(1);
         a->data = tmp;
         a->cap  = newcap;
@@ -156,7 +167,7 @@ static void recompute_seq(uint64_t bound) {
         }
     }
 
-    qsort(tmp.data, tmp.size, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(tmp.data, tmp.size, sizeof(seq_t), cmp_seq_t);
 
     dynarr_free(&seq_arr);
     seq_arr = tmp;

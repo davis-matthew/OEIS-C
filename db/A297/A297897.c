@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 34, u64 n <= 38, u128 n <= 38,
  *            big any n
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
    (first column 0 to m in each row).  The function below computes
    a(n) for any non‑negative n.
 */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10, u32 n <= 100, u64 n <= 100, u128 n <= 100,
  *            big any n
- * Helpers:   _integer_isqrt
+ * Validated: standard, pass, 50 terms through n = 96 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_integer_isqrt.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* ----------  Global state for memoisation  ---------- */
 static idx_t       g_limit          = 0;     /* current search limit */
@@ -41,7 +43,7 @@ static void build_terms(idx_t needed)
        approaches could incrementally extend counts, but a full
        recomputation is simpler and fast enough for n≈10000.   */
     if (g_counts) free(g_counts);                  g_counts = NULL;
-    if (g_terms)  free(g_terms);                   g_terms  = NULL;
+    if (g_terms)  mem_free(g_terms);                   g_terms  = NULL;
     g_terms_count = 0;
 
     /* Starting search limit – big enough to contain many terms. */
@@ -55,7 +57,7 @@ static void build_terms(idx_t needed)
         if (!g_counts) abort();                    /* memory failure */
 
         /* Pre‑compute upper bound for a. */
-        idx_t max_a = _integer_isqrt(limit);
+        idx_t max_a = isqrt(limit);
 
         /* Count unordered sums a^2 + b^2 with 1 ≤ a ≤ b. */
         for (idx_t a = 1; a <= max_a; ++a) {
@@ -72,7 +74,7 @@ static void build_terms(idx_t needed)
            upper bound for the first 10000 terms; it will grow if
            necessary.  */
         size_t cap = (needed > 20000) ? needed : 20000;
-        g_terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        g_terms = mem_new(seq_t, cap);
         if (!g_terms) abort();                      /* memory failure */
 
         /* Collect all numbers with at least 7 representations. */
@@ -81,7 +83,7 @@ static void build_terms(idx_t needed)
                 if (g_terms_count == cap) {
                     /* Double the capacity. */
                     cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(g_terms, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, g_terms, cap);
                     if (!tmp) abort();            /* memory failure */
                     g_terms = tmp;
                 }
@@ -97,7 +99,7 @@ static void build_terms(idx_t needed)
         if (g_terms_count >= needed) return;       /* success */
 
         /* Not enough terms – increase the search limit and repeat. */
-        free(g_terms);
+        mem_free(g_terms);
         g_terms = NULL;
         g_terms_count = 0;
         limit <<= 1;                               /* double limit */

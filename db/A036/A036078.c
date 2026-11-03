@@ -9,12 +9,14 @@
  *            G(x)=exp((exp(8x)-9)/8+exp(x)).)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache  = NULL; /* a_cache[n] holds a(n) */
 static idx_t a_len     = 0;    /* number of computed values in a_cache */
@@ -28,7 +30,7 @@ static void ensure_A(idx_t upto)
     if (A_len <= upto)
     {
         size_t new_size = (size_t)(upto + 1);
-        seq_t *tmp = (seq_t *)realloc((void *)A_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A_cache, new_size);
         if (!tmp) exit(1);
         A_cache = tmp;
 
@@ -52,7 +54,7 @@ static void ensure_a(idx_t upto)
     if (a_len <= upto)
     {
         size_t new_size = (size_t)(upto + 1);
-        seq_t *tmp = (seq_t *)realloc((void *)a_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
         if (!tmp) exit(1);
         a_cache = tmp;
 

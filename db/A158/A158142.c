@@ -11,13 +11,15 @@
  *            sum 0 and sum of absolute values 2n
  * Range:     u8 n <= 7, u16 n <= 24, u32 n <= 178, u64 n <= 689,
  *            u128 n <= 689, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 677 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,10 +30,10 @@ seq_t a(idx_t n)
     const size_t k = 9;
     const size_t stride = (size_t)n + 1;
     const size_t tot_sz = k * stride;
-    seq_t *dp = (seq_t *)malloc(tot_sz * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, tot_sz);
     if (!dp) return 0;                  /* allocation failure */
 
-    memset(dp, 0, tot_sz * sizeof(seq_t));
+    mem_set(dp, 0, tot_sz * sizeof(seq_t));
     dp[0] = 1;                           /* p_0(0) = 1 */
 
     /* Fill DP table for partitions into exactly i parts */
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     return total;
 }

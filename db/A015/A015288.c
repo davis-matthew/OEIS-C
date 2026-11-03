@@ -8,13 +8,14 @@
  *            Π_{i=0}^{3} (1 - (-3)^{n-i}) / (1 - (-3)^{i+1}) (n ≥ 4)
  * Range:     u8 n <= 4, u16 none, u32 n <= 9, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   seq_gcd_internal
+ * Validated: standard, pass, 29 terms through n = 444 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_gcd_internal.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
             v = t + (seq_t)1;
 
         /* Cancel common factors with the denominator. */
-        seq_t g = seq_gcd_internal(v, denom);
+        seq_t g = gcd(v, denom);
         if (g > 1) {
             denom /= g;
             v /= g;

@@ -11,13 +11,15 @@
  *            a(16) = 65168212, a(17) = 77528331, a(18) = 530338...
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 20, u64 n <= 39, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* initial 24 terms */
 static const seq_t init_vals[24] = {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* allocate or grow the cache as needed */
     if (cache == NULL) {
         cache_cap = (size_t)(n + 1);
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(EXIT_FAILURE);          /* allocation failed */
         for (idx_t i = 0; i < 24; ++i) {
             cache[i] = init_vals[i];
@@ -52,13 +54,13 @@ seq_t a(idx_t n)
         last_computed = 23;
     } else if ((size_t)(n + 1) > cache_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) exit(EXIT_FAILURE);     /* allocation failed */
         /* copy existing values */
         for (size_t i = 0; i < cache_cap; ++i) {
             new_cache[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

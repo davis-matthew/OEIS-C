@@ -11,7 +11,8 @@
  *            easily into the chosen seq_t type
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   count_distinct_primes
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (len < n)
     {
         idx_t new_len = n;
-        seq_t *tmp = (seq_t *)realloc(buf, sizeof(seq_t) * new_len);
+        seq_t *tmp = mem_resize(seq_t, buf, new_len);
         if (!tmp) return (seq_t)0; /* allocation failure → return 0 */
         buf = tmp;
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         if (len == 0)
         {
             buf[0] = (seq_t)2;
-            maxomega = count_distinct_primes((uint64_t)buf[0]); /* = 1 */
+            maxomega = omega((uint64_t)buf[0]); /* = 1 */
             len = 1;
         }
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         for (idx_t i = len; i < new_len; ++i)
         {
             buf[i] = buf[i-1] + (seq_t)maxomega;
-            int curomega = count_distinct_primes((uint64_t)buf[i]);
+            int curomega = omega((uint64_t)buf[i]);
             if (curomega > maxomega) maxomega = curomega;
         }
         len = new_len;

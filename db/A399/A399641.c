@@ -9,18 +9,20 @@
  *            2^(n-k)*binomial(3*n+3,k))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 44,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 37 terms through n = 982 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     /* Compute binomial(3*n+2, n) */
-    seq_t term = binom(3*n + 2, n);
+    seq_t term = binomial(3*n + 2, n);
 
     /* Sum Σ 2^(n-k)*binomial(3*n+3,k) using incremental formulas */
     seq_t sum2 = 0;

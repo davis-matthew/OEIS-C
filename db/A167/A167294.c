@@ -8,15 +8,23 @@
  *            multiplicativity
  * Range:     u8 n <= 118, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_spf, seq_mul, seq_pow
+ * Validated: standard, pass, 90 terms through n = 930 (2026-11-01)
+ * Helpers:   build_spf, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_spf.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -50,7 +58,7 @@ seq_t a(idx_t n)
         if (p == 2) return (seq_t)0;
 
         seq_t base = (seq_t)(2 * (((seq_t)p) - (seq_t)2));
-        seq_t pow  = seq_pow(base, e);
+        seq_t pow  = ipow_idx(base, e);
         result = seq_mul(result, pow);
     }
 

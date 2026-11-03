@@ -10,12 +10,14 @@
  *            n >= 1, with any * integer type provided for seq_t and idx_t
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,14 +32,14 @@ seq_t a(idx_t n)
     /* initialise for the first time */
     if (cache_len == 0) {
         cache_len = 2;                      /* indices 0 and 1 ready */
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = 0;                       /* unused, keep it zero */
         cache[1] = 4;                       /* a(1) = 4 */
     }
     /* extend the cache up to index n */
     if (cache_len <= n) {
         /* allocate larger array */
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) return 0;           /* allocation failure: return 0 */
         cache = new_cache;
 

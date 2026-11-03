@@ -12,13 +12,15 @@
  *            value for each n
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         free(pr);
 
         /* ---- collect triprimes and their ω values ---- */
-        vals = (seq_t *)malloc(INIT_CAP * sizeof(seq_t));
+        vals = mem_new(seq_t, INIT_CAP);
         size_t cap = INIT_CAP;
         count = 0;
 
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
             /* store result */
             if (count >= cap) {
                 cap *= 2;
-                vals = (seq_t *)realloc(vals, cap * sizeof(seq_t));
+                vals = mem_resize(seq_t, vals, cap);
             }
             vals[count++] = (seq_t)distinct;
         }

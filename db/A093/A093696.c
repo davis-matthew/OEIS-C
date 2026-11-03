@@ -9,7 +9,8 @@
  *            an odd number of 1's in its binary representation
  * Range:     u8 n <= 93, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   candidate_ok, check_divisors
+ * Validated: standard, pass, 79 terms through n = 8708 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,58 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/candidate_ok.h"
-#include "../utils/check_divisors.h"
+
+/* Recursively test all divisors of a number given its prime factorisation. */
+static bool check_divisors(const uint64_t *p, const uint32_t *e,
+                           int count, int idx, uint64_t current)
+{
+    if (idx == count) {
+        /* leaf divisor */
+        return (__builtin_popcountll(current) & 1U) == 1U;
+    }
+
+    uint64_t prime = p[idx];
+    uint32_t exp   = e[idx];
+    uint64_t val   = 1;
+
+    for (int k = 0; k <= exp; ++k) {
+        uint64_t new_val = current * val;
+        if (!check_divisors(p, e, count, idx + 1, new_val))
+            return false;
+        if (k < exp)
+            val *= prime;
+    }
+    return true;
+}
+
+/* Test whether integer m satisfies the sequence condition. */
+static bool candidate_ok(uint64_t m, const uint64_t *primes, size_t primes_size)
+{
+    uint64_t n = m;
+    /* factorisation */
+    uint64_t factors[32];
+    uint32_t exps[32];
+    int fc = 0;
+
+    for (size_t i = 0; i < primes_size && primes[i] * primes[i] <= n; ++i) {
+        uint64_t p = primes[i];
+        if (n % p == 0) {
+            uint32_t e = 0;
+            while (n % p == 0) { n /= p; ++e; }
+            factors[fc] = p;
+            exps[fc]   = e;
+            ++fc;
+        }
+    }
+    if (n > 1) {          /* remaining prime factor */
+        factors[fc] = n;
+        exps[fc]   = 1;
+        ++fc;
+    }
+
+    /* Enumerate all divisors and check parity of popcount. */
+    return check_divisors(factors, exps, fc, 0, 1);
+}
 
 /* Maximum prime to sieve once at startup.
    This covers all candidates needed for about 10 000 terms. */

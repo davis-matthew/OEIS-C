@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 32, i16 n <= 56, i32 n <= 56, i64 n <= 56, i128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
 
     while (1) {
         size_t len = (size_t)(r + 1);                     /* number of coeffs in row r */
-        seq_t *cur = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, len);
         if (!cur) {                                       /* allocation failure */
             return (seq_t)0;
         }
@@ -89,14 +91,14 @@ seq_t a(idx_t n)
             seq_t result = cur[(size_t)idx];
 
             /* Clean up and return. */
-            free(prev);
-            free(prev_prev);
-            free(cur);
+            mem_free(prev);
+            mem_free(prev_prev);
+            mem_free(cur);
             return result;
         }
 
         /* Prepare for the next iteration.  Free the oldest buffer. */
-        free(prev_prev);
+        mem_free(prev_prev);
         prev_prev = prev;
         prev      = cur;
         ++r;

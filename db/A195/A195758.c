@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   not stated
  * Range:     u8 n <= 4000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 7387, big any n
- * Helpers:   build_primes_upto
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 96 terms through n = 9241 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/build_primes_upto.h"   /* Provides build_primes_upto */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Data structures                                                    */
@@ -120,8 +123,8 @@ static void init_sequence(void) {
         sift_down(--k);
 
     /* Cache for a(n) values – start with capacity 1024.            */
-    blum_cap  = (blum_len > 0) ? 1024 : 0;
-    blum_cache = (seq_t *)malloc(blum_cap * sizeof(seq_t));
+    blum_cap  = 1024;          /* (it was 0 when empty, and doubling 0 stays 0) */
+    blum_cache = mem_new(seq_t, blum_cap);
 
     initialized = 1;
 }
@@ -134,6 +137,10 @@ static void generate_next(void) {
     if (heap_len == 0) return;   /* should not happen with ample primes */
 
     heap_node cur = heap[0];
+    if (blum_len == blum_cap) {
+        blum_cap <<= 1;
+        blum_cache = mem_resize(seq_t, blum_cache, blum_cap);
+    }
     blum_cache[blum_len++] = (seq_t)primes3[cur.i];
 
     /* Advance (i, j) to the next larger prime for the same i.     */
@@ -152,7 +159,7 @@ static void generate_next(void) {
     /* Grow cache if necessary.                                      */
     if (blum_len == blum_cap) {
         blum_cap <<= 1;
-        blum_cache = (seq_t *)realloc(blum_cache, blum_cap * sizeof(seq_t));
+        blum_cache = mem_resize(seq_t, blum_cache, blum_cap);
     }
 }
 

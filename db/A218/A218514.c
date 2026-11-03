@@ -8,6 +8,7 @@
  *            6999*n^4 - 19698*n^3 + 36408*n^2 - 40240*n + 20170)
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 8, u64 n <= 42, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 839 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

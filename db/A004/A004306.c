@@ -8,13 +8,15 @@
  *            tribonacci, a(0)=1, a(1)=1, a(2)=2, a(3)=6
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 35, u64 n <= 71, u128 n <= 144,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 389 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 
 static seq_t *tribonacci_cache = NULL;
@@ -27,7 +29,7 @@ static seq_t tribonacci(idx_t n) {
     
     if (tribonacci_cache == NULL) {
         tribonacci_len = 10;
-        tribonacci_cache = (seq_t *)malloc(tribonacci_len * sizeof(seq_t));
+        tribonacci_cache = mem_new(seq_t, tribonacci_len);
         tribonacci_cache[0] = 0;
         tribonacci_cache[1] = 0;
         tribonacci_cache[2] = 1;
@@ -41,14 +43,14 @@ static seq_t tribonacci(idx_t n) {
         while (new_len <= n) {
             new_len *= 2;
         }
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
-        memcpy(new_cache, tribonacci_cache, tribonacci_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
+        mem_copy(new_cache, tribonacci_cache, tribonacci_len * sizeof(seq_t));
         
         for (idx_t i = tribonacci_len; i < new_len; i++) {
             new_cache[i] = new_cache[i-1] + new_cache[i-2] + new_cache[i-3];
         }
         
-        free(tribonacci_cache);
+        mem_free(tribonacci_cache);
         tribonacci_cache = new_cache;
         tribonacci_len = new_len;
     }

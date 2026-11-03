@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^4 - (n+1)^3
  * Range:     i8 n <= 3, i16 n <= 13, i32 n <= 215, i64 n <= 5000,
  *            i128 n <= 5000, big any n
+ * Validated: standard, pass, 50 terms through n = 4904 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

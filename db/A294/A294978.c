@@ -11,7 +11,8 @@
  *            obtained from the logarithm of f(q)=E_4/E...
  * Range:     i8 n <= 0, i16 n <= 1, i32 n <= 4, i64 n <= 8, i128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>   /* for memset */
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Main sequence routine */
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
     }
 
     /* --- coefficients of E2 and E4 ------------------------------------------------ */
-    seq_t *e2  = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *e4  = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *e2  = mem_new(seq_t, (n + 1));
+    seq_t *e4  = mem_new(seq_t, (n + 1));
     if (!e2 || !e4) exit(EXIT_FAILURE);
 
     e2[0] = (seq_t)1;
@@ -55,8 +57,8 @@ seq_t a(idx_t n)
     }
 
     /* --- scaled log coefficients for E2 and E4 ------------------------------------ */
-    seq_t *u2  = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *u4  = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *u2  = mem_new(seq_t, (n + 1));
+    seq_t *u4  = mem_new(seq_t, (n + 1));
     if (!u2 || !u4) exit(EXIT_FAILURE);
     u2[0] = u4[0] = (seq_t)0;
 
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
     }
 
     /* --- compute b(k) --------------------------------------------------------- */
-    seq_t *b = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, (n + 1));
     if (!b) exit(EXIT_FAILURE);
     b[0] = (seq_t)0;
     for (idx_t k = 1; k <= n; ++k) {
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
     }
 
     /* --- compute a(n) ---------------------------------------------------------- */
-    seq_t *a_arr = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, (n + 1));
     if (!a_arr) exit(EXIT_FAILURE);
     a_arr[0] = (seq_t)1;
 
@@ -101,10 +103,10 @@ seq_t a(idx_t n)
 
     /* free allocated memory */
     free(sigma1); free(sigma3);
-    free(e2);    free(e4);
-    free(u2);    free(u4);
-    free(b);
-    free(a_arr);
+    mem_free(e2);    mem_free(e4);
+    mem_free(u2);    mem_free(u4);
+    mem_free(b);
+    mem_free(a_arr);
 
     return result;
 }

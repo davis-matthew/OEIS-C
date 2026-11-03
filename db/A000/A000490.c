@@ -7,13 +7,14 @@
  * Formula:   a(n) = A000364(n) * 16^n
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 13,
  *            big any n
- * Helpers:   power_seq
+ * Validated: standard, pass, 30 terms through n = 175 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/power_seq.h"
+#include "../utils/ipow_idx.h"
 
 #define MAX_N 10000
 
@@ -65,6 +66,6 @@ static seq_t get_euler(idx_t n) {
 
 seq_t a(idx_t n) {
     seq_t euler = get_euler(n);
-    seq_t power_of_16 = power_seq((seq_t)16, n);
+    seq_t power_of_16 = ipow_idx((seq_t)16, n);
     return euler * power_of_16;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 2471, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9290 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Prime sieve.  SIEVE_LIMIT is large enough for n ≈ 10 000. */
@@ -90,7 +92,7 @@ static void ensure_cache_size(size_t need)
     if (cache_size >= need) return;
     size_t new_size = cache_size ? cache_size * 2 : 128;
     if (new_size < need) new_size = need;
-    seq_t *tmp = (seq_t *)realloc(value_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, value_cache, new_size);
     if (!tmp) abort();
     value_cache = tmp;
     cache_size = new_size;

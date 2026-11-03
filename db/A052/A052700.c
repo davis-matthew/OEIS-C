@@ -9,12 +9,14 @@
  *            n >= 3
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 336 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- Internal cache for repeated calls -------------------------------- */
 static seq_t *cache = NULL;        /* array of computed terms            */
@@ -27,11 +29,11 @@ static void ensure_cache(idx_t upto)
     /* Grow capacity if required */
     if ((idx_t)(upto + 1) > cache_cap) {
         idx_t new_cap = (idx_t)(upto + 1);
-        seq_t *new_buf = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_new(seq_t, new_cap);
         if (!new_buf) return;                     /* allocation failure – silently fail */
         for (idx_t i = 0; i < cache_cnt; ++i)
             new_buf[i] = cache[i];
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = new_buf;
         cache_cap = new_cap;
     }

@@ -12,14 +12,43 @@
  *            only the first occurrence)
  * Range:     u8 none, u16 none, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   double_and_filter
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/double_and_filter.h"
+
+/* --------------------------------------------------------------------- */
+static seq_t double_and_filter(seq_t x)
+{
+    seq_t doubled = x * 2;
+    unsigned char digits[256];   /* store digits in reverse order */
+    size_t num_digits = 0;
+    seq_t tmp = doubled;
+
+    while (tmp > 0) {
+        digits[num_digits++] = (unsigned char)(tmp % 10);
+        tmp /= 10;
+    }
+    if (num_digits == 0)    /* handle the case doubled == 0 */
+        digits[num_digits++] = 0;
+
+    bool seen[10] = {false};
+    seq_t result = 0;
+
+    /* Process digits from most significant to least significant */
+    for (size_t i = num_digits; i-- > 0;) {
+        unsigned char d = digits[i];
+        if (!seen[d]) {
+            seen[d] = true;
+            result = result * 10 + d;
+        }
+    }
+    return result;
+}
 
 #define MAX_TERMS 500            /* sufficient for all expected inputs */
 

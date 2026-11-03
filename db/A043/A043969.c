@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_adjacent_13_or_31
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
  */
 
 #include <stdbool.h>
-#include "../utils/has_adjacent_13_or_31.h"
+
+/* Return true if x (in base 9) contains “13” or “31”. */
+static bool has_adjacent_13_or_31(seq_t x)
+{
+    const seq_t nine = 9;      /* avoid implicit conversions */
+    int prev = -1;            /* no digit yet */
+    while (x != 0) {
+        int d = (int)(x % nine);   /* current least‑significant digit */
+        if ((prev == 1 && d == 3) || (prev == 3 && d == 1))
+            return true;
+        prev = d;
+        x /= nine;                 /* move to next more significant digit */
+    }
+    return false;                  /* no such pair found */
+}
 
 seq_t a(idx_t n)
 {

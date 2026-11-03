@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
            a(n)=6*a(n-1)-a(n-2)  for n>5
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* --- initialise cache on first use ------------------------------ */
     if (cache == NULL) {
         size_t init_size = 6;                /* indices 0..5 used */
-        cache = (seq_t *)malloc(init_size * sizeof(seq_t));
+        cache = mem_new(seq_t, init_size);
         /* Omitted: if (cache==NULL) return ??? (assume enough memory)   */
         for (idx_t i = 1; i <= 5; ++i)
             cache[i] = first[i];
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* --- grow cache if we are asked for a larger index ------------- */
     if (n > cache_n) {
         size_t new_len = (size_t)(n + 1);    /* allocate indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         /* Omitted: if (tmp==NULL) return ??? (assume enough memory)   */
         cache = tmp;
         for (idx_t j = cache_n + 1; j <= n; ++j) {

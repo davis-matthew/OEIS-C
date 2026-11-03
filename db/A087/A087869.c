@@ -11,14 +11,21 @@
  *            a(4)=1, a(5)=10
  * Range:     u8 n <= 33, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   absdiff_seq
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/absdiff_seq.h"
+#include "../utils/mem.h"
+
+/* absolute difference for seq_t (assumes unsigned or comparable types) */
+static inline seq_t absdiff_seq(seq_t x, seq_t y)
+{
+    return (x >= y) ? (x - y) : (y - x);
+}
 
 /* ---------- Prime generation (dynamic incremental sieve) ---------- */
 
@@ -79,8 +86,7 @@ static void grow_cache(size_t new_cap)
 {
     if (seq_cache_cap >= new_cap)
         return;
-    seq_t *new_cache = (seq_t*)realloc(seq_cache,
-                                      new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_cache)
         exit(1);
     seq_cache = new_cache;

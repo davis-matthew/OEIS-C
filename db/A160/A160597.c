@@ -8,13 +8,15 @@
  *            fraction)
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, phi
+ * Validated: standard, pass, 90 terms through n = 9642 (2026-11-01)
+ * Helpers:   gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
         return 0;          /* undefined for n < 2; behavior here does not affect tests */
 
     seq_t sn = (seq_t)n;         /* convert index to seq_t for arithmetic */
-    seq_t phi_n = phi(n);        /* Euler's totient of n (idx_t argument) */
+    seq_t phi_n = totient(n);        /* Euler's totient of n (idx_t argument) */
     seq_t num = sn - phi_n;      /* numerator: n - phi(n) */
     seq_t den = sn - 1;          /* denominator: n - 1 */
     seq_t g = gcd(num, den);     /* reduce the fraction */

@@ -9,12 +9,14 @@
  *            (OEIS A137569)
  * Range:     i8 n <= 53, i16 n <= 155, i32 n <= 500, i64 n <= 1718,
  *            i128 n <= 6227, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9313 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
     if (!coeff || n > current_max) {
         /* Allocate a fresh array large enough for the new n. */
         if (coeff)
-            free(coeff);
-        coeff = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+            mem_free(coeff);
+        coeff = mem_new(seq_t, (size_t)(n + 1));
         if (!coeff)
             return (seq_t)0;          /* allocation failure */
 

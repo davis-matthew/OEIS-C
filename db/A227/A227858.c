@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 4991, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 87 terms through n = 9789 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,15 +22,25 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_len.h"   /* int digit_len(seq_t x);          */
-#include "../utils/pow10.h"       /* seq_t pow10(idx_t e);            */
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Count how many integers ≤ x have the same first and last decimal digit. */
 static seq_t count_leq(seq_t x)
 {
     if (x == 0) return 0;
 
-    int D = digit_len(x);                 /* number of decimal digits */
+    int D = num_digits(x);                 /* number of decimal digits */
     if (D == 1) return x;                 /* all 1‑digit numbers satisfy */
 
     seq_t powD2 = pow10((idx_t)(D - 2));   /* 10^(D-2) */

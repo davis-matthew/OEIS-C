@@ -8,6 +8,7 @@
  * Formula:   a(n) = n*(n-1)/2 + Sum_{k=4..n, 2|k} n! / ((n-k)! * 2*k)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 35,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 376 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* Compute one term of the sum by canceling the denominator as soon as possible
    to avoid overflow for the cases where the result still fits into seq_t. */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

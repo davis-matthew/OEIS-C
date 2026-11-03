@@ -9,11 +9,15 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 19, u128 n <= 41,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 208 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#ifdef __cplusplus
+#include <vector>
+#endif
 /*  
     OEIS A238041 – Number of (n+1)×4 arrays over {0,1,2} such that  
     for every 2×2 subblock the difference upper‑median – lower‑median

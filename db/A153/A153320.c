@@ -8,7 +8,8 @@
  *            primes
  * Range:     u8 n <= 7, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* cached sequence entries            */
 static size_t cache_len = 0;      /* number of cached terms            */
@@ -28,7 +30,7 @@ static void ensure_capacity(size_t need)
     if (cache_cap < need) {
         size_t newcap = cache_cap ? cache_cap * 2 : 16;
         while (newcap < need) newcap *= 2;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cache_cap = newcap;
     }
 }

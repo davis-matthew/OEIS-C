@@ -7,9 +7,10 @@
  * Keywords:  sign, look
  * Formula:   a(n) = A082894(n) - 2^n; * A082894(n) is the multiple of n
  *            nearest to 2^n (ties rounded down)
- * Range:     i8 n <= 288, i16 n <= 9677, i32 n <= 9677, i64 n <= 9677,
- *            i128 n <= 9677, big any n
- * Helpers:   powmod2_uint64
+ * Range:     i8 n <= 288, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 103 terms through n = 9677 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 /* Uses modular exponentiation to avoid computing huge 2^n values. */
 
 #include <stdint.h>
-#include "../utils/powmod2_uint64.h"
+
+static inline uint64_t powmod2_uint64(uint64_t base, idx_t exp, uint64_t mod) {
+    uint64_t result = 1 % mod;
+    uint64_t b = base % mod;
+    while (exp) {
+        if (exp & 1U)
+            result = (unsigned __int128)result * b % mod;
+        b = (unsigned __int128)b * b % mod;
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     /* n >= 1 due to offset 1 */

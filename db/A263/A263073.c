@@ -11,13 +11,15 @@
  *            b_k = period[(k-1) mod 30]
  * Range:     u8 n <= 52, u16 n <= 147, u32 n <= 465, u64 n <= 1598,
  *            u128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 2372 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The function computes the nth coefficient of this product. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int period[30] = {
     1, 0, 1, 0, -1, 0, 1, 0, 1, -1,
@@ -28,7 +30,7 @@ static const int period[30] = {
 seq_t a(idx_t n)
 {
     size_t len = (size_t)n + 1;
-    seq_t *coef = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *coef = mem_new(seq_t, len);
     if (!coef) return (seq_t)0;          /* memory allocation failure */
 
     /* initialise with the constant term 1 */
@@ -50,6 +52,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coef[(size_t)n];
-    free(coef);
+    mem_free(coef);
     return result;
 }

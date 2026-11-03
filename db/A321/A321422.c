@@ -10,7 +10,8 @@
  *            successive primes and caches the qualifying ones
  * Range:     u8 n <= 1, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   _smallest_prime_factor, build_primes, isPrimeGeneric, rev
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   build_primes, is_prime_u128, is_prime_u64, mem, reverse_digits_idx, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,16 +21,39 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/_smallest_prime_factor.h"
+#include <limits.h>
 #include "../utils/build_primes.h"
-#include "../utils/rev.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* Test whether n (<= 2^64) is a semiprime (product of two primes). */
 static bool is_semiprime(uint64_t n)
 {
     if (n < 4) return false;                 /* must be ≥ 2*2 */
-    uint64_t spf = _smallest_prime_factor(n);
+    uint64_t spf = smallest_prime_factor(n);
     if (spf == 0 || spf == n) return false;   /* prime or error */
     uint64_t q = n / spf;
     if (q < 2) return false;
@@ -54,7 +78,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (cache == NULL) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return 0; /* allocation failure */
     }
 
@@ -87,7 +111,7 @@ seq_t a(idx_t n)
         /* Candidate prime. */
         idx_t p = prime_list[prime_pos++];
         /* Reverse of p. */
-        seq_t revp = (seq_t)rev(p);
+        seq_t revp = (seq_t)reverse_digits_idx(p);
 
         /* Check that revp is a Chen prime. */
         seq_t rev_plus = revp + (seq_t)2;
@@ -103,8 +127,8 @@ seq_t a(idx_t n)
         /* Store the term in cache. */
         if (cache_len == cache_cap) {
             cache_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
-            if (!tmp) { free(cache); return 0; }
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
+            if (!tmp) { mem_free(cache); return 0; }
             cache = tmp;
         }
         cache[cache_len++] = (seq_t)p;

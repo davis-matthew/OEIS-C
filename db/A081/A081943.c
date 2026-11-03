@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 231, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 86 terms through n = 969 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mul_mod64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 static seq_t *seq      = NULL;       /* 0‑based array of computed terms, seq[0] = a(1) */
 static size_t seq_cap  = 0;          /* allocated size of seq[] */
@@ -39,8 +42,8 @@ static size_t   used_bits_nbits = 0; /* number of bits currently allocated */
 static inline uint64_t pow_mod64(uint64_t a, uint64_t e, uint64_t mod) {
     uint64_t r = 1 % mod;
     while (e) {
-        if (e & 1) r = mul_mod64(r, a, mod);
-        a = mul_mod64(a, a, mod);
+        if (e & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return r;
@@ -66,7 +69,7 @@ static bool is_prime_u64(uint64_t n) {
         if (x == 1 || x == n - 1) continue;
         bool cont = false;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { cont = true; break; }
         }
         if (!cont) return false;
@@ -120,7 +123,7 @@ seq_t a(idx_t n) {
     /* Initialise on first call */
     if (seq_len == 0) {
         size_t init_cap = 16;
-        seq = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, init_cap);
         if (!seq) exit(EXIT_FAILURE);
         seq_cap = init_cap;
         seq[0] = (seq_t)1;                  /* a(1) = 1 */
@@ -145,7 +148,7 @@ seq_t a(idx_t n) {
         /* Append candidate */
         if (seq_len == seq_cap) {
             size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             seq = tmp;
             seq_cap = new_cap;

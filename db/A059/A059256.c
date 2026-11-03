@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 229, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 58 terms through n = 992 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,12 @@
    of any order are fast. */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Cached sequence values */
 static seq_t *seq     = NULL;
@@ -45,7 +50,7 @@ seq_t a(idx_t n)
         if ((last_checked - 1ULL) % 29ULL == 0ULL)
         {
             uint64_t exp = (last_checked - 1ULL) / 29ULL;
-            seq_t  res  = mod_pow( (seq_t)2, exp, (seq_t)last_checked );
+            seq_t  res  = powmod( (seq_t)2, exp, (seq_t)last_checked );
 
             if (res != (seq_t)1)
             {
@@ -53,11 +58,11 @@ seq_t a(idx_t n)
                 if (seq_len == seq_cap)
                 {
                     size_t new_cap = seq_cap ? seq_cap * 2 : 4;
-                    seq_t *new_ptr = (seq_t *)realloc( seq, new_cap * sizeof(seq_t) );
+                    seq_t *new_ptr = mem_resize(seq_t, seq, new_cap);
                     if (!new_ptr)
                     {
                         /* Allocation failure – clean up and abort */
-                        free( seq );
+                        mem_free(seq);
                         seq = NULL;
                         seq_len = seq_cap = 0;
                         return (seq_t)0;

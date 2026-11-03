@@ -8,14 +8,17 @@
  * Formula:   a(n) = n + lcm(1,2,…,n) (OEIS A060401)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 46, u128 n <= 88,
  *            big any n
- * Helpers:   build_primes_upto, pow_int
+ * Validated: standard, pass, 46 terms through n = 2171 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>                  /* for free */
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
-#include "../utils/pow_int.h"             /* pow_int if needed */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
 
 static uint64_t *s_primes = NULL;   /* primes up to the largest n seen */
 static size_t   s_pcount = 0;       /* number of primes in the array    */

@@ -6,13 +6,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..n} binomial(t*k+u*(n-k)+1,k) *
  *            binomial(n+(s-1)*k-1,n-k) / (t*k+u*(n-k)+1) with t=2, u=3, s=3
- * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 20, u128 n <= 20,
+ * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

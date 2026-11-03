@@ -9,6 +9,7 @@
  *            neither p-2 nor p+2 is prime
  * Range:     u8 n <= 21, u16 n <= 4823, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 70 terms through n = 9631 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

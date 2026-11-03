@@ -7,14 +7,25 @@
  * Formula:   a(n) = (10^(2*n-1) - 1 + 10^(5*n-2) - 10^(3*n-1))/9
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 8,
  *            big any n
- * Helpers:   pow10
+ * Validated: standard, pass, 26 terms through n = 174 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the concatenation of (2*n-1) 1's, followed by n 0's, followed by (2*n-1) 1's. */
 
-#include "../utils/pow10.h"
+#include <stdint.h>
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

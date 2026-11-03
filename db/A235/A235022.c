@@ -13,7 +13,8 @@
  *            3
  * Range:     u8 none, u16 n <= 3, u32 n <= 12, u64 n <= 29, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define ROWS          5          /* number of columns per row */
 #define DIGITS        6          /* digits 0..5 */
@@ -107,8 +109,8 @@ static void init(void)
     }
 
     /* allocate DP vectors */
-    dp_cur   = (seq_t *)malloc(STATE_COUNT * sizeof(*dp_cur));
-    dp_next  = (seq_t *)malloc(STATE_COUNT * sizeof(*dp_next));
+    dp_cur   = mem_new(seq_t, STATE_COUNT);
+    dp_next  = mem_new(seq_t, STATE_COUNT);
 }
 
 /* public sequence function */

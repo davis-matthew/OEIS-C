@@ -11,7 +11,8 @@
  *            positive parts)
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 43, u64 n <= 134, u128 n <= 199,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define KMAX 43
 
@@ -33,11 +35,11 @@ ensure_partition_table(size_t n_needed)
     if (partition_table != NULL && partition_cols > n_needed) return;
 
     /* free old table if any */
-    free(partition_table);
+    mem_free(partition_table);
 
     partition_cols = n_needed + 1;
     size_t total = (KMAX + 1) * partition_cols;
-    partition_table = (seq_t *)malloc(total * sizeof(seq_t));
+    partition_table = mem_new(seq_t, total);
     if (partition_table == NULL) {
         exit(1); /* out of memory */
     }

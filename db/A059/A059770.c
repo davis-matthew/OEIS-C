@@ -10,7 +10,8 @@
  *            residue (i.e., p = 2 or p ≡ ±1 (mod 8))
  * Range:     u8 n <= 25, u16 n <= 3118, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   jacobi_symbol, mod_pow
+ * Validated: standard, pass, 80 terms through n = 4309 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/jacobi_symbol.h"
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /*  Helper: modular multiplication that stays within one word for small
  *  seq_t, otherwise relies on the built‑in operator.  The cast to seq_t
@@ -77,7 +103,7 @@ static void ensure_solutions(idx_t n)
     /* Initialise storage on first use. */
     if (s_sol_cap == 0) {
         s_sol_cap = 64;
-        s_solutions = (seq_t *)malloc(s_sol_cap * sizeof(seq_t));
+        s_solutions = mem_new(seq_t, s_sol_cap);
     }
     if (s_prime_cap == 0) {
         s_prime_cap = 64;
@@ -116,9 +142,9 @@ static void ensure_solutions(idx_t n)
                 uint64_t z = 2;
                 while (jacobi_symbol(z, p) != -1) ++z;
 
-                seq_t c = mod_pow((seq_t)z, q, (seq_t)p);
-                seq_t x = mod_pow((seq_t)2, (q + 1) / 2, (seq_t)p);
-                seq_t t = mod_pow((seq_t)2, q, (seq_t)p);
+                seq_t c = powmod((seq_t)z, q, (seq_t)p);
+                seq_t x = powmod((seq_t)2, (q + 1) / 2, (seq_t)p);
+                seq_t t = powmod((seq_t)2, q, (seq_t)p);
                 uint64_t m = s;
 
                 while (t != 1) {
@@ -129,7 +155,7 @@ static void ensure_solutions(idx_t n)
                         if (temp == 1) break;
                     }
                     uint64_t exp = 1ULL << (m - i - 1);
-                    seq_t b = mod_pow(c, exp, (seq_t)p);
+                    seq_t b = powmod(c, exp, (seq_t)p);
                     x = mul_mod(x, b, (seq_t)p);
                     t = mul_mod(t, b, (seq_t)p);
                     t = mul_mod(t, b, (seq_t)p);
@@ -144,8 +170,7 @@ static void ensure_solutions(idx_t n)
             /* Store the solution. */
             if (s_sol_len == s_sol_cap) {
                 s_sol_cap *= 2;
-                s_solutions = (seq_t *)realloc(s_solutions,
-                                               s_sol_cap * sizeof(seq_t));
+                s_solutions = mem_resize(seq_t, s_solutions, s_sol_cap);
             }
             s_solutions[s_sol_len++] = root;
         }

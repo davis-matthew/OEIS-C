@@ -10,6 +10,7 @@
  *            (1+x^13)(1+x^15)(1+x^17)(1+x^19)(1+x^21)
  * Range:     u8 n <= 120, u16 n <= 120, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
+ * Validated: full, pass, 121 terms through n = 120 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor((n^3+30*n^2+371*n+1188-330*floor((n+2)/3))/990)
  * Range:     u8 none, u16 n <= 30, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

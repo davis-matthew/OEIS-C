@@ -13,14 +13,27 @@
  *            a(0...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   parse_big
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/parse_big.h"
+#include "../utils/mem.h"
+
+/* Parse a decimal string into seq_t using only allowed operations. */
+static seq_t parse_big(const char *s)
+{
+    seq_t v = 0;
+    while (*s) {
+        v = v * 10;
+        v += (seq_t)(*s - '0');
+        ++s;
+    }
+    return v;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +47,7 @@ seq_t a(idx_t n)
     if (!cache) {
         idx_t cap = n + 1;
         if (cap < 18) cap = 18;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache_size = cap;
 
         /* Small initial constants that fit in 64 bits. */
@@ -74,7 +87,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_size) {
         idx_t new_cap = cache_size;
         while (n + 1 > new_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_size = new_cap;
     }

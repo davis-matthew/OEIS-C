@@ -7,6 +7,7 @@
  * Formula:   a(n) = a(n-8), period 8 sequence (15, 11, 5, 1, 1, 5, 11, 15)
  * Range:     u8 n <= 8192, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 100 terms through n = 8015 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

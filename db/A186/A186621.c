@@ -7,7 +7,8 @@
  * Formula:   a(n) = A001358(n) - 1 (semiprime of index n, minus 1)
  * Range:     u8 n <= 82, u16 n <= 1366, u32 n <= 1366, u64 n <= 1366,
  *            u128 n <= 1366, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 1111 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Upper bound for the sieve.  4 000 000 is enough to generate
    the first 100 000 semiprimes, which covers the required range
@@ -57,7 +59,7 @@ static void init(void)
 
     /* ----- reserve space for first few semiprimes ----- */
     semiprimes_cap = 200000;                 /* arbitrary initial size */
-    semiprimes = (seq_t *)malloc(semiprimes_cap * sizeof(seq_t));
+    semiprimes = mem_new(seq_t, semiprimes_cap);
     semiprimes_cnt = 0;
 }
 
@@ -86,7 +88,7 @@ static void grow_semiprimes(void)
     if (semiprimes_cnt < semiprimes_cap)
         return;
     semiprimes_cap *= 2;
-    semiprimes = (seq_t *)realloc(semiprimes, semiprimes_cap * sizeof(seq_t));
+    semiprimes = mem_resize(seq_t, semiprimes, semiprimes_cap);
 }
 
 /* ----------------------------------------------------------- */

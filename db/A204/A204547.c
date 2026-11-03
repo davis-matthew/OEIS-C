@@ -9,13 +9,31 @@
  *            positive integer satisfying m(m-1)/2 >= n
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   find_m
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/find_m.h"
+
+static inline idx_t find_m(idx_t n)
+{
+    idx_t low  = 1;
+    idx_t high = 2;
+    /* increase high until it big enough */
+    while ((unsigned __int128)high * (high - 1) / 2 < n)
+        high <<= 1;
+    /* binary search for the minimal m */
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        if ((unsigned __int128)mid * (mid - 1) / 2 >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {

@@ -12,7 +12,8 @@
  *            (s‑1)*s/2
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   legendre_phi
+ * Validated: standard, pass, 96 terms through n = 9828 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,43 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/legendre_phi.h"
+
+/* Legendre's totient sum φ(x, y):
+   count of 1 ≤ k ≤ x coprime to y. */
+static inline seq_t legendre_phi(idx_t x, idx_t y)
+{
+    if (y == 1) return (seq_t)x;
+
+    /* collect distinct prime factors of y */
+    idx_t pf[64];
+    size_t pc = 0;
+    idx_t rem = y;
+    for (idx_t p = 2; p * p <= rem; ++p) {
+        if (rem % p == 0) {
+            pf[pc++] = p;
+            while (rem % p == 0) rem /= p;
+        }
+    }
+    if (rem > 1) pf[pc++] = rem;
+
+    seq_t result = (seq_t)x;
+
+    /* inclusion–exclusion over subsets of prime factors */
+    for (size_t mask = 1; mask < (1ULL << pc); ++mask) {
+        idx_t mult = 1;
+        int bits = 0;
+        for (size_t i = 0; i < pc; ++i) {
+            if (mask & (1ULL << i)) {
+                mult *= pf[i];
+                ++bits;
+            }
+        }
+        idx_t cnt = x / mult;
+        if (bits & 1) result -= (seq_t)cnt;
+        else          result += (seq_t)cnt;
+    }
+    return result;
+}
 
 /* Find minimal s for which s*(s+1)/2 ≥ n. */
 static inline idx_t diag_of(idx_t n)

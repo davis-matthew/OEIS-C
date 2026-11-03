@@ -10,7 +10,8 @@
  *            n-th pentagonal number is n*(3*n-1)/2)
  * Range:     u8 n <= 13, u16 n <= 260, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, factor_u64, pow_uint
+ * Validated: standard, pass, 103 terms through n = 9764 (2026-11-01)
+ * Helpers:   build_primes, factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
 #include "../utils/build_primes.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
 
 static idx_t *prime_list = NULL;
 static size_t prime_list_cnt = 0;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     seq_t result = 1;
     for (size_t i = 0; i < cnt; ++i) {
         /* We use the i-th smallest prime. */
-        seq_t part = pow_uint((uint64_t)prime_list[i], (idx_t)exp[i]);
+        seq_t part = ipow_u64_idx((uint64_t)prime_list[i], (idx_t)exp[i]);
         result *= part;
     }
 

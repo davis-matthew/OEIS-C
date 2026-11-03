@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 13, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,19 +23,20 @@
    is performed with the provided integer type seq_t. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* a(0) = 0 */
 
     /* Allocate arrays for sin and cos coefficients */
-    seq_t *U = (seq_t*)malloc((n + 1) * sizeof(seq_t)); /* sin coefficients */
-    seq_t *V = (seq_t*)malloc((n + 1) * sizeof(seq_t)); /* cos coefficients */
-    if (!U || !V) { free(U); free(V); return 0; }
+    seq_t *U = mem_new(seq_t, (n + 1)); /* sin coefficients */
+    seq_t *V = mem_new(seq_t, (n + 1)); /* cos coefficients */
+    if (!U || !V) { mem_free(U); mem_free(V); return 0; }
 
     /* h'(x) = 1/(1+x) - 1/(1+x^2) */
     /* W[k] is the coefficient of x^k in h'(x) */
-    seq_t *W = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    if (!W) { free(U); free(V); return 0; }
+    seq_t *W = mem_new(seq_t, (n + 1));
+    if (!W) { mem_free(U); mem_free(V); return 0; }
 
     for (idx_t k = 0; k <= n; ++k) {
         int sign = (k & 1) ? -1 : 1;          /* (-1)^k   */
@@ -75,8 +77,8 @@ seq_t a(idx_t n) {
 
     seq_t result = U[n];
 
-    free(U);
-    free(V);
-    free(W);
+    mem_free(U);
+    mem_free(V);
+    mem_free(W);
     return result;
 }

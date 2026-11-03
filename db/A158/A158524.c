@@ -10,12 +10,14 @@
  *            triangle read row‑major with offset 0
  * Range:     u8 n <= 27, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* a(0) … a(n) stored sequentially          */
 static size_t cache_cap  = 0;
@@ -37,16 +39,16 @@ static void init(void)
 
     /* enough capacity for first few elements */
     cache_cap = 128;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) exit(1);
 
     /* row 0 */
     prev_cap = 1;
-    prevRow = (seq_t *)malloc(prev_cap * sizeof(seq_t));
+    prevRow = mem_new(seq_t, prev_cap);
     if (!prevRow) exit(1);
     prevRow[0] = (seq_t)1;
 
-    rowSums = (seq_t *)malloc(sizeof(seq_t));
+    rowSums = mem_new(seq_t, 1);
     if (!rowSums) exit(1);
     rowSums[0] = (seq_t)1;
 
@@ -67,7 +69,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 128;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *newbuf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newbuf = mem_resize(seq_t, cache, new_cap);
     if (!newbuf) exit(1);
     cache = newbuf;
     cache_cap = new_cap;
@@ -81,7 +83,7 @@ static void grow_rowSums(size_t needed)
     size_t new_cap = sums_cap ? sums_cap * 2 : 64;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *newbuf = (seq_t *)realloc(rowSums, new_cap * sizeof(seq_t));
+    seq_t *newbuf = mem_resize(seq_t, rowSums, new_cap);
     if (!newbuf) exit(1);
     rowSums = newbuf;
     sums_cap = new_cap;
@@ -94,7 +96,7 @@ static void compute_next_row(void)
     idx_t len  = (idx_t)(next + 1);                 /* elements in new row */
 
     /* allocate new row buffer */
-    seq_t *newRow = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *newRow = mem_new(seq_t, len);
     if (!newRow) exit(1);
 
     /* sum of previous row */
@@ -124,7 +126,7 @@ static void compute_next_row(void)
     cache_len = offset + len;
 
     /* update running structures */
-    free(prevRow);
+    mem_free(prevRow);
     prevRow = newRow;
     prev_cap = len;
 

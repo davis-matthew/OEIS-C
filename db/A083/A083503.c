@@ -7,14 +7,17 @@
  * Formula:   a(n) is the least integer x > 1 such that xⁿ ≡ 1 (mod n)
  * Range:     u8 n <= 254, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 97 terms through n = 9296 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
     /* Find the smallest x > 1 with x^n ≡ 1 (mod n) */
     for (seq_t x = 2;; ++x)
     {
-        if (mod_pow(x, (uint64_t)n, (seq_t)n) == (seq_t)1)
+        if (powmod(x, (uint64_t)n, (seq_t)n) == (seq_t)1)
             return x;
     }
 }

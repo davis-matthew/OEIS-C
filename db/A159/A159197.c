@@ -7,12 +7,14 @@
  * Formula:   a(n+1) = 4*a(n) - 162*n*a(n-1), a(0)=1, a(1)=4
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 7, i64 n <= 13, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 450 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         initialized = 1;
         size_t init_size = (n >= 1) ? 2 : 1;           /* at least index 0 */
 
-        cache = (seq_t*)malloc(sizeof(seq_t) * init_size);
+        cache = mem_new(seq_t, init_size);
         cache[0] = 1;                                 /* a(0) */
         if (n >= 1) {
             cache[1] = 4;                             /* a(1) */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* Grow cache up to the requested index n --------------------------------- */
     size_t new_size = (size_t)(n + 1);
-    cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
 
     /* Compute missing terms using the recurrence ------------------------------ */
     for (idx_t i = max_computed + 1; i <= n; ++i) {

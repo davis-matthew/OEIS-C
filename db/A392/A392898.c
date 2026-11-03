@@ -7,7 +7,8 @@
  * Formula:   a(0) = 0; a(1) = 1; a(n) = a(n-1) + a(n-2) + n! for n ≥ 2
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 427 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Uses a static cache so that calls in any order remain efficient.  */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache for n = 0, 1 */
     if (!cache) {
-        cache = (seq_t*)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache) abort();
         cache[0] = 0;
         cache[1] = 1;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* We need to extend the cache up to n */
     size_t old_len = cache_len;               /* length before extending   */
     if ((idx_t)old_len <= n) {                /* more space needed?        */
-        seq_t *tmp = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) abort();
         cache = tmp;
         cache_len = n + 1;

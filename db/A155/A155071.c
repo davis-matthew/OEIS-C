@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_two_odd_digits
+ * Validated: standard, pass, 70 terms through n = 949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,22 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/has_two_odd_digits.h"
+#include "../utils/mem.h"
+
+/* --- test whether a number has exactly two odd decimal digits ------ */
+static bool has_two_odd_digits(seq_t v)
+{
+    unsigned count = 0;
+    while (v > (seq_t)0) {
+        seq_t d = v % (seq_t)10;
+        if ((d & (seq_t)1) != (seq_t)0) {
+            ++count;
+            if (count > 2) return false;
+        }
+        v /= (seq_t)10;
+    }
+    return count == 2;
+}
 
 /* --- cache for the sequence --------------------------------------- */
 static seq_t *seq_cache      = NULL;
@@ -39,7 +55,7 @@ static void ensure_cache_capacity(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 256;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();
     seq_cache = tmp;
     cache_cap = new_cap;

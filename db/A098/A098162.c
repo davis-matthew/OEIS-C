@@ -11,13 +11,16 @@
  *            pair of consecutive terms
  * Range:     u8 n <= 31, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *seq = NULL;
@@ -37,7 +40,7 @@ seq_t a(idx_t n) {
         if (seq_cap < need) {
             size_t new_cap = seq_cap? seq_cap*2 : 8;
             while (new_cap < need) new_cap <<= 1;
-            seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
             seq_cap = new_cap;
         }
 
@@ -45,7 +48,7 @@ seq_t a(idx_t n) {
         if (dcap < need) {
             size_t new_dcap = dcap? dcap*2 : 8;
             while (new_dcap < need) new_dcap <<= 1;
-            divs = (seq_t *)realloc(divs, new_dcap * sizeof(seq_t));
+            divs = mem_resize(seq_t, divs, new_dcap);
             cnts = (unsigned *)realloc(cnts, new_dcap * sizeof(unsigned));
             dcap = new_dcap;
         }
@@ -72,7 +75,7 @@ seq_t a(idx_t n) {
                     if (dlen == dcap) {           /* grow divisor table */
                         size_t new_cap = dcap? dcap*2 : 8;
                         while (new_cap <= dlen) new_cap <<= 1;
-                        divs = (seq_t *)realloc(divs, new_cap * sizeof(seq_t));
+                        divs = mem_resize(seq_t, divs, new_cap);
                         cnts = (unsigned *)realloc(cnts, new_cap * sizeof(unsigned));
                         dcap = new_cap;
                     }

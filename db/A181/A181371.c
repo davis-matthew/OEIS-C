@@ -11,12 +11,14 @@
  *            triangle is read row‑by‑row and flattened
  * Range:     u8 n <= 11, u16 n <= 36, u32 n <= 132, u64 n <= 465,
  *            u128 n <= 1770, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9287 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 /* Static state for memoised generation */
@@ -31,11 +33,11 @@ static idx_t cur_len = 0;           /* length of last processed row n   */
 /* Allocate or reallocate a seq_t array */
 static seq_t *alloc_seq(size_t n)
 {
-    return (seq_t*)calloc(n, sizeof(seq_t));
+    return mem_new(seq_t, n);
 }
-static seq_t *grow_seq(void *p, size_t new_cap)
+static seq_t *grow_seq(seq_t *p, size_t new_cap)
 {
-    return (seq_t*)realloc(p, new_cap * sizeof(seq_t));
+    return mem_resize(seq_t, p, new_cap);
 }
 
 /* Append value to the flattened sequence */
@@ -83,8 +85,8 @@ static void generate_next_row(void)
     }
 
     /* Free old DP arrays and promote new ones */
-    free(dp0);
-    free(dp1);
+    mem_free(dp0);
+    mem_free(dp1);
     dp0 = newdp0;
     dp1 = newdp1;
     cur_len = n;
@@ -96,14 +98,14 @@ seq_t a(idx_t n)
     /* Initialise on first call: a(0) = 1, row n=1 states. */
     if (!flat) {
         flat_cap = 16;
-        flat = (seq_t*)calloc(flat_cap, sizeof(seq_t));
+        flat = mem_new(seq_t, flat_cap);
         if (!flat) abort();
         flat[0] = 1;              /* a(0) */
         flat_size = 1;
 
         /* DP for row n=1: words "0", "1", "2" */
-        dp0 = (seq_t*)calloc(1, sizeof(seq_t));
-        dp1 = (seq_t*)calloc(1, sizeof(seq_t));
+        dp0 = mem_new(seq_t, 1);
+        dp1 = mem_new(seq_t, 1);
         if (!dp0 || !dp1) abort();
         dp0[0] = 1;               /* word "0" */
         dp1[0] = 1;               /* word "1" */

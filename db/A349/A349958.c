@@ -8,7 +8,8 @@
  * Formula:   a(n) = the least j such that ∃k, 0≤k≤j with n | C(j,k)
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 9355 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_N 10000
 
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         build_spf();
         build_exp_tables();
-        cache_array = (seq_t *)calloc(MAX_N + 1, sizeof(seq_t));
+        cache_array = mem_new(seq_t, MAX_N + 1);
         cache_array[0] = 0;           /* unused */
         cache_array[1] = 0;           /* a(1) = 0 */
         initialized = true;

@@ -10,7 +10,8 @@
  *            n+1
  * Range:     u8 n <= 511, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 90 terms through n = 7944 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +32,8 @@ seq_t a(idx_t n)
     idx_t m = n + 1;
 
     /* lengths of binary representations (no leading zeros) */
-    unsigned lenN = floor_log2_uint64(n) + 1;
-    unsigned lenM = floor_log2_uint64(m) + 1;
+    unsigned lenN = ilog2(n) + 1;
+    unsigned lenM = ilog2(m) + 1;
 
     /* bit arrays: most significant bit first */
     uint8_t bitsN[64], bitsM[64];

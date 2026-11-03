@@ -12,12 +12,14 @@
  *            (rows read left‑to‑right)
  * Range:     u8 n <= 266, u16 n <= 766, u32 n <= 2676, u64 n <= 5150,
  *            u128 n <= 5150, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 5086 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of static helper functions */
 static void add_row(seq_t *row);
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     while (row_cnt <= r)
     {
         idx_t i   = row_cnt;                /* index of the new row   */
-        seq_t *row = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (!row) return (seq_t)0;          /* memory allocation failed */
 
         /* Base cases */

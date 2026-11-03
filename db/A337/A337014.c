@@ -9,13 +9,15 @@
  *            of terms equal to a(n) among first n terms
  * Range:     i8 n <= 4815, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 9931 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t types are supplied by the build environment. */
 extern seq_t *seq_alloc(size_t);
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (cap < n + 1) {
         size_t new_cap = (cap < 8) ? 8 : cap * 2;
         while (new_cap < n + 1) new_cap *= 2;
-        arr = (seq_t *)realloc(arr, new_cap * sizeof(seq_t));
+        arr = mem_resize(seq_t, arr, new_cap);
         if (!arr) abort();     /* out of memory */
         cap = (idx_t)new_cap;
     }

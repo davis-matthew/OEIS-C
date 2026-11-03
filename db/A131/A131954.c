@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_digits(n! + a(n-1)), with a(1) = 1
  * Range:     u8 n <= 51, u16 n <= 4807, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 4947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Base for the hand‑rolled big integer representation of n!. */
 #define BIGBASE 1000000000ULL   /* 10^9, convenient 9 decimal digits per limb */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough for the requested n (1‑based). */
     if (cache == NULL || cached_n < n) {
         size_t new_cap = (size_t)(n + 2);          /* +1 for 1‑based, +1 safety */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (new_cache == NULL)   /* Allocation failure – never expected. */
             return (seq_t)0;
         cache = new_cache;

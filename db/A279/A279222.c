@@ -9,17 +9,19 @@
  *            in the generating function Π_{k≥1} 1/(1 - x^{k*(k+1)*(4*k-1)/6})
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate DP array for all values up to n */
-    seq_t *dp = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return 0;                /* allocation failure – return 0 */
 
     /* Initialize DP table */
@@ -39,6 +41,6 @@ seq_t a(idx_t n)
     }
 
     seq_t ans = dp[n];
-    free(dp);
+    mem_free(dp);
     return ans;
 }

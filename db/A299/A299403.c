@@ -9,7 +9,8 @@
  *            that a(n‑1)·m contains the decimal digit 3. Each term is unique
  * Range:     u8 n <= 6, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   contains_digit3, grow_used_array
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains_digit3.h"
-#include "../utils/grow_used_array.h"
+#include "../utils/mem.h"
+
+/* Return true if the decimal representation of x contains a 3. */
+static bool contains_digit3(seq_t x)
+{
+    while (x != (seq_t)0) {
+        if ((x % (seq_t)10u) == (seq_t)3u)
+            return true;
+        x = x / (seq_t)10u;
+    }
+    return false;
+}
+
+/* Grow a dynamic array of bool if capacity is too small, initializing new slots to false. */
+static void grow_used_array(bool **arr, size_t *cap, size_t need)
+{
+    if (*cap >= need) return;
+    size_t old_cap = *cap;
+    size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
+    while (new_cap < need) new_cap <<= 1;
+    bool *tmp = (bool *)realloc(*arr, new_cap * sizeof(bool));
+    if (!tmp) abort();
+    /* initialize new elements */
+    for (size_t i = old_cap; i < new_cap; ++i) tmp[i] = false;
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* Grow a dynamic array of seq_t if capacity is too small. */
 static void grow_seq_array(seq_t **arr, size_t *cap, size_t need)
@@ -27,7 +53,7 @@ static void grow_seq_array(seq_t **arr, size_t *cap, size_t need)
     size_t old_cap = *cap;
     size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) abort();
     *arr = tmp;
     *cap = new_cap;

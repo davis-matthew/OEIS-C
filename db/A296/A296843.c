@@ -11,12 +11,14 @@
  *            increasing sequences with b(0)=3, b(1)=4, b(2)=5, b(3)=6
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 42, u64 n <= 88, u128 n <= 180,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
                 /* cand is not in a: store it as next b value */
                 if (b_size == b_cap) {
                     size_t new_cap = (b_cap == 0) ? 4 : b_cap * 2;
-                    b_vals = (seq_t *)realloc(b_vals, new_cap * sizeof(seq_t));
+                    b_vals = mem_resize(seq_t, b_vals, new_cap);
                     b_cap = new_cap;
                 }
                 b_vals[b_size++] = cand;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         /* store new a value */
         if (a_size == a_cap) {
             size_t new_cap = (a_cap == 0) ? 4 : a_cap * 2;
-            a_vals = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+            a_vals = mem_resize(seq_t, a_vals, new_cap);
             a_cap = new_cap;
         }
         a_vals[a_size++] = new_a;

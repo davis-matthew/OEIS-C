@@ -7,7 +7,8 @@
  * Formula:   a(0)=1, a(1)=0, a(2)=-2, a(n)=a(n-1)-2*a(n-2)-2*a(n-3) for n≥3
  * Range:     i8 n <= 10, i16 n <= 19, i32 n <= 39, i64 n <= 79, i128 n <= 158,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 911 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache for already computed terms */
 static seq_t *seq_cache = NULL;
@@ -34,7 +36,7 @@ static void seq_grow_to(idx_t n)
         size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 8;
         if (new_cap < need)
             new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         seq_cache = tmp;
         seq_cache_cap = new_cap;
     }

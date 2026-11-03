@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 75 terms through n = 9438 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,14 +21,17 @@
     (not necessarily increasing) remains fast. */
 
 /*  We need the Euler‑phi routine supplied in ../utils/calc_phi.h.    */
-#include "../utils/calc_phi.h"
+#include <stdint.h>
 #include <stdlib.h>
+#include "../utils/totient_seq.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Helper that works both in C and C++  */
 static seq_t *realloc_seq(seq_t *p, size_t newcap)
 {
 #if defined(__cplusplus)
-    return reinterpret_cast<seq_t*>(realloc(p, newcap * sizeof(seq_t)));
+    return reinterpret_cast<seq_t*>(mem_resize(seq_t, p, newcap));
 #else
     return (seq_t*)realloc(p, newcap * sizeof(seq_t));
 #endif
@@ -49,7 +53,7 @@ seq_t a(idx_t n)
     while (len < n)
     {
         seq_t k   = (seq_t)checked;          /* candidate integer              */
-        seq_t phi = calc_phi(k);             /* Euler totient of k             */
+        seq_t phi = totient_seq(k);             /* Euler totient of k             */
         if (phi % (seq_t)12 == (seq_t)0)
         {
             /*  Grow the cache if necessary.  */

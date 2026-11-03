@@ -7,8 +7,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl, easy
  * Formula:   a(n) = sequence A105954 (Array read by descending antidiagonals)
- * Range:     u8 n <= 18, u16 n <= 41, u32 n <= 54, u64 n <= 54, u128 n <= 54,
- *            big any n
+ * Range:     u8 n <= 18, u16 n <= 41, u32 n <= 100, u64 n <= 248,
+ *            u128 n <= 377, big any n
+ * Validated: standard, pass, 71 terms through n = 315 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

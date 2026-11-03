@@ -11,15 +11,28 @@
  *            distinct beads); a(n) = [x^n] ( V*D*T + (1+B...
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   a634_half_prod, alloc_zero
+ * Validated: partial, pass, 29 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/a634_half_prod.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+/* x*y/2 where x,y are consecutive integers (one of them is even) */
+static seq_t a634_half_prod(seq_t x, seq_t y)
+{
+    if (x % 2 == 0) return (x / 2) * y;
+    return x * (y / 2);
+}
 
 static seq_t *A634_memo = 0;
 static idx_t A634_cap = 0;

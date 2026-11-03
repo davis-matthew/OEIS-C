@@ -10,6 +10,7 @@
  *            a(n-1) a(n) = a(n-1) * phi(n) otherwise
  * Range:     u8 n <= 10, u16 n <= 23, u32 n <= 87, u64 n <= 179,
  *            u128 n <= 330, big any n
+ * Validated: standard, pass, 64 terms through n = 2396 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

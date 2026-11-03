@@ -11,13 +11,15 @@
  *            ((n%2)?1:0)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 42 terms through n = 858 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     idx_t m = n / 2;    /* floor(n/2)   */
 
     /* 256^q */
-    seq_t pow256 = pow_seq((seq_t)256, (int)q);
+    seq_t pow256 = ipow_i32((seq_t)256, (int)q);
     /* 20*256^q   */
     seq_t pow20  = pow256 * (seq_t)20;
 

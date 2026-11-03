@@ -11,7 +11,8 @@
  *            prime factors) of x
  * Range:     u8 n <= 8, u16 n <= 32, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   gcd64
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
 
 /* ----------  Helper: Euclidean GCD for uint64_t  ---------- */
 
@@ -95,7 +96,7 @@ pollard_rho(uint64_t n)
         y = (mul_mod(y, y, n) + c) % n;
         y = (mul_mod(y, y, n) + c) % n;
         uint64_t diff = x > y ? x - y : y - x;
-        d = gcd64(diff, n);
+        d = gcd_u64(diff, n);
         if (d == n) {           /* retry with different constants */
             c++;
             x = 2;

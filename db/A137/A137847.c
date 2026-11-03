@@ -12,7 +12,8 @@
  *            implementation builds the sequence lazily, keeps...
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- global state ------------------------------------------ */
 static seq_t *ekg_seq  = NULL;  /* array of EKG terms */
@@ -49,7 +51,7 @@ static void ensure_ekg_capacity(size_t cap)
     if (ekg_cap >= cap) return;
     size_t newcap = ekg_cap ? ekg_cap : 16;
     while (newcap < cap) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(ekg_seq, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, ekg_seq, newcap);
     if (!tmp) abort();
     ekg_seq = tmp;
     ekg_cap = newcap;
@@ -79,7 +81,7 @@ static void ensure_terms(idx_t n)
     /* initialise state on first call */
     if (ekg_seq == NULL) {
         ekg_cap = 16;
-        ekg_seq = (seq_t *)malloc(ekg_cap * sizeof(seq_t));
+        ekg_seq = mem_new(seq_t, ekg_cap);
         if (!ekg_seq) abort();
         ekg_len = 1;
         ekg_seq[0] = (seq_t)1;                 /* a(1) = 1 */

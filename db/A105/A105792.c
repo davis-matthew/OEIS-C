@@ -9,7 +9,8 @@
  *            4 (mod 6), duplicates removed
  * Range:     u8 n <= 38, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     while (terms_size < n)
     {
         ++max_n;
-        if (is_prime(max_n))
+        if (is_prime_u64(max_n))
             current_prime = (seq_t)max_n;
 
         if (max_n % 6 == 2 || max_n % 6 == 4)
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
                 if (terms_size == terms_cap)
                 {
                     size_t new_cap = terms_cap ? terms_cap * 2 : 128;
-                    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                     if (!tmp) abort();  /* allocation failure */
                     terms = tmp;
                     terms_cap = new_cap;

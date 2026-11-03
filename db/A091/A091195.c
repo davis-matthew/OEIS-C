@@ -10,7 +10,8 @@
  *            and accumulates a prefix sum
  * Range:     u8 n <= 5465, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 113 terms through n = 9129 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t _max_n = 0;
 static uint8_t  *_abundant = NULL;   /* 1 if number is abundant */
@@ -46,13 +48,13 @@ static void _ensure_up_to(idx_t n)
         return;   /* already computed */
 
     if (_abundant)   free(_abundant);
-    if (_abcnt)      free(_abcnt);
-    if (_pref)       free(_pref);
+    if (_abcnt)      mem_free(_abcnt);
+    if (_pref)       mem_free(_pref);
 
     /* Allocate new arrays.  calloc zero‑initialises them. */
     _abundant = (uint8_t *)calloc((size_t)(n + 1), sizeof(uint8_t));
-    _abcnt    = (seq_t   *)calloc((size_t)(n + 1), sizeof(seq_t));
-    _pref     = (seq_t   *)calloc((size_t)(n + 1), sizeof(seq_t));
+    _abcnt    = mem_new(seq_t, (size_t)(n + 1));
+    _pref     = mem_new(seq_t, (size_t)(n + 1));
 
     /* 1. Determine abundance of each number. */
     for (idx_t m = 1; m <= n; ++m) {

@@ -11,13 +11,26 @@
  *            g_1(1)=0, g_1(2)=1 and for k>1: * g_k(2i) = 2^{k-1} + g_{k-1...
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   get_elem
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/get_elem.h"
+
+static inline seq_t get_elem(idx_t k, idx_t r) {
+    if (k == 1) {
+        return (r == 1) ? 0 : 1;
+    }
+    if (r & 1) {           /* r is odd → even array index */
+        idx_t i = (r - 1) >> 1;
+        return ((idx_t)1 << (k - 1)) + get_elem(k - 1, ((idx_t)1 << (k - 1)) - i);
+    } else {               /* r is even → odd array index */
+        idx_t i = (r - 1) >> 1;
+        return get_elem(k - 1, i + 1);
+    }
+}
 
 static inline unsigned long long floor_log2_idx(unsigned long long x) {
     /* x >= 1 */

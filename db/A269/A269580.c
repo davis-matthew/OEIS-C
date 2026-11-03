@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   diff_uint, idx_state
+ * Validated: standard, pass, 36 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,17 @@
 #include <stdlib.h>
 #include <string.h>   /* for memset */
 #include <stdbool.h>
-#include "../utils/diff_uint.h"
-#include "../utils/idx_state.h"
+#include "../utils/mem.h"
+
+/* Absolute difference between two unsigned values (here 0..6) */
+static inline unsigned diff_uint(unsigned a, unsigned b) {
+    return a > b ? a - b : b - a;
+}
+
+/* State index helper */
+static inline size_t idx_state(unsigned prev, unsigned last_rep) {
+    return (size_t)prev * 7U + (size_t)last_rep;
+}
 
 #define P         6U      /* number of possible values (0..5) */
 #define R_NONE    6U      /* sentinel for “no repetition yet” */
@@ -49,11 +59,11 @@ seq_t a(idx_t n) {
     if (current_len == 0U) {
         /* Allocate initial cache for length 1 */
         cache_size = 20U;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return 0U; /* allocation failure */
 
         /* Zero dp_curr */
-        memset(dp_curr, 0, sizeof(dp_curr));
+        mem_set(dp_curr, 0, sizeof(dp_curr));
 
         /* Start with length = 1: prev can be any of 0..5, last_rep = R_NONE */
         for (unsigned prev = 0U; prev < P; ++prev) {
@@ -70,7 +80,7 @@ seq_t a(idx_t n) {
         if ((idx_t)n > cache_size) {
             size_t new_size = cache_size;
             while ((idx_t)n > new_size) new_size *= 2U;
-            seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_size);
             if (tmp == NULL) return 0U; /* allocation failure */
             cache = tmp;
             cache_size = new_size;
@@ -79,7 +89,7 @@ seq_t a(idx_t n) {
         /* Iterate from current_len+1 up to n */
         for (idx_t len = current_len + 1U; len <= n; ++len) {
             /* Zero next DP vector */
-            memset(dp_next, 0, sizeof(dp_next));
+            mem_set(dp_next, 0, sizeof(dp_next));
 
             /* For every state in dp_curr, propagate to next states */
             for (unsigned prev = 0U; prev < P; ++prev) {
@@ -111,7 +121,7 @@ seq_t a(idx_t n) {
             cache[len - 1U] = total;
 
             /* Prepare for next iteration */
-            memcpy(dp_curr, dp_next, sizeof(dp_curr));
+            mem_copy(dp_curr, dp_next, sizeof(dp_curr));
         }
         current_len = n; /* now DP corresponds to length n */
     }

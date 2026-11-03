@@ -8,18 +8,19 @@
  *            3)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   binomial_value
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial_value.h"
+#include "../utils/binomial.h"
 /* The binary coefficients are computed multiplicatively to avoid factorial overflow. */
 
 seq_t a(idx_t n)
 {
     idx_t N = 3 * n + 2;               /* the binomial upper index */
-    seq_t bin = binomial_value(N, n); /* start with C(N, n)  */
+    seq_t bin = binomial(N, n); /* start with C(N, n)  */
     seq_t result = 0;
     idx_t r = n;                       /* current lower index in the binomial */
 

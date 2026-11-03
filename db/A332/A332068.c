@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 36, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   check_word
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/check_word.h"
+#include "../utils/mem.h"
+
+/* ---- check property on the textual representation --------------------- */
+static bool check_word(const char *s)
+{
+    char last = 0;
+    int  cnt  = 0;
+    for (const char *p = s; *p; ++p) {
+        char c = *p;
+        switch (c) {
+            case 'a': case 'e': case 'i': case 'o': case 'u':
+                if (last && c < last) return false;
+                last = c;
+                ++cnt;
+                break;
+            default: break;
+        }
+    }
+    return cnt >= 2;
+}
 
 static void write_three(idx_t n, char **p);
 static void number_to_words(idx_t n, char *buf);
@@ -125,7 +145,7 @@ seq_t a(idx_t n)
     if (needed > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap : 16;
         while (new_cap < needed) new_cap <<= 1;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 

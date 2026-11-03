@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Test if x contains the consecutive digits 77 in decimal. */
 static bool has77(seq_t x)
@@ -42,12 +44,12 @@ static void grow_cache(size_t need, seq_t **array, size_t *cap)
     size_t newcap = *cap ? (*cap * 2) : 8;
     while (newcap < need)
         newcap <<= 1;
-    seq_t *tmp = (seq_t *)malloc(newcap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, newcap);
     if (!tmp)
         exit(EXIT_FAILURE);
     if (*array)
-        memcpy(tmp, *array, (*cap) * sizeof(seq_t));
-    free(*array);
+        mem_copy(tmp, *array, (*cap) * sizeof(seq_t));
+    mem_free(*array);
     *array = tmp;
     *cap = newcap;
 }

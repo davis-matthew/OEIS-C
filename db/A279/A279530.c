@@ -14,6 +14,7 @@
  *            18*a(n-1) -108*a(n-2) +183*a(n-3) +408*a(n-4)...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 48,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 209 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

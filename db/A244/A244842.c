@@ -7,12 +7,14 @@
  * Formula:   a(n) = (10^n - 1)*(10^n - 10)/90, n >= 1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 94 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pow10_cache = NULL;      /* cache[0] = 1, cache[i] = 10^i */
 static idx_t pow10_cache_used = 0;     /* number of valid entries in cache */
@@ -23,7 +25,7 @@ static seq_t pow10_cache_get(idx_t n)
 {
     if (pow10_cache_used == 0) {               /* initialize cache[0] = 1 */
         pow10_cache_cap = 1;
-        pow10_cache = (seq_t*)malloc(pow10_cache_cap * sizeof(seq_t));
+        pow10_cache = mem_new(seq_t, pow10_cache_cap);
         if (!pow10_cache) abort();
         pow10_cache[0] = 1;
         pow10_cache_used = 1;
@@ -32,8 +34,7 @@ static seq_t pow10_cache_get(idx_t n)
         /* grow cache to at least n+1 entries */
         if (n + 1 > pow10_cache_cap) {
             idx_t new_cap = (n + 1) * 2;
-            seq_t *tmp = (seq_t*)realloc(pow10_cache,
-                                         new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, pow10_cache, new_cap);
             if (!tmp) abort();
             pow10_cache = tmp;
             pow10_cache_cap = new_cap;

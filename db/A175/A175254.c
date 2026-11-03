@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{k<=n} A000203(k)*(n-k+1)
  * Range:     u8 n <= 9, u16 n <= 61, u32 n <= 2501, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9284 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t max_n = 0;
 static seq_t *sigma = NULL;
@@ -25,9 +27,9 @@ static void recompute(idx_t new_max) {
     if (new_max == max_n) return;
 
     /* Allocate new arrays */
-    seq_t *new_sigma = (seq_t *)calloc(new_max + 1, sizeof(seq_t));
-    seq_t *new_prefix_sigma = (seq_t *)calloc(new_max + 1, sizeof(seq_t));
-    seq_t *new_prefix_ksigma = (seq_t *)calloc(new_max + 1, sizeof(seq_t));
+    seq_t *new_sigma = mem_new(seq_t, new_max + 1);
+    seq_t *new_prefix_sigma = mem_new(seq_t, new_max + 1);
+    seq_t *new_prefix_ksigma = mem_new(seq_t, new_max + 1);
 
     /* Compute sigma using a simple sieve */
     for (idx_t d = 1; d <= new_max; ++d) {
@@ -46,9 +48,9 @@ static void recompute(idx_t new_max) {
     }
 
     /* Free old arrays */
-    free(sigma);
-    free(prefix_sigma);
-    free(prefix_ksigma);
+    mem_free(sigma);
+    mem_free(prefix_sigma);
+    mem_free(prefix_ksigma);
 
     /* Store new arrays */
     sigma = new_sigma;

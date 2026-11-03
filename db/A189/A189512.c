@@ -7,7 +7,8 @@
  * Formula:   a(n) = n + ⌊n·e/3⌋ + ⌊3n/e⌋
  * Range:     u8 none, u16 none, u32 none, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   leq, lt
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,14 @@
  * e_D = Σ_{k=0}^{20} D/k! is exactly ⌊e·D⌋ because all omitted terms are
  * < 1.  All further calculations use only integer arithmetic. */
 #include <stdint.h>   /* for standard integer types */
-#include "../utils/leq.h"
-#include "../utils/lt.h"
+
+/* Helper: checks whether a ≤ b holds for seq_t operands. */
+static inline int leq(seq_t a, seq_t b)
+{   return a <= b; }
+
+/* Helper: checks whether a < b holds for seq_t operands. */
+static inline int lt(seq_t a, seq_t b)
+{   return a < b; }
 
 static const seq_t D = 2329089562800ULL;  /* lcm(1..20) fits in 64‑bit */
 

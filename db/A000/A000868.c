@@ -10,13 +10,23 @@
  *            simplifies to a(n) = m*2^(N-n-1) + 2*m + 1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   a868_width
+ * Validated: standard, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a868_width.h"
+
+static int a868_width(void) {
+    seq_t x = 1;
+    int b = 0;
+    while (x != 0 && b < 1024) {
+        x <<= 1;
+        b++;
+    }
+    return b; /* 1024 means arbitrary precision */
+}
 
 seq_t a(idx_t n) {
     static int w = 0;

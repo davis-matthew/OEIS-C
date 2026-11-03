@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Static state used by a()                                            */
@@ -43,14 +45,14 @@ static void ensure_seq_cap(size_t needed)
 {
     if (seq_cap >= needed) return;
     seq_cap = seq_cap ? seq_cap * 2 : 8;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
 }
 
 static void ensure_path_cap(size_t needed)
 {
     if (path_cap >= needed) return;
     path_cap = path_cap ? path_cap * 2 : 16;
-    path = (seq_t *)realloc(path, path_cap * sizeof(seq_t));
+    path = mem_resize(seq_t, path, path_cap);
 }
 
 /* --------------------------------------------------------------------- */

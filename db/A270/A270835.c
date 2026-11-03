@@ -11,7 +11,8 @@
  *            b). This sequence is generated once and cached
  * Range:     u8 none, u16 none, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"   /* seq_t floor_sqrt(seq_t x) */
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Comparator for seq_t used in qsort */
 static int cmp_seq_t(const void *p, const void *q)
@@ -43,7 +63,7 @@ static void build_a004431_cache(void)
 
     const idx_t MAX_AB = 500;           /* generous bound for 10k terms */
     const size_t PAIRED = (size_t)MAX_AB * (MAX_AB - 1) / 2;
-    seq_t *temp = (seq_t *)malloc(PAIRED * sizeof(seq_t));
+    seq_t *temp = mem_new(seq_t, PAIRED);
     if (!temp)
         return;    /* allocation failure; function will return 0 later */
 
@@ -56,7 +76,7 @@ static void build_a004431_cache(void)
     }
 
     /* Sort and deduplicate */
-    qsort(temp, idx, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(temp, idx, sizeof(seq_t), cmp_seq_t);
 
     size_t uniq = 0;
     for (size_t i = 0; i < idx; ++i) {
@@ -66,7 +86,7 @@ static void build_a004431_cache(void)
     }
 
     /* Keep only the unique entries */
-    a004431_vals = (seq_t *)realloc(temp, uniq * sizeof(seq_t));
+    a004431_vals = mem_resize(seq_t, temp, uniq);
     a004431_len  = uniq;
 }
 

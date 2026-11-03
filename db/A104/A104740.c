@@ -13,13 +13,15 @@
  *            sum_{j=1}^{n} a(j), O(n) = sum_{j=1, j odd}^{n} a(j)
  * Range:     u8 n <= 25, u16 n <= 49, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t capacity = 0;
 static seq_t *A = NULL;   /* a values, 1-based */
@@ -34,9 +36,9 @@ static void grow(idx_t upto)
     idx_t new_cap = capacity ? capacity * 2 : 16;
     if (new_cap < upto)
         new_cap = upto;
-    A = (seq_t *)realloc(A, (new_cap + 1) * sizeof(seq_t));
-    S = (seq_t *)realloc(S, (new_cap + 1) * sizeof(seq_t));
-    O = (seq_t *)realloc(O, (new_cap + 1) * sizeof(seq_t));
+    A = mem_resize(seq_t, A, (new_cap + 1));
+    S = mem_resize(seq_t, S, (new_cap + 1));
+    O = mem_resize(seq_t, O, (new_cap + 1));
     /* initialise new entries to zero */
     for (idx_t i = capacity + 1; i <= new_cap; ++i) {
         A[i] = 0;

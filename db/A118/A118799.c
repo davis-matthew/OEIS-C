@@ -9,6 +9,7 @@
  *            det( [p_{4(i-1)+j}] ), 1 ≤ i,j ≤ 4, where p_k is the k‑th prime
  * Range:     i8 none, i16 n <= 33, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 56 terms through n = 980 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <math.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 /* Global cache of primes (1‑based index).  We cache at least the

@@ -12,8 +12,8 @@
  *            denominator(B_{2m}): |a(n)| = 2^(popcount(...
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 16, i128 n <= 28,
  *            big any n
- * Helpers:   a2431_blen, a2431_div, a2431_isprime, a2431_mod, a2431_mul,
- *            a2431_shadd
+ * Validated: standard, pass, 39 terms through n = 255 (2026-11-03)
+ * Helpers:   bit_length_u64, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +21,50 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2431_blen.h"
-#include "../utils/a2431_div.h"
-#include "../utils/a2431_isprime.h"
-#include "../utils/a2431_mod.h"
-#include "../utils/a2431_mul.h"
-#include "../utils/a2431_shadd.h"
+#include "../utils/bit_length_u64.h"
+#include "../utils/is_prime_u64.h"
+
+static void a2431_div(uint32_t *x, size_t *len, uint32_t p) {
+    uint64_t r = 0;
+    for (size_t i = *len; i-- > 0;) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / p);
+        r = cur % p;
+    }
+    while (*len > 0 && x[*len - 1] == 0) (*len)--;
+}
+
+static uint32_t a2431_mod(const uint32_t *x, size_t len, uint32_t p) {
+    uint64_t r = 0;
+    for (size_t i = len; i-- > 0;) r = ((r << 32) | x[i]) % p;
+    return (uint32_t)r;
+}
+
+static void a2431_mul(uint32_t *x, size_t *len, uint32_t m) {
+    uint64_t c = 0;
+    size_t L = *len;
+    for (size_t i = 0; i < L; i++) {
+        c += (uint64_t)x[i] * m;
+        x[i] = (uint32_t)c;
+        c >>= 32;
+    }
+    while (c) { x[L++] = (uint32_t)c; c >>= 32; }
+    *len = L;
+}
+
+static void a2431_shadd(uint32_t *S, const uint32_t *X, size_t W, uint64_t s) {
+    size_t q = (size_t)(s / 32);
+    unsigned r = (unsigned)(s % 32);
+    uint64_t c = 0;
+    for (size_t i = q; i < W; i++) {
+        size_t t = i - q;
+        uint32_t v = X[t] << r;
+        if (r && t > 0) v |= X[t - 1] >> (32 - r);
+        c += (uint64_t)S[i] + v;
+        S[i] = (uint32_t)c;
+        c >>= 32;
+    }
+}
 
 static uint32_t *a2431_buf = NULL;
 static size_t *a2431_off = NULL;
@@ -41,7 +79,7 @@ static void a2431_build(idx_t M) {
     uint64_t lg = 0;
     size_t tot = 0;
     for (idx_t j = 1; j <= M; j++) {
-        lg += (uint64_t)a2431_blen((uint64_t)(2 * j - 1)) + (uint64_t)a2431_blen((uint64_t)(2 * j));
+        lg += (uint64_t)bit_length_u64((uint64_t)(2 * j - 1)) + (uint64_t)bit_length_u64((uint64_t)(2 * j));
         cap[j] = (size_t)(lg / 32 + 3);
         a2431_off[j] = tot;
         tot += cap[j];
@@ -101,7 +139,7 @@ seq_t a(idx_t n) {
     size_t np = 0;
     uint32_t *pr = (uint32_t *)malloc((size_t)(k + 1) * sizeof(uint32_t));
     for (uint64_t d = 1; d <= k; d++)
-        if (k % d == 0 && a2431_isprime(d + 1)) pr[np++] = (uint32_t)(d + 1);
+        if (k % d == 0 && is_prime_u64(d + 1)) pr[np++] = (uint32_t)(d + 1);
 
     size_t W = a2431_len[m] + 3 + np;
     uint32_t *X = (uint32_t *)calloc(W, sizeof(uint32_t));
@@ -145,7 +183,7 @@ seq_t a(idx_t n) {
 
     /* cancel odd primes shared with (2m)! */
     for (uint64_t p = 3; p <= k; p += 2) {
-        if (!a2431_isprime(p)) continue;
+        if (!is_prime_u64(p)) continue;
         uint64_t e = 0, t = k;
         while (t) { t /= p; e += t; }
         while (e > 0 && LN > 0 && a2431_mod(S, LN, (uint32_t)p) == 0) {

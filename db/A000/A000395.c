@@ -11,14 +11,31 @@
  *            Sum_{i=0..n-6} C3[i]*C3[n-6-i], C3 = C^3 (computed as (C*C)*C)
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 24, u64 n <= 45, u128 n <= 87,
  *            big any n
- * Helpers:   a306_alloc0, a306_grow
+ * Validated: standard, pass, 41 terms through n = 853 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a306_alloc0.h"
-#include "../utils/a306_grow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *a306_alloc0(idx_t len)
+{
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *a306_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = a306_alloc0(newlen);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *tb = NULL;   /* tb[k] = A000081(k), k = 1..bn */
 static seq_t *ts = NULL;   /* ts[k] = sum_{d|k} d*tb[d] */

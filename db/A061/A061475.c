@@ -9,14 +9,38 @@
  *            (first digit − second digit + third digit − … = 6)
  * Range:     u8 n <= 15, u16 n <= 3758, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alt_digit_sum
+ * Validated: standard, pass, 69 terms through n = 8436 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alt_digit_sum.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute d1 - d2 + d3 - d4 + … for the decimal representation of v.
+   Works for all supplied seq_t types. */
+static inline int alt_digit_sum(seq_t v)
+{
+    seq_t t = v;
+    int digits[64];   /* 64 decimal digits fit into any seq_t (max 128 bits) */
+    int len = 0;
+
+    do {
+        digits[len++] = (int)(t % 10);
+        t /= 10;
+    } while (t);
+
+    int s = 0;
+    int sign = 1;
+    for (int i = len - 1; i >= 0; --i) {
+        s += sign * digits[i];
+        sign = -sign;
+    }
+    return s;
+}
 
 /* Cache storage for already-found terms */
 static seq_t *cache = NULL;
@@ -29,10 +53,10 @@ static void cache_push(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         for (size_t i = 0; i < cache_len; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

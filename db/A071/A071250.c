@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   build_pal
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_pal.h"
+#include "../utils/mem.h"
+
+/* Build a palindrome from the left half for a given length. */
+static seq_t build_pal(seq_t half, int len)
+{
+    seq_t pal = half;
+    seq_t rev = (len & 1) ? half / 10 : half;   /* drop middle digit if odd length */
+    while (rev > 0) {
+        pal = pal * 10 + (rev % 10);
+        rev /= 10;
+    }
+    return pal;
+}
 
 /* Helper to compute 10^e as a seq_t. */
 static seq_t pow10(int e)
@@ -57,7 +70,7 @@ seq_t a(idx_t n)
 
     /* Initialise storage and generation state on first call. */
     if (!initialized) {
-        seq = (seq_t *)malloc(capacity * sizeof(seq_t));
+        seq = mem_new(seq_t, capacity);
         if (!seq) exit(1);   /* malloc failed */
         initialized = true;
     }
@@ -91,7 +104,7 @@ seq_t a(idx_t n)
                 /* Ensure enough capacity. */
                 if (seq_len >= capacity) {
                     capacity *= 2;
-                    seq_t *tmp = (seq_t *)realloc(seq, capacity * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, seq, capacity);
                     if (!tmp) exit(1);
                     seq = tmp;
                 }

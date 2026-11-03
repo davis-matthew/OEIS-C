@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of divisors d of n that are repdigits (base 10)
  * Range:     u8 n <= 1543, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_rep_digit
+ * Validated: standard, pass, 121 terms through n = 9889 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,20 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/is_rep_digit.h"
+
+static inline bool is_rep_digit(seq_t x)
+{
+    if (x == 0) return false;
+    seq_t d = x % (seq_t)10;
+    while (x > 0)
+    {
+        if (x % (seq_t)10 != d) return false;
+        x /= (seq_t)10;
+    }
+    return true;
+}
 
 static void dfs_count(const uint64_t *primes, const uint64_t *exps,
                       size_t factors, size_t idx, uint64_t prod,

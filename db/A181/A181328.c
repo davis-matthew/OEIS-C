@@ -15,12 +15,14 @@
  *            the denominator as (1+z)^2*(1-4z+...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t INIT[7] = {0UL, 0UL, 3UL, 12UL, 59UL, 248UL, 1024UL};
 static seq_t *cache = NULL;      /* cached values of the sequence   */
@@ -33,7 +35,7 @@ static void extend_cache(idx_t needed)
         return;
 
     /* Allocate or grow the buffer. */
-    seq_t *new_cache = (seq_t*)realloc(cache, (size_t)needed * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)needed);
     if (new_cache == NULL)
         abort(); /* out of memory */
 

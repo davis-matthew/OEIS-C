@@ -7,8 +7,9 @@
  * Formula:   a(n) = 6 * k + 1 where * r = floor(log₂(n + 1)) (0‑based row
  *            number) * k = n – (2ʳ – 1) (column index within that row) * Thus
  *            a(n) = 6 * (n – (2ʳ – 1)) + 1
- * Range:     u8 n <= 105, u16 n <= 9994, u32 n <= 9994, u64 n <= 9994,
- *            u128 n <= 9994, big any n
+ * Range:     u8 n <= 105, u16 n <= 16382, u32 n <= 16382, u64 n <= 16382,
+ *            u128 n <= 16382, big any n
+ * Validated: standard, pass, 97 terms through n = 9994 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

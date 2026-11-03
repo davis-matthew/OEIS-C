@@ -8,12 +8,13 @@
  *            to a(n) = (2^n + C(2*n,n))/2)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 66,
  *            big any n
- * Helpers:   a005317_gcd
+ * Validated: standard, pass, 43 terms through n = 1664 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a005317_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -27,7 +28,7 @@ seq_t a(idx_t n) {
     seq_t r = 1;
     for (idx_t i = 1; i < n; i++) {
         seq_t si = (seq_t)i;
-        seq_t g = a005317_gcd(r, si);
+        seq_t g = gcd(r, si);
         r /= g;
         seq_t num = ((seq_t)n + si) / (si / g);
         r *= num;

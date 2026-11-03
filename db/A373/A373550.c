@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   not_squarefree
+ * Validated: standard, pass, 121 terms through n = 9733 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,18 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/not_squarefree.h"
+#include "../utils/mem.h"
+
+/* Test whether x has a squared prime factor (i.e. is NOT squarefree). */
+static bool not_squarefree(idx_t x)
+{
+    for (idx_t p = 2; p * p <= x; ++p) {
+        if (x % (p * p) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
 
 /* Cache of parities (0 or 1) of the first k squarefree numbers. */
 static seq_t *parity_cache = NULL;   /* array of parity values */
@@ -36,7 +48,7 @@ static idx_t  next_cand    = 1;      /* next integer to test */
    required to satisfy the C++ type system when seq_t may be a class type. */
 static void grow_cache(size_t new_cap)
 {
-    seq_t *tmp = (seq_t *)realloc(parity_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, parity_cache, new_cap);
     parity_cache = tmp;
     parity_cap   = new_cap;
 }

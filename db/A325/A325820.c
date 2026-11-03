@@ -8,8 +8,9 @@
  * Formula:   a(n) = carryless product in base 3 of the pair (i,j) * where 0 ≤
  *            i,j, i+j = s, and the anti‑diagonal s is chosen so that *
  *            s(s+1)/2 ≤ n < (s+1)(s+2)/2. Indices are read by anti‑diagonals
- * Range:     u8 n <= 712, u16 n <= 8338, u32 n <= 8338, u64 n <= 8338,
- *            u128 n <= 8338, big any n
+ * Range:     u8 n <= 712, u16 n <= 10584, u32 n <= 10584, u64 n <= 10584,
+ *            u128 n <= 10584, big any n
+ * Validated: standard, pass, 121 terms through n = 8338 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 15, u32 n <= 276, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 55 terms through n = 9993 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
    digit‑sum conditions are met. */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static inline seq_t digit_sum_base(seq_t k, seq_t base)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 222, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 8840 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Miller–Rabin deterministic test for 64‑bit integers */
 static uint64_t mulmod_uint64(uint64_t a, uint64_t b, uint64_t mod)
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) exit(EXIT_FAILURE); /* memory failure */
         cache_len = 0;
     }
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
             if (cache_len + 1 > cache_cap)
             {
                 cache_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (tmp == NULL) exit(EXIT_FAILURE);
                 cache = tmp;
             }

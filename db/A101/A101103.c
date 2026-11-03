@@ -7,6 +7,7 @@
  * Formula:   a(1)=1, a(2)=13, a(n)=24*n-36 for n≥3
  * Range:     u8 n <= 12, u16 n <= 2732, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 70 terms through n = 4926 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

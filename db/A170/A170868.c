@@ -8,12 +8,14 @@
  * Formula:   a(0)=1, a(1)=2; a(2^i + j) = 3*a(j)+a(j+1) for 0 <= j < 2^i
  * Range:     u8 n <= 28, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised computation of a(n).  All values are stored in a dynamically
    resized static array.  The array is initialised to zero, which is a
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     while (n + 1 > new_cap)
         new_cap *= 2;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();                      /* allocation failure */
 
     if (cache) {

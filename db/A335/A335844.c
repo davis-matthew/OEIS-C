@@ -13,7 +13,8 @@
  *            the * length of the walk the function returns 0
  * Range:     u8 n <= 38, u16 n <= 529, u32 n <= 529, u64 n <= 529,
  *            u128 n <= 529, big any n
- * Helpers:   coord_to_number
+ * Validated: full, pass, 529 terms through n = 529 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,30 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/coord_to_number.h"
+
+/* Map from cartesian coordinates to the spiral number (seq_t)           */
+static seq_t coord_to_number(int x, int y)
+{
+    if (x == 0 && y == 0) return (seq_t)1;
+
+    int a = x >= 0 ? x : -x;
+    int b = y >= 0 ? y : -y;
+    int l = a > b ? a : b;              /* ring index */
+    int side_minus1 = 2 * l;             /* complete side length minus 1 */
+    seq_t max_num = (seq_t)( (2 * l + 1) * (2 * l + 1) );
+    seq_t offset;
+
+    if (y == -l) {                         /* bottom side, moving left   */
+        offset = (seq_t)(l - x);
+    } else if (x == -l) {                  /* left side, moving up       */
+        offset = (seq_t)(side_minus1 + (y + l));
+    } else if (y == l) {                   /* top side, moving right     */
+        offset = (seq_t)(2 * side_minus1 + (x + l));
+    } else {                               /* right side, moving down    */
+        offset = (seq_t)(3 * side_minus1 + (l - y));
+    }
+    return max_num - offset;
+}
 
 #define MAX_NUM 20000          /*  safe upper bound for visited squares   */
 /* Move offsets for a knight */

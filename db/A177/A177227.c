@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, tabl, less, easy
  * Formula:   not stated
- * Range:     i8 n <= 38, i16 n <= 177, i32 n <= 609, i64 n <= 1325,
+ * Range:     i8 n <= 58, i16 n <= 178, i32 n <= 610, i64 n <= 1325,
  *            i128 n <= 1325, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 1324 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
  *                           T(n,k) = -binomial(n,k)       otherwise
  *  a(n) is the n‑th element of that triangle.
  */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -43,6 +45,6 @@ seq_t a(idx_t n)
 
     /* Inner elements are –C(r,k).  binom(r,k) is non‑negative, so the
      * negation yields the required value. */
-    seq_t val = binom(r, k);
+    seq_t val = binomial(r, k);
     return (seq_t)(-val);
 }

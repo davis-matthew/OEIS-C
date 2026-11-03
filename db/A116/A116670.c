@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   has_nine_distinct_digits
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,24 @@
  */
 
 #include <stdbool.h>
-#include "../utils/has_nine_distinct_digits.h"
+
+/* Helper: return true iff x has exactly nine distinct decimal digits */
+static bool has_nine_distinct_digits(seq_t x)
+{
+    unsigned mask = 0;        /* bit mask for digits 0-9 */
+    while (x > 0) {
+        unsigned digit = (unsigned)(x % 10);
+        mask |= 1U << digit;
+        x /= 10;
+    }
+    /* Count bits set in mask */
+    int count = 0;
+    while (mask) {
+        count++;
+        mask &= mask - 1;
+    }
+    return count == 9;
+}
 
 /* External function required by the build */
 seq_t a(idx_t n)

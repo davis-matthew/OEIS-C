@@ -7,14 +7,30 @@
  * Formula:   a(n) = lcm{d-1 : d>1 and d|n}
  * Range:     u8 n <= 11, u16 n <= 35, u32 n <= 107, u64 n <= 359,
  *            u128 n <= 1439, big any n
- * Helpers:   factor
+ * Validated: standard, pass, 70 terms through n = 9989 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor.h"
+#include <stddef.h>
+
+/* --------------------------------------------------------------- */
+static void factor(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    size_t c = 0;
+    for (uint64_t p = 2; p*p <= n; ++p) {
+        if (n % p == 0) {
+            pr[c] = p; exp[c] = 0;
+            while (n % p == 0) { n /= p; ++exp[c]; }
+            ++c;
+        }
+    }
+    if (n > 1) { pr[c] = n; exp[c] = 1; ++c; }
+    *cnt = c;
+}
 
 /* Small, type‑generic gcd for seq_t (works for all provided integer types) */
 static inline seq_t seq_gcd(seq_t a, seq_t b)

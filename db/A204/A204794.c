@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 13, u64 n <= 28, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(5)=18550, a(6)=81009, a(7)=353975, a(8)=1547377. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the sequence value for index n (1‑based). */
 seq_t a(idx_t n)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary. */
     if ((size_t)n > cache_cap) {
         size_t new_cap = ((size_t)n > 1 ? (size_t)n * 2 : 2);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort(); /* memory allocation failed */
         cache = tmp;

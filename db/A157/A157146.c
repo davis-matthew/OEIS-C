@@ -9,7 +9,8 @@
  *            count_{3,5,7}(p) = count_2(p)
  * Range:     u8 n <= 4, u16 n <= 881, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_frequencies, next_prime
+ * Validated: standard, pass, 60 terms through n = 9522 (2026-11-03)
+ * Helpers:   digit_frequencies, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"          /* uint64_t next_prime(uint64_t) */
-#include "../utils/digit_frequencies.h"   /* void digit_frequencies(seq_t, unsigned int[10]) */
+#include "../utils/digit_frequencies.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Returns the nth element (n >= 1) of OEIS sequence A157146. */
 seq_t a(idx_t n)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         if (new_cap < (size_t)n)
             new_cap = n;
         /* Reallocate cache. */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* Allocation failed – return 0 as a sentinel (sequence is undefined). */
             return (seq_t)0;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
             /* Ensure capacity one more element if we've reached the limit. */
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
                     return (seq_t)0;  /* Allocation failure. */
                 }

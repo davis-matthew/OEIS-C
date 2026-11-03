@@ -13,12 +13,14 @@
  *            implementa...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* memoised values */
 static idx_t  cache_size = 0;      /* number of entries in cache */
@@ -31,7 +33,7 @@ static void init_coeffs(void)
 {
     if (b_coeff != NULL)
         return;
-    b_coeff = (seq_t *)malloc(48 * sizeof(seq_t));
+    b_coeff = mem_new(seq_t, 48);
     if (!b_coeff)
         abort(); /* out of memory */
 
@@ -47,7 +49,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_size)
         return;
     idx_t new_size = n + 1;
-    seq_t *p = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, new_size);
     if (!p)
         abort(); /* out of memory */
     cache = p;

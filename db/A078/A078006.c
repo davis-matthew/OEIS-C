@@ -7,7 +7,8 @@
  * Formula:   a(0)=1, a(1)=0, a(2)=2, a(n)=a(n-1)+2*a(n-2)+2*a(n-3) for n≥3
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 28, u64 n <= 55, u128 n <= 109,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * seq_t and idx_t are defined by the build environment.
  */
 #include <stdlib.h>   /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of computed values */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* start with capacity for at least 8 elements   */
         capacity = 8;
-        cache = (seq_t*)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL) return (seq_t)0;   /* out‑of‑memory – return 0 */
 
         /* base values */
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
         /* grow exponentially until we have space for n */
         if (new_cap == 0) new_cap = 8;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return (seq_t)0;     /* out‑of‑memory – return 0 */
         cache = tmp;
         capacity = new_cap;

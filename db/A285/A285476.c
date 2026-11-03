@@ -10,6 +10,7 @@
  * Formula:   a(0)=1, a(1)=10, a(n)=0 for n>=2
  * Range:     u8 n <= 126, u16 n <= 126, u32 n <= 126, u64 n <= 126,
  *            u128 n <= 126, big any n
+ * Validated: standard, pass, 102 terms through n = 120 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

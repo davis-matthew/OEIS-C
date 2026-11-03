@@ -7,14 +7,16 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/3⌋} n^k * binomial(n,3k) * binomial(3k,k)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   binomial, pow_int
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     idx_t maxk = n / 3;
     for (idx_t k = 0; k <= maxk; ++k)
     {
-        seq_t pow_nk = pow_int((seq_t)n, k);          /* n^k */
+        seq_t pow_nk = ipow_idx((seq_t)n, k);          /* n^k */
         seq_t term   = pow_nk * binomial(n, 3 * k);   /* n^k * C(n,3k) */
         term          = term * binomial(3 * k, k);    /* * C(3k,k) */
         sum += term;

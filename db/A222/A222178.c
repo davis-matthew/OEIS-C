@@ -9,12 +9,14 @@
  *            sequence lists the quotients of such partition numbers
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 23, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     }
     if (!term_arr) {
         term_cap = 8;
-        term_arr = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        term_arr = mem_new(seq_t, term_cap);
         term_len = 0;
     }
 
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
             if (quo <= ( __uint128_t)max_seq) {
                 if (term_len >= term_cap) {
                     term_cap = term_cap * 2;
-                    term_arr = (seq_t *)realloc(term_arr, term_cap * sizeof(seq_t));
+                    term_arr = mem_resize(seq_t, term_arr, term_cap);
                 }
                 term_arr[term_len++] = (seq_t)quo;
             }

@@ -11,13 +11,15 @@
  *            transfer‑matrix dynamic program
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -67,8 +69,8 @@ seq_t a(idx_t n)
     }
 
     /* Dynamic programming arrays. */
-    seq_t *dp      = (seq_t *)calloc(STATES, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(STATES, sizeof(seq_t));
+    seq_t *dp      = mem_new(seq_t, STATES);
+    seq_t *dp_next = mem_new(seq_t, STATES);
     if (!dp || !dp_next) return (seq_t)0;   /* allocation failure */
 
     /* Initialise with left boundary = 0 (prev column all zeros). */
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
             result += dp[state];
     }
 
-    free(dp);
-    free(dp_next);
+    mem_free(dp);
+    mem_free(dp_next);
     return result;
 }

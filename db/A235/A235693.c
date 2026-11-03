@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4077, u32 n <= 6240, u64 n <= 6240,
  *            u128 n <= 6240, big any n
- * Helpers:   digit_counts
+ * Validated: standard, pass, 53 terms through n = 5940 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Prime generation utilities                                            */
@@ -117,7 +120,7 @@ seq_t a(idx_t n)
         if (is_semiprime(next_candidate) && count_distinct_digits(next_candidate) == 5) {
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 8;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = next_candidate;
         }

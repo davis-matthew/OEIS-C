@@ -13,7 +13,8 @@
  *            flattening of the triangle: * a(1)=2, a(2)=7, a(3)=7, a(4)=1...
  * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #ifdef __cplusplus
 #  include <new>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,12 +40,12 @@ seq_t a(idx_t n)
         r++;
         size_t len = (size_t)r;                /* length of current row */
         /* allocate array of len seq_t elements */
-        seq_t *cur = (seq_t *)malloc((len + 1) * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, (len + 1));
         if (!cur) abort();                     /* unrecoverable */
 #ifdef __cplusplus
         /* Construct elements in C++ builds */
         for (size_t i = 0; i < len; ++i) {
-            new (&cur[i]) seq_t();
+            *(&cur[i]) = (seq_t)0;
         }
 #endif
 
@@ -73,14 +75,14 @@ seq_t a(idx_t n)
             seq_t result = cur[pos];
 
             /* tidy up allocated memory */
-            free(prev2);
-            free(prev1);
-            free(cur);
+            mem_free(prev2);
+            mem_free(prev1);
+            mem_free(cur);
             return result;
         }
 
         /* ------- prepare for next iteration ------- */
-        free(prev2);
+        mem_free(prev2);
         prev2 = prev1;
         prev1 = cur;
         cumulative = new_cum;

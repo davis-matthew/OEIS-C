@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 3137, u32 n <= 4774, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 8455 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static tables of primes and weak primes, expanded on demand */
 static uint64_t *prime_list = NULL; /* stored as 64‑bit values */
@@ -55,7 +57,7 @@ static void add_weak(seq_t p)
 {
     if (weak_cnt == weak_cap) {
         size_t new_cap = weak_cap ? weak_cap << 1 : 8;
-        seq_t *tmp = (seq_t *)realloc(weak_list, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, weak_list, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         weak_list = tmp;
         weak_cap = new_cap;

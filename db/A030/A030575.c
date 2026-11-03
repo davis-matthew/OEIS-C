@@ -9,13 +9,15 @@
  *            non‑negative integers
  * Range:     u8 n <= 805, u16 n <= 805, u32 n <= 805, u64 n <= 805,
  *            u128 n <= 805, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 718 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state kept between calls */
 static seq_t  *runs      = NULL;      /* array of run lengths */
@@ -35,7 +37,7 @@ static void grow_runs(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *new_ptr = (seq_t *)realloc(runs, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, runs, new_cap);
     if (!new_ptr)
         exit(EXIT_FAILURE);  /* allocation failed */
 

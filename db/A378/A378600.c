@@ -8,8 +8,9 @@
  * Formula:   a(n) = signum(A033879(n)) * A103977(n) A033879(n) = 2*n - σ(n)
  *            If A033879(n) ≥ 0, a(n) = A033879(n); otherwise a(n) =
  *            -A103977(n) (Zumkeller deficiency)
- * Range:     i8 n <= 130, i16 n <= 8737, i32 n <= 8737, i64 n <= 8737,
- *            i128 n <= 8737, big any n
+ * Range:     i8 n <= 130, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 107 terms through n = 8737 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

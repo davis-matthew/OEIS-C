@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const seq_t init[10] = {0, 8, 32, 78, 196, 428, 916,
                                1858, 3678, 7096};
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         idx_t new_size = buf_size ? buf_size * 2 : 16;
         while (new_size < n + 1)
             new_size *= 2;
-        seq_t *tmp = (seq_t *)realloc(buf, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_size);
         if (!tmp)               /* allocation failed – give up */
             return 0;
         buf = tmp;

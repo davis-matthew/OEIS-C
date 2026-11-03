@@ -11,6 +11,7 @@
  *            such that m(m − 1)/2 ≥ pos. * 3. k = 1 +...
  * Range:     u8 n <= 4951, u16 n <= 4951, u32 n <= 4951, u64 n <= 4951,
  *            u128 n <= 4951, big any n
+ * Validated: standard, pass, 107 terms through n = 4078 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 1324, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, factor_u64, mod_pow, next_prime
+ * Validated: standard, pass, 76 terms through n = 8368 (2026-11-03)
+ * Helpers:   factor_u64, mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/mod_pow.h"
-#include "../utils/next_prime.h"
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/append_candidate.h"
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* Static cache for the sequence values.
  * cache[i] holds a(i+1). */
@@ -54,7 +73,7 @@ static bool is_primitive_root_u64(uint64_t a, uint64_t p)
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t d = primes[i];
         /* If a^((p-1)/d) ≡ 1 (mod p), then a is not a primitive root. */
-        if (mod_pow((seq_t)a, np1 / d, (seq_t)p) == (seq_t)1)
+        if (powmod((seq_t)a, np1 / d, (seq_t)p) == (seq_t)1)
             return false;
     }
     return true;

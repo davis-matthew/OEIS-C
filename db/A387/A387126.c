@@ -13,12 +13,13 @@
  *            0 first, then row 1, …, each row left to...
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   rad
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/rad.h"
+#include "../utils/radical.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
        entry in row n. */
     seq_t prod_rad = 1;
     for (idx_t i = 1; i <= r; ++i)
-        prod_rad *= rad(i);
+        prod_rad *= radical(i);
 
     /* Compute the falling factorial n!/(n-k)! = product_{j=r-k+1..r} j. */
     seq_t comb = 1;

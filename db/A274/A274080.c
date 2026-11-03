@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6237, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_flat, get_coords
+ * Validated: standard, pass, 98 terms through n = 8541 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,34 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/append_flat.h"
-#include "../utils/get_coords.h"
+#include "../utils/mem.h"
+
+/* Append m to the flattened sequence, growing the buffer if needed.  */
+static void append_flat(seq_t **arr, size_t *cap, size_t *len, seq_t m)
+{
+    if (*len == *cap) {
+        size_t new_cap = (*cap == 0) ? 16 : *cap << 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+        if (!tmp) abort();          /* out of memory */
+        *arr = tmp;
+        *cap = new_cap;
+    }
+    (*arr)[*len] = m;
+    ++(*len);
+}
+
+/* Convert a value n (1‑based index in the antidiagonal table) to its
+   coordinates (i,j) in the tableau.  */
+static void get_coords(idx_t n, idx_t *i, idx_t *j)
+{
+    idx_t m = 0;
+    /* find the largest m with T_m = m(m+1)/2 ≤ n-1 */
+    while ((m + 1) * (m + 2) / 2 <= n - 1)
+        ++m;
+    idx_t Tm = m * (m + 1) / 2;
+    *i = n - Tm;
+    *j = m + 2 - *i;
+}
 
 /* Compute a(n).  */
 seq_t a(idx_t n)

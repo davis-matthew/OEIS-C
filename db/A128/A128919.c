@@ -7,12 +7,14 @@
  * Formula:   a(n) = 142*a(n-1) - a(n-2) + 7 (a(1)=1, a(2)=148)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Initialize cache with first two terms */
     if (cache_size < 2) {
         cache_size = 2;
-        cache = (seq_t *)malloc((cache_size + 1) * sizeof(seq_t)); /* indices 0..2 */
+        cache = mem_new(seq_t, (cache_size + 1)); /* indices 0..2 */
         if (!cache) return 0; /* allocation failed */
         cache[0] = (seq_t)0;        /* unused */
         cache[1] = (seq_t)1;        /* a(1) */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Extend cache if needed */
     if (n > cache_size) {
         size_t new_size = (size_t)n + 1; /* +1 for index 0 unused */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return 0; /* allocation failed */
         cache = new_cache;
         /* Compute missing values using recurrence */

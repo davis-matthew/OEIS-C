@@ -7,14 +7,37 @@
  * Formula:   a(n) = Sum_{k=1..n} k^2 * Sum_{d|gcd(n,k)} d * mu(n/d)
  * Range:     u8 n <= 8, u16 n <= 46, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, mu_of
+ * Validated: standard, pass, 61 terms through n = 941 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd.h"   /* provides seq_t gcd(seq_t,seq_t)                     */
-#include "../utils/mu_of.h" /* provides int mu_of(idx_t)                          */
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/gcd.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 seq_t a(idx_t n)
 {

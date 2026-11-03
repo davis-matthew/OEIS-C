@@ -8,7 +8,8 @@
  *            Colombian numbers)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 120 terms through n = 9077 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Sum of decimal digits of a 64‑bit unsigned integer. */
 static uint64_t digit_sum_u64(uint64_t x)
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
             /* Store it, expanding the array if necessary. */
             if (col_cnt >= col_cap) {
                 size_t new_cap = col_cap ? col_cap * 2U : 16U;
-                seq_t *tmp = (seq_t *)realloc(col_vals, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, col_vals, new_cap);
                 if (!tmp) abort();
                 col_vals = tmp;
                 col_cap  = new_cap;

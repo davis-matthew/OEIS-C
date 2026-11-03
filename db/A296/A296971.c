@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   valid_row
+ * Validated: standard, pass, 36 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,33 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/valid_row.h"
+
+static inline bool
+valid_row(uint32_t prev, uint32_t curr, uint32_t next)
+{
+    /* For each 1 in the current row count king‑move neighbours that
+     * are also 1.  The neighbours come from prev, curr, and next
+     * rows.  The rule requires 2, 4 or 5 neighbours. */
+    for (int j = 0; j < 5; ++j) {
+        if ((curr >> j) & 1U) {
+            int cnt = 0;
+            for (int dr = -1; dr <= 1; ++dr) {
+                for (int dc = -1; dc <= 1; ++dc) {
+                    if (dr == 0 && dc == 0) continue;
+                    int nj = j + dc;
+                    if (nj < 0 || nj >= 5) continue;
+                    uint32_t mask = 1U << nj;
+                    if (dr == -1 && (prev & mask)) ++cnt;
+                    if (dr == 0  && (curr & mask)) ++cnt;
+                    if (dr == 1  && (next & mask)) ++cnt;
+                }
+            }
+            if (!(cnt == 2 || cnt == 4 || cnt == 5))
+                return false;
+        }
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

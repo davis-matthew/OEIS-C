@@ -5,23 +5,41 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   a(n) = (bigomega(sigma(n)) == omega(n) ? 1 : 0)
- * Range:     u8 n <= 7345, u16 n <= 8762, u32 n <= 8762, u64 n <= 8762,
- *            u128 n <= 8762, big any n
- * Helpers:   bigomega, count_distinct_primes, sigma_of
+ * Range:     u8 n <= 7345, u16 n <= 102400, u32 n <= 102400, u64 n <= 102400,
+ *            u128 n <= 102400, big any n
+ * Validated: standard, pass, 121 terms through n = 8762 (2026-11-01)
+ * Helpers:   bigomega, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* where omega(n) = number of distinct prime factors of n */
 
-#include "../utils/count_distinct_primes.h"
-#include "../utils/sigma_of.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
+#include "../utils/omega.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
     /* omega(n): number of distinct prime factors (int) */
-    int omega_n = count_distinct_primes((uint64_t)n);
+    int omega_n = omega((uint64_t)n);
 
     /* sigma(n): sum of divisors (seq_t) */
     seq_t sigma_n = sigma_of(n);

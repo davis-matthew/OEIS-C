@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 3 terms through n = 3 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build environment. */
 
@@ -71,7 +73,7 @@ static void _build_sequence(void)
     }
 
     /* Allocate array for the sequence values. */
-    seq_t *arr = (seq_t *)calloc(count, sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, count);
     if (!arr) { free(dp); return; }
 
     /* Store the qualifying numbers in ascending order. */

@@ -8,7 +8,8 @@
  * Formula:   a(n) = [x^n] ∏_{d|n} 1/(1 - x^(d^2))
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Compute ⌊sqrt(n)⌋ for a 64‑bit unsigned integer without a math lib */
 static idx_t isqrt_u64(idx_t n)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         return (seq_t)0;   /* not used – offset is 1, but safety */
 
     /* Allocation: dp[i] holds the number of partitions of i using the allowed parts */
-    seq_t *dp = (seq_t *)malloc(((size_t)n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, ((size_t)n + 1));
     if (!dp)
         return (seq_t)0;   /* allocation failure – unlikely in test harness */
 
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

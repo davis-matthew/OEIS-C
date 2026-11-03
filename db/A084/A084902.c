@@ -7,12 +7,14 @@
  * Formula:   a(n) = 5^(n-1)*n*(n+1)/2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 12, u64 n <= 24, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of powers of 5 */
 static seq_t *pow5 = NULL;   /* pow5[k] = 5^k, 0 <= k < pow5_len */
@@ -23,7 +25,7 @@ static idx_t pow5_cap = 0;   /* allocated capacity */
 static void ensure_power5(idx_t exp) {
     if (pow5_len == 0) {                 /* initialisation */
         pow5_cap = 1;
-        pow5 = (seq_t*)malloc(pow5_cap * sizeof(seq_t));
+        pow5 = mem_new(seq_t, pow5_cap);
         pow5[0] = (seq_t)1;
         pow5_len = 1;
     }
@@ -31,7 +33,7 @@ static void ensure_power5(idx_t exp) {
 
     /* grow capacity to at least exp+1 */
     while (pow5_cap <= exp) pow5_cap <<= 1;
-    pow5 = (seq_t*)realloc(pow5, pow5_cap * sizeof(seq_t));
+    pow5 = mem_resize(seq_t, pow5, pow5_cap);
 
     /* compute new entries */
     idx_t i;

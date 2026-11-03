@@ -12,6 +12,7 @@
  *            log(1+1/p) with log(2)
  * Range:     u8 n <= 6, u16 n <= 52, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 55 terms through n = 888 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

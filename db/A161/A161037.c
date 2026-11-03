@@ -9,15 +9,19 @@
  *            every part that appears occurs at least 13 times
  * Range:     u8 n <= 117, u16 n <= 315, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_one, seq_zero
+ * Validated: standard, pass, 112 terms through n = 988 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_one.h"
-#include "../utils/seq_zero.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+/* Return 0 as a seq_t, guaranteed to be the additive identity. */
+static seq_t seq_zero(void) { return (seq_t)0; }
 
 static seq_t* alloc_arr(idx_t sz) {
 #ifdef __cplusplus

@@ -9,6 +9,7 @@
  * Formula:   a(0)=1; a(n)=∑_{i=1}^{n} C(n+i−1,i) · a(n−i)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 24,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 343 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

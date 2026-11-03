@@ -8,13 +8,15 @@
  *            a(1)=1, a(2)=1, a(3)=2, a(4)=3, …)
  * Range:     u8 n <= 41, u16 n <= 297, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 825 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,15 +27,15 @@ seq_t a(idx_t n)
     /* ensure the buffer is large enough for indices 0..n */
     if ((idx_t)(cap) <= n) {
         idx_t newcap = n + 1;
-        seq_t *newdp = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, newcap);
         if (!newdp) return 0;            /* allocation fails → return 0 */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp   = newdp;
         cap  = newcap;
     }
 
     /* initialize dp[0..n] to 0, then set dp[0] = 1 */
-    memset(dp, 0, (size_t)(n + 1) * sizeof(seq_t));
+    mem_set(dp, 0, (size_t)(n + 1) * sizeof(seq_t));
     dp[0] = 1;
 
     /* the coin types (part sizes) */

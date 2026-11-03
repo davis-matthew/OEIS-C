@@ -9,6 +9,7 @@
  *            a(4)=2. This generates the OEIS sequence A155046
  * Range:     u8 n <= 14, u16 n <= 26, u32 n <= 50, u64 n <= 102,
  *            u128 n <= 202, big any n
+ * Validated: standard, pass, 56 terms through n = 1000 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

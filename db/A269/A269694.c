@@ -8,12 +8,14 @@
  *            J(n)=J(n-1)+2*J(n-2) (Jacobsthal numbers)
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 9, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         idx_t new_cap = (cache_cap > 0) ? cache_cap : 16;
         while (new_cap < n) new_cap <<= 1;
-        product = (seq_t*)realloc(product, (size_t)(new_cap + 1) * sizeof(seq_t));
-        jacob   = (seq_t*)realloc(jacob,   (size_t)(new_cap + 1) * sizeof(seq_t));
+        product = mem_resize(seq_t, product, (size_t)(new_cap + 1));
+        jacob   = mem_resize(seq_t, jacob, (size_t)(new_cap + 1));
         cache_cap = new_cap;
     }
 

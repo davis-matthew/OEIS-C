@@ -12,7 +12,8 @@
  *            multiplicity) = k. * A cache is used so that calls with arb...
  * Range:     u8 n <= 17, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   uint64_omega
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   bigomega_u64_to_u32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/uint64_omega.h"
+#include "../utils/bigomega_u64_to_u32.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Helpers for the bit and prime‑factor calculations                     */
@@ -63,7 +65,7 @@ static void ensure_cache(size_t need)
     if (need <= term_cache_cap) return;
     size_t new_cap = term_cache_cap ? term_cache_cap << 1 : 64;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     term_cache = tmp;
     term_cache_cap = new_cap;
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
             if (popcount_seq_t((seq_t)search_start) != k) continue;
 
             /* Total prime factor count must equal k. */
-            if (uint64_omega((uint64_t)search_start) != k) continue;
+            if (bigomega_u64_to_u32((uint64_t)search_start) != k) continue;
 
             /* Candidate accepted. */
             term_cache[term_cache_sz++] = (seq_t)search_start;

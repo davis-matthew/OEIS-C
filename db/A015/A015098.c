@@ -7,7 +7,8 @@
  * Formula:   a(n+1) = Σ{i=0..n} (-3)^i * a(i) * a(n-i), a(0) = 1
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 6, i64 n <= 9, i128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /*  OEIS A015098 – Carlitz‑Riordan q‑Catalan numbers (recurrence version) with q = –3 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static memoization tables */
 static seq_t *cache      = NULL;   /* a(0) … a(k)   */
@@ -30,7 +32,7 @@ static void grow_arr(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t new_cap = *cap ? (*cap) * 2 : 16;
         if (new_cap < need)   new_cap = need;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

@@ -9,15 +9,16 @@
  *            the number of divisors of k (A000005). The sequence a(n) is the
  *            triangle read by rows: a(1)=T(1,1), a(2)=T(2,1), a(3)=T(2,2),
  *            a(4)=T(3,1), … Offset = 1
- * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 45, u64 n <= 45, u128 n <= 45,
+ * Range:     u8 n <= 11, u16 n <= 37, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>            /* for uint64_t, provided by the build */
-#include "../utils/binom.h"    /* provides seq_t binom(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
 
 /* number of positive divisors of a small integer k (k <= ~200) */
 static seq_t divisor_count(idx_t k)
@@ -61,7 +62,7 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= m; ++k)
     {
         seq_t dk  = divisor_count(k);
-        seq_t bin = binom(2 * r, r + k);   /* helper from utils */
+        seq_t bin = binomial(2 * r, r + k);   /* helper from utils */
         sum += bin * dk;
     }
     return sum;

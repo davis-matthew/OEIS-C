@@ -12,6 +12,7 @@
  *            pair (a, n2) and evaluates T(a, n2)
  * Range:     u8 n <= 73, u16 n <= 421, u32 n <= 5214, u64 n <= 9731,
  *            u128 n <= 9731, big any n
+ * Validated: standard, pass, 89 terms through n = 8515 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

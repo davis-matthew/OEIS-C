@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   mul_by_const
+ * Validated: standard, pass, 31 terms through n = 149 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,37 @@
    C++ (arbitrary‑precision seq_t) build. */
 
 #include <stdint.h>
-#include "../utils/mul_by_const.h"
+
+/* Helper: multiply a seq_t by a small unsigned constant.
+   Uses a 128‑bit intermediate when compiling in C and the
+   compiler supports __int128; otherwise it falls back to
+   an efficient shift‑and‑add algorithm. */
+static inline seq_t mul_by_const(seq_t x, unsigned long long c)
+{
+#if defined(__cplusplus)
+    /* In C++ (possibly with arbitrary‑precision seq_t) just rely on
+       the built‑in multiplication operator. */
+    return x * (seq_t)c;
+#else
+    #if defined(__SIZEOF_INT128__) && !defined(NO_INT128)
+        unsigned __int128 prod = (unsigned __int128)x * (unsigned long long)c;
+        return (seq_t)prod;
+    #else
+        /* Generic shift‑and‑add; safe for big‑integer seq_t
+           (uses addition which does not overflow) and
+           works for small integer types when 128‑bit is not
+           available. */
+        seq_t res = 0;
+        while (c)
+        {
+            if (c & 1ULL) res += x;
+            x += x;
+            c >>= 1ULL;
+        }
+        return res;
+    #endif
+#endif
+}
 
 seq_t a(idx_t n)
 {

@@ -8,12 +8,14 @@
  * Formula:   a(0)=1, a(1)=9, a(n)=8*a(n-1)+3*a(n-2) for n>1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n‑th term of OEIS sequence A254664.
    The function is memoised; any call order is supported. */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
        and compute up to n (or one if n<1). */
     if (cache == NULL) {
         idx_t new_cap = (n + 1 > (idx_t)2 ? n + 1 : (idx_t)2);
-        cache = (seq_t *)malloc(sizeof(seq_t) * (size_t)new_cap);
+        cache = mem_new(seq_t, (size_t)new_cap);
         if (!cache) return 0;                /* allocation failed */
 
         cache[0] = (seq_t)1;
@@ -42,8 +44,7 @@ seq_t a(idx_t n)
     /* Cache exists – enlarge if necessary, computing the missing terms. */
     if (cache_cap <= n) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      sizeof(seq_t) * (size_t)new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!tmp) return 0;                 /* reallocation failed */
 
         /* Compute all new entries using the recurrence. */

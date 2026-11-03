@@ -9,12 +9,14 @@
  *            a(5)=104, a(6)=174, a(7)=270
  * Range:     u8 n <= 6, u16 n <= 45, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* 1‑based cache */
 static size_t cache_size = 0;         /* allocated slots (>=1) */
@@ -37,11 +39,11 @@ static void ensure_cache_size(size_t n)         /* need slots 0..n (inclusive) *
     if (n + 1 <= cache_size) return;
     size_t new_size = cache_size ? cache_size << 1 : 8;
     while (new_size <= n + 1) new_size <<= 1;
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache) return;                            /* allocation failure, caller must handle */
     if (cache) {
         for (size_t i = 0; i < cache_size; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_size = new_size;

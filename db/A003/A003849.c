@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy, nice
  * Formula:   Fibonacci word S(n)=S(n-1)S(n-2), S(0)="0", S(1)="01"; a(n) is
  *            n-th char of S(∞)
- * Range:     u8 n <= 9465, u16 n <= 9465, u32 n <= 9465, u64 n <= 9465,
- *            u128 n <= 9465, big any n
+ * Range:     u8 n <= 10945, u16 n <= 10945, u32 n <= 10945, u64 n <= 10945,
+ *            u128 n <= 10945, big any n
+ * Validated: standard, pass, 115 terms through n = 9465 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

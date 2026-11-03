@@ -12,13 +12,15 @@
  *            a(11)=6647
  * Range:     u8 n <= 4, u16 n <= 19, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,10 +53,10 @@ seq_t a(idx_t n)
        constants are all stored. */
     if (cache == NULL) {
         size_t cap = ((size_t)(n > 11 ? n : 11)) + 1; /* +1 for index 0 */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0; /* allocation failure – return 0 */
         /* Zero initialize the whole array */
-        memset(cache, 0, cap * sizeof(seq_t));
+        mem_set(cache, 0, cap * sizeof(seq_t));
         /* Copy the initial values that we already know */
         size_t i;
         for (i = 1; i <= (size_t)(n > 11 ? n : 11); ++i)
@@ -66,12 +68,12 @@ seq_t a(idx_t n)
        compute the missing terms using the recurrence.  */
     if (n > cache_max) {
         size_t new_cap = (size_t)n + 1; /* +1 for index 0 */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0; /* allocation failure – return 0 */
         cache = tmp;
         /* Zero initialise the new part (not strictly required,
            but harmless). */
-        memset(cache + cache_max + 1, 0, (new_cap - cache_max - 1) * sizeof(seq_t));
+        mem_set(cache + cache_max + 1, 0, (new_cap - cache_max - 1) * sizeof(seq_t));
 
         idx_t i;
         for (i = cache_max + 1; i <= n; ++i) {

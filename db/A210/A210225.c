@@ -11,13 +11,15 @@
  *            coefficients of u(n,x) with a(1)=1
  * Range:     u8 n <= 24, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,20 +36,20 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (flat == NULL) {
         flat_cap = 64;
-        flat = (seq_t *)malloc(flat_cap * sizeof(seq_t));
+        flat = mem_new(seq_t, flat_cap);
         flat_count = 0;
 
         /* row 1: u(1,x)=1, v(1,x)=1 */
         cur_row = 1;
-        uprev = (seq_t *)malloc(sizeof(seq_t));
-        vprev = (seq_t *)malloc(sizeof(seq_t));
+        uprev = mem_new(seq_t, 1);
+        vprev = mem_new(seq_t, 1);
         uprev[0] = 1;
         vprev[0] = 1;
 
         /* store coefficients of u(1,x) */
         if (flat_count + 1 > flat_cap) {
             flat_cap = 1;
-            flat = (seq_t *)realloc(flat, flat_cap * sizeof(seq_t));
+            flat = mem_resize(seq_t, flat, flat_cap);
         }
         flat[flat_count++] = 1;   /* a(1) = 1 */
     }
@@ -57,8 +59,8 @@ seq_t a(idx_t n)
         idx_t next_row = cur_row + 1;
 
         /* allocate arrays for new row coefficients */
-        seq_t *unew = (seq_t *)malloc((next_row) * sizeof(seq_t));
-        seq_t *vnew = (seq_t *)malloc((next_row) * sizeof(seq_t));
+        seq_t *unew = mem_new(seq_t, (next_row));
+        seq_t *vnew = mem_new(seq_t, (next_row));
         for (idx_t i = 0; i < next_row; ++i) {
             unew[i] = 0;
             vnew[i] = 0;
@@ -89,15 +91,15 @@ seq_t a(idx_t n)
             flat_cap = flat_cap > 0 ? flat_cap * 2 : next_row;
             if (flat_cap < flat_count + next_row)
                 flat_cap = flat_count + next_row;
-            flat = (seq_t *)realloc(flat, flat_cap * sizeof(seq_t));
+            flat = mem_resize(seq_t, flat, flat_cap);
         }
         for (idx_t i = 0; i < next_row; ++i) {
             flat[flat_count++] = unew[i];
         }
 
         /* free previous row data and move to new row */
-        free(uprev);
-        free(vprev);
+        mem_free(uprev);
+        mem_free(vprev);
         uprev = unew;
         vprev = vnew;
         cur_row = next_row;

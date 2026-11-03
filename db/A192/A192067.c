@@ -7,14 +7,16 @@
  * Formula:   a(n) is the nth smallest distinct value of 2^i + 3*2^(j-1) for
  *            i≥1, j≥1
  * Range:     u8 none, u16 none, u32 none, u64 n <= 58, u128 none, big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 typedef struct {
     idx_t i;
@@ -65,7 +67,7 @@ seq_t a(idx_t n) {
 
     /* initialise heap with all k = 0 .. K_LIMIT, i = 1 */
     for (idx_t k = 0; k <= K_LIMIT; ++k) {
-        seq_t val = pow_seq((seq_t)2, (idx_t)1) + ((seq_t)3 * pow_seq((seq_t)2, k));
+        seq_t val = ipow_i32((seq_t)2, (idx_t)1) + ((seq_t)3 * ipow_i32((seq_t)2, k));
         heap[heap_size++] = (node_t){ (idx_t)1, k, val };
     }
     /* build min‑heap */
@@ -94,7 +96,7 @@ seq_t a(idx_t n) {
         /* push next value with the same k */
         idx_t next_i = top.i + 1;
         if (next_i <= I_LIMIT) {
-            seq_t val = pow_seq((seq_t)2, next_i) + ((seq_t)3 * pow_seq((seq_t)2, top.k));
+            seq_t val = ipow_i32((seq_t)2, next_i) + ((seq_t)3 * ipow_i32((seq_t)2, top.k));
             heap[heap_size++] = (node_t){ next_i, top.k, val };
             sift_up(heap, heap_size, heap_size - 1);
         }

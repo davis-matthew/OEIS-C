@@ -10,8 +10,8 @@
  *            divisors of n
  * Range:     u8 n <= 15, u16 n <= 824, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_seq_t, factor_u64, is_prime, seq_alloc_new_array,
- *            seq_free_array
+ * Validated: standard, pass, 97 terms through n = 8736 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,11 +20,28 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/cmp_seq_t.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 seq_t a(idx_t n)
 {
@@ -65,7 +82,7 @@ seq_t a(idx_t n)
     }
 
     /* Sort the divisor list. */
-    qsort(divs, div_cnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(divs, div_cnt, sizeof(seq_t), cmp_seq_t);
 
     /* Compute s = Σ d_i·d_{i+1}. */
     seq_t s = (seq_t)0;

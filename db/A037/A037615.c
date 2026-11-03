@@ -9,7 +9,8 @@
  *            sequence 1,3,2,1,3,2,…, interpreted as an octal number
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   alloc_cache, free_cache
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,19 @@
 /*  a(n) = a(n–1)*8 + d(n),   with d(n) = 1,3,2 repeat;  a(1)=1. */
 
 #include <stddef.h>
-#include "../utils/alloc_cache.h"
-#include "../utils/free_cache.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

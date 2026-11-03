@@ -13,13 +13,15 @@
  *            a(19)=100, a(20)=110, a(21)=114
  * Range:     u8 n <= 47, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Persistent cache for the computed values */
 static seq_t *cache = NULL;          /* array of values */
@@ -39,7 +41,7 @@ static void ensure_capacity(idx_t n)
     if ((size_t)n + 1 <= cache_capacity) return;
 
     size_t new_capacity = ((size_t)n + 1) + 16; /* modest overshoot */
-    seq_t *new_cache = (seq_t *)malloc(new_capacity * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_capacity);
     if (!new_cache) { /* allocation failed; abort */
         abort();
     }
@@ -47,7 +49,7 @@ static void ensure_capacity(idx_t n)
         for (size_t i = 0; i <= cache_max_computed; ++i) {
             new_cache[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_capacity = new_capacity;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     /* Lazy initialization of the cache */
     if (!cache) {
         size_t init_capacity = 22 + 16;
-        cache = (seq_t *)malloc(init_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, init_capacity);
         if (!cache) abort();
         for (size_t i = 0; i < 22; ++i) cache[i] = init_vals[i];
         cache_capacity = init_capacity;

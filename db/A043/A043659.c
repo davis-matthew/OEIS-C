@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of helper comparator */
 static int cmp_seq(const void *, const void *);
@@ -33,7 +35,7 @@ static void ensure_cache_capacity(size_t need)
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 4096;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return;  /* allocation failure – will cause later crash,
                          * but such failure is unlikely in practice.    */
     cache = tmp;
@@ -66,7 +68,7 @@ static void generate_length(idx_t L)
                 const size_t batch_size = 12U * 12U * 12U * 12U;  /* 20736 */
 
                 /* Allocate temporary storage for this batch.          */
-                seq_t *temp = (seq_t *)malloc(batch_size * sizeof(seq_t));
+                seq_t *temp = mem_new(seq_t, batch_size);
                 if (!temp) return; /* allocation failure – ignore.               */
 
                 size_t idx = 0;
@@ -84,14 +86,14 @@ static void generate_length(idx_t L)
                             }
 
                 /* Sort the freshly generated numbers.                 */
-                qsort(temp, batch_size, sizeof(seq_t), cmp_seq);
+                mem_qsort(temp, batch_size, sizeof(seq_t), cmp_seq);
 
                 /* Append to global cache.                           */
                 ensure_cache_capacity(cache_len + batch_size);
                 for (size_t i = 0; i < batch_size; ++i)
                     cache[cache_len++] = temp[i];
 
-                free(temp);
+                mem_free(temp);
             }
 }
 

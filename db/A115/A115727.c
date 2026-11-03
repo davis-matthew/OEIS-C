@@ -8,12 +8,28 @@
  *            Mathematica order (offset 0)
  * Range:     u8 n <= 96, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   max_rectangle
+ * Validated: partial, pass, 97 terms through n = 96 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/max_rectangle.h"
+static seq_t max_rectangle(const int *parts, int sz)
+{
+    if (sz == 0) return 0;
+    int max_part = parts[0];
+    seq_t max_area = 0;
+    for (int k = 1; k <= max_part; ++k) {
+        int cnt = 0;
+        for (int j = 0; j < sz; ++j) {
+            if (parts[j] >= k) cnt++;
+            else break;          /* parts are sorted non‑increasing */
+        }
+        seq_t area = (seq_t)k * (seq_t)cnt;
+        if (area > max_area) max_area = area;
+    }
+    return max_area;
+}
 
 /* Recursively generate all partitions of 'rem' in descending order with
    parts no larger than 'max_p', counting them in '*cnt'.

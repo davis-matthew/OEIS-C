@@ -7,7 +7,8 @@
  * Formula:   a(k) is the integer k such that prime(k) - pi(k) is prime
  * Range:     u8 n <= 57, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *term_cache = NULL;
 static size_t term_cache_len = 0;
@@ -71,7 +73,7 @@ static void init_cache(void) {
     }
 
     /* Collect terms: k such that prime(k) - pi(k) is prime. */
-    seq_t *terms = (seq_t *)malloc(sizeof(seq_t) * prime_cnt);
+    seq_t *terms = mem_new(seq_t, prime_cnt);
     if (!terms) { free(is_composite); free(primes); free(pi_arr); return; }
 
     size_t term_count = 0;
@@ -88,7 +90,7 @@ static void init_cache(void) {
     free(pi_arr);
 
     /* Resize terms array to actual size. */
-    terms = (seq_t *)realloc(terms, sizeof(seq_t) * term_count);
+    terms = mem_resize(seq_t, terms, term_count);
     term_cache = terms;
     term_cache_len = term_count;
     term_cache_initialized = true;

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = # { k > 0 : σ(k) = σ(n) } (A070242)
- * Range:     u8 none, u16 n <= 26, u32 n <= 9942, u64 n <= 9942,
- *            u128 n <= 9942, big any n
- * Helpers:   none
+ * Range:     u8 none, u16 n <= 26, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9942 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;          /* indicates whether data was built */
 static idx_t   sigma_limit;               /* maximum σ value considered (≈σ(10000)) */
@@ -27,7 +29,7 @@ static void init_tables(void)
     const idx_t N0 = 10000;              /* range for preliminary σ(max) search */
 
     /* ---- 1. compute σ for 1 … N0 to find σ(max) ---------------- */
-    seq_t *sigma_temp = (seq_t*)malloc((N0 + 1) * sizeof(seq_t));
+    seq_t *sigma_temp = mem_new(seq_t, (N0 + 1));
     for (idx_t i = 0; i <= N0; ++i) sigma_temp[i] = 0;
 
     for (idx_t d = 1; d <= N0; ++d) {
@@ -46,8 +48,8 @@ static void init_tables(void)
     if (sigma_limit < N0) sigma_limit = N0;   /* safety guard */
 
     /* ---- 3. allocate the full tables --------------------------- */
-    sigma_arr = (seq_t*)malloc((sigma_limit + 1) * sizeof(seq_t));
-    freq_arr  = (seq_t*)malloc((sigma_limit + 1) * sizeof(seq_t));
+    sigma_arr = mem_new(seq_t, (sigma_limit + 1));
+    freq_arr  = mem_new(seq_t, (sigma_limit + 1));
     for (idx_t i = 0; i <= sigma_limit; ++i) {
         sigma_arr[i] = 0;
         freq_arr[i]  = 0;
@@ -68,7 +70,7 @@ static void init_tables(void)
         }
     }
 
-    free(sigma_temp);
+    mem_free(sigma_temp);
     initialized = true;
 }
 

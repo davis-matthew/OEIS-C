@@ -11,15 +11,45 @@
  *            Fixed-width build: direct series product by repeated (1 -...
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 28, u64 n <= 93, u128 n <= 323,
  *            big any n
- * Helpers:   fixed_calc, grow_zero
+ * Validated: standard, pass, 46 terms through n = 896 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/grow_zero.h"
-#include "../utils/fixed_calc.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static seq_t fixed_calc(idx_t n) {
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
+    idx_t k, m;
+    int rep;
+    seq_t r;
+    for (m = 0; m <= n; m++) dp[m] = 0;
+    dp[0] = 1;
+    for (k = 1; k <= n; k++) {
+        if (k % 4 == 0) continue;
+        for (rep = 0; rep < 6; rep++)
+            for (m = k; m <= n; m++)
+                dp[m] += dp[m - k];
+    }
+    r = dp[n];
+    mem_free(dp);
+    return r;
+}
 
 static int fixed_checked = 0;
 static int fixed_flag = 0;

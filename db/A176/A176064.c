@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 16, i16 n <= 35, i32 n <= 51, i64 n <= 51, i128 n <= 51,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"   /* provides seq_pow(seq_t, idx_t) */
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 /* Return the row index r such that r(r+1)/2 <= n < (r+1)(r+2)/2  */
 static idx_t row_of(idx_t n)
@@ -65,7 +67,7 @@ static seq_t hermite_coef(idx_t n, idx_t m)
 
     /* multiply by 2^m */
     if (m > 0)
-        res *= seq_pow((seq_t)2, m);
+        res *= ipow_idx((seq_t)2, m);
 
     return res;
 }
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
 
     /* coefficients needed */
     seq_t h0   = hermite_coef(r, (idx_t)0);          /* constant term */
-    seq_t hr   = seq_pow((seq_t)2, r);               /* leading term */
+    seq_t hr   = ipow_idx((seq_t)2, r);               /* leading term */
     seq_t hc   = hermite_coef(r, c);
     seq_t hrc  = hermite_coef(r, r - c);
 

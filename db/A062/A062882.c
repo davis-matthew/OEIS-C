@@ -9,12 +9,14 @@
  *            (recurrence derived from the closed‑form expression)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 47, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoization */
 static seq_t *cache = NULL;
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* resize cache to hold up to n terms */
     if (cache_len < n) {
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp)        /* allocation failure – return 0 */
             return (seq_t)0;
         cache = tmp;

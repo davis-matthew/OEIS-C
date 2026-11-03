@@ -10,12 +10,14 @@
  *            ⌊(n+1)/3⌋
  * Range:     u8 n <= 19, u16 n <= 37, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     seq_t ans = 0;
     for (idx_t t = 1; t <= tmax; ++t)
     {
-        seq_t c1 = binom(m, 5 * t);
-        seq_t c2 = binom(n - m, t);
+        seq_t c1 = binomial(m, 5 * t);
+        seq_t c2 = binomial(n - m, t);
         ans += c1 * c2;
     }
     return ans;

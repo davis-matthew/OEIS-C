@@ -9,18 +9,23 @@
  *            popcount(d) is even
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Helper function to factor a 64-bit integer.  The header and function
  * are provided by the OEIS build environment. */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;            /* out-of-range, but safe */
@@ -42,7 +47,7 @@ seq_t a(idx_t n) {
     /* Allocate array to hold all divisors.  The count is small for
      * N <= 10^4 (at most 128 in this range).  For larger N the same
      * logic works because divisor_cnt <= N. */
-    seq_t *divs = (seq_t *)malloc(divisor_cnt * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, divisor_cnt);
     if (divs == NULL) return 0;      /* memory failure */
 
     size_t cur = 1;        /* divs[0] already holds the divisor 1 */
@@ -70,6 +75,6 @@ seq_t a(idx_t n) {
         if ((__builtin_popcountll(v) & 1) == 0) ++ans;
     }
 
-    free(divs);
+    mem_free(divs);
     return ans;
 }

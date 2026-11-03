@@ -9,6 +9,7 @@
  *            concatenating them: 0,1,2,10,11,12,20,21,22,100,…
  * Range:     u8 n <= 5914, u16 n <= 5914, u32 n <= 5914, u64 n <= 5914,
  *            u128 n <= 5914, big any n
+ * Validated: standard, pass, 117 terms through n = 5223 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

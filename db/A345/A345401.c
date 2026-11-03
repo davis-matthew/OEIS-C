@@ -10,12 +10,14 @@
  *            reverse(bitwise complement of x within its bit length)
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 static inline seq_t reverse_bits(seq_t v, unsigned k) {
     seq_t rev = 0;
@@ -30,7 +32,7 @@ static inline seq_t reverse_bits(seq_t v, unsigned k) {
 static inline seq_t bcr(seq_t x) {
     if (x == (seq_t)0)
         return (seq_t)1;
-    unsigned k = bitlen_seq_t(x);
+    unsigned k = bit_length(x);
     seq_t mask = (((seq_t)1 << k) - 1);
     seq_t comp = (~x) & mask;
     return reverse_bits(comp, k);

@@ -10,12 +10,14 @@
  *            rows are of length r+1 with A(r,r)=0 for r>0.)
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t
 find_row(idx_t n)
@@ -57,12 +59,12 @@ seq_t a(idx_t n)
 
     /* Allocate two rows of size r+1 (but we use only the previous row of size r) */
     size_t size_r   = (size_t)r + 1;
-    seq_t *prev = (seq_t*)malloc(size_r * sizeof(seq_t));
-    seq_t *curr = (seq_t*)malloc(size_r * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, size_r);
+    seq_t *curr = mem_new(seq_t, size_r);
     if (!prev || !curr) {
         /* Allocation failure – return 0 as a safe fallback */
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;
     }
 
@@ -88,8 +90,8 @@ seq_t a(idx_t n)
     seq_t result = prev[c] % (seq_t)6;           /* modulo 6 already maintained */
 
     /* Free the temporary storage */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
 
     return result;
 }

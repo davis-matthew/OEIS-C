@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000010(A025475(n+1))
  * Range:     u8 n <= 16, u16 n <= 93, u32 n <= 6948, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 66 terms through n = 8889 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 /* forward declarations of useful utilities if needed */
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 typedef struct {
     uint64_t power; /* current prime power */
@@ -45,7 +47,7 @@ static void ensure_seq_cap(size_t needed) {
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_arr = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_arr) abort();
     seq_cache = new_arr;
     cache_cap = new_cap;

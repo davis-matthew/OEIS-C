@@ -12,12 +12,14 @@
  *            (F_3=2): 2 m=4 (F_4=3): 3 1 m=5 (F_5=5): 5 2 1 m=6...
  * Range:     u8 n <= 66, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  seq_t and idx_t are defined by the build.  */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     static idx_t fib_len = 0;        /* number of values currently stored */
     /* Ensure at least the first two Fibonacci numbers (F_1 = F_2 = 1).  */
     if (fib_len < 2) {
-        fib = (seq_t *)malloc(2 * sizeof(seq_t));
+        fib = mem_new(seq_t, 2);
         fib_len = 2;
         fib[0] = (seq_t)1;
         fib[1] = (seq_t)1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
             /* Grow the array: double its size or at least fit up to m.  */
             idx_t new_len = fib_len * 2;
             if (new_len <= m) new_len = m + 1;
-            seq_t *tmp = (seq_t *)realloc(fib, new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fib, new_len);
             if (!tmp) { /* allocation failure – abort with 0 (undefined) */
                 return (seq_t)0;
             }

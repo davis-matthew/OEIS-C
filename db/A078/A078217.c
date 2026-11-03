@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* Helper: number of decimal digits of x (x≥1) */
 static int digits_of(idx_t x)
@@ -57,7 +58,7 @@ seq_t a(idx_t n)
     seq_t C = 0;
     uint64_t n64 = (uint64_t)n;
     for (idx_t k = 1; k <= n; ++k) {
-        if (gcd_uint64((uint64_t)k, n64) == 1) {
+        if (gcd_u64((uint64_t)k, n64) == 1) {
             int d = digits_of(k);
             seq_t mult = pow10_seq(d);
             C = C * mult + (seq_t)k;

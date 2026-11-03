@@ -10,12 +10,14 @@
  *            for n>17
  * Range:     u8 n <= 5, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   binom
+ * Validated: full, pass, 17 terms through n = 17 (2026-11-02)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     {
         idx_t r = 2ULL * (a - 1);      /* r = 2*(a-1)  */
         if (k <= r)                    /* binom(r,k) is 0 otherwise */
-            sum += binom(r, k);
+            sum += binomial(r, k);
     }
     return sum;
 }

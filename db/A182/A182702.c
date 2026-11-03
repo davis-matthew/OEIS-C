@@ -10,12 +10,14 @@
  *            – r(r-1)/2 – 1. The value is a(n) = r * A000041(r-k)
  * Range:     u8 n <= 36, u16 n <= 351, u32 n <= 3916, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 4691 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------------- */
 /*   Partition numbers  p(0)=1,  p(m)=∑_{k≠0} (-1)^{k+1} p(m- k(3k±1)/2)  */
@@ -29,8 +31,7 @@ static void ensure_partition(idx_t max_needed)
     if (max_needed <= part_cache_max)
         return;
 
-    seq_t *tmp = (seq_t *)realloc(part_cache,
-                                 (max_needed + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, part_cache, (max_needed + 1));
     if (!tmp)
         abort();
     part_cache = tmp;

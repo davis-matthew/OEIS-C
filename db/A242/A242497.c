@@ -9,6 +9,7 @@
  *            3 x_k = 4*x_{k-1} - x_{k-2}
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 48, u64 n <= 99, u128 n <= 201,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 936 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

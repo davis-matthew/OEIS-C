@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   has_eq5e8
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
 #define _POSIX_C_SOURCE 200809L
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_eq5e8.h"
+
+static inline bool has_eq5e8(seq_t x)
+{
+    int cnt5 = 0, cnt8 = 0;
+    while (x != (seq_t)0) {
+        int digit = (int)(x % (seq_t)11);
+        if (digit == 5) cnt5++;
+        else if (digit == 8) cnt8++;
+        x /= (seq_t)11;
+    }
+    return (cnt5 > 0 && cnt5 == cnt8);
+}
 
 seq_t a(idx_t n)
 {

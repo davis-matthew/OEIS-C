@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   mul_small
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static seq_t *a_arr      = NULL;      /* memoised values a(1)…a(n)      */
 static idx_t  max_n_computed = 0;     /* largest n for which a_arr has been filled */
@@ -82,7 +96,7 @@ static void ensure_capacity(idx_t n)
     extend_tri_arrays(new_kmax);
 
     /* resize a_arr */
-    a_arr = (seq_t *)realloc(a_arr, (n + 1) * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, (n + 1));
     if (!a_arr) return;  /* allocation failed; caller will get 0 */
     if (max_n_computed == 0) a_arr[0] = 0;   /* dummy initial value */
 

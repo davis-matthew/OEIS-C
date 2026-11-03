@@ -9,18 +9,19 @@
  *            floor(sqrt(13*(3n+2)^2)))/6)
  * Range:     u8 n <= 58, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a001960_isqrt128
+ * Validated: standard, pass, 74 terms through n = 9259 (2026-11-01)
+ * Helpers:   isqrt_u128_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001960_isqrt128.h"
+#include "../utils/isqrt_u128_to_u64.h"
 
 seq_t a(idx_t n) {
     unsigned __int128 A = (unsigned __int128)3 * n + 2;
     unsigned __int128 X = (unsigned __int128)15 * n + 10;
-    uint64_t s = a001960_isqrt128(13 * A * A);
+    uint64_t s = isqrt_u128_to_u64(13 * A * A);
     unsigned __int128 r = (X + s) / 6;
     return (seq_t)(uint64_t)r;
 }

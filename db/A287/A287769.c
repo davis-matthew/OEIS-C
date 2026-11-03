@@ -9,7 +9,8 @@
  *            110 to the infinite Fibonacci word A003849
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9826 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,14 +18,15 @@
 /* Includes */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper prototypes for arbitrary‑precision builds */
 #ifndef HAVE_SEQ_ALLOC
 /* If seq_alloc_new_array / seq_realloc are not available,
    fall back to malloc/realloc.  The build system
    supplies these for big‑integer configurations. */
-#define seq_alloc_new_array(n) ((seq_t*)malloc((n)*sizeof(seq_t)))
-#define seq_realloc(ptr, oldcap, newcap) ((seq_t*)realloc((ptr), (newcap)*sizeof(seq_t)))
+#define seq_alloc_new_array(n) (mem_new(seq_t, (n)))
+#define seq_realloc(ptr, oldcap, newcap) (mem_resize(seq_t, (ptr), (newcap)))
 #endif
 
 /* Static storage for generated terms and input bits of the

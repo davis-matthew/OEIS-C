@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 108, u16 n <= 108, u32 n <= 108, u64 n <= 108,
  *            u128 n <= 108, big any n
+ * Validated: partial, pass, 105 terms through n = 108 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
    sieve (build_primes_upto) and caches the result. */
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 seq_t a(idx_t n)

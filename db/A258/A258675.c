@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 20, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --- Helper: bit extraction ------------------------------------------ */
 static inline int bit_at(int row, int pos) { return (row >> pos) & 1; }
@@ -87,8 +89,8 @@ seq_t a(idx_t n)
         }
 
         /* allocate DP vectors */
-        cur = (seq_t *)malloc(256 * sizeof(seq_t));
-        next_buf = (seq_t *)malloc(256 * sizeof(seq_t));
+        cur = mem_new(seq_t, 256);
+        next_buf = mem_new(seq_t, 256);
         if (!cur || !next_buf) return 0;
 
         /* initial distribution for two rows: all 256 states are possible */
@@ -127,7 +129,7 @@ seq_t a(idx_t n)
         if (max_n_done >= a_cache_cap) {
             size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 16;
             while (new_cap <= max_n_done) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
             if (!tmp) return 0;
             a_cache = tmp;
             a_cache_cap = new_cap;

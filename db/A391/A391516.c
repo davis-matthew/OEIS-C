@@ -12,7 +12,8 @@
  *            coefficients on the fly; it requires no global stat...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   compute_pell_array
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_pell_array.h"
+#include "../utils/mem.h"
+
+/* static helper to compute Pell number at given index (0 <= k <= max_n+1)
+   This function uses a small local array; it is safe for any seq_t
+   implementation that supports default construction. */
+static void compute_pell_array(seq_t *pell, idx_t max_k)
+{
+    /* Pell[0] = 0, Pell[1] = 1 */
+    pell[0] = (seq_t)0;
+    if (max_k == 0)
+        return;
+    pell[1] = (seq_t)1;
+    for (idx_t i = 2; i <= max_k; ++i) {
+        pell[i] = pell[i - 1] * (seq_t)2 + pell[i - 2];
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +45,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for Pell numbers up to n+1 */
     idx_t pell_len = n + 2;  /* need indices 0..n+1 inclusive */
-    seq_t *pell = (seq_t *)malloc(pell_len * sizeof(seq_t));
+    seq_t *pell = mem_new(seq_t, pell_len);
     if (!pell)
         abort();
 
@@ -64,6 +80,6 @@ seq_t a(idx_t n)
     seq_t denom = (seq_t)2 * (seq_t)n;
     seq_t result = sum / denom;
 
-    free(pell);
+    mem_free(pell);
     return result;
 }

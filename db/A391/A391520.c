@@ -11,6 +11,7 @@
  *            prime. Off‑set: a(2) is the first listed value
  * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 46 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 
 /* Helper to build a list of primes up to a given limit. */
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static uint32_t *odd_primes = NULL;   /* only odd primes, 3,5,7, ... */

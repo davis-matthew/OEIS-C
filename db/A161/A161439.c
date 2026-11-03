@@ -11,12 +11,14 @@
  *            cached
  * Range:     u8 n <= 4, u16 n <= 28, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Lazy initialization of the coefficient array. */
     if (!coeff) {
         /* Allocate memory for MAXLEN + 1 coefficients. */
-        coeff = (seq_t *)malloc((MAXLEN + 1) * sizeof(seq_t));
+        coeff = mem_new(seq_t, (MAXLEN + 1));
         if (!coeff) {
             /* If allocation fails, return zero (should not happen). */
             return (seq_t)0;

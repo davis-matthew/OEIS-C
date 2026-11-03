@@ -12,13 +12,15 @@
  *            the generating function (t^9 + 2*t^8 + ... + 2*t +...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Fixed initial values (indices 0..8). */
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     static idx_t cache_size = 0;
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        void *tmp = realloc(cache, new_size * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, new_size);
         cache = (seq_t *)tmp;
         cache_size = new_size;
     }

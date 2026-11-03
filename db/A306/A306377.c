@@ -7,14 +7,17 @@
  * Formula:   a(n) = n^(n+1) - Sum_{k=1..n-1} k^(k+1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     /* initialise cache */
     if (prefix == NULL) {
         prefix_cap = 16;
-        prefix = (seq_t *)malloc(prefix_cap * sizeof(seq_t));
+        prefix = mem_new(seq_t, prefix_cap);
         if (!prefix) return 0;           /* allocation failed */
         prefix[0] = (seq_t)0;           /* S(0) = 0 */
         prefix_len = 0;
@@ -35,13 +38,13 @@ seq_t a(idx_t n)
     /* extend cache up to k = n-1 (if needed) */
     while (prefix_len < n-1) {
         idx_t i = prefix_len + 1;
-        seq_t term = big_pow((seq_t)i, (seq_t)(i+1));
+        seq_t term = ipow((seq_t)i, (seq_t)(i+1));
         seq_t new_sum = prefix[prefix_len] + term;
 
         if (prefix_cap <= prefix_len + 1) {   /* need more space */
             size_t new_cap = prefix_cap * 2;
             if (new_cap <= prefix_len + 1) new_cap = prefix_len + 2;
-            seq_t *tmp = (seq_t *)realloc(prefix, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, prefix, new_cap);
             if (!tmp) return 0;   /* allocation failed */
             prefix = tmp;
             prefix_cap = new_cap;
@@ -51,6 +54,6 @@ seq_t a(idx_t n)
     }
 
     /* compute a(n) = n^(n+1) - S(n-1) */
-    seq_t term_n = big_pow((seq_t)n, (seq_t)(n+1));
+    seq_t term_n = ipow((seq_t)n, (seq_t)(n+1));
     return term_n - prefix[n-1];
 }

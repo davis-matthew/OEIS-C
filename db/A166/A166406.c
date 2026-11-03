@@ -6,8 +6,9 @@
  * Keywords:  sign
  * Formula:   a(n) = Sum_{i=1}^{2n+1, J(i,2n+1)=-1} i - Sum_{i=1}^{2n+1,
  *            J(i,2n+1)=+1} i where J(i,k) is the Jacobi symbol (i|k)
- * Range:     i8 n <= 11, i16 n <= 143, i32 n <= 9581, i64 n <= 9581,
- *            i128 n <= 9581, big any n
+ * Range:     i8 n <= 11, i16 n <= 143, i32 n <= 33023, i64 n <= 65535,
+ *            i128 n <= 65535, big any n
+ * Validated: standard, pass, 83 terms through n = 9581 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

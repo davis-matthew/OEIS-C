@@ -11,13 +11,15 @@
  *            composites are cached in static storage so t...
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of integer types provided by the build.  */
 /* typedef ... idx_t;  */
@@ -64,8 +66,8 @@ ensure_composites(idx_t n)
         }
 
         /* rebuild composite list */
-        free(comps);
-        comps = (seq_t *)malloc((new_limit + 1) * sizeof(seq_t));
+        mem_free(comps);
+        comps = mem_new(seq_t, (new_limit + 1));
         if (!comps) {
             /* memory allocation failure – abort with zero; not expected */
             return;

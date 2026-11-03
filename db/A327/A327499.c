@@ -8,8 +8,9 @@
  * Formula:   a(n) = n / d, where d is the maximum divisor of n * whose prime
  *            multiplicities (exponents in its prime factorisation) * are all
  *            distinct. For each n ≥ 1 the function returns a(n)
- * Range:     u8 n <= 869, u16 n <= 9926, u32 n <= 9926, u64 n <= 9926,
- *            u128 n <= 9926, big any n
+ * Range:     u8 n <= 869, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9926 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

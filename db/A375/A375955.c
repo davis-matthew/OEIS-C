@@ -9,8 +9,9 @@
  * Formula:   a(n) = the maximum common value in the Collatz trajectories of
  *            the * two integers that identify the n-th entry of the triangle
  *            T(r,k)
- * Range:     u8 n <= 377, u16 n <= 9605, u32 n <= 9605, u64 n <= 9605,
- *            u128 n <= 9605, big any n
+ * Range:     u8 n <= 377, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 9605 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

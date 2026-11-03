@@ -10,6 +10,7 @@
  *            a(7)=1123. For n <= 0 the function returns 0
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 31, u64 n <= 66, u128 n <= 136,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 186 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,14 +7,17 @@
  * Formula:   a(n) = sum_{d|n, d ≡ 1 or 5 (mod 6)} d
  * Range:     u8 n <= 214, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 96 terms through n = 9678 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64 */
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Helper: compute the sum of divisors of n that are ≡1 or 5 mod 6. */
 static seq_t sum_congruent_1_5_mod6(idx_t n)
@@ -31,7 +34,7 @@ static seq_t sum_congruent_1_5_mod6(idx_t n)
         div_cnt *= (ex[i] + 1);
 
     /* Create an array to hold all divisors. */
-    seq_t *divs = (seq_t *)malloc(sizeof(seq_t) * div_cnt);
+    seq_t *divs = mem_new(seq_t, div_cnt);
     if (!divs) return 0;   /* safety, though unlikely */
 
     divs[0] = 1;
@@ -41,9 +44,9 @@ static seq_t sum_congruent_1_5_mod6(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         seq_t p = (seq_t)pr[i];
         uint64_t exp = ex[i];
-        seq_t *new_divs = (seq_t *)malloc(sizeof(seq_t) * div_cnt);
+        seq_t *new_divs = mem_new(seq_t, div_cnt);
         if (!new_divs) {
-            free(divs);
+            mem_free(divs);
             return 0;
         }
         size_t new_cnt = 0;
@@ -54,7 +57,7 @@ static seq_t sum_congruent_1_5_mod6(idx_t n)
             }
             p_pow *= p;
         }
-        free(divs);
+        mem_free(divs);
         divs = new_divs;
         current_cnt = new_cnt;
     }
@@ -67,7 +70,7 @@ static seq_t sum_congruent_1_5_mod6(idx_t n)
             sum += d;
     }
 
-    free(divs);
+    mem_free(divs);
     return sum;
 }
 

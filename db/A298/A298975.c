@@ -10,7 +10,8 @@
  *            appears twice. a(1)=1
  * Range:     u8 n <= 7, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   has_digit_five
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/has_digit_five.h"
+#include "../utils/mem.h"
+
+/* Return true if the decimal representation of val contains the digit 5. */
+static bool has_digit_five(seq_t val)
+{
+    if (val == 0)
+        return false;
+    seq_t tmp = val;
+    while (tmp) {
+        if (tmp % (seq_t)10 == (seq_t)5)
+            return true;
+        tmp /= (seq_t)10;
+    }
+    return false;
+}
 
 /* Dynamic array holding the sequence values.  seq[i] = a(i+1). */
 static seq_t *seq = NULL;
@@ -98,7 +113,7 @@ seq_t a(idx_t n)
         if (seq_len == 0) {
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 64;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)1;
             mark_used((seq_t)1);
@@ -114,7 +129,7 @@ seq_t a(idx_t n)
                 if (has_digit_five(prod)) {
                     if (seq_len == seq_cap) {
                         seq_cap = seq_cap ? seq_cap * 2 : 64;
-                        seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                        seq = mem_resize(seq_t, seq, seq_cap);
                     }
                     seq[seq_len++] = cand;
                     mark_used(cand);

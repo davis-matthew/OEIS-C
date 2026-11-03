@@ -12,13 +12,15 @@
  *            discarding the used value. The results are memoise...
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The four allowed multipliers. */
 static const int ks[4] = {1, 2, 3, 6};
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         /* Allocate or grow cache if necessary. */
         if (n > cache_size) {
             idx_t new_size = n;
-            seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+            seq_t *tmp = mem_resize(seq_t, cache, new_size);
             if (!tmp) return 0;          /* allocation failure */
             cache = tmp;
             cache_size = new_size;

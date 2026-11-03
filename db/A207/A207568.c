@@ -10,12 +10,14 @@
  *            dynamic programming on pairs of columns (transfer matrix)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 26, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static data kept between calls */
 static int allowed_cols[35];
@@ -84,8 +86,8 @@ seq_t a(idx_t n) {
     /* DP over column pairs */
     const size_t STATE_COUNT = (size_t)allowed_count * allowed_count;   /* 1225 */
 
-    seq_t *cur = (seq_t *)calloc(STATE_COUNT, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(STATE_COUNT, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, STATE_COUNT);
+    seq_t *nxt = mem_new(seq_t, STATE_COUNT);
     if (!cur || !nxt) return 0;   /* allocation failure */
 
     /* initial state for two columns: every pair allowed once */
@@ -118,7 +120,7 @@ seq_t a(idx_t n) {
         total = total + cur[s];
     }
 
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return total;
 }

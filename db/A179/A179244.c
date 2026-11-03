@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 35, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9858 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global cache of the sums.  The array is always sorted
    and contains at least the number of elements requested.
@@ -67,7 +69,7 @@ static void build_cache(idx_t target_len)
     /* Build Fibonacci array.  We stop increasing when the next
        addition would overflow seq_t: if the next value would
        wrap around to a smaller value, we break. */
-    seq_t *fib = (seq_t *)malloc(fib_cnt * sizeof(seq_t));
+    seq_t *fib = mem_new(seq_t, fib_cnt);
     fib[0] = (seq_t)1;
     fib[1] = (seq_t)2;
     for (size_t i = 2; i < fib_cnt; ++i) {
@@ -84,7 +86,7 @@ static void build_cache(idx_t target_len)
         : 0;
 
     /* Allocate array for sums. */
-    seq_t *new_cache = (seq_t *)malloc(est_sums * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, est_sums);
     size_t pos = 0;
 
     /* Enumerate all quadruples i < j < k < l with gaps of at least
@@ -104,10 +106,10 @@ static void build_cache(idx_t target_len)
 
     /* The generated count should equal est_sums.  Sort the results. */
     if (pos > 1)
-        qsort(new_cache, pos, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(new_cache, pos, sizeof(seq_t), cmp_seq_t);
 
     /* Replace old cache (if any). */
-    free(cache);
+    mem_free(cache);
     cache   = new_cache;
     cache_len = pos;
 }

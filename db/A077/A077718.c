@@ -8,7 +8,8 @@
  *            of digits 0 and 1
  * Range:     u8 n <= 2, u16 n <= 33, u32 n <= 3348, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_mul, value_from_bin
+ * Validated: standard, pass, 54 terms through n = 9752 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,23 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/mod_mul.h"
-#include "../utils/value_from_bin.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
+
+/* generate the value expressed by binary number m as a base‑4 sum */
+static seq_t value_from_bin(uint64_t m)
+{
+    seq_t val = 0;
+    seq_t pow = 1;
+    while (m)
+    {
+        if (m & 1ULL)
+            val += pow;
+        pow *= (seq_t)4;
+        m >>= 1;
+    }
+    return val;
+}
 
 /* cache for sequence values */
 static seq_t *seq_cache   = NULL;
@@ -40,8 +56,8 @@ static uint64_t mod_pow(uint64_t a, uint64_t e, uint64_t mod)
     while (e)
     {
         if (e & 1)
-            r = mod_mul(r, a, mod);
-        a = mod_mul(a, a, mod);
+            r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return r;
@@ -75,7 +91,7 @@ static bool is_prime_u64(uint64_t n)
         bool comp = true;
         for (uint64_t r = 1; r < s; ++r)
         {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { comp = false; break; }
         }
         if (comp)
@@ -94,7 +110,7 @@ static bool is_prime_seq(seq_t v)
 static void grow_cache(void)
 {
     size_t new_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-    seq_t *new_ptr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_ptr)
         abort();            /* allocation failure – should not happen in tests */
     seq_cache = new_ptr;

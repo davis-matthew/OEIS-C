@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 89, u64 n <= 209,
  *            u128 n <= 899, big any n
- * Helpers:   binom_not_divisible_by_prime
+ * Validated: standard, pass, 64 terms through n = 971 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,19 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/binom_not_divisible_by_prime.h"
+
+/* Return true iff C(N,k) is NOT divisible by the prime p (Lucas’ theorem). */
+static bool binom_not_divisible_by_prime(idx_t N, idx_t k, idx_t p)
+{
+    while (N || k) {
+        idx_t ni = N % p;
+        idx_t ki = k % p;
+        if (ki > ni) return false;
+        N /= p;
+        k /= p;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

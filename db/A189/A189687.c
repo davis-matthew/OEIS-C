@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 120, u16 n <= 120, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
- * Helpers:   none
+ * Validated: partial, pass, 120 terms through n = 120 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    buffer until it contains at least n bits, then return buffer[n‑1]. */
 
 #include <stdlib.h>   /* malloc, free, exit */
+#include "../utils/mem.h"
 
 /* The build supplies the integer types seq_t and idx_t.  We just use them. */
 
@@ -32,7 +34,7 @@ static void extend_to(idx_t n)
 {
     /* Initialize with the first word "0" if we haven't yet. */
     if (wordbuf == NULL) {
-        wordbuf = (seq_t *)malloc(sizeof(seq_t));
+        wordbuf = mem_new(seq_t, 1);
         if (!wordbuf) exit(1);          /* out of memory */
         wordbuf[0] = (seq_t)0;
         wordlen = 1;
@@ -44,7 +46,7 @@ static void extend_to(idx_t n)
         /* Example maximum growth: every 0 turns into three characters,
            every 1 into two.  We use a safe over‑estimate. */
         size_t estlen = oldlen * 3;
-        seq_t *newbuf = (seq_t *)malloc(estlen * sizeof(seq_t));
+        seq_t *newbuf = mem_new(seq_t, estlen);
         if (!newbuf) exit(1);          /* out of memory */
 
         size_t pos = 0;
@@ -59,7 +61,7 @@ static void extend_to(idx_t n)
             }
         }
 
-        free(wordbuf);
+        mem_free(wordbuf);
         wordbuf = newbuf;
         wordlen = pos;
     }

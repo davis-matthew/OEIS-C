@@ -14,15 +14,56 @@
  *            given (conjecturally exact) by: * T(n,k) = 2*n^k - k*...
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   T_func, diag_d
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/T_func.h"
-#include "../utils/diag_d.h"
+
+/* Compute T(n,k) for n≥1, k≥1. */
+static inline seq_t T_func(idx_t n, idx_t k)
+{
+    if (n <= 1)          /* T(1,k) = 0 */
+        return 0;
+
+    seq_t nseq = (seq_t)n;
+    seq_t kseq = (seq_t)k;
+
+    /* Compute n^k. */
+    seq_t npow = 1;
+    for (idx_t t = 0; t < k; ++t)
+        npow *= nseq;
+
+    seq_t result = npow * (seq_t)2;          /* 2*n^k */
+    result -= kseq * nseq;                   /* -k*n  */
+    result += (seq_t)(k / n);                /* +floor(k/n) */
+
+    if (k == 1)
+        result -= 1;                         /* -δ(k==1) */
+    if (n == 2 && k == 2)
+        result -= 1;                         /* -δ(n==2)δ(k==2) */
+
+    return result;
+}
+
+/* Find diagonal d for index n: smallest d with d*(d-1)/2 >= n. */
+static inline idx_t diag_d(idx_t n)
+{
+    idx_t low = 2, high = 2;
+    while ((unsigned __int128)high * (high - 1) / 2 < n)
+        high <<= 1;
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        if ((unsigned __int128)mid * (mid - 1) / 2 >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 /* Integer square root for unsigned __int128 (floor). */
 static inline unsigned __int128 floor_sqrt128(unsigned __int128 x)

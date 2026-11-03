@@ -13,6 +13,7 @@
  *            For r = 0 return 1. For r = 1 return (offset...
  * Range:     i8 n <= 73, i16 n <= 73, i32 n <= 73, i64 n <= 73, i128 n <= 73,
  *            big any n
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

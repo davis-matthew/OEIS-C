@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-2)+a(n-3), a(1)=2, a(2)=1, a(3)=0
  * Range:     u8 n <= 22, u16 n <= 41, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
 
     /* Allocate an array large enough to hold indices 1..n */
     size_t sz = (size_t)(n + 1);
-    seq_t *values = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *values = mem_new(seq_t, sz);
     if (!values)  /* allocation failed – return 0 as a fallback */
         return 0;
 
@@ -34,6 +36,6 @@ seq_t a(idx_t n)
         values[i] = values[i - 2] + values[i - 3];
 
     seq_t result = values[n];
-    free(values);
+    mem_free(values);
     return result;
 }

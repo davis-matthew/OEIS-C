@@ -10,19 +10,22 @@
  *            for even n
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 15, u64 n <= 31, u128 n <= 65,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 38 terms through n = 187 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;                 /* offset starts at 1 */
     seq_t base = (n & 1) ? (seq_t)32 : (seq_t)120;
     idx_t e = (n & 1) ? ((n - 1) / 2) : ((n - 2) / 2);
-    seq_t pow = seq_pow((seq_t)14, e);
+    seq_t pow = ipow_idx((seq_t)14, e);
     return base * pow;
 }

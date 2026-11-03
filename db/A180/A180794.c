@@ -12,20 +12,22 @@
  *            unordered pairs meeting the congruence sum{x1*x2 +...
  * Range:     u8 n <= 11, u16 n <= 69, u32 n <= 999, u64 n <= 999,
  *            u128 n <= 999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 870 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle trivial case */
     if (n == 0) return 0;
 
     /* Allocate array for counts of unordered pairs per residue */
-    seq_t *g = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *g = mem_new(seq_t, (size_t)n);
     if (!g) return 0; /* allocation failure */
 
     /* Initialize to zero */
@@ -52,6 +54,6 @@ seq_t a(idx_t n) {
         /* when r > rr, already counted */
     }
 
-    free(g);
+    mem_free(g);
     return total;
 }

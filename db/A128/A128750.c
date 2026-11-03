@@ -12,12 +12,14 @@
  *            generating function G(z)=∑a(n)z^n
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 34, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     /* helper to ensure capacity >= n+1 */
     if (cap == 0) {
         cap = 1;                       /* at least space for a[0] */
-        A = (seq_t*)malloc(cap * sizeof(seq_t));
-        Conv = (seq_t*)malloc(cap * sizeof(seq_t));
+        A = mem_new(seq_t, cap);
+        Conv = mem_new(seq_t, cap);
         A[0] = 1;
         Conv[0] = A[0] * A[0];         /* conv(0) = 1*1 */
         last = 0;
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
         /* grow on demand, doubling until enough */
         while (cap <= (size_t)n) {
             size_t new_cap = cap * 2;
-            A = (seq_t*)realloc(A, new_cap * sizeof(seq_t));
-            Conv = (seq_t*)realloc(Conv, new_cap * sizeof(seq_t));
+            A = mem_resize(seq_t, A, new_cap);
+            Conv = mem_resize(seq_t, Conv, new_cap);
             cap = new_cap;
         }
     }

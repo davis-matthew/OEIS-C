@@ -10,13 +10,27 @@
  *            a single digit 4
  * Range:     u8 n <= 49, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   count_digit4_uint64
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_digit4_uint64.h"
+
+static inline int count_digit4_uint64(uint64_t v)
+{
+    int cnt = 0;
+    while (v) {
+        int d = v % 9U;
+        if (d == 4)
+            ++cnt;
+        if (cnt > 1)
+            return 2;            /* early exit: more than one 4 */
+        v /= 9U;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

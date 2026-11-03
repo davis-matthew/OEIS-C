@@ -8,14 +8,27 @@
  *            contains no digit 0 or 1 (decimal). a(1)=2, a(2)=5, …
  * Range:     u8 n <= 10, u16 n <= 101, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_no_digit_zero_or_one
+ * Validated: standard, pass, 61 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_no_digit_zero_or_one.h"
+#include "../utils/mem.h"
+
+/* Return true iff x has no decimal digit 0 or 1.                               */
+static bool has_no_digit_zero_or_one(idx_t x)
+{
+    while (x > 0) {
+        unsigned d = x % 10;
+        if (d == 0 || d == 1)
+            return false;
+        x /= 10;
+    }
+    return true;
+}
 
 /* -------------------------------------------------------------------------- */
 
@@ -49,7 +62,7 @@ static void build_tables(void)
             if (has_no_digit_zero_or_one(i)) {
                 if (good_cnt >= good_cap) {
                     good_cap = good_cap ? good_cap * 2 : 1024;
-                    good_primes = (seq_t*)realloc(good_primes, good_cap * sizeof(seq_t));
+                    good_primes = mem_resize(seq_t, good_primes, good_cap);
                     if (!good_primes) {
                         free(is_composite);
                         return;
@@ -67,7 +80,7 @@ static void build_tables(void)
 
     /* Build prefix sums. */
     prefix_size = good_cnt + 1;
-    prefix_sums = (seq_t*)calloc(prefix_size, sizeof(seq_t));
+    prefix_sums = mem_new(seq_t, prefix_size);
     if (!prefix_sums)
         return;
 

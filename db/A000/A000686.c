@@ -12,15 +12,24 @@
  *            labeled graphs, A0478...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   grow_arr, pw2
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/grow_arr.h"
-#include "../utils/pw2.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_arr(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *r = mem_new(seq_t, newlen);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) r[i] = old[i];
+    if (old) mem_free(old);
+    return r;
+}
 
 static seq_t *T2 = NULL, *T3 = NULL;
 static idx_t cap = 0, have = 0;
@@ -37,14 +46,14 @@ static void ensure(idx_t m) {
         seq_t s2 = 0;
         seq_t c = 1;
         for (idx_t j = 0; j <= t; j++) {
-            s2 += c * pw2(j * (t - j));
+            s2 += c * pow2(j * (t - j));
             if (j < t) c = c * (seq_t)(t - j) / (seq_t)(j + 1);
         }
         T2[t] = s2;
         seq_t s3 = 0;
         c = 1;
         for (idx_t j = 0; j <= t; j++) {
-            s3 += c * pw2(j * (t - j)) * T2[t - j];
+            s3 += c * pow2(j * (t - j)) * T2[t - j];
             if (j < t) c = c * (seq_t)(t - j) / (seq_t)(j + 1);
         }
         T3[t] = s3;
@@ -58,7 +67,7 @@ seq_t a(idx_t n) {
     seq_t sum = 0;
     seq_t c = 1; /* binomial(n-1, k-1) */
     for (idx_t k = 1; k <= n; k++) {
-        sum += c * pw2(k * (n - k)) * T3[n - k];
+        sum += c * pow2(k * (n - k)) * T3[n - k];
         if (k < n) c = c * (seq_t)(n - k) / (seq_t)k;
     }
     return sum;

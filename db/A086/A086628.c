@@ -8,13 +8,15 @@
  *            B(n-2-i), where B(k) = Σ_{j=0}^k a(j) * a(k-j)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
 
     size_t N = (size_t)n;          /* safe for n <= 10000 */
     size_t Bsize = 2 * N + 1;      /* to hold indices up to 2N */
-    seq_t *a_vals = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *B      = (seq_t *)calloc(Bsize, sizeof(seq_t));
+    seq_t *a_vals = mem_new(seq_t, N + 1);
+    seq_t *B      = mem_new(seq_t, Bsize);
     if (!a_vals || !B) {
         /* In production this should never happen for n <= 10000. */
         return (seq_t)0;
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_vals[N];
-    free(a_vals);
-    free(B);
+    mem_free(a_vals);
+    mem_free(B);
     return result;
 }

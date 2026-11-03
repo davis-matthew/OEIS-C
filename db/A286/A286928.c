@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{i=0..⌊n/2⌋} (-1)^i * binomial(n, i) * *
  *            binomial(n*(n+1)-i*(2*n+1)-1, n-1)
- * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 23,
+ * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 23,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 319 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /* Includes needed utilities */
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Compute binomial(n,k) using 128‑bit integers (only used for small n). */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 890, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static bool contains23(seq_t x) {
     /* Returns true iff base‑9 digits of x contain 2 followed by 3. */
@@ -57,7 +59,7 @@ static void ensure_cache(idx_t needed) {
     if (cache_cap < needed) {
         size_t new_cap = cache_cap ? cache_cap : 32;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;          /* allocation failed: leave cache as is */
         cache = tmp;
         cache_cap = new_cap;

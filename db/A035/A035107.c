@@ -7,6 +7,7 @@
  * Formula:   a(n) = (4*n^3 +54*n^2 +212*n +153 -9*(-1)^n)/48
  * Range:     u8 n <= 0, u16 n <= 21, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 61 terms through n = 900 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

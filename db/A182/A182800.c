@@ -8,13 +8,17 @@
  *            sequence of all primes and distinct‑prime semiprimes
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   _smallest_prime_factor, is_prime
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   is_prime, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_smallest_prime_factor.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/is_prime.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +27,7 @@ seq_t a(idx_t n)
 
     for (seq_t m = 2; ; ++m) {              /* iterate all naturals */
         /* Check if m is prime */
-        uint64_t sp = _smallest_prime_factor((uint64_t)m);
+        uint64_t sp = smallest_prime_factor((uint64_t)m);
         if (sp == (uint64_t)m) {            /* prime */
             ++pos;
             continue;

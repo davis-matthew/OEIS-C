@@ -12,13 +12,15 @@
  *            each column it enumerates all * possible assig...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 35, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
     if (actCap == 0)                        /* one‑time allocation   */
     {
         actCap = STATES;
-        dpCurr = (seq_t *)malloc(actCap * sizeof(seq_t));
-        dpNext = (seq_t *)malloc(actCap * sizeof(seq_t));
+        dpCurr = mem_new(seq_t, actCap);
+        dpNext = mem_new(seq_t, actCap);
         actCurr = (uint32_t *)malloc(actCap * sizeof(uint32_t));
         actNext = (uint32_t *)malloc(actCap * sizeof(uint32_t));
         for (size_t i = 0; i < actCap; ++i)

@@ -12,13 +12,15 @@
  *            order of decreasing n: (s-1,1),(s-2,2),…,(1,s-1)
  * Range:     u8 n <= 12, u16 n <= 31, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t k)
 {
@@ -41,10 +43,10 @@ seq_t a(idx_t k)
     seq_t d_val   = (seq_t)d_coord;
 
     seq_t exp1 = d_val * 2;                 /* 2*d */
-    seq_t power1 = big_pow(n_val, exp1);    /* n^(2d) */
+    seq_t power1 = ipow(n_val, exp1);    /* n^(2d) */
 
     seq_t base2 = (seq_t)3 * n_val - 2;     /* (3n-2) */
-    seq_t power2 = big_pow(base2, d_val);   /* (3n-2)^d */
+    seq_t power2 = ipow(base2, d_val);   /* (3n-2)^d */
 
     seq_t diff = power1 - power2;           /* guaranteed even */
     seq_t result = diff / 2;

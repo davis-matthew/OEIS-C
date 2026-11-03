@@ -13,12 +13,14 @@
  *            them so that calls in any order run in O(...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *memo = NULL;   /* cached values, 1‑based */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     if (n > cap) {
         idx_t newcap = cap ? cap * 2 : 16;
         while (newcap < n) newcap *= 2;
-        memo = (seq_t*)realloc(memo, (newcap + 1) * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, (newcap + 1));
         for (idx_t i = cap + 1; i <= newcap; ++i) memo[i] = 0;
         cap = newcap;
     }

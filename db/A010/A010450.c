@@ -7,14 +7,27 @@
  * Formula:   a(n) = the n-th quadratic residue modulo 89 in increasing order
  * Range:     u8 n <= 45, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   cmp_seq
+ * Validated: full, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/cmp_seq.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* comparison helper for qsort on seq_t values */
+static int cmp_seq(const void *a, const void *b)
+{
+    seq_t v1 = *(const seq_t *)a;
+    seq_t v2 = *(const seq_t *)b;
+    if (v1 < v2) return -1;
+    if (v1 > v2) return 1;
+    return 0;
+}
 
 /* Comparator for qsort on seq_t values */
 
@@ -44,7 +57,7 @@ seq_t a(idx_t n)
         for (idx_t i = 0; i < count; ++i) {
             residues[i] = tmp[i];
         }
-        qsort(residues, count, sizeof(seq_t), cmp_seq);
+        mem_qsort(residues, count, sizeof(seq_t), cmp_seq);
 
         initialized = true;
     }

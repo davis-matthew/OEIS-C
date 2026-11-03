@@ -7,7 +7,8 @@
  * Formula:   a(n) = p(n) - p(n-1) - p(n-2) + p(n-3)
  * Range:     u8 n <= 28, u16 n <= 64, u32 n <= 170, u64 n <= 506,
  *            u128 n <= 1656, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9761 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * The cache is grown on demand using the pentagonal number theorem.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;     /* dp[i] holds p(i) */
 static idx_t dp_size = 0;    /* number of elements allocated in dp */
@@ -27,7 +29,7 @@ static void ensure_dp(idx_t n)
 {
     /* Initialisation: p(0) = 1 */
     if (dp_size == 0) {
-        dp = (seq_t *)calloc(1, sizeof(seq_t));
+        dp = mem_new(seq_t, 1);
         if (!dp) abort();
         dp[0] = (seq_t)1;
         dp_size = 1;
@@ -37,7 +39,7 @@ static void ensure_dp(idx_t n)
 
     /* Allocate space up to n */
     size_t new_size = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, new_size);
     if (!tmp) abort();
     /* initialise new entries to 0 */
     for (size_t i = dp_size; i < new_size; ++i) tmp[i] = (seq_t)0;

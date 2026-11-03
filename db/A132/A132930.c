@@ -9,15 +9,27 @@
  *            divisors of k (OEIS A132930)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 22,
  *            big any n
- * Helpers:   digit_count, pow10
+ * Validated: standard, pass, 31 terms through n = 334 (2026-11-03)
+ * Helpers:   mem, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow10.h"          /* seq_t pow10(idx_t e);  */
-#include "../utils/digit_count.h"    /* int digit_count(uint64_t n); */
+#include <math.h>
+#include "../utils/num_digits0.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* External function as required */
 seq_t a(idx_t n)
@@ -48,7 +60,7 @@ seq_t a(idx_t n)
         }
 
         /* Resize concat array to n+1 elements */
-        seq_t *new_concat = (seq_t*)realloc(concat, sizeof(seq_t)*(n + 1));
+        seq_t *new_concat = mem_resize(seq_t, concat, (n + 1));
         if (!new_concat) return 0;
         concat = new_concat;
 
@@ -56,7 +68,7 @@ seq_t a(idx_t n)
         seq_t value = (current == 0) ? 0 : concat[current];
         for (idx_t i = current + 1; i <= n; ++i) {
             uint64_t  s   = sigma[i];
-            int       digs = digit_count(s);        /* decimal digits of σ(i) */
+            int       digs = num_digits0(s);        /* decimal digits of σ(i) */
             seq_t     mul  = pow10(digs);           /* 10^digs as seq_t */
             value = value * mul + (seq_t)s;        /* append σ(i) */
             concat[i] = value;

@@ -8,7 +8,8 @@
  *            2 is a semiprimitive root of p
  * Range:     u8 n <= 10, u16 n <= 84, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, mod_pow, next_prime
+ * Validated: standard, pass, 100 terms through n = 9925 (2026-11-03)
+ * Helpers:   factor_u64, mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start) */
-#include "../utils/mod_pow.h"      /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod) */
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *primes, uint64_t *exps, size_t *cnt) */
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Test whether a prime p (>2) has 2 as a semiprimitive root. */
 static bool is_semiprimitive_prime(uint64_t p)
@@ -32,7 +35,7 @@ static bool is_semiprimitive_prime(uint64_t p)
         return false;
 
     /* 2^e ≡ 1 (mod p) must hold */
-    if (mod_pow(2, e, (seq_t)p) != 1)
+    if (powmod(2, e, (seq_t)p) != 1)
         return false;
 
     /* Ensure that the order of 2 is exactly e:
@@ -42,7 +45,7 @@ static bool is_semiprimitive_prime(uint64_t p)
     factor_u64(e, primes, exps, &nf);
     for (size_t i = 0; i < nf; ++i) {
         uint64_t q = primes[i];
-        if (mod_pow(2, e / q, (seq_t)p) == 1)
+        if (powmod(2, e / q, (seq_t)p) == 1)
             return false;
     }
     return true;
@@ -59,7 +62,7 @@ static seq_t smallest_primitive_root(uint64_t p)
         bool ok = true;
         for (size_t i = 0; i < nf; ++i) {
             uint64_t q = primes[i];
-            if (mod_pow((seq_t)g, (p - 1) / q, (seq_t)p) == 1) {
+            if (powmod((seq_t)g, (p - 1) / q, (seq_t)p) == 1) {
                 ok = false;
                 break;
             }
@@ -97,7 +100,7 @@ seq_t a(idx_t n)
         /* Grow storage if necessary */
         if (roots_cnt >= roots_cap) {
             size_t new_cap = (roots_cap == 0 ? 16 : roots_cap * 2);
-            seq_t *tmp = (seq_t *)realloc(roots, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, roots, new_cap);
             if (!tmp)
                 return 0; /* allocation failure */
             roots = tmp;

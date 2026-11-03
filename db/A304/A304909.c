@@ -8,7 +8,8 @@
  *            into powers of 2
  * Range:     u8 n <= 12, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static storage for the partition counts p_2[n] */
 static seq_t *p2_counts = NULL;
@@ -27,10 +29,10 @@ static void ensure_p2(idx_t n) {
     if (p2_capacity <= n) {
         /* Allocate or resize the array */
         if (p2_counts) {
-            free(p2_counts);
+            mem_free(p2_counts);
         }
         p2_capacity = n + 1;
-        p2_counts = (seq_t*)malloc(p2_capacity * sizeof(seq_t));
+        p2_counts = mem_new(seq_t, p2_capacity);
         if (!p2_counts) {
             /* In a real library you might handle this differently */
             exit(1);

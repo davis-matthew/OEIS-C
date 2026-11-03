@@ -8,16 +8,18 @@
  *            n)
  * Range:     u8 n <= 19, u16 n <= 35, u32 n <= 62, u64 n <= 116,
  *            u128 n <= 215, big any n
- * Helpers:   _floor_isqrt_u64, big_pow, build_primes_upto
+ * Validated: standard, pass, 61 terms through n = 969 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     }
 
     /* Upper bound for primes: floor(sqrt(n)) */
-    idx_t limit = _floor_isqrt_u64(n);
+    idx_t limit = isqrt(n);
 
     /* Generate all primes ≤ limit */
     uint64_t *primes = NULL;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         idx_t pp  = p * p;                /* p² – fits in 64 bit for n ≤ 10⁴ */
         idx_t e   = n / pp;                /* exponent floor(n / p²) */
         if (e) {
-            seq_t pow_val = big_pow((seq_t)p, (seq_t)e);
+            seq_t pow_val = ipow((seq_t)p, (seq_t)e);
             result *= pow_val;
         }
     }

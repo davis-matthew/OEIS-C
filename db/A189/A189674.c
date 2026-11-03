@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(floor((n+2)/3)) + floor((n+1)/3), a(1)=0
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdio.h>
+#include "../utils/mem.h"
 
 static seq_t   *cache = NULL;   /* 1‑based storage; cache[0] unused */
 static size_t   cap    = 0;      /* allocated size of cache  (in elements) */
@@ -34,7 +36,7 @@ ensure_capacity(idx_t n)
         new_cap <<= 1;                 /* grow by factor 2 until large enough */
 
     /* Reallocate memory, casting to the correct pointer type */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                      /* allocation failed */
 

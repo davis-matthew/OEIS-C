@@ -9,6 +9,7 @@
  * Formula:   a(0)=3; for n>=1, a(n)=8*n + (8-(-1)^n)
  * Range:     u8 n <= 30, u16 n <= 127, u32 n <= 127, u64 n <= 127,
  *            u128 n <= 127, big any n
+ * Validated: standard, pass, 70 terms through n = 110 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

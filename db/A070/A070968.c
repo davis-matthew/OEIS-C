@@ -7,14 +7,17 @@
  * Formula:   a(n) = Sum_{k=2..n} C(n,k)^2 * k! * (k-1)! / 2
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 21,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 33 terms through n = 92 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
 
     /* First allocation */
     if (fact_n == 0) {
-        fact = (seq_t*)malloc(sizeof(seq_t));
+        fact = mem_new(seq_t, 1);
         if (!fact) return 0;
         fact[0] = (seq_t)1;
         fact_n = 1;
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary */
     if ((size_t)n + 1 > fact_n) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(fact, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, fact, new_size);
         if (!tmp) return 0;          /* allocation failed */
         fact = tmp;
         for (size_t i = fact_n; i < new_size; ++i) {
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
     /* Sum the terms */
     seq_t sum = (seq_t)0;
     for (idx_t k = 2; k <= n; ++k) {
-        seq_t c    = binom(n, k);                /* C(n,k) */
+        seq_t c    = binomial(n, k);                /* C(n,k) */
         seq_t term = c * c;                      /* square it */
         term = term * fact[(size_t)k];           /* * k!      */
         term = term * fact[(size_t)(k - 1)];     /* * (k-1)!  */

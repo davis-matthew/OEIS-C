@@ -7,8 +7,9 @@
  * Formula:   a(n) = number of tetrahedral divisors of n Tetrahedral numbers
  *            are k(k+1)(k+2)/6 for k ≥ 1. a(n) counts how many divisors of n
  *            equal a tetrahedral number
- * Range:     u8 n <= 511, u16 n <= 8917, u32 n <= 8917, u64 n <= 8917,
- *            u128 n <= 8917, big any n
+ * Range:     u8 n <= 511, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 8917 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

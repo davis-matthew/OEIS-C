@@ -15,12 +15,14 @@
  *            degree
  * Range:     i8 n <= 24, i16 n <= 44, i32 n <= 70, i64 n <= 70, i128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Temporary storage for the polynomials of each row.
    index 0 is unused; rows are numbered starting at 1. */
@@ -41,14 +43,14 @@ static void build_up_to(idx_t n)
     if (rows_done == 0) {
         cumulative[0] = 0;
         /* row 1: coefficients {1} */
-        row_poly[1] = (seq_t *)malloc(sizeof(seq_t));
+        row_poly[1] = mem_new(seq_t, 1);
         row_poly[1][0] = (seq_t)1;
         row_len[1] = 1;
         cumulative[1] = 1;
         rows_done = 1;
 
         /* copy of the current product P(x) = p_1(x) */
-        P = (seq_t *)malloc(sizeof(seq_t));
+        P = mem_new(seq_t, 1);
         P[0] = (seq_t)1;
         P_deg = 0;
     }
@@ -63,7 +65,7 @@ static void build_up_to(idx_t n)
         idx_t exp = ((idx_t)1) << (cur - 1);
 
         /* Allocate array for p_next(x) of degree exp */
-        seq_t *d_next = (seq_t *)malloc((exp + 1) * sizeof(seq_t));
+        seq_t *d_next = mem_new(seq_t, (exp + 1));
 
         /* Set the coefficient of x^{exp} to 1 */
         d_next[exp] = (seq_t)1;
@@ -82,7 +84,7 @@ static void build_up_to(idx_t n)
         /* Compute new product P_next = P * d_next.
            new degree = P_deg + exp   (since deg d_next = exp).   */
         idx_t new_deg = P_deg + exp;
-        seq_t *P_next = (seq_t *)calloc((size_t)new_deg + 1, sizeof(seq_t));
+        seq_t *P_next = mem_new(seq_t, (size_t)new_deg + 1);
 
         for (idx_t i = 0; i <= P_deg; ++i) {
             for (idx_t j = 0; j <= exp; ++j) {
@@ -91,7 +93,7 @@ static void build_up_to(idx_t n)
         }
 
         /* Free old product P and update pointer */
-        free(P);
+        mem_free(P);
         P = P_next;
         P_deg = new_deg;
     }

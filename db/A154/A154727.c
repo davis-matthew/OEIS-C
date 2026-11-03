@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1715, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 86 terms through n = 9991 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Ensure the cache has capacity for at least 'need' elements. */
 static void ensure_cache_capacity(seq_t **ptr, size_t *cap_ptr, size_t need)
@@ -32,7 +34,7 @@ static void ensure_cache_capacity(seq_t **ptr, size_t *cap_ptr, size_t need)
     if (need <= cap) return;
     size_t new_cap = cap ? cap : 64;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *newp = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, *ptr, new_cap);
     if (!newp) abort();              /* out of memory */
     *ptr = newp;
     *cap_ptr = new_cap;
@@ -65,7 +67,7 @@ static void extend_cache_to(idx_t nterms)
         ++last_row;                      /* new row number */
         idx_t r = last_row;
         size_t row_cap = 64;
-        seq_t *row = (seq_t *)malloc(row_cap * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, row_cap);
         if (!row) abort();
 
         size_t row_len = 0;
@@ -77,7 +79,7 @@ static void extend_cache_to(idx_t nterms)
                 /* add the distinct pair (p, q) with q = 2r - p > r */
                 if (row_len + 2 > row_cap) {
                     row_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(row, row_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, row, row_cap);
                     if (!tmp) abort();
                     row = tmp;
                 }
@@ -90,7 +92,7 @@ static void extend_cache_to(idx_t nterms)
             /* no pair: the row consists of the single number r */
             if (row_len + 1 > row_cap) {
                 row_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(row, row_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, row, row_cap);
                 if (!tmp) abort();
                 row = tmp;
             }
@@ -106,7 +108,7 @@ static void extend_cache_to(idx_t nterms)
         }
         cache_size += row_len;
 
-        free(row);
+        mem_free(row);
     }
 }
 

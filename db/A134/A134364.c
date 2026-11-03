@@ -12,7 +12,8 @@
  *            largest prime divisor of n
  * Range:     u8 n <= 39, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   build_primes, factor_u64, seq_mul, seq_one, seq_pow
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   build_primes, factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,11 +25,18 @@
 #include <stddef.h>
 
 /* Helper functions supplied by the build system */
-#include "../utils/build_primes.h"   /* void build_primes(idx_t limit, idx_t **out, size_t *cnt); */
-#include "../utils/factor_u64.h"     /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/seq_pow.h"       /* seq_t seq_pow(seq_t base, idx_t exp); */
-#include "../utils/seq_mul.h"       /* seq_t seq_mul(seq_t a, seq_t b); */
-#include "../utils/seq_one.h"       /* seq_t seq_one(void); */
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/build_primes.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 /* ---------------------------------------------------------------------*/
 /* Compute a(n) as defined by OEIS A134364                                 */
@@ -103,7 +111,7 @@ seq_t a(idx_t n)
 
         int abs_e = e < 0 ? -e : e;
         seq_t base = (seq_t)prime_list[k];
-        seq_t power = seq_pow(base, (idx_t)abs_e);
+        seq_t power = ipow_idx(base, (idx_t)abs_e);
         result = seq_mul(result, power);
     }
 

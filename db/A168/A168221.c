@@ -7,15 +7,17 @@
  * Formula:   a(n) = 2*a(n-16) - a(n-32) for n >= 32 with the first 32 terms
  *            listed below: 0,1,2,3,9,6,7,4,18,5,11,12,27,15,16,8,
  *            36,10,20,21,45,24,25,13,54,14,29,30,63,33,34,17
- * Range:     u8 n <= 115, u16 n <= 9101, u32 n <= 9101, u64 n <= 9101,
- *            u128 n <= 9101, big any n
- * Helpers:   none
+ * Range:     u8 n <= 115, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 88 terms through n = 9101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 /* Base values for n = 0 .. 31 */
 static const seq_t base_vals[32] = {
@@ -36,7 +38,7 @@ static void ensure_capacity(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();   /* allocation failed */
     cache = new_cache;
     cache_cap = new_cap;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* Initialise cache with base values on first call */
     if (!cache) {
         cache_cap = 32;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         for (size_t i = 0; i < 32; ++i) cache[i] = base_vals[i];
         cache_sz = 32;

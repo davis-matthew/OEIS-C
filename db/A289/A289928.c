@@ -12,7 +12,8 @@
  *            c[i-1]·c[k-i-1] (for k ≥ 2, conv[0]=conv[1]=0). Let b[0]...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Prime cache ------------------------------------------------------------ */
 static uint64_t *prime_cache = NULL;
@@ -70,9 +72,9 @@ seq_t a(idx_t n)
     ensure_primes(N);          /* primes[0..N-1]  */
 
     /* Allocate working arrays */
-    seq_t *c    = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *conv = (seq_t *)malloc((N + 2) * sizeof(seq_t)); /* indices up to N+1 */
-    seq_t *b    = (seq_t *)malloc((N + 2) * sizeof(seq_t));
+    seq_t *c    = mem_new(seq_t, (N + 1));
+    seq_t *conv = mem_new(seq_t, (N + 2)); /* indices up to N+1 */
+    seq_t *b    = mem_new(seq_t, (N + 2));
 
     /* c[0] = 1, c[i] = prime_i for i >= 1   (primes array is 0‑based) */
     c[0] = (seq_t)1;
@@ -106,8 +108,8 @@ seq_t a(idx_t n)
 
     seq_t result = b[N + 1];
 
-    free(c);
-    free(conv);
-    free(b);
+    mem_free(c);
+    mem_free(conv);
+    mem_free(b);
     return result;
 }

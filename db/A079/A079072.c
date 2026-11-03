@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = sum of all m < n whose binary representation contains
  *            exactly the same number of zeros as n
- * Range:     u8 n <= 43, u16 n <= 739, u32 n <= 9542, u64 n <= 9542,
- *            u128 n <= 9542, big any n
+ * Range:     u8 n <= 43, u16 n <= 739, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 81 terms through n = 9542 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,13 +8,15 @@
  *            n = 0 the empty partition counts as 1
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 96 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free, realloc */
 #include <stdint.h>   /* for size_t, etc. */
+#include "../utils/mem.h"
 
 /* We rely on the types seq_t (value type) and idx_t (index type) being
    defined by the build system.  No redefinition here. */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
        calls. */
     if (dp_sz <= n) {
         size_t new_sz = (size_t)n + 1;
-        seq_t *p = (seq_t *)realloc(dp, new_sz * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, dp, new_sz);
         if (!p) { /* allocation failed – return 0 as a fallback */
             return (seq_t)0;
         }

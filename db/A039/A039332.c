@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   has_equal_nonzero_zeros_and_fours
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,23 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_equal_nonzero_zeros_and_fours.h"
+
+static bool has_equal_nonzero_zeros_and_fours(idx_t x)
+{
+    int zeros = 0;
+    int fours = 0;
+    seq_t temp = (seq_t)x;          /* local copy to avoid destroying x */
+    while (temp != (seq_t)0) {
+        seq_t digit = temp % (seq_t)8;
+        if (digit == (seq_t)0) {
+            zeros++;
+        } else if (digit == (seq_t)4) {
+            fours++;
+        }
+        temp /= (seq_t)8;
+    }
+    return (zeros != 0) && (zeros == fours);
+}
 
 seq_t a(idx_t n)
 {

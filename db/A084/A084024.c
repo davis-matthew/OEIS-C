@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   pow10, reverse_decimal
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,20 @@
    palindromes that are multiples of r, padded with zeroes if fewer
    exist.  a(n) is the n‑th element of this triangle (offset 1). */
 
-#include "../utils/pow10.h"
-#include "../utils/reverse_decimal.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/reverse_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 #include <stddef.h>
 
 seq_t a(idx_t n)
@@ -57,9 +70,9 @@ seq_t a(idx_t n)
         /* construct the palindrome from the prefix  */
         seq_t pal;
         if (r % 2 == 0) { /* even length */
-            pal = prefix * pow10(half_len) + reverse_decimal(prefix);
+            pal = prefix * pow10(half_len) + reverse_digits(prefix);
         } else { /* odd length: drop centre digit before reversal */
-            pal = prefix * pow10(half_len - 1) + reverse_decimal(prefix / 10);
+            pal = prefix * pow10(half_len - 1) + reverse_digits(prefix / 10);
         }
 
         if (pal % r_seq == 0) { /* divisible by r  */

@@ -9,13 +9,14 @@
  *            n); Computed by brute‑force search up to 200·n
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   ndigits_uint64
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/ndigits_uint64.h"
+#include "../utils/num_digits_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* safety, not used by OEIS offset 1 */
@@ -34,7 +35,7 @@ seq_t a(idx_t n) {
         unsigned long long rem = 0;
         unsigned long long cur = k;
         for (int step = 0; step < 4; ++step) {
-            int len = ndigits_uint64(cur);
+            int len = num_digits_u64(cur);
             rem = (rem * pow10[len] + (cur % mod)) % mod;
             ++cur;
         }

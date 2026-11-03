@@ -9,13 +9,15 @@
  *            up to sqrt(n) for each n
  * Range:     u8 n <= 23, u16 n <= 47, u32 n <= 95, u64 n <= 191,
  *            u128 n <= 383, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 8879 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache for memoised values */
 static seq_t *cache = NULL;
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = cache_cap ? cache_cap : 8;
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();   /* fatal if out of memory */
     /* Zero new entries */
     for (size_t i = cache_cap; i < new_cap; ++i)

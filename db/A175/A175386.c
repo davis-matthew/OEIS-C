@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*n / gcd(L(2n)-1, 2*n) where L(k) is the Lucas sequence
  * Range:     u8 n <= 64, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the denominator of the sum Σ_{i=1..n} (1/i) * C(2n-i-1, i-1). */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

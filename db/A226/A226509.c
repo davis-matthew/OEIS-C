@@ -8,7 +8,8 @@
  *            3*b(n) – 2*b(n-1) + n + (n mod 2)
  * Range:     u8 n <= 14, u16 n <= 29, u32 n <= 58, u64 n <= 116,
  *            u128 n <= 232, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* a(n) = 3*b(n) - 2*b(n-1) + n + (n & 1) */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *b_cache = NULL;   /* cache for b(k) values */
 static idx_t  b_len   = 0;       /* number of cached elements (next free index) */
@@ -26,10 +28,10 @@ static void compute_b_to(idx_t n)
     if (b_len <= n) {
         size_t newsize = (size_t)(n + 1);
         if (b_cache == NULL) {
-            b_cache = (seq_t*)malloc(newsize * sizeof(seq_t));
+            b_cache = mem_new(seq_t, newsize);
             if (!b_cache) abort();
         } else {
-            seq_t *tmp = (seq_t*)realloc(b_cache, newsize * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, b_cache, newsize);
             if (!tmp) abort();
             b_cache = tmp;
         }

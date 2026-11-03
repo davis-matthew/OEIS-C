@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   add_unique_uint64, factorize, next_collatz
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   factorize, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,21 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factorize.h"
-#include "../utils/add_unique_uint64.h"
-#include "../utils/next_collatz.h"
+#include "../utils/mem.h"
+
+/* Record a prime in an array if it is not already present. */
+static inline void add_unique_uint64(uint64_t p, uint64_t *set, int *sz) {
+    for (int i = 0; i < *sz; ++i)
+        if (set[i] == p) return;
+    set[(*sz)++] = p;
+}
+
+/* Produce the next term of the Collatz sequence, using 128‑bit to avoid overflow. */
+static uint64_t next_collatz(uint64_t v) {
+    if ((v & 1ULL) == 0)
+        return v >> 1;
+    return (uint64_t)(((__uint128_t)3 * v) + 1);
+}
 
 /* Factor a number and add its distinct prime factors to set. */
 static void factor_and_record(uint64_t x, uint64_t *set, int *sz) {
@@ -57,7 +71,7 @@ seq_t a(idx_t n) {
     if (n >= ans_cap) {
         idx_t new_cap = ans_cap == 0 ? 1 : ans_cap;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(ans, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, ans, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         if (new_cap > ans_cap) {
             for (idx_t i = ans_cap; i < new_cap; ++i) tmp[i] = 0;
@@ -75,7 +89,7 @@ seq_t a(idx_t n) {
             if ((idx_t)cnt >= ans_cap) {
                 idx_t new_cap = ans_cap == 0 ? 1 : ans_cap;
                 while (new_cap <= (idx_t)cnt) new_cap <<= 1;
-                seq_t *tmp = (seq_t*)realloc(ans, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, ans, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 if (new_cap > ans_cap) {
                     for (idx_t i = ans_cap; i < new_cap; ++i) tmp[i] = 0;

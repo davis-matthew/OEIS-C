@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 19, i128 n <= 32,
  *            big any n
- * Helpers:   enlarge
+ * Validated: standard, pass, 39 terms through n = 377 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,19 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/enlarge.h"
+#include "../utils/mem.h"
+
+/*  Ensure capacity of an array, returning the new base pointer.
+ *  The array is grown to at least new_cap (often doubled).   */
+static void enlarge(seq_t **arr, idx_t *cap, idx_t new_cap)
+{
+    if (*cap >= new_cap) return;
+    if (*cap == 0) *cap = 1;
+    while (*cap < new_cap) *cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, (*cap));
+    if (!tmp) abort();               /* allocation failed */
+    *arr = tmp;
+}
 
 /*  The types seq_t and idx_t are supplied by the build system.
  *  Do not define them here. */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 16, u64 n <= 38, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -88,8 +90,8 @@ seq_t a(idx_t n)
     /* DP: states are pairs (prevRow, currRow). */
     size_t states = V * V;
     /* Allocate the state arrays.  Use explicit cast from void* to seq_t*. */
-    seq_t *dp_prev = (seq_t *)calloc(states, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(states, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, states);
+    seq_t *dp_next = mem_new(seq_t, states);
 
     /* Initialisation: all pairs of rows are allowed for the first two rows. */
     for (size_t idx = 0; idx < states; ++idx) dp_prev[idx] = (seq_t)1;
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
     seq_t result = (seq_t)0;
     for (size_t idx = 0; idx < states; ++idx) result += dp_prev[idx];
 
-    free(dp_prev);
-    free(dp_next);
+    mem_free(dp_prev);
+    mem_free(dp_next);
     return result;
 }

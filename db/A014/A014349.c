@@ -8,7 +8,8 @@
  *            1/Φ₃₄₀(x)
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   apply_factor
+ * Validated: standard, pass, 97 terms through n = 928 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,31 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/apply_factor.h"
+
+/* Helper that multiplies the series `src` by a single factor
+   of the form (x^m – 1)  or  1/(x^m – 1),
+   writing the result into `dst`.  Both arrays have length 340.
+   When `inverse` is true we use the inverse series. */
+static void apply_factor(seq_t *dst, const seq_t *src, idx_t m, bool inverse)
+{
+    /* Working with signed indices helps avoid unsigned underflow. */
+    for (size_t i = 0; i < 340; ++i) {
+        if (inverse) {
+            seq_t sum = 0;
+            int j = (int)i;                     /* current index */
+            while (j >= 0) {
+                sum += src[j];
+                if (j < (int)m) break;          /* stop after the last term */
+                j -= (int)m;
+            }
+            dst[i] = -sum;
+        } else {
+            /* (x^m – 1) has coefficients –1 at 0 and +1 at m. */
+            dst[i] = -src[i];
+            if (i >= m) dst[i] += src[i - m];
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

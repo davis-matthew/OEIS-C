@@ -8,13 +8,14 @@
  *            factor of n)
  * Range:     u8 n <= 38, u16 n <= 144, u32 n <= 472, u64 n <= 1816,
  *            u128 n <= 6682, big any n
- * Helpers:   binomial_idx
+ * Validated: standard, pass, 91 terms through n = 9718 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial_idx.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -45,5 +46,5 @@ seq_t a(idx_t n)
         gpf = temp;
     }
 
-    return binomial_idx(gpf, lpf);
+    return binomial(gpf, lpf);
 }

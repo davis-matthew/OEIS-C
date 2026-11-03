@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{1<=k<=n, gcd(k,n)=1} (Sum_{i=1..k} gcd(i,k))
  * Range:     u8 n <= 16, u16 n <= 190, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 68 terms through n = 9456 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
  *           A018804(k) = Sum_{d|k} d * phi(k/d)  (phi = Euler's totient) */
 
 #include <stdlib.h>
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t a, seq_t b) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;      /* A[k] = Sum_{i=1..k} gcd(i,k) */
 static idx_t *phi = NULL;    /* Euler's totient for k */
@@ -33,7 +36,7 @@ static void recompute_up_to(idx_t n)
     if (!phi)
         abort();
 
-    A = (seq_t *)realloc(A, (n + 1) * sizeof(seq_t));
+    A = mem_resize(seq_t, A, (n + 1));
     if (!A)
         abort();
 

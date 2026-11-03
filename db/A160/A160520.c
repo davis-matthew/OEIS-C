@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     idx_t m = 2;           /* start from 2, the first nonsquare */
     idx_t D = 0;
     while (1) {
-        idx_t sq = int_sqrt(m);
+        idx_t sq = isqrt(m);
         if (sq * sq != m) {            /* m is a nonsquare */
             count++;
             if (count == n) {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute the continued fraction of sqrt(D) and its period */
-    idx_t a0 = int_sqrt(D);
+    idx_t a0 = isqrt(D);
     idx_t m_val = 0;
     idx_t d = 1;
     idx_t a = a0;

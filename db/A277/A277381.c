@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 470 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --- static cache for computed values --------------------------------- */
 static seq_t *cache       = NULL;   /* array holding a(0) ... a(max)       */
@@ -36,7 +38,7 @@ static idx_t  max_computed = 0;     /* largest n for which a(n) is known    */
 static void ensure_capacity(idx_t new_size)
 {
     if (cache_size < new_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         /* In a production setting we would handle realloc failure. */
         cache = tmp;
         cache_size = new_size;

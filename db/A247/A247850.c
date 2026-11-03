@@ -8,6 +8,7 @@
  * Formula:   a(n) = 32*n^5 - 160*n^3 + 120*n
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 36, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 44 terms through n = 975 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

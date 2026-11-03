@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,13 +37,13 @@ seq_t a(idx_t n)
 
     /* Compute x^n mod n for all x. */
     for (idx_t x = 0; x < n; ++x) {
-        seq_t r = mod_pow((seq_t)x, n, (seq_t)n);
+        seq_t r = powmod((seq_t)x, n, (seq_t)n);
         seenS[(size_t)r] = true;
     }
 
     /* Store distinct residues in a list for later summation. */
     size_t lenS = 0;
-    seq_t *listS = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *listS = mem_new(seq_t, N);
     if (!listS) {
         free(seenS);
         return 0;           /* allocation failure */
@@ -54,7 +58,7 @@ seq_t a(idx_t n)
     bool *seenT = (bool *)calloc(N, sizeof(bool));
     if (!seenT) {
         free(seenS);
-        free(listS);
+        mem_free(listS);
         return 0;           /* allocation failure */
     }
 
@@ -76,6 +80,6 @@ seq_t a(idx_t n)
     /* Clean up and return result. */
     free(seenS);
     free(seenT);
-    free(listS);
+    mem_free(listS);
     return count;
 }

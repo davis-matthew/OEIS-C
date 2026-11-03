@@ -7,12 +7,13 @@
  * Formula:   a(n) = (n^3+n)*8^n
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 17, u128 n <= 37,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 32 terms through n = 953 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
     seq_t n_cub_plus = ns * (n_sq + (seq_t)1);  /* n^3 + n */
 
     /* 8^n using the generic integer power routine */
-    seq_t pow8 = pow_int((seq_t)8, n);
+    seq_t pow8 = ipow_idx((seq_t)8, n);
 
     /* final result */
     return n_cub_plus * pow8;

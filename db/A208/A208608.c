@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    The flattened coefficients are returned in order of the triangle
    rows.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  The build provides the types seq_t and idx_t.  */
 
@@ -60,8 +62,8 @@ seq_t a(idx_t n)
         /* Compute new rows from max_row+1 up to r.  */
         for (idx_t i = max_row + 1; i <= r; ++i) {
             size_t len = (size_t)i;                /* number of coefficients */
-            seq_t *u_new = (seq_t*)malloc(len * sizeof(seq_t));
-            seq_t *v_new = (seq_t*)malloc(len * sizeof(seq_t));
+            seq_t *u_new = mem_new(seq_t, len);
+            seq_t *v_new = mem_new(seq_t, len);
             if (i == 1) {
                 /* u(1,x) = 1,  v(1,x) = 1  */
                 u_new[0] = (seq_t)1;

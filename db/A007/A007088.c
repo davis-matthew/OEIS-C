@@ -7,8 +7,9 @@
  * Keywords:  nonn, base, nice, easy
  * Formula:   a(n) = Sum_{k>=0} (bit_k of n) * 10^k (each binary digit becomes
  *            a decimal digit)
- * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 1023, u64 n <= 9833,
- *            u128 n <= 9833, big any n
+ * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 1023, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 56 terms through n = 9833 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

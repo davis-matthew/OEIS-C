@@ -7,12 +7,14 @@
  * Formula:   a(n) = denominator of 1/(1 + 1/(1 + 2/(1 + ... (1 + n))))
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 19, u64 n <= 35, u128 n <= 58,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 808 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"   /* gcd(seq_t, seq_t) is provided in the utils folder. */
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     /* Start from the innermost fraction T_n = 1 + n (numerator) / 1 (denominator). */

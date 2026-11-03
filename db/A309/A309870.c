@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 108, u64 n <= 499, u128 n <= 499,
  *            big any n
- * Helpers:   candidate_from_len_mask
+ * Validated: standard, pass, 47 terms through n = 497 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,27 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/candidate_from_len_mask.h"
+#include "../utils/mem.h"
+
+/* ---------------------------------------------------------------------------
+   Build the decimal string and numeric value of the candidate with
+   given length and mask.  The buffer must be large enough (64 chars
+   suffices for all requested n).  The leading digit is always '1'.
+   --------------------------------------------------------------------------- */
+static seq_t candidate_from_len_mask(idx_t len, uint64_t mask, char *buf)
+{
+    seq_t val = 1;          /* leading digit '1' */
+    buf[0] = '1';
+    size_t pos = 1;
+
+    for (int i = (int)len - 2; i >= 0; --i) {
+        int d = (mask >> i) & 1;
+        buf[pos++] = '0' + d;
+        val = val * 10 + d;
+    }
+    buf[pos] = '\0';
+    return val;
+}
 
 /* ---------------------------------------------------------------------------
    Internal data structures.  Each generated term is stored with its
@@ -59,7 +80,7 @@ static void ensure_terms_cap(size_t need)
     if (need <= term_cap) return;
     size_t new_cap = term_cap ? term_cap * 2 : 8;
     while (new_cap < need) new_cap <<= 1;
-    term_t *new_arr = (term_t *)realloc(terms, new_cap * sizeof(term_t));
+    term_t *new_arr = mem_resize(term_t, terms, new_cap);
     if (!new_arr) abort();
     terms = new_arr;
     term_cap = new_cap;

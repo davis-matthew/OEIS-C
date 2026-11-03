@@ -13,12 +13,14 @@
  *            k even The OEIS sequence a(n) lists all T...
  * Range:     u8 n <= 137, u16 n <= 137, u32 n <= 137, u64 n <= 137,
  *            u128 n <= 137, big any n
+ * Validated: partial, pass, 135 terms through n = 137 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -12,6 +12,7 @@
  *            replace 1↔0; a(0) = 0
  * Range:     u8 n <= 242, u16 n <= 6560, u32 n <= 6560, u64 n <= 6560,
  *            u128 n <= 6560, big any n
+ * Validated: standard, pass, 84 terms through n = 5134 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

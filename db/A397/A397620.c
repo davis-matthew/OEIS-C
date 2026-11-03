@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 16, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   power_seq_fast
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/power_seq_fast.h"
+#include "../utils/ipow_idx.h"
 
 /* --- Helper: single prime‑power contribution a(p^e) --- */
 static seq_t prime_power_term(idx_t p, idx_t e)
@@ -40,8 +41,8 @@ static seq_t prime_power_term(idx_t p, idx_t e)
     idx_t exp1 = 3 * e + 1;
     idx_t exp2 = 6 * e + 2;
 
-    seq_t pow1 = power_seq_fast(p_seq, exp1);    /* p^(3e+1)  */
-    seq_t pow2 = power_seq_fast(p_seq, exp2);    /* p^(6e+2)  */
+    seq_t pow1 = ipow_idx(p_seq, exp1);    /* p^(3e+1)  */
+    seq_t pow2 = ipow_idx(p_seq, exp2);    /* p^(6e+2)  */
 
     seq_t tmp = pow2 + (seq_t)1;                 /* 1 + p^(6e+2) */
 

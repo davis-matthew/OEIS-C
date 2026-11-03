@@ -10,13 +10,15 @@
  *            from series manipulation
  * Range:     i8 n <= 8, i16 n <= 15, i32 n <= 21, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of precomputed values.  a[0] is unused, a[1] is the first term. */
 static seq_t *a_arr = NULL;   /* a[n] */
@@ -31,9 +33,9 @@ static void ensure_cache(idx_t n)
     if (CAP > (size_t)n) return;
     size_t new_cap = CAP ? CAP * 2 : 64;
     while (new_cap <= (size_t)n) new_cap *= 2;
-    a_arr = (seq_t *)realloc(a_arr, (new_cap + 1) * sizeof(seq_t));
-    d_arr = (seq_t *)realloc(d_arr, (new_cap + 1) * sizeof(seq_t));
-    c_arr = (seq_t *)realloc(c_arr, (new_cap + 1) * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, (new_cap + 1));
+    d_arr = mem_resize(seq_t, d_arr, (new_cap + 1));
+    c_arr = mem_resize(seq_t, c_arr, (new_cap + 1));
     CAP   = new_cap;
 }
 

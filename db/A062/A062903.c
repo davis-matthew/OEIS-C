@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 365, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9639 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    permutation of calls to a(idx_t) works. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration may appear in the built‑in header; use the
    same linkage as that declaration: no extern "C" here. */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call: a(1) = 0. */
     if (cache_len == 0) {
         cache_cap = 64;
-        cache = (seq_t*)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_cap);
         cache[0] = (seq_t)0;   /* a(1) = 0 */
         cache_len = 1;
         next_candidate = 1;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         /* Store the found number. */
         if (cache_len == cache_cap) {
             cache_cap = cache_cap * 2;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = (seq_t)m;
     }

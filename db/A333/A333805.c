@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of odd divisors of n that are strictly less than
  *            sqrt(n)
- * Range:     u8 n <= 9616, u16 n <= 9616, u32 n <= 9616, u64 n <= 9616,
- *            u128 n <= 9616, big any n
- * Helpers:   iso_sqrt
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9616 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
  * in time, which is fast enough for n up to at least 10 000. */
 
 #include <stdbool.h>
-#include "../utils/iso_sqrt.h"
+#include "../utils/isqrt.h"
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
     if (n <= 1)            /* a(1) = 0; n==0 is undefined but return 0 anyway */
         return 0;
 
-    idx_t sqrt_n = iso_sqrt(n);
+    idx_t sqrt_n = isqrt(n);
     bool is_square = (sqrt_n != 0 && n / sqrt_n == sqrt_n);
 
     seq_t count = 0;

@@ -11,12 +11,14 @@
  *            k(3k-2), k ≥ 1
  * Range:     u8 n <= 30, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* globals: memoised values and the list of octagonal numbers        */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 {
     /* Initialise dp[0] = 1 on first call. */
     if (!dp) {
-        dp = (seq_t *)malloc(sizeof(seq_t));
+        dp = mem_new(seq_t, 1);
         if (!dp) abort();
         dp[0] = (seq_t)1;
         dp_len = 1;
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
         if ((size_t)n + 1 > dp_cap) {
             size_t new_cap = grow_cap(dp_cap);
             while (new_cap <= (size_t)n + 1) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, dp, new_cap);
             if (!tmp) abort();
             dp = tmp;
             dp_cap = new_cap;

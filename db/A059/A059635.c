@@ -11,7 +11,8 @@
  *            static cache, and returns the *n*‑th stored prime
  * Range:     u8 none, u16 n <= 346, u32 n <= 950, u64 n <= 950, u128 n <= 950,
  *            big any n
- * Helpers:   gcd, is_prime, mod_pow, seq_realloc
+ * Validated: standard, pass, 58 terms through n = 891 (2026-11-01)
+ * Helpers:   gcd, is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <string.h>
 #include "../utils/gcd.h"
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/powmod.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;      /* cache of primes found so far */
 static size_t cache_len = 0;     /* number of elements in cache */
@@ -57,8 +70,8 @@ seq_t a(idx_t n)
         uint64_t exp56 = (uint64_t)(pminus1 / d56);
 
         /* Check the residue conditions. */
-        seq_t pow28 = mod_pow((seq_t)2, exp28, p);
-        seq_t pow56 = mod_pow((seq_t)2, exp56, p);
+        seq_t pow28 = powmod((seq_t)2, exp28, p);
+        seq_t pow56 = powmod((seq_t)2, exp56, p);
 
         if (pow28 == (seq_t)1 && pow56 != (seq_t)1) {
             /* Ensure the cache has room. */

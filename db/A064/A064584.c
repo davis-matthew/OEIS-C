@@ -7,19 +7,20 @@
  * Formula:   a(n) = q^6*(q^2-1)*(q^6+1), where q^2 = 3^(2*n+1)
  * Range:     u8 none, u16 n <= 0, u32 n <= 0, u64 n <= 2, u128 n <= 5,
  *            big any n
- * Helpers:   my_pow
+ * Validated: standard, pass, 25 terms through n = 50 (2026-11-01)
+ * Helpers:   ipow_u32_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/my_pow.h"
+#include "../utils/ipow_u32_idx.h"
 
 /* Compute the n-th term of OEIS A064584. */
 seq_t a(idx_t n)
 {
     idx_t e = 2 * n + 1;            /* exponent for q^2  :   q^2 = 3^e  */
-    seq_t q2 = my_pow(3, e);        /* q^2 = 3^e                */
+    seq_t q2 = ipow_u32_idx(3, e);        /* q^2 = 3^e                */
     seq_t q6 = q2 * q2;             /* q^6 = q^2 * q^2          */
     q6 *= q2;                       /* q^6 = q^2 * q^2 * q^2    */
 

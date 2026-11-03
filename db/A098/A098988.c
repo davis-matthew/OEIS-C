@@ -5,13 +5,15 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, frac
  * Formula:   a(n) = n / gcd( Σ_{d|n} (-1)^(d+1) * (n/d), n )
- * Range:     u8 n <= 254, u16 n <= 9424, u32 n <= 9424, u64 n <= 9424,
- *            u128 n <= 9424, big any n
+ * Range:     u8 n <= 254, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 101 terms through n = 9424 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

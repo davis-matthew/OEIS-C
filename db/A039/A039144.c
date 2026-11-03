@@ -10,13 +10,32 @@
  *            contains none)
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   equal_4_8
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/equal_4_8.h"
+
+static inline bool equal_4_8(seq_t v)
+{
+    seq_t t = v;
+    /* 0 is counted: 0 4's and 0 8's  */
+    if (t == 0) return true;
+
+    int c4 = 0, c8 = 0;
+    while (t != 0)
+    {
+        int d = (int)(t % 10);   /* digit */
+        if (d == 4)
+            c4++;
+        else if (d == 8)
+            c8++;
+        t /= 10;
+    }
+    return c4 == c8;
+}
 
 seq_t a(idx_t n)
 {

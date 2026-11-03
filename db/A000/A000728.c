@@ -11,12 +11,14 @@
  *            (2k+1) * E2(n - k(k+1)/2), where E2 = coefficients of...
  * Range:     i8 n <= 60, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9661 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a728_e2 = NULL;
 static idx_t a728_len = 0;
@@ -38,8 +40,8 @@ static void a728_ensure(idx_t n) {
         g2 = g1 + k;
         if (g2 < N) E[g2] = s;
     }
-    free(a728_e2);
-    a728_e2 = (seq_t *)malloc((size_t)N * sizeof(seq_t));
+    mem_free(a728_e2);
+    a728_e2 = mem_new(seq_t, (size_t)N);
     for (m = 0; m < N; m++) {
         seq_t sum = 0;
         sum += (seq_t)E[m];

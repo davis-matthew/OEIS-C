@@ -9,7 +9,8 @@
  *            prime p ≠ 5, 13, 37 and p ≡ 1, 3 or 5 (mod 8)
  * Range:     u8 n <= 36, u16 n <= 4889, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_three_nonzero_squares
+ * Validated: standard, pass, 71 terms through n = 9954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has_three_nonzero_squares.h"
+#include "../utils/mem.h"
+
+/* Quick test whether a prime can be written as a sum of three non‑zero squares.
+ * For primes > 5, the only failures are 13 and 37; 5 itself is excluded.
+ * All remaining primes p ≡ 1,3,5 (mod 8) have such a representation. */
+static bool has_three_nonzero_squares(uint64_t p)
+{
+    if (p < 3)                return false;
+    if (p == 5 || p == 13 || p == 37) return false;
+    return (p % 8) != 7;
+}
 
 /* Integer square root for 64‑bit values (floor) */
 static uint64_t isqrt_u64(uint64_t x)
@@ -59,7 +70,7 @@ static void seq_ensure_capacity(size_t n)
     if (seq_cap >= n) return;
     if (seq_cap == 0) seq_cap = 4;
     while (seq_cap < n) seq_cap <<= 1;
-    seq_terms = (seq_t *)realloc(seq_terms, seq_cap * sizeof(seq_t));
+    seq_terms = mem_resize(seq_t, seq_terms, seq_cap);
 }
 
 /* Main sequence function */

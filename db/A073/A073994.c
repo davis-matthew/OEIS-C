@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    table[n * 36 + t * 6 + s]   (n ≥ 1).  The function returns a(n)=a(n;3,5). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define STATES 36
 #define TRACE 6
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
         size_t new_max = (size_t)n;
 
         if (table == NULL) {        /* first allocation: also set base row */
-            table = (seq_t *)malloc((new_max + 1) * STATES * sizeof(seq_t));
+            table = mem_new(seq_t, (new_max + 1) * STATES);
             if (table == NULL)      /* allocation failed */
                 return 0;
 
@@ -63,8 +65,7 @@ seq_t a(idx_t n) {
 
             old_max = 1;
         } else {                    /* grow the existing table */
-            seq_t *tmp = (seq_t *)realloc(table,
-                                          (new_max + 1) * STATES * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, table, (new_max + 1) * STATES);
             if (tmp == NULL)        /* allocation failed */
                 return 0;
             table = tmp;

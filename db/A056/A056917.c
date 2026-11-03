@@ -8,7 +8,8 @@
  *            square
  * Range:     u8 n <= 2, u16 n <= 51, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   calc_phi, floor_sqrt, sigma_of
+ * Validated: standard, pass, 67 terms through n = 884 (2026-11-03)
+ * Helpers:   ipow_i32, mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,43 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sigma_of.h"   /* seq_t sigma_of(idx_t n) */
-#include "../utils/calc_phi.h"   /* seq_t calc_phi(idx_t n) */
-#include "../utils/floor_sqrt.h"/* seq_t floor_sqrt(seq_t x) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* dynamic array to cache the sequence values */
 static seq_t *seq = NULL;   /* array of seq_t */
@@ -36,7 +71,7 @@ static void ensure_capacity(idx_t need)
     idx_t newcap = seq_cap > 0 ? seq_cap * 2 : 16;
     while (newcap < need)
         newcap *= 2;
-    seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, newcap);
     seq_cap = newcap;
 }
 
@@ -51,7 +86,7 @@ static void append_value(seq_t val)
 static bool property_holds(idx_t n)
 {
     seq_t sigma = sigma_of(n);
-    seq_t phi   = calc_phi(n);
+    seq_t phi   = totient_seq(n);
     seq_t diff  = sigma - phi;
     seq_t root  = floor_sqrt(diff);
     return (root * root) == diff;

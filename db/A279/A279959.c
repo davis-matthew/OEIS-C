@@ -12,12 +12,15 @@
  *            formula is exact since 10^n-10 is always divisible by 9.)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 20, u128 n <= 38,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 41 terms through n = 113 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute 10^n (no intermediate overflow for odd n ≤ 19 on 64‑bit). */
-    seq_t pow_n = big_pow((seq_t)10, (seq_t)n);       /* 10^n */
+    seq_t pow_n = ipow((seq_t)10, (seq_t)n);       /* 10^n */
     seq_t tmp   = (pow_n - (seq_t)10) / (seq_t)9;     /* (10^n-10)/9  */
     return tmp * (seq_t)10;                          /* ×10  */
 }

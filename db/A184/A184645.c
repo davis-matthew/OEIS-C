@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 128, u64 n <= 418,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,20 +31,21 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     size_t sz = (size_t)(n + 1);
-    seq_t *dp = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) return 0;
     dp[0] = 1;                           /* empty partition */
 
     for (idx_t j = 1; j <= n; ++j) {
-        seq_t *newdp = (seq_t *)calloc(sz, sizeof(seq_t));
-        if (!newdp) { free(dp); return 0; }
+        seq_t *newdp = mem_new(seq_t, sz);
+        if (!newdp) { mem_free(dp); return 0; }
 
-        seq_t *S = (seq_t *)calloc(sz, sizeof(seq_t));
-        if (!S) { free(dp); free(newdp); return 0; }
+        seq_t *S = mem_new(seq_t, sz);
+        if (!S) { mem_free(dp); mem_free(newdp); return 0; }
 
         for (idx_t k = 0; k <= n; ++k) {
             if (k < j)
@@ -58,12 +60,12 @@ seq_t a(idx_t n)
             newdp[k] = val;
         }
 
-        free(dp);
-        free(S);
+        mem_free(dp);
+        mem_free(S);
         dp = newdp;
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

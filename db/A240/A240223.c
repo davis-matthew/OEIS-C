@@ -12,13 +12,14 @@
  *            (d-1)d/2 +1
  * Range:     u8 n <= 24, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 /* Integer square root for unsigned __int128 values.  */
 static inline uint64_t isqrt_uint128(unsigned __int128 x)
@@ -51,7 +52,7 @@ seq_t a(idx_t n)
     idx_t k   = (idx_t)(d - row);               /* k coordinate (>=0)           */
 
     /* Compute N(row, k) = 2 + 3^row * k.                */
-    seq_t val = pow_int((seq_t)3, row);
+    seq_t val = ipow_idx((seq_t)3, row);
     val = val * ((seq_t)k) + (seq_t)2;
     return val;
 }

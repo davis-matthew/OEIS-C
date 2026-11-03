@@ -7,15 +7,17 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = sum_{k=0..floor(n/2)}
  *            denominator((n-k+1)*binomial(n-k,k)/binomial(2*(n-k),n-k))
- * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 25, u128 n <= 25,
+ * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binomial, seq_gcd
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 /* Return the nth term of OEIS sequence A098511 */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         seq_t bin2N = binomial(2 * N, N);          /* C(2N,N)   */
         seq_t binNK = binomial(N, k);              /* C(N,k)    */
         seq_t num = (seq_t)(N + 1) * binNK;         /* (N+1)*C(N,k) */
-        seq_t d   = seq_gcd(bin2N, num);           /* gcd(C(2N,N),num) */
+        seq_t d   = gcd(bin2N, num);           /* gcd(C(2N,N),num) */
         seq_t den = bin2N / d;                     /* denominator of the fraction   */
         sum += den;
     }

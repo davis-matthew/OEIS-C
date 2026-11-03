@@ -11,8 +11,9 @@
  *            k(k+1)/2. For n = 0, T(0,k) = k(k+1)/2. The coordinates (i,j)
  *            corresponding to index n are obtained by reading the array along
  *            antidiagonals
- * Range:     u8 n <= 65, u16 n <= 9706, u32 n <= 9706, u64 n <= 9706,
- *            u128 n <= 9706, big any n
+ * Range:     u8 n <= 65, u16 n <= 10584, u32 n <= 10584, u64 n <= 10584,
+ *            u128 n <= 10584, big any n
+ * Validated: standard, pass, 107 terms through n = 9706 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

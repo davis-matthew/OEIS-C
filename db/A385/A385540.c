@@ -8,13 +8,18 @@
  * Formula:   a(n) = |{ 0 ≤ s < n : s^s ≡ s (mod n) and (-s)^s ≡ s (mod n) }|
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The function brute‑forces all s < n, using mod_pow for modular exponentiation. */
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -26,12 +31,12 @@ seq_t a(idx_t n)
             /* 0^0 is taken as 1, consistent with OEIS convention */
             a_val = 1 % (seq_t)n;
         } else {
-            a_val = mod_pow(s_seq, (uint64_t)s, (seq_t)n);
+            a_val = powmod(s_seq, (uint64_t)s, (seq_t)n);
         }
         if (a_val != s_seq)
             continue;
         seq_t base = ((seq_t)n - s_seq) % (seq_t)n; /* (-s) mod n */
-        seq_t b_val = mod_pow(base, (uint64_t)s, (seq_t)n);
+        seq_t b_val = powmod(base, (uint64_t)s, (seq_t)n);
         if (b_val == s_seq)
             ++cnt;
     }

@@ -10,7 +10,8 @@
  *            exists. * (Offset: 1)
  * Range:     u8 n <= 5, u16 n <= 98, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_perfect_square_uint128, isqrt_128
+ * Validated: standard, pass, 67 terms through n = 949 (2026-11-01)
+ * Helpers:   is_square_u128, isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_perfect_square_uint128.h"
-#include "../utils/isqrt_128.h"
+#include "../utils/is_square_u128.h"
+#include "../utils/isqrt_u128.h"
 
 /* ---------- Prime sieve (single run) ---------- */
 #define PRIME_LIMIT 20000000  /* 20 million is enough for n ≤ 10 000 */
@@ -83,14 +84,14 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < (size_t)n; ++i)
         sum += (unsigned __int128)primes[i];
 
-    if (is_perfect_square_uint128(sum))
+    if (is_square_u128(sum))
         return (seq_t)primes[0];
 
     /* slide over all blocks */
     for (size_t k = 1; k <= max_start; ++k) {
         sum += (unsigned __int128)primes[k + n - 1];
         sum -= (unsigned __int128)primes[k - 1];
-        if (is_perfect_square_uint128(sum))
+        if (is_square_u128(sum))
             return (seq_t)primes[k];
     }
 

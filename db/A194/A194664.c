@@ -9,9 +9,10 @@
  *            (col+1)*√2 is at least 1, 0 otherwise. row and col are the
  *            0‑based coordinates of the triangular array indexed by n with
  *            standard row‑major ordering
- * Range:     u8 n <= 8684, u16 n <= 8684, u32 n <= 8684, u64 n <= 8684,
- *            u128 n <= 8684, big any n
- * Helpers:   floor_sqrt2_val
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 115 terms through n = 8684 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,13 @@
 /* Uses the convergent 239/169 of √2 to compute floor(k*√2)
    exactly for all k up to the limits required by the problem. */
 #include <stdint.h>
-#include "../utils/floor_sqrt2_val.h"
+
+static inline seq_t floor_sqrt2_val(idx_t k)
+{
+    /* floor(k * √2) ≈ floor(k * 239 / 169)     */
+    uint64_t prod = (uint64_t)k * 239ULL;   /* safe for k ≤ 10⁷; k ≤ 10⁴ in practice */
+    return (seq_t)(prod / 169ULL);
+}
 
 static inline void linear_to_rc(idx_t n, idx_t *row, idx_t *col)
 {

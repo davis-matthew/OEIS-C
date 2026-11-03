@@ -12,7 +12,8 @@
  *            * over 5‑digit suffixes
  * Range:     u8 none, u16 n <= 2, u32 n <= 10, u64 n <= 28, u128 n <= 63,
  *            big any n
- * Helpers:   encode5
+ * Validated: standard, pass, 35 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,12 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/encode5.h"
+
+/* convert five digits d0..d4 (each in 0..5) to an integer 0..7775 */
+static inline int encode5(uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3, uint8_t d4)
+{
+    return ((((d0 * 6 + d1) * 6 + d2) * 6 + d3) * 6 + d4);
+}
 
 #define STATE_COUNT 7776      /* 6^5 */
 #define TRANSITIONS 6        /* digits 0..5 */

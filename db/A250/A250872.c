@@ -12,7 +12,8 @@
  *            calls
  * Range:     u8 none, u16 n <= 3, u32 n <= 11, u64 n <= 27, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first four terms if it doesn't exist. */
     if (Cache == NULL) {
         CacheSize = 4;
-        Cache = (seq_t *)malloc((CacheSize + 1) * sizeof(seq_t));
+        Cache = mem_new(seq_t, (CacheSize + 1));
         if (Cache == NULL) return 0;     /* allocation failure */
         Cache[0] = 0;                    /* unused */
         Cache[1] = (seq_t)678;
@@ -42,10 +44,10 @@ seq_t a(idx_t n)
     /* Grow and fill the cache if a larger index is requested. */
     if ((size_t)n > CacheSize) {
         size_t newSize = (size_t)n;       /* highest needed index */
-        seq_t *newCache = (seq_t *)malloc((newSize + 1) * sizeof(seq_t));
+        seq_t *newCache = mem_new(seq_t, (newSize + 1));
         if (newCache == NULL) return 0;   /* allocation failure */
-        memcpy(newCache, Cache, (CacheSize + 1) * sizeof(seq_t));
-        free(Cache);
+        mem_copy(newCache, Cache, (CacheSize + 1) * sizeof(seq_t));
+        mem_free(Cache);
         Cache = newCache;
 
         /* Compute missing terms using the recurrence. */

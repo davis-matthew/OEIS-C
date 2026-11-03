@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 55, u16 n <= 4660, u32 n <= 9827, u64 n <= 9827,
- *            u128 n <= 9827, big any n
- * Helpers:   none
+ * Range:     u8 n <= 55, u16 n <= 4660, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 89 terms through n = 9827 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Smallest prime factor table – grows dynamically. */
 static uint64_t *spf = NULL;
@@ -78,7 +80,7 @@ static void ensure_seq_cap(size_t min_cap)
     if (seq_cap >= min_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     while (new_cap < min_cap) new_cap *= 2;
-    seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, new_cap);
     if (!seq_arr) abort();
     seq_cap = new_cap;
 }

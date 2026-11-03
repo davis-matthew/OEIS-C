@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static state for memoised sequence */
 static seq_t *terms = NULL;          /* array of sequence terms   */
@@ -33,7 +35,7 @@ static void append_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         terms_cap = (terms_cap == 0) ? 16 : terms_cap * 2;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_len++] = val;
 }
@@ -54,7 +56,7 @@ static void build_terms(idx_t need_index)
 
     while (1) {
         /* free any previously allocated terms */
-        free(terms);
+        mem_free(terms);
         terms = NULL;
         terms_len = 0;
         terms_cap = 0;

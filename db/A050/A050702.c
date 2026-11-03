@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 200, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   check_rev_property, rev_uint64
+ * Validated: standard, pass, 68 terms through n = 905 (2026-11-03)
+ * Helpers:   mem, reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,31 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/check_rev_property.h"
-#include "../utils/rev_uint64.h"
+#include "../utils/reverse_digits_u64.h"
+#include "../utils/mem.h"
+
+/* check that the distinct prime factor sets of n and rev(n) satisfy
+   the reversal property.  It is assumed that the prime lists `fac_n`,
+   `fac_rev` are in ascending order and `cnt_n == cnt_rev`. */
+static bool check_rev_property(const uint64_t *fac_n, size_t cnt_n,
+                               const uint64_t *fac_rev, size_t cnt_rev)
+{
+    for (size_t i = 0; i < cnt_n; ++i) {
+        uint64_t rfac = reverse_digits_u64(fac_n[i]);
+
+        /* binary search in fac_rev */
+        size_t lo = 0, hi = cnt_rev;
+        bool found = false;
+        while (lo < hi) {
+            size_t mid = (lo + hi) >> 1;
+            if (fac_rev[mid] == rfac) { found = true; break; }
+            if (fac_rev[mid] < rfac) lo = mid + 1;
+            else hi = mid;
+        }
+        if (!found) return false;
+    }
+    return true;
+}
 
 /* ---------- prime sieve utilities ---------------------------------- */
 static uint64_t *prime_list = NULL;   /* primes discovered so far */
@@ -99,8 +123,7 @@ static void seq_push(seq_t v)
 {
     if (seq_cache_len >= seq_cache_cap) {
         seq_cache_cap = (seq_cache_cap == 0) ? 16 : seq_cache_cap * 2;
-        seq_cache = (seq_t*)realloc(seq_cache,
-                                    seq_cache_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cache_cap);
     }
     seq_cache[seq_cache_len++] = v;
 }
@@ -124,7 +147,7 @@ seq_t a(idx_t n)
 
     while (seq_cache_len < n) {
         /* a nonprime, not a palindrome */
-        uint64_t revc = rev_uint64(cand);
+        uint64_t revc = reverse_digits_u64(cand);
         if (cand != revc) {
             uint64_t fac[16], fac_rev[16];
             size_t cnt = 0, cnt_rev = 0;

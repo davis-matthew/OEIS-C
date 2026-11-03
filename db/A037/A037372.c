@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 169, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_ternary_digit, ternary_has_for_all
+ * Validated: standard, pass, 78 terms through n = 9909 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,39 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_ternary_digit.h"
-#include "../utils/ternary_has_for_all.h"
+#include "../utils/mem.h"
+
+/* Check whether the ternary representation of x contains the digit d. */
+static inline bool has_ternary_digit(seq_t x, int d)
+{
+    if (x == 0)
+        return d == 0;               /* 0 in ternary is "0" */
+    while (x > 0) {
+        int digit = (int)(x % 3);
+        if (digit == d)
+            return true;
+        x /= 3;
+    }
+    return false;
+}
+
+/* Determine whether k satisfies the sequence condition. */
+static inline bool ternary_has_for_all(seq_t k)
+{
+    /* Digit 1 must always be present. */
+    if (!has_ternary_digit(k, 1))
+        return false;
+
+    /* If k is not of the form 2^m‑1, its binary representation
+       contains at least one zero bit; then digit 0 must appear in
+       ternary representation. */
+    seq_t kp1 = k + 1;
+    if ((kp1 & (kp1 - 1)) != 0) {   /* kp1 not a power of two */
+        if (!has_ternary_digit(k, 0))
+            return false;
+    }
+    return true;
+}
 
 static seq_t *terms      = NULL;
 static size_t terms_cap  = 0;
@@ -36,7 +68,7 @@ seq_t a(idx_t n)
             /* Ensure enough capacity and store the term. */
             if (terms_len >= terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp)
                     exit(EXIT_FAILURE);
                 terms = tmp;

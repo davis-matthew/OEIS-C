@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 125, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_sub667
+ * Validated: standard, pass, 52 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,25 @@
    in any order are handled efficiently. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_sub667.h"
+#include "../utils/mem.h"
+
+/* Return true iff x contains the consecutive digits 6,6,7 in decimal. */
+static bool has_sub667(seq_t x)
+{
+    if (x == 0)
+        return false;
+    seq_t prev1 = 10;   /* sentinel values > 9 */
+    seq_t prev2 = 10;
+    while (x > 0) {
+        seq_t d = x % 10;
+        if (d == 6 && prev1 == 6 && prev2 == 7)
+            return true;
+        prev2 = prev1;
+        prev1 = d;
+        x /= 10;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;        /* cached terms */
 static size_t cache_cap = 0;       /* allocated size of cache   */
@@ -36,10 +55,10 @@ static void ensure_terms(idx_t n)
     /* Allocate or grow the buffer as needed. */
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (cache_len == cache_cap) {
         cache_cap *= 2;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     seq_t cur = last_checked + 1;
@@ -48,7 +67,7 @@ static void ensure_terms(idx_t n)
             cache[cache_len++] = cur;
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
         }
         cur++;

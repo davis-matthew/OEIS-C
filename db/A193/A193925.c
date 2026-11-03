@@ -7,14 +7,18 @@
  * Formula:   a(n) = a(n-1)^2 - n^(n-2) + n Initial values: a(0) = 0, a(1) = 0
  * Range:     i8 n <= 5, i16 n <= 6, i32 n <= 7, i64 n <= 8, i128 n <= 9,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +30,7 @@ seq_t a(idx_t n)
     if (cache_size == 0) {
         /* initialize with first two terms */
         cache_size = (idx_t)2;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return (seq_t)0;  /* out of memory – unlikely */
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)0;
@@ -35,7 +39,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         /* grow cache to include n */
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;  /* out of memory – unlikely */
         cache = tmp;
         /* compute missing terms */
@@ -44,7 +48,7 @@ seq_t a(idx_t n)
                 cache[i] = (seq_t)0;
             } else {
                 seq_t prev = cache[i - 1];
-                seq_t pow_val = big_pow((seq_t)i, (seq_t)(i - 2));
+                seq_t pow_val = ipow((seq_t)i, (seq_t)(i - 2));
                 cache[i] = prev * prev - pow_val + (seq_t)i;
             }
         }

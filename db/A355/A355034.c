@@ -9,14 +9,15 @@
  *            base b is a prime number
  * Range:     u8 n <= 1284, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   primecheck
+ * Validated: standard, pass, 103 terms through n = 9892 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/primecheck.h"
+#include "../utils/is_prime_u64.h"
 
 /* Returns the least base b ≥ 2 where the digit sum of n in base b
    is a prime.  Defined for n ≥ 2; for n < 2 a 0 is returned. */
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
 
         /* sum is small – fit in uint64_t for the primality test */
         uint64_t s = (uint64_t)sum;
-        if (primecheck(s))
+        if (is_prime_u64(s))
             return (seq_t)b;     /* found the least such base */
     }
 

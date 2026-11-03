@@ -8,7 +8,8 @@
  *            4^{n/g} if 5∤g, 4^{5n/g} if 5|g )
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 12,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 28 terms through n = 93 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -88,8 +90,8 @@ seq_t a(idx_t n)
         else
             exp2 = n / g;
 
-        seq_t pow1 = big_pow((seq_t)4, (seq_t)exp1);
-        seq_t pow2 = big_pow((seq_t)4, (seq_t)exp2);
+        seq_t pow1 = ipow((seq_t)4, (seq_t)exp1);
+        seq_t pow2 = ipow((seq_t)4, (seq_t)exp2);
 
         sum1 += pow1 * (seq_t)phi;
         sum2 += pow2 * (seq_t)phi;

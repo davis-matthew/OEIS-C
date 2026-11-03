@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 106 terms through n = 913 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* Algorithm: Count unordered factor pairs (a,b) of n such that d(a)=d(b)  */
 /* d(a) is the number of divisors, computed via divisor_count_u64()          */
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +31,8 @@ seq_t a(idx_t n)
         if (n % a == 0)
         {
             idx_t b = n / a;
-            seq_t da = divisor_count_u64(a);
-            seq_t db = divisor_count_u64(b);
+            seq_t da = num_divisors(a);
+            seq_t db = num_divisors(b);
             if (da == db)
                 count++;
         }

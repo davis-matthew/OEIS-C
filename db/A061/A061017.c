@@ -9,12 +9,14 @@
  *            divisors of i)
  * Range:     u8 n <= 176, u16 n <= 7069, u32 n <= 7069, u64 n <= 7069,
  *            u128 n <= 7069, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 6824 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Count divisors of x.  Uses trial division; works for x up to the
    needed range (≤ a few thousand) and keeps all calculations in
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     if (size == 0)
     {
         capacity = 8;
-        cum = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cum = mem_new(seq_t, capacity);
         cum[0] = (seq_t)0;
         size = 1;
     }
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         if (size == capacity)
         {
             capacity *= 2;
-            cum = (seq_t *)realloc(cum, capacity * sizeof(seq_t));
+            cum = mem_resize(seq_t, cum, capacity);
         }
 
         cum[size] = cum[size - 1] + d;

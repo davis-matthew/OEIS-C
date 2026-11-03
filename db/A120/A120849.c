@@ -7,12 +7,14 @@
  * Formula:   a(n) = 5*n + 3^n - 2^n
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 45 terms through n = 945 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 /* Compute the nth term of OEIS A120849.
  * Sequence definition: a(n) = 5*n + 3^n - 2^n,   a(0) = 0.
@@ -21,8 +23,8 @@
 seq_t a(idx_t n)
 {
     /* Compute 3^n and 2^n as seq_t values. */
-    seq_t pow3n = pow_uint(3, n);
-    seq_t pow2n = pow_uint(2, n);
+    seq_t pow3n = ipow_u64_idx(3, n);
+    seq_t pow2n = ipow_u64_idx(2, n);
 
     /* a(n) = (3^n - 2^n) + 5*n.  The subtraction is safe because
      * 3^n >= 2^n for all n >= 0. */

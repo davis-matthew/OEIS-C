@@ -9,6 +9,7 @@
  *            sin(π/3), t = sin(π/4), u = sin(π/5)
  * Range:     u8 n <= 47, u16 n <= 120, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
+ * Validated: partial, pass, 120 terms through n = 120 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,15 +20,15 @@
 seq_t a(idx_t n)
 {
     /* Pre‑compute the necessary constants once */
-    static const long double PI  = acosl(-1.0L);
-    static const long double u   = sinl(PI / 5.0L);
-    static const long double r   = sinl(PI / 2.0L);   /* = 1 */
-    static const long double s   = sinl(PI / 3.0L);
-    static const long double t   = sinl(PI / 4.0L);
+    const long double PI  = acosl(-1.0L);
+    const long double u   = sinl(PI / 5.0L);
+    const long double r   = sinl(PI / 2.0L);   /* = 1 */
+    const long double s   = sinl(PI / 3.0L);
+    const long double t   = sinl(PI / 4.0L);
 
-    static const long double r_over_u = r / u;
-    static const long double s_over_u = s / u;
-    static const long double t_over_u = t / u;
+    const long double r_over_u = r / u;
+    const long double s_over_u = s / u;
+    const long double t_over_u = t / u;
 
     /* Compute each floor term using 64‑bit integers,
        then cast to seq_t for the final accumulation. */

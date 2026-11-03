@@ -7,6 +7,7 @@
  * Formula:   a(n) = n!*(n-4)/2, n >4, a(4)=4
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 33,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 427 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

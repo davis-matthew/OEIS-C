@@ -13,11 +13,13 @@
  *            are integer divisions
  * Range:     u8 n <= 49, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 
 static int sieve_limit = 200000;   /* covers primes up to the 17984th prime */

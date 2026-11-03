@@ -13,13 +13,15 @@
  *            a(6)=0, a(7)=0, a(8)=2, a(9)=–1, …
  * Range:     i8 n <= 90, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* local helpers ----------------------------------------------------------- */
 static idx_t _row_of(idx_t n);
@@ -57,7 +59,7 @@ static void _ensure_rows(idx_t needed)
     idx_t new_cap = needed + 1;
     _rows = (seq_t**)realloc(_rows, new_cap * sizeof(seq_t *));
     for (idx_t i = _rows_cap; i <= needed; ++i) {
-        seq_t *row = (seq_t*)calloc((size_t)(i + 1), sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(i + 1));
         if (!row)
             abort();  /* allocation failure */
 

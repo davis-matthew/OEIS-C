@@ -8,6 +8,7 @@
  *            than n/2 (i.e., partitions with parts <= floor((n-1)/2))
  * Range:     u8 n <= 17, u16 n <= 43, u32 n <= 127, u64 n <= 416,
  *            u128 n <= 1458, big any n
+ * Validated: standard, pass, 64 terms through n = 8324 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

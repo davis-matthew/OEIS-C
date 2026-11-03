@@ -8,7 +8,8 @@
  * Formula:   a(n) = floor(log2((n+1)!)) - floor(log2(n!))
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_words
+ * Validated: standard, pass, 121 terms through n = 9600 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/bitlen_words.h"
+#include "../utils/mem.h"
+
+/* Helper: bit length of a big integer represented as array of 32‑bit words. */
+static size_t bitlen_words(const uint32_t *words, size_t len)
+{
+    uint32_t top = words[len - 1];
+    int bits = 0;
+    while (top) {
+        top >>= 1;
+        bits++;
+    }
+    return (len - 1) * 32 + bits;
+}
 
 /* Cached data -------------------------------------------------------------- */
 static seq_t *log_cache = NULL;          /* floor(log2(k!)) values (index k) */
@@ -38,12 +51,12 @@ static void ensure_cache(idx_t n)
     /*--- expand log_cache array ------------------------------------------ */
     if (log_cache == NULL) {
         log_cache_size = n + 1;
-        log_cache = (seq_t *)calloc(log_cache_size, sizeof(seq_t));
+        log_cache = mem_new(seq_t, log_cache_size);
         if (log_cache == NULL) abort();  /* allocation failure */
         log_cache[0] = (seq_t)0;         /* 0! = 1 → floor(log2(1)) = 0 */
     } else if (log_cache_size <= n) {
         size_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(log_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, log_cache, new_size);
         if (tmp == NULL) abort();
         log_cache = tmp;
         log_cache_size = new_size;

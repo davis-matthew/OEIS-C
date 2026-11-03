@@ -9,6 +9,7 @@
  *            the smallest integer with r(r+1)/2 ≥ n, and k = n - r(r-1)/2
  * Range:     u8 n <= 54, u16 n <= 5049, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 82 terms through n = 5050 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

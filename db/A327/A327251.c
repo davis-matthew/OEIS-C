@@ -8,14 +8,15 @@
  * Formula:   a(n) = Sum_{d|n} psi(n/d) * d, where psi is Dedekind psi
  * Range:     u8 n <= 23, u16 n <= 1199, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_uint64
+ * Validated: standard, pass, 73 terms through n = 8833 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* ----------  64‑bit arithmetic helpers  ---------- */
 static uint64_t mod_mul_uint64(uint64_t a, uint64_t b, uint64_t mod) {
@@ -76,7 +77,7 @@ static uint64_t pollard_rho(uint64_t n) {
             y = (mod_mul_uint64(y, y, n) + c) % n;
             y = (mod_mul_uint64(y, y, n) + c) % n;
             uint64_t diff = x > y ? x - y : y - x;
-            d = gcd_uint64(diff, n);
+            d = gcd_u64(diff, n);
         }
         if (d != n) return d;
         ++c; /* try a different constant */

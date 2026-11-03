@@ -10,12 +10,14 @@
  *            floor(log2(n-2))
  * Range:     u8 n <= 19, u16 n <= 72, u32 n <= 515, u64 n <= 4335,
  *            u128 n <= 8193, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 7269 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* array of sequence values */
 static size_t seq_len = 0;         /* allocated length of seq[]  */
@@ -26,7 +28,7 @@ static void ensure_size(idx_t n)
 {
     if (seq_len <= n) {
         size_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(seq, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_len);
         if (!tmp) abort();
         seq   = tmp;
         seq_len = new_len;

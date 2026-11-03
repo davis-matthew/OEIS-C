@@ -7,14 +7,28 @@
  * Formula:   a(n) = A014449(n)^2 (square of the nth interior Eulerian number)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 23, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   free_seq, seq_alloc_new_array
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_seq.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Find minimal row r (r >= 3) such that the total number of interior
    Eulerian entries up to that row is >= n.  */

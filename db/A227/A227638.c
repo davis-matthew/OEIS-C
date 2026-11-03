@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 42, u64 n <= 210, u128 n <= 210,
+ * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 42, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 46 terms through n = 204 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache[i] == a(i+1) (1‑based index) */
 static idx_t  cache_len = 0;         /* number of stored elements */
@@ -61,7 +63,7 @@ static seq_t term_using_gf(idx_t n)
          * unsigned underflow when n is small. */
         int64_t num = (int64_t)n + 8 - k;
         if (num < 9) continue;                    /* binom = 0 */
-        seq_t bin = binom((idx_t)num, 9);
+        seq_t bin = binomial((idx_t)num, 9);
         if (bin == 0) continue;
         int c = coeff_gf[k];
         if (c >= 0)
@@ -78,7 +80,7 @@ static void ensure_cache_upto(idx_t n)
     if (n <= cache_len) return;
 
     /* Reallocate cache to hold n elements (1‑based). */
-    seq_t *new_cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)n);
     if (!new_cache) abort();    /* out of memory – cannot continue */
 
     cache = new_cache;

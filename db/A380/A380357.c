@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 185, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   _sign
+ * Validated: standard, pass, 76 terms through n = 9781 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_sign.h"
+#include "../utils/mem.h"
+
+/* sign function */
+static int _sign(seq_t x)
+{
+    return (x > 0) ? 1 : ((x < 0) ? -1 : 0);
+}
 
 /* supported types for seq_t and idx_t are provided by the build */
 static size_t _seq_cap = 0, _seq_len = 0;
@@ -40,7 +47,7 @@ static void _ensure_seq(size_t needed)
     if (_seq_cap >= needed) return;
     size_t newcap = _seq_cap ? _seq_cap : 8;
     while (newcap < needed) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(_seq, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _seq, newcap);
     if (!tmp) abort();
     _seq = tmp;
     _seq_cap = newcap;
@@ -52,7 +59,7 @@ static void _ensure_seen(size_t needed)
     if (_seen_cap >= needed) return;
     size_t newcap = _seen_cap ? _seen_cap : 8;
     while (newcap < needed) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(_seen, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _seen, newcap);
     if (!tmp) abort();
     _seen = tmp;
     _seen_cap = newcap;

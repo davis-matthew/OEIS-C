@@ -11,7 +11,8 @@
  *            89,103, … * * The first three terms are hard‑code...
  * Range:     u8 n <= 42, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   n_to_row_col, prime_index_by_row_col
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,34 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/n_to_row_col.h"
-#include "../utils/prime_index_by_row_col.h"
+
+/* Map n ≥ 4 to its (row,col) position in the 3×∞ array. */
+static void n_to_row_col(idx_t n, idx_t *rowp, idx_t *colp)
+{
+    idx_t row = ((n - 4) % 3) + 1;            /* 1..3  for n≥4 */
+    idx_t start_n = 3 + row;                  /* first n that visits this row */
+    idx_t offset  = (n - start_n) / 3;        /* how many steps inside this row */
+
+    static const idx_t base_col[4] = {0, 3, 2, 1};   /* base columns for rows 1‑3 */
+    idx_t col = base_col[row] + offset;
+
+    *rowp = row;
+    *colp = col;
+}
+
+/* Compute the prime index (1‑based) for a given row and column. */
+static idx_t prime_index_by_row_col(idx_t row, idx_t col)
+{
+    if (row == 1) {
+        if (col & 1u)          return 6 * ((col - 1) / 2) + 1;
+        else                   return 6 * (col / 2)       - 1;
+    } else if (row == 2) {
+        if (col & 1u)          return 6 * ((col - 1) / 2) + 2;
+        else                   return 6 * (col / 2)       - 2;
+    } else { /* row == 3 */
+        return 3 * col;
+    }
+}
 
 static const idx_t LIMIT_PRIME_SIEVE = 200000;    /* enough for the required range */
 static uint32_t *prime_list   = NULL;

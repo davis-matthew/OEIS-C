@@ -13,14 +13,36 @@
  *            order
  * Range:     u8 n <= 25, u16 n <= 74, u32 n <= 206, u64 n <= 657,
  *            u128 n <= 2005, big any n
- * Helpers:   compute_T_rowk
+ * Validated: standard, pass, 82 terms through n = 4759 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compute_T_rowk.h"
+
+static seq_t compute_T_rowk(idx_t row, idx_t k)
+{
+    if (k == 0) return (seq_t)0;
+    if (k == 1) return (seq_t)1;
+
+    seq_t prevPrev = (seq_t)0;   /* T(row,0) */
+    seq_t prev     = (seq_t)1;   /* T(row,1) */
+    for (idx_t t = 2; t <= k; ++t) {
+        seq_t cur;
+        if (row < 6) {
+            int diff = 6 - (int)row;          /* positive */
+            cur = prev * (seq_t)5 - (seq_t)diff * prevPrev;
+        } else {
+            int diff = (int)row - 6;          /* positive */
+            cur = prev * (seq_t)5 + (seq_t)diff * prevPrev;
+        }
+        prevPrev = prev;
+        prev     = cur;
+    }
+    return prev;
+}
 
 seq_t a(idx_t n)
 {

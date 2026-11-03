@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   p_divides_binomial
+ * Validated: standard, pass, 73 terms through n = 9584 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 /* a(n) = n-th integer k such that binomial(2*k,k) * B(2*k) is an integer. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/p_divides_binomial.h"
+
+/* does prime p divide C(2*k,k)?  */
+static bool p_divides_binomial(uint64_t k, uint64_t p) {
+    uint64_t n = 2 * k;
+    uint64_t exp = 0;
+    for (uint64_t pp = p; pp <= n; pp *= p) {
+        exp += n / pp - 2 * (k / pp);
+        if (pp > n / p) break;   /* avoid overflow */
+    }
+    return exp >= 1;
+}
 
 /* Maximum prime for sieve – enough for k up to about 5·10^5 */
 #define PRIME_LIMIT 500000

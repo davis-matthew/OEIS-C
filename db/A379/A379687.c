@@ -9,7 +9,8 @@
  *            (2n-k)!/(k! (n-k)!)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 /* Computation done directly from the above combinatorial sum. */
 /* Author: ChatGPT */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     }
 
     // pow2 = 2^{n}
-    seq_t pow2 = pow_seq((seq_t)2, (int)n);
+    seq_t pow2 = ipow_i32((seq_t)2, (int)n);
 
     // Sum of terms with sign
     seq_t sum_val = (seq_t)0;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= n; ++k) {
         // Compute (k+1)^k
-        seq_t pow_kp1 = pow_seq((seq_t)(k + 1), (int)k);
+        seq_t pow_kp1 = ipow_i32((seq_t)(k + 1), (int)k);
 
         // term = pow2 * pow_kp1 * A
         seq_t term = pow2 * pow_kp1;

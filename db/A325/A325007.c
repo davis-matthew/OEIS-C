@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl, easy
  * Formula:   not stated
- * Range:     u8 n <= 17, u16 n <= 48, u32 n <= 143, u64 n <= 325,
+ * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 144, u64 n <= 325,
  *            u128 n <= 325, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 321 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
  * For that (m,k):  A(m,k) = binom( binom(k+1,2) + m-1 , m )
  *                - binom( binom(k,2)   , m )
  */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     /* a(0) is unused; return 0 for safety. */
@@ -47,12 +49,12 @@ seq_t a(idx_t n) {
     idx_t k = d - pos + 1;
 
     /* Compute the two binomial terms. */
-    seq_t inner1 = binom(k + 1, 2);          /* C(k+1,2)   */
-    seq_t inner2 = binom(k,     2);          /* C(k,2)     */
+    seq_t inner1 = binomial(k + 1, 2);          /* C(k+1,2)   */
+    seq_t inner2 = binomial(k,     2);          /* C(k,2)     */
     seq_t top    = inner1 + (seq_t)(m - 1);  /* C(k+1,2)+m-1 */
 
-    seq_t first  = binom((idx_t)top, m);     /* C(top, m)   */
-    seq_t second = binom((idx_t)inner2, m);  /* C(inner2, m) */
+    seq_t first  = binomial((idx_t)top, m);     /* C(top, m)   */
+    seq_t second = binomial((idx_t)inner2, m);  /* C(inner2, m) */
 
     return first - second;
 }

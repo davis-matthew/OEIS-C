@@ -10,13 +10,15 @@
  *            index)
  * Range:     i8 n <= 11, i16 n <= 31, i32 n <= 99, i64 n <= 367,
  *            i128 n <= 1325, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 69 terms through n = 1286 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* binom is provided by the build utilities. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Compute the combinatorial factor */
     idx_t a_arg = r + m + 1;        /* n + m + 1 in formula */
     idx_t b_arg = 2 * m + 1;        /* 2m + 1 in formula */
-    seq_t binom_val = binom(a_arg, b_arg);
+    seq_t binom_val = binomial(a_arg, b_arg);
 
     /* Compute 4^m */
     seq_t pow4 = 1;

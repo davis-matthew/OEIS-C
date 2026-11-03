@@ -11,11 +11,13 @@
  *            support for binomial(n,k) in utils)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 9, u64 n <= 49, u128 n <= 500,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 499 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

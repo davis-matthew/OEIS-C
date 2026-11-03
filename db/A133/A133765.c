@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 4368, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains49_idx, is_prime
+ * Validated: standard, pass, 70 terms through n = 9699 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,18 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/contains49_idx.h"
+
+/* Return true if any decimal digit of x is 4 or 9. */
+static bool contains49_idx(idx_t x)
+{
+    while (x > 0) {
+        uint8_t d = x % 10;
+        if (d == 4 || d == 9)
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Return the nth prime that contains the digit 4 or 9. */
 seq_t a(idx_t n)

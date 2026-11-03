@@ -10,12 +10,14 @@
  *            exp( Σ_{t≥1} x^(t^2)/(t^2)! )
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 19, u64 n <= 30, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 608 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Minimal multiplicative binomial coefficient.
    The division is exact for integer binomial coefficients. */
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_size) return;
 
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) exit(1);           /* abort on allocation failure */
     cache = new_cache;
 

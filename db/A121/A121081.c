@@ -9,12 +9,14 @@
  *            partition number of k (p(k)=0 for negative k)
  * Range:     u8 n <= 22, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *p = NULL;          /* cache of partition numbers p[0..max] */
 static idx_t  p_max = 0;         /* highest indexed partition computed */
@@ -22,11 +24,11 @@ static idx_t  p_max = 0;         /* highest indexed partition computed */
 static void compute_partitions_up_to(idx_t n)
 {
     if (p == NULL) {                                 /* initial allocation */
-        p = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        p = mem_new(seq_t, (n + 1));
         if (p == NULL) exit(1);
         p[0] = (seq_t)1;                 /* p(0) = 1 */
     } else if (n > p_max) {                 /* extend existing array */
-        seq_t *tmp = (seq_t *)realloc(p, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, p, (n + 1));
         if (tmp == NULL) exit(1);
         p = tmp;
     }

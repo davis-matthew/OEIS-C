@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 13, u64 n <= 33, u128 n <= 73,
  *            big any n
- * Helpers:   addseq
+ * Validated: standard, pass, 36 terms through n = 204 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,9 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/addseq.h"
+
+/* simple addition for seq_t */
+static inline seq_t addseq(seq_t a, seq_t b) { return a + b; }
 
 /* number of 4‑bit row patterns */
 #define PAT 16

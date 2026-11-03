@@ -9,14 +9,17 @@
  *            needed, so repeated calls with arbitrary n are efficient
  * Range:     u8 n <= 19, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 68 terms through n = 939 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_cache = NULL;     // array of found primes
 static idx_t   cache_len  = 0;        // number of primes stored
@@ -26,7 +29,7 @@ static idx_t   next_candidate = 2;    // next integer to test
 static inline void grow_cache(void) {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *new_ptr = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, prime_cache, new_cap);
         prime_cache = new_ptr;
         cache_cap  = new_cap;
     }

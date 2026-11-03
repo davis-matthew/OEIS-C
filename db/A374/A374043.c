@@ -7,8 +7,9 @@
  * Keywords:  nonn, mult, easy
  * Formula:   a(n) = 1 if n is not divisible by 3 and its 2-adic valuation is
  *            a multiple of 3, otherwise 0
- * Range:     u8 n <= 9896, u16 n <= 9896, u32 n <= 9896, u64 n <= 9896,
- *            u128 n <= 9896, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 9896 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

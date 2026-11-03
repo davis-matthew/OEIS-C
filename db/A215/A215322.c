@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,30 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* --- Helper: dynamic array growth ------------------------------------- */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *p = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!p) exit(1);              /* insufficient memory */
+    *ptr = p;
+    *cap = new_cap;
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (needed <= *cap) return;
@@ -32,6 +55,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
     *ptr = p;
     *cap = new_cap;
 }
+#endif
 
 /* --- State: primes list and sequence list ---------------------------- */
 static uint64_t       *primes         = NULL; /* all primes found so far (uint64_t) */
@@ -71,7 +95,7 @@ seq_t a(idx_t n)
             /* Append to the list of all primes */
             if (prime_len + 1 > prime_cap) {
                 ensure_capacity(prime_len + 1, &prime_cap,
-                                (void **)&primes, sizeof(uint64_t));
+                                OEISC_VPP(&primes), sizeof(uint64_t));
             }
             primes[prime_len++] = p;
 
@@ -80,7 +104,7 @@ seq_t a(idx_t n)
             if (rem == 1 || rem == 2 || rem == 3 || rem == 4 || rem == 6) {
                 if (seq_len + 1 > seq_cap) {
                     ensure_capacity(seq_len + 1, &seq_cap,
-                                    (void **)&seq_primes, sizeof(seq_t));
+                                    OEISC_VPP(&seq_primes), sizeof(seq_t));
                 }
                 /* Cast from uint64_t to seq_t (implicit conversion handles big int) */
                 seq_primes[seq_len++] = p;

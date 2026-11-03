@@ -10,13 +10,15 @@
  *            2*a(n-6) + a(n-7) (n ≥ 7)
  * Range:     u8 n <= 16, u16 n <= 27, u32 n <= 51, u64 n <= 98, u128 n <= 193,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial values for n = 0 .. 6 */
 static const seq_t init_vals[7] = {1, 0, 0, 2, 0, 1, 6};
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     size_t needed = (size_t)n + 1u;
     if (cache == NULL) {
         cache_cap = needed;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;           /* out‑of‑memory – should not happen */
         for (size_t i = 0u; i < 7u; ++i) {
             cache[i] = init_vals[i];
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         cache_len = 7u;
     } else if (needed > cache_cap) {
         cache_cap = needed;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         if (!cache) return (seq_t)0;
     }
 

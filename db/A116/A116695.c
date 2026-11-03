@@ -9,7 +9,8 @@
  *            digit)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   numeric_of_digits
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,15 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/numeric_of_digits.h"
+#include "../utils/mem.h"
+
+static inline uint32_t numeric_of_digits(const uint8_t *a)
+{
+    uint32_t v = 0;
+    for (int i = 0; i < 9; ++i)
+        v = v * 10 + a[i];
+    return v;
+}
 
 static inline bool next_permutation(uint8_t *a, size_t n)
 {
@@ -99,11 +108,11 @@ seq_t a(idx_t n)
     /* Ensure cache capacity */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     while (n > cache_cap) {
         cache_cap *= 2;
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     if (!init) {

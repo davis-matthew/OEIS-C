@@ -8,13 +8,16 @@
  *            integer division)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for forward computation */
@@ -28,7 +31,7 @@ seq_t a(idx_t n) {
     if (n + 1 > cache_cap) {
         size_t new_cap = (size_t)(n + 1);
         /* realloc works even when cache is NULL */
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

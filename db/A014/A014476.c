@@ -7,13 +7,15 @@
  * Keywords:  nonn, tabf
  * Formula:   a(n) = nth even binomial coefficient C(r,k) with k > r/2,
  *            scanning rows r = 1,2,3,... of Pascal's triangle in order
- * Range:     u8 n <= 6, u16 n <= 24, u32 n <= 48, u64 n <= 48, u128 n <= 48,
+ * Range:     u8 n <= 12, u16 n <= 45, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

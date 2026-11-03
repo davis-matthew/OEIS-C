@@ -7,15 +7,18 @@
  * Formula:   a(n) = 19^(5*n + 3)
  * Range:     u8 none, u16 n <= 0, u32 n <= 0, u64 n <= 2, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 24 terms through n = 49 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     seq_t exp = (seq_t)n * 5 + 3;
-    return big_pow((seq_t)19, exp);
+    return ipow((seq_t)19, exp);
 }

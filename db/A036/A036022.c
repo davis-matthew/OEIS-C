@@ -12,12 +12,24 @@
  *            sizes are those n with residue * 1,3,4,7,8,9,12,13,15 modu...
  * Range:     u8 n <= 26, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   seq_alloc
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_alloc.h"   /* for seq_alloc() and free() */
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 #include <stddef.h>
 
 static seq_t *dp = NULL;     /* array holding computed partition counts */
@@ -77,7 +89,7 @@ seq_t a(idx_t n)
 
         /* Replace old DP array */
         if (dp != NULL)
-            free(dp);
+            mem_free(dp);
         dp = newdp;
         dp_max = limit;
     }
@@ -106,7 +118,7 @@ seq_t a(idx_t n)
         }
 
         if (dp != NULL)
-            free(dp);
+            mem_free(dp);
         dp = newdp;
         dp_max = limit;
     }

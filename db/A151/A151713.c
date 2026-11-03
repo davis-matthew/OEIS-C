@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   gf2_6_mul
+ * Validated: full, pass, 64 terms through n = 63 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,19 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gf2_6_mul.h"
+
+static inline uint8_t gf2_6_mul(uint8_t a, uint8_t b) {
+    /* multiplication in GF(2^6) with primitive polynomial x^6 + x + 1 (0x43) */
+    uint8_t r = 0;
+    for (int i = 0; i < 6; ++i) {
+        if (b & 1) r ^= a;
+        uint8_t carry = a & 0x20;   /* bit of x^5 */
+        a <<= 1;
+        if (carry) a ^= 0x43;       /* reduce */
+        b >>= 1;
+    }
+    return r;
+}
 
 static int g_init = 0;
 static seq_t a_dist[64] = {0};

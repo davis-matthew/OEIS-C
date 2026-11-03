@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 1298, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_juxtapose
+ * Validated: standard, pass, 57 terms through n = 7892 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_juxtapose.h"
+#include "../utils/mem.h"
+
+/* Return true iff the decimal representation of x contains
+   the adjacent digits 0 and 7 in either order. */
+static bool has_juxtapose(seq_t x)
+{
+    while (x > 9)
+    {
+        uint64_t d1 = (uint64_t)(x % 10);
+        uint64_t d2 = (uint64_t)((x / 10) % 10);
+        if ((d1 == 0 && d2 == 7) || (d1 == 7 && d2 == 0))
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Compute the nth term of A044002 (1‑based index). */
 seq_t a(idx_t n)
@@ -42,7 +58,7 @@ seq_t a(idx_t n)
                 if (cached + 1 > capacity)
                 {
                     size_t new_cap = (capacity == 0) ? 64 : capacity * 2;
-                    void *tmp = realloc(cache, sizeof(seq_t) * new_cap);
+                    void *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) exit(1);               /* out of memory */
                     cache = (seq_t *)tmp;
                     capacity = new_cap;

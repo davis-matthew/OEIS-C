@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1026, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, mod_pow
+ * Validated: standard, pass, 103 terms through n = 9852 (2026-11-01)
+ * Helpers:   build_primes_upto, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,11 @@
 /* Uses a sieve to generate primes below n and modular exponentiation to test each. */
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +43,7 @@ seq_t a(idx_t n)
         seq_t mod = (seq_t)mod_val;
         seq_t base = (seq_t)(n % mod_val);  /* reduce n modulo p² to avoid overflow */
 
-        seq_t pow_res = mod_pow(base, p - 1, mod);
+        seq_t pow_res = powmod(base, p - 1, mod);
         if (pow_res == 1)
             ++result;
     }

@@ -9,13 +9,13 @@
  *            ((p+1)/2)^(e-1) for odd primes p
  * Range:     u8 n <= 260, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a000272_ipow
+ * Validated: standard, pass, 92 terms through n = 8227 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000272_ipow.h"
-
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return 1;
@@ -33,7 +33,7 @@ seq_t a(idx_t n) {
             
             seq_t p_half_minus = (seq_t)((p - 1) / 2);
             seq_t p_half_plus = (seq_t)((p + 1) / 2);
-            seq_t power = a000272_ipow(p_half_plus, e - 1);
+            seq_t power = ipow_idx(p_half_plus, e - 1);
             result *= p_half_minus * power;
         }
     }

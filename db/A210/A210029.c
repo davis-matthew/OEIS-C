@@ -9,13 +9,16 @@
  * Formula:   a(n) = Sum_{v=0..n-1} (-1)^v * binomial(n,v) * (n-v)^(2n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 16,
  *            big any n
- * Helpers:   binom, seq_pow
+ * Validated: standard, pass, 30 terms through n = 196 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -30,9 +33,9 @@ seq_t a(idx_t n)
     seq_t neg = 0;   /* Sum of terms with odd  v. */
 
     for (idx_t v = 0; v < n; ++v) {
-        seq_t choose = binom(n, v);              /* C(n, v) */
+        seq_t choose = binomial(n, v);              /* C(n, v) */
         seq_t base   = (seq_t)(n - v);           /* n - v   */
-        seq_t pow_val = seq_pow(base, two_n);    /* (n-v)^(2n) */
+        seq_t pow_val = ipow_idx(base, two_n);    /* (n-v)^(2n) */
         seq_t term = choose * pow_val;           /* C(n,v)*(n-v)^(2n) */
 
         if ((v & 1) == 0)                       /* even v → + */

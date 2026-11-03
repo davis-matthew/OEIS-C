@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 5738, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   enlarge_if_needed
+ * Validated: standard, pass, 72 terms through n = 9665 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,37 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/enlarge_if_needed.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Utility: enlarge an array if needed. */
+#ifdef __cplusplus
+template <class T>
+static void enlarge_if_needed(T **ptr, size_t *curr_cap,
+                              size_t required, size_t elem_size)
+{
+    if (required <= *curr_cap) return;
+    while (*curr_cap < required)
+        *curr_cap = (*curr_cap == 0) ? 8 : (*curr_cap << 1);
+    *ptr = mem_resize(T, *ptr, (*curr_cap * elem_size) / sizeof(T));
+}
+#else
+static void enlarge_if_needed(void **ptr, size_t *curr_cap,
+                              size_t required, size_t elem_size)
+{
+    if (required <= *curr_cap) return;
+    while (*curr_cap < required)
+        *curr_cap = (*curr_cap == 0) ? 8 : (*curr_cap << 1);
+    *ptr = (void *)realloc(*ptr, *curr_cap * elem_size);
+}
+#endif
 
 /* Static storage for the sieve and results. */
 static uint8_t *not_prime = NULL;      /* 1 if composite, 0 if prime   */
@@ -60,7 +91,7 @@ static void init(void) {
     prime_list = (uint32_t *)malloc(prime_cap * sizeof(uint32_t));
     for (size_t i = 2; i <= limit; ++i) {
         if (!not_prime[i]) {
-            enlarge_if_needed((void **)&prime_list, &prime_cap,
+            enlarge_if_needed(OEISC_VPP(&prime_list), &prime_cap,
                               prime_cnt + 1, sizeof(uint32_t));
             prime_list[prime_cnt++] = (uint32_t)i;
         }
@@ -77,7 +108,7 @@ static void init(void) {
 
     /* Find qualifying k-values. */
     qual_cap = 256;
-    qual_k = (seq_t *)malloc(qual_cap * sizeof(seq_t));
+    qual_k = mem_new(seq_t, qual_cap);
     for (size_t k = 1; k < prime_cnt; ++k) {          /* k is 1‑based index of primes */
         uint32_t pk  = prime_list[k - 1];
         uint32_t pk1 = prime_list[k];
@@ -85,7 +116,7 @@ static void init(void) {
         for (uint32_t m = pk + 1; m < pk1; ++m)
             if (!bad_square[m]) ++count;
         if (count == 1) {
-            enlarge_if_needed((void **)&qual_k, &qual_cap,
+            enlarge_if_needed(OEISC_VPP(&qual_k), &qual_cap,
                               qual_cnt + 1, sizeof(seq_t));
             qual_k[qual_cnt++] = (seq_t)k;
         }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 178, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 60 terms through n = 917 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 /* Include utilities */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of found terms and sieve state */
@@ -32,13 +34,13 @@ seq_t a(idx_t n) {
     if (!initialized) {
         initialized = true;
         cache_cap = 128; /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Grow cache if necessary */
     if (cache_count >= cache_cap) {
         cache_cap *= 2;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* Find enough primes to answer the request */
@@ -47,12 +49,12 @@ seq_t a(idx_t n) {
            The loop stops when is_prime_small reports a prime. */
         do {
             next_candidate += (seq_t)37;
-        } while (!is_prime_small(next_candidate));
+        } while (!is_prime_seq(next_candidate));
 
         /* Store the found prime */
         if (cache_count >= cache_cap) {           /* double size if needed */
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_count++] = next_candidate;
     }

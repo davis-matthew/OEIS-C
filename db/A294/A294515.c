@@ -9,6 +9,7 @@
  *            1/((k+1)*(4k+1)), written in lowest terms
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 33,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 787 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

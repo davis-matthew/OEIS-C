@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 49, u32 n <= 176, u64 n <= 659,
  *            u128 n <= 2549, big any n
- * Helpers:   cmp_seq_t, will_overflow_mul
+ * Validated: standard, pass, 63 terms through n = 9786 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/cmp_seq_t.h"    /* provides int cmp_seq_t(const void*,const void*) */
-#include "../utils/will_overflow_mul.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
+
+/* Test whether multiplying cur by mult would overflow the fixed‑width seq_t */
+static inline int will_overflow_mul(seq_t cur, unsigned int mult)
+{
+    if (sizeof(seq_t) > 8) return 0;   /* arbitrary‑precision never overflows */
+    if (mult == 0) return 0;
+    if (sizeof(seq_t) == 8) return cur > (seq_t)(UINT64_MAX / mult);
+    if (sizeof(seq_t) == 4) return cur > (seq_t)(UINT32_MAX / mult);
+    if (sizeof(seq_t) == 2) return cur > (seq_t)(UINT16_MAX / mult);
+    if (sizeof(seq_t) == 1) return cur > (seq_t)(UINT8_MAX  / mult);
+    return 0;
+}
 
 #define VIS_MAX 2048   /* safe bound for i,j when n <= 10000 */
 #define HEAP_CAP 40000 /* maximum heap size required for the bounds */
@@ -99,7 +121,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* initialisation */
         cache_cap = 64;                                    /* initial cache capacity */
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 1;
         cache[0] = (seq_t)1;                               /* a(1) = 1 */
         visited[0][0] = true;
@@ -123,8 +145,8 @@ seq_t a(idx_t n)
         /* append current value */
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
-            if (!tmp) { free(cache); return 0; }
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+            if (!tmp) { mem_free(cache); return 0; }
             cache = tmp;
             cache_cap = new_cap;
         }

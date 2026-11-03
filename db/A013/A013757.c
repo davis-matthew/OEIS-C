@@ -7,6 +7,7 @@
  * Formula:   a(n) = 15^(3*n + 2)
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 2, u64 n <= 4, u128 n <= 10,
  *            big any n
+ * Validated: standard, pass, 26 terms through n = 194 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

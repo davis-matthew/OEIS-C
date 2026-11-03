@@ -9,13 +9,27 @@
  *            not a^2+b^2+c^2+d^2 with 0 <= a < b < c < d
  * Range:     u8 n <= 31, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   a001948_is_s4d
+ * Validated: full, pass, 31 terms through n = 31 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/a001948_is_s4d.h"
+
+static bool a001948_is_s4d(long m)
+{
+    long a, b, c, d;
+    for (a = 0; 4 * a * a < m; a++)
+        for (b = a + 1; a * a + 3 * b * b < m; b++)
+            for (c = b + 1; a * a + b * b + 2 * c * c < m; c++) {
+                long r = m - a * a - b * b - c * c;
+                d = c + 1;
+                while (d * d < r) d++;
+                if (d * d == r) return true;
+            }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

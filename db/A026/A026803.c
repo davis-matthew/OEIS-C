@@ -10,13 +10,15 @@
  *            is used
  * Range:     u8 n <= 70, u16 n <= 129, u32 n <= 285, u64 n <= 737,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;   /* dp[j] = #partitions of j with parts ≥10    */
 static idx_t max_m = 0;    /* largest j for which dp is computed       */
@@ -27,7 +29,7 @@ static idx_t max_m = 0;    /* largest j for which dp is computed       */
 static void recompute(idx_t new_m)
 {
     size_t sz = (size_t)(new_m + 1) * sizeof(seq_t);
-    seq_t *newdp = (seq_t *)malloc(sz);
+    seq_t *newdp = mem_new(seq_t, (sz) / sizeof(seq_t));
     if (!newdp) return;                     /* allocation failed – abort */
 
     /* start with zero entries, dp[0] = 1 (empty partition) */
@@ -42,7 +44,7 @@ static void recompute(idx_t new_m)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     dp = newdp;
     max_m = new_m;
 }

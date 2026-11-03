@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* fast modular exponentiation for uint64_t arguments to avoid overflow */
 static uint64_t mod_pow64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
                 /* store in result cache */
                 if (rsize == rcap) {
                     rcap = rcap ? rcap << 1 : 16;
-                    seq_t *tmp = (seq_t*)realloc(result, rcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, result, rcap);
                     if (!tmp) abort();
                     result = tmp;
                 }

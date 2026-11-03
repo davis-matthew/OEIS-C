@@ -5,15 +5,17 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} A002487(d) (Stern's Diatomic Sequence)
- * Range:     u8 n <= 1049, u16 n <= 9156, u32 n <= 9156, u64 n <= 9156,
- *            u128 n <= 9156, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1049, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 104 terms through n = 9156 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Stern's Diatomic sequence cache (s[1] = 1, s[2] = 1, s[3] = 2, …) */
@@ -28,7 +30,7 @@ static void ensure_stern(idx_t n)
         return;                     /* already computed */
 
     size_t new_sz = (size_t)n + 1;   /* indices 0 … n, 0 unused */
-    stern_cache = (seq_t*)realloc(stern_cache, new_sz * sizeof(seq_t));
+    stern_cache = mem_resize(seq_t, stern_cache, new_sz);
     if (!stern_cache)
         abort();                    /* allocation failed */
 

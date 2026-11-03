@@ -9,7 +9,8 @@
  *            primes ≤ prime(n))
  * Range:     i8 n <= 35, i16 n <= 3887, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 113 terms through n = 8841 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(uint32_t num); */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *cum = NULL;        /* cum[i] = a(i), 1‑based; cum[0] unused */
 static size_t  cum_size = 0;     /* largest index cached */
@@ -40,9 +42,9 @@ ensure_cumulative(idx_t n)
     size_t new_cum_size = (size_t)n + 1;   /* include index 0 unused */
     seq_t *new_cum = NULL;
     if (cum == NULL) {
-        new_cum = (seq_t *)malloc(new_cum_size * sizeof(seq_t));
+        new_cum = mem_new(seq_t, new_cum_size);
     } else {
-        new_cum = (seq_t *)realloc(cum, new_cum_size * sizeof(seq_t));
+        new_cum = mem_resize(seq_t, cum, new_cum_size);
     }
     if (new_cum == NULL)
         return;        /* allocation failed – cannot continue */
@@ -88,7 +90,7 @@ ensure_cumulative(idx_t n)
         if (cand <= 2) cand = 3;  /* ensure odd after 2 */
         if ((cand & 1U) == 0) cand++;   /* make odd */
 
-        while (!is_prime_small(cand)) {
+        while (!is_prime_seq(cand)) {
             cand += 2;
         }
         last_prime = cand;

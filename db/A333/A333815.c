@@ -7,8 +7,9 @@
  * Formula:   a(n) = number of solutions to n = k*(3*k-1)/2 + 3*k*m with
  *            integers k ≥ 1, m ≥ 0. This equals the coefficient of xⁿ in
  *            Sum_{k≥1} x^(k*(3*k-1)/2)/(1 - x^(3*k))
- * Range:     u8 n <= 1033, u16 n <= 9930, u32 n <= 9930, u64 n <= 9930,
- *            u128 n <= 9930, big any n
+ * Range:     u8 n <= 1033, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9930 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

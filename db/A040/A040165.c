@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 64 terms through n = 964 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,7 +17,7 @@
    a(1)=2, a(2)=3, a(3)=5, … (OEIS A040165) */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"      /* uint64_t next_prime(uint64_t start); */
+#include "../utils/next_prime.h"
 
 static uint64_t mod_mul_u64(uint64_t a, uint64_t b, uint64_t mod)
 {

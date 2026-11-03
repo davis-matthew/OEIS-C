@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(n,3) * 5^(n-3), with binomial(n,3)=0 for n<3
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 51,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 286 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^τ(n) (τ(n) = number of divisors of n)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 59, u128 n <= 179,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 929 (2026-11-02)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,8 +15,9 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* provides: void factor_u64(uint64_t n,
-                                    uint64_t *pr, uint64_t *exp, size_t *cnt); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)
 {

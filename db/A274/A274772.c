@@ -7,6 +7,7 @@
  * Formula:   a(n) = (4*n^4+8*n^3+2*n^2+4*n+3*(1-(-1)^n))/24
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 260, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 67 terms through n = 895 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

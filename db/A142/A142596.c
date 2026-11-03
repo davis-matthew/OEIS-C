@@ -10,13 +10,15 @@
  *            3*T(n-1,k) for 1 < k < n
  * Range:     u8 n <= 17, u16 n <= 39, u32 n <= 125, u64 n <= 389,
  *            u128 n <= 1275, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1269 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;          /* pointers to each row, index 0 unused */
 static idx_t  rows_cap = 0;          /* allocated capacity of rows array   */
@@ -39,7 +41,7 @@ ensure_rows(idx_t target)
 
     /* Compute rows max_row+1 .. target */
     for (idx_t r = max_row + 1; r <= target; ++r) {
-        seq_t *cur = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, (r + 1));
         seq_t *prev = rows[r - 1];
 
         cur[1] = 1;

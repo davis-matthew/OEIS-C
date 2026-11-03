@@ -13,7 +13,8 @@
  *            over pairs of consecutive rows
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   seq_alloc_array, seq_set_zero
+ * Validated: standard, pass, 38 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,11 +22,26 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The utilities provided by the setting allow allocation of arrays
    of the arbitrary‐precision type seq_t.  */
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_set_zero.h"
+#include <stdlib.h>
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* helper to set an array of seq_t to zero */
+static void
+seq_set_zero (seq_t *a, size_t n)
+{
+    size_t i;
+    seq_t zero = 0;
+    for (i = 0; i < n; ++i) a[i] = zero;
+}
 
 #define ROWS 125                 /* 5^3 possible rows */
 #define STATE (ROWS * ROWS)

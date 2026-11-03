@@ -9,7 +9,8 @@
  *            p = 67
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 71 terms through n = 921 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* Return 1 if p ≠ 67 and (−67|p) = −1, 0 otherwise.
    Special handling:
@@ -34,7 +36,7 @@ static bool is_inert_prime(uint64_t p)
     uint64_t base  = p - mod67;         /* 0 ≤ base < p */
 
     /* base == 0 only when p | 67, i.e. p == 67, previously handled */
-    seq_t res = mod_pow((seq_t)base, (p - 1) / 2, (seq_t)p);
+    seq_t res = powmod((seq_t)base, (p - 1) / 2, (seq_t)p);
     uint64_t r = (uint64_t)res;          /* result < p */
 
     return r == p - 1;                   /* -1 in Legendre symbol */

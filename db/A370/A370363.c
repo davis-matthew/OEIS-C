@@ -14,6 +14,7 @@
  *            maximum is a multiple of k. For k>0 it is A37036...
  * Range:     u8 n <= 31, u16 n <= 40, u32 n <= 60, u64 n <= 96, u128 n <= 143,
  *            big any n
+ * Validated: standard, pass, 82 terms through n = 1549 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,6 +7,7 @@
  * Formula:   a(n) = discrete_log_2(n) mod 227 (base‑2 logarithm modulo 227)
  * Range:     u8 n <= 226, u16 n <= 226, u32 n <= 226, u64 n <= 226,
  *            u128 n <= 226, big any n
+ * Validated: full, pass, 226 terms through n = 226 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

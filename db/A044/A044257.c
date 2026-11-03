@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has_sub06
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,29 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_sub06.h"
+#include "../utils/mem.h"
+
+/* Return true iff the base‑9 representation of x contains the
+   substring "06" (i.e. a 6 followed by a 0 in the next higher digit).
+   Leading zeros are not considered; therefore for a single‑digit 6
+   the substring is not found. */
+static inline bool has_sub06(seq_t x)
+{
+    if (x == 0) return false;
+
+    seq_t y = x;
+    while (y > 0)
+    {
+        seq_t d = y % 9;     /* current least‑significant digit   */
+        y      = y / 9;      /* move to next more significant digit */
+
+        /* Look for pattern 0 6: current digit is 6 and the
+           next (higher) digit exists and is 0. */
+        if (d == 6 && y > 0 && (y % 9) == 0)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,7 +63,7 @@ seq_t a(idx_t n)
     if (terms_len == 0)
     {
         terms_cap = 16;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) return 0;    /* allocation failure      */
     }
 
@@ -56,7 +79,7 @@ seq_t a(idx_t n)
             if (terms_len == terms_cap)
             {
                 terms_cap *= 2;
-                seq_t *tmp = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                 if (!tmp) return 0;   /* allocation failure      */
                 terms = tmp;
             }

@@ -9,14 +9,21 @@
  *            with A[i][j] = 1 if |i−j|≤8, else 0 )
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   mod_norm
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_norm.h"
+
+/* modular arithmetic helpers for 64‑bit unsigned primes */
+static inline int64_t mod_norm(int64_t x, int64_t m) {
+    x %= m;
+    if (x < 0) x += m;
+    return x;
+}
 
 #define K 21
 #define PRIME_COUNT 3

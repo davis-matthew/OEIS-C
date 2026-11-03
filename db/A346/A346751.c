@@ -8,7 +8,8 @@
  *            binomial(n-k,3) * k * a(k)
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 14, i64 n <= 23, i128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 463 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* forward declaration of helper functions from utils, if needed
    (none used in this implementation) */
@@ -34,7 +36,7 @@ static void ensure_a_cache(idx_t n) {
     /* Double the size until large enough */
     idx_t new_cap = a_cache_cap ? a_cache_cap : 1;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) {
         /* Allocation failure – in a real system you might abort */
         exit(1);
@@ -43,7 +45,7 @@ static void ensure_a_cache(idx_t n) {
         for (idx_t i = 0; i < a_cache_computed; ++i) {
             new_arr[i] = a_cache[i];
         }
-        free(a_cache);
+        mem_free(a_cache);
     }
     a_cache = new_arr;
     a_cache_cap = new_cap;

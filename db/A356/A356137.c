@@ -13,7 +13,8 @@
  *            mean of s(m)
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* ensure storage capacity for new terms */
     if (values_len == values_cap) {
         values_cap = values_cap ? values_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(values, values_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, values, values_cap);
         if (!tmp)
             return 0;  /* allocation failure – abort */
         values = tmp;
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
             /* store m as a valid term */
             if (values_len == values_cap) {
                 values_cap = values_cap ? values_cap * 2 : 16;
-                seq_t *tmp2 = (seq_t *)realloc(values, values_cap * sizeof(seq_t));
+                seq_t *tmp2 = mem_resize(seq_t, values, values_cap);
                 if (!tmp2)
                     return 0;  /* allocation failure – abort */
                 values = tmp2;

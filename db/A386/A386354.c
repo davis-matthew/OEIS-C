@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 2356, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 72 terms through n = 9864 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>           /* for uint8_t */
-#include "../utils/is_prime.h"   /* is_prime(idx_t) returns bool */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             if (new_cap < cache_sz + 1) new_cap = cache_sz + 1;
             /* In C++ we use static_cast, in C a simple cast – conditional on language */
 #if defined(__cplusplus)
-            seq_t *tmp = static_cast<seq_t*>(realloc(cache, new_cap * sizeof(seq_t)));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
 #else
             seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
 #endif

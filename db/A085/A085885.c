@@ -8,7 +8,8 @@
  * Formula:   a(n) = max_{1 <= r <= n-1} φ(r) + φ(n - r)
  * Range:     u8 n <= 217, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_cache, free_seq_array
+ * Validated: standard, pass, 89 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,21 @@
 /* A search over all partitions; compute totients for 1..n-1 by sieve then take the maximum. */
 
 #include <stddef.h>
-#include "../utils/alloc_cache.h"
-#include "../utils/free_seq_array.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

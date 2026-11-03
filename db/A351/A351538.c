@@ -7,15 +7,31 @@
  * Keywords:  nonn, changed
  * Formula:   computed by searching for k ≡ 2 (mod 4) with sigma(k) ≡ 2 (mod
  *            4) and v₃(sigma(k)) = 1 (i.e. 3‖sigma(k))
- * Range:     u8 n <= 4, u16 n <= 527, u32 n <= 9958, u64 n <= 9958,
- *            u128 n <= 9958, big any n
- * Helpers:   sigma_of
+ * Range:     u8 n <= 4, u16 n <= 527, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 73 terms through n = 9958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/sigma_of.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* cached sequence of found terms */
 static seq_t *seq_cache = NULL;      /* array of seq_t */
@@ -28,7 +44,7 @@ static void append_cache(seq_t val)
 {
     if (cache_cnt >= cache_size) {
         size_t new_size = (cache_size == 0) ? 16 : cache_size * 2;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_size);
         if (!tmp) abort();                 /* out‑of‑memory: terminate */
         seq_cache = tmp;
         cache_size = new_size;

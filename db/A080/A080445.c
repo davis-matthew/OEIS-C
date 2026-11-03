@@ -10,15 +10,24 @@
  *            10*a(n-1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   digit_len, seq_mul
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +42,7 @@ seq_t a(idx_t n)
 
     if ((size_t)n > old_len) {
         size_t new_len = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp)
             return 0; /* allocation failure – abort */
         cache      = tmp;
@@ -55,7 +64,7 @@ seq_t a(idx_t n)
                 continue;
 
             seq_t cand = seq_mul(prev, (seq_t)k);
-            if (digit_len(cand) == (int)i) {
+            if (num_digits(cand) == (int)i) {
                 result = cand;
                 break;
             }

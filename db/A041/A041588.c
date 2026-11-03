@@ -7,6 +7,7 @@
  * Formula:   a(0)=17, a(1)=18, a(n) = ((n%4==0)?34:1)*a(n-1)+a(n-2)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 17, u64 n <= 35, u128 n <= 75,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 194 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

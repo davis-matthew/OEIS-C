@@ -12,13 +12,14 @@
  *            ≥ 0 | 2^j divides i })
  * Range:     u8 n <= 130, u16 n <= 261, u32 n <= 261, u64 n <= 261,
  *            u128 n <= 261, big any n
- * Helpers:   tzc
+ * Validated: standard, pass, 136 terms through n = 249 (2026-11-01)
+ * Helpers:   ctz
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/tzc.h"
+#include "../utils/ctz.h"
 
 /* popcount for 64‑bit values */
 static inline idx_t popcnt(idx_t x)
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
     idx_t k = n >> 1;                    /* k = n/2              */
     seq_t sum = 0;
     for (idx_t i = 2; i < k; i += 2) {   /* iterate even i < k   */
-        sum += (seq_t)tzc(i);
+        sum += (seq_t)ctz(i);
     }
     return (seq_t)(k + sum);
 }

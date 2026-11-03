@@ -9,14 +9,36 @@
  *            a(2)=2, a(3)=6, a(4)=21, a(5)=73, a(6)=243
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 20, u64 n <= 39, u128 n <= 77,
  *            big any n
- * Helpers:   allocate_seq_array, seq_realloc
+ * Validated: standard, pass, 43 terms through n = 952 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/allocate_seq_array.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <assert.h>
+
+static seq_t *allocate_seq_array(size_t n)
+{
+#ifdef __cplusplus
+    return new seq_t[n];
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;     /* array of computed terms          */
 static size_t cache_cap = 0;    /* allocated capacity of cache      */

@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=1..n-1} k^8 * sigma(k) * sigma(n-k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 79, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 871 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sigma values: sigma_cache[0] unused, sigma_cache[1..max] valid */
 static seq_t *sigma_cache = NULL; /* pointer to the array */
@@ -25,9 +27,9 @@ static void recompute_sigma(idx_t max)
     /* Allocate or resize the buffer */
     if (sigma_cap < (size_t)(max + 1)) {
         if (sigma_cache != NULL) {
-            free(sigma_cache);
+            mem_free(sigma_cache);
         }
-        sigma_cache = (seq_t *)malloc(sizeof(seq_t) * (size_t)(max + 1));
+        sigma_cache = mem_new(seq_t, (size_t)(max + 1));
         sigma_cap   = (size_t)(max + 1);
     }
 

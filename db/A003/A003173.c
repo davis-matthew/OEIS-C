@@ -12,15 +12,40 @@
  *            terms); returns 0 beyond it
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   a3173_classno, a3173_gcd, a3173_squarefree
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
+ * Helpers:   is_squarefree_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a3173_classno.h"
-#include "../utils/a3173_gcd.h"
-#include "../utils/a3173_squarefree.h"
+#include "../utils/is_squarefree_i64.h"
+
+static long long a3173_gcd(long long x, long long y)
+{
+    if (x < 0) x = -x;
+    if (y < 0) y = -y;
+    while (y) { long long t = x % y; x = y; y = t; }
+    return x;
+}
+
+/* number of reduced primitive forms (a,b,c), b^2 - 4ac = -N */
+static long long a3173_classno(long long N)
+{
+    long long h = 0, a, b, c;
+    for (a = 1; 3 * a * a <= N; a++) {
+        for (b = -a + 1; b <= a; b++) {
+            long long t = b * b + N;
+            if (t % (4 * a) != 0) continue;
+            c = t / (4 * a);
+            if (c < a) continue;
+            if (c == a && b < 0) continue;
+            if (a3173_gcd(a3173_gcd(a, b), c) != 1) continue;
+            h++;
+        }
+    }
+    return h;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +54,7 @@ seq_t a(idx_t n)
     /* Heegner-Stark: none beyond 163; search a safe bound */
     for (d = 1; d <= 2000; d++) {
         long long N;
-        if (!a3173_squarefree(d)) continue;
+        if (!is_squarefree_i64(d)) continue;
         N = (d % 4 == 3) ? d : 4 * d;
         if (a3173_classno(N) == 1) {
             cnt++;

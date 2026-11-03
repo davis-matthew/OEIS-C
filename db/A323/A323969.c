@@ -11,15 +11,16 @@
  *            29x^10 + 125x^9 - 314x^8 + 501x^7 - 517x^6 + 323x^5 - 84x^4 -
  *            20x^3 + 30x^2 - 5x + 1 and C(a,b) is the binomial coefficient.
  *            The sequence thus grows like a polynomial of d...
- * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 27, u64 n <= 290,
+ * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 28, u64 n <= 290,
  *            u128 n <= 10000, big any n
- * Helpers:   binom_fixed
+ * Validated: standard, pass, 45 terms through n = 8562 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom_fixed.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
     for (idx_t j = 0; j <= max_j; ++j) {
         /* compute binom(n - j + 10, 10) */
         idx_t arg = n - j + 10;
-        seq_t term = binom_fixed(arg, 10);
+        seq_t term = binomial(arg, 10);
 
         if (coeff_signed[j] >= 0) {
             pos += (seq_t)coeff_signed[j] * term;

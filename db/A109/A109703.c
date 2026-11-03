@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 251, u32 n <= 781, u64 n <= 2656,
  *            u128 n <= 9615, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9150 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Sequence A109703: Number of partitions of n into parts ≡ 1 (mod 7).
    Computation by dynamic programming.  The recurrence is
@@ -37,9 +39,9 @@ seq_t a(idx_t n)
 
     /* Allocate or enlarge the array if necessary. */
     if (n + 1 > cap) {
-        seq_t *tmp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, (size_t)(n + 1));
         if (!tmp) return (seq_t)0;       /* allocation failure */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp  = tmp;
         cap = (idx_t)(n + 1);
     }

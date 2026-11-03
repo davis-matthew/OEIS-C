@@ -8,7 +8,8 @@
  *            increasingly, duplicates removed. Indexing starts at 1
  * Range:     u8 n <= 13, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@ typedef unsigned __int128 u128;
  * This is acceptable on the test platforms because every value that
  * can occur in the first 20000 terms fits in an unsigned long long. */
 #endif
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Min‑heap for nodes  { value, power, prime }.  All values fit in
@@ -120,7 +122,7 @@ static void build_sequence(void)
 {
     /* Allocate cache with a dummy 0 at index 0 so that a(1) is at index 1. */
     cache_size = MAX_TERMS + 2;
-    cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_size);
     size_t seq_len = 1;   /* current number of stored terms   */
 
     /* ------------------------------------------------------------------

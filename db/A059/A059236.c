@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 159, u32 n <= 9575, u64 n <= 9575,
- *            u128 n <= 9575, big any n
- * Helpers:   mod_pow, next_prime, seq_alloc
+ * Range:     u8 n <= 1, u16 n <= 159, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 56 terms through n = 9575 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../utils/next_prime.h"
-#include "../utils/mod_pow.h"
-#include "../utils/seq_alloc.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 /* Ensure that the cache array can hold at least `needed` elements. */
 static void ensure_cap(size_t needed, size_t *cap, seq_t **arr)
@@ -33,7 +44,7 @@ static void ensure_cap(size_t needed, size_t *cap, seq_t **arr)
         while (newcap < needed) {
             newcap <<= 1;
         }
-        *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }
@@ -59,7 +70,7 @@ seq_t a(idx_t n)
             uint64_t exp = (p - 1ULL) / 41ULL;
             seq_t base = (seq_t)2;
             seq_t mod  = (seq_t)p;
-            seq_t val  = mod_pow(base, exp, mod);
+            seq_t val  = powmod(base, exp, mod);
             if (val != (seq_t)1) {
                 ensure_cap(cache_len + 1, &cache_cap, &cache);
                 cache[cache_len++] = (seq_t)p;

@@ -12,13 +12,29 @@
  *            least divisor of m greater than d
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   min_divisor_gt
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/min_divisor_gt.h"
+
+static inline idx_t min_divisor_gt(idx_t m, idx_t d)
+{
+    /* assumes m > d */
+    idx_t best = m;               /* m itself is always a divisor > d, if m > d */
+    for (idx_t j = 2; j <= m / j; ++j)
+    {
+        if (m % j == 0)
+        {
+            if (j > d && j < best) best = j;
+            idx_t k = m / j;
+            if (k > d && k < best) best = k;
+        }
+    }
+    return best;
+}
 
 seq_t a(idx_t n)
 {

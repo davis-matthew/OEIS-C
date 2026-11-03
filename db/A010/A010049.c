@@ -9,13 +9,26 @@
  *            Recurrence from the OEIS entry
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 42, u64 n <= 87, u128 n <= 177,
  *            big any n
- * Helpers:   fib
+ * Validated: standard, pass, 54 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>            /* malloc, realloc, abort */
-#include "../utils/fib.h"       /* fib(idx_t) returning seq_t */
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n)
 {
@@ -26,7 +39,7 @@ seq_t a(idx_t n)
     /* first call: initialise the cache with a(0), a(1), a(2) */
     if (cache == NULL) {
         cap = 4;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();
         cache[0] = 0;          /* a(0) */
         cache[1] = 1;          /* a(1) */
@@ -46,7 +59,7 @@ seq_t a(idx_t n)
         if (len >= cap) {
             size_t new_cap = cap * 2;
             if (new_cap == 0) new_cap = 4;   /* safety for first grow */
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cap = new_cap;

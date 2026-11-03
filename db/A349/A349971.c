@@ -11,6 +11,7 @@
  *            1) (n,k ≥ 1), where the empty product (k=1) equals 1
  * Range:     u8 n <= 25, u16 n <= 41, u32 n <= 86, u64 n <= 184,
  *            u128 n <= 428, big any n
+ * Validated: standard, pass, 71 terms through n = 1142 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

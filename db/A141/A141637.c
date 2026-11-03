@@ -10,7 +10,8 @@
  *            for subsequent calls
  * Range:     u8 n <= 25, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   build_primes_upto, is_prime, seq_alloc_array
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,16 @@
 #include <stdbool.h>
 
 /*  Utilities supplied by the build system  */
-#include "../utils/build_primes_upto.h"   /* void build_primes_upto(idx_t limit, uint64_t **primes, size_t *cnt); */
-#include "../utils/is_prime.h"           /* bool is_prime(idx_t n); */
-#include "../utils/seq_alloc_array.h"    /* seq_t *seq_alloc_array(size_t n); */
+#include <stdint.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static const idx_t PRIME_LIMIT = 600000ULL;   /* Sufficient for n up to ~10 000 */
 
@@ -43,7 +51,7 @@ static void grow_cache(size_t min_cap)
     seq_t *new_arr = seq_alloc_array(new_cap);
     if (!new_arr) return;                      /* allocation failed */
     for (size_t i = 0; i < cache_len; ++i) new_arr[i] = term_cache[i];
-    free(term_cache);
+    mem_free(term_cache);
     term_cache = new_arr;
     cache_cap  = new_cap;
 }

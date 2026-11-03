@@ -7,11 +7,13 @@
  * Formula:   a(n) = round(sqrt(2) * 10^n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 988 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Computes the decimal expansion of √2 rounded to n places. */
 
 #include <stdint.h>

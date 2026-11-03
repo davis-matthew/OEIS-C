@@ -8,14 +8,18 @@
  *            > n
  * Range:     u8 n <= 254, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 91 terms through n = 9351 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -25,5 +29,5 @@ seq_t a(idx_t n)
         ++p;
 
     /* Compute the inverse of n modulo p using Fermat’s little theorem. */
-    return mod_pow((seq_t)n, (uint64_t)(p - 2), (seq_t)p);
+    return powmod((seq_t)n, (uint64_t)(p - 2), (seq_t)p);
 }

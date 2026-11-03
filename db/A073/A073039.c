@@ -9,15 +9,23 @@
  *            e_{i+1}, …, e_k)}
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 28, u64 n <= 52, u128 n <= 102,
  *            big any n
- * Helpers:   mul_pow_seqqt
+ * Validated: standard, pass, 57 terms through n = 2290 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mul_pow_seqqt.h"
+
+/* --------- helper: multiply base^exp into acc (acc already contains previous primes) --------- */
+static void mul_pow_seqqt(seq_t *acc, uint32_t base, idx_t exp)
+{
+    for (idx_t i = 0; i < exp; ++i)
+        (*acc) *= (seq_t)base;
+}
 
 /* ---------- prime sieve (up to 1,000,000) ---------- */
 #define PRIME_SIEVE_LIMIT 1000000

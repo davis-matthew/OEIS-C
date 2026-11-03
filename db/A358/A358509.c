@@ -7,7 +7,8 @@
  * Formula:   a(n) = digit_sum((3^n - 1)/2)
  * Range:     u8 n <= 105, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 4078 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Big‑digit representation (little‑endian, base 10) of 3^k. */
 static uint8_t *pow_digits = NULL;   /* digits of 3^k */
@@ -63,7 +65,7 @@ static void need_cache_cap(size_t need)
     if (cache_cap < need) {
         size_t newcap = (cache_cap > 0) ? cache_cap * 2 : 16;
         if (newcap < need) newcap = need;
-        seq_t *tmp = (seq_t *)realloc(sum_cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, sum_cache, newcap);
         sum_cache = tmp;
         cache_cap = newcap;
     }

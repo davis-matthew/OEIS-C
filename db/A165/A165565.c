@@ -7,12 +7,14 @@
  * Formula:   a(n) = n - a(a(a(n-3))), a(0) = a(1) = a(2) = 0
  * Range:     u8 n <= 375, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
 
     /* initialisation */
     if (seq == NULL) {
-        seq = (seq_t*)malloc(3 * sizeof(seq_t));
+        seq = mem_new(seq_t, 3);
         if (seq == NULL) exit(1);
         seq[0] = seq[1] = seq[2] = 0;
         size = 3;
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         return seq[n];
 
     /* grow the cache to hold up to n */
-    seq = (seq_t*)realloc(seq, (n + 1) * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, (n + 1));
     if (seq == NULL) exit(1);
 
     for (idx_t i = size; i <= n; ++i) {

@@ -9,6 +9,7 @@
  *            · C(n-⌊(n-1)/3⌋, t)
  * Range:     u8 n <= 21, u16 n <= 36, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 /* Count binomial coefficient C(n,k) using GCD reduction to avoid
    overflow for values that fit in seq_t. */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Multiplicative binomial calculation with GCD simplification.

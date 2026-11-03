@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = sum_{d|n} [A011772(d) < A011772(n)]
- * Range:     u8 n <= 1471, u16 n <= 9932, u32 n <= 9932, u64 n <= 9932,
- *            u128 n <= 9932, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1471, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Local cache for A011772 values. */
 static seq_t *tri_cache = NULL;    /* tri_cache[i] = A011772(i), 0=unknown */
@@ -53,7 +55,7 @@ static seq_t get_tri(idx_t n) {
     if (tri_cache == NULL) {
         /* Compute up to n. */
         idx_t new_size = n + 1;
-        tri_cache = (seq_t*)malloc(sizeof(seq_t) * new_size);
+        tri_cache = mem_new(seq_t, new_size);
         if (!tri_cache) return 0;            /* allocation failed */
         for (idx_t i = 0; i < new_size; ++i)
             tri_cache[i] = 0;
@@ -73,7 +75,7 @@ static seq_t get_tri(idx_t n) {
     } else if (n >= tri_cache_size) {
         idx_t old_size = tri_cache_size;
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t*)realloc(tri_cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, tri_cache, new_size);
         if (!tmp) return 0;                     /* allocation failed */
         tri_cache = tmp;
         for (idx_t i = old_size; i < new_size; ++i)

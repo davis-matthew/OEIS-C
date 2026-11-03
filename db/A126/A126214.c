@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Prime sieve – initialise once and store primes up to MAX_PRIME_LIMIT  */
@@ -84,7 +86,7 @@ static void ensure_seq_cap(idx_t need)
     if (need <= seq_cap)
         return;
     size_t new_cap = (need > 8 ? need + need / 2 : 8);
-    seq_buf = (seq_t *)realloc(seq_buf, new_cap * sizeof(seq_t));
+    seq_buf = mem_resize(seq_t, seq_buf, new_cap);
     seq_cap = new_cap;
 }
 

@@ -10,14 +10,32 @@
  *            code; coefficients fixed by A_0=1, A_3=A_6=0); a(n)=0 for n>9
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   a002521_mul, a002521_pow
+ * Validated: full, pass, 10 terms through n = 9 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a002521_mul.h"
-#include "../utils/a002521_pow.h"
+
+static void a002521_mul(long long *p, const long long *q, int len)
+{
+    long long r[10];
+    int i, j;
+    for (i = 0; i < len; i++) r[i] = 0;
+    for (i = 0; i < len; i++)
+        for (j = 0; i + j < len; j++)
+            r[i + j] += p[i] * q[j];
+    for (i = 0; i < len; i++) p[i] = r[i];
+}
+
+static void a002521_pow(long long *p, const long long *f, int e, int len)
+{
+    int i;
+    for (i = 0; i < len; i++) p[i] = 0;
+    p[0] = 1;
+    for (i = 0; i < e; i++) a002521_mul(p, f, len);
+}
 
 seq_t a(idx_t n)
 {

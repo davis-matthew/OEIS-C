@@ -9,7 +9,8 @@
  *            and new, otherwise a(n) = n OR a(n-1)
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,30 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* ---------- dynamic array helpers ---------- */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap > 0) ? (*cap << 1) : 8;
+    while (new_cap < needed) new_cap <<= 1;
+    T *new_mem = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!new_mem) abort();          /* allocation failed */
+    *ptr = new_mem;
+    *cap = new_cap;
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (needed <= *cap) return;
@@ -30,6 +53,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
     *ptr = new_mem;
     *cap = new_cap;
 }
+#endif
 
 /* ---------- sequence storage ---------- */
 static seq_t *seq_vals = NULL;    /* seq_vals[0] corresponds to a(1) */
@@ -52,7 +76,7 @@ static bool seen_contains(seq_t v)
 static void seen_add(seq_t v)
 {
     if (seen_contains(v)) return;
-    ensure_capacity(seen_len + 1, &seen_cap, (void **)&seen_vals, sizeof(seq_t));
+    ensure_capacity(seen_len + 1, &seen_cap, OEISC_VPP(&seen_vals), sizeof(seq_t));
     seen_vals[seen_len++] = v;
 }
 
@@ -61,12 +85,12 @@ static void ensure_initialized(void)
     if (seq_vals) return;      /* already initialized */
 
     /* start the sequence with a(1) = 1 */
-    ensure_capacity(1, &seq_cap, (void **)&seq_vals, sizeof(seq_t));
+    ensure_capacity(1, &seq_cap, OEISC_VPP(&seq_vals), sizeof(seq_t));
     seq_vals[0] = (seq_t)1;
     seq_len = 1;
 
     /* start the list of seen values with 1 */
-    ensure_capacity(1, &seen_cap, (void **)&seen_vals, sizeof(seq_t));
+    ensure_capacity(1, &seen_cap, OEISC_VPP(&seen_vals), sizeof(seq_t));
     seen_vals[0] = (seq_t)1;
     seen_len = 1;
 }
@@ -91,7 +115,7 @@ seq_t a(idx_t n)
         else
             val = ((seq_t)i) | prev;          /* n OR a(n-1) */
 
-        ensure_capacity(seq_len + 1, &seq_cap, (void **)&seq_vals, sizeof(seq_t));
+        ensure_capacity(seq_len + 1, &seq_cap, OEISC_VPP(&seq_vals), sizeof(seq_t));
         seq_vals[seq_len++] = val;
 
         if (val != (seq_t)0) seen_add(val);

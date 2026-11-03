@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 29, i16 n <= 95, i32 n <= 325, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The pointer is NULL until the first use.  cachedUpTo stores the
  * highest index that has been computed (0 means only a[0] is known).
@@ -39,7 +41,7 @@ static void recompute(idx_t maxN)
 {
     /* Allocate or resize the buffer.  Use size_t to avoid overflow. */
     size_t size = (size_t)maxN + 1;
-    cache = (seq_t *)realloc(cache, size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, size);
     if (!cache) abort();            /* out of memory */
 
     /* Initialise a[0] = 1, a[1..maxN] = 0. */

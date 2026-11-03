@@ -10,13 +10,17 @@
  *            n*(n-1)*…*(n-k+1) is the falling factorial
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +33,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= n; ++k)
     {
         /* k^(n-k) */
-        seq_t powk = big_pow((seq_t)k, (seq_t)(n - k));
+        seq_t powk = ipow((seq_t)k, (seq_t)(n - k));
 
         /* binomial(2n-2k+1, k) */
         seq_t bin = binomial(2 * n - 2 * k + 1, k);

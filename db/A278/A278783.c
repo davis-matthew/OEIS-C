@@ -8,6 +8,7 @@
  *            factors of 2, i.e. v2(p(m)) = 6
  * Range:     u8 n <= 2, u16 n <= 150, u32 n <= 150, u64 n <= 150,
  *            u128 n <= 150, big any n
+ * Validated: standard, pass, 61 terms through n = 139 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

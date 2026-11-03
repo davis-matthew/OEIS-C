@@ -8,7 +8,8 @@
  * Formula:   a(n) = A003269(n+4) - A003520(n+4)
  * Range:     u8 n <= 18, u16 n <= 34, u32 n <= 67, u64 n <= 136,
  *            u128 n <= 274, big any n
- * Helpers:   mask_to_str
+ * Validated: standard, pass, 62 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/mask_to_str.h"
+#include "../utils/mem.h"
+
+/* helper to convert an integer mask into a binary string of given length */
+static void mask_to_str(uint32_t mask, size_t len, char *out, size_t *outlen)
+{
+    size_t pos = len;
+    *outlen = len;
+    while (pos > 0) {
+        out[--pos] = (char)('0' + (mask & 1));
+        mask >>= 1;
+    }
+    out[len] = '\0';
+}
 
 /* check if pattern p of length plen occurs in string s of length slen */
 static int contains_pattern(const char *s, size_t slen,
@@ -105,14 +118,14 @@ static seq_t count_avoid(idx_t n,
     }
 
     /* DP arrays */
-    seq_t *dp = (seq_t*)calloc(states, sizeof(seq_t));
-    seq_t *ndp = (seq_t*)calloc(states, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, states);
+    seq_t *ndp = mem_new(seq_t, states);
     if (!dp || !ndp) return 0; /* allocation failure */
 
     dp[0] = (seq_t)1; /* start with empty suffix */
 
     for (idx_t step = 0; step < n; ++step) {
-        memset(ndp, 0, states * sizeof(seq_t));
+        mem_set(ndp, 0, states * sizeof(seq_t));
         for (size_t s = 0; s < states; ++s) {
             if (dp[s] == 0) continue;
             for (int b = 0; b <= 1; ++b) {
@@ -127,8 +140,8 @@ static seq_t count_avoid(idx_t n,
     seq_t total = 0;
     for (size_t s = 0; s < states; ++s) total += dp[s];
 
-    free(dp);
-    free(ndp);
+    mem_free(dp);
+    mem_free(ndp);
     return total;
 }
 

@@ -7,14 +7,35 @@
  * Formula:   a(n) = sum of cubefree divisors of n excluding 1 (A133477)
  * Range:     u8 n <= 125, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sum_divs_recursive
+ * Validated: standard, pass, 88 terms through n = 989 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sum_divs_recursive.h"
+
+/* Recursive helper: enumerates all divisors with exponents <=2
+   (cubefree condition) and accumulates those >1. */
+static void sum_divs_recursive(int idx, seq_t cur,
+                               const uint64_t *pr, const int *exp,
+                               int len, seq_t *sum)
+{
+    if (idx == len) {
+        if (cur > (seq_t)1)
+            *sum += cur;
+        return;
+    }
+    uint64_t p = pr[idx];
+    int e = exp[idx];
+    int maxk = e > 2 ? 2 : e;          /* only exponents 0..min(e,2) */
+    seq_t pk = 1;
+    for (int k = 0; k <= maxk; ++k) {
+        sum_divs_recursive(idx + 1, cur * pk, pr, exp, len, sum);
+        pk *= (seq_t)p;
+    }
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

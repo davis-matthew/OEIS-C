@@ -12,13 +12,15 @@
  *            of unitary factors of G
  * Range:     u8 n <= 48, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* 10‑partition table: part[e] gives the number of integer partitions of e
    (part[0] unused).  Exponents up to 13 are sufficient for m <= 10000.  */
@@ -51,7 +53,7 @@ static void extend_tables(size_t new_cap)
     /* Reallocate memory for the tables */
     spf   = (int*)   realloc(spf,   new_cap * sizeof(int));
     omega = (int*)   realloc(omega, new_cap * sizeof(int));
-    cum   = (seq_t*) realloc(cum,   new_cap * sizeof(seq_t));
+    cum   = mem_resize(seq_t, cum, new_cap);
 
     /* Initialise spf array */
     for (size_t i = 0; i < new_cap; ++i) spf[i] = 0;

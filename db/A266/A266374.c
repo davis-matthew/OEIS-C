@@ -8,7 +8,8 @@
  *            b(2)*b(6)/(3*x^6-2*x^5-2*x+1), where b(k) = (1-x^k)/(1-x)
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 29, u64 n <= 61, u128 n <= 123,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(4)=46, a(5)=96, a(6)=198. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -38,12 +40,12 @@ seq_t a(idx_t n) {
     // Ensure cache large enough to hold all values up to n
     if (cache_len == 0) {
         cache_len = 7;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         for (idx_t i = 0; i < 7; ++i) cache[i] = init_vals[i];
     }
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) {
             // Allocation failed; fallback to recomputing current n
             tmp = cache;

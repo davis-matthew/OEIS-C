@@ -10,6 +10,7 @@
  *            representation of length 12, * i.e. 111111111111
  * Range:     u8 none, u16 none, u32 none, u64 n <= 12, u128 n <= 12,
  *            big any n
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 518, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_seq, digit_counts
+ * Validated: standard, pass, 77 terms through n = 946 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,16 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/digit_counts.h"
-#include "../utils/alloc_seq.h"
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *cache = NULL;        /* store a(1)..a(N) (0‑based) */
 static size_t cache_len = 0;       /* number of values stored */
@@ -39,7 +48,7 @@ static void ensure_cache(size_t need)
     if (cache) {
         for (size_t i = 0; i < cache_len; ++i)
             tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = tmp;
     cache_cap = new_cap;

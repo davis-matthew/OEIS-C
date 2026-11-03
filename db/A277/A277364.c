@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} Stirling2(n,k)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 377 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
     /* --- initialise on first call --------------------------------------- */
     if (a_cache == NULL) {
         a_cap = 1;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = (seq_t)1;           /* a(0) = 1 */
 
         S_cap = 1;
-        S = (seq_t *)malloc(S_cap * sizeof(seq_t));
+        S = mem_new(seq_t, S_cap);
         S[0] = (seq_t)1;                 /* S(0,0) = 1   */
         cached_n = 0;
     }
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         while ((size_t)(n + 1) > new_cap) {
             new_cap *= 2;          /* double until big enough */
         }
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cap = new_cap;
     }
 
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         size_t new_len = cur + 1;         /* new row S[0..cur]         */
 
         /* Allocate a fresh array for the new row */
-        seq_t *newS = (seq_t *)calloc(new_len, sizeof(seq_t));
+        seq_t *newS = mem_new(seq_t, new_len);
         if (!newS) {
             /* In a real project you might exit or signal an error */
             return (seq_t)0;
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
         a_cache[cur] = sum;
 
         /* Prepare for next iteration */
-        free(S);
+        mem_free(S);
         S = newS;
         cached_n = cur;
     }

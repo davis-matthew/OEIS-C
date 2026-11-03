@@ -8,17 +8,20 @@
  *            representation of n
  * Range:     u8 n <= 1108, u16 n <= 4096, u32 n <= 4096, u64 n <= 4096,
  *            u128 n <= 4096, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 87 terms through n = 3839 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
     /* Determine the bit length of n; treat 0 as a single bit '0'. */
-    idx_t bitlen = (n == 0) ? 1 : floor_log2_uint64((uint64_t)n) + 1;
+    idx_t bitlen = (n == 0) ? 1 : ilog2((uint64_t)n) + 1;
 
     /* dp[i] = number of distinct subsequences of the first i bits (i from 0 to bitlen). */
     seq_t dp[65];   /* 64 bits + 1 for the empty prefix; array size safe for all idx_t values. */

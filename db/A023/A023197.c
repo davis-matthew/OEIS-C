@@ -7,7 +7,8 @@
  * Formula:   A023197 – Numbers k such that sigma(k) >= 3*k
  * Range:     u8 none, u16 n <= 626, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9723 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *sigma_array = NULL;   /* divisor sums */
 static idx_t sigma_limit = 0;       /* current max n covered by sigma_array */
@@ -28,7 +30,7 @@ static void append_term(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap < 16 ? 16 : seq_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) exit(1);            /* fatal if allocation fails */
         seq_cache = tmp;
         seq_cap = new_cap;
@@ -40,7 +42,7 @@ static void append_term(seq_t val)
 static void rebuild(idx_t new_limit)
 {
     /* allocate new sigma array */
-    seq_t *new_sigma = (seq_t *)calloc((size_t)new_limit + 1, sizeof(seq_t));
+    seq_t *new_sigma = mem_new(seq_t, (size_t)new_limit + 1);
     if (!new_sigma) exit(1);
 
     /* divisor-sum sieve */
@@ -61,7 +63,7 @@ static void rebuild(idx_t new_limit)
     }
 
     /* replace old array */
-    free(sigma_array);
+    mem_free(sigma_array);
     sigma_array = new_sigma;
     sigma_limit = new_limit;
 }

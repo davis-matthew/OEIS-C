@@ -10,13 +10,15 @@
  *            a(2)=8, a(3)=26
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Grow a sequence array to hold at least 'cap' elements.
    The array is a simple resizable buffer; if size has to increase,
@@ -25,9 +27,9 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t needed) {
     if (*cap >= needed) return;
     size_t new_cap = (*cap > 0) ? (*cap * 2) : 4;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_arr = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     for (size_t i = 0; i < *cap; ++i) new_arr[i] = (*arr)[i];
-    free(*arr);
+    mem_free(*arr);
     *arr = new_arr;
     *cap = new_cap;
 }

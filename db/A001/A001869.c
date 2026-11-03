@@ -7,13 +7,14 @@
  * Formula:   a(n) = (1/n)*Sum_{d|n} phi(d)*5^(n/d), n > 0; a(0) = 1
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 29, u128 n <= 57,
  *            big any n
- * Helpers:   a1869_phi
+ * Validated: standard, pass, 40 terms through n = 189 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a1869_phi.h"
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n) {
     seq_t q, Q;
@@ -29,7 +30,7 @@ seq_t a(idx_t n) {
         q = q * 5 + (seq_t)(r5 / n);
         r = r5 % n;
         if (n % e == 0) {
-            uint64_t ph = a1869_phi(n / e);
+            uint64_t ph = totient_u64(n / e);
             uint64_t rp = r * ph;
             Q += q * (seq_t)ph + (seq_t)(rp / n);
             R += rp % n;

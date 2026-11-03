@@ -8,15 +8,17 @@
  * Formula:   a(n) = number of Motzkin paths of length n having no consecutive
  *            (1,0) steps. Computed via dynamic programming with states
  *            (height, last step was horizontal or not)
- * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 26, u64 n <= 32, u128 n <= 32,
+ * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 26, u64 n <= 49, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 2107 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle the trivial case immediately */
@@ -37,22 +39,17 @@ seq_t a(idx_t n) {
             idx_t new_cap = memo_size ? memo_size << 1 : 1;
             while (new_cap < needed) new_cap <<= 1;
 
-            memo = (seq_t *)realloc((void *)memo, new_cap * sizeof(seq_t));
-            dp0[0] = (seq_t *)realloc((void *)dp0[0], new_cap * sizeof(seq_t));
-            dp0[1] = (seq_t *)realloc((void *)dp0[1], new_cap * sizeof(seq_t));
-            dp1[0] = (seq_t *)realloc((void *)dp1[0], new_cap * sizeof(seq_t));
-            dp1[1] = (seq_t *)realloc((void *)dp1[1], new_cap * sizeof(seq_t));
+            memo = mem_resize(seq_t, memo, new_cap);
+            dp0[0] = mem_resize(seq_t, dp0[0], new_cap);
+            dp0[1] = mem_resize(seq_t, dp0[1], new_cap);
+            dp1[0] = mem_resize(seq_t, dp1[0], new_cap);
+            dp1[1] = mem_resize(seq_t, dp1[1], new_cap);
             /* zero the new parts of each array */
-            memset((void *)(memo + memo_size), 0,
-                   (new_cap - memo_size) * sizeof(seq_t));
-            memset((void *)(dp0[0] + memo_size), 0,
-                   (new_cap - memo_size) * sizeof(seq_t));
-            memset((void *)(dp0[1] + memo_size), 0,
-                   (new_cap - memo_size) * sizeof(seq_t));
-            memset((void *)(dp1[0] + memo_size), 0,
-                   (new_cap - memo_size) * sizeof(seq_t));
-            memset((void *)(dp1[1] + memo_size), 0,
-                   (new_cap - memo_size) * sizeof(seq_t));
+            mem_set((memo + memo_size), 0, (new_cap - memo_size) * sizeof(seq_t));
+            mem_set((dp0[0] + memo_size), 0, (new_cap - memo_size) * sizeof(seq_t));
+            mem_set((dp0[1] + memo_size), 0, (new_cap - memo_size) * sizeof(seq_t));
+            mem_set((dp1[0] + memo_size), 0, (new_cap - memo_size) * sizeof(seq_t));
+            mem_set((dp1[1] + memo_size), 0, (new_cap - memo_size) * sizeof(seq_t));
             memo_size = new_cap;
         }
     }

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 585, u16 n <= 1044, u32 n <= 1044, u64 n <= 1044,
  *            u128 n <= 1044, big any n
+ * Validated: standard, pass, 94 terms through n = 983 (2026-11-02)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -26,9 +27,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/build_primes_upto.h"    /* void build_primes_upto(idx_t limit,
-                                            uint64_t **primes_out,
-                                            size_t *cnt_out); */
+#include "../utils/build_primes_upto.h"
 
 static uint64_t *g_primes = NULL;     /* primes up to current_limit */
 static size_t    g_primes_cnt = 0;    /* number of primes */

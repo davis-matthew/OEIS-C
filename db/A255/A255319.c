@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 236, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    f(a,b)= Σ_{n∈ℤ} a^{n(n+1)/2} b^{n(n-1)/2}
    Thus a(m) = #solutions to   3k(k+1)/2 + n(3n–2) = m,  k≥0, n∈ℤ   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values */
 static seq_t *cache = NULL;   /* array of a(0)…a(max) */
@@ -37,7 +39,7 @@ static void build_cache(idx_t new_max)
         ++a_count;
         ++k;
     }
-    seq_t *A = (seq_t *)malloc(sizeof(seq_t) * a_count);
+    seq_t *A = mem_new(seq_t, a_count);
     k = 0;
     idx_t i = 0;
     while (1) {
@@ -67,7 +69,7 @@ static void build_cache(idx_t new_max)
         ++b_count;
         ++t;
     }
-    seq_t *B = (seq_t *)malloc(sizeof(seq_t) * b_count);
+    seq_t *B = mem_new(seq_t, b_count);
     i = 0;
     B[i++] = 0;                   /* n = 0 */
     n = 1;
@@ -88,7 +90,7 @@ static void build_cache(idx_t new_max)
     }
 
     /* --- convolution: a(m) = #solutions A + B = m --- */
-    seq_t *new_cache = (seq_t *)calloc((size_t)new_max + 1, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)new_max + 1);
     for (i = 0; i < (idx_t)a_count; ++i) {
         seq_t a = A[i];
         for (idx_t j = 0; j < (idx_t)b_count; ++j) {
@@ -100,9 +102,9 @@ static void build_cache(idx_t new_max)
     }
 
     /* replace old cache */
-    free(cache);
-    free(A);
-    free(B);
+    mem_free(cache);
+    mem_free(A);
+    mem_free(B);
     cache = new_cache;
     cache_len = new_max + 1;
 }

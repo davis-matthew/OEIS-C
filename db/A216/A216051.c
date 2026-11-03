@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 380, u32 n <= 380, u64 n <= 380,
  *            u128 n <= 380, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 355 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------------- */
 /* Forward declarations */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         if (limit == 0) limit = 32;
         while (true) {
             /* Free old cache before rebuilding */
-            free(cache_terms);
+            mem_free(cache_terms);
             cache_terms = NULL;
             cache_len = 0;
 
@@ -147,7 +149,7 @@ static void build_terms(idx_t limit, seq_t **terms, size_t *len)
 
     /* Collect qualifying even numbers */
     size_t cap = 4096;
-    seq_t *buffer = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq_t *buffer = mem_new(seq_t, cap);
     if (!buffer) {
         free(is_composite); free(primes); free(cnt); free(sumL); free(sumU);
         *terms = NULL; *len = 0; return;
@@ -163,7 +165,7 @@ static void build_terms(idx_t limit, seq_t **terms, size_t *len)
             /* store m */
             if (tlen == cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t*)realloc(buffer, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, buffer, cap);
                 if (!tmp) break;   /* allocation failed – stop */
                 buffer = tmp;
             }

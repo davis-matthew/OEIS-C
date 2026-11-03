@@ -9,7 +9,8 @@
  *            from n (search via breadth‑first traversal)
  * Range:     i8 n <= 63, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 8534 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const seq_t UNCOMPUTED = -2;   /* sentinel for memoization */
 
@@ -31,7 +33,7 @@ static void ensure_memo_cap(idx_t n)
     idx_t new_cap = (memo_cap == 0) ? 64 : memo_cap * 2;
     while (new_cap <= n)
         new_cap <<= 1;
-    seq_t *new_mem = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, memo, new_cap);
     if (!new_mem) {
         abort();   /* out of memory */
     }

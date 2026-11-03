@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*a(n-1)+3*a(n-2)-2*a(n-3); a(0) = 1, a(1) = 1, a(2) = 5
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 43, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *terms    = NULL;   /* array of stored terms */
 static idx_t  terms_len = 0;     /* number of terms currently stored (terms_len == i+1 for last computed index i) */
@@ -26,7 +28,7 @@ static void ensure_size(idx_t n)
     if (terms_cap < needed) {
         size_t new_cap = terms_cap ? (terms_cap << 1) : 8;
         while (new_cap < needed) new_cap <<= 1;
-        terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         terms_cap = new_cap;
     }
 

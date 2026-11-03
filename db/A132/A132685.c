@@ -7,13 +7,16 @@
  * Formula:   a(n) = binomial(2^n + 2*n, n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 12,
  *            big any n
+ * Validated: standard, pass, 29 terms through n = 47 (2026-11-01)
  * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t exp) */
-#include "../utils/gcd.h"    /* provides seq_t gcd(seq_t a, seq_t b) */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

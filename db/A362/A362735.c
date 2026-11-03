@@ -7,12 +7,13 @@
  * Formula:   a(n) = Sum_{k=0..n} (-2*k+1)^(n-1) * binomial(n,k)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 8, i64 n <= 13, i128 n <= 22,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 34 terms through n = 327 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
     seq_t binom = 1;                      /* binomial(n,0) */
     for (idx_t k = 0; k <= n; ++k) {
         seq_t base = ((seq_t)(-2)) * (seq_t)k + (seq_t)1;   /* (-2*k+1) */
-        seq_t pow_val = pow_int(base, n - 1);               /* (−2k+1)^(n-1) */
+        seq_t pow_val = ipow_idx(base, n - 1);               /* (−2k+1)^(n-1) */
         seq_t term = binom * pow_val;
         sum += term;
 

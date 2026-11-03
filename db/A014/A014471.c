@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   poly_div_inplace
+ * Validated: standard, pass, 97 terms through n = 968 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,32 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/poly_div_inplace.h"
+
+/* Long division of a monic polynomial f (length *len_f) by a monic polynomial g
+ * (length len_g).  f is replaced by the quotient and *len_f updated. */
+static void poly_div_inplace(seq_t *f, size_t *len_f, const seq_t *g, size_t len_g)
+{
+    size_t deg_f = *len_f - 1;
+    size_t deg_g = len_g - 1;
+    seq_t temp[463];
+    seq_t q[463];
+
+    for (size_t i = 0; i < *len_f; ++i) temp[i] = f[i];
+    for (size_t i = 0; i < 463; ++i) q[i] = 0;
+
+    for (int i = (int)deg_f; i >= (int)deg_g; --i) {
+        seq_t coeff = temp[i];
+        if (coeff != 0) {
+            q[i - (int)deg_g] = coeff;
+            for (size_t j = 0; j <= deg_g; ++j) {
+                temp[i - j] -= coeff * g[deg_g - j];
+            }
+        }
+    }
+    size_t new_len = deg_f - deg_g + 1;
+    for (size_t i = 0; i < new_len; ++i) f[i] = q[i];
+    *len_f = new_len;
+}
 
 /* Return all divisors of n in ascending order in divs[64];
  * nd receives the number of divisors. */

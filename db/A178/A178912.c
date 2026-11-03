@@ -12,12 +12,14 @@
  *            * * For n ≥ 19: 0 (no valid sequences exist)
  * Range:     u8 n <= 3, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   binom
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-02)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
 
         for (idx_t m = lower; m <= upper; ++m)
         {
-            seq_t inc = binom(p - 1, m - 1);   /* increasing side */
-            seq_t dec = binom(p, n - m);       /* decreasing side */
+            seq_t inc = binomial(p - 1, m - 1);   /* increasing side */
+            seq_t dec = binomial(p, n - m);       /* decreasing side */
             total += inc * dec;
         }
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 52,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 35 terms through n = 177 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,26 @@
 
 #include <stddef.h>           /* size_t for period_len declaration */
 #include <stdbool.h>          /* bool, true, false */
-#include "../utils/floor_sqrt.h"   /* provides seq_t floor_sqrt(seq_t) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 #define PERIOD_MAX 256
 

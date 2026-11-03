@@ -13,7 +13,8 @@
  *            the leading digits that the sum is already bound...
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 32, u64 n <= 51, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 89 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define NB 100000000000000000ULL /* limb base 10^17 */
 
@@ -144,7 +146,7 @@ seq_t a(idx_t n) {
 			search(9, M, zero);
 		}
 		qsort(found, (size_t)nfound, sizeof(num_t), ncmp_v);
-		vals = (seq_t *)malloc((size_t)nfound * sizeof(seq_t));
+		vals = mem_new(seq_t, (size_t)nfound);
 		for (int i = 0; i < nfound; i++) vals[i] = to_seq(&found[i]);
 		nvals = (idx_t)nfound;
 	}

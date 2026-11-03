@@ -11,7 +11,8 @@
  *            the leading digits of * m^3 match n. No caching...
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 430, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, digits, pow10
+ * Validated: standard, pass, 54 terms through n = 9439 (2026-11-01)
+ * Helpers:   num_digits, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/digits.h"     /* int digits(idx_t x);            */
-#include "../utils/digit_len.h"  /* int digit_len(seq_t x);         */
-#include "../utils/pow10.h"      /* seq_t pow10(idx_t e);           */
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t
 a(idx_t n)
@@ -32,11 +43,11 @@ a(idx_t n)
         return (seq_t)0;
 
     /* Number of decimal digits of n */
-    const int d = digits(n);
+    const int d = num_digits_idx(n);
 
     for (idx_t m = 1; ; ++m) {
         seq_t sq = (seq_t)m * (seq_t)m * (seq_t)m;         /* cube of m */
-        int len = digit_len(sq);                          /* digits of cube */
+        int len = num_digits(sq);                          /* digits of cube */
 
         if (len < d)
             continue;                                     /* too short */

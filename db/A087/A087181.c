@@ -11,13 +11,15 @@
  *            static arrays that are grown lazily and acces...
  * Range:     u8 n <= 826, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9111 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*--- static state --------------------------------------------------------*/
 static unsigned char *p_mod   = NULL;   /* p(k) modulo 3, for k ≤ max_n */
@@ -36,7 +38,7 @@ static void ensure_capacity(size_t n)
     while (new_cap <= n) new_cap *= 2;
 
     unsigned char *new_p = (unsigned char *)realloc(p_mod, new_cap);
-    seq_t        *new_a = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
+    seq_t        *new_a = mem_resize(seq_t, a_seq, new_cap);
     if (!new_p || !new_a) abort();      /* out of memory */
 
     p_mod = new_p;

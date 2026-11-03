@@ -10,14 +10,26 @@
  *            some integer k, else 0
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   a002655_euler, a002655_isqrt
+ * Validated: standard, pass, 98 terms through n = 9715 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a002655_euler.h"
-#include "../utils/a002655_isqrt.h"
+#include "../utils/isqrt_u64.h"
+
+/* coefficient of x^m in Product_{k>0} (1 - x^k) */
+static int a002655_euler(uint64_t m) {
+    uint64_t t = 24 * m + 1;
+    uint64_t s = isqrt_u64(t);
+    uint64_t k;
+    if (s * s != t) return 0;
+    if (s % 6 == 1) k = (s - 1) / 6;
+    else if (s % 6 == 5) k = (s + 1) / 6;
+    else return 0;
+    return (k & 1) ? -1 : 1;
+}
 
 seq_t a(idx_t n) {
     long long sum = 0;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 26, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached values, 1‑based index, cache[0] unused   */
 static size_t cache_len = 0;  /* allocated length of cache (including unused 0) */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate space for indices 0..6; 0 unused, 1..6 preset. */
         cache_len = 7;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL) abort();          /* fatal if allocation fails */
 
         cache[1] = (seq_t)0;
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     /* Grow the cache array if a larger n is requested. */
     if (idx > cache_len - 1) {
         size_t new_len = idx + 1;           /* need indices 0..idx */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL) abort();          /* fatal on allocation error */
         cache = tmp;
         cache_len = new_len;

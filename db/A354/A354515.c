@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 8119, u32 n <= 9826, u64 n <= 9826,
  *            u128 n <= 9826, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 74 terms through n = 9392 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* ------------ prime sieve up to 1 000 000 ------------- */
 #define PRIME_LIMIT 1000000
@@ -59,7 +61,7 @@ static idx_t  last_chk = 0;     /* last candidate examined */
 static void grow_seq(void)
 {
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-    seq_buf = (seq_t *)realloc(seq_buf, new_cap * sizeof(seq_t));
+    seq_buf = mem_resize(seq_t, seq_buf, new_cap);
     seq_cap = new_cap;
 }
 
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
 
             if (temp % p == 0) {
                 /* p is a prime factor of k */
-                if (gpf(k + (uint64_t)p) == (uint64_t)p) {
+                if (largest_prime_factor(k + (uint64_t)p) == (uint64_t)p) {
                     good = false;
                     break;
                 }
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
         /* remaining factor > sqrt(k) */
         if (good && temp > 1) {
             uint32_t p = (uint32_t)temp;
-            if (gpf(k + (uint64_t)p) == (uint64_t)p)
+            if (largest_prime_factor(k + (uint64_t)p) == (uint64_t)p)
                 good = false;
         }
 

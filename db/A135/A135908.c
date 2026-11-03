@@ -8,12 +8,14 @@
  *            a(2)=0, a(3)=2, a(4)=3, a(5)=5, a(6)=8, a(7)=11
  * Range:     u8 n <= 15, u16 n <= 30, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first eight terms */
     if (cache == NULL) {
         cache_cap = 8;                     /* store indices 0 … 7 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;              /* allocation failed */
         /* zero‑initialise and then set the known values */
         for (idx_t i = 0; i < cache_cap; ++i) cache[i] = 0;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* enlarge the cache if necessary */
     if (n + 1 > cache_cap) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                /* allocation failed */
         /* zero any new entries so that garbage is not used later */
         for (idx_t i = cache_cap; i < new_cap; ++i) tmp[i] = 0;

@@ -10,7 +10,8 @@
  *            a(2)=128, a(3)=1970, a(4)=28952, a(5)=407498, a(6)=5524088
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 114 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Include required headers */
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;     /* cached sequence values */
 static size_t  seq_cap   = 0;        /* capacity of seq_cache */
@@ -31,11 +33,11 @@ static void ensure_capacity(idx_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     while (new_cap < (size_t)need)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (seq_cache) {
         for (size_t i = 0; i < seq_len; ++i)
             new_cache[i] = seq_cache[i];
-        free(seq_cache);
+        mem_free(seq_cache);
     }
     seq_cache = new_cache;
     seq_cap   = new_cap;

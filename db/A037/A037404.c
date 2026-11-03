@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 980, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   inc_base7, inc_dec
+ * Validated: standard, pass, 58 terms through n = 9850 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,50 @@
  */
 
 #include <stdbool.h>
-#include "../utils/inc_base7.h"
-#include "../utils/inc_dec.h"
+
+/* Increment the base‑7 number stored in `base7` (little‑endian digits)
+   and recompute its digit counts. */
+static void inc_base7(int *base7, int *len, int base7_cnt[7])
+{
+    int i;
+    for (i = 0; i < *len; ++i) {
+        if (base7[i] < 6) {
+            ++base7[i];
+            break;
+        }
+        base7[i] = 0;
+    }
+    if (i == *len) {          /* all were 6 -> new most significant digit */
+        base7[*len] = 1;
+        ++(*len);
+    }
+
+    /* recompute counts */
+    for (i = 0; i < 7; ++i) base7_cnt[i] = 0;
+    for (i = 0; i < *len; ++i) ++base7_cnt[base7[i]];
+}
+
+/* Increment the decimal number stored in `dec` (little‑endian digits)
+   and recompute its digit counts. */
+static void inc_dec(int *dec, int *len, int dec_cnt[10])
+{
+    int i;
+    for (i = 0; i < *len; ++i) {
+        if (dec[i] < 9) {
+            ++dec[i];
+            break;
+        }
+        dec[i] = 0;
+    }
+    if (i == *len) {          /* all were 9 -> new most significant digit */
+        dec[*len] = 1;
+        ++(*len);
+    }
+
+    /* recompute counts */
+    for (i = 0; i < 10; ++i) dec_cnt[i] = 0;
+    for (i = 0; i < *len; ++i) ++dec_cnt[dec[i]];
+}
 
 /* Maximum number of decimal or base‑7 digits needed for the
    expected range of n.  Thirty‑two digits is far enough for

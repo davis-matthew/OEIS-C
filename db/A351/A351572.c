@@ -10,8 +10,9 @@
  *            exponent of prime p in n and e even. This implements the
  *            definition using trial division; n ≤ 2^64 and seq_t may be any
  *            size
- * Range:     u8 n <= 143, u16 n <= 9367, u32 n <= 9367, u64 n <= 9367,
- *            u128 n <= 9367, big any n
+ * Range:     u8 n <= 143, u16 n <= 16383, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 9367 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

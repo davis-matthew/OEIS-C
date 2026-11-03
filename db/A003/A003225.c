@@ -12,7 +12,8 @@
  *            D_n (c_t elements, centralizer order z_t, h_t =...
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 10, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   a3225_crot, a3225_isfixed, a3225_phi
+ * Validated: partial, pass, 17 terms through n = 19 (2026-11-01)
+ * Helpers:   totient_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a3225_crot.h"
-#include "../utils/a3225_isfixed.h"
-#include "../utils/a3225_phi.h"
+#include "../utils/totient_u32.h"
+
+static uint32_t a3225_crot(uint32_t n, uint32_t d) {
+    if (d == 1) return 1;
+    if (d == 2) return 1 + n / 2;
+    return totient_u32(d);
+}
+
+static int a3225_isfixed(void) {
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 40; i++) t <<= 4;
+    return t == 0;
+}
 
 typedef struct { uint32_t *d; size_t len; } a3225_bn;
 

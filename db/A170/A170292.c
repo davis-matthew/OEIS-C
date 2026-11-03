@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,13 @@
     for 1 ≤ n < 82:     a(n) = 43*42^(n-1)
     for n ≥ 82:         a(n) = 21*a(n-41) + Σ_{k=n-40}^{n-1} a(k)   (sum of the previous 40 terms) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate array for all terms up to n */
     size_t N = (size_t)n + 1;
-    seq_t *arr = (seq_t*)malloc(N * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, N);
     if (!arr) return 0;   /* allocation failed; caller will not get a correct value */
 
     /* Compute terms 0 .. 81 */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* If n < 82 we are done */
     if (n < 82) {
         seq_t result = arr[(size_t)n];
-        free(arr);
+        mem_free(arr);
         return result;
     }
 
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[(size_t)n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

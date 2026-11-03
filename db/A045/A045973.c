@@ -9,15 +9,46 @@
  *            p_{i+3}^e_i)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   isPrimeGeneric, seq_mul, seq_pow
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   ipow_idx, is_prime_u128, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stddef.h>
+#include <limits.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Find the next prime greater than x */
 static inline uint64_t next_prime_uint64(uint64_t x)
@@ -46,8 +77,8 @@ seq_t a(idx_t n)
             uint64_t q1 = next_prime_uint64(p);
             uint64_t q3 = next_prime_uint64(next_prime_uint64(next_prime_uint64(p)));
 
-            seq_t term1 = seq_pow((seq_t)q1, (idx_t)exp);
-            seq_t term3 = seq_pow((seq_t)q3, (idx_t)exp);
+            seq_t term1 = ipow_idx((seq_t)q1, (idx_t)exp);
+            seq_t term3 = ipow_idx((seq_t)q3, (idx_t)exp);
             result = seq_mul(result, term1);
             result = seq_mul(result, term3);
         }
@@ -60,8 +91,8 @@ seq_t a(idx_t n)
         uint64_t q1 = next_prime_uint64(p);
         uint64_t q3 = next_prime_uint64(next_prime_uint64(next_prime_uint64(p)));
 
-        seq_t term1 = seq_pow((seq_t)q1, (idx_t)exp);
-        seq_t term3 = seq_pow((seq_t)q3, (idx_t)exp);
+        seq_t term1 = ipow_idx((seq_t)q1, (idx_t)exp);
+        seq_t term3 = ipow_idx((seq_t)q3, (idx_t)exp);
         result = seq_mul(result, term1);
         result = seq_mul(result, term3);
     }

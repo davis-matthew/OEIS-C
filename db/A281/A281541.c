@@ -9,13 +9,15 @@
  *            (equivalently a(n) = Sum_{k=1..n} k * A243148(n,k) )
  * Range:     u8 n <= 27, u16 n <= 115, u32 n <= 602, u64 n <= 3661,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9613 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* a(n) = total number of parts in all partitions of n into squares. */
 seq_t a(idx_t n) {
@@ -23,8 +25,8 @@ seq_t a(idx_t n) {
         return 0;
 
     /* Allocate arrays for counts and total parts */
-    seq_t *dp = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *tot = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
+    seq_t *tot = mem_new(seq_t, (size_t)n + 1);
     if (!dp || !tot)
         return 0; /* allocation failure */
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = tot[n];
-    free(dp);
-    free(tot);
+    mem_free(dp);
+    mem_free(tot);
     return result;
 }

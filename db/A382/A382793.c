@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} (-1)^k * (Stirling2(n,k) * k!)^2
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 7, i64 n <= 12, i128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* external integer types supplied by the build */
 extern seq_t factorial(idx_t n);
@@ -38,11 +40,11 @@ seq_t a(idx_t n)
     if (needed > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) return 0;  /* allocation failed – caller will not handle this */
         a_cache = tmp;
         /* zero newly allocated part */
-        memset(a_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(a_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache_cap = new_cap;
     }
 
@@ -50,10 +52,10 @@ seq_t a(idx_t n)
     if (needed > row_cap) {
         size_t new_cap = row_cap ? row_cap * 2 : 8;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(row, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, row, new_cap);
         if (!tmp) return 0;
         row = tmp;
-        memset(row + row_cap, 0, (new_cap - row_cap) * sizeof(seq_t));
+        mem_set(row + row_cap, 0, (new_cap - row_cap) * sizeof(seq_t));
         row_cap = new_cap;
     }
 

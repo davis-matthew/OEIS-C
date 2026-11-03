@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 298 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* helper to grow an array to at least 'need' elements            */
 static void ensure_capacity(size_t need, seq_t **arr, size_t *cap)
@@ -34,7 +36,7 @@ static void ensure_capacity(size_t need, seq_t **arr, size_t *cap)
     if (*cap <= need) {
         size_t new_cap = (*cap == 0) ? 1 : (*cap << 1);
         while (new_cap <= need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();           /* out‑of‑memory */
         for (size_t i = *cap; i < new_cap; ++i) tmp[i] = 0;
         *arr   = tmp;

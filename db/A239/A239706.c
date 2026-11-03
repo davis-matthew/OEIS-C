@@ -11,13 +11,45 @@
  *            O(n log n) operations and easily fast enough for n up to 10 000
  * Range:     u8 n <= 100, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   abs_alt_digit_sum
+ * Validated: standard, pass, 116 terms through n = 9694 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t, if needed */
-#include "../utils/abs_alt_digit_sum.h"
+
+/* Helper: Computes |altDigitSum_b(n)|.
+   For base 1 the unary expansion is used; otherwise the usual
+   alternating digit sum is computed.  Only integer arithmetic is
+   employed, so the routine works for all supplied seq_t types. */
+static seq_t abs_alt_digit_sum(idx_t n, idx_t b)
+{
+    if (b == 1) {
+        /* Unary base:  n = 11…1 (n ones).  altDigitSum_1(n) = n mod 2. */
+        return (n & 1ULL) ? (seq_t)1 : (seq_t)0;
+    }
+
+    seq_t sum_even = 0;   /* sum of digits at even positions (0‑based) */
+    seq_t sum_odd  = 0;   /* sum of digits at odd  positions (0‑based) */
+    seq_t N = (seq_t)n;
+    seq_t base = (seq_t)b;
+    int pos = 0;          /* position of the least significant digit   */
+
+    while (N > 0) {
+        seq_t digit = N % base;
+        if (pos & 1)
+            sum_even += digit;
+        else
+            sum_odd += digit;
+        N /= base;
+        ++pos;
+    }
+
+    /* Return the absolute difference.  The comparison with the larger
+       sum also works when the sums are equal (difference zero). */
+    return (sum_odd > sum_even) ? (sum_odd - sum_even) : (sum_even - sum_odd);
+}
 
 /* Forward declaration for the helper that gives the absolute
    alternate digit sum in base b. */

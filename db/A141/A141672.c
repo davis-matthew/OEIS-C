@@ -10,13 +10,14 @@
  *            (mu is Möbius)
  * Range:     i8 n <= 5150, i16 n <= 5150, i32 n <= 5150, i64 n <= 5150,
  *            i128 n <= 5150, big any n
- * Helpers:   mobius_val
+ * Validated: standard, pass, 82 terms through n = 5007 (2026-11-01)
+ * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mobius_val.h"
+#include "../utils/mobius.h"
 
 /* locate the row r (0‑based) containing the overall index n
    and the start index of that row (the cumulative count up to row r-1). */
@@ -45,7 +46,7 @@ seq_t a(idx_t n)
     if (r % k != 0)                  /* not divisible → 0 */
         return (seq_t)0;
 
-    seq_t mu = mobius_val(r);
+    seq_t mu = mobius(r);
     seq_t div = (seq_t)(r / k);      /* integer division */
     return mu * div;
 }

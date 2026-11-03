@@ -11,7 +11,8 @@
  *            the partition number. See the OEIS entry ** A158164 for details
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 43, u64 n <= 152, u128 n <= 238,
  *            big any n
- * Helpers:   dp_array
+ * Validated: standard, pass, 49 terms through n = 238 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,15 @@
  */
 
 #include <stdlib.h>
-#include "../utils/dp_array.h"
+#include "../utils/mem.h"
+
+static inline seq_t *dp_array(idx_t n)
+{
+    /* Allocate table dp[0..n][0..30] as a one‑dimensional array. */
+    size_t rows = 31ULL;                    /* 0 … 30 */
+    size_t cells = (size_t)(n + 1) * rows;
+    return mem_new(seq_t, cells);
+}
 
 seq_t a(idx_t n)
 {
@@ -73,6 +82,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     return res;
 }

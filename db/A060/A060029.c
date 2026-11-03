@@ -10,7 +10,8 @@
  *            (1-x-x^10)/((1-x)(1-x^2)...(1-x^10))
  * Range:     i8 n <= 33, i16 n <= 58, i32 n <= 226, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 // the type seq_t will support all required arithmetic.
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* 1. Maintain a static array 'dp' where dp[m] = number of partitions
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     if (dp_size < new_size + 10) {
         /* Allocate new array big enough for new_size + 10 (to simplify padding) */
         idx_t alloc_size = new_size + 10 + 1;  // +1 for zero-based indexing
-        seq_t *new_dp = (seq_t *)realloc(dp, (size_t)alloc_size * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, (size_t)alloc_size);
         if (!new_dp) { /* allocation failure – return 0 as safe fallback */
             return 0;
         }

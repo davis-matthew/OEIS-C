@@ -8,8 +8,9 @@
  * Keywords:  sign
  * Formula:   a(n) = (m^4 - 2m^3 + (-4n-1)m^2 + (4n-6)m + 4n^2 + 4n + 8) / 8
  *            where m = floor((sqrt(8n-7)+1)/2)
- * Range:     i8 n <= 20, i16 n <= 7130, i32 n <= 9626, i64 n <= 9626,
- *            i128 n <= 9626, big any n
+ * Range:     i8 n <= 20, i16 n <= 7130, i32 n <= 16290, i64 n <= 16290,
+ *            i128 n <= 16290, big any n
+ * Validated: standard, pass, 94 terms through n = 9626 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

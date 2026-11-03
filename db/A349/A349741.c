@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{d|n, d < n} phi(d)^phi(n/d)
  * Range:     u8 n <= 14, u16 n <= 29, u32 n <= 44, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   big_pow, factor_u64, phi
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   factor_u64, ipow, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/phi.h"
+#include "../utils/ipow.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -60,9 +63,9 @@ seq_t a(idx_t n)
         if (d == nn)
             continue;
 
-        seq_t phi_d         = phi((idx_t)d);
-        seq_t phi_n_over_d = phi((idx_t)(nn / d));
-        seq_t term = big_pow(phi_d, phi_n_over_d);
+        seq_t phi_d         = totient((idx_t)d);
+        seq_t phi_n_over_d = totient((idx_t)(nn / d));
+        seq_t term = ipow(phi_d, phi_n_over_d);
 
         result = result * term;
     }

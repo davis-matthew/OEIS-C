@@ -10,12 +10,14 @@
  *            any n are answered in O(1) after the initial search
  * Range:     u8 n <= 10, u16 n <= 39, u32 n <= 141, u64 n <= 141,
  *            u128 n <= 141, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 137 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline uint64_t pow_mod_u64(uint64_t base, idx_t exp, uint64_t mod)
 {
@@ -37,7 +39,7 @@ static void ensure_capacity_seq_t(seq_t **arr, size_t *cap, size_t needed)
         size_t new_cap = (*cap == 0) ? 4 : *cap << 1;
         while (new_cap < needed)
             new_cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

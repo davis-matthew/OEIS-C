@@ -9,7 +9,8 @@
  *            4 king‑neighbor 1s
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   check_transition
+ * Validated: standard, pass, 34 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,30 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/check_transition.h"
+#include "../utils/mem.h"
+
+/* Test whether all 1s in the row 'prev' have 2 or 4 king‑neighbors
+   when the row above is 'prevprev' and the row below is 'next'. */
+static inline bool check_transition(uint8_t prevprev, uint8_t prev, uint8_t next) {
+    for (int col = 0; col < 6; ++col) {
+        if (prev & (1 << col)) {
+            int cnt = 0;
+            /* neighbors in the row above */
+            if (col > 0   && (prevprev & (1 << (col - 1)))) ++cnt;
+            if (prevprev  & (1 << col))                    ++cnt;
+            if (col < 5   && (prevprev & (1 << (col + 1)))) ++cnt;
+            /* neighbors in the same row */
+            if (col > 0   && (prev     & (1 << (col - 1)))) ++cnt;
+            if (col < 5   && (prev     & (1 << (col + 1)))) ++cnt;
+            /* neighbors in the row below */
+            if (col > 0   && (next     & (1 << (col - 1)))) ++cnt;
+            if (next      & (1 << col))                    ++cnt;
+            if (col < 5   && (next     & (1 << (col + 1)))) ++cnt;
+            if (cnt != 2 && cnt != 4) return false;
+        }
+    }
+    return true;
+}
 
 /* forward declaration of helper for integer types */
 static inline bool check_transition(uint8_t prevprev, uint8_t prev, uint8_t next);
@@ -49,7 +73,7 @@ seq_t a(idx_t n) {
 
     static seq_t dp[64 * 64];
     static seq_t ndp[64 * 64];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* First row: virtual row above is 0.  Each mask is a possible first row. */
     for (int m = 0; m < 64; ++m)
@@ -57,7 +81,7 @@ seq_t a(idx_t n) {
 
     /* Process rows 2 .. n. */
     for (idx_t step = 2; step <= n; ++step) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (uint8_t pp = 0; pp < 64; ++pp) {
             int base_pp = pp * 64;
             for (uint8_t pr = 0; pr < 64; ++pr) {
@@ -71,7 +95,7 @@ seq_t a(idx_t n) {
                 }
             }
         }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* Final flush with a virtual zero row at the bottom. */

@@ -7,7 +7,8 @@
  * Formula:   a(n) = ceil(prime(n) - n*log(n))
  * Range:     u8 n <= 283, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* global static state for prime storage */
 static seq_t *prime_list = NULL;
@@ -33,7 +35,7 @@ ensure_n_primes(idx_t n)
     /* Grow the prime array if necessary. */
     if (prime_cap < (size_t)(n * 2)) {
         size_t new_cap = (prime_cap == 0) ? (size_t)(n * 2) : prime_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(prime_list, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_list, new_cap);
         if (!tmp)
             abort();   /* allocation failure */
         prime_list = tmp;

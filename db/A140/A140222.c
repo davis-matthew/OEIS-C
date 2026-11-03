@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 1151, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9771 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Simple divisor count: number of positive divisors of n. */
 static uint64_t divisor_count(uint64_t n)
@@ -60,7 +62,7 @@ static bool is_prime(uint64_t x)
 seq_t a(idx_t n)
 {
     /* Allocate a temporary array to hold the first n terms. */
-    seq_t *terms = (seq_t *)malloc(n * sizeof(seq_t));
+    seq_t *terms = mem_new(seq_t, n);
     if (!terms) return (seq_t)0;  /* handle allocation failure */
 
     idx_t   count = 0;      /* number of terms stored so far   */
@@ -78,6 +80,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = terms[n - 1];
-    free(terms);
+    mem_free(terms);
     return result;
 }

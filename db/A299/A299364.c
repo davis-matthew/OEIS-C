@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   row_valid_middle
+ * Validated: standard, pass, 32 terms through n = 196 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,48 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/row_valid_middle.h"
+
+/* helper: check if 'curr' row satisfies the condition when the
+ * upper row is 'prev' (hasPrev flag indicates whether prev exists)
+ * and the lower row is 'next' (hasNext flag indicates; whenever a
+ * row does not exist it is ignored). */
+static bool row_valid_middle(uint8_t prev, uint8_t curr, uint8_t next,
+                             bool hasPrev, bool hasNext)
+{
+    /* 0..5 columns */
+    for (int col = 0; col < 6; ++col) {
+        uint8_t val = (curr >> col) & 1U;
+        int cnt = 0;
+
+        /* left/right on same row */
+        if (col > 0)
+            cnt += (((curr >> (col - 1)) & 1U) == val);
+        if (col < 5)
+            cnt += (((curr >> (col + 1)) & 1U) == val);
+
+        /* neighbours on previous row */
+        if (hasPrev) {
+            cnt += (((prev >> col) & 1U) == val);
+            if (col > 0)
+                cnt += (((prev >> (col - 1)) & 1U) == val);
+            if (col < 5)
+                cnt += (((prev >> (col + 1)) & 1U) == val);
+        }
+
+        /* neighbours on next row */
+        if (hasNext) {
+            cnt += (((next >> col) & 1U) == val);
+            if (col > 0)
+                cnt += (((next >> (col - 1)) & 1U) == val);
+            if (col < 5)
+                cnt += (((next >> (col + 1)) & 1U) == val);
+        }
+
+        /* allowed counts are 0,2,3,4,5,8 */
+        if (cnt == 1 || cnt == 6 || cnt == 7) return false;
+    }
+    return true;
+}
 
 /* precomputation status */
 static bool _precomp_done = false;

@@ -11,14 +11,24 @@
  *            contains each prime p ≡ 3,7,13,17 (mod 20) to an even exponent
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   chi_minus_one
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/chi_minus_one.h"
+#include "../utils/mem.h"
+
+/* Return 1 if prime p is congruent to 3,7,13,17 mod 20 (Kronecker symbol -1) */
+static inline int chi_minus_one(uint32_t p) {
+    if (p == 2 || p == 5) return 0;
+    switch (p % 20) {
+        case 3: case 7: case 13: case 17: return 1;
+        default: return 0;
+    }
+}
 
 static uint32_t *spf = NULL;          /* smallest prime factor array */
 static uint32_t spf_size = 0;          /* current size of spf array */
@@ -69,7 +79,7 @@ static void ensure_values(size_t needed) {
     if (seq_len >= needed) return;
     if (seq_len == 0) {
         seq_cap = 10000;
-        seq_vals = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
         seq_vals[seq_len++] = (seq_t)1;   /* sequence starts with 1 */
         current_checked = 2;
     }
@@ -83,7 +93,7 @@ static void ensure_values(size_t needed) {
         if (eligible(current_checked)) {
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq_vals = (seq_t*)realloc(seq_vals, seq_cap * sizeof(seq_t));
+                seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
             }
             seq_vals[seq_len++] = (seq_t)current_checked;
         }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{y=1}^{n} Σ_{z=1}^{n} #{(w,x)∈[1,n]^2 : w+x ≤ 2(y+z)}
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 266, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 53 terms through n = 988 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

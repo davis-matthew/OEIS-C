@@ -11,6 +11,7 @@
  *            6*a(n-3) - a(n-4) for n ≥ 5 (empirical recurrence)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 43, u128 n <= 88,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 206 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

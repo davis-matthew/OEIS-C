@@ -9,14 +9,22 @@
  *            a(n-a(n-2)) for n > 0
  * Range:     u8 n <= 34, u16 n <= 192, u32 n <= 9770, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   base_value_int64
+ * Validated: standard, pass, 91 terms through n = 8843 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/base_value_int64.h"
+
+/* Base value for indices <= 0: max(0, n+117).  k is signed. */
+static seq_t base_value_int64(int64_t k)
+{
+    if (k > -117)
+        return (seq_t)(117 + k);  /* k+117 is positive */
+    return (seq_t)0;
+}
 
 /* Cache for computed values.  cache[0] is unused; indices start at 1. */
 static seq_t *cache = NULL;

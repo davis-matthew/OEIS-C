@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  *  Initial values: a(1)=3, a(2)=105, a(3)=3665, a(4)=123215, a(5)=4051679
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first 5 terms */
     if (cache_len == 0) {
         cache_cap = (n < 5) ? (size_t)6 : (size_t)(n + 1);
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         /* if realloc fails in the initial call we return 0 – caller will not
            rely on the value for an invalid build */
         if (!cache) return (seq_t)0;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Ensure capacity to store up to index n */
     size_t new_cap = (size_t)(n + 1);
     if (new_cap > cache_cap) {
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) return (seq_t)0;  /* allocation failed */
         cache_cap = new_cap;
     }

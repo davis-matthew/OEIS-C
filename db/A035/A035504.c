@@ -10,13 +10,15 @@
  *            performs a brute‑force search with Floyd cycle detection
  * Range:     u8 n <= 2, u16 n <= 659, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed cubes of digits 0–9. */
 static const seq_t cube[10] = {0,1,8,27,64,125,216,343,512,729};
@@ -57,7 +59,7 @@ static void ensure_cache_size(size_t n) {
     if (cache_len >= n) return;
     if (!cache_cap) cache_cap = 16;
     while (cache_cap < n) cache_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
     if (!tmp) abort();   /* out of memory */
     cache = tmp;
 }

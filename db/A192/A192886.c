@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 31, u64 n <= 62, u128 n <= 125,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 999 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
    x^4*(1 - x)^2*(1 - 3*x^2 - 2*x^3 + x^4 - x^5) / (1 - 2*x)^3.
    For n ≥ 12  a(n) = 2^(n-12) * (n^2 + 137*n - 234). */
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

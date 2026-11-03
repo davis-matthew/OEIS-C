@@ -10,12 +10,14 @@
  *            divisible by 5. Computed by DP over column remainder states
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* maximum number of rows is n+2; each column remainder is 0..4,
@@ -31,12 +33,12 @@ seq_t a(idx_t n) {
     const int pattern_count = 6;
 
     /* Initialize DP: before any rows, all remainders are 0. */
-    memset(cur, 0, sizeof(dp1));
+    mem_set(cur, 0, sizeof(dp1));
     cur[0] = 1;
 
     /* transition for each row */
     for (idx_t r = 1; r <= n + 2; ++r) {
-        memset(nxt, 0, sizeof(dp2));
+        mem_set(nxt, 0, sizeof(dp2));
         for (int idx = 0; idx < 125; ++idx) {
             seq_t ways = cur[idx];
             if (!ways) continue;

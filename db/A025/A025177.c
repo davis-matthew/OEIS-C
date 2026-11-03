@@ -10,13 +10,15 @@
  *            (see OEIS A027907). D(r,s) = A(r,s) - A(r-1,s-1) where A(n,k) =
  *            sum_{i=0}^{⌊k/2⌋} binomial(n,i) * binomial(n-i, k-2i) with
  *            A(n,k)=0 for k<0 and using the recurrence T(...
- * Range:     u8 n <= 67, u16 n <= 178, u32 n <= 548, u64 n <= 1972,
+ * Range:     u8 n <= 68, u16 n <= 178, u32 n <= 548, u64 n <= 1972,
  *            u128 n <= 2499, big any n
+ * Validated: standard, pass, 92 terms through n = 2471 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static inline idx_t int_sqrt(idx_t n) {

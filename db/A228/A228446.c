@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 161, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 88 terms through n = 890 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* A228446: a(n) = smallest prime p such that 2*n+1 = p + x*(x+1) for some
    positive integer x (x ≥ 1).  For n < 2 the value is undefined and the
    function returns -1. */
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

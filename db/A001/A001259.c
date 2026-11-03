@@ -12,15 +12,36 @@
  *            factor of twice that product
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   check_divisibility, sieve_of_eratosthenes
+ * Validated: full, pass, 21 terms through n = 21 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/check_divisibility.h"
-#include "../utils/sieve_of_eratosthenes.h"
+
+static bool check_divisibility(uint64_t divisor, const uint64_t *primes, idx_t num_primes) {
+    uint64_t prod_mod = 1;
+    for (idx_t i = 0; i < num_primes; i++) {
+        prod_mod = (prod_mod * (primes[i] % divisor)) % divisor;
+    }
+    return prod_mod == 0;
+}
+
+static void sieve_of_eratosthenes(bool *is_prime, uint64_t max) {
+    for (uint64_t i = 0; i <= max; i++) {
+        is_prime[i] = true;
+    }
+    is_prime[0] = is_prime[1] = false;
+    for (uint64_t i = 2; i * i <= max; i++) {
+        if (is_prime[i]) {
+            for (uint64_t j = i * i; j <= max; j += i) {
+                is_prime[j] = false;
+            }
+        }
+    }
+}
 
 static int get_prime_factors(uint64_t n, uint64_t *factors) {
     int count = 0;

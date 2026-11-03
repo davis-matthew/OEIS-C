@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 347, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega
+ * Validated: standard, pass, 56 terms through n = 8854 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Computes odd numbers with exactly 6 prime factors (counted with multiplicity) */
 #include <stdlib.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 /* Return the n-th term of A046319 (offset 1). */
 seq_t a(idx_t n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* guarantee enough space for the cache */
     if (cache == NULL) {
         cache_cap = 1024;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return (seq_t)0;  /* allocation failure */
     }
 
@@ -60,8 +62,7 @@ seq_t a(idx_t n)
                 if (cache_len == cache_cap) {
                     /* grow the cache */
                     size_t new_cap = cache_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(cache,
-                                                  new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (tmp == NULL) return (seq_t)0;  /* realloc failed */
                     cache = tmp;
                     cache_cap = new_cap;

@@ -8,7 +8,8 @@
  *            Initial value: a(1) = 1
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 84 terms through n = 9090 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;      /* array of computed a(i) */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     if (!cache) {
         /* Allocate indices 0 and 1 (index 0 unused).  cache[1] = 1. */
         cache_cap = 2;
-        cache = (seq_t*)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[1] = (seq_t)1;
         cache_max = 1;
@@ -35,11 +37,10 @@ seq_t a(idx_t n) {
     /* If request exceeds current capacity, grow the cache. */
     if ((size_t)n >= cache_cap) {
         size_t new_cap = (size_t)n + 1;          /* indices 0 .. n */
-        seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();
         /* Zero the new part to keep values defined. */
-        memset(new_cache + cache_cap, 0,
-               (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache = new_cache;
         cache_cap = new_cap;
     }

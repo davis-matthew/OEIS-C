@@ -11,12 +11,14 @@
  *            3*a(n-3) – 4*a(n-4) + 4*a(n-5) – 4*a(n-6) + 4*...
  * Range:     u8 n <= 11, u16 n <= 181, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_terms[24] = {
     1,    4,    8,   18,   34,   50,   68,  100,
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_len = 24;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         for (idx_t i = 0; i < 24; ++i)
             cache[i] = base_terms[i];
     }
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Extend the cache to contain the requested term. */
     idx_t new_len = n + 1;
     if (new_len > cache_len) {
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         for (idx_t i = cache_len; i < new_len; ++i) {
             if (i < 24) {            /* already initialized */
                 cache[i] = base_terms[i];

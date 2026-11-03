@@ -9,6 +9,7 @@
  *            non‑multiple of 3 between 2 and 53 (offset 1)
  * Range:     u8 none, u16 none, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: full, pass, 35 terms through n = 35 (2026-11-02)
  * Helpers:   build_primes_upto, digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

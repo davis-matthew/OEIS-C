@@ -9,12 +9,21 @@
  *            (mod 4)
  * Range:     i8 n <= 12, i16 n <= 184, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   a002173_local
+ * Validated: standard, pass, 68 terms through n = 9773 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a002173_local.h"
+static seq_t a002173_local(idx_t p, idx_t e) {
+    seq_t q = (seq_t)p * (seq_t)p;
+    seq_t s = 1;
+    idx_t k;
+    if (p % 4 == 3) q = -q;
+    for (k = 0; k < e; k++)
+        s = 1 + q * s;
+    return s;
+}
 
 seq_t a(idx_t n) {
     seq_t result = 1;

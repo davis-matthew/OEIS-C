@@ -9,7 +9,8 @@
  *            A001057(A007510(n+1)) - A001057(A007510(n)-1)
  * Range:     u8 n <= 21, u16 n <= 4823, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   altSum
+ * Validated: standard, pass, 69 terms through n = 9417 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/altSum.h"
+
+/* --- helper: compute alternating-sum value A001057(m) ------------------- */
+static inline long long altSum(unsigned long long m)
+{
+    if (m & 1ULL)          /* odd */
+        return (long long)((m + 1) / 2);
+    else                   /* even */
+        return -(long long)(m / 2);
+}
 
 /* --- configuration ----------------------------------------------------- */
 static const idx_t LIMIT = 400000;      /* sufficient for n up to ~10 000 */

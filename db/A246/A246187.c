@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 129, u32 n <= 424, u64 n <= 1412,
  *            u128 n <= 5018, big any n
- * Helpers:   free_seq_arr, weight_needed
+ * Validated: standard, pass, 107 terms through n = 8936 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,27 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/free_seq_arr.h"
-#include "../utils/weight_needed.h"
+#include <stddef.h>
+#include <stdint.h>
+
+static inline void free_seq_arr(seq_t* p)
+{
+#if defined(__cplusplus)
+    delete[] p;
+#else
+    free(p);
+#endif
+}
+
+/* ---------- helper: find the row weight for a given global index ---------- */
+static idx_t weight_needed(idx_t n)
+{
+    idx_t w = 0;
+    /* find the smallest w such that (w+1)(w+2)/2 > n  (i.e. C(w+1)>n) */
+    while ((w + 1) * (w + 2) / 2 <= n)
+        ++w;
+    return w;
+}
 
 /* ---------- memory helpers for seq_t (C/C++ compatible) ---------- */
 static seq_t *allocate_seq_arr(size_t count)

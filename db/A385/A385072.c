@@ -7,12 +7,30 @@
  * Formula:   a(n) = 1 + max{k : k(k+1)(k+2)/6 <= n(n+1)/2}
  * Range:     u8 n <= 14, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   tetrahedron
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/tetrahedron.h"
+static inline seq_t tetrahedron(idx_t k)
+{
+    seq_t a = k;
+    seq_t b = k + 1;
+    seq_t c = k + 2;
+
+    /* divide by 2 */
+    if ((a & 1) == 0)      a >>= 1;
+    else if ((b & 1) == 0) b >>= 1;
+    else                   c >>= 1;
+
+    /* divide by 3 */
+    if (a % 3 == 0)        a /= 3;
+    else if (b % 3 == 0)   b /= 3;
+    else                   c /= 3;
+
+    return a * b * c;
+}
 /* Implements the sequence A385072 (number of tetrahedral numbers <= n-th triangular number) */
 
 seq_t a(idx_t n)

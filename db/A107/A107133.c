@@ -6,9 +6,10 @@
  * Keywords:  nonn, easy
  * Formula:   primes of the form 4x² + 7y² (no closed formula, computed by * a
  *            sieve plus a congruence test)
- * Range:     u8 n <= 15, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 15, u16 n <= 1637, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 67 terms through n = 9509 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Parameters ----------------------------------------------------------- */
 static const uint64_t SIEVE_LIMIT = 5000000ULL;   /* covers >10000 terms */
@@ -65,14 +67,13 @@ static void precompute(void)
 
     /* 3. Extract primes of the form 4x²+7y² ------------------------ */
     uint32_t form_capacity = prime_count / 3 + 10;
-    form_primes = (seq_t*)malloc(form_capacity * sizeof(seq_t));
+    form_primes = mem_new(seq_t, form_capacity);
     for (uint32_t i = 0; i < prime_count; ++i) {
         uint32_t p = prime_list[i];
         if (p == 7 || p % 28 == 11 || p % 28 == 15 || p % 28 == 23) {
             if (form_count >= form_capacity) {   /* unlikely but safe */
                 form_capacity *= 2;
-                form_primes = (seq_t*)realloc(
-                    form_primes, form_capacity * sizeof(seq_t));
+                form_primes = mem_resize(seq_t, form_primes, form_capacity);
             }
             form_primes[form_count++] = (seq_t)p;
         }

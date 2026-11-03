@@ -9,12 +9,14 @@
  *            anti‑diagonally starting at T(1,1)
  * Range:     u8 n <= 21, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 /* fast exponentiation for big integer base 3 */

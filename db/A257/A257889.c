@@ -11,7 +11,8 @@
  *            A(x)^2)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 47, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 2314 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Make sure the arrays are large enough; new slots are zero‑initialised */
 static void ensure_cap(idx_t need, seq_t **arr, size_t *cap)
@@ -29,11 +31,11 @@ static void ensure_cap(idx_t need, seq_t **arr, size_t *cap)
     size_t newcap = (*cap == 0) ? 1 : *cap;
     while (newcap < sz)
         newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, newcap);
     if (!tmp)
         exit(1);
     /* zero the newly allocated part */
-    memset(tmp + *cap, 0, (newcap - *cap) * sizeof(seq_t));
+    mem_set(tmp + *cap, 0, (newcap - *cap) * sizeof(seq_t));
     *arr = tmp;
     *cap = newcap;
 }

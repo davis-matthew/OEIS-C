@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sum_base4_digits, sum_distinct_prime_divisors
+ * Validated: standard, pass, 73 terms through n = 924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,37 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sum_base4_digits.h"
-#include "../utils/sum_distinct_prime_divisors.h"
+#include "../utils/mem.h"
+
+/* sum of base‑4 digits of a 64‑bit integer */
+static uint64_t sum_base4_digits(uint64_t x)
+{
+    uint64_t s = 0;
+    while (x != 0) {
+        s += x & 3U;          /* x % 4 */
+        x >>= 2;
+    }
+    return s;
+}
+
+/* sum of distinct prime divisors of n */
+static uint64_t sum_distinct_prime_divisors(uint64_t n,
+                                            uint64_t *primes, uint64_t cnt)
+{
+    uint64_t sum = 0;
+    uint64_t tmp = n;
+    for (uint64_t i = 0; i < cnt; ++i) {
+        uint64_t p = primes[i];
+        if (tmp < 2) break;
+        if (p > tmp / p) break;          /* p > sqrt(tmp) */
+        if (tmp % p == 0) {
+            sum += p;
+            while (tmp % p == 0) tmp /= p;
+        }
+    }
+    if (tmp > 1) sum += tmp;             /* last prime factor */
+    return sum;
+}
 
 /* integer square‑root for 64‑bit values */
 static uint64_t floor_isqrt_u64(uint64_t n)
@@ -106,7 +136,7 @@ seq_t a(idx_t n)
                 /* add to terms array */
                 if (terms_len == terms_cap) {
                     terms_cap = (terms_cap == 0) ? 16 : (terms_cap << 1);
-                    terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                 }
                 terms[terms_len++] = (seq_t)candidate;
             }

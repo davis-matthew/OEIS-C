@@ -6,14 +6,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   a(n) = #{ k : a(n-2k) = a(n-k) and 0 < n-2k < n-k < n }
- * Range:     u8 n <= 9601, u16 n <= 9601, u32 n <= 9601, u64 n <= 9601,
- *            u128 n <= 9601, big any n
- * Helpers:   none
+ * Range:     u8 n <= 25000, u16 n <= 25000, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 103 terms through n = 9601 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Grow the cache if the requested index is beyond what we have. */
     if (n > cache_size) {
         size_t new_len = (size_t)n + 1;  /* indices 0 .. n inclusive */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
 

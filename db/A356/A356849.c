@@ -8,12 +8,14 @@
  * Formula:   a(n) = a(n-1) - a(n-2) + 3*a(n-3), with a(0)=1, a(1)=2, a(2)=4
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Need to grow the cache to hold up to n. */
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache)
         return 0;  /* Allocation failure – return 0 as a safe fallback. */
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     }
 
     /* Release the old cache and store the new one. */
-    free(cache);
+    mem_free(cache);
     cache     = new_cache;
     cache_size = new_size;
 

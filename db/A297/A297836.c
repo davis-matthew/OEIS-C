@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 8767 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- global state ----------------------------------------------------- */
 static seq_t *a_cache = NULL;           /* cache of a(n) */
@@ -53,7 +55,7 @@ static void mark_used(idx_t v)
         size_t new_cap = used_cap ? used_cap * 2 : 256;
         while (new_cap <= (size_t)v) new_cap *= 2;
         uint8_t *new_used = (uint8_t*)realloc((void*)used, new_cap);
-        memset((void*)(new_used + used_cap), 0, new_cap - used_cap);
+        memset((new_used + used_cap), 0, new_cap - used_cap);
         used = new_used;
         used_cap = new_cap;
     }
@@ -70,7 +72,7 @@ static seq_t get_next_unused(void)
             size_t new_cap = used_cap ? used_cap * 2 : 256;
             while (new_cap <= (size_t)next_candidate) new_cap *= 2;
             uint8_t *new_used = (uint8_t*)realloc((void*)used, new_cap);
-            memset((void*)(new_used + used_cap), 0, new_cap - used_cap);
+            memset((new_used + used_cap), 0, new_cap - used_cap);
             used = new_used;
             used_cap = new_cap;
         }
@@ -92,8 +94,8 @@ static void init_sequence(void)
         return;
 
     /* initial capacity for a and b */
-    a_cap = 8; a_cache = (seq_t*)malloc(a_cap * sizeof(seq_t));
-    b_cap = 8; b_cache = (seq_t*)malloc(b_cap * sizeof(seq_t));
+    a_cap = 8; a_cache = mem_new(seq_t, a_cap);
+    b_cap = 8; b_cache = mem_new(seq_t, b_cap);
 
     /* initial capacity for used bitmap */
     used_cap = 256;
@@ -126,13 +128,13 @@ static void ensure_up_to(idx_t n)
     if ((size_t)n + 1 > a_cap) {
         size_t new_cap = a_cap ? a_cap * 2 : 8;
         while (new_cap <= (size_t)n + 1) new_cap *= 2;
-        a_cache = (seq_t*)realloc((void*)a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cap = new_cap;
     }
     if ((size_t)n + 1 > b_cap) {
         size_t new_cap = b_cap ? b_cap * 2 : 8;
         while (new_cap <= (size_t)n + 1) new_cap *= 2;
-        b_cache = (seq_t*)realloc((void*)b_cache, new_cap * sizeof(seq_t));
+        b_cache = mem_resize(seq_t, b_cache, new_cap);
         b_cap = new_cap;
     }
 

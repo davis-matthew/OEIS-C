@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=1..n} (-1)^{isprime(k)} * 2^k
  * Range:     i8 n <= 7, i16 n <= 14, i32 n <= 31, i64 n <= 62, i128 n <= 127,
  *            big any n
- * Helpers:   is_prime, pow2
+ * Validated: standard, pass, 46 terms through n = 996 (2026-11-03)
+ * Helpers:   is_prime, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include "../utils/is_prime.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Compute a(n) for n >= 1 */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache as necessary (size n+1 to use 1‑based indexing) */
     if (n > cache_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) abort();   /* out‑of‑memory, terminate */
         cache = new_cache;
 

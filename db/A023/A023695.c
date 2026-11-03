@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_ones_ternary
+ * Validated: standard, pass, 61 terms through n = 9825 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
    contains exactly four digits equal to 1. */
 
 #include <stdlib.h>
-#include "../utils/count_ones_ternary.h"
+#include "../utils/mem.h"
+
+/* Count how many '1' digits appear in the ternary representation of x. */
+static inline int count_ones_ternary(seq_t x)
+{
+    int cnt = 0;
+    while (x != 0) {
+        int digit = (int)(x % 3);       /* 0, 1 or 2 – safe to cast. */
+        if (digit == 1)
+            ++cnt;
+        x /= 3;
+    }
+    return cnt;
+}
 
 /* Grow a dynamic array of seq_t values, allocating in powers of two. */
 static void grow_cache(size_t needed, size_t *capacity, seq_t **array)
@@ -26,7 +40,7 @@ static void grow_cache(size_t needed, size_t *capacity, seq_t **array)
     size_t new_cap = (*capacity) ? (*capacity) * 2 : 8;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*array, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *array, new_cap);
     *array   = tmp;
     *capacity = new_cap;
 }

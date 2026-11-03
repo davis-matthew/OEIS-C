@@ -5,16 +5,18 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = binomial(n,2) + 3*binomial(n,3) + binomial(n,4)
- * Range:     u8 n <= 7, u16 n <= 34, u32 n <= 450, u64 n <= 1000,
+ * Range:     u8 n <= 7, u16 n <= 34, u32 n <= 565, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 56 terms through n = 994 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
-    return binom(n, 2) + 3 * binom(n, 3) + binom(n, 4);
+    return binomial(n, 2) + 3 * binomial(n, 3) + binomial(n, 4);
 }

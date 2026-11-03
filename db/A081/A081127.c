@@ -7,7 +7,8 @@
  * Formula:   a(n) = n * 11^(n-1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    can be computed iteratively with very low cost). */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* initialise the cache on first call */
     if (cache == NULL) {
         cache_capacity = 4;                       /* initial capacity, >= 2 */
-        cache = (seq_t *)realloc(NULL, cache_capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_capacity);
         cache[0] = (seq_t)0;                      /* a(0) */
         cache[1] = (seq_t)1;                      /* a(1) */
         cache_size = 2;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
             /* double capacity, but never shrink */
             size_t new_cap = cache_capacity * 2;
             if (new_cap < cache_capacity + 1) new_cap = cache_capacity + 1; /* avoid overflow */
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cache_capacity = new_cap;
         }

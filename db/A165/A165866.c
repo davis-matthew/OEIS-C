@@ -7,17 +7,20 @@
  * Formula:   a(n) = 45^Ω(n) = 45^bigomega(n)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 63, u64 n <= 4095,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, bigomega
+ * Validated: standard, pass, 59 terms through n = 9728 (2026-11-01)
+ * Helpers:   bigomega, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     seq_t k = bigomega(n);            /* number of prime factors (with multiplicity) */
-    return big_pow((seq_t)45, k);     /* 45^k */
+    return ipow((seq_t)45, k);     /* 45^k */
 }

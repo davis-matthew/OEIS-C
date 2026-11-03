@@ -8,7 +8,8 @@
  * Formula:   a(n) = (-1)^n * numerator(n^n / n!)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 16, i128 n <= 28,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 38 terms through n = 385 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -93,7 +94,7 @@ seq_t a(idx_t n)
         seq_t exp_num = exp_p_n_pow - exp_gcd;      /* exponent in the reduced numerator */
 
         if (exp_num > 0) {
-            seq_t p_pow = big_pow((seq_t)p, exp_num);
+            seq_t p_pow = ipow((seq_t)p, exp_num);
             numerator *= p_pow;
         }
     }

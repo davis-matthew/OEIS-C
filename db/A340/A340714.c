@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..floor((n-1)/2)} [gcd(n,k)=1] * (n-2k)
  * Range:     u8 n <= 36, u16 n <= 520, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 82 terms through n = 9384 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /*  (The indicator [gcd(n,k)=1] is 1 if gcd(n,k)=1 and 0 otherwise.) */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n) {

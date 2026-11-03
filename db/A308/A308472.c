@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 4490, u32 n <= 6253, u64 n <= 6253,
  *            u128 n <= 6253, big any n
- * Helpers:   digit_product, digit_sum
+ * Validated: standard, pass, 77 terms through n = 6178 (2026-11-03)
+ * Helpers:   digit_product, digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include "../utils/digit_product.h"
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -64,10 +66,10 @@ seq_t a(idx_t n)
         if (len == cap)
         {
             idx_t new_cap = (cap == 0) ? 16 : cap * 2;
-            seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, new_cap);
             if (!tmp)                 /* allocation failed */
             {
-                free(terms);
+                mem_free(terms);
                 terms = NULL;
                 return 0;
             }

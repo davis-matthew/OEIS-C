@@ -8,8 +8,9 @@
  * Formula:   a(n) = denominator of (n+4)/gcd(n,4)^2 The sequence is
  *            16‑periodic: a(n)=1 if n is odd a(n)=2 if n≡2 (mod 4)
  *            a(n)=4,2,4,1 for n≡0,4,8,12 (mod 16) respectively
- * Range:     u8 n <= 9689, u16 n <= 9689, u32 n <= 9689, u64 n <= 9689,
- *            u128 n <= 9689, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 117 terms through n = 9689 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

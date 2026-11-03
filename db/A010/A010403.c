@@ -8,6 +8,7 @@
  *            increasing order (i.e., the set of all r with r ≡ k² (mod 42))
  * Range:     u8 n <= 16, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,12 +12,14 @@
  *            a(2)=1668, a(3)=6220, a(4)=23341, a(5)=87752, a(6)=330274...
  * Range:     u8 none, u16 n <= 4, u32 n <= 13, u64 n <= 29, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for computed terms. cache[i] holds a(i+1). */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ static void ensure_cache(size_t n)
     if (n <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < n) new_cap = n;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();   /* Allocation failure */
     cache = tmp;
     cache_cap = new_cap;

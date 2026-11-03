@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 216, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 57 terms through n = 908 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* fast modular multiplication using 128‑bit intermediate */
 static uint64_t mul_mod_uint64(uint64_t a, uint64_t b, uint64_t mod)
@@ -79,7 +82,7 @@ seq_t a(idx_t n)
             /* grow the sequence array if necessary */
             if (seq_cnt == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 1;
-                seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, new_cap);
                 seq = tmp;
                 seq_cap = new_cap;
             }

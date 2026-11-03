@@ -11,12 +11,14 @@
  *            a(n)=42*(a(n‑1)+⋯+a(n‑8)) – 903*a(n‑9) for n ≥ 10
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first 10 terms (0‑based). */
     if (cache == NULL) {
         cache_size = 10;                     /* indices 0 … 9 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return (seq_t)0;          /* allocation failed */
 
         cache[0] = (seq_t)1;                  /* a(0) */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache to hold indices up to n. */
     size_t new_size = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) return (seq_t)0;          /* allocation failed */
     cache = tmp;
 

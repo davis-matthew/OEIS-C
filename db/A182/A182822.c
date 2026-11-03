@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for the rows of the triangle.  */
 static seq_t **triangle = NULL;  /* triangle[r] points to a row array of size r+1.  */
@@ -49,7 +51,7 @@ static void build_up_to(idx_t r)
         row_len   = (idx_t*)malloc(sizeof(idx_t));
         if (triangle == NULL || row_len == NULL) return; /* OOM protection */
 
-        seq_t *row0 = (seq_t*)malloc(sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
         if (row0 == NULL) return;
         row0[0] = (seq_t)1;
         triangle[0]  = row0;
@@ -63,7 +65,7 @@ static void build_up_to(idx_t r)
         idx_t new_len = old_len + 1;               /* = max_row + 2 */
 
         seq_t *old_row = triangle[max_row];
-        seq_t *new_row = (seq_t*)calloc(new_len, sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
         if (new_row == NULL) return; /* OOM protection */
 
         for (idx_t k = 0; k < new_len; ++k) {

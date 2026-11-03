@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   sigma_of
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,22 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/sigma_of.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static uint64_t *seen         = NULL;   /* bitset for seen antisigma values */
 static size_t   seen_cap     = 0;        /* capacity in uint64_t words */
@@ -60,10 +76,10 @@ static void grow_missing(void)
 {
     if (missing_cap == 0) {
         missing_cap = 16;
-        missing_arr = (seq_t *)malloc(missing_cap * sizeof(seq_t));
+        missing_arr = mem_new(seq_t, missing_cap);
     } else {
         missing_cap <<= 1;
-        missing_arr = (seq_t *)realloc(missing_arr, missing_cap * sizeof(seq_t));
+        missing_arr = mem_resize(seq_t, missing_arr, missing_cap);
     }
     if (!missing_arr) exit(1);
 }

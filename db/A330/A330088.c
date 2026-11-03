@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=1..n} binomial(n,k) * sigma(k) * sigma(n - k + 1)
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 23, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for sigma values */
 static seq_t *sigma_cache = NULL;   /* array indexed 0..max_n, we use 1..max_n */
@@ -26,7 +28,7 @@ static idx_t sigma_max = 0;
 /* recompute sigma array up to n (inclusive) */
 static void recompute_sigma(idx_t n)
 {
-    seq_t *new_cache = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (n + 1));
     if (!new_cache) return;  /* out of memory; silently fail (not expected) */
 
     /* initialise to 0 */
@@ -38,7 +40,7 @@ static void recompute_sigma(idx_t n)
             new_cache[j] += (seq_t)i;
     }
 
-    free(sigma_cache);
+    mem_free(sigma_cache);
     sigma_cache = new_cache;
     sigma_max = n;
 }

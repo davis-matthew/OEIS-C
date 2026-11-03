@@ -8,13 +8,26 @@
  *            Stirling1(k,5) * a(n‑k)
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 13, i64 n <= 21, i128 n <= 22,
  *            big any n
- * Helpers:   seq_realloc
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>               /* size_t */
-#include "../utils/seq_realloc.h" /* seq_realloc */
+#include <stdlib.h>
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *a_cache   = NULL; /* cached a(n) values */
 static size_t a_cache_len = 0;  /* number of entries currently stored */

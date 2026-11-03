@@ -7,14 +7,19 @@
  * Formula:   a(n) = (∑_{m=1}^{n-1} m^(n-1) + 1) mod n, a(1)=0
  * Range:     u8 n <= 288, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 93 terms through n = 9495 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Assume seq_t and idx_t are defined by the build.
    The helper mod_pow is provided in ../utils/mod_pow.h. */
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +32,7 @@ seq_t a(idx_t n)
     /* Compute the sum, reducing after each term to keep the
        intermediate numeric type safe. */
     for (idx_t m = 1; m < n; ++m) {
-        seq_t term = mod_pow((seq_t)m, n - 1, mod);
+        seq_t term = powmod((seq_t)m, n - 1, mod);
         sum = (seq_t)(((unsigned int)sum + (unsigned int)term) % (unsigned int)mod);
     }
 

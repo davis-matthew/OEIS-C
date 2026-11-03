@@ -7,11 +7,13 @@
  * Formula:   a(n) is the coefficient of xⁿ in ∏_{k≥1} 1/(1-2xᵏ)³
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 20, u64 n <= 49, u128 n <= 110,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 990 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* This function uses dynamic programming to compute the
    weighted partition number with multiplicities weighted by
    binom(m+2,2)·2^m for each part size k.  All arithmetic is done

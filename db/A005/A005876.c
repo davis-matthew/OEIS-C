@@ -9,15 +9,17 @@
  *            sum_{k=0..oo} q^(k*(k+1)/2)
  * Range:     u8 n <= 441, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
-    seq_t *phi = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, n + 1);
     for (idx_t k = 0; k * k <= n; k++) {
         if (k == 0) {
             phi[0] = 1;
@@ -26,19 +28,19 @@ seq_t a(idx_t n) {
         }
     }
     
-    seq_t *psi = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *psi = mem_new(seq_t, n + 1);
     for (idx_t k = 0; k * (k + 1) / 2 <= n; k++) {
         psi[k * (k + 1) / 2] += 1;
     }
     
-    seq_t *psi2 = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *psi2 = mem_new(seq_t, n + 1);
     for (idx_t i = 0; i <= n; i++) {
         for (idx_t j = 0; i + j <= n; j++) {
             psi2[i + j] += psi[i] * psi[j];
         }
     }
     
-    seq_t *result_poly = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *result_poly = mem_new(seq_t, n + 1);
     for (idx_t i = 0; i <= n; i++) {
         for (idx_t j = 0; i + j <= n; j++) {
             result_poly[i + j] += phi[i] * psi2[j];
@@ -47,10 +49,10 @@ seq_t a(idx_t n) {
     
     seq_t result = 2 * result_poly[n];
     
-    free(phi);
-    free(psi);
-    free(psi2);
-    free(result_poly);
+    mem_free(phi);
+    mem_free(psi);
+    mem_free(psi2);
+    mem_free(result_poly);
     
     return result;
 }

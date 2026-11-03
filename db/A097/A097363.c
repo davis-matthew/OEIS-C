@@ -7,14 +7,15 @@
  * Formula:   a(n) = n such that 2*n-13 is prime
  * Range:     u8 n <= 93, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 79 terms through n = 985 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
         if (candidate < 8) candidate = 8;   /* first admissible term */
 
         for (/* candidate already set */ ; ; ++candidate) {
-            if (isPrime(2 * candidate - 13)) {
+            if (is_prime(2 * candidate - 13)) {
                 /* extend cache if necessary */
                 if (cache_len >= cache_cap) {
                     size_t new_cap = cache_cap ? 2 * cache_cap : 64;

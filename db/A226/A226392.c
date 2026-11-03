@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 42, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>   /* malloc, realloc, free, abort */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 /* Static storage for the triangle rows and column sums */
 static seq_t **T_rows     = NULL;   /* array of pointers to each row */
@@ -53,7 +55,7 @@ static void grow_cols_to(idx_t up_to)
     if (col_sum_cap <= up_to) {
         size_t new_cap = col_sum_cap ? col_sum_cap * 2 : 8;
         while (new_cap <= up_to) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(col_sum, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, col_sum, new_cap);
         if (!tmp) abort();                      /* out of memory */
         for (size_t i = col_sum_cap; i < new_cap; ++i) tmp[i] = 0;
         col_sum = tmp;
@@ -68,7 +70,7 @@ static void compute_row(idx_t i)
     grow_rows_to(i);
 
     /* Allocate current row */
-    seq_t *row = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (i + 1));
     if (!row) abort();                     /* out of memory */
 
     /* Ensure col_sum can hold index i */

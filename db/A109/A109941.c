@@ -7,12 +7,20 @@
  * Formula:   a(n) = sum of all n-digit multiples of n
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdbool.h>
+
+static seq_t pow10(idx_t exp) {
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i) res *= (seq_t)10;
+    return res;
+}
 #include <stdbool.h>
 
 seq_t a(idx_t n)

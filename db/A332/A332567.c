@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 28, u64 n <= 193,
  *            u128 n <= 3504, big any n
- * Helpers:   find_kth_partition_rec
+ * Validated: standard, pass, 57 terms through n = 9146 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,33 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/find_kth_partition_rec.h"
+
+/* Recursive helper that walks the partitions in reverse lexicographic
+ * order and stops when the k‑th partition is reached. */
+static bool find_kth_partition_rec(int rem, int max_part, int depth,
+                                   int cur_parts[], idx_t target,
+                                   idx_t *count, int *out_len,
+                                   int out_parts[])
+{
+    for (int part = (rem < max_part) ? rem : max_part; part >= 1; --part) {
+        cur_parts[depth] = part;
+        if (rem - part == 0) {
+            (*count)++;
+            if (*count == target) {
+                *out_len = depth + 1;
+                for (int i = 0; i <= depth; ++i)
+                    out_parts[i] = cur_parts[i];
+                return true;
+            }
+        } else {
+            if (find_kth_partition_rec(rem - part, part, depth + 1,
+                                       cur_parts, target, count,
+                                       out_len, out_parts))
+                return true;
+        }
+    }
+    return false;
+}
 
 /* ----- Partition numbers ------------------------------------------------ */
 

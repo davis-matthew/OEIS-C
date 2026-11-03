@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 157, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9545 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --- Global state for the phi sieve and the result cache ----------------- */
 
@@ -39,7 +41,7 @@ static void grow_match_vals(size_t need)
     if (need <= match_cap) return;
     size_t new_cap = match_cap ? match_cap * 2 : 128;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(match_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, match_vals, new_cap);
     match_vals = tmp;
     match_cap  = new_cap;
 }

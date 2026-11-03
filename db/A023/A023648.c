@@ -8,7 +8,8 @@
  *            composite number (4, 6, 8, 9, 10, 12,…)
  * Range:     u8 n <= 5, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Helpers: static storage for primes and composites                 */
@@ -63,7 +65,7 @@ static void _ensure_composites(idx_t need)
             if (comp_cap <= comp_cnt)
             {
                 size_t new_cap = comp_cap == 0 ? 128 : comp_cap * 2;
-                comps = (seq_t *)realloc(comps, new_cap * sizeof(seq_t));
+                comps = mem_resize(seq_t, comps, new_cap);
                 comp_cap = new_cap;
             }
             comps[comp_cnt++] = (seq_t)cand;

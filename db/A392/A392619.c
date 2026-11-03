@@ -7,7 +7,8 @@
  * Formula:   a(n) = denominator((2^n*(n!)^2/(1+2*n)!)^2)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Legendre: exponent of prime p in m! */
 static idx_t vp_fact(idx_t m, idx_t p)
@@ -107,7 +108,7 @@ extern seq_t a(idx_t n)
                        - ((p == 2) ? (int64_t)2 * (int64_t)n : (int64_t)0);
 
         if (diff > 0) {
-            seq_t pow = big_pow((seq_t)p, (seq_t)diff);
+            seq_t pow = ipow((seq_t)p, (seq_t)diff);
             denom *= pow;
         }
     }

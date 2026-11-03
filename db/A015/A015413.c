@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{i=1..11} ((-8)^(n-i+1)-1)/((-8)^i-1)
  * Range:     i8 n <= 11, i16 n <= 11, i32 n <= 11, i64 n <= 12, i128 n <= 14,
  *            big any n
+ * Validated: standard, pass, 22 terms through n = 109 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

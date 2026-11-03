@@ -11,12 +11,16 @@
  *            for n > 7
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   num_coef
+ * Validated: standard, pass, 36 terms through n = 448 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/num_coef.h"
+static int num_coef(idx_t k) {
+    static const int p[7] = {1, 0, 20, 12, 0, 48, 24};
+    return (k < 7) ? p[k] : 0;
+}
 
 seq_t a(idx_t n) {
     seq_t c1 = 0, c2 = 0, c3 = 0; /* c(k-1), c(k-2), c(k-3) */

@@ -8,13 +8,15 @@
  * Formula:   a(n)=a(n-1)+a(n-2)+…+a(n-12) with a(0)=…=a(11)=1
  * Range:     u8 n <= 16, u16 n <= 24, u32 n <= 40, u64 n <= 72, u128 n <= 136,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system. */
 /* Cache the values of the sequence so subsequent calls are fast. */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     size_t needed = (size_t)n + 1;           /* we need indices 0..n inclusive */
     if (cache == NULL || needed > cache_cap)
     {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp)                      /* allocation failed */
             exit(1);
         cache = tmp;

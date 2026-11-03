@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 9042, u16 n <= 9042, u32 n <= 9042, u64 n <= 9042,
- *            u128 n <= 9042, big any n
- * Helpers:   cumSum
+ * Range:     u8 n <= 14910, u16 n <= 14910, u32 n <= 14910, u64 n <= 14910,
+ *            u128 n <= 14910, big any n
+ * Validated: standard, pass, 107 terms through n = 9042 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,14 @@
    Then a(n) = 1 iff k admits a factorization a·b with
    1 ≤ a,b ≤ r, otherwise a(n) = 0.   */
 #include <stdint.h>
-#include "../utils/cumSum.h"
+
+static inline idx_t cumSum(idx_t r)
+{
+    // Sum_{i=1}^{r} i^2 = r(r+1)(2r+1)/6
+    unsigned __int128 a = r;
+    unsigned __int128 s = a * (a + 1) * (2 * a + 1) / 6;
+    return (idx_t)s;
+}
 
 seq_t a(idx_t n)
 {

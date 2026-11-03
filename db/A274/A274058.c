@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, fini, full
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 61, u32 n <= 7944, u64 n <= 7944,
- *            u128 n <= 7944, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1, u16 n <= 61, u32 n <= 37025, u64 n <= 37025,
+ *            u128 n <= 37025, big any n
+ * Validated: full, pass, 37025 terms through n = 37025 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache; cache[i] holds a(i) for 0 <= i <= cache_max */
 static seq_t *cache = NULL;          /* array of a(i) */
@@ -40,7 +42,7 @@ ensure_cache_size(idx_t n)
     idx_t new_size = cache_size ? cache_size : 1;
     while (new_size <= n) new_size <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, (new_size + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (new_size + 1));
     if (!tmp) exit(1);                 /* out of memory – abort */
     cache = tmp;
     cache_size = new_size;

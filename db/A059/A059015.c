@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 98, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_ones_upto
+ * Validated: standard, pass, 82 terms through n = 8712 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,27 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/count_ones_upto.h"
+
+/* helper: total number of set bits in all numbers from 0 up to n inclusive. */
+static seq_t count_ones_upto(idx_t n)
+{
+    seq_t ones = 0;
+    for (unsigned j = 0; j < 63; ++j) {          /* loop for j = 0 .. 62 */
+        uint64_t bit  = 1ULL << j;
+        if (bit > n) break;
+        uint64_t block = bit << 1;               /* 2^(j+1), safe for j<63 */
+        uint64_t full_cycles = n / block;
+        ones += (seq_t)full_cycles * (seq_t)bit;
+        uint64_t rem = n % block;
+        if (rem >= bit) ones += (seq_t)(rem - bit + 1);
+    }
+    /* handle the case j == 63 when n may be >= 2^63 */
+    if (n >= (uint64_t)1ULL << 63) {
+        uint64_t bit64 = (uint64_t)1ULL << 63;
+        ones += (seq_t)(n - bit64 + 1);
+    }
+    return ones;
+}
 
 /* helper: number of bits needed to represent v (v>0). For v==0 returns 1. */
 static unsigned bitlen_uint64(uint64_t v)

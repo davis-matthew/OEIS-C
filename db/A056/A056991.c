@@ -6,8 +6,9 @@
  * Keywords:  nonn, base, easy, changed
  * Formula:   a(n) = a(n-4) + 9 (n>4) with a(1)=1, a(2)=4, a(3)=7, a(4)=9.
  *            Equivalent closed form: a(n) = base[(n-1)%4] + 9*floor((n-1)/4)
- * Range:     u8 n <= 113, u16 n <= 9619, u32 n <= 9619, u64 n <= 9619,
- *            u128 n <= 9619, big any n
+ * Range:     u8 n <= 113, u16 n <= 22222, u32 n <= 22222, u64 n <= 22222,
+ *            u128 n <= 22222, big any n
+ * Validated: standard, pass, 79 terms through n = 9619 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

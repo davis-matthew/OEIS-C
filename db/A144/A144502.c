@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 77, u64 n <= 189,
  *            u128 n <= 464, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1312 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t **T = NULL;        /* 2‑D table of T(n,k) values            */
 static idx_t  CUR_D = 0;        /* maximum d for which T is valid        */
@@ -62,7 +64,7 @@ static void recompute_table(idx_t d)
     /* Free any old table.  T may be NULL on first call.           */
     if (T != NULL) {
         for (idx_t i = 0; i <= CUR_D; ++i)
-            free(T[i]);
+            mem_free(T[i]);
         free(T);
     }
 
@@ -70,7 +72,7 @@ static void recompute_table(idx_t d)
     COLS  = 2 * d + 1;
     T = (seq_t **)malloc((d + 1) * sizeof(seq_t *));
     for (idx_t i = 0; i <= d; ++i)
-        T[i] = (seq_t *)calloc(COLS, sizeof(seq_t));   /* zeroed init */
+        T[i] = mem_new(seq_t, COLS);   /* zeroed init */
 
     /* Row 0 is all 1’s. */
     for (size_t k = 0; k < COLS; ++k)

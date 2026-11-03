@@ -8,7 +8,8 @@
  * Formula:   A(n,k) = n! * Sum_{j=0..n} j^(n-j) * C(j+k-1,j)/(n-j)!
  * Range:     u8 n <= 21, u16 n <= 36, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* Sequence a(n): read the array A(i,j) by ascending antidiagonals. */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 static seq_t compute_A(idx_t n, idx_t k)
 {
@@ -31,7 +32,7 @@ static seq_t compute_A(idx_t n, idx_t k)
     idx_t j = 1u;
     seq_t P = (seq_t)n;                         /* P(n,1) = n!/(n-1)! = n */
     seq_t B = (seq_t)k;                         /* C(k,1) = k */
-    seq_t jpow = pow_seq((seq_t)j, (int)(n - j));/* j^(n-j) */
+    seq_t jpow = ipow_i32((seq_t)j, (int)(n - j));/* j^(n-j) */
 
     seq_t term = P * jpow * B;
     result += term;
@@ -45,7 +46,7 @@ static seq_t compute_A(idx_t n, idx_t k)
         B = numer / (seq_t)(j + 1);
 
         /* compute (j+1)^(n-(j+1)) */
-        jpow = pow_seq((seq_t)(j + 1), (int)(n - (j + 1)));
+        jpow = ipow_i32((seq_t)(j + 1), (int)(n - (j + 1)));
 
         term = P * jpow * B;
         result += term;

@@ -9,14 +9,18 @@
  *            catalan(n-k)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   binom_n_k, catalan, pow2
+ * Validated: standard, pass, 27 terms through n = 56 (2026-11-01)
+ * Helpers:   binomial, catalan, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"
-#include "../utils/binom_n_k.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include "../utils/catalan.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +34,7 @@ seq_t a(idx_t n)
         idx_t exp = (idx_t)((seq_t)n * ((seq_t)n - (seq_t)k));
 
         seq_t term = pow2(exp);                     /* 2^(n(n-k)) */
-        term *= binom_n_k(n - k, k);                /* * binom(n-k,k) */
+        term *= binomial(n - k, k);                /* * binom(n-k,k) */
         term *= catalan(n - k);                     /* * catalan(n-k) */
 
         if (k & 1U)                                 /* odd k -> subtract */

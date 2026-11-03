@@ -9,7 +9,8 @@
  *            function and τ(d) is the number of positive divisors of d
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration for external linkage */
 seq_t a(idx_t n);
@@ -46,7 +48,7 @@ static void precompute(idx_t N)
     if (N <= max_n) return;
     #define REALLOC(arr, type, newsize) \
         do { \
-            type *tmp = (type *)realloc((arr), (newsize) * sizeof(type)); \
+            type *tmp = mem_resize(type, (arr), (newsize)); \
             if (!tmp) exit(EXIT_FAILURE); \
             (arr) = tmp; \
         } while(0)

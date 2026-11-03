@@ -7,14 +7,41 @@
  * Keywords:  easy, nonn, tabl
  * Formula:   a(n) = C(i, j) mod 11 where i = floor((sqrt(8n+1)-1)/2), j = n -
  *            i(i+1)/2
- * Range:     u8 n <= 9682, u16 n <= 9682, u32 n <= 9682, u64 n <= 9682,
- *            u128 n <= 9682, big any n
- * Helpers:   binom_mod11
+ * Range:     u8 n <= 10010, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 121 terms through n = 9682 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_mod11.h"
+/* Returns binomial(n, k) modulo 11 using Lucas's theorem.
+   The arguments are idx_t, but the return type is seq_t. */
+static seq_t binom_mod11(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+
+    seq_t result = 1;
+    while (n > 0 || k > 0) {
+        idx_t ni = n % 11;
+        idx_t ki = k % 11;
+        if (ki > ni)
+            return 0;
+
+        /* Compute C(ni, ki) exactly (ni, ki <= 10). */
+        seq_t comb = 1;
+        for (idx_t i = 1; i <= ki; ++i)
+            comb = comb * (ni - i + 1) / i;
+
+        /* Combine modulo 11. */
+        result = (result * (comb % 11)) % 11;
+
+        n /= 11;
+        k /= 11;
+    }
+    return result;
+}
 /* Computes the triangular row index i for a given linear index n
    by solving the quadratic equation i^2 + i - 2n <= 0. */
 static idx_t triangular_row(idx_t n)

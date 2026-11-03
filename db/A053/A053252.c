@@ -11,23 +11,25 @@
  *            I_{m-1}(q), where I_m(q) = 1 / Π_{k=1}^m (1 - q^k...
  * Range:     i8 n <= 384, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 117 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* cast to size_t for array dimensions; no overflow expected for tests */
     size_t N = (size_t)n;
     /* Allocate and zero coefficient array */
-    seq_t *aCoeffs = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *aCoeffs = mem_new(seq_t, N + 1);
     if (!aCoeffs) return 0;                 /* out of memory: return 0 */
 
     /* Allocate and zero inverse product array for m = 0 */
-    seq_t *Iprev = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    if (!Iprev) { free(aCoeffs); return 0; }
+    seq_t *Iprev = mem_new(seq_t, N + 1);
+    if (!Iprev) { mem_free(aCoeffs); return 0; }
 
     Iprev[0] = 1;            /* I_0(q) = 1 */
     aCoeffs[0] = 1;           /* contribution from m = 0 */
@@ -38,9 +40,9 @@ seq_t a(idx_t n) {
         if (m2 > n) break;
 
         size_t newLen = N - (size_t)m2;     /* last index of I_m used */
-        seq_t *Icurr = (seq_t*)calloc(newLen + 1, sizeof(seq_t));
+        seq_t *Icurr = mem_new(seq_t, newLen + 1);
         if (!Icurr) {
-            free(aCoeffs); free(Iprev);
+            mem_free(aCoeffs); mem_free(Iprev);
             return 0;
         }
 
@@ -60,12 +62,12 @@ seq_t a(idx_t n) {
         }
 
         /* Prepare for next iteration */
-        free(Iprev);
+        mem_free(Iprev);
         Iprev = Icurr;
     }
 
     seq_t result = aCoeffs[(size_t)n];
-    free(aCoeffs);
-    free(Iprev);
+    mem_free(aCoeffs);
+    mem_free(Iprev);
     return result;
 }

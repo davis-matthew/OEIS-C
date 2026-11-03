@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 1578, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_undul
+ * Validated: standard, pass, 74 terms through n = 9906 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +22,40 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_undul.h"
+#include "../utils/mem.h"
+
+static inline bool is_undul(seq_t n)
+{
+    if (n < 10) /* single‑digit primes always qualify */
+        return true;
+
+    unsigned int digits[128];
+    int len = 0;
+    while (n > 0) {
+        digits[len++] = (unsigned int)(n % 10);
+        n /= 10;
+    }
+
+    int prevDiff = 0;
+    for (int i = 1; i < len; ++i) {
+        int diff = (int)digits[i] - (int)digits[i - 1];
+        if (diff == 0)
+            return false;                 /* equal adjacent digits are forbidden */
+        if (prevDiff == 0)
+            prevDiff = diff;
+        else {
+            if ((diff > 0) == (prevDiff > 0))
+                return false;             /* same trend → pattern broken */
+            prevDiff = diff;
+        }
+    }
+    return true;
+}
 
 /* Allocate a new array of seq_t with the given capacity. */
 static seq_t *alloc_seq(size_t cap)
 {
-    seq_t *p = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, cap);
     if (!p && cap != 0)
         exit(1);
     return p;
@@ -44,7 +73,7 @@ static void grow_seq_array(seq_t **arr, size_t *cap, size_t need)
     seq_t *new_arr = alloc_seq(new_cap);
     for (size_t i = 0; i < *cap; ++i)
         new_arr[i] = (*arr)[i];
-    free(*arr);
+    mem_free(*arr);
     *arr = new_arr;
     *cap = new_cap;
 }

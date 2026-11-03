@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^⌊τ(n)/2⌋, where τ(n) is the number of divisors of n
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

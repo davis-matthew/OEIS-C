@@ -11,7 +11,8 @@
  *            distinct
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   digit_has_three128
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,18 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/digit_has_three128.h"
+#include "../utils/mem.h"
+
+/* ---------- helper: test whether an (unsigned) 128‑bit integer has digit 3 ---------- */
+static bool digit_has_three128(unsigned __int128 x)
+{
+    if (x == 0) return false;
+    while (x) {
+        if ((x % 10) == 3) return true;
+        x /= 10;
+    }
+    return false;
+}
 
 /* ---------- dynamic array of seq_t (the output sequence) ---------- */
 static seq_t *seq = NULL;        /* pointer to sequence array */
@@ -42,7 +54,7 @@ static void ensure_seq_capacity(idx_t idx)
     if ((size_t)idx < seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 1024;
     while (new_cap <= (size_t)idx) new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     if (!seq) exit(EXIT_FAILURE);
     seq_cap = new_cap;
 }
@@ -71,7 +83,7 @@ seq_t a(idx_t n)
     /* lazy static initialization */
     if (!seq) {
         seq_cap = 1024;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) exit(EXIT_FAILURE);
         seq_len = 0;
     }

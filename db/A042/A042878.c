@@ -11,6 +11,7 @@
  *            (15,50637394829) (16,110851869838) (17,161489264667) (1...
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 13, u64 n <= 31, u128 n <= 63,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 182 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

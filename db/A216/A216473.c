@@ -9,14 +9,17 @@
  *            exists
  * Range:     u8 n <= 14, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 /* compare function for qsort on uint64_t */
 static int cmp_uint64(const void *a, const void *b) {
@@ -106,7 +109,7 @@ seq_t a(idx_t n) {
     seq_t one = (seq_t)1;
     for (size_t i = 0; i < divs_cnt; ++i) {
         uint64_t d = divs[i];
-        if (mod_pow(base10, d, M) == one) {
+        if (powmod(base10, d, M) == one) {
             return (seq_t)d;
         }
     }

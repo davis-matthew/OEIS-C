@@ -7,8 +7,9 @@
  * Keywords:  nonn, tabl, easy
  * Formula:   a(n) = T(r,k) with r = floor((sqrt(8n+1)-1)/2), k = n -
  *            r(r+1)/2, T(r,k) = binomial(k+r, k) * binomial(2r-k, r)
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 108, u64 n <= 358,
+ * Range:     u8 n <= 15, u16 n <= 37, u32 n <= 108, u64 n <= 358,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 61 terms through n = 986 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /* The OEIS entry defines A371400 as the triangle read by rows. */
 
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

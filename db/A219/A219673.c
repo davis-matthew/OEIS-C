@@ -12,13 +12,15 @@
  *            memoizes results, so future calls for larger n a...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 28, u128 n <= 55,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 41 terms through n = 192 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t* lucas_cache = NULL;
 static size_t lucas_cap = 0;
@@ -26,7 +28,7 @@ static size_t lucas_cap = 0;
 static void ensure_lucas(idx_t n) {
     if (lucas_cap > n) return;
     size_t new_cap = n + 1;
-    lucas_cache = (seq_t*)realloc(lucas_cache, new_cap * sizeof(seq_t));
+    lucas_cache = mem_resize(seq_t, lucas_cache, new_cap);
     if (!lucas_cache) exit(EXIT_FAILURE);  /* allocation failure */
     for (size_t i = lucas_cap; i <= n; ++i) {
         if (i == 0) lucas_cache[i] = (seq_t)2;

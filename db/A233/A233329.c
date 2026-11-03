@@ -8,6 +8,7 @@
  *            (2*(n^4+10*n^3+34*n^2+(45+(-1)^(n+1))*n)+37+5*(-1)^(n+1))/32
  * Range:     u8 n <= 1, u16 n <= 11, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

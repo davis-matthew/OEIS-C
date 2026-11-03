@@ -9,20 +9,24 @@
  *            is even a(0) = 1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   pow2, seq_pow
+ * Validated: standard, pass, 37 terms through n = 100 (2026-11-01)
+ * Helpers:   ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"   /* seq_pow(seq_t base, idx_t exp) */
-#include "../utils/pow2.h"      /* pow2(idx_t exp) -> seq_t */
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)1;
 
     /* compute n^(n-1) */
-    seq_t nn = seq_pow((seq_t)n, n - 1);
+    seq_t nn = ipow_idx((seq_t)n, n - 1);
 
     /* choose the constant part c */
     seq_t c;

@@ -9,9 +9,10 @@
  *            T(n,k) = sum_{i=0..k} (i | prime(n)), where (·|p) is the
  *            Legendre symbol. The sequence enumerates these partial sums in
  *            row-major order
- * Range:     i8 n <= 9371, i16 n <= 9371, i32 n <= 9371, i64 n <= 9371,
- *            i128 n <= 9371, big any n
- * Helpers:   jacobi_symbol, next_prime
+ * Range:     i8 n <= 10887, i16 n <= 10887, i32 n <= 10887, i64 n <= 10887,
+ *            i128 n <= 10887, big any n
+ * Validated: standard, pass, 116 terms through n = 9371 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,32 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/jacobi_symbol.h"
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -69,7 +94,7 @@ seq_t a(idx_t n)
             /* Store the new value into the cache, resizing if necessary */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap << 1 : 4;
-                cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
                 cache_cap = new_cap;
             }
             cache[cache_len++] = sum;

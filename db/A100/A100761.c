@@ -10,7 +10,8 @@
  *            0}
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   digits_seq
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem, num_digits_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/digits_seq.h"
+#include "../utils/num_digits_seq.h"
+#include "../utils/mem.h"
 
 /* Sequence cache -------------------------------------------------------- */
 static seq_t *seq_buf = NULL;   /* holds a(i) values (1‑based)   */
@@ -35,10 +37,10 @@ static void ensure_terms(idx_t n) {
 
     /* Grow storage arrays if necessary */
     if (seq_buf == NULL) {
-        seq_buf = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_buf = mem_new(seq_t, (n + 1));
         len_buf = (idx_t *)malloc((n + 1) * sizeof(idx_t));
     } else if ((n + 1) > seq_cnt) {
-        seq_buf = (seq_t *)realloc(seq_buf, (n + 1) * sizeof(seq_t));
+        seq_buf = mem_resize(seq_t, seq_buf, (n + 1));
         len_buf = (idx_t *)realloc(len_buf, (n + 1) * sizeof(idx_t));
     }
 
@@ -70,7 +72,7 @@ static void ensure_terms(idx_t n) {
            (rev_mod · 10^len(d) + d) % k == 0. */
         seq_t d = (seq_t)1;
         for (;;) {
-            idx_t len_d = digits_seq(d);
+            idx_t len_d = num_digits_seq(d);
             seq_t pow10_d = 1;
             for (idx_t t = 0; t < len_d; ++t) {
                 pow10_d = (pow10_d * (seq_t)10) % mod;
@@ -80,7 +82,7 @@ static void ensure_terms(idx_t n) {
         }
 
         seq_buf[k] = d;
-        len_buf[k] = digits_seq(d);
+        len_buf[k] = num_digits_seq(d);
     }
 
     seq_cnt = n;

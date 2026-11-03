@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --- constants -------------------------------------------------------- */
 #define WIDTH       5          /* number of columns */
@@ -148,10 +150,10 @@ static void build_transitions(void)
 static void ensure_dp(size_t sz)
 {
     if (dp_size < sz) {
-        free(dp_prev);
-        free(dp_next);
-        dp_prev = (seq_t *)calloc(sz, sizeof(seq_t));
-        dp_next = (seq_t *)calloc(sz, sizeof(seq_t));
+        mem_free(dp_prev);
+        mem_free(dp_next);
+        dp_prev = mem_new(seq_t, sz);
+        dp_next = mem_new(seq_t, sz);
         dp_size = sz;
     }
 }
@@ -162,7 +164,7 @@ static void ensure_res(idx_t n)
 {
     if (n >= res_len) {
         size_t newlen = n + 1;
-        seq_t *newarr = (seq_t *)realloc(res_arr, newlen * sizeof(seq_t));
+        seq_t *newarr = mem_resize(seq_t, res_arr, newlen);
         for (idx_t i = res_len; i < newlen; ++i)
             newarr[i] = 0;
         res_arr = newarr;
@@ -183,7 +185,7 @@ seq_t a(idx_t n)
         ensure_res(n);
 
         /* initial DP for first row (row index 1) */
-        memset(dp_prev, 0, state_cnt * sizeof(seq_t));
+        mem_set(dp_prev, 0, state_cnt * sizeof(seq_t));
         for (int p = 0; p < NUM_PAT; ++p) {
             if (pat_val[p][0] != 0) continue;              /* upper‑left must be 0 */
             uint8_t unsat = (~hmask[p]) & 0x1F;
@@ -206,7 +208,7 @@ seq_t a(idx_t n)
         return res_arr[n];
 
     for (idx_t cur = max_computed + 1; cur <= n; ++cur) {
-        memset(dp_next, 0, state_cnt * sizeof(seq_t));
+        mem_set(dp_next, 0, state_cnt * sizeof(seq_t));
         for (uint32_t s = 0; s < state_cnt; ++s) {
             if (dp_prev[s] == 0) continue;
             seq_t cnt = dp_prev[s];

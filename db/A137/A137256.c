@@ -7,13 +7,15 @@
  * Formula:   a(n) = 3*a(n-1) - 3*a(n-2) + 3*a(n-3); a(0)=1, a(1)=2, a(2)=4
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 27, u64 n <= 54, u128 n <= 109,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence; stored from a(0) up to a(cap-1) */
 static seq_t *cache  = NULL;
@@ -24,7 +26,7 @@ static void ensure_cap(idx_t n)
 {
     size_t new_cap = (size_t)(n + 1);
     if (cap < new_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);               /* abort on allocation failure */
         cache = tmp;
         cap   = new_cap;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 {
     /* initialise first three terms on first call */
     if (!cache) {
-        cache = (seq_t *)malloc(3 * sizeof(seq_t));
+        cache = mem_new(seq_t, 3);
         if (!cache) exit(1);
         cache[0] = 1;
         cache[1] = 2;

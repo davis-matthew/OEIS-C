@@ -8,19 +8,20 @@
  *            ⌊(√(8*n+1)-1)/2⌋, column = n - row(row+1)/2
  * Range:     u8 n <= 35, u16 n <= 35, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   isqrt_uint128
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   isqrt_u128_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/isqrt_uint128.h"
+#include "../utils/isqrt_u128_to_idx.h"
 
 static idx_t row_of(idx_t n)
 {
     // row = floor((sqrt(8*n+1)-1)/2)
     unsigned __int128 t = (unsigned __int128)8 * n + 1;
-    idx_t sqrt_floor = isqrt_uint128(t);
+    idx_t sqrt_floor = isqrt_u128_to_idx(t);
     return (sqrt_floor - 1) >> 1;
 }
 

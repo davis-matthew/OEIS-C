@@ -8,13 +8,28 @@
  *            exactly five 1’s and the rest 0’s
  * Range:     u8 none, u16 n <= 21, u32 n <= 2002, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   power5
+ * Validated: standard, pass, 55 terms through n = 9315 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/power5.h"
+#include <stdbool.h>
+
+static inline seq_t power5(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* Computes binomial coefficient C(n,k).  Assumes 0 ≤ k ≤ 5 and n ≥ 0. */
 static idx_t binom(idx_t n, idx_t k)

@@ -8,13 +8,15 @@
  *            for n >= 3 * (Recurrence derived from (1-x)/(1+2*x^2+2*x^3))
  * Range:     i8 n <= 10, i16 n <= 22, i32 n <= 46, i64 n <= 93, i128 n <= 185,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 865 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoised values */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     if (need > cache_sz) {
         size_t new_sz = cache_sz ? cache_sz * 2 : 4;
         if (new_sz < need) new_sz = need;
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (!tmp) return 0;                /* allocation failure → return 0 */
         cache = tmp;
         cache_sz = new_sz;

@@ -10,14 +10,38 @@
  *            representation of n as a contiguous substring
  * Range:     u8 n <= 33, u16 n <= 555, u32 n <= 1024, u64 n <= 1024,
  *            u128 n <= 1024, big any n
- * Helpers:   propagate
+ * Validated: standard, pass, 79 terms through n = 1003 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/propagate.h"
+
+/* propagate palindrome constraints; return false if a conflict occurs */
+static bool propagate(signed char *bits, idx_t L)
+{
+    bool changed = true;
+    while (changed) {
+        changed = false;
+        for (idx_t i = 0; i < L; ++i) {
+            idx_t j = L - 1 - i;
+            if (i > j) break;
+            signed char a = bits[i], b = bits[j];
+            if (a != -1 && b != -1) {
+                if (a != b) return false;                /* conflict */
+            } else if (a == -1 && b != -1) {
+                bits[i] = b;
+                changed = true;
+            } else if (b == -1 && a != -1) {
+                bits[j] = a;
+                changed = true;
+            }
+        }
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

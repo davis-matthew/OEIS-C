@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    under the transformation x -> sum of cubes of the digits of x. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int visited_mark[20001] = {0};
 static int vis_id = 1;                    /* unique marker for each walk */
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
             /* grow storage if required */
             if (terms_cnt >= terms_cap) {
                 size_t newcap = terms_cap ? terms_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, newcap);
                 if (!tmp) exit(1);  /* allocation failure */
                 terms = tmp;
                 terms_cap = newcap;

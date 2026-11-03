@@ -11,7 +11,8 @@
  *            a(n)=7*a(n-1)+4*a(n-2)-17*a(n-3)-3*a(n-4)-9*a(n-6)+14*a(n-7)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
     dynamically, extends it as needed, and computes any a(n) in O(n).  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for memoisation */
 static seq_t *a_cache = NULL;
@@ -31,7 +33,7 @@ static void a_ensure_cache(idx_t N)
 {
     if (a_cache == NULL) {                     /* first allocation */
         a_cache_cap = (N + 1 > 16) ? N + 1 : 16;
-        a_cache = (seq_t *)malloc(a_cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_cap);
         if (a_cache == NULL) abort();
         /* initialise base values up to 8 or N */
         a_cache[0] = 0;
@@ -48,7 +50,7 @@ static void a_ensure_cache(idx_t N)
     else if ((size_t)N + 1 > a_cache_cap) {    /* extend when needed */
         size_t new_cap = a_cache_cap * 2;
         if (new_cap < (size_t)N + 1) new_cap = (size_t)N + 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (tmp == NULL) abort();
         a_cache = tmp;
         a_cache_cap = new_cap;

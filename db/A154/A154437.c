@@ -9,12 +9,20 @@
  *            a(2*n) = 2 * a( A065190(n) ) + 1 a(2*n+1) = 2 * a( n )
  * Range:     u8 n <= 255, u16 n <= 2047, u32 n <= 2047, u64 n <= 2047,
  *            u128 n <= 2047, big any n
- * Helpers:   A065190
+ * Validated: standard, pass, 87 terms through n = 1929 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/A065190.h"
+/* Helper that implements A065190: swap each consecutive pair (2k,2k+1);
+   with 1 mapping to itself. */
+static inline idx_t
+A065190(idx_t n)
+{
+    if (n == 1)           return 1;
+    return (n & 1) ? n - 1 : n + 1;  /* even -> n+1, odd -> n-1 */
+}
 
 /* Main function for sequence A154437 */
 seq_t

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 16, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   rev_decimal
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/rev_decimal.h"
+#include <stdint.h>
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 /* Cached sequence terms.  */
 static seq_t *cache = NULL;
@@ -32,7 +35,7 @@ static void grow_cache(void)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* unrecoverable allocation failure */
         cache = tmp;
         cache_cap = new_cap;
@@ -50,7 +53,7 @@ static void push_term(seq_t val)
 static void build_up_to(idx_t n)
 {
     while (cache_len < n) {
-        seq_t rev = rev_decimal(next_candidate);
+        seq_t rev = reverse_digits(next_candidate);
         if (next_candidate != rev) {
             if (next_candidate % rev == 0) {
                 seq_t q = next_candidate / rev;

@@ -9,6 +9,7 @@
  *            binomial(n^2+k+1,n)/(n^2+k+1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 19,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 285 (2026-11-01)
  * Helpers:   binomial, gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,9 +18,11 @@
 /* Implementation uses GCD reductions to avoid overflow; works for any seq_t type. */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* binomial(idx_t a, idx_t b) */
-#include "../utils/pow2.h"       /* pow2(idx_t exp) */
-#include "../utils/gcd.h"        /* gcd(seq_t a, seq_t b) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

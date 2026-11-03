@@ -10,7 +10,8 @@
  *            then computes the L1 norm
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 22, u64 n <= 44, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 244 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *sum_cache = NULL;          /* cache of a(n) */
 static size_t cache_cap = 0;
@@ -33,20 +35,20 @@ static void grow_cache(size_t needed) {
     size_t new_cap = needed;
     if (new_cap < 8) new_cap = 8;
     while (new_cap < needed) new_cap = new_cap + new_cap / 2;
-    sum_cache = (seq_t *)realloc(sum_cache, new_cap * sizeof(seq_t));
+    sum_cache = mem_resize(seq_t, sum_cache, new_cap);
     cache_cap = new_cap;
 }
 
 /* Initialise for n = 0 */
 static void init_first(void) {
-    sum_cache = (seq_t *)malloc(sizeof(seq_t));
+    sum_cache = mem_new(seq_t, 1);
     sum_cache[0] = (seq_t)1;
     cache_cap = 1;
     cached_max = 0;
 
     prev_len = 1;
-    A_prev = (seq_t *)malloc(sizeof(seq_t));
-    B_prev = (seq_t *)malloc(sizeof(seq_t));
+    A_prev = mem_new(seq_t, 1);
+    B_prev = mem_new(seq_t, 1);
     A_prev[0] = (seq_t)1;
     B_prev[0] = (seq_t)0;
 }
@@ -59,8 +61,8 @@ static void compute_until(idx_t n) {
 
     for (idx_t cur = cached_max + 1; cur <= n; ++cur) {
         size_t new_len = 3 * cur + 1;
-        seq_t *newA = (seq_t *)calloc(new_len, sizeof(seq_t));
-        seq_t *newB = (seq_t *)calloc(new_len, sizeof(seq_t));
+        seq_t *newA = mem_new(seq_t, new_len);
+        seq_t *newB = mem_new(seq_t, new_len);
 
         for (size_t j = 0; j < prev_len; ++j) {
             seq_t a = A_prev[j];
@@ -92,8 +94,8 @@ static void compute_until(idx_t n) {
         sum_cache[cur] = total;
         cached_max = cur;
 
-        free(A_prev);
-        free(B_prev);
+        mem_free(A_prev);
+        mem_free(B_prev);
         A_prev = newA;
         B_prev = newB;
         prev_len = new_len;

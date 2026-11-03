@@ -11,7 +11,8 @@
  *            modulo k
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 5, u64 n <= 8, u128 n <= 17,
  *            big any n
- * Helpers:   multiplicative_order, pow10
+ * Validated: standard, pass, 33 terms through n = 393 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,32 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/multiplicative_order.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/*  Multiplicative order of 10 modulo k (k coprime with 10).  */
+static unsigned long long
+multiplicative_order(unsigned long long k)
+{
+    if (k == 1) return 1;
+    unsigned long long order = 1;
+    unsigned long long r = 10 % k;
+    while (r != 1) {
+        r = (r * 10) % k;
+        ++order;
+    }
+    return order;
+}
 
 /* ------------------------------------------------------------------ */
 /*  State:  cache for a(n) (1‑based index).  values[i] holds a(i),
@@ -79,7 +104,7 @@ seq_t a(idx_t n)
     while (cache_sz <= (size_t)n) {
         size_t new_cap = cache_sz ? cache_sz * 2 : 16;
         /* enlarge values array */
-        seq_t *vtmp   = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+        seq_t *vtmp   = mem_resize(seq_t, values, new_cap);
         if (!vtmp) exit(EXIT_FAILURE);
         /* enlarge computed flags array */
         bool *ctmp = (bool *)realloc(computed, new_cap * sizeof(bool));

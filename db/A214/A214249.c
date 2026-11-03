@@ -12,8 +12,9 @@
  *            floor((sqrt(8*n+1)-1)/2) // antidiagonal number i = n -
  *            s*(s+1)/2 j = s - i Then A(i,j) counts the comp...
  * Range:     u8 n <= 147, u16 n <= 399, u32 n <= 1217, u64 n <= 4086,
- *            u128 n <= 9525, big any n
- * Helpers:   none
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 9525 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Count compositions of n with max adjacent difference k.
    Recurrence: dp[sum][last] = number of compositions of 'sum'
@@ -33,7 +35,7 @@ static seq_t count_compositions(idx_t n, idx_t k)
 
     size_t N = (size_t)n + 1;      /* dimension size for dp */
     size_t total = N * N;
-    seq_t *dp = (seq_t *)calloc(total, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
     if (!dp) return 0;             /* allocation failed */
 
     /* single–part compositions */
@@ -65,7 +67,7 @@ static seq_t count_compositions(idx_t n, idx_t k)
     for (idx_t last = 1; last <= n; ++last)
         total_count += dp[n * N + last];
 
-    free(dp);
+    mem_free(dp);
     return total_count;
 }
 

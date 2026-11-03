@@ -11,7 +11,8 @@
  *            for n > 23
  * Range:     u8 n <= 51, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   third_nondivisor
+ * Validated: standard, pass, 75 terms through n = 836 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/third_nondivisor.h"
+#include "../utils/mem.h"
+
+static seq_t third_nondivisor(seq_t n)
+{
+    int count = 0;
+    for (int m = 2; ; ++m) {
+        if (n % (seq_t)m != 0) {
+            ++count;
+            if (count == 3)
+                return (seq_t)m;
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -46,7 +59,7 @@ seq_t a(idx_t n)
              * types with trivial constructors (e.g. integer,
              * __int128).  For arbitrary‑precision classes the
              * builder can provide a trivial allocator. */
-            seq_t *tmp = (seq_t*)realloc(seq, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, newcap);
             if (!tmp)
                 abort();           /* allocation failure */
             seq = tmp;

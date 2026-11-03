@@ -9,13 +9,15 @@
  *            (n+1) = 0
  * Range:     u8 n <= 13, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for primes and their prefix sums. */
 static seq_t *prime_vals   = NULL;
@@ -29,8 +31,8 @@ static void prime_resize(size_t min_cap) {
     if (prime_cap >= min_cap) return;
     size_t new_cap = prime_cap ? prime_cap * 2 : 16;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_t *new_vals = (seq_t *)realloc(prime_vals, new_cap * sizeof(seq_t));
-    seq_t *new_sums = (seq_t *)realloc(prime_sums, new_cap * sizeof(seq_t));
+    seq_t *new_vals = mem_resize(seq_t, prime_vals, new_cap);
+    seq_t *new_sums = mem_resize(seq_t, prime_sums, new_cap);
     if (!new_vals || !new_sums) abort();
     prime_vals = new_vals;
     prime_sums = new_sums;

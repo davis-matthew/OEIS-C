@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 208, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 60 terms through n = 986 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    the results so that later calls are fast. */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +39,7 @@ seq_t a(idx_t n)
     /* otherwise keep searching until enough terms are found */
     while (cache_size < (size_t)n) {
         if (is_prime(candidate)) {
-            seq_t *tmp = (seq_t *)realloc(cache,
-                                          (cache_size + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (cache_size + 1));
             if (!tmp) { /* allocation failed; abort gracefully */
                 /* In an actual build, you might use abort() or similar. */
                 return 0;

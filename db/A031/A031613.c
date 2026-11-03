@@ -11,7 +11,8 @@
  *            term of that period, the two central terms are both 25
  * Range:     u8 none, u16 n <= 15, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;          /* cached sequence items */
 static size_t memo_size = 0;        /* number of items in memo   */
@@ -31,7 +33,7 @@ static void grow_memo(size_t needed)
     if (needed <= memo_cap) return;
     size_t new_cap = memo_cap ? memo_cap * 2 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_mem = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, memo, new_cap);
     memo = new_mem;
     memo_cap = new_cap;
 }

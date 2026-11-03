@@ -10,7 +10,8 @@
  *            prime. (a(2) is the first term.)
  * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 81 terms through n = 904 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* ----------------------------------------------------------------------
    Prime storage and helper
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
     seq_t count = 0;
 
     for (idx_t i = 1; i < p; ++i) {
-        seq_t inv = mod_pow((seq_t)i, p - 2, (seq_t)p);
+        seq_t inv = powmod((seq_t)i, p - 2, (seq_t)p);
         uint64_t inv_parity = (uint64_t)(inv & 1);
         uint64_t i_parity   = (uint64_t)(i & 1);
         if (inv_parity != i_parity)

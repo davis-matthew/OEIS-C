@@ -12,13 +12,15 @@
  *            squares. For each candidate * integer m it checks...
  * Range:     u8 n <= 4, u16 n <= 19, u32 n <= 307, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 9757 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute integer floor square root using binary search. */
 static inline idx_t isqrt_idx(idx_t n) {
@@ -98,7 +100,7 @@ static idx_t  cache_cap = 0;
 static void build_until(idx_t target) {
     if (!cache) {
         cache_cap = 32U;
-        cache = (seq_t *)malloc((size_t)cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         if (!cache)
             abort();
         cache_sz = 0U;
@@ -116,7 +118,7 @@ static void build_until(idx_t target) {
             seq_t cube = (seq_t)candidate * candidate * candidate;
             if (cache_sz == cache_cap) {
                 cache_cap <<= 1;
-                seq_t *newc = (seq_t *)realloc(cache, (size_t)cache_cap * sizeof(seq_t));
+                seq_t *newc = mem_resize(seq_t, cache, (size_t)cache_cap);
                 if (!newc)
                     abort();
                 cache = newc;

@@ -12,13 +12,15 @@
  *            array guarantees...
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 23, u64 n <= 50, u128 n <= 106,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 46 terms through n = 492 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t n, idx_t k) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* memoised values */
 static size_t cache_cap = 0;      /* allocated capacity */
@@ -45,7 +47,7 @@ static void init_cache(void) {
         return;                     /* already initialised */
 
     cache_cap = 10;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) exit(EXIT_FAILURE);
 
     for (idx_t i = 0; i < 10; ++i)
@@ -65,7 +67,7 @@ static void ensure_capacity(idx_t n) {
     if (new_cap < needed)
         new_cap = needed;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);
 

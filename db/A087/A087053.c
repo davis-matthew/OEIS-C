@@ -11,7 +11,8 @@
  *            product, and returns p*q + q*r + r*p for the n‑th such number
  * Range:     u8 n <= 33, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #else
 /* For 8–128 bit builds seq_t is a builtin unsigned integer type. */
 #endif
+#include "../utils/mem.h"
 
 /* --- parameters ------------------------------------------------------- */
 #define TARGET_N          10000          /* we need at least this many terms   */
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
 
         /* Count triples that will be generated */
         size_t max_cnt = prime_cnt * (prime_cnt - 1) * (prime_cnt - 2) / 6;
-        pair_t *pairs = (pair_t *)malloc(max_cnt * sizeof(pair_t));
+        pair_t *pairs = mem_new(pair_t, max_cnt);
         if (!pairs) exit(1);
 
         size_t idx = 0;
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort by product (ascending) */
-        qsort(pairs, idx, sizeof(pair_t), pair_cmp);
+        mem_qsort(pairs, idx, sizeof(pair_t), pair_cmp);
 
         /* Build cache only keeping the first TARGET_N terms.  The
            sequence definition requires all terms, but the caller
@@ -120,13 +122,13 @@ seq_t a(idx_t n)
         size_t usable = idx;
         if (usable > TARGET_N) usable = TARGET_N;
 
-        cache = (seq_t *)malloc(usable * sizeof(seq_t));
+        cache = mem_new(seq_t, usable);
         if (!cache) exit(1);
         for (size_t i = 0; i < usable; ++i)
             cache[i] = pairs[i].deriv;
 
         cache_size = usable;
-        free(pairs);
+        mem_free(pairs);
     }
 
     if ((idx_t)(n - 1) >= cache_size)

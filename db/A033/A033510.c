@@ -8,14 +8,58 @@
  *            transfer‑matrix DP over column states
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   init_matrix
+ * Validated: standard, pass, 32 terms through n = 200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/init_matrix.h"
+
+static void init_matrix(seq_t M[128][128])
+{
+    const unsigned int EDGE_MASK[6] = {
+        (1u << 0) | (1u << 1),
+        (1u << 1) | (1u << 2),
+        (1u << 2) | (1u << 3),
+        (1u << 3) | (1u << 4),
+        (1u << 4) | (1u << 5),
+        (1u << 5) | (1u << 6)
+    };
+    const unsigned int ALL_BITS = 0x7F;        /* 7 lowest bits */
+
+    for (int s = 0; s < 128; ++s) {
+        for (int e = 0; e < 64; ++e) {
+            /* horizontal edges must not overlap */
+            if (e & (e >> 1)) continue;
+            /* edges must not touch a vertex already occupied by S */
+            bool ok = true;
+            for (int i = 0; i < 6 && ok; ++i) {
+                if (e & (1 << i)) {
+                    if (s & EDGE_MASK[i]) ok = false;
+                }
+            }
+            if (!ok) continue;
+
+            /* vertices used by horizontal edges */
+            unsigned int used = 0;
+            for (int i = 0; i < 6; ++i) {
+                if (e & (1 << i)) used |= EDGE_MASK[i];
+            }
+
+            unsigned int free = (~(s | used)) & ALL_BITS;
+
+            /* every subset of free vertices may become the next state */
+            unsigned int sub = free;
+            for (;;) {
+                M[s][sub] += 1;
+                if (sub == 0) break;
+                sub = (sub - 1) & free;
+            }
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

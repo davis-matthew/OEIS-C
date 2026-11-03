@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9219 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Fixed point of morphism 0 → 01, 1 → 1011 */
 /* The function builds the word iteratively and caches it across calls. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     if (!cache) { /* initialise with the start word "0" */
         cache_len = 1;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) abort();
         cache[0] = 0;
     }
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
             else              new_len += 4;
         }
 
-        seq_t *tmp = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_len);
         if (!tmp) abort();
 
         size_t pos = 0;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cache);
+        mem_free(cache);
         cache = tmp;
         cache_len = new_len;
     }

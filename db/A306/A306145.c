@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 37, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,9 +38,9 @@ seq_t a(idx_t n)
         while (new_cap <= n)
             new_cap <<= 1;                 /* double until enough */
 
-        even_arr = (seq_t *)realloc(even_arr, (size_t)new_cap * sizeof(seq_t));
-        odd_arr  = (seq_t *)realloc(odd_arr,  (size_t)new_cap * sizeof(seq_t));
-        pref_arr = (seq_t *)realloc(pref_arr, (size_t)new_cap * sizeof(seq_t));
+        even_arr = mem_resize(seq_t, even_arr, (size_t)new_cap);
+        odd_arr  = mem_resize(seq_t, odd_arr, (size_t)new_cap);
+        pref_arr = mem_resize(seq_t, pref_arr, (size_t)new_cap);
 
         for (idx_t i = allocated; i < new_cap; ++i)
         {

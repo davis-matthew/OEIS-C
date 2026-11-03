@@ -6,14 +6,16 @@
  * Keywords:  nonn
  * Formula:   a(0) = 0 a(n) = (binom(2n+3, n) - (3|n ? binom(2n/3+1, n/3) :
  *            0)) / (2n+3)
- * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 25, u128 n <= 25,
+ * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -25,13 +27,13 @@ seq_t a(idx_t n)
     idx_t den = 2 * n + 3;
 
     /* main term binom(2n+3, n) */
-    seq_t num = binom(den, n);
+    seq_t num = binomial(den, n);
 
     /* correction when 3 divides n */
     if (n % 3 == 0) {
         idx_t n3 = n / 3;                 /* n/3 */
         idx_t den3 = 2 * n3 + 1;          /* (2*n/3)+1 */
-        num = num - binom(den3, n3);      /* subtract binom(2n/3+1, n/3) */
+        num = num - binomial(den3, n3);      /* subtract binom(2n/3+1, n/3) */
     }
 
     /* final division; the division is exact */

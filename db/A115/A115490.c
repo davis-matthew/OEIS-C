@@ -7,16 +7,19 @@
  * Formula:   a(n) = (16^n - 4^n)/4
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 35 terms through n = 674 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
-    seq_t pow16 = seq_pow((seq_t)16, n);
-    seq_t pow4  = seq_pow((seq_t)4,  n);
+    seq_t pow16 = ipow_idx((seq_t)16, n);
+    seq_t pow4  = ipow_idx((seq_t)4,  n);
     return (pow16 - pow4) / ((seq_t)4);
 }

@@ -9,22 +9,24 @@
  *            + 9·a₉² = n
  * Range:     u8 n <= 14, u16 n <= 68, u32 n <= 1598, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9559 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Two work arrays of length n+1.  They are allocated once and swapped. */
     idx_t size = n + (idx_t)1;
 
-    seq_t *dp   = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, size);
     if (!dp) return (seq_t)0;
-    seq_t *next = (seq_t *)calloc(size, sizeof(seq_t));
-    if (!next) { free(dp); return (seq_t)0; }
+    seq_t *next = mem_new(seq_t, size);
+    if (!next) { mem_free(dp); return (seq_t)0; }
 
     dp[0] = (seq_t)1;          /* empty assignment yields sum 0 */
 
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

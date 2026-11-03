@@ -9,7 +9,8 @@
  *            even: a(n) = a(n-1) * a(n-2);
  * Range:     i8 n <= 11, i16 n <= 13, i32 n <= 15, i64 n <= 17, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    in a static array that grows as needed.  Works for any
    seq_t and idx_t supplied by the build. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Ensure at least two entries exist (a(1) and a(2)). */
     if (cache_len < 2) {
         idx_t need = 2;
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         if (cache_len == 0) cache[0] = (seq_t)3;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache if we need more terms.  */
     if (cache_len < n) {
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
 

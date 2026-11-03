@@ -10,16 +10,67 @@
  *            four previous elements modulo 2. No simple closed form is used
  * Range:     u8 n <= 12, u16 n <= 30, u32 n <= 66, u64 n <= 143,
  *            u128 n <= 210, big any n
- * Helpers:   matrix_mul, matrix_power, vector_mul_matrix
+ * Validated: standard, pass, 57 terms through n = 205 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/matrix_mul.h"
-#include "../utils/matrix_power.h"
-#include "../utils/vector_mul_matrix.h"
+
+static void matrix_mul(const seq_t A[16][16], const seq_t B[16][16], seq_t R[16][16]) {
+    for (idx_t i = 0; i < 16; ++i) {
+        for (idx_t j = 0; j < 16; ++j) {
+            seq_t sum = 0;
+            for (idx_t k = 0; k < 16; ++k) {
+                sum += A[i][k] * B[k][j];
+            }
+            R[i][j] = sum;
+        }
+    }
+}
+
+static void matrix_power(seq_t base[16][16], idx_t exp, seq_t result[16][16]) {
+    /* identity matrix */
+    for (idx_t i = 0; i < 16; ++i)
+        for (idx_t j = 0; j < 16; ++j)
+            result[i][j] = (i == j) ? 1 : 0;
+
+    seq_t temp[16][16];
+    seq_t buf[16][16];
+
+    /* copy base to buf for manipulation */
+    for (idx_t i = 0; i < 16; ++i)
+        for (idx_t j = 0; j < 16; ++j)
+            buf[i][j] = base[i][j];
+
+    while (exp) {
+        if (exp & 1) {
+            matrix_mul(result, buf, temp);
+            /* copy temp back to result */
+            for (idx_t i = 0; i < 16; ++i)
+                for (idx_t j = 0; j < 16; ++j)
+                    result[i][j] = temp[i][j];
+        }
+        exp >>= 1;
+        if (!exp) break;
+        matrix_mul(buf, buf, temp);
+        for (idx_t i = 0; i < 16; ++i)
+            for (idx_t j = 0; j < 16; ++j)
+                buf[i][j] = temp[i][j];
+    }
+}
+
+static void vector_mul_matrix(const seq_t v[16], const seq_t M[16][16], seq_t res[16]) {
+    for (idx_t j = 0; j < 16; ++j) {
+        seq_t sum = 0;
+        for (idx_t i = 0; i < 16; ++i) {
+            sum += v[i] * M[i][j];
+        }
+        res[j] = sum;
+    }
+}
 
 static seq_t M[16][16];
 static seq_t init_vec[16];

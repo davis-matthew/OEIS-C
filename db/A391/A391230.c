@@ -11,12 +11,14 @@
  *            the product of the smallest and largest parts is even)
  * Range:     u8 n <= 18, u16 n <= 46, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;            /* dp[sum*4 + state]  */
 static idx_t max_comp = 0;          /* maximum n for which dp is built */
@@ -30,7 +32,7 @@ static idx_t max_comp = 0;          /* maximum n for which dp is built */
 static void compute_dp(idx_t limit)
 {
     size_t entries = (size_t)(limit + 1) * 4;
-    seq_t *new_dp = (seq_t *)malloc(entries * sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, entries);
     if (!new_dp) return;  /* allocation failure – caller will handle */
 
     /* zero initialisation (safe for integer and arithmetic types) */
@@ -58,7 +60,7 @@ static void compute_dp(idx_t limit)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     dp = new_dp;
     max_comp = limit;
 }

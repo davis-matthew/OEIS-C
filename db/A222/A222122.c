@@ -10,12 +10,14 @@
  *            a(1)=2, a(2)=3, a(3)=4, a(4)=7, a(5)=11, a(6)=17
  * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 48, u64 n <= 98, u128 n <= 196,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* allocate minimal cache and store the six initial values on the first call */
     if (!cache) {
-        cache = (seq_t *)calloc(7, sizeof(seq_t));   /* indices 0..6, index 0 unused */
+        cache = mem_new(seq_t, 7);   /* indices 0..6, index 0 unused */
         max_cached = 6;
         cache[1] = (seq_t)2;
         cache[2] = (seq_t)3;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* if the requested n is beyond what we have computed, extend the cache */
     if ((idx_t)max_cached < n) {
         size_t new_cap = (size_t)n + 1;          /* one past the largest index used */
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         for (idx_t i = (idx_t)max_cached + 1; i <= n; ++i) {
             if (i <= 6)  /* already initialized */
                 continue;

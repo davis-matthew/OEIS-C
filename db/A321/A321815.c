@@ -8,6 +8,7 @@
  *            p^e dividing n of (p^(11*(e+1)) - 1) / (p^11 - 1)
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 8, u64 n <= 56, u128 n <= 3184,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 9174 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

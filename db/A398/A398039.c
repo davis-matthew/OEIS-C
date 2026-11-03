@@ -10,12 +10,14 @@
  *            (seq_t)3. The array is grown with realloc, cast to (seq_t*)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static size_t  a_cache_cap = 0;   /* current allocated capacity */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 16;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();          /* allocation failure */
         a_cache = tmp;
         a_cache_cap = new_cap;

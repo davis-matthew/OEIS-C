@@ -7,6 +7,7 @@
  * Formula:   a(n) = 81*n^3*(n-1)^5*(n+1)^2*(n^2-6*n+1)*(n^3-79*n^2+163*n-81)
  * Range:     i8 n <= 1, i16 n <= 1, i32 n <= 2, i64 n <= 13, i128 n <= 270,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 952 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

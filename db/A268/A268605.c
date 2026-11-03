@@ -10,7 +10,8 @@
  *            first (n‑1) primes. For n = 1 the sum is 0, hence a(1) = 0
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 9, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   pow10, sieve_first_n_primes
+ * Validated: standard, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,20 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
-#include "../utils/pow10.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +44,7 @@ seq_t a(idx_t n)
 
     /* initialise cumulative sums buffer */
     if (cum_sums == NULL) {
-        cum_sums = (seq_t *)malloc(sizeof(seq_t));
+        cum_sums = mem_new(seq_t, 1);
         if (cum_sums == NULL) return (seq_t)0;  /* out of memory – ignore */
         cum_sums[0] = (seq_t)0;
         cum_sums_size = 1;
@@ -46,12 +59,12 @@ seq_t a(idx_t n)
         sieve_first_n_primes(needed, &new_primes, &new_count);
         /* Replace old prime table */
         if (primes) free(primes);
-        if (cum_sums) free(cum_sums);
+        if (cum_sums) mem_free(cum_sums);
         primes      = new_primes;
         prime_count = new_count;
         /* Build new cumulative sum array */
         cum_sums_size = prime_count + 1;
-        cum_sums = (seq_t *)malloc(sizeof(seq_t) * cum_sums_size);
+        cum_sums = mem_new(seq_t, cum_sums_size);
         if (cum_sums == NULL) return (seq_t)0;  /* out of memory – ignore */
         cum_sums[0] = (seq_t)0;
         for (size_t i = 0; i < prime_count; ++i)

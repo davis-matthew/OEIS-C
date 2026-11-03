@@ -9,13 +9,24 @@
  *            factor, defined in "../utils/lpf.h")
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 63, u64 n <= 127,
  *            u128 n <= 255, big any n
- * Helpers:   lpf
+ * Validated: standard, pass, 65 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>                /* malloc, realloc, abort */
-#include "../utils/lpf.h"          /* idx_t lpf(idx_t) */
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 
 static seq_t *cache   = NULL;      /* memoization cache, 0…n */
 static idx_t  cache_sz = 0;        /* number of usable entries in cache */
@@ -26,7 +37,7 @@ seq_t a(idx_t n)
     /* initialisation: store a(0)=1 and a(1)=1 */
     if (cache_sz == 0) {
         cache_sz = 2;                       /* indices 0 and 1 */
-        cache = (seq_t *)malloc(cache_sz * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_sz);
         if (!cache) abort();                /* out of memory */
         cache[0] = 1;                       /* a(0) */
         cache[1] = 1;                       /* a(1) */
@@ -35,7 +46,7 @@ seq_t a(idx_t n)
     /* extend cache if needed */
     if (n >= cache_sz) {
         size_t newsize = (size_t)(n + 1);    /* inclusive up to n */
-        seq_t *newcache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *newcache = mem_resize(seq_t, cache, newsize);
         if (!newcache) abort();              /* out of memory */
         cache = newcache;
         idx_t oldsize = cache_sz;

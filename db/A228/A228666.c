@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 201 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /*  DP solution for A228666:  number of 7×n binary arrays
     with top‑left value 1 and no horizontal, diagonal or anti‑diagonal
     adjacency of 1‑cells.  We keep a table of all 2⁷=128 column states

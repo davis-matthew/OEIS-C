@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   triple_run_ok
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -40,7 +41,38 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/triple_run_ok.h"
+#include "../utils/mem.h"
+
+static bool triple_run_ok(seq_t num)
+{
+    /* Special case for 0 – its single run is trivially correct. */
+    if (num == (seq_t)0)
+        return true;
+
+    /* Extract ternary digits (least significant first). */
+    uint8_t digits[256];
+    size_t len = 0;
+    seq_t temp = num;
+    while (temp != (seq_t)0) {
+        digits[len++] = (uint8_t)(temp % (seq_t)3);
+        temp /= (seq_t)3;
+    }
+
+    /* Walk from most significant to least significant digit. */
+    size_t i = len - 1;
+    uint8_t prev = digits[i];
+    while (i > 0) {
+        --i;
+        uint8_t curr = digits[i];
+        if (curr != prev) {
+            /* A change must advance by +1 modulo 3. */
+            if (curr != (uint8_t)((prev + 1) % 3))
+                return false;
+        }
+        prev = curr;
+    }
+    return true;
+}
 
 /* ---------- Helper: test if a number satisfies the run rule ---------- */
 
@@ -58,7 +90,7 @@ static void ensure_cache_capacity(size_t needed)
     size_t new_cap = (cache_cap) ? (cache_cap << 1) : 8;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     /* In the unlikely event of realloc failure, we simply keep the old
        buffer; the build will abort in that case. */
     cache = tmp;

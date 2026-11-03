@@ -11,13 +11,15 @@
  *            The function memoises computed terms and works for any n ≥ 1
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 12, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* first 9 terms of the sequence, used for initialization */
 static const seq_t base_terms[9] = {
@@ -41,7 +43,7 @@ static idx_t  computed_up_to = 0; /* largest n whose a(n) is stored */
 static void init_cache(idx_t n)
 {
     idx_t size = n > 9 ? n : 9;                      /* at least 9 */
-    cache = (seq_t *)malloc(size * sizeof(seq_t));
+    cache = mem_new(seq_t, size);
     if (!cache) abort();
     for (idx_t i = 0; i < 9; ++i) cache[i] = base_terms[i];
     cache_size   = size;
@@ -54,7 +56,7 @@ static void grow_cache(idx_t n)
     if (cache_size >= n) return;
     idx_t new_size = cache_size ? cache_size : 9;
     while (new_size < n) new_size <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) abort();
     for (idx_t i = cache_size; i < 9 && i < new_size; ++i) tmp[i] = base_terms[i];
     cache      = tmp;

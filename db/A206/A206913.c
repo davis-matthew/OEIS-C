@@ -8,13 +8,14 @@
  * Formula:   a(n) = greatest binary palindrome ≤ n (OEIS A206913)
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_bin
+ * Validated: standard, pass, 85 terms through n = 9953 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/bitlen_bin.h"
+#include "../utils/bit_length.h"
 
 /* reverse the lowest 'width' bits of x */
 static inline seq_t rev_bits(seq_t x, unsigned width)
@@ -52,7 +53,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     seq_t N = (seq_t)n;
-    unsigned L = bitlen_bin(N);          /* total number of bits in n */
+    unsigned L = bit_length(N);          /* total number of bits in n */
     unsigned half = (L + 1) / 2;          /* number of bits in the first half */
     seq_t prefix = N >> (L - half);      /* top 'half' bits of n */
 

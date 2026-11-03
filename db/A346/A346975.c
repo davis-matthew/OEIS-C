@@ -8,13 +8,15 @@
  *            k * a(k) (S(n,3) is the Stirling number of the second kind)
  * Range:     i8 n <= 7, i16 n <= 9, i32 n <= 14, i64 n <= 22, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;   /* a(n)   */
 static seq_t *B = NULL;   /* n*a(n) */
@@ -45,10 +47,10 @@ seq_t a(idx_t n)
         idx_t target = n;
         size_t new_cap = (size_t)target + 1;
 
-        A   = (seq_t *)realloc(A,   new_cap * sizeof(seq_t));
-        B   = (seq_t *)realloc(B,   new_cap * sizeof(seq_t));
-        S2  = (seq_t *)realloc(S2,  new_cap * sizeof(seq_t));
-        S3  = (seq_t *)realloc(S3,  new_cap * sizeof(seq_t));
+        A   = mem_resize(seq_t, A, new_cap);
+        B   = mem_resize(seq_t, B, new_cap);
+        S2  = mem_resize(seq_t, S2, new_cap);
+        S3  = mem_resize(seq_t, S3, new_cap);
 
         /* initialise base cases on first call */
         if (cur_max == 0) {

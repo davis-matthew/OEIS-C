@@ -10,16 +10,17 @@
  *            point
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a000037_isqrt
+ * Validated: standard, pass, 103 terms through n = 905 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a000037_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
-    unsigned __int128 r = (unsigned __int128)a000037_isqrt((uint64_t)n);
+    unsigned __int128 r = (unsigned __int128)isqrt_u64((uint64_t)n);
     unsigned __int128 rem = (unsigned __int128)n - r * r;
     idx_t pos;
     for (pos = 1; pos < 36; pos++) {

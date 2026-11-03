@@ -9,7 +9,8 @@
  *            exponentially odd number)
  * Range:     u8 n <= 85, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9814 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* local power function for seq_t */
 static inline seq_t pow_seq_local(seq_t base, int exp) {
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     if (!cache) {
         cache_cap = 128;
         cache_len = 0;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Generate terms until we have at least n terms cached */
@@ -87,7 +89,7 @@ seq_t a(idx_t n) {
         /* Store the computed Dedekind psi */
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 128;
-            seq_t *tmp_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp_ptr = mem_resize(seq_t, cache, new_cap);
             if (!tmp_ptr) exit(1);       /* allocation failed */
             cache = tmp_ptr;
             cache_cap = new_cap;

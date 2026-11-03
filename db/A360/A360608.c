@@ -11,6 +11,7 @@
  *            -(2x^2+x-1)(x^2+2x-1)/(x^6+5x^5-3x^4-10x^3+3x^2+3x-1)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 31, u128 n <= 31,
  *            big any n
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

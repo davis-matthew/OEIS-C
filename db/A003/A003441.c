@@ -11,13 +11,14 @@
  *            quotient and remainder so no intermediate exceeds about C(n)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 36, u128 n <= 69,
  *            big any n
- * Helpers:   a3441_g
+ * Validated: standard, pass, 42 terms through n = 193 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a3441_g.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     int has = ((n - 1) % 3 == 0);
@@ -29,7 +30,7 @@ seq_t a(idx_t n) {
         /* C(i+1) = C(i) * 2(2i+1) / (i+2), reduced to avoid overflow */
         uint64_t m = (uint64_t)i + 2;
         uint64_t r = (uint64_t)(c % m);
-        uint64_t g = a3441_g(m, r);
+        uint64_t g = gcd_u64(m, r);
         uint64_t mul = (2 * (2 * (uint64_t)i + 1)) / (m / g);
         c = (c / g) * mul;
         if (has && i + 1 == k) ck = c;

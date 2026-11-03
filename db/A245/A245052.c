@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 1/(8*n+1) * Sum_{i=0..n} C(8*n+i,i) * C(8*n+i+1,n-i)
- * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 24,
+ * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 24,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 34 terms through n = 300 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* This implementation uses 128‑bit arithmetic for 64‑bit seq_t types to avoid
    intermediate overflow, otherwise it relies on seq_t operations directly. */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Helper to determine if seq_t fits in 8 bytes (usual 64‑bit natural type). */
 #if defined(__GNUC__) || defined(__clang__)
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
         idx_t i;
         for (i = 0; i <= n; ++i)
         {
-            seq_t c1 = binom(8 * n + i, i);
-            seq_t c2 = binom(8 * n + i + 1, n - i);
+            seq_t c1 = binomial(8 * n + i, i);
+            seq_t c2 = binomial(8 * n + i + 1, n - i);
 
             unsigned __int128 prod = (unsigned __int128)c1 * (unsigned __int128)c2;
             sum += prod;
@@ -54,8 +56,8 @@ seq_t a(idx_t n)
     idx_t i;
     for (i = 0; i <= n; ++i)
     {
-        seq_t c1 = binom(8 * n + i, i);
-        seq_t c2 = binom(8 * n + i + 1, n - i);
+        seq_t c1 = binomial(8 * n + i, i);
+        seq_t c2 = binomial(8 * n + i + 1, n - i);
         sum += c1 * c2;
     }
     return sum / denom;

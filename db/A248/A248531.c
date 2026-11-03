@@ -9,7 +9,8 @@
  *            rest is tested by checking divisibility by each prime < 41
  * Range:     u8 n <= 4, u16 n <= 633, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9518 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Dynamic array growth helper. */
 static void grow_array(seq_t **arr, size_t *cap, size_t need)
@@ -25,7 +27,7 @@ static void grow_array(seq_t **arr, size_t *cap, size_t need)
     if (need <= *cap) return;
     size_t new_cap = (*cap > 0) ? (*cap << 1) : 8;
     if (new_cap < need) new_cap = need;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     if (!*arr) abort();
     *cap = new_cap;
 }
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Initialise static data on first call. */
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
     }
 

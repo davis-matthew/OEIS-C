@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 43, u32 n <= 139, u64 n <= 478,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* This function returns the terms of OEIS sequence A058615.
    The sequence is defined by
@@ -54,9 +56,9 @@ seq_t a(idx_t n)
 
     if (needed > h_size) {
         /* Reallocate arrays to new size.  */
-        free(h);
+        mem_free(h);
         free(exps);
-        h = (seq_t*)malloc(needed * sizeof(seq_t));
+        h = mem_new(seq_t, needed);
         exps = (int*)malloc(needed * sizeof(int));
         if (!h || !exps) return (seq_t)0;   /* allocation error */
 

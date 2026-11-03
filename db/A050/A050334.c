@@ -10,7 +10,8 @@
  *            where omega(d) counts prime factors of d with multiplicity
  * Range:     u8 n <= 719, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 9504 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* ---------- global static state ---------- */
 static seq_t *a_cache = NULL;      /* memoized a(n) values, 1‑based           */
@@ -38,12 +48,22 @@ static void *xmalloc(size_t sz)
     return p;
 }
 
+#ifdef __cplusplus
+template <class T>
+static T *xrealloc(T *p, size_t sz)
+{
+    T *q = mem_resize(T, p, (sz) / sizeof(T));
+    if (!q) abort();
+    return q;
+}
+#else
 static void *xrealloc(void *p, size_t sz)
 {
     void *q = realloc(p, sz);
     if (!q) abort();
     return q;
 }
+#endif
 
 /* ---------- sieve up to N, compute spf and oddOmega ---------- */
 static void compute_sieve(idx_t N)

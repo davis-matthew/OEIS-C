@@ -10,12 +10,14 @@
  *            number recurrence for partitions and then applies the above sum
  * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 102, u64 n <= 352,
  *            u128 n <= 500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 482 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *partitions = NULL;
 static idx_t partitions_cap = 0;
@@ -25,7 +27,7 @@ static void compute_partitions(idx_t max_n)
     if (partitions_cap > max_n)
         return;
 
-    seq_t *tmp = (seq_t *)realloc(partitions, (max_n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, partitions, (max_n + 1));
     if (!tmp && (max_n + 1) > 0)
         abort();
     partitions = tmp;

@@ -9,7 +9,8 @@
  *            composite, t = t / lpf(t), where lpf is the least prime factor
  * Range:     u8 n <= 12, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   build_primes_upto, floor_sqrt, isPrimeGeneric
+ * Validated: standard, pass, 63 terms through n = 81 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_i32, is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,51 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/floor_sqrt.h"
+#include <stddef.h>
+#include <limits.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Helper: find least prime factor of a composite number using a growing prime list */
 static seq_t _lpf(seq_t x) {
@@ -56,7 +99,7 @@ seq_t a(idx_t n) {
 
     if (cache_size == 0) {
         /* allocate initial space for first two terms */
-        cache = (seq_t*)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         cache[0] = (seq_t)18;
         cache[1] = (seq_t)5;
         cache_size = 2;
@@ -64,7 +107,7 @@ seq_t a(idx_t n) {
 
     if ((idx_t)n > cache_size) {
         size_t new_size = (size_t)n;
-        cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
 
         for (size_t i = cache_size; i < new_size; ++i) {
             seq_t tmp = cache[i - 1] + cache[i - 2];

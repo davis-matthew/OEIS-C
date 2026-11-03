@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A347130(n) / A003557(n)
- * Range:     u8 n <= 35, u16 n <= 3569, u32 n <= 9277, u64 n <= 9277,
- *            u128 n <= 9277, big any n
+ * Range:     u8 n <= 35, u16 n <= 3569, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 101 terms through n = 9277 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
 /* A003557(n) = n / rad(n), where rad(n) is the product of distinct prime factors of n. */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static void rec_div(size_t idx,

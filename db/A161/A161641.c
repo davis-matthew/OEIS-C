@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 172, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 7385 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* helper: parity of popcount for a 64‑bit integer */
 static inline unsigned parity_popcount(idx_t x)
@@ -54,7 +56,7 @@ static void grow_cache(size_t new_cap)
     if (new_cap <= cache_cap)
         return;
     size_t new_size = new_cap;
-    seq_t *newp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_size);
     if (!newp) {
         /* out of memory – abort the program */
         abort();

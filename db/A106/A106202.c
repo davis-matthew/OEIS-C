@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 19, i32 n <= 37, i64 n <= 41, i128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    with a(0)=a(1)=a(2)=0 and a(3)=2.
    This follows from the generating function 2*x^3/(1-2*x+x^2+4*x^4). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         return tab[n];
 
     idx_t need = n + 1;
-    seq_t *tmp = (seq_t *)realloc(tab, need * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, tab, need);
     if (!tmp)
         return 0;   /* allocation failed; return 0 as safe fallback */
 

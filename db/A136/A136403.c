@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort */
 static int cmp_seq_t(const void *a, const void *b)
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
 
         /* ---- preallocate storage for values ---- */
         vals_cap = 250000;                     /* ample capacity */
-        vals = (seq_t *)malloc(vals_cap * sizeof(seq_t));
+        vals = mem_new(seq_t, vals_cap);
         if (!vals) return (seq_t)0;
 
         /* ---- generate sequence values ---- */
@@ -94,15 +96,15 @@ seq_t a(idx_t n)
 
             if (vals_len == vals_cap) {
                 vals_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(vals, vals_cap * sizeof(seq_t));
-                if (!tmp) { free(spf); free(vals); return (seq_t)0; }
+                seq_t *tmp = mem_resize(seq_t, vals, vals_cap);
+                if (!tmp) { free(spf); mem_free(vals); return (seq_t)0; }
                 vals = tmp;
             }
             vals[vals_len++] = val;
         }
 
         /* ---- sort to get increasing order ---- */
-        qsort(vals, vals_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(vals, vals_len, sizeof(seq_t), cmp_seq_t);
 
         initialized = true;
     }

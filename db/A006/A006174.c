@@ -9,17 +9,48 @@
  *            (3n)!/(n!)^3
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 16,
  *            big any n
- * Helpers:   b_pow, grow_zero, seq_is_big, u128_to_seq
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/grow_zero.h"
-#include "../utils/seq_is_big.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/b_pow.h"
+#include <string.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 /* ---------- fixed-width builds: exact 256-bit internal arithmetic ---------- */
 typedef struct { uint64_t v[4]; } u256;
@@ -137,8 +168,8 @@ static void b_extend(idx_t n)
         for (d = 1; d * d <= m; d++) {
             if (m % d == 0) {
                 idx_t e = m / d;
-                if (d < m) s -= (seq_t)d * b_pow(BC[d], e);
-                if (e != d && e < m) s -= (seq_t)e * b_pow(BC[e], d);
+                if (d < m) s -= (seq_t)d * ipow_idx(BC[d], e);
+                if (e != d && e < m) s -= (seq_t)e * ipow_idx(BC[e], d);
             }
         }
         BC[m] = s / (seq_t)m;

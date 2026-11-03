@@ -8,13 +8,15 @@
  *            a(2) = 5
  * Range:     i8 n <= 13, i16 n <= 29, i32 n <= 47, i64 n <= 47, i128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of computed terms */
 static size_t cache_len = 0;         /* number of initialized terms */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on the first call. */
     if (cache == NULL) {
         cache_alloc = 3;                    /* we know the first 3 values */
-        cache = (seq_t *)malloc(cache_alloc * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_alloc);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)3;
         cache[2] = (seq_t)5;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         size_t new_alloc = cache_alloc > 0 ? cache_alloc : 1;
         while (new_alloc <= (size_t)n)
             new_alloc *= 2;                 /* exponential growth */
-        cache = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_alloc);
         cache_alloc = new_alloc;
     }
 

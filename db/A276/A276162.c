@@ -11,6 +11,7 @@
  *            upward: the first element of each diagonal is (r = s-1, k = 1)
  * Range:     u8 n <= 99, u16 n <= 270, u32 n <= 729, u64 n <= 2004,
  *            u128 n <= 6429, big any n
+ * Validated: standard, pass, 98 terms through n = 9165 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

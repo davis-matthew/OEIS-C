@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Return a bit mask of the distinct decimal digits of x.  Bits 0-9
    are used: bit i is set if digit i occurs in x.  For x==0 the
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /*  Grow the cache on first use.  */
     if (cache == NULL) {
         cap   = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
     }
 
     /*  Generate terms until we have at least n of them.  */
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
             /*  Grow the cache if needed.  */
             if (count == cap) {
                 cap *= 2;
-                cache = (seq_t *)realloc(cache, sizeof(seq_t) * cap);
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[count++] = m3;          /* store the cube */
         }

@@ -10,7 +10,8 @@
  *            0
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 26, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 481 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static tables holding Pell numbers and their prefix sums */
 static seq_t *P   = NULL;  /* P[0..n]                     */
@@ -36,19 +38,19 @@ static void ensure_capacity(idx_t n)
     while (newcap <= (size_t)n)
         newcap <<= 1;                  /* double until >= n+1 */
 
-    seq_t *newP  = (seq_t *)malloc(newcap * sizeof(seq_t));
-    seq_t *newS1 = (seq_t *)malloc(newcap * sizeof(seq_t));
-    seq_t *newS2 = (seq_t *)malloc(newcap * sizeof(seq_t));
+    seq_t *newP  = mem_new(seq_t, newcap);
+    seq_t *newS1 = mem_new(seq_t, newcap);
+    seq_t *newS2 = mem_new(seq_t, newcap);
     if (!newP || !newS1 || !newS2) {
         /* allocation failed – abort, as the sequence cannot be computed */
         exit(EXIT_FAILURE);
     }
 
-    if (P)  memcpy(newP,  P,  (idx_max + 1) * sizeof(seq_t));
-    if (S1) memcpy(newS1, S1, (idx_max + 1) * sizeof(seq_t));
-    if (S2) memcpy(newS2, S2, (idx_max + 1) * sizeof(seq_t));
+    if (P)  mem_copy(newP, P, (idx_max + 1) * sizeof(seq_t));
+    if (S1) mem_copy(newS1, S1, (idx_max + 1) * sizeof(seq_t));
+    if (S2) mem_copy(newS2, S2, (idx_max + 1) * sizeof(seq_t));
 
-    free(P);  free(S1);  free(S2);
+    mem_free(P);  mem_free(S1);  mem_free(S2);
     P = newP; S1 = newS1; S2 = newS2;
     cap = newcap;
 }

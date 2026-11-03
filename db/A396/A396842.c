@@ -8,15 +8,17 @@
  * Formula:   a(n) = Π_{k=1..n} (n+k)^(n+k) / k^k
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
 
 /* a(n) = H(2n) / H(n)^2  (H(n) = Π_{k=1}^n k^k) */
 seq_t a(idx_t n)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
                 break;
             power *= p;
         }
-        seq_t pow_val = big_pow((seq_t)p, (seq_t)e);
+        seq_t pow_val = ipow((seq_t)p, (seq_t)e);
         result = result * pow_val;
     }
     free(primes);

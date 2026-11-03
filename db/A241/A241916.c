@@ -12,7 +12,8 @@
  *            p_k^((e_1)+1)
  * Range:     u8 n <= 27, u16 n <= 135, u32 n <= 1311, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   build_primes_upto, factor_u64, seq_pow
+ * Validated: standard, pass, 80 terms through n = 7525 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 
     /* Exponent for prime 2 */
     if (e_k > 1)
-        result *= seq_pow((seq_t)2, (idx_t)(e_k - 1));
+        result *= ipow_idx((seq_t)2, (idx_t)(e_k - 1));
 
     /* Exponents for intermediate primes */
     for (size_t j = 1; j + 1 < cnt_all; ++j)
@@ -88,13 +90,13 @@ seq_t a(idx_t n)
         }
 
         if (exp_src > 0)
-            result *= seq_pow((seq_t)target, (idx_t)exp_src);
+            result *= ipow_idx((seq_t)target, (idx_t)exp_src);
     }
 
     /* Exponent for largest prime (p_k) */
     seq_t exp_p_k = e_1 + 1;
     if (exp_p_k > 0)
-        result *= seq_pow((seq_t)p_k, (idx_t)exp_p_k);
+        result *= ipow_idx((seq_t)p_k, (idx_t)exp_p_k);
 
     free(primes_all);
     return result;

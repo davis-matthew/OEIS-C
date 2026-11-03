@@ -7,12 +7,14 @@
  * Formula:   a(n) = 5*a(n-1) - 3*a(n-2), a(0)=1, a(1)=6
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* array of computed terms */
 static size_t seq_cap = 0;         /* current allocated capacity */
@@ -25,7 +27,7 @@ static void ensure_terms(idx_t n)
     if (seq == NULL) {
         /* initial capacity at least 2 */
         seq_cap = (n < 2 ? 2 : n + 1);
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) abort();
         seq[0] = (seq_t)1u;
         seq[1] = (seq_t)6u;
@@ -35,7 +37,7 @@ static void ensure_terms(idx_t n)
     /* grow the array if needed */
     while (n >= seq_cap) {
         size_t new_cap = seq_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) abort();
         seq = tmp;
         seq_cap = new_cap;

@@ -11,12 +11,14 @@
  *            the largest requested n efficiently in O(n) time
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 36, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first five values on the first call */
     if (last == (size_t)-1) {
         size_t need = 5;
-        cache = (seq_t*)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
         cache[0] = 4;
         cache[1] = 16;
         cache[2] = 49;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     if (cap < (size_t)n) {
         size_t new_cap = cap ? cap * 2 : (size_t)n;
         if (new_cap < (size_t)n) new_cap = (size_t)n;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap   = new_cap;
     }
 

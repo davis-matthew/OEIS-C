@@ -7,6 +7,7 @@
  * Formula:   a(n) = 7*floor((n-1)/3) + {1,4,6}[ (n-1) mod 3 ]
  * Range:     i8 n <= 55, i16 n <= 61, i32 n <= 61, i64 n <= 61, i128 n <= 61,
  *            big any n
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

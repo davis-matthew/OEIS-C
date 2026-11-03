@@ -7,6 +7,7 @@
  * Formula:   a(n) = decimal digits of 2518256647200000/1397, offset 13
  * Range:     u8 none, u16 none, u32 none, u64 n <= 104, u128 n <= 104,
  *            big any n
+ * Validated: partial, pass, 92 terms through n = 104 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

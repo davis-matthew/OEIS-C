@@ -7,12 +7,14 @@
  * Formula:   a(n) = 29 * 28^(n-1) for n > 0; a(0) = 1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 650 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function returns the n‑th term of OEIS sequence A170748.
    It uses a static cache so that repeated calls are fast, even if
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* First call: allocate at least size 2 (for indices 0 and 1).   */
         size_t init = required < 2 ? 2 : required;
-        cache = (seq_t *)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (cache == NULL)
             return (seq_t)0;          /* failure path – should never happen   */
 
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     }
     else if (required > cache_size) {
         /* Grow the cache to the needed size. */
-        seq_t *tmp = (seq_t *)realloc(cache, required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, required);
         if (tmp == NULL)
             return (seq_t)0;          /* failure path – should never happen */
         cache = tmp;

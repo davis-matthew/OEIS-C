@@ -10,12 +10,14 @@
  *            for n > 7. * Offset: 1
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* 1‑based array of cached values */
 static idx_t  cache_cap   = 0;    /* allocated capacity (number of slots) */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Allocate or grow cache to hold indices up to n (1‑based). */
     if (n + 1 > cache_cap) {
         idx_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_cache) {
             /* Allocation failed – best effort return 0. */
             return 0;

@@ -8,14 +8,17 @@
  *            d^d
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 379 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Cache for computed values */
 static seq_t *a_cache = NULL;      /* a_cache[i] holds a(i) */
@@ -58,7 +61,7 @@ seq_t a(idx_t n)
         /* Resize cache array to accommodate 0..n */
         size_t old_cap = (size_t)(a_cached + 1);
         size_t new_cap = (size_t)(n + 1);
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         for (size_t i = old_cap; i <= n; ++i) a_cache[i] = 0;
         a_cache[0] = 0;   /* unused but keeps indexing simple */
 
@@ -103,7 +106,7 @@ seq_t a(idx_t n)
             seq_t sum_d = 0;
             for (size_t z = 0; z < div_cnt; ++z) {
                 seq_t d = (seq_t)divs[z];
-                seq_t pow_val = big_pow(d, d);
+                seq_t pow_val = ipow(d, d);
                 sum_d += pow_val;
             }
 

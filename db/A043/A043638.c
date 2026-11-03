@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 670, u32 n <= 3055, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9864 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compare two seq_t values; works for built‑in integer types and for
    arbitrary‑precision types that support operator< and operator>. */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         size_t total_terms = (size_t)cumulative;
 
         /* Allocate memory for the new cache (cast needed for C++). */
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * total_terms);
+        seq_t *new_cache = mem_new(seq_t, total_terms);
         if (!new_cache) exit(EXIT_FAILURE);
 
         /* Fill the array with all two‑run numbers of up to maxlen digits. */
@@ -76,10 +78,10 @@ seq_t a(idx_t n)
         }
 
         /* Sort the temporary array. */
-        qsort(new_cache, total_terms, sizeof(seq_t), seq_compare);
+        mem_qsort(new_cache, total_terms, sizeof(seq_t), seq_compare);
 
         /* Replace the old cache. */
-        free(cache);
+        mem_free(cache);
         cache     = new_cache;
         cache_len = (idx_t)total_terms;
     }

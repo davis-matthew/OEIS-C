@@ -9,11 +9,13 @@
  *            (n+4)*(n+3)*(n+2)*(n+1)*(11*n^4+70*n^3+196*n^2+269*n+210)/5040
  * Range:     u8 none, u16 n <= 6, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

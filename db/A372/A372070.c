@@ -8,12 +8,14 @@
  *            a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>5
  * Range:     u8 n <= 6, u16 n <= 90, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9096 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* (seq_t and idx_t are provided by the build system) */
 seq_t a(idx_t n)
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
         size_t needed = (size_t)n;
         if (cache_cap < needed) {
             if (cache == NULL) {
-                cache = (seq_t *)malloc(needed * sizeof(seq_t));
+                cache = mem_new(seq_t, needed);
             } else {
-                cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, needed);
             }
             cache_cap = needed;
             if (cache == NULL) abort();   /* allocation failed */

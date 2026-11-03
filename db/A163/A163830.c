@@ -10,7 +10,8 @@
  *            factorisation)
  * Range:     u8 n <= 212, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes, ensure_capacity, factor_u64, is_prime
+ * Validated: standard, pass, 87 terms through n = 972 (2026-11-02)
+ * Helpers:   build_primes, factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,15 +24,22 @@
 
 /* --------------------------------------------------------------------- */
 /*  Utilities available in the build environment                         */
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t n)         */
-#include "../utils/factor_u64.h"        /* void factor_u64(uint64_t n,
-                                       uint64_t *pr, uint64_t *ex,
-                                       size_t *cnt)                */
-#include "../utils/build_primes.h"     /* void build_primes(idx_t limit,
-                                       idx_t **out, size_t *cnt)   */
-#include "../utils/ensure_capacity.h"  /* void ensure_capacity(size_t needed,
-                                       size_t *cap, void **ptr,
-                                       size_t elem_size)           */
+#include <stdint.h>
+#include "../utils/build_primes.h"
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
 
 /* --------------------------------------------------------------------- */
 /*  Prime data – generated once and reused for all calls                 */

@@ -10,7 +10,8 @@
  *            or k is nonsquarefree, * evaluated at the nth prime
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* External integer types provided by the build system */
 extern idx_t _prime_limit_for_idx(idx_t n);
@@ -84,7 +86,7 @@ static void rebuild_cache_up_to(idx_t up_to_index)
 
     /* Free old data */
     free(cached_primes);
-    free(cached_f);
+    mem_free(cached_f);
     cached_primes = NULL;
     cached_f = NULL;
     cached_prime_cnt = 0;
@@ -102,7 +104,7 @@ static void rebuild_cache_up_to(idx_t up_to_index)
     cached_prime_cnt = cnt;
 
     /* Allocate array for f(p) values */
-    seq_t *f = (seq_t*)malloc(cnt * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, cnt);
     if (!f) return;  /* allocation failure */
 
     /* Compute f(p) for each prime */

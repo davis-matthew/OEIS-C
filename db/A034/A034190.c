@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   permute_bits
+ * Validated: full, pass, 33 terms through n = 32 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,17 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/permute_bits.h"
+
+/* Apply a 5‑bit permutation ``perm`` to the value ``v`` and store the
+   result in ``*u``. */
+static void permute_bits(const int perm[5], unsigned v, unsigned *u)
+{
+    unsigned res = 0;
+    for (int i = 0; i < 5; ++i)
+        if ((v >> perm[i]) & 1U)
+            res |= 1U << i;
+    *u = res;
+}
 
 /* External integer types supplied by the build system. */
 extern seq_t a(idx_t n);

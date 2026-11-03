@@ -7,7 +7,8 @@
  * Formula:   a(1) = 1; a(n) = -Sum_{d|n, d < n} φ(d) * a(d)
  * Range:     i8 n <= 51, i16 n <= 159, i32 n <= 831, i64 n <= 8703,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9372 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,18 +19,19 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- helper for allocating/ensuring cache (from utils) --- */
 static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr)
 {
     /* binary grow strategy (simple one‑off allocation) */
     if (*cache_ptr == NULL) {
-        *cache_ptr = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+        *cache_ptr = mem_new(seq_t, (size_t)(n + 1));
         if (!*cache_ptr) exit(1);
         for (idx_t i = 0; i <= n; ++i) (*cache_ptr)[i] = 0;
         *cap_ptr = n + 1;
     } else if (*cap_ptr <= n) {
-        *cache_ptr = (seq_t*)realloc(*cache_ptr, (size_t)(n + 1) * sizeof(seq_t));
+        *cache_ptr = mem_resize(seq_t, *cache_ptr, (size_t)(n + 1));
         if (!*cache_ptr) exit(1);
         for (idx_t i = *cap_ptr; i <= n; ++i) (*cache_ptr)[i] = 0;
         *cap_ptr = n + 1;

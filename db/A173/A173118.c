@@ -12,6 +12,7 @@
  *            1,1,1,1,4,1,1,5,5,1,1,6,10,6,1,1,7,20,20,7,1,1,8,27,
  * Range:     u8 n <= 7, u16 n <= 178, u32 n <= 609, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1234 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

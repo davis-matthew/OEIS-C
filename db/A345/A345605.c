@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 9820 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------------
    Static state
@@ -126,7 +128,7 @@ static void build_cache(void)
             dup_cnt++;
 
     /* Allocate cache array --------------------------------------------- */
-    cache = (seq_t *)malloc(dup_cnt * sizeof(seq_t));
+    cache = mem_new(seq_t, dup_cnt);
     cache_len = dup_cnt;
 
     /* Extract sums with count >= 2 ------------------------------------- */
@@ -137,7 +139,7 @@ static void build_cache(void)
     }
 
     /* Sort cache so that a(n) is the n‑th smallest value ---------------- */
-    qsort(cache, cache_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(cache, cache_len, sizeof(seq_t), cmp_seq_t);
 
     cache_built = true;
 }

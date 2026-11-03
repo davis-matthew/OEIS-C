@@ -10,14 +10,17 @@
  *            zeros removed)
  * Range:     u8 n <= 212, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_digits, rev
+ * Validated: standard, pass, 102 terms through n = 9827 (2026-11-01)
+ * Helpers:   get_digits, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/rev.h"          /* for rev(idx_t)          */
-#include "../utils/get_digits.h"   /* for get_digits(seq_t , ... ) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/get_digits.h"
+#include "../utils/reverse_digits_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     get_digits((seq_t)n, a_digits, &a_len);      /* a_digits[0] is least significant */
 
     /* reverse n to obtain rev(n) */
-    idx_t r_int = rev(n);
+    idx_t r_int = reverse_digits_idx(n);
     seq_t rev_val = (seq_t)r_int;
 
     /* extract decimal digits of rev(n) */

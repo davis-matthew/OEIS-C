@@ -11,14 +11,37 @@
  *            all other 1s must have at most two such neighbors
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   count_row_violations
+ * Validated: standard, pass, 31 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/count_row_violations.h"
+
+/* Compute the number of violations in row 'b' given rows 'a' (above) and
+   'c' (below). A violation is counted for each 1 in row b that has
+   strictly more than two neighboring 1's among its horizontal and
+   vertical neighbors. */
+static uint8_t count_row_violations(uint8_t a, uint8_t b, uint8_t c)
+{
+    uint8_t v = 0;
+    for (int j = 0; j < 5; ++j) {
+        if ((b >> j) & 1U) {
+            unsigned neigh = 0;
+            if (j > 0 && ((b >> (j - 1)) & 1U)) ++neigh;
+            if (j < 4 && ((b >> (j + 1)) & 1U)) ++neigh;
+            if ((a >> j) & 1U) ++neigh;
+            if ((c >> j) & 1U) ++neigh;
+            if (neigh > 2) {
+                ++v;
+                if (v > 1) break;
+            }
+        }
+    }
+    return v;
+}
 
 /* Helper structure to store admissible transitions for a given triple
    (a,b) -> c where a=(prev_prev row), b=(prev row), c=(current row). */

@@ -10,12 +10,14 @@
  *            = 43. For n < 3 the return value is undefined (0 is returned)
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 35, u64 n <= 71, u128 n <= 144,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of terms up to current maximum n */
 static idx_t cache_size = 0;     /* number of allocated elements */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
        values.  Indices 0,1,2 remain unused. */
     if (cache == NULL) {
         cache_size = 6;                              /* indices 0..5 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         /* populate the known initial values */
         cache[3] = (seq_t)13;
         cache[4] = (seq_t)23;
@@ -49,8 +51,7 @@ seq_t a(idx_t n)
     if (cache_size <= n) {
         idx_t old_size = cache_size;            /* current size before grow */
         cache_size = n + 1;                     /* new required size */
-        cache = (seq_t *)realloc(cache,
-                                 cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
         /* Compute terms from the first missing index up to n. */
         for (idx_t i = old_size; i <= n; ++i) {
             cache[i] = cache[i - 1] + cache[i - 2] + cache[i - 3];

@@ -9,13 +9,15 @@
  *            definition by examining each term of the halving chain of n and
  *            setting the k‑th bit whenever an odd prime occurs. It uses the
  *            provided is_prime function from the utils library. The...
- * Range:     u8 n <= 767, u16 n <= 9485, u32 n <= 9485, u64 n <= 9485,
- *            u128 n <= 9485, big any n
+ * Range:     u8 n <= 767, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 117 terms through n = 9485 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

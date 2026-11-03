@@ -12,7 +12,8 @@
  *            /...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   a2196_gcd
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a2196_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
 
     /* coefficients of Product_{k=1..n} (u + k^2) */
-    seq_t *c = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (size_t)(n + 1));
     idx_t j, k;
     for (j = 0; j <= n; j++) c[j] = 0;
     c[0] = 1;
@@ -56,16 +58,16 @@ seq_t a(idx_t n) {
         if (((n - j) & 1) == 0) pos += t;
         else neg += t;
     }
-    free(c);
+    mem_free(c);
     seq_t N = (pos >= neg) ? (pos - neg) : (neg - pos);
     if (N == 0) return 1;
 
     seq_t F = 1;
     for (idx_t i = 2; i <= 2 * n + 1; i++) F *= (seq_t)i;
 
-    seq_t g = a2196_gcd(N, F);
+    seq_t g = gcd(N, F);
     seq_t N1 = N / g;
     seq_t F1 = F / g;
-    seq_t g2 = a2196_gcd(N1, L);
+    seq_t g2 = gcd(N1, L);
     return F1 * (L / g2);
 }

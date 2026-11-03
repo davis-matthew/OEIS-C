@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const int child_cnt[9] = {
     0, /* 0 unused */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
 
     /* initialise with the seed word "13" on the first call */
     if (word == NULL) {
-        word = (seq_t *)malloc(2 * sizeof(seq_t));
+        word = mem_new(seq_t, 2);
         word[0] = (seq_t)1;
         word[1] = (seq_t)3;
         word_size = 2;
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
         }
 
         /* allocate and build the new word */
-        seq_t *new_word = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_word = mem_new(seq_t, new_len);
         /* copy the current word */
         for (size_t i = 0; i < word_size; ++i) {
             new_word[i] = word[i];
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
         }
 
         /* free the old word and replace it */
-        free(word);
+        mem_free(word);
         word = new_word;
         word_size = new_len;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 17, u32 n <= 30, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- integer square root (floor) ---------- */
 static inline idx_t int_isqrt(idx_t n)
@@ -94,7 +96,7 @@ static void ensure_cache_size(idx_t target)
         idx_t row = prev_len + 1;   /* next row number (1‑based) */
         idx_t len = row;           /* number of elements in this row */
 
-        seq_t *row_buf = (seq_t *)malloc(sizeof(seq_t) * len);
+        seq_t *row_buf = mem_new(seq_t, len);
         if (!row_buf) abort();
 
         /* first element = p(row) */
@@ -114,9 +116,9 @@ static void ensure_cache_size(idx_t target)
         if (needed > cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 8;
             while (new_cap < needed) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) {
-                free(row_buf);
+                mem_free(row_buf);
                 abort();
             }
             cache = tmp;
@@ -127,7 +129,7 @@ static void ensure_cache_size(idx_t target)
         }
 
         /* keep the new row as previous for next iteration */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = row_buf;
         prev_len = len;
     }
@@ -140,13 +142,13 @@ seq_t a(idx_t n)
 
     /* initialize first row if needed */
     if (cache_len == 0) {
-        prev_row = (seq_t *)malloc(sizeof(seq_t) * 1);
+        prev_row = mem_new(seq_t, 1);
         if (!prev_row) abort();
         prev_row[0] = (seq_t)2;
         prev_len = 1;
 
         cache_cap = 8;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[0] = (seq_t)2;
         cache_len = 1;

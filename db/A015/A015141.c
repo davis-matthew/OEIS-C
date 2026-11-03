@@ -12,7 +12,8 @@
  *            = ∏...
  * Range:     i8 n <= 3, i16 n <= 10, i32 n <= 22, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 /* utilities provided by the harness */
 #include <stddef.h>          /* size_t */
 #include <stdlib.h>         /* malloc, free */
-#include "../utils/gcd.h"   /* gcd(seq_t,seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Find the largest r such that r*(r+1)/2 <= n. */
 static inline idx_t find_row(idx_t n)
@@ -50,7 +53,7 @@ static seq_t q_binom(idx_t n, idx_t k)
         k = n - k;   /* use symmetry */
 
     /* Pre‑compute powers q^i for i = 0..n. */
-    seq_t *pow = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *pow = mem_new(seq_t, (n + 1));
     if (!pow)
         return 0;  /* fallback if allocation fails */
     pow[0] = 1;
@@ -76,7 +79,7 @@ static seq_t q_binom(idx_t n, idx_t k)
             result /= den;
     }
 
-    free(pow);
+    mem_free(pow);
     return result;
 }
 

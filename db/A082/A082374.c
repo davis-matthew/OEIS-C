@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*---------------------------------------------------------------------*/
 /*  Prime sieve for numbers up to SIEVE_LIMIT                          */
@@ -114,7 +116,7 @@ static uint32_t next_k = 2;        /* candidate k to test; starts at 2         *
 static void grow_terms(void)
 {
     size_t new_cap = (t_cap == 0) ? 16 : t_cap * 2;
-    seq_t *tmp = (seq_t*)realloc(k_terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, k_terms, new_cap);
     if (!tmp) return;            /* memory error → keep old array          */
     k_terms = tmp;
     t_cap   = new_cap;

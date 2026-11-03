@@ -9,7 +9,8 @@
  *            binomial(2k,k)^k * a(n-k)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 27 terms through n = 40 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t a, idx_t b) */
-#include "../utils/big_pow.h"    /* seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* ensure the array can hold indices up to need-1; grow if necessary */
 static void
@@ -29,13 +32,13 @@ ensure_cache(seq_t **arr, size_t *len, size_t *cap, size_t need)
 {
     if (*cap >= need) return;
     size_t newcap = need * 2 + 16;
-    seq_t *newarr = (seq_t *)malloc(newcap * sizeof(seq_t));
+    seq_t *newarr = mem_new(seq_t, newcap);
     if (!newarr) return;
     if (*arr) {
-        memcpy(newarr, *arr, (*len) * sizeof(seq_t));
-        free(*arr);
+        mem_copy(newarr, *arr, (*len) * sizeof(seq_t));
+        mem_free(*arr);
     }
-    memset(newarr + (*len), 0, (newcap - (*len)) * sizeof(seq_t));
+    mem_set(newarr + (*len), 0, (newcap - (*len)) * sizeof(seq_t));
     *arr  = newarr;
     *cap  = newcap;
 }
@@ -67,7 +70,7 @@ seq_t a(idx_t n)
             /* compute c_cache[k] if not yet computed */
             if (k >= c_len) {
                 seq_t bin = binomial((idx_t)(2 * k), (idx_t)k);
-                seq_t pw  = big_pow(bin, (seq_t)k);       /* binom(2k,k)^k */
+                seq_t pw  = ipow(bin, (seq_t)k);       /* binom(2k,k)^k */
                 c_cache[k] = pw;
                 ++c_len;
             }

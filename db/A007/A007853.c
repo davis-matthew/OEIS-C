@@ -12,16 +12,36 @@
  *            ((k+2)/(n+1))*C(2n-k-...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   alloc_zero, gcd_u64, mul_div, release
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
+#include <stdlib.h>
 #include "../utils/gcd_u64.h"
-#include "../utils/mul_div.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+/* exact x*p/q, assuming q divides x*p; intermediates never exceed the result */
+static seq_t mul_div(seq_t x, uint64_t p, uint64_t q) {
+    uint64_t r = (uint64_t)(x % (seq_t)q);
+    uint64_t g = gcd_u64(r, q);
+    x /= (seq_t)g;
+    q /= g;
+    return x * (seq_t)(p / q);
+}
 
 seq_t a(idx_t idx) {
     if (idx <= 1) return 1;

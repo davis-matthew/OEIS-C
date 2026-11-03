@@ -9,12 +9,14 @@
  *            a(n)=8·∑_{k=1}^{23} a(n‑k) – 36·a(n‑24) + (n==24 ? 1 : 0)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* memoized values a[0..k]   */
 static idx_t  cache_len = 0;      /* number of computed entries   */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
         idx_t new_cap = cache_cap ? cache_cap : 64;
         while (new_cap < n + 1)
             new_cap <<= 1;                  /* multiply by 2 */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache)
             abort();                         /* out of memory */
         cache = new_cache;

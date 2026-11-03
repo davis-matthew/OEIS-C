@@ -8,6 +8,7 @@
  *            T_k = T_{k-1}+T_{k-2}+T_{k-3} (offset 0)
  * Range:     u8 n <= 102, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
+ * Validated: partial, pass, 103 terms through n = 102 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

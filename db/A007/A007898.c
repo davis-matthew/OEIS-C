@@ -12,16 +12,48 @@
  *            e>=3
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   alloc_zero, b_of, release
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/b_of.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static idx_t b_of(idx_t k) {
+    idx_t r = 1, m = k, p;
+    if (m % 2 == 0) {
+        int e = 0;
+        idx_t phi = 1, s;
+        while (m % 2 == 0) { m /= 2; e++; }
+        for (int i = 1; i < e; i++) phi *= 2;
+        s = (e == 1) ? 1 : (e == 2 ? 2 : 4);
+        r *= (phi + s) / 2;
+    }
+    for (p = 3; p * p <= m; p += 2) {
+        if (m % p == 0) {
+            idx_t phi = p - 1;
+            m /= p;
+            while (m % p == 0) { m /= p; phi *= p; }
+            r *= (phi + 2) / 2;
+        }
+    }
+    if (m > 1) r *= (m - 1 + 2) / 2;
+    return r;
+}
 
 static seq_t *tab = NULL;
 static idx_t cap = 0;

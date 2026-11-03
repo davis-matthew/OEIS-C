@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} C(n,k)*3^(k*(n-k))
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes A135079
  * a(0) = 1
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* pre‑compute powers of three up to exponent n-1 */
     idx_t max_exp = n - 1;
-    seq_t *pow3 = (seq_t*)malloc((max_exp + 1) * sizeof(seq_t));
+    seq_t *pow3 = mem_new(seq_t, (max_exp + 1));
     if (!pow3) return (seq_t)0;          /* out of memory → return 0 */
 
     pow3[0] = (seq_t)1;
@@ -60,6 +62,6 @@ seq_t a(idx_t n)
         term = term * pow3[diff];               /* multiply by 3^diff   */
     }
 
-    free(pow3);
+    mem_free(pow3);
     return total;
 }

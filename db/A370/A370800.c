@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 10, i32 n <= 17, i64 n <= 26, i128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *b = NULL;        /* coefficients of b(k)   */
 static seq_t *c = NULL;        /* auxiliary coefficients   */
@@ -36,8 +38,8 @@ static void ensure_b(idx_t n)
     if (b_count == 0) {
         size_t cap = n + 1;
         if (cap < 10) cap = 10;           /* some initial spare capacity          */
-        b = (seq_t *)malloc(sizeof(seq_t) * cap);
-        c = (seq_t *)malloc(sizeof(seq_t) * cap);
+        b = mem_new(seq_t, cap);
+        c = mem_new(seq_t, cap);
         if (!b || !c) exit(1);
         b[0] = 1;
         c[0] = 1;
@@ -49,8 +51,8 @@ static void ensure_b(idx_t n)
     if (n + 1 > b_count) {
         size_t newcap = (b_count == 0) ? (n + 1) : (b_count * 2);
         if (newcap < n + 1) newcap = n + 1;
-        seq_t *b_new = (seq_t *)realloc(b, sizeof(seq_t) * newcap);
-        seq_t *c_new = (seq_t *)realloc(c, sizeof(seq_t) * newcap);
+        seq_t *b_new = mem_resize(seq_t, b, newcap);
+        seq_t *c_new = mem_resize(seq_t, c, newcap);
         if (!b_new || !c_new) exit(1);
         b = b_new;
         c = c_new;

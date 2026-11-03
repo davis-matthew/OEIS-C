@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   not stated
- * Range:     u8 n <= 23, u16 n <= 124, u32 n <= 6143, u64 n <= 9686,
- *            u128 n <= 9686, big any n
- * Helpers:   build_primes_upto, exp_A065621, pow_uint, seq_mul
+ * Range:     u8 n <= 23, u16 n <= 124, u32 n <= 6143, u64 n <= 12167,
+ *            u128 n <= 12167, big any n
+ * Validated: standard, pass, 91 terms through n = 9686 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,10 +30,30 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_mul.h"
-#include "../utils/pow_uint.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/exp_A065621.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* exponent used for prime powers in A270436 */
+static idx_t exp_A065621(idx_t e)
+{
+    if (e == 1) return 1;
+    if (e == 2) return 2;
+    if (e == 3) return 7;
+    if (e == 4) return 4;
+    /* pattern observed in the OEIS data */
+    if (e & 1U)   /* odd */
+        return 3 * e - 2;
+    else          /* even (≥6) */
+        return e + 8;
+}
 
 seq_t a(idx_t n)
 {
@@ -59,13 +80,13 @@ seq_t a(idx_t n)
                 m /= p;
                 ++e;
             }
-            seq_t term = pow_uint(p, exp_A065621(e));
+            seq_t term = ipow_u64_idx(p, exp_A065621(e));
             result = seq_mul(result, term);
         }
     }
 
     if (m > 1) {               /* remaining prime factor with exponent 1 */
-        seq_t term = pow_uint(m, 1);
+        seq_t term = ipow_u64_idx(m, 1);
         result = seq_mul(result, term);
     }
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 21, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 899 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,15 +47,15 @@ seq_t a(idx_t n)
         seq_t *tmpA = NULL, *tmpS2 = NULL;
 
 #if defined(__cplusplus)
-        tmpA  = (seq_t *)realloc(A,  new_len * sizeof(seq_t));
-        tmpS2 = (seq_t *)realloc(S2, new_len * sizeof(seq_t));
+        tmpA  = mem_resize(seq_t, A, new_len);
+        tmpS2 = mem_resize(seq_t, S2, new_len);
 #else
         tmpA  = realloc(A,  new_len * sizeof(seq_t));
         tmpS2 = realloc(S2, new_len * sizeof(seq_t));
 #endif
         if (!tmpA || !tmpS2) {   /* allocation failure */
-            free(tmpA);
-            free(tmpS2);
+            mem_free(tmpA);
+            mem_free(tmpS2);
             return (seq_t)0;
         }
         A = tmpA;

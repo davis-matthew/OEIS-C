@@ -12,14 +12,26 @@
  *            runs in O(10n * log10(10n)) time
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   pow10
+ * Validated: standard, pass, 36 terms through n = 919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +41,7 @@ seq_t a(idx_t n)
     size_t maxS = (size_t)m;               /* size of DP array */
 
     /* Allocate the DP array and initialise.  Memory is freed before returning. */
-    seq_t *dp = (seq_t *)malloc((maxS + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (maxS + 1));
     if (!dp) return 0;                     /* allocation failure – return 0 */
     for (size_t i = 1; i <= maxS; ++i) dp[i] = 0;
     dp[0] = 1;                              /* empty partition has product 1 */
@@ -47,6 +59,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[maxS];               /* a(n)  */
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -10,16 +10,25 @@
  *            r*(r+1)/2 (row‑major order)
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 66, u64 n <= 153,
  *            u128 n <= 406, big any n
- * Helpers:   pow_uint, seq_mul, seq_one, vp_value
+ * Validated: standard, pass, 71 terms through n = 1218 (2026-11-01)
+ * Helpers:   ipow_u64_idx, valuation_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_one.h"
-#include "../utils/seq_mul.h"
-#include "../utils/pow_uint.h"
-#include "../utils/vp_value.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/valuation_idx.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Exponent of prime p in n!  (Legendre's formula). */
 static idx_t vp_factorial(idx_t n, idx_t p)
@@ -67,7 +76,7 @@ seq_t a(idx_t N)
             continue;
 
         /* Exponent of p in n = r. */
-        idx_t vp_n = vp_value(r, p);
+        idx_t vp_n = valuation_idx(r, p);
         if (vp_n == 0)
             continue;            /* p does not divide r → no effect on denominator. */
 
@@ -78,8 +87,8 @@ seq_t a(idx_t N)
         idx_t e_binom = vp_factorial(r, p) - vp_factorial(k, p) - vp_factorial(r - k, p);
 
         /* Exponent of p in k^k and (r-k)^(r-k). */
-        idx_t vp_k_val   = (k == 0) ? 0 : vp_value(k, p);
-        idx_t vp_nk_val  = ((r - k) == 0) ? 0 : vp_value(r - k, p);
+        idx_t vp_k_val   = (k == 0) ? 0 : valuation_idx(k, p);
+        idx_t vp_nk_val  = ((r - k) == 0) ? 0 : valuation_idx(r - k, p);
 
         /* Total exponent of p in the numerator. */
         idx_t e_num = e_binom + k * vp_k_val + (r - k) * vp_nk_val;
@@ -89,7 +98,7 @@ seq_t a(idx_t N)
         idx_t exp = e_den - g;        /* exponent to keep in the denominator. */
 
         if (exp > 0) {
-            seq_t mult = pow_uint((uint64_t)p, exp);
+            seq_t mult = ipow_u64_idx((uint64_t)p, exp);
             result = seq_mul(result, mult);
         }
     }

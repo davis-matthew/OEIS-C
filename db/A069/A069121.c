@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^4 * binomial(2*n, n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 24, u128 n <= 54,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 793 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

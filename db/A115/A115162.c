@@ -9,7 +9,8 @@
  *            S + C where T = t(t+1)/2, S = s^2, C = c^3, t,s,c ≥ 1
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,27 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/floor_sqrt.h"   /* seq_t floor_sqrt(seq_t x) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static bool is_representable(seq_t m)
 {
@@ -71,8 +92,8 @@ seq_t a(idx_t n)
             if (count == capacity)
             {
                 size_t newcap = capacity ? capacity * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
-                if (!tmp) { free(terms); return (seq_t)0; } /* allocation failure */
+                seq_t *tmp = mem_resize(seq_t, terms, newcap);
+                if (!tmp) { mem_free(terms); return (seq_t)0; } /* allocation failure */
                 terms = tmp;
                 capacity = newcap;
             }

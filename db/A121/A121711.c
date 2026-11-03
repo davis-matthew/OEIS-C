@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
    keeping all already-computed values in memory. */
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
      *----------------------------------------*/
     if (vals == NULL) {
         vals_cap = 64;
-        vals = (seq_t *)malloc(sizeof(seq_t) * vals_cap);
+        vals = mem_new(seq_t, vals_cap);
         used_cap = 128;
         used = (bool *)calloc(used_cap, sizeof(bool));
     }
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
      *----------------------------------------*/
     if ((size_t)n > vals_cap) {
         while (vals_cap < (size_t)n) vals_cap <<= 1;
-        vals = (seq_t *)realloc(vals, vals_cap * sizeof(seq_t));
+        vals = mem_resize(seq_t, vals, vals_cap);
     }
 
     /*----------------------------------------*

@@ -9,7 +9,8 @@
  *            covering an initial interval of positive integers
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   array_append
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/array_append.h"
+#include "../utils/mem.h"
+
+/* Append a value to a dynamic array, growing it as needed. */
+static void array_append(seq_t **array, size_t *size, size_t *cap, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *array, new_cap);
+        if (!tmp)
+            abort();
+        *array = tmp;
+        *cap = new_cap;
+    }
+    (*array)[*size] = val;
+    ++(*size);
+}
 
 /* The types seq_t and idx_t are provided by the build environment. */
 
@@ -120,7 +136,7 @@ static uint64_t next_candidate = 2;
 static void cache_extend(idx_t n)
 {
     if (cache_size == 0) {          /* First use: store the term for a(1)=1 */
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache)
             abort();
         cache[0] = (seq_t)1;

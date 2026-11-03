@@ -12,12 +12,14 @@
  *            column k = n − r(r+1)/2. Then a(n)=T(r,k)
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 66, u64 n <= 153,
  *            u128 n <= 406, big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 62 terms through n = 3720 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"   /* provides seq_t pow_seq(seq_t, int) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         prod *= (seq_t)(r - i);
 
     /* Compute r^(r-k) using the provided power routine. */
-    seq_t pow = pow_seq((seq_t)r, (int)(r - k));
+    seq_t pow = ipow_i32((seq_t)r, (int)(r - k));
 
     /* Final value: k * r^(r-k) * ∏_{i=1}^{k-1} (r-i). */
     return (seq_t)k * pow * prod;

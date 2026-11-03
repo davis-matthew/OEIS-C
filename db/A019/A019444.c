@@ -12,7 +12,8 @@
  *            starts with a(1)=1
  * Range:     u8 n <= 158, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9845 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static size_t max_computed = 0;   /* highest n that has been computed */
 static seq_t *a_vals      = NULL; /* a[1..]  (1‑indexed) */
@@ -34,7 +36,7 @@ static void ensure_a_cap(idx_t n)
 {
     size_t new_cap = (size_t)n + 1; /* 1‑indexed */
     if (new_cap > a_cap) {
-        seq_t *tmp = (seq_t*)realloc(a_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
         if (!tmp) abort();
         a_vals = tmp;
         a_cap  = new_cap;

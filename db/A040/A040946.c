@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    subsequent coefficients form a periodic sequence. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         seq_t a_k = a0;
 
         size_t cap = 32;
-        period = (seq_t *)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         if (!period)          /* allocation failure -> return 0 */
             return 0;
 
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
             if (period_len == cap)
             {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(period, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, period, cap);
                 if (!tmp)      /* allocation failure -> return 0 */
                     return 0;
                 period = tmp;

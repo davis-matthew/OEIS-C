@@ -11,6 +11,7 @@
  *            a(1) = 15, a(2) = 225, ... (OEIS A207905)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 19, u64 n <= 45, u128 n <= 97,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 208 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,8 +11,9 @@
  *            to all n by Leibniz rule: D(ab)=a*D(b)+b*D(a). * * The algorithm
  *            computes D(n) modulo 3 using only the primes 2 and 3 * (all
  *            other primes contribute a multiple of 3), and ther...
- * Range:     u8 n <= 9325, u16 n <= 9325, u32 n <= 9325, u64 n <= 9325,
- *            u128 n <= 9325, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 143 terms through n = 9325 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

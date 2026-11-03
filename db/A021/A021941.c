@@ -8,13 +8,15 @@
  *            the point
  * Range:     u8 n <= 1, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached digits */
 static size_t cache_size = 0;        /* allocated size of cache */
@@ -27,7 +29,7 @@ static void ensure_cache_cap(idx_t n)
     if (cache == NULL) {
         /* first time: allocate space for first digit */
         cache_size = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return; /* allocation failure – silently fail */
 
         /* initialise the first digit (n = 0).  r = 1 initially. */
@@ -43,7 +45,7 @@ static void ensure_cache_cap(idx_t n)
     while (cache_size <= (size_t)n) {
         size_t new_size = cache_size * 2;
         if (new_size == 0) new_size = 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) return;  /* allocation failure – silently fail */
         cache = tmp;
         cache_size = new_size;

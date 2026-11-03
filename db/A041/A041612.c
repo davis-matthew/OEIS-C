@@ -7,6 +7,7 @@
  * Formula:   a(0)=18, a(1)=649, a(n)=36*a(n-1)+a(n-2) for n>1
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 198 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

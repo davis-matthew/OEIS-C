@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ======== prime table ================================================= */
 static seq_t *prime_list      = NULL;   /* holds primes in 0‑based order   */
@@ -41,7 +43,7 @@ ensure_primes_upto_idx(idx_t needed)
         size_t new_cap = prime_capacity * 2;
         if (new_cap == 0) new_cap = 64;
         while (new_cap <= (size_t)needed + 1) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(prime_list, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_list, new_cap);
         if (!tmp) exit(1);                  /* allocation failure */
         prime_list = tmp;
         prime_capacity = new_cap;
@@ -98,7 +100,7 @@ ensure_seq_capacity(size_t needed)
     size_t new_cap = seq_cap * 2;
     if (new_cap == 0) new_cap = 64;
     while (new_cap <= needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) exit(1);
     seq_cache = tmp;
     seq_cap   = new_cap;

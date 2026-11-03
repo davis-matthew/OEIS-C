@@ -7,14 +7,33 @@
  * Formula:   a(n) = Sum_{d|n, d odd} ((d+1)/2)^2
  * Range:     u8 n <= 30, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   sumDivisorsRec
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/sumDivisorsRec.h"
+
+/* Recursive helper that accumulates the sum of terms for all odd divisors. */
+static void sumDivisorsRec(size_t idx, idx_t cur, const uint64_t *primes,
+                           const uint8_t *exps, size_t num, seq_t *sum) {
+    if (idx == num) {
+        seq_t d = (seq_t)cur;          /* odd divisor */
+        seq_t half = (d + 1) / 2;      /* (d+1)/2  */
+        *sum += half * half;           /* add ((d+1)/2)^2 */
+        return;
+    }
+    uint64_t p = primes[idx];
+    uint8_t e = exps[idx];
+    idx_t val = cur;
+    for (uint8_t k = 0; k <= e; ++k) {
+        sumDivisorsRec(idx + 1, val, primes, exps, num, sum);
+        if (k < e)
+            val = val * (idx_t)p;     /* multiply by p for next exponent */
+    }
+}
 
 /* Main sequence function */
 seq_t a(idx_t n) {

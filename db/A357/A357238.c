@@ -8,12 +8,14 @@
  *            sequence with a(1)=0, a(2)=1, a(3)=1
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *trib  = NULL;   /* trib[d]  (1‑based)          */
 static seq_t *a_arr = NULL;   /* a_arr[n] (1‑based)          */
@@ -28,12 +30,12 @@ static void expand_tables(idx_t n)
 
     size_t new_size = (size_t)n + 1;          /* include index 0 for simplicity */
 
-    seq_t *trib_new = (seq_t *)realloc(trib, new_size * sizeof(seq_t));
+    seq_t *trib_new = mem_resize(seq_t, trib, new_size);
     if (!trib_new) return;                   /* allocation failed – keep old tables */
 
-    seq_t *a_new    = (seq_t *)realloc(a_arr, new_size * sizeof(seq_t));
+    seq_t *a_new    = mem_resize(seq_t, a_arr, new_size);
     if (!a_new) {
-        free(trib_new);                      /* revert the successful realloc */
+        mem_free(trib_new);                      /* revert the successful realloc */
         return;
     }
 

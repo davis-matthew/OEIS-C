@@ -8,12 +8,14 @@
  * Formula:   a(3k+1) = (4k+2)!, a(3k+2) = (4k+4)!, a(3k+3) = (4k+5)! / 2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of factorials.  fact[i] holds (i)! for all 0 <= i < fact_count. */
 static seq_t *fact = NULL;   /* array of computed factorials */
@@ -26,7 +28,7 @@ static void ensure_factorial(idx_t n)
     /* Initialise storage if necessary. */
     if (!fact || fact_cap == 0) {
         fact_cap = 64;                     /* initial capacity */
-        fact = (seq_t *)malloc(fact_cap * sizeof(seq_t));
+        fact = mem_new(seq_t, fact_cap);
         if (!fact) abort();
         fact_count = 0;
     }
@@ -44,7 +46,7 @@ static void ensure_factorial(idx_t n)
         /* Resize if the capacity is exceeded. */
         if (fact_count > fact_cap) {
             fact_cap <<= 1;                 /* double the capacity */
-            seq_t *tmp = (seq_t *)realloc(fact, fact_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fact, fact_cap);
             if (!tmp) abort();
             fact = tmp;
         }

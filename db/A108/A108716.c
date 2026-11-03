@@ -7,8 +7,9 @@
  * Formula:   a(n) = 21*a(n-1) - 35*a(n-2) + 7*a(n-3), with initial values
  *            a(0)=3, a(1)=21, a(2)=371. This recurrence follows from the
  *            roots tan(Pi/14)^2, tan(3Pi/14)^2, tan(5Pi/14)^2
- * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
+ * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 30,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 694 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,6 +8,7 @@
  * Formula:   a(n) = the largest integer with distinct digits and digit sum n
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 44, u64 n <= 45, u128 n <= 45,
  *            big any n
+ * Validated: full, pass, 46 terms through n = 45 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

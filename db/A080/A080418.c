@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 179, u32 n <= 612, u64 n <= 2309,
  *            u128 n <= 4950, big any n
- * Helpers:   allocate_row
+ * Validated: standard, pass, 82 terms through n = 4863 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
-#include "../utils/allocate_row.h"
+#include "../utils/mem.h"
+
+/* Allocate a new row of length r (allow index 0 unused) */
+static seq_t *allocate_row(idx_t r)
+{
+    seq_t *row = mem_new(seq_t, (size_t)(r + 1));
+    assert(row != NULL);
+    return row;
+}
 
 static seq_t **triangle_cache = NULL;      /* triangle_cache[r] points to row r (1‑based) */
 static idx_t    cached_rows   = 0;          /* number of rows stored, zero if cache empty */

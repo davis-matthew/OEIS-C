@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   f_sign
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,18 @@
  */
 
 #include <stdlib.h>
-#include "../utils/f_sign.h"
+#include "../utils/mem.h"
+
+/* auxiliary: sign of coefficient f_k of g(x) */
+static inline int f_sign(int k)
+{
+    switch (k) {
+        case 1:         return  1;   /* +1 */
+        case 2: case 3: case 4:  return -1;   /* -1 */
+        case 5:         return  1;   /* +1 */
+        default:        return (k % 2 == 0) ? 1 : -1;  /* alternating after k=5 */
+    }
+}
 
 /* series returned: a(idx_t n), external linkage */
 seq_t a(idx_t n)
@@ -32,10 +44,10 @@ seq_t a(idx_t n)
 
     /* 1. build the series G(x)=g(x)/x = 1 + Σ_{k≥1} f_{k+1} x^k  */
     int   *Gsign = (int *)malloc(N * sizeof(int));  /* sign of G coefficients */
-    seq_t *q     = (seq_t *)malloc(N * sizeof(seq_t));/* r(x)=1/G(x) */
-    seq_t *r     = (seq_t *)malloc(N * sizeof(seq_t));/* 1/G(x) = r(x)     */
-    seq_t *cur   = (seq_t *)malloc(N * sizeof(seq_t));
-    seq_t *next  = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *q     = mem_new(seq_t, N);/* r(x)=1/G(x) */
+    seq_t *r     = mem_new(seq_t, N);/* 1/G(x) = r(x)     */
+    seq_t *cur   = mem_new(seq_t, N);
+    seq_t *next  = mem_new(seq_t, N);
 
     if (!Gsign || !q || !r || !cur || !next) {
         /* allocation failure – return 0 */
@@ -71,7 +83,7 @@ seq_t a(idx_t n)
     /* 5. handle n==1 directly */
     if (n == 1) {
         seq_t result = cur[0] / (seq_t)1;   /* cur[0] == 1 */
-        free(Gsign); free(q); free(r); free(cur); free(next);
+        free(Gsign); mem_free(q); mem_free(r); mem_free(cur); mem_free(next);
         return result;
     }
 
@@ -101,6 +113,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(Gsign); free(q); free(r); free(cur); free(next);
+    free(Gsign); mem_free(q); mem_free(r); mem_free(cur); mem_free(next);
     return result;
 }

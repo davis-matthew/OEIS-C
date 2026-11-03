@@ -5,9 +5,10 @@
  * Offset:    3    (a(3) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = smallest integer k>1 such that n divides binomial(n,k)
- * Range:     u8 n <= 9799, u16 n <= 9799, u32 n <= 9799, u64 n <= 9799,
- *            u128 n <= 9799, big any n
- * Helpers:   v_p_fact
+ * Range:     u8 n <= 65539, u16 n <= 65539, u32 n <= 65539, u64 n <= 65539,
+ *            u128 n <= 65539, big any n
+ * Validated: standard, pass, 103 terms through n = 9799 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/v_p_fact.h"
+
+/* Exponent of prime p in m! */
+static inline idx_t v_p_fact(idx_t m, idx_t p)
+{
+    idx_t exp = 0;
+    while (m) {
+        m /= p;
+        exp += m;
+    }
+    return exp;
+}
 
 /* Factorises n; primes[] and exps[] store the prime factors and their exponents.
    The number of distinct factors is returned through *cnt. */

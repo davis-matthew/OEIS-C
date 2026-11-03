@@ -9,12 +9,14 @@
  *            + binom(2m+1, m)·binom(n−2−2m, m) ] * Base cases: a(0)=0, a(1)=0
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 35, u64 n <= 67, u128 n <= 132,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 56 terms through n = 1855 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -23,11 +25,11 @@ seq_t a(idx_t n)
     seq_t sum  = 0;
     for (idx_t m = 0; m <= m_max; ++m)
     {
-        seq_t t1 = binom(2 * m, m + 1);
-        t1 *= binom(n - 1 - 2 * m, m);
+        seq_t t1 = binomial(2 * m, m + 1);
+        t1 *= binomial(n - 1 - 2 * m, m);
 
-        seq_t t2 = binom(2 * m + 1, m);
-        t2 *= binom(n - 2 - 2 * m, m);
+        seq_t t2 = binomial(2 * m + 1, m);
+        t2 *= binomial(n - 2 - 2 * m, m);
 
         sum += t1 + t2;
     }

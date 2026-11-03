@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 233, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 90 terms through n = 9289 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
    (complement of A007694).  Implemented by incremental search. */
 
 #include <stdlib.h>
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,14 +37,14 @@ seq_t a(idx_t n)
     while (len < n)
     {
         seq_t cand   = (seq_t)next;          /* value for φ and storage */
-        seq_t phi_val = calc_phi(cand);
+        seq_t phi_val = totient_seq(cand);
 
         if (cand % phi_val != (seq_t)0)      /* φ(cand) does not divide cand */
         {
             if (len == cap)                 /* resize if necessary */
             {
                 size_t new_cap = cap ? cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();          /* allocation failed */
                 cache = tmp;
                 cap   = new_cap;

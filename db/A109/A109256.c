@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n^2 - 2) * (n^2 - 3) * (n^2 - 6)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 35, i64 n <= 1448,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 43 terms through n = 9380 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

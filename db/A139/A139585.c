@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 29, i16 n <= 56, i32 n <= 56, i64 n <= 56, i128 n <= 56,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,8 +42,9 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow2.h"       /* seq_t pow2(idx_t exp) */
-#include "../utils/binom.h"      /* seq_t binom(idx_t a, idx_t b) */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
         return val;
     } else {
         /* 2 * C(k, m) */
-        seq_t val = binom(row, m);
+        seq_t val = binomial(row, m);
         val *= (seq_t)2;
         return val;
     }

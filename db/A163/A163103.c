@@ -8,6 +8,7 @@
  *            23; a(n) = 0 for n < 12 or n > 23
  * Range:     u8 none, u16 none, u32 none, u64 n <= 23, u128 n <= 23,
  *            big any n
+ * Validated: full, pass, 12 terms through n = 23 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 75, u32 n <= 250, u64 n <= 901,
  *            u128 n <= 3402, big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 71 terms through n = 4831 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
     helper pow_int handles expansion automatically. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 /* Return the nth term (offset 1) of A094617. */
 seq_t a(idx_t n)
@@ -58,7 +59,7 @@ seq_t a(idx_t n)
     idx_t j = pos;
 
     /* Compute 2^i * 3^j + 1. */
-    seq_t v2 = pow_int((seq_t)2, i);
-    seq_t v3 = pow_int((seq_t)3, j);
+    seq_t v2 = ipow_idx((seq_t)2, i);
+    seq_t v3 = ipow_idx((seq_t)3, j);
     return 1 + v2 * v3;
 }

@@ -7,20 +7,47 @@
  * Formula:   a(n) = A000593(A002322(n)) – sum of odd divisors of λ(n)
  * Range:     u8 n <= 330, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_uint64, sum_odd_divisors_uint64
+ * Validated: standard, pass, 121 terms through n = 9510 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_uint64.h"
-#include "../utils/sum_odd_divisors_uint64.h"
+#include "../utils/gcd_u64.h"
+
+/* Sum of odd divisors of an odd number x (x≥1) */
+static seq_t sum_odd_divisors_uint64(uint64_t x) {
+    seq_t res = 1;
+    uint64_t t = x;
+    for (uint64_t i = 3; i * i <= t; i += 2) {
+        if (t % i == 0) {
+            uint8_t exp = 0;
+            uint64_t pow = 1;
+            while (t % i == 0) {
+                t /= i;
+                exp++;
+                pow *= i; /* i^exp */
+            }
+            /* sum of divisors of i^exp: (i^(exp+1)-1)/(i-1) */
+            uint64_t numerator = pow * i - 1;
+            uint64_t denominator = i - 1;
+            uint64_t sum_i = numerator / denominator;
+            res *= (seq_t)sum_i;
+        }
+    }
+    if (t > 1) { /* remaining prime factor (odd) */
+        /* t is a prime, exponent 1 */
+        res *= (seq_t)(t + 1);
+    }
+    return res;
+}
 
 /* Euclidean gcd for uint64_t */
 
 /* LCM for uint64_t */
 static inline uint64_t lcm_uint64(uint64_t a, uint64_t b) {
-    return a / gcd_uint64(a, b) * b;
+    return a / gcd_u64(a, b) * b;
 }
 
 /* Compute Carmichael lambda(n) for n up to ~1e4 */

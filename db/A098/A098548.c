@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 9796 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,8 @@
    For n>3, a(n) = smallest m > a(n-1) with gcd(m,a(n-2))>1
    and gcd(m,a(n-1))==0. */
 
-#include "../utils/gcd.h"      /* gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

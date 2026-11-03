@@ -9,12 +9,14 @@
  *            the middle of each row of the Eulerian triangle
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 12, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the n-th term of A014470.  */
 seq_t a(idx_t n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     for (idx_t row = 1; term_count < n; ++row)
     {
         idx_t cur_len = row;
-        seq_t *cur = (seq_t *)malloc(cur_len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, cur_len);
         if (!cur) { /* allocation failure – return 0 */ return (seq_t)0; }
 
         /* the first and last element are always 1 */
@@ -67,13 +69,13 @@ seq_t a(idx_t n)
         }
 
         /* prepare for the next iteration */
-        if (prev) free(prev);
+        if (prev) mem_free(prev);
         prev = cur;
         prev_len = cur_len;
     }
 
     /* free the last allocated row */
-    if (prev) free(prev);
+    if (prev) mem_free(prev);
 
     return result;
 }

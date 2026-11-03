@@ -12,9 +12,10 @@
  *            unused integer k such that d(k) properly divides d(j) or d(j)
  *            properly divides d(k) This implementation memoises the sequence
  *            and the prime table and computes divisor counts...
- * Range:     u8 n <= 212, u16 n <= 9370, u32 n <= 9370, u64 n <= 9370,
- *            u128 n <= 9370, big any n
- * Helpers:   none
+ * Range:     u8 n <= 212, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 84 terms through n = 9370 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Prime sieve helpers (basic, no special headers)                      */
@@ -146,11 +148,11 @@ a(idx_t n)
     while (cur_n < n) {
         if (cur_n == 0) {      /* a(1) = 1 */
             if (!seq_cap) {
-                seq = (seq_t *)malloc(sizeof(seq_t));
+                seq = mem_new(seq_t, 1);
                 seq_cap = 1;
                 if (!seq) exit(1);
             } else
-                seq = (seq_t *)realloc(seq, sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, 1);
             seq[0] = 1;
             ensure_used_capacity(1);
             used[1] = true;
@@ -180,7 +182,7 @@ a(idx_t n)
 
                 if (cur_n == seq_cap) {
                     seq_cap = seq_cap ? seq_cap * 2 : 4;
-                    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_cap);
                     if (!seq) exit(1);
                 }
                 seq[cur_n] = candidate;

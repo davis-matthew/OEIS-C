@@ -9,7 +9,8 @@
  *            qualifying ones in a static cache, and returns the n‑th term
  * Range:     u8 n <= 6, u16 n <= 90, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9305 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache for the sequence values */
 static seq_t *seq_vals   = NULL;
@@ -60,7 +62,7 @@ static void grow_seq_array(void)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap << 1 : 16;
-        seq_t *tmp = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_vals, seq_cap);
         if (!tmp) abort();
         seq_vals = tmp;
     }
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
 
     if (!seq_vals) {
         seq_cap = 16;
-        seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
         if (!seq_vals) abort();
     }
 

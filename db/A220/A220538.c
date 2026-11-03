@@ -14,12 +14,14 @@
  *            a(11)=25086, a(12)=68225
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 23, u64 n <= 45, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 static const seq_t base_vals[13] = {
     0,          /* unused index 0 */
@@ -46,7 +48,7 @@ static void ensure_memo(idx_t n)
     if (memo_len > n) return;
     idx_t new_len = memo_len ? memo_len * 2 : 16;
     while (new_len <= n) new_len <<= 1;
-    seq_t *new_mem = (seq_t *)realloc(memo, new_len * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, memo, new_len);
     if (!new_mem) {  /* allocation failed – fatal */
         abort();
     }

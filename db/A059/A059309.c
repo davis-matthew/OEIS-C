@@ -8,7 +8,8 @@
  *            p, i.e. 2^((p−1)/gcd(20,p−1)) ≠ 1 (mod p)
  * Range:     u8 n <= 38, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_u64, mod_pow
+ * Validated: standard, pass, 72 terms through n = 961 (2026-11-03)
+ * Helpers:   gcd_u64, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/gcd_u64.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* 64‑bit Euclidean gcd. */
 
@@ -70,13 +73,13 @@ seq_t a(idx_t n)
         uint64_t g   = gcd_u64(20ULL, p - 1ULL);    /* gcd(20,p-1) */
         uint64_t exp = (p - 1ULL) / g;             /* (p-1)/gcd(20,p-1)  */
 
-        seq_t value = mod_pow((seq_t)2, exp, (seq_t)p);  /* 2^exp mod p */
+        seq_t value = powmod((seq_t)2, exp, (seq_t)p);  /* 2^exp mod p */
 
         if (value != (seq_t)1) {              /* 2 is not a 20‑th power */
             /* store in the sequence cache */
             if (seq_len >= seq_cap) {
                 seq_cap = (seq_cap ? seq_cap * 2 : 16);
-                seq_t *tmp = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, seq_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 seq = tmp;
             }

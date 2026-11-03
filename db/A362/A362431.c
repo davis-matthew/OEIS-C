@@ -8,7 +8,8 @@
  *            * (n-4*k)!)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 18, i128 n <= 21,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
     /* Ensure factorials up to n are computed */
     if (fact_size == 0) {
         fact_size = 1;
-        fact = (seq_t*)malloc(sizeof(seq_t));
+        fact = mem_new(seq_t, 1);
         fact[0] = (seq_t)1;          /* 0! = 1 */
     }
     /* Grow factorial cache if necessary */
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
             size_t new_size = fact_size ? fact_size * 2 : 1;
             if (new_size < required)
                 new_size = required;
-            seq_t *new_fact = (seq_t*)realloc(fact, new_size * sizeof(seq_t));
+            seq_t *new_fact = mem_resize(seq_t, fact, new_size);
             if (!new_fact)
                 return (seq_t)0; /* allocation failure */
             for (idx_t i = fact_size; i < new_size; ++i) {
@@ -62,7 +65,7 @@ seq_t a(idx_t n)
 
         /* Power term: (k+1)^(n-3*k-1) */
         idx_t exp = n - 3 * k - 1;
-        seq_t pow_term = big_pow((seq_t)(k + 1), (seq_t)exp);
+        seq_t pow_term = ipow((seq_t)(k + 1), (seq_t)exp);
 
         term = term * pow_term;
 

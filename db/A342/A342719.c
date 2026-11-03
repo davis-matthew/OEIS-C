@@ -10,13 +10,14 @@
  *            ((n-1)*k * ((n-1)*k + 1)) / 2, with offset 3
  * Range:     u8 n <= 19, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   floor_isqrt_u64_from_uint128
+ * Validated: partial, pass, 55 terms through n = 57 (2026-11-01)
+ * Helpers:   isqrt_i128_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_isqrt_u64_from_uint128.h"
+#include "../utils/isqrt_i128_to_idx.h"
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Find M = s - 5, where s = k + n ;   M satisfies M(M+1)/2 > i >= (M-1)M/2  */
     __int128 val = (__int128)8 * i + 1;
-    idx_t t = floor_isqrt_u64_from_uint128(val);   /* t = floor(sqrt(1 + 8*i))               */
+    idx_t t = isqrt_i128_to_idx(val);   /* t = floor(sqrt(1 + 8*i))               */
     idx_t M = (t + 1) / 2;                          /* M = (t+1)/2  */
 
     idx_t prev = (( __int128)(M - 1) * M) / 2;      /* terms before current sum block    */

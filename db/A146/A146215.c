@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 167, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 8655 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Prime table – generated once up to a fixed limit.                  */
@@ -92,7 +94,7 @@ static void ensure_cache(idx_t n)
 
     if (cache == NULL) {      /* first call: initialise cache */
         cache_cap = 64;
-        cache = (seq_t*)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             exit(EXIT_FAILURE);
         cache[0] = (seq_t)1;     /* a(1) = 1 */
@@ -120,7 +122,7 @@ static void ensure_cache(idx_t n)
         /* Grow cache if needed.  The cast is required for C++. */
         if (cache_len == cache_cap) {
             cache_cap <<= 1;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
             if (!cache)
                 exit(EXIT_FAILURE);
         }

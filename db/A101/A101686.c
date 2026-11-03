@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{i=1..n} (i^2 + 1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 236 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* a(0) = 1 (empty product) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (max_cached == (idx_t)-1) {
         /* at least one element (for n = 0) */
         alloc_size = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * alloc_size);
+        cache = mem_new(seq_t, alloc_size);
         cache[0] = (seq_t)1;   /* a(0) */
         max_cached = 0;
     }
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         size_t new_size = alloc_size ? alloc_size : 1U;
         while (new_size < needed)
             new_size <<= 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         alloc_size = new_size;
     }
 

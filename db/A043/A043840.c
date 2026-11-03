@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   runs_base4
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/runs_base4.h"
+
+static inline int runs_base4(seq_t x)
+{
+    int count = 0;
+    while (x != (seq_t)0) {
+        seq_t d = x % (seq_t)4;
+        do { x /= (seq_t)4; } while (x != (seq_t)0 && x % (seq_t)4 == d);
+        ++count;
+    }
+    return count;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,7 +9,8 @@
  *            q^m/(1+q^m)
  * Range:     u8 n <= 7, u16 n <= 20, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * and finally a convolution: a(n) = Σ_{t=0}^n f(t)*h(n-t). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *f_arr = NULL;   /* overpartition counts f[0..N] */
 static seq_t *h_arr = NULL;   /* auxiliary series h[0..N] */
@@ -34,8 +36,8 @@ static void compute_arrays(size_t N)
         return; /* already have the needed data */
 
     /* Allocate temporary arrays for f(k) computation */
-    seq_t *oldf = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *newf = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *oldf = mem_new(seq_t, (N + 1));
+    seq_t *newf = mem_new(seq_t, (N + 1));
     for (size_t i = 0; i <= N; ++i) {
         oldf[i] = (i == 0) ? 1 : 0;
         newf[i] = 0;
@@ -65,16 +67,16 @@ static void compute_arrays(size_t N)
     }
 
     /* Allocate final arrays f_arr, h_arr, a_arr */
-    seq_t *f = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *h = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *a = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (N + 1));
+    seq_t *h = mem_new(seq_t, (N + 1));
+    seq_t *a = mem_new(seq_t, (N + 1));
 
     /* Copy computed f into public array */
     for (size_t i = 0; i <= N; ++i)
         f[i] = oldf[i];
 
-    free(oldf);
-    free(newf);
+    mem_free(oldf);
+    mem_free(newf);
 
     /* ---- compute h(t) --------------------------------------------- */
     h[0] = 0;
@@ -113,9 +115,9 @@ static void compute_arrays(size_t N)
     }
 
     /* Replace previous global arrays (free old ones) */
-    free(f_arr);
-    free(h_arr);
-    free(a_arr);
+    mem_free(f_arr);
+    mem_free(h_arr);
+    mem_free(a_arr);
     f_arr = f;
     h_arr = h;
     a_arr = a;

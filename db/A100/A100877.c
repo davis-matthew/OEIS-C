@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     /* n is guaranteed ≥1 by the sequence offset */
@@ -29,7 +32,7 @@ seq_t a(idx_t n) {
     uint64_t prev_prime = 2;  /* previous prime encountered */
 
     for (uint64_t cand = 3; ; cand += 2) {        /* skip even numbers */
-        if (is_prime(cand)) {
+        if (is_prime_u64(cand)) {
             if (((cand   ) & 3ULL) == 1ULL &&   /* cand ≡ 1 (mod 4)   */
                 ((prev_prime) & 3ULL) == 3ULL) { /* prev_prime ≡ 3     */
                 count++;

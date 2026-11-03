@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static uint8_t *parity = NULL;
 static size_t   parity_cap = 0;
@@ -29,7 +31,7 @@ static void add_even(idx_t val)
 {
     if (evens_size == evens_cap) {
         size_t new_cap = evens_cap ? evens_cap * 2 : 8;
-        evens = (seq_t*)realloc(evens, new_cap * sizeof(seq_t));
+        evens = mem_resize(seq_t, evens, new_cap);
         evens_cap = new_cap;
     }
     evens[evens_size++] = (seq_t)val;

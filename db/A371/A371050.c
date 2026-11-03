@@ -9,7 +9,8 @@
  *            consists of a run of 1's, then a run of 2's, then a run of 0's
  * Range:     u8 n <= 10, u16 n <= 120, u32 n <= 680, u64 n <= 680,
  *            u128 n <= 680, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 676 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #ifdef __cplusplus
 #include <algorithm>
 #endif
+#include "../utils/mem.h"
 
 /* Comparator for C qsort */
 static int seq_compare(const void *a, const void *b) {
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     while (cache_size < (size_t)n) {
         /* Number of combinations for this length */
         size_t block_size = (next_length - 1) * (next_length - 2) / 2;
-        seq_t *block = (seq_t *)malloc(block_size * sizeof(seq_t));
+        seq_t *block = mem_new(seq_t, block_size);
         size_t pos = 0;
 
         /* Enumerate all (k,l,m) with k,l,m>=1 and k+l+m=next_length */
@@ -69,8 +71,8 @@ seq_t a(idx_t n) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 8;
             while (new_cap < cache_size + block_size)
                 new_cap <<= 1;
-            void *tmp = realloc(cache, new_cap * sizeof(seq_t));
-            if (!tmp) { free(block); return 0; } /* memory error */
+            void *tmp = mem_resize(seq_t, cache, new_cap);
+            if (!tmp) { mem_free(block); return 0; } /* memory error */
             cache = (seq_t *)tmp;
             cache_cap = new_cap;
         }
@@ -79,7 +81,7 @@ seq_t a(idx_t n) {
         for (size_t i = 0; i < block_size; ++i)
             cache[cache_size + i] = block[i];
         cache_size += block_size;
-        free(block);
+        mem_free(block);
 
         ++next_length;
     }

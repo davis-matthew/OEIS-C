@@ -8,14 +8,18 @@
  * Formula:   a(n) = n * Sum_{k=0..⌊n/2⌋} binom(n-k, k) * sigma(n-k)^k / (n-k)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   binom_n_k, seq_pow
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom_n_k.h"
-#include "../utils/seq_pow.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* Prime factorization helper: smallest prime factor array */
 static idx_t *spf_arr = NULL;   /* SPF[0..max] */
@@ -51,11 +55,11 @@ static void ensure_cache(idx_t n) {
 
     /* --- Sigma cache --- */
     if (!sigma_arr) {
-        sigma_arr = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        sigma_arr = mem_new(seq_t, new_cap);
         sigma_arr[0] = 0;
         sigma_arr[1] = 1;
     } else if (sigma_cap < new_cap) {
-        sigma_arr = (seq_t *)realloc(sigma_arr, new_cap * sizeof(seq_t));
+        sigma_arr = mem_resize(seq_t, sigma_arr, new_cap);
     }
 
     for (idx_t i = sigma_cap; i < new_cap; ++i) {
@@ -66,7 +70,7 @@ static void ensure_cache(idx_t n) {
             idx_t exp = 0;
             while (tmp % p == 0) { tmp /= p; ++exp; }
 
-            seq_t term = seq_pow((seq_t)p, exp + 1) - 1;   /* p^(e+1)-1 */
+            seq_t term = ipow_idx((seq_t)p, exp + 1) - 1;   /* p^(e+1)-1 */
             seq_t denom = ((seq_t)p - 1);                 /* p-1  */
             term = term / denom;                          /* exact */
             prod = prod * term;
@@ -88,8 +92,8 @@ seq_t a(idx_t n) {
     for (idx_t k = 0; k <= n / 2; ++k) {
         idx_t m = n - k;                      /* m = n-k  */
         seq_t sigma_m = sigma_arr[m];
-        seq_t binom   = binom_n_k(m, k);       /* C(m,k)  */
-        seq_t pow_sigma = seq_pow(sigma_m, k); /* sigma_m^k */
+        seq_t binom   = binomial(m, k);       /* C(m,k)  */
+        seq_t pow_sigma = ipow_idx(sigma_m, k); /* sigma_m^k */
         seq_t term = binom * pow_sigma;
         term = term * n_seq;
         term = term / (seq_t)m;               /* exact division */

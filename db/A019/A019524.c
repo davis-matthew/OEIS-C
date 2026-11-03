@@ -9,15 +9,46 @@
  *            integers from 1 to n, then duplicate it to produce the nth term
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   seq_from_str, write_idx
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/write_idx.h"
+#include <string.h>
+#include <stdbool.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* Write the decimal representation of v into buf.
+   Returns the number of characters written. */
+static size_t write_idx(idx_t v, char *buf)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        return 1;
+    }
+    char tmp[32];
+    int pos = 0;
+    while (v > 0) {
+        tmp[pos++] = '0' + (int)(v % 10);
+        v /= 10;
+    }
+    for (int i = pos - 1; i >= 0; --i) {
+        *buf++ = tmp[i];
+    }
+    return (size_t)pos;
+}
 
 /* Count the total number of decimal digits needed to write all
    integers from 1 to n. */

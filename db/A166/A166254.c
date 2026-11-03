@@ -9,7 +9,8 @@
  *            q(0)=1, q(1)..q(9)=2, q(10)=1, q(n>10)=0
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 494 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Implementation memoises computed values up to the largest
    index requested so far.           */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
             size_t newcap = capacity ? capacity << 1 : 1;
             while (newcap < newlen)
                 newcap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp)
                 abort();                 /* allocation failed */
             cache = tmp;

@@ -7,13 +7,15 @@
  * Formula:   a(1)=1; a(n+1)=∑_{k=1..n} a(k) * a(floor(n/k))
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 25, u64 n <= 48, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 858 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache shared by all calls.
    cache[i] contains a(i); cache[0] unused.
@@ -29,13 +31,13 @@ static void ensure_cache(idx_t n)
         return;
 
     size_t new_cap = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                     /* out of memory */
     /* Zero‑initialise the new portion.  For unsigned integer types
        this yields the value 0. */
     if (tmp != cache)
-        memset(tmp + cache_capacity, 0, sizeof(seq_t) * (new_cap - cache_capacity));
+        mem_set(tmp + cache_capacity, 0, sizeof(seq_t) * (new_cap - cache_capacity));
 
     cache = tmp;
     cache_capacity = new_cap;

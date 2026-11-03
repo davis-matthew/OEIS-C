@@ -9,14 +9,28 @@
  *            of 1's in its base‑3 representation
  * Range:     u8 n <= 28, u16 n <= 1774, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _eq_weight
+ * Validated: standard, pass, 71 terms through n = 9401 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_eq_weight.h"
+#include "../utils/mem.h"
+
+static inline bool _eq_weight(idx_t n)
+{
+    unsigned pc = __builtin_popcountll((unsigned long long)n);
+    unsigned tpc = 0;
+    idx_t m = n;
+    while (m) {
+        if (m % 3 == 1)
+            ++tpc;
+        m /= 3;
+    }
+    return pc == tpc;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +45,7 @@ seq_t a(idx_t n)
     /* initialise cache with a(1) = 0 */
     if (!cache) {
         cap = 32;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache)
             return 0;
         cache[0] = (seq_t)0;  /* a(1) */
@@ -49,9 +63,9 @@ seq_t a(idx_t n)
             if (_eq_weight(cand)) {
                 if (len == cap) {
                     size_t newcap = cap * 2;
-                    seq_t *p = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                    seq_t *p = mem_resize(seq_t, cache, newcap);
                     if (!p) {
-                        free(cache);
+                        mem_free(cache);
                         return 0;
                     }
                     cache = p;

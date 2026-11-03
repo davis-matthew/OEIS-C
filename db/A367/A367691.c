@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 44, u64 n <= 88, u128 n <= 176,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 1998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
     a(n) = 1 + Σ_{k=0}^{⌊(n-1)/3⌋} a(k) * a(n-1-3k)   (n ≥ 1) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache      = NULL; /* computed values */
 static size_t a_cache_size = 0;    /* allocated capacity */
@@ -30,7 +32,7 @@ static void a_ensure_cache(idx_t n)
     size_t new_cap = a_cache_size ? a_cache_size * 2 : 256;
     if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
 
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp && new_cap > 0) exit(EXIT_FAILURE); /* allocation failed */
     a_cache      = tmp;
     a_cache_size = new_cap;

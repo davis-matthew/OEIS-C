@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: full, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 static const unsigned long long MULT = 10234ULL;
 
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     if (!solutions) {
         /* Allocate room for at most 1000 potential solutions. */
-        solutions = (seq_t *)malloc(sizeof(seq_t) * 1000);
+        solutions = mem_new(seq_t, 1000);
         /* Scan k up to 1000 – all solutions are < 54. */
         for (idx_t k = 1; k <= 1000 && sol_cnt < 1000; ++k) {
             seq_t prod = (seq_t)k * (seq_t)MULT;

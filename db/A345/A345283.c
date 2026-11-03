@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{p|n, p prime} p^nextprime(n/p)
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   big_pow, next_prime
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   ipow, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 #include "../utils/next_prime.h"
 
 /* Helper: integer sqrt for uint64_t (used in factorisation) */
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         uint64_t p = primes[i];
         idx_t div = n / p;                      /* n/p, integer */
         uint64_t nxt = next_prime(div);         /* next prime > n/p */
-        sum += big_pow((seq_t)p, (seq_t)nxt);
+        sum += ipow((seq_t)p, (seq_t)nxt);
     }
     return sum;
 }

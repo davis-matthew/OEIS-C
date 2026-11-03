@@ -8,6 +8,7 @@
  *            for n>=1, a(0)=1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 29,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 645 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* Helper: binomial(n,k) computed multiplicatively.  Uses gcd to keep intermediate values smaller. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t binom_mul(idx_t a, idx_t b)

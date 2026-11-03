@@ -8,8 +8,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 13, u16 n <= 40, u32 n <= 128, u64 n <= 422,
+ * Range:     u8 n <= 17, u16 n <= 40, u32 n <= 128, u64 n <= 422,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1303 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,7 +26,8 @@
 */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 static inline idx_t find_row(idx_t n)
 {

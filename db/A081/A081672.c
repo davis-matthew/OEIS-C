@@ -7,13 +7,16 @@
  * Formula:   a(0)=1; a(n)=2^n for odd n; a(n)=2^n + C(n,n/2) for even n>0
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 47 terms through n = 471 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/binom.h"
 
 seq_t a(idx_t n)
 {
@@ -23,6 +26,6 @@ seq_t a(idx_t n)
     if (n & 1)                       /* odd n */
         return pow2n;
     idx_t half = n >> 1;             /* n/2 */
-    seq_t comb = binom(n, half);     /* C(n,n/2) */
+    seq_t comb = binomial(n, half);     /* C(n,n/2) */
     return pow2n + comb;
 }

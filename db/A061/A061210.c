@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 /* Include standard for dynamic allocation */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute digit sum of a seq_t value. */
 static seq_t digit_sum_seq_t(seq_t x)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     {
         /* Allocate a modest initial capacity. */
         cap = 16;
-        vals = (seq_t *)malloc(sizeof(seq_t) * cap);
+        vals = mem_new(seq_t, cap);
         if (!vals) return 0;
 
         for (idx_t s = 0; s <= 1000; ++s)      /* 1000 is generous */
@@ -55,8 +57,8 @@ seq_t a(idx_t n)
                 if (len == cap)            /* grow array when needed */
                 {
                     cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(vals, sizeof(seq_t) * cap);
-                    if (!tmp) { free(vals); return 0; }
+                    seq_t *tmp = mem_resize(seq_t, vals, cap);
+                    if (!tmp) { mem_free(vals); return 0; }
                     vals = tmp;
                 }
                 vals[len++] = val;

@@ -8,13 +8,15 @@
  *            sum_of_squared_digits(x) for x ≥ 1
  * Range:     u8 n <= 4, u16 n <= 254, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 8763 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* comparator for qsort */
 static int cmp_seq_t(const void *a, const void *b)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     while (1) {
         /* Allocate temporary array for f(x) values */
-        seq_t *tmp = (seq_t *)malloc(limit * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, limit);
         if (!tmp) abort();  /* insufficient memory */
 
         /* compute f(x) = x^2 + sum_of_squared_digits(x) for x = 1..limit */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         }
 
         /* sort the values */
-        qsort(tmp, limit, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(tmp, limit, sizeof(seq_t), cmp_seq_t);
 
         /* deduplicate */
         size_t uniq_cnt = 0;
@@ -63,12 +65,12 @@ seq_t a(idx_t n)
         /* if we have enough distinct terms, return the requested one */
         if (uniq_cnt >= n) {
             seq_t result = tmp[n - 1];
-            free(tmp);
+            mem_free(tmp);
             return result;
         }
 
         /* otherwise free and expand the search range */
-        free(tmp);
+        mem_free(tmp);
         limit *= 2;
     }
 }

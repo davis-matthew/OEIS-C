@@ -8,13 +8,17 @@
  * Formula:   a(n) = 1 (n=1); for n>1 a(n) = ceil(n^(1/Omega(n)))
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 1943, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, bigomega
+ * Validated: standard, pass, 109 terms through n = 9161 (2026-11-01)
+ * Helpers:   bigomega, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
+#include "../utils/ipow.h"
 
 /* compute floor of k-th root of n: largest x such that x^k <= n */
 static seq_t floor_kthroot(seq_t n, seq_t k)
@@ -22,7 +26,7 @@ static seq_t floor_kthroot(seq_t n, seq_t k)
     seq_t low = 1, high = n;
     while (low < high) {
         seq_t mid = (low + high + 1) / 2;          /* upper mid */
-        seq_t p = big_pow(mid, k);
+        seq_t p = ipow(mid, k);
         if (p <= n)
             low = mid;
         else
@@ -38,7 +42,7 @@ seq_t a(idx_t n)
 
     seq_t omega = bigomega(n);     /* Ω(n) ≥ 1 for n>1 */
     seq_t root  = floor_kthroot((seq_t)n, omega);
-    seq_t pow   = big_pow(root, omega);
+    seq_t pow   = ipow(root, omega);
 
     return (pow == (seq_t)n) ? root : root + 1;
 }

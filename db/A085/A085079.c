@@ -8,7 +8,8 @@
  * Formula:   a(n) = max{ m | prime_signature(m) = prime_signature(n) }
  * Range:     u8 n <= 51, u16 n <= 271, u32 n <= 2367, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64, sort_uint64_asc
+ * Validated: standard, pass, 86 terms through n = 8741 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,22 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/big_pow.h"      /* big_pow(seq_t base, seq_t exp) */
-#include "../utils/sort_uint64_asc.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
+
+static void sort_uint64_asc(uint64_t *arr, size_t n)
+{
+    for (size_t i = 0; i + 1 < n; ++i)
+        for (size_t j = 0; j + 1 < n - i; ++j)
+            if (arr[j] > arr[j + 1])
+            {
+                uint64_t tmp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = tmp;
+            }
+}
 
 seq_t a(idx_t n)
 {
@@ -46,7 +60,7 @@ seq_t a(idx_t n)
     {
         seq_t base = (seq_t)prime_factors[i];
         seq_t exp  = (seq_t)exponents[i];
-        result *= big_pow(base, exp);
+        result *= ipow(base, exp);
     }
     return result;
 }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 161, u32 n <= 609, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 1273 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>   /* malloc, calloc, realloc, abort */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 /*  Cached rows: rows[i] points to an array of length i+1 (index 0 unused).
  *  rows[0] is never used.  */
@@ -53,7 +55,7 @@ static void ensure_rows_up_to(idx_t need)
 
     for (idx_t n = computed_rows + 1; n <= need; ++n) {
         /* Allocate array of length n+1 (index 0 unused). */
-        seq_t *row = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(n + 1));
         if (!row) abort();               /* allocation failed */
 
         row[1] = (seq_t)1;                /* T(n,1)=1 */

@@ -9,12 +9,15 @@
  * Formula:   a(n) = n^2 * ((n-1)!)^(2*n)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 #include <stdint.h>
 
 seq_t a(idx_t n)
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
         fact *= i;               // multiply by each integer
     }
     seq_t exp = (seq_t)(2 * n);  // exponent 2*n
-    seq_t power = big_pow(fact, exp); // compute ((n-1)!)^(2*n)
+    seq_t power = ipow(fact, exp); // compute ((n-1)!)^(2*n)
 
     seq_t result = power;       // multiply by n^2
     result *= N;

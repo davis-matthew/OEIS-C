@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 409, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   modmul64
+ * Validated: standard, pass, 68 terms through n = 909 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/modmul64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* --------- 64‑bit Miller–Rabin primality test ------------ */
 
@@ -26,8 +29,8 @@ static inline uint64_t modpow64(uint64_t a, uint64_t d, uint64_t mod)
 {
     uint64_t r = 1;
     while (d) {
-        if (d & 1) r = modmul64(r, a, mod);
-        a = modmul64(a, a, mod);
+        if (d & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         d >>= 1;
     }
     return r;
@@ -59,7 +62,7 @@ static bool isPrime64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool cont = false;
         for (uint64_t r = 1; r < s; ++r) {
-            x = modmul64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { cont = true; break; }
         }
         if (cont) continue;
@@ -144,11 +147,11 @@ seq_t a(idx_t n)
         if (test_good_uint64(p)) {
             if (cache_cap == 0) {
                 cache_cap = 64;
-                cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+                cache = mem_new(seq_t, cache_cap);
             }
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)p;
         }

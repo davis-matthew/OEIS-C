@@ -9,7 +9,8 @@
  *            divides sum_of_digits(prime_factors_with_multiplicity(m))
  * Range:     u8 n <= 19, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   digit_sum, factor_u64, is_prime_small
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   digit_sum, factor_u64, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime_small.h"
-#include "../utils/factor_u64.h"
 #include "../utils/digit_sum.h"
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Allocate or grow storage for terms if necessary */
     if (!terms) {
         terms_cap = 64;
-        terms = (seq_t *)malloc(sizeof(seq_t) * terms_cap);
+        terms = mem_new(seq_t, terms_cap);
     }
 
     uint64_t primes[64];
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     while (terms_cnt < (size_t)n) {
         /* Find next composite number */
         for (; ; ++next) {
-            if (next >= 4 && !is_prime_small(next))
+            if (next >= 4 && !is_prime_seq(next))
                 break;
         }
 
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         if (sd_m != 0 && sd_pf % sd_m == 0) {
             if (terms_cnt == terms_cap) {
                 terms_cap <<= 1;
-                terms = (seq_t *)realloc(terms, sizeof(seq_t) * terms_cap);
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_cnt++] = (seq_t)next;
         }

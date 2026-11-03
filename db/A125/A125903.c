@@ -7,7 +7,8 @@
  * Formula:   a(n) = product of the first n primes that are coprime to n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   build_primes_upto, seq_gcd
+ * Validated: standard, pass, 33 terms through n = 329 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdint.h>
 
 /* Helper function declarations provided by the build environment */
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 /* Static cache for primes */
 static uint64_t *prime_list   = NULL;  /* array of primes */
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         }
 
         uint64_t p = prime_list[idx++];
-        if (seq_gcd((seq_t)p, (seq_t)n) == (seq_t)1) {
+        if (gcd((seq_t)p, (seq_t)n) == (seq_t)1) {
             result *= (seq_t)p;
             ++coprime_count;
         }

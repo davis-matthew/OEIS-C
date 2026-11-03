@@ -7,12 +7,14 @@
  * Formula:   a(n) = coefficient of y^(n+1) in (y^2+2*y+1)*(y^2+y+1)^(2*n-2)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 39 terms through n = 1164 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* coefficient of y^j in (y^2 + y + 1)^(2*n-2) */
 static seq_t coeff_y(idx_t n, idx_t j)
@@ -37,8 +39,8 @@ static seq_t coeff_y(idx_t n, idx_t j)
         if (b > m - a) continue;     /* safeguard, but already covered   */
 
         /* multinomial coefficient: C(m, a) * C(m-a, b)  */
-        seq_t term = binom(m, a);
-        term = term * binom(m - a, b);
+        seq_t term = binomial(m, a);
+        term = term * binomial(m - a, b);
         sum += term;
     }
     return sum;

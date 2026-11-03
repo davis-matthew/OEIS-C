@@ -6,9 +6,10 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) is the n‑th positive integer k such that k or k-1 is prime
  *            (offset 1)
- * Range:     u8 n <= 107, u16 n <= 9905, u32 n <= 9905, u64 n <= 9905,
- *            u128 n <= 9905, big any n
- * Helpers:   none
+ * Range:     u8 n <= 107, u16 n <= 13083, u32 n <= 19998, u64 n <= 19998,
+ *            u128 n <= 19998, big any n
+ * Validated: standard, pass, 82 terms through n = 9905 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* storage for generated primes and sequence values */
 static idx_t *prime_list = NULL;
@@ -42,7 +44,7 @@ static void ensure_seq_cap(void)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 32;
-        seq_t *tmp = (seq_t*)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
         if (!tmp) abort();
         seq_vals = tmp;
         seq_cap = new_cap;

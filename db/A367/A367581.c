@@ -13,6 +13,7 @@
  *            k, * repeated |S| times, where S is that set o...
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,8 +21,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 /* Cached list of primes for index lookup */
 static uint64_t *prime_list = NULL;

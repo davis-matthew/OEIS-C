@@ -12,12 +12,14 @@
  *            far
  * Range:     u8 n <= 26, u16 n <= 168, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *f = NULL;   /* table of partitions into 1..4 */
 static idx_t max_n = 0;   /* highest n for which f[] is valid */
@@ -30,9 +32,9 @@ static void recompute_f(idx_t n)
 
     /* Allocate a new table large enough for 0..n. */
     size_t sz = (size_t)(n + 1);
-    seq_t *new_f = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *new_f = mem_new(seq_t, sz);
     if (!new_f) { /* memory allocation failed */
-        free(f);
+        mem_free(f);
         f = NULL;
         max_n = 0;
         return;
@@ -48,7 +50,7 @@ static void recompute_f(idx_t n)
             new_f[i] += new_f[i - part];
 
     /* Replace the old table. */
-    free(f);
+    mem_free(f);
     f = new_f;
     max_n = n;
 }

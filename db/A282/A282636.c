@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   first_char, last_char
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/first_char.h"
-#include "../utils/last_char.h"
+#include "../utils/mem.h"
+
+/* Return first non‑space character in a buffer. */
+static char first_char(const char *buf)
+{
+    for (size_t i = 0; buf[i]; ++i)
+        if (buf[i] != ' ')
+            return buf[i];
+    return '\0';
+}
+
+/* Return last non‑space character in a buffer. */
+static char last_char(const char *buf)
+{
+    size_t len = strlen(buf);
+    for (size_t i = len; i > 0; --i)
+        if (buf[i-1] != ' ')
+            return buf[i-1];
+    return '\0';
+}
 
 /* English words for numbers below 1000. */
 static const char *ONES[10] = {"zero","one","two","three","four","five",
@@ -136,7 +155,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < (size_t)n)
             new_cap = n;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         start_letters = (char *)realloc(start_letters,
                                         new_cap * sizeof(char));
         cache_cap = new_cap;

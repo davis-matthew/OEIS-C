@@ -9,7 +9,8 @@
  *            n‑th digit of sqrt(2) (if k <= 0 then a(k) = 0)
  * Range:     u8 n <= 21, u16 n <= 41, u32 n <= 80, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Big‑integer base (decimal digits in base 1e9) */
 #define BIGINT_BASE 1000000000U
@@ -183,7 +185,7 @@ seq_t a(idx_t n)
     /* One‑time initialization */
     if (cache_size == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;       /* a(1) = 1 */
         cache_size = 1;
         init_sqrt();               /* initialise sqrt state */
@@ -199,7 +201,7 @@ seq_t a(idx_t n)
 
         if (cache_size == cache_cap) {
             size_t newcap = cache_cap * 2;
-            cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, newcap);
             cache_cap = newcap;
         }
         cache[cache_size] = next;

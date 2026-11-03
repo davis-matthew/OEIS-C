@@ -9,7 +9,8 @@
  *            binom(f, e_f)
  * Range:     u8 n <= 47, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom_uint
+ * Validated: standard, pass, 79 terms through n = 914 (2026-11-03)
+ * Helpers:   binomial_u64_to_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binom_uint.h"
+#include "../utils/binomial_u64_to_seq.h"
+#include "../utils/mem.h"
 
 /* Cache for already computed terms */
 static seq_t *a_cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 1;
         while (new_cap <= (size_t)n + 1)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp)
             abort();
         a_cache = tmp;
@@ -58,7 +60,7 @@ static void dfs(uint64_t rem, uint64_t min_f, seq_t weight, seq_t *out)
         /* Process divisor d with exponent k (1..d, d^k divides rem) */
         uint64_t pow = d;
         for (uint64_t k = 1; k <= d && rem % pow == 0; ++k) {
-            seq_t bin = binom_uint(d, k);
+            seq_t bin = binomial_u64_to_seq(d, k);
             seq_t new_weight = ((unsigned __int128)weight * bin);
             dfs(rem / pow, d + 1, new_weight, out);
 
@@ -72,7 +74,7 @@ static void dfs(uint64_t rem, uint64_t min_f, seq_t weight, seq_t *out)
         if (d2 != d && d2 >= min_f) {
             pow = d2;
             for (uint64_t k = 1; k <= d2 && rem % pow == 0; ++k) {
-                seq_t bin = binom_uint(d2, k);
+                seq_t bin = binomial_u64_to_seq(d2, k);
                 seq_t new_weight = ((unsigned __int128)weight * bin);
                 dfs(rem / pow, d2 + 1, new_weight, out);
 
@@ -85,7 +87,7 @@ static void dfs(uint64_t rem, uint64_t min_f, seq_t weight, seq_t *out)
 
     /* Handle the remaining factor being the whole rem itself */
     if (rem >= min_f) {
-        seq_t bin = binom_uint(rem, 1);          /* binom(rem,1) = rem */
+        seq_t bin = binomial_u64_to_seq(rem, 1);          /* binom(rem,1) = rem */
         seq_t new_weight = ((unsigned __int128)weight * bin);
         dfs(1, rem + 1, new_weight, out);
     }

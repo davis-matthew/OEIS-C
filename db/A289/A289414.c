@@ -8,6 +8,7 @@
  *            a(0)=1, a(1)=10, a(n)=20*a(n-1)-90*a(n-2) for n>1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 34,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 778 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

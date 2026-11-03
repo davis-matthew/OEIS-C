@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy, frac, look, tabl, new
  * Formula:   a(n) = (r + k) / gcd(r, k) where r = ceil( ( sqrt(1+8*n) - 1 ) /
  *            2 ), k = n - r*(r-1)/2
- * Range:     u8 n <= 8382, u16 n <= 9985, u32 n <= 9985, u64 n <= 9985,
- *            u128 n <= 9985, big any n
+ * Range:     u8 n <= 8382, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 9985 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,6 +10,7 @@
  *            antidiagonals downwards (n≥1, k≥0)
  * Range:     i8 n <= 40, i16 n <= 84, i32 n <= 200, i64 n <= 455,
  *            i128 n <= 1208, big any n
+ * Validated: standard, pass, 82 terms through n = 1254 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

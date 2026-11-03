@@ -8,9 +8,10 @@
  *            computed in multiprecision fixed point: 1/sqrt(2) by Newton,
  *            log(2) = 2*atanh(1/3), exp by bit-burst splitting of the
  *            argument
- * Range:     u8 n <= 9788, u16 n <= 9788, u32 n <= 9788, u64 n <= 9788,
- *            u128 n <= 9788, big any n
- * Helpers:   divs, fmul, iszero, mulp_shift, subf
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9788 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +19,75 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/divs.h"
-#include "../utils/fmul.h"
-#include "../utils/iszero.h"
-#include "../utils/mulp_shift.h"
-#include "../utils/subf.h"
+
+static void divs(uint32_t *a, size_t L, uint32_t d) {
+    uint64_t rem = 0;
+    size_t i = L;
+    while (i > 0) {
+        uint64_t cur;
+        i--;
+        cur = (rem << 32) | a[i];
+        a[i] = (uint32_t)(cur / d);
+        rem = cur % d;
+    }
+}
+
+static void fmul(uint32_t *r, const uint32_t *a, const uint32_t *b,
+                 size_t L, size_t F, uint32_t *tmp) {
+    size_t i, j;
+    memset(tmp, 0, 2 * L * sizeof(uint32_t));
+    for (i = 0; i < L; i++) {
+        uint64_t carry = 0, ai = a[i];
+        if (ai == 0) continue;
+        for (j = 0; j < L; j++) {
+            uint64_t cur = ai * b[j] + tmp[i + j] + carry;
+            tmp[i + j] = (uint32_t)cur;
+            carry = cur >> 32;
+        }
+        tmp[i + L] = (uint32_t)carry;
+    }
+    memcpy(r, tmp + F, L * sizeof(uint32_t));
+}
+
+static int iszero(const uint32_t *a, size_t L) {
+    size_t i;
+    for (i = 0; i < L; i++)
+        if (a[i]) return 0;
+    return 1;
+}
+
+static void mulp_shift(uint32_t *t, const uint32_t *p, size_t m, size_t h,
+                       size_t L, uint32_t *tmp) {
+    size_t i, j;
+    memset(tmp, 0, (L + m) * sizeof(uint32_t));
+    for (i = 0; i < m; i++) {
+        uint64_t carry = 0, pi = p[i];
+        if (pi == 0) continue;
+        for (j = 0; j < L; j++) {
+            uint64_t cur = pi * t[j] + tmp[i + j] + carry;
+            tmp[i + j] = (uint32_t)cur;
+            carry = cur >> 32;
+        }
+        tmp[i + L] = (uint32_t)carry;
+    }
+    for (i = 0; i < L; i++)
+        t[i] = (i + h < L + m) ? tmp[i + h] : 0;
+}
+
+static void subf(uint32_t *a, const uint32_t *b, size_t L) {
+    uint64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t sub = (uint64_t)b[i] + borrow;
+        if ((uint64_t)a[i] >= sub) {
+            a[i] = (uint32_t)((uint64_t)a[i] - sub);
+            borrow = 0;
+        } else {
+            a[i] = (uint32_t)(((uint64_t)1 << 32) + a[i] - sub);
+            borrow = 1;
+        }
+    }
+}
 
 static unsigned char *digs = NULL;
 static size_t ndig = 0;

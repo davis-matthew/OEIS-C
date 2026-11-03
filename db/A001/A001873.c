@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{m=0..floor(n/2)} binomial(4+n-m, 4)*binomial(n-m, m)
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 27, u64 n <= 66, u128 n <= 152,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 47 terms through n = 498 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     seq_t result = 0;
@@ -20,8 +22,8 @@ seq_t a(idx_t n) {
     for (idx_t m = 0; m <= limit; m++) {
         idx_t n_minus_m = n - m;
         idx_t four_plus_n_minus_m = 4 + n_minus_m;
-        seq_t binom1 = binom(four_plus_n_minus_m, 4);
-        seq_t binom2 = binom(n_minus_m, m);
+        seq_t binom1 = binomial(four_plus_n_minus_m, 4);
+        seq_t binom2 = binomial(n_minus_m, m);
         result = result + binom1 * binom2;
     }
     return result;

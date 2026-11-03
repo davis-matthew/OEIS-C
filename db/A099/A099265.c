@@ -7,7 +7,8 @@
  * Formula:   a(n) = (5^n + 12*3^n + 32*2^n + 36*n - 45)/96
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,14 +16,14 @@
 /* This is the explicit expression for A099265 with c = 5. */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     /* Compute powers using the helper pow_uint (returns seq_t). */
-    seq_t p5 = pow_uint(5, n);
-    seq_t p3 = pow_uint(3, n);
-    seq_t p2 = pow_uint(2, n);
+    seq_t p5 = ipow_u64_idx(5, n);
+    seq_t p3 = ipow_u64_idx(3, n);
+    seq_t p2 = ipow_u64_idx(2, n);
 
     /* Compute numerator: 5^n + 12*3^n + 32*2^n + 36*n - 45. */
     seq_t num = p5

@@ -10,7 +10,8 @@
  *            function A000720)
  * Range:     u8 n <= 2255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, compute_pi, is_prime
+ * Validated: standard, pass, 96 terms through n = 9656 (2026-11-02)
+ * Helpers:   build_primes_upto, is_prime, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,10 @@
 #include <stdbool.h>
 
 /* Helper utilities from the utils library */
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t x); */
-#include "../utils/compute_pi.h"       /* seq_t compute_pi(idx_t n); */
-#include "../utils/build_primes_upto.h"/* void build_primes_upto(idx_t limit,
-                                      uint64_t **primes_out, size_t *cnt_out); */
+#include <stddef.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
+#include "../utils/prime_pi.h"
 
 /* Global state for the prime list */
 static uint64_t *global_primes = NULL;   /* array of primes up to prime_limit */
@@ -64,7 +65,7 @@ seq_t a(idx_t n)
             break;
 
         idx_t m = n - p;                   /* n - p is the argument to pi() */
-        seq_t pi_val = compute_pi(m);       /* pi(m) */
+        seq_t pi_val = prime_pi(m);       /* pi(m) */
 
         /* Need pi_val - 1 and pi_val + 1 to be prime; skip if pi_val < 2 */
         if (pi_val < 2)

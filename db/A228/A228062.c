@@ -9,7 +9,8 @@
  *            integers a, b, c
  * Range:     u8 n <= 17, u16 n <= 19, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #ifdef __cplusplus
 #include <vector>
 #endif
+#include "../utils/mem.h"
 
 /* static cache of already computed sequence values */
 static seq_t *seq_vals = NULL;     /* array of sequence elements (C) */
@@ -50,7 +52,7 @@ static void generate_up_to(idx_t limit)
     }
 
     /* rebuild seq_vals with non‑representable numbers up to limit */
-    free(seq_vals);
+    mem_free(seq_vals);
     seq_vals = NULL;
     seq_cap = 0;
     seq_len = 0;
@@ -58,7 +60,7 @@ static void generate_up_to(idx_t limit)
         if (!rep[i]) {
             if (seq_len >= seq_cap) {
                 seq_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-                seq_vals = (seq_t*)realloc(seq_vals, seq_cap * sizeof(seq_t));
+                seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
             }
             seq_vals[seq_len++] = (seq_t)i;
         }

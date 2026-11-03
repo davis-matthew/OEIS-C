@@ -7,15 +7,33 @@
  * Formula:   a(i) = ⌊((k/2)²)⌋ · n², where n is the row index and k = i –
  *            n(n+1)/2 is the column offset obtained by counting terms
  *            row‑by‑row
- * Range:     u8 n <= 26, u16 n <= 298, u32 n <= 9555, u64 n <= 9555,
- *            u128 n <= 9555, big any n
- * Helpers:   _find_row
+ * Range:     u8 n <= 26, u16 n <= 298, u32 n <= 11475, u64 n <= 11475,
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 82 terms through n = 9555 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_find_row.h"
+
+/* Find the largest r such that r(r+1)/2 <= idx. */
+static idx_t _find_row(idx_t idx)
+{
+    idx_t high = 1;
+    while ((unsigned __int128)high * (high + 1) / 2 <= idx)
+        high <<= 1;
+    idx_t low = high >> 1;
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        unsigned __int128 t = (unsigned __int128)mid * (mid + 1) / 2;
+        if (t <= idx)
+            low = mid + 1;
+        else
+            high = mid;
+    }
+    return low - 1;               /* largest r with r(r+1)/2 <= idx */
+}
 
 seq_t a(idx_t idx)
 {

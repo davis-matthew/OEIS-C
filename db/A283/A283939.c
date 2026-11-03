@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 190, u16 n <= 1830, u32 n <= 1830, u64 n <= 1830,
  *            u128 n <= 1830, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 1792 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const idx_t R_NUM = 577;   /* numerator of sqrt(2) approximation */
 static const idx_t R_DEN = 408;   /* denominator of sqrt(2) approximation */
@@ -51,7 +53,7 @@ static int prefix_init = 0;
 static void init_prefix(void)
 {
     if (prefix_init) return;
-    prefix_f = (seq_t *)malloc(sizeof(seq_t) * (MAX_K + 1));
+    prefix_f = mem_new(seq_t, (MAX_K + 1));
     if (!prefix_f) exit(1);
     prefix_f[0] = 0;
     for (idx_t k = 1; k <= MAX_K; ++k) {

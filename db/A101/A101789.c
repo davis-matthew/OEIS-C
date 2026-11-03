@@ -10,14 +10,17 @@
  *            terms and extends it on demand
  * Range:     u8 n <= 4, u16 n <= 234, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 61 terms through n = 9959 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 #define SAFE_PRIME_CACHE_CAP 20000   /* large enough for n ≤ 10000 */
 
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
         uint64_t p2 = 4ULL * last_k - 1ULL;   /* 4k – 1  */
         uint64_t p1 = 8ULL * last_k - 1ULL;   /* 8k – 1  */
 
-        if (is_prime(p2) && is_prime(p1))
+        if (is_prime_u64(p2) && is_prime_u64(p1))
         {
             if (cache_size >= SAFE_PRIME_CACHE_CAP)
                 abort();                      /* should not happen for n ≤ 10000 */

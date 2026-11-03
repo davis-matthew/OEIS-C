@@ -8,7 +8,8 @@
  * Formula:   a(n) = n! * Σ_{i=0..⌊n/7⌋} ((-1)^i) / (i! * 7^i)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  *                  idx_t is an unsigned integer type (uint64_t or equivalent). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Factorial cache ----------
  * fact_cache[0] = 0! = 1
@@ -35,7 +37,7 @@ static void ensure_factorial(idx_t n)
 
     /* New size: n+1 (need to store up to n) */
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(fact_cache, sizeof(seq_t) * new_size);
+    seq_t *new_cache = mem_resize(seq_t, fact_cache, new_size);
     if (!new_cache) {                        /* Should never happen on these systems */
         exit(1);
     }

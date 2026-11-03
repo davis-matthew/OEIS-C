@@ -7,7 +7,8 @@
  * Formula:   a(n) = (prime(n+1)+prime(n))*(prime(n+1)-prime(n)-2)/4
  * Range:     u8 n <= 23, u16 n <= 649, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Prime table: prime_list[0] = 2 = prime(1) */
 static seq_t *prime_list = NULL;
@@ -47,7 +49,7 @@ static void ensure_primes(idx_t need)
             if (sieve[i]) ++cnt;
 
         if (cnt >= need) {
-            seq_t *newlist = (seq_t *)realloc(prime_list, sizeof(seq_t) * cnt);
+            seq_t *newlist = mem_resize(seq_t, prime_list, cnt);
             if (!newlist) exit(1);
             prime_list = newlist;
             prime_count = cnt;

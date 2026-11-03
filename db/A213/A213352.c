@@ -12,14 +12,17 @@
  *            gives the n‑th term for n ≥ 10
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 52, u64 n <= 209,
  *            u128 n <= 919, big any n
+ * Validated: standard, pass, 50 terms through n = 2019 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

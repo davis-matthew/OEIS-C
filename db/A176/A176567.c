@@ -9,14 +9,16 @@
  * Formula:   T(n, k) = binomial(binomial(n, 2) + k, k) + binomial(binomial(n,
  *            2) + n–k, n–k) – binomial(binomial(n, 2) + n, n); a(n) =
  *            sum_{k=0}^{n} T(n, k)
- * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 55, i64 n <= 136,
- *            i128 n <= 326, big any n
+ * Range:     i8 n <= 11, i16 n <= 21, i32 n <= 55, i64 n <= 136,
+ *            i128 n <= 351, big any n
+ * Validated: standard, pass, 61 terms through n = 1129 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

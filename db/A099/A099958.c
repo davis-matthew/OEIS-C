@@ -13,13 +13,15 @@
  *            sieve
  * Range:     u8 n <= 12, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system. */
 
@@ -43,8 +45,7 @@ static void recompute_even_prefix(idx_t new_limit)
     }
 
     /* Resize prefix array. */
-    seq_t *new_pref = (seq_t *)realloc(even_prefix,
-                                       (size_t)(new_limit + 1) * sizeof(seq_t));
+    seq_t *new_pref = mem_resize(seq_t, even_prefix, (size_t)(new_limit + 1));
     if (!new_pref) {                                 /* allocation failed */
         free(phi);
         return;

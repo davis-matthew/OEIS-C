@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,15 +19,16 @@
    For n = 25:        a(25) = 3*Σ_{i=1}^{24} a(25 − i) – 6*a(0) + 1
    For n >= 26:       a(n) = 3*Σ_{i=1}^{24} a(n − i) – 6*a(n − 25)  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Allocate array of n+1 elements */
     size_t len = (size_t)n + 1;
-    seq_t *val = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *val = mem_new(seq_t, len);
     if (!val) return (seq_t)0;          /* should not happen */
 
     val[0] = (seq_t)1;
-    if (n == 0) { seq_t r = val[0]; free(val); return r; }
+    if (n == 0) { seq_t r = val[0]; mem_free(val); return r; }
 
     /* First 24 terms */
     val[1] = (seq_t)5;
@@ -56,6 +58,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = val[n];
-    free(val);
+    mem_free(val);
     return result;
 }

@@ -10,7 +10,8 @@
  *            if n=r*s (r,s≥2), then a(n)=a(r)+a(s)+(b(r)-1)*(b(s)-1)-1
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* prime list and index (prime_index[p] = 1‑based index of prime p, 0 if not prime) */
 static size_t prime_limit = 0;
@@ -105,9 +107,9 @@ static void ensure_cache_size(idx_t n)
     size_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap <= (size_t)n) new_cap <<= 1;
 
-    A_cache = (seq_t *)realloc(A_cache, new_cap * sizeof(seq_t));
+    A_cache = mem_resize(seq_t, A_cache, new_cap);
     if (!A_cache) exit(EXIT_FAILURE);
-    B_cache = (seq_t *)realloc(B_cache, new_cap * sizeof(seq_t));
+    B_cache = mem_resize(seq_t, B_cache, new_cap);
     if (!B_cache) exit(EXIT_FAILURE);
 
     /* Initialise new positions with zero */

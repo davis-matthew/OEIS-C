@@ -10,6 +10,7 @@
  *            (m-k)!). Sequence a(n) is the triangle read by rows
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 91, u64 n <= 231,
  *            u128 n <= 630, big any n
+ * Validated: standard, pass, 71 terms through n = 4903 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

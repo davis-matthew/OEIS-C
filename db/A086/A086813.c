@@ -9,12 +9,14 @@
  *            3*a(n-1)/2 if a(n-1) is even. (n ≥ 2)
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 31, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache of already computed terms   */
 static idx_t cache_size = 0;  /* number of terms stored in cache  */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Ensure the cache is initialised with a(1) = 1. */
     if (cache_size == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache == NULL)
             return (seq_t)0;   /* out‑of‑memory fallback */
         cache[0] = (seq_t)1;   /* a(1) */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache up to the requested index if necessary. */
     if (n > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (tmp == NULL)
             return (seq_t)0;   /* out‑of‑memory fallback */
         cache = tmp;

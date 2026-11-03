@@ -13,12 +13,14 @@
  *            a(2)=1, a(3)=0, a(4)=1, a(5)=1, … This function bu...
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build system */
 extern seq_t a(idx_t n);
@@ -42,7 +44,7 @@ static void grow_cache(size_t need)
     size_t new_cap = cache_cap ? cache_cap : 16;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(flat_cache, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, flat_cache, new_cap);
     flat_cache = tmp;
     cache_cap  = new_cap;
 }
@@ -61,11 +63,11 @@ seq_t a(idx_t n)
     /* lazy initialization on first call */
     if (flat_cache == NULL) {
         cache_cap = 16;
-        flat_cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        flat_cache = mem_new(seq_t, cache_cap);
 
         /* Initialize P0(x) = 1 */
         poly_len = 1;
-        poly = (seq_t *)malloc(sizeof(seq_t) * poly_len);
+        poly = mem_new(seq_t, poly_len);
         poly[0] = (seq_t)1;
 
         /* Store first element */
@@ -80,20 +82,20 @@ seq_t a(idx_t n)
 
         if (next_row & 1) {  /* odd row: P = old + x */
             new_len = (poly_len >= 2) ? poly_len : 2;
-            new_poly = (seq_t *)malloc(sizeof(seq_t) * new_len);
+            new_poly = mem_new(seq_t, new_len);
             for (size_t i = 0; i < new_len; ++i)
                 new_poly[i] = (i < poly_len) ? poly[i] : (seq_t)0;
             new_poly[1] += (seq_t)1;      /* increase coefficient of x by 1 */
         } else {            /* even row: P = old * x */
             new_len = poly_len + 1;
-            new_poly = (seq_t *)malloc(sizeof(seq_t) * new_len);
+            new_poly = mem_new(seq_t, new_len);
             new_poly[0] = (seq_t)0;
             for (size_t i = 1; i < new_len; ++i)
                 new_poly[i] = poly[i - 1];
         }
 
         /* Free old polynomial and replace */
-        free(poly);
+        mem_free(poly);
         poly     = new_poly;
         poly_len = new_len;
 

@@ -10,7 +10,8 @@
  *            terms by brute‑force * enumeration up to the requested index
  * Range:     u8 n <= 80, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alternates, is_prime_digit
+ * Validated: standard, pass, 72 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,32 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/alternates.h"
-#include "../utils/is_prime_digit.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static bool is_prime_digit(int d)
+{
+    return d == 2 || d == 3 || d == 5 || d == 7;
+}
+
+/* check whether x alternates prime/nonprime per adjacent decimal digits */
+static bool alternates(seq_t x)
+{
+    if (x < (seq_t)10)     /* single digits are ignored by caller */
+        return false;
+    int d = (int)(x % (seq_t)10);
+    bool prev = is_prime_digit(d);
+    x /= (seq_t)10;
+    while (x > (seq_t)0) {
+        d = (int)(x % (seq_t)10);
+        bool cur = is_prime_digit(d);
+        if (cur == prev)
+            return false;
+        prev = cur;
+        x /= (seq_t)10;
+    }
+    return true;
+}
 
 /* local helper: true if d is a prime digit */
 
@@ -38,7 +63,7 @@ seq_t a(idx_t n)
     /* initialise storage once */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* return cached value if already known */
@@ -52,7 +77,7 @@ seq_t a(idx_t n)
             /* grow cache if needed */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (tmp == NULL) /* malloc failure – abort */
                     abort();
                 cache = tmp;

@@ -7,13 +7,15 @@
  * Formula:   a(n) = 531*a(n-1) - a(n-2), a(0)=1, a(1)=531
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache storage for memoised terms */
 static seq_t *cache   = NULL;   /* array of terms */
@@ -31,7 +33,7 @@ static void extend_cache(idx_t n)
     while (new_cap < need)
         new_cap <<= 1;               /* grow geometrically */
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(EXIT_FAILURE);
     cache = new_cache;
     cap   = new_cap;

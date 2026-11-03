@@ -7,12 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n,k) * k! * k^n
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 32 terms through n = 222 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +25,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= n; ++k)
     {
-        seq_t kpow = big_pow((seq_t)k, (seq_t)n);  /* k^n  */
+        seq_t kpow = ipow((seq_t)k, (seq_t)n);  /* k^n  */
         seq_t term = C * fact;
         term = term * kpow;
         sum += term;

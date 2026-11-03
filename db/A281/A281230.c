@@ -8,14 +8,31 @@
  *            Pisano period of the Fibonacci sequence modulo n.)
  * Range:     u8 n <= 49, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pisano_period
+ * Validated: standard, pass, 96 terms through n = 9847 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pisano_period.h"
+
+/* Return the Pisano period of Fibonacci numbers modulo m (m ≥ 3). */
+static seq_t pisano_period(idx_t m) {
+    seq_t f0 = 0;
+    seq_t f1 = 1 % (seq_t)m;
+    seq_t f2;
+    idx_t t = 0;
+    /* The period is guaranteed to be ≤ 6*m for m ≥ 3. */
+    do {
+        f2 = (f0 + f1);
+        if (f2 >= (seq_t)m) f2 -= (seq_t)m;          /* avoid a % operation */
+        f0 = f1;
+        f1 = f2;
+        ++t;
+    } while (!(f0 == 0 && f1 == 1));
+    return (seq_t)t;
+}
 
 seq_t a(idx_t n) {
     if (n == 1) return (seq_t)1;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   isPrimeGeneric
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,30 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/isPrimeGeneric.h"   /* isPrimeGeneric(seq_t) */
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* static state ----------------------------------------------------------- */
 static bool initialized = false;
@@ -67,7 +91,7 @@ static void init(void)
     /* initialise memoised sequence with a(0)=4 */
     seq_len = 1;
     seq_cap = 16;
-    seq_arr  = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_arr  = mem_new(seq_t, seq_cap);
     seq_arr[0] = (seq_t)4;
     initialized = true;
 }
@@ -84,8 +108,7 @@ static void generate_next(void)
             /* ensure capacity */
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq_arr = (seq_t *)realloc(seq_arr,
-                                           seq_cap * sizeof(seq_t));
+                seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
             }
             seq_arr[seq_len++] = cand;
             used_prime[i] = true;

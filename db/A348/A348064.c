@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n,k) * Stirling1(k,3) * (n-k)!
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     if (fact == NULL) {
         fact_cap = 4;
-        fact = (seq_t *)malloc(fact_cap * sizeof(seq_t));
+        fact = mem_new(seq_t, fact_cap);
         fact[0] = (seq_t)1;
         fact_size = 0;
     }
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         if (fact_cap <= (size_t)n) {
             size_t new_cap = fact_cap ? fact_cap << 1 : 4;
             while (new_cap <= (size_t)n) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fact, new_cap);
             if (!tmp) return 0;            /* allocation failure */
             fact = tmp;
             fact_cap = new_cap;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 
     if (s3 == NULL) {
         s3_cap = 4;
-        s3 = (seq_t *)malloc(s3_cap * sizeof(seq_t));
+        s3 = mem_new(seq_t, s3_cap);
         if (!s3) return 0;              /* allocation failure */
         s3[0] = (seq_t)0;
         s3[1] = (seq_t)0;
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         if (s3_cap <= (size_t)n) {
             size_t new_cap = s3_cap ? s3_cap << 1 : 4;
             while (new_cap <= (size_t)n) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(s3, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, s3, new_cap);
             if (!tmp) return 0;            /* allocation failure */
             s3 = tmp;
             s3_cap = new_cap;

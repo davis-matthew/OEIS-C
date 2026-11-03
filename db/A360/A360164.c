@@ -10,12 +10,15 @@
  *            p^(e/2) + 1 if e is even (p odd prime)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 103 terms through n = 9638 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 /* Computes a(n) for any n >= 1. */
 seq_t a(idx_t n)
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
                 e++;
             }
             if ((e & 1) == 0) {  /* even exponent */
-                seq_t t   = seq_pow((seq_t)p, e / 2); /* p^(e/2)   */
+                seq_t t   = ipow_idx((seq_t)p, e / 2); /* p^(e/2)   */
                 t += 1;              /* +1 for the odd‑square divisor 1 */
                 result *= t;
             }

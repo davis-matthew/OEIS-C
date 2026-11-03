@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 338, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, seq_alloc_new_array
+ * Validated: standard, pass, 61 terms through n = 900 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t x); */
-#include "../utils/seq_alloc_new_array.h" /* seq_t *seq_alloc_new_array(size_t n); */
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 seq_t a(idx_t n)
 {
@@ -61,7 +68,7 @@ seq_t a(idx_t n)
                     seq_t *tmp = seq_alloc_new_array(new_cap);
                     for (size_t i = 0; i < count; ++i)
                         tmp[i] = cache[i];
-                    free(cache);
+                    mem_free(cache);
                     cache = tmp;
                     cap   = new_cap;
                 }

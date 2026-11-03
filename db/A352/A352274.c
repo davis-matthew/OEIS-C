@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values */
 static seq_t *cache = NULL;
@@ -99,7 +101,7 @@ static void extend_cache(idx_t needed)
             if (good_candidate((uint64_t)next_candidate)) {
                 if (cache_len == cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap << 1 : 128;
-                    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, new_cap);
                     cache_cap = new_cap;
                 }
                 cache[cache_len++] = (seq_t)next_candidate;

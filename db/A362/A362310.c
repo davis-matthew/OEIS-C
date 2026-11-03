@@ -13,15 +13,35 @@
  *            form * the overall sequence. * The algorith...
  * Range:     u8 n <= 24, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   pow10, seq_cmp
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow10.h"     /* seq_t pow10(idx_t exp) */
-#include "../utils/seq_cmp.h"  /* int seq_cmp(const void*, const void*) */
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -44,12 +64,12 @@ seq_t a(idx_t n)
 
     /* ----- pre‑compute powers of 2 and 5 up to exponent r ---------- */
     size_t cnt = (size_t)(r + 1ULL);        /* number of exponents for 2 and 5 */
-    seq_t *pow2 = (seq_t*)malloc(sizeof(seq_t) * cnt);
-    seq_t *pow5 = (seq_t*)malloc(sizeof(seq_t) * cnt);
+    seq_t *pow2 = mem_new(seq_t, cnt);
+    seq_t *pow5 = mem_new(seq_t, cnt);
     if (!pow2 || !pow5)
     {
-        free(pow2);
-        free(pow5);
+        mem_free(pow2);
+        mem_free(pow5);
         return (seq_t)0;   /* allocation failure – unlikely in given limits */
     }
 
@@ -66,11 +86,11 @@ seq_t a(idx_t n)
 
     /* ----- generate all terms of the row -------------------------- */
     size_t len = (size_t)row_len;
-    seq_t *row_vals = (seq_t*)malloc(sizeof(seq_t) * len);
+    seq_t *row_vals = mem_new(seq_t, len);
     if (!row_vals)
     {
-        free(pow2);
-        free(pow5);
+        mem_free(pow2);
+        mem_free(pow5);
         return (seq_t)0;
     }
 
@@ -92,13 +112,13 @@ seq_t a(idx_t n)
     }
 
     /* ----- sort ascending and return the element ------------------ */
-    qsort(row_vals, len, sizeof(seq_t), seq_cmp);
+    mem_qsort(row_vals, len, sizeof(seq_t), seq_cmp);
     seq_t result = row_vals[pos_in_row];
 
     /* ----- clean up ------------------------------------------------ */
-    free(row_vals);
-    free(pow2);
-    free(pow5);
+    mem_free(row_vals);
+    mem_free(pow2);
+    mem_free(pow5);
 
     return result;
 }

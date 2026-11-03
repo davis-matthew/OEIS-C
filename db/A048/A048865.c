@@ -9,14 +9,18 @@
  *            n. * This equals the number of primes <= n that are coprime to n
  * Range:     u8 n <= 1620, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi, count_distinct_primes
+ * Validated: standard, pass, 97 terms through n = 9837 (2026-11-01)
+ * Helpers:   omega, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/compute_pi.h"
-#include "../utils/count_distinct_primes.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -25,10 +29,10 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Compute pi(n) using the provided helper. */
-    seq_t pi = compute_pi(n);
+    seq_t pi = prime_pi(n);
 
     /* Count distinct prime factors of n.  The helper returns int. */
-    int d = count_distinct_primes((uint64_t)n);
+    int d = omega((uint64_t)n);
 
     /* pi(n) >= d, the result is always non‑negative. */
     return pi - (seq_t)d;

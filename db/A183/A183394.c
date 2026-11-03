@@ -9,7 +9,8 @@
  *            a strict majority of its knight‑move neighbors)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 35, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* -------------  Constants  ----------------- */
 
@@ -114,7 +116,7 @@ seq_t a(idx_t n) {
     static seq_t nxt[STATE_SIZE];
 
     /* Zero dp */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initial states: two sentinel rows before the first real row */
     for (int r1 = 0; r1 < 8; ++r1)
@@ -123,7 +125,7 @@ seq_t a(idx_t n) {
 
     /* Handle rows 3 .. n */
     for (idx_t rowIdx = 3; rowIdx <= n; ++rowIdx) {
-        memset(nxt, 0, sizeof(nxt));
+        mem_set(nxt, 0, sizeof(nxt));
         for (int st = 0; st < STATE_SIZE; ++st) {
             if (dp[st] == 0) continue;
             int rem = st % 729;                 /* remainder = state % 9^3 */
@@ -134,12 +136,12 @@ seq_t a(idx_t n) {
                 nxt[newSt] += cur;
             }
         }
-        memcpy(dp, nxt, sizeof(dp));
+        mem_copy(dp, nxt, sizeof(dp));
     }
 
     /* Close with two sentinel rows */
     for (int step = 0; step < 2; ++step) {
-        memset(nxt, 0, sizeof(nxt));
+        mem_set(nxt, 0, sizeof(nxt));
         for (int st = 0; st < STATE_SIZE; ++st) {
             if (dp[st] == 0) continue;
             if (!sentinelOk[st]) continue;
@@ -147,7 +149,7 @@ seq_t a(idx_t n) {
             int newSt = rem * 9 + ABSENT;
             nxt[newSt] += dp[st];
         }
-        memcpy(dp, nxt, sizeof(dp));
+        mem_copy(dp, nxt, sizeof(dp));
     }
 
     /* Sum all final counts */

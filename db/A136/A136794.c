@@ -11,24 +11,26 @@
  *            and edge marks + or -
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;  // below offset, return 0 (irrelevant)
 
     /* Allocate arrays for f[1..n] and C[1..n] */
     size_t sz = (size_t)(n + 1U);
-    seq_t *f = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *C = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, sz);
+    seq_t *C = mem_new(seq_t, sz);
     if (!f || !C) {
         /* allocation failed; abort (caller should handle appropriately) */
-        if (f) free(f);
-        if (C) free(C);
+        if (f) mem_free(f);
+        if (C) mem_free(C);
         return 0;
     }
 
@@ -63,8 +65,8 @@ seq_t a(idx_t n) {
 
     seq_t result = 2 * f[n];
 
-    free(f);
-    free(C);
+    mem_free(f);
+    mem_free(C);
 
     return result;
 }

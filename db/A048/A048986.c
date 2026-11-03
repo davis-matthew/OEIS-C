@@ -11,7 +11,8 @@
  *            return that prime (in base 10) or -1 if no prime is ever reached
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 132, u64 n <= 921,
  *            u128 n <= 1344, big any n
- * Helpers:   factor_u64, floor_log2_uint64, is_prime, is_prime_big
+ * Validated: standard, pass, 71 terms through n = 2263 (2026-11-03)
+ * Helpers:   factor_u64, ilog2, is_prime, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,64 @@
 #include <string.h>
 
 #include "../utils/factor_u64.h"
-#include "../utils/floor_log2_uint64.h"
+#include "../utils/ilog2.h"
 #include "../utils/is_prime.h"
-#include "../utils/is_prime_big.h"
+#include "../utils/mem.h"
+#include "../utils/is_prime_u64.h"
+
+/* Miller–Rabin primality test for seq_t (supports 8/16/32/64/128/ arbitrary-precision) */
+/* n fits in uint64_t (n >= 0 here) */
+static bool is_prime_big_fits_u64(seq_t v)
+{
+    if (sizeof(seq_t) <= 8) return true;
+    return !((seq_t)UINT64_MAX < v);
+}
+
+static bool is_prime_big(seq_t n) {
+    if (n < 2) return false;
+    /* exact in 64 bits when n fits: the seq_t products below overflow at
+       u64/i64 once n passes 2^32, and are slow under big */
+    if (is_prime_big_fits_u64(n)) return is_prime_u64((uint64_t)n);
+    if (n == 2 || n == 3) return true;
+    if ((n & 1) == 0) return false;
+
+    /* write n-1 as d * 2^s with d odd */
+    seq_t d = n - 1;
+    unsigned s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        s++;
+    }
+
+    /* deterministic bases covering 128‑bit values */
+    static const int base_list[] = {2,3,5,7,11,13,17,19,23,29,31,37};
+    const int num_bases = sizeof(base_list)/sizeof(base_list[0]);
+
+    for (int i = 0; i < num_bases; i++) {
+        seq_t a = (seq_t)base_list[i];
+        if (a >= n) continue;
+
+        /* compute a^d mod n */
+        seq_t x = 1;
+        seq_t pow = a % n;
+        seq_t exp = d;
+        while (exp > 0) {
+            if (exp & 1) x = (x * pow) % n;
+            pow = (pow * pow) % n;
+            exp >>= 1;
+        }
+
+        if (x == 1 || x == n-1) continue;
+
+        bool cont = false;
+        for (unsigned r = 1; r < s; r++) {
+            x = (x * x) % n;
+            if (x == n-1) { cont = true; break; }
+        }
+        if (!cont) return false;
+    }
+    return true;
+}
 
 static seq_t *cache = NULL;          /* 1‑based cache, value 0 means “not computed” */
 static size_t cache_cap = 0;
@@ -43,13 +99,13 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL) {
         cache_cap = (size_t)n + 1;
-        cache = (seq_t*)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (cache_cap <= (size_t)n) {
         size_t old_cap = cache_cap;
         size_t new_cap = cache_cap * 2;
         if (new_cap <= (size_t)n + 1) new_cap = (size_t)n + 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
-        memset(cache + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
+        mem_set(cache + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
         cache_cap = new_cap;
     }
 }
@@ -87,7 +143,7 @@ seq_t a(idx_t n)
             seq_t next = 0;
             for (size_t i = 0; i < cnt; ++i) {
                 uint64_t p   = pf[i];
-                size_t   bits = floor_log2_uint64(p) + 1;
+                size_t   bits = ilog2(p) + 1;
                 for (size_t e = 0; e < ex[i]; ++e)
                     next = (next << bits) | (seq_t)p;
             }

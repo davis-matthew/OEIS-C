@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime( floor( n*(3+sqrt(3))/2 ) )
  * Range:     u8 n <= 4, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, floor_sqrt
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,35 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/floor_sqrt.h"
-#include "../utils/_prime_limit_for_idx.h"
+#include <math.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* Compute floor(n*r) where r = (3+sqrt(3))/2 using integer arithmetic.
    The steps are:  floor((3n + floor(n*sqrt(3)))/2) */

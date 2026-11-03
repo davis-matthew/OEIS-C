@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Global storage for the sequence and for a sieve of smallest prime factors */
@@ -38,12 +40,12 @@ static void seq_grow(void)
 {
     if (seq_len >= seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 64;
-        seq_t *new_seq = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_seq = mem_new(seq_t, new_cap);
         if (!new_seq) exit(EXIT_FAILURE);
         if (seq) {
             for (size_t i = 0; i < seq_len; ++i)
                 new_seq[i] = seq[i];
-            free(seq);
+            mem_free(seq);
         }
         seq = new_seq;
         seq_cap = new_cap;

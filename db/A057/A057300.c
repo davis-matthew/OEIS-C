@@ -8,8 +8,9 @@
  * Formula:   a(4*n + k) = 4*a(n) + a(k) (0 ≤ k ≤ 3) Base values: a(0) = 0,
  *            a(1) = 2, a(2) = 1, a(3) = 3 This implements the OEIS sequence
  *            A057300
- * Range:     u8 n <= 255, u16 n <= 9857, u32 n <= 9857, u64 n <= 9857,
- *            u128 n <= 9857, big any n
+ * Range:     u8 n <= 255, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 86 terms through n = 9857 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

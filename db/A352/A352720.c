@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 38, u64 n <= 75, u128 n <= 147,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 850 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[12] = {
     (seq_t)0,   /* a(0) */
@@ -61,12 +63,12 @@ static void ensure_cache(idx_t n)
 
     /* Reallocate or initialise. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        cache = mem_new(seq_t, new_len);
         if (cache == NULL) abort();     /* allocation failed */
         for (idx_t i = 0; i < 12 && i < new_len; ++i)
             cache[i] = init_vals[i];
     } else {
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL) abort();       /* realloc failed */
         cache = tmp;
         /* initialise new entries if expanding into the region above 12 */

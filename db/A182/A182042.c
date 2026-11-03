@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 51, u32 n <= 181, u64 n <= 617,
  *            u128 n <= 2256, big any n
- * Helpers:   binom, pow3
+ * Validated: standard, pass, 71 terms through n = 4900 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 /* A182042: a(n) = T(r,k) where r = ⌊(√(8n+1)-1)/2⌋,
    k = n - r(r+1)/2, and T(r,0)=0^r (0^0=1),  T(r,k)=C(r,k)*3^k for k>0 */
 
-#include "../utils/binom.h"  /* binom(idx_t a, idx_t b) -> seq_t */
-#include "../utils/pow3.h"   /* pow3(idx_t e) -> seq_t */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         return (r == 0) ? (seq_t)1 : (seq_t)0;
     }
 
-    seq_t bin = binom(r, k);              /* C(r,k) */
+    seq_t bin = binomial(r, k);              /* C(r,k) */
     seq_t pw  = pow3(k);                  /* 3^k */
 
     return bin * pw;                      /* T(r,k) = C(r,k)*3^k */

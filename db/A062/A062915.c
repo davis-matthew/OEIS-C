@@ -8,14 +8,16 @@
  *            both the number and its digit reversal are multiples of 17
  * Range:     u8 none, u16 n <= 185, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   reverse_uint64
+ * Validated: standard, pass, 57 terms through n = 917 (2026-11-03)
+ * Helpers:   mem, reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/reverse_uint64.h"
+#include "../utils/reverse_digits_u64.h"
+#include "../utils/mem.h"
 
 /* Return the nth term of A062915.  idx_t is an unsigned integer type. */
 seq_t a(idx_t n) {
@@ -28,11 +30,11 @@ seq_t a(idx_t n) {
     /* Ensure we have enough space for the needed number of terms. */
     if (terms_capacity == 0) {
         terms_capacity = 16384;                     /* initial capacity   */
-        terms = (seq_t *)malloc(terms_capacity * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_capacity);
         if (!terms) abort();
     } else if (terms_capacity <= terms_count) {
         size_t new_cap = terms_capacity * 2;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();
         terms = tmp;
         terms_capacity = new_cap;
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     /* Generate terms until we have at least n of them. */
     while (terms_count < (size_t)n) {
         if ((next_candidate % 17ULL) == 0ULL) {
-            uint64_t rev = reverse_uint64(next_candidate);
+            uint64_t rev = reverse_digits_u64(next_candidate);
             if ((rev % 17ULL) == 0ULL && rev != next_candidate) {
                 terms[terms_count++] = (seq_t)next_candidate;
             }

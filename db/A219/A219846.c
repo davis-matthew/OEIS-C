@@ -10,6 +10,7 @@
  * Formula:   a(n) = (n^4 + 2*n^3 + 23*n^2 - 2*n + 48) / 24
  * Range:     u8 n <= 7, u16 n <= 34, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
+ * Validated: standard, pass, 57 terms through n = 205 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* cache[0..cache_cap-1] */
 static idx_t  cache_cap   = 0;     /* number of allocated entries */
@@ -30,7 +32,7 @@ static void pow5_ensure(idx_t max)
     idx_t new_cap = pow5_cap ? pow5_cap : 1;
     while (new_cap <= max) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t*)realloc(pow5, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pow5, new_cap);
     if (!tmp) abort();
     pow5 = tmp;
 
@@ -51,7 +53,7 @@ static void cache_ensure(idx_t needed)
     idx_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap <= needed) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;
@@ -60,14 +62,14 @@ static void cache_ensure(idx_t needed)
 seq_t a(idx_t n)
 {
     if (cache == NULL) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();
         cache[0] = (seq_t)1;   /* a(0) = 1 */
         cache_cap = 1;
         cache_n   = 0;
     }
     if (pow5 == NULL) {
-        pow5 = (seq_t*)malloc(sizeof(seq_t));
+        pow5 = mem_new(seq_t, 1);
         if (!pow5) abort();
         pow5[0] = (seq_t)1;
         pow5_cap = 1;

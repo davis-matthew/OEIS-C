@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Function definition required by the build */
 seq_t a(idx_t n)
@@ -50,14 +52,14 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* Allocate coefficient arrays */
-    seq_t *coeff = (seq_t *)malloc((N + 1) * sizeof(seq_t));      /* B_{k-1} */
-    seq_t *newcoeff = (seq_t *)malloc((N + 1) * sizeof(seq_t));   /* B_k     */
-    seq_t *ans = (seq_t *)malloc((N + 1) * sizeof(seq_t));        /* a[n]    */
+    seq_t *coeff = mem_new(seq_t, (N + 1));      /* B_{k-1} */
+    seq_t *newcoeff = mem_new(seq_t, (N + 1));   /* B_k     */
+    seq_t *ans = mem_new(seq_t, (N + 1));        /* a[n]    */
     if (!coeff || !newcoeff || !ans) {
         /* Allocation failure – return 0 (unlikely for normal use) */
-        free(coeff);
-        free(newcoeff);
-        free(ans);
+        mem_free(coeff);
+        mem_free(newcoeff);
+        mem_free(ans);
         return (seq_t)0;
     }
 
@@ -71,11 +73,11 @@ seq_t a(idx_t n)
     ans[0] = (seq_t)1;     /* contribution of the k=0 term */
 
     /* Companion Pell numbers for A002203 (2,6,14,34,...) */
-    seq_t *pell = (seq_t *)malloc((N + 2) * sizeof(seq_t)); /* use N+2 to avoid underflow */
+    seq_t *pell = mem_new(seq_t, (N + 2)); /* use N+2 to avoid underflow */
     if (!pell) {
-        free(coeff);
-        free(newcoeff);
-        free(ans);
+        mem_free(coeff);
+        mem_free(newcoeff);
+        mem_free(ans);
         return (seq_t)0;
     }
     pell[0] = (seq_t)0;  /* unused */
@@ -121,10 +123,10 @@ seq_t a(idx_t n)
     seq_t result = ans[N];
 
     /* Clean up */
-    free(coeff);
-    free(newcoeff);
-    free(ans);
-    free(pell);
+    mem_free(coeff);
+    mem_free(newcoeff);
+    mem_free(ans);
+    mem_free(pell);
 
     return result;
 }

@@ -9,7 +9,8 @@
  *            (OEIS A224979)
  * Range:     u8 n <= 397, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   estimate_upper_limit
+ * Validated: standard, pass, 86 terms through n = 918 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/estimate_upper_limit.h"
+
+/* Estimate an upper bound for the nth prime (n >= 1). */
+static idx_t estimate_upper_limit(idx_t n)
+{
+    if (n < 6) return 15;
+    double dn = (double)n;
+    double limit = dn * (log(dn) + log(log(dn)));
+    return (idx_t)(limit + 3.0);   /* small extra margin           */
+}
 
 static uint64_t *primes_list = NULL; /* list of primes found so far */
 static size_t primes_cnt = 0;        /* number of primes in primes_list   */

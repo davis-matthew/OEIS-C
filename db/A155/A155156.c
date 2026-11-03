@@ -8,6 +8,7 @@
  *            - r*(r-1)/2, and T(r,k) = 4*r*k + 2*r + 2*k
  * Range:     u8 n <= 35, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 82 terms through n = 4990 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} d * pi(n/d)
  * Range:     u8 n <= 59, u16 n <= 4619, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9483 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t is_prime_size = 0;
 static bool *is_prime = NULL;
@@ -50,7 +52,7 @@ static void _ensure_pi_cache(idx_t n)
     _ensure_sieve(n);
     if (n <= pi_cache_size)
         return;
-    seq_t *new_arr = (seq_t*)realloc(pi_cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, pi_cache, (n + 1));
     if (!new_arr && n > 0)
         abort();
     pi_cache = new_arr;

@@ -8,14 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   isPrime
+ * Validated: partial, pass, 98 terms through n = 98 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Prime count for concatenated numbers nk, where n is fixed and k ranges from 1 to n */
 #include <stdbool.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
 
 /* powers of 10 up to 10^19 (enough for 64‑bit concatenations) */
 static const idx_t POW10[20] = {
@@ -51,7 +52,7 @@ seq_t a(idx_t n)
 {
     seq_t count = 0;
     for (idx_t k = 1; k <= n; ++k) {
-        if (isPrime(concat(n, k))) {
+        if (is_prime(concat(n, k))) {
             ++count;
         }
     }

@@ -8,16 +8,23 @@
  *            A220849)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 35, u128 n <= 59,
  *            big any n
- * Helpers:   divisor_count_u64, factor_u64, seq_mul
+ * Validated: standard, pass, 51 terms through n = 1793 (2026-11-01)
+ * Helpers:   factor_u64, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/seq_mul.h"
+#include "../utils/num_divisors.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static void gen_divs_rec(size_t idx, uint64_t cur,
                          const uint64_t *primes,
@@ -54,7 +61,7 @@ seq_t a(idx_t n)
     factor_u64((uint64_t)n, primes, exps, &pf_cnt);
 
     /* Number of divisors of n */
-    size_t div_cnt = divisor_count_u64((uint64_t)n);
+    size_t div_cnt = num_divisors((uint64_t)n);
     uint64_t *divs = (uint64_t *)malloc(div_cnt * sizeof(uint64_t));
     if (!divs) return (seq_t)0;
     size_t cur_cnt = 0;

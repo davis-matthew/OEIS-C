@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  base, easy, look, sign
  * Formula:   a(n) = Σ_{k≥0} d_k · (-3)^k where d_k are the base‑3 digits of n
- * Range:     i8 n <= 161, i16 n <= 9843, i32 n <= 9843, i64 n <= 9843,
- *            i128 n <= 9843, big any n
+ * Range:     i8 n <= 161, i16 n <= 19682, i32 n <= 19682, i64 n <= 19682,
+ *            i128 n <= 19682, big any n
+ * Validated: standard, pass, 85 terms through n = 9843 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

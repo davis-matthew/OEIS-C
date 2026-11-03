@@ -10,23 +10,25 @@
  *            trailing 0's)
  * Range:     u8 n <= 255, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 122 terms through n = 7914 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Checks whether denom divides num in GF(2)[X] (carry‑less polynomial division). */
 static bool divides(seq_t num, seq_t denom)
 {
     if (denom == 0) return false;            /* should never happen */
     seq_t rem = num;
-    const idx_t ddeg = bitlen_seq_t(denom);
+    const idx_t ddeg = bit_length(denom);
 
     while (rem != 0) {
-        idx_t rdeg = bitlen_seq_t(rem);
+        idx_t rdeg = bit_length(rem);
         if (rdeg < ddeg) break;
         idx_t shift = rdeg - ddeg;
         rem ^= denom << shift;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;                    /* not used, but harmless */
 
     seq_t num = (seq_t)n;
-    idx_t bits_n = bitlen_seq_t(num);        /* highest set bit position +1 */
+    idx_t bits_n = bit_length(num);        /* highest set bit position +1 */
 
     seq_t best = 1;                           /* minimal kernel is 1 */
 

@@ -12,14 +12,17 @@
  *            * A(n,m) by anti‑diagonals
  * Range:     u8 n <= 24, u16 n <= 41, u32 n <= 87, u64 n <= 186,
  *            u128 n <= 462, big any n
- * Helpers:   binomial, seq_pow
+ * Validated: standard, pass, 82 terms through n = 9135 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>              /* for size_t */
-#include "../utils/seq_pow.h"    /* seq_pow(base,exp)  */
-#include "../utils/binomial.h"  /* binomial(n,k)      */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 /* Compute the entry A(row,col). */
 static seq_t A_value(idx_t row, idx_t col)
@@ -32,7 +35,7 @@ static seq_t A_value(idx_t row, idx_t col)
     /* term_j = col * (row-j+col)^(row-j-1) * C(row,j)   */
     for (idx_t j = 0; j < row; ++j) {
         seq_t base     = (seq_t)(row - j + col);
-        seq_t pow_val  = seq_pow(base, row - j - 1);
+        seq_t pow_val  = ipow_idx(base, row - j - 1);
         seq_t comb     = binomial(row, j);
         seq_t term     = (seq_t)col;
         term *= pow_val;

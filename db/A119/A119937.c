@@ -12,7 +12,8 @@
  *            fractions r(m,k)). This is equivalent to the O...
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   gcd, uint64_from_idx
+ * Validated: partial, pass, 35 terms through n = 36 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdint.h>
 #include <math.h>
 #include "../utils/gcd.h"
-#include "../utils/uint64_from_idx.h"
+
+static inline idx_t uint64_from_idx (idx_t x) { return x; }
 
 /* If seq_t is a type larger than 64 bits (e.g. unsigned __int128
    or an arbitrary‑precision class) the operators +, -, *, /, %,

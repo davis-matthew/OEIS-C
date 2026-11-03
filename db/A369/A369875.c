@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of solutions to n = Σ_{d|n} c_i d, c_i∈{-1,0,1}
  * Range:     u8 n <= 47, u16 n <= 119, u32 n <= 719, u64 n <= 5039,
- *            u128 n <= 8724, big any n
- * Helpers:   none
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 96 terms through n = 8724 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* DP array for current sums */
 static seq_t *newdp = NULL;       /* Temporary DP array */
@@ -26,11 +28,11 @@ static idx_t dp_cap = 0;          /* Capacity of the DP arrays (size = 2*n + 1) 
 static void ensure_dp_cap(idx_t len)
 {
     if (len <= dp_cap) return;
-    if (dp)  free(dp);
-    if (newdp) free(newdp);
+    if (dp)  mem_free(dp);
+    if (newdp) mem_free(newdp);
     dp_cap = len;
-    dp = (seq_t*)calloc(len, sizeof(seq_t));
-    newdp = (seq_t*)calloc(len, sizeof(seq_t));
+    dp = mem_new(seq_t, len);
+    newdp = mem_new(seq_t, len);
 }
 
 static void factorize(uint64_t n, uint64_t *pr, int *ex, size_t *cnt)
@@ -82,8 +84,8 @@ seq_t a(idx_t n)
     ensure_dp_cap(len);
 
     /* Clear DP arrays */
-    memset(dp, 0, len * sizeof(seq_t));
-    memset(newdp, 0, len * sizeof(seq_t));
+    mem_set(dp, 0, len * sizeof(seq_t));
+    mem_set(newdp, 0, len * sizeof(seq_t));
 
     idx_t offset = n;          /* index of sum = 0 */
     dp[offset] = 1;            /* one way to achieve sum 0 */
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
         uint64_t d = divs[di];
         idx_t id = (idx_t)d;          /* safe cast: d <= n <= idx_t */
         /* reset newdp */
-        memset(newdp, 0, len * sizeof(seq_t));
+        mem_set(newdp, 0, len * sizeof(seq_t));
 
         /* Update possibilities for this divisor */
         for (idx_t s = 0; s < len; ++s) {

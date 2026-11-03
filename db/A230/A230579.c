@@ -7,16 +7,21 @@
  * Formula:   a(n) = 2^n mod 341
  * Range:     u8 n <= 6, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Compute 2^n modulo 341 using the generic modular exponentiation routine. */
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
     /* Base 2, exponent n, modulus 341. */
-    return mod_pow((seq_t)2, n, (seq_t)341);
+    return powmod((seq_t)2, n, (seq_t)341);
 }

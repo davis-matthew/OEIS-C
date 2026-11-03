@@ -14,12 +14,14 @@
  *            once, using the recurr...
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 28, u64 n <= 58, u128 n <= 116,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,13 +42,13 @@ seq_t a(idx_t n)
     /* Allocate buffer on first call or increase if needed */
     if (buf == NULL) {
         buf_cap = 12;
-        buf = (seq_t *)malloc(buf_cap * sizeof(seq_t));
+        buf = mem_new(seq_t, buf_cap);
     }
     if (n > buf_cap) {
         size_t new_cap = buf_cap * 2;
         if (new_cap < n)
             new_cap = n;
-        buf = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+        buf = mem_resize(seq_t, buf, new_cap);
         buf_cap = new_cap;
     }
 

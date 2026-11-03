@@ -11,7 +11,8 @@
  *            function
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 14, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the function required by the test harness. */
 seq_t a(idx_t n);
@@ -43,9 +45,9 @@ static void grow_capacity(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1U;
 
-    seq_t *newA = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-    seq_t *newP = (seq_t *)realloc(P, new_cap * sizeof(seq_t));
-    seq_t *newB = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
+    seq_t *newA = mem_resize(seq_t, A, new_cap);
+    seq_t *newP = mem_resize(seq_t, P, new_cap);
+    seq_t *newB = mem_resize(seq_t, B, new_cap);
 
     /* If realloc failed, leave the old pointers intact (the build
        environment guarantees enough memory). */

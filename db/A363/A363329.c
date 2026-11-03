@@ -8,6 +8,7 @@
  * Formula:   a(n) = ∏_{p^e‖n} (2^{popcount(e)} – 1) (multiplicative)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 9647 (2026-11-01)
  * Helpers:   factor_u64, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/pow2.h"
 
 /* popcount for a 64‑bit integer */
 static inline int popcount_u64(uint64_t v)

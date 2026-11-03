@@ -9,7 +9,8 @@
  *            prime(k)^(m-1) (OEIS A121166)
  * Range:     u8 n <= 24, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"      /* bool is_prime(idx_t x)      */
-#include "../utils/mod_pow.h"      /* seq_t mod_pow(seq_t b, uint64_t e, seq_t m) */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static void ensure_primes_up_to(idx_t need);
 static void ensure_vals_capacity(size_t need);
@@ -82,7 +85,7 @@ static void ensure_vals_capacity(size_t need)
     if (val_cap >= need)
         return;
     val_cap = val_cap ? val_cap * 2 : 16;
-    vals = (seq_t*)realloc(vals, val_cap * sizeof(seq_t));
+    vals = mem_resize(seq_t, vals, val_cap);
 }
 
 /* ------------------------------------------------------------------ */
@@ -108,7 +111,7 @@ seq_t a(idx_t n)
             seq_t m_mod = (seq_t)current_m;
             for (idx_t k = 1; k <= current_m; ++k) {
                 seq_t prime_k = (seq_t)primes[k - 1];
-                seq_t term   = mod_pow(prime_k, current_m - 1, m_mod);
+                seq_t term   = powmod(prime_k, current_m - 1, m_mod);
                 sum += term;
                 sum %= m_mod;              /* keep it small */
             }

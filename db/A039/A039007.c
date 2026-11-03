@@ -9,7 +9,8 @@
  *            contains the same number of 0’s and 1’s
  * Range:     u8 n <= 82, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_equal_01
+ * Validated: standard, pass, 78 terms through n = 9513 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_equal_01.h"
+#include "../utils/mem.h"
+
+/* Test whether an integer has equal counts of 0’s and 1’s in base‑5. */
+static inline bool has_equal_01(idx_t v)
+{
+    idx_t cnt0 = 0, cnt1 = 0;
+    while (v > 0) {
+        idx_t d = v % 5;
+        if (d == 0) cnt0++;
+        else if (d == 1) cnt1++;
+        v /= 5;
+    }
+    return cnt0 == cnt1;
+}
 
 /* Return the n‑th term of OEIS A039007. */
 seq_t a(idx_t n)
@@ -40,7 +54,7 @@ seq_t a(idx_t n)
             if (cache_count == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
                 if (new_cap < cache_count + 1) new_cap = cache_count + 1;
-                cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
                 cache_cap = new_cap;
             }
             cache[cache_count] = (seq_t)next_candidate;

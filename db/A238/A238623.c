@@ -10,12 +10,14 @@
  *            integer partitions of k
  * Range:     u8 n <= 17, u16 n <= 43, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for the partition numbers p[0..max] */
 static seq_t *P = NULL;   /* array of partitions */
@@ -26,7 +28,7 @@ static void recompute_partitions(idx_t limit)
 {
     idx_t needed = limit + 1;
     if (P == NULL || needed > Psize) {
-        seq_t *newP = (seq_t *)realloc(P, needed * sizeof(seq_t));
+        seq_t *newP = mem_resize(seq_t, P, needed);
         if (!newP) return;           /* allocation failure – caller will get zero */
         P = newP;
         Psize = needed;

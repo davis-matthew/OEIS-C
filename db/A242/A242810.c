@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   build_recursive
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,40 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/build_recursive.h"
+#include "../utils/mem.h"
+
+static bool build_recursive(idx_t pos, seq_t prefix, idx_t n,
+                            seq_t *result, seq_t *lu)
+{
+    if (pos == n) {                /* n digits built */
+        *result = prefix;
+        return true;
+    }
+
+    idx_t k = pos + 1;             /* position of next digit (1‑based) */
+
+    if (k >= 5) {                  /* deterministic digit */
+        seq_t mod   = lu[k];
+        seq_t rem   = prefix % mod;
+        seq_t val   = (rem * (seq_t)10) % mod;
+        seq_t digit = (mod - val) % mod;   /* the unique solution modulo mod */
+
+        if (digit >= 10) return false;    /* no 0‑9 digit satisfies it */
+        seq_t new_prefix = prefix * (seq_t)10 + digit;
+        return build_recursive(pos + 1, new_prefix, n, result, lu);
+    } else {                       /* search 0‑9 digits (or 1‑9 for first) */
+        int start = (pos == 0) ? 1 : 0;
+        for (int d = start; d <= 9; ++d) {
+            seq_t new_prefix = prefix * (seq_t)10 + (seq_t)d;
+            seq_t mod = lu[k];
+            if (new_prefix % mod == 0) {
+                if (build_recursive(pos + 1, new_prefix, n, result, lu))
+                    return true;
+            }
+        }
+        return false;
+    }
+}
 
 static seq_t *lucas = NULL;
 static idx_t lucas_len = 0;
@@ -28,7 +62,7 @@ static void ensure_lucas(idx_t n)
 {
     if (lucas_len <= n) {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(lucas, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, lucas, new_len);
         if (!tmp) exit(1);            /* out of memory */
         lucas = tmp;
 

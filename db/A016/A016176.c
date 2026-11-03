@@ -11,7 +11,8 @@
  *            first 2167 * coefficients of the formal in...
  * Range:     i8 n <= 3000, i16 n <= 3000, i32 n <= 3000, i64 n <= 3000,
  *            i128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 363 terms through n = 2897 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* Standard includes. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build system. */
 
@@ -42,9 +44,9 @@ seq_t a(idx_t n)
         const idx_t DEG_COEFF = DEG_NUM - DEG_DEN; /* degree of Φ_{2167}(x) = 1960 */
 
         /* Allocate temporary arrays. */
-        seq_t *num = (seq_t *)malloc((DEG_NUM + 1) * sizeof(seq_t));
-        seq_t *den = (seq_t *)malloc((DEG_DEN + 1) * sizeof(seq_t));
-        coeffA = (seq_t *)malloc((DEG_COEFF + 1) * sizeof(seq_t));
+        seq_t *num = mem_new(seq_t, (DEG_NUM + 1));
+        seq_t *den = mem_new(seq_t, (DEG_DEN + 1));
+        coeffA = mem_new(seq_t, (DEG_COEFF + 1));
 
         /* --------- Build the numerator: x^2168 - x^2167 - x + 1 --------- */
         for (idx_t i = 0; i <= DEG_NUM; ++i)
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
         }
 
         /* --------- Compute the inverse series B(x) up to order PERIOD-1 --------- */
-        coeffB = (seq_t *)malloc(PERIOD * sizeof(seq_t));
+        coeffB = mem_new(seq_t, PERIOD);
         coeffB[0] = 1; /* A(0) = 1, so B(0) = 1 / A(0) = 1 */
 
         for (idx_t k = 1; k < PERIOD; ++k)
@@ -99,8 +101,8 @@ seq_t a(idx_t n)
             coeffB[k] = -sum;
         }
 
-        free(num);
-        free(den);
+        mem_free(num);
+        mem_free(den);
 
         init = 1;
     }

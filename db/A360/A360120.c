@@ -9,14 +9,17 @@
  *            k*n/(k-n) are integers, otherwise 0. Equivalent test: for n>0,
  *            a(n)=0 if there exist two positive divisors d and f of n² such
  *            that |d−f| = 2·n (k > n) or d+f = 2·n (k < n); otherwise a(n)=1
- * Range:     u8 n <= 16, u16 n <= 8303, u32 n <= 8303, u64 n <= 8303,
- *            u128 n <= 8303, big any n
+ * Range:     u8 n <= 16, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 137 terms through n = 8303 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

@@ -11,12 +11,14 @@
  *            + 878*C(n,10)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 21, u64 n <= 193, u128 n <= 1000,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 41 terms through n = 981 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -25,12 +27,12 @@ seq_t a(idx_t n)
     seq_t res = 0;
 
     /* Binomial coefficient contributions from the generating function */
-    res += (seq_t)22   * binom(n + 5, 10);
-    res += (seq_t)580  * binom(n + 4, 10);
-    res += (seq_t)715  * binom(n + 3, 10);
-    res += (seq_t)455  * binom(n + 2, 10);
-    res += (seq_t)878  * binom(n,   10);
-    res -= (seq_t)1705 * binom(n + 1, 10);
+    res += (seq_t)22   * binomial(n + 5, 10);
+    res += (seq_t)580  * binomial(n + 4, 10);
+    res += (seq_t)715  * binomial(n + 3, 10);
+    res += (seq_t)455  * binomial(n + 2, 10);
+    res += (seq_t)878  * binomial(n,   10);
+    res -= (seq_t)1705 * binomial(n + 1, 10);
 
     return res;
 }

@@ -7,8 +7,9 @@
  * Formula:   a(n) = 1 + ((2*r*3^c) mod 12), where r =
  *            floor((sqrt(8*n+1)-1)/2) and c = n - r*(r+1)/2. This follows the
  *            definition T(n,m)=1+((2*n*3^m) mod 12), read by rows
- * Range:     u8 n <= 9703, u16 n <= 9703, u32 n <= 9703, u64 n <= 9703,
- *            u128 n <= 9703, big any n
+ * Range:     u8 n <= 11324, u16 n <= 11324, u32 n <= 11324, u64 n <= 11324,
+ *            u128 n <= 11324, big any n
+ * Validated: standard, pass, 107 terms through n = 9703 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

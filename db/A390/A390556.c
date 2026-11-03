@@ -7,15 +7,18 @@
  * Formula:   a(n) = A051377(n^2) – the sum of exponential divisors of n²
  * Range:     u8 n <= 11, u16 n <= 185, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, factor_u64, pow_uint
+ * Validated: standard, pass, 67 terms through n = 9616 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -32,14 +35,14 @@ seq_t a(idx_t n)
         idx_t    k   = 2 * e;               /* exponent in n² */
         seq_t    sum = 0;
 
-        idx_t r = (idx_t)_floor_isqrt_u64(k);
+        idx_t r = (idx_t)isqrt(k);
         for (idx_t d = 1; d <= r; ++d) {
             if (k % d == 0) {
-                seq_t term1 = pow_uint(p, d);
+                seq_t term1 = ipow_u64_idx(p, d);
                 sum += term1;
                 idx_t d2 = k / d;
                 if (d2 != d) {
-                    seq_t term2 = pow_uint(p, d2);
+                    seq_t term2 = ipow_u64_idx(p, d2);
                     sum += term2;
                 }
             }

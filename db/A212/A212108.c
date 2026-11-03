@@ -11,12 +11,14 @@
  *            | 1≤u,v≤n, u*v = p}. For each product p, all...
  * Range:     u8 n <= 4, u16 n <= 18, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
     /* 2. Compute complement sum using a circular buffer for prefix sums */
     size_t buff_size = (size_t)n + 1;
-    seq_t *pref_buf = (seq_t *)calloc(buff_size, sizeof(seq_t));
+    seq_t *pref_buf = mem_new(seq_t, buff_size);
     if (!pref_buf) {
         free(A);
         return 0;
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     }
 
     free(A);
-    free(pref_buf);
+    mem_free(pref_buf);
 
     /* 3. Total 4‑tuples = n^4, compute n^4 safely */
     seq_t nn = (seq_t)n;

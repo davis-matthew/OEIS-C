@@ -7,8 +7,9 @@
  * Keywords:  sign, mult
  * Formula:   a(n) = 1 if n is a square, -1 if n is 7 times a square, 0
  *            otherwise
- * Range:     i8 n <= 9063, i16 n <= 9063, i32 n <= 9063, i64 n <= 9063,
- *            i128 n <= 9063, big any n
+ * Range:     i8 n <= 100489, i16 n <= 100489, i32 n <= 100489,
+ *            i64 n <= 100489, i128 n <= 100489, big any n
+ * Validated: standard, pass, 128 terms through n = 9063 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,16 +9,17 @@
  *            exponents divided by 8)
  * Range:     u8 n <= 812, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a000037_isqrt
+ * Validated: standard, pass, 90 terms through n = 954 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a000037_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 static int is_sq_u64(uint64_t v, uint64_t *root) {
-    uint64_t r = a000037_isqrt(v);
+    uint64_t r = isqrt_u64(v);
     while (r * r > v) r--;
     while ((r + 1) * (r + 1) <= v) r++;
     *root = r;

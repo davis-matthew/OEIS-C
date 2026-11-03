@@ -8,7 +8,8 @@
  *            a(n)=5·10^(n−1) for n≥1)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* The function caches values so calls in any order remain O(1) amortised. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         cap = 4;                 /* start with room for a few terms to reduce reallocs */
         len = 2;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) {     /* should never happen in the test harness */
             abort();
         }
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         /* grow cache if necessary */
         if (i >= cap) {
             cap = (cap == 0) ? 4 : cap * 2;
-            seq_t *new_cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, cap);
             if (new_cache == NULL) {
                 abort();
             }

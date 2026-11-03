@@ -8,14 +8,24 @@
  *            0)
  * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   _cmp_seq_t
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_cmp_seq_t.h"
+#include "../utils/mem.h"
+
+static int _cmp_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 static int _divisors_initialized = 0;
 static seq_t _divisors[16] = {0};
@@ -35,7 +45,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        qsort(_divisors, 16, sizeof(seq_t), _cmp_seq_t);
+        mem_qsort(_divisors, 16, sizeof(seq_t), _cmp_seq_t);
         _divisors_initialized = 1;
     }
 

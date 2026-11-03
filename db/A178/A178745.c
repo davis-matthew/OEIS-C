@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 103, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
- * Helpers:   multiply_by_10
+ * Validated: partial, pass, 104 terms through n = 103 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>                /* for ceil (used only for one constant) */
-#include "../utils/multiply_by_10.h"
+
+/* -------------------------------------------------------------------------- */
+static void
+multiply_by_10(uint64_t *num, size_t nwords)
+{
+    uint64_t carry = 0;
+    for (size_t i = 0; i < nwords; ++i) {
+        unsigned __int128 tmp = (unsigned __int128)num[i] * 10 + carry;
+        num[i] = (uint64_t)tmp;
+        carry  = (uint64_t)(tmp >> 64);
+    }
+    if (carry) {
+        if (nwords == 0)
+            return;   /* shouldn't happen */
+        num[nwords - 1] = carry;
+    }
+}
 
 static const double LOG2_10 = 3.32192809488736234787;
 

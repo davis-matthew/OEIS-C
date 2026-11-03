@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, cofr, easy
  * Formula:   a(0)=2, a(1)=2, a(2k)=4 for k≥1, a(2k+1)=2 for k≥0
- * Range:     u8 n <= 9282, u16 n <= 9282, u32 n <= 9282, u64 n <= 9282,
- *            u128 n <= 9282, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 97 terms through n = 9282 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

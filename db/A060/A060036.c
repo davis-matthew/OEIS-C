@@ -9,6 +9,7 @@
  *            linearising the triangular array T(r,k)=k^2 mod r for r≥2, 1≤k<r
  * Range:     u8 n <= 4951, u16 n <= 4951, u32 n <= 4951, u64 n <= 4951,
  *            u128 n <= 4951, big any n
+ * Validated: standard, pass, 117 terms through n = 4746 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

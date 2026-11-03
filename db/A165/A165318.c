@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 3307, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_prime
+ * Validated: standard, pass, 72 terms through n = 9658 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
 #include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *term_cache = NULL;
 static size_t term_cap  = 0;
@@ -30,10 +32,10 @@ static void add_term(seq_t val)
 {
     if (term_cap == 0) {
         term_cap = 16;
-        term_cache = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        term_cache = mem_new(seq_t, term_cap);
     } else if (term_len == term_cap) {
         term_cap <<= 1;
-        term_cache = (seq_t *)realloc(term_cache, term_cap * sizeof(seq_t));
+        term_cache = mem_resize(seq_t, term_cache, term_cap);
     }
     term_cache[term_len++] = val;
 }

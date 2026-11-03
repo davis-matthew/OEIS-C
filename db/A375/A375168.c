@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Typedefs supplied by the build environment */
 typedef uint64_t idx_t;   /* index type (unsigned) */
@@ -48,7 +50,7 @@ static inline void seq_arr_push(SeqArray *a, seq_t v)
 {
     if (a->size == a->cap) {
         a->cap = a->cap ? a->cap * 2 : 8;
-        a->data = (seq_t *)realloc(a->data, a->cap * sizeof(seq_t));
+        a->data = mem_resize(seq_t, a->data, (a->cap * sizeof(seq_t)) / sizeof(seq_t));
     }
     a->data[a->size++] = v;
 }

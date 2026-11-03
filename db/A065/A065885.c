@@ -10,12 +10,14 @@
  *            a(8)=64, a(9)=169, a(10)=441 The recurrence holds for all n ≥ 11
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 26, u64 n <= 49, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 762 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_values[10] = {
     (seq_t)2, (seq_t)3, (seq_t)4, (seq_t)5,
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with first ten terms if needed */
     if (!cache) {
-        cache = (seq_t*)malloc(10 * sizeof(seq_t));
+        cache = mem_new(seq_t, 10);
         if (!cache) return (seq_t)0; /* allocation failed, return 0 */
         for (idx_t i = 0; i < 10; ++i) cache[i] = base_values[i];
         cache_size = 10;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (n > cache_size) {
         size_t new_size = (size_t)n;
-        seq_t *new_buf = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, cache, new_size);
         if (!new_buf) return (seq_t)0; /* allocation failed */
         cache = new_buf;
         /* compute new terms up to n */

@@ -6,14 +6,16 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = C(r+2,k) + C(r+2,k+2) where r = floor((sqrt(8n+1)-1)/2)
  *            (largest r with r*(r+1)/2 ≤ n), k = n - r*(r+1)/2
- * Range:     u8 n <= 22, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
+ * Range:     u8 n <= 38, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static idx_t find_row(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     idx_t start = (idx_t)start128;
     idx_t k = n - start;
 
-    seq_t term1 = binom(r + 2, k);
-    seq_t term2 = binom(r + 2, k + 2);
+    seq_t term1 = binomial(r + 2, k);
+    seq_t term2 = binomial(r + 2, k + 2);
     return term1 + term2;
 }

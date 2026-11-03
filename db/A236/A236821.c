@@ -13,13 +13,15 @@
  *            a(9...
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 12, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t initial[14] = {
     (seq_t)81ULL,   (seq_t)327ULL,   (seq_t)1386ULL,  (seq_t)6093ULL,
@@ -41,7 +43,7 @@ static void compute_to(idx_t n)
     /* Allocate or grow storage */
     size_t new_alloc = (size_t)n + 1;
     if (new_alloc > allocated) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
         if (!tmp) {          /* allocation failed – leave state unchanged */
             return;
         }

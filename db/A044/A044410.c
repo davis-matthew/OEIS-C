@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has78
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,19 @@
 /* Sequence: numbers n whose decimal representation contains the substring "78"
    but n-1 does not.  Offset 1. */
 #include <stdbool.h>
-#include "../utils/has78.h"
+
+static bool has78(seq_t x)
+{
+    seq_t d1, d2;
+    while (x >= (seq_t)10) {
+        d1 = x % (seq_t)10;
+        d2 = (x / (seq_t)10) % (seq_t)10;
+        if (d1 == (seq_t)8 && d2 == (seq_t)7)
+            return true;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

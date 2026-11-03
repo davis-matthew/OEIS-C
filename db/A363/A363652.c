@@ -7,14 +7,16 @@
  * Formula:   a(n) = Sum_{d|n}(n/d)^(n-3*(n/d)) * binomial(d-1,2)
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 26, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
         {
             seq_t base = (seq_t)(n / d1);          /* n/d1 */
             seq_t exp  = (seq_t)n - (seq_t)3 * base;
-            seq_t term = big_pow(base, exp);
-            term *= binom(d1 - 1, 2);
+            seq_t term = ipow(base, exp);
+            term *= binomial(d1 - 1, 2);
             result += term;
         }
 
@@ -45,8 +47,8 @@ seq_t a(idx_t n)
         {
             seq_t base = (seq_t)(n / d2);          /* n/d2 == d1 */
             seq_t exp  = (seq_t)n - (seq_t)3 * base;
-            seq_t term = big_pow(base, exp);
-            term *= binom(d2 - 1, 2);
+            seq_t term = ipow(base, exp);
+            term *= binomial(d2 - 1, 2);
             result += term;
         }
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 29, u32 n <= 118, u64 n <= 1421,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_poly
+ * Validated: standard, pass, 57 terms through n = 9332 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -47,7 +48,27 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_poly.h"
+#include "../utils/mem.h"
+
+/*--- polynomial multiplication helper ----------------------------------*/
+static void mul_poly(int64_t *cur, int *curdeg,
+                     const int64_t *fac, int facdeg)
+{
+    int64_t tmp[200] = {0};
+    for (int i = 0; i <= *curdeg; ++i)
+        if (cur[i] != 0)
+            for (int j = 0; j <= facdeg; ++j)
+                tmp[i + j] += cur[i] * fac[j];
+
+    /* trim leading zeros */
+    int newdeg = *curdeg + facdeg;
+    while (newdeg > 0 && tmp[newdeg] == 0)
+        --newdeg;
+
+    for (int i = 0; i <= newdeg; ++i)
+        cur[i] = tmp[i];
+    *curdeg = newdeg;
+}
 
 /* local coefficient storage */
 static int64_t q_coeff[37];
@@ -122,7 +143,7 @@ static void compute_up_to(idx_t n)
         /* grow cache if necessary */
         if (cache_len == cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cache_cap = new_cap;
         }

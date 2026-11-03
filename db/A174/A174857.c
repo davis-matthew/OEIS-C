@@ -5,9 +5,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 9536, u64 n <= 9536,
- *            u128 n <= 9536, big any n
- * Helpers:   _smallest_prime_factor, build_primes
+ * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 16385, u64 n <= 16385,
+ *            u128 n <= 16385, big any n
+ * Validated: standard, pass, 94 terms through n = 9536 (2026-11-01)
+ * Helpers:   build_primes, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,8 +32,11 @@
  */
 
 #include <stdbool.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/build_primes.h"
+#include "../utils/smallest_prime_factor.h"
 
 /* Pre‑computed prime list for quick access to all primes < d. */
 static idx_t *g_primes = NULL;      /* pointer to array of primes */
@@ -69,7 +73,7 @@ seq_t a(idx_t n) {
 
     init_prime_list();
 
-    idx_t lp = _smallest_prime_factor(n);   /* least prime factor of n */
+    idx_t lp = smallest_prime_factor(n);   /* least prime factor of n */
 
     /* Prime n: the first multiple with the same lpf has factor n^2,
      * hence k = n*(n-1). */

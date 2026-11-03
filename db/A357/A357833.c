@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..floor((n-2)/3)} 2^k * |Stirling1(n,3*k+2)|
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   pow2, seq_mul
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_mul.h"   /* seq_mul(seq_t a, seq_t b) */
-#include "../utils/pow2.h"      /* pow2(idx_t exp) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,16 +40,16 @@ seq_t a(idx_t n)
     /* ---------- initialise on first call ---------- */
     if (prev == NULL) {
         prev_cap = 1;
-        prev = (seq_t *)malloc(prev_cap * sizeof(seq_t));
+        prev = mem_new(seq_t, prev_cap);
         prev[0] = (seq_t)1;             /* S1(0,0)=1 */
     }
     if (curr == NULL) {
         curr_cap = 1;
-        curr = (seq_t *)malloc(curr_cap * sizeof(seq_t));
+        curr = mem_new(seq_t, curr_cap);
     }
     if (a_cache == NULL) {
         cache_cap = 1;
-        a_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, cache_cap);
         a_cache[0] = (seq_t)0;          /* a(0) = 0 */
     }
 
@@ -50,8 +57,8 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         size_t old = cache_cap;
         cache_cap = (size_t)n + 1;
-        a_cache = (seq_t *)realloc(a_cache, cache_cap * sizeof(seq_t));
-        memset(a_cache + old, 0, (cache_cap - old) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, cache_cap);
+        mem_set(a_cache + old, 0, (cache_cap - old) * sizeof(seq_t));
         a_cache[0] = (seq_t)0;
     }
 
@@ -66,13 +73,13 @@ seq_t a(idx_t n)
         if ((size_t)i + 1 > prev_cap) {
             size_t old = prev_cap;
             prev_cap = (size_t)i + 1;
-            prev = (seq_t *)realloc(prev, prev_cap * sizeof(seq_t));
-            memset(prev + old, 0, (prev_cap - old) * sizeof(seq_t));
+            prev = mem_resize(seq_t, prev, prev_cap);
+            mem_set(prev + old, 0, (prev_cap - old) * sizeof(seq_t));
         }
         if ((size_t)i + 1 > curr_cap) {
             size_t old = curr_cap;
             curr_cap = (size_t)i + 1;
-            curr = (seq_t *)realloc(curr, curr_cap * sizeof(seq_t));
+            curr = mem_resize(seq_t, curr, curr_cap);
         }
 
         /* ensure prev[i] = 0 for the recurrence (k=i term) */

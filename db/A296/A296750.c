@@ -10,14 +10,35 @@
  *            * the nth element of OEIS A296750
  * Range:     u8 n <= 57, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   equal_rise_fall
+ * Validated: standard, pass, 73 terms through n = 8429 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/equal_rise_fall.h"
+#include "../utils/mem.h"
+
+/* ----- helper: test whether a number has equal rises and falls in base 13 ----- */
+static bool equal_rise_fall(seq_t v)
+{
+    seq_t prev = v % (seq_t)13;
+    v /= (seq_t)13;
+    unsigned rises = 0, falls = 0;
+    seq_t cur;
+    while (v != 0) {
+        cur = v % (seq_t)13;
+        if (prev < cur) {
+            ++rises;
+        } else if (prev > cur) {
+            ++falls;
+        }
+        prev = cur;
+        v /= (seq_t)13;
+    }
+    return rises == falls;
+}
 
 /* ----- dynamic cache for already found terms ----- */
 static seq_t *cache        = NULL;   /* array of found terms           */
@@ -30,7 +51,7 @@ static void ensure_capacity(void)
 {
     if (cache_len == cache_cap) {
         cache_cap = cache_cap ? cache_cap * 2 : 16;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 }
 

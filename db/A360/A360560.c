@@ -8,13 +8,16 @@
  * Formula:   a(n) = (1/2) * binomial(r,k) * binomial(3*r - 1, r) where r =
  *            row index (starting from 0) and k is the position within that
  *            row, obtained from the flattened triangle order
- * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 44, u64 n <= 44, u128 n <= 44,
+ * Range:     u8 n <= 9, u16 n <= 22, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
 #include <stdint.h>
 

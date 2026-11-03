@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 40, u32 n <= 79, u64 n <= 158,
  *            u128 n <= 316, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n)=a(n-1)+a(n-2)-a(n-3)+a(n-7)-a(n-9)+a(n-11) for n>=11 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         size_t init_cap = 16;            /* ensure space for base */
         cap = init_cap;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL)
             return 0; /* allocation failure, return 0 as safe default */
         for (idx_t i = 0; i < 11; ++i)
@@ -49,9 +51,9 @@ seq_t a(idx_t n) {
         size_t new_cap = cap;
         while ((idx_t)new_cap <= n)
             new_cap <<= 1;   /* double until large enough */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (new_cache == NULL) {
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             return 0; /* allocation failure */
         }

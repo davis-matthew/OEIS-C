@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 28, u64 n <= 67, u128 n <= 146,
  *            big any n
- * Helpers:   valid_transition
+ * Validated: standard, pass, 43 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,32 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/valid_transition.h"
+#include "../utils/mem.h"
+
+/* -------------------------------------------------------------
+   Transition validity: from rows p,q to r we need no forbidden
+   vertical or NW‑SE diagonal patterns involving these three rows.
+   ------------------------------------------------------------- */
+static bool valid_transition(unsigned char p, unsigned char q, unsigned char r)
+{
+    /* columns */
+    for (int c = 0; c < 4; ++c) {
+        int b0 = (p >> c) & 1;
+        int b1 = (q >> c) & 1;
+        int b2 = (r >> c) & 1;
+        if ((b0==0 && b1==0 && b2==0) || (b0==0 && b1==1 && b2==1))
+            return false;
+    }
+    /* NW‑SE diagonals */
+    for (int s = 0; s <= 1; ++s) {
+        int d0 = (p >> s) & 1;
+        int d1 = (q >> (s+1)) & 1;
+        int d2 = (r >> (s+2)) & 1;
+        if ((d0==0 && d1==0 && d2==0) || (d0==0 && d1==1 && d2==1))
+            return false;
+    }
+    return true;
+}
 
 /* 9 admissible rows (4‑bit patterns with no horizontal 000 or 011)   */
 static int R = 0;                    /* number of admissible rows */
@@ -89,10 +115,10 @@ static void init_tables(void)
 
     /* allocate DP buffers */
     const int S = R * R;  /* 81 */
-    dp_cur  = (seq_t *)malloc(S * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(S * sizeof(seq_t));
-    memset(dp_cur, 0, S * sizeof(seq_t));
-    memset(dp_next, 0, S * sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, S);
+    dp_next = mem_new(seq_t, S);
+    mem_set(dp_cur, 0, S * sizeof(seq_t));
+    mem_set(dp_next, 0, S * sizeof(seq_t));
 
     /* initial counts for length 2: all admissible pairs are possible */
     for (int s = 0; s < S; ++s) dp_cur[s] = 1;
@@ -113,7 +139,7 @@ static void ensure_length(int m)
     const int S = R * R;
     while (cur_len < m) {
         /* reset dp_next for the new length */
-        memset(dp_next, 0, S * sizeof(seq_t));
+        mem_set(dp_next, 0, S * sizeof(seq_t));
 
         /* transitions */
         for (int s = 0; s < S; ++s) {
@@ -141,7 +167,7 @@ static void ensure_length(int m)
         /* grow memo table if necessary */
         if ((size_t)n + 1 > a_vals_size) {
             size_t new_size = (size_t)n + 1;
-            seq_t *tmp2 = (seq_t *)realloc(a_vals, new_size * sizeof(seq_t));
+            seq_t *tmp2 = mem_resize(seq_t, a_vals, new_size);
             if (!tmp2) return;  /* allocation failed – abort silently */
             a_vals = tmp2;
             a_vals_size = new_size;

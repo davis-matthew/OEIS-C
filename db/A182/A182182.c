@@ -7,12 +7,14 @@
  * Formula:   a(0) = 0, a(1) = 1; for n > 1, a(n) = a(n-1) XOR a(n-2) XOR n
  * Range:     u8 n <= 255, u16 n <= 1023, u32 n <= 1023, u64 n <= 1023,
  *            u128 n <= 1023, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 871 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* Initialise cache with a(0)=0, a(1)=1 on first use. */
     if (cache_len == 0UL) {
         cache_len = 2UL;
-        cache = (seq_t*)malloc(sizeof(seq_t) * (size_t)cache_len);
+        cache = mem_new(seq_t, (size_t)cache_len);
         if (!cache) return (seq_t)0;          /* allocation failed */
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)1;
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     }
 
     /* Grow the cache to accommodate index n. */
-    seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * (size_t)(n + 1UL));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1UL));
     if (!tmp) {
         return (seq_t)0;   /* allocation failed */
     }

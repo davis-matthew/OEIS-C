@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..⌊n/4⌋} binomial(n-3k-1,k) *
  *            binomial(n+k+1,n-4k) / (n+k+1)
- * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 23, u64 n <= 31, u128 n <= 31,
+ * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 23, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Memoised storage of computed terms */
 static seq_t *cache = NULL;          /* array of terms */
@@ -31,7 +33,7 @@ static void ensure_cache_capacity(size_t needed)
     size_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap < needed)
         new_cap <<= 1;               /* double until enough */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {                      /* allocation failed */
         /* In a real project we would handle this properly */
         exit(EXIT_FAILURE);
@@ -63,10 +65,10 @@ seq_t a(idx_t n)
         for (idx_t k = 0; k <= maxk; ++k) {
             /* binomial(n-3k-1,k) – handle k==0 separately to avoid underflow */
             seq_t t1 = (k == 0) ? (seq_t)1
-                                 : binom(i - 3 * k - 1, k);
+                                 : binomial(i - 3 * k - 1, k);
 
             /* binomial(n+k+1,n-4k) */
-            seq_t t2 = binom(i + k + 1, i - 4 * k);
+            seq_t t2 = binomial(i + k + 1, i - 4 * k);
 
             /* denominator (n+k+1) */
             seq_t denom = (seq_t)(i + k + 1);

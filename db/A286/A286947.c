@@ -13,7 +13,8 @@
  *            prime(k)
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Simple modular exponentiation for uint64_t */
 static uint64_t powmod64(uint64_t a, uint64_t e, uint64_t mod) {
@@ -83,7 +85,7 @@ static void ensure_primorial_cache_len(size_t target) {
 
     if (primorial_cache_len == 0) {
         primorial_cache_cap = 16;
-        primorial_cache = (seq_t *)malloc(primorial_cache_cap * sizeof(seq_t));
+        primorial_cache = mem_new(seq_t, primorial_cache_cap);
         if (!primorial_cache) exit(EXIT_FAILURE);
         primorial_cache[0] = (seq_t)1;
         primorial_cache_len = 1;
@@ -92,7 +94,7 @@ static void ensure_primorial_cache_len(size_t target) {
     if (primorial_cache_cap <= target) {
         size_t new_cap = primorial_cache_cap ? primorial_cache_cap * 2 : 64;
         while (new_cap <= target) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(primorial_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, primorial_cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         primorial_cache = tmp;
         primorial_cache_cap = new_cap;

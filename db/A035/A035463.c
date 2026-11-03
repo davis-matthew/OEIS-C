@@ -7,7 +7,8 @@
  * Formula:   Number of partitions of n into parts 8k+4 or 8k+5
  * Range:     u8 n <= 76, u16 n <= 187, u32 n <= 528, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 751 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;   /* table: dp[i] = a(i)  (dp[0] = 1)  */
 static idx_t max_n = 0;    /* largest n for which dp is valid */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     if (n > max_n) {
         /* Allocate (or reallocate) the array for indices 0..n. */
-        seq_t *tmp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (n + 1));
         if (!tmp) abort();                /* allocation failure */
 
         /* Re‑compute the entire table up to n. */

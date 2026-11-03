@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 6490, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
+ * Validated: standard, pass, 86 terms through n = 9211 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* Computation of OEIS sequence A279417 (triangle read by rows).
    Each term is T(r,k)= (k*r + (gcd(r-1,k-1)+1))/2.  The row r
    and column k are obtained from the global index n. */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n) {

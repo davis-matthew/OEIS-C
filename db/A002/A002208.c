@@ -10,8 +10,8 @@
  *            (x+j): a(n)/A002209(n) = (1/n!)*Sum_{k=0..n} (-1)^k*c_k/(k+1)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 31,
  *            big any n
- * Helpers:   g2208_addmul, g2208_bitlen, g2208_divsmall, g2208_modsmall,
- *            g2208_mulsmall, g2208_norm
+ * Validated: standard, pass, 37 terms through n = 98 (2026-11-01)
+ * Helpers:   bit_length_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +19,59 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/g2208_addmul.h"
-#include "../utils/g2208_bitlen.h"
-#include "../utils/g2208_divsmall.h"
-#include "../utils/g2208_modsmall.h"
-#include "../utils/g2208_mulsmall.h"
-#include "../utils/g2208_norm.h"
+#include "../utils/bit_length_u64.h"
+
+/* a[0..alen) += b[0..blen) * m */
+static void g2208_addmul(uint32_t *a, size_t alen, const uint32_t *b, size_t blen, uint32_t m) {
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < blen; i++) {
+        uint64_t t = (uint64_t)b[i] * m + a[i] + carry;
+        a[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+    for (; carry && i < alen; i++) {
+        uint64_t t = (uint64_t)a[i] + carry;
+        a[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+}
+
+static uint32_t g2208_divsmall(uint32_t *x, size_t len, uint32_t d) {
+    uint64_t r = 0;
+    size_t i;
+    for (i = len; i > 0; i--) {
+        uint64_t cur = (r << 32) | x[i - 1];
+        x[i - 1] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+    return (uint32_t)r;
+}
+
+static uint32_t g2208_modsmall(const uint32_t *x, size_t len, uint32_t d) {
+    uint64_t r = 0;
+    size_t i;
+    for (i = len; i > 0; i--) {
+        uint64_t cur = (r << 32) | x[i - 1];
+        r = cur % d;
+    }
+    return (uint32_t)r;
+}
+
+static void g2208_mulsmall(uint32_t *x, size_t len, uint32_t m) {
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        uint64_t t = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+}
+
+static size_t g2208_norm(const uint32_t *x, size_t len) {
+    while (len > 0 && x[len - 1] == 0) len--;
+    return len;
+}
 
 seq_t a(idx_t n) {
     size_t N, bits, W, j, m, k, i, Llen, XS, len;
@@ -36,7 +83,7 @@ seq_t a(idx_t n) {
     N = (size_t)n;
 
     bits = 0;
-    for (j = 1; j <= N + 1; j++) bits += (size_t)g2208_bitlen(j);
+    for (j = 1; j <= N + 1; j++) bits += (size_t)bit_length_u64(j);
     W = bits / 32 + 2;
 
     /* coefficients of Product_{j=1..m} (x+j), each bounded by (m+1)! */
@@ -46,7 +93,7 @@ seq_t a(idx_t n) {
         size_t bm = 1; /* bitlen(1) */
         for (m = 1; m <= N; m++) {
             size_t cur;
-            bm += (size_t)g2208_bitlen(m + 1);
+            bm += (size_t)bit_length_u64(m + 1);
             cur = bm / 32 + 2;
             if (cur > W) cur = W;
             for (k = m; k >= 1; k--) {

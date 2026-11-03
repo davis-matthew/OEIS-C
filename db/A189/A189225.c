@@ -8,13 +8,15 @@
  * Formula:   a(n) = binomial(r,p) * binomial(p,m) * binomial(m,k) where
  *            (r,p,m,k) are obtained from the index n by n = binomial(r+3,4) +
  *            binomial(p+2,2) + binomial(m+1,2) + k with 0 ≤ k ≤ m ≤ p ≤ r
- * Range:     u8 n <= 34, u16 n <= 125, u32 n <= 125, u64 n <= 125,
+ * Range:     u8 n <= 125, u16 n <= 125, u32 n <= 125, u64 n <= 125,
  *            u128 n <= 125, big any n
+ * Validated: partial, pass, 126 terms through n = 125 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

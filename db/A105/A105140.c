@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, seq_realloc
+ * Validated: standard, pass, 74 terms through n = 862 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,18 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
-#include "../utils/seq_realloc.h"   /* for seq_realloc */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -43,7 +54,7 @@ seq_t a(idx_t n)
     while (size < n) {
         ++last;
         uint64_t candidate = 1024ULL * last + 513ULL;
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             /* grow cache if necessary */
             if (size >= cap) {
                 idx_t newcap = cap ? cap * 2ULL : 8ULL;

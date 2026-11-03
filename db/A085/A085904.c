@@ -10,7 +10,8 @@
  *            brute‑force search
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   is_smooth_7
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_smooth_7.h"
+#include "../utils/mem.h"
+
+/* local helper: test if a 64‑bit integer is 7‑smooth */
+static bool is_smooth_7(uint64_t v)
+{
+    while ((v % 2ULL) == 0ULL) v /= 2ULL;
+    while ((v % 3ULL) == 0ULL) v /= 3ULL;
+    while ((v % 5ULL) == 0ULL) v /= 5ULL;
+    while ((v % 7ULL) == 0ULL) v /= 7ULL;
+    return v == 1ULL;
+}
 
 /* cache of computed terms */
 static seq_t *cached_terms = NULL;
@@ -32,7 +43,7 @@ static void ensure_terms_cap(idx_t need)
     if (need <= terms_cap) return;
     idx_t new_cap = terms_cap ? terms_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(cached_terms, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cached_terms, new_cap);
     cached_terms = new_arr;
     terms_cap    = new_cap;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 15, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   cross_lt, floor_sqrt, next_prime
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow_i32, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,9 +37,37 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/next_prime.h"   /* next_prime(uint64_t start) -> first prime > start */
-#include "../utils/floor_sqrt.h"  /* floor_sqrt(seq_t x) -> ⌊√x⌋ */
-#include "../utils/cross_lt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* helper: compare a*b < c*d using exact arithmetic */
+static inline bool cross_lt(seq_t a, seq_t b, seq_t c, seq_t d)
+{
+#if defined(__SIZEOF_INT128__)
+    return (unsigned __int128)a * b < (unsigned __int128)c * d;
+#else
+    return (a * b) < (c * d);   /* safe for arbitrary‑precision seq_t */
+#endif
+}
 
 /* main sequence function */
 seq_t a(idx_t n)
@@ -57,8 +86,8 @@ seq_t a(idx_t n)
         if (need > cap) {
             size_t new_cap = cap ? cap << 1 : 32;
             if (new_cap < need) new_cap = need;
-            seq_t *pt = (seq_t *)realloc(denom, new_cap * sizeof(seq_t));
-            seq_t *pn = (seq_t *)realloc(num,   new_cap * sizeof(seq_t));
+            seq_t *pt = mem_resize(seq_t, denom, new_cap);
+            seq_t *pn = mem_resize(seq_t, num, new_cap);
             if (!pt || !pn) exit(EXIT_FAILURE);
             denom = pt;
             num   = pn;

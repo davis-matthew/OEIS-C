@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(n) – reverse(prime(n)) (OEIS A068396)
  * Range:     i8 n <= 26, i16 n <= 1229, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9714 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Reverse the decimal digits of an unsigned 64‑bit integer. */
 static seq_t rev_uint64(uint64_t x)
@@ -40,11 +42,11 @@ static void ensure_primes(idx_t n)
     /* Grow the cache if necessary. */
     if (prime_cap == 0) {
         prime_cap   = 16;
-        prime_cache = (seq_t *)malloc(prime_cap * sizeof(seq_t));
+        prime_cache = mem_new(seq_t, prime_cap);
     }
     if (prime_count >= prime_cap) {
         prime_cap *= 2;
-        prime_cache = (seq_t *)realloc(prime_cache, prime_cap * sizeof(seq_t));
+        prime_cache = mem_resize(seq_t, prime_cache, prime_cap);
     }
 
     /* Start generating from just after the last cached prime. */
@@ -69,7 +71,7 @@ static void ensure_primes(idx_t n)
         if (is_prime) {
             if (prime_count >= prime_cap) {
                 prime_cap *= 2;
-                prime_cache = (seq_t *)realloc(prime_cache, prime_cap * sizeof(seq_t));
+                prime_cache = mem_resize(seq_t, prime_cache, prime_cap);
             }
             prime_cache[prime_count++] = (seq_t)candidate;
         }

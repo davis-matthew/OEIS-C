@@ -7,9 +7,10 @@
  * Keywords:  nonn, frac
  * Formula:   a(n) = numerator of Sum_{i=2..t} (d(i)/d(i‑1)-1), where
  *            d(1)…d(t) are the divisors of n sorted increasingly
- * Range:     u8 n <= 33, u16 n <= 2430, u32 n <= 9741, u64 n <= 9741,
- *            u128 n <= 9741, big any n
- * Helpers:   get_divisors
+ * Range:     u8 n <= 33, u16 n <= 2430, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 93 terms through n = 9741 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,31 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/get_divisors.h"
+
+/* Collect the divisors of n into divs[0..cnt-1] (unsorted).
+   The caller supplies a buffer with at least 256 entries. */
+static void get_divisors(idx_t n, idx_t *divs, size_t *cnt_out)
+{
+    size_t cnt = 0;
+    for (idx_t i = 1; i <= n / i; ++i) {         /* avoid overflow of i*i */
+        if (n % i == 0) {
+            divs[cnt++] = i;
+            if (i != n / i)
+                divs[cnt++] = n / i;
+        }
+    }
+    /* simple insertion sort: array size is tiny (≤256). */
+    for (size_t i = 1; i < cnt; ++i) {
+        idx_t key = divs[i];
+        size_t j = i;
+        while (j > 0 && divs[j - 1] > key) {
+            divs[j] = divs[j - 1];
+            --j;
+        }
+        divs[j] = key;
+    }
+    *cnt_out = cnt;
+}
 
 /* ------------------------------------------------------------------ */
 /* Euclidean gcd for seq_t                                            */

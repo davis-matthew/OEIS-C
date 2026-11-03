@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1) + sum of digits of n^2, a(0)=0
  * Range:     u8 n <= 25, u16 n <= 2492, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9256 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* sum of decimal digits of a 64‑bit unsigned integer */
 static seq_t digit_sum_uint64(uint64_t x)
@@ -49,12 +51,12 @@ static void ensure_cache(idx_t needed)
     idx_t new_cap = cache_cap ? cache_cap * 2 : 1;
     while (new_cap <= needed) new_cap <<= 1;
 
-    seq_t *new_p = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+    seq_t *new_p = mem_new(seq_t, new_cap);
     if (!new_p) return;        /* out‑of‑memory: silently fail, caller will crash */
 
     if (cache) {
         for (idx_t i = 0; i < cache_used; ++i) new_p[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_p;
     cache_cap = new_cap;

@@ -7,17 +7,19 @@
  * Formula:   a(n) = 12*(n+1)*C(n+3,9)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 26, u64 n <= 237, u128 n <= 1000,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 42 terms through n = 952 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     /* Compute the binomial coefficient C(n+3,9) */
-    seq_t bin = binom((idx_t)(n + 3), (idx_t)9);
+    seq_t bin = binomial((idx_t)(n + 3), (idx_t)9);
 
     /* Compute the multiplier 12*(n+1) using seq_t arithmetic */
     seq_t mul = (seq_t)12 * (seq_t)(n + 1);

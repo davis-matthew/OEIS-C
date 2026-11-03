@@ -8,6 +8,7 @@
  * Formula:   a(n) = 2*n^3 - 9*n^2 + 19*n - 14 (for n ≥ 2)
  * Range:     u8 n <= 6, u16 n <= 33, u32 n <= 1291, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 55 terms through n = 9570 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

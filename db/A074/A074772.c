@@ -10,7 +10,8 @@
  *            that subsequent calls, in any order, return the correct entry
  * Range:     u8 n <= 7, u16 n <= 4337, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, divisor_count_u64
+ * Validated: standard, pass, 66 terms through n = 9791 (2026-11-03)
+ * Helpers:   mem, num_divisors, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/divisor_count_u64.h"   /* divisor_count_u64(uint64_t) */
-#include "../utils/calc_phi.h"            /* calc_phi(seq_t) */
+#include <stdint.h>
+#include "../utils/num_divisors.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 /* Static cache for the sequence values. */
 static seq_t *cache      = NULL;   /* array of found k's */
@@ -31,7 +34,7 @@ static uint64_t last_k_checked = 1;/* next integer to examine */
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) {
         /* Fatal error: out‑of‑memory. */
         exit(EXIT_FAILURE);
@@ -51,11 +54,11 @@ seq_t a(idx_t n)
     /* Extend the cache until it contains the nth term. */
     while (cache_len < (size_t)n) {
         /* Compute τ and φ for the current k and k+1. */
-        seq_t tau_k  = (seq_t)divisor_count_u64(last_k_checked);
-        seq_t tau_k1 = (seq_t)divisor_count_u64(last_k_checked + (uint64_t)1);
+        seq_t tau_k  = (seq_t)num_divisors(last_k_checked);
+        seq_t tau_k1 = (seq_t)num_divisors(last_k_checked + (uint64_t)1);
 
-        seq_t phi_k  = calc_phi((seq_t)last_k_checked);
-        seq_t phi_k1 = calc_phi((seq_t)(last_k_checked + (uint64_t)1));
+        seq_t phi_k  = totient_seq((seq_t)last_k_checked);
+        seq_t phi_k1 = totient_seq((seq_t)(last_k_checked + (uint64_t)1));
 
         /* Record k if both inequalities hold. */
         if (tau_k < tau_k1 && phi_k < phi_k1) {

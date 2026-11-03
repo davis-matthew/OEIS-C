@@ -8,12 +8,14 @@
  *            increasing order
  * Range:     u8 n <= 1, u16 n <= 189, u32 n <= 256, u64 n <= 256,
  *            u128 n <= 256, big any n
- * Helpers:   none
+ * Validated: full, pass, 256 terms through n = 256 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static int seq_cmp(const void *p1, const void *p2) {
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
             cache[pos++] = val;
         }
         /* pos should be 256 */
-        qsort(cache, 256, sizeof(seq_t), seq_cmp);
+        mem_qsort(cache, 256, sizeof(seq_t), seq_cmp);
         cached = 1;
     }
     idx_t idx = n - 1;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = (4n+1)^9
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 2, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
  * are intentionally ignored in the test harness as per
  * the problem statement. */
 #include <stdbool.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,5 +28,5 @@ seq_t a(idx_t n)
      * seq_t arithmetic. */
     seq_t base = (seq_t)4 * n + 1;
     /* Raise the base to the 9th power. */
-    return pow_int(base, 9);
+    return ipow_idx(base, 9);
 }

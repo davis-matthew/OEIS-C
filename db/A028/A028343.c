@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 14, i64 n <= 21, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 385 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 */
 
 #include <stdlib.h>  /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /*--- global caches ------------------------------------------------*/
 static unsigned *d_cache = NULL;   /* divisor counts                                  */
@@ -64,7 +66,7 @@ static void ensure_a_capacity(idx_t n)
         idx_t new_cap = a_cap_len ? a_cap_len * 2 : 1;
         while (new_cap <= n) new_cap *= 2;
 
-        seq_t *new_a = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_cache, new_cap);
         if (!new_a) abort();
         a_cache = new_a;
         a_cap_len = new_cap;

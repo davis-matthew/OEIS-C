@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static uint32_t *spf = NULL;          /* smallest prime factor */
 static unsigned char *omega_arr = NULL; /* distinct‑prime count per index   */
@@ -87,7 +89,7 @@ static void ensure_capacity(idx_t limit)
     /* Reallocate buffers */
     uint32_t *new_spf   = (uint32_t *)realloc(spf,   sizeof(uint32_t)   * (new_capacity + 1));
     unsigned char *new_omega = (unsigned char *)realloc(omega_arr, sizeof(unsigned char) * (new_capacity + 1));
-    seq_t *new_cum     = (seq_t *)realloc(cum,   sizeof(seq_t)     * (new_capacity + 1));
+    seq_t *new_cum     = mem_resize(seq_t, cum, (new_capacity + 1));
 
     if (!new_spf || !new_omega || !new_cum)
         abort();                                 /* out of memory */
@@ -100,7 +102,7 @@ static void ensure_capacity(idx_t limit)
     /* Clear newly allocated memory so that SPF scan works correctly */
     memset(spf, 0, sizeof(uint32_t) * (capacity + 1));
     memset(omega_arr, 0, sizeof(unsigned char) * (capacity + 1));
-    memset(cum, 0, sizeof(seq_t) * (capacity + 1));
+    mem_set(cum, 0, sizeof(seq_t) * (capacity + 1));
 
     /* Recompute all tables for the new range */
     compute_spf(capacity);

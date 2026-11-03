@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 36, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   pow2, pow3
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t exp); */
-#include "../utils/pow3.h"   /* provides seq_t pow3(idx_t exp); */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/pow3.h"
+#include "../utils/mem.h"
 
 /* cache for computed powers of 3 (3^i) */
 static seq_t *pow3_cache = NULL;      /* 3^i stored at pow3_cache[i] */
@@ -37,7 +40,7 @@ static void ensure_pow3(idx_t m)
         /* grow the cache */
         size_t new_cap = pow3_cap == 0 ? 1 : pow3_cap;
         while ((idx_t)new_cap <= m) new_cap *= 2;
-        pow3_cache = (seq_t *)realloc(pow3_cache, new_cap * sizeof(seq_t));
+        pow3_cache = mem_resize(seq_t, pow3_cache, new_cap);
         if (pow3_cache == NULL) abort();          /* allocation failed */
         if (pow3_cap == 0) {
             pow3_cache[0] = (seq_t)1;
@@ -74,7 +77,7 @@ seq_t a(idx_t n)
     /* enlarge the sequence cache if needed */
     if (n >= seq_cache_len) {
         size_t new_len = n + 1;
-        seq_cache = (seq_t *)realloc(seq_cache, new_len * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_len);
         if (seq_cache == NULL) abort();   /* allocation failed */
 
         for (idx_t i = seq_cache_len; i <= n; ++i) {

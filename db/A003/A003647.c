@@ -9,14 +9,16 @@
  *            reduced indefinite forms (a,b,c), b^2-4ac = D)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   isqrt_ll
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   isqrt_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/isqrt_ll.h"
+#include <stdbool.h>
+#include "../utils/isqrt_i64.h"
 
 typedef struct { long long fa, fb, fc; } qform_t;
 
@@ -45,7 +47,7 @@ static long long nth_disc(idx_t n) {
 }
 
 static long long narrow_class_number(long long D) {
-    long long s = isqrt_ll(D);
+    long long s = isqrt_i64(D);
     long long cap = 64, len = 0, b, x, i, cycles = 0;
     qform_t *f = (qform_t *)malloc((size_t)cap * sizeof(qform_t));
     char *seen;

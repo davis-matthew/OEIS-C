@@ -8,7 +8,8 @@
  *            or 11 mod 19) and (k^2+k+1)/19 prime (Miller-Rabin)
  * Range:     u8 n <= 12, u16 n <= 992, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a2643_isprime, a2643_mulmod, a2643_powmod
+ * Validated: standard, pass, 65 terms through n = 933 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a2643_isprime.h"
-#include "../utils/a2643_mulmod.h"
-#include "../utils/a2643_powmod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 static uint64_t *a2643_terms = NULL;
 static idx_t a2643_count = 0;
@@ -32,7 +33,7 @@ seq_t a(idx_t n) {
         r = a2643_k % 19;
         if (r != 7 && r != 11) continue;
         q = (a2643_k * a2643_k + a2643_k + 1) / 19;
-        if (!a2643_isprime(q)) continue;
+        if (!is_prime_u64(q)) continue;
         if (a2643_count == a2643_cap) {
             idx_t nc = a2643_cap ? a2643_cap * 2 : 1024;
             uint64_t *nt = (uint64_t *)realloc(a2643_terms, (size_t)nc * sizeof(uint64_t));

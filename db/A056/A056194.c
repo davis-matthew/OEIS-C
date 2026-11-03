@@ -11,6 +11,7 @@
  *            a(6)=1 n = 22 → v₂(22!) = 19 (odd, >1) → 2³ v₃(22!)...
  * Range:     u8 n <= 14, u16 n <= 21, u32 n <= 38, u64 n <= 92, u128 n <= 158,
  *            big any n
+ * Validated: standard, pass, 56 terms through n = 3790 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

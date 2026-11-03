@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, look
  * Formula:   a(n) = (n XOR (3*n)) / 2
- * Range:     u8 n <= 127, u16 n <= 8602, u32 n <= 8602, u64 n <= 8602,
- *            u128 n <= 8602, big any n
+ * Range:     u8 n <= 127, u16 n <= 10922, u32 n <= 10922, u64 n <= 10922,
+ *            u128 n <= 10922, big any n
+ * Validated: standard, pass, 99 terms through n = 8602 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

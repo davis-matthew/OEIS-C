@@ -8,12 +8,14 @@
  * Formula:   G.f.: Product_{i>=4} (-1 * [i=4] + 1/(1 - x^i)^binomial(i+1,2))
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t binom(seq_t n, idx_t k) {
     if (k > (idx_t)n || k < 0) return 0;
@@ -27,14 +29,14 @@ static seq_t binom(seq_t n, idx_t k) {
 }
 
 seq_t compute_partitions(idx_t n, idx_t min_part) {
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     for (idx_t i = 0; i <= n; i++) dp[i] = 0;
     dp[0] = 1;
     
     for (idx_t part = min_part; part <= n; part++) {
         seq_t exp = (seq_t)part * ((seq_t)part + 1) / 2;
         
-        seq_t *new_dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (n + 1));
         for (idx_t i = 0; i <= n; i++) new_dp[i] = 0;
         
         for (idx_t i = 0; i <= n; i++) {
@@ -44,12 +46,12 @@ seq_t compute_partitions(idx_t n, idx_t min_part) {
             }
         }
         
-        free(dp);
+        mem_free(dp);
         dp = new_dp;
     }
     
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }
 

@@ -8,21 +8,23 @@
  * Formula:   a(0)=1, a(1)=1; For n≥2: a(n) = Σ_{i=0}^{n-2} a(i)*a(n-2-i) +
  *            Σ_{i=0}^{n-1} a(i)*b(n-1-i) where b(k) = Σ_{j=0}^{k}
  *            a(j)*a(k-j). This follows from the GF A(x)=1+x*A^3+x^2*A^2
- * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 21, u128 n <= 21,
+ * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)1;
     /* Allocate arrays for coefficients a[0..n] and temp[0..n] */
-    seq_t *a_coef = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *temp    = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *a_coef = mem_new(seq_t, (n + 1));
+    seq_t *temp    = mem_new(seq_t, (n + 1));
 
     a_coef[0] = (seq_t)1;
     temp[0]   = (seq_t)1;  /* b(0) = a(0)*a(0) */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_coef[n];
-    free(a_coef);
-    free(temp);
+    mem_free(a_coef);
+    mem_free(temp);
     return result;
 }

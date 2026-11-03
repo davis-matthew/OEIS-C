@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 25, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static bool ready = false;          /* are we prepared? */
 static seq_t *hist = NULL;          /* histogram of representation counts */
@@ -74,7 +76,7 @@ static void init(void)
     }
 
     hist_cap = (size_t)maxR + 1;                  /* +1 for 0 count */
-    hist = (seq_t *)calloc(hist_cap, sizeof(seq_t));
+    hist = mem_new(seq_t, hist_cap);
     if (hist == NULL) exit(EXIT_FAILURE);        /* should not happen */
 
     /* fill histogram */

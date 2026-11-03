@@ -8,13 +8,20 @@
  *            n
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Utility for computing 10^exp */
-#include "../utils/pow10.h"
+#include <stdint.h>
+
+static seq_t pow10(idx_t exp) {
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i) res *= (seq_t)10;
+    return res;
+}
 
 seq_t a(idx_t n)
 {

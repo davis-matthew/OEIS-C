@@ -12,14 +12,15 @@
  *            occurrence, * so that a(n) != a(n+1)
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   tau_simple
+ * Validated: partial, pass, 101 terms through n = 101 (2026-11-01)
+ * Helpers:   num_divisors_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/tau_simple.h"
+#include "../utils/num_divisors_idx.h"
 
 /* Build‑time maximum number of distinct τ values that will be needed.
  * 100 000 covers all required n for the given limits (n ≤ 10 000). */
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
     /* Extend cached values until we have at least n terms. */
     while (seq_len < (size_t)n) {
         ++last_orig;                     /* next natural number */
-        seq_t val = tau_simple(last_orig); /* τ(last_orig) */
+        seq_t val = num_divisors_idx(last_orig); /* τ(last_orig) */
         if (seq_len == 0 || val != last_val) {
             seq[seq_len++] = val;
             last_val = val;

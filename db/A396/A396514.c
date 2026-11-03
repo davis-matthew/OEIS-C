@@ -8,13 +8,14 @@
  *            a(n)=Sum_{k=1..n, k∤n} gcd(k,n)
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   calc_phi
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -30,13 +31,13 @@ seq_t a(idx_t n)
             idx_t d2 = n / i;
 
             /* divisor d1 */
-            seq_t phi_d2 = calc_phi((seq_t)d2);
+            seq_t phi_d2 = totient_seq((seq_t)d2);
             sum += (seq_t)d1 * (phi_d2 - (seq_t)1);
 
             /* divisor d2 (if distinct) */
             if (d1 != d2)
             {
-                seq_t phi_d1 = calc_phi((seq_t)d1);
+                seq_t phi_d1 = totient_seq((seq_t)d1);
                 sum += (seq_t)d2 * (phi_d1 - (seq_t)1);
             }
         }

@@ -7,7 +7,8 @@
  * Formula:   a(n) is the n-th semiprime p1*p2 with p2 ≡ 6 (mod p1) and p2>p1
  * Range:     u8 none, u16 none, u32 n <= 413, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   is_prime64
+ * Validated: standard, pass, 60 terms through n = 9484 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime64.h"   /* provides bool is_prime64(uint64_t) */
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t prod;   /* p1 * p2 */
@@ -98,7 +100,7 @@ static Node heap_pop(void)
 static seq_t next_valid_p2(seq_t cur, uint32_t step)
 {
     seq_t cand = cur + step;
-    while (!is_prime64((uint64_t)cand)) {
+    while (!is_prime_u64((uint64_t)cand)) {
         cand += step;
     }
     return cand;
@@ -116,7 +118,7 @@ static void init_heap(void)
         uint32_t p1 = primes[i];
         if (p1 < 7) continue;  /* skip p1 < 7 because smallest such semiprime already > 70? */
         seq_t cand = (seq_t)p1 + 6;  /* first candidate satisfying p2 ≡ 6 (mod p1) */
-        while (!is_prime64((uint64_t)cand)) {
+        while (!is_prime_u64((uint64_t)cand)) {
             cand += p1;
         }
         Node node = { (seq_t)p1 * cand, p1, cand };
@@ -135,7 +137,7 @@ static void cache_ensure(size_t needed)
     if (needed <= term_capacity) return;
     size_t new_cap = term_capacity ? term_capacity << 1 : 128;
     while (new_cap < needed) new_cap <<= 1;
-    term_cache = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    term_cache = mem_resize(seq_t, term_cache, new_cap);
     term_capacity = new_cap;
 }
 

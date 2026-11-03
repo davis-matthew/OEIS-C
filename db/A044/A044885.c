@@ -9,7 +9,8 @@
  *            equal
  * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   has_equal_parity_run_sum
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,35 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_equal_parity_run_sum.h"
+#include "../utils/mem.h"
+
+static bool has_equal_parity_run_sum(seq_t x) {
+    seq_t tmp = x;
+    int sum_even = 0, sum_odd = 0;
+    int prev_digit = -1;
+    int run_len   = 0;
+
+    while (tmp > (seq_t)0) {
+        int digit = (int)(tmp % (seq_t)14);
+        if (digit == prev_digit) {
+            run_len++;
+        } else {
+            if (prev_digit != -1) {
+                if ((run_len & 1) == 0) sum_even += run_len;
+                else                      sum_odd  += run_len;
+            }
+            prev_digit = digit;
+            run_len    = 1;
+        }
+        tmp /= (seq_t)14;
+    }
+    /* final run */
+    if (prev_digit != -1) {
+        if ((run_len & 1) == 0) sum_even += run_len;
+        else                    sum_odd  += run_len;
+    }
+    return sum_even == sum_odd;
+}
 
 static seq_t *cache        = NULL;   /* cached sequence values */
 static size_t cache_cap    = 0;      /* allocated cache capacity */
@@ -47,7 +76,7 @@ seq_t a(idx_t n) {
         if (has_equal_parity_run_sum(next_candidate)) {
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return (seq_t)0;  /* allocation failure */
                 cache      = tmp;
                 cache_cap  = new_cap;

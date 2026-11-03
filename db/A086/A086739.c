@@ -8,12 +8,14 @@
  *            totient)
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
     /* expand caches if needed */
     if (n + 1 > part_size) {
         idx_t new_sz = n + 1;
-        part = (seq_t *)realloc(part, new_sz * sizeof(seq_t));
-        phi  = (seq_t *)realloc(phi , new_sz * sizeof(seq_t));
+        part = mem_resize(seq_t, part, new_sz);
+        phi  = mem_resize(seq_t, phi, new_sz);
         part_size = new_sz;
         phi_size  = new_sz;
 

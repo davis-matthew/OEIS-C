@@ -8,8 +8,9 @@
  * Formula:   a(n) = T(i,j) = number of partitions of i into j parts of *
  *            exactly two distinct sizes, read by rows of the triangle *
  *            (offset 3)
- * Range:     u8 n <= 9691, u16 n <= 9691, u32 n <= 9691, u64 n <= 9691,
- *            u128 n <= 9691, big any n
+ * Range:     u8 n <= 10013, u16 n <= 10013, u32 n <= 10013, u64 n <= 10013,
+ *            u128 n <= 10013, big any n
+ * Validated: standard, pass, 107 terms through n = 9691 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of odd decimal digits of 3^n
  * Range:     u8 n <= 991, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- big integer in base 10 (least‑significant digit first) ---------- */
 static uint8_t *big_digits = NULL;
@@ -63,13 +65,13 @@ static void ensure_counts_capacity(size_t min_index)
 {
     if (counts == NULL) {
         counts_cap = 16;
-        counts = (seq_t*)realloc(NULL, counts_cap * sizeof(seq_t));
+        counts = mem_resize(seq_t, NULL, counts_cap);
         if (!counts) exit(1);
     }
     if (counts_cap <= (size_t)min_index) {
         size_t new_cap = counts_cap ? counts_cap * 2 : 16;
         while (new_cap <= (size_t)min_index) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(counts, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, counts, new_cap);
         if (!tmp) exit(1);
         counts = tmp;
         counts_cap = new_cap;

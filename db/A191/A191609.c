@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 1816, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 9453 (2026-11-01)
  * Helpers:   factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,8 +20,8 @@
 #include <stdbool.h>
 
 /* external helpers provided by the build system */
-#include "../utils/is_prime.h"
 #include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
 
 /* modular multiplication using 128‑bit type for 64‑bit moduli */
 static inline uint64_t mul64(uint64_t a, uint64_t b, uint64_t mod)

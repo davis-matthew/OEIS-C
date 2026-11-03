@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   ok_residue
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/ok_residue.h"
+
+/* Check whether the remainder modulo 55 is in the allowed set. */
+static bool ok_residue(uint64_t rem) {
+    switch (rem) {
+        case 1: case 4: case 9: case 14: case 16:
+        case 26: case 31: case 34: case 36: case 49:
+            return true;
+        default:
+            return false;
+    }
+}
 
 /* Static storage for all primes found so far and for the
    qualifying primes of the sequence.  The arrays grow

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (prime(n)^6 - prime(n)^2)/60 (OEIS A138451)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 22, u64 n <= 454, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 943 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

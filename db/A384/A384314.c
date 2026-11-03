@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    and return the n‑th value (1‑based). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *a, const void *b)
 {
@@ -45,14 +47,14 @@ seq_t a(idx_t n)
     /* capacity in elements : 2^(Lmax+1)-1 */
     size_t capacity = (size_t)(pow - 1);
 
-    seq_t *arr = (seq_t *)malloc(capacity * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, capacity);
     if (!arr) abort();
     size_t pos = 0;
     arr[pos++] = (seq_t)0;          /* a(1) = 0 */
 
     /* pre‑compute powers of 3 up to Lmax */
-    seq_t *pow3 = (seq_t *)malloc((Lmax + 1) * sizeof(seq_t));
-    if (!pow3) { free(arr); abort(); }
+    seq_t *pow3 = mem_new(seq_t, (Lmax + 1));
+    if (!pow3) { mem_free(arr); abort(); }
     pow3[0] = 1;
     for (size_t i = 1; i <= Lmax; ++i)
         pow3[i] = pow3[i - 1] * (seq_t)3;
@@ -81,12 +83,12 @@ seq_t a(idx_t n)
         }
     }
 
-    free(pow3);
+    mem_free(pow3);
 
     /* arr now contains exactly 'capacity' elements */
-    qsort(arr, capacity, sizeof(seq_t), cmp_seq);
+    mem_qsort(arr, capacity, sizeof(seq_t), cmp_seq);
 
     seq_t result = arr[n - 1];
-    free(arr);
+    mem_free(arr);
     return result;
 }

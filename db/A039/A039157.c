@@ -10,13 +10,25 @@
  *            n‑th such * number (OEIS A039157)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   zeros_twos_equal
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>  /* for bool */
-#include "../utils/zeros_twos_equal.h"
+
+static bool zeros_twos_equal(seq_t x)
+{
+    unsigned zeros = 0, twos = 0;
+    while (x > 0) {
+        seq_t rem = x % 11;
+        if (rem == 0) ++zeros;
+        else if (rem == 2) ++twos;
+        x /= 11;
+    }
+    return zeros == twos;
+}
 
 seq_t a(idx_t n)
 {

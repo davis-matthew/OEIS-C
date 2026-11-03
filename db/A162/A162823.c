@@ -8,7 +8,8 @@
  *            k=42
  * Range:     u8 none, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,10 @@
 /* Include standard headers (C11/C++17). */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparison function for qsort. */
-static int cmp(const void *p, const void *q)
+static int cmp_sort(const void *p, const void *q)
 {
     const seq_t *a = (const seq_t *)p;
     const seq_t *b = (const seq_t *)q;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         vals[sz++] = (seq_t)42;          /* Include k = 42 explicitly. */
 
         /* Sort the values to get the OEIS order. */
-        qsort(vals, sz, sizeof(seq_t), cmp);
+        mem_qsort(vals, sz, sizeof(seq_t), cmp_sort);
 
         initialized = true;
     }

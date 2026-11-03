@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   big_pow, pow2
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
    The only non‑power‑of‑two solution is k = 6 which occurs at n = 4.
    For n ≥ 5 we have k = 2^(n‑2).  All arithmetic is done on seq_t. */
 
-#include "../utils/pow2.h"  /* pow2(idx_t exp) returns 2^exp as seq_t */
-#include "../utils/big_pow.h" /* big_pow(seq_t base, seq_t exp) */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow.h"
+#include "../utils/pow2.h"
 
 /* external linkage as requested */
 seq_t a(idx_t n)
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
     idx_t k = (idx_t)1 << exp;          /* works because exp < 64 */
 
     /* compute m = 2^k + 1 */
-    seq_t m = big_pow((seq_t)2, (seq_t)k); /* 2^k */
+    seq_t m = ipow((seq_t)2, (seq_t)k); /* 2^k */
     m += (seq_t)1;                       /* +1 */
 
     return m;

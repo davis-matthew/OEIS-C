@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 7805, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree
+ * Validated: standard, pass, 76 terms through n = 9823 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>         /* size_t */
 #include <stdbool.h>        /* bool */
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                void *tmp = realloc(cache, new_cap * sizeof(seq_t));
+                void *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     abort();                /* out of memory */
                 cache = (seq_t *)tmp;

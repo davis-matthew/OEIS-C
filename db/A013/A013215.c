@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n/n! in sinh(log(1+x) - sin(x))
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_arr = NULL;      /* factorials: fact[i] = i!  */
 static seq_t *g_arr   = NULL;       /* g[i] as defined above   */
@@ -37,11 +39,11 @@ static void ensure_up_to(idx_t n)
 {
     if (!initialized) {
         /* initial allocation for index 0 */
-        fact_arr     = (seq_t*)malloc(sizeof(seq_t));
-        g_arr        = (seq_t*)malloc(sizeof(seq_t));
-        e_plus_arr   = (seq_t*)malloc(sizeof(seq_t));
-        e_minus_arr  = (seq_t*)malloc(sizeof(seq_t));
-        a_arr        = (seq_t*)malloc(sizeof(seq_t));
+        fact_arr     = mem_new(seq_t, 1);
+        g_arr        = mem_new(seq_t, 1);
+        e_plus_arr   = mem_new(seq_t, 1);
+        e_minus_arr  = mem_new(seq_t, 1);
+        a_arr        = mem_new(seq_t, 1);
 
         fact_arr[0]   = 1;
         g_arr[0]      = 0;          /* unused */
@@ -54,11 +56,11 @@ static void ensure_up_to(idx_t n)
     if (n <= current_max) return;
 
     size_t new_size = (size_t)n + 1;
-    fact_arr     = (seq_t*)realloc(fact_arr, new_size * sizeof(seq_t));
-    g_arr        = (seq_t*)realloc(g_arr, new_size * sizeof(seq_t));
-    e_plus_arr   = (seq_t*)realloc(e_plus_arr, new_size * sizeof(seq_t));
-    e_minus_arr  = (seq_t*)realloc(e_minus_arr, new_size * sizeof(seq_t));
-    a_arr        = (seq_t*)realloc(a_arr, new_size * sizeof(seq_t));
+    fact_arr     = mem_resize(seq_t, fact_arr, new_size);
+    g_arr        = mem_resize(seq_t, g_arr, new_size);
+    e_plus_arr   = mem_resize(seq_t, e_plus_arr, new_size);
+    e_minus_arr  = mem_resize(seq_t, e_minus_arr, new_size);
+    a_arr        = mem_resize(seq_t, a_arr, new_size);
 
     /* compute from current_max+1 up to n */
     for (idx_t i = current_max + 1; i <= n; ++i) {

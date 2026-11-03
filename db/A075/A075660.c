@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_min_max
+ * Validated: standard, pass, 116 terms through n = 9543 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,40 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_min_max.h"
+
+/* compute smallest and largest prime factors of n (n > 1) */
+static inline void factor_min_max(uint64_t n, uint64_t *min_p, uint64_t *max_p)
+{
+    uint64_t temp = n;
+    uint64_t min = 0;
+    uint64_t max = 0;
+
+    if ((temp & 1ULL) == 0) {          /* even */
+        min = 2;
+        max = 2;
+        while ((temp & 1ULL) == 0)      /* divide by 2 completely */
+            temp >>= 1;
+    }
+
+    for (uint64_t i = 3; i <= temp / i; i += 2) {
+        if (temp % i == 0) {
+            if (min == 0)
+                min = i;
+            max = i;
+            while (temp % i == 0)
+                temp /= i;
+        }
+    }
+
+    if (temp > 1) {                    /* remaining prime factor > sqrt(original n) */
+        if (min == 0)
+            min = temp;
+        max = temp;
+    }
+
+    *min_p = min;
+    *max_p = max;
+}
 
 /* f(n) = |lpd(n) – gpf(n)| for n > 1 */
 static inline uint64_t f_func(uint64_t n)

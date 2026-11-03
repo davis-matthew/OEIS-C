@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
  */
 
 #include <stdint.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* Euclidean gcd for 64‑bit integers used in the search. */
 
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
     for (idx_t b = b_min; b <= b_max; ++b) {
         idx_t a_side = n - 2 * b;          /* the third side a = n - 2b */
         /* All sides fit in 64 bits for the given n constraints. */
-        if (gcd_uint64((uint64_t)a_side, (uint64_t)b) == 1) {
+        if (gcd_u64((uint64_t)a_side, (uint64_t)b) == 1) {
             ++count;
         }
     }

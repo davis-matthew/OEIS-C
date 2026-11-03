@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 115, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   grow_cap
+ * Validated: standard, pass, 83 terms through n = 9237 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
         a(n) = a(n-1) – (n+2)  if the result is positive and not already seen,
         otherwise a(n) = a(n-1) + (n+2).                           */
 #include <stdlib.h>   /* malloc, realloc */
-#include "../utils/grow_cap.h"
+#include "../utils/mem.h"
+
+/* Helper to grow an array of seq_t to at least 'need' capacity. */
+static void grow_cap(size_t *capp, seq_t **arrp, size_t need)
+{
+    if (*capp >= need) return;
+    size_t newcap = *capp ? *capp * 2 : 16;
+    while (newcap < need) newcap *= 2;
+    *arrp = mem_resize(seq_t, *arrp, newcap);
+    *capp = newcap;
+}
 
 /* The function is opaque to the build system: seq_t and idx_t are defined
    elsewhere. The implementation uses only integer types and the standard

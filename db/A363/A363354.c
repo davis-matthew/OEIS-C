@@ -7,14 +7,17 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (3*n-3*k+1)^(k-1) * binomial(k, n-k)/k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
 
         idx_t j = n - k;                         /* j = n - k */
         seq_t base = (seq_t)(3 * j + 1);           /* (3*j + 1) */
-        seq_t power = seq_pow(base, k - 1);       /* (3*j + 1)^(k-1) */
+        seq_t power = ipow_idx(base, k - 1);       /* (3*j + 1)^(k-1) */
         seq_t bin    = binomial(k, j);            /* binomial(k, n-k) */
 
         seq_t term = fac_ratio * power;          /* (n!/k!) * base^(k-1) */

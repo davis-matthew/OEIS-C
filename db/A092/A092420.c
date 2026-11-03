@@ -8,12 +8,14 @@
  *            = 10
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are defined by the build system. */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initialise storage on first call */
     if (memo == NULL) {
         memo_cap = 4;                           /* initial capacity */
-        memo     = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo     = mem_new(seq_t, memo_cap);
         memo[0]  = (seq_t)1;                    /* a(1) */
         memo[1]  = (seq_t)10;                   /* a(2) */
         memo_len = 2;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         /* Grow the array if necessary */
         if (target > memo_cap) {
             while (memo_cap < target) memo_cap <<= 1;
-            memo = (seq_t *)realloc(memo, memo_cap * sizeof(seq_t));
+            memo = mem_resize(seq_t, memo, memo_cap);
         }
 
         /* Unroll recurrence: a(k) = 9*a(k-1) – a(k-2) + 1 */

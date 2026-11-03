@@ -8,12 +8,14 @@
  *            a(n-3) - a(n-4) for n > 5
  * Range:     u8 n <= 28, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;              /* dynamic array of computed terms */
 static idx_t  memo_cap = 0;             /* current capacity of memo (in indices) */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Ensure array has room for indices up to n */
     if (n + 1 > memo_cap) {
         size_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (tmp == NULL) {
             /* On allocation failure return 0 – caller will treat as error */
             return 0;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if (n <= 5) {
         if (memo_cap < 6) { /* safety check, should already be satisfied */
             size_t new_cap = 6;
-            seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, memo, new_cap);
             if (tmp == NULL) return 0;
             for (idx_t i = memo_cap; i < new_cap; ++i) tmp[i] = 0;
             memo = tmp;

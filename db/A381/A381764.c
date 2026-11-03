@@ -11,7 +11,8 @@
  *            with the same popcount (A057168)
  * Range:     u8 n <= 254, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_same_popcount, prev_same_popcount
+ * Validated: standard, pass, 84 terms through n = 9533 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,39 @@
 /* Standard headers for the build */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/next_same_popcount.h"
-#include "../utils/prev_same_popcount.h"
+
+/* --- next number with the same popcount (A057168) --- */
+static seq_t next_same_popcount(seq_t n)
+{
+    /* lowest set bit */
+    seq_t lowest = n & (~n + 1U);
+    /* add it – produces ripple carry */
+    seq_t ripple = n + lowest;
+    /* bits changed by the ripple */
+    seq_t ones = n ^ ripple;
+    /* move the trailing ones (except the lowest) to the lowest positions */
+    ones = (ones >> 2) / lowest;
+    return ripple | ones;
+}
+
+/* --- previous number with the same popcount (A243109) --- */
+static seq_t prev_same_popcount(seq_t n)
+{
+    /* Find the rightmost occurrence of the pattern "10"
+       (bit i+1 = 1 and bit i   = 0). */
+    idx_t i = 0;
+    while (true) {
+        seq_t low  = (n >> i)       & 1U;   /* bit i   */
+        seq_t high = (n >> (i + 1)) & 1U;   /* bit i+1 */
+        if (low == 0U && high == 1U) {
+            /* swap them: clear bit i+1 and set bit i */
+            n &= ~((seq_t)1U << (i + 1));
+            n |= ((seq_t)1U << i);
+            return n;
+        }
+        i++;
+    }
+}
 
 /* --- main sequence function --- */
 seq_t a(idx_t n)

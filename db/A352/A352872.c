@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   build_primes
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 /* Prime table (1‑based indices).  The table is filled once on
    first use.  For n up to ~10000 the numbers we examine stay
@@ -112,10 +116,10 @@ static void ensure_seq_capacity(size_t needed)
     size_t new_cap = seq_cap ? seq_cap << 1 : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *new_array = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_array = mem_new(seq_t, new_cap);
     if (seq_cache && seq_len > 0)
-        memcpy(new_array, seq_cache, seq_len * sizeof(seq_t));
-    free(seq_cache);
+        mem_copy(new_array, seq_cache, seq_len * sizeof(seq_t));
+    mem_free(seq_cache);
     seq_cache = new_array;
     seq_cap   = new_cap;
 }

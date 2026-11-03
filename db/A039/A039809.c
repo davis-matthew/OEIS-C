@@ -12,13 +12,15 @@
  *            requested n
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 24, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;      /* a[0 .. size-1] */
 static idx_t  cache_size = 0;      /* current allocated size */
@@ -27,7 +29,7 @@ static idx_t  cache_size = 0;      /* current allocated size */
 static void recompute_upto(idx_t N)
 {
     /* resize the a array */
-    seq_t *tmp = (seq_t *)realloc(a_cache, (N + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, (N + 1));
     if (!tmp)
         abort();
     a_cache = tmp;
@@ -40,7 +42,7 @@ static void recompute_upto(idx_t N)
         a_cache[i] = 0;
 
     /* temporary array for partitions of m into parts <= i */
-    seq_t *f = (seq_t *)calloc((N + 1), sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (N + 1));
     if (!f)
         abort();
     f[0] = 1;   /* one partition of 0 */
@@ -60,7 +62,7 @@ static void recompute_upto(idx_t N)
         }
     }
 
-    free(f);
+    mem_free(f);
 }
 
 seq_t a(idx_t n)

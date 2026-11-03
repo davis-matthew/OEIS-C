@@ -11,14 +11,56 @@
  *            enumeration for the sum of squares
  * Range:     u8 n <= 30, u16 n <= 432, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   half_totient
+ * Validated: standard, pass, 78 terms through n = 966 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/half_totient.h"
+
+/* Helper: compute the number of integers ≤ m that are coprime to n.
+   This is H(n) with m = floor(n/2). */
+static uint64_t half_totient(uint64_t n)
+{
+    uint64_t m = n >> 1;                 /* floor(n/2) */
+    if (n <= 1) return 1;                /* not used for n ≥ 3 but safe */
+
+    /* factor n to obtain its distinct prime factors */
+    uint64_t primes[15];
+    int cnt = 0;
+    uint64_t tmp = n;
+    for (uint64_t p = 2; p * p <= tmp; ++p)
+    {
+        if (tmp % p == 0)
+        {
+            primes[cnt++] = p;
+            while (tmp % p == 0) tmp /= p;
+        }
+    }
+    if (tmp > 1) primes[cnt++] = tmp;
+
+    /* Inclusion–exclusion over the distinct primes */
+    uint64_t coprime = m;
+    for (uint64_t mask = 1; mask < ((uint64_t)1 << cnt); ++mask)
+    {
+        uint64_t prod = 1;
+        int bits = 0;
+        for (int i = 0; i < cnt; ++i)
+        {
+            if (mask & ((uint64_t)1 << i))
+            {
+                prod *= primes[i];
+                ++bits;
+            }
+        }
+        uint64_t term = m / prod;
+        if (bits & 1) coprime -= term;   /* subtract when odd number of primes */
+        else          coprime += term;   /* add when even number of primes   */
+    }
+    return coprime;
+}
 
 /* Public function required by the build. */
 seq_t a(idx_t n)

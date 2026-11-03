@@ -10,16 +10,17 @@
  *            start(row) = row*(row-1) ≤ n < row*(row+1). ** For each row = r
  *            (r ≥ 2), a^i elements contribute φ(k) when ** k | 2r; and the
  *            a^i x part contributes 2r elements of order 4
- * Range:     u8 n <= 8700, u16 n <= 8700, u32 n <= 8700, u64 n <= 8700,
- *            u128 n <= 8700, big any n
- * Helpers:   phi
+ * Range:     u8 n <= 10099, u16 n <= 10099, u32 n <= 10099, u64 n <= 10099,
+ *            u128 n <= 10099, big any n
+ * Validated: standard, pass, 101 terms through n = 8700 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 /* Integer (64‑bit) square root by binary search */
 static inline idx_t isqrt_u64(idx_t n)
@@ -62,7 +63,7 @@ seq_t a(idx_t n)
 
     /* contribution from a^i elements */
     if ((m % k) == 0) {
-        result += (seq_t)phi(k);   /* φ(k) fits in seq_t for k ≤ m */
+        result += (seq_t)totient(k);   /* φ(k) fits in seq_t for k ≤ m */
     }
 
     /* contribution from a^i x elements (always of order 4) */

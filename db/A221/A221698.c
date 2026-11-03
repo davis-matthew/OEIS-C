@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   factor_u64, has_digit_gt2, is_prime
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime.h"
 #include "../utils/factor_u64.h"
-#include "../utils/has_digit_gt2.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Return true if any decimal digit of x is greater than 2. */
+static bool has_digit_gt2(seq_t x)
+{
+    while (x > (seq_t)0) {
+        if ((x % (seq_t)10) > (seq_t)2) return true;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 /* Depth‑first traversal of all divisors given prime factorization.
    Returns false as soon as a divisor with a digit > 2 is found. */
@@ -82,8 +93,8 @@ seq_t a(idx_t n)
         /* Store valid composite number. */
         if (cache_len + 1 > cache_cap) {
             size_t newcap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
-            if (!tmp) { free(cache); cache = NULL; return (seq_t)0; }
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
+            if (!tmp) { mem_free(cache); cache = NULL; return (seq_t)0; }
             cache = tmp;
             cache_cap = newcap;
         }

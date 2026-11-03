@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 33, u128 n <= 67,
  *            big any n
- * Helpers:   valid_mid
+ * Validated: standard, pass, 40 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,32 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/valid_mid.h"
+
+/* Check if the middle column `mid` is valid when surrounded by
+   `left` and `right`.  All columns are represented as 3‑bit
+   patterns (bit 0 is the top row).  A 1 must have 1, 3 or 4
+   horizontally or diagonally adjacent 1s.  (Vertical neighbours
+   are not considered.) */
+static bool valid_mid(int left, int mid, int right)
+{
+    int l0 = (left >> 0) & 1, l1 = (left >> 1) & 1, l2 = (left >> 2) & 1;
+    int m0 = (mid >> 0) & 1,  m1 = (mid >> 1) & 1,  m2 = (mid >> 2) & 1;
+    int r0 = (right >> 0) & 1, r1 = (right >> 1) & 1, r2 = (right >> 2) & 1;
+
+    if (m0) {
+        int neigh = l0 + r0 + l1 + r1;          /* top row */
+        if (neigh != 1 && neigh != 3 && neigh != 4) return false;
+    }
+    if (m1) {
+        int neigh = l1 + r1 + l0 + l2 + r0 + r2;  /* middle row */
+        if (neigh != 1 && neigh != 3 && neigh != 4) return false;
+    }
+    if (m2) {
+        int neigh = l2 + r2 + l1 + r1;          /* bottom row */
+        if (neigh != 1 && neigh != 3 && neigh != 4) return false;
+    }
+    return true;
+}
 
 /* Pre‑computation of the validity table to speed up the DP. */
 static bool valid_table[8][8][8];

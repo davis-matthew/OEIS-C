@@ -12,7 +12,8 @@
  *            * corresponding product of exponents
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exp_is_square
+ * Validated: standard, pass, 103 terms through n = 9305 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,16 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/exp_is_square.h"
+#include "../utils/mem.h"
+
+/* ----------  Test whether an integer is a perfect square  ---------- */
+static inline bool exp_is_square(int e)
+{
+    /* e is always non‑negative and small for the numbers we inspect. */
+    for (int s = 1; s * s <= e; ++s)
+        if (s * s == e) return true;
+    return false;
+}
 
 /* ----------  Smallest‑prime‑factor sieve  ---------- */
 static uint32_t *spf = NULL;      /* spf[i] = least prime factor of i */
@@ -68,7 +78,7 @@ static void grow_cache(size_t need)
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap < 16 ? 16 : cache_cap;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_buf = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, term_cache, new_cap);
     if (!new_buf) exit(EXIT_FAILURE);
     term_cache = new_buf;
     cache_cap  = new_cap;

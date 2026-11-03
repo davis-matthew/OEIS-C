@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   is_prime_uint64, next_prime
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/is_prime_u64.h"
 #include "../utils/next_prime.h"
-#include "../utils/is_prime_uint64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (!initialized) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         used  = 0;
         initialized = true;
     }
@@ -52,13 +54,13 @@ seq_t a(idx_t n)
         /* q = 10*p + 3 */
         uint64_t q = 10 * p + 3;
 
-        if (is_prime_uint64(p) && is_prime_uint64(q)) {
+        if (is_prime_u64(p) && is_prime_u64(q)) {
             /* grow the cache if necessary */
             if (used == cap) {
                 size_t new_cap = cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) { /* allocation failure; abort */
-                    free(cache);
+                    mem_free(cache);
                     return 0;
                 }
                 cache = tmp;

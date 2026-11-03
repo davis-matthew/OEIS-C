@@ -12,18 +12,36 @@
  *            is obtained by reading the square array A(n,k) along *
  *            descending antidiagonals (i.e. all pairs with n+k = constant,
  *            with k * descending). Thus a(0)=0, a(1)=0, a(2)=1,...
- * Range:     u8 n <= 9348, u16 n <= 9348, u32 n <= 9348, u64 n <= 9348,
- *            u128 n <= 9348, big any n
- * Helpers:   gray, gray_inverse, popcount_uint64
+ * Range:     u8 n <= 32895, u16 n <= 32895, u32 n <= 32895, u64 n <= 32895,
+ *            u128 n <= 32895, big any n
+ * Validated: standard, pass, 136 terms through n = 9348 (2026-11-01)
+ * Helpers:   popcount_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gray.h"
-#include "../utils/gray_inverse.h"
-#include "../utils/popcount_uint64.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/popcount_u64.h"
+
+/* Gray code of x */
+static inline uint64_t gray(uint64_t x)
+{
+    return x ^ (x >> 1);
+}
+
+/* Inverse Gray code of g (works for any 64‑bit value) */
+static inline uint64_t gray_inverse(uint64_t g)
+{
+    uint64_t n = g;
+    while (g) {
+        g >>= 1;
+        n ^= g;
+    }
+    return n;
+}
 
 /* Count 1‑bits of a 64‑bit value */
 
@@ -51,7 +69,7 @@ seq_t a(idx_t n)
     uint64_t sum     = i + inv_j;
     uint64_t gray_sum = gray(sum);
     uint64_t diff    = j ^ gray_sum;
-    unsigned int hamming = popcount_uint64(diff);
+    unsigned int hamming = popcount_u64(diff);
 
     return (seq_t)hamming;
 }

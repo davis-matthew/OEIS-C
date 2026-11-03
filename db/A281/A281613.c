@@ -8,12 +8,14 @@
  * Formula:   a(n) = total number of parts in all partitions of n into cubes
  * Range:     u8 n <= 50, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* for malloc, calloc, free */
+#include "../utils/mem.h"
 
 /* Computes the n-th term of OEIS A281613.  idx_t is an unsigned integer
    type (e.g., uint64_t), seq_t is an unsigned integer type that may be
@@ -26,11 +28,11 @@ seq_t a(idx_t n)
 
     /* Allocate DP arrays; use calloc to zero-initialize. */
     size_t size = (size_t)(n + 1);
-    seq_t *dp = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *ps = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
+    seq_t *ps = mem_new(seq_t, size);
     if (!dp || !ps) {
-        free(dp);
-        free(ps);
+        mem_free(dp);
+        mem_free(ps);
         return 0;
     }
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = ps[n];
-    free(dp);
-    free(ps);
+    mem_free(dp);
+    mem_free(ps);
     return result;
 }

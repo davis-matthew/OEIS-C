@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   sum_of_integers, sum_of_squares
+ * Validated: partial, pass, 44 terms through n = 45 (2026-11-01)
+ * Helpers:   triangular_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,8 +32,13 @@
    n ≥ 2 and is O(n). */
 
 #include <stdint.h>
-#include "../utils/sum_of_integers.h"
-#include "../utils/sum_of_squares.h"
+#include "../utils/triangular_idx.h"
+
+static seq_t sum_of_squares(idx_t n)
+{
+    seq_t nn = (seq_t)n;
+    return nn * (nn + 1) * (2 * nn + 1) / 6;
+}
 
 seq_t a(idx_t n)
 {
@@ -42,13 +48,13 @@ seq_t a(idx_t n)
     /* For n ≥ 10 the result is known to be sum_of_squares(n-1) */
     if (n >= 10) return sum_of_squares(n - 1);
 
-    seq_t S   = sum_of_integers(n);
+    seq_t S   = triangular_idx(n);
     seq_t S2  = sum_of_squares(n);
     /* Initialise best to a value that is larger than any possible f(t) */
     seq_t best = S2 * n;                   /* upper bound for a(n) */
 
     for (idx_t t = 0; t < n; ++t) {
-        seq_t St   = sum_of_integers(t);
+        seq_t St   = triangular_idx(t);
         seq_t ones = n - t;
         seq_t diff = S - St;
         seq_t diff_sq = diff * diff;

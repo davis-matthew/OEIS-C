@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   lowbit_index
+ * Validated: standard, pass, 33 terms through n = 153 (2026-11-01)
+ * Helpers:   ctz_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/lowbit_index.h"
+#include "../utils/ctz_u32.h"
 
 /* Size of a row in bits and number of possible rows */
 #define ROWS   32          /* 2^5 */
@@ -122,7 +123,7 @@ seq_t a(idx_t n)
             int b = idx & 31;
             uint32_t mask = trans_mask[a][b];
             while (mask) {
-                int r = lowbit_index(mask);
+                int r = ctz_u32(mask);
                 next_dp[(b << 5) | r] += cur;
                 mask &= mask - 1;          /* remove lowest set bit */
             }

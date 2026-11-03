@@ -12,12 +12,14 @@
  *            * All computatio...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* realloc, abort */
+#include "../utils/mem.h"
 
 static idx_t  cache_n  = 0;          /* largest n that has been computed   */
 static seq_t *a_cache = NULL;        /* a values                           */
@@ -30,9 +32,9 @@ static void ensure_cache(idx_t n)
 
     /* enlarge all arrays to hold indices 0…n */
     size_t new_len = (size_t)n + 1;         /* new length including 0 */
-    a_cache = (seq_t*)realloc(a_cache, new_len * sizeof(seq_t));
-    S_cache = (seq_t*)realloc(S_cache, new_len * sizeof(seq_t));
-    u_cache = (seq_t*)realloc(u_cache, new_len * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_len);
+    S_cache = mem_resize(seq_t, S_cache, new_len);
+    u_cache = mem_resize(seq_t, u_cache, new_len);
     if (!a_cache || !S_cache || !u_cache) abort();  /* out of memory */
 
     /* base values (repeating them avoids uninitialised reads) */

@@ -11,6 +11,7 @@
  *            defined by OEIS A177740
  * Range:     u8 n <= 700, u16 n <= 9549, u32 n <= 9549, u64 n <= 9549,
  *            u128 n <= 9549, big any n
+ * Validated: standard, pass, 111 terms through n = 8485 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

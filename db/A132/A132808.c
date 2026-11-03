@@ -9,14 +9,16 @@
  *            the Catalan sequence A000108. Thus for each row r ≥ 1 the
  *            entries are: a(row_start + 0) = Catalan(r) // left border
  *            a(row_start + j) = Narayana(r, j+1) // interior entri...
- * Range:     u8 n <= 6, u16 n <= 28, u32 n <= 66, u64 n <= 66, u128 n <= 66,
+ * Range:     u8 n <= 15, u16 n <= 45, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     if (c == 1) {
         /* left border – Catalan number */
-        return binom(2 * r, r) / (seq_t)(r + 1);
+        return binomial(2 * r, r) / (seq_t)(r + 1);
     } else if ((idx_t)r == c) {
         /* right border */
         return 1;
@@ -42,8 +44,8 @@ seq_t a(idx_t n)
         /* interior entry – Narayana number
            N(r, c) = binom(r, c) * binom(r, c-1) / r
         */
-        seq_t val1 = binom((idx_t)r, (idx_t)c);
-        seq_t val2 = binom((idx_t)r, (idx_t)c - 1);
+        seq_t val1 = binomial((idx_t)r, (idx_t)c);
+        seq_t val2 = binomial((idx_t)r, (idx_t)c - 1);
         return (val1 * val2) / (seq_t)r;
     }
 }

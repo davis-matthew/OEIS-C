@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 51, u32 n <= 128, u64 n <= 508,
  *            u128 n <= 3097, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 8182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    where p = ⌊log₂(n‑2)⌋  (so 2^p < n-1 ≤ 2^(p+1)) */
 #include <stdlib.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (n > cache_size) {
         idx_t new_size = cache_size ? cache_size << 1 : 4;
         if (new_size < n) new_size = n;
-        seq_t *new_cache = (seq_t *)realloc(cache, (new_size + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (new_size + 1));
         if (!new_cache)
             return 0;   /* out of memory – not expected */
 

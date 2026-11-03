@@ -10,6 +10,7 @@
  *            sequence a(n) is the triangle read row by row
  * Range:     i8 n <= 54, i16 n <= 170, i32 n <= 629, i64 n <= 2144,
  *            i128 n <= 8384, big any n
+ * Validated: standard, pass, 90 terms through n = 8110 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

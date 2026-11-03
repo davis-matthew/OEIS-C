@@ -13,13 +13,15 @@
  *            P(0,0)=1, P(0,n>0)=0. This counts partitions into parts ≤...
  * Range:     u8 n <= 47, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *dp_cache = NULL;    /* 1‑D array: dp_cache[k*(N+1)+n] */
 static idx_t  cache_n = 0;        /* maximum n stored in dp_cache */
@@ -34,7 +36,7 @@ static void ensure_dp(idx_t n, idx_t dmax)
         idx_t old_d = cache_d;
 
         /* free old table if any */
-        if (dp_cache) free(dp_cache);
+        if (dp_cache) mem_free(dp_cache);
 
         cache_n = n;
         cache_d = dmax;
@@ -42,7 +44,7 @@ static void ensure_dp(idx_t n, idx_t dmax)
         size_t rows = (size_t)(cache_d + 1);
         size_t cols = (size_t)(cache_n + 1);
         size_t sz = rows * cols;
-        dp_cache = (seq_t *)malloc(sz * sizeof(seq_t));
+        dp_cache = mem_new(seq_t, sz);
         if (!dp_cache) return;   /* allocation failed – program will fail on use */
 
         /* row 0: partitions into at most 0 parts – only 1 for 0, 0 otherwise */

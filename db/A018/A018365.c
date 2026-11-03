@@ -7,13 +7,15 @@
  * Formula:   a(n) is the n-th divisor of 270 (sorted ascending)
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: comparison function for qsort on seq_t */
 static int cmp_seqt(const void *p1, const void *p2)
@@ -47,7 +49,7 @@ static void init_divisors(void)
                 divisors[pos++] = pow2[i] * pow3[j] * pow5[k];
 
     divisor_count = pos;
-    qsort(divisors, divisor_count, sizeof(seq_t), cmp_seqt);
+    mem_qsort(divisors, divisor_count, sizeof(seq_t), cmp_seqt);
     initialized = true;
 }
 

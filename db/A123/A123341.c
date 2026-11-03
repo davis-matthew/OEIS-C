@@ -9,13 +9,15 @@
  *            the number of primes ≤ n
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for computed values and auxiliary data */
 static seq_t *cache      = NULL; /* cache[i] = a(i); cache[0] unused */
@@ -32,7 +34,7 @@ static void ensure_capacity(size_t limit)
     size_t new_size = limit + 1; /* we use indices 0 .. limit */
 
     /* Reallocate cache */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) abort();
     cache = new_cache;
 

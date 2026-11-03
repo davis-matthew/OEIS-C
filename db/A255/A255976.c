@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 2753, u64 n <= 2753, u128 n <= 2753,
  *            big any n
- * Helpers:   is_prime_small_uint32, sieve_primes_upto_1000
+ * Validated: full, pass, 2753 terms through n = 2753 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,45 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/is_prime_small_uint32.h"
-#include "../utils/sieve_primes_upto_1000.h"
+#include "../utils/mem.h"
+
+/* Deterministic primality test for n ≤ 1 000 000 using primes ≤ 1000. */
+static bool is_prime_small_uint32(uint32_t n, const uint16_t primes[], size_t primes_cnt)
+{
+    if (n < 2) return false;
+    for (size_t i = 0; i < primes_cnt; ++i) {
+        uint32_t p = (uint32_t)primes[i];
+        if (p * p > n) break;
+        if (n % p == 0) return false;
+    }
+    return true;
+}
+
+/* Build all primes up to 1000. Store them sequentially in primes_out. */
+static void sieve_primes_upto_1000(uint16_t primes_out[], size_t *cnt_out)
+{
+    /* 1000 fits in the 16‑bit type, so we use a 32‑bit loop index. */
+    static const uint16_t LIMIT = 1000;
+    bool is_comp[LIMIT + 1];
+    memset(is_comp, 0, sizeof(is_comp));
+
+    is_comp[0] = is_comp[1] = true;
+    for (uint16_t i = 2; i * i <= LIMIT; ++i) {
+        if (!is_comp[i]) {
+            for (uint16_t j = i * i; j <= LIMIT; j += i) {
+                is_comp[j] = true;
+            }
+        }
+    }
+
+    size_t cnt = 0;
+    for (uint16_t i = 2; i <= LIMIT; ++i) {
+        if (!is_comp[i]) {
+            primes_out[cnt++] = i;
+        }
+    }
+    *cnt_out = cnt;
+}
 
 /* Forward declarations of helper functions used in this file */
 static void build_sequence(void);
@@ -55,7 +93,7 @@ static void build_sequence(void)
     /* --------- Step 2: enumerate pairs of 3‑digit primes --------- */
     /* There are 143 primes from 100 to 999, so at most 20449 pairs. */
     size_t max_pairs = (size_t)all_cnt * all_cnt;
-    seq_t *temp = (seq_t *)malloc(max_pairs * sizeof(seq_t));
+    seq_t *temp = mem_new(seq_t, max_pairs);
     if (!temp) return;            /* allocation failure – leave array empty */
 
     size_t len = 0;
@@ -74,7 +112,7 @@ static void build_sequence(void)
     }
 
     /* --------- Step 3: sort the collected primes --------- */
-    qsort(temp, len, sizeof(seq_t), seq_cmp);
+    mem_qsort(temp, len, sizeof(seq_t), seq_cmp);
 
     /* --------- Step 4: store in the cached array --------- */
     cached_seq = temp;

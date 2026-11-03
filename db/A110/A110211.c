@@ -7,6 +7,7 @@
  * Formula:   a(n+3) = 6*a(n) - 5*a(n+2), a(0) = -1, a(1) = 3, a(2) = -15
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 14, i64 n <= 23, i128 n <= 23,
  *            big any n
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

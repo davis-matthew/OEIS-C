@@ -9,12 +9,15 @@
  *            T(n,k) = 2^k − C(n,k+1) + 2^(n−k) − C(n,n−k+1)
  * Range:     i8 n <= 35, i16 n <= 135, i32 n <= 527, i64 n <= 2079,
  *            i128 n <= 5150, big any n
+ * Validated: standard, pass, 82 terms through n = 5132 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

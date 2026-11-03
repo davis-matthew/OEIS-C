@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 8662 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,12 +30,13 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Starting word: "0" */
     size_t cur_len = 1;
-    seq_t *cur = (seq_t *)calloc(cur_len, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, cur_len);
     if (!cur) return 0;            // safety, though not expected
     cur[0] = 0;
 
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         if ((iter & 1) && cur_len >= n)
         {
             seq_t result = cur[(size_t)(n - 1)];
-            free(cur);
+            mem_free(cur);
             return result;
         }
 
@@ -58,8 +60,8 @@ seq_t a(idx_t n)
 
         /* Length of the next word: each 0 -> 2 chars, each 1 -> 3 chars. */
         size_t next_len = zeros * 2 + ones * 3;
-        seq_t *next_arr = (seq_t *)calloc(next_len, sizeof(seq_t));
-        if (!next_arr) { free(cur); return 0; }
+        seq_t *next_arr = mem_new(seq_t, next_len);
+        if (!next_arr) { mem_free(cur); return 0; }
 
         /* Apply the morphism. */
         size_t pos = 0;
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cur);
+        mem_free(cur);
         cur = next_arr;
         cur_len = next_len;
         ++iter;

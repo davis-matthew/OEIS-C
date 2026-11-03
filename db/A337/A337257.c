@@ -7,6 +7,7 @@
  * Formula:   a(n) = number of even divisors of n! = d(n!) - d_odd(n!)
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 49, u64 n <= 118,
  *            u128 n <= 282, big any n
+ * Validated: standard, pass, 52 terms through n = 9918 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,9 @@
 /* a(0) = 0, a(1) = 0, a(2) = 1, a(3) = 2, a(4) = 6, …         */
 
 #include <stddef.h>                 /* for size_t */
-#include "../utils/build_primes.h"  /* build_primes(limit,&out,&cnt) */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/build_primes.h"
 
 /* static cache of primes up to the largest n requested so far */
 static idx_t *primes   = NULL;  /* array of primes ≤ primes_max */

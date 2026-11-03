@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 5202, u32 n <= 5202, u64 n <= 5202,
  *            u128 n <= 5202, big any n
- * Helpers:   minus_val, plus_val
+ * Validated: standard, pass, 73 terms through n = 5043 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,31 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/minus_val.h"
-#include "../utils/plus_val.h"
+#include "../utils/mem.h"
+
+/* Helper to compute the special index for the negative jump (k >= 0). */
+static inline idx_t minus_val(idx_t k)
+{
+    /* n = (2k^2 + 12k + 25 - (-1)^k) / 8 */
+    idx_t num = 2*k*k + 12*k;
+    if ((k & 1) == 0)  /* k even -> (-1)^k =  1 */
+        num += 24;      /* 25 - (+1) = 24 */
+    else                /* k odd  -> (-1)^k = -1 */
+        num += 26;      /* 25 - (-1) = 26 */
+    return num / 8;
+}
+
+/* Helper to compute the special index for the positive jump (k >= 1). */
+static inline idx_t plus_val(idx_t k)
+{
+    /* n = (2k^2 + 12k + 17 - (-1)^k) / 8 */
+    idx_t num = 2*k*k + 12*k;
+    if ((k & 1) == 0)  /* k even -> (-1)^k =  1 */
+        num += 16;      /* 17 - (+1) = 16 */
+    else                /* k odd  -> (-1)^k = -1 */
+        num += 18;      /* 17 - (-1) = 18 */
+    return num / 8;
+}
 
 /* Cache for computed terms.  All static variables keep state between calls. */
 static seq_t *cache     = NULL;
@@ -47,7 +71,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* Initial capacity sufficient for the first three terms. */
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();            /* out of memory */
 
         /* Base values. */
@@ -67,7 +91,7 @@ seq_t a(idx_t n)
         if (cache_cap <= (size_t)target) {
             size_t new_cap = cache_cap;
             while (new_cap <= (size_t)target) new_cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();       /* out of memory */
             cache = tmp;
             cache_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 0, i16 n <= 2, i32 n <= 4, i64 n <= 10, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 589 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;      /* dynamically allocated array of terms */
@@ -39,7 +41,7 @@ static void init_cache(void)
     if (initialized) return;
 
     cache_cap = 16;   /* can hold at least 9 terms */
-    cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) abort();  /* abort if out of memory */
 
     /* initial 9 terms – these are part of the definition */
@@ -63,7 +65,7 @@ static void grow_cache(size_t need_index)
     if (cache_cap > need_index) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap <= need_index) new_cap <<= 1;
-    seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
     if (!new_buf) abort();
     cache = new_buf;
     cache_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of internal helper tables */
 static seq_t *cond_cache   = NULL; /* primes that satisfy the condition  */
@@ -59,7 +61,7 @@ static void grow_primes_up_to(seq_t limit)
             /* add to prime list */
             if (prime_cnt == prime_cap) {
                 prime_cap = prime_cap ? prime_cap * 2 : 16;
-                prime_cache = (seq_t *)realloc(prime_cache, prime_cap * sizeof(seq_t));
+                prime_cache = mem_resize(seq_t, prime_cache, prime_cap);
             }
             prime_cache[prime_cnt++] = cand;
 
@@ -71,7 +73,7 @@ static void grow_primes_up_to(seq_t limit)
                 if (is_prime_trial(tmp)) {
                     if (cond_cnt == cond_cap) {
                         cond_cap = cond_cap ? cond_cap * 2 : 16;
-                        cond_cache = (seq_t *)realloc(cond_cache, cond_cap * sizeof(seq_t));
+                        cond_cache = mem_resize(seq_t, cond_cache, cond_cap);
                     }
                     cond_cache[cond_cnt++] = p;
                     break;          /* stop after first representation found */

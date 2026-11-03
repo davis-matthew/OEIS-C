@@ -8,7 +8,8 @@
  *            odd primes, b > a
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow, next_prime
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"     /* seq_t big_pow(seq_t base, seq_t exp)          */
-#include "../utils/next_prime.h"  /* uint64_t next_prime(uint64_t start)          */
+#include "../utils/ipow.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* -------------------------------------------------------------------- */
 typedef struct {
@@ -28,6 +38,19 @@ typedef struct {
 
 /* -------------------------------------------------------------------- */
 /* Dynamic array helpers (generic, cast to concrete type after call).   */
+#ifdef __cplusplus
+template <class T>
+static T *resize_arr(T *ptr, size_t *cap, size_t new_len, size_t elem_size)
+{
+    if (new_len > *cap) {
+        size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
+        while (new_cap < new_len) new_cap <<= 1;
+        ptr = mem_resize(T, ptr, (new_cap * elem_size) / sizeof(T));
+        *cap = new_cap;
+    }
+    return ptr;
+}
+#else
 static void *resize_arr(void *ptr, size_t *cap, size_t new_len, size_t elem_size)
 {
     if (new_len > *cap) {
@@ -38,6 +61,7 @@ static void *resize_arr(void *ptr, size_t *cap, size_t new_len, size_t elem_size
     }
     return ptr;
 }
+#endif
 
 /* -------------------------------------------------------------------- */
 /* Global state (static to persist across calls)                        */
@@ -71,7 +95,7 @@ static void add_prime(void)
         size_t b_idx = primes_len - 1;   /* new prime               */
         seq_t  a_val = (seq_t)primes[a_idx];
         seq_t  b_val = (seq_t)primes[b_idx];
-        seq_t  val   = big_pow(a_val, b_val) + big_pow(b_val, a_val);
+        seq_t  val   = ipow(a_val, b_val) + ipow(b_val, a_val);
 
         heap = (node_t *)resize_arr(heap, &heap_cap, heap_sz + 1,
                                     sizeof(node_t));
@@ -131,7 +155,7 @@ static void push_node(size_t a_idx, size_t b_idx)
 {
     seq_t a_val = (seq_t)primes[a_idx];
     seq_t b_val = (seq_t)primes[b_idx];
-    seq_t val   = big_pow(a_val, b_val) + big_pow(b_val, a_val);
+    seq_t val   = ipow(a_val, b_val) + ipow(b_val, a_val);
     heap_push((node_t){val, a_idx, b_idx});
 }
 

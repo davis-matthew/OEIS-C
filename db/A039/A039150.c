@@ -10,13 +10,28 @@
  *            search)
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   equal_six_seven
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/equal_six_seven.h"
+
+static inline bool equal_six_seven(seq_t x)
+{
+    unsigned c6 = 0, c7 = 0;
+    seq_t y = x;
+    while (y != (seq_t)0) {
+        int d = (int)(y % (seq_t)10);
+        if (d == 6)
+            ++c6;
+        else if (d == 7)
+            ++c7;
+        y /= (seq_t)10;
+    }
+    return c6 == c7;
+}
 
 seq_t a(idx_t n)
 {

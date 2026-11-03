@@ -10,7 +10,8 @@
  *            a(0) = 1
  * Range:     u8 n <= 41, u16 n <= 297, u32 n <= 8873, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   binomial, ceil_log2_nonzero
+ * Validated: standard, pass, 82 terms through n = 9243 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/ceil_log2_nonzero.h"
+#include "../utils/mem.h"
+
+/* Compute ceil(log₂(n)) for n>0.  */
+static idx_t ceil_log2_nonzero(idx_t v)
+{
+    if (v == 0) return 0; /* caller must guard against n==0 */
+#if defined(__GNUC__) || defined(__clang__)
+    idx_t floor = 63 - __builtin_clzll(v);
+    return ((v & (v - 1)) == 0) ? floor : floor + 1;
+#else
+    idx_t floor = 0;
+    idx_t t = v;
+    while (t >>= 1) ++floor;
+    return ((1ULL << floor) == v) ? floor : floor + 1;
+#endif
+}
 
 /* Memoisation cache: cache[i]==0 means not yet computed (values are all >0).  */
 static seq_t *cache = NULL;
@@ -29,7 +45,7 @@ static void ensure_capacity(idx_t n)
     if (n < cache_size) return;
     idx_t new_size = cache_size ? cache_size * 2 : 8;
     while (new_size <= n) new_size *= 2;
-    seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) abort();
     for (idx_t i = cache_size; i < new_size; ++i) tmp[i] = 0;
     cache = tmp;

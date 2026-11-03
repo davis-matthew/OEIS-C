@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 68 terms through n = 9886 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,13 +19,15 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Return true iff the binary representation of val is NOT rich. */
 static bool is_not_rich(seq_t val)
 {
     /* Length of the binary representation */
-    unsigned k_u = bitlen_seq_t(val);
+    unsigned k_u = bit_length(val);
     if (k_u == 0) return false;           /* val == 0 is not counted */
 
     size_t k = k_u;
@@ -131,7 +134,7 @@ seq_t a(idx_t n)
         /* Grow the cache array if needed */
         if (cache_cap < cache_len + 16) {
             cache_cap = (cache_len + 16) * 2;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* Test the current integer */

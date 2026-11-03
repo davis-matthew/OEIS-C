@@ -9,13 +9,14 @@
  * Formula:   a(n) = n*((7/2)*8^n - 49*n) for n > 1, a(1)=0
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 40,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 36 terms through n = 485 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
     seq_t ns = (seq_t)n;
 
     /* compute 8^n */
-    seq_t pow8 = pow_uint(8ULL, n);
+    seq_t pow8 = ipow_u64_idx(8ULL, n);
 
     /* (7/2)*8^n */
     seq_t t = 7 * pow8;

@@ -8,13 +8,15 @@
  *            8, a(3) = 27, a(4) = 64
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 31, u64 n <= 65, u128 n <= 133,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *buf = NULL;      /* memoised values, 1‑based */
 static idx_t  cap = 0;         /* allocated capacity (0 if unallocated) */
@@ -27,13 +29,13 @@ static void ensure_cap(idx_t n) {
         while (newcap <= n) newcap <<= 1;                /* newcap = max(16, next power of 2 ≥ n+1) */
 
         /* realloc may return void*; cast to seq_t* to satisfy C++ compilers. */
-        seq_t *tmp = (seq_t*)realloc(buf, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, newcap);
         if (!tmp) { /* allocation failure – abort */
             exit(1);
         }
         buf = tmp;
         /* zero‑initialize new elements to a safe default for seq_t */
-        memset((void*)(buf + cap), 0, (newcap - cap) * sizeof(seq_t));
+        mem_set((buf + cap), 0, (newcap - cap) * sizeof(seq_t));
 
         if (cap <= 4) {
             buf[1] = (seq_t)1;

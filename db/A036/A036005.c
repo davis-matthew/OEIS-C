@@ -10,13 +10,15 @@
  *            25k, 25k+6, or 25k-6 (i.e., parts ≢ 0, 6, 19 (mod 25))
  * Range:     u8 n <= 17, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Standard headers; no custom utilities required. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Static cache of partition counts up to the largest n seen. */
 static seq_t *dp = NULL;     /* array of dp values */
@@ -34,14 +36,14 @@ seq_t a(idx_t n)
        recompute the whole table from scratch.  */
     if ((size_t)n + 1U > dp_size) {
         /* Allocate a new array of the required size. */
-        seq_t *newdp = (seq_t *)malloc(sizeof(seq_t) * ((size_t)n + 1U));
+        seq_t *newdp = mem_new(seq_t, ((size_t)n + 1U));
         if (newdp == NULL) {
             /* Allocation failed – return 0 (unlikely for n up to 10 000). */
             return (seq_t)0;
         }
         /* Free any previous array. */
         if (dp != NULL) {
-            free(dp);
+            mem_free(dp);
         }
         dp     = newdp;
         dp_size = (size_t)n + 1U;

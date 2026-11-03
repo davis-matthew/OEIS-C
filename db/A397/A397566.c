@@ -12,6 +12,7 @@
  *            3,7,11,15,… (4*i‑1) starting at bit 1, with g...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 55 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

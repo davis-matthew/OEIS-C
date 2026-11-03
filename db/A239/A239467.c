@@ -9,12 +9,14 @@
  *            greater than 1 by at most one
  * Range:     u8 n <= 22, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;          /* cache of computed a(n) values          */
 static size_t cache_size = 0;    /* size of the cache (maximum n computed) */
@@ -23,15 +25,15 @@ static void precompute(idx_t up)
 {
     size_t N = (size_t)up;
     if (A != NULL) {
-        free(A);
+        mem_free(A);
     }
-    A = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    A = mem_new(seq_t, N + 1);
     if (A == NULL) exit(1);
 
     /* dp[m] will hold p(k, m) – the number of partitions of m into parts
      * not exceeding the current k.  We update dp incrementally for k = 1 .. max_k.
      */
-    seq_t *dp = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, N + 1);
     if (dp == NULL) exit(1);
     dp[0] = 1;                   /* empty partition */
 
@@ -68,7 +70,7 @@ static void precompute(idx_t up)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     cache_size = N;
 }
 

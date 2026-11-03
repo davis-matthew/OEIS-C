@@ -7,13 +7,15 @@
  * Formula:   a(1) = 3; a(n_even) = (a(n-1)^2 - 1) / 2; a(n_odd) = a(n-1) + 1
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 11, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* a(n) uses 1‑based indexing */
 seq_t a(idx_t n)
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
     if (len < n) {
         size_t new_cap = (cap ? cap * 2 : 8);
         if (new_cap < n) new_cap = n;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) exit(EXIT_FAILURE);        /* allocation failure */
 
         for (size_t i = 0; i < len; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cap   = new_cap;
 

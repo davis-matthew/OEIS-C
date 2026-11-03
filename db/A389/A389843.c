@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=1..⌊n/2⌋} (k+1)^(k-1) * C(n-1, n-2k) / k!
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 282 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* An O(n log n) algorithm. It uses a recurrence for the binomial
    coefficients to keep the inner loop linear. */
 #include <stdint.h>
-#include "../utils/big_pow.h"   /* provides seq_t big_pow(seq_t, seq_t) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         }
 
         /* (k+1)^(k-1) */
-        seq_t pow_val = big_pow((seq_t)(k + 1), (seq_t)(k - 1));
+        seq_t pow_val = ipow((seq_t)(k + 1), (seq_t)(k - 1));
 
         /* term = n! * binom_k / k! * pow_val */
         seq_t term = fact_n * binom_k;

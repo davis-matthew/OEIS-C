@@ -11,12 +11,14 @@
  *            sum(P) ≡ 0 (mod n); for n ≡ 2 (mod 4) there ar...
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 38, u64 n <= 71, u128 n <= 135,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 3202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
     }
 
     /* Allocate DP arrays */
-    seq_t *dp     = (seq_t *)calloc(mod, sizeof(seq_t));
-    seq_t *next   = (seq_t *)calloc(mod, sizeof(seq_t));
+    seq_t *dp     = mem_new(seq_t, mod);
+    seq_t *next   = mem_new(seq_t, mod);
     if (!dp || !next) return 0;           /* out‑of‑memory guard */
 
     /* Base: empty subset */
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp[target];
 
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

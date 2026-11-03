@@ -8,13 +8,15 @@
  *            distinct primes
  * Range:     u8 n <= 106, u16 n <= 309, u32 n <= 1038, u64 n <= 3874,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 9704 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static bool is_prime(uint64_t p) {
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     if (n == 0) return 1;
     
     uint64_t nn = (uint64_t)n;
-    seq_t *dp = (seq_t *)calloc(nn + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, nn + 1);
     dp[0] = 1;
     
     for (uint64_t p = 2; p <= nn; p++) {
@@ -43,6 +45,6 @@ seq_t a(idx_t n) {
     }
     
     seq_t result = dp[nn];
-    free(dp);
+    mem_free(dp);
     return result;
 }

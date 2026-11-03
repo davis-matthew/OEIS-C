@@ -8,6 +8,7 @@
  *            a(1)=26, a(2)=461, a(n)=26*a(n-1)-215*a(n-2)+550*a(n-3) for n>2)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 196 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

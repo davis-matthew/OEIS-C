@@ -12,7 +12,8 @@
  *            length k, the number of valid strings ending with...
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 
 /* External linkage required by the build scripts */
@@ -32,12 +34,12 @@ seq_t a(idx_t n)
        or unsigned integer, as supplied by the build).  The extra slot
        simplifies the bounds handling. */
     size_t sz = (size_t)(n + 1);
-    seq_t *dp   = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *dp_n = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, sz);
+    seq_t *dp_n = mem_new(seq_t, sz);
     if (!dp || !dp_n) {
         /* Allocation failure: avoid crashing the caller.  The sequence
            probably never hits this path in normal use. */
-        free(dp); free(dp_n);
+        mem_free(dp); mem_free(dp_n);
         return 0;
     }
 
@@ -86,8 +88,8 @@ seq_t a(idx_t n)
         total += dp[s];
 
     /* Clean up. */
-    free(dp);
-    free(dp_n);
+    mem_free(dp);
+    mem_free(dp_n);
 
     return total;
 }

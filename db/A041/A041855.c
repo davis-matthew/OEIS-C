@@ -11,13 +11,15 @@
  *            a(13)=303317, a(14)=464070, a(15)=1695527, a(16)=89...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 39, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *initial_q = NULL;          /* first 34 denominators */
 static const idx_t MAX_INIT = 34;
@@ -28,7 +30,7 @@ static void compute_initial_q(void)
     if (initial_q != NULL)
         return;            /* already computed */
 
-    initial_q = (seq_t*)malloc(MAX_INIT * sizeof(seq_t));
+    initial_q = mem_new(seq_t, MAX_INIT);
     if (!initial_q)
         return;            /* malloc failure – results will be 0 */
 
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     /* Expand cache to cover index n, if necessary */
     if (cache_size <= (size_t)n) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache)
             return 0;            /* malloc failure – return 0 as a fallback */
 

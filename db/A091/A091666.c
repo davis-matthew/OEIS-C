@@ -11,14 +11,16 @@
  *            for the next prime
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 90 terms through n = 9415 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mul_mod64.h"
+#include <stdbool.h>
+#include "../utils/mulmod.h"
 
 /* Maximum number of primes we keep.  200 000 is far more than needed
  * for all n used in the tests (the 100 000‑th prime is 1 298 193). */
@@ -34,8 +36,8 @@ static size_t   prime_count = 0;
 static inline uint64_t pow_mod64(uint64_t base, uint64_t exp, uint64_t mod) {
     uint64_t result = 1;
     while (exp) {
-        if (exp & 1) result = mul_mod64(result, base, mod);
-        base = mul_mod64(base, base, mod);
+        if (exp & 1) result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -74,7 +76,7 @@ static int is_prime64(uint64_t n) {
         if (x == 1 || x == n - 1) continue;
         int r;
         for (r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) break;
         }
         if (r == s) return 0;

@@ -8,12 +8,14 @@
  * Formula:   a(n) = (n+1)^5 - 1 - Σ_{j=2}^{n+1} a(⌊n/j⌋)
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n‑th term of OEIS A090027.
  * The function is memoised; successive calls may be in any order. */
@@ -25,12 +27,12 @@ seq_t a(idx_t n) {
     if (n + 1 > cache_size) {
         size_t new_len = (size_t)(n + 1);
         if (cache == NULL) {
-            cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+            cache = mem_new(seq_t, new_len);
             if (!cache) return 0;          /* should never happen in tests   */
             cache[0] = 0;                  /* a(0) = 0                        */
             cache_size = new_len;
         } else {
-            seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_len);
             if (!tmp) return 0;
             cache = tmp;
             cache_size = new_len;

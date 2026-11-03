@@ -7,14 +7,16 @@
  * Formula:   a(0)=0; a(n)=a(n-1)+2^((2*n - floor((1+sqrt(8*n-7))/2)) - 1)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
-
+#include "../utils/mem.h"
 
 /* Integer square root for unsigned 64‑bit integers (no floating point). */
 static inline idx_t isqrt_u64(idx_t n)
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Initialise cache if first call. */
     if (cache == NULL) {
         cache_cap = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();
         cache[0] = (seq_t)0;           /* a(0) */
         cache_len = 1;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;   /* double until enough */
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

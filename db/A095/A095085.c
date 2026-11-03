@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /*--------------------------------------------------------------------
  * Fibonacci cache (1‑based indexing: fib[1] = 1, fib[2] = 2).
@@ -41,7 +43,7 @@ static void grow_fib_upto(seq_t limit)
     /* initialise if required */
     if (!fib) {
         fib_cap = 16;
-        fib = (seq_t *)malloc((fib_cap + 1) * sizeof(seq_t));
+        fib = mem_new(seq_t, (fib_cap + 1));
         fib[1] = (seq_t)1;
         fib[2] = (seq_t)2;
         fib_len = 2;
@@ -51,7 +53,7 @@ static void grow_fib_upto(seq_t limit)
     while (fib_len < 2 || fib[fib_len] <= limit) {
         if (fib_len + 1 >= fib_cap) {
             fib_cap <<= 1;
-            fib = (seq_t *)realloc(fib, (fib_cap + 1) * sizeof(seq_t));
+            fib = mem_resize(seq_t, fib, (fib_cap + 1));
         }
         fib[fib_len + 1] = fib[fib_len] + fib[fib_len - 1];
         fib_len++;
@@ -105,8 +107,7 @@ seq_t a(idx_t n)
                 /* enlarge cache if necessary */
                 if (cache_len >= cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 8;
-                    cache = (seq_t *)realloc(cache,
-                                              cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = p;
             }

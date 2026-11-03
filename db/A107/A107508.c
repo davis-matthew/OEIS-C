@@ -9,12 +9,14 @@
  *            5303155,1557985,228800,14664,299,1]
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 7, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= maxk; ++k)
     {
         idx_t N = n - k + 12;                 /* n - k ≥ 0 for all k in loop */
-        seq_t bin = binom(N, 12);             /* binom(N,12) returns a seq_t   */
+        seq_t bin = binomial(N, 12);             /* binom(N,12) returns a seq_t   */
         sum += (seq_t)coeff[k] * bin;
     }
 

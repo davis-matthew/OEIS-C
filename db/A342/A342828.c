@@ -7,14 +7,15 @@
  * Formula:   a(n) = sum_{d|n} (-1)^(n/d+1) * d^(n-d) (OEIS A342828)
  * Range:     i8 n <= 7, i16 n <= 13, i32 n <= 19, i64 n <= 29, i128 n <= 47,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 47 terms through n = 579 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"          /* big_pow(seq_t base, seq_t exp) */
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
         idx_t d1 = i;
         idx_t nd1 = n / d1;                     /* n/d1 */
         seq_t sign1 = (( (nd1 + 1) & 1 ) ? -1 : 1);
-        seq_t pow1  = big_pow((seq_t)d1, (seq_t)(n - d1));
+        seq_t pow1  = ipow((seq_t)d1, (seq_t)(n - d1));
         sum += sign1 * pow1;
 
         /* Second divisor d2 = n/i, skip if the same as d1 */
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
         if (d2 == d1) continue;
         idx_t nd2 = n / d2;                     /* n/d2 == i */
         seq_t sign2 = (( (nd2 + 1) & 1 ) ? -1 : 1);
-        seq_t pow2  = big_pow((seq_t)d2, (seq_t)(n - d2));
+        seq_t pow2  = ipow((seq_t)d2, (seq_t)(n - d2));
         sum += sign2 * pow2;
     }
     return sum;

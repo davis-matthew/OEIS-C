@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 20, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: full, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Integer square root (floor) for idx_t (uint64_t).  */
 static inline idx_t idx_sqrt(idx_t n) {
@@ -51,7 +53,7 @@ static void recompute_up_to(idx_t limit) {
     free(dp_array);
     dp_array = NULL;
     dp_len   = 0;
-    free(terms);
+    mem_free(terms);
     terms    = NULL;
     terms_len = 0;
     search_limit = 0;
@@ -89,7 +91,7 @@ static void recompute_up_to(idx_t limit) {
         if (dp_array[(size_t)i] == 1U) ++count;
     }
 
-    terms = (seq_t *)malloc(count * sizeof(seq_t));
+    terms = mem_new(seq_t, count);
     if (!terms) {
         free(dp_array);
         dp_array = NULL;

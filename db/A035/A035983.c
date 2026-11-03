@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 /* Number of partitions of n into parts not congruent to 0,5 or 16 modulo 21. */
 #include <stdlib.h> /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *dp = NULL;       /* memoised DP table */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     /* Allocate or resize the DP array for the new maximum n.  We recompute the
      * whole table from scratch – the cost is about ½·n² additions which is
      * fine for the required limits (n ≈ 10 000). */
-    dp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+    dp = mem_resize(seq_t, dp, (n + 1));
     if (!dp) {
         /* Out of memory – abort with a sentinel value. */
         return 0;

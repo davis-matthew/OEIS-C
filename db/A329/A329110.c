@@ -10,7 +10,8 @@
  *            (cumulative sum of the number of chains ending at each k)
  * Range:     u8 n <= 31, u16 n <= 791, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 72 terms through n = 9398 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static seq_t *garr = NULL;           /* g(k) values, 1‑based */
 static seq_t *carr = NULL;           /* cumulative a(n) values, 1‑based */
@@ -31,13 +33,13 @@ static void need_capacity(idx_t n)
     if (cap > n) return;
     idx_t new_cap = (cap == 0 ? 16 : cap);
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *g_new = (seq_t*)realloc(garr, new_cap * sizeof(seq_t));
-    seq_t *c_new = (seq_t*)realloc(carr, new_cap * sizeof(seq_t));
+    seq_t *g_new = mem_resize(seq_t, garr, new_cap);
+    seq_t *c_new = mem_resize(seq_t, carr, new_cap);
     if (!g_new || !c_new) exit(1);   /* allocation failure */
     /* Zero the newly allocated part. */
     if (new_cap > cap) {
-        memset(g_new + cap, 0, (new_cap - cap) * sizeof(seq_t));
-        memset(c_new + cap, 0, (new_cap - cap) * sizeof(seq_t));
+        mem_set(g_new + cap, 0, (new_cap - cap) * sizeof(seq_t));
+        mem_set(c_new + cap, 0, (new_cap - cap) * sizeof(seq_t));
     }
     garr = g_new;
     carr = c_new;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
             carr[1] = (seq_t)1;
         } else {
             seq_t sum = (seq_t)0;
-            idx_t sqrtk = _floor_isqrt_u64(k);
+            idx_t sqrtk = isqrt(k);
             for (idx_t d = 1; d <= sqrtk; ++d) {
                 if (k % d == 0) {
                     if (d < k)                 /* proper divisor */

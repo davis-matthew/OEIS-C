@@ -7,13 +7,15 @@
  * Formula:   a(n) = sorted union of {k^2 : k ≥ 0} ∪ {k(k+1)(2k+1)/6 : k ≥ 1}
  * Range:     u8 n <= 22, u16 n <= 310, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 8694 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static state for lazy generation of the sequence */
 static seq_t *seq_arr = NULL;   /* array of generated terms          */
@@ -34,7 +36,7 @@ ensure_capacity(size_t needed)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, new_cap);
     seq_cap = new_cap;
 }
 

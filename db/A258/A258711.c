@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * intermediate values so that repeated calls are fast. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise the table on first call */
     if (memo == NULL) {
         capacity = 1;
-        memo = (seq_t *)malloc(capacity * sizeof(seq_t));
+        memo = mem_new(seq_t, capacity);
         if (!memo) return 0;          /* allocation failure – should not happen */
         memo[0] = (seq_t)1;           /* M_0 = 1 */
         cur_max = 0;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* grow the table if necessary */
     if ((size_t)n + 1 > capacity) {
         capacity = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(memo, capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, capacity);
         if (!tmp) return 0;           /* allocation failure – should not happen */
         memo = tmp;
     }

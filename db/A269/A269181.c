@@ -13,7 +13,8 @@
  *            21416076480 (These initial values are hard‑wired into th...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* cache of computed terms, zero‑based */
 static size_t  siz    = 0;      /* number of cached terms          */
@@ -32,7 +34,7 @@ static void init_cache(void)
     if (cache != NULL) return;
 
     cap   = 16;
-    cache = (seq_t *)malloc(cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cap);
     if (!cache) exit(EXIT_FAILURE);
 
     cache[0] = (seq_t)24ULL;          /* a(1)  */
@@ -54,7 +56,7 @@ static void grow_cache(size_t needed)
     if (needed <= cap) return;
     size_t new_cap = cap ? cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     cache = tmp;
     cap   = new_cap;

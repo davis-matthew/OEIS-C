@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   build_primes_upto, gcd, mod_pow
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   build_primes_upto, gcd, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
-#include "../utils/gcd.h"   /* provides static seq_t gcd(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* ---------- prime list ---------- */
 static bool primes_inited = false;
@@ -105,7 +108,7 @@ static uint64_t multiplicative_order(uint64_t a, uint64_t p, uint64_t e)
         uint64_t q = fac[i];
         while (order % q == 0) {
             uint64_t cand = order / q;
-            if (mod_pow((seq_t)a, (idx_t)cand, (seq_t)mod) == 1)
+            if (powmod((seq_t)a, (idx_t)cand, (seq_t)mod) == 1)
                 order = cand;
             else
                 break;
@@ -153,7 +156,7 @@ static void append_cache(seq_t val)
 {
     if (cache_cnt == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

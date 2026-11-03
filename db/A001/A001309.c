@@ -9,19 +9,29 @@
  *            with a(0) = 2
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   a001309_pow2, a001309_prod
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a001309_pow2.h"
-#include "../utils/a001309_prod.h"
+#include "../utils/pow2.h"
+
+/* Product_{k=lo..hi-1} (2^(2k)-1), via a balanced product tree */
+static seq_t a001309_prod(idx_t lo, idx_t hi) {
+    if (hi <= lo) return (seq_t)1;
+    if (hi - lo == 1) return pow2(2 * lo) - 1;
+    idx_t mid = lo + (hi - lo) / 2;
+    seq_t left = a001309_prod(lo, mid);
+    seq_t right = a001309_prod(mid, hi);
+    return left * right;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)2;
-    seq_t p = a001309_pow2(n * n + n + 2);
+    seq_t p = pow2(n * n + n + 2);
     if (p == 0) return p; /* fixed-width overflow: value is 0 mod 2^w */
-    seq_t r = p * (a001309_pow2(n) - 1);
+    seq_t r = p * (pow2(n) - 1);
     r *= a001309_prod(1, n);
     return r;
 }

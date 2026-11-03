@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* a(0)...a(last) */
 static size_t cache_cap = 0;     /* allocated length */
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n)
         /* start with enough space for at least n+1 elements, round up */
         size_t init_cap = n + 1;
         if (init_cap < 16) init_cap = 16;
-        cache = (seq_t*)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (cache == NULL) abort();
 
         cache_cap  = init_cap;
@@ -58,7 +60,7 @@ static void ensure_cache(idx_t n)
     else if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = cache_cap;
         while ((size_t)n + 1 > new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();
         cache = tmp;
         cache_cap = new_cap;

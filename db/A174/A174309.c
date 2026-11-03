@@ -10,13 +10,15 @@
  *            special case n = 1 yields a(1) = 1
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Handle the offset and trivial case */
@@ -33,8 +35,8 @@ seq_t a(idx_t n) {
     seq_t e1 = M * e2;
 
     /* Compute powers of M */
-    seq_t pow2 = big_pow(M, e2);   /* M^(m-2)  */
-    seq_t pow1 = big_pow(M, e1);   /* M^(m*(m-2))  */
+    seq_t pow2 = ipow(M, e2);   /* M^(m-2)  */
+    seq_t pow1 = ipow(M, e1);   /* M^(m*(m-2))  */
 
     /* Determine sign based on parity of n */
     seq_t numerator, denominator, result;

@@ -11,13 +11,15 @@
  *            * a(0)=1,a(1)=1,a(2)=6,a(3)=38,a(4)=190,a(5)=1021,...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* coefficients of the recurrence, coeff[0] corresponds to a(n-1) */
 static const int coeff[18] = {
@@ -74,7 +76,7 @@ static void ensure_cache(void)
 {
     if (cache == NULL) {
         cache_cap = 18;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (size_t i = 0; i < 18; ++i)
             cache[i] = init_vals[i];
         cur_len = 18;
@@ -84,7 +86,7 @@ static void ensure_cache(void)
 /* grow the cache to at least new_cap entries */
 static void extend_cache(size_t new_cap)
 {
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp)
         cache = tmp;
     cache_cap = new_cap;

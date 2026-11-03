@@ -9,6 +9,7 @@
  *            the OEIS formula G(q)=q³·(q²+2)/((1‑q)(1‑q²)(1‑q³))
  * Range:     u8 n <= 32, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
+ * Validated: partial, pass, 57 terms through n = 59 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

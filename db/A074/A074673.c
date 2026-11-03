@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 510, u32 n <= 510, u64 n <= 510, u128 n <= 510,
  *            big any n
- * Helpers:   has_distinct_digits
+ * Validated: full, pass, 510 terms through n = 510 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
    for subsequent calls. */
 
 #include <stdbool.h>
-#include "../utils/has_distinct_digits.h"
+
+/* Test whether an integer has all distinct decimal digits. */
+static bool has_distinct_digits(idx_t x)
+{
+    unsigned mask = 0;
+    while (x > 0) {
+        unsigned d = (unsigned)(x % 10);
+        if (mask & (1 << d)) return false;
+        mask |= (1 << d);
+        x /= 10;
+    }
+    return true;
+}
 
 static void init_sequence(void);
 

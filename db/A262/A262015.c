@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* OEIS A262015: 
    a(n) = Sum_{k=0..n} (-1)^{n-k} * binomial(n+k, k)^4 * binomial(4*n+1, n-k) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     idx_t m = 4 * n + 1;                       /* m = 4n+1 */
     /* Precompute binomial(m, j) for j = 0..n */
-    seq_t *C2 = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *C2 = mem_new(seq_t, (n + 1));
     if (!C2) return 0;                         /* Out of memory: return 0 as fallback */
     C2[0] = 1;
     for (idx_t j = 0; j < n; ++j) {
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
             c1 = c1 * (seq_t)(n + k + 1) / (seq_t)(k + 1);
     }
 
-    free(C2);
+    mem_free(C2);
     return result;
 }

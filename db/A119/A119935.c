@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Fraction type for rational arithmetic */
 typedef struct { seq_t num; seq_t den; } frac_t;
@@ -90,8 +92,8 @@ static void ensure_capacity(idx_t need) {
     size_t new_cap = capacity ? capacity * 2 : 8;
     while (new_cap <= (size_t)need) new_cap *= 2;
 
-    frac_t *tmpH  = (frac_t*)realloc(H,  new_cap * sizeof(frac_t));
-    frac_t *tmpS1 = (frac_t*)realloc(S1, new_cap * sizeof(frac_t));
+    frac_t *tmpH  = mem_resize(frac_t, H, new_cap);
+    frac_t *tmpS1 = mem_resize(frac_t, S1, new_cap);
 
     H   = tmpH;
     S1  = tmpS1;

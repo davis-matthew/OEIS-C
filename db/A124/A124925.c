@@ -8,6 +8,7 @@
  * Formula:   a(3n+1)=1, a(3n+2)=2n+3, a(3n+3)=n^2+3n+1
  * Range:     u8 n <= 47, u16 n <= 767, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 93 terms through n = 948 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   _smallest_prime_factor, digit_counts, is_prime_small
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
+ * Helpers:   digit_counts, is_prime_seq, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,18 +22,18 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime_small.h"
-#include "../utils/_smallest_prime_factor.h"
 #include "../utils/digit_counts.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/smallest_prime_factor.h"
 
 /*  Helper: true iff value is a semiprime (product of two primes) */
 static bool is_semiprime_u64(uint64_t v)
 {
     if (v < 4) return false;                      /* smallest semiprime is 2*2 */
-    uint64_t spf = _smallest_prime_factor(v);
+    uint64_t spf = smallest_prime_factor(v);
     if (spf == 0 || spf == v) return false;       /* prime or composite with >2 prime factors */
     uint64_t q = v / spf;
-    return is_prime_small(q);
+    return is_prime_seq(q);
 }
 
 /*  Storage for sequence values.  The array is oversized to avoid reallocation. */

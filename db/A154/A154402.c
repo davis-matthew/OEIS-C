@@ -7,15 +7,21 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = number of divisors d of n such that d + 1 is a power of
  *            two. * That is, a(n) = |{ d | d | n and (d + 1) & d == 0 }|
- * Range:     u8 n <= 7940, u16 n <= 7940, u32 n <= 7940, u64 n <= 7940,
- *            u128 n <= 7940, big any n
- * Helpers:   is_pow2_minus1
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 7940 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_pow2_minus1.h"
+
+static inline bool is_pow2_minus1(idx_t d)
+{
+    /* d > 0 and d+1 is a power of two  */
+    return d > 0 && ((d + 1) & d) == 0;
+}
 
 seq_t a(idx_t n)
 {

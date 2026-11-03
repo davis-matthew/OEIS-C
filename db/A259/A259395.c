@@ -7,6 +7,7 @@
  * Formula:   a(n) = -3*n^2*(n-1)^4*(n+1)*(11*n^3 + 49*n^2 - 439*n + 171)
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 6, i64 n <= 19, i128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 115 terms through n = 9773 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
     uint64_t m = x * x + 1ULL;          /* n^2+1 */
 
     /* Count divisors using the provided utility routine. */
-    uint64_t dcnt = divisor_count_u64(m);
+    uint64_t dcnt = num_divisors(m);
 
     /* a(n) = d(n^2+1)/2.  The division is exact because n^2+1 is not a
      * square, so d(n^2+1) is even. */

@@ -9,7 +9,8 @@
  *            of all differences between primes
  * Range:     u8 n <= 181, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;      /* Cached sequence values. */
 static size_t seq_cap   = 0;          /* Capacity of seq_cache. */
@@ -85,7 +87,7 @@ static void ensure_sequence(idx_t need)
         if (include) {
             if (seq_len >= seq_cap) {
                 seq_cap = (seq_cap == 0) ? 64 : seq_cap << 1;
-                seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
                 if (!seq_cache) exit(EXIT_FAILURE);
             }
             seq_cache[seq_len++] = (seq_t)checked_max;

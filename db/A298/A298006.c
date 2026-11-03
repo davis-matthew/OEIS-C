@@ -13,7 +13,8 @@
  *            term * of that b sequence
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* cache of a(i) values */
 static seq_t *b_cache = NULL;          /* cache of b(i) values */
@@ -35,8 +37,8 @@ static void ensure_cache(idx_t up_to)
     if (up_to + 1 <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 4;
     if (new_cap < up_to + 1) new_cap = up_to + 1;
-    a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
-    b_cache = (seq_t*)realloc(b_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
+    b_cache = mem_resize(seq_t, b_cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -72,8 +74,8 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* initial capacity for caches */
         cache_cap = 4;
-        a_cache = (seq_t*)calloc(cache_cap, sizeof(seq_t));
-        b_cache = (seq_t*)calloc(cache_cap, sizeof(seq_t));
+        a_cache = mem_new(seq_t, cache_cap);
+        b_cache = mem_new(seq_t, cache_cap);
 
         /* initial terms */
         a_cache[0] = (seq_t)1;

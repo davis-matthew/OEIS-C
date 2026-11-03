@@ -6,14 +6,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = floor((n+2)*alpha) - floor((n+1)*alpha), where alpha =
  *            (sqrt(13)-3)/2 (the morphic Sturmian sequence 0→001, 1→0010)
- * Range:     u8 n <= 9587, u16 n <= 9587, u32 n <= 9587, u64 n <= 9587,
- *            u128 n <= 9587, big any n
- * Helpers:   none
+ * Range:     u8 n <= 12969, u16 n <= 12969, u32 n <= 12969, u64 n <= 12969,
+ *            u128 n <= 12969, big any n
+ * Validated: standard, pass, 123 terms through n = 9587 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with the first symbol '0' */
     if (cache_len == 0) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = (seq_t)0;
         cache_len = 1;
     }
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
         /* the next length is at most 4 times the current length */
         idx_t new_cap = cur_len * 4;
-        seq_t *next = (seq_t*)calloc(new_cap, sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, new_cap);
         idx_t pos = 0;
 
         for (idx_t i = 0; i < cur_len; ++i) {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cache);
+        mem_free(cache);
         cache = next;
         cache_len = pos;  /* actual number of elements produced */
     }

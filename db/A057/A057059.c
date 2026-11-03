@@ -13,13 +13,31 @@
  *            in the OEIS entry.)
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   triangular_floor_idx
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/triangular_floor_idx.h"
+
+static idx_t triangular_floor_idx(idx_t n)
+{
+    /* binary search for the largest t with t(t+1)/2 < n */
+    unsigned int shift = (unsigned int)((sizeof(idx_t) * 8 + 1) / 2);
+    idx_t lo = 0;
+    idx_t hi = (idx_t)1 << shift;          /* a safe upper bound */
+    while (lo < hi)
+    {
+        idx_t mid = (lo + hi + 1) >> 1;
+        unsigned __int128 tri = (unsigned __int128)mid * (mid + 1) / 2;
+        if (tri < n)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {

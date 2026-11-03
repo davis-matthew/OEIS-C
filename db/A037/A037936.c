@@ -11,7 +11,8 @@
  *            factors. If a(n) is prime, append it and stop
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   _concat_factors, _digits_uint64, factor_u64
+ * Validated: full, pass, 6 terms through n = 5 (2026-11-02)
+ * Helpers:   factor_u64, num_digits_u64_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/_concat_factors.h"
-#include "../utils/_digits_uint64.h"
+#include "../utils/num_digits_u64_to_u64.h"
+
+static seq_t _concat_factors(const uint64_t *pr, const uint64_t *ex, size_t cnt) {
+    seq_t result = 0;
+    for (size_t i = 0; i < cnt; ++i) {
+        for (uint64_t m = 0; m < ex[i]; ++m) {
+            uint64_t p = pr[i];
+            uint64_t pow10 = 1;
+            uint64_t temp = p;
+            while (temp > 0) {
+                temp /= 10;
+                pow10 *= 10;
+            }
+            result = result * pow10 + p;
+        }
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     /* Static cache of the trajectory */

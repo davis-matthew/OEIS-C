@@ -9,15 +9,18 @@
  *            bit i of e set} (p^(2^i)+2)
  * Range:     u8 n <= 65, u16 n <= 7559, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 81 terms through n = 9935 (2026-11-02)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
         {
             if (e & 1ULL)
             {
-                seq_t term = seq_pow((seq_t)primes[i],
+                seq_t term = ipow_idx((seq_t)primes[i],
                                      (idx_t)(1ULL << bit));
                 term = term + 2;
                 prod *= term;

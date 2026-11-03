@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 20, u128 n <= 42,
  *            big any n
- * Helpers:   _calc_s
+ * Validated: standard, pass, 34 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,24 @@
 
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/_calc_s.h"
+#include "../utils/mem.h"
+
+/* sort four integers in ascending order and compute
+ *   max + second‑max – second‑min – min.  The array values are 0..3. */
+static inline int _calc_s(int a, int b, int c, int d)
+{
+    int v[4] = { a, b, c, d };
+    for (int i = 1; i < 4; ++i) {
+        int key = v[i];
+        int j = i - 1;
+        while (j >= 0 && v[j] > key) {
+            v[j + 1] = v[j];
+            --j;
+        }
+        v[j + 1] = key;
+    }
+    return v[3] + v[2] - v[1] - v[0];
+}
 
 /* adjacency information for each constant c (0…6) */
 static int _initialized = 0;
@@ -83,7 +101,7 @@ seq_t a(idx_t n)
         for (int i = 0; i < 64; ++i) dp[i] = 1;
 
         for (int step = 0; step < (int)n; ++step) {
-            memset(ndp, 0, sizeof(ndp));
+            mem_set(ndp, 0, sizeof(ndp));
             for (int i = 0; i < 64; ++i) {
                 seq_t val = dp[i];
                 if (!val) continue;

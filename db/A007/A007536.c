@@ -10,6 +10,7 @@
  *            unmarked number. The last term is believed to be a(638) = 146858
  * Range:     u8 n <= 86, u16 n <= 635, u32 n <= 638, u64 n <= 638,
  *            u128 n <= 638, big any n
+ * Validated: standard, pass, 77 terms through n = 613 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

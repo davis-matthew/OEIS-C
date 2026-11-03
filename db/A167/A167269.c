@@ -7,15 +7,16 @@
  * Keywords:  nonn, tabl
  * Formula:   let r = ⌊(√(8*n+1)-1)/2⌋. Let k = n - r(r+1)/2. Then a(n) = 1 if
  *            k is even; otherwise a(n) = binom(r - (k-1)/2, (k+1)/2)
- * Range:     u8 n <= 72, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
+ * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static inline idx_t triangular(idx_t r) {
     /* r*(r+1)/2 using 128‑bit to avoid overflow */
@@ -41,5 +42,5 @@ seq_t a(idx_t n) {
         return (seq_t)1;
 
     idx_t m = (k - 1U) / 2U;     /* m = (k-1)/2  */
-    return binom(r - m, m + 1U);
+    return binomial(r - m, m + 1U);
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 7, u64 n <= 31, u128 n <= 74,
  *            big any n
- * Helpers:   dup_string, seq_from_str
+ * Validated: standard, pass, 33 terms through n = 122 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,8 +31,25 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/dup_string.h"
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* --------- Memory helpers ---------- */
+static char *dup_string(const char *s, size_t len) {
+    char *buf = (char *)malloc(len + 1);
+    memcpy(buf, s, len);
+    buf[len] = '\0';
+    return buf;
+}
 
 /* --------- Helper data structures ---------- */
 typedef struct {
@@ -88,7 +106,7 @@ static void init_sequence(void) {
     for (int k = 2; k <= 9; ++k) {
         int d = 10 * k - 1;
         for (int i = k; i <= 9; ++i) {
-            char period_buf[50];
+            char period_buf[100];          /* the period of i/(10k-1) has up to 88 digits */
             int pos = 0;
             int rem = i;
             /* Compute repeating decimal of i/d */
@@ -137,7 +155,7 @@ static void init_sequence(void) {
 
     /* Allocate cache for sequence values */
     seq_cap = 1024;
-    seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, seq_cap);
     initialized = true;
 }
 
@@ -152,7 +170,7 @@ seq_t a(idx_t n) {
         seq_t val = seq_from_str(node->cur_str);
         if (seq_len >= seq_cap) {
             seq_cap <<= 1;
-            seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
         }
         seq_cache[seq_len++] = val;
 

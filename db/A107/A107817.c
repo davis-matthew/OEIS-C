@@ -8,7 +8,8 @@
  * Formula:   a(n+1) = smallest prime p > 2*a(n) minus a(n)
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Very simple deterministic primality test for 64‑bit numbers.
    Works fast for numbers up to a few hundred thousand. */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Initialise the table with the first term if not already done. */
     if (size == 0) {
         cap  = 16;
-        seq  = (seq_t*)malloc(cap * sizeof(seq_t));
+        seq  = mem_new(seq_t, cap);
         seq[0] = (seq_t)0;
         size  = 1;
     }
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         /* Resize table if needed. */
         if (size >= cap) {
             cap *= 2;
-            seq = (seq_t*)realloc(seq, cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, cap);
         }
         seq[size++] = next;
     }

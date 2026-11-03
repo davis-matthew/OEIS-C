@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 13, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---- constants ----------------------------------------------------------- */
 enum {
@@ -171,7 +173,7 @@ static void extend_to(idx_t target)
         int next = (int)(maxComputed + 1);
 
         /* reset current DP table */
-        memset(dpCur, 0, sizeof(dpCurArr));
+        mem_set(dpCur, 0, sizeof(dpCurArr));
 
         for (int prev = 0; prev < PATTERNS; ++prev) {
             seq_t val0 = dpPrev[prev][0];

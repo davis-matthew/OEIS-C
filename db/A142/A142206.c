@@ -7,6 +7,7 @@
  * Formula:   a(n) = nth prime p such that p mod 41 == 9
  * Range:     u8 n <= 1, u16 n <= 166, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 58 terms through n = 954 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

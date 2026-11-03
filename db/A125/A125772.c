@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* External types provided by the build environment */
 extern seq_t a(idx_t n);
@@ -61,7 +63,7 @@ static void cache_ensure(size_t newcap)
     if (cache_cap >= newcap) return;
     size_t cap = cache_cap ? cache_cap * 2 : 4;
     if (cap < newcap) cap = newcap;
-    cache_arr = (seq_t *)realloc(cache_arr, cap * sizeof(seq_t));
+    cache_arr = mem_resize(seq_t, cache_arr, cap);
     cache_cap = cap;
 }
 

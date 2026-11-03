@@ -7,16 +7,39 @@
  * Formula:   a(n) = n-th integer k satisfying gcd(k, σ(k)) > 1
  * Range:     u8 n <= 139, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_alloc_new_array, seq_free_array, seq_gcd, sigma_of
+ * Validated: standard, pass, 80 terms through n = 9667 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/sigma_of.h"
-#include "../utils/seq_gcd.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *cache      = NULL;   /* holds a(1), a(2), … */
 static size_t cache_cap  = 0;      /* allocated capacity */
@@ -53,7 +76,7 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n)
     {
         seq_t sigma = sigma_of(next_to_test);               /* σ(k) */
-        seq_t g     = seq_gcd((seq_t)next_to_test, sigma);  /* gcd(k,σ(k)) */
+        seq_t g     = gcd((seq_t)next_to_test, sigma);  /* gcd(k,σ(k)) */
 
         if (g > (seq_t)1)        /* condition satisfied */
         {

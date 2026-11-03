@@ -9,13 +9,15 @@
  *            dynamic programming counting partitions by size and sum
  * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 351, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
        where each part is from {0,1,2,3,4,5,6}. */
     seq_t** dp = (seq_t**)malloc((n + 1) * sizeof(seq_t*));
     for (idx_t k = 0; k <= n; k++) {
-        dp[k] = (seq_t*)calloc(target_sum + 1, sizeof(seq_t));
+        dp[k] = mem_new(seq_t, target_sum + 1);
     }
     
     dp[0][0] = 1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     seq_t result = dp[n][target_sum];
     
     for (idx_t k = 0; k <= n; k++) {
-        free(dp[k]);
+        mem_free(dp[k]);
     }
     free(dp);
     

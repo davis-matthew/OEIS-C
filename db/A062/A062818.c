@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 9,
  *            big any n
- * Helpers:   compute_mu
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,37 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/compute_mu.h"
+
+/* Compute the Möbius function μ(d) for all d ≤ n using a linear sieve.
+   mu[0] is unused; mu[1] = 1.  The function the uses static arrays
+   sized for n up to 10000.  It recomputes the table on each call
+   but n is small, so this is fast. */
+static void compute_mu(idx_t n, int8_t *mu, int *primes, int *prime_cnt) {
+    if (n == 0) return;
+    int max_n = (int)n + 1;
+    mu[0] = 0;
+    mu[1] = 1;
+    int is_comp[10001] = {0};
+    *prime_cnt = 0;
+    for (int i = 2; i < max_n; ++i) {
+        if (!is_comp[i]) {
+            primes[(*prime_cnt)++] = i;
+            mu[i] = -1;
+        }
+        for (int j = 0; j < *prime_cnt; ++j) {
+            int p = primes[j];
+            int64_t prod = 1LL * i * p;
+            if (prod >= max_n) break;
+            is_comp[prod] = 1;
+            if (i % p == 0) {
+                mu[prod] = 0;
+                break;
+            } else {
+                mu[prod] = -mu[i];
+            }
+        }
+    }
+}
 
 /* List of exponents p for the first 20 known Mersenne primes 2^p−1
    for which the even perfect numbers 2^(p−1)(2^p−1) are known.

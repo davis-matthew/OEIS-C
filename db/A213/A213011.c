@@ -8,7 +8,8 @@
  *            and sums of the first k prime numbers
  * Range:     u8 n <= 26, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static bool _init_done = false;
 static uint32_t * _primes = NULL;
@@ -51,7 +53,7 @@ static void _init_primes(void)
     free(is_prime);
 
     /* prefix sums of primes */
-    _sum_prefix = (seq_t*)malloc((_prime_cnt + 1) * sizeof(seq_t));
+    _sum_prefix = mem_new(seq_t, (_prime_cnt + 1));
     _sum_prefix[0] = 0;
     for (size_t i = 0; i < _prime_cnt; ++i)
         _sum_prefix[i + 1] = _sum_prefix[i] + (seq_t)_primes[i];

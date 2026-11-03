@@ -8,8 +8,9 @@
  *            iteration: 2, 1, and then Lucas numbers generated as a+b until
  *            the next exceeds n. No floating point and works for any unsigned
  *            integer type defined as seq_t
- * Range:     u8 n <= 944, u16 n <= 9030, u32 n <= 9030, u64 n <= 9030,
- *            u128 n <= 9030, big any n
+ * Range:     u8 n <= 944, u16 n <= 64079, u32 n <= 64079, u64 n <= 64079,
+ *            u128 n <= 64079, big any n
+ * Validated: standard, pass, 111 terms through n = 9030 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

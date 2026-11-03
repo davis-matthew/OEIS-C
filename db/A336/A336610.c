@@ -8,7 +8,8 @@
  * Formula:   a(0) = 1; a(n) = -n * Sum_{k=0}^{n-1} binomial(n-1,k)^2 * a(k)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 15, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build
    seq_t  : signed integer type (8/16/32/64/128 bits or arbitrary‑precision)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Ensure the cache can hold indices up to n */
     if (n >= cache_cap) {
-        cache = (seq_t *)realloc((void *)cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         cache_cap = n + 1;
     }
 

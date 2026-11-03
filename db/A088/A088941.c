@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n/24)*(9*n^3 + 58*n^2 + 123*n + 98)
  * Range:     u8 n <= 0, u16 n <= 7, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

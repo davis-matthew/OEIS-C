@@ -9,7 +9,8 @@
  *            square element sum
  * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 172, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 815 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The integer types idx_t and seq_t are supplied by the build. */
 
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         if (k > 0) {
             sz = k * (N - k) + 1;   /* +1 for the 0-index */
         }
-        coeff[k] = (seq_t*)calloc((size_t)sz, sizeof(seq_t));
+        coeff[k] = mem_new(seq_t, (size_t)sz);
         /* calloc initializes memory to zero. */
     }
     /* Initialise the base case: [N choose 0] = 1. */
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
 
     /* Free memory */
     for (int k = 0; k <= 7; ++k) {
-        free(coeff[k]);
+        mem_free(coeff[k]);
     }
 
     return result;

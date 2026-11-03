@@ -8,14 +8,17 @@
  *            exactly three digits "0". The first value is a(1) = 1000
  * Range:     u8 none, u16 n <= 5, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   comb2
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/comb2.h"
+
+/* binomial coefficients for small arguments */
+static inline idx_t comb2(idx_t n) { return n * (n - 1) / 2; }
 
 static inline idx_t comb3(idx_t n) { return n * (n - 1) * (n - 2) / 6; }
 

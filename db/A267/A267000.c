@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 89, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   _is_banned
+ * Validated: standard, pass, 74 terms through n = 2888 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/_is_banned.h"
+
+/* ---------- helper: membership test in a small array ---------------------*/
+static inline bool _is_banned(int p, const int ban[], int ban_len)
+{
+    for (int i = 0; i < ban_len; ++i) {
+        if (p == ban[i]) {
+            return true;
+        }
+    }
+    return false;
+}
 
 /* ---------- configuration ------------------------------------------------- */
 #if !defined(MAX_N)

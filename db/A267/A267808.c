@@ -7,6 +7,7 @@
  * Formula:   a(n) = n - floor((n+1)/3) + ((-1)^n - (-1)^(floor(n/3)))/2 + 1
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

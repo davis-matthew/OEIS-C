@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 165, u32 n <= 1007, u64 n <= 1008,
  *            u128 n <= 1008, big any n
- * Helpers:   none
+ * Validated: full, pass, 1008 terms through n = 1008 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Computes A247803: numbers with distinct decimal digits that are
    alphabetically sorted in Finnish (digit order 8,2,3,6,4,0,7,5,9,1).
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         }
 
         static_len = cnt;
-        qsort(static_arr, static_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(static_arr, static_len, sizeof(seq_t), cmp_seq);
         built = true;
     }
 

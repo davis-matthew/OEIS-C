@@ -10,17 +10,19 @@
  *            n − r*(r+1)/2 (0 ≤ i ≤ r). If i == 0: a(n) = binomial(3*r+1, r)
  *            / (r+1). Else: a(n) = (r+1)^(i-1) * binomial(3*r+1-i, r-i).
  *            (Here binomial(n,k) returns C(n,k) as seq_t.)
- * Range:     u8 n <= 5, u16 n <= 20, u32 n <= 62, u64 n <= 164, u128 n <= 427,
+ * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 62, u64 n <= 164, u128 n <= 427,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: standard, pass, 61 terms through n = 9458 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Find the row r that contains index n.
    r satisfies r*(r+1)/2 ≤ n < (r+1)*(r+2)/2.  */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         return bin / (r + 1);
     } else {
         /* General entry:  (r+1)^(i-1) * binomial(3r+1-i, r-i). */
-        seq_t powfac = pow_uint((uint64_t)(r + 1), i - 1);
+        seq_t powfac = ipow_u64_idx((uint64_t)(r + 1), i - 1);
         seq_t bin = binomial(3 * r + 1 - i, r - i);
         return powfac * bin;
     }

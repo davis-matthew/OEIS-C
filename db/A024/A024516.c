@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   max_seq_t_value
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/max_seq_t_value.h"
+#include "../utils/mem.h"
+
+/* Determine the maximum value that fits into seq_t */
+static unsigned long long max_seq_t_value(void) {
+    /* For unsigned types, (seq_t)-1 is the maximum value. */
+    return (unsigned long long)((seq_t)-1);
+}
 
 /* Comparer for qsort on seq_t values */
 static int seq_cmp(const void *a, const void *b) {
@@ -43,7 +50,7 @@ static void recompute_cache(idx_t limit) {
         ++sqrt_limit;
     size_t est = (size_t)(sqrt_limit + 1) * (size_t)(sqrt_limit + 1) / 2 + 5;
 
-    seq_t *sums = (seq_t *)malloc(est * sizeof(seq_t));
+    seq_t *sums = mem_new(seq_t, est);
     if (!sums) {
         /* Allocation failed – terminate */
         abort();
@@ -59,7 +66,7 @@ static void recompute_cache(idx_t limit) {
             if (sum > (unsigned long long)limit) break;
             if (sz == est) {
                 est <<= 1;
-                sums = (seq_t *)realloc(sums, est * sizeof(seq_t));
+                sums = mem_resize(seq_t, sums, est);
                 if (!sums) abort();
             }
             sums[sz++] = (seq_t)sum;
@@ -67,7 +74,7 @@ static void recompute_cache(idx_t limit) {
     }
 
     /* Sort and deduplicate */
-    qsort(sums, sz, sizeof(seq_t), seq_cmp);
+    mem_qsort(sums, sz, sizeof(seq_t), seq_cmp);
     size_t uniq = 0;
     seq_t prev = 0;
     bool first = true;
@@ -85,7 +92,7 @@ static void recompute_cache(idx_t limit) {
     }
 
     /* Allocate new cache (+1 for unused 0 index) */
-    seq_t *new_cache = (seq_t *)calloc(uniq + 1, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, uniq + 1);
     if (!new_cache) abort();
 
     /* Second pass to store positions of odd sums */
@@ -106,8 +113,8 @@ static void recompute_cache(idx_t limit) {
         }
     }
 
-    free(sums);
-    free(cache);
+    mem_free(sums);
+    mem_free(cache);
     cache = new_cache;
     cache_len = uniq;
     current_limit = limit;

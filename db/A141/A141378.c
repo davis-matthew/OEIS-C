@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = smallest prime factor of gcd(n,σ(n)) if >1; otherwise
  *            a(n) = spf(n) * spf(σ(n))
- * Range:     u8 n <= 130, u16 n <= 1680, u32 n <= 9666, u64 n <= 9666,
- *            u128 n <= 9666, big any n
+ * Range:     u8 n <= 130, u16 n <= 1680, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 100 terms through n = 9666 (2026-11-01)
  * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/gcd_u64.h"
 
 static inline uint64_t spf_u64(uint64_t n)

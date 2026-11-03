@@ -12,7 +12,8 @@
  *            the two primes immediately following the run forming a twin pair
  * Range:     u8 n <= 4, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   grow_size_t_arr, grow_uint64_arr
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,15 +22,32 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/grow_size_t_arr.h"
-#include "../utils/grow_uint64_arr.h"
+#include "../utils/mem.h"
+
+/* Grow a dynamic array of type size_t (used for indices) */
+static void grow_size_t_arr(size_t **arr, size_t *cap, size_t needed)
+{
+    size_t newcap = (*cap == 0) ? 64 : *cap;
+    while (newcap < needed) newcap <<= 1;
+    *arr = (size_t *)realloc(*arr, newcap * sizeof(size_t));
+    *cap = newcap;
+}
+
+/* Grow a dynamic array of type uint64_t */
+static void grow_uint64_arr(uint64_t **arr, size_t *cap, size_t needed)
+{
+    size_t newcap = (*cap == 0) ? 64 : *cap;
+    while (newcap < needed) newcap <<= 1;
+    *arr = (uint64_t *)realloc(*arr, newcap * sizeof(uint64_t));
+    *cap = newcap;
+}
 
 /* Grow a dynamic array of type seq_t (the sequence value) */
 static void grow_seq_arr(seq_t **arr, size_t *cap, size_t needed)
 {
     size_t newcap = (*cap == 0) ? 64 : *cap;
     while (newcap < needed) newcap <<= 1;
-    *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, newcap);
     *cap = newcap;
 }
 

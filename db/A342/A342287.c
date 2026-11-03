@@ -8,7 +8,8 @@
  *            0
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Pre‑compute the powers 2^(2^q) for q = 0 … n-1.
        pow[q] = 2^(2^q) */
-    seq_t *pow = (seq_t*)malloc(n * sizeof(seq_t));
+    seq_t *pow = mem_new(seq_t, n);
     if (!pow)
         return (seq_t)0;  /* out of memory – any value is fine */
 
@@ -52,6 +54,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(pow);
+    mem_free(pow);
     return result;
 }

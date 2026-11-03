@@ -8,7 +8,8 @@
  *            and primorials (product of the first k primes)
  * Range:     u8 n <= 11, u16 n <= 21, u32 n <= 40, u64 n <= 78, u128 n <= 153,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 3300 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* global state for caching and sequence generation */
 static seq_t *cache      = NULL;
@@ -40,7 +42,7 @@ static void ensure_cache_space(void)
     if (cache_len < cache_cap)
         return;
     cache_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 }
 
 /* ------------------------------------------------------------------ */
@@ -77,7 +79,7 @@ static void init_seq(void)
 
     /* initialise cache */
     cache_cap = 64;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache_len = 0;
 
     /* prime generation */

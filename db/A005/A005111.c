@@ -7,8 +7,9 @@
  * Formula:   sieve; Erdos-Selfridge class of prime p is 1 + max class of the
  *            prime factors of p-1, with 2 and 3 counting as class 0; list
  *            primes of class 3
- * Range:     u8 n <= 10, u16 n <= 2463, u32 n <= 9260, u64 n <= 9260,
- *            u128 n <= 9260, big any n
+ * Range:     u8 n <= 10, u16 n <= 2463, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 71 terms through n = 9260 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,18 +8,38 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n is a prime's 4th power or the product of a prime
  *            and a different prime's square, otherwise 0
- * Range:     u8 n <= 63, u16 n <= 9912, u32 n <= 9912, u64 n <= 9912,
- *            u128 n <= 9912, big any n
- * Helpers:   factor_u64, floor_sqrt, is_prime
+ * Range:     u8 n <= 63, u16 n <= 9912, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 141 terms through n = 9912 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/is_prime.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 91 terms through n = 9501 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
        else (m ≡ 4 (mod 8) and m≠4):   φ(m)/4
    where φ is Euler's totient function.                               */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n) {
     if (n < 1U) return 0;                /* safety, unused for n>=1 */
@@ -37,12 +39,12 @@ seq_t a(idx_t n) {
 
     /* odd m or m ≡ 2 (mod 4) */
     if ((m & 1U) || ((m & 3U) == 2U))
-        return phi(m);
+        return totient(m);
 
     /* m ≡ 0 (mod 8) */
     if ((m & 7U) == 0U)
-        return phi(m) / 2;
+        return totient(m) / 2;
 
     /* remaining case: m ≡ 4 (mod 8) with m≠4 */
-    return phi(m) / 4;
+    return totient(m) / 4;
 }

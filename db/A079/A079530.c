@@ -7,12 +7,14 @@
  * Formula:   a(n) = phi(n) - ceil(sqrt(n))
  * Range:     i8 n <= 147, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 97 terms through n = 9064 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"   /* provides the function phi(idx_t n) */
+#include <stdint.h>
+#include "../utils/totient.h"
 
 static inline idx_t floor_sqrt_u64(idx_t n)
 {
@@ -34,7 +36,7 @@ static inline idx_t floor_sqrt_u64(idx_t n)
 
 seq_t a(idx_t n)
 {
-    seq_t ph = phi(n);                     /* Euler's totient φ(n) */
+    seq_t ph = totient(n);                     /* Euler's totient φ(n) */
     idx_t fsq = floor_sqrt_u64(n);         /* floor sqrt(n) */
     seq_t ceil_sqrt = (seq_t)(((__int128)fsq * fsq == n) ? fsq : fsq + 1);
     return ph - ceil_sqrt;                 /* φ(n) - ceil(sqrt(n)) */

@@ -11,14 +11,34 @@
  *            integers and checking the condition
  * Range:     u8 n <= 95, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   check_value
+ * Validated: standard, pass, 76 terms through n = 9613 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/check_value.h"
+#include "../utils/mem.h"
+
+/* Helper that checks the property for a given m. */
+static bool check_value(seq_t m)
+{
+    seq_t x = m;
+    unsigned int c0 = 0, c1 = 0, c2 = 0;
+    while (x > 0)
+    {
+        int d = (int)(x % 3);
+        if (d == 0)
+            c0++;
+        else if (d == 1)
+            c1++;
+        else
+            c2++;
+        x /= 3;
+    }
+    return (c1 <= c0) && (c1 <= c2);
+}
 
 /* ------------------------------------- */
 /*   Memoised sequence storage           */
@@ -32,7 +52,7 @@ static seq_t next_candidate = 1;   /* next integer to test   */
 static void grow_terms(void)
 {
     size_t new_cap = terms_capacity ? terms_capacity * 2 : 128;
-    seq_t *new_ptr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, terms, new_cap);
     if (new_ptr == NULL)
     {
         /* In the unlikely event of allocation failure, exit */

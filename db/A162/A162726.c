@@ -9,13 +9,15 @@
  *            degree 1107 whose coefficients for n>1107 are 0
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 12, u64 n <= 45, u128 n <= 497,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 1085 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;        /* cache of computed coefficients */
 static idx_t  seq_cap = 0;       /* size of seq array (MAX_DEG + 1) */
@@ -25,9 +27,9 @@ static void init_seq(void)
     const idx_t MAX_DEG = 1107;          /* highest n with a(n)≠0   */
     idx_t i;
     /* temporary working buffers */
-    seq_t *buf1 = (seq_t *)malloc((MAX_DEG + 1) * sizeof(seq_t));
-    seq_t *buf2 = (seq_t *)malloc((MAX_DEG + 1) * sizeof(seq_t));
-    seq_t *pref = (seq_t *)malloc((MAX_DEG + 1) * sizeof(seq_t));
+    seq_t *buf1 = mem_new(seq_t, (MAX_DEG + 1));
+    seq_t *buf2 = mem_new(seq_t, (MAX_DEG + 1));
+    seq_t *pref = mem_new(seq_t, (MAX_DEG + 1));
     seq_t *a = buf1;                      /* current coefficients   */
     seq_t *b = buf2;                      /* buffer for next step   */
     /* initialise a to the constant term of 1/(1-x)^27 */
@@ -55,14 +57,14 @@ static void init_seq(void)
     }
 
     /* store final result in seq */
-    seq = (seq_t *)malloc((MAX_DEG + 1) * sizeof(seq_t));
+    seq = mem_new(seq_t, (MAX_DEG + 1));
     for (i = 0; i <= MAX_DEG; ++i) seq[i] = a[i];
     seq_cap = MAX_DEG + 1;
 
     /* free temporary buffers */
-    free(buf1);
-    free(buf2);
-    free(pref);
+    mem_free(buf1);
+    mem_free(buf2);
+    mem_free(pref);
 }
 
 /* Sequence function */

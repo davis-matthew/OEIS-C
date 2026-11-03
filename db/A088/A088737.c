@@ -7,7 +7,8 @@
  * Formula:   a(n) = A056170(n) + A001221(n)*(A001221(n)-1)/2
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_counts, is_prime
+ * Validated: standard, pass, 118 terms through n = 9375 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,44 @@
 #include <stdlib.h>   /* malloc, realloc */
 #include <stdbool.h>  /* bool */
 #include "../utils/is_prime.h"
-#include "../utils/factor_counts.h"
+
+/* Count distinct prime factors and number of prime squares dividing m */
+static void factor_counts(uint64_t m, seq_t *distinct, seq_t *square)
+{
+    *distinct = 0;
+    *square   = 0;
+
+    /* Handle factor 2 separately */
+    if (m % 2 == 0) {
+        seq_t exp = 0;
+        while ((m & 1ULL) == 0) {
+            m >>= 1;
+            exp++;
+        }
+        (*distinct)++;
+        if (exp >= 2)
+            (*square)++;
+    }
+
+    /* Trial divide by odd numbers */
+    for (uint64_t p = 3; p * p <= m; p += 2) {
+        if (m % p == 0) {
+            seq_t exp = 0;
+            while (m % p == 0) {
+                m /= p;
+                exp++;
+            }
+            (*distinct)++;
+            if (exp >= 2)
+                (*square)++;
+        }
+    }
+
+    /* If a prime > sqrt remains */
+    if (m > 1) {
+        (*distinct)++;
+    }
+}
 
 static idx_t *composites = NULL;      /* array of composites */
 static size_t comp_cap   = 0;         /* current capacity of composites array */

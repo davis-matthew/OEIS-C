@@ -8,6 +8,7 @@
  *            kind)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/pow2.h"          /* extern seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 static idx_t  max_m_precomp = 0;     /* highest m for which Stirling row S[. ] is known */
 static seq_t  S[7];                  /* S[k] = S2(m, k) for current m */

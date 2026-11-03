@@ -8,13 +8,15 @@
  *            (-3)^(n-3) for n >= 3 (sequence A115053)
  * Range:     i8 n <= 2, i16 n <= 6, i32 n <= 16, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     seq_t coeff = 16 * (((seq_t)n * 4) + 1);
 
     /* Compute power (-3)^(n-3) */
-    seq_t pow_part = big_pow((seq_t)-3, (seq_t)(n - 3));
+    seq_t pow_part = ipow((seq_t)-3, (seq_t)(n - 3));
 
     /* Final result */
     return coeff * pow_part;

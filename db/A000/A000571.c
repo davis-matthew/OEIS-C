@@ -12,15 +12,27 @@
  *            score sequences s_1<=...<=s_n with s_1+...+s_j >= C(j...
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 22, u64 n <= 39, u128 n <= 72,
  *            big any n
- * Helpers:   alloc_zero, fixed571, phi571
+ * Validated: standard, pass, 49 terms through n = 1636 (2026-11-03)
+ * Helpers:   mem, totient_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/fixed571.h"
-#include "../utils/phi571.h"
+#include "../utils/totient_idx.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static int fixed571(void) {
+    seq_t m = 0;
+    m -= 1;
+    return m > 0;
+}
 
 static seq_t dp571(idx_t n) {
     long long N = (long long)n, T = N * (N - 1) / 2, W = T + 1;
@@ -44,8 +56,8 @@ static seq_t dp571(idx_t n) {
     }
     res = 0;
     for (v = 0; v < N; v++) res += cur[v * W + T];
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return res;
 }
 
@@ -53,7 +65,7 @@ static seq_t *Am = 0, *Bm = 0, *Cm = 0;
 static idx_t cap571 = 0, have571 = 0;
 
 static void addterm571(idx_t k, idx_t d, seq_t *pos, seq_t *neg) {
-    seq_t s = Cm[d] * phi571(k / d);
+    seq_t s = Cm[d] * totient_idx(k / d);
     if ((k + d) % 2 == 0) *pos += s; else *neg += s;
 }
 

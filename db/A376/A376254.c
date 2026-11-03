@@ -9,9 +9,10 @@
  *            each prime factor base and its exponent in the factorization of
  *            k. The implementation searches integers incrementally, memoises
  *            the qualifying numbers and returns the requ...
- * Range:     u8 n <= 1, u16 n <= 363, u32 n <= 9869, u64 n <= 9869,
- *            u128 n <= 9869, big any n
- * Helpers:   build_primes_upto, digits_of, pow10
+ * Range:     u8 n <= 1, u16 n <= 363, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 68 terms through n = 9869 (2026-11-03)
+ * Helpers:   build_primes_upto, mem, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,19 @@
 #include <stdlib.h>
 #include <assert.h>
 /*  Functionality assumed to exist in the build environment  */
-#include "../utils/pow10.h"          /* returns seq_t 10^e   */
-#include "../utils/digits_of.h"      /* returns number of digits of an integer */
-#include "../utils/build_primes_upto.h"   /* fills prime list up to a limit */
+#include "../utils/build_primes_upto.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /*  Prime list  */
 static uint64_t *primes      = NULL;   /* array of primes */
@@ -64,7 +75,7 @@ static bool qualifies(uint64_t k)
             ++exp;
         }
         /*  Concatenate p and exp: p * 10^digits(exp) + exp.  */
-        seq_t part = ((seq_t)p) * pow10((idx_t)digits_of(exp))
+        seq_t part = ((seq_t)p) * pow10((idx_t)num_digits_idx(exp))
                        + (seq_t)exp;
         /*  Avoid overflow: if prod * part ≥ k break early.  */
         if (prod > k_seq / part) {
@@ -75,7 +86,7 @@ static bool qualifies(uint64_t k)
 
     /*  Remaining prime factor (if any), exponent 1.  */
     if (n > 1) {
-        seq_t part = ((seq_t)n) * pow10((idx_t)digits_of(1))
+        seq_t part = ((seq_t)n) * pow10((idx_t)num_digits_idx(1))
                        + (seq_t)1;
         if (prod > k_seq / part) {
             return false;
@@ -96,7 +107,7 @@ static uint64_t last_checked = 0;  /* last integer examined        */
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         abort(); /* allocation failure → terminate */
     }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = product of all exponential divisors of n
  * Range:     u8 n <= 27, u16 n <= 71, u32 n <= 399, u64 n <= 1763,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, divisor_count_u64, factor_u64, sigma_of
+ * Validated: standard, pass, 80 terms through n = 9141 (2026-11-01)
+ * Helpers:   factor_u64, ipow, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,26 @@
 /* d_exp(n) = ∏ d(e_i).  The function is valid for all n ≥ 1. */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/sigma_of.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/num_divisors.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +56,7 @@ seq_t a(idx_t n)
     /* Compute d_exp(n) = Π d(e_i) as seq_t */
     seq_t d_exp = (seq_t)1;
     for (size_t i = 0; i < cnt; ++i) {
-        seq_t di = (seq_t)divisor_count_u64(exps[i]);
+        seq_t di = (seq_t)num_divisors(exps[i]);
         d_exp *= di;
     }
 
@@ -47,12 +64,12 @@ seq_t a(idx_t n)
     seq_t result = (seq_t)1;
     for (size_t i = 0; i < cnt; ++i) {
         seq_t sigma_e = sigma_of(exps[i]);      /* σ(e_i) */
-        seq_t di       = (seq_t)divisor_count_u64(exps[i]); /* d(e_i) */
+        seq_t di       = (seq_t)num_divisors(exps[i]); /* d(e_i) */
         /* exponent for prime p_i */
         seq_t exp = sigma_e * d_exp / di;
 
         /* compute p_i^exp and multiply */
-        seq_t term = big_pow((seq_t)primes[i], exp);
+        seq_t term = ipow((seq_t)primes[i], exp);
         result *= term;
     }
 

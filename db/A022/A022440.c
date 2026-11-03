@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 8957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Static state keeping the partially computed sequence and cache   */
@@ -49,7 +51,7 @@ static inline void ensure_a_size(idx_t n) {
     if (a_cap <= (size_t)n) {
         size_t new_cap = a_cap ? a_cap * 2 : 4;
         if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
-        a_arr = (seq_t *)realloc(a_arr, (new_cap + 1) * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, (new_cap + 1));
         if (!a_arr) exit(1);
         a_cap = new_cap;
     }
@@ -60,7 +62,7 @@ static inline void ensure_c_size(idx_t n) {
     if (c_cap <= (size_t)n) {
         size_t new_cap = c_cap ? c_cap * 2 : 4;
         if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
-        c_arr = (seq_t *)realloc(c_arr, (new_cap + 1) * sizeof(seq_t));
+        c_arr = mem_resize(seq_t, c_arr, (new_cap + 1));
         if (!c_arr) exit(1);
         c_cap = new_cap;
     }

@@ -7,13 +7,15 @@
  * Formula:   a(n) = n * Π_{p|n} p³ (multiplicative: a(p^e) = p^(e+3))
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 256, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 56 terms through n = 9849 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     while (m > 1) {
         /* obtain the smallest prime factor of the current m */
-        uint64_t p = _smallest_prime_factor(m);
+        uint64_t p = smallest_prime_factor(m);
 
         /* multiply rad once for this distinct prime */
         rad *= (seq_t)p;

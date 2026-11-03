@@ -8,7 +8,8 @@
  *            a(2)=335
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 161 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for previously computed values */
 static seq_t *cache      = NULL;   /* array of computed a(k) */
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
         cache_cap <<= 1;                 /* double until large enough */
 
     /* Reallocate memory (C++-safe cast) */
-    cache = (seq_t *)realloc(cache, (size_t)cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (size_t)cache_cap);
     if (cache == NULL)
         abort();                         /* out of memory */
 

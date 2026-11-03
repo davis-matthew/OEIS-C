@@ -10,6 +10,7 @@
  *            + 3 if n is even, -(16*k*k + 24*k + 3) if n is odd
  * Range:     i8 n <= 5, i16 n <= 89, i32 n <= 127, i64 n <= 127,
  *            i128 n <= 127, big any n
+ * Validated: standard, pass, 59 terms through n = 123 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

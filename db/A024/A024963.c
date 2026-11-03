@@ -9,13 +9,15 @@
  *            a(3)=2 Cache the values so that every call is O(n)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 20, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoised values */
 static seq_t *seq_cache = NULL;   /* array indexed from 1 (index 0 unused) */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
     while (new_cap < n)
         new_cap <<= 1;
     /* In C++ a cast is needed for the void* returned by realloc   */
-    seq_t *tmp = (seq_t *)realloc(seq_cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, (new_cap + 1));
     if (!tmp)
         abort();                 /* unrecoverable allocation failure */
     seq_cache = tmp;

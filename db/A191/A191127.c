@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 670, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache of computed terms */
 static seq_t *seq_arr = NULL;
@@ -70,11 +72,11 @@ seq_t a(idx_t n)
     /* lazy initialization */
     if (seq_arr == NULL) {
         seq_cap = 64;
-        seq_arr = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         seq_len = 0;
 
         heap_cap = 64;
-        heap = (seq_t*)malloc(heap_cap * sizeof(seq_t));
+        heap = mem_new(seq_t, heap_cap);
         heap_size = 0;
 
         heap_push((seq_t)1);                /* seed value */
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
         /* store new term */
         if (seq_len == seq_cap) {
             seq_cap <<= 1;
-            seq_arr = (seq_t*)realloc(seq_arr, seq_cap * sizeof(seq_t));
+            seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
         }
         seq_arr[seq_len++] = cur;
 
@@ -99,14 +101,14 @@ seq_t a(idx_t n)
         seq_t child1 = (seq_t)3 * cur;
         if (heap_size == heap_cap) {
             heap_cap <<= 1;
-            heap = (seq_t*)realloc(heap, heap_cap * sizeof(seq_t));
+            heap = mem_resize(seq_t, heap, heap_cap);
         }
         heap_push(child1);
 
         seq_t child2 = (seq_t)4 * cur - (seq_t)2;
         if (heap_size == heap_cap) {
             heap_cap <<= 1;
-            heap = (seq_t*)realloc(heap, heap_cap * sizeof(seq_t));
+            heap = mem_resize(seq_t, heap, heap_cap);
         }
         heap_push(child2);
     }

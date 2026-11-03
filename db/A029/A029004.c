@@ -10,18 +10,20 @@
  *            part size p, we add the number of partitions of n−p
  * Range:     u8 n <= 37, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate DP array of size n+1 (seq_t is unsigned) */
     idx_t   size = n + 1;
-    seq_t *dp   = (seq_t *)calloc((size_t)size, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, (size_t)size);
     if (!dp)      /* allocation failed – terminate safely */
     {
         /* In a contest setting you would handle this differently,
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

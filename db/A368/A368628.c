@@ -10,13 +10,15 @@
  *            b(k)*b(n-1-k), where b(m) = sum_{k=0}^{m} a(k)*a(m-k)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 26, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 578 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static seq_t *b_cache = NULL;
@@ -29,15 +31,15 @@ static void ensure_cache(idx_t n)
     if (cache_cap > n) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 1;
     if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
-    seq_t *new_a = (seq_t *)malloc(new_cap * sizeof(seq_t));
-    seq_t *new_b = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, new_cap);
+    seq_t *new_b = mem_new(seq_t, new_cap);
     if (a_cache) {
-        memcpy(new_a, a_cache, cache_cap * sizeof(seq_t));
-        free(a_cache);
+        mem_copy(new_a, a_cache, cache_cap * sizeof(seq_t));
+        mem_free(a_cache);
     }
     if (b_cache) {
-        memcpy(new_b, b_cache, cache_cap * sizeof(seq_t));
-        free(b_cache);
+        mem_copy(new_b, b_cache, cache_cap * sizeof(seq_t));
+        mem_free(b_cache);
     }
     a_cache = new_a;
     b_cache = new_b;

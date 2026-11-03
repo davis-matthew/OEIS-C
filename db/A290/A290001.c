@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   phi, sigma_of
+ * Validated: standard, pass, 70 terms through n = 98 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,23 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sigma_of.h"
-#include "../utils/phi.h"
+#include <stdlib.h>
+#include "../utils/totient.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /*  Returns true if k (k>0) eventually leads to a fraction
     after at least one integer step.  */
@@ -32,7 +48,7 @@ static bool leads_to_fraction_after_first(idx_t k)
 {
     /* First step: (σ(k)+φ(k))/2 */
     seq_t sigma = sigma_of(k);
-    seq_t phi_k = phi(k);
+    seq_t phi_k = totient(k);
     seq_t sum   = sigma + phi_k;
 
     /* If the first step already gives a fraction (odd sum),
@@ -58,7 +74,7 @@ static bool leads_to_fraction_after_first(idx_t k)
 
         /* Next step */
         sigma = sigma_of(cur);
-        phi_k = phi(cur);
+        phi_k = totient(cur);
         sum   = sigma + phi_k;
 
         if (sum % 2 != 0)        /* fraction found later */

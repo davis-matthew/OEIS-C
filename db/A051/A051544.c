@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* A051544(n) = L(n) / L(n-1),
  *   where L(n) = lcm{ 1,4,7,...,(3n+1) }.
@@ -73,7 +75,7 @@ static void ensure_cache(size_t needed) {
     if (cache_size >= needed) return;
     size_t new_size = cache_size > 0 ? cache_size : 256;
     while (new_size < needed) new_size <<= 1;
-    a_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_size);
     if (!a_cache) abort(); /* memory failure */
     cache_size = new_size;
 }

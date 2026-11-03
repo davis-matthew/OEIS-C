@@ -13,12 +13,14 @@
  *            formula using the supplied helper ‘binom’
  * Range:     u8 n <= 16, u16 n <= 47, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
     seq_t neg = 0;     /* sum of terms with odd i */
 
     for (idx_t i = 0; i <= k - 1; ++i) {
-        seq_t cki = binom(k - 1, i);                       /* C(k-1,i)   */
-        seq_t bin = binom(row + k - 1 - i, k - i);          /* C(row+k-1-i, k-i) */
+        seq_t cki = binomial(k - 1, i);                       /* C(k-1,i)   */
+        seq_t bin = binomial(row + k - 1 - i, k - i);          /* C(row+k-1-i, k-i) */
         seq_t term = cki * bin * bin;                      /* C * (C)^2  */
         if (i & 1) {
             neg += term;

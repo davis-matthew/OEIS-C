@@ -8,6 +8,7 @@
  * Formula:   a(n) = n^2*(n^8 - 50n^6 + 995n^4 - 9370n^2 + 35424)/120, n>=6
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 15, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

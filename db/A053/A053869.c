@@ -11,12 +11,13 @@
  *            O(n)
  * Range:     u8 n <= 117, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 79 terms through n = 9096 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -27,15 +28,15 @@ seq_t a(idx_t n)
         int include = 0;         /* set to 1 when m satisfies the criteria */
 
         if (m & 1) { /* odd m */
-            idx_t s = _floor_isqrt_u64(m);
+            idx_t s = isqrt(m);
             include = (s * s == m);              /* odd perfect square? */
         } else { /* even m */
-            idx_t s = _floor_isqrt_u64(m);
+            idx_t s = isqrt(m);
             if (s * s == m)                     /* exclude even squares */
                 include = 0;
             else {
                 idx_t half = m >> 1;             /* m / 2 */
-                idx_t t = _floor_isqrt_u64(half);
+                idx_t t = isqrt(half);
                 include = (t * t != half);       /* exclude twice a square */
             }
         }

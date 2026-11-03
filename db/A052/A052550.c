@@ -8,12 +8,14 @@
  *            for n>2
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 39, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* array storing computed terms   */
 static idx_t a_cache_len = 0;   /* number of elements currently in the array  */
@@ -27,7 +29,7 @@ ensure_cache(idx_t n)
 
     idx_t new_len = n + 1;                    /* at least n+1      */
     /* allocate memory for the new size */
-    a_cache = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_len);
 
     /* initialise new entries */
     for (idx_t i = a_cache_len; i < new_len; ++i) {

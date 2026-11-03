@@ -10,17 +10,37 @@
  *            t^(m^2), psi(t) = Sum_{k>=0} t^(k(k+1)/2), A(t) = Sum_{j even}
  *            r_12(j) t^j (r_12 = coefficients of theta^12): G.f.:...
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 33, u64 n <= 1867,
- *            u128 n <= 8077, big any n
- * Helpers:   alloc_zero, mul_theta2, release
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 42 terms through n = 8077 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/mul_theta2.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+/* v *= theta(t^2) */
+static void mul_theta2(seq_t *v, idx_t len)
+{
+    idx_t i, m;
+    for (i = len; i-- > 0;)
+        for (m = 1; 2 * m * m <= i; m++)
+            v[i] += v[i - 2 * m * m] + v[i - 2 * m * m];
+}
 
 static seq_t *T4 = 0, *T6 = 0, *R12 = 0, *G6 = 0, *G8 = 0, *H = 0, *J = 0;
 static idx_t slen = 0;

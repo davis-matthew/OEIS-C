@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   choose2_saturated, count_rem, mul_saturated, pow3_sat
+ * Validated: standard, pass, 64 terms through n = 9232 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,47 @@
    digits, where a(1) = 16, a(2) = 32, … . */
 
 #include <stdbool.h>
-#include "../utils/choose2_saturated.h"
-#include "../utils/count_rem.h"
-#include "../utils/mul_saturated.h"
-#include "../utils/pow3_sat.h"
+
+static inline idx_t choose2_saturated(idx_t n, idx_t limit)
+{
+    if (n < 2) return 0;
+    idx_t a = n, b = n - 1;
+    if (a % 2 == 0) a /= 2; else b /= 2;
+    if (a > limit / b) return limit;
+    return a * b;
+}
+
+static inline idx_t mul_saturated(idx_t a, idx_t b, idx_t limit)
+{
+    if (a == 0 || b == 0) return 0;
+    if (a > limit / b) return limit;
+    return a * b;
+}
+
+static inline idx_t pow3_sat(idx_t e, idx_t limit)
+{
+    idx_t r = 1;
+    for (; e && r <= limit; --e) {
+        if (r > limit / 3) return limit;
+        r *= 3;
+    }
+    return r;
+}
+
+static inline idx_t count_rem(idx_t rem, idx_t zeros, idx_t limit)
+{
+    if (zeros > rem) return 0;
+    if (zeros == 0) return pow3_sat(rem, limit);
+    if (zeros == 1) {
+        idx_t c = rem;
+        idx_t p = pow3_sat(rem - 1, limit);
+        return mul_saturated(c, p, limit);
+    }
+    /* zeros == 2 */
+    idx_t c = choose2_saturated(rem, limit);
+    idx_t p = pow3_sat(rem - 2, limit);
+    return mul_saturated(c, p, limit);
+}
 
 static inline idx_t count_len(idx_t L, idx_t limit)
 {

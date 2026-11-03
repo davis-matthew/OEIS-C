@@ -7,14 +7,16 @@
  * Formula:   a(n) = the n-th prime of the form 4*n^2 + 9*n + 4
  * Range:     u8 n <= 3, u16 n <= 34, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* the helper function is_prime_small is provided by the utilities
    header "../utils/is_prime_small.h". */
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     {
         seq_t k_seq = (seq_t)k;
         value = 4 * k_seq * k_seq + 9 * k_seq + 4;
-        if (is_prime_small(value))
+        if (is_prime_seq(value))
         {
             ++cnt;
             if (cnt == n)

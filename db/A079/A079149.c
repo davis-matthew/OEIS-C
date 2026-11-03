@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   bigomega
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 /* ---------- static data ---------- */
 static uint32_t *prime_list = NULL;      /* primes found so far   */
@@ -70,7 +72,7 @@ static void grow_qual_list(void)
 {
     if (qual_cnt >= qual_cap) {
         size_t new_cap = qual_cap ? (qual_cap << 1) : 64;
-        seq_t *tmp = (seq_t *)realloc(qual_list, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, qual_list, new_cap);
         if (!tmp) abort();
         qual_list = tmp;
         qual_cap  = new_cap;
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
 
         /* qualifying list starts with 2 */
         qual_cap   = 64;
-        qual_list  = (seq_t *)malloc(qual_cap * sizeof(seq_t));
+        qual_list  = mem_new(seq_t, qual_cap);
         if (!qual_list) abort();
         qual_list[qual_cnt++] = (seq_t)2;   /* a(1) = 2 */
 

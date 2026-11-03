@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  * and idx_t.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoisation table                         */
 static size_t cap   = 0;      /* allocated capacity (number of entries)   */
@@ -37,7 +39,7 @@ init_cache(void)
 {
     if (cache == NULL) {
         cap = 4;                 /* allocate a few slots initially   */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) {
             /* In a non‑interactive build we should abort on OOM. */
             abort();
@@ -60,7 +62,7 @@ a(idx_t n)
         while (newcap <= (size_t)n) {
             newcap <<= 1;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL) {
             abort();
         }

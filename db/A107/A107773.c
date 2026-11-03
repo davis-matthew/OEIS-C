@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   has_common_digit
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_common_digit.h"
+#include "../utils/mem.h"
+
+/* Does candidate have at least one decimal digit in common with maskPrev? */
+static bool has_common_digit(idx_t cand, unsigned int maskPrev)
+{
+    if (cand == 0) return (maskPrev & 1u) != 0;
+    while (cand > 0) {
+        unsigned int d = (unsigned int)(cand % 10);
+        if (maskPrev & (1u << d)) return true;
+        cand /= 10;
+    }
+    return false;
+}
 
 /* The types idx_t and seq_t are supplied by the build environment; do not redeclare them. */
 
@@ -97,10 +110,10 @@ static void ensure_sequence_upto(idx_t n)
 
     /* Allocate or enlarge the sequence array. */
     if (!seq) {
-        seq = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq = mem_new(seq_t, (n + 1));
         if (!seq) abort();
     } else if (seq_len + 1 < n + 1) {
-        seq = (seq_t *)realloc(seq, (n + 1) * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (n + 1));
         if (!seq) abort();
     }
 

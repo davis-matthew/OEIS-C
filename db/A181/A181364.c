@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 17, u128 n <= 37,
  *            big any n
- * Helpers:   append_candidate, digit_len, get_digits, is_prime_small
+ * Validated: standard, pass, 36 terms through n = 200 (2026-11-03)
+ * Helpers:   get_digits, is_prime_seq, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,16 +20,34 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/get_digits.h"
-#include "../utils/digit_len.h"
-#include "../utils/is_prime_small.h"
-#include "../utils/append_candidate.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* Test whether the sum of squares of the decimal digits of x is a prime. */
 static bool digit_square_sum_is_prime(seq_t x)
 {
     /* number of decimal digits */
-    int d = digit_len(x);
+    int d = num_digits(x);
     /* Reuse a static buffer big enough for the largest number seen so far. */
     static uint8_t *buf = NULL;
     static size_t buf_cap = 0;
@@ -45,7 +64,7 @@ static bool digit_square_sum_is_prime(seq_t x)
         uint8_t digit = buf[i];
         sum += (uint64_t)digit * (uint64_t)digit;
     }
-    return is_prime_small((seq_t)sum);
+    return is_prime_seq((seq_t)sum);
 }
 
 seq_t a(idx_t n)

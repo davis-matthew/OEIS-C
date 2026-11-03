@@ -8,6 +8,7 @@
  * Formula:   a(n) = max{ k ∈ ℕ : d(k) * n = k } (OEIS A390913)
  * Range:     u8 n <= 14, u16 n <= 629, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 9674 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/gcd.h"            // for seq_t types etc. (provided by build)
+#include "../utils/gcd.h"
 
 /* ------------------------------------------------------------------
    Smallest prime factor table (dynamic, built on demand)

@@ -10,6 +10,7 @@
  *            binom(7+n-2j, n-2j) * binom(27+j, j)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 17, u64 n <= 55, u128 n <= 274,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 975 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

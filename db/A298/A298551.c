@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Allowed neighbour counts: 0,2,3,5,7 are true, all others false. */
 static const bool allowed[9] = {
@@ -110,10 +112,10 @@ seq_t a(idx_t n)
     }
 
     /* DP arrays: counts for (prev,curr) pairs. */
-    seq_t *dp_cur = (seq_t*)calloc(1024, sizeof(seq_t));
-    seq_t *dp_next = (seq_t*)calloc(1024, sizeof(seq_t));
+    seq_t *dp_cur = mem_new(seq_t, 1024);
+    seq_t *dp_next = mem_new(seq_t, 1024);
     if (!dp_cur || !dp_next) {
-        free(dp_cur); free(dp_next);
+        mem_free(dp_cur); mem_free(dp_next);
         return 0;
     }
 
@@ -155,6 +157,6 @@ seq_t a(idx_t n)
             result += ways;
     }
 
-    free(dp_cur); free(dp_next);
+    mem_free(dp_cur); mem_free(dp_next);
     return result;
 }

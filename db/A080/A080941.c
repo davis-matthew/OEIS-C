@@ -9,13 +9,15 @@
  *            divides n, d < n, n mod 2^k == d, where k = bitlen(d) }
  * Range:     u8 n <= 767, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 119 terms through n = 9865 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
             /* Check divisor d1 */
             if (d1 != nn) {
-                unsigned len  = bitlen_seq_t((seq_t)d1);
+                unsigned len  = bit_length((seq_t)d1);
                 seq_t mask    = (((seq_t)1) << len) - (seq_t)1;
                 if (((seq_t)nn & mask) == (seq_t)d1) {
                     if ((seq_t)d1 > best) best = (seq_t)d1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
             /* Check divisor d2 (different from d1 and nn) */
             if (d2 != nn && d2 != d1) {
-                unsigned len  = bitlen_seq_t((seq_t)d2);
+                unsigned len  = bit_length((seq_t)d2);
                 seq_t mask    = (((seq_t)1) << len) - (seq_t)1;
                 if (((seq_t)nn & mask) == (seq_t)d2) {
                     if ((seq_t)d2 > best) best = (seq_t)d2;

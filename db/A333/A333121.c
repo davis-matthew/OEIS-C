@@ -7,12 +7,14 @@
  * Formula:   a(1) = 1; a(n+1) = ∏_{d|n} (1 + a(d))
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 10, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* 1‑based array of previously computed values */
 static size_t cache_cap = 0;   /* allocated capacity (in seq_t elements) */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (cache_sz == 0) {
         /* Allocate space for index 1.  Allocate at least 2 to avoid zero deallocation. */
         size_t cap = 2;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache_cap = cap;
         cache[1] = (seq_t)1;
         cache_sz = 1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (cache_sz < n) {
         size_t new_cap = (size_t)n + 1;   /* indices 0..n inclusive, 0 unused */
         if (new_cap > cache_cap) {
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(1);            /* allocation failed – abort */
             cache = tmp;
             cache_cap = new_cap;

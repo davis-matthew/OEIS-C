@@ -8,6 +8,7 @@
  *            ≤ k ≤ r)
  * Range:     u8 n <= 45, u16 n <= 5422, u32 n <= 7260, u64 n <= 7260,
  *            u128 n <= 7260, big any n
+ * Validated: standard, pass, 107 terms through n = 7117 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* Reads the triangle T(n,k)=k/gcd(k,n) row-wise. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

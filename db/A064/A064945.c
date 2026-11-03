@@ -7,13 +7,21 @@
  * Formula:   a(n) = Sum_{i|n, j|n, j >= i} i
  * Range:     u8 n <= 47, u16 n <= 3359, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_idx_t
+ * Validated: standard, pass, 79 terms through n = 8317 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cmp_idx_t.h"
+
+/* Comparator for qsort on idx_t array */
+static int cmp_idx_t(const void *a, const void *b)
+{
+    idx_t v1 = *(const idx_t *)a;
+    idx_t v2 = *(const idx_t *)b;
+    return (v1 < v2) ? -1 : (v1 > v2) ? 1 : 0;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   a(n) = gcd(a(a(n-1)), 2) + a(n-2) (conjectured)
  * Range:     u8 n <= 382, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 90 terms through n = 9587 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* stores a(1) .. a(cache_n) at indices 0 .. cache_n-1 */
 static idx_t  cache_n = 0;    /* current number of cached terms */
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     /* Expand the cache if necessary */
     if (n > cache_n) {
         /* Allocate or reallocate space for n terms */
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)n);
         if (new_cache == NULL)
             return (seq_t)0; /* unlikely in test harness */
         cache = new_cache;

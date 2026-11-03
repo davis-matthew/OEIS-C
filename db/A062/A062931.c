@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 35, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   good_k
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,28 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/good_k.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------
+   check whether a 64‑bit integer k satisfies the definition.
+   ------------------------------------------------------------------ */
+static bool good_k(uint64_t k)
+{
+    if (k == 0) return true;              /* a(1) is defined as 0 */
+    uint64_t t   = k;
+    uint8_t rev[32];                      /* reverse order digits */
+    int      len = 0;
+    while (t) {
+        rev[len++] = t % 5;               /* base‑5 digit */
+        t /= 5;
+    }
+    /* compute (base‑5 digits interpreted in base‑9) modulo k */
+    uint64_t mod = 0;
+    for (int i = len - 1; i >= 0; --i) {
+        mod = (mod * 9 + rev[i]) % k;
+    }
+    return mod == 0;
+}
 
 /* Forward declaration of the helper that checks the property for a
    64‑bit integer.  It is kept in the same translation unit because no
@@ -49,7 +71,7 @@ static void ensure_cache_cap(size_t need)
     if (cache_cap >= need) return;
     size_t newcap = cache_cap ? cache_cap * 2 : 32;
     while (newcap < need) newcap <<= 1;
-    seq_t *newptr = (seq_t *)realloc(seq_cache, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, seq_cache, newcap);
     if (!newptr) abort();          /* allocation failure: terminate */
     seq_cache   = newptr;
     cache_cap   = newcap;

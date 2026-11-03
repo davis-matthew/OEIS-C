@@ -8,7 +8,8 @@
  * Formula:   a(1) = 2, and for n ≥ 2 a(n) = 5*a(n-1) + (n is odd ? 2 : 1)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* This implements the definition of OEIS A037490. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 /* seq_t and idx_t are defined by the build environment. */
 
 static seq_t  *cache     = NULL;   /* 1‑based array of computed terms   */
@@ -31,14 +33,14 @@ static void ensure_capacity(idx_t n)
     /* Start with a small size if no cache yet. */
     if (capacity == 0) {
         capacity = 2;
-        cache    = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        cache    = mem_new(seq_t, capacity);
     }
 
     /* Double until we exceed n. */
     while (capacity <= n) {
         capacity *= 2;
     }
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * capacity);
+    cache = mem_resize(seq_t, cache, capacity);
 }
 
 /* Public function that returns the nth term of the sequence. */

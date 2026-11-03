@@ -8,15 +8,27 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = number of arithmetic progressions m < n < p with both m
  *            and p having no digit '2' in their base‑3 representation
- * Range:     u8 n <= 9064, u16 n <= 9064, u32 n <= 9064, u64 n <= 9064,
- *            u128 n <= 9064, big any n
- * Helpers:   no_digit2
+ * Range:     u8 n <= 14761, u16 n <= 19683, u32 n <= 19683, u64 n <= 19683,
+ *            u128 n <= 19683, big any n
+ * Validated: standard, pass, 103 terms through n = 9064 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/no_digit2.h"
+
+/* Check whether x has no digit 2 when written in base 3.
+   Returns 1 if true, 0 otherwise. */
+static int no_digit2(idx_t x)
+{
+    while (x) {
+        if (x % 3 == 2)
+            return 0;
+        x /= 3;
+    }
+    return 1;
+}
 
 /* Cache for membership: is_no2[i] == 1 iff i contains no digit 2 in base 3. */
 static unsigned char *is_no2 = NULL;

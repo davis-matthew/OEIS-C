@@ -12,8 +12,9 @@
  *            square‑free number; a(n) = 0 if a square‑free number is never
  *            reached. In particular, if n contains a prime factor p with
  *            exponent e ≥ p, then a(n) = 0 (e.g., a(4*n)=0, a(27*...
- * Range:     u8 n <= 548, u16 n <= 8788, u32 n <= 8788, u64 n <= 8788,
- *            u128 n <= 8788, big any n
+ * Range:     u8 n <= 548, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 8788 (2026-11-01)
  * Helpers:   factor_u64, is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -24,8 +25,9 @@
 #include <stdbool.h>
 
 /* external utilities provided by the build */
-#include "../utils/is_squarefree.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/is_squarefree.h"
 
 /* return true if n has a prime factor p with exponent e ≥ p */
 static bool has_exp_ge_prime(uint64_t n)

@@ -8,7 +8,8 @@
  *            the n‑th semiprime and prev_prime(x) is the largest prime < x
  * Range:     u8 n <= 4, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 119 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build environment. */
 extern unsigned long long (*seq_t_mul)(seq_t, seq_t);
@@ -74,7 +76,7 @@ static void seq_precompute(void)
     /* ---------- build semiprime list up to 20000 entries ---------- */
     const size_t SEMI_TARGET = 20000;        /* more than enough for n≤10000 */
     size_t semicap = SEMI_TARGET + 1000;
-    semiprimes = (seq_t*)malloc(semicap * sizeof(seq_t));
+    semiprimes = mem_new(seq_t, semicap);
     semiprimes_cnt = 0;
 
     for (uint32_t x = 4; x <= sieve_limit; ++x) {
@@ -88,7 +90,7 @@ static void seq_precompute(void)
         if (cnt == 2) {
             if (semiprimes_cnt == semicap) {
                 semicap *= 2;
-                semiprimes = (seq_t*)realloc(semiprimes, semicap * sizeof(seq_t));
+                semiprimes = mem_resize(seq_t, semiprimes, semicap);
             }
             semiprimes[semiprimes_cnt++] = (seq_t)x;
             if (semiprimes_cnt >= SEMI_TARGET) break;

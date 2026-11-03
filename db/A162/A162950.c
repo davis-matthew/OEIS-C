@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   unique_digits_uint64
+ * Validated: full, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/unique_digits_uint64.h"
+#include "../utils/mem.h"
+
+/* ---------- helper: check unique digits of a uint64_t ---------- */
+static bool unique_digits_uint64(uint64_t v)
+{
+    unsigned mask = 0;
+    while (v != 0)
+    {
+        unsigned d = v % 10;
+        if (mask & (1U << d)) return false;
+        mask |= (1U << d);
+        v /= 10;
+    }
+    return true;
+}
 
 /* ---------- global state ---------- */
 static seq_t *prime_cache = NULL;   /* primes that satisfy the property */
@@ -31,7 +46,7 @@ static bool cache_initialized = false;
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap == 0 ? 32 : cache_cap << 1;
-    seq_t *tmp = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
     if (!tmp) return;  /* allocation failed – leave the cache incomplete */
     prime_cache = tmp;
     cache_cap = new_cap;

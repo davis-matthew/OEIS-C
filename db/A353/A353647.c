@@ -7,9 +7,10 @@
  * Formula:   a(n) = Sum_{d|n} mu(n/d) * phi(sigma(d)) where mu is the Möbius
  *            function (A008683), sigma(d) is the sum of divisors of d, and
  *            phi is Euler's totient function
- * Range:     i8 n <= 59, i16 n <= 9496, i32 n <= 9496, i64 n <= 9496,
- *            i128 n <= 9496, big any n
- * Helpers:   factor_u64, mobius, phi, sigma_of
+ * Range:     i8 n <= 59, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 102 terms through n = 9496 (2026-11-01)
+ * Helpers:   factor_u64, mobius, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,26 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
 #include "../utils/mobius.h"
-#include "../utils/sigma_of.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Recursively generate all divisors of n (given by its prime
    factorisation).  For each divisor d the accumulator is updated
@@ -38,7 +55,7 @@ gen_divs (size_t idx, idx_t cur,
         /* cur is a divisor d of n */
         seq_t sigma_d = sigma_of (cur);
         idx_t sigma_val = (idx_t)sigma_d;   /* convert to idx_t for phi */
-        seq_t phi_sigma = phi (sigma_val);
+        seq_t phi_sigma = totient (sigma_val);
         seq_t mu_val    = mobius (n / cur);
         *acc += mu_val * phi_sigma;
         return;

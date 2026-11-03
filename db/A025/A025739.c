@@ -8,7 +8,8 @@
  * Formula:   a(n) = 1 + Σ_{k=1..n} ceil(k * log10(9))
  * Range:     u8 n <= 22, u16 n <= 369, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9357 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    below, works for any n that fits in idx_t. */
 
 #include <stdlib.h>          /* for malloc, free */
+#include "../utils/mem.h"
 
 #define LOG9_NUM   954242509439324934ULL   /* numerator of log10(9) * 10^18 */
 #define LOG9_DEN   1000000000000000000ULL   /* denominator 10^18 */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache for a(0) if not already done. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = (seq_t)1;               /* a(0) = 1 */
         cache_size = 1;
         max_computed = 0;
@@ -42,10 +44,10 @@ seq_t a(idx_t n)
     /* Grow cache if necessary. */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         for (idx_t i = 0; i <= max_computed; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

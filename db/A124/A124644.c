@@ -8,17 +8,20 @@
  * Formula:   a(n) = binomial(r, c) * Catalan(r - c) where * the position
  *            (r,c) in the triangle is obtained from the * 0‑based flattened
  *            index n by * r = floor((sqrt(8*n+1)-1)/2) * c = n - r*(r+1)/2
- * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 172, u64 n <= 563,
+ * Range:     u8 n <= 27, u16 n <= 66, u32 n <= 172, u64 n <= 563,
  *            u128 n <= 1898, big any n
- * Helpers:   binomial, catalan, floor_isqrt
+ * Validated: standard, pass, 76 terms through n = 7734 (2026-11-01)
+ * Helpers:   binomial, catalan, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
-#include "../utils/floor_isqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     idx_t m = (n << 3) + 1;
 
     /* integer square root of m (floor) */
-    idx_t sqrtm = floor_isqrt(m);
+    idx_t sqrtm = isqrt(m);
 
     /* row number in the triangle */
     idx_t row = (sqrtm - 1) / 2;

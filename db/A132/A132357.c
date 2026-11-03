@@ -9,13 +9,15 @@
  *            a(1)=4, a(2)=14, a(3)=41
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache for memoisation */
 static seq_t *seq_cache = NULL;
@@ -29,7 +31,7 @@ static void ensure_capacity(idx_t n)
     {
         idx_t new_cap = cache_size ? cache_size << 1 : 64;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE); /* out‑of‑memory */
         seq_cache = tmp;
         cache_size = new_cap;
@@ -43,7 +45,7 @@ static void compute_upto(idx_t n)
     {
         /* initial allocation and filling of the first 4 terms */
         cache_size = 64;
-        seq_cache = (seq_t*)calloc(cache_size, sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_size);
         if (!seq_cache) exit(EXIT_FAILURE);
         seq_cache[0] = (seq_t)1;
         seq_cache[1] = (seq_t)4;

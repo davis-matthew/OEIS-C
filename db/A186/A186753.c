@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -44,7 +45,8 @@
  *      * The function works correctly for any order of calls.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 #define MAX_S 2000   /* covers n up to about 2 000 000 ⟶ overkill for n≤10 000 */
 
@@ -68,7 +70,7 @@ static void ensure_table(idx_t s_needed)
             } else if (j == 0) {
                 T[i][0] = (seq_t)(i + 1);
             } else {
-                seq_t b = binom(i + j, i);        /* C(i+j,i) */
+                seq_t b = binomial(i + j, i);        /* C(i+j,i) */
                 seq_t sq = (seq_t)(((__int128)b) * b);
                 T[i][j] = T[i - 1][j] + T[i][j - 1] + sq;
             }

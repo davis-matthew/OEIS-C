@@ -9,7 +9,8 @@
  *            3x+1 trajectory starting from n
  * Range:     u8 n <= 23, u16 n <= 64, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 94 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* The returned type seq_t is supplied by the build system (uint8_t …, 
  * arbitrary‑precision class, etc.).  idx_t is an unsigned integer type.  */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     }
 
     /* DP array for partitions: dp[i] = number of restricted partitions of i. */
-    seq_t *dp = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) { free(used); return 0; }
 
     for (idx_t i = 0; i <= n; ++i) dp[i] = 0;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     free(used);
     return result;
 }

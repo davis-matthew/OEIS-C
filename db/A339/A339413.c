@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 230, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 6786 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #ifdef __cplusplus
 #include <new>   /* placement new for seq_t construction */
 #endif
+#include "../utils/mem.h"
 
 /* static cache of previously computed terms */
 static seq_t *cache = NULL;          /* array of terms */
@@ -44,14 +46,14 @@ static void compute_up_to(idx_t n)
     /* extend the cache array if necessary */
     size_t new_cap = (size_t)(n + 1);
     if (new_cap > cache_cap) {
-        seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, new_cap);
         if (p == NULL)
             abort();                 /* cannot proceed */
         cache = p;
         /* construct new elements if seq_t might require a constructor */
 #ifdef __cplusplus
         for (size_t i = cache_cap; i < new_cap; ++i)
-            new(&cache[i]) seq_t();
+            *(&cache[i]) = (seq_t)0;
 #endif
         cache_cap = new_cap;
     }
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
 {
     /* first call initialises cache[0] if needed */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache == NULL)
             abort();
         cache[0] = (seq_t)0;

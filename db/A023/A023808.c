@@ -8,14 +8,23 @@
  *            all different (the nth such integer, with a(1)=0)
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   factorial_factor
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factorial_factor.h"
+
+/* Helpers: product of b consecutive descending factors starting from a */
+static uint64_t factorial_factor(uint64_t a, uint64_t b)
+{
+    uint64_t r = 1;
+    for (uint64_t i = 0; i < b; ++i)
+        r *= (a - i);
+    return r;
+}
 
 #define B 14   /* base */
 

@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   a(n) = k if n = 2k(k-1)+1 else 0
- * Range:     u8 n <= 9687, u16 n <= 9687, u32 n <= 9687, u64 n <= 9687,
- *            u128 n <= 9687, big any n
+ * Range:     u8 n <= 10585, u16 n <= 10585, u32 n <= 10585, u64 n <= 10585,
+ *            u128 n <= 10585, big any n
+ * Validated: standard, pass, 136 terms through n = 9687 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

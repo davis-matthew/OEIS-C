@@ -10,13 +10,15 @@
  *            2^v2(floor( (10001*a(n-1)+10001*a(n-2)+10000)/10000 ))
  * Range:     u8 n <= 11, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(1)=1, a(2)=1; for n≥3 define */ 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* memoisation */
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     /* initialisation */
     if (!seq) {
         cap   = 4;                            /* enough for indices 0..3 */
-        seq   = (seq_t*)malloc(cap * sizeof(seq_t));
+        seq   = mem_new(seq_t, cap);
         seq[0] = (seq_t)0;                    /* unused */
         seq[1] = (seq_t)1;
         seq[2] = (seq_t)1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     while (last < n) {
         if (last + 1 >= cap) {                /* need more space */
             cap *= 2;
-            seq = (seq_t*)realloc(seq, cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, cap);
         }
 
         /* compute the next term */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 13, u32 n <= 37, u64 n <= 85, u128 n <= 181,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    a(5)=1120, a(6)=1760, a(7)=2404, a(8)=4304. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array of a(1)..a(cache_len) */
 static idx_t cache_len = 0;   /* number of elements stored */
@@ -30,14 +32,14 @@ seq_t a(idx_t n)
     /* allocate capacity if this is the first call */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* ensure capacity for at least n elements */
     if (n > cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap < n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) { /* OOM, return 0 as a safe fallback */
             return (seq_t)0;
         }

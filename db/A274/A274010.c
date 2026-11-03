@@ -12,13 +12,15 @@
  *            memoises the tables so that calls are O(1) after the fi...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9816 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>   /* for uint8_t */
+#include "../utils/mem.h"
 
 /* the types seq_t and idx_t are defined by the build environment */
 extern unsigned long long __atomic_load_n (void const *, int);  /* dummy to avoid unused */
@@ -35,7 +37,7 @@ static void recompute(idx_t limit)
     /* allocate/reallocate memory */
     spf    = (idx_t*)realloc(spf,    (limit+1)*sizeof(idx_t));
     exp_arr= (uint8_t*)realloc(exp_arr,(limit+1)*sizeof(uint8_t));
-    tau_arr= (seq_t*)realloc(tau_arr,(limit+1)*sizeof(seq_t));
+    tau_arr= mem_resize(seq_t, tau_arr, (limit+1));
     if (!spf || !exp_arr || !tau_arr) abort();
 
     /* initialise */

@@ -10,12 +10,14 @@
  *            values: a(1)=1, a(2)=70, a(3)=5299, a(4)=419020
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n‑th term of A238540.  The sequence is 1‑based. */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first four terms on the first call. */
     if (cache_len == 0) {
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;           /* out of memory */
         cache[0] = (seq_t)1;         /* a(1) */
         cache[1] = (seq_t)70;        /* a(2) */
@@ -48,11 +50,11 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap * 2;
             if (new_cap < (size_t)(n + 1))
                 new_cap = (size_t)(n + 1);
-            seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, new_cap);
             if (!new_cache) return (seq_t)0;  /* out of memory */
             for (size_t i = 0; i < cache_len; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
             cache = new_cache;
             cache_cap = new_cap;
         }

@@ -11,12 +11,15 @@
  * Formula:   a(n) = 3*31^(n-1) - 11*15^(n-1) + 15*7^(n-1) - 3^(n+1) + 2
  * Range:     u8 none, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 31 terms through n = 187 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -25,10 +28,10 @@ seq_t a(idx_t n)
         return 0;
 
     /* Compute the required powers. */
-    seq_t p31 = big_pow((seq_t)31, (seq_t)(n - 1));
-    seq_t p15 = big_pow((seq_t)15, (seq_t)(n - 1));
-    seq_t p7  = big_pow((seq_t)7,  (seq_t)(n - 1));
-    seq_t p3  = big_pow((seq_t)3,  (seq_t)(n + 1));
+    seq_t p31 = ipow((seq_t)31, (seq_t)(n - 1));
+    seq_t p15 = ipow((seq_t)15, (seq_t)(n - 1));
+    seq_t p7  = ipow((seq_t)7,  (seq_t)(n - 1));
+    seq_t p3  = ipow((seq_t)3,  (seq_t)(n + 1));
 
     /* Evaluate the formula carefully, keeping the order to avoid
        accidental underflow with unsigned arithmetic. */

@@ -7,7 +7,8 @@
  * Formula:   a(n) = 1 + 2 * Σ_{k=0..⌊(n-1)/3⌋} a(k) * a(n-1-3*k)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 49, u128 n <= 98,
  *            big any n
- * Helpers:   seq_alloc_new_array
+ * Validated: standard, pass, 47 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,13 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc_new_array.h"  /* sequence allocator helper */
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 static seq_t *seq_cache = NULL;   /* array of computed values          */
 static size_t cache_cap = 0;      /* allocated capacity                */
@@ -36,7 +43,7 @@ static void ensure_capacity(size_t needed)
     if (seq_cache) {
         for (size_t i = 0; i < cache_len; ++i)
             new_cache[i] = seq_cache[i];
-        free(seq_cache);
+        mem_free(seq_cache);
     }
     seq_cache = new_cache;
     cache_cap = new_cap;

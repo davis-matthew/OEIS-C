@@ -9,12 +9,14 @@
  *            whose binary representation ends in an odd number of zeros
  * Range:     u8 n <= 42, u16 n <= 138, u32 n <= 138, u64 n <= 138,
  *            u128 n <= 138, big any n
- * Helpers:   none
+ * Validated: partial, pass, 138 terms through n = 138 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* undefined for n < 1; return 0 just in case */
@@ -32,8 +34,8 @@ seq_t a(idx_t n) {
     size_t T = (t + 1) / 2;
 
     /* Allocate arrays for the current values and steps of each stream. */
-    seq_t *val  = (seq_t *)malloc(T * sizeof(seq_t));
-    seq_t *step = (seq_t *)malloc(T * sizeof(seq_t));
+    seq_t *val  = mem_new(seq_t, T);
+    seq_t *step = mem_new(seq_t, T);
     if (!val || !step) return 0;  /* allocation failed */
 
     for (size_t i = 0; i < T; ++i) {
@@ -43,8 +45,8 @@ seq_t a(idx_t n) {
     }
 
     /* Generate the first n+1 terms of A036554. */
-    seq_t *terms = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    if (!terms) { free(val); free(step); return 0; }
+    seq_t *terms = mem_new(seq_t, (n + 1));
+    if (!terms) { mem_free(val); mem_free(step); return 0; }
 
     idx_t generated = 0;
     while (generated <= n) {          /* need terms[0] … terms[n] */
@@ -67,9 +69,9 @@ seq_t a(idx_t n) {
     seq_t result = terms[n] - terms[n - 1];
 
     /* Clean up. */
-    free(terms);
-    free(val);
-    free(step);
+    mem_free(terms);
+    mem_free(val);
+    mem_free(step);
 
     return result;
 }

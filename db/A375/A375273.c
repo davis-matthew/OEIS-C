@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 19, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle small n directly */
@@ -35,12 +37,12 @@ seq_t a(idx_t n) {
     /* Ensure capacity for indices up to n */
     size_t required = (size_t)n + 1;
     if (cap < required) {
-        seq_t *new_cache = (seq_t *)malloc(required * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, required);
         if (!new_cache) return (seq_t)0;  /* allocation failure fallback */
 
         /* Copy existing data */
         if (cache && cap > 0)
-            memcpy(new_cache, cache, cap * sizeof(seq_t));
+            mem_copy(new_cache, cache, cap * sizeof(seq_t));
 
         /* If we are allocating for the first time, initialise first four values */
         if (cap == 0) {
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
         }
 
         /* Free old storage if any */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cap = required;
     }

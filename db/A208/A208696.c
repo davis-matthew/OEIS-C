@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const int COLS = 6;                /* width of each row        */
 static const int MAX_PAT = 1 << COLS;     /* 64 possible 6‑bit rows   */
@@ -134,8 +136,8 @@ seq_t a(idx_t n)
     if (n == 2) return (seq_t)M * (seq_t)M;          /* two rows */
 
     /* DP arrays for current and next row count */
-    seq_t *dp   = (seq_t *)calloc(state_cnt, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(state_cnt, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, state_cnt);
+    seq_t *next = mem_new(seq_t, state_cnt);
 
     /* Base case: all pairs of allowed rows possible for n=2 */
     for (int a = 0; a < M; ++a)
@@ -160,7 +162,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (int s = 0; s < state_cnt; ++s) result += dp[s];
 
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

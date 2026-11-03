@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* compute a(n) – the nth term of OEIS A084806 */
 seq_t a(idx_t n)
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     if (seq_len == 0) {
         /* initial capacity for the sequence */
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
 
         seq[0] = (seq_t)1;        /* a(1) = 1 */
         seq_len = 1;
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
                     /* accept this candidate */
                     if (seq_len == seq_cap) {
                         idx_t new_cap = seq_cap ? seq_cap * 2 : 16;
-                        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
                         if (!tmp)
                             exit(1);
                         seq = tmp;

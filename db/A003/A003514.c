@@ -11,24 +11,26 @@
  *            which is the same as the e.g.f....
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   A3514_pow2
+ * Validated: standard, pass, 33 terms through n = 76 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/A3514_pow2.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     idx_t N = n, j, k, m;
-    seq_t *fact = (seq_t *)calloc(N + 2, sizeof(seq_t));
-    seq_t *hf = (seq_t *)calloc(N + 2, sizeof(seq_t));   /* j!/2 for j >= 2 */
-    seq_t *cn = (seq_t *)calloc(N + 2, sizeof(seq_t));   /* binomial(n, .) */
-    seq_t *row = (seq_t *)calloc(N + 2, sizeof(seq_t));
-    seq_t *aa = (seq_t *)calloc(N + 2, sizeof(seq_t));
-    seq_t *b = (seq_t *)calloc(N + 2, sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, N + 2);
+    seq_t *hf = mem_new(seq_t, N + 2);   /* j!/2 for j >= 2 */
+    seq_t *cn = mem_new(seq_t, N + 2);   /* binomial(n, .) */
+    seq_t *row = mem_new(seq_t, N + 2);
+    seq_t *aa = mem_new(seq_t, N + 2);
+    seq_t *b = mem_new(seq_t, N + 2);
     seq_t pos = 0, neg = 0, res;
 
     fact[0] = 1;
@@ -67,11 +69,11 @@ seq_t a(idx_t n)
             /* advance row to binomial(m, .) */
             for (j = m; j >= 1; j--) row[j] += row[j - 1];
         }
-        term = cn[k] * A3514_pow2(ck) * b[s];
+        term = cn[k] * pow2(ck) * b[s];
         if (s & 1) neg += term; else pos += term;
     }
     res = pos - neg;
 
-    free(fact); free(hf); free(cn); free(row); free(aa); free(b);
+    mem_free(fact); mem_free(hf); mem_free(cn); mem_free(row); mem_free(aa); mem_free(b);
     return res;
 }

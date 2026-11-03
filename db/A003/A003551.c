@@ -7,13 +7,22 @@
  * Formula:   Divisors of 2^46 - 1, in ascending order
  * Range:     u8 n <= 2, u16 n <= 2, u32 none, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   cmp_divisors
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cmp_divisors.h"
+#include "../utils/mem.h"
+
+static int cmp_divisors(const void *a, const void *b) {
+    seq_t x = *(const seq_t *)a;
+    seq_t y = *(const seq_t *)b;
+    if (x < y) return -1;
+    if (x > y) return 1;
+    return 0;
+}
 
 #define MAX_DIVISORS 256
 
@@ -35,7 +44,7 @@ static void compute_divisors(void) {
         }
     }
     
-    qsort(divisors_cache, count, sizeof(seq_t), cmp_divisors);
+    mem_qsort(divisors_cache, count, sizeof(seq_t), cmp_divisors);
     num_divisors_cached = count;
 }
 

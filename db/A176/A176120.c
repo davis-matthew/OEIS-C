@@ -11,6 +11,7 @@
  *            T(r, k) * from the OEIS entry A176120, flattened row‑by‑row
  * Range:     u8 n <= 18, u16 n <= 34, u32 n <= 88, u64 n <= 208,
  *            u128 n <= 559, big any n
+ * Validated: standard, pass, 71 terms through n = 9081 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

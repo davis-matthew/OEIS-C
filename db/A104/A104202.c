@@ -8,7 +8,8 @@
  *            (n‑3)th composite number
  * Range:     u8 n <= 102, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 99 terms through n = 102 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         }
 
         /* find next composite */
-        while (is_prime(next_candidate))
+        while (is_prime_u64(next_candidate))
             ++next_candidate;
         comps[comps_len++] = next_candidate++;
     }
@@ -53,11 +55,11 @@ seq_t a(idx_t n)
 
     /* nearest prime before c */
     uint64_t p = c - 1;
-    while (!is_prime(p)) --p;
+    while (!is_prime_u64(p)) --p;
 
     /* nearest prime after c */
     uint64_t q = c + 1;
-    while (!is_prime(q)) ++q;
+    while (!is_prime_u64(q)) ++q;
 
     return (seq_t)(q - p);
 }

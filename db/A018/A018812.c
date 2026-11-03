@@ -11,13 +11,15 @@
  *            factors
  * Range:     u8 n <= 8, u16 n <= 36, u32 n <= 920, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_int
+ * Validated: standard, pass, 66 terms through n = 961 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/gcd_int.h"
+#include <stdint.h>
+#include "../utils/gcd_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
             } else if (iy == 0) {
                 if (ix != 1) continue;          /* gcd(ix,0)=ix */
             } else {
-                if (gcd_int((int)ix, (int)iy) != 1) continue;
+                if (gcd_i32((int)ix, (int)iy) != 1) continue;
             }
 
             int mul = (ix == 0 || iy == 0) ? 2 : 4;

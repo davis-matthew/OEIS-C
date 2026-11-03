@@ -12,7 +12,8 @@
  *            the coefficient of x^m in the series for f...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 27,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 35 terms through n = 694 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Precompute squared binomial coefficients c[k] = binom(2k,k)^2 for k=1..n. */
-    seq_t *c = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (n + 1));
     if (!c)
         return 0;        /* allocation failed, return 0 as error code */
     c[0] = 0;
@@ -37,9 +39,9 @@ seq_t a(idx_t n)
     }
 
     /* DP array for coefficients a_{n,m} */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) {
-        free(c);
+        mem_free(c);
         return 0;
     }
     dp[0] = 1;   /* a_{n,0} = 1 */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp[n];
 
-    free(dp);
-    free(c);
+    mem_free(dp);
+    mem_free(c);
     return result;
 }

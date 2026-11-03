@@ -9,14 +9,21 @@
  *            ((n-1)/2)*C(n-1)*(1 - hypergeom([-1/2,-n],[n-1],-4)))
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 27, u128 n <= 52,
  *            big any n
- * Helpers:   a7856_gcd, a7856_mulfrac
+ * Validated: standard, pass, 39 terms through n = 962 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a7856_gcd.h"
-#include "../utils/a7856_mulfrac.h"
+#include "../utils/gcd_u64.h"
+
+/* returns x * m / d, where the result is known to be an integer;
+   divides first so intermediates never exceed the result */
+static seq_t a7856_mulfrac(seq_t x, uint64_t m, uint64_t d) {
+    uint64_t g = gcd_u64(m, d);
+    return x / (seq_t)(d / g) * (seq_t)(m / g);
+}
 
 seq_t a(idx_t n) {
     uint64_t N = 2 * (uint64_t)n - 2;

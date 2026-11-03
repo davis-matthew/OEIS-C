@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   build_primes_upto, smallest_digit_is_odd
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,25 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/smallest_digit_is_odd.h"
+#include "../utils/mem.h"
+
+/* Return true if the smallest decimal digit of x is odd. */
+static bool smallest_digit_is_odd(seq_t x)
+{
+    seq_t min = 9;
+    while (x > 0) {
+        seq_t d = x % 10;
+        if (d < min) {
+            min = d;
+            /* Don't stop when the digit is 1, because a smaller even digit
+               (e.g. 0) could appear later. */
+        }
+        x = x / 10;
+    }
+    return (min % 2) == 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +52,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         build_primes_upto(limit, &primes, &prime_cnt);
 
-        qual = (seq_t *)malloc(sizeof(seq_t) * prime_cnt);
+        qual = mem_new(seq_t, prime_cnt);
         qual_cnt = 0;
         for (size_t i = 0; i < prime_cnt; ++i) {
             if (smallest_digit_is_odd((seq_t)primes[i]))
@@ -51,8 +69,8 @@ seq_t a(idx_t n)
         free(primes);
         build_primes_upto(limit, &primes, &prime_cnt);
 
-        free(qual);
-        qual = (seq_t *)malloc(sizeof(seq_t) * prime_cnt);
+        mem_free(qual);
+        qual = mem_new(seq_t, prime_cnt);
         qual_cnt = 0;
         for (size_t i = 0; i < prime_cnt; ++i) {
             if (smallest_digit_is_odd((seq_t)primes[i]))

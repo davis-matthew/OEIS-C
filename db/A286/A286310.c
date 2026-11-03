@@ -10,13 +10,15 @@
  *            - sum_{d|n, d<n} a(d)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  The function below assumes seq_t and idx_t are predefined types by the build system.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *S_cache = NULL;   /* (2n-1)!!  */
 static seq_t *A_cache = NULL;   /* a(n)      */
@@ -30,8 +32,8 @@ static void ensure_cache(idx_t n)
         return;
 
     /* Expand both arrays */
-    seq_t *newS = (seq_t *)realloc(S_cache, need * sizeof(seq_t));
-    seq_t *newA = (seq_t *)realloc(A_cache, need * sizeof(seq_t));
+    seq_t *newS = mem_resize(seq_t, S_cache, need);
+    seq_t *newA = mem_resize(seq_t, A_cache, need);
     if (!newS || !newA) { /* allocation failure – abort to avoid undefined behaviour */
         abort();
     }

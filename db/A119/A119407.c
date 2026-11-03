@@ -11,12 +11,14 @@
  *            a(6)=62
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 33, u64 n <= 67, u128 n <= 134,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* allocate enough space for indices 0..6 (0 unused) */
         cache_cap = 8;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 0;
         cache[1] = 1;
         cache[2] = 3;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         if (n + 2 > cache_cap) {            /* +2 to keep room for index n */
             size_t new_cap = cache_cap;
             while (new_cap <= n + 1) new_cap <<= 1;   /* double until big enough */
-            cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
         /* compute missing values using the recurrence */

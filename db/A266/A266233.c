@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 1127, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 8521 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Function prototype expected by the build system */
 seq_t a(idx_t n);
@@ -73,7 +75,7 @@ static void rebuild_sieve(size_t new_limit)
 
     /*--- recompute the sequence ---*/
     size_t seq_capacity = cnt;           /* worst case: all primes qualify     */
-    seq_t *new_seq = (seq_t *)malloc(seq_capacity * sizeof(seq_t));
+    seq_t *new_seq = mem_new(seq_t, seq_capacity);
     if (!new_seq) {
         free(new_sieve);
         free(new_primes);
@@ -95,12 +97,11 @@ static void rebuild_sieve(size_t new_limit)
         if (ok) {
             if (seq_id == seq_capacity) { /* unlikely, but guard against overflow */
                 seq_capacity *= 2;
-                seq_t *tmp = (seq_t *)realloc(new_seq,
-                                              seq_capacity * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, new_seq, seq_capacity);
                 if (!tmp) {
                     free(new_sieve);
                     free(new_primes);
-                    free(new_seq);
+                    mem_free(new_seq);
                     return;
                 }
                 new_seq = tmp;
@@ -112,7 +113,7 @@ static void rebuild_sieve(size_t new_limit)
     /*--- replace old data with the new ones ---*/
     free(sieve_primality);
     free(prime_list);
-    free(seq_list);
+    mem_free(seq_list);
     sieve_primality = new_sieve;
     prime_list      = new_primes;
     prime_count     = cnt;

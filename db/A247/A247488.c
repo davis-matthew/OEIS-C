@@ -9,7 +9,8 @@
  *            ), * a(n) = flatten triangle read by rows, offset 0
  * Range:     u8 n <= 20, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   abs_int128, binomial
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binomial.h"      /* declares seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/abs_int128.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* compute absolute value of a signed 128‑bit integer   */
+static inline seq_t abs_int128(__int128 x)
+{
+    return (x >= 0) ? (seq_t)x : (seq_t)(-x);
+}
 
 /* cache of already computed sequence values, length = next_needed_index */
 static seq_t *cache = NULL;
@@ -74,7 +81,7 @@ static void ensure_cache(idx_t n)
         return;
 
     size_t new_len = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache)
         exit(EXIT_FAILURE);          /* memory failure */
     cache = new_cache;

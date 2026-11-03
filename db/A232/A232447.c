@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 20, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   build_primes_upto, digit_frequencies
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   build_primes_upto, digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/digit_frequencies.h"
+#include "../utils/mem.h"
 
 /* ----- static cache -----
    terms        : array of sequence terms computed so far
@@ -57,7 +59,7 @@ static void ensure_terms(idx_t need)
     /* Grow the terms cache if necessary */
     if (terms_cap == 0) {
         terms_cap = 64;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     while (terms_len < (size_t)need) {
@@ -82,7 +84,7 @@ static void ensure_terms(idx_t need)
             /* Grow terms array if needed */
             if (terms_len >= terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)p;
         }

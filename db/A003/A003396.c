@@ -9,14 +9,22 @@
  *            and deduplicate; increase B as needed
  * Range:     u8 n <= 1, u16 n <= 26, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3396_cmpu64
+ * Validated: standard, pass, 56 terms through n = 9633 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a3396_cmpu64.h"
+
+static int a3396_cmpu64(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p;
+    uint64_t y = *(const uint64_t *)q;
+    if (x < y) return -1;
+    if (x > y) return 1;
+    return 0;
+}
 
 static uint64_t *a3396_vals = NULL;
 static idx_t a3396_len = 0;

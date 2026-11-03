@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=1..n} (-1)^(k+1) * binomial(n,k) * (2*n - k)!
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* Allocate factorial array up to 2*n */
     idx_t size = 2 * n + 1;
-    seq_t *fact = (seq_t *)malloc(sizeof(seq_t) * size);
+    seq_t *fact = mem_new(seq_t, size);
     if (!fact) return 0; /* Out of memory */
 
     fact[0] = 1;
@@ -45,6 +47,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = pos - neg;
-    free(fact);
+    mem_free(fact);
     return result;
 }

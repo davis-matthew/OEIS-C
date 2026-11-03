@@ -10,15 +10,18 @@
  *            row by row
  * Range:     u8 n <= 30, u16 n <= 39, u32 n <= 48, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
-
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -41,5 +44,5 @@ seq_t a(idx_t n)
     idx_t exp_k = k - 1;
     seq_t exponent = binomial(exp_n, exp_k);
 
-    return big_pow((seq_t)2, exponent);
+    return ipow((seq_t)2, exponent);
 }

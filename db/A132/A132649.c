@@ -7,14 +7,17 @@
  * Formula:   a(n) = L(n)^L(n) (L(n) = n-th lucky number)
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free, abort */
 #include <string.h>   /* memcpy */
-#include "../utils/big_pow.h"   /* big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Cached lucky numbers: array of 64‑bit unsigned integers. */
 static uint64_t *lucky_mem = NULL;
@@ -84,5 +87,5 @@ static seq_t nth_lucky(idx_t n)
 seq_t a(idx_t n)
 {
     seq_t l = nth_lucky(n);
-    return big_pow(l, l);
+    return ipow(l, l);
 }

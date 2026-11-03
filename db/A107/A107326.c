@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 45, u32 n <= 159, u64 n <= 594,
  *            u128 n <= 2294, big any n
- * Helpers:   mul_safe
+ * Validated: standard, pass, 61 terms through n = 8014 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,13 +25,26 @@
    
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mul_safe.h"
+#include "../utils/mem.h"
+
+/* safe multiplication that does not overflow for unsigned types up to 64 bits */
+static inline seq_t mul_safe(seq_t a, unsigned b)
+{
+    if (sizeof(seq_t) <= sizeof(uint64_t)) {
+        unsigned __int128 tmp = (unsigned __int128)a * b;
+        /* maximum value representable in seq_t */
+        seq_t maxv = (seq_t)(~(seq_t)0);
+        return tmp > maxv ? maxv : (seq_t)tmp;
+    }
+    /* arbitrary‑precision types handle overflow internally */
+    return a * (seq_t)b;
+}
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* not used (offset 1), but safe */
     /* allocate array to hold the first n terms */
-    seq_t *arr = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (size_t)n);
     if (!arr) return 0;            /* allocation failure, return 0 as fallback */
 
     arr[0] = (seq_t)1;
@@ -53,6 +67,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n - 1];
-    free(arr);
+    mem_free(arr);
     return result;
 }

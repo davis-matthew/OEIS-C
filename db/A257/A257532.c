@@ -11,13 +11,14 @@
  *            is the column within that row (1‑based)
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static idx_t
 row_for_idx(idx_t n)
@@ -46,8 +47,8 @@ a(idx_t n)
     seq_t sum = 0;
 
     for (idx_t i = 0; i <= max_i; ++i) {
-        seq_t c1 = binom(2 * r, r - k - i);   /* C(2r, r-k-i) */
-        seq_t c2 = binom(2 * r + i - 1, i);   /* C(2r+i-1, i) */
+        seq_t c1 = binomial(2 * r, r - k - i);   /* C(2r, r-k-i) */
+        seq_t c2 = binomial(2 * r + i - 1, i);   /* C(2r+i-1, i) */
         sum += c1 * c2;
     }
 

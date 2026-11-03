@@ -10,15 +10,17 @@
  *            * 3^(n/d) (n≥1) a(0) = 0
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   big_pow, phi
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
+ * Helpers:   ipow, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
-#include "../utils/phi.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     /* first term: -(K^floor((n+1)/2) + K^ceil((n+1)/2))/4 */
     idx_t f = (n + 1u) / 2u;          /* floor((n+1)/2) */
     idx_t c = (n + 2u) / 2u;          /* ceil((n+1)/2) */
-    seq_t pow_f = big_pow(K, (seq_t)f);
-    seq_t pow_c = big_pow(K, (seq_t)c);
+    seq_t pow_f = ipow(K, (seq_t)f);
+    seq_t pow_c = ipow(K, (seq_t)c);
     seq_t t1 = (pow_f + pow_c) / (seq_t)4;
 
     /* factor n to obtain its prime powers */
@@ -78,9 +80,9 @@ seq_t a(idx_t n)
     seq_t sum = (seq_t)0;
     for (size_t i = 0; i < dcnt; ++i) {
         uint64_t d = divs[i];
-        seq_t phi_d = phi((idx_t)d);                 /* use provided phi() */
+        seq_t phi_d = totient((idx_t)d);                 /* use provided phi() */
         idx_t exp_nd = n / d;
-        seq_t pow_nd = big_pow(K, (seq_t)exp_nd);
+        seq_t pow_nd = ipow(K, (seq_t)exp_nd);
         sum += phi_d * pow_nd;
     }
 

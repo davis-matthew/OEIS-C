@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   gcd_idx_t
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
 #endif
 
 #include <stddef.h>      /* defines idx_t, seq_t in the build */
-#include "../utils/gcd_idx_t.h"
+#include <stdint.h>
+#include "../utils/gcd_idx.h"
 
 static seq_t phi[MAX_S + 1];
 static idx_t cum[MAX_S + 1];
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
 
     if (s % 2 == 0) {                         /* even s: ascending numerator */
         for (idx_t i = 1; i < s; ++i) {
-            if (gcd_idx_t(i, s) == 1) {
+            if (gcd_idx(i, s) == 1) {
                 if (pos == target) {
                     numerator   = i;
                     denominator = s - i;
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
         }
     } else {                                   /* odd s: descending numerator */
         for (idx_t i = s - 1; i >= 1; --i) {
-            if (gcd_idx_t(i, s) == 1) {
+            if (gcd_idx(i, s) == 1) {
                 if (pos == target) {
                     numerator   = i;
                     denominator = s - i;

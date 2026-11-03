@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   enlarge_used, gcd
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,23 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/enlarge_used.h"
+#include "../utils/mem.h"
+
+/* Dynamically grow the used‑array so that it can index up to min_cap - 1. */
+static void enlarge_used(size_t *used_cap_ptr, bool **used_ptr, size_t min_cap)
+{
+    size_t old_cap = *used_cap_ptr;
+    size_t new_cap = old_cap == 0 ? 8 : old_cap;
+    while (new_cap < min_cap) new_cap <<= 1;
+
+    bool *new_used = (bool *)realloc(*used_ptr, new_cap * sizeof(bool));
+    if (!new_used) abort();
+    for (size_t i = old_cap; i < new_cap; ++i) new_used[i] = false;
+    *used_ptr = new_used;
+    *used_cap_ptr = new_cap;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +51,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* Initial allocation for the sequence. */
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) abort();
 
         /* Initial allocation for the used‑array. */
@@ -85,7 +101,7 @@ seq_t a(idx_t n)
         /* Append the candidate to the sequence. */
         if (seq_len >= seq_cap) {              /* grow the sequence array */
             seq_cap <<= 1;
-            seq_t *new_seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq_t *new_seq = mem_resize(seq_t, seq, seq_cap);
             if (!new_seq) abort();
             seq = new_seq;
         }

@@ -7,13 +7,14 @@
  * Formula:   a(n) = |closest perfect square to n – closest perfect cube to n|
  * Range:     u8 n <= 1962, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_isqrt
+ * Validated: standard, pass, 95 terms through n = 9823 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_isqrt.h"
+#include "../utils/isqrt.h"
 
 static idx_t cube_root_floor(idx_t n) {
     idx_t low = 0, high = (1ULL << 22);          /* (2^22)^3 = 2^66 > 2^64-1 */
@@ -30,7 +31,7 @@ static idx_t cube_root_floor(idx_t n) {
 
 seq_t a(idx_t n) {
     /* ---- nearest perfect square ---- */
-    idx_t m = floor_isqrt(n);
+    idx_t m = isqrt(n);
     idx_t m_next = m + 1;
     __uint128_t square = (__uint128_t)m * m;
     __uint128_t nextsquare = (__uint128_t)m_next * m_next;

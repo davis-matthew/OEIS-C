@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 66, u128 n <= 132,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 490 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    thereafter. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* One‑time initialisation. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));   /* a(0) = 1 */
+        cache = mem_new(seq_t, 1);   /* a(0) = 1 */
         cache[0] = (seq_t)1;
         dp[6] = (seq_t)1;                       /* position 0 is index 6 */
         current_max = 0;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     /* Extend cache and DP up to n if necessary. */
     if (n > current_max) {
-        cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(n + 1));
 
         for (idx_t step = current_max + 1; step <= n; ++step) {
             /* Compute transition for each position -6..6. */
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
             cache[step] = total;
 
             /* Prepare for next iteration */
-            memcpy(dp, next, 13 * sizeof(seq_t));
+            mem_copy(dp, next, 13 * sizeof(seq_t));
         }
         current_max = n;
     }

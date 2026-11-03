@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_fours_uint64
+ * Validated: standard, pass, 121 terms through n = 8346 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,18 @@
 /* A085978: Number of 4's in the decimal expansion of prime(n) */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/count_fours_uint64.h"
+
+static seq_t
+count_fours_uint64(uint64_t x)
+{
+    seq_t cnt = 0;
+    do {
+        if ((x % 10ULL) == 4ULL)
+            ++cnt;
+        x /= 10ULL;
+    } while (x != 0);
+    return cnt;
+}
 
 /*--- Prime cache --------------------------------------------------------*/
 

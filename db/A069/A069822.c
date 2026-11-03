@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   numbers k such that sigma(k) has appeared before
- * Range:     u8 n <= 38, u16 n <= 9679, u32 n <= 9679, u64 n <= 9679,
- *            u128 n <= 9679, big any n
- * Helpers:   sigma_of
+ * Range:     u8 n <= 38, u16 n <= 10547, u32 n <= 10547, u64 n <= 10547,
+ *            u128 n <= 10547, big any n
+ * Validated: standard, pass, 76 terms through n = 9679 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,22 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/sigma_of.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 #define HASH_SIZE (1u << 18)   /* 262144, ample for the required range */
 
@@ -64,7 +80,7 @@ static void ensure_cache_capacity(void)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

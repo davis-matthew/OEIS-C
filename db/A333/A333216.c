@@ -12,7 +12,8 @@
  *            block's length is a term * of the sequence
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  * (basic integer or arbitrary‑precision type). */
 #include <stdlib.h>
 #include <string.h>   /* for memcpy */
+#include "../utils/mem.h"
 
 /* Holds the sequence values; lazily initialised on the first call to a(). */
 static seq_t *seq = NULL;
@@ -33,13 +35,13 @@ static size_t seq_cap = 0;     /* allocated capacity in seq          */
  * arbitrary‑precision types), and the old buffer freed. */
 static void grow_seq(size_t new_cap)
 {
-    seq_t *new_buf = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_buf = mem_new(seq_t, new_cap);
     if (!new_buf) return;  /* allocation failure – leave seq unchanged */
 
     for (size_t i = 0; i < seq_len; ++i)
         new_buf[i] = seq[i];
 
-    free(seq);
+    mem_free(seq);
     seq = new_buf;
     seq_cap = new_cap;
 }

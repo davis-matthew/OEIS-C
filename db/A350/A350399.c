@@ -9,14 +9,15 @@
  *            and (p * q) mod (2*n) is prime
  * Range:     u8 n <= 131, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 114 terms through n = 9941 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -27,19 +28,19 @@ seq_t a(idx_t n)
     /* iterate p from 2 to m/2 inclusive so that p <= q = m - p */
     for (idx_t p = 2; p <= m / 2; ++p)
     {
-        if (!is_prime_small((seq_t)p))
+        if (!is_prime_seq((seq_t)p))
             continue;                 /* p not prime */
 
         const idx_t q = m - p;        /* q >= p by construction */
 
-        if (!is_prime_small((seq_t)q))
+        if (!is_prime_seq((seq_t)q))
             continue;                 /* q not prime */
 
         /* compute (p*q) mod m; product fits in 64‑bit for m <= 20000,
          * but we use seq_t to be generic. */
         const seq_t prod_mod = ((seq_t)p * (seq_t)q) % (seq_t)m;
 
-        if (is_prime_small(prod_mod))
+        if (is_prime_seq(prod_mod))
             ++cnt;
     }
 

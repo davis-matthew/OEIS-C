@@ -9,9 +9,10 @@
  *            take the first remaining number k (a ludic number), remove it,
  *            then remove every k-th of the numbers left. a(1) = 1. A Fenwick
  *            tree finds the j-th remaining number quickly
- * Range:     u8 n <= 48, u16 n <= 5450, u32 n <= 9497, u64 n <= 9497,
- *            u128 n <= 9497, big any n
- * Helpers:   fw_dec, fw_find
+ * Range:     u8 n <= 48, u16 n <= 5450, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 72 terms through n = 9497 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,29 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/fw_dec.h"
-#include "../utils/fw_find.h"
+
+static void fw_dec(uint32_t *t, size_t m, size_t p)
+{
+    while (p <= m) {
+        t[p]--;
+        p += p & (~p + 1);
+    }
+}
+
+static size_t fw_find(const uint32_t *t, size_t m, size_t top, uint64_t k)
+{
+    /* smallest position p with prefix sum >= k */
+    size_t pos = 0;
+    size_t step;
+    for (step = top; step > 0; step >>= 1) {
+        size_t nx = pos + step;
+        if (nx <= m && t[nx] < k) {
+            pos = nx;
+            k -= t[nx];
+        }
+    }
+    return pos + 1;
+}
 
 static uint64_t *lud_vals = NULL;
 static size_t lud_cnt = 0;

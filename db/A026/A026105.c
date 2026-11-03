@@ -12,13 +12,15 @@
  *            where r is the row containing n in the flattened row‑by‑row...
  * Range:     u8 n <= 40, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,14 +43,14 @@ seq_t a(idx_t n)
     idx_t k = n - prev_cumulative;                  /* 0‑based within row r */
 
     /* Build rows up to r, keeping only the previous row in memory. */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t) * 1);
+    seq_t *prev = mem_new(seq_t, 1);
     if (!prev) return 0;      /* allocation failed; silence compiler */
 
     prev[0] = (seq_t)1;       /* row 0 */
 
     for (idx_t i = 1; i <= r; ++i) {
-        seq_t *curr = (seq_t *)malloc(sizeof(seq_t) * (i + 1));
-        if (!curr) { free(prev); return 0; }
+        seq_t *curr = mem_new(seq_t, (i + 1));
+        if (!curr) { mem_free(prev); return 0; }
 
         curr[0] = (seq_t)1;   /* first element of every row is 1 */
 
@@ -67,12 +69,12 @@ seq_t a(idx_t n)
             }
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 
     /* prev now holds row r; fetch the k‑th element. */
     seq_t result = prev[k];
-    free(prev);
+    mem_free(prev);
     return result;
 }

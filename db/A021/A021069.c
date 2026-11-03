@@ -9,12 +9,14 @@
  *            after skipping the leading 0 after the decimal point
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 9940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *frac_digits = NULL;  /* digits of 1/65 after decimal starting with first 0 */
 static idx_t frac_len   = 0;       /* number of digits stored */
@@ -26,7 +28,7 @@ static void ensure_frac_capacity(idx_t needed) {
     if (needed <= frac_cap) return;
     idx_t new_cap = frac_cap ? frac_cap << 1 : 1024;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_ptr = (seq_t *)realloc(frac_digits, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, frac_digits, new_cap);
     frac_digits = new_ptr;
     frac_cap = new_cap;
 }
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
     /* Initialize static state on first use. */
     if (frac_digits == NULL) {
         frac_cap = 1024;
-        frac_digits = (seq_t *)malloc(frac_cap * sizeof(seq_t));
+        frac_digits = mem_new(seq_t, frac_cap);
         frac_len = 0;
         rem = 1ULL % 65ULL;  /* start remainder with numerator 1         */
     }

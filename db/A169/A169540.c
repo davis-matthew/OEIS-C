@@ -10,12 +10,14 @@
  *            otherwise
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper to return the constant term c_n. */
 static inline seq_t c_val(idx_t i)
@@ -39,11 +41,11 @@ seq_t a(idx_t n)
         idx_t new_size = n + 1;
         seq_t *tmp;
         if (cached_len == 0) {
-            tmp = (seq_t *)malloc(sizeof(seq_t) * new_size);
+            tmp = mem_new(seq_t, new_size);
             if (!tmp) abort();
             for (idx_t i = 0; i < new_size; ++i) tmp[i] = (seq_t)0;
         } else {
-            tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+            tmp = mem_resize(seq_t, cache, new_size);
             if (!tmp) abort();
             /* initialise new slots to 0 */
             for (idx_t i = cached_len; i < new_size; ++i) tmp[i] = (seq_t)0;

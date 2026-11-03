@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 11, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   gcd64
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* Euclid's algorithm for uint64_t – used for primitive generation. */
 
@@ -69,7 +71,7 @@ static inline void heap_swap(size_t i, size_t j) {
 static void heap_push(HeapEntry e) {
     if (heap_size == heap_cap) {
         heap_cap = heap_cap ? heap_cap * 2 : 16;
-        heap = (HeapEntry *)realloc(heap, heap_cap * sizeof(HeapEntry));
+        heap = mem_resize(HeapEntry, heap, heap_cap);
     }
     size_t i = heap_size++;
     heap[i] = e;
@@ -112,7 +114,7 @@ static void generate_primitives(void) {
     const uint64_t M_LIMIT = 2000;
     for (uint64_t m = 2; m <= M_LIMIT; ++m) {
         for (uint64_t n = 1; n < m; ++n) {
-            if (((m + n) & 1) && gcd64(m, n) == 1) {
+            if (((m + n) & 1) && gcd_u64(m, n) == 1) {
                 uint64_t a = m * m - n * n;
                 uint64_t b = 2 * m * n;
                 uint64_t c = m * m + n * n;
@@ -133,7 +135,7 @@ static void generate_primitives(void) {
 static inline void ensure_seq_cap(size_t need) {
     if (need > seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
     }
 }
 

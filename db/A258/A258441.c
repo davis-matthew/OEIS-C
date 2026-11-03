@@ -9,12 +9,14 @@
  *            a(2)=959892121, a(3)=37629690894906
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 25 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function returns the n‑th term of A258441, indexed from 1. */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     size_t new_cap = (size_t)n + 1;
     if (new_cap < 4) new_cap = 4;
     if (cache_cap < new_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0; /* allocation failure – unlikely in tests */
         cache     = tmp;
         cache_cap = new_cap;

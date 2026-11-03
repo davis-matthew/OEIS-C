@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   squarefree_and_sigma
+ * Validated: standard, pass, 76 terms through n = 8758 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,59 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/squarefree_and_sigma.h"
+#include "../utils/mem.h"
+
+/* Computes whether x is square‑free and its sum of divisors.  The
+   sum is returned in *sigma_out.  The function returns true iff x is,
+   square‑free.  All arithmetic is performed with seq_t, so the code
+   works for both fixed‑width and arbitrary‑precision builds. */
+static bool squarefree_and_sigma(uint64_t x, seq_t *sigma_out) {
+    bool squarefree = true;
+    seq_t s = 1;                 /* running product for sigma          */
+    uint64_t t = x;
+
+    /* factor of 2 */
+    int cnt = 0;
+    while ((t & 1ULL) == 0) {
+        t >>= 1;
+        cnt++;
+    }
+    if (cnt > 0) {
+        if (cnt > 1)
+            squarefree = false;
+        seq_t pow2 = 1;
+        for (int i = 0; i <= cnt; ++i)
+            pow2 *= (seq_t)2;
+        /* sigma part: (2^(cnt+1)-1)/(2-1) = 2^(cnt+1)-1          */
+        s *= (pow2 - 1);
+    }
+
+    /* odd prime factors */
+    for (uint64_t p = 3; p * p <= t; p += 2) {
+        if (t % p == 0) {
+            int c = 0;
+            while (t % p == 0) {
+                t /= p;
+                ++c;
+            }
+            if (c > 1)
+                squarefree = false;
+            seq_t powp = 1;
+            for (int i = 0; i <= c; ++i)
+                powp *= (seq_t)p;
+            /* sigma part: (p^(c+1)-1)/(p-1)                         */
+            seq_t part = (powp - 1) / ((seq_t)p - 1);
+            s *= part;
+        }
+    }
+
+    if (t > 1) {                 /* remaining odd prime factor         */
+        s *= (seq_t)(t + 1);
+    }
+
+    *sigma_out = s;
+    return squarefree;
+}
 
 /* Function to test primality is not required: we detect primes via sigma. */
 
@@ -37,7 +90,7 @@ static void ensure_cache(size_t need) {
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();               /* out of memory */
     cache = tmp;

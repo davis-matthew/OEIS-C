@@ -8,13 +8,15 @@
  *            the binary representation of a(n‑1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     for (idx_t i = 2; i <= n; ++i)
     {
         seq_t next = (seq_t)0;
-        unsigned bits = bitlen_seq_t(val);
+        unsigned bits = bit_length(val);
 
         /* Process bits from most significant to least significant. */
         for (unsigned j = 0; j < bits; ++j)

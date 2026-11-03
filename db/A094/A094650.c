@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 15, i32 n <= 32, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* OEIS A094650: a(n) = -a(n-1)+4*a(n-2)+3*a(n-3)-3*a(n-4)-a(n-5)
    with initial values a(0)=5, a(1)=-1, a(2)=9, a(3)=-4, a(4)=25 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values.  They are grown as needed. */
 static seq_t *seq_cache = NULL;
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     {
         /* Start with a modest capacity and expand only when needed. */
         seq_cap = 16;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         if (seq_cache == NULL)
             return (seq_t)0; /* allocation failure, unlikely in tests */
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
             size_t new_cap = seq_cap > 0 ? seq_cap * 2 : 16;
             if (new_cap < needed)
                 new_cap = needed;
-            seq_t *new_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
             if (new_cache == NULL)
                 return (seq_t)0; /* allocation failure */
             seq_cache = new_cache;

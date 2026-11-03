@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(71,n)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 26, u128 n <= 71,
  *            big any n
+ * Validated: full, pass, 72 terms through n = 71 (2026-11-02)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /*  Compute C(71,n) multiplicatively with GCD reduction to keep intermediate
  *  values small.  For n>71 the binomial coefficient is defined to be 0. */
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

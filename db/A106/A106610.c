@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy, frac, mult
  * Formula:   a(n) = n / gcd(n,9) (the numerator of n/(n+9))
- * Range:     u8 n <= 255, u16 n <= 9398, u32 n <= 9398, u64 n <= 9398,
- *            u128 n <= 9398, big any n
+ * Range:     u8 n <= 255, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 94 terms through n = 9398 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

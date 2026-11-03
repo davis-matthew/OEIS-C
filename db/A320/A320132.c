@@ -8,7 +8,8 @@
  *            = n
  * Range:     u8 n <= 67, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9546 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* local integer sqrt for uint64_t */
 static inline idx_t isqrt_u64(idx_t n)
@@ -39,11 +41,11 @@ static inline idx_t isqrt_u64(idx_t n)
 static void init_rcount(idx_t N, seq_t **rcount_out)
 {
     size_t sz = (size_t)N + 1;
-    seq_t *rcount = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *rcount = mem_new(seq_t, sz);
     if (!rcount) { *rcount_out = NULL; return; }
 
-    seq_t *countA = (seq_t *)calloc(sz, sizeof(seq_t));
-    if (!countA) { free(rcount); *rcount_out = NULL; return; }
+    seq_t *countA = mem_new(seq_t, sz);
+    if (!countA) { mem_free(rcount); *rcount_out = NULL; return; }
 
     idx_t max_s = isqrt_u64(N);
     for (idx_t s = 0; s <= max_s; ++s) {
@@ -59,7 +61,7 @@ static void init_rcount(idx_t N, seq_t **rcount_out)
         }
     }
 
-    free(countA);
+    mem_free(countA);
     *rcount_out = rcount;
 }
 
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     if (n + 1 > rcount_size) {
         seq_t *new_table = NULL;
         init_rcount(n, &new_table);
-        free(rcount_table);
+        mem_free(rcount_table);
         rcount_table = new_table;
         rcount_size   = n + 1;
     }

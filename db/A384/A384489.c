@@ -8,13 +8,15 @@
  * Formula:   a(1) = 1, a(n) = 392314069 * a(n-1) mod 2^32 for n ≥ 2
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 9965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Constants used in the recurrence */
 static const seq_t _MULT  = (seq_t)392314069ULL;
@@ -32,9 +34,9 @@ seq_t a(idx_t n)
         idx_t new_size = n;
         seq_t *new_cache;
         if (_cache == NULL)
-            new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+            new_cache = mem_new(seq_t, new_size);
         else
-            new_cache = (seq_t*)realloc(_cache, new_size * sizeof(seq_t));
+            new_cache = mem_resize(seq_t, _cache, new_size);
         if (!new_cache) abort();
 
         /* Initialize the cache if we are starting from scratch */

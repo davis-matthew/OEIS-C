@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 352, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Binary search for the first element in a[0..len-1] that is
    greater than or equal to val.  The array is assumed sorted. */
@@ -52,7 +54,7 @@ a(idx_t n)
     /* Initialise the array with the first term a(0)=1. */
     if (!buf) {
         cap = 16;
-        buf = (seq_t *)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         if (!buf) return 0;        /* allocation failure – return 0 */
         buf[0] = (seq_t)1;
         len = 1;
@@ -64,7 +66,7 @@ a(idx_t n)
         if ((size_t)len == cap) {
             size_t new_cap = cap << 1;
             if (new_cap == 0) new_cap = 1;
-            seq_t *tmp = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, buf, new_cap);
             if (!tmp) return 0;    /* allocation failure – return 0 */
             buf = tmp;
             cap = new_cap;

@@ -11,7 +11,8 @@
  *            incremental prime testing and stores the found prim...
  * Range:     u8 n <= 33, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, jacobi_symbol, mod_pow
+ * Validated: standard, pass, 62 terms through n = 956 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,34 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/jacobi_symbol.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /* Return true iff the odd prime p has no quartic residue 22 modulo p. */
 static inline bool good_prime(seq_t p)
@@ -31,7 +57,7 @@ static inline bool good_prime(seq_t p)
         return jacobi_symbol(22, up) == -1;
     } else { /* up % 4 == 1 */
         uint64_t exp = (up - 1) / 4;
-        seq_t r = mod_pow((seq_t)22, exp, p);
+        seq_t r = powmod((seq_t)22, exp, p);
         return r != (seq_t)1;
     }
 }
@@ -52,7 +78,7 @@ seq_t a(idx_t n)
         if (is_prime(p) && good_prime((seq_t)p)) {
             if (count == capacity) {
                 capacity = capacity ? capacity * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, capacity);
                 if (!tmp) abort();
                 cache = tmp;
             }

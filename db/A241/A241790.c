@@ -9,7 +9,8 @@
  *            distinct decimal digits (search)
  * Range:     u8 none, u16 none, u32 n <= 2000, u64 n <= 2000, u128 n <= 2000,
  *            big any n
- * Helpers:   digit_counts, seq_realloc
+ * Validated: standard, pass, 44 terms through n = 1922 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/mem.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -54,7 +68,7 @@ seq_t a(idx_t n)
                 if (!new_cache)
                 {
                     /* allocation failed – clean up and return 0 */
-                    free(cache);
+                    mem_free(cache);
                     cache = NULL;
                     cache_len = 0;
                     cache_cap = 0;

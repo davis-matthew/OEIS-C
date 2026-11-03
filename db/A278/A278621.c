@@ -13,7 +13,8 @@
  *            them)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 21, u64 n <= 116, u128 n <= 210,
  *            big any n
- * Helpers:   zero_dp
+ * Validated: standard, pass, 41 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/zero_dp.h"
+#include "../utils/mem.h"
+
+/* Utility to zero a DP table.  */
+static void zero_dp(seq_t table[9][3][3]) {
+    for (int p = 0; p < 9; ++p)
+        for (int s = 0; s < 3; ++s)
+            for (int f = 0; f < 3; ++f)
+                table[p][s][f] = 0;
+}
 
 /* Helper arrays for the 9 ordered pairs (a,b) with a,b∈{0,1,2}.  */
 static const uint8_t pairA[9] = {0,0,0,1,1,1,2,2,2};
@@ -90,7 +99,7 @@ seq_t a(idx_t n) {
     /* Allocate or expand cache array if necessary */
     if (seq_cache == NULL || cache_size < n) {
         idx_t new_size = n + 1;        /* allocate index 0..n */
-        seq_t *tmp = (seq_t*)realloc(seq_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_size);
         if (!tmp) return 0;           /* allocation failed */
         seq_cache = tmp;
         /* initialize new entries to 0 */

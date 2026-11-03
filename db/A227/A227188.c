@@ -11,8 +11,9 @@
  *            representation of n (bits counted from the least significant
  *            bit), taken along antidiagonals. The function maps n to the
  *            corresponding (row,col) position, then scans the bin...
- * Range:     u8 n <= 8282, u16 n <= 8282, u32 n <= 8282, u64 n <= 8282,
- *            u128 n <= 8282, big any n
+ * Range:     u8 n <= 10010, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 8282 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

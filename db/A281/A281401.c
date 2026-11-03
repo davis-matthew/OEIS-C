@@ -13,13 +13,15 @@
  *            a(7)=1296, a(8)=3308, a(9)=8222, a(10)=19996
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 24, u64 n <= 52, u128 n <= 108,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 168 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>  /* size_t */
 #include <stdlib.h>  /* malloc, realloc, exit */
+#include "../utils/mem.h"
 
 /* The following types are defined by the build environment */
 typedef uint64_t idx_t;  /* idx_t – unsigned integer for indices */
@@ -37,7 +39,7 @@ static void init_cache(void)
     if (CACHE_LEN != 0) return;      /* Already initialised */
 
     CACHE_CAP = 64;
-    CACHE = (seq_t *)malloc(CACHE_CAP * sizeof(seq_t));
+    CACHE = mem_new(seq_t, CACHE_CAP);
     if (!CACHE) exit(EXIT_FAILURE);
 
     /* 10 known terms of the sequence */
@@ -59,7 +61,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = needed * 2 + 16;
     if (new_cap < needed) new_cap = (size_t)-1;   /* max size_t */
 
-    seq_t *tmp = (seq_t *)realloc(CACHE, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, CACHE, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
 
     CACHE = tmp;

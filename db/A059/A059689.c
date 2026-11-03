@@ -11,13 +11,15 @@
  *            lexicographically
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     idx_t m = 1;
     seq_t cum = 0;
     while (1) {
-        seq_t block = big_pow((seq_t)m, (seq_t)(m + 1)); /* m^(m+1) */
+        seq_t block = ipow((seq_t)m, (seq_t)(m + 1)); /* m^(m+1) */
         if (cum + block > target) break;
         cum += block;
         ++m;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
     /* Base‑m representation of func_index: digits are 0…m‑1.
        The most significant digit is position 0. */
-    seq_t power = big_pow((seq_t)m, (seq_t)(m - 1));
+    seq_t power = ipow((seq_t)m, (seq_t)(m - 1));
     seq_t rem   = (seq_t)func_index;        /* small, fits in seq_t */
 
     for (idx_t pos = 0; pos < m; ++pos) {

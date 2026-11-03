@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 12, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   is_prime, run_digit_ok
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,28 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/run_digit_ok.h"
+#include "../utils/mem.h"
+
+/* Return true if every run of identical decimal digits in x has length >= 2. */
+static bool run_digit_ok(seq_t x)
+{
+    seq_t temp = x / 10;
+    unsigned int curr = (unsigned int)(x % 10);
+    int run = 1;
+
+    while (temp > 0) {
+        unsigned int d = (unsigned int)(temp % 10);
+        if (d == curr) {
+            ++run;
+        } else {
+            if (run < 2) return false;
+            curr = d;
+            run = 1;
+        }
+        temp /= 10;
+    }
+    return run >= 2;
+}
 
 static seq_t *cache = NULL;          /* cache of valid primes */
 static size_t cache_cap = 0;
@@ -38,7 +60,7 @@ static void ensure_cache(idx_t n)
         if (run_digit_ok(prime)) {
             if (cache_len == cache_cap) {
                 size_t newcap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) abort();           /* allocation failure */
                 cache = tmp;
                 cache_cap = newcap;

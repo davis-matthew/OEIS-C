@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- static memoisation and dynamic arrays --- */
 static seq_t *used = NULL;           /* all values that have already appeared */
@@ -52,7 +54,7 @@ static void add_used(seq_t v)
 {
     if (used_len == used_cap) {
         size_t new_cap = used_cap ? used_cap * 2 : 64;
-        seq_t *tmp = (seq_t*)realloc(used, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, used, new_cap);
         used = tmp;
         used_cap = new_cap;
     }
@@ -72,7 +74,7 @@ static void add_cache(seq_t v)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -84,7 +86,7 @@ static void init_fib(void)
 {
     if (fib_len == 0) {
         fib_cap = 16;
-        fib = (seq_t*)malloc(fib_cap * sizeof(seq_t));
+        fib = mem_new(seq_t, fib_cap);
         fib[0] = (seq_t)1;
         fib[1] = (seq_t)1;
         fib_len = 2;
@@ -95,7 +97,7 @@ static seq_t next_fib_val(void)
 {
     if (fib_len == fib_cap) {
         fib_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(fib, fib_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fib, fib_cap);
         fib = tmp;
     }
     seq_t next = fib[fib_len - 1] + fib[fib_len - 2];
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
     /* generate rows up to r if necessary */
     for (size_t row = max_row + 1; row <= r; ++row) {
         size_t row_len = row;
-        seq_t *new_row = (seq_t*)malloc(row_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, row_len);
 
         /* first element (westmost) */
         seq_t first = next_unused_fib();
@@ -145,7 +147,7 @@ seq_t a(idx_t n)
         }
 
         /* slide window: prev_row becomes new_row */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = new_row;
         prev_len = row_len;
     }

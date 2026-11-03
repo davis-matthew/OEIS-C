@@ -9,7 +9,8 @@
  *            r(r+1)/2 >= n and k = n - r(r-1)/2
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*----- Basic prime generation ------------------------------------------------*/
 
@@ -34,7 +36,7 @@ static void add_prime(seq_t p)
     if (g_prime_count == g_prime_cap)
     {
         idx_t new_cap = g_prime_cap ? g_prime_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(g_primes, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, g_primes, new_cap);
         if (!tmp) abort();
         g_primes = tmp;
         g_prime_cap = new_cap;

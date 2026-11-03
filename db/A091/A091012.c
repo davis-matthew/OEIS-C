@@ -11,7 +11,8 @@
  *            pairs and counting the distinct mean divisors
  * Range:     u8 n <= 8, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   find_index
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/find_index.h"
+#include "../utils/mem.h"
+
+/* Binary search; returns index or -1 */
+static int find_index(const uint64_t *arr, size_t n, uint64_t target)
+{
+    size_t lo = 0, hi = n;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] == target) return (int)mid;
+        if (arr[mid] < target)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return -1;
+}
 
 /* ---------- Helpers ---------- */
 
@@ -130,7 +146,7 @@ seq_t a(idx_t n)
         if (has_special_divisor(last_checked)) {
             if (cache_size >= cache_cap) {
                 cache_cap = (cache_cap ? cache_cap << 1 : 16);
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = (seq_t)last_checked;
         }

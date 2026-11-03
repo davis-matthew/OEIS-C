@@ -11,6 +11,7 @@
  *            non‑trivial divisor. Numbers 0,1,2,3 are not composite
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-01)
  * Helpers:   gcd, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,8 +21,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
 #include "../utils/gcd.h"
+#include "../utils/is_prime.h"
 
 static size_t _comp_cache_max = 0;
 static uint8_t *_is_composite = NULL;

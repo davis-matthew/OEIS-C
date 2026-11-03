@@ -9,12 +9,23 @@
  * Formula:   a(n) = 2*(12*C(n+2,4) + 9*C(n+1,4) + 2*C(n,4))
  * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   choose4
+ * Validated: standard, pass, 49 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/choose4.h"
+static seq_t choose4(idx_t k)
+{
+    if (k < 4) return 0;
+    seq_t kk = (seq_t)k;
+    seq_t r = kk;
+    r = r * (kk - 1);
+    r = r * (kk - 2);
+    r = r * (kk - 3);
+    r = r / 24;          /* integer division, exact for multiples of 24 */
+    return r;
+}
 /* where C(k,4) = k*(k-1)*(k-2)*(k-3)/24 if k≥4, else 0 */
 
 seq_t a(idx_t n)

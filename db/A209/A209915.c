@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   is_prime, rev
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-01)
+ * Helpers:   is_prime, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/rev.h"
+#include "../utils/reverse_digits_idx.h"
 
 /* Static cache of the first primes (idx_t type). */
 static idx_t *prime_list   = NULL;
@@ -72,7 +73,7 @@ a(idx_t n)
     /* Obtain the n-th prime. */
     ensure_n_primes(n);
     seq_t p = (seq_t)prime_list[n - 1];          /* p(n)   */
-    seq_t revp = (seq_t)rev((idx_t)p);           /* rev(p) */
+    seq_t revp = (seq_t)reverse_digits_idx((idx_t)p);           /* rev(p) */
 
     /* Calculate maximal m such that |p – m·revp| < p   i.e.  m·revp ≤ 2p – 1 */
     seq_t two_p_minus_one = (seq_t)2 * p - 1;

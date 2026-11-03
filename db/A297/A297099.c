@@ -9,14 +9,43 @@
  *            four king‑move neighboring 1s
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   is_row_valid
+ * Validated: standard, pass, 31 terms through n = 191 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_row_valid.h"
+
+/* Count neighbors for a middle row cell, requiring strictly less than four 1‑neighbors. */
+static inline bool is_row_valid(uint32_t up, uint32_t mid, uint32_t down)
+{
+    for (int c = 0; c < 5; ++c) {
+        if ((mid >> c) & 1U) {
+            int neigh = 0;
+            /* vertical neighbors */
+            if ((up   >> c) & 1U)  ++neigh;
+            if ((down >> c) & 1U)  ++neigh;
+            /* horizontal left */
+            if (c > 0) {
+                if ((up   >> (c - 1)) & 1U)  ++neigh;
+                if ((mid  >> (c - 1)) & 1U)  ++neigh;
+                if ((down >> (c - 1)) & 1U)  ++neigh;
+            }
+            /* horizontal right */
+            if (c < 4) {
+                if ((up   >> (c + 1)) & 1U)  ++neigh;
+                if ((mid  >> (c + 1)) & 1U)  ++neigh;
+                if ((down >> (c + 1)) & 1U)  ++neigh;
+            }
+            /* disallow exactly four neighbors */
+            if (neigh == 4)
+                return false;
+        }
+    }
+    return true;
+}
 
 /* Precomputed transitions: trans[up][mid] gives a bitmask of all nxt for which
    (up,mid,nxt) satisfies the local constraint. */

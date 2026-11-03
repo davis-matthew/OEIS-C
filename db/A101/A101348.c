@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Pre‑computed first 16 terms (indices 0..15). */
@@ -33,11 +35,11 @@ seq_t a(idx_t n) {
     if (n < 16) return init[n];
 
     /* Allocate array for all values up to n. */
-    seq_t *seq = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (size_t)(n + 1));
     if (!seq) return 0;  /* allocation failed – return 0 as a safe fallback */
 
     /* Copy initial values. */
-    memcpy(seq, init, sizeof(init));
+    mem_copy(seq, init, sizeof(init));
 
     /* Compute remaining terms using the recurrence. */
     for (idx_t i = 16; i <= n; ++i) {
@@ -57,6 +59,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

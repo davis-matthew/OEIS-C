@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: exponent of prime p in n! */
 static inline int v_p_factorial(idx_t n, int p)
@@ -72,11 +74,11 @@ seq_t a(idx_t n)
     const size_t total = (size_t)d2 * d3 * d5 * d7;
 
     /* allocate state array */
-    seq_t *dp = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
     if (!dp) return 0;  /* allocation failure – return 0 as safe default */
 
     /* initialise to zero */
-    memset(dp, 0, total * sizeof(seq_t));
+    mem_set(dp, 0, total * sizeof(seq_t));
 
     /* index function: map 4‑D exponents to 1‑D array index */
     #define IDX(e2,e3,e5,e7) ((((size_t)(e2) * d3 + (e3)) * d5 + (e5)) * d7 + (e7))
@@ -117,6 +119,6 @@ seq_t a(idx_t n)
 
     /* final result state */
     seq_t result = dp[IDX(t2,t3,t5,t7)];
-    free(dp);
+    mem_free(dp);
     return result;
 }

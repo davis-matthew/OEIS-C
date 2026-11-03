@@ -10,12 +10,14 @@
  *            a(9)=32, a(10)=104, a(11)=80, a(12)=274
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 45, u64 n <= 91, u128 n <= 181,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n); /* forward declaration required by the build system */
 
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     if (!cache) {
         /* Allocate space for at least n+1 entries */
         cache_cap = (size_t)n + 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort(); /* failure unlikely in contest environment */
 
         /* Copy the initial values */
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
     /* Grow the cache if necessary */
     if ((size_t)n + 1 > cache_cap) {
         cache_cap = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         if (!cache) abort();
     }
 

@@ -5,16 +5,28 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = ceil(1/(2^(1/n)-1)) (n>1, a(0)=1, a(1)=2)
- * Range:     u8 n <= 177, u16 n <= 9697, u32 n <= 9697, u64 n <= 9697,
- *            u128 n <= 9697, big any n
- * Helpers:   _cmp_check
+ * Range:     u8 n <= 177, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 88 terms through n = 9697 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdint.h>
-#include "../utils/_cmp_check.h"
+
+static inline int _cmp_check(idx_t n, uint64_t x)
+{
+    /* Returns 1 if 2*x^n > (x+1)^n, 0 otherwise.
+       The test is done in long double log domain to avoid huge integers. */
+    long double ln2 = logl(2.0L);
+    long double ln_1 = logl((long double)x);
+    long double ln_2 = logl((long double)(x + 1));
+    long double left  = ln2 + (long double)n * ln_1;
+    long double right = (long double)n * ln_2;
+    return left > right;
+}
 
 seq_t a(idx_t n)
 {

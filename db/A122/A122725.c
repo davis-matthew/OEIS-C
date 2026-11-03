@@ -8,12 +8,14 @@
  *            of preferential arrangements of n elements)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for the ordered Bell numbers B_n = A000670(n) */
 static seq_t *bell_cache = NULL;   /* array of B_0 ... B_{max_n} */
@@ -24,7 +26,7 @@ static void ensure_bell(idx_t n)
 {
     if (bell_cache == NULL) {
         /* initialise with B_0 = 1 */
-        bell_cache = (seq_t *)malloc(sizeof(seq_t));
+        bell_cache = mem_new(seq_t, 1);
         if (bell_cache == NULL) return;   /* allocation failure → no result */
         bell_cache[0] = (seq_t)1;
         bell_len = 1;
@@ -32,8 +34,7 @@ static void ensure_bell(idx_t n)
     if (n + 1 <= bell_len) return;        /* already computed */
 
     /* grow the array to hold indices up to n */
-    seq_t *new_cache = (seq_t *)realloc(bell_cache,
-                                        (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, bell_cache, (n + 1));
     if (new_cache == NULL) return;         /* allocation failure → no result */
     bell_cache = new_cache;
 

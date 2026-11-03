@@ -8,7 +8,8 @@
  *            |Stirling1(n-k,k)|/((n-k)! * (2*n-k+1)!)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   compute_signless_stirling
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,49 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_signless_stirling.h"
+#include "../utils/mem.h"
+
+/* Compute absolute (signless) Stirling numbers of the first kind
+ * up to n, storing |S(n-k,k)| in s_vals[k] for k = 0..half.
+ * n   : the n in the summation
+ * half: floor(n/2)
+ * s_vals: array of size half+1, already allocated
+ */
+static void compute_signless_stirling(idx_t n, idx_t half, seq_t *s_vals)
+{
+    /* allocate two rows of size n+1 */
+    seq_t *prev = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *cur  = mem_new(seq_t, (size_t)(n + 1));
+    if (!prev || !cur) return; /* allocation failure – silently return 0 */
+
+    for (idx_t m = 0; m <= n; ++m) {
+        /* compute cur[0..m] */
+        cur[0] = (m == 0) ? (seq_t)1 : (seq_t)0;
+        for (idx_t k = 1; k <= m; ++k) {
+            if (k == m) {
+                cur[k] = (seq_t)1;
+            } else {
+                /* c(m,k) = (m-1)*c(m-1,k) + c(m-1,k-1) */
+                cur[k] = (seq_t)(m - 1) * prev[k] + prev[k - 1];
+            }
+        }
+
+        /* capture needed values |S(m,k_needed)| with k_needed = n - m */
+        idx_t k_needed = n - m;
+        if (k_needed <= half && k_needed <= m) {
+            s_vals[k_needed] = cur[k_needed];
+        }
+
+        /* swap rows for next iteration */
+        seq_t *tmp = prev;
+        prev = cur;
+        cur = tmp;
+    }
+
+    /* free temporary rows */
+    mem_free(prev);
+    mem_free(cur);
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -26,7 +69,7 @@ seq_t a(idx_t n)
 
     idx_t half = n / 2;
     /* allocate array for |S(n-k,k)| values */
-    seq_t *s_vals = (seq_t *)calloc((size_t)(half + 1), sizeof(seq_t));
+    seq_t *s_vals = mem_new(seq_t, (size_t)(half + 1));
     if (!s_vals) return (seq_t)0;          /* allocation failure */
 
     compute_signless_stirling(n, half, s_vals);
@@ -53,6 +96,6 @@ seq_t a(idx_t n)
         result += s_vals[k] * P * Q;
     }
 
-    free(s_vals);
+    mem_free(s_vals);
     return result;
 }

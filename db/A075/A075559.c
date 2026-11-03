@@ -8,12 +8,19 @@
  *            digits of n
  * Range:     u8 n <= 10, u16 n <= 100, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   pow10_d
+ * Validated: standard, pass, 65 terms through n = 977 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10_d.h"
+static inline seq_t pow10_d(idx_t d) {
+    seq_t r = 1;
+    while (d--) {
+        r *= (seq_t)10;
+    }
+    return r;
+}
 static inline idx_t num_digits(idx_t n) {
     idx_t d = 0;
     do {

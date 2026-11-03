@@ -9,12 +9,14 @@
  *            ∏_{i=1}^k (q^{n-i+1}-1)/(q^i-1) (Gaussian binomial)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     seq_t n_t = (seq_t)n;
 
     /* pre‑compute powers of n: pow[i] = n^i */
-    seq_t *pow = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *pow = mem_new(seq_t, (n + 1));
     if (!pow) return 0;                 /* allocation failure – unlikely in tests */
     pow[0] = 1;
     for (idx_t i = 1; i <= n; ++i)
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
         sum += g;                      /* add G(m+1) */
     }
 
-    free(pow);
+    mem_free(pow);
     return sum;
 }

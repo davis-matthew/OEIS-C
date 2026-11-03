@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 18, i16 n <= 59, i32 n <= 60, i64 n <= 60, i128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
     a(n) is the n-th element of this triangle (row-major order, offset 1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for polynomial rows */
 static seq_t **rows = NULL;          /* array of pointers to each row */
@@ -42,7 +44,7 @@ static void ensure_rows(idx_t up_to)
 
     /* Generate new rows one by one. */
     for (idx_t r = computed_rows; r <= up_to; ++r) {
-        seq_t *arr = (seq_t*)malloc(sizeof(seq_t) * (r + 1));
+        seq_t *arr = mem_new(seq_t, (r + 1));
         seq_t two = (seq_t)2;
         /* initialise to zero */
         for (idx_t i = 0; i <= r; ++i)

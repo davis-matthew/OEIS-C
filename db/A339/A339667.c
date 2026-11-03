@@ -7,20 +7,42 @@
  * Keywords:  nonn
  * Formula:   a(n) = -Sum_{d|n, d < n} mu(n/d) * (2^tau(d) - 1) where tau is
  *            the divisor‑count function and mu the Möbius function
- * Range:     u8 n <= 47, u16 n <= 239, u32 n <= 1679, u64 n <= 9803,
- *            u128 n <= 9803, big any n
- * Helpers:   divisor_count_u64, factor_u64, mu_of, pow2
+ * Range:     u8 n <= 47, u16 n <= 239, u32 n <= 1679, u64 n <= 15119,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 96 terms through n = 9803 (2026-11-01)
+ * Helpers:   factor_u64, num_divisors, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mu_of.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 #include "../utils/pow2.h"
 
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 seq_t a(idx_t n)
 {
@@ -64,7 +86,7 @@ seq_t a(idx_t n)
             continue;        /* µ = 0 contributes nothing */
 
         /* t = 2^τ(d) - 1 */
-        uint64_t tau_d = divisor_count_u64((uint64_t)d);
+        uint64_t tau_d = num_divisors((uint64_t)d);
         seq_t t = pow2((idx_t)tau_d) - (seq_t)1;
 
         if (mu == 1)

@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into 6 parts that all divide n
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static int cmp_uint64(const void *a, const void *b)
 {
@@ -48,8 +50,8 @@ seq_t a(idx_t n)
     seq_t **dp     = (seq_t **)malloc(7 * sizeof(seq_t *));
     seq_t **next   = (seq_t **)malloc(7 * sizeof(seq_t *));
     for (size_t k = 0; k <= 6; ++k) {
-        dp[k]   = (seq_t *)calloc(N + 1, sizeof(seq_t));
-        next[k] = (seq_t *)calloc(N + 1, sizeof(seq_t));
+        dp[k]   = mem_new(seq_t, N + 1);
+        next[k] = mem_new(seq_t, N + 1);
     }
     dp[0][0] = 1;   /* one way to choose 0 parts summing to 0 */
 
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         uint64_t d = divs[idx];
         /* Clear next array */
         for (size_t k = 0; k <= 6; ++k)
-            memset(next[k], 0, (N + 1) * sizeof(seq_t));
+            mem_set(next[k], 0, (N + 1) * sizeof(seq_t));
 
         for (size_t k = 0; k <= 6; ++k) {
             for (size_t s = 0; s <= N; ++s) {
@@ -81,8 +83,8 @@ seq_t a(idx_t n)
 
     /* Free memory */
     for (size_t k = 0; k <= 6; ++k) {
-        free(dp[k]);
-        free(next[k]);
+        mem_free(dp[k]);
+        mem_free(next[k]);
     }
     free(dp);
     free(next);

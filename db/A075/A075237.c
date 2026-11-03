@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 2225, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rev_base7
+ * Validated: standard, pass, 73 terms through n = 8065 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/rev_base7.h"
+#include "../utils/mem.h"
+
+/* Reverse a number in base 7.  The result is <= LIMIT for all primes
+   <= LIMIT, because 7-ary reversal never increases the value.            */
+static uint64_t rev_base7(uint64_t n) {
+    uint64_t rev = 0;
+    while (n > 0) {
+        rev = rev * 7 + (n % 7);
+        n /= 7;
+    }
+    return rev;
+}
 
 /* ----------------------------------------------------------------------
  *  Precomputation:  a fixed sieve up to LIMIT, then gather the wanted
@@ -69,14 +81,14 @@ static void build_sieve(void) {
 static void build_good(void) {
     good_cnt = 0;
     size_t cap = LIMIT / 10;                      /* rough upper bound   */
-    good = (seq_t *)malloc(cap * sizeof(seq_t));
+    good = mem_new(seq_t, cap);
     for (size_t i = 0; i < primes_cnt; ++i) {
         uint32_t p = primes[i];
         uint64_t r = rev_base7((uint64_t)p);
         if (r <= LIMIT && is_prime[(size_t)r]) {
             if (good_cnt >= cap) {
                 cap *= 2;
-                good = (seq_t *)realloc(good, cap * sizeof(seq_t));
+                good = mem_resize(seq_t, good, cap);
             }
             good[good_cnt++] = (seq_t)p;
         }

@@ -11,7 +11,8 @@
  *            a(8)=14, a(9)=40
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 29, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   get_base
+ * Validated: partial, pass, 30 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/get_base.h"
+#include "../utils/mem.h"
+
+static seq_t get_base(idx_t n) {
+	switch (n) {
+		case 3: return 1;
+		case 4: return 0;
+		case 5: return 3;
+		case 6: return 2;
+		case 7: return 10;
+		case 8: return 14;
+		case 9: return 40;
+		default: return 0;
+	}
+}
 
 static seq_t *cache = NULL;
 static bool *computed = NULL;
@@ -30,7 +44,7 @@ static void ensure_computed(idx_t n) {
 	
 	if (cache == NULL) {
 		cache_size = (n > 100) ? n + 100 : 100;
-		cache = (seq_t *)calloc(cache_size, sizeof(seq_t));
+		cache = mem_new(seq_t, cache_size);
 		computed = (bool *)calloc(cache_size, sizeof(bool));
 		
 		cache[3] = 1;
@@ -47,9 +61,9 @@ static void ensure_computed(idx_t n) {
 	} else if (n >= cache_size) {
 		idx_t old_size = cache_size;
 		cache_size = n + 100;
-		cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+		cache = mem_resize(seq_t, cache, cache_size);
 		computed = (bool *)realloc(computed, cache_size * sizeof(bool));
-		memset(cache + old_size, 0, (cache_size - old_size) * sizeof(seq_t));
+		mem_set(cache + old_size, 0, (cache_size - old_size) * sizeof(seq_t));
 		memset(computed + old_size, 0, (cache_size - old_size) * sizeof(bool));
 	}
 	

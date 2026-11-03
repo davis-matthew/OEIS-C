@@ -12,14 +12,15 @@
  *            exponents with those * of n. * * If divisible, recons...
  * Range:     u8 n <= 14, u16 n <= 17, u32 n <= 24, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   pow_seq_int
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_seq_int.h"
+#include "../utils/ipow_i32.h"
 
 /* Prime sieve limits ------------------------------------------------------ */
 #define PRIME_SIEVE_LIMIT 10000

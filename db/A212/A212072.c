@@ -7,7 +7,8 @@
  * Formula:   a(n) = 3*binomial(6*n+3,n)/(6*n+3) = binomial(6*n+3,n)/(2*n+1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 35,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 37 terms through n = 833 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 #define MAX_N 60003  /* 6*10000+3, enough for n <= 10000 */
 
@@ -100,7 +101,7 @@ seq_t a(idx_t n)
         if (p > N) break;
         uint8_t e = prime_exp[p];
         if (e > 0) {
-            result *= pow_seq((seq_t)p, e);
+            result *= ipow_i32((seq_t)p, e);
         }
     }
     return result;

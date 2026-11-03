@@ -12,13 +12,15 @@
  *            a(8)=49489, a(9)=82648
  * Range:     u8 none, u16 n <= 8, u32 n <= 53, u64 n <= 200, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,9 +46,9 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         cache_cap = (size_t)n + 1;
         if (cache_cap < 10) cache_cap = 10;          /* at least space for 9 terms */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;                       /* allocation failure */
-        memset(cache, 0, cache_cap * sizeof(seq_t));
+        mem_set(cache, 0, cache_cap * sizeof(seq_t));
 
         /* Initialise first 9 terms */
         for (idx_t i = 1; i <= 9; ++i) cache[i] = init[i - 1];
@@ -55,11 +57,11 @@ seq_t a(idx_t n)
     /* Grow cache if needed */
     else if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0; /* allocation failure */
         cache = tmp;
         /* zero new slots */
-        memset(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache_cap = new_cap;
     }
 

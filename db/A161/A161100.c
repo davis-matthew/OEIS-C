@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 271, u16 n <= 826, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 124 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,11 +30,11 @@ seq_t a(idx_t n)
 
     /* dp[w] will hold the number of partitions of weight w considered so far */
     idx_t size = n + 1;
-    seq_t *dp = (seq_t *)calloc((size_t)size, sizeof(seq_t));
-    seq_t *tmp = (seq_t *)calloc((size_t)size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)size);
+    seq_t *tmp = mem_new(seq_t, (size_t)size);
     if (!dp || !tmp) {               /* allocation failed */
-        free(dp);
-        free(tmp);
+        mem_free(dp);
+        mem_free(tmp);
         return 0;
     }
     dp[0] = (seq_t)1;                 /* empty partition */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
             continue;
 
         /* tmp holds contributions involving this square */
-        memset(tmp, 0, (size_t)size * sizeof(seq_t));
+        mem_set(tmp, 0, (size_t)size * sizeof(seq_t));
 
         /* exactly 12 copies of v */
         for (idx_t w = start; w <= n; ++w)
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
-    free(tmp);
+    mem_free(dp);
+    mem_free(tmp);
     return result;
 }

@@ -7,13 +7,15 @@
  * Formula:   a(0)=0, a(1)=2, a(n)=(-1)^(n-1)*(n-1)! for n>=2
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 13, i64 n <= 21, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Internal cache for factorial values: fact_cache[k] = k!  (k>=0) */
 static seq_t *fact_cache = NULL;
@@ -24,13 +26,13 @@ static idx_t fact_cache_max = 0;   /* maximum k for which fact_cache[k] is valid
 static void ensure_fact_cache(idx_t need) {
     if (fact_cache == NULL) {
         /* allocate (need+1) factorial values, index 0..need */
-        fact_cache = (seq_t *)calloc(need + 1, sizeof(seq_t));
+        fact_cache = mem_new(seq_t, need + 1);
         fact_cache[0] = (seq_t)1;
         fact_cache_cap = need + 1;
         fact_cache_max = 0;
     } else if (fact_cache_cap <= need) {
         /* grow the cache */
-        fact_cache = (seq_t *)realloc(fact_cache, (need + 1) * sizeof(seq_t));
+        fact_cache = mem_resize(seq_t, fact_cache, (need + 1));
         fact_cache_cap = need + 1;
     }
 }

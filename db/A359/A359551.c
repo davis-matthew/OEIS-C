@@ -7,8 +7,9 @@
  * Keywords:  sign, mult
  * Formula:   a(1) = 1; multiplicative. For a prime power p^e, a(p^e) = 1 if e
  *            % p == 0, a(p^e) = -1 if e % p == 1, otherwise a(p^e) = 0
- * Range:     i8 n <= 8952, i16 n <= 8952, i32 n <= 8952, i64 n <= 8952,
- *            i128 n <= 8952, big any n
+ * Range:     i8 n <= 100000, i16 n <= 100000, i32 n <= 100000,
+ *            i64 n <= 100000, i128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 8952 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

@@ -7,13 +7,15 @@
  * Formula:   a(n) = p(n) - ⌊n/2⌋ where p(n) is the partition number of n
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 127, u64 n <= 416,
  *            u128 n <= 1458, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1937 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache to hold indices up to n. */
     if ((size_t)(n + 1) > cache_cap) {
         size_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(p_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, p_cache, new_cap);
         if (!tmp) return 0;                  /* OOM – harmless for this task */
         p_cache = tmp;
         cache_cap = new_cap;

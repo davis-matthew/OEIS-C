@@ -10,13 +10,41 @@
  *            b(0)=1 (a(n)) and (b(n)) are complementary increasing sequences
  * Range:     u8 n <= 13, u16 n <= 29, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   find_b
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/find_b.h"
+#include "../utils/mem.h"
+
+/* find the (k+1)-th missing positive integer relative to a[0..a_len-1] */
+static seq_t find_b(idx_t k, const seq_t *a, const seq_t *pref, idx_t a_len)
+{
+    if (k == 0) return (seq_t)1;          /* first missing number is 1 */
+
+    idx_t lo = 0, hi = a_len - 1;
+    while (lo < hi) {
+        idx_t mid = lo + ((hi - lo) >> 1);
+        if (pref[mid] > (seq_t)k) {
+            hi = mid;
+        } else {
+            lo = mid + 1;
+        }
+    }
+    idx_t i = lo;
+
+    if (i == 0) {
+        /* k-th missing number is before the first a-value */
+        return (seq_t)(k + 1);
+    } else {
+        seq_t prev            = a[i - 1];
+        seq_t missing_before  = pref[i - 1];
+        seq_t offset          = ((seq_t)k) - missing_before;
+        return prev + offset + ((seq_t)1);
+    }
+}
 
 static seq_t *a_arr      = NULL; /* holds a(n) values */
 static seq_t *pref_arr   = NULL; /* pref[i] = a[i] - (i+1) */
@@ -31,9 +59,9 @@ static void ensure_capacity(idx_t needed)
     idx_t newcap = a_capacity ? a_capacity << 1 : 1;
     while (newcap < needed) newcap <<= 1;
 
-    a_arr    = (seq_t*)realloc(a_arr,    newcap * sizeof(seq_t));
-    pref_arr = (seq_t*)realloc(pref_arr, newcap * sizeof(seq_t));
-    b_arr    = (seq_t*)realloc(b_arr,    newcap * sizeof(seq_t));
+    a_arr    = mem_resize(seq_t, a_arr, newcap);
+    pref_arr = mem_resize(seq_t, pref_arr, newcap);
+    b_arr    = mem_resize(seq_t, b_arr, newcap);
     a_capacity = newcap;
 }
 

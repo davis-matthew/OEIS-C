@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_threshold
+ * Validated: standard, pass, 74 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/next_threshold.h"
+#include "../utils/mem.h"
+
+/* Helper: compute the smallest integer > e^(k+1).
+   The result fits in uint64_t for all k that can occur in the
+   generated range.  If the value would exceed UINT64_MAX,
+   UINT64_MAX is returned. */
+static inline uint64_t next_threshold(uint64_t k)
+{
+    /* Use long double for sufficient exponent range. */
+    long double val = expl((long double)(k + 1));
+    if (val > (long double)UINT64_MAX) return UINT64_MAX;
+    return (uint64_t)ceill(val);
+}
 
 /* Return the n-th term of the sequence. */
 seq_t a(idx_t n)
@@ -42,7 +55,7 @@ seq_t a(idx_t n)
         if ((cur % cur_k) == 0) {
             if (terms_len == terms_cap) {
                 terms_cap = terms_cap ? terms_cap * 2 : 32;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)cur;
         }

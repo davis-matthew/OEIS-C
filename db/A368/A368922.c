@@ -7,8 +7,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 31, i16 n <= 1023, i32 n <= 9552, i64 n <= 9552,
- *            i128 n <= 9552, big any n
+ * Range:     i8 n <= 31, i16 n <= 1023, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 93 terms through n = 9552 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -28,6 +29,8 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/build_primes.h"
 
 static idx_t *prime_list = NULL;

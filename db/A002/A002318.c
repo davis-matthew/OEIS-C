@@ -9,15 +9,17 @@
  *            pbar(m)/2 for m >= 1: a(n) = h(n) + Sum_{i=1..n-1} h(i)*h(n-i)
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 48, u64 n <= 151, u128 n <= 511,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
-    seq_t *h = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *h = mem_new(seq_t, (size_t)n + 1);
     idx_t m, k, i;
     seq_t r;
 
@@ -38,6 +40,6 @@ seq_t a(idx_t n) {
     for (i = 1; i < n; i++)
         r += h[i] * h[n - i];
 
-    free(h);
+    mem_free(h);
     return r;
 }

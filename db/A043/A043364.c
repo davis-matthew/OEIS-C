@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2020, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   comb_n_k
+ * Validated: standard, pass, 53 terms through n = 9903 (2026-11-01)
+ * Helpers:   binomial_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 /* Computes numbers having exactly four 3's in base‑5. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/comb_n_k.h"
+#include "../utils/binomial_u64.h"
 
 /* 4 ^ e, e is small (≤ ~20). */
 static inline uint64_t pow4(uint64_t e)
@@ -30,7 +31,7 @@ static inline uint64_t pow4(uint64_t e)
 static inline uint64_t count_completions(uint64_t rem_pos, uint64_t need_3)
 {
     if (need_3 > rem_pos) return 0;
-    return comb_n_k(rem_pos, need_3) * pow4(rem_pos - need_3);
+    return binomial_u64(rem_pos, need_3) * pow4(rem_pos - need_3);
 }
 
 /* number of valid length‑L strings (first digit ≠0) that contain exactly four 3’s */

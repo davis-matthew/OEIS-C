@@ -8,13 +8,15 @@
  *            the sum of 3 distinct squares
  * Range:     u8 n <= 86, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 846 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static uint64_t isqrt_u64(uint64_t x) {
     if (x == 0) return 0;
@@ -77,9 +79,9 @@ seq_t a(idx_t n) {
         }
         
         if (cache == NULL) {
-            cache = (seq_t *)malloc((size_t)(n + 100) * sizeof(seq_t));
+            cache = mem_new(seq_t, (size_t)(n + 100));
         } else {
-            cache = (seq_t *)realloc(cache, (size_t)(n + 100) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (size_t)(n + 100));
         }
         
         if (cache == NULL) {

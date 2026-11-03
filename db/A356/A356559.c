@@ -8,13 +8,15 @@
  *            Bell(n-k)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* (OEIS A356559) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build */
 extern seq_t *seq_alloc(size_t);
@@ -32,8 +34,8 @@ static void ensure_arrays(idx_t need)
     if (!fact) {
         /* allocate arrays for up to (need) elements; we overallocate a bit */
         size_t alloc_size = (size_t)(need + 41);  /* small slack */
-        fact = (seq_t*)malloc(alloc_size * sizeof(seq_t));
-        bell = (seq_t*)malloc(alloc_size * sizeof(seq_t));
+        fact = mem_new(seq_t, alloc_size);
+        bell = mem_new(seq_t, alloc_size);
         if (!fact || !bell) {
             /* Out of memory – abort; caller is expected to handle */
             exit(1);

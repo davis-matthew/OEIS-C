@@ -10,8 +10,9 @@
  *            (1/2)*theta_4(q)^8*(theta_3(q^2)^3 - theta_4(q^2)^3), with
  *            theta_2(q^2) = 2*q^(1/2)*Sum_{k>=0} q^(2k(k+1)). Series built by
  *            sparse multiplications
- * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 75, u64 n <= 9253,
- *            u128 n <= 9253, big any n
+ * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 75, u64 n <= 10215,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 47 terms through n = 9253 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

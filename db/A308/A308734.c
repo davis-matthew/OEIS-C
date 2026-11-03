@@ -12,7 +12,8 @@
  *            pre‑computing the number of (x,y) pairs whose squares sum to...
  * Range:     u8 n <= 532, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9281 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---- small helper: floor(sqrt(n)) for uint64_t --------------------- */
 static size_t isqrt_u64(uint64_t n)
@@ -54,7 +56,7 @@ static void extend_cache(idx_t n)
 
     /* ---- generate (2^a*3^b)^2 values up to new_len ------------ */
     /* we know the count will be small, use a fixed buffer          */
-    seq_t *s1 = (seq_t*)calloc(256, sizeof(seq_t));
+    seq_t *s1 = mem_new(seq_t, 256);
     size_t s1cnt = 0;
     for (size_t a = 0, p2 = 1; p2 <= limit; ++a, p2 <<= 1) {
         for (size_t b = 0, val = p2; val <= limit; ++b, val *= 3) {
@@ -65,7 +67,7 @@ static void extend_cache(idx_t n)
     }
 
     /* ---- generate (2^c*5^d)^2 values up to new_len ------------ */
-    seq_t *s2 = (seq_t*)calloc(256, sizeof(seq_t));
+    seq_t *s2 = mem_new(seq_t, 256);
     size_t s2cnt = 0;
     for (size_t c = 0, p2 = 1; p2 <= limit; ++c, p2 <<= 1) {
         for (size_t d = 0, val = p2; val <= limit; ++d, val *= 5) {
@@ -77,7 +79,7 @@ static void extend_cache(idx_t n)
 
     /* ---- pre‑compute number of (x,y) pairs with x≤y,
             x^2 + y^2 = r  --------------------------------------- */
-    seq_t *sum_count = (seq_t*)calloc(new_len + 1, sizeof(seq_t));
+    seq_t *sum_count = mem_new(seq_t, new_len + 1);
     for (size_t x = 0; x * x <= new_len; ++x) {
         size_t x2 = x * x;
         for (size_t y = x; y * y <= new_len - x2; ++y) {
@@ -87,7 +89,7 @@ static void extend_cache(idx_t n)
     }
 
     /* ---- compute all a(k) for k ≤ new_len --------------------- */
-    seq_t *new_cache = (seq_t*)calloc(new_len + 1, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len + 1);
     for (size_t i = 0; i < s1cnt; ++i) {
         seq_t s1v = s1[i];
         for (size_t j = 0; j < s2cnt; ++j) {
@@ -102,10 +104,10 @@ static void extend_cache(idx_t n)
     }
 
     /* ---- free temporaries and update cache ------------------- */
-    free(s1);
-    free(s2);
-    free(sum_count);
-    free(cache);          /* old cache is discarded */
+    mem_free(s1);
+    mem_free(s2);
+    mem_free(sum_count);
+    mem_free(cache);          /* old cache is discarded */
     cache = new_cache;
     cache_len = new_len;
 }

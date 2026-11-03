@@ -10,12 +10,14 @@
  *            the generating function (1+3*x-x^5)/(1-2*x^2-x^4+x^6)
  * Range:     u8 n <= 12, u16 n <= 26, u32 n <= 54, u64 n <= 108,
  *            u128 n <= 218, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memory for computed values */
 static size_t capacity = 0;          /* allocated size of cache */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n) {
     if (cache == NULL) {
         /* initial allocation large enough for first call */
         capacity = n + 1 > 32 ? (size_t)(n + 1) * 2 : 32;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         /* initialize base values */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)3;
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n) {
         next_computed = 6;
     } else if ((size_t)(n + 1) > capacity) {
         size_t new_cap = (size_t)(n + 1) > capacity * 2 ? (size_t)(n + 1) : capacity * 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         capacity = new_cap;
     }
     /* compute new terms using the recurrence */

@@ -11,23 +11,27 @@
  *            is 1, and for r > 0 and c = 0 all entries are 0
  * Range:     u8 n <= 39, u16 n <= 142, u32 n <= 510, u64 n <= 2044,
  *            u128 n <= 5049, big any n
- * Helpers:   binomial, offset_row
+ * Validated: standard, pass, 82 terms through n = 5020 (2026-11-01)
+ * Helpers:   binomial, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <math.h>
 #include "../utils/binomial.h"
-#include "../utils/offset_row.h"
+#include "../utils/triangular.h"
 
 seq_t a(idx_t n)
 {
     /* Find the row r such that offset_row(r) <= n < offset_row(r+1). */
     idx_t r = 0;
-    while (offset_row(r + 1) <= n)
+    while (triangular(r + 1) <= n)
         ++r;
 
     /* Column index within the row. */
-    idx_t c = n - offset_row(r);
+    idx_t c = n - triangular(r);
 
     if (r == 0)
         return (seq_t)1;        /* row 0 has single entry 1 */

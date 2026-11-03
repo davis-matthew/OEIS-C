@@ -13,7 +13,8 @@
  *            than 27 distinct lattice points)
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   coord_to_idx
+ * Validated: full, pass, 28 terms through n = 27 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,12 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/coord_to_idx.h"
+
+/* Map a (x,y,z) where each coordinate in [0,2] to a unique index 0..26. */
+static inline int coord_to_idx(int x, int y, int z)
+{
+    return z * 9 + y * 3 + x;
+}
 
 static const int dirs[6][3] = {
     { 1, 0, 0 }, { -1, 0, 0 },

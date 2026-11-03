@@ -7,12 +7,14 @@
  * Formula:   a(1)=1; for n>=2: a(n) = n - floor(a(a(n-1))/3)
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* cache[0] unused, cache[1] = 1 */
 static idx_t cache_cap = 0;        /* number of elements allocated */
@@ -24,7 +26,7 @@ static void ensure_cache(idx_t max_n)
 {
     if (max_n >= cache_cap) {
         idx_t new_cap = (max_n + 1) * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();            /* memory failure */
         cache = tmp;
         cache_cap = new_cap;

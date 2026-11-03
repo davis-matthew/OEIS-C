@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum_{k^2 | n} k^2 (sum of the square divisors of n)
  * Range:     u8 n <= 24, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 109 terms through n = 951 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,20 +16,21 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* Helper: computes the contribution of a prime power p^e to a(n). */
 static seq_t _term_prime_pow(uint64_t p, idx_t e)
 {
     seq_t pt = (seq_t)p;
     /* denominator p^2 - 1 */
-    seq_t denom = seq_pow(pt, (idx_t)2) - 1;
+    seq_t denom = ipow_idx(pt, (idx_t)2) - 1;
     seq_t num;
     if ((e & 1) == 0) {                /* even exponent: e = 2m */
-        num = seq_pow(pt, e + 2) - 1;  /* sum_{j=0..m} p^{2j} = (p^{e+2}-1)/(p^2-1) */
+        num = ipow_idx(pt, e + 2) - 1;  /* sum_{j=0..m} p^{2j} = (p^{e+2}-1)/(p^2-1) */
     } else {                           /* odd exponent: e = 2m+1 */
-        num = seq_pow(pt, e + 1) - 1;  /* sum_{j=0..m} p^{2j} = (p^{e+1}-1)/(p^2-1) */
+        num = ipow_idx(pt, e + 1) - 1;  /* sum_{j=0..m} p^{2j} = (p^{e+1}-1)/(p^2-1) */
     }
     return num / denom;                /* exact division */
 }

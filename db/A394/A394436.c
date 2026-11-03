@@ -12,7 +12,8 @@
  *            n^{\,n-k-j}, rf(a,b) = Π_{t=0}^{b-1} (a+t) (rising factori...
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n_input)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n_input)
 
     /* Prepare common parameters */
     idx_t nk = r - k;          /* n-k   */
-    seq_t power_n = pow_seq((seq_t)r, nk);  /* n^{n-k}  */
+    seq_t power_n = ipow_i32((seq_t)r, nk);  /* n^{n-k}  */
     seq_t rf = (seq_t)1;               /* rf(k-1, 0) = 1 */
     seq_t sum  = (seq_t)0;
 

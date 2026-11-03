@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *B   = NULL; /* Bell numbers */
 static seq_t *A   = NULL; /* Sequence A205543 */
@@ -40,21 +42,21 @@ static void ensure_up_to(idx_t n)
         return;
 
     /* Extend storage for B and A */
-    B = (seq_t *)realloc(B, (n + 1) * sizeof(seq_t));
-    A = (seq_t *)realloc(A, (n + 1) * sizeof(seq_t));
+    B = mem_resize(seq_t, B, (n + 1));
+    A = mem_resize(seq_t, A, (n + 1));
 
     /* Initialise for n=0 if this is the first call */
     if (max_n == 0) {
         B[0] = (seq_t)1;
         A[0] = (seq_t)0;
-        prevS = (seq_t *)malloc(sizeof(seq_t) * 1);
+        prevS = mem_new(seq_t, 1);
         prevS[0] = (seq_t)1;            /* S(0,0) = 1 */
         prevS_size = 1;
     }
 
     for (idx_t m = max_n + 1; m <= n; ++m) {
         /* Allocate current Stirling row S(m,*) */
-        seq_t *curS = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+        seq_t *curS = mem_new(seq_t, (m + 1));
         curS[0] = (seq_t)0;
         curS[m] = (seq_t)1;            /* S(m,m) = 1 */
 
@@ -78,7 +80,7 @@ static void ensure_up_to(idx_t n)
         A[m] = (seq_t)m * B[m] - sumProd;
 
         /* Prepare for next iteration */
-        free(prevS);
+        mem_free(prevS);
         prevS = curS;
         prevS_size = m + 1;
     }

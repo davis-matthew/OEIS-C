@@ -9,13 +9,15 @@
  *            is odd, else e/2 (for e even) * Thus a(1)=1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 103 terms through n = 8877 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n) {
     /* For n < 1, return 0 (offset starts at 1). */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     seq_t result = 1;                  /* multiplicative identity */
 
     while (m > 1) {
-        uint64_t spf = _smallest_prime_factor(m);
+        uint64_t spf = smallest_prime_factor(m);
         if (spf == 0) {                /* should not happen for m > 1 */
             break;
         }

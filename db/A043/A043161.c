@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   contains14or41
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
    search.  No formula is known. */
 
 #include <stdbool.h>
-#include "../utils/contains14or41.h"
+
+static bool contains14or41(seq_t x)
+{
+    uint8_t prev = 0;          /* previous digit, 0 unused */
+    bool first  = true;        /* true while we have not yet seen a digit */
+
+    while (x > 0) {
+        uint8_t d = (uint8_t)(x % 8);   /* extract least‑significant octal digit */
+        if (!first) {
+            if ((prev == 1 && d == 4) || (prev == 4 && d == 1))
+                return true;
+        }
+        prev   = d;
+        first  = false;
+        x      = x / 8;      /* shift right by one octal digit */
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

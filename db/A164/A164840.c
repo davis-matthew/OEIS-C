@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *cache      = NULL;
 static size_t cache_len  = 0;
@@ -31,12 +51,12 @@ static void build_cache(void)
 {
     // Initial capacities
     cache_cap = 8;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) return;                // allocation failed – give up
 
     size_t qcap = 8;
-    seq_t *queue = (seq_t *)malloc(qcap * sizeof(seq_t));
-    if (!queue) { free(cache); cache = NULL; return; }
+    seq_t *queue = mem_new(seq_t, qcap);
+    if (!queue) { mem_free(cache); cache = NULL; return; }
 
     size_t head = 0, tail = 0;
 
@@ -51,7 +71,7 @@ static void build_cache(void)
         // Store current square
         if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             if (!tmp) break;            // realloc failed – keep existing data
             cache = tmp;
         }
@@ -65,7 +85,7 @@ static void build_cache(void)
                 // Valid extension – enqueue for further processing
                 if (tail >= qcap) {
                     qcap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(queue, qcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, queue, qcap);
                     if (!tmp) break;
                     queue = tmp;
                 }
@@ -74,7 +94,7 @@ static void build_cache(void)
         }
     }
 
-    free(queue);
+    mem_free(queue);
 }
 
 seq_t a(idx_t n)

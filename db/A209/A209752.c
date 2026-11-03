@@ -10,7 +10,8 @@
  *            row‑major (row 1 has 1 term, row 2 has 2 terms, …)
  * Range:     u8 n <= 25, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
     /* initialise the first row if not yet done */
     if (cur == 0) {
         cur = 1;
-        u = (seq_t *)malloc(sizeof(seq_t));
-        v = (seq_t *)malloc(sizeof(seq_t));
+        u = mem_new(seq_t, 1);
+        v = mem_new(seq_t, 1);
         u[0] = (seq_t)1;
         v[0] = (seq_t)1;
     }
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
     /* extend stored row to reach row r */
     while (cur < r) {
         idx_t new_size = cur + 1;
-        seq_t *newU = (seq_t *)malloc(sizeof(seq_t) * new_size);
-        seq_t *newV = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        seq_t *newU = mem_new(seq_t, new_size);
+        seq_t *newV = mem_new(seq_t, new_size);
 
         /* compute newU and newV from the previous u and v */
         for (idx_t i = 0; i < new_size; ++i) {
@@ -66,8 +68,8 @@ seq_t a(idx_t n)
             }
         }
 
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         u = newU;
         v = newV;
         cur = new_size;

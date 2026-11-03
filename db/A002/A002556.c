@@ -10,13 +10,22 @@
  *            order
  * Range:     u8 none, u16 n <= 10, u32 n <= 455, u64 n <= 512, u128 n <= 512,
  *            big any n
- * Helpers:   cmp_seq_t
+ * Validated: full, pass, 512 terms through n = 512 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cmp_seq_t.h"
+#include "../utils/mem.h"
+
+static int cmp_seq_t(const void *a, const void *b) {
+	seq_t va = *(const seq_t *)a;
+	seq_t vb = *(const seq_t *)b;
+	if (va < vb) return -1;
+	if (va > vb) return 1;
+	return 0;
+}
 
 static const uint64_t primes[] = {3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
 #define NUM_PRIMES 10
@@ -46,7 +55,7 @@ static void compute_all_terms(void) {
 		}
 	}
 	
-	qsort(all_terms, count, sizeof(seq_t), cmp_seq_t);
+	mem_qsort(all_terms, count, sizeof(seq_t), cmp_seq_t);
 	
 	terms_computed = 1;
 }

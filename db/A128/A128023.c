@@ -7,12 +7,14 @@
  * Formula:   a(1) = 1, a(n) = ceil((sum_{k=1}^{n-1} k * a(k)) / n)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for previously computed values */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
 
     /* lazy initialization: compute a(1) */
     if (max_cached == 0) {
-        arr = (seq_t*)malloc(sizeof(seq_t) * 1);
+        arr = mem_new(seq_t, 1);
         arr[0] = (seq_t)1;        /* a(1) = 1 */
         total_S = (seq_t)1;       /* S(1) = 1*1 */
         cap = 1;
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
 
     /* Ensure capacity for new terms */
     if (n > cap) {
-        seq_t *new_arr = (seq_t*)realloc(arr, sizeof(seq_t) * (size_t)n);
+        seq_t *new_arr = mem_resize(seq_t, arr, (size_t)n);
         if (!new_arr) return (seq_t)0; /* allocation failure, return 0 */
         arr = new_arr;
         cap = (size_t)n;

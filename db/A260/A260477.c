@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 26, u32 n <= 7638, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t, grow_seq
+ * Validated: standard, pass, 70 terms through n = 9908 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,23 @@
  */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/grow_seq.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Return the popcount (number of 1‑bits) of a seq_t value. */
 static inline idx_t popcount_seq_t(seq_t x)
@@ -44,7 +60,7 @@ static inline bool good_n(idx_t n)
     seq_t sq    = k * k;
     seq_t sq1   = (k + (seq_t)1) * (k + (seq_t)1);
 
-    if (bitlen_seq_t(sq) != bitlen_seq_t(sq1))
+    if (bit_length(sq) != bit_length(sq1))
         return false;
 
     return popcount_seq_t(sq) == popcount_seq_t(sq1);

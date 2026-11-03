@@ -7,17 +7,20 @@
  * Formula:   a(n) = 2*3^(n-1) - (-1)^n
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 81,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 44 terms through n = 185 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Compute 3^(n-1) using the provided big_pow helper */
-    seq_t pow_val = big_pow((seq_t)3, (seq_t)(n - 1));
+    seq_t pow_val = ipow((seq_t)3, (seq_t)(n - 1));
 
     /* 2 * 3^(n-1) */
     seq_t result = (seq_t)2 * pow_val;

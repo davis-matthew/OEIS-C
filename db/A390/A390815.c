@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper function to factor a 64‑bit integer.
    Declare the helper (it is provided in the build). */
@@ -65,7 +67,7 @@ static void ensure_denoms_cap(size_t min_cap)
     if (denoms_cap >= min_cap) return;
     size_t new_cap = denoms_cap ? denoms_cap * 2 : 16;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_t *tmp = (seq_t *)realloc(denoms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, denoms, new_cap);
     denoms = tmp;
     denoms_cap = new_cap;
 }

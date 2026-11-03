@@ -8,7 +8,8 @@
  *            Recurrence: a(0)=1, a(n)=∑ a(n‑p) for each p∈{2,3,6,8} with n≥p
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    order of parts does not influence the count. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         return cache[(size_t)n];
 
     /* Allocate new cache of required size.  Initialize all entries to 0. */
-    seq_t *new_cache = (seq_t *)malloc(required * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, required);
     if (!new_cache)                      /* allocation failed */
         return (seq_t)0;
 
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     }
 
     /* Replace old cache. */
-    free(cache);
+    mem_free(cache);
     cache      = new_cache;
     cache_size = required;
 

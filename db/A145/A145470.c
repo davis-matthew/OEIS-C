@@ -9,7 +9,8 @@
  *            d(m) is the number of divisors of m
  * Range:     u8 n <= 8, u16 n <= 2783, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 69 terms through n = 9836 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,14 +23,15 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* Optional helper to grow the dynamic array */
 static void grow_seq_array(seq_t **arr, size_t *cap, size_t need) {
     if (need <= *cap) return;
     size_t new_cap = (*cap == 0) ? 8 : *cap * 2;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     *arr = tmp;
     *cap = new_cap;
 }
@@ -50,9 +52,9 @@ seq_t a(idx_t n) {
         last_checked_k++;
         uint64_t k = last_checked_k;
 
-        seq_t d1 = divisor_count_u64(k);
-        seq_t d2 = divisor_count_u64(k + 1);
-        seq_t d3 = divisor_count_u64(k + 2);
+        seq_t d1 = num_divisors(k);
+        seq_t d2 = num_divisors(k + 1);
+        seq_t d3 = num_divisors(k + 2);
 
         if (d1 == d2 + d3) {
             if (found_len == found_cap)

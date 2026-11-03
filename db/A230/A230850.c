@@ -9,7 +9,8 @@
  *            p_0 = 0
  * Range:     u8 n <= 1414, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 104 terms through n = 7423 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for primes */
 static seq_t *primes = NULL;
@@ -33,7 +35,7 @@ static void ensure_prime_count(idx_t k)
     /* initial allocation and first prime */
     if (primes_count == 0) {
         primes_cap = 16;
-        primes = (seq_t*)malloc(primes_cap * sizeof(seq_t));
+        primes = mem_new(seq_t, primes_cap);
         primes[0] = 2;
         primes_count = 1;
     }
@@ -55,7 +57,7 @@ static void ensure_prime_count(idx_t k)
         if (isprime) {
             if (primes_count == primes_cap) {
                 primes_cap *= 2;
-                primes = (seq_t*)realloc(primes, primes_cap * sizeof(seq_t));
+                primes = mem_resize(seq_t, primes, primes_cap);
             }
             primes[primes_count++] = candidate;
         }

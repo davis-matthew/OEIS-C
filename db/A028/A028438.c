@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   _floor_log8_u64
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,14 @@
  */
 
 #include <stdint.h>
-#include "../utils/_floor_log8_u64.h"
+
+/* floor of log base 8 for a 64‑bit unsigned integer */
+static inline idx_t _floor_log8_u64(idx_t v) {
+    if (v < 8) return 0;
+    /* compute floor(log_2(v)) */
+    unsigned shift = 63 - __builtin_clzll(v);
+    return shift / 3; /* floor(log_8(v)) */
+}
 
 seq_t a(idx_t n) {
     seq_t result = (seq_t)n;          /* start with the base‑8 value of n */

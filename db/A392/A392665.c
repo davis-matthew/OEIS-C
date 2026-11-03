@@ -13,13 +13,15 @@
  *            This implementation runs in O(r²) time where r ≈ √(...
  * Range:     i8 n <= 12, i16 n <= 24, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,15 +39,15 @@ seq_t a(idx_t n)
 
     /* Allocate the previous row (row 1 initially) */
     idx_t prev_len = 1;
-    seq_t *prev = (seq_t*)malloc(prev_len * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, prev_len);
     if (!prev) return (seq_t)0;          /* allocation failed – unlikely */
     prev[0] = (seq_t)1;                  /* T(1,1) = 1 */
 
     /* Build successive rows up to row r */
     for (idx_t i = 2; i <= r; ++i) {     /* i = current row number */
         idx_t curr_len = i;
-        seq_t *curr = (seq_t*)malloc(curr_len * sizeof(seq_t));
-        if (!curr) { free(prev); return (seq_t)0; }
+        seq_t *curr = mem_new(seq_t, curr_len);
+        if (!curr) { mem_free(prev); return (seq_t)0; }
 
         curr[0] = (seq_t)1;             /* k = 1 */
         curr[i-1] = (seq_t)1;           /* k = i (last entry) */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             curr[j-1] = val;
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prev_len = curr_len;
     }
@@ -70,6 +72,6 @@ seq_t a(idx_t n)
     idx_t k = n - prev_cumulative;              /* 1‑based column index */
     seq_t result = prev[k-1];
 
-    free(prev);
+    mem_free(prev);
     return result;
 }

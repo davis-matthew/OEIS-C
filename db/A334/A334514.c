@@ -10,13 +10,15 @@
  *            cyclic universe of width n
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 
 static const uint8_t rule_map[8] = {1, 1, 0, 1, 0, 1, 1, 0};
@@ -96,8 +98,7 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     if (cache_sz < n) {
         idx_t new_len = n;
-        seq_t *new_cache = (seq_t *)realloc(cache,
-                                            new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         /* realloc(NULL, ...) behaves the same as malloc() */
         if (!new_cache) abort();
         cache = new_cache;

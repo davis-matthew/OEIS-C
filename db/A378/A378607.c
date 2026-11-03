@@ -7,9 +7,10 @@
  * Keywords:  sign, mult
  * Formula:   a(n) = Σ_{d|n} σ(d)·A346234(n/d) Equivalent multiplicative form:
  *            a(p^e) = (p^(e+1) - nextprime(p)·(p^e-1) - 1)/(p-1)
- * Range:     i8 n <= 215, i16 n <= 8956, i32 n <= 8956, i64 n <= 8956,
- *            i128 n <= 8956, big any n
- * Helpers:   build_primes_upto, floor_isqrt_u64, next_prime
+ * Range:     i8 n <= 215, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 108 terms through n = 8956 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,11 @@
 /* Compile with <stdint.h> and the provided utilities. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/next_prime.h"
-#include "../utils/floor_isqrt_u64.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
+#include "../utils/next_prime.h"
 
 /* ------------------------------------------------------------------
    Compute a(p^e) using the closed formula.
@@ -57,7 +60,7 @@ seq_t a(idx_t n)
     static size_t prime_cnt = 0;
     static idx_t prime_limit = 0;
 
-    idx_t sqrt_n = floor_isqrt_u64(n);
+    idx_t sqrt_n = isqrt(n);
     if (sqrt_n > prime_limit) {
         build_primes_upto(sqrt_n, &prime_list, &prime_cnt);
         prime_limit = sqrt_n;

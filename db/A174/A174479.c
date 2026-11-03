@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   _smallest_prime_factor, is_prime
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   is_prime, mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/is_prime.h"
-#include "../utils/_smallest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 static seq_t *semiprimes = NULL;
 static size_t semiprime_cap = 0;
@@ -31,13 +34,13 @@ static void ensure_semiprimes(idx_t needed)
     while (semiprime_cnt < needed) {
         if (semiprime_cnt == semiprime_cap) {
             size_t new_cap = semiprime_cap == 0 ? 16 : semiprime_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(semiprimes, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, semiprimes, new_cap);
             if (!tmp) abort();          /* allocation failure */
             semiprimes = tmp;
             semiprime_cap = new_cap;
         }
         if (!is_prime(semiprime_candidate)) {
-            uint64_t p = _smallest_prime_factor(semiprime_candidate);
+            uint64_t p = smallest_prime_factor(semiprime_candidate);
             if (p != 0) {
                 uint64_t q = semiprime_candidate / p;
                 if (q == p || is_prime(q)) {

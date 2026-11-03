@@ -8,12 +8,14 @@
  *            n!)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fac_cache = NULL;   /* factorial cache, fac_cache[i] = i! */
 static idx_t fac_count  = 0;      /* highest index for which fac_cache[i] is defined */
@@ -23,7 +25,7 @@ static void _ensure_factorial_up_to(idx_t n)
 {
     if (fac_cache == NULL) {
         size_t len = (size_t)(n + 1);
-        fac_cache = (seq_t *)malloc(len * sizeof(seq_t));
+        fac_cache = mem_new(seq_t, len);
         if (!fac_cache) return;          /* allocation failed; caller will use whatever is available */
         fac_cache[0] = 1;
         fac_count = 0;
@@ -37,7 +39,7 @@ static void _ensure_factorial_up_to(idx_t n)
 
     size_t old_len = (size_t)(fac_count + 1);
     size_t new_len = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(fac_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fac_cache, new_len);
     if (!tmp) return;                  /* allocation failed; keep old cache */
     fac_cache = tmp;
 
@@ -52,7 +54,7 @@ static void _extend_factorial_until(seq_t target)
 {
     while (fac_cache[fac_count] < target) {
         idx_t next = fac_count + 1;
-        seq_t *tmp = (seq_t *)realloc(fac_cache, (size_t)(next + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fac_cache, (size_t)(next + 1));
         if (!tmp) return;              /* allocation failed; keep current cache */
         fac_cache = tmp;
         fac_cache[next] = fac_cache[next - 1] * (seq_t)next;

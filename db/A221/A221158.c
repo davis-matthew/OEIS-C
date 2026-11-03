@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   has_two_one_bits
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
    known terms are 3, 5, 34, and 144. */
 
 #include <stdbool.h>
-#include "../utils/has_two_one_bits.h"
+
+/* Check whether a seq_t value has exactly two 1-bits. */
+static bool has_two_one_bits(seq_t x)
+{
+    if (x <= (seq_t)1)  /* 0 or 1 cannot have two bits */
+        return false;
+
+    seq_t y = x & (x - ((seq_t)1));
+    if (y == (seq_t)0)     /* only one bit was set */
+        return false;
+
+    seq_t z = y & (y - ((seq_t)1));
+    return z == (seq_t)0;  /* z==0 means y had exactly one bit, so x had two */
+}
 
 seq_t a(idx_t n)
 {

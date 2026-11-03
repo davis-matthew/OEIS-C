@@ -11,12 +11,14 @@
  *            = number of 1’s in the binary representation)
  * Range:     u8 n <= 85, u16 n <= 9905, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 8130 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Count the 1‑bits in an unsigned integer of type seq_t. */
 static seq_t popcount_seq(seq_t x)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Initialize with a(0)=0 */
     if (len == 0)
     {
-        seq = (seq_t *)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         seq[0] = (seq_t)0;
         len = 1;
         sum_pop = 0;                /* popcount(0)=0 */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     if (n + 1 > len)
     {
         /* Expand storage */
-        seq = (seq_t *)realloc(seq, (n + 1) * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (n + 1));
 
         for (idx_t i = len; i <= n; ++i)
         {

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 42, u16 n <= 9726, u32 n <= 9726, u64 n <= 9726,
- *            u128 n <= 9726, big any n
- * Helpers:   build_spf_arr, fib_mod5_int
+ * Range:     u8 n <= 42, u16 n <= 12286, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 83 terms through n = 9726 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,33 @@
    generated on demand; the first term is k = 1. */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/build_spf_arr.h"
-#include "../utils/fib_mod5_int.h"
+#include "../utils/mem.h"
+
+/* Smallest‑prime‑factor sieve.  The array contains, for each i,
+   the smallest prime that divides i (spf[0]==0, spf[1]==1). */
+static idx_t *build_spf_arr(idx_t limit)
+{
+    idx_t *spf = (idx_t *)malloc((limit + 1) * sizeof(idx_t));
+    if (!spf) exit(1);
+    for (idx_t i = 0; i <= limit; ++i) spf[i] = i;
+    for (idx_t i = 2; i * i <= limit; ++i) {
+        if (spf[i] == i) {
+            for (idx_t j = i * i; j <= limit; j += i)
+                if (spf[j] == j) spf[j] = i;
+        }
+    }
+    return spf;
+}
+
+/* Utility: Fibonacci modulo 5 (period 20). */
+static inline unsigned int fib_mod5_int(idx_t n)
+{
+    static const unsigned int f[20] = {
+        0,1,1,2,3,0,3,3,1,4,
+        0,4,4,3,2,0,2,2,4,1
+    };
+    return f[n % 20];
+}
 
 /* ------------------------------------------------------------------ */
 
@@ -30,7 +56,7 @@ static void ensure_seq_capacity(size_t min_cap, seq_t **arr, size_t *cap)
     if (*cap < min_cap) {
         size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
         if (new_cap < min_cap) new_cap = min_cap;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) exit(1);
         *arr = tmp;
         *cap = new_cap;
@@ -53,7 +79,7 @@ seq_t a(idx_t n)
     /* First call: initialise structures. */
     if (seq_len == 0) {
         seq_cap = 128;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) exit(1);
         seq[0] = (seq_t)1;          /* a(1) = 1 (A113177(1)=0) */
         seq_len = 1;

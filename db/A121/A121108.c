@@ -7,12 +7,14 @@
  * Formula:   a(n+1) = product of digits of a(n), with a(1) = 2677889
  * Range:     u8 none, u16 none, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache == NULL) {
         capacity = 8;                     /* small initial capacity */
-        cache = (seq_t *)malloc(sizeof(seq_t) * (capacity + 1)); /* index 0 unused */
+        cache = mem_new(seq_t, (capacity + 1)); /* index 0 unused */
         cache[1] = start_value;
         cached_up_to = 1;
     }
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Grow cache if requested index is beyond current capacity */
     if (n > capacity) {
         idx_t new_capacity = n;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (new_capacity + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_capacity + 1));
         if (tmp == NULL)
             return 0;                    /* allocation failed */
         cache = tmp;

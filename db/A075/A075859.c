@@ -7,12 +7,20 @@
  * Formula:   a(n) = concat(n, 111...1 (n times), n)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   repunit
+ * Validated: standard, pass, 34 terms through n = 943 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/repunit.h"
+static seq_t repunit(idx_t len)
+{
+    seq_t r = 0;
+    for (idx_t i = 0; i < len; ++i) {
+        r = r * 10 + 1;
+    }
+    return r;
+}
 static seq_t pow10_exp(idx_t e)
 {
     seq_t result = 1;

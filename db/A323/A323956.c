@@ -9,6 +9,7 @@
  *            when the triangle T(i,j)=1+i*(i-j) is read row by row)
  * Range:     u8 n <= 136, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 82 terms through n = 4495 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

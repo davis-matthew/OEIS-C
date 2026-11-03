@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} 2^(n-2*k) * binomial(k, n-2*k)^2
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 36, u64 n <= 68, u128 n <= 133,
  *            big any n
+ * Validated: standard, pass, 54 terms through n = 1868 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

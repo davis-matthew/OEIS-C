@@ -5,17 +5,19 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = C(7+n, 4) - C(7+n, 3)
- * Range:     u8 n <= 4, u16 n <= 31, u32 n <= 441, u64 n <= 1000,
+ * Range:     u8 n <= 4, u16 n <= 31, u32 n <= 562, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 56 terms through n = 909 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     idx_t m = 7 + n;
-    return binom(m, 4) - binom(m, 3);
+    return binomial(m, 4) - binomial(m, 3);
 }

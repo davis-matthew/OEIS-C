@@ -6,8 +6,9 @@
  * Keywords:  nonn, cofr, easy, mult
  * Formula:   a(0) = 3; for n > 0, a(n) = 1 + floor((n+2)/4) - floor((n+1)/4)
  *            + 5*(floor((n+4)/4) - floor((n+3)/4))
- * Range:     u8 n <= 9931, u16 n <= 9931, u32 n <= 9931, u64 n <= 9931,
- *            u128 n <= 9931, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 97 terms through n = 9931 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

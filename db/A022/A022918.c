@@ -8,12 +8,14 @@
  * Formula:   a(n) = (sum_{i=1}^n i^2)! / prod_{i=1}^n (i^2)!
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         idx_t k2 = (idx_t)k * k;   /* k^2, fits in 64‑bit for all n up to 10000 */
         sum += k2;                 /* update the sum of squares */
 
-        seq_t bin = binom(sum, k2);/* C(sum, k^2) */
+        seq_t bin = binomial(sum, k2);/* C(sum, k^2) */
         result = result * bin;     /* multiply the running product */
     }
 

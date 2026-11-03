@@ -8,16 +8,17 @@
  *            n>0, a(0)=0
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 19, u64 n <= 810, u128 n <= 1000,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 42 terms through n = 986 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 static inline seq_t reduce_denom(seq_t *num, seq_t *denom)
 {
-    seq_t g = seq_gcd(*num, *denom);
+    seq_t g = gcd(*num, *denom);
     *num /= g;
     *denom /= g;
     return g;

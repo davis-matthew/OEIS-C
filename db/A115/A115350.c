@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   floor_sqrt, visited_index
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,37 @@
           0 if it never terminates within a reasonable bound.
 */
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/visited_index.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Search for a value in the visited sequence.
+   Return its index or -1 if not found. */
+static int visited_index(seq_t *visited, size_t len, seq_t val)
+{
+    for (size_t i = 0; i < len; ++i) {
+        if (visited[i] == val)
+            return (int)i;
+    }
+    return -1;
+}
 
 /* Compute the sum of proper divisors of n (n >= 1) */
 static seq_t sum_proper_div(seq_t n)

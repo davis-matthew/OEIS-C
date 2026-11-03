@@ -11,13 +11,15 @@
  *            2t^35 + … + 2t + 1) / (703t^36 − 37t^35 − … − 37t + 1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache == NULL) {
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache == NULL) return (seq_t)0; /* allocation failed */
         cache[0] = (seq_t)1;                /* a(0) = 1 */
     }
@@ -41,12 +43,12 @@ seq_t a(idx_t n)
     size_t new_len = (size_t)(n + 1);
     if (new_len > (size_t)cache_len) {
         size_t old_len = (size_t)cache_len;
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (new_cache == NULL) return (seq_t)0;         /* allocation failed */
         /* Copy existing values */
         for (size_t i = 0; i < old_len; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = (idx_t)new_len;
 

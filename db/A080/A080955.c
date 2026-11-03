@@ -12,6 +12,7 @@
  *            previous (0 ≤ offset ≤ m) * k = m - offset...
  * Range:     u8 n <= 25, u16 n <= 52, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

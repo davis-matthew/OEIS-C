@@ -8,7 +8,8 @@
  * Formula:   sigma(m) - phi(m) == tau(m)^omega(m)
  * Range:     u8 n <= 55, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Build‑supplied types */
 extern uint64_t _smallest_prime_factor(uint64_t); /* unused but noted */
@@ -67,7 +69,7 @@ static void append_value(seq_t v)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 8;
-        seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
         if (!seq_cache) abort();
     }
     seq_cache[seq_len++] = v;

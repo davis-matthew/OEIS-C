@@ -10,7 +10,8 @@
  *            [-1,0,0,0,-1,-3,-1,0,0,0,-1,-2] (indices start at 1)
  * Range:     i8 n <= 61, i16 n <= 4645, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   ensure_large
+ * Validated: standard, pass, 97 terms through n = 9873 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,31 @@
 #include <stdbool.h>
 #include <stddef.h>   /* for size_t */
 #include <string.h>   /* for memset in C mode */
-#include "../utils/ensure_large.h"
+#include "../utils/mem.h"
+
+static void ensure_large(idx_t need, seq_t **arr, size_t *cap, size_t elem_size)
+{
+    if (need <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 1 : *cap;
+    while (new_cap <= (size_t)need) new_cap <<= 1;
+
+#ifdef __cplusplus
+    seq_t *new_arr = new seq_t[new_cap];
+    if (*arr) {
+        for (size_t i = 0; i < *cap; ++i) new_arr[i] = (*arr)[i];
+        delete[] *arr;
+    } else {
+        for (size_t i = 0; i < new_cap; ++i) new_arr[i] = 0;
+    }
+#else
+    seq_t *new_arr = (seq_t *)realloc(*arr, new_cap * elem_size);
+    if (!new_arr) exit(1);
+    if (new_cap > *cap)
+        memset(new_arr + *cap, 0, (new_cap - *cap) * elem_size);
+#endif
+    *arr = new_arr;
+    *cap = new_cap;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,7 +65,7 @@ seq_t a(idx_t n)
     if (n <= max_a) return aseq[n];
 
     /* divisor‑sum array T[k] = Σ_{d|k} d*b(d) */
-    seq_t *T = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *T = mem_new(seq_t, (n + 1));
     if (!T) exit(1);
     for (idx_t i = 0; i <= n; ++i) T[i] = 0;
 
@@ -61,7 +86,7 @@ seq_t a(idx_t n)
         aseq[i] = sum / (seq_t)i;
     }
 
-    free(T);
+    mem_free(T);
     max_a = n;
     return aseq[n];
 }

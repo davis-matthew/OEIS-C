@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = maximum length k such that bigomega(n) < bigomega(n+1) <
  *            ... < bigomega(n+k-1)
- * Range:     u8 n <= 9572, u16 n <= 9572, u32 n <= 9572, u64 n <= 9572,
- *            u128 n <= 9572, big any n
- * Helpers:   bigomega
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 127 terms through n = 9572 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* The bigomega function is provided by the build.  Include its header. */
 #include <stdlib.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
  /* Cached bigomega values.  omega[i] holds bigomega(i).  Index i is 1‑based. */
 static seq_t *omega = NULL;          /* array of cached values   */
@@ -29,12 +31,12 @@ ensure_cache(idx_t up_to)
 {
     if (omega_cap == 0) {
         omega_cap = 64;
-        omega = (seq_t *)malloc(omega_cap * sizeof(seq_t));
+        omega = mem_new(seq_t, omega_cap);
     }
     while (omega_len <= up_to) {
         if (omega_len >= omega_cap) {
             omega_cap *= 2;
-            omega = (seq_t *)realloc(omega, omega_cap * sizeof(seq_t));
+            omega = mem_resize(seq_t, omega, omega_cap);
         }
         omega[omega_len] = bigomega((idx_t)omega_len);
         omega_len++;

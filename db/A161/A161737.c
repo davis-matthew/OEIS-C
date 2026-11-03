@@ -8,14 +8,24 @@
  *            v2(m) is the exponent of 2 in m, v2(k!) = floor(k/2)+floor(k/4)+
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 34,
  *            big any n
- * Helpers:   pow2, v2_fact
+ * Validated: standard, pass, 37 terms through n = 827 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/v2_fact.h"
+
+/* compute exponent of 2 in k! using Legendre’s formula */
+static seq_t v2_fact(idx_t k)
+{
+    seq_t sum = 0;
+    for (idx_t d = 2; d <= k; d <<= 1)
+        sum += k / d;
+    return sum;
+}
 
 /* compute exponent of 2 in an unsigned integer x */
 static seq_t v2_uint(idx_t x)

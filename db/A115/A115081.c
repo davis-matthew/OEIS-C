@@ -8,12 +8,14 @@
  *            C(n,2k) / 2^k (OEIS A115081)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cat = NULL;     /* Catalan numbers */
 static idx_t cat_cap = 0;     /* size of cat array (largest index+1) */
@@ -27,7 +29,7 @@ static void ensure_cat(idx_t n)
     if ((idx_t)cat_cap > n) return;           /* already enough */
 
     size_t new_cap = (size_t)(n + 1);
-    cat = (seq_t *)realloc(cat, new_cap * sizeof(seq_t));
+    cat = mem_resize(seq_t, cat, new_cap);
     if (cat_cap == 0) {
         cat[0] = (seq_t)1;
         cat_cap = 1;
@@ -46,7 +48,7 @@ static void ensure_fact(idx_t n)
     if ((idx_t)fact_cap > n + 1) return;       /* already enough */
 
     size_t new_cap = (size_t)(n + 2);          /* need indices 0..n+1 */
-    fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+    fact = mem_resize(seq_t, fact, new_cap);
     if (fact_cap == 0) {
         fact[0] = (seq_t)1;
         fact_cap = 1;

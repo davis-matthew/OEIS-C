@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Cached data ---------------------------------------------- */
 static seq_t *a_cache      = NULL;   /* a[0..a_last]            */
@@ -40,7 +42,7 @@ static idx_t  sigma_last   = 0;       /* largest index with computed sigma */
 static void init_a_cache_if_needed(void)
 {
     if (!a_cache) {
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         if (!a_cache) exit(EXIT_FAILURE);
         a_cache[0] = (seq_t)1;
         a_cap = 1;
@@ -53,7 +55,7 @@ static void recompute_sigma(idx_t limit)
 {
     /* Ensure enough space */
     if ((size_t)(limit + 1) > sigma_cap) {
-        seq_t *tmp = (seq_t *)realloc(sigma_cache, (size_t)(limit + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, sigma_cache, (size_t)(limit + 1));
         if (!tmp) exit(EXIT_FAILURE);
         sigma_cache = tmp;
         sigma_cap   = (size_t)(limit + 1);
@@ -86,7 +88,7 @@ static void ensure_a_cached(idx_t n)
 
     /* Allocate more space for a_cache if necessary */
     if ((size_t)(n + 1) > a_cap) {
-        seq_t *tmp = (seq_t *)realloc(a_cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, (size_t)(n + 1));
         if (!tmp) exit(EXIT_FAILURE);
         a_cache = tmp;
         a_cap   = (size_t)(n + 1);

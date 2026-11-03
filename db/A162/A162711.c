@@ -13,7 +13,8 @@
  *            the concatenated string, extracts the substring,...
  * Range:     u8 n <= 5, u16 n <= 19, u32 n <= 76, u64 n <= 229, u128 n <= 779,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: standard, pass, 61 terms through n = 6546 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,17 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <stdio.h>
-#include "../utils/seq_from_str.h"
+#include <stdbool.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 seq_t a(idx_t n)
 {

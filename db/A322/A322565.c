@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   normalize_square
+ * Validated: standard, pass, 92 terms through n = 9273 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,22 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/normalize_square.h"
+
+static void normalize_square(uint32_t *sq, size_t *len)
+{
+    uint32_t carry = 0;
+    for (size_t i = 0; i < *len; ++i) {
+        uint32_t v = sq[i] + carry;
+        sq[i] = v % 17;
+        carry = v / 17;
+    }
+    size_t i = *len;
+    while (carry > 0) {
+        sq[i++] = carry % 17;
+        carry /= 17;
+    }
+    *len = i;
+}
 
 /* --- lazy data --------------------------------------------- */
 static uint8_t *digits   = NULL;   /* a(0)…a(cur-1)          */

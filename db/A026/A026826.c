@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 117, u32 n <= 301, u64 n <= 903,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 908 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    least part being 5.  This is the coefficient of x^n in the generating
    function x^5 * Π_{j≥6}(1 + x^j).                                    */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* partitions of sums into distinct parts ≥6   */
 static idx_t dp_len = 0;      /* length of dp array (indices 0..dp_len-1)   */
@@ -27,7 +29,7 @@ static void ensure_dp(idx_t max_m)
         return;
 
     idx_t new_len = max_m + 1;      /* indices 0 … max_m */
-    seq_t *new_dp = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, new_len);
     if (!new_dp)                   /* allocation should never fail on test */
         return;
 
@@ -46,7 +48,7 @@ static void ensure_dp(idx_t max_m)
 
     /* Replace the old array. */
     if (dp)
-        free(dp);
+        mem_free(dp);
     dp = new_dp;
     dp_len = new_len;
 }

@@ -11,7 +11,8 @@
  *            (is_prime(r) + is_prime(s))
  * Range:     u8 n <= 110, u16 n <= 110, u32 n <= 110, u64 n <= 110,
  *            u128 n <= 110, big any n
- * Helpers:   _smallest_prime_factor, is_prime, prime_pi
+ * Validated: partial, pass, 110 terms through n = 110 (2026-11-03)
+ * Helpers:   is_prime, mem, prime_pi, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"          /* is_prime(idx_t) */
-#include "../utils/prime_pi.h"          /* prime_pi(idx_t) */
-#include "../utils/_smallest_prime_factor.h" /* _smallest_prime_factor(uint64_t) */
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime.h"
+#include "../utils/prime_pi.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static bool   *used  = NULL;
@@ -34,11 +38,11 @@ static void ensure_cache(idx_t n)
     idx_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap <= n) new_cap <<= 1;
 
-    seq_t  *new_cache = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t  *new_cache = mem_new(seq_t, new_cap);
     bool   *new_used  = (bool  *)calloc(new_cap, sizeof(bool ));
     if (cache) {
-        memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+        mem_free(cache);
     }
     if (used) {
         memcpy(new_used, used, cache_cap * sizeof(bool));
@@ -66,7 +70,7 @@ seq_t a(idx_t n)
         seq_t a_t = a(t);
         result = is_prime(t) ? a_t : a_t + 1;
     } else {                                 /* composite case */
-        uint64_t spf = _smallest_prime_factor(n);
+        uint64_t spf = smallest_prime_factor(n);
         idx_t r = (idx_t)spf;
         idx_t s = (idx_t)(n / r);
         seq_t a_r = a(r);

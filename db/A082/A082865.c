@@ -8,7 +8,8 @@
  *            where gcd(a(k), n) = 1
  * Range:     u8 n <= 14, u16 n <= 32, u32 n <= 60, u64 n <= 112,
  *            u128 n <= 217, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 60 terms through n = 972 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Cache for already computed terms of the sequence. */
 static seq_t *cache = NULL;
@@ -33,13 +36,13 @@ static void ensure_cache_cap(idx_t n)
     while (new_cap <= (size_t)(n + 1))
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (cache)
     {
-        memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+        mem_free(cache);
     }
-    memset(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+    mem_set(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
     cache       = new_cache;
     cache_cap   = new_cap;
 }

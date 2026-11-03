@@ -7,7 +7,8 @@
  * Formula:   a(n) = \sum_{k\ge 0} \binom{\text{wt}(n+k)}{\,2k\,}
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 95 terms through n = 94 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 /*  wt(x) = number of 1‑bits in binary representation of x (A000120).  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t a, idx_t b); */
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
         if ((seq_t)(2 * k) > wt) {
             break;
         }
-        sum += binom((idx_t)wt, 2 * k);
+        sum += binomial((idx_t)wt, 2 * k);
     }
     return sum;
 }

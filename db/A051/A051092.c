@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_u64, mulmod_u64
+ * Validated: standard, pass, 97 terms through n = 996 (2026-11-03)
+ * Helpers:   gcd_u64, mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/gcd_u64.h"
-#include "../utils/mulmod_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ---------- Helper: 64‑bit gcd (doesn't conflict with existing names) ---------- */
 
@@ -39,9 +41,9 @@ static inline uint64_t mod_pow_u64(uint64_t base, uint64_t exp, uint64_t mod) {
     base %= mod;
     while (exp) {
         if (exp & 1ULL) {
-            result = mulmod_u64(result, base, mod);
+            result = mulmod(result, base, mod);
         }
-        base = mulmod_u64(base, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1ULL;
     }
     return result;
@@ -96,7 +98,7 @@ static void ensure_terms_capacity(size_t needed) {
     if (seq_capacity >= needed) return;
     size_t new_cap = seq_capacity ? seq_capacity * 2 : 128;
     if (new_cap < needed) new_cap = needed;
-    seq_terms = (seq_t *)realloc(seq_terms, new_cap * sizeof(seq_t));
+    seq_terms = mem_resize(seq_t, seq_terms, new_cap);
     seq_capacity = new_cap;
 }
 

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   fact_uint64
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,32 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/fact_uint64.h"
+#include "../utils/mem.h"
+
+/* factorization by simple trial division
+ * primes are stored in pr[], exponents in exps[], and *cnt is set. */
+static void fact_uint64(uint64_t n, uint64_t *pr, int *exps, size_t *cnt)
+{
+    size_t c = 0;
+    for (uint64_t p = 2; p * p <= n; ++p) {
+        if (n % p == 0) {
+            int e = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++e;
+            }
+            pr[c] = p;
+            exps[c] = e;
+            ++c;
+        }
+    }
+    if (n > 1) {
+        pr[c] = n;
+        exps[c] = 1;
+        ++c;
+    }
+    *cnt = c;
+}
 
 /* integer square root by binary search */
 static idx_t int_sqrt(idx_t n)
@@ -78,7 +104,7 @@ static void gen_divisors(idx_t n, seq_t *buf, size_t *cnt_out)
         }
     }
     *cnt_out = cur;
-    qsort(buf, cur, sizeof(seq_t), seq_cmp);
+    mem_qsort(buf, cur, sizeof(seq_t), seq_cmp);
 }
 
 /* required function */

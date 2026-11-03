@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   is_prime_generic
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-02)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
    cache the results so that a(n) can be returned in O(1) time for any
    n ≥ 1.  The sequence is finite: a(1)=2, a(2)=7, a(3)=17, a(4)=67. */
 #include <stddef.h>
-#include "../utils/is_prime_generic.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/is_prime.h"
 
 /* External linkage as required. */
 seq_t a(idx_t n)
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
             if (tri % 33 == 0) {
                 idx_t candidate = tri / 33;
                 /* Test primality using the helper that accepts idx_t. */
-                if (is_prime_generic(candidate)) {
+                if (is_prime(candidate)) {
                     primes[count++] = (seq_t)candidate;
                     if (count == 4)   /* all known primes; stop early */
                         break;

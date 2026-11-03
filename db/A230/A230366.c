@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..floor(n/2)} (k^2 mod n)
  * Range:     u8 n <= 32, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

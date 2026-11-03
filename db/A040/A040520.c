@@ -7,6 +7,7 @@
  * Formula:   a(n) = (63 + 51*(-1)^n + 70*cos(n*Pi/2))/4, a(0)=23
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

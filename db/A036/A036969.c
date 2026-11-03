@@ -10,13 +10,15 @@
  *            1<k≤n (triangle read by rows)
  * Range:     u8 n <= 16, u16 n <= 30, u32 n <= 69, u64 n <= 158,
  *            u128 n <= 413, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 4991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static cache of the computed rows */
 static seq_t **triangle = NULL;          /* triangle[r] points to array of length r+1 (index 0 unused) */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     while (cumulative < n)
     {
         idx_t r = max_row + 1;                       /* new row index */
-        seq_t *row = (seq_t *)malloc(sizeof(seq_t) * (r + 1));
+        seq_t *row = mem_new(seq_t, (r + 1));
         if (!row) return (seq_t)0;                   /* allocation failure */
 
         row[0] = 0;                                  /* unused */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 8184, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9779 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define LIMIT_K ((size_t)3000000)   /* bound sufficient for n <= 10000 */
 
@@ -92,7 +94,7 @@ static void build_sequence(void)
         if (pi_cnt >= 2 && !is_comp[pi_cnt]) { /* pi(k) is prime */
             if (good_cnt == good_cap) {
                 good_cap = good_cap == 0 ? 512 : good_cap * 2;
-                good = (seq_t *)realloc(good, good_cap * sizeof(seq_t));
+                good = mem_resize(seq_t, good, good_cap);
                 if (!good) exit(1);
             }
             good[good_cnt++] = (seq_t)k;

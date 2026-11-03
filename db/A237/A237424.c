@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 20, u32 n <= 65, u64 n <= 210, u128 n <= 818,
  *            big any n
- * Helpers:   q_from_idx
+ * Validated: standard, pass, 49 terms through n = 8912 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,14 @@
    without overflow for all k that keep the final result in seq_t.
    Finally a(n) = q_a + q_b + 1. */
 #include <stdint.h>
-#include "../utils/q_from_idx.h"
+
+static inline seq_t q_from_idx(idx_t k)
+{
+    seq_t q = 0;                /* q_0 = 0 */
+    for (idx_t i = 0; i < k; ++i)
+        q = q * 10 + 3;         /* q_{i+1} = 10·q_i + 3 */
+    return q;
+}
 
 seq_t a(idx_t n)
 {

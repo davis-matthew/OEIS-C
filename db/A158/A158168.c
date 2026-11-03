@@ -10,13 +10,15 @@
  *            of n into at most k parts
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 43, u64 n <= 143, u128 n <= 222,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 221 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Includes */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Function definition */
 seq_t a(idx_t n)
@@ -25,12 +27,12 @@ seq_t a(idx_t n)
     idx_t K = (n < 34) ? (idx_t)n : 34ULL;
 
     /* Allocate arrays for DP */
-    seq_t *prev = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *curr = mem_new(seq_t, (size_t)(n + 1));
     if (!prev || !curr) {
         /* memory allocation failed – return 0 */
-        if (prev) free(prev);
-        if (curr) free(curr);
+        if (prev) mem_free(prev);
+        if (curr) mem_free(curr);
         return (seq_t)0;
     }
 
@@ -38,9 +40,9 @@ seq_t a(idx_t n)
     prev[0] = (seq_t)1;
 
     /* diff[k] = p_k(n) - p_{k-1}(n) for k = 1..K */
-    seq_t *diff = (seq_t *)calloc((size_t)(K + 1), sizeof(seq_t));
+    seq_t *diff = mem_new(seq_t, (size_t)(K + 1));
     if (!diff) {
-        free(prev); free(curr);
+        mem_free(prev); mem_free(curr);
         return (seq_t)0;
     }
 
@@ -69,9 +71,9 @@ seq_t a(idx_t n)
     seq_t total = sumDiff * sumDiff;
 
     /* Prefix sums of diff for fast range sum */
-    seq_t *pref = (seq_t *)calloc((size_t)(K + 1), sizeof(seq_t));
+    seq_t *pref = mem_new(seq_t, (size_t)(K + 1));
     if (!pref) {
-        free(prev); free(curr); free(diff);
+        mem_free(prev); mem_free(curr); mem_free(diff);
         return (seq_t)0;
     }
     pref[0] = (seq_t)0;
@@ -93,10 +95,10 @@ seq_t a(idx_t n)
     seq_t result = total - sub;
 
     /* Free memory */
-    free(prev);
-    free(curr);
-    free(diff);
-    free(pref);
+    mem_free(prev);
+    mem_free(curr);
+    mem_free(diff);
+    mem_free(pref);
 
     return result;
 }

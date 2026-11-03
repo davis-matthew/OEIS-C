@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   digit_mask_ull
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/digit_mask_ull.h"
+#include "../utils/mem.h"
+
+/* Return bitmask of decimal digits present in x (bit d set iff digit d appears) */
+static unsigned digit_mask_ull(unsigned long long x)
+{
+    if (x == 0ULL)
+        return 1u << 0;
+    unsigned mask = 0;
+    while (x != 0ULL)
+    {
+        unsigned d = (unsigned)(x % 10ULL);
+        mask |= 1u << d;
+        x /= 10ULL;
+    }
+    return mask;
+}
 
 static const unsigned long long pow4[10] = {
     0ULL,      /* 0^4 */
@@ -57,7 +73,7 @@ static unsigned long long next_candidate = 0ULL;
 /* Grow the cache at least to new_cap entries */
 static void grow_cache(size_t new_cap)
 {
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         exit(EXIT_FAILURE);    /* Out of memory */
     cache = new_cache;

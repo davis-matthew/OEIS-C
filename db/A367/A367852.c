@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n) = n*a(n-1) + ∑_{k=1..n} 3^(k-1)*(k-1)!*C(n,k)*a(n-k)   (n ≥ 1)
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of A367852.  Results are memoised in a static cache
    so that later calls with larger n are fast and earlier calls are still
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         if (need > cache_cap) {
             size_t newcap = cache_cap ? cache_cap * 2 : 64;
             while (newcap < need) newcap <<= 1;
-            seq_t *newptr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *newptr = mem_resize(seq_t, cache, newcap);
             cache = newptr;
             cache_cap = (idx_t)newcap;
         }
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         if (need > B_cap) {
             size_t newcap = B_cap ? B_cap * 2 : 64;
             while (newcap < need) newcap <<= 1;
-            seq_t *newptr = (seq_t *)realloc(B, newcap * sizeof(seq_t));
+            seq_t *newptr = mem_resize(seq_t, B, newcap);
             B = newptr;
             B_cap = (idx_t)newcap;
         }

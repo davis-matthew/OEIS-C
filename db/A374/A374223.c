@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 13, u16 n <= 1810, u32 n <= 9500, u64 n <= 9500,
- *            u128 n <= 9500, big any n
- * Helpers:   none
+ * Range:     u8 n <= 13, u16 n <= 1810, u32 n <= 12000, u64 n <= 12000,
+ *            u128 n <= 12000, big any n
+ * Validated: standard, pass, 84 terms through n = 9500 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Check whether a given unsigned integer k satisfies the condition
    that sigma(k) and sopfr(k) are multiples of 3.  */
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
         if (ok(k)) {
             if (size == cap) {
                 size_t newcap = (cap == 0) ? 4 : cap * 2;
-                seq_t *tmp = (seq_t *)realloc(values, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, values, newcap);
                 if (!tmp) abort();      /* allocation failure */
                 values = tmp;
                 cap = newcap;

@@ -9,16 +9,18 @@
  *            anti-diagonal order
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   a000037_isqrt
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000037_isqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     // Find which diagonal n belongs to using the quadratic formula
-    idx_t d = (a000037_isqrt(1 + 8 * n) - 1) / 2;
+    idx_t d = (isqrt_u64(1 + 8 * n) - 1) / 2;
     
     // Adjust for integer rounding
     while (d * (d + 1) / 2 < n) {

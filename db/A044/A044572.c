@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has04oct
+ * Validated: standard, pass, 56 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,25 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has04oct.h"
+#include "../utils/mem.h"
+
+/* Return true iff the octal representation of v contains the
+ * consecutive digits 0 followed immediately by 4. */
+static inline bool has04oct(uint64_t v)
+{
+    if (v < 8U)                    /* single octal digit cannot contain "04" */
+        return false;
+    uint8_t prev = v & 7U;          /* least significant octal digit      */
+    v >>= 3U;                       /* discard that digit                 */
+    while (v) {
+        uint8_t curr = v & 7U;
+        if (prev == 4U && curr == 0U)
+            return true;
+        prev = curr;
+        v >>= 3U;
+    }
+    return false;
+}
 
 /* Ensure that *arr points to memory for at least <need> elements.
  * The allocated capacity is increased to the next power of two ≥ need.
@@ -35,7 +54,7 @@ ensure_capacity(size_t need, size_t *cap, seq_t **arr)
         size_t newcap = (*cap == 0) ? 1 : (*cap << 1);
         while (newcap < need)
             newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
         if (tmp) {              /* realloc succeeded */
             *arr = tmp;
             *cap = newcap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
         a(n) = 2·∑_{i=1}^{21} a(n–i) – 3·a(n–22)    for n ≥ 23
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of computed values */
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     /* initialize cache with first 23 terms (0…22) */
     if (buf == NULL) {
         cap = 23;                      /* will hold indices 0…22 */
-        buf = (seq_t *)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
 
         /* explicit initial values (up to n = 21) */
         buf[0] = 1;
@@ -72,7 +74,7 @@ seq_t a(idx_t n) {
         /* ensure the buffer can hold indices up to n */
         while (n > cap - 1) {
             cap *= 2;
-            buf = (seq_t *)realloc(buf, cap * sizeof(seq_t));
+            buf = mem_resize(seq_t, buf, cap);
         }
 
         /* compute missing entries from (last+1) up to n */

@@ -11,16 +11,45 @@
  *            Sum_{i<j, i+j=n} Q(i)*Q(j) - [n even]*binomial(Q(n/2),2...
  * Range:     u8 n <= 13, u16 n <= 20, u32 n <= 33, u64 n <= 58, u128 n <= 106,
  *            big any n
- * Helpers:   A_grow, a2988_fixed, a2988_pw
+ * Validated: standard, pass, 51 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/A_grow.h"
-#include "../utils/a2988_fixed.h"
-#include "../utils/a2988_pw.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+static int a2988_fixed(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x += x;
+    return x == 0;
+}
+
+static uint64_t a2988_pw(uint64_t b, uint64_t e, uint64_t p)
+{
+    uint64_t r = 1;
+    b %= p;
+    while (e) {
+        if (e & 1) r = r * b % p;
+        b = b * b % p;
+        e >>= 1;
+    }
+    return r;
+}
 
 /* ---------- arbitrary precision path ---------- */
 static seq_t *a2988_Q = 0, *a2988_E = 0, *a2988_C = 0;

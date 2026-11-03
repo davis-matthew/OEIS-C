@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   count_len_uint128, count_strings, pow2_uint128
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,31 @@
  */
 
 #include <stdint.h>
-#include "../utils/count_len_uint128.h"
-#include "../utils/count_strings.h"
-#include "../utils/pow2_uint128.h"
+
+static unsigned __int128 pow2_uint128(unsigned int e) {
+    return (unsigned __int128)1 << e;
+}
+
+/* Count of valid numbers of length L (first digit non‑zero) with exactly
+ * two zeros. Formula: 2^(L‑2) * C(L‑1,2). */
+static unsigned __int128 count_len_uint128(unsigned int L)
+{
+    unsigned int rem = L - 1;          /* positions after the first digit   */
+    unsigned __int128 comb = (unsigned __int128)rem * (rem - 1) / 2;
+    return comb * pow2_uint128(L - 2);
+}
+
+/* Count of strings of length rem that contain exactly zeros_needed zeros
+ * (each position can be 0,1,2; zeros_needed ≤ 2). */
+static unsigned __int128 count_strings(unsigned int rem,
+                                       unsigned int zeros_needed)
+{
+    if (zeros_needed > rem) return 0;
+    if (zeros_needed == 0) return pow2_uint128(rem);          /* 2^rem   */
+    if (zeros_needed == 1) return rem * pow2_uint128(rem-1);   /* rem·2^(rem‑1) */
+    /* zeros_needed == 2 */
+    return ((unsigned __int128)(rem) * (rem - 1) / 2) * pow2_uint128(rem - 2);
+}
 
 seq_t a(idx_t n)
 {

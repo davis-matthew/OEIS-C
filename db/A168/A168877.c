@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Maximum allowed alternating run length */
 #define MAXALT 41U
@@ -75,13 +77,13 @@ static void seq_init(void) {
     }
 
     /* Allocate DP arrays */
-    cur = (seq_t*)calloc(STATE_COUNT, sizeof(seq_t));
-    nxt = (seq_t*)calloc(STATE_COUNT, sizeof(seq_t));
+    cur = mem_new(seq_t, STATE_COUNT);
+    nxt = mem_new(seq_t, STATE_COUNT);
     if (!cur || !nxt) abort();
 
     /* Allocate cache (at least for indices 0..2) */
     cache_cap = 2;
-    cache = (seq_t*)calloc(cache_cap + 1, sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap + 1);
     if (!cache) abort();
     cache[0] = (seq_t)1;      /* a(0) = 1 */
     cache[1] = (seq_t)8;      /* a(1) = 8 */
@@ -109,7 +111,7 @@ static void ensure_cache_size(idx_t n) {
 
     for (idx_t len = cache_n + 1; len <= n; ++len) {
         /* Zero next buffer */
-        memset(nxt, 0, STATE_COUNT * sizeof(seq_t));
+        mem_set(nxt, 0, STATE_COUNT * sizeof(seq_t));
 
         /* Transition from current states to next */
         for (size_t idx = 0; idx < STATE_COUNT; ++idx) {
@@ -136,7 +138,7 @@ static void ensure_cache_size(idx_t n) {
         for (size_t i = 0; i < STATE_COUNT; ++i) total += nxt[i];
         if (len > cache_cap) {
             cache_cap = len;
-            cache = (seq_t*)realloc(cache, (cache_cap + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (cache_cap + 1));
             if (!cache) abort();
         }
         cache[len] = total;

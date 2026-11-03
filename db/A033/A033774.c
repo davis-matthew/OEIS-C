@@ -8,6 +8,7 @@
  *            satisfying a^2 + 3*b^2 + 5*c^2 + 15*d^2 = 8*n + 24
  * Range:     u8 n <= 13, u16 n <= 8139, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 98 terms through n = 9711 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

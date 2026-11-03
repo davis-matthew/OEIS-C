@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 115, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 895 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build. */
 static seq_t   *C = NULL;      /* c values     */
@@ -43,9 +45,9 @@ static void compute_terms(idx_t n)
 {
     /* allocate new arrays */
     idx_t size = n + 1;
-    seq_t *c_new = (seq_t *)calloc((size_t)size, sizeof(seq_t));
-    seq_t *d_new = (seq_t *)calloc((size_t)size, sizeof(seq_t));
-    seq_t *a_new = (seq_t *)calloc((size_t)size, sizeof(seq_t));
+    seq_t *c_new = mem_new(seq_t, (size_t)size);
+    seq_t *d_new = mem_new(seq_t, (size_t)size);
+    seq_t *a_new = mem_new(seq_t, (size_t)size);
 
     /* --- compute c(k)  ----------------------------------------------- */
     for (idx_t i = 0; i <= n; ++i) {
@@ -78,9 +80,9 @@ static void compute_terms(idx_t n)
     }
 
     /* free old arrays */
-    if (C) free(C);
-    if (D) free(D);
-    if (A) free(A);
+    if (C) mem_free(C);
+    if (D) mem_free(D);
+    if (A) mem_free(A);
 
     /* store new arrays and size */
     C   = c_new;

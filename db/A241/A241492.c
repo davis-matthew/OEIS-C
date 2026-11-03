@@ -12,7 +12,8 @@
  *            that * g^((p−1)/q) ≠ 1 (mod p) for every di...
  * Range:     u8 n <= 54, u16 n <= 6543, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_prime, mod_pow, unique_prime_factors
+ * Validated: standard, pass, 96 terms through n = 8633 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,79 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/get_prime.h"   /* uint32_t get_prime(idx_t k); */
-#include "../utils/mod_pow.h"     /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/unique_prime_factors.h"
+#include <string.h>
+#include <stddef.h>
+#include "../utils/powmod.h"
+
+/* Return the k‑th prime (k ≥ 1).  On first call the prime list
+   is built incrementally using trial division.  The list is
+   stored in a static array which is expanded as necessary.   */
+static uint32_t get_prime(idx_t k)
+{
+    static uint32_t *pr = NULL;     /* array of primes */
+    static size_t sz   = 0;         /* number of primes stored */
+    static size_t cap  = 0;         /* allocated capacity */
+    static uint32_t cand = 3;       /* candidate after 2 */
+
+    /* initialise the prime table on first use */
+    if (sz == 0) {
+        cap = 8;
+        pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+        if (!pr) abort();
+        sz = 0;
+    }
+
+    /* grow the array until we have at least k primes */
+    while (sz < (size_t)k) {
+        if (sz == 0) {                /* add the first prime */
+            pr[sz++] = 2;
+            continue;
+        }
+
+        /* find the next prime candidate */
+        uint32_t p = cand;
+        bool ok = true;
+        for (size_t i = 0; i < sz; ++i) {
+            uint32_t prime = pr[i];
+            if ((uint64_t)prime * prime > (uint64_t)p) break;
+            if (p % prime == 0) { ok = false; break; }
+        }
+
+        if (!ok) {                    /* not prime – keep searching */
+            cand += 2;                /* only odd numbers remain */
+            continue;
+        }
+
+        /* prime found – store it, grow table if needed */
+        if (sz == cap) {
+            cap <<= 1;
+            pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+            if (!pr) abort();
+        }
+        pr[sz++] = p;
+        cand = p + 2;
+    }
+
+    return pr[(size_t)k - 1];
+}
+
+/* Helper: collect distinct prime factors of n into array `f` (max 64). */
+static void unique_prime_factors(uint64_t n, uint64_t *f, size_t *cnt)
+{
+    size_t i = 0;
+    if (n % 2ULL == 0ULL) {
+        f[i++] = 2ULL;
+        while (n % 2ULL == 0ULL) n /= 2ULL;
+    }
+    for (uint64_t d = 3ULL; d * d <= n; d += 2ULL) {
+        if (n % d == 0ULL) {
+            f[i++] = d;
+            while (n % d == 0ULL) n /= d;
+        }
+    }
+    if (n > 1ULL) f[i++] = n;
+    *cnt = i;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -48,7 +119,7 @@ seq_t a(idx_t n)
         bool primitive = true;
         for (size_t i = 0; i < fac_cnt && primitive; ++i) {
             uint64_t exp = (p - 1) / factors[i];
-            seq_t res = mod_pow((seq_t)(prod % p), exp, p_mod);
+            seq_t res = powmod((seq_t)(prod % p), exp, p_mod);
             if (res == 1) primitive = false;
         }
         if (primitive) ++count;

@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf, base, easy
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 18, u32 n <= 560, u64 n <= 9367,
- *            u128 n <= 9367, big any n
- * Helpers:   binom
+ * Range:     u8 n <= 5, u16 n <= 18, u32 n <= 560, u64 n <= 17576,
+ *            u128 n <= 17576, big any n
+ * Validated: standard, pass, 56 terms through n = 9367 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     /* locate the row r that contains position n */
@@ -32,7 +33,7 @@ seq_t a(idx_t n) {
     idx_t r = 1;
     idx_t rowCount;
     while (1) {
-        rowCount = (idx_t)binom(2 * r, r);
+        rowCount = (idx_t)binomial(2 * r, r);
         if (n <= sum + rowCount)
             break;
         sum += rowCount;
@@ -50,7 +51,7 @@ seq_t a(idx_t n) {
         int remain = len - pos - 1;
         idx_t count0 = 0;
         if (zerosLeft > 0)
-            count0 = (idx_t)binom(remain, zerosLeft - 1);
+            count0 = (idx_t)binomial(remain, zerosLeft - 1);
 
         if (rank <= count0) {
             bits[pos] = '0';

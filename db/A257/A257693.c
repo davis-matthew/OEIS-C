@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 600, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_smallest_nonzero_digit_three
+ * Validated: standard, pass, 74 terms through n = 9786 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,28 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_smallest_nonzero_digit_three.h"
+#include "../utils/mem.h"
+
+/* test whether the factorial‑base representation of m has
+   smallest non‑zero digit equal to 3 */
+static bool has_smallest_nonzero_digit_three(seq_t m)
+{
+    seq_t x = m;
+    seq_t factor = 2;           /* the least significant factorial base is 1! = 1,
+                                   so we start checking with factor 2 = (1+1) */
+    seq_t min_nonzero = 0;      /* 0 means that no non‑zero digit has been seen yet */
+
+    while (x != 0) {
+        seq_t digit = x % factor;
+        if (digit != 0) {
+            if (min_nonzero == 0 || digit < min_nonzero)
+                min_nonzero = digit;
+        }
+        x /= factor;
+        ++factor;
+    }
+    return min_nonzero == 3;
+}
 
 /* cache of generated terms */
 static seq_t *buf = NULL;
@@ -37,7 +59,7 @@ static void ensure_cap(size_t need)
     size_t newcap = cap ? cap * 2 : 16;
     while (newcap < need)
         newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(buf, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, buf, newcap);
     if (tmp == NULL)            /* OOM not expected in test harness */
         abort();
     buf = tmp;

@@ -8,14 +8,16 @@
  *            = n (for 0 ≤ n ≤ 9, a(n) = 0 otherwise)
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
+ * Validated: full, pass, 10 terms through n = 9 (2026-11-02)
  * Helpers:   digit_product, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdlib.h>
 #include "../utils/digit_product.h"
+#include "../utils/is_prime.h"
 
 static seq_t cache[10] = {0};   /* first prime for each MDR value */
 static bool ready = false;      /* cache initialized flag */

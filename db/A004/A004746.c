@@ -8,14 +8,23 @@
  *            whose binary expansion has no "010"
  * Range:     u8 n <= 150, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains_010
+ * Validated: standard, pass, 84 terms through n = 9987 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/contains_010.h"
+
+static bool contains_010(uint64_t x) {
+    while (x >= 4) {
+        if ((x & 7) == 2)
+            return true;
+        x >>= 1;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;

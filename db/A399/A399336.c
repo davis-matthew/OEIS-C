@@ -12,7 +12,8 @@
  *            1‑dimensional sequence a(n) is obtained by reading th...
  * Range:     i8 n <= 20, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   jacobsthal, seq_alloc_new_array, seq_free_array
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,9 +29,34 @@ typedef uint64_t idx_t;
 #endif
 
 #include <stddef.h>          /* size_t */
-#include "../utils/seq_alloc_new_array.h"   /* seq_alloc_new_array */
-#include "../utils/seq_free_array.h"       /* seq_free_array */
-#include "../utils/jacobsthal.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+/* Compute the k‑th Jacobsthal number using an iterative recurrence. */
+static seq_t jacobsthal(idx_t k)
+{
+    if (k == 0)
+        return (seq_t)0;
+    if (k == 1)
+        return (seq_t)1;
+    seq_t Jm1 = (seq_t)0;   /* J(0) */
+    seq_t Jm =  (seq_t)1;   /* J(1) */
+    seq_t Jn;
+    for (idx_t i = 2; i <= k; ++i) {
+        Jn = Jm + (seq_t)2 * Jm1;
+        Jm1 = Jm;
+        Jm  = Jn;
+    }
+    return Jm;
+}
 
 /* Compute the binomial coefficient C(n,k) for small arguments
  * using a multiplicative algorithm.  The result is exact because

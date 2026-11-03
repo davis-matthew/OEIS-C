@@ -7,7 +7,8 @@
  * Formula:   a(n) = denominator of (A018252(n)/n)
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   gcd, is_prime_small
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   gcd, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of the first k nonprimes */
@@ -28,7 +31,7 @@ seq_t a(idx_t n) {
     /* initialise with the first nonprime 1 */
     if (cache_size == 0) {
         cache_cap   = 64;
-        cache       = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_cap);
         cache[0]    = (seq_t)1;
         cache_size  = 1;
     }
@@ -38,14 +41,14 @@ seq_t a(idx_t n) {
         idx_t candidate = (idx_t)cache[cache_size - 1] + 1;
 
         /* find the next nonprime */
-        while (is_prime_small((seq_t)candidate)) {
+        while (is_prime_seq((seq_t)candidate)) {
             ++candidate;
         }
 
         /* grow array if necessary */
         if (cache_size == cache_cap) {
             size_t new_cap = cache_cap << 1;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache       = tmp;
             cache_cap   = new_cap;
         }

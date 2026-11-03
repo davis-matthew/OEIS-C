@@ -10,21 +10,24 @@
  *            i increasing)
  * Range:     i8 n <= 30, i16 n <= 58, i32 n <= 141, i64 n <= 386,
  *            i128 n <= 1091, big any n
- * Helpers:   _floor_isqrt_u64, big_pow
+ * Validated: standard, pass, 82 terms through n = 2669 (2026-11-01)
+ * Helpers:   ipow, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sufficient utility headers */
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* Find the sum S = i + j for which the cumulative count up to S-1
        is less than n and cumulative up to S is at least n. */
     idx_t s_val   = 1 + 8 * n;                 /* 1 + 8*n for sqrt */
-    idx_t sqrt_val = _floor_isqrt_u64(s_val); /* floor(sqrt(1+8n)) */
+    idx_t sqrt_val = isqrt(s_val); /* floor(sqrt(1+8n)) */
 
     /* Ceil((1 + sqrt(1 + 8n))/2).  The formula with integer division
        already gives the ceil when we add 1 before dividing. */
@@ -46,8 +49,8 @@ seq_t a(idx_t n)
     idx_t j = S - offset;
 
     /* Compute the two powers using the arbitrary‑precision routine */
-    seq_t power1 = big_pow((seq_t)j, (seq_t)i);   /* j^i */
-    seq_t power2 = big_pow((seq_t)i, (seq_t)j);   /* i^j */
+    seq_t power1 = ipow((seq_t)j, (seq_t)i);   /* j^i */
+    seq_t power2 = ipow((seq_t)i, (seq_t)j);   /* i^j */
 
     /* Return the difference as specified */
     return power1 - power2;

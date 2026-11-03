@@ -6,15 +6,24 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = n-th number that is the sum of two positive 4th powers
  *            x^4 + y^4 with x <= y
- * Range:     u8 none, u16 none, u32 n <= 9828, u64 n <= 9828, u128 n <= 9828,
- *            big any n
- * Helpers:   cmp_func
+ * Range:     u8 none, u16 none, u32 n <= 19999, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 64 terms through n = 9828 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cmp_func.h"
+#include "../utils/mem.h"
+
+static int cmp_func(const void *a, const void *b) {
+    seq_t x = *(const seq_t *)a;
+    seq_t y = *(const seq_t *)b;
+    if (x < y) return -1;
+    if (x > y) return 1;
+    return 0;
+}
 
 static seq_t *computed = NULL;
 static idx_t max_computed = 0;
@@ -33,10 +42,10 @@ seq_t a(idx_t n) {
     idx_t unique_count = 0;
     
     while (unique_count < n && y_max < 100000) {
-        free(sums);
+        mem_free(sums);
         
         idx_t cap = y_max * (y_max + 1) / 2 + 100;
-        sums = (seq_t *)malloc(cap * sizeof(seq_t));
+        sums = mem_new(seq_t, cap);
         count = 0;
         
         for (idx_t x = 1; x <= y_max; x++) {
@@ -49,7 +58,7 @@ seq_t a(idx_t n) {
             }
         }
         
-        qsort(sums, count, sizeof(seq_t), cmp_func);
+        mem_qsort(sums, count, sizeof(seq_t), cmp_func);
         
         unique_count = 0;
         for (idx_t i = 0; i < count; i++) {
@@ -64,9 +73,9 @@ seq_t a(idx_t n) {
     }
     
     if (computed == NULL) {
-        computed = (seq_t *)malloc(unique_count * sizeof(seq_t));
+        computed = mem_new(seq_t, unique_count);
     } else if (unique_count > max_computed) {
-        computed = (seq_t *)realloc(computed, unique_count * sizeof(seq_t));
+        computed = mem_resize(seq_t, computed, unique_count);
     }
     
     max_computed = 0;
@@ -76,7 +85,7 @@ seq_t a(idx_t n) {
         }
     }
     
-    free(sums);
+    mem_free(sums);
     
     return computed[n - 1];
 }

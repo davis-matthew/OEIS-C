@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 301, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 69 terms through n = 9959 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,19 @@
    Computed by brute‑force search. */
 
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +44,7 @@ seq_t a(idx_t n)
            produce a term within the range of seq_t) */
         seq_t cube = (seq_t)k * k * k;
 
-        int len = digit_len(cube);              /* number of decimal digits */
+        int len = num_digits(cube);              /* number of decimal digits */
         if (len & 1)                            /* odd number of digits?    */
         {
             int exp   = len >> 1;                /* position of middle digit */

@@ -10,13 +10,25 @@
  *            row‑major flattening of T(n,k)
  * Range:     u8 n <= 17, u16 n <= 41, u32 n <= 131, u64 n <= 457,
  *            u128 n <= 1325, big any n
- * Helpers:   ensure_rows_capacity
+ * Validated: standard, pass, 71 terms through n = 1323 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/ensure_rows_capacity.h"
+#include "../utils/mem.h"
+
+/* Grow a dynamic array of pointers (rows) */
+static void ensure_rows_capacity(size_t needed, seq_t ***rows_ptr, size_t *cap_ptr)
+{
+    if (needed <= *cap_ptr) return;
+    size_t new_cap = (*cap_ptr) ? *cap_ptr : 16;
+    while (new_cap < needed) new_cap <<= 1;
+    seq_t **tmp = (seq_t **)realloc(*rows_ptr, new_cap * sizeof(seq_t *));
+    *rows_ptr = tmp;
+    *cap_ptr  = new_cap;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +43,7 @@ seq_t a(idx_t n)
     {
         size_t r   = rows_count;        /* index of new row */
         size_t len = r + 1;             /* length of new row */
-        seq_t *new_row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, len);
 
         if (r == 0) {
             /* Row 0 */

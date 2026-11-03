@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Definition: a(n) is the n‑th smallest divisor of 945 (sorted ascending). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int div_cmp(const void *a, const void *b)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         for (int i = 0; i < 3; ++i)
             total *= (size_t)(exps[i] + 1);
 
-        divs = (seq_t *)malloc(total * sizeof(seq_t));
+        divs = mem_new(seq_t, total);
         if (divs == NULL)
             return 0;              /* allocation failure */
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             }
         }
 
-        qsort(divs, total, sizeof(seq_t), div_cmp);
+        mem_qsort(divs, total, sizeof(seq_t), div_cmp);
         divcnt = total;
     }
 

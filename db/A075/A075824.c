@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage for the sieve result and the sequence values */
 static seq_t *seq_vals  = NULL;    /* array of sequence terms */
@@ -44,7 +46,7 @@ static void init_seq(idx_t needed)
     /* free previous data if any */
     if (seq_vals)
     {
-        free(seq_vals);
+        mem_free(seq_vals);
         seq_vals = NULL;
     }
     seq_len = 0;

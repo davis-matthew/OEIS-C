@@ -8,16 +8,19 @@
  * Formula:   a(0) = 1; for n >= 1, a(n) = 23 * 22^(n-1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 15,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"   /* for seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0)
         return (seq_t)1;
-    seq_t pow22 = seq_pow((seq_t)22, n - 1);
+    seq_t pow22 = ipow_idx((seq_t)22, n - 1);
     return pow22 * (seq_t)23;
 }

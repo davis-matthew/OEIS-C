@@ -8,13 +8,20 @@
  *            9
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   cube
+ * Validated: standard, pass, 36 terms through n = 639 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cube.h"
+#include "../utils/mem.h"
+
+/* Compute x^3 using seq_t arithmetic. */
+static seq_t cube(seq_t x)
+{
+    return x * x * x;
+}
 
 /* Sequence values are stored in a static cache of Pell numbers.
    Pell(0) = 0, Pell(1) = 1, Pell(k) = 2*Pell(k-1) + Pell(k-2). */
@@ -29,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Allocate or grow the cache when necessary. */
     if (pell == NULL) {
-        pell = (seq_t *)malloc(required * sizeof(seq_t));
+        pell = mem_new(seq_t, required);
         if (pell == NULL) return (seq_t)0;  /* allocation failure */
         pell[0] = (seq_t)0;
         if (required > 1) pell[1] = (seq_t)1;
@@ -37,7 +44,7 @@ seq_t a(idx_t n)
     }
     else if (p_len <= need) {
         size_t new_len = required;
-        seq_t *tmp = (seq_t *)realloc(pell, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pell, new_len);
         if (tmp == NULL) return (seq_t)0;   /* allocation failure */
         pell = tmp;
 

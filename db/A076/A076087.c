@@ -10,14 +10,29 @@
  *            is reached
  * Range:     i8 n <= 14, i16 n <= 87, i32 n <= 87, i64 n <= 87, i128 n <= 87,
  *            big any n
- * Helpers:   collatz_limit
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/collatz_limit.h"
+#include "../utils/mem.h"
+
+static seq_t collatz_limit(seq_t x)
+{
+    while (1) {
+        for (int step = 0; step < 3; ++step) {
+            if ((x & 1) == 0)           /* even */
+                x >>= 1;
+            else                        /* odd */
+                x = 3 * x + 1;
+        }
+        if (x == 1 || x == 2 || x == 4)
+            return x;
+    }
+}
 
 /* Prefix sums of the A006460(i) values.
    prefix[i-1] = Σ_{j=1..i} b(j). */
@@ -30,7 +45,7 @@ static void ensure_prefix_capacity(idx_t needed)
     if (needed <= prefix_cap)
         return;
     idx_t new_cap = needed * 2;
-    seq_t *new_ptr = (seq_t *)realloc(prefix, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, prefix, new_cap);
     prefix = new_ptr;
     prefix_cap = new_cap;
 }

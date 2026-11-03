@@ -8,8 +8,9 @@
  * Formula:   a(n) = φ(k) if k divides 2^r−1 , otherwise 0, where r is the row
  *            and k the position in that row of the flattened triangle T(n,k).
  *            T(r,k) = Eulerφ(k) if k | (2^r−1)
- * Range:     u8 n <= 1012, u16 n <= 9931, u32 n <= 9931, u64 n <= 9931,
- *            u128 n <= 9931, big any n
+ * Range:     u8 n <= 1012, u16 n <= 16369, u32 n <= 16369, u64 n <= 16369,
+ *            u128 n <= 16369, big any n
+ * Validated: standard, pass, 136 terms through n = 9931 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,13 +8,16 @@
  *            floor((sqrt(8*n+1)-1)/2) * j = n - i*(i+1)/2 * (OEIS A038308)
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     /* Find row index i: maximum i such that i*(i+1)/2 <= n */
@@ -29,9 +32,9 @@ seq_t a(idx_t n) {
 
     seq_t val = binomial(i, j);
     /* Multiply by 10^(i-j) */
-    val *= pow_uint(10, i - j);
+    val *= ipow_u64_idx(10, i - j);
     /* Multiply by 6^j */
-    val *= pow_uint(6, j);
+    val *= ipow_u64_idx(6, j);
 
     return val;
 }

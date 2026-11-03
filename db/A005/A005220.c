@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 28, u64 n <= 50, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Brute-force counting using dynamic programming: paths of knight moves from (0,0) to (n,0) that never go below y=0 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     
     seq_t **dp = (seq_t **)malloc((n + 1) * sizeof(seq_t *));
     for (idx_t x = 0; x <= n; x++) {
-        dp[x] = (seq_t *)calloc(max_y, sizeof(seq_t));
+        dp[x] = mem_new(seq_t, max_y);
     }
     
     dp[0][0] = 1;
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
     seq_t result = dp[n][0];
     
     for (idx_t x = 0; x <= n; x++) {
-        free(dp[x]);
+        mem_free(dp[x]);
     }
     free(dp);
     

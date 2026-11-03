@@ -11,7 +11,8 @@
  *            a(9)=5296, a(10)=12608
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 40, u64 n <= 380,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Initial values for n < 11 */
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* Choose an initial capacity (power of two) */
         cache_cap = 32;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* Copy initial values */
         for (idx_t i = 0; i < 11; ++i) cache[i] = init[i];
         cache_len = 11;
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
     if ((idx_t)n >= cache_cap) {
         size_t new_cap = cache_cap;
         while ((idx_t)n >= new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) { /* allocation failure – return first term */
             return init[0];
         }

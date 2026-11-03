@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    -q*(26*q^3+5*q-1-13*q^2)/((1-2q)(1-4q)(1+4q^2)) */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL; /* array of already‑computed terms */
 static idx_t  cache_len  = 0;    /* largest index computed so far      */
@@ -33,13 +35,13 @@ static void ensure_cache(idx_t n)
         idx_t newcap = (cache_cap > 0) ? cache_cap : 16;
         while (newcap <= n) newcap <<= 1;            /* double until enough */
 
-        seq_t *newcache = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *newcache = mem_new(seq_t, newcap);
         if (!newcache) { /* allocation failed – fatal */
             exit(EXIT_FAILURE);
         }
         if (cache != NULL) {
-            memcpy(newcache, cache, (cache_len + 1) * sizeof(seq_t));
-            free(cache);
+            mem_copy(newcache, cache, (cache_len + 1) * sizeof(seq_t));
+            mem_free(cache);
         }
         cache      = newcache;
         cache_cap  = newcap;

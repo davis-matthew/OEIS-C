@@ -9,6 +9,7 @@
  *            standard recurrence for convergents of a quadratic irrational
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 18, u64 n <= 37, u128 n <= 78,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 198 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

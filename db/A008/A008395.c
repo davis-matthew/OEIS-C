@@ -8,6 +8,7 @@
  *            coeff = {1,100,2025,14400,44100,63504,44100,14400,2025,100,1}
  * Range:     u8 none, u16 n <= 3, u32 n <= 12, u64 n <= 149, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 971 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

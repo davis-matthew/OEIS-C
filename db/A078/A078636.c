@@ -10,20 +10,21 @@
  *            for any seq_t / idx_t definitions provided by the build
  * Range:     u8 n <= 20, u16 n <= 256, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   rad_u64
+ * Validated: standard, pass, 72 terms through n = 905 (2026-11-01)
+ * Helpers:   radical_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/rad_u64.h"
+#include "../utils/radical_u64.h"
 
 seq_t a(idx_t n)
 {
     /* n ≥ 1 by definition of the sequence */
     uint64_t n_val = (uint64_t)n;
-    seq_t rad_n   = rad_u64(n_val);
-    seq_t rad_np1 = rad_u64(n_val + 1);
+    seq_t rad_n   = radical_u64(n_val);
+    seq_t rad_np1 = radical_u64(n_val + 1);
     return rad_n * rad_np1;
 }

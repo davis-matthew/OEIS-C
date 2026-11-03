@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 2696, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9546 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    (2,3,5,7).  Return 0 if no such k exists.  Indexed from 1. */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct {
     int rem;      /* remainder of the current value modulo n */
@@ -30,10 +32,10 @@ seq_t a(idx_t n)
 
     /* Ensure we can cast the size argument. */
     size_t sz = (size_t)n;
-    Node *queue = (Node*)malloc(sz * sizeof(Node));
+    Node *queue = mem_new(Node, sz);
     if (!queue) return (seq_t)0;
     bool *seen = (bool*)calloc(sz, sizeof(bool));
-    if (!seen) { free(queue); return (seq_t)0; }
+    if (!seen) { mem_free(queue); return (seq_t)0; }
 
     const seq_t digits[4] = { (seq_t)2, (seq_t)3, (seq_t)5, (seq_t)7 };
     seq_t sn = (seq_t)n;   /* n as seq_t for modulus/division */
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(queue);
+    mem_free(queue);
     free(seen);
     return (seq_t)0;   /* no such multiple found */
 }

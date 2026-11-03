@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const int f_coeff[28] = {
     /*  0 */ 1,
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 {
     /* Grow the cache to accommodate index n */
     if (n + 1 > cache_sz) {
-        seq_t *new_cache = (seq_t*)realloc(cache, sizeof(seq_t) * (n + 1));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) return (seq_t)0;   /* out of memory: return 0 */
         /* Zero-initialise the new elements */
         for (idx_t i = cache_sz; i <= n; ++i) new_cache[i] = (seq_t)0;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has57
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,26 @@
  * digit is 5. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has57.h"
+#include "../utils/mem.h"
+
+/* Test whether the base‑9 representation of x contains the consecutive
+ * digits 5 followed by 7 (reading most significant to least significant). */
+static inline bool has57(seq_t x)
+{
+    if (x == 0)
+        return false;
+    seq_t prev = 0;     /* previously seen digit (lower place) */
+    bool has_prev = false;
+    while (x > 0) {
+        seq_t digit = x % 9;   /* current (higher) digit */
+        if (has_prev && prev == 7 && digit == 5)
+            return true;
+        prev = digit;
+        has_prev = true;
+        x /= 9;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -45,7 +65,7 @@ seq_t a(idx_t n)
     while (cache_cap < n)
         cache_cap <<= 1;
     if (cache == NULL || cache_cap > cache_len) {
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* Find successive terms until the n‑th one is reached */

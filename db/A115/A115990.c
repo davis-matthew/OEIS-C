@@ -9,12 +9,14 @@
  *            Σ_{j=k..n} C(n-k, j-k)*C(j, n-j) (OEIS A115990)
  * Range:     u8 n <= 27, u16 n <= 77, u32 n <= 275, u64 n <= 945,
  *            u128 n <= 3569, big any n
+ * Validated: standard, pass, 81 terms through n = 4986 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

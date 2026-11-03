@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 27, u32 n <= 93, u64 n <= 313,
  *            u128 n <= 1170, big any n
+ * Validated: standard, pass, 58 terms through n = 2183 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,6 +23,8 @@
 
 #include <stdint.h>
 #include <limits.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

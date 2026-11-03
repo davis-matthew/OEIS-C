@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 1272, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binary_ok, term_valid, ternary_ok
+ * Validated: standard, pass, 64 terms through n = 9333 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,41 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/binary_ok.h"
-#include "../utils/term_valid.h"
-#include "../utils/ternary_ok.h"
+#include "../utils/mem.h"
+
+/* Return true if x has an equal number of zeros and ones in its
+ * binary representation. */
+static bool binary_ok(seq_t x) {
+    if (x == 0) return false;
+    seq_t t = x;
+    unsigned long long ones = 0, d = 0;
+    while (t != 0) {
+        ones += (uint64_t)(t & 1);
+        t >>= 1;
+        d++;
+    }
+    return (d & 1) == 0 && ones == d / 2;
+}
+
+/* Return true if x has an equal number of zeros and twos in its
+ * base‑3 representation. */
+static bool ternary_ok(seq_t x) {
+    if (x == 0) return false;
+    seq_t t = x;
+    unsigned long long zeros = 0, twos = 0;
+    while (t != 0) {
+        uint64_t digit = (uint64_t)(t % 3);
+        if (digit == 0) zeros++;
+        else if (digit == 2) twos++;
+        t /= 3;
+    }
+    return zeros == twos;
+}
+
+/* Return true iff x is a term of A144798. */
+static bool term_valid(seq_t x) {
+    return binary_ok(x) && ternary_ok(x);
+}
 
 /* Cache of found terms. */
 static seq_t *cache = NULL;
@@ -38,7 +71,7 @@ static void ensure_terms(idx_t n) {
     if (cache_cap < needed) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

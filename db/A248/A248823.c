@@ -8,6 +8,7 @@
  *            v_p(P(n)) = ∑_{i=1}^{n} ∑_{k≥1} ⌊i/p^k⌋
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 32, u64 n <= 60, u128 n <= 112,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 953 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 /* Compute the number of integers k^5 dividing 1!*2!*…*n! */

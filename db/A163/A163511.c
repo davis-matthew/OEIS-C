@@ -11,6 +11,7 @@
  *            * the first 20 primes. No external libraries are required
  * Range:     u8 n <= 34, u16 n <= 258, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 81 terms through n = 7614 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

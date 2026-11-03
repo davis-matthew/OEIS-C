@@ -10,13 +10,15 @@
  *            d(i) < d(i+1); a peak is d(i‑1) < d(i) > d(i+1))
  * Range:     u8 n <= 59, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9496 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build system.  No redefinition. */
 extern seq_t a(idx_t n);
@@ -76,8 +78,7 @@ seq_t a(idx_t n)
 
         /* Store the candidate if it satisfies the condition. */
         if (peaks > pits) {
-            seq_t *tmp = (seq_t *)realloc(cache,
-                                          (cache_len + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (cache_len + 1));
             if (tmp == NULL) {
                 abort(); /* Allocation failure */
             }

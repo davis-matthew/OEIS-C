@@ -11,7 +11,8 @@
  *            exceeds all previous ones
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /*--- Prime generation ---------------------------------------------------*/
 
@@ -93,7 +95,7 @@ static void ensure_rec_cap(size_t need)
     if (rec_cap >= need) return;
     size_t new_cap = rec_cap ? rec_cap * 2 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(rec, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, rec, new_cap);
     if (!tmp) abort();
     rec = tmp;
     rec_cap = new_cap;
@@ -128,7 +130,7 @@ static void generate_until(size_t n)
 
         uint64_t num = p1 - 1;
         uint64_t den = p2 - 1;
-        uint64_t g   = gcd_uint64(num, den);
+        uint64_t g   = gcd_u64(num, den);
         uint64_t denom_val = den / g;          /* fits in 64 bits */
 
         seq_t denom = (seq_t)denom_val;

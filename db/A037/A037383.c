@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   base3_in_base7
+ * Validated: standard, pass, 65 terms through n = 9131 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,30 @@
    condition, and caching previously found terms. */
 
 #include <stdlib.h>
-#include "../utils/base3_in_base7.h"
+
+static inline int base3_in_base7(seq_t k)
+{
+    unsigned bits3 = 0;
+    unsigned bits7 = 0;
+    seq_t t = k;
+
+    /* collect base‑3 digits */
+    while (t > 0) {
+        unsigned d = (unsigned)(long long)(t % 3);
+        bits3 |= 1u << d;
+        t = t / 3;
+    }
+
+    t = k;
+    /* collect base‑7 digits */
+    while (t > 0) {
+        unsigned d = (unsigned)(long long)(t % 7);
+        bits7 |= 1u << d;
+        t = t / 7;
+    }
+
+    return (bits3 & ~bits7) == 0;
+}
 
 seq_t a(idx_t n)
 {

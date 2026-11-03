@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 1115, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9671 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  * and recomputes incrementally when a larger n is requested.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t max_prepared = 0;
 static seq_t *sigma_table = NULL;
@@ -37,8 +39,8 @@ static void prepare_tables(idx_t n) {
     seq_t *new_tau   = NULL;
 
     size_t new_size = (size_t)n + 1;
-    new_sigma = (seq_t*)calloc(new_size, sizeof(seq_t));
-    new_tau   = (seq_t*)calloc(new_size, sizeof(seq_t));
+    new_sigma = mem_new(seq_t, new_size);
+    new_tau   = mem_new(seq_t, new_size);
     if (!new_sigma || !new_tau) {
         /* Allocation failed – terminate program safely */
         abort();
@@ -53,8 +55,8 @@ static void prepare_tables(idx_t n) {
     }
 
     /* Replace old tables with new ones */
-    free(sigma_table);
-    free(tau_table);
+    mem_free(sigma_table);
+    mem_free(tau_table);
     sigma_table = new_sigma;
     tau_table   = new_tau;
     max_prepared = n;

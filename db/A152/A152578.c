@@ -7,7 +7,8 @@
  * Formula:   a(n) = 5^(2^(n-1)) + 2
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * to avoid explicit exponentiation of enormous numbers. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         /* grow cache to hold up to n */
         size_t new_size = (size_t)(n + 1);
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         for (idx_t i = cache_size; i <= n; ++i) {
             if (i == 1) {
                 cache[1] = (seq_t)7;          /* 5^1 + 2 */

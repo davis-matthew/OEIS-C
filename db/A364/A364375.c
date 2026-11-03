@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 13, i32 n <= 22, i64 n <= 30, i128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build system. */
 static seq_t *a_arr   = NULL;  /* a(n) values                */
@@ -46,10 +48,10 @@ ensure_capacity(idx_t need)
     if ((size_t)need < cap) return;
     size_t new_cap = cap ? cap * 2 : 8;
     if (new_cap <= (size_t)need) new_cap = (size_t)need + 1;
-    a_arr   = (seq_t *)realloc(a_arr,   new_cap * sizeof(seq_t));
-    a2_arr  = (seq_t *)realloc(a2_arr,  new_cap * sizeof(seq_t));
-    a3_arr  = (seq_t *)realloc(a3_arr,  new_cap * sizeof(seq_t));
-    a4_arr  = (seq_t *)realloc(a4_arr,  new_cap * sizeof(seq_t));
+    a_arr   = mem_resize(seq_t, a_arr, new_cap);
+    a2_arr  = mem_resize(seq_t, a2_arr, new_cap);
+    a3_arr  = mem_resize(seq_t, a3_arr, new_cap);
+    a4_arr  = mem_resize(seq_t, a4_arr, new_cap);
     cap = new_cap;
 }
 

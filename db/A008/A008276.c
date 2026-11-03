@@ -13,12 +13,14 @@
  *            s(n-1,k-1) - (n-1)*s(n-1,k). The triangle is...
  * Range:     i8 n <= 18, i16 n <= 41, i32 n <= 99, i64 n <= 227,
  *            i128 n <= 622, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 4573 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for NULL (if needed) */
+#include "../utils/mem.h"
 
 #define MAX_R 8000    /* safe upper bound for r for typical n ≤ 10⁴ */
 
@@ -41,8 +43,8 @@ seq_t a(idx_t n)
     /* If r exceeds the static buffer, we fall back to dynamic allocation.
        For the expected range (n ≤ 10⁴) this never happens. */
     if (r > MAX_R) {
-        seq_t *prev = (seq_t*)calloc((size_t)r + 1, sizeof(seq_t));
-        seq_t *cur  = (seq_t*)calloc((size_t)r + 1, sizeof(seq_t));
+        seq_t *prev = mem_new(seq_t, (size_t)r + 1);
+        seq_t *cur  = mem_new(seq_t, (size_t)r + 1);
         if (!prev || !cur) return 0;         /* allocation failure */
 
         prev[0] = 1;
@@ -56,8 +58,8 @@ seq_t a(idx_t n)
             for (idx_t j = 0; j <= i; ++j) prev[j] = cur[j];
         }
         seq_t val = prev[k];
-        free(cur);
-        free(prev);
+        mem_free(cur);
+        mem_free(prev);
         return val;
     }
 

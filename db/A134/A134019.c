@@ -10,18 +10,21 @@
  * Formula:   a(n) = (1/2)(4^n - 3^(n+1) + 5*2^n - 1)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)n);          /* 4^n   */
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)n + 1);      /* 3^(n+1) */
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)n);          /* 2^n   */
+    seq_t pow4 = ipow((seq_t)4, (seq_t)n);          /* 4^n   */
+    seq_t pow3 = ipow((seq_t)3, (seq_t)n + 1);      /* 3^(n+1) */
+    seq_t pow2 = ipow((seq_t)2, (seq_t)n);          /* 2^n   */
 
     seq_t res = pow4;
     res += pow2 * 5;   /* + 5*2^n   */

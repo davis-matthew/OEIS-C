@@ -9,12 +9,14 @@
  *            a(3)=234, a(4)=951, a(5)=3573
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 17, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle the first six terms directly */
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     /* Initialise cache on first use */
     if (cache == NULL) {
         if (needed < 6) needed = 6;          /* ensure room for initial terms */
-        cache = (seq_t*)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         cache[0] = 1;
         cache[1] = 9;
         cache[2] = 51;
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
 
     /* Expand cache if necessary */
     if (needed > last + 1) {
-        cache = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, needed);
     }
 
     /* Compute new terms up to idx */

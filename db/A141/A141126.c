@@ -8,15 +8,17 @@
  * Formula:   a(0) = 1 Recurrence: for n ≥ 0 let n2 = n². If a(n) > n2 and
  *            (a(n) – n2) has not appeared earlier, a(n+1) = a(n) – n2, else
  *            a(n+1) = a(n) + n2
- * Range:     u8 n <= 16, u16 n <= 240, u32 n <= 9728, u64 n <= 9728,
- *            u128 n <= 9728, big any n
- * Helpers:   none
+ * Range:     u8 n <= 16, u16 n <= 240, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 69 terms through n = 9728 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global cache for already computed sequence values */
 static seq_t *seq_cache   = NULL;
@@ -31,7 +33,7 @@ static void ensure_capacity(idx_t need)
     idx_t newcap = seq_cap ? seq_cap << 1 : 8;
     while (newcap < need) newcap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(seq_cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, newcap);
     if (!tmp) exit(1);                /* abort on allocation failure */
     seq_cache = tmp;
     seq_cap   = newcap;

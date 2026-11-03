@@ -10,13 +10,38 @@
  *            Initial terms a(20)…a(55) are computed by a brute‑force search
  * Range:     u8 n <= 34, u16 n <= 120, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   brute_count
+ * Validated: standard, pass, 65 terms through n = 937 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* malloc, realloc */
-#include "../utils/brute_count.h"
+#include "../utils/mem.h"
+
+static seq_t brute_count(idx_t n)
+{
+    seq_t count = 0;
+    if (n < 20) return 0;          /* minimise loop ranges */
+    /* parts p1<=p2<=p3<=p4<=p5, p_i != i (i=1..5) */
+    for (idx_t p1 = 2; p1 <= n-4; ++p1) {          /* p1 >= 2 */
+        if (p1 == 1) continue;                    /* safety */
+        for (idx_t p2 = p1; p2 <= n-p1-3; ++p2) { /* p2 >= p1, p2 != 2 */
+            if (p2 == 2) continue;
+            for (idx_t p3 = p2; p3 <= n-p1-p2-2; ++p3) { /* p3 >= p2, p3 != 3 */
+                if (p3 == 3) continue;
+                for (idx_t p4 = p3; p4 <= n-p1-p2-p3-1; ++p4) { /* p4 >= p3, p4 != 4 */
+                    if (p4 == 4) continue;
+                    idx_t p5 = n - p1 - p2 - p3 - p4;
+                    if (p5 < p4) continue;          /* keep non‑decreasing */
+                    if (p5 == 5) continue;          /* p5 != 5 */
+                    ++count;
+                }
+            }
+        }
+    }
+    return count;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,9 +56,9 @@ seq_t a(idx_t n)
     /*  ensure cache has space for indices up to n  */
     if (cache_cap < n + 1) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {               /* out of memory – aborting is safe here */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_cap = 0;
             cache_last = 0;

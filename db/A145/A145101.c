@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;             /* array with seq[0] = placeholder */
 static size_t seq_cap = 0;           /* current allocated capacity in elements */
@@ -41,10 +43,10 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = seq_cap ? seq_cap * 2 : 32;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (seq) {
-        memcpy(new_arr, seq, seq_len * sizeof(seq_t));
-        free(seq);
+        mem_copy(new_arr, seq, seq_len * sizeof(seq_t));
+        mem_free(seq);
     }
     seq = new_arr;
     seq_cap = new_cap;

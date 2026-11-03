@@ -8,14 +8,16 @@
  * Formula:   a(n) = Product_{i=2..n} (tau(i)+1)/(tau(i)-1)
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 31, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: full, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (n > max_computed)
     {
         idx_t new_size = n + 1;           /* allocate up to n (index 0 unused) */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
 
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
         for (idx_t i = max_computed + 1; i <= n; ++i)
         {
-            uint64_t tau = divisor_count_u64((uint64_t)i);
+            uint64_t tau = num_divisors((uint64_t)i);
             uint64_t num = tau + 1;
             uint64_t den = tau - 1;       /* tau(i) >= 2 for i >= 2 */
             /* For n <= 71 the division is exact, for larger n we still

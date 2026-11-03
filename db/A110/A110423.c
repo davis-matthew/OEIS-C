@@ -8,7 +8,8 @@
  *            prime(k+1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   is_prime, simple_sieve
+ * Validated: standard, pass, 32 terms through n = 362 (2026-11-03)
+ * Helpers:   is_prime_u64, simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 #include "../utils/simple_sieve.h"
-#include "../utils/is_prime.h"
 
 static bool primes_initialized = false;
 static uint32_t *primes = NULL;
@@ -62,7 +64,7 @@ seq_t a(idx_t n) {
     } else {
         /* Fallback for n larger than the current sieve limit */
         for (uint64_t x = n; x >= 2; --x) {
-            if (is_prime(x)) { p = (uint32_t)x; break; }
+            if (is_prime_u64(x)) { p = (uint32_t)x; break; }
         }
     }
 

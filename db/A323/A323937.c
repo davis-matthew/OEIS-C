@@ -10,7 +10,8 @@
  *            has length r+2 in row r (rows start at r=1)
  * Range:     u8 n <= 14, u16 n <= 19, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;           /* rows[1] .. rows[max_row] */
 static idx_t rows_alloc = 0;          /* number of rows already computed */
@@ -47,7 +49,7 @@ static void ensure_rows(idx_t max_r)
         size_t len = (size_t)r + 3;             /* indices 0..r+2, we use 1..r+2 */
         seq_t *cur = NULL;
 #if defined(__cplusplus)
-        cur = reinterpret_cast<seq_t*>(malloc(len * sizeof(seq_t)));
+        cur = mem_new(seq_t, len);
 #else
         cur = (seq_t*)malloc(len * sizeof(seq_t));
 #endif

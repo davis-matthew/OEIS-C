@@ -12,13 +12,16 @@
  *            = f[n*n]. * Note that the recurrence is O(n³) in...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>          /* malloc, realloc */
-#include "../utils/binom.h"   /* binom(idx_t, idx_t) : seq_t */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     static idx_t dp_cap = 0;
 
     if (dp_cap < N + 1) {
-        seq_t *newdp = (seq_t *)realloc(dp, (N + 1) * sizeof(seq_t));
+        seq_t *newdp = mem_resize(seq_t, dp, (N + 1));
         if (!newdp) abort();   /* memory allocation failed */
         dp = newdp;
         dp_cap = N + 1;
@@ -51,7 +54,7 @@ seq_t a(idx_t n)
         seq_t sum = (seq_t)0;
         idx_t maxj = (i < n) ? i : n;   /* j runs from 1 to min(n,i) */
         for (idx_t j = 1; j <= maxj; ++j) {
-            seq_t comb = binom(i - 1, j - 1);   /* C(i-1, j-1) */
+            seq_t comb = binomial(i - 1, j - 1);   /* C(i-1, j-1) */
             seq_t prod = comb * dp[i - j];
             sum += prod;
         }

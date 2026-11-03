@@ -11,7 +11,8 @@
  *            1/(1-y*x^j)^{A000009(j)}
  * Range:     u8 n <= 14, u16 n <= 31, u32 n <= 87, u64 n <= 278,
  *            u128 n <= 968, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* dynamic table of partition counts: f[s] = number of partitions of s into distinct parts */
 static seq_t *f = NULL;         /* array of size f_cap */
@@ -29,11 +31,11 @@ static void precompute_partitions(idx_t n)
 {
     if (f_cap <= (size_t)n) {
         /* reallocate to fit indices up to n */
-        seq_t *tmp = (seq_t *)realloc(f, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, f, (n + 1));
         if (!tmp) return;      /* allocation failed; caller will get a zero */
         f = tmp;
         /* initialize new entries to zero */
-        memset(f + f_cap, 0, (n + 1 - f_cap) * sizeof(seq_t));
+        mem_set(f + f_cap, 0, (n + 1 - f_cap) * sizeof(seq_t));
         f_cap = n + 1;
     }
 

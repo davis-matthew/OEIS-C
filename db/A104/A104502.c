@@ -8,12 +8,14 @@
  *            (⇑ a(0)=1, a(1)=1, a(2)=2, a(3)=3, a(4)=5, … from OEIS A104502)
  * Range:     u8 n <= 16, u16 n <= 44, u32 n <= 135, u64 n <= 448,
  *            u128 n <= 1592, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9578 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* memoised DP table */
 static idx_t dp_size = 0;     /* current allocated size (dp_size-1 is largest index computed) */
@@ -25,7 +27,7 @@ static void extend_to(idx_t new_n)
         return;
 
     /* reallocate memory; cast is needed for C when seq_t is a class */
-    seq_t *new_dp = (seq_t *)realloc(dp, (size_t)(new_n + 1) * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp, (size_t)(new_n + 1));
     if (!new_dp)
         abort();                         /* allocation failed */
     dp = new_dp;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
             + a(n-27)
    Initial values: a(0)=1, a(1)=a(2)=…=a(7)=0. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;      /* cache of computed values */
 static size_t seq_len = 0;     /* number of initialized elements */
@@ -33,7 +35,7 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = seq_cap ? seq_cap * 2 : need;
     if (new_cap < need)
         new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) {
         /* In a real program you might abort or handle the error. */
         return;

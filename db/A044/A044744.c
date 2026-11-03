@@ -12,7 +12,8 @@
  *            with arbitrary order of * indices are efficient
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains31
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains31.h"
+#include "../utils/mem.h"
+
+/* return true iff decimal representation of x contains "31" */
+static bool contains31(seq_t x)
+{
+    int prev = -1;   /* sentinel for nonexistent previous digit */
+    while (x > 0) {
+        int cur = (int)(x % 10);
+        if (prev == 1 && cur == 3)
+            return true;
+        prev = cur;
+        x = x / 10;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;      /* memoised terms */
 static size_t cache_len = 0;     /* number of terms stored */
@@ -33,7 +48,7 @@ static void ensure_cache(size_t need)
     if (cache_cap < need) {
         size_t newcap = cache_cap ? cache_cap * 2 : 64;
         if (newcap < need) newcap = need;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cache_cap = newcap;
     }
 }

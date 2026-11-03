@@ -9,7 +9,8 @@
  *            a(n‑1) * (10^d + 1) where d = ceil( digit_len(a(n‑1)) / 2 )
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   digit_len, pow10, seq_mul
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,24 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
-#include "../utils/seq_mul.h"
+#include <string.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* ----- cache ----- */
 static seq_t *cache      = NULL;   /* a(1) .. a(cache_len) */
@@ -45,7 +61,7 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
             while (new_cap < needed)
                 new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cache_cap = new_cap;
         }
@@ -65,7 +81,7 @@ seq_t a(idx_t n)
             else if (i == 3)   val = (seq_t)10032;      /* a(4) */
             else {
                 seq_t prev = cache[i - 1];
-                size_t len_prev = digit_len(prev);
+                size_t len_prev = num_digits(prev);
                 size_t d = (len_prev + 1) / 2;              /* ceil(len/2) */
                 seq_t pow10d = pow10((idx_t)d);            /* 10^d */
                 val = seq_mul(prev, pow10d);               /* prev * 10^d */

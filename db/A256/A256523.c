@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 3273, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   leading_digit_uint128
+ * Validated: standard, pass, 70 terms through n = 9819 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,15 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/leading_digit_uint128.h"
+#include "../utils/mem.h"
+
+/* Return the most significant decimal digit of a 128‑bit unsigned integer. */
+static int leading_digit_uint128(unsigned __int128 x)
+{
+    if (x == (unsigned __int128)0) return 0;
+    while (x >= 10) x /= 10;
+    return (int)x;
+}
 
 /* Forward declarations of the build‑system supplied integer types. */
 typedef idx_t idx_t;   /* defined in the build system */
@@ -41,10 +50,10 @@ static void add_term(seq_t v)
 {
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (cache_len == cache_cap) {
         cache_cap *= 2;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_len++] = v;
 }

@@ -7,16 +7,19 @@
  * Formula:   a(n) = sum_(d|n) ((product_(d|n) d) / d)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 59, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   big_pow, factor_u64, floor_isqrt_u64
+ * Validated: standard, pass, 63 terms through n = 100 (2026-11-01)
+ * Helpers:   factor_u64, ipow, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* factor_u64 */
-#include "../utils/big_pow.h"     /* big_pow */
-#include "../utils/floor_isqrt_u64.h"  /* floor_isqrt_u64 */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
+#include "../utils/isqrt.h"
 
 /* Recursive enumeration of all divisors of n, accumulating a(n) */
 static void dfs_divisors(size_t idx, uint64_t cur,
@@ -56,10 +59,10 @@ seq_t a(idx_t n)
     /* product of divisors P = n^{τ/2} */
     seq_t P;
     if ((tau & 1) == 0) {                 /* τ even */
-        P = big_pow((seq_t)nn, (seq_t)(tau >> 1));
+        P = ipow((seq_t)nn, (seq_t)(tau >> 1));
     } else {                              /* τ odd – n is a perfect square */
-        uint64_t sqrt_n = floor_isqrt_u64(nn);
-        P = big_pow((seq_t)sqrt_n, (seq_t)tau);
+        uint64_t sqrt_n = isqrt(nn);
+        P = ipow((seq_t)sqrt_n, (seq_t)tau);
     }
 
     seq_t sum = 0;

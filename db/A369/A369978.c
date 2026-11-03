@@ -9,9 +9,10 @@
  * Formula:   a(n) is the Dirichlet inverse of b(n)=1+A083345(n), where
  *            A083345(n) = n' / gcd(n,n') (arithmetic derivative). a(1)=1; for
  *            n>1, a(n) = -∑_{d|n, d<n} (1+A083345(n/d)) * a(d)
- * Range:     i8 n <= 63, i16 n <= 8959, i32 n <= 9845, i64 n <= 9845,
- *            i128 n <= 9845, big any n
- * Helpers:   gcd
+ * Range:     i8 n <= 63, i16 n <= 8959, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 94 terms through n = 9845 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* ---- static state for caching ---- */
 static seq_t   *a_cache = NULL;     /* Dirichlet inverse values */
@@ -64,8 +66,8 @@ ensure_cache_capacity(idx_t n)
     if (n <= cache_cap) return;
     size_t new_cap = (cache_cap ? cache_cap * 2 : 16);
     while (new_cap < (size_t)n) new_cap *= 2;
-    seq_t *new_a = (seq_t*)realloc(a_cache, (new_cap + 1) * sizeof(seq_t));
-    seq_t *new_b = (seq_t*)realloc(b_cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_cache, (new_cap + 1));
+    seq_t *new_b = mem_resize(seq_t, b_cache, (new_cap + 1));
     if (!new_a || !new_b) abort();
     a_cache = new_a;
     b_cache = new_b;

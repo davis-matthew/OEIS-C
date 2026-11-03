@@ -9,12 +9,14 @@
  *            a(3)=7
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (cap == 0) {
         /* First call: ensure capacity of at least 4 */
         cap = 4;
-        buf = (seq_t *)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         if (!buf) abort();              /* Allocation failed */
         /* Initialise the first four terms */
         buf[0] = 0;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         /* Grow buffer to at least n+1 */
         idx_t new_cap = cap * 2;
         if (new_cap < n + 1) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_cap);
         if (!tmp) abort();              /* Allocation failed */
         buf = tmp;
         cap = new_cap;

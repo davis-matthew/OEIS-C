@@ -10,14 +10,17 @@
  *            This implements OEIS A366140
  * Range:     u8 n <= 50, u16 n <= 4465, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 75 terms through n = 9360 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Check if a number k satisfies the condition A302291(k) | k.
  * A302291(k) is the minimal period of the binary string of k under
@@ -29,7 +32,7 @@ static bool is_term(seq_t k)
         return true;
 
     /* Length of the binary representation (number of bits). */
-    idx_t L = bitlen_seq_t(k);
+    idx_t L = bit_length(k);
 
     /* Build a mask with L ones:  (1 << L) - 1, but constructed
      * safely for all widths. */
@@ -67,7 +70,7 @@ seq_t a(idx_t n)
     while (size < n) {
         if (size == 0) {             /* first time: seed 0 */
             capacity = 64;
-            terms = (seq_t *)malloc(capacity * sizeof(seq_t));
+            terms = mem_new(seq_t, capacity);
             terms[0] = 0;
             size = 1;
         }
@@ -81,7 +84,7 @@ seq_t a(idx_t n)
         /* Append it to the cache. */
         if (size >= capacity) {
             capacity *= 2;
-            terms = (seq_t *)realloc(terms, capacity * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, capacity);
         }
         terms[size++] = k;
     }

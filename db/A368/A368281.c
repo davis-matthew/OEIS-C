@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    The row is generated lazily and stored to avoid repeated work. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t **rows_seq = NULL;   /* rows_seq[r] holds the sequence for row r (1‑based) */
 static size_t *rows_len = NULL;   /* number of elements stored for each row */
@@ -51,7 +53,7 @@ static void generate_row(idx_t r, idx_t needed_len)
 
     if (rows_seq[r] == NULL) {
         /* initial word is just a single '1' */
-        rows_seq[r] = (seq_t *)malloc(sizeof(seq_t));
+        rows_seq[r] = mem_new(seq_t, 1);
         (rows_seq[r])[0] = 1;
         rows_len[r] = 1;
     }
@@ -64,7 +66,7 @@ static void generate_row(idx_t r, idx_t needed_len)
             if (cur[i] == 1) ++count1;
 
         size_t new_len = cur_len * (size_t)r + count1; /* each element gives r ones, plus a zero for each 1 */
-        seq_t *new_seq = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_seq = mem_new(seq_t, new_len);
         size_t pos = 0;
         for (size_t i = 0; i < cur_len; ++i) {
             /* add r ones */
@@ -74,7 +76,7 @@ static void generate_row(idx_t r, idx_t needed_len)
             if (cur[i] == 1)
                 new_seq[pos++] = 0;
         }
-        free(rows_seq[r]);
+        mem_free(rows_seq[r]);
         rows_seq[r] = new_seq;
         rows_len[r] = new_len;
     }

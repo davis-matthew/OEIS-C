@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 18, i16 n <= 60, i32 n <= 208, i64 n <= 738,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *H_cache = NULL;      /* coefficients of S(q)^2,  H_cache[n] = coeff of q^n  */
 static size_t cache_cap = 0;       /* current number of stored coefficients (>=1) */
@@ -36,8 +38,8 @@ static void recompute(size_t need_idx)
     size_t sz = need_idx + 1;           /* number of coefficients 0..need_idx */
 
     /* temporary arrays for G and D */
-    seq_t *G = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *D = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *G = mem_new(seq_t, sz);
+    seq_t *D = mem_new(seq_t, sz);
     if (!G || !D)
         abort();
 
@@ -114,7 +116,7 @@ static void recompute(size_t need_idx)
     }
 
     /* R = G / D  (the quotient series) */
-    seq_t *R = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *R = mem_new(seq_t, sz);
     if (!R) abort();
     R[0] = G[0];                  /* G[0] = D[0] = 1 */
 
@@ -131,8 +133,8 @@ static void recompute(size_t need_idx)
     }
 
     free(Dnz);
-    free(G);
-    free(D);
+    mem_free(G);
+    mem_free(D);
 
     /* Rnz: indices where R[i] != 0 */
     size_t *Rnz = (size_t*)calloc(need_idx + 1, sizeof(size_t));
@@ -147,7 +149,7 @@ static void recompute(size_t need_idx)
     }
 
     /* H = R * R   (convolution) */
-    seq_t *H_new = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *H_new = mem_new(seq_t, sz);
     if (!H_new) abort();
 
     for (size_t ai = 0; ai < Rnz_cnt; ++ai)
@@ -168,10 +170,10 @@ static void recompute(size_t need_idx)
     }
 
     free(Rnz);
-    free(R);
+    mem_free(R);
 
     /* install new cache */
-    if (H_cache) free(H_cache);
+    if (H_cache) mem_free(H_cache);
     H_cache = H_new;
     cache_cap = sz;
 }

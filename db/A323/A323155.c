@@ -8,6 +8,7 @@
  * Formula:   a(n) = Product_{d|n, d-1 is prime} (d-1)^(1 + A286561(n,d-1))
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 71, u64 n <= 359,
  *            u128 n <= 2159, big any n
+ * Validated: standard, pass, 105 terms through n = 9673 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

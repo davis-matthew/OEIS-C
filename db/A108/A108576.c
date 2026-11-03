@@ -12,13 +12,27 @@
  *            0 for n<10
  * Range:     u8 n <= 17, u16 n <= 78, u32 n <= 2959, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   B
+ * Validated: standard, pass, 67 terms through n = 9697 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/B.h"
+
+static seq_t B(idx_t m)
+{
+    seq_t sum = 0;
+    /* m is non‑negative; loop over p */
+    for (idx_t p = 0; p <= m / 4; ++p)
+    {
+        idx_t t = m - 4 * p;          /* remainder after subtracting 4p */
+        idx_t R = t / 6;              /* number of terms in inner sum */
+        seq_t term = (seq_t)(R + 1) * (seq_t)(t + 1 - 3 * R);
+        sum += term;
+    }
+    return sum;
+}
  
 
  

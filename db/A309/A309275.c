@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>               /* for sqrtl */
+#include "../utils/mem.h"
 
 /* maximum index that will ever be requested.  The built‑in tests
  * only use n up to about 10000; 20000 is a safe upper bound.  If a
@@ -144,7 +146,7 @@ seq_t a(idx_t n)
             }
 
             /* sort the divisors */
-            qsort(divs, div_len, sizeof(seq_t), cmp_seq_t);
+            mem_qsort(divs, div_len, sizeof(seq_t), cmp_seq_t);
 
             /* find the smallest divisor not yet used */
             a_k = (seq_t)0;

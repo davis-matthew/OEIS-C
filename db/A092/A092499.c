@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 722 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Formula: a(0) = 0, a(1) = 1, a(n) = 21*a(n-1) - a(n-2)  (n >= 2)   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* memoisation table */
 static idx_t  cache_len = 0;    /* number of entries stored */
@@ -29,7 +31,7 @@ ensure_cache(idx_t n)
 
     /* Extend the cache */
     size_t new_len = (size_t)(n + 1);
-    seq_t *new_ptr = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, a_cache, new_len);
     a_cache = new_ptr;
 
     /* Initialise new portions */

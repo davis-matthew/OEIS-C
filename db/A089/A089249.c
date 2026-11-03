@@ -12,12 +12,15 @@
  *            prior row. binom(a,b) is the binomial coef...
  * Range:     u8 n <= 17, u16 n <= 21, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
     seq_t diag = power - ((seq_t)col + 2);
 
     /* combinatorial factor */
-    seq_t bin = binom(row + 1, col + 1);
+    seq_t bin = binomial(row + 1, col + 1);
 
     return bin * diag;
 }

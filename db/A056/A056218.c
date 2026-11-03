@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 15, u64 n <= 23, u128 n <= 35,
  *            big any n
- * Helpers:   factor_n
+ * Validated: standard, pass, 44 terms through n = 457 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,29 @@
  *  automatically because only `seq_t` arithmetic is used.
  */
 #include <stdlib.h>
-#include "../utils/factor_n.h"
+
+/* factorise n into arrays pr[12], ex[12]; count stored in *cnt */
+static void factor_n(idx_t n, idx_t *pr, idx_t *ex, size_t *cnt)
+{
+    size_t c = 0;
+    for (idx_t p = 2; p * p <= n; ++p) {
+        if (n % p == 0) {
+            ex[c] = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++ex[c];
+            }
+            pr[c] = p;
+            ++c;
+        }
+    }
+    if (n > 1) {
+        pr[c] = n;
+        ex[c] = 1;
+        ++c;
+    }
+    *cnt = c;
+}
 
 /* test whether x is prime – simple trial division, fast enough for n≤10000 */
 static int is_prime_small(idx_t x)

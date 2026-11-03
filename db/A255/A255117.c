@@ -8,12 +8,14 @@
  * Formula:   a(n+3) = 4*a(n+2) + 4*a(n), with a(0)=1, a(1)=4, a(2)=17
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute OEIS sequence A255117: Number of n‑length words on {0,1,2,3,4}
    in which 0 appears only in runs of length 2. */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate at least three entries for the base cases */
         cache_len = (n + 1 > 3) ? (n + 1) : 3;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL) return 0; /* allocation failed – return 0 as a safe default */
 
         cache[0] = (seq_t)1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Grow the table if the caller asked for an index beyond the current size */
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL) return 0; /* allocation failed – safe default */
         cache = tmp;
         cache_len = new_len;

@@ -9,6 +9,7 @@
  *            for n > 2, with a(1) = 243, a(2) = 622
  * Range:     u8 n <= 1, u16 n <= 16, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
+ * Validated: standard, pass, 50 terms through n = 201 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

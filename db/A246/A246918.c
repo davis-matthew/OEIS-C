@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 520, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   recurse_divs
+ * Validated: standard, pass, 78 terms through n = 9379 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,7 +39,58 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/recurse_divs.h"
+
+/* -------- recursive enumeration of divisors of 3·n² -------- */
+static void recurse_divs(size_t idx,
+                         uint64_t cur,
+                         const uint64_t *pf,
+                         const int *pe,
+                         size_t total,
+                         uint64_t M,
+                         uint64_t n,
+                         seq_t *best)
+{
+    if (idx == total) {
+        uint64_t d = cur;
+        if (d == 0)
+            return;
+        uint64_t e = M / d;
+        if (d > e)                /* use each pair once */
+            return;
+        if ((d & 1) != (e & 1))   /* same parity required */
+            return;
+        if (((d + e) & 3) != 0)   /* (d+e) divisible by 4 for integer y */
+            return;
+
+        uint64_t t = (e - d) >> 1;                 /* t = (v – u)/2 */
+        uint64_t sum = t + n;                      /* sum = t + n  */
+        if ((sum & 1) != 0)                        /* (t + n) even for integer x */
+            return;
+
+        uint64_t x = sum >> 1;                     /* x = (t + n)/2   */
+        if (x == 0 || x == n)                     /* non‑trivial cevian only */
+            return;
+
+        uint64_t y = (d + e) >> 2;                 /* y = (d+e)/4     */
+        if (y == 0 || y == n)
+            return;
+
+        seq_t yt = (seq_t)y;
+        if (*best == 0 || yt < *best)
+            *best = yt;
+
+        return;
+    }
+
+    uint64_t p = pf[idx];
+    int maxe = pe[idx];
+    uint64_t prod = 1;
+
+    for (int e = 0; e <= maxe; ++e) {
+        recurse_divs(idx + 1, cur * prod, pf, pe, total, M, n, best);
+        prod *= p;
+    }
+}
 
 #define MAX_PRIME 20000           /* enough for n ≤ 10 000 (√3·n ≤ 17320) */
 

@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n‑1) + a(n‑2) – a(n‑4); a(0)=1, a(1)=2, a(2)=3, a(3)=5
  * Range:     u8 n <= 15, u16 n <= 35, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void ensure_capacity(seq_t **arr, idx_t *cap, idx_t need)
 {
@@ -20,7 +22,7 @@ static void ensure_capacity(seq_t **arr, idx_t *cap, idx_t need)
     idx_t new_cap = (*cap == 0) ? 16 : *cap;
     if (new_cap < need) new_cap = need;
     while (new_cap < need) new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, (size_t)new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, (size_t)new_cap);
     *cap = new_cap;
 }
 
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         /* Allocate at least four slots. */
         idx_t needed_cap = 4;
         if (needed_cap > memcap) {
-            memo = (seq_t *)realloc(memo, (size_t)needed_cap * sizeof(seq_t));
+            memo = mem_resize(seq_t, memo, (size_t)needed_cap);
             memcap = needed_cap;
         }
         memo[0] = (seq_t)1;

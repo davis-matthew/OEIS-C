@@ -8,7 +8,8 @@
  *            a(4)=15, a(5)=29, a(6)=57
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 6 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *memo = NULL;
@@ -33,12 +35,12 @@ seq_t a(idx_t n) {
     // Ensure memo arrays are large enough
     if (n >= memo_size) {
         idx_t new_size = n + 1;
-        seq_t *new_memo = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_size);
         bool *new_computed = (bool *)malloc(new_size * sizeof(bool));
         
         if (memo != NULL) {
-            memcpy(new_memo, memo, memo_size * sizeof(seq_t));
-            free(memo);
+            mem_copy(new_memo, memo, memo_size * sizeof(seq_t));
+            mem_free(memo);
         }
         if (computed != NULL) {
             memcpy(new_computed, computed, memo_size * sizeof(bool));

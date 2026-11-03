@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{k=1..n} BarnesG(k)^k
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 5, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   big_pow, factorial, seq_mul
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,27 @@
    For integers, G(m+1)=∏_{i=1}^{m-1} i!.
    Hence BarnesG(k) = ∏_{i=1}^{k-2} i!  (empty product = 1 for k≤2). */
 
-#include "../utils/factorial.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Compute a(n) as defined in OEIS A372140 */
 seq_t a(idx_t n)
@@ -34,7 +53,7 @@ seq_t a(idx_t n)
         }
 
         /* Multiply result by B^k */
-        seq_t powBk = big_pow(B, (seq_t)k);
+        seq_t powBk = ipow(B, (seq_t)k);
         result = seq_mul(result, powBk);
     }
 

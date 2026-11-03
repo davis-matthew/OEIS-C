@@ -7,12 +7,25 @@
  * Formula:   a(n) = numerator((-1/8)^n*(2/(3*n+1)+1/(3*n+2)))
  * Range:     i8 n <= 13, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   mod_pow8
+ * Validated: standard, pass, 69 terms through n = 974 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow8.h"
+static inline seq_t mod_pow8(idx_t exp, seq_t mod)
+{
+    seq_t result = 1 % mod;
+    seq_t base   = 8 % mod;
+    while (exp)
+    {
+        if (exp & 1)
+            result = (result * base) % mod;
+        base   = (base * base) % mod;
+        exp >>= 1;
+    }
+    return result;
+}
 
 static inline seq_t seq_gcd(seq_t a, seq_t b)
 {

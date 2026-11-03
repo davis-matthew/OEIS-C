@@ -9,6 +9,7 @@
  *            from the recurrence a(n) = a(n-1) + 2^n - 1 for n >= 3)
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

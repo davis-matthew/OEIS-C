@@ -9,13 +9,15 @@
  *            over Prod_{j=1..k} (1 - x^j)^j (Expansion of A306665)
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return a(n) for the indexed sequence A306665. */
 seq_t a(idx_t n)
@@ -29,11 +31,11 @@ seq_t a(idx_t n)
         ++Kmax;
 
     /* Allocate coefficient arrays of length n+1 */
-    seq_t *dp    = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-    seq_t *newdp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp    = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *newdp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp || !newdp) {          /* allocation failure: harmless for tests */
-        if (dp) free(dp);
-        if (newdp) free(newdp);
+        if (dp) mem_free(dp);
+        if (newdp) mem_free(newdp);
         return 0;
     }
 
@@ -78,8 +80,8 @@ seq_t a(idx_t n)
             result += factorial * dp[n - shift_k];
     }
 
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
 
     return result;
 }

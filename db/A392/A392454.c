@@ -10,13 +10,15 @@
  *            a(5)=12
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 32, u64 n <= 63, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static size_t cache_cap = 0;
@@ -28,7 +30,7 @@ static void ensure_cache_capacity(idx_t n)
     if (needed <= cache_cap)
         return;
     size_t new_cap = needed < 64 ? 64 : needed;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();      /* out of memory */
     seq_cache = tmp;
     cache_cap = new_cap;

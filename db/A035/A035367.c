@@ -7,12 +7,14 @@
  * Formula:   Number of partitions of n into parts 5k or 5k+1
  * Range:     u8 n <= 39, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* dynamic table of partition counts */
 static idx_t dp_size = 0;     /* current allocated size of dp */
@@ -24,7 +26,7 @@ static void recompute_up_to(idx_t n)
         return;
 
     idx_t new_size = n + 1;
-    seq_t *new_dp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp, new_size);
     if (!new_dp)
         return; /* allocation failed – caller will return garbage, as allowed */
 

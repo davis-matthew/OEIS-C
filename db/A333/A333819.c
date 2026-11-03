@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 105, u64 n <= 105, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define MAX_N 20000          /* 2*n for n<=10000 */
 #define MAX_Q 200000         /* sieve limit for q and r */
@@ -32,7 +34,7 @@ static bool totient_exists[MAX_N + 1];   /* true if value occurs as φ(r) */
 static void init_phi_sieve(void)
 {
     size_t i, j;
-    phi = (seq_t *)malloc((MAX_Q + 1) * sizeof(seq_t));
+    phi = mem_new(seq_t, (MAX_Q + 1));
     if (!phi) abort();  /* memory error */
 
     for (i = 0; i <= MAX_Q; ++i)

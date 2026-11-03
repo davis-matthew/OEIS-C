@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has33
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has33.h"
+#include "../utils/mem.h"
+
+static bool has33(seq_t x)
+{
+    unsigned prev = 0;
+    while (x)
+    {
+        unsigned cur = (unsigned)(x % 7);
+        if (prev == 3 && cur == 3)
+            return true;
+        prev = cur;
+        x /= 7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -43,7 +58,7 @@ seq_t a(idx_t n)
                 if (terms_cnt == (idx_t)terms_cap)
                 {
                     size_t new_cap = terms_cap ? terms_cap * 2 : 64;
-                    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, new_cap);
                     terms_cap = new_cap;
                 }
                 terms[terms_cnt++] = last_checked;

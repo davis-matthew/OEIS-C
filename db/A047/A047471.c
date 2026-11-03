@@ -7,6 +7,7 @@
  * Formula:   a(n) = 4*(n-1)-(-1)^n ↦ a(1)=1, a(2)=3, a(3)=9, …
  * Range:     u8 n <= 64, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 75 terms through n = 990 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

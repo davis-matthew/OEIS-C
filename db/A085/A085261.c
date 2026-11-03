@@ -12,13 +12,15 @@
  *            -3 if m ≡ 0 (mod 4) and (m/4) odd * e...
  * Range:     i8 n <= 15, i16 n <= 47, i32 n <= 145, i64 n <= 493,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* allocate array of coefficients a[0..n] */
     size_t N = (size_t)n;
-    seq_t *coef = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *coef = mem_new(seq_t, N + 1);
     if (!coef) {
         return (seq_t)0;            /* unlikely */
     }
@@ -64,6 +66,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = coef[N];
-    free(coef);
+    mem_free(coef);
     return res;
 }

@@ -11,7 +11,8 @@
  *            * [y^e] Product over edge orbits O of (...
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 19, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   bitlen_u64, gcd_ll, seq_is_fixed_width, u128_to_seq
+ * Validated: partial, pass, 23 terms through n = 26 (2026-11-01)
+ * Helpers:   bit_length_u64, gcd_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,32 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/bitlen_u64.h"
-#include "../utils/gcd_ll.h"
+#include "../utils/bit_length_u64.h"
+#include "../utils/gcd_i64.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 typedef unsigned __int128 u128_t;
 
@@ -139,7 +162,7 @@ static void dfs(int depth, int rem, int maxp, uint64_t invz)
         if (a & 1) mulpow(r, a, (uint64_t)((a - 1) / 2));
         else { mulpow(r, a, (uint64_t)((a - 2) / 2)); mulpow(r, a / 2, 1); }
         for (i = 0; i < gnp; i++) {
-            long long b = gpv[i], g = gcd_ll(a, b);
+            long long b = gpv[i], g = gcd_i64(a, b);
             mulpow(r, (long long)a / g * b, (uint64_t)g * (uint64_t)gpc[i]);
         }
         mulpow(r, a, gF);
@@ -183,9 +206,9 @@ seq_t a(idx_t n)
     uint64_t *res, *dig;
     seq_t out;
 
-    bl = bitlen_u64((uint64_t)nn * (uint64_t)(nn - 1) / 2);
+    bl = bit_length_u64((uint64_t)nn * (uint64_t)(nn - 1) / 2);
     for (i = 1; i <= M; i++) {
-        int fl = bitlen_u64((uint64_t)i) - 1;
+        int fl = bit_length_u64((uint64_t)i) - 1;
         bits += bl - fl;
     }
     if (seq_is_fixed_width() && bits > 128) bits = 128;

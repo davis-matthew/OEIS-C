@@ -8,13 +8,31 @@
  *            bits
  * Range:     u8 n <= 78, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_three_consecutive_zeros
+ * Validated: standard, pass, 76 terms through n = 9972 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_three_consecutive_zeros.h"
+
+static bool has_three_consecutive_zeros(seq_t x) {
+    if (x == 0) return false;
+    
+    int highest_bit = 0;
+    seq_t temp = x;
+    while (temp > 0) {
+        temp >>= 1;
+        highest_bit++;
+    }
+    
+    for (int i = 0; i <= highest_bit - 3; i++) {
+        if (((x >> i) & 7) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;

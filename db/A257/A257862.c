@@ -12,7 +12,8 @@
  *            of the set of prime factors of a(n) or vice versa
  * Range:     u8 n <= 68, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 80 terms through n = 1953 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 #define MAX_VAL 5000000ULL   /* big enough for n ≤ 10000 */
 
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     if (!init) {
         /* allocate arrays --------------------------------------------------- */
-        seq = (seq_t *)malloc((MAX_VAL + 1) * sizeof(seq_t));
+        seq = mem_new(seq_t, (MAX_VAL + 1));
         used = (bool *)calloc(MAX_VAL + 1, sizeof(bool));
         spf = (uint32_t *)calloc(MAX_VAL + 1, sizeof(uint32_t));
         rad = (uint32_t *)calloc(MAX_VAL + 1, sizeof(uint32_t));

@@ -8,6 +8,7 @@
  *            q^21*(q^2-1)*(q^3-1)*(q^4-1)*(q^5-1)*(q^6-1)*(q^7-1)/gcd(7,q-1),
  *            q = A000961(n+1)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 1, u128 n <= 4, big any n
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

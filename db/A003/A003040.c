@@ -12,7 +12,8 @@
  *            candidates
  * Range:     u8 n <= 9, u16 n <= 13, u32 n <= 21, u64 n <= 35, u128 n <= 59,
  *            big any n
- * Helpers:   a3040_conj, a3040_exact, a3040_hash
+ * Validated: standard, pass, 45 terms through n = 139 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,45 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/a3040_conj.h"
-#include "../utils/a3040_exact.h"
-#include "../utils/a3040_hash.h"
+
+static void a3040_conj(int r, const int *p, int *conj) {
+    int w = p[0];
+    for (int c = 0; c <= w; c++) conj[c] = 0;
+    for (int i = 0; i < r; i++)
+        for (int c = 0; c < p[i]; c++) conj[c]++;
+}
+
+static seq_t a3040_exact(int r, const int *p, int m) {
+    int *spf = (int *)malloc((size_t)(m + 2) * sizeof(int));
+    long *e = (long *)calloc((size_t)(m + 2), sizeof(long));
+    int *conj = (int *)malloc((size_t)(p[0] + 1) * sizeof(int));
+    for (int i = 0; i <= m + 1; i++) spf[i] = 0;
+    for (int i = 2; i <= m + 1; i++)
+        if (spf[i] == 0)
+            for (int j = i; j <= m + 1; j += i)
+                if (spf[j] == 0) spf[j] = i;
+    for (int k = 2; k <= m; k++) {
+        int x = k;
+        while (x > 1) { int q = spf[x]; e[q]++; x /= q; }
+    }
+    a3040_conj(r, p, conj);
+    for (int i = 0; i < r; i++)
+        for (int c = 0; c < p[i]; c++) {
+            int x = p[i] - c + conj[c] - i - 1;
+            while (x > 1) { int q = spf[x]; e[q]--; x /= q; }
+        }
+    seq_t res = 1;
+    for (int q = 2; q <= m; q++)
+        for (long t = 0; t < e[q]; t++) res *= (seq_t)q;
+    free(spf); free(e); free(conj);
+    return res;
+}
+
+static unsigned long long a3040_hash(const int *p, int r) {
+    unsigned long long h = 1469598103934665603ULL;
+    for (int i = 0; i < r; i++) { h ^= (unsigned long long)p[i]; h *= 1099511628211ULL; }
+    return h;
+}
 
 #define A3040_BEAM 300
 #define A3040_KEEP 8

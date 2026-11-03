@@ -7,6 +7,7 @@
  * Formula:   product of (digit+1) over the digits of n in factorial base
  * Range:     u8 n <= 334, u16 n <= 5040, u32 n <= 5040, u64 n <= 5040,
  *            u128 n <= 5040, big any n
+ * Validated: standard, pass, 91 terms through n = 4537 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

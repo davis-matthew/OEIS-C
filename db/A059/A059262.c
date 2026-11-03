@@ -10,7 +10,8 @@
  *            test
  * Range:     u8 n <= 19, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, is_prime, mod_pow
+ * Validated: standard, pass, 70 terms through n = 978 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
 #include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,13 +38,13 @@ seq_t a(idx_t n)
         if (seq == NULL)
         {
             seq_cap = 10;
-            seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+            seq = mem_new(seq_t, seq_cap);
             if (seq == NULL) return 0; /* allocation failed */
         }
         else if (seq_len == seq_cap)
         {
             seq_cap <<= 1;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
             if (seq == NULL) return 0; /* allocation failed */
         }
 
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
         /* Test whether 2 is a ninth power residue modulo p. */
         seq_t d   = gcd((seq_t)9, (seq_t)(p - 1));
         seq_t exp = (seq_t)(p - 1) / d;
-        seq_t r   = mod_pow((seq_t)2, (uint64_t)exp, (seq_t)p);
+        seq_t r   = powmod((seq_t)2, (uint64_t)exp, (seq_t)p);
 
         if (r != (seq_t)1)
         {

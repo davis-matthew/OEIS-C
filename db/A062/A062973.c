@@ -8,14 +8,30 @@
  *            of x except 1 and x is NOT divisible by φ(x)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   sum_divisors_excl
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/sum_divisors_excl.h"
+#include "../utils/mem.h"
+
+/* sum of all divisors of n except 1 and n itself */
+static seq_t sum_divisors_excl(idx_t n)
+{
+    seq_t sum = 0;
+    for (idx_t d = 2; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += d;
+            idx_t e = n / d;
+            if (e != d)
+                sum += e;
+        }
+    }
+    return sum;
+}
 
 /* static storage for memoised terms of the sequence */
 static seq_t *terms   = NULL;
@@ -50,7 +66,7 @@ seq_t a(idx_t n)
         if (p != 0 && s % p != 0) {  /* x satisfies the condition */
             if (len == cap) {        /* grow the array */
                 size_t new_cap = cap ? cap * 2 : 128;
-                seq_t *new_ptr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *new_ptr = mem_resize(seq_t, terms, new_cap);
                 if (!new_ptr)
                     abort();          /* allocation failed */
                 terms = new_ptr;

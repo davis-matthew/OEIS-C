@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 297, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 67 terms through n = 9305 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +19,13 @@
    candidates of the form 10k+3 and testing primality. */
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 #ifdef __cplusplus
 # include <new>   /* placement‑new for arbitrary‑precision types */
 #endif
+#include "../utils/mem.h"
 
 /* --- cached data ------------------------------------------------------- */
 static seq_t *qual_primes = NULL;   /* array of qualifying primes */
@@ -40,7 +43,7 @@ static void ensure_capacity(size_t min_cap)
     while (new_cap < min_cap)
         new_cap *= 2;
 
-    seq_t *newp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, new_cap);
     if (!newp)
         abort();
 
@@ -48,7 +51,7 @@ static void ensure_capacity(size_t min_cap)
     for (size_t i = 0; i < qual_count; ++i)
     {
 #ifdef __cplusplus
-        new (newp + i) seq_t(qual_primes[i]); /* placement new for class types */
+        *(newp + i) = (seq_t)(qual_primes[i]); /* placement new for class types */
 #else
         newp[i] = qual_primes[i];             /* trivial copy for arithmetic types */
 #endif
@@ -56,7 +59,7 @@ static void ensure_capacity(size_t min_cap)
 
     /* free old buffer */
     if (qual_primes)
-        free(qual_primes);
+        mem_free(qual_primes);
 
     qual_primes = newp;
     qual_cap    = new_cap;
@@ -67,7 +70,7 @@ static void append_qual(seq_t val)
 {
     ensure_capacity(qual_count + 1);
 #ifdef __cplusplus
-    new (qual_primes + qual_count) seq_t(val);
+    *(qual_primes + qual_count) = (seq_t)(val);
 #else
     qual_primes[qual_count] = val;
 #endif

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: true if base‑5 representation of x contains the digit pair 2,3
    (most significant → least significant). */
@@ -59,7 +61,7 @@ static void grow_cache(void)
         cached_cap = 64;
     else
         cached_cap <<= 1;
-    cached_seq = (seq_t *)realloc(cached_seq, cached_cap * sizeof(seq_t));
+    cached_seq = mem_resize(seq_t, cached_seq, cached_cap);
 }
 
 /* Return the n‑th term (1‑based) of the sequence. */

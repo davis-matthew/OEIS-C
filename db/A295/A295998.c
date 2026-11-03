@@ -12,7 +12,8 @@
  *            log n) time
  * Range:     u8 n <= 10, u16 n <= 26, u32 n <= 58, u64 n <= 122,
  *            u128 n <= 250, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* -------------------------------- hash set for seq_t -------------------------------- */
 static size_t used_table_size = 0;          /* power of two */
@@ -38,7 +40,7 @@ static void used_init(size_t max_items) {
     size_t cap = 8;
     while (cap <= max_items * 4) cap <<= 1;           /* at least 4x load factor */
     used_table_size = cap;
-    used_keys = (seq_t *)malloc(cap * sizeof(seq_t));
+    used_keys = mem_new(seq_t, cap);
     used_occupied = (unsigned char *)malloc(cap * sizeof(unsigned char));
     if (!used_keys || !used_occupied) abort();
     memset(used_occupied, 0, cap);
@@ -49,7 +51,7 @@ static void used_init(size_t max_items) {
 static void used_rehash(void) {
     size_t old_size = used_table_size;
     size_t new_size = old_size << 1;
-    seq_t *new_keys = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_keys = mem_new(seq_t, new_size);
     unsigned char *new_occ = (unsigned char *)malloc(new_size * sizeof(unsigned char));
     if (!new_keys || !new_occ) abort();
     memset(new_occ, 0, new_size);
@@ -63,7 +65,7 @@ static void used_rehash(void) {
             new_occ[h] = 1;
         }
     }
-    free(used_keys);
+    mem_free(used_keys);
     free(used_occupied);
     used_keys = new_keys;
     used_occupied = new_occ;
@@ -104,8 +106,8 @@ static void a_ensure_capacity(idx_t needed) {
     if (a_cap > (size_t)needed) return;
     size_t new_cap = a_cap ? a_cap * 2 : 4;
     while (new_cap <= (size_t)needed) new_cap <<= 1;
-    a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
-    b_arr = (seq_t *)realloc(b_arr, new_cap * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, new_cap);
+    b_arr = mem_resize(seq_t, b_arr, new_cap);
     if (!a_arr || !b_arr) abort();
     a_cap = new_cap;
 }

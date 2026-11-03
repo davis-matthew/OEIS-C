@@ -8,14 +8,16 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = Sum_{j=k..min(2*k,r)} C(r,j) where r =
  *            floor((sqrt(8*n+1)-1)/2) and k = n - r*(r+1)/2
- * Range:     u8 n <= 37, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
+ * Range:     u8 n <= 47, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* integer square root for unsigned 64‑bit values */
 static inline idx_t _isqrt_u64(idx_t x)
@@ -42,6 +44,6 @@ seq_t a(idx_t n)
     idx_t upper = (k << 1 <= r) ? (k << 1) : r;
     seq_t sum = 0;
     for (idx_t j = k; j <= upper; ++j)
-        sum += binom(r, j);
+        sum += binomial(r, j);
     return sum;
 }

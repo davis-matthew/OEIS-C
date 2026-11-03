@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = # { 1≤k≤n | gcd(k-1,phi(k)) = gcd(n-1,phi(n)) }
- * Range:     u8 n <= 624, u16 n <= 9584, u32 n <= 9584, u64 n <= 9584,
- *            u128 n <= 9584, big any n
+ * Range:     u8 n <= 624, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 111 terms through n = 9584 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Cached values of φ up to the largest n requested so far */

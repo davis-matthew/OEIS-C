@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 123, u16 n <= 357, u32 n <= 1142, u64 n <= 4035,
  *            u128 n <= 9869, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 9400 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forward declarations for idx_t and seq_t are provided by the build. */
 
@@ -64,7 +66,7 @@ static void ensure_dp(idx_t d)
 
     /* realloc the array, casting appropriately for C++ */
 #ifdef __cplusplus
-    dp = static_cast<seq_t*>(realloc(dp, new_cap * sizeof(seq_t)));
+    dp = mem_resize(seq_t, dp, new_cap);
 #else
     dp = (seq_t*)realloc(dp, new_cap * sizeof(seq_t));
 #endif

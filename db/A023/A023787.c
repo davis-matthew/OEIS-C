@@ -8,7 +8,8 @@
  *            strictly decreasing digits (no repeats)
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compare two seq_t values for qsort. */
 static int cmp_seq(const void *p, const void *q)
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
             }
             cache[k++] = val;          /* k will become 31 */
         }
-        qsort(cache, k, sizeof(seq_t), cmp_seq);
+        mem_qsort(cache, k, sizeof(seq_t), cmp_seq);
         initialized = true;
     }
 

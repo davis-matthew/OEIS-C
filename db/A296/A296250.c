@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 15, u32 n <= 38, u64 n <= 84, u128 n <= 176,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 908 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    memoises all computed terms.  It works for any seq_t, idx_t and keeps
    intermediate values as small as possible. */
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 /* cache for a(n) values */
 static seq_t *a_cache      = NULL;
@@ -41,7 +43,7 @@ static void ensure_a_cap(idx_t idx)
     if ((size_t)idx + 1 <= a_cap) return;
     size_t new_cap = a_cap ? a_cap * 2 : 2;
     while (new_cap <= (size_t)idx + 1) new_cap *= 2;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_cap = new_cap;
 }
 
@@ -51,7 +53,7 @@ static void ensure_b_cap(idx_t idx)
     if ((size_t)idx + 1 <= b_cap) return;
     size_t new_cap = b_cap ? b_cap * 2 : 2;
     while (new_cap <= (size_t)idx + 1) new_cap *= 2;
-    b_cache = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+    b_cache = mem_resize(seq_t, b_cache, new_cap);
     b_cap = new_cap;
 }
 
@@ -63,14 +65,14 @@ static void init_caches(void)
     init_done = 1;
 
     /* a(0)=3, a(1)=4 */
-    a_cache = (seq_t *)malloc(2 * sizeof(seq_t));
+    a_cache = mem_new(seq_t, 2);
     a_cache[0] = (seq_t)3;
     a_cache[1] = (seq_t)4;
     a_cap = 2;
     a_cached_up = 1;
 
     /* b(0)=1, b(1)=2 */
-    b_cache = (seq_t *)malloc(2 * sizeof(seq_t));
+    b_cache = mem_new(seq_t, 2);
     b_cache[0] = (seq_t)1;
     b_cache[1] = (seq_t)2;
     b_cap = 2;

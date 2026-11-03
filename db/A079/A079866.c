@@ -9,14 +9,17 @@
  *            factors of n, counted with multiplicity)
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 112 terms through n = 8893 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 
 /* Integer k‑th root: the greatest integer r such that r^k <= n. */
 static seq_t int_root(seq_t n, idx_t k)
@@ -26,7 +29,7 @@ static seq_t int_root(seq_t n, idx_t k)
     seq_t low = 1, high = n;   /* n >= 1 */
     while (low < high) {
         seq_t mid = (low + high + 1) / 2;
-        seq_t val = seq_pow(mid, k);
+        seq_t val = ipow_idx(mid, k);
         if (val <= n)
             low = mid;
         else

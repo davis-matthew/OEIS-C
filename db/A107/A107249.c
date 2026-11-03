@@ -7,15 +7,17 @@
  * Formula:   a(n) = T(row,col) with T(n,k)=C(floor((2n-k-2)/2),
  *            floor((n-k)/2)), where (row,col) is obtained by linearizing the
  *            triangle row‑wise
- * Range:     u8 n <= 44, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
+ * Range:     u8 n <= 77, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 83 terms through n = 82 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -41,5 +43,5 @@ seq_t a(idx_t n)
     idx_t N = (idx_t)N_signed;
     idx_t K = (idx_t)K_signed;
 
-    return binom(N, K);
+    return binomial(N, K);
 }

@@ -8,15 +8,18 @@
  *            * m) and ord_{m}(2) is the multiplicative order of 2 modulo m
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 36, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   gcd_u64, pow_uint
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   gcd_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow_uint.h"   /* pow_uint(uint64_t base, idx_t exp) → seq_t */
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/gcd_u64.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* gcd for uint64_t */
 
@@ -111,7 +114,7 @@ seq_t a(idx_t n)
 
     uint64_t ord = order_2_mod_m((uint64_t)m); /* ord_2 modulo m */
 
-    seq_t pow2 = pow_uint(2, ord);
+    seq_t pow2 = ipow_u64_idx(2, ord);
     seq_t num   = pow2 - (seq_t)1;             /* 2^ord - 1 */
     seq_t ans   = num / (seq_t)m;              /* divide by odd part m */
 

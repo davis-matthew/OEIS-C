@@ -9,12 +9,14 @@
  *            = 18*a(n‑1) + 18*a(n‑2) - 171*a(n‑3)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache for the sequence values */
 static seq_t *cache = NULL;          /* array of computed a(n) values */
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;          /* double until large enough */
 
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 
     /* Compute any missing terms */

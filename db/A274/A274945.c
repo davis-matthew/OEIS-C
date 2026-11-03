@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 143, u32 n <= 573, u64 n <= 1443,
  *            u128 n <= 3173, big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 70 terms through n = 9781 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,24 @@
    for n > 83 it uses the explicit formula given in the OEIS entry. */
 
 #include <stdbool.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static bool is_staircase(seq_t x)
 {
     /* number of decimal digits */
-    int d = digit_len(x);
+    int d = num_digits(x);
     if (d < 3)
         return false;
 

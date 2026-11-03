@@ -11,8 +11,9 @@
  *            r(r+1)/2 >= n > (r-1)r/2, and k = n - r(r-1)/2. T(r,k) is the
  *            number of times the map f(x) = floor(r / x) + (r % x) must be
  *            applied to x=k until a repeated value occurs
- * Range:     u8 n <= 9223, u16 n <= 9223, u32 n <= 9223, u64 n <= 9223,
- *            u128 n <= 9223, big any n
+ * Range:     u8 n <= 10011, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 115 terms through n = 9223 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

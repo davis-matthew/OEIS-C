@@ -11,7 +11,8 @@
  *            representation of n
  * Range:     u8 n <= 23, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <limits.h>
-#include "../utils/pow_uint.h"  /* big_pow alternative */
+#include "../utils/ipow_u64_idx.h"
 
 static uint64_t kth_root_uint64(uint64_t n, uint64_t k)
 {
@@ -31,7 +32,7 @@ static uint64_t kth_root_uint64(uint64_t n, uint64_t k)
     if (high > n) high = n;
     while (low < high) {
         uint64_t mid = (low + high + 1) >> 1;
-        seq_t val = pow_uint((uint64_t)mid, k);
+        seq_t val = ipow_u64_idx((uint64_t)mid, k);
         if (val <= (seq_t)n) low = mid;
         else high = mid - 1;
     }
@@ -56,12 +57,12 @@ seq_t a(idx_t target)
             continue;
         }
         uint64_t root = kth_root_uint64(cur, zeros);
-        seq_t v = pow_uint(root, zeros);
+        seq_t v = ipow_u64_idx(root, zeros);
         if (v == (seq_t)cur) {
             found++;
             continue;
         }
-        seq_t v2 = pow_uint(root + 1, zeros);
+        seq_t v2 = ipow_u64_idx(root + 1, zeros);
         if (v2 == (seq_t)cur) {
             found++;
             continue;

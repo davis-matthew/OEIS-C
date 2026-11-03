@@ -9,12 +9,22 @@
  *            3*A257993(n))
  * Range:     u8 n <= 28, u16 n <= 366, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _a257
+ * Validated: standard, pass, 92 terms through n = 9661 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_a257.h"
+static seq_t _a257(idx_t n)
+{
+    if ((n & (idx_t)1) != 0)
+        return (seq_t)1;                /* odd n */
+    if ((n % (idx_t)6) != 0)
+        return (seq_t)2;                /* even, not divisible by 3 */
+    if ((n % (idx_t)30) == 0)
+        return (seq_t)4;                /* divisible by 30 */
+    return (seq_t)3;                    /* even, divisible by 6 but not 30 */
+}
 /* Uses A000010(n)=phi(n) and a special definition of A257993(n) described below. */
 
 static seq_t _phi(idx_t n)

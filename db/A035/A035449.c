@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 133, u32 n <= 425, u64 n <= 1475,
  *            u128 n <= 5403, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9580 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
     which is easily below the 2‑second limit for n ≤ 10000.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global state – the partition table and the size of that table. */
 static seq_t *dp = NULL;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     if (n > current_max) {
         /* Allocate a new table of the required size. */
-        seq_t *new_dp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, (n + 1));
         if (!new_dp)   /* Allocation failed – unlikely but safe. */
             return 0;
         dp = new_dp;

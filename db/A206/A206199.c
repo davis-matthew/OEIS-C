@@ -10,13 +10,15 @@
  *            a(5) = 29724 a(6) = 117084
  * Range:     u8 none, u16 n <= 5, u32 n <= 13, u64 n <= 29, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache of computed terms; index 0 is unused */
 static seq_t *cache = NULL;          /* array of a(i) for i >= 0 */
@@ -34,12 +36,12 @@ static void ensure_up_to(idx_t n)
         size_t new_size = (cache_size == 0 ? 10 : cache_size * 2);
         while (new_size <= (size_t)n)
             new_size *= 2;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (new_cache == NULL)
             return;   /* allocation failure – caller will get garbage */
         if (cache != NULL) {
-            memcpy(new_cache, cache, sizeof(seq_t) * (last_computed + 1));
-            free(cache);
+            mem_copy(new_cache, cache, sizeof(seq_t) * (last_computed + 1));
+            mem_free(cache);
         }
         cache = new_cache;
         cache_size = new_size;

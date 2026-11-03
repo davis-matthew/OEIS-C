@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reverse_base4
+ * Validated: standard, pass, 83 terms through n = 9777 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,18 @@
  */
 
 #include <stdbool.h>    /* for bool, not otherwise used */
-#include "../utils/reverse_base4.h"
+
+static seq_t reverse_base4(idx_t n)
+{
+    seq_t rev = 0;
+    idx_t  tmp = n;
+
+    while (tmp > 0) {
+        rev = rev * 4 + (seq_t)(tmp & 3); /* tmp % 4 is same as tmp & 3 for base 4 */
+        tmp >>= 2;                        /* tmp /= 4 */
+    }
+    return rev;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,14 +9,16 @@
  *            defined to be 0, so a(1)=1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Recursive enumeration of all divisors of a number from its prime
    factorisation.  primes[0..cnt-1] are the distinct prime factors
@@ -29,7 +31,7 @@ static void dfs_divisors(const uint64_t *primes, const uint64_t *exps,
                          seq_t *acc)
 {
     if (idx == cnt) {
-        seq_t term = big_pow(curr, sum);
+        seq_t term = ipow(curr, sum);
         *acc += term;
         return;
     }

@@ -11,7 +11,8 @@
  *            calls * with arbitrary n are efficient
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   digit_len, is_prime, pow10
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   is_prime, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Global storage for the Sophie Germain primes found so far. */
 static uint64_t *sg_primes = NULL;
@@ -71,7 +81,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (idx_t i = start - 1; i < end; ++i) {
         seq_t part = (seq_t)sg_primes[i];
-        int   d    = digit_len(part);
+        int   d    = num_digits(part);
         seq_t pow  = pow10((idx_t)d);
         result = result * pow + part;
     }

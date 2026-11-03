@@ -8,14 +8,26 @@
  *            equals the parity of the binary popcount of n+7
  * Range:     u8 n <= 126, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   parity_bitcount
+ * Validated: standard, pass, 80 terms through n = 9675 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/parity_bitcount.h"
+#include "../utils/mem.h"
+
+/* Parity of the number of 1 bits in x: true if odd, false if even */
+static inline bool parity_bitcount(seq_t x)
+{
+    bool p = false;
+    while (x) {
+        p ^= (bool)(x & 1);
+        x >>= 1;
+    }
+    return p;
+}
 
 /* Cached sequence data */
 static seq_t *sarr = NULL;
@@ -30,7 +42,7 @@ static void ensure_terms(idx_t n)
 
     if (!sarr) {
         scap = 16;
-        sarr = (seq_t *)malloc(scap * sizeof(seq_t));
+        sarr = mem_new(seq_t, scap);
     }
 
     while (slen < n) {
@@ -42,7 +54,7 @@ static void ensure_terms(idx_t n)
         if (parity_bitcount(cand) == parity_bitcount(next)) {
             if (slen == scap) {
                 scap *= 2;
-                sarr = (seq_t *)realloc(sarr, scap * sizeof(seq_t));
+                sarr = mem_resize(seq_t, sarr, scap);
             }
             sarr[slen++] = cand;
         }

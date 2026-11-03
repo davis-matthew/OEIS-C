@@ -7,13 +7,15 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k=0..n} (1 + kx)^3
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Return the nth term of sequence A384012 */
 /* Publicly linked function required by the build system */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Allocate or grow buffer if needed (C requires a cast in C++) */
     if ((idx_t)(n + 1) > b_cap) {
-        seq_t *tmp = (seq_t*)realloc(b, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, b, (size_t)(n + 1));
         if (!tmp) abort();                   /* out of memory */
         b   = tmp;
         b_cap = n + 1;

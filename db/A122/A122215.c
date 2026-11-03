@@ -9,7 +9,8 @@
  *            k^((-1)^k*binomial(n-1,k-1)))
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow, build_primes_upto, factor_u64
+ * Validated: standard, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 /*  The helper functions supplied by the build system  */
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /*  Cached data used by all calls  */
 static uint64_t *global_primes = NULL;          /* primes <= max_sieved */
@@ -118,7 +119,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < prime_count; ++i) {
         if (odd_sum[i] > even_sum[i]) {
             seq_t exp = odd_sum[i] - even_sum[i];
-            seq_t pow = big_pow((seq_t)global_primes[i], exp);
+            seq_t pow = ipow((seq_t)global_primes[i], exp);
             result = result * pow;
         }
     }

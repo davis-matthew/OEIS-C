@@ -10,12 +10,14 @@
  *            - 2*a(n-7) (a(0)=0,a(1)=0,a(2)=0,a(3)=0,a(4)=0,a(5)=0,a(6)=1)
  * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_vals[7] = {0,0,0,0,0,0,1};
 static seq_t *cache = NULL;      /* dynamically grown array of sequence terms   */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         size_t init = (size_t) (n + 1);
         if (init < 7) init = 7;
-        cache = (seq_t *)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (cache == NULL) exit(1);     /* memory allocation failed */
         /* copy the first seven values */
         for (idx_t i = 0; i < 7 && i <= n; ++i)
@@ -41,9 +43,9 @@ static void ensure_cache(idx_t n)
     if (cache_len <= n) {
         size_t new_cap = (size_t) ((cache_len > 0) ? cache_len * 2 : 8);
         if (new_cap < n + 1) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) {
-            free(cache);
+            mem_free(cache);
             exit(1);
         }
         cache = tmp;

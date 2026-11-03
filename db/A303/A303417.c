@@ -12,12 +12,14 @@
  *            caches computed values for O(1) repeated accesses
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* 1‑based cache (cache[0] unused)   */
 static idx_t  cache_len = 0;    /* Size of allocated buffer (including index 0) */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     if (cache_len > n) return;
     /* Allocate at least (n+1) elements; we use size_t for the size argument. */
     size_t new_len = (size_t)n + 1;
-    void *p = realloc(cache, new_len * sizeof(seq_t));
+    void *p = mem_resize(seq_t, cache, new_len);
     if (!p) abort();                /* Out of memory – terminate. */
     cache = (seq_t *)p;
     cache_len = new_len;

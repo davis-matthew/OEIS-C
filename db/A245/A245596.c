@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 37, u32 n <= 71, u64 n <= 140,
  *            u128 n <= 278, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 907 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>   /* for realloc */
+#include "../utils/mem.h"
 
 /* sequence value calculation */
 seq_t a(idx_t n)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* allocate space for the first 7 terms */
         capacity = 7;
-        cache = (seq_t*)realloc(NULL, capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, capacity);
         for (idx_t i = 0; i < capacity; ++i) cache[i] = 0;
         /* base values */
         cache[0] = (seq_t)1;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     if (n >= capacity) {
         /* new capacity large enough to hold up to n */
         idx_t new_cap = n + 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         /* initialise new slots to zero */
         for (idx_t i = capacity; i < new_cap; ++i) cache[i] = 0;
         /* compute missing terms using the recurrence */

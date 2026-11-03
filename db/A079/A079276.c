@@ -9,7 +9,8 @@
  *            F(prime(n)) (a(1)=1)
  * Range:     u8 n <= 54, u16 n <= 5025, u32 n <= 6903, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_inv_seq_t
+ * Validated: standard, pass, 84 terms through n = 9257 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/mod_inv_seq_t.h"
+
+/* Compute modular inverse using Fermat's little theorem:
+   a^(p-2) mod p, where p is prime. */
+static seq_t mod_inv_seq_t(seq_t a, seq_t p)
+{
+    /* Binary exponentiation */
+    seq_t result = 1;
+    seq_t exp = p - 2;
+    while (exp) {
+        if (exp & 1)
+            result = (result * a) % p;
+        a = (a * a) % p;
+        exp >>= 1;
+    }
+    return result;
+}
 
 static uint32_t *primes = NULL;
 static size_t primes_cnt = 0;

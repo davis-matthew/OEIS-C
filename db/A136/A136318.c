@@ -9,6 +9,7 @@
  *            k(k-1)/2 ≥ n and m = n - (k-1)(k-2)/2 - 1
  * Range:     u8 n <= 21, u16 n <= 105, u32 n <= 465, u64 n <= 1953,
  *            u128 n <= 8001, big any n
+ * Validated: standard, pass, 69 terms through n = 8992 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

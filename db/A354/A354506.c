@@ -11,13 +11,15 @@
  *            arithmetic is performed with the build‑suppl...
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 21, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Required standard headers */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* Global caches (all indexed from 0). */
 static idx_t cache_n = 0;              /* highest n cached so far      */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
     size_t new_size = (size_t)(n + 1);
 
     /* Expand factorial array */
-    seq_t *new_fact = (seq_t *)realloc(fact, new_size * sizeof(seq_t));
+    seq_t *new_fact = mem_resize(seq_t, fact, new_size);
     if (!new_fact) abort();
     fact = new_fact;
 
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t n)
     A = new_A;
 
     /* Resize a_cache array */
-    seq_t *new_a = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_cache, new_size);
     if (!new_a) abort();
     a_cache = new_a;
 

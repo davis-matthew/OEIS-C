@@ -8,8 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 125, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, floor_log2_uint64, grow_seq,
- *            smallest_prime_factor
+ * Validated: standard, pass, 78 terms through n = 9461 (2026-11-03)
+ * Helpers:   build_primes_upto, gcd_u64, ilog2, is_prime_u64, mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +24,55 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/floor_log2_uint64.h"
-#include "../utils/smallest_prime_factor.h"
+#include <stdint.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/grow_seq.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ilog2.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
+
+/* Pollard–Rho: find a non‑trivial divisor of n (n composite) */
+static uint64_t pollard(uint64_t n) {
+    if (n % 2 == 0) return 2;
+    uint64_t c = 1;
+    while (1) {
+        uint64_t x = 2, y = 2, d = 1;
+        while (d == 1) {
+            x = (mulmod(x, x, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            uint64_t diff = x > y ? x - y : y - x;
+            d = gcd_u64(diff, n);
+        }
+        if (d != n) return d;
+        ++c;  /* try another constant */
+    }
+}
+
+/* recursive smallest prime factor */
+static uint64_t smallest_prime_factor(uint64_t n) {
+    if (n % 2 == 0) return 2;
+    if (is_prime_u64(n)) return n;
+    uint64_t d = pollard(n);
+    uint64_t s1 = smallest_prime_factor(d);
+    uint64_t s2 = smallest_prime_factor(n / d);
+    return (s1 < s2) ? s1 : s2;
+}
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static void ensure_prime_limit(uint64_t limit,
                                uint64_t **primes, size_t *cnt,
@@ -96,7 +141,7 @@ seq_t a(idx_t n)
         idx_t k = next_k;
 
         /* maximum binary index = bit length of k */
-        uint64_t bitlen = floor_log2_uint64(k) + 1ULL;
+        uint64_t bitlen = ilog2(k) + 1ULL;
 
         /* maximum prime index among prime factors of k */
         uint64_t max_pi = max_prime_index(k,

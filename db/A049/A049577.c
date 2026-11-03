@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 78 terms through n = 895 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
-#include "../utils/mod_pow.h"   /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Cache of sequence values */
 static seq_t *cache = NULL;
@@ -54,7 +57,7 @@ static void ensure_cache_capacity(size_t len)
     size_t new_cap = cache_cap < 4 ? 4 : cache_cap * 2;
     while (new_cap < len)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         exit(EXIT_FAILURE);
     }
@@ -69,7 +72,7 @@ static bool qualifies_prime(uint64_t p)
         return true;
     uint64_t g = gcd_uint64(45u, p - 1);
     uint64_t exp = (p - 1) / g;
-    seq_t r = mod_pow((seq_t)2, exp, (seq_t)p);
+    seq_t r = powmod((seq_t)2, exp, (seq_t)p);
     return r == (seq_t)1;
 }
 

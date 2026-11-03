@@ -8,13 +8,15 @@
  *            (OEIS A347664)
  * Range:     u8 n <= 37, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* compute a(n) with memoisation; works for any seq_t/idx_t defined by the build */
 seq_t a(idx_t n)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 
     /* ------- 2.  DP table: dp[sum * 7 + k]  ------- */
     /* k = 0 … 6  (exactly k non‑prime parts) */
-    seq_t *dp = (seq_t *)calloc((N + 1) * 7, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (N + 1) * 7);
     if (!dp) { free(is_prime); return 0; }
 
     dp[0] = 1;   /* dp[0][0] = 1 */
@@ -67,8 +69,8 @@ seq_t a(idx_t n)
     /* ------- 3.  Store results into cache  ------- */
     size_t needed_cap = N + 1;
     if (needed_cap > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed_cap * sizeof(seq_t));
-        if (!tmp) { free(is_prime); free(dp); return 0; }
+        seq_t *tmp = mem_resize(seq_t, cache, needed_cap);
+        if (!tmp) { free(is_prime); mem_free(dp); return 0; }
         cache = tmp;
         cache_cap = needed_cap;
     }
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
 
     /* Clean up temporaries */
     free(is_prime);
-    free(dp);
+    mem_free(dp);
 
     return cache[n];
 }

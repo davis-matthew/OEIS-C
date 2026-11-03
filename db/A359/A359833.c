@@ -8,17 +8,30 @@
  * Formula:   a(n) is the Dirichlet inverse of A359832. Multiplicative with:
  *            a(2^e) = (-1)^e * Fibonacci(e) a(p^e) = -1 if e = 1 and p>2,
  *            else 0
- * Range:     i8 n <= 4095, i16 n <= 9999, i32 n <= 9999, i64 n <= 9999,
- *            i128 n <= 9999, big any n
- * Helpers:   factor_u64, fib
+ * Range:     i8 n <= 4095, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9999 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/fib.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n) {
     if (n == 1) return (seq_t)1;          /* base case */

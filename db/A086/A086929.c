@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 32,
  *            big any n
- * Helpers:   rev_decimal
+ * Validated: standard, pass, 35 terms through n = 430 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
    (rev = digit reversal in base 10) */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/rev_decimal.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *cache_terms = NULL;   /* a[k-1] for k>=1 */
 static seq_t *cache_sums  = NULL;   /* partial sums S[k-1] = Σ_{i=1}^k a[i] */
@@ -35,11 +39,11 @@ static void ensure_cache_size(size_t needed)
     if (new_cap < needed)
         new_cap = needed;
 
-    seq_t *tmp = (seq_t *)realloc(cache_terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache_terms, new_cap);
     if (!tmp) abort();  /* out of memory */
     cache_terms = tmp;
 
-    tmp = (seq_t *)realloc(cache_sums,  new_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, cache_sums, new_cap);
     if (!tmp) abort();
     cache_sums = tmp;
 
@@ -58,7 +62,7 @@ seq_t a(idx_t n)
             val = 1;            /* a(1) = 1 */
         } else {
             seq_t prev_sum = cache_sums[cache_size - 1];
-            seq_t rev = rev_decimal(prev_sum);
+            seq_t rev = reverse_digits(prev_sum);
             val = ((seq_t)k) * rev;   /* n * rev(previous partial sum) */
         }
 

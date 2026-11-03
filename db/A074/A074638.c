@@ -7,12 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   seq_gcd_seq_t
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_gcd_seq_t.h"
+#include "../utils/gcd.h"
 /* Formula for A074638: a(n) = denominator of ∑_{j=0}^{n-1} 1/(4j+3) */
 
 seq_t a(idx_t n)
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
         seq_t new_den = denom * d;
 
         /* Reduce by gcd to keep numbers as small as possible */
-        seq_t g = seq_gcd_seq_t(new_num, new_den);
+        seq_t g = gcd(new_num, new_den);
         num = new_num / g;
         denom = new_den / g;
     }

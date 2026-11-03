@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 124 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    starting from the seed 1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *word = NULL;   /* current word buffer      */
 static idx_t word_len = 0;   /* current length of the word */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     /* initialise the seed word "1" only once */
     if (word_len == 0) {
-        word = (seq_t *)malloc(sizeof(seq_t));
+        word = mem_new(seq_t, 1);
         if (!word) return (seq_t)0;      /* allocation failure */
         word[0] = (seq_t)1;
         word_len = 1;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
            each 1 or 2 → 3 letters, each 3 → 1 letter */
         idx_t new_len = word_len * (idx_t)3 - count_3 * (idx_t)2;
 
-        seq_t *new_word = (seq_t *)malloc((size_t)new_len * sizeof(seq_t));
+        seq_t *new_word = mem_new(seq_t, (size_t)new_len);
         if (!new_word) {
             return (seq_t)0;   /* allocation failure */
         }
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(word);
+        mem_free(word);
         word = new_word;
         word_len = new_len;
     }

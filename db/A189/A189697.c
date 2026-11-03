@@ -12,13 +12,15 @@
  *            total)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Prepare data for DP: list of admissible 4‑bit patterns            */
@@ -94,8 +96,8 @@ static void init_transition(void)
     }
 
     /* allocate DP arrays for the states */
-    dp_cur  = (seq_t*)calloc(S, sizeof(seq_t));
-    dp_next = (seq_t*)calloc(S, sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, S);
+    dp_next = mem_new(seq_t, S);
 }
 
 /* --------------------------------------------------------------------- */
@@ -104,7 +106,7 @@ static void compute_initial_terms(void)
     unsigned char S = valid_cnt * valid_cnt;  /* number of states */
 
     /* store a(1) and a(2) */
-    a_cache = (seq_t*)realloc(a_cache, 19 * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, 19);
     a_cache_len = 0;
     seq_t a1 = (seq_t)valid_cnt;
     a_cache[a_cache_len++] = a1;
@@ -184,7 +186,7 @@ seq_t a(idx_t n)
         seq_t sum = (seq_t)0;
         for (unsigned char i = 0; i < S; ++i)
             sum += dp_next[i];
-        a_cache = (seq_t*)realloc(a_cache, (a_cache_len + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (a_cache_len + 1));
         a_cache[a_cache_len++] = sum;
 
         /* swap for next iteration */

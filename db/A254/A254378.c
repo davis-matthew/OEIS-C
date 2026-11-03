@@ -8,15 +8,20 @@
  * Formula:   a(n) = length of the n‑th run in the binary sequence A228495
  *            (the odd‑odious characteristic sequence). Computed by iterating
  *            over indices and counting consecutive equal values
- * Range:     u8 n <= 9175, u16 n <= 9175, u32 n <= 9175, u64 n <= 9175,
- *            u128 n <= 9175, big any n
- * Helpers:   is_odd_odious
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 113 terms through n = 9175 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_odd_odious.h"
+
+static inline bool is_odd_odious(idx_t x)
+{
+    return ((x & 1ULL) && (__builtin_popcountll((unsigned long long)x) & 1));
+}
 
 seq_t a(idx_t n)
 {

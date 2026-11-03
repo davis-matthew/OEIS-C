@@ -8,12 +8,14 @@
  * Formula:   a(n) = C(n+5,6)*(3*n^4+130*n^3+1565*n^2+7006*n+12992)/16
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 11, u64 n <= 187, u128 n <= 1000,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 40 terms through n = 916 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     seq_t x3  = x2 * x;
     seq_t x4  = x3 * x;
     seq_t poly = 3 * x4 + 130 * x3 + 1565 * x2 + 7006 * x + 12992;
-    seq_t bc   = binom(n + 5, 6);         /* C(n+5,6) */
+    seq_t bc   = binomial(n + 5, 6);         /* C(n+5,6) */
     seq_t prod = bc * poly;
     return prod >> 4;                     /* integer division by 16 */
 }

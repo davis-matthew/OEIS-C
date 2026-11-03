@@ -11,13 +11,17 @@
  *            first pre‑computing d(m) for all m ≤ n using di...
  * Range:     i8 n <= 7, i16 n <= 14, i32 n <= 29, i64 n <= 34, i128 n <= 34,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +37,8 @@ seq_t a(idx_t n)
         idx_t new_max = n;
 
         /* grow or allocate the arrays */
-        d_arr = (seq_t *)realloc(d_arr, (new_max + 1) * sizeof(seq_t));
-        a_arr = (seq_t *)realloc(a_arr, (new_max + 1) * sizeof(seq_t));
+        d_arr = mem_resize(seq_t, d_arr, (new_max + 1));
+        a_arr = mem_resize(seq_t, a_arr, (new_max + 1));
 
         /* initialise with zeros (d_arr[0] unused, a_arr[0] set later) */
         for (idx_t i = 1; i <= new_max; ++i)
@@ -49,7 +53,7 @@ seq_t a(idx_t n)
             /* iterate over multiples m = d·t, t = 1,2,... */
             for (idx_t m = d, t = 1; m <= new_max; m += d, ++t)
             {
-                seq_t pow = big_pow((seq_t)t, (seq_t)(2 * d)); /* t^(2d) */
+                seq_t pow = ipow((seq_t)t, (seq_t)(2 * d)); /* t^(2d) */
                 seq_t term = pow;
                 if (sign == -1)
                     term = -term;        /* term = (-1)^(d-1) * t^(2d) */

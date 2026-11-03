@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 55, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   t_value
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
    (t(1)=1).  a(n) is the n‑th entry read by antidiagonals. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/t_value.h"
+
+/* Return the r‑th element of the complement sequence t
+   (numbers that are not 1 (mod 3) and ≥4). */
+static seq_t t_value(idx_t r)
+{
+    idx_t count = 0;
+    for (idx_t x = 1; ; ++x) {
+        bool excluded = (x >= 4) && ((x % 3) == 1);
+        if (!excluded) {
+            ++count;
+            if (count == r)
+                return (seq_t)x;
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

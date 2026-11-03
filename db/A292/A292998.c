@@ -9,13 +9,15 @@
  * Formula:   a(n) = n! * Sum_{k=3..n+2} binomial(k,3)/(n+2-k)!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The external build defines seq_t, idx_t and the standard arithmetic
    operators on seq_t.  No other utilities are required. */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* We need factorials up to m (i.e., up to n+2). */
     size_t sz = (size_t)(m + 1);     /* indices 0 .. m inclusive */
-    seq_t *fac = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *fac = mem_new(seq_t, sz);
     if (!fac) {
         return 0;                    /* allocation failure */
     }
@@ -62,6 +64,6 @@ seq_t a(idx_t n)
         sum += term;
     }
 
-    free(fac);
+    mem_free(fac);
     return sum;
 }

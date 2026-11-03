@@ -11,13 +11,15 @@
  *            313, a(12) = 350, a(13) = 385
  * Range:     i8 n <= 5, i16 n <= 46, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= sz) {
         size_t new_sz = sz ? sz << 1 : 16;
         while (new_sz <= (size_t)n) new_sz <<= 1;
-        seq_t *tmp = (seq_t*)realloc(tbl, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, tbl, new_sz);
         if (!tmp) {               /* allocation failed – return 0 (undefined) */
             tbl = NULL;
             sz  = 0;

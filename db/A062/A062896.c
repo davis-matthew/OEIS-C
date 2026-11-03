@@ -11,13 +11,15 @@
  *            reversal of the base. The function sums all such counts...
  * Range:     u8 n <= 27, u16 n <= 117, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 /* a(idx_t n) : required entry point */
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
         /* count all solutions for whole weight set (positive bases) */
         size_t Nsize = (size_t)N;
-        seq_t *dpC = (seq_t *)calloc(Nsize + 1, sizeof(seq_t));
+        seq_t *dpC = mem_new(seq_t, Nsize + 1);
         if (!dpC) { free(w); return total; }
         dpC[0] = (seq_t)1;
         for (idx_t i = 0; i < k; ++i) {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
                 dpC[j] += dpC[j - wt];
         }
         seq_t C = dpC[Nsize];
-        free(dpC);
+        mem_free(dpC);
 
         /* count palindromic solutions (reversal invariant bases) */
         seq_t P;
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
                 palW[half] = w[half];            /* middle element */
             }
 
-            seq_t *dpP = (seq_t *)calloc(Nsize + 1, sizeof(seq_t));
+            seq_t *dpP = mem_new(seq_t, Nsize + 1);
             if (!dpP) { free(w); free(palW); return total; }
             dpP[0] = (seq_t)1;
             for (size_t i = 0; i < palSize; ++i) {
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
                     dpP[j] += dpP[j - wt];
             }
             P = dpP[Nsize];
-            free(dpP);
+            mem_free(dpP);
             free(palW);
         }
 

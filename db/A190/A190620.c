@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 105, u32 n <= 465, u64 n <= 1953,
  *            u128 n <= 8001, big any n
+ * Validated: standard, pass, 66 terms through n = 9121 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
    p = (m‑2) – offset and offset = n – (sum_{k=3}^{m‑1} (k‑2)) – 1. */
 
 /* The pow2 function (in “pow2.h”) returns 2^exp as a seq_t. */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

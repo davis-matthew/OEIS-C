@@ -12,7 +12,8 @@
  *            Legendre's three‑square theorem. The function b...
  * Range:     u8 n <= 111, u16 n <= 1109, u32 n <= 1109, u64 n <= 1109,
  *            u128 n <= 1109, big any n
- * Helpers:   can_be_three_squares
+ * Validated: standard, pass, 82 terms through n = 1085 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/can_be_three_squares.h"
+#include "../utils/mem.h"
+
+/*  Test whether a given non‑negative integer m can be written as a
+   sum of three squares.  This is true iff m is not of the form
+   4^a·(8b+7).  ------------------------------------------------------------------ */
+static bool can_be_three_squares(idx_t m)
+{
+    /* 0 = 0² + 0² + 0²  is allowed */
+    if (m == 0)
+        return true;
+    while ((m & 3ULL) == 0)   /* divide by 4 while divisible */
+        m >>= 2;
+    return (m & 7ULL) != 7;   /* not congruent to 7 mod 8 */
+}
 
 /* ------------------------------------------------------------------ */
 /*  Integer square root (floor) for 64‑bit unsigned integers           */
@@ -60,7 +74,7 @@ static void ensure_seq_capacity(size_t needed)
     size_t newcap = seq_cap ? seq_cap << 1 : 64;
     while (newcap < needed)
         newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, newcap);
     if (!tmp) abort(); /* allocation failure */
     seq = tmp;
     seq_cap = newcap;

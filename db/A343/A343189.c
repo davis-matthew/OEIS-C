@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 75, i16 n <= 75, i32 n <= 75, i64 n <= 75, i128 n <= 75,
  *            big any n
- * Helpers:   mu_of
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,30 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mu_of.h"   /* provides int mu_of(idx_t) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 /* existing type definitions:
    - idx_t : unsigned 64‑bit index type
@@ -33,7 +57,7 @@ static idx_t  last  = 0;         /* highest index already computed   */
 static void ensure_cache(idx_t n) {
     if (n + 1 > cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) exit(1);
         cache = new_cache;
         /* New slots are uninitialized; we will set them before use. */

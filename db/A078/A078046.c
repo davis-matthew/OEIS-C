@@ -8,13 +8,15 @@
  *            for n > 2
  * Range:     i8 n <= 16, i16 n <= 33, i32 n <= 47, i64 n <= 47, i128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of already computed terms */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
         /* compute new size needed */
         idx_t new_len = n + 1;
         /* realloc the array to the new size */
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_len);
         if (!new_cache) return 0; /* allocation failure – return 0 (should not happen) */
         cache = new_cache;
 

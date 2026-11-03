@@ -8,13 +8,24 @@
  *            sum of the base-4 digits of i
  * Range:     u8 n <= 10, u16 n <= 238, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum_base4
+ * Validated: standard, pass, 84 terms through n = 9868 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/digit_sum_base4.h"
+
+static inline seq_t digit_sum_base4(idx_t v)
+{
+    seq_t s = 0;
+    while (v)
+    {
+        s += (seq_t)(v & 3); /* v % 4 using bitwise AND */
+        v >>= 2;             /* v /= 4 using right shift */
+    }
+    return s;
+}
 
 seq_t a(idx_t n)
 {

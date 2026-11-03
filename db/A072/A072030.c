@@ -12,13 +12,19 @@
  *            = n − (L-1)*(L-2)/2, c = L − r, and a(n) = T(r,...
  * Range:     u8 n <= 1225, u16 n <= 1225, u32 n <= 1225, u64 n <= 1225,
  *            u128 n <= 1225, big any n
- * Helpers:   sub_steps
+ * Validated: standard, pass, 121 terms through n = 1202 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sub_steps.h"
+
+static seq_t sub_steps(seq_t a, seq_t b)
+{
+    if (b == 0) return (seq_t)0;
+    return a / b + sub_steps(b, a % b);
+}
 
 seq_t a(idx_t n)
 {

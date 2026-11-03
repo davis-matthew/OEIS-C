@@ -11,16 +11,26 @@
  *            a(n-m²) (m even → g=+1) val = S_minus - S_plus /...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 22, u128 n <= 23,
  *            big any n
- * Helpers:   _floor_isqrt_u64, binom, seq_alloc_new_array, seq_free
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   binomial, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free.h"
-#include "../utils/binom.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -50,11 +60,11 @@ seq_t a(idx_t n) {
         seq_t s_minus = (seq_t)0;
         seq_t s_plus  = (seq_t)0;
 
-        idx_t max_m = _floor_isqrt_u64(i - 1);
+        idx_t max_m = isqrt(i - 1);
         for (idx_t m = 1; m <= max_m; ++m) {
             idx_t sq = m * m;
             idx_t j = i - sq;               /* j ≥ 1 */
-            seq_t binc = binom(i - 1, j - 1);
+            seq_t binc = binomial(i - 1, j - 1);
             seq_t term = binc * cache[j];
             if (m & 1)        // odd → g = -1  → contributes to s_minus
                 s_minus = s_minus + term;
@@ -65,7 +75,7 @@ seq_t a(idx_t n) {
         seq_t val = s_minus - s_plus;        /* s_minus ≥ s_plus always */
 
         /* adjust for perfect square of i */
-        idx_t sq = _floor_isqrt_u64(i);
+        idx_t sq = isqrt(i);
         if (sq * sq == i) {                  /* i is a perfect square */
             if ((sq & 1) == 0)                /* even sqrt → g = +1 → subtract 1 */
                 val = val - 1;

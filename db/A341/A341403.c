@@ -11,13 +11,15 @@
  *            the set of squares up to √n
  * Range:     u8 n <= 4, u16 n <= 30, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static size_t _int_sqrt(idx_t n) {
     /* integer floor of sqrt(n) for n ≤ UINT64_MAX,  n fits in idx_t */
@@ -34,16 +36,16 @@ seq_t a(idx_t n) {
     /* build list of squares 0^2 … floor(√n)^2 */
     size_t max_k = _int_sqrt(n);
     size_t sq_cnt = max_k + 1;             /* include 0 */
-    seq_t *squares = (seq_t*)malloc(sq_cnt * sizeof(seq_t));
+    seq_t *squares = mem_new(seq_t, sq_cnt);
     if (!squares) return 0;                /* allocation failure -> 0 */
     squares[0] = 0;
     for (size_t i = 1; i <= max_k; ++i)
         squares[i] = (seq_t)i * (seq_t)i;
 
     /* allocate DP arrays (prev and curr) */
-    seq_t *prev = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *curr = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
-    if (!prev || !curr) { free(squares); if (!prev) free(prev); if (!curr) free(curr); return 0; }
+    seq_t *prev = mem_new(seq_t, (size_t)n + 1);
+    seq_t *curr = mem_new(seq_t, (size_t)n + 1);
+    if (!prev || !curr) { mem_free(squares); if (!prev) mem_free(prev); if (!curr) mem_free(curr); return 0; }
 
     /* initial state for 0 dimensions: one tuple with sum 0 */
     prev[0] = 1;
@@ -73,9 +75,9 @@ seq_t a(idx_t n) {
     for (idx_t i = 0; i <= n; ++i) total += prev[i];
 
     /* cleanup */
-    free(squares);
-    free(prev);
-    free(curr);
+    mem_free(squares);
+    mem_free(prev);
+    mem_free(curr);
 
     return total;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   gcd_uint64, geom_sum
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,38 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint64.h"
-#include "../utils/geom_sum.h"
+#include "../utils/gcd_u64.h"
+
+/* Compute S = ∑_{i=0}^{k-1} p^i q^{k-1-i}  (only up to limit).
+   If the sum exceeds limit, return limit+1. */
+static inline uint64_t geom_sum(uint64_t p, uint64_t q, uint64_t k, uint64_t limit) {
+    unsigned __int128 sum = 0;
+    unsigned __int128 pow_p = 1;
+    unsigned __int128 pow_q = 1;           /* q^{k-1} */
+
+    /* compute pow_q = q^{k-1} */
+    for (uint64_t i = 1; i < k; ++i) {
+        if (pow_q > (unsigned __int128)limit / q)
+            return limit + 1;
+        pow_q *= q;
+    }
+
+    for (uint64_t i = 0; i < k; ++i) {
+        unsigned __int128 term = pow_p * pow_q;
+        if (term > limit)
+            return limit + 1;
+        sum += term;
+        if (sum > limit)
+            return limit + 1;
+        if (i == k - 1)
+            break;
+        if (pow_p > (unsigned __int128)limit / p)
+            return limit + 1;
+        pow_p *= p;
+        pow_q /= q;
+    }
+    return (uint64_t)sum;
+}
 
 /* gcd for 64‑bit unsigned integers */
 
@@ -87,7 +118,7 @@ seq_t a(idx_t n) {
                 break;                   /* larger p will only increase T_min */
 
             for (uint64_t q = p + 1;; ++q) {
-                if (gcd_uint64(p, q) != 1)
+                if (gcd_u64(p, q) != 1)
                     continue;           /* use reduced ratio only */
 
                 uint64_t T = geom_sum(p, q, k, N);

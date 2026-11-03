@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1250, u32 n <= 1250, u64 n <= 1250,
  *            u128 n <= 1250, big any n
- * Helpers:   digit_len_base7, divisor_count_u64
+ * Validated: standard, pass, 71 terms through n = 1156 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,8 +31,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/digit_len_base7.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* ----- helper: number of digits of x in base 7 ----- */
+static unsigned int digit_len_base7(uint64_t x)
+{
+    unsigned int len = 0;
+    do {
+        len++;
+        x /= 7;
+    } while (x);
+    return len;
+}
 
 /* ----- static cache of the sequence ----- */
 static seq_t   *cache_data = NULL;   /* array of computed terms            */
@@ -48,13 +60,13 @@ static void ensure_cache(size_t need)
         if (cache_cap == 0)
         {
             cache_cap = 16;
-            cache_data = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+            cache_data = mem_new(seq_t, cache_cap);
             assert(cache_data != NULL);
         }
         else if (cache_len == cache_cap)
         {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache_data, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache_data, new_cap);
             assert(tmp != NULL);
             cache_data = tmp;
             cache_cap = new_cap;
@@ -62,7 +74,7 @@ static void ensure_cache(size_t need)
 
         /* Test the current candidate. */
         uint64_t cand = cache_next;
-        uint64_t d = divisor_count_u64(cand);
+        uint64_t d = num_divisors(cand);
         unsigned int len = digit_len_base7(cand);
 
         if (d == len)

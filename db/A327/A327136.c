@@ -7,6 +7,7 @@
  * Formula:   a(n) = nth integer k such that sin(2k) > sin(2k+2) < sin(2k+4)
  * Range:     u8 n <= 81, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 75 terms through n = 9518 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

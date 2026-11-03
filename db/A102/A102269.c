@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 #define RESIDUES_COUNT 3
 static const unsigned long RESIDUES[RESIDUES_COUNT] = {43, 67, 79};
@@ -39,9 +43,9 @@ seq_t a(idx_t n) {
     if (n > cache_capacity) {
         idx_t new_capacity = (cache_capacity == 0) ? 256 : cache_capacity * 2;
         while (new_capacity < n) new_capacity *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
         if (!tmp) { /* allocation failed; return 0 as sentinel */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_size = cache_capacity = 0;
             return (seq_t)0;
@@ -53,7 +57,7 @@ seq_t a(idx_t n) {
     /* Generate terms until we have at least n terms */
     while (cache_size < n) {
         unsigned long candidate = 84u * current_k + RESIDUES[residue_index];
-        if (candidate >= 3u && is_prime(candidate)) {
+        if (candidate >= 3u && is_prime_u64(candidate)) {
             cache[cache_size++] = (seq_t)candidate;
         }
         /* Advance to next residue / k */

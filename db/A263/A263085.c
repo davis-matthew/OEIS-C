@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(1) = 1 * a(n) = a(n-1) + A000005(2n-1) for n > 1 * where
  *            A000005(m) is the number of divisors of m
- * Range:     u8 n <= 77, u16 n <= 8644, u32 n <= 8644, u64 n <= 8644,
- *            u128 n <= 8644, big any n
- * Helpers:   none
+ * Range:     u8 n <= 77, u16 n <= 10082, u32 n <= 10082, u64 n <= 10082,
+ *            u128 n <= 10082, big any n
+ * Validated: standard, pass, 78 terms through n = 8644 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the divisor count of a 64‑bit integer.  */
 static inline seq_t divisor_count_u64(uint64_t n)
@@ -45,8 +47,8 @@ seq_t a(idx_t n)
     {
         size_t new_len = (size_t)n;
         seq_t *tmp = (cache_len == 0)
-                     ? (seq_t *)malloc((new_len + 1) * sizeof(seq_t))
-                     : (seq_t *)realloc(cache, (new_len + 1) * sizeof(seq_t));
+                     ? mem_new(seq_t, (new_len + 1))
+                     : mem_resize(seq_t, cache, (new_len + 1));
         if (tmp == NULL)
             abort();            /* memory allocation failed */
 

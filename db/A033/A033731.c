@@ -7,13 +7,14 @@
  * Formula:   a(n) = Σ_{a,b≥0, a² + 19·b² = n} (a==0?1:2)·(b==0?1:2)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 97 terms through n = 9864 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
         idx_t m = n;                      /* k = 0 */
         if (m % 19 == 0) {
             idx_t t = m / 19;            /* b² */
-            idx_t r = _floor_isqrt_u64(t);
+            idx_t r = isqrt(t);
             if (r * r == t) {
                 seq_t w1 = 1;             /* a == 0 */
                 seq_t w2 = (t == 0) ? 1 : 2;
@@ -34,13 +35,13 @@ seq_t a(idx_t n)
     }
 
     /* iterate over positive a (a ≥ 1) */
-    idx_t lim = _floor_isqrt_u64(n);
+    idx_t lim = isqrt(n);
     for (idx_t a = 1; a <= lim; ++a) {
         idx_t k = a * a;                 /* a² */
         idx_t m = n - k;
         if (m % 19 == 0) {
             idx_t t = m / 19;            /* b² */
-            idx_t r = _floor_isqrt_u64(t);
+            idx_t r = isqrt(t);
             if (r * r == t) {
                 seq_t w1 = 2;             /* a > 0 */
                 seq_t w2 = (t == 0) ? 1 : 2;

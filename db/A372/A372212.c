@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 17, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   compute_binom_seq
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,18 @@
 */
 
 #include <stdlib.h>  /* malloc, free */
-#include "../utils/compute_binom_seq.h"
+#include "../utils/mem.h"
+
+static void
+compute_binom_seq(seq_t *arr, idx_t max, seq_t start)
+{
+    /* arr[0] must be 1 (already initialised).  The binomial
+       coefficients are C(start + k - 1 , k) for k = 0..max.  */
+    for (idx_t k = 1; k <= max; ++k) {
+        seq_t num = start + k - 1;
+        arr[k] = (arr[k-1] * num) / k;
+    }
+}
 
 /* Return the coefficient of x^n in f(x)^n for the generating function
    f(x) = (1 - x^7)^7 / ( (1 - x^2)^2 * (1 - x^5)^5 ).  */
@@ -44,11 +56,11 @@ seq_t a(idx_t n)
     size_t szC2   = (size_t)(max_j   + 1);
     size_t szC5   = (size_t)(max_k   + 1);
 
-    seq_t *C7 = (seq_t*)malloc(szC7 * sizeof(seq_t));
-    seq_t *C2 = (seq_t*)malloc(szC2 * sizeof(seq_t));
-    seq_t *C5 = (seq_t*)malloc(szC5 * sizeof(seq_t));
+    seq_t *C7 = mem_new(seq_t, szC7);
+    seq_t *C2 = mem_new(seq_t, szC2);
+    seq_t *C5 = mem_new(seq_t, szC5);
 
-    if (!C7 || !C2 || !C5) { free(C7); free(C2); free(C5); return 0; }
+    if (!C7 || !C2 || !C5) { mem_free(C7); mem_free(C2); mem_free(C5); return 0; }
 
     /* Compute C(7n, i) for i = 0..max_i. */
     C7[0] = (seq_t)1;
@@ -92,8 +104,8 @@ seq_t a(idx_t n)
         }
     }
 
-    free(C7);
-    free(C2);
-    free(C5);
+    mem_free(C7);
+    mem_free(C2);
+    mem_free(C5);
     return result;
 }

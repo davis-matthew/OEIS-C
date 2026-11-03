@@ -12,13 +12,16 @@
  *            (a(idx) is the linear index of the triangle read by ro...
  * Range:     u8 n <= 24, u16 n <= 51, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *der = NULL;     /* derangements array */
 static idx_t der_cap = 0;     /* capacity of der */
@@ -32,7 +35,7 @@ static void ensure_derangements(idx_t n)
     idx_t new_cap = der_cap ? der_cap << 1 : 8;
     while (new_cap <= n) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(der, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, der, new_cap);
     if (!tmp) {
         /* allocation failure – should not happen for n ≤ 10000 */
         return;
@@ -85,9 +88,9 @@ seq_t a(idx_t n)
         idx_t a1 = r - 1 - j;          /* n-1-j */
         idx_t b1 = j - k - 1;          /* j-k-1 */
 
-        seq_t t1 = binom(a1, b1);
+        seq_t t1 = binomial(a1, b1);
         if (!t1) continue;
-        seq_t t2 = binom(j, k);
+        seq_t t2 = binomial(j, k);
         if (!t2) continue;
         seq_t t3 = der[j] + der[j - 1];
 

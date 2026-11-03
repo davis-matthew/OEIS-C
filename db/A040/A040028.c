@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 72 terms through n = 858 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Storage for the sequence terms. */
 static seq_t *terms    = NULL;
@@ -43,7 +46,7 @@ static void ensure_terms_cap(size_t need)
     if (terms_cap < need) {
         size_t newcap = terms_cap * 2 + 10;
         if (newcap < need) newcap = need;
-        terms = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, newcap);
         terms_cap = newcap;
     }
 }
@@ -98,7 +101,7 @@ seq_t a(idx_t n)
         else if (p % 3 == 2)
             ok = true;
         else {
-            seq_t r = mod_pow((seq_t)2, (p - 1) / 3, (seq_t)p);
+            seq_t r = powmod((seq_t)2, (p - 1) / 3, (seq_t)p);
             ok = (r == (seq_t)1);
         }
 

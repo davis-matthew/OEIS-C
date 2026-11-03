@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{k=1..n} A051903(ugcd(n,k))
  * Range:     u8 n <= 347, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 91 terms through n = 9389 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static seq_t compute_A051903(idx_t m) {

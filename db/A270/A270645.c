@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9664 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    The sequence is the list of run values (1 or 2) produced by this rule. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* External linkage required */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialize with the first two runs: 2 (len = 1), 1 (len = 3) */
     if (buf == NULL) {
         buf_cap = 64;                       /* initial capacity */
-        buf = (seq_t *)malloc(buf_cap * sizeof(seq_t));
+        buf = mem_new(seq_t, buf_cap);
         if (!buf) return 0;                 /* unlikely on these limits */
         /* Append run 1: value 2, length 1 */
         buf[0] = (seq_t)2;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         if (buf_len + need > buf_cap) {
             size_t new_cap = buf_cap ? buf_cap * 2 : 8;
             while (new_cap < buf_len + need) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, buf, new_cap);
             if (!tmp) return 0;              /* allocation failure */
             buf = tmp;
             buf_cap = new_cap;

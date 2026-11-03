@@ -8,13 +8,15 @@
  * Formula:   a(n) = #{i : LevenshteinDistance(n,i)=1}
  * Range:     u8 n <= 12, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 7104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper: qsort compare for seq_t */
 static int cmp_seq(const void *p1, const void *p2)
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
     }
 
     /* Sort and count unique values */
-    qsort(cand, sz, sizeof(seq_t), cmp_seq);
+    mem_qsort(cand, sz, sizeof(seq_t), cmp_seq);
     seq_t result = 0;
     if (sz > 0) {
         result = 1;

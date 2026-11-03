@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 2051, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 73 terms through n = 9833 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,10 @@
 /* Returns the n'th element of OEIS A242800 (offset 1). */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"   /* provides seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of found terms.  On first call it is allocated. */
@@ -30,7 +34,7 @@ seq_t a(idx_t n) {
     /* Grow cache when needed. */
     if (cache == NULL) {
         cap = 256;                        /* initial capacity */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;             /* allocation failed */
         len = 0;
         next_cand = 1;
@@ -39,11 +43,11 @@ seq_t a(idx_t n) {
     /* Generate terms until we reach the requested index. */
     while (len < n) {
         seq_t mod = (seq_t)next_cand + 3;
-        seq_t r   = mod_pow((seq_t)next_cand, (uint64_t)next_cand, mod);
+        seq_t r   = powmod((seq_t)next_cand, (uint64_t)next_cand, mod);
         if ((r + 3) % mod == 0) {         /* satisfies the condition */
             if (len == cap) {             /* need more capacity */
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cap);
                 if (!tmp) return 0;       /* allocation failed */
                 cache = tmp;
             }

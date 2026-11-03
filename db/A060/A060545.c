@@ -7,13 +7,28 @@
  * Formula:   a(n) = binomial(n^2, n) / n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 13, u128 n <= 22,
  *            big any n
- * Helpers:   gcd, mul_small
+ * Validated: standard, pass, 34 terms through n = 99 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"      /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/mul_small.h"/* seq_t mul_small(seq_t x, unsigned int m); */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/gcd.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of sets of non‑zero squares with sum <= n
  * Range:     u8 n <= 133, u16 n <= 756, u32 n <= 4854, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9344 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Integer square root for idx_t, safe for 64‑bit values */
 static inline idx_t isqrt_idx(idx_t n)
@@ -36,7 +38,7 @@ static inline idx_t isqrt_idx(idx_t n)
 seq_t a(idx_t n)
 {
     /* Allocate DP array for sums 0..n */
-    seq_t *f = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (n + 1));
     if (!f) return 0;                  /* allocation failed */
 
     /* Initialize */
@@ -56,6 +58,6 @@ seq_t a(idx_t n)
     seq_t ans = 0;
     for (idx_t s = 0; s <= n; ++s) ans = ans + f[s];
 
-    free(f);
+    mem_free(f);
     return ans;
 }

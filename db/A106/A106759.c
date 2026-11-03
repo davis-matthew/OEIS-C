@@ -7,15 +7,18 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 605, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum_uint64, is_prime_uint64
+ * Validated: standard, pass, 60 terms through n = 8509 (2026-11-03)
+ * Helpers:   digit_sum_u64, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This function finds the n-th prime whose digit sum is 19 by brute‑force search. */
 #include <stdint.h>
-#include "../utils/is_prime_uint64.h"   /* is_prime_uint64(uint64_t) */
-#include "../utils/digit_sum_uint64.h" /* digit_sum_uint64(uint64_t) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/digit_sum_u64.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +27,7 @@ seq_t a(idx_t n)
 
     for (;; p += 2)       /* iterate over odd numbers only */
     {
-        if (is_prime_uint64(p) && digit_sum_uint64(p) == 19U)
+        if (is_prime_u64(p) && digit_sum_u64(p) == 19U)
         {
             ++cnt;
             if (cnt == n)

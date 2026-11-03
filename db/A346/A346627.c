@@ -8,12 +8,14 @@
  *            a(i)*a(j)*a(n-i-j-1) for n≥1 (OEIS A346627)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 34, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     if (cap <= n) {
         idx_t new_cap = (cap > 0 ? cap : 1);
         while (new_cap <= n) new_cap <<= 1;            /* double until big enough */
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-        conv  = (seq_t *)realloc(conv,  new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
+        conv  = mem_resize(seq_t, conv, new_cap);
         cap   = new_cap;
     }
 

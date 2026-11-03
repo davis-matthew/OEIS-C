@@ -13,12 +13,14 @@
  *            = T(c,k)
  * Range:     u8 n <= 19, u16 n <= 52, u32 n <= 149, u64 n <= 461,
  *            u128 n <= 1275, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1263 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
 
     /* build the triangular array up to row k */
     /* we keep two arrays: prev (row k-1), cur (row k) */
-    seq_t *prev = (seq_t *)malloc((k + 1) * sizeof(seq_t));
-    seq_t *cur  = (seq_t *)malloc((k + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (k + 1));
+    seq_t *cur  = mem_new(seq_t, (k + 1));
     if (!prev || !cur) return (seq_t)0; /* fallback on allocation error */
 
     prev[1] = 1;                        /* row 1: T(1,1)=1 */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
 
     seq_t ret = prev[c];
 
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return ret;
 }

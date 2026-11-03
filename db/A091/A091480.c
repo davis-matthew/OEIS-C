@@ -12,14 +12,17 @@
  *            computes n_node and k from * the one‑dimensional index n
  * Range:     u8 n <= 31, u16 n <= 49, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* binomial(idx_t a, idx_t b)             */
-#include "../utils/big_pow.h"    /* big_pow(seq_t base, seq_t exp)        */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* cumulative number of terms up to (and including) diagonal s.
    For diagonal s, there are s+1 entries, so C(s) = (s+1)(s+2)/2. */
@@ -59,5 +62,5 @@ seq_t a(idx_t n)
     /* 4. Evaluate the term: binomial(n_node,2)^k. */
     seq_t base = binomial(n_node, 2);
     seq_t exp  = (seq_t)k;
-    return big_pow(base, exp);
+    return ipow(base, exp);
 }

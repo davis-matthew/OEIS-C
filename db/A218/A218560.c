@@ -12,7 +12,8 @@
  *            list is generated once and reused for all calls
  * Range:     u8 n <= 2, u16 n <= 255, u32 n <= 255, u64 n <= 255,
  *            u128 n <= 255, big any n
- * Helpers:   none
+ * Validated: full, pass, 255 terms through n = 255 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: comparison function compatible with both C and C++.
    Works when seq_t is an integral type or a class providing operator<. */
@@ -93,7 +95,7 @@ static void generate_terms(seq_t *out, size_t *count)
     }
 
     *count = idx;
-    qsort(out, idx, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(out, idx, sizeof(seq_t), cmp_seq_t);
 }
 
 /* Public API required by the build system. */

@@ -11,7 +11,8 @@
  *            (rooted toroidal maps) with R(k) = 3^(k-1)...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 20, u128 n <= 30,
  *            big any n
- * Helpers:   alloc_zero, jordan2, mm_ex, release, sbin, seq_is_fixed_width
+ * Validated: standard, pass, 29 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +20,52 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/jordan2.h"
-#include "../utils/mm_ex.h"
-#include "../utils/sbin.h"
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static uint64_t jordan2(uint64_t L) {
+    uint64_t r = L * L, x = L, p;
+    for (p = 2; p * p <= x; p++)
+        if (x % p == 0) {
+            r = r / (p * p) * (p * p - 1);
+            while (x % p == 0) x /= p;
+        }
+    if (x > 1) r = r / (x * x) * (x * x - 1);
+    return r;
+}
+
+static seq_t mm_ex(const seq_t *c3, idx_t e) { return c3[e] * 2 / (e + 2); }
+
+/* ---------- exact path ---------- */
+static seq_t sbin(idx_t D, int s) {
+    seq_t b = 1;
+    int i;
+    if ((idx_t)s > D) return 0;
+    for (i = 0; i < s; i++) b = b * (D - (idx_t)i) / (idx_t)(i + 1);
+    return b;
+}
 
 /* ---------- modular path ---------- */
 static uint64_t mulm(uint64_t a, uint64_t b, uint64_t p) {

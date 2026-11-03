@@ -10,13 +10,15 @@
  *            b(5)=65; for n>=6: b(n) = 11*(b(n-2)-b(n-4)) + b(n-6)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t* _cache = NULL;
 static idx_t _cache_len = 0;
@@ -29,7 +31,7 @@ static void _ensure_capacity(idx_t needed)
     idx_t new_cap = _cache_cap ? _cache_cap * 2 : 64;
     if (new_cap < needed)
         new_cap = needed;
-    _cache = (seq_t*)realloc(_cache, (size_t)new_cap * sizeof(seq_t));
+    _cache = mem_resize(seq_t, _cache, (size_t)new_cap);
     _cache_cap = new_cap;
 }
 

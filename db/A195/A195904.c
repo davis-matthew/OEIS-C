@@ -8,12 +8,15 @@
  * Formula:   a(n) = ⌊2^(n+5)/63⌋
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 123,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 50 terms through n = 988 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"          /* seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 /*
  * Compute the MurmurHash2 sequence term a(n) for n ≥ 1.
@@ -49,6 +52,6 @@ seq_t a(idx_t n)
     }
 
     /* Arbitrary‑precision implementation.  seq_pow handles large power. */
-    seq_t val = seq_pow((seq_t)2, exp);      /* 2^(n+5)            */
+    seq_t val = ipow_idx((seq_t)2, exp);      /* 2^(n+5)            */
     return val / (seq_t)63;                  /* floor division     */
 }

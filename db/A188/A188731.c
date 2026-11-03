@@ -7,6 +7,7 @@
  * Formula:   a(n) = the n‑th decimal digit of (5+sqrt(41))/4, with a(1)=2
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 146 terms through n = 9766 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,12 +8,14 @@
  *            a(1)=-1, a(2)=3, a(3)=-7
  * Range:     i8 n <= 6, i16 n <= 13, i32 n <= 28, i64 n <= 59, i128 n <= 123,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Memoized storage for computed terms */
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     /* First call: allocate and store the first four terms */
     if (!seq) {
         cap = 8;                     /* initial capacity */
-        seq = (seq_t*)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         if (!seq) exit(EXIT_FAILURE);
         seq[0] = (seq_t)1;
         seq[1] = (seq_t)(-1);
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
         /* grow array if capacity exceeded */
         if (len == cap) {
             size_t newcap = cap * 2;
-            seq_t *newptr = (seq_t*)realloc(seq, newcap * sizeof(seq_t));
+            seq_t *newptr = mem_resize(seq_t, seq, newcap);
             if (!newptr) exit(EXIT_FAILURE);
             seq = newptr;
             cap = newcap;

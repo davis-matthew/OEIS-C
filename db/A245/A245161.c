@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 19, u64 n <= 31, u128 n <= 54,
  *            big any n
- * Helpers:   rec_value
+ * Validated: standard, pass, 42 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,54 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/rec_value.h"
+#include "../utils/mem.h"
+
+/* --------- recurrence evaluation ---------------------------------------- */
+static inline seq_t rec_value(const seq_t *arr, idx_t i)
+{
+#if defined(__cplusplus)
+    if constexpr (std::is_integral<seq_t>::value) {
+        __int128 total = (__int128)arr[i-1] * 37;
+        total -= (__int128)arr[i-2] * 605;
+        total += (__int128)arr[i-3] * 5765;
+        total -= (__int128)arr[i-4] * 35523;
+        total += (__int128)arr[i-5] * 148371;
+        total -= (__int128)arr[i-6] * 427775;
+        total += (__int128)arr[i-7] * 849335;
+        total -= (__int128)arr[i-8] * 1134976;
+        total += (__int128)arr[i-9] * 969292;
+        total -= (__int128)arr[i-10] * 474720;
+        total += (__int128)arr[i-11] * 100800;
+        return (seq_t)total;
+    } else {
+        seq_t total = arr[i-1] * (seq_t)37;
+        total -= arr[i-2] * (seq_t)605;
+        total += arr[i-3] * (seq_t)5765;
+        total -= arr[i-4] * (seq_t)35523;
+        total += arr[i-5] * (seq_t)148371;
+        total -= arr[i-6] * (seq_t)427775;
+        total += arr[i-7] * (seq_t)849335;
+        total -= arr[i-8] * (seq_t)1134976;
+        total += arr[i-9] * (seq_t)969292;
+        total -= arr[i-10] * (seq_t)474720;
+        total += arr[i-11] * (seq_t)100800;
+        return total;
+    }
+#else
+    __int128 total = (__int128)arr[i-1] * 37;
+    total -= (__int128)arr[i-2] * 605;
+    total += (__int128)arr[i-3] * 5765;
+    total -= (__int128)arr[i-4] * 35523;
+    total += (__int128)arr[i-5] * 148371;
+    total -= (__int128)arr[i-6] * 427775;
+    total += (__int128)arr[i-7] * 849335;
+    total -= (__int128)arr[i-8] * 1134976;
+    total += (__int128)arr[i-9] * 969292;
+    total -= (__int128)arr[i-10] * 474720;
+    total += (__int128)arr[i-11] * 100800;
+    return (seq_t)total;
+#endif
+}
 
 /* --------- initial values ------------------------------------------------ */
 static const seq_t init_vals[13] = {
@@ -64,7 +112,7 @@ static void ensure_cache(idx_t n)
 
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap <= (size_t)n) new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 
     /* initialise the new slots to 0 (not strictly required) */

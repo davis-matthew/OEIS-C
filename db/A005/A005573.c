@@ -12,14 +12,45 @@
  *            the type width
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   a_dp, seq_is_big
+ * Validated: standard, pass, 37 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_is_big.h"
-#include "../utils/a_dp.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t a_dp(idx_t n) {
+    seq_t *f = mem_new(seq_t, (size_t)(n + 2));
+    seq_t *g = mem_new(seq_t, (size_t)(n + 2));
+    idx_t h, s;
+    seq_t total = 0;
+    for (h = 0; h < n + 2; h++) { f[h] = 0; g[h] = 0; }
+    f[0] = 1;
+    for (s = 0; s < n; s++) {
+        seq_t *t;
+        for (h = 0; h <= s + 1; h++) {
+            seq_t v = f[h] * 4 + f[h + 1];
+            if (h > 0) v += f[h - 1];
+            g[h] = v;
+        }
+        t = f; f = g; g = t;
+    }
+    for (h = 0; h <= n; h++) total += f[h];
+    mem_free(f);
+    mem_free(g);
+    return total;
+}
 
 static seq_t a_rec(idx_t n) {
     seq_t p2 = 1, p1 = 5, cur;

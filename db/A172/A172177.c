@@ -8,13 +8,15 @@
  * Formula:   a(n) = 1 + |n! - k!| * |n! - (n-k)!| (offset 0)
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 45, u64 n <= 91, u128 n <= 231,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1307 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;          /* factorial cache: fact_cache[i] = i! */
 static idx_t fact_cache_len = 0;          /* number of cached factorials */
@@ -24,15 +26,14 @@ static void ensure_factorial_cache(idx_t n)
 {
     if (!fact_cache) {
         /* allocate space for at least 200 factorials (sufficient for n <= 10000) */
-        fact_cache = (seq_t*)malloc(sizeof(seq_t) * 200);
+        fact_cache = mem_new(seq_t, 200);
         fact_cache[0] = (seq_t)1;
         fact_cache_len = 1;
     }
     while (fact_cache_len <= n) {
         /* expand cache if necessary */
         if (fact_cache_len >= 200) {
-            fact_cache = (seq_t*)realloc(fact_cache,
-                                         sizeof(seq_t) * (fact_cache_len + 200));
+            fact_cache = mem_resize(seq_t, fact_cache, (fact_cache_len + 200));
         }
         fact_cache[fact_cache_len] =
             fact_cache[fact_cache_len - 1] * (seq_t)fact_cache_len;

@@ -8,8 +8,9 @@
  * Formula:   a(n) is the integer whose negaFibonacci representation uses
  *            exactly the terms common to the negaFibonacci representations of
  *            n and –n. Index 0 corresponds to n = 0, index 1 to n = 1, etc
- * Range:     i8 n <= 0, i16 n <= 8984, i32 n <= 8984, i64 n <= 8984,
- *            i128 n <= 8984, big any n
+ * Range:     i8 n <= 0, i16 n <= 10946, i32 n <= 10946, i64 n <= 10946,
+ *            i128 n <= 10946, big any n
+ * Validated: standard, pass, 89 terms through n = 8984 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,12 +10,14 @@
  *            a(8) = 25, a(9) = 30, a(10)=35, a(11)=40, a(12)=45, a(13)=48
  * Range:     i8 n <= 29, i16 n <= 55, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_cap = 0;      /* allocated capacity (in indices) */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* Ensure we have room for at least indices 0..13 to store base */
         cache_cap = (n > 13 ? n + 1 : 14);
-        cache = (seq_t*)calloc((size_t)cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         if (!cache)
             return 0;  /* allocation failed – return 0 as a safe value */
 
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         while (new_cap < (size_t)(n + 1))
             new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)  /* allocation failed */
             return 0;
         /* Zero the newly allocated part */

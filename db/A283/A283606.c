@@ -14,7 +14,8 @@
  *            = 65535, a(16) = 122879, a(17) = 262143
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 126 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  * a(n) = a(n-1) + 4*a(n-2) - 4*a(n-3).  To avoid recomputation
  * the sequence is cached in a static array that grows as needed. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* initial values for n = 0 … 17 */
 static const seq_t init_vals[18] = {
@@ -48,7 +50,7 @@ static void ensure_capacity(idx_t n)
     if (new_cap <= n + 1)
         new_cap = n + 1;
     /* reallocate array – keep the old data if allocation fails */
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
     if (!tmp)
         return;           /* allocation failed – keep old cache unchanged */
     cache = tmp;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     /* lazily allocate the cache on first use */
     if (!cache) {
         cap   = 18;
-        cache = (seq_t *)malloc((size_t)cap * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cap);
         if (!cache)
             return (seq_t)0;   /* out of memory – return 0 as safe fallback */
         for (idx_t i = 0; i < 18; ++i)

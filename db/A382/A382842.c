@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} (binomial(n,k) * binomial(n-k,k))^3
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 16, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

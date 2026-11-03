@@ -10,18 +10,19 @@
  *            the recurrence a(k^2 + i) = k + a(i) with 0 ≤ i ≤ 2k
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 101 terms through n = 8541 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     seq_t sum = 0;
     idx_t rem = n;
     while (rem > 0) {
-        idx_t k = _floor_isqrt_u64(rem);   /* largest k such that k^2 ≤ rem */
+        idx_t k = isqrt(rem);   /* largest k such that k^2 ≤ rem */
         sum += (seq_t)k;                   /* add k to the result */
         rem -= k * k;                      /* subtract the square k² */
     }

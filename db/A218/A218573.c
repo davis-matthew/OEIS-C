@@ -11,7 +11,8 @@
  *            remaining parts may be any number of parts chose...
  * Range:     u8 n <= 27, u16 n <= 59, u32 n <= 216, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #if defined(__cplusplus)
 #  include <cstdint>
 #endif
+#include "../utils/mem.h"
 
 /* Utility: allocation helpers that work in both C and C++ */
 #if defined(__cplusplus)
@@ -67,7 +69,7 @@ static void recompute(idx_t limit)
         if (sub > limit) continue;        /* should not happen */
 
         /* initialise dp[0] = 1, others 0 */
-        memset(dp, 0, (limit + 1) * sizeof(seq_t));
+        mem_set(dp, 0, (limit + 1) * sizeof(seq_t));
         dp[0] = 1;
 
         /* coin change: coins are s .. s+10 */

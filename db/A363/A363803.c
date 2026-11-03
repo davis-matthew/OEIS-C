@@ -7,13 +7,19 @@
  * Formula:   a(n) = Sum_{d|n, d ≡ 0,2,5 (mod 7)} d
  * Range:     u8 n <= 125, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   good_mod
+ * Validated: standard, pass, 99 terms through n = 9882 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/good_mod.h"
+
+static inline bool good_mod(idx_t d)
+{
+    /* return true if d ≡ 0, 2, or 5 (mod 7) */
+    return (d % 7 == 0) || (d % 7 == 2) || (d % 7 == 5);
+}
 
 /* integer square root: floor(sqrt(n)) without overflow */
 static inline idx_t floor_sqrt(idx_t n)

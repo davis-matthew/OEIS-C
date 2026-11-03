@@ -11,12 +11,14 @@
  *            The mapping from n to (r,c) is described in the function body
  * Range:     u8 n <= 24, u16 n <= 70, u32 n <= 239, u64 n <= 835,
  *            u128 n <= 2959, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 94 terms through n = 4792 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -48,9 +50,9 @@ seq_t a(idx_t n)
     /* compute T(row, col) by the defining sum */
     seq_t sum = 0;
     for (idx_t i = 1; i <= row; ++i) {
-        seq_t term = binom(row + 1, i);
-        term = term * binom(col - 1, i - 1);
-        term = term * binom(row - i + col, col);
+        seq_t term = binomial(row + 1, i);
+        term = term * binomial(col - 1, i - 1);
+        term = term * binomial(row - i + col, col);
         sum += term;
     }
     return sum;

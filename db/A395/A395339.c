@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 13, i64 n <= 24, i128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Sequence A395339.
    Formula: a(n) = (Re((1+2*i)^(2*n)) + 1)/2
    Recurrence: a(0)=1, a(1)=-1, a(2)=-3,

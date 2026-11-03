@@ -11,6 +11,7 @@
  *            read by antidiagonals of this square array
  * Range:     u8 n <= 24, u16 n <= 41, u32 n <= 86, u64 n <= 184,
  *            u128 n <= 428, big any n
+ * Validated: standard, pass, 82 terms through n = 9691 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

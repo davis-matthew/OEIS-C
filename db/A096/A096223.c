@@ -9,14 +9,17 @@
  *            of unrestricted partitions of k
  * Range:     u8 n <= 12, u16 n <= 36, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   _gcd_idx
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   gcd_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_gcd_idx.h"
+#include <stdint.h>
+#include "../utils/gcd_idx.h"
+#include "../utils/mem.h"
 
 /* Helper: Euclidean algorithm for idx_t */
 
@@ -33,7 +36,7 @@ static void ensure_partitions(idx_t n)
 
     /* Allocate or grow the array */
     size_t new_size = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(partitions, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, partitions, new_size);
     if (!tmp)
         abort();                      /* out‑of‑memory */
     partitions = tmp;
@@ -63,7 +66,7 @@ seq_t a(idx_t n)
 
     seq_t result = 0;
     for (idx_t k = 1; k <= n; ++k) {
-        if (_gcd_idx(k, n) == 1)
+        if (gcd_idx(k, n) == 1)
             result += partitions[k];
     }
     return result;

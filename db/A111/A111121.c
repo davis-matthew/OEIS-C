@@ -9,12 +9,14 @@
  *            1
  * Range:     i8 n <= 10, i16 n <= 12, i32 n <= 13, i64 n <= 15, i128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static memoization storage */
 static seq_t *memo = NULL;       /* array of computed values (1‑based) */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* lazy initialization of memo with the 3 given starting values */
     if (memo == NULL) {
         memo_cap = 4;              /* indices 0..3 (0 unused) */
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         if (!memo) exit(1);        /* out of memory */
         memo[1] = (seq_t)(-1);
         memo[2] = (seq_t)0;
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
     /* grow the memo array if we need more terms */
     if (n > memo_size) {
         while (memo_cap <= n) memo_cap *= 2;   /* double until large enough */
-        memo = (seq_t *)realloc(memo, memo_cap * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, memo_cap);
         if (!memo) exit(1);
 
         /* compute missing terms up to n */

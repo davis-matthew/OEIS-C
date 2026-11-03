@@ -12,14 +12,20 @@
  *            vectors prune the search
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   a3135_vpf
+ * Validated: partial, pass, 3 terms through n = 3 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/a3135_vpf.h"
+
+static int a3135_vpf(int k, int p) {
+    int e = 0;
+    while (k) { k /= p; e += k; }
+    return e;
+}
 
 #define A3135_LIM 64
 

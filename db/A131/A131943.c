@@ -9,14 +9,17 @@
  *            b(3^e) = 4 - 3^(e+1), b(p^e) = (p^(e+1) - 1) / (p - 1) for p > 3
  * Range:     i8 n <= 12, i16 n <= 53, i32 n <= 53, i64 n <= 53, i128 n <= 53,
  *            big any n
- * Helpers:   factor_u64, pow_int
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_int.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -46,10 +49,10 @@ seq_t a(idx_t n)
 
             if (p == 3ULL) {
                 /* b(3^e) = 4 - 3^(e+1) */
-                term = (seq_t)4 - pow_int((seq_t)3, e + 1);
+                term = (seq_t)4 - ipow_idx((seq_t)3, e + 1);
             } else {
                 /* b(p^e) = (p^(e+1) - 1) / (p - 1) */
-                seq_t numerator = pow_int((seq_t)p, e + 1) - (seq_t)1;
+                seq_t numerator = ipow_idx((seq_t)p, e + 1) - (seq_t)1;
                 seq_t denominator = (seq_t)(p - 1);
                 term = numerator / denominator; /* Exact division. */
             }

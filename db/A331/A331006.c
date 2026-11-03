@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 121, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, gcd_uint64
+ * Validated: standard, pass, 80 terms through n = 9311 (2026-11-03)
+ * Helpers:   gcd_u64, mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/calc_phi.h"
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 /* type for storing seen fractions (reduced rational numbers) */
 typedef struct {
@@ -50,7 +52,7 @@ static void grow_seq(size_t needed)
     if (seq_len >= seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 4;
         if (new_cap < needed) new_cap = needed;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         if (!seq) exit(EXIT_FAILURE);
         seq_cap = new_cap;
     }
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
     /* Generate terms until we have n accepted k values */
     uint64_t k = 2;                       /* start at 2 */
     while (seq_len < (size_t)n) {
-        seq_t phi = calc_phi(k);
+        seq_t phi = totient_seq(k);
 
         uint64_t num, den;
         if (k == 2) {
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
         }
 
         /* reduce the fraction */
-        uint64_t g = gcd_uint64(num, den);
+        uint64_t g = gcd_u64(num, den);
         num /= g;
         den /= g;
 

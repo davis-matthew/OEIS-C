@@ -8,7 +8,8 @@
  *            brute‑force search)
  * Range:     u8 n <= 15, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   count_digits_base
+ * Validated: partial, pass, 50 terms through n = 51 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_digits_base.h"
+
+/* ---------- helper: count digits of a seq_t in base 'base' ---------- */
+static size_t count_digits_base(seq_t x, idx_t base)
+{
+    size_t len = 0;
+    seq_t b = (seq_t)base;
+    do {
+        x /= b;
+        ++len;
+    } while (x > 0);
+    return len;
+}
 
 /* ---------- prime sieve for trial division ---------- */
 static uint32_t *prime_table = NULL;

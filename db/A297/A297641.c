@@ -10,13 +10,36 @@
  *            * a transfer‐matrix dynamic programming with 32×32 states
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   check_valid
+ * Validated: standard, pass, 33 terms through n = 198 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/check_valid.h"
+
+/* check whether a single 5-bit column pattern satisfies the
+ * rule given the left and right neighbour patterns. */
+static bool check_valid(int left, int mid, int right)
+{
+    for (int r = 0; r < 5; ++r) {
+        int bit = (mid >> r) & 1;
+        if (!bit) continue;
+        int cnt = 0;
+        /* horizontal neighbors */
+        if (left  & (1 << r)) cnt++;   /* left same row   */
+        if (right & (1 << r)) cnt++;   /* right same row  */
+        /* diagonals on the left */
+        if (r > 0   && (left  & (1 << (r-1)))) cnt++;   /* up-left  */
+        if (r < 4   && (left  & (1 << (r+1)))) cnt++;   /* down-left */
+        /* diagonals on the right */
+        if (r > 0   && (right & (1 << (r-1)))) cnt++;   /* up-right   */
+        if (r < 4   && (right & (1 << (r+1)))) cnt++;   /* down-right */
+
+        if (cnt != 0 && cnt != 2 && cnt != 3) return false;
+    }
+    return true;
+}
 
 /* --------------------------------------------------------------- */
 /*  validity table:  valid[left][mid][right] == true  iff  the

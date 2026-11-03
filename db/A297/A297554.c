@@ -9,13 +9,15 @@
  *            7, a(3) = 12, a(4) = 19, a(5) = 28
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 45, u64 n <= 93, u128 n <= 189,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for any n≥0.  The function keeps a static cache so that
    calls in arbitrary order are handled efficiently. */
@@ -29,16 +31,16 @@ seq_t a(idx_t n)
     /* allocate initial cache if needed */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* grow cache capacity to hold index n (zero‑based) */
     if ((size_t)n >= cache_cap) {
         size_t new_cap = cache_cap;
         while ((size_t)n >= new_cap) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         for (size_t i = 0; i < cache_len; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

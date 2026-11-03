@@ -7,15 +7,18 @@
  * Formula:   a(n) = 2^(2^prime(n) - 1) - 1
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   big_pow, build_primes
+ * Validated: standard, pass, 5 terms through n = 5 (2026-11-01)
+ * Helpers:   build_primes, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes.h"
+#include "../utils/ipow.h"
 
 static idx_t *prime_cache = NULL;   /* cache of primes */
 static size_t prime_count = 0;      /* number of primes cached */
@@ -56,13 +59,13 @@ seq_t a(idx_t n) {
     idx_t p = prime_cache[n - 1];
 
     /* Compute 2^p */
-    seq_t pow_p = big_pow((seq_t)2, (seq_t)p);
+    seq_t pow_p = ipow((seq_t)2, (seq_t)p);
 
     /* exponent = 2^p - 1 */
     seq_t exponent = pow_p - 1;
 
     /* Compute 2^(2^p - 1) */
-    seq_t result = big_pow((seq_t)2, exponent) - 1;
+    seq_t result = ipow((seq_t)2, exponent) - 1;
 
     return result;
 }

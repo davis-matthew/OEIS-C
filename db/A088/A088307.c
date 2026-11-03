@@ -9,7 +9,8 @@
  *            r*(r-1)/2, and T(r,k) = r^2 + k^2 if gcd(r,k) = 1, else 0
  * Range:     u8 n <= 76, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   gcd_idx_local
+ * Validated: standard, pass, 82 terms through n = 1270 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 /* Note: the function is written to compile in both C11 and C++17. */
 
 #include <stdint.h>
-#include "../utils/gcd_idx_local.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
     idx_t k = n - (cumulative - r); /* column in row r */
 
     /* Compute the value T(r,k) only if r and k are coprime */
-    if (gcd_idx_local(r, k) != 1)
+    if (gcd_idx(r, k) != 1)
         return 0;
 
     /* Use seq_t for the arithmetic to avoid overflow. */

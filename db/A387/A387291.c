@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   build_spf
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* Global state for the Dedekind ψ sieve */
 static idx_t current_limit = 0;      /* highest n having ψ known */
@@ -37,14 +40,14 @@ static void extend_limit(idx_t needed)
         new_limit = 1024;
 
     free(spf);
-    free(psi_arr);
+    mem_free(psi_arr);
 
     /* Build smallest prime factor table up to new_limit. */
     build_spf(new_limit, &spf);
     current_limit = new_limit;
 
     /* Allocate ψ array (C++ cast needed) */
-    psi_arr = (seq_t *)malloc(sizeof(seq_t) * (new_limit + 1));
+    psi_arr = mem_new(seq_t, (new_limit + 1));
     psi_arr[0] = 0;
     psi_arr[1] = 1;     /* ψ(1) = 1 */
 
@@ -84,7 +87,7 @@ static void extend_seq(size_t need)
     while (new_cap < need)
         new_cap *= 2;
 
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 

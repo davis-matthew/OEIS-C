@@ -8,12 +8,14 @@
  *            a(n-k)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 160 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a002115_tab = NULL;
 static idx_t a002115_have = 0;
@@ -23,9 +25,9 @@ static void a002115_grow(idx_t need) {
     idx_t newcap = a002115_cap * 2;
     if (newcap < need) newcap = need;
     if (newcap < 16) newcap = 16;
-    seq_t *t = (seq_t *)calloc((size_t)newcap, sizeof(seq_t));
+    seq_t *t = mem_new(seq_t, (size_t)newcap);
     for (idx_t i = 0; i < a002115_have; i++) t[i] = a002115_tab[i];
-    if (a002115_tab != NULL) free(a002115_tab);
+    if (a002115_tab != NULL) mem_free(a002115_tab);
     a002115_tab = t;
     a002115_cap = newcap;
 }

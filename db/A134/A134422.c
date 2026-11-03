@@ -9,14 +9,29 @@
  *            4. The sequence starts at a(1)=25
  * Range:     u8 n <= 4, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_prime_factor_1mod4
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_prime_factor_1mod4.h"
+#include "../utils/mem.h"
+
+/* Return true iff `m` has a prime divisor ≡ 1 (mod 4). */
+static bool has_prime_factor_1mod4(idx_t m)
+{
+    if (m < 2) return false;
+    idx_t tmp = m;
+    for (idx_t p = 2; p * p <= tmp; ++p) {
+        if (tmp % p == 0) {
+            if (p % 4 == 1) return true;
+            while (tmp % p == 0) tmp /= p;
+        }
+    }
+    return (tmp > 1 && tmp % 4 == 1);
+}
 
 /* Return the n-th element of OEIS A134422: 
    the square of the n-th integer having a prime divisor 1 (mod 4). */
@@ -39,7 +54,7 @@ seq_t a(idx_t n)
         /* Grow storage if necessary. */
         if (cache_len == cache_cap) {
             idx_t new_cap = cache_cap ? cache_cap * 2 : 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return 0;          /* Allocation failure – return 0. */
             cache     = tmp;
             cache_cap = new_cap;

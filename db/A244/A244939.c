@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 typedef uint64_t idx_t;   /* supplied by the build environment */
 
@@ -66,14 +68,14 @@ seq_t a(idx_t n) {
 
     /* Dynamic programming */
     idx_t width_prev = 1;
-    seq_t *dp_prev = (seq_t *)calloc(width_prev, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, width_prev);
     dp_prev[0] = 1;   /* only sum = 0 at step 0 */
 
     for (idx_t step = 1; step <= n; ++step) {
         idx_t mn = S_min[step];
         idx_t mx = S_max[step];
         size_t width = (size_t)(mx - mn + 1);
-        seq_t *dp_next = (seq_t *)calloc(width, sizeof(seq_t));
+        seq_t *dp_next = mem_new(seq_t, width);
 
         idx_t old_min = S_min[step - 1];
         for (size_t i = 0; i < width_prev; ++i) {
@@ -87,7 +89,7 @@ seq_t a(idx_t n) {
             }
         }
 
-        free(dp_prev);
+        mem_free(dp_prev);
         dp_prev = dp_next;
         width_prev = width;
     }
@@ -98,7 +100,7 @@ seq_t a(idx_t n) {
         total += dp_prev[i];
     }
 
-    free(dp_prev);
+    mem_free(dp_prev);
     free(S_min);
     free(S_max);
     return total;

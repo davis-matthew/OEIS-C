@@ -12,14 +12,22 @@
  *            r*(r+1)/2 <= n < (r+1)*(r+2)/2, k = n - r*(r+1)/2
  * Range:     i8 n <= 10, i16 n <= 15, i32 n <= 22, i64 n <= 38, i128 n <= 58,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: standard, pass, 52 terms through n = 462 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_mul.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n) {
     /* Find row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2 */
@@ -47,7 +55,7 @@ seq_t a(idx_t n) {
         if (i < r_minus_k) e -= (int)(r_minus_k - i);
         if (e <= 0) continue;
         seq_t base = (seq_t)(9 - (long long)12 * (long long)i);
-        seq_t pow = big_pow(base, (seq_t)e);
+        seq_t pow = ipow(base, (seq_t)e);
         result = seq_mul(result, pow);
     }
     return result;

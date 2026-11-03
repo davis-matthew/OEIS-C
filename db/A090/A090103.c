@@ -10,14 +10,17 @@
  *            representation is a string of n digits '1', i.e. (10ⁿ−1)/9
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 22, u128 n <= 24,
  *            big any n
- * Helpers:   count_distinct_primes, pow_int
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   ipow_idx, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>                   /* for size_t */
-#include "../utils/count_distinct_primes.h"
-#include "../utils/pow_int.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/omega.h"
 
 seq_t a(idx_t n)
 {
@@ -25,12 +28,12 @@ seq_t a(idx_t n)
         return 0;
 
     /* number of distinct prime factors of n (ω(n)) */
-    size_t k = (size_t)count_distinct_primes(n);
+    size_t k = (size_t)omega(n);
 
     /* Base‑1 special case */
     if (k <= 1) {
         /* (10ⁿ − 1)/9   -> 111…1  (n times)  */
-        seq_t pow10n = pow_int((seq_t)10, n);
+        seq_t pow10n = ipow_idx((seq_t)10, n);
         return (pow10n - (seq_t)1) / (seq_t)9;
     }
 

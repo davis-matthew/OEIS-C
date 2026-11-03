@@ -12,13 +12,32 @@
  *            of p and q. The function precomputes T for all 10×10 pai...
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   init_T
+ * Validated: full, pass, 81 terms through n = 81 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/init_T.h"
+
+static void init_T(seq_t T[10][10])
+{
+    for (int d1 = 0; d1 < 10; ++d1) {
+        for (int d2 = 0; d2 < 10; ++d2) {
+            bool seen[10][10] = {false};
+            int prev = d1, curr = d2;
+            int count = 0;
+            while (!seen[prev][curr]) {
+                seen[prev][curr] = true;
+                int next = (prev * curr) % 10;
+                ++count;
+                prev = curr;
+                curr = next;
+            }
+            T[d1][d2] = (seq_t)count;
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

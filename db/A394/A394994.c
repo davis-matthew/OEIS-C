@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 191, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _gcd64
+ * Validated: standard, pass, 85 terms through n = 9994 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_gcd64.h"
+#include <math.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* Euclidean gcd for 64‑bit integers. */
 
@@ -121,7 +124,7 @@ static bool _is_matchable(uint64_t k)
     for (size_t i = 0; i < t; ++i) {
         uint64_t idx = i + 1;
         for (size_t j = 0; j < t; ++j) {
-            g[i * t + j] = (_gcd64(idx, div[j]) == 1) ? 1U : 0U;
+            g[i * t + j] = (gcd_u64(idx, div[j]) == 1) ? 1U : 0U;
         }
     }
 
@@ -176,8 +179,7 @@ seq_t a(idx_t n)
         if (_is_matchable(cand)) {
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                               cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp)
                     return 0;   /* allocation failure – unlikely in tests */
                 cache = tmp;

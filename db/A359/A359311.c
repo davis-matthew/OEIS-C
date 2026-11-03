@@ -11,14 +11,48 @@
  *            dynamic-programming routine for B(n)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   bounded_paths
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>     /* size_t */
 #include <stdbool.h>    /* bool */
-#include "../utils/bounded_paths.h"
+
+/* ----------  Count Dyck paths of length 2n staying at height <=5  ---------- */
+static seq_t bounded_paths(idx_t n)
+{
+    /* The trivial path of length 0 is counted as 1. */
+    if (n == 0)
+        return (seq_t)1;
+
+    seq_t cur[6]  = {0};
+    seq_t next[6] = {0};
+    cur[0] = (seq_t)1;                 /* start at height 0 */
+
+    for (idx_t step = 0; step < 2 * n; ++step) {
+        /* zero the next array */
+        for (int h = 0; h < 6; ++h)
+            next[h] = (seq_t)0;
+
+        for (int h = 0; h < 6; ++h) {
+            seq_t val = cur[h];
+            if (val == 0)
+                continue;
+            if (h > 0)           /* down step */
+                next[h - 1] += val;
+            if (h < 5)           /* up step   */
+                next[h + 1] += val;
+        }
+
+        /* swap cur and next */
+        for (int h = 0; h < 6; ++h)
+            cur[h] = next[h];
+    }
+
+    return cur[0];   /* number of paths ending at height 0 */
+}
 
 #ifndef MAX_CATALAN
 #define MAX_CATALAN 10001   /* sufficient for n up to about 10000 */

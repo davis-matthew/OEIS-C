@@ -8,22 +8,24 @@
  *            3*d^2 = n (a, b, c, d ∈ ℤ)
  * Range:     u8 n <= 56, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate tables for the two quadratic forms */
     size_t sz = (size_t)(n + 1);
-    seq_t *AB = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *CD = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *AB = mem_new(seq_t, sz);
+    seq_t *CD = mem_new(seq_t, sz);
     if (!AB || !CD) {
-        free(AB);
-        free(CD);
+        mem_free(AB);
+        mem_free(CD);
         return (seq_t)0;   /* Allocation failure */
     }
 
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         result += (seq_t)prod;             /* truncate to seq_t if necessary */
     }
 
-    free(AB);
-    free(CD);
+    mem_free(AB);
+    mem_free(CD);
     return result;
 }

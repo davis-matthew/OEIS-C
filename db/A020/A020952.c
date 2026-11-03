@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    Offset: 0 (a(0) is the first term) */
 
 #include <stdlib.h>   /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache       = NULL;   /* array of computed a(i) */
@@ -38,8 +40,8 @@ static void ensure_cache_size(idx_t n)
         new_cap = 2;
 
     /* Allocate (or reallocate) the cache */
-    seq_t *tmp = (cache == NULL) ? (seq_t *)malloc(new_cap * sizeof(seq_t))
-                                 : (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = (cache == NULL) ? mem_new(seq_t, new_cap)
+                                 : mem_resize(seq_t, cache, new_cap);
     if (tmp == NULL) {
         /* Out of memory – terminate the program safely */
         abort();

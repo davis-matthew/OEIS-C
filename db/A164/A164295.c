@@ -12,13 +12,14 @@
  *            A164295
  * Range:     u8 n <= 1275, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   gcd_idx_t
+ * Validated: standard, pass, 121 terms through n = 1270 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_idx_t.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +45,7 @@ seq_t a(idx_t n)
     if (k == 1)
         return (seq_t)2;
 
-    idx_t g = gcd_idx_t(r, k);
+    idx_t g = gcd_idx(r, k);
     if (g > 1 && (r % k != 0))
         return (seq_t)0;
 

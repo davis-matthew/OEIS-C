@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    a(n) fits in the type seq_t. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of computed digits */
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     /* first use: allocate initial capacity */
     if (digits == NULL) {
         cap = 1;
-        digits = (seq_t *)malloc(cap * sizeof(seq_t));
+        digits = mem_new(seq_t, cap);
         if (digits == NULL) return 0;   /* allocation failure */
     }
 
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     if ((size_t)n >= cap) {
         size_t new_cap = cap > 0 ? cap : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(digits, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, digits, new_cap);
         if (tmp == NULL) return 0;     /* allocation failure */
         digits = tmp;
         cap = new_cap;

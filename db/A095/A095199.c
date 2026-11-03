@@ -9,13 +9,15 @@
  * Formula:   a(n) = floor(10^n/n) / gcd(10^n, floor(10^n/n))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 26,
  *            big any n
- * Helpers:   gcd, pow_uint
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Compute base^exp mod mod in 64-bit arithmetic.  All intermediate
    products fit in 64 bits because mod ≤ 1e8 when used. */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     }
 
     /* General case: 10^n fits in seq_t (or seq_t is arbitrary‑precision). */
-    seq_t ten_pow = pow_uint(10ull, n);   /* 10^n */
+    seq_t ten_pow = ipow_u64_idx(10ull, n);   /* 10^n */
     seq_t q       = ten_pow / n;          /* floor(10^n / n) */
     seq_t g       = gcd(ten_pow, q);      /* gcd(10^n, floor(10^n/n)) */
     return q / g;

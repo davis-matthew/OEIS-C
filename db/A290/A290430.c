@@ -10,7 +10,8 @@
  *            square array * of A(n,k) by antidiagonals (OEIS A290430)
  * Range:     u8 n <= 123, u16 n <= 384, u32 n <= 1239, u64 n <= 4310,
  *            u128 n <= 9869, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9015 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 
 /* Find the diagonal d such that d*(d+1)/2 <= n < (d+1)*(d+2)/2. */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     size_t K = (size_t)k;
     size_t total = (N + 1) * (K + 1);
 
-    seq_t *dp = (seq_t *)calloc(total, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
     if (!dp) return (seq_t)0; /* allocation failure */
 
     /* Base: dp[0][0] = 1; all other entries start at 0. */
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         if (pyr_sz == pyr_cap) {
             pyr_cap = pyr_cap ? pyr_cap * 2 : 8;
             pyr = (idx_t *)realloc(pyr, pyr_cap * sizeof(idx_t));
-            if (!pyr) { free(dp); return (seq_t)0; }
+            if (!pyr) { mem_free(dp); return (seq_t)0; }
         }
         pyr[pyr_sz++] = val;
     }
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp[N * (K + 1) + K];
 
-    free(dp);
+    mem_free(dp);
     free(pyr);
     return result;
 }

@@ -11,7 +11,8 @@
  *            sequence incrementally, caching all previously computed terms
  * Range:     u8 n <= 10, u16 n <= 49, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   floor_sqrt, next_prime
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   ipow_i32, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,27 @@
 #include <stdbool.h>
 
 /* Helpers from the utils directory */
-#include "../utils/next_prime.h"     /* uint64_t next_prime(uint64_t start); */
-#include "../utils/floor_sqrt.h"    /* seq_t floor_sqrt(seq_t x);        */
+#include "../utils/ipow_i32.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* -----  Global storage for the sequence  ------------------------------*/
 static seq_t *seq_arr = NULL;   /* a(1) stored at seq_arr[0]          */
@@ -42,7 +62,7 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
         if (new_cap < need) new_cap = need;
-        *arr = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

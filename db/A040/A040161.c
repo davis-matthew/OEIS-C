@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 74 terms through n = 999 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Check whether a prime p satisfies the solvability condition. */
 static bool good_prime(uint64_t p)
@@ -32,7 +35,7 @@ static bool good_prime(uint64_t p)
 
     /* For p ≡ 1 (mod 5) we need 3^((p-1)/5) ≡ 1 (mod p). */
     uint64_t exp = (p - 1) / 5;
-    seq_t r = mod_pow((seq_t)3, exp, (seq_t)p);
+    seq_t r = powmod((seq_t)3, exp, (seq_t)p);
     return r == (seq_t)1;
 }
 
@@ -59,7 +62,7 @@ seq_t a(idx_t n)
                 if (good_len == good_cap)
                 {
                     size_t new_cap = good_cap == 0 ? 8 : good_cap * 2;
-                    seq_t *tmp = (seq_t*)realloc(good, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, good, new_cap);
                     if (!tmp) return 0;          /* allocation failed */
                     good = tmp;
                     good_cap = new_cap;

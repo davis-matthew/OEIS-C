@@ -10,7 +10,8 @@
  *            A059382(m) is the product of A059376(i) = J₃(i) for i = 1..m
  * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 28, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* global small prime factor cache */
 static uint64_t *spf_cache = NULL;
@@ -69,8 +71,8 @@ static size_t J_size = 0;
 static void ensure_J_and_prefix(idx_t n) {
     if (n + 1 <= J_size) return;
     size_t newsize = n + 1;
-    J_cache = (seq_t*)realloc(J_cache, newsize * sizeof(seq_t));
-    prefix  = (seq_t*)realloc(prefix,  newsize * sizeof(seq_t));
+    J_cache = mem_resize(seq_t, J_cache, newsize);
+    prefix  = mem_resize(seq_t, prefix, newsize);
     if (!J_cache || !prefix) exit(1);
     ensure_spf(n);
     if (J_size == 0) {

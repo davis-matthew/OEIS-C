@@ -9,7 +9,8 @@
  *            its base‑8 representation but not in that of n-1
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_30_base8
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,28 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_30_base8.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether base‑8 representation of x contains "30" */
+static bool has_30_base8(idx_t x)
+{
+    if (x == 0)
+        return false;
+    unsigned char digits[64];
+    int len = 0;
+    while (x != 0) {
+        digits[len++] = (unsigned char)(x % 8);
+        x /= 8;
+    }
+    int prev = -1;
+    for (int i = len - 1; i >= 0; --i) {
+        int d = digits[i];
+        if (prev == 3 && d == 0)
+            return true;
+        prev = d;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -28,7 +50,7 @@ static void cache_append(seq_t val)
 {
     if (cache_size == cache_capacity) {
         size_t new_cap = cache_capacity == 0 ? 16 : cache_capacity * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_capacity = new_cap;
     }

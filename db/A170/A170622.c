@@ -12,13 +12,15 @@
  *            (t^48+2t^47+…+2t+1)/(630t^48–35t^47–…–35t+1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build system. */
 typedef idx_t  idx_t_for_seq;  /* placeholder: actual type is provided externally */
@@ -33,7 +35,7 @@ ensure_cache(idx_t n)
         return;
 
     size_t new_size = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) {
         /* Out of memory – terminate program safely. */
         abort();

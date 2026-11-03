@@ -9,20 +9,24 @@
  *            binomial(n,2)^2 - 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   big_pow, binomial, pow2
+ * Validated: standard, pass, 28 terms through n = 50 (2026-11-01)
+ * Helpers:   binomial, ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
     seq_t nn  = (seq_t)n;          /* n as seq_t          */
     seq_t n2  = nn * nn;           /* n^2                 */
-    seq_t t1  = big_pow((seq_t)2, n2);                     /* 2^(n^2)             */
+    seq_t t1  = ipow((seq_t)2, n2);                     /* 2^(n^2)             */
 
     seq_t pow2n = pow2(n);                                   /* 2^n                 */
     seq_t sub1  = pow2n - nn - (seq_t)1;                     /* 2^n - n - 1         */

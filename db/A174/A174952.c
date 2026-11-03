@@ -8,8 +8,9 @@
  * Formula:   a(n) = t(r,m) where t(r,m) = binomial(r+m-1,r-1) +
  *            binomial(2*r-m-1,r-1) - binomial(2*r-1,r-1) and n = r*(r+1)/2 +
  *            m (0‑based). This reads the triangle row‑wise
- * Range:     i8 n <= 15, i16 n <= 36, i32 n <= 50, i64 n <= 50, i128 n <= 50,
+ * Range:     i8 n <= 21, i16 n <= 50, i32 n <= 50, i64 n <= 50, i128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

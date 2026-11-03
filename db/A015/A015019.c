@@ -7,13 +7,15 @@
  * Formula:   a(n) = \prod_{k=1..n} ((-6)^k - 1)/(-6-1)
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 5, i64 n <= 7, i128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static size_t seq_cache_cap = 0;
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Initialize cache on first call */
     if (seq_cache == NULL)
     {
-        seq_cache = (seq_t *)malloc(sizeof(seq_t));
+        seq_cache = mem_new(seq_t, 1);
         if (!seq_cache) abort();
         seq_cache_cap = 1;
         seq_cache[0]   = (seq_t)1; /* a(0) = 1 */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         size_t needed = (size_t)(n + 1);
         if (needed > seq_cache_cap)
         {
-            seq_t *tmp = (seq_t *)realloc(seq_cache, needed * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, needed);
             if (!tmp) abort();
             seq_cache = tmp;
             seq_cache_cap = needed;

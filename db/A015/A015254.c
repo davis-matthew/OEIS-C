@@ -9,13 +9,15 @@
  *            polynomial Φ_1245(x). The sequence is periodic with period 1245
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Polynomial multiplication: R = A * B, degR = degA + degB */
 static void poly_mult(const seq_t *A, size_t degA,
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
         }
 
         /* Φ₁₂₄₅ is the last polynomial */
-        memcpy(coeff, poly[7], (deg[7] + 1) * sizeof(seq_t));
+        mem_copy(coeff, poly[7], (deg[7] + 1) * sizeof(seq_t));
 
         /* Compute the period coefficients a(0)..a(1244) */
         period[0] = 1;

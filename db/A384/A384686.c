@@ -7,12 +7,15 @@
  * Formula:   a(n) = 2^(n-4) * (5*binomial(n,5) + 6*binomial(n,4))
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 19, u64 n <= 45, u128 n <= 103,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 989 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

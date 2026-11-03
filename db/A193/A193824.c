@@ -9,12 +9,14 @@
  *            w(n,k)=w(n‑1,k)+2·w(n‑1,k‑1)
  * Range:     u8 n <= 27, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the value of the sequence at index n. */
 seq_t a(idx_t n)
@@ -32,12 +34,12 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Build rows up to r using only two dynamically allocated rows. */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t));   /* row 0 */
+    seq_t *prev = mem_new(seq_t, 1);   /* row 0 */
     prev[0] = (seq_t)1;
     seq_t pow3_val = (seq_t)1;   /* 3^(i-1) for the next row i */
 
     for (idx_t i = 1; i <= r; ++i) {
-        seq_t *curr = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, (i + 1));
 
         /* Borders of the triangle. */
         curr[0] = (seq_t)1;                 /* w(i,0) = 1 */
@@ -49,11 +51,11 @@ seq_t a(idx_t n)
 
         pow3_val = pow3_val * (seq_t)3;       /* next 3^(i) for the following row */
 
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 
     seq_t result = prev[k];
-    free(prev);
+    mem_free(prev);
     return result;
 }

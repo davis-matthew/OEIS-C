@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   spanish_letter_pos
+ * Validated: standard, pass, 97 terms through n = 9938 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
    Positions: a=1, b=2, ..., n=14, ñ=15, o=16, …, z=27
 */
 #include <stdint.h>
-#include "../utils/spanish_letter_pos.h"
+
+/* Map a lower‑case ASCII letter to its position in the Spanish alphabet.
+   For letters >= 'o' the ñ (position 15) is inserted before them, so
+   we add 1 to the regular a=1…z=26 mapping. */
+static inline seq_t spanish_letter_pos(unsigned char ch)
+{
+    if (ch < 'a' || ch > 'z') return 0;
+    seq_t pos = (seq_t)(ch - 'a' + 1);
+    if (ch >= 'o') pos += 1;
+    return pos;
+}
 
 /* 0 -> Cero, 1..19 unique words */
 static const char first_small[20] = {

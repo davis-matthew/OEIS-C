@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} k^n * 2^k * binomial(n,k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         else
         {
             /* Compute k^n using the provided helper */
-            powk = pow_uint(k, n);
+            powk = ipow_u64_idx(k, n);
         }
 
         /* term = C(n,k) * 2^k * k^n */

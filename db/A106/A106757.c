@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 447, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 61 terms through n = 997 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"   /* bool is_prime(uint64_t n); */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* --- helper: digit sum of a 64‑bit integer ----------------------------------- */
 static inline int digit_sum_uint64(uint64_t x)
@@ -48,7 +51,7 @@ static void ensure_seq_cap(idx_t *cap, seq_t **arr, idx_t min_needed)
         idx_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
         while (new_cap < min_needed) new_cap <<= 1;
         /* realloc may return NULL; let the caller deal with it. */
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -68,7 +71,7 @@ static void grow_to(idx_t n)
         /* skip even numbers greater than 2 */
         if (cur_test > 2u && ((cur_test & 1u) == 0u))
             continue;
-        if (is_prime(cur_test) && digit_sum_uint64(cur_test) == 16)
+        if (is_prime_u64(cur_test) && digit_sum_uint64(cur_test) == 16)
             add_term((seq_t)cur_test);
     }
 }

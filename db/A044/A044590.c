@@ -10,14 +10,28 @@
  *            representation of m+1 does not
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has26_8
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has26_8.h"
+
+/* Check whether the decimal number x has the octal substring 26.
+   Scans adjacent two‑digit pairs from least‑significant to most‑significant. */
+static inline bool has26_8(uint64_t x)
+{
+    while (x >= 8) {
+        uint64_t low  = x % 8;      /* least significant digit */
+        x /= 8;
+        uint64_t high = x % 8;      /* next digit to the left */
+        if (low == 6 && high == 2)
+            return true;
+    }
+    return false;
+}
 
 /* OEIS A044590 */
 seq_t a(idx_t n)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 30, u64 n <= 54, u128 n <= 102,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 51 terms through n = 2303 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,13 +27,15 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 /* --- Helper: number of nodes in the left subtree of a complete binary heap --- */
 static idx_t heap_left_size(idx_t k)
 {
     if (k <= 1) return 0;                       /* only root */
-    idx_t h = floor_log2_uint64(k);             /* height (0‑based) */
+    idx_t h = ilog2(k);             /* height (0‑based) */
 
     /* nodes above last level */
     idx_t nodes_above_last = ((idx_t)1 << h) - 1;
@@ -61,7 +64,7 @@ static void ensure_cache(idx_t n)
     if (n < a_size) return;
     idx_t new_size = (n * 3) / 2 + 10;               /* grow a bit */
 
-    seq_t   *tmp_cache   = (seq_t   *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t   *tmp_cache   = mem_resize(seq_t, a_cache, new_size);
     uint8_t *tmp_computed = (uint8_t *)realloc(a_computed, new_size * sizeof(uint8_t));
     if (!tmp_cache || !tmp_computed) abort();
 
@@ -105,7 +108,7 @@ seq_t a(idx_t n)
     /* initialise cache once with the two base values */
     if (a_cache == NULL) {
         idx_t init_size = 4;
-        a_cache      = (seq_t   *)calloc(init_size, sizeof(seq_t));
+        a_cache      = mem_new(seq_t, init_size);
         a_computed  = (uint8_t *)calloc(init_size, sizeof(uint8_t));
         if (!a_cache || !a_computed) abort();
         a_size = init_size;

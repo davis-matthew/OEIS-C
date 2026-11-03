@@ -7,8 +7,9 @@
  * Formula:   a(n) = number of unordered factorizations of n into exactly
  *            A001221(n) (= the number of distinct prime divisors of n) parts
  *            > 1
- * Range:     u8 n <= 9540, u16 n <= 9540, u32 n <= 9540, u64 n <= 9540,
- *            u128 n <= 9540, big any n
+ * Range:     u8 n <= 15119, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9540 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

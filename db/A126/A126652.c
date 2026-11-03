@@ -9,13 +9,33 @@
  *            (A033812) scaled by 5
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   lo_shu_square
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/lo_shu_square.h"
+
+static void lo_shu_square(seq_t base[9]) {
+    /* Generate the unique 3×3 normal magic square (numbers 1..9) using the Siamese method. */
+    int n = 3;
+    int arr[9] = {0};
+    int i = 0, j = 1;           /* starting position for 1 */
+    for (int k = 1; k <= n * n; ++k) {
+        arr[i * n + j] = k;
+        int i_next = (i - 1 + n) % n;
+        int j_next = (j + 1) % n;
+        if (arr[i_next * n + j_next] != 0) {
+            i = (i + 1) % n;   /* move down one if target occupied */
+        } else {
+            i = i_next;
+            j = j_next;
+        }
+    }
+    for (int t = 0; t < 9; ++t)
+        base[t] = (seq_t)arr[t];
+}
 
 seq_t a(idx_t n)
 {

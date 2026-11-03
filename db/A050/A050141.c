@@ -12,13 +12,14 @@
  *            well below 2·D
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _isqrt128
+ * Validated: standard, pass, 100 terms through n = 740 (2026-11-01)
+ * Helpers:   isqrt_i128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_isqrt128.h"
+#include "../utils/isqrt_i128.h"
 
 static const uint64_t _D = 1ULL << 30;            /* D = 2^30  */
 
@@ -29,7 +30,7 @@ static uint64_t _phi_scaled(void)
     static uint64_t phi = 0;
     if (!phi) {
         __int128 sx = (__int128)5 * _D * _D;          /* 5·D²  */
-        uint64_t sqrt5 = _isqrt128(sx);              /* floor(D·√5) */
+        uint64_t sqrt5 = isqrt_i128(sx);              /* floor(D·√5) */
         phi = (_D + sqrt5) >> 1;                     /* floor((D+√5·D)/2) */
     }
     return phi;

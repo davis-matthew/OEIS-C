@@ -7,6 +7,7 @@
  * Formula:   a(n) = least prime p such that ∃ prime q < p with n | (p – q)
  * Range:     u8 n <= 120, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 82 terms through n = 9929 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/next_prime.h"
 
 /* Returns the sequence term a(n) of OEIS A204894. */

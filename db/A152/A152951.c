@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 870, u32 n <= 9287, u64 n <= 9287,
- *            u128 n <= 9287, big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 3, u16 n <= 870, u32 n <= 10883, u64 n <= 10883,
+ *            u128 n <= 10883, big any n
+ * Validated: standard, pass, 62 terms through n = 9287 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,12 @@
    the form 12k–1 that is NOT a von Staudt prime, i.e. 12p ≠
    denominator( B(p–1)/(p–1) ).  This function computes that value. */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_prime.h"
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true iff p is a von Staudt prime.
    The condition is equivalent to:  the product of all primes q≠p
@@ -64,7 +68,7 @@ static void grow_cache(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

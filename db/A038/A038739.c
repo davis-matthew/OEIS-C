@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  *   a(2)=1, a(3)=7, a(4)=30, a(5)=103, a(6)=314, a(7)=895.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed values for indices 0..7 (0 and 1 unused). */
 static const seq_t INIT[8] = {
@@ -49,7 +51,7 @@ static void grow_cache(size_t need)
     if (new_size < need)
         new_size = need;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {           /* allocation failed – propagate zeroes */
         return;
     }
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first use */
     if (!cache) {
         cache_size = 8;
-        cache = (seq_t *)calloc(cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache)
             return (seq_t)0;          /* allocation failure – return 0 */
         /* Copy the first 8 terms */

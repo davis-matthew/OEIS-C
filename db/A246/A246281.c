@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 2343, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime, pow_uint
+ * Validated: standard, pass, 83 terms through n = 9322 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 /* utilities provided by the build system */
-#include "../utils/next_prime.h"  /* uint64_t next_prime(uint64_t start); */
-#include "../utils/pow_uint.h"    /* seq_t pow_uint(uint64_t base, idx_t exp); */
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* --- static storage for the sequence ----------------------------- */
 static seq_t *seq_values = NULL;   /* a(1) stored at seq_values[0] */
@@ -84,7 +86,7 @@ static bool satisfies(idx_t n)
         }
 
         uint64_t nextP = next_prime(p);                 /* successor prime */
-        seq_t pow_val = pow_uint((uint64_t)nextP, (idx_t)exp);
+        seq_t pow_val = ipow_u64_idx((uint64_t)nextP, (idx_t)exp);
         S *= pow_val;
 
         /* early exit if already exceeding 2*N */
@@ -100,7 +102,7 @@ static void push_seq(seq_t term)
     if (seq_len == seq_cap)
     {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(seq_values, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_values, new_cap);
         if (!tmp) abort();
         seq_values = tmp;
         seq_cap = new_cap;

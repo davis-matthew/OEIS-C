@@ -7,7 +7,8 @@
  * Formula:   a(0)=a(1)=a(2)=a(3)=a(4)=1,
  * Range:     i8 n <= 6, i16 n <= 12, i32 n <= 20, i64 n <= 28, i128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 // where C(n-1,4) = (n-1)(n-2)(n-3)(n-4)/24.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Lazily initialise the cache with the base values. */
     if (!cache) {
-        cache = (seq_t *)malloc(5 * sizeof(seq_t));
+        cache = mem_new(seq_t, 5);
         for (idx_t i = 0; i <= 4; ++i)
             cache[i] = (seq_t)1;
         last_computed = 4;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache and compute new terms if necessary. */
     if (n > last_computed) {
-        cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(n + 1));
 
         for (idx_t i = last_computed + 1; i <= n; ++i) {
             /* Compute binomial coefficient C(i-1,4). */

@@ -11,7 +11,8 @@
  *            positive integer not already appearing in any entry of row...
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* idx_t and seq_t are supplied by the build system. */
 extern idx_t _floor_isqrt_u64(idx_t n);          /* Not used; we implement own sqrt. */
@@ -60,7 +62,7 @@ static void ensure_seq_cap(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 32;
     while (new_cap < need) new_cap *= 2;
-    seq_vals = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, new_cap);
     if (!seq_vals) exit(EXIT_FAILURE);
     seq_cap = new_cap;
 }

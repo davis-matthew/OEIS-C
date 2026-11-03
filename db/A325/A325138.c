@@ -13,14 +13,27 @@
  *            (j-1)!...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   binom, factorial
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
-#include "../utils/factorial.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Static caches for factorials, harmonic numerators, and a(n) values */
 static seq_t *fact = NULL;
@@ -36,7 +49,7 @@ static idx_t aval_size = 0;
 static void ensure_fact(idx_t n) {
     if (fact_size > n) return;
     size_t newsize = (size_t)(n + 1);
-    seq_t *p = (seq_t *)realloc(fact, newsize * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, fact, newsize);
     if (!p) exit(1);
     fact = p;
     for (idx_t i = fact_size; i <= n; ++i) {
@@ -49,7 +62,7 @@ static void ensure_fact(idx_t n) {
 static void ensure_Hnum(idx_t n) {
     if (Hnum_size > n) return;
     size_t newsize = (size_t)(n + 1);
-    seq_t *p = (seq_t *)realloc(Hnum, newsize * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, Hnum, newsize);
     if (!p) exit(1);
     Hnum = p;
     if (Hnum_size == 0) {
@@ -71,7 +84,7 @@ static void ensure_a(idx_t n) {
     ensure_fact(n);
     ensure_Hnum(n);
     size_t newsize = (size_t)(n + 1);
-    seq_t *p = (seq_t *)realloc(aval, newsize * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, aval, newsize);
     if (!p) exit(1);
     aval = p;
     if (aval_size == 0) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has70
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,25 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has70.h"
+#include "../utils/mem.h"
+
+/* Helper: check whether a base‑9 number x contains the substring "70" */
+static bool has70(seq_t x)
+{
+    if (x == 0) return false;            /* "0" never contains "70" */
+
+    seq_t t = x;
+    bool prev_is0 = false;                /* was the previous digit 0? */
+
+    while (t > 0) {
+        seq_t mod = t % 9;
+        bool cur_is7 = (mod == 7);
+        if (prev_is0 && cur_is7) return true;
+        prev_is0 = (mod == 0);
+        t = t / 9;
+    }
+    return false;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -31,7 +50,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (count == capacity) {
         size_t new_cap = capacity == 0 ? 16 : capacity * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;          /* allocation failed */
         cache = tmp;
         capacity = new_cap;

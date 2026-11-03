@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   not stated
- * Range:     u8 n <= 943, u16 n <= 9229, u32 n <= 9229, u64 n <= 9229,
- *            u128 n <= 9229, big any n
- * Helpers:   divisor_count_u64, phi
+ * Range:     u8 n <= 943, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 91 terms through n = 9229 (2026-11-03)
+ * Helpers:   mem, num_divisors, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/phi.h"                 /* provides seq_t phi(idx_t) */
-#include "../utils/divisor_count_u64.h"   /* provides uint64_t divisor_count_u64(uint64_t) */
+#include <stdint.h>
+#include "../utils/num_divisors.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,18 +38,17 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         /* Grow cache to at least n+1 elements */
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return 0;                 /* out of memory: abort */
 
         /* Copy existing data */
-        if (cache) memcpy(new_cache, cache, sizeof(seq_t) * cache_size);
+        if (cache) mem_copy(new_cache, cache, sizeof(seq_t) * cache_size);
 
         /* Initialise new entries to zero */
-        memset(new_cache + cache_size, 0,
-               sizeof(seq_t) * (new_size - cache_size));
+        mem_set(new_cache + cache_size, 0, sizeof(seq_t) * (new_size - cache_size));
 
         /* Free old array */
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
 
         cache      = new_cache;
         cache_size = new_size;
@@ -56,8 +58,8 @@ seq_t a(idx_t n)
     if (cache[n] != 0) return cache[n];
 
     /* Compute the divisors count and Euler totient */
-    idx_t d_val   = (idx_t)divisor_count_u64((uint64_t)n);
-    idx_t phi_val = (idx_t)phi(n);
+    idx_t d_val   = (idx_t)num_divisors((uint64_t)n);
+    idx_t phi_val = (idx_t)totient(n);
 
     /* Recursively compute a(d) and a(phi) */
     seq_t val = a(d_val) + a(phi_val);

@@ -10,13 +10,17 @@
  *            caches so repeated calls with any order are still efficient
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   sign_neg_mag
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/sign_neg_mag.h"
+#include "../utils/mem.h"
+
+/* Forward declarations of helper macros/functions if needed */
+static inline int sign_neg_mag(int x) { return x < 0 ? 1 : 0; }
 
 #ifndef seq_t
 /* seq_t is defined in the build environment.  Do not redefine it. */
@@ -34,9 +38,9 @@ seq_t a(idx_t n)
     /* If this is the first call, initialise arrays to size 1 */
     if (max_cached == (idx_t)-1) {
         max_cached = 0;
-        e_num = (seq_t*)malloc(sizeof(seq_t));
-        c_num = (seq_t*)malloc(sizeof(seq_t));
-        a_cache = (seq_t*)malloc(sizeof(seq_t));
+        e_num = mem_new(seq_t, 1);
+        c_num = mem_new(seq_t, 1);
+        a_cache = mem_new(seq_t, 1);
         e_num[0] = 1;
         c_num[0] = 1;
         a_cache[0] = 1;
@@ -46,11 +50,11 @@ seq_t a(idx_t n)
     if (n > max_cached) {
         void *tmp;
 
-        tmp = (seq_t*)realloc(e_num, (n + 1) * sizeof(seq_t));
+        tmp = mem_resize(seq_t, e_num, (n + 1));
         e_num = (seq_t*)tmp;
-        tmp = (seq_t*)realloc(c_num, (n + 1) * sizeof(seq_t));
+        tmp = mem_resize(seq_t, c_num, (n + 1));
         c_num = (seq_t*)tmp;
-        tmp = (seq_t*)realloc(a_cache, (n + 1) * sizeof(seq_t));
+        tmp = mem_resize(seq_t, a_cache, (n + 1));
         a_cache = (seq_t*)tmp;
 
         /* Compute new values from max_cached+1 up to n */

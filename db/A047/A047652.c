@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 528, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mul_mod64, next_prime
+ * Validated: standard, pass, 60 terms through n = 966 (2026-11-01)
+ * Helpers:   mulmod, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
  * time and is well within the required limits. */
 
 #include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mulmod.h"
 #include "../utils/next_prime.h"
-#include "../utils/mul_mod64.h"
 
 /* fast doubling Fibonacci modulo mod.  Returns F(n) mod mod. */
 static uint64_t fib_mod_u64(uint64_t n, uint64_t mod)
@@ -32,10 +35,10 @@ static uint64_t fib_mod_u64(uint64_t n, uint64_t mod)
     int shift = 63 - __builtin_clzll(n);   /* highest set bit */
     for (int i = shift; i >= 0; --i) {
         /* Compute F(2k) = a * (2*b - a) */
-        uint64_t t = (mul_mod64(b, 2, mod) + mod - a) % mod;
-        uint64_t d = mul_mod64(a, t, mod);
+        uint64_t t = (mulmod(b, 2, mod) + mod - a) % mod;
+        uint64_t d = mulmod(a, t, mod);
         /* Compute F(2k+1) = a*a + b*b */
-        uint64_t e = (mul_mod64(a, a, mod) + mul_mod64(b, b, mod)) % mod;
+        uint64_t e = (mulmod(a, a, mod) + mulmod(b, b, mod)) % mod;
         if ((n >> i) & 1) {   /* bit is 1 -> k = 2k+1 */
             a = e;
             b = (d + e) % mod;

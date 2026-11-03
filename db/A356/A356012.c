@@ -7,11 +7,13 @@
  * Formula:   a(n) = n! / (6 * floor(n/3))
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 21, u128 n <= 23,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 23 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

@@ -10,13 +10,15 @@
  *            periodic continued‑fraction terms of sqrt(557)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 41, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Constants for the radicand sqrt(557) ---------- */
 static const unsigned long long RADICAND = 557ULL;
@@ -52,7 +54,7 @@ static void init_period(void)
         d   = (RADICAND - m * m) / d;
         next_a = (A0_ll + m) / d;
 
-        tmp = (seq_t*)realloc(tmp, (len + 1) * sizeof(seq_t));
+        tmp = mem_resize(seq_t, tmp, (len + 1));
         if (!tmp) return;           /* allocation failed – caller will fail */
         tmp[len++] = (seq_t)next_a;
 
@@ -71,7 +73,7 @@ static void ensure_den_cap(idx_t needed)
     idx_t new_cap = denom_cap ? denom_cap << 1 : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *new_ptr = (seq_t*)realloc(denoms, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, denoms, new_cap);
     if (!new_ptr) return;           /* allocation failed – caller will fail */
     denoms = new_ptr;
     denom_cap = new_cap;

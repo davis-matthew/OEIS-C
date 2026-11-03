@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 93, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   satisfies_condition
+ * Validated: full, pass, 95 terms through n = 95 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,28 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "../utils/satisfies_condition.h"
+
+/* Test whether m satisfies the definition of the sequence. */
+static bool satisfies_condition(unsigned long long m)
+{
+    /* Must not end in 0. */
+    if (m % 10 == 0) return false;
+
+    /* Need at least two digits.  m >= 10 always true for our search. */
+    char s[32];
+    int len = snprintf(s, sizeof s, "%llu", m);
+    if (len <= 1) return false;
+
+    for (int pos = 1; pos < len; ++pos) {      /* try removing each non‑left digit */
+        unsigned long long d = 0;
+        for (int i = 0; i < len; ++i) {
+            if (i == pos) continue;
+            d = d * 10 + (s[i] - '0');
+        }
+        if (d != 0 && m % d == 0) return true;
+    }
+    return false;
+}
 
 static seq_t cache[200];
 static size_t cached_len = 0;

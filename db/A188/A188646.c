@@ -9,13 +9,14 @@
  *            binomial(2*k+1,2*j+1)*(n^2-1)^(k-j)*n^(2*j)
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /*  Computes the A188646 square array flattened by antidiagonals.
  *  The mapping converts the linear index n into coordinates (row, col)
@@ -59,7 +60,7 @@ seq_t a(idx_t n)
     seq_t sum   = (seq_t)0;
 
     for (idx_t j = 0; j <= col; ++j) {
-        seq_t comb = binom( 2 * col + 1, 2 * j + 1 );
+        seq_t comb = binomial( 2 * col + 1, 2 * j + 1 );
         seq_t term = pow_c;
         term *= pow_d;
         term *= comb;

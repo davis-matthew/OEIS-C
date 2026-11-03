@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort */
 static int cmp_seq(const void *a, const void *b)
@@ -42,7 +44,7 @@ static void precompute(void)
 {
     const size_t root_limit = 262144;              /* 4⁹ */
     /* Allocate raw array for all squares (may contain duplicates). */
-    seq_t *squares = (seq_t *)malloc(sizeof(seq_t) * root_limit);
+    seq_t *squares = mem_new(seq_t, root_limit);
     if (!squares) exit(EXIT_FAILURE);
 
     for (size_t root = 0; root < root_limit; ++root)
@@ -84,7 +86,7 @@ static void precompute(void)
     }
 
     /* Sort all values. */
-    qsort(squares, root_limit, sizeof(seq_t), cmp_seq);
+    mem_qsort(squares, root_limit, sizeof(seq_t), cmp_seq);
 
     /* Deduplicate. */
     size_t uniq = 0;
@@ -97,12 +99,12 @@ static void precompute(void)
     }
 
     /* Allocate final sequence array. */
-    seq_vals = (seq_t *)malloc(sizeof(seq_t) * uniq);
+    seq_vals = mem_new(seq_t, uniq);
     if (!seq_vals) exit(EXIT_FAILURE);
     for (size_t i = 0; i < uniq; ++i) seq_vals[i] = squares[i];
     seq_len = uniq;
 
-    free(squares);
+    mem_free(squares);
     prepared = true;
 }
 

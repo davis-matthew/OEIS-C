@@ -9,7 +9,8 @@
  *            with floor(N·log(N))+1 ≤ p ≤ floor((N+1)·log(N+1))-1
  * Range:     u8 none, u16 n <= 19, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- Prime sieve ------------------------------------------------------ */
 #define SIEVE_MAX 100000000ULL   /* enough for first 10 000 terms */
@@ -98,8 +100,7 @@ seq_t a(idx_t n)
         if (cnt == 4) {
             if (seq_len >= seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 4;
-                seq_cache = (seq_t *)realloc(seq_cache,
-                                             seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_len++] = (seq_t)next_candidate;
         }

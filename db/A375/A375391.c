@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 18, i16 n <= 1950, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   build_primes_upto, is_prime_small
+ * Validated: standard, pass, 100 terms through n = 8559 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stdbool.h>
 
 /* Utility headers */
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(...) */
-#include "../utils/is_prime_small.h"      /* is_prime_small(seq_t) */
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime_seq.h"
 
 /* -------------  static data and helpers ------------- */
 
@@ -56,7 +58,7 @@ static bool is_semiprime(uint64_t m)
         if (m % p == 0)                         /* found a divisor */
         {
             uint64_t q = m / p;
-            return is_prime_small((seq_t)q);    /* second factor must be prime */
+            return is_prime_seq((seq_t)q);    /* second factor must be prime */
         }
     }
     return false;                               /* m is prime or no factor found */

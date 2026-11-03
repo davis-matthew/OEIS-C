@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n < 3) ? n : (n mod 3 + 3) * 2^(floor(n/3)-1)
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 93, u64 n <= 189,
  *            u128 n <= 381, big any n
+ * Validated: standard, pass, 67 terms through n = 9399 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* This implements the OEIS sequence A029747:
    numbers of the form 2^k times 1, 3 or 5. */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

@@ -8,12 +8,13 @@
  *            n^n*(n-2)^(n-2)*...*(2)^2 for even n; a(0)=1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 30 terms through n = 33 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = n; i > 0; ) {
         /* compute i^i */
-        seq_t term = pow_int((seq_t)i, i);
+        seq_t term = ipow_idx((seq_t)i, i);
         result *= term;
         /* stop when the next value would be <= 0 for unsigned i */
         if (i <= 2)

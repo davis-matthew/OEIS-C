@@ -9,6 +9,7 @@
  *            0 (mod 193) the value is defined as 0
  * Range:     u8 n <= 192, u16 n <= 192, u32 n <= 192, u64 n <= 192,
  *            u128 n <= 192, big any n
+ * Validated: full, pass, 192 terms through n = 192 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

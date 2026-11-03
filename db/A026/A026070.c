@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 23, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* For the OEIS offset the first term corresponds to n=3. */
@@ -32,17 +34,17 @@ seq_t a(idx_t n) {
     size_t shift = n;                /* index of position 0 */
 
     /* Allocate two DP buffers. */
-    seq_t *curr = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *curr = mem_new(seq_t, sz);
+    seq_t *next = mem_new(seq_t, sz);
     if (!curr || !next) {
         /* Allocation failed – return 0 as a safe fallback. */
-        free(curr);
-        free(next);
+        mem_free(curr);
+        mem_free(next);
         return 0;
     }
     /* Initialize all entries to 0. */
-    memset(curr, 0, sz * sizeof(seq_t));
-    memset(next, 0, sz * sizeof(seq_t));
+    mem_set(curr, 0, sz * sizeof(seq_t));
+    mem_set(next, 0, sz * sizeof(seq_t));
 
     /* Step 0: only one start position. */
     curr[shift + 0] = 1;
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
     next[shift - 1] = curr[shift + 0];
     /* Swap buffers. */
     seq_t *tmp = curr; curr = next; next = tmp;
-    memset(next, 0, sz * sizeof(seq_t));
+    mem_set(next, 0, sz * sizeof(seq_t));
 
     /* Step 2: again move exactly ±1. */
     for (idx_t pos = 0; pos < sz; ++pos) {
@@ -64,7 +66,7 @@ seq_t a(idx_t n) {
 
     /* Steps 3 … n: allow steps of −1, 0, +1. */
     for (idx_t step = 3; step <= n; ++step) {
-        memset(next, 0, sz * sizeof(seq_t));
+        mem_set(next, 0, sz * sizeof(seq_t));
         for (idx_t pos = 0; pos < sz; ++pos) {
             if (curr[pos] == 0) continue;
             if (pos > 0)          next[pos - 1] += curr[pos];
@@ -77,7 +79,7 @@ seq_t a(idx_t n) {
     /* Result is the number of paths ending at position 3. */
     seq_t result = curr[shift + 3];
 
-    free(curr);
-    free(next);
+    mem_free(curr);
+    mem_free(next);
     return result;
 }

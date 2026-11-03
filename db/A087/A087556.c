@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   concat, num_digits
+ * Validated: standard, pass, 82 terms through n = 950 (2026-11-01)
+ * Helpers:   num_digits_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/concat.h"
-#include "../utils/num_digits.h"
+#include "../utils/num_digits_u32.h"
+
+/* concatenate a|b  (b has at most 4 digits for n ≤ 10000) */
+static uint32_t concat(uint32_t a, uint32_t b) {
+    static const uint32_t pow10[5] = {1U,10U,100U,1000U,10000U};
+    unsigned d = num_digits_u32(b);
+    return a * pow10[d] + b;
+}
 
 /* ----------  prime sieve up to SIEVE_LIMIT  ---------- */
 #define SIEVE_LIMIT 50000000U   /* large enough for n ≤ 10000 */

@@ -11,17 +11,40 @@
  *            part, negative part) pairs
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 24, u64 n <= 89, u128 n <= 334,
  *            big any n
- * Helpers:   alloc_zero, expo, norm, release
+ * Validated: standard, pass, 41 terms through n = 891 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/expo.h"
-#include "../utils/norm.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static int expo(idx_t k)
+{
+    idx_t r = k % 6;
+    if (r == 1 || r == 5) return 4;
+    if (r == 2 || r == 4) return 8;
+    return 0;
+}
+
+static void norm(seq_t *p, seq_t *q)
+{
+    if (*p >= *q) { *p -= *q; *q = 0; }
+    else { *q -= *p; *p = 0; }
+}
 
 static seq_t *tP = 0, *tN = 0, *uP = 0, *uN = 0;
 static idx_t cached = 0;

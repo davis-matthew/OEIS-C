@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 44, u32 n <= 129, u64 n <= 129,
  *            u128 n <= 129, big any n
- * Helpers:   next_step
+ * Validated: full, pass, 130 terms through n = 129 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,18 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/next_step.h"
+
+/* the dynamical system step */
+static seq_t next_step(seq_t x)
+{
+    seq_t r = x % 3;
+    if (r == 0)
+        return (x * 2) / 3;
+    else if (r == 1)
+        return (x * 2 + 1) / 3;
+    else            /* r == 2 */
+        return (x * 7 + 1) / 3;
+}
 
 /* sequence a(n) */
 seq_t a(idx_t n)

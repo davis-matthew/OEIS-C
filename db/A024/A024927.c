@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} k*floor( prime(k)/k )
  * Range:     u8 n <= 14, u16 n <= 165, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 867 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Static cache data */
 static idx_t precomp_n = 0;          /* largest n for which cache is built */
@@ -42,9 +44,9 @@ static void ensure_precomp(idx_t req_n)
     /* Allocate/resize arrays to hold all needed primes and sums. */
     if (cache_cap < (size_t)req_n) {
         free(prime_cache);
-        free(sum_cache);
+        mem_free(sum_cache);
         prime_cache = (uint32_t*)malloc(req_n * sizeof(uint32_t));
-        sum_cache   = (seq_t  *)malloc(req_n * sizeof(seq_t));
+        sum_cache   = mem_new(seq_t, req_n);
         cache_cap   = req_n;
     }
 

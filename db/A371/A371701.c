@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   log_product
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,22 @@
  */
 #include <stdint.h>
 #include <math.h>
-#include "../utils/log_product.h"
+
+/* Compute log of the product P_k = ∏_{i=1..k} (2i+1)/(2i)
+ * using the closed form P_k = (2k+1)! / (4^k * (k!)^2).
+ */
+static inline long double log_product(idx_t k)
+{
+    if (k == 0)
+        return 0.0L;                     /* product = 1 */
+    /* log((2k+1)!) = lgamma(2k+2) */
+    long double log_num = lgammal(2 * k + 2);
+    /* log(4^k) = k * log(4) = 2k * log(2) */
+    long double log_den = 2 * (long double)k * logl(2.0L);
+    /* 2 * log(k!) = 2 * lgamma(k+1) */
+    log_den += 2 * lgammal(k + 1);
+    return log_num - log_den;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

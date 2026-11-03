@@ -9,13 +9,16 @@
  *            of times d has appeared in terms a[0] … a[n-1])
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   digit_frequencies
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/mem.h"
 
 static seq_t        *SEQ   = NULL;   /* stored values of a(n) */
 static size_t        SEQ_CAP = 0;    /* current capacity of SEQ */
@@ -32,12 +35,12 @@ seq_t a(idx_t n)
         if (SEQ_LEN == 0) {
             if (SEQ_CAP == 0) {
                 SEQ_CAP = 128;
-                SEQ = (seq_t *)malloc(SEQ_CAP * sizeof(seq_t));
+                SEQ = mem_new(seq_t, SEQ_CAP);
             }
         }
         if (SEQ_LEN >= SEQ_CAP) {
             SEQ_CAP <<= 1;                     /* double the capacity */
-            SEQ = (seq_t *)realloc(SEQ, SEQ_CAP * sizeof(seq_t));
+            SEQ = mem_resize(seq_t, SEQ, SEQ_CAP);
         }
 
         /* compute a(SEQ_LEN) */

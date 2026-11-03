@@ -9,14 +9,36 @@
  *            written as sum of consecutive earlier terms in exactly one way
  * Range:     u8 n <= 56, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_exact_subarray_sum
+ * Validated: standard, pass, 81 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/count_exact_subarray_sum.h"
+#include "../utils/mem.h"
+
+static inline int count_exact_subarray_sum(const seq_t *arr, idx_t len,
+                                           seq_t target)
+{
+    int cnt = 0;
+    seq_t sum = 0;
+    idx_t left = 1;
+    for (idx_t right = 1; right <= len; right++) {
+        sum += arr[right];
+        while (sum > target && left <= right) {
+            sum -= arr[left];
+            left++;
+        }
+        if (sum == target) {
+            cnt++;
+            if (cnt > 1)
+                return cnt;
+        }
+    }
+    return cnt;
+}
 
 static inline void grow_seq(idx_t *len, idx_t *cap, seq_t **seq, idx_t needed)
 {
@@ -25,7 +47,7 @@ static inline void grow_seq(idx_t *len, idx_t *cap, seq_t **seq, idx_t needed)
     idx_t new_cap = *cap ? *cap << 1 : 4;
     while (new_cap < needed)
         new_cap <<= 1;
-    *seq = (seq_t *)realloc(*seq, new_cap * sizeof(seq_t));
+    *seq = mem_resize(seq_t, *seq, new_cap);
     *cap = new_cap;
 }
 

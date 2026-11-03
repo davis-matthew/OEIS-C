@@ -11,7 +11,8 @@
  *            (A001951) are kept
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- auxiliary types ---------------------------------------------------- */
 typedef struct {
@@ -52,7 +54,7 @@ static void push_queue(seq_t v, uint32_t k)
 {
     if (q_size == q_cap) {
         q_cap = q_cap ? q_cap << 1 : 64;
-        queue = (Node *)realloc(queue, q_cap * sizeof(Node));
+        queue = mem_resize(Node, queue, q_cap);
     }
     queue[q_size++] = (Node){v, k};
 }
@@ -62,7 +64,7 @@ static void push_output(seq_t v)
 {
     if (outputs_size == outputs_cap) {
         outputs_cap = outputs_cap ? outputs_cap << 1 : 64;
-        outputs = (seq_t *)realloc(outputs, outputs_cap * sizeof(seq_t));
+        outputs = mem_resize(seq_t, outputs, outputs_cap);
     }
     outputs[outputs_size++] = v;
 }
@@ -102,7 +104,7 @@ static void init(void)
 
     /* --- initialize queue with the two starting nodes ------------------- */
     q_cap = 64;
-    queue = (Node *)malloc(q_cap * sizeof(Node));
+    queue = mem_new(Node, q_cap);
     q_size = 0;
     q_head = 0;
     push_queue((seq_t)1, 2);   /* 1 uses Fibonacci index 2 */
@@ -110,7 +112,7 @@ static void init(void)
 
     /* --- outputs array ---------------------------------------------- */
     outputs_cap = 64;
-    outputs = (seq_t *)malloc(outputs_cap * sizeof(seq_t));
+    outputs = mem_new(seq_t, outputs_cap);
     outputs_size = 0;
 
     initialized = true;

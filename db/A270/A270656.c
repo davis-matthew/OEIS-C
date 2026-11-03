@@ -6,13 +6,15 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, look
  * Formula:   not stated
- * Range:     i8 n <= 9575, i16 n <= 9575, i32 n <= 9575, i64 n <= 9575,
- *            i128 n <= 9575, big any n
+ * Range:     i8 n <= 59049, i16 n <= 7320, i32 n <= 59049, i64 n <= 59049,
+ *            i128 n <= 59049, big any n
+ * Validated: standard, pass, 96 terms through n = 9575 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Recurrence:
    a(0) = 2, a(1) = 1
    a(3n)   = a(n)

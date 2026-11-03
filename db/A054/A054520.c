@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4069, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   f_val
+ * Validated: standard, pass, 69 terms through n = 9534 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,16 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/f_val.h"
+#include "../utils/mem.h"
+
+/* value of 4·(m + n + 4mn) + 1                                            */
+static seq_t f_val(uint64_t m, uint64_t n)
+{
+    seq_t m_s = (seq_t)m;
+    seq_t n_s = (seq_t)n;
+    seq_t sum = m_s + n_s + 4 * m_s * n_s; /* m + n + 4mn */
+    return 4 * sum + (seq_t)1;
+}
 
 /* heap entry ------------------------------------------------------------- */
 typedef struct {
@@ -58,7 +68,7 @@ static void heap_push(heap_entry e)
 {
     if (heap_sz + 1 >= heap_cap) {            /* grow heap if full      */
         size_t new_cap = heap_cap ? heap_cap * 2 : 64;
-        heap_entry *tmp = (heap_entry *)realloc(heap, new_cap * sizeof(heap_entry));
+        heap_entry *tmp = mem_resize(heap_entry, heap, new_cap);
         if (!tmp) abort();
         heap = tmp;
         heap_cap = new_cap;
@@ -104,7 +114,7 @@ static void ensure_cache(idx_t target)
     if (cache_sz == 0) {
         if (!cache) {
             cache_cap = 64;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
             if (!cache) abort();
         }
         cache[0] = (seq_t)1;
@@ -133,7 +143,7 @@ static void ensure_cache(idx_t target)
         if (!(cache_sz > 0 && val == last_cached_val)) {
             if (cache_sz >= cache_cap) {     /* grow cache when full   */
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
                 cache_cap = new_cap;

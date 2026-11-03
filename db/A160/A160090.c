@@ -9,13 +9,15 @@
  *            a(3)=689, a(4)=2221, a(5)=2845, a(6)=3649
  * Range:     u8 none, u16 n <= 9, u32 n <= 29, u64 n <= 66, u128 n <= 141,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;         /* 1‑based cache array */
 static size_t cache_size = 0;       /* allocated slots, >=1 */
@@ -26,11 +28,11 @@ static void ensure_cache(idx_t n) {
     /* allocate / grow the cache */
     if (cache_size < (size_t)n + 1) {
         size_t new_size = (size_t)n + 10;          /* extra space to reduce reallocs */
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) exit(EXIT_FAILURE);
         if (cache) {
-            memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+            mem_free(cache);
         }
         /* zero‑initialize new slots (important for big‑int types) */
         for (size_t i = cache_size; i < new_size; ++i)

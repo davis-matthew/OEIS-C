@@ -8,12 +8,15 @@
  *            binomial(n-1,k) * a(n-k) (a(0)=a(1)=a(2)=a(3)=0)
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 15, u64 n <= 23, u128 n <= 37,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 41 terms through n = 455 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache      = NULL;   /* memoised values of a(n)          */
 static size_t cache_cap    = 0;       /* allocated capacity (≥ n+1)       */
@@ -33,7 +36,7 @@ static void ensure_capacity(idx_t n)
     if ((size_t)(n + 1) <= cache_cap) return;
 
     /* realloc will default‑construct new elements for arbitrary‑precision types. */
-    seq_t *tmp = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, (n + 1));
     if (!tmp) abort();                           /* out of memory */
     a_cache      = tmp;
     cache_cap    = (size_t)(n + 1);

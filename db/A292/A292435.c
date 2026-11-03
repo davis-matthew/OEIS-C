@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Step vectors: (dx,dy) */
 static const idx_t step_dx[6] = {1, 0, 3, 2, 1, 0};
@@ -38,7 +40,7 @@ static void compute_up_to(idx_t d)
     if (!initialized) {
         cnt   = (seq_t**)malloc(sizeof(seq_t*));
         steps = (uint16_t**)malloc(sizeof(uint16_t*));
-        cnt[0]   = (seq_t*)calloc(1, sizeof(seq_t));
+        cnt[0]   = mem_new(seq_t, 1);
         steps[0] = (uint16_t*)calloc(1, sizeof(uint16_t));
         cnt[0][0]   = (seq_t)1;
         steps[0][0] = 0;
@@ -52,7 +54,7 @@ static void compute_up_to(idx_t d)
     steps = (uint16_t**)realloc(steps,sizeof(uint16_t*) * (d + 1));
     for (idx_t s = max_d + 1; s <= d; ++s) {
         size_t len = (size_t)(s + 1);
-        cnt[s]   = (seq_t*)calloc(len, sizeof(seq_t));
+        cnt[s]   = mem_new(seq_t, len);
         steps[s] = (uint16_t*)calloc(len, sizeof(uint16_t));
     }
 

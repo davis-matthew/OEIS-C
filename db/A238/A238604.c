@@ -10,12 +10,24 @@
  *            definition of A130519
  * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 511, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   fA130519
+ * Validated: standard, pass, 58 terms through n = 2234 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/fA130519.h"
+/* Compute f(n) = A130519(n) */
+static inline seq_t fA130519(idx_t n)
+{
+    if (n < 4u)
+        return 0;
+    idx_t n4 = n - 4;
+    idx_t j = n4 / 4;
+    idx_t r = n4 % 4;
+    seq_t base = (seq_t)(j + 1);
+    seq_t mult = (seq_t)(2 * j + 1 + r);
+    return base * mult;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

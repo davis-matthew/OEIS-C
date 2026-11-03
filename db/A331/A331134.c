@@ -11,13 +11,15 @@
  *            calls (in any order) are fast. The cache is recom...
  * Range:     u8 n <= 1696, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 105 terms through n = 9645 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* idx_t (unsigned 64‑bit) and seq_t (u8/16/32/64/128 or arbitrary‑precision) are
  * defined elsewhere in the build and are used here directly. */
@@ -36,11 +38,11 @@ seq_t a(idx_t n)
     if (n > cache_limit) {
         /* Allocate new arrays */
         size_t sz = (size_t)(n + 1);
-        seq_t   *new_cache = (seq_t*)malloc(sz * sizeof(seq_t));
+        seq_t   *new_cache = mem_new(seq_t, sz);
         bool    *is_prime  = (bool  *)malloc(sz * sizeof(bool));
 
         if (!new_cache || !is_prime) {             /* allocation failure */
-            free(new_cache);
+            mem_free(new_cache);
             free(is_prime);
             return 0;                              /* graceful fallback */
         }
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_limit = n;
     }

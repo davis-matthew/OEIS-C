@@ -8,7 +8,8 @@
  *            divisors of k
  * Range:     u8 n <= 150, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9564 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Cached data for the sequence  */
@@ -51,7 +53,7 @@ ensure_prefix_capacity(size_t needed)
     if (prefix_size <= needed) {
         size_t newsize = prefix_size ? prefix_size * 2 : 16;
         while (newsize < needed) newsize <<= 1;
-        seq_t *tmp = (seq_t *)realloc(prefix, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prefix, newsize);
         prefix = tmp;
         prefix_size = newsize;
     }

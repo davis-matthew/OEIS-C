@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 22, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   alloc_seq_array, phi_local, reverse
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem, reverse_digits, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/phi_local.h"   /* seq_t phi_local(seq_t n); */
-#include "../utils/reverse.h"    /* seq_t reverse(seq_t n); */
-#include "../utils/alloc_seq_array.h" /* seq_t *alloc_seq_array(size_t n); */
+#include <stdbool.h>
+#include "../utils/reverse_digits.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Cached terms of the sequence. */
 static seq_t *terms = NULL;     /* array of terms      */
@@ -46,7 +53,7 @@ static void ensure_terms_capacity(idx_t cap)
         new_arr[i] = terms[i];
 
     if (terms != NULL)
-        free(terms);
+        mem_free(terms);
     terms = new_arr;
     terms_cap = cap;
 }
@@ -63,13 +70,13 @@ static void ensure_terms_to(idx_t n)
         idx_t cand = (terms_len == 0) ? 3 : last_candidate + 1;
         for (;; ++cand)
         {
-            seq_t rev_cand   = reverse((seq_t)cand);
-            seq_t rev_m1     = reverse((seq_t)(cand - 1));
-            seq_t rev_m2     = reverse((seq_t)(cand - 2));
+            seq_t rev_cand   = reverse_digits((seq_t)cand);
+            seq_t rev_m1     = reverse_digits((seq_t)(cand - 1));
+            seq_t rev_m2     = reverse_digits((seq_t)(cand - 2));
 
-            seq_t phi_cand = phi_local(rev_cand);
-            seq_t phi_m1   = phi_local(rev_m1);
-            seq_t phi_m2   = phi_local(rev_m2);
+            seq_t phi_cand = totient_seq(rev_cand);
+            seq_t phi_m1   = totient_seq(rev_m1);
+            seq_t phi_m2   = totient_seq(rev_m2);
 
             if (phi_cand == phi_m1 + phi_m2)
             {

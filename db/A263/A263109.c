@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4019, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum_base12
+ * Validated: standard, pass, 102 terms through n = 9992 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
    where sum_{12}(x) is the digit sum of x expressed in base‑12. */
 
 #include <stdint.h>
-#include "../utils/digit_sum_base12.h"
+
+static inline int digit_sum_base12(idx_t x)
+{
+    int sum = 0;
+    while (x) {
+        sum += x % 12;
+        x /= 12;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

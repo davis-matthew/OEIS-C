@@ -7,12 +7,15 @@
  * Formula:   a(n) = ∏_{p^k∥n} (1 + p^(7*k)) (product over prime powers of n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 23, u64 n <= 565,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 39 terms through n = 8928 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* OEIS offset 1 */
@@ -30,7 +33,7 @@ seq_t a(idx_t n) {
                 ++exp;
             }
             /* 1 + p^(7*exp) */
-            seq_t term = big_pow((seq_t)p, (seq_t)(exp * 7));
+            seq_t term = ipow((seq_t)p, (seq_t)(exp * 7));
             term = term + 1;
             result = result * term;
         }
@@ -38,7 +41,7 @@ seq_t a(idx_t n) {
 
     /* remaining prime factor > sqrt(original n), if any */
     if (m > 1) {
-        seq_t term = big_pow((seq_t)m, (seq_t)7);   /* exponent 7*1 */
+        seq_t term = ipow((seq_t)m, (seq_t)7);   /* exponent 7*1 */
         term = term + 1;
         result = result * term;
     }

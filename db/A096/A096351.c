@@ -10,13 +10,15 @@
  *            a((n-1)/2)) if n odd > 1
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 23, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 376 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* helper: compute binomial coefficient C(n,k) for 0 <= k <= n */
 static seq_t binom(idx_t n, idx_t k) {
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
 
     if (n > cached_n) {
         idx_t new_size = n + 1;                   /* include index 0 unused */
-        cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         for (idx_t i = cached_n + 1; i <= n; ++i) {
             if (i == 1) {
                 cache[1] = 1;

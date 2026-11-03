@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 639, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_capacity, floor_log2_uint64, is_prime
+ * Validated: standard, pass, 56 terms through n = 9852 (2026-11-03)
+ * Helpers:   ilog2, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,44 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stddef.h>
+#include "../utils/ilog2.h"
 #include "../utils/is_prime.h"
-#include "../utils/floor_log2_uint64.h"
-#include "../utils/ensure_capacity.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 seq_t a(idx_t n)
 {
@@ -46,13 +82,13 @@ seq_t a(idx_t n)
                 ones++;
                 tmp &= tmp - 1;          /* remove lowest set bit */
             }
-            idx_t bitlen = floor_log2_uint64(cand) + 1;
+            idx_t bitlen = ilog2(cand) + 1;
             idx_t zeros  = bitlen - ones;
 
             if (ones > 6 + zeros) {
                 /* store the qualifying prime */
                 ensure_capacity(qual_len + 1, &qual_cap,
-                                (void **)&qual, sizeof(seq_t));
+                                OEISC_VPP(&qual), sizeof(seq_t));
                 qual[qual_len++] = (seq_t)cand;
 
                 /* next search starts after this prime */

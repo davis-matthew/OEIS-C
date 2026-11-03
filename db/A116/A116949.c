@@ -11,7 +11,8 @@
  *            if m = 0 * d_m = (-2)^(m/2) if m even, m > 0 *...
  * Range:     i8 n <= 90, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   d_coeff, pow_minus_two
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,32 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/d_coeff.h"
-#include "../utils/pow_minus_two.h"
+
+/* Computes (-2)^exp, exp >= 0.  The result is returned in type seq_t. */
+static seq_t pow_minus_two(unsigned int exp)
+{
+    seq_t result = 1;
+    const seq_t base = (seq_t)(-2);
+    for (unsigned int i = 0; i < exp; ++i)
+        result *= base;
+    return result;
+}
+
+/* Returns the m-th coefficient d_m of (1 - x^3) / (1 + 2x^2). */
+static seq_t d_coeff(idx_t m)
+{
+    if (m == 0)
+        return (seq_t)1;
+    if (m & 1U) {                 /* m odd */
+        if (m == 1)
+            return (seq_t)0;
+        unsigned int j = (unsigned int)((m - 3U) / 2U);
+        return -pow_minus_two(j);
+    } else {                       /* m even, m > 0 */
+        unsigned int j = (unsigned int)(m / 2U);
+        return pow_minus_two(j);
+    }
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

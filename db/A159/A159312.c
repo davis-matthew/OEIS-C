@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  */
 
 #include <stdlib.h>   /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;    /* a[1..max_n]  (a[0] unused) */
 static seq_t *F = NULL;    /* f[0..max_n]  */
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
     if (n > max_n) {
         idx_t newSize = n + 1;          /* indices 0..n needed */
 
-        seq_t *aNew = (seq_t *)realloc(A, newSize * sizeof(seq_t));
-        seq_t *fNew = (seq_t *)realloc(F, newSize * sizeof(seq_t));
+        seq_t *aNew = mem_resize(seq_t, A, newSize);
+        seq_t *fNew = mem_resize(seq_t, F, newSize);
         if (!aNew || !fNew) {           /* allocation failed – abort */
             return (seq_t)0;
         }

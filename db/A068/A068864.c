@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, look
  * Formula:   not stated
- * Range:     u8 n <= 12, u16 n <= 249, u32 n <= 9651, u64 n <= 9651,
- *            u128 n <= 9651, big any n
- * Helpers:   digits_differ
+ * Range:     u8 n <= 12, u16 n <= 249, u32 n <= 10356, u64 n <= 10356,
+ *            u128 n <= 10356, big any n
+ * Validated: standard, pass, 66 terms through n = 9651 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,24 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/digits_differ.h"
+#include "../utils/mem.h"
+
+/* Compare two numbers digit by digit; return true if all corresponding
+ * digits differ.  Leading zeros are implicitly handled by the loop
+ * termination: when both numbers reach 0, no further digits are
+ * compared and the result is true. */
+static bool digits_differ(seq_t x, seq_t y)
+{
+    while (x > 0 || y > 0) {
+        unsigned dx = (unsigned)(x % 10);
+        unsigned dy = (unsigned)(y % 10);
+        if (dx == dy)
+            return false;
+        x /= 10;
+        y /= 10;
+    }
+    return true;
+}
 
 /* ---------- global state ---------- */
 static bool *used = NULL;
@@ -82,7 +100,7 @@ static void ensure_seq_cap(size_t need)
     while (new_cap < need)
         new_cap *= 2;
 
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) {
         abort();
     }

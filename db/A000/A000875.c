@@ -11,22 +11,105 @@
  *            {0,1}^n} dim Fix(h^len(c)))
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   a875_combine, a875_cycle, a875_dimfix, a875_fix, a875_from_u128,
- *            a875_gcd, a875_mu, a875_width
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a875_combine.h"
-#include "../utils/a875_cycle.h"
-#include "../utils/a875_dimfix.h"
-#include "../utils/a875_fix.h"
-#include "../utils/a875_from_u128.h"
-#include "../utils/a875_gcd.h"
-#include "../utils/a875_mu.h"
-#include "../utils/a875_width.h"
+#include "../utils/gcd_u64.h"
+
+static void a875_combine(uint64_t **L, uint64_t **C, int *sz,
+                         const uint64_t *L2, const uint64_t *C2, int sz2)
+{
+    int cap = (*sz) * sz2, nsz = 0, i, j, t;
+    uint64_t *NL = (uint64_t *)malloc(sizeof(uint64_t) * cap);
+    uint64_t *NC = (uint64_t *)malloc(sizeof(uint64_t) * cap);
+    for (i = 0; i < *sz; i++)
+        for (j = 0; j < sz2; j++) {
+            uint64_t a = (*L)[i], b = L2[j], g = gcd_u64(a, b);
+            uint64_t len = a / g * b, cnt = (*C)[i] * C2[j] * g;
+            for (t = 0; t < nsz; t++)
+                if (NL[t] == len) break;
+            if (t == nsz) { NL[nsz] = len; NC[nsz] = 0; nsz++; }
+            NC[t] += cnt;
+        }
+    free(*L);
+    free(*C);
+    *L = NL;
+    *C = NC;
+    *sz = nsz;
+}
+
+static long long a875_fix(uint64_t d, uint64_t k, int neg)
+{
+    uint64_t g = gcd_u64(d, k);
+    if (neg && ((d / g) & 1)) return 0;
+    return 1LL << g;
+}
+
+static int a875_mu(uint64_t m)
+{
+    int r = 1;
+    uint64_t p;
+    for (p = 2; p * p <= m; p++)
+        if (m % p == 0) {
+            m /= p;
+            if (m % p == 0) return 0;
+            r = -r;
+        }
+    if (m > 1) r = -r;
+    return r;
+}
+
+/* cycle structure of a signed k-cycle acting on {0,1}^k */
+static int a875_cycle(uint64_t k, int neg, uint64_t **L, uint64_t **C)
+{
+    uint64_t ord = neg ? 2 * k : k, m, d;
+    int sz = 0;
+    *L = (uint64_t *)malloc(sizeof(uint64_t) * (ord + 1));
+    *C = (uint64_t *)malloc(sizeof(uint64_t) * (ord + 1));
+    for (m = 1; m <= ord; m++) {
+        long long s = 0;
+        if (ord % m) continue;
+        for (d = 1; d <= m; d++)
+            if (m % d == 0) s += a875_mu(m / d) * a875_fix(d, k, neg);
+        if (s > 0) {
+            (*L)[sz] = m;
+            (*C)[sz] = (uint64_t)s / m;
+            sz++;
+        }
+    }
+    return sz;
+}
+
+static int a875_dimfix(int h, uint64_t L)
+{
+    switch (h) {
+    case 0: return 3;
+    case 1: return (L % 2 == 0) ? 3 : 2;
+    case 2: return (L % 3 == 0) ? 3 : 1;
+    case 3: return (L % 4 == 0) ? 3 : ((L % 2 == 0) ? 2 : 1);
+    default: return (L % 7 == 0) ? 3 : 0;
+    }
+}
+
+static int a875_width(void)
+{
+    seq_t t = 1;
+    int w = 0;
+    while (w < 200 && t != 0) { t <<= 1; w++; }
+    return w;
+}
+
+static seq_t a875_from_u128(unsigned __int128 r)
+{
+    uint64_t lo = (uint64_t)r, hi = (uint64_t)(r >> 64);
+    if (a875_width() <= 64 || hi == 0) return (seq_t)lo;
+    return (((seq_t)hi << 32) << 32) + (seq_t)lo;
+}
 
 static int *a875_mm = 0, *a875_nn = 0;
 static unsigned __int128 a875_small_total;

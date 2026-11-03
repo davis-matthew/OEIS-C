@@ -9,7 +9,8 @@
  *            perimeter n
  * Range:     u8 n <= 40, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   ceil_half_int64
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,11 @@
 /* Computation: iterate over the largest side c, count the valid (a,b) pairs, and add c*count to the sum. */
 
 #include <stdint.h>
-#include "../utils/ceil_half_int64.h"
+
+static inline int64_t ceil_half_int64(int64_t v)
+{
+    return v >= 0 ? (v + 1) >> 1 : v >> 1;
+}
 
 static idx_t isqrt_idx(idx_t x)
 {

@@ -10,8 +10,9 @@
  *            if none exist. For j=1, T(i,1)=0. For j>1, write j = ∏ p^α and i
  *            = ∏ p^β. If any prime p dividing j has β==0 then T(i,j) = -1.
  *            Otherwise T(i,j) = max_p ceil(α / β)
- * Range:     i8 n <= 9902, i16 n <= 9902, i32 n <= 9902, i64 n <= 9902,
- *            i128 n <= 9902, big any n
+ * Range:     i8 n <= 11325, i16 n <= 11325, i32 n <= 11325, i64 n <= 11325,
+ *            i128 n <= 11325, big any n
+ * Validated: standard, pass, 101 terms through n = 9902 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

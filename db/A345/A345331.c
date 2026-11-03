@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 70 terms through n = 8538 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* 2‑adic valuation for uint64_t. */
 static inline unsigned v2_uint64(uint64_t x)
@@ -48,7 +50,7 @@ static void ensure_cache_capacity(size_t needed)
     if (newcap < needed)
         newcap = needed;
     /* realloc may return NULL on failure; cast to seq_t* for C++ */
-    void *tmp = realloc(cache, newcap * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp)
         abort();
     cache = (seq_t *)tmp;

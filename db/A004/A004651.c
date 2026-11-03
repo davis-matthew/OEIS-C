@@ -8,12 +8,23 @@
  * Formula:   Base-12 digits of 2^n, each written in decimal and concatenated
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   A001832_pow2
+ * Validated: partial, pass, 7 terms through n = 6 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/A001832_pow2.h"
+#include <stdint.h>
+
+static seq_t A001832_pow2(idx_t e) {
+    seq_t r = 1, b = 2;
+    while (e) {
+        if (e & 1) r *= b;
+        e >>= 1;
+        if (e) b *= b;
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     seq_t pow2 = A001832_pow2(n);

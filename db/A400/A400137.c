@@ -7,8 +7,9 @@
  * Keywords:  nonn, tabl, easy
  * Formula:   a(n) is the flattened triangle of * T(n,k) = ∏_{p^e‖n}
  *            p^{bitand(e, v_p(k))} (OEIS A400137)
- * Range:     u8 n <= 8757, u16 n <= 8757, u32 n <= 8757, u64 n <= 8757,
- *            u128 n <= 8757, big any n
+ * Range:     u8 n <= 10585, u16 n <= 10585, u32 n <= 10585, u64 n <= 10585,
+ *            u128 n <= 10585, big any n
+ * Validated: standard, pass, 107 terms through n = 8757 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

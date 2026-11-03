@@ -11,7 +11,8 @@
  *            plus the Tits group) and the 26 sporadic groups....
  * Range:     u8 n <= 2, u16 n <= 28, u32 n <= 393, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp64, g1034, u128_to_seq
+ * Validated: standard, pass, 52 terms through n = 8595 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/cmp64.h"
-#include "../utils/g1034.h"
+#include "../utils/gcd_u64.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static int cmp64(const void *a, const void *b)
+{
+    uint64_t x = *(const uint64_t *)a, y = *(const uint64_t *)b;
+    return x < y ? -1 : (x > y ? 1 : 0);
+}
 
 typedef unsigned __int128 u128;
 
@@ -82,12 +99,12 @@ static u128 classical(int t, int m, uint64_t q, uint64_t *d)
     case 0: /* L_m(q) */
         num = powc(q, (unsigned)(m * (m - 1) / 2));
         for (i = 2; i <= m; i++) num = mulc(num, fac(q, i, 0));
-        *d = g1034((uint64_t)m, q - 1);
+        *d = gcd_u64((uint64_t)m, q - 1);
         return num;
     case 1: /* U_m(q) */
         num = powc(q, (unsigned)(m * (m - 1) / 2));
         for (i = 2; i <= m; i++) num = mulc(num, fac(q, i, i & 1));
-        *d = g1034((uint64_t)m, q + 1);
+        *d = gcd_u64((uint64_t)m, q + 1);
         return num;
     case 2: /* B_m(q), C_m(q) */
         num = powc(q, (unsigned)(m * m));
@@ -100,7 +117,7 @@ static u128 classical(int t, int m, uint64_t q, uint64_t *d)
         for (i = 1; i < m; i++) num = mulc(num, fac(q, 2 * i, 0));
         r = 1;
         for (i = 0; i < m; i++) r = r * (q % 4) % 4;
-        *d = g1034(4, t == 3 ? (r + 3) % 4 : (r + 1) % 4);
+        *d = gcd_u64(4, t == 3 ? (r + 3) % 4 : (r + 1) % 4);
         return num;
     }
 }
@@ -126,18 +143,18 @@ static u128 exceptional(int t, uint64_t q, uint64_t *d)
     case 2: /* E6 */
         num = powc(q, 36);
         for (i = 0; i < 6; i++) num = mulc(num, fac(q, e6[i], 0));
-        *d = g1034(3, q - 1);
+        *d = gcd_u64(3, q - 1);
         return num;
     case 3: /* 2E6 */
         num = powc(q, 36);
         for (i = 0; i < 6; i++)
             num = mulc(num, fac(q, e6[i], e6[i] == 9 || e6[i] == 5));
-        *d = g1034(3, q + 1);
+        *d = gcd_u64(3, q + 1);
         return num;
     case 4: /* E7 */
         num = powc(q, 63);
         for (i = 0; i < 7; i++) num = mulc(num, fac(q, e7[i], 0));
-        *d = g1034(2, q - 1);
+        *d = gcd_u64(2, q - 1);
         return num;
     case 5: /* E8 */
         num = powc(q, 120);

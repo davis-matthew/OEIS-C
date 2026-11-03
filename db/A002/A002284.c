@@ -10,6 +10,7 @@
  *            (eta^3)^4 with eta^3 = Sum_{k>=0} (-1)^k (2k+1) x^(k(k+1)/2)
  * Range:     i8 n <= 31, i16 n <= 140, i32 n <= 1004, i64 n <= 1004,
  *            i128 n <= 1004, big any n
+ * Validated: standard, pass, 92 terms through n = 923 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   primes of the form p - product_of_digits(p) where p is prime
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   cmp_seq_t, digit_product, isPrimeGeneric
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   digit_product, is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,42 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
+#include <limits.h>
 #include "../utils/digit_product.h"
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/cmp_seq_t.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* Maximum prime to sieve.  This limit guarantees > 10 000 terms for all
    test cases up to n ≈ 10 000. */
@@ -64,7 +98,7 @@ static void init_sequence(void)
     free(is_composite);
 
     /* --- 3.  Generate candidate sequence values ------------------------ */
-    seq_t *tmp = (seq_t *)malloc(cnt * sizeof(seq_t));  /* temporary array */
+    seq_t *tmp = mem_new(seq_t, cnt);  /* temporary array */
     if (!tmp) exit(EXIT_FAILURE);
     size_t tmp_len = 0;
 
@@ -78,10 +112,10 @@ static void init_sequence(void)
 
     /* --- 4.  Sort and deduplicate ------------------------------------- */
     if (tmp_len > 0)
-        qsort(tmp, tmp_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(tmp, tmp_len, sizeof(seq_t), cmp_seq_t);
 
     seq_cap = tmp_len;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     if (!seq) exit(EXIT_FAILURE);
     seq_len = 0;
     for (size_t i = 0; i < tmp_len; ++i) {
@@ -90,7 +124,7 @@ static void init_sequence(void)
         }
     }
 
-    free(tmp);
+    mem_free(tmp);
     free(prime_list);
     prime_list = NULL;
     prime_count = 0;

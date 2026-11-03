@@ -9,14 +9,18 @@
  *            P(n) is the n-th decimal palindrome
  * Range:     u8 n <= 13, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   isPrimeULL
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/isPrimeULL.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <limits.h>
+#include "../utils/is_prime_u64.h"
 
 /* ------------------------------------------------------------
    Construct the n-th palindrome (1‑based).
@@ -78,7 +82,7 @@ seq_t a(idx_t n) {
     /* Search k ≥ 1 for the smallest prime r = k*p + 1 */
     for (uint64_t k = 1;; ++k) {
         r = k * p + 1;
-        if (isPrimeULL(r)) break;
+        if (is_prime_u64(r)) break;
     }
     return (seq_t) r;
 }

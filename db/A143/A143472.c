@@ -8,7 +8,8 @@
  * Formula:   a(n) = a(n-3) + a(n-5) + a(n-7) - a(n-10)
  * Range:     u8 n <= 33, u16 n <= 59, u32 n <= 113, u64 n <= 220,
  *            u128 n <= 434, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(6)=1, a(7)=1, a(8)=2, a(9)=1 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (need > cache_size) {
         size_t old_size = cache_size;
         /* Allocate (or re‑allocate) a larger array */
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (tmp == NULL) {
             /* Allocation failed – abort (unlikely for moderate n) */
             abort();

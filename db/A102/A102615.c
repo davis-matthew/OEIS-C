@@ -5,14 +5,18 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = nonprime(nonprime(n))
- * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 155, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 82 terms through n = 9874 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 /* Return the n-th nonprime number (1 and composites). */
 static inline seq_t nth_nonprime(idx_t n)
@@ -21,7 +25,7 @@ static inline seq_t nth_nonprime(idx_t n)
     idx_t x = 1;
     while (1)
     {
-        if (x == 1 || !is_prime(x))
+        if (x == 1 || !is_prime_u64(x))
         {
             ++count;
             if (count == n)

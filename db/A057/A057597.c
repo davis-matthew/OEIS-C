@@ -7,12 +7,14 @@
  * Formula:   a(n) = -a(n-1) - a(n-2) + a(n-3), a(0)=0, a(1)=0, a(2)=1
  * Range:     i8 n <= 18, i16 n <= 37, i32 n <= 73, i64 n <= 145,
  *            i128 n <= 291, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 876 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     /* lazily initialise cache with first three terms */
     if (!cache) {
         cap = 3;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) exit(1);
         cache[0] = 0;
         cache[1] = 0;
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     /* extend cache up to n */
     size_t need = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, need);
     if (!tmp) exit(1);
     cache = tmp;
     for (size_t i = cap; i <= (size_t)n; ++i) {

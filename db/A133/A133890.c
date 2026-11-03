@@ -7,13 +7,22 @@
  * Formula:   a(n) = binomial(n+10,10) mod 10
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   crt_mod10
+ * Validated: standard, pass, 121 terms through n = 987 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/crt_mod10.h"
+
+static inline uint8_t crt_mod10(uint8_t r2, uint8_t r5)
+{
+    /* Find x in [0,9] with x%2==r2 and x%5==r5.  Only one such x. */
+    uint8_t x = r5;
+    while ((x & 1) != r2)
+        x += 5;
+    return x;       /* automatically <10 */
+}
 
 static inline uint8_t binom_mod2(idx_t N, idx_t K)
 {

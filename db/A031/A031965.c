@@ -8,14 +8,36 @@
  *            four distinct digits
  * Range:     u8 n <= 12, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   has_four_distinct
+ * Validated: standard, pass, 61 terms through n = 2907 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_four_distinct.h"
+
+/* Return true if v has exactly four distinct digits in base 6. */
+static bool has_four_distinct(seq_t v)
+{
+    if (v == 0)          /* base‑6 "0" has only one distinct digit */
+        return false;
+
+    unsigned mask = 0;
+    seq_t t = v;
+    while (t > 0) {
+        unsigned d = (unsigned)(t % 6);
+        mask |= 1U << d;
+        t /= 6;
+    }
+
+    unsigned bits = 0;
+    for (unsigned i = 0; i < 6; ++i)
+        if (mask & (1U << i))
+            ++bits;
+
+    return bits == 4;
+}
 
 /* OEIS A031965: numbers with exactly four distinct base‑6 digits. */
 seq_t a(idx_t n)

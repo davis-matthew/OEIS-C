@@ -5,15 +5,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{k=0..⌊n/2⌋} k*binomial(n-2*k, 3*k+2)
- * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 39, u64 n <= 80, u128 n <= 162,
+ * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 40, u64 n <= 80, u128 n <= 162,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 55 terms through n = 941 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     idx_t newsize = n + 1;
-    cache = (seq_t *)realloc(cache, newsize * sizeof(seq_t)); /* cast to avoid C++ warning */
+    cache = mem_resize(seq_t, cache, newsize); /* cast to avoid C++ warning */
 
     for (idx_t i = cache_size; i < newsize; ++i)
         cache[i] = compute_value(i);

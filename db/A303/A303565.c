@@ -7,11 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 407 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#ifdef __cplusplus
+#include <vector>
+#endif
 /* OEIS A303565
    Formula: a(n) = [x^n] (Sum_{k=0..n} k!*x^k)/(Sum_{k=0..n} k!*(-x)^k)
    Recurrence: a(0) = 1

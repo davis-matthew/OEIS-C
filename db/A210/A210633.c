@@ -9,7 +9,8 @@
  *            x^18/((1-x)^2*(1-x^2)^3*(1-x^3)^2*(1-x^4))
  * Range:     u8 n <= 26, u16 n <= 46, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    using a linear-time prefix‑sum trick. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,9 +36,9 @@ seq_t a(idx_t n)
     if (newlen > cache_len) {
         /* Allocate new arrays of required length */
         size_t sz = (size_t)newlen;
-        if (h12) free(h12); h12 = (seq_t*)calloc(sz, sizeof(seq_t));
-        if (g  ) free(g ); g  = (seq_t*)calloc(sz, sizeof(seq_t));
-        if (w  ) free(w ); w  = (seq_t*)calloc(sz, sizeof(seq_t));
+        if (h12) mem_free(h12); h12 = mem_new(seq_t, sz);
+        if (g  ) mem_free(g); g  = mem_new(seq_t, sz);
+        if (w  ) mem_free(w); w  = mem_new(seq_t, sz);
 
         /* Step 1: compute h12 = (1/(1-x^2)^3) * (1/(1-x^3)^2) */
         for (idx_t a = 0; a <= newlen/2; ++a) {

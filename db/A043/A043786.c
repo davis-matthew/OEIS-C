@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   is_qualifying
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/is_qualifying.h"
+#include "../utils/mem.h"
+
+/* Return true when n has a number of runs in base‑3 ≡ 1 (mod 6). */
+static inline bool is_qualifying(seq_t n)
+{
+    if (n == (seq_t)0)
+        return false;
+    int runs = 0;
+    int prev = -1;
+    seq_t t = n;
+    while (t > (seq_t)0) {
+        int d = (int)(t % (seq_t)3);   /* d is 0, 1, or 2 */
+        if (d != prev) {
+            ++runs;
+            prev = d;
+        }
+        t /= (seq_t)3;
+    }
+    return (runs % 6) == 1;
+}
 
 /* Compute the n-th term of the sequence (a(1) is the first term). */
 seq_t a(idx_t n)
@@ -43,11 +63,11 @@ seq_t a(idx_t n)
                     size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
                     if (new_cap < cache_len + 1)
                         new_cap = cache_len + 1;
-                    seq_t *new_buf = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                    seq_t *new_buf = mem_new(seq_t, new_cap);
                     if (!new_buf) abort();            /* allocation failed */
                     if (cache) {
-                        memcpy(new_buf, cache, cache_len * sizeof(seq_t));
-                        free(cache);
+                        mem_copy(new_buf, cache, cache_len * sizeof(seq_t));
+                        mem_free(cache);
                     }
                     cache = new_buf;
                     cache_cap = new_cap;

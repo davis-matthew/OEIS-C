@@ -13,13 +13,34 @@
  *            flattened index n to a pair (row r, col...
  * Range:     u8 n <= 69, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   _row_of_idx
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_row_of_idx.h"
+
+/* Find the row r for a flattened index n.
+   Uses a binary search with 128‑bit arithmetic to avoid overflow. */
+static idx_t _row_of_idx(idx_t n)
+{
+    idx_t low = 0, high = 1;
+    /* grow high until triangular(high) > n */
+    while ( ((unsigned __int128)high * (high + 1)) / 2 <= n )
+        high <<= 1;
+
+    /* binary search for smallest high such that triangular(high) > n */
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1);
+        idx_t t = (idx_t)(((unsigned __int128)mid * (mid + 1)) >> 1);
+        if (t <= n)
+            low = mid + 1;
+        else
+            high = mid;
+    }
+    return low - 1;   /* since low is first > n */
+}
 
 /* Helper to compute 128‑bit intermediate values safely. */
 static seq_t _binomial(idx_t n, idx_t k)

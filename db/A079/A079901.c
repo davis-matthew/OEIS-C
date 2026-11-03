@@ -9,19 +9,20 @@
  *            0≤k≤r)
  * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 64, u64 n <= 151,
  *            u128 n <= 404, big any n
- * Helpers:   integer_sqrt_u128
+ * Validated: standard, pass, 70 terms through n = 7926 (2026-11-01)
+ * Helpers:   isqrt_i128_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/integer_sqrt_u128.h"
+#include "../utils/isqrt_i128_to_idx.h"
 
 seq_t a(idx_t n)
 {
     /* --- find the row r --- */
     __int128 v = (__int128)n * 8 + 1;          /* v = 8*n + 1 */
-    idx_t sq = integer_sqrt_u128(v);           /* floor(sqrt(v)) */
+    idx_t sq = isqrt_i128_to_idx(v);           /* floor(sqrt(v)) */
     idx_t r  = (sq - 1) / 2;                   /* floor((sqrt(8*n+1)-1)/2) */
 
     /* --- offset within the row --- */

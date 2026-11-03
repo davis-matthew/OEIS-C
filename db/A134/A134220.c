@@ -10,7 +10,8 @@
  *            one non‑negative y)
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   int_cuberoot_u128
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/int_cuberoot_u128.h"
+#include "../utils/mem.h"
+
+/* integer cube root for unsigned __int128 */
+static inline uint64_t int_cuberoot_u128(unsigned __int128 n)
+{
+    uint64_t lo = 0, hi = (uint64_t)1 << 21; /* (2^21)^3 > 2^64 */
+    while (lo < hi)
+    {
+        uint64_t mid = (lo + hi + 1) >> 1;
+        unsigned __int128 m3 = (unsigned __int128)mid * mid * mid;
+        if (m3 <= n)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 /* integer square root for 64‑bit unsigned integers (floor) */
 static inline uint64_t isqrt_u64(uint64_t n)
@@ -53,7 +70,7 @@ static void ensure_terms_cap(size_t needed)
     if (needed <= g_terms_cap) return;
     size_t new_cap = g_terms_cap ? g_terms_cap : 128;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(g_terms, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, g_terms, new_cap);
     if (!new_arr) abort();
     g_terms = new_arr;
     g_terms_cap = new_cap;

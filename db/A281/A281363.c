@@ -7,7 +7,8 @@
  * Formula:   a(n) = ord_{(2n)^2 - 1}(2) / gcd(ord_{(2n)^2 - 1}(2), 2n)
  * Range:     u8 n <= 8, u16 n <= 529, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, mod_pow
+ * Validated: standard, pass, 86 terms through n = 8653 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
 #include "../utils/gcd.h"
+#include "../utils/powmod.h"
 
 /* sieve primes up to 20000 once */
 static uint32_t __primes[2500];
@@ -97,7 +99,7 @@ static uint64_t __order_uint64(uint64_t a, uint64_t mod,
         uint32_t p = f[i];
         while (t % p == 0) {
             uint64_t cand = t / p;
-            seq_t res = mod_pow((seq_t)a, cand, (seq_t)mod);
+            seq_t res = powmod((seq_t)a, cand, (seq_t)mod);
             if (res == 1)
                 t = cand;
             else

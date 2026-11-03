@@ -8,13 +8,14 @@
  *            Euler's totient function
  * Range:     u8 n <= 29, u16 n <= 419, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi_uint64
+ * Validated: standard, pass, 75 terms through n = 9733 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi_uint64.h"
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -23,6 +24,6 @@ seq_t a(idx_t n)
     /* (n * (n + 1)) / 2 */
     seq_t sum = (seq_t)nu * ((seq_t)nu + 1) / 2;
     /* (n * phi(n)) / 2 */
-    seq_t sub = (seq_t)nu * (seq_t)phi_uint64(nu) / 2;
+    seq_t sub = (seq_t)nu * (seq_t)totient_u64(nu) / 2;
     return sum - sub;
 }

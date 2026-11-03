@@ -9,7 +9,8 @@
  * Formula:   a(n) = 2*a(n-7) - a(n-14) for n > 14
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* initial values: a(0)=1, a(1)=3, a(2)=6, a(3)=11, a(4)=16, a(5)=18, a(6)=21,
    a(7)=24, a(8)=27, a(9)=30, a(10)=38, a(11)=43, a(12)=42, a(13)=45, a(14)=48 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     };
 
     if (!cache) {
-        cache = (seq_t *)malloc(INIT_SIZE * sizeof(seq_t));
+        cache = mem_new(seq_t, INIT_SIZE);
         if (!cache) exit(1);
         for (idx_t i = 0; i < INIT_SIZE; ++i) cache[i] = init_vals[i];
         cache_size = INIT_SIZE;
@@ -38,9 +40,9 @@ seq_t a(idx_t n)
 
     if (n < cache_size) return cache[n];
 
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) {
-        free(cache);
+        mem_free(cache);
         exit(1);
     }
     cache = new_cache;

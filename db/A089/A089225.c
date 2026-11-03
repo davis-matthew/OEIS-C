@@ -11,13 +11,15 @@
  *            element when the triangle is read by rows
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     }
 
     size_t size = r + 1;             /* indices 0..r, we use 1..r */
-    seq_t *prev = (seq_t*)malloc(size * sizeof(seq_t));
-    seq_t *curr = (seq_t*)malloc(size * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, size);
+    seq_t *curr = mem_new(seq_t, size);
     if (!prev || !curr) return 0;    /* allocation failed – fallback to 0 */
 
     for (size_t i = 0; i < size; ++i) prev[i] = 0;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     size_t counter = 1;
     if (counter == (size_t)n) {
         seq_t val = prev[1];
-        free(prev); free(curr);
+        mem_free(prev); mem_free(curr);
         return val;
     }
 
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
                 val = sumprev;
             ++counter;
             if (counter == (size_t)n) {
-                free(prev); free(curr);
+                mem_free(prev); mem_free(curr);
                 return val;
             }
             curr[k] = val;
@@ -65,6 +67,6 @@ seq_t a(idx_t n)
         seq_t *tmp = prev; prev = curr; curr = tmp;
     }
 
-    free(prev); free(curr);
+    mem_free(prev); mem_free(curr);
     return 0;   /* unreachable, but keeps compiler happy */
 }

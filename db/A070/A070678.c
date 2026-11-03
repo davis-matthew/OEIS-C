@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   calc_phi, gcd, mod_pow
+ * Validated: standard, pass, 94 terms through n = 996 (2026-11-01)
+ * Helpers:   gcd, powmod, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,12 @@
 */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/calc_phi.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -42,12 +46,12 @@ seq_t a(idx_t n)
         return 0;
 
     /* φ(n) is the upper bound for the order. */
-    seq_t phi_seq = calc_phi(sn);
+    seq_t phi_seq = totient_seq(sn);
     uint64_t phi = (uint64_t)phi_seq;
 
     /* Search for the smallest exponent m with 7^m ≡ 1 (mod n). */
     for (uint64_t m = 1; m <= phi; ++m) {
-        if (mod_pow((seq_t)7, m, sn) == (seq_t)1)
+        if (powmod((seq_t)7, m, sn) == (seq_t)1)
             return (seq_t)m;
     }
 

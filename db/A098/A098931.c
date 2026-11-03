@@ -8,6 +8,7 @@
  * Formula:   a(0) = 1; a(n) = 1 + Σ_{k=1}^{n} (2k)(2k+1) = 1 + n(n+1)(4n+5)/3
  * Range:     u8 n <= 5, u16 n <= 35, u32 n <= 1377, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 56 terms through n = 9341 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

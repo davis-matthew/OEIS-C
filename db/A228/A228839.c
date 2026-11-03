@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 7, i32 n <= 7, i64 n <= 7, i128 n <= 7,
  *            big any n
- * Helpers:   seq_realloc
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
    a(n) = (4^n - 4*3^n + 6*2^n - 4) / 24   (for all n ≠ 5)
    a(5) is incorrectly listed as 20 in this sequence. */
 #include <stddef.h>
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *S = NULL;          /* 2‑D table flattened: (n*(kmax+1)+k) */
 static idx_t  max_n = 0;         /* largest n for which rows are filled */

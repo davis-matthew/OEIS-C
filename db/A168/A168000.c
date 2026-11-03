@@ -8,13 +8,15 @@
  *            digit of 6*k equals the last decimal digit of k
  * Range:     u8 n <= 3, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t* cache = NULL;          /* array of found terms */
 static size_t  cache_cap = 0;        /* capacity of the array */
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n)
     /* Grow cache array if necessary */
     if (cache_cnt == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-        seq_t* tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t* tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();       /* allocation failure: terminate */
         cache = tmp;
         cache_cap = new_cap;
@@ -50,8 +52,16 @@ static void ensure_cache(idx_t n)
         if (last != 0) {                            /* first digit cannot be 0   */
             seq_t t  = (seq_t)cur_k * (seq_t)6;     /* 6*k                          */
             seq_t fd = first_digit(t);             /* first digit of 6*k           */
-            if (fd == last)
+            if (fd == last) {
+                if (cache_cnt == cache_cap) {       /* grow before each store (it grew once) */
+                    size_t new_cap = cache_cap ? cache_cap * 2 : 64;
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+                    if (!tmp) abort();
+                    cache = tmp;
+                    cache_cap = new_cap;
+                }
                 cache[cache_cnt++] = cur_k;
+            }
         }
         cur_k++;
     }

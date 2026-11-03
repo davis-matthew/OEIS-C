@@ -10,13 +10,15 @@
  *            generation of Rule‑30 CA started from a single ON cell
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
         rowPrev[0] = 1;         /* single ON cell in generation 1 */
         minRunSize = 2;         /* indices 0 and 1 */
-        minRun = (seq_t*)calloc(minRunSize, sizeof(seq_t));
+        minRun = mem_new(seq_t, minRunSize);
         if (!minRun) return (seq_t)0;
         minRun[1] = (seq_t)1;
         max_computed = 1;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* ----- grow the minRun array if necessary ----- */
     if (minRunSize <= (size_t)n) {
         size_t newSize = n + 2;  /* keep index 0 unused */
-        seq_t *tmp = (seq_t*)realloc(minRun, newSize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, minRun, newSize);
         if (!tmp) return (seq_t)0;
         minRun = tmp;
         minRunSize = newSize;

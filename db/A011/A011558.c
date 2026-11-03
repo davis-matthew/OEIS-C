@@ -6,8 +6,9 @@
  * Keywords:  nonn, mult, easy
  * Formula:   a(n) = n^4 mod 5 (characteristic function of numbers coprime to
  *            5)
- * Range:     u8 n <= 9126, u16 n <= 9126, u32 n <= 9126, u64 n <= 9126,
- *            u128 n <= 9126, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 122 terms through n = 9126 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

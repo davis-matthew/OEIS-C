@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Global state ---------------------------------------------------------- */
 static idx_t computed = 0;          /* highest index computed so far */
@@ -52,7 +54,7 @@ static void ensure_seq_capacity(idx_t need)
     size_t newCap = seqCap ? seqCap * 2 : 256;
     while (newCap <= (size_t)need)
         newCap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seqArr, newCap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seqArr, newCap);
     if (!tmp) abort();
     seqArr = tmp;
     seqCap = newCap;

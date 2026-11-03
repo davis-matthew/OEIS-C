@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 28, i16 n <= 56, i32 n <= 70, i64 n <= 70, i128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
         a(n) = coeff of x^k in P(r,x), where r(r+1)/2 ≤ n < (r+1)(r+2)/2
         and k = n - r(r+1)/2. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,10 +51,10 @@ seq_t a(idx_t n)
     if (r == 1) return (j == 0 ? (seq_t)0 : (seq_t)1);
 
     /* Allocate previous rows */
-    seq_t *prev2 = (seq_t*)malloc(sizeof(seq_t));   /* row 0 */
+    seq_t *prev2 = mem_new(seq_t, 1);   /* row 0 */
     prev2[0] = (seq_t)1;
 
-    seq_t *prev1 = (seq_t*)malloc(2 * sizeof(seq_t));   /* row 1 */
+    seq_t *prev1 = mem_new(seq_t, 2);   /* row 1 */
     prev1[0] = (seq_t)0;
     prev1[1] = (seq_t)1;
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     /* Build successive rows up to r */
     for (idx_t cur = 2; cur <= r; ++cur) {
         idx_t len = cur + 1;
-        curr = (seq_t*)malloc(len * sizeof(seq_t));
+        curr = mem_new(seq_t, len);
 
         seq_t mult = (seq_t)(2 * cur - 3);
         for (idx_t k = 0; k < len; ++k) {
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
             curr[k] = a_prev1 - mult * a_prev2;
         }
 
-        free(prev2);
+        mem_free(prev2);
         prev2 = prev1;
         prev1 = curr;
     }
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
     /* The answer is in prev1 (row r) at position j */
     seq_t result = prev1[j];
 
-    free(prev2);
-    free(prev1);
+    mem_free(prev2);
+    mem_free(prev1);
     return result;
 }

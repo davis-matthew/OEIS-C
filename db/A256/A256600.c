@@ -10,15 +10,17 @@
  *            triangle T is defined by T(0,0)=1; for r>=0 let
  *            S(j)=∑_{i=0}^{j}T(r,i) (partial sums). Then T(r+1,j)=S(j) for
  *            0≤j<2^r, and T(r+1,j+2^r)=S(j)
- * Range:     u8 n <= 69, u16 n <= 182, u32 n <= 1126, u64 n <= 8071,
- *            u128 n <= 8071, big any n
- * Helpers:   none
+ * Range:     u8 n <= 69, u16 n <= 182, u32 n <= 1126, u64 n <= 10019,
+ *            u128 n <= 16382, big any n
+ * Validated: standard, pass, 111 terms through n = 8071 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         rows = (seq_t**)realloc(rows, (r + 1) * sizeof(seq_t*));
         for (idx_t cur = rows_alloc; cur <= r; ++cur) {
             idx_t len = 1ULL << cur;          /* length of current row */
-            rows[cur] = (seq_t*)malloc(len * sizeof(seq_t));
+            rows[cur] = mem_new(seq_t, len);
             if (cur == 0) {
                 rows[0][0] = 1;                /* base case */
             } else {

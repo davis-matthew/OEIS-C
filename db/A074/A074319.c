@@ -7,12 +7,14 @@
  * Formula:   a(n) = sf(2n)/sf(n) (sf(k) = ∏_{i=1..k} i!)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static workspace for factorials and superfactorials */
 static idx_t LIMIT = 0;
@@ -26,8 +28,8 @@ static void ensure_limit(idx_t new_limit)
         return;
 
     /* reallocate arrays */
-    seq_t *tmp_fact = (seq_t *)realloc(FACT, (size_t)(new_limit + 1) * sizeof(seq_t));
-    seq_t *tmp_sf   = (seq_t *)realloc(SF,   (size_t)(new_limit + 1) * sizeof(seq_t));
+    seq_t *tmp_fact = mem_resize(seq_t, FACT, (size_t)(new_limit + 1));
+    seq_t *tmp_sf   = mem_resize(seq_t, SF, (size_t)(new_limit + 1));
 
     if (!tmp_fact || !tmp_sf)
         abort(); /* allocation failure */

@@ -9,7 +9,8 @@
  *            n>0, p(n,k) = sum_{s=1}^{4} C(k-1,s-1) * p(n-1,k-s)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 7, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* the function below computes a(n) for any n>=0 */
 
 #include <stdlib.h>   /* malloc, calloc, free, realloc */
+#include "../utils/mem.h"
 
 static inline seq_t small_binom(idx_t a, idx_t r)
 {
@@ -39,11 +41,11 @@ seq_t a(idx_t n)
 
     /* initialization on first call */
     if (cache == NULL) {
-        cache = (seq_t*)calloc(1, sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache_cap = 1;
         cache[0] = (seq_t)1;       /* a(0) = 1 */
 
-        prev_buf = (seq_t*)calloc(1, sizeof(seq_t));
+        prev_buf = mem_new(seq_t, 1);
         prev_size = 1;
         prev_buf[0] = (seq_t)1;    /* p(0,0) = 1 */
 
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         for (idx_t cur_n = computed_up_to + 1; cur_n <= n; ++cur_n) {
             /* allocate current DP array for p(cur_n, k) */
             size_t cur_size = 4 * cur_n + 1;
-            seq_t *cur_buf = (seq_t*)calloc(cur_size, sizeof(seq_t));
+            seq_t *cur_buf = mem_new(seq_t, cur_size);
 
             /* compute p(cur_n, k) for all k */
             for (size_t k = 0; k < cur_size; ++k) {
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
             /* store a_cur in the cache */
             if (cur_n >= cache_cap) {
                 size_t new_cap = cur_n + 1;
-                seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) exit(1);   /* allocation failure */
                 cache = new_cache;
                 cache_cap = new_cap;
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
             cache[cur_n] = a_cur;
 
             /* prepare for next iteration */
-            free(prev_buf);
+            mem_free(prev_buf);
             prev_buf = cur_buf;
             prev_size = cur_size;
             computed_up_to = cur_n;

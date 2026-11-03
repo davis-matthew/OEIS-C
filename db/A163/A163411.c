@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 404, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 62 terms through n = 9958 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static bool is_bin_palindrome(uint64_t x)
 {
@@ -64,10 +66,10 @@ static void ensure_capacity(void)
 {
     if (seq_cap == 0) {
         seq_cap = 128;
-        seq_terms = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_terms = mem_new(seq_t, seq_cap);
     } else {
         seq_cap <<= 1;
-        seq_terms = (seq_t *)realloc(seq_terms, seq_cap * sizeof(seq_t));
+        seq_terms = mem_resize(seq_t, seq_terms, seq_cap);
     }
 }
 

@@ -8,7 +8,8 @@
  *            a(0)=1 , a(1)=0 , a(2)=0 , a(3)=1
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 17, u64 n <= 26, u128 n <= 41,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 43 terms through n = 451 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stddef.h>     /* size_t */
 #include <stdbool.h>    /* bool */
 #include <stdlib.h>     /* malloc, realloc */
-#include "../utils/binomial.h"  /* seq_t binomial(idx_t n, idx_t k) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* initialise on first call */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;     /* allocation failed - unlikely */
         cache[0] = (seq_t)1;
         cap   = 1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (n > max) { /* need to extend cache up to n */
         size_t new_cap = (size_t)n + 1;
         if (new_cap > cap) {
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return (seq_t)0;   /* allocation failed */
             cache = tmp;
             cap   = new_cap;

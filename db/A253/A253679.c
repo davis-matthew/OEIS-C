@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = (2n+1)^3 - (3n+1)
- * Range:     u8 n <= 2, u16 n <= 19, u32 n <= 812, u64 n <= 9442,
- *            u128 n <= 9442, big any n
+ * Range:     u8 n <= 2, u16 n <= 19, u32 n <= 812, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 68 terms through n = 9442 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

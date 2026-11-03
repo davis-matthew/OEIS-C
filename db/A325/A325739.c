@@ -8,7 +8,8 @@
  *            , k >= 0
  * Range:     i8 n <= 11, i16 n <= 19, i32 n <= 37, i64 n <= 68, i128 n <= 135,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Computes a(1) = 3, a(2) = 0, … as defined for OEIS A325739. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const unsigned long long SCALE  = 1000000000000000000ULL;          /* 10^18  */
 static const unsigned long long F_INT  = 141592653589793238ULL;           /* fractional part of pi * SCALE */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 {
     /* Allocate array for f(k) = floor(pi*k), k = 0 .. n. */
     size_t len = (size_t)(n + 1);                /* n is guaranteed to fit in size_t for all tests */
-    seq_t *f = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, len);
     if (!f) return (seq_t)0;                      /* safe fallback on allocation failure */
 
     /* Compute floor(pi*k) using integer arithmetic with a 10^18 scaling. */
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = f[0];
-    free(f);
+    mem_free(f);
     return result;
 }

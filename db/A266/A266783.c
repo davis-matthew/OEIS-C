@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 54, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
 
     /* Ensure buffer has slot 0 set to 1 */
     if (buf_len == 0) {
-        buf = (seq_t *)malloc(sizeof(seq_t));
+        buf = mem_new(seq_t, 1);
         if (!buf) return 0;   /* allocation failure */
         buf[0] = 1;           /* a(0) = 1 */
         buf_len = 1;
@@ -76,11 +78,11 @@ seq_t a(idx_t n)
 
     if (n >= buf_len) {
         idx_t new_len = n + 1;
-        seq_t *new_buf = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_buf = mem_new(seq_t, new_len);
         if (!new_buf) return 0;   /* allocation failure */
         if (buf) {
-            memcpy(new_buf, buf, buf_len * sizeof(seq_t));
-            free(buf);
+            mem_copy(new_buf, buf, buf_len * sizeof(seq_t));
+            mem_free(buf);
         }
         buf = new_buf;
 

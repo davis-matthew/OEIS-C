@@ -11,15 +11,18 @@
  *            are the Lucas numbers, L(0)=2, L(1)=1
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binomial, pow2
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow2.h"
+#include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *lucas_cache = NULL;
 static idx_t lucas_cache_size = 0;
@@ -30,7 +33,7 @@ static seq_t lucas(idx_t n)
     if (lucas_cache_size <= n) {
         idx_t new_size = lucas_cache_size ? lucas_cache_size << 1 : 1;
         while (new_size <= n) new_size <<= 1;
-        seq_t *tmp = (seq_t *)realloc(lucas_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, lucas_cache, new_size);
         if (!tmp) return 0;              /* allocation failure – ignored */
         if (lucas_cache_size == 0) {
             tmp[0] = (seq_t)2;

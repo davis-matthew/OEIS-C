@@ -8,18 +8,19 @@
  *            a(n) = (-1)^m * (2*m+1) (mod 9)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   u128_sqrt
+ * Validated: standard, pass, 121 terms through n = 878 (2026-11-01)
+ * Helpers:   isqrt_u128_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/u128_sqrt.h"
+#include "../utils/isqrt_u128_to_u64.h"
 
 seq_t a(idx_t n)
 {
     __uint128_t s = (__uint128_t)n * 8 + 1;
-    uint64_t r = u128_sqrt(s);
+    uint64_t r = isqrt_u128_to_u64(s);
     if ((__uint128_t)r * r != s) return (seq_t)0;          // not triangular
     uint64_t m = (r - 1) >> 1;                            // solve m(m+1)/2 = n
     uint64_t val = ((m << 1) + 1) % 9;                    // (2*m+1) mod 9

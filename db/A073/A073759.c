@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 257, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 94 terms through n = 9961 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
    returns 0 if no such m exists. Brute‑force search from n-1 downwards. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
 
 /* Euclidean GCD on 64‑bit values */
 
@@ -39,7 +40,7 @@ seq_t a(idx_t n) {
         /* skip divisors of n */
         if (n % m == 0) continue;
         /* skip coprime numbers */
-        if (gcd64(n, m) == 1) continue;
+        if (gcd_u64(n, m) == 1) continue;
         /* require m to be composite */
         if (is_prime_u64((uint64_t)m)) continue;
         return (seq_t)m;

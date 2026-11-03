@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -97,12 +99,12 @@ seq_t a(idx_t n)
 
     /* ---- 5. DP: two rows ---- */
     size_t N = (size_t)n + 1;
-    seq_t *dp_next = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *dp_cur   = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *dp_next = mem_new(seq_t, N);
+    seq_t *dp_cur   = mem_new(seq_t, N);
     if (!dp_next || !dp_cur)
     {
         free(bitcnt); free(cnt); free(vals); free(len);
-        free(dp_next); free(dp_cur);
+        mem_free(dp_next); mem_free(dp_cur);
         return (seq_t)0;
     }
 
@@ -137,8 +139,8 @@ seq_t a(idx_t n)
     seq_t result = dp_next[n];   /* final row holds the answer */
 
     /* ---- cleanup ---- */
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     for (idx_t j = 1; j <= jmax; ++j)
         if (vals[j]) free(vals[j]);
     free(vals);

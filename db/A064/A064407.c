@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define LIMIT 200000u      /* maximum twin prime searched (>= required bound) */
 
@@ -130,13 +132,13 @@ ensure_seq_upto(idx_t n)
     /* Expand sequence cache capacity if necessary */
     if (seq_cap == 0u) {
         seq_cap = 32u;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         if (!seq_cache)
             abort();
     }
     while (seq_cap < (size_t)n) {
         seq_cap <<= 1u;
-        seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
         if (!seq_cache)
             abort();
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   visit_hash
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/visit_hash.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static inline uint64_t visit_hash(uint64_t key) {
+    /* Knuth's multiplicative hash – works well for 64‑bit values      */
+    return (uint64_t)(
+        key * 11400714819323198485ULL) & UINT64_MAX;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Hash‑set for visited numbers (open addressing, 0 = empty)        */
@@ -93,12 +101,12 @@ typedef struct {
 static void heap_init(MinHeap *h) {
     h->cap  = 128;
     h->size = 0;
-    h->data = (seq_t *)malloc(h->cap * sizeof(seq_t));
+    h->data = mem_new(seq_t, (h->cap * sizeof(seq_t)) / sizeof(seq_t));
 }
 
 static void heap_grow(MinHeap *h) {
     h->cap <<= 1;
-    h->data = (seq_t *)realloc(h->data, h->cap * sizeof(seq_t));
+    h->data = mem_resize(seq_t, h->data, (h->cap * sizeof(seq_t)) / sizeof(seq_t));
 }
 
 /* bubble‑up from index i */
@@ -144,13 +152,13 @@ typedef struct {
 static void cache_init(Cache *c) {
     c->size = 0;
     c->cap  = 128;
-    c->terms = (seq_t *)malloc(c->cap * sizeof(seq_t));
+    c->terms = mem_new(seq_t, (c->cap * sizeof(seq_t)) / sizeof(seq_t));
 }
 
 static void cache_push(Cache *c, seq_t val) {
     if (c->size == c->cap) {
         c->cap <<= 1;
-        c->terms = (seq_t *)realloc(c->terms, c->cap * sizeof(seq_t));
+        c->terms = mem_resize(seq_t, c->terms, (c->cap * sizeof(seq_t)) / sizeof(seq_t));
     }
     c->terms[c->size++] = val;
 }
@@ -177,7 +185,7 @@ static void build_primes(void) {
 
     prime_cnt  = 0;
     for (size_t i = 2; i <= SIEVE_LIMIT; ++i) if (is_prime[i]) ++prime_cnt;
-    prime_list = (seq_t *)malloc(prime_cnt * sizeof(seq_t));
+    prime_list = mem_new(seq_t, prime_cnt);
     size_t idx = 0;
     for (size_t i = 2; i <= SIEVE_LIMIT; ++i) if (is_prime[i]) prime_list[idx++] = (seq_t)i;
 
@@ -191,7 +199,7 @@ static void build_triangles(void) {
         if (t > (uint64_t)SIEVE_LIMIT) break;
         ++tri_cnt;
     }
-    tri_list = (seq_t *)malloc(tri_cnt * sizeof(seq_t));
+    tri_list = mem_new(seq_t, tri_cnt);
     size_t idx = 0;
     for (uint64_t k = 1;; ++k) {
         uint64_t t = k * (k + 1) / 2;

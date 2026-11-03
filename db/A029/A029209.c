@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of partitions of n into parts 2, 5, 9 and 11
  * Range:     u8 n <= 101, u16 n <= 716, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,9 +35,9 @@ seq_t a(idx_t n)
        coin‑change DP and avoid double counting. */
     idx_t new_len = n + 1;                         /* number of entries needed */
     if (dp == NULL) {
-        dp = (seq_t *)malloc(new_len * sizeof(seq_t));
+        dp = mem_new(seq_t, new_len);
     } else if (new_len > dp_len) {
-        dp = (seq_t *)realloc(dp, new_len * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, new_len);
     }
 
     /* Initialise the whole array to zero and set dp[0] = 1 (empty sum). */

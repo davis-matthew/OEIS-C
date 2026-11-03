@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   contains_octal, to_octal
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,47 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/contains_octal.h"
-#include "../utils/to_octal.h"
+#include "../utils/mem.h"
+
+/* Convert an unsigned 64‑bit integer to its base‑8 representation
+ * (as a string of ASCII digits).  The result is written to buf,
+ * and its length is stored in len. */
+static void to_octal(uint64_t n, char *buf, size_t *len)
+{
+    size_t i = 0;
+    do {
+        buf[i++] = '0' + (n & 7);   /* n % 8 */
+        n >>= 3;                    /* n /= 8 */
+    } while (n);
+    *len = i;
+    for (size_t l = 0, r = i - 1; l < r; ++l, --r) {
+        char tmp = buf[l];
+        buf[l] = buf[r];
+        buf[r] = tmp;
+    }
+}
+
+/* Return true if the base‑8 representation of 'big' contains that of
+ * 'small' as a contiguous substring. */
+static bool contains_octal(uint64_t big, uint64_t small)
+{
+    char buf_big[32], buf_small[32];
+    size_t len_big, len_small;
+
+    to_octal(big,   buf_big,   &len_big);
+    to_octal(small, buf_small, &len_small);
+
+    if (len_small > len_big) return false;
+
+    for (size_t i = 0; i <= len_big - len_small; ++i) {
+        size_t j;
+        for (j = 0; j < len_small; ++j) {
+            if (buf_big[i + j] != buf_small[j]) break;
+        }
+        if (j == len_small) return true;
+    }
+    return false;
+}
 
 /* Smallest prime factor of a 64‑bit unsigned integer.
  * Uses simple trial division (fast enough for the required range). */
@@ -64,10 +104,10 @@ seq_t a(idx_t n)
         /* ensure cache capacity */
         if (cache_len == cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 4 : cache_cap * 2;
-            seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, new_cap);
             if (!new_cache) abort();        /* fatal */
-            if (cache) memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-            free(cache);
+            if (cache) mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+            mem_free(cache);
             cache = new_cache;
             cache_cap = new_cap;
         }

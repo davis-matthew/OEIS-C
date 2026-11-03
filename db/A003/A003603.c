@@ -9,15 +9,16 @@
  *            Zeckendorf form (F(2)=1, F(3)=2, ...). Shift every index down
  *            until the smallest term is F(1), which gives x = floor(r*phi).
  *            Then r = floor((x+1)/phi) = (isqrt(5*(x+1)^2) - (x+1)) / 2
- * Range:     u8 n <= 668, u16 n <= 9674, u32 n <= 9674, u64 n <= 9674,
- *            u128 n <= 9674, big any n
- * Helpers:   a3603_isqrt
+ * Range:     u8 n <= 668, u16 n <= 17710, u32 n <= 17710, u64 n <= 17710,
+ *            u128 n <= 17710, big any n
+ * Validated: standard, pass, 101 terms through n = 9674 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a3603_isqrt.h"
+#include "../utils/isqrt_u128.h"
 
 seq_t a(idx_t n) {
     uint64_t F[100];
@@ -40,6 +41,6 @@ seq_t a(idx_t n) {
     L = idx[cnt - 1];          /* smallest index used, >= 2 */
     for (i = 0; i < cnt; i++) x += F[idx[i] - (L - 1)];
     y = (unsigned __int128)x + 1;
-    s = a3603_isqrt(5 * y * y);
+    s = isqrt_u128(5 * y * y);
     return (seq_t)(uint64_t)((s - y) / 2);
 }

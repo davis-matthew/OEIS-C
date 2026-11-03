@@ -10,12 +10,14 @@
  *            a(n-j) – 6*a(n-16) for n ≥ 17 (OEIS A167896)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 498 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static idx_t cache_size = 0;   /* number of elements allocated in seq_cache */
@@ -53,7 +55,7 @@ ensure_cache(idx_t n)
     if (new_size < (size_t)(n + 1))
         new_size = n + 1;
 
-    seq_t *ptr = (seq_t *)realloc(seq_cache, new_size * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, seq_cache, new_size);
     if (!ptr)
         abort();  /* crash on OOM */
 

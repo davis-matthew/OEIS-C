@@ -6,9 +6,10 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = the nth valley number. Computed by a sequential search
  *            with a small cache
- * Range:     u8 n <= 23, u16 n <= 989, u32 n <= 9159, u64 n <= 9159,
- *            u128 n <= 9159, big any n
- * Helpers:   none
+ * Range:     u8 n <= 23, u16 n <= 989, u32 n <= 13170, u64 n <= 13170,
+ *            u128 n <= 13170, big any n
+ * Validated: standard, pass, 94 terms through n = 9159 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* test whether v is a valley number.  Works for both signed/unsigned
    integer seq_t as well as for an arbitrary‑precision class with overloaded
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap : 4;
         while (new_cap < (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* out‑of‑memory: abort */
             exit(EXIT_FAILURE);

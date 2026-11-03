@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,10 +34,10 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         /* Allocate cache. */
-        cache = (seq_t *)calloc((size_t)(NMAX + 1), sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(NMAX + 1));
 
         /* Compute sigma(k) for all 1 ≤ k ≤ LIMIT by a simple divisor sieve. */
-        seq_t *sigma = (seq_t *)calloc((size_t)(LIMIT + 1), sizeof(seq_t));
+        seq_t *sigma = mem_new(seq_t, (size_t)(LIMIT + 1));
         for (idx_t i = 1; i <= LIMIT; ++i) {
             for (idx_t j = i; j <= LIMIT; j += i) {
                 sigma[j] += (seq_t)i;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(sigma);
+        mem_free(sigma);
         initialized = 1;
     }
 

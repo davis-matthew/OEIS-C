@@ -11,14 +11,39 @@
  *            and denominator series
  * Range:     i8 n <= 62, i16 n <= 187, i32 n <= 587, i64 n <= 2002,
  *            i128 n <= 7232, big any n
- * Helpers:   grow_zero, theta_coef
+ * Validated: standard, pass, 95 terms through n = 9139 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/grow_zero.h"
-#include "../utils/theta_coef.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+/* coefficient of x^i in Sum_{k in Z} (-1)^k x^((5k+c)k/2), c = 1 or 3 */
+static int theta_coef(long long i, long long c) {
+    long long k;
+    if (i == 0) return 1;
+    for (k = 1;; k++) {
+        long long ep = k * (5 * k + c) / 2;
+        long long em = k * (5 * k - c) / 2;
+        if (em > i) break;
+        if (ep == i || em == i) return (k & 1) ? -1 : 1;
+    }
+    return 0;
+}
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;   /* allocated length */

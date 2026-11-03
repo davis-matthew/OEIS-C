@@ -10,7 +10,8 @@
  *            multiplicity)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 104 terms through n = 9936 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state */
 static bool      initialized = false;
@@ -38,7 +40,7 @@ ensure_primes(uint64_t limit)
     /* free old tables */
     free(primes);
     free(prime_index);
-    free(omega);
+    mem_free(omega);
 
     /* --- sieve of Eratosthenes up to limit --- */
     uint64_t size = limit + 1;
@@ -74,12 +76,12 @@ ensure_primes(uint64_t limit)
         prime_index[primes[i]] = (uint32_t)(i + 1); /* 1‑based index */
 
     /* compute Ω(k) for k = 1 .. prime_cnt */
-    omega = (seq_t *)calloc(prime_cnt + 1, sizeof(seq_t));
+    omega = mem_new(seq_t, prime_cnt + 1);
     if (!omega) { free(primes); free(prime_index); return; }
 
     /* smallest prime factor array for 1 .. prime_cnt */
     uint32_t *spf = (uint32_t *)calloc(prime_cnt + 1, sizeof(uint32_t));
-    if (!spf) { free(primes); free(prime_index); free(omega); return; }
+    if (!spf) { free(primes); free(prime_index); mem_free(omega); return; }
 
     for (size_t i = 0; i < prime_cnt; ++i) {
         uint32_t p = primes[i];

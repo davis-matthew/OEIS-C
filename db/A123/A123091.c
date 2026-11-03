@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 6627, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 77 terms through n = 9152 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"          /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod) */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;          /* cached sequence values */
 static size_t terms_len = 0;         /* number of values stored */
@@ -32,7 +36,7 @@ static void ensure_capacity(size_t needed)
     if (terms_cap < needed) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();
         terms = tmp;
         terms_cap = new_cap;
@@ -46,7 +50,7 @@ seq_t a(idx_t n)
 
     while (terms_len < (size_t)n) {
         seq_t k = (seq_t)next_candidate;
-        seq_t r = mod_pow((seq_t)5, (uint64_t)next_candidate, k); /* 5^k mod k */
+        seq_t r = powmod((seq_t)5, (uint64_t)next_candidate, k); /* 5^k mod k */
 
         /* Check if k | (5^k - 5), i.e. 5^k ≡ 5 (mod k). */
         if ((r + k - (seq_t)5) % k == 0) {

@@ -15,7 +15,8 @@
  *            arrangement. a(0) = 1 by convention (empty set)
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *counts = NULL;   /* cache for computed a(n) values */
 static size_t  counts_size = 0;/* current allocated size of counts array */
@@ -58,16 +60,16 @@ static void build_counts(idx_t nmax)
     }
 
     /* allocate triangular array: index 0 unused for easier 1‑based logic */
-    seq_t *tri = (seq_t*)calloc(tri_cnt + 1, sizeof(seq_t));
+    seq_t *tri = mem_new(seq_t, tri_cnt + 1);
     if (!tri) { /* allocation failed – leave old cache untouched */ return; }
 
     for (size_t i = 1; i <= tri_cnt; ++i)
         tri[i] = ((seq_t)i * (i + 1)) / 2;
 
     /* allocate counts array and reset */
-    if (counts) free(counts);
-    counts = (seq_t*)calloc((size_t)nmax + 1, sizeof(seq_t));
-    if (!counts) { free(tri); return; }
+    if (counts) mem_free(counts);
+    counts = mem_new(seq_t, (size_t)nmax + 1);
+    if (!counts) { mem_free(tri); return; }
     counts_size = (size_t)nmax + 1;
 
     /* do not count the empty representation yet */
@@ -76,7 +78,7 @@ static void build_counts(idx_t nmax)
     /* explicit value for n = 0 */
     counts[0] = (seq_t)1;
 
-    free(tri);   /* triangular numbers no longer needed */
+    mem_free(tri);   /* triangular numbers no longer needed */
 }
 
 seq_t a(idx_t n)

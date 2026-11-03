@@ -9,14 +9,16 @@
  *            swapping every '9' digit to '7' and every '7' digit to '9'
  * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 72 terms through n = 947 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t swap_digits(seq_t v)
 {
@@ -53,17 +55,17 @@ seq_t a(idx_t n)
     if (len < n) {
         if (cap == 0) {
             cap = 32;
-            cache = (seq_t *)malloc(cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cap);
         }
         while (len < n) {
             /* find the next prime */
-            do { ++cur; } while (!is_prime_small(cur));
+            do { ++cur; } while (!is_prime_seq(cur));
 
             seq_t val = swap_digits(cur);
 
             if (len == cap) {
                 cap <<= 1;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = val;
         }

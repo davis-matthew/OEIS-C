@@ -9,23 +9,25 @@
  *            6433590
  * Range:     u8 none, u16 none, u32 n <= 7, u64 n <= 22, u128 n <= 48,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 933 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     seq_t exp = (seq_t)n;
 
-    seq_t pow2 = big_pow((seq_t)2, exp);
-    seq_t pow3 = big_pow((seq_t)3, exp);
-    seq_t pow4 = big_pow((seq_t)4, exp);
-    seq_t pow5 = big_pow((seq_t)5, exp);
-    seq_t pow6 = big_pow((seq_t)6, exp);
+    seq_t pow2 = ipow((seq_t)2, exp);
+    seq_t pow3 = ipow((seq_t)3, exp);
+    seq_t pow4 = ipow((seq_t)4, exp);
+    seq_t pow5 = ipow((seq_t)5, exp);
+    seq_t pow6 = ipow((seq_t)6, exp);
 
     seq_t result = pow6 * (seq_t)6
                  + pow5 * (seq_t)2550

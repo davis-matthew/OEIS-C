@@ -9,7 +9,8 @@
  *            the number of distinct prime factors of m. (OEIS A237110)
  * Range:     u8 n <= 1549, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, gcd
+ * Validated: standard, pass, 103 terms through n = 9864 (2026-11-03)
+ * Helpers:   build_primes_upto, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* global cache: biggest n processed so far */
 static idx_t _max_n = 0;
@@ -35,11 +37,11 @@ static void _init_up_to(idx_t n)
         return;                     /* already covered */
 
     /* free any previous tables */
-    free(_omega);
-    free(_cache);
+    mem_free(_omega);
+    mem_free(_cache);
 
     /* allocate omega array, zero initialised */
-    _omega = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    _omega = mem_new(seq_t, (size_t)(n + 1));
     if (_omega == NULL)
         return;                     /* allocation failure */
 
@@ -57,7 +59,7 @@ static void _init_up_to(idx_t n)
     free(primes);                    /* clean up prime list */
 
     /* allocate cache array, fill with the sentinel ~(seq_t)0 */
-    _cache = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    _cache = mem_new(seq_t, (size_t)(n + 1));
     if (_cache != NULL) {
         seq_t sentinel = ~(seq_t)0;
         for (idx_t i = 0; i <= n; ++i)

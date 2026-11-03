@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* zero‑based cache, cache[0] == a(1) */
 static idx_t  max_cached = 0; /* largest n already cached (1‑based) */
@@ -45,13 +47,13 @@ static void grow_cache(size_t new_cap) {
     size_t old_cap = cap;
     /* double until we reach at least the requested size */
     while (cap < new_cap) cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, cap);
     if (!new_cache) abort();   /* out of memory */
     /* zero the newly allocated tail */
     if (new_cache != cache) {
-        memset(new_cache + old_cap, 0, (cap - old_cap) * sizeof(seq_t));
+        mem_set(new_cache + old_cap, 0, (cap - old_cap) * sizeof(seq_t));
     } else {
-        memset(new_cache + old_cap, 0, (cap - old_cap) * sizeof(seq_t));
+        mem_set(new_cache + old_cap, 0, (cap - old_cap) * sizeof(seq_t));
     }
     cache = new_cache;
 }
@@ -63,7 +65,7 @@ seq_t a(idx_t n) {
     /* on first call, initialise cache with a(1)=1 */
     if (!cache) {
         cap = 16;
-        cache = (seq_t *)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();
         cache[0] = 1;           /* a(1) */
         max_cached = 1;

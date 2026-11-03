@@ -7,6 +7,7 @@
  * Formula:   a(n) is the n‑th positive integer k such that 2^k ≡ 512 (mod k)
  * Range:     u8 n <= 25, u16 n <= 1064, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 94 terms through n = 9837 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

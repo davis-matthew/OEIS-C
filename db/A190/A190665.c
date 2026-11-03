@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 20, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   big_pow, sigma_of
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/sigma_of.h"   /* seq_t sigma_of(idx_t n);   */
-#include "../utils/big_pow.h"    /* seq_t big_pow(seq_t base, seq_t exp); */
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* cache of found terms */
 static seq_t *cache   = NULL;      /* allocated terms */
@@ -43,7 +59,7 @@ static bool is_perfect_power(seq_t s)
     for (int e = 2; ; ++e)
     {
         seq_t exp = (seq_t)e;
-        seq_t pow2 = big_pow((seq_t)2, exp);
+        seq_t pow2 = ipow((seq_t)2, exp);
         if (pow2 > s) break;               /* no larger exponent possible */
 
         /* Binary search for a base a such that a^e == s. */
@@ -53,7 +69,7 @@ static bool is_perfect_power(seq_t s)
         /* Find high such that high^e > s */
         while (1)
         {
-            seq_t ph = big_pow(high, exp);
+            seq_t ph = ipow(high, exp);
             if (ph > s) break;
             high <<= 1;                    /* double high */
         }
@@ -62,7 +78,7 @@ static bool is_perfect_power(seq_t s)
         while (low <= high)
         {
             seq_t mid = (low + high) >> 1;
-            seq_t ph  = big_pow(mid, exp);
+            seq_t ph  = ipow(mid, exp);
             if (ph == s) return true;      /* perfect power found */
             if (ph < s)   low  = mid + 1;
             else          high = mid - 1;
@@ -92,7 +108,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) return 0;  /* allocation failure */
                 cache = new_cache;
                 cache_cap = new_cap;

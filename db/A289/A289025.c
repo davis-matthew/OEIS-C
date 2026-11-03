@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 9603, u16 n <= 9603, u32 n <= 9603, u64 n <= 9603,
- *            u128 n <= 9603, big any n
- * Helpers:   none
+ * Range:     u8 n <= 35313, u16 n <= 35313, u32 n <= 35313, u64 n <= 35313,
+ *            u128 n <= 35313, big any n
+ * Validated: standard, pass, 102 terms through n = 9603 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 /* Include required headers */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The required function */
 seq_t a(idx_t n)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 
     /* Initialise */
     if (cur == NULL) {
-        cur = (seq_t *)malloc((size_t)(2) * sizeof(seq_t));
+        cur = mem_new(seq_t, (size_t)(2));
         cur[0] = 0;
         cur[1] = 0;
         cur_len = 2;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         /* Build next iterate */
         idx_t new_len = 0;
         /* At most twice as long as cur (worst case) */
-        seq_t *next = (seq_t *)malloc((size_t)(cur_len * 2 + 2) * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, (size_t)(cur_len * 2 + 2));
 
         for (idx_t i = 0; i + 1 < cur_len; i += 2) {
             seq_t a = cur[i];
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
             next[new_len++] = cur[cur_len - 1];
 
         /* Rotate buffers */
-        if (prev) free(prev);
+        if (prev) mem_free(prev);
         prev     = cur;
         prev_len = cur_len;
         cur      = next;

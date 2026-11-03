@@ -11,7 +11,8 @@
  *            increasing order and memoizes already computed terms
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   alt9
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,33 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alt9.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a number satisfies the alternating rule. */
+static bool alt9(seq_t x)
+{
+    if (x == 0) return true;          /* 0 is allowed */
+
+    /* Extract base‑9 digits (least significant first). */
+    uint8_t buf[64];
+    int len = 0;
+    while (x > 0) {
+        buf[len++] = (uint8_t)(x % 9);
+        x /= 9;
+    }
+
+    /* Check alternating inequalities from most significant side. */
+    for (int j = 0; j < len - 1; ++j) {
+        uint8_t hi = buf[len - 1 - j];
+        uint8_t lo = buf[len - 2 - j];
+        if ((j & 1) == 0) {          /* even j: hi > lo */
+            if (!(hi > lo)) return false;
+        } else {                     /* odd j: hi < lo */
+            if (!(hi < lo)) return false;
+        }
+    }
+    return true;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -37,7 +64,7 @@ seq_t a(idx_t n)
     while (size < n) {
         if (cache == NULL || size >= cap) {
             size_t new_cap = (cap == 0) ? 64 : cap * 2;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(EXIT_FAILURE);   /* allocation failure */
             cache = tmp;
             cap   = new_cap;

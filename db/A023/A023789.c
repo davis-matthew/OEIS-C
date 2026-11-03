@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 104, u32 n <= 127, u64 n <= 127,
  *            u128 n <= 127, big any n
- * Helpers:   none
+ * Validated: full, pass, 127 terms through n = 127 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    store them in ascending order, and return the (n‑1)th element (1‑based) */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (!cache_ready) {
         /* There are 2^7 - 1 = 127 non‑empty subsets of {0,…,6} */
         cache_size = (1ULL << 7) - 1;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;      /* allocation failure – unlikely for tiny size */
 
         size_t pos = 0;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
             cache[pos++] = val;
         }
 
-        qsort(cache, cache_size, sizeof(seq_t), cmp_seq);
+        mem_qsort(cache, cache_size, sizeof(seq_t), cmp_seq);
         cache_ready = true;
     }
 

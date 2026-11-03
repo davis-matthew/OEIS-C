@@ -13,11 +13,13 @@
  *            536, a(8) = 1549, a(9) = 4513, a(10) = 13980, a(...
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 39, u128 n <= 76,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 205 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stdint.h>
 #ifdef __cplusplus
 #include <vector>

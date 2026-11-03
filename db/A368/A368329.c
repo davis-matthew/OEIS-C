@@ -9,14 +9,17 @@
  *            ≤ p, a(p^e) = p^e if e > p
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 101 terms through n = 8776 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
         uint64_t e = exps[i];
         if (e > p) {
             seq_t p_seq = (seq_t)p;
-            seq_t pe = big_pow(p_seq, (seq_t)e);
+            seq_t pe = ipow(p_seq, (seq_t)e);
             result *= pe;
         }
     }

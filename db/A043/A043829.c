@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 1660 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * of k is congruent to 1 (mod 4).  The function returns the nth term of this
  * sequence (a(1) is the first listed value). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for already generated terms */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* Expand cache memory if needed */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0; /* allocation failed – return 0 as safe value   */
     }
 
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
             /* Ensure cache has space for a new element */
             if (cache_size >= cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return 0;  /* allocation failed */
                 cache = tmp;
                 cache_cap = new_cap;

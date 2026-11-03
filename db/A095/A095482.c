@@ -8,6 +8,7 @@
  *            n and interpreting the resulting digits as a decimal integer.
  *            For n = 1 the base‑1 representation consists of 45 ones (111…1)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

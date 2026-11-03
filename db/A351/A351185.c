@@ -9,7 +9,8 @@
  *            a(n-k-2) (n ≥ 2)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 22, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Sequence A351185 */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n) {
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     if (cache_sz < need) {
         size_t new_sz = cache_sz ? cache_sz << 1 : 1;
         while (new_sz < need) new_sz <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         cache = tmp;
         cache_sz = new_sz;
     }

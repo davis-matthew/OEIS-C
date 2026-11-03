@@ -7,8 +7,9 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = 2 if the row index r such that r(r+1)/2 ≥ n is prime, 1
  *            otherwise
- * Range:     u8 n <= 9829, u16 n <= 9829, u32 n <= 9829, u64 n <= 9829,
- *            u128 n <= 9829, big any n
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 82 terms through n = 9829 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

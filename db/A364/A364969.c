@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache: 1‑indexed.  cache[0] is unused. */
 static seq_t *cache = NULL;      /* array of computed values */
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t needed)
 
     idx_t new_size = needed + 1;          /* include index 0 */
     /* Allocate new memory */
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * (size_t)new_size);
+    seq_t *new_cache = mem_new(seq_t, (size_t)new_size);
     if (!new_cache) {
         /* Allocation failed – abort as the sequence cannot be computed */
         abort();
@@ -52,7 +54,7 @@ static void ensure_cache(idx_t needed)
 
     /* Free old cache if it existed */
     if (cache != NULL)
-        free(cache);
+        mem_free(cache);
 
     cache      = new_cache;
     cache_size = new_size;

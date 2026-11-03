@@ -11,7 +11,8 @@
  *            terms. Write term m as sum C[m][i]*d_i. For each k an...
  * Range:     u8 n <= 6, u16 n <= 19, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   kgcd, u128_to_seq
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,20 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/kgcd.h"
+#include <stdint.h>
+#include "../utils/gcd_i32.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 typedef unsigned __int128 ku128;
 typedef __int128 ki128;
@@ -45,7 +58,7 @@ static void kl_push(ku128 v) {
 static void ks_found(void) {
     int g = 0, i;
     ku128 v = 0;
-    for (i = 0; i < ks_k; i++) g = kgcd(g, ks_d[i]);
+    for (i = 0; i < ks_k; i++) g = gcd_i32(g, ks_d[i]);
     if (g != 1) return;
     for (i = 0; i < ks_k; i++) v = v * 10 + (ku128)ks_d[i];
     kl_push(v);

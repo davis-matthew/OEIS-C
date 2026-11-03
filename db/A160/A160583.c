@@ -9,13 +9,15 @@
  *            a(4)=2041, a(5)=2605, a(6)=3329
  * Range:     u8 none, u16 n <= 9, u32 n <= 29, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     if (n > cache_size) {
         /* Grow the cache array to hold indices 1..n */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp)                         /* allocation failed – unlikely */
             return (seq_t)0;
         cache = tmp;

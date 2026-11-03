@@ -6,9 +6,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 58, u16 n <= 9638, u32 n <= 9638, u64 n <= 9638,
- *            u128 n <= 9638, big any n
- * Helpers:   is_palindrome, reverse_in_base
+ * Range:     u8 n <= 58, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 103 terms through n = 9638 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,20 @@
    yields a palindrome in base b.  By definition a(n) always exists and is ≤ 2·n−1. */
 
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
-#include "../utils/reverse_in_base.h"
+#include "../utils/is_palindrome_base.h"
+
+/* Reverse the digits of n in the given base. */
+static inline seq_t reverse_in_base(seq_t n, seq_t base)
+{
+    seq_t rev = 0;
+    while (n > 0)
+    {
+        seq_t digit = n % base;
+        rev = rev * base + digit;
+        n   = n / base;
+    }
+    return rev;
+}
 
 /* External linkage as required. */
 seq_t a(idx_t n)
@@ -33,7 +46,7 @@ seq_t a(idx_t n)
     {
         const seq_t rev  = reverse_in_base(n_seq, (seq_t)b);
         const seq_t sum  = n_seq + rev;
-        if (is_palindrome(sum, b))
+        if (is_palindrome_base(sum, b))
             return (seq_t)b;
     }
 

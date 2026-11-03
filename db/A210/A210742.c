@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 */
 
 #include <stdlib.h>    /* malloc, free, realloc */
+#include "../utils/mem.h"
 
 static seq_t *flat  = NULL;   /* flattened coefficients */
 static size_t  flat_len = 0;  /* number of terms stored */
@@ -42,7 +44,7 @@ ensure_flat_capacity(size_t needed)
     if (needed > flat_cap) {
         size_t new_cap = flat_cap ? flat_cap * 2 : 4;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(flat, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, flat, new_cap);
         flat = tmp;
         flat_cap = new_cap;
     }
@@ -55,8 +57,8 @@ seq_t a(idx_t n)
     /* Initial row (n = 1) */
     if (cur_len == 0) {
         const size_t init_len = 1;
-        u = (seq_t *)malloc(init_len * sizeof(seq_t));
-        v = (seq_t *)malloc(init_len * sizeof(seq_t));
+        u = mem_new(seq_t, init_len);
+        v = mem_new(seq_t, init_len);
         u[0] = 1;
         v[0] = 1;
 
@@ -70,8 +72,8 @@ seq_t a(idx_t n)
     while (flat_len < (size_t)target) {
         size_t next_len = cur_len + 1;
 
-        seq_t *u_next = (seq_t *)malloc(next_len * sizeof(seq_t));
-        seq_t *v_next = (seq_t *)malloc(next_len * sizeof(seq_t));
+        seq_t *u_next = mem_new(seq_t, next_len);
+        seq_t *v_next = mem_new(seq_t, next_len);
 
         /* k = 0 */
         u_next[0] = 1;
@@ -99,8 +101,8 @@ seq_t a(idx_t n)
         flat_len += next_len;
 
         /* Advance to the next row: free old arrays and store new ones. */
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         u = u_next;
         v = v_next;
         cur_len = next_len;

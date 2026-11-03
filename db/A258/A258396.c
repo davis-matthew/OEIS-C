@@ -9,7 +9,8 @@
  *            n)/(n+1) * S(n,k) = k*S(n-1,k)+S(n-1,k-1) with S(0,0)=1
  * Range:     u8 none, u16 n <= 8, u32 n <= 11, u64 n <= 17, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 629 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Computes the A258396 sequence values. */
 
 #include <stdlib.h>    /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *cat_tbl = NULL;              /* Catalan numbers: cat_tbl[i] = C_i */
 static idx_t  cat_max = 0;                 /* largest n with C_n computed */
@@ -33,14 +35,13 @@ static void ensure_catalan(idx_t n)
     seq_t *ptr = cat_tbl;
 
     if (ptr == NULL) {                     /* initial allocation */
-        ptr = (seq_t *)malloc(new_len * sizeof(seq_t));
+        ptr = mem_new(seq_t, new_len);
         if (!ptr) abort();
         seq_t zero = 0;
         for (size_t i = 0; i < new_len; ++i) ptr[i] = zero;
         ptr[0] = 1;                        /* C_0 = 1 */
     } else if (new_len > old_len) {        /* grow the array */
-        ptr = (seq_t *)realloc(ptr,
-               new_len * sizeof(seq_t));
+        ptr = mem_resize(seq_t, ptr, new_len);
         if (!ptr) abort();
         seq_t zero = 0;
         for (size_t i = old_len; i < new_len; ++i) ptr[i] = zero;
@@ -66,14 +67,13 @@ static void ensure_stirling(idx_t n)
     seq_t *ptr = st_tbl;
 
     if (ptr == NULL) {                     /* initial allocation */
-        ptr = (seq_t *)malloc(new_len * sizeof(seq_t));
+        ptr = mem_new(seq_t, new_len);
         if (!ptr) abort();
         seq_t zero = 0;
         for (size_t i = 0; i < new_len; ++i) ptr[i] = zero;
         ptr[0] = 1;                        /* S(0,0) = 1 */
     } else if (new_len > old_len) {         /* grow the table */
-        ptr = (seq_t *)realloc(ptr,
-               new_len * sizeof(seq_t));
+        ptr = mem_resize(seq_t, ptr, new_len);
         if (!ptr) abort();
         seq_t zero = 0;
         for (size_t i = old_len; i < new_len; ++i) ptr[i] = zero;

@@ -10,12 +10,14 @@
  *            b(k)=b(k-1)+b(k-2)+b(k-3)+b(k-4) for k≥1
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 33, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for computed terms */
 static seq_t *a_cache = NULL;   /* a[0..a_cap-1] */
@@ -32,8 +34,8 @@ static void ensure_capacity(idx_t n)
     idx_t new_cap = n + 1;
 
     /* Reallocate the arrays.  realloc handles NULL pointers. */
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-    b_cache = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
+    b_cache = mem_resize(seq_t, b_cache, new_cap);
 
     /* Compute missing b values using its 4‑term recurrence. */
     for (idx_t i = b_cap; i < new_cap; ++i) {

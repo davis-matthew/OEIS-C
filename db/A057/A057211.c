@@ -9,13 +9,14 @@
  *            (1-(-1)^round(sqrt(2*n)))/2)
  * Range:     u8 n <= 7875, u16 n <= 7875, u32 n <= 7875, u64 n <= 7875,
  *            u128 n <= 7875, big any n
- * Helpers:   floor_sqrt_uint128
+ * Validated: standard, pass, 121 terms through n = 6518 (2026-11-01)
+ * Helpers:   isqrt_i128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_sqrt_uint128.h"
+#include "../utils/isqrt_i128.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;  /* offset is 1; value below offset is undefined */
@@ -24,7 +25,7 @@ seq_t a(idx_t n) {
     __int128 t = (__int128)n << 1;
 
     /* floor sqrt of t */
-    uint64_t k = floor_sqrt_uint128(t);
+    uint64_t k = isqrt_i128(t);
 
     /* determine rounded sqrt: round up if t > k*k + k */
     __int128 kk = (__int128)k * k;

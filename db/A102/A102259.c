@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (buf == NULL) {
         cap = 64;
-        buf = (seq_t *)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         if (buf == NULL) return (seq_t)0;      /* Out‑of‑memory guard */
         buf[0] = (seq_t)5;   /* a(1) */
         len  = 1;
@@ -50,14 +52,14 @@ seq_t a(idx_t n)
         if (prod < (seq_t)10) {
             if (len + 1 > cap) {
                 cap <<= 1;
-                buf = (seq_t *)realloc(buf, cap * sizeof(seq_t));
+                buf = mem_resize(seq_t, buf, cap);
                 if (buf == NULL) return (seq_t)0;
             }
             buf[len++] = prod;
         } else { /* 10 <= prod <= 18 */
             if (len + 2 > cap) {
                 cap <<= 1;
-                buf = (seq_t *)realloc(buf, cap * sizeof(seq_t));
+                buf = mem_resize(seq_t, buf, cap);
                 if (buf == NULL) return (seq_t)0;
             }
             buf[len++]     = prod / (seq_t)10; /* most significant digit */

@@ -9,7 +9,8 @@
  *            occurs
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 48,
  *            big any n
- * Helpers:   copy_matrix, zero_matrix
+ * Validated: standard, pass, 42 terms through n = 241 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,21 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/copy_matrix.h"
-#include "../utils/zero_matrix.h"
+#include "../utils/mem.h"
+
+/* Helper to copy a 7x7 matrix */
+static void copy_matrix(seq_t dest[7][7], const seq_t src[7][7]) {
+    for (int i = 0; i < 7; ++i)
+        for (int j = 0; j < 7; ++j)
+            dest[i][j] = src[i][j];
+}
+
+/* Helper to set all elements of a 7x7 matrix to zero */
+static void zero_matrix(seq_t m[7][7]) {
+    for (int i = 0; i < 7; ++i)
+        for (int j = 0; j < 7; ++j)
+            m[i][j] = 0;
+}
 
 /* The caller supplies seq_t and idx_t.  We use seq_t for arithmetic. */
 static seq_t *cache = NULL;          /* memoised a(n) values */
@@ -45,7 +59,7 @@ seq_t a(idx_t n) {
     if (cache_len == 0) {
         size_t init_cap = 16;
         if (init_cap < 3) init_cap = 3;
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (!cache) return (seq_t)0;        /* allocation failed – behaviour undefined */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)7;
@@ -66,7 +80,7 @@ seq_t a(idx_t n) {
         size_t new_cap = cache_len * 2;
         if (new_cap == 0) new_cap = 16;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return (seq_t)0;   /* allocation failed */
         cache = new_cache;
     }

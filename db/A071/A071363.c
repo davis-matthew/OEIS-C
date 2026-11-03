@@ -8,18 +8,21 @@
  *            strictly
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   is_prime_uint64
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/is_prime_u64.h"
 
 static bool dfs(int idx, int last, int n, uint64_t val, seq_t *best)
 {
     if (idx == n) {
-        if (is_prime_uint64(val)) {
+        if (is_prime_u64(val)) {
             *best = (seq_t)val;
             return true;
         }

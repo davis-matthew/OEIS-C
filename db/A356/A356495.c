@@ -10,14 +10,17 @@
  *            a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   binomial, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* Ensure array large enough for 'needed' elements. */
 static void grow_if_needed(size_t needed, size_t *cap, seq_t **arr)
@@ -25,7 +28,7 @@ static void grow_if_needed(size_t needed, size_t *cap, seq_t **arr)
     if (needed > *cap) {
         size_t new_cap = (*cap) ? (*cap) * 2 : 16;
         if (new_cap < needed) new_cap = needed;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
 
     /* --- ensure factorial array up to n ----------------------------------- */
     if (fact == NULL) {
-        fact      = (seq_t *)malloc(sizeof(seq_t));
+        fact      = mem_new(seq_t, 1);
         fact_cap  = 1;
         fact[0]   = 1;
         fact_max  = 0;
@@ -63,7 +66,7 @@ seq_t a(idx_t n)
 
     /* --- compute A354892(k) for k up to n ------------------------------- */
     if (wcache == NULL) {
-        wcache    = (seq_t *)malloc(sizeof(seq_t));
+        wcache    = mem_new(seq_t, 1);
         w_cap     = 1;
         wcache[0] = 0;
         w_max     = 0;
@@ -77,12 +80,12 @@ seq_t a(idx_t n)
                     idx_t d2 = k / d;
                     /* divisor d */
                     seq_t mult1 = fact[k] / fact[d2];
-                    seq_t pow1  = seq_pow((seq_t)d,  k);
+                    seq_t pow1  = ipow_idx((seq_t)d,  k);
                     wk += mult1 * pow1;
                     if (d2 != d) {
                         /* paired divisor d2 */
                         seq_t mult2 = fact[k] / fact[d];
-                        seq_t pow2  = seq_pow((seq_t)d2, k);
+                        seq_t pow2  = ipow_idx((seq_t)d2, k);
                         wk += mult2 * pow2;
                     }
                 }
@@ -94,7 +97,7 @@ seq_t a(idx_t n)
 
     /* --- compute a[i] for i up to n ------------------------------------- */
     if (acache == NULL) {
-        acache = (seq_t *)malloc(sizeof(seq_t));
+        acache = mem_new(seq_t, 1);
         acap   = 1;
         acache[0] = 1;  /* a(0) */
         amax     = 0;

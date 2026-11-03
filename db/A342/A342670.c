@@ -11,17 +11,31 @@
  *            A064989 is multiplicative with A064989(2^e)=1 and
  *            A064989(p^e)=prevprime(p)^e for odd primes p. sigma(x) is the
  *            sum of the divisors of x
- * Range:     u8 n <= 18, u16 n <= 869, u32 n <= 8431, u64 n <= 8431,
- *            u128 n <= 8431, big any n
- * Helpers:   big_pow, factor_u64, gcd, prev_prime
+ * Range:     u8 n <= 18, u16 n <= 869, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 111 terms through n = 8431 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"
-#include "../utils/prev_prime.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow.h"
+#include "../utils/is_prime.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 /* Compute σ(k) for k <= 2^64-1 using multiplicative formula */
 static seq_t sigma_u64(idx_t k)
@@ -35,7 +49,7 @@ static seq_t sigma_u64(idx_t k)
     for (size_t i = 0; i < cnt; ++i) {
         seq_t p = (seq_t)primes[i];
         idx_t e = exps[i];
-        seq_t num = big_pow(p, (seq_t)(e + 1)) - 1;
+        seq_t num = ipow(p, (seq_t)(e + 1)) - 1;
         seq_t den = p - 1;
         seq_t sigma_p = num / den;          /* exact division */
         result *= sigma_p;
@@ -56,7 +70,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < cnt; ++i) {
             if (primes[i] == 2) continue;    /* skip power of 2 */
             seq_t base = (seq_t)prev_prime(primes[i]);
-            seq_t term = big_pow(base, (seq_t)exps[i]);
+            seq_t term = ipow(base, (seq_t)exps[i]);
             a064989 *= term;
         }
     }

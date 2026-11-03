@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 75, u16 n <= 8864, u32 n <= 9095, u64 n <= 9095,
- *            u128 n <= 9095, big any n
- * Helpers:   derivative_of_div
+ * Range:     u8 n <= 75, u16 n <= 8864, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 87 terms through n = 9095 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,18 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/derivative_of_div.h"
+#include "../utils/mem.h"
+
+/* derivative for squarefree value using list of primes of its parent k */
+static uint64_t derivative_of_div(uint64_t val, uint64_t *k_primes, size_t k_cnt)
+{
+    uint64_t sum = 0;
+    for (size_t i = 0; i < k_cnt; ++i) {
+        uint64_t p = k_primes[i];
+        if (val % p == 0) sum += val / p;
+    }
+    return sum;
+}
 
 static uint64_t *primes = NULL;     /* list of primes for factoring and radix */
 static size_t primes_cnt = 0;
@@ -171,7 +183,7 @@ seq_t a(idx_t n)
         if (ok) {
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
                 if (!seq) abort();
             }
             seq[seq_len++] = (seq_t)k;

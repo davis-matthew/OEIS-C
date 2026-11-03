@@ -11,6 +11,7 @@
  *            - t_r (0 ≤ k ≤ r). Then if (r-k) is odd :...
  * Range:     i8 n <= 22, i16 n <= 56, i32 n <= 211, i64 n <= 563,
  *            i128 n <= 1544, big any n
+ * Validated: standard, pass, 94 terms through n = 9216 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

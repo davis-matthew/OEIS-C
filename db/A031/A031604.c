@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 35, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root (floor) for 64‑bit unsigned integers */
 static uint64_t isqrt_u64(uint64_t n)
@@ -71,7 +73,7 @@ static void ensure_results_cap(size_t need)
     if (need <= results_cap) return;
     size_t new_cap = results_cap ? results_cap << 1 : 64;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, results, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     results = tmp;
     results_cap = new_cap;

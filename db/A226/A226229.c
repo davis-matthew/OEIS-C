@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 476, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 71 terms through n = 978 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Return true if all run–lengths of the binary representation of m
    are prime numbers. */
@@ -36,7 +38,7 @@ static bool satisfies(seq_t m)
             ++len;
         }
 
-        if (!is_prime_small((seq_t)len))
+        if (!is_prime_seq((seq_t)len))
             return false;
     }
     return true;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         /* grow the cache if necessary */
         if (sz + 1 > cap) {
             size_t newcap = cap ? cap << 1 : 64;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp)   /* abort on allocation failure */
                 abort();
             cache = tmp;

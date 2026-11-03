@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 27, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
- *            big any n
- * Helpers:   estimate_prime_upper_bound, is_prime
+ * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 75 terms through n = 958 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_prime.h"
-#include "../utils/estimate_prime_upper_bound.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/is_prime_u64.h"
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 /* static storage for the list of primes */
 static idx_t *prime_list = NULL;   /* array of primes, 0‑based */
@@ -80,7 +92,7 @@ static bool
 dfs(int freq[10], int rem, idx_t cur, idx_t *result)
 {
     if (rem == 0) {
-        if (is_prime(cur)) {
+        if (is_prime_u64(cur)) {
             *result = cur;
             return true;
         }

@@ -12,12 +12,14 @@
  *            expands the cache lazily
  * Range:     u8 n <= 24, u16 n <= 396, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* memoised values */
 static idx_t cache_size   = 0;     /* current allocated length */
@@ -28,7 +30,7 @@ static void init_cache(void)
 {
     /* We always allocate at least 8 elements for the first run. */
     cache_size = 8;
-    cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_size);
     /* Base terms */
     cache[0] = (seq_t)0;
     cache[1] = (seq_t)2;
@@ -50,7 +52,7 @@ static void grow_cache(idx_t n)
         new_size <<= 1;                 /* double each step */
         if (new_size <= n) new_size = n + 1;
     }
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     /* initialise the freshly allocated tail to zero – it will be overwritten
        by the recurrence during the next computation. */
     for (idx_t i = cache_size; i < new_size; ++i) cache[i] = (seq_t)0;

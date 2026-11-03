@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 653, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   factor_u64, sigma_of
+ * Validated: standard, pass, 72 terms through n = 2982 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,25 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/sigma_of.h"
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static seq_t *cache = NULL;      /* array of found terms */
 static size_t cache_len  = 0;    /* number of stored terms */
@@ -59,9 +77,9 @@ static void grow_cache(size_t needed)
     if (new_cap == 0)
         new_ptr = NULL;
     else if (cache == NULL)
-        new_ptr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        new_ptr = mem_new(seq_t, new_cap);
     else
-        new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        new_ptr = mem_resize(seq_t, cache, new_cap);
     cache = new_ptr;
     cache_cap = new_cap;
 }

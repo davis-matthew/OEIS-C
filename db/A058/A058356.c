@@ -12,13 +12,15 @@
  *            the series (1+∑_{p prime} p x^p) / (1−x−∑_{c composite} c x^c)
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for computed sequence values */
 static seq_t *cache = NULL;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
 {
     /* Initialise cache for a(0). */
     if (cache_size == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();
         cache[0] = 1;  /* a(0) = 1 (N_0) */
         cache_size = 1;
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
 
     /* Extend cache up to n. */
     if (n >= cache_size) {
-        seq_t *newcache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *newcache = mem_resize(seq_t, cache, (n + 1));
         if (!newcache) abort();
         cache = newcache;
 

@@ -9,7 +9,8 @@
  *            root and groups them three at a time into octal digits
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sq_shl
+ * Validated: standard, pass, 103 terms through n = 9389 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/sq_shl.h"
+
+static void sq_shl(uint32_t *A, size_t w, unsigned s) {
+    size_t i;
+    for (i = w; i-- > 0;) {
+        uint32_t lo = i ? (A[i - 1] >> (32 - s)) : 0;
+        A[i] = (A[i] << s) | lo;
+    }
+}
 
 static uint32_t *sq_Y = NULL, *sq_R = NULL, *sq_T = NULL;
 static size_t sq_cap = 0;          /* words allocated in each buffer */

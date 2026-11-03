@@ -11,13 +11,15 @@
  *            2^(p+1)
  * Range:     u8 n <= 15, u16 n <= 48, u32 n <= 126, u64 n <= 504,
  *            u128 n <= 3081, big any n
- * Helpers:   floor_log2
+ * Validated: standard, pass, 58 terms through n = 8127 (2026-11-03)
+ * Helpers:   ilog2_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/floor_log2.h"
+#include "../utils/ilog2_idx.h"
+#include "../utils/mem.h"
 
 /* Helper: floor(log2(x)) for x>0 */
 
@@ -29,7 +31,7 @@ static void ensure_capacity(idx_t n)
 {
     if (n <= cached_size) return;
     idx_t new_size = n;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) exit(EXIT_FAILURE);      /* allocation failed */
     cache = tmp;
     cached_size = new_size;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         else
         {
             idx_t k = i - 1;                     /* n - 1   */
-            idx_t p = floor_log2(k - 1);         /* 2^p < k <= 2^(p+1) */
+            idx_t p = ilog2_idx(k - 1);         /* 2^p < k <= 2^(p+1) */
             idx_t pow = ((idx_t)1 << (p + 1));   /* 2^(p+1) */
             idx_t m = 2 * i - 2 - pow;           /* 2*n - 2 - 2^(p+1) */
 

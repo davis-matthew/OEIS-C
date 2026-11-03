@@ -10,7 +10,8 @@
  *            4n+2 = 2 * (2n+1)
  * Range:     i8 n <= 104, i16 n <= 104, i32 n <= 104, i64 n <= 104,
  *            i128 n <= 104, big any n
- * Helpers:   partition_of_exp
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,28 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/partition_of_exp.h"
+
+/* Compute partition numbers for small k (k ≤ MAX_EXP-1).  */
+static seq_t partition_of_exp(idx_t e)
+{
+    /* Exponents for n ≲ 10⁴ never exceed 9, but a generous bound is used. */
+#define MAX_EXP 128
+    static seq_t dp[MAX_EXP];
+    if (e >= MAX_EXP) {
+        /* Sanity: the exponent is too large; in practice this never happens.
+           Return 1 as a safe default. */
+        return 1;
+    }
+    /* Reset dp[0..e] to 0, then set dp[0] = 1. */
+    for (idx_t i = 0; i <= e; ++i)
+        dp[i] = 0;
+    dp[0] = 1;
+    for (idx_t i = 1; i <= e; ++i) {
+        for (idx_t j = i; j <= e; ++j)
+            dp[j] += dp[j - i];
+    }
+    return dp[e];
+}
 
 seq_t a(idx_t n)
 {

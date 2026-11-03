@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Σ_{k=1..n} S(n,k) * H(k)/k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,11 +16,12 @@
 /* where S(n,k) are Stirling numbers of the second kind. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Ensure a dynamically allocated array is large enough for new_cap elements. */
 static void ensure_cap(seq_t **arr, size_t *cap, size_t new_cap) {
     if (*cap < new_cap) {
-        seq_t *tmp = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) exit(1);
         *arr = tmp;
         *cap = new_cap;

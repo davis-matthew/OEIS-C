@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* positions array */
         pos_cap = 16;
-        pos_arr = (seq_t *)malloc(pos_cap * sizeof(seq_t));
+        pos_arr = mem_new(seq_t, pos_cap);
         pos_len = 0;
 
         /* seen‑array for gaps */
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
                 size_t new_cap = gap * 2 + 1;
                 bool *tmp = (bool *)realloc(diff_seen, new_cap * sizeof(bool));
                 if (!tmp) { /* allocation failure: abort */
-                    free(pos_arr);
+                    mem_free(pos_arr);
                     free(diff_seen);
                     abort();
                 }
@@ -103,9 +105,9 @@ seq_t a(idx_t n)
                 /* store its run‑index position */
                 if (pos_len == pos_cap) {
                     size_t new_cap = pos_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(pos_arr, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, pos_arr, new_cap);
                     if (!tmp) { /* allocation failure: abort */
-                        free(pos_arr);
+                        mem_free(pos_arr);
                         free(diff_seen);
                         abort();
                     }

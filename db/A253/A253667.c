@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 65, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* linear storage for the square array T(0..N,0..N) */
 static seq_t *grid = NULL;     /* NULL until first allocation */
@@ -39,11 +41,11 @@ static void extend_grid(idx_t new_size)
 {
     /* free old array if any */
     if (grid != NULL)
-        free(grid);
+        mem_free(grid);
 
     /* allocate new array */
     idx_t dim = new_size + 1;
-    grid = (seq_t *)malloc((size_t)dim * (size_t)dim * sizeof(seq_t));
+    grid = mem_new(seq_t, (size_t)dim * (size_t)dim);
     if (grid == NULL)
         exit(1);  /* allocation failed */
 

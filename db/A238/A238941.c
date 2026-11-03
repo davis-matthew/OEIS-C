@@ -13,7 +13,8 @@
  *            index k = n - m*(m+1)/2. The function * memoises the fille...
  * Range:     u8 n <= 28, u16 n <= 79, u32 n <= 277, u64 n <= 953,
  *            u128 n <= 3583, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 4651 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Determine row m and column k from linear index n */
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
         /* Compute required rows up to m */
         idx_t needed_rows = m;                      /* rows 0..m inclusive */
         idx_t new_total = ((unsigned __int128)needed_rows + 1) * (needed_rows + 2) / 2;
-        seq_t *newptr = (seq_t *)realloc(tri, new_total * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, tri, new_total);
         if (!newptr) abort();
         tri = newptr;
         idx_t start_row = initialized ? max_row + 1 : 0;

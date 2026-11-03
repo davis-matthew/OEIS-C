@@ -12,6 +12,7 @@
  *            b(3)=67, b(4)=289, and for k ≥ 5: b(k) = 3*b(k-1) + 5*b(k...
  * Range:     i8 n <= 10, i16 n <= 22, i32 n <= 43, i64 n <= 91, i128 n <= 184,
  *            big any n
+ * Validated: standard, pass, 64 terms through n = 937 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,12 +9,14 @@
  *            representation)
  * Range:     u8 n <= 41, u16 n <= 4862, u32 n <= 4862, u64 n <= 4862,
  *            u128 n <= 4862, big any n
- * Helpers:   none
+ * Validated: standard, pass, 149 terms through n = 4237 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (!cat) {
         /* initial capacity */
         cat_cap = 16;
-        cat = (seq_t *)malloc(cat_cap * sizeof(seq_t));
+        cat = mem_new(seq_t, cat_cap);
         /* C0 = 1 */
         cat[0] = (seq_t)1;
         cat_len = 1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     while (cat_len > 0 && cat[cat_len - 1] <= n_seq) {
         if (cat_len >= cat_cap) {
             cat_cap <<= 1;
-            cat = (seq_t *)realloc(cat, cat_cap * sizeof(seq_t));
+            cat = mem_resize(seq_t, cat, cat_cap);
         }
         /* Compute next Catalan number: C_{k+1} = C_k * 2*(2*k+1) / (k+2) */
         idx_t k = cat_len - 1;                 /* current index of last computed C_k */

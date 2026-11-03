@@ -8,7 +8,8 @@
  *            number)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define LIMIT 200000  /* enough to cover n up to about 10000 */
 
@@ -46,7 +48,7 @@ static void init_nonprimes(void)
         if (!is_prime[i]) ++count;
     }
 
-    nonprimes = (seq_t *)malloc(count * sizeof(seq_t));
+    nonprimes = mem_new(seq_t, count);
     if (!nonprimes) { free(is_prime); return; }   /* allocation failure – give up */
     nonprimes_len = count;
 

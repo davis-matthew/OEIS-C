@@ -7,12 +7,14 @@
  * Formula:   a(n) = (1 - (-4)^n)/5
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 16, i64 n <= 32, i128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoization cache.  cache[1] corresponds to a(1).  */
 static seq_t *cache     = NULL;
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
     if (n >= cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : 8;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

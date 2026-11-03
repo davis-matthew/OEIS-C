@@ -12,13 +12,14 @@
  *            routine that matches * the standard 0‑indexed Fibo...
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   fib_u
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   fibonacci
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fib_u.h"
+#include "../utils/fibonacci.h"
 
 seq_t a(idx_t n)
 {
@@ -33,9 +34,9 @@ seq_t a(idx_t n)
     idx_t c = n - prefix;
 
     /* Compute the required Fibonacci values. */
-    seq_t fr = fib_u(r);
-    seq_t fc = fib_u(c);
-    seq_t frc = fib_u(r - c);
+    seq_t fr = fibonacci(r);
+    seq_t fc = fibonacci(c);
+    seq_t frc = fibonacci(r - c);
 
     /* According to the definition, the result is non‑negative. */
     return (seq_t)1 + fr - fc - frc;

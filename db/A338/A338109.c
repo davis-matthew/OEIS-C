@@ -9,6 +9,7 @@
  * Formula:   a(n) = 1 + 10*n + 31*n^2 + 18*n^3
  * Range:     u8 n <= 1, u16 n <= 14, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

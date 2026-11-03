@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 114, u16 n <= 125, u32 n <= 125, u64 n <= 125,
  *            u128 n <= 125, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 83 terms through n = 121 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;      /* array of sequence terms */
 static size_t seq_len = 0;
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
     if (seq == NULL) {   /* first call: build the whole list */
         /* capacity: 1000 > any expected number of terms (< 50) */
         const size_t CAP = 1000;
-        seq = (seq_t *)malloc(CAP * sizeof(seq_t));
+        seq = mem_new(seq_t, CAP);
         seq_len = 0;
         for (idx_t k = 1; k <= 904; ++k) {
             if (is_valid_k(k)) {

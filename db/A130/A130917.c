@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Digital root is computed as 1 + ((x-1)%9) for x>0, 0 for x==0 */
 
 #include <stdlib.h>   /* malloc, realloc, NULL, EXIT_FAILURE */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of computed a(n), 1‑based */
 static size_t  cap   = 0;        /* allocated capacity of cache */
@@ -34,7 +36,7 @@ static void grow_cache(size_t needed)
     if (cap >= needed) return;
     size_t newcap = cap ? cap * 2 : 1;
     while (newcap < needed) newcap *= 2;
-    seq_t *newp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, newcap);
     if (!newp) {
         /* Allocation failed – terminate program (allowed for this helper). */
         exit(EXIT_FAILURE);

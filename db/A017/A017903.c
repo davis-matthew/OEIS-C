@@ -10,12 +10,14 @@
  *            appearing only in runs whose length is a multiple of 9
  * Range:     u8 n <= 42, u16 n <= 70, u32 n <= 128, u64 n <= 243,
  *            u128 n <= 472, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     /* --- initialise --- */
     if (A == NULL) {
         capacity = 1;
-        A = (seq_t *)malloc(capacity * sizeof(seq_t));
-        P = (seq_t *)malloc(capacity * sizeof(seq_t));
+        A = mem_new(seq_t, capacity);
+        P = mem_new(seq_t, capacity);
         /* a(0)=1 ; prefix P(0)=1 */
         A[0] = (seq_t)1;
         P[0] = (seq_t)1;
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
     if (n + 1 > capacity) {
         /* grow capacity to at least n+1, doubling each time */
         while (capacity < n + 1) capacity *= 2;
-        A = (seq_t *)realloc(A, capacity * sizeof(seq_t));
-        P = (seq_t *)realloc(P, capacity * sizeof(seq_t));
+        A = mem_resize(seq_t, A, capacity);
+        P = mem_resize(seq_t, P, capacity);
     }
 
     /* --- compute values up to n --- */

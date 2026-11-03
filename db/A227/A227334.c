@@ -10,16 +10,19 @@
  *            class groups for each prime power divisor of n). a(1) = 1
  * Range:     u8 n <= 18, u16 n <= 262, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd, pow_uint
+ * Validated: standard, pass, 80 terms through n = 8368 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     /* a(1) = 1 */
@@ -40,11 +43,11 @@ seq_t a(idx_t n) {
         if (p == 2) {
             /* a(2^e) = 2^e (e≤2) or 2^(e-1) (e≥3) */
             if (e <= 2)
-                comp = pow_uint(2, e);
+                comp = ipow_u64_idx(2, e);
             else
-                comp = pow_uint(2, e - 1);
+                comp = ipow_u64_idx(2, e - 1);
         } else {
-            seq_t powpe_1 = pow_uint(p, e - 1);
+            seq_t powpe_1 = ipow_u64_idx(p, e - 1);
             if (p % 4 == 1) {
                 /* a(p^e) = (p-1)*p^(e-1) for p ≡ 1 (mod 4) */
                 comp = (seq_t)(p - 1) * powpe_1;

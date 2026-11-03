@@ -10,14 +10,15 @@
  *            (sum = row+col is constant)
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 37, u64 n <= 70, u128 n <= 158,
  *            big any n
- * Helpers:   big_pow, pow3
+ * Validated: standard, pass, 61 terms through n = 716 (2026-11-01)
+ * Helpers:   ipow, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n)
@@ -49,7 +50,7 @@ seq_t a(idx_t n)
     /* Exponent e = col-1. */
     idx_t exp = col - 1;
 
-    seq_t val = big_pow(base, (seq_t)exp); /* Compute base^exp */
+    seq_t val = ipow(base, (seq_t)exp); /* Compute base^exp */
     val += 2;
     val /= 3;
     return val;

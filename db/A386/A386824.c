@@ -8,13 +8,15 @@
  * Formula:   a(n) = denominator((nrow^2 - k^2)/(nrow^2 + k^2)), where
  *            (nrow,k) are the 1‑based row and 0‑based column indices of the
  *            n‑th element of the triangle read row‑by‑row
- * Range:     u8 n <= 77, u16 n <= 8197, u32 n <= 8197, u64 n <= 8197,
- *            u128 n <= 8197, big any n
+ * Range:     u8 n <= 77, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 82 terms through n = 8197 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

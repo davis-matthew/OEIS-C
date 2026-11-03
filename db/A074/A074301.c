@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 21, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   gpf, is_palindrome, rev_decimal
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   is_palindrome_base, largest_prime_factor, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,9 +29,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gpf.h"        /* uint64_t gpf(uint64_t x);          */
-#include "../utils/is_palindrome.h"  /* bool is_palindrome(seq_t, idx_t);  */
-#include "../utils/rev_decimal.h"    /* seq_t rev_decimal(seq_t);         */
+#include "../utils/is_palindrome_base.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 static const seq_t fact[10] = {1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880};
 
@@ -46,7 +48,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
     if (new_cap < need)
         new_cap = need;
-    void *tmp = realloc(terms, new_cap * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp)
         abort();                 /* malloc failure */
     terms = (seq_t *)tmp;
@@ -67,9 +69,9 @@ static bool is_valid_uint64(uint64_t n)
         return false;
 
     /* (i) largest prime factor is not a palindrome */
-    uint64_t lpf_val = gpf(n);                      /* greatest prime factor */
+    uint64_t lpf_val = largest_prime_factor(n);                      /* greatest prime factor */
     seq_t lpf = (seq_t)lpf_val;
-    if (is_palindrome(lpf, 10))
+    if (is_palindrome_base(lpf, 10))
         return false;
 
     /* (ii) sum of factorials of digits equals reverse(lpf) */
@@ -81,7 +83,7 @@ static bool is_valid_uint64(uint64_t n)
         t /= 10;
     }
 
-    seq_t rev_lpf = rev_decimal(lpf);
+    seq_t rev_lpf = reverse_digits(lpf);
     return sum == rev_lpf;
 }
 

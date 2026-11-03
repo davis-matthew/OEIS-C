@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 296, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   push_back
+ * Validated: standard, pass, 68 terms through n = 9665 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,20 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/push_back.h"
+#include "../utils/mem.h"
+
+/* push_back to a dynamic array of seq_t */
+static void push_back(seq_t **arr, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+    (*arr)[*len] = val;
+    ++(*len);
+}
 
 /* generate all palindromes of length L (L ≥ 2) and append the corresponding
  * positive k to the array *all.  Leading bit is 1. */
@@ -88,12 +102,12 @@ seq_t a(idx_t n)
 
         /* build the sorted unique array from 'all' */
         if (sorted)
-            free(sorted);
+            mem_free(sorted);
         sorted_cap = all_len;
-        sorted = (seq_t *)malloc(sorted_cap * sizeof(seq_t));
-        memcpy(sorted, all, all_len * sizeof(seq_t));
+        sorted = mem_new(seq_t, sorted_cap);
+        mem_copy(sorted, all, all_len * sizeof(seq_t));
 
-        qsort(sorted, all_len, sizeof(seq_t), seq_cmp);
+        mem_qsort(sorted, all_len, sizeof(seq_t), seq_cmp);
 
         /* deduplicate */
         size_t uniq = 0;

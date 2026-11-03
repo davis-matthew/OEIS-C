@@ -9,12 +9,14 @@
  *            A007018(n-1)*(A007018(n-1)+1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* cache of a(n) */
 static seq_t *b_cache = NULL;   /* cache of A007018(n) */
@@ -27,8 +29,8 @@ static void ensure_cache_size(size_t n) {
     size_t new_cap = cached_cap ? cached_cap : 16;
     while (new_cap <= n)
         new_cap <<= 1;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-    b_cache = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
+    b_cache = mem_resize(seq_t, b_cache, new_cap);
     cached_cap = new_cap;
 }
 

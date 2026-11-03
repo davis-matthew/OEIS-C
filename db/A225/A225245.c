@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1792, u16 n <= 2309, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 103 terms through n = 9037 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* NOTE: seq_t and idx_t are defined by the build system. */
 
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     /* Generate all squarefree divisors: one for each subset of the
        prime factors (including the empty subset -> 1). */
     size_t s = ((size_t)1) << nf;
-    seq_t *divs = (seq_t *)malloc(s * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, s);
     if (!divs) return 0;   /* allocation failure, unlikely */
 
     size_t i;
@@ -52,8 +55,8 @@ seq_t a(idx_t n)
     }
 
     /* Subset‑sum DP: count subsets summing to each value up to n. */
-    seq_t *dp = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    if (!dp) { free(divs); return 0; }
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
+    if (!dp) { mem_free(divs); return 0; }
 
     dp[0] = 1;
     for (i = 0; i < s; ++i) {
@@ -65,7 +68,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(divs);
-    free(dp);
+    mem_free(divs);
+    mem_free(dp);
     return result;
 }

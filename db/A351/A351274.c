@@ -8,14 +8,29 @@
  *            Stirling number of the first kind. a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Multiply-by-self exponentiation for big exponent (seq_t type) */
+static seq_t big_pow(seq_t base, seq_t exp) {
+    seq_t result = 1;
+    while (exp != 0) {
+        if ((exp % 2) != 0) {
+            result *= base;
+        }
+        base *= base;
+        exp /= 2;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     /* static caches for memoisation */
@@ -31,17 +46,17 @@ seq_t a(idx_t n) {
 
     /* initialise storage on first call */
     if (a_cache == NULL) {
-        a_cache   = (seq_t *)malloc(sizeof(seq_t));
+        a_cache   = mem_new(seq_t, 1);
         a_cache[0] = (seq_t)1;          /* a(0) = 1               */
         cache_size = 1;
 
-        pow_cache = (seq_t *)malloc(sizeof(seq_t));
+        pow_cache = mem_new(seq_t, 1);
         pow_cache[0] = (seq_t)1;        /* unused placeholder     */
         pow_size   = 1;
 
-        prev = (seq_t *)malloc(sizeof(seq_t));
+        prev = mem_new(seq_t, 1);
         prev[0] = (seq_t)1;            /* S1(0,0) = 1             */
-        curr = (seq_t *)malloc(sizeof(seq_t));
+        curr = mem_new(seq_t, 1);
         curr[0] = (seq_t)0;
         row_size   = 1;
 
@@ -53,7 +68,7 @@ seq_t a(idx_t n) {
         /* grow pow_cache to contain (2*k)^k for k=1..n */
         if (pow_size <= n) {
             size_t new_size = (size_t)(n + 1);
-            pow_cache = (seq_t *)realloc(pow_cache, new_size * sizeof(seq_t));
+            pow_cache = mem_resize(seq_t, pow_cache, new_size);
             for (size_t k = pow_size; k < new_size; ++k) {
                 seq_t base = (seq_t)(2 * k);
                 seq_t exp  = (seq_t)k;
@@ -65,8 +80,8 @@ seq_t a(idx_t n) {
         /* grow Stirling arrays if necessary */
         if (row_size <= n) {
             size_t new_size = (size_t)(n + 1);
-            prev = (seq_t *)realloc(prev, new_size * sizeof(seq_t));
-            curr = (seq_t *)realloc(curr, new_size * sizeof(seq_t));
+            prev = mem_resize(seq_t, prev, new_size);
+            curr = mem_resize(seq_t, curr, new_size);
             for (size_t i = row_size; i < new_size; ++i) {
                 prev[i] = (seq_t)0;
                 curr[i] = (seq_t)0;
@@ -77,7 +92,7 @@ seq_t a(idx_t n) {
         /* grow a_cache */
         if (cache_size <= n) {
             cache_size = (size_t)(n + 1);
-            a_cache = (seq_t *)realloc(a_cache, cache_size * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, cache_size);
         }
 
         /* compute a(i) for each i up to n */

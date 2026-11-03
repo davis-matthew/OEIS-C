@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n+1) = minimal integer m such that m is a multiple of a(n) and
    the decimal representation of m starts with (n+1). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Initialise cache when first called */
     if (cache == NULL) {
         cache_cap = 2;                          /* capacity for indices 0..1 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[1] = (seq_t)1;                    /* a(1) = 1 */
     }
 
@@ -35,11 +37,11 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         idx_t new_cap = cache_cap * 2;
         while (new_cap <= n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         /* copy existing data */
         for (idx_t i = 1; i <= cache_len; ++i)
             tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = tmp;
         cache_cap = new_cap;
     }

@@ -12,6 +12,7 @@
  *            a default constructor and operator+=). It allocate...
  * Range:     u8 n <= 167, u16 n <= 405, u32 n <= 1186, u64 n <= 4021,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 100 terms through n = 9605 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

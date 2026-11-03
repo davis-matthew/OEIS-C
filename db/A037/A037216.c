@@ -8,13 +8,15 @@
  *            is over positive integers k
  * Range:     u8 n <= 27, u16 n <= 149, u32 n <= 5669, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 8501 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Return ⌊√n⌋ for n ≤ 2^63‑1.  Uses bit‑wise integer square‑root. */
 static inline idx_t floor_sqrt_u64(idx_t n)
@@ -38,10 +40,10 @@ seq_t a(idx_t n)
 {
     idx_t m = floor_sqrt_u64(n);
     idx_t size = (size_t)n + 1;
-    seq_t *f = (seq_t *)calloc(size, sizeof(seq_t));  /* f[s] = k if s = k² */
-    seq_t *g = (seq_t *)calloc(size, sizeof(seq_t));  /* f * f */
-    seq_t *h = (seq_t *)calloc(size, sizeof(seq_t));  /* g * f */
-    seq_t *res = (seq_t *)calloc(size, sizeof(seq_t));/* h * f */
+    seq_t *f = mem_new(seq_t, size);  /* f[s] = k if s = k² */
+    seq_t *g = mem_new(seq_t, size);  /* f * f */
+    seq_t *h = mem_new(seq_t, size);  /* g * f */
+    seq_t *res = mem_new(seq_t, size);/* h * f */
 
     /* f(s) = k for s = k² (k ≥ 1) */
     for (idx_t k = 1; k <= m; ++k)
@@ -76,6 +78,6 @@ seq_t a(idx_t n)
     }
 
     seq_t answer = res[n];
-    free(f); free(g); free(h); free(res);
+    mem_free(f); mem_free(g); mem_free(h); mem_free(res);
     return answer;
 }

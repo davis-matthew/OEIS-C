@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   concat_parts, is_prime
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"      /* bool is_prime(idx_t); */
-#include "../utils/concat_parts.h"  /* seq_t concat_parts(idx_t, idx_t); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+static seq_t concat_parts(idx_t a, idx_t b)
+{
+    seq_t part_a = (seq_t)a;
+    seq_t part_b = (seq_t)b;
+    seq_t pow = 1;
+    seq_t tmp = part_b;
+    /* pow = 10^(number of decimal digits of b) */
+    while (tmp > 0) {
+        pow *= 10;
+        tmp /= 10;
+    }
+    return part_a * pow + part_b;
+}
 
 /* Return the n‑th term of sequence A155081.  Cache is built on demand
    and reused for subsequent calls. */
@@ -42,7 +57,7 @@ seq_t a(idx_t n)
     /*----- Initialise caches when first called -----*/
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     if (!primes) {
         primes_cap = 64;
@@ -101,7 +116,7 @@ seq_t a(idx_t n)
         if (largest == 2 || largest == 3 || largest == 5 || largest == 7) {
             if (cache_cnt == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_cnt++] = (seq_t)p_val;
         }

@@ -7,14 +7,29 @@
  * Formula:   a(n) = Product_{d|n} prime(d)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 35, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   ensure_a_cache
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/ensure_a_cache.h"
+#include "../utils/mem.h"
+
+/* Ensure a_cache has at least 'size' entries, initialized to 0 */
+static void ensure_a_cache(size_t size, seq_t **cache, size_t *cap)
+{
+    if (*cap < size) {
+        size_t new_cap = size;
+        seq_t *new_cache = mem_resize(seq_t, *cache, new_cap);
+        if (!new_cache) exit(1);
+        for (size_t i = *cap; i < new_cap; ++i)
+            new_cache[i] = (seq_t)0;
+        *cache = new_cache;
+        *cap = new_cap;
+    }
+}
 
 /* Prime cache: prime_cache[k-1] = k-th prime */
 static const idx_t PRIME_BOUND = 200000;      /* covers n up to 10 000 (p_10000 = 104729) */
@@ -46,7 +61,7 @@ static void ensure_primes(void)
     for (size_t i = 2; i <= limit; ++i)
         if (is_prime[i]) ++count;
 
-    prime_cache = (seq_t*)malloc(count * sizeof(seq_t));
+    prime_cache = mem_new(seq_t, count);
     if (!prime_cache) exit(1);
 
     size_t idx = 0;

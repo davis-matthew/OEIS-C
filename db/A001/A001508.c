@@ -13,17 +13,54 @@
  *            2...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 37,
  *            big any n
- * Helpers:   a1508_S, a1508_binom, a1508_is_fixed, a1508_mul
+ * Validated: standard, pass, 37 terms through n = 184 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a1508_S.h"
-#include "../utils/a1508_binom.h"
-#include "../utils/a1508_is_fixed.h"
-#include "../utils/a1508_mul.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* exact S(p,q,a,b) split into positive and negative parts (big build) */
+static void a1508_S(idx_t p, idx_t q, long long a, idx_t b, seq_t *pos, seq_t *neg)
+{
+    seq_t t1, t2;
+    idx_t l;
+    *pos = 0;
+    *neg = 0;
+    if (a < 0) return;
+    t1 = binomial(q, b);
+    t2 = binomial(p - 3, (idx_t)a);
+    for (l = 0; l <= b; l++) {
+        idx_t k = b - l;
+        idx_t m = p - 3 - l;
+        seq_t c2, term;
+        if (m < (idx_t)a) break;
+        c2 = (seq_t)((l + 2) * (l + 1) / 2);
+        term = c2 * t1 * t2;
+        if (l & 1) *neg += term; else *pos += term;
+        if (k == 0) break;
+        t1 = t1 * (seq_t)k / (seq_t)(q - k + 1);
+        if (m == 0) break;
+        t2 = t2 * (seq_t)(m - (idx_t)a) / (seq_t)m;
+    }
+}
+
+static int a1508_is_fixed(void)
+{
+    seq_t x = 1;
+    int t;
+    for (t = 0; t < 300; t++) x = x + x;
+    return x == 0;
+}
+
+static seq_t a1508_mul(seq_t x, seq_t y)
+{
+    return (seq_t)(x * 1u * y);
+}
 
 seq_t a(idx_t n)
 {
@@ -39,11 +76,11 @@ seq_t a(idx_t n)
     } else {
         /* fixed width: everything modulo 2^w via Pascal additions */
         idx_t K = j, R = 2 * n + 1, r, k, l;
-        seq_t *row = (seq_t *)malloc((size_t)(K + 1) * sizeof(seq_t));
-        seq_t *q1 = (seq_t *)malloc((size_t)(K + 1) * sizeof(seq_t));
-        seq_t *q2 = (seq_t *)malloc((size_t)(K + 1) * sizeof(seq_t));
-        seq_t *colA = (seq_t *)malloc((size_t)(R + 1) * sizeof(seq_t));
-        seq_t *colB = (seq_t *)malloc((size_t)(R + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(K + 1));
+        seq_t *q1 = mem_new(seq_t, (size_t)(K + 1));
+        seq_t *q2 = mem_new(seq_t, (size_t)(K + 1));
+        seq_t *colA = mem_new(seq_t, (size_t)(R + 1));
+        seq_t *colB = mem_new(seq_t, (size_t)(R + 1));
         seq_t s1 = 0, s2 = 0, res;
         for (k = 0; k <= K; k++) { row[k] = 0; q1[k] = 0; q2[k] = 0; }
         row[0] = 1;
@@ -68,7 +105,7 @@ seq_t a(idx_t n)
             if (l & 1) s2 = (seq_t)(s2 - term); else s2 = (seq_t)(s2 + term);
         }
         res = (seq_t)(a1508_mul((seq_t)4, s2) - s1);
-        free(row); free(q1); free(q2); free(colA); free(colB);
+        mem_free(row); mem_free(q1); mem_free(q2); mem_free(colA); mem_free(colB);
         return res;
     }
 }

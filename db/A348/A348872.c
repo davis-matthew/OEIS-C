@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* forward declarations of helper functions */
 static bool _seen(seq_t value);
@@ -56,7 +76,7 @@ static size_t   hash_cap  = 0;      /* capacity of hash_arr (power of 2) */
 static void _init_hash(void)
 {
     hash_cap = HASH_INITIAL_CAP;
-    hash_arr = (seq_t*)calloc(hash_cap, sizeof(seq_t));
+    hash_arr = mem_new(seq_t, hash_cap);
 }
 
 static inline size_t _hash_val(seq_t v)
@@ -104,11 +124,11 @@ static void _grow_seq(size_t needed)
 {
     if (seq_arr == NULL) {
         seq_cap = 16;
-        seq_arr = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
     }
     while (seq_cap < needed) {
         seq_cap <<= 1;
-        seq_arr = (seq_t*)realloc(seq_arr, seq_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
     }
 }
 

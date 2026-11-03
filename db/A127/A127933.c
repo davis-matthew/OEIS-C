@@ -9,7 +9,8 @@
  *            the n‑th pure hailstone number (A061641)
  * Range:     u8 n <= 2672, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- Simple open-addressing hash for uint64_t ---------- */
 static uint64_t *hash_table   = NULL;
@@ -42,7 +44,7 @@ static void hash_rehash(void)
         while (new_table[idx]) idx = (idx + 1) & mask;
         new_table[idx] = k;
     }
-    free((void *)hash_table);
+    free(hash_table);
     hash_table = new_table;
     hash_size  = new_size;
 }
@@ -93,7 +95,7 @@ static void ensure_init(void)
     }
     if (!stopping) {
         st_cap = 256;
-        stopping = (seq_t *)malloc(st_cap * sizeof(seq_t));
+        stopping = mem_new(seq_t, st_cap);
         if (!stopping) exit(EXIT_FAILURE);
     }
     if (!path_buf) {
@@ -155,8 +157,7 @@ seq_t a(idx_t n)
                 val = (seq_t)0;  /* a(1) and a(2) are defined as 0 */
             if (st_len == st_cap) {
                 st_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(stopping,
-                                              st_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, stopping, st_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 stopping = tmp;
             }

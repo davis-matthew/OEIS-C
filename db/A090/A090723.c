@@ -11,13 +11,15 @@
  *            B[s-p] (each odd part used at most once)
  * Range:     u8 n <= 98, u16 n <= 224, u32 n <= 603, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Standard headers */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache for B(n) values */
 static seq_t *B_cache = NULL;
@@ -30,7 +32,7 @@ static void compute_B_up_to(idx_t limit)
         return;
 
     /* Allocate new array and compute all values from scratch */
-    seq_t *newB = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *newB = mem_new(seq_t, (limit + 1));
     if (!newB)
         abort();
     newB[0] = (seq_t)1;               /* empty partition */
@@ -44,7 +46,7 @@ static void compute_B_up_to(idx_t limit)
     }
 
     /* Replace old cache */
-    free(B_cache);
+    mem_free(B_cache);
     B_cache = newB;
     B_max    = limit;
 }

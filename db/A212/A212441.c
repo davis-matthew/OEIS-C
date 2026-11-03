@@ -10,13 +10,15 @@
  *            sequentially, computing their curling number parity directly
  * Range:     u8 n <= 129, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 80 terms through n = 9855 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 static bool odd_curling(seq_t v)
 {
@@ -24,7 +26,7 @@ static bool odd_curling(seq_t v)
     if (v == 0) return true;
 
     /* Number of bits in v. */
-    idx_t bits = bitlen_seq_t(v);
+    idx_t bits = bit_length(v);
 
     /* Find the maximum k such that v = X Y^k with a non‑empty Y. */
     idx_t maxk = 1;
@@ -39,7 +41,7 @@ static bool odd_curling(seq_t v)
             temp >>= l;
             /* Stop if the remaining part contains fewer than l bits
                for another full repetition of Y. */
-            if (bitlen_seq_t(temp) < l) break;
+            if (bit_length(temp) < l) break;
         }
         if (k > maxk) maxk = k;
     }

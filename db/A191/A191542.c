@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 46, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   floor_sqrt, mul_small, rows_needed
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,53 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/mul_small.h"   /* seq_t mul_small(seq_t x, unsigned int m); */
-#include "../utils/floor_sqrt.h" /* seq_t floor_sqrt(seq_t x); */
-#include "../utils/rows_needed.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Determine how many rows are needed to contain at least n elements
+   in the antidiagonal enumeration. Returns the smallest m such that
+   m*(m+1)/2 >= n. */
+static inline idx_t rows_needed(idx_t n)
+{
+    idx_t m = 0;
+    idx_t acc = 0;
+    while (acc < n) {
+        ++m;
+        acc += m;
+    }
+    return m;
+}
 
 /* Computes s(x) = 2*floor(x*sqrt(3)) for any seq_t x.
    Uses only integer arithmetic. */
@@ -53,11 +98,11 @@ seq_t a(idx_t n)
     idx_t m = rows_needed(n);
 
     /* Allocate temporary arrays for t and current row values. */
-    seq_t *t   = (seq_t*)malloc((m + 1) * sizeof(seq_t));
-    seq_t *cur = (seq_t*)malloc((m + 1) * sizeof(seq_t));
+    seq_t *t   = mem_new(seq_t, (m + 1));
+    seq_t *cur = mem_new(seq_t, (m + 1));
     if (!t || !cur) {
-        free(t);
-        free(cur);
+        mem_free(t);
+        mem_free(cur);
         return (seq_t)0;
     }
 
@@ -111,7 +156,7 @@ seq_t a(idx_t n)
     }
 
 cleanup:
-    free(t);
-    free(cur);
+    mem_free(t);
+    mem_free(cur);
     return result;
 }

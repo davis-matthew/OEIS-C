@@ -9,14 +9,16 @@
  *            x*(-2-23*x+5*x^2+37*x^3-26*x^4-9*x^5+17*x^6-7*x^7+x^8) * i.e. c
  *            = [0, -2, -23, 5, 37, -26, -9, 17, -7, 1]. * This gives sequence
  *            A109125 with offset 0
- * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 26, u64 n <= 26, u128 n <= 26,
+ * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 41, u64 n <= 749, u128 n <= 1000,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 43 terms through n = 942 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         if (top < 8)      /* binom(top,8) would be 0 */
             continue;
 
-        seq_t bin = binom(top, (idx_t)8);
+        seq_t bin = binomial(top, (idx_t)8);
 
         if (coeff_rev[k] >= 0)
             sum += bin * coeff_abs[k];

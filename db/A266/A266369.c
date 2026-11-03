@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 201, u32 n <= 201, u64 n <= 201, u128 n <= 201,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: full, pass, 201 terms through n = 201 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *qualifying = NULL;
 static size_t qcnt = 0;
@@ -31,12 +33,12 @@ static bool init_done = false;
 static void init(void)
 {
     const size_t MAX = 2000;
-    qualifying = (seq_t *)malloc(MAX * sizeof(seq_t));
+    qualifying = mem_new(seq_t, MAX);
     if (!qualifying)
         return;   /* allocation failed – missing terms will be 0 */
 
     for (uint64_t p = 1000; p <= 9999; ++p) {
-        if (!is_prime_small(p))
+        if (!is_prime_seq(p))
             continue;
 
         uint64_t a = p / 1000;          /* thousands digit   */
@@ -48,7 +50,7 @@ static void init(void)
            new order: b a d c   (leading zero after swap is ignored) */
         uint64_t swapped = b * 1000 + a * 100 + d * 10 + c;
 
-        if (is_prime_small(swapped)) {
+        if (is_prime_seq(swapped)) {
             if (qcnt < MAX)
                 qualifying[qcnt++] = (seq_t)p;
         }

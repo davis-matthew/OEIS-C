@@ -6,8 +6,9 @@
  * Keywords:  easy, nonn, tabl
  * Formula:   not stated
  * Range:     u8 n <= 260, u16 n <= 756, u32 n <= 2518, u64 n <= 9377,
- *            u128 n <= 9504, big any n
- * Helpers:   binom_nn
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 107 terms through n = 9504 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
  * T(r,k)=C(floor(r/2),floor(k/2))*((1+(-1)^(r-k))/2).
  */
 #include <stdbool.h>   /* for bool, though unused */
-#include "../utils/binom_nn.h"
+#include "../utils/binomial.h"
 
 /* Find the row index r for a given flattened index n */
 static idx_t find_row(idx_t n)
@@ -60,5 +61,5 @@ seq_t a(idx_t n)
     if (ak > ar)            /* binomial undefined, term is zero */
         return 0;
 
-    return binom_nn(ar, ak);
+    return binomial(ar, ak);
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 123, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9387 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define BASE_SIZE 1177
 
@@ -33,7 +35,7 @@ static void init_base(void)
 {
     if (base_ready) return;
 
-    base = (seq_t *)malloc(sizeof(seq_t) * BASE_SIZE);
+    base = mem_new(seq_t, BASE_SIZE);
     if (!base) return;          /* allocation failure: leave function dead‑end */
 
     idx_t cur  = 1;             /* candidate numbers */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   digit_len, get_digits
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-02)
+ * Helpers:   get_digits, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,11 @@
    sequence starts at offset 1 (a(1) = 1). */
 
 #include <stddef.h>
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/get_digits.h"
+#include "../utils/num_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +35,7 @@ seq_t a(idx_t n)
     {
         seq_t mval = (seq_t)m;
 
-        idx_t d = digit_len(mval);
+        idx_t d = num_digits(mval);
 
         uint8_t buf[64];
         size_t len = 0;

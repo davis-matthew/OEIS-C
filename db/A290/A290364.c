@@ -8,6 +8,7 @@
  *            * + 60795*n^4 + 81524*n^3 + 72036*n^2 + 1872*n) / 9!
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 17, u64 n <= 211, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 982 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

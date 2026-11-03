@@ -12,13 +12,14 @@
  *            A_2) + 2 * ( A_0 * B_1 * B_2 + A_1 * B_0 * B_2 + A_...
  * Range:     u8 none, u16 n <= 5, u32 n <= 16, u64 n <= 36, u128 n <= 76,
  *            big any n
- * Helpers:   pow_seq_n
+ * Validated: standard, pass, 38 terms through n = 205 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq_n.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -28,14 +29,14 @@ seq_t a(idx_t n)
     idx_t cnt2 = cnt0 + ((N % 3) >= 2 ? 1 : 0);
 
     /* A_k = 2 + 2 * 3^{cnt[k]} */
-    seq_t A0 = 2 + (seq_t)2 * pow_seq_n((seq_t)3, cnt0);
-    seq_t A1 = 2 + (seq_t)2 * pow_seq_n((seq_t)3, cnt1);
-    seq_t A2 = 2 + (seq_t)2 * pow_seq_n((seq_t)3, cnt2);
+    seq_t A0 = 2 + (seq_t)2 * ipow_idx((seq_t)3, cnt0);
+    seq_t A1 = 2 + (seq_t)2 * ipow_idx((seq_t)3, cnt1);
+    seq_t A2 = 2 + (seq_t)2 * ipow_idx((seq_t)3, cnt2);
 
     /* B_k = 2 + 2^{cnt[k]} */
-    seq_t B0 = 2 + pow_seq_n((seq_t)2, cnt0);
-    seq_t B1 = 2 + pow_seq_n((seq_t)2, cnt1);
-    seq_t B2 = 2 + pow_seq_n((seq_t)2, cnt2);
+    seq_t B0 = 2 + ipow_idx((seq_t)2, cnt0);
+    seq_t B1 = 2 + ipow_idx((seq_t)2, cnt1);
+    seq_t B2 = 2 + ipow_idx((seq_t)2, cnt2);
 
     seq_t prodA = A0 * A1 * A2;
 

@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = ((n-1)*n*(n+1)*(3*n+2)/24) mod n
- * Range:     u8 n <= 286, u16 n <= 9944, u32 n <= 9944, u64 n <= 9944,
- *            u128 n <= 9944, big any n
+ * Range:     u8 n <= 286, u16 n <= 23999, u32 n <= 24000, u64 n <= 24000,
+ *            u128 n <= 24000, big any n
+ * Validated: standard, pass, 91 terms through n = 9944 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

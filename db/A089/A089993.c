@@ -9,7 +9,8 @@
  *            prime power (i.e., a(n) = A076820(A024619(n)))
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes, factor_u64
+ * Validated: standard, pass, 121 terms through n = 9435 (2026-11-01)
+ * Helpers:   factor_u64, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/omega.h"
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;            /* not defined for n < 1 */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
 
     for (;;) {
         /* skip prime powers: numbers with only one distinct prime factor */
-        if (count_distinct_primes(m) >= 2) {
+        if (omega(m) >= 2) {
             ++cnt;
             if ((idx_t)cnt == n) {
                 /* factor m to obtain distinct prime factors */

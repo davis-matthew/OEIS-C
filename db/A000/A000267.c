@@ -8,17 +8,18 @@
  *            n < r^2 + r, else 2r + 1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a267_isqrt
+ * Validated: standard, pass, 93 terms through n = 8678 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a267_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)
 {
-    uint64_t r = a267_isqrt((uint64_t)n);
+    uint64_t r = isqrt_u64((uint64_t)n);
     seq_t res = (seq_t)r;
     res = res * 2;
     if ((uint64_t)n >= r * r + r) res += 1;

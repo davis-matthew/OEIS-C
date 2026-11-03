@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 16, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 79 terms through n = 902 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* Return the n-th number m with 3m+5 prime. */
 seq_t a(idx_t n)
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
     for (;;) {
         /* 3k + 5 fits comfortably in uint64_t for the n ranges considered. */
         uint64_t cand = (uint64_t)k * 3ULL + 5ULL;
-        if (is_prime_small(cand)) {
+        if (is_prime_seq(cand)) {
             ++count;
             if (count == n) {
                 return (seq_t)k;

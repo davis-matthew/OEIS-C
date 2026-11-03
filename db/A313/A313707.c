@@ -13,12 +13,14 @@
  *            can be called with any n in any order
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t a_init[11] = {
     1, 5, 10, 15, 19, 25, 30, 35, 41, 45, 50
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     /* initialise cache on first call */
     if (!cache) {
         cache_size = 11;                     /* indices 0..10 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;                /* allocation failure -> 0 */
         for (idx_t i = 0; i < 11; ++i)
             cache[i] = a_init[i];
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
         idx_t new_size = cache_size ? cache_size : 1;
         while (new_size <= n)
             new_size <<= 1;                  /* double until it fits */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;                  /* allocation failure */
         cache = tmp;
         cache_size = new_size;

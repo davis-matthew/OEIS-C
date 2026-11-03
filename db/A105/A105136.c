@@ -7,7 +7,8 @@
  * Formula:   a(n) is the nth integer n such that 64*n + 33 is prime
  * Range:     u8 n <= 58, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 76 terms through n = 885 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* declares bool is_prime(uint64_t) */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
     /* Allocate initial buffer if needed */
     if (!buffer) {
         capacity = 128;
-        buffer = (seq_t *)malloc(capacity * sizeof(seq_t));
+        buffer = mem_new(seq_t, capacity);
         if (!buffer)
             return (seq_t)0;   /* allocation failure */
     }
@@ -46,11 +49,11 @@ seq_t a(idx_t n)
     while (stored < n) {
         /* Compute 64*cand + 33, test for primality */
         uint64_t candidate_value = 64ULL * (uint64_t)cand + 33ULL;
-        if (is_prime(candidate_value)) {
+        if (is_prime_u64(candidate_value)) {
             /* Grow buffer if necessary */
             if (stored == capacity) {
                 capacity <<= 1;
-                seq_t *tmp = (seq_t *)realloc(buffer, capacity * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, buffer, capacity);
                 if (!tmp)
                     return (seq_t)0;
                 buffer = tmp;

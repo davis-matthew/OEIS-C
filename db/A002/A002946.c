@@ -9,8 +9,9 @@
  *            of P (found by sign tests), then P(x) <- x^3 * P(a(k) + 1/x).
  *            Exact big-integer arithmetic is used for the polynomial
  *            coefficients
- * Range:     u8 n <= 117, u16 n <= 9508, u32 n <= 9508, u64 n <= 9508,
- *            u128 n <= 9508, big any n
+ * Range:     u8 n <= 117, u16 n <= 13627, u32 n <= 19999, u64 n <= 19999,
+ *            u128 n <= 19999, big any n
+ * Validated: standard, pass, 102 terms through n = 9508 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

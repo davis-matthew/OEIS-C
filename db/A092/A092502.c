@@ -9,15 +9,46 @@
  *            function)
  * Range:     u8 n <= 28, u16 n <= 366, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   _is_prime_power, _phi_value
+ * Validated: standard, pass, 88 terms through n = 4961 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_is_prime_power.h"
-#include "../utils/_phi_value.h"
+#include "../utils/totient.h"
+
+/* Determine whether n is a power of a single prime.
+   If it is, *prime and *exp are set and the function returns 1.
+   Otherwise returns 0. */
+static int _is_prime_power(idx_t n, uint64_t *prime, uint64_t *exp)
+{
+    if (n <= 1) return 0;
+    uint64_t num = n;
+    uint64_t p, count = 0;
+    for (p = 2; p * p <= num; ++p) {
+        if (num % p == 0) {
+            count = 0;
+            while (num % p == 0) {
+                num /= p;
+                ++count;
+            }
+            *prime = p;
+            *exp = count;
+            /* if another factor remains, not a prime power */
+            if (num > 1) return 0;
+            return 1;
+        }
+    }
+    if (num > 1) {
+        /* num itself is prime */
+        *prime = num;
+        *exp = 1;
+        return 1;
+    }
+    return 0;   /* n==1 handled above */
+}
 
 /* Compute gcd of two uint64_t values (used only for safety in phi) */
 static inline uint64_t gcd_uint64(uint64_t a, uint64_t b)
@@ -38,7 +69,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute totient of n */
-    seq_t phi = _phi_value(n);
+    seq_t phi = totient(n);
 
     /* Check whether n is a prime power */
     uint64_t p, e;

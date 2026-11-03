@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   isqrt
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* Period of continued fraction for sqrt(15)*n */
 
 #include <stdint.h>
-#include "../utils/isqrt.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +26,7 @@ seq_t a(idx_t n)
 
     /* Work in 64‑bit arithmetic to keep the algorithm exact. */
     uint64_t N   = 15ull * (uint64_t)n * (uint64_t)n;   /* N = 15 n^2 */
-    uint64_t a0  = isqrt(N);                            /* floor(sqrt(N)) */
+    uint64_t a0  = isqrt_u64(N);                            /* floor(sqrt(N)) */
     uint64_t m   = 0;
     uint64_t d   = 1;
     uint64_t a   = a0;

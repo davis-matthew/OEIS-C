@@ -7,14 +7,16 @@
  * Keywords:  sign
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} (1 + x^k + x^{2k})*(1 - x^k
  *            + x^{2k})^2
- * Range:     i8 n <= 25, i16 n <= 51, i32 n <= 51, i64 n <= 51, i128 n <= 51,
- *            big any n
- * Helpers:   none
+ * Range:     i8 n <= 25, i16 n <= 72, i32 n <= 228, i64 n <= 775,
+ *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 68 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,11 +28,11 @@ seq_t a(idx_t n)
     size_t len = (size_t)(n + 1);
 
     /* allocate two working arrays of seq_t */
-    seq_t *cur  = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, len);
+    seq_t *next = mem_new(seq_t, len);
     if (!cur || !next) {
-        free(cur);
-        free(next);
+        mem_free(cur);
+        mem_free(next);
         return (seq_t)0;          /* allocation failure – should not happen */
     }
 
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
 
     seq_t result = cur[(size_t)n];
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

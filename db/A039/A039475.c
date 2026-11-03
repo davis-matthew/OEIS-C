@@ -11,14 +11,29 @@
  *            increasing order
  * Range:     u8 n <= 4, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_equal_nonzero_4_8
+ * Validated: standard, pass, 64 terms through n = 934 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_equal_nonzero_4_8.h"
+
+static inline bool has_equal_nonzero_4_8(seq_t x)
+{
+    int count4 = 0;
+    int count8 = 0;
+    while (x > 0) {
+        int d = (int)(x % 11);
+        if (d == 4)
+            ++count4;
+        else if (d == 8)
+            ++count8;
+        x /= 11;
+    }
+    return count4 == count8 && count4 > 0;
+}
 
 seq_t a(idx_t n)
 {

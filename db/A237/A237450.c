@@ -13,12 +13,16 @@
  *            element in the lexicographically sorted list of all permutations
  * Range:     u8 n <= 16, u16 n <= 37, u32 n <= 86, u64 n <= 217,
  *            u128 n <= 596, big any n
- * Helpers:   _tri
+ * Validated: standard, pass, 71 terms through n = 960 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_tri.h"
+static inline unsigned __int128 _tri(idx_t k)
+{
+    return ((unsigned __int128)k * (k + 1)) / 2;
+}
 
 seq_t a(idx_t n)
 {

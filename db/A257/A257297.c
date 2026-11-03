@@ -7,7 +7,8 @@
  * Formula:   a(n) = (initial digit of n) * (n with initial digit removed)
  * Range:     u8 n <= 103, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
- * Helpers:   digits, pow10
+ * Validated: partial, pass, 104 terms through n = 103 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,18 @@
 /* For n < 10, a(n) = 0 (since removing the only digit yields 0). */
 
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/digits.h"
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -25,7 +36,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Number of decimal digits of n. */
-    int d = digits(n);
+    int d = num_digits_idx(n);
 
     /* 10^(d-1) fits in 64 bits for all n that fit in uint64_t. */
     uint64_t pow10d1 = (uint64_t)pow10(d - 1);

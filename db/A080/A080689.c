@@ -11,6 +11,7 @@
  *            lies in the interval (log₂6 − ⎣log₂6⎦, log₂7 − ⎣log₂7⎦)
  * Range:     u8 n <= 55, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 73 terms through n = 969 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,12 +23,12 @@
 seq_t a(idx_t n)
 {
     /* Use long double for extra precision. */
-    static const long double LOG2_10 = 3.321928094887362L;
-    static const long double LOG2_6  = 2.584962500721156L;   /* ≈ log₂6   */
-    static const long double LOG2_7  = 2.807354922057605L;   /* ≈ log₂7   */
-    static const long double R1 = LOG2_6 - floor(LOG2_6);   /* ≈0.5849625 */
-    static const long double R2 = LOG2_7 - floor(LOG2_7);   /* ≈0.8073549 */
-    static const long double EPS = 1e-12L;                  /* safety margin */
+    const long double LOG2_10 = 3.321928094887362L;
+    const long double LOG2_6  = 2.584962500721156L;   /* ≈ log₂6   */
+    const long double LOG2_7  = 2.807354922057605L;   /* ≈ log₂7   */
+    const long double R1 = LOG2_6 - floor(LOG2_6);   /* ≈0.5849625 */
+    const long double R2 = LOG2_7 - floor(LOG2_7);   /* ≈0.8073549 */
+    const long double EPS = 1e-12L;                  /* safety margin */
 
     idx_t count = 0;
     seq_t term = 0;

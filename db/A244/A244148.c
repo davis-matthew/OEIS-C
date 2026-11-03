@@ -12,13 +12,15 @@
  *            k))
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 26 terms through n = 50 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         fact_k = fact_k * (seq_t)k;                 /* update k! */
 
         idx_t num = (n * n - 3 * n + 5 * k - k * k) / 2;
-        seq_t bin = binom(num, k);                 /* binomial coefficient */
+        seq_t bin = binomial(num, k);                 /* binomial coefficient */
 
         seq_t term = fact_k * bin;                  /* k! * C(num,k) */
 

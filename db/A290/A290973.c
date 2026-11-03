@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum_{d|n, d<n} binomial(-a(d)+n/d-1 , n/d) - 2
  * Range:     i8 n <= 5, i16 n <= 13, i32 n <= 28, i64 n <= 56, i128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached values -------------------------------------------------------- */
 static seq_t *cache = NULL;   /* array of computed a(n)   */
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_cap <= n) {
         size_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_cap = new_cap;

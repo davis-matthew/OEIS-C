@@ -7,7 +7,8 @@
  * Formula:   a(n) = concat(Lucas(n), Fibonacci(n))
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 44, u128 n <= 92,
  *            big any n
- * Helpers:   digit_len, fib_pair, pow10
+ * Validated: standard, pass, 46 terms through n = 981 (2026-11-01)
+ * Helpers:   fib_pair, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,21 @@
 /* Lucas(n) = 2*Fibonacci(n+1) – Fibonacci(n) */
 /* The code uses the provided helpers fib_pair, pow10 and digit_len. */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/fib_pair.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +43,7 @@ seq_t a(idx_t n)
     lucas -= fn;                  /* subtract F(n) */
 
     /* Number of decimal digits in F(n) */
-    int digits = digit_len(fn);
+    int digits = num_digits(fn);
     seq_t pow10d = pow10((idx_t)digits);
 
     /* Concatenate lucas and fn: lucas * 10^digits + fn */

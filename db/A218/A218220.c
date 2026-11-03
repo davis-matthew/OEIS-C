@@ -8,7 +8,8 @@
  * Formula:   a(n,m) = m*a(n-1,m) - a(n-2,m) for n>=2, and a(0,m)=a(1,m)=1
  * Range:     i8 n <= 49, i16 n <= 97, i32 n <= 100, i64 n <= 100,
  *            i128 n <= 100, big any n
- * Helpers:   a_element
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a_element.h"
+
+/* helper: compute a(i,j) where i >= 0, j >= 0 */
+static seq_t a_element(idx_t i, idx_t j)
+{
+    if (i == 0 || i == 1)
+        return 1;
+
+    seq_t prev2 = 1;   /* a(0,j) */
+    seq_t prev1 = 1;   /* a(1,j) */
+    for (idx_t k = 2; k <= i; ++k) {
+        seq_t cur = (seq_t)j * prev1 - prev2;
+        prev2 = prev1;
+        prev1 = cur;
+    }
+    return prev1;
+}
 
 seq_t a(idx_t n)
 {

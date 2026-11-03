@@ -10,12 +10,25 @@
  *            (48*C(n-1,7) + (n-1)*(n-3)*(n-5)*(n-7))/768 for odd n >= 8
  * Range:     u8 none, u16 n <= 13, u32 n <= 91, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 51 terms through n = 887 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdlib.h>
+
+static seq_t binom(idx_t n, idx_t k) {
+    if (k > n) return 0;
+    if (k == 0 || k == n) return 1;
+    if (k > n - k) k = n - k;
+    
+    seq_t result = 1;
+    for (idx_t i = 1; i <= k; i++) {
+        result = result * (seq_t)(n - i + 1) / (seq_t)i;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     if (n < 8) return 0;

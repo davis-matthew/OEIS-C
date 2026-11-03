@@ -8,6 +8,7 @@
  * Formula:   a(n) = n * floor(n/3) - (3 * floor(n/3) * (floor(n/3) + 1)) / 2
  * Range:     u8 n <= 26, u16 n <= 452, u32 n <= 750, u64 n <= 750,
  *            u128 n <= 750, big any n
+ * Validated: standard, pass, 75 terms through n = 634 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

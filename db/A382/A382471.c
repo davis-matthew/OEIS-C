@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(k+4,4) * binomial(2*k,2*n-2*k)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 36, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 386 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* First 20 terms of the sequence */
 static const seq_t init[20] = {
@@ -95,7 +97,7 @@ static void ensure_cache_cap(size_t new_cap)
     if (cache_cap >= new_cap) return;
     size_t new_size = cache_cap ? cache_cap : 20;
     while (new_size < new_cap) new_size <<= 1;
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     cache_cap = new_size;
 }
 

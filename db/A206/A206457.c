@@ -9,15 +9,23 @@
  *            ((-1)^i*(n+1)^((n+3)-(n+1)*i)*binomial((n+3)-n*i,i))
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow, binomial, seq_mul
+ * Validated: standard, pass, 32 terms through n = 158 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +39,7 @@ seq_t a(idx_t n)
     {
         /* exponent for (n+1)^((n+3)-(n+1)*i) */
         idx_t exp = (n + 3) - (n + 1) * i;
-        seq_t pow = big_pow(base, (seq_t)exp);
+        seq_t pow = ipow(base, (seq_t)exp);
 
         /* binomial coefficient binomial((n+3)-n*i, i) */
         idx_t n_minus_ui = (n + 3) - n * i;

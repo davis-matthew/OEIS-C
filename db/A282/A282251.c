@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 #include <stdbool.h>
 
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* ---------- global prime data ------------------------------------------ */
 static uint64_t *prime_pool      = NULL;   /* array of primes */
@@ -112,7 +114,7 @@ static void build_sequence(idx_t upper) {
 
     /* ---- collect even numbers not marked -------------------------------- */
     idx_t est_size = (upper / 2) + 10;           /* rough estimate */
-    seq_t *new_seq = (seq_t *)malloc(est_size * sizeof(seq_t));
+    seq_t *new_seq = mem_new(seq_t, est_size);
     if (!new_seq) { free(c_vals); free(rep); return; }
 
     idx_t count = 0;
@@ -120,8 +122,8 @@ static void build_sequence(idx_t upper) {
         if (!rep[e]) {
             if (count == est_size) {
                 est_size *= 2;
-                seq_t *tmp = (seq_t *)realloc(new_seq, est_size * sizeof(seq_t));
-                if (!tmp) { free(new_seq); free(c_vals); free(rep); return; }
+                seq_t *tmp = mem_resize(seq_t, new_seq, est_size);
+                if (!tmp) { mem_free(new_seq); free(c_vals); free(rep); return; }
                 new_seq = tmp;
             }
             new_seq[count++] = (seq_t)e;
@@ -129,7 +131,7 @@ static void build_sequence(idx_t upper) {
     }
 
     /* free old sequence and replace */
-    free(seq_arr);
+    mem_free(seq_arr);
     seq_arr = new_seq;
     seq_len = count;
 

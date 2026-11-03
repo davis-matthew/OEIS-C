@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains_58
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
    contains the substring "58" whereas the integer n-1 does not. */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/contains_58.h"
+
+/* Test whether a number contains the consecutive digits 5 followed by 8. */
+static bool contains_58(seq_t x)
+{
+    if (x < (seq_t)10)          /* fewer than two digits: impossible */
+        return false;
+    seq_t prev = x % 10;        /* least significant digit */
+    x /= 10;
+    while (x > 0) {
+        seq_t d = x % 10;
+        if (d == (seq_t)5 && prev == (seq_t)8)
+            return true;
+        prev = d;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

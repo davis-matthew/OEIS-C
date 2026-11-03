@@ -8,8 +8,9 @@
  * Formula:   a(n) = number of 0..3 arrays of length n such that for every
  *            position i, the element x[i] is at least the sum of its at most
  *            four preceding neighbors modulo 4
- * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 28, u128 n <= 28,
+ * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 48, u128 n <= 97,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 210 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,7 +12,8 @@
  *            and p % 24 ∉ {0, 1, 23}
  * Range:     u8 n <= 33, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     if (n >= dp_size) {          /* need to recompute up to n */
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t *)calloc((size_t)new_size, sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (size_t)new_size);
         if (!new_dp)              /* allocation failure → 0 */
             return 0;
 
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
                 new_dp[sum] += new_dp[sum - part];
         }
 
-        free(dp);                /* discard old table */
+        mem_free(dp);                /* discard old table */
         dp = new_dp;
         dp_size = new_size;
     }

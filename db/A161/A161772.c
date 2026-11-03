@@ -14,14 +14,26 @@
  *            reached from all integers ≥ 1
  * Range:     u8 n <= 10, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   sumsq_base
+ * Validated: partial, pass, 29 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/sumsq_base.h"
+
+/* Compute the sum of squares of the base‑b digits of number n */
+static inline seq_t sumsq_base(seq_t n, idx_t b)
+{
+    seq_t s = 0;
+    while (n != 0) {
+        seq_t d = n % b;
+        s += d * d;
+        n /= b;
+    }
+    return s;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

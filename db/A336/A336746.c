@@ -12,7 +12,8 @@
  *            dynamically resized factorial table
  * Range:     u8 n <= 18, u16 n <= 34, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- factorial table ---------------------------------------- */
 static seq_t *fact = NULL;          /* factorial[0..] : fact[i] = i!      */
@@ -30,7 +32,7 @@ static void ensure_factorial(size_t max)
 {
     if (max + 1 > fact_cap) {
         size_t new_cap = max + 1;
-        seq_t *new_fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *new_fact = mem_resize(seq_t, fact, new_cap);
         if (!new_fact) abort();
         if (fact_cap == 0) {
             new_fact[0] = (seq_t)1;   /* 0! = 1 */
@@ -87,11 +89,11 @@ seq_t a(idx_t n)
 
     /* Allocate two rows of length r+1 (max needed) */
     size_t sz = (size_t)r + 1;
-    seq_t *rowA = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *rowB = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *rowA = mem_new(seq_t, sz);
+    seq_t *rowB = mem_new(seq_t, sz);
     if (!rowA || !rowB) {
-        if (rowA) free(rowA);
-        if (rowB) free(rowB);
+        if (rowA) mem_free(rowA);
+        if (rowB) mem_free(rowB);
         abort();
     }
 
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
 
     seq_t result = prev[(size_t)k];   /* prev now holds row r */
 
-    free(rowA);
-    free(rowB);
+    mem_free(rowA);
+    mem_free(rowB);
     return result;
 }

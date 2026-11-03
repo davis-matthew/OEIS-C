@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   digit_sum_in_base
+ * Validated: partial, pass, 68 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,7 +38,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/digit_sum_in_base.h"
+#include "../utils/mem.h"
+
+/* Compute the digit sum of x in base 'base'.  Returns a 64‑bit value. */
+static uint64_t digit_sum_in_base(uint64_t x, uint64_t base)
+{
+    uint64_t sum = 0;
+    while (x) {
+        sum += x % base;
+        x /= base;
+    }
+    return sum;
+}
 
 /* ------------------------ Auxiliary helpers ------------------------ */
 
@@ -119,11 +131,11 @@ static void resize_cache(idx_t needed)
     if (needed < cache_size) return;
     idx_t new_size = cache_size ? cache_size * 2 : 64;
     while (new_size <= needed) new_size *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_size);
     if (!new_ptr) return;           /* allocation failure: give up */
     /* Initialize new entries to 0. */
     if (new_ptr != cache) cache = new_ptr;
-    memset(cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
+    mem_set(cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
     cache_size = new_size;
 }
 

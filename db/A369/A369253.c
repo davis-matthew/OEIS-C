@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = parity of A038548(n) = ((tau(n)+is_square(n))/2) mod 2
- * Range:     u8 n <= 7435, u16 n <= 7435, u32 n <= 7435, u64 n <= 7435,
- *            u128 n <= 7435, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 141 terms through n = 7435 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

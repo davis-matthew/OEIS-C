@@ -8,8 +8,9 @@
  *            (i.e. 2*A057716(n) – even numbers that have an odd prime
  *            factor). The value is computed by simple linear search, skipping
  *            powers of two
- * Range:     u8 n <= 120, u16 n <= 9620, u32 n <= 9620, u64 n <= 9620,
- *            u128 n <= 9620, big any n
+ * Range:     u8 n <= 120, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 79 terms through n = 9620 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

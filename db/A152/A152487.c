@@ -10,8 +10,9 @@
  *            the flattened triangle index n: find r such that r*(r+1)/2 <= n
  *            < (r+1)*(r+2)/2, then c = n - r*(r+1)/2. e(n) = Levenshtein(r,
  *            c) on their binary strings
- * Range:     u8 n <= 9861, u16 n <= 9861, u32 n <= 9861, u64 n <= 9861,
- *            u128 n <= 9861, big any n
+ * Range:     u8 n <= 20300, u16 n <= 20300, u32 n <= 20300, u64 n <= 20300,
+ *            u128 n <= 20300, big any n
+ * Validated: standard, pass, 121 terms through n = 9861 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

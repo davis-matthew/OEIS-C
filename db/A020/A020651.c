@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5468, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 110 terms through n = 9863 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
    the binary expansion of n and tracks the numerator and denominator
    of the current fraction.  Complexity: O(log n). */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     seq_t q = 1;   /* denominator of the current fraction */
 
     /* highest set bit position (0‑based) */
-    idx_t msb = floor_log2_uint64(n);
+    idx_t msb = ilog2(n);
 
     /* process bits from the second most significant down to the least
        significant.  For each bit:

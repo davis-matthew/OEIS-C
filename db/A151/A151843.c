@@ -9,13 +9,15 @@
  *            then a(n) = a(j) + a(j+1), plus 1 if j = 2^i - 1
  * Range:     u8 n <= 4088, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 119 terms through n = 9512 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static unsigned char *computed = NULL;
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n) {
     if (needed <= cap) return;
     size_t newcap = cap > 0 ? cap * 2 : 4;
     while (newcap < needed) newcap <<= 1;
-    cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newcap);
     computed = (unsigned char *)realloc(computed, newcap * sizeof(unsigned char));
     for (size_t i = cap; i < newcap; ++i) computed[i] = 0;
     cap = newcap;

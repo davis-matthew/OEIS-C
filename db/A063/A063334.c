@@ -10,6 +10,7 @@
  *            = 1055, a(10)=1210, a(11)=1365, a(12)=1520, a(13)=1673
  * Range:     i8 n <= 3, i16 n <= 213, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 57 terms through n = 8747 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,15 +10,17 @@
  *            simple recurrence with memoisation. To avoid overflow when seq_t
  *            is a 64‑bit unsigned integer, 128‑bit intermediate arithmetic is
  *            employed
- * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 16,
+ * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 740 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Required headers for memory allocation and abort. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* Initialise the table on first call. */
     if (table == NULL) {
-        table = (seq_t *)malloc(capacity * sizeof(seq_t));
+        table = mem_new(seq_t, capacity);
         if (!table) abort();
         table[0] = 1;
         table[1] = 10;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (n > last_index) {
         if ((size_t)(n + 1) > capacity) {
             size_t newcap = n + 1;
-            seq_t *tmp = (seq_t *)realloc(table, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, table, newcap);
             if (!tmp) abort();
             table = tmp;
             capacity = newcap;

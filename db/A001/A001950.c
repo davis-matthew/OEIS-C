@@ -8,17 +8,18 @@
  * Formula:   a(n) = n + floor(n*phi) = n + floor((n + sqrt(5*n^2))/2)
  * Range:     u8 n <= 97, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a001950_isqrt_u128
+ * Validated: standard, pass, 76 terms through n = 8584 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001950_isqrt_u128.h"
+#include "../utils/isqrt_u128.h"
 
 seq_t a(idx_t n) {
     unsigned __int128 m = (unsigned __int128)n;
-    unsigned __int128 s = a001950_isqrt_u128(5 * m * m);
+    unsigned __int128 s = isqrt_u128(5 * m * m);
     uint64_t lower = (uint64_t)((m + s) / 2);
     return (seq_t)n + (seq_t)lower;
 }

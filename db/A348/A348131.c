@@ -9,13 +9,15 @@
  *            (2m-1)^(2m)) / 2 (m is a positive integer)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 375 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -29,14 +31,14 @@ seq_t a(idx_t n)
         seq_t exp   = (seq_t)(2 * m - 1);
         seq_t base1 = (seq_t)m;
         seq_t base2 = (seq_t)(m - 1);
-        seq_t pow1 = big_pow(base1, exp);
-        seq_t pow2 = big_pow(base2, exp);
+        seq_t pow1 = ipow(base1, exp);
+        seq_t pow2 = ipow(base2, exp);
         return pow1 - pow2;
     } else {                            /* even n: n = 2m */
         idx_t m = n / 2;                /* m = n/2 */
         seq_t exp   = (seq_t)(2 * m);
-        seq_t pow1 = big_pow((seq_t)(2 * m + 1), exp);
-        seq_t pow2 = big_pow((seq_t)(2 * m - 1), exp);
+        seq_t pow1 = ipow((seq_t)(2 * m + 1), exp);
+        seq_t pow2 = ipow((seq_t)(2 * m - 1), exp);
         seq_t diff = pow1 - pow2;
         return diff / 2;
     }

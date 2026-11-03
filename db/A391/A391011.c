@@ -11,7 +11,8 @@
  *            sufficiently large limit, retains those with gcd = 1, s...
  * Range:     u8 none, u16 n <= 8, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------- */
 /* Auxiliary integer functions                                            */
@@ -144,14 +146,14 @@ seq_t a(idx_t n)
         dfs((seq_t)1, 0, 0, LIMIT, prime_list, prime_count);
 
         /* Filter Achilles numbers (gcd of exponents == 1) */
-        good_nums = (seq_t *)malloc(term_count * sizeof(seq_t));
+        good_nums = mem_new(seq_t, term_count);
         if (!good_nums) return 0;
         for (size_t i = 0; i < term_count; ++i)
             if (all_terms[i].gcd == 1)
                 good_nums[good_count++] = all_terms[i].val;
 
         /* Sort ascending */
-        qsort(good_nums, good_count, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(good_nums, good_count, sizeof(seq_t), cmp_seq_t);
 
         initialized = 1;
     }

@@ -11,12 +11,14 @@
  *            coefficients S(k) depend only on the exponent...
  * Range:     i8 n <= 14, i16 n <= 47, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term (0-indexed) of OEIS A296046. */
 seq_t a(idx_t n)
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     if (n > max_n) {
         idx_t new_size = n + 1;
 
-        a_val  = (seq_t *)realloc(a_val,  new_size * sizeof(seq_t));
-        Scoef  = (seq_t *)realloc(Scoef, new_size * sizeof(seq_t));
+        a_val  = mem_resize(seq_t, a_val, new_size);
+        Scoef  = mem_resize(seq_t, Scoef, new_size);
 
         /* Initialise the first value of the sequence. */
         if (max_n == 0) {

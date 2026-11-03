@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 1527, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 2835 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Deterministic Miller–Rabin primality test for 64‑bit integers.
    Adapted from the known bases that are sufficient for all n < 2^64. */
@@ -89,7 +91,7 @@ static void init_static(void)
     if (qual_list != NULL) return;   /* already initialised */
 
     qual_cap = 16;
-    qual_list = (seq_t *)malloc(qual_cap * sizeof(seq_t));
+    qual_list = mem_new(seq_t, qual_cap);
     qual_cnt = 0;
 }
 
@@ -98,8 +100,7 @@ static void append_qual(uint64_t p)
 {
     if (qual_cnt == qual_cap) {
         qual_cap *= 2;
-        qual_list = (seq_t *)realloc(qual_list,
-                                     qual_cap * sizeof(seq_t));
+        qual_list = mem_resize(seq_t, qual_list, qual_cap);
     }
     qual_list[qual_cnt++] = (seq_t)p;
 }

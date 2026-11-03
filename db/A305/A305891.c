@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = rank of the pair [v2(n), prime_signature(n)] as it first
  *            appears, assigning successive integers starting at 1
- * Range:     u8 n <= 9798, u16 n <= 9798, u32 n <= 9798, u64 n <= 9798,
- *            u128 n <= 9798, big any n
- * Helpers:   signature_of
+ * Range:     u8 n <= 55295, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 125 terms through n = 9798 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,42 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/signature_of.h"
+#include "../utils/mem.h"
+
+/* Compute the prime signature of n: exponents of all prime factors,
+   sorted in descending order.  *len receives the number of exponents.
+   The array ex must have room for at least 10 entries. */
+static void signature_of(uint64_t n, uint8_t *ex, size_t *len) {
+    size_t idx = 0;
+    uint8_t cnt;
+    uint64_t m = n;
+
+    /* Handle factor 2 */
+    cnt = 0;
+    while ((m & 1ULL) == 0) { ++cnt; m >>= 1; }
+    if (cnt > 0) ex[idx++] = cnt;
+
+    /* Handle odd prime factors */
+    for (uint64_t p = 3; p * p <= m; p += 2) {
+        if (m % p != 0) continue;
+        cnt = 0;
+        while (m % p == 0) { ++cnt; m /= p; }
+        ex[idx++] = cnt;
+    }
+    if (m > 1) ex[idx++] = 1;   /* remaining prime factor */
+
+    /* Sort exponents in descending order (insertion sort). */
+    for (size_t i = 1; i < idx; ++i) {
+        uint8_t key = ex[i];
+        size_t j = i;
+        while (j > 0 && ex[j - 1] < key) {
+            ex[j] = ex[j - 1];
+            --j;
+        }
+        ex[j] = key;
+    }
+    *len = idx;
+}
 
 typedef struct {
     uint8_t v2;               /* 2‑adic valuation of n */
@@ -66,7 +102,7 @@ seq_t a(idx_t n) {
     if (n > cache_max) {
         /* Allocate space for the new cache entries */
         idx_t new_cap = n + 1;   /* indices 0..n (we ignore 0) */
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
 
         /* Compute sequence values up to n */
         for (idx_t i = cache_max + 1; i <= n; ++i) {

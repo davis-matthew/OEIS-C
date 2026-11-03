@@ -9,7 +9,8 @@
  *            a(2n+1)= smallest unused non‑square‑free integer
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   is_squarefree
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoized terms (index n maps to cache[n‑1]) */
 static size_t cache_len = 0;  /* number of computed terms */
@@ -35,7 +37,7 @@ static void ensure_cache_cap(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     cache     = new_arr;
     cache_cap = new_cap;
 }
@@ -46,7 +48,7 @@ static void init_cache(void)
     if (cache != NULL)
         return;
     cache_cap = 16;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[0] = 1;          /* a(1) = 1 */
     cache_len = 1;
     sf_next = 2;

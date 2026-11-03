@@ -11,6 +11,7 @@
  *            5·10⁻⁵, so * n·error < 1/2 for n ≤ 10⁴)
  * Range:     u8 n <= 123, u16 n <= 123, u32 n <= 123, u64 n <= 123,
  *            u128 n <= 123, big any n
+ * Validated: partial, pass, 123 terms through n = 123 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

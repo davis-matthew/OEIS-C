@@ -7,6 +7,7 @@
  * Formula:   a(n) = 10^n mod 4^n
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 32, u128 n <= 64,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 286 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

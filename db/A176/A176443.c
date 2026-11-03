@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 106, u16 n <= 106, u32 n <= 106, u64 n <= 106,
  *            u128 n <= 106, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 106 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* maximum number of decimal digits we expect to compute.
    2048 limbs (1e9 base) give ~18432 decimal digits, plenty for 10 000. */
@@ -118,7 +120,7 @@ static void init_state(void) {
     bi_set_uint32(&big_rem, 28);
 
     digits_cap = 64;
-    digits = (seq_t *)malloc(digits_cap * sizeof(seq_t));
+    digits = mem_new(seq_t, digits_cap);
     digits[0] = 2;  /* a(2) */
     digits[1] = 1;  /* a(3) */
     digits_len = 2;
@@ -170,7 +172,7 @@ seq_t a(idx_t n) {
         /* grow digits array if necessary */
         if (digits_len == digits_cap) {
             digits_cap <<= 1;
-            digits = (seq_t *)realloc(digits, digits_cap * sizeof(seq_t));
+            digits = mem_resize(seq_t, digits, digits_cap);
         }
     }
 

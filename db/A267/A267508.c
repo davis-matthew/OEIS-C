@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper structure for a substring: its value and bit length. */
 struct seg { seq_t val; unsigned len; };
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     }
 
     /* Step 3: sort the substrings to obtain the minimal concatenation. */
-    qsort(s, k, sizeof(s[0]), seg_cmp);
+    mem_qsort(s, k, sizeof(s[0]), seg_cmp);
 
     /* Concatenate the sorted substrings. */
     seq_t res = 0;

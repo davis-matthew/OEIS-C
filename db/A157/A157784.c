@@ -10,12 +10,14 @@
  *            r, column k of the triangle)
  * Range:     i8 n <= 9, i16 n <= 14, i32 n <= 27, i64 n <= 31, i128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Find the row r such that r(r+1)/2 ≤ idx < (r+1)(r+2)/2. */
 static idx_t
@@ -39,7 +41,7 @@ a(idx_t n)
 
     /* Allocate array for the coefficients of row r. */
     /* For arbitrary‑precision seq_t use a cast of malloc. */
-    seq_t *cur = (seq_t *)malloc((size_t)(r + 1) * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, (size_t)(r + 1));
     if (!cur)
         return (seq_t)0;  /* unlikely; graceful failure */
 
@@ -63,6 +65,6 @@ a(idx_t n)
     }
 
     seq_t result = cur[k];
-    free(cur);
+    mem_free(cur);
     return result;
 }

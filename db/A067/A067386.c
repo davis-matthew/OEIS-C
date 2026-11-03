@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 1881, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes, is_prime
+ * Validated: standard, pass, 70 terms through n = 8811 (2026-11-03)
+ * Helpers:   is_prime, mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array of found terms              */
 static size_t cache_cnt = 0;   /* number of terms stored so far     */
@@ -40,7 +43,7 @@ static void ensure_cache_capacity(size_t needed)
         size_t new_cap = cache_cap == 0 ? 64 : cache_cap * 2;
         while (new_cap < cache_cnt + needed)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();                   /* out of memory – terminate */
         cache = tmp;
@@ -61,7 +64,7 @@ seq_t a(idx_t n)
         {
             uint64_t p_minus = (uint64_t)next_candidate - 1;
             uint64_t p_plus  = (uint64_t)next_candidate + 1;
-            if (count_distinct_primes(p_minus) == count_distinct_primes(p_plus))
+            if (omega(p_minus) == omega(p_plus))
             {
                 ensure_cache_capacity(1);
                 cache[cache_cnt++] = (seq_t)next_candidate;

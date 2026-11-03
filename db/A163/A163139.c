@@ -7,7 +7,8 @@
  * Formula:   a(n) = A163128(n+1) - A163128(n) = A003052(n+1) - A003052(n) - 1
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* sum of decimal digits of an idx_t value */
 static idx_t sum_digits(idx_t x)
@@ -67,8 +69,8 @@ static void generate_to_limit(idx_t limit)
     /* Allocate a new self array or reuse the old one if large enough. */
     size_t cap = (size_t)limit + 1;
     if (self_cap < cap) {
-        free(self_arr);
-        self_arr = (seq_t *)malloc(cap * sizeof(seq_t));
+        mem_free(self_arr);
+        self_arr = mem_new(seq_t, cap);
         self_cap = cap;
     }
 

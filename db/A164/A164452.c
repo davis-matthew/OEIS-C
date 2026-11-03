@@ -11,12 +11,14 @@
  *            function returns 0 (value undefined by OEIS)
  * Range:     u8 n <= 11, u16 n <= 28, u32 n <= 63, u64 n <= 131,
  *            u128 n <= 269, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 496 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t   cap   = 0;      /* allocated size of cache   */
@@ -26,7 +28,7 @@ static idx_t   computed_max = 3; /* greatest n for which a(n) is known in cache 
 static void ensure_capacity(idx_t n) {
     if (n >= cap) {
         idx_t new_cap = (cap == 0) ? 64 : n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort(); /* out of memory */
         cache = new_cache;
         cap = new_cap;

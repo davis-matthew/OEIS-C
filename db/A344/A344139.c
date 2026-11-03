@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{d|n} φ(n/d) * τ(d)^5
  * Range:     u8 n <= 3, u16 n <= 35, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf, pow5_unsigned
+ * Validated: standard, pass, 69 terms through n = 9068 (2026-11-01)
+ * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,16 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/build_spf.h"   /* build_spf(limit, &array) */
-#include "../utils/pow5_unsigned.h"
+#include "../utils/build_spf.h"
+
+/* Compute t^5 for an unsigned t, result in seq_t */
+static seq_t pow5_unsigned(unsigned t)
+{
+    seq_t r = 1;
+    for (int i = 0; i < 5; ++i)
+        r = r * (seq_t)t;
+    return r;
+}
 
 /* Static cache of smallest prime factors */
 static idx_t *spf = NULL;          /* array of size spf_limit+1 */

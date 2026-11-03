@@ -12,12 +12,14 @@
  *            a(15)=17
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (!seq) {
         /* Allocate enough space for the first 15 terms */
         cap = 15;
-        seq = (seq_t *)malloc((size_t)cap * sizeof(seq_t));
+        seq = mem_new(seq_t, (size_t)cap);
         for (idx_t i = 0; i < 15; ++i) seq[i] = init[i];
         size = 15;
     }
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     if (n > cap) {
         idx_t newcap = cap;
         while (newcap < n) newcap *= 2;
-        seq = (seq_t *)realloc(seq, (size_t)newcap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (size_t)newcap);
         cap = newcap;
     }
 

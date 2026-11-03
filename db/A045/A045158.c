@@ -12,13 +12,22 @@
  *            L·3^(L‑1) such numbers. Once the required * leng...
  * Range:     u8 n <= 54, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   init_pow3
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/init_pow3.h"
+
+/* Modular exponential for 3^k (k <= 64). */
+static void init_pow3(idx_t *pow3, idx_t max_len)
+{
+    pow3[0] = (idx_t)1;
+    for (idx_t i = 1; i <= max_len; ++i) {
+        pow3[i] = pow3[i-1] * (idx_t)3;
+    }
+}
 
 seq_t a(idx_t n)
 {

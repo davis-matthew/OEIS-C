@@ -9,14 +9,16 @@
  *            composite number (starting at 4)
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Static storage for composites and the sequence. */
 static seq_t *composites = NULL;
@@ -29,11 +31,10 @@ static void ensure_composites(idx_t need)
 {
     while (composites_count < need) {
         seq_t cand = (seq_t)last_comp_candidate;
-        if (!is_prime_small(cand)) {        /* composite */
+        if (!is_prime_seq(cand)) {        /* composite */
             if (composites_count == composites_cap) {
                 composites_cap = composites_cap ? composites_cap * 2 : 16;
-                composites = (seq_t *)realloc(composites,
-                                             composites_cap * sizeof(seq_t));
+                composites = mem_resize(seq_t, composites, composites_cap);
             }
             composites[composites_count++] = cand;
         }
@@ -52,7 +53,7 @@ static void append_seq(seq_t val)
 {
     if (seq_count == seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 16;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
     seq[seq_count++] = val;
 }
@@ -81,7 +82,7 @@ seq_t a(idx_t n)
         seq_t val = cci - 3;
 
         /* Record if nonprime (composite, 1, or 0). */
-        if (!is_prime_small(val)) {
+        if (!is_prime_seq(val)) {
             append_seq(val);
         }
         next_i++;                          /* move to next i */

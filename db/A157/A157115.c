@@ -11,7 +11,8 @@
  *            the k-th prime ≡ 5 (mod 8); * for n ≡ 0 (mod 4) th...
  * Range:     u8 n <= 40, u16 n <= 4000, u32 n <= 4000, u64 n <= 4000,
  *            u128 n <= 4000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 75 terms through n = 3997 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* storage for primes of each residue class modulo 8 */
 static seq_t *p1 = NULL, *p3 = NULL, *p5 = NULL, *p7 = NULL;
@@ -36,7 +38,7 @@ static void grow_vector(seq_t **vec, size_t *len, size_t *cap, size_t new_len)
     size_t new_cap = (*cap == 0) ? 16 : *cap * 2;
     while (new_cap < new_len)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*vec, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *vec, new_cap);
     if (!tmp)
         abort();
     *vec = tmp;

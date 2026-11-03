@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 217, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_two_in_base3
+ * Validated: standard, pass, 87 terms through n = 8972 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
    contains the digit 2. The n‑th such integer is returned.  Complexity is O(n). */
 
 #include <stdbool.h>
-#include "../utils/has_two_in_base3.h"
+
+/* Helper: true if v has a ternary digit equal to 2. */
+static inline bool has_two_in_base3(seq_t v)
+{
+    seq_t three = (seq_t)3;
+    for(; v != (seq_t)0; v = v / three)
+    {
+        if ((v % three) == (seq_t)2)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

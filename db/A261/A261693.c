@@ -10,24 +10,28 @@
  *            + 1 (1‑based position in row r). Then a(n) = 2^r + 1 – 2*k
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   floor_log2_uint64, seq_pow
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-01)
+ * Helpers:   ilog2, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
-#include "../utils/seq_pow.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/ilog2.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0)
         return (seq_t)0;
 
-    unsigned r = floor_log2_uint64(n) + 1;              /* r ≥ 1 */
+    unsigned r = ilog2(n) + 1;              /* r ≥ 1 */
     idx_t start = ((idx_t)1) << (r - 1);                 /* 2^(r-1)  */
     idx_t k = n - start + 1;                            /* 1‑based index in row r */
 
-    seq_t pow_r = seq_pow((seq_t)2, r);                   /* 2^r   */
+    seq_t pow_r = ipow_idx((seq_t)2, r);                   /* 2^r   */
     seq_t val = pow_r + (seq_t)1 - ((seq_t)2 * (seq_t)k);
     return val;
 }

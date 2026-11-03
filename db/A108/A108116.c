@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, easy, fini, full, nonn
  * Formula:   not stated
- * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 9656, u128 n <= 9656,
+ * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 20120, u128 n <= 20120,
  *            big any n
+ * Validated: full, pass, 20120 terms through n = 20120 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} (d+n)^n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* Multiply a divisor by successive powers of a prime during recursion. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* Recursive helper to sum the terms for all divisors of n. */
 static void _sum_divisors(uint64_t *primes, int *exps, size_t pf_cnt,
@@ -24,7 +26,7 @@ static void _sum_divisors(uint64_t *primes, int *exps, size_t pf_cnt,
 {
     if (idx == pf_cnt) {                    /* finished building one divisor */
         seq_t base = (seq_t)current + n_val; /* (d + n) as seq_t */
-        seq_t term = seq_pow(base, (idx_t)n_val); /* (d+n)^n */
+        seq_t term = ipow_idx(base, (idx_t)n_val); /* (d+n)^n */
         *sum += term;
         return;
     }

@@ -7,14 +7,32 @@
  * Formula:   a(n) = number of decimal digits in the decimal expansion of n^7
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   big_mul_uint64
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_mul_uint64.h"
+
+/* Multiply a big integer, stored in base 1e9, by a 64‑bit unsigned integer.
+   The number is stored in little‑endian order, least significant limb first. */
+static void big_mul_uint64(uint32_t *digits, size_t *len, uint64_t m)
+{
+    const uint64_t BASE = 1000000000ULL; /* 1e9 */
+    uint64_t carry = 0;
+    for (size_t i = 0; i < *len; ++i) {
+        uint64_t prod = (uint64_t)digits[i] * m + carry;
+        digits[i] = (uint32_t)(prod % BASE);
+        carry     = prod / BASE;
+    }
+    while (carry > 0) {
+        digits[*len] = (uint32_t)(carry % BASE);
+        carry /= BASE;
+        ++(*len);
+    }
+}
 
 /* Count decimal digits of a 32‑bit integer in the [0,10^9) range */
 static unsigned digit_len_uint32(uint32_t v)

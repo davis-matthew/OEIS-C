@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 462 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    (a(13) = 21*Σ_{k=1}^{12}a(13-k) – 231*a0 + 1). */
 
 #include <stdlib.h>  /* malloc, free, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on first call. */
     if (!cache) {
         size  = 13;               /* at least as many as the initial values */
-        cache = (seq_t *)malloc(sizeof(seq_t) * size);
+        cache = mem_new(seq_t, size);
         if (!cache) abort();
         for (idx_t i = 0; i < 13; ++i)
             cache[i] = init_vals[i];
@@ -62,11 +64,11 @@ seq_t a(idx_t n)
         size_t new_size = size * 2;
         if (new_size <= (size_t)n + 1)
             new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_new(seq_t, new_size);
         if (!tmp) abort();
         for (size_t i = 0; i < count; ++i)
             tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = tmp;
         size  = new_size;
     }

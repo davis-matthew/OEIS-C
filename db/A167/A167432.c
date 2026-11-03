@@ -10,12 +10,15 @@
  *            provided by the build
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     idx_t K = r - k;                  /* binomial lower index */
 
     /* Compute A054445(r,k) = (k+2)/(2r-k+2) * binom(2r-k+2, r-k) */
-    seq_t res = binom(N, K);          /* binomial coefficient */
+    seq_t res = binomial(N, K);          /* binomial coefficient */
     res *= (k + 2);                   /* multiply by (k+2) */
     res /= N;                         /* exact division */
 

@@ -5,14 +5,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = ∑_{k=0..⌊n/4⌋} binomial(k, n-4k) * binomial(4k, k)/(3k+1)
- * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 38, u64 n <= 40, u128 n <= 40,
+ * Range:     u8 n <= 15, u16 n <= 23, u32 n <= 38, u64 n <= 40, u128 n <= 40,
  *            big any n
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

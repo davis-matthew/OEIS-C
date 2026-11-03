@@ -9,13 +9,15 @@
  *            0
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9616 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for the Pell word */
 static seq_t *pell = NULL;   /* array of 0/1 values */
@@ -29,7 +31,7 @@ static void ensure_pell(idx_t m)
 
     /* initialise if necessary */
     if (pell_len == 0) {
-        pell = (seq_t *)malloc(sizeof(seq_t));
+        pell = mem_new(seq_t, 1);
         if (!pell) exit(EXIT_FAILURE);
         pell[0] = 0;
         pell_len = 1;
@@ -49,7 +51,7 @@ static void ensure_pell(idx_t m)
         /* new length after one application of the morphism */
         size_t new_len = zeros * 3 + ones;
 
-        seq_t *np = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *np = mem_new(seq_t, new_len);
         if (!np) exit(EXIT_FAILURE);
 
         /* build the next word */
@@ -64,7 +66,7 @@ static void ensure_pell(idx_t m)
             }
         }
 
-        free(pell);
+        mem_free(pell);
         pell = np;
         pell_len = new_len;
     }

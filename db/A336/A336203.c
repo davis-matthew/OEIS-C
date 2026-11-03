@@ -9,14 +9,18 @@
  *            (i,k) are the coordinates on the antidiagonal that contain a(n)
  * Range:     u8 n <= 24, u16 n <= 49, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binomial, pow2, pow_seq
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial, ipow_i32, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +39,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t j = 0; j <= i; ++j) {
         seq_t bin = binomial(i, j);
-        seq_t term = pow2(j) * pow_seq(bin, (int)k);
+        seq_t term = pow2(j) * ipow_i32(bin, (int)k);
         sum += term;
     }
     return sum;

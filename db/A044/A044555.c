@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has51
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,27 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has51.h"
+#include "../utils/mem.h"
+
+/* Check whether the base‑7 representation of x contains the string
+   "51".  Working with idx_t keeps the routine independent of the
+   size of seq_t. */
+static bool has51(idx_t x)
+{
+    bool seen1 = false;
+    while (x > (idx_t)0) {
+        unsigned d = (unsigned)(x % (idx_t)7);
+        x /= (idx_t)7;
+        if (d == 1) {
+            seen1 = true;
+        } else if (d == 5 && seen1) {
+            return true;
+        } else {
+            seen1 = false;
+        }
+    }
+    return false;
+}
 
 /* Return the n‑th term of A044555 (1‑based index). */
 seq_t a(idx_t n)
@@ -37,7 +58,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on first call. */
     if (cache == NULL) {
         cache_cap = 128;
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort(); /* allocation failure */
     }
 
@@ -46,7 +67,7 @@ seq_t a(idx_t n)
         if (has51(candidate) && !has51(candidate + (idx_t)1)) {
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (tmp == NULL) abort(); /* realloc failure */
                 cache = tmp;
                 cache_cap = new_cap;

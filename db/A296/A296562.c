@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   decimal_value
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/decimal_value.h"
+#include "../utils/mem.h"
+
+/* Compute the decimal value of the base‑b representation of k. */
+static seq_t decimal_value(seq_t k, int base)
+{
+    seq_t temp = k;
+    seq_t dec  = 0;
+    seq_t mult = 1;
+    while (temp > 0)
+    {
+        int digit = (int)(temp % base);
+        temp = temp / base;
+        dec += (seq_t)digit * mult;
+        mult *= 10;
+    }
+    return dec;
+}
 
 seq_t a(idx_t n)
 {
@@ -57,7 +74,7 @@ seq_t a(idx_t n)
             if (term_len == term_cap)
             {
                 size_t new_cap = term_cap == 0 ? 16 : term_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) abort();  /* memory allocation failed */
                 terms = tmp;
                 term_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 168, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 1969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
     Partitions are unordered, computed via the classic coin‑change DP. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of p4(n) = #partitions of n into 1,2,3,4. */
 static seq_t *dp = NULL;
@@ -31,7 +33,7 @@ ensure_cache(idx_t n)
         return;
 
     size_t new_cap = (size_t)n + 1;   /* array size needed   */
-    seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, new_cap);
     if (tmp == NULL)                 /* allocation failed – leave dp as is */
         return;
     dp   = tmp;

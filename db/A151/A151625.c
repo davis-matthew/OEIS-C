@@ -9,13 +9,25 @@
  *            binomial(2*n+1, 3)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   pow10, seq_pow
+ * Validated: standard, pass, 36 terms through n = 159 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -26,8 +38,8 @@ seq_t a(idx_t n)
     seq_t pow10_n = pow10(n);
 
     /* 6^n and 3^n */
-    seq_t pow6_n  = seq_pow((seq_t)6, n);
-    seq_t pow3_n  = seq_pow((seq_t)3, n);
+    seq_t pow6_n  = ipow_idx((seq_t)6, n);
+    seq_t pow3_n  = ipow_idx((seq_t)3, n);
 
     /* Compute binomial coefficients using 64‑bit arithmetic */
     idx_t two_n   = 2 * n;          /* 2*n */

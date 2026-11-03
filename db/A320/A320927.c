@@ -7,14 +7,26 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) is the nth term of the concatenation of successively
  *            applied morphisms 0 -> {0,0,1}, 1 -> {0,1,0}, starting from 0
- * Range:     u8 n <= 9276, u16 n <= 9276, u32 n <= 9276, u64 n <= 9276,
- *            u128 n <= 9276, big any n
- * Helpers:   _seg_val
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 102 terms through n = 9276 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_seg_val.h"
+static seq_t _seg_val(idx_t k, idx_t pos)
+{
+    /* Recursive computation of segment k value at position pos (0‑based). */
+    if (k == 0)
+        return 0;                 /* the initial segment is {0} */
+    idx_t parent_pos = pos / 3;
+    idx_t childIdx  = pos % 3;
+    seq_t parent_val = _seg_val(k - 1, parent_pos);
+    return (parent_val == 0)
+           ? ((childIdx == 2) ? 1 : 0)   /* 0 -> {0,0,1} */
+           : ((childIdx == 1) ? 1 : 0);  /* 1 -> {0,1,0} */
+}
 
 seq_t a(idx_t n)
 {

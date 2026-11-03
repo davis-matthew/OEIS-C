@@ -11,14 +11,43 @@
  *            sequence A345252
  * Range:     u8 n <= 56, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   fib, finv_idx
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/fib.h"
-#include "../utils/finv_idx.h"
+#include <stdbool.h>
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
+
+/* Return Finv(n): the greatest index m such that F(m) ≤ n. */
+static idx_t finv_idx(idx_t n)
+{
+    seq_t limit = (seq_t)n;   /* n fits in a seq_t for comparison */
+    seq_t a = 0;              /* F(0) */
+    seq_t b = 1;              /* F(1) */
+    idx_t m = 0;              /* current index */
+
+    while (b <= limit) {
+        seq_t tmp = a + b;    /* F(m+2) */
+        a = b;                /* shift: new F(m+1) */
+        b = tmp;              /* new F(m+2) */
+        ++m;                  /* move to next index */
+    }
+    /* after loop: a = F(m) ≤ n < F(m+1) = b */
+    return m;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,13 +9,24 @@
  *            1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   binom_3k_k
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom_3k_k.h"
+#include "../utils/mem.h"
+
+/* Compute binomial(3*k,k) using a multiplicative formula.
+   The product (3*k - i + 1)/i is integer at each step. */
+static seq_t binom_3k_k(idx_t k)
+{
+    seq_t r = (seq_t)1;
+    for (idx_t i = (idx_t)1; i <= k; ++i)
+        r = (r * ((seq_t)3 * k - (seq_t)i + (seq_t)1)) / (seq_t)i;
+    return r;
+}
 
 /* Return the n-th term of OEIS sequence A370376. */
 seq_t a(idx_t n)
@@ -32,7 +43,7 @@ seq_t a(idx_t n)
     if (n + (idx_t)1 > A_cap) {
         size_t new_cap = (A_cap == 0 ? 16 : A_cap * 2);
         while (new_cap <= n + (idx_t)1) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, new_cap);
         A = tmp;
         A_cap = (idx_t)new_cap;
     }
@@ -41,7 +52,7 @@ seq_t a(idx_t n)
     if (n + (idx_t)1 > C_cap) {
         size_t new_cap = (C_cap == 0 ? 16 : C_cap * 2);
         while (new_cap <= n + (idx_t)1) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(C, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, C, new_cap);
         C = tmp;
         C_cap = (idx_t)new_cap;
     }

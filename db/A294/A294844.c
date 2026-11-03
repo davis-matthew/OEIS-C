@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 19, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>   /* for malloc, free */
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,11 +37,11 @@ seq_t a(idx_t n)
        dynamic memory because seq_t may be an arbitrary-precision type
        that cannot be trivially copied on the stack.  */
     size_t N = (size_t)n + 1;
-    seq_t *dp   = (seq_t *)malloc(N * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, N);
+    seq_t *next = mem_new(seq_t, N);
     if (!dp || !next) { /* insufficient memory – return 0 as a safe fallback */
-        free(dp);
-        free(next);
+        mem_free(dp);
+        mem_free(next);
         return (seq_t)0;
     }
 
@@ -54,8 +56,8 @@ seq_t a(idx_t n)
         idx_t *bin_indices = NULL;               /* not used; we compute binom values on the fly */
 
         /* Allocate array for binomial coefficients bin[0..maxj] */
-        seq_t *bin = (seq_t *)malloc((maxj + 1) * sizeof(seq_t));
-        if (!bin) { free(dp); free(next); return (seq_t)0; }
+        seq_t *bin = mem_new(seq_t, (maxj + 1));
+        if (!bin) { mem_free(dp); mem_free(next); return (seq_t)0; }
 
         /* exponent e_k = k*(k+1)*(5*k-2)/6 */
         seq_t e = (seq_t)k * (seq_t)(k + 1);
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
         }
 
         /* Free bin coefficients and swap dp/next for next iteration. */
-        free(bin);
+        mem_free(bin);
         seq_t *tmp = dp;
         dp        = next;
         next      = tmp;
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
 
     /* Result is stored in dp[n].  Copy it before freeing temporary arrays. */
     seq_t result = dp[(size_t)n];
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

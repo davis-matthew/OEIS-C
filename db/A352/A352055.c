@@ -12,15 +12,18 @@
  *            sum (skip d == n when n is odd). - Return t...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 11, u64 n <= 138,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_seq
+ * Validated: standard, pass, 40 terms through n = 9282 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/pow_seq.h"     /* pow_seq(seq_t a, int k) returns seq_t */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_i32.h"
 
 /* Helper to recursively build odd divisors of the odd-part of n. */
 static void add_div_sum(idx_t n, idx_t m, const uint64_t *pr,
@@ -32,7 +35,7 @@ static void add_div_sum(idx_t n, idx_t m, const uint64_t *pr,
         if (m == n && cur_div == (uint64_t)n)
             return;
         idx_t q = n / cur_div;                 /* q = n/d */
-        seq_t val = pow_seq((seq_t)q, 9);       /* (n/d)^9 */
+        seq_t val = ipow_i32((seq_t)q, 9);       /* (n/d)^9 */
         *sum += val;
         return;
     }

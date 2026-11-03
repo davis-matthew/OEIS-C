@@ -10,14 +10,25 @@
  *            T(n,1)=1 and T(n,k)=n*T(n,k-1)+k
  * Range:     u8 n <= 39, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   diag_for_index
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/diag_for_index.h"
+
+static inline idx_t diag_for_index(idx_t idx)
+{
+    /* Find the smallest s such that s*(s+1)/2 > idx. */
+    long double d = sqrtl((long double)8.0L * idx + 1.0L);
+    idx_t s = (idx_t)((d - 1.0L) / 2.0L) + 1;
+    /* Adjust in case of floating‑point rounding. */
+    while ((unsigned __int128)s * (s + 1) / 2 <= idx) ++s;
+    while (s > 1 && (unsigned __int128)(s - 1) * s / 2 > idx) --s;
+    return s;
+}
 
 static inline seq_t T_rec(idx_t n, idx_t k)
 {

@@ -6,16 +6,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{d|n} mu(n/d) * Catalan(d-1) (Catalan(k)=C_k)
- * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 18, u64 n <= 29, u128 n <= 29,
+ * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 20, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
  * Helpers:   catalan, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mobius.h"   /* seq_t mobius(idx_t m);  returns -1,0,1 */
-#include "../utils/catalan.h"  /* seq_t catalan(idx_t k);  returns C_k */
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/catalan.h"
+#include "../utils/mobius.h"
 
 seq_t a(idx_t n)
 {

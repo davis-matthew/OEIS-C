@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 33, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,10 +32,10 @@ seq_t a(idx_t n)
     }
 
     /* Allocate arrays for counts with odd and even lengths. */
-    seq_t *O = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
-    seq_t *E = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *O = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *E = mem_new(seq_t, (size_t)(n + 1));
     if (!O || !E) {
-        free(O); free(E);
+        mem_free(O); mem_free(E);
         return 0;
     }
 
@@ -48,14 +50,14 @@ seq_t a(idx_t n)
     /* Primality sieve up to n. */
     bool *is_composite = (bool*)calloc((size_t)(n + 1), sizeof(bool));
     if (!is_composite) {
-        free(O); free(E);
+        mem_free(O); mem_free(E);
         return 0;
     }
 
     size_t primes_capacity = n / 2 + 2; /* rough upper bound */
     uint32_t *primes = (uint32_t*)malloc(primes_capacity * sizeof(uint32_t));
     if (!primes) {
-        free(is_composite); free(O); free(E);
+        free(is_composite); mem_free(O); mem_free(E);
         return 0;
     }
     size_t primes_count = 0;
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
     /* Free memory */
     free(is_composite);
     free(primes);
-    free(O);
-    free(E);
+    mem_free(O);
+    mem_free(E);
     return result;
 }

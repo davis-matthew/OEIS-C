@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/phi.h"   /* declares: seq_t phi(idx_t m); */
+#include <stdint.h>
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 typedef unsigned __int128 u128;
 
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     /* grow the cache until it contains at least n terms */
     while (cnt < (size_t)n) {
         seq_t k     = (seq_t)start;        /* current integer */
-        seq_t phi_k = phi(start);          /* φ(k) */
+        seq_t phi_k = totient(start);          /* φ(k) */
 
         /* Use 128‑bit arithmetic to avoid overflow for 64‑bit seq_t. */
         u128 num = (u128)k * (u128)phi_k;
@@ -46,8 +49,7 @@ seq_t a(idx_t n)
             /* need room for one more term */
             if (cnt == cap) {
                 size_t new_cap = cap ? cap * 2 : 16;
-                seq_t *new_buf = (seq_t *)realloc(cache,
-                                                   new_cap * sizeof(seq_t));
+                seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
                 if (!new_buf) abort();           /* memory exhaustion */
                 cache = new_buf;
                 cap = new_cap;

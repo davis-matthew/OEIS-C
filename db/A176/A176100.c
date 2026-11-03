@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2 * (the (n-1)-th nonprime number), with a(1) = 0
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   mod_mul
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mod_mul.h"
+#include <stdlib.h>
+#include "../utils/mulmod.h"
 
 /* modular multiplication using 128‑bit arithmetic to avoid overflow */
 
@@ -28,8 +30,8 @@ static uint64_t mod_pow(uint64_t a, uint64_t d, uint64_t mod)
     while (d != 0)
     {
         if (d & 1ULL)
-            result = mod_mul(result, a, mod);
-        a = mod_mul(a, a, mod);
+            result = mulmod(result, a, mod);
+        a = mulmod(a, a, mod);
         d >>= 1;
     }
     return result;
@@ -76,7 +78,7 @@ static bool isPrimeU64(uint64_t n)
         bool comp = true;
         for (int r = 1; r < s; ++r)
         {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1)
             {
                 comp = false;

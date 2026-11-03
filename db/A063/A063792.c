@@ -12,7 +12,8 @@
  *            property
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Small primality test, sufficient for the small difference values
  * that arise (at most 9 * number_of_digits(p)). */
@@ -60,10 +62,10 @@ static bool initialized = false;
 static void grow_subprimes(void) {
     if (subprime_cap == 0) {
         subprime_cap = 1024;
-        subprimes = (seq_t *)malloc(subprime_cap * sizeof(seq_t));
+        subprimes = mem_new(seq_t, subprime_cap);
     } else {
         subprime_cap <<= 1;
-        subprimes = (seq_t *)realloc(subprimes, subprime_cap * sizeof(seq_t));
+        subprimes = mem_resize(seq_t, subprimes, subprime_cap);
     }
 }
 

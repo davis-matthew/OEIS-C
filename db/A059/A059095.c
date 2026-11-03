@@ -12,13 +12,15 @@
  *            infinite sequence. a(n) is that sequence’s n‑th term
  * Range:     i8 n <= 4560, i16 n <= 4560, i32 n <= 4560, i64 n <= 4560,
  *            i128 n <= 4560, big any n
- * Helpers:   none
+ * Validated: standard, pass, 126 terms through n = 4032 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Return the n‑th digit of the concatenated balanced–ternary word.  */
 seq_t a(idx_t n)
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap ? cache_cap * 2 : 64;
             while (new_cap < cache_len + d)
                 new_cap *= 2;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) {
                 /* Allocation failed – abort with undefined behaviour
                    (not expected in test harness). */

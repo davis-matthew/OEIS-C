@@ -10,8 +10,9 @@
  *            as follows: let d be the smallest integer with * d(d+1)/2 ≥ n.
  *            Then let offset = n - (d-1)d/2 - 1, * m = offset + 1, k = d -
  *            offset
- * Range:     u8 n <= 276, u16 n <= 9391, u32 n <= 9391, u64 n <= 9391,
- *            u128 n <= 9391, big any n
+ * Range:     u8 n <= 276, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 90 terms through n = 9391 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

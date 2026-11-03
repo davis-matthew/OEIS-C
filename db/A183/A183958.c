@@ -9,6 +9,7 @@
  *            4·x2 + 9·x3 + 16·x4 + 25·x5 + 36·x6 + 49·x7 = 49·n
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 82, u64 n <= 200, u128 n <= 200,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 192 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

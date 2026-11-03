@@ -7,13 +7,15 @@
  * Formula:   a(n) = the nth divisor of 312 in increasing order
  * Range:     u8 n <= 12, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort that works for any integral or big‑int seq_t */
 static int compare_div(const void *p, const void *q)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
                 for (size_t k = 0; k < 2; ++k)/* exponent of 13 */
                     divisors[idx++] = pow2[i] * pow3[j] * pow13[k];
 
-        qsort(divisors, div_count, sizeof(seq_t), compare_div);
+        mem_qsort(divisors, div_count, sizeof(seq_t), compare_div);
         initialized = true;
     }
 

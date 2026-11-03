@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,12 +32,12 @@ seq_t a(idx_t n)
 
     if (n > max_n) {
         /* free old table if any */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
 
         /* allocate new table up to n */
         size_t cols = (size_t)(n + 1);
         size_t rows = 9;              /* k = 0..8 */
-        dp = (seq_t *)calloc(rows * cols, sizeof(seq_t));
+        dp = mem_new(seq_t, rows * cols);
         if (!dp) return 0;            /* allocation failure */
 
         /* base case: exactly 0 parts sum to 0 */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
         /* sieve to find squarefree numbers up to n */
         bool *is_sf = (bool *)calloc(cols, sizeof(bool));
-        if (!is_sf) { free(dp); return 0; }
+        if (!is_sf) { mem_free(dp); return 0; }
         for (size_t i = 1; i < cols; ++i) is_sf[i] = true;
 
         idx_t limit = (idx_t)sqrt((double)n);

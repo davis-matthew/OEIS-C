@@ -9,7 +9,8 @@
  *            perfect‑power ones, and multiplies the remaining ones together
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 59, u64 n <= 239,
  *            u128 n <= 839, big any n
- * Helpers:   _smallest_prime_factor, pow_uint64_le
+ * Validated: standard, pass, 88 terms through n = 9750 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,22 @@
 
 /* External helper: returns the smallest prime factor of m,
    or 0 if m is prime.  The build supplies this header. */
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/pow_uint64_le.h"
+#include "../utils/smallest_prime_factor.h"
+
+/* Multiply base^exp but stop and return limit+1 if the product would
+   exceed limit or overflow 64‑bit unsigned arithmetic. */
+static uint64_t pow_uint64_le(uint64_t base, int exp, uint64_t limit)
+{
+    uint64_t res = 1;
+    for (int i = 0; i < exp; ++i)
+    {
+        if (base == 0) return 0;
+        if (res > limit / base)
+            return limit + 1;              /* would overflow or exceed limit */
+        res *= base;
+    }
+    return res;
+}
 
 /* Integer floor e‑th root of x, using binary search. */
 static uint64_t int_root(uint64_t x, int e)
@@ -98,7 +113,7 @@ seq_t a(idx_t n)
     size_t cnt = 0;
     while (m > 1)
     {
-        uint64_t p = _smallest_prime_factor(m);
+        uint64_t p = smallest_prime_factor(m);
         if (p == 0)           /* m itself is prime */
             p = m;
         uint64_t e = 0;

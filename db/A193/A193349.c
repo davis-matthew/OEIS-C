@@ -8,14 +8,15 @@
  *            divisors of n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 102 terms through n = 9345 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_smallest_prime_factor.h"   /* provides uint64_t _smallest_prime_factor(uint64_t n) */
+#include "../utils/smallest_prime_factor.h"
 
 /* Helper: multiply base^exp (exp ≥ 0) using seq_t arithmetic. */
 static seq_t pow_seq(seq_t base, int exp)
@@ -37,7 +38,7 @@ static seq_t sum_odd_divisors_of_uint64(uint64_t m)
 
     seq_t sum = 1;
     while (m > 1) {
-        uint64_t p = _smallest_prime_factor(m);
+        uint64_t p = smallest_prime_factor(m);
         int cnt = 0;
         while (m % p == 0) {
             m /= p;
@@ -60,7 +61,7 @@ seq_t a(idx_t n)
     seq_t tau = 1;         /* tau(n) = product over (exponent+1) */
 
     while (t > 1) {
-        uint64_t p = _smallest_prime_factor(t);
+        uint64_t p = smallest_prime_factor(t);
         int exp = 0;
         while (t % p == 0) {
             t /= p;

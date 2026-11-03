@@ -8,7 +8,8 @@
  * Formula:   a(n) = n / gcd(n,10^{digits(n)})
  * Range:     u8 n <= 255, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_count
+ * Validated: standard, pass, 95 terms through n = 914 (2026-11-01)
+ * Helpers:   num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 /* Implementation: remove, up to the number of decimal digits, all
    2‑factors and 5‑factors from n.  The remaining part is the answer. */
 
-#include "../utils/digit_count.h"
+#include <math.h>
+#include <stdint.h>
+#include "../utils/num_digits0.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +27,7 @@ seq_t a(idx_t n)
     seq_t m = (seq_t)n;
 
     /* Number of decimal digits of n. */
-    uint64_t k = digit_count(n);
+    uint64_t k = num_digits0(n);
 
     /* Remove powers of 2, up to k times. */
     for (uint64_t i = 0; i < k && (m % 2 == 0); ++i) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   is_prime_uint64
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 static int count_one_digit_prime_variants(uint64_t n)
 {
@@ -55,7 +57,7 @@ static int count_one_digit_prime_variants(uint64_t n)
             else
                 candidate = n - (uint64_t)(cur_d - new_d) * weight;
 
-            if (!is_prime_uint64(candidate))
+            if (!is_prime_u64(candidate))
                 continue;
 
             /* Avoid duplicates */

@@ -8,12 +8,14 @@
  * Formula:   a(n) = coefficients of (1 - x - x^4 + x^5)/(1 + x + x^2 + 2 x^3)
  * Range:     i8 n <= 17, i16 n <= 36, i32 n <= 72, i64 n <= 146,
  *            i128 n <= 292, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static idx_t seq_capacity = 0;
@@ -23,12 +25,12 @@ static void ensure_seq_cache(idx_t need)
 {
     if (seq_cache == NULL) {
         seq_capacity = (need < 16 ? 16 : need + 1);
-        seq_cache = (seq_t *)malloc(seq_capacity * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_capacity);
         seq_computed = 0;
     } else if (need >= seq_capacity) {
         size_t new_cap = seq_capacity * 2;
         if (new_cap < (size_t)(need + 1)) new_cap = need + 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         seq_cache = tmp;
         seq_capacity = new_cap;
     }

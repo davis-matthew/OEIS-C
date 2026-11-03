@@ -12,7 +12,8 @@
  *            a(3)=T(2,2), etc
  * Range:     u8 n <= 17, u16 n <= 37, u32 n <= 82, u64 n <= 212,
  *            u128 n <= 596, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static idx_t max_computed = 0;
 static seq_t *fact = NULL;          /* factorials */
@@ -31,7 +33,7 @@ static void ensure_computed(idx_t r)
     if (r <= max_computed) return;
 
     /* enlarge factorial array */
-    fact = (seq_t*)realloc(fact, (r + 1) * sizeof(seq_t));
+    fact = mem_resize(seq_t, fact, (r + 1));
     if (!fact) return;
     fact[0] = (seq_t)1;
     for (idx_t i = max_computed + 1; i <= r; ++i)
@@ -43,7 +45,7 @@ static void ensure_computed(idx_t r)
 
     /* compute new rows */
     for (idx_t i = max_computed + 1; i <= r; ++i) {
-        dp[i] = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+        dp[i] = mem_new(seq_t, (i + 1));
         if (!dp[i]) return;
         for (idx_t k = 1; k <= i; ++k) {
             seq_t total = (seq_t)0;

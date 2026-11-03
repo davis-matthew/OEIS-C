@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, nice
  * Formula:   not stated
- * Range:     u8 none, u16 none, u32 n <= 229, u64 n <= 7949, u128 n <= 7949,
+ * Range:     u8 none, u16 none, u32 n <= 229, u64 n <= 20000, u128 n <= 20000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 7949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,6 +39,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Parameters ---------------------------------------------------------- */
@@ -71,14 +73,14 @@ static int node_cmp(node *a, node *b)
 
 static void heap_init(heap *h, size_t cap)
 {
-    h->data = (node *)malloc(cap * sizeof(node));
+    h->data = mem_new(node, cap);
     h->size = 0;
     h->capacity = cap;
 }
 
 static void heap_free(heap *h)
 {
-    free(h->data);
+    mem_free(h->data);
     h->data = NULL;
     h->size = 0;
     h->capacity = 0;
@@ -88,7 +90,7 @@ static void heap_push(heap *h, node n)
 {
     if (h->size == h->capacity) {
         h->capacity = h->capacity ? h->capacity * 2 : 16;
-        h->data = (node *)realloc(h->data, h->capacity * sizeof(node));
+        h->data = mem_resize(node, h->data, (h->capacity * sizeof(node)) / sizeof(node));
     }
     size_t i = h->size++;
     while (i > 0) {
@@ -175,7 +177,7 @@ static void grow_terms(size_t needed)
     while (terms_capacity < needed) {
         terms_capacity = terms_capacity ? terms_capacity * 2 : 64;
     }
-    terms = (seq_t *)realloc(terms, terms_capacity * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, terms_capacity);
 }
 
 static void ensure_terms(idx_t target)

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
  * Helpers:   odd_part
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
    The sequence is periodic with period 14. */
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/odd_part.h"
 
 static inline seq_t odd_part_uint64(uint64_t x)

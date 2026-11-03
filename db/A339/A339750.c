@@ -9,12 +9,14 @@
  *            a(5)=7909, a(6)=40674 (Indices are 1‑based; a(0) is unused.)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoised values, 1‑based indexing (cache[0] unused) */
 static seq_t *cache = NULL;
@@ -41,7 +43,7 @@ static void ensure_capacity(idx_t n)
     size_t needed = (size_t)n + 1;       /* include index 0 */
     if (cache == NULL) {
         /* first allocation – at least large enough for n */
-        cache = (seq_t *)calloc(needed, sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (cache == NULL) return;       /* allocation failed – caller will see 0 */
 
         /* initialise first six terms (if they exist) */
@@ -52,7 +54,7 @@ static void ensure_capacity(idx_t n)
 
     } else if (needed > cache_cap) {
         /* enlarge existing array */
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (tmp == NULL) return;           /* reallocation failed – give up */
         cache = tmp;
         cache_cap = needed;

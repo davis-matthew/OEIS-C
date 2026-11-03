@@ -10,12 +10,28 @@
  *            col) is read row by row
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   triangular_root
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/triangular_root.h"
+/* Helper: return the smallest r with r(r+1)/2 >= n.
+   Uses only integer arithmetic with a 128‑bit intermediate to avoid overflow. */
+static inline idx_t triangular_root(idx_t n)
+{
+    idx_t low = 1, high = 1;
+    while (( (__int128)high * (high + 1) ) / 2 < n)
+        high <<= 1;
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        if (( (__int128)mid * (mid + 1) ) / 2 >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 /* Helper: Euclidean gcd for unsigned integers. */
 static inline idx_t gcd_idx(idx_t a, idx_t b)
 {

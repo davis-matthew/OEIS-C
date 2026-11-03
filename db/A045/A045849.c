@@ -7,13 +7,15 @@
  * Formula:   a(n) = coefficient of q^n in (1 + q + q^4 + q^9 + ...)^7
  * Range:     u8 n <= 9, u16 n <= 150, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 55 terms through n = 7386 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Pre‑compute the squares up to floor(sqrt(n)) */
-    idx_t K = _floor_isqrt_u64(n);
+    idx_t K = isqrt(n);
     idx_t *sqr = NULL;
     if (K > 0) {
         sqr = (idx_t *)calloc((size_t)(K + 1), sizeof(idx_t));
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     /* Dynamic programming arrays */
     size_t sz = (size_t)(n + 1);
     seq_t *dp[2];
-    dp[0] = (seq_t *)calloc(sz, sizeof(seq_t));
-    dp[1] = (seq_t *)calloc(sz, sizeof(seq_t));
+    dp[0] = mem_new(seq_t, sz);
+    dp[1] = mem_new(seq_t, sz);
     dp[0][0] = (seq_t)1;   /* base: zero variables sum to zero */
 
     idx_t cur = 0, nxt = 1;
@@ -63,8 +65,8 @@ seq_t a(idx_t n)
     seq_t result = dp[cur][n];
 
     /* free memory */
-    free(dp[0]);
-    free(dp[1]);
+    mem_free(dp[0]);
+    mem_free(dp[1]);
     free(sqr);
 
     return result;

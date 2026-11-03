@@ -7,7 +7,8 @@
  * Formula:   a(n) = (Heinz numbers of complete integer partitions)
  * Range:     u8 n <= 50, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global data for primes */
 static uint64_t *g_primes = NULL;
@@ -148,7 +150,7 @@ static void ensure_cache(size_t needed)
     if (needed <= g_cache_cap) return;
     size_t new_cap = g_cache_cap ? g_cache_cap * 2 : 128;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, g_cache, new_cap);
     if (!new_arr) return;          /* allocation failure – should not happen */
     g_cache = new_arr;
     g_cache_cap = new_cap;
@@ -160,7 +162,7 @@ seq_t a(idx_t n)
     if (!g_cache) {
         init_primes();
         g_cache_cap = 128;
-        g_cache = (seq_t *)malloc(g_cache_cap * sizeof(seq_t));
+        g_cache = mem_new(seq_t, g_cache_cap);
         g_cache_sz = 0;
     }
 

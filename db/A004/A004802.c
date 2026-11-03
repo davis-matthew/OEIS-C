@@ -9,14 +9,23 @@
  *            j = i, i+1, ...)
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 43, u64 n <= 3516,
  *            u128 n <= 10000, big any n
- * Helpers:   grow_arr
+ * Validated: standard, pass, 42 terms through n = 9171 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/grow_arr.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_arr(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *r = mem_new(seq_t, newlen);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) r[i] = old[i];
+    if (old) mem_free(old);
+    return r;
+}
 
 static seq_t *pw = NULL;
 static idx_t pwlen = 0, pwcap = 0, pw_ovf = 0;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 #include <string.h>
 
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- helper: modular exponentiation (uint64_t) ---------- */
 static uint64_t mod_pow_uint64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -145,7 +147,7 @@ static void append_good(seq_t val)
 {
     if (good_count == good_cap) {
         size_t new_cap = good_cap ? good_cap << 1 : 4;
-        seq_t *tmp = (seq_t *)realloc(good_primes, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, good_primes, new_cap);
         if (!tmp) exit(1);          /* out of memory */
         good_primes = tmp;
         good_cap    = new_cap;

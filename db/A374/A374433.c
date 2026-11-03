@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   gcd, rad
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   gcd, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
  * For k = 0 (first element of each row) T(r,0) = 1.
  */
 
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/rad.h"   /* seq_t rad(idx_t m);      */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/radical.h"
 
 seq_t a(idx_t n) {
     /* find largest r with r(r+1)/2 <= n  (binary search) */
@@ -47,5 +49,5 @@ seq_t a(idx_t n) {
 
     /* compute rad(gcd(r,k)) */
     seq_t g = gcd((seq_t)r, (seq_t)k);
-    return rad((idx_t)g);
+    return radical((idx_t)g);
 }

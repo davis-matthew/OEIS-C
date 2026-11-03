@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, hear, look
  * Formula:   not stated
- * Range:     u8 n <= 296, u16 n <= 9240, u32 n <= 9240, u64 n <= 9240,
- *            u128 n <= 9240, big any n
- * Helpers:   none
+ * Range:     u8 n <= 296, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 99 terms through n = 9240 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    The sequence is memoised so that calls can be made in any order. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,7 @@ seq_t a(idx_t n)
     if ((size_t)n > last)
     {
         size_t new_size = (size_t)n + 1;          /* indices 0 .. n  */
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)
             return 0;                       /* allocation failure */
         cache = tmp;

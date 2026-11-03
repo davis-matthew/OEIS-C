@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9073 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Integer square‑root for 64‑bit values ---------- */
 static inline idx_t int_sqrt(idx_t n)
@@ -92,13 +94,13 @@ static void ensure_cache(idx_t n)
     if (n < cache_size) return;
 
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache) return;   /* allocation failure -> leave empty */
 
     /* Copy existing cached values. */
     if (cache) {
         for (idx_t i = 0; i < cache_size; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     idx_t old_size = cache_size;

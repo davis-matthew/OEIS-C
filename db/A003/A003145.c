@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = position of the n-th letter b in the tribonacci word,
  *            built as the fixed point of a->ab, b->ac, c->a
- * Range:     u8 n <= 75, u16 n <= 9450, u32 n <= 9450, u64 n <= 9450,
- *            u128 n <= 9450, big any n
+ * Range:     u8 n <= 75, u16 n <= 10609, u32 n <= 10609, u64 n <= 10609,
+ *            u128 n <= 10609, big any n
+ * Validated: standard, pass, 78 terms through n = 9450 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

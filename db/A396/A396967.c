@@ -14,7 +14,8 @@
  *            iterating k, testing each with a BFS over re...
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* for factor_u64 */
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 static bool _k_is_ok(uint64_t k)
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
     /* grow cache as needed */
     if (seq_vals == NULL) {
         seq_cap = 64u;
-        seq_vals = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
         if (!seq_vals) return 0u;   /* memory error */
     }
 
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
         if (_k_is_ok(checked)) {
             if (seq_len == seq_cap) {
                 seq_cap *= 2u;
-                seq_vals = (seq_t*)realloc(seq_vals, seq_cap * sizeof(seq_t));
+                seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
                 if (!seq_vals) return 0u;   /* memory error */
             }
             seq_vals[seq_len++] = (seq_t)checked;

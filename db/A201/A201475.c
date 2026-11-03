@@ -9,14 +9,15 @@
  *            such primes by incrementing k and testing for primality
  * Range:     u8 n <= 2, u16 n <= 20, u32 n <= 1964, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   is_prime64
+ * Validated: standard, pass, 50 terms through n = 4654 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is_prime64.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
     for (;;) {
         /* compute 2*k*k + 7, safe in 64 bits for the required n range */
         uint64_t val = 2ULL * k * k + 7ULL;
-        if (is_prime64(val)) {
+        if (is_prime_u64(val)) {
             ++count;
             if (count == (uint64_t)n)
                 return (seq_t)val;

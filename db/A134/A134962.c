@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9688, u64 n <= 9688,
- *            u128 n <= 9688, big any n
- * Helpers:   state_key
+ * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11523, u64 n <= 11523,
+ *            u128 n <= 11523, big any n
+ * Validated: standard, pass, 42 terms through n = 9688 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/state_key.h"
+
+static inline int state_key(uint16_t digits, uint16_t patterns, uint8_t last)
+{
+    return (int)((uint32_t)digits |
+                 ((uint32_t)patterns << 9) |
+                 ((uint32_t)last << 18));
+}
 
 /* Mapping from a single digit d (1‑9) to the index (1‑based) of the
    digit whose square d² represents. 0 means no corresponding square.

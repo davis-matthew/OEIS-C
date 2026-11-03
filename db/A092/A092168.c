@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 374, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   push_uint32
+ * Validated: standard, pass, 61 terms through n = 977 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/push_uint32.h"
+
+/* ------------------------------------------------------------------
+   Simple dynamic array helper for 32‑bit unsigned integers
+   ------------------------------------------------------------------ */
+static void push_uint32(uint32_t **arr, size_t *cnt, size_t *cap, uint32_t v)
+{
+    if (*cnt >= *cap) {
+        *cap = (*cap) ? (*cap << 1) : 64;
+        *arr = (uint32_t *)realloc(*arr, (*cap) * sizeof(uint32_t));
+    }
+    (*arr)[(*cnt)++] = v;
+}
 
 /* ------------------------------------------------------------------
    Global state for the sieve and prime lists

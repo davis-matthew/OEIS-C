@@ -11,7 +11,8 @@
  *            a solution with y = 0
  * Range:     u8 none, u16 none, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   floor_sqrt, int_cube_root
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,8 +32,42 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/floor_sqrt.h"   /* seq_t floor_sqrt(seq_t x)          */
-#include "../utils/int_cube_root.h"/* idx_t int_cube_root(idx_t n)       */
+#include <limits.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 static bool is_cube(seq_t x) {
     /* Returns true if x is a perfect cube (x > 0). */
@@ -97,7 +132,7 @@ static void init_sequence(void)
     }
 
     /* Allocate array for the k values.  */
-    seq_t *temp = (seq_t *)malloc((size_t)total * sizeof(seq_t));
+    seq_t *temp = mem_new(seq_t, (size_t)total);
     if (temp == NULL) {
         free(cnt);
         return;                          /* OOM – abort silently */

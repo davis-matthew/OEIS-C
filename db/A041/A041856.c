@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence */
 static seq_t *cache = NULL;   /* array of computed a(n) */
@@ -38,9 +40,9 @@ static void a_cache_up_to(idx_t n)
     /* Allocate or grow the cache */
     seq_t *tmp;
     if (cache == NULL) {
-        tmp = (seq_t *)malloc(required * sizeof(seq_t));
+        tmp = mem_new(seq_t, required);
     } else {
-        tmp = (seq_t *)realloc(cache, required * sizeof(seq_t));
+        tmp = mem_resize(seq_t, cache, required);
     }
     if (tmp == NULL)
         return;                                /* allocation failure – give up */

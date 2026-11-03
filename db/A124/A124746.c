@@ -7,6 +7,7 @@
  * Formula:   a(n) = coefficient of x^n in (1 + x^2)/(1 - x^4 + x^5)
  * Range:     i8 n <= 37, i16 n <= 73, i32 n <= 145, i64 n <= 288,
  *            i128 n <= 575, big any n
+ * Validated: standard, pass, 74 terms through n = 958 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

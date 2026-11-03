@@ -7,13 +7,17 @@
  * Formula:   a(n) = 2n*binomial(2n,n) - 4^n
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 14, i64 n <= 23, i128 n <= 23,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +28,7 @@ seq_t a(idx_t n)
     seq_t term1 = ( (seq_t)n * 2 ) * bin;
 
     /* 4^n */
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)n);
+    seq_t pow4 = ipow((seq_t)4, (seq_t)n);
 
     /* Result */
     return term1 - pow4;

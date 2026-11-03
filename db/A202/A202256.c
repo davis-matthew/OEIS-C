@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 64, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,6 +39,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>  /* for uintptr_t if needed */
+#include "../utils/mem.h"
 
 /* Return the n‑th term (n >= 1).  Assumes seq_t and idx_t are defined by the build. */
 seq_t a(idx_t n)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     
     /* Allocate an array of the exact size needed. */
     size_t sz = (size_t)n;
-    seq_t *arr = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, sz);
     if (!arr) return (seq_t)0;     /* allocation failed → return 0 */
 
     /* Initial 19 values (1‑based indices). */
@@ -105,6 +107,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n-1];
-    free(arr);
+    mem_free(arr);
     return result;
 }

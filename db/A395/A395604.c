@@ -12,14 +12,17 @@
  *            n; then k = n - r(r+1)/2
  * Range:     i8 n <= 9, i16 n <= 35, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
          * subtraction in signed seq_t to preserve the sign. */
         seq_t base = (seq_t)4 - (seq_t)j;
 
-        seq_t pow   = big_pow(base, (seq_t)r);
+        seq_t pow   = ipow(base, (seq_t)r);
         seq_t term  = binom * pow;
 
         if (j & 1)

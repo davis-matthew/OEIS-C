@@ -11,13 +11,35 @@
  *            (p_0..p_9) = (4,-18,70,-137,102,60,-178,144,-54,8)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 43, u64 n <= 568, u128 n <= 1000,
  *            big any n
- * Helpers:   c9
+ * Validated: standard, pass, 44 terms through n = 905 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/c9.h"
+
+/* binomial(N, 9) computed by cancelling 9! from the nine factors first,
+   so the remaining product is exact (or exact modulo 2^bits). */
+static seq_t c9(uint64_t N) {
+    uint64_t f[9];
+    static const uint64_t primes[4] = {2, 3, 5, 7};
+    static const int mult[4] = {7, 4, 1, 1};
+    int i, k, r;
+    seq_t res;
+    if (N < 9) return (seq_t)0;
+    for (i = 0; i < 9; i++) f[i] = N - (uint64_t)i;
+    for (k = 0; k < 4; k++) {
+        for (r = 0; r < mult[k]; r++) {
+            for (i = 0; i < 9; i++) {
+                if (f[i] % primes[k] == 0) { f[i] /= primes[k]; break; }
+            }
+        }
+    }
+    res = (seq_t)1;
+    for (i = 0; i < 9; i++) res *= (seq_t)f[i];
+    return res;
+}
 
 seq_t a(idx_t n) {
     seq_t pos, neg;

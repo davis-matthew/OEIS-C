@@ -10,6 +10,7 @@
  *            f(1)=f(2)=1, f(k)=f(k-1)+f(k-2)
  * Range:     i8 n <= 8, i16 n <= 15, i32 n <= 35, i64 n <= 77, i128 n <= 166,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 953 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

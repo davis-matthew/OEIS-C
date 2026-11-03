@@ -9,6 +9,7 @@
  * Formula:   a(n) = 0 for n∈{2,3,4}; otherwise a(n) = 1 + a(floor(n/2))
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
+ * Validated: partial, pass, 87 terms through n = 88 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

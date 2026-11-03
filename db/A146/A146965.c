@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 43,
  *            big any n
- * Helpers:   allocate_from, deallocate_seq
+ * Validated: standard, pass, 36 terms through n = 143 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,24 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/allocate_from.h"
-#include "../utils/deallocate_seq.h"
+
+static seq_t *allocate_from(idx_t cap)
+{
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t *)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static void deallocate_seq(seq_t *p)
+{
+#ifdef __cplusplus
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 /* ------------------------------------------------------------
    Computes a(n), any n >= 0.

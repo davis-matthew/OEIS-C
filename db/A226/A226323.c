@@ -11,13 +11,16 @@
  *            coordinate
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _gcd_idx
+ * Validated: standard, pass, 71 terms through n = 869 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h> /* for uint64_t */
-#include "../utils/_gcd_idx.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
         idx_t lim = n / i;
         for (idx_t j = 1; j <= lim; ++j)
         {
-            if (_gcd_idx(i, j) == 1)
+            if (gcd_idx(i, j) == 1)
                 ++coprime_pairs;
         }
     }

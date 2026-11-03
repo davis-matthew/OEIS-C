@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 20, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ROWS   64U            /* 3 cells × 2 bits = 6 bits ⇒ 0..63 */
 #define STATES (ROWS * ROWS)  /* 4096 */
@@ -113,7 +115,7 @@ static void init(void)
     }
 
     /* Base counts for n = 1 (two rows). */
-    memset(baseCounts, 0, sizeof(baseCounts));
+    mem_set(baseCounts, 0, sizeof(baseCounts));
     for (p = 0; p < ROWS; ++p) {
         for (q = 0; q < ROWS; ++q) {
             if (horiz_ok[p][q])
@@ -139,12 +141,12 @@ seq_t a(idx_t n)
     }
 
     /* Start DP with counts for n = 1. */
-    memcpy(dp_curr, baseCounts, sizeof(dp_curr));
+    mem_copy(dp_curr, baseCounts, sizeof(dp_curr));
 
     /* Perform n‑1 transitions. */
     for (idx_t step = 2; step <= n; ++step) {
         /* Clear dp_next */
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         /* Transition step */
         for (int i = 0; i < STATES; ++i) {
@@ -159,8 +161,8 @@ seq_t a(idx_t n)
 
         /* Swap dp_curr and dp_next */
         seq_t *tmp = dp_curr;
-        memcpy(dp_curr, dp_next, sizeof(dp_next));
-        memcpy(dp_next, tmp, sizeof(tmp[0]) * STATES); /* clear old dp_next but not needed */
+        mem_copy(dp_curr, dp_next, sizeof(dp_next));
+        mem_copy(dp_next, tmp, sizeof(tmp[0]) * STATES); /* clear old dp_next but not needed */
     }
 
     /* Sum all end states */

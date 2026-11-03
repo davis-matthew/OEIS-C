@@ -9,12 +9,14 @@
  *            satisfies 5m ≤ n, 2m ≤ ⌊(n+2)/3⌋ and 3m ≤ n − ⌊(n+2)/3⌋
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t m = 1; m <= max_m; ++m)
     {
-        seq_t c1 = binom(M, 2 * m);
-        seq_t c2 = binom(U, 3 * m);
+        seq_t c1 = binomial(M, 2 * m);
+        seq_t c2 = binomial(U, 3 * m);
         sum += c1 * c2;
     }
     return sum;

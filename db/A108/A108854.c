@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint64_t mod_mul_uint64(uint64_t a, uint64_t b, uint64_t mod) {
     __uint128_t res = ( __uint128_t )a * b % mod;
@@ -73,7 +75,7 @@ seq_t a(idx_t n) {
     /* lazy allocation */
     if (cache == NULL) {
         cap = 128;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* extend cache until we have at least n terms */
@@ -87,7 +89,7 @@ seq_t a(idx_t n) {
                 /* ensure capacity */
                 if (sz == cap) {
                     cap *= 2;
-                    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cap);
                 }
                 cache[sz] = (seq_t)current_k;
                 ++sz;

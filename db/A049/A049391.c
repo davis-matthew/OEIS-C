@@ -8,14 +8,17 @@
  *            a(n)=a(n-1)*(5*(5n-8))/n for n≥1
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 8, i64 n <= 15, i128 n <= 15,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* External linkage function requested by the harness */
 seq_t a(idx_t n)
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
     if (cache == NULL)            /* first call: initialise cache[0] = 1 */
     {
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 1;
         cache_size = 1;
     }
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

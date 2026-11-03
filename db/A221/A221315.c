@@ -8,14 +8,16 @@
  * Formula:   a(n) = 0 if n % 4 == 2 a(n) = 2 * binom(n/4 + n - 1, n - 1) if n
  *            % 4 == 0 a(n) = binom((n - 1)/4 + n - 1, n - 1) if n % 4 == 1
  *            a(n) = binom((n + 1)/4 + n - 1, n - 1) if n % 4 == 3
- * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 74, u128 n <= 142,
+ * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 38, u64 n <= 74, u128 n <= 146,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 56 terms through n = 189 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -31,18 +33,18 @@ seq_t a(idx_t n)
         /* a(n) = 2 * binom(n/4 + n - 1, n - 1) */
         idx_t t = n >> 2;                      /* n / 4 */
         idx_t N = t + n - 1;                   /* n/4 + n - 1 */
-        result = binom(N, n - 1);
+        result = binomial(N, n - 1);
         result = result * 2;
     } else if (rem == 1) {
         /* a(n) = binom((n-1)/4 + n - 1, n - 1) */
         idx_t t = (n - 1) >> 2;                /* (n-1) / 4 */
         idx_t N = t + n - 1;                   /* (n-1)/4 + n - 1 */
-        result = binom(N, n - 1);
+        result = binomial(N, n - 1);
     } else { /* rem == 3 */
         /* a(n) = binom((n+1)/4 + n - 1, n - 1) */
         idx_t t = (n + 1) >> 2;                /* (n+1) / 4 */
         idx_t N = t + n - 1;                   /* (n+1)/4 + n - 1 */
-        result = binom(N, n - 1);
+        result = binomial(N, n - 1);
     }
 
     return result;

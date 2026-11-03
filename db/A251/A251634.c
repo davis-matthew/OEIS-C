@@ -13,7 +13,8 @@
  *            top to bottom
  * Range:     i8 n <= 29, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /* Standard headers */
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Helper: convert a flattened index into (row, column). */
 static inline idx_t _row_from_index(idx_t idx)
@@ -49,7 +51,7 @@ static void _ensure_rows(idx_t last)
     /* Compute missing rows, starting from old_cap */
     for (idx_t n = old_cap; n <= last; ++n)
     {
-        seq_t *row = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (n + 1));
         row[0] = (seq_t)1;                     /* T(n,0) = 1 */
         for (idx_t k = 1; k <= n; ++k)
         {

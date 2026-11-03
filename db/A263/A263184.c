@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 5, i64 n <= 9, i128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,8 +55,8 @@ seq_t a(idx_t n)
     /* initialise arrays on first call */
     if (c == NULL) {
         size_t init_cap = 2;                     /* indices 0 and 1 */
-        c = (seq_t *)malloc(init_cap * sizeof(seq_t));
-        s = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        c = mem_new(seq_t, init_cap);
+        s = mem_new(seq_t, init_cap);
         if (c == NULL || s == NULL) abort();
 
         /* zero the new entries */
@@ -75,8 +77,8 @@ seq_t a(idx_t n)
 
     /* grow buffers if necessary */
     if (new_cap > cap) {
-        seq_t *c_new = (seq_t *)realloc(c, new_cap * sizeof(seq_t));
-        seq_t *s_new = (seq_t *)realloc(s, new_cap * sizeof(seq_t));
+        seq_t *c_new = mem_resize(seq_t, c, new_cap);
+        seq_t *s_new = mem_resize(seq_t, s, new_cap);
         if (c_new == NULL || s_new == NULL) abort();
 
         /* zero the newly allocated entries */

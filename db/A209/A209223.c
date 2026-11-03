@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 21, u64 n <= 47, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are defined by the build. */
 static uint8_t _valid_rows[128];
@@ -67,8 +69,8 @@ static void _init_tables()
     }
 
     /* Allocate DP arrays. */
-    _cur  = (seq_t *)malloc(sizeof(seq_t) * _R * _R);
-    _next = (seq_t *)malloc(sizeof(seq_t) * _R * _R);
+    _cur  = mem_new(seq_t, _R * _R);
+    _next = mem_new(seq_t, _R * _R);
 }
 
 /* Main function required by the problem. */

@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = binomial(number_of_ones(n), number_of_blocks_of_ones(n))
- * Range:     u8 n <= 7802, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
+ * Range:     u8 n <= 8192, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 116 terms through n = 8170 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* Computes the OEIS sequence A136277 */
 
 /* use the provided binomial utility */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

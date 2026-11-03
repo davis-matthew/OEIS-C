@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
    in practise) and therefore satisfies the 2‑second requirement. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* grow cache as new terms are found */
     if (len == cap) {
         cap = cap ? cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, cap);
         if (!tmp) {                              /* allocation failed */
             return 0;
         }
@@ -53,17 +55,17 @@ seq_t a(idx_t n)
         seq_t sum = 0;
         for (idx_t d = 1; d * d <= last_k; ++d) {
             if (last_k % d == 0) {
-                sum += (seq_t)bitlen_seq_t((seq_t)d);
+                sum += (seq_t)bit_length((seq_t)d);
                 idx_t other = last_k / d;
                 if (other != d) {
-                    sum += (seq_t)bitlen_seq_t((seq_t)other);
+                    sum += (seq_t)bit_length((seq_t)other);
                 }
             }
         }
         if (sum == (seq_t)last_k) {
             if (len == cap) {                    /* ensure capacity */
                 cap = cap ? cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, cap);
                 if (!tmp) return 0;
                 terms = tmp;
             }

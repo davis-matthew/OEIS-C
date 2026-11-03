@@ -8,7 +8,8 @@
  *            all composite
  * Range:     u8 n <= 24, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Cached sequence values */
 static seq_t *seq_vals = NULL;   /* array of terms */
@@ -31,7 +33,7 @@ static void ensure_capacity(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;  /* multiply by 2 */
-    seq_vals = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, new_cap);
     seq_cap = new_cap;
 }
 
@@ -47,9 +49,9 @@ static void generate_until(idx_t upto)
         seq_t n2p1   = (seq_t)(2 * cand + 1); /* candidate + 1 */
 
         /* Check compositeness of n, 2n−1, and 2n+1. */
-        if (!is_prime_small(n) &&
-            !is_prime_small(n2m1) &&
-            !is_prime_small(n2p1)) {
+        if (!is_prime_seq(n) &&
+            !is_prime_seq(n2m1) &&
+            !is_prime_seq(n2p1)) {
             ensure_capacity(seq_len + 1);
             seq_vals[seq_len++] = n;
         }

@@ -15,13 +15,15 @@
  *            18205352*a(n-5) - 64961020*a(n-6) + 89885952*a(n-7)
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (sz == 0) {
         size_t init_sz = 8;
         if (cap < init_sz) {
-            seq_t *tmp = (seq_t *)malloc(init_sz * sizeof(seq_t));
+            seq_t *tmp = mem_new(seq_t, init_sz);
             if (!tmp) abort();
             cache = tmp;
             cap   = init_sz;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap * 2;
         if (new_cap < (size_t)n) new_cap = (size_t)n;
         if (new_cap < 8) new_cap = 8;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cap   = new_cap;

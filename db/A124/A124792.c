@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 4160, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 69 terms through n = 8326 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/build_spf.h"   /* prototypes for build_spf */
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 static idx_t      current_k = 2;           /* next k to test          */
 static idx_t      limit_k   = 0;           /* maximum k served        */
@@ -44,14 +46,14 @@ static void recompute_arrays(idx_t new_limit_k)
 {
     /* free previous arrays if any */
     if (spf)       free(spf);
-    if (sumprime)  free(sumprime);
+    if (sumprime)  mem_free(sumprime);
     if (omega_arr) free(omega_arr);
 
     /* allocate spf up to 3×new_limit_k   */
     idx_t new_limit_total = 3 * new_limit_k;
     build_spf(new_limit_total, &spf);
 
-    sumprime  = (seq_t *)malloc((new_limit_total + 1) * sizeof(seq_t));
+    sumprime  = mem_new(seq_t, (new_limit_total + 1));
     omega_arr = (idx_t *)malloc((new_limit_total + 1) * sizeof(idx_t));
 
     /* initialise base cases */
@@ -80,7 +82,7 @@ static void push_result(idx_t k)
     if (res_len == res_cap)
     {
         size_t new_cap = res_cap == 0 ? 16 : res_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, results, new_cap);
         results = tmp;
         res_cap = new_cap;
     }

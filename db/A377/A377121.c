@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 75, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ * Range:     u8 n <= 121, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf, calc_phi, divisor_count_u64
+ * Validated: standard, pass, 91 terms through n = 9926 (2026-11-03)
+ * Helpers:   build_spf, mem, num_divisors, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/build_spf.h"
-#include "../utils/calc_phi.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 static seq_t  *terms      = NULL;   /* array of found terms         */
 static size_t  terms_len  = 0;       /* number of terms stored       */
@@ -51,27 +53,27 @@ static void ensure_terms(idx_t target)
     /* Ensure the terms array has enough capacity. */
     if (terms_cap == 0) {
         terms_cap = target + 10;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms_len = 0;
     } else if (terms_cap < terms_len + 10) {
         terms_cap *= 2;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
 
     /* Scan integers from (max_n_seen+1) up to new_limit. */
     for (idx_t n = max_n_seen + 1; n <= new_limit; ++n) {
-        seq_t phi = calc_phi((seq_t)n);
+        seq_t phi = totient_seq((seq_t)n);
 
         /* phi fits in 64 bits for our search range. */
         uint64_t phi_u64 = (uint64_t)phi;
 
-        seq_t tau_seq = divisor_count_u64(phi_u64);
+        seq_t tau_seq = num_divisors(phi_u64);
         uint64_t tau = (uint64_t)tau_seq;
 
         if (phi % (seq_t)tau == 0) {            /* phi is refactorable */
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)n;
         }

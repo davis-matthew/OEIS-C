@@ -9,14 +9,22 @@
  *            A[i][j] = 1 if |i-j| ≤ 7 else 0
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   matrix_identity
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/matrix_identity.h"
+
+/* Helper: set matrix to the identity. */
+static void matrix_identity(seq_t m[25][25])
+{
+    for (int i = 0; i < 25; ++i)
+        for (int j = 0; j < 25; ++j)
+            m[i][j] = (i == j) ? 1 : 0;
+}
 
 /* Helper: multiply two 25×25 matrices. */
 static void matrix_mul(seq_t out[25][25],

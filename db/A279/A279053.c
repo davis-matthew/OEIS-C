@@ -11,6 +11,7 @@
  *            1, a(1) = 1, a(2) = 101. This recurrence holds for all n > 2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 115 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

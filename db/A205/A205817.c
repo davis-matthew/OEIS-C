@@ -10,13 +10,15 @@
  *            values: a(1)=66, a(2)=216, a(3)=714, a(4)=2430
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 15, u64 n <= 33, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;    /* cache[1] .. cache[n] */
 static size_t cache_size = 0;      /* allocated size (number of slots) */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise cache on the first call */
     if (!seq_cache) {
         cache_size = 5;                      /* slots 0..4 (index 0 unused) */
-        seq_cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_size);
         if (!seq_cache) return 0;
         seq_cache[0] = (seq_t)0;
         seq_cache[1] = (seq_t)66;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_size) {
         size_t new_size = cache_size;
         while ((size_t)n >= new_size) new_size <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_size);
         if (!tmp) return 0;
         seq_cache = tmp;
         cache_size = new_size;

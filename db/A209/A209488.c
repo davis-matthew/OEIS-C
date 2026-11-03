@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 34, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;      /* memoised values, indices 0.. */
 static size_t memo_cap = 0;     /* capacity of memo array */
@@ -38,7 +40,7 @@ static void ensure_capacity(size_t need)
     if (need <= memo_cap) return;
     size_t new_cap = memo_cap ? memo_cap * 2 : 64;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, memo, new_cap);
     if (!tmp) abort();          /* allocation failure */
     memo = tmp;
     memo_cap = new_cap;
@@ -59,9 +61,9 @@ static void init_memo(void)
     };
     memo_cap   = 25;
     memo_last  = 24;
-    memo       = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+    memo       = mem_new(seq_t, memo_cap);
     if (!memo) abort();
-    memcpy(memo, init_vals, memo_cap * sizeof(seq_t));
+    mem_copy(memo, init_vals, memo_cap * sizeof(seq_t));
 }
 
 /* Compute a(n) with memoisation; n >= 1. */

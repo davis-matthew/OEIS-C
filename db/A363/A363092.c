@@ -7,13 +7,15 @@
  * Formula:   a(n) = 4*a(n-1) - 8*a(n-2), a(0) = a(1) = 1
  * Range:     i8 n <= 5, i16 n <= 10, i32 n <= 21, i64 n <= 28, i128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* realloc, abort */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 /* Static cache of previously computed terms */
 static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
         return;   /* Already computed */
 
     /* Resize the cache; preserve existing contents */
-    seq_t *new_cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, needed);
     if (new_cache == NULL) {
         abort();  /* Out of memory */
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 2554, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 72 terms through n = 9744 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,11 @@
  * is efficient enough for n up to ~10⁴.
  */
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,11 +41,11 @@ seq_t a(idx_t n)
         seq_t mod = m + 2;
 
         /* test the congruence */
-        if (mod_pow(m, last_checked, mod) == m) {
+        if (powmod(m, last_checked, mod) == m) {
             /* add to cache */
             if (cache_len == cache_cap) {
                 cache_cap = (cache_cap ? cache_cap * 2 : 8);
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = m;
         }

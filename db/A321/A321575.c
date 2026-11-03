@@ -8,7 +8,8 @@
  * Formula:   smallest composite k ≤ 561 such that n^k - (n-1)^k ≡ 1 (mod k)
  * Range:     u8 n <= 1, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small_u64
+ * Validated: standard, pass, 97 terms through n = 7504 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small_u64.h"
+#include "../utils/is_prime_u64.h"
 
 /* Compute b^e (mod m) for small modulus m ≤ 561.  Operates on uint64_t
    to avoid overflow, then casts the final result to seq_t.  The
@@ -44,7 +45,7 @@ static void init_composites(void)
     if (composites_ready) return;
     size_t idx = 0;
     for (uint64_t k = 4; k <= 561; ++k) {
-        if (!is_prime_small_u64(k)) composites[idx++] = k;
+        if (!is_prime_u64(k)) composites[idx++] = k;
     }
     composite_count = idx;
     composites_ready = true;

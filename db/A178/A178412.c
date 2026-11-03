@@ -10,9 +10,10 @@
  *            terms, so calls can be in any order. This implementation works
  *            for both fixed‑size signed integers and arbitrary‑precision
  *            types
- * Range:     i8 n <= 383, i16 n <= 9671, i32 n <= 9671, i64 n <= 9671,
- *            i128 n <= 9671, big any n
- * Helpers:   none
+ * Range:     i8 n <= 383, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 118 terms through n = 9671 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Memoisation storage.  Index 0 is unused. */
 static seq_t *cache  = NULL;     /* computed a(i) values */
@@ -35,8 +37,7 @@ static void ensure_capacity(idx_t n)
     while (new_cap < (size_t)n) new_cap <<= 1;
 
     /* realloc works for both C and C++; cast the void* result. */
-    seq_t *new_cache = (seq_t *)realloc((void *)cache,
-                                        sizeof(seq_t) * (new_cap + 1));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
     if (!new_cache) abort();              /* memory allocation failure */
 
     uint8_t *new_seen = (uint8_t *)realloc((void *)seen,

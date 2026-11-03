@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 70 terms through n = 72 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,7 @@
  */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* ---------- static data ---------- */
 static int initialized = 0;
@@ -123,7 +124,7 @@ seq_t a(idx_t n)
     uint64_t best_x     = n;             /* any valid x is smaller */
 
     for (uint64_t x = 2; x < n; ++x) {
-        if (gcd_uint64(x, n) != 1) continue;  /* terminating expansion */
+        if (gcd_u64(x, n) != 1) continue;  /* terminating expansion */
         uint64_t ord = multiplicative_order(n, x);
         if (ord > best_order || (ord == best_order && x < best_x)) {
             best_order = ord;

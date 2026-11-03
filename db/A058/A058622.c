@@ -8,6 +8,7 @@
  *            Equivalent to a(n) = Σ_{i=0..floor((n-1)/2)} binomial(n,i)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 881 (2026-11-01)
  * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,10 @@
 /* We compute 2^(n-1) using pow2 from utils, and binomial multiplicatively
    with gcd–cancellation to avoid overflow. */
 
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/pow2.h"
 
 static seq_t binom_exact(idx_t n, idx_t k)
 {

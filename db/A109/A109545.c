@@ -8,15 +8,36 @@
  *            (Recurrence defined for n ≥ 3)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 24, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdint.h>
+#include <stdbool.h>
+
+/* Allocate an array of seq_t, compatible with C and C++ */
+static inline seq_t *alloc_seq_array(size_t cap)
+{
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t *)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+/* Free an array of seq_t, compatible with C and C++ */
+static inline void free_seq_array(seq_t *ptr)
+{
+#ifdef __cplusplus
+    delete [] ptr;
+#else
+    free(ptr);
+#endif
+}
 
 seq_t a(idx_t n)
 {

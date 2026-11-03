@@ -12,7 +12,8 @@
  *            results for fast random access
  * Range:     u8 n <= 58, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd, is_power_of_two
+ * Validated: standard, pass, 76 terms through n = 9068 (2026-11-03)
+ * Helpers:   factor_u64, gcd, is_pow2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/gcd.h"
-#include "../utils/is_power_of_two.h"
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/is_pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     if (!init) {
         cache_cap = 64;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         init = true;
     }
 
@@ -54,14 +56,14 @@ seq_t a(idx_t n)
                 has_3mod4 = true;
 
             seq_t g = gcd((seq_t)(p - 1), (seq_t)(next_candidate - 1));
-            if (!is_power_of_two(g))
+            if (!is_pow2(g))
                 ok = false;
         }
 
         if (ok && has_3mod4) {
             if (cache_sz == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_sz++] = (seq_t)next_candidate;
         }

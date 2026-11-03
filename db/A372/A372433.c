@@ -9,7 +9,8 @@
  *            squarefree number
  * Range:     u8 n <= 197, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------
  *  Global state used for memoisation
@@ -90,7 +92,7 @@ static void ensure_sqfree_capacity(size_t needed)
     if (needed <= sq_cap) return;
     size_t new_cap = sq_cap ? sq_cap * 2 : 64;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(sqfree, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, sqfree, new_cap);
     if (!tmp) return;                /* allocation failed – unlikely in tests */
     sqfree = tmp;
     sq_cap = new_cap;

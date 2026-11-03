@@ -13,7 +13,8 @@
  *            multi-li...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   a3180_div, a3180_gcd, a3180_mul
+ * Validated: standard, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a3180_div.h"
-#include "../utils/a3180_gcd.h"
-#include "../utils/a3180_mul.h"
+#include "../utils/gcd_u64.h"
+
+static void a3180_div(uint32_t *x, size_t *len, uint32_t d) {
+    uint64_t rem = 0;
+    size_t i = *len;
+    while (i > 0) {
+        i--;
+        uint64_t cur = (rem << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        rem = cur % d;
+    }
+    while (*len > 1 && x[*len - 1] == 0) (*len)--;
+}
+
+static void a3180_mul(uint32_t *x, size_t *len, uint32_t m) {
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < *len; i++) {
+        uint64_t v = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)v;
+        carry = v >> 32;
+    }
+    if (carry) x[(*len)++] = (uint32_t)carry;
+}
 
 static uint32_t *a3180_acc;
 static size_t a3180_cap;
@@ -33,11 +55,11 @@ static void a3180_term(const int *parts, const int *mults, int np) {
     int n = a3180_n;
     uint64_t L = 1;
     int i;
-    for (i = 0; i < np; i++) L = L / a3180_gcd(L, (uint64_t)parts[i]) * (uint64_t)parts[i];
+    for (i = 0; i < np; i++) L = L / gcd_u64(L, (uint64_t)parts[i]) * (uint64_t)parts[i];
     uint64_t sum = 0, k;
     for (k = 0; k < L; k++) {
         uint64_t e = 0;
-        for (i = 0; i < np; i++) e += (uint64_t)mults[i] * a3180_gcd((uint64_t)parts[i], k);
+        for (i = 0; i < np; i++) e += (uint64_t)mults[i] * gcd_u64((uint64_t)parts[i], k);
         sum += (uint64_t)1 << e;
     }
     uint64_t c = sum / L;

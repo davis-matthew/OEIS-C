@@ -11,14 +11,16 @@
  *            in any order are fast. rad(m) is provided by ../utils/rad.h
  * Range:     u8 n <= 86, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rad
+ * Validated: standard, pass, 77 terms through n = 9728 (2026-11-03)
+ * Helpers:   mem, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/rad.h"
+#include "../utils/radical.h"
+#include "../utils/mem.h"
 
 /* Cache of already found terms. */
 static seq_t *terms = NULL;
@@ -34,16 +36,16 @@ static void ensure_terms(idx_t target)
     /* Treat target as a size_t; n is tiny (≤10000) so no overflow. */
     while (terms_len < (size_t)target) {
         idx_t m = current_checked + 1;                     /* candidate m   */
-        seq_t rad_m   = rad(m);                            /* rad(m)        */
-        seq_t rad_next = rad(m + 1);                       /* rad(m+1)      */
+        seq_t rad_m   = radical(m);                            /* rad(m)        */
+        seq_t rad_next = radical(m + 1);                       /* rad(m+1)      */
 
         if (rad_m > rad_next) {                            /* record term   */
             if (terms_cap == 0) {
                 terms_cap = 8;
-                terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+                terms = mem_new(seq_t, terms_cap);
             } else if (terms_len + 1 > terms_cap) {
                 terms_cap <<= 1;                           /* double cap   */
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)m;
         }

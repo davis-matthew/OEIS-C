@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 30, u32 n <= 58, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static storage for Stirling rows: S_rows[n][k] = S(n,k) */
 static seq_t **S_rows = NULL;          /* Array of pointers to rows */
@@ -68,7 +70,7 @@ static void ensure_S(idx_t n)
 
     /* Compute row 0 if it hasn't been done yet */
     if (!S_rows[0]) {
-        seq_t *row0 = (seq_t*)malloc(sizeof(seq_t));  /* row 0 has length 1 */
+        seq_t *row0 = mem_new(seq_t, 1);  /* row 0 has length 1 */
         if (!row0) abort();
         row0[0] = (seq_t)1;                          /* S(0,0) = 1 */
         S_rows[0] = row0;
@@ -83,7 +85,7 @@ static void ensure_S(idx_t n)
 
     /* Build new rows incrementally */
     for (idx_t row = S_max_row + 1; row <= n; ++row) {
-        seq_t *rrow = (seq_t*)malloc((row + 1) * sizeof(seq_t));
+        seq_t *rrow = mem_new(seq_t, (row + 1));
         if (!rrow) abort();
 
         /* row 0 is 0 for n>0, handled below */

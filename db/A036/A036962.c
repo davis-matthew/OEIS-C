@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 2575, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bad_digit, is_prime
+ * Validated: standard, pass, 73 terms through n = 9389 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,19 @@
 /* Search for the nth prime that contains no digit 8 or 9 */
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/bad_digit.h"
+
+/* Return true if x contains a digit 8 or 9 */
+static bool bad_digit(idx_t x)
+{
+    while (x > 0)
+    {
+        int d = x % 10;
+        if (d == 8 || d == 9)
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Compute the nth term of OEIS A036962 */
 seq_t a(idx_t n)

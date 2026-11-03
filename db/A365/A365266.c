@@ -7,6 +7,7 @@
  * Formula:   a(n) = Product_{k=1..n} Gamma(6*k)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 2, u128 n <= 3,
  *            big any n
+ * Validated: partial, pass, 6 terms through n = 5 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

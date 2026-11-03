@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{i=1..n} ∏_{p^e‖i} (p^e - 1)
  * Range:     u8 n <= 26, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  Prime sieve (small‑prime–factor array) and partial sums are cached
     across calls.  The arrays are grown only when a larger n is requested.
@@ -46,7 +48,7 @@ static void recompute_upto(idx_t n)
     spf_len  = new_len;
 
     /* rebuild partial sums */
-    seq_t *new_partial = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_partial = mem_new(seq_t, new_len);
     new_partial[0] = 0;
     for (i = 1; i < new_len; ++i) {
         seq_t prod = 1;
@@ -66,7 +68,7 @@ static void recompute_upto(idx_t n)
         }
         new_partial[i] = new_partial[i - 1] + prod;
     }
-    if (partial) free(partial);
+    if (partial) mem_free(partial);
     partial      = new_partial;
     partial_len  = new_len;
 }

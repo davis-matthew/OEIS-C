@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   jacobi_symbol, mod_pow, next_prime
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,35 @@
 #include <stdint.h>
 
 /* Utility headers (functions already implemented elsewhere) */
-#include "../utils/mod_pow.h"          /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod) */
-#include "../utils/jacobi_symbol.h"   /* int jacobi_symbol(uint64_t a, uint64_t n) */
-#include "../utils/next_prime.h"      /* uint64_t next_prime(uint64_t start) */
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /*---------------------------------------------------------------------*/
 /* fast modular multiplication  (a*b) mod mod, all values < 2^64 */
@@ -45,7 +72,7 @@ static uint64_t sqrt_mod_u64(uint64_t a, uint64_t p)
 
     /* If p ≡ 3 (mod 4), single exponentiation suffices */
     if (p % 4 == 3)
-        return (uint64_t)mod_pow((seq_t)a, (p + 1) / 4, (seq_t)p);
+        return (uint64_t)powmod((seq_t)a, (p + 1) / 4, (seq_t)p);
 
     /* Factor p‑1 = q·2^s with q odd. */
     uint64_t q = p - 1;
@@ -56,9 +83,9 @@ static uint64_t sqrt_mod_u64(uint64_t a, uint64_t p)
     uint64_t z = 2;
     while (jacobi_symbol(z, p) != -1) ++z;
 
-    seq_t c = mod_pow((seq_t)z, q, (seq_t)p);
-    seq_t x = mod_pow((seq_t)a, (q + 1) / 2, (seq_t)p);
-    seq_t t = mod_pow((seq_t)a, q, (seq_t)p);
+    seq_t c = powmod((seq_t)z, q, (seq_t)p);
+    seq_t x = powmod((seq_t)a, (q + 1) / 2, (seq_t)p);
+    seq_t t = powmod((seq_t)a, q, (seq_t)p);
     uint64_t m = s;
 
     while (t != 1) {
@@ -70,7 +97,7 @@ static uint64_t sqrt_mod_u64(uint64_t a, uint64_t p)
             ++i;
         }
         uint64_t e = m - i - 1;
-        seq_t b = mod_pow(c, 1ULL << e, (seq_t)p);
+        seq_t b = powmod(c, 1ULL << e, (seq_t)p);
 
         x = (seq_t)mul_mod_uint64((uint64_t)x, (uint64_t)b, p);
         t = (seq_t)mul_mod_uint64((uint64_t)t, (uint64_t)(mul_mod_uint64((uint64_t)b, (uint64_t)b, p)), p);
@@ -92,7 +119,7 @@ seq_t a(idx_t n)
     while (true) {
         p = next_prime(p);
         if (p % 4 != 1) continue;                         /* must be 1 mod 4 */
-        if (mod_pow((seq_t)2ULL, (p - 1) / 4, (seq_t)p) != 1) continue; /* quartic residue */
+        if (powmod((seq_t)2ULL, (p - 1) / 4, (seq_t)p) != 1) continue; /* quartic residue */
 
         ++good;
         if (good == n) {

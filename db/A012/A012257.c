@@ -11,12 +11,14 @@
  *            r_{k-1} 2's, r_{k-2} 3's, …}
  * Range:     u8 n <= 3124, u16 n <= 3124, u32 n <= 3124, u64 n <= 3124,
  *            u128 n <= 3124, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 3099 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise with first row {2} if not yet done */
     if (cur_row == NULL)
     {
-        cur_row = (seq_t *)malloc(sizeof(seq_t));
+        cur_row = mem_new(seq_t, 1);
         if (cur_row == NULL) abort();
         cur_row[0] = (seq_t)2;
         cur_len = 1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
             next_len += (size_t)cur_row[old_len - 1 - j];
 
         /* allocate and build the next row */
-        seq_t *next_row = (seq_t *)malloc(next_len * sizeof(seq_t));
+        seq_t *next_row = mem_new(seq_t, next_len);
         if (next_row == NULL) abort();
 
         size_t pos = 0;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         }
 
         /* update state to new row */
-        free(cur_row);
+        mem_free(cur_row);
         cur_row    = next_row;
         cur_len   = next_len;
         row_start = old_start + (idx_t)old_len;

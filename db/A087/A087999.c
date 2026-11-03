@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 260, u16 n <= 9800, u32 n <= 9800, u64 n <= 9800,
- *            u128 n <= 9800, big any n
- * Helpers:   gcd, is_palindrome
+ * Range:     u8 n <= 260, u16 n <= 50000, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 104 terms through n = 9800 (2026-11-01)
+ * Helpers:   gcd, is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
    a(n) = lcm{ d | d divides n and is_palindrome(d) }   */
 /* Uses the utility functions gcd and is_palindrome. */
 #include <stdbool.h>
-#include "../utils/gcd.h"          /* provides seq_t gcd(seq_t, seq_t) */
-#include "../utils/is_palindrome.h"/* provides bool is_palindrome(seq_t, idx_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/is_palindrome_base.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
         /* first divisor d */
         seq_t dseq = (seq_t)d;
-        if (is_palindrome(dseq, 10)) {
+        if (is_palindrome_base(dseq, 10)) {
             seq_t g = gcd(lcm, dseq);
             lcm = (lcm / g) * dseq;
         }
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         uint64_t o = NN / d;
         if (o != d) {
             seq_t oseq = (seq_t)o;
-            if (is_palindrome(oseq, 10)) {
+            if (is_palindrome_base(oseq, 10)) {
                 seq_t g = gcd(lcm, oseq);
                 lcm = (lcm / g) * oseq;
             }

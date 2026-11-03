@@ -10,7 +10,8 @@
  *            = Sum_{m=1..n-1} N_m * binomial(n,m) * factorial(n-m-1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Automatic caching of factorials and N values */
 static idx_t  max_n_computed = 0;
@@ -34,8 +36,8 @@ static void ensure_cache(idx_t n)
     size_t new_cap = n + 1;                     /* minimal capacity */
     if (new_cap < 2) new_cap = 2;
     if (arr_capacity < new_cap) {
-        seq_t *new_fact = (seq_t*)realloc(fact_arr, new_cap * sizeof(seq_t));
-        seq_t *new_N    = (seq_t*)realloc(N_arr,    new_cap * sizeof(seq_t));
+        seq_t *new_fact = mem_resize(seq_t, fact_arr, new_cap);
+        seq_t *new_N    = mem_resize(seq_t, N_arr, new_cap);
         if (!new_fact || !new_N) {
             /* allocation failed – abort */
             exit(EXIT_FAILURE);

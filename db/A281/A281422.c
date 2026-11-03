@@ -8,15 +8,18 @@
  *            prime(prime(k))
  * Range:     u8 n <= 32, u16 n <= 59, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   build_primes_upto, is_prime
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
     }
 
     /* dynamic programming for compositions */
-    seq_t *dp = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
     dp[0] = (seq_t)1;
     for (idx_t i = 1; i <= n; ++i) {
         seq_t sum = (seq_t)0;
@@ -54,7 +57,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     free(parts);
     free(all_primes);
     return result;

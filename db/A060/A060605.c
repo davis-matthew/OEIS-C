@@ -9,12 +9,14 @@
  *            φ‑iteration)
  * Range:     u8 n <= 50, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* internal memoisation (static, thread‑unsafe) */
 static idx_t cached_n = 0;           /* largest n computed so far          */
@@ -35,12 +37,12 @@ static void recompute(idx_t n)
         else               phi_cache = (idx_t *)malloc(new_cap * sizeof(idx_t));
         if (!phi_cache) abort();
 
-        if (len_cache)     len_cache = (seq_t *)realloc(len_cache, new_cap * sizeof(seq_t));
-        else               len_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        if (len_cache)     len_cache = mem_resize(seq_t, len_cache, new_cap);
+        else               len_cache = mem_new(seq_t, new_cap);
         if (!len_cache) abort();
 
-        if (sum_cache)     sum_cache = (seq_t *)realloc(sum_cache, new_cap * sizeof(seq_t));
-        else               sum_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        if (sum_cache)     sum_cache = mem_resize(seq_t, sum_cache, new_cap);
+        else               sum_cache = mem_new(seq_t, new_cap);
         if (!sum_cache) abort();
 
         cache_cap = (idx_t)(n + 1);

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   build_primes_upto, power
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,10 @@
 #include <stdint.h>
 
 /* ----------  utilities  ---------- */
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
-#include "../utils/power.h"               /* seq_t cast from literal */
+#include <math.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* ----------  prime generation  ---------- */
 #define PRIME_LIMIT 2000000            /* sufficient for first 10 000 stable numbers */
@@ -129,7 +132,7 @@ static void ensure_cap(size_t needed)
     size_t newcap = stable_cap ? stable_cap * 2 + 16 : 64;
     while (newcap < needed) newcap = newcap * 2 + 16;
     stable_nums  = (uint64_t *)realloc(stable_nums,  newcap * sizeof(uint64_t));
-    fact_counts  = (seq_t *)realloc(fact_counts,  newcap * sizeof(seq_t));
+    fact_counts  = mem_resize(seq_t, fact_counts, newcap);
     stable_cap   = newcap;
 }
 

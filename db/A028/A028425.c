@@ -13,14 +13,24 @@
  *            v...
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   base4_len
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/base4_len.h"
+
+/* Number of base‑4 digits of x (x > 0) */
+static inline size_t base4_len(seq_t x) {
+    size_t l = 0;
+    while (x > 0) {
+        x /= 4;
+        ++l;
+    }
+    return l;
+}
 
 /* Helper: floor(log₂(v)) for 1 ≤ v < 2⁶⁴ */
 static inline idx_t floor_log2_u64(idx_t v) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 92, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum, seq_alloc
+ * Validated: standard, pass, 67 terms through n = 966 (2026-11-01)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,18 @@
 /* Recurrence: a(1) = 1, a(n) = a(n-1) + (digsum(a(n-1)) mod 5) + 1 */
 
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/digit_sum.h"
-#include "../utils/seq_alloc.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;

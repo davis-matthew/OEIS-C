@@ -10,7 +10,8 @@
  *            a(4)=1, a(5)=2, …
  * Range:     u8 n <= 4951, u16 n <= 4951, u32 n <= 4951, u64 n <= 4951,
  *            u128 n <= 4951, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 102 terms through n = 4770 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/mod_pow.h"   /* seq_t mod_pow(seq_t base, idx_t exp, seq_t mod); */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* Find smallest r ≥ 2 such that r*(r-1)/2 ≥ m (m = n-1).  */
 static inline idx_t row_for(idx_t m)
@@ -51,5 +54,5 @@ seq_t a(idx_t n)
 
     idx_t k = m - prev;          /* 1‑based position within the row (1 ≤ k < r) */
 
-    return mod_pow(2, k, (seq_t)r);   /* T(r,k) = 2^k mod r */
+    return powmod(2, k, (seq_t)r);   /* T(r,k) = 2^k mod r */
 }

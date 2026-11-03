@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base
  * Formula:   a(n) = (n << (bitlen(n)+1)) | rev(n)
- * Range:     u8 n <= 7, u16 n <= 127, u32 n <= 9340, u64 n <= 9340,
- *            u128 n <= 9340, big any n
- * Helpers:   reverse_bits_seq
+ * Range:     u8 n <= 7, u16 n <= 127, u32 n <= 32767, u64 n <= 32767,
+ *            u128 n <= 32767, big any n
+ * Validated: standard, pass, 73 terms through n = 9340 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
    and rev(n) is the reflection of the low bitlen(n) bits of n. */
 
 #include <stdint.h>
-#include "../utils/reverse_bits_seq.h"
+
+static inline seq_t reverse_bits_seq(seq_t n, unsigned len) {
+    seq_t rev = 0;
+    for (unsigned i = 0; i < len; ++i) {
+        rev = (rev << 1) | ((n >> i) & 1);
+    }
+    return rev;
+}
 
 static inline unsigned bitlen_idx(idx_t n) {
     unsigned len = 0;

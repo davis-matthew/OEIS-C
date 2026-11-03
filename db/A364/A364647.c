@@ -8,13 +8,15 @@
  *            a(n)=5ⁿ-∑_{i+j+k=n-1} a_i a_j a_k (n≥1)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache of computed values ------------------------------------- */
 static seq_t *a_cache = NULL;
@@ -27,7 +29,7 @@ static seq_t pow5 = 1;          /* 5^(a_cap-1), correct after last a computed */
 static void ensure_c_size(size_t need)
 {
     if (c_cap < need) {
-        c_cache = (seq_t*)realloc(c_cache, need * sizeof(seq_t));
+        c_cache = mem_resize(seq_t, c_cache, need);
         for (size_t i = c_cap; i < need; ++i)
             c_cache[i] = 0;
         c_cap = need;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         return a_cache[n];
 
     /* grow value cache to needed size */
-    a_cache = (seq_t*)realloc(a_cache, ((size_t)n + 1) * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, ((size_t)n + 1));
 
     /* convolution array must be large enough for indices up to 2*n   */
     ensure_c_size(2 * (size_t)n + 1);

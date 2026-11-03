@@ -7,13 +7,22 @@
  * Formula:   a(n) = (n+1) * 2^(n*(n+1))
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   pow2, seq_mul
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/pow2.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Compute a(n) for OEIS sequence A128406.
    The implementation uses the helper functions pow2 and seq_mul 

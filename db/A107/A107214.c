@@ -7,13 +7,15 @@
  * Formula:   a(n) = nth prime of the form 2*x² + 49*y² (offset 1)
  * Range:     u8 n <= 3, u16 n <= 405, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* A bound that contains far more terms than needed for n up to ≈ 12000.
    The exact upper bound can be tweaked if required, but 10 000 000
@@ -61,21 +63,21 @@ static void initialise(void)
     /* Reserve an initial space for the sequence.  Five percent of LIMIT
        is plenty; realloc will grow if more are needed. */
     size_t reserve = LIMIT / 200;             /* 5 % of LIMIT */
-    sequence = (seq_t *)malloc(reserve * sizeof(seq_t));
+    sequence = mem_new(seq_t, reserve);
     seq_len = 0;
 
     for (size_t i = 2; i <= LIMIT; ++i) {
         if (rep[i] && prime_flag[i]) {
             if (seq_len == reserve) {
                 reserve *= 2;
-                sequence = (seq_t *)realloc(sequence, reserve * sizeof(seq_t));
+                sequence = mem_resize(seq_t, sequence, reserve);
             }
             sequence[seq_len++] = (seq_t)i;
         }
     }
 
     /* Shrink to the exact size. */
-    sequence = (seq_t *)realloc(sequence, seq_len * sizeof(seq_t));
+    sequence = mem_resize(seq_t, sequence, seq_len);
 }
 
 /* Return the nth prime of the required form.  n ≥ 1.  Behaviour

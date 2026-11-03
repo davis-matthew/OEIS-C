@@ -12,13 +12,15 @@
  *            x^{k(k+1)/2})
  * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Definitions required by the build environment. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for values already computed. */
@@ -36,13 +38,13 @@ seq_t a(idx_t n) {
         /* Allocate new space. */
         size_t new_cap = (size_t)n + 1;
         if (g == NULL) {
-            g = (seq_t*)malloc(new_cap * sizeof(seq_t));
-            a_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            g = mem_new(seq_t, new_cap);
+            a_arr = mem_new(seq_t, new_cap);
             g[0] = (seq_t)1;
             a_arr[0] = (seq_t)0;
         } else {
-            g = (seq_t*)realloc(g, new_cap * sizeof(seq_t));
-            a_arr = (seq_t*)realloc(a_arr, new_cap * sizeof(seq_t));
+            g = mem_resize(seq_t, g, new_cap);
+            a_arr = mem_resize(seq_t, a_arr, new_cap);
         }
 
         /* Extend the list of triangular numbers if necessary. */

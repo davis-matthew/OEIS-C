@@ -10,6 +10,7 @@
  *            A060679(n)) }
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-01)
  * Helpers:   factor_u64, gcd, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,9 +24,9 @@
 #include <stdbool.h>
 
 /* Utility functions provided by the build environment */
-#include "../utils/factor_u64.h"   /* factor_u64 */
-#include "../utils/gcd.h"          /* seq_gcd */
-#include "../utils/is_prime.h"     /* is_prime */
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/is_prime.h"
 
 /* --------------------------------------------------------------------- */
 /*  Storage for the sequence of non‑cyclic group orders                   */

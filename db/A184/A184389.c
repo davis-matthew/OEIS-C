@@ -9,20 +9,22 @@
  *            n
  * Range:     u8 n <= 359, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 88 terms through n = 3792 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) {
         return (seq_t)0;
     }
-    size_t tau = divisor_count_u64((uint64_t)n);
+    size_t tau = num_divisors((uint64_t)n);
     size_t val = tau * (tau + 1) / 2;
     return (seq_t)val;
 }

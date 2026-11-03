@@ -6,8 +6,9 @@
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = number of nonzero digits in the base-3 representation of
  *            n
- * Range:     u8 n <= 9256, u16 n <= 9256, u32 n <= 9256, u64 n <= 9256,
- *            u128 n <= 9256, big any n
+ * Range:     u8 n <= 19683, u16 n <= 19683, u32 n <= 19683, u64 n <= 19683,
+ *            u128 n <= 19683, big any n
+ * Validated: standard, pass, 121 terms through n = 9256 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

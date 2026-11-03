@@ -7,12 +7,14 @@
  * Formula:   a(2n) = (n*(n+1)/2)^2, a(2n+1) = (n!)^3
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 14, u64 n <= 20, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 495 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         /* Initialise the cache if necessary */
         if (!fact) {
             cap = 1;
-            fact = (seq_t *)malloc(sizeof(seq_t) * cap);
+            fact = mem_new(seq_t, cap);
             fact[0] = 1;          /* 0! = 1 */
             maxk = 0;
         }
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         if (cap <= k) {
             size_t newcap = cap;
             while (newcap <= k) newcap *= 2;
-            fact = (seq_t *)realloc(fact, sizeof(seq_t) * newcap);
+            fact = mem_resize(seq_t, fact, newcap);
             cap = newcap;
         }
 

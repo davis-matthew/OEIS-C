@@ -11,8 +11,9 @@
  *            implements the recursive construction of the sequence
  *            S(1)={1,2}, S(n)=S(n-1)S'(n-1) where S'(k) replaces the single 1
  *            in S(k) with the least integer not occurring in S(k)
- * Range:     u8 n <= 9944, u16 n <= 9944, u32 n <= 9944, u64 n <= 9944,
- *            u128 n <= 9944, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9944 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

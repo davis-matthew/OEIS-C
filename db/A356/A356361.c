@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/3⌋} n^k * |Stirling1(n,3k)|
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* helper: grow a seq_t array to at least @need elements */
 static seq_t *grow_seq(seq_t *ptr, size_t *cap, size_t need)
@@ -28,7 +30,7 @@ static seq_t *grow_seq(seq_t *ptr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t new_cap = (*cap == 0) ? 1 : *cap;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(ptr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, ptr, new_cap);
         if (!tmp) abort();          /* allocation failed – terminate */
         ptr = tmp;
         *cap = new_cap;

@@ -10,12 +10,14 @@
  *            ((-2)^{r+2-i}-1)/((-2)^{i+1}-1)
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 38, u64 n <= 81, u128 n <= 142,
  *            big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 61 terms through n = 1147 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_seq.h"
+#include <stdint.h>
+#include "../utils/gcd.h"
 /* ------------- utility helpers ------------- */
 static inline seq_t
 pow2(idx_t exp)
@@ -62,28 +64,28 @@ compute_T(idx_t n, idx_t k)
         seq_t b_den = abs_powminus1(exp_den2);
 
         /* reduce a_num against current denominator */
-        seq_t g = gcd_seq(a_num, denom);
+        seq_t g = gcd(a_num, denom);
         if (g > 1) {
             a_num /= g;
             denom /= g;
         }
 
         /* reduce b_num against current denominator */
-        g = gcd_seq(b_num, denom);
+        g = gcd(b_num, denom);
         if (g > 1) {
             b_num /= g;
             denom /= g;
         }
 
         /* reduce a_den against current numerator */
-        g = gcd_seq(a_den, numer);
+        g = gcd(a_den, numer);
         if (g > 1) {
             a_den /= g;
             numer /= g;
         }
 
         /* reduce b_den against current numerator */
-        g = gcd_seq(b_den, numer);
+        g = gcd(b_den, numer);
         if (g > 1) {
             b_den /= g;
             numer /= g;
@@ -95,7 +97,7 @@ compute_T(idx_t n, idx_t k)
         denom *= b_den;
 
         /* final quick reduction to keep numbers small */
-        g = gcd_seq(numer, denom);
+        g = gcd(numer, denom);
         if (g > 1) {
             numer /= g;
             denom /= g;

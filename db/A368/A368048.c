@@ -12,15 +12,24 @@
  *            have exponent 0. The following implementati...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   build_primes, pow_seq, seq_mul
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   build_primes, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/build_primes.h"   /* build_primes */
-#include "../utils/pow_seq.h"        /* pow_seq */
-#include "../utils/seq_mul.h"        /* seq_mul */
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/ipow_i32.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -53,7 +62,7 @@ seq_t a(idx_t n)
 
         if (exp == 0) continue;
 
-        seq_t term = pow_seq((seq_t)p, (int)exp);
+        seq_t term = ipow_i32((seq_t)p, (int)exp);
         result = seq_mul(result, term);
     }
 

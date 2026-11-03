@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   alloc_seq_array, build_primes, free_seq_array
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,9 +29,18 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/alloc_seq_array.h"   /* alloc_seq_array(size_t) -> seq_t *   */
-#include "../utils/free_seq_array.h"    /* free_seq_array(seq_t *)              */
-#include "../utils/build_primes.h"      /* build_primes(limit, &primes, &cnt)   */
+#include "../utils/build_primes.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Global state: flattened flattened triangle values. */
 static seq_t *seq      = NULL;

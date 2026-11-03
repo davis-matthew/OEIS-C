@@ -8,7 +8,8 @@
  *            binom(2n,n)/(n+1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exp_power
+ * Validated: standard, pass, 103 terms through n = 9739 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
 /* The digital root is congruent to the number modulo 9 (0 is replaced by 9). */
 
 #include <stdint.h>
-#include "../utils/exp_power.h"
+
+/* Exponent of p in the integer m. */
+static uint64_t exp_power(uint64_t m, uint64_t p)
+{
+    uint64_t e = 0;
+    while (m % p == 0) {
+        m /= p;
+        ++e;
+    }
+    return e;
+}
 
 /* Fixed limit sufficient for n up to 10 000 (2n ≤ 20 000). 2262 is the number of primes ≤20000. */
 #define MAX_PRIME 20000

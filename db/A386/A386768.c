@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 16,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
    before multiplication so that the result never overflows a
    fixed‑width seq_t while still being exact for arbitrary‑precision
    builds. */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* gcd for seq_t; works for both built‑in and arbitrary‑precision types. */

@@ -7,18 +7,22 @@
  * Formula:   a(n) = 10^n mod 97
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 112 terms through n = 841 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 /* Compute 10^n modulo 97. */
 seq_t a(idx_t n)
 {
     /* The modulus is small enough to fit in the native integer type of seq_t. */
     const seq_t mod = (seq_t)97U;
-    return mod_pow((seq_t)10U, n, mod);
+    return powmod((seq_t)10U, n, mod);
 }

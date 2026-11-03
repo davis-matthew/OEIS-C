@@ -6,7 +6,8 @@
  * Keywords:  nonn
  * Formula:   a(n) = Π_{d|n, gcd(d,n/d) is a prime power} gcd(d,n/d)
  * Range:     u8 n <= 47, u16 n <= 191, u32 n <= 767, u64 n <= 3839,
- *            u128 n <= 8294, big any n
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 8294 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

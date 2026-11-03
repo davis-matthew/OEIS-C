@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_product
+ * Validated: standard, pass, 90 terms through n = 9945 (2026-11-03)
+ * Helpers:   digit_product, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/digit_product.h"
+#include "../utils/mem.h"
 
 static bool init_done = false;
 static seq_t *missing = NULL;
@@ -54,7 +56,7 @@ static void build_sieve(void)
 
     /* Prepare missing array.  Size MAX_VISIT is more than enough to
        hold all missing numbers up to the threshold. */
-    missing = (seq_t *)malloc(MAX_VISIT * sizeof(seq_t));
+    missing = mem_new(seq_t, MAX_VISIT);
     missing_len = 0;
 
     for (size_t k = 1; k < MAX_VISIT; ++k) {

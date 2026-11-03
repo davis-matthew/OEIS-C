@@ -9,7 +9,8 @@
  *            an O(n²) algorithm
  * Range:     u8 n <= 15, u16 n <= 127, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,9 +27,9 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* Allocate array f[a] = # of residues r with r^5 ≡ a (mod n) */
-    seq_t *f = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, N);
     if (!f) return 0;
-    memset(f, 0, N * sizeof(seq_t));
+    mem_set(f, 0, N * sizeof(seq_t));
 
     /* Count the fifth powers modulo n */
     for (size_t i = 0; i < N; ++i) {
@@ -59,6 +61,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(f);
+    mem_free(f);
     return (seq_t)result;
 }

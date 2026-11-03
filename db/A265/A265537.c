@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   gen_pal
+ * Validated: partial, pass, 84 terms through n = 83 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,38 @@
  */
 
 #include <stdint.h>                /* for uint8_t */
-#include "../utils/gen_pal.h"
+
+/* Recursive helper that builds all first‑half digit patterns for a given length. */
+static void
+gen_pal(int L, int pos, int half, uint8_t firstHalf[],
+        seq_t n, seq_t *best)
+{
+    if (pos == half) {
+        /* Build the full decimal value from the first half. */
+        seq_t val = 0;
+        for (int i = 0; i < half; ++i)
+            val = val * 7 + firstHalf[i];
+        int mirror_start = (L % 2 == 0) ? half - 1 : half - 2;
+        for (int i = mirror_start; i >= 0; --i)
+            val = val * 7 + firstHalf[i];
+
+        if (val <= n && val > *best)
+            *best = val;
+        return;
+    }
+
+    if (pos == 0 && L > 1) {          /* leading digit cannot be 0 for length > 1 */
+        for (int d = 1; d <= 6; ++d) {
+            firstHalf[pos] = (uint8_t)d;
+            gen_pal(L, pos + 1, half, firstHalf, n, best);
+        }
+    } else {
+        for (int d = 0; d <= 6; ++d) {
+            firstHalf[pos] = (uint8_t)d;
+            gen_pal(L, pos + 1, half, firstHalf, n, best);
+        }
+    }
+}
 
 /* Main sequence function. */
 seq_t

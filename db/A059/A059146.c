@@ -10,13 +10,14 @@
  *            as required
  * Range:     u8 n <= 44, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   v2_trailing_zeros
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   ctz_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/v2_trailing_zeros.h"
+#include "../utils/ctz_u64_to_u32.h"
 
 /* Return the n-th term of A059146. */
 seq_t a(idx_t n)
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
     idx_t k = n / 3;
 
     /* Compute e = v2(k+1).  k+1 is always > 0 for n within idx_t range. */
-    unsigned int e = v2_trailing_zeros((uint64_t)(k) + 1ULL);
+    unsigned int e = ctz_u64_to_u32((uint64_t)(k) + 1ULL);
 
     /* Compute 4^e using sequential multiplication to avoid shift width limits. */
     seq_t val = 1;

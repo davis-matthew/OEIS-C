@@ -9,12 +9,14 @@
  * Formula:   a(0) = 0, a(1) = 0, a(n) = 6^n - 3*3^n + 3 for n > 0
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pow6 = NULL;
 static seq_t *pow3 = NULL;
@@ -28,15 +30,15 @@ static void ensure_powers(idx_t target)
 
     if (pow6 == NULL) {
         /* first allocation */
-        pow6 = (seq_t*)calloc(target + 1, sizeof(seq_t));
-        pow3 = (seq_t*)calloc(target + 1, sizeof(seq_t));
+        pow6 = mem_new(seq_t, target + 1);
+        pow3 = mem_new(seq_t, target + 1);
         pow6[0] = (seq_t)1;
         pow3[0] = (seq_t)1;
         max_cached = 0;
     } else {
         /* extend arrays */
-        pow6 = (seq_t*)realloc(pow6, (target + 1) * sizeof(seq_t));
-        pow3 = (seq_t*)realloc(pow3, (target + 1) * sizeof(seq_t));
+        pow6 = mem_resize(seq_t, pow6, (target + 1));
+        pow3 = mem_resize(seq_t, pow3, (target + 1));
     }
 
     for (idx_t i = max_cached + 1; i <= target; ++i) {

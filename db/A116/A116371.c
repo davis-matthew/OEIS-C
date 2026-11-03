@@ -8,13 +8,15 @@
  *            1
  * Range:     u8 n <= 114, u16 n <= 320, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 494 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;        /* number of partitions for each value up to the cached maximum */
 static idx_t max_cached = 0;    /* largest n for which dp[0..n] are valid */
@@ -26,7 +28,7 @@ static void recompute_upto(idx_t n)
         return;
 
     size_t new_size = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, new_size);
     if (!tmp)                    /* memory allocation failure */
         abort();
     dp = tmp;

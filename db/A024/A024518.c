@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The build supplies the following types:
      idx_t – unsigned 64‑bit index
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         }
 
         /* Allocate result array (indices 1..new_max_n) */
-        seq_t *new_results = (seq_t *)calloc(new_max_n + 1, sizeof(seq_t));
+        seq_t *new_results = mem_new(seq_t, new_max_n + 1);
         if (!new_results)
         {
             free(new_bits);
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
 
         /* Replace old storage with the new blocks */
         free(bits);
-        free(results);
+        mem_free(results);
         bits      = new_bits;
         results   = new_results;
         max_n     = new_max_n;

@@ -14,11 +14,13 @@
  *            / ( 2^i - 1 ) * * The value [r choose k]_2 is an...
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 38, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Compute the Gaussian binomial coefficient [n choose k]_2. */

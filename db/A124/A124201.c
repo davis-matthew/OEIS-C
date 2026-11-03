@@ -11,7 +11,8 @@
  *            do not divide n * consists solely of those primes.)
  * Range:     u8 n <= 42, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static uint64_t *primes = NULL;          /* array of primes */
 static size_t    primes_cnt = 0;         /* number of primes in the array */
@@ -46,11 +48,11 @@ cache_ensure(idx_t n)
 {
     if (n > a_cache_size) {
         idx_t new_size = n;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (new_cache == NULL) exit(1);
-        memcpy(new_cache, a_cache, a_cache_size * sizeof(seq_t));
+        mem_copy(new_cache, a_cache, a_cache_size * sizeof(seq_t));
         for (idx_t i = a_cache_size; i < new_size; ++i) new_cache[i] = 0;
-        free(a_cache);
+        mem_free(a_cache);
         a_cache = new_cache;
         a_cache_size = new_size;
     }

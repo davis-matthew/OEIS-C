@@ -11,12 +11,14 @@
  *            (50*2^(3k)+147*2^(2k)+60*2^k-48+16*(-1)^k) / 144 (k>1)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 43, u128 n <= 85,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 756 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 #if defined(__cplusplus)

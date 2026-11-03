@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 164, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   equal_6_7
+ * Validated: standard, pass, 85 terms through n = 9868 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,21 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/equal_6_7.h"
+#include "../utils/mem.h"
+
+/* Check whether a number has equal counts of 6’s and 7’s in base 9. */
+static bool equal_6_7(seq_t x)
+{
+    int cnt6 = 0, cnt7 = 0;
+    if (x == 0) return true;
+    while (x > 0) {
+        seq_t d = x % (seq_t)9;
+        if (d == (seq_t)6) cnt6++;
+        else if (d == (seq_t)7) cnt7++;
+        x /= (seq_t)9;
+    }
+    return cnt6 == cnt7;
+}
 
 /* Main function implementing the sequence. */
 seq_t a(idx_t n)
@@ -39,8 +54,8 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n) {
         if (!cache || cache_len == cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-            seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-            if (!p) { free(cache); cache = NULL; cache_cap = 0; return 0; }
+            seq_t *p = mem_resize(seq_t, cache, new_cap);
+            if (!p) { mem_free(cache); cache = NULL; cache_cap = 0; return 0; }
             cache = p;
             cache_cap = new_cap;
         }

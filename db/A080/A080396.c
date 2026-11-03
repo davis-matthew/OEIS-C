@@ -9,6 +9,7 @@
  *            with r(r+1)/2 <= n (row number) k = n - r(r+1)/2 (column index)
  * Range:     u8 n <= 69, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static idx_t legendre(idx_t m, uint64_t p)

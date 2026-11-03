@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   has_pair_and_triple
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,25 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_pair_and_triple.h"
+#include "../utils/mem.h"
+
+/* Check that a 64‑bit unsigned integer has exactly one digit occurring twice
+   and exactly one digit occurring three times (the two digits are distinct). */
+static bool has_pair_and_triple(uint64_t v)
+{
+    unsigned int cnt[10] = {0};
+    while (v > 0) {
+        cnt[v % 10]++;
+        v /= 10;
+    }
+    int pair = 0, triple = 0;
+    for (int d = 0; d < 10; ++d) {
+        if (cnt[d] == 2) pair++;
+        if (cnt[d] == 3) triple++;
+        if (cnt[d] > 3) return false;
+    }
+    return (pair == 1 && triple == 1);
+}
 
 seq_t a(idx_t n)
 {
@@ -37,14 +56,14 @@ seq_t a(idx_t n)
     if (len < (size_t)n) {
         if (cap == 0) {
             cap = 16;
-            cache = (seq_t *)malloc(cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cap);
             if (!cache) abort();
         }
         while (len < (size_t)n) {
             if (has_pair_and_triple(next_val)) {
                 if (len == cap) {
                     size_t new_cap = cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) abort();
                     cache = tmp;
                     cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   mod_mul
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_mul.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* ---   Miller‑Rabin primality test for 64‑bit integers              */
@@ -27,8 +29,8 @@ static inline uint64_t mod_pow_uint64(uint64_t base, uint64_t exp, uint64_t mod)
 {
     uint64_t result = 1;
     while (exp) {
-        if (exp & 1) result = mod_mul(result, base, mod);
-        base = mod_mul(base, base, mod);
+        if (exp & 1) result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -52,7 +54,7 @@ static bool is_prime_u64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool comp = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { comp = false; break; }
         }
         if (comp) return false;
@@ -133,8 +135,8 @@ static bool rec_gen(int pos, int len, seq_t val)
 /* ------------------------------------------------------------------ */
 static void build_up_to(idx_t n)
 {
-    free(cache);
-    cache        = (seq_t*)malloc(n * sizeof(seq_t));
+    mem_free(cache);
+    cache        = mem_new(seq_t, n);
     cached_len   = 0;
     target_n     = n;
 

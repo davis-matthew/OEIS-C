@@ -8,6 +8,7 @@
  * Formula:   a(n) = 1 + ((n-1 + floor((n-1)/26)) mod 26)
  * Range:     u8 n <= 676, u16 n <= 676, u32 n <= 676, u64 n <= 676,
  *            u128 n <= 676, big any n
+ * Validated: full, pass, 676 terms through n = 676 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

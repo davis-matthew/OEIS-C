@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 1334, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 94 terms through n = 9769 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
 /*
  * OEIS A355416
  * a(n) = least k such that n divides Σ_{i=k}^{k+n−1} A001414(i)

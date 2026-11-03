@@ -9,12 +9,14 @@
  *            a(2)=119, a(3)=1271
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes A125468: number of base‑11 circular n‑digit numbers
    with adjacent digits differing by 9 or less. */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Expand cache if needed to store a[n] */
     if ((idx_t)(n + 1) > cache_len) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!new_cache) abort();            /* allocation failure */
         cache = new_cache;
 

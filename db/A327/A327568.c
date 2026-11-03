@@ -9,7 +9,8 @@
  *            a(mn)=lcm(a(m),a(n))
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   factor_u64, seq_gcd, seq_pow
+ * Validated: standard, pass, 62 terms through n = 200 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,11 @@
 /* Required utilities */
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_gcd.h"
-#include "../utils/seq_pow.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
 
 /* Exponent of GL(2, Z_n) */
 seq_t a(idx_t n) {
@@ -38,10 +41,10 @@ seq_t a(idx_t n) {
     for (size_t i = 0; i < cnt; ++i) {
         seq_t p = (seq_t)primes[i];
         seq_t p2minus1 = p * p - (seq_t)1;        /* (p^2 - 1) */
-        seq_t p_pow = seq_pow(p, (idx_t)exps[i]);  /* p^e */
+        seq_t p_pow = ipow_idx(p, (idx_t)exps[i]);  /* p^e */
         seq_t val = p2minus1 * p_pow;             /* (p^2-1) * p^e */
 
-        seq_t g = seq_gcd(result, val);
+        seq_t g = gcd(result, val);
         result = (result / g) * val;
     }
 

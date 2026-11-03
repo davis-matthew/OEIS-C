@@ -11,6 +11,7 @@
  *            the sorted list of those values of n. It...
  * Range:     u8 n <= 1, u16 n <= 33, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
+ * Validated: full, pass, 33 terms through n = 33 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

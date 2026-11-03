@@ -7,13 +7,15 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = flatten of triangle T(m,k) where T(m,k) = (2 -
  *            (-1)^k)*binomial(m,k)
- * Range:     u8 n <= 39, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
+ * Range:     u8 n <= 49, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

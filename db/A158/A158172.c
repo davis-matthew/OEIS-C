@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 43, u64 n <= 138, u128 n <= 222,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #ifdef __cplusplus
 # include <new>          // placement new for C++ builds
 #endif
+#include "../utils/mem.h"
 
 /* ---- Global data for memoisation ---- */
 static seq_t **part_at_most = NULL;   /* part_at_most[k][n] = Q_k(n)          */
@@ -43,7 +45,7 @@ static idx_t  max_n = 0;              /* largest n for which the table is built 
 /* ------------------------------------------------------------------ */
 static seq_t *alloc_row(idx_t size)
 {
-    seq_t *row = (seq_t *)malloc((size + 1) * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size + 1));
     if (!row) return NULL;
 
 #ifndef __cplusplus
@@ -52,7 +54,7 @@ static seq_t *alloc_row(idx_t size)
 #else
     /* Construct every element in place (default constructor).          */
     for (idx_t i = 0; i <= size; ++i) {
-        new (row + i) seq_t();
+        *(row + i) = (seq_t)0;
     }
 #endif
     return row;
@@ -81,8 +83,7 @@ static void ensure_partitions(idx_t needed_n)
     } else {                               /* grow each row */
         for (idx_t k = 0; k <= 38; ++k) {
             seq_t *new_ptr =
-                (seq_t *)realloc(part_at_most[k],
-                                 (needed_n + 1) * sizeof(seq_t));
+                mem_resize(seq_t, part_at_most[k], (needed_n + 1));
             if (!new_ptr) return;          /* out of memory */
 
             /* Construct newly added elements */
@@ -90,7 +91,7 @@ static void ensure_partitions(idx_t needed_n)
             /* nothing needed for C */
 #else
             for (idx_t i = max_n + 1; i <= needed_n; ++i) {
-                new (new_ptr + i) seq_t();
+                *(new_ptr + i) = (seq_t)0;
             }
 #endif
             part_at_most[k] = new_ptr;

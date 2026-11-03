@@ -10,8 +10,9 @@
  * Formula:   a(n) = the smallest k for which k! ≡ m! (mod prime(n)) first
  *            occurs, where m is the first factorial with a repeated residue.
  *            If no repetition exists, a(n) = 0
- * Range:     u8 n <= 1159, u16 n <= 9340, u32 n <= 9340, u64 n <= 9340,
- *            u128 n <= 9340, big any n
+ * Range:     u8 n <= 1159, u16 n <= 10002, u32 n <= 10002, u64 n <= 10002,
+ *            u128 n <= 10002, big any n
+ * Validated: standard, pass, 92 terms through n = 9340 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

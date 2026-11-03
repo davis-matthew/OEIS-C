@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has32_base5, seq_alloc, seq_realloc
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,43 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/has32_base5.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Test whether the base‑5 representation of x contains the adjacent digits
+   3 followed by 2. */
+static bool has32_base5(seq_t x)
+{
+    while (x >= (seq_t)5)
+    {
+        seq_t low  = x % (seq_t)5;      /* least significant digit */
+        x = x / (seq_t)5;               /* shift right */
+        seq_t high = x % (seq_t)5;      /* next digit (more significant) */
+
+        if (low == (seq_t)2 && high == (seq_t)3)
+            return true;
+    }
+    return false;
+}
 
 /* Main sequence generator with memoization.  The cache stores the found
    elements of the sequence. */

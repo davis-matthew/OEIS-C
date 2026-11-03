@@ -12,13 +12,24 @@
  *            row‑wise listing
  * Range:     u8 n <= 28, u16 n <= 78, u32 n <= 192, u64 n <= 531,
  *            u128 n <= 1542, big any n
- * Helpers:   create_row
+ * Validated: standard, pass, 82 terms through n = 4758 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/create_row.h"
+
+static seq_t *create_row(size_t len)
+/* Allocate a zero‑initialised array of seq_t of length len. */
+{
+#ifdef __cplusplus
+    /* In C++ value‑initialise each element (defaults to zero). */
+    return new seq_t[len]();
+#else
+    return (seq_t *)calloc(len, sizeof(seq_t));
+#endif
+}
 
 static seq_t **triangle = NULL;       /* pointers to rows of the triangle   */
 static size_t  triangle_rows = 0;     /* number of rows currently computed */

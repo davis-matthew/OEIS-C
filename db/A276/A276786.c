@@ -10,15 +10,20 @@
  *            1. When a number m is extracted, insert 2m+1 and 3m+1 into a
  *            min‑heap. Output the numbers in increasing order, keeping
  *            duplicates, and return the nth (1‑based) output
- * Range:     u8 n <= 31, u16 n <= 4328, u32 n <= 8922, u64 n <= 8922,
- *            u128 n <= 8922, big any n
- * Helpers:   heap_swap
+ * Range:     u8 n <= 31, u16 n <= 4328, u32 n <= 29993, u64 n <= 29993,
+ *            u128 n <= 29993, big any n
+ * Validated: standard, pass, 85 terms through n = 8922 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/heap_swap.h"
+#include "../utils/mem.h"
+
+static void heap_swap(seq_t *a, seq_t *b) {
+    seq_t t = *a; *a = *b; *b = t;
+}
 
 /* ----- heap helpers ----------------------------------------------------- */
 static seq_t *heap_arr = NULL;
@@ -49,7 +54,7 @@ static void heap_sift_down(size_t i) {
 static void heap_push(seq_t v) {
     if (heap_sz == heap_cap) {
         heap_cap = heap_cap ? heap_cap << 1 : 16;
-        heap_arr = (seq_t*)realloc(heap_arr, heap_cap * sizeof(seq_t));
+        heap_arr = mem_resize(seq_t, heap_arr, heap_cap);
     }
     heap_arr[heap_sz++] = v;
     heap_sift_up(heap_sz - 1);
@@ -73,7 +78,7 @@ static void cache_grow(size_t needed) {
     if (cache_cap < needed) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         while (new_cap < needed) new_cap <<= 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }

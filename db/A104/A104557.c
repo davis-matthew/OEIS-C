@@ -12,15 +12,20 @@
  *            T(n,k) = (n-k)! * C(n - ⌊k/2⌋, ⌈k/2⌉) * C(n - ⌈k/2⌉, ⌊k/2⌋)
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom, int_sqrt_idx
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/binom.h"
-#include "../utils/int_sqrt_idx.h"
+#include <sys/types.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static seq_t *fact = NULL;          /* factorial array */
 static idx_t  fact_size = 0;        /* number of factorials computed (fact[i] for 0<=i<fact_size) */
@@ -31,14 +36,14 @@ static void ensure_factorials(idx_t m)
 {
     if (fact == NULL) {
         fact_cap = 16;
-        fact = (seq_t *)malloc(fact_cap * sizeof(seq_t));
+        fact = mem_new(seq_t, fact_cap);
         fact[0] = 1;      /* 0! = 1 */
         fact_size = 1;
     }
     if (m >= fact_cap) {
         size_t new_cap = fact_cap;
         while (new_cap <= m) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, new_cap);
         fact = tmp;
         fact_cap = (idx_t)new_cap;
     }
@@ -60,8 +65,8 @@ static seq_t compute_T(idx_t n, idx_t k)
     ensure_factorials(n_fact);
     seq_t fact_term = fact[n_fact];
 
-    seq_t bin1 = binom(n - a, b);
-    seq_t bin2 = binom(n - b, a);
+    seq_t bin1 = binomial(n - a, b);
+    seq_t bin2 = binomial(n - b, a);
 
     return fact_term * bin1 * bin2;
 }
@@ -71,7 +76,7 @@ seq_t a(idx_t n)
 {
     /* Locate the row r and column c of the triangle. */
     idx_t t = 8 * n + 1;
-    idx_t sqrt_t = int_sqrt_idx(t);
+    idx_t sqrt_t = isqrt(t);
     idx_t r = (sqrt_t - 1) / 2;
     idx_t offset = r * (r + 1) / 2;
     idx_t c = n - offset;

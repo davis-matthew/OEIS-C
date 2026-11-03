@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(10^(n+1) / 536) mod 10
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* a(n) is the (n)th decimal digit of 1/536, with offset 0. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* ensure at least one byte of memory is allocated initially */
     if (digits == NULL) {
         capacity = 1;
-        digits = (seq_t *)malloc(capacity * sizeof(seq_t));
+        digits = mem_new(seq_t, capacity);
         /* pthread-safe initialization is not required for build environment */
     }
 
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
             newcap = newcap * 2;
             if (newcap == 0) newcap = 16; /* guard against overflow */
         }
-        seq_t *tmp = (seq_t *)realloc(digits, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, digits, newcap);
         if (tmp != NULL) {
             digits = tmp;
             capacity = newcap;

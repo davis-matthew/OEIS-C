@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 19, i32 n <= 39, i64 n <= 78, i128 n <= 158,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #ifdef __cplusplus
 #include <new>   /* placement new */
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* allocate initial capacity for the first 4 terms */
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;          /* allocation failure → undefined */
 
         /* construct elements when compiled as C++ */
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cache_cap;
         /* grow until new_cap > n */
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;           /* allocation failure → undefined */
         cache = tmp;
 

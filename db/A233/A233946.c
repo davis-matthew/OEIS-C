@@ -10,7 +10,8 @@
  *            equal to 4
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 9, u128 n <= 20,
  *            big any n
- * Helpers:   alloc_seq_zero
+ * Validated: standard, pass, 28 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq_zero.h"
+#include "../utils/mem.h"
+
+/* Allocate and zero an array of seq_t of given size. */
+static seq_t *alloc_seq_zero(size_t n)
+{
+    seq_t *p = mem_new(seq_t, n);
+    if (!p) return NULL;
+    for (size_t i = 0; i < n; ++i) p[i] = (seq_t)0;
+    return p;
+}
 
 /* Number of possible rows: 3^6 = 729 */
 #define ROWS 729

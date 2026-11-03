@@ -8,7 +8,8 @@
  * Formula:   a(n) = A276086(A276086(A276086(n)))
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 11, u64 n <= 17, u128 n <= 22,
  *            big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: standard, pass, 39 terms through n = 134 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/big_pow.h"
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
 
 /* Prime cache (always fetched as uint64_t).  The cache is
    shared between calls and is lazily initialised. */
@@ -53,7 +55,7 @@ static seq_t primorial_transform(seq_t n)
         seq_t p     = (seq_t)prime_cache[i];
         seq_t digit = n % p;          /* digit in primorial base */
         if (digit != (seq_t)0) {
-            result *= big_pow(p, digit);
+            result *= ipow(p, digit);
         }
         n /= p;                       /* move to next prime radix */
         ++i;

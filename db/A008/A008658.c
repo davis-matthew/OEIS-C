@@ -10,13 +10,42 @@
  *            prime p
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 371, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   b_prime_power
+ * Validated: standard, pass, 47 terms through n = 7411 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/b_prime_power.h"
+
+/* compute b(p^e) for a single prime power, result fits in seq_t.
+   The calculation uses unsigned __int128 for intermediate values. */
+static seq_t b_prime_power(uint64_t p, int e)
+{
+    if (p == 2) {
+        /* b(2^e) = 1 + 12*(8^e - 1)/7 */
+        unsigned __int128 pow8e = 1;
+        for (int i = 0; i < e; ++i) pow8e *= (unsigned __int128)8;
+
+        unsigned __int128 num = 12 * (pow8e - 1);
+        unsigned __int128 val = num / 7 + 1;
+
+        return (seq_t)val;
+    } else {
+        /* b(p^e) = sum_{k=0}^e p^{3k}   for odd prime p */
+        unsigned __int128 sum   = 1;          /* k = 0 term */
+        unsigned __int128 power = 1;          /* p^{3(k-1)} initially 1 */
+
+        unsigned __int128 p3 = (unsigned __int128)p * p * p;  /* p^3 */
+
+        for (int k = 1; k <= e; ++k) {
+            power *= p3;        /* power = p^{3k} */
+            sum   += power;
+        }
+
+        return (seq_t)sum;
+    }
+}
 
 seq_t a(idx_t n)
 {

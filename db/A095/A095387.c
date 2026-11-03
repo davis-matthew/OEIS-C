@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 1579, u32 n <= 1579, u64 n <= 1579,
  *            u128 n <= 1579, big any n
- * Helpers:   collatz_max_idx
+ * Validated: full, pass, 1579 terms through n = 1579 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,25 @@
  * Formula: a(n) is the nth element of that list. */
 
 #include <stdlib.h>   /* for malloc */
-#include "../utils/collatz_max_idx.h"
+#include "../utils/mem.h"
+
+/* Compute the maximum value in the Collatz trajectory of a starting
+ * integer (using idx_t to avoid overflow).  The result is returned
+ * as idx_t; callers compare it with 9232. */
+static idx_t collatz_max_idx(idx_t start)
+{
+    idx_t x     = start;
+    idx_t max_v = start;
+    while (x != 1) {
+        if (x & 1LL)          /* odd */
+            x = 3 * x + 1;
+        else                  /* even */
+            x >>= 1;
+        if (x > max_v)
+            max_v = x;
+    }
+    return max_v;
+}
 
 /* Cache of all qualifying starting values (static for repeated calls). */
 static seq_t *cache      = NULL;  /* array of qualifying values           */
@@ -37,7 +56,7 @@ static void build_cache(void)
     const idx_t CAP     = 2000; /* > 1579 */
 
     /* Allocate the cache array. */
-    cache = (seq_t *)malloc(CAP * sizeof(seq_t));
+    cache = mem_new(seq_t, CAP);
     if (cache == NULL)          /* allocation failed; abort */
         return;
 

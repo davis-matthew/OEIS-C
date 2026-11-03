@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   enumerate_div
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
  */
 
 #include <stdint.h>          /* For UINT64_MAX when needed; types seq_t and idx_t are externally supplied */
-#include "../utils/enumerate_div.h"
+
+static void
+enumerate_div(idx_t idx, idx_t cur, const idx_t *primes, const int *exps, int num, seq_t *cnt)
+{
+    if (idx == num) {
+        if (cur % 7 == 6)
+            (*cnt)++;
+        return;
+    }
+    idx_t val = cur;
+    for (int e = 0; e <= exps[idx]; ++e) {
+        enumerate_div(idx + 1, val, primes, exps, num, cnt);
+        val *= primes[idx];
+    }
+}
 
 seq_t a(idx_t n)
 {

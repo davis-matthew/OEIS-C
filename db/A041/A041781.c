@@ -11,15 +11,19 @@
  *            a(16)=22577416, a(17)=44060783, a(18)=66638199, a(19)=243975380
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 79,
  *            big any n
- * Helpers:   _alloc_cache_seq, _free_cache_seq
+ * Validated: standard, pass, 45 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/_alloc_cache_seq.h"
-#include "../utils/_free_cache_seq.h"
+#include "../utils/mem.h"
+
+static seq_t* _alloc_cache_seq(size_t len) { return mem_new(seq_t, len); }
+
+static void _free_cache_seq(seq_t* p) { mem_free(p); }
 
 /* Array of first 20 terms as unsigned long long for easy conversion to seq_t */
 static const unsigned long long INIT[20] = {

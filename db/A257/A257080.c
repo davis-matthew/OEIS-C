@@ -7,8 +7,9 @@
  * Keywords:  nonn, base, look
  * Formula:   a(n) = n * A257079(n) where A257079(n) is the least nonzero
  *            digit missing from the factorial-base representation of n
- * Range:     u8 n <= 66, u16 n <= 8181, u32 n <= 8181, u64 n <= 8181,
- *            u128 n <= 8181, big any n
+ * Range:     u8 n <= 66, u16 n <= 10077, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 89 terms through n = 8181 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

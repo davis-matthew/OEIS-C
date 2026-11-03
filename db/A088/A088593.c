@@ -8,6 +8,7 @@
  * Formula:   a(0) = 18; a(n+1) = largest odd factor of (3 * a(n) + 1)
  * Range:     u8 n <= 3, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
+ * Validated: full, pass, 43 terms through n = 42 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

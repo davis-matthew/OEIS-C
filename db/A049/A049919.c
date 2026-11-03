@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 36, u64 n <= 69, u128 n <= 134,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 3323 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_arr = NULL;     /* a[1] … a[max_n] */
 static size_t cap = 0;          /* allocated capacity (≥ max_n+1) */
@@ -51,7 +53,7 @@ static void ensure_capacity(idx_t need)
     while (new_cap < (size_t)(need + 1))
         new_cap *= 2;
 
-    a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, new_cap);
     cap   = new_cap;
 }
 

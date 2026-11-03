@@ -13,6 +13,7 @@
  *            vertically (below ≥ above). Computed by dynami...
  * Range:     u8 none, u16 n <= 2, u32 n <= 9, u64 n <= 23, u128 n <= 51,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 175 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

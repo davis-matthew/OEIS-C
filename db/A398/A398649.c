@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   cmp_seq_t, digit_len, pow10
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,30 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
-#include "../utils/pow10.h"          /* seq_t pow10(idx_t e);           */
-#include "../utils/digit_len.h"      /* int digit_len(seq_t x);        */
-#include "../utils/cmp_seq_t.h"      /* int cmp_seq_t(const void *, const void *); */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 static seq_t *cache      = NULL;     /* sorted unique terms               */
 static size_t cache_len  = 0;        /* number of cached terms             */
@@ -40,7 +62,7 @@ static void ensure_cache(idx_t target)
     while (1) {
         /* Number of candidate pairs (x, y) with 1 ≤ x ≤ bound, 0 ≤ y ≤ bound. */
         size_t pair_cnt = (size_t)bound * (size_t)(bound + 1);
-        seq_t *tmp = (seq_t *)malloc(pair_cnt * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, pair_cnt);
         if (!tmp)
             abort();                  /* memory error                         */
 
@@ -51,8 +73,8 @@ static void ensure_cache(idx_t target)
             for (idx_t y = 0; y <= bound; ++y) {
                 seq_t ys      = (seq_t)y;
                 seq_t sum     = xs + ys;
-                int q         = (y == 0) ? 1 : digit_len(ys);
-                int r         = digit_len(sum);
+                int q         = (y == 0) ? 1 : num_digits(ys);
+                int r         = num_digits(sum);
                 seq_t val     = xs * pow10((idx_t)(q + r)) +
                                 ys * pow10((idx_t)r) + sum;
                 tmp[k++] = val;
@@ -60,7 +82,7 @@ static void ensure_cache(idx_t target)
         }
 
         /* Sort the candidates. */
-        qsort(tmp, k, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(tmp, k, sizeof(seq_t), cmp_seq_t);
 
         /* Deduplicate in-place. */
         size_t uniq = 0;
@@ -71,16 +93,16 @@ static void ensure_cache(idx_t target)
         }
 
         /* Replace old cache with the new unique terms. */
-        seq_t *new_cache = (seq_t *)malloc(uniq * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, uniq);
         if (!new_cache)
             abort();
-        memcpy(new_cache, tmp, uniq * sizeof(seq_t));
+        mem_copy(new_cache, tmp, uniq * sizeof(seq_t));
 
-        free(cache);                 /* old cache is free'd */
+        mem_free(cache);                 /* old cache is free'd */
         cache     = new_cache;
         cache_len = uniq;
 
-        free(tmp);                    /* temporary array */
+        mem_free(tmp);                    /* temporary array */
 
         if (cache_len >= (size_t)target)
             break;                    /* enough terms obtained   */

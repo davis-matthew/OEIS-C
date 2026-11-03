@@ -7,12 +7,14 @@
  * Formula:   a(n) = Product_{k=0..n} (3^k + 3^(n-k))
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     }
 
     /* Allocate array for powers of 3 up to 3^n */
-    seq_t *pow3 = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *pow3 = mem_new(seq_t, (size_t)(n + 1));
     if (!pow3) {
         return (seq_t)0;   /* allocation failure, return 0 */
     }
@@ -41,6 +43,6 @@ seq_t a(idx_t n)
         result *= term;
     }
 
-    free(pow3);
+    mem_free(pow3);
     return result;
 }

@@ -9,6 +9,7 @@
  *            else a(n)=a(n-1)+2^(n-1)
  * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 32, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /* This function computes the nth term of OEIS A325892 (successive
    2-adic approximations to 3^(1/5)). */
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

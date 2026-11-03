@@ -13,6 +13,7 @@
  *            T(0,k)=T(1,k)=T(2,k)=1, T(m,k)=T(m-1,k) - k * C(m-1,2) * T...
  * Range:     i8 n <= 51, i16 n <= 100, i32 n <= 205, i64 n <= 460,
  *            i128 n <= 1121, big any n
+ * Validated: standard, pass, 94 terms through n = 9002 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

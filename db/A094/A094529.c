@@ -9,7 +9,8 @@
  *            necessarily consecutive) divisors
  * Range:     u8 n <= 24, u16 n <= 6508, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_uint64
+ * Validated: standard, pass, 70 terms through n = 9821 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/cmp_uint64.h"
+#include "../utils/mem.h"
+
+/* ---------- Helper for sorting divisors ---------- */
+static int cmp_uint64(const void *p1, const void *p2)
+{
+    uint64_t a = *(const uint64_t *)p1;
+    uint64_t b = *(const uint64_t *)p2;
+    return (a < b) ? -1 : (a > b);
+}
 
 /* ---------- Test whether m has an arithmetic progression of 4 divisors ---------- */
 static bool has_four_divisors_arithprog(uint64_t m)
@@ -111,7 +120,7 @@ static void ensure_cache_capacity(size_t need)
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp) {
         cache = tmp;
         cache_cap = new_cap;

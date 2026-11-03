@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} (binomial(n, k)*2^k*(n-k)^(n-1))
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
  * with the generic integer type seq_t, so the same code works for
  * native 8/16/32/64 and for arbitrary‑precision builds.  */
  
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;       /* should never be called, but safe */
@@ -30,7 +31,7 @@ seq_t a(idx_t n) {
 
     for (idx_t k = 0; k <= n; ++k) {
         idx_t  base = n - k;                          /* (n-k)  */
-        seq_t  pw   = pow_int((seq_t)base, n - 1);    /* (n-k)^(n-1) */
+        seq_t  pw   = ipow_idx((seq_t)base, n - 1);    /* (n-k)^(n-1) */
 
         seq_t term = binom * pow2;   /* binomial * 2^k */
         term *= pw;                  /* * (n-k)^(n-1) */

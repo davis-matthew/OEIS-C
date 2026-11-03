@@ -8,7 +8,8 @@
  *            835*n^3 + 10960*n^2 + 87636*n + 332640)/3840
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 13, u64 n <= 19, u128 n <= 28,
  *            big any n
- * Helpers:   _gcd_uint128, gcd
+ * Validated: standard, pass, 34 terms through n = 200 (2026-11-01)
+ * Helpers:   gcd, gcd_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/_gcd_uint128.h"
+#include "../utils/gcd_u128.h"
 
 seq_t a(idx_t n)
 {
@@ -68,7 +69,7 @@ seq_t a(idx_t n)
         }
 
         /* Reduce the fraction to keep intermediate values small */
-        unsigned __int128 g = _gcd_uint128(num, den);
+        unsigned __int128 g = gcd_u128(num, den);
         num /= g;
         den /= g;
 

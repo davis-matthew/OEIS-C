@@ -9,14 +9,29 @@
  *            a(4)=6, a(5)=12, a(6)=22, a(7)=36, a(8)=67, a(9)=122
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 39, u64 n <= 77, u128 n <= 154,
  *            big any n
- * Helpers:   alloc_seq, free_seq
+ * Validated: standard, pass, 53 terms through n = 882 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;      /* array of computed terms */
 static size_t cache_len = 0;     /* number of terms stored (cache_len ≥ 10 after init) */

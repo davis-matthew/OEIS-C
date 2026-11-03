@@ -11,16 +11,44 @@
  *            c(k)*E(n-k), c(k) = Sum_{d|k} d*P(d). a(0)=0; for n...
  * Range:     u8 n <= 16, u16 n <= 24, u32 n <= 40, u64 n <= 70, u128 n <= 129,
  *            big any n
- * Helpers:   c2, finish, inv_odd
+ * Validated: standard, pass, 56 terms through n = 986 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/c2.h"
-#include "../utils/finish.h"
-#include "../utils/inv_odd.h"
+
+/* binomial(c,2) */
+static seq_t c2(seq_t c)
+{
+    if (c % 2 == 0) return (c / 2) * (c - 1);
+    return c * ((c - 1) / 2);
+}
+
+static seq_t finish(const seq_t *P, const seq_t *E, idx_t n)
+{
+    seq_t r;
+    idx_t m, i;
+    if (n == 0) return 0;
+    r = E[n - 1];
+    m = n - 1;
+    for (i = 1; 2 * i < m; i++) r -= P[i] * P[m - i];
+    if (m % 2 == 0) r -= c2(P[m / 2] + 1);
+    for (i = 1; 2 * i < n; i++) r -= P[i] * P[n - i];
+    if (n % 2 == 0) r -= c2(P[n / 2]);
+    return r;
+}
+
+/* inverse of odd q modulo 2^w (fixed-width only) */
+static seq_t inv_odd(seq_t q)
+{
+    seq_t x = q;
+    int k;
+    for (k = 0; k < 7; k++) x *= (seq_t)2 - q * x;
+    return x;
+}
 
 #define BMAX 20001
 #define FMAX 300

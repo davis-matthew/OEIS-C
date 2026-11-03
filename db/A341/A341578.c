@@ -12,7 +12,8 @@
  *            recursive divisor generator * to avoid any dynamic...
  * Range:     u8 n <= 15, u16 n <= 306, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   divisor_dfs
+ * Validated: standard, pass, 76 terms through n = 4906 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,39 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/divisor_dfs.h"
+
+/* Recursive divisor enumeration.
+ *  pi      : current prime index
+ *  cur     : current divisor value
+ *  primes  : array of prime factors of n
+ *  maxexp  : array of (2*exponent_in_n) for each prime
+ *  pcnt    : number of distinct primes
+ *  n2      : n^2 (seq_t)
+ *  best    : pointer to current best value
+ */
+static void
+divisor_dfs(const uint64_t primes[], const int maxexp[],
+            int pi, int pcnt, seq_t cur, seq_t n2, seq_t *best)
+{
+    if (pi == pcnt) {                       /* leaf: evaluate divisor cur */
+        seq_t f1   = cur / 2 + 1;            /* floor(cur/2)+1 */
+        seq_t denom = cur * 2;               /* 2*cur */
+        seq_t f2   = n2 / denom + 1;         /* floor(n^2/(2*cur))+1 */
+        seq_t cand = f1 * f2;                /* candidate value */
+        if (*best == 0 || cand < *best)
+            *best = cand;
+        return;
+    }
+
+    /* iterate exponent for current prime: 0 .. maxexp[pi] */
+    seq_t p_pow = 1;
+    for (int e = 0; e <= maxexp[pi]; ++e) {
+        divisor_dfs(primes, maxexp, pi + 1, pcnt,
+                    cur * p_pow, n2, best);
+        /* next exponent */
+        p_pow *= (seq_t)primes[pi];
+    }
+}
 
 seq_t a(idx_t n)
 {

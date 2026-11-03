@@ -11,9 +11,8 @@
  *            v_p((2n)!) - v_p(B_{2n})), where v_p(B_{2n}) = v_p(T_...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 19,
  *            big any n
- * Helpers:   a2432_fixed, a2432_isprime, a2432_legendre, a2432_mulmod,
- *            a2432_powmod, a2432_tan_mod, a2432_val_mod, a2432_vp,
- *            alloc_zero, grow_zero
+ * Validated: standard, pass, 33 terms through n = 239 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,16 +20,73 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/grow_zero.h"
-#include "../utils/a2432_fixed.h"
-#include "../utils/a2432_isprime.h"
-#include "../utils/a2432_legendre.h"
-#include "../utils/a2432_mulmod.h"
-#include "../utils/a2432_powmod.h"
-#include "../utils/a2432_tan_mod.h"
-#include "../utils/a2432_val_mod.h"
-#include "../utils/a2432_vp.h"
+#include <string.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static int a2432_fixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) {
+        x = x + x;
+        if (x == 0) return 1;
+    }
+    return 0;
+}
+
+static uint64_t a2432_legendre(uint64_t m, uint64_t p) {
+    uint64_t s = 0;
+    while (m) { m /= p; s += m; }
+    return s;
+}
+
+/* tangent number T_n modulo m */
+static uint64_t a2432_tan_mod(idx_t n, uint64_t m) {
+    uint64_t *T = (uint64_t *)malloc(sizeof(uint64_t) * (size_t)(n + 1));
+    idx_t j, k;
+    uint64_t r;
+    T[1] = 1 % m;
+    for (k = 2; k <= n; k++) T[k] = mulmod(T[k - 1], (uint64_t)(k - 1), m);
+    for (k = 2; k <= n; k++)
+        for (j = k; j <= n; j++)
+            T[j] = (mulmod(T[j - 1], (uint64_t)(j - k), m)
+                    + mulmod(T[j], (uint64_t)(j - k + 2), m)) % m;
+    r = T[n];
+    free(T);
+    return r;
+}
+
+static uint64_t a2432_val_mod(uint64_t x, uint64_t p, uint64_t K) {
+    uint64_t c = 0;
+    if (x == 0) return K;
+    while (x % p == 0 && c < K) { x /= p; c++; }
+    return c;
+}
+
+static uint64_t a2432_vp(uint64_t x, uint64_t p) {
+    uint64_t c = 0;
+    while (x % p == 0) { x /= p; c++; }
+    return c;
+}
 
 /* exact tangent numbers T_1..T_cap, big mode only */
 static seq_t *a2432_T = NULL;
@@ -67,7 +123,7 @@ seq_t a(idx_t n) {
     }
     for (p = 3; p <= m2 + 1; p += 2) {
         uint64_t f, e;
-        if (!a2432_isprime(p)) continue;
+        if (!is_prime_u64(p)) continue;
         f = a2432_legendre(m2, p);
         if (m2 % (p - 1) == 0) {
             e = f + 1;
@@ -79,7 +135,7 @@ seq_t a(idx_t n) {
                 uint64_t pk = 1, K = 0, vT, vL, L;
                 while (pk <= ((uint64_t)1 << 62) / p) { pk *= p; K++; }
                 vT = a2432_val_mod(a2432_tan_mod(n, pk), p, K);
-                L = (a2432_powmod(4, n, pk) + pk - 1) % pk;
+                L = (powmod_u64(4, n, pk) + pk - 1) % pk;
                 vL = a2432_val_mod(L, p, K);
                 if (vT >= K) vB = (long long)(f + 1);
                 else vB = (long long)vT + (long long)u - (long long)vL;

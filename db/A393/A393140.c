@@ -11,12 +11,14 @@
  *            position in row‑major order starting with row 0
  * Range:     u8 n <= 12, u16 n <= 33, u32 n <= 98, u64 n <= 315,
  *            u128 n <= 1111, big any n
+ * Validated: standard, pass, 61 terms through n = 7904 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

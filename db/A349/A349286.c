@@ -8,12 +8,14 @@
  *            a(j) * a(n-i-j-1) (OEIS A349286)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *a_arr = NULL;      /* a(n) */
@@ -32,9 +34,9 @@ static void ensure_capacity(idx_t needed)
         while (newcap <= needed)
             newcap <<= 1;
 
-        a_arr    = (seq_t *)realloc(a_arr,    newcap * sizeof(seq_t));
-        conv_arr = (seq_t *)realloc(conv_arr, newcap * sizeof(seq_t));
-        pow3_arr = (seq_t *)realloc(pow3_arr, newcap * sizeof(seq_t));
+        a_arr    = mem_resize(seq_t, a_arr, newcap);
+        conv_arr = mem_resize(seq_t, conv_arr, newcap);
+        pow3_arr = mem_resize(seq_t, pow3_arr, newcap);
 
         capacity = newcap;
     }

@@ -8,13 +8,23 @@
  * Formula:   a(n) = (concat(n, n^2) - concat(n^2, n)) / 18
  * Range:     i8 n <= 3, i16 n <= 23, i32 n <= 40, i64 n <= 40, i128 n <= 40,
  *            big any n
- * Helpers:   digits_seq_local
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digits_seq_local.h"
+
+static int digits_seq_local(seq_t v)
+{
+    int d = 0;
+    while (v > 0) {
+        v /= (seq_t)10;
+        ++d;
+    }
+    return d;
+}
 
 static seq_t pow10_seq(idx_t e)
 {

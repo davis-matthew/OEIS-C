@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 368, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9936 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    values are eliminated by repeatedly popping equal values from the heap. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef idx_t idx_t;
 typedef seq_t seq_t;
@@ -123,14 +125,14 @@ static void initialise(void)
         pos[i] = 0;
 
     /* Allocate and initialise heap */
-    heap = (struct Node *)malloc((gen_count + 1) * sizeof(struct Node)); /* 1‑based */
+    heap = mem_new(struct Node, (gen_count + 1)); /* 1‑based */
     heap_size = 0;
     for (size_t i = 0; i < gen_count; ++i)
         heap_push(i, generators[i]);   /* seq[0] = 1 (will be added later) */
 
     /* Allocate initial sequence array and set first term to 1 */
     seq_cap = 64;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     seq_len = 0;
     seq[seq_len++] = (seq_t)1;  /* a(1) = 1 */
     initialized = 1;
@@ -152,7 +154,7 @@ seq_t a(idx_t n)
         /* Append to sequence */
         if (seq_len == seq_cap) {
             seq_cap <<= 1;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = val;
 

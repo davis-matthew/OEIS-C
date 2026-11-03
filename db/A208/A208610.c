@@ -13,7 +13,8 @@
  *            2 has...
  * Range:     u8 n <= 32, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #if defined(__cplusplus)
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,16 +48,16 @@ seq_t a(idx_t n)
     }
 
     /* Allocate temporary arrays of size r+1 */
-    seq_t *a_cur  = (seq_t*)malloc((r + 1) * sizeof(seq_t));
-    seq_t *b_cur  = (seq_t*)malloc((r + 1) * sizeof(seq_t));
-    seq_t *a_next = (seq_t*)malloc((r + 1) * sizeof(seq_t));
-    seq_t *b_next = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+    seq_t *a_cur  = mem_new(seq_t, (r + 1));
+    seq_t *b_cur  = mem_new(seq_t, (r + 1));
+    seq_t *a_next = mem_new(seq_t, (r + 1));
+    seq_t *b_next = mem_new(seq_t, (r + 1));
 
 #if defined(__cplusplus)
-    for (idx_t i = 0; i <= r; ++i) new (&a_cur[i])  seq_t();
-    for (idx_t i = 0; i <= r; ++i) new (&b_cur[i])  seq_t();
-    for (idx_t i = 0; i <= r; ++i) new (&a_next[i]) seq_t();
-    for (idx_t i = 0; i <= r; ++i) new (&b_next[i]) seq_t();
+    for (idx_t i = 0; i <= r; ++i) *(&a_cur[i]) = (seq_t)0;
+    for (idx_t i = 0; i <= r; ++i) *(&b_cur[i]) = (seq_t)0;
+    for (idx_t i = 0; i <= r; ++i) *(&a_next[i]) = (seq_t)0;
+    for (idx_t i = 0; i <= r; ++i) *(&b_next[i]) = (seq_t)0;
 #endif
 
     /* Initialise first row (n=1) */
@@ -91,16 +93,16 @@ seq_t a(idx_t n)
 
     /* Destroy constructed objects if compiled as C++ */
 #if defined(__cplusplus)
-    for (idx_t i = 0; i <= r; ++i) a_cur[i].~seq_t();
-    for (idx_t i = 0; i <= r; ++i) b_cur[i].~seq_t();
-    for (idx_t i = 0; i <= r; ++i) a_next[i].~seq_t();
-    for (idx_t i = 0; i <= r; ++i) b_next[i].~seq_t();
+    /* (mem_free destroys the elements) */
+    /* (mem_free destroys the elements) */
+    /* (mem_free destroys the elements) */
+    /* (mem_free destroys the elements) */
 #endif
 
-    free(a_cur);
-    free(b_cur);
-    free(a_next);
-    free(b_next);
+    mem_free(a_cur);
+    mem_free(b_cur);
+    mem_free(a_next);
+    mem_free(b_next);
 
     return result;
 }

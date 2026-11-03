@@ -12,7 +12,8 @@
  *            divisible by 3: a(n) = 9^(n‑3) 924 For odd n ≡ 1...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   fill_chars, seq_from_str
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/fill_chars.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* Helper: allocate a string of length 'len' and fill with 'ch'. */
+static void fill_chars(char *buf, size_t len, char ch) {
+    memset(buf, ch, len);
+}
 
 /* Main sequence function */
 seq_t a(idx_t n) {

@@ -8,8 +8,9 @@
  * Formula:   a(n) = sum over runs of equal digits in the base‑9
  *            representation of n of (len(run) if len is odd, otherwise
  *            –len(run))
- * Range:     i8 n <= 8532, i16 n <= 8532, i32 n <= 8532, i64 n <= 8532,
- *            i128 n <= 8532, big any n
+ * Range:     i8 n <= 66430, i16 n <= 66430, i32 n <= 66430, i64 n <= 66430,
+ *            i128 n <= 66430, big any n
+ * Validated: standard, pass, 116 terms through n = 8532 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

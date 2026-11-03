@@ -11,7 +11,8 @@
  *            needed. The implementation is fully static an...
  * Range:     i8 n <= 9, i16 n <= 28, i32 n <= 42, i64 n <= 42, i128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* external types supplied by the build */
 extern seq_t a(idx_t n);
@@ -88,11 +90,11 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;            /* array size needed */
     if (dp_cap <= N) {
         dp_cap  = N + 1;
-        dp      = (seq_t *)realloc(dp, dp_cap * sizeof(seq_t));
+        dp      = mem_resize(seq_t, dp, dp_cap);
     }
     if (tmp_cap <= N) {
         tmp_cap = N + 1;
-        tmp_arr = (seq_t *)realloc(tmp_arr, tmp_cap * sizeof(seq_t));
+        tmp_arr = mem_resize(seq_t, tmp_arr, tmp_cap);
     }
 
     /* initialise series: a(0) = 1, others 0 */

@@ -12,15 +12,37 @@
  *            works for any n≥1 within the specified time an...
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   lower_bound_uint32, upper_bound_uint32
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/lower_bound_uint32.h"
-#include "../utils/upper_bound_uint32.h"
+
+/* Binary search helpers for uint32_t arrays */
+static size_t lower_bound_uint32(const uint32_t *arr, size_t n, uint32_t value)
+{
+    size_t l = 0, r = n;
+    while (l < r) {
+        size_t m = (l + r) >> 1;
+        if (arr[m] < value) l = m + 1;
+        else r = m;
+    }
+    return l;
+}
+
+static size_t upper_bound_uint32(const uint32_t *arr, size_t n, uint32_t value)
+{
+    size_t l = 0, r = n;
+    while (l < r) {
+        size_t m = (l + r) >> 1;
+        if (arr[m] <= value) l = m + 1;
+        else r = m;
+    }
+    return l;
+}
 
 /* --------------------------------------------------------------- */
 /*  Global data -------------------------------------------------- */

@@ -9,7 +9,8 @@
  *            number of divisors of n
  * Range:     u8 n <= 1136, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, divisor_count_u64
+ * Validated: standard, pass, 92 terms through n = 9653 (2026-11-01)
+ * Helpers:   num_divisors, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/calc_phi.h"
+#include "../utils/num_divisors.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -34,10 +35,10 @@ seq_t a(idx_t n)
 
     while (cur > 1) {
         /* Compute tau(cur) */
-        uint64_t tau = divisor_count_u64(cur);
+        uint64_t tau = num_divisors(cur);
 
         /* Compute phi(tau) */
-        seq_t phi_val = calc_phi((seq_t)tau);
+        seq_t phi_val = totient_seq((seq_t)tau);
 
         /* Move to the next value.  phi_val <= cur-1 for cur>1. */
         cur -= (idx_t)phi_val;

@@ -10,7 +10,8 @@
  *            * starts 2,3,6,12,14,… as in OEIS A329401
  * Range:     u8 n <= 41, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_co_lyndon
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_co_lyndon.h"
+
+/*  Test whether a binary word of length len represented by w (bits
+ *  arranged with the high bit at position len-1) is a co‑Lyndon word:
+ *  w > all its proper cyclic rotations.
+ */
+static bool is_co_lyndon(uint64_t w, uint32_t len)
+{
+    if (len <= 1) return true;               /* always true for 0 or 1 bit */
+    uint64_t mask = ((uint64_t)1 << len) - 1ULL;
+    for (uint32_t i = 1; i < len; ++i) {
+        uint64_t rot = ((w << i) | (w >> (len - i))) & mask;
+        if (rot >= w) return false;
+    }
+    return true;
+}
 
 /* 64‑bit floor(log2) for unsigned integers.  */
 static inline uint32_t floor_log2_u64(uint64_t v)

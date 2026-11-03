@@ -10,12 +10,14 @@
  *            1 - 504 Σ_{m≥1} σ_5(m) q^m (σ_5(m) = Σ d^5 over divisors d|m)
  * Range:     i8 n <= 0, i16 n <= 2, i32 n <= 6, i64 n <= 35, i128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 915 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *E2   = NULL;   /* coefficients of E_2  */
 static seq_t *E6   = NULL;   /* coefficients of E_6  */
@@ -30,13 +32,13 @@ static void compute_up_to(idx_t N)
     size_t sz = (size_t)N + 1;
 
     /* free old storage */
-    free(E2);   free(E6);   free(Sq);   free(Cub);   free(Ans);
+    mem_free(E2);   mem_free(E6);   mem_free(Sq);   mem_free(Cub);   mem_free(Ans);
     /* allocate zero‑initialised arrays */
-    E2   = (seq_t *)calloc(sz, sizeof(seq_t));
-    E6   = (seq_t *)calloc(sz, sizeof(seq_t));
-    Sq   = (seq_t *)calloc(sz, sizeof(seq_t));
-    Cub  = (seq_t *)calloc(sz, sizeof(seq_t));
-    Ans  = (seq_t *)calloc(sz, sizeof(seq_t));
+    E2   = mem_new(seq_t, sz);
+    E6   = mem_new(seq_t, sz);
+    Sq   = mem_new(seq_t, sz);
+    Cub  = mem_new(seq_t, sz);
+    Ans  = mem_new(seq_t, sz);
 
     /* never forget the constant term of E_6 (and E_2) */
     E2[0] = 1;

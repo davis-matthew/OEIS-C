@@ -7,13 +7,15 @@
  * Formula:   a(n) = 2*289*a(n-1) - a(n-2), a(0)=1, a(1)=578
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for memoised values */
 static seq_t *cache = NULL;
@@ -25,10 +27,10 @@ seq_t a(idx_t n)
     if (cache_len < 2) {
         size_t init_len = 2;
         if (cache == NULL) {
-            cache = (seq_t*)malloc(sizeof(seq_t) * init_len);
+            cache = mem_new(seq_t, init_len);
             if (cache == NULL) return (seq_t)0;      /* out of memory */
         } else {
-            cache = (seq_t*)realloc(cache, sizeof(seq_t) * init_len);
+            cache = mem_resize(seq_t, cache, init_len);
             if (cache == NULL) return (seq_t)0;      /* out of memory */
         }
         cache[0] = (seq_t)1;       /* a(0) */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     /* Expand the cache to include the n-th term */
     size_t new_len = (size_t) (n + 1);
-    seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_len);
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (tmp == NULL) return (seq_t)0;          /* out of memory */
     cache = tmp;
 

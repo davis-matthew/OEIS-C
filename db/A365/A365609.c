@@ -12,12 +12,14 @@
  *            factorial o...
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 17, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     seq_t sum = (seq_t)0;
 
     /* Initial binomial values for the first term */
-    seq_t f = binom(k_start, n - 2 * k_start);                /* binom(k, n-2k)   */
-    seq_t H = binom(n + 2 * k_start, k_start - 1);           /* binom(n+2k, k-1) */
+    seq_t f = binomial(k_start, n - 2 * k_start);                /* binom(k, n-2k)   */
+    seq_t H = binomial(n + 2 * k_start, k_start - 1);           /* binom(n+2k, k-1) */
 
     for (idx_t k = k_start; k <= k_end; ++k)
     {

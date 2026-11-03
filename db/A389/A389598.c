@@ -8,9 +8,10 @@
  * Formula:   a(n) = the n-th integer k whose standard A066099 composition has
  *            * non-distinct first differences. The function enumerates k and
  *            selects those * with repeated differences in the composition
- * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 119, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 74 terms through n = 9783 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* ----------  Standard includes  ---------- */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------  Main function  ---------- */
 seq_t a(idx_t n) {
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     if (n > cache_count) {
         /* Reallocate cache to accommodate at least n terms */
         seq_t *new_cache = NULL;
-        new_cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        new_cache = mem_resize(seq_t, cache, n);
         if (!new_cache) abort(); /* allocation failure */
         cache = new_cache;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 73 terms through n = 8013 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,12 +41,12 @@ seq_t a(idx_t n)
             continue;
 
         /* gpf for cand */
-        uint64_t gpf_c_ll = gpf((uint64_t)cand);
+        uint64_t gpf_c_ll = largest_prime_factor((uint64_t)cand);
         if (gpf_c_ll == (uint64_t)cand)  /* skip primes */
             continue;
 
         /* gpf for cand+1 */
-        uint64_t gpf_next_ll = gpf((uint64_t)(cand + 1));
+        uint64_t gpf_next_ll = largest_prime_factor((uint64_t)(cand + 1));
 
         /* compare as seq_t */
         if ((seq_t)gpf_c_ll > (seq_t)gpf_next_ll)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             if (terms_cnt >= terms_cap)
             {
                 size_t new_cap = terms_cap ? 2 * terms_cap : 4;
-                seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
                 if (!new_terms) abort();
                 terms      = new_terms;
                 terms_cap  = new_cap;

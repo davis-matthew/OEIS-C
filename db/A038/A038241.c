@@ -8,14 +8,23 @@
  *            integer with i*(i+1)/2 ≤ n, and j = n - i*(i+1)/2
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   binomial, pow_uint, seq_mul
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,8 +39,8 @@ seq_t a(idx_t n)
 
     /* Compute entry: binomial(i,j) * 4^(i-j) * 11^j */
     seq_t term = binomial(i, j);
-    term = seq_mul(term, pow_uint(4ULL, i - j));
-    term = seq_mul(term, pow_uint(11ULL, j));
+    term = seq_mul(term, ipow_u64_idx(4ULL, i - j));
+    term = seq_mul(term, ipow_u64_idx(11ULL, j));
 
     return term;
 }

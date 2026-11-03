@@ -11,14 +11,33 @@
  *            function G(x) = (1+x)(1+x+…+x³)(1+x+…+x⁵)/(1‑x...
  * Range:     u8 n <= 9, u16 n <= 25, u32 n <= 57, u64 n <= 121, u128 n <= 250,
  *            big any n
- * Helpers:   coeff_c
+ * Validated: standard, pass, 56 terms through n = 950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/coeff_c.h"
+#include "../utils/mem.h"
+
+/* value of the inhomogeneous term c(n) for 0 ≤ n ≤ 9 */
+static inline seq_t coeff_c(idx_t n)
+{
+    switch (n) {
+        case 0: return (seq_t)1;
+        case 1: return (seq_t)3;
+        case 2: return (seq_t)5;
+        case 3: return (seq_t)7;
+        case 4: return (seq_t)8;
+        case 5: return (seq_t)8;
+        case 6: return (seq_t)7;
+        case 7: return (seq_t)5;
+        case 8: return (seq_t)3;
+        case 9: return (seq_t)1;
+        default: return (seq_t)0;
+    }
+}
 
 static seq_t *cache = NULL;   /* cache of computed terms */
 static idx_t cache_len = 0;   /* size of allocated cache */
@@ -31,12 +50,12 @@ seq_t a(idx_t n)
         size_t new_len = (cache_len > 0) ? cache_len * 2 : 32;
         if (new_len <= (size_t)n) new_len = (size_t)n + 1;
 
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) return (seq_t)0;   /* allocation failed – unlikely */
 
         if (cache_len > 0) {
-            memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
         cache_len = new_len;

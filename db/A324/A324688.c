@@ -15,6 +15,7 @@
  *            from a positive position minus the number of time...
  * Range:     i8 n <= 16, i16 n <= 16, i32 n <= 57, i64 n <= 57, i128 n <= 57,
  *            big any n
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

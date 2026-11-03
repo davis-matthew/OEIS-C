@@ -7,12 +7,15 @@
  * Formula:   a(n) = floor((4^n - 3^n - n + 2)/2)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +26,8 @@ seq_t a(idx_t n)
     seq_t sn = (seq_t)n;
 
     /* Compute 4^n and 3^n using the provided helper. */
-    seq_t pow4 = big_pow((seq_t)4, sn);
-    seq_t pow3 = big_pow((seq_t)3, sn);
+    seq_t pow4 = ipow((seq_t)4, sn);
+    seq_t pow3 = ipow((seq_t)3, sn);
 
     /* Compute the numerator: 4^n - 3^n - n + 2. */
     seq_t diff = pow4 - pow3;      /* 4^n - 3^n  (non‑negative) */

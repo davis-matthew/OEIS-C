@@ -7,16 +7,18 @@
  * Formula:   a(n) = tau(4*n)
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
     /* Compute the number of divisors of 4*n. */
     uint64_t m = 4ull * (uint64_t)n;
-    return (seq_t)divisor_count_u64(m);
+    return (seq_t)num_divisors(m);
 }

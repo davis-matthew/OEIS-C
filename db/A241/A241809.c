@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 1370, u32 n <= 1370, u64 n <= 1370,
  *            u128 n <= 1370, big any n
- * Helpers:   _smallest_prime_factor, is_prime
+ * Validated: standard, pass, 71 terms through n = 1355 (2026-11-03)
+ * Helpers:   is_prime, mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,11 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_smallest_prime_factor.h"  /* uint64_t _smallest_prime_factor(uint64_t n); */
-#include "../utils/is_prime.h"                /* bool is_prime(idx_t x); */
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* static cache of found terms (a(n) for n>=1) */
 static seq_t *cache = NULL;
@@ -33,7 +37,7 @@ static void ensure_cache_capacity(void)
 {
     if (cache_len >= cache_cap) {
         cache_cap = cache_cap ? cache_cap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof *tmp);
+        seq_t *tmp = mem_resize(seq_t, cache, (cache_cap * sizeof *tmp) / sizeof(seq_t));
         if (!tmp) {
             /* fatal error – abort */
             abort();
@@ -51,10 +55,10 @@ static void generate_up_to(size_t target)
         last_checked = x;
 
         /* reject primes */
-        if (_smallest_prime_factor(x) == x)
+        if (smallest_prime_factor(x) == x)
             continue;
 
-        idx_t p = _smallest_prime_factor(x);
+        idx_t p = smallest_prime_factor(x);
         if (p == 0)                /* should not happen, but guard */
             continue;
         idx_t q = x / p;            /* cofactor */

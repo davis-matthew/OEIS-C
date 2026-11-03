@@ -9,13 +9,15 @@
  *            Ramanujan theta functions
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 
 static seq_t *cache = NULL;
@@ -26,8 +28,8 @@ seq_t a(idx_t n) {
     
     if (cache_size <= n) {
         idx_t new_size = n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
-        memset(cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
+        mem_set(cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
         cache_size = new_size;
     }
     
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     
     idx_t target = n - 1;
     
-    seq_t *phi = (seq_t *)calloc(target + 1, sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, target + 1);
     for (idx_t m = 0; m * m <= target; m++) {
         if (m == 0) {
             phi[0] = 1;
@@ -47,12 +49,12 @@ seq_t a(idx_t n) {
         }
     }
     
-    seq_t *psi_q4 = (seq_t *)calloc(target + 1, sizeof(seq_t));
+    seq_t *psi_q4 = mem_new(seq_t, target + 1);
     for (idx_t m = 0; 2 * m * (m + 1) <= target; m++) {
         psi_q4[2 * m * (m + 1)] = 1;
     }
     
-    seq_t *psi_q4_sq = (seq_t *)calloc(target + 1, sizeof(seq_t));
+    seq_t *psi_q4_sq = mem_new(seq_t, target + 1);
     for (idx_t i = 0; i <= target; i++) {
         for (idx_t j = 0; i + j <= target; j++) {
             psi_q4_sq[i + j] += psi_q4[i] * psi_q4[j];
@@ -66,9 +68,9 @@ seq_t a(idx_t n) {
     
     cache[n] = 2 * product_coeff;
     
-    free(phi);
-    free(psi_q4);
-    free(psi_q4_sq);
+    mem_free(phi);
+    mem_free(psi_q4);
+    mem_free(psi_q4_sq);
     
     return cache[n];
 }

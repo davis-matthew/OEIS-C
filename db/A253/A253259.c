@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 34, u64 n <= 423, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static void init_coeffs(int64_t *Qcoeff, int *degQ,
                         int64_t *Pcoeff, int *degP)
@@ -134,9 +136,9 @@ seq_t a(idx_t n)
         while (new_cap <= (size_t)n) new_cap <<= 1;
         seq_t *new_cache;
         if (cache == NULL) {
-            new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            new_cache = mem_new(seq_t, new_cap);
         } else {
-            new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            new_cache = mem_resize(seq_t, cache, new_cap);
         }
         if (!new_cache) return 0; /* allocation failed, return zero */
         /* initialize newly allocated slots to zero */

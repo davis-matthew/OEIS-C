@@ -12,13 +12,28 @@
  *            1. Computed by dynamic programming over block medians
  * Range:     u8 none, u16 n <= 4, u32 n <= 11, u64 n <= 24, u128 n <= 51,
  *            big any n
- * Helpers:   UpperMedian4
+ * Validated: standard, pass, 35 terms through n = 203 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/UpperMedian4.h"
+
+static int UpperMedian4(int a, int b, int c, int d)
+{
+    int vals[4] = {a, b, c, d};
+    int max1 = vals[0], max2 = -1;
+    for (int i = 1; i < 4; ++i) {
+        if (vals[i] > max1) {
+            max2 = max1;
+            max1 = vals[i];
+        } else if (vals[i] > max2) {
+            max2 = vals[i];
+        }
+    }
+    return max2;            /* second largest value (upper median) */
+}
 
 /* Transition tables: M[s][t] = upper median of block formed by rows s and t
    (rows are encoded as 0..15 with state=4*col0+col1).

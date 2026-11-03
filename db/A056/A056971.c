@@ -11,15 +11,58 @@
  *            L = 2^h1 - 1 + left_last and R = n-1 - L. T...
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 17, u64 n <= 27, u128 n <= 44,
  *            big any n
- * Helpers:   binom, left_size
+ * Validated: standard, pass, 44 terms through n = 479 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/binom.h"
-#include "../utils/left_size.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient C(a,b) using multiplicative formula. */
+static seq_t binom(idx_t a, idx_t b) {
+    if (b > a) return 0;
+    if (b > a - b) b = a - b;          /* use symmetry */
+    seq_t res = 1;
+    for (idx_t i = 1; i <= b; ++i) {
+        res *= (seq_t)(a - b + i);
+        res /= (seq_t)i;
+    }
+    return res;
+}
+
+/* size of left subtree in a complete binary heap of n nodes */
+static idx_t left_size(idx_t n)
+{
+    if (n <= 1)
+        return 0;
+
+    /* compute h = floor(log2(n)) */
+    idx_t h = 0;
+    idx_t temp = n;
+    while (temp > 1) {
+        temp >>= 1;
+        ++h;
+    }
+
+    /* number of nodes before the last level */
+    idx_t nodes_before = ((idx_t)1 << h) - 1;
+
+    /* nodes in the last level */
+    idx_t last = n - nodes_before;
+
+    /* size of last level of left subtree (max 2^(h-1)) */
+    idx_t max_left_last = ((idx_t)1 << (h - 1));
+    idx_t left_last = last;
+    if (left_last > max_left_last)
+        left_last = max_left_last;
+
+    /* total nodes in left subtree */
+    return ((idx_t)1 << (h - 1)) - 1 + left_last;
+}
 
 static seq_t *dp = NULL;          /* memoisation array */
 static idx_t dp_alloc = 0;       /* size of allocated array (slots) */
@@ -32,14 +75,14 @@ static void ensure_size(idx_t n)
         return;                   /* already large enough */
 
     size_t new_size = (size_t)n + 1;   /* number of slots needed */
-    seq_t *new_arr = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_size);
     if (!new_arr)
         return; /* allocation failed – unlikely in the build environment */
 
     /* copy existing values */
     if (dp) {
-        memcpy(new_arr, dp, dp_alloc * sizeof(seq_t));
-        free(dp);
+        mem_copy(new_arr, dp, dp_alloc * sizeof(seq_t));
+        mem_free(dp);
     }
 
     /* initialise any new slots to 0 – they will be overwritten */

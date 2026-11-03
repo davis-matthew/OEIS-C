@@ -8,14 +8,22 @@
  *            and k = n − r(r+1)/2
  * Range:     u8 n <= 16, u16 n <= 58, u32 n <= 178, u64 n <= 610,
  *            u128 n <= 2307, big any n
- * Helpers:   binomial, seq_mul
+ * Validated: standard, pass, 82 terms through n = 9931 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {

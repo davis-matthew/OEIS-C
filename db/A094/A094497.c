@@ -12,6 +12,7 @@
  *            of r^3
  * Range:     u8 n <= 110, u16 n <= 197, u32 n <= 646, u64 n <= 2376,
  *            u128 n <= 8840, big any n
+ * Validated: standard, pass, 164 terms through n = 8679 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

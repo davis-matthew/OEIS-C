@@ -8,23 +8,25 @@
  * Formula:   a(n) = T(r,c) where r = ceil((sqrt(8*n+1)-1)/2), c = n -
  *            r*(r-1)/2, and T(r,c) = Σ_{i=0}^{c-1} ((c+i)/(2*r-c+i)) *
  *            binom(c-1,i) * binom(3*r-2*c+i-1, r-c)
- * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 120, u64 n <= 378,
- *            u128 n <= 1128, big any n
- * Helpers:   binom
+ * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 120, u64 n <= 378,
+ *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 71 terms through n = 1221 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 static seq_t triangle_term(idx_t row, idx_t col)
 {
     seq_t sum = 0;
     idx_t nmk = row - col;               /* n - k  */
     for (idx_t i = 0; i < col; ++i) {
-        seq_t bin1 = binom(col - 1, i);
+        seq_t bin1 = binomial(col - 1, i);
         idx_t arg2 = 3 * row - 2 * col + i - 1;
-        seq_t bin2 = binom(arg2, nmk);
+        seq_t bin2 = binomial(arg2, nmk);
         unsigned __int128 prod =
             (unsigned __int128)(col + i) *
             (unsigned __int128)bin1 *

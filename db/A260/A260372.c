@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   haystack_size
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,21 @@
  */
 
 #include <stddef.h>   /* for size_t */
-#include "../utils/haystack_size.h"
+
+/* Compute the size of a haystack given x, y, h. */
+static seq_t
+haystack_size(idx_t x, idx_t y, idx_t h)
+{
+    seq_t sx = (seq_t)x;
+    seq_t sy = (seq_t)y;
+    seq_t sh = (seq_t)h;
+
+    seq_t term1 = (seq_t)6 * sx * sy;                     /* 6xy */
+    seq_t term2 = (seq_t)3 * (sx + sy) * (sh - 1);        /* 3(x+y)(h-1) */
+    seq_t term3 = (sh - 1) * ((seq_t)2 * sh - 1);         /* (h-1)(2h-1) */
+
+    return sh * (term1 - term2 + term3) / 6;
+}
 
 /* External linkage as required by the test harness. */
 seq_t a(idx_t n)

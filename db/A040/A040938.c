@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   compute_a0
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,19 @@
 /* Sequence: continued‐fraction terms for sqrt(970) */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/compute_a0.h"
+
+/* Compute a(0) = floor(sqrt(D)) in a type‑safe way that works for
+   8–byte seq_t.  We use a small integer loop with 32‑bit temporaries
+   to avoid overflow for any seq_t width. */
+static seq_t compute_a0(void) {
+    seq_t a0 = 0;
+    for (uint32_t k = 0; k <= 2000; ++k) {
+        uint32_t kk = k + 1;
+        if (kk * kk <= 970) a0 = (seq_t)kk;
+        else break;
+    }
+    return a0;
+}
 
 /* D = 970 */
 static const seq_t D = (seq_t)970;

@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9571, u16 n <= 9571, u32 n <= 9571, u64 n <= 9571,
- *            u128 n <= 9571, big any n
- * Helpers:   fsqrt
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 9571 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/fsqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
     seq_t count = 0;
 
     /* Largest square index that could appear */
-    idx_t max_sq = fsqrt(n);
+    idx_t max_sq = isqrt(n);
 
     for (idx_t i = 1; i <= max_sq; ++i) {
         idx_t a_sq = i * i;          /* first square */

@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 12, i16 n <= 2338, i32 n <= 9704, i64 n <= 9704,
- *            i128 n <= 9704, big any n
+ * Range:     i8 n <= 12, i16 n <= 2338, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 105 terms through n = 9704 (2026-11-01)
  * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

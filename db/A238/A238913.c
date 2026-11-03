@@ -9,12 +9,14 @@
  *            a(0)=0,a(1)=0,a(2)=0,a(3)=1,a(4)=3,a(5)=7
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 34, u64 n <= 68, u128 n <= 136,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n): number of self‑inverse permutations on [n] with maximal
    displacement exactly 2.  The sequence satisfies the recurrence derived
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
         size_t new_cap = target + 1;
         if (new_cap < 6) new_cap = 6;        /* to hold the initial constants */
         if (cache == NULL) {
-            cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, new_cap);
         } else {
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
         }
         if (!cache) return 0; /* allocation failure – unlikely in tests */
 

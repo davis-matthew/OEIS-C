@@ -9,14 +9,27 @@
  * Formula:   a(n) = ((n-1)!/2) * Σ_{d|n} (-1)^(n+d) * φ(n/d) * C(2d,d)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   binom_n_k, calc_phi, factorial
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   binomial, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/factorial.h"
-#include "../utils/calc_phi.h"
-#include "../utils/binom_n_k.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/totient_seq.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,8 +47,8 @@ seq_t a(idx_t n)
         {
             /* first divisor: d */
             idx_t other = n / d;
-            seq_t phi_val = calc_phi((seq_t)other);
-            seq_t bin_val = binom_n_k(2 * d, d);
+            seq_t phi_val = totient_seq((seq_t)other);
+            seq_t bin_val = binomial(2 * d, d);
             seq_t term = phi_val * bin_val;
             if (((n + d) & 1ULL) == 0)
                 pos += term;
@@ -46,8 +59,8 @@ seq_t a(idx_t n)
             if (other != d)
             {
                 idx_t d2 = other;                /* d2 = n/d */
-                seq_t phi_val2 = calc_phi((seq_t)(n / d2)); /* = phi(d) */
-                seq_t bin_val2 = binom_n_k(2 * d2, d2);
+                seq_t phi_val2 = totient_seq((seq_t)(n / d2)); /* = phi(d) */
+                seq_t bin_val2 = binomial(2 * d2, d2);
                 seq_t term2 = phi_val2 * bin_val2;
                 if (((n + d2) & 1ULL) == 0)
                     pos += term2;

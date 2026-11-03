@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   build_primes, factor_u64
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   build_primes, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /* External utilities supplied by the build */
 #include "../utils/build_primes.h"
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Sequence: a(n) is the exponent of the *k*‑th prime in the prime
    factorisation of the *n*‑th average of twin prime pairs (A014574).
@@ -43,7 +45,7 @@ static void ensure_cache_capacity(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 70 terms through n = 994 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* forward declaration of helper */
 static void grow_cache(size_t needed);
@@ -46,7 +49,7 @@ static bool is_primitive_root_20(uint64_t x)
     if ((tmp & 1ULL) == 0) {
         while ((tmp & 1ULL) == 0)
             tmp >>= 1;
-        while (ord % 2 == 0 && mod_pow((seq_t)20, ord / 2, (seq_t)x) == (seq_t)1)
+        while (ord % 2 == 0 && powmod((seq_t)20, ord / 2, (seq_t)x) == (seq_t)1)
             ord /= 2;
     }
 
@@ -56,14 +59,14 @@ static bool is_primitive_root_20(uint64_t x)
             while (tmp % p == 0)
                 tmp /= p;
             while (ord % p == 0 &&
-                   mod_pow((seq_t)20, ord / p, (seq_t)x) == (seq_t)1)
+                   powmod((seq_t)20, ord / p, (seq_t)x) == (seq_t)1)
                 ord /= p;
         }
     }
     if (tmp > 1) {
         uint64_t p = tmp;
         while (ord % p == 0 &&
-               mod_pow((seq_t)20, ord / p, (seq_t)x) == (seq_t)1)
+               powmod((seq_t)20, ord / p, (seq_t)x) == (seq_t)1)
             ord /= p;
     }
 
@@ -83,7 +86,7 @@ static void grow_cache(size_t needed)
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         while (new_cap < needed)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         seq_cache = tmp;
         cache_cap = new_cap;
     }

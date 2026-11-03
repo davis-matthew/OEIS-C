@@ -7,25 +7,47 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) is obtained by flattening the triangle T(r,k) =
  *            binomial(2r+1, r-k) * Fibonacci(2k+1) row by row
- * Range:     u8 n <= 14, u16 n <= 38, u32 n <= 45, u64 n <= 45, u128 n <= 45,
- *            big any n
- * Helpers:   binom_n_k, fib_u64, row_of
+ * Range:     u8 n <= 14, u16 n <= 38, u32 n <= 125, u64 n <= 445,
+ *            u128 n <= 1673, big any n
+ * Validated: standard, pass, 62 terms through n = 8379 (2026-11-01)
+ * Helpers:   binomial, fibonacci
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/row_of.h"
-#include "../utils/binom_n_k.h"
-#include "../utils/fib_u64.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/fibonacci.h"
+
+static inline idx_t
+row_of(idx_t n)                 /* return r with r(r+1)/2 ≤ n < (r+1)(r+2)/2 */
+{
+    idx_t low  = 0;
+    idx_t high = 1;
+    /* exponential search to find an upper bound */
+    while ((unsigned __int128)high * (high + 1) / 2 <= n) {
+        low  = high;
+        high <<= 1;              /* double high */
+    }
+    /* binary search between low (inclusive) and high (inclusive) */
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1) + 1; /* upper mid to avoid infinite loop */
+        if ((unsigned __int128)mid * (mid + 1) / 2 <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 /* Compute the triangle entry T(r,k). */
 static seq_t compute_T(idx_t r, idx_t k)
 {
     /* binomial(2r+1, r-k) */
-    seq_t bin = binom_n_k(2 * r + 1, r - k);
+    seq_t bin = binomial(2 * r + 1, r - k);
 
     /* Fibonacci(2k+1) */
-    seq_t f    = fib_u64(2 * k + 1);
+    seq_t f    = fibonacci(2 * k + 1);
 
     return bin * f;
 }

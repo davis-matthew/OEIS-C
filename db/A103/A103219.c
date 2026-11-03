@@ -10,18 +10,21 @@
  *            2*c*(r+1-c)^2 (triangle read by rows, offset 0)
  * Range:     u8 n <= 14, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   int_sqrt_idx
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/int_sqrt_idx.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     /* find the row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2 */
     idx_t low = 0;
     /* upper bound: sqrt(2*n)+2  (guaranteed to be ≥ required row) */
-    idx_t high = int_sqrt_idx(2*n) + 2;
+    idx_t high = isqrt(2*n) + 2;
     while (low < high) {
         idx_t mid = (low + high + 1) >> 1;
         idx_t tri = mid * (mid + 1) / 2;

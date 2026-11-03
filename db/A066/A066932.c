@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 8, u64 n <= 10, u128 n <= 11,
  *            big any n
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* a(1)=1, a(2)=1; a(n) is the denominator of b(n) where
    b(1)=1, b(2)=2 and b(n)=1/b(n-1)+1/b(n-2). */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

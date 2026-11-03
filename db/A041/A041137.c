@@ -9,12 +9,14 @@
  *            a(8)=2804, a(9)=6319, a(10)=21761, a(11)=28080
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 41, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence element type */
  /* (seq_t is defined by the build) */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     /* Allocate and initialise the cache if this is the first call. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(12 * sizeof(seq_t));
+        cache = mem_new(seq_t, 12);
         if (cache == NULL) return (seq_t)0; /* out of memory – return zero as a graceful fail */
         for (idx_t i = 0; i < 12; ++i) {
             cache[i] = INIT[i];
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache to accommodate the requested index. */
     size_t newlen = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(cache, newlen * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newlen);
     if (tmp == NULL) return (seq_t)0; /* realloc failure – return zero */
     cache = tmp;
 

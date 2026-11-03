@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   _third_nondivisor
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,21 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/_third_nondivisor.h"
+#include "../utils/mem.h"
+
+/* third smallest positive integer that does NOT divide k. */
+static inline idx_t _third_nondivisor(idx_t k)
+{
+    idx_t cnt = 0;
+    for (idx_t d = 2; ; ++d)
+    {
+        if (k % d != 0)
+        {
+            ++cnt;
+            if (cnt == 3) return d;
+        }
+    }
+}
 
 static idx_t _reach_limit = 0;        /* size of reachable array */
 static bool * _reachable = NULL;       /* array, indices 0.._reach_limit */
@@ -61,7 +76,7 @@ static bool _rebuild(idx_t new_limit)
     for (idx_t i = 1; i <= new_limit; ++i)
         if (!reach[i]) ++new_len;
 
-    seq_t *m = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *m = mem_new(seq_t, new_len);
     if (!m) { free(reach); return false; }
 
     idx_t pos = 0;
@@ -70,7 +85,7 @@ static bool _rebuild(idx_t new_limit)
 
     /* replace old data */
     if (_reachable) free(_reachable);
-    if (_missing)   free(_missing);
+    if (_missing)   mem_free(_missing);
     _reachable   = reach;
     _missing     = m;
     _reach_limit = new_limit;

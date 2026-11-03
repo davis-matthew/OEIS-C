@@ -9,6 +9,7 @@
  *            n*(n+1)*(n^6+75*n^5+1703*n^4+13697*n^3+29472*n^2-30788*n+6000)/40320
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 29, u64 n <= 954, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 980 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

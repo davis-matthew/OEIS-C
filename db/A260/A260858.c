@@ -9,12 +9,20 @@
  *            a decimal integer
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   oct_digits
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/oct_digits.h"
+static inline idx_t oct_digits(idx_t x) {
+    idx_t d = 1;
+    while (x >= 8) {
+        x /= 8;
+        d++;
+    }
+    return d;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;

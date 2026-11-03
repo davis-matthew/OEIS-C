@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum_{d|n} ∏_{d_x|n, d_x≤d} d_x
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 59, u64 n <= 100,
  *            u128 n <= 100, big any n
+ * Validated: standard, pass, 64 terms through n = 97 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
 
 /* comparison function for qsort on uint64_t */

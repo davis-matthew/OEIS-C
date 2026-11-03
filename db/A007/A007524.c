@@ -8,9 +8,10 @@
  *            computed with log(2) = 2*atanh(1/3), log(10) = 3*log(2) +
  *            2*atanh(1/9) (base-1e9 fixed point), then long division
  *            log(2)/log(10) digit by digit
- * Range:     u8 n <= 9514, u16 n <= 9514, u32 n <= 9514, u64 n <= 9514,
- *            u128 n <= 9514, big any n
- * Helpers:   a7524_cmp
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9514 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a7524_cmp.h"
+
+static int a7524_cmp(const uint32_t *x, const uint32_t *y, int len)
+{
+    int i;
+    for (i = 0; i < len; i++) {
+        if (x[i] < y[i]) return -1;
+        if (x[i] > y[i]) return 1;
+    }
+    return 0;
+}
 
 #define A7524_BASE 1000000000ULL
 

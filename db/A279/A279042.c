@@ -11,12 +11,14 @@
  *            recurrence)
  * Range:     u8 none, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 341 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoisation: 1‑based indices, cache[0] unused */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     /* initialise cache on first call */
     if (cache == NULL) {
         cap = 6;  /* indices 0..5 (0 unused) */
-        cache = (seq_t*)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) exit(EXIT_FAILURE);
 
         /* store initial terms */
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
         while (new_cap < desired) {
             new_cap <<= 1;  /* double */
         }
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) exit(EXIT_FAILURE);
         cache = tmp;
         cap = new_cap;

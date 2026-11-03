@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 28, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"   /* seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle the offset directly. */
@@ -37,9 +40,9 @@ seq_t a(idx_t n) {
         idx_t new_n = n;
         size_t sz = (size_t)new_n + 1;   /* indices 0 .. new_n inclusive */
 
-        A     = (seq_t *)realloc(A,     sz * sizeof(seq_t));
-        sigma = (seq_t *)realloc(sigma, sz * sizeof(seq_t));
-        c     = (seq_t *)realloc(c,     sz * sizeof(seq_t));
+        A     = mem_resize(seq_t, A, sz);
+        sigma = mem_resize(seq_t, sigma, sz);
+        c     = mem_resize(seq_t, c, sz);
 
         /* Zero the new arrays (all entries will be recomputed). */
         for (size_t i = 0; i < sz; ++i) {
@@ -62,10 +65,10 @@ seq_t a(idx_t n) {
             for (idx_t d = 1; d <= k / d; ++d) {
                 if (k % d == 0) {
                     idx_t e = k / d;                       /* e = k/d  */
-                    seq_t pow1 = big_pow(sigma[d], (seq_t)e);/* σ(d)^e  */
+                    seq_t pow1 = ipow(sigma[d], (seq_t)e);/* σ(d)^e  */
                     sum += (seq_t)e * pow1;                /* e * σ(d)^e */
                     if (e != d) {                         /* another divisor */
-                        seq_t pow2 = big_pow(sigma[e], (seq_t)d);/* σ(e)^d */
+                        seq_t pow2 = ipow(sigma[e], (seq_t)d);/* σ(e)^d */
                         sum += (seq_t)d * pow2;            /* d * σ(e)^d */
                     }
                 }

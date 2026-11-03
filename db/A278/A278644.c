@@ -11,12 +11,14 @@
  *            iterating over k and maintaining the array Q(n) that co...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 402 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,12 +27,12 @@ seq_t a(idx_t n)
 
     size_t N = (size_t)n;              /* upper bound for loops */
     /* arrays for partitions into at most k parts and Fubini numbers */
-    seq_t *Q = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *f = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *Q = mem_new(seq_t, N + 1);
+    seq_t *f = mem_new(seq_t, N + 1);
     if (!Q || !f) {
         /* memory failure: return 0 as a fallback (main program may handle) */
-        if (Q) free(Q);
-        if (f) free(f);
+        if (Q) mem_free(Q);
+        if (f) mem_free(f);
         return (seq_t)0;
     }
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         ans += diff * f[k];
     }
 
-    free(Q);
-    free(f);
+    mem_free(Q);
+    mem_free(f);
     return ans;
 }

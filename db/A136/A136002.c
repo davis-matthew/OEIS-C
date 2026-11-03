@@ -8,7 +8,8 @@
  *            c – 1 for any Pythagorean triple (a, b, c)
  * Range:     u8 n <= 213, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_uint64
+ * Validated: standard, pass, 88 terms through n = 9649 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* Upper bound for perimeters (n+1) that we pre‑compute. */
 #define MAX_PERI      300000   /* large enough to cover n ≤ 10000   */
@@ -40,7 +41,7 @@ static void compute_peri(void)
         for (uint64_t n = 1; n < m; ++n)
         {
             if (((m - n) & 1) == 0) continue;          /* same parity => not primitive */
-            if (gcd_uint64(m, n) != 1) continue;       /* not coprime => not primitive */
+            if (gcd_u64(m, n) != 1) continue;       /* not coprime => not primitive */
 
             uint64_t p = 2 * m * (m + n);              /* perimeter a + b + c */
             if (p > (uint64_t)MAX_PERI + 1)

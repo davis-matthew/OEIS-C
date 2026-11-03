@@ -8,7 +8,8 @@
  *            twin‑prime pairs. a(1) = 0 (between (3,5) and (5,7)), etc
  * Range:     u8 n <= 7, u16 n <= 130, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq_array
+ * Validated: standard, pass, 68 terms through n = 8378 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,13 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static const idx_t LIMIT = 2000000ULL;          /* sufficient for n <= 10000 */
 
@@ -69,7 +76,7 @@ static void build(void)
     twin_low = (idx_t*)malloc(cap * sizeof(idx_t));
     if (!twin_low) {
         free(is_prime);
-        free(prime_prefix);
+        mem_free(prime_prefix);
         return;
     }
 
@@ -80,7 +87,7 @@ static void build(void)
             if (twin_cnt == cap) {
                 cap *= 2;
                 idx_t *tmp = (idx_t*)realloc(twin_low, cap * sizeof(idx_t));
-                if (!tmp) { free(is_prime); free(prime_prefix); free(twin_low); return; }
+                if (!tmp) { free(is_prime); mem_free(prime_prefix); free(twin_low); return; }
                 twin_low = tmp;
             }
             twin_low[twin_cnt++] = i;

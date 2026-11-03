@@ -9,6 +9,7 @@
  *            12, 1 → 13, 2 → 20, 3 → 21, starting from the initial symbol 1
  * Range:     u8 n <= 114, u16 n <= 114, u32 n <= 114, u64 n <= 114,
  *            u128 n <= 114, big any n
+ * Validated: partial, pass, 115 terms through n = 114 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

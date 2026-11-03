@@ -9,7 +9,8 @@
  *            not divide a(n-1)
  * Range:     u8 n <= 15, u16 n <= 118, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 66 terms through n = 995 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* a_cache[0] = a(1) */
 static size_t a_size = 0;       /* number of elements currently stored */
@@ -49,7 +51,7 @@ static void ensure_a_cache_size(size_t needed)
     if (a_alloc >= needed)
         return;
     size_t new_alloc = needed * 2 > 1 ? needed * 2 : 2;
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_alloc * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_alloc);
     a_cache = new_cache;
     a_alloc = new_alloc;
 }

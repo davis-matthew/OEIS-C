@@ -8,7 +8,8 @@
  * Formula:   a(n) = stirling2( floor((n+1)/2) , 4 )
  * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    in O(1) amortised time per call. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (S_len == 0) {
         /* S(0,4) = 0, we store index 0 as dummy to keep indices simple */
-        S4 = (seq_t*)malloc(sizeof(seq_t));
+        S4 = mem_new(seq_t, 1);
         if (!S4) return 0;           /* out of memory – unlikely in tests */
         S4[0] = (seq_t)0;
         S_len = 1;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
             idx_t new_cap = S_cap ? S_cap * 2 : S_len;
             if (new_cap < m + 1)
                 new_cap = m + 1;
-            seq_t *tmp = (seq_t*)realloc(S4, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, S4, new_cap);
             if (!tmp) return 0;       /* allocation failure */
             S4 = tmp;
             S_cap = new_cap;

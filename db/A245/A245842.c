@@ -10,14 +10,16 @@
  *            rows is flattened. * For a given index n, let r be the smallest
  *            integer with r*(r+1)/2 >= n, * and let k = n - (r-1)*r/2. Then
  *            a(n) = T(r, k), where * T(r,k) is the total nu...
- * Range:     u8 n <= 215, u16 n <= 1186, u32 n <= 9067, u64 n <= 7831,
- *            u128 n <= 7831, big any n
- * Helpers:   none
+ * Range:     u8 n <= 215, u16 n <= 1186, u32 n <= 9067, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 7831 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t       cap   = 0;          /* maximum n for which tables are built */
 static seq_t *     p_tbl = NULL;       /* partition counts */
@@ -28,10 +30,10 @@ static void recompute_tables(idx_t max_n)
 {
     size_t total = (size_t)(max_n + 1) * (max_n + 1);
     /* ensure storage */
-    free(p_tbl);
-    free(e_tbl);
-    p_tbl = (seq_t *)calloc(total, sizeof(seq_t));
-    e_tbl = (seq_t *)calloc(total, sizeof(seq_t));
+    mem_free(p_tbl);
+    mem_free(e_tbl);
+    p_tbl = mem_new(seq_t, total);
+    e_tbl = mem_new(seq_t, total);
     if (!p_tbl || !e_tbl) return;           /* allocation failed – caller will crash */
 
     cap = max_n;

@@ -9,14 +9,18 @@
  *            modulo d
  * Range:     u8 n <= 996, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 112 terms through n = 9959 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 #define MAX_N      10000      /* largest n that may be requested */
 #define MAX_PRIMES 1229       /* number of primes <= 10000 */
@@ -125,7 +129,7 @@ static seq_t order5(idx_t d)
         idx_t p = primes_phi[i];
         while (ord % p == 0) {
             seq_t cand = ord / (seq_t)p;
-            seq_t r = mod_pow((seq_t)5, (idx_t)cand, (seq_t)d);
+            seq_t r = powmod((seq_t)5, (idx_t)cand, (seq_t)d);
             if (r == 1)
                 ord = cand;
             else

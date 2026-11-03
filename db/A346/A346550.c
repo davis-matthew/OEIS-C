@@ -8,12 +8,14 @@
  *            values: a(0)=1, a(1)=2, a(2)=4
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 446 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached values */
 static size_t cache_len = 0;  /* number of valid entries */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
         size_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;    /* double until big enough */
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         /* In the unlikely event realloc fails we just abort here */
         if (!tmp) abort();
         cache = tmp;

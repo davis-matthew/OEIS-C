@@ -12,7 +12,8 @@
  *            that the pair defines is equal to s. * The co...
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 9, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define ROWS 4096            /* 4^6 possible rows */
 
@@ -134,8 +136,8 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;     /* a(0) is undefined for offset 1 */
 
     /* Allocate DP arrays */
-    seq_t *dp = (seq_t *)calloc(ROWS, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(ROWS, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, ROWS);
+    seq_t *dp_next = mem_new(seq_t, ROWS);
     if (!dp || !dp_next) exit(1);
 
     seq_t total = (seq_t)0;
@@ -169,7 +171,7 @@ seq_t a(idx_t n)
             total += dp[i];
     }
 
-    free(dp);
-    free(dp_next);
+    mem_free(dp);
+    mem_free(dp_next);
     return total;
 }

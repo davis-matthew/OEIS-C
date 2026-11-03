@@ -11,7 +11,8 @@
  *            prime by prime from p-adic valuations
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   a002702_mm, a002702_vfact
+ * Validated: partial, pass, 17 terms through n = 18 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a002702_mm.h"
-#include "../utils/a002702_vfact.h"
+#include "../utils/mulmod.h"
+
+static long long a002702_vfact(uint64_t N, uint64_t p) {
+    long long s = 0;
+    while (N) { N /= p; s += (long long)N; }
+    return s;
+}
 
 seq_t a(idx_t n) {
     if (n < 2) return 0;
@@ -59,9 +65,9 @@ seq_t a(idx_t n) {
             long long v = 0;
             if (kk % p == 0) { while (kk % p == 0) { kk /= p; v++; } }
             uint64_t s = kk % P;
-            s = a002702_mm(s, s, P);
-            A = (a002702_mm(A, s, P) + a002702_mm(pp[2 * (m - v)], B, P)) % P;
-            B = a002702_mm(B, s, P);
+            s = mulmod(s, s, P);
+            A = (mulmod(A, s, P) + mulmod(pp[2 * (m - v)], B, P)) % P;
+            B = mulmod(B, s, P);
         }
 
         long long vT;

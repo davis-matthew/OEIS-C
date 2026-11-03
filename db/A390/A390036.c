@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=0..⌊3n/8⌋} binomial(k+2,3n-8k)
  * Range:     u8 n <= 25, u16 n <= 47, u32 n <= 93, u64 n <= 184,
  *            u128 n <= 365, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* static cache */
 static seq_t *cache = NULL;          /* array of computed a(n) values */
@@ -33,7 +35,7 @@ static void ensure_cache(size_t n)
     if (cache == NULL) {
         /* Allocate space for at least the first 9 values. */
         size_t init_len = 9;
-        seq_t *tmp = (seq_t *)malloc(init_len * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, init_len);
         if (!tmp) abort();
 
         tmp[0] = (seq_t)1;
@@ -53,13 +55,13 @@ static void ensure_cache(size_t n)
 
     if (n >= cache_size) {
         size_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
 
         #ifdef __cplusplus
         /* Construct the newly allocated objects for C++ builds. */
         for (size_t i = cache_size; i < new_len; ++i) {
-            new (tmp + i) seq_t();
+            *(tmp + i) = (seq_t)0;
         }
         #endif
 

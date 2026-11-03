@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 92, u64 n <= 6140,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 9888 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* BFS search for the least positive multiple of n with only 0, 1 digits in base 4,
    then return its base-4 representation as a decimal number. */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     
     size_t n_size = (size_t)n;
     
-    seq_t *queue = (seq_t *)malloc((n_size + 1) * sizeof(seq_t));
+    seq_t *queue = mem_new(seq_t, (n_size + 1));
     bool *visited = (bool *)malloc(n_size * sizeof(bool));
     
     for (size_t i = 0; i < n_size; i++) visited[i] = false;
@@ -50,7 +52,7 @@ seq_t a(idx_t n) {
                 power *= 10;
                 temp /= 4;
             }
-            free(queue);
+            mem_free(queue);
             free(visited);
             return result;
         }
@@ -72,7 +74,7 @@ seq_t a(idx_t n) {
                 power *= 10;
                 temp /= 4;
             }
-            free(queue);
+            mem_free(queue);
             free(visited);
             return result;
         }
@@ -83,7 +85,7 @@ seq_t a(idx_t n) {
         }
     }
     
-    free(queue);
+    mem_free(queue);
     free(visited);
     return 0;
 }

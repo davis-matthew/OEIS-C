@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 #define MAX_TERMS 20000  /* sufficiently large for n ≈ 10000 */
 
@@ -39,10 +40,10 @@ seq_t a(idx_t n)
         uint64_t p = next_prime;
 
         /* check if candidate is prime */
-        if (is_prime(p)) {
+        if (is_prime_u64(p)) {
             uint64_t ap = 5ULL * p + 14ULL;
             uint64_t bp = 14ULL * p + 5ULL;
-            if (is_prime(ap) && is_prime(bp)) {
+            if (is_prime_u64(ap) && is_prime_u64(bp)) {
                 if (terms_cnt < MAX_TERMS) {
                     terms[terms_cnt++] = (seq_t)p;
                 } else {

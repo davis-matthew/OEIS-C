@@ -11,7 +11,8 @@
  *            rational generating function of A116788
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -29,7 +31,7 @@ static void init_cache(void)
 {
     if (cache_inited) return;
     cache_cap = 16;
-    cache = (seq_t *)malloc((cache_cap + 1) * sizeof(seq_t));   /* 1‑based indexing */
+    cache = mem_new(seq_t, (cache_cap + 1));   /* 1‑based indexing */
     if (!cache) abort();
     /* initial values (indices 1..6) */
     cache[1] = (seq_t)1;
@@ -47,7 +49,7 @@ static void ensure_capacity(idx_t needed)
     if (needed <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
     if (!new_cache) abort();
     cache = new_cache;
     cache_cap = new_cap;

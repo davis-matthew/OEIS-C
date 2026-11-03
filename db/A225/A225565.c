@@ -11,15 +11,42 @@
  *            search; no pre‑computed table is used
  * Range:     u8 n <= 20, u16 n <= 243, u32 n <= 274, u64 n <= 274,
  *            u128 n <= 274, big any n
- * Helpers:   has_no_repeated_digits_uint64, has_repeated_digits_uint64
+ * Validated: full, pass, 274 terms through n = 274 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_no_repeated_digits_uint64.h"
-#include "../utils/has_repeated_digits_uint64.h"
+
+/* Return true if the unsigned 64‑bit integer n contains no repeated digit. */
+static bool has_no_repeated_digits_uint64(uint64_t n)
+{
+    bool seen[10] = {0};
+    while (n != 0) {
+        int d = n % 10;
+        if (seen[d])
+            return false;
+        seen[d] = true;
+        n /= 10;
+    }
+    return true;
+}
+
+/* Return true if the unsigned 64‑bit integer n contains a repeated digit. */
+static bool has_repeated_digits_uint64(uint64_t n)
+{
+    bool seen[10] = {0};
+    while (n != 0) {
+        int d = n % 10;
+        if (seen[d])
+            return true;
+        seen[d] = true;
+        n /= 10;
+    }
+    return false;
+}
 
 /* ----------  OEIS sequence A225565  ---------- */
 seq_t a(idx_t n)

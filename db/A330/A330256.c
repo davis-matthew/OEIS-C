@@ -7,12 +7,14 @@
  * Formula:   a(0) = 0; for n > 0, a(n) = n - a((Σ_{k=0}^{n-1} a(k)) mod n)
  * Range:     u8 n <= 28, u16 n <= 969, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9375 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of previously computed terms */
 static seq_t *cache = NULL;      /* array holding a(0) .. a(max_computed) */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Handle the first term */
     if (n == 0) {
         if (cache_cap == 0) {
-            cache = (seq_t*)malloc(sizeof(seq_t));
+            cache = mem_new(seq_t, 1);
             if (!cache) abort();
             cache_cap = 1;
             cache[0] = 0;
@@ -39,14 +41,14 @@ seq_t a(idx_t n)
     /* Initialise or extend the cache if necessary */
     if (cache_cap == 0) {                 /* first call with n > 0          */
         cache_cap = n + 1;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[0] = 0;
         cum_sum = 0;
         cache_max = 0;
     } else if (cache_cap <= n) {          /* grow cache to accommodate 'n' */
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

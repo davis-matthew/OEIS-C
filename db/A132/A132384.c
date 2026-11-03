@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of prefix sums */
 static seq_t *prefix = NULL;        /* prefix[0] = 0, prefix[i] = Σ_{k=1..i} k′ */
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     /* Grow the prefix array if needed */
     if (n > max_seen) {
         idx_t new_size = n + 1;          /* indices 0 .. n */
-        seq_t *new_pref = (seq_t *)realloc(prefix, new_size * sizeof(seq_t));
+        seq_t *new_pref = mem_resize(seq_t, prefix, new_size);
         if (!new_pref)
             return (seq_t)0;             /* allocation failed – unlikely in tests */
         prefix = new_pref;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   cover_factorization, factor_u64, rec_cover
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,26 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/cover_factorization.h"
-#include "../utils/rec_cover.h"
+
+static seq_t rec_cover(idx_t rem, idx_t sum, idx_t prev) {
+    if (rem == 0) return 1;
+    seq_t total = 0;
+    idx_t max_a = sum + 1;
+    if (max_a > rem) max_a = rem;
+    for (idx_t a = prev; a <= max_a; ++a) {
+        total += rec_cover(rem - a, sum + a, a);
+    }
+    return total;
+}
+
+static seq_t cover_factorization(idx_t m) {
+    if (m == 0) return 1;          /* not used but safe */
+    if (m == 1) return 1;
+    /* first part must be 1 */
+    return rec_cover(m - 1, 1, 1);
+}
 
 /* precompute f(e) for e up to 63 (exponents for n <= 10000 are < 14) */
 static seq_t f_cache[64];

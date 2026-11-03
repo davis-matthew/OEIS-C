@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in 1/∏_{i≥4} (1−x^{F(i)})
  * Range:     u8 n <= 86, u16 n <= 297, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Here F(i) is the i‑th Fibonacci number; we use only the ones > 2. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,11 +27,11 @@ seq_t a(idx_t n)
     if (n >= dp_cap) {
         /* free the old table if it exists */
         if (dp)
-            free(dp);
+            mem_free(dp);
 
         /* allocate a fresh array of size n+1, zero‑initialized. */
         size_t size = (size_t)n + 1;
-        dp = (seq_t *)calloc(size, sizeof(seq_t));
+        dp = mem_new(seq_t, size);
         if (!dp)          /* allocation failure: return 0 as a safe fallback */
             return 0;
 

@@ -11,13 +11,14 @@
  *            2s} (1 - chi(p)/p^3), and L(3,chi) = 2 Pi^3 sqrt(f) B_...
  * Range:     u8 n <= 11, u16 n <= 109, u32 n <= 9118, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a233_jacobi
+ * Validated: standard, pass, 64 terms through n = 9253 (2026-11-01)
+ * Helpers:   jacobi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a233_jacobi.h"
+#include "../utils/jacobi.h"
 
 static int a233_case1;
 static unsigned long long a233_ap;
@@ -25,9 +26,9 @@ static unsigned long long a233_ap;
 static int a233_chi(unsigned long long r)
 {
     if (a233_case1)
-        return a233_jacobi(r % a233_ap, a233_ap);
+        return jacobi(r % a233_ap, a233_ap);
     if ((r & 1) == 0) return 0;
-    return a233_jacobi((r - a233_ap % r) % r, r);
+    return jacobi((r - a233_ap % r) % r, r);
 }
 
 seq_t a(idx_t n)

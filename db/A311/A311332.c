@@ -12,13 +12,15 @@
  *            a(6)=27, a(7)=33, a(8)=38, a(9)=42, a(10)=46
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     size_t needed = (size_t)n + 1;
     if (cap < needed) {
         size_t newcap = needed > 11 ? needed : 11;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         assert(tmp != NULL);
         cache = tmp;
         /* initialize the first 11 entries */

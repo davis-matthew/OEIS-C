@@ -7,7 +7,8 @@
  * Formula:   a(n) = 8*5^n-1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 26, u128 n <= 53,
  *            big any n
- * Helpers:   power5
+ * Validated: standard, pass, 37 terms through n = 970 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,21 @@
 /* Recurrence: a(n) = 5*a(n-1)+4, a(0) = 7 */
 
 #include <stdbool.h>
-#include "../utils/power5.h"
+#include <stdint.h>
+
+static inline seq_t power5(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

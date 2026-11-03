@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binomial_ull
+ * Validated: standard, pass, 121 terms through n = 9018 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/binomial_ull.h"
+
+/* Small binomial coefficient – works for the tiny values (n ≤ 30). */
+static uint64_t binomial_ull(int n, int k)
+{
+    if (k < 0 || k > n) return 0;
+    if (k > n - k) k = n - k;
+    uint64_t result = 1;
+    for (int i = 1; i <= k; ++i)
+        result = result * (uint64_t)(n - k + i) / (uint64_t)i;
+    return result;
+}
 
 /* Word container – maximum length 20 is more than enough for n up to 10 000. */
 typedef struct {

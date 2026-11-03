@@ -10,15 +10,16 @@
  *            4 hits)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   a181_binom, a181_g
+ * Validated: standard, pass, 36 terms through n = 239 (2026-11-01)
+ * Helpers:   binomial, gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a181_binom.h"
-#include "../utils/a181_g.h"
+#include "../utils/binomial.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
     if (n <= 64) {
         for (j = n; ; j--) {
             unsigned long long c4 = (unsigned long long)j * (j - 1) * (j - 2) * (j - 3) / 24;
-            seq_t r = a181_binom(2 * n - j, j) + a181_binom(2 * n - j - 1, j - 1);
+            seq_t r = binomial(2 * n - j, j) + binomial(2 * n - j - 1, j - 1);
             seq_t t = (seq_t)c4 * r * f;
             if ((j - 4) % 2 == 0) pos += t; else neg += t;
             if (j == 4) break;

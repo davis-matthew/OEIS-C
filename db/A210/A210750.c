@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Compute the row (r) and position (k, 0‑based) corresponding to the
  * overall index n.  Row 1 has 1 element, row 2 has 2, etc. */
@@ -61,8 +63,8 @@ seq_t a(idx_t n)
 
     /* Allocate coefficient arrays for the current row.
      * We keep two sets of arrays: previous (u_prev, v_prev) and current. */
-    seq_t *u_prev = (seq_t *)malloc(sizeof(seq_t));
-    seq_t *v_prev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *u_prev = mem_new(seq_t, 1);
+    seq_t *v_prev = mem_new(seq_t, 1);
     if (!u_prev || !v_prev) return (seq_t)0; /* allocation failed */
 
     u_prev[0] = (seq_t)1;
@@ -70,10 +72,10 @@ seq_t a(idx_t n)
 
     for (idx_t cur = 2; cur <= r; ++cur) {
         idx_t sz_cur = cur;          /* new arrays have size cur  */
-        seq_t *u_cur = (seq_t *)malloc(sz_cur * sizeof(seq_t));
-        seq_t *v_cur = (seq_t *)malloc(sz_cur * sizeof(seq_t));
+        seq_t *u_cur = mem_new(seq_t, sz_cur);
+        seq_t *v_cur = mem_new(seq_t, sz_cur);
         if (!u_cur || !v_cur) {
-            free(u_prev); free(v_prev);
+            mem_free(u_prev); mem_free(v_prev);
             return (seq_t)0;
         }
 
@@ -96,14 +98,14 @@ seq_t a(idx_t n)
         seq_t two_v_last  = v_prev[sz_cur - 2] + v_prev[sz_cur - 2];
         v_cur[sz_cur - 1] = u_prev[sz_cur - 2] + two_v_last;
 
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = u_cur;
         v_prev = v_cur;
     }
 
     seq_t result = v_prev[k];
-    free(u_prev);
-    free(v_prev);
+    mem_free(u_prev);
+    mem_free(v_prev);
     return result;
 }

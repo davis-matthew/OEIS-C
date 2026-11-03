@@ -9,13 +9,16 @@
  *            provided is_prime helper
  * Range:     u8 n <= 116, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 83 terms through n = 993 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
     while (true) {
         k++;
         uint64_t p = 30ULL * (uint64_t)k + 1ULL;
-        if (is_prime(p)) {
+        if (is_prime_u64(p)) {
             count++;
             if (count == n) {
                 return (seq_t)k;

@@ -10,13 +10,15 @@
  *            obtained by removing partitions with 1, 2 or 3 parts
  * Range:     u8 n <= 28, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>   /* for memset */
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *part_distinct = NULL;   /* dp array holding p(k) for k <= max_n_cached */
@@ -26,11 +28,11 @@ static idx_t  max_n_cached   = 0;
 static void recompute_dp(idx_t limit)
 {
     /* allocate array of seq_t of length limit+1 */
-    seq_t *newP = (seq_t *)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    seq_t *newP = mem_new(seq_t, (size_t)(limit + 1));
     if (!newP) exit(1);   /* out of memory */
 
     /* initialise to zero */
-    memset(newP, 0, (size_t)(limit + 1) * sizeof(seq_t));
+    mem_set(newP, 0, (size_t)(limit + 1) * sizeof(seq_t));
 
     newP[0] = 1;   /* one way to partition 0 */
 
@@ -41,7 +43,7 @@ static void recompute_dp(idx_t limit)
     }
 
     /* free previous cache if any */
-    if (part_distinct) free(part_distinct);
+    if (part_distinct) mem_free(part_distinct);
 
     part_distinct = newP;
     max_n_cached = limit;

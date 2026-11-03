@@ -11,7 +11,8 @@
  *            terms on demand and memoizes them
  * Range:     u8 n <= 27, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #ifndef MAX_M
 # define MAX_M 500000        /* enough for the first 10000 terms */
 #endif
+#include "../utils/mem.h"
 
 /* Utility to compute a simple sieve of primes up to MAX_M.  */
 static void build_primes(int **primes_out, size_t *prime_count_out)
@@ -76,12 +78,12 @@ seq_t a(idx_t n)
         build_primes(&primes, &prime_count);
 
         /* allocate residues and initialize to 1 (M_0 ≡ 1 mod p) */
-        residues = (seq_t*)malloc(prime_count * sizeof(seq_t));
+        residues = mem_new(seq_t, prime_count);
         for (size_t i = 0; i < prime_count; ++i) residues[i] = 1;
 
         /* allocate sequence array (growable) */
         seq_capacity = 16;
-        seq = (seq_t*)malloc(seq_capacity * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_capacity);
 
         initialized = true;
     }
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
                 /* append the corresponding term (n = (m-1)/4) to seq */
                 if (seq_count == seq_capacity) {
                     seq_capacity <<= 1;
-                    seq = (seq_t*)realloc(seq, seq_capacity * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_capacity);
                 }
                 seq[seq_count++] = (seq_t)((processed_m - 1) / 4);
             }

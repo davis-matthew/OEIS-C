@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 57, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   idx_to_seq
+ * Validated: standard, pass, 61 terms through n = 982 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,10 @@
 */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/idx_to_seq.h"
+#include <stddef.h>
+
+/* Convert an index to seq_t for use in arithmetic */
+static inline seq_t idx_to_seq(idx_t x) { return (seq_t)x; }
 
 /* Declare function prototype (required by external build ) */
 seq_t a(idx_t n);

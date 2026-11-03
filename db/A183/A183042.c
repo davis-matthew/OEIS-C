@@ -10,7 +10,8 @@
  *            chessboard
  * Range:     u8 n <= 24, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* --------------------------------------------------------------------- */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ----- helper: minimal knight distance on the infinite board ----- */
 static seq_t knight_dist(idx_t x, idx_t y)
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         idx_t new_len = n + 1;
 
         /* Allocate or reallocate memory */
-        seq_t *new_cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) abort();  /* allocation failure */
         cache = new_cache;
 

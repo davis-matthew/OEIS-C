@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   sum_of_cubes
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/sum_of_cubes.h"
+
+/* Compute sum of cubes of decimal digits of m. */
+static seq_t sum_of_cubes(uint64_t m)
+{
+    seq_t sum = 0;
+    while (m > 0) {
+        uint64_t d = m % 10;
+        seq_t cube = (seq_t)d * d * d;  /* d^3 fits in seq_t */
+        sum += cube;
+        m /= 10;
+    }
+    return sum;
+}
 
 /* All solutions lie in the range 1 … 2916, so we can pre‑compute them
    once and answer any query from the table. */

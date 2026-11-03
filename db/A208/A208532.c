@@ -11,12 +11,14 @@
  *            can be used as a test
  * Range:     u8 n <= 30, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of the flattened triangle */
 static seq_t  *flat = NULL;          /* contiguous storage of all rows */
@@ -31,7 +33,7 @@ static void grow_flat(size_t needed)
     size_t new_cap = flat_capacity ? flat_capacity * 2 : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(flat, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, flat, new_cap);
     if (!tmp) /* allocation failure: terminate */
         abort();
     flat = tmp;
